@@ -149,9 +149,10 @@ body {
 .field-input.error { border-color: var(--red); box-shadow: 0 0 0 3px rgba(220,38,38,0.08); }
 .field-input.has-toggle { padding-right: 52px; }
 .pw-toggle {
-  position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
-  background: none; border: none; cursor: pointer; font-size: 18px;
-  color: var(--gray-400); padding: 4px; transition: var(--transition); user-select: none;
+  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+  background: none; border: 1px solid var(--gray-300); cursor: pointer; font-size: 11px;
+  color: var(--gray-500); padding: 4px 10px; transition: var(--transition); user-select: none;
+  border-radius: 4px; font-family: 'DM Sans', sans-serif; font-weight: 600; letter-spacing: 0.5px;
 }
 .pw-toggle:hover { color: var(--gray-600); }
 .field-error { font-size: 12px; color: var(--red); margin-top: 6px; display: none; }
@@ -395,7 +396,7 @@ body {
           <label class="field-label" data-en="Password" data-ko="비밀번호">Password</label>
           <div class="input-wrap">
             <input type="password" class="field-input has-toggle" id="login-pw" placeholder="Enter your password">
-            <button class="pw-toggle" onclick="togglePw('login-pw',this)" type="button">👁</button>
+            <button class="pw-toggle" onclick="togglePw('login-pw',this)" type="button">SHOW</button>
           </div>
         </div>
         <button class="btn-primary" onclick="doLogin()" id="btn-login" data-en="Sign In" data-ko="로그인">Sign In</button>
@@ -416,7 +417,7 @@ body {
           <label class="field-label" data-en="Password" data-ko="비밀번호">Password</label>
           <div class="input-wrap">
             <input type="password" class="field-input has-toggle" id="reg-pw" placeholder="Create a password">
-            <button class="pw-toggle" onclick="togglePw('reg-pw',this)" type="button">👁</button>
+            <button class="pw-toggle" onclick="togglePw('reg-pw',this)" type="button">SHOW</button>
           </div>
           <div class="pw-requirements">
             <div class="pw-req-title" data-en="Password Requirements" data-ko="비밀번호 조건">Password Requirements</div>
@@ -434,14 +435,14 @@ body {
           <label class="field-label" data-en="Confirm Password" data-ko="비밀번호 확인">Confirm Password</label>
           <div class="input-wrap">
             <input type="password" class="field-input has-toggle" id="reg-confirm" placeholder="Re-enter password">
-            <button class="pw-toggle" onclick="togglePw('reg-confirm',this)" type="button">👁</button>
+            <button class="pw-toggle" onclick="togglePw('reg-confirm',this)" type="button">SHOW</button>
           </div>
           <div class="field-error" id="err-confirm">Passwords do not match</div>
         </div>
         <div style="margin:28px 0 8px;">
-          <div class="check-row" onclick="toggleCheck('chk-terms')">
+          <div class="check-row" onclick="toggleCheck(event,'chk-terms')">
             <div class="check-box" id="chk-terms"></div>
-            <div class="check-text" data-en='I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>' data-ko='<a href="#">이용약관</a> 및 <a href="#">개인정보처리방침</a>에 동의합니다'>I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></div>
+            <div class="check-text">I agree to the <a href="#" onclick="event.stopPropagation()">Terms of Service</a> and <a href="#" onclick="event.stopPropagation()">Privacy Policy</a></div>
           </div>
         </div>
         <button class="btn-primary" onclick="doSignup()" id="btn-signup" data-en="Create Account" data-ko="계정 만들기">Create Account</button>
@@ -619,8 +620,13 @@ function showDashboard(email) {
 // ═══ PW TOGGLE ═══
 function togglePw(id, btn) {
   const inp = document.getElementById(id);
-  inp.type = inp.type === 'password' ? 'text' : 'password';
-  btn.textContent = inp.type === 'password' ? '👁' : '🔒';
+  if (inp.type === 'password') {
+    inp.type = 'text';
+    btn.textContent = 'HIDE';
+  } else {
+    inp.type = 'password';
+    btn.textContent = 'SHOW';
+  }
 }
 
 // ═══ PW CHECK ═══
@@ -647,7 +653,7 @@ function updatePwCheck() {
 document.getElementById('reg-pw').addEventListener('input', updatePwCheck);
 
 // ═══ CHECKBOX ═══
-function toggleCheck(id) { document.getElementById(id).classList.toggle('checked'); }
+function toggleCheck(e, id) { e.preventDefault(); document.getElementById(id).classList.toggle('checked'); }
 
 // ═══ VALIDATE ═══
 function validateSignup() {

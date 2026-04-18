@@ -8,23 +8,87 @@
 <link rel="stylesheet" href="shared.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="shared.js"></script>
+<style>
+/* Dashboard-specific styles */
+.dash-section{margin-bottom:28px}
+.dash-section-title{font-family:'Fraunces',serif;font-size:20px;font-weight:700;color:var(--gray-900);margin-bottom:16px;display:flex;align-items:center;gap:10px}
+.dash-section-title .icon{font-size:22px}
+
+/* Process Steps */
+.process-steps{display:flex;flex-direction:column;gap:0}
+.process-step{display:flex;gap:16px;position:relative;padding:20px 0}
+.process-step:not(:last-child)::after{content:'';position:absolute;left:19px;top:56px;bottom:0;width:2px;background:var(--gray-200)}
+.process-num{width:40px;height:40px;background:var(--forest);color:var(--white);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-size:16px;font-weight:700;flex-shrink:0;z-index:1}
+.process-content h4{font-size:15px;font-weight:700;color:var(--gray-800);margin-bottom:4px}
+.process-content p{font-size:14px;color:var(--gray-500);line-height:1.6}
+
+/* Surprise Box */
+.surprise-box{background:linear-gradient(135deg,var(--forest-deep),var(--forest));border-radius:var(--radius);padding:28px;color:var(--white);position:relative;overflow:hidden}
+.surprise-box::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;background:radial-gradient(circle,rgba(200,169,81,.15) 0%,transparent 70%);pointer-events:none}
+.surprise-badge{display:inline-flex;align-items:center;gap:6px;background:var(--gold);color:var(--forest-deep);padding:5px 14px;border-radius:16px;font-size:12px;font-weight:700;margin-bottom:16px;letter-spacing:.3px}
+.surprise-title{font-family:'Fraunces',serif;font-size:22px;font-weight:700;margin-bottom:10px}
+.surprise-desc{font-size:14px;opacity:.8;line-height:1.6;margin-bottom:20px}
+.surprise-channels{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.surprise-channel{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:var(--radius-sm);padding:12px;display:flex;align-items:center;gap:10px;font-size:13px;font-weight:500}
+.surprise-channel .flag{font-size:18px}
+
+/* Post-payment */
+.status-tracker{display:flex;gap:0;margin-bottom:24px;overflow-x:auto}
+.tracker-step{flex:1;text-align:center;position:relative;padding:16px 8px}
+.tracker-step:not(:last-child)::after{content:'';position:absolute;top:28px;right:0;width:50%;height:2px;background:var(--gray-200);z-index:0}
+.tracker-step:not(:first-child)::before{content:'';position:absolute;top:28px;left:0;width:50%;height:2px;background:var(--gray-200);z-index:0}
+.tracker-step.done::after,.tracker-step.done::before{background:var(--forest)}
+.tracker-step.active::before{background:var(--forest)}
+.tracker-dot{width:28px;height:28px;border-radius:50%;border:2px solid var(--gray-300);background:var(--white);display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-size:11px;position:relative;z-index:1}
+.tracker-step.done .tracker-dot{background:var(--forest);border-color:var(--forest);color:var(--white)}
+.tracker-step.active .tracker-dot{border-color:var(--gold);background:var(--gold);color:var(--forest-deep)}
+.tracker-label{font-size:11px;color:var(--gray-500);font-weight:500}
+.tracker-step.done .tracker-label{color:var(--forest)}
+.tracker-step.active .tracker-label{color:var(--gray-900);font-weight:700}
+
+.video-card{background:var(--white);border:1.5px solid var(--gray-200);border-radius:var(--radius);overflow:hidden}
+.video-thumb{width:100%;height:180px;background:linear-gradient(135deg,var(--gray-100),var(--gray-200));display:flex;align-items:center;justify-content:center;font-size:48px;color:var(--gray-400)}
+.video-body{padding:20px}
+.video-body h4{font-size:16px;font-weight:700;color:var(--gray-900);margin-bottom:6px}
+.video-body p{font-size:13px;color:var(--gray-500);line-height:1.5}
+.video-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px;padding-top:16px;border-top:1px solid var(--gray-200)}
+.video-stat{text-align:center}
+.video-stat-num{font-family:'Fraunces',serif;font-size:20px;font-weight:700;color:var(--forest)}
+.video-stat-label{font-size:11px;color:var(--gray-500);margin-top:2px}
+
+.report-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.report-card{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-sm);padding:20px}
+.report-card-title{font-size:12px;font-weight:600;color:var(--gray-500);text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px}
+.report-card-value{font-family:'Fraunces',serif;font-size:28px;font-weight:700;color:var(--gray-900)}
+.report-card-sub{font-size:12px;color:var(--forest);font-weight:600;margin-top:4px}
+
+/* Toggle button */
+.preview-toggle{display:flex;gap:8px;margin-bottom:24px;padding:4px;background:var(--gray-100);border-radius:var(--radius-sm)}
+.preview-btn{flex:1;padding:10px 16px;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;background:transparent;color:var(--gray-500);font-family:'DM Sans',sans-serif;transition:var(--transition)}
+.preview-btn.active{background:var(--white);color:var(--gray-900);box-shadow:0 1px 4px rgba(0,0,0,.1)}
+
+.screen-view{display:none;animation:fadeUp .4s ease}
+.screen-view.active{display:block}
+
+@media(max-width:600px){
+  .surprise-channels{grid-template-columns:1fr}
+  .report-grid{grid-template-columns:1fr}
+  .status-tracker{flex-wrap:nowrap;overflow-x:auto}
+}
+</style>
 </head>
 <body>
 <div class="shell">
   <div class="brand-panel">
     <a href="index.html" class="brand-logo-link" style="text-decoration:none"><div class="brand-logo"><div class="brand-logo-icon">TW</div><div class="brand-logo-text">TravelWinners</div></div></a>
-    <div class="brand-headline" data-en="Dashboard" data-ko="대시보드">Dashboard</div>
-    <div class="brand-sub" data-en="Manage your hotel marketing subscription and track progress." data-ko="호텔 마케팅 구독을 관리하고 진행 상황을 확인하세요.">Manage your hotel marketing subscription and track progress.</div>
-    <div class="steps-nav">
-      <div class="step-item active">
-        <div class="step-circle" style="border-color:var(--gold);background:var(--gold);color:var(--forest-deep)">✓</div>
-        <div><div class="step-label" style="color:var(--white)" data-en="Dashboard" data-ko="대시보드">Dashboard</div><div class="step-label-sub" style="color:rgba(255,255,255,.55)" data-en="Manage your subscription" data-ko="구독 관리">Manage your subscription</div></div>
-      </div>
-    </div>
+    <div class="brand-headline" data-en="Welcome to<br>TravelWinners" data-ko="TravelWinners에<br>오신 것을 환영합니다">Welcome to<br>TravelWinners</div>
+    <div class="brand-sub" data-en="Your hotel marketing journey starts here. Review the process, explore benefits, and activate your subscription." data-ko="호텔 마케팅 여정이 시작됩니다. 프로세스를 확인하고, 혜택을 살펴보고, 구독을 활성화하세요.">Your hotel marketing journey starts here. Review the process, explore benefits, and activate your subscription.</div>
     <div style="flex:1"></div>
     <div class="brand-footer">© 2026 TravelWinners. All rights reserved.<br>Secure payments powered by Stripe.</div>
   </div>
-  <div class="form-panel"><div class="form-container">
+  <div class="form-panel"><div class="form-container" style="max-width:600px">
+
+    <!-- Header -->
     <div class="dash-header">
       <div>
         <div class="dash-welcome" data-en="Dashboard" data-ko="대시보드">Dashboard</div>
@@ -35,29 +99,197 @@
         <button class="dash-logout" id="btn-logout" data-en="Sign Out" data-ko="로그아웃">Sign Out</button>
       </div>
     </div>
-    <div class="order-card">
-      <div class="order-card-top">
-        <div class="order-product-name" data-en="TOP3 Hotel Introduction" data-ko="TOP3 호텔 소개 영상">TOP3 Hotel Introduction</div>
-        <div class="order-product-desc" data-en="Your hotel featured in a professional TOP3 video across our 6-language YouTube channel network." data-ko="6개 언어 유튜브 채널 네트워크에서 TOP3 영상으로 호텔을 소개합니다.">Your hotel featured in a professional TOP3 video across our 6-language YouTube channel network.</div>
+
+    <!-- View Toggle -->
+    <div class="preview-toggle">
+      <button class="preview-btn active" id="tab-before" data-en="Before Payment" data-ko="결제 전">Before Payment</button>
+      <button class="preview-btn" id="tab-after" data-en="After Payment (Preview)" data-ko="결제 후 (미리보기)">After Payment (Preview)</button>
+    </div>
+
+    <!-- ==================== BEFORE PAYMENT ==================== -->
+    <div class="screen-view active" id="view-before">
+
+      <!-- 1. Process -->
+      <div class="dash-section">
+        <div class="dash-section-title"><span class="icon">📋</span> <span data-en="How It Works" data-ko="진행 절차">How It Works</span></div>
+        <div class="process-steps">
+          <div class="process-step">
+            <div class="process-num">1</div>
+            <div class="process-content">
+              <h4 data-en="Pay $200 via Stripe" data-ko="Stripe로 $200 결제">Pay $200 via Stripe</h4>
+              <p data-en="Secure one-time payment. Invoice provided immediately." data-ko="안전한 1회 결제. 인보이스 즉시 제공.">Secure one-time payment. Invoice provided immediately.</p>
+            </div>
+          </div>
+          <div class="process-step">
+            <div class="process-num">2</div>
+            <div class="process-content">
+              <h4 data-en="We Produce Your Video" data-ko="영상 제작">We Produce Your Video</h4>
+              <p data-en="Professional TOP3 hotel recommendation video featuring your property. Production takes 5-7 business days." data-ko="귀 호텔을 소개하는 프로 TOP3 추천 영상 제작. 제작 기간 5-7 영업일.">Professional TOP3 hotel recommendation video featuring your property. Production takes 5-7 business days.</p>
+            </div>
+          </div>
+          <div class="process-step">
+            <div class="process-num">3</div>
+            <div class="process-content">
+              <h4 data-en="Published & Live" data-ko="게시 & 노출 시작">Published & Live</h4>
+              <p data-en="Video goes live on our channel network. You receive the direct link. Video stays live permanently." data-ko="채널 네트워크에 영상 게시. 직접 링크 제공. 영상은 영구 게시됩니다.">Video goes live on our channel network. You receive the direct link. Video stays live permanently.</p>
+            </div>
+          </div>
+          <div class="process-step">
+            <div class="process-num">4</div>
+            <div class="process-content">
+              <h4 data-en="Bookings Start Coming In" data-ko="예약 유입 시작">Bookings Start Coming In</h4>
+              <p data-en="Travelers watch, click Agoda links in description, and book your hotel. You track everything in this dashboard." data-ko="여행자가 영상을 보고, 설명란의 아고다 링크를 클릭하여 예약합니다. 모든 것을 이 대시보드에서 확인합니다.">Travelers watch, click Agoda links in description, and book your hotel. You track everything in this dashboard.</p>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="order-features">
-        <div class="order-feature"><div class="order-feature-check">✓</div><div class="order-feature-text" data-en="Featured in professional TOP3 video" data-ko="프로 TOP3 추천 영상 소개">Featured in professional TOP3 video</div></div>
-        <div class="order-feature"><div class="order-feature-check">✓</div><div class="order-feature-text" data-en="Published across 6 language channels" data-ko="6개 언어 채널 동시 송출">Published across 6 language channels</div></div>
-        <div class="order-feature"><div class="order-feature-check">✓</div><div class="order-feature-text" data-en="Agoda affiliate links in description" data-ko="아고다 제휴 링크 삽입">Agoda affiliate links in description</div></div>
-        <div class="order-feature"><div class="order-feature-check">✓</div><div class="order-feature-text" data-en="Permanent video — stays live forever" data-ko="영구 게시 — 계속 노출">Permanent video — stays live forever</div></div>
+
+      <!-- 2. Surprise: Multi-language -->
+      <div class="dash-section">
+        <div class="surprise-box">
+          <div class="surprise-badge" data-en="🎁 BONUS INCLUDED" data-ko="🎁 추가 혜택 포함">🎁 BONUS INCLUDED</div>
+          <div class="surprise-title" data-en="Global Exposure — Not Just Korea" data-ko="글로벌 노출 — 한국만이 아닙니다">Global Exposure — Not Just Korea</div>
+          <div class="surprise-desc" data-en="Your hotel will be featured not only on our Korean channel, but also across our entire multi-language network — at no extra cost." data-ko="귀 호텔은 한국 채널뿐 아니라 전체 다국어 채널 네트워크에도 추가 비용 없이 소개됩니다.">Your hotel will be featured not only on our Korean channel, but also across our entire multi-language network — at no extra cost.</div>
+          <div class="surprise-channels">
+            <div class="surprise-channel"><span class="flag">🇰🇷</span><span data-en="Korean Channel" data-ko="한국어 채널">Korean Channel</span></div>
+            <div class="surprise-channel"><span class="flag">🇬🇧</span><span data-en="English Channel" data-ko="영어 채널">English Channel</span></div>
+            <div class="surprise-channel"><span class="flag">🇯🇵</span><span data-en="Japanese Channel" data-ko="일본어 채널">Japanese Channel</span></div>
+            <div class="surprise-channel"><span class="flag">🇹🇼</span><span data-en="Taiwanese Channel" data-ko="대만 채널">Taiwanese Channel</span></div>
+            <div class="surprise-channel"><span class="flag">🇻🇳</span><span data-en="Vietnamese Channel" data-ko="베트남 채널">Vietnamese Channel</span></div>
+            <div class="surprise-channel"><span class="flag">🇱🇰</span><span data-en="Sinhala Channel" data-ko="싱할라어 채널">Sinhala Channel</span></div>
+          </div>
+        </div>
       </div>
-      <div class="order-pricing">
-        <div class="order-price-row"><div class="order-price-label" data-en="TOP3 Introduction (one-time)" data-ko="TOP3 소개 (1회)">TOP3 Introduction (one-time)</div><div class="order-price-value">$200.00</div></div>
-        <div class="order-price-row"><div class="order-price-label" data-en="Stripe processing fee" data-ko="Stripe 수수료">Stripe processing fee</div><div class="order-price-value" data-en="Included" data-ko="포함">Included</div></div>
-        <div class="order-price-row order-price-total"><div class="order-price-label" data-en="Total" data-ko="합계">Total</div><div class="order-price-value">$200</div></div>
+
+      <!-- 3. Product + Payment -->
+      <div class="dash-section">
+        <div class="dash-section-title"><span class="icon">💳</span> <span data-en="Your Product" data-ko="상품 확인">Your Product</span></div>
+        <div class="order-card">
+          <div class="order-card-top">
+            <div class="order-product-name" data-en="TOP3 Hotel Introduction" data-ko="TOP3 호텔 소개 영상">TOP3 Hotel Introduction</div>
+            <div class="order-product-desc" data-en="Your hotel featured in a professional TOP3 video across our multi-language YouTube channel network." data-ko="다국어 유튜브 채널 네트워크에서 TOP3 영상으로 호텔을 소개합니다.">Your hotel featured in a professional TOP3 video across our multi-language YouTube channel network.</div>
+          </div>
+          <div class="order-features">
+            <div class="order-feature"><div class="order-feature-check">✓</div><div class="order-feature-text" data-en="Professional TOP3 recommendation video" data-ko="프로 TOP3 추천 영상 제작">Professional TOP3 recommendation video</div></div>
+            <div class="order-feature"><div class="order-feature-check">✓</div><div class="order-feature-text" data-en="Published across 6 language channels" data-ko="6개 언어 채널 동시 송출">Published across 6 language channels</div></div>
+            <div class="order-feature"><div class="order-feature-check">✓</div><div class="order-feature-text" data-en="Agoda affiliate links in every video" data-ko="모든 영상에 아고다 제휴 링크 삽입">Agoda affiliate links in every video</div></div>
+            <div class="order-feature"><div class="order-feature-check">✓</div><div class="order-feature-text" data-en="Permanent video — stays live forever" data-ko="영구 게시 — 계속 노출">Permanent video — stays live forever</div></div>
+            <div class="order-feature"><div class="order-feature-check">✓</div><div class="order-feature-text" data-en="Booking performance dashboard" data-ko="예약 실적 대시보드 제공">Booking performance dashboard</div></div>
+          </div>
+          <div class="order-pricing">
+            <div class="order-price-row"><div class="order-price-label" data-en="TOP3 Introduction (one-time)" data-ko="TOP3 소개 (1회)">TOP3 Introduction (one-time)</div><div class="order-price-value">$200.00</div></div>
+            <div class="order-price-row"><div class="order-price-label" data-en="Stripe processing fee" data-ko="Stripe 수수료">Stripe processing fee</div><div class="order-price-value" data-en="Included" data-ko="포함">Included</div></div>
+            <div class="order-price-row order-price-total"><div class="order-price-label" data-en="Total" data-ko="합계">Total</div><div class="order-price-value">$200</div></div>
+          </div>
+        </div>
+        <div class="refund-note">
+          <div class="refund-note-title" data-en="Refund Guarantee" data-ko="환불 보장">Refund Guarantee</div>
+          <div class="refund-note-text" data-en="Zero bookings within 6 months → full refund minus Stripe fees. We're confident in our results." data-ko="6개월 내 예약 0건 시 Stripe 수수료 제외 전액 환불. 결과에 자신 있습니다.">Zero bookings within 6 months → full refund minus Stripe fees. We're confident in our results.</div>
+        </div>
+        <button class="btn-primary" style="margin-top:24px" id="btn-pay" data-en="Pay $200 with Stripe →" data-ko="Stripe로 $200 결제 →">Pay $200 with Stripe →</button>
+        <div class="secure-row"><span>🔒</span><span data-en="Secured by Stripe. 256-bit SSL." data-ko="Stripe 보안 결제. 256-bit SSL.">Secured by Stripe. 256-bit SSL.</span></div>
       </div>
     </div>
-    <div class="refund-note">
-      <div class="refund-note-title" data-en="Refund Policy" data-ko="환불 정책">Refund Policy</div>
-      <div class="refund-note-text" data-en="Zero bookings within 6 months → full refund minus Stripe fees." data-ko="6개월 내 예약 0건 시 Stripe 수수료 제외 전액 환불.">Zero bookings within 6 months → full refund minus Stripe fees.</div>
+
+    <!-- ==================== AFTER PAYMENT (Preview) ==================== -->
+    <div class="screen-view" id="view-after">
+
+      <!-- Status Tracker -->
+      <div class="dash-section">
+        <div class="dash-section-title"><span class="icon">📍</span> <span data-en="Production Status" data-ko="제작 진행 상태">Production Status</span></div>
+        <div class="status-tracker">
+          <div class="tracker-step done"><div class="tracker-dot">✓</div><div class="tracker-label" data-en="Paid" data-ko="결제완료">Paid</div></div>
+          <div class="tracker-step done"><div class="tracker-dot">✓</div><div class="tracker-label" data-en="Confirmed" data-ko="확인됨">Confirmed</div></div>
+          <div class="tracker-step active"><div class="tracker-dot">3</div><div class="tracker-label" data-en="In Production" data-ko="제작 중">In Production</div></div>
+          <div class="tracker-step"><div class="tracker-dot">4</div><div class="tracker-label" data-en="Published" data-ko="게시완료">Published</div></div>
+          <div class="tracker-step"><div class="tracker-dot">5</div><div class="tracker-label" data-en="Live" data-ko="노출 중">Live</div></div>
+        </div>
+        <div style="background:var(--forest-mist);border-radius:var(--radius-sm);padding:16px;font-size:14px;color:var(--gray-700);line-height:1.6">
+          <strong data-en="Estimated completion:" data-ko="예상 완료일:">Estimated completion:</strong>
+          <span data-en="April 28, 2026 — Your video is currently being produced by our team." data-ko="2026년 4월 28일 — 현재 팀에서 영상을 제작 중입니다.">April 28, 2026 — Your video is currently being produced by our team.</span>
+        </div>
+      </div>
+
+      <!-- Video Preview -->
+      <div class="dash-section">
+        <div class="dash-section-title"><span class="icon">🎬</span> <span data-en="Your Video" data-ko="내 영상">Your Video</span></div>
+        <div class="video-card">
+          <div class="video-thumb">▶</div>
+          <div class="video-body">
+            <h4 data-en="TOP3 Hotels in Bangkok — Your Hotel Featured" data-ko="방콕 TOP3 호텔 — 귀 호텔 소개 영상">TOP3 Hotels in Bangkok — Your Hotel Featured</h4>
+            <p data-en="Published across 6 language channels. Agoda affiliate links active." data-ko="6개 언어 채널에 게시됨. 아고다 제휴 링크 활성화.">Published across 6 language channels. Agoda affiliate links active.</p>
+            <div class="video-stats">
+              <div class="video-stat"><div class="video-stat-num">2,847</div><div class="video-stat-label" data-en="Views" data-ko="조회수">Views</div></div>
+              <div class="video-stat"><div class="video-stat-num">143</div><div class="video-stat-label" data-en="Link Clicks" data-ko="링크 클릭">Link Clicks</div></div>
+              <div class="video-stat"><div class="video-stat-num">12</div><div class="video-stat-label" data-en="Bookings" data-ko="예약 건수">Bookings</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Performance Report -->
+      <div class="dash-section">
+        <div class="dash-section-title"><span class="icon">📊</span> <span data-en="Booking Performance" data-ko="예약 실적">Booking Performance</span></div>
+        <div class="report-grid">
+          <div class="report-card">
+            <div class="report-card-title" data-en="Total Bookings" data-ko="총 예약">Total Bookings</div>
+            <div class="report-card-value">12</div>
+            <div class="report-card-sub" data-en="↑ 4 this month" data-ko="↑ 이번달 4건">↑ 4 this month</div>
+          </div>
+          <div class="report-card">
+            <div class="report-card-title" data-en="Booking Value" data-ko="예약 금액">Booking Value</div>
+            <div class="report-card-value">$1,840</div>
+            <div class="report-card-sub" data-en="9.2x return on $200" data-ko="$200 대비 9.2배 수익">9.2x return on $200</div>
+          </div>
+          <div class="report-card">
+            <div class="report-card-title" data-en="Total Views" data-ko="총 조회수">Total Views</div>
+            <div class="report-card-value">2,847</div>
+            <div class="report-card-sub" data-en="Across 6 channels" data-ko="6개 채널 합계">Across 6 channels</div>
+          </div>
+          <div class="report-card">
+            <div class="report-card-title" data-en="Conversion Rate" data-ko="전환율">Conversion Rate</div>
+            <div class="report-card-value">8.4%</div>
+            <div class="report-card-sub" data-en="Click to booking" data-ko="클릭 대비 예약">Click to booking</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Channel Breakdown -->
+      <div class="dash-section">
+        <div class="dash-section-title"><span class="icon">🌍</span> <span data-en="Channel Breakdown" data-ko="채널별 실적">Channel Breakdown</span></div>
+        <div style="background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius);overflow:hidden">
+          <table style="width:100%;border-collapse:collapse;font-size:13px">
+            <thead><tr style="background:var(--gray-50)">
+              <th style="text-align:left;padding:12px 16px;font-size:11px;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:.4px" data-en="Channel" data-ko="채널">Channel</th>
+              <th style="text-align:right;padding:12px 16px;font-size:11px;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:.4px" data-en="Views" data-ko="조회수">Views</th>
+              <th style="text-align:right;padding:12px 16px;font-size:11px;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:.4px" data-en="Bookings" data-ko="예약">Bookings</th>
+            </tr></thead>
+            <tbody>
+              <tr style="border-top:1px solid var(--gray-100)"><td style="padding:12px 16px">🇰🇷 <span data-en="Korean" data-ko="한국어">Korean</span></td><td style="text-align:right;padding:12px 16px;font-weight:600">1,203</td><td style="text-align:right;padding:12px 16px;font-weight:600;color:var(--forest)">6</td></tr>
+              <tr style="border-top:1px solid var(--gray-100)"><td style="padding:12px 16px">🇬🇧 <span data-en="English" data-ko="영어">English</span></td><td style="text-align:right;padding:12px 16px;font-weight:600">724</td><td style="text-align:right;padding:12px 16px;font-weight:600;color:var(--forest)">3</td></tr>
+              <tr style="border-top:1px solid var(--gray-100)"><td style="padding:12px 16px">🇯🇵 <span data-en="Japanese" data-ko="일본어">Japanese</span></td><td style="text-align:right;padding:12px 16px;font-weight:600">512</td><td style="text-align:right;padding:12px 16px;font-weight:600;color:var(--forest)">2</td></tr>
+              <tr style="border-top:1px solid var(--gray-100)"><td style="padding:12px 16px">🇹🇼 <span data-en="Taiwanese" data-ko="대만">Taiwanese</span></td><td style="text-align:right;padding:12px 16px;font-weight:600">231</td><td style="text-align:right;padding:12px 16px;font-weight:600;color:var(--forest)">1</td></tr>
+              <tr style="border-top:1px solid var(--gray-100)"><td style="padding:12px 16px">🇻🇳 <span data-en="Vietnamese" data-ko="베트남">Vietnamese</span></td><td style="text-align:right;padding:12px 16px;font-weight:600">98</td><td style="text-align:right;padding:12px 16px;font-weight:600;color:var(--forest)">0</td></tr>
+              <tr style="border-top:1px solid var(--gray-100)"><td style="padding:12px 16px">🇱🇰 <span data-en="Sinhala" data-ko="싱할라어">Sinhala</span></td><td style="text-align:right;padding:12px 16px;font-weight:600">79</td><td style="text-align:right;padding:12px 16px;font-weight:600;color:var(--forest)">0</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Invoice -->
+      <div class="dash-section">
+        <div style="background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-sm);padding:20px;display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <div style="font-size:14px;font-weight:700;color:var(--gray-800)" data-en="Invoice #TW-2026-001" data-ko="인보이스 #TW-2026-001">Invoice #TW-2026-001</div>
+            <div style="font-size:13px;color:var(--gray-500);margin-top:2px" data-en="Paid April 19, 2026 — $200.00" data-ko="2026년 4월 19일 결제 — $200.00">Paid April 19, 2026 — $200.00</div>
+          </div>
+          <button class="btn-fetch" id="btn-invoice" data-en="Download PDF" data-ko="PDF 다운로드">Download PDF</button>
+        </div>
+      </div>
+
+      <div style="text-align:center;padding:20px 0;font-size:13px;color:var(--gray-400)" data-en="This is a preview of the post-payment dashboard. Data shown is sample data." data-ko="이것은 결제 후 대시보드 미리보기입니다. 표시된 데이터는 샘플입니다.">This is a preview of the post-payment dashboard. Data shown is sample data.</div>
     </div>
-    <button class="btn-primary" style="margin-top:24px" id="btn-pay" data-en="Pay $200 with Stripe" data-ko="Stripe로 $200 결제">Pay $200 with Stripe</button>
-    <div class="secure-row"><span>🔒</span><span data-en="Secured by Stripe. 256-bit SSL." data-ko="Stripe 보안 결제. 256-bit SSL.">Secured by Stripe. 256-bit SSL.</span></div>
+
   </div></div>
 </div>
 <div class="toast" id="toast"></div>
@@ -74,16 +306,35 @@
   // Logout
   $('btn-logout').addEventListener('click', function() { T.logout(); });
 
+  // Tab toggle
+  $('tab-before').addEventListener('click', function() {
+    this.classList.add('active');
+    $('tab-after').classList.remove('active');
+    $('view-before').classList.add('active');
+    $('view-after').classList.remove('active');
+  });
+  $('tab-after').addEventListener('click', function() {
+    this.classList.add('active');
+    $('tab-before').classList.remove('active');
+    $('view-after').classList.add('active');
+    $('view-before').classList.remove('active');
+  });
+
   // Pay simulation
   $('btn-pay').addEventListener('click', function() {
     var btn = this;
     btn.innerHTML = '<span class="spinner"></span>' + (T.lang === 'ko' ? 'Stripe 연결 중...' : 'Connecting to Stripe...');
     btn.disabled = true;
     setTimeout(function() {
-      btn.textContent = T.lang === 'ko' ? 'Stripe로 $200 결제' : 'Pay $200 with Stripe';
+      btn.textContent = T.lang === 'ko' ? 'Stripe로 $200 결제 →' : 'Pay $200 with Stripe →';
       btn.disabled = false;
-      T.toast(T.lang === 'ko' ? '결제 시뮬레이션 완료!' : 'Payment simulated!');
+      T.toast(T.lang === 'ko' ? 'Stripe 결제 연동 준비 중입니다.' : 'Stripe payment integration coming soon.');
     }, 2000);
+  });
+
+  // Invoice simulation
+  $('btn-invoice').addEventListener('click', function() {
+    T.toast(T.lang === 'ko' ? '인보이스 다운로드 준비 중입니다.' : 'Invoice download coming soon.');
   });
 })();
 </script>

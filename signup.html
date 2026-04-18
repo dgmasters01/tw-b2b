@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TravelWinners — Sign Up</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,700;1,9..144,400&family=DM+Sans:wght@300;400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="shared.js"></script>
+</head>
+<body>
+<div class="lang-switch"><button class="lang-btn active" id="lang-en">EN</button><button class="lang-btn" id="lang-ko">한국어</button></div>
+<div class="shell">
+  <div class="brand-panel">
+    <a href="index.html" class="brand-logo-link" style="text-decoration:none"><div class="brand-logo"><div class="brand-logo-icon">TW</div><div class="brand-logo-text">TravelWinners</div></div></a>
+    <div class="brand-headline" data-en="Your hotel deserves a global stage." data-ko="당신의 호텔,<br>전 세계 무대로.">Your hotel deserves a global stage.</div>
+    <div class="brand-sub" data-en="Join 6-language YouTube channels reaching travelers worldwide. One subscription, one video — real bookings from real viewers." data-ko="6개 언어 유튜브 채널을 통해 전 세계 여행자에게 호텔을 소개하세요.">Join 6-language YouTube channels reaching travelers worldwide. One subscription, one video — real bookings from real viewers.</div>
+    <div class="steps-nav" id="steps-nav">
+      <div class="step-item active" id="nav-s1"><div class="step-circle">1</div><div><div class="step-label" data-en="Create Account" data-ko="계정 만들기">Create Account</div><div class="step-label-sub" data-en="Email & password" data-ko="이메일 & 비밀번호">Email & password</div></div></div>
+      <div class="step-item" id="nav-s2"><div class="step-circle">2</div><div><div class="step-label" data-en="Hotel Information" data-ko="호텔 정보 입력">Hotel Information</div><div class="step-label-sub" data-en="Auto-fill from Agoda" data-ko="아고다 자동 불러오기">Auto-fill from Agoda</div></div></div>
+    </div>
+    <div style="flex:1"></div>
+    <div class="brand-footer">© 2026 TravelWinners. All rights reserved.<br>Secure payments powered by Stripe.</div>
+  </div>
+  <div class="form-panel"><div class="form-container">
+    <div class="form-title" data-en="Create your account" data-ko="계정 만들기">Create your account</div>
+    <div class="form-desc" data-en="Start promoting your hotel to millions of travelers worldwide." data-ko="전 세계 수백만 여행자에게 호텔을 홍보하세요.">Start promoting your hotel to millions of travelers worldwide.</div>
+    <div class="field-group">
+      <label class="field-label" data-en="Email" data-ko="이메일">Email</label>
+      <input type="email" class="field-input" id="reg-email" placeholder="your@hotel.com">
+      <div class="field-error" id="err-email" data-en="Please enter a valid email" data-ko="유효한 이메일을 입력하세요">Please enter a valid email</div>
+    </div>
+    <div class="field-group">
+      <label class="field-label" data-en="Password" data-ko="비밀번호">Password</label>
+      <div class="input-wrap">
+        <input type="password" class="field-input has-toggle" id="reg-pw" placeholder="Create a password">
+        <button class="pw-toggle" id="toggle-pw" type="button">SHOW</button>
+      </div>
+      <div class="pw-requirements">
+        <div class="pw-req-title" data-en="Password Requirements" data-ko="비밀번호 조건">Password Requirements</div>
+        <div class="pw-req-item" id="req-len"><span class="pw-req-ico">✓</span><span data-en="At least 8 characters" data-ko="8자 이상">At least 8 characters</span></div>
+        <div class="pw-req-item" id="req-upper"><span class="pw-req-ico">✓</span><span data-en="One uppercase letter (A-Z)" data-ko="대문자 1개 (A-Z)">One uppercase letter (A-Z)</span></div>
+        <div class="pw-req-item" id="req-lower"><span class="pw-req-ico">✓</span><span data-en="One lowercase letter (a-z)" data-ko="소문자 1개 (a-z)">One lowercase letter (a-z)</span></div>
+        <div class="pw-req-item" id="req-num"><span class="pw-req-ico">✓</span><span data-en="One number (0-9)" data-ko="숫자 1개 (0-9)">One number (0-9)</span></div>
+        <div class="pw-req-item" id="req-spec"><span class="pw-req-ico">✓</span><span data-en="One special character (!@#$...)" data-ko="특수문자 1개 (!@#$...)">One special character (!@#$...)</span></div>
+      </div>
+      <div class="pw-strength"><div class="pw-bar" id="pb1"></div><div class="pw-bar" id="pb2"></div><div class="pw-bar" id="pb3"></div><div class="pw-bar" id="pb4"></div><div class="pw-bar" id="pb5"></div></div>
+      <div class="pw-strength-label" id="pw-label"></div>
+      <div class="field-error" id="err-pw" data-en="Please meet all requirements above" data-ko="위 조건을 모두 충족하세요">Please meet all requirements above</div>
+    </div>
+    <div class="field-group">
+      <label class="field-label" data-en="Confirm Password" data-ko="비밀번호 확인">Confirm Password</label>
+      <div class="input-wrap">
+        <input type="password" class="field-input has-toggle" id="reg-confirm" placeholder="Re-enter password">
+        <button class="pw-toggle" id="toggle-confirm" type="button">SHOW</button>
+      </div>
+      <div class="field-error" id="err-confirm" data-en="Passwords do not match" data-ko="비밀번호가 일치하지 않습니다">Passwords do not match</div>
+    </div>
+    <div style="margin:28px 0 8px">
+      <div class="check-row" id="terms-row">
+        <div class="check-box" id="chk-terms"></div>
+        <div class="check-text" data-en="I agree to the <a href='javascript:void(0)'>Terms of Service</a> and <a href='javascript:void(0)'>Privacy Policy</a>" data-ko="<a href='javascript:void(0)'>이용약관</a>과 <a href='javascript:void(0)'>개인정보처리방침</a>에 동의합니다">I agree to the <a href="javascript:void(0)">Terms of Service</a> and <a href="javascript:void(0)">Privacy Policy</a></div>
+      </div>
+    </div>
+    <button class="btn-primary" id="btn-signup" data-en="Create Account" data-ko="계정 만들기">Create Account</button>
+    <div class="or-divider"><span data-en="or" data-ko="또는">or</span></div>
+    <a href="login.html" class="btn-secondary" data-en="Already have an account? Sign in" data-ko="이미 계정이 있으신가요? 로그인">Already have an account? Sign in</a>
+  </div></div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+(function(){
+  var T = window.TW;
+  var $ = T.$;
+
+  // PW Toggle
+  document.getElementById('toggle-pw').addEventListener('click', function(e) {
+    e.preventDefault(); e.stopPropagation();
+    var inp = $('reg-pw');
+    if (inp.type === 'password') { inp.type = 'text'; this.textContent = 'HIDE'; }
+    else { inp.type = 'password'; this.textContent = 'SHOW'; }
+  });
+  document.getElementById('toggle-confirm').addEventListener('click', function(e) {
+    e.preventDefault(); e.stopPropagation();
+    var inp = $('reg-confirm');
+    if (inp.type === 'password') { inp.type = 'text'; this.textContent = 'HIDE'; }
+    else { inp.type = 'password'; this.textContent = 'SHOW'; }
+  });
+
+  // Checkbox
+  $('terms-row').addEventListener('click', function(e) {
+    e.preventDefault();
+    $('chk-terms').classList.toggle('checked');
+  });
+
+  // PW Check
+  function updatePwCheck() {
+    var v = $('reg-pw').value;
+    var c = {
+      'req-len': v.length >= 8,
+      'req-upper': /[A-Z]/.test(v),
+      'req-lower': /[a-z]/.test(v),
+      'req-num': /[0-9]/.test(v),
+      'req-spec': /[^A-Za-z0-9]/.test(v)
+    };
+    var s = 0;
+    for (var id in c) { $(id).classList.toggle('met', c[id]); if (c[id]) s++; }
+    for (var i = 1; i <= 5; i++) {
+      var b = $('pb' + i); b.className = 'pw-bar';
+      if (i <= s) b.classList.add(s <= 2 ? 'weak' : s <= 3 ? 'med' : 'strong');
+    }
+    var lb = $('pw-label'); lb.className = 'pw-strength-label';
+    if (!v) lb.textContent = '';
+    else if (s <= 2) { lb.textContent = T.lang === 'ko' ? '약함' : 'Weak'; lb.classList.add('weak'); }
+    else if (s <= 3) { lb.textContent = T.lang === 'ko' ? '보통' : 'Medium'; lb.classList.add('medium'); }
+    else { lb.textContent = T.lang === 'ko' ? '강함' : 'Strong'; lb.classList.add('strong'); }
+  }
+  $('reg-pw').addEventListener('input', updatePwCheck);
+
+  // Validate
+  function valid() {
+    var ok = true, em = $('reg-email'), pw = $('reg-pw'), cf = $('reg-confirm');
+    [em, pw, cf].forEach(function(f) { f.classList.remove('error'); });
+    document.querySelectorAll('.field-error').forEach(function(e) { e.classList.remove('show'); });
+    if (!em.value || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em.value)) { em.classList.add('error'); $('err-email').classList.add('show'); ok = false; }
+    var v = pw.value;
+    if (!(v.length >= 8 && /[A-Z]/.test(v) && /[a-z]/.test(v) && /[0-9]/.test(v) && /[^A-Za-z0-9]/.test(v))) { pw.classList.add('error'); $('err-pw').classList.add('show'); ok = false; }
+    if (!cf.value || pw.value !== cf.value) { cf.classList.add('error'); $('err-confirm').classList.add('show'); ok = false; }
+    if (!$('chk-terms').classList.contains('checked')) { T.toast(T.lang === 'ko' ? '이용약관에 동의해주세요.' : 'Please agree to the Terms.', true); ok = false; }
+    return ok;
+  }
+
+  // Signup
+  $('btn-signup').addEventListener('click', async function() {
+    if (!valid()) return;
+    var btn = this;
+    btn.innerHTML = '<span class="spinner"></span>' + (T.lang === 'ko' ? '가입 중...' : 'Creating...');
+    btn.disabled = true;
+    if (!T.sb) { T.toast('Supabase connection error.', true); btn.disabled = false; btn.textContent = T.lang === 'ko' ? '계정 만들기' : 'Create Account'; return; }
+    try {
+      var r = await T.sb.auth.signUp({ email: $('reg-email').value, password: $('reg-pw').value });
+      btn.disabled = false;
+      btn.textContent = T.lang === 'ko' ? '계정 만들기' : 'Create Account';
+      if (r.error) { T.toast(r.error.message, true); return; }
+      T.toast(T.lang === 'ko' ? '계정 생성 완료!' : 'Account created!');
+      // Save email for hotel-info page
+      localStorage.setItem('tw-signup-email', $('reg-email').value);
+      // Move to step 2
+      window.location.href = 'hotel-info.html';
+    } catch (e) {
+      btn.disabled = false;
+      btn.textContent = T.lang === 'ko' ? '계정 만들기' : 'Create Account';
+      T.toast('Error: ' + e.message, true);
+    }
+  });
+})();
+</script>
+</body>
+</html>

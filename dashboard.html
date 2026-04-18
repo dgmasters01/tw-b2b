@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TravelWinners — Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,700;1,9..144,400&family=DM+Sans:wght@300;400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="shared.js"></script>
+</head>
+<body>
+<div class="lang-switch"><button class="lang-btn active" id="lang-en">EN</button><button class="lang-btn" id="lang-ko">한국어</button></div>
+<div class="shell">
+  <div class="brand-panel">
+    <a href="index.html" class="brand-logo-link" style="text-decoration:none"><div class="brand-logo"><div class="brand-logo-icon">TW</div><div class="brand-logo-text">TravelWinners</div></div></a>
+    <div class="brand-headline" data-en="Dashboard" data-ko="대시보드">Dashboard</div>
+    <div class="brand-sub" data-en="Manage your hotel marketing subscription and track progress." data-ko="호텔 마케팅 구독을 관리하고 진행 상황을 확인하세요.">Manage your hotel marketing subscription and track progress.</div>
+    <div class="steps-nav">
+      <div class="step-item active">
+        <div class="step-circle" style="border-color:var(--gold);background:var(--gold);color:var(--forest-deep)">✓</div>
+        <div><div class="step-label" style="color:var(--white)" data-en="Dashboard" data-ko="대시보드">Dashboard</div><div class="step-label-sub" style="color:rgba(255,255,255,.55)" data-en="Manage your subscription" data-ko="구독 관리">Manage your subscription</div></div>
+      </div>
+    </div>
+    <div style="flex:1"></div>
+    <div class="brand-footer">© 2026 TravelWinners. All rights reserved.<br>Secure payments powered by Stripe.</div>
+  </div>
+  <div class="form-panel"><div class="form-container">
+    <div class="dash-header">
+      <div>
+        <div class="dash-welcome" data-en="Dashboard" data-ko="대시보드">Dashboard</div>
+        <div class="dash-email" id="dash-user-email"></div>
+      </div>
+      <button class="dash-logout" id="btn-logout" data-en="Sign Out" data-ko="로그아웃">Sign Out</button>
+    </div>
+    <div class="order-card">
+      <div class="order-card-top">
+        <div class="order-product-name" data-en="TOP3 Hotel Introduction" data-ko="TOP3 호텔 소개 영상">TOP3 Hotel Introduction</div>
+        <div class="order-product-desc" data-en="Your hotel featured in a professional TOP3 video across our 6-language YouTube channel network." data-ko="6개 언어 유튜브 채널 네트워크에서 TOP3 영상으로 호텔을 소개합니다.">Your hotel featured in a professional TOP3 video across our 6-language YouTube channel network.</div>
+      </div>
+      <div class="order-features">
+        <div class="order-feature"><div class="order-feature-check">✓</div><div class="order-feature-text" data-en="Featured in professional TOP3 video" data-ko="프로 TOP3 추천 영상 소개">Featured in professional TOP3 video</div></div>
+        <div class="order-feature"><div class="order-feature-check">✓</div><div class="order-feature-text" data-en="Published across 6 language channels" data-ko="6개 언어 채널 동시 송출">Published across 6 language channels</div></div>
+        <div class="order-feature"><div class="order-feature-check">✓</div><div class="order-feature-text" data-en="Agoda affiliate links in description" data-ko="아고다 제휴 링크 삽입">Agoda affiliate links in description</div></div>
+        <div class="order-feature"><div class="order-feature-check">✓</div><div class="order-feature-text" data-en="Permanent video — stays live forever" data-ko="영구 게시 — 계속 노출">Permanent video — stays live forever</div></div>
+      </div>
+      <div class="order-pricing">
+        <div class="order-price-row"><div class="order-price-label" data-en="TOP3 Introduction (one-time)" data-ko="TOP3 소개 (1회)">TOP3 Introduction (one-time)</div><div class="order-price-value">$200.00</div></div>
+        <div class="order-price-row"><div class="order-price-label" data-en="Stripe processing fee" data-ko="Stripe 수수료">Stripe processing fee</div><div class="order-price-value" data-en="Included" data-ko="포함">Included</div></div>
+        <div class="order-price-row order-price-total"><div class="order-price-label" data-en="Total" data-ko="합계">Total</div><div class="order-price-value">$200</div></div>
+      </div>
+    </div>
+    <div class="refund-note">
+      <div class="refund-note-title" data-en="Refund Policy" data-ko="환불 정책">Refund Policy</div>
+      <div class="refund-note-text" data-en="Zero bookings within 6 months → full refund minus Stripe fees." data-ko="6개월 내 예약 0건 시 Stripe 수수료 제외 전액 환불.">Zero bookings within 6 months → full refund minus Stripe fees.</div>
+    </div>
+    <button class="btn-primary" style="margin-top:24px" id="btn-pay" data-en="Pay $200 with Stripe" data-ko="Stripe로 $200 결제">Pay $200 with Stripe</button>
+    <div class="secure-row"><span>🔒</span><span data-en="Secured by Stripe. 256-bit SSL." data-ko="Stripe 보안 결제. 256-bit SSL.">Secured by Stripe. 256-bit SSL.</span></div>
+    <button class="btn-danger" id="btn-logout2" data-en="Sign out" data-ko="로그아웃">Sign out</button>
+  </div></div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+(function(){
+  var T = window.TW;
+  var $ = T.$;
+
+  // Auth guard
+  T.requireAuth(function(user) {
+    $('dash-user-email').textContent = user.email;
+  });
+
+  // Logout
+  $('btn-logout').addEventListener('click', function() { T.logout(); });
+  $('btn-logout2').addEventListener('click', function() { T.logout(); });
+
+  // Pay simulation
+  $('btn-pay').addEventListener('click', function() {
+    var btn = this;
+    btn.innerHTML = '<span class="spinner"></span>' + (T.lang === 'ko' ? 'Stripe 연결 중...' : 'Connecting to Stripe...');
+    btn.disabled = true;
+    setTimeout(function() {
+      btn.textContent = T.lang === 'ko' ? 'Stripe로 $200 결제' : 'Pay $200 with Stripe';
+      btn.disabled = false;
+      T.toast(T.lang === 'ko' ? '결제 시뮬레이션 완료!' : 'Payment simulated!');
+    }, 2000);
+  });
+})();
+</script>
+</body>
+</html>

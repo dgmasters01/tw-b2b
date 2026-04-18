@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TravelWinners — Sign In</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,700;1,9..144,400&family=DM+Sans:wght@300;400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="shared.js"></script>
+</head>
+<body>
+<div class="lang-switch"><button class="lang-btn active" id="lang-en">EN</button><button class="lang-btn" id="lang-ko">한국어</button></div>
+<div class="shell">
+  <div class="brand-panel">
+    <a href="index.html" class="brand-logo-link" style="text-decoration:none"><div class="brand-logo"><div class="brand-logo-icon">TW</div><div class="brand-logo-text">TravelWinners</div></div></a>
+    <div class="brand-headline" data-en="Welcome back" data-ko="다시 오신 것을<br>환영합니다">Welcome back</div>
+    <div class="brand-sub" data-en="Sign in to manage your hotel's marketing presence and track performance." data-ko="호텔 마케팅 현황을 관리하고 성과를 확인하세요.">Sign in to manage your hotel's marketing presence and track performance.</div>
+    <div class="steps-nav">
+      <div class="step-item active">
+        <div class="step-circle" style="border-color:var(--gold);background:var(--gold);color:var(--forest-deep)">→</div>
+        <div><div class="step-label" style="color:var(--white)" data-en="Sign in" data-ko="로그인">Sign in</div><div class="step-label-sub" style="color:rgba(255,255,255,.55)" data-en="Access your dashboard" data-ko="대시보드 접근">Access your dashboard</div></div>
+      </div>
+    </div>
+    <div style="flex:1"></div>
+    <div class="brand-footer">© 2026 TravelWinners. All rights reserved.<br>Secure payments powered by Stripe.</div>
+  </div>
+  <div class="form-panel"><div class="form-container">
+    <div class="form-title" data-en="Welcome back" data-ko="다시 오신 것을 환영합니다">Welcome back</div>
+    <div class="form-desc" data-en="Sign in to access your hotel dashboard." data-ko="호텔 대시보드에 접근하려면 로그인하세요.">Sign in to access your hotel dashboard.</div>
+    <div class="field-group">
+      <label class="field-label" data-en="Email" data-ko="이메일">Email</label>
+      <input type="email" class="field-input" id="login-email" placeholder="your@hotel.com">
+    </div>
+    <div class="field-group">
+      <label class="field-label" data-en="Password" data-ko="비밀번호">Password</label>
+      <div class="input-wrap">
+        <input type="password" class="field-input has-toggle" id="login-pw" placeholder="Enter your password">
+        <button class="pw-toggle" id="toggle-login-pw" type="button">SHOW</button>
+      </div>
+    </div>
+    <button class="btn-primary" id="btn-login" data-en="Sign In" data-ko="로그인">Sign In</button>
+    <div class="or-divider"><span data-en="or" data-ko="또는">or</span></div>
+    <a href="signup.html" class="btn-secondary" data-en="Create a new account" data-ko="새 계정 만들기">Create a new account</a>
+  </div></div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+(function(){
+  var T = window.TW;
+  var $ = T.$;
+
+  // PW Toggle
+  document.getElementById('toggle-login-pw').addEventListener('click', function(e) {
+    e.preventDefault(); e.stopPropagation();
+    var inp = $('login-pw');
+    if (inp.type === 'password') { inp.type = 'text'; this.textContent = 'HIDE'; }
+    else { inp.type = 'password'; this.textContent = 'SHOW'; }
+  });
+
+  // Login
+  $('btn-login').addEventListener('click', async function() {
+    var em = $('login-email').value, pw = $('login-pw').value;
+    if (!em || !pw) { T.toast(T.lang === 'ko' ? '이메일과 비밀번호를 입력하세요.' : 'Enter email and password.', true); return; }
+    var btn = this;
+    btn.innerHTML = '<span class="spinner"></span>' + (T.lang === 'ko' ? '로그인 중...' : 'Signing in...');
+    btn.disabled = true;
+    if (!T.sb) { T.toast('Supabase connection error.', true); btn.disabled = false; btn.textContent = T.lang === 'ko' ? '로그인' : 'Sign In'; return; }
+    try {
+      var r = await T.sb.auth.signInWithPassword({ email: em, password: pw });
+      btn.disabled = false;
+      btn.textContent = T.lang === 'ko' ? '로그인' : 'Sign In';
+      if (r.error) { T.toast(r.error.message, true); return; }
+      T.toast(T.lang === 'ko' ? '로그인 성공!' : 'Login successful!');
+      localStorage.setItem('tw-session-email', r.data.user.email);
+      window.location.href = 'dashboard.html';
+    } catch (e) {
+      btn.disabled = false;
+      btn.textContent = T.lang === 'ko' ? '로그인' : 'Sign In';
+      T.toast('Error: ' + e.message, true);
+    }
+  });
+
+  // Auto-redirect if already logged in
+  if (T.sb) {
+    T.sb.auth.getSession().then(function(r) {
+      if (r.data.session) {
+        window.location.href = 'dashboard.html';
+      }
+    }).catch(function(){});
+  }
+})();
+</script>
+</body>
+</html>

@@ -3,301 +3,160 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TravelWinners — Partner Portal</title>
+<title>TravelWinners — Hotel Marketing Partner Portal</title>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,700;1,9..144,400&family=DM+Sans:wght@300;400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-:root{--forest:#1B5E3B;--forest-dark:#144A2E;--forest-deep:#0D3620;--forest-light:#E8F5EC;--forest-mist:#F4FAF6;--gold:#C8A951;--white:#FFFFFF;--gray-50:#FAFAFA;--gray-100:#F5F5F5;--gray-200:#E8E8E8;--gray-300:#D4D4D4;--gray-400:#A3A3A3;--gray-500:#737373;--gray-600:#525252;--gray-700:#404040;--gray-800:#262626;--gray-900:#171717;--red:#DC2626;--green-check:#16A34A;--radius:12px;--radius-sm:8px;--shadow:0 4px 20px rgba(0,0,0,0.08);--shadow-lg:0 12px 40px rgba(0,0,0,0.12);--transition:all .3s cubic-bezier(.4,0,.2,1)}
+:root{--forest:#1B5E3B;--forest-dark:#144A2E;--forest-deep:#0D3620;--forest-light:#E8F5EC;--forest-mist:#F4FAF6;--gold:#C8A951;--gold-light:#F5F0E0;--white:#FFFFFF;--gray-50:#FAFAFA;--gray-100:#F5F5F5;--gray-200:#E8E8E8;--gray-300:#D4D4D4;--gray-400:#A3A3A3;--gray-500:#737373;--gray-600:#525252;--gray-700:#404040;--gray-800:#262626;--gray-900:#171717;--radius:12px;--radius-sm:8px;--shadow:0 4px 20px rgba(0,0,0,0.08);--shadow-lg:0 12px 40px rgba(0,0,0,0.12);--transition:all .3s cubic-bezier(.4,0,.2,1)}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'DM Sans','Noto Sans KR',sans-serif;background:var(--gray-50);color:var(--gray-800);min-height:100vh}
+body{font-family:'DM Sans','Noto Sans KR',sans-serif;background:var(--white);color:var(--gray-800)}
 .lang-switch{position:fixed;top:20px;right:20px;z-index:1000;display:flex;gap:2px;background:var(--white);border-radius:20px;padding:3px;box-shadow:var(--shadow);border:1px solid var(--gray-200)}
 .lang-btn{padding:6px 14px;border:none;border-radius:17px;font-size:13px;font-weight:500;cursor:pointer;background:transparent;color:var(--gray-500);transition:var(--transition);font-family:'DM Sans',sans-serif}
 .lang-btn.active{background:var(--forest);color:var(--white)}
-.shell{display:flex;min-height:100vh}
-.brand-panel{width:420px;min-height:100vh;background:linear-gradient(165deg,var(--forest-deep) 0%,var(--forest) 50%,var(--forest-dark) 100%);padding:48px 40px;display:flex;flex-direction:column;position:fixed;left:0;top:0;bottom:0}
-.brand-panel::before{content:'';position:absolute;top:-100px;right:-100px;width:400px;height:400px;background:radial-gradient(circle,rgba(200,169,81,.08) 0%,transparent 70%);pointer-events:none}
-.brand-logo{display:flex;align-items:center;gap:14px;margin-bottom:60px}
-.brand-logo-icon{width:44px;height:44px;background:var(--gold);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;color:var(--forest-deep);font-family:'Fraunces',serif}
-.brand-logo-text{font-family:'Fraunces',serif;font-size:22px;font-weight:700;color:var(--white)}
-.brand-headline{font-family:'Fraunces',serif;font-size:32px;font-weight:700;color:var(--white);line-height:1.3;margin-bottom:20px}
-.brand-sub{font-size:15px;color:rgba(255,255,255,.65);line-height:1.7;margin-bottom:48px}
-.steps-nav{display:flex;flex-direction:column;margin-bottom:auto}
-.step-item{display:flex;align-items:flex-start;gap:16px;padding:16px 0;position:relative}
-.step-item:not(:last-child)::after{content:'';position:absolute;left:15px;top:48px;bottom:-16px;width:2px;background:rgba(255,255,255,.12)}
-.step-item.active:not(:last-child)::after{background:var(--gold);opacity:.4}
-.step-item.completed:not(:last-child)::after{background:var(--gold)}
-.step-circle{width:32px;height:32px;border-radius:50%;border:2px solid rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:rgba(255,255,255,.3);flex-shrink:0;transition:var(--transition)}
-.step-item.active .step-circle{border-color:var(--gold);background:var(--gold);color:var(--forest-deep)}
-.step-item.completed .step-circle{border-color:var(--gold);color:var(--gold)}
-.step-label{font-size:14px;font-weight:500;color:rgba(255,255,255,.35);padding-top:5px;transition:var(--transition)}
-.step-label-sub{font-size:12px;color:rgba(255,255,255,.2);margin-top:3px}
-.step-item.active .step-label{color:var(--white)}.step-item.active .step-label-sub{color:rgba(255,255,255,.55)}.step-item.completed .step-label{color:rgba(255,255,255,.6)}
-.brand-footer{font-size:12px;color:rgba(255,255,255,.3);border-top:1px solid rgba(255,255,255,.08);padding-top:20px;line-height:1.6}
-.form-panel{flex:1;margin-left:420px;display:flex;align-items:center;justify-content:center;padding:48px 60px;min-height:100vh}
-.form-container{width:100%;max-width:520px}
-.screen{display:none;animation:fadeUp .5s ease}.screen.active{display:block}
-@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-.form-title{font-family:'Fraunces',serif;font-size:28px;font-weight:700;color:var(--gray-900);margin-bottom:8px}
-.form-desc{font-size:15px;color:var(--gray-500);margin-bottom:36px;line-height:1.6}
-.field-group{margin-bottom:24px}
-.field-label{display:block;font-size:13px;font-weight:600;color:var(--gray-700);margin-bottom:8px;letter-spacing:.3px;text-transform:uppercase}
-.field-label .optional{font-weight:400;color:var(--gray-400);text-transform:none;font-size:12px}
-.input-wrap{position:relative}
-.field-input{width:100%;padding:14px 16px;border:1.5px solid var(--gray-200);border-radius:var(--radius-sm);font-size:15px;font-family:'DM Sans',sans-serif;color:var(--gray-800);background:var(--white);transition:var(--transition);outline:none}
-.field-input::placeholder{color:var(--gray-400)}.field-input:focus{border-color:var(--forest);box-shadow:0 0 0 3px rgba(27,94,59,.08)}.field-input.error{border-color:var(--red);box-shadow:0 0 0 3px rgba(220,38,38,.08)}
-.field-input.has-toggle{padding-right:70px}
-.pw-toggle{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:var(--gray-100);border:1px solid var(--gray-300);cursor:pointer;font-size:11px;color:var(--gray-600);padding:5px 12px;user-select:none;border-radius:4px;font-family:'DM Sans',sans-serif;font-weight:600;letter-spacing:.5px;z-index:2}
-.pw-toggle:hover{color:var(--gray-800);border-color:var(--gray-500);background:var(--gray-200)}
-.field-error{font-size:12px;color:var(--red);margin-top:6px;display:none}.field-error.show{display:block}
-.field-hint{font-size:12px;color:var(--gray-400);margin-top:6px;line-height:1.5}
-.pw-requirements{margin-top:12px;padding:14px 16px;background:var(--gray-50);border:1px solid var(--gray-200);border-radius:var(--radius-sm)}
-.pw-req-title{font-size:11px;font-weight:700;color:var(--gray-500);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
-.pw-req-item{display:flex;align-items:center;gap:8px;padding:4px 0;font-size:13px;color:var(--gray-400);transition:var(--transition)}.pw-req-item.met{color:var(--green-check)}
-.pw-req-ico{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--gray-300);display:flex;align-items:center;justify-content:center;font-size:10px;transition:var(--transition);flex-shrink:0}
-.pw-req-item.met .pw-req-ico{border-color:var(--green-check);background:var(--green-check);color:var(--white)}
-.pw-strength{display:flex;gap:4px;margin-top:10px}
-.pw-bar{height:3px;flex:1;background:var(--gray-200);border-radius:2px;transition:var(--transition)}
-.pw-bar.weak{background:var(--red)}.pw-bar.med{background:var(--gold)}.pw-bar.strong{background:var(--green-check)}
-.pw-strength-label{font-size:12px;margin-top:6px;font-weight:500}.pw-strength-label.weak{color:var(--red)}.pw-strength-label.medium{color:var(--gold)}.pw-strength-label.strong{color:var(--green-check)}
-.check-row{display:flex;align-items:flex-start;gap:10px;margin-bottom:12px;cursor:pointer;user-select:none}
-.check-box{width:20px;height:20px;border:1.5px solid var(--gray-300);border-radius:5px;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:var(--transition);margin-top:1px;cursor:pointer}
-.check-box.checked{background:var(--forest);border-color:var(--forest)}.check-box.checked::after{content:'✓';color:white;font-size:12px;font-weight:700}
-.check-text{font-size:13px;color:var(--gray-600);line-height:1.5}.check-text a{color:var(--forest);text-decoration:underline;text-underline-offset:2px}
-.btn-primary{width:100%;padding:16px 24px;background:var(--forest);color:var(--white);border:none;border-radius:var(--radius-sm);font-size:15px;font-weight:600;cursor:pointer;transition:var(--transition);font-family:'DM Sans',sans-serif}
-.btn-primary:hover{background:var(--forest-dark);transform:translateY(-1px);box-shadow:0 4px 16px rgba(27,94,59,.25)}.btn-primary:disabled{background:var(--gray-300);cursor:not-allowed;transform:none;box-shadow:none}
-.btn-secondary{width:100%;padding:14px 24px;background:transparent;color:var(--gray-500);border:1.5px solid var(--gray-200);border-radius:var(--radius-sm);font-size:14px;font-weight:500;cursor:pointer;transition:var(--transition);font-family:'DM Sans',sans-serif;margin-top:12px;text-align:center}
-.btn-secondary:hover{border-color:var(--gray-300);color:var(--gray-700)}
-.btn-row{display:flex;gap:12px;margin-top:32px}.btn-row .btn-primary{flex:1}
-.btn-back{padding:14px 20px;background:transparent;color:var(--gray-500);border:1.5px solid var(--gray-200);border-radius:var(--radius-sm);font-size:14px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap}.btn-back:hover{border-color:var(--gray-400);color:var(--gray-700)}
-.btn-danger{padding:10px 20px;background:transparent;color:var(--gray-400);border:none;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:16px;text-align:center;width:100%}.btn-danger:hover{color:var(--red)}
-.or-divider{display:flex;align-items:center;gap:16px;margin:28px 0}.or-divider::before,.or-divider::after{content:'';flex:1;height:1px;background:var(--gray-200)}.or-divider span{font-size:12px;color:var(--gray-400);text-transform:uppercase;letter-spacing:1px}
-.agoda-fetch-row{display:flex;gap:10px}.agoda-fetch-row .field-input{flex:1}
-.btn-fetch{padding:14px 20px;background:var(--forest-light);color:var(--forest);border:1.5px solid var(--forest);border-radius:var(--radius-sm);font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;white-space:nowrap}.btn-fetch:hover{background:var(--forest);color:var(--white)}
-.hotel-preview{display:none;margin-top:24px;background:var(--white);border:1.5px solid var(--gray-200);border-radius:var(--radius);overflow:hidden;animation:fadeUp .4s ease}.hotel-preview.show{display:block}
-.hotel-preview-header{padding:20px 24px;background:var(--forest-mist);border-bottom:1px solid var(--gray-200)}
-.hotel-preview-badge{display:inline-flex;align-items:center;gap:6px;background:var(--forest);color:var(--white);padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600}.hotel-preview-badge::before{content:'✓';font-size:10px}
-.hotel-preview-body{padding:24px}.hotel-name-display{font-family:'Fraunces',serif;font-size:20px;font-weight:700;color:var(--gray-900);margin-bottom:6px}
-.hotel-meta{display:flex;flex-wrap:wrap;gap:16px;margin-top:12px}.hotel-meta-item{font-size:13px;color:var(--gray-500);display:flex;align-items:center;gap:6px}
-.hotel-stars{color:var(--gold);font-size:14px;letter-spacing:2px;margin-top:4px}
-.hotel-edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:20px;padding-top:20px;border-top:1px solid var(--gray-200)}.hotel-edit-grid .field-group{margin-bottom:0}
-.dash-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:32px;padding-bottom:20px;border-bottom:1px solid var(--gray-200)}
-.dash-welcome{font-family:'Fraunces',serif;font-size:24px;font-weight:700;color:var(--gray-900)}.dash-email{font-size:13px;color:var(--gray-500);margin-top:4px}
-.dash-logout{padding:8px 16px;background:transparent;color:var(--gray-500);border:1px solid var(--gray-200);border-radius:var(--radius-sm);font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif}.dash-logout:hover{border-color:var(--red);color:var(--red)}
-.order-card{background:var(--white);border:1.5px solid var(--gray-200);border-radius:var(--radius);overflow:hidden}
-.order-card-top{padding:28px;border-bottom:1px dashed var(--gray-200)}.order-product-name{font-family:'Fraunces',serif;font-size:22px;font-weight:700;color:var(--gray-900);margin-bottom:8px}.order-product-desc{font-size:14px;color:var(--gray-500);line-height:1.6}
-.order-features{padding:24px 28px;border-bottom:1px dashed var(--gray-200)}.order-feature{display:flex;align-items:flex-start;gap:12px;padding:10px 0}.order-feature:not(:last-child){border-bottom:1px solid var(--gray-100)}
-.order-feature-check{width:20px;height:20px;background:var(--forest-light);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--forest);flex-shrink:0}.order-feature-text{font-size:14px;color:var(--gray-600);line-height:1.5}
-.order-pricing{padding:24px 28px}.order-price-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0}.order-price-label{font-size:14px;color:var(--gray-500)}.order-price-value{font-size:14px;color:var(--gray-700);font-weight:500}
-.order-price-total{border-top:2px solid var(--gray-800);margin-top:12px;padding-top:14px}.order-price-total .order-price-label{font-size:16px;font-weight:700;color:var(--gray-900)}.order-price-total .order-price-value{font-family:'Fraunces',serif;font-size:28px;font-weight:700;color:var(--forest)}
-.refund-note{margin-top:20px;padding:14px 18px;background:var(--forest-mist);border-radius:var(--radius-sm);border-left:3px solid var(--forest)}.refund-note-title{font-size:12px;font-weight:700;color:var(--forest);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}.refund-note-text{font-size:13px;color:var(--gray-600);line-height:1.5}
-.secure-row{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:16px;font-size:12px;color:var(--gray-400)}
-.success-wrap{text-align:center;padding:40px 0}.success-ico{width:80px;height:80px;background:var(--forest-light);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 28px;font-size:36px;color:var(--forest);animation:successPop .5s ease}
-@keyframes successPop{0%{transform:scale(0)}60%{transform:scale(1.15)}100%{transform:scale(1)}}
-.success-title{font-family:'Fraunces',serif;font-size:28px;font-weight:700;color:var(--gray-900);margin-bottom:10px}.success-desc{font-size:15px;color:var(--gray-500);line-height:1.6;max-width:400px;margin:0 auto 32px}
-.success-next-box{background:var(--forest-mist);border:1px solid var(--gray-200);border-radius:var(--radius);padding:24px;text-align:left;margin-bottom:24px}.success-next-title{font-size:13px;font-weight:700;color:var(--forest);text-transform:uppercase;letter-spacing:.5px;margin-bottom:16px}
-.success-next-step{display:flex;align-items:flex-start;gap:12px;padding:10px 0}.success-next-num{width:24px;height:24px;background:var(--forest);color:var(--white);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}.success-next-text{font-size:14px;color:var(--gray-600);line-height:1.5;padding-top:2px}
-.spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:white;border-radius:50%;animation:spin .6s linear infinite;margin-right:8px;vertical-align:middle}.spinner-dark{border-color:rgba(27,94,59,.2);border-top-color:var(--forest)}
-@keyframes spin{to{transform:rotate(360deg)}}
-.toast{position:fixed;bottom:32px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--gray-900);color:var(--white);padding:14px 24px;border-radius:var(--radius-sm);font-size:14px;font-weight:500;z-index:9999;transition:transform .3s ease;box-shadow:var(--shadow-lg);max-width:90vw;text-align:center}.toast.show{transform:translateX(-50%) translateY(0)}.toast.error{background:var(--red)}
-@media(max-width:960px){.brand-panel{display:none}.form-panel{margin-left:0;padding:32px 24px}.hotel-edit-grid{grid-template-columns:1fr}}
+.top-nav{position:fixed;top:0;left:0;right:0;z-index:900;background:rgba(255,255,255,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--gray-200);padding:0 48px;display:flex;align-items:center;justify-content:space-between;height:68px}
+.nav-logo{display:flex;align-items:center;gap:12px;text-decoration:none}
+.nav-logo-icon{width:36px;height:36px;background:var(--gold);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:var(--forest-deep);font-family:'Fraunces',serif}
+.nav-logo-text{font-family:'Fraunces',serif;font-size:18px;font-weight:700;color:var(--gray-900)}
+.nav-actions{display:flex;gap:12px;align-items:center}
+.nav-link{font-size:14px;color:var(--gray-600);text-decoration:none;padding:8px 16px;border-radius:var(--radius-sm);transition:var(--transition)}
+.nav-link:hover{color:var(--forest);background:var(--forest-mist)}
+.nav-cta{font-size:14px;font-weight:600;color:var(--white);background:var(--forest);padding:10px 24px;border-radius:var(--radius-sm);text-decoration:none;transition:var(--transition)}
+.nav-cta:hover{background:var(--forest-dark);transform:translateY(-1px);box-shadow:0 4px 16px rgba(27,94,59,.2)}
+.hero{padding:140px 48px 80px;text-align:center;background:linear-gradient(180deg,var(--forest-mist) 0%,var(--white) 100%);position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-200px;left:50%;transform:translateX(-50%);width:800px;height:800px;background:radial-gradient(circle,rgba(27,94,59,.04) 0%,transparent 70%);pointer-events:none}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:var(--gold-light);color:var(--forest-dark);padding:8px 20px;border-radius:24px;font-size:13px;font-weight:600;margin-bottom:28px;letter-spacing:.3px}
+.hero h1{font-family:'Fraunces',serif;font-size:56px;font-weight:700;color:var(--gray-900);line-height:1.15;margin-bottom:24px;max-width:800px;margin-left:auto;margin-right:auto}
+.hero h1 em{font-style:italic;color:var(--forest)}
+.hero>p{font-size:20px;color:var(--gray-500);line-height:1.7;max-width:600px;margin:0 auto 40px}
+.hero-cta-row{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+.hero-btn-primary{display:inline-flex;align-items:center;gap:8px;padding:16px 36px;background:var(--forest);color:var(--white);font-size:16px;font-weight:600;border-radius:var(--radius-sm);text-decoration:none;transition:var(--transition);font-family:'DM Sans',sans-serif}
+.hero-btn-primary:hover{background:var(--forest-dark);transform:translateY(-2px);box-shadow:0 8px 24px rgba(27,94,59,.25)}
+.hero-btn-secondary{display:inline-flex;align-items:center;gap:8px;padding:16px 36px;background:transparent;color:var(--gray-600);font-size:16px;font-weight:500;border-radius:var(--radius-sm);text-decoration:none;transition:var(--transition);border:1.5px solid var(--gray-200);font-family:'DM Sans',sans-serif}
+.hero-btn-secondary:hover{border-color:var(--gray-400);color:var(--gray-800)}
+.hero-stats{display:flex;gap:48px;justify-content:center;margin-top:64px;padding-top:48px;border-top:1px solid var(--gray-200)}
+.hero-stat-num{font-family:'Fraunces',serif;font-size:36px;font-weight:700;color:var(--forest)}
+.hero-stat-label{font-size:14px;color:var(--gray-500);margin-top:4px}
+.section{padding:100px 48px}
+.section-center{text-align:center;max-width:700px;margin:0 auto 60px}
+.section-badge{display:inline-flex;align-items:center;gap:6px;background:var(--forest-mist);color:var(--forest);padding:6px 16px;border-radius:20px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:20px}
+.section-title{font-family:'Fraunces',serif;font-size:40px;font-weight:700;color:var(--gray-900);line-height:1.2;margin-bottom:16px}
+.section-desc{font-size:17px;color:var(--gray-500);line-height:1.7}
+.section-alt{background:var(--gray-50)}
+.steps-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:32px;max-width:1100px;margin:0 auto}
+.step-card{background:var(--white);border:1.5px solid var(--gray-200);border-radius:var(--radius);padding:40px 32px;position:relative;transition:var(--transition)}
+.step-card:hover{border-color:var(--forest);transform:translateY(-4px);box-shadow:var(--shadow-lg)}
+.step-num{width:48px;height:48px;background:var(--forest);color:var(--white);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-size:20px;font-weight:700;margin-bottom:24px}
+.step-card h3{font-family:'Fraunces',serif;font-size:22px;font-weight:700;color:var(--gray-900);margin-bottom:12px}
+.step-card p{font-size:15px;color:var(--gray-500);line-height:1.7}
+.features-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:24px;max-width:900px;margin:0 auto}
+.feature-item{display:flex;gap:16px;padding:28px;background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius);transition:var(--transition)}
+.feature-item:hover{border-color:var(--forest-light);box-shadow:var(--shadow)}
+.feature-icon{width:44px;height:44px;background:var(--forest-mist);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.feature-item h4{font-size:16px;font-weight:700;color:var(--gray-800);margin-bottom:6px}
+.feature-item p{font-size:14px;color:var(--gray-500);line-height:1.6}
+.pricing-card{max-width:480px;margin:0 auto;background:var(--white);border:2px solid var(--forest);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow-lg)}
+.pricing-header{background:linear-gradient(135deg,var(--forest-deep),var(--forest));padding:36px;text-align:center;color:var(--white)}
+.pricing-header h3{font-family:'Fraunces',serif;font-size:24px;font-weight:700;margin-bottom:8px}
+.pricing-header p{font-size:14px;opacity:.75}
+.pricing-price{font-family:'Fraunces',serif;font-size:56px;font-weight:700;margin:20px 0 4px}
+.pricing-price-sub{font-size:14px;opacity:.6}
+.pricing-body{padding:32px 36px}
+.pricing-feature{display:flex;align-items:flex-start;gap:12px;padding:12px 0;font-size:14px;color:var(--gray-600);line-height:1.5}
+.pricing-feature:not(:last-child){border-bottom:1px solid var(--gray-100)}
+.pricing-check{color:var(--forest);font-weight:700;flex-shrink:0;font-size:16px}
+.pricing-footer{padding:0 36px 36px}
+.pricing-guarantee{margin-top:16px;padding:14px;background:var(--forest-mist);border-radius:var(--radius-sm);border-left:3px solid var(--forest);font-size:13px;color:var(--gray-600);line-height:1.5}
+.pricing-guarantee strong{color:var(--forest)}
+.cta-section{padding:100px 48px;background:linear-gradient(165deg,var(--forest-deep),var(--forest),var(--forest-dark));text-align:center;color:var(--white)}
+.cta-section h2{font-family:'Fraunces',serif;font-size:40px;font-weight:700;margin-bottom:16px}
+.cta-section p{font-size:18px;opacity:.7;max-width:500px;margin:0 auto 40px;line-height:1.6}
+.cta-btn{display:inline-flex;align-items:center;gap:8px;padding:18px 48px;background:var(--gold);color:var(--forest-deep);font-size:17px;font-weight:700;border-radius:var(--radius-sm);text-decoration:none;transition:var(--transition);font-family:'DM Sans',sans-serif}
+.cta-btn:hover{background:var(--white);transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,.2)}
+.site-footer{padding:40px 48px;background:var(--gray-900);color:rgba(255,255,255,.4);font-size:13px;display:flex;justify-content:space-between;align-items:center}
+.footer-logo{font-family:'Fraunces',serif;font-size:16px;color:rgba(255,255,255,.6);font-weight:700}
+@media(max-width:768px){.top-nav{padding:0 20px}.hero{padding:110px 24px 60px}.hero h1{font-size:32px}.hero-stats{flex-direction:column;gap:24px}.section{padding:60px 24px}.section-title{font-size:28px}.steps-grid,.features-grid{grid-template-columns:1fr}.cta-section{padding:60px 24px}.site-footer{flex-direction:column;gap:12px;text-align:center;padding:32px 24px}.nav-link{display:none}}
 </style>
 </head>
 <body>
-
-<div class="lang-switch">
-  <button class="lang-btn active" id="lang-en">EN</button>
-  <button class="lang-btn" id="lang-ko">한국어</button>
-</div>
-
-<div class="shell">
-  <div class="brand-panel">
-    <div class="brand-logo"><div class="brand-logo-icon">TW</div><div class="brand-logo-text">TravelWinners</div></div>
-    <div class="brand-headline" data-en="Your hotel deserves a global stage." data-ko="당신의 호텔,<br>전 세계 무대로.">Your hotel deserves a global stage.</div>
-    <div class="brand-sub" data-en="Join 6-language YouTube channels reaching travelers worldwide. One subscription, one video — real bookings from real viewers." data-ko="6개 언어 유튜브 채널을 통해 전 세계 여행자에게 호텔을 소개하세요.">Join 6-language YouTube channels reaching travelers worldwide. One subscription, one video — real bookings from real viewers.</div>
-    <div class="steps-nav" id="nav-signup">
-      <div class="step-item active" id="nav-s1"><div class="step-circle">1</div><div><div class="step-label" data-en="Create Account" data-ko="계정 만들기">Create Account</div><div class="step-label-sub" data-en="Email & password" data-ko="이메일 & 비밀번호">Email & password</div></div></div>
-      <div class="step-item" id="nav-s2"><div class="step-circle">2</div><div><div class="step-label" data-en="Hotel Information" data-ko="호텔 정보 입력">Hotel Information</div><div class="step-label-sub" data-en="Auto-fill from Agoda" data-ko="아고다 자동 불러오기">Auto-fill from Agoda</div></div></div>
-    </div>
-    <div class="steps-nav" id="nav-login" style="display:none"><div class="step-item active"><div class="step-circle" style="border-color:var(--gold);background:var(--gold);color:var(--forest-deep)">→</div><div><div class="step-label" style="color:var(--white)" data-en="Sign in" data-ko="로그인">Sign in</div><div class="step-label-sub" style="color:rgba(255,255,255,.55)" data-en="Access your dashboard" data-ko="대시보드 접근">Access your dashboard</div></div></div></div>
-    <div class="steps-nav" id="nav-dash" style="display:none"><div class="step-item active"><div class="step-circle" style="border-color:var(--gold);background:var(--gold);color:var(--forest-deep)">✓</div><div><div class="step-label" style="color:var(--white)" data-en="Dashboard" data-ko="대시보드">Dashboard</div><div class="step-label-sub" style="color:rgba(255,255,255,.55)" data-en="Manage your subscription" data-ko="구독 관리">Manage your subscription</div></div></div></div>
-    <div style="flex:1"></div>
-    <div class="brand-footer">© 2026 TravelWinners. All rights reserved.<br>Secure payments powered by Stripe.</div>
+<div class="lang-switch"><button class="lang-btn active" id="lang-en">EN</button><button class="lang-btn" id="lang-ko">한국어</button></div>
+<nav class="top-nav">
+  <a href="index.html" class="nav-logo"><div class="nav-logo-icon">TW</div><div class="nav-logo-text">TravelWinners</div></a>
+  <div class="nav-actions">
+    <a href="login.html" class="nav-link" data-en="Sign In" data-ko="로그인">Sign In</a>
+    <a href="signup.html" class="nav-cta" data-en="Get Started" data-ko="시작하기">Get Started</a>
   </div>
-
-  <div class="form-panel"><div class="form-container">
-
-    <!-- LOGIN -->
-    <div class="screen" id="scr-login">
-      <div class="form-title" data-en="Welcome back" data-ko="다시 오신 것을 환영합니다">Welcome back</div>
-      <div class="form-desc" data-en="Sign in to access your hotel dashboard." data-ko="호텔 대시보드에 접근하려면 로그인하세요.">Sign in to access your hotel dashboard.</div>
-      <div class="field-group"><label class="field-label" data-en="Email" data-ko="이메일">Email</label><input type="email" class="field-input" id="login-email" placeholder="your@hotel.com"></div>
-      <div class="field-group"><label class="field-label" data-en="Password" data-ko="비밀번호">Password</label><div class="input-wrap"><input type="password" class="field-input has-toggle" id="login-pw" placeholder="Enter your password"><button class="pw-toggle" data-target="login-pw" type="button">SHOW</button></div></div>
-      <button class="btn-primary" id="btn-login" data-en="Sign In" data-ko="로그인">Sign In</button>
-      <div class="or-divider"><span data-en="or" data-ko="또는">or</span></div>
-      <button class="btn-secondary" data-go="signup1" data-en="Create a new account" data-ko="새 계정 만들기">Create a new account</button>
+</nav>
+<section class="hero">
+  <div class="hero-badge" data-en="✦ Trusted by Hotels across Asia-Pacific" data-ko="✦ 아시아-태평양 호텔들이 신뢰하는 파트너">✦ Trusted by Hotels across Asia-Pacific</div>
+  <h1 data-en="Your Hotel on a <em>Global Stage</em>" data-ko="당신의 호텔을<br><em>전 세계 무대</em>로">Your Hotel on a <em>Global Stage</em></h1>
+  <p data-en="Get featured in professional TOP3 hotel recommendation videos across our 6-language YouTube channel network. One payment. Permanent exposure. Real bookings." data-ko="6개 언어 유튜브 채널 네트워크에서 TOP3 호텔 추천 영상으로 소개됩니다. 한 번 결제. 영구 노출. 실제 예약.">Get featured in professional TOP3 hotel recommendation videos across our 6-language YouTube channel network. One payment. Permanent exposure. Real bookings.</p>
+  <div class="hero-cta-row">
+    <a href="signup.html" class="hero-btn-primary" data-en="Get Started — $200 →" data-ko="시작하기 — $200 →">Get Started — $200 →</a>
+    <a href="#how-it-works" class="hero-btn-secondary" data-en="How It Works" data-ko="이용 방법">How It Works</a>
+  </div>
+  <div class="hero-stats">
+    <div><div class="hero-stat-num">6</div><div class="hero-stat-label" data-en="Language Channels" data-ko="언어 채널">Language Channels</div></div>
+    <div><div class="hero-stat-num">$200</div><div class="hero-stat-label" data-en="One-time Investment" data-ko="1회 투자">One-time Investment</div></div>
+    <div><div class="hero-stat-num">∞</div><div class="hero-stat-label" data-en="Video Stays Live Forever" data-ko="영구 게시">Video Stays Live Forever</div></div>
+  </div>
+</section>
+<section class="section section-alt" id="how-it-works">
+  <div class="section-center">
+    <div class="section-badge" data-en="How It Works" data-ko="이용 방법">How It Works</div>
+    <div class="section-title" data-en="Three simple steps to global exposure" data-ko="3단계로 전 세계에 노출">Three simple steps to global exposure</div>
+    <div class="section-desc" data-en="From sign-up to published video in just days." data-ko="가입부터 영상 게시까지 단 며칠.">From sign-up to published video in just days.</div>
+  </div>
+  <div class="steps-grid">
+    <div class="step-card"><div class="step-num">1</div><h3 data-en="Register & Verify" data-ko="가입 & 인증">Register & Verify</h3><p data-en="Create your account and enter your Agoda Property ID. We auto-fill your hotel details for accuracy." data-ko="계정을 만들고 아고다 숙소 ID를 입력하세요. 호텔 정보를 자동으로 불러옵니다.">Create your account and enter your Agoda Property ID. We auto-fill your hotel details for accuracy.</p></div>
+    <div class="step-card"><div class="step-num">2</div><h3 data-en="Pay & Schedule" data-ko="결제 & 일정 확인">Pay & Schedule</h3><p data-en="One-time $200 payment via Stripe. We schedule your hotel for the next available TOP3 video slot." data-ko="Stripe로 $200 일회 결제. 다음 가용 TOP3 영상 슬롯에 호텔을 배정합니다.">One-time $200 payment via Stripe. We schedule your hotel for the next available TOP3 video slot.</p></div>
+    <div class="step-card"><div class="step-num">3</div><h3 data-en="Go Live Globally" data-ko="전 세계 송출">Go Live Globally</h3><p data-en="Your hotel is featured in a professional video published across 6 language channels with Agoda affiliate links." data-ko="6개 언어 채널에 아고다 제휴 링크와 함께 프로 영상으로 호텔이 소개됩니다.">Your hotel is featured in a professional video published across 6 language channels with Agoda affiliate links.</p></div>
+  </div>
+</section>
+<section class="section">
+  <div class="section-center">
+    <div class="section-badge" data-en="What You Get" data-ko="포함 서비스">What You Get</div>
+    <div class="section-title" data-en="Everything included in your package" data-ko="패키지에 포함된 모든 것">Everything included in your package</div>
+  </div>
+  <div class="features-grid">
+    <div class="feature-item"><div class="feature-icon">🎬</div><div><h4 data-en="Professional TOP3 Video" data-ko="프로 TOP3 영상">Professional TOP3 Video</h4><p data-en="Your hotel featured in a curated recommendation with narration, visuals, and booking links." data-ko="나레이션, 비주얼, 예약 링크가 포함된 큐레이션 추천 영상.">Your hotel featured in a curated recommendation with narration, visuals, and booking links.</p></div></div>
+    <div class="feature-item"><div class="feature-icon">🌍</div><div><h4 data-en="6-Language Distribution" data-ko="6개 언어 송출">6-Language Distribution</h4><p data-en="Korean, English, Sinhala, mixed — reaching travelers across multiple regions." data-ko="한국어, 영어, 싱할라어, 혼합 — 다양한 지역의 여행자에게 도달.">Korean, English, Sinhala, mixed — reaching travelers across multiple regions.</p></div></div>
+    <div class="feature-item"><div class="feature-icon">🔗</div><div><h4 data-en="Agoda Affiliate Integration" data-ko="아고다 제휴 링크 연동">Agoda Affiliate Integration</h4><p data-en="Direct booking links in every video description for measurable conversion." data-ko="모든 영상 설명에 직접 예약 링크 삽입으로 전환 측정 가능.">Direct booking links in every video description for measurable conversion.</p></div></div>
+    <div class="feature-item"><div class="feature-icon">♾️</div><div><h4 data-en="Permanent Exposure" data-ko="영구 노출">Permanent Exposure</h4><p data-en="Your video stays live forever. No monthly fees, no renewal — one-time investment." data-ko="영상은 영구 게시됩니다. 월 요금 없음, 갱신 없음 — 1회 투자.">Your video stays live forever. No monthly fees, no renewal — one-time investment.</p></div></div>
+  </div>
+</section>
+<section class="section section-alt">
+  <div class="section-center">
+    <div class="section-badge" data-en="Pricing" data-ko="가격">Pricing</div>
+    <div class="section-title" data-en="Simple, transparent pricing" data-ko="심플하고 투명한 가격">Simple, transparent pricing</div>
+  </div>
+  <div class="pricing-card">
+    <div class="pricing-header"><h3 data-en="TOP3 Hotel Introduction" data-ko="TOP3 호텔 소개">TOP3 Hotel Introduction</h3><p data-en="One-time fee, no hidden costs" data-ko="1회 비용, 추가 비용 없음">One-time fee, no hidden costs</p><div class="pricing-price">$200</div><div class="pricing-price-sub" data-en="per hotel, one-time" data-ko="호텔당 1회">per hotel, one-time</div></div>
+    <div class="pricing-body">
+      <div class="pricing-feature"><span class="pricing-check">✓</span><span data-en="Featured in professional TOP3 video" data-ko="프로 TOP3 추천 영상 소개">Featured in professional TOP3 video</span></div>
+      <div class="pricing-feature"><span class="pricing-check">✓</span><span data-en="Published across 6 language channels" data-ko="6개 언어 채널 동시 송출">Published across 6 language channels</span></div>
+      <div class="pricing-feature"><span class="pricing-check">✓</span><span data-en="Agoda affiliate links in description" data-ko="아고다 제휴 링크 삽입">Agoda affiliate links in description</span></div>
+      <div class="pricing-feature"><span class="pricing-check">✓</span><span data-en="Permanent video — stays live forever" data-ko="영구 게시 — 계속 노출">Permanent video — stays live forever</span></div>
+      <div class="pricing-feature"><span class="pricing-check">✓</span><span data-en="Stripe processing fee included" data-ko="Stripe 수수료 포함">Stripe processing fee included</span></div>
     </div>
-
-    <!-- SIGNUP 1 -->
-    <div class="screen active" id="scr-signup1">
-      <div class="form-title" data-en="Create your account" data-ko="계정 만들기">Create your account</div>
-      <div class="form-desc" data-en="Start promoting your hotel to millions of travelers worldwide." data-ko="전 세계 수백만 여행자에게 호텔을 홍보하세요.">Start promoting your hotel to millions of travelers worldwide.</div>
-      <div class="field-group"><label class="field-label" data-en="Email" data-ko="이메일">Email</label><input type="email" class="field-input" id="reg-email" placeholder="your@hotel.com"><div class="field-error" id="err-email">Please enter a valid email</div></div>
-      <div class="field-group"><label class="field-label" data-en="Password" data-ko="비밀번호">Password</label>
-        <div class="input-wrap"><input type="password" class="field-input has-toggle" id="reg-pw" placeholder="Create a password"><button class="pw-toggle" data-target="reg-pw" type="button">SHOW</button></div>
-        <div class="pw-requirements"><div class="pw-req-title" data-en="Password Requirements" data-ko="비밀번호 조건">Password Requirements</div>
-          <div class="pw-req-item" id="req-len"><span class="pw-req-ico">✓</span><span data-en="At least 8 characters" data-ko="8자 이상">At least 8 characters</span></div>
-          <div class="pw-req-item" id="req-upper"><span class="pw-req-ico">✓</span><span data-en="One uppercase letter (A-Z)" data-ko="대문자 1개 (A-Z)">One uppercase letter (A-Z)</span></div>
-          <div class="pw-req-item" id="req-lower"><span class="pw-req-ico">✓</span><span data-en="One lowercase letter (a-z)" data-ko="소문자 1개 (a-z)">One lowercase letter (a-z)</span></div>
-          <div class="pw-req-item" id="req-num"><span class="pw-req-ico">✓</span><span data-en="One number (0-9)" data-ko="숫자 1개 (0-9)">One number (0-9)</span></div>
-          <div class="pw-req-item" id="req-spec"><span class="pw-req-ico">✓</span><span data-en="One special character (!@#$...)" data-ko="특수문자 1개 (!@#$...)">One special character (!@#$...)</span></div>
-        </div>
-        <div class="pw-strength"><div class="pw-bar" id="pb1"></div><div class="pw-bar" id="pb2"></div><div class="pw-bar" id="pb3"></div><div class="pw-bar" id="pb4"></div><div class="pw-bar" id="pb5"></div></div>
-        <div class="pw-strength-label" id="pw-label"></div>
-        <div class="field-error" id="err-pw">Please meet all requirements above</div>
-      </div>
-      <div class="field-group"><label class="field-label" data-en="Confirm Password" data-ko="비밀번호 확인">Confirm Password</label><div class="input-wrap"><input type="password" class="field-input has-toggle" id="reg-confirm" placeholder="Re-enter password"><button class="pw-toggle" data-target="reg-confirm" type="button">SHOW</button></div><div class="field-error" id="err-confirm">Passwords do not match</div></div>
-      <div style="margin:28px 0 8px"><div class="check-row" id="terms-row"><div class="check-box" id="chk-terms"></div><div class="check-text">I agree to the <a href="javascript:void(0)">Terms of Service</a> and <a href="javascript:void(0)">Privacy Policy</a></div></div></div>
-      <button class="btn-primary" id="btn-signup" data-en="Create Account" data-ko="계정 만들기">Create Account</button>
-      <div class="or-divider"><span data-en="or" data-ko="또는">or</span></div>
-      <button class="btn-secondary" data-go="login" data-en="Already have an account? Sign in" data-ko="이미 계정이 있으신가요? 로그인">Already have an account? Sign in</button>
+    <div class="pricing-footer">
+      <a href="signup.html" class="hero-btn-primary" style="width:100%;justify-content:center;text-decoration:none" data-en="Get Started →" data-ko="시작하기 →">Get Started →</a>
+      <div class="pricing-guarantee"><strong data-en="Refund Guarantee:" data-ko="환불 보장:">Refund Guarantee:</strong> <span data-en="Zero bookings within 6 months → full refund minus Stripe fees." data-ko="6개월 내 예약 0건 시 Stripe 수수료 제외 전액 환불.">Zero bookings within 6 months → full refund minus Stripe fees.</span></div>
     </div>
-
-    <!-- SIGNUP 2 -->
-    <div class="screen" id="scr-signup2">
-      <div class="form-title" data-en="Your hotel information" data-ko="호텔 정보 입력">Your hotel information</div>
-      <div class="form-desc" data-en="Enter your Agoda Property ID to auto-fill, or fill in manually." data-ko="아고다 숙소 ID를 입력하면 자동으로 불러옵니다.">Enter your Agoda Property ID to auto-fill, or fill in manually.</div>
-      <div class="field-group"><label class="field-label" data-en="Agoda Property ID" data-ko="아고다 숙소 ID">Agoda Property ID</label><div class="agoda-fetch-row"><input type="text" class="field-input" id="agoda-id" placeholder="e.g. 12345678"><button class="btn-fetch" id="btn-fetch" data-en="Fetch" data-ko="불러오기">Fetch</button></div><div class="field-hint" data-en="Find it in Agoda YCS → Property Settings" data-ko="아고다 YCS → 숙소 설정에서 확인">Find it in Agoda YCS → Property Settings</div></div>
-      <div class="hotel-preview" id="hotel-preview"><div class="hotel-preview-header"><span class="hotel-preview-badge" data-en="Verified from Agoda" data-ko="아고다 확인됨">Verified from Agoda</span></div><div class="hotel-preview-body"><div class="hotel-name-display" id="hp-name"></div><div class="hotel-stars" id="hp-stars"></div><div class="hotel-meta"><div class="hotel-meta-item"><span>📍</span><span id="hp-loc"></span></div><div class="hotel-meta-item"><span>🛏</span><span id="hp-rooms"></span></div></div><div class="hotel-edit-grid"><div class="field-group"><label class="field-label" data-en="Contact Name" data-ko="담당자명">Contact Name</label><input type="text" class="field-input" id="h-contact" placeholder="John Smith"></div><div class="field-group"><label class="field-label" data-en="Contact Email" data-ko="담당자 이메일">Contact Email</label><input type="text" class="field-input" id="h-email" placeholder="gm@hotel.com"></div><div class="field-group"><label class="field-label" data-en="Phone" data-ko="전화번호">Phone</label><input type="text" class="field-input" id="h-phone" placeholder="+66 XXX"></div><div class="field-group"><label class="field-label"><span data-en="WhatsApp" data-ko="WhatsApp">WhatsApp</span> <span class="optional">(optional)</span></label><input type="text" class="field-input" id="h-whatsapp" placeholder="+66 XXX"></div></div></div></div>
-      <div class="btn-row" style="margin-top:28px"><button class="btn-back" data-go="signup1" data-en="← Back" data-ko="← 뒤로">← Back</button><button class="btn-primary" id="btn-complete" data-en="Complete Registration" data-ko="가입 완료">Complete Registration</button></div>
-    </div>
-
-    <!-- DONE -->
-    <div class="screen" id="scr-done"><div class="success-wrap"><div class="success-ico">✓</div><div class="success-title" data-en="Registration complete!" data-ko="가입 완료!">Registration complete!</div><div class="success-desc" data-en="Sign in to access your dashboard, review your product, and start." data-ko="로그인하시면 대시보드에서 상품을 확인하고 시작할 수 있습니다.">Sign in to access your dashboard, review your product, and start.</div><div class="success-next-box"><div class="success-next-title" data-en="What happens next" data-ko="다음 절차">What happens next</div><div class="success-next-step"><div class="success-next-num">1</div><div class="success-next-text" data-en="Sign in with your new account" data-ko="새 계정으로 로그인">Sign in with your new account</div></div><div class="success-next-step"><div class="success-next-num">2</div><div class="success-next-text" data-en="Review the TOP3 product ($200) in dashboard" data-ko="대시보드에서 TOP3 상품 ($200) 확인">Review the TOP3 product ($200) in dashboard</div></div><div class="success-next-step"><div class="success-next-num">3</div><div class="success-next-text" data-en="Pay via Stripe to begin video production" data-ko="Stripe 결제 후 영상 제작 시작">Pay via Stripe to begin video production</div></div></div><button class="btn-primary" data-go="login" data-en="Sign In Now →" data-ko="지금 로그인 →">Sign In Now →</button></div></div>
-
-    <!-- DASHBOARD -->
-    <div class="screen" id="scr-dashboard">
-      <div class="dash-header"><div><div class="dash-welcome" data-en="Dashboard" data-ko="대시보드">Dashboard</div><div class="dash-email" id="dash-user-email"></div></div><button class="dash-logout" id="btn-logout" data-en="Sign Out" data-ko="로그아웃">Sign Out</button></div>
-      <div class="order-card"><div class="order-card-top"><div class="order-product-name" data-en="TOP3 Hotel Introduction" data-ko="TOP3 호텔 소개 영상">TOP3 Hotel Introduction</div><div class="order-product-desc" data-en="Your hotel featured in a professional TOP3 video across our 6-language YouTube channel network." data-ko="6개 언어 유튜브 채널 네트워크에서 TOP3 영상으로 호텔을 소개합니다.">Your hotel featured in a professional TOP3 video across our 6-language YouTube channel network.</div></div><div class="order-features"><div class="order-feature"><div class="order-feature-check">✓</div><div class="order-feature-text" data-en="Featured in professional TOP3 video" data-ko="프로 TOP3 추천 영상 소개">Featured in professional TOP3 video</div></div><div class="order-feature"><div class="order-feature-check">✓</div><div class="order-feature-text" data-en="Published across 6 language channels" data-ko="6개 언어 채널 동시 송출">Published across 6 language channels</div></div><div class="order-feature"><div class="order-feature-check">✓</div><div class="order-feature-text" data-en="Agoda affiliate links in description" data-ko="아고다 제휴 링크 삽입">Agoda affiliate links in description</div></div><div class="order-feature"><div class="order-feature-check">✓</div><div class="order-feature-text" data-en="Permanent video — stays live forever" data-ko="영구 게시 — 계속 노출">Permanent video — stays live forever</div></div></div><div class="order-pricing"><div class="order-price-row"><div class="order-price-label" data-en="TOP3 Introduction (one-time)" data-ko="TOP3 소개 (1회)">TOP3 Introduction (one-time)</div><div class="order-price-value">$200.00</div></div><div class="order-price-row"><div class="order-price-label" data-en="Stripe processing fee" data-ko="Stripe 수수료">Stripe processing fee</div><div class="order-price-value" data-en="Included" data-ko="포함">Included</div></div><div class="order-price-row order-price-total"><div class="order-price-label" data-en="Total" data-ko="합계">Total</div><div class="order-price-value">$200</div></div></div></div>
-      <div class="refund-note"><div class="refund-note-title" data-en="Refund Policy" data-ko="환불 정책">Refund Policy</div><div class="refund-note-text" data-en="Zero bookings within 6 months → full refund minus Stripe fees." data-ko="6개월 내 예약 0건 시 Stripe 수수료 제외 전액 환불.">Zero bookings within 6 months → full refund minus Stripe fees.</div></div>
-      <button class="btn-primary" style="margin-top:24px" id="btn-pay" data-en="Pay $200 with Stripe" data-ko="Stripe로 $200 결제">Pay $200 with Stripe</button>
-      <div class="secure-row"><span>🔒</span><span data-en="Secured by Stripe. 256-bit SSL." data-ko="Stripe 보안 결제. 256-bit SSL.">Secured by Stripe. 256-bit SSL.</span></div>
-      <button class="btn-danger" id="btn-logout2" data-en="Sign out" data-ko="로그아웃">Sign out</button>
-    </div>
-
-  </div></div>
-</div>
-<div class="toast" id="toast"></div>
-
+  </div>
+</section>
+<section class="cta-section">
+  <h2 data-en="Ready to reach global travelers?" data-ko="전 세계 여행자에게<br>도달할 준비가 되셨나요?">Ready to reach global travelers?</h2>
+  <p data-en="Join TravelWinners today and put your hotel in front of millions of potential guests." data-ko="지금 TravelWinners에 가입하고 수백만 잠재 고객에게 호텔을 노출하세요.">Join TravelWinners today and put your hotel in front of millions of potential guests.</p>
+  <a href="signup.html" class="cta-btn" data-en="Get Started Now →" data-ko="지금 시작하기 →">Get Started Now →</a>
+</section>
+<footer class="site-footer"><div class="footer-logo">TravelWinners</div><div>© 2026 TravelWinners. All rights reserved.</div></footer>
 <script>
 (function(){
-  var SURL='https://vjsludfjsphwnumuoqaj.supabase.co';
-  var SKEY='sb_publishable_IluITb52iuwwHf9xgP99MA__KX-sNM6';
-  var sb=null;
-  try{sb=window.supabase.createClient(SURL,SKEY)}catch(e){console.warn('SB init:',e)}
-  var lang='en';
-  function $(id){return document.getElementById(id)}
-  function toast(m,err){var t=$('toast');t.textContent=m;t.className='toast show'+(err?' error':'');setTimeout(function(){t.className='toast'},3000)}
-
-  // LANG
-  function switchLang(l){
-    lang=l;$('lang-en').classList.toggle('active',l==='en');$('lang-ko').classList.toggle('active',l==='ko');
-    document.querySelectorAll('[data-'+l+']').forEach(function(el){var v=el.getAttribute('data-'+l);if(el.tagName==='INPUT')el.placeholder=v;else el.innerHTML=v});
-    updatePwCheck();
-  }
-  $('lang-en').addEventListener('click',function(){switchLang('en')});
-  $('lang-ko').addEventListener('click',function(){switchLang('ko')});
-
-  // SCREENS
-  function show(id){
-    document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active')});
-    ['nav-signup','nav-login','nav-dash'].forEach(function(n){$(n).style.display='none'});
-    if(id==='login'){$('scr-login').classList.add('active');$('nav-login').style.display='flex'}
-    else if(id==='signup1'){$('scr-signup1').classList.add('active');$('nav-signup').style.display='flex';updateNav(1)}
-    else if(id==='signup2'){$('scr-signup2').classList.add('active');$('nav-signup').style.display='flex';updateNav(2)}
-    else if(id==='done'){$('scr-done').classList.add('active');$('nav-signup').style.display='flex';updateNav(3)}
-    window.scrollTo(0,0);
-  }
-  function updateNav(s){for(var i=1;i<=2;i++){var el=$('nav-s'+i);el.classList.remove('active','completed');if(i===s)el.classList.add('active');else if(i<s)el.classList.add('completed')}}
-  function showDash(email){document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active')});$('scr-dashboard').classList.add('active');$('dash-user-email').textContent=email;['nav-signup','nav-login'].forEach(function(n){$(n).style.display='none'});$('nav-dash').style.display='flex'}
-
-  // NAV BUTTONS
-  document.querySelectorAll('[data-go]').forEach(function(b){b.addEventListener('click',function(e){e.preventDefault();show(this.getAttribute('data-go'))})});
-
-  // PW TOGGLE
-  document.querySelectorAll('.pw-toggle').forEach(function(b){
-    b.addEventListener('click',function(e){
-      e.preventDefault();e.stopPropagation();
-      var inp=$(this.getAttribute('data-target'));
-      if(inp.type==='password'){inp.type='text';this.textContent='HIDE'}else{inp.type='password';this.textContent='SHOW'}
-    });
-  });
-
-  // CHECKBOX
-  $('terms-row').addEventListener('click',function(e){e.preventDefault();$('chk-terms').classList.toggle('checked')});
-
-  // PW CHECK
-  function updatePwCheck(){
-    var v=$('reg-pw').value;
-    var c={'req-len':v.length>=8,'req-upper':/[A-Z]/.test(v),'req-lower':/[a-z]/.test(v),'req-num':/[0-9]/.test(v),'req-spec':/[^A-Za-z0-9]/.test(v)};
-    var s=0;for(var id in c){$(id).classList.toggle('met',c[id]);if(c[id])s++}
-    for(var i=1;i<=5;i++){var b=$('pb'+i);b.className='pw-bar';if(i<=s)b.classList.add(s<=2?'weak':s<=3?'med':'strong')}
-    var lb=$('pw-label');lb.className='pw-strength-label';
-    if(!v)lb.textContent='';else if(s<=2){lb.textContent=lang==='ko'?'약함':'Weak';lb.classList.add('weak')}else if(s<=3){lb.textContent=lang==='ko'?'보통':'Medium';lb.classList.add('medium')}else{lb.textContent=lang==='ko'?'강함':'Strong';lb.classList.add('strong')}
-  }
-  $('reg-pw').addEventListener('input',updatePwCheck);
-
-  // VALIDATE
-  function valid(){
-    var ok=true,em=$('reg-email'),pw=$('reg-pw'),cf=$('reg-confirm');
-    [em,pw,cf].forEach(function(f){f.classList.remove('error')});document.querySelectorAll('.field-error').forEach(function(e){e.classList.remove('show')});
-    if(!em.value||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em.value)){em.classList.add('error');$('err-email').classList.add('show');ok=false}
-    var v=pw.value;if(!(v.length>=8&&/[A-Z]/.test(v)&&/[a-z]/.test(v)&&/[0-9]/.test(v)&&/[^A-Za-z0-9]/.test(v))){pw.classList.add('error');$('err-pw').classList.add('show');ok=false}
-    if(!cf.value||pw.value!==cf.value){cf.classList.add('error');$('err-confirm').classList.add('show');ok=false}
-    if(!$('chk-terms').classList.contains('checked')){toast(lang==='ko'?'이용약관에 동의해주세요.':'Please agree to the Terms.',true);ok=false}
-    return ok;
-  }
-
-  // SIGNUP
-  $('btn-signup').addEventListener('click',async function(){
-    if(!valid())return;var btn=this;
-    btn.innerHTML='<span class="spinner"></span>'+(lang==='ko'?'가입 중...':'Creating...');btn.disabled=true;
-    if(!sb){toast('Supabase connection error.',true);btn.disabled=false;btn.textContent=lang==='ko'?'계정 만들기':'Create Account';return}
-    try{var r=await sb.auth.signUp({email:$('reg-email').value,password:$('reg-pw').value});btn.disabled=false;btn.textContent=lang==='ko'?'계정 만들기':'Create Account';if(r.error){toast(r.error.message,true);return}toast(lang==='ko'?'계정 생성 완료!':'Account created!');show('signup2')}catch(e){btn.disabled=false;btn.textContent=lang==='ko'?'계정 만들기':'Create Account';toast('Error: '+e.message,true)}
-  });
-
-  // LOGIN
-  $('btn-login').addEventListener('click',async function(){
-    var em=$('login-email').value,pw=$('login-pw').value;
-    if(!em||!pw){toast(lang==='ko'?'이메일과 비밀번호를 입력하세요.':'Enter email and password.',true);return}
-    var btn=this;btn.innerHTML='<span class="spinner"></span>'+(lang==='ko'?'로그인 중...':'Signing in...');btn.disabled=true;
-    if(!sb){toast('Supabase connection error.',true);btn.disabled=false;btn.textContent=lang==='ko'?'로그인':'Sign In';return}
-    try{var r=await sb.auth.signInWithPassword({email:em,password:pw});btn.disabled=false;btn.textContent=lang==='ko'?'로그인':'Sign In';if(r.error){toast(r.error.message,true);return}toast(lang==='ko'?'로그인 성공!':'Login successful!');showDash(r.data.user.email)}catch(e){btn.disabled=false;btn.textContent=lang==='ko'?'로그인':'Sign In';toast('Error: '+e.message,true)}
-  });
-
-  // LOGOUT
-  function logout(){try{if(sb)sb.auth.signOut()}catch(e){}show('login');toast(lang==='ko'?'로그아웃 되었습니다.':'Signed out.')}
-  $('btn-logout').addEventListener('click',logout);$('btn-logout2').addEventListener('click',logout);
-
-  // AGODA
-  $('btn-fetch').addEventListener('click',function(){
-    var id=$('agoda-id').value.trim();if(!id){toast(lang==='ko'?'아고다 숙소 ID를 입력하세요.':'Enter Agoda Property ID.',true);return}
-    var btn=this;btn.innerHTML='<span class="spinner spinner-dark"></span>';btn.disabled=true;
-    setTimeout(function(){
-      var hs={'12345678':{n:'Grand Palace Hotel & Resort',s:5,l:'Bangkok, Thailand',r:245},'87654321':{n:'Colombo Bay Inn',s:4,l:'Colombo, Sri Lanka',r:82},'11223344':{n:'Shinjuku Excel Hotel Tokyu',s:4,l:'Tokyo, Japan',r:408}};
-      var h=hs[id]||{n:'Hotel #'+id,s:4,l:'Asia Pacific',r:Math.floor(Math.random()*200)+50};
-      $('hp-name').textContent=h.n;$('hp-stars').textContent='★'.repeat(h.s)+'☆'.repeat(5-h.s);$('hp-loc').textContent=h.l;$('hp-rooms').textContent=h.r+' rooms';
-      $('hotel-preview').classList.add('show');btn.textContent=lang==='ko'?'불러오기':'Fetch';btn.disabled=false;toast(lang==='ko'?'호텔 정보 로드!':'Hotel info loaded!');
-    },1500);
-  });
-
-  // COMPLETE
-  $('btn-complete').addEventListener('click',function(){if(!$('hotel-preview').classList.contains('show')){toast(lang==='ko'?'호텔 정보를 먼저 불러와주세요.':'Please fetch hotel info first.',true);return}show('done')});
-
-  // PAY SIM
-  $('btn-pay').addEventListener('click',function(){var btn=this;btn.innerHTML='<span class="spinner"></span>'+(lang==='ko'?'Stripe 연결 중...':'Connecting to Stripe...');btn.disabled=true;setTimeout(function(){btn.textContent=lang==='ko'?'Stripe로 $200 결제':'Pay $200 with Stripe';btn.disabled=false;toast(lang==='ko'?'결제 시뮬레이션 완료!':'Payment simulated!')},2000)});
-
-  // SESSION CHECK
-  (async function(){try{if(!sb)return;var r=await sb.auth.getSession();if(r.data.session)showDash(r.data.session.user.email)}catch(e){console.warn('Session:',e)}})();
+  var lang=localStorage.getItem('tw-lang')||'en';
+  function switchLang(l){lang=l;localStorage.setItem('tw-lang',l);document.getElementById('lang-en').classList.toggle('active',l==='en');document.getElementById('lang-ko').classList.toggle('active',l==='ko');document.querySelectorAll('[data-'+l+']').forEach(function(el){var v=el.getAttribute('data-'+l);if(el.tagName==='INPUT')el.placeholder=v;else el.innerHTML=v})}
+  document.getElementById('lang-en').addEventListener('click',function(){switchLang('en')});
+  document.getElementById('lang-ko').addEventListener('click',function(){switchLang('ko')});
+  switchLang(lang);
+  document.querySelectorAll('a[href^="#"]').forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();var t=document.querySelector(this.getAttribute('href'));if(t)t.scrollIntoView({behavior:'smooth'})})});
 })();
 </script>
 </body>

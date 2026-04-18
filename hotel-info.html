@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TravelWinners — Hotel Information</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,700;1,9..144,400&family=DM+Sans:wght@300;400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="shared.js"></script>
+</head>
+<body>
+<div class="lang-switch"><button class="lang-btn active" id="lang-en">EN</button><button class="lang-btn" id="lang-ko">한국어</button></div>
+<div class="shell">
+  <div class="brand-panel">
+    <a href="index.html" class="brand-logo-link" style="text-decoration:none"><div class="brand-logo"><div class="brand-logo-icon">TW</div><div class="brand-logo-text">TravelWinners</div></div></a>
+    <div class="brand-headline" data-en="Almost there!" data-ko="거의 다 됐어요!">Almost there!</div>
+    <div class="brand-sub" data-en="Tell us about your hotel so we can create your profile and start the video production." data-ko="호텔 정보를 입력하시면 프로필을 생성하고 영상 제작을 시작합니다.">Tell us about your hotel so we can create your profile and start the video production.</div>
+    <div class="steps-nav">
+      <div class="step-item completed" id="nav-s1"><div class="step-circle">✓</div><div><div class="step-label" data-en="Create Account" data-ko="계정 만들기">Create Account</div><div class="step-label-sub" data-en="Completed" data-ko="완료">Completed</div></div></div>
+      <div class="step-item active" id="nav-s2"><div class="step-circle">2</div><div><div class="step-label" data-en="Hotel Information" data-ko="호텔 정보 입력">Hotel Information</div><div class="step-label-sub" data-en="Auto-fill from Agoda" data-ko="아고다 자동 불러오기">Auto-fill from Agoda</div></div></div>
+    </div>
+    <div style="flex:1"></div>
+    <div class="brand-footer">© 2026 TravelWinners. All rights reserved.<br>Secure payments powered by Stripe.</div>
+  </div>
+  <div class="form-panel"><div class="form-container">
+    <!-- Hotel Info Form -->
+    <div id="scr-hotel-info">
+      <div class="form-title" data-en="Your hotel information" data-ko="호텔 정보 입력">Your hotel information</div>
+      <div class="form-desc" data-en="Enter your Agoda Property ID to auto-fill, or fill in manually." data-ko="아고다 숙소 ID를 입력하면 자동으로 불러옵니다.">Enter your Agoda Property ID to auto-fill, or fill in manually.</div>
+      <div class="field-group">
+        <label class="field-label" data-en="Agoda Property ID" data-ko="아고다 숙소 ID">Agoda Property ID</label>
+        <div class="agoda-fetch-row">
+          <input type="text" class="field-input" id="agoda-id" placeholder="e.g. 12345678">
+          <button class="btn-fetch" id="btn-fetch" data-en="Fetch" data-ko="불러오기">Fetch</button>
+        </div>
+        <div class="field-hint" data-en="Find it in Agoda YCS → Property Settings" data-ko="아고다 YCS → 숙소 설정에서 확인">Find it in Agoda YCS → Property Settings</div>
+      </div>
+      <div class="hotel-preview" id="hotel-preview">
+        <div class="hotel-preview-header"><span class="hotel-preview-badge" data-en="Verified from Agoda" data-ko="아고다 확인됨">Verified from Agoda</span></div>
+        <div class="hotel-preview-body">
+          <div class="hotel-name-display" id="hp-name"></div>
+          <div class="hotel-stars" id="hp-stars"></div>
+          <div class="hotel-meta">
+            <div class="hotel-meta-item"><span>📍</span><span id="hp-loc"></span></div>
+            <div class="hotel-meta-item"><span>🛏</span><span id="hp-rooms"></span></div>
+          </div>
+          <div class="hotel-edit-grid">
+            <div class="field-group"><label class="field-label" data-en="Contact Name" data-ko="담당자명">Contact Name</label><input type="text" class="field-input" id="h-contact" placeholder="John Smith"></div>
+            <div class="field-group"><label class="field-label" data-en="Contact Email" data-ko="담당자 이메일">Contact Email</label><input type="text" class="field-input" id="h-email" placeholder="gm@hotel.com"></div>
+            <div class="field-group"><label class="field-label" data-en="Phone" data-ko="전화번호">Phone</label><input type="text" class="field-input" id="h-phone" placeholder="+66 XXX"></div>
+            <div class="field-group"><label class="field-label"><span data-en="WhatsApp" data-ko="WhatsApp">WhatsApp</span> <span class="optional">(optional)</span></label><input type="text" class="field-input" id="h-whatsapp" placeholder="+66 XXX"></div>
+          </div>
+        </div>
+      </div>
+      <div class="btn-row" style="margin-top:28px">
+        <a href="signup.html" class="btn-back" data-en="← Back" data-ko="← 뒤로">← Back</a>
+        <button class="btn-primary" id="btn-complete" data-en="Complete Registration" data-ko="가입 완료">Complete Registration</button>
+      </div>
+    </div>
+
+    <!-- Done Screen -->
+    <div id="scr-done" style="display:none">
+      <div class="success-wrap">
+        <div class="success-ico">✓</div>
+        <div class="success-title" data-en="Registration complete!" data-ko="가입 완료!">Registration complete!</div>
+        <div class="success-desc" data-en="Sign in to access your dashboard, review your product, and start." data-ko="로그인하시면 대시보드에서 상품을 확인하고 시작할 수 있습니다.">Sign in to access your dashboard, review your product, and start.</div>
+        <div class="success-next-box">
+          <div class="success-next-title" data-en="What happens next" data-ko="다음 절차">What happens next</div>
+          <div class="success-next-step"><div class="success-next-num">1</div><div class="success-next-text" data-en="Sign in with your new account" data-ko="새 계정으로 로그인">Sign in with your new account</div></div>
+          <div class="success-next-step"><div class="success-next-num">2</div><div class="success-next-text" data-en="Review the TOP3 product ($200) in dashboard" data-ko="대시보드에서 TOP3 상품 ($200) 확인">Review the TOP3 product ($200) in dashboard</div></div>
+          <div class="success-next-step"><div class="success-next-num">3</div><div class="success-next-text" data-en="Pay via Stripe to begin video production" data-ko="Stripe 결제 후 영상 제작 시작">Pay via Stripe to begin video production</div></div>
+        </div>
+        <a href="login.html" class="btn-primary" style="display:inline-block;text-decoration:none;text-align:center" data-en="Sign In Now →" data-ko="지금 로그인 →">Sign In Now →</a>
+      </div>
+    </div>
+  </div></div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+(function(){
+  var T = window.TW;
+  var $ = T.$;
+  var hotelLoaded = false;
+
+  // Agoda Fetch
+  $('btn-fetch').addEventListener('click', function() {
+    var id = $('agoda-id').value.trim();
+    if (!id) { T.toast(T.lang === 'ko' ? '아고다 숙소 ID를 입력하세요.' : 'Enter Agoda Property ID.', true); return; }
+    var btn = this;
+    btn.innerHTML = '<span class="spinner spinner-dark"></span>';
+    btn.disabled = true;
+    setTimeout(function() {
+      var hs = {
+        '12345678': { n: 'Grand Palace Hotel & Resort', s: 5, l: 'Bangkok, Thailand', r: 245 },
+        '87654321': { n: 'Colombo Bay Inn', s: 4, l: 'Colombo, Sri Lanka', r: 82 },
+        '11223344': { n: 'Shinjuku Excel Hotel Tokyu', s: 4, l: 'Tokyo, Japan', r: 408 }
+      };
+      var h = hs[id] || { n: 'Hotel #' + id, s: 4, l: 'Asia Pacific', r: Math.floor(Math.random() * 200) + 50 };
+      $('hp-name').textContent = h.n;
+      $('hp-stars').textContent = '★'.repeat(h.s) + '☆'.repeat(5 - h.s);
+      $('hp-loc').textContent = h.l;
+      $('hp-rooms').textContent = h.r + ' rooms';
+      $('hotel-preview').classList.add('show');
+      btn.textContent = T.lang === 'ko' ? '불러오기' : 'Fetch';
+      btn.disabled = false;
+      hotelLoaded = true;
+      T.toast(T.lang === 'ko' ? '호텔 정보 로드!' : 'Hotel info loaded!');
+    }, 1500);
+  });
+
+  // Complete
+  $('btn-complete').addEventListener('click', function() {
+    if (!hotelLoaded) {
+      T.toast(T.lang === 'ko' ? '호텔 정보를 먼저 불러와주세요.' : 'Please fetch hotel info first.', true);
+      return;
+    }
+    $('scr-hotel-info').style.display = 'none';
+    $('scr-done').style.display = 'block';
+    $('scr-done').style.animation = 'fadeUp .5s ease';
+    window.scrollTo(0, 0);
+  });
+})();
+</script>
+</body>
+</html>

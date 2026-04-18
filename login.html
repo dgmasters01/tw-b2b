@@ -81,8 +81,9 @@
     }
   });
 
-  // Auto-redirect if already logged in
-  if (T.sb) {
+  // Auto-redirect if already logged in (skip if just logged out)
+  var isFromLogout = window.location.search.indexOf('logout') !== -1;
+  if (T.sb && !isFromLogout) {
     T.sb.auth.getSession().then(function(r) {
       if (r.data.session) {
         window.location.href = 'dashboard.html';

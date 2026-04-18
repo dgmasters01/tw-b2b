@@ -79,9 +79,18 @@
 
   // Logout
   window.TW.logout = function () {
-    if (sb) { try { sb.auth.signOut(); } catch (e) { /* ok */ } }
-    localStorage.removeItem('tw-session-email');
-    window.location.href = 'login.html';
+    if (sb) {
+      sb.auth.signOut().then(function () {
+        localStorage.removeItem('tw-session-email');
+        window.location.href = 'login.html?logout=1';
+      }).catch(function () {
+        localStorage.removeItem('tw-session-email');
+        window.location.href = 'login.html?logout=1';
+      });
+    } else {
+      localStorage.removeItem('tw-session-email');
+      window.location.href = 'login.html?logout=1';
+    }
   };
 
 })();

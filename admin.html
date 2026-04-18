@@ -216,9 +216,14 @@ tr:hover td{background:var(--forest-mist)}
     var SKEY = 'sb_publishable_IluITb52iuwwHf9xgP99MA__KX-sNM6';
     try {
       var sb = window.supabase.createClient(SURL, SKEY);
-      sb.auth.signOut();
-    } catch(e) {}
-    window.location.href = 'login.html';
+      sb.auth.signOut().then(function() {
+        window.location.href = 'login.html?logout=1';
+      }).catch(function() {
+        window.location.href = 'login.html?logout=1';
+      });
+    } catch(ex) {
+      window.location.href = 'login.html?logout=1';
+    }
   });
 
   // Refresh simulation

@@ -550,15 +550,25 @@ body {
 // ═══ SUPABASE INIT ═══
 const SUPABASE_URL = 'https://vjsludfjsphwnumuoqaj.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_IluITb52iuwwHf9xgP99MA__KX-sNM6';
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+let sb = null;
+try {
+  sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+} catch(e) {
+  console.warn('Supabase init failed:', e);
+}
 
 let lang = 'en';
 
 // ═══ INIT — CHECK SESSION ═══
 (async function init() {
-  const { data: { session } } = await supabase.auth.getSession();
-  if (session) {
-    showDashboard(session.user.email);
+  try {
+    if (!sb) return;
+    const { data: { session } } = await sb.auth.getSession();
+    if (session) {
+      showDashboard(session.user.email);
+    }
+  } catch(e) {
+    console.warn('Session check failed:', e);
   }
 })();
 
@@ -688,21 +698,34 @@ async function doSignup() {
   btn.innerHTML = '<span class="spinner"></span>' + (lang==='ko'?'가입 중...':'Creating...');
   btn.disabled = true;
 
-  const { data, error } = await supabase.auth.signUp({
-    email: document.getElementById('reg-email').value,
-    password: document.getElementById('reg-pw').value,
-  });
-
-  btn.disabled = false;
-  btn.textContent = lang==='ko'?'계정 만들기':'Create Account';
-
-  if (error) {
-    toast(error.message, true);
+  if (!sb) {
+    toast('Supabase connection error. Check API key.', true);
+    btn.disabled = false;
+    btn.textContent = lang==='ko'?'계정 만들기':'Create Account';
     return;
   }
 
-  toast(lang==='ko'?'계정이 생성되었습니다!':'Account created!');
-  show('signup2');
+  try {
+    const { data, error } = await sb.auth.signUp({
+      email: document.getElementById('reg-email').value,
+      password: document.getElementById('reg-pw').value,
+    });
+
+    btn.disabled = false;
+    btn.textContent = lang==='ko'?'계정 만들기':'Create Account';
+
+    if (error) {
+      toast(error.message, true);
+      return;
+    }
+
+    toast(lang==='ko'?'계정이 생성되었습니다!':'Account created!');
+    show('signup2');
+  } catch(e) {
+    btn.disabled = false;
+    btn.textContent = lang==='ko'?'계정 만들기':'Create Account';
+    toast('Error: ' + e.message, true);
+  }
 }
 
 // ═══ LOGIN (SUPABASE) ═══
@@ -715,23 +738,36 @@ async function doLogin() {
   btn.innerHTML = '<span class="spinner"></span>' + (lang==='ko'?'로그인 중...':'Signing in...');
   btn.disabled = true;
 
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password: pw });
-
-  btn.disabled = false;
-  btn.textContent = lang==='ko'?'로그인':'Sign In';
-
-  if (error) {
-    toast(error.message, true);
+  if (!sb) {
+    toast('Supabase connection error. Check API key.', true);
+    btn.disabled = false;
+    btn.textContent = lang==='ko'?'로그인':'Sign In';
     return;
   }
 
-  toast(lang==='ko'?'로그인 성공!':'Login successful!');
-  showDashboard(data.user.email);
+  try {
+    const { data, error } = await sb.auth.signInWithPassword({ email, password: pw });
+
+    btn.disabled = false;
+    btn.textContent = lang==='ko'?'로그인':'Sign In';
+
+    if (error) {
+      toast(error.message, true);
+      return;
+    }
+
+    toast(lang==='ko'?'로그인 성공!':'Login successful!');
+    showDashboard(data.user.email);
+  } catch(e) {
+    btn.disabled = false;
+    btn.textContent = lang==='ko'?'로그인':'Sign In';
+    toast('Error: ' + e.message, true);
+  }
 }
 
 // ═══ LOGOUT ═══
 async function doLogout() {
-  await supabase.auth.signOut();
+  try { if (sb) await sb.auth.signOut(); } catch(e) {}
   show('login');
   toast(lang==='ko'?'로그아웃 되었습니다.':'Signed out.');
 }

@@ -146,6 +146,45 @@ body{font-family:'DM Sans','Noto Sans KR',sans-serif;background:var(--gray-50);c
 
 .sample-notice{text-align:center;padding:20px;font-size:12px;color:var(--gray-400);border-top:1px solid var(--gray-200);margin-top:20px}
 
+/* Sample Video */
+.video-embed{position:relative;width:100%;padding-bottom:56.25%;border-radius:var(--radius);overflow:hidden;background:var(--gray-900)}
+.video-embed iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:none}
+.video-samples{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+.video-sample-card{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-sm);overflow:hidden;transition:var(--transition);text-decoration:none;color:inherit}
+.video-sample-card:hover{border-color:var(--forest);transform:translateY(-2px);box-shadow:var(--shadow)}
+.vs-thumb{width:100%;aspect-ratio:16/9;background:var(--gray-100);display:flex;align-items:center;justify-content:center;font-size:32px;color:var(--gray-400);position:relative;overflow:hidden}
+.vs-thumb img{width:100%;height:100%;object-fit:cover}
+.vs-play{position:absolute;width:40px;height:40px;background:rgba(0,0,0,.7);border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--white);font-size:16px}
+.vs-info{padding:12px}
+.vs-info h5{font-size:13px;font-weight:600;color:var(--gray-800);line-height:1.3;margin-bottom:4px}
+.vs-info span{font-size:11px;color:var(--gray-500)}
+
+/* Trust Cards */
+.trust-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.trust-card{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-sm);padding:20px;text-align:center;transition:var(--transition)}
+.trust-card:hover{box-shadow:var(--shadow)}
+.trust-icon{font-size:28px;margin-bottom:8px}
+.trust-num{font-family:'Fraunces',serif;font-size:24px;font-weight:700;color:var(--forest)}
+.trust-label{font-size:12px;color:var(--gray-500);margin-top:2px}
+.partner-logos{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:20px;padding:20px;background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-sm)}
+.partner-logo{padding:8px 16px;background:var(--gray-50);border-radius:var(--radius-xs);font-size:13px;font-weight:600;color:var(--gray-600)}
+
+/* FAQ */
+.faq-item{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-sm);margin-bottom:10px;overflow:hidden}
+.faq-q{padding:16px 20px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-size:14px;font-weight:600;color:var(--gray-800);transition:var(--transition)}
+.faq-q:hover{background:var(--gray-50)}
+.faq-arrow{font-size:12px;color:var(--gray-400);transition:transform .2s ease}
+.faq-item.open .faq-arrow{transform:rotate(180deg)}
+.faq-a{padding:0 20px;max-height:0;overflow:hidden;transition:max-height .3s ease,padding .3s ease}
+.faq-item.open .faq-a{max-height:300px;padding:0 20px 16px}
+.faq-a p{font-size:13px;color:var(--gray-600);line-height:1.7}
+
+/* What You Get */
+.delivery-list{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-sm);padding:4px 0}
+.delivery-item{display:flex;align-items:center;gap:12px;padding:14px 20px;font-size:14px;color:var(--gray-700);border-bottom:1px solid var(--gray-100)}
+.delivery-item:last-child{border-bottom:none}
+.delivery-icon{width:32px;height:32px;background:var(--forest-mist);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+
 @media(max-width:768px){
   .dash-topbar{padding:0 16px}
   .dash-main{padding:24px 16px 60px}
@@ -154,6 +193,8 @@ body{font-family:'DM Sans','Noto Sans KR',sans-serif;background:var(--gray-50);c
   .roi-input-row{flex-direction:column}
   .roi-result{grid-template-columns:1fr}
   .metric-grid{grid-template-columns:1fr}
+  .trust-grid{grid-template-columns:1fr}
+  .video-samples{grid-template-columns:1fr}
   .user-email{display:none}
 }
 </style>
@@ -265,7 +306,91 @@ body{font-family:'DM Sans','Noto Sans KR',sans-serif;background:var(--gray-50);c
       </div>
     </div>
 
-    <!-- 5. Process -->
+    <!-- 5. Sample Video -->
+    <div class="sec">
+      <div class="sec-label" data-en="SAMPLE VIDEO" data-ko="샘플 영상">SAMPLE VIDEO</div>
+      <div class="sec-title" data-en="This is what your video looks like" data-ko="이런 영상이 만들어집니다">This is what your video looks like</div>
+      <div class="sec-desc" style="margin-bottom:16px" data-en="Professional TOP3 hotel recommendation — narration, visually rich, with Agoda booking links in description." data-ko="프로 TOP3 호텔 추천 영상 — 나레이션, 풍부한 비주얼, 설명란에 아고다 예약 링크 포함.">Professional TOP3 hotel recommendation — narration, visually rich, with Agoda booking links in description.</div>
+      <div class="video-embed">
+        <iframe src="https://www.youtube.com/embed/videoseries?list=PLiKT80dPKmSwx7uS_pmCqV0IjRAqoxOlT" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      </div>
+      <div class="video-samples">
+        <a href="https://www.youtube.com/@hotel2ya" target="_blank" class="video-sample-card">
+          <div class="vs-thumb"><div class="vs-play">▶</div><div style="font-size:13px;color:var(--gray-500);text-align:center;padding:8px" data-en="🏨 Hotel Recommendation<br>Channel" data-ko="🏨 호텔 추천<br>채널">🏨 Hotel Recommendation<br>Channel</div></div>
+          <div class="vs-info"><h5 data-en="호텔이야 — Daily TOP3 Hotels" data-ko="호텔이야 — 매일 TOP3 호텔">호텔이야 — Daily TOP3 Hotels</h5><span data-en="Korean hotel recommendations" data-ko="한국어 호텔 추천">Korean hotel recommendations</span></div>
+        </a>
+        <a href="https://www.youtube.com/@travelwinners" target="_blank" class="video-sample-card">
+          <div class="vs-thumb"><div class="vs-play">▶</div><div style="font-size:13px;color:var(--gray-500);text-align:center;padding:8px" data-en="✈️ Travel Guide<br>Channel" data-ko="✈️ 여행 가이드<br>채널">✈️ Travel Guide<br>Channel</div></div>
+          <div class="vs-info"><h5 data-en="Travel Winners — Travel Guides" data-ko="여행능력자들 — 여행 가이드">Travel Winners — Travel Guides</h5><span data-en="43K+ subscribers · 9M+ views" data-ko="구독자 4.3만+ · 조회수 900만+">43K+ subscribers · 9M+ views</span></div>
+        </a>
+      </div>
+    </div>
+
+    <!-- 6. Why TravelWinners -->
+    <div class="sec">
+      <div class="sec-label" data-en="WHY TRAVELWINNERS" data-ko="왜 트래블위너스인가">WHY TRAVELWINNERS</div>
+      <div class="sec-title" data-en="A proven media commerce company" data-ko="검증된 미디어 커머스 기업">A proven media commerce company</div>
+      <div class="sec-desc" style="margin-bottom:16px" data-en="Operating since 2018 with government-backed investment, OTA partnerships, and national broadcast experience." data-ko="2018년부터 운영. 정부 지원 투자 유치, OTA 파트너십, 국영방송 방영 경험 보유.">Operating since 2018 with government-backed investment, OTA partnerships, and national broadcast experience.</div>
+      <div class="trust-grid">
+        <div class="trust-card"><div class="trust-icon">📅</div><div class="trust-num" data-en="Since 2018" data-ko="2018년~">Since 2018</div><div class="trust-label" data-en="Years in operation" data-ko="운영 기간">Years in operation</div></div>
+        <div class="trust-card"><div class="trust-icon">📺</div><div class="trust-num">8</div><div class="trust-label" data-en="YouTube Channels" data-ko="유튜브 채널">YouTube Channels</div></div>
+        <div class="trust-card"><div class="trust-icon">🏨</div><div class="trust-num">1,000+</div><div class="trust-label" data-en="Hotels Introduced" data-ko="소개된 호텔">Hotels Introduced</div></div>
+        <div class="trust-card"><div class="trust-icon">💰</div><div class="trust-num">$450K</div><div class="trust-label" data-en="Investment Raised" data-ko="투자 유치 금액">Investment Raised</div></div>
+      </div>
+      <div class="partner-logos">
+        <div class="partner-logo">agoda</div>
+        <div class="partner-logo">Trip.com</div>
+        <div class="partner-logo">KKday</div>
+        <div class="partner-logo">Expedia</div>
+        <div class="partner-logo">Booking.com</div>
+        <div class="partner-logo">VTC10 🇻🇳</div>
+      </div>
+    </div>
+
+    <!-- 7. What You Get -->
+    <div class="sec">
+      <div class="sec-label" data-en="WHAT YOU GET" data-ko="제공 내역">WHAT YOU GET</div>
+      <div class="sec-title" data-en="Everything included for $200" data-ko="$200에 포함된 모든 것">Everything included for $200</div>
+      <div class="delivery-list" style="margin-top:16px">
+        <div class="delivery-item"><div class="delivery-icon">🎬</div><span data-en="1 professional TOP3 hotel recommendation video" data-ko="프로 TOP3 호텔 추천 영상 1개">1 professional TOP3 hotel recommendation video</span></div>
+        <div class="delivery-item"><div class="delivery-icon">🌍</div><span data-en="Published on 5 language channels (KOR, ENG, JPN, TWN, VN)" data-ko="5개 언어 채널 게시 (한국어, 영어, 일본어, 대만, 베트남)">Published on 5 language channels (KOR, ENG, JPN, TWN, VN)</span></div>
+        <div class="delivery-item"><div class="delivery-icon">🔗</div><span data-en="Agoda affiliate booking links in every video description" data-ko="모든 영상 설명에 아고다 제휴 예약 링크 삽입">Agoda affiliate booking links in every video description</span></div>
+        <div class="delivery-item"><div class="delivery-icon">📎</div><span data-en="Direct video link sent to you upon publication" data-ko="게시 즉시 영상 직접 링크 전달">Direct video link sent to you upon publication</span></div>
+        <div class="delivery-item"><div class="delivery-icon">📊</div><span data-en="Real-time booking performance dashboard access" data-ko="실시간 예약 실적 대시보드 접근">Real-time booking performance dashboard access</span></div>
+        <div class="delivery-item"><div class="delivery-icon">🧾</div><span data-en="Stripe invoice issued immediately after payment" data-ko="결제 즉시 Stripe 인보이스 발행">Stripe invoice issued immediately after payment</span></div>
+        <div class="delivery-item"><div class="delivery-icon">♾️</div><span data-en="Permanent video — no monthly fees, no expiration" data-ko="영구 게시 — 월 요금 없음, 만료 없음">Permanent video — no monthly fees, no expiration</span></div>
+      </div>
+    </div>
+
+    <!-- 8. FAQ -->
+    <div class="sec">
+      <div class="sec-label" data-en="FAQ" data-ko="자주 묻는 질문">FAQ</div>
+      <div class="sec-title" data-en="Common questions from hotel partners" data-ko="호텔 파트너가 자주 묻는 질문">Common questions from hotel partners</div>
+      <div style="margin-top:16px">
+        <div class="faq-item">
+          <div class="faq-q"><span data-en="How can I verify the bookings are real?" data-ko="예약이 실제인지 어떻게 확인하나요?">How can I verify the bookings are real?</span><span class="faq-arrow">▼</span></div>
+          <div class="faq-a"><p data-en="All booking data comes directly from Agoda's affiliate reporting system. You can cross-reference with your hotel's Agoda YCS (Yield Control System) dashboard. We also provide our Agoda partner dashboard screenshots upon request." data-ko="모든 예약 데이터는 아고다 제휴 리포팅 시스템에서 직접 가져옵니다. 호텔의 아고다 YCS(수익 관리 시스템) 대시보드에서 교차 확인할 수 있습니다. 요청 시 아고다 파트너 대시보드 스크린샷도 제공합니다.">All booking data comes directly from Agoda's affiliate reporting system. You can cross-reference with your hotel's Agoda YCS dashboard. We provide Agoda partner dashboard screenshots upon request.</p></div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q"><span data-en="Is the estimated ROI guaranteed?" data-ko="예상 ROI가 보장되나요?">Is the estimated ROI guaranteed?</span><span class="faq-arrow">▼</span></div>
+          <div class="faq-a"><p data-en="ROI estimates are based on our actual historical conversion data across 3,774 bookings — not projections. Results vary by hotel, location, and pricing. However, our refund guarantee protects you: if you receive zero bookings within 6 months, we refund the full amount minus Stripe processing fees." data-ko="ROI 추정치는 3,774건의 실제 예약 전환 데이터를 기반으로 합니다 — 단순 추정이 아닙니다. 결과는 호텔, 위치, 가격에 따라 다를 수 있습니다. 다만 환불 보장이 있습니다: 6개월 내 예약 0건 시 Stripe 수수료를 제외한 전액을 환불합니다.">ROI estimates are based on our actual historical data across 3,774 bookings. Results vary by hotel. Our refund guarantee protects you: zero bookings in 6 months = full refund minus Stripe fees.</p></div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q"><span data-en="What does the video look like? Can I see a sample?" data-ko="영상이 어떤 형태인가요? 샘플을 볼 수 있나요?">What does the video look like? Can I see a sample?</span><span class="faq-arrow">▼</span></div>
+          <div class="faq-a"><p data-en="Yes! Scroll up to the 'Sample Video' section to watch actual videos from our channels. Each TOP3 video features professional narration, hotel visually, room tours, and location highlights. Agoda booking links are placed in the video description." data-ko="네! 위의 '샘플 영상' 섹션에서 실제 채널 영상을 확인할 수 있습니다. 각 TOP3 영상에는 프로 나레이션, 호텔 비주얼, 객실 투어, 위치 하이라이트가 포함됩니다. 아고다 예약 링크는 영상 설명란에 삽입됩니다.">Yes! Scroll up to the Sample Video section. Each TOP3 video features professional narration, hotel visuals, room tours, and location highlights. Agoda booking links are in the description.</p></div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q"><span data-en="What exactly do I get after payment?" data-ko="결제 후 정확히 무엇을 받나요?">What exactly do I get after payment?</span><span class="faq-arrow">▼</span></div>
+          <div class="faq-a"><p data-en="Immediately: Stripe invoice + dashboard access. Within 5-7 days: your hotel is featured in a professional TOP3 video, published across all 5 language channels with Agoda affiliate links. You receive the direct YouTube link. The video stays live permanently — no recurring fees." data-ko="즉시: Stripe 인보이스 + 대시보드 접근. 5-7일 내: TOP3 영상에 호텔 소개, 5개 언어 채널에 아고다 제휴 링크와 함께 게시. 유튜브 직접 링크를 받습니다. 영상은 영구 게시 — 추가 비용 없음.">Immediately: Stripe invoice + dashboard access. Within 5-7 days: TOP3 video featuring your hotel, published across 5 channels with Agoda links. You get the YouTube link. Video stays live permanently.</p></div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q"><span data-en="Who is TravelWinners?" data-ko="TravelWinners는 어떤 회사인가요?">Who is TravelWinners?</span><span class="faq-arrow">▼</span></div>
+          <div class="faq-a"><p data-en="TravelWinners is a media commerce company founded in 2018, operating 8 YouTube channels across 5 languages. We have official OTA partnerships with Agoda, Trip.com, KKday, Expedia, and Booking.com. Our travel programs aired on Vietnam's national broadcaster VTC10 (3 seasons). We've introduced 1,000+ hotels and generated $854K in verified Agoda bookings." data-ko="TravelWinners는 2018년 설립된 미디어 커머스 기업으로, 5개 언어로 8개 유튜브 채널을 운영합니다. Agoda, Trip.com, KKday, Expedia, Booking.com과 공식 OTA 파트너십을 체결했으며, 베트남 국영방송 VTC10에서 3시즌 여행 프로그램을 방영했습니다. 1,000개 이상의 호텔을 소개하고, 검증된 아고다 예약 $854K를 달성했습니다.">TravelWinners is a media commerce company since 2018, operating 8 YouTube channels in 5 languages. OTA partnerships with Agoda, Trip.com, KKday, Expedia, Booking.com. 3 seasons on Vietnam's VTC10. 1,000+ hotels introduced. $854K verified bookings.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 9. Process -->
     <div class="sec">
       <div class="sec-label" data-en="HOW IT WORKS" data-ko="진행 절차">HOW IT WORKS</div>
       <div class="sec-title" data-en="From payment to bookings in 7 days" data-ko="결제부터 예약까지 7일">From payment to bookings in 7 days</div>
@@ -425,6 +550,13 @@ body{font-family:'DM Sans','Noto Sans KR',sans-serif;background:var(--gray-50);c
 
   // Invoice
   $('btn-invoice').addEventListener('click',function(){toast(lang==='ko'?'인보이스 다운로드 준비 중':'Invoice download coming soon')});
+
+  // FAQ toggle
+  document.querySelectorAll('.faq-q').forEach(function(q){
+    q.addEventListener('click',function(){
+      this.parentElement.classList.toggle('open');
+    });
+  });
 
   switchLang(lang);
   calcROI();

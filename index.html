@@ -66,6 +66,29 @@ body{font-family:'DM Sans','Noto Sans KR',sans-serif;background:var(--white);col
 .pricing-footer{padding:0 36px 36px}
 .pricing-guarantee{margin-top:16px;padding:14px;background:var(--forest-mist);border-radius:var(--radius-sm);border-left:3px solid var(--forest);font-size:13px;color:var(--gray-600);line-height:1.5}
 .pricing-guarantee strong{color:var(--forest)}
+/* Trust Grid */
+.trust-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;max-width:900px;margin:0 auto 40px}
+.trust-card{background:var(--white);border:1.5px solid var(--gray-200);border-radius:var(--radius);padding:32px 20px;text-align:center;transition:var(--transition)}
+.trust-card:hover{border-color:var(--forest-light);box-shadow:var(--shadow);transform:translateY(-3px)}
+.trust-icon{font-size:32px;margin-bottom:14px}
+.trust-num{font-family:'Fraunces',serif;font-size:32px;font-weight:700;color:var(--forest);line-height:1}
+.trust-label{font-size:13px;color:var(--gray-500);margin-top:8px;font-weight:500}
+/* OTA Logos */
+.ota-logos{display:flex;flex-wrap:wrap;gap:24px;justify-content:center;align-items:center;max-width:700px;margin:0 auto;padding:32px 40px;background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius)}
+.ota-text-logo{font-size:20px;letter-spacing:-.3px;opacity:.45;transition:opacity .25s;cursor:default}
+.ota-text-logo:hover{opacity:1}
+.ota-booking{font-weight:700;color:var(--gray-800)}
+/* Analytics Preview */
+.analytics-preview{max-width:700px;margin:0 auto;background:var(--white);border:1.5px solid var(--gray-200);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+.analytics-header{padding:18px 28px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--gray-200);background:var(--gray-50)}
+.analytics-title{font-size:14px;font-weight:700;color:var(--gray-800)}
+.analytics-badge{font-size:12px;font-weight:700;color:var(--forest);background:var(--forest-mist);padding:4px 14px;border-radius:20px}
+.analytics-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:0;padding:0}
+.analytics-stat{padding:28px 20px;text-align:center;border-right:1px solid var(--gray-100)}
+.analytics-stat:last-child{border-right:none}
+.analytics-stat-num{font-family:'Fraunces',serif;font-size:28px;font-weight:700;color:var(--forest)}
+.analytics-stat-label{font-size:12px;color:var(--gray-500);margin-top:6px;font-weight:500}
+.analytics-note{padding:18px 28px;background:var(--forest-mist);border-left:3px solid var(--forest);margin:0 20px 20px;border-radius:var(--radius-sm);font-size:13px;color:var(--gray-600);line-height:1.7}
 .cta-section{padding:100px 48px;background:linear-gradient(165deg,var(--forest-deep),var(--forest),var(--forest-dark));text-align:center;color:var(--white)}
 .cta-section h2{font-family:'Fraunces',serif;font-size:40px;font-weight:700;margin-bottom:16px}
 .cta-section p{font-size:18px;opacity:.7;max-width:500px;margin:0 auto 40px;line-height:1.6}
@@ -73,7 +96,7 @@ body{font-family:'DM Sans','Noto Sans KR',sans-serif;background:var(--white);col
 .cta-btn:hover{background:var(--white);transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,.2)}
 .site-footer{padding:40px 48px;background:var(--gray-900);color:rgba(255,255,255,.4);font-size:13px;display:flex;justify-content:space-between;align-items:center}
 .footer-logo{font-family:'Fraunces',serif;font-size:16px;color:rgba(255,255,255,.6);font-weight:700}
-@media(max-width:768px){.top-nav{padding:0 20px}.hero{padding:110px 24px 60px}.hero h1{font-size:32px}.hero-stats{flex-direction:column;gap:24px}.section{padding:60px 24px}.section-title{font-size:28px}.steps-grid,.features-grid{grid-template-columns:1fr}.cta-section{padding:60px 24px}.site-footer{flex-direction:column;gap:12px;text-align:center;padding:32px 24px}.nav-link{display:none}}
+@media(max-width:768px){.top-nav{padding:0 20px}.hero{padding:110px 24px 60px}.hero h1{font-size:32px}.hero-stats{flex-direction:column;gap:24px}.section{padding:60px 24px}.section-title{font-size:28px}.steps-grid,.features-grid{grid-template-columns:1fr}.trust-grid{grid-template-columns:repeat(2,1fr)}.analytics-stats{grid-template-columns:1fr}.analytics-stat{border-right:none;border-bottom:1px solid var(--gray-100)}.analytics-stat:last-child{border-bottom:none}.cta-section{padding:60px 24px}.site-footer{flex-direction:column;gap:12px;text-align:center;padding:32px 24px}.nav-link{display:none}}
 </style>
 </head>
 <body>
@@ -121,6 +144,47 @@ body{font-family:'DM Sans','Noto Sans KR',sans-serif;background:var(--white);col
     <div class="feature-item"><div class="feature-icon">🌍</div><div><h4 data-en="6-Language Distribution" data-ko="6개 언어 송출">6-Language Distribution</h4><p data-en="Korean, English, Sinhala, mixed — reaching travelers across multiple regions." data-ko="한국어, 영어, 싱할라어, 혼합 — 다양한 지역의 여행자에게 도달.">Korean, English, Sinhala, mixed — reaching travelers across multiple regions.</p></div></div>
     <div class="feature-item"><div class="feature-icon">🔗</div><div><h4 data-en="Agoda Affiliate Integration" data-ko="아고다 제휴 링크 연동">Agoda Affiliate Integration</h4><p data-en="Direct booking links in every video description for measurable conversion." data-ko="모든 영상 설명에 직접 예약 링크 삽입으로 전환 측정 가능.">Direct booking links in every video description for measurable conversion.</p></div></div>
     <div class="feature-item"><div class="feature-icon">♾️</div><div><h4 data-en="Permanent Exposure" data-ko="영구 노출">Permanent Exposure</h4><p data-en="Your video stays live forever. No monthly fees, no renewal — one-time investment." data-ko="영상은 영구 게시됩니다. 월 요금 없음, 갱신 없음 — 1회 투자.">Your video stays live forever. No monthly fees, no renewal — one-time investment.</p></div></div>
+  </div>
+</section>
+<!-- WHY TRAVELWINNERS (신뢰 지표) -->
+<section class="section section-alt" id="why-tw">
+  <div class="section-center">
+    <div class="section-badge" data-en="Why TravelWinners" data-ko="왜 트래블위너스인가">Why TravelWinners</div>
+    <div class="section-title" data-en="A proven media commerce company" data-ko="검증된 미디어 커머스 기업">A proven media commerce company</div>
+    <div class="section-desc" data-en="Operating since 2018. Global OTA partnerships and verified booking data across multiple countries." data-ko="2018년부터 운영. 글로벌 OTA 파트너십과 다국가 검증된 예약 데이터 보유.">Operating since 2018. Global OTA partnerships and verified booking data across multiple countries.</div>
+  </div>
+  <div class="trust-grid">
+    <div class="trust-card"><div class="trust-icon">📅</div><div class="trust-num" data-en="Since 2018" data-ko="2018년~">Since 2018</div><div class="trust-label" data-en="Operating" data-ko="운영 기간">Operating</div></div>
+    <div class="trust-card"><div class="trust-icon">📺</div><div class="trust-num">8</div><div class="trust-label" data-en="YouTube Channels" data-ko="유튜브 채널">YouTube Channels</div></div>
+    <div class="trust-card"><div class="trust-icon">🏨</div><div class="trust-num">1,000+</div><div class="trust-label" data-en="Hotels Featured" data-ko="소개된 호텔">Hotels Featured</div></div>
+    <div class="trust-card"><div class="trust-icon">🌍</div><div class="trust-num">5</div><div class="trust-label" data-en="Language Markets" data-ko="언어 시장">Language Markets</div></div>
+  </div>
+  <div class="ota-logos">
+    <span class="ota-text-logo" style="color:#E74C3C;font-weight:800">agoda</span>
+    <span class="ota-text-logo" style="color:#2577E3;font-weight:700">Trip.com</span>
+    <span class="ota-text-logo" style="color:#51B44D;font-weight:800">KKday</span>
+    <span class="ota-text-logo" style="color:#003580;font-weight:700">Expedia</span>
+    <span class="ota-text-logo ota-booking">Booking<span style="color:#003580">.com</span></span>
+  </div>
+</section>
+<!-- TRANSPARENT DATA (투명한 데이터) -->
+<section class="section" id="transparent-data">
+  <div class="section-center">
+    <div class="section-badge" data-en="Transparent Data" data-ko="투명한 데이터">Transparent Data</div>
+    <div class="section-title" data-en="Every booking is fully traceable" data-ko="모든 예약은 추적 가능합니다">Every booking is fully traceable</div>
+    <div class="section-desc" data-en="All bookings are tracked through Agoda's official affiliate system — booking IDs, dates, amounts, and hotel names — fully auditable." data-ko="모든 예약은 아고다 공식 제휴 시스템을 통해 예약번호, 날짜, 금액, 호텔명까지 추적됩니다 — 완전히 감사 가능합니다.">All bookings are tracked through Agoda's official affiliate system — booking IDs, dates, amounts, and hotel names — fully auditable.</div>
+  </div>
+  <div class="analytics-preview">
+    <div class="analytics-header">
+      <div class="analytics-title" data-en="TW Booking Analytics — Real-time System" data-ko="TW Booking Analytics — 실시간 시스템">TW Booking Analytics — Real-time System</div>
+      <div class="analytics-badge" data-en="● Verified" data-ko="● 검증됨">● Verified</div>
+    </div>
+    <div class="analytics-stats">
+      <div class="analytics-stat"><div class="analytics-stat-num">3,774</div><div class="analytics-stat-label" data-en="Bookings" data-ko="예약 건수">Bookings</div></div>
+      <div class="analytics-stat"><div class="analytics-stat-num">$854K</div><div class="analytics-stat-label" data-en="Booking Value" data-ko="예약 금액">Booking Value</div></div>
+      <div class="analytics-stat"><div class="analytics-stat-num">$35.9K</div><div class="analytics-stat-label" data-en="Commission" data-ko="수수료">Commission</div></div>
+    </div>
+    <div class="analytics-note" data-en="Each partner hotel can access this dashboard after payment, tracking views, clicks, and actual Agoda bookings in real-time." data-ko="각 파트너 호텔은 결제 후 이 대시보드에 접근할 수 있으며, 조회수, 클릭, 그리고 실제 아고다 예약을 실시간으로 추적합니다.">Each partner hotel can access this dashboard after payment, tracking views, clicks, and actual Agoda bookings in real-time.</div>
   </div>
 </section>
 <section class="section section-alt">

@@ -66,6 +66,17 @@ tr.ck:hover{background:#faf9f6}
 .pitch strong{color:var(--tx)}
 @media(max-width:640px){.ST{grid-template-columns:repeat(2,1fr)}.ST .vl{font-size:16px}.g2{grid-template-columns:1fr}}
 </style></head><body>
+<div id="admin-gate" style="position:fixed;top:0;left:0;right:0;bottom:0;background:#f8f7f4;z-index:9999;display:flex;align-items:center;justify-content:center">
+  <div style="background:#fff;border:1px solid #e8e6e1;border-radius:16px;padding:40px;max-width:380px;width:90%;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,.08)">
+    <div style="font-size:28px;margin-bottom:12px">🔒</div>
+    <h2 style="font-size:20px;font-weight:700;margin-bottom:6px">Admin Access</h2>
+    <p style="font-size:13px;color:#666;margin-bottom:24px">Enter admin password to access TW Booking Analytics</p>
+    <input type="password" id="admin-pw" placeholder="Password" style="width:100%;padding:14px 16px;border:1.5px solid #e8e6e1;border-radius:8px;font-size:15px;outline:none;margin-bottom:12px;font-family:inherit">
+    <div id="admin-err" style="font-size:12px;color:#D85A30;margin-bottom:12px;display:none">Incorrect password</div>
+    <button id="admin-enter" style="width:100%;padding:14px;background:#534AB7;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit">Enter</button>
+    <a href="index.html" style="display:block;margin-top:16px;font-size:13px;color:#999;text-decoration:none">← Back to site</a>
+  </div>
+</div>
 <div class="W">
 <div class="H">
   <div><h1>TW Booking Analytics</h1><div style="font-size:11px;color:var(--ht);margin-top:3px">아고다 2계정 합산 · 예약 기반 분석</div></div>
@@ -567,5 +578,33 @@ function render(){
 
 document.getElementById('ldate').textContent = D.lastDate;
 document.getElementById('udate').textContent = D.uploadDate;
-render();
+
+// Admin gate
+(function(){
+  var ADMIN_PW = 'tw2026admin';
+  var gate = document.getElementById('admin-gate');
+  var pwInput = document.getElementById('admin-pw');
+  var errEl = document.getElementById('admin-err');
+  var enterBtn = document.getElementById('admin-enter');
+
+  if(sessionStorage.getItem('tw-admin-auth') === 'true') {
+    gate.style.display = 'none';
+    render();
+    return;
+  }
+
+  enterBtn.addEventListener('click', function() {
+    if(pwInput.value === ADMIN_PW) {
+      sessionStorage.setItem('tw-admin-auth', 'true');
+      gate.style.display = 'none';
+      render();
+    } else {
+      errEl.style.display = 'block';
+      pwInput.style.borderColor = '#D85A30';
+    }
+  });
+  pwInput.addEventListener('keydown', function(e) {
+    if(e.key === 'Enter') enterBtn.click();
+  });
+})();
 </script></body></html>

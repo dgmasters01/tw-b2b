@@ -3,90 +3,310 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TW Booking Analytics — Partner Dashboard</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<title>TravelWinners — Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;500;700&family=DM+Sans:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="shared.js"></script>
 <style>
-:root{--ink:#0A0F0D;--ink-90:#1A1F1D;--ink-80:#2A2F2D;--ink-70:#3A3F3D;--ink-60:#5A5F5D;--ink-50:#7A7F7D;--ink-40:#9A9F9D;--ink-30:#B8BBB9;--ink-20:#D4D6D5;--ink-15:#E2E4E3;--ink-10:#EDEEED;--ink-05:#F5F6F5;--ink-02:#FAFBFA;--emerald:#0D6B3D;--emerald-deep:#084D2B;--emerald-dark:#042E1A;--emerald-light:#E6F5ED;--emerald-mist:#F0F9F4;--gold:#B8953F;--gold-warm:#D4AA4F;--gold-light:#FEF9EC;--gold-pale:#FFFDF5;--coral:#D4543A;--coral-light:#FDF0ED;--blue:#2563EB;--blue-light:#EFF6FF;--surface:#FFFFFF;--page:var(--ink-02);--radius-xl:20px;--radius-lg:14px;--radius-md:10px;--radius-sm:6px;--shadow-xs:0 1px 2px rgba(10,15,13,.04);--shadow-sm:0 2px 8px rgba(10,15,13,.05);--shadow-md:0 4px 20px rgba(10,15,13,.06);--shadow-lg:0 8px 40px rgba(10,15,13,.08);--shadow-xl:0 16px 64px rgba(10,15,13,.1);--ease:cubic-bezier(.4,0,.2,1);--ease-spring:cubic-bezier(.34,1.56,.64,1)}
-*{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}body{font-family:'Inter','Noto Sans KR',sans-serif;background:var(--page);color:var(--ink);-webkit-font-smoothing:antialiased;min-height:100vh}
-.serif{font-family:'Inter',sans-serif}
-.topbar{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.85);backdrop-filter:blur(20px) saturate(1.5);-webkit-backdrop-filter:blur(20px) saturate(1.5);border-bottom:1px solid var(--ink-10);height:60px;display:flex;align-items:center;padding:0 32px}
-.topbar-inner{max-width:900px;width:100%;margin:0 auto;display:flex;align-items:center;justify-content:space-between}
-.logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink)}.logo-mark{width:32px;height:32px;background:var(--emerald);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Inter',sans-serif;font-size:15px;color:white;letter-spacing:-.5px}.logo-text{font-weight:700;font-size:15px;letter-spacing:-.3px}
-.topbar-right{display:flex;align-items:center;gap:10px}.lang-sw{display:flex;gap:2px;background:var(--ink-05);border-radius:8px;padding:3px}.lang-b{padding:5px 14px;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;background:transparent;color:var(--ink-50);transition:all .2s var(--ease);font-family:'Inter',sans-serif}.lang-b.on{background:var(--surface);color:var(--ink);box-shadow:var(--shadow-xs)}.user-email{font-size:12px;color:var(--ink-40)}.btn-out{padding:6px 14px;background:var(--surface);color:var(--ink-60);border:1px solid var(--ink-15);border-radius:var(--radius-sm);font-size:12px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s var(--ease)}.btn-out:hover{border-color:var(--coral);color:var(--coral)}
-.main{max-width:900px;margin:0 auto;padding:40px 24px 100px}
-.tab-bar{display:flex;gap:4px;margin-bottom:40px;background:var(--ink-05);border-radius:12px;padding:4px}.tab-btn{flex:1;padding:14px 20px;border:none;border-radius:9px;font-size:14px;font-weight:700;cursor:pointer;background:transparent;color:var(--ink-40);font-family:'Inter',sans-serif;transition:all .25s var(--ease);letter-spacing:-.2px}.tab-btn.on{background:var(--surface);color:var(--ink);box-shadow:var(--shadow-sm)}
-.sec{margin-bottom:48px}.sec-tag{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--emerald);margin-bottom:12px}.sec-tag::before{content:'';width:16px;height:2px;background:var(--emerald);border-radius:1px}.sec-h1{font-family:'Inter',sans-serif;font-size:30px;font-weight:400;color:var(--ink);line-height:1.2;letter-spacing:-.5px;margin-bottom:8px}.sec-p{font-size:15px;color:var(--ink-50);line-height:1.65;max-width:600px}
-.hero-card{background:linear-gradient(155deg,var(--emerald-dark) 0%,var(--emerald-deep) 40%,var(--emerald) 100%);border-radius:var(--radius-xl);padding:48px 44px;color:white;position:relative;overflow:hidden}.hero-card::before{content:'';position:absolute;top:-100px;right:-60px;width:320px;height:320px;background:radial-gradient(circle,rgba(184,149,63,.12) 0%,transparent 70%);pointer-events:none}.hero-card::after{content:'';position:absolute;bottom:-80px;left:-40px;width:240px;height:240px;background:radial-gradient(circle,rgba(255,255,255,.04) 0%,transparent 70%);pointer-events:none}
-.hero-tag{font-size:13px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:var(--gold-warm);margin-bottom:20px}.hero-title{font-family:'Inter',sans-serif;font-size:36px;font-weight:400;line-height:1.15;margin-bottom:8px;position:relative}.hero-desc{font-size:15px;color:rgba(255,255,255,.6);line-height:1.6;margin-bottom:36px;max-width:480px}
-.hero-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.h-stat{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:var(--radius-lg);padding:24px 20px;text-align:center;transition:all .3s var(--ease)}.h-stat:hover{background:rgba(255,255,255,.1);transform:translateY(-2px)}.h-stat-num{font-family:'Inter',sans-serif;font-size:36px;font-weight:400;color:white;line-height:1}.h-stat-label{font-size:14px;color:rgba(255,255,255,.8);margin-top:10px;font-weight:600}.h-stat-sub{font-size:12px;color:var(--gold-warm);margin-top:8px;font-weight:600}
-.feed-card{background:var(--surface);border:1px solid var(--ink-10);border-radius:var(--radius-xl);overflow:hidden;box-shadow:var(--shadow-sm)}.feed-header{padding:18px 24px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--ink-10)}.feed-title{font-size:14px;font-weight:700;color:var(--ink)}.feed-live{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:var(--emerald)}.feed-dot{width:7px;height:7px;border-radius:50%;background:var(--emerald);animation:pulse 2s infinite}@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(13,107,61,.4)}50%{opacity:.8;box-shadow:0 0 0 6px rgba(13,107,61,0)}}
-.feed-row{display:flex;align-items:center;padding:14px 24px;gap:14px;font-size:13px;transition:background .15s var(--ease);border-bottom:1px solid var(--ink-05)}.feed-row:last-child{border-bottom:none}.feed-row:hover{background:var(--ink-02)}.feed-status{width:8px;height:8px;border-radius:50%;background:var(--emerald);flex-shrink:0}.feed-hotel{font-weight:600;color:var(--ink);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.feed-ch{font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;background:var(--ink-05);color:var(--ink-60);flex-shrink:0}.feed-date{color:var(--ink-40);font-size:12px;width:80px;flex-shrink:0;text-align:right}.feed-amt{font-family:'Inter',sans-serif;font-weight:400;font-size:16px;color:var(--emerald);width:70px;text-align:right;flex-shrink:0}
-.roi-card{background:var(--surface);border:1px solid var(--ink-10);border-radius:var(--radius-xl);padding:32px;box-shadow:var(--shadow-sm)}.roi-input-area{margin-bottom:24px}.roi-label{font-size:12px;font-weight:700;color:var(--ink-60);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;display:block}.roi-input{width:100%;padding:14px 16px;border:1.5px solid var(--ink-15);border-radius:var(--radius-md);font-size:18px;font-family:'Inter',sans-serif;color:var(--ink);outline:none;transition:all .2s var(--ease);background:var(--ink-02)}.roi-input:focus{border-color:var(--emerald);box-shadow:0 0 0 4px rgba(13,107,61,.06);background:var(--surface)}.roi-results{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;background:var(--emerald-mist);border:1px solid var(--emerald-light);border-radius:var(--radius-lg);padding:24px}.roi-r{text-align:center}.roi-r-num{font-family:'Inter',sans-serif;font-size:28px;color:var(--emerald);line-height:1}.roi-r-label{font-size:11px;color:var(--ink-50);margin-top:6px;font-weight:500}
-.channels-card{background:var(--gold-pale);border:1px solid rgba(184,149,63,.15);border-radius:var(--radius-xl);padding:36px}.channels-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-top:24px}.ch-item{text-align:center;padding:20px 10px;background:var(--surface);border-radius:var(--radius-lg);border:1px solid rgba(184,149,63,.12);transition:all .3s var(--ease-spring);cursor:default}.ch-item:hover{transform:translateY(-4px);box-shadow:var(--shadow-md)}.ch-flag{font-size:32px;margin-bottom:8px}.ch-name{font-size:12px;font-weight:700;color:var(--ink-70)}
-.video-embed{position:relative;width:100%;padding-bottom:56.25%;border-radius:var(--radius-xl);overflow:hidden;background:var(--ink);box-shadow:var(--shadow-lg)}.video-embed iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:none}.video-thumbs{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px}.v-thumb{background:var(--surface);border:1px solid var(--ink-10);border-radius:var(--radius-lg);overflow:hidden;text-decoration:none;color:inherit;transition:all .25s var(--ease)}.v-thumb:hover{border-color:var(--emerald);transform:translateY(-2px);box-shadow:var(--shadow-md)}.v-thumb-img{width:100%;aspect-ratio:16/9;background:var(--ink-05);display:flex;align-items:center;justify-content:center;font-size:36px;color:var(--ink-30);position:relative;overflow:hidden}.v-play{position:absolute;width:40px;height:40px;background:rgba(0,0,0,.65);border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-size:14px;backdrop-filter:blur(4px)}.v-thumb-info{padding:14px 16px}.v-thumb-info h5{font-size:13px;font-weight:700;color:var(--ink);line-height:1.3;margin-bottom:4px}.v-thumb-info span{font-size:11px;color:var(--ink-40)}
-.trust-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}.trust-card{background:var(--surface);border:1px solid var(--ink-10);border-radius:var(--radius-lg);padding:24px 16px;text-align:center;transition:all .3s var(--ease)}.trust-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px)}.trust-icon{font-size:28px;margin-bottom:10px}.trust-num{font-family:'Inter',sans-serif;font-size:26px;color:var(--emerald);line-height:1}.trust-label{font-size:11px;color:var(--ink-40);margin-top:6px;font-weight:500}
-.data-card{background:var(--surface);border:1px solid var(--ink-10);border-radius:var(--radius-xl);padding:32px;box-shadow:var(--shadow-sm)}.data-items{display:flex;flex-direction:column;gap:12px;margin-top:20px}.data-item{display:flex;align-items:center;gap:14px;padding:16px;background:var(--ink-02);border-radius:var(--radius-md);border:1px solid var(--ink-05)}.data-icon{width:40px;height:40px;background:var(--emerald-mist);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}.data-text h4{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:2px}.data-text p{font-size:12px;color:var(--ink-50);line-height:1.5}
-.delivery-card{background:var(--surface);border:1px solid var(--ink-10);border-radius:var(--radius-xl);overflow:hidden}.delivery-item{display:flex;align-items:center;gap:14px;padding:18px 24px;font-size:14px;color:var(--ink-70);border-bottom:1px solid var(--ink-05);transition:background .15s}.delivery-item:last-child{border-bottom:none}.delivery-item:hover{background:var(--ink-02)}.delivery-icon{width:36px;height:36px;background:var(--emerald-mist);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
-.faq-item{background:var(--surface);border:1px solid var(--ink-10);border-radius:var(--radius-lg);margin-bottom:10px;overflow:hidden;transition:box-shadow .2s var(--ease)}.faq-item:hover{box-shadow:var(--shadow-sm)}.faq-q{padding:18px 24px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-size:14px;font-weight:700;color:var(--ink);transition:color .15s}.faq-q:hover{color:var(--emerald)}.faq-arrow{font-size:12px;color:var(--ink-30);transition:transform .25s var(--ease)}.faq-item.open .faq-arrow{transform:rotate(180deg)}.faq-a{padding:0 24px;max-height:0;overflow:hidden;transition:max-height .35s var(--ease),padding .35s var(--ease)}.faq-item.open .faq-a{max-height:300px;padding:0 24px 20px}.faq-a p{font-size:14px;color:var(--ink-50);line-height:1.7}
-.process-track{position:relative;padding-left:32px}.process-track::before{content:'';position:absolute;left:15px;top:4px;bottom:4px;width:2px;background:linear-gradient(180deg,var(--emerald) 0%,var(--ink-15) 100%);border-radius:1px}.p-step{position:relative;padding:20px 0 20px 24px}.p-dot{position:absolute;left:-32px;top:22px;width:28px;height:28px;background:var(--emerald);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:white;z-index:1;box-shadow:0 0 0 4px var(--page)}.p-step h4{font-size:16px;font-weight:700;color:var(--ink);margin-bottom:4px}.p-step p{font-size:13px;color:var(--ink-50);line-height:1.6}
-.product-card{background:var(--surface);border:2px solid var(--emerald);border-radius:var(--radius-xl);overflow:hidden;box-shadow:var(--shadow-lg)}.pc-top{background:var(--emerald);padding:28px 32px;color:white;display:flex;justify-content:space-between;align-items:center}.pc-top h3{font-family:'Inter',sans-serif;font-size:22px;font-weight:400}.pc-price{font-family:'Inter',sans-serif;font-size:40px;font-weight:400}.pc-features{padding:24px 32px}.pc-feat{display:flex;align-items:center;gap:12px;padding:12px 0;font-size:14px;color:var(--ink-70);border-bottom:1px solid var(--ink-05)}.pc-feat:last-child{border-bottom:none}.pc-check{width:22px;height:22px;background:var(--emerald-mist);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--emerald);font-weight:800;flex-shrink:0}
-.refund-bar{margin:0 32px 20px;padding:16px 18px;background:var(--emerald-mist);border-radius:var(--radius-md);border-left:3px solid var(--emerald);font-size:13px;color:var(--ink-60);line-height:1.6}.refund-bar strong{color:var(--emerald)}
-.pay-btn{display:block;margin:0 32px 28px;padding:18px;background:var(--emerald);color:white;border:none;border-radius:var(--radius-md);font-size:17px;font-weight:800;cursor:pointer;font-family:'Inter',sans-serif;transition:all .25s var(--ease);text-align:center;width:calc(100% - 64px);letter-spacing:-.2px}.pay-btn:hover{background:var(--emerald-deep);transform:translateY(-2px);box-shadow:0 8px 24px rgba(13,107,61,.25)}.pay-btn:disabled{background:var(--ink-30);cursor:not-allowed;transform:none;box-shadow:none}
-.secure-line{text-align:center;font-size:12px;color:var(--ink-40);padding-bottom:28px}
-.tracker{display:flex;margin-bottom:28px;gap:4px}.t-step{flex:1;text-align:center;position:relative;padding-top:36px}.t-step:not(:last-child)::after{content:'';position:absolute;top:14px;left:55%;width:90%;height:2px;background:var(--ink-15);z-index:0}.t-step.done:not(:last-child)::after{background:var(--emerald)}.t-step.active:not(:last-child)::after{background:linear-gradient(90deg,var(--emerald) 50%,var(--ink-15) 50%)}.t-dot{width:28px;height:28px;border-radius:50%;border:2px solid var(--ink-20);background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;position:absolute;top:0;left:50%;transform:translateX(-50%);z-index:1;transition:all .3s var(--ease)}.t-step.done .t-dot{background:var(--emerald);border-color:var(--emerald);color:white}.t-step.active .t-dot{border-color:var(--gold);background:var(--gold);color:var(--emerald-dark)}.t-label{font-size:11px;color:var(--ink-40);font-weight:500}.t-step.done .t-label{color:var(--emerald);font-weight:600}.t-step.active .t-label{color:var(--ink);font-weight:700}
-.metric-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.m-card{background:var(--surface);border:1px solid var(--ink-10);border-radius:var(--radius-lg);padding:24px;transition:box-shadow .2s}.m-card:hover{box-shadow:var(--shadow-sm)}.m-label{font-size:11px;font-weight:700;color:var(--ink-40);text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px}.m-value{font-family:'Inter',sans-serif;font-size:32px;font-weight:400;color:var(--ink)}.m-sub{font-size:12px;color:var(--emerald);font-weight:700;margin-top:6px}
-.ch-table{width:100%;border-collapse:collapse;font-size:13px}.ch-table th{text-align:left;padding:12px 20px;font-size:11px;font-weight:700;color:var(--ink-40);text-transform:uppercase;letter-spacing:.5px;background:var(--ink-02);border-bottom:1px solid var(--ink-10)}.ch-table th:nth-child(2),.ch-table th:nth-child(3){text-align:right}.ch-table td{padding:14px 20px;border-bottom:1px solid var(--ink-05)}.ch-table td:nth-child(2),.ch-table td:nth-child(3){text-align:right;font-weight:600}.ch-table td:nth-child(3){color:var(--emerald)}.ch-table tr:last-child td{border-bottom:none}.ch-table tr:hover td{background:var(--ink-02)}
-.view{display:none}.view.on{display:block;animation:fadeUp .5s var(--ease)}@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
-.spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:white;border-radius:50%;animation:spin .6s linear infinite;margin-right:8px;vertical-align:middle}@keyframes spin{to{transform:rotate(360deg)}}
-.toast{position:fixed;bottom:32px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--ink);color:white;padding:14px 28px;border-radius:var(--radius-md);font-size:14px;font-weight:600;z-index:9999;transition:transform .3s var(--ease-spring);box-shadow:var(--shadow-xl);max-width:90vw;text-align:center}.toast.show{transform:translateX(-50%) translateY(0)}
-.sample-notice{text-align:center;padding:24px;font-size:12px;color:var(--ink-40);border-top:1px solid var(--ink-10);margin-top:24px}
-@media(max-width:768px){.topbar{padding:0 16px}.main{padding:24px 16px 80px}.hero-card{padding:32px 24px}.hero-title{font-size:28px}.hero-stats{grid-template-columns:1fr}.channels-grid{grid-template-columns:repeat(3,1fr)}.roi-results{grid-template-columns:1fr}.trust-grid{grid-template-columns:repeat(2,1fr)}.metric-grid{grid-template-columns:1fr}.video-thumbs{grid-template-columns:1fr}.user-email{display:none}.tab-btn{font-size:13px;padding:12px 14px}.sec-h1{font-size:24px}}
+*{box-sizing:border-box}
+body{margin:0;background:#f7f7f7;font-family:'DM Sans','Noto Sans KR',sans-serif;color:#1a1a1a;min-height:100vh}
+.dh-shell{max-width:1280px;margin:0 auto;padding:0 24px}
+.dh-topbar{display:flex;justify-content:space-between;align-items:center;padding:18px 0;border-bottom:1px solid #e8e8e8;background:#fff;margin:0 -24px;padding-left:24px;padding-right:24px}
+.dh-logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:#1a1a1a}
+.dh-logo-icon{width:36px;height:36px;background:#534AB7;color:#fff;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700}
+.dh-logo-text{font-family:'Fraunces',serif;font-size:20px;font-weight:600}
+.dh-nav-right{display:flex;gap:16px;align-items:center}
+.dh-lang{display:flex;gap:6px}
+.dh-lang button{background:#fff;border:1px solid #e0e0e0;padding:7px 12px;border-radius:6px;cursor:pointer;font-size:12.5px;font-weight:500}
+.dh-lang button.active{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
+.dh-user{font-size:13.5px;color:#666}
+.dh-logout{background:none;border:1px solid #d8d8d8;padding:7px 14px;border-radius:6px;cursor:pointer;font-size:13px;font-family:inherit}
+.dh-logout:hover{background:#f5f5f5}
+.dh-main{padding:32px 0 60px}
+.dh-section-title{font-family:'Fraunces',serif;font-size:30px;font-weight:600;margin:0 0 6px}
+.dh-section-sub{color:#777;font-size:14px;margin:0 0 28px}
+.dh-card{background:#fff;border:1px solid #e8e8e8;border-radius:14px;padding:28px;margin-bottom:18px}
+.dh-status-badge{display:inline-block;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:600;color:#fff}
+.dh-progress{display:flex;gap:8px;margin-top:20px;margin-bottom:8px}
+.dh-progress-step{flex:1;text-align:center;font-size:11.5px;color:#999;position:relative}
+.dh-progress-step::before{content:'';display:block;width:100%;height:4px;background:#eee;margin-bottom:8px;border-radius:2px}
+.dh-progress-step.done::before{background:#0a7c3a}
+.dh-progress-step.active::before{background:#534AB7}
+.dh-progress-step.done,.dh-progress-step.active{color:#1a1a1a;font-weight:600}
+.dh-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.dh-grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.dh-stat{background:#fff;border:1px solid #e8e8e8;border-radius:12px;padding:20px}
+.dh-stat-label{font-size:12px;color:#888;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.dh-stat-value{font-size:28px;font-weight:700;color:#1a1a1a}
+.dh-stat-trend{font-size:12px;color:#0a7c3a;margin-top:4px}
+.dh-hotel-info{display:flex;gap:20px;align-items:flex-start}
+.dh-hotel-img{width:140px;height:100px;border-radius:8px;background:#eee;background-size:cover;background-position:center;flex-shrink:0}
+.dh-hotel-meta h2{font-family:'Fraunces',serif;font-size:22px;margin:0 0 4px;font-weight:600}
+.dh-hotel-meta-row{font-size:13px;color:#666;margin-bottom:4px}
+.dh-pay-card{background:linear-gradient(135deg,#534AB7 0%,#3d3690 100%);color:#fff;border-radius:14px;padding:32px;margin-bottom:18px}
+.dh-pay-card h3{font-family:'Fraunces',serif;font-size:24px;margin:0 0 8px;font-weight:600}
+.dh-pay-card p{margin:0 0 20px;opacity:.9;font-size:14.5px;line-height:1.6}
+.dh-pay-amount{font-size:42px;font-weight:700;margin-bottom:8px}
+.dh-pay-btn{background:#fff;color:#534AB7;border:none;padding:14px 32px;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit}
+.dh-pay-btn:hover{background:#f0f0ff}
+.dh-pay-btn:disabled{opacity:.7;cursor:not-allowed}
+.dh-pay-meta{display:flex;gap:16px;font-size:12.5px;opacity:.85;margin-top:14px;flex-wrap:wrap}
+.dh-empty{text-align:center;padding:60px 20px;color:#888}
+.dh-empty-icon{font-size:48px;margin-bottom:12px}
+.dh-empty h3{font-size:18px;margin:0 0 8px;color:#1a1a1a}
+.dh-btn{padding:12px 24px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;border:none;font-family:inherit;text-decoration:none;display:inline-block}
+.dh-btn-primary{background:#1a1a1a;color:#fff}
+.dh-btn-primary:hover{background:#000}
+.dh-loader{display:inline-block;width:20px;height:20px;border:2px solid #ddd;border-top-color:#534AB7;border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.dh-loading{display:flex;flex-direction:column;align-items:center;padding:60px;gap:14px;color:#888;font-size:13px}
+.dh-table{width:100%;border-collapse:collapse;font-size:13.5px}
+.dh-table th{text-align:left;padding:10px 12px;background:#f7f7f7;color:#888;font-weight:500;font-size:12px;text-transform:uppercase;letter-spacing:.3px}
+.dh-table td{padding:12px;border-bottom:1px solid #f0f0f0}
+.dh-table tr:last-child td{border-bottom:none}
+.dh-tabs{display:flex;gap:0;border-bottom:1px solid #e8e8e8;margin-bottom:20px}
+.dh-tab{padding:12px 18px;cursor:pointer;font-size:13.5px;color:#888;border-bottom:2px solid transparent;font-weight:500}
+.dh-tab.active{color:#1a1a1a;border-color:#534AB7;font-weight:600}
+.dh-h3{font-size:16px;font-weight:600;margin:0 0 14px}
+@media (max-width:720px){.dh-grid-2,.dh-grid-3{grid-template-columns:1fr}.dh-hotel-info{flex-direction:column}.dh-hotel-img{width:100%;height:160px}}
 </style>
 </head>
 <body>
-<div class="topbar"><div class="topbar-inner"><a href="index.html" class="logo"><div class="logo-mark">TW</div><div class="logo-text">TravelWinners</div></a><div class="topbar-right"><span class="user-email" id="dash-user-email"></span><div class="lang-sw"><button class="lang-b on" id="lang-en">EN</button><button class="lang-b" id="lang-ko">한국어</button></div><button class="btn-out" id="btn-logout" data-en="Sign Out" data-ko="로그아웃">Sign Out</button></div></div></div>
-<div class="main">
-<div class="tab-bar"><button class="tab-btn on" id="tab-before" data-en="Your Proposal" data-ko="제안서">Your Proposal</button><button class="tab-btn" id="tab-after" data-en="After Payment (Preview)" data-ko="결제 후 (미리보기)">After Payment (Preview)</button></div>
-<div class="view on" id="view-before">
-<div class="sec"><div class="hero-card"><div class="hero-tag" data-en="PROVEN RESULTS" data-ko="검증된 실적">PROVEN RESULTS</div><div class="hero-title" data-en="Real Results. Real Bookings." data-ko="실제 성과. 실제 예약.">Real Results. Real Bookings.</div><div class="hero-desc" data-en="Our media content generates real hotel bookings. Every number represents an actual reservation made through Agoda." data-ko="미디어 콘텐츠가 실제 호텔 예약을 만들어냅니다. 모든 수치는 아고다에서 실제 예약된 데이터입니다.">Our media content generates real hotel bookings. Every number represents an actual reservation made through Agoda.</div><div class="hero-stats"><div class="h-stat"><div class="h-stat-num">3,774</div><div class="h-stat-label" data-en="Hotel Bookings" data-ko="호텔 예약 건수">Hotel Bookings</div><div class="h-stat-sub" data-en="Actual reservations on Agoda" data-ko="아고다에서 실제 예약된 건수">Actual reservations on Agoda</div></div><div class="h-stat"><div class="h-stat-num">$854K</div><div class="h-stat-label" data-en="Booking Revenue" data-ko="예약 매출">Booking Revenue</div><div class="h-stat-sub" data-en="Generated by content" data-ko="콘텐츠를 통해 발생한 매출">Generated by content</div></div><div class="h-stat"><div class="h-stat-num">7.6M</div><div class="h-stat-label" data-en="YouTube Views" data-ko="유튜브 조회수">YouTube Views</div><div class="h-stat-sub" data-en="Potential guests watching" data-ko="호텔을 보고 있는 잠재 고객">Potential guests watching</div></div></div></div></div>
-<div class="sec"><div class="sec-tag" data-en="LIVE BOOKING FEED" data-ko="실시간 예약 피드">LIVE BOOKING FEED</div><div class="sec-h1" data-en="This is what happens after your video goes live" data-ko="영상 게시 후 이렇게 예약이 들어옵니다">This is what happens after your video goes live</div><div class="sec-p" style="margin-bottom:20px" data-en="Real bookings generated by our content — all verified through Agoda." data-ko="콘텐츠를 통해 발생한 매출한 실제 예약 — 아고다에서 모두 검증됩니다.">Real bookings generated by our content — all verified through Agoda.</div><div class="feed-card"><div class="feed-header"><div class="feed-title" data-en="Recent Bookings" data-ko="최근 예약">Recent Bookings</div><div class="feed-live"><div class="feed-dot"></div><span data-en="Live" data-ko="실시간">Live</span></div></div><div class="feed-row"><div class="feed-status"></div><div class="feed-hotel">Grand Palace Hotel &amp; Resort</div><div class="feed-ch">KOR</div><div class="feed-date">Apr 17</div><div class="feed-amt">$185</div></div><div class="feed-row"><div class="feed-status"></div><div class="feed-hotel">Colombo Bay Inn</div><div class="feed-ch">ENG</div><div class="feed-date">Apr 16</div><div class="feed-amt">$92</div></div><div class="feed-row"><div class="feed-status"></div><div class="feed-hotel">Shinjuku Excel Hotel Tokyu</div><div class="feed-ch">JPN</div><div class="feed-date">Apr 15</div><div class="feed-amt">$245</div></div><div class="feed-row"><div class="feed-status"></div><div class="feed-hotel">Phuket Sunset Villas</div><div class="feed-ch">KOR</div><div class="feed-date">Apr 14</div><div class="feed-amt">$310</div></div><div class="feed-row"><div class="feed-status"></div><div class="feed-hotel">Kandy Heritage Lodge</div><div class="feed-ch">ENG</div><div class="feed-date">Apr 13</div><div class="feed-amt">$78</div></div></div></div>
-<div class="sec"><div class="sec-tag" data-en="ROI CALCULATOR" data-ko="ROI 계산기">ROI CALCULATOR</div><div class="sec-h1" data-en="Calculate your potential return" data-ko="예상 수익을 계산해보세요">Calculate your potential return</div><div class="sec-p" style="margin-bottom:20px" data-en="Enter your average nightly rate to see projected results based on our proven track record." data-ko="평균 1박 요금을 입력하면 실제 실적 기반의 예상 결과를 확인할 수 있습니다.">Enter your average nightly rate to see projected results based on our proven track record.</div><div class="roi-card"><div class="roi-input-area"><label class="roi-label" data-en="Your Average Nightly Rate (USD)" data-ko="평균 1박 요금 (USD)">Your Average Nightly Rate (USD)</label><input type="number" class="roi-input" id="roi-input" value="100" min="20" max="1000"></div><div class="roi-results"><div class="roi-r"><div class="roi-r-num" id="roi-bookings">15</div><div class="roi-r-label" data-en="Est. Bookings / 6 mo" data-ko="예상 예약 / 6개월">Est. Bookings / 6 mo</div></div><div class="roi-r"><div class="roi-r-num" id="roi-revenue">$1,500</div><div class="roi-r-label" data-en="Est. Booking Revenue" data-ko="예상 예약 매출">Est. Booking Revenue</div></div><div class="roi-r"><div class="roi-r-num" id="roi-return">7.5x</div><div class="roi-r-label" data-en="Return on $200" data-ko="$200 대비 수익">Return on $200</div></div></div></div></div>
-<div class="sec"><div class="channels-card"><div class="sec-tag" style="color:var(--emerald-dark)" data-en="🎁 BONUS — INCLUDED FREE" data-ko="🎁 추가 혜택 — 무료 포함">🎁 BONUS — INCLUDED FREE</div><div class="sec-h1" style="color:var(--emerald-dark)" data-en="Your Hotel on 5 Language Channels" data-ko="5개 언어 채널에 호텔 노출">Your Hotel on 5 Language Channels</div><div class="sec-p" style="color:var(--ink-60)" data-en="Not just Korea — your video reaches travelers in 5 different languages, at no extra cost." data-ko="한국만이 아닙니다 — 추가 비용 없이 5개 언어로 여행자에게 도달합니다.">Not just Korea — your video reaches travelers in 5 different languages, at no extra cost.</div><div class="channels-grid"><div class="ch-item"><div class="ch-flag">🇰🇷</div><div class="ch-name" data-en="Korean" data-ko="한국어">Korean</div></div><div class="ch-item"><div class="ch-flag">🇬🇧</div><div class="ch-name" data-en="English" data-ko="영어">English</div></div><div class="ch-item"><div class="ch-flag">🇯🇵</div><div class="ch-name" data-en="Japanese" data-ko="일본어">Japanese</div></div><div class="ch-item"><div class="ch-flag">🇹🇼</div><div class="ch-name" data-en="Taiwanese" data-ko="대만">Taiwanese</div></div><div class="ch-item"><div class="ch-flag">🇻🇳</div><div class="ch-name" data-en="Vietnamese" data-ko="베트남어">Vietnamese</div></div></div></div></div>
-<div class="sec"><div class="sec-tag" data-en="SAMPLE VIDEO" data-ko="샘플 영상">SAMPLE VIDEO</div><div class="sec-h1" data-en="This is what your video looks like" data-ko="이런 영상이 만들어집니다">This is what your video looks like</div><div class="sec-p" style="margin-bottom:20px" data-en="Professional TOP3 hotel recommendation — narration, visually rich, with Agoda booking links." data-ko="프로 TOP3 호텔 추천 영상 — 나레이션, 풍부한 비주얼, 아고다 예약 링크 포함.">Professional TOP3 hotel recommendation — narration, visually rich, with Agoda booking links.</div><div class="video-embed"><iframe src="https://www.youtube.com/embed/videoseries?list=PLiKT80dPKmSwx7uS_pmCqV0IjRAqoxOlT" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div><div class="video-thumbs"><a href="https://www.youtube.com/@hotel2ya" target="_blank" class="v-thumb"><div class="v-thumb-img"><div class="v-play">▶</div><div style="font-size:13px;color:var(--ink-40);text-align:center;padding:8px" data-en="🏨 Hotel Channel" data-ko="🏨 호텔 추천 채널">🏨 Hotel Channel</div></div><div class="v-thumb-info"><h5 data-en="호텔이야 (HotelYa)" data-ko="호텔이야">호텔이야 (HotelYa)</h5><span data-en="Korean · TOP3 hotel reviews" data-ko="한국어 · TOP3 호텔 리뷰">Korean · TOP3 hotel reviews</span></div></a><a href="https://www.youtube.com/@travelwinners" target="_blank" class="v-thumb"><div class="v-thumb-img"><div class="v-play">▶</div><div style="font-size:13px;color:var(--ink-40);text-align:center;padding:8px" data-en="🌏 Travel Channel" data-ko="🌏 여행 채널">🌏 Travel Channel</div></div><div class="v-thumb-info"><h5 data-en="TravelWinners" data-ko="여행능력자들">TravelWinners</h5><span data-en="Multi-language · Travel network" data-ko="다국어 · 여행 콘텐츠 네트워크">Multi-language · Travel network</span></div></a></div></div>
-<div class="sec"><div class="sec-tag" data-en="TRUST INDICATORS" data-ko="신뢰 지표">TRUST INDICATORS</div><div class="sec-h1" data-en="Built on verified performance" data-ko="검증된 실적 기반">Built on verified performance</div><div class="sec-p" style="margin-bottom:20px" data-en="Every number represents a real booking made through our content." data-ko="모든 숫자는 콘텐츠를 통해 발생한 매출한 실제 예약입니다.">Every number represents a real booking made through our content.</div><div class="trust-grid"><div class="trust-card"><div class="trust-icon">📅</div><div class="trust-num" data-en="Since 2018" data-ko="2018년~">Since 2018</div><div class="trust-label" data-en="Operating" data-ko="운영">Operating</div></div><div class="trust-card"><div class="trust-icon">🏨</div><div class="trust-num">1,000+</div><div class="trust-label" data-en="Hotels Featured" data-ko="소개 호텔">Hotels Featured</div></div><div class="trust-card"><div class="trust-icon">📺</div><div class="trust-num">8</div><div class="trust-label" data-en="YouTube Channels" data-ko="유튜브 채널">YouTube Channels</div></div><div class="trust-card"><div class="trust-icon">🤝</div><div class="trust-num">5</div><div class="trust-label" data-en="OTA Partners" data-ko="OTA 파트너">OTA Partners</div></div></div></div>
-<div class="sec"><div class="sec-tag" data-en="TRANSPARENT DATA" data-ko="투명한 데이터">TRANSPARENT DATA</div><div class="sec-h1" data-en="Full transparency, always" data-ko="언제나 완전한 투명성">Full transparency, always</div><div class="sec-p" style="margin-bottom:20px" data-en="We believe in radical transparency. Here's exactly how we verify and share our data." data-ko="우리는 철저한 투명성을 추구합니다. 데이터 검증 및 공유 방식을 정확히 안내합니다.">We believe in radical transparency.</div><div class="data-card"><div class="data-items"><div class="data-item"><div class="data-icon">📊</div><div class="data-text"><h4 data-en="Verified Booking Data" data-ko="검증된 예약 데이터">Verified Booking Data</h4><p data-en="All booking data is verified through Agoda — including booking IDs, check-in dates, hotel names, and amounts." data-ko="모든 예약 데이터는 아고다를 통해 검증됩니다 — 예약번호, 체크인 날짜, 호텔명, 금액 포함.">All booking data is verified through Agoda.</p></div></div><div class="data-item"><div class="data-icon">🔍</div><div class="data-text"><h4 data-en="Auditable Booking Records" data-ko="감사 가능한 예약 기록">Auditable Booking Records</h4><p data-en="Every booking is traceable. After payment, you can track your hotel's performance in real-time." data-ko="모든 예약은 추적 가능합니다. 결제 후 실시간으로 호텔 성과를 확인할 수 있습니다.">Every booking is traceable. Access your dashboard after payment.</p></div></div><div class="data-item"><div class="data-icon">📁</div><div class="data-text"><h4 data-en="Content-Driven Bookings" data-ko="콘텐츠 기반 예약">Content-Driven Bookings</h4><p data-en="Every booking originates from our video content — viewers watch, click Agoda links, and book hotels." data-ko="모든 예약은 영상 콘텐츠에서 시작됩니다 — 시청자가 영상을 보고, 아고다 링크를 클릭하고, 호텔을 예약합니다.">Every booking originates from our video content — viewers watch, click, and book.</p></div></div></div></div></div>
-<div class="sec"><div class="sec-tag" data-en="WHAT YOU GET" data-ko="포함 사항">WHAT YOU GET</div><div class="sec-h1" data-en="Everything included in one payment" data-ko="한 번 결제에 모든 것 포함">Everything included in one payment</div><div class="sec-p" style="margin-bottom:20px" data-en="No hidden fees. No monthly charges. No surprises." data-ko="숨겨진 비용 없음. 월 요금 없음.">No hidden fees. No monthly charges.</div><div class="delivery-card"><div class="delivery-item"><div class="delivery-icon">🎬</div><span data-en="Professional TOP3 hotel recommendation video" data-ko="프로 TOP3 호텔 추천 영상 제작">Professional TOP3 hotel recommendation video</span></div><div class="delivery-item"><div class="delivery-icon">🌍</div><span data-en="Published across 5 language channels" data-ko="5개 언어 채널 동시 게시">Published across 5 language channels</span></div><div class="delivery-item"><div class="delivery-icon">🔗</div><span data-en="Agoda booking links in every video" data-ko="모든 영상에 아고다 예약 링크">Agoda booking links in every video</span></div><div class="delivery-item"><div class="delivery-icon">📊</div><span data-en="TW Booking Analytics dashboard access" data-ko="TW Booking Analytics 대시보드 접근">TW Booking Analytics dashboard access</span></div><div class="delivery-item"><div class="delivery-icon">🧾</div><span data-en="Stripe invoice issued immediately" data-ko="결제 즉시 Stripe 인보이스 발행">Stripe invoice issued immediately</span></div><div class="delivery-item"><div class="delivery-icon">♾️</div><span data-en="Permanent video — no monthly fees" data-ko="영구 게시 — 월 요금 없음">Permanent video — no monthly fees</span></div></div></div>
-<div class="sec"><div class="sec-tag" data-en="FAQ" data-ko="자주 묻는 질문">FAQ</div><div class="sec-h1" data-en="Common questions from hotel partners" data-ko="호텔 파트너가 자주 묻는 질문">Common questions from hotel partners</div><div style="margin-top:20px"><div class="faq-item"><div class="faq-q"><span data-en="How can I verify the bookings are real?" data-ko="예약이 실제인지 어떻게 확인하나요?">How can I verify the bookings are real?</span><span class="faq-arrow">▼</span></div><div class="faq-a"><p data-en="All booking data comes directly from Agoda. After payment, you can track every reservation in your TW Booking Analytics dashboard." data-ko="모든 예약 데이터는 아고다에서 직접 가져옵니다. 결제 후 TW Booking Analytics 대시보드에서 모든 예약을 추적할 수 있습니다.">All data from Agoda's official reporting. After payment, access TW Booking Analytics.</p></div></div><div class="faq-item"><div class="faq-q"><span data-en="Is the estimated ROI guaranteed?" data-ko="예상 ROI가 보장되나요?">Is the estimated ROI guaranteed?</span><span class="faq-arrow">▼</span></div><div class="faq-a"><p data-en="ROI estimates are based on actual data across 3,774 bookings. Results vary. Guarantee: zero bookings in 6 months = full refund minus Stripe fees." data-ko="ROI 추정치는 3,774건의 실제 데이터 기반입니다. 환불 보장: 6개월 내 예약 0건 시 수수료 제외 전액 환불.">Based on 3,774 actual bookings. Zero bookings in 6 months = full refund minus fees.</p></div></div><div class="faq-item"><div class="faq-q"><span data-en="What does the video look like?" data-ko="영상이 어떤 형태인가요?">What does the video look like?</span><span class="faq-arrow">▼</span></div><div class="faq-a"><p data-en="Professional narration, hotel visuals, room tours, and location highlights. Agoda booking links are included. Watch samples above." data-ko="프로 나레이션, 호텔 비주얼, 객실 투어, 주변 하이라이트까지 포함됩니다. 위의 샘플 영상을 확인하세요.">Professional narration, visuals, room tours. Watch samples above.</p></div></div><div class="faq-item"><div class="faq-q"><span data-en="What do I get after payment?" data-ko="결제 후 무엇을 받나요?">What do I get after payment?</span><span class="faq-arrow">▼</span></div><div class="faq-a"><p data-en="Immediately: invoice + dashboard. Within 5-7 days: TOP3 video across 5 channels. Permanent — no recurring fees." data-ko="즉시: 인보이스 + 대시보드. 5-7일 내: 5개 채널에 TOP3 영상 게시. 영구 게시.">Immediately: invoice + dashboard. 5-7 days: TOP3 video on 5 channels. Permanent.</p></div></div><div class="faq-item"><div class="faq-q"><span data-en="Who is TravelWinners?" data-ko="TravelWinners는?">Who is TravelWinners?</span><span class="faq-arrow">▼</span></div><div class="faq-a"><p data-en="Media commerce since 2018. 8 YouTube channels, 5 languages. OTA partnerships with Agoda, Trip.com, KKday, Expedia, Booking.com. 1,000+ hotels. $854K verified bookings." data-ko="2018년 설립 미디어 커머스. 5개 언어 8개 유튜브 채널. Agoda·Trip.com·KKday·Expedia·Booking.com 파트너십.">Media commerce since 2018. 8 channels, 5 languages. 5 OTA partnerships. $854K verified.</p></div></div></div></div>
-<div class="sec"><div class="sec-tag" data-en="HOW IT WORKS" data-ko="진행 절차">HOW IT WORKS</div><div class="sec-h1" data-en="From payment to bookings in 7 days" data-ko="결제부터 예약까지 7일">From payment to bookings in 7 days</div><div class="process-track" style="margin-top:28px"><div class="p-step"><div class="p-dot">1</div><h4 data-en="Pay $200 via Stripe" data-ko="Stripe로 $200 결제">Pay $200 via Stripe</h4><p data-en="Secure payment. Invoice issued immediately." data-ko="안전한 결제. 인보이스 즉시 발행.">Secure payment. Invoice immediately.</p></div><div class="p-step"><div class="p-dot">2</div><h4 data-en="Video Production (5-7 days)" data-ko="영상 제작 (5-7일)">Video Production (5-7 days)</h4><p data-en="Professional TOP3 recommendation video featuring your hotel." data-ko="프로 TOP3 추천 영상을 제작합니다.">Professional TOP3 video featuring your hotel.</p></div><div class="p-step"><div class="p-dot">3</div><h4 data-en="Published Across 5 Channels" data-ko="5개 채널에 게시">Published Across 5 Channels</h4><p data-en="Video goes live on all channels with Agoda booking links." data-ko="모든 채널에 아고다 링크와 함께 게시됩니다.">Live on all channels with Agoda links.</p></div><div class="p-step"><div class="p-dot">4</div><h4 data-en="Track Results" data-ko="실적 확인">Track Results</h4><p data-en="Monitor in TW Booking Analytics. Video stays live permanently." data-ko="TW Booking Analytics에서 확인. 영구 게시.">Monitor in TW Booking Analytics. Permanent.</p></div></div></div>
-<div class="sec"><div class="product-card"><div class="pc-top"><h3 data-en="TOP3 Hotel Introduction" data-ko="TOP3 호텔 소개">TOP3 Hotel Introduction</h3><div class="pc-price">$200</div></div><div class="pc-features"><div class="pc-feat"><div class="pc-check">✓</div><span data-en="Professional TOP3 recommendation video" data-ko="프로 TOP3 추천 영상 제작">Professional TOP3 recommendation video</span></div><div class="pc-feat"><div class="pc-check">✓</div><span data-en="Published across 5 language channels" data-ko="5개 언어 채널 동시 송출">Published across 5 language channels</span></div><div class="pc-feat"><div class="pc-check">✓</div><span data-en="Agoda booking links in every video" data-ko="모든 영상에 아고다 예약 링크">Agoda booking links in every video</span></div><div class="pc-feat"><div class="pc-check">✓</div><span data-en="Permanent video — stays live forever" data-ko="영구 게시 — 계속 노출">Permanent video — stays live forever</span></div><div class="pc-feat"><div class="pc-check">✓</div><span data-en="Real-time booking dashboard" data-ko="실시간 예약 대시보드">Real-time booking dashboard</span></div><div class="pc-feat"><div class="pc-check">✓</div><span data-en="One-time fee — no monthly charges" data-ko="1회 비용 — 월 요금 없음">One-time fee — no monthly charges</span></div></div><div class="refund-bar"><strong data-en="Refund Guarantee: " data-ko="환불 보장: ">Refund Guarantee: </strong><span data-en="Zero bookings within 6 months → full refund minus Stripe fees." data-ko="6개월 내 예약 0건 시 Stripe 수수료 제외 전액 환불.">Zero bookings in 6 months → full refund minus Stripe fees.</span></div><button class="pay-btn" id="btn-pay" data-en="Pay $200 with Stripe →" data-ko="Stripe로 $200 결제 →">Pay $200 with Stripe →</button><div class="secure-line">🔒 <span data-en="Secured by Stripe. 256-bit SSL." data-ko="Stripe 보안 결제. 256-bit SSL.">Secured by Stripe. 256-bit SSL.</span></div></div></div>
+<div class="dh-shell">
+  <div class="dh-topbar">
+    <a href="dashboard.html" class="dh-logo">
+      <div class="dh-logo-icon">TW</div>
+      <div class="dh-logo-text">TravelWinners</div>
+    </a>
+    <div class="dh-nav-right">
+      <div class="dh-lang">
+        <button class="active" id="lang-en">EN</button>
+        <button id="lang-ko">한국어</button>
+      </div>
+      <span class="dh-user" id="user-email">—</span>
+      <button class="dh-logout" id="btn-logout" data-en="Sign out" data-ko="로그아웃">Sign out</button>
+    </div>
+  </div>
+
+  <div class="dh-main" id="dh-main">
+    <div class="dh-loading"><div class="dh-loader"></div><div data-en="Loading dashboard..." data-ko="대시보드 불러오는 중...">Loading dashboard...</div></div>
+  </div>
 </div>
-<div class="view" id="view-after">
-<div class="sec"><div class="sec-tag" data-en="PRODUCTION STATUS" data-ko="제작 진행 상태">PRODUCTION STATUS</div><div class="tracker"><div class="t-step done"><div class="t-dot">✓</div><div class="t-label" data-en="Paid" data-ko="결제">Paid</div></div><div class="t-step done"><div class="t-dot">✓</div><div class="t-label" data-en="Confirmed" data-ko="확인">Confirmed</div></div><div class="t-step active"><div class="t-dot">3</div><div class="t-label" data-en="Production" data-ko="제작중">Production</div></div><div class="t-step"><div class="t-dot">4</div><div class="t-label" data-en="Published" data-ko="게시">Published</div></div><div class="t-step"><div class="t-dot">5</div><div class="t-label" data-en="Live" data-ko="노출중">Live</div></div></div><div style="background:var(--emerald-mist);border-radius:var(--radius-md);padding:20px;font-size:14px;color:var(--ink-70);line-height:1.6"><strong data-en="Est. completion: " data-ko="예상 완료: ">Est. completion: </strong><span data-en="April 28, 2026 — Video in production." data-ko="2026년 4월 28일 — 영상 제작 중.">April 28, 2026 — Video in production.</span></div></div>
-<div class="sec"><div class="sec-tag" data-en="BOOKING PERFORMANCE" data-ko="예약 실적">BOOKING PERFORMANCE</div><div class="metric-grid"><div class="m-card"><div class="m-label" data-en="Total Bookings" data-ko="총 예약">Total Bookings</div><div class="m-value">12</div><div class="m-sub" data-en="↑ 4 this month" data-ko="↑ 이번달 4건">↑ 4 this month</div></div><div class="m-card"><div class="m-label" data-en="Booking Value" data-ko="예약 금액">Booking Value</div><div class="m-value">$1,840</div><div class="m-sub" data-en="9.2x return" data-ko="9.2배 수익">9.2x return</div></div><div class="m-card"><div class="m-label" data-en="Total Views" data-ko="총 조회수">Total Views</div><div class="m-value">2,847</div><div class="m-sub" data-en="5 channels" data-ko="5개 채널">5 channels</div></div><div class="m-card"><div class="m-label" data-en="Conversion" data-ko="전환율">Conversion</div><div class="m-value">8.4%</div><div class="m-sub" data-en="Click → Book" data-ko="클릭→예약">Click → Book</div></div></div></div>
-<div class="sec"><div class="sec-tag" data-en="CHANNEL BREAKDOWN" data-ko="채널별 실적">CHANNEL BREAKDOWN</div><div style="background:var(--surface);border:1px solid var(--ink-10);border-radius:var(--radius-xl);overflow:hidden"><table class="ch-table"><thead><tr><th data-en="Channel" data-ko="채널">Channel</th><th data-en="Views" data-ko="조회수">Views</th><th data-en="Bookings" data-ko="예약">Bookings</th></tr></thead><tbody><tr><td>🇰🇷 Korean</td><td>1,203</td><td>6</td></tr><tr><td>🇬🇧 English</td><td>724</td><td>3</td></tr><tr><td>🇯🇵 Japanese</td><td>512</td><td>2</td></tr><tr><td>🇹🇼 Taiwanese</td><td>231</td><td>1</td></tr><tr><td>🇻🇳 Vietnamese</td><td>177</td><td>0</td></tr></tbody></table></div></div>
-<div class="sec"><div style="background:var(--surface);border:1px solid var(--ink-10);border-radius:var(--radius-lg);padding:20px 24px;display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:14px;font-weight:700;color:var(--ink)" data-en="Invoice #TW-2026-001" data-ko="인보이스 #TW-2026-001">Invoice #TW-2026-001</div><div style="font-size:13px;color:var(--ink-40);margin-top:2px">$200.00 — Apr 19, 2026</div></div><button style="padding:8px 18px;background:var(--emerald-mist);color:var(--emerald);border:1px solid var(--emerald);border-radius:var(--radius-sm);font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif" id="btn-invoice" data-en="Download PDF" data-ko="PDF 다운로드">Download PDF</button></div></div>
-<div class="sample-notice" data-en="This is a preview. Data shown is sample — your actual dashboard appears after payment." data-ko="미리보기입니다. 실제 대시보드는 결제 후 표시됩니다.">Preview mode. Actual dashboard appears after payment.</div>
-</div>
-</div>
-<div class="toast" id="toast"></div>
+
 <script>
 (function(){
-var SURL='https://vjsludfjsphwnumuoqaj.supabase.co';var SKEY='sb_publishable_IluITb52iuwwHf9xgP99MA__KX-sNM6';var sb=null;try{sb=window.supabase.createClient(SURL,SKEY)}catch(e){}
-var lang=localStorage.getItem('tw-lang')||'en';var $=function(id){return document.getElementById(id)};
-function toast(m){var t=$('toast');t.textContent=m;t.className='toast show';setTimeout(function(){t.className='toast'},3000)}
-function switchLang(l){lang=l;localStorage.setItem('tw-lang',l);$('lang-en').classList.toggle('on',l==='en');$('lang-ko').classList.toggle('on',l==='ko');document.querySelectorAll('[data-'+l+']').forEach(function(el){var v=el.getAttribute('data-'+l);if(el.tagName==='INPUT')el.placeholder=v;else el.innerHTML=v})}
-$('lang-en').addEventListener('click',function(){switchLang('en')});$('lang-ko').addEventListener('click',function(){switchLang('ko')});
-if(sb){sb.auth.getSession().then(function(r){if(r.data.session){$('dash-user-email').textContent=r.data.session.user.email}else{window.location.href='login.html'}}).catch(function(){window.location.href='login.html'})}
-$('btn-logout').addEventListener('click',function(){if(sb){sb.auth.signOut().then(function(){window.location.href='login.html?logout=1'}).catch(function(){window.location.href='login.html?logout=1'})}else{window.location.href='login.html?logout=1'}});
-$('tab-before').addEventListener('click',function(){this.classList.add('on');$('tab-after').classList.remove('on');$('view-before').classList.add('on');$('view-after').classList.remove('on')});
-$('tab-after').addEventListener('click',function(){this.classList.add('on');$('tab-before').classList.remove('on');$('view-after').classList.add('on');$('view-before').classList.remove('on')});
-function calcROI(){var rate=parseInt($('roi-input').value)||100;var bookings=Math.round(15*(rate/100));if(bookings<5)bookings=5;if(bookings>50)bookings=50;var revenue=bookings*rate;var ret=(revenue/200).toFixed(1);$('roi-bookings').textContent=bookings;$('roi-revenue').textContent='$'+revenue.toLocaleString();$('roi-return').textContent=ret+'x'}
-$('roi-input').addEventListener('input',calcROI);
-$('btn-pay').addEventListener('click',function(){var btn=this;btn.innerHTML='<span class="spinner"></span>'+(lang==='ko'?'Stripe 연결 중...':'Connecting...');btn.disabled=true;setTimeout(function(){btn.textContent=lang==='ko'?'Stripe로 $200 결제 →':'Pay $200 with Stripe →';btn.disabled=false;toast(lang==='ko'?'Stripe 결제 연동 준비 중':'Stripe integration coming soon')},2000)});
-$('btn-invoice').addEventListener('click',function(){toast(lang==='ko'?'인보이스 다운로드 준비 중':'Invoice download coming soon')});
-document.querySelectorAll('.faq-q').forEach(function(q){q.addEventListener('click',function(){this.parentElement.classList.toggle('open')})});
-switchLang(lang);calcROI();
+  var T = window.TW;
+  var $ = T.$;
+  var currentUser = null;
+  var myHotel = null;
+
+  T.requireAuth(function(user){
+    currentUser = user;
+    $('user-email').textContent = user.email;
+    
+    if (T.isAdmin(user)) {
+      // 관리자는 admin.html로
+      window.location.href = 'admin.html';
+      return;
+    }
+    
+    loadDashboard();
+  });
+
+  $('btn-logout').addEventListener('click', T.logout);
+
+  function loadDashboard(){
+    T.db.getMyHotels().then(function(r){
+      var main = $('dh-main');
+      
+      if (r.error){
+        main.innerHTML = '<div class="dh-card"><div class="dh-empty">' + (T.lang === 'ko' ? '데이터 불러오기 실패' : 'Failed to load data') + '</div></div>';
+        return;
+      }
+
+      var hotels = r.data || [];
+      
+      if (hotels.length === 0){
+        // 호텔 미등록 → 등록 유도
+        renderNoHotel();
+        return;
+      }
+
+      myHotel = hotels[0];
+      renderDashboard();
+    }).catch(function(err){
+      console.error(err);
+      $('dh-main').innerHTML = '<div class="dh-card"><div class="dh-empty">' + (T.lang === 'ko' ? '오류 발생' : 'Error occurred') + '</div></div>';
+    });
+  }
+
+  function renderNoHotel(){
+    var html = '<h1 class="dh-section-title" data-en="Welcome to TravelWinners!" data-ko="환영합니다!">Welcome to TravelWinners!</h1>';
+    html += '<p class="dh-section-sub" data-en="Get started by registering your hotel." data-ko="호텔을 등록하고 시작하세요.">Get started by registering your hotel.</p>';
+    html += '<div class="dh-card"><div class="dh-empty">';
+    html += '<div class="dh-empty-icon">🏨</div>';
+    html += '<h3>' + (T.lang === 'ko' ? '아직 등록된 호텔이 없습니다' : 'No hotel registered yet') + '</h3>';
+    html += '<p style="margin-bottom:24px">' + (T.lang === 'ko' ? '아고다 URL을 붙여넣으면 호텔 정보를 자동으로 가져옵니다.' : 'Paste your Agoda URL and we\'ll auto-fill your hotel info.') + '</p>';
+    html += '<a href="hotel-info.html" class="dh-btn dh-btn-primary">' + (T.lang === 'ko' ? '호텔 등록하기 →' : 'Register Hotel →') + '</a>';
+    html += '</div></div>';
+    $('dh-main').innerHTML = html;
+    T.switchLang(T.lang);
+  }
+
+  function renderDashboard(){
+    var h = myHotel;
+    var status = h.status || 'pending';
+    var lang = T.lang;
+
+    var html = '';
+    
+    // === 헤더 ===
+    html += '<h1 class="dh-section-title">' + (lang === 'ko' ? '대시보드' : 'Dashboard') + '</h1>';
+    html += '<p class="dh-section-sub">' + (lang === 'ko' ? '호텔 정보, 결제 상태, 영상 진행상황을 한눈에 확인하세요.' : 'Track your hotel info, payment status, and video progress.') + '</p>';
+
+    // === 호텔 카드 ===
+    html += '<div class="dh-card">';
+    html += '<div class="dh-hotel-info">';
+    var imgUrl = h.image_url || '';
+    if (h.google_photos_json){
+      try {
+        var photos = JSON.parse(h.google_photos_json);
+        if (photos && photos.length && photos[0].url) imgUrl = photos[0].url;
+      } catch (e) {}
+    }
+    html += '<div class="dh-hotel-img" style="background-image:url(' + esc(imgUrl) + ')"></div>';
+    html += '<div class="dh-hotel-meta" style="flex:1">';
+    html += '<h2>' + esc(h.hotel_name || 'Unnamed Hotel') + '</h2>';
+    if (h.star_rating){
+      html += '<div class="dh-hotel-meta-row">' + T.fmt.stars(h.star_rating);
+      if (h.review_score) html += '  ·  ' + h.review_score + '/10 (' + (h.review_count || 0) + ' reviews)';
+      html += '</div>';
+    }
+    if (h.address) html += '<div class="dh-hotel-meta-row">📍 ' + esc(h.address) + '</div>';
+    if (h.phone) html += '<div class="dh-hotel-meta-row">📞 ' + esc(h.phone) + '</div>';
+    if (h.website) html += '<div class="dh-hotel-meta-row">🌐 <a href="' + esc(h.website) + '" target="_blank" rel="noopener">' + esc(h.website) + '</a></div>';
+    html += '<div style="margin-top:12px"><span class="dh-status-badge" style="background:' + T.fmt.statusColor(status) + '">' + T.fmt.statusLabel(status, lang) + '</span></div>';
+    html += '</div></div>';
+
+    // === 진행 상태 ===
+    html += '<div class="dh-progress">';
+    var steps = lang === 'ko' 
+      ? ['등록', '검토', '승인', '결제', '제작', '게시']
+      : ['Register', 'Review', 'Approve', 'Pay', 'Produce', 'Publish'];
+    var stepStatus = ['pending','review','approved','paid','producing','published'];
+    var statusOrder = stepStatus.indexOf(status);
+    if (statusOrder === -1) statusOrder = 0;
+    
+    for (var i = 0; i < steps.length; i++){
+      var cls = 'dh-progress-step';
+      if (i < statusOrder) cls += ' done';
+      else if (i === statusOrder) cls += ' active';
+      html += '<div class="' + cls + '">' + steps[i] + '</div>';
+    }
+    html += '</div>';
+    html += '</div>';
+
+    // === 상태별 분기 ===
+    if (status === 'pending' || status === 'review'){
+      // 대기/검토 중
+      html += '<div class="dh-card">';
+      html += '<div class="dh-empty">';
+      html += '<div class="dh-empty-icon">⏳</div>';
+      html += '<h3>' + (lang === 'ko' ? '검토 진행 중' : 'Under Review') + '</h3>';
+      html += '<p>' + (lang === 'ko' ? '제출하신 호텔 정보를 검토 중입니다. 보통 1-2 영업일 내 승인됩니다.' : 'We\'re reviewing your hotel info. Approval typically takes 1-2 business days.') + '</p>';
+      html += '</div></div>';
+    } else if (status === 'approved'){
+      // 승인 → 결제 유도
+      html += '<div class="dh-pay-card">';
+      html += '<h3>' + (lang === 'ko' ? '🎉 호텔이 승인되었습니다!' : '🎉 Your hotel is approved!') + '</h3>';
+      html += '<p>' + (lang === 'ko' ? '$200 영상 제작 비용을 결제하시면 6개 언어 유튜브 채널에 호텔 영상이 게시됩니다.' : 'Complete the $200 video production payment to publish your hotel video across 6-language YouTube channels.') + '</p>';
+      html += '<div class="dh-pay-amount">$200 USD</div>';
+      html += '<button class="dh-pay-btn" id="btn-pay">' + (lang === 'ko' ? '결제하기 (PayPal)' : 'Pay Now (PayPal)') + '</button>';
+      html += '<div class="dh-pay-meta">';
+      html += '<span>✓ ' + (lang === 'ko' ? '안전한 PayPal 결제' : 'Secure PayPal payment') + '</span>';
+      html += '<span>✓ ' + (lang === 'ko' ? '7일 이내 영상 제작 완료' : 'Video ready in 7 days') + '</span>';
+      html += '<span>✓ ' + (lang === 'ko' ? '6개 언어 채널 게시' : '6-language channels') + '</span>';
+      html += '</div>';
+      html += '</div>';
+    } else if (status === 'paid' || status === 'producing'){
+      // 결제 완료 → 제작 중
+      html += '<div class="dh-card">';
+      html += '<h3 class="dh-h3">' + (lang === 'ko' ? '✅ 결제 완료 — 영상 제작 중' : '✅ Payment Received — Video in Production') + '</h3>';
+      html += '<p style="color:#666;line-height:1.7">' + (lang === 'ko' ? '결제가 완료되었습니다. 저희 팀이 호텔 영상을 제작 중입니다. 7일 이내 게시 예정입니다.' : 'Payment received. Our team is producing your hotel video. It will be published within 7 days.') + '</p>';
+      html += '</div>';
+    } else if (status === 'published'){
+      // 게시됨 → 통계 표시
+      html += '<div class="dh-grid-3">';
+      html += '<div class="dh-stat"><div class="dh-stat-label">' + (lang === 'ko' ? '총 조회수' : 'Total Views') + '</div><div class="dh-stat-value">—</div><div class="dh-stat-trend">' + (lang === 'ko' ? '집계 중' : 'Calculating') + '</div></div>';
+      html += '<div class="dh-stat"><div class="dh-stat-label">' + (lang === 'ko' ? '예약 수' : 'Bookings') + '</div><div class="dh-stat-value">—</div><div class="dh-stat-trend">' + (lang === 'ko' ? '집계 중' : 'Calculating') + '</div></div>';
+      html += '<div class="dh-stat"><div class="dh-stat-label">' + (lang === 'ko' ? '커미션' : 'Commission') + '</div><div class="dh-stat-value">—</div><div class="dh-stat-trend">' + (lang === 'ko' ? '집계 중' : 'Calculating') + '</div></div>';
+      html += '</div>';
+    } else if (status === 'rejected'){
+      html += '<div class="dh-card"><div class="dh-empty">';
+      html += '<div class="dh-empty-icon">❌</div>';
+      html += '<h3>' + (lang === 'ko' ? '거절되었습니다' : 'Application Rejected') + '</h3>';
+      html += '<p>' + (lang === 'ko' ? '문의: dgmasters01@gmail.com' : 'Contact: dgmasters01@gmail.com') + '</p>';
+      html += '</div></div>';
+    }
+
+    // === 결제 내역 ===
+    html += '<div class="dh-card">';
+    html += '<h3 class="dh-h3">' + (lang === 'ko' ? '결제 내역' : 'Payment History') + '</h3>';
+    html += '<div id="payments-area"><div class="dh-loader"></div></div>';
+    html += '</div>';
+
+    $('dh-main').innerHTML = html;
+    T.switchLang(lang);
+
+    // 결제 버튼 이벤트
+    var payBtn = document.getElementById('btn-pay');
+    if (payBtn){
+      payBtn.addEventListener('click', function(){
+        T.toast(T.lang === 'ko' ? 'PayPal 결제는 곧 활성화됩니다. 관리자에게 문의해주세요.' : 'PayPal checkout coming soon. Please contact admin.', false);
+      });
+    }
+
+    // 결제 내역 로드
+    loadPayments();
+  }
+
+  function loadPayments(){
+    T.db.getPayments(myHotel.id).then(function(r){
+      var area = document.getElementById('payments-area');
+      if (!area) return;
+      
+      var payments = r.data || [];
+      if (payments.length === 0){
+        area.innerHTML = '<div style="color:#888;font-size:13px;padding:8px 0">' + (T.lang === 'ko' ? '결제 내역이 없습니다.' : 'No payments yet.') + '</div>';
+        return;
+      }
+
+      var html = '<table class="dh-table">';
+      html += '<thead><tr>';
+      html += '<th>' + (T.lang === 'ko' ? '날짜' : 'Date') + '</th>';
+      html += '<th>' + (T.lang === 'ko' ? '금액' : 'Amount') + '</th>';
+      html += '<th>' + (T.lang === 'ko' ? '방법' : 'Method') + '</th>';
+      html += '<th>' + (T.lang === 'ko' ? '상태' : 'Status') + '</th>';
+      html += '</tr></thead><tbody>';
+      payments.forEach(function(p){
+        html += '<tr>';
+        html += '<td>' + T.fmt.date(p.created_at) + '</td>';
+        html += '<td>' + T.fmt.money(p.amount, p.currency || 'USD') + '</td>';
+        html += '<td>' + esc(p.method || '-') + '</td>';
+        html += '<td>' + esc(p.status || '-') + '</td>';
+        html += '</tr>';
+      });
+      html += '</tbody></table>';
+      area.innerHTML = html;
+    });
+  }
+
+  function esc(s){
+    if (!s) return '';
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
 })();
 </script>
 </body>

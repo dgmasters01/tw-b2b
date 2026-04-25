@@ -40,6 +40,9 @@
       </div>
     </div>
     <button class="btn-primary" id="btn-login" data-en="Sign In" data-ko="로그인">Sign In</button>
+    <div style="text-align:center;margin-top:14px">
+      <a href="forgot-password.html" id="link-forgot" style="font-size:13px;color:var(--gray-500);text-decoration:none" data-en="Forgot password?" data-ko="비밀번호를 잊으셨나요?">Forgot password?</a>
+    </div>
     <div class="or-divider"><span data-en="or" data-ko="또는">or</span></div>
     <a href="signup.html" class="btn-secondary" data-en="Create a new account" data-ko="새 계정 만들기">Create a new account</a>
     <div style="text-align:center;margin-top:32px;padding-top:20px;border-top:1px solid var(--gray-200)">
@@ -61,6 +64,19 @@
     else { inp.type = 'password'; this.textContent = 'SHOW'; }
   });
 
+  // URL ?email= 파라미터로 이메일 자동 채우기 (signup에서 redirect된 경우)
+  try {
+    var params = new URLSearchParams(window.location.search);
+    var emailParam = params.get('email');
+    if (emailParam) {
+      $('login-email').value = emailParam;
+      $('login-pw').focus();
+    }
+    if (params.get('reset') === 'success') {
+      T.toast(T.lang === 'ko' ? '비밀번호가 변경되었습니다. 새 비밀번호로 로그인하세요.' : 'Password updated. Please sign in with new password.');
+    }
+  } catch (e) {}
+
   // Login
   $('btn-login').addEventListener('click', async function() {
     var em = $('login-email').value, pw = $('login-pw').value;
@@ -73,7 +89,18 @@
       var r = await T.sb.auth.signInWithPassword({ email: em, password: pw });
       btn.disabled = false;
       btn.textContent = T.lang === 'ko' ? '로그인' : 'Sign In';
-      if (r.error) { T.toast(r.error.message, true); return; }
+      if (r.error) {
+        var msg = r.error.message || '';
+        // Invalid credentials는 친절하게
+        if (/invalid.*credentials|invalid.*login|invalid.*password/i.test(msg)) {
+          T.toast(T.lang === 'ko' ? '이메일 또는 비밀번호가 일치하지 않습니다.' : 'Email or password is incorrect.', true);
+        } else if (/email.*not.*confirmed/i.test(msg)) {
+          T.toast(T.lang === 'ko' ? '이메일 인증이 필요합니다. 받은 메일함을 확인하세요.' : 'Email confirmation required. Check your inbox.', true);
+        } else {
+          T.toast(msg, true);
+        }
+        return;
+      }
       T.toast(T.lang === 'ko' ? '로그인 성공!' : 'Login successful!');
       localStorage.setItem('tw-session-email', r.data.user.email);
       window.location.href = 'dashboard.html';

@@ -142,7 +142,22 @@
       var r = await T.sb.auth.signUp({ email: $('reg-email').value, password: $('reg-pw').value });
       btn.disabled = false;
       btn.textContent = T.lang === 'ko' ? '계정 만들기' : 'Create Account';
-      if (r.error) { T.toast(r.error.message, true); return; }
+      if (r.error) {
+        // 이미 가입된 이메일은 친절하게 안내
+        var msg = r.error.message || '';
+        var isAlready = /already.*registered|already.*exists|user.*exists/i.test(msg);
+        if (isAlready) {
+          var koMsg = '이미 가입된 이메일입니다. 2초 후 로그인 페이지로 이동합니다.';
+          var enMsg = 'This email is already registered. Redirecting to sign in...';
+          T.toast(T.lang === 'ko' ? koMsg : enMsg, true);
+          setTimeout(function(){
+            window.location.href = 'login.html?email=' + encodeURIComponent($('reg-email').value);
+          }, 2000);
+          return;
+        }
+        T.toast(msg, true);
+        return;
+      }
       T.toast(T.lang === 'ko' ? '계정 생성 완료!' : 'Account created!');
       // Save email for hotel-info page
       localStorage.setItem('tw-signup-email', $('reg-email').value);

@@ -23,16 +23,31 @@
 
   window.TW.toast = function (msg, isError) {
     var t = document.getElementById('toast');
+    var hadElement = !!t;
     if (!t) {
       t = document.createElement('div');
       t.id = 'toast';
-      t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#222;color:#fff;padding:12px 24px;border-radius:8px;z-index:99999;display:none;max-width:90%;font-size:14px;';
+      t.className = 'toast';
       document.body.appendChild(t);
     }
     t.textContent = msg;
-    t.style.background = isError ? '#D85A30' : '#222';
-    t.style.display = 'block';
-    setTimeout(function () { t.style.display = 'none'; }, 3500);
+    // 기존 CSS .show 클래스 방식 시도
+    t.classList.add('show');
+    if (isError) t.classList.add('error');
+    else t.classList.remove('error');
+    // 동적 생성된 경우 또는 .toast CSS가 없는 경우를 위한 fallback inline style
+    if (!hadElement) {
+      t.style.cssText = 'position:fixed;bottom:32px;left:50%;transform:translateX(-50%);background:' + (isError ? '#D85A30' : '#222') + ';color:#fff;padding:14px 24px;border-radius:6px;z-index:99999;font-size:14px;font-weight:500;max-width:90vw;text-align:center;box-shadow:0 8px 24px rgba(0,0,0,.15)';
+    } else {
+      // 기존 엘리먼트인 경우 background만 inline으로 보강 (에러 색상 보장)
+      if (isError) t.style.background = '#D85A30';
+      else t.style.background = '';
+    }
+    clearTimeout(t._toastTimer);
+    t._toastTimer = setTimeout(function () {
+      t.classList.remove('show');
+      if (!hadElement) t.style.display = 'none';
+    }, 3500);
   };
 
   // ---------- Language switcher ----------

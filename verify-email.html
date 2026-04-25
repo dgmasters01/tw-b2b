@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TravelWinners — Verify Email</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,700;1,9..144,400&family=DM+Sans:wght@300;400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="shared.js"></script>
+</head>
+<body>
+<div class="shell">
+  <div class="brand-panel">
+    <a href="index.html" class="brand-logo-link" style="text-decoration:none">
+      <div class="brand-logo">
+        <div class="brand-logo-icon">TW</div>
+        <div class="brand-logo-text">TravelWinners</div>
+      </div>
+    </a>
+    <div class="brand-headline" data-en="Verify your<br>email" data-ko="이메일<br>인증">Verify your<br>email</div>
+    <div class="brand-sub" data-en="One last step to secure your account." data-ko="계정 보안을 위한 마지막 단계입니다.">One last step to secure your account.</div>
+    <div style="flex:1"></div>
+    <div class="brand-footer">© 2026 TravelWinners. All rights reserved.</div>
+  </div>
+
+  <div class="form-panel">
+    <div class="form-container">
+      <div class="form-topbar">
+        <div class="lang-switch">
+          <button class="lang-btn active" id="lang-en">EN</button>
+          <button class="lang-btn" id="lang-ko">한국어</button>
+        </div>
+      </div>
+
+      <!-- 인증 메일 발송됨 (가입 직후 도착) -->
+      <div id="pane-pending">
+        <div style="background:#f7f6ff;border:1px solid #d9d4f7;padding:24px;border-radius:12px;margin-bottom:24px;text-align:center">
+          <div style="font-size:48px;margin-bottom:14px">📧</div>
+          <div style="font-size:18px;font-weight:600;color:#534AB7;margin-bottom:8px" data-en="Check your inbox" data-ko="메일함을 확인하세요">Check your inbox</div>
+          <div style="font-size:14px;color:#534AB7;line-height:1.6" data-en="We sent a verification link to:" data-ko="인증 링크를 다음 주소로 보냈습니다:">We sent a verification link to:</div>
+          <div style="font-size:15px;font-weight:600;color:#1a1a1a;margin-top:6px" id="pending-email">your@email.com</div>
+        </div>
+
+        <div style="font-size:13.5px;color:#666;line-height:1.7;margin-bottom:20px">
+          <strong data-en="Why verify?" data-ko="왜 인증이 필요한가요?">Why verify?</strong><br>
+          <span data-en="Email verification protects your account from unauthorized access and ensures we can reach you for important updates." data-ko="이메일 인증은 계정 무단 접근을 방지하고 중요한 알림을 전달받기 위해 필요합니다.">Email verification protects your account from unauthorized access and ensures we can reach you for important updates.</span>
+        </div>
+
+        <div style="font-size:12.5px;color:#888;line-height:1.7;margin-bottom:20px">
+          <strong data-en="Next steps:" data-ko="다음 단계:">Next steps:</strong>
+          <ol style="margin:8px 0 0 20px;padding:0">
+            <li data-en="Open your inbox (or spam folder)" data-ko="받은편지함 또는 스팸함 확인">Open your inbox (or spam folder)</li>
+            <li data-en="Click the verification link in the email" data-ko="이메일의 인증 링크 클릭">Click the verification link in the email</li>
+            <li data-en="You'll be automatically signed in" data-ko="자동으로 로그인됩니다">You'll be automatically signed in</li>
+          </ol>
+        </div>
+
+        <button class="btn-primary" id="btn-resend" data-en="Resend Verification Email" data-ko="인증 메일 다시 보내기">Resend Verification Email</button>
+
+        <div style="text-align:center;margin-top:16px">
+          <a href="login.html" style="font-size:13px;color:var(--gray-500);text-decoration:none" data-en="← Back to Sign In" data-ko="← 로그인으로 돌아가기">← Back to Sign In</a>
+        </div>
+
+        <div style="background:#fffaf0;border:1px solid #f0d8a8;padding:14px 16px;border-radius:8px;font-size:12.5px;color:#a36d10;margin-top:24px;line-height:1.6">
+          <strong data-en="⚠ Email not arriving?" data-ko="⚠ 메일이 안 오나요?">⚠ Email not arriving?</strong>
+          <span data-en=" Check your spam folder. Naver/Daum users may need to allow emails from supabase.io. If still not received after 5 minutes, click 'Resend' above." data-ko=" 스팸함을 확인하세요. 네이버/다음 사용자는 supabase.io 도메인 메일을 허용해야 할 수 있습니다. 5분 후에도 안 오면 위 '다시 보내기' 버튼을 클릭하세요.">Check your spam folder. Naver/Daum users may need to allow emails from supabase.io. If still not received after 5 minutes, click 'Resend' above.</span>
+        </div>
+      </div>
+
+      <!-- 인증 처리 중 (이메일 링크 클릭 후 도착) -->
+      <div id="pane-verifying" style="display:none;text-align:center;padding:40px 0">
+        <div class="spinner" style="width:40px;height:40px;border-width:3px"></div>
+        <div style="margin-top:20px;color:#888;font-size:14px" data-en="Verifying your email..." data-ko="이메일 인증 중...">Verifying your email...</div>
+      </div>
+
+      <!-- 인증 성공 -->
+      <div id="pane-success" style="display:none">
+        <div style="background:#f0faf3;border:1px solid #a8d8b8;padding:30px 24px;border-radius:12px;margin-bottom:24px;text-align:center">
+          <div style="font-size:48px;margin-bottom:14px">✅</div>
+          <div style="font-size:20px;font-weight:600;color:#0a7c3a;margin-bottom:8px" data-en="Email verified!" data-ko="이메일 인증 완료!">Email verified!</div>
+          <div style="font-size:14px;color:#0a7c3a;line-height:1.6" data-en="Your account is now active. Redirecting to your dashboard..." data-ko="계정이 활성화되었습니다. 대시보드로 이동합니다...">Your account is now active. Redirecting to your dashboard...</div>
+        </div>
+      </div>
+
+      <!-- 인증 실패 -->
+      <div id="pane-error" style="display:none">
+        <div style="background:#fef0f0;border:1px solid #f0c8c8;padding:24px;border-radius:12px;margin-bottom:24px;text-align:center">
+          <div style="font-size:48px;margin-bottom:14px">⚠️</div>
+          <div style="font-size:18px;font-weight:600;color:#c93030;margin-bottom:8px" data-en="Verification failed" data-ko="인증 실패">Verification failed</div>
+          <div style="font-size:14px;color:#c93030;line-height:1.6" id="error-msg" data-en="The link is invalid or has expired." data-ko="링크가 유효하지 않거나 만료되었습니다.">The link is invalid or has expired.</div>
+        </div>
+        <a href="login.html" class="btn-primary" style="text-decoration:none;display:block;text-align:center" data-en="Back to Sign In" data-ko="로그인으로 돌아가기">Back to Sign In</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  var T = window.TW;
+  var $ = T.$;
+
+  function showPane(id) {
+    ['pane-pending', 'pane-verifying', 'pane-success', 'pane-error'].forEach(function(p){
+      var el = $(p);
+      if (el) el.style.display = (p === id ? '' : 'none');
+    });
+  }
+
+  // ?email= 파라미터로 어떤 이메일에 인증 메일 보냈는지 표시
+  var params = new URLSearchParams(window.location.search);
+  var email = params.get('email') || localStorage.getItem('tw-pending-email') || '';
+  if (email) $('pending-email').textContent = email;
+
+  // URL hash에 access_token이 있으면 = 이메일 링크에서 도착 = 자동 인증됨
+  var hash = window.location.hash || '';
+  var hasAuthToken = hash.indexOf('access_token=') !== -1 || hash.indexOf('type=signup') !== -1;
+  
+  if (hasAuthToken) {
+    showPane('pane-verifying');
+    
+    // Supabase가 자동으로 hash 처리해서 세션 만듦
+    setTimeout(function() {
+      if (!T.sb) {
+        showPane('pane-error');
+        return;
+      }
+      T.sb.auth.getSession().then(function(r) {
+        if (r.data.session) {
+          showPane('pane-success');
+          localStorage.removeItem('tw-pending-email');
+          // 2초 후 hotel-info로 이동 (호텔 정보 등록 안 했으면) 또는 dashboard
+          setTimeout(function() {
+            T.db.getMyHotels().then(function(hotelRes) {
+              if (hotelRes.data && hotelRes.data.length > 0) {
+                window.location.href = 'dashboard.html';
+              } else {
+                window.location.href = 'hotel-info.html';
+              }
+            }).catch(function() {
+              window.location.href = 'hotel-info.html';
+            });
+          }, 2000);
+        } else {
+          showPane('pane-error');
+          var lang = T.lang;
+          $('error-msg').textContent = lang === 'ko' ? '인증 세션을 만들 수 없습니다. 다시 시도해주세요.' : 'Could not establish session. Please try again.';
+        }
+      }).catch(function(err) {
+        showPane('pane-error');
+        $('error-msg').textContent = err.message || 'Verification error';
+      });
+    }, 1500);
+    return;
+  }
+
+  // === 인증 메일 다시 보내기 ===
+  $('btn-resend').addEventListener('click', async function() {
+    if (!email) {
+      T.toast(T.lang === 'ko' ? '이메일 정보가 없습니다. 다시 가입해주세요.' : 'Email info missing. Please sign up again.', true);
+      return;
+    }
+    var btn = this;
+    btn.innerHTML = '<span class="spinner"></span>' + (T.lang === 'ko' ? '전송 중...' : 'Sending...');
+    btn.disabled = true;
+    if (!T.sb) {
+      T.toast('Supabase connection error.', true);
+      btn.disabled = false;
+      btn.textContent = T.lang === 'ko' ? '인증 메일 다시 보내기' : 'Resend Verification Email';
+      return;
+    }
+    try {
+      var r = await T.sb.auth.resend({ type: 'signup', email: email });
+      btn.disabled = false;
+      btn.textContent = T.lang === 'ko' ? '인증 메일 다시 보내기' : 'Resend Verification Email';
+      if (r.error) {
+        T.toast(r.error.message, true);
+        return;
+      }
+      T.toast(T.lang === 'ko' ? '인증 메일을 다시 보냈습니다.' : 'Verification email resent.');
+    } catch (e) {
+      btn.disabled = false;
+      btn.textContent = T.lang === 'ko' ? '인증 메일 다시 보내기' : 'Resend Verification Email';
+      T.toast('Error: ' + e.message, true);
+    }
+  });
+})();
+</script>
+</body>
+</html>

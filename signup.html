@@ -139,7 +139,13 @@
     btn.disabled = true;
     if (!T.sb) { T.toast('Supabase connection error.', true); btn.disabled = false; btn.textContent = T.lang === 'ko' ? '계정 만들기' : 'Create Account'; return; }
     try {
-      var r = await T.sb.auth.signUp({ email: $('reg-email').value, password: $('reg-pw').value });
+      // signUp 시 redirect URL 전달 (이메일 인증 켜져 있을 때 사용됨)
+      var redirectTo = window.location.origin + '/verify-email.html';
+      var r = await T.sb.auth.signUp({ 
+        email: $('reg-email').value, 
+        password: $('reg-pw').value,
+        options: { emailRedirectTo: redirectTo }
+      });
       btn.disabled = false;
       btn.textContent = T.lang === 'ko' ? '계정 만들기' : 'Create Account';
       if (r.error) {
@@ -158,11 +164,26 @@
         T.toast(msg, true);
         return;
       }
-      T.toast(T.lang === 'ko' ? '계정 생성 완료!' : 'Account created!');
-      // Save email for hotel-info page
-      localStorage.setItem('tw-signup-email', $('reg-email').value);
-      // Move to step 2
-      window.location.href = 'hotel-info.html';
+      // Save email for both verify-email and hotel-info pages
+      var savedEmail = $('reg-email').value;
+      localStorage.setItem('tw-signup-email', savedEmail);
+      localStorage.setItem('tw-pending-email', savedEmail);
+      
+      // 이메일 인증 ON/OFF 자동 감지:
+      // - 인증 OFF: r.data.session이 즉시 생성됨 → hotel-info로
+      // - 인증 ON: r.data.session이 null, user.email_confirmed_at도 null → verify-email로
+      var hasSession = r.data && r.data.session;
+      var emailConfirmed = r.data && r.data.user && r.data.user.email_confirmed_at;
+      
+      if (hasSession && emailConfirmed) {
+        // 이메일 인증 OFF 상태 - 즉시 로그인 됨
+        T.toast(T.lang === 'ko' ? '계정 생성 완료!' : 'Account created!');
+        window.location.href = 'hotel-info.html';
+      } else {
+        // 이메일 인증 ON - 인증 페이지로
+        T.toast(T.lang === 'ko' ? '인증 메일을 보냈습니다.' : 'Verification email sent.');
+        window.location.href = 'verify-email.html?email=' + encodeURIComponent(savedEmail);
+      }
     } catch (e) {
       btn.disabled = false;
       btn.textContent = T.lang === 'ko' ? '계정 만들기' : 'Create Account';

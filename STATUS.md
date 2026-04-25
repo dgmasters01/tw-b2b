@@ -1,151 +1,114 @@
-# TW B2B 시스템 — 진행 상황
+# TW B2B 시스템 - 작업 진행 상황
 
-마지막 업데이트: 2026-04-25
-
-## 🎯 목표
-호텔 파트너에게 $200 영상 제작 서비스를 판매하는 B2B 시스템.
-1인 운영 가능한 단순한 구조 (원클릭, 자동수집).
-
----
-
-## ✅ 완료된 작업
-
-### Phase 0: 인프라 구축
-- ✅ Supabase 데이터베이스 (6개 테이블 + RLS + 트리거)
-- ✅ PayPal Business 계정 (TRAVELWINNERS INC.)
-- ✅ Google Cloud 프로젝트 (1hogi)
-- ✅ Google Places API 활성화 + API 키
-- ✅ Vercel 환경변수 등록 (GOOGLE_PLACES_API_KEY, AGODA_API_KEY)
-
-### Phase 1: 시스템 코드 (이번 세션)
-- ✅ shared.js v2 (Supabase DB 헬퍼 + API 헬퍼 + 포맷터)
-- ✅ /api/agoda-hotel.js (아고다 Long-tail API 프록시)
-- ✅ /api/google-places.js (Google Places API 프록시)
-- ✅ /api/process-hotel.js (통합 호텔 정보 수집)
-- ✅ hotel-info.html (아고다 URL → 자동 수집 → 저장)
-- ✅ dashboard.html (호텔별 격리 + 상태별 분기)
-- ✅ admin.html (호텔 목록 + 검토/승인/상태변경)
-- ✅ vercel.json (Serverless Functions 설정)
+**마지막 업데이트**: 2026-04-25  
+**라이브 사이트**: https://tw-b2b.vercel.app  
+**저장소**: dgmasters01/tw-b2b (main)  
+**관리자**: dgmasters01@gmail.com
 
 ---
 
-## 🔄 작동 흐름
+## ✅ 완성된 기능
 
-### 호텔 매니저 입장
-```
-signup.html → 가입 (Supabase Auth)
-       ↓
-hotel-info.html → 아고다 URL 입력 → 자동 수집
-       ↓
-[Step 1] /api/process-hotel 호출
-   ├── /api/agoda-hotel 내부 호출 (성급/가격/이미지)
-   └── /api/google-places 내부 호출 (주소/전화/홈페이지/사진)
-       ↓
-[Step 2] 자동수집 결과 확인 → 수정 → 저장
-       ↓
-hotels 테이블에 status=pending 으로 INSERT
-       ↓
-dashboard.html → 본인 호텔 + 상태 표시
-```
+### 인증 시스템
+- [x] 회원가입 (signup.html) - 비밀번호 강도 체크, 약관 동의, 이메일 인증 자동 분기
+- [x] 로그인 (login.html) - 친절한 에러 메시지, URL 파라미터 자동 채우기
+- [x] 비밀번호 찾기 (forgot-password.html) - 이메일로 재설정 링크
+- [x] 비밀번호 재설정 (reset-password.html) - PASSWORD_RECOVERY 이벤트 처리
+- [x] 이메일 인증 (verify-email.html) - 인증 메일 발송/재발송/확인 처리
+- [x] 이미 가입된 이메일 자동 감지 → 로그인 페이지로 안내
 
-### 관리자 흐름
-```
-admin.html (dgmasters01@gmail.com 전용)
-       ↓
-모든 호텔 목록 (필터: pending/review/approved/paid/producing/published/rejected)
-       ↓
-호텔 클릭 → 상세 + 사진 + 액션 버튼
-       ↓
-상태 변경: pending → review → approved → paid → producing → published
-```
+### 호텔 관리
+- [x] 호텔 자동 정보 수집 (hotel-info.html) - 아고다 URL → 자동 fetch
+- [x] 매니저 대시보드 (dashboard.html) - 본인 호텔만 표시, 상태별 분기
+- [x] 관리자 패널 (admin.html) - 호텔 검토/승인/상태 변경
+
+### API
+- [x] /api/agoda-hotel - Agoda Long-tail API 프록시
+- [x] /api/google-places - Google Places API (New) 프록시
+- [x] /api/process-hotel - 통합 호텔 정보 수집 (Agoda + Google)
+
+### 인프라
+- [x] Vercel 배포 자동화 (GitHub push → 자동 빌드)
+- [x] Supabase 6개 테이블 + 트리거 + is_admin() 함수
+- [x] PayPal Business 계정 (TRAVELWINNERS INC.)
+- [x] Google Cloud + Places API 활성화
 
 ---
 
-## ⏳ 미완성 (Phase 2)
+## ⚠️ 대표님 직접 설정 필요 (SUPABASE 대시보드)
 
-### 결제 시스템
-- ⏳ PayPal Checkout 통합 (`paid` 상태 자동 전환)
-- ⏳ payments 테이블에 결제 내역 자동 기록
-- ⏳ Webhook으로 결제 확인
+### A. URL Configuration (Authentication → URL Configuration)
+```
+Site URL: https://tw-b2b.vercel.app
 
-### 영상 제작 워크플로우
-- ⏳ 영상 게시 시 videos 테이블 입력 UI
-- ⏳ YouTube URL + 통계 자동 수집
-- ⏳ 매니저 대시보드에 영상/통계 표시
+Redirect URLs (모두 추가):
+- https://tw-b2b.vercel.app/reset-password.html
+- https://tw-b2b.vercel.app/verify-email.html
+- https://tw-b2b.vercel.app/**
+```
 
-### 예약 트래킹
-- ⏳ 아고다 어필리에이트 클릭 트래킹
-- ⏳ bookings 테이블에 예약 기록
-- ⏳ 매니저별 커미션 계산
+### B. 이메일 인증 ON (Authentication → Providers → Email)
+```
+Confirm email: ON  ← 현재 OFF, 보안상 켜야 함
+```
 
-### 영업 자동화 (선택)
-- ⏳ 영업 메일 템플릿
-- ⏳ 호텔 후보 리스트 관리
-- ⏳ 가입 전환 추적
+### C. RLS 정책 적용 (SQL Editor)
+- `sql/rls-policies.sql` 파일 전체 복사 → Run
+- 6개 테이블 RLS 활성화 + 15개 정책 적용
+- 매니저는 본인 호텔 데이터만, 관리자는 전체 접근
+
+### D. 이메일 템플릿 한글화 (Authentication → Email Templates - 선택)
+- Confirm signup, Reset Password 템플릿 한글로 수정 권장
 
 ---
 
-## 🔧 환경변수 (Vercel에 등록 필요)
+## 🔴 미완성 / 다음 작업
 
-```
-GOOGLE_PLACES_API_KEY = <Google Cloud Console에서 발급>
-AGODA_API_KEY = 1913282:e1d60291-545d-4f16-9572-dc3684e5aa33
-```
+### 시급도 높음
+- [ ] 회원 탈퇴 / 계정 삭제 기능 (mypage.html)
+- [ ] 이메일 변경 기능
+- [ ] PayPal Checkout 결제 통합
 
-> ⚠️ 메모리에 따르면 이전에 노출된 아고다 키는 새 키로 교체 필요. 시스템 가동 후 처리.
+### 시급도 중간
+- [ ] 영상 게시 시 videos 테이블 입력 UI
+- [ ] 아고다 어필리에이트 클릭 트래킹 → bookings 테이블
 
----
-
-## 🧪 테스트 시나리오
-
-### 시나리오 1: 신규 호텔 가입
-1. tw-b2b.vercel.app/signup → 가입
-2. hotel-info.html 자동 이동
-3. Agoda URL 입력 (예: 마리나 베이 샌즈)
-4. City ID 9395 (싱가포르) 입력
-5. "Fetch Hotel Info" → 자동 수집 결과 확인
-6. "Save & Continue" → hotels 테이블에 저장
-7. dashboard.html → 호텔 정보 + "Pending" 상태 확인
-
-### 시나리오 2: 관리자 승인
-1. dgmasters01@gmail.com 로그인 → 자동으로 admin.html
-2. Pending 필터에서 신규 호텔 확인
-3. View 클릭 → 상세 정보 확인
-4. "Approve" → status=approved
-5. 매니저 dashboard에서 결제 카드 노출
-
-### 시나리오 3: 자동수집 실패 케이스
-- City ID 없이 아고다 URL만 → Google만 자동수집
-- Google 검색 실패 → 수동 입력 화면 그대로 진행
-- 모두 실패 → 빈 폼에서 수동 입력
+### 시급도 낮음 (나중에)
+- [ ] 카카오/구글 소셜 로그인
+- [ ] "현재 비밀번호 입력 → 새 비밀번호" 방식 추가
+- [ ] CAPTCHA (가입 봇 방지)
+- [ ] 2FA (2단계 인증)
 
 ---
 
-## 📦 배포 방법
+## 📜 커밋 이력
 
-```
-1. /home/claude/tw-b2b/ 의 모든 파일을 GitHub에 업로드
-   - dgmasters01/tw-b2b 저장소
-   - main 브랜치
-2. Vercel이 자동 배포 (1-2분)
-3. tw-b2b.vercel.app 접속하여 작동 확인
-```
+- `cd5300c` - Phase 1: Hotel auto-collection system + dashboard isolation + admin
+- `66bdb86` - fix: signup error visibility + already-registered handling
+- `1f41cf9` - feat: complete password reset flow + improved auth UX
+- `(다음)` - feat: email verification + RLS security policies
 
-### 변경된 파일 목록
-- shared.js (v1 → v2)
-- hotel-info.html (완전 재작성)
-- dashboard.html (완전 재작성)
-- admin.html (완전 재작성, 969KB → 16KB)
-- vercel.json (Functions 설정 추가)
+---
 
-### 새로 추가된 파일
-- api/agoda-hotel.js
-- api/google-places.js
-- api/process-hotel.js
-- STATUS.md (이 파일)
+## 🛡️ 보안 현황
 
-### 변경 없는 파일
-- index.html
-- login.html
-- signup.html
-- shared.css
+### 자동으로 활성화된 보안
+- ✅ HTTPS 강제 (Vercel)
+- ✅ 비밀번호 해싱 (Supabase bcrypt)
+- ✅ JWT 세션 토큰 (Supabase)
+- ✅ XSS/SQL Injection 방어 (구조적)
+
+### 코드/SQL로 추가된 보안
+- ✅ 강력한 비밀번호 정책 (8자+, 대소문/숫자/특수문자)
+- ✅ Email validation (signup/login/forgot)
+- ⚠️ RLS 정책 (SQL 작성 완료, 대표님 적용 필요)
+- ⚠️ 이메일 인증 (코드 완료, Supabase 토글 필요)
+
+---
+
+## 🔧 개발 환경
+
+- 작업 디렉토리: `/home/claude/tw-b2b`
+- Vercel env: `GOOGLE_PLACES_API_KEY`, `AGODA_API_KEY`
+- GitHub PAT: 메모리에 저장 (expires 2026-05-18)
+- 작업 워크플로: 메모리 #5 참조 (자동 검증 → push → 체크리스트 제공)

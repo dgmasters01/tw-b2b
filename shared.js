@@ -125,8 +125,15 @@
       if (!sb) return Promise.resolve({ data: null, error: 'no-sb' });
       return sb.from('hotels').select('*').eq('id', hotelId).single();
     },
-    createHotel: function (data) {
+    createHotel: async function (data) {
       if (!sb) return Promise.resolve({ data: null, error: 'no-sb' });
+      // RLS 정책 충족: user_id 자동 주입
+      try {
+        var u = await sb.auth.getUser();
+        if (u && u.data && u.data.user) {
+          data = Object.assign({}, data, { user_id: u.data.user.id });
+        }
+      } catch(e) {}
       return sb.from('hotels').insert(data).select().single();
     },
     updateHotel: function (hotelId, data) {

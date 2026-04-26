@@ -203,6 +203,11 @@
 
   T.requireAuth(function(user){
     currentUser = user;
+    // 관리자는 매니저 페이지 접근 차단 → admin.html로 보냄
+    if (T.isAdmin(user)) {
+      window.location.href = 'admin.html';
+      return;
+    }
     T.db.getMyHotels().then(function(r){
       if (r.data && r.data.length > 0) {
         T.toast(T.lang === 'ko' ? '이미 호텔이 등록되어 있습니다.' : 'Hotel already registered.');

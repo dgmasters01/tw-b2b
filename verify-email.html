@@ -132,8 +132,14 @@
         if (r.data.session) {
           showPane('pane-success');
           localStorage.removeItem('tw-pending-email');
-          // 2초 후 hotel-info로 이동 (호텔 정보 등록 안 했으면) 또는 dashboard
+          // 2초 후 라우팅: 관리자 → admin / 호텔 등록 완료 → dashboard / 미완료 → hotel-info
           setTimeout(function() {
+            var user = r.data.session.user;
+            // 관리자 우선 체크
+            if (T.isAdmin(user)) {
+              window.location.href = 'admin.html';
+              return;
+            }
             T.db.getMyHotels().then(function(hotelRes) {
               if (hotelRes.data && hotelRes.data.length > 0) {
                 window.location.href = 'dashboard.html';

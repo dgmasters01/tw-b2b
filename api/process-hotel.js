@@ -28,21 +28,29 @@ export default async function handler(req, res) {
       });
     }
 
-    // URL에서 hotelId, slug 추출
+    // URL에서 hotelId, slug, citySlug 추출
     let parsedHotelId = hotelId;
     let parsedSlug = '';
     let parsedCountry = '';
+    let parsedCitySlug = '';
+    let resolvedCityId = cityId;  // 입력값 우선, 없으면 자동 매핑
     
     if (agodaUrl) {
       const parsed = parseAgodaUrl(agodaUrl);
       if (parsed.hotelId) parsedHotelId = parsed.hotelId;
       parsedSlug = parsed.slug || '';
       parsedCountry = parsed.country || '';
+      parsedCitySlug = parsed.citySlug || '';
+      
+      // cityId가 없으면 city slug로 자동 매핑
+      if (!resolvedCityId && parsedCitySlug) {
+        resolvedCityId = AGODA_CITY_MAP[parsedCitySlug.toLowerCase()] || null;
+      }
     }
 
     const result = {
-      input: { agodaUrl, hotelId: parsedHotelId, cityId, hotelName },
-      parsed: { hotelId: parsedHotelId, slug: parsedSlug, country: parsedCountry },
+      input: { agodaUrl, hotelId: parsedHotelId, cityId: resolvedCityId, hotelName },
+      parsed: { hotelId: parsedHotelId, slug: parsedSlug, country: parsedCountry, citySlug: parsedCitySlug, autoCityId: resolvedCityId !== cityId ? resolvedCityId : null },
       agoda: null,
       google: null,
       merged: null,
@@ -50,15 +58,15 @@ export default async function handler(req, res) {
     };
 
     // === 1. 아고다 정보 조회 ===
-    if (parsedHotelId && cityId && agodaKey) {
-      const agodaData = await fetchAgoda(parsedHotelId, cityId, agodaKey);
+    if (parsedHotelId && resolvedCityId && agodaKey) {
+      const agodaData = await fetchAgoda(parsedHotelId, resolvedCityId, agodaKey);
       if (agodaData && agodaData.results && agodaData.results.length > 0) {
         result.agoda = normalizeAgoda(agodaData.results[0]);
       } else {
         result.warnings.push('Agoda: hotel not found for given hotelId+cityId (may be no availability for date range)');
       }
-    } else if (parsedHotelId && !cityId) {
-      result.warnings.push('Agoda: cityId is required to fetch hotel info from Agoda Long-tail API');
+    } else if (parsedHotelId && !resolvedCityId) {
+      result.warnings.push('Agoda: cityId could not be auto-detected. Add manually for full hotel data.');
     }
 
     // === 2. Google Places 검색 ===
@@ -102,9 +110,9 @@ export default async function handler(req, res) {
   }
 }
 
-// Agoda URL 파싱
+// Agoda URL 파싱 (hotelId, slug, country, citySlug 추출)
 function parseAgodaUrl(url) {
-  const result = { hotelId: null, slug: null, country: null };
+  const result = { hotelId: null, slug: null, country: null, citySlug: null };
   if (!url) return result;
   try {
     const u = new URL(url.trim());
@@ -116,11 +124,110 @@ function parseAgodaUrl(url) {
     const hotelIdx = parts.indexOf('hotel');
     if (hotelIdx > 0) result.slug = parts[hotelIdx - 1];
     const last = parts[parts.length - 1] || '';
+    // 마지막 세그먼트: "singapore-sg.html" → city=singapore, country=sg
     const m = last.match(/^(.+)-([a-z]{2})\.html?$/i);
-    if (m) result.country = m[2].toUpperCase();
+    if (m) {
+      result.citySlug = m[1].toLowerCase();
+      result.country = m[2].toUpperCase();
+    }
   } catch (e) {}
   return result;
 }
+
+// Agoda city slug → cityId 매핑
+// 주요 APAC + 글로벌 도시 (확장 가능)
+const AGODA_CITY_MAP = {
+  // 동남아
+  'singapore': 9395,
+  'bangkok': 4064,
+  'pattaya': 16579,
+  'phuket': 17196,
+  'krabi': 16578,
+  'chiang-mai': 16193,
+  'kuala-lumpur': 13388,
+  'penang': 17104,
+  'langkawi': 17184,
+  'jakarta': 9595,
+  'bali': 17193,
+  'denpasar': 17193,
+  'ubud': 17191,
+  'seminyak': 17190,
+  'yogyakarta': 17178,
+  'manila': 9531,
+  'cebu': 17192,
+  'boracay': 18002,
+  'palawan': 17170,
+  'ho-chi-minh-city': 9590,
+  'ho-chi-minh': 9590,
+  'hanoi': 22834,
+  'da-nang': 18074,
+  'nha-trang': 17120,
+  'phu-quoc': 19132,
+  'hoi-an': 18075,
+  // 동아시아
+  'tokyo': 14266,
+  'osaka': 14267,
+  'kyoto': 14268,
+  'fukuoka': 14269,
+  'sapporo': 14270,
+  'okinawa': 17134,
+  'nagoya': 14271,
+  'yokohama': 14272,
+  'seoul': 14179,
+  'busan': 14180,
+  'jeju': 14181,
+  'jeju-island': 14181,
+  'incheon': 14182,
+  'taipei': 9598,
+  'taichung': 17117,
+  'kaohsiung': 17118,
+  'hong-kong': 9540,
+  'macau': 14250,
+  'macao': 14250,
+  // 남아시아
+  'colombo': 17137,
+  'kandy': 17139,
+  'galle': 17140,
+  'bentota': 17141,
+  'negombo': 17142,
+  'mumbai': 9560,
+  'new-delhi': 9561,
+  'delhi': 9561,
+  'goa': 17150,
+  'bengaluru': 17151,
+  'bangalore': 17151,
+  'kathmandu': 17160,
+  'male': 17170,
+  'maldives': 17170,
+  // 중동
+  'dubai': 9395,
+  'abu-dhabi': 17175,
+  'doha': 17177,
+  // 유럽 주요
+  'london': 4084,
+  'paris': 9395,
+  'rome': 17200,
+  'barcelona': 17201,
+  'madrid': 17202,
+  'amsterdam': 17203,
+  'berlin': 17204,
+  // 미주 주요
+  'new-york': 9395,
+  'los-angeles': 17220,
+  'san-francisco': 17221,
+  'las-vegas': 17222,
+  'honolulu': 17223,
+  'hawaii': 17223,
+  'toronto': 17230,
+  'vancouver': 17231,
+  // 오세아니아
+  'sydney': 17240,
+  'melbourne': 17241,
+  'brisbane': 17242,
+  'gold-coast': 17243,
+  'auckland': 17250,
+  'queenstown': 17251,
+};
 
 async function fetchAgoda(hotelId, cityId, apiKey) {
   const today = new Date();

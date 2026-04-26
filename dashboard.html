@@ -85,7 +85,7 @@ body{margin:0;background:#f7f7f7;font-family:'DM Sans','Noto Sans KR',sans-serif
         <button id="lang-ko">한국어</button>
       </div>
       <span class="dh-user" id="user-email">—</span>
-      <a href="forgot-password.html" class="dh-logout" style="text-decoration:none" data-en="Change password" data-ko="비밀번호 변경">Change password</a>
+      <a href="settings.html" class="dh-logout" style="text-decoration:none" data-en="⚙️ Settings" data-ko="⚙️ 설정">⚙️ Settings</a>
       <button class="dh-logout" id="btn-logout" data-en="Sign out" data-ko="로그아웃">Sign out</button>
     </div>
   </div>
@@ -102,11 +102,12 @@ body{margin:0;background:#f7f7f7;font-family:'DM Sans','Noto Sans KR',sans-serif
   var currentUser = null;
   var myHotel = null;
 
-  T.requireAuth(function(user){
+  T.requireAuth(async function(user){
     currentUser = user;
     $('user-email').textContent = user.email;
     
-    if (T.isAdmin(user)) {
+    var ac = await T.checkAdmin(user);
+    if (ac.is_admin) {
       // 관리자는 admin.html로
       window.location.href = 'admin.html';
       return;

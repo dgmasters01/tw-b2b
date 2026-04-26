@@ -85,36 +85,119 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
 
   <div class="ad-main">
     <h1 class="ad-h1">Admin Dashboard</h1>
-    <p class="ad-h1-sub">Manage hotels, payments, and content production.</p>
+    <p class="ad-h1-sub">Manage hotels, members, and team. <span style="background:#534AB7;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:.3px;margin-left:4px;" id="admin-role">—</span></p>
 
-    <div class="ad-stats" id="stats-area">
-      <div class="ad-stat"><div class="ad-stat-lbl">Total Hotels</div><div class="ad-stat-val" id="st-total">—</div></div>
-      <div class="ad-stat"><div class="ad-stat-lbl">Pending</div><div class="ad-stat-val" id="st-pending">—</div></div>
-      <div class="ad-stat"><div class="ad-stat-lbl">Approved</div><div class="ad-stat-val" id="st-approved">—</div></div>
-      <div class="ad-stat"><div class="ad-stat-lbl">Paid</div><div class="ad-stat-val" id="st-paid">—</div></div>
-      <div class="ad-stat"><div class="ad-stat-lbl">Producing</div><div class="ad-stat-val" id="st-producing">—</div></div>
-      <div class="ad-stat"><div class="ad-stat-lbl">Published</div><div class="ad-stat-val" id="st-published">—</div></div>
+    <!-- Tab navigation -->
+    <div style="display:flex;gap:4px;margin-bottom:24px;border-bottom:2px solid #e8e8e8;">
+      <button class="ad-tab ad-tab-active" data-tab="hotels" style="padding:12px 20px;border:none;background:none;font-family:inherit;font-size:14px;font-weight:600;color:#1a1a1a;cursor:pointer;border-bottom:2px solid #534AB7;margin-bottom:-2px;">🏨 Hotels</button>
+      <button class="ad-tab" data-tab="members" style="padding:12px 20px;border:none;background:none;font-family:inherit;font-size:14px;font-weight:500;color:#888;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;">👥 Members</button>
+      <button class="ad-tab" data-tab="admins" style="padding:12px 20px;border:none;background:none;font-family:inherit;font-size:14px;font-weight:500;color:#888;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;">⚙️ Team</button>
     </div>
 
-    <div class="ad-card">
-      <div class="ad-card-h">
-        <h3>Hotel Partners</h3>
-        <button class="ad-btn ad-btn-secondary" id="btn-refresh">↻ Refresh</button>
+    <!-- TAB: Hotels -->
+    <div id="tab-hotels" class="ad-tab-pane">
+      <div class="ad-stats" id="stats-area">
+        <div class="ad-stat"><div class="ad-stat-lbl">Total Hotels</div><div class="ad-stat-val" id="st-total">—</div></div>
+        <div class="ad-stat"><div class="ad-stat-lbl">Pending</div><div class="ad-stat-val" id="st-pending">—</div></div>
+        <div class="ad-stat"><div class="ad-stat-lbl">Approved</div><div class="ad-stat-val" id="st-approved">—</div></div>
+        <div class="ad-stat"><div class="ad-stat-lbl">Paid</div><div class="ad-stat-val" id="st-paid">—</div></div>
+        <div class="ad-stat"><div class="ad-stat-lbl">Producing</div><div class="ad-stat-val" id="st-producing">—</div></div>
+        <div class="ad-stat"><div class="ad-stat-lbl">Published</div><div class="ad-stat-val" id="st-published">—</div></div>
       </div>
 
-      <div class="ad-filter-row" id="filter-row">
-        <button class="ad-filter active" data-filter="all">All</button>
-        <button class="ad-filter" data-filter="pending">Pending</button>
-        <button class="ad-filter" data-filter="review">Review</button>
-        <button class="ad-filter" data-filter="approved">Approved</button>
-        <button class="ad-filter" data-filter="paid">Paid</button>
-        <button class="ad-filter" data-filter="producing">Producing</button>
-        <button class="ad-filter" data-filter="published">Published</button>
-        <button class="ad-filter" data-filter="rejected">Rejected</button>
+      <div class="ad-card">
+        <div class="ad-card-h">
+          <h3>Hotel Partners</h3>
+          <button class="ad-btn ad-btn-secondary" id="btn-refresh">↻ Refresh</button>
+        </div>
+
+        <div class="ad-filter-row" id="filter-row">
+          <button class="ad-filter active" data-filter="all">All</button>
+          <button class="ad-filter" data-filter="pending">Pending</button>
+          <button class="ad-filter" data-filter="review">Review</button>
+          <button class="ad-filter" data-filter="approved">Approved</button>
+          <button class="ad-filter" data-filter="paid">Paid</button>
+          <button class="ad-filter" data-filter="producing">Producing</button>
+          <button class="ad-filter" data-filter="published">Published</button>
+          <button class="ad-filter" data-filter="rejected">Rejected</button>
+        </div>
+
+        <div id="hotels-area">
+          <div class="ad-loading"><div class="ad-loader"></div><span>Loading hotels...</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: Members (Hotel Managers) -->
+    <div id="tab-members" class="ad-tab-pane" style="display:none;">
+      <div class="ad-stats">
+        <div class="ad-stat"><div class="ad-stat-lbl">Total Managers</div><div class="ad-stat-val" id="mb-total">—</div></div>
+        <div class="ad-stat"><div class="ad-stat-lbl">With Hotel</div><div class="ad-stat-val" id="mb-with-hotel">—</div></div>
+        <div class="ad-stat"><div class="ad-stat-lbl">Without Hotel</div><div class="ad-stat-val" id="mb-no-hotel">—</div></div>
+        <div class="ad-stat"><div class="ad-stat-lbl">Verified</div><div class="ad-stat-val" id="mb-verified">—</div></div>
+        <div class="ad-stat"><div class="ad-stat-lbl">Last 7 days</div><div class="ad-stat-val" id="mb-recent">—</div></div>
+        <div class="ad-stat"><div class="ad-stat-lbl">Last 30 days</div><div class="ad-stat-val" id="mb-month">—</div></div>
       </div>
 
-      <div id="hotels-area">
-        <div class="ad-loading"><div class="ad-loader"></div><span>Loading hotels...</span></div>
+      <div class="ad-card">
+        <div class="ad-card-h">
+          <h3>Hotel Managers</h3>
+          <div style="display:flex;gap:8px;">
+            <input type="text" id="mb-search" placeholder="Search by email..." style="padding:7px 12px;border:1px solid #e0e0e0;border-radius:6px;font-family:inherit;font-size:13px;width:240px;">
+            <button class="ad-btn ad-btn-secondary" id="btn-mb-refresh">↻ Refresh</button>
+          </div>
+        </div>
+        <div id="members-area">
+          <div class="ad-loading"><div class="ad-loader"></div><span>Loading members...</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: Admins (Team Members) -->
+    <div id="tab-admins" class="ad-tab-pane" style="display:none;">
+      <div class="ad-card">
+        <div class="ad-card-h">
+          <h3>Team Members (Admins)</h3>
+          <button class="ad-btn ad-btn-primary" id="btn-add-admin">+ Add Team Member</button>
+        </div>
+        <p style="color:#666;font-size:13px;margin:0 0 14px;">Admins can access this dashboard and manage hotels. Only Super Admins can add/remove team members.</p>
+        <div id="admins-area">
+          <div class="ad-loading"><div class="ad-loader"></div><span>Loading team...</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Modal: Add Admin -->
+<div class="ad-modal-overlay" id="add-admin-modal" style="display:none;">
+  <div class="ad-modal" style="max-width:480px;">
+    <div class="ad-modal-h">
+      <h3>Add Team Member</h3>
+      <button class="ad-close" id="add-admin-close">×</button>
+    </div>
+    <div style="padding:18px 22px;">
+      <div style="margin-bottom:14px;">
+        <label style="display:block;font-size:12px;color:#666;margin-bottom:6px;font-weight:600;">Email *</label>
+        <input type="email" id="new-admin-email" placeholder="colleague@example.com" style="width:100%;padding:10px 12px;border:1px solid #e0e0e0;border-radius:6px;font-family:inherit;font-size:14px;">
+        <div style="font-size:11px;color:#888;margin-top:4px;">They must already have a TravelWinners account</div>
+      </div>
+      <div style="margin-bottom:14px;">
+        <label style="display:block;font-size:12px;color:#666;margin-bottom:6px;font-weight:600;">Display Name</label>
+        <input type="text" id="new-admin-name" placeholder="John Smith" style="width:100%;padding:10px 12px;border:1px solid #e0e0e0;border-radius:6px;font-family:inherit;font-size:14px;">
+      </div>
+      <div style="margin-bottom:18px;">
+        <label style="display:block;font-size:12px;color:#666;margin-bottom:6px;font-weight:600;">Role *</label>
+        <select id="new-admin-role" style="width:100%;padding:10px 12px;border:1px solid #e0e0e0;border-radius:6px;font-family:inherit;font-size:14px;background:#fff;">
+          <option value="admin">Admin (manage hotels)</option>
+          <option value="support">Support (view only)</option>
+          <option value="super_admin">Super Admin (manage team too)</option>
+        </select>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;">
+        <button class="ad-btn ad-btn-secondary" id="add-admin-cancel">Cancel</button>
+        <button class="ad-btn ad-btn-primary" id="add-admin-save">Add Member</button>
       </div>
     </div>
   </div>
@@ -138,17 +221,241 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
   var allHotels = [];
   var currentFilter = 'all';
 
-  T.requireAuth(function(user){
+  T.requireAuth(async function(user){
     $('user-email').textContent = user.email;
-    if (!T.isAdmin(user)){
+    var ac = await T.checkAdmin(user);
+    if (!ac.is_admin){
       window.location.href = 'dashboard.html';
       return;
+    }
+    // 관리자 역할 표시 (super_admin/admin/support)
+    currentAdminRole = ac.role || 'admin';
+    if (ac.role) {
+      var roleEl = document.getElementById('admin-role');
+      if (roleEl) roleEl.textContent = ac.role;
+    }
+    // Super admin이 아니면 "Add Team Member" 버튼 숨김
+    if (ac.role !== 'super_admin') {
+      var addBtn = document.getElementById('btn-add-admin');
+      if (addBtn) addBtn.style.display = 'none';
     }
     loadAll();
   });
 
   $('btn-logout').addEventListener('click', T.logout);
   $('btn-refresh').addEventListener('click', loadAll);
+
+  // ========= Tab switching =========
+  document.querySelectorAll('.ad-tab').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var tab = btn.getAttribute('data-tab');
+      // Tab UI
+      document.querySelectorAll('.ad-tab').forEach(function(b){
+        b.classList.remove('ad-tab-active');
+        b.style.color = '#888';
+        b.style.fontWeight = '500';
+        b.style.borderBottomColor = 'transparent';
+      });
+      btn.classList.add('ad-tab-active');
+      btn.style.color = '#1a1a1a';
+      btn.style.fontWeight = '600';
+      btn.style.borderBottomColor = '#534AB7';
+      // Pane switching
+      document.querySelectorAll('.ad-tab-pane').forEach(function(p){ p.style.display = 'none'; });
+      document.getElementById('tab-' + tab).style.display = 'block';
+      // Lazy load
+      if (tab === 'members' && !membersLoaded) loadMembers();
+      if (tab === 'admins' && !adminsLoaded) loadAdmins();
+    });
+  });
+
+  // ========= Members tab =========
+  var membersLoaded = false;
+  var membersData = [];
+  var currentAdminRole = 'admin';
+
+  $('btn-mb-refresh').addEventListener('click', loadMembers);
+  $('mb-search').addEventListener('input', renderMembers);
+
+  async function loadMembers(){
+    var area = document.getElementById('members-area');
+    area.innerHTML = '<div class="ad-loading"><div class="ad-loader"></div><span>Loading members...</span></div>';
+    try {
+      var session = await T.sb.auth.getSession();
+      var token = session.data.session ? session.data.session.access_token : '';
+      var resp = await fetch('/api/admin-list-users', {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+      var data = await resp.json();
+      if (!resp.ok || !data.success) {
+        area.innerHTML = '<div class="ad-empty">⚠️ ' + (data.error || 'Failed to load') + '</div>';
+        return;
+      }
+      membersData = data.members || [];
+      membersLoaded = true;
+      renderMembersStats();
+      renderMembers();
+    } catch(e) {
+      area.innerHTML = '<div class="ad-empty">⚠️ Error: ' + e.message + '</div>';
+    }
+  }
+
+  function renderMembersStats(){
+    var total = membersData.length;
+    var withHotel = membersData.filter(function(m){ return m.hotels.length > 0; }).length;
+    var noHotel = total - withHotel;
+    var verified = membersData.filter(function(m){ return m.is_verified; }).length;
+    var sevenDaysAgo = Date.now() - 7*24*3600*1000;
+    var thirtyDaysAgo = Date.now() - 30*24*3600*1000;
+    var recent = membersData.filter(function(m){ return new Date(m.created_at).getTime() > sevenDaysAgo; }).length;
+    var month = membersData.filter(function(m){ return new Date(m.created_at).getTime() > thirtyDaysAgo; }).length;
+    document.getElementById('mb-total').textContent = total;
+    document.getElementById('mb-with-hotel').textContent = withHotel;
+    document.getElementById('mb-no-hotel').textContent = noHotel;
+    document.getElementById('mb-verified').textContent = verified;
+    document.getElementById('mb-recent').textContent = recent;
+    document.getElementById('mb-month').textContent = month;
+  }
+
+  function renderMembers(){
+    var area = document.getElementById('members-area');
+    var search = document.getElementById('mb-search').value.toLowerCase();
+    var filtered = membersData.filter(function(m){
+      return !search || m.email.toLowerCase().indexOf(search) >= 0;
+    });
+    if (filtered.length === 0) {
+      area.innerHTML = '<div class="ad-empty">No members found</div>';
+      return;
+    }
+    var html = '<div class="ad-table-wrap"><table class="ad-table">';
+    html += '<thead><tr><th>Email</th><th>Status</th><th>Hotel</th><th>Joined</th><th>Last Login</th></tr></thead><tbody>';
+    filtered.forEach(function(m){
+      var statusBadge = m.is_verified ? 
+        '<span class="ad-status" style="background:#0a7c3a;">Verified</span>' : 
+        '<span class="ad-status" style="background:#999;">Pending</span>';
+      if (m.is_banned) statusBadge = '<span class="ad-status" style="background:#c93030;">Banned</span>';
+      var hotelStr = m.hotels.length > 0 ? 
+        m.hotels.map(function(h){ return h.hotel_name + ' <span style="color:#888;font-size:11px;">[' + h.status + ']</span>'; }).join('<br>') : 
+        '<span style="color:#aaa;">— no hotel</span>';
+      var created = new Date(m.created_at).toISOString().substring(0,10);
+      var lastLogin = m.last_sign_in_at ? new Date(m.last_sign_in_at).toISOString().substring(0,10) : '—';
+      html += '<tr>';
+      html += '<td><strong>' + m.email + '</strong></td>';
+      html += '<td>' + statusBadge + '</td>';
+      html += '<td>' + hotelStr + '</td>';
+      html += '<td>' + created + '</td>';
+      html += '<td>' + lastLogin + '</td>';
+      html += '</tr>';
+    });
+    html += '</tbody></table></div>';
+    area.innerHTML = html;
+  }
+
+  // ========= Admins tab =========
+  var adminsLoaded = false;
+
+  async function loadAdmins(){
+    var area = document.getElementById('admins-area');
+    area.innerHTML = '<div class="ad-loading"><div class="ad-loader"></div><span>Loading team...</span></div>';
+    try {
+      var r = await T.sb.from('admins').select('*').order('created_at', { ascending: true });
+      if (r.error) throw r.error;
+      adminsLoaded = true;
+      renderAdmins(r.data || []);
+    } catch(e) {
+      area.innerHTML = '<div class="ad-empty">⚠️ Error: ' + e.message + '</div>';
+    }
+  }
+
+  function renderAdmins(admins){
+    var area = document.getElementById('admins-area');
+    if (admins.length === 0) {
+      area.innerHTML = '<div class="ad-empty">No team members yet</div>';
+      return;
+    }
+    var html = '<div class="ad-table-wrap"><table class="ad-table">';
+    html += '<thead><tr><th>Email</th><th>Name</th><th>Role</th><th>Status</th><th>Added</th><th></th></tr></thead><tbody>';
+    admins.forEach(function(a){
+      var roleColor = a.role === 'super_admin' ? '#534AB7' : (a.role === 'admin' ? '#0a7c3a' : '#888');
+      var statusBadge = a.is_active ? 
+        '<span class="ad-status" style="background:#0a7c3a;">Active</span>' : 
+        '<span class="ad-status" style="background:#c93030;">Inactive</span>';
+      var added = new Date(a.created_at).toISOString().substring(0,10);
+      var actionBtn = '';
+      if (currentAdminRole === 'super_admin') {
+        if (a.role !== 'super_admin') {
+          actionBtn = '<button class="ad-btn ad-btn-danger admin-remove" data-id="' + a.id + '" data-email="' + a.email + '">Remove</button>';
+        } else {
+          actionBtn = '<span style="color:#aaa;font-size:11px;">protected</span>';
+        }
+      }
+      html += '<tr>';
+      html += '<td><strong>' + a.email + '</strong></td>';
+      html += '<td>' + (a.display_name || '—') + '</td>';
+      html += '<td><span style="color:' + roleColor + ';font-weight:600;font-size:12px;">' + a.role + '</span></td>';
+      html += '<td>' + statusBadge + '</td>';
+      html += '<td>' + added + '</td>';
+      html += '<td>' + actionBtn + '</td>';
+      html += '</tr>';
+    });
+    html += '</tbody></table></div>';
+    area.innerHTML = html;
+    
+    // Bind remove buttons
+    document.querySelectorAll('.admin-remove').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var id = btn.getAttribute('data-id');
+        var email = btn.getAttribute('data-email');
+        if (!confirm('Remove ' + email + ' from team?')) return;
+        T.sb.from('admins').delete().eq('id', id).then(function(r){
+          if (r.error) { alert('Error: ' + r.error.message); return; }
+          loadAdmins();
+        });
+      });
+    });
+  }
+
+  // ========= Add admin modal =========
+  var addAdminBtn = document.getElementById('btn-add-admin');
+  if (addAdminBtn) addAdminBtn.addEventListener('click', function(){
+    document.getElementById('add-admin-modal').style.display = 'flex';
+  });
+  document.getElementById('add-admin-close').addEventListener('click', closeAddAdmin);
+  document.getElementById('add-admin-cancel').addEventListener('click', closeAddAdmin);
+  document.getElementById('add-admin-modal').addEventListener('click', function(e){
+    if (e.target.id === 'add-admin-modal') closeAddAdmin();
+  });
+  document.getElementById('add-admin-save').addEventListener('click', async function(){
+    var email = document.getElementById('new-admin-email').value.trim().toLowerCase();
+    var name = document.getElementById('new-admin-name').value.trim();
+    var role = document.getElementById('new-admin-role').value;
+    if (!email || !email.includes('@')) { alert('Valid email required'); return; }
+    var btn = this;
+    btn.disabled = true;
+    btn.textContent = 'Adding...';
+    try {
+      var r = await T.sb.from('admins').insert({
+        email: email,
+        display_name: name || null,
+        role: role,
+        is_active: true
+      }).select().single();
+      if (r.error) { alert('Error: ' + r.error.message); btn.disabled=false; btn.textContent='Add Member'; return; }
+      closeAddAdmin();
+      loadAdmins();
+    } catch(e) {
+      alert('Error: ' + e.message);
+    }
+    btn.disabled = false;
+    btn.textContent = 'Add Member';
+  });
+
+  function closeAddAdmin(){
+    document.getElementById('add-admin-modal').style.display = 'none';
+    document.getElementById('new-admin-email').value = '';
+    document.getElementById('new-admin-name').value = '';
+    document.getElementById('new-admin-role').value = 'admin';
+  }
 
   // Filter buttons
   document.querySelectorAll('.ad-filter').forEach(function(btn){

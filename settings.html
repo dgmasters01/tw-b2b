@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Settings — TravelWinners</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;500;700&family=DM+Sans:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="shared.js"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f7f7f7;font-family:'DM Sans','Noto Sans KR',sans-serif;color:#1a1a1a;min-height:100vh}
+.st-shell{max-width:720px;margin:0 auto;padding:24px}
+.st-topbar{display:flex;justify-content:space-between;align-items:center;padding:12px 0;margin-bottom:24px}
+.st-back{display:inline-flex;align-items:center;gap:6px;color:#534AB7;text-decoration:none;font-size:14px;font-weight:500}
+.st-back:hover{color:#3d3590}
+.st-title{font-family:'Fraunces',serif;font-size:28px;font-weight:600;margin:0 0 6px}
+.st-subtitle{color:#777;font-size:14px;margin:0 0 28px}
+.st-card{background:#fff;border:1px solid #e8e8e8;border-radius:12px;padding:22px;margin-bottom:18px}
+.st-card h3{margin:0 0 4px;font-size:16px;font-weight:600}
+.st-card-desc{color:#888;font-size:13px;margin:0 0 16px}
+.st-field{margin-bottom:14px}
+.st-label{display:block;font-size:12px;font-weight:600;color:#444;margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px}
+.st-input{width:100%;padding:10px 12px;border:1px solid #e0e0e0;border-radius:8px;font-family:inherit;font-size:14px;background:#fafafa}
+.st-input:focus{border-color:#534AB7;background:#fff;outline:none}
+.st-input-readonly{background:#f0f0f0;color:#666}
+.st-btn{padding:10px 18px;border-radius:8px;border:none;font-family:inherit;font-size:14px;font-weight:600;cursor:pointer}
+.st-btn-primary{background:#1a1a1a;color:#fff}
+.st-btn-primary:hover{background:#000}
+.st-btn-primary:disabled{background:#aaa;cursor:not-allowed}
+.st-btn-danger{background:#fff;color:#c93030;border:1px solid #c93030}
+.st-btn-danger:hover{background:#c93030;color:#fff}
+.st-btn-secondary{background:#f0f0f0;color:#1a1a1a}
+.st-danger-zone{border:1px solid #fecaca;background:#fff5f5}
+.st-danger-zone h3{color:#c93030}
+.st-info-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #f0f0f0;font-size:14px}
+.st-info-row:last-child{border-bottom:none}
+.st-info-key{color:#777;font-size:13px}
+.st-info-val{font-weight:500}
+.st-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:100}
+.st-modal-overlay.show{display:flex}
+.st-modal{background:#fff;border-radius:12px;padding:24px;max-width:440px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,.2)}
+.st-modal h3{margin:0 0 12px;font-size:18px;color:#c93030}
+.st-modal p{color:#444;font-size:14px;line-height:1.5;margin:0 0 16px}
+.st-toast{position:fixed;top:24px;right:24px;background:#1a1a1a;color:#fff;padding:12px 18px;border-radius:8px;font-size:14px;display:none;z-index:200;box-shadow:0 4px 12px rgba(0,0,0,.2)}
+.st-toast.show{display:block}
+.st-toast.error{background:#c93030}
+.st-toast.success{background:#0a7c3a}
+</style>
+</head>
+<body>
+
+<div class="st-shell">
+
+  <div class="st-topbar">
+    <a href="dashboard.html" class="st-back" data-en="← Back to Dashboard" data-ko="← 대시보드로">← Back to Dashboard</a>
+  </div>
+
+  <h1 class="st-title" data-en="Account Settings" data-ko="계정 설정">Account Settings</h1>
+  <p class="st-subtitle" data-en="Manage your account, security, and preferences." data-ko="계정 정보와 보안 설정을 관리하세요.">Manage your account, security, and preferences.</p>
+
+  <!-- Account Info -->
+  <div class="st-card">
+    <h3 data-en="Account Information" data-ko="계정 정보">Account Information</h3>
+    <p class="st-card-desc" data-en="Your account details" data-ko="계정 기본 정보">Your account details</p>
+    <div class="st-info-row">
+      <span class="st-info-key" data-en="Email" data-ko="이메일">Email</span>
+      <span class="st-info-val" id="user-email">—</span>
+    </div>
+    <div class="st-info-row">
+      <span class="st-info-key" data-en="Member Since" data-ko="가입일">Member Since</span>
+      <span class="st-info-val" id="user-since">—</span>
+    </div>
+    <div class="st-info-row">
+      <span class="st-info-key" data-en="Email Verified" data-ko="이메일 인증">Email Verified</span>
+      <span class="st-info-val" id="user-verified">—</span>
+    </div>
+  </div>
+
+  <!-- Change Password -->
+  <div class="st-card">
+    <h3 data-en="Change Password" data-ko="비밀번호 변경">Change Password</h3>
+    <p class="st-card-desc" data-en="We'll send a reset link to your email" data-ko="이메일로 재설정 링크를 보냅니다">We'll send a reset link to your email</p>
+    <div class="st-field">
+      <label class="st-label" data-en="Current Email" data-ko="현재 이메일">Current Email</label>
+      <input type="email" class="st-input st-input-readonly" id="pwd-email" readonly>
+    </div>
+    <button class="st-btn st-btn-primary" id="btn-send-reset" data-en="Send Reset Link" data-ko="재설정 링크 발송">Send Reset Link</button>
+  </div>
+
+  <!-- Change Email -->
+  <div class="st-card">
+    <h3 data-en="Change Email Address" data-ko="이메일 변경">Change Email Address</h3>
+    <p class="st-card-desc" data-en="A confirmation will be sent to both your current and new email" data-ko="현재 이메일과 새 이메일 모두로 확인 메일이 발송됩니다">A confirmation will be sent to both your current and new email</p>
+    <div class="st-field">
+      <label class="st-label" data-en="New Email" data-ko="새 이메일">New Email</label>
+      <input type="email" class="st-input" id="new-email" placeholder="new@example.com">
+    </div>
+    <button class="st-btn st-btn-primary" id="btn-change-email" data-en="Change Email" data-ko="이메일 변경">Change Email</button>
+  </div>
+
+  <!-- Danger Zone -->
+  <div class="st-card st-danger-zone">
+    <h3 data-en="Delete Account" data-ko="회원 탈퇴">Delete Account</h3>
+    <p class="st-card-desc" data-en="Permanently delete your account, hotel data, and all associated information. This cannot be undone." data-ko="계정과 호텔 데이터, 모든 정보가 영구 삭제됩니다. 되돌릴 수 없습니다.">Permanently delete your account, hotel data, and all associated information. This cannot be undone.</p>
+    <button class="st-btn st-btn-danger" id="btn-delete-account" data-en="Delete My Account" data-ko="회원 탈퇴">Delete My Account</button>
+  </div>
+
+</div>
+
+<!-- Delete confirmation modal -->
+<div class="st-modal-overlay" id="delete-modal">
+  <div class="st-modal">
+    <h3 data-en="⚠️ Delete Account?" data-ko="⚠️ 계정을 삭제하시겠습니까?">⚠️ Delete Account?</h3>
+    <p data-en="This will permanently delete your account, your hotel registration, and all data. This action cannot be undone." data-ko="계정, 호텔 등록, 모든 데이터가 영구 삭제됩니다. 되돌릴 수 없습니다.">This will permanently delete your account, your hotel registration, and all data. This action cannot be undone.</p>
+    <div class="st-field">
+      <label class="st-label" data-en='Type "DELETE" to confirm' data-ko='"DELETE" 입력 시 확정'>Type "DELETE" to confirm</label>
+      <input type="text" class="st-input" id="delete-confirm" placeholder="DELETE">
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px;">
+      <button class="st-btn st-btn-secondary" id="btn-delete-cancel" data-en="Cancel" data-ko="취소">Cancel</button>
+      <button class="st-btn st-btn-danger" id="btn-delete-confirm" disabled data-en="Permanently Delete" data-ko="영구 삭제">Permanently Delete</button>
+    </div>
+  </div>
+</div>
+
+<div class="st-toast" id="toast"></div>
+
+<script>
+(function(){
+  var T = window.TW;
+  var $ = T.$;
+  var currentUser = null;
+
+  T.requireAuth(async function(user){
+    currentUser = user;
+    // 관리자는 admin.html 자체 설정으로
+    var ac = await T.checkAdmin(user);
+    if (ac.is_admin) {
+      window.location.href = 'admin.html';
+      return;
+    }
+    
+    $('user-email').textContent = user.email;
+    $('pwd-email').value = user.email;
+    
+    if (user.created_at) {
+      $('user-since').textContent = new Date(user.created_at).toISOString().substring(0,10);
+    }
+    $('user-verified').textContent = user.email_confirmed_at ? '✅ Verified' : '⏳ Pending';
+  });
+
+  function toast(msg, type){
+    var t = $('toast');
+    t.textContent = msg;
+    t.className = 'st-toast show' + (type ? ' ' + type : '');
+    setTimeout(function(){ t.className = 'st-toast'; }, 3500);
+  }
+
+  // Send Reset Link
+  $('btn-send-reset').addEventListener('click', async function(){
+    var btn = this;
+    btn.disabled = true;
+    btn.textContent = T.lang === 'ko' ? '발송 중...' : 'Sending...';
+    try {
+      var r = await T.sb.auth.resetPasswordForEmail(currentUser.email, {
+        redirectTo: window.location.origin + '/reset-password.html'
+      });
+      if (r.error) throw r.error;
+      toast(T.lang === 'ko' ? '재설정 링크가 이메일로 발송되었습니다!' : 'Reset link sent to your email!', 'success');
+    } catch(e) {
+      toast('Error: ' + e.message, 'error');
+    }
+    btn.disabled = false;
+    btn.textContent = T.lang === 'ko' ? '재설정 링크 발송' : 'Send Reset Link';
+  });
+
+  // Change Email
+  $('btn-change-email').addEventListener('click', async function(){
+    var newEmail = $('new-email').value.trim();
+    if (!newEmail || !newEmail.includes('@')) {
+      toast(T.lang === 'ko' ? '올바른 이메일을 입력하세요.' : 'Valid email required', 'error');
+      return;
+    }
+    if (newEmail === currentUser.email) {
+      toast(T.lang === 'ko' ? '현재 이메일과 동일합니다.' : 'Same as current email', 'error');
+      return;
+    }
+    var btn = this;
+    btn.disabled = true;
+    btn.textContent = T.lang === 'ko' ? '변경 중...' : 'Changing...';
+    try {
+      var r = await T.sb.auth.updateUser({ email: newEmail });
+      if (r.error) throw r.error;
+      toast(T.lang === 'ko' ? '확인 메일이 양쪽 이메일로 발송되었습니다.' : 'Confirmation sent to both emails', 'success');
+      $('new-email').value = '';
+    } catch(e) {
+      toast('Error: ' + e.message, 'error');
+    }
+    btn.disabled = false;
+    btn.textContent = T.lang === 'ko' ? '이메일 변경' : 'Change Email';
+  });
+
+  // Delete Account
+  $('btn-delete-account').addEventListener('click', function(){
+    $('delete-modal').classList.add('show');
+  });
+  $('btn-delete-cancel').addEventListener('click', function(){
+    $('delete-modal').classList.remove('show');
+    $('delete-confirm').value = '';
+    $('btn-delete-confirm').disabled = true;
+  });
+  $('delete-confirm').addEventListener('input', function(){
+    $('btn-delete-confirm').disabled = (this.value !== 'DELETE');
+  });
+  $('btn-delete-confirm').addEventListener('click', async function(){
+    var btn = this;
+    btn.disabled = true;
+    btn.textContent = T.lang === 'ko' ? '삭제 중...' : 'Deleting...';
+    try {
+      // /api/delete-account 호출
+      var session = await T.sb.auth.getSession();
+      var token = session.data.session ? session.data.session.access_token : '';
+      var resp = await fetch('/api/delete-account', {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + token,
+          'Content-Type': 'application/json'
+        }
+      });
+      var data = await resp.json();
+      if (!resp.ok) throw new Error(data.error || 'Failed');
+      
+      toast(T.lang === 'ko' ? '계정이 삭제되었습니다.' : 'Account deleted', 'success');
+      // 로그아웃 후 메인 페이지로
+      await T.sb.auth.signOut();
+      setTimeout(function(){
+        window.location.href = 'index.html';
+      }, 1500);
+    } catch(e) {
+      toast('Error: ' + e.message, 'error');
+      btn.disabled = false;
+      btn.textContent = T.lang === 'ko' ? '영구 삭제' : 'Permanently Delete';
+    }
+  });
+})();
+</script>
+</body>
+</html>

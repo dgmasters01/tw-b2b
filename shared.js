@@ -105,11 +105,43 @@
     }
   };
 
-  // ---------- Admin check ----------
+  // ---------- Admin check (DB 기반) ----------
+  // 캐시: user.id → {is_admin, role, expires}
+  var _adminCache = {};
+  var ADMIN_CACHE_TTL = 5 * 60 * 1000; // 5분
+
+  // 동기 체크 (캐시 사용) - 빠른 라우팅용
   window.TW.isAdmin = function (user) {
-    if (!user) return false;
-    return user.email === 'dgmasters01@gmail.com';
+    if (!user || !user.email) return false;
+    var c = _adminCache[user.id];
+    if (c && c.expires > Date.now()) return c.is_admin;
+    return false; // 캐시 없으면 false. 비동기 체크 권장.
   };
+
+  // 비동기 체크 (DB 조회) - 정확한 권한 확인
+  window.TW.checkAdmin = async function (user) {
+    if (!user || !user.email) return { is_admin: false, role: null };
+    var c = _adminCache[user.id];
+    if (c && c.expires > Date.now()) {
+      return { is_admin: c.is_admin, role: c.role };
+    }
+    if (!sb) return { is_admin: false, role: null };
+    try {
+      var r = await sb.from('admins').select('role, is_active').eq('email', user.email).maybeSingle();
+      var isAdminUser = !!(r.data && r.data.is_active);
+      _adminCache[user.id] = {
+        is_admin: isAdminUser,
+        role: r.data ? r.data.role : null,
+        expires: Date.now() + ADMIN_CACHE_TTL
+      };
+      return { is_admin: isAdminUser, role: r.data ? r.data.role : null };
+    } catch (e) {
+      return { is_admin: false, role: null };
+    }
+  };
+
+  // 캐시 클리어 (로그아웃 시)
+  window.TW.clearAdminCache = function () { _adminCache = {}; };
 
   // ---------- Database helpers ----------
   window.TW.db = {

@@ -58,7 +58,15 @@
 .hi-divider{height:1px;background:#eee;margin:24px 0}
 .hi-h3{font-size:16px;font-weight:600;color:#1a1a1a;margin:0 0 14px}
 .hi-help{font-size:12.5px;color:#999;margin-top:6px;line-height:1.55}
-@media (max-width:720px){.hi-row{grid-template-columns:1fr}.hi-result-grid{grid-template-columns:1fr}.hi-step-row{flex-direction:column;border-bottom:none}.hi-step{border-bottom:1px solid #eee}}
+.hi-class-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:8px}
+.hi-class-card{display:flex;flex-direction:column;align-items:center;padding:18px 10px;border:2px solid #e0e0e0;border-radius:10px;cursor:pointer;background:#fff;transition:all .15s;text-align:center}
+.hi-class-card:hover{border-color:#bbb;background:#fafafa}
+.hi-class-card input[type="radio"]{position:absolute;opacity:0;width:0;height:0}
+.hi-class-card:has(input:checked){border-color:#534AB7;background:#f5f3ff;box-shadow:0 2px 8px rgba(83,74,183,0.15)}
+.hi-class-stars{font-size:18px;letter-spacing:1px;margin-bottom:6px}
+.hi-class-label{font-size:13px;font-weight:600;color:#1a1a1a}
+.hi-class-card:has(input:checked) .hi-class-label{color:#534AB7}
+@media (max-width:720px){.hi-row{grid-template-columns:1fr}.hi-result-grid{grid-template-columns:1fr}.hi-step-row{flex-direction:column;border-bottom:none}.hi-step{border-bottom:1px solid #eee}.hi-class-grid{grid-template-columns:repeat(3,1fr);gap:6px}.hi-class-card{padding:12px 6px}.hi-class-stars{font-size:14px}.hi-class-label{font-size:11px}}
 </style>
 </head>
 <body style="background:#f7f7f7;margin:0;min-height:100vh">
@@ -98,20 +106,13 @@
         <input type="url" class="hi-input" id="agoda-url" placeholder="https://www.agoda.com/...">
       </div>
 
-      <div class="hi-row">
-        <div class="hi-field">
-          <label class="hi-label" data-en="Hotel Name (English)" data-ko="호텔명 (영문)">Hotel Name (English)</label>
-          <span class="hi-label-sub" data-en="Optional — helps if URL parsing fails" data-ko="선택 — URL 자동 인식 실패 시 보완">Optional — helps if URL parsing fails</span>
-          <input type="text" class="hi-input" id="hotel-name-fallback" placeholder="e.g. Marina Bay Sands">
-        </div>
-        <div class="hi-field">
-          <label class="hi-label" data-en="City ID (Agoda)" data-ko="도시 ID (아고다)">City ID (Agoda)</label>
-          <span class="hi-label-sub" data-en="Optional — needed for Agoda price data" data-ko="선택 — 아고다 가격 정보 조회에 필요">Optional — needed for Agoda price data</span>
-          <input type="number" class="hi-input" id="city-id" placeholder="e.g. 9395">
-        </div>
+      <div class="hi-field">
+        <label class="hi-label" data-en="Hotel Name (English)" data-ko="호텔명 (영문)">Hotel Name (English)</label>
+        <span class="hi-label-sub" data-en="Optional — helps if URL parsing fails" data-ko="선택 — URL 자동 인식 실패 시 보완">Optional — helps if URL parsing fails</span>
+        <input type="text" class="hi-input" id="hotel-name-fallback" placeholder="e.g. Marina Bay Sands">
       </div>
 
-      <div class="hi-help" data-en="Don't know your City ID? Skip it for now — we'll use Google to fetch your hotel info, and you can add the City ID later from your dashboard." data-ko="도시 ID를 모르시면 비워두세요. Google로 호텔 정보를 가져오고, 도시 ID는 나중에 대시보드에서 추가할 수 있습니다.">Don't know your City ID? Skip it for now — we'll use Google to fetch your hotel info, and you can add the City ID later from your dashboard.</div>
+      <div class="hi-help" data-en="We'll automatically detect city, country, and Agoda location from your URL. No City ID needed." data-ko="URL에서 도시, 국가, 아고다 위치를 자동으로 감지합니다.">We'll automatically detect city, country, and Agoda location from your URL. No City ID needed.</div>
 
       <div class="hi-btn-row">
         <button class="hi-btn hi-btn-primary" id="btn-fetch" data-en="Fetch Hotel Info" data-ko="호텔 정보 가져오기">Fetch Hotel Info</button>
@@ -127,21 +128,42 @@
 
       <div class="hi-divider"></div>
 
-      <h3 class="hi-h3" data-en="Edit Details" data-ko="상세 정보 수정">Edit Details</h3>
+      <h3 class="hi-h3" data-en="Hotel Information" data-ko="호텔 정보">Hotel Information</h3>
 
       <div class="hi-field">
         <label class="hi-label" data-en="Hotel Name *" data-ko="호텔명 *">Hotel Name *</label>
         <input type="text" class="hi-input" id="edit-name" required>
       </div>
 
-      <div class="hi-row">
-        <div class="hi-field">
-          <label class="hi-label" data-en="Star Rating" data-ko="성급">Star Rating</label>
-          <input type="number" class="hi-input" id="edit-stars" min="1" max="5" step="0.5">
+      <div class="hi-field">
+        <label class="hi-label" data-en="Hotel Class *" data-ko="호텔 등급 *">Hotel Class *</label>
+        <span class="hi-label-sub" data-en="We work with 3★ properties and above only" data-ko="3성급 이상의 호텔만 가능합니다">We work with 3★ properties and above only</span>
+        <div class="hi-class-grid">
+          <label class="hi-class-card" data-stars="3">
+            <input type="radio" name="hotel-class" value="3" id="hc-3">
+            <div class="hi-class-stars">⭐⭐⭐</div>
+            <div class="hi-class-label">3★ Standard</div>
+          </label>
+          <label class="hi-class-card" data-stars="4">
+            <input type="radio" name="hotel-class" value="4" id="hc-4">
+            <div class="hi-class-stars">⭐⭐⭐⭐</div>
+            <div class="hi-class-label">4★ Premium</div>
+          </label>
+          <label class="hi-class-card" data-stars="5">
+            <input type="radio" name="hotel-class" value="5" id="hc-5">
+            <div class="hi-class-stars">⭐⭐⭐⭐⭐</div>
+            <div class="hi-class-label">5★ Luxury</div>
+          </label>
         </div>
-        <div class="hi-field">
-          <label class="hi-label" data-en="Daily Rate (USD)" data-ko="1박 요금 (USD)">Daily Rate (USD)</label>
-          <input type="number" class="hi-input" id="edit-rate" min="0" step="0.01">
+      </div>
+
+      <div class="hi-field">
+        <label class="hi-label" data-en="Starting Price (USD per night) *" data-ko="시작 가격 (USD, 1박 기준) *">Starting Price (USD per night) *</label>
+        <span class="hi-label-sub" data-en="Lowest available room rate" data-ko="가장 저렴한 객실 기준 가격">Lowest available room rate</span>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="font-size:18px;font-weight:600;color:#666;">$</span>
+          <input type="number" class="hi-input" id="edit-rate" min="0" step="1" placeholder="480" style="flex:1;">
+          <span style="font-size:13px;color:#888;">USD / night</span>
         </div>
       </div>
 
@@ -165,13 +187,40 @@
 
       <div class="hi-row">
         <div class="hi-field">
-          <label class="hi-label" data-en="Your Name" data-ko="담당자 이름">Your Name</label>
-          <input type="text" class="hi-input" id="edit-manager-name">
+          <label class="hi-label" data-en="Your Name *" data-ko="담당자 이름 *">Your Name *</label>
+          <input type="text" class="hi-input" id="edit-manager-name" required>
         </div>
         <div class="hi-field">
-          <label class="hi-label" data-en="Your Phone" data-ko="담당자 전화">Your Phone</label>
-          <input type="text" class="hi-input" id="edit-manager-phone">
+          <label class="hi-label" data-en="Your Position *" data-ko="직책 *">Your Position *</label>
+          <span class="hi-label-sub" data-en="e.g. GM, Marketing Director, Sales Manager" data-ko="예: GM, 마케팅 매니저">e.g. GM, Marketing Director, Sales Manager</span>
+          <input type="text" class="hi-input" id="edit-manager-position" required placeholder="General Manager">
         </div>
+      </div>
+
+      <div class="hi-field">
+        <label class="hi-label" data-en="Contact Email *" data-ko="연락 이메일 *">Contact Email *</label>
+        <span class="hi-label-sub" data-en="Where we'll send progress updates and reports" data-ko="진행 상황과 리포트를 받을 이메일">Where we'll send progress updates and reports</span>
+        <div style="background:#f5f3ff;border:1px solid #e0d8f7;border-radius:8px;padding:12px 14px;margin-top:6px;">
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:14px;">
+            <input type="radio" name="email-choice" id="email-same" value="same" checked>
+            <div>
+              <div style="font-weight:600;" data-en="Use my account email" data-ko="가입 이메일 사용">Use my account email</div>
+              <div style="font-size:12px;color:#666;margin-top:2px;" id="signup-email-display">—</div>
+            </div>
+          </label>
+        </div>
+        <div style="margin-top:8px;">
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:14px;padding:12px 14px;border:1px solid #e0e0e0;border-radius:8px;">
+            <input type="radio" name="email-choice" id="email-different" value="different">
+            <div style="font-weight:600;" data-en="Use a different email" data-ko="다른 이메일 사용">Use a different email</div>
+          </label>
+          <input type="email" class="hi-input" id="edit-contact-email" placeholder="contact@yourhotel.com" style="margin-top:8px;display:none;">
+        </div>
+      </div>
+
+      <div class="hi-field">
+        <label class="hi-label" data-en="Phone (WhatsApp preferred)" data-ko="전화번호 (WhatsApp 우선)">Phone (WhatsApp preferred)</label>
+        <input type="text" class="hi-input" id="edit-manager-phone" placeholder="+1 234 567 8900">
       </div>
 
       <div class="hi-btn-row">
@@ -201,10 +250,11 @@
   var fetched = null;
   var currentUser = null;
 
-  T.requireAuth(function(user){
+  T.requireAuth(async function(user){
     currentUser = user;
     // 관리자는 매니저 페이지 접근 차단 → admin.html로 보냄
-    if (T.isAdmin(user)) {
+    var ac = await T.checkAdmin(user);
+    if (ac.is_admin) {
       window.location.href = 'admin.html';
       return;
     }
@@ -230,7 +280,6 @@
   $('btn-fetch').addEventListener('click', function(){
     var url = $('agoda-url').value.trim();
     var fallbackName = $('hotel-name-fallback').value.trim();
-    var cityId = $('city-id').value.trim();
 
     if (!url && !fallbackName){
       T.toast(T.lang === 'ko' ? 'URL 또는 호텔명을 입력하세요.' : 'Please enter URL or hotel name.', true);
@@ -251,7 +300,6 @@
 
     T.api.processHotel({
       agodaUrl: url || null,
-      cityId: cityId ? parseInt(cityId,10) : null,
       hotelName: fallbackName || null
     }).then(function(res){
       btn.disabled = false;
@@ -326,15 +374,53 @@
     $('result-summary').innerHTML = rows.join('');
 
     $('edit-name').value = m.hotel_name || '';
-    $('edit-stars').value = m.star_rating || '';
+    
+    // Star Rating 자동 추정 (Google rating + Agoda data 조합)
+    var estimatedStars = m.star_rating || estimateStarsFromGoogle(res);
+    if (estimatedStars >= 5) document.getElementById('hc-5').checked = true;
+    else if (estimatedStars >= 4) document.getElementById('hc-4').checked = true;
+    else if (estimatedStars >= 3) document.getElementById('hc-3').checked = true;
+    
     $('edit-rate').value = m.daily_rate || '';
     $('edit-address').value = m.address || '';
     $('edit-phone').value = m.phone || '';
     $('edit-website').value = m.website || '';
+    
+    // Contact email - 가입 이메일 표시
+    if (currentUser && currentUser.email) {
+      var emailDisplay = document.getElementById('signup-email-display');
+      if (emailDisplay) emailDisplay.textContent = currentUser.email;
+    }
     if (currentUser && currentUser.user_metadata) {
       $('edit-manager-name').value = currentUser.user_metadata.full_name || '';
     }
   }
+
+  // Google rating 4.7+ → 5★ / 4.3+ → 4★ / 3.8+ → 3★
+  function estimateStarsFromGoogle(res){
+    if (!res || !res.google) return null;
+    var rating = res.google.rating;
+    var count = res.google.rating_count || res.google.ratingCount || 0;
+    if (!rating) return null;
+    if (rating >= 4.5 && count >= 100) return 5;
+    if (rating >= 4.2) return 4;
+    if (rating >= 3.8) return 3;
+    return null;
+  }
+
+  // Contact email 토글
+  document.querySelectorAll('input[name="email-choice"]').forEach(function(r){
+    r.addEventListener('change', function(){
+      var input = document.getElementById('edit-contact-email');
+      if (this.value === 'different') {
+        input.style.display = 'block';
+        input.focus();
+      } else {
+        input.style.display = 'none';
+        input.value = '';
+      }
+    });
+  });
 
   function kv(en, ko, val){
     var label = T.lang === 'ko' ? ko : en;
@@ -350,9 +436,45 @@
 
   $('btn-save').addEventListener('click', function(){
     var name = $('edit-name').value.trim();
+    var managerName = $('edit-manager-name').value.trim();
+    var managerPosition = $('edit-manager-position').value.trim();
+    var rate = $('edit-rate').value.trim();
+    
+    // Hotel class 체크
+    var classChecked = document.querySelector('input[name="hotel-class"]:checked');
+    if (!classChecked) {
+      T.toast(T.lang === 'ko' ? '호텔 등급을 선택하세요 (3성/4성/5성).' : 'Please select hotel class (3★/4★/5★).', true);
+      return;
+    }
+    
+    // 필수 필드 검증
     if (!name){
       T.toast(T.lang === 'ko' ? '호텔명은 필수입니다.' : 'Hotel name is required.', true);
       return;
+    }
+    if (!rate || parseFloat(rate) <= 0){
+      T.toast(T.lang === 'ko' ? '시작 가격은 필수입니다.' : 'Starting price is required.', true);
+      return;
+    }
+    if (!managerName){
+      T.toast(T.lang === 'ko' ? '담당자 이름은 필수입니다.' : 'Your name is required.', true);
+      return;
+    }
+    if (!managerPosition){
+      T.toast(T.lang === 'ko' ? '직책은 필수입니다.' : 'Your position is required.', true);
+      return;
+    }
+
+    // Contact email 결정
+    var emailChoice = document.querySelector('input[name="email-choice"]:checked');
+    var contactEmail = currentUser.email;
+    if (emailChoice && emailChoice.value === 'different') {
+      var diff = $('edit-contact-email').value.trim();
+      if (!diff || !diff.includes('@')) {
+        T.toast(T.lang === 'ko' ? '연락 이메일이 올바르지 않습니다.' : 'Valid contact email is required.', true);
+        return;
+      }
+      contactEmail = diff;
     }
 
     var btn = $('btn-save');
@@ -361,13 +483,10 @@
 
     var m = fetched ? fetched.merged : {};
     var hotelData = {
-      manager_email: currentUser.email,
-      manager_name: $('edit-manager-name').value.trim() || null,
-      manager_phone: $('edit-manager-phone').value.trim() || null,
       hotel_name: name,
-      star_rating: parseFloat($('edit-stars').value) || null,
-      daily_rate: parseFloat($('edit-rate').value) || null,
-      currency: m.currency || 'USD',
+      star_rating: parseInt(classChecked.value, 10),
+      daily_rate: parseFloat(rate) || null,
+      currency: 'USD',
       address: $('edit-address').value.trim() || null,
       phone: $('edit-phone').value.trim() || null,
       website: $('edit-website').value.trim() || null,
@@ -382,6 +501,11 @@
       include_breakfast: !!m.include_breakfast,
       free_wifi: !!m.free_wifi,
       google_photos: m.google_photos && m.google_photos.length ? m.google_photos : null,
+      // Manager contact
+      contact_name: managerName,
+      contact_email: contactEmail,
+      contact_phone: $('edit-manager-phone').value.trim() || null,
+      whatsapp: $('edit-manager-phone').value.trim() || null,
       status: 'pending'
     };
 
@@ -397,6 +521,10 @@
 
       T.toast(T.lang === 'ko' ? '저장되었습니다!' : 'Saved successfully!');
       setStep(3);
+      // 2초 후 dashboard로 자동 이동
+      setTimeout(function(){
+        window.location.href = 'dashboard.html';
+      }, 2000);
     }).catch(function(err){
       btn.disabled = false;
       btn.innerHTML = T.lang === 'ko' ? '저장 후 계속' : 'Save & Continue';

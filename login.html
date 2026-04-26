@@ -103,8 +103,9 @@
       }
       T.toast(T.lang === 'ko' ? '로그인 성공!' : 'Login successful!');
       localStorage.setItem('tw-session-email', r.data.user.email);
-      // 관리자 vs 매니저 라우팅
-      if (T.isAdmin(r.data.user)) {
+      // 관리자 vs 매니저 라우팅 (DB 조회)
+      var adminCheck = await T.checkAdmin(r.data.user);
+      if (adminCheck.is_admin) {
         window.location.href = 'admin.html';
       } else {
         window.location.href = 'dashboard.html';
@@ -119,9 +120,10 @@
   // Auto-redirect if already logged in (skip if just logged out)
   var isFromLogout = window.location.search.indexOf('logout') !== -1;
   if (T.sb && !isFromLogout) {
-    T.sb.auth.getSession().then(function(r) {
+    T.sb.auth.getSession().then(async function(r) {
       if (r.data.session) {
-        if (T.isAdmin(r.data.session.user)) {
+        var ac = await T.checkAdmin(r.data.session.user);
+        if (ac.is_admin) {
           window.location.href = 'admin.html';
         } else {
           window.location.href = 'dashboard.html';

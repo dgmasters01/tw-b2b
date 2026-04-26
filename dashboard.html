@@ -170,9 +170,9 @@ body{margin:0;background:#f7f7f7;font-family:'DM Sans','Noto Sans KR',sans-serif
     html += '<div class="dh-card">';
     html += '<div class="dh-hotel-info">';
     var imgUrl = h.image_url || '';
-    if (h.google_photos_json){
+    if (h.google_photos){
       try {
-        var photos = JSON.parse(h.google_photos_json);
+        var photos = (typeof h.google_photos === 'string') ? JSON.parse(h.google_photos) : h.google_photos;
         if (photos && photos.length && photos[0].url) imgUrl = photos[0].url;
       } catch (e) {}
     }

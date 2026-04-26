@@ -376,7 +376,7 @@
       google_place_id: m.google_place_id || null,
       include_breakfast: !!m.include_breakfast,
       free_wifi: !!m.free_wifi,
-      google_photos_json: m.google_photos ? JSON.stringify(m.google_photos) : null,
+      google_photos: m.google_photos && m.google_photos.length ? m.google_photos : null,
       status: 'pending'
     };
 

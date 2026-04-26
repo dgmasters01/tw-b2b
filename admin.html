@@ -269,9 +269,9 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
 
     var photos = [];
     if (h.image_url) photos.push({url: h.image_url});
-    if (h.google_photos_json){
+    if (h.google_photos){
       try {
-        var gp = JSON.parse(h.google_photos_json);
+        var gp = (typeof h.google_photos === 'string') ? JSON.parse(h.google_photos) : h.google_photos;
         if (gp && gp.length) photos = photos.concat(gp);
       } catch (e) {}
     }

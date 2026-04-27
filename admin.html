@@ -11,15 +11,34 @@
 <style>
 *{box-sizing:border-box}
 body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif;color:#1a1a1a;min-height:100vh}
-.ad-shell{max-width:1400px;margin:0 auto}
-.ad-topbar{display:flex;justify-content:space-between;align-items:center;padding:14px 24px;background:#1a1a1a;color:#fff}
-.ad-logo{display:flex;align-items:center;gap:10px;color:#fff;text-decoration:none}
-.ad-logo-icon{width:32px;height:32px;background:#534AB7;border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px}
-.ad-logo-text{font-family:'Fraunces',serif;font-size:18px;font-weight:600}
+.ad-shell{display:flex;min-height:100vh}
+/* === Sidebar === */
+.ad-sidebar{width:240px;background:#1a1a1a;color:#fff;display:flex;flex-direction:column;flex-shrink:0;position:sticky;top:0;align-self:flex-start;height:100vh}
+.ad-sidebar-head{padding:18px 20px;border-bottom:1px solid rgba(255,255,255,.08)}
+.ad-sb-logo{display:flex;align-items:center;gap:10px;color:#fff;text-decoration:none}
+.ad-sb-logo-icon{width:32px;height:32px;background:#534AB7;border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px}
+.ad-sb-logo-text{font-family:'Fraunces',serif;font-size:17px;font-weight:600}
+.ad-sb-badge{background:#D85A30;color:#fff;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:600;letter-spacing:.5px;margin-left:6px}
+.ad-sb-nav{flex:1;padding:14px 10px;overflow-y:auto}
+.ad-sb-section{font-size:10px;color:#666;text-transform:uppercase;letter-spacing:.6px;padding:14px 10px 6px;font-weight:600}
+.ad-sb-item{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:8px;color:#bbb;text-decoration:none;font-size:13.5px;font-weight:500;cursor:pointer;border:none;background:none;font-family:inherit;width:100%;text-align:left;margin-bottom:1px}
+.ad-sb-item:hover{background:rgba(255,255,255,.06);color:#fff}
+.ad-sb-item.active{background:#534AB7;color:#fff;font-weight:600}
+.ad-sb-icon{font-size:15px;width:20px;text-align:center;flex-shrink:0}
+.ad-sb-foot{padding:14px 16px;border-top:1px solid rgba(255,255,255,.08);font-size:12px;color:#888}
+.ad-sb-foot-email{color:#ddd;font-size:12px;margin-bottom:8px;word-break:break-all}
+.ad-sb-foot a, .ad-sb-foot button{display:block;width:100%;background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.12);padding:7px 10px;border-radius:6px;cursor:pointer;font-size:12px;font-family:inherit;text-decoration:none;text-align:center;margin-bottom:6px}
+.ad-sb-foot a:hover, .ad-sb-foot button:hover{background:rgba(255,255,255,.15)}
+/* === Content area === */
+.ad-content{flex:1;min-width:0;display:flex;flex-direction:column}
+.ad-topbar{display:flex;justify-content:space-between;align-items:center;padding:14px 24px;background:#fff;color:#1a1a1a;border-bottom:1px solid #e8e8e8}
+.ad-logo{display:flex;align-items:center;gap:10px;color:#1a1a1a;text-decoration:none}
+.ad-logo-icon{width:28px;height:28px;background:#534AB7;border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:#fff}
+.ad-logo-text{font-family:'Fraunces',serif;font-size:16px;font-weight:600}
 .ad-badge{background:#D85A30;color:#fff;padding:3px 10px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:.5px}
-.ad-nav-right{display:flex;gap:12px;align-items:center;font-size:13px}
-.ad-logout{background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.2);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12.5px;font-family:inherit}
-.ad-logout:hover{background:rgba(255,255,255,.2)}
+.ad-nav-right{display:flex;gap:12px;align-items:center;font-size:13px;color:#666}
+.ad-logout{background:#f0f0f0;color:#1a1a1a;border:1px solid #e0e0e0;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12.5px;font-family:inherit;text-decoration:none}
+.ad-logout:hover{background:#e8e8e8}
 .ad-main{padding:24px}
 .ad-h1{font-family:'Fraunces',serif;font-size:24px;margin:0 0 4px;font-weight:600}
 .ad-h1-sub{color:#777;font-size:13.5px;margin:0 0 24px}
@@ -65,33 +84,117 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
 .ad-photo{width:100%;height:80px;background:#eee;border-radius:6px;background-size:cover;background-position:center}
 .ad-textarea{width:100%;padding:10px;border:1px solid #d8d8d8;border-radius:6px;font-family:inherit;font-size:13px;resize:vertical;min-height:60px;margin:8px 0}
 @media (max-width:1024px){.ad-stats{grid-template-columns:repeat(3,1fr)}}
+@media (max-width:900px){
+  .ad-shell{flex-direction:column}
+  .ad-sidebar{width:100%;height:auto;position:relative;flex-direction:row;flex-wrap:wrap}
+  .ad-sidebar-head{width:100%;border-bottom:1px solid rgba(255,255,255,.08)}
+  .ad-sb-nav{display:flex;flex-wrap:wrap;gap:4px;padding:8px;width:100%}
+  .ad-sb-section{display:none}
+  .ad-sb-item{width:auto;padding:7px 12px;font-size:12.5px}
+  .ad-sb-foot{display:none}
+}
 @media (max-width:640px){.ad-stats{grid-template-columns:repeat(2,1fr)}.ad-detail-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <div class="ad-shell">
-  <div class="ad-topbar">
-    <a href="admin.html" class="ad-logo">
-      <div class="ad-logo-icon">TW</div>
-      <div class="ad-logo-text">TravelWinners</div>
-      <span class="ad-badge">ADMIN</span>
-    </a>
-    <div class="ad-nav-right">
-      <span id="user-email">—</span>
-      <a href="forgot-password.html" class="ad-logout" style="text-decoration:none">Change password</a>
-      <button class="ad-logout" id="btn-logout">Sign out</button>
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="ad-sidebar">
+    <div class="ad-sidebar-head">
+      <a href="admin.html" class="ad-sb-logo">
+        <div class="ad-sb-logo-icon">TW</div>
+        <div>
+          <div class="ad-sb-logo-text">TravelWinners</div>
+          <span class="ad-sb-badge">ADMIN</span>
+        </div>
+      </a>
     </div>
-  </div>
 
-  <div class="ad-main">
-    <h1 class="ad-h1">Admin Dashboard</h1>
-    <p class="ad-h1-sub">Manage hotels, members, and team. <span style="background:#534AB7;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:.3px;margin-left:4px;" id="admin-role">—</span></p>
+    <nav class="ad-sb-nav">
+      <div class="ad-sb-section">Overview</div>
+      <button class="ad-sb-item" data-tab="dashboard">
+        <span class="ad-sb-icon">📊</span><span>Dashboard</span>
+      </button>
 
-    <!-- Tab navigation -->
-    <div style="display:flex;gap:4px;margin-bottom:24px;border-bottom:2px solid #e8e8e8;">
-      <button class="ad-tab ad-tab-active" data-tab="hotels" style="padding:12px 20px;border:none;background:none;font-family:inherit;font-size:14px;font-weight:600;color:#1a1a1a;cursor:pointer;border-bottom:2px solid #534AB7;margin-bottom:-2px;">🏨 Hotels</button>
-      <button class="ad-tab" data-tab="members" style="padding:12px 20px;border:none;background:none;font-family:inherit;font-size:14px;font-weight:500;color:#888;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;">👥 Members</button>
-      <button class="ad-tab" data-tab="admins" style="padding:12px 20px;border:none;background:none;font-family:inherit;font-size:14px;font-weight:500;color:#888;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;">⚙️ Team</button>
+      <div class="ad-sb-section">Sales</div>
+      <button class="ad-sb-item" data-tab="bookings">
+        <span class="ad-sb-icon">🧾</span><span>Bookings</span>
+      </button>
+      <button class="ad-sb-item" data-tab="analytics">
+        <span class="ad-sb-icon">📈</span><span>Analytics</span>
+      </button>
+
+      <div class="ad-sb-section">Operations</div>
+      <button class="ad-sb-item active" data-tab="hotels">
+        <span class="ad-sb-icon">🏨</span><span>Hotels</span>
+      </button>
+      <button class="ad-sb-item" data-tab="members">
+        <span class="ad-sb-icon">👥</span><span>Members</span>
+      </button>
+      <button class="ad-sb-item" data-tab="admins">
+        <span class="ad-sb-icon">⚙️</span><span>Team</span>
+      </button>
+    </nav>
+
+    <div class="ad-sb-foot">
+      <div class="ad-sb-foot-email" id="sb-user-email">—</div>
+      <a href="forgot-password.html">Change password</a>
+      <button id="btn-logout-sb">Sign out</button>
+    </div>
+  </aside>
+
+  <!-- ============ CONTENT ============ -->
+  <div class="ad-content">
+
+    <div class="ad-topbar">
+      <a href="admin.html" class="ad-logo">
+        <div class="ad-logo-icon">TW</div>
+        <div class="ad-logo-text">Admin Console</div>
+      </a>
+      <div class="ad-nav-right">
+        <span id="user-email">—</span>
+        <a href="forgot-password.html" class="ad-logout">Change password</a>
+        <button class="ad-logout" id="btn-logout">Sign out</button>
+      </div>
+    </div>
+
+    <div class="ad-main">
+      <h1 class="ad-h1" id="page-title">Hotels</h1>
+      <p class="ad-h1-sub" id="page-sub">Manage hotel partners. <span style="background:#534AB7;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:.3px;margin-left:4px;" id="admin-role">—</span></p>
+
+    <!-- TAB: Dashboard (placeholder for Phase 1 Step 6) -->
+    <div id="tab-dashboard" class="ad-tab-pane" style="display:none;">
+      <div class="ad-card">
+        <div class="ad-card-h"><h3>📊 Dashboard</h3></div>
+        <div class="ad-empty">
+          <p style="font-size:14px;margin:0 0 8px;color:#555;"><strong>실시간 비즈니스 요약</strong></p>
+          <p style="font-size:13px;color:#888;margin:0;">총 예약, 매출, 채널 성과, 최근 활동 — Phase 1 Step 7에서 구현 예정.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: Bookings (placeholder for Phase 1 Step 4-5) -->
+    <div id="tab-bookings" class="ad-tab-pane" style="display:none;">
+      <div class="ad-card">
+        <div class="ad-card-h"><h3>🧾 Bookings</h3></div>
+        <div class="ad-empty">
+          <p style="font-size:14px;margin:0 0 8px;color:#555;"><strong>자체 영업 예약 + 아고다 채널 예약 통합 관리</strong></p>
+          <p style="font-size:13px;color:#888;margin:0 0 6px;">• Step 4: 자체 영업 예약 등록 폼</p>
+          <p style="font-size:13px;color:#888;margin:0;">• Step 5: 아고다 채널별 엑셀 업로드</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: Analytics (placeholder for Phase 1 Step 6) -->
+    <div id="tab-analytics" class="ad-tab-pane" style="display:none;">
+      <div class="ad-card">
+        <div class="ad-card-h"><h3>📈 Analytics</h3></div>
+        <div class="ad-empty">
+          <p style="font-size:14px;margin:0 0 8px;color:#555;"><strong>booking-analytics.html 8탭 이식 예정</strong></p>
+          <p style="font-size:13px;color:#888;margin:0;">전체현황 / 채널 / 나라 / 도시 / 호텔 / 패턴 / 성급 / B2B</p>
+        </div>
+      </div>
     </div>
 
     <!-- TAB: Hotels -->
@@ -167,8 +270,9 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
       </div>
     </div>
 
-  </div>
-</div>
+    </div><!-- /ad-main -->
+  </div><!-- /ad-content -->
+</div><!-- /ad-shell -->
 
 <!-- Modal: Add Admin -->
 <div class="ad-modal-overlay" id="add-admin-modal" style="display:none;">
@@ -223,6 +327,8 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
 
   T.requireAuth(async function(user){
     $('user-email').textContent = user.email;
+    var sbEmail = document.getElementById('sb-user-email');
+    if (sbEmail) sbEmail.textContent = user.email;
     var ac = await T.checkAdmin(user);
     if (!ac.is_admin){
       window.location.href = 'dashboard.html';
@@ -243,29 +349,55 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
   });
 
   $('btn-logout').addEventListener('click', T.logout);
+  var btnLogoutSb = document.getElementById('btn-logout-sb');
+  if (btnLogoutSb) btnLogoutSb.addEventListener('click', T.logout);
   $('btn-refresh').addEventListener('click', loadAll);
 
-  // ========= Tab switching =========
-  document.querySelectorAll('.ad-tab').forEach(function(btn){
+  // ========= Sidebar tab switching =========
+  // Page metadata per tab (title + subtitle)
+  var TAB_META = {
+    dashboard: { title: 'Dashboard',   sub: 'Real-time business overview.' },
+    bookings:  { title: 'Bookings',    sub: 'Manage self-sourced and Agoda channel bookings.' },
+    analytics: { title: 'Analytics',   sub: 'Performance breakdown across channels and markets.' },
+    hotels:    { title: 'Hotels',      sub: 'Manage hotel partners.' },
+    members:   { title: 'Members',     sub: 'Hotel managers signed up to the platform.' },
+    admins:    { title: 'Team',        sub: 'Internal admin and support members.' }
+  };
+
+  function setActiveTab(tab){
+    // Sidebar item highlight
+    document.querySelectorAll('.ad-sb-item').forEach(function(b){ b.classList.remove('active'); });
+    var activeBtn = document.querySelector('.ad-sb-item[data-tab="' + tab + '"]');
+    if (activeBtn) activeBtn.classList.add('active');
+
+    // Pane switching
+    document.querySelectorAll('.ad-tab-pane').forEach(function(p){ p.style.display = 'none'; });
+    var pane = document.getElementById('tab-' + tab);
+    if (pane) pane.style.display = 'block';
+
+    // Page header
+    var meta = TAB_META[tab];
+    if (meta){
+      var titleEl = document.getElementById('page-title');
+      var subEl = document.getElementById('page-sub');
+      if (titleEl) titleEl.textContent = meta.title;
+      if (subEl){
+        // preserve admin-role badge inside subtitle
+        var roleEl = document.getElementById('admin-role');
+        var roleHtml = roleEl ? roleEl.outerHTML : '';
+        subEl.innerHTML = meta.sub + ' ' + roleHtml;
+      }
+    }
+
+    // Lazy load
+    if (tab === 'members' && !membersLoaded) loadMembers();
+    if (tab === 'admins' && !adminsLoaded) loadAdmins();
+  }
+
+  document.querySelectorAll('.ad-sb-item').forEach(function(btn){
     btn.addEventListener('click', function(){
       var tab = btn.getAttribute('data-tab');
-      // Tab UI
-      document.querySelectorAll('.ad-tab').forEach(function(b){
-        b.classList.remove('ad-tab-active');
-        b.style.color = '#888';
-        b.style.fontWeight = '500';
-        b.style.borderBottomColor = 'transparent';
-      });
-      btn.classList.add('ad-tab-active');
-      btn.style.color = '#1a1a1a';
-      btn.style.fontWeight = '600';
-      btn.style.borderBottomColor = '#534AB7';
-      // Pane switching
-      document.querySelectorAll('.ad-tab-pane').forEach(function(p){ p.style.display = 'none'; });
-      document.getElementById('tab-' + tab).style.display = 'block';
-      // Lazy load
-      if (tab === 'members' && !membersLoaded) loadMembers();
-      if (tab === 'admins' && !adminsLoaded) loadAdmins();
+      if (tab) setActiveTab(tab);
     });
   });
 

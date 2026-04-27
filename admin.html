@@ -8,6 +8,7 @@
 <link rel="stylesheet" href="shared.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="shared.js"></script>
 <style>
 *{box-sizing:border-box}
@@ -136,6 +137,77 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
 .bk-result-tag.skp{background:#999}
 .bk-result-tag.err{background:#c93030}
 @media (max-width:640px){.bk-result-stats{grid-template-columns:repeat(2,1fr)}}
+
+/* === Phase 1 Step 6: Booking Analytics dashboard (bka- namespace) === */
+/* admin.html 통합용 컨테이너 + 헤더 스타일 */
+.bka-wrap{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans KR',sans-serif;line-height:1.5;font-size:14px}
+.bka-h{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:12px;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid #e8e8e8}
+.bka-h-title{font-family:'Fraunces',serif;font-size:20px;font-weight:600;margin:0 0 4px;color:#1a1a1a}
+.bka-h-sub{font-size:12.5px;color:#777}
+.bka-h-sub code{background:#f0eef8;color:#534AB7;padding:1px 6px;border-radius:4px;font-size:11.5px;font-family:'SF Mono','Menlo',monospace}
+.bka-h-meta{display:flex;align-items:center;gap:10px}
+.bka-h-info{font-size:11px;color:#888;background:#f5f5f7;padding:4px 10px;border-radius:6px}
+.bka-refresh-btn{background:#fff;color:#1a1a1a;border:1px solid #e0e0e0;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px;font-family:inherit}
+.bka-refresh-btn:hover{background:#f5f5f7;border-color:#534AB7}
+.bka-refresh-btn:disabled{opacity:.5;cursor:wait}
+.bka-empty{background:#fff;border:1px dashed #ddd;border-radius:12px;padding:60px 20px;text-align:center;margin-top:20px}
+.bka-empty-icon{font-size:48px;margin-bottom:14px}
+.bka-empty-title{font-size:16px;font-weight:600;color:#444;margin-bottom:8px}
+.bka-empty-sub{font-size:13px;color:#888;line-height:1.7}
+.bka-empty-sub strong{color:#534AB7}
+
+.bka-wrap *{margin:0;padding:0;box-sizing:border-box}
+.bka-wrap{--bg:#f8f7f4;--cd:#fff;--tx:#1a1a1a;--sb:#666;--ht:#999;--bd:#e8e6e1;--ac:#534AB7;--tl:#1D9E75;--cr:#D85A30;--bl:#378ADD}
+
+.bka-W{max-width:940px;margin:0 auto;padding:20px 16px}
+.bka-H{margin-bottom:20px;display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:8px}
+.bka-H h1{font-size:22px;font-weight:700;letter-spacing:-.5px}.bka-H .bka-m{font-size:11px;color:var(--ht);text-align:right}
+.bka-H .bka-u{background:#E1F5EE;color:#0F6E56;padding:2px 8px;border-radius:6px;font-size:10px;font-weight:500}
+.bka-G{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:20px}
+.bka-S{background:var(--cd);border:1px solid var(--bd);border-radius:12px;padding:14px 16px}
+.bka-S .bka-l{font-size:11px;color:var(--ht);margin-bottom:2px}.bka-S .bka-v{font-size:22px;font-weight:600}.bka-S .bka-s{font-size:11px;color:var(--sb);margin-top:2px}
+.bka-T{display:flex;gap:2px;border-bottom:1px solid var(--bd);margin-bottom:20px;overflow-x:auto}
+.bka-tabs{display:flex;gap:2px;border-bottom:1px solid #e8e6e1;margin-bottom:20px;overflow-x:auto}
+.bka-tb{padding:10px 14px;font-size:13px;cursor:pointer;border:none;background:none;color:var(--sb);white-space:nowrap;border-bottom:2px solid transparent}
+.bka-tb.bka-on{color:var(--tx);font-weight:500;border-bottom-color:var(--ac)}.bka-tb:hover{color:var(--tx)}
+.bka-C{background:var(--cd);border:1px solid var(--bd);border-radius:12px;padding:16px;margin-bottom:16px}
+.bka-C h3{font-size:14px;font-weight:500;margin-bottom:12px;color:var(--sb)}
+.bka-cw{position:relative;height:280px;margin-bottom:8px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:8px 10px;border-bottom:1px solid var(--bd);color:var(--ht);font-weight:400;font-size:11px;white-space:nowrap}
+td{padding:8px 10px;border-bottom:1px solid #f0eee9}tr:hover{background:#faf9f6}
+tr.bka-ck{cursor:pointer}tr.bka-ck:hover{background:#f0eef8}
+.bka-r{text-align:right}
+.bka-rk{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;font-size:11px;font-weight:600}
+.bka-r1{background:#FFD700;color:#7a6200}.bka-r2{background:#C0C0C0;color:#555}.bka-r3{background:#CD7F32;color:#fff}.bka-rn{background:#f0eee9;color:#888}
+.bka-bg{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:500}
+.bka-bk{background:#EEEDFE;color:#534AB7}.bka-bj{background:#FAECE7;color:#D85A30}.bka-bt{background:#E6F1FB;color:#378ADD}.bka-bv{background:#E1F5EE;color:#0F6E56}.bka-be{background:#FBEAF0;color:#993556}
+.bka-st{color:#EF9F27;font-size:12px;letter-spacing:-1px}
+.bka-bc{display:flex;align-items:center;gap:6px;font-size:13px;margin-bottom:16px;flex-wrap:wrap}
+.bka-bc span{color:var(--ht)}.bka-bc a{color:var(--ac);cursor:pointer;text-decoration:none}
+.bka-pb{background:linear-gradient(135deg,#f8f0ff,#f0f0ff);border:1px solid #d4c8f0;border-radius:12px;padding:16px 20px;margin-bottom:16px}
+.bka-pb h4{font-size:14px;font-weight:500;color:#534AB7;margin-bottom:6px}.bka-pb p{font-size:13px;color:#333;line-height:1.7}
+.bka-fr{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.bka-fb{padding:5px 12px;border-radius:16px;font-size:12px;cursor:pointer;border:1px solid var(--bd);background:var(--cd);color:var(--sb)}
+.bka-fb.bka-on{background:var(--ac);color:#fff;border-color:var(--ac)}.bka-fb:hover{border-color:var(--ac)}
+.bka-pn{font-size:11px;color:#BA7517;background:#FAEEDA;padding:3px 8px;border-radius:6px;display:inline-block}
+.bka-vt{display:inline-flex;border:1px solid var(--bd);border-radius:8px;overflow:hidden;margin-bottom:12px}
+.bka-vb{padding:7px 14px;font-size:12px;cursor:pointer;border:none;background:var(--cd);color:var(--sb);border-right:1px solid var(--bd)}
+.bka-vb:last-child{border-right:none}.bka-vb.bka-on{background:var(--ac);color:#fff}
+.bka-ys{padding:5px 10px;border:1px solid var(--bd);border-radius:8px;font-size:12px;background:var(--cd)}
+.bka-si{padding:8px 12px;border:1px solid var(--bd);border-radius:8px;font-size:13px;width:100%;max-width:400px;margin-bottom:16px;background:var(--cd)}
+.bka-si:focus{outline:none;border-color:var(--ac)}
+.bka-g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.bka-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:16px}
+.bka-cal-h{text-align:center;font-size:11px;color:var(--ht);padding:4px}
+.bka-cal-d{text-align:center;padding:8px 4px;border-radius:6px;font-size:12px;cursor:pointer;border:1px solid transparent}
+.bka-cal-d:hover{border-color:var(--ac)}
+.bka-cal-d .bka-cn{font-weight:600}.bka-cal-d .bka-ct{font-size:9px;color:var(--ht);margin-top:2px}
+.bka-pg{display:flex;gap:4px;justify-content:center;margin:12px 0}
+.bka-pg button{padding:4px 10px;border:1px solid var(--bd);border-radius:6px;background:var(--cd);cursor:pointer;font-size:12px}
+.bka-pg button.bka-on{background:var(--ac);color:#fff;border-color:var(--ac)}
+@media(max-width:640px){.bka-G{grid-template-columns:repeat(2,1fr)}.bka-S .bka-v{font-size:18px}.bka-g2{grid-template-columns:1fr}}
+
 </style>
 </head>
 <body>
@@ -331,13 +403,28 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
 
     </div>
 
-    <!-- TAB: Analytics (placeholder for Phase 1 Step 6) -->
+    <!-- TAB: Analytics (Phase 1 Step 6: 8-tab analytics dashboard) -->
     <div id="tab-analytics" class="ad-tab-pane" style="display:none;">
-      <div class="ad-card">
-        <div class="ad-card-h"><h3>📈 Analytics</h3></div>
-        <div class="ad-empty">
-          <p style="font-size:14px;margin:0 0 8px;color:#555;"><strong>booking-analytics.html 8탭 이식 예정</strong></p>
-          <p style="font-size:13px;color:#888;margin:0;">전체현황 / 채널 / 나라 / 도시 / 호텔 / 패턴 / 성급 / B2B</p>
+      <div class="bka-wrap">
+        <div class="bka-h">
+          <div>
+            <h3 class="bka-h-title">📈 Booking Analytics</h3>
+            <div class="bka-h-sub">8-tab performance breakdown — driven by <code>bookings_unified</code></div>
+          </div>
+          <div class="bka-h-meta">
+            <button id="bka-refresh" class="bka-refresh-btn" type="button">↻ Refresh</button>
+            <div class="bka-h-info" id="bka-data-info">데이터 로딩…</div>
+          </div>
+        </div>
+        <div class="bka-tabs" id="bka-tabs"></div>
+        <div id="bka-ct"></div>
+        <div id="bka-empty" class="bka-empty" style="display:none;">
+          <div class="bka-empty-icon">📊</div>
+          <div class="bka-empty-title">예약 데이터가 아직 없습니다</div>
+          <div class="bka-empty-sub">
+            <strong>Bookings 탭</strong>에서 자체 영업 예약을 등록하거나<br>
+            아고다 채널 엑셀 리포트를 업로드하시면 여기에 분석이 표시됩니다.
+          </div>
         </div>
       </div>
     </div>
@@ -704,6 +791,7 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
     if (tab === 'members' && !membersLoaded) loadMembers();
     if (tab === 'admins' && !adminsLoaded) loadAdmins();
     if (tab === 'bookings' && !bookingsInitialized) initBookings();
+    if (tab === 'analytics' && typeof window.initAnalytics === 'function') window.initAnalytics();
   }
 
   document.querySelectorAll('.ad-sb-item').forEach(function(btn){
@@ -1898,6 +1986,579 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
   }
 
 })();
+</script>
+
+<!-- ===== Phase 1 Step 6: Booking Analytics 8-tab Dashboard ===== -->
+<script>
+// =============================================================================
+// Phase 1 Step 6: Booking Analytics 8-tab Dashboard
+// =============================================================================
+// booking-analytics.html(정적 1MB 데이터) → admin.html 통합 + bookings_unified 동적 쿼리
+// 모든 함수/변수는 IIFE로 격리, 글로벌 노출은 window.bka_* 만
+// =============================================================================
+(function(){
+  'use strict';
+
+  // ---- 상태 ----
+  var D = null;             // 집계된 데이터 (aggregateAll 결과)
+  var loaded = false;
+  var loading = false;
+  var initialized = false;
+
+  // ---- 집계 함수 (aggregateAll) ----
+// =============================================================================
+// aggregateAll(rows, channels) — bookings_unified 결과를 D 객체로 변환
+// =============================================================================
+// rows: bookings_unified VIEW 행 배열
+// channels: channels 테이블 행 배열 (코드→이름 매핑용)
+// 반환: D = { sm, yl, ps, ch, co, ci, hf, bk, dv, dvy, dvc, dow, dom, mc, dl, ss, sc }
+// 모든 키와 필드명은 booking-analytics.html 정적 D와 동일 스키마
+function aggregateAll(rows, channels){
+  // 채널 맵: code → name
+  var chMap = {};
+  (channels||[]).forEach(function(c){ chMap[c.code] = c.name || c.code; });
+
+  // 유효 예약 = 취소되지 않은 예약 (정적 D와 동일 정책)
+  var valid = rows.filter(function(r){ return !r.is_cancelled; });
+
+  // 헬퍼: 그룹 키별 누적
+  function groupSum(arr, keyFn, agg){
+    var map = {};
+    arr.forEach(function(r){
+      var k = keyFn(r);
+      if (k === null || k === undefined) return;
+      if (!map[k]) map[k] = agg.init(r);
+      agg.add(map[k], r);
+    });
+    return Object.keys(map).map(function(k){ return agg.finalize ? agg.finalize(map[k], k) : map[k]; });
+  }
+
+  // sm: 요약
+  var totalAmt = 0, totalCom = 0, totalEarned = 0, paidCount = 0;
+  var hotelKeys = {}, countryKeys = {}, cityKeys = {};
+  valid.forEach(function(r){
+    totalAmt += +(r.booking_amount_usd || 0);
+    totalCom += +(r.commission_usd || 0);
+    if (r.is_completed){ totalEarned += +(r.commission_usd || 0); paidCount++; }
+    if (r.hotel_name) hotelKeys[(r.hotel_country||'')+'|'+(r.hotel_city||'')+'|'+r.hotel_name] = 1;
+    if (r.hotel_country) countryKeys[r.hotel_country] = 1;
+    if (r.hotel_city) cityKeys[(r.hotel_country||'')+'|'+r.hotel_city] = 1;
+  });
+  var sm = {
+    tb: valid.length,
+    ta: totalAmt,
+    tc: totalCom,
+    te: totalEarned,
+    pc: paidCount,
+    aa: valid.length ? totalAmt/valid.length : 0,
+    th: Object.keys(hotelKeys).length,
+    tco: Object.keys(countryKeys).length,
+    tci: Object.keys(cityKeys).length
+  };
+
+  // yl: 연도별 (booked_at 기준)
+  var ylMap = {};
+  valid.forEach(function(r){
+    if (!r.booked_at) return;
+    var y = +String(r.booked_at).slice(0,4);
+    if (!ylMap[y]) ylMap[y] = {yr:y,b:0,a:0,cc:0,p:0,cf:0};
+    ylMap[y].b++;
+    ylMap[y].a += +(r.booking_amount_usd||0);
+    ylMap[y].cc += +(r.commission_usd||0);
+    if (r.is_completed){ ylMap[y].p++; ylMap[y].cf += +(r.commission_usd||0); }
+  });
+  var yl = Object.values(ylMap).sort(function(a,b){return a.yr-b.yr;});
+  // p는 "투숙 완료"가 아니라 정적 D에서는 "정산예정" 의미였음 (cf=현금흐름)
+  // 우리는 is_completed=true 건수와 그 수수료 합산으로 처리
+
+  // ps: 월별 시점별 (booking/checkout/settlement)
+  function buildMonthly(dateField){
+    var map = {};
+    valid.forEach(function(r){
+      var d = r[dateField];
+      if (!d) return;
+      var ym = String(d).slice(0,7);
+      if (!map[ym]) map[ym] = {ym:ym,b:0,a:0,c:0};
+      map[ym].b++;
+      map[ym].a += +(r.booking_amount_usd||0);
+      map[ym].c += +(r.commission_usd||0);
+    });
+    return Object.values(map).sort(function(a,b){return a.ym.localeCompare(b.ym);});
+  }
+  var ps = {
+    booking: buildMonthly('booked_at'),
+    checkout: buildMonthly('checkout_date'),
+    // settlement: 체크아웃 + N일 가정 — 기본은 checkout과 동일하게
+    settlement: buildMonthly('checkout_date')
+  };
+
+  // ch: 채널별
+  var chMapAgg = {};
+  valid.forEach(function(r){
+    var code = r.channel_code || 'unknown';
+    var name = chMap[code] || code;
+    if (!chMapAgg[code]) chMapAgg[code] = {ch:name,b:0,a:0,c:0};
+    chMapAgg[code].b++;
+    chMapAgg[code].a += +(r.booking_amount_usd||0);
+    chMapAgg[code].c += +(r.commission_usd||0);
+  });
+  var ch = Object.values(chMapAgg).sort(function(a,b){return b.b-a.b;});
+
+  // co: 나라별
+  var coMapAgg = {};
+  valid.forEach(function(r){
+    var co = r.hotel_country;
+    if (!co) return;
+    if (!coMapAgg[co]) coMapAgg[co] = {n:co,b:0,a:0,c:0,_h:{},_ci:{}};
+    coMapAgg[co].b++;
+    coMapAgg[co].a += +(r.booking_amount_usd||0);
+    coMapAgg[co].c += +(r.commission_usd||0);
+    if (r.hotel_name) coMapAgg[co]._h[r.hotel_name] = 1;
+    if (r.hotel_city) coMapAgg[co]._ci[r.hotel_city] = 1;
+  });
+  var co = Object.values(coMapAgg).map(function(c){
+    return {n:c.n, b:c.b, a:c.a, c:c.c, h:Object.keys(c._h).length, ci:Object.keys(c._ci).length};
+  }).sort(function(a,b){return b.b-a.b;});
+
+  // ci: 도시별
+  var ciMapAgg = {};
+  valid.forEach(function(r){
+    var c = r.hotel_city;
+    if (!c) return;
+    var key = (r.hotel_country||'')+'|'+c;
+    if (!ciMapAgg[key]) ciMapAgg[key] = {n:c,co:r.hotel_country||'',b:0,a:0,c:0,_h:{}};
+    ciMapAgg[key].b++;
+    ciMapAgg[key].a += +(r.booking_amount_usd||0);
+    ciMapAgg[key].c += +(r.commission_usd||0);
+    if (r.hotel_name) ciMapAgg[key]._h[r.hotel_name] = 1;
+  });
+  var ci = Object.values(ciMapAgg).map(function(x){
+    return {n:x.n, co:x.co, b:x.b, a:x.a, c:x.c, h:Object.keys(x._h).length};
+  }).sort(function(a,b){return b.b-a.b;});
+
+  // hf: 호텔별
+  var hfMap = {};
+  valid.forEach(function(r){
+    if (!r.hotel_name) return;
+    var k = (r.hotel_country||'')+'|'+(r.hotel_city||'')+'|'+r.hotel_name;
+    if (!hfMap[k]) hfMap[k] = {co:r.hotel_country||'',ci:r.hotel_city||'',h:r.hotel_name,b:0,a:0,c:0,s:r.hotel_star||0};
+    hfMap[k].b++;
+    hfMap[k].a += +(r.booking_amount_usd||0);
+    hfMap[k].c += +(r.commission_usd||0);
+    if (r.hotel_star && !hfMap[k].s) hfMap[k].s = r.hotel_star;
+  });
+  var hf = Object.values(hfMap).sort(function(a,b){return b.b-a.b;});
+
+  // bk: 예약 상세 (booking-analytics.html에서 호텔 상세 표시에 사용)
+  var bk = valid.map(function(r){
+    return {
+      i: r.unified_id || '',
+      h: r.hotel_name || '',
+      ci: r.hotel_city || '',
+      co: r.hotel_country || '',
+      d: r.booked_at || '',
+      cd: r.checkin_date || '',
+      od: r.checkout_date || '',
+      a: +(r.booking_amount_usd||0),
+      c: +(r.commission_usd||0),
+      s: r.booking_status || '',
+      dv: r.device_type || '',
+      st: r.hotel_star || 0
+    };
+  });
+
+  // dv: 디바이스별
+  var dvMap = {};
+  valid.forEach(function(r){
+    var d = r.device_type;
+    if (!d) return;
+    if (!dvMap[d]) dvMap[d] = {d:d,b:0};
+    dvMap[d].b++;
+  });
+  var dv = Object.values(dvMap);
+
+  // dvy: 연도×디바이스
+  var dvyMap = {};
+  valid.forEach(function(r){
+    if (!r.booked_at || !r.device_type) return;
+    var y = +String(r.booked_at).slice(0,4);
+    var k = y+'|'+r.device_type;
+    if (!dvyMap[k]) dvyMap[k] = {y:y,d:r.device_type,b:0,a:0};
+    dvyMap[k].b++;
+    dvyMap[k].a += +(r.booking_amount_usd||0);
+  });
+  var dvy = Object.values(dvyMap);
+
+  // dvc: 채널×디바이스
+  var dvcMap = {};
+  valid.forEach(function(r){
+    if (!r.channel_code || !r.device_type) return;
+    var name = chMap[r.channel_code] || r.channel_code;
+    var k = name+'|'+r.device_type;
+    if (!dvcMap[k]) dvcMap[k] = {c:name,d:r.device_type,b:0};
+    dvcMap[k].b++;
+  });
+  var dvc = Object.values(dvcMap);
+
+  // dow: 요일별 (체크인 기준 — 정적 D와 동일)
+  var dowNames = ['일','월','화','수','목','금','토'];
+  var dowMap = {};
+  valid.forEach(function(r){
+    if (!r.checkin_date) return;
+    var d = new Date(r.checkin_date);
+    var day = d.getDay();
+    var nm = dowNames[day];
+    if (!dowMap[nm]) dowMap[nm] = {nm:nm,b:0,a:0,_o:day};
+    dowMap[nm].b++;
+    dowMap[nm].a += +(r.booking_amount_usd||0);
+  });
+  // 월~일 순서 정렬 (정적 D는 월화수목금토일 순)
+  var dowOrder = ['월','화','수','목','금','토','일'];
+  var dow = dowOrder.map(function(nm){ return dowMap[nm] || {nm:nm,b:0,a:0}; }).map(function(x){ delete x._o; return x; });
+
+  // dom: 일자별 (1~31)
+  var domMap = {};
+  for (var i = 1; i <= 31; i++) domMap[i] = {d:i,b:0};
+  valid.forEach(function(r){
+    if (!r.checkin_date) return;
+    var dy = +String(r.checkin_date).slice(8,10);
+    if (dy >= 1 && dy <= 31) domMap[dy].b++;
+  });
+  var dom = Object.values(domMap);
+
+  // mc: 월×나라
+  var mcMap = {};
+  valid.forEach(function(r){
+    if (!r.booked_at || !r.hotel_country) return;
+    var ym = String(r.booked_at).slice(0,7);
+    var k = ym+'|'+r.hotel_country;
+    if (!mcMap[k]) mcMap[k] = {ym:ym,co:r.hotel_country,b:0,a:0};
+    mcMap[k].b++;
+    mcMap[k].a += +(r.booking_amount_usd||0);
+  });
+  var mc = Object.values(mcMap);
+
+  // dl: 일별 캘린더 (체크인 일자별)
+  var dlMap = {};
+  valid.forEach(function(r){
+    if (!r.checkin_date) return;
+    var dt = String(r.checkin_date).slice(0,10);
+    if (!dlMap[dt]) dlMap[dt] = {dt:dt,b:0,a:0,tc:'',tb:0,_co:{}};
+    dlMap[dt].b++;
+    dlMap[dt].a += +(r.booking_amount_usd||0);
+    if (r.hotel_country){
+      var co = r.hotel_country;
+      dlMap[dt]._co[co] = (dlMap[dt]._co[co]||0) + 1;
+    }
+  });
+  var dl = Object.values(dlMap).map(function(d){
+    var top = Object.entries(d._co).sort(function(a,b){return b[1]-a[1];})[0];
+    return {dt:d.dt, b:d.b, a:d.a, tc:top?top[0]:'', tb:top?top[1]:0};
+  }).sort(function(a,b){return a.dt.localeCompare(b.dt);});
+
+  // ss: 성급별
+  var ssMap = {};
+  valid.forEach(function(r){
+    var s = +(r.hotel_star||0);
+    if (!s) return;
+    if (!ssMap[s]) ssMap[s] = {st:s,b:0,a:0,c:0};
+    ssMap[s].b++;
+    ssMap[s].a += +(r.booking_amount_usd||0);
+    ssMap[s].c += +(r.commission_usd||0);
+  });
+  var ss = Object.values(ssMap).sort(function(a,b){return a.st-b.st;});
+
+  // sc: 나라×성급
+  var scMap = {};
+  valid.forEach(function(r){
+    if (!r.hotel_country || !r.hotel_star) return;
+    var k = r.hotel_country+'|'+r.hotel_star;
+    if (!scMap[k]) scMap[k] = {co:r.hotel_country,s:+r.hotel_star,b:0,a:0};
+    scMap[k].b++;
+    scMap[k].a += +(r.booking_amount_usd||0);
+  });
+  var sc = Object.values(scMap);
+
+  return {sm:sm, yl:yl, ps:ps, ch:ch, co:co, ci:ci, hf:hf, bk:bk, dv:dv, dvy:dvy, dvc:dvc, dow:dow, dom:dom, mc:mc, dl:dl, ss:ss, sc:sc};
+}
+
+  // ---- booking-analytics.html에서 이식한 렌더 코드 (D만 동적으로 공급) ----
+
+const F=n=>'$'+Math.round(n).toLocaleString();
+const W=n=>'₩'+Math.round(n*1360).toLocaleString();
+const P=(a,b)=>b?Math.round(a/b*100)+'%':'0%';
+const A=(a,b)=>b?F(a/b):'-';
+const E=s=>s.replace(/'/g,"’");
+const Ss=n=>'<span class="bka-st">'+'★'.repeat(n)+'<span style="opacity:.2">'+'★'.repeat(5-n)+'</span></span>';
+const CB=c=>{if(c.includes('한국')||c.includes('호텔이야'))return'<span class="bka-bg bka-bk">한국</span>';if(c.includes('일본'))return'<span class="bka-bg bka-bj">일본</span>';if(c.includes('대만'))return'<span class="bka-bg bka-bt">대만</span>';if(c.includes('베트남'))return'<span class="bka-bg bka-bv">베트남</span>';if(c.includes('영어'))return'<span class="bka-bg bka-be">영어권</span>';if(c.includes('유튜브')||c.includes('사이트'))return'<span class="bka-bg bka-bk">한국</span>';return''};
+const R=i=>'<span class="bka-rk bka-'+(i<1?'r1':i<2?'r2':i<3?'r3':'rn')+'">'+(i+1)+'</span>';
+const SM={'Departed':'투숙완료','Charged':'청구','Confirmed':'확정'};
+let ch_=[],CV='booking',SY='all',CT='overview',DS={},HP=0,hsq='',b2bQ='',calYM='2024-06',calDay=null;
+function dc(){ch_.forEach(c=>c.destroy());ch_=[];}
+const TD=[{id:'overview',l:'전체 현황'},{id:'channel',l:'채널별'},{id:'country',l:'나라별'},{id:'city',l:'도시별'},{id:'hotel',l:'호텔 검색'},{id:'pattern',l:'예약 패턴'},{id:'stars',l:'성급별'},{id:'sales',l:'B2B 영업'}];
+function iT(){document.getElementById('bka-tabs').innerHTML=TD.map(t=>'<button class="bka-tb bka-'+(t.id===CT?'on':'')+'" onclick="sT(this.dataset.id)" data-id="'+t.id+'">'+t.l+'</button>').join('')}
+function sT(id){CT=id;DS={};HP=0;iT();dc();rr()}
+function sV(v){CV=v;dc();rr()}
+function sYr(v){SY=v;dc();rr()}
+function rr(){var el=document.getElementById('bka-ct');try{switch(CT){case'overview':el.innerHTML=rOv();iOC();break;case'channel':el.innerHTML=rCh();iCC();break;case'country':el.innerHTML=rCo();break;case'city':el.innerHTML=rCi();break;case'hotel':el.innerHTML=rHo();break;case'pattern':el.innerHTML=rPa();iPC();break;case'stars':el.innerHTML=rSt();iSC();break;case'sales':el.innerHTML=rSa();break}}catch(e){el.innerHTML='<div class="bka-C"><h3>Error</h3><p>'+e.message+'</p></div>';console.error(e)}}
+
+var VL={booking:'예약일',checkout:'체크아웃',settlement:'정산(입금)'};
+function vTg(){return'<div class="bka-vt">'+Object.keys(VL).map(function(k){return'<button class="bka-vb bka-'+(CV===k?'on':'')+'" onclick="sV(this.dataset.v)" data-v="'+k+'">'+VL[k]+'</button>'}).join('')+'</div>'}
+function ySl(){var y=D.yl.map(function(v){return v.yr});return' <select class="bka-ys" onchange="sYr(this.value)"><option value="all">전체</option>'+y.map(function(v){return'<option value="'+v+'"'+(SY==v?' selected':'')+'>'+v+'년</option>'}).join('')+'</select>'}
+function fY(d){if(SY==='all')return d;return d.filter(function(v){return v.ym&&v.ym.startsWith(String(SY))})}
+
+function rOv(){
+var s=D.sm;
+return'<div class="bka-G"><div class="bka-S"><div class="bka-l">총 유효 예약</div><div class="bka-v">'+s.tb.toLocaleString()+'건</div><div class="bka-s">'+s.tco+'개국 '+s.tci+'도시 '+s.th.toLocaleString()+'호텔</div></div>'+
+'<div class="bka-S"><div class="bka-l">총 예약금액</div><div class="bka-v">'+F(s.ta)+'</div><div class="bka-s">'+W(s.ta)+'</div></div>'+
+'<div class="bka-S"><div class="bka-l">총 수수료(확정)</div><div class="bka-v">'+F(s.tc)+'</div><div class="bka-s">예상포함 '+F(s.te)+'</div></div>'+
+'<div class="bka-S"><div class="bka-l">건당 평균</div><div class="bka-v">'+F(s.aa)+'</div><div class="bka-s">'+W(s.aa)+'</div></div></div>'+
+'<div class="bka-C"><h3>연도별</h3><table><thead><tr><th>연도</th><th class="bka-r">예약</th><th class="bka-r">금액</th><th class="bka-r">수수료</th><th class="bka-r">대기</th></tr></thead><tbody>'+
+D.yl.map(function(y){return'<tr><td><strong>'+y.yr+'</strong></td><td class="bka-r">'+y.b.toLocaleString()+'건</td><td class="bka-r">'+F(y.a)+'</td><td class="bka-r">'+F(y.cf)+'</td><td class="bka-r">'+(y.p>0?'<span class="bka-pn">'+y.p+'건(예상'+F(y.cc)+')</span>':'-')+'</td></tr>'}).join('')+'</tbody></table></div>'+
+'<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:4px">'+vTg()+ySl()+'</div>'+
+'<div class="bka-C"><h3>월별 예약건수</h3><div class="bka-cw"><canvas id="c1"></canvas></div></div>'+
+'<div class="bka-C"><h3>월별 금액 & 수수료</h3><div class="bka-cw"><canvas id="c2"></canvas></div></div>'+
+'<div class="bka-C"><h3>기기별</h3><div class="bka-g2"><div><div class="bka-G">'+D.dv.map(function(d){return'<div class="bka-S"><div class="bka-l">'+(d.d==="앱"?"앱":"웹")+'</div><div class="bka-v">'+d.b.toLocaleString()+'건</div><div class="bka-s">'+P(d.b,s.tb)+'</div></div>'}).join('')+'</div></div>'+
+'<div><table style="font-size:12px"><thead><tr><th>연도</th><th class="bka-r">앱</th><th class="bka-r">웹</th><th class="bka-r">앱%</th></tr></thead><tbody>'+
+D.yl.map(function(y){var d=D.dvy.filter(function(v){return v.y===y.yr});var ap=d.find(function(v){return v.d==="앱"});var wb=d.find(function(v){return v.d==="Website"});return'<tr><td>'+y.yr+'</td><td class="bka-r">'+(ap?ap.b+'건':'-')+'</td><td class="bka-r">'+(wb?wb.b+'건':'-')+'</td><td class="bka-r">'+(ap&&wb?P(ap.b,ap.b+wb.b):'-')+'</td></tr>'}).join('')+'</tbody></table></div></div></div>'}
+
+function iOC(){var m=fY(D.ps[CV]),lb=m.map(function(x){return x.ym.slice(2)});
+ch_.push(new Chart(document.getElementById('c1'),{type:'bar',data:{labels:lb,datasets:[{data:m.map(function(x){return x.b}),backgroundColor:'rgba(83,74,183,.7)',borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{font:{size:9},maxRotation:45}},y:{grid:{color:'#f0eee9'}}}}}));
+ch_.push(new Chart(document.getElementById('c2'),{type:'bar',data:{labels:lb,datasets:[{label:'예약금액',data:m.map(function(x){return x.a}),backgroundColor:'#1D9E75',borderRadius:3,yAxisID:'y'},{label:'수수료',data:m.map(function(x){return x.c}),type:'line',borderColor:'#534AB7',backgroundColor:'rgba(83,74,183,.12)',fill:true,tension:.3,pointRadius:2,yAxisID:'y2'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{font:{size:11}}},tooltip:{callbacks:{label:function(c){return c.dataset.label+': '+F(c.raw)}}}},scales:{x:{grid:{display:false},ticks:{font:{size:9},maxRotation:45}},y:{position:'left',grid:{color:'#f0eee9'},ticks:{font:{size:10},callback:function(v){return'$'+Math.round(v/1000)+'k'}}},y2:{position:'right',grid:{display:false},ticks:{font:{size:10},callback:function(v){return'$'+Math.round(v)}}}}}}));}
+
+function rCh(){return'<div class="bka-C"><h3>채널별</h3><div class="bka-cw" style="height:220px"><canvas id="bka-cp"></canvas></div></div><div class="bka-C"><h3>상세</h3><table><thead><tr><th>채널</th><th>타겟</th><th class="bka-r">예약</th><th class="bka-r">금액</th><th class="bka-r">수수료</th><th class="bka-r">비중</th></tr></thead><tbody>'+D.ch.map(function(c){return'<tr><td>'+c.ch+'</td><td>'+CB(c.ch)+'</td><td class="bka-r"><strong>'+c.b.toLocaleString()+'건</strong></td><td class="bka-r">'+F(c.a)+'</td><td class="bka-r">'+F(c.c)+'</td><td class="bka-r">'+P(c.b,D.sm.tb)+'</td></tr>'}).join('')+'</tbody></table></div>'}
+function iCC(){var c=D.ch,co=['#534AB7','#1D9E75','#D85A30','#378ADD','#D4537E','#639922','#BA7517'];ch_.push(new Chart(document.getElementById('bka-cp'),{type:'doughnut',data:{labels:c.map(function(v){return v.ch}),datasets:[{data:c.map(function(v){return v.b}),backgroundColor:co}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{font:{size:11},padding:8}}}}}))}
+
+function rHtD(hotel,city,country,nav){
+var bks=D.bk.filter(function(b){return b.h===hotel&&b.ci===city&&b.co===country}).sort(function(a,b){return b.d.localeCompare(a.d)});
+var ht=D.hf.find(function(h){return h.h===hotel&&h.ci===city&&h.co===country});
+return nav+
+'<div class="bka-G"><div class="bka-S"><div class="bka-l">호텔</div><div class="bka-v" style="font-size:16px">'+hotel+'</div><div class="bka-s">'+city+', '+country+(ht?' · '+Ss(ht.s):'')+'</div></div>'+
+'<div class="bka-S"><div class="bka-l">총 예약</div><div class="bka-v">'+bks.length+'건</div></div>'+
+'<div class="bka-S"><div class="bka-l">총 금액</div><div class="bka-v">'+(ht?F(ht.a):'-')+'</div></div>'+
+'<div class="bka-S"><div class="bka-l">평균</div><div class="bka-v">'+(ht?A(ht.a,ht.b):'-')+'</div></div></div>'+
+'<div class="bka-C"><h3>예약 상세 ('+bks.length+'건)</h3><div style="overflow-x:auto"><table><thead><tr><th>예약번호</th><th>예약일</th><th>체크인</th><th>체크아웃</th><th class="bka-r">금액</th><th class="bka-r">수수료</th><th>상태</th><th>기기</th></tr></thead><tbody>'+
+bks.map(function(b){return'<tr><td style="font-family:monospace;font-size:12px">'+b.i+'</td><td>'+b.d+'</td><td>'+b.cd+'</td><td>'+b.od+'</td><td class="bka-r">'+F(b.a)+'</td><td class="bka-r">'+F(b.c)+'</td><td><span class="bka-bg bka-bv">'+(SM[b.s]||b.s)+'</span></td><td>'+b.dv+'</td></tr>'}).join('')+
+'</tbody></table></div></div>'+
+'<div class="bka-C"><h3>호텔 기본정보 <span style="font-size:10px;color:var(--ht);font-weight:400;margin-left:6px">Google Places API 연동 예정</span></h3><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px 20px;padding:12px 14px;background:#faf9f6;border:1px dashed var(--bd);border-radius:8px"><div><div style="font-size:11px;color:var(--ht);margin-bottom:2px">주소</div><div style="font-size:13px;color:var(--ht);font-style:italic">정보 없음</div></div><div><div style="font-size:11px;color:var(--ht);margin-bottom:2px">전화번호</div><div style="font-size:13px;color:var(--ht);font-style:italic">정보 없음</div></div><div><div style="font-size:11px;color:var(--ht);margin-bottom:2px">이메일</div><div style="font-size:13px;color:var(--ht);font-style:italic">정보 없음</div></div><div><div style="font-size:11px;color:var(--ht);margin-bottom:2px">웹사이트</div><div style="font-size:13px;color:var(--ht);font-style:italic">정보 없음</div></div><div><div style="font-size:11px;color:var(--ht);margin-bottom:2px">Google 평점</div><div style="font-size:13px;color:var(--ht);font-style:italic">정보 없음</div></div><div><div style="font-size:11px;color:var(--ht);margin-bottom:2px">영업 담당자</div><div style="font-size:13px;color:var(--ht);font-style:italic">정보 없음</div></div></div><div style="font-size:11px;color:var(--ht);margin-top:8px;font-style:italic">Google Places API 연동 후 주소·전화·웹사이트·평점 자동 채움. 이메일·담당자는 영업 과정에서 수동 입력 축적.</div></div>'+
+'<div class="bka-pb"><h4>B2B 영업 포인트</h4><p>"귀 호텔에 '+bks.length+'건의 실제 예약이 발생. 아고다 시스템에서 예약번호로 직접 확인 가능."</p></div>'}
+
+function drillCo(n){DS={co:n};dc();rr()}
+function drillCoCi(n){DS.ci=n;DS.ht=null;dc();rr()}
+function drillCoHt(h,ci,co){DS.ht=h;DS.ci=ci;dc();rr()}
+
+function rCo(){
+if(DS.co&&DS.ci&&DS.ht)return rHtD(DS.ht,DS.ci,DS.co,'<div class="bka-bc"><a onclick="DS={};dc();rr()">나라별</a><span>›</span><a onclick="DS.ci=null;DS.ht=null;dc();rr()">'+DS.co+'</a><span>›</span><a onclick="DS.ht=null;dc();rr()">'+DS.ci+'</a><span>›</span><strong>'+DS.ht+'</strong></div>');
+if(DS.co&&DS.ci){var city=DS.ci,co=DS.co;var cd=D.ci.find(function(c){return c.n===city&&c.co===co});var hotels=D.hf.filter(function(h){return h.ci===city&&h.co===co}).sort(function(a,b){return b.b-a.b});if(!cd)return'';
+return'<div class="bka-bc"><a onclick="DS={};dc();rr()">나라별</a><span>›</span><a onclick="DS.ci=null;DS.ht=null;dc();rr()">'+co+'</a><span>›</span><strong>'+city+'</strong></div>'+
+'<div class="bka-G"><div class="bka-S"><div class="bka-l">'+city+'</div><div class="bka-v">'+cd.b.toLocaleString()+'건</div></div><div class="bka-S"><div class="bka-l">금액</div><div class="bka-v">'+F(cd.a)+'</div></div><div class="bka-S"><div class="bka-l">평균</div><div class="bka-v">'+A(cd.a,cd.b)+'</div></div><div class="bka-S"><div class="bka-l">호텔</div><div class="bka-v">'+cd.h+'곳</div></div></div>'+
+'<div class="bka-C"><h3>'+city+' 전체 호텔 ('+hotels.length+'곳)</h3><table><thead><tr><th></th><th>호텔</th><th>성급</th><th class="bka-r">예약</th><th class="bka-r">금액</th><th class="bka-r">평균</th></tr></thead><tbody>'+
+hotels.map(function(h,i){return'<tr class="bka-ck" onclick="DS.ht=\''+E(h.h)+'\';dc();rr()"><td>'+R(i)+'</td><td style="font-weight:500">'+h.h+'</td><td>'+Ss(h.s)+'</td><td class="bka-r"><strong>'+h.b+'건</strong></td><td class="bka-r">'+F(h.a)+'</td><td class="bka-r">'+A(h.a,h.b)+'</td></tr>'}).join('')+'</tbody></table></div>';}
+if(DS.co){var co=DS.co,cd=D.co.find(function(c){return c.n===co});if(!cd)return'';var cities=D.ci.filter(function(c){return c.co===co});
+return'<div class="bka-bc"><a onclick="DS={};dc();rr()">나라별</a><span>›</span><strong>'+co+'</strong></div>'+
+'<div class="bka-G"><div class="bka-S"><div class="bka-l">'+co+'</div><div class="bka-v">'+cd.b.toLocaleString()+'건</div></div><div class="bka-S"><div class="bka-l">금액</div><div class="bka-v">'+F(cd.a)+'</div></div><div class="bka-S"><div class="bka-l">수수료</div><div class="bka-v">'+F(cd.c)+'</div></div><div class="bka-S"><div class="bka-l">평균</div><div class="bka-v">'+A(cd.a,cd.b)+'</div></div></div>'+
+'<div class="bka-C"><h3>도시별</h3><table><thead><tr><th></th><th>도시</th><th class="bka-r">예약</th><th class="bka-r">금액</th><th class="bka-r">평균</th><th class="bka-r">호텔</th></tr></thead><tbody>'+
+cities.map(function(c,i){return'<tr class="bka-ck" onclick="DS.ci=\''+E(c.n)+'\';dc();rr()"><td>'+R(i)+'</td><td><strong>'+c.n+'</strong></td><td class="bka-r">'+c.b.toLocaleString()+'건</td><td class="bka-r">'+F(c.a)+'</td><td class="bka-r">'+A(c.a,c.b)+'</td><td class="bka-r">'+c.h+'</td></tr>'}).join('')+'</tbody></table></div>';}
+return'<div class="bka-C"><h3>나라별</h3><table><thead><tr><th></th><th>나라</th><th class="bka-r">예약</th><th class="bka-r">금액</th><th class="bka-r">수수료</th><th class="bka-r">평균</th><th class="bka-r">도시</th><th class="bka-r">호텔</th></tr></thead><tbody>'+
+D.co.map(function(c,i){return'<tr class="bka-ck" onclick="DS={co:\''+E(c.n)+'\'}; dc();rr()"><td>'+R(i)+'</td><td><strong>'+c.n+'</strong></td><td class="bka-r">'+c.b.toLocaleString()+'건</td><td class="bka-r">'+F(c.a)+'</td><td class="bka-r">'+F(c.c)+'</td><td class="bka-r">'+A(c.a,c.b)+'</td><td class="bka-r">'+c.ci+'</td><td class="bka-r">'+c.h+'</td></tr>'}).join('')+'</tbody></table></div>'}
+
+function rCi(){
+if(DS.cd_ht)return rHtD(DS.cd_ht,DS.cd_ci.ci,DS.cd_ci.co,'<div class="bka-bc"><a onclick="DS={};dc();rr()">도시별</a><span>›</span><a onclick="DS.cd_ht=null;dc();rr()">'+DS.cd_ci.ci+'</a><span>›</span><strong>'+DS.cd_ht+'</strong></div>');
+if(DS.cd_ci){var d=DS.cd_ci,cd=D.ci.find(function(c){return c.n===d.ci&&c.co===d.co});var hotels=D.hf.filter(function(h){return h.ci===d.ci&&h.co===d.co}).sort(function(a,b){return b.b-a.b});if(!cd)return'';
+return'<div class="bka-bc"><a onclick="DS={};dc();rr()">도시별</a><span>›</span><strong>'+d.ci+' ('+d.co+')</strong></div>'+
+'<div class="bka-G"><div class="bka-S"><div class="bka-l">'+d.ci+'</div><div class="bka-v">'+cd.b.toLocaleString()+'건</div></div><div class="bka-S"><div class="bka-l">금액</div><div class="bka-v">'+F(cd.a)+'</div></div><div class="bka-S"><div class="bka-l">평균</div><div class="bka-v">'+A(cd.a,cd.b)+'</div></div><div class="bka-S"><div class="bka-l">호텔</div><div class="bka-v">'+cd.h+'곳</div></div></div>'+
+'<div class="bka-C"><h3>전체 호텔 ('+hotels.length+'곳)</h3><table><thead><tr><th></th><th>호텔</th><th>성급</th><th class="bka-r">예약</th><th class="bka-r">금액</th><th class="bka-r">평균</th></tr></thead><tbody>'+
+hotels.map(function(h,i){return'<tr class="bka-ck" onclick="DS.cd_ht=\''+E(h.h)+'\';dc();rr()"><td>'+R(i)+'</td><td style="font-weight:500">'+h.h+'</td><td>'+Ss(h.s)+'</td><td class="bka-r"><strong>'+h.b+'건</strong></td><td class="bka-r">'+F(h.a)+'</td><td class="bka-r">'+A(h.a,h.b)+'</td></tr>'}).join('')+'</tbody></table></div>';}
+return'<div class="bka-C"><h3>도시별</h3><table><thead><tr><th></th><th>도시</th><th>나라</th><th class="bka-r">예약</th><th class="bka-r">금액</th><th class="bka-r">평균</th><th class="bka-r">호텔</th></tr></thead><tbody>'+
+D.ci.map(function(c,i){return'<tr class="bka-ck" onclick="DS={cd_ci:{ci:\''+E(c.n)+'\',co:\''+E(c.co)+'\'}}; dc();rr()"><td>'+R(i)+'</td><td><strong>'+c.n+'</strong></td><td>'+c.co+'</td><td class="bka-r">'+c.b.toLocaleString()+'건</td><td class="bka-r">'+F(c.a)+'</td><td class="bka-r">'+A(c.a,c.b)+'</td><td class="bka-r">'+c.h+'</td></tr>'}).join('')+'</tbody></table></div>'}
+
+function rHo(){
+if(DS.h_ht)return rHtD(DS.h_ht.h,DS.h_ht.ci,DS.h_ht.co,'<div class="bka-bc"><a onclick="DS={};dc();rr()">호텔 검색</a><span>›</span><strong>'+DS.h_ht.h+'</strong></div>');
+var all=D.hf.slice().sort(function(a,b){return b.b-a.b});var q=hsq.toLowerCase();var filtered=q?all.filter(function(h){return h.h.toLowerCase().includes(q)||h.ci.toLowerCase().includes(q)||h.co.toLowerCase().includes(q)}):all;
+var PAGE=50,start=HP*PAGE,page=filtered.slice(start,start+PAGE),tp=Math.ceil(filtered.length/PAGE);
+return'<input class="bka-si" type="text" placeholder="호텔명, 도시, 나라로 검색..." value="'+hsq+'" oninput="hsq=this.value;HP=0;rHU()" id="hs">'+
+'<div class="bka-C" id="bka-htbl"><h3>전체 호텔 ('+filtered.length+'곳)</h3><table><thead><tr><th></th><th>호텔</th><th>성급</th><th>도시</th><th>나라</th><th class="bka-r">예약</th><th class="bka-r">금액</th></tr></thead><tbody>'+
+page.map(function(h,i){return'<tr class="bka-ck" onclick="DS.h_ht={h:\''+E(h.h)+'\',ci:\''+E(h.ci)+'\',co:\''+E(h.co)+'\'}; dc();rr()"><td>'+R(start+i)+'</td><td style="font-weight:500">'+h.h+'</td><td>'+Ss(h.s)+'</td><td>'+h.ci+'</td><td>'+h.co+'</td><td class="bka-r"><strong>'+h.b+'건</strong></td><td class="bka-r">'+F(h.a)+'</td></tr>'}).join('')+
+'</tbody></table>'+(tp>1?'<div class="bka-pg">'+Array.from({length:Math.min(tp,10)},function(_,i){return'<button class="bka-'+(i===HP?'on':'')+'" onclick="HP='+i+';rHU()">'+(i+1)+'</button>'}).join('')+'</div>':'')+'</div>'}
+function rHU(){var el=document.getElementById('bka-htbl');if(!el)return;var all=D.hf.slice().sort(function(a,b){return b.b-a.b});var q=hsq.toLowerCase();var filtered=q?all.filter(function(h){return h.h.toLowerCase().includes(q)||h.ci.toLowerCase().includes(q)||h.co.toLowerCase().includes(q)}):all;var PAGE=50,start=HP*PAGE,page=filtered.slice(start,start+PAGE),tp=Math.ceil(filtered.length/PAGE);el.innerHTML='<h3>전체 호텔 ('+filtered.length+'곳)</h3><table><thead><tr><th></th><th>호텔</th><th>성급</th><th>도시</th><th>나라</th><th class="bka-r">예약</th><th class="bka-r">금액</th></tr></thead><tbody>'+page.map(function(h,i){return'<tr class="bka-ck" onclick="DS.h_ht={h:\''+E(h.h)+'\',ci:\''+E(h.ci)+'\',co:\''+E(h.co)+'\'}; dc();rr()"><td>'+R(start+i)+'</td><td style="font-weight:500">'+h.h+'</td><td>'+Ss(h.s)+'</td><td>'+h.ci+'</td><td>'+h.co+'</td><td class="bka-r"><strong>'+h.b+'건</strong></td><td class="bka-r">'+F(h.a)+'</td></tr>'}).join('')+'</tbody></table>'+(tp>1?'<div class="bka-pg">'+Array.from({length:Math.min(tp,10)},function(_,i){return'<button class="bka-'+(i===HP?'on':'')+'" onclick="HP='+i+';rHU()">'+(i+1)+'</button>'}).join('')+'</div>':'')}
+
+function prevYM(ym){var p=ym.split('-'),y=+p[0],m=+p[1];return m===1?(y-1)+'-12':y+'-'+(m-1<10?'0':'')+(m-1)}
+function nextYM(ym){var p=ym.split('-'),y=+p[0],m=+p[1];return m===12?(y+1)+'-01':y+'-'+(m+1<10?'0':'')+(m+1)}
+
+function rPa(){
+if(DS.patHt)return rHtD(DS.patHt.h,DS.patHt.ci,DS.patHt.co,'<div class="bka-bc"><a onclick="DS={};dc();rr()">예약 패턴</a><span>›</span><a onclick="DS.patHt=null;DS.patCi=null;dc();rr()">'+DS.patYM+' '+DS.patCo+'</a>'+(DS.patCi?'<span>›</span><a onclick="DS.patHt=null;dc();rr()">'+DS.patCi+'</a>':'')+'<span>›</span><strong>'+DS.patHt.h+'</strong></div>');
+if(DS.patCi){var ym=DS.patYM,co=DS.patCo,ci=DS.patCi;var bks=D.bk.filter(function(b){return b.d.startsWith(ym)&&b.co===co&&b.ci===ci});var hm={};bks.forEach(function(b){if(!hm[b.h])hm[b.h]={b:0,a:0};hm[b.h].b++;hm[b.h].a+=b.a});var hotels=Object.entries(hm).sort(function(a,b){return b[1].b-a[1].b});
+return'<div class="bka-bc"><a onclick="DS={};dc();rr()">예약 패턴</a><span>›</span><a onclick="DS.patCi=null;DS.patHt=null;dc();rr()">'+ym+' '+co+'</a><span>›</span><strong>'+ci+'</strong></div>'+
+'<div class="bka-G"><div class="bka-S"><div class="bka-l">'+ym+' '+ci+'</div><div class="bka-v">'+bks.length+'건</div></div><div class="bka-S"><div class="bka-l">금액</div><div class="bka-v">'+F(bks.reduce(function(s,b){return s+b.a},0))+'</div></div></div>'+
+'<div class="bka-C"><h3>호텔별</h3><table><thead><tr><th></th><th>호텔</th><th class="bka-r">예약</th><th class="bka-r">금액</th></tr></thead><tbody>'+
+hotels.map(function(e,i){return'<tr class="bka-ck" onclick="DS.patHt={h:\''+E(e[0])+'\',ci:\''+E(ci)+'\',co:\''+E(co)+'\'}; dc();rr()"><td>'+R(i)+'</td><td><strong>'+e[0]+'</strong></td><td class="bka-r">'+e[1].b+'건</td><td class="bka-r">'+F(e[1].a)+'</td></tr>'}).join('')+'</tbody></table></div>';}
+if(DS.patCo){var ym=DS.patYM,co=DS.patCo;var bks=D.bk.filter(function(b){return b.d.startsWith(ym)&&b.co===co});var cm={};bks.forEach(function(b){if(!cm[b.ci])cm[b.ci]={b:0,a:0,hs:{}};cm[b.ci].b++;cm[b.ci].a+=b.a;cm[b.ci].hs[b.h]=1});var cities=Object.entries(cm).sort(function(a,b){return b[1].b-a[1].b});
+return'<div class="bka-bc"><a onclick="DS={};dc();rr()">예약 패턴</a><span>›</span><strong>'+ym+' '+co+'</strong></div>'+
+'<div class="bka-G"><div class="bka-S"><div class="bka-l">'+ym+' '+co+'</div><div class="bka-v">'+bks.length+'건</div></div><div class="bka-S"><div class="bka-l">금액</div><div class="bka-v">'+F(bks.reduce(function(s,b){return s+b.a},0))+'</div></div></div>'+
+'<div class="bka-C"><h3>도시별</h3><table><thead><tr><th></th><th>도시</th><th class="bka-r">예약</th><th class="bka-r">금액</th><th class="bka-r">호텔</th></tr></thead><tbody>'+
+cities.map(function(e,i){return'<tr class="bka-ck" onclick="DS.patCi=\''+E(e[0])+'\';dc();rr()"><td>'+R(i)+'</td><td><strong>'+e[0]+'</strong></td><td class="bka-r">'+e[1].b+'건</td><td class="bka-r">'+F(e[1].a)+'</td><td class="bka-r">'+Object.keys(e[1].hs).length+'</td></tr>'}).join('')+'</tbody></table></div>';}
+var cyear=+calYM.split('-')[0],cmonth=+calYM.split('-')[1];var dim=new Date(cyear,cmonth,0).getDate();var fdow=new Date(cyear,cmonth-1,1).getDay();var afd=fdow===0?6:fdow-1;
+var md=D.dl.filter(function(d){return d.dt.startsWith(calYM)});var dm={};md.forEach(function(d){dm[+d.dt.split('-')[2]]=d});
+var dd='';
+if(calDay){var dayBks=D.bk.filter(function(b){return b.d===calYM+'-'+(calDay<10?'0':'')+calDay});var bc={};dayBks.forEach(function(b){if(!bc[b.co])bc[b.co]={b:0,a:0,hs:{}};bc[b.co].b++;bc[b.co].a+=b.a;bc[b.co].hs[b.h]=1});var sorted=Object.entries(bc).sort(function(a,b){return b[1].b-a[1].b});
+dd='<div class="bka-C"><h3>'+calYM+'-'+(calDay<10?'0':'')+calDay+' 예약 ('+dayBks.length+'건)</h3><table><thead><tr><th></th><th>나라</th><th class="bka-r">예약</th><th class="bka-r">금액</th><th class="bka-r">호텔</th></tr></thead><tbody>'+sorted.map(function(e,i){return'<tr class="bka-ck" onclick="DS.patCo=\''+E(e[0])+'\';DS.patYM=calYM;dc();rr()"><td>'+R(i)+'</td><td><strong>'+e[0]+'</strong></td><td class="bka-r">'+e[1].b+'건</td><td class="bka-r">'+F(e[1].a)+'</td><td class="bka-r">'+Object.keys(e[1].hs).length+'</td></tr>'}).join('')+'</tbody></table></div>';}
+var mcM=D.mc.filter(function(d){return d.ym===calYM}).sort(function(a,b){return b.b-a.b});
+return'<div class="bka-C"><h3>요일별</h3><div class="bka-cw" style="height:200px"><canvas id="bka-dw"></canvas></div></div>'+
+'<div class="bka-C"><h3>일자별 (1~31일)</h3><div class="bka-cw" style="height:200px"><canvas id="bka-dm2"></canvas></div></div>'+
+'<div class="bka-C"><h3>일별 캘린더</h3>'+
+'<div class="bka-fr"><button class="bka-fb" onclick="calYM=prevYM(calYM);calDay=null;dc();rr()">◀</button><input type="month" class="bka-ys" value="'+calYM+'" onchange="calYM=this.value;calDay=null;dc();rr()" style="font-size:14px;font-weight:600;padding:5px 12px"><button class="bka-fb" onclick="calYM=nextYM(calYM);calDay=null;dc();rr()">▶</button></div>'+
+'<div class="bka-cal-grid"><div class="bka-cal-h">월</div><div class="bka-cal-h">화</div><div class="bka-cal-h">수</div><div class="bka-cal-h">목</div><div class="bka-cal-h">금</div><div class="bka-cal-h">토</div><div class="bka-cal-h">일</div>'+
+Array(afd).fill('<div style="padding:8px"></div>').join('')+
+Array.from({length:dim},function(_,i){var d=i+1,dd2=dm[d],cnt=dd2?dd2.b:0;var bg=cnt===0?'#f8f7f4':cnt<3?'#E1F5EE':cnt<6?'#9FE1CB':cnt<10?'#5DCAA5':'#1D9E75';var tc=cnt>=6?'#fff':'var(--tx)';return'<div class="bka-cal-d" style="background:'+bg+';color:'+tc+(calDay===d?';border:2px solid var(--ac)':'')+'" onclick="calDay='+(calDay===d?'null':d)+';dc();rr()"><div class="bka-cn">'+d+'</div>'+(cnt>0?'<div class="bka-ct">'+cnt+'건</div>':'')+'</div>'}).join('')+
+'</div></div>'+dd+
+'<div class="bka-C"><h3>'+calYM+' 나라별 (전체) — 클릭→도시→호텔</h3><table><thead><tr><th></th><th>나라</th><th class="bka-r">예약</th><th class="bka-r">금액</th></tr></thead><tbody>'+
+(mcM.length?mcM.map(function(c,i){return'<tr class="bka-ck" onclick="DS.patCo=\''+E(c.co)+'\';DS.patYM=calYM;dc();rr()"><td>'+R(i)+'</td><td><strong>'+c.co+'</strong></td><td class="bka-r">'+c.b+'건</td><td class="bka-r">'+F(c.a)+'</td></tr>'}).join(''):'<tr><td colspan="4" style="text-align:center;color:var(--ht)">데이터 없음</td></tr>')+
+'</tbody></table></div>'}
+function iPC(){ch_.push(new Chart(document.getElementById('bka-dw'),{type:'bar',data:{labels:D.dow.map(function(d){return d.nm}),datasets:[{data:D.dow.map(function(d){return d.b}),backgroundColor:D.dow.map(function(_,i){return i>=5?'#D85A30':'#534AB7'}),borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false}},y:{grid:{color:'#f0eee9'}}}}}));ch_.push(new Chart(document.getElementById('bka-dm2'),{type:'bar',data:{labels:D.dom.map(function(d){return d.d+'일'}),datasets:[{data:D.dom.map(function(d){return d.b}),backgroundColor:'#1D9E75',borderRadius:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{font:{size:9}}},y:{grid:{color:'#f0eee9'}}}}}))}
+
+function rSt(){return'<div style="margin-bottom:12px"><span class="bka-pn">성급은 평균단가 기준 임의 추정. 추후 아고다 API로 교체</span></div><div class="bka-C"><h3>성급별</h3><div class="bka-cw" style="height:200px"><canvas id="bka-sc"></canvas></div><table><thead><tr><th>성급</th><th class="bka-r">예약</th><th class="bka-r">금액</th><th class="bka-r">수수료</th><th class="bka-r">평균</th><th class="bka-r">비중</th></tr></thead><tbody>'+D.ss.map(function(s){return'<tr><td>'+Ss(s.st)+'</td><td class="bka-r">'+s.b.toLocaleString()+'건</td><td class="bka-r">'+F(s.a)+'</td><td class="bka-r">'+F(s.c)+'</td><td class="bka-r">'+A(s.a,s.b)+'</td><td class="bka-r">'+P(s.b,D.sm.tb)+'</td></tr>'}).join('')+'</tbody></table></div><div class="bka-C"><h3>나라별 성급</h3><table><thead><tr><th>나라</th><th class="bka-r">★★</th><th class="bka-r">★★★</th><th class="bka-r">★★★★</th><th class="bka-r">★★★★★</th></tr></thead><tbody>'+function(){var cos=[],seen={};D.sc.forEach(function(d){if(!seen[d.co]){seen[d.co]=1;cos.push(d.co)}});return cos.map(function(co){var rows=D.sc.filter(function(d){return d.co===co});return'<tr><td><strong>'+co+'</strong></td>'+[2,3,4,5].map(function(s){var r=rows.find(function(d){return d.s===s});return'<td class="bka-r">'+(r?r.b+'건<br><span style="font-size:11px;color:var(--ht)">'+F(r.a)+'</span>':'-')+'</td>'}).join('')+'</tr>'}).join('')}()+'</tbody></table></div>'}
+function iSC(){var s=D.ss,co=['#f0eee9','#1D9E75','#378ADD','#534AB7'];ch_.push(new Chart(document.getElementById('bka-sc'),{type:'bar',data:{labels:s.map(function(v){return v.st+'성급'}),datasets:[{data:s.map(function(v){return v.b}),backgroundColor:co,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false}},y:{grid:{color:'#f0eee9'}}}}}))}
+
+var b2bQ2='';
+function rSa(){
+if(DS.b2bHt)return rHtD(DS.b2bHt.h,DS.b2bHt.ci,DS.b2bHt.co,'<div class="bka-bc"><a onclick="DS={};dc();rr()">B2B 영업</a><span>›</span><strong>'+DS.b2bHt.h+'</strong></div>');
+if(DS.b2bCi){var ci=DS.b2bCi.ci,co=DS.b2bCi.co,cd=D.ci.find(function(c){return c.n===ci&&c.co===co});var hotels=D.hf.filter(function(h){return h.ci===ci&&h.co===co}).sort(function(a,b){return b.b-a.b});
+return'<div class="bka-bc"><a onclick="DS={};dc();rr()">B2B 영업</a><span>›</span><strong>'+ci+' ('+co+')</strong></div>'+
+(cd?'<div class="bka-G"><div class="bka-S"><div class="bka-l">'+ci+' · '+co+'</div><div class="bka-v">'+cd.b.toLocaleString()+'건</div></div><div class="bka-S"><div class="bka-l">금액</div><div class="bka-v">'+F(cd.a)+'</div><div class="bka-s">'+W(cd.a)+'</div></div><div class="bka-S"><div class="bka-l">평균</div><div class="bka-v">'+A(cd.a,cd.b)+'</div></div><div class="bka-S"><div class="bka-l">호텔</div><div class="bka-v">'+cd.h+'곳</div></div></div>'+
+'<div class="bka-pb"><h4>영업 제안 문구</h4><p>"저희 5개국 채널에서 <strong>'+ci+'</strong> 총 <strong>'+cd.b.toLocaleString()+'건</strong>, <strong>'+F(cd.a)+'</strong> ('+W(cd.a)+') 예약 발생. 예약번호로 아고다에서 직접 확인 가능. TOP3 영상 $200, 6개월 내 예약 0건이면 전액 환불."</p></div>':'')+
+'<div class="bka-C"><h3>'+ci+' 전체 호텔 ('+hotels.length+'곳)</h3><table><thead><tr><th></th><th>호텔</th><th>성급</th><th class="bka-r">예약</th><th class="bka-r">금액</th><th class="bka-r">평균</th></tr></thead><tbody>'+
+hotels.map(function(h,i){return'<tr class="bka-ck" onclick="DS.b2bHt={h:\''+E(h.h)+'\',ci:\''+E(h.ci)+'\',co:\''+E(h.co)+'\'}; dc();rr()"><td>'+R(i)+'</td><td style="font-weight:500">'+h.h+'</td><td>'+Ss(h.s)+'</td><td class="bka-r"><strong>'+h.b+'건</strong></td><td class="bka-r">'+F(h.a)+'</td><td class="bka-r">'+A(h.a,h.b)+'</td></tr>'}).join('')+'</tbody></table></div>';}
+var s=D.sm;
+return'<div class="bka-pb"><h4>B2B 영업 대시보드</h4><p>호텔 담당자에게 실적을 보여주고 광고 상품을 제안하는 도구</p></div>'+
+'<div class="bka-C"><h3>우리 채널의 강점</h3><div class="bka-G" style="grid-template-columns:repeat(auto-fit,minmax(180px,1fr))">'+
+'<div class="bka-S"><div class="bka-l">3년간 실적</div><div class="bka-v">'+s.tb.toLocaleString()+'건</div><div class="bka-s">실제 예약 발생</div></div>'+
+'<div class="bka-S"><div class="bka-l">예약 금액</div><div class="bka-v">'+F(s.ta)+'</div><div class="bka-s">'+W(s.ta)+'</div></div>'+
+'<div class="bka-S"><div class="bka-l">글로벌 커버리지</div><div class="bka-v">5개국</div><div class="bka-s">한국·일본·대만·베트남·영어권</div></div>'+
+'<div class="bka-S"><div class="bka-l">호텔 네트워크</div><div class="bka-v">'+s.th.toLocaleString()+'곳</div><div class="bka-s">'+s.tco+'개국 '+s.tci+'도시</div></div></div></div>'+
+'<div class="bka-C"><h3>호텔 검색</h3><input class="bka-si" type="text" placeholder="호텔명, 도시, 나라..." value="'+b2bQ2+'" oninput="b2bQ2=this.value;rSaU()" id="bka-b2bs"><div id="bka-b2btbl">'+(b2bQ2?rSaSearch():
+'<div style="color:var(--ht);font-size:13px;padding:8px 0">검색어를 입력하면 호텔을 찾을 수 있습니다</div>')+'</div></div>'+
+'<div class="bka-C"><h3>도시별 예약 실적</h3><table><thead><tr><th></th><th>도시</th><th>나라</th><th class="bka-r">예약</th><th class="bka-r">금액</th><th class="bka-r">평균</th><th class="bka-r">호텔</th></tr></thead><tbody>'+
+D.ci.map(function(c,i){return'<tr class="bka-ck" onclick="DS.b2bCi={ci:\''+E(c.n)+'\',co:\''+E(c.co)+'\'}; dc();rr()"><td>'+R(i)+'</td><td><strong>'+c.n+'</strong></td><td>'+c.co+'</td><td class="bka-r">'+c.b.toLocaleString()+'건</td><td class="bka-r">'+F(c.a)+'</td><td class="bka-r">'+A(c.a,c.b)+'</td><td class="bka-r">'+c.h+'</td></tr>'}).join('')+'</tbody></table></div>'+
+'<div class="bka-C"><h3>나라별</h3><table><thead><tr><th></th><th>나라</th><th class="bka-r">예약</th><th class="bka-r">금액</th><th class="bka-r">도시</th><th class="bka-r">호텔</th></tr></thead><tbody>'+
+D.co.map(function(c,i){return'<tr><td>'+R(i)+'</td><td><strong>'+c.n+'</strong></td><td class="bka-r">'+c.b.toLocaleString()+'건</td><td class="bka-r">'+F(c.a)+'</td><td class="bka-r">'+c.ci+'</td><td class="bka-r">'+c.h+'</td></tr>'}).join('')+'</tbody></table></div>'}
+function rSaSearch(){var q=b2bQ2.toLowerCase();var f=D.hf.filter(function(h){return h.h.toLowerCase().includes(q)||h.ci.toLowerCase().includes(q)||h.co.toLowerCase().includes(q)}).sort(function(a,b){return b.b-a.b}).slice(0,30);return'<table><thead><tr><th></th><th>호텔</th><th>성급</th><th>도시</th><th>나라</th><th class="bka-r">예약</th><th class="bka-r">금액</th></tr></thead><tbody>'+f.map(function(h,i){return'<tr class="bka-ck" onclick="DS.b2bHt={h:\''+E(h.h)+'\',ci:\''+E(h.ci)+'\',co:\''+E(h.co)+'\'}; dc();rr()"><td>'+R(i)+'</td><td style="font-weight:500">'+h.h+'</td><td>'+Ss(h.s)+'</td><td>'+h.ci+'</td><td>'+h.co+'</td><td class="bka-r"><strong>'+h.b+'건</strong></td><td class="bka-r">'+F(h.a)+'</td></tr>'}).join('')+'</tbody></table><div style="font-size:12px;color:var(--ht);margin-top:6px">'+f.length+'건 검색됨</div>'}
+function rSaU(){var el=document.getElementById('bka-b2btbl');if(!el)return;if(b2bQ2){el.innerHTML=rSaSearch()}else{el.innerHTML='<div style="color:var(--ht);font-size:13px;padding:8px 0">검색어를 입력하면 호텔을 찾을 수 있습니다</div>'}}
+
+
+  // ---- 윈도우 노출 (HTML 문자열의 onclick에서 호출) ----
+  window.bka_sT = sT;
+  window.bka_sV = sV;
+  window.bka_sYr = sYr;
+  window.bka_drillCo = drillCo;
+  window.bka_drillCoCi = drillCoCi;
+  window.bka_drillCoHt = drillCoHt;
+  window.bka_rHU = rHU;
+  window.bka_rSaU = rSaU;
+  window.bka_prevYM = prevYM;
+  window.bka_nextYM = nextYM;
+
+  // 원본 HTML 문자열은 sT/sV/... 등 전역 함수 호출을 가정 — 모듈 스코프에서도 접근 가능하도록
+  // window 위에도 같은 이름으로 노출 (정적 D HTML과 호환)
+  window.sT = sT;  window.sV = sV;  window.sYr = sYr;
+  window.drillCo = drillCo; window.drillCoCi = drillCoCi; window.drillCoHt = drillCoHt;
+  window.rHU = rHU; window.rSaU = rSaU; window.prevYM = prevYM; window.nextYM = nextYM;
+  // DS, HP, dc, rr 등은 onclick="..." 안에서 직접 참조됨 → 노출 필수
+  Object.defineProperty(window, 'DS',  { get: function(){return DS;},  set: function(v){DS=v;} });
+  Object.defineProperty(window, 'HP',  { get: function(){return HP;},  set: function(v){HP=v;} });
+  Object.defineProperty(window, 'hsq', { get: function(){return hsq;}, set: function(v){hsq=v;} });
+  Object.defineProperty(window, 'b2bQ2',{get: function(){return b2bQ2;},set: function(v){b2bQ2=v;} });
+  Object.defineProperty(window, 'calYM',{get: function(){return calYM;},set: function(v){calYM=v;} });
+  Object.defineProperty(window, 'calDay',{get:function(){return calDay;},set:function(v){calDay=v;}});
+  window.dc = dc;
+  window.rr = rr;
+  window.D = null;  // 외부에서 접근 시 현재 D 반환 — load 후 갱신
+
+  // ---- 데이터 로드 + 렌더 ----
+  function setInfo(msg){
+    var el = document.getElementById('bka-data-info');
+    if (el) el.textContent = msg;
+  }
+  function showEmpty(show){
+    var emptyEl = document.getElementById('bka-empty');
+    var ctEl = document.getElementById('bka-ct');
+    var tabsEl = document.getElementById('bka-tabs');
+    if (emptyEl) emptyEl.style.display = show ? 'block' : 'none';
+    if (ctEl) ctEl.style.display = show ? 'none' : 'block';
+    if (tabsEl) tabsEl.style.display = show ? 'none' : 'flex';
+  }
+
+  async function loadData(){
+    if (loading) return;
+    loading = true;
+    setInfo('데이터 로딩 중…');
+    var btn = document.getElementById('bka-refresh');
+    if (btn) btn.disabled = true;
+    try {
+      // shared.js 의 supabase 클라이언트 사용
+      var sb = (window.TW && window.TW.sb) ? window.TW.sb : null;
+      if (!sb) throw new Error('Supabase 클라이언트가 초기화되지 않았습니다');
+
+      // 1) 채널 마스터
+      var chRes = await sb.from('channels').select('code,name,language,is_active').order('display_order');
+      if (chRes.error) throw chRes.error;
+      var channels = chRes.data || [];
+
+      // 2) bookings_unified 전체
+      var bkRes = await sb.from('bookings_unified').select('*').order('booked_at', { ascending: false });
+      if (bkRes.error) throw bkRes.error;
+      var rows = bkRes.data || [];
+
+      // 3) 집계
+      D = aggregateAll(rows, channels);
+      window.D = D;
+      loaded = true;
+
+      setInfo('총 ' + (rows.filter(function(r){return !r.is_cancelled;}).length).toLocaleString() + '건 · ' +
+              channels.length + '개 채널 · ' + new Date().toLocaleTimeString('ko-KR'));
+
+      if (rows.length === 0){
+        showEmpty(true);
+      } else {
+        showEmpty(false);
+        // 처음 진입 시 탭/콘텐츠 초기화 + 렌더
+        iT();
+        rr();
+      }
+    } catch (e) {
+      console.error('[BKA] load error', e);
+      setInfo('⚠️ 로딩 실패: ' + (e.message || e));
+      var ctEl = document.getElementById('bka-ct');
+      if (ctEl) ctEl.innerHTML = '<div class="bka-C"><h3>오류</h3><p>' + (e.message || e) + '</p></div>';
+    } finally {
+      loading = false;
+      if (btn) btn.disabled = false;
+    }
+  }
+
+  // 외부에서 호출하는 init/refresh 함수
+  window.initAnalytics = function(){
+    if (initialized) return;
+    initialized = true;
+    // refresh 버튼 핸들러
+    var btn = document.getElementById('bka-refresh');
+    if (btn){
+      btn.addEventListener('click', function(){
+        // 차트 정리 후 재로드
+        try { dc(); } catch(e){}
+        loadData();
+      });
+    }
+    // 첫 로드
+    loadData();
+  };
+
+  window.refreshAnalytics = function(){
+    if (!initialized) return window.initAnalytics();
+    try { dc(); } catch(e){}
+    loadData();
+  };
+})();
+
 </script>
 </body>
 </html>

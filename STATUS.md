@@ -146,7 +146,7 @@
 | **다음 작업** | 2단계 - Supabase 스키마 설계 |
 | **이번 채팅** | TW Booking Analytics 8 |
 | **다음 채팅** | TW Booking Analytics 9 |
-| **마지막 커밋** | (이번 STATUS.md 푸시 직후 기록) |
+| **마지막 커밋** | 14a507d (STATUS.md 마스터 파일 작성) |
 | **최종 업데이트** | 2026-04-27 |
 
 ---

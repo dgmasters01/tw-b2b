@@ -127,7 +127,7 @@
 | **7** | 메인 페이지 라이브 예약 피드 | 30분 | ✅ 완료 |
 | 7-1 | 카운터 위젯 | | |
 | 7-2 | Activity Stream 컨셉 (실제 데이터 셔플) | | |
-| **8** | 테스트 및 배포 | 30분 | ⬜ 대기 |
+| **8** | 테스트 및 배포 | 30분 | ✅ 완료 |
 
 ### 채팅 분배 가이드
 - TW Booking Analytics 8 (현재): 1단계
@@ -142,12 +142,39 @@
 
 | 항목 | 내용 |
 |---|---|
-| **진행 단계** | 7단계 완료 |
-| **다음 작업** | 8단계 - 테스트 및 배포 (운영 검증) |
+| **진행 단계** | **Phase 1 전체 완료 (8단계 / 8단계)** |
+| **다음 작업** | Phase 1 운영 시작 — 실제 예약 누적 → Phase 2 (아고다 Long Search API) 검토 |
 | **이번 채팅** | TW Booking Analytics 11 |
-| **다음 채팅** | TW Booking Analytics 12 |
-| **마지막 커밋** | a717874 (Phase 1 Step 7: Live booking feed on index.html) |
+| **다음 채팅** | (Phase 1 완료, Phase 2 별도 채팅 시작 시 STATUS.md 갱신) |
+| **마지막 커밋** | (8단계 STATUS.md 푸시 후 갱신 예정) |
 | **최종 업데이트** | 2026-04-27 |
+
+### 8단계 완료 산출물 (테스트 및 배포 — 운영 검증)
+- **Vercel 배포 검증**: 최신 커밋 `dd0d5fa` 자동 배포 READY 확인 (Vercel API)
+- **라이브 사이트 응답 검증**: gohotelwinners.com HTTP 200, 45.7KB, 1초 이내 응답
+- **공개 VIEW PII 보안 최종 재검증** (anon 키 + PostgREST):
+  - 더미 예약 1건 INSERT (booking_code=`STEP8-TEST-DELETE-ME`, guest_name=`PII_GUEST_DELETE_KIM_HONG`, guest_email=`pii_step8@delete.test`, guest_phone=`+82-PII-DELETE`)
+  - `v_public_recent_bookings` 응답 컬럼: unified_id / source / channel_code / channel_name / channel_language / hotel_name / hotel_country / hotel_city / hotel_star / nights / num_rooms / booking_amount_usd / booked_at — **PII 0건**
+  - `v_public_stats` 카운터 정상 반영 (1 / $350 / $35 / 1 / 1 / 1 / 1)
+  - anon 키 → `bookings_self`, `bookings_agoda`, `bookings_unified` 직접 호출 모두 빈 배열 (RLS 차단)
+  - 테스트 후 DELETE 완료, stats 0 복귀 확인
+- **End-to-end 라이브 사이트 검증** (Playwright Chromium 1280x900 + Mobile 390x844):
+  - 데스크톱: 카운터 4개 정상 표시 (1 / $350 / 1 / 1), Activity Stream 8행 (셔플 윈도우), 호텔명/국가/도시 정상 렌더, 콘솔 에러 0건, PII 누출 0건
+  - 모바일 (iPhone 12 viewport): 카운터 2x2 그리드 확정 (c0/c1 같은 행, c2 다음 행), 라이브 피드 정상 노출, 콘솔 에러 0건
+  - 한·영 토글 작동 확인
+- **운영 워크플로 검증 완료**: admin.html Bookings 탭 → Self-Sourced 등록 → bookings_self INSERT → v_public_recent_bookings/v_public_stats 자동 반영 → index.html 라이브 피드에서 PII 없이 즉시 노출 → 5분마다 자동 갱신
+
+### 8단계 알려진 이슈 (Phase 2 처리 권장)
+- 기존 `bookings_unified`, `v_channel_stats` view는 PII 컬럼을 view 정의에 포함하지 않아 누출은 없지만, security_invoker가 false 라 메타 컬럼(unified_id 등)을 anon이 조회 가능. Phase 2 첫 작업으로 `ALTER VIEW ... SET (security_invoker = true);` 적용 권장.
+- hotels 테이블이 비어있는 상태 — 운영 시작 시 호텔 마스터부터 등록 필요 (admin.html Hotels 탭 활용)
+- 회원탈퇴 / 이메일변경 / PayPal 결제 통합 / Custom SMTP 자체 도메인 발신 — Phase 2 범위
+
+### Phase 1 전체 완료 요약
+- **단계 1-8**: STATUS.md 시스템 / Supabase 스키마 / admin 사이드바 6메뉴 / Self-Sourced 예약 폼 / 아고다 엑셀 업로드 / Analytics 8탭 / 라이브 피드 / 운영 검증 — 모두 완료
+- **신규 SQL VIEW 4개**: bookings_unified / v_channel_stats / v_public_recent_bookings / v_public_stats
+- **신규 테이블 3개**: channels (6개 시드) / bookings_self / bookings_agoda
+- **수정 페이지**: admin.html (사이드바 + Bookings + Analytics) / index.html (라이브 피드)
+- **운영 준비 완료**: 자체 영업 예약 등록 + 6채널 아고다 엑셀 월간 업로드 + 메인 페이지 신뢰형 라이브 피드 + 8탭 분석 대시보드 — 모든 데이터 흐름이 Supabase 단일 소스에서 흐름
 
 ### 7단계 완료 산출물
 - **신규 SQL VIEW 2개** (`sql/06-public-feed-views.sql`, Supabase Management API로 자동 적용)
@@ -181,9 +208,6 @@
 
 ### 알려진 별도 이슈 (7단계 범위 외, 향후 처리)
 - 기존 `bookings_unified`, `v_channel_stats` view 가 SECURITY DEFINER 처럼 작동해 anon 이 일부 메타 컬럼(unified_id, channel_code) 조회 가능. PII 는 view 정의에 미포함이라 직접 누출 없음. 향후 `ALTER VIEW ... SET (security_invoker = true);` 로 강화 권장.
-
-### 8단계 시작 시 PENDING 확인
-- 8단계는 운영 검증 단계. 실제 예약을 admin.html → Bookings 탭에서 1건 등록 → 메인 페이지 새로고침으로 라이브 피드에 반영되는지 end-to-end 확인. Vercel 배포 후 모바일 실기 확인. STATUS.md 최종 정리.
 
 ### 6단계 완료 산출물
 - `admin.html` Analytics 탭에 8탭 분석 대시보드 통합 (전체현황/채널/나라/도시/호텔/패턴/성급/B2B)
@@ -288,6 +312,7 @@ Claude는 다음 시점에 새 채팅 안내를 먼저 합니다:
 | 2026-04-27 | Phase 1 Step 4-5 완료: Bookings 탭 sub-tabs (Self-Sourced 등록 폼 + Agoda 엑셀 업로드 SheetJS 통합) | TW Booking Analytics 10 |
 | 2026-04-27 | Phase 1 Step 6 완료: 분석 대시보드 8탭 이식 (admin.html Analytics 탭, bookings_unified 동적 쿼리, aggregateAll 집계, bka- namespace, 커밋 86e8ddd) | TW Booking Analytics 11 |
 | 2026-04-27 | Phase 1 Step 7 완료: 메인 페이지 라이브 예약 피드 (v_public_recent_bookings + v_public_stats VIEW 신규, PII 0 노출 검증, index.html 카운터 4 + Activity Stream + 한·영 토글) | TW Booking Analytics 11 |
+| 2026-04-27 | **Phase 1 Step 8 완료 — Phase 1 전체 완료**: Vercel 배포 검증(dd0d5fa READY) / PII 보안 최종 재검증(더미 INSERT → 공개 VIEW PII 0 노출 → DELETE → 0 복귀) / 데스크톱·모바일 E2E (Playwright Chromium, 콘솔 에러 0건, 카운터 1/$350/1/1, 모바일 2x2 그리드) / 운영 워크플로 end-to-end 검증 | TW Booking Analytics 11 |
 
 ---
 

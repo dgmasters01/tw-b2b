@@ -301,7 +301,7 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
         <span class="ad-sb-icon">🏨</span><span>Hotels</span>
       </button>
       <button class="ad-sb-item" data-tab="agoda-matching">
-        <span class="ad-sb-icon">🔗</span><span>Agoda Matching</span>
+        <span class="ad-sb-icon">🔗</span><span data-en="Agoda Matching" data-ko="아고다 매칭">Agoda Matching</span>
       </button>
       <button class="ad-sb-item" data-tab="members">
         <span class="ad-sb-icon">👥</span><span>Members</span>
@@ -515,31 +515,31 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
     <!-- TAB: Agoda Matching (Phase 3 Step 4-3 / [6-7/8]) -->
     <div id="tab-agoda-matching" class="ad-tab-pane" style="display:none;">
       <div class="ad-stats" id="am-stats-area">
-        <div class="ad-stat"><div class="ad-stat-lbl">Manual Pending</div><div class="ad-stat-val" id="am-st-manual-pending">—</div></div>
-        <div class="ad-stat"><div class="ad-stat-lbl">Auto Matched</div><div class="ad-stat-val" id="am-st-auto-matched">—</div></div>
-        <div class="ad-stat"><div class="ad-stat-lbl">Manual Matched</div><div class="ad-stat-val" id="am-st-manual-matched">—</div></div>
-        <div class="ad-stat"><div class="ad-stat-lbl">Invite Sent</div><div class="ad-stat-val" id="am-st-invite-sent">—</div></div>
-        <div class="ad-stat"><div class="ad-stat-lbl">Rejected</div><div class="ad-stat-val" id="am-st-rejected">—</div></div>
-        <div class="ad-stat"><div class="ad-stat-lbl">Total</div><div class="ad-stat-val" id="am-st-total">—</div></div>
+        <div class="ad-stat"><div class="ad-stat-lbl" data-en="Manual Pending" data-ko="수동 대기">Manual Pending</div><div class="ad-stat-val" id="am-st-manual-pending">—</div></div>
+        <div class="ad-stat"><div class="ad-stat-lbl" data-en="Auto Matched" data-ko="자동 매칭">Auto Matched</div><div class="ad-stat-val" id="am-st-auto-matched">—</div></div>
+        <div class="ad-stat"><div class="ad-stat-lbl" data-en="Manual Matched" data-ko="수동 매칭">Manual Matched</div><div class="ad-stat-val" id="am-st-manual-matched">—</div></div>
+        <div class="ad-stat"><div class="ad-stat-lbl" data-en="Invite Sent" data-ko="안내 발송됨">Invite Sent</div><div class="ad-stat-val" id="am-st-invite-sent">—</div></div>
+        <div class="ad-stat"><div class="ad-stat-lbl" data-en="Rejected" data-ko="거부됨">Rejected</div><div class="ad-stat-val" id="am-st-rejected">—</div></div>
+        <div class="ad-stat"><div class="ad-stat-lbl" data-en="Total" data-ko="전체">Total</div><div class="ad-stat-val" id="am-st-total">—</div></div>
       </div>
 
       <div class="ad-card">
         <div class="ad-card-h">
-          <h3>Agoda Matching Queue</h3>
-          <button class="ad-btn ad-btn-secondary" id="btn-am-refresh">↻ Refresh</button>
+          <h3 data-en="Agoda Matching Queue" data-ko="아고다 매칭 큐">Agoda Matching Queue</h3>
+          <button class="ad-btn ad-btn-secondary" id="btn-am-refresh" data-en="↻ Refresh" data-ko="↻ 새로고침">↻ Refresh</button>
         </div>
 
         <div class="ad-filter-row" id="am-filter-row">
-          <button class="ad-filter active" data-am-filter="manual_pending">Manual Pending</button>
-          <button class="ad-filter" data-am-filter="auto_matched">Auto Matched</button>
-          <button class="ad-filter" data-am-filter="manual_matched">Manual Matched</button>
-          <button class="ad-filter" data-am-filter="agoda_registration_pending">Invite Sent</button>
-          <button class="ad-filter" data-am-filter="rejected">Rejected</button>
-          <button class="ad-filter" data-am-filter="all">All</button>
+          <button class="ad-filter active" data-am-filter="manual_pending" data-en="Manual Pending" data-ko="수동 대기">Manual Pending</button>
+          <button class="ad-filter" data-am-filter="auto_matched" data-en="Auto Matched" data-ko="자동 매칭">Auto Matched</button>
+          <button class="ad-filter" data-am-filter="manual_matched" data-en="Manual Matched" data-ko="수동 매칭">Manual Matched</button>
+          <button class="ad-filter" data-am-filter="agoda_registration_pending" data-en="Invite Sent" data-ko="안내 발송됨">Invite Sent</button>
+          <button class="ad-filter" data-am-filter="rejected" data-en="Rejected" data-ko="거부됨">Rejected</button>
+          <button class="ad-filter" data-am-filter="all" data-en="All" data-ko="전체">All</button>
         </div>
 
         <div id="am-list-area">
-          <div class="ad-loading"><div class="ad-loader"></div><span>Loading matching queue...</span></div>
+          <div class="ad-loading"><div class="ad-loader"></div><span data-en="Loading matching queue..." data-ko="매칭 큐 불러오는 중...">Loading matching queue...</span></div>
         </div>
       </div>
     </div>
@@ -940,6 +940,8 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
       area.innerHTML = '<div class="ad-empty">Error: ' + esc(err.message || 'unknown') + '</div>';
     });
   }
+  // i18n 후크에서 호출하기 위해 window에 노출
+  window.renderAgodaMatching = function(){ if (amLoaded) renderAgodaMatching(); };
 
   function renderAmStats(){
     var counts = {
@@ -964,6 +966,7 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
 
   function renderAgodaMatching(){
     var area = $('am-list-area');
+    var ko = (T.lang === 'ko');
     var filtered;
     if (amCurrentFilter === 'all') {
       filtered = amData.slice();
@@ -978,9 +981,12 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
     });
 
     if (filtered.length === 0){
-      var emptyMsg = (amCurrentFilter === 'manual_pending') ?
-        'No hotels pending manual matching. 🎉' :
-        'No hotels in this category.';
+      var emptyMsg;
+      if (amCurrentFilter === 'manual_pending') {
+        emptyMsg = ko ? '수동 매칭 대기 호텔이 없습니다. 🎉' : 'No hotels pending manual matching. 🎉';
+      } else {
+        emptyMsg = ko ? '이 카테고리에 호텔이 없습니다.' : 'No hotels in this category.';
+      }
       area.innerHTML = '<div class="ad-empty">' + emptyMsg + '</div>';
       return;
     }
@@ -1007,9 +1013,10 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
   }
 
   function renderAmCard(h){
+    var ko = (T.lang === 'ko');
     var status = h.agoda_match_status || 'manual_pending';
     var statusBadge = amStatusBadge(status);
-    var name = h.hotel_name || '(no name)';
+    var name = h.hotel_name || (ko ? '(이름 없음)' : '(no name)');
     var nameLocal = h.hotel_name_local ? ' / ' + h.hotel_name_local : '';
     var addr = h.address || '';
     var city = h.city || '';
@@ -1017,29 +1024,47 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
     var loc = [city, country].filter(Boolean).join(', ');
     var stars = h.star_rating ? (h.star_rating + '★') : '—';
     var propType = h.property_type || '—';
+    if (ko && propType === 'hotel') propType = '호텔';
+    else if (ko && propType === 'resort') propType = '리조트';
     var manager = h.contact_name || '—';
     var managerPos = h.manager_position || '';
     if (managerPos === 'Other' && h.manager_position_other) managerPos = h.manager_position_other;
+    if (ko && managerPos) {
+      var posMap = { 'GM':'총지배인', 'Sales':'세일즈', 'Reservations':'예약', 'Marketing':'마케팅', 'Revenue Management':'매출관리', 'Owner':'오너' };
+      if (posMap[managerPos]) managerPos = posMap[managerPos];
+    }
     var managerEmail = h.contact_email || '—';
     var managerPhone = h.contact_phone || '—';
+    var notMatchedLabel = ko ? '미매칭' : 'Not matched';
     var agodaInfo = h.agoda_hotel_id ?
       ('hotelId: ' + h.agoda_hotel_id + (h.agoda_city_id ? ', cityId: ' + h.agoda_city_id : '')) :
-      '<span style="color:#c93030">Not matched</span>';
+      '<span style="color:#c93030">' + notMatchedLabel + '</span>';
     var createdAt = h.created_at ? T.fmt.date(h.created_at) : '—';
+
+    // i18n 라벨
+    var L = ko ? {
+      location:'위치', address:'주소', agoda:'아고다', manager:'매니저', email:'이메일', phone:'전화',
+      manualMatch:'수동 매칭', sendInvite:'안내 발송', reject:'거부',
+      matchNow:'바로 매칭', reSendInvite:'재발송', reopenMatch:'재오픈 후 매칭', editMatch:'매칭 수정'
+    } : {
+      location:'Location', address:'Address', agoda:'Agoda', manager:'Manager', email:'Email', phone:'Phone',
+      manualMatch:'Manual Match', sendInvite:'Send Agoda Invite', reject:'Reject',
+      matchNow:'Match Now', reSendInvite:'Re-send Invite', reopenMatch:'Re-open & Match', editMatch:'Edit Match'
+    };
 
     var actions = '';
     if (status === 'manual_pending') {
-      actions += '<button class="ad-btn ad-btn-primary am-btn" data-am-action="match" data-hotel-id="' + h.id + '">Manual Match</button>';
-      actions += '<button class="ad-btn ad-btn-secondary am-btn" data-am-action="invite" data-hotel-id="' + h.id + '">Send Agoda Invite</button>';
-      actions += '<button class="ad-btn ad-btn-danger am-btn" data-am-action="reject" data-hotel-id="' + h.id + '">Reject</button>';
+      actions += '<button class="ad-btn ad-btn-primary am-btn" data-am-action="match" data-hotel-id="' + h.id + '">' + L.manualMatch + '</button>';
+      actions += '<button class="ad-btn ad-btn-secondary am-btn" data-am-action="invite" data-hotel-id="' + h.id + '">' + L.sendInvite + '</button>';
+      actions += '<button class="ad-btn ad-btn-danger am-btn" data-am-action="reject" data-hotel-id="' + h.id + '">' + L.reject + '</button>';
     } else if (status === 'agoda_registration_pending') {
-      actions += '<button class="ad-btn ad-btn-primary am-btn" data-am-action="match" data-hotel-id="' + h.id + '">Match Now</button>';
-      actions += '<button class="ad-btn ad-btn-secondary am-btn" data-am-action="invite" data-hotel-id="' + h.id + '">Re-send Invite</button>';
-      actions += '<button class="ad-btn ad-btn-danger am-btn" data-am-action="reject" data-hotel-id="' + h.id + '">Reject</button>';
+      actions += '<button class="ad-btn ad-btn-primary am-btn" data-am-action="match" data-hotel-id="' + h.id + '">' + L.matchNow + '</button>';
+      actions += '<button class="ad-btn ad-btn-secondary am-btn" data-am-action="invite" data-hotel-id="' + h.id + '">' + L.reSendInvite + '</button>';
+      actions += '<button class="ad-btn ad-btn-danger am-btn" data-am-action="reject" data-hotel-id="' + h.id + '">' + L.reject + '</button>';
     } else if (status === 'rejected') {
-      actions += '<button class="ad-btn ad-btn-secondary am-btn" data-am-action="match" data-hotel-id="' + h.id + '">Re-open & Match</button>';
+      actions += '<button class="ad-btn ad-btn-secondary am-btn" data-am-action="match" data-hotel-id="' + h.id + '">' + L.reopenMatch + '</button>';
     } else if (status === 'auto_matched' || status === 'manual_matched') {
-      actions += '<button class="ad-btn ad-btn-secondary am-btn" data-am-action="match" data-hotel-id="' + h.id + '">Edit Match</button>';
+      actions += '<button class="ad-btn ad-btn-secondary am-btn" data-am-action="match" data-hotel-id="' + h.id + '">' + L.editMatch + '</button>';
     }
 
     var html = '';
@@ -1052,14 +1077,14 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
     html += '    <div class="am-card-date">' + createdAt + '</div>';
     html += '  </div>';
     html += '  <div class="am-card-body">';
-    html += '    <div class="am-row"><span class="am-row-k">Location</span><span class="am-row-v">' + esc(loc || addr || '—') + '</span></div>';
+    html += '    <div class="am-row"><span class="am-row-k">' + L.location + '</span><span class="am-row-v">' + esc(loc || addr || '—') + '</span></div>';
     if (addr && loc) {
-      html += '    <div class="am-row"><span class="am-row-k">Address</span><span class="am-row-v">' + esc(addr) + '</span></div>';
+      html += '    <div class="am-row"><span class="am-row-k">' + L.address + '</span><span class="am-row-v">' + esc(addr) + '</span></div>';
     }
-    html += '    <div class="am-row"><span class="am-row-k">Agoda</span><span class="am-row-v">' + agodaInfo + '</span></div>';
-    html += '    <div class="am-row"><span class="am-row-k">Manager</span><span class="am-row-v">' + esc(manager) + (managerPos ? ' <span class="am-pos">(' + esc(managerPos) + ')</span>' : '') + '</span></div>';
-    html += '    <div class="am-row"><span class="am-row-k">Email</span><span class="am-row-v"><a href="mailto:' + esc(managerEmail) + '">' + esc(managerEmail) + '</a></span></div>';
-    html += '    <div class="am-row"><span class="am-row-k">Phone</span><span class="am-row-v">' + esc(managerPhone) + '</span></div>';
+    html += '    <div class="am-row"><span class="am-row-k">' + L.agoda + '</span><span class="am-row-v">' + agodaInfo + '</span></div>';
+    html += '    <div class="am-row"><span class="am-row-k">' + L.manager + '</span><span class="am-row-v">' + esc(manager) + (managerPos ? ' <span class="am-pos">(' + esc(managerPos) + ')</span>' : '') + '</span></div>';
+    html += '    <div class="am-row"><span class="am-row-k">' + L.email + '</span><span class="am-row-v"><a href="mailto:' + esc(managerEmail) + '">' + esc(managerEmail) + '</a></span></div>';
+    html += '    <div class="am-row"><span class="am-row-k">' + L.phone + '</span><span class="am-row-v">' + esc(managerPhone) + '</span></div>';
     html += '  </div>';
     if (actions) {
       html += '  <div class="am-card-actions">' + actions + '</div>';
@@ -1069,20 +1094,21 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
   }
 
   function amStatusBadge(status){
+    var ko = (T.lang === 'ko');
     var label = status, cls = 'am-badge';
     switch(status){
       case 'manual_pending':
-        label = 'Manual Pending'; cls += ' am-badge-warn'; break;
+        label = ko ? '수동 대기' : 'Manual Pending'; cls += ' am-badge-warn'; break;
       case 'auto_matched':
-        label = 'Auto Matched'; cls += ' am-badge-success'; break;
+        label = ko ? '자동 매칭' : 'Auto Matched'; cls += ' am-badge-success'; break;
       case 'manual_matched':
-        label = 'Manual Matched'; cls += ' am-badge-success'; break;
+        label = ko ? '수동 매칭' : 'Manual Matched'; cls += ' am-badge-success'; break;
       case 'agoda_registration_pending':
-        label = 'Invite Sent'; cls += ' am-badge-info'; break;
+        label = ko ? '안내 발송됨' : 'Invite Sent'; cls += ' am-badge-info'; break;
       case 'rejected':
-        label = 'Rejected'; cls += ' am-badge-danger'; break;
+        label = ko ? '거부됨' : 'Rejected'; cls += ' am-badge-danger'; break;
       default:
-        label = 'Unknown'; cls += ' am-badge-muted';
+        label = ko ? '알 수 없음' : 'Unknown'; cls += ' am-badge-muted';
     }
     return '<span class="' + cls + '">' + label + '</span>';
   }
@@ -3106,6 +3132,10 @@ global.initAnalytics = function(){ _BKA_init(); _BKA_mount(); };
       if (activeTab && window._origSetActiveTab) {
         window._origSetActiveTab(activeTab);
       }
+      // Phase 3 Step 4-3: Agoda Matching 카드 동적 텍스트 재렌더링
+      if (activeTab === 'agoda-matching' && typeof window.renderAgodaMatching === 'function') {
+        try { window.renderAgodaMatching(); } catch(e){}
+      }
     } catch(e){}
   }
 
@@ -3179,29 +3209,29 @@ global.initAnalytics = function(){ _BKA_init(); _BKA_mount(); };
 <div class="am-modal-backdrop" id="am-match-modal" role="dialog" aria-modal="true">
   <div class="am-modal">
     <div class="am-modal-h">
-      <h3 id="am-match-title">Manual Match</h3>
+      <h3 id="am-match-title" data-en="Manual Match" data-ko="수동 매칭">Manual Match</h3>
       <button class="am-modal-close" id="am-match-close" aria-label="Close">×</button>
     </div>
     <div class="am-modal-body">
       <div class="am-modal-info" id="am-match-info">—</div>
       <div class="am-form-row">
-        <label>Agoda Hotel ID *</label>
-        <input type="number" id="am-match-hotel-id" placeholder="e.g. 123456" min="1">
-        <div class="am-form-help">Numeric Agoda hotel ID (from Agoda URL <code>?hid=...</code>).</div>
+        <label data-en="Agoda Hotel ID *" data-ko="아고다 호텔 ID *">Agoda Hotel ID *</label>
+        <input type="number" id="am-match-hotel-id" placeholder="e.g. 123456" data-en="e.g. 123456" data-ko="예: 123456" min="1">
+        <div class="am-form-help" data-en="Numeric Agoda hotel ID (from Agoda URL <code>?hid=...</code>)." data-ko="아고다 호텔 ID 숫자 (아고다 URL의 <code>?hid=...</code> 값).">Numeric Agoda hotel ID (from Agoda URL <code>?hid=...</code>).</div>
       </div>
       <div class="am-form-row">
-        <label>Agoda City ID *</label>
-        <input type="number" id="am-match-city-id" placeholder="e.g. 4064" min="1">
-        <div class="am-form-help">Agoda city ID. See <code>process-hotel.js</code> AGODA_CITY_MAP for known cities.</div>
+        <label data-en="Agoda City ID *" data-ko="아고다 도시 ID *">Agoda City ID *</label>
+        <input type="number" id="am-match-city-id" placeholder="e.g. 4064" data-en="e.g. 4064" data-ko="예: 4064" min="1">
+        <div class="am-form-help" data-en="Agoda city ID. See <code>process-hotel.js</code> AGODA_CITY_MAP for known cities." data-ko="아고다 도시 ID. <code>process-hotel.js</code>의 AGODA_CITY_MAP 참고.">Agoda city ID. See <code>process-hotel.js</code> AGODA_CITY_MAP for known cities.</div>
       </div>
       <div class="am-form-row">
-        <label>Agoda URL (optional)</label>
+        <label data-en="Agoda URL (optional)" data-ko="아고다 URL (선택)">Agoda URL (optional)</label>
         <input type="url" id="am-match-url" placeholder="https://www.agoda.com/...">
       </div>
     </div>
     <div class="am-modal-foot">
-      <button class="ad-btn ad-btn-secondary" id="am-match-cancel">Cancel</button>
-      <button class="ad-btn ad-btn-primary" id="am-match-submit">Save Match</button>
+      <button class="ad-btn ad-btn-secondary" id="am-match-cancel" data-en="Cancel" data-ko="취소">Cancel</button>
+      <button class="ad-btn ad-btn-primary" id="am-match-submit" data-en="Save Match" data-ko="매칭 저장">Save Match</button>
     </div>
   </div>
 </div>
@@ -3210,33 +3240,33 @@ global.initAnalytics = function(){ _BKA_init(); _BKA_mount(); };
 <div class="am-modal-backdrop" id="am-invite-modal" role="dialog" aria-modal="true">
   <div class="am-modal am-modal-wide">
     <div class="am-modal-h">
-      <h3 id="am-invite-title">Send Agoda Registration Invite</h3>
+      <h3 id="am-invite-title" data-en="Send Agoda Registration Invite" data-ko="아고다 등록 안내 발송">Send Agoda Registration Invite</h3>
       <button class="am-modal-close" id="am-invite-close" aria-label="Close">×</button>
     </div>
     <div class="am-modal-body">
       <div class="am-modal-info" id="am-invite-info">—</div>
       <div class="am-form-row">
-        <label>Recipient</label>
+        <label data-en="Recipient" data-ko="수신자">Recipient</label>
         <div class="am-readonly-box" id="am-invite-to">—</div>
       </div>
       <div class="am-form-row">
-        <label>Custom note (optional, max 2000 chars)</label>
-        <textarea id="am-invite-message" rows="4" placeholder="Add a personal note that will appear inside the email (e.g. 'We had a great call yesterday — looking forward to working with you.')."></textarea>
+        <label data-en="Custom note (optional, max 2000 chars)" data-ko="추가 메모 (선택, 최대 2000자)">Custom note (optional, max 2000 chars)</label>
+        <textarea id="am-invite-message" rows="4" placeholder="Add a personal note that will appear inside the email (e.g. 'We had a great call yesterday — looking forward to working with you.')." data-en="Add a personal note that will appear inside the email (e.g. 'We had a great call yesterday — looking forward to working with you.')." data-ko="메일 본문에 들어갈 개인 메모를 작성하세요 (예: '어제 통화 즐거웠습니다. 협업 기대하겠습니다.')."></textarea>
       </div>
       <div class="am-form-row">
-        <button class="ad-btn ad-btn-secondary" id="am-invite-preview">Preview Email</button>
+        <button class="ad-btn ad-btn-secondary" id="am-invite-preview" data-en="Preview Email" data-ko="메일 미리보기">Preview Email</button>
       </div>
       <div class="am-preview-area" id="am-invite-preview-area" style="display:none">
         <div class="am-preview-h">
-          <span class="am-preview-lbl">Subject:</span>
+          <span class="am-preview-lbl" data-en="Subject:" data-ko="제목:">Subject:</span>
           <span id="am-preview-subject">—</span>
         </div>
         <iframe id="am-preview-iframe" sandbox="" style="width:100%;height:400px;border:1px solid #e8e8e8;border-radius:8px;background:#fff"></iframe>
       </div>
     </div>
     <div class="am-modal-foot">
-      <button class="ad-btn ad-btn-secondary" id="am-invite-cancel">Cancel</button>
-      <button class="ad-btn ad-btn-primary" id="am-invite-send">Send Invite</button>
+      <button class="ad-btn ad-btn-secondary" id="am-invite-cancel" data-en="Cancel" data-ko="취소">Cancel</button>
+      <button class="ad-btn ad-btn-primary" id="am-invite-send" data-en="Send Invite" data-ko="안내 발송">Send Invite</button>
     </div>
   </div>
 </div>
@@ -3245,22 +3275,22 @@ global.initAnalytics = function(){ _BKA_init(); _BKA_mount(); };
 <div class="am-modal-backdrop" id="am-reject-modal" role="dialog" aria-modal="true">
   <div class="am-modal">
     <div class="am-modal-h">
-      <h3>Reject Hotel</h3>
+      <h3 data-en="Reject Hotel" data-ko="호텔 거부">Reject Hotel</h3>
       <button class="am-modal-close" id="am-reject-close" aria-label="Close">×</button>
     </div>
     <div class="am-modal-body">
       <div class="am-modal-info" id="am-reject-info">—</div>
       <div class="am-form-row">
-        <label>Reason (optional, max 500 chars)</label>
-        <textarea id="am-reject-reason" rows="3" placeholder="Why is this hotel being rejected for matching?"></textarea>
+        <label data-en="Reason (optional, max 500 chars)" data-ko="거부 사유 (선택, 최대 500자)">Reason (optional, max 500 chars)</label>
+        <textarea id="am-reject-reason" rows="3" placeholder="Why is this hotel being rejected for matching?" data-en="Why is this hotel being rejected for matching?" data-ko="이 호텔을 매칭에서 거부하는 사유를 입력하세요."></textarea>
       </div>
-      <div style="background:#fef0f0;border:1px solid #f0c8c8;border-radius:8px;padding:10px 14px;color:#9a2020;font-size:13px;line-height:1.5">
+      <div style="background:#fef0f0;border:1px solid #f0c8c8;border-radius:8px;padding:10px 14px;color:#9a2020;font-size:13px;line-height:1.5" data-en="⚠ Rejected hotels stay in the database and can be re-opened later. The manager will not be notified automatically." data-ko="⚠ 거부된 호텔은 DB에 남아 있으며 나중에 재오픈할 수 있습니다. 매니저에게 자동 통보되지 않습니다.">
         ⚠ Rejected hotels stay in the database and can be re-opened later. The manager will not be notified automatically.
       </div>
     </div>
     <div class="am-modal-foot">
-      <button class="ad-btn ad-btn-secondary" id="am-reject-cancel">Cancel</button>
-      <button class="ad-btn ad-btn-danger" id="am-reject-submit">Reject</button>
+      <button class="ad-btn ad-btn-secondary" id="am-reject-cancel" data-en="Cancel" data-ko="취소">Cancel</button>
+      <button class="ad-btn ad-btn-danger" id="am-reject-submit" data-en="Reject" data-ko="거부">Reject</button>
     </div>
   </div>
 </div>

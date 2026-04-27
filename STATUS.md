@@ -146,7 +146,7 @@
 | **다음 작업** | 8단계 - 테스트 및 배포 (운영 검증) |
 | **이번 채팅** | TW Booking Analytics 11 |
 | **다음 채팅** | TW Booking Analytics 12 |
-| **마지막 커밋** | (Phase 1 Step 7: Live booking feed on index.html) |
+| **마지막 커밋** | a717874 (Phase 1 Step 7: Live booking feed on index.html) |
 | **최종 업데이트** | 2026-04-27 |
 
 ### 7단계 완료 산출물

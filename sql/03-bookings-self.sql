@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS bookings_self (
   channel_code    TEXT REFERENCES channels(code) ON UPDATE CASCADE,
 
   -- 호텔 정보 (hotels 테이블 연결 또는 수동 입력)
-  hotel_id        BIGINT REFERENCES hotels(id) ON DELETE SET NULL,
+  hotel_id        UUID REFERENCES hotels(id) ON DELETE SET NULL,
   hotel_name      TEXT NOT NULL,                 -- hotels 미연결 시 수동 기재
   hotel_country   TEXT,
   hotel_city      TEXT,

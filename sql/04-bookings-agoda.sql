@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS bookings_agoda (
   hotel_star      INTEGER CHECK (hotel_star BETWEEN 1 AND 5),
 
   -- 호텔 매핑 (자체 hotels 테이블과 연결, 매핑 안 되면 NULL)
-  hotel_id        BIGINT REFERENCES hotels(id) ON DELETE SET NULL,
+  hotel_id        UUID REFERENCES hotels(id) ON DELETE SET NULL,
 
   -- 고객 (아고다는 통상 익명/일부만 제공)
   customer_country TEXT,                         -- 고객 국적

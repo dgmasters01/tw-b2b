@@ -101,18 +101,18 @@
 
 | 단계 | 내용 | 예상 시간 | 상태 |
 |---|---|---|---|
-| **1** | STATUS.md 시스템 구축 | 30분 | 🟡 진행 중 |
+| **1** | STATUS.md 시스템 구축 | 30분 | ✅ 완료 |
 | 1-1 | STATUS.md 작성 + GitHub 푸시 | | |
 | 1-2 | 작업 단계 마스터 리스트 포함 | | |
-| **2** | Supabase 스키마 설계 | 30분 | ⬜ 대기 |
+| **2** | Supabase 스키마 설계 | 30분 | ✅ 완료 (a39b5bc) |
 | 2-1 | `bookings_self` 테이블 (자체 영업) | | |
 | 2-2 | `bookings_agoda` 테이블 (아고다 채널) | | |
-| 2-3 | `channels` 테이블 (채널 마스터) | | |
-| 2-4 | RLS 정책 적용 | | |
-| **3** | admin.html 메뉴 재구조화 | 1시간 | ⬜ 대기 |
-| 3-1 | 좌측 사이드바 메뉴 (대시보드/예약/분석/호텔/회원) | | |
-| 3-2 | 기존 hotels/members/admins 위치 이동 | | |
-| 3-3 | 빈 탭 자리 만들기 | | |
+| 2-3 | `channels` 테이블 (채널 마스터 + 6개 시드) | | |
+| 2-4 | RLS 정책 적용 + `bookings_unified` VIEW + `v_channel_stats` VIEW | | |
+| **3** | admin.html 메뉴 재구조화 | 1시간 | ✅ 완료 (a39b5bc) |
+| 3-1 | 좌측 사이드바 6메뉴 (Dashboard/Bookings/Analytics/Hotels/Members/Team) | | |
+| 3-2 | 기존 hotels/members/admins 위치 이동 (모든 ID 보존) | | |
+| 3-3 | 빈 탭 자리 만들기 (Dashboard/Bookings/Analytics placeholder) | | |
 | **4** | 자체 예약 등록 폼 | 1시간 | ⬜ 대기 |
 | 4-1 | 신규 예약 입력 폼 UI | | |
 | 4-2 | Supabase INSERT 로직 | | |
@@ -142,12 +142,24 @@
 
 | 항목 | 내용 |
 |---|---|
-| **진행 단계** | 1단계 (STATUS.md 시스템 구축) |
-| **다음 작업** | 2단계 - Supabase 스키마 설계 |
-| **이번 채팅** | TW Booking Analytics 8 |
-| **다음 채팅** | TW Booking Analytics 9 |
-| **마지막 커밋** | 14a507d (STATUS.md 마스터 파일 작성) |
+| **진행 단계** | 2-3단계 완료 |
+| **다음 작업** | 4-5단계 - 자체 예약 등록 폼 + 아고다 엑셀 업로드 |
+| **이번 채팅** | TW Booking Analytics 9 |
+| **다음 채팅** | TW Booking Analytics 10 |
+| **마지막 커밋** | a39b5bc (Phase 1 Step 2-3: schema + admin sidebar restructure) |
 | **최종 업데이트** | 2026-04-27 |
+
+### 2-3단계 완료 산출물
+- `sql/00-helpers.sql`: `is_admin()` 함수
+- `sql/02-channels.sql`: channels 마스터 + 6개 채널 시드 (TW/HT/KT/TC/JP/ZH)
+- `sql/03-bookings-self.sql`: 자체 영업 예약 (admin-only RLS)
+- `sql/04-bookings-agoda.sql`: 아고다 채널 예약 (channel_code+booking_id UNIQUE)
+- `sql/05-bookings-unified-view.sql`: `bookings_unified` + `v_channel_stats` VIEW
+- `sql/_apply-phase1-step2-bundle.sql`: **Supabase SQL Editor 한 번에 실행용 합본**
+- `admin.html`: 좌측 사이드바 6메뉴 (기존 ID/JS 100% 보존, mobile responsive)
+
+### 4-5단계 시작 시 PENDING 확인 필수
+**대표님 작업**: Supabase SQL Editor에서 `sql/_apply-phase1-step2-bundle.sql` 실행 필요. 미실행 시 4-5단계 INSERT/UPLOAD가 작동하지 않음.
 
 ---
 
@@ -218,6 +230,8 @@ Claude는 다음 시점에 새 채팅 안내를 먼저 합니다:
 |---|---|---|
 | 2026-04-27 | STATUS.md 신규 작성 (통합 작업 마스터 인수인계) | TW Booking Analytics 8 |
 | 2026-04-27 | booking-analytics.html v9.1 복원 (커밋 c7997a1) | TW Booking Analytics 8 |
+| 2026-04-27 | Phase 1 Step 2 완료: schema (channels/bookings_self/bookings_agoda + RLS + unified VIEW) | TW Booking Analytics 9 |
+| 2026-04-27 | Phase 1 Step 3 완료: admin.html 좌측 사이드바 6메뉴 재구조화 (커밋 a39b5bc) | TW Booking Analytics 9 |
 
 ---
 

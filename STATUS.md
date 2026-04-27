@@ -146,7 +146,7 @@
 | **다음 작업** | Phase 1 운영 시작 — 실제 예약 누적 → Phase 2 (아고다 Long Search API) 검토 |
 | **이번 채팅** | TW Booking Analytics 11 |
 | **다음 채팅** | (Phase 1 완료, Phase 2 별도 채팅 시작 시 STATUS.md 갱신) |
-| **마지막 커밋** | (8단계 STATUS.md 푸시 후 갱신 예정) |
+| **마지막 커밋** | d9fcb4e (Phase 1 Step 8 완료 — Phase 1 전체 완료) |
 | **최종 업데이트** | 2026-04-27 |
 
 ### 8단계 완료 산출물 (테스트 및 배포 — 운영 검증)

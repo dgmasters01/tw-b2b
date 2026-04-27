@@ -313,6 +313,7 @@ Claude는 다음 시점에 새 채팅 안내를 먼저 합니다:
 | 2026-04-27 | Phase 1 Step 6 완료: 분석 대시보드 8탭 이식 (admin.html Analytics 탭, bookings_unified 동적 쿼리, aggregateAll 집계, bka- namespace, 커밋 86e8ddd) | TW Booking Analytics 11 |
 | 2026-04-27 | Phase 1 Step 7 완료: 메인 페이지 라이브 예약 피드 (v_public_recent_bookings + v_public_stats VIEW 신규, PII 0 노출 검증, index.html 카운터 4 + Activity Stream + 한·영 토글) | TW Booking Analytics 11 |
 | 2026-04-27 | **Phase 1 Step 8 완료 — Phase 1 전체 완료**: Vercel 배포 검증(dd0d5fa READY) / PII 보안 최종 재검증(더미 INSERT → 공개 VIEW PII 0 노출 → DELETE → 0 복귀) / 데스크톱·모바일 E2E (Playwright Chromium, 콘솔 에러 0건, 카운터 1/$350/1/1, 모바일 2x2 그리드) / 운영 워크플로 end-to-end 검증 | TW Booking Analytics 11 |
+| 2026-04-27 | **Phase 2 Step 1 완료**: 사이드바 fixed positioning (스크롤 후 메뉴 클릭 버그 해결). PHASE2.md 신규 작성 (호텔 정보 동기화/성급 매칭/i18n 인수인계 문서) | TW Booking Analytics 12 |
 
 ---
 

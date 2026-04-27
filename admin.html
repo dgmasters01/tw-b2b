@@ -256,9 +256,13 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
         <div class="ad-logo-text">Admin Console</div>
       </a>
       <div class="ad-nav-right">
+        <div class="ad-lang-switch" style="display:inline-flex;gap:0;border:1px solid #e5e7eb;border-radius:6px;overflow:hidden;margin-right:12px;font-size:12px;">
+          <button id="lang-en" class="ad-lang-btn active" type="button" style="padding:6px 12px;background:#111;border:0;cursor:pointer;font-weight:600;color:#fff;">EN</button>
+          <button id="lang-ko" class="ad-lang-btn" type="button" style="padding:6px 12px;background:#fff;border:0;cursor:pointer;font-weight:600;color:#6b7280;border-left:1px solid #e5e7eb;">한국어</button>
+        </div>
         <span id="user-email">—</span>
-        <a href="forgot-password.html" class="ad-logout">Change password</a>
-        <button class="ad-logout" id="btn-logout">Sign out</button>
+        <a href="forgot-password.html" class="ad-logout" data-en="Change password" data-ko="비밀번호 변경">Change password</a>
+        <button class="ad-logout" id="btn-logout" data-en="Sign out" data-ko="로그아웃">Sign out</button>
       </div>
     </div>
 
@@ -271,8 +275,8 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
       <div class="ad-card">
         <div class="ad-card-h"><h3>📊 Dashboard</h3></div>
         <div class="ad-empty">
-          <p style="font-size:14px;margin:0 0 8px;color:#555;"><strong>실시간 비즈니스 요약</strong></p>
-          <p style="font-size:13px;color:#888;margin:0;">총 예약, 매출, 채널 성과, 최근 활동 — Phase 1 Step 7에서 구현 예정.</p>
+          <p style="font-size:14px;margin:0 0 8px;color:#555;"><strong data-en="Real-time Business Summary" data-ko="실시간 비즈니스 요약">Real-time Business Summary</strong></p>
+          <p style="font-size:13px;color:#888;margin:0;" data-en="Total bookings, revenue, channel performance, recent activity — to be implemented in Phase 1 Step 7." data-ko="총 예약, 매출, 채널 성과, 최근 활동 — Phase 1 Step 7에서 구현 예정.">Total bookings, revenue, channel performance, recent activity — to be implemented in Phase 1 Step 7.</p>
         </div>
       </div>
     </div>
@@ -397,7 +401,7 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
     <!-- setActiveTab('analytics') 시 window.BKA.mount() 호출, 다른 탭 이탈 시 unmount(). -->
     <div id="tab-analytics" class="ad-tab-pane" style="display:none;">
       <div class="W">
-        <div class="H"><div><h1>TW Booking Analytics</h1></div><div class="m">아고다 2계정 합산<br><span class="u">데이터: 2026.04.15</span></div></div>
+        <div class="H"><div><h1>TW Booking Analytics</h1></div><div class="m"><span data-en="Agoda 2-account combined" data-ko="아고다 2계정 합산">Agoda 2-account combined</span><br><span class="u" data-en="Data: 2026.04.15" data-ko="데이터: 2026.04.15">Data: 2026.04.15</span></div></div>
         <div class="T" id="tabs"></div>
         <div id="ct"></div>
       </div>
@@ -2296,6 +2300,266 @@ global.initAnalytics = function(){ _BKA_init(); _BKA_mount(); };
 
 })(typeof window !== 'undefined' ? window : this);
 </script>
+
+
+<!-- ============================================
+  Phase 3 Step 3: i18n Engine
+  - EN/KO 토글 → admin DOM 텍스트 노드 치환
+  - data-en/data-ko 속성 자동 처리 (shared.js와 호환)
+  - booking IIFE 동적 렌더링 영역(#tab-analytics)도 사전 기반 치환
+  - mount/unmount 후크: BKA.rr 후 자동 재적용
+============================================ -->
+<script>
+(function(){
+  'use strict';
+
+  // ---- i18n 사전 (영어 → 한국어) ----
+  // 영어가 기본, 사용자가 한국어로 토글하면 사전을 역방향 적용 (DOM에는 한국어 원본 → 영어로 우선 치환 후 재토글)
+  var DICT = {
+    "real-time business summary": "실시간 비즈니스 요약",
+    "agoda 2-account combined": "아고다 2계정 합산",
+
+    // booking analytics core
+    "Total Valid Bookings": "총 유효 예약",
+    "Total Revenue": "총 예약금액",
+    "Total Commission (Confirmed)": "총 수수료(확정)",
+    "Avg per Booking": "건당 평균",
+    "Including Expected": "예상포함",
+    "By Year": "연도별",
+    "Year": "연도",
+    "Bookings": "예약",
+    "Amount": "금액",
+    "Commission": "수수료",
+    "Pending": "대기",
+    "Monthly Bookings": "월별 예약건수",
+    "Monthly Amount & Commission": "월별 금액 & 수수료",
+    "By Device": "기기별",
+    "App": "앱",
+    "Web": "웹",
+    "By Day of Week": "요일별",
+    "Daily Calendar": "일별 캘린더",
+    "By Channel": "채널별",
+    "Channel": "채널",
+    "By Country": "나라별",
+    "By Country (All)": "나라별 (전체)",
+    "By Country / Stars": "나라별 성급",
+    "By City": "도시별",
+    "City Booking Performance": "도시별 예약 실적",
+    "By Hotel": "호텔별",
+    "All Hotels": "전체 호텔",
+    "Overall": "전체 현황",
+    "Booking Details": "예약 상세",
+    "Booking Pattern": "예약 패턴",
+    "Booking #": "예약번호",
+    "Booking Date": "예약일",
+    "Check-in": "체크인",
+    "Check-out": "체크아웃",
+    "Stayed": "투숙완료",
+    "Confirmed": "확정",
+    "Billed": "청구",
+    "Total Bookings": "총 예약",
+    "Total Amount": "총 금액",
+    "Refresh": "갱신",
+    "Last Updated": "최종 업데이트",
+    "Annual Performance": "년간 실적",
+    "By Star Rating": "성급별",
+    "Stars": "성급",
+    "Star Rating Live Sync": "성급 라이브 동기화",
+    "Sales Dashboard": "영업 대시보드",
+    "Sales Lead": "영업 담당자",
+    "Sales Proposal Text": "영업 제안 문구",
+    "Sales Points": "영업 포인트",
+    "Sales": "영업",
+    "Customer Rating": "고객 평점",
+    "Search Hotels": "호텔 검색",
+    "Hotel name, city, country": "호텔명, 도시, 나라",
+    "Search by hotel name, city, country": "호텔명, 도시, 나라로 검색",
+    "Enter a search term to find hotels": "검색어를 입력하면 호텔을 찾을 수 있습니다",
+    "No data": "데이터 없음",
+    "Hotel Info": "호텔 기본정보",
+    "Hotel Network": "호텔 네트워크",
+    "Phone": "전화번호",
+    "Email": "이메일",
+    "Address": "주소",
+    "Website": "웹사이트",
+    "Awaiting Hotel Manager Registration": "호텔 매니저 등록 대기 중",
+    "Live Sync": "실시간 동기화",
+    "Sync": "동기화",
+    "Actual Bookings": "실제 예약 발생",
+    "Our Channel Strength": "우리 채널의 강점",
+    "Korea · Japan · Taiwan · Vietnam · English": "한국·일본·대만·베트남·영어권",
+    "Global Coverage": "글로벌 커버리지",
+    "Loading": "조회 중",
+    "Site": "사이트",
+    "YouTube": "유튜브",
+    "External": "외부",
+    "Impressions": "노출",
+    "Share": "비중",
+    "Devices": "기기별",
+    "Daily": "일자별",
+    "Monthly": "월별",
+    "Korea": "한국",
+    "Japan": "일본",
+    "Taiwan": "대만",
+    "Vietnam": "베트남",
+    "English": "영어권",
+    "Mon": "월",
+    "Tue": "화",
+    "Wed": "수",
+    "Thu": "목",
+    "Fri": "금",
+    "Sat": "토",
+    "Sun": "일"
+  };
+
+  // 한국어 → 영어 역사전 (booking IIFE 가 한국어로 렌더링하므로 → 영어로 변환)
+  var REV = {};
+  Object.keys(DICT).forEach(function(en){ REV[DICT[en]] = en; });
+
+  // 단어 단위 추가 매핑 (조사/접미사)
+  var SUFFIX = {
+    "건": "",            // 건수 → 빈 문자열 (숫자 뒤 단위)
+    "건당": "",
+    "개국": " countries",
+    "도시": " cities",
+    "호텔": " hotels",
+    "곳": " items",
+    "년": "",
+    "월": " month"
+  };
+
+  // ---- DOM 텍스트 노드 치환 함수 ----
+  function applyLang(root, lang){
+    if (!root) return;
+    // 1) data-en / data-ko 속성 처리
+    root.querySelectorAll('[data-en],[data-ko]').forEach(function(el){
+      var v = el.getAttribute('data-' + lang);
+      if (v == null) return;
+      if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') el.placeholder = v;
+      else el.innerHTML = v;
+    });
+
+    // 2) booking IIFE 영역만 텍스트 노드 치환 (#tab-analytics 내부)
+    var ana = document.getElementById('tab-analytics');
+    if (!ana) return;
+    var dict = (lang === 'en') ? REV : DICT;  // 현재 언어가 en이면 ko→en 치환
+    walkText(ana, dict);
+  }
+
+  function walkText(node, dict){
+    if (node.nodeType === 3) {  // TEXT_NODE
+      var t = node.nodeValue;
+      var changed = false;
+      var newT = t;
+      // 정확히 일치하는 키부터 치환 (긴 것 먼저)
+      var keys = Object.keys(dict).sort(function(a,b){ return b.length - a.length; });
+      for (var i = 0; i < keys.length; i++){
+        var k = keys[i];
+        if (newT.indexOf(k) !== -1){
+          // 정확 단어 경계가 어려우니 단순 substring 치환 (사전이 충분히 specific 함)
+          newT = newT.split(k).join(dict[k]);
+          changed = true;
+        }
+      }
+      if (changed) node.nodeValue = newT;
+      return;
+    }
+    if (node.nodeType !== 1) return;  // ELEMENT_NODE only
+    // SCRIPT/STYLE 무시
+    var tag = node.tagName;
+    if (tag === 'SCRIPT' || tag === 'STYLE') return;
+    // 자식 순회
+    var children = node.childNodes;
+    for (var i = 0; i < children.length; i++){
+      walkText(children[i], dict);
+    }
+  }
+
+  // ---- 토글 버튼 핸들러 ----
+  function setLang(l){
+    if (l !== 'en' && l !== 'ko') l = 'en';
+    try { localStorage.setItem('tw-lang', l); } catch(e){}
+    if (window.TW) window.TW.lang = l;
+
+    var enBtn = document.getElementById('lang-en');
+    var koBtn = document.getElementById('lang-ko');
+    if (enBtn){
+      enBtn.style.background = (l === 'en') ? '#111' : '#fff';
+      enBtn.style.color = (l === 'en') ? '#fff' : '#6b7280';
+      enBtn.classList.toggle('active', l === 'en');
+    }
+    if (koBtn){
+      koBtn.style.background = (l === 'ko') ? '#111' : '#fff';
+      koBtn.style.color = (l === 'ko') ? '#fff' : '#6b7280';
+      koBtn.classList.toggle('active', l === 'ko');
+    }
+    applyLang(document.body, l);
+  }
+
+  window.TW_setLang = setLang;
+  window.TW_applyLang = function(){ setLang(getLang()); };
+
+  function getLang(){
+    try { return localStorage.getItem('tw-lang') || 'en'; } catch(e){ return 'en'; }
+  }
+
+  // ---- 초기화 ----
+  document.addEventListener('DOMContentLoaded', function(){
+    var enBtn = document.getElementById('lang-en');
+    var koBtn = document.getElementById('lang-ko');
+    if (enBtn) enBtn.addEventListener('click', function(){ setLang('en'); });
+    if (koBtn) koBtn.addEventListener('click', function(){ setLang('ko'); });
+    setLang(getLang());
+  });
+
+  // ---- BKA mount/rr 후크 — booking 영역이 재렌더된 후 자동 재적용 ----
+  function hookBKA(){
+    if (!window.BKA) return false;
+    var origMount = window.BKA.mount;
+    if (origMount && !window.BKA._i18nHooked){
+      window.BKA.mount = function(){
+        var r = origMount.apply(this, arguments);
+        // 재렌더 후 약간 기다렸다가 i18n 적용
+        setTimeout(function(){ applyLang(document.getElementById('tab-analytics'), getLang()); }, 50);
+        setTimeout(function(){ applyLang(document.getElementById('tab-analytics'), getLang()); }, 250);
+        return r;
+      };
+      window.BKA._i18nHooked = true;
+    }
+    return true;
+  }
+
+  // BKA가 늦게 로드되므로 polling
+  var tries = 0;
+  var poll = setInterval(function(){
+    tries++;
+    if (hookBKA() || tries > 50){
+      clearInterval(poll);
+      // 마지막 한 번 더 적용
+      applyLang(document.body, getLang());
+    }
+  }, 100);
+
+  // setActiveTab도 후크: 다른 탭으로 이동했다가 돌아올 때도 재적용
+  if (typeof window.setActiveTab === 'function'){
+    var origSAT = window.setActiveTab;
+    window.setActiveTab = function(tab){
+      var r = origSAT.apply(this, arguments);
+      setTimeout(function(){ applyLang(document.body, getLang()); }, 100);
+      return r;
+    };
+  } else {
+    document.addEventListener('click', function(e){
+      var t = e.target.closest('[data-tab]');
+      if (t){
+        setTimeout(function(){ applyLang(document.body, getLang()); }, 200);
+      }
+    });
+  }
+
+})();
+</script>
+
 
 </body>
 </html>

@@ -314,6 +314,10 @@ Claude는 다음 시점에 새 채팅 안내를 먼저 합니다:
 | 2026-04-27 | Phase 1 Step 7 완료: 메인 페이지 라이브 예약 피드 (v_public_recent_bookings + v_public_stats VIEW 신규, PII 0 노출 검증, index.html 카운터 4 + Activity Stream + 한·영 토글) | TW Booking Analytics 11 |
 | 2026-04-27 | **Phase 1 Step 8 완료 — Phase 1 전체 완료**: Vercel 배포 검증(dd0d5fa READY) / PII 보안 최종 재검증(더미 INSERT → 공개 VIEW PII 0 노출 → DELETE → 0 복귀) / 데스크톱·모바일 E2E (Playwright Chromium, 콘솔 에러 0건, 카운터 1/$350/1/1, 모바일 2x2 그리드) / 운영 워크플로 end-to-end 검증 | TW Booking Analytics 11 |
 | 2026-04-27 | **Phase 2 Step 1 완료**: 사이드바 fixed positioning (스크롤 후 메뉴 클릭 버그 해결). PHASE2.md 신규 작성 (호텔 정보 동기화/성급 매칭/i18n 인수인계 문서) | TW Booking Analytics 12 |
+| 2026-04-27 | **Phase 2 Step 2 완료**: hotels DB 라이브 동기화 — booking-analytics에 fillHotelInfo + syncStarRatings + _hotelsCache 후크 (커밋 efb7658) | TW Booking Analytics 13~14 |
+| 2026-04-27 | **Phase 3 Step 1 완료**: booking-analytics IIFE 모듈화 — `window.BKA = {init, mount, unmount, invalidateCache}` 노출 (커밋 a2bd697) | TW Booking Analytics 15 |
+| 2026-04-27 | **Phase 3 Step 2 완료**: iframe 제거 + booking-analytics 네이티브 통합 — admin.html에 booking IIFE 직접 흡수, CSS는 `#tab-analytics` 스코프 자동 변환 (커밋 66997c6) | TW Booking Analytics 16~17 |
+| 2026-04-27 | **Phase 3 Step 3 완료**: i18n 영어/한국어 토글 — admin 우상단 EN/한국어 버튼 추가, booking IIFE 1MB 무수정 + DOM 텍스트 노드 사전 기반 치환 엔진 도입(약 90개 매핑), `BKA.mount` / `setActiveTab` 후크로 자동 재적용, localStorage 영속화. JS 7/7 검증 + jsdom EN↔KO 시뮬레이션 통과 | TW Booking Analytics 19 |
 
 ---
 

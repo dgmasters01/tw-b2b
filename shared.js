@@ -118,7 +118,7 @@
     return false; // 캐시 없으면 false. 비동기 체크 권장.
   };
 
-  // 비동기 체크 (DB 조회) - 정확한 권한 확인
+  // 비동기 체크 (DB RPC 호출) - RLS 순환 참조 회피
   window.TW.checkAdmin = async function (user) {
     if (!user || !user.email) return { is_admin: false, role: null };
     var c = _adminCache[user.id];
@@ -127,15 +127,25 @@
     }
     if (!sb) return { is_admin: false, role: null };
     try {
-      var r = await sb.from('admins').select('role, is_active').eq('email', user.email).maybeSingle();
-      var isAdminUser = !!(r.data && r.data.is_active);
+      // SECURITY DEFINER 함수 호출 - RLS 우회
+      var rpcRes = await sb.rpc('is_admin');
+      var isAdminUser = !!(rpcRes.data === true);
+      var role = null;
+      // role은 추가 조회 (관리자만 admins 테이블 SELECT 가능)
+      if (isAdminUser) {
+        try {
+          var r = await sb.from('admins').select('role').eq('email', user.email).maybeSingle();
+          if (r.data) role = r.data.role;
+        } catch(e) {}
+      }
       _adminCache[user.id] = {
         is_admin: isAdminUser,
-        role: r.data ? r.data.role : null,
+        role: role,
         expires: Date.now() + ADMIN_CACHE_TTL
       };
-      return { is_admin: isAdminUser, role: r.data ? r.data.role : null };
+      return { is_admin: isAdminUser, role: role };
     } catch (e) {
+      console.error('checkAdmin error:', e);
       return { is_admin: false, role: null };
     }
   };

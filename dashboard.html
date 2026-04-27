@@ -148,9 +148,9 @@ body{margin:0;background:#f7f7f7;font-family:'DM Sans','Noto Sans KR',sans-serif
     html += '<p class="dh-section-sub" data-en="Get started by registering your hotel." data-ko="호텔을 등록하고 시작하세요.">Get started by registering your hotel.</p>';
     html += '<div class="dh-card"><div class="dh-empty">';
     html += '<div class="dh-empty-icon">🏨</div>';
-    html += '<h3>' + (T.lang === 'ko' ? '아직 등록된 호텔이 없습니다' : 'No hotel registered yet') + '</h3>';
-    html += '<p style="margin-bottom:24px">' + (T.lang === 'ko' ? '아고다 URL을 붙여넣으면 호텔 정보를 자동으로 가져옵니다.' : 'Paste your Agoda URL and we\'ll auto-fill your hotel info.') + '</p>';
-    html += '<a href="hotel-info.html" class="dh-btn dh-btn-primary">' + (T.lang === 'ko' ? '호텔 등록하기 →' : 'Register Hotel →') + '</a>';
+    html += '<h3 data-en="No hotel registered yet" data-ko="아직 등록된 호텔이 없습니다">No hotel registered yet</h3>';
+    html += '<p style="margin-bottom:24px" data-en="Paste your Agoda URL and we\'ll auto-fill your hotel info." data-ko="아고다 URL을 붙여넣으면 호텔 정보를 자동으로 가져옵니다.">Paste your Agoda URL and we\'ll auto-fill your hotel info.</p>';
+    html += '<a href="hotel-info.html" class="dh-btn dh-btn-primary" data-en="Register Hotel →" data-ko="호텔 등록하기 →">Register Hotel →</a>';
     html += '</div></div>';
     $('dh-main').innerHTML = html;
     T.switchLang(T.lang);

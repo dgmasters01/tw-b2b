@@ -66,6 +66,53 @@
 .hi-class-stars{font-size:18px;letter-spacing:1px;margin-bottom:6px}
 .hi-class-label{font-size:13px;font-weight:600;color:#1a1a1a}
 .hi-class-card:has(input:checked) .hi-class-label{color:#534AB7}
+/* === Step 4-3: 호텔 검색 UI === */
+.hi-search-wrap{position:relative}
+.hi-search-input{width:100%;padding:14px 18px 14px 44px;border:1.5px solid #d8d8d8;border-radius:10px;font-size:15px;font-family:inherit;box-sizing:border-box;transition:all .15s;background:#fff}
+.hi-search-input:focus{outline:none;border-color:#534AB7;box-shadow:0 0 0 3px rgba(83,74,183,.1)}
+.hi-search-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:#888;pointer-events:none;font-size:16px}
+.hi-search-results{margin-top:14px;display:none}
+.hi-search-results.active{display:block}
+.hi-search-loading{padding:20px;text-align:center;color:#888;font-size:13px}
+.hi-search-empty{padding:24px;text-align:center;color:#999;font-size:13px;background:#fafafa;border:1px dashed #ddd;border-radius:8px}
+.hi-search-card{display:flex;gap:14px;padding:14px;border:1.5px solid #e8e8e8;border-radius:10px;margin-bottom:10px;cursor:pointer;background:#fff;transition:all .15s;align-items:flex-start}
+.hi-search-card:hover{border-color:#534AB7;background:#fafaff;box-shadow:0 2px 10px rgba(83,74,183,.08)}
+.hi-search-thumb{width:80px;height:80px;border-radius:8px;background:#eee;background-size:cover;background-position:center;flex-shrink:0}
+.hi-search-info{flex:1;min-width:0}
+.hi-search-name{font-size:15px;font-weight:600;color:#1a1a1a;margin:0 0 4px;line-height:1.35}
+.hi-search-addr{font-size:12.5px;color:#888;margin:0 0 8px;line-height:1.45;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.hi-search-meta{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.hi-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;font-size:11px;border-radius:4px;font-weight:600;line-height:1.3}
+.hi-badge-agoda{background:#fff5e6;color:#d97706;border:1px solid #fcd9a8}
+.hi-badge-stars{background:#fff8dc;color:#9a6e00;border:1px solid #f0d96f}
+.hi-badge-rating{background:#eef5ff;color:#1d4ed8;border:1px solid #c8daf7}
+.hi-badge-price{background:#e8f5e9;color:#0a7c3a;border:1px solid #a8d8b8}
+.hi-search-help{font-size:12px;color:#999;margin-top:10px;line-height:1.5}
+/* === URL 백업 펼치기 === */
+.hi-url-backup{margin-top:18px;border-top:1px solid #eee;padding-top:14px}
+.hi-url-toggle{background:none;border:none;color:#534AB7;font-size:13px;font-weight:500;cursor:pointer;padding:6px 0;display:flex;align-items:center;gap:6px;font-family:inherit}
+.hi-url-toggle:hover{text-decoration:underline}
+.hi-url-toggle .arrow{transition:transform .2s;display:inline-block;font-size:11px}
+.hi-url-toggle.open .arrow{transform:rotate(90deg)}
+.hi-url-content{display:none;margin-top:12px;background:#fafafa;border:1px solid #e8e8e8;border-radius:10px;padding:18px}
+.hi-url-content.open{display:block}
+.hi-url-help{font-size:13px;color:#666;line-height:1.55;background:#fff;border:1px solid #ececec;border-radius:8px;padding:10px 12px}
+/* === 안내 모달 === */
+.hi-modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:none;align-items:center;justify-content:center;padding:20px}
+.hi-modal-backdrop.open{display:flex}
+.hi-modal{background:#fff;border-radius:14px;max-width:480px;width:100%;padding:32px 28px;box-shadow:0 10px 40px rgba(0,0,0,.2);max-height:90vh;overflow-y:auto}
+.hi-modal-icon{width:56px;height:56px;background:#f5f3ff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 16px}
+.hi-modal-title{font-family:'Fraunces',serif;font-size:22px;font-weight:600;color:#1a1a1a;text-align:center;margin:0 0 12px}
+.hi-modal-text{font-size:14px;color:#555;line-height:1.65;margin:0 0 18px;text-align:center}
+.hi-modal-list{background:#f7f6ff;border-radius:10px;padding:16px 18px;margin:0 0 22px;font-size:13.5px;color:#333;line-height:1.7}
+.hi-modal-list ul{margin:6px 0 0;padding-left:20px}
+.hi-modal-list li{margin-bottom:4px}
+.hi-modal-btn{width:100%;padding:14px;background:#1a1a1a;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;transition:background .15s}
+.hi-modal-btn:hover{background:#000}
+/* === 숙소 유형 / 직책 드롭다운 === */
+.hi-select{width:100%;padding:11px 14px;border:1px solid #d8d8d8;border-radius:8px;font-size:14px;font-family:inherit;box-sizing:border-box;background:#fff;transition:border-color .15s;-webkit-appearance:menulist;appearance:menulist}
+.hi-select:focus{outline:none;border-color:#534AB7;box-shadow:0 0 0 3px rgba(83,74,183,.1)}
+.hi-readonly{background:#f5f5f5;color:#666;cursor:not-allowed}
 @media (max-width:720px){.hi-row{grid-template-columns:1fr}.hi-result-grid{grid-template-columns:1fr}.hi-step-row{flex-direction:column;border-bottom:none}.hi-step{border-bottom:1px solid #eee}.hi-class-grid{grid-template-columns:repeat(3,1fr);gap:6px}.hi-class-card{padding:12px 6px}.hi-class-stars{font-size:14px}.hi-class-label{font-size:11px}}
 </style>
 </head>
@@ -85,10 +132,10 @@
 
   <div class="hi-card">
     <h1 class="hi-title" data-en="Hotel Information" data-ko="호텔 정보">Hotel Information</h1>
-    <p class="hi-desc" data-en="Paste your Agoda URL and we'll auto-fill most details for you. Review and confirm to proceed." data-ko="아고다 URL을 붙여넣으시면 호텔 정보를 자동으로 가져옵니다. 확인 후 다음 단계로 진행하세요.">Paste your Agoda URL and we'll auto-fill most details for you. Review and confirm to proceed.</p>
+    <p class="hi-desc" data-en="Search your hotel by name. We'll auto-fill most details and check Agoda registration. Review and confirm to proceed." data-ko="호텔명으로 검색하시면 호텔 정보와 Agoda 등록 여부를 자동으로 확인해 드립니다. 정보를 확인하고 저장해 주세요.">Search your hotel by name. We'll auto-fill most details and check Agoda registration. Review and confirm to proceed.</p>
 
     <div class="hi-step-row">
-      <div class="hi-step active" id="step-1"><span class="hi-step-num">1</span><span data-en="Paste Agoda URL" data-ko="아고다 URL 입력">Paste Agoda URL</span></div>
+      <div class="hi-step active" id="step-1"><span class="hi-step-num">1</span><span data-en="Search Hotel" data-ko="호텔 검색">Search Hotel</span></div>
       <div class="hi-step" id="step-2"><span class="hi-step-num">2</span><span data-en="Review & Confirm" data-ko="확인 및 저장">Review & Confirm</span></div>
       <div class="hi-step" id="step-3"><span class="hi-step-num">3</span><span data-en="Done" data-ko="완료">Done</span></div>
     </div>
@@ -96,26 +143,39 @@
     <!-- STEP 1 -->
     <div class="hi-pane active" id="pane-1">
       <div class="hi-callout">
-        <strong data-en="How it works:" data-ko="작동 방식:">How it works:</strong>
-        <span data-en=" Visit your hotel page on Agoda → copy the URL → paste it here. We'll auto-fetch star rating, pricing, photos, address, phone, and website." data-ko=" 아고다에서 호텔 페이지의 URL을 복사 → 여기 붙여넣기. 성급, 가격, 사진, 주소, 전화번호, 홈페이지를 자동 수집합니다.">Visit your hotel page on Agoda → copy the URL → paste it here. We'll auto-fetch star rating, pricing, photos, address, phone, and website.</span>
+        <strong data-en="How it works:" data-ko="진행 방식:">How it works:</strong>
+        <span data-en=" Type your hotel name. We'll find it on Google and check Agoda registration. Pick yours from the list to auto-fill all details." data-ko=" 호텔명을 입력하시면 Google에서 검색하고 Agoda 등록 여부를 함께 확인해 드립니다. 목록에서 본인 호텔을 선택하면 모든 정보가 자동 입력됩니다.">Type your hotel name. We'll find it on Google and check Agoda registration. Pick yours from the list to auto-fill all details.</span>
       </div>
 
       <div class="hi-field">
-        <label class="hi-label" data-en="Agoda Hotel URL" data-ko="아고다 호텔 URL">Agoda Hotel URL</label>
-        <span class="hi-label-sub" data-en="Example: https://www.agoda.com/your-hotel/hotel/city-cc.html?hid=123456" data-ko="예시: https://www.agoda.com/your-hotel/hotel/city-cc.html?hid=123456">Example: https://www.agoda.com/your-hotel/hotel/city-cc.html?hid=123456</span>
-        <input type="url" class="hi-input" id="agoda-url" placeholder="https://www.agoda.com/...">
+        <label class="hi-label" data-en="Hotel Name *" data-ko="호텔명 *">Hotel Name *</label>
+        <span class="hi-label-sub" data-en="English name preferred (e.g. Hilton Bangkok, Marina Bay Sands)" data-ko="영문 호텔명 권장 (예: Hilton Bangkok, Marina Bay Sands)">English name preferred (e.g. Hilton Bangkok, Marina Bay Sands)</span>
+        <div class="hi-search-wrap">
+          <span class="hi-search-icon">🔍</span>
+          <input type="text" class="hi-search-input" id="hotel-search-input" placeholder="Type at least 3 characters..." autocomplete="off">
+        </div>
+        <div class="hi-search-help" data-en="Tip: include the city for better matches (e.g. 'Hilton Bangkok' not just 'Hilton')." data-ko="팁: 도시명을 함께 입력하면 더 정확합니다 (예: 'Hilton Bangkok').">Tip: include the city for better matches (e.g. 'Hilton Bangkok' not just 'Hilton').</div>
       </div>
 
-      <div class="hi-field">
-        <label class="hi-label" data-en="Hotel Name (English)" data-ko="호텔명 (영문)">Hotel Name (English)</label>
-        <span class="hi-label-sub" data-en="Optional — helps if URL parsing fails" data-ko="선택 — URL 자동 인식 실패 시 보완">Optional — helps if URL parsing fails</span>
-        <input type="text" class="hi-input" id="hotel-name-fallback" placeholder="e.g. Marina Bay Sands">
-      </div>
+      <div class="hi-search-results" id="search-results"></div>
 
-      <div class="hi-help" data-en="We'll automatically detect city, country, and Agoda location from your URL. No City ID needed." data-ko="URL에서 도시, 국가, 아고다 위치를 자동으로 감지합니다.">We'll automatically detect city, country, and Agoda location from your URL. No City ID needed.</div>
-
-      <div class="hi-btn-row">
-        <button class="hi-btn hi-btn-primary" id="btn-fetch" data-en="Fetch Hotel Info" data-ko="호텔 정보 가져오기">Fetch Hotel Info</button>
+      <!-- URL 백업 (검색으로 못 찾을 때 fallback) -->
+      <div class="hi-url-backup">
+        <button type="button" class="hi-url-toggle" id="url-backup-toggle">
+          <span class="arrow">▶</span>
+          <span data-en="Can't find your hotel? Use Agoda URL instead" data-ko="호텔을 못 찾으셨나요? 아고다 URL로 입력하기">Can't find your hotel? Use Agoda URL instead</span>
+        </button>
+        <div class="hi-url-content" id="url-backup-content">
+          <div class="hi-url-help" data-en="If your hotel is on Agoda but doesn't appear in search, paste your Agoda hotel page URL below." data-ko="호텔이 Agoda에 등록되어 있는데 검색에 나오지 않으면, 아고다 호텔 페이지 URL을 붙여넣어 주세요.">If your hotel is on Agoda but doesn't appear in search, paste your Agoda hotel page URL below.</div>
+          <div class="hi-field" style="margin-top:12px;margin-bottom:0">
+            <label class="hi-label" data-en="Agoda Hotel URL" data-ko="아고다 호텔 URL">Agoda Hotel URL</label>
+            <span class="hi-label-sub" data-en="Example: https://www.agoda.com/your-hotel/hotel/city-cc.html?hid=123456" data-ko="예시: https://www.agoda.com/your-hotel/hotel/city-cc.html?hid=123456">Example: https://www.agoda.com/your-hotel/hotel/city-cc.html?hid=123456</span>
+            <input type="url" class="hi-input" id="agoda-url" placeholder="https://www.agoda.com/...">
+            <div class="hi-btn-row" style="margin-top:14px">
+              <button class="hi-btn hi-btn-secondary" id="btn-fetch" data-en="Fetch from URL" data-ko="URL로 가져오기">Fetch from URL</button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -132,12 +192,28 @@
 
       <div class="hi-field">
         <label class="hi-label" data-en="Hotel Name *" data-ko="호텔명 *">Hotel Name *</label>
+        <span class="hi-label-sub" data-en="English name (auto-filled from search, editable)" data-ko="영문 호텔명 (검색 결과에서 자동 입력, 수정 가능)">English name (auto-filled from search, editable)</span>
         <input type="text" class="hi-input" id="edit-name" required>
       </div>
 
       <div class="hi-field">
+        <label class="hi-label" data-en="Local Name" data-ko="현지명">Local Name</label>
+        <span class="hi-label-sub" data-en="Hotel name in local language (optional)" data-ko="현지 언어 호텔명 (선택)">Hotel name in local language (optional)</span>
+        <input type="text" class="hi-input" id="edit-name-local" placeholder="">
+      </div>
+
+      <div class="hi-field">
+        <label class="hi-label" data-en="Property Type *" data-ko="숙소 유형 *">Property Type *</label>
+        <select class="hi-select" id="edit-property-type" required>
+          <option value="" data-en="Select..." data-ko="선택...">Select...</option>
+          <option value="hotel" data-en="Hotel" data-ko="호텔">Hotel</option>
+          <option value="resort" data-en="Resort" data-ko="리조트">Resort</option>
+        </select>
+      </div>
+
+      <div class="hi-field">
         <label class="hi-label" data-en="Hotel Class *" data-ko="호텔 등급 *">Hotel Class *</label>
-        <span class="hi-label-sub" data-en="We work with 3★ properties and above only" data-ko="3성급 이상의 호텔만 가능합니다">We work with 3★ properties and above only</span>
+        <span class="hi-label-sub" data-en="Auto-detected from Agoda. We work with 3★ properties and above only." data-ko="아고다 등급 자동 표시. 3성급 이상만 등록 가능합니다.">Auto-detected from Agoda. We work with 3★ properties and above only.</span>
         <div class="hi-class-grid">
           <label class="hi-class-card" data-stars="3">
             <input type="radio" name="hotel-class" value="3" id="hc-3">
@@ -155,6 +231,7 @@
             <div class="hi-class-label">5★ Luxury</div>
           </label>
         </div>
+        <div id="stars-warning" style="display:none;margin-top:8px;font-size:13px;color:#c93030;font-weight:500"></div>
       </div>
 
       <div class="hi-field">
@@ -174,6 +251,28 @@
 
       <div class="hi-row">
         <div class="hi-field">
+          <label class="hi-label" data-en="City" data-ko="도시">City</label>
+          <input type="text" class="hi-input" id="edit-city" placeholder="">
+        </div>
+        <div class="hi-field">
+          <label class="hi-label" data-en="Country" data-ko="국가">Country</label>
+          <input type="text" class="hi-input" id="edit-country" placeholder="">
+        </div>
+      </div>
+
+      <div class="hi-row">
+        <div class="hi-field">
+          <label class="hi-label" data-en="Latitude" data-ko="위도">Latitude</label>
+          <input type="text" class="hi-input" id="edit-latitude" placeholder="">
+        </div>
+        <div class="hi-field">
+          <label class="hi-label" data-en="Longitude" data-ko="경도">Longitude</label>
+          <input type="text" class="hi-input" id="edit-longitude" placeholder="">
+        </div>
+      </div>
+
+      <div class="hi-row">
+        <div class="hi-field">
           <label class="hi-label" data-en="Phone" data-ko="전화번호">Phone</label>
           <input type="text" class="hi-input" id="edit-phone">
         </div>
@@ -185,6 +284,12 @@
 
       <h3 class="hi-h3" style="margin-top:24px" data-en="Manager Contact" data-ko="매니저 연락처">Manager Contact</h3>
 
+      <div class="hi-field">
+        <label class="hi-label" data-en="Account Email (sign-up)" data-ko="가입 이메일">Account Email (sign-up)</label>
+        <span class="hi-label-sub" data-en="Your registered account email — cannot be changed here" data-ko="가입 시 등록된 이메일 — 여기서 변경 불가">Your registered account email — cannot be changed here</span>
+        <input type="email" class="hi-input hi-readonly" id="edit-signup-email" readonly>
+      </div>
+
       <div class="hi-row">
         <div class="hi-field">
           <label class="hi-label" data-en="Your Name *" data-ko="담당자 이름 *">Your Name *</label>
@@ -192,9 +297,22 @@
         </div>
         <div class="hi-field">
           <label class="hi-label" data-en="Your Position *" data-ko="직책 *">Your Position *</label>
-          <span class="hi-label-sub" data-en="e.g. GM, Marketing Director, Sales Manager" data-ko="예: GM, 마케팅 매니저">e.g. GM, Marketing Director, Sales Manager</span>
-          <input type="text" class="hi-input" id="edit-manager-position" required placeholder="General Manager">
+          <select class="hi-select" id="edit-manager-position" required>
+            <option value="" data-en="Select..." data-ko="선택...">Select...</option>
+            <option value="GM" data-en="General Manager" data-ko="총지배인 (GM)">General Manager</option>
+            <option value="Sales" data-en="Sales" data-ko="세일즈">Sales</option>
+            <option value="Reservations" data-en="Reservations" data-ko="예약 담당">Reservations</option>
+            <option value="Marketing" data-en="Marketing" data-ko="마케팅">Marketing</option>
+            <option value="Revenue Management" data-en="Revenue Management" data-ko="매출관리">Revenue Management</option>
+            <option value="Owner" data-en="Owner" data-ko="오너">Owner</option>
+            <option value="Other" data-en="Other (specify below)" data-ko="기타 (직접 입력)">Other (specify below)</option>
+          </select>
         </div>
+      </div>
+
+      <div class="hi-field" id="position-other-wrap" style="display:none">
+        <label class="hi-label" data-en="Specify Position *" data-ko="직책 직접 입력 *">Specify Position *</label>
+        <input type="text" class="hi-input" id="edit-manager-position-other" placeholder="">
       </div>
 
       <div class="hi-field">
@@ -219,8 +337,8 @@
       </div>
 
       <div class="hi-field">
-        <label class="hi-label" data-en="Phone (WhatsApp preferred)" data-ko="전화번호 (WhatsApp 우선)">Phone (WhatsApp preferred)</label>
-        <input type="text" class="hi-input" id="edit-manager-phone" placeholder="+1 234 567 8900">
+        <label class="hi-label" data-en="Phone (WhatsApp preferred) *" data-ko="전화번호 (WhatsApp 우선) *">Phone (WhatsApp preferred) *</label>
+        <input type="text" class="hi-input" id="edit-manager-phone" placeholder="+1 234 567 8900" required>
       </div>
 
       <div class="hi-btn-row">
@@ -243,12 +361,33 @@
   </div>
 </div>
 
+<!-- ===== 진입 안내 모달 ===== -->
+<div class="hi-modal-backdrop" id="intro-modal" role="dialog" aria-modal="true" aria-labelledby="intro-modal-title">
+  <div class="hi-modal">
+    <div class="hi-modal-icon">🏨</div>
+    <h2 class="hi-modal-title" id="intro-modal-title" data-en="Before you begin" data-ko="시작하기 전에">Before you begin</h2>
+    <p class="hi-modal-text" data-en="We work with hotels listed on Agoda. Here's what you should know:" data-ko="저희는 Agoda에 등록된 호텔과 협업합니다. 진행 전 다음 사항을 확인해 주세요:">We work with hotels listed on Agoda. Here's what you should know:</p>
+    <div class="hi-modal-list">
+      <ul>
+        <li data-en="Search by your hotel name. We check Agoda registration automatically." data-ko="호텔명으로 검색하시면 Agoda 등록 여부를 자동으로 확인합니다.">Search by your hotel name. We check Agoda registration automatically.</li>
+        <li data-en="If your hotel is on Agoda, you'll see the [Agoda Registered] badge — registration completes instantly." data-ko="Agoda에 등록된 호텔이면 [Agoda 등록] 뱃지가 표시되며 즉시 등록됩니다.">If your hotel is on Agoda, you'll see the [Agoda Registered] badge — registration completes instantly.</li>
+        <li data-en="If your hotel is not yet on Agoda, you can still register here. Our team will reach out to help with Agoda onboarding." data-ko="Agoda에 아직 등록되지 않은 호텔도 등록 가능합니다. 저희 팀에서 Agoda 등록 안내를 도와드립니다.">If your hotel is not yet on Agoda, you can still register here. Our team will reach out to help with Agoda onboarding.</li>
+        <li data-en="Only 3★ properties and above can be registered." data-ko="3성급 이상의 호텔만 등록 가능합니다.">Only 3★ properties and above can be registered.</li>
+      </ul>
+    </div>
+    <button class="hi-modal-btn" id="intro-modal-ok" data-en="Got it, let's start" data-ko="확인했습니다. 시작할게요">Got it, let's start</button>
+  </div>
+</div>
+
 <script>
 (function(){
   var T = window.TW;
   var $ = T.$;
   var fetched = null;
   var currentUser = null;
+  var searchDebounce = null;
+  var lastSearchQuery = '';
+  var selectedSearchResult = null;
 
   T.requireAuth(async function(user){
     currentUser = user;
@@ -264,7 +403,215 @@
         setTimeout(function(){ window.location.href = 'dashboard.html'; }, 1500);
       }
     });
+    // 가입 이메일 표시
+    var sigEmail = $('edit-signup-email');
+    if (sigEmail && user && user.email) sigEmail.value = user.email;
   });
+
+  // ========== 진입 안내 모달 ==========
+  var introModal = $('intro-modal');
+  var introOk = $('intro-modal-ok');
+  // 페이지 진입 시 모달 표시 (이미 호텔 등록한 사용자는 redirect되므로 여기 도달 안함)
+  if (introModal) {
+    introModal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeIntroModal(){
+    if (introModal) {
+      introModal.classList.remove('open');
+      document.body.style.overflow = '';
+      // 검색창에 포커스
+      setTimeout(function(){
+        var s = $('hotel-search-input');
+        if (s) s.focus();
+      }, 200);
+    }
+  }
+  if (introOk) introOk.addEventListener('click', closeIntroModal);
+  // ESC 키로도 닫기
+  document.addEventListener('keydown', function(e){
+    if (e.key === 'Escape' && introModal && introModal.classList.contains('open')) {
+      closeIntroModal();
+    }
+  });
+  // 백드롭 클릭으로 닫기
+  if (introModal) {
+    introModal.addEventListener('click', function(e){
+      if (e.target === introModal) closeIntroModal();
+    });
+  }
+
+  // ========== URL 백업 펼치기 토글 ==========
+  var urlBackupToggle = $('url-backup-toggle');
+  var urlBackupContent = $('url-backup-content');
+  if (urlBackupToggle) {
+    urlBackupToggle.addEventListener('click', function(){
+      var isOpen = urlBackupContent.classList.contains('open');
+      if (isOpen) {
+        urlBackupContent.classList.remove('open');
+        urlBackupToggle.classList.remove('open');
+      } else {
+        urlBackupContent.classList.add('open');
+        urlBackupToggle.classList.add('open');
+      }
+    });
+  }
+
+  // ========== 매니저 직책 Other 조건부 표시 ==========
+  var positionSelect = $('edit-manager-position');
+  var positionOtherWrap = $('position-other-wrap');
+  if (positionSelect) {
+    positionSelect.addEventListener('change', function(){
+      if (this.value === 'Other') {
+        positionOtherWrap.style.display = 'block';
+        $('edit-manager-position-other').required = true;
+      } else {
+        positionOtherWrap.style.display = 'none';
+        $('edit-manager-position-other').required = false;
+        $('edit-manager-position-other').value = '';
+      }
+    });
+  }
+
+  // ========== 호텔명 자동완성 검색 ==========
+  var searchInput = $('hotel-search-input');
+  var searchResults = $('search-results');
+
+  if (searchInput) {
+    searchInput.addEventListener('input', function(){
+      var q = this.value.trim();
+      if (searchDebounce) clearTimeout(searchDebounce);
+      if (q.length < 3) {
+        searchResults.classList.remove('active');
+        searchResults.innerHTML = '';
+        return;
+      }
+      searchDebounce = setTimeout(function(){
+        runSearch(q);
+      }, 400);
+    });
+  }
+
+  function runSearch(query){
+    if (query === lastSearchQuery) return;
+    lastSearchQuery = query;
+    searchResults.classList.add('active');
+    searchResults.innerHTML = '<div class="hi-search-loading">' +
+      (T.lang === 'ko' ? '검색 중...' : 'Searching...') + '</div>';
+
+    T.api.agodaSearch({ query: query, maxResults: 5 }).then(function(res){
+      if (lastSearchQuery !== query) return; // 이미 새 검색이 시작됨
+      if (!res || !res.success) {
+        searchResults.innerHTML = '<div class="hi-search-empty">' +
+          (T.lang === 'ko' ? '검색 실패. 잠시 후 다시 시도하거나 아래 URL 입력을 사용하세요.' : 'Search failed. Try again or use URL input below.') +
+          '</div>';
+        return;
+      }
+      if (!res.results || res.results.length === 0) {
+        searchResults.innerHTML = '<div class="hi-search-empty">' +
+          (T.lang === 'ko' ? '결과가 없습니다. 호텔명에 도시명을 추가해 보시거나 아래 URL 입력을 사용하세요.' : 'No results. Try adding city name, or use URL input below.') +
+          '</div>';
+        return;
+      }
+      renderSearchCards(res.results);
+    }).catch(function(err){
+      console.error('Search error:', err);
+      searchResults.innerHTML = '<div class="hi-search-empty">' +
+        (T.lang === 'ko' ? '검색 오류: ' : 'Search error: ') + esc(err.message || 'unknown') +
+        '</div>';
+    });
+  }
+
+  function renderSearchCards(results){
+    var html = '';
+    results.forEach(function(r, idx){
+      var g = r.google || {};
+      var a = r.agoda;
+      var matched = !!r.matched;
+      var thumb = (g.photos && g.photos[0]) ? g.photos[0].url : '';
+      var name = g.name || '';
+      var addr = g.address || '';
+      var meta = '';
+      if (matched && a) {
+        meta += '<span class="hi-badge hi-badge-agoda">' + (T.lang === 'ko' ? '✓ Agoda 등록' : '✓ Agoda Registered') + '</span>';
+        if (a.starRating) {
+          meta += '<span class="hi-badge hi-badge-stars">' + a.starRating + '★</span>';
+        }
+        if (a.dailyRate) {
+          meta += '<span class="hi-badge hi-badge-price">$' + Math.round(a.dailyRate) + '/' + (T.lang === 'ko' ? '박' : 'night') + '</span>';
+        }
+      } else {
+        meta += '<span class="hi-badge" style="background:#f5f5f5;color:#888;border:1px solid #e0e0e0">' + (T.lang === 'ko' ? 'Agoda 미등록' : 'Not on Agoda') + '</span>';
+      }
+      if (g.rating) {
+        meta += '<span class="hi-badge hi-badge-rating">★ ' + g.rating + ' (' + (g.ratingCount || 0) + ')</span>';
+      }
+      html += '<div class="hi-search-card" data-idx="' + idx + '">';
+      html += '<div class="hi-search-thumb"' + (thumb ? ' style="background-image:url(' + esc(thumb) + ')"' : '') + '></div>';
+      html += '<div class="hi-search-info">';
+      html += '<h4 class="hi-search-name">' + esc(name) + '</h4>';
+      html += '<p class="hi-search-addr">' + esc(addr) + '</p>';
+      html += '<div class="hi-search-meta">' + meta + '</div>';
+      html += '</div></div>';
+    });
+    searchResults.innerHTML = html;
+    // 카드 클릭 핸들러
+    var cards = searchResults.querySelectorAll('.hi-search-card');
+    cards.forEach(function(card){
+      card.addEventListener('click', function(){
+        var idx = parseInt(this.getAttribute('data-idx'), 10);
+        selectSearchResult(results[idx]);
+      });
+    });
+  }
+
+  function selectSearchResult(r){
+    selectedSearchResult = r;
+    var g = r.google || {};
+    var a = r.agoda;
+
+    // process-hotel.js의 응답 구조와 호환되도록 fetched 객체 구성
+    var photos = (g.photos || []).map(function(p){ return { url: p.url, name: p.name }; });
+    if (a && a.imageURL) photos.unshift({ url: a.imageURL });
+
+    fetched = {
+      success: true,
+      agoda: a || null,
+      google: g || null,
+      merged: {
+        hotel_name: g.name || (a ? a.hotelName : ''),
+        star_rating: a ? a.starRating : null,
+        review_score: a ? a.reviewScore : null,
+        review_count: a ? a.reviewCount : 0,
+        daily_rate: a ? a.dailyRate : null,
+        currency: a ? a.currency : 'USD',
+        image_url: a ? a.imageURL : '',
+        landing_url: a ? a.landingURL : '',
+        latitude: g.latitude || (a ? a.latitude : null),
+        longitude: g.longitude || (a ? a.longitude : null),
+        include_breakfast: a ? !!a.includeBreakfast : false,
+        free_wifi: a ? !!a.freeWifi : false,
+        google_place_id: g.placeId || '',
+        address: g.address || '',
+        phone: g.phone || '',
+        website: g.website || '',
+        google_photos: photos,
+        agoda_url: '',
+        agoda_hotel_id: a ? a.hotelId : null
+      },
+      _matchSource: 'search',
+      _matched: !!r.matched,
+      _cityId: r.cityId || null,
+      warnings: []
+    };
+    if (!r.matched) {
+      fetched.warnings.push(T.lang === 'ko' ?
+        'Agoda에 등록되지 않은 호텔입니다. 어드민이 매칭/등록 처리합니다.' :
+        'Hotel not yet on Agoda. Admin will handle matching/registration.');
+    }
+    renderResult(fetched);
+    setStep(2);
+  }
 
   function setStep(n){
     [1,2,3].forEach(function(i){
@@ -279,19 +626,16 @@
 
   $('btn-fetch').addEventListener('click', function(){
     var url = $('agoda-url').value.trim();
-    var fallbackName = $('hotel-name-fallback').value.trim();
 
-    if (!url && !fallbackName){
-      T.toast(T.lang === 'ko' ? 'URL 또는 호텔명을 입력하세요.' : 'Please enter URL or hotel name.', true);
+    if (!url){
+      T.toast(T.lang === 'ko' ? '아고다 URL을 입력하세요.' : 'Please enter Agoda URL.', true);
       return;
     }
 
-    if (url){
-      var parsed = T.parseAgodaUrl(url);
-      if (!parsed.valid){
-        T.toast(T.lang === 'ko' ? '아고다 URL 형식이 올바르지 않습니다.' : 'Invalid Agoda URL format.', true);
-        return;
-      }
+    var parsed = T.parseAgodaUrl(url);
+    if (!parsed.valid){
+      T.toast(T.lang === 'ko' ? '아고다 URL 형식이 올바르지 않습니다.' : 'Invalid Agoda URL format.', true);
+      return;
     }
 
     var btn = $('btn-fetch');
@@ -299,11 +643,11 @@
     btn.innerHTML = '<span class="hi-loader"></span>' + (T.lang === 'ko' ? '정보 가져오는 중...' : 'Fetching...');
 
     T.api.processHotel({
-      agodaUrl: url || null,
-      hotelName: fallbackName || null
+      agodaUrl: url,
+      hotelName: null
     }).then(function(res){
       btn.disabled = false;
-      btn.innerHTML = T.lang === 'ko' ? '호텔 정보 가져오기' : 'Fetch Hotel Info';
+      btn.innerHTML = T.lang === 'ko' ? 'URL로 가져오기' : 'Fetch from URL';
 
       if (!res || !res.success){
         T.toast(T.lang === 'ko' ? '정보 가져오기 실패' : 'Fetch failed', true);
@@ -312,11 +656,13 @@
       }
 
       fetched = res;
+      fetched._matchSource = 'url';
+      fetched._matched = !!res.agoda;
       renderResult(res);
       setStep(2);
     }).catch(function(err){
       btn.disabled = false;
-      btn.innerHTML = T.lang === 'ko' ? '호텔 정보 가져오기' : 'Fetch Hotel Info';
+      btn.innerHTML = T.lang === 'ko' ? 'URL로 가져오기' : 'Fetch from URL';
       T.toast((T.lang === 'ko' ? '오류: ' : 'Error: ') + err.message, true);
     });
   });
@@ -374,26 +720,75 @@
     $('result-summary').innerHTML = rows.join('');
 
     $('edit-name').value = m.hotel_name || '';
-    
-    // Star Rating 자동 추정 (Google rating + Agoda data 조합)
-    var estimatedStars = m.star_rating || estimateStarsFromGoogle(res);
-    if (estimatedStars >= 5) document.getElementById('hc-5').checked = true;
-    else if (estimatedStars >= 4) document.getElementById('hc-4').checked = true;
-    else if (estimatedStars >= 3) document.getElementById('hc-3').checked = true;
-    
+
+    // Star Rating: Agoda 등급 우선, 없으면 Google 추정
+    var agodaStars = m.star_rating;
+    var estimatedStars = agodaStars || estimateStarsFromGoogle(res);
+    var warnEl = $('stars-warning');
+    if (warnEl) { warnEl.style.display = 'none'; warnEl.innerHTML = ''; }
+
+    // 3성 미만 차단
+    if (estimatedStars && estimatedStars < 3) {
+      [3,4,5].forEach(function(s){
+        var el = document.getElementById('hc-' + s);
+        if (el) { el.checked = false; el.disabled = true; }
+      });
+      if (warnEl) {
+        warnEl.style.display = 'block';
+        warnEl.innerHTML = T.lang === 'ko' ?
+          '⚠ 등록 불가: 3성급 이상 호텔만 가능합니다 (현재 ' + estimatedStars + '★).' :
+          '⚠ Cannot register: only 3★ properties and above (current: ' + estimatedStars + '★).';
+      }
+    } else {
+      [3,4,5].forEach(function(s){
+        var el = document.getElementById('hc-' + s);
+        if (el) el.disabled = false;
+      });
+      if (estimatedStars >= 5) document.getElementById('hc-5').checked = true;
+      else if (estimatedStars >= 4) document.getElementById('hc-4').checked = true;
+      else if (estimatedStars >= 3) document.getElementById('hc-3').checked = true;
+    }
+
     $('edit-rate').value = m.daily_rate || '';
     $('edit-address').value = m.address || '';
     $('edit-phone').value = m.phone || '';
     $('edit-website').value = m.website || '';
-    
-    // Contact email - 가입 이메일 표시
+
+    // 도시/국가 추출 (주소에서 휴리스틱)
+    var cityCountry = parseAddressForCityCountry(m.address || '', res);
+    $('edit-city').value = cityCountry.city || '';
+    $('edit-country').value = cityCountry.country || '';
+
+    // 위경도
+    $('edit-latitude').value = (m.latitude != null) ? m.latitude : '';
+    $('edit-longitude').value = (m.longitude != null) ? m.longitude : '';
+
+    // Contact email - 가입 이메일 표시 + read-only input 채움
     if (currentUser && currentUser.email) {
+      var sigEmail = $('edit-signup-email');
+      if (sigEmail) sigEmail.value = currentUser.email;
       var emailDisplay = document.getElementById('signup-email-display');
       if (emailDisplay) emailDisplay.textContent = currentUser.email;
     }
     if (currentUser && currentUser.user_metadata) {
       $('edit-manager-name').value = currentUser.user_metadata.full_name || '';
     }
+  }
+
+  // 주소 문자열에서 city, country 추출 (간단 휴리스틱)
+  function parseAddressForCityCountry(addr, res){
+    var out = { city: '', country: '' };
+    if (!addr) return out;
+    var parts = addr.split(',').map(function(s){ return s.trim(); }).filter(Boolean);
+    if (parts.length >= 2) {
+      out.country = parts[parts.length - 1];
+      // country가 우편번호 포함되면 분리 시도
+      out.country = out.country.replace(/\s*\d{4,6}.*$/, '').trim();
+      // city는 country 앞 segment에서 우편번호 제거
+      var citySeg = parts[parts.length - 2];
+      out.city = citySeg.replace(/\s*\d{4,6}.*$/, '').trim();
+    }
+    return out;
   }
 
   // Google rating 4.7+ → 5★ / 4.3+ → 4★ / 3.8+ → 3★
@@ -436,20 +831,27 @@
 
   $('btn-save').addEventListener('click', function(){
     var name = $('edit-name').value.trim();
+    var nameLocal = $('edit-name-local').value.trim();
+    var propertyType = $('edit-property-type').value;
     var managerName = $('edit-manager-name').value.trim();
-    var managerPosition = $('edit-manager-position').value.trim();
+    var managerPositionVal = $('edit-manager-position').value;
+    var managerPositionOther = $('edit-manager-position-other').value.trim();
     var rate = $('edit-rate').value.trim();
-    
+
     // Hotel class 체크
     var classChecked = document.querySelector('input[name="hotel-class"]:checked');
     if (!classChecked) {
       T.toast(T.lang === 'ko' ? '호텔 등급을 선택하세요 (3성/4성/5성).' : 'Please select hotel class (3★/4★/5★).', true);
       return;
     }
-    
+
     // 필수 필드 검증
     if (!name){
       T.toast(T.lang === 'ko' ? '호텔명은 필수입니다.' : 'Hotel name is required.', true);
+      return;
+    }
+    if (!propertyType){
+      T.toast(T.lang === 'ko' ? '숙소 유형(호텔/리조트)을 선택하세요.' : 'Please select property type.', true);
       return;
     }
     if (!rate || parseFloat(rate) <= 0){
@@ -460,8 +862,17 @@
       T.toast(T.lang === 'ko' ? '담당자 이름은 필수입니다.' : 'Your name is required.', true);
       return;
     }
-    if (!managerPosition){
-      T.toast(T.lang === 'ko' ? '직책은 필수입니다.' : 'Your position is required.', true);
+    if (!managerPositionVal){
+      T.toast(T.lang === 'ko' ? '직책을 선택하세요.' : 'Please select your position.', true);
+      return;
+    }
+    if (managerPositionVal === 'Other' && !managerPositionOther){
+      T.toast(T.lang === 'ko' ? '직책을 직접 입력하세요.' : 'Please specify your position.', true);
+      return;
+    }
+    var managerPhone = $('edit-manager-phone').value.trim();
+    if (!managerPhone){
+      T.toast(T.lang === 'ko' ? '전화번호는 필수입니다.' : 'Phone is required.', true);
       return;
     }
 
@@ -482,30 +893,53 @@
     btn.innerHTML = '<span class="hi-loader"></span>' + (T.lang === 'ko' ? '저장 중...' : 'Saving...');
 
     var m = fetched ? fetched.merged : {};
+
+    // 위경도 (사용자 수정값 우선)
+    var lat = parseFloat($('edit-latitude').value);
+    if (isNaN(lat)) lat = m.latitude || null;
+    var lng = parseFloat($('edit-longitude').value);
+    if (isNaN(lng)) lng = m.longitude || null;
+
+    // 매칭 상태 결정
+    var matchStatus = 'manual_pending';
+    if (fetched && fetched._matchSource === 'search') {
+      matchStatus = fetched._matched ? 'auto_matched' : 'manual_pending';
+    } else if (fetched && fetched._matchSource === 'url') {
+      matchStatus = fetched._matched ? 'auto_matched' : 'manual_pending';
+    }
+
     var hotelData = {
       hotel_name: name,
+      hotel_name_local: nameLocal || null,
+      property_type: propertyType,
       star_rating: parseInt(classChecked.value, 10),
       daily_rate: parseFloat(rate) || null,
       currency: 'USD',
       address: $('edit-address').value.trim() || null,
+      city: $('edit-city').value.trim() || null,
+      country: $('edit-country').value.trim() || null,
       phone: $('edit-phone').value.trim() || null,
       website: $('edit-website').value.trim() || null,
-      latitude: m.latitude || null,
-      longitude: m.longitude || null,
+      latitude: lat,
+      longitude: lng,
       review_score: m.review_score || null,
       review_count: m.review_count || 0,
       image_url: m.image_url || null,
       agoda_url: m.agoda_url || $('agoda-url').value.trim() || null,
       agoda_hotel_id: m.agoda_hotel_id || null,
+      agoda_city_id: (fetched && fetched._cityId) || null,
+      agoda_match_status: matchStatus,
       google_place_id: m.google_place_id || null,
       include_breakfast: !!m.include_breakfast,
       free_wifi: !!m.free_wifi,
       google_photos: m.google_photos && m.google_photos.length ? m.google_photos : null,
       // Manager contact
       contact_name: managerName,
+      manager_position: managerPositionVal,
+      manager_position_other: (managerPositionVal === 'Other') ? managerPositionOther : null,
       contact_email: contactEmail,
-      contact_phone: $('edit-manager-phone').value.trim() || null,
-      whatsapp: $('edit-manager-phone').value.trim() || null,
+      contact_phone: managerPhone,
+      whatsapp: managerPhone,
       status: 'pending'
     };
 

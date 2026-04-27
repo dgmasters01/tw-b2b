@@ -207,6 +207,64 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
 #tab-analytics .pg button.on{background:var(--ac);color:#fff;border-color:var(--ac)}
 @media(max-width:640px){#tab-analytics .G{grid-template-columns:repeat(2,1fr)}#tab-analytics .S .v{font-size:18px}#tab-analytics .g2{grid-template-columns:1fr}}
 
+/* === Agoda Matching tab (Phase 3 Step 4-3) === */
+#tab-agoda-matching .am-card{background:#fff;border:1px solid #e8e8e8;border-radius:12px;padding:16px 18px;margin-bottom:12px;transition:all .15s}
+#tab-agoda-matching .am-card:hover{border-color:#d0d0d0;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+#tab-agoda-matching .am-card-h{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid #f0f0f0}
+#tab-agoda-matching .am-card-title{flex:1;min-width:0}
+#tab-agoda-matching .am-card-title h4{font-size:15px;font-weight:600;color:#1a1a1a;margin:0 0 6px;line-height:1.4}
+#tab-agoda-matching .am-card-meta{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+#tab-agoda-matching .am-card-date{font-size:12px;color:#999;flex-shrink:0;white-space:nowrap}
+#tab-agoda-matching .am-card-body{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:13px}
+#tab-agoda-matching .am-row{display:contents}
+#tab-agoda-matching .am-row-k{color:#999;font-weight:500;font-size:12px;text-transform:uppercase;letter-spacing:.3px;padding:3px 0}
+#tab-agoda-matching .am-row-v{color:#333;line-height:1.5;padding:3px 0}
+#tab-agoda-matching .am-row-v a{color:#534AB7;text-decoration:none}
+#tab-agoda-matching .am-row-v a:hover{text-decoration:underline}
+#tab-agoda-matching .am-pos{color:#888;font-size:12px}
+#tab-agoda-matching .am-card-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;padding-top:10px;border-top:1px solid #f0f0f0}
+#tab-agoda-matching .am-btn{padding:7px 14px;font-size:12.5px;border-radius:6px;font-weight:500}
+#tab-agoda-matching .ad-btn-danger{background:#fff;color:#c93030;border:1px solid #f0c8c8}
+#tab-agoda-matching .ad-btn-danger:hover{background:#fef0f0}
+#tab-agoda-matching .am-meta-pill{display:inline-block;padding:2px 8px;font-size:11px;border-radius:4px;background:#f5f5f5;color:#666;font-weight:500}
+#tab-agoda-matching .am-badge{display:inline-block;padding:3px 10px;font-size:11px;border-radius:4px;font-weight:600;letter-spacing:.2px}
+#tab-agoda-matching .am-badge-warn{background:#fff5e6;color:#a36d10;border:1px solid #fcd9a8}
+#tab-agoda-matching .am-badge-success{background:#e8f5e9;color:#0a7c3a;border:1px solid #a8d8b8}
+#tab-agoda-matching .am-badge-info{background:#eef5ff;color:#1d4ed8;border:1px solid #c8daf7}
+#tab-agoda-matching .am-badge-danger{background:#fef0f0;color:#c93030;border:1px solid #f0c8c8}
+#tab-agoda-matching .am-badge-muted{background:#f5f5f5;color:#888;border:1px solid #e0e0e0}
+@media(max-width:640px){
+  #tab-agoda-matching .am-card-body{grid-template-columns:1fr;gap:2px}
+  #tab-agoda-matching .am-row-k{padding-top:8px}
+}
+
+/* === Agoda Matching: Modals === */
+.am-modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:2000;display:none;align-items:center;justify-content:center;padding:20px}
+.am-modal-backdrop.open{display:flex}
+.am-modal{background:#fff;border-radius:12px;max-width:480px;width:100%;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 10px 40px rgba(0,0,0,.2)}
+.am-modal-wide{max-width:720px}
+.am-modal-h{display:flex;justify-content:space-between;align-items:center;padding:18px 22px;border-bottom:1px solid #eee}
+.am-modal-h h3{margin:0;font-size:17px;font-weight:600;color:#1a1a1a}
+.am-modal-close{background:none;border:none;font-size:26px;color:#888;cursor:pointer;line-height:1;padding:0;width:30px;height:30px;display:flex;align-items:center;justify-content:center;border-radius:6px}
+.am-modal-close:hover{background:#f0f0f0;color:#333}
+.am-modal-body{padding:20px 22px;overflow-y:auto;flex:1}
+.am-modal-foot{padding:14px 22px;border-top:1px solid #eee;display:flex;justify-content:flex-end;gap:10px}
+.am-modal-info{background:#f7f6ff;border:1px solid #e3deff;border-radius:8px;padding:10px 14px;margin-bottom:16px;font-size:13px;line-height:1.55;color:#333}
+.am-modal-info strong{color:#1a1a1a}
+.am-form-row{margin-bottom:16px}
+.am-form-row label{display:block;font-size:12.5px;font-weight:600;color:#444;margin-bottom:6px;text-transform:uppercase;letter-spacing:.3px}
+.am-form-row input,.am-form-row textarea{width:100%;padding:10px 12px;border:1px solid #d8d8d8;border-radius:7px;font-size:14px;font-family:inherit;box-sizing:border-box;transition:border-color .15s}
+.am-form-row input:focus,.am-form-row textarea:focus{outline:none;border-color:#534AB7;box-shadow:0 0 0 2px rgba(83,74,183,.12)}
+.am-form-row textarea{resize:vertical;min-height:80px;line-height:1.5}
+.am-form-help{font-size:11.5px;color:#888;margin-top:5px;line-height:1.4}
+.am-form-help code{background:#f5f5f5;padding:1px 5px;border-radius:3px;font-size:11px;color:#534AB7}
+.am-readonly-box{background:#f5f5f5;border:1px solid #e0e0e0;border-radius:7px;padding:10px 12px;font-size:14px;color:#555}
+.am-preview-area{margin-top:14px;border-top:1px solid #eee;padding-top:14px}
+.am-preview-h{display:flex;gap:8px;margin-bottom:10px;font-size:13px;align-items:baseline}
+.am-preview-lbl{font-weight:600;color:#666;flex-shrink:0}
+#tab-agoda-matching .ad-btn-danger,.am-modal-foot .ad-btn-danger{background:#c93030;color:#fff;border:1px solid #c93030}
+#tab-agoda-matching .ad-btn-danger:hover,.am-modal-foot .ad-btn-danger:hover{background:#a82424}
+
 </style>
 </head>
 <body>
@@ -241,6 +299,9 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
       <div class="ad-sb-section">Operations</div>
       <button class="ad-sb-item active" data-tab="hotels">
         <span class="ad-sb-icon">🏨</span><span>Hotels</span>
+      </button>
+      <button class="ad-sb-item" data-tab="agoda-matching">
+        <span class="ad-sb-icon">🔗</span><span>Agoda Matching</span>
       </button>
       <button class="ad-sb-item" data-tab="members">
         <span class="ad-sb-icon">👥</span><span>Members</span>
@@ -447,6 +508,38 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
 
         <div id="hotels-area">
           <div class="ad-loading"><div class="ad-loader"></div><span>Loading hotels...</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB: Agoda Matching (Phase 3 Step 4-3 / [6-7/8]) -->
+    <div id="tab-agoda-matching" class="ad-tab-pane" style="display:none;">
+      <div class="ad-stats" id="am-stats-area">
+        <div class="ad-stat"><div class="ad-stat-lbl">Manual Pending</div><div class="ad-stat-val" id="am-st-manual-pending">—</div></div>
+        <div class="ad-stat"><div class="ad-stat-lbl">Auto Matched</div><div class="ad-stat-val" id="am-st-auto-matched">—</div></div>
+        <div class="ad-stat"><div class="ad-stat-lbl">Manual Matched</div><div class="ad-stat-val" id="am-st-manual-matched">—</div></div>
+        <div class="ad-stat"><div class="ad-stat-lbl">Invite Sent</div><div class="ad-stat-val" id="am-st-invite-sent">—</div></div>
+        <div class="ad-stat"><div class="ad-stat-lbl">Rejected</div><div class="ad-stat-val" id="am-st-rejected">—</div></div>
+        <div class="ad-stat"><div class="ad-stat-lbl">Total</div><div class="ad-stat-val" id="am-st-total">—</div></div>
+      </div>
+
+      <div class="ad-card">
+        <div class="ad-card-h">
+          <h3>Agoda Matching Queue</h3>
+          <button class="ad-btn ad-btn-secondary" id="btn-am-refresh">↻ Refresh</button>
+        </div>
+
+        <div class="ad-filter-row" id="am-filter-row">
+          <button class="ad-filter active" data-am-filter="manual_pending">Manual Pending</button>
+          <button class="ad-filter" data-am-filter="auto_matched">Auto Matched</button>
+          <button class="ad-filter" data-am-filter="manual_matched">Manual Matched</button>
+          <button class="ad-filter" data-am-filter="agoda_registration_pending">Invite Sent</button>
+          <button class="ad-filter" data-am-filter="rejected">Rejected</button>
+          <button class="ad-filter" data-am-filter="all">All</button>
+        </div>
+
+        <div id="am-list-area">
+          <div class="ad-loading"><div class="ad-loader"></div><span>Loading matching queue...</span></div>
         </div>
       </div>
     </div>
@@ -750,6 +843,8 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
                  title_ko: '분석',      sub_ko: '채널별·시장별 성과 분석' },
     hotels:    { title: 'Hotels',      sub: 'Manage hotel partners.',
                  title_ko: '호텔',      sub_ko: '파트너 호텔 관리' },
+    'agoda-matching': { title: 'Agoda Matching', sub: 'Match hotels with Agoda inventory and send registration invites.',
+                 title_ko: '아고다 매칭', sub_ko: '아고다 매칭 처리 및 등록 안내 발송' },
     members:   { title: 'Members',     sub: 'Hotel managers signed up to the platform.',
                  title_ko: '가입자',    sub_ko: '플랫폼에 가입한 호텔 매니저' },
     admins:    { title: 'Team',        sub: 'Internal admin and support members.',
@@ -788,6 +883,7 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
     if (tab === 'members' && !membersLoaded) loadMembers();
     if (tab === 'admins' && !adminsLoaded) loadAdmins();
     if (tab === 'bookings' && !bookingsInitialized) initBookings();
+    if (tab === 'agoda-matching' && !amLoaded) loadAgodaMatching();
 
     // Phase 3 Step 2: Analytics native mount (iframe 제거)
     // 진입: BKA.mount() — 차트 destroy + 재렌더 + 별점 동기화
@@ -811,6 +907,446 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
       if (tab) setActiveTab(tab);
     });
   });
+
+  // ========= Agoda Matching tab (Phase 3 Step 4-3 / [6/8]) =========
+  var amLoaded = false;
+  var amData = [];
+  var amCurrentFilter = 'manual_pending';
+
+  $('btn-am-refresh').addEventListener('click', loadAgodaMatching);
+
+  document.querySelectorAll('#am-filter-row [data-am-filter]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      document.querySelectorAll('#am-filter-row .ad-filter').forEach(function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+      amCurrentFilter = btn.getAttribute('data-am-filter');
+      renderAgodaMatching();
+    });
+  });
+
+  function loadAgodaMatching(){
+    amLoaded = true;
+    var area = $('am-list-area');
+    area.innerHTML = '<div class="ad-loading"><div class="ad-loader"></div><span>Loading matching queue...</span></div>';
+    T.db.getAllHotels().then(function(r){
+      if (r.error){
+        area.innerHTML = '<div class="ad-empty">Failed to load: ' + esc(r.error.message || '') + '</div>';
+        return;
+      }
+      amData = r.data || [];
+      renderAmStats();
+      renderAgodaMatching();
+    }).catch(function(err){
+      area.innerHTML = '<div class="ad-empty">Error: ' + esc(err.message || 'unknown') + '</div>';
+    });
+  }
+
+  function renderAmStats(){
+    var counts = {
+      manual_pending: 0,
+      auto_matched: 0,
+      manual_matched: 0,
+      agoda_registration_pending: 0,
+      rejected: 0,
+      total: amData.length
+    };
+    amData.forEach(function(h){
+      var s = h.agoda_match_status;
+      if (s && counts[s] !== undefined) counts[s]++;
+    });
+    $('am-st-manual-pending').textContent = counts.manual_pending;
+    $('am-st-auto-matched').textContent = counts.auto_matched;
+    $('am-st-manual-matched').textContent = counts.manual_matched;
+    $('am-st-invite-sent').textContent = counts.agoda_registration_pending;
+    $('am-st-rejected').textContent = counts.rejected;
+    $('am-st-total').textContent = counts.total;
+  }
+
+  function renderAgodaMatching(){
+    var area = $('am-list-area');
+    var filtered;
+    if (amCurrentFilter === 'all') {
+      filtered = amData.slice();
+    } else {
+      filtered = amData.filter(function(h){ return h.agoda_match_status === amCurrentFilter; });
+    }
+    // 최신순 정렬
+    filtered.sort(function(a,b){
+      var ta = a.created_at ? new Date(a.created_at).getTime() : 0;
+      var tb = b.created_at ? new Date(b.created_at).getTime() : 0;
+      return tb - ta;
+    });
+
+    if (filtered.length === 0){
+      var emptyMsg = (amCurrentFilter === 'manual_pending') ?
+        'No hotels pending manual matching. 🎉' :
+        'No hotels in this category.';
+      area.innerHTML = '<div class="ad-empty">' + emptyMsg + '</div>';
+      return;
+    }
+
+    var html = '';
+    filtered.forEach(function(h){
+      html += renderAmCard(h);
+    });
+    area.innerHTML = html;
+
+    // 카드 액션 바인딩 ([7/8]에서 실제 핸들러 추가, 여기서는 placeholder)
+    area.querySelectorAll('[data-am-action]').forEach(function(btn){
+      btn.addEventListener('click', function(e){
+        e.stopPropagation();
+        var action = btn.getAttribute('data-am-action');
+        var hotelId = btn.getAttribute('data-hotel-id');
+        if (typeof handleAmAction === 'function') {
+          handleAmAction(action, hotelId);
+        } else {
+          T.toast('Action handler not yet wired (will be added in next step): ' + action);
+        }
+      });
+    });
+  }
+
+  function renderAmCard(h){
+    var status = h.agoda_match_status || 'manual_pending';
+    var statusBadge = amStatusBadge(status);
+    var name = h.hotel_name || '(no name)';
+    var nameLocal = h.hotel_name_local ? ' / ' + h.hotel_name_local : '';
+    var addr = h.address || '';
+    var city = h.city || '';
+    var country = h.country || '';
+    var loc = [city, country].filter(Boolean).join(', ');
+    var stars = h.star_rating ? (h.star_rating + '★') : '—';
+    var propType = h.property_type || '—';
+    var manager = h.contact_name || '—';
+    var managerPos = h.manager_position || '';
+    if (managerPos === 'Other' && h.manager_position_other) managerPos = h.manager_position_other;
+    var managerEmail = h.contact_email || '—';
+    var managerPhone = h.contact_phone || '—';
+    var agodaInfo = h.agoda_hotel_id ?
+      ('hotelId: ' + h.agoda_hotel_id + (h.agoda_city_id ? ', cityId: ' + h.agoda_city_id : '')) :
+      '<span style="color:#c93030">Not matched</span>';
+    var createdAt = h.created_at ? T.fmt.date(h.created_at) : '—';
+
+    var actions = '';
+    if (status === 'manual_pending') {
+      actions += '<button class="ad-btn ad-btn-primary am-btn" data-am-action="match" data-hotel-id="' + h.id + '">Manual Match</button>';
+      actions += '<button class="ad-btn ad-btn-secondary am-btn" data-am-action="invite" data-hotel-id="' + h.id + '">Send Agoda Invite</button>';
+      actions += '<button class="ad-btn ad-btn-danger am-btn" data-am-action="reject" data-hotel-id="' + h.id + '">Reject</button>';
+    } else if (status === 'agoda_registration_pending') {
+      actions += '<button class="ad-btn ad-btn-primary am-btn" data-am-action="match" data-hotel-id="' + h.id + '">Match Now</button>';
+      actions += '<button class="ad-btn ad-btn-secondary am-btn" data-am-action="invite" data-hotel-id="' + h.id + '">Re-send Invite</button>';
+      actions += '<button class="ad-btn ad-btn-danger am-btn" data-am-action="reject" data-hotel-id="' + h.id + '">Reject</button>';
+    } else if (status === 'rejected') {
+      actions += '<button class="ad-btn ad-btn-secondary am-btn" data-am-action="match" data-hotel-id="' + h.id + '">Re-open & Match</button>';
+    } else if (status === 'auto_matched' || status === 'manual_matched') {
+      actions += '<button class="ad-btn ad-btn-secondary am-btn" data-am-action="match" data-hotel-id="' + h.id + '">Edit Match</button>';
+    }
+
+    var html = '';
+    html += '<div class="am-card" data-hotel-id="' + h.id + '">';
+    html += '  <div class="am-card-h">';
+    html += '    <div class="am-card-title">';
+    html += '      <h4>' + esc(name) + esc(nameLocal) + '</h4>';
+    html += '      <div class="am-card-meta">' + statusBadge + ' <span class="am-meta-pill">' + esc(stars) + '</span> <span class="am-meta-pill">' + esc(propType) + '</span></div>';
+    html += '    </div>';
+    html += '    <div class="am-card-date">' + createdAt + '</div>';
+    html += '  </div>';
+    html += '  <div class="am-card-body">';
+    html += '    <div class="am-row"><span class="am-row-k">Location</span><span class="am-row-v">' + esc(loc || addr || '—') + '</span></div>';
+    if (addr && loc) {
+      html += '    <div class="am-row"><span class="am-row-k">Address</span><span class="am-row-v">' + esc(addr) + '</span></div>';
+    }
+    html += '    <div class="am-row"><span class="am-row-k">Agoda</span><span class="am-row-v">' + agodaInfo + '</span></div>';
+    html += '    <div class="am-row"><span class="am-row-k">Manager</span><span class="am-row-v">' + esc(manager) + (managerPos ? ' <span class="am-pos">(' + esc(managerPos) + ')</span>' : '') + '</span></div>';
+    html += '    <div class="am-row"><span class="am-row-k">Email</span><span class="am-row-v"><a href="mailto:' + esc(managerEmail) + '">' + esc(managerEmail) + '</a></span></div>';
+    html += '    <div class="am-row"><span class="am-row-k">Phone</span><span class="am-row-v">' + esc(managerPhone) + '</span></div>';
+    html += '  </div>';
+    if (actions) {
+      html += '  <div class="am-card-actions">' + actions + '</div>';
+    }
+    html += '</div>';
+    return html;
+  }
+
+  function amStatusBadge(status){
+    var label = status, cls = 'am-badge';
+    switch(status){
+      case 'manual_pending':
+        label = 'Manual Pending'; cls += ' am-badge-warn'; break;
+      case 'auto_matched':
+        label = 'Auto Matched'; cls += ' am-badge-success'; break;
+      case 'manual_matched':
+        label = 'Manual Matched'; cls += ' am-badge-success'; break;
+      case 'agoda_registration_pending':
+        label = 'Invite Sent'; cls += ' am-badge-info'; break;
+      case 'rejected':
+        label = 'Rejected'; cls += ' am-badge-danger'; break;
+      default:
+        label = 'Unknown'; cls += ' am-badge-muted';
+    }
+    return '<span class="' + cls + '">' + label + '</span>';
+  }
+
+  // ========= Agoda Matching: Action handlers ([7/8]) =========
+  var amCurrentHotel = null;
+
+  function findAmHotel(hotelId){
+    return amData.find(function(h){ return String(h.id) === String(hotelId); });
+  }
+
+  function buildHotelInfoHtml(h){
+    var name = h.hotel_name || '(no name)';
+    var loc = [h.city, h.country].filter(Boolean).join(', ');
+    var stars = h.star_rating ? (h.star_rating + '★') : '';
+    var manager = h.contact_name || '';
+    var managerEmail = h.contact_email || '';
+    return '<strong>' + esc(name) + '</strong>' +
+      (loc ? ' — ' + esc(loc) : '') +
+      (stars ? ' (' + esc(stars) + ')' : '') +
+      '<br>Manager: ' + esc(manager) + ' &lt;' + esc(managerEmail) + '&gt;';
+  }
+
+  function handleAmAction(action, hotelId){
+    var h = findAmHotel(hotelId);
+    if (!h) {
+      T.toast('Hotel not found in current view.', true);
+      return;
+    }
+    amCurrentHotel = h;
+    if (action === 'match') {
+      openMatchModal(h);
+    } else if (action === 'invite') {
+      openInviteModal(h);
+    } else if (action === 'reject') {
+      openRejectModal(h);
+    }
+  }
+
+  // ----- Manual Match Modal -----
+  function openMatchModal(h){
+    var modal = $('am-match-modal');
+    $('am-match-info').innerHTML = buildHotelInfoHtml(h);
+    $('am-match-hotel-id').value = h.agoda_hotel_id || '';
+    $('am-match-city-id').value = h.agoda_city_id || '';
+    $('am-match-url').value = h.agoda_url || '';
+    var title = (h.agoda_match_status === 'auto_matched' || h.agoda_match_status === 'manual_matched') ?
+      'Edit Agoda Match' : 'Manual Match';
+    $('am-match-title').textContent = title;
+    modal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    setTimeout(function(){ $('am-match-hotel-id').focus(); }, 100);
+  }
+  function closeMatchModal(){
+    $('am-match-modal').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  $('am-match-close').addEventListener('click', closeMatchModal);
+  $('am-match-cancel').addEventListener('click', closeMatchModal);
+  $('am-match-modal').addEventListener('click', function(e){
+    if (e.target === this) closeMatchModal();
+  });
+  $('am-match-submit').addEventListener('click', async function(){
+    var hotelIdInput = parseInt($('am-match-hotel-id').value, 10);
+    var cityIdInput = parseInt($('am-match-city-id').value, 10);
+    var urlInput = $('am-match-url').value.trim();
+    if (!hotelIdInput || hotelIdInput <= 0) {
+      T.toast('Valid Agoda Hotel ID is required.', true); return;
+    }
+    if (!cityIdInput || cityIdInput <= 0) {
+      T.toast('Valid Agoda City ID is required.', true); return;
+    }
+    var btn = $('am-match-submit');
+    btn.disabled = true; btn.textContent = 'Saving...';
+    try {
+      var token = await getAuthToken();
+      if (!token) { btn.disabled = false; btn.textContent = 'Save Match'; T.toast('Auth token missing.', true); return; }
+      var isEdit = (amCurrentHotel.agoda_match_status === 'auto_matched' || amCurrentHotel.agoda_match_status === 'manual_matched');
+      var resp = await fetch('/api/admin-update-match', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify({
+          hotelId: amCurrentHotel.id,
+          action: isEdit ? 'edit_match' : 'manual_match',
+          agodaHotelId: hotelIdInput,
+          agodaCityId: cityIdInput,
+          agodaUrl: urlInput || null
+        })
+      });
+      var data = await resp.json();
+      if (!resp.ok || !data.success) {
+        T.toast('Match failed: ' + (data.error || 'unknown'), true);
+        btn.disabled = false; btn.textContent = 'Save Match';
+        return;
+      }
+      T.toast('Match saved.');
+      closeMatchModal();
+      loadAgodaMatching();
+    } catch(err) {
+      T.toast('Error: ' + err.message, true);
+      btn.disabled = false; btn.textContent = 'Save Match';
+    }
+  });
+
+  // ----- Invite Modal -----
+  function openInviteModal(h){
+    var modal = $('am-invite-modal');
+    $('am-invite-info').innerHTML = buildHotelInfoHtml(h);
+    $('am-invite-to').textContent = h.contact_email || '(no email)';
+    $('am-invite-message').value = '';
+    $('am-invite-preview-area').style.display = 'none';
+    $('am-preview-iframe').srcdoc = '';
+    $('am-preview-subject').textContent = '—';
+    var title = (h.agoda_match_status === 'agoda_registration_pending') ?
+      'Re-send Agoda Registration Invite' : 'Send Agoda Registration Invite';
+    $('am-invite-title').textContent = title;
+    modal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeInviteModal(){
+    $('am-invite-modal').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  $('am-invite-close').addEventListener('click', closeInviteModal);
+  $('am-invite-cancel').addEventListener('click', closeInviteModal);
+  $('am-invite-modal').addEventListener('click', function(e){
+    if (e.target === this) closeInviteModal();
+  });
+
+  $('am-invite-preview').addEventListener('click', async function(){
+    var btn = $('am-invite-preview');
+    btn.disabled = true; btn.textContent = 'Loading...';
+    try {
+      var token = await getAuthToken();
+      if (!token) { btn.disabled = false; btn.textContent = 'Preview Email'; T.toast('Auth token missing.', true); return; }
+      var resp = await fetch('/api/admin-send-agoda-invite', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify({
+          hotelId: amCurrentHotel.id,
+          customMessage: $('am-invite-message').value.trim(),
+          dryRun: true
+        })
+      });
+      var data = await resp.json();
+      if (!resp.ok || !data.success) {
+        T.toast('Preview failed: ' + (data.error || 'unknown'), true);
+        btn.disabled = false; btn.textContent = 'Preview Email';
+        return;
+      }
+      $('am-preview-subject').textContent = data.preview.subject || '';
+      $('am-preview-iframe').srcdoc = data.preview.html || '';
+      $('am-invite-preview-area').style.display = 'block';
+      btn.disabled = false; btn.textContent = 'Refresh Preview';
+    } catch(err) {
+      T.toast('Error: ' + err.message, true);
+      btn.disabled = false; btn.textContent = 'Preview Email';
+    }
+  });
+
+  $('am-invite-send').addEventListener('click', async function(){
+    if (!amCurrentHotel.contact_email) {
+      T.toast('Hotel has no contact email.', true); return;
+    }
+    var ok = window.confirm('Send Agoda registration invite to ' + amCurrentHotel.contact_email + '?');
+    if (!ok) return;
+    var btn = $('am-invite-send');
+    btn.disabled = true; btn.textContent = 'Sending...';
+    try {
+      var token = await getAuthToken();
+      if (!token) { btn.disabled = false; btn.textContent = 'Send Invite'; T.toast('Auth token missing.', true); return; }
+      var resp = await fetch('/api/admin-send-agoda-invite', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify({
+          hotelId: amCurrentHotel.id,
+          customMessage: $('am-invite-message').value.trim(),
+          dryRun: false
+        })
+      });
+      var data = await resp.json();
+      if (!resp.ok || !data.success) {
+        var hint = data.hint ? ' (' + data.hint + ')' : '';
+        T.toast('Send failed: ' + (data.error || 'unknown') + hint, true);
+        btn.disabled = false; btn.textContent = 'Send Invite';
+        return;
+      }
+      T.toast('Invite sent to ' + data.to);
+      closeInviteModal();
+      loadAgodaMatching();
+    } catch(err) {
+      T.toast('Error: ' + err.message, true);
+      btn.disabled = false; btn.textContent = 'Send Invite';
+    }
+  });
+
+  // ----- Reject Modal -----
+  function openRejectModal(h){
+    var modal = $('am-reject-modal');
+    $('am-reject-info').innerHTML = buildHotelInfoHtml(h);
+    $('am-reject-reason').value = '';
+    modal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeRejectModal(){
+    $('am-reject-modal').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  $('am-reject-close').addEventListener('click', closeRejectModal);
+  $('am-reject-cancel').addEventListener('click', closeRejectModal);
+  $('am-reject-modal').addEventListener('click', function(e){
+    if (e.target === this) closeRejectModal();
+  });
+  $('am-reject-submit').addEventListener('click', async function(){
+    var btn = $('am-reject-submit');
+    btn.disabled = true; btn.textContent = 'Rejecting...';
+    try {
+      var token = await getAuthToken();
+      if (!token) { btn.disabled = false; btn.textContent = 'Reject'; T.toast('Auth token missing.', true); return; }
+      var resp = await fetch('/api/admin-update-match', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify({
+          hotelId: amCurrentHotel.id,
+          action: 'reject',
+          reason: $('am-reject-reason').value.trim()
+        })
+      });
+      var data = await resp.json();
+      if (!resp.ok || !data.success) {
+        T.toast('Reject failed: ' + (data.error || 'unknown'), true);
+        btn.disabled = false; btn.textContent = 'Reject';
+        return;
+      }
+      T.toast('Hotel rejected.');
+      closeRejectModal();
+      loadAgodaMatching();
+    } catch(err) {
+      T.toast('Error: ' + err.message, true);
+      btn.disabled = false; btn.textContent = 'Reject';
+    }
+  });
+
+  // ESC 키로 모달 닫기
+  document.addEventListener('keydown', function(e){
+    if (e.key !== 'Escape') return;
+    var modals = ['am-match-modal','am-invite-modal','am-reject-modal'];
+    modals.forEach(function(id){
+      var m = document.getElementById(id);
+      if (m && m.classList.contains('open')) {
+        m.classList.remove('open');
+        document.body.style.overflow = '';
+      }
+    });
+  });
+
+  // Helper: get current Supabase session token
+  async function getAuthToken(){
+    if (!T.sb) return null;
+    try {
+      var s = await T.sb.auth.getSession();
+      return (s && s.data && s.data.session && s.data.session.access_token) || null;
+    } catch(e) { return null; }
+  }
 
   // ========= Members tab =========
   var membersLoaded = false;
@@ -2638,6 +3174,96 @@ global.initAnalytics = function(){ _BKA_init(); _BKA_mount(); };
 })();
 </script>
 
+
+<!-- ===== Agoda Matching: Manual Match Modal ===== -->
+<div class="am-modal-backdrop" id="am-match-modal" role="dialog" aria-modal="true">
+  <div class="am-modal">
+    <div class="am-modal-h">
+      <h3 id="am-match-title">Manual Match</h3>
+      <button class="am-modal-close" id="am-match-close" aria-label="Close">×</button>
+    </div>
+    <div class="am-modal-body">
+      <div class="am-modal-info" id="am-match-info">—</div>
+      <div class="am-form-row">
+        <label>Agoda Hotel ID *</label>
+        <input type="number" id="am-match-hotel-id" placeholder="e.g. 123456" min="1">
+        <div class="am-form-help">Numeric Agoda hotel ID (from Agoda URL <code>?hid=...</code>).</div>
+      </div>
+      <div class="am-form-row">
+        <label>Agoda City ID *</label>
+        <input type="number" id="am-match-city-id" placeholder="e.g. 4064" min="1">
+        <div class="am-form-help">Agoda city ID. See <code>process-hotel.js</code> AGODA_CITY_MAP for known cities.</div>
+      </div>
+      <div class="am-form-row">
+        <label>Agoda URL (optional)</label>
+        <input type="url" id="am-match-url" placeholder="https://www.agoda.com/...">
+      </div>
+    </div>
+    <div class="am-modal-foot">
+      <button class="ad-btn ad-btn-secondary" id="am-match-cancel">Cancel</button>
+      <button class="ad-btn ad-btn-primary" id="am-match-submit">Save Match</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Agoda Matching: Send Invite Modal ===== -->
+<div class="am-modal-backdrop" id="am-invite-modal" role="dialog" aria-modal="true">
+  <div class="am-modal am-modal-wide">
+    <div class="am-modal-h">
+      <h3 id="am-invite-title">Send Agoda Registration Invite</h3>
+      <button class="am-modal-close" id="am-invite-close" aria-label="Close">×</button>
+    </div>
+    <div class="am-modal-body">
+      <div class="am-modal-info" id="am-invite-info">—</div>
+      <div class="am-form-row">
+        <label>Recipient</label>
+        <div class="am-readonly-box" id="am-invite-to">—</div>
+      </div>
+      <div class="am-form-row">
+        <label>Custom note (optional, max 2000 chars)</label>
+        <textarea id="am-invite-message" rows="4" placeholder="Add a personal note that will appear inside the email (e.g. 'We had a great call yesterday — looking forward to working with you.')."></textarea>
+      </div>
+      <div class="am-form-row">
+        <button class="ad-btn ad-btn-secondary" id="am-invite-preview">Preview Email</button>
+      </div>
+      <div class="am-preview-area" id="am-invite-preview-area" style="display:none">
+        <div class="am-preview-h">
+          <span class="am-preview-lbl">Subject:</span>
+          <span id="am-preview-subject">—</span>
+        </div>
+        <iframe id="am-preview-iframe" sandbox="" style="width:100%;height:400px;border:1px solid #e8e8e8;border-radius:8px;background:#fff"></iframe>
+      </div>
+    </div>
+    <div class="am-modal-foot">
+      <button class="ad-btn ad-btn-secondary" id="am-invite-cancel">Cancel</button>
+      <button class="ad-btn ad-btn-primary" id="am-invite-send">Send Invite</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Agoda Matching: Reject Confirm Modal ===== -->
+<div class="am-modal-backdrop" id="am-reject-modal" role="dialog" aria-modal="true">
+  <div class="am-modal">
+    <div class="am-modal-h">
+      <h3>Reject Hotel</h3>
+      <button class="am-modal-close" id="am-reject-close" aria-label="Close">×</button>
+    </div>
+    <div class="am-modal-body">
+      <div class="am-modal-info" id="am-reject-info">—</div>
+      <div class="am-form-row">
+        <label>Reason (optional, max 500 chars)</label>
+        <textarea id="am-reject-reason" rows="3" placeholder="Why is this hotel being rejected for matching?"></textarea>
+      </div>
+      <div style="background:#fef0f0;border:1px solid #f0c8c8;border-radius:8px;padding:10px 14px;color:#9a2020;font-size:13px;line-height:1.5">
+        ⚠ Rejected hotels stay in the database and can be re-opened later. The manager will not be notified automatically.
+      </div>
+    </div>
+    <div class="am-modal-foot">
+      <button class="ad-btn ad-btn-secondary" id="am-reject-cancel">Cancel</button>
+      <button class="ad-btn ad-btn-danger" id="am-reject-submit">Reject</button>
+    </div>
+  </div>
+</div>
 
 </body>
 </html>

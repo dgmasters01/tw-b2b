@@ -251,6 +251,13 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(params)
       }).then(function (r) { return r.json(); });
+    },
+    agodaSearch: function (params) {
+      return fetch('/api/agoda-search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(params)
+      }).then(function (r) { return r.json(); });
     }
   };
 

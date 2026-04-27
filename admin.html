@@ -35,7 +35,8 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
 /* === Content area === */
 /* margin-left: 240px = fixed sidebar 자리 확보 */
 .ad-content{flex:1;min-width:0;display:flex;flex-direction:column;margin-left:240px}
-.ad-topbar{display:flex;justify-content:space-between;align-items:center;padding:14px 24px;background:#fff;color:#1a1a1a;border-bottom:1px solid #e8e8e8}
+/* Phase 3 Step 3 patch: topbar 고정 — 스크롤해도 EN/KO 토글 + 사용자 정보 항상 보이게 */
+.ad-topbar{display:flex;justify-content:space-between;align-items:center;padding:14px 24px;background:#fff;color:#1a1a1a;border-bottom:1px solid #e8e8e8;position:fixed;top:0;left:240px;right:0;z-index:50;height:60px;box-sizing:border-box}
 .ad-logo{display:flex;align-items:center;gap:10px;color:#1a1a1a;text-decoration:none}
 .ad-logo-icon{width:28px;height:28px;background:#534AB7;border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:#fff}
 .ad-logo-text{font-family:'Fraunces',serif;font-size:16px;font-weight:600}
@@ -43,7 +44,8 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
 .ad-nav-right{display:flex;gap:12px;align-items:center;font-size:13px;color:#666}
 .ad-logout{background:#f0f0f0;color:#1a1a1a;border:1px solid #e0e0e0;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12.5px;font-family:inherit;text-decoration:none}
 .ad-logout:hover{background:#e8e8e8}
-.ad-main{padding:24px}
+/* topbar 고정으로 인한 본문 위 공간 확보 */
+.ad-main{padding:24px;padding-top:84px}
 .ad-h1{font-family:'Fraunces',serif;font-size:24px;margin:0 0 4px;font-weight:600}
 .ad-h1-sub{color:#777;font-size:13.5px;margin:0 0 24px}
 .ad-stats{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:24px}
@@ -97,6 +99,9 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
   .ad-sb-section{display:none}
   .ad-sb-item{width:auto;padding:7px 12px;font-size:12.5px}
   .ad-sb-foot{display:none}
+  /* 모바일: topbar는 fixed 해제하여 자연스럽게 사이드바 아래에 위치 */
+  .ad-topbar{position:relative;left:auto;right:auto}
+  .ad-main{padding-top:24px}
 }
 @media (max-width:640px){.ad-stats{grid-template-columns:repeat(2,1fr)}.ad-detail-grid{grid-template-columns:1fr}}
 /* === Bookings sub-tabs === */
@@ -730,14 +735,20 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
   $('btn-refresh').addEventListener('click', loadAll);
 
   // ========= Sidebar tab switching =========
-  // Page metadata per tab (title + subtitle)
+  // Page metadata per tab (title + subtitle) — Phase 3 Step 3 patch: 다국어
   var TAB_META = {
-    dashboard: { title: 'Dashboard',   sub: 'Real-time business overview.' },
-    bookings:  { title: 'Bookings',    sub: 'Manage self-sourced and Agoda channel bookings.' },
-    analytics: { title: 'Analytics',   sub: 'Performance breakdown across channels and markets.' },
-    hotels:    { title: 'Hotels',      sub: 'Manage hotel partners.' },
-    members:   { title: 'Members',     sub: 'Hotel managers signed up to the platform.' },
-    admins:    { title: 'Team',        sub: 'Internal admin and support members.' }
+    dashboard: { title: 'Dashboard',   sub: 'Real-time business overview.',
+                 title_ko: '대시보드',   sub_ko: '실시간 비즈니스 요약' },
+    bookings:  { title: 'Bookings',    sub: 'Manage self-sourced and Agoda channel bookings.',
+                 title_ko: '예약',      sub_ko: '자체 예약과 아고다 채널 예약 관리' },
+    analytics: { title: 'Analytics',   sub: 'Performance breakdown across channels and markets.',
+                 title_ko: '분석',      sub_ko: '채널별·시장별 성과 분석' },
+    hotels:    { title: 'Hotels',      sub: 'Manage hotel partners.',
+                 title_ko: '호텔',      sub_ko: '파트너 호텔 관리' },
+    members:   { title: 'Members',     sub: 'Hotel managers signed up to the platform.',
+                 title_ko: '가입자',    sub_ko: '플랫폼에 가입한 호텔 매니저' },
+    admins:    { title: 'Team',        sub: 'Internal admin and support members.',
+                 title_ko: '팀',        sub_ko: '내부 관리자 및 지원 인력' }
   };
 
   function setActiveTab(tab){
@@ -751,17 +762,20 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
     var pane = document.getElementById('tab-' + tab);
     if (pane) pane.style.display = 'block';
 
-    // Page header
+    // Page header — 현재 언어 반영
     var meta = TAB_META[tab];
     if (meta){
+      var lang = (window.TW && window.TW.lang) ? window.TW.lang : 'en';
+      var title = (lang === 'ko' && meta.title_ko) ? meta.title_ko : meta.title;
+      var sub   = (lang === 'ko' && meta.sub_ko)   ? meta.sub_ko   : meta.sub;
       var titleEl = document.getElementById('page-title');
       var subEl = document.getElementById('page-sub');
-      if (titleEl) titleEl.textContent = meta.title;
+      if (titleEl) titleEl.textContent = title;
       if (subEl){
         // preserve admin-role badge inside subtitle
         var roleEl = document.getElementById('admin-role');
         var roleHtml = roleEl ? roleEl.outerHTML : '';
-        subEl.innerHTML = meta.sub + ' ' + roleHtml;
+        subEl.innerHTML = sub + ' ' + roleHtml;
       }
     }
 
@@ -2409,7 +2423,28 @@ global.initAnalytics = function(){ _BKA_init(); _BKA_mount(); };
     "Thu": "목",
     "Fri": "금",
     "Sat": "토",
-    "Sun": "일"
+    "Sun": "일",
+    // Phase 3 Step 3 patch: 추가 누락 텍스트
+    "Booking Date": "예약일",
+    "Settlement(In": "정산(입",
+    "Settlement (In Fri)": "정산(입Fri)",
+    "All": "전체",
+    "Hotel Name": "호텔명",
+    "City": "도시",
+    "Country": "나라",
+    "(Expected": "(예상",
+    "Hotelya (Korea)": "호텔이야 (한국)",
+    "TravelWinners (Site)": "여행능력자들 (사이트)",
+    "TravelWinners (YouTube)": "여행능력자들 (유튜브)",
+    "Hotelya": "호텔이야",
+    "TravelWinners": "여행능력자들",
+    "Search": "검색",
+    "Refresh": "새로고침",
+    "Hotel": "호텔",
+    "City ": "도시 ",
+    "Country ": "나라 ",
+    "Stars ": "성급 ",
+    "Performance breakdown across channels and markets.": "채널별·시장별 성과 분석"
   };
 
   // 한국어 → 영어 역사전 (booking IIFE 가 한국어로 렌더링하므로 → 영어로 변환)
@@ -2435,8 +2470,14 @@ global.initAnalytics = function(){ _BKA_init(); _BKA_mount(); };
     root.querySelectorAll('[data-en],[data-ko]').forEach(function(el){
       var v = el.getAttribute('data-' + lang);
       if (v == null) return;
-      if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') el.placeholder = v;
-      else el.innerHTML = v;
+      if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+        el.placeholder = v;
+      } else if (el.onclick || el.querySelector('[onclick]') || el.closest('[onclick]')) {
+        // onclick 핸들러가 있는 요소는 textContent로만 변경 (이벤트 보존)
+        el.textContent = v.replace(/<[^>]+>/g, '');
+      } else {
+        el.innerHTML = v;
+      }
     });
 
     // 2) booking IIFE 영역만 텍스트 노드 치환 (#tab-analytics 내부)
@@ -2449,14 +2490,31 @@ global.initAnalytics = function(){ _BKA_init(); _BKA_mount(); };
   function walkText(node, dict){
     if (node.nodeType === 3) {  // TEXT_NODE
       var t = node.nodeValue;
+      // 빠른 스킵: 변환 대상 글자 없으면 즉시 종료 (성능 최적화)
+      if (!t || (t.indexOf('건') === -1 && t.indexOf('개국') === -1 && t.indexOf('도시') === -1 &&
+                 t.indexOf('호텔') === -1 && t.indexOf('예상') === -1 && !/[가-힣]/.test(t))) {
+        return;
+      }
       var changed = false;
       var newT = t;
-      // 정확히 일치하는 키부터 치환 (긴 것 먼저)
+
+      // (A) 숫자+한글단위 패턴 정규식 치환 — 사전 substring 매칭 전에 먼저 처리
+      // 현재 lang 따라 영어/한국어 단위 결정
+      var lang = window.TW && window.TW.lang ? window.TW.lang : 'en';
+      if (lang === 'en'){
+        // "3,774건" → "3,774 bookings", "9건(예상$1,662)" → "9 (Expected $1,662)"
+        newT = newT.replace(/(\d[\d,]*)건/g, function(_, n){ changed = true; return n + ' bookings'; });
+        newT = newT.replace(/(\d+)개국/g, function(_, n){ changed = true; return n + ' countries'; });
+        newT = newT.replace(/(\d[\d,]*)도시/g, function(_, n){ changed = true; return n + ' cities'; });
+        newT = newT.replace(/(\d[\d,]*)호텔/g, function(_, n){ changed = true; return n + ' hotels'; });
+        newT = newT.replace(/예상/g, function(){ changed = true; return 'Expected '; });
+      }
+
+      // (B) 정확히 일치하는 키부터 치환 (긴 것 먼저)
       var keys = Object.keys(dict).sort(function(a,b){ return b.length - a.length; });
       for (var i = 0; i < keys.length; i++){
         var k = keys[i];
         if (newT.indexOf(k) !== -1){
-          // 정확 단어 경계가 어려우니 단순 substring 치환 (사전이 충분히 specific 함)
           newT = newT.split(k).join(dict[k]);
           changed = true;
         }
@@ -2494,6 +2552,20 @@ global.initAnalytics = function(){ _BKA_init(); _BKA_mount(); };
       koBtn.classList.toggle('active', l === 'ko');
     }
     applyLang(document.body, l);
+
+    // Phase 3 Step 3 patch: 현재 탭의 page header 즉시 재반영
+    try {
+      var activeBtn = document.querySelector('.ad-sb-item.active');
+      var activeTab = activeBtn ? activeBtn.getAttribute('data-tab') : null;
+      if (activeTab && typeof window.setActiveTab === 'function') {
+        // Pane switching 없이 헤더만 갱신하기 위해 직접 처리
+        var meta = (window.TAB_META || {})[activeTab];
+      }
+      // setActiveTab이 page header를 갱신하므로 호출 — 단, 무한 후크 방지를 위해 _origSetActiveTab 사용
+      if (activeTab && window._origSetActiveTab) {
+        window._origSetActiveTab(activeTab);
+      }
+    } catch(e){}
   }
 
   window.TW_setLang = setLang;
@@ -2543,6 +2615,7 @@ global.initAnalytics = function(){ _BKA_init(); _BKA_mount(); };
   // setActiveTab도 후크: 다른 탭으로 이동했다가 돌아올 때도 재적용
   if (typeof window.setActiveTab === 'function'){
     var origSAT = window.setActiveTab;
+    window._origSetActiveTab = origSAT;  // setLang에서 page header 갱신 시 사용
     window.setActiveTab = function(tab){
       var r = origSAT.apply(this, arguments);
       setTimeout(function(){ applyLang(document.body, getLang()); }, 100);

@@ -124,7 +124,7 @@
 | 5-4 | 결과 리포트 화면 | | |
 | **6** | 분석 대시보드 8탭 이식 | 2시간 | ✅ 완료 |
 | 6-1~7 | 전체현황/채널/나라/도시/호텔/패턴/성급/B2B | | |
-| **7** | 메인 페이지 라이브 예약 피드 | 30분 | ⬜ 대기 |
+| **7** | 메인 페이지 라이브 예약 피드 | 30분 | ✅ 완료 |
 | 7-1 | 카운터 위젯 | | |
 | 7-2 | Activity Stream 컨셉 (실제 데이터 셔플) | | |
 | **8** | 테스트 및 배포 | 30분 | ⬜ 대기 |
@@ -142,12 +142,48 @@
 
 | 항목 | 내용 |
 |---|---|
-| **진행 단계** | 6단계 완료 |
-| **다음 작업** | 7단계 - 메인 페이지 라이브 예약 피드 |
+| **진행 단계** | 7단계 완료 |
+| **다음 작업** | 8단계 - 테스트 및 배포 (운영 검증) |
 | **이번 채팅** | TW Booking Analytics 11 |
 | **다음 채팅** | TW Booking Analytics 12 |
-| **마지막 커밋** | 86e8ddd (Phase 1 Step 6: Booking Analytics 8-tab dashboard) |
+| **마지막 커밋** | (Phase 1 Step 7: Live booking feed on index.html) |
 | **최종 업데이트** | 2026-04-27 |
+
+### 7단계 완료 산출물
+- **신규 SQL VIEW 2개** (`sql/06-public-feed-views.sql`, Supabase Management API로 자동 적용)
+  - `v_public_recent_bookings`: 최근 50건 공개 피드, **PII 컬럼(guest_name/email/phone/booking_code) 완전 제외**, 호텔/도시/국가/금액/박/객실/채널/날짜만 노출
+  - `v_public_stats`: 누적 카운터 (총 예약/금액/수수료/호텔수/도시수/국가수/활성채널수/최근 예약일)
+  - anon, authenticated 에 GRANT SELECT (베이스 테이블 RLS 는 보호 유지)
+- **`index.html` 라이브 피드 섹션 추가** (#live-feed, OTA logos 와 Transparent Data 사이)
+  - 7-1: 카운터 위젯 4개 (Total Bookings / Booking Volume / Hotels Booked / Active Channels), odometer easeOutCubic 카운트업 애니메이션, hover 시 forest→gold 그라데이션 라인
+  - 7-2: Activity Stream — 좌측 타임라인 라인 + 채널별 색 점 (TW 녹/HT 골드/KT 청/TC 녹/JP 적/ZH 보라) + 호텔명·도시·국가 + 5성/채널/박·실 칩 + 우측 USD 금액
+  - Empty state: 데이터 0건 시 "Activity feed warming up" fallback (깨지지 않음)
+  - 회전: 4.5초마다 셔플(7건 윈도우, 데이터 7건 초과 시에만), 5분마다 자동 재로드, 30초마다 상대 시간 갱신
+  - 언어 토글: 기존 IIFE 에 `tw-lang-change` CustomEvent 발행, 라이브 피드가 listen 해서 시간/메타 텍스트 한·영 즉시 전환
+  - 모바일 대응: 카운터 2x2, 타임라인 위치 / 칩 wrap 조정
+- **CSS namespace**: 모든 신규 클래스 `lf-` prefix (기존 trust/analytics 와 무충돌)
+- **하단 신뢰 노트**: "Customer details are never shown — only verified booking activity."
+
+### 7단계 검증 (Playwright 헤드리스)
+- JS 문법: 2개 inline script 모두 통과 (960 / 8826 chars)
+- HTML 태그 균형: script 3/3, section 8/8, div 140/140
+- DOM 요소 8/8: live-feed, lf-counters, lf-counter(4), lf-stream, lf-stream-empty, lf-pulse-dot, lf-stream-meta
+- 콘솔 에러 0건, 경고 0건
+- 0건 상태: 카운터 0/$0/0/0, empty 표시, stream 숨김 — 정상
+- 8건 더미 데이터 시뮬레이션: 카운터 8/$3.2K/8/6, 7행 정상 렌더, empty 숨김 — 정상
+- 한·영 토글: 메타 텍스트 ("실시간 갱신" / "Live · auto-refreshing"), 시간 표시 ("3분 전" / "3m ago") 정확히 전환
+
+### 7단계 PII 보안 검증
+- 더미 PII 데이터 INSERT (guest_name='SECRET_PII_김홍길동', guest_email='secret-pii@example.com')
+- anon 키 + PostgREST 로 `v_public_recent_bookings`, `v_public_stats` 호출 → PII 컬럼 **0건 노출**
+- anon 키로 `bookings_self` 직접 호출 → RLS 차단 (빈 배열) 확인
+- 테스트 후 더미 데이터 완전 정리
+
+### 알려진 별도 이슈 (7단계 범위 외, 향후 처리)
+- 기존 `bookings_unified`, `v_channel_stats` view 가 SECURITY DEFINER 처럼 작동해 anon 이 일부 메타 컬럼(unified_id, channel_code) 조회 가능. PII 는 view 정의에 미포함이라 직접 누출 없음. 향후 `ALTER VIEW ... SET (security_invoker = true);` 로 강화 권장.
+
+### 8단계 시작 시 PENDING 확인
+- 8단계는 운영 검증 단계. 실제 예약을 admin.html → Bookings 탭에서 1건 등록 → 메인 페이지 새로고침으로 라이브 피드에 반영되는지 end-to-end 확인. Vercel 배포 후 모바일 실기 확인. STATUS.md 최종 정리.
 
 ### 6단계 완료 산출물
 - `admin.html` Analytics 탭에 8탭 분석 대시보드 통합 (전체현황/채널/나라/도시/호텔/패턴/성급/B2B)
@@ -251,6 +287,7 @@ Claude는 다음 시점에 새 채팅 안내를 먼저 합니다:
 | 2026-04-27 | Supabase SQL 자동 적용 완료 (Management API): hotel_id UUID 정정 후 bundle 적용, 검증 통과 (커밋 1110926) | TW Booking Analytics 9 |
 | 2026-04-27 | Phase 1 Step 4-5 완료: Bookings 탭 sub-tabs (Self-Sourced 등록 폼 + Agoda 엑셀 업로드 SheetJS 통합) | TW Booking Analytics 10 |
 | 2026-04-27 | Phase 1 Step 6 완료: 분석 대시보드 8탭 이식 (admin.html Analytics 탭, bookings_unified 동적 쿼리, aggregateAll 집계, bka- namespace, 커밋 86e8ddd) | TW Booking Analytics 11 |
+| 2026-04-27 | Phase 1 Step 7 완료: 메인 페이지 라이브 예약 피드 (v_public_recent_bookings + v_public_stats VIEW 신규, PII 0 노출 검증, index.html 카운터 4 + Activity Stream + 한·영 토글) | TW Booking Analytics 11 |
 
 ---
 

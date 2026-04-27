@@ -96,6 +96,67 @@ body{font-family:'Inter','Noto Sans KR',sans-serif;background:var(--white);color
 .cta-btn:hover{background:var(--white);transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,.2)}
 .site-footer{padding:40px 48px;background:var(--gray-900);color:rgba(255,255,255,.4);font-size:13px;display:flex;justify-content:space-between;align-items:center}
 .footer-logo{font-family:'Inter',sans-serif;font-size:16px;color:rgba(255,255,255,.6);font-weight:700}
+/* === LIVE FEED (Phase 1 Step 7) === */
+#live-feed{background:linear-gradient(180deg,var(--white) 0%,var(--forest-mist) 60%,var(--white) 100%)}
+#live-feed .section-badge{background:var(--white);color:var(--forest);box-shadow:0 0 0 1px rgba(27,94,59,.12);position:relative;padding-left:22px}
+#live-feed .section-badge::before{content:'';position:absolute;left:10px;top:50%;transform:translateY(-50%);width:7px;height:7px;border-radius:50%;background:#22C55E;box-shadow:0 0 0 4px rgba(34,197,94,.18);animation:lfPulse 2s ease-in-out infinite}
+@keyframes lfPulse{0%,100%{box-shadow:0 0 0 4px rgba(34,197,94,.18)}50%{box-shadow:0 0 0 7px rgba(34,197,94,.05)}}
+.lf-counters{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;max-width:1000px;margin:0 auto 56px}
+.lf-counter{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius);padding:28px 20px 24px;text-align:center;transition:var(--transition);position:relative;overflow:hidden}
+.lf-counter::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--forest),var(--gold));opacity:0;transition:opacity .25s}
+.lf-counter:hover{border-color:var(--forest-light);box-shadow:var(--shadow);transform:translateY(-2px)}
+.lf-counter:hover::before{opacity:1}
+.lf-counter-icon{font-size:24px;margin-bottom:14px;opacity:.85}
+.lf-counter-num{font-family:'Inter',sans-serif;font-size:36px;font-weight:800;color:var(--forest);line-height:1;letter-spacing:-.5px;font-variant-numeric:tabular-nums}
+.lf-counter-num.lf-loading{color:var(--gray-300)}
+.lf-counter-label{font-size:12px;color:var(--gray-500);margin-top:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.lf-stream-wrap{max-width:760px;margin:0 auto;background:var(--white);border:1.5px solid var(--gray-200);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+.lf-stream-head{padding:18px 26px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--gray-100);background:linear-gradient(180deg,var(--gray-50),var(--white))}
+.lf-stream-title{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:700;color:var(--gray-800)}
+.lf-pulse-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#22C55E;position:relative}
+.lf-pulse-dot::after{content:'';position:absolute;inset:-3px;border-radius:50%;background:#22C55E;opacity:.4;animation:lfDot 1.6s ease-out infinite}
+@keyframes lfDot{0%{transform:scale(.8);opacity:.5}100%{transform:scale(2.2);opacity:0}}
+.lf-stream-meta{font-size:11px;color:var(--gray-400);font-weight:500;letter-spacing:.3px;text-transform:uppercase}
+.lf-stream{position:relative;padding:8px 0;min-height:240px}
+.lf-stream::before{content:'';position:absolute;left:48px;top:16px;bottom:16px;width:2px;background:linear-gradient(180deg,transparent,var(--gray-200) 12%,var(--gray-200) 88%,transparent);pointer-events:none}
+.lf-row{display:grid;grid-template-columns:80px 1fr auto;gap:16px;align-items:center;padding:14px 26px;position:relative;animation:lfSlideIn .45s cubic-bezier(.4,0,.2,1) both}
+@keyframes lfSlideIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.lf-row+.lf-row{border-top:1px solid var(--gray-100)}
+.lf-row-time{font-size:11px;color:var(--gray-400);font-weight:600;text-transform:uppercase;letter-spacing:.3px;text-align:right;padding-right:8px;font-variant-numeric:tabular-nums}
+.lf-row-dot{position:absolute;left:44px;top:50%;transform:translate(-50%,-50%);width:10px;height:10px;border-radius:50%;background:var(--forest);box-shadow:0 0 0 3px var(--white),0 0 0 4px var(--gray-200);z-index:1}
+.lf-row-dot.lf-ch-tw{background:#1B5E3B}
+.lf-row-dot.lf-ch-ht{background:#C8A951}
+.lf-row-dot.lf-ch-kt{background:#2577E3}
+.lf-row-dot.lf-ch-tc{background:#51B44D}
+.lf-row-dot.lf-ch-jp{background:#D85A30}
+.lf-row-dot.lf-ch-zh{background:#9333EA}
+.lf-row-body{min-width:0;padding-left:18px}
+.lf-row-line1{font-size:14px;color:var(--gray-800);font-weight:600;line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lf-row-line1 .lf-hotel{color:var(--gray-900)}
+.lf-row-line1 .lf-loc{color:var(--gray-500);font-weight:500}
+.lf-row-line2{font-size:12px;color:var(--gray-500);margin-top:3px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.lf-chip{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600;background:var(--gray-100);color:var(--gray-600);letter-spacing:.2px}
+.lf-chip-stars{color:var(--gold);background:var(--gold-light)}
+.lf-chip-channel{background:var(--forest-mist);color:var(--forest);font-weight:700}
+.lf-row-amount{font-family:'Inter',sans-serif;font-size:15px;font-weight:700;color:var(--forest);font-variant-numeric:tabular-nums;text-align:right}
+.lf-row-amount-sub{font-size:10px;color:var(--gray-400);font-weight:500;text-transform:uppercase;letter-spacing:.3px;margin-top:1px}
+.lf-stream-empty{padding:48px 32px;text-align:center}
+.lf-empty-icon{font-size:36px;opacity:.5;margin-bottom:14px}
+.lf-empty-title{font-size:15px;font-weight:700;color:var(--gray-700);margin-bottom:6px}
+.lf-empty-desc{font-size:13px;color:var(--gray-500);line-height:1.6;max-width:380px;margin:0 auto}
+.lf-stream-foot{padding:12px 26px;background:var(--gray-50);border-top:1px solid var(--gray-100);text-align:center}
+.lf-foot-note{font-size:11px;color:var(--gray-400);font-weight:500}
+@media(max-width:768px){
+  .lf-counters{grid-template-columns:repeat(2,1fr);gap:12px}
+  .lf-counter{padding:22px 14px 20px}
+  .lf-counter-num{font-size:28px}
+  .lf-stream::before{left:36px}
+  .lf-row{grid-template-columns:60px 1fr auto;gap:10px;padding:12px 18px}
+  .lf-row-dot{left:32px}
+  .lf-row-body{padding-left:14px}
+  .lf-row-line1{font-size:13px;white-space:normal}
+  .lf-row-amount{font-size:13px}
+}
 @media(max-width:768px){.top-nav{padding:0 20px}.hero{padding:110px 24px 60px}.hero h1{font-size:32px}.hero-stats{flex-direction:column;gap:24px}.section{padding:60px 24px}.section-title{font-size:28px}.steps-grid,.features-grid{grid-template-columns:1fr}.trust-grid{grid-template-columns:repeat(2,1fr)}.analytics-stats{grid-template-columns:1fr}.analytics-stat{border-right:none;border-bottom:1px solid var(--gray-100)}.analytics-stat:last-child{border-bottom:none}.cta-section{padding:60px 24px}.site-footer{flex-direction:column;gap:12px;text-align:center;padding:32px 24px}.nav-link{display:none}}
 </style>
 </head>
@@ -167,6 +228,60 @@ body{font-family:'Inter','Noto Sans KR',sans-serif;background:var(--white);color
     <span class="ota-text-logo ota-booking">Booking<span style="color:#003580">.com</span></span>
   </div>
 </section>
+<!-- LIVE FEED (Phase 1 Step 7 — 라이브 예약 피드) -->
+<section class="section" id="live-feed">
+  <div class="section-center">
+    <div class="section-badge" data-en="● Live Activity" data-ko="● 실시간 활동">● Live Activity</div>
+    <div class="section-title" data-en="Real bookings, in real time" data-ko="실시간으로 살아있는 예약 데이터">Real bookings, in real time</div>
+    <div class="section-desc" data-en="Live counters and bookings as they happen across our channel network. No mockups — every entry is a verified booking." data-ko="채널 네트워크 전반에서 발생하는 실시간 카운터와 예약. 모형이 아닌 검증된 실제 예약 데이터입니다.">Live counters and bookings as they happen across our channel network. No mockups — every entry is a verified booking.</div>
+  </div>
+
+  <!-- Live counter widgets (7-1) -->
+  <div class="lf-counters">
+    <div class="lf-counter">
+      <div class="lf-counter-icon">📈</div>
+      <div class="lf-counter-num" data-counter="total_bookings">—</div>
+      <div class="lf-counter-label" data-en="Total Bookings" data-ko="누적 예약">Total Bookings</div>
+    </div>
+    <div class="lf-counter">
+      <div class="lf-counter-icon">💰</div>
+      <div class="lf-counter-num" data-counter="total_amount_usd" data-prefix="$" data-format="compact">—</div>
+      <div class="lf-counter-label" data-en="Booking Volume" data-ko="예약 금액">Booking Volume</div>
+    </div>
+    <div class="lf-counter">
+      <div class="lf-counter-icon">🏨</div>
+      <div class="lf-counter-num" data-counter="distinct_hotels">—</div>
+      <div class="lf-counter-label" data-en="Hotels Booked" data-ko="예약된 호텔">Hotels Booked</div>
+    </div>
+    <div class="lf-counter">
+      <div class="lf-counter-icon">🌐</div>
+      <div class="lf-counter-num" data-counter="active_channels">—</div>
+      <div class="lf-counter-label" data-en="Active Channels" data-ko="활성 채널">Active Channels</div>
+    </div>
+  </div>
+
+  <!-- Activity Stream (7-2) -->
+  <div class="lf-stream-wrap">
+    <div class="lf-stream-head">
+      <div class="lf-stream-title">
+        <span class="lf-pulse-dot"></span>
+        <span data-en="Recent Booking Activity" data-ko="최근 예약 활동">Recent Booking Activity</span>
+      </div>
+      <div class="lf-stream-meta" id="lf-stream-meta" data-en="Auto-refreshing" data-ko="자동 갱신 중">Auto-refreshing</div>
+    </div>
+    <div class="lf-stream" id="lf-stream" aria-live="polite">
+      <!-- 동적 채워짐 -->
+    </div>
+    <div class="lf-stream-empty" id="lf-stream-empty" hidden>
+      <div class="lf-empty-icon">🛎️</div>
+      <div class="lf-empty-title" data-en="Activity feed warming up" data-ko="활동 피드 준비 중">Activity feed warming up</div>
+      <div class="lf-empty-desc" data-en="Real bookings will appear here as they're confirmed across our channel network." data-ko="채널 네트워크에서 예약이 확정되는 즉시 이곳에 실시간으로 표시됩니다.">Real bookings will appear here as they're confirmed across our channel network.</div>
+    </div>
+    <div class="lf-stream-foot">
+      <span class="lf-foot-note" data-en="Customer details are never shown — only verified booking activity." data-ko="고객 정보는 절대 노출되지 않으며, 검증된 예약 활동만 표시됩니다.">Customer details are never shown — only verified booking activity.</span>
+    </div>
+  </div>
+</section>
 <!-- TRANSPARENT DATA (투명한 데이터) -->
 <section class="section" id="transparent-data">
   <div class="section-center">
@@ -213,14 +328,275 @@ body{font-family:'Inter','Noto Sans KR',sans-serif;background:var(--white);color
   <a href="signup.html" class="cta-btn" data-en="Get Started Now →" data-ko="지금 시작하기 →">Get Started Now →</a>
 </section>
 <footer class="site-footer"><div class="footer-logo">TravelWinners</div><div>© 2026 TravelWinners. All rights reserved.</div></footer>
+<!-- Supabase JS SDK (라이브 피드용 anon 키, 공개 VIEW만 접근) -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 (function(){
   var lang=localStorage.getItem('tw-lang')||'en';
-  function switchLang(l){lang=l;localStorage.setItem('tw-lang',l);document.getElementById('lang-en').classList.toggle('active',l==='en');document.getElementById('lang-ko').classList.toggle('active',l==='ko');document.querySelectorAll('[data-'+l+']').forEach(function(el){var v=el.getAttribute('data-'+l);if(el.tagName==='INPUT')el.placeholder=v;else el.innerHTML=v})}
+  function switchLang(l){lang=l;localStorage.setItem('tw-lang',l);document.getElementById('lang-en').classList.toggle('active',l==='en');document.getElementById('lang-ko').classList.toggle('active',l==='ko');document.querySelectorAll('[data-'+l+']').forEach(function(el){var v=el.getAttribute('data-'+l);if(el.tagName==='INPUT')el.placeholder=v;else el.innerHTML=v});try{window.dispatchEvent(new CustomEvent('tw-lang-change',{detail:{lang:l}}));}catch(e){}}
   document.getElementById('lang-en').addEventListener('click',function(){switchLang('en')});
   document.getElementById('lang-ko').addEventListener('click',function(){switchLang('ko')});
   switchLang(lang);
   document.querySelectorAll('a[href^="#"]').forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();var t=document.querySelector(this.getAttribute('href'));if(t)t.scrollIntoView({behavior:'smooth'})})});
+})();
+</script>
+<!-- Live Feed Module (Phase 1 Step 7) -->
+<script>
+(function(){
+  'use strict';
+  // ----- Supabase 클라이언트 (anon 키, 공개 VIEW 전용) -----
+  var SUPABASE_URL = 'https://vjsludfjsphwnumuoqaj.supabase.co';
+  var SUPABASE_ANON = 'sb_publishable_IluITb52iuwwHf9xgP99MA__KX-sNM6';
+  var sb = null;
+  try {
+    if (window.supabase && typeof window.supabase.createClient === 'function') {
+      sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+    }
+  } catch(e) {
+    console.warn('[LiveFeed] Supabase init failed:', e);
+  }
+
+  // ----- DOM refs -----
+  var streamEl = document.getElementById('lf-stream');
+  var emptyEl = document.getElementById('lf-stream-empty');
+  var metaEl = document.getElementById('lf-stream-meta');
+  if (!streamEl) return; // 섹션 없으면 종료
+
+  // ----- 상태 -----
+  var state = {
+    rows: [],            // v_public_recent_bookings 결과
+    stats: null,         // v_public_stats 결과
+    rotateIdx: 0,        // 셔플 시작 인덱스
+    rotateTimer: null,
+    timeUpdateTimer: null
+  };
+
+  // ----- 유틸 -----
+  function getLang(){ return localStorage.getItem('tw-lang') || 'en'; }
+
+  function fmtRelTime(iso) {
+    if (!iso) return '';
+    var lang = getLang();
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) return '';
+    var diff = Math.floor((Date.now() - d.getTime()) / 1000);
+    var L = {
+      en: {now:'just now', s:'s ago', m:'m ago', h:'h ago', d:'d ago'},
+      ko: {now:'방금', s:'초 전', m:'분 전', h:'시간 전', d:'일 전'}
+    }[lang] || {now:'just now', s:'s ago', m:'m ago', h:'h ago', d:'d ago'};
+    if (diff < 30) return L.now;
+    if (diff < 60) return diff + L.s;
+    if (diff < 3600) return Math.floor(diff/60) + L.m;
+    if (diff < 86400) return Math.floor(diff/3600) + L.h;
+    return Math.floor(diff/86400) + L.d;
+  }
+
+  function fmtCompactNum(n) {
+    n = Number(n) || 0;
+    if (n >= 1000000) return (n/1000000).toFixed(n>=10000000?0:1).replace(/\.0$/,'') + 'M';
+    if (n >= 1000) return (n/1000).toFixed(n>=10000?0:1).replace(/\.0$/,'') + 'K';
+    return String(Math.floor(n));
+  }
+
+  function fmtMoney(n) { return Number(n||0).toLocaleString('en-US', {maximumFractionDigits:0}); }
+
+  function escapeHTML(s) {
+    if (s == null) return '';
+    return String(s).replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+
+  function starString(n) {
+    var v = parseInt(n, 10);
+    if (!v || v < 1 || v > 5) return '';
+    return '★'.repeat(v);
+  }
+
+  function chDotClass(code) {
+    var map = {'TW':'lf-ch-tw','HT':'lf-ch-ht','KT':'lf-ch-kt','TC':'lf-ch-tc','JP':'lf-ch-jp','ZH':'lf-ch-zh'};
+    return map[code] || '';
+  }
+
+  // ----- 카운터 애니메이션 -----
+  function animateCounter(el, target, opts) {
+    opts = opts || {};
+    var prefix = opts.prefix || '';
+    var compact = opts.compact || false;
+    var duration = 1200;
+    var start = 0;
+    var t0 = performance.now();
+    el.classList.remove('lf-loading');
+    function step(t) {
+      var p = Math.min(1, (t - t0) / duration);
+      var eased = 1 - Math.pow(1 - p, 3); // easeOutCubic
+      var v = start + (target - start) * eased;
+      el.textContent = prefix + (compact ? fmtCompactNum(v) : Math.floor(v).toLocaleString('en-US'));
+      if (p < 1) requestAnimationFrame(step);
+      else el.textContent = prefix + (compact ? fmtCompactNum(target) : Math.floor(target).toLocaleString('en-US'));
+    }
+    requestAnimationFrame(step);
+  }
+
+  function renderCounters(stats) {
+    if (!stats) return;
+    var nodes = document.querySelectorAll('[data-counter]');
+    nodes.forEach(function(el){
+      var key = el.getAttribute('data-counter');
+      var prefix = el.getAttribute('data-prefix') || '';
+      var format = el.getAttribute('data-format') || '';
+      var val = Number(stats[key] || 0);
+      animateCounter(el, val, { prefix: prefix, compact: format === 'compact' });
+    });
+  }
+
+  function renderEmptyCounters() {
+    document.querySelectorAll('[data-counter]').forEach(function(el){
+      el.classList.add('lf-loading');
+      el.textContent = '—';
+    });
+  }
+
+  // ----- Activity Stream 렌더 -----
+  function buildRow(row) {
+    var lang = getLang();
+    var hotel = escapeHTML(row.hotel_name || (lang==='ko'?'(이름 미공개)':'(undisclosed)'));
+    var city = escapeHTML(row.hotel_city || '');
+    var country = escapeHTML(row.hotel_country || '');
+    var loc = [city, country].filter(Boolean).join(', ');
+    var stars = starString(row.hotel_star);
+    var ch = escapeHTML(row.channel_name || row.channel_code || '');
+    var nights = parseInt(row.nights, 10) || 0;
+    var rooms = parseInt(row.num_rooms, 10) || 0;
+    var amt = Number(row.booking_amount_usd || 0);
+    var dotClass = chDotClass(row.channel_code);
+    var time = escapeHTML(fmtRelTime(row.booked_at));
+
+    var meta = [];
+    if (stars) meta.push('<span class="lf-chip lf-chip-stars">' + stars + '</span>');
+    if (ch) meta.push('<span class="lf-chip lf-chip-channel">' + ch + '</span>');
+    if (nights) meta.push('<span class="lf-chip">' + nights + (lang==='ko'?'박':'N') + (rooms?' · '+rooms+(lang==='ko'?'실':'rm'):'') + '</span>');
+
+    return '' +
+      '<div class="lf-row">' +
+        '<div class="lf-row-time">' + time + '</div>' +
+        '<span class="lf-row-dot ' + dotClass + '"></span>' +
+        '<div class="lf-row-body">' +
+          '<div class="lf-row-line1"><span class="lf-hotel">' + hotel + '</span>' +
+            (loc ? ' <span class="lf-loc">— ' + loc + '</span>' : '') +
+          '</div>' +
+          '<div class="lf-row-line2">' + meta.join('') + '</div>' +
+        '</div>' +
+        '<div>' +
+          '<div class="lf-row-amount">$' + fmtMoney(amt) + '</div>' +
+          '<div class="lf-row-amount-sub">USD</div>' +
+        '</div>' +
+      '</div>';
+  }
+
+  function renderStream() {
+    if (!state.rows || state.rows.length === 0) {
+      streamEl.innerHTML = '';
+      streamEl.style.display = 'none';
+      if (emptyEl) emptyEl.hidden = false;
+      if (metaEl) {
+        var lang = getLang();
+        metaEl.textContent = lang==='ko' ? '데이터 대기 중' : 'Waiting for data';
+      }
+      return;
+    }
+    if (emptyEl) emptyEl.hidden = true;
+    streamEl.style.display = '';
+    // 7개씩 윈도우로 셔플 표시 (rotateIdx 부터)
+    var WINDOW = Math.min(7, state.rows.length);
+    var html = '';
+    for (var i = 0; i < WINDOW; i++) {
+      var idx = (state.rotateIdx + i) % state.rows.length;
+      html += buildRow(state.rows[idx]);
+    }
+    streamEl.innerHTML = html;
+    if (metaEl) {
+      var langm = getLang();
+      metaEl.textContent = (langm==='ko' ? '실시간 갱신' : 'Live · auto-refreshing');
+    }
+  }
+
+  function rotateOnce() {
+    if (!state.rows || state.rows.length === 0) return;
+    state.rotateIdx = (state.rotateIdx + 1) % state.rows.length;
+    renderStream();
+  }
+
+  function startRotation() {
+    if (state.rotateTimer) clearInterval(state.rotateTimer);
+    // 데이터가 윈도우(7) 이하면 회전할 의미 없음
+    if (!state.rows || state.rows.length <= 7) return;
+    state.rotateTimer = setInterval(rotateOnce, 4500);
+  }
+
+  function startTimeRefresh() {
+    if (state.timeUpdateTimer) clearInterval(state.timeUpdateTimer);
+    // 30초마다 시간 표시만 갱신
+    state.timeUpdateTimer = setInterval(renderStream, 30000);
+  }
+
+  // ----- 데이터 로드 -----
+  function loadData() {
+    if (!sb) {
+      console.warn('[LiveFeed] sb not initialized');
+      renderEmptyCounters();
+      renderStream();
+      return;
+    }
+    Promise.all([
+      sb.from('v_public_stats').select('*').single(),
+      sb.from('v_public_recent_bookings').select('*').limit(50)
+    ]).then(function(results){
+      var statsRes = results[0], rowsRes = results[1];
+      if (statsRes && !statsRes.error && statsRes.data) {
+        state.stats = statsRes.data;
+        renderCounters(state.stats);
+      } else {
+        renderEmptyCounters();
+        if (statsRes && statsRes.error) console.warn('[LiveFeed] stats error:', statsRes.error);
+      }
+      if (rowsRes && !rowsRes.error && Array.isArray(rowsRes.data)) {
+        state.rows = rowsRes.data;
+        state.rotateIdx = 0;
+        renderStream();
+        startRotation();
+        startTimeRefresh();
+      } else {
+        state.rows = [];
+        renderStream();
+        if (rowsRes && rowsRes.error) console.warn('[LiveFeed] rows error:', rowsRes.error);
+      }
+    }).catch(function(err){
+      console.warn('[LiveFeed] load error:', err);
+      renderEmptyCounters();
+      state.rows = [];
+      renderStream();
+    });
+  }
+
+  // ----- 언어 변경 시 다시 렌더 (시간 표시/메타 텍스트) -----
+  window.addEventListener('tw-lang-change', function(){
+    renderStream();
+    if (state.stats) renderCounters(state.stats);
+  });
+
+  // ----- 초기 진입 -----
+  // 카운터 초기 상태
+  renderEmptyCounters();
+  // 데이터 로드
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', loadData);
+  } else {
+    loadData();
+  }
+
+  // 5분마다 데이터 자동 재로드 (페이지가 오래 열려있을 때 신선도 유지)
+  setInterval(loadData, 5 * 60 * 1000);
 })();
 </script>
 </body>

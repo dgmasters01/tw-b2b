@@ -159,7 +159,7 @@
 - `admin.html`: 좌측 사이드바 6메뉴 (기존 ID/JS 100% 보존, mobile responsive)
 
 ### 4-5단계 시작 시 PENDING 확인 필수
-**대표님 작업**: Supabase SQL Editor에서 `sql/_apply-phase1-step2-bundle.sql` 실행 필요. 미실행 시 4-5단계 INSERT/UPLOAD가 작동하지 않음.
+**Supabase 스키마 적용 상태**: ✅ **자동 적용 완료 (2026-04-27)**. Management API로 적용했고 모든 테이블/VIEW/시드/RLS 검증됨. 4-5단계 즉시 시작 가능.
 
 ---
 
@@ -232,6 +232,7 @@ Claude는 다음 시점에 새 채팅 안내를 먼저 합니다:
 | 2026-04-27 | booking-analytics.html v9.1 복원 (커밋 c7997a1) | TW Booking Analytics 8 |
 | 2026-04-27 | Phase 1 Step 2 완료: schema (channels/bookings_self/bookings_agoda + RLS + unified VIEW) | TW Booking Analytics 9 |
 | 2026-04-27 | Phase 1 Step 3 완료: admin.html 좌측 사이드바 6메뉴 재구조화 (커밋 a39b5bc) | TW Booking Analytics 9 |
+| 2026-04-27 | Supabase SQL 자동 적용 완료 (Management API): hotel_id UUID 정정 후 bundle 적용, 검증 통과 (커밋 1110926) | TW Booking Analytics 9 |
 
 ---
 

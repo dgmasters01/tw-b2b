@@ -146,7 +146,7 @@
 | **다음 작업** | 6단계 - 분석 대시보드 8탭 이식 |
 | **이번 채팅** | TW Booking Analytics 10 |
 | **다음 채팅** | TW Booking Analytics 11 |
-| **마지막 커밋** | (4-5단계 푸시 후 업데이트) |
+| **마지막 커밋** | c1b9f48 (Phase 1 Step 4-5: Bookings sub-tabs + Agoda upload) |
 | **최종 업데이트** | 2026-04-27 |
 
 ### 4-5단계 완료 산출물

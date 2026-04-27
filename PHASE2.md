@@ -4,7 +4,7 @@
 > 새 채팅에서 작업을 이어가려면: `tw-b2b PHASE2.md 읽고 [N]단계 작업해줘`
 
 **최종 갱신**: 2026-04-27
-**현재 단계**: Step 1 완료 / Step 2 대기
+**현재 단계**: Step 1, 2 완료 / Step 3 대기
 **작업자**: Claude (Anthropic) + 이지형 대표
 
 ---
@@ -46,23 +46,39 @@ Phase 1에서 admin.html과 booking-analytics.html(v9.1)을 통합 완료했음.
 
 ---
 
-### Step 2: 호텔 정보 + 성급 동기화 — ⏸ 대기
+### Step 2: 호텔 정보 + 성급 동기화 — ✅ 완료 (2026-04-27)
 **목표**: hotels 테이블 → booking-analytics.html 양방향 연결
 
-**Sub-step 2.1**: B2B 영업 탭 호텔 기본정보 영역 채우기
-- `rHtD()` 함수에서 Supabase REST API 호출
-- agoda_hotel_id로 매칭 (1순위), hotel_name fuzzy match (2순위)
-- 표시 항목: address / phone / contact_email / website / review_score / contact_name
+**Sub-step 2.1**: B2B 영업 탭 호텔 기본정보 영역 채우기 — 완료
+- booking-analytics.html `<head>`에 supabase-js + shared.js 로드 추가
+- `rHtD()`의 "정보 없음" 영역을 ID 부여(`hi-card`/`hi-status`/`hi-data`/`hi-note`)된 placeholder로 교체
+- 새 함수 추가:
+  - `loadHotels()`: hotels 테이블 1회 캐시 (`TW.db.getAllHotels`)
+  - `findHotel(name, city, country)`: 정규화 매칭 (1순위: hotel_name 정확, 2순위: city + 부분일치)
+  - `fillHotelInfo()`: 호텔 상세 진입 시 비동기 fetch 후 6개 필드(address/phone/contact_email/website/review_score/contact_name) DOM 업데이트
+- 매칭 실패 시: "호텔 매니저 등록 대기 중" 표시 + 등록 안내 문구
+- 매칭 성공 시: 실시간 동기화 상태 + 최종 업데이트 일자 + 상태 표시
 
-**Sub-step 2.2**: 성급별 탭 정확화
-- 현재: 가격으로 추정 (부정확)
-- 개선: bookings_unified와 hotels 조인 → star_rating 사용
-- 미매칭 호텔만 가격 추정 (fallback)
+**Sub-step 2.2**: 성급별 탭 정확화 — 완료
+- 노란 배너 텍스트 변경 + ID 부여 (`st-banner`)
+- `syncStarRatings()` 신규 함수: 페이지 로드 시 D.hf 각 항목의 `s` 필드를 hotels.star_rating으로 라이브 오버라이드
+- 배너에 매칭 결과 동적 표시: "성급은 등록 호텔 기준 실시간 동기화 (매칭 N/M, P%). 미등록은 평균단가 추정"
+- 매칭 시 stars 탭이 표시 중이면 자동 재렌더
+- D.ss/D.sc(국가별 성급 차트)는 정적 유지 (재집계는 Step 3에서)
+
+**rr() 후크**: `rr` 함수를 한 번 더 wrapping해서 매 렌더링 후 `fillHotelInfo` + `syncStarRatings` 자동 트리거. 페이지 로드 시 200ms 후 `syncStarRatings` 선제 호출.
+
+**검증 결과**:
+- ✅ JS 문법 (node --check)
+- ✅ 모든 신규 함수/요소 존재 (rHtD에 hi-card, rSt에 st-banner, 6개 data-fld)
+- ✅ 기존 함수(rHtD, rSt, rr) 보존
+- ✅ Supabase RLS 정책 활성화 확인 (hotels SELECT는 본인 또는 admin)
+- ✅ Management API로 hotels 테이블 상태 확인 (현재 0건 → 호텔 매니저 등록 대기 상태)
 
 **완료 조건**:
-- [ ] B2B 영업 → 호텔 클릭 시 hotels DB 정보 표시 (또는 "호텔 매니저 등록 대기 중" 표시)
-- [ ] 성급별 차트가 hotels.star_rating 기반으로 정확
-- [ ] 상단 노란 배너 "성급은 평균단가 기준 임의 추정" 제거
+- [x] B2B 영업 → 호텔 클릭 시 hotels DB 정보 표시 (또는 "호텔 매니저 등록 대기 중" 표시)
+- [x] 성급별 차트가 hotels.star_rating 기반으로 정확 (라이브 오버라이드)
+- [x] 상단 노란 배너 "성급은 평균단가 기준 임의 추정" 제거 → 매칭 동기화 메시지로 교체
 
 ---
 
@@ -144,8 +160,9 @@ function normalizeName(name) {
 
 | 날짜 | Step | 변경사항 | 커밋 |
 |------|------|----------|------|
-| 2026-04-27 | - | PHASE2.md 신규 작성 | (이번 커밋) |
-| 2026-04-27 | Step 1 | 사이드바 fixed positioning 적용 (스크롤 후 메뉴 클릭 불가 버그 해결) | (이번 커밋) |
+| 2026-04-27 | - | PHASE2.md 신규 작성 | (Step 1 커밋) |
+| 2026-04-27 | Step 1 | 사이드바 fixed positioning 적용 (스크롤 후 메뉴 클릭 불가 버그 해결) | (Step 1 커밋) |
+| 2026-04-27 | Step 2 | booking-analytics에 supabase-js + shared.js 로드, rHtD 호텔 정보 영역 라이브 동기화, rSt 성급 라이브 오버라이드, 노란 배너 메시지 교체 | (이번 커밋) |
 
 ---
 

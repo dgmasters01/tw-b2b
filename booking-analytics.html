@@ -2,6 +2,8 @@
 <html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>TW Booking Analytics</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="shared.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{--bg:#f8f7f4;--cd:#fff;--tx:#1a1a1a;--sb:#666;--ht:#999;--bd:#e8e6e1;--ac:#534AB7;--tl:#1D9E75;--cr:#D85A30;--bl:#378ADD}
@@ -116,7 +118,7 @@ return nav+
 '<div class="C"><h3>\uC608\uC57D \uC0C1\uC138 ('+bks.length+'\uAC74)</h3><div style="overflow-x:auto"><table><thead><tr><th>\uC608\uC57D\uBC88\uD638</th><th>\uC608\uC57D\uC77C</th><th>\uCCB4\uD06C\uC778</th><th>\uCCB4\uD06C\uC544\uC6C3</th><th class="r">\uAE08\uC561</th><th class="r">\uC218\uC218\uB8CC</th><th>\uC0C1\uD0DC</th><th>\uAE30\uAE30</th></tr></thead><tbody>'+
 bks.map(function(b){return'<tr><td style="font-family:monospace;font-size:12px">'+b.i+'</td><td>'+b.d+'</td><td>'+b.cd+'</td><td>'+b.od+'</td><td class="r">'+F(b.a)+'</td><td class="r">'+F(b.c)+'</td><td><span class="bg bv">'+(SM[b.s]||b.s)+'</span></td><td>'+b.dv+'</td></tr>'}).join('')+
 '</tbody></table></div></div>'+
-'<div class="C"><h3>\uD638\uD154 \uAE30\uBCF8\uC815\uBCF4 <span style="font-size:10px;color:var(--ht);font-weight:400;margin-left:6px">Google Places API \uC5F0\uB3D9 \uC608\uC815</span></h3><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px 20px;padding:12px 14px;background:#faf9f6;border:1px dashed var(--bd);border-radius:8px"><div><div style="font-size:11px;color:var(--ht);margin-bottom:2px">\uC8FC\uC18C</div><div style="font-size:13px;color:var(--ht);font-style:italic">\uC815\uBCF4 \uC5C6\uC74C</div></div><div><div style="font-size:11px;color:var(--ht);margin-bottom:2px">\uC804\uD654\uBC88\uD638</div><div style="font-size:13px;color:var(--ht);font-style:italic">\uC815\uBCF4 \uC5C6\uC74C</div></div><div><div style="font-size:11px;color:var(--ht);margin-bottom:2px">\uC774\uBA54\uC77C</div><div style="font-size:13px;color:var(--ht);font-style:italic">\uC815\uBCF4 \uC5C6\uC74C</div></div><div><div style="font-size:11px;color:var(--ht);margin-bottom:2px">\uC6F9\uC0AC\uC774\uD2B8</div><div style="font-size:13px;color:var(--ht);font-style:italic">\uC815\uBCF4 \uC5C6\uC74C</div></div><div><div style="font-size:11px;color:var(--ht);margin-bottom:2px">Google \uD3C9\uC810</div><div style="font-size:13px;color:var(--ht);font-style:italic">\uC815\uBCF4 \uC5C6\uC74C</div></div><div><div style="font-size:11px;color:var(--ht);margin-bottom:2px">\uC601\uC5C5 \uB2F4\uB2F9\uC790</div><div style="font-size:13px;color:var(--ht);font-style:italic">\uC815\uBCF4 \uC5C6\uC74C</div></div></div><div style="font-size:11px;color:var(--ht);margin-top:8px;font-style:italic">Google Places API \uC5F0\uB3D9 \uD6C4 \uC8FC\uC18C\u00B7\uC804\uD654\u00B7\uC6F9\uC0AC\uC774\uD2B8\u00B7\uD3C9\uC810 \uC790\uB3D9 \uCC44\uC6C0. \uC774\uBA54\uC77C\u00B7\uB2F4\uB2F9\uC790\uB294 \uC601\uC5C5 \uACFC\uC815\uC5D0\uC11C \uC218\uB3D9 \uC785\uB825 \uCD95\uC801.</div></div>'+
+'<div class="C" id="hi-card"><h3>\uD638\uD154 \uAE30\uBCF8\uC815\uBCF4 <span id="hi-status" style="font-size:10px;color:var(--ht);font-weight:400;margin-left:6px">\uC870\uD68C \uC911...</span></h3><div id="hi-data" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px 20px;padding:12px 14px;background:#faf9f6;border:1px dashed var(--bd);border-radius:8px"><div><div style="font-size:11px;color:var(--ht);margin-bottom:2px">\uC8FC\uC18C</div><div data-fld="address" style="font-size:13px;color:var(--ht);font-style:italic">-</div></div><div><div style="font-size:11px;color:var(--ht);margin-bottom:2px">\uC804\uD654\uBC88\uD638</div><div data-fld="phone" style="font-size:13px;color:var(--ht);font-style:italic">-</div></div><div><div style="font-size:11px;color:var(--ht);margin-bottom:2px">\uC774\uBA54\uC77C</div><div data-fld="contact_email" style="font-size:13px;color:var(--ht);font-style:italic">-</div></div><div><div style="font-size:11px;color:var(--ht);margin-bottom:2px">\uC6F9\uC0AC\uC774\uD2B8</div><div data-fld="website" style="font-size:13px;color:var(--ht);font-style:italic">-</div></div><div><div style="font-size:11px;color:var(--ht);margin-bottom:2px">\uACE0\uAC1D \uD3C9\uC810</div><div data-fld="review_score" style="font-size:13px;color:var(--ht);font-style:italic">-</div></div><div><div style="font-size:11px;color:var(--ht);margin-bottom:2px">\uC601\uC5C5 \uB2F4\uB2F9\uC790</div><div data-fld="contact_name" style="font-size:13px;color:var(--ht);font-style:italic">-</div></div></div><div id="hi-note" style="font-size:11px;color:var(--ht);margin-top:8px;font-style:italic">\uD638\uD154 \uB9E4\uB2C8\uC800\uAC00 hotel-info\uC5D0\uC11C \uB4F1\uB85D\uD55C \uC815\uBCF4\uB97C \uC2E4\uC2DC\uAC04\uC73C\uB85C \uD45C\uC2DC\uD569\uB2C8\uB2E4.</div></div>'+
 '<div class="pb"><h4>B2B \uC601\uC5C5 \uD3EC\uC778\uD2B8</h4><p>"\uADC0 \uD638\uD154\uC5D0 '+bks.length+'\uAC74\uC758 \uC2E4\uC81C \uC608\uC57D\uC774 \uBC1C\uC0DD. \uC544\uACE0\uB2E4 \uC2DC\uC2A4\uD15C\uC5D0\uC11C \uC608\uC57D\uBC88\uD638\uB85C \uC9C1\uC811 \uD655\uC778 \uAC00\uB2A5."</p></div>'}
 
 function drillCo(n){DS={co:n};dc();rr()}
@@ -192,7 +194,7 @@ Array.from({length:dim},function(_,i){var d=i+1,dd2=dm[d],cnt=dd2?dd2.b:0;var bg
 '</tbody></table></div>'}
 function iPC(){ch_.push(new Chart(document.getElementById('dw'),{type:'bar',data:{labels:D.dow.map(function(d){return d.nm}),datasets:[{data:D.dow.map(function(d){return d.b}),backgroundColor:D.dow.map(function(_,i){return i>=5?'#D85A30':'#534AB7'}),borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false}},y:{grid:{color:'#f0eee9'}}}}}));ch_.push(new Chart(document.getElementById('dm2'),{type:'bar',data:{labels:D.dom.map(function(d){return d.d+'\uC77C'}),datasets:[{data:D.dom.map(function(d){return d.b}),backgroundColor:'#1D9E75',borderRadius:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{font:{size:9}}},y:{grid:{color:'#f0eee9'}}}}}))}
 
-function rSt(){return'<div style="margin-bottom:12px"><span class="pn">\uC131\uAE09\uC740 \uD3C9\uADE0\uB2E8\uAC00 \uAE30\uC900 \uC784\uC758 \uCD94\uC815. \uCD94\uD6C4 \uC544\uACE0\uB2E4 API\uB85C \uAD50\uCCB4</span></div><div class="C"><h3>\uC131\uAE09\uBCC4</h3><div class="cw" style="height:200px"><canvas id="sc"></canvas></div><table><thead><tr><th>\uC131\uAE09</th><th class="r">\uC608\uC57D</th><th class="r">\uAE08\uC561</th><th class="r">\uC218\uC218\uB8CC</th><th class="r">\uD3C9\uADE0</th><th class="r">\uBE44\uC911</th></tr></thead><tbody>'+D.ss.map(function(s){return'<tr><td>'+Ss(s.st)+'</td><td class="r">'+s.b.toLocaleString()+'\uAC74</td><td class="r">'+F(s.a)+'</td><td class="r">'+F(s.c)+'</td><td class="r">'+A(s.a,s.b)+'</td><td class="r">'+P(s.b,D.sm.tb)+'</td></tr>'}).join('')+'</tbody></table></div><div class="C"><h3>\uB098\uB77C\uBCC4 \uC131\uAE09</h3><table><thead><tr><th>\uB098\uB77C</th><th class="r">\u2605\u2605</th><th class="r">\u2605\u2605\u2605</th><th class="r">\u2605\u2605\u2605\u2605</th><th class="r">\u2605\u2605\u2605\u2605\u2605</th></tr></thead><tbody>'+function(){var cos=[],seen={};D.sc.forEach(function(d){if(!seen[d.co]){seen[d.co]=1;cos.push(d.co)}});return cos.map(function(co){var rows=D.sc.filter(function(d){return d.co===co});return'<tr><td><strong>'+co+'</strong></td>'+[2,3,4,5].map(function(s){var r=rows.find(function(d){return d.s===s});return'<td class="r">'+(r?r.b+'\uAC74<br><span style="font-size:11px;color:var(--ht)">'+F(r.a)+'</span>':'-')+'</td>'}).join('')+'</tr>'}).join('')}()+'</tbody></table></div>'}
+function rSt(){return'<div style="margin-bottom:12px"><span class="pn" id="st-banner">\uC131\uAE09\uC740 \uB4F1\uB85D \uD638\uD154 \uAE30\uC900 \uC2E4\uC2DC\uAC04 \uB3D9\uAE30\uD654. \uBBF8\uB4F1\uB85D\uC740 \uD3C9\uADE0\uB2E8\uAC00 \uCD94\uC815</span></div><div class="C"><h3>\uC131\uAE09\uBCC4</h3><div class="cw" style="height:200px"><canvas id="sc"></canvas></div><table><thead><tr><th>\uC131\uAE09</th><th class="r">\uC608\uC57D</th><th class="r">\uAE08\uC561</th><th class="r">\uC218\uC218\uB8CC</th><th class="r">\uD3C9\uADE0</th><th class="r">\uBE44\uC911</th></tr></thead><tbody>'+D.ss.map(function(s){return'<tr><td>'+Ss(s.st)+'</td><td class="r">'+s.b.toLocaleString()+'\uAC74</td><td class="r">'+F(s.a)+'</td><td class="r">'+F(s.c)+'</td><td class="r">'+A(s.a,s.b)+'</td><td class="r">'+P(s.b,D.sm.tb)+'</td></tr>'}).join('')+'</tbody></table></div><div class="C"><h3>\uB098\uB77C\uBCC4 \uC131\uAE09</h3><table><thead><tr><th>\uB098\uB77C</th><th class="r">\u2605\u2605</th><th class="r">\u2605\u2605\u2605</th><th class="r">\u2605\u2605\u2605\u2605</th><th class="r">\u2605\u2605\u2605\u2605\u2605</th></tr></thead><tbody>'+function(){var cos=[],seen={};D.sc.forEach(function(d){if(!seen[d.co]){seen[d.co]=1;cos.push(d.co)}});return cos.map(function(co){var rows=D.sc.filter(function(d){return d.co===co});return'<tr><td><strong>'+co+'</strong></td>'+[2,3,4,5].map(function(s){var r=rows.find(function(d){return d.s===s});return'<td class="r">'+(r?r.b+'\uAC74<br><span style="font-size:11px;color:var(--ht)">'+F(r.a)+'</span>':'-')+'</td>'}).join('')+'</tr>'}).join('')}()+'</tbody></table></div>'}
 function iSC(){var s=D.ss,co=['#f0eee9','#1D9E75','#378ADD','#534AB7'];ch_.push(new Chart(document.getElementById('sc'),{type:'bar',data:{labels:s.map(function(v){return v.st+'\uC131\uAE09'}),datasets:[{data:s.map(function(v){return v.b}),backgroundColor:co,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false}},y:{grid:{color:'#f0eee9'}}}}}))}
 
 var b2bQ2='';
@@ -225,4 +227,101 @@ function loadURL(){var h=location.hash.slice(1);if(!h){CT='overview';DS={};HP=0;
 window.addEventListener('popstate',function(){loadURL();iT();dc();try{var _bq=b2bQ2;b2bQ2='';rr();b2bQ2=_bq;}catch(e){rr()}});
 var _rr_orig=rr;rr=function(){syncURL();_rr_orig()};
 loadURL();iT();rr();
+
+/* ============================================
+   Phase 2: Hotels DB \uB3D9\uAE30\uD654 (rHtD \uD638\uD154\uC815\uBCF4 + \uC131\uAE09 \uB77C\uC774\uBE0C \uB3D9\uAE30\uD654)
+   ============================================ */
+var _hotelsCache=null,_hotelsCachePromise=null,_starSyncDone=false;
+function loadHotels(){
+  if(_hotelsCachePromise)return _hotelsCachePromise;
+  _hotelsCachePromise=(window.TW&&window.TW.db&&window.TW.db.getAllHotels?window.TW.db.getAllHotels():Promise.resolve({data:[],error:'no-tw'})).then(function(r){_hotelsCache=(r&&r.data)?r.data:[];return _hotelsCache;}).catch(function(e){console.warn('loadHotels error:',e);_hotelsCache=[];return _hotelsCache;});
+  return _hotelsCachePromise;
+}
+function nNm(s){return(s||'').toString().toLowerCase().replace(/&/g,'and').replace(/[^a-z0-9]/g,'');}
+function findHotel(name,city,country){
+  if(!_hotelsCache||!name)return null;
+  var nName=nNm(name);
+  var hit=_hotelsCache.find(function(h){return nNm(h.hotel_name)===nName;});
+  if(hit)return hit;
+  if(city){
+    var nCity=nNm(city);
+    hit=_hotelsCache.find(function(h){return nNm(h.city)===nCity&&(nNm(h.hotel_name).indexOf(nName)!==-1||nName.indexOf(nNm(h.hotel_name))!==-1);});
+  }
+  return hit||null;
+}
+function fillHotelInfo(){
+  var card=document.getElementById('hi-card');
+  if(!card)return;
+  var h=DS.ht||DS.cd_ht||(DS.h_ht&&DS.h_ht.h)||(DS.patHt&&DS.patHt.h)||(DS.b2bHt&&DS.b2bHt.h);
+  var ci=DS.ci||(DS.cd_ci&&DS.cd_ci.ci)||(DS.h_ht&&DS.h_ht.ci)||(DS.patHt&&DS.patHt.ci)||(DS.b2bHt&&DS.b2bHt.ci);
+  var co=DS.co||(DS.cd_ci&&DS.cd_ci.co)||(DS.h_ht&&DS.h_ht.co)||(DS.patHt&&DS.patHt.co)||(DS.b2bHt&&DS.b2bHt.co);
+  if(!h)return;
+  loadHotels().then(function(){
+    var card2=document.getElementById('hi-card');
+    if(!card2)return;
+    var status=document.getElementById('hi-status');
+    var note=document.getElementById('hi-note');
+    var data=document.getElementById('hi-data');
+    var hit=findHotel(h,ci,co);
+    if(!hit){
+      if(status){status.textContent='\uD638\uD154 \uB9E4\uB2C8\uC800 \uB4F1\uB85D \uB300\uAE30 \uC911';status.style.color='var(--ht)';}
+      if(note)note.innerHTML='\uC774 \uD638\uD154\uC758 \uB9E4\uB2C8\uC800\uAC00 \uC544\uC9C1 hotel-info \uD398\uC774\uC9C0\uC5D0 \uB4F1\uB85D\uD558\uC9C0 \uC54A\uC558\uC2B5\uB2C8\uB2E4. \uB4F1\uB85D \uC640\uB8CC \uC2DC \uC790\uB3D9\uC73C\uB85C \uD45C\uC2DC\uB429\uB2C8\uB2E4.';
+      return;
+    }
+    if(status){status.textContent='\uC2E4\uC2DC\uAC04 \uB3D9\uAE30\uD654';status.style.color='#0a7c3a';}
+    if(data){
+      var fmt=function(v){return(v==null||v==='')?'-':String(v);};
+      var fields={
+        address:fmt(hit.address),
+        phone:fmt(hit.phone||hit.contact_phone),
+        contact_email:fmt(hit.contact_email),
+        website:hit.website?'<a href="'+hit.website+'" target="_blank" rel="noopener" style="color:var(--ac)">'+hit.website+'</a>':'-',
+        review_score:hit.review_score!=null?(hit.review_score+(hit.review_count?' ('+hit.review_count+')':'')):'-',
+        contact_name:fmt(hit.contact_name)
+      };
+      Object.keys(fields).forEach(function(k){
+        var el=data.querySelector('[data-fld="'+k+'"]');
+        if(el){
+          el.innerHTML=fields[k];
+          if(fields[k]!=='-'){el.style.color='var(--tx)';el.style.fontStyle='normal';}
+        }
+      });
+    }
+    if(note){
+      var updated=hit.updated_at?new Date(hit.updated_at).toLocaleDateString():'-';
+      note.innerHTML='\uCD5C\uC885 \uC5C5\uB370\uC774\uD2B8: '+updated+' \u00B7 \uC0C1\uD0DC: '+(hit.status||'pending');
+    }
+  });
+}
+function syncStarRatings(){
+  if(_starSyncDone)return;
+  loadHotels().then(function(){
+    if(!_hotelsCache||_hotelsCache.length===0){
+      var bn0=document.getElementById('st-banner');
+      if(bn0)bn0.textContent='\uD638\uD154 \uB4F1\uB85D \uB370\uC774\uD130 \uC5C6\uC74C \u00B7 \uC131\uAE09\uC740 \uD3C9\uADE0\uB2E8\uAC00 \uCD94\uC815';
+      return;
+    }
+    var matched=0;
+    if(window.D&&D.hf){
+      D.hf.forEach(function(hf){
+        var hit=findHotel(hf.h,hf.ci,hf.co);
+        if(hit&&hit.star_rating!=null){hf.s=Math.round(hit.star_rating);matched++;}
+      });
+    }
+    _starSyncDone=true;
+    if(CT==='stars'){
+      try{dc();_rr_orig();}catch(e){console.warn('rerender stars:',e);}
+    }
+    var bn=document.getElementById('st-banner');
+    if(bn&&D.hf){
+      var pct=D.hf.length>0?Math.round(matched/D.hf.length*100):0;
+      bn.textContent='\uC131\uAE09\uC740 \uB4F1\uB85D \uD638\uD154 \uAE30\uC900 \uC2E4\uC2DC\uAC04 \uB3D9\uAE30\uD654 (\uB9E4\uCE6D '+matched+'/'+D.hf.length+', '+pct+'%). \uBBF8\uB4F1\uB85D\uC740 \uD3C9\uADE0\uB2E8\uAC00 \uCD94\uC815';
+    }
+  });
+}
+(function(){
+  var _rr_phase2=rr;
+  rr=function(){_rr_phase2();setTimeout(fillHotelInfo,0);setTimeout(syncStarRatings,0);};
+})();
+setTimeout(syncStarRatings,200);
 </script></body></html>

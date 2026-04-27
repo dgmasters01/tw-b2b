@@ -7,6 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;500;700&family=DM+Sans:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="shared.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="shared.js"></script>
 <style>
 *{box-sizing:border-box}
@@ -94,6 +95,47 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
   .ad-sb-foot{display:none}
 }
 @media (max-width:640px){.ad-stats{grid-template-columns:repeat(2,1fr)}.ad-detail-grid{grid-template-columns:1fr}}
+/* === Bookings sub-tabs === */
+.bk-subtabs{display:flex;gap:4px;border-bottom:1px solid #e8e8e8;margin-bottom:18px;flex-wrap:wrap}
+.bk-subtab{padding:10px 18px;border:none;background:none;cursor:pointer;font-family:inherit;font-size:13.5px;color:#777;font-weight:500;border-bottom:2px solid transparent;margin-bottom:-1px}
+.bk-subtab:hover{color:#1a1a1a}
+.bk-subtab.active{color:#534AB7;border-bottom-color:#534AB7;font-weight:600}
+.bk-form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px 18px}
+.bk-form-grid .full{grid-column:1/-1}
+.bk-form-grid label{display:block;font-size:11.5px;color:#666;margin-bottom:5px;font-weight:500;text-transform:uppercase;letter-spacing:.3px}
+.bk-form-grid input,.bk-form-grid select,.bk-form-grid textarea{width:100%;padding:9px 11px;border:1px solid #d8d8d8;border-radius:6px;font-family:inherit;font-size:13.5px;background:#fff}
+.bk-form-grid input:focus,.bk-form-grid select:focus,.bk-form-grid textarea:focus{outline:none;border-color:#534AB7;box-shadow:0 0 0 2px rgba(83,74,183,.1)}
+.bk-section{font-size:11px;color:#999;text-transform:uppercase;letter-spacing:.5px;font-weight:600;margin:10px 0 4px;padding-top:10px;border-top:1px solid #f0f0f0}
+.bk-section:first-child{border-top:none;padding-top:0;margin-top:0}
+.bk-required::after{content:'*';color:#c93030;margin-left:3px}
+@media (max-width:640px){.bk-form-grid{grid-template-columns:1fr}}
+/* Drop zone */
+.bk-drop{border:2px dashed #c9c9d5;border-radius:10px;padding:32px 20px;text-align:center;background:#fafaff;transition:all .2s;cursor:pointer}
+.bk-drop:hover,.bk-drop.dragover{border-color:#534AB7;background:#f4f3ff}
+.bk-drop-icon{font-size:36px;margin-bottom:8px}
+.bk-drop-text{font-size:14px;color:#555;margin-bottom:4px;font-weight:500}
+.bk-drop-sub{font-size:12px;color:#999}
+.bk-file-list{margin-top:14px}
+.bk-file-item{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:#f7f7fb;border-radius:6px;margin-bottom:6px;font-size:13px}
+.bk-file-item .bk-file-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-right:10px}
+.bk-file-item .bk-file-size{color:#999;font-size:12px;margin-right:10px}
+.bk-file-rm{background:none;border:none;color:#c93030;cursor:pointer;font-size:16px;padding:0 6px;line-height:1}
+.bk-progress{height:6px;background:#eee;border-radius:3px;margin:14px 0;overflow:hidden;display:none}
+.bk-progress-bar{height:100%;background:#534AB7;width:0%;transition:width .2s}
+.bk-result-card{background:#f7f7fb;border-radius:10px;padding:16px;margin-top:14px}
+.bk-result-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px}
+.bk-result-stat{background:#fff;padding:12px;border-radius:8px;text-align:center}
+.bk-result-stat-val{font-size:22px;font-weight:700;color:#1a1a1a}
+.bk-result-stat-lbl{font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.4px;margin-top:3px}
+.bk-result-list{max-height:240px;overflow-y:auto;font-size:12.5px;background:#fff;border-radius:6px;padding:10px}
+.bk-result-row{padding:6px 0;border-bottom:1px solid #f0f0f0;display:flex;gap:8px;align-items:center}
+.bk-result-row:last-child{border-bottom:none}
+.bk-result-tag{display:inline-block;padding:2px 7px;border-radius:10px;font-size:10px;font-weight:600;color:#fff;flex-shrink:0}
+.bk-result-tag.new{background:#0a7c3a}
+.bk-result-tag.upd{background:#534AB7}
+.bk-result-tag.skp{background:#999}
+.bk-result-tag.err{background:#c93030}
+@media (max-width:640px){.bk-result-stats{grid-template-columns:repeat(2,1fr)}}
 </style>
 </head>
 <body>
@@ -174,16 +216,119 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
       </div>
     </div>
 
-    <!-- TAB: Bookings (placeholder for Phase 1 Step 4-5) -->
+    <!-- TAB: Bookings (Phase 1 Step 4-5) -->
     <div id="tab-bookings" class="ad-tab-pane" style="display:none;">
-      <div class="ad-card">
-        <div class="ad-card-h"><h3>🧾 Bookings</h3></div>
-        <div class="ad-empty">
-          <p style="font-size:14px;margin:0 0 8px;color:#555;"><strong>자체 영업 예약 + 아고다 채널 예약 통합 관리</strong></p>
-          <p style="font-size:13px;color:#888;margin:0 0 6px;">• Step 4: 자체 영업 예약 등록 폼</p>
-          <p style="font-size:13px;color:#888;margin:0;">• Step 5: 아고다 채널별 엑셀 업로드</p>
+
+      <!-- Sub-tabs -->
+      <div class="bk-subtabs">
+        <button class="bk-subtab active" data-bksub="self">📝 Self-Sourced</button>
+        <button class="bk-subtab" data-bksub="agoda">📦 Agoda Channel Upload</button>
+      </div>
+
+      <!-- ==================== SELF-SOURCED ==================== -->
+      <div id="bksub-self" class="bk-subpane">
+
+        <!-- Stats row -->
+        <div class="ad-stats" id="bself-stats" style="grid-template-columns:repeat(4,1fr);">
+          <div class="ad-stat"><div class="ad-stat-lbl">Total</div><div class="ad-stat-val" id="bself-stat-total">—</div></div>
+          <div class="ad-stat"><div class="ad-stat-lbl">Confirmed</div><div class="ad-stat-val" id="bself-stat-confirmed">—</div></div>
+          <div class="ad-stat"><div class="ad-stat-lbl">Revenue (USD)</div><div class="ad-stat-val" id="bself-stat-revenue">—</div></div>
+          <div class="ad-stat"><div class="ad-stat-lbl">Commission</div><div class="ad-stat-val" id="bself-stat-commission">—</div></div>
+        </div>
+
+        <div class="ad-card">
+          <div class="ad-card-h">
+            <h3>🧾 Self-Sourced Bookings</h3>
+            <div>
+              <button class="ad-btn ad-btn-secondary" id="btn-bself-refresh">🔄 Refresh</button>
+              <button class="ad-btn ad-btn-primary" id="btn-bself-new">+ New Booking</button>
+            </div>
+          </div>
+          <div style="margin-bottom:14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+            <input type="text" id="bself-search" placeholder="Search by code, hotel, guest..." style="padding:7px 12px;border:1px solid #e0e0e0;border-radius:6px;font-family:inherit;font-size:13px;width:280px;">
+            <select id="bself-filter-status" style="padding:7px 12px;border:1px solid #e0e0e0;border-radius:6px;font-family:inherit;font-size:13px;">
+              <option value="">All status</option>
+              <option value="inquiry">Inquiry</option>
+              <option value="confirmed">Confirmed</option>
+              <option value="completed">Completed</option>
+              <option value="cancelled">Cancelled</option>
+              <option value="no_show">No-show</option>
+            </select>
+            <select id="bself-filter-channel" style="padding:7px 12px;border:1px solid #e0e0e0;border-radius:6px;font-family:inherit;font-size:13px;">
+              <option value="">All channels</option>
+            </select>
+          </div>
+          <div id="bself-area">
+            <div class="ad-empty">Click <strong>Refresh</strong> or <strong>+ New Booking</strong> to start.</div>
+          </div>
         </div>
       </div>
+
+      <!-- ==================== AGODA UPLOAD ==================== -->
+      <div id="bksub-agoda" class="bk-subpane" style="display:none;">
+
+        <!-- Stats row -->
+        <div class="ad-stats" id="bagoda-stats" style="grid-template-columns:repeat(4,1fr);">
+          <div class="ad-stat"><div class="ad-stat-lbl">Total Records</div><div class="ad-stat-val" id="bagoda-stat-total">—</div></div>
+          <div class="ad-stat"><div class="ad-stat-lbl">Booking Vol. (USD)</div><div class="ad-stat-val" id="bagoda-stat-volume">—</div></div>
+          <div class="ad-stat"><div class="ad-stat-lbl">Commission</div><div class="ad-stat-val" id="bagoda-stat-commission">—</div></div>
+          <div class="ad-stat"><div class="ad-stat-lbl">Channels</div><div class="ad-stat-val" id="bagoda-stat-channels">—</div></div>
+        </div>
+
+        <div class="ad-card">
+          <div class="ad-card-h">
+            <h3>📦 Agoda Affiliate Report Upload</h3>
+            <button class="ad-btn ad-btn-secondary" id="btn-bagoda-refresh">🔄 Refresh Stats</button>
+          </div>
+          <p style="color:#777;font-size:13px;margin:0 0 16px;">Upload monthly Agoda affiliate Excel reports per channel. Duplicate rows (same channel + Booking ID) will be updated automatically.</p>
+
+          <div class="bk-form-grid" style="margin-bottom:18px;">
+            <div>
+              <label class="bk-required">Channel</label>
+              <select id="bagoda-channel">
+                <option value="">— Select channel —</option>
+              </select>
+            </div>
+            <div>
+              <label>Mode</label>
+              <select id="bagoda-mode">
+                <option value="upsert">Upsert (insert new, update existing)</option>
+                <option value="insert">Insert only (skip duplicates)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="bk-drop" id="bagoda-drop">
+            <div class="bk-drop-icon">📥</div>
+            <div class="bk-drop-text">Drop Agoda Excel files here, or click to browse</div>
+            <div class="bk-drop-sub">.xlsx or .csv — multiple files allowed</div>
+            <input type="file" id="bagoda-file-input" multiple accept=".xlsx,.xls,.csv" style="display:none;">
+          </div>
+          <div class="bk-file-list" id="bagoda-file-list"></div>
+
+          <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap;">
+            <button class="ad-btn ad-btn-primary" id="btn-bagoda-process" disabled>🚀 Process Upload</button>
+            <button class="ad-btn ad-btn-secondary" id="btn-bagoda-clear" style="display:none;">Clear</button>
+          </div>
+
+          <div class="bk-progress" id="bagoda-progress"><div class="bk-progress-bar" id="bagoda-progress-bar"></div></div>
+          <div id="bagoda-result"></div>
+        </div>
+
+        <!-- Recent uploads list -->
+        <div class="ad-card">
+          <div class="ad-card-h">
+            <h3>📋 Recent Agoda Records</h3>
+            <select id="bagoda-list-channel" style="padding:7px 12px;border:1px solid #e0e0e0;border-radius:6px;font-family:inherit;font-size:13px;">
+              <option value="">All channels</option>
+            </select>
+          </div>
+          <div id="bagoda-area">
+            <div class="ad-empty">Click <strong>Refresh Stats</strong> to load recent records.</div>
+          </div>
+        </div>
+      </div>
+
     </div>
 
     <!-- TAB: Analytics (placeholder for Phase 1 Step 6) -->
@@ -318,6 +463,172 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
   </div>
 </div>
 
+<!-- Booking (Self-Sourced) Edit Modal -->
+<div class="ad-modal-overlay" id="bself-modal">
+  <div class="ad-modal" style="max-width:760px;">
+    <div class="ad-modal-h">
+      <h3 id="bself-modal-title">New Self-Sourced Booking</h3>
+      <button class="ad-close" id="bself-modal-close">×</button>
+    </div>
+    <form id="bself-form" onsubmit="return false;">
+      <input type="hidden" id="bself-id" value="">
+
+      <div class="bk-section">📋 Identification</div>
+      <div class="bk-form-grid">
+        <div>
+          <label class="bk-required">Booking Code</label>
+          <input type="text" id="bself-booking_code" placeholder="TW-2026-0001" required>
+        </div>
+        <div>
+          <label>Channel</label>
+          <select id="bself-channel_code">
+            <option value="">— None —</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="bk-section">🏨 Hotel</div>
+      <div class="bk-form-grid">
+        <div class="full">
+          <label class="bk-required">Hotel Name</label>
+          <input type="text" id="bself-hotel_name" placeholder="Hotel Name" required>
+        </div>
+        <div>
+          <label>Country</label>
+          <input type="text" id="bself-hotel_country" placeholder="Vietnam">
+        </div>
+        <div>
+          <label>City</label>
+          <input type="text" id="bself-hotel_city" placeholder="Da Nang">
+        </div>
+        <div>
+          <label>Star Rating</label>
+          <select id="bself-hotel_star">
+            <option value="">—</option>
+            <option value="1">1★</option><option value="2">2★</option><option value="3">3★</option><option value="4">4★</option><option value="5">5★</option>
+          </select>
+        </div>
+        <div>
+          <label>Source URL (video/post)</label>
+          <input type="url" id="bself-source_url" placeholder="https://...">
+        </div>
+      </div>
+
+      <div class="bk-section">👤 Guest</div>
+      <div class="bk-form-grid">
+        <div>
+          <label class="bk-required">Guest Name</label>
+          <input type="text" id="bself-guest_name" required>
+        </div>
+        <div>
+          <label>Email</label>
+          <input type="email" id="bself-guest_email">
+        </div>
+        <div>
+          <label>Phone</label>
+          <input type="text" id="bself-guest_phone">
+        </div>
+        <div>
+          <label>Country</label>
+          <input type="text" id="bself-guest_country" placeholder="KR">
+        </div>
+        <div>
+          <label>Adults</label>
+          <input type="number" id="bself-num_adults" value="2" min="0">
+        </div>
+        <div>
+          <label>Children</label>
+          <input type="number" id="bself-num_children" value="0" min="0">
+        </div>
+      </div>
+
+      <div class="bk-section">📅 Dates &amp; Room</div>
+      <div class="bk-form-grid">
+        <div>
+          <label class="bk-required">Check-in</label>
+          <input type="date" id="bself-checkin_date" required>
+        </div>
+        <div>
+          <label class="bk-required">Check-out</label>
+          <input type="date" id="bself-checkout_date" required>
+        </div>
+        <div>
+          <label>Room Type</label>
+          <input type="text" id="bself-room_type" placeholder="Deluxe Double">
+        </div>
+        <div>
+          <label>Rooms</label>
+          <input type="number" id="bself-num_rooms" value="1" min="1">
+        </div>
+      </div>
+
+      <div class="bk-section">💰 Payment</div>
+      <div class="bk-form-grid">
+        <div>
+          <label class="bk-required">Total (USD)</label>
+          <input type="number" step="0.01" id="bself-total_amount_usd" required>
+        </div>
+        <div>
+          <label>Commission (USD)</label>
+          <input type="number" step="0.01" id="bself-commission_usd">
+        </div>
+        <div>
+          <label>Original Currency</label>
+          <input type="text" id="bself-currency_original" value="USD" maxlength="3">
+        </div>
+        <div>
+          <label>Original Amount</label>
+          <input type="number" step="0.01" id="bself-total_amount_original">
+        </div>
+        <div>
+          <label>Payment Method</label>
+          <select id="bself-payment_method">
+            <option value="">—</option>
+            <option value="paypal">PayPal</option>
+            <option value="bank_transfer">Bank Transfer</option>
+            <option value="cash">Cash</option>
+            <option value="card">Card</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div>
+          <label>Payment Status</label>
+          <select id="bself-payment_status">
+            <option value="pending">Pending</option>
+            <option value="paid">Paid</option>
+            <option value="refunded">Refunded</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+        </div>
+        <div>
+          <label>Booking Status</label>
+          <select id="bself-booking_status">
+            <option value="inquiry">Inquiry</option>
+            <option value="confirmed" selected>Confirmed</option>
+            <option value="completed">Completed</option>
+            <option value="cancelled">Cancelled</option>
+            <option value="no_show">No-show</option>
+          </select>
+        </div>
+        <div>
+          <label>Paid At</label>
+          <input type="datetime-local" id="bself-paid_at">
+        </div>
+        <div class="full">
+          <label>Notes</label>
+          <textarea id="bself-notes" rows="2" placeholder="Internal notes..." style="resize:vertical;"></textarea>
+        </div>
+      </div>
+
+      <div class="ad-action-row" style="margin-top:18px;justify-content:flex-end;">
+        <button type="button" class="ad-btn ad-btn-danger" id="btn-bself-delete" style="display:none;margin-right:auto;">🗑 Delete</button>
+        <button type="button" class="ad-btn ad-btn-secondary" id="btn-bself-cancel">Cancel</button>
+        <button type="submit" class="ad-btn ad-btn-primary" id="btn-bself-save">💾 Save</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <script>
 (function(){
   var T = window.TW;
@@ -392,6 +703,7 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
     // Lazy load
     if (tab === 'members' && !membersLoaded) loadMembers();
     if (tab === 'admins' && !adminsLoaded) loadAdmins();
+    if (tab === 'bookings' && !bookingsInitialized) initBookings();
   }
 
   document.querySelectorAll('.ad-sb-item').forEach(function(btn){
@@ -779,6 +1091,810 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
   function esc(s){
     if (s == null) return '';
     return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  // =====================================================================
+  // BOOKINGS TAB (Phase 1 Step 4-5)
+  // =====================================================================
+  var bookingsInitialized = false;
+  var channelsList = [];
+  var bselfData = [];
+  var bagodaPendingFiles = [];
+  var bagodaParsedRows = []; // [{file, channel, rows, errors}]
+
+  async function initBookings(){
+    bookingsInitialized = true;
+    // Load channels for dropdowns
+    try {
+      var r = await T.sb.from('channels').select('code, name, name_en, language, is_active').eq('is_active', true).order('display_order');
+      if (r.error) throw r.error;
+      channelsList = r.data || [];
+      populateChannelDropdowns();
+    } catch(e){
+      console.error('channels load:', e);
+      T.toast('Failed to load channels: ' + (e.message || e), true);
+    }
+
+    // Sub-tab switching
+    document.querySelectorAll('.bk-subtab').forEach(function(b){
+      b.addEventListener('click', function(){
+        var s = b.getAttribute('data-bksub');
+        document.querySelectorAll('.bk-subtab').forEach(function(x){ x.classList.remove('active'); });
+        b.classList.add('active');
+        document.querySelectorAll('.bk-subpane').forEach(function(p){ p.style.display = 'none'; });
+        var pane = document.getElementById('bksub-' + s);
+        if (pane) pane.style.display = 'block';
+        // Lazy fetch on first activation
+        if (s === 'self') loadBself();
+        if (s === 'agoda') loadBagodaStats();
+      });
+    });
+
+    // Wire up buttons
+    $('btn-bself-refresh').addEventListener('click', loadBself);
+    $('btn-bself-new').addEventListener('click', function(){ openBselfModal(null); });
+    $('bself-search').addEventListener('input', renderBself);
+    $('bself-filter-status').addEventListener('change', renderBself);
+    $('bself-filter-channel').addEventListener('change', renderBself);
+    $('bself-modal-close').addEventListener('click', closeBselfModal);
+    $('btn-bself-cancel').addEventListener('click', closeBselfModal);
+    $('btn-bself-save').addEventListener('click', saveBself);
+    $('btn-bself-delete').addEventListener('click', deleteBself);
+
+    // Agoda upload wiring
+    $('btn-bagoda-refresh').addEventListener('click', loadBagodaStats);
+    $('bagoda-list-channel').addEventListener('change', loadBagodaList);
+    setupAgodaDropZone();
+    $('btn-bagoda-process').addEventListener('click', processBagodaUpload);
+    $('btn-bagoda-clear').addEventListener('click', clearBagodaQueue);
+
+    // Initial load
+    loadBself();
+  }
+
+  function populateChannelDropdowns(){
+    var opts = '<option value="">— Select channel —</option>';
+    var optsAll = '<option value="">All channels</option>';
+    var optsNone = '<option value="">— None —</option>';
+    channelsList.forEach(function(c){
+      var label = '[' + c.code + '] ' + c.name + (c.name_en ? ' / ' + c.name_en : '');
+      opts += '<option value="' + esc(c.code) + '">' + esc(label) + '</option>';
+      optsAll += '<option value="' + esc(c.code) + '">' + esc(label) + '</option>';
+      optsNone += '<option value="' + esc(c.code) + '">' + esc(label) + '</option>';
+    });
+    $('bagoda-channel').innerHTML = opts;
+    $('bself-filter-channel').innerHTML = optsAll;
+    $('bagoda-list-channel').innerHTML = optsAll;
+    $('bself-channel_code').innerHTML = optsNone;
+  }
+
+  // ---------- Self-Sourced Bookings ----------
+  async function loadBself(){
+    var area = $('bself-area');
+    area.innerHTML = '<div class="ad-loading"><div class="ad-loader"></div><span>Loading bookings...</span></div>';
+    try {
+      var r = await T.sb.from('bookings_self').select('*').order('created_at', { ascending: false }).limit(500);
+      if (r.error) throw r.error;
+      bselfData = r.data || [];
+      renderBselfStats();
+      renderBself();
+    } catch(e){
+      console.error(e);
+      area.innerHTML = '<div class="ad-empty">⚠️ Failed to load: ' + esc(e.message || String(e)) + '</div>';
+    }
+  }
+
+  function renderBselfStats(){
+    var total = bselfData.length;
+    var confirmed = bselfData.filter(function(b){ return b.booking_status === 'confirmed' || b.booking_status === 'completed'; }).length;
+    var revenue = 0, commission = 0;
+    bselfData.forEach(function(b){
+      if (b.booking_status !== 'cancelled' && b.booking_status !== 'no_show'){
+        revenue += Number(b.total_amount_usd || 0);
+        commission += Number(b.commission_usd || 0);
+      }
+    });
+    $('bself-stat-total').textContent = total;
+    $('bself-stat-confirmed').textContent = confirmed;
+    $('bself-stat-revenue').textContent = '$' + Math.round(revenue).toLocaleString();
+    $('bself-stat-commission').textContent = '$' + Math.round(commission).toLocaleString();
+  }
+
+  function renderBself(){
+    var area = $('bself-area');
+    var q = ($('bself-search').value || '').toLowerCase().trim();
+    var fStatus = $('bself-filter-status').value;
+    var fChannel = $('bself-filter-channel').value;
+
+    var rows = bselfData.filter(function(b){
+      if (fStatus && b.booking_status !== fStatus) return false;
+      if (fChannel && b.channel_code !== fChannel) return false;
+      if (q){
+        var hay = [b.booking_code, b.hotel_name, b.guest_name, b.guest_email, b.hotel_city, b.hotel_country].filter(Boolean).join(' ').toLowerCase();
+        if (hay.indexOf(q) < 0) return false;
+      }
+      return true;
+    });
+
+    if (rows.length === 0){
+      area.innerHTML = '<div class="ad-empty">No bookings found. Click <strong>+ New Booking</strong> to add one.</div>';
+      return;
+    }
+
+    var statusColor = {
+      inquiry: '#999', confirmed: '#534AB7', completed: '#0a7c3a',
+      cancelled: '#c93030', no_show: '#888'
+    };
+    var payColor = {
+      pending: '#f0a830', paid: '#0a7c3a', refunded: '#c93030', cancelled: '#888'
+    };
+
+    var html = '<div class="ad-table-wrap"><table class="ad-table"><thead><tr>'+
+      '<th>Code</th><th>Hotel</th><th>Guest</th><th>Stay</th><th>Total</th><th>Channel</th><th>Status</th><th>Pay</th><th></th>'+
+    '</tr></thead><tbody>';
+    rows.forEach(function(b){
+      html += '<tr>'+
+        '<td><strong>' + esc(b.booking_code) + '</strong></td>'+
+        '<td>' + esc(b.hotel_name) + (b.hotel_city ? '<div style="color:#999;font-size:11px;">' + esc(b.hotel_city) + (b.hotel_country ? ', ' + esc(b.hotel_country) : '') + '</div>' : '') + '</td>'+
+        '<td>' + esc(b.guest_name || '-') + (b.guest_country ? ' <span style="color:#999;font-size:11px;">(' + esc(b.guest_country) + ')</span>' : '') + '</td>'+
+        '<td style="font-size:12px;">' + esc(T.fmt.date(b.checkin_date)) + '<div style="color:#999;">→ ' + esc(T.fmt.date(b.checkout_date)) + (b.nights ? ' (' + b.nights + 'n)' : '') + '</div></td>'+
+        '<td>$' + Number(b.total_amount_usd || 0).toLocaleString() + (b.commission_usd ? '<div style="color:#0a7c3a;font-size:11px;">+$' + Number(b.commission_usd).toLocaleString() + '</div>' : '') + '</td>'+
+        '<td>' + (b.channel_code ? '<span class="ad-status" style="background:#534AB7;">' + esc(b.channel_code) + '</span>' : '<span style="color:#bbb;">-</span>') + '</td>'+
+        '<td><span class="ad-status" style="background:' + (statusColor[b.booking_status] || '#999') + ';">' + esc(b.booking_status || '-') + '</span></td>'+
+        '<td><span class="ad-status" style="background:' + (payColor[b.payment_status] || '#999') + ';">' + esc(b.payment_status || '-') + '</span></td>'+
+        '<td><button class="ad-btn ad-btn-secondary" data-bself-edit="' + b.id + '">Edit</button></td>'+
+      '</tr>';
+    });
+    html += '</tbody></table></div>';
+    html += '<div style="color:#999;font-size:12px;margin-top:10px;">' + rows.length + ' / ' + bselfData.length + ' bookings</div>';
+    area.innerHTML = html;
+
+    area.querySelectorAll('[data-bself-edit]').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var id = btn.getAttribute('data-bself-edit');
+        var rec = bselfData.find(function(x){ return String(x.id) === String(id); });
+        if (rec) openBselfModal(rec);
+      });
+    });
+  }
+
+  function openBselfModal(rec){
+    var isEdit = !!rec;
+    $('bself-modal-title').textContent = isEdit ? ('Edit Booking — ' + (rec.booking_code || '')) : 'New Self-Sourced Booking';
+    $('btn-bself-delete').style.display = (isEdit && currentAdminRole === 'super_admin') ? 'inline-block' : 'none';
+    $('bself-id').value = isEdit ? rec.id : '';
+
+    function setVal(id, v){ var el = $(id); if (el) el.value = (v == null ? '' : v); }
+
+    if (isEdit){
+      setVal('bself-booking_code', rec.booking_code);
+      setVal('bself-channel_code', rec.channel_code || '');
+      setVal('bself-hotel_name', rec.hotel_name);
+      setVal('bself-hotel_country', rec.hotel_country);
+      setVal('bself-hotel_city', rec.hotel_city);
+      setVal('bself-hotel_star', rec.hotel_star || '');
+      setVal('bself-source_url', rec.source_url);
+      setVal('bself-guest_name', rec.guest_name);
+      setVal('bself-guest_email', rec.guest_email);
+      setVal('bself-guest_phone', rec.guest_phone);
+      setVal('bself-guest_country', rec.guest_country);
+      setVal('bself-num_adults', rec.num_adults != null ? rec.num_adults : 2);
+      setVal('bself-num_children', rec.num_children != null ? rec.num_children : 0);
+      setVal('bself-checkin_date', rec.checkin_date);
+      setVal('bself-checkout_date', rec.checkout_date);
+      setVal('bself-room_type', rec.room_type);
+      setVal('bself-num_rooms', rec.num_rooms || 1);
+      setVal('bself-total_amount_usd', rec.total_amount_usd);
+      setVal('bself-commission_usd', rec.commission_usd);
+      setVal('bself-currency_original', rec.currency_original || 'USD');
+      setVal('bself-total_amount_original', rec.total_amount_original);
+      setVal('bself-payment_method', rec.payment_method || '');
+      setVal('bself-payment_status', rec.payment_status || 'pending');
+      setVal('bself-booking_status', rec.booking_status || 'confirmed');
+      setVal('bself-paid_at', rec.paid_at ? rec.paid_at.substring(0,16) : '');
+      setVal('bself-notes', rec.notes);
+    } else {
+      $('bself-form').reset();
+      setVal('bself-booking_code', generateNextBookingCode());
+      setVal('bself-currency_original', 'USD');
+      setVal('bself-num_adults', 2);
+      setVal('bself-num_children', 0);
+      setVal('bself-num_rooms', 1);
+      setVal('bself-payment_status', 'pending');
+      setVal('bself-booking_status', 'confirmed');
+    }
+
+    $('bself-modal').classList.add('show');
+  }
+
+  function closeBselfModal(){
+    $('bself-modal').classList.remove('show');
+  }
+
+  function generateNextBookingCode(){
+    var year = new Date().getFullYear();
+    var prefix = 'TW-' + year + '-';
+    var maxN = 0;
+    bselfData.forEach(function(b){
+      if (b.booking_code && b.booking_code.indexOf(prefix) === 0){
+        var n = parseInt(b.booking_code.substring(prefix.length), 10);
+        if (!isNaN(n) && n > maxN) maxN = n;
+      }
+    });
+    return prefix + String(maxN + 1).padStart(4, '0');
+  }
+
+  async function saveBself(){
+    var id = $('bself-id').value;
+    var isEdit = !!id;
+
+    function val(elId){ var el = $(elId); return el ? el.value : ''; }
+    function num(elId){ var v = val(elId); return v === '' ? null : Number(v); }
+    function strOrNull(elId){ var v = val(elId); return v === '' ? null : v; }
+
+    // Validate required
+    var bcode = val('bself-booking_code').trim();
+    var hname = val('bself-hotel_name').trim();
+    var gname = val('bself-guest_name').trim();
+    var ci = val('bself-checkin_date');
+    var co = val('bself-checkout_date');
+    var total = val('bself-total_amount_usd');
+    if (!bcode || !hname || !gname || !ci || !co || total === ''){
+      T.toast('Please fill in all required fields (marked *)', true);
+      return;
+    }
+    if (new Date(co) <= new Date(ci)){
+      T.toast('Check-out must be after check-in', true);
+      return;
+    }
+
+    var paidAt = val('bself-paid_at');
+    var payload = {
+      booking_code: bcode,
+      channel_code: strOrNull('bself-channel_code'),
+      hotel_name: hname,
+      hotel_country: strOrNull('bself-hotel_country'),
+      hotel_city: strOrNull('bself-hotel_city'),
+      hotel_star: num('bself-hotel_star'),
+      source_url: strOrNull('bself-source_url'),
+      guest_name: gname,
+      guest_email: strOrNull('bself-guest_email'),
+      guest_phone: strOrNull('bself-guest_phone'),
+      guest_country: strOrNull('bself-guest_country'),
+      num_adults: num('bself-num_adults'),
+      num_children: num('bself-num_children'),
+      checkin_date: ci,
+      checkout_date: co,
+      room_type: strOrNull('bself-room_type'),
+      num_rooms: num('bself-num_rooms'),
+      total_amount_usd: Number(total),
+      commission_usd: num('bself-commission_usd'),
+      currency_original: strOrNull('bself-currency_original') || 'USD',
+      total_amount_original: num('bself-total_amount_original'),
+      payment_method: strOrNull('bself-payment_method'),
+      payment_status: val('bself-payment_status') || 'pending',
+      booking_status: val('bself-booking_status') || 'confirmed',
+      paid_at: paidAt ? new Date(paidAt).toISOString() : null,
+      notes: strOrNull('bself-notes')
+    };
+
+    var saveBtn = $('btn-bself-save');
+    saveBtn.disabled = true;
+    saveBtn.textContent = '⏳ Saving...';
+
+    try {
+      var resp;
+      if (isEdit){
+        resp = await T.sb.from('bookings_self').update(payload).eq('id', id).select().single();
+      } else {
+        // Attach created_by
+        try {
+          var u = await T.sb.auth.getUser();
+          if (u && u.data && u.data.user) payload.created_by = u.data.user.id;
+        } catch(e){}
+        resp = await T.sb.from('bookings_self').insert(payload).select().single();
+      }
+      if (resp.error) throw resp.error;
+      T.toast(isEdit ? 'Booking updated' : 'Booking created');
+      closeBselfModal();
+      await loadBself();
+    } catch(e){
+      console.error(e);
+      T.toast('Save failed: ' + (e.message || String(e)), true);
+    } finally {
+      saveBtn.disabled = false;
+      saveBtn.textContent = '💾 Save';
+    }
+  }
+
+  async function deleteBself(){
+    var id = $('bself-id').value;
+    if (!id) return;
+    if (!confirm('Delete this booking? This cannot be undone.')) return;
+    try {
+      var r = await T.sb.from('bookings_self').delete().eq('id', id);
+      if (r.error) throw r.error;
+      T.toast('Booking deleted');
+      closeBselfModal();
+      await loadBself();
+    } catch(e){
+      T.toast('Delete failed: ' + (e.message || String(e)), true);
+    }
+  }
+
+  // ========== Agoda Excel Upload ==========
+  function setupAgodaDropZone(){
+    var dz = $('bagoda-drop');
+    var input = $('bagoda-file-input');
+    dz.addEventListener('click', function(){ input.click(); });
+    input.addEventListener('change', function(e){
+      handleAgodaFiles(Array.from(e.target.files));
+      input.value = '';
+    });
+    ['dragenter','dragover'].forEach(function(ev){
+      dz.addEventListener(ev, function(e){ e.preventDefault(); e.stopPropagation(); dz.classList.add('dragover'); });
+    });
+    ['dragleave','drop'].forEach(function(ev){
+      dz.addEventListener(ev, function(e){ e.preventDefault(); e.stopPropagation(); dz.classList.remove('dragover'); });
+    });
+    dz.addEventListener('drop', function(e){
+      var files = e.dataTransfer && e.dataTransfer.files ? Array.from(e.dataTransfer.files) : [];
+      handleAgodaFiles(files);
+    });
+  }
+
+  function handleAgodaFiles(files){
+    files.forEach(function(f){
+      if (!/\.(xlsx|xls|csv)$/i.test(f.name)){
+        T.toast('Skipped (unsupported): ' + f.name, true);
+        return;
+      }
+      bagodaPendingFiles.push(f);
+    });
+    renderAgodaFileList();
+  }
+
+  function renderAgodaFileList(){
+    var list = $('bagoda-file-list');
+    if (bagodaPendingFiles.length === 0){
+      list.innerHTML = '';
+      $('btn-bagoda-process').disabled = true;
+      $('btn-bagoda-clear').style.display = 'none';
+      return;
+    }
+    var html = '';
+    bagodaPendingFiles.forEach(function(f, i){
+      var sizeKB = (f.size / 1024).toFixed(1);
+      html += '<div class="bk-file-item">'+
+        '<span class="bk-file-name">📄 ' + esc(f.name) + '</span>'+
+        '<span class="bk-file-size">' + sizeKB + ' KB</span>'+
+        '<button class="bk-file-rm" data-rm="' + i + '" title="Remove">×</button>'+
+      '</div>';
+    });
+    list.innerHTML = html;
+    list.querySelectorAll('[data-rm]').forEach(function(b){
+      b.addEventListener('click', function(){
+        var idx = parseInt(b.getAttribute('data-rm'), 10);
+        bagodaPendingFiles.splice(idx, 1);
+        renderAgodaFileList();
+      });
+    });
+    $('btn-bagoda-process').disabled = false;
+    $('btn-bagoda-clear').style.display = 'inline-block';
+  }
+
+  function clearBagodaQueue(){
+    bagodaPendingFiles = [];
+    bagodaParsedRows = [];
+    renderAgodaFileList();
+    $('bagoda-result').innerHTML = '';
+    $('bagoda-progress').style.display = 'none';
+  }
+
+  // Agoda column mapping (case-insensitive). Multiple alternate header names supported.
+  var AGODA_COL_MAP = {
+    booking_id:        ['booking id','bookingid','book id','reservation id','booking no','booking number'],
+    reservation_no:    ['reservation no','reservation number','reservation #','confirmation number'],
+    hotel_name:        ['hotel name','hotel','property name','property'],
+    hotel_id_agoda:    ['hotel id','property id','agoda hotel id'],
+    hotel_country:     ['hotel country','property country','country'],
+    hotel_city:        ['hotel city','property city','city'],
+    hotel_star:        ['star rating','hotel star','stars','star'],
+    customer_country:  ['customer country','guest country','customer nationality','nationality'],
+    num_adults:        ['adults','no of adults','number of adults'],
+    num_children:      ['children','no of children','number of children'],
+    checkin_date:      ['checkin date','check-in date','check in date','check-in','arrival date','arrival'],
+    checkout_date:     ['checkout date','check-out date','check out date','check-out','departure date','departure'],
+    nights:            ['no of nights','number of nights','nights','los','length of stay','room nights','no. of nights','no. nights'],
+    room_type:         ['room type','room name','room category'],
+    num_rooms:         ['no of rooms','number of rooms','rooms','no. of rooms'],
+    booking_amount_usd:['booking amount usd','booking (usd)','booking usd','total usd','total (usd)','room revenue usd','revenue usd','net booking usd','gross booking usd'],
+    commission_usd:    ['commission usd','commission (usd)','affiliate commission usd','affiliate commission','commission'],
+    currency_original: ['currency','original currency','booking currency'],
+    booking_amount_original: ['booking amount','booking total','total booking','total amount','room revenue','revenue'],
+    booking_status:    ['booking status','status','reservation status'],
+    device_type:       ['device','device type','platform','channel','source'],
+    booked_at:         ['booking date','booked on','order date','reservation date','book date']
+  };
+
+  function normalizeKey(s){
+    return String(s || '').toLowerCase().replace(/[\s_\-\.]+/g, ' ').trim();
+  }
+
+  function buildHeaderIndex(headers){
+    var norm = headers.map(normalizeKey);
+    var idx = {};
+    Object.keys(AGODA_COL_MAP).forEach(function(field){
+      var aliases = AGODA_COL_MAP[field];
+      for (var i = 0; i < norm.length; i++){
+        for (var j = 0; j < aliases.length; j++){
+          if (norm[i] === aliases[j] || norm[i].indexOf(aliases[j]) === 0){
+            idx[field] = i;
+            return;
+          }
+        }
+      }
+    });
+    return idx;
+  }
+
+  function toDate(v){
+    if (v == null || v === '') return null;
+    // Excel serial date
+    if (typeof v === 'number'){
+      var ms = (v - 25569) * 86400 * 1000;
+      var d = new Date(ms);
+      if (!isNaN(d.getTime())) return d.toISOString().substring(0, 10);
+    }
+    var s = String(v).trim();
+    // YYYY-MM-DD or YYYY/MM/DD
+    var m = s.match(/^(\d{4})[\-\/](\d{1,2})[\-\/](\d{1,2})/);
+    if (m) return m[1] + '-' + m[2].padStart(2,'0') + '-' + m[3].padStart(2,'0');
+    // DD/MM/YYYY or MM/DD/YYYY (assume DD/MM/YYYY for international Agoda reports)
+    m = s.match(/^(\d{1,2})[\-\/](\d{1,2})[\-\/](\d{4})/);
+    if (m){
+      // Heuristic: if first part > 12, must be DD; if second > 12, first is MM. Default DD/MM/YYYY.
+      var p1 = parseInt(m[1],10), p2 = parseInt(m[2],10);
+      var dd, mm;
+      if (p1 > 12){ dd = p1; mm = p2; }
+      else if (p2 > 12){ mm = p1; dd = p2; }
+      else { dd = p1; mm = p2; }
+      return m[3] + '-' + String(mm).padStart(2,'0') + '-' + String(dd).padStart(2,'0');
+    }
+    var d = new Date(s);
+    if (!isNaN(d.getTime())) return d.toISOString().substring(0, 10);
+    return null;
+  }
+
+  function toNum(v){
+    if (v == null || v === '') return null;
+    var n = typeof v === 'number' ? v : Number(String(v).replace(/[,\s$₩€]/g, ''));
+    return isNaN(n) ? null : n;
+  }
+
+  function toStr(v){
+    if (v == null) return null;
+    var s = String(v).trim();
+    return s === '' ? null : s;
+  }
+
+  function parseRow(row, headers, idx){
+    var get = function(field){
+      var i = idx[field];
+      return (i != null && i >= 0) ? row[i] : null;
+    };
+    var status = toStr(get('booking_status'));
+    var statusLow = status ? status.toLowerCase() : '';
+    var isCancelled = /cancel/.test(statusLow);
+    var isCompleted = /complete|stayed|checkout|check-out|fulfilled/.test(statusLow);
+
+    var rec = {
+      booking_id: toStr(get('booking_id')),
+      reservation_no: toStr(get('reservation_no')),
+      hotel_name: toStr(get('hotel_name')),
+      hotel_id_agoda: toStr(get('hotel_id_agoda')),
+      hotel_country: toStr(get('hotel_country')),
+      hotel_city: toStr(get('hotel_city')),
+      hotel_star: toNum(get('hotel_star')),
+      customer_country: toStr(get('customer_country')),
+      num_adults: toNum(get('num_adults')),
+      num_children: toNum(get('num_children')),
+      checkin_date: toDate(get('checkin_date')),
+      checkout_date: toDate(get('checkout_date')),
+      nights: toNum(get('nights')),
+      room_type: toStr(get('room_type')),
+      num_rooms: toNum(get('num_rooms')),
+      booking_amount_usd: toNum(get('booking_amount_usd')),
+      commission_usd: toNum(get('commission_usd')),
+      currency_original: toStr(get('currency_original')),
+      booking_amount_original: toNum(get('booking_amount_original')),
+      booking_status: status,
+      is_cancelled: isCancelled,
+      is_completed: isCompleted,
+      device_type: toStr(get('device_type')),
+      booked_at: toDate(get('booked_at')),
+      raw_row_data: null
+    };
+    // Attach raw row as JSON object {header: value} for debugging
+    var raw = {};
+    for (var i = 0; i < headers.length; i++){
+      if (row[i] !== undefined) raw[headers[i]] = row[i];
+    }
+    rec.raw_row_data = raw;
+    return rec;
+  }
+
+  async function readFileAsRows(file){
+    return new Promise(function(resolve, reject){
+      var reader = new FileReader();
+      reader.onload = function(e){
+        try {
+          var data = new Uint8Array(e.target.result);
+          var wb = XLSX.read(data, { type: 'array', cellDates: false });
+          var ws = wb.Sheets[wb.SheetNames[0]];
+          var aoa = XLSX.utils.sheet_to_json(ws, { header: 1, defval: null, blankrows: false });
+          if (!aoa || aoa.length === 0) return reject(new Error('Empty sheet'));
+          // Find header row: first row with >3 non-empty cells
+          var headerRowIdx = 0;
+          for (var i = 0; i < Math.min(aoa.length, 10); i++){
+            var nonEmpty = aoa[i].filter(function(c){ return c != null && String(c).trim() !== ''; }).length;
+            if (nonEmpty >= 3){ headerRowIdx = i; break; }
+          }
+          var headers = aoa[headerRowIdx].map(function(h){ return h == null ? '' : String(h); });
+          var rows = aoa.slice(headerRowIdx + 1).filter(function(r){
+            return r.some(function(c){ return c != null && String(c).trim() !== ''; });
+          });
+          resolve({ headers: headers, rows: rows });
+        } catch(err){ reject(err); }
+      };
+      reader.onerror = function(){ reject(new Error('File read error')); };
+      reader.readAsArrayBuffer(file);
+    });
+  }
+
+  async function processBagodaUpload(){
+    var channel = $('bagoda-channel').value;
+    var mode = $('bagoda-mode').value || 'upsert';
+    if (!channel){
+      T.toast('Please select a channel first', true);
+      return;
+    }
+    if (bagodaPendingFiles.length === 0){
+      T.toast('No files to process', true);
+      return;
+    }
+
+    var processBtn = $('btn-bagoda-process');
+    processBtn.disabled = true;
+    processBtn.textContent = '⏳ Processing...';
+    $('bagoda-result').innerHTML = '';
+    $('bagoda-progress').style.display = 'block';
+    $('bagoda-progress-bar').style.width = '0%';
+
+    var batchId = 'BATCH-' + Date.now();
+    var allRecords = [];
+    var fileReports = [];
+    var skipped = [];
+
+    // Step 1: parse all files
+    for (var fi = 0; fi < bagodaPendingFiles.length; fi++){
+      var file = bagodaPendingFiles[fi];
+      try {
+        var parsed = await readFileAsRows(file);
+        var idx = buildHeaderIndex(parsed.headers);
+        if (idx.booking_id == null){
+          fileReports.push({ file: file.name, error: 'Could not find Booking ID column. Headers: ' + parsed.headers.slice(0,8).join(', ') + '...' });
+          continue;
+        }
+        var validInFile = 0;
+        var skippedInFile = 0;
+        for (var ri = 0; ri < parsed.rows.length; ri++){
+          var rec = parseRow(parsed.rows[ri], parsed.headers, idx);
+          if (!rec.booking_id || !rec.hotel_name){
+            skippedInFile++;
+            continue;
+          }
+          rec.channel_code = channel;
+          rec.upload_batch_id = batchId;
+          rec.source_filename = file.name;
+          allRecords.push(rec);
+          validInFile++;
+        }
+        fileReports.push({ file: file.name, valid: validInFile, skipped: skippedInFile, headers: parsed.headers.length });
+      } catch(e){
+        fileReports.push({ file: file.name, error: e.message || String(e) });
+      }
+      $('bagoda-progress-bar').style.width = ((fi + 1) / bagodaPendingFiles.length * 50) + '%';
+    }
+
+    // Step 2: deduplicate within batch (same booking_id => keep last)
+    var dedupMap = {};
+    allRecords.forEach(function(r){ dedupMap[r.booking_id] = r; });
+    var dedupedRecords = Object.values(dedupMap);
+    var dupedCount = allRecords.length - dedupedRecords.length;
+
+    // Attach uploaded_by
+    try {
+      var u = await T.sb.auth.getUser();
+      if (u && u.data && u.data.user){
+        dedupedRecords.forEach(function(r){ r.uploaded_by = u.data.user.id; });
+      }
+    } catch(e){}
+
+    // Step 3: upsert in chunks of 200
+    var chunkSize = 200;
+    var insertedCount = 0;
+    var updatedCount = 0;
+    var errorMsgs = [];
+
+    if (dedupedRecords.length > 0 && mode === 'upsert'){
+      // Pre-fetch existing booking_ids to distinguish inserted vs updated for the report
+      var bookingIds = dedupedRecords.map(function(r){ return r.booking_id; });
+      var existingSet = {};
+      for (var bi = 0; bi < bookingIds.length; bi += 500){
+        var slice = bookingIds.slice(bi, bi + 500);
+        try {
+          var er = await T.sb.from('bookings_agoda').select('booking_id').eq('channel_code', channel).in('booking_id', slice);
+          if (er.data) er.data.forEach(function(x){ existingSet[x.booking_id] = true; });
+        } catch(e){}
+      }
+      for (var ci = 0; ci < dedupedRecords.length; ci += chunkSize){
+        var chunk = dedupedRecords.slice(ci, ci + chunkSize);
+        try {
+          var resp = await T.sb.from('bookings_agoda').upsert(chunk, { onConflict: 'channel_code,booking_id' }).select('booking_id');
+          if (resp.error){
+            errorMsgs.push('Chunk ' + (ci/chunkSize+1) + ': ' + resp.error.message);
+          } else {
+            chunk.forEach(function(r){
+              if (existingSet[r.booking_id]) updatedCount++;
+              else insertedCount++;
+            });
+          }
+        } catch(e){
+          errorMsgs.push('Chunk ' + (ci/chunkSize+1) + ': ' + (e.message || String(e)));
+        }
+        $('bagoda-progress-bar').style.width = (50 + (ci + chunkSize) / dedupedRecords.length * 50) + '%';
+      }
+    } else if (dedupedRecords.length > 0 && mode === 'insert'){
+      // Insert-only: skip existing
+      var bookingIds2 = dedupedRecords.map(function(r){ return r.booking_id; });
+      var existingSet2 = {};
+      for (var bi2 = 0; bi2 < bookingIds2.length; bi2 += 500){
+        var slice2 = bookingIds2.slice(bi2, bi2 + 500);
+        try {
+          var er2 = await T.sb.from('bookings_agoda').select('booking_id').eq('channel_code', channel).in('booking_id', slice2);
+          if (er2.data) er2.data.forEach(function(x){ existingSet2[x.booking_id] = true; });
+        } catch(e){}
+      }
+      var newOnly = dedupedRecords.filter(function(r){ return !existingSet2[r.booking_id]; });
+      var skippedExisting = dedupedRecords.length - newOnly.length;
+      for (var ci2 = 0; ci2 < newOnly.length; ci2 += chunkSize){
+        var chunk2 = newOnly.slice(ci2, ci2 + chunkSize);
+        try {
+          var resp2 = await T.sb.from('bookings_agoda').insert(chunk2);
+          if (resp2.error){ errorMsgs.push(resp2.error.message); }
+          else { insertedCount += chunk2.length; }
+        } catch(e){
+          errorMsgs.push(e.message || String(e));
+        }
+        $('bagoda-progress-bar').style.width = (50 + (ci2 + chunkSize) / newOnly.length * 50) + '%';
+      }
+      skipped.push({ reason: 'Already exists', count: skippedExisting });
+    }
+
+    $('bagoda-progress-bar').style.width = '100%';
+    setTimeout(function(){ $('bagoda-progress').style.display = 'none'; }, 600);
+
+    // Render result
+    renderUploadResult({
+      channel: channel,
+      batchId: batchId,
+      inserted: insertedCount,
+      updated: updatedCount,
+      duplicatedInBatch: dupedCount,
+      fileReports: fileReports,
+      errors: errorMsgs,
+      skipped: skipped,
+      total: dedupedRecords.length
+    });
+
+    processBtn.disabled = false;
+    processBtn.textContent = '🚀 Process Upload';
+
+    // Refresh stats and clear queue
+    bagodaPendingFiles = [];
+    renderAgodaFileList();
+    loadBagodaStats();
+  }
+
+  function renderUploadResult(r){
+    var html = '<div class="bk-result-card">'+
+      '<div style="font-size:14px;font-weight:600;margin-bottom:10px;">📊 Upload Result — Batch <code>' + esc(r.batchId) + '</code></div>'+
+      '<div class="bk-result-stats">'+
+        '<div class="bk-result-stat"><div class="bk-result-stat-val" style="color:#0a7c3a;">' + r.inserted + '</div><div class="bk-result-stat-lbl">Inserted</div></div>'+
+        '<div class="bk-result-stat"><div class="bk-result-stat-val" style="color:#534AB7;">' + r.updated + '</div><div class="bk-result-stat-lbl">Updated</div></div>'+
+        '<div class="bk-result-stat"><div class="bk-result-stat-val" style="color:#999;">' + r.duplicatedInBatch + '</div><div class="bk-result-stat-lbl">Dedup in Batch</div></div>'+
+        '<div class="bk-result-stat"><div class="bk-result-stat-val" style="color:' + (r.errors.length ? '#c93030' : '#1a1a1a') + ';">' + r.errors.length + '</div><div class="bk-result-stat-lbl">Errors</div></div>'+
+      '</div>'+
+      '<div class="bk-result-list">';
+
+    r.fileReports.forEach(function(fr){
+      if (fr.error){
+        html += '<div class="bk-result-row"><span class="bk-result-tag err">ERR</span><span><strong>' + esc(fr.file) + '</strong>: ' + esc(fr.error) + '</span></div>';
+      } else {
+        html += '<div class="bk-result-row"><span class="bk-result-tag new">OK</span><span><strong>' + esc(fr.file) + '</strong>: ' + fr.valid + ' valid, ' + fr.skipped + ' skipped (missing required fields)</span></div>';
+      }
+    });
+    r.skipped.forEach(function(sk){
+      html += '<div class="bk-result-row"><span class="bk-result-tag skp">SKP</span><span>' + esc(sk.reason) + ': ' + sk.count + '</span></div>';
+    });
+    r.errors.forEach(function(em){
+      html += '<div class="bk-result-row"><span class="bk-result-tag err">ERR</span><span>' + esc(em) + '</span></div>';
+    });
+    html += '</div></div>';
+    $('bagoda-result').innerHTML = html;
+  }
+
+  // ---------- Agoda stats & list ----------
+  async function loadBagodaStats(){
+    try {
+      var r = await T.sb.from('bookings_agoda').select('booking_amount_usd, commission_usd, channel_code, is_cancelled');
+      if (r.error) throw r.error;
+      var rows = r.data || [];
+      var total = rows.length;
+      var volume = 0, commission = 0;
+      var channelSet = {};
+      rows.forEach(function(b){
+        channelSet[b.channel_code] = true;
+        if (!b.is_cancelled){
+          volume += Number(b.booking_amount_usd || 0);
+          commission += Number(b.commission_usd || 0);
+        }
+      });
+      $('bagoda-stat-total').textContent = total.toLocaleString();
+      $('bagoda-stat-volume').textContent = '$' + Math.round(volume).toLocaleString();
+      $('bagoda-stat-commission').textContent = '$' + Math.round(commission).toLocaleString();
+      $('bagoda-stat-channels').textContent = Object.keys(channelSet).length;
+    } catch(e){
+      console.error(e);
+    }
+    loadBagodaList();
+  }
+
+  async function loadBagodaList(){
+    var area = $('bagoda-area');
+    area.innerHTML = '<div class="ad-loading"><div class="ad-loader"></div><span>Loading...</span></div>';
+    var ch = $('bagoda-list-channel').value;
+    try {
+      var q = T.sb.from('bookings_agoda').select('id, channel_code, booking_id, hotel_name, hotel_country, hotel_city, checkin_date, checkout_date, booking_amount_usd, commission_usd, booking_status, is_cancelled, booked_at, source_filename, created_at').order('created_at', { ascending: false }).limit(100);
+      if (ch) q = q.eq('channel_code', ch);
+      var r = await q;
+      if (r.error) throw r.error;
+      var rows = r.data || [];
+      if (rows.length === 0){
+        area.innerHTML = '<div class="ad-empty">No Agoda records yet. Upload an Excel report above to get started.</div>';
+        return;
+      }
+      var html = '<div class="ad-table-wrap"><table class="ad-table"><thead><tr>'+
+        '<th>Channel</th><th>Booking ID</th><th>Hotel</th><th>Stay</th><th>Amount</th><th>Commission</th><th>Status</th><th>Source</th>'+
+      '</tr></thead><tbody>';
+      rows.forEach(function(b){
+        html += '<tr' + (b.is_cancelled ? ' style="opacity:.55;"' : '') + '>'+
+          '<td><span class="ad-status" style="background:#534AB7;">' + esc(b.channel_code) + '</span></td>'+
+          '<td><code style="font-size:12px;">' + esc(b.booking_id) + '</code></td>'+
+          '<td>' + esc(b.hotel_name) + (b.hotel_city ? '<div style="color:#999;font-size:11px;">' + esc(b.hotel_city) + (b.hotel_country ? ', ' + esc(b.hotel_country) : '') + '</div>' : '') + '</td>'+
+          '<td style="font-size:12px;">' + (b.checkin_date ? esc(T.fmt.date(b.checkin_date)) + '<div style="color:#999;">→ ' + esc(T.fmt.date(b.checkout_date) || '-') + '</div>' : '-') + '</td>'+
+          '<td>$' + Number(b.booking_amount_usd || 0).toLocaleString() + '</td>'+
+          '<td style="color:#0a7c3a;">$' + Number(b.commission_usd || 0).toLocaleString() + '</td>'+
+          '<td>' + esc(b.booking_status || '-') + '</td>'+
+          '<td style="font-size:11px;color:#999;">' + esc(b.source_filename || '-') + '</td>'+
+        '</tr>';
+      });
+      html += '</tbody></table></div><div style="color:#999;font-size:12px;margin-top:10px;">Showing latest ' + rows.length + ' records.</div>';
+      area.innerHTML = html;
+    } catch(e){
+      area.innerHTML = '<div class="ad-empty">⚠️ Failed to load: ' + esc(e.message || String(e)) + '</div>';
+    }
   }
 
 })();

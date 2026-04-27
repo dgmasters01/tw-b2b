@@ -113,11 +113,11 @@
 | 3-1 | 좌측 사이드바 6메뉴 (Dashboard/Bookings/Analytics/Hotels/Members/Team) | | |
 | 3-2 | 기존 hotels/members/admins 위치 이동 (모든 ID 보존) | | |
 | 3-3 | 빈 탭 자리 만들기 (Dashboard/Bookings/Analytics placeholder) | | |
-| **4** | 자체 예약 등록 폼 | 1시간 | ⬜ 대기 |
+| **4** | 자체 예약 등록 폼 | 1시간 | ✅ 완료 |
 | 4-1 | 신규 예약 입력 폼 UI | | |
 | 4-2 | Supabase INSERT 로직 | | |
 | 4-3 | 예약 목록·검색·수정 화면 | | |
-| **5** | 아고다 엑셀 업로드 기능 | 1시간 30분 | ⬜ 대기 |
+| **5** | 아고다 엑셀 업로드 기능 | 1시간 30분 | ✅ 완료 |
 | 5-1 | 채널 드롭다운 + 다중 파일 드래그 UI | | |
 | 5-2 | XLSX 파싱 로직 | | |
 | 5-3 | 중복 감지 + INSERT/UPDATE | | |
@@ -142,24 +142,23 @@
 
 | 항목 | 내용 |
 |---|---|
-| **진행 단계** | 2-3단계 완료 |
-| **다음 작업** | 4-5단계 - 자체 예약 등록 폼 + 아고다 엑셀 업로드 |
-| **이번 채팅** | TW Booking Analytics 9 |
-| **다음 채팅** | TW Booking Analytics 10 |
-| **마지막 커밋** | a39b5bc (Phase 1 Step 2-3: schema + admin sidebar restructure) |
+| **진행 단계** | 4-5단계 완료 |
+| **다음 작업** | 6단계 - 분석 대시보드 8탭 이식 |
+| **이번 채팅** | TW Booking Analytics 10 |
+| **다음 채팅** | TW Booking Analytics 11 |
+| **마지막 커밋** | (4-5단계 푸시 후 업데이트) |
 | **최종 업데이트** | 2026-04-27 |
 
-### 2-3단계 완료 산출물
-- `sql/00-helpers.sql`: `is_admin()` 함수
-- `sql/02-channels.sql`: channels 마스터 + 6개 채널 시드 (TW/HT/KT/TC/JP/ZH)
-- `sql/03-bookings-self.sql`: 자체 영업 예약 (admin-only RLS)
-- `sql/04-bookings-agoda.sql`: 아고다 채널 예약 (channel_code+booking_id UNIQUE)
-- `sql/05-bookings-unified-view.sql`: `bookings_unified` + `v_channel_stats` VIEW
-- `sql/_apply-phase1-step2-bundle.sql`: **Supabase SQL Editor 한 번에 실행용 합본**
-- `admin.html`: 좌측 사이드바 6메뉴 (기존 ID/JS 100% 보존, mobile responsive)
+### 4-5단계 완료 산출물
+- `admin.html` Bookings 탭에 sub-tab 2개 (Self-Sourced / Agoda Channel Upload) 구현
+- **Self-Sourced 예약 폼**: 자동 booking_code 생성 (TW-YYYY-NNNN), 채널 연결, 호텔/고객/일정/객실/결제 5섹션, 검색/상태/채널 필터, super_admin만 삭제
+- **아고다 엑셀 업로드**: 채널 선택 → 다중 파일 드래그앤드롭 → SheetJS 파싱 (헤더 자동 감지, 25개 컬럼 alias 매핑) → 채널+booking_id 기준 중복 감지 → upsert/insert-only 모드 → 진행률 바 + 결과 리포트 (insert/update/dedup/error 4통계)
+- `raw_row_data` JSONB 보존으로 디버깅·필드 확장 대비
+- 통계 위젯 4종 (Self: total/confirmed/revenue/commission, Agoda: total/volume/commission/channels)
 
-### 4-5단계 시작 시 PENDING 확인 필수
-**Supabase 스키마 적용 상태**: ✅ **자동 적용 완료 (2026-04-27)**. Management API로 적용했고 모든 테이블/VIEW/시드/RLS 검증됨. 4-5단계 즉시 시작 가능.
+### 6단계 시작 시 PENDING 확인
+- 인프라: 4-5단계 UI 완성, 백엔드 정상, 실 데이터 검증은 대표님 운영 후 자연스럽게 누적
+- 6단계는 booking-analytics.html 8탭 (전체현황/채널/나라/도시/호텔/패턴/성급/B2B)을 admin.html Analytics 탭으로 이식, 정적 데이터 대신 `bookings_unified` VIEW 기반 동적 쿼리로 전환
 
 ---
 
@@ -233,6 +232,7 @@ Claude는 다음 시점에 새 채팅 안내를 먼저 합니다:
 | 2026-04-27 | Phase 1 Step 2 완료: schema (channels/bookings_self/bookings_agoda + RLS + unified VIEW) | TW Booking Analytics 9 |
 | 2026-04-27 | Phase 1 Step 3 완료: admin.html 좌측 사이드바 6메뉴 재구조화 (커밋 a39b5bc) | TW Booking Analytics 9 |
 | 2026-04-27 | Supabase SQL 자동 적용 완료 (Management API): hotel_id UUID 정정 후 bundle 적용, 검증 통과 (커밋 1110926) | TW Booking Analytics 9 |
+| 2026-04-27 | Phase 1 Step 4-5 완료: Bookings 탭 sub-tabs (Self-Sourced 등록 폼 + Agoda 엑셀 업로드 SheetJS 통합) | TW Booking Analytics 10 |
 
 ---
 

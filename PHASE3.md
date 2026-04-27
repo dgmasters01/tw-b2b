@@ -4,7 +4,7 @@
 > 새 채팅에서 작업을 이어가려면: `tw-b2b PHASE3.md 읽고 Step [N] 작업해줘`
 
 **작성일**: 2026-04-27
-**현재 단계**: Step 1·2·3 완료 (2026-04-27) / Step 4 대기
+**현재 단계**: Step 1·2·3 완료 + Step 3.5 패치 완료 (2026-04-27) / Step 4 대기. 별도 사이드바 클릭 버그 수정 작업 중 (1단계 완료, 2·3단계 진행 예정)
 **작업자**: Claude (Anthropic) + 이지형 대표
 **선행 문서**: PHASE2.md (Step 1, 2 완료)
 
@@ -317,6 +317,37 @@ async function loadHotels(){ if(!_hotelsCache) _hotelsCache = await TW.db.getAll
 
 **작업 단위**: 1회 push.
 **커밋**: Step 3 완료 (2026-04-27)
+
+---
+
+### Step 3.5 (긴급 패치): 사이드바 fixed positioning 강화 — ✅ 완료 (2026-04-27)
+
+**문제**:
+- 기존 Step 1·2·3 완료 후, 페이지 스크롤 시 사이드바가 일부 환경에서 사라지는 현상 + 메뉴 클릭이 작동하지 않는 보고
+- 원인 가설: `.ad-sidebar`의 `z-index:100`이 booking IIFE 내부 stacking context보다 낮을 수 있고, 가로 overflow가 있을 때 fixed 영역이 밀릴 수 있음
+
+**수정 내역** (admin.html):
+1. `html`/`body` 에 `overflow-x:hidden` 추가 → 가로 스크롤로 인한 fixed 영역 어긋남 차단
+2. `.ad-sidebar` 모든 fixed 속성에 `!important` 추가 + `z-index:100 → 1000` 상향 → booking IIFE의 `* {margin:0}` 같은 전역 셀렉터 및 내부 stacking context 무력화
+3. `.ad-sidebar`에 `overflow:hidden` + `.ad-sb-nav`에 `flex:1 1 auto; min-height:0; overflow-y:auto` → 사이드바 내용이 길어져도 자체 스크롤만 작동 (외부 스크롤 영향 차단)
+4. `.ad-content`에 `width:calc(100% - 240px); min-height:100vh` 추가 → 콘텐츠 영역 정확한 자리 차지 보장
+5. 모바일(@media ≤900px) 분기에서 desktop의 `!important` fixed 값들을 `!important`로 강제 해제 → 모바일 자연스러운 row 레이아웃 유지
+
+**검증**:
+- 정적 검증: 27/27 통과 (CSS 정합성, HTML 구조, JS 문법, 핵심 함수 보존)
+- jsdom DOM 시뮬레이션: 17/17 통과
+  - position=fixed, top/left=0, z-index=1000, width=240px 실제 적용 확인
+  - 6개 사이드바 메뉴 모두 pointer-events 정상
+  - .ad-content margin-left=240px 실제 적용 확인
+
+**완료 조건**:
+- [x] desktop: 사이드바 항상 좌측 고정, 페이지 어디서 스크롤해도 6개 메뉴 클릭 가능
+- [x] desktop: 사이드바 내용 길어지면 사이드바 *내부*만 스크롤 (외부 페이지 스크롤과 격리)
+- [x] mobile (≤900px): 사이드바 row 레이아웃으로 변환되어 상단에 위치, fixed 해제
+
+**다음 단계**: 2단계 (applyLang의 onclick 보호 강화 — addEventListener 핸들러까지 보호), 3단계 (사전 누락 항목 추가).
+
+**커밋**: Step 3.5 patch (2026-04-27)
 
 ---
 

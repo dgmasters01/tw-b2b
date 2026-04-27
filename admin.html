@@ -12,17 +12,21 @@
 <script src="shared.js"></script>
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif;color:#1a1a1a;min-height:100vh}
-.ad-shell{display:flex;min-height:100vh}
+html{overflow-x:hidden}
+body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif;color:#1a1a1a;min-height:100vh;overflow-x:hidden}
+.ad-shell{display:flex;min-height:100vh;position:relative}
 /* === Sidebar === */
-/* fixed positioning: 어떤 페이지 길이/iframe 콘텐츠에서도 사이드바가 항상 클릭 가능 */
-.ad-sidebar{width:240px;background:#1a1a1a;color:#fff;display:flex;flex-direction:column;flex-shrink:0;position:fixed;top:0;left:0;height:100vh;z-index:100}
+/* Phase 2 Step 1 강화 (2026-04-27): fixed positioning + 높은 z-index + 자체 스크롤 격리
+ * - z-index:1000 → booking-analytics 내부 어떤 stacking context보다 우위
+ * - height:100vh + 내부 .ad-sb-nav가 overflow-y:auto 로 자체 스크롤
+ * - !important 로 booking IIFE의 전역 셀렉터 (* {margin:0}) 와 충돌 방지 */
+.ad-sidebar{width:240px;background:#1a1a1a;color:#fff;display:flex;flex-direction:column;flex-shrink:0;position:fixed!important;top:0!important;left:0!important;height:100vh!important;z-index:1000!important;overflow:hidden}
 .ad-sidebar-head{padding:18px 20px;border-bottom:1px solid rgba(255,255,255,.08)}
 .ad-sb-logo{display:flex;align-items:center;gap:10px;color:#fff;text-decoration:none}
 .ad-sb-logo-icon{width:32px;height:32px;background:#534AB7;border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px}
 .ad-sb-logo-text{font-family:'Fraunces',serif;font-size:17px;font-weight:600}
 .ad-sb-badge{background:#D85A30;color:#fff;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:600;letter-spacing:.5px;margin-left:6px}
-.ad-sb-nav{flex:1;padding:14px 10px;overflow-y:auto}
+.ad-sb-nav{flex:1 1 auto;padding:14px 10px;overflow-y:auto;overflow-x:hidden;min-height:0}
 .ad-sb-section{font-size:10px;color:#666;text-transform:uppercase;letter-spacing:.6px;padding:14px 10px 6px;font-weight:600}
 .ad-sb-item{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:8px;color:#bbb;text-decoration:none;font-size:13.5px;font-weight:500;cursor:pointer;border:none;background:none;font-family:inherit;width:100%;text-align:left;margin-bottom:1px}
 .ad-sb-item:hover{background:rgba(255,255,255,.06);color:#fff}
@@ -33,8 +37,8 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
 .ad-sb-foot a, .ad-sb-foot button{display:block;width:100%;background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.12);padding:7px 10px;border-radius:6px;cursor:pointer;font-size:12px;font-family:inherit;text-decoration:none;text-align:center;margin-bottom:6px}
 .ad-sb-foot a:hover, .ad-sb-foot button:hover{background:rgba(255,255,255,.15)}
 /* === Content area === */
-/* margin-left: 240px = fixed sidebar 자리 확보 */
-.ad-content{flex:1;min-width:0;display:flex;flex-direction:column;margin-left:240px}
+/* margin-left: 240px = fixed sidebar 자리 확보. width:calc(100%-240px) 로 가로 overflow 방지 */
+.ad-content{flex:1;min-width:0;display:flex;flex-direction:column;margin-left:240px;width:calc(100% - 240px);min-height:100vh;box-sizing:border-box}
 /* Phase 3 Step 3 patch: topbar 고정 — 스크롤해도 EN/KO 토글 + 사용자 정보 항상 보이게 */
 .ad-topbar{display:flex;justify-content:space-between;align-items:center;padding:14px 24px;background:#fff;color:#1a1a1a;border-bottom:1px solid #e8e8e8;position:fixed;top:0;left:240px;right:0;z-index:50;height:60px;box-sizing:border-box}
 .ad-logo{display:flex;align-items:center;gap:10px;color:#1a1a1a;text-decoration:none}
@@ -92,10 +96,11 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
 @media (max-width:1024px){.ad-stats{grid-template-columns:repeat(3,1fr)}}
 @media (max-width:900px){
   .ad-shell{flex-direction:column}
-  .ad-sidebar{width:100%;height:auto;position:relative;flex-direction:row;flex-wrap:wrap}
-  .ad-content{margin-left:0}
+  /* 모바일: !important로 강제된 desktop fixed 값을 모바일에서도 강제 해제 */
+  .ad-sidebar{width:100%!important;height:auto!important;position:relative!important;top:auto!important;left:auto!important;flex-direction:row;flex-wrap:wrap;overflow:visible}
+  .ad-content{margin-left:0;width:100%}
   .ad-sidebar-head{width:100%;border-bottom:1px solid rgba(255,255,255,.08)}
-  .ad-sb-nav{display:flex;flex-wrap:wrap;gap:4px;padding:8px;width:100%}
+  .ad-sb-nav{display:flex;flex-wrap:wrap;gap:4px;padding:8px;width:100%;overflow:visible}
   .ad-sb-section{display:none}
   .ad-sb-item{width:auto;padding:7px 12px;font-size:12.5px}
   .ad-sb-foot{display:none}

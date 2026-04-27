@@ -122,7 +122,7 @@
 | 5-2 | XLSX 파싱 로직 | | |
 | 5-3 | 중복 감지 + INSERT/UPDATE | | |
 | 5-4 | 결과 리포트 화면 | | |
-| **6** | 분석 대시보드 8탭 이식 | 2시간 | ⬜ 대기 |
+| **6** | 분석 대시보드 8탭 이식 | 2시간 | ✅ 완료 |
 | 6-1~7 | 전체현황/채널/나라/도시/호텔/패턴/성급/B2B | | |
 | **7** | 메인 페이지 라이브 예약 피드 | 30분 | ⬜ 대기 |
 | 7-1 | 카운터 위젯 | | |
@@ -142,12 +142,29 @@
 
 | 항목 | 내용 |
 |---|---|
-| **진행 단계** | 4-5단계 완료 |
-| **다음 작업** | 6단계 - 분석 대시보드 8탭 이식 |
-| **이번 채팅** | TW Booking Analytics 10 |
-| **다음 채팅** | TW Booking Analytics 11 |
-| **마지막 커밋** | c1b9f48 (Phase 1 Step 4-5: Bookings sub-tabs + Agoda upload) |
+| **진행 단계** | 6단계 완료 |
+| **다음 작업** | 7단계 - 메인 페이지 라이브 예약 피드 |
+| **이번 채팅** | TW Booking Analytics 11 |
+| **다음 채팅** | TW Booking Analytics 12 |
+| **마지막 커밋** | 86e8ddd (Phase 1 Step 6: Booking Analytics 8-tab dashboard) |
 | **최종 업데이트** | 2026-04-27 |
+
+### 6단계 완료 산출물
+- `admin.html` Analytics 탭에 8탭 분석 대시보드 통합 (전체현황/채널/나라/도시/호텔/패턴/성급/B2B)
+- **정적 1MB JSON → bookings_unified VIEW 동적 쿼리** 전환 완료
+- `aggregateAll(rows, channels)` 클라이언트 집계 함수: bookings_unified 행 + channels 마스터를 받아 17개 D 키(sm/yl/ps/ch/co/ci/hf/bk/dv/dvy/dvc/dow/dom/mc/dl/ss/sc) 동시 생성
+- Chart.js 4.4.0 CDN 추가
+- CSS(5KB) / JS(50KB)를 `bka-` prefix로 namespace 격리 — admin 기존 클래스와 무충돌
+- Empty state UI: 데이터 0건 시 8탭 숨김 + "Bookings 탭에서 예약 등록/엑셀 업로드 안내" 표시
+- Refresh 버튼: 수동 재로드 (차트 destroy 후 fetch + aggregate + render)
+- IIFE 격리 + window.bka_* 노출 (HTML onclick 호환)
+- 인증/권한 가드 그대로 유지 (super_admin/admin만 접근)
+
+### 6단계 검증 (Playwright 헤드리스)
+- 런타임/콘솔 에러: 0건
+- DOM 요소 17개 + 함수 노출 모두 통과
+- 8탭 순회 클릭 (3건 샘플 데이터) — 모든 탭 정상 렌더
+- Empty state (0건) 정상 작동
 
 ### 4-5단계 완료 산출물
 - `admin.html` Bookings 탭에 sub-tab 2개 (Self-Sourced / Agoda Channel Upload) 구현
@@ -156,9 +173,9 @@
 - `raw_row_data` JSONB 보존으로 디버깅·필드 확장 대비
 - 통계 위젯 4종 (Self: total/confirmed/revenue/commission, Agoda: total/volume/commission/channels)
 
-### 6단계 시작 시 PENDING 확인
-- 인프라: 4-5단계 UI 완성, 백엔드 정상, 실 데이터 검증은 대표님 운영 후 자연스럽게 누적
-- 6단계는 booking-analytics.html 8탭 (전체현황/채널/나라/도시/호텔/패턴/성급/B2B)을 admin.html Analytics 탭으로 이식, 정적 데이터 대신 `bookings_unified` VIEW 기반 동적 쿼리로 전환
+### 7단계 시작 시 PENDING 확인
+- 인프라: 6단계까지 완성, 백엔드 정상, 데이터 입력은 대표님 운영 후 자연스럽게 누적
+- 7단계는 메인 페이지(index.html)에 라이브 예약 피드(Activity Stream 컨셉) + 카운터 위젯 추가, bookings_unified의 최근 데이터 셔플 표시
 
 ---
 
@@ -233,6 +250,7 @@ Claude는 다음 시점에 새 채팅 안내를 먼저 합니다:
 | 2026-04-27 | Phase 1 Step 3 완료: admin.html 좌측 사이드바 6메뉴 재구조화 (커밋 a39b5bc) | TW Booking Analytics 9 |
 | 2026-04-27 | Supabase SQL 자동 적용 완료 (Management API): hotel_id UUID 정정 후 bundle 적용, 검증 통과 (커밋 1110926) | TW Booking Analytics 9 |
 | 2026-04-27 | Phase 1 Step 4-5 완료: Bookings 탭 sub-tabs (Self-Sourced 등록 폼 + Agoda 엑셀 업로드 SheetJS 통합) | TW Booking Analytics 10 |
+| 2026-04-27 | Phase 1 Step 6 완료: 분석 대시보드 8탭 이식 (admin.html Analytics 탭, bookings_unified 동적 쿼리, aggregateAll 집계, bka- namespace, 커밋 86e8ddd) | TW Booking Analytics 11 |
 
 ---
 

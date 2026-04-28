@@ -20,7 +20,10 @@ ALTER TABLE public.payments
   ADD COLUMN IF NOT EXISTS paypal_payer_id TEXT,
   ADD COLUMN IF NOT EXISTS environment TEXT, -- 'sandbox' | 'live'
   ADD COLUMN IF NOT EXISTS metadata JSONB,
+  ADD COLUMN IF NOT EXISTS method TEXT, -- 'paypal' | 'stripe' (legacy) | 'manual'
   ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ DEFAULT now();
+
+COMMENT ON COLUMN public.payments.method IS '결제 수단: paypal | stripe (legacy) | manual';
 
 -- paypal_order_id 유니크 인덱스 (중복 capture 방지)
 CREATE UNIQUE INDEX IF NOT EXISTS payments_paypal_order_id_uniq

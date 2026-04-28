@@ -334,7 +334,8 @@ body{margin:0;background:#f7f7f7;font-family:'DM Sans','Noto Sans KR',sans-serif
     return new Promise(function(resolve, reject){
       if (window.paypal){ _paypalSdkLoaded = true; resolve(); return; }
       var script = document.createElement('script');
-      var qs = 'client-id=' + encodeURIComponent(clientId) + '&currency=USD&intent=capture&disable-funding=credit,card';
+      // [Phase 3 Step C hotfix] disable-funding 제거 — Korea sandbox/일부 계정에서 funding source 부재로 즉시 닫히는 이슈 회피
+      var qs = 'client-id=' + encodeURIComponent(clientId) + '&currency=USD&intent=capture';
       script.src = 'https://www.paypal.com/sdk/js?' + qs;
       script.async = true;
       script.onload = function(){ _paypalSdkLoaded = true; resolve(); };

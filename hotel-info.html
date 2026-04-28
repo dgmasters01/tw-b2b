@@ -388,6 +388,9 @@
   var searchDebounce = null;
   var lastSearchQuery = '';
   var selectedSearchResult = null;
+  // [Phase 3 Step 5] Edit mode state
+  var isEditMode = (new URLSearchParams(location.search)).get('edit') === '1';
+  var editingHotel = null; // existing hotel row when in edit mode
 
   T.requireAuth(async function(user){
     currentUser = user;
@@ -397,16 +400,99 @@
       window.location.href = 'admin.html';
       return;
     }
-    T.db.getMyHotels().then(function(r){
-      if (r.data && r.data.length > 0) {
-        T.toast(T.lang === 'ko' ? '이미 호텔이 등록되어 있습니다.' : 'Hotel already registered.');
-        setTimeout(function(){ window.location.href = 'dashboard.html'; }, 1500);
+    T.db.getMyHotels({ noCache: true }).then(function(r){
+      var existing = (r.data && r.data.length > 0) ? r.data[0] : null;
+      if (isEditMode) {
+        // EDIT MODE: must have existing hotel
+        if (!existing) {
+          T.toast('No hotel registered yet. Redirecting to new registration.', true);
+          setTimeout(function(){ window.location.href = 'hotel-info.html'; }, 1500);
+          return;
+        }
+        editingHotel = existing;
+        prefillFormForEdit(existing);
+      } else {
+        // NEW MODE: must NOT have existing hotel
+        if (existing) {
+          T.toast(T.lang === 'ko' ? '이미 호텔이 등록되어 있습니다.' : 'Hotel already registered.');
+          setTimeout(function(){ window.location.href = 'dashboard.html?edit_redirect=1'; }, 1500);
+        }
       }
     });
     // 가입 이메일 표시
     var sigEmail = $('edit-signup-email');
     if (sigEmail && user && user.email) sigEmail.value = user.email;
   });
+
+  // [Phase 3 Step 5] Prefill form from existing hotel row + show edit mode UI
+  function prefillFormForEdit(h){
+    // Skip search step entirely → jump to step 2 (form)
+    setStep(2);
+    // Hide intro modal in edit mode
+    var introModalEl = document.getElementById('intro-modal');
+    if (introModalEl) {
+      introModalEl.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+    // Update page title and save button label
+    var titleEl = document.querySelector('h1, .hi-title, [data-page-title]');
+    if (titleEl && !titleEl.dataset.origText) {
+      titleEl.dataset.origText = titleEl.textContent;
+      titleEl.textContent = 'Edit Hotel Info';
+    }
+    var saveBtn = $('btn-save');
+    if (saveBtn) {
+      saveBtn.setAttribute('data-en', 'Save Changes');
+      saveBtn.setAttribute('data-ko', '변경사항 저장');
+      saveBtn.textContent = 'Save Changes';
+    }
+    // Hide back button (no search step in edit mode)
+    var backBtn = $('btn-back');
+    if (backBtn) backBtn.style.display = 'none';
+    // Set fetched.merged so existing image_url, agoda_url, etc. survive on save
+    fetched = {
+      merged: {
+        latitude: h.latitude, longitude: h.longitude,
+        review_score: h.review_score, review_count: h.review_count,
+        image_url: h.image_url, agoda_url: h.agoda_url,
+        agoda_hotel_id: h.agoda_hotel_id, google_place_id: h.google_place_id,
+        include_breakfast: h.include_breakfast, free_wifi: h.free_wifi,
+        google_photos: h.google_photos
+      },
+      _matched: !!h.agoda_hotel_id,
+      _matchSource: h.agoda_hotel_id ? 'url' : null,
+      _cityId: h.agoda_city_id
+    };
+    // Fill form fields
+    if ($('edit-name')) $('edit-name').value = h.hotel_name || '';
+    if ($('edit-name-local')) $('edit-name-local').value = h.hotel_name_local || '';
+    if ($('edit-property-type')) $('edit-property-type').value = h.property_type || '';
+    if (h.star_rating) {
+      var classRadio = document.querySelector('input[name="hotel-class"][value="' + h.star_rating + '"]');
+      if (classRadio) classRadio.checked = true;
+    }
+    if ($('edit-rate')) $('edit-rate').value = h.daily_rate || '';
+    if ($('edit-address')) $('edit-address').value = h.address || '';
+    if ($('edit-city')) $('edit-city').value = h.city || '';
+    if ($('edit-country')) $('edit-country').value = h.country || '';
+    if ($('edit-latitude')) $('edit-latitude').value = h.latitude || '';
+    if ($('edit-longitude')) $('edit-longitude').value = h.longitude || '';
+    if ($('edit-phone')) $('edit-phone').value = h.phone || '';
+    if ($('edit-website')) $('edit-website').value = h.website || '';
+    if ($('edit-manager-name')) $('edit-manager-name').value = h.contact_name || '';
+    if ($('edit-manager-position')) $('edit-manager-position').value = h.manager_position || '';
+    if ($('edit-manager-position-other')) $('edit-manager-position-other').value = h.manager_position_other || '';
+    if ($('edit-manager-phone')) $('edit-manager-phone').value = h.contact_phone || h.whatsapp || '';
+    // Contact email: if differs from signup email, mark as 'different'
+    if (currentUser && h.contact_email && h.contact_email !== currentUser.email) {
+      var diffRadio = document.querySelector('input[name="email-choice"][value="different"]');
+      if (diffRadio) {
+        diffRadio.checked = true;
+        var ce = $('edit-contact-email');
+        if (ce) { ce.style.display = 'block'; ce.value = h.contact_email; }
+      }
+    }
+  }
 
   // ========== 진입 안내 모달 ==========
   var introModal = $('intro-modal');
@@ -943,7 +1029,16 @@
       status: 'pending'
     };
 
-    T.db.createHotel(hotelData).then(function(r){
+    // [Phase 3 Step 5] Edit mode: don't overwrite status (manager can't change status)
+    var savePromise;
+    if (isEditMode && editingHotel) {
+      delete hotelData.status; // preserve existing status (admin-controlled)
+      savePromise = T.db.updateHotel(editingHotel.id, hotelData);
+    } else {
+      savePromise = T.db.createHotel(hotelData);
+    }
+
+    savePromise.then(function(r){
       btn.disabled = false;
       btn.innerHTML = T.lang === 'ko' ? '저장 후 계속' : 'Save & Continue';
 
@@ -953,12 +1048,30 @@
         return;
       }
 
-      T.toast(T.lang === 'ko' ? '저장되었습니다!' : 'Saved successfully!');
-      setStep(3);
-      // 2초 후 dashboard로 자동 이동
-      setTimeout(function(){
-        window.location.href = 'dashboard.html';
-      }, 2000);
+      T.toast(isEditMode
+        ? (T.lang === 'ko' ? '변경사항이 저장되었습니다!' : 'Changes saved!')
+        : (T.lang === 'ko' ? '저장되었습니다!' : 'Saved successfully!'));
+
+      // [Phase 3 Step 5] Broadcast cache invalidation to all open tabs
+      // (TW.db.* already invalidates 'hotels' + 'myHotels' via BroadcastChannel,
+      //  but we also notify BKA module if loaded in another tab.)
+      try {
+        if (window.BKA && typeof window.BKA.invalidateCache === 'function') {
+          window.BKA.invalidateCache();
+        }
+      } catch(e) {}
+      try { localStorage.setItem('tw-hotels-dirty', JSON.stringify({ ts: Date.now(), op: isEditMode ? 'update' : 'create' })); } catch(e) {}
+
+      if (isEditMode) {
+        // Edit: redirect straight back to dashboard
+        setTimeout(function(){ window.location.href = 'dashboard.html'; }, 1200);
+      } else {
+        setStep(3);
+        // 2초 후 dashboard로 자동 이동
+        setTimeout(function(){
+          window.location.href = 'dashboard.html';
+        }, 2000);
+      }
     }).catch(function(err){
       btn.disabled = false;
       btn.innerHTML = T.lang === 'ko' ? '저장 후 계속' : 'Save & Continue';

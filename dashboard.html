@@ -118,8 +118,25 @@ body{margin:0;background:#f7f7f7;font-family:'DM Sans','Noto Sans KR',sans-serif
 
   $('btn-logout').addEventListener('click', T.logout);
 
-  function loadDashboard(){
-    T.db.getMyHotels().then(function(r){
+  // [Phase 3 Step 5] Auto-reload dashboard when:
+  //   1) tab regains visibility (e.g. user came back from hotel-info edit)
+  //   2) cache was invalidated (same tab via TW.db.* OR cross-tab via BroadcastChannel/storage)
+  //   3) localStorage 'tw-hotels-dirty' flag (legacy fallback)
+  document.addEventListener('visibilitychange', function(){
+    if (!document.hidden && currentUser) {
+      loadDashboard({ noCache: true });
+    }
+  });
+  window.addEventListener('tw:cache:invalidate', function(ev){
+    var k = ev && ev.detail && ev.detail.key;
+    if ((k === 'hotels' || k === 'myHotels') && currentUser) loadDashboard({ noCache: true });
+  });
+  window.addEventListener('storage', function(ev){
+    if (ev.key === 'tw-hotels-dirty' && currentUser) loadDashboard({ noCache: true });
+  });
+
+  function loadDashboard(opts){
+    T.db.getMyHotels(opts || {}).then(function(r){
       var main = $('dh-main');
       
       if (r.error){
@@ -188,7 +205,9 @@ body{margin:0;background:#f7f7f7;font-family:'DM Sans','Noto Sans KR',sans-serif
     if (h.address) html += '<div class="dh-hotel-meta-row">📍 ' + esc(h.address) + '</div>';
     if (h.phone) html += '<div class="dh-hotel-meta-row">📞 ' + esc(h.phone) + '</div>';
     if (h.website) html += '<div class="dh-hotel-meta-row">🌐 <a href="' + esc(h.website) + '" target="_blank" rel="noopener">' + esc(h.website) + '</a></div>';
-    html += '<div style="margin-top:12px"><span class="dh-status-badge" style="background:' + T.fmt.statusColor(status) + '">' + T.fmt.statusLabel(status, lang) + '</span></div>';
+    html += '<div style="margin-top:12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span class="dh-status-badge" style="background:' + T.fmt.statusColor(status) + '">' + T.fmt.statusLabel(status, lang) + '</span>';
+    html += '<a href="hotel-info.html?edit=1" class="dh-btn dh-btn-secondary" style="padding:6px 14px;font-size:13px" data-en="Edit Hotel Info" data-ko="호텔 정보 수정">Edit Hotel Info</a>';
+    html += '</div>';
     html += '</div></div>';
 
     // === 진행 상태 ===

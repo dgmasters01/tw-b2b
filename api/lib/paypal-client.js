@@ -120,7 +120,9 @@ export async function createOrder(params) {
   };
 
   // Merchant ID가 있으면 payee로 명시 (멀티-merchant 환경 안정성)
-  if (merchantId) {
+  // [Phase 3 Step C hotfix] sandbox에서는 라이브 merchant_id가 PAYEE_ACCOUNT_INVALID 에러 유발
+  // → live 환경에서만 payee 명시. sandbox는 OAuth 토큰의 business 계정이 자동 payee로 설정됨
+  if (merchantId && getPayPalEnv() === 'live') {
     purchaseUnit.payee = { merchant_id: merchantId };
   }
 

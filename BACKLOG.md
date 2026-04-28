@@ -8,6 +8,36 @@
 
 ---
 
+## 🔴 P0 — Vercel 환경변수 SUPABASE_ANON_KEY 누락 (2026-04-28 발견, 해결 진행 중)
+
+**현상**: 매니저가 로그인 직후에도 PayPal 결제 시 `/api/paypal?action=create-order` 가 401 Unauthorized 반환. PayPal SDK는 createOrder 실패 시 결제 창 즉시 닫음.
+
+**진짜 원인**: `api/paypal.js`의 `verifyUser()` 함수가 Supabase Auth 토큰 검증 시 `apikey` 헤더에 `process.env.SUPABASE_ANON_KEY` 또는 `SUPABASE_PUBLISHABLE_KEY` 사용. 그러나 Vercel에 둘 다 등록되어 있지 않아 빈 문자열로 호출 → Supabase Auth가 401 거부.
+
+**해결**:
+- Vercel 환경변수 추가: `SUPABASE_ANON_KEY=sb_publishable_IluITb52iuwwHf9xgP99MA__KX-sNM6` (Production+Preview+Development)
+- Vercel 재배포 (Deployments → Redeploy)
+- ⚠️ 다른 API endpoint (admin, hotels CRUD 등)에서도 같은 패턴 사용한다면 함께 영향. 모든 endpoint 점검 필요.
+
+---
+
+## 🔴 P1 — 세션 토큰 자동 갱신 실패 (2026-04-28 발견)
+
+**현상**: 매니저 로그인 후 30분~1시간 정도 페이지에 머물면, PayPal 결제 시도 시 `/api/paypal?action=create-order` 가 **401 Unauthorized** 반환. PayPal Buttons error: "Unauthorized".
+
+**원인 추정**: Supabase JS SDK의 자동 토큰 갱신 (`auto_refresh_token`)이 dashboard.html에서 작동하지 않거나, refresh token 만료. 사용자가 수동으로 sign out → 재로그인 해야 복구됨.
+
+**임시 해결**: 사용자에게 재로그인 요청.
+
+**근본 해결 필요**:
+1. `T.sb` 초기화 시 `autoRefreshToken: true` 명시 확인
+2. `getAuthHeader()` 함수에서 토큰 만료 감지 → 자동 refresh 시도 → 그래도 실패하면 강제 로그아웃 + 재로그인 안내
+3. 또는 PayPal create-order 401 응답 시 프론트에서 토큰 refresh 후 재시도
+
+**관련 파일**: `dashboard.html` line 422 (`getAuthHeader`), `assets/js/sb.js` 또는 Supabase 초기화 부분
+
+---
+
 ## 🔴 P1 — 자동 알림 메일 시스템 누락
 
 **배경**: 호텔 상태 변경 시 매니저에게 자동 알림 메일이 발송되어야 하는데, admin.html의 `changeStatus()` 함수에서 DB만 업데이트하고 메일 발송 로직이 없음.

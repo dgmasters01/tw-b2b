@@ -243,7 +243,9 @@ body{margin:0;background:#f7f7f7;font-family:'DM Sans','Noto Sans KR',sans-serif
       html += '<h3>' + (lang === 'ko' ? '🎉 호텔이 승인되었습니다!' : '🎉 Your hotel is approved!') + '</h3>';
       html += '<p>' + (lang === 'ko' ? '$200 영상 제작 비용을 결제하시면 6개 언어 유튜브 채널에 호텔 영상이 게시됩니다.' : 'Complete the $200 video production payment to publish your hotel video across 6-language YouTube channels.') + '</p>';
       html += '<div class="dh-pay-amount">$200 USD</div>';
-      html += '<button class="dh-pay-btn" id="btn-pay">' + (lang === 'ko' ? '결제하기 (PayPal)' : 'Pay Now (PayPal)') + '</button>';
+      // PayPal Buttons 컨테이너 (SDK 로드 후 paypal.Buttons() 가 렌더링)
+      html += '<div id="paypal-button-container" style="background:#fff;border-radius:8px;padding:16px;min-height:55px;max-width:420px"></div>';
+      html += '<div id="paypal-status-note" style="margin-top:10px;font-size:12.5px;opacity:.85;min-height:18px"></div>';
       html += '<div class="dh-pay-meta">';
       html += '<span>✓ ' + (lang === 'ko' ? '안전한 PayPal 결제' : 'Secure PayPal payment') + '</span>';
       html += '<span>✓ ' + (lang === 'ko' ? '7일 이내 영상 제작 완료' : 'Video ready in 7 days') + '</span>';
@@ -280,17 +282,162 @@ body{margin:0;background:#f7f7f7;font-family:'DM Sans','Noto Sans KR',sans-serif
     $('dh-main').innerHTML = html;
     T.switchLang(lang);
 
-    // 결제 버튼 이벤트
-    var payBtn = document.getElementById('btn-pay');
-    if (payBtn){
-      payBtn.addEventListener('click', function(){
-        T.toast(T.lang === 'ko' ? 'PayPal 결제는 곧 활성화됩니다. 관리자에게 문의해주세요.' : 'PayPal checkout coming soon. Please contact admin.', false);
-      });
+    // 결제 버튼: 'approved' 상태일 때만 PayPal Buttons 렌더링
+    if (status === 'approved'){
+      initPayPalButtons();
     }
 
     // 결제 내역 로드
     loadPayments();
   }
+
+  // ==========================================================
+  // PayPal 결제 통합
+  // ==========================================================
+  var _paypalSdkLoaded = false;
+  var _paypalConfig = null;
+
+  /**
+   * PayPal SDK 동적 로드 + Buttons 렌더링
+   * 1) /api/paypal/config 호출 → client_id, env 획득
+   * 2) https://www.paypal.com/sdk/js?client-id=... 스크립트 로드
+   * 3) paypal.Buttons({...}).render('#paypal-button-container')
+   */
+  function initPayPalButtons(){
+    var container = document.getElementById('paypal-button-container');
+    var note = document.getElementById('paypal-status-note');
+    if (!container) return;
+
+    setStatusNote(T.lang === 'ko' ? '결제 시스템 로딩 중...' : 'Loading payment system...', '');
+
+    fetch('/api/paypal/config')
+      .then(function(r){ return r.json(); })
+      .then(function(cfg){
+        if (!cfg.clientId){
+          setStatusNote(T.lang === 'ko' ? '결제 시스템 설정 오류' : 'Payment system not configured', 'error');
+          return;
+        }
+        _paypalConfig = cfg;
+        return loadPayPalSdk(cfg.clientId);
+      })
+      .then(function(){
+        if (!_paypalSdkLoaded || !window.paypal) return;
+        renderPayPalButtons();
+      })
+      .catch(function(err){
+        console.error('PayPal init failed:', err);
+        setStatusNote(T.lang === 'ko' ? '결제 시스템 로딩 실패. 잠시 후 다시 시도하세요.' : 'Failed to load payment system. Try again later.', 'error');
+      });
+  }
+
+  function loadPayPalSdk(clientId){
+    return new Promise(function(resolve, reject){
+      if (window.paypal){ _paypalSdkLoaded = true; resolve(); return; }
+      var script = document.createElement('script');
+      var qs = 'client-id=' + encodeURIComponent(clientId) + '&currency=USD&intent=capture&disable-funding=credit,card';
+      script.src = 'https://www.paypal.com/sdk/js?' + qs;
+      script.async = true;
+      script.onload = function(){ _paypalSdkLoaded = true; resolve(); };
+      script.onerror = function(){ reject(new Error('PayPal SDK load failed')); };
+      document.head.appendChild(script);
+    });
+  }
+
+  function renderPayPalButtons(){
+    if (!window.paypal || !window.paypal.Buttons){
+      setStatusNote(T.lang === 'ko' ? 'PayPal SDK 로딩 실패' : 'PayPal SDK failed', 'error');
+      return;
+    }
+    var container = document.getElementById('paypal-button-container');
+    if (!container) return;
+    container.innerHTML = ''; // 중복 렌더링 방지
+
+    window.paypal.Buttons({
+      style: { layout: 'vertical', color: 'gold', shape: 'rect', label: 'paypal', height: 45 },
+
+      // 1. 서버에 Order 생성 요청
+      createOrder: function(){
+        setStatusNote(T.lang === 'ko' ? '결제 준비 중...' : 'Preparing payment...', '');
+        return getAuthHeader().then(function(authHdr){
+          return fetch('/api/paypal/create-order', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': authHdr },
+            body: JSON.stringify({ hotel_id: myHotel.id }),
+          });
+        }).then(function(r){ return r.json().then(function(d){ return { ok: r.ok, status: r.status, data: d }; }); })
+          .then(function(res){
+            if (!res.ok){
+              var msg = (res.data && (res.data.reason || res.data.error)) || 'create_order_failed';
+              setStatusNote((T.lang === 'ko' ? '결제 생성 실패: ' : 'Order creation failed: ') + msg, 'error');
+              throw new Error(msg);
+            }
+            setStatusNote('', '');
+            return res.data.order_id;
+          });
+      },
+
+      // 2. 사용자가 PayPal 창에서 승인 완료 → 서버에 capture 요청
+      onApprove: function(data){
+        setStatusNote(T.lang === 'ko' ? '결제 처리 중...' : 'Processing payment...', '');
+        return getAuthHeader().then(function(authHdr){
+          return fetch('/api/paypal/capture-order', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': authHdr },
+            body: JSON.stringify({ order_id: data.orderID, hotel_id: myHotel.id }),
+          });
+        }).then(function(r){ return r.json().then(function(d){ return { ok: r.ok, status: r.status, data: d }; }); })
+          .then(function(res){
+            if (!res.ok || !res.data || !res.data.ok){
+              var detail = (res.data && (res.data.detail || res.data.error)) || 'capture_failed';
+              setStatusNote((T.lang === 'ko' ? '결제 확정 실패: ' : 'Payment capture failed: ') + detail, 'error');
+              return;
+            }
+            setStatusNote(T.lang === 'ko' ? '✅ 결제가 완료되었습니다! 대시보드를 새로고침합니다...' : '✅ Payment complete! Refreshing dashboard...', 'success');
+            T.toast(T.lang === 'ko' ? '결제 완료!' : 'Payment complete!');
+            // hotels.status는 트리거가 'paid'로 자동 전환 → 대시보드 다시 로드
+            setTimeout(function(){
+              if (T.cache && T.cache.invalidate){
+                T.cache.invalidate('hotels');
+                T.cache.invalidate('myHotels');
+              }
+              loadDashboard({ noCache: true });
+            }, 1500);
+          });
+      },
+
+      onCancel: function(){
+        setStatusNote(T.lang === 'ko' ? '결제가 취소되었습니다.' : 'Payment cancelled.', '');
+      },
+
+      onError: function(err){
+        console.error('PayPal Buttons error:', err);
+        setStatusNote(T.lang === 'ko' ? '결제 중 오류가 발생했습니다. 다시 시도해주세요.' : 'Payment error occurred. Please try again.', 'error');
+      },
+    }).render('#paypal-button-container').catch(function(e){
+      console.error('PayPal render failed:', e);
+      setStatusNote(T.lang === 'ko' ? 'PayPal 버튼 표시 실패' : 'Failed to render PayPal buttons', 'error');
+    });
+  }
+
+  function getAuthHeader(){
+    if (T.sb && T.sb.auth && T.sb.auth.getSession){
+      return T.sb.auth.getSession().then(function(r){
+        var token = r && r.data && r.data.session && r.data.session.access_token;
+        return 'Bearer ' + (token || '');
+      });
+    }
+    return Promise.resolve('');
+  }
+
+  function setStatusNote(text, kind){
+    var n = document.getElementById('paypal-status-note');
+    if (!n) return;
+    n.textContent = text || '';
+    if (kind === 'error') n.style.color = '#ffd2d2';
+    else if (kind === 'success') n.style.color = '#c8ffd2';
+    else n.style.color = '';
+  }
+  // ==========================================================
 
   function loadPayments(){
     T.db.getPayments(myHotel.id).then(function(r){

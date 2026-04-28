@@ -299,7 +299,7 @@ body{margin:0;background:#f7f7f7;font-family:'DM Sans','Noto Sans KR',sans-serif
 
   /**
    * PayPal SDK 동적 로드 + Buttons 렌더링
-   * 1) /api/paypal/config 호출 → client_id, env 획득
+   * 1) /api/paypal?action=config 호출 → client_id, env 획득
    * 2) https://www.paypal.com/sdk/js?client-id=... 스크립트 로드
    * 3) paypal.Buttons({...}).render('#paypal-button-container')
    */
@@ -310,7 +310,7 @@ body{margin:0;background:#f7f7f7;font-family:'DM Sans','Noto Sans KR',sans-serif
 
     setStatusNote(T.lang === 'ko' ? '결제 시스템 로딩 중...' : 'Loading payment system...', '');
 
-    fetch('/api/paypal/config')
+    fetch('/api/paypal?action=config')
       .then(function(r){ return r.json(); })
       .then(function(cfg){
         if (!cfg.clientId){
@@ -359,7 +359,7 @@ body{margin:0;background:#f7f7f7;font-family:'DM Sans','Noto Sans KR',sans-serif
       createOrder: function(){
         setStatusNote(T.lang === 'ko' ? '결제 준비 중...' : 'Preparing payment...', '');
         return getAuthHeader().then(function(authHdr){
-          return fetch('/api/paypal/create-order', {
+          return fetch('/api/paypal?action=create-order', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Authorization': authHdr },
             body: JSON.stringify({ hotel_id: myHotel.id }),
@@ -380,7 +380,7 @@ body{margin:0;background:#f7f7f7;font-family:'DM Sans','Noto Sans KR',sans-serif
       onApprove: function(data){
         setStatusNote(T.lang === 'ko' ? '결제 처리 중...' : 'Processing payment...', '');
         return getAuthHeader().then(function(authHdr){
-          return fetch('/api/paypal/capture-order', {
+          return fetch('/api/paypal?action=capture-order', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Authorization': authHdr },
             body: JSON.stringify({ order_id: data.orderID, hotel_id: myHotel.id }),

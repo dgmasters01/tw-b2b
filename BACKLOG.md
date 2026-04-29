@@ -18,7 +18,7 @@
 
 ---
 
-## 🔴 P0 — Admin Hotels 상세 패널 매니저 정보 누락 (2026-04-29 발견)
+## 🔴 P0 — Admin Hotels 상세 패널 매니저 정보 누락 + 모달 닫기 불가 (2026-04-29 발견)
 
 **배경**: Phase B PayPal 결제 검증 직후 발견. 어드민이 Hotels 탭 → View 클릭 시 호텔 상세 패널이 열리는데, 매니저 정보 3개 필드가 모두 빈 값(`-`)으로 표시됨.
 
@@ -27,6 +27,7 @@
 - ❌ Manager Name: `-`
 - ❌ Manager Phone: `-`
 - ❌ Review, Agoda URL, Agoda Hotel ID, Amenities도 동일하게 누락
+- ❌ **모달 우상단 X 버튼 클릭 안 됨** — 모달이 닫히지 않아 다른 호텔 보려면 ESC 또는 새로고침 필요 (UX 치명적)
 - ✅ 호텔 기본 정보(이름/주소/사진/좌표/Daily Rate)는 정상 표시
 
 **비즈니스 임팩트**:
@@ -45,7 +46,8 @@
 3. [수정] 가장 단순한 해결: hotels 테이블 INSERT 시점(hotel-info.html `btn-save` 핸들러)에서 auth.users의 email/name/phone을 hotels의 캐시 컬럼에 함께 저장
 4. [검증] admin.html View 클릭 시 매니저 3개 필드가 채워지는지 확인
 5. [추가 누락 필드 검토]: Review, Agoda URL/Hotel ID, Amenities는 별도 수동 입력 필드일 수 있음 — 이 필드들이 매니저 또는 어드민 어느 쪽 책임인지 BUSINESS.md에서 정책 확정 필요
-6. **[통합 작업]** 이 이슈와 동일 뿌리: 하단 P2 Issue #3 (Hotels 목록의 MANAGER 컬럼 비어있음). 같은 PR로 함께 해결할 것 — 목록 화면(`renderHotels`)과 상세 패널(View) 양쪽에 동일한 데이터 흐름 적용.
+6. **[모달 X 버튼 수정]** admin.html 호텔 상세 모달의 우상단 닫기 버튼(`×`)이 클릭되지 않음. 이벤트 핸들러 미연결 또는 z-index 이슈 추정. 추가로 ESC 키 / 모달 외부 클릭 시 닫힘도 함께 구현 (UX 표준).
+7. **[통합 작업]** 이 이슈와 동일 뿌리: 하단 P2 Issue #3 (Hotels 목록의 MANAGER 컬럼 비어있음). 같은 PR로 함께 해결할 것 — 목록 화면(`renderHotels`)과 상세 패널(View) 양쪽에 동일한 데이터 흐름 적용.
 
 **검증 데이터** (현재 기준):
 - 매니저 계정: joylife8760@naver.com (시크릿 창에서 가입 + 결제까지 완료)

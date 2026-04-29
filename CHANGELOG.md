@@ -5,6 +5,57 @@
 
 ---
 
+## 2026-04-29 (7차) — [P0 버그수정] admin.html Agoda Matching 모달 클릭 안 되던 버그 수정
+
+### 변경 파일
+- `admin.html`: 모달 핸들러 lazy 등록 패턴 도입
+
+### 증상
+- Agoda Matching 페이지의 3개 모달(Manual Match / Reject / Send Invite) 모두:
+  - X 버튼, Cancel 버튼, 제출 버튼 클릭 시 아무 반응 없음
+  - 입력은 가능하지만 모달을 닫을 방법이 없음 (ESC 키만 작동)
+- Agoda Matching Queue의 Refresh 버튼도 작동 안 함
+- 콘솔 경고 `[admin.html] missing element: #am-match-close — using no-op fallback` (×14회)
+
+### 원인
+`admin.html`의 메인 IIFE는 라인 808의 `<script>` 안에서 즉시 실행되는데, 모달 마크업(`<div id="am-match-modal">` 등 14개 element)은 IIFE 종료 후 라인 3366부터 위치함. 즉 IIFE 실행 시점에는 모달 element가 DOM에 존재하지 않음.
+
+`$()` 헬퍼는 element가 없을 때 no-op proxy를 반환하는데(addEventListener 등이 빈 함수로 무해 처리되도록), proxy는 truthy 값이라 `if (_amMatchClose)` 체크를 통과하여 빈 객체에 `addEventListener` 등록됨. 결과적으로 핸들러가 빈 객체에 묶여서 클릭해도 아무 동작 없음.
+
+### 수정사항
+**A. `_setupAmModalHandlers()` 함수 추가**
+- DOMContentLoaded 시점에 `document.getElementById()` 직접 호출하여 진짜 element 확보
+- `_amBound` 플래그로 중복 등록 방지
+- 모든 모달의 close/cancel/modal-backdrop/submit 버튼 핸들러 등록
+- Agoda Matching Queue의 `btn-am-refresh` 버튼도 함께 등록
+
+**B. 4개 인라인 핸들러를 named 함수로 추출**
+- `_amMatchSubmitHandler`
+- `_amInvitePreviewHandler`
+- `_amInviteSendHandler`
+- `_amRejectSubmitHandler`
+- 이유: lazy setup에서 참조하려면 함수가 named여야 함
+
+**C. document.readyState 체크**
+- `'loading'` 상태면 DOMContentLoaded 대기, 이미 로드되었으면 즉시 실행
+
+### 검증
+- `node --check`로 inline script 3개 모두 문법 검증 통과
+- 핵심 패턴 8종 모두 존재 확인 (`_setupAmModalHandlers` 3회, named 함수 4개, DOMContentLoaded 1회 등)
+- production 배포 commit `ffa29383` READY 확인
+
+### 사유
+Agoda Matching 페이지의 운영 기능(매칭/거부/초대 발송)이 모두 차단되어 있던 P0 버그. 이번 통합 라우터 작업과 무관한 기존 버그였으며, 대표님 검수 중 발견되어 즉시 fix.
+
+### 관련 이슈
+- BACKLOG P0 (모달 X 버튼 미동작) 이슈와 같은 근본 원인 — Agoda Matching 모달에서 발현
+- 이번 통합 라우터 작업(commits accacd2d~8e6e7d80)과는 별개의 이슈
+
+### 관련 commit
+- `ffa29383` (이번 fix)
+
+---
+
 ## 2026-04-29 (6차) — [리팩토링] api/admin.js 통합 라우터 — Vercel 12-function 한도 회피 (Function 카운트 12 → 9)
 
 ### 변경 파일

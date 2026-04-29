@@ -140,7 +140,7 @@
 
 ---
 
-### 1C. 호텔 정보 입력 (hotel-info.html) — Agoda 3단계 안전망 ⭐
+### 1C. 호텔 정보 입력 + 자동 매칭 (hotel-info.html — 검색 모드)
 
 ```
 [1차] 자동 매칭
@@ -152,37 +152,85 @@
        ↓
   매니저: 검색 결과에서 자기 호텔 선택
        ↓
-  자동 채움: 주소, 사진, 평점, Agoda hotelId, 등급
+  자동 채움: 주소, 사진, 평점, Agoda hotelId, 등급, Agoda URL
        ↓
-  ✅ 매칭 성공 → status = pending → Stage 2로
+  → 1D 검수 단계로
 
-[2차] 자동 실패 시 수동 입력
+[1차 자동 실패] 시 수동 입력
   매니저: "호텔을 못 찾으셨나요? 아고다 URL로 입력하기" 클릭
        ↓
   매니저: Agoda 호텔 페이지 URL 붙여넣기
        ↓
   시스템: URL 파싱 → hotelId 추출
        ↓
-  ✅ 매칭 성공 → status = pending
-  ❌ 매칭 실패 → status = manual_pending → Stage 2 Agoda Matching 탭으로
-
-[3차] 관리자 수동 처리 (별도 큐)
-  → Stage 2에서 처리
+  성공: 정보 자동 채움 → 1D 검수 단계로
+  실패: status = manual_pending → Stage 2 Agoda Matching 탭으로
 ```
 
-**관련 파일**:
-- `hotel-info.html` (UI)
-- `api/agoda-search.js` (자동 매칭)
-- `api/agoda-hotel.js` (Agoda 데이터 조회)
+---
 
-**DB 컬럼**:
-- `hotels.agoda_match_status` (auto_matched / manual_pending / manual_matched / agoda_registration_pending / rejected)
-- `hotels.agoda_url`
-- `hotels.agoda_hotel_id`
-- `hotels.agoda_city_id`
+### 1D. ⭐ 매니저 최종 검수 (hotel-info.html — 확인 모드) ⭐
 
-**발송 메일** (향후 추가 예정):
-- ⏳ "호텔 정보 등록 완료, 검토 중입니다" (BACKLOG P1)
+**대표님 핵심 통찰** (2026-04-29):
+> "본인이 입력한 거와 자동 매칭해준 내용 최종 맞는지 수정 및 확인하는 페이지를 보여줘야 되지 않을까?"
+
+**왜 이 단계가 필수인가**:
+- 자동 매칭은 100% 정확하지 않음 (Google Places ↔ Agoda 데이터 불일치 가능)
+- 호텔명 한글/영문 차이, 지점 구분, 주소 표기 차이 가능
+- **매니저가 직접 확인해야 우리도 안전, 매니저도 안심**
+
+**매니저가 보는 화면**:
+```
+┌──────────────────────────────────────────────────┐
+│ 정보가 정확한지 확인해 주세요                      │
+│ 자동으로 채워진 정보가 맞는지 확인하고             │
+│ 수정이 필요하면 직접 변경해 주세요.                │
+├──────────────────────────────────────────────────┤
+│                                                  │
+│ 🏨 호텔명 (영문):        [Lotte Hotel Seattle  ] │
+│ 🏨 호텔명 (한글):        [롯데 호텔 시애틀     ] │
+│ 📍 주소:                [809 5th Ave, Seattle…] │
+│ ⭐ 등급:                ★★★★★ (5성급)          │
+│ 📞 전화번호:            [+1 206-800-8110      ] │
+│ 🌐 호텔 공식 사이트:    [lottehotelseattle.com] │
+│ 🔗 Agoda URL:          [agoda.com/lotte-...   ] │
+│ 🆔 Agoda 호텔 ID:       12345678 (자동 추출)    │
+│                                                  │
+│ 📷 호텔 사진 (자동):                             │
+│ [사진1] [사진2] [사진3]  [+ 사진 추가]           │
+│                                                  │
+│ 👤 담당자 정보:                                  │
+│   이름:    [김매니저]                            │
+│   직책:    [마케팅 팀장]                         │
+│   휴대폰:  [+82-10-1234-5678]                   │
+│                                                  │
+├──────────────────────────────────────────────────┤
+│  [✅ 최종 확인 — 가입 완료]   [← 다시 검색]      │
+└──────────────────────────────────────────────────┘
+```
+
+**매니저 행동**:
+1. 자동 채워진 정보 검토
+2. 틀린 부분 직접 수정
+3. **"최종 확인" 클릭**
+
+**시스템 동작**:
+- hotels 테이블 INSERT (status=pending, agoda_match_status=auto_matched 또는 url_matched)
+- profiles 테이블 update (담당자 정보)
+- 자동 redirect → **sales.html** (결제 페이지)
+
+**상태 변화**:
+- 매니저 검수 완료 → status = pending
+- 결제 안 됐으므로 **마케팅/리포트 페이지가 아닌 sales.html (장점 + 결제) 로 이동**
+
+**왜 sales.html이지 marketing.html이 아닌가?** (대표님 강조):
+- **결제 안 했으니 우리의 서비스 장점을 보여주는 페이지** (sales)
+- marketing.html은 결제 후 성과 리포트 페이지 (별개)
+- 두 페이지는 **다른 목적**:
+  - sales.html: 설득 → 결제 유도
+  - marketing.html: 성과 → 가치 증명
+
+---
 
 ---
 

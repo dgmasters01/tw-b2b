@@ -124,13 +124,23 @@ export const PAGES = [
   },
   {
     path: '/admin-gallery.html',
-    name: '페이지 갤러리 (이 페이지)',
+    name: '페이지 갤러리',
     purpose: '모든 페이지 시각적 한눈 보기 + BEFORE/AFTER 비교',
     audience: 'admin',
     capture: false,
-    status: 'new',
-    visibleWhen: 'admin > Pages 메뉴',
+    status: 'live',
+    visibleWhen: 'admin > Tools > Page Gallery',
     notes: '2026-04-29 신설',
+  },
+  {
+    path: '/admin-business.html',
+    name: '비즈니스 문서 뷰어',
+    purpose: 'BUSINESS / DECISIONS / FLOW / BACKLOG 문서를 시각적으로 보기',
+    audience: 'admin',
+    capture: false,
+    status: 'new',
+    visibleWhen: 'admin > Tools > Business Docs',
+    notes: '2026-04-29 신설 — 대표님이 비개발자로서 사업 정책을 직접 보고 변경 결정할 수 있게',
   },
 
   // ─── BACKLOG: 만들 예정인 페이지 ─────────────────────────────────────────

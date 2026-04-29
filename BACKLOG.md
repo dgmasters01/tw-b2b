@@ -31,17 +31,122 @@
 ```
 
 **작업 항목**:
-1. **sales.html 신설** — 6언어 채널 / 1회 투자 영구 노출 / 신뢰 지표 / 결제 CTA. status=approved 매니저가 보는 페이지.
-2. **marketing.html 신설** — 영상 제작 진행 / 채널별 노출 통계 / 인보이스 PDF 다운로드. status=paid/producing/published 매니저가 보는 페이지.
-3. **dashboard.html 단순화** — 진행 단계 + 호텔 정보 + status별 "다음 단계로" 버튼만. 결제 박스 제거 (sales.html로 이전).
+1. **sales.html 신설** ⭐ "전세계 1등" 디자인 (Stripe/Notion/Linear 수준)
+   - 전체화면 히어로 + 그라데이션 배경
+   - 실시간 통계 카운트 애니메이션 (영상 수 / 조회수 / 채널 수)
+   - 프로세스 시각적 타임라인 (결제 → 제작 → 노출 → 보장)
+   - 6개 언어 채널 강력한 시각화 (각 채널 구독자 / 예시 영상)
+   - 6개월 보장 배지/도장
+   - 호텔 후기 카루셀
+   - FAQ 아코디언
+   - PayPal 결제 (두 번째 CTA 포함)
+   - 영문 우선 + 한국어 토글
+
+2. **marketing.html 신설** ⭐ "전세계 1등" 대시보드 디자인
+   - 큰 숫자 3개 (조회수 / 예약 / 누적 매출)
+   - 시각적 프로세스 진행 바 (6개월 D-Day)
+   - 6채널 그리드 (각 채널별 조회수 카드)
+   - 시간별 조회수 차트 (우상향 그래프)
+   - PDF 보고서 다운로드 (강조 버튼)
+   - 호텔 스토리 섹션 (우리와 함께한 시간) ⭐
+   - 빠른 액션 (담당자 변경 / 정보 수정)
+
+3. **dashboard.html 단순화** — status별 redirect 페이지로
+
 4. **status별 자동 라우팅** —
-   - `pending`/`review` → dashboard
+   - `pending`/`review` → hotel-info.html (검수 모드)
    - `approved` → sales.html (자동 redirect)
    - `paid`/`producing`/`published` → marketing.html
 
-**참고**: 이전 채팅에서 비슷한 페이지를 만든 적이 있다고 대표님이 기억하셨으나, GitHub repo 검색 결과 존재하지 않음. 작업 도중 손실되었거나 다른 repo였을 가능성. 새로 깨끗하게 만드는 것으로 결정.
+**참고**: 이전 채팅에서 비슷한 페이지를 만든 적이 있다고 대표님이 기억하셨으나, GitHub repo 검색 결과 존재하지 않음. 새로 깨끗하게 만드는 것으로 결정.
 
-**관련 파일**: `dashboard.html`, `admin-gallery.html` (planned 상태로 표시)
+**관련 파일**: `dashboard.html`, `hotel-info.html`, `admin-gallery.html`
+
+**예상 작업 시간**: 1.5~2시간 (큰 작업 — 새 채팅 권장)
+
+---
+
+## 🔴 P1 — 매니저 정보 변경 시스템 (3-Tier 차등) ⭐ 2026-04-29
+
+**배경** (대표님 통찰):
+> "매니저 가입하면 내용이 잘못 되었을 경우, 변경해야 될 경우, 승인 필요할까?"
+
+호텔 바꿔치기 / 영상 재제작 비용 방지 위해 비즈니스 영향도에 따라 차등 처리.
+
+**3-Tier 정책** (BUSINESS.md §7-A 참조):
+- Tier 1 (즉시 변경): 비밀번호, 휴대폰, 직책, 마케팅 동의
+- Tier 2 (즉시 + 알림): 이메일, 사진, 이름 오타
+- Tier 3 (관리자 승인 필수): 호텔명, 주소, Agoda 링크, 등급
+
+**작업 항목**:
+1. **settings.html 강화**
+   - 휴대폰 / 직책 / 마케팅 동의 변경 (Tier 1)
+   - 이메일 변경 (Tier 2, 재인증 필수)
+   - "호텔 정보 변경 신청" 버튼 (Tier 3)
+   - 변경 이력 로그 표시
+
+2. **`hotel_change_requests` 테이블 신설**
+   - 매니저 변경 신청 → 관리자 승인 큐
+
+3. **admin.html "변경 승인" 탭 신설**
+   - Tier 3 신청 목록
+   - 승인/거절 + 사유 입력
+
+4. **변경 이력 로그 시스템** — 누가/언제/무엇을/왜
+
+**관련 파일**: `settings.html`, `admin.html`, `api/hotel-change-request.js` (신설)
+
+---
+
+## 🔴 P1 — 호텔 담당자 교체 시스템 (Manager Handover) ⭐ 2026-04-29
+
+**배경** (대표님 통찰):
+> "호텔 담당자가 바뀔 수 있으니깐. 기존에 누구의 이름으로 결제를 했는지 표시 정리해 놓을. 이분들이 시스템을 계속 이용하면 스토리도 알 수 있잖아."
+
+매니저는 떠나도 호텔은 남는다. 결제 이력은 호텔에 영구 귀속.
+
+**작업 항목**:
+1. **`hotel_managers` 테이블 신설**
+   - 한 호텔에 여러 매니저 가능 (primary + secondary)
+   - current / former 구분
+   - started_at / ended_at / handover_from
+
+2. **데이터 마이그레이션**
+   - 기존 hotels.manager_id → hotel_managers 테이블
+   - 모든 기존 매니저 → role=primary, current=true
+
+3. **`payments.paid_by_user_id`** 컬럼 추가
+   - 결제 당시 매니저 ID 영구 보존
+
+4. **인수인계 워크플로**
+   - settings.html "호텔 담당 인수인계" 버튼
+   - 새 담당자 이메일 → 초대 메일
+   - handover-accept.html (초대 수락 페이지)
+   - 권한 자동 이관
+
+5. **권한 매트릭스 적용 + RLS 업데이트**
+   - primary / secondary / former 구분
+
+6. **이전 담당자 read-only 접근** — marketing.html 평생 조회
+
+**관련 파일**: `settings.html`, `handover-accept.html` (신설), `api/hotel-handover.js` (신설)
+
+**예상 작업 시간**: 2~3시간 (중간 작업)
+
+---
+
+## 🟡 P2 — 호텔 스토리 / LTV 추적 ⭐ 2026-04-29
+
+**배경**: 장기 고객 = 영업 자산. "Lotte는 3번 결제한 충성 고객" 같은 분석 가능.
+
+**작업 항목**:
+1. **DB 뷰**: `hotel_lifetime_stats` (자동 집계)
+2. **admin.html 호텔 상세 페이지 강화** — 거래 요약 / 담당자 이력 / 영상 이력
+3. **marketing.html "호텔 스토리" 섹션** — 우리와 함께한 시간
+4. **고객 등급 시스템** — Bronze/Silver/Gold/Platinum
+5. **영업 자료 CSV export** — 재계약 후보 리스트
+
+**관련 파일**: SQL 마이그레이션, `admin.html`, `marketing.html`
 
 ---
 

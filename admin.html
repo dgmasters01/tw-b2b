@@ -1203,12 +1203,19 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
     $('am-match-modal').classList.remove('open');
     document.body.style.overflow = '';
   }
-  $('am-match-close').addEventListener('click', closeMatchModal);
-  $('am-match-cancel').addEventListener('click', closeMatchModal);
-  $('am-match-modal').addEventListener('click', function(e){
+  // [버그수정 2026-04-29] null-safe 처리
+  // 이전에 $('am-match-close').addEventListener(...)에서 element가 null일 때 TypeError 발생,
+  // 이로 인해 그 아래 모든 JS 핸들러 등록(모달 X 버튼, ESC 등)이 중단되는 P0 버그 발견.
+  var _amMatchClose = $('am-match-close');
+  var _amMatchCancel = $('am-match-cancel');
+  var _amMatchModal = $('am-match-modal');
+  var _amMatchSubmit = $('am-match-submit');
+  if (_amMatchClose) _amMatchClose.addEventListener('click', closeMatchModal);
+  if (_amMatchCancel) _amMatchCancel.addEventListener('click', closeMatchModal);
+  if (_amMatchModal) _amMatchModal.addEventListener('click', function(e){
     if (e.target === this) closeMatchModal();
   });
-  $('am-match-submit').addEventListener('click', async function(){
+  if (_amMatchSubmit) _amMatchSubmit.addEventListener('click', async function(){
     var hotelIdInput = parseInt($('am-match-hotel-id').value, 10);
     var cityIdInput = parseInt($('am-match-city-id').value, 10);
     var urlInput = $('am-match-url').value.trim();
@@ -1269,9 +1276,13 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
     $('am-invite-modal').classList.remove('open');
     document.body.style.overflow = '';
   }
-  $('am-invite-close').addEventListener('click', closeInviteModal);
-  $('am-invite-cancel').addEventListener('click', closeInviteModal);
-  $('am-invite-modal').addEventListener('click', function(e){
+  // [버그수정 2026-04-29] null-safe
+  var _amInviteClose = $('am-invite-close');
+  var _amInviteCancel = $('am-invite-cancel');
+  var _amInviteModal = $('am-invite-modal');
+  if (_amInviteClose) _amInviteClose.addEventListener('click', closeInviteModal);
+  if (_amInviteCancel) _amInviteCancel.addEventListener('click', closeInviteModal);
+  if (_amInviteModal) _amInviteModal.addEventListener('click', function(e){
     if (e.target === this) closeInviteModal();
   });
 
@@ -1354,9 +1365,13 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
     $('am-reject-modal').classList.remove('open');
     document.body.style.overflow = '';
   }
-  $('am-reject-close').addEventListener('click', closeRejectModal);
-  $('am-reject-cancel').addEventListener('click', closeRejectModal);
-  $('am-reject-modal').addEventListener('click', function(e){
+  // [버그수정 2026-04-29] null-safe
+  var _amRejectClose = $('am-reject-close');
+  var _amRejectCancel = $('am-reject-cancel');
+  var _amRejectModal = $('am-reject-modal');
+  if (_amRejectClose) _amRejectClose.addEventListener('click', closeRejectModal);
+  if (_amRejectCancel) _amRejectCancel.addEventListener('click', closeRejectModal);
+  if (_amRejectModal) _amRejectModal.addEventListener('click', function(e){
     if (e.target === this) closeRejectModal();
   });
   $('am-reject-submit').addEventListener('click', async function(){

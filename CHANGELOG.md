@@ -5,7 +5,36 @@
 
 ---
 
-## 2026-04-29 — [버그수정] Admin Hotels 상세 패널 매니저 정보 누락 + 모달 X 버튼 미동작 (P0)
+## 2026-04-29 (2차) — [버그수정] Agoda Matching 모달 핸들러 null-safe 처리 (P0 추가)
+
+### 변경 파일
+- `admin.html` (am-match / am-invite / am-reject 3개 모달 핸들러)
+
+### 발견 경위
+1차 fix 라이브 검증 시 모달 X 버튼이 여전히 클릭 안 됨. 콘솔 검사 결과:
+```
+Uncaught TypeError: Cannot read properties of null (reading 'addEventListener')
+  at admin.html:1206:22
+```
+L1206의 `$('am-match-close').addEventListener(...)`에서 element가 null인데 그대로 접근 → JS 전체 중단 → 그 아래에 등록되어야 할 모든 핸들러(modal-close, ESC, openHotelModal 내부 핸들러 등)가 등록 실패. 1차 fix는 코드는 맞았지만 절대 실행되지 못한 상태였음.
+
+### 변경사항
+- am-match / am-invite / am-reject 3개 Agoda Matching 모달의 `addEventListener` 호출을 모두 `if (element) element.addEventListener(...)` 패턴으로 변경.
+- element가 null일 경우 silent skip (해당 모달이 DOM에 없으면 핸들러도 등록 불필요).
+
+### 변경 사유
+하나의 null reference가 발생하면 그 아래 모든 JS 등록이 중단됨. 단일 페이지에서 여러 탭(Hotels/Agoda Matching/Members 등)의 핸들러가 한 IIFE 안에 직렬로 등록되는 구조라, top-level null 에러는 페이지 전체 기능을 무력화시킴. null-safe 처리는 영구적 안전장치.
+
+### 검증
+- JS 문법 검사 PASS (3 script blocks)
+- 함수 정의 PASS (closeModal, openHotelModal, renderHotels, closeMatchModal, closeInviteModal, closeRejectModal)
+
+### 잔여 콘솔 에러 (분리 처리)
+- `Failed to load resource: 500 (vjsludfjsphwnumuoqaj.../ers01%40gmail.com)` — Supabase auth.users 또는 관련 endpoint 500. 매니저 정보 표시는 정상 작동 확인됨 → 핵심 기능 영향 없음. P1으로 BACKLOG 등록 권장.
+
+---
+
+## 2026-04-29 (1차) — [버그수정] Admin Hotels 상세 패널 매니저 정보 누락 + 모달 X 버튼 미동작 (P0)
 
 ### 변경 파일
 - `admin.html` (modal close handler 강화 + 매니저 컬럼 fallback)

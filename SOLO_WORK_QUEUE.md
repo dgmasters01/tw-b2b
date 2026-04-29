@@ -45,16 +45,23 @@
 
 ---
 
-### C. 🟢 AUTO — Vercel 12-Function 한도 영구 회피 (admin-* 통합)
-**작업 내용**: api 폴더 함수 4개를 admin 단일 라우터로 통합
-- `admin-booking-upload.js` + `admin-list-users.js` + `admin-send-agoda-invite.js` + `admin-update-match.js`
-- → `api/admin.js` (`?action=booking-upload | list-users | send-invite | update-match`)
-- paypal.js와 동일한 라우터 패턴 적용
-- 4개 → 1개로 통합 → Function 카운트 9개로 감소 (여유 3개 확보)
+### C. 🟢 ✅ **[DONE 8e6e7d80]** — Vercel 12-Function 한도 영구 회피 (admin-* 통합)
+**완료일**: 2026-04-29
 
-**예상 시간**: 1시간
-**자율 진행 사유**: 순수 리팩토링, 인터페이스 동일 유지
-**검증**: 통합 전 모든 호출처를 grep해서 새 URL로 일괄 변경
+**완료 내역**:
+- `api/admin.js` 신규 작성 (paypal.js와 동일한 `?action=` 라우터 패턴, ~700 lines)
+- 4개 admin-* 함수 통합: `booking-upload`, `list-users`, `send-invite`, `update-match`
+- 공통 어드민 인증 로직 `requireAdmin()`으로 중복 제거
+- admin.html 5건 fetch 호출 일괄 변경 (`/api/admin?action=...` 형태)
+- 4개 admin-* 원본 파일 삭제, `_backup_20260429/` 폴더에 보존
+- 라우터 UX 개선: action 화이트리스트 검증을 인증 전으로 이동 (디버깅 명확화)
+- **Function 카운트: 12 → 9** (여유 3슬롯 확보)
+- production curl 검증: 4개 action 모두 401 정상, unknown action 즉시 400 차단
+- ops 이메일 발송 완료 (email_id: 855532d2-1fb0-47f9-a4f1-b88a4ba1e811)
+
+**관련 commits**: `accacd2d` (admin.js 추가) → `f8e858cd` (4개 원본 삭제) → `edc41924` (CHANGELOG) → `8e6e7d80` (라우터 UX 개선)
+
+**중요 함정 (향후 동일 작업 참고)**: 통합 추가와 원본 삭제를 별도 commit으로 나누면 중간 단계에서 13개 함수로 빌드 실패. 단일 commit에 묶을 것 (이번에 1차 commit accacd2d 빌드 실패 → 2차 commit f8e858cd로 복구).
 
 ---
 
@@ -159,4 +166,21 @@
 
 > Claude가 작업 완료할 때마다 여기에 추가합니다.
 
-(아직 비어있음)
+### 🟢 [C] api/admin.js 통합 라우터 (2026-04-29 자율 작업 완료)
+
+검수 순서:
+1. **admin.html → Members 탭** 클릭 → 매니저 목록 정상 로드 확인 (`?action=list-users`)
+2. **admin.html → Agoda Matching 탭** → 임의 호텔 manual match 시도 → 정상 저장 확인 (`?action=update-match` body.action='manual_match')
+3. **Agoda Matching → reject 모달** → 거부 사유 입력 → 정상 거부 확인 (`?action=update-match` body.action='reject')
+4. **Agoda Invite → Preview Email** 버튼 → dryRun 미리보기 정상 표시 확인 (`?action=send-invite` dryRun=true)
+5. **Agoda Invite → Send Invite** 버튼 → 테스트 호텔로 실제 메일 발송 → Resend ID 응답 확인 (`?action=send-invite`)
+6. **Vercel Functions** 카운트 9/12 유지 확인 (https://vercel.com/dgmasters01-9797s-projects/tw-b2b)
+7. `_backup_20260429/` 폴더 GitHub 보존 확인 (롤백 대비)
+
+**문제 발생 시 롤백 방법**:
+```bash
+# 4개 원본 파일을 _backup_20260429/에서 api/로 복원하고
+# admin.html의 fetch URL을 원복하면 됨
+git revert 8e6e7d80 edc41924 f8e858cd accacd2d
+```
+

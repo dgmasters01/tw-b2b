@@ -184,3 +184,22 @@
 git revert 8e6e7d80 edc41924 f8e858cd accacd2d
 ```
 
+---
+
+### 🟢 [P0 fix ffa29383] Agoda Matching 모달 클릭 버그 수정 (2026-04-29 검수 중 발견 → 즉시 수정)
+
+**증상 (검수 중 대표님 발견)**: Agoda Matching 페이지의 3개 모달(Manual Match / Reject / Send Invite)의 X·Cancel·제출 버튼 모두 클릭이 안 되고, Refresh 버튼도 안 됨.
+
+**원인**: `admin.html` 메인 IIFE 즉시 실행 시점에 모달 마크업이 아직 DOM에 없는데 `$()` 헬퍼가 no-op proxy 반환 → addEventListener가 빈 객체에 등록됨.
+
+**수정**: `_setupAmModalHandlers()` 함수 추가하여 DOMContentLoaded 시점에 진짜 element를 찾아 핸들러 재등록. 4개 인라인 핸들러를 named 함수로 추출.
+
+**검수 (브라우저 강력 새로고침 Ctrl+Shift+R 필수 — 캐시 무효화)**:
+1. Manual Match 모달 → X·Cancel·Save Match 모두 작동 확인
+2. Send Agoda Invite 모달 → X·Cancel·Preview Email·Send Invite 모두 작동 확인
+3. Reject 모달 → X·Cancel·Reject 모두 작동 확인
+4. Agoda Matching Queue Refresh 버튼 작동 확인
+5. 브라우저 콘솔(F12)에 `missing element` 경고가 더 이상 나오지 않는지 확인
+
+**남은 별도 이슈**: 콘솔의 `Failed to load resource: 500` 에러 1건 (auth/admin/users 관련, dgmasters01@gmail.com 어드민 계정 fetch 실패로 추정). BACKLOG P0 매니저 정보 누락 이슈와 같은 맥락일 가능성 → 다음 채팅에서 별도 진단 권장.
+

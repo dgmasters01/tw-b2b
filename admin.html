@@ -1245,7 +1245,9 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
   if (_amMatchModal) _amMatchModal.addEventListener('click', function(e){
     if (e.target === this) closeMatchModal();
   });
-  if (_amMatchSubmit) _amMatchSubmit.addEventListener('click', async function(){
+  if (_amMatchSubmit) _amMatchSubmit.addEventListener('click', _amMatchSubmitHandler);
+
+  async function _amMatchSubmitHandler(){
     var hotelIdInput = parseInt($('am-match-hotel-id').value, 10);
     var cityIdInput = parseInt($('am-match-city-id').value, 10);
     var urlInput = $('am-match-url').value.trim();
@@ -1285,7 +1287,7 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
       T.toast('Error: ' + err.message, true);
       btn.disabled = false; btn.textContent = 'Save Match';
     }
-  });
+  }
 
   // ----- Invite Modal -----
   function openInviteModal(h){
@@ -1316,7 +1318,8 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
     if (e.target === this) closeInviteModal();
   });
 
-  $('am-invite-preview').addEventListener('click', async function(){
+  $('am-invite-preview').addEventListener('click', _amInvitePreviewHandler);
+  async function _amInvitePreviewHandler(){
     var btn = $('am-invite-preview');
     btn.disabled = true; btn.textContent = 'Loading...';
     try {
@@ -1345,9 +1348,10 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
       T.toast('Error: ' + err.message, true);
       btn.disabled = false; btn.textContent = 'Preview Email';
     }
-  });
+  }
 
-  $('am-invite-send').addEventListener('click', async function(){
+  $('am-invite-send').addEventListener('click', _amInviteSendHandler);
+  async function _amInviteSendHandler(){
     if (!amCurrentHotel.contact_email) {
       T.toast('Hotel has no contact email.', true); return;
     }
@@ -1381,7 +1385,7 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
       T.toast('Error: ' + err.message, true);
       btn.disabled = false; btn.textContent = 'Send Invite';
     }
-  });
+  }
 
   // ----- Reject Modal -----
   function openRejectModal(h){
@@ -1404,7 +1408,8 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
   if (_amRejectModal) _amRejectModal.addEventListener('click', function(e){
     if (e.target === this) closeRejectModal();
   });
-  $('am-reject-submit').addEventListener('click', async function(){
+  $('am-reject-submit').addEventListener('click', _amRejectSubmitHandler);
+  async function _amRejectSubmitHandler(){
     var btn = $('am-reject-submit');
     btn.disabled = true; btn.textContent = 'Rejecting...';
     try {
@@ -1432,7 +1437,57 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
       T.toast('Error: ' + err.message, true);
       btn.disabled = false; btn.textContent = 'Reject';
     }
-  });
+  }
+
+  // [P0 버그 수정 2026-04-29-v2] 모달 핸들러 lazy 등록
+  // 모달 마크업(<div id="am-match-modal">...)은 이 IIFE 종료 후 라인 3366부터 위치함.
+  // 따라서 위에서 IIFE 즉시 실행 시점에 $('am-match-close') 등을 호출하면 element가 없어
+  // no-op proxy가 반환되고, addEventListener가 빈 객체에 등록되어 클릭이 작동하지 않음.
+  // → DOMContentLoaded 시점에 진짜 element를 찾아서 핸들러를 다시 등록.
+  // (위쪽 핸들러 등록부는 그대로 두어도 no-op이라 무해. 함수 본체는 closeMatchModal 등을
+  //  참조하므로 함수 정의는 위쪽 IIFE 안에 그대로 남아있어 작동함.)
+  function _setupAmModalHandlers(){
+    // Match Modal
+    var mClose = document.getElementById('am-match-close');
+    var mCancel = document.getElementById('am-match-cancel');
+    var mModal = document.getElementById('am-match-modal');
+    var mSubmit = document.getElementById('am-match-submit');
+    if (mClose && !mClose._amBound) { mClose._amBound = true; mClose.addEventListener('click', closeMatchModal); }
+    if (mCancel && !mCancel._amBound) { mCancel._amBound = true; mCancel.addEventListener('click', closeMatchModal); }
+    if (mModal && !mModal._amBound) { mModal._amBound = true; mModal.addEventListener('click', function(e){ if (e.target === this) closeMatchModal(); }); }
+    if (mSubmit && !mSubmit._amBound) { mSubmit._amBound = true; mSubmit.addEventListener('click', _amMatchSubmitHandler); }
+
+    // Invite Modal
+    var iClose = document.getElementById('am-invite-close');
+    var iCancel = document.getElementById('am-invite-cancel');
+    var iModal = document.getElementById('am-invite-modal');
+    var iPreview = document.getElementById('am-invite-preview');
+    var iSend = document.getElementById('am-invite-send');
+    if (iClose && !iClose._amBound) { iClose._amBound = true; iClose.addEventListener('click', closeInviteModal); }
+    if (iCancel && !iCancel._amBound) { iCancel._amBound = true; iCancel.addEventListener('click', closeInviteModal); }
+    if (iModal && !iModal._amBound) { iModal._amBound = true; iModal.addEventListener('click', function(e){ if (e.target === this) closeInviteModal(); }); }
+    if (iPreview && !iPreview._amBound) { iPreview._amBound = true; iPreview.addEventListener('click', _amInvitePreviewHandler); }
+    if (iSend && !iSend._amBound) { iSend._amBound = true; iSend.addEventListener('click', _amInviteSendHandler); }
+
+    // Reject Modal
+    var rClose = document.getElementById('am-reject-close');
+    var rCancel = document.getElementById('am-reject-cancel');
+    var rModal = document.getElementById('am-reject-modal');
+    var rSubmit = document.getElementById('am-reject-submit');
+    if (rClose && !rClose._amBound) { rClose._amBound = true; rClose.addEventListener('click', closeRejectModal); }
+    if (rCancel && !rCancel._amBound) { rCancel._amBound = true; rCancel.addEventListener('click', closeRejectModal); }
+    if (rModal && !rModal._amBound) { rModal._amBound = true; rModal.addEventListener('click', function(e){ if (e.target === this) closeRejectModal(); }); }
+    if (rSubmit && !rSubmit._amBound) { rSubmit._amBound = true; rSubmit.addEventListener('click', _amRejectSubmitHandler); }
+
+    // Refresh Button (Agoda Matching Queue)
+    var refresh = document.getElementById('btn-am-refresh');
+    if (refresh && !refresh._amBound) { refresh._amBound = true; refresh.addEventListener('click', loadAgodaMatching); }
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', _setupAmModalHandlers);
+  } else {
+    _setupAmModalHandlers();
+  }
 
   // ESC 키로 모달 닫기
   document.addEventListener('keydown', function(e){

@@ -125,16 +125,16 @@ let currentMd = '';
 const ghBase = 'https://raw.githubusercontent.com/dgmasters01/tw-b2b/main/';
 
 (async function init(){
-  if (!window.T || !window.T.sb) {
+  if (!window.TW || !window.TW.sb) {
     renderDeny('Supabase 클라이언트 로드 실패');
     return;
   }
-  const { data: { session } } = await window.T.sb.auth.getSession();
+  const { data: { session } } = await window.TW.sb.auth.getSession();
   if (!session) { window.location.href = '/login.html'; return; }
 
   // admin 권한 체크 — admin.html과 동일한 로직 사용 (T.checkAdmin)
   // is_admin() RPC + admins 테이블 기반. profiles 테이블 의존 제거.
-  const ac = await window.T.checkAdmin(session.user);
+  const ac = await window.TW.checkAdmin(session.user);
   if (!ac || !ac.is_admin) {
     renderDeny('관리자만 접근 가능한 페이지입니다.', session.user.email);
     return;

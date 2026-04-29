@@ -185,7 +185,7 @@ function cardHtml(p) {
   const thumbInner = p.capture
     ? `<img src="${thumbSrc}" alt="${escapeHtml(p.name)}" onerror="this.parentElement.querySelector('.gh-thumb-img').style.display='none';this.parentElement.querySelector('.gh-thumb-empty-fallback').style.display='flex';" class="gh-thumb-img">
        <div class="gh-thumb-empty gh-thumb-empty-fallback" style="display:none">캡처 없음<br><small>아래 '라이브 미리보기' 버튼 클릭</small></div>`
-    : `<div class="gh-thumb-empty">${p.audience === 'planned' ? '아직 없음' : '🔒 로그인 필요 페이지'}<br><small>아래 '라이브 미리보기' 클릭</small></div>`;
+    : `<div class="gh-thumb-empty">${p.audience === 'planned' ? '아직 없음' : '🔒 로그인 필요 페이지'}<br><small>'라이브 보기'로 새 탭에서 열기 권장<br>(iframe 미리보기는 세션이 풀릴 수 있음)</small></div>`;
 
   const thumbHtml = `<div class="gh-thumb-static">${thumbInner}</div>
     <div class="gh-thumb-iframe" id="${cardId}-iframe-wrap" style="display:none">

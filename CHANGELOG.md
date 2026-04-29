@@ -5,6 +5,38 @@
 
 ---
 
+## 2026-04-29 (4차) — [UX개선] Business Docs 사이드바 강화 + Page Gallery iframe 한계 안내
+
+### 변경 파일
+- `admin-business.html` (사이드바 메인 대시보드 버튼 강화 + 바로가기 섹션 신설)
+- `admin-gallery.html` (로그인 필요 페이지 안내 문구 개선)
+- `BACKLOG.md` (Issue #4 신규 등록)
+
+### 변경사항
+**A. admin-business.html 사이드바 메뉴 강화**
+- 기존: 작은 회색 텍스트 링크 `← 관리자 콘솔` (눈에 안 띔)
+- 변경 후: 보라색 강조 버튼 `🏢 메인 대시보드 (관리자 콘솔)` + 그 아래 "바로가기" 섹션에 6개 직링크 (호텔/예약/매니저/Agoda 매칭/페이지 갤러리/예약 분석)
+- CSS도 반영 (배경색, 패딩, hover 효과)
+
+**B. admin-gallery.html iframe 한계 안내**
+- 로그인 필요 페이지의 빈 썸네일 영역 안내 문구를 변경
+- 기존: `아래 '라이브 미리보기' 클릭`
+- 변경 후: `'라이브 보기'로 새 탭에서 열기 권장 / (iframe 미리보기는 세션이 풀릴 수 있음)`
+
+### 변경 사유
+- 대표님이 "Business Docs에 메인 대시보드로 가는 메뉴가 없다"고 보고 → 기존 텍스트 링크 강조도 부족했고 하위 메뉴도 없어 비개발자 시점에서 네비게이션 혼란.
+- Page Gallery에서 admin/manager 페이지 미리보기 시 로그인 화면이 보이는 현상은 supabase iframe-auth 알려진 한계 → 즉시 우회: 사용자 안내 + BACKLOG P2로 근본 해결 옵션 정리.
+
+### 검증
+- admin-business.html JS 문법 PASS
+- admin-gallery.html: 0 inline script (정적 HTML+외부 스크립트)
+- 강조 버튼 + 바로가기 섹션 + iframe 안내 키워드 모두 존재 확인
+
+### 잔여 (BACKLOG)
+- BACKLOG Issue #4: Page Gallery iframe Supabase 세션 미보존 → P2로 등록, 근본 해결 옵션 A/B/C 정리
+
+---
+
 ## 2026-04-29 (3차) — [버그수정] `$` 헬퍼 자체를 null-safe로 영구 보강 (P0 종결)
 
 ### 변경 파일

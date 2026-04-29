@@ -15,8 +15,12 @@
   .bd-nav-h { padding:0 20px 16px; border-bottom:1px solid #1e293b; margin-bottom:12px; }
   .bd-nav-title { font-size:16px; font-weight:700; color:#f1f5f9; margin:0 0 4px; }
   .bd-nav-sub { font-size:11px; color:#64748b; margin:0; }
-  .bd-nav-back { display:block; padding:8px 20px; color:#64748b; text-decoration:none; font-size:13px; border-bottom:1px solid #1e293b; margin-bottom:12px; }
-  .bd-nav-back:hover { color:#cbd5e1; background:#1e293b; }
+  .bd-nav-back { display:flex; align-items:center; gap:8px; padding:14px 20px; color:#fff; text-decoration:none; font-size:14px; font-weight:600; background:#4f46e5; border-radius:8px; margin:0 14px 16px; transition:background .15s; }
+  .bd-nav-back:hover { background:#6366f1; color:#fff; }
+  .bd-nav-quick { padding:0 14px 14px; border-bottom:1px solid #1e293b; margin-bottom:12px; }
+  .bd-nav-quick-title { font-size:11px; color:#64748b; text-transform:uppercase; letter-spacing:.5px; padding:0 6px 6px; }
+  .bd-nav-quick a { display:flex; align-items:center; gap:8px; padding:7px 10px; color:#cbd5e1; text-decoration:none; font-size:13px; border-radius:6px; }
+  .bd-nav-quick a:hover { background:#1e293b; color:#fff; }
 
   .bd-doc-list { list-style:none; padding:0; margin:0; }
   .bd-doc-item { padding:0; }
@@ -164,7 +168,16 @@ function renderShell(adminEmail){
           <h1 class="bd-nav-title">📚 Business Docs</h1>
           <p class="bd-nav-sub">사업 방향 단일 진실 원천</p>
         </div>
-        <a href="/admin.html" class="bd-nav-back">← 관리자 콘솔</a>
+        <a href="/admin.html" class="bd-nav-back">🏢 메인 대시보드 (관리자 콘솔)</a>
+        <div class="bd-nav-quick">
+          <div class="bd-nav-quick-title">바로가기</div>
+          <a href="/admin.html#tab-hotels">🏨 호텔 관리</a>
+          <a href="/admin.html#tab-bookings">📋 예약 관리</a>
+          <a href="/admin.html#tab-members">👥 매니저 관리</a>
+          <a href="/admin.html#tab-agoda-matching">🔗 Agoda 매칭</a>
+          <a href="/admin-gallery.html">🖼️ 페이지 갤러리</a>
+          <a href="/booking-analytics.html">📊 예약 분석</a>
+        </div>
         <ul class="bd-doc-list" id="doc-list">
           ${DOCS.map((d, i) => `
             <li class="bd-doc-item">

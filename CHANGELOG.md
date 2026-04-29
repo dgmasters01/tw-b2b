@@ -5,6 +5,56 @@
 
 ---
 
+## 2026-04-29 (6차) — [리팩토링] api/admin.js 통합 라우터 — Vercel 12-function 한도 회피 (Function 카운트 12 → 9)
+
+### 변경 파일
+- `api/admin.js` (신규, ~700 lines): 4개 admin-* 핸들러를 `?action=` 라우팅으로 통합
+- `api/admin-booking-upload.js` **삭제** (→ `_backup_20260429/`)
+- `api/admin-list-users.js` **삭제** (→ `_backup_20260429/`)
+- `api/admin-send-agoda-invite.js` **삭제** (→ `_backup_20260429/`)
+- `api/admin-update-match.js` **삭제** (→ `_backup_20260429/`)
+- `admin.html`: 5건 fetch 호출을 `/api/admin?action=...` 형태로 일괄 변경
+- `_backup_20260429/` (신규): 4개 admin-* 원본 파일 보존
+
+### 변경사항
+**A. 통합 라우터 (api/admin.js)**
+- `paypal.js`와 동일한 라우터 패턴 (`switch(action)`)
+- 4개 sub-handler:
+  - `?action=booking-upload` → handleBookingUpload (TW Booking Analytics 엑셀 업로드)
+  - `?action=list-users` → handleListUsers (Supabase Auth + hotels 조인)
+  - `?action=send-invite` → handleSendInvite (Agoda 등록 안내 메일 발송)
+  - `?action=update-match` → handleUpdateMatch (Agoda 매칭 상태 수정)
+- 공통 어드민 인증 로직 `requireAdmin()`으로 통합 (4개 파일에 중복되어 있던 검증 패턴)
+- ⚠️ 라우팅 action은 query string `?action=`만 사용 (admin-update-match가 body.action을
+  내부 분기 — `manual_match`/`reject`/`reopen`/`edit_match` — 에 사용하므로 body fallback 금지)
+
+**B. admin.html 호출처 변경 (총 5건)**
+- `/api/admin-update-match` → `/api/admin?action=update-match` (2건: 라인 1264, 1413)
+- `/api/admin-send-agoda-invite` → `/api/admin?action=send-invite` (2건: 라인 1325, 1361)
+- `/api/admin-list-users` → `/api/admin?action=list-users` (1건: 라인 1480)
+- body 구조는 그대로 유지 (update-match의 body.action은 그대로 작동)
+
+**C. 배포 시퀀스 (중요한 함정)**
+- 1차 commit (accacd2d): admin.js 추가 + admin.html 수정 + 백업 생성 → 함수 13개 → ❌ 빌드 실패
+- 2차 commit (f8e858cd): 4개 admin-* 원본 삭제 → 함수 9개 → ✅ 빌드 성공
+- ⚠️ 향후 동일 작업 시: 통합 추가와 원본 삭제는 단일 commit에 묶거나, 빌드 실패를 받아들이고 즉시 후속 commit 진행
+
+### 검증 결과
+- production curl 4개 action 모두 401 (Missing auth token) 응답 → 라우팅 작동 확인
+- action 미지정 시 400 + `missing_action` 안내 + 허용 action 4개 명시
+- Function 카운트: 12 → 9 (여유 3슬롯 확보)
+
+### 사유
+- Vercel Hobby 플랜 12-function 한도 도달, 추가 기능 개발 시마다 한도 초과 위험
+- admin-* 4개가 동일한 어드민 인증 패턴을 중복 보유 → 통합으로 코드 중복 제거 + 함수 카운트 절약
+- 데드라인 2026-05-03 (D-4)에 새 기능 추가 시 슬롯 여유 확보 필수
+
+### 관련 이슈
+- 직전 4fb3860d (api/lib → api/_lib) 도 동일한 12-function 회피 작업의 일환
+- paypal.js의 router 패턴이 그대로 검증된 표준이 됨
+
+---
+
 ## 2026-04-29 (5차) — [기능추가] Page Gallery 매니저/어드민 자동 캡처 (Issue #4 부분 해결)
 
 ### 변경 파일

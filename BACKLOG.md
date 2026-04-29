@@ -18,7 +18,8 @@
 
 ---
 
-## 🔴 P0 — Admin Hotels 상세 패널 매니저 정보 누락 + 모달 닫기 불가 (2026-04-29 발견)
+## ✅ [DONE 2026-04-29] P0 — Admin Hotels 상세 패널 매니저 정보 누락 + 모달 닫기 불가
+> 해결 완료. 상세는 CHANGELOG.md 참조. 본 섹션은 다음 정리 시 DONE 섹션으로 이동.
 
 **배경**: Phase B PayPal 결제 검증 직후 발견. 어드민이 Hotels 탭 → View 클릭 시 호텔 상세 패널이 열리는데, 매니저 정보 3개 필드가 모두 빈 값(`-`)으로 표시됨.
 
@@ -326,10 +327,10 @@
 
 ## 🟡 P2 — Admin Console UI 버그
 
-### Issue #3: Hotels 목록의 MANAGER 컬럼 비어있음
+### Issue #3: Hotels 목록의 MANAGER 컬럼 비어있음 ✅ [DONE 2026-04-29]
 **현상**: Admin Console > Hotels > Hotel Partners 목록에서 MANAGER 컬럼이 "-"로 표시됨. 매니저 정보(이지형 / leejifilm@hanmail.net)가 표시되어야 함.
 
-**원인 추정**: `loadAll()` 또는 `renderHotels()`에서 contact_name/contact_email 필드 누락. 또는 manager_email JOIN 누락.
+**원인**: 컬럼명 불일치 — hotel-info.html은 `contact_name`/`contact_email`/`contact_phone` 저장, admin.html은 `manager_email`/`manager_name`/`manager_phone` 조회 → admin.html에 fallback 추가로 해결 (CHANGELOG 2026-04-29 참조).
 
 **관련 파일**: `admin.html`
 
@@ -405,6 +406,14 @@
 ## ✅ DONE
 
 ### 2026-04-29
+- ✅ **[P0 버그수정] Admin Hotels 상세 패널 매니저 정보 누락 + 모달 X 버튼 미동작**
+  - 모달 X 버튼 핸들러 capture 단계 + stopPropagation으로 강화
+  - ESC 키 닫기 추가, 외부 overlay 클릭 닫기 유지
+  - Hotels 목록 + 상세 패널의 매니저 정보 fallback 추가 (`contact_*` 컬럼 우선 활용)
+  - 컬럼명 불일치 문제 해결 (DB 변경 없이 코드만 수정)
+  - 동시 해결: P2 Issue #3 (Hotels 목록 MANAGER 컬럼 비어있음)
+  - 변경 파일: `admin.html`, `CHANGELOG.md` 신설
+
 - ✅ **PayPal 결제 시스템 완전 작동 검증**
   - 첫 결제 성공: $200 USD, capture_id `85V07166676483251`, hotel `Lotte Hotel Seattle`
   - 결제 데이터 DB 정상 저장 (수동 복구 후 자동 표시)

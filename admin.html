@@ -1616,10 +1616,37 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
     });
   });
 
-  $('modal-close').addEventListener('click', closeModal);
-  $('modal').addEventListener('click', function(e){
-    if (e.target === $('modal')) closeModal();
-  });
+  // [버그수정 2026-04-29] 모달 X 버튼 클릭 안 되는 문제 → 다중 보호 핸들러
+  // 1) X 버튼 직접 핸들러 (capture 단계, stopPropagation으로 외부클릭 핸들러 충돌 방지)
+  // 2) ESC 키 핸들러
+  // 3) 모달 외부(overlay) 클릭 핸들러
+  // 4) 이벤트 위임: modal-body 내부 동적 요소가 X 버튼 위에 겹치는 경우 대비
+  (function(){
+    var modalEl = $('modal');
+    var closeBtn = $('modal-close');
+
+    if (closeBtn) {
+      closeBtn.addEventListener('click', function(e){
+        e.preventDefault();
+        e.stopPropagation();
+        closeModal();
+      }, true); // capture 단계로 우선순위 확보
+    }
+
+    // 외부 overlay 클릭 시 닫기
+    if (modalEl) {
+      modalEl.addEventListener('click', function(e){
+        if (e.target === modalEl) closeModal();
+      });
+    }
+
+    // ESC 키로 닫기 (전역)
+    document.addEventListener('keydown', function(e){
+      if (e.key === 'Escape' && modalEl && modalEl.classList.contains('show')) {
+        closeModal();
+      }
+    });
+  })();
 
   function loadAll(){
     $('hotels-area').innerHTML = '<div class="ad-loading"><div class="ad-loader"></div><span>Loading...</span></div>';
@@ -1675,7 +1702,10 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
       html += '<td><strong>' + esc(h.hotel_name || 'Unnamed') + '</strong>';
       if (h.address) html += '<br><span style="color:#888;font-size:11.5px">' + esc(h.address.substring(0, 50)) + (h.address.length > 50 ? '...' : '') + '</span>';
       html += '</td>';
-      html += '<td>' + esc(h.manager_email || '-') + '<br><span style="color:#888;font-size:11.5px">' + esc(h.manager_name || '') + '</span></td>';
+      // [버그수정 2026-04-29] 매니저 정보 컬럼명: hotel-info.html이 contact_* 사용 → manager_* fallback
+      var mEmail = h.manager_email || h.contact_email || '-';
+      var mName = h.manager_name || h.contact_name || '';
+      html += '<td>' + esc(mEmail) + '<br><span style="color:#888;font-size:11.5px">' + esc(mName) + '</span></td>';
       html += '<td><span class="ad-status" style="background:' + T.fmt.statusColor(h.status) + '">' + T.fmt.statusLabel(h.status) + '</span></td>';
       html += '<td>' + (h.star_rating ? T.fmt.stars(h.star_rating) : '-') + '</td>';
       html += '<td>' + (h.daily_rate ? T.fmt.money(h.daily_rate, h.currency) : '-') + '</td>';
@@ -1703,9 +1733,10 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
 
     var rows = [];
     rows.push(dk('Status', '<span class="ad-status" style="background:' + T.fmt.statusColor(h.status) + '">' + T.fmt.statusLabel(h.status) + '</span>'));
-    rows.push(dk('Manager Email', esc(h.manager_email || '-')));
-    rows.push(dk('Manager Name', esc(h.manager_name || '-')));
-    rows.push(dk('Manager Phone', esc(h.manager_phone || '-')));
+    // [버그수정 2026-04-29] hotel-info.html이 contact_email/contact_name/contact_phone에 저장 → fallback 처리
+    rows.push(dk('Manager Email', esc(h.manager_email || h.contact_email || '-')));
+    rows.push(dk('Manager Name', esc(h.manager_name || h.contact_name || '-')));
+    rows.push(dk('Manager Phone', esc(h.manager_phone || h.contact_phone || h.whatsapp || '-')));
     rows.push(dk('Hotel Name', esc(h.hotel_name || '-')));
     rows.push(dk('Stars', h.star_rating ? T.fmt.stars(h.star_rating) : '-'));
     rows.push(dk('Review', h.review_score ? (h.review_score + '/10 (' + (h.review_count || 0) + ' reviews)') : '-'));

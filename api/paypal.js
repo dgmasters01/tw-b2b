@@ -112,6 +112,33 @@ async function updatePaymentByCaptureId(captureId, patch) {
   return { ok: resp.ok, status: resp.status, data };
 }
 
+// 결제 성공 후 hotels.status를 'paid'로 전환
+// 이미 'paid' 이상 상태인 경우(producing/published) 변경 안 함 (역행 방지)
+async function transitionHotelToPaid(hotelId) {
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!serviceKey) throw new Error('SUPABASE_SERVICE_ROLE_KEY not configured');
+  if (!hotelId) return { ok: false, reason: 'no_hotel_id' };
+  // approved 상태인 호텔만 paid로 전환 (다른 상태에서는 변경 안 함)
+  const resp = await fetch(
+    SUPABASE_URL + '/rest/v1/hotels?id=eq.' + encodeURIComponent(hotelId) + '&status=eq.approved',
+    {
+      method: 'PATCH',
+      headers: {
+        'Authorization': 'Bearer ' + serviceKey,
+        'apikey': serviceKey,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=representation',
+      },
+      body: JSON.stringify({
+        status: 'paid',
+        paid_at: new Date().toISOString(),
+      }),
+    }
+  );
+  const data = await resp.json().catch(() => ({}));
+  return { ok: resp.ok, status: resp.status, data, updated_count: Array.isArray(data) ? data.length : 0 };
+}
+
 async function readRawBody(req) {
   return new Promise((resolve, reject) => {
     let data = '';
@@ -265,6 +292,31 @@ async function handleCaptureOrder(req, res) {
     }).catch(() => {});
   }
 
+  // 결제 성공 → hotels.status를 'paid'로 자동 전환
+  // (approved 상태인 경우만, 멱등 처리)
+  let hotelTransition = { ok: false, updated_count: 0 };
+  try {
+    hotelTransition = await transitionHotelToPaid(hotelId);
+  } catch (e) {
+    console.error('hotel status transition failed:', e);
+  }
+  if (!hotelTransition.ok || hotelTransition.updated_count === 0) {
+    // 이미 paid 이상이면 정상 (재호출/already_captured 케이스).
+    // 그 외 실패는 ops 알림 (결제는 성공, status 미전환 → 매니저는 marketing.html 못 봄)
+    if (!alreadyCaptured) {
+      sendOpsEmail({
+        subject: '[TW B2B] ⚠️ PayPal 결제 OK / hotels.status 전환 실패 — 수동 확인',
+        html: '<h2>결제는 완료, status 전환 실패</h2>'
+          + '<p><strong>hotel_id:</strong> ' + hotelId + '</p>'
+          + '<p><strong>capture_id:</strong> ' + (captureId || '-') + '</p>'
+          + '<p><strong>updated_count:</strong> ' + hotelTransition.updated_count + ' (0이면 호텔이 approved 아니거나 이미 paid 이상)</p>'
+          + '<p><strong>raw:</strong> <pre>' + JSON.stringify(hotelTransition.data || {}, null, 2) + '</pre></p>'
+          + '<p>매니저가 marketing.html 접근 못 할 수 있음. admin.html에서 호텔 status 수동 확인 필요.</p>',
+        text: 'PayPal 결제 OK, hotels.status 전환 실패. hotel_id=' + hotelId,
+      }).catch(() => {});
+    }
+  }
+
   if (!alreadyCaptured) {
     sendOpsEmail({
       subject: '[TW B2B] 💰 PayPal 결제 완료 — ' + (hotel.hotel_name || hotelId),
@@ -276,6 +328,7 @@ async function handleCaptureOrder(req, res) {
         + '<tr><td style="padding:6px 12px"><strong>order_id</strong></td><td style="padding:6px 12px"><code>' + orderId + '</code></td></tr>'
         + '<tr><td style="padding:6px 12px"><strong>capture_id</strong></td><td style="padding:6px 12px"><code>' + (captureId || '-') + '</code></td></tr>'
         + '<tr><td style="padding:6px 12px"><strong>환경</strong></td><td style="padding:6px 12px">' + getPayPalEnv() + '</td></tr>'
+        + '<tr><td style="padding:6px 12px"><strong>status 전환</strong></td><td style="padding:6px 12px">' + (hotelTransition.updated_count > 0 ? '✅ approved → paid' : '⚠️ 변경 없음 (수동 확인)') + '</td></tr>'
         + '</tbody></table>',
       text: 'PayPal 결제 완료: ' + (hotel.hotel_name || hotelId) + ' / $' + amountValue + ' / order=' + orderId,
     }).catch(() => {});
@@ -289,6 +342,7 @@ async function handleCaptureOrder(req, res) {
     amount: amountValue,
     currency: currencyCode,
     already_captured: alreadyCaptured,
+    hotel_status_updated: hotelTransition.updated_count > 0,
   });
 }
 

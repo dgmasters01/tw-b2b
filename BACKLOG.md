@@ -1,65 +1,65 @@
 # TW B2B — 작업 백로그 (이슈 트래킹)
 
 > 라이브 사이트 검증 중 발견된 모든 이슈/누락사항을 추적합니다.
-> 우선순위: P0(긴급) > P1(중요) > P2(개선)
-> 처리 완료 시 `[DONE]` 마크 후 하단으로 이동.
+> 우선순위: **P0(긴급)** > **P1(중요)** > **P2(개선)**
+> 처리 완료 시 `[DONE]` 마크 후 하단 DONE 섹션으로 이동.
 
-**마지막 업데이트**: 2026-04-28 (PayPal 결제 테스트 진행 중)
+**마지막 업데이트**: 2026-04-29
 
----
-
-## 🔴 P0 — Vercel 환경변수 SUPABASE_ANON_KEY 누락 (2026-04-28 발견, 해결 진행 중)
-
-**현상**: 매니저가 로그인 직후에도 PayPal 결제 시 `/api/paypal?action=create-order` 가 401 Unauthorized 반환. PayPal SDK는 createOrder 실패 시 결제 창 즉시 닫음.
-
-**진짜 원인**: `api/paypal.js`의 `verifyUser()` 함수가 Supabase Auth 토큰 검증 시 `apikey` 헤더에 `process.env.SUPABASE_ANON_KEY` 또는 `SUPABASE_PUBLISHABLE_KEY` 사용. 그러나 Vercel에 둘 다 등록되어 있지 않아 빈 문자열로 호출 → Supabase Auth가 401 거부.
-
-**해결**:
-- Vercel 환경변수 추가: `SUPABASE_ANON_KEY=sb_publishable_IluITb52iuwwHf9xgP99MA__KX-sNM6` (Production+Preview+Development)
-- Vercel 재배포 (Deployments → Redeploy)
-- ⚠️ 다른 API endpoint (admin, hotels CRUD 등)에서도 같은 패턴 사용한다면 함께 영향. 모든 endpoint 점검 필요.
+> 💡 **새 채팅 시작 시**: 이 파일 + `PAGES.md` (admin-gallery.html에서 시각 확인) + `CHANGELOG.md` 3개를 먼저 보면 즉시 컨텍스트 파악 가능.
 
 ---
 
-## 🔴 P1 — 세션 토큰 자동 갱신 실패 (2026-04-28 발견)
+## 🔴 P0 — 페이지 흐름 재설계 (2026-04-29 결정)
 
-**현상**: 매니저 로그인 후 30분~1시간 정도 페이지에 머물면, PayPal 결제 시도 시 `/api/paypal?action=create-order` 가 **401 Unauthorized** 반환. PayPal Buttons error: "Unauthorized".
+**배경**: 결제 검증 중 발견 — 현재 dashboard.html에 결제 박스가 노출되는 흐름이 비즈니스적으로 비효율. 결제 후에도 결제 박스가 그대로 보여 중복 결제 위험.
 
-**원인 추정**: Supabase JS SDK의 자동 토큰 갱신 (`auto_refresh_token`)이 dashboard.html에서 작동하지 않거나, refresh token 만료. 사용자가 수동으로 sign out → 재로그인 해야 복구됨.
+**대표님이 원하는 흐름**:
+```
+가입 → 호텔 등록 → 관리자 승인
+  → [세일즈 페이지] (sales.html) — 우리 가치 어필 + 결제 CTA
+  → 결제
+  → [매니저 성과 페이지] (marketing.html) — 영상 진행 / 채널 통계 / 인보이스 다운로드
+```
 
-**임시 해결**: 사용자에게 재로그인 요청.
+**작업 항목**:
+1. **sales.html 신설** — 6언어 채널 / 1회 투자 영구 노출 / 신뢰 지표 / 결제 CTA. status=approved 매니저가 보는 페이지.
+2. **marketing.html 신설** — 영상 제작 진행 / 채널별 노출 통계 / 인보이스 PDF 다운로드. status=paid/producing/published 매니저가 보는 페이지.
+3. **dashboard.html 단순화** — 진행 단계 + 호텔 정보 + status별 "다음 단계로" 버튼만. 결제 박스 제거 (sales.html로 이전).
+4. **status별 자동 라우팅** —
+   - `pending`/`review` → dashboard
+   - `approved` → sales.html (자동 redirect)
+   - `paid`/`producing`/`published` → marketing.html
 
-**근본 해결 필요**:
-1. `T.sb` 초기화 시 `autoRefreshToken: true` 명시 확인
-2. `getAuthHeader()` 함수에서 토큰 만료 감지 → 자동 refresh 시도 → 그래도 실패하면 강제 로그아웃 + 재로그인 안내
-3. 또는 PayPal create-order 401 응답 시 프론트에서 토큰 refresh 후 재시도
+**참고**: 이전 채팅에서 비슷한 페이지를 만든 적이 있다고 대표님이 기억하셨으나, GitHub repo 검색 결과 존재하지 않음. 작업 도중 손실되었거나 다른 repo였을 가능성. 새로 깨끗하게 만드는 것으로 결정.
 
-**관련 파일**: `dashboard.html` line 422 (`getAuthHeader`), `assets/js/sb.js` 또는 Supabase 초기화 부분
+**관련 파일**: `dashboard.html`, `admin-gallery.html` (planned 상태로 표시)
 
 ---
 
 ## 🔴 P1 — 자동 알림 메일 시스템 누락
 
-**배경**: 호텔 상태 변경 시 매니저에게 자동 알림 메일이 발송되어야 하는데, admin.html의 `changeStatus()` 함수에서 DB만 업데이트하고 메일 발송 로직이 없음.
+**배경**: 호텔 상태 변경 시 매니저에게 자동 알림 메일이 발송되어야 하는데, `admin.html`의 `changeStatus()` 에서 DB만 업데이트하고 메일 발송 로직 없음.
 
 **현재 동작 중인 메일** (정상):
 - ✅ 회원가입 인증 메일
 - ✅ ops 알림 메일 (`/api/email/ops/notify-claude-work`)
-- ✅ 결제 완료 시 PayPal 인보이스 메일 (paypal.js의 capture-order에 구현됨)
+- ✅ 결제 완료 시 ops 메일 (`/api/paypal` capture-order)
+- ✅ DB 저장 실패 시 ops 긴급 메일
 
-**누락된 매니저 알림 메일** (Resend 통한 sendSystemEmail 추가 필요):
+**누락된 매니저 알림 메일**:
 1. 호텔 등록 시 → "Hotel registered, under review"
-2. 호텔 승인 시 (`approved`) → "Approved! Please complete payment"
+2. 호텔 승인 시 (`approved`) → "Approved! Please complete payment" + sales.html 링크
 3. 호텔 거절 시 (`rejected`) → "Registration not approved — reason"
-4. review 전환 시 → "Your hotel is being reviewed"
+4. 결제 완료 시 (`paid`) → 인보이스 PDF 첨부 + marketing.html 링크
 5. production 시작 시 (`producing`) → "Production started! Estimated delivery: X days"
-6. published 시 → "🎉 Your video is live!"
+6. published 시 → "🎉 Your video is live!" + 영상 링크
 
 **작업 위치**:
-- `admin.html` line 1767 `changeStatus()` 함수에 메일 발송 추가
-- `hotel-info.html` line 918 `btn-save` 핸들러의 createHotel 직후
+- `admin.html` `changeStatus()` 함수에 메일 발송 추가
+- `hotel-info.html` `btn-save` 핸들러의 createHotel 직후
+- `api/paypal.js` capture-order 성공 후 매니저 인보이스 메일 발송
 - 새 파일: `api/email/system/notify-status-change.js` (Resend 연동)
-- 또는 기존 ops endpoint 패턴 재사용
 
 ---
 
@@ -99,9 +99,9 @@
 **진단**: Google Safe Browsing — 2020-04-08 멀웨어 페이지 보관 이력 (이전 도메인 소유자 흔적). 현재 데이터 없음. Chrome 캐시 잔존.
 
 **해결 옵션**:
-- **A. Chrome 캐시 정리** (5분): `chrome://safebrowsing/` → Refresh Lists
-- **B. Google Search Console 재검토 요청** (24~72시간)
-- **C. 새 도메인 전환** (가장 안전, $10~20): `travelwinners.io` 등
+- A. Chrome 캐시 정리 (5분): `chrome://safebrowsing/` → Refresh Lists
+- B. Google Search Console 재검토 요청 (24~72시간)
+- C. 새 도메인 전환 (가장 안전, $10~20): `travelwinners.io` 등
 
 **현재 영향**: 대표님 본인 환경만. 다른 사용자에게는 영향 없음 추정.
 **결정 시점**: 매니저 영업 시작 전 (B 또는 C 권장)
@@ -160,4 +160,31 @@
 ---
 
 ## ✅ DONE
-(완료 항목은 날짜와 함께 여기로 이동)
+
+### 2026-04-29
+- ✅ **PayPal 결제 시스템 완전 작동 검증**
+  - 첫 결제 성공: $200 USD, capture_id `85V07166676483251`, hotel `Lotte Hotel Seattle`
+  - 결제 데이터 DB 정상 저장 (수동 복구 후 자동 표시)
+  - 호텔 status: approved → paid 자동 변경 트리거 작동 (수정 후)
+
+- ✅ **PayPal 통합 4가지 critical 버그 수정**
+  1. `SUPABASE_ANON_KEY` Vercel 환경변수 추가 (401 해결)
+  2. `payee.merchant_id`를 sandbox에서는 보내지 않도록 수정 (PAYEE_ACCOUNT_INVALID 해결)
+  3. payment status 매핑: `'completed'` → `'succeeded'` (DB CHECK 제약 위반 해결)
+  4. 트리거 함수 `sync_hotel_paid_status` 조건 `'completed'` → `'succeeded'` 동기화
+
+- ✅ **`mapPayPalStatusToDb()` 헬퍼 추가** — PayPal status 5종을 DB 허용 status 5종으로 안전 매핑
+
+- ✅ **Page Gallery 시스템 신설** (admin-gallery.html)
+  - 모든 페이지 시각적 한눈 보기 + status 분류 + 라이브 링크 + BEFORE/AFTER 모달
+  - 자동 캡처 스크립트 (`scripts/capture-pages.mjs`) - Playwright 기반
+  - 페이지 메타데이터 단일 소스 (`scripts/pages-meta.mjs`)
+  - admin.html 사이드바에 Page Gallery 메뉴 추가
+  - **6개 public 페이지 자동 캡처 완료** (index/signup/login/forgot/reset/verify)
+
+### 2026-04-28
+- ✅ **Phase 3 Step C — PayPal Checkout 통합** (단일 router, 67/67 검증 통과)
+- ✅ Supabase Management API 자동 SQL 실행 워크플로 정착
+- ✅ Vercel 환경변수 5종 등록 (PayPal sandbox+live + merchant ID)
+- ✅ PayPal Sandbox Webhook 등록 + 5개 이벤트 구독
+- ✅ 호텔 등록 → 관리자 승인 → 결제 흐름 라이브 검증

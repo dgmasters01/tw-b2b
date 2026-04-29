@@ -24,6 +24,18 @@ const PRODUCT_DESCRIPTION = 'TravelWinners B2B - 6-Language YouTube Video Produc
 // 공통 헬퍼
 // =============================================================
 
+// PayPal capture status (UPPERCASE)를 DB 허용 status (lowercase)로 안전하게 매핑
+// DB 허용: 'pending','succeeded','failed','refunded','canceled'
+function mapPayPalStatusToDb(paypalStatus) {
+  const s = String(paypalStatus || '').toUpperCase();
+  if (s === 'COMPLETED') return 'succeeded';
+  if (s === 'PENDING') return 'pending';
+  if (s === 'DECLINED' || s === 'FAILED') return 'failed';
+  if (s === 'REFUNDED' || s === 'PARTIALLY_REFUNDED') return 'refunded';
+  if (s === 'VOIDED' || s === 'CANCELED' || s === 'REVERSED') return 'canceled';
+  return 'pending'; // unknown은 안전하게 pending으로
+}
+
 async function verifyUser(accessToken) {
   if (!accessToken) return null;
   try {
@@ -212,7 +224,7 @@ async function handleCaptureOrder(req, res) {
       amount: parseFloat(amountValue),
       currency: currencyCode,
       method: 'paypal',
-      status: captureStatus.toLowerCase() || 'pending',
+      status: mapPayPalStatusToDb(captureStatus),
       paypal_order_id: orderId,
       paypal_capture_id: captureId,
       paypal_payer_email: payerEmail,
@@ -229,7 +241,7 @@ async function handleCaptureOrder(req, res) {
     amount: parseFloat(amountValue),
     currency: currencyCode,
     method: 'paypal',
-    status: 'completed',
+    status: 'succeeded',
     paypal_order_id: orderId,
     paypal_capture_id: captureId,
     paypal_payer_email: payerEmail,
@@ -271,7 +283,7 @@ async function handleCaptureOrder(req, res) {
 
   return res.status(200).json({
     ok: true,
-    status: 'completed',
+    status: 'succeeded',
     order_id: orderId,
     capture_id: captureId,
     amount: amountValue,
@@ -311,7 +323,7 @@ async function handleWebhook(req, res, rawBody) {
       case 'PAYMENT.CAPTURE.COMPLETED': {
         const captureId = resource.id;
         await updatePaymentByCaptureId(captureId, {
-          status: 'completed',
+          status: 'succeeded',
           metadata: { ...resource, webhook_event: eventType },
         });
         break;
@@ -319,8 +331,8 @@ async function handleWebhook(req, res, rawBody) {
       case 'PAYMENT.CAPTURE.DENIED': {
         const captureId = resource.id;
         await updatePaymentByCaptureId(captureId, {
-          status: 'denied',
-          metadata: { ...resource, webhook_event: eventType },
+          status: 'failed',
+          metadata: { ...resource, webhook_event: eventType, paypal_status: 'DENIED' },
         });
         sendOpsEmail({
           subject: '[TW B2B] ⚠️ PayPal 결제 거부됨 (DENIED)',
@@ -350,8 +362,8 @@ async function handleWebhook(req, res, rawBody) {
       case 'PAYMENT.CAPTURE.REVERSED': {
         const captureId = resource.id;
         await updatePaymentByCaptureId(captureId, {
-          status: 'reversed',
-          metadata: { ...resource, webhook_event: eventType },
+          status: 'canceled',
+          metadata: { ...resource, webhook_event: eventType, paypal_status: 'REVERSED' },
         });
         sendOpsEmail({
           subject: '[TW B2B] ⚠️ PayPal 결제 리버설 (REVERSED) — 수동 검토 필요',

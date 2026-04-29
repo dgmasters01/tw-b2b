@@ -808,7 +808,37 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
 <script>
 (function(){
   var T = window.TW;
-  var $ = T.$;
+  // [버그수정 2026-04-29] $ 헬퍼 null-safe 버전 — element 없을 때 no-op proxy 반환
+  // 여러 탭 핸들러가 한 IIFE에 직렬 등록되는 구조에서 단일 null이 페이지 전체 JS를 중단시키는 문제 영구 차단
+  var _origDollar = T.$;
+  var _noopEl = (function(){
+    var nopFn = function(){};
+    var p = {
+      addEventListener: nopFn, removeEventListener: nopFn, click: nopFn,
+      focus: nopFn, blur: nopFn, setAttribute: nopFn, removeAttribute: nopFn,
+      getAttribute: function(){ return null; },
+      classList: { add: nopFn, remove: nopFn, toggle: nopFn, contains: function(){ return false; } },
+      style: {},
+      textContent: '', innerHTML: '', value: '', disabled: false,
+      _isNoop: true
+    };
+    // 일반적인 dom 속성 접근 시 undefined 반환되어도 괜찮도록 Proxy로 감쌈
+    return (typeof Proxy !== 'undefined') ? new Proxy(p, {
+      get: function(target, prop){
+        if (prop in target) return target[prop];
+        return nopFn; // 알려지지 않은 메서드/속성은 no-op 함수로 응답
+      },
+      set: function(){ return true; }
+    }) : p;
+  })();
+  var $ = function(id){
+    var el = _origDollar(id);
+    if (el) return el;
+    if (typeof console !== 'undefined' && console.warn) {
+      console.warn('[admin.html] missing element: #' + id + ' — using no-op fallback');
+    }
+    return _noopEl;
+  };
   var allHotels = [];
 
   // [Phase 3 Step 5] Tab-level dirty flags. Set when hotels table changes (cross-tab or same-tab).

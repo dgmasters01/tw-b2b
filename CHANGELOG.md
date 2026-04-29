@@ -5,6 +5,40 @@
 
 ---
 
+## 2026-04-29 (3차) — [버그수정] `$` 헬퍼 자체를 null-safe로 영구 보강 (P0 종결)
+
+### 변경 파일
+- `admin.html` (L811 부근, `$` 헬퍼 재정의)
+
+### 발견 경위
+2차 fix(a63b30f) 라이브 검증에서 또 다른 trip-wire 발견:
+```
+Uncaught TypeError: Cannot read properties of null (reading 'addEventListener')
+  at admin.html:1289:25
+```
+2차에서 am-match/am-invite/am-reject **모달 닫기** 핸들러는 null-safe 처리했으나, `am-invite-preview`(L1289), `am-invite-send`, `am-reject-submit` 등 **버튼 핸들러**들은 여전히 raw 패턴이었음. 이런 직렬 등록 구조에서는 단 하나의 null이 전체 JS를 중단시킴.
+
+### 변경사항
+admin.html 진입점에서 사용하는 `$` 헬퍼를 **null-safe wrapper로 영구 교체**:
+- 정상 element가 있으면 그대로 반환
+- 없으면 no-op Proxy 객체 반환 (addEventListener, focus, classList 등 모든 흔한 DOM 메서드를 silent no-op로 응답)
+- console.warn으로 누락 element ID를 로그에 남겨 추후 진단 가능
+
+### 변경 사유
+- 21개 위치의 `$('id').addEventListener(...)` 패턴을 일일이 null-safe로 감싸는 대신, 헬퍼 한 곳만 수정하여 **모든 위치를 영구 면역**시키는 근본 해결.
+- shared.js는 건드리지 않음 (다른 페이지 영향 차단).
+- Proxy 미지원 환경(IE 등)은 fallback plain object로 graceful degradation.
+
+### 검증
+- JS 문법 PASS
+- noop proxy / Proxy 키워드 라이브 매치
+- 누락 element는 console.warn 로그로 추후 디버깅 가능
+
+### 잔여 (P1, 별도 처리)
+- `Failed to load resource: 500 (vjsludfjsphwnumuoqaj.../ers01%40gmail.com:1)` — Supabase auth.users 또는 admin endpoint 500. 매니저 정보 표시 정상 작동 → 핵심 기능 영향 없음.
+
+---
+
 ## 2026-04-29 (2차) — [버그수정] Agoda Matching 모달 핸들러 null-safe 처리 (P0 추가)
 
 ### 변경 파일

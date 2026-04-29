@@ -119,28 +119,36 @@
    - hotels.agoda_hotel_id ↔ booking.hotel_id 매칭
    - 매니저 결제 호텔에 한해서만 노출
 
-2. **API 신설**: `/api/hotel-bookings.js`
+2. **채널 매핑 시스템** ⭐ 2026-04-29 추가
+   - `channel_cid_map` 테이블 신설
+   - 6개 채널 ↔ Agoda CID 매핑
+   - bookings.cid → bookings.channel_id 자동 변환
+   - "기타 채널" 폴백 처리
+
+3. **API 신설**: `/api/hotel-bookings.js`
    - 본인 호텔 예약만 조회 (RLS)
    - 개인정보 자동 마스킹 (이름/이메일/전화 제거)
-   - 예약번호/날짜/금액/국가만 반환
+   - 예약번호/날짜/금액/국가/**채널/유입 영상** 반환
 
-3. **marketing.html 핵심 섹션**:
+4. **marketing.html 핵심 섹션**:
    - "📞 8건의 예약이 발생했습니다" (1순위, 가장 크게)
    - "💰 추정 매출 / ROI"
-   - "[예약 상세 보기]" 펼침 → 예약번호 목록
+   - "[예약 상세 보기]" 펼침 → 예약번호 + **채널 정보** 목록
+   - **채널별 전환 분석** (한국어 5건, 영어 3건...) ⭐
    - "Agoda Partner Hub에서 직접 확인하세요" 링크
 
-4. **자동 매출 계산**:
+5. **자동 매출 계산**:
    - 평균 객실 단가 × 박수 × 예약 건수
    - ROI = 추정 매출 / $200
+   - **채널별 매출 합계** 자동 계산 ⭐
 
-5. **개인정보 처리**:
+6. **개인정보 처리**:
    - GDPR / 개인정보보호법 준수
    - 매니저는 본인 호텔만 (RLS 정책)
 
-**관련 문서**: BUSINESS.md §7-D 신설
+**관련 문서**: BUSINESS.md §7-D 신설, 결정 1-J + 1-K
 
-**관련 파일**: `api/hotel-bookings.js` (신설), `marketing.html` (예약 섹션), TW Booking Analytics DB 연결
+**관련 파일**: `api/hotel-bookings.js` (신설), `marketing.html` (예약 섹션), TW Booking Analytics DB 연결, `channel_cid_map` 테이블
 
 **예상 작업 시간**: 2~3시간 (중간 작업)
 

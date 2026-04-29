@@ -489,10 +489,20 @@ export default async function handler(req, res) {
   const url = new URL(req.url || '/', 'http://x');
   const action = (url.searchParams.get('action') || '').toLowerCase();
 
+  // 화이트리스트 검증을 인증보다 먼저 수행 → 디버깅 시 라우팅 문제와 인증 문제를 명확히 분리
+  const ALLOWED_ACTIONS = ['booking-upload', 'list-users', 'send-invite', 'update-match'];
   if (!action) {
     return res.status(400).json({
       error: 'missing_action',
-      allowed: ['booking-upload', 'list-users', 'send-invite', 'update-match'],
+      allowed: ALLOWED_ACTIONS,
+      hint: 'Use ?action=<name> in query string'
+    });
+  }
+  if (!ALLOWED_ACTIONS.includes(action)) {
+    return res.status(400).json({
+      error: 'unknown_action',
+      received: action,
+      allowed: ALLOWED_ACTIONS,
       hint: 'Use ?action=<name> in query string'
     });
   }
@@ -514,12 +524,8 @@ export default async function handler(req, res) {
       case 'update-match':
         return await handleUpdateMatch(req, res, serviceKey, adminCheck);
       default:
-        return res.status(400).json({
-          error: 'unknown_action',
-          received: action,
-          allowed: ['booking-upload', 'list-users', 'send-invite', 'update-match'],
-          hint: 'Use ?action=<name> in query string'
-        });
+        // unreachable: 위에서 화이트리스트로 이미 차단됨
+        return res.status(500).json({ error: 'router_inconsistency', received: action });
     }
   } catch (err) {
     console.error('admin router error:', err);

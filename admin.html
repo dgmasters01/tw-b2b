@@ -1261,7 +1261,7 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
       var token = await getAuthToken();
       if (!token) { btn.disabled = false; btn.textContent = 'Save Match'; T.toast('Auth token missing.', true); return; }
       var isEdit = (amCurrentHotel.agoda_match_status === 'auto_matched' || amCurrentHotel.agoda_match_status === 'manual_matched');
-      var resp = await fetch('/api/admin-update-match', {
+      var resp = await fetch('/api/admin?action=update-match', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
         body: JSON.stringify({
@@ -1322,7 +1322,7 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
     try {
       var token = await getAuthToken();
       if (!token) { btn.disabled = false; btn.textContent = 'Preview Email'; T.toast('Auth token missing.', true); return; }
-      var resp = await fetch('/api/admin-send-agoda-invite', {
+      var resp = await fetch('/api/admin?action=send-invite', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
         body: JSON.stringify({
@@ -1358,7 +1358,7 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
     try {
       var token = await getAuthToken();
       if (!token) { btn.disabled = false; btn.textContent = 'Send Invite'; T.toast('Auth token missing.', true); return; }
-      var resp = await fetch('/api/admin-send-agoda-invite', {
+      var resp = await fetch('/api/admin?action=send-invite', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
         body: JSON.stringify({
@@ -1410,7 +1410,7 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
     try {
       var token = await getAuthToken();
       if (!token) { btn.disabled = false; btn.textContent = 'Reject'; T.toast('Auth token missing.', true); return; }
-      var resp = await fetch('/api/admin-update-match', {
+      var resp = await fetch('/api/admin?action=update-match', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
         body: JSON.stringify({
@@ -1477,7 +1477,7 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
     try {
       var session = await T.sb.auth.getSession();
       var token = session.data.session ? session.data.session.access_token : '';
-      var resp = await fetch('/api/admin-list-users', {
+      var resp = await fetch('/api/admin?action=list-users', {
         headers: { 'Authorization': 'Bearer ' + token }
       });
       var data = await resp.json();

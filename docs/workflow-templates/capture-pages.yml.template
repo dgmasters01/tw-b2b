@@ -1,0 +1,94 @@
+name: Capture Pages
+
+# 매뉴얼 실행 또는 main 브랜치에 push되어 라이브 사이트에 변경이 반영된 후 트리거
+# secrets 등록 (대표님 복귀 후 1회):
+#   TW_MANAGER_EMAIL    = joylife8760@naver.com
+#   TW_MANAGER_PASSWORD = (해당 매니저 계정 비밀번호)
+#   TW_ADMIN_EMAIL      = dgmasters01@gmail.com
+#   TW_ADMIN_PASSWORD   = (어드민 계정 비밀번호)
+#
+# 등록 위치: https://github.com/dgmasters01/tw-b2b/settings/secrets/actions
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: '캡처 모드'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - public
+          - manager
+          - admin
+
+  # main 브랜치 push 후 60초 후 자동 실행 (Vercel 배포 완료 시간 확보)
+  # 자주 안 돌아도 되도록 페이지 메타나 주요 HTML 변경 시에만 트리거
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'login.html'
+      - 'signup.html'
+      - 'dashboard.html'
+      - 'hotel-info.html'
+      - 'settings.html'
+      - 'admin.html'
+      - 'admin-gallery.html'
+      - 'admin-business.html'
+      - 'booking-analytics.html'
+      - 'forgot-password.html'
+      - 'reset-password.html'
+      - 'verify-email.html'
+      - 'scripts/pages-meta.mjs'
+      - 'scripts/capture-pages.mjs'
+      - '.github/workflows/capture-pages.yml'
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Wait for Vercel deployment
+        run: sleep 60
+
+      - name: Run captures
+        env:
+          TW_MANAGER_EMAIL: ${{ secrets.TW_MANAGER_EMAIL }}
+          TW_MANAGER_PASSWORD: ${{ secrets.TW_MANAGER_PASSWORD }}
+          TW_ADMIN_EMAIL: ${{ secrets.TW_ADMIN_EMAIL }}
+          TW_ADMIN_PASSWORD: ${{ secrets.TW_ADMIN_PASSWORD }}
+        run: |
+          MODE="${{ github.event.inputs.mode || 'all' }}"
+          if [ "$MODE" = "public" ]; then
+            node scripts/capture-pages.mjs
+          else
+            node scripts/capture-pages.mjs --auth=$MODE
+          fi
+
+      - name: Commit and push captures
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/screenshots/
+          if git diff --cached --quiet; then
+            echo "변경된 캡처 없음 — commit skip"
+          else
+            git commit -m "[자동캡처] 페이지 스크린샷 갱신 ($(date -u +%Y-%m-%dT%H:%MZ))"
+            git push
+          fi

@@ -5,6 +5,63 @@
 
 ---
 
+## 2026-04-29 (5차) — [기능추가] Page Gallery 매니저/어드민 자동 캡처 (Issue #4 부분 해결)
+
+### 변경 파일
+- `scripts/capture-pages.mjs` (전면 재작성: --auth 옵션, 매니저/어드민 로그인 흐름)
+- `scripts/pages-meta.mjs` (매니저 3개 + 어드민 4개 페이지를 `capture: true`로 변경)
+- `.github/workflows/capture-pages.yml` (신설: GitHub Actions 자동 캡처 워크플로)
+- `admin-gallery.html` (안내 문구 완화)
+
+### 변경사항
+**A. capture-pages.mjs 확장**
+- 새 인자: `--auth`(전체) / `--auth=manager` / `--auth=admin` / 인자 없음(public-only, 기존 동작)
+- audience별 분기 컨텍스트:
+  - public → 비로그인 컨텍스트 (기존 동작 그대로)
+  - manager → `TW_MANAGER_EMAIL`/`TW_MANAGER_PASSWORD`로 로그인 후 캡처
+  - admin → `TW_ADMIN_EMAIL`/`TW_ADMIN_PASSWORD`로 로그인 후 캡처
+- 자격증명 누락 또는 로그인 실패 시 해당 audience만 skip (전체 실패 안 함)
+- Playwright chromium 경로 자동 감지 (컨테이너 사전설치 / Actions 기본 설치 모두 지원)
+
+**B. pages-meta.mjs**
+- dashboard.html, hotel-info.html, settings.html → `capture: true` (manager)
+- admin.html, booking-analytics.html, admin-gallery.html, admin-business.html → `capture: true` (admin)
+
+**C. GitHub Actions workflow 신설**
+- 트리거: 수동 실행(workflow_dispatch, mode 선택 가능) + main push 시 주요 HTML/스크립트 변경 감지
+- Vercel 배포 완료 대기 후 `npm install` + `npx playwright install --with-deps chromium` + capture 실행
+- 결과 PNG가 변경되면 자동 commit & push (`[자동캡처]` 태그)
+
+**D. admin-gallery.html UX 안내 변경**
+- `🔒 로그인 필요 페이지 / iframe 미리보기는 세션이 풀릴 수 있음`
+  → `🔒 캡처 대기 중 / GitHub Actions 자동 캡처 후 표시`
+
+### 변경 사유
+- 대표님 외근 모드 지시: 매니저 계정으로 로그인 필요 페이지도 캡처해서 admin-gallery에 정적 썸네일이 박히게 만들기.
+- iframe 인증 hydration 문제(BACKLOG Issue #4)를 우회하는 가장 안전한 해결책: 정적 PNG로 고정 → iframe 자체가 불필요.
+- 자격증명 노출 방지: 비밀번호는 코드/메모리에 저장하지 않고 GitHub Actions Secrets로만 주입.
+
+### 대표님 복귀 후 1회 액션 (필수)
+GitHub Secrets 등록: https://github.com/dgmasters01/tw-b2b/settings/secrets/actions
+| Secret 이름 | 값 |
+|---|---|
+| `TW_MANAGER_EMAIL` | `joylife8760@naver.com` |
+| `TW_MANAGER_PASSWORD` | (해당 매니저 계정 비밀번호) |
+| `TW_ADMIN_EMAIL` | `dgmasters01@gmail.com` |
+| `TW_ADMIN_PASSWORD` | (어드민 계정 비밀번호) |
+
+등록 직후 Actions 탭에서 `Capture Pages` 워크플로를 수동 실행 (`mode=all`) → 7개 신규 페이지(매니저 3 + 어드민 4) PNG가 생성되어 자동 commit. 그 후 admin-gallery 새로고침하면 정적 썸네일 표시.
+
+### 검증
+- capture-pages.mjs: `node --check` 문법 PASS
+- pages-meta.mjs: `node --check` 문법 PASS
+- workflow YAML: 구조적으로 GitHub Actions 표준 준수 (필수 키 모두 존재)
+
+### 잔여 (BACKLOG Issue #4 후속)
+- 옵션 A/B/C(postMessage / sandbox / flowType)는 정적 캡처 도입으로 우선순위 P3로 강등. 정적 캡처가 충분히 작동하면 iframe 미리보기 자체를 제거하는 옵션도 가능.
+
+---
+
 ## 2026-04-29 (4차) — [UX개선] Business Docs 사이드바 강화 + Page Gallery iframe 한계 안내
 
 ### 변경 파일

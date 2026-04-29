@@ -336,19 +336,18 @@
 
 ---
 
-### Issue #4: Page Gallery iframe 미리보기에서 로그인 화면이 표시됨 (2026-04-29 발견)
+### Issue #4: Page Gallery iframe 미리보기에서 로그인 화면이 표시됨 (2026-04-29 발견 / 동일자 부분 해결)
 **현상**: admin-gallery.html에서 로그인 필요 페이지(매니저 대시보드, 호텔 정보 등록, 예약 분석 등)의 "라이브 미리보기" 클릭 시 iframe 안에 로그인 화면이 노출됨.
 
-**원인 추정**: same-origin iframe이라 localStorage는 공유되지만, Supabase auth 클라이언트가 iframe 컨텍스트에서 세션을 즉시 hydrate하지 않거나, iframe sandbox 옵션 또는 cross-context auth 동작 차이로 인해 미인증으로 판단 → login.html로 redirect.
+**원인**: same-origin iframe이라 localStorage는 공유되지만, Supabase auth 클라이언트가 iframe 컨텍스트에서 세션을 즉시 hydrate하지 않거나, iframe sandbox 옵션 또는 cross-context auth 동작 차이로 인해 미인증으로 판단 → login.html로 redirect.
 
-**임시 우회 (2026-04-29 적용)**: 로그인 필요 페이지의 thumb empty state에 "라이브 보기로 새 탭에서 열기 권장" 안내 추가. "라이브 보기"는 새 탭이라 정상 작동.
+**부분 해결 (2026-04-29 5차 커밋)**: GitHub Actions 자동 캡처 워크플로 신설. 매니저/어드민 페이지를 매니저/어드민 계정으로 로그인 후 정적 PNG 캡처 → admin-gallery에 정적 썸네일 표시. iframe 미리보기 의존 제거.
 
-**근본 해결 옵션** (우선순위 P2, 별도 작업):
-- A. iframe load 이벤트 후 부모가 postMessage로 access_token 전달 → iframe 측 boot script가 supabase.auth.setSession() 호출. 모든 페이지에 boot 스니펫 삽입 필요.
-- B. iframe sandbox 옵션 조정 (allow-storage-access-by-user-activation 추가 검토).
-- C. Supabase auth flowType 또는 storage 옵션 점검.
+**남은 옵션 (P3로 강등)**: iframe 자체를 살리고 싶으면 postMessage + setSession / sandbox 옵션 / flowType 점검. 정적 캡처가 잘 작동하면 iframe 미리보기 기능 자체를 제거하는 것도 검토 가능.
 
-**관련 파일**: `admin-gallery.html`, `shared.js`(supabase client init)
+**대표님 복귀 후 액션**: GitHub Secrets 4개 등록 (CHANGELOG 5차 항목 표 참조) → Actions에서 수동 실행.
+
+**관련 파일**: `admin-gallery.html`, `scripts/capture-pages.mjs`, `scripts/pages-meta.mjs`, `.github/workflows/capture-pages.yml`
 
 ---
 

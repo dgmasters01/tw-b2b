@@ -13,8 +13,8 @@ import {
   verifyWebhookSignature,
   getPayPalEnv,
   getPublicClientId,
-} from './lib/paypal-client.js';
-import { sendOpsEmail } from './lib/email-sender.js';
+} from './_lib/paypal-client.js';
+import { sendOpsEmail } from './_lib/email-sender.js';
 
 const SUPABASE_URL = 'https://vjsludfjsphwnumuoqaj.supabase.co';
 const PRODUCT_PRICE_USD = '200.00';

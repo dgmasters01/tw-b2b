@@ -12,7 +12,7 @@
 //     commit_hash: string,   // 커밋 해시 (옵션)
 //   }
 
-import { sendOpsEmail } from '../../lib/email-sender.js';
+import { sendOpsEmail } from '../../_lib/email-sender.js';
 
 function escapeHtml(s) {
   if (s == null) return '';

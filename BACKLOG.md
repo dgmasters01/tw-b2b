@@ -18,7 +18,46 @@
 
 ---
 
-## 🔴 P0 — 페이지 흐름 재설계 (2026-04-29 결정)
+## 🔴 P0 — Admin Hotels 상세 패널 매니저 정보 누락 (2026-04-29 발견)
+
+**배경**: Phase B PayPal 결제 검증 직후 발견. 어드민이 Hotels 탭 → View 클릭 시 호텔 상세 패널이 열리는데, 매니저 정보 3개 필드가 모두 빈 값(`-`)으로 표시됨.
+
+**현상** (스크린샷 검증):
+- ❌ Manager Email: `-` (실제 매니저 `joylife8760@naver.com` 미표시)
+- ❌ Manager Name: `-`
+- ❌ Manager Phone: `-`
+- ❌ Review, Agoda URL, Agoda Hotel ID, Amenities도 동일하게 누락
+- ✅ 호텔 기본 정보(이름/주소/사진/좌표/Daily Rate)는 정상 표시
+
+**비즈니스 임팩트**:
+- 어드민이 결제한 호텔의 담당자에게 연락할 수 없음 → 영상 제작 진행/검수 단계에서 커뮤니케이션 단절
+- "매니저=보고하는 사람(사장에게 PDF 전달)" 정책 (BUSINESS.md) 운영 불가
+- 매니저 인수인계 워크플로(P1)도 이 정보 없으면 작동 안 함
+
+**원인 추정** (실측 필요):
+1. `admin.html`의 호텔 상세 패널 fetch 쿼리가 `hotels.user_id`를 통해 `auth.users` JOIN을 안 하고 있을 가능성
+2. 또는 hotels 테이블에 매니저 정보 캐시 컬럼(manager_email/name/phone)이 있는데 회원가입 시점에 안 채워지고 있을 가능성
+3. RLS 정책이 admin이 auth.users 조회를 막고 있을 가능성 (Phase 3에서 admin 전용 정책 추가했지만 누락된 케이스일 수 있음)
+
+**작업 항목** (다음 채팅에서):
+1. [실측] admin.html에서 hotel 상세 fetch 쿼리 확인 (어떤 컬럼/JOIN 쓰는지)
+2. [실측] hotels 테이블에 manager_email/name/phone 컬럼 존재 여부 확인
+3. [수정] 가장 단순한 해결: hotels 테이블 INSERT 시점(hotel-info.html `btn-save` 핸들러)에서 auth.users의 email/name/phone을 hotels의 캐시 컬럼에 함께 저장
+4. [검증] admin.html View 클릭 시 매니저 3개 필드가 채워지는지 확인
+5. [추가 누락 필드 검토]: Review, Agoda URL/Hotel ID, Amenities는 별도 수동 입력 필드일 수 있음 — 이 필드들이 매니저 또는 어드민 어느 쪽 책임인지 BUSINESS.md에서 정책 확정 필요
+6. **[통합 작업]** 이 이슈와 동일 뿌리: 하단 P2 Issue #3 (Hotels 목록의 MANAGER 컬럼 비어있음). 같은 PR로 함께 해결할 것 — 목록 화면(`renderHotels`)과 상세 패널(View) 양쪽에 동일한 데이터 흐름 적용.
+
+**검증 데이터** (현재 기준):
+- 매니저 계정: joylife8760@naver.com (시크릿 창에서 가입 + 결제까지 완료)
+- 호텔: The Westin Tokyo (status=paid, $480 daily rate)
+- 결제: 2026-04-29 / $200 / paypal / succeeded
+- 이 데이터로 수정 후 회귀 테스트 가능
+
+**관련 메모리**: `[TW B2B 핵심 데이터 흐름 원칙]` (#15) — hotels 테이블이 single source of truth, 매니저 정보가 어드민/매니저 양쪽에 즉시 자동 반영되어야 함. 이 원칙이 매니저 정보에 대해서는 깨져 있는 상태.
+
+---
+
+
 
 **배경**: 결제 검증 중 발견 — 현재 dashboard.html에 결제 박스가 노출되는 흐름이 비즈니스적으로 비효율. 결제 후에도 결제 박스가 그대로 보여 중복 결제 위험.
 

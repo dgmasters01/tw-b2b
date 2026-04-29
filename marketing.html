@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TravelWinners B2B — Marketing & Bookings</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;500;700&family=DM+Sans:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="shared.js"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f7f7f7;font-family:'DM Sans','Noto Sans KR',sans-serif;color:#1a1a1a;min-height:100vh}
+.mk-shell{max-width:1280px;margin:0 auto;padding:0 24px}
+.mk-topbar{display:flex;justify-content:space-between;align-items:center;padding:18px 0;border-bottom:1px solid #e8e8e8;background:#fff;margin:0 -24px;padding-left:24px;padding-right:24px}
+.mk-logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:#1a1a1a}
+.mk-logo-icon{width:36px;height:36px;background:#534AB7;color:#fff;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700}
+.mk-logo-text{font-family:'Fraunces',serif;font-size:20px;font-weight:600}
+.mk-nav-right{display:flex;gap:16px;align-items:center}
+.mk-user{font-size:13.5px;color:#666}
+.mk-btn-out{background:none;border:1px solid #d8d8d8;padding:7px 14px;border-radius:6px;cursor:pointer;font-size:13px;font-family:inherit}
+.mk-main{padding:32px 0 60px}
+.mk-h1{font-family:'Fraunces',serif;font-size:30px;font-weight:600;margin:0 0 6px}
+.mk-sub{color:#777;font-size:14px;margin:0 0 28px}
+.mk-card{background:#fff;border:1px solid #e8e8e8;border-radius:14px;padding:28px;margin-bottom:18px}
+.mk-loading{display:flex;flex-direction:column;align-items:center;padding:60px;gap:14px;color:#888;font-size:13px}
+.mk-loader{display:inline-block;width:20px;height:20px;border:2px solid #ddd;border-top-color:#534AB7;border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Headline (예약 N건/추정매출/ROI) */
+.mk-headline{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
+.mk-stat{background:#fff;border:1px solid #e8e8e8;border-radius:12px;padding:22px}
+.mk-stat-label{font-size:11.5px;color:#888;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;font-weight:600}
+.mk-stat-value{font-size:30px;font-weight:700;color:#1a1a1a;font-family:'Fraunces',serif}
+.mk-stat-sub{font-size:12px;color:#666;margin-top:4px}
+.mk-stat-roi{color:#0a7c3a}
+
+/* 예약 카드 */
+.mk-booking-list{display:grid;grid-template-columns:1fr;gap:10px}
+.mk-booking-card{background:#fafafa;border:1px solid #ececec;border-radius:10px;padding:16px 18px;display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center}
+.mk-bk-meta{font-size:12.5px;color:#777;display:flex;gap:14px;flex-wrap:wrap;margin-top:4px}
+.mk-bk-id{font-family:'DM Sans',monospace;font-size:13px;color:#1a1a1a;font-weight:600}
+.mk-bk-amount{font-size:18px;font-weight:700;color:#0a7c3a;text-align:right}
+.mk-bk-amount-sub{font-size:11px;color:#888;text-align:right}
+.mk-channel-tag{display:inline-block;padding:2px 10px;border-radius:12px;font-size:11px;font-weight:600;background:#534AB7;color:#fff}
+.mk-channel-tag.ch-ko{background:#534AB7}
+.mk-channel-tag.ch-en{background:#0a7c3a}
+.mk-channel-tag.ch-ja{background:#c4500a}
+.mk-channel-tag.ch-vi{background:#a02890}
+.mk-channel-tag.ch-zh-tw{background:#0a6090}
+.mk-channel-tag.ch-other{background:#888}
+
+/* 채널별 전환 분석 */
+.mk-channel-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.mk-channel-card{border:1px solid #e8e8e8;border-radius:10px;padding:18px;background:#fff}
+.mk-ch-name{font-weight:600;font-size:14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.mk-ch-count{font-size:24px;font-weight:700;font-family:'Fraunces',serif;color:#1a1a1a}
+.mk-ch-amount{font-size:13px;color:#0a7c3a;margin-top:6px;font-weight:600}
+.mk-ch-bar{height:5px;background:#f0f0f0;border-radius:3px;margin-top:10px;overflow:hidden}
+.mk-ch-bar-fill{height:100%;background:#534AB7;transition:width .3s}
+
+.mk-h2{font-family:'Fraunces',serif;font-size:22px;font-weight:600;margin:0 0 14px}
+.mk-empty{text-align:center;padding:40px 20px;color:#888;font-size:13.5px}
+.mk-link{color:#534AB7;text-decoration:none;font-weight:600}
+.mk-link:hover{text-decoration:underline}
+
+@media (max-width:720px){
+  .mk-headline{grid-template-columns:repeat(2,1fr)}
+  .mk-booking-card{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="mk-shell">
+  <div class="mk-topbar">
+    <a href="marketing.html" class="mk-logo">
+      <div class="mk-logo-icon">TW</div>
+      <div class="mk-logo-text">TravelWinners</div>
+    </a>
+    <div class="mk-nav-right">
+      <span class="mk-user" id="user-email">—</span>
+      <a href="settings.html" class="mk-btn-out" style="text-decoration:none">⚙️ Settings</a>
+      <button class="mk-btn-out" id="btn-logout">Sign out</button>
+    </div>
+  </div>
+
+  <div class="mk-main" id="mk-main">
+    <div class="mk-loading"><div class="mk-loader"></div><div>Loading bookings...</div></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var T = window.TW;
+  var $ = T.$;
+  var currentUser = null;
+  var currentSession = null;
+
+  T.requireAuth(async function(user){
+    currentUser = user;
+    $('user-email').textContent = user.email;
+
+    var ac = await T.checkAdmin(user);
+    if (ac.is_admin) {
+      window.location.href = 'admin.html';
+      return;
+    }
+
+    // 호텔 + status 확인
+    var hotelResp = await T.client
+      .from('hotels')
+      .select('*')
+      .eq('user_id', user.id)
+      .maybeSingle();
+    var hotel = hotelResp.data;
+    var status = hotel ? (hotel.status || 'pending') : null;
+
+    // 결제 전이면 sales.html 로 redirect
+    if (!hotel || status === 'pending' || status === 'review' || status === 'approved' || status === 'rejected') {
+      window.location.href = 'sales.html';
+      return;
+    }
+
+    // 토큰 확보 (API 호출용)
+    var sessionResp = await T.client.auth.getSession();
+    currentSession = sessionResp.data.session;
+
+    loadBookings(hotel);
+  });
+
+  $('btn-logout').addEventListener('click', T.logout);
+
+  async function loadBookings(hotel) {
+    try {
+      var token = currentSession ? currentSession.access_token : '';
+      var url = '/api/hotel-bookings?hotelId=' + encodeURIComponent(hotel.id);
+      var resp = await fetch(url, {
+        headers: { Authorization: 'Bearer ' + token }
+      });
+      var data = await resp.json();
+      if (!resp.ok) {
+        renderError(hotel, data.error || 'Failed to load bookings');
+        return;
+      }
+      renderMarketing(hotel, data);
+    } catch (err) {
+      renderError(hotel, String(err));
+    }
+  }
+
+  function renderError(hotel, msg) {
+    var html = '';
+    html += '<h1 class="mk-h1">' + (hotel.hotel_name || 'Your hotel') + '</h1>';
+    html += '<p class="mk-sub">Booking analytics & channel performance</p>';
+    html += '<div class="mk-card"><div class="mk-empty">' + msg + '</div></div>';
+    $('mk-main').innerHTML = html;
+  }
+
+  function renderMarketing(hotel, data) {
+    var html = '';
+    html += '<h1 class="mk-h1">' + (hotel.hotel_name || 'Your hotel') + '</h1>';
+    html += '<p class="mk-sub">Booking analytics & channel performance · ' + (hotel.city || '') + (hotel.country ? ', ' + hotel.country : '') + '</p>';
+
+    // ----- HEADLINE -----
+    var h = data.headline || {};
+    html += '<div class="mk-headline">';
+    html += statCard('Bookings', String(h.booking_count || 0), '');
+    html += statCard('Estimated revenue', '$' + fmtMoney(h.total_amount_usd || 0), 'across all bookings');
+    html += statCard('Total nights', String(h.total_nights || 0), '');
+    html += statCard('ROI', (h.roi_multiple || 0) + 'x', 'on $' + (h.subscription_usd || 200) + ' fee', true);
+    html += '</div>';
+
+    // ----- 채널별 전환 분석 -----
+    html += '<div class="mk-card">';
+    html += '<h2 class="mk-h2">Channel performance</h2>';
+    var stats = data.channel_stats || [];
+    if (stats.length === 0) {
+      html += '<div class="mk-empty">No channel data yet — bookings will appear here once your video starts converting.</div>';
+    } else {
+      var maxCount = stats.reduce(function(m, s){ return Math.max(m, s.booking_count); }, 1);
+      html += '<div class="mk-channel-grid">';
+      for (var i = 0; i < stats.length; i++) {
+        var s = stats[i];
+        var langClass = 'ch-' + (s.channel_language || 'other');
+        var pct = Math.round((s.booking_count / maxCount) * 100);
+        html += '<div class="mk-channel-card">';
+        html += '  <div class="mk-ch-name">';
+        html += '    <span>' + (s.channel_name || 'Unknown') + '</span>';
+        html += '    <span class="mk-channel-tag ' + langClass + '">' + (s.channel_language || '—') + '</span>';
+        html += '  </div>';
+        html += '  <div class="mk-ch-count">' + s.booking_count + '</div>';
+        html += '  <div style="font-size:12px;color:#888">bookings</div>';
+        html += '  <div class="mk-ch-amount">$' + fmtMoney(s.gross_amount_usd) + '</div>';
+        html += '  <div class="mk-ch-bar"><div class="mk-ch-bar-fill" style="width:' + pct + '%"></div></div>';
+        html += '</div>';
+      }
+      html += '</div>';
+    }
+    html += '<p style="margin:18px 0 0;font-size:13px;color:#666">Bookings are tracked through Agoda Affiliate. Channels with no bookings yet may still be driving views — check <a class="mk-link" href="https://partners.agoda.com" target="_blank" rel="noopener">Agoda Partner Hub</a> for raw analytics.</p>';
+    html += '</div>';
+
+    // ----- 예약 목록 -----
+    html += '<div class="mk-card">';
+    html += '<h2 class="mk-h2">Recent bookings</h2>';
+    var bookings = data.bookings || [];
+    if (bookings.length === 0) {
+      html += '<div class="mk-empty">No completed bookings yet. Once guests check out, their bookings will appear here.</div>';
+    } else {
+      html += '<div class="mk-booking-list">';
+      for (var j = 0; j < bookings.length; j++) {
+        var b = bookings[j];
+        var langClass2 = 'ch-' + (b.channel_language || 'other');
+        html += '<div class="mk-booking-card">';
+        html += '  <div>';
+        html += '    <div class="mk-bk-id">#' + (b.booking_id_masked || '—') + '</div>';
+        html += '    <div class="mk-bk-meta">';
+        html += '      <span>📅 ' + (b.checkin_date || '?') + ' → ' + (b.checkout_date || '?') + '</span>';
+        html += '      <span>🌙 ' + (b.nights || 0) + ' nights</span>';
+        if (b.customer_country) html += '      <span>🌍 ' + b.customer_country + '</span>';
+        html += '      <span class="mk-channel-tag ' + langClass2 + '">' + (b.channel_name || 'Other') + '</span>';
+        html += '    </div>';
+        html += '  </div>';
+        html += '  <div>';
+        html += '    <div class="mk-bk-amount">$' + fmtMoney(b.booking_amount_usd) + '</div>';
+        if (b.commission_usd) html += '    <div class="mk-bk-amount-sub">Comm. $' + fmtMoney(b.commission_usd) + '</div>';
+        html += '  </div>';
+        html += '</div>';
+      }
+      html += '</div>';
+    }
+    html += '</div>';
+
+    $('mk-main').innerHTML = html;
+  }
+
+  function statCard(label, value, sub, roi) {
+    var cls = 'mk-stat-value' + (roi ? ' mk-stat-roi' : '');
+    return '<div class="mk-stat">'
+      + '<div class="mk-stat-label">' + label + '</div>'
+      + '<div class="' + cls + '">' + value + '</div>'
+      + (sub ? '<div class="mk-stat-sub">' + sub + '</div>' : '')
+      + '</div>';
+  }
+
+  function fmtMoney(n) {
+    var v = Number(n) || 0;
+    return v.toLocaleString('en-US', { maximumFractionDigits: 0 });
+  }
+})();
+</script>
+</body>
+</html>

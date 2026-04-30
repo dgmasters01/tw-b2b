@@ -5,6 +5,28 @@
 
 ---
 
+## 2026-04-30 (13차) — [문서] api/_lib 디렉토리 정책 문서화 (Vercel 12-Function 회피 이중 안전망)
+
+### 변경 파일
+- `api/_lib/README.md` 신설
+
+### 배경
+SOLO_WORK_QUEUE Up Next 5번 [I] — 디렉토리 rename (`api/lib/` → `api/_lib/`, 4fb3860)은 끝났지만 정책 문서가 없어 미래 새 채팅의 Claude가 헷갈릴 위험. vercel.json에 명시적 제외 패턴 추가는 underscore-prefix 자동 제외와 단일 레벨 와일드카드(`api/*.js`)로 이미 이중 안전망이 작동 중이므로 vercel.json 수정 대신 디렉토리 정책 명문화가 더 안전한 옵션으로 자율 판단.
+
+### 변경사유
+- vercel.json은 JSON 형식이라 주석을 달 수 없어 정책 의도가 코드에 남지 않음. README 한 장으로 미래 헷갈림 방지.
+- 신규 헬퍼 파일 추가 시 `api/lib/`, `api/utils/`, `api/shared/` 같은 이름을 무심코 사용하면 즉시 함수로 카운트되어 12개 한도 초과 → 명시적 가이드 필요.
+- 현재 함수 카운트 참고치(9/12)와 통합 라우터 패턴(`api/admin.js`의 `?action=`) 권장도 함께 문서화하여 새 함수 추가 시 한도 위반 방지.
+
+### 검증
+- 파일 단순 추가, 코드 변경 없음 → 회귀 위험 0
+- production 배포 시 영향 없음 (README는 함수가 아니므로 카운트 변화 없음)
+
+### 관련
+- SOLO_WORK_QUEUE.md L127, 4fb3860 (디렉토리 rename 원본)
+
+---
+
 ## 2026-04-30 (12차) — [기능추가] Agoda 업로드 — 서버사이드 booking-upload 모드 + Preview + CID 컬럼명 오버라이드
 
 ### 변경 파일

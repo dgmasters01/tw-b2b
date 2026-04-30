@@ -205,7 +205,7 @@ git revert 8e6e7d80 edc41924 f8e858cd accacd2d
 
 ---
 
-### 🟢 [K] Project Status 메뉴 신설 (2026-04-29 외근 모드 자율 작업)
+### 🟢 [K] **[DONE 897a9eb]** Project Status 메뉴 신설 (2026-04-29 외근 모드 자율 작업)
 
 **작업 내용**: admin.html 사이드바 TOOLS 그룹에 📊 Project Status 메뉴 추가. 5개 섹션(KPI 4카드 / Phase 진행바 / Recent Activity / BLOCKED / Up Next)을 한 페이지에 위→아래 스크롤 배치. GitHub Commits API + BACKLOG.md / SOLO_WORK_QUEUE.md 자동 파싱.
 

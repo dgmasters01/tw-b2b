@@ -641,6 +641,15 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
         .ps-upnext-meta{font-size:11px;color:#3f6f4d}
         .ps-upnext-num{display:inline-block;background:#22c55e;color:#fff;width:20px;height:20px;border-radius:50%;text-align:center;line-height:20px;font-size:11px;font-weight:700;margin-right:8px}
 
+        /* 자율성 분류 배지 */
+        .ps-auto-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:6px}
+        .ps-badge{display:inline-flex;align-items:center;gap:3px;padding:3px 9px;border-radius:11px;font-size:10px;font-weight:700;letter-spacing:.2px;line-height:1;white-space:nowrap}
+        .ps-badge-auto    {background:#dcfce7;color:#15803d;border:1px solid #86efac}
+        .ps-badge-semi    {background:#fef3c7;color:#92400e;border:1px solid #fcd34d}
+        .ps-badge-blocked {background:#fee2e2;color:#b91c1c;border:1px solid #fca5a5}
+        .ps-badge-time    {background:#eef2ff;color:#3730a3;border:1px solid #c7d2fe;font-family:'SF Mono',Consolas,monospace}
+        .ps-badge-time-pending{background:#f1f5f9;color:#64748b;border:1px solid #cbd5e1;font-family:'SF Mono',Consolas,monospace}
+
         /* 복사 버튼 */
         .ps-copy-btn{position:absolute;top:10px;right:10px;background:#fff;border:1px solid #d4d4d8;border-radius:5px;padding:4px 9px;font-size:11px;font-weight:600;color:#52525b;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:4px;font-family:inherit;z-index:2}
         .ps-copy-btn:hover{background:#534AB7;color:#fff;border-color:#534AB7}
@@ -1520,11 +1529,17 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
       var html = '<div class="ps-blocked-list">';
       blockers.forEach(function(b){
         var fileUrl = 'https://github.com/' + PS_REPO + '/blob/main/' + b.source + '#L' + b.line;
-        var copyText = '🔴 ' + b.title + '\n위치: ' + b.source + ' L' + b.line + '\nURL: ' + fileUrl;
+        var badges = psBadgeHtml(b.autonomy || 'blocked', b.hours, b.hoursPending);
+        // 복사 텍스트에 자율성/시간 정보도 포함
+        var lang = (window.TW && window.TW.lang) ? window.TW.lang : 'en';
+        var autonomyText = (b.autonomy === 'auto') ? '🟢 자율 진행' : (b.autonomy === 'semi' ? '🟡 결정 후 자율' : '🔴 함께 작업');
+        var hoursText = b.hours ? (b.hoursPending ? '결정 후 ' + b.hours : b.hours) : '미정';
+        var copyText = '🔴 ' + b.title + '\n분류: ' + autonomyText + ' · 예상 ' + hoursText + '\n위치: ' + b.source + ' L' + b.line + '\nURL: ' + fileUrl;
         html += '<div class="ps-blocked-item" onclick="if(event.target.closest(\'.ps-copy-btn\'))return;window.open(\'' + fileUrl + '\',\'_blank\')">'+
           '<button class="ps-copy-btn" data-copy="' + psEsc(copyText) + '" onclick="return psCopyFromBtn(this, event)" title="제목 + 위치 복사">📋 Copy</button>'+
           '<div class="ps-blocked-title">🔴 ' + psEsc(b.title) + '</div>'+
           '<div class="ps-blocked-meta">' + psEsc(b.source) + ' · L' + b.line + (b.note ? ' · ' + psEsc(b.note) : '') + '</div>'+
+          '<div class="ps-auto-row">' + badges + '</div>'+
         '</div>';
       });
       html += '</div>';
@@ -1548,7 +1563,11 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
       if (m){
         var title = m[2].replace(/^BLOCKED\s*[—\-:]?\s*/i, '').trim();
         var key = source + ':' + title.slice(0, 40);
-        if (!seen[key]){ seen[key] = 1; out.push({ title:title, source:source, line:i+1, note:'' }); }
+        if (!seen[key]){
+          seen[key] = 1;
+          var meta = psExtractMeta(lines, i);
+          out.push({ title:title, source:source, line:i+1, note:'', autonomy:meta.autonomy, hours:meta.hours, hoursPending:meta.hoursPending });
+        }
         continue;
       }
       // 패턴 2: 헤더에 🔴 단독 (예: "## 🔴 P0 — ...")
@@ -1556,7 +1575,11 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
       if (m2){
         var t2 = m2[1].trim();
         var key2 = source + ':' + t2.slice(0, 40);
-        if (!seen[key2]){ seen[key2] = 1; out.push({ title:t2, source:source, line:i+1, note:'P0/P1 백로그' }); }
+        if (!seen[key2]){
+          seen[key2] = 1;
+          var meta2 = psExtractMeta(lines, i);
+          out.push({ title:t2, source:source, line:i+1, note:'P0/P1 백로그', autonomy:meta2.autonomy, hours:meta2.hours, hoursPending:meta2.hoursPending });
+        }
         continue;
       }
       // 패턴 3: 본문 [BLOCKED-사유] 또는 🔴 BLOCKED 부분
@@ -1564,10 +1587,79 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
       if (m3){
         var t3 = m3[1].trim();
         var key3 = source + ':' + t3.slice(0, 40);
-        if (!seen[key3]){ seen[key3] = 1; out.push({ title:t3, source:source, line:i+1, note:'inline BLOCKED' }); }
+        if (!seen[key3]){
+          seen[key3] = 1;
+          out.push({ title:t3, source:source, line:i+1, note:'inline BLOCKED', autonomy:'blocked', hours:'', hoursPending:false });
+        }
       }
     }
     return out;
+  }
+
+  // 항목 헤더 다음 30줄 안에서 자율성/예상시간 추출
+  function psExtractMeta(lines, startIdx){
+    var autonomy = 'blocked'; // 기본값 (BLOCKED 항목이므로)
+    var hours = '';
+    var hoursPending = false; // "결정 후 N시간" 형태면 true
+    var endIdx = Math.min(lines.length, startIdx + 30);
+    for (var j = startIdx + 1; j < endIdx; j++){
+      var ln = lines[j];
+      // 다음 항목 헤더 만나면 중단
+      if (/^###?\s/.test(ln) && j > startIdx) break;
+
+      // 자율성: 🟡 SEMI 언급 시 "결정 후 자율 가능" → semi
+      if (/🟡\s*SEMI/.test(ln) && /자율\s*진행\s*가능/.test(ln)){
+        autonomy = 'semi';
+      }
+      // 본문에 🟢 AUTO 단독 언급도 가능 (혼합 케이스)
+      if (autonomy === 'blocked' && /^\*\*?자율\s*진행\s*사유/.test(ln)){
+        // "자율 진행 사유"가 명시되어 있으면 → auto 또는 semi
+        autonomy = (autonomy === 'blocked') ? 'auto' : autonomy;
+      }
+
+      // 예상 시간 추출
+      var hm = ln.match(/\*\*예상\s*시간\*\*\s*[:：]\s*(.+)$/);
+      if (hm && !hours){
+        var raw = hm[1].trim();
+        // "결정 후 N시간" 패턴
+        var pendingMatch = raw.match(/결정\s*후\s*([0-9.\-~]+)\s*(?:시간|h)/);
+        if (pendingMatch){
+          hours = pendingMatch[1] + 'h';
+          hoursPending = true;
+        } else {
+          // 일반 "N시간" / "N분" / "N-Mh"
+          var hmm = raw.match(/([0-9.\-~]+)\s*시간/);
+          var hmmm = raw.match(/([0-9.]+)\s*분/);
+          if (hmm) hours = hmm[1] + 'h';
+          else if (hmmm){
+            var mins = parseFloat(hmmm[1]);
+            hours = (mins >= 60) ? (Math.round(mins/60*10)/10 + 'h') : (mins + 'min');
+          }
+        }
+      }
+    }
+    return { autonomy: autonomy, hours: hours, hoursPending: hoursPending };
+  }
+
+  function psBadgeHtml(autonomy, hours, hoursPending){
+    var lang = (window.TW && window.TW.lang) ? window.TW.lang : 'en';
+    var parts = [];
+
+    if (autonomy === 'auto'){
+      parts.push('<span class="ps-badge ps-badge-auto" title="' + (lang==='ko'?'대표님 없이 Claude가 즉시 자율 진행 가능':'Claude can run autonomously') + '">🟢 ' + (lang==='ko' ? '자율 진행' : 'Auto') + '</span>');
+    } else if (autonomy === 'semi'){
+      parts.push('<span class="ps-badge ps-badge-semi" title="' + (lang==='ko'?'대표님 결정만 받으면 이후 자율 진행 가능':'Decision needed, then autonomous') + '">🟡 ' + (lang==='ko' ? '결정 후 자율' : 'Decide → Auto') + '</span>');
+    } else {
+      parts.push('<span class="ps-badge ps-badge-blocked" title="' + (lang==='ko'?'대표님이 함께 진행하셔야 함 (사업 결정 필요)':'Decision required') + '">🔴 ' + (lang==='ko' ? '함께 작업' : 'With CEO') + '</span>');
+    }
+
+    if (hours){
+      var label = hoursPending ? ((lang==='ko' ? '결정 후 ' : '~') + hours) : hours;
+      var cls = hoursPending ? 'ps-badge-time-pending' : 'ps-badge-time';
+      parts.push('<span class="ps-badge ' + cls + '" title="' + (lang==='ko'?'예상 작업 시간':'Estimated time') + '">⏱ ' + psEsc(label) + '</span>');
+    }
+
+    return parts.join('');
   }
 
   // ----- 섹션 5: Up Next (SOLO_WORK_QUEUE.md의 미완료 🟢 AUTO) -----
@@ -1591,13 +1683,9 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
             // DONE 마킹 라인 스킵
             if (/\[DONE\s+[a-f0-9]+\]/.test(ln)) continue;
             var title = m[2].replace(/^AUTO\s*[—\-:]?\s*/i, '').trim();
-            // 인접 라인에서 예상 시간 추출
-            var hours = '';
-            for (var j=i+1; j<Math.min(i+8, lines.length); j++){
-              var lh = lines[j].match(/예상\s*시간\s*[:：]?\s*([0-9.]+\s*(?:시간|h))/);
-              if (lh){ hours = lh[1]; break; }
-            }
-            items.push({ letter:m[1], title:title, line:i+1, hours:hours });
+            // psExtractMeta 헬퍼로 통일 (마크다운 굵은 표시 + 시간/분 변환 지원)
+            var meta = psExtractMeta(lines, i);
+            items.push({ letter:m[1], title:title, line:i+1, hours:meta.hours });
           }
         }
 
@@ -1614,14 +1702,15 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
         var html = '<div class="ps-upnext-list">';
         items.forEach(function(it, idx){
           var fileUrl = 'https://github.com/' + PS_REPO + '/blob/main/SOLO_WORK_QUEUE.md#L' + it.line;
-          var copyText = (idx+1) + '. 🟢 ' + it.title + (it.hours ? ' (예상 ' + it.hours + ')' : '') + '\n[' + it.letter + '] · SOLO_WORK_QUEUE.md L' + it.line;
+          var badges = psBadgeHtml('auto', it.hours, false);
+          var copyText = (idx+1) + '. 🟢 ' + it.title + (it.hours ? ' (예상 ' + it.hours + ')' : '') + '\n분류: 🟢 자율 진행 (대표님 없이 Claude가 즉시 진행 가능)\n[' + it.letter + '] · SOLO_WORK_QUEUE.md L' + it.line + '\nURL: ' + fileUrl;
           html += '<div class="ps-upnext-item">'+
             '<button class="ps-copy-btn" data-copy="' + psEsc(copyText) + '" onclick="return psCopyFromBtn(this, event)" title="작업 항목 복사">📋 Copy</button>'+
             '<div class="ps-upnext-title"><span class="ps-upnext-num">' + (idx+1) + '</span>🟢 ' + psEsc(it.title) + '</div>'+
             '<div class="ps-upnext-meta">[' + psEsc(it.letter) + '] · ' +
-              (it.hours ? ('예상 ' + psEsc(it.hours) + ' · ') : '') +
               '<a href="' + fileUrl + '" target="_blank" rel="noopener" style="color:#15803d;">SOLO_WORK_QUEUE.md L' + it.line + ' ↗</a>' +
             '</div>'+
+            '<div class="ps-auto-row">' + badges + '</div>'+
           '</div>';
         });
         html += '</div>';

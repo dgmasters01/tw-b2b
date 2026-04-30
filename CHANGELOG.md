@@ -5,6 +5,36 @@
 
 ---
 
+## 2026-04-30 (11차) — [버그수정] Admin Hotels 매니저 정보 auth.users JOIN 보강 + list-users API 안전성
+
+### 변경 파일
+- `api/admin.js`: handleListUsers 전체 fetch들에 try/catch + non-2xx 안전 처리, hotels 응답에 contact_*/manager_* 컬럼 포함, members에 user_metadata 기반 name/phone 추가
+- `admin.html`: `loadUserMapping()` 함수 신설 (api/admin?action=list-users 호출 → user_id→{email,name,phone} 캐시), `enrichHotelsWithUserMapping()` 함수 신설 (allHotels 각 항목에 `_resolvedManager*` 필드 주입), `loadAll()`을 async로 전환하여 hotels 로드 직후 매핑 enrichment 실행. renderHotels Manager 컬럼/openHotelModal 상세 패널/Agoda Matching 모달 모두 `_resolvedManager*` 우선 사용
+
+### 배경
+SOLO_WORK_QUEUE Up Next 1번 [A] — 라이브에서 Admin Hotels View 클릭 시 Manager Email/Name/Phone이 여전히 '-'로 보이는 케이스 잔존(특히 hotel-info.html 미작성 호텔). 콘솔 500 에러(auth/admin/users) 1건도 같은 맥락. 데드라인 5/3 직결.
+
+### 변경사유
+- 컬럼 fallback(manager_* → contact_*)만으로는 hotels 테이블 자체에 데이터가 없는 호텔(가입만 한 매니저)을 커버 못함. SOLO_WORK_QUEUE 명시 요구사항인 "auth.users JOIN" 효과를 안전하게 클라이언트에서 합성해 해결.
+- list-users API의 외부 fetch들이 try/catch 없이 노출되어 있어 어떤 한 호출만 500이 나도 전체가 실패. 각 fetch를 독립 try/catch로 격리 → 부분 실패에도 가능한 한 데이터 반환.
+- DB 스키마 변경 금지 원칙 준수 (Supabase Mgmt API 토큰 만료 5/26까지 유효하지만 외근 모드에서는 보수적으로 코드만 수정).
+
+### 검증
+- `node --check api/admin.js` ✓
+- `admin.html` 3개 inline `<script>` 블록 모두 `node --check` ✓
+- 함수 정의/호출 매칭: loadAll(1/4) loadUserMapping(1/2) enrichHotelsWithUserMapping(1/2) renderHotels(1/3) openHotelModal(1/2) renderStats(1/2) — 모두 정상
+- production 인증 없이 GET /api/admin?action=list-users → 401 정상 (`{"error":"Missing auth token"}`)
+
+### 회귀 위험
+- loadAll이 async로 전환됨 — 기존 호출처 4곳 모두 fire-and-forget 패턴이라 안전 (1011줄, 1047줄, 2720줄)
+- list-users 호출 실패 시 userMap이 빈 객체 → 기존 contact_*/manager_* fallback이 그대로 동작 (회귀 없음)
+
+### 관련
+- BACKLOG.md L21 (P0 — 이미 [DONE]였으나 미해결분 잔존), SOLO_WORK_QUEUE.md L23
+- 이전 부분 수정 커밋: d301ee9, 89b3e49
+
+---
+
 ## 2026-04-30 (10차) — [기능추가] Project Status — 자율성 분류 + 예상 시간 배지
 
 ### 변경 파일

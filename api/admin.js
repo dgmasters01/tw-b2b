@@ -58,18 +58,38 @@ async function handleListUsers(req, res, serviceKey, _admin) {
   }
 
   // 모든 사용자 목록 조회 (service_role)
-  const usersResp = await fetch(`${SUPABASE_URL}/auth/v1/admin/users?per_page=200`, {
-    headers: { 'Authorization': `Bearer ${serviceKey}`, 'apikey': serviceKey }
-  });
-  const usersData = await usersResp.json();
-  const users = usersData.users || [];
+  // [버그수정 2026-04-30] try/catch + non-2xx 안전 처리 — auth/admin/users 500 에러 방지
+  let users = [];
+  try {
+    const usersResp = await fetch(`${SUPABASE_URL}/auth/v1/admin/users?per_page=200`, {
+      headers: { 'Authorization': `Bearer ${serviceKey}`, 'apikey': serviceKey }
+    });
+    if (usersResp.ok) {
+      const usersData = await usersResp.json();
+      users = Array.isArray(usersData.users) ? usersData.users : [];
+    } else {
+      console.error('admin list-users: auth/admin/users failed', usersResp.status, await usersResp.text().catch(() => ''));
+    }
+  } catch (e) {
+    console.error('admin list-users: auth/admin/users exception', e.message);
+  }
 
   // 모든 호텔 조회 (user_id 매핑용)
-  const hotelsResp = await fetch(
-    `${SUPABASE_URL}/rest/v1/hotels?select=id,user_id,hotel_name,status,created_at`,
-    { headers: { 'Authorization': `Bearer ${serviceKey}`, 'apikey': serviceKey } }
-  );
-  const hotels = await hotelsResp.json();
+  // [버그수정 2026-04-30] contact_*, manager_* 컬럼도 함께 가져와서 admin이 매핑/enrich 할 수 있게
+  let hotels = [];
+  try {
+    const hotelsResp = await fetch(
+      `${SUPABASE_URL}/rest/v1/hotels?select=id,user_id,hotel_name,status,created_at,contact_name,contact_email,contact_phone,whatsapp,manager_email,manager_name,manager_phone`,
+      { headers: { 'Authorization': `Bearer ${serviceKey}`, 'apikey': serviceKey } }
+    );
+    if (hotelsResp.ok) {
+      hotels = await hotelsResp.json();
+    } else {
+      console.error('admin list-users: hotels fetch failed', hotelsResp.status);
+    }
+  } catch (e) {
+    console.error('admin list-users: hotels exception', e.message);
+  }
   const hotelsByUser = {};
   (hotels || []).forEach(h => {
     if (h.user_id) {
@@ -79,27 +99,43 @@ async function handleListUsers(req, res, serviceKey, _admin) {
   });
 
   // 관리자 목록 (admin 표시용)
-  const adminsResp = await fetch(
-    `${SUPABASE_URL}/rest/v1/admins?select=email,role`,
-    { headers: { 'Authorization': `Bearer ${serviceKey}`, 'apikey': serviceKey } }
-  );
-  const allAdmins = await adminsResp.json();
+  // [버그수정 2026-04-30] try/catch 추가
+  let allAdmins = [];
+  try {
+    const adminsResp = await fetch(
+      `${SUPABASE_URL}/rest/v1/admins?select=email,role`,
+      { headers: { 'Authorization': `Bearer ${serviceKey}`, 'apikey': serviceKey } }
+    );
+    if (adminsResp.ok) {
+      allAdmins = await adminsResp.json();
+    } else {
+      console.error('admin list-users: admins fetch failed', adminsResp.status);
+    }
+  } catch (e) {
+    console.error('admin list-users: admins exception', e.message);
+  }
   const adminEmails = {};
-  (allAdmins || []).forEach(a => { adminEmails[a.email.toLowerCase()] = a.role; });
+  (allAdmins || []).forEach(a => { if (a && a.email) adminEmails[a.email.toLowerCase()] = a.role; });
 
   // 관리자 제외한 매니저만
+  // [기능추가 2026-04-30] user_metadata에서 name/phone/full_name 추출 → admin Hotels 패널 enrich 용
   const members = users
     .filter(u => !adminEmails[(u.email || '').toLowerCase()])
-    .map(u => ({
-      id: u.id,
-      email: u.email,
-      created_at: u.created_at,
-      last_sign_in_at: u.last_sign_in_at,
-      email_confirmed_at: u.email_confirmed_at,
-      is_verified: !!u.email_confirmed_at,
-      is_banned: u.banned_until && new Date(u.banned_until) > new Date(),
-      hotels: hotelsByUser[u.id] || []
-    }))
+    .map(u => {
+      const meta = u.user_metadata || {};
+      return {
+        id: u.id,
+        email: u.email,
+        name: meta.full_name || meta.name || meta.manager_name || null,
+        phone: meta.phone || meta.manager_phone || u.phone || null,
+        created_at: u.created_at,
+        last_sign_in_at: u.last_sign_in_at,
+        email_confirmed_at: u.email_confirmed_at,
+        is_verified: !!u.email_confirmed_at,
+        is_banned: u.banned_until && new Date(u.banned_until) > new Date(),
+        hotels: hotelsByUser[u.id] || []
+      };
+    })
     .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
   return res.status(200).json({

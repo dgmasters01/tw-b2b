@@ -20,16 +20,9 @@
 
 ## 🔥 P0 — 데드라인 직결 작업 (5/3까지 반드시)
 
-### A. 🟢 AUTO — Admin Hotels 상세 패널 + 모달 X 버튼 수정
-**작업 내용**: BACKLOG.md 최상단 P0 (커밋 `89b3e49e`) 참조.
-- Manager Email / Name / Phone 표시 (auth.users JOIN 또는 캐시 컬럼 추가)
-- Review, Agoda URL, Agoda Hotel ID, Amenities 채우기
-- X 버튼 클릭 핸들러 연결 + ESC 키 + 모달 외부 클릭 닫힘
-- Hotels 목록 MANAGER 컬럼도 같이 (P2 Issue #3 통합)
-
-**예상 시간**: 1.5시간
-**자율 진행 사유**: 데이터 흐름 + 이벤트 핸들러 — 기술 영역
-**검증**: 대표님 복귀 후 dgmasters01@gmail.com / joylife8760@naver.com 두 계정 모두로 확인
+### A. 🟢 ✅ **[DONE 2026-04-30 — 11차]** AUTO — Admin Hotels 상세 패널 + 모달 X 버튼 수정
+**완료 내용**: api/admin.js handleListUsers 안전성 강화(전체 fetch try/catch + non-2xx 처리, user_metadata 기반 name/phone 추출). admin.html에 loadUserMapping/enrichHotelsWithUserMapping 신설하여 user_id→{email,name,phone} 매핑 캐시 → allHotels에 `_resolvedManager*` 필드 주입. renderHotels Manager 컬럼/openHotelModal 상세 패널/Agoda Matching 모달 모두 enriched 값 우선 사용. 모달 X 버튼/ESC/외부클릭 닫기는 d301ee9에서 이미 구현됨(잔존하는 매니저 정보 누락만 본 차에서 해결).
+**복귀 후 검수**: dgmasters01@gmail.com / joylife8760@naver.com 두 계정으로 admin.html → Hotels → View 클릭, Manager Email/Name/Phone 필드 채워졌는지 확인.
 
 ---
 

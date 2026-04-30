@@ -203,3 +203,41 @@ git revert 8e6e7d80 edc41924 f8e858cd accacd2d
 
 **남은 별도 이슈**: 콘솔의 `Failed to load resource: 500` 에러 1건 (auth/admin/users 관련, dgmasters01@gmail.com 어드민 계정 fetch 실패로 추정). BACKLOG P0 매니저 정보 누락 이슈와 같은 맥락일 가능성 → 다음 채팅에서 별도 진단 권장.
 
+---
+
+### 🟢 [K] Project Status 메뉴 신설 (2026-04-29 외근 모드 자율 작업)
+
+**작업 내용**: admin.html 사이드바 TOOLS 그룹에 📊 Project Status 메뉴 추가. 5개 섹션(KPI 4카드 / Phase 진행바 / Recent Activity / BLOCKED / Up Next)을 한 페이지에 위→아래 스크롤 배치. GitHub Commits API + BACKLOG.md / SOLO_WORK_QUEUE.md 자동 파싱.
+
+**완료 내역**:
+- 사이드바 메뉴 1개 + tab pane 1개 추가
+- KPI 4개 카드 (D-Day 자동 계산, 진행률 자동 계산, 함수 카운트 GitHub 재귀 카운트, 활성 BLOCKED)
+- Phase 진행 바 5개 (정적 상수 PS_PHASES로 관리)
+- Recent Activity 타임라인 (commits API, 14일 이내, 태그 자동 색상)
+- BLOCKED 리스트 (BACKLOG + SOLO_WORK_QUEUE 정규식 추출, 클릭 시 GitHub 라인 이동)
+- Up Next 5개 (🟢 AUTO 미완료 항목 추출 + 예상 시간 자동 매칭)
+- i18n: 모든 신규 텍스트에 data-en/data-ko 적용
+- Vercel 함수 추가 없음 (클라이언트 GitHub API 직접 호출)
+- JSDOM 통합 검증 완료 (errors 0, warnings 0)
+
+**복귀 후 검수 체크리스트**:
+1. **admin.html 로그인** → 사이드바 좌측 하단 TOOLS 그룹에 📊 Project Status 메뉴 보이는지
+2. **Project Status 메뉴 클릭** → 페이지 헤더가 "Project Status / KPI · Phase · 최근 활동…"으로 변경되는지
+3. **KPI 4카드 확인**:
+   - D-Day가 "D-3" 또는 "D-4" 표시 (5/3까지 남은 일수)
+   - 진행률 % 표시 (SOLO_WORK_QUEUE 기준 자동 계산)
+   - Vercel Functions "9 / 12" 표시
+   - Active Blockers 카드 클릭 시 섹션 4로 스크롤
+4. **Phase 진행 바 5개**: P1/P2 100% 초록, P3 85% 파랑, P4 25% 노랑, P5 0% 빨강
+5. **Recent Activity**: 최근 commits 시간순, 태그 색상 매칭, SHA 링크 클릭 시 GitHub 이동
+6. **BLOCKED 리스트**: 결정 필요 항목 표시, 클릭 시 GitHub 해당 라인으로 새 탭 이동
+7. **Up Next**: 🟢 AUTO 미완료 항목 5개 (P0 우선순위)
+8. **F12 콘솔 에러 없음**, GitHub API rate limit 표시 정상 (60/h 중 잔량)
+9. **EN/한국어 토글**: 우측 상단 언어 스위치 클릭 시 모든 텍스트 자동 번역
+10. **모바일/태블릿 반응형**: 1024px 이하에서 KPI 그리드 2열, 560px 이하에서 1열
+
+**향후 보강 (데드라인 후)**:
+- 탭 분리 (Dashboard / Site Map / Backlog Kanban / Changelog Timeline)
+- Phase % 자동 계산 (현재는 정적 상수)
+- Page Gallery와 통합 (BEFORE/AFTER 스크린샷 비교)
+

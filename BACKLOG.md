@@ -418,6 +418,38 @@
 
 ---
 
+## 🟡 P2 — BEFORE/AFTER 스크린샷 자동 캡처 시스템 (Page Gallery 통합)
+
+### 배경
+대표님 메모리 원칙: 모든 페이지 수정 시 ① 수정 전 풀페이지 스크린샷 ② 수정 작업 ③ 수정 후 풀페이지 스크린샷 ④ 작업 기록에 BEFORE/AFTER 비교 등록 ⑤ 관리자 페이지에서 전후 비교 확인 가능. Page Gallery 스크린샷도 수정 시 자동 갱신.
+
+### 현재 상태
+- `admin-gallery.html`은 존재하나 BEFORE/AFTER 비교 기능 미구현
+- 자동 캡처 인프라(Playwright + Vercel function 또는 GitHub Action) 미구축
+- 매 작업마다 수동 캡처는 자율 작업 흐름과 충돌 → 수동으로는 누락 빈번
+
+### 제안 구조
+1. **GitHub Action**: PR 또는 main push 시 변경된 .html 파일을 자동 감지하여 Playwright로 풀페이지 스크린샷 캡처
+2. **저장 위치**: `_screenshots/{filename}/{commit-hash}.png` (또는 Supabase Storage)
+3. **메타데이터 DB**: `page_screenshots` 테이블 (id, page, commit_hash, captured_at, image_url)
+4. **admin-gallery.html UI 보강**:
+   - 페이지별 최근 N개 스크린샷 사이드 by 사이드 비교
+   - 이전 vs 현재 슬라이더(드래그로 비교)
+   - commit 메시지와 연동 표시
+5. **Project Status > Recent Activity와 연계**: 각 commit 옆에 BEFORE/AFTER 토글 아이콘
+
+### 우선순위
+- 데드라인 (5/3) 후. 데드라인 D-3 시점에서는 자율 작업 큐의 P0/P1 우선.
+- 현재는 자율 작업 시 수동 캡처 누락이 발생할 수 있음을 인정하고, 작업 기록(CHANGELOG)에 변경 항목만 명시하는 방식으로 운영.
+
+### 예상 작업 시간
+4-6시간 (Playwright 스크립트 + GitHub Action + Supabase 테이블 + admin-gallery.html UI 보강)
+
+### 자율 진행 가능 여부
+🟡 SEMI — 인프라 구축 자체는 자율 가능, 단 Vercel 함수 슬롯 vs GitHub Action 선택은 대표님 결정 필요. GitHub Action 권장(함수 슬롯 절약).
+
+---
+
 ## ✅ DONE
 
 ### 2026-04-29

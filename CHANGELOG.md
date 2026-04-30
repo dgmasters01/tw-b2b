@@ -5,6 +5,91 @@
 
 ---
 
+## 2026-04-29 (8차) — [기능추가] admin.html 사이드바에 Project Status 메뉴 신설 (사업 진행도 실시간 대시보드)
+
+### 변경 파일
+- `admin.html`: 사이드바 메뉴 1개, tab pane 1개(5개 섹션), inline JS ~330 lines, inline CSS ~50 lines 추가
+
+### 배경
+대표님이 사업 운영 중 "내가 어디까지 했고 뭐가 남았는지 한눈에 모르겠다"는 문제 제기. SOLO_WORK_QUEUE.md / BACKLOG.md / CHANGELOG.md / 채팅 메모리에 흩어진 진행 정보를 admin.html 한 곳에서 실시간 시각화 필요.
+
+### 변경사항
+
+**A. 사이드바 — TOOLS 그룹에 Project Status 메뉴 추가**
+- 기존: Business Docs, Page Gallery (외부 링크 2개)
+- 추가: 📊 Project Status (admin.html 내부 탭, `data-tab="project-status"`)
+- TAB_META에 메타데이터 등록 (EN/KO 양쪽)
+
+**B. Tab Pane — 5개 섹션을 한 페이지에 위→아래 스크롤로 배치**
+
+1. **KPI 카드 4개 (가로 4그리드, 모바일 1열)**
+   - 🎯 Deadline D-Day: 자동 계산 ("D-N" / "D+N" / "D-DAY"), 색상 분기 (3일 이하 빨강/노랑)
+   - 📈 Overall Progress: SOLO_WORK_QUEUE의 전체 항목 대비 [DONE 해시] 비율
+   - ⚙️ Vercel Functions: GitHub api/ 폴더 재귀 카운트 (하위 폴더 함수 포함). 9/12, 여유 슬롯, 색상 분기
+   - 🔴 Active Blockers: 클릭 시 섹션 4로 스크롤 (anchor)
+
+2. **Phase 진행 바 (5개 Phase)**
+   - JS 정적 상수 `PS_PHASES`로 관리 (P1=100, P2=100, P3=85, P4=25, P5=0)
+   - 가로 진행 바 + 색상 분기 (100% 초록 / 50%+ 파랑 / 25%+ 노랑 / 미만 빨강)
+   - 상태 이모지 (✅/🟡/⏳)
+
+3. **Recent Activity (최근 14일 commits)**
+   - GitHub Commits API (`per_page=30`, unauthenticated, rate limit 60/h 충분)
+   - 14일 이내 필터 (없으면 최근 10개 fallback)
+   - 커밋 메시지의 `[태그]` 자동 감지 → 색상/이모지 매핑 (P0버그/리팩토링/기능추가/문서)
+   - 우측 끝에 SHA short hash + GitHub 커밋 페이지 링크
+
+4. **BLOCKED 리스트 (BACKLOG.md + SOLO_WORK_QUEUE.md 자동 파싱)**
+   - 3가지 패턴 추출: `### X. 🔴` 항목 헤더 / `## 🔴` 섹션 헤더 / inline `[BLOCKED-사유]`
+   - 클릭 시 GitHub 해당 라인으로 새 탭 이동
+   - 중복 제거(소스+제목 조합)
+
+5. **Up Next (자율 진행 가능 큐 5개)**
+   - SOLO_WORK_QUEUE.md의 `🟢 AUTO` 항목 추출 (`[DONE 해시]` 마킹 제외)
+   - 인접 라인에서 "예상 시간 N시간" 자동 추출
+   - 큐 등장 순서 = 우선순위 (P0 → P1 → P2)
+
+**C. JS 함수 구조**
+- `loadProjectStatus()` — 메인 진입점, setActiveTab('project-status') 시 호출
+- `psRenderKPIDeadline()` / `psRenderPhases()` — 정적 데이터 렌더
+- `psFetchKPIFunctions()` — api/ 트리 재귀 카운트 (이메일 하위 폴더 포함 정확 카운트)
+- `psFetchKPIProgress()` / `psFetchRecentActivity()` / `psFetchBlocked()` / `psFetchUpNext()` — GitHub API 호출
+- `psParseTag()` / `psExtractBlocked()` / `psDecodeBase64Utf8()` — 헬퍼
+- `psBarColor()` / `psPhaseIcon()` / `psEsc()` — 유틸
+
+**D. i18n**
+- 모든 신규 메뉴/카드/섹션 헤더에 `data-en`/`data-ko` 속성. 기존 EN/한국어 토글과 동일 시스템.
+
+**E. 디자인**
+- 보라(#534AB7) 기조 유지. 새 클래스는 `.ps-` 접두사로 분리.
+- 카드는 기존 `.ad-card` 패턴 재사용. KPI 카드는 새 `.ps-kpi` (강조형 + 진행 바 포함).
+- Phase 진행 바, Timeline, BLOCKED/Up Next 리스트는 모두 `.ps-` 전용 스타일.
+
+### 검증
+- `node --check`로 inline script 3개 블록 모두 문법 통과
+- JSDOM 격리 검증:
+  - 사이드바 메뉴 / tab pane 마크업 ✅
+  - 4개 전역 함수(loadProjectStatus + ps* 3개) 등록 ✅
+  - 사이드바 클릭 → pane 표시 ✅
+  - Phase 5개 / D-Day "D-4" / 함수 카운트 9/12 / Recent Activity / BLOCKED 8개 / Up Next 5개 모두 정상 렌더 ✅
+  - GitHub rate limit 표시 ✅
+  - 에러 0건, warning 0건
+
+### Vercel 함수 영향
+- 신규 Vercel function 추가 없음 (클라이언트가 GitHub API 직접 호출)
+- 9/12 그대로 유지
+
+### 사유
+3개 마크다운 파일과 채팅 메모리에 흩어진 사업 진행 정보를 매번 수동 확인하는 비용 제거. 데드라인 D-Day, 함수 슬롯 여유, 결정 대기 항목 등 핵심 지표를 한 화면에서 실시간 확인 가능. 클라이언트 사이드 GitHub API 호출만 사용 → 백엔드 추가 없음.
+
+### 향후 보강 (데드라인 후)
+- 탭 분리 (Dashboard / Site Map / Backlog Kanban / Changelog Timeline)
+- Phase % 자동 계산 (현재는 정적 상수)
+- 페이지 내 Phase 인라인 에디터
+- BEFORE/AFTER 스크린샷 비교 기능 (Page Gallery 통합)
+
+---
+
 ## 2026-04-29 (7차) — [P0 버그수정] admin.html Agoda Matching 모달 클릭 안 되던 버그 수정
 
 ### 변경 파일

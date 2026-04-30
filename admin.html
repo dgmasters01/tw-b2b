@@ -317,6 +317,9 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
       <a class="ad-sb-item" href="/admin-gallery.html" style="text-decoration:none">
         <span class="ad-sb-icon">📸</span><span data-en="Page Gallery" data-ko="페이지 갤러리">Page Gallery</span>
       </a>
+      <button class="ad-sb-item" data-tab="project-status">
+        <span class="ad-sb-icon">📊</span><span data-en="Project Status" data-ko="프로젝트 진행도">Project Status</span>
+      </button>
     </nav>
 
     <div class="ad-sb-foot">
@@ -589,6 +592,130 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
           <div class="ad-loading"><div class="ad-loader"></div><span>Loading team...</span></div>
         </div>
       </div>
+    </div>
+
+    <!-- TAB: Project Status (사업 진행도 실시간 대시보드) -->
+    <div id="tab-project-status" class="ad-tab-pane" style="display:none;">
+      <style>
+        .ps-kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+        @media (max-width:1024px){.ps-kpi-grid{grid-template-columns:repeat(2,1fr)}}
+        @media (max-width:560px){.ps-kpi-grid{grid-template-columns:1fr}}
+        .ps-kpi{background:#fff;border:1px solid #e8e8e8;border-radius:12px;padding:18px;position:relative;cursor:default}
+        .ps-kpi.ps-clickable{cursor:pointer;transition:transform .15s, box-shadow .15s}
+        .ps-kpi.ps-clickable:hover{transform:translateY(-2px);box-shadow:0 4px 14px rgba(83,74,183,.10)}
+        .ps-kpi-lbl{font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.6px;font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+        .ps-kpi-val{font-size:32px;font-weight:700;line-height:1;margin-bottom:8px;color:#222}
+        .ps-kpi-sub{font-size:12px;color:#666}
+        .ps-kpi-bar{height:6px;background:#f1f0f5;border-radius:3px;overflow:hidden;margin-top:10px}
+        .ps-kpi-bar-fill{height:100%;border-radius:3px;transition:width .4s ease}
+        .ps-pill{display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;letter-spacing:.3px}
+
+        .ps-phase-row{display:flex;align-items:center;gap:14px;padding:11px 0;border-bottom:1px dashed #eee}
+        .ps-phase-row:last-child{border-bottom:0}
+        .ps-phase-name{flex:0 0 220px;font-size:13px;font-weight:600;color:#333}
+        .ps-phase-track{flex:1;height:14px;background:#f1f0f5;border-radius:7px;overflow:hidden;position:relative}
+        .ps-phase-fill{height:100%;border-radius:7px;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;color:#fff;font-size:10px;font-weight:700;transition:width .5s ease}
+        .ps-phase-pct{flex:0 0 50px;text-align:right;font-size:13px;font-weight:700;color:#444}
+        .ps-phase-icon{flex:0 0 24px;font-size:16px;text-align:center}
+
+        .ps-timeline{font-size:13px}
+        .ps-timeline-row{display:grid;grid-template-columns:90px 30px 1fr 90px;gap:10px;padding:9px 6px;border-bottom:1px solid #f3f2f6;align-items:center}
+        .ps-timeline-row:hover{background:#fafafe}
+        .ps-timeline-row:last-child{border-bottom:0}
+        .ps-timeline-date{color:#888;font-size:12px;font-family:'SF Mono',Consolas,monospace}
+        .ps-timeline-tag{font-size:18px;text-align:center}
+        .ps-timeline-msg{color:#222;line-height:1.45;overflow:hidden;text-overflow:ellipsis}
+        .ps-timeline-msg .ps-tag-chip{display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:700;margin-right:6px;vertical-align:1px}
+        .ps-timeline-link{font-size:12px;color:#534AB7;text-decoration:none;text-align:right}
+        .ps-timeline-link:hover{text-decoration:underline}
+
+        .ps-blocked-list, .ps-upnext-list{display:flex;flex-direction:column;gap:10px}
+        .ps-blocked-item{background:#fef2f2;border-left:4px solid #ef4444;border-radius:6px;padding:11px 14px;cursor:pointer;transition:background .15s}
+        .ps-blocked-item:hover{background:#fee5e5}
+        .ps-blocked-title{font-size:13px;font-weight:700;color:#b91c1c;margin-bottom:4px}
+        .ps-blocked-meta{font-size:11px;color:#7c2222}
+
+        .ps-upnext-item{background:#f0f9f4;border-left:4px solid #22c55e;border-radius:6px;padding:11px 14px}
+        .ps-upnext-title{font-size:13px;font-weight:700;color:#15803d;margin-bottom:4px}
+        .ps-upnext-meta{font-size:11px;color:#3f6f4d}
+        .ps-upnext-num{display:inline-block;background:#22c55e;color:#fff;width:20px;height:20px;border-radius:50%;text-align:center;line-height:20px;font-size:11px;font-weight:700;margin-right:8px}
+
+        .ps-section-h{display:flex;align-items:center;justify-content:space-between;margin:0 0 14px;font-size:16px;font-weight:600}
+        .ps-section-h .ps-refresh{font-size:11px;color:#534AB7;cursor:pointer;background:transparent;border:1px solid #534AB7;padding:4px 10px;border-radius:5px;font-weight:600}
+        .ps-section-h .ps-refresh:hover{background:#534AB7;color:#fff}
+        .ps-empty{padding:18px;text-align:center;color:#999;font-size:12px}
+        .ps-rate{font-size:11px;color:#888;margin-left:6px}
+      </style>
+
+      <!-- 섹션 1: KPI 카드 -->
+      <div class="ps-kpi-grid" id="ps-kpi-grid">
+        <div class="ps-kpi" id="ps-kpi-deadline">
+          <div class="ps-kpi-lbl">🎯 <span data-en="Deadline" data-ko="데드라인">Deadline</span></div>
+          <div class="ps-kpi-val" id="ps-kpi-dday">—</div>
+          <div class="ps-kpi-sub" id="ps-kpi-deadline-date">2026-05-03</div>
+          <div class="ps-kpi-bar"><div class="ps-kpi-bar-fill" id="ps-kpi-deadline-bar" style="width:0%;background:#534AB7"></div></div>
+        </div>
+        <div class="ps-kpi" id="ps-kpi-progress">
+          <div class="ps-kpi-lbl">📈 <span data-en="Overall Progress" data-ko="전체 진행률">Overall Progress</span></div>
+          <div class="ps-kpi-val" id="ps-kpi-progress-pct">—</div>
+          <div class="ps-kpi-sub" id="ps-kpi-progress-sub" data-en="Calculating..." data-ko="계산 중...">Calculating...</div>
+          <div class="ps-kpi-bar"><div class="ps-kpi-bar-fill" id="ps-kpi-progress-bar" style="width:0%;background:#3b82f6"></div></div>
+        </div>
+        <div class="ps-kpi" id="ps-kpi-functions">
+          <div class="ps-kpi-lbl">⚙️ <span data-en="Vercel Functions" data-ko="Vercel 함수">Vercel Functions</span></div>
+          <div class="ps-kpi-val" id="ps-kpi-fn-val">9 / 12</div>
+          <div class="ps-kpi-sub" id="ps-kpi-fn-sub" data-en="3 slots free" data-ko="여유 3슬롯">3 slots free</div>
+          <div class="ps-kpi-bar"><div class="ps-kpi-bar-fill" id="ps-kpi-fn-bar" style="width:75%;background:#22c55e"></div></div>
+        </div>
+        <div class="ps-kpi ps-clickable" id="ps-kpi-blocked" onclick="document.getElementById('ps-section-blocked').scrollIntoView({behavior:'smooth',block:'start'})">
+          <div class="ps-kpi-lbl">🔴 <span data-en="Active Blockers" data-ko="활성 BLOCKED">Active Blockers</span></div>
+          <div class="ps-kpi-val" id="ps-kpi-blocked-val">—</div>
+          <div class="ps-kpi-sub" data-en="Click to view list" data-ko="클릭 시 리스트로 이동">Click to view list</div>
+          <div class="ps-kpi-bar"><div class="ps-kpi-bar-fill" id="ps-kpi-blocked-bar" style="width:0%;background:#ef4444"></div></div>
+        </div>
+      </div>
+
+      <!-- 섹션 2: Phase 진행 바 -->
+      <div class="ad-card">
+        <div class="ad-card-h">
+          <h3>🧭 <span data-en="Phase Progress" data-ko="Phase별 진행 상태">Phase Progress</span></h3>
+        </div>
+        <div id="ps-phases-area"></div>
+      </div>
+
+      <!-- 섹션 3: Recent Activity -->
+      <div class="ad-card">
+        <div class="ad-card-h">
+          <h3>🕒 <span data-en="Recent Activity" data-ko="최근 활동">Recent Activity</span> <span class="ps-rate" id="ps-gh-rate"></span></h3>
+          <button class="ps-refresh" onclick="psFetchRecentActivity()" data-en="Refresh" data-ko="새로고침">Refresh</button>
+        </div>
+        <div id="ps-timeline-area">
+          <div class="ad-loading"><div class="ad-loader"></div><span data-en="Loading commits..." data-ko="커밋 불러오는 중...">Loading commits...</span></div>
+        </div>
+      </div>
+
+      <!-- 섹션 4: BLOCKED 리스트 -->
+      <div class="ad-card" id="ps-section-blocked">
+        <div class="ad-card-h">
+          <h3>🚧 <span data-en="Blockers (Need Decision)" data-ko="결정 필요 항목 (BLOCKED)">Blockers (Need Decision)</span></h3>
+          <button class="ps-refresh" onclick="psFetchBlocked()" data-en="Refresh" data-ko="새로고침">Refresh</button>
+        </div>
+        <div id="ps-blocked-area">
+          <div class="ad-loading"><div class="ad-loader"></div><span data-en="Parsing BACKLOG.md / SOLO_WORK_QUEUE.md..." data-ko="BACKLOG.md / SOLO_WORK_QUEUE.md 분석 중...">Parsing...</span></div>
+        </div>
+      </div>
+
+      <!-- 섹션 5: Up Next -->
+      <div class="ad-card">
+        <div class="ad-card-h">
+          <h3>⏭️ <span data-en="Up Next" data-ko="다음 작업 큐">Up Next</span></h3>
+          <button class="ps-refresh" onclick="psFetchUpNext()" data-en="Refresh" data-ko="새로고침">Refresh</button>
+        </div>
+        <div id="ps-upnext-area">
+          <div class="ad-loading"><div class="ad-loader"></div><span data-en="Loading queue..." data-ko="큐 불러오는 중...">Loading queue...</span></div>
+        </div>
+      </div>
+
     </div>
 
     </div><!-- /ad-main -->
@@ -914,7 +1041,9 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
     members:   { title: 'Members',     sub: 'Hotel managers signed up to the platform.',
                  title_ko: '가입자',    sub_ko: '플랫폼에 가입한 호텔 매니저' },
     admins:    { title: 'Team',        sub: 'Internal admin and support members.',
-                 title_ko: '팀',        sub_ko: '내부 관리자 및 지원 인력' }
+                 title_ko: '팀',        sub_ko: '내부 관리자 및 지원 인력' },
+    'project-status': { title: 'Project Status', sub: 'Live business progress dashboard — KPIs, phases, recent activity.',
+                 title_ko: '프로젝트 진행도', sub_ko: 'KPI · Phase · 최근 활동 · 진행 현황 한눈에 보기' }
   };
 
   function setActiveTab(tab){
@@ -950,6 +1079,7 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
     if (tab === 'admins' && !adminsLoaded) loadAdmins();
     if (tab === 'bookings' && !bookingsInitialized) initBookings();
     if (tab === 'agoda-matching' && !amLoaded) loadAgodaMatching();
+    if (tab === 'project-status') { try { loadProjectStatus(); } catch(e){ console.error('[ps] load failed', e); } }
 
     // Phase 3 Step 2: Analytics native mount (iframe 제거)
     // 진입: BKA.mount() — 차트 destroy + 재렌더 + 별점 동기화
@@ -973,6 +1103,413 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
       if (tab) setActiveTab(tab);
     });
   });
+
+  // ========= Project Status tab (사업 진행도 실시간 대시보드) =========
+  var PS_REPO = 'dgmasters01/tw-b2b';
+  var PS_DEADLINE = '2026-05-03';
+  var PS_LOADED = false;
+
+  // Phase 진행률 — 향후 BUSINESS.md/DECISIONS.md에서 자동 추출 가능. 현재는 자율 판단 정적 상수.
+  var PS_PHASES = [
+    { name: 'Phase 1', label_en: 'DB Schema & Infra',          label_ko: 'DB 인프라 / 스키마',     percent: 100 },
+    { name: 'Phase 2', label_en: 'Auth & RLS Policies',         label_ko: '인증 / RLS 정책',        percent: 100 },
+    { name: 'Phase 3', label_en: 'Admin Operations',            label_ko: '어드민 운영 기능',        percent: 85  },
+    { name: 'Phase 4', label_en: 'Booking Analytics',           label_ko: 'Booking Analytics',     percent: 25  },
+    { name: 'Phase 5', label_en: 'i18n & Design Refresh',       label_ko: 'i18n / 디자인 개편',     percent: 0   }
+  ];
+
+  function psBarColor(pct){
+    if (pct >= 100) return '#22c55e';   // 초록
+    if (pct >= 50)  return '#3b82f6';   // 파랑
+    if (pct >= 25)  return '#f59e0b';   // 노랑
+    return '#ef4444';                   // 빨강
+  }
+  function psPhaseIcon(pct){
+    if (pct >= 100) return '✅';
+    if (pct >  0)   return '🟡';
+    return '⏳';
+  }
+  function psEsc(s){
+    return String(s == null ? '' : s)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
+  function psDecodeBase64Utf8(b64){
+    try {
+      var binary = atob((b64 || '').replace(/\s/g,''));
+      var bytes = new Uint8Array(binary.length);
+      for (var i=0;i<binary.length;i++) bytes[i] = binary.charCodeAt(i);
+      return new TextDecoder('utf-8').decode(bytes);
+    } catch(e){ return ''; }
+  }
+  function psDDay(){
+    var today = new Date();
+    today.setHours(0,0,0,0);
+    var dl = new Date(PS_DEADLINE + 'T00:00:00');
+    var diff = Math.round((dl - today) / 86400000);
+    return diff;
+  }
+
+  function loadProjectStatus(){
+    // 매번 진입 시 갱신 (커밋 등 실시간성 중요)
+    psRenderKPIDeadline();
+    psRenderPhases();
+    psFetchKPIFunctions();      // GitHub api/ 폴더 카운트
+    psFetchKPIProgress();       // CHANGELOG / BACKLOG 기반 진행률
+    psFetchRecentActivity();    // commits API
+    psFetchBlocked();           // BACKLOG + SOLO_WORK_QUEUE
+    psFetchUpNext();            // SOLO_WORK_QUEUE
+    PS_LOADED = true;
+  }
+  // 외부 노출 (디버그/refresh 버튼용)
+  window.loadProjectStatus = loadProjectStatus;
+  window.psFetchRecentActivity = function(){ return psFetchRecentActivity(); };
+  window.psFetchBlocked = function(){ return psFetchBlocked(); };
+  window.psFetchUpNext = function(){ return psFetchUpNext(); };
+
+  // ----- KPI 1: Deadline D-Day -----
+  function psRenderKPIDeadline(){
+    var d = psDDay();
+    var label = (d > 0) ? 'D-' + d : (d === 0 ? 'D-DAY' : 'D+' + Math.abs(d));
+    var el = $('ps-kpi-dday'); if (el) el.textContent = label;
+    var dateEl = $('ps-kpi-deadline-date'); if (dateEl) dateEl.textContent = PS_DEADLINE;
+    var bar = $('ps-kpi-deadline-bar');
+    if (bar){
+      // 4월 1일 ~ 5/3 기준 진행률 가시화 (0% → 100%로 채워짐)
+      var totalDays = 33;
+      var elapsed = totalDays - Math.max(0, d);
+      var pct = Math.max(0, Math.min(100, Math.round(elapsed/totalDays*100)));
+      bar.style.width = pct + '%';
+      bar.style.background = (d <= 1) ? '#ef4444' : (d <= 3 ? '#f59e0b' : '#22c55e');
+    }
+    var card = $('ps-kpi-deadline');
+    if (card){
+      var val = $('ps-kpi-dday');
+      if (val) val.style.color = (d <= 1) ? '#dc2626' : (d <= 3 ? '#d97706' : '#15803d');
+    }
+  }
+
+  // ----- 섹션 2: Phase 진행 바 -----
+  function psRenderPhases(){
+    var area = $('ps-phases-area'); if (!area) return;
+    var lang = (window.TW && window.TW.lang) ? window.TW.lang : 'en';
+    var html = '';
+    PS_PHASES.forEach(function(p){
+      var color = psBarColor(p.percent);
+      var icon  = psPhaseIcon(p.percent);
+      var label = (lang === 'ko' ? p.label_ko : p.label_en);
+      var width = Math.max(2, p.percent); // 0%여도 살짝 보이게
+      html += '<div class="ps-phase-row">'+
+        '<div class="ps-phase-name">' + psEsc(p.name) + ' — ' + psEsc(label) + '</div>'+
+        '<div class="ps-phase-track">'+
+          '<div class="ps-phase-fill" style="width:' + width + '%;background:' + color + ';">' +
+            (p.percent >= 15 ? psEsc(p.percent + '%') : '') +
+          '</div>'+
+        '</div>'+
+        '<div class="ps-phase-pct">' + psEsc(p.percent + '%') + '</div>'+
+        '<div class="ps-phase-icon">' + icon + '</div>'+
+      '</div>';
+    });
+    area.innerHTML = html;
+  }
+
+  // ----- KPI 3: Vercel Functions (GitHub api/ 폴더 재귀 카운트) -----
+  function psFetchKPIFunctions(){
+    // api/ 디렉토리 트리를 재귀 카운트 (Vercel은 api/ 하위 모든 .js를 함수로 인식)
+    var jsCount = 0;
+    var pendingDirs = 0;
+    var done = false;
+
+    function finalize(){
+      if (done) return;
+      done = true;
+      var max = 12;
+      var total = jsCount;
+      var free = max - total;
+      var pct = Math.round(total/max*100);
+      var v = $('ps-kpi-fn-val'); if (v) v.textContent = total + ' / ' + max;
+      var s = $('ps-kpi-fn-sub'); if (s) {
+        var lang = (window.TW && window.TW.lang) ? window.TW.lang : 'en';
+        s.textContent = (lang==='ko') ? (free + ' 슬롯 여유') : (free + ' slots free');
+      }
+      var bar = $('ps-kpi-fn-bar');
+      if (bar){
+        bar.style.width = pct + '%';
+        bar.style.background = (free >= 3) ? '#22c55e' : (free >= 1 ? '#f59e0b' : '#ef4444');
+      }
+    }
+
+    function walk(path){
+      pendingDirs++;
+      fetch('https://api.github.com/repos/' + PS_REPO + '/contents/' + path)
+        .then(function(r){ psUpdateRateLimit(r); return r.json(); })
+        .then(function(arr){
+          if (Array.isArray(arr)){
+            arr.forEach(function(f){
+              if (f.type === 'file' && /\.js$/.test(f.name)) jsCount++;
+              else if (f.type === 'dir') walk(f.path);
+            });
+          }
+        })
+        .catch(function(e){ console.warn('[ps] fn walk failed', path, e); })
+        .finally(function(){
+          pendingDirs--;
+          if (pendingDirs === 0) finalize();
+        });
+    }
+
+    try { walk('api'); }
+    catch(e){
+      console.warn('[ps] fn fetch failed', e);
+      var v = $('ps-kpi-fn-val'); if (v) v.textContent = '9 / 12';
+    }
+  }
+
+  // ----- KPI 2: Overall Progress (CHANGELOG + BACKLOG 기반) -----
+  function psFetchKPIProgress(){
+    // 휴리스틱: SOLO_WORK_QUEUE.md 의 [DONE] 카운트 / 전체 항목 카운트
+    fetch('https://api.github.com/repos/' + PS_REPO + '/contents/SOLO_WORK_QUEUE.md')
+      .then(function(r){ psUpdateRateLimit(r); return r.json(); })
+      .then(function(d){
+        var content = psDecodeBase64Utf8(d.content);
+        if (!content){ throw new Error('empty'); }
+        // 항목 헤더 패턴: ### [A-Z]\. 또는 ### [A-Z]\. 🟢/🟡/🔴
+        var items = content.match(/^###\s+[A-Z]\.\s/gm) || [];
+        var done  = content.match(/\[DONE\s+[a-f0-9]+\]/g) || [];
+        var total = items.length;
+        var pct = total > 0 ? Math.round(done.length / total * 100) : 0;
+        var v = $('ps-kpi-progress-pct'); if (v) v.textContent = pct + '%';
+        var s = $('ps-kpi-progress-sub');
+        if (s){
+          var lang = (window.TW && window.TW.lang) ? window.TW.lang : 'en';
+          s.textContent = (lang==='ko')
+            ? ('완료 ' + done.length + ' / 전체 ' + total)
+            : ('Done ' + done.length + ' / Total ' + total);
+        }
+        var bar = $('ps-kpi-progress-bar');
+        if (bar){
+          bar.style.width = pct + '%';
+          bar.style.background = psBarColor(pct);
+        }
+      })
+      .catch(function(){
+        var v = $('ps-kpi-progress-pct'); if (v) v.textContent = '—';
+      });
+  }
+
+  // ----- 섹션 3: Recent Activity (GitHub commits API) -----
+  function psFetchRecentActivity(){
+    var area = $('ps-timeline-area'); if (!area) return;
+    area.innerHTML = '<div class="ad-loading"><div class="ad-loader"></div><span>Loading commits...</span></div>';
+    fetch('https://api.github.com/repos/' + PS_REPO + '/commits?per_page=30')
+      .then(function(r){ psUpdateRateLimit(r); if (!r.ok) throw new Error('http ' + r.status); return r.json(); })
+      .then(function(commits){
+        if (!Array.isArray(commits) || commits.length === 0){
+          area.innerHTML = '<div class="ps-empty">No commits found.</div>';
+          return;
+        }
+        // 14일 이내만
+        var cutoff = Date.now() - 14*86400000;
+        var filtered = commits.filter(function(c){
+          var d = c.commit && c.commit.author && c.commit.author.date;
+          return d && (new Date(d).getTime() >= cutoff);
+        });
+        if (filtered.length === 0) filtered = commits.slice(0, 10); // fallback
+
+        var html = '<div class="ps-timeline">';
+        filtered.slice(0, 25).forEach(function(c){
+          var sha = (c.sha || '').slice(0, 7);
+          var url = c.html_url || ('https://github.com/' + PS_REPO + '/commit/' + c.sha);
+          var msg = (c.commit && c.commit.message) ? c.commit.message.split('\n')[0] : '(no message)';
+          var dateRaw = c.commit && c.commit.author && c.commit.author.date;
+          var date = dateRaw ? dateRaw.slice(0, 10) : '';
+
+          // 태그 추출 + 색상
+          var tagInfo = psParseTag(msg);
+          var icon = tagInfo.icon;
+          var msgClean = msg;
+          var chipHtml = tagInfo.tag
+            ? '<span class="ps-tag-chip" style="background:' + tagInfo.bg + ';color:' + tagInfo.fg + '">' + psEsc(tagInfo.tag) + '</span>'
+            : '';
+
+          html += '<div class="ps-timeline-row">'+
+            '<div class="ps-timeline-date">' + psEsc(date) + '</div>'+
+            '<div class="ps-timeline-tag">' + icon + '</div>'+
+            '<div class="ps-timeline-msg">' + chipHtml + psEsc(msgClean) + '</div>'+
+            '<a class="ps-timeline-link" href="' + psEsc(url) + '" target="_blank" rel="noopener">' + psEsc(sha) + ' ↗</a>'+
+          '</div>';
+        });
+        html += '</div>';
+        area.innerHTML = html;
+      })
+      .catch(function(e){
+        console.warn('[ps] commits fetch failed', e);
+        area.innerHTML = '<div class="ps-empty">⚠️ GitHub API 호출 실패. Rate limit 초과 가능성. 잠시 후 다시 시도해 주세요.</div>';
+      });
+  }
+
+  function psParseTag(msg){
+    var m = msg.match(/\[([^\]]+)\]/);
+    if (!m) return { tag:'', icon:'•', bg:'#eee', fg:'#666' };
+    var tag = m[1];
+    // 태그별 매핑
+    if (/P0.*버그|P0\s*fix/i.test(tag))   return { tag:tag, icon:'🔥', bg:'#fee2e2', fg:'#b91c1c' };
+    if (/버그|bug|fix/i.test(tag))         return { tag:tag, icon:'🐞', bg:'#fef3c7', fg:'#92400e' };
+    if (/리팩|refactor/i.test(tag))         return { tag:tag, icon:'♻️', bg:'#dbeafe', fg:'#1e40af' };
+    if (/기능|feat|추가/i.test(tag))        return { tag:tag, icon:'✨', bg:'#dcfce7', fg:'#15803d' };
+    if (/문서|docs|chore/i.test(tag))       return { tag:tag, icon:'📝', bg:'#f3e8ff', fg:'#6b21a8' };
+    return { tag:tag, icon:'•', bg:'#f1f5f9', fg:'#475569' };
+  }
+
+  // ----- 섹션 4: BLOCKED 항목 리스트 -----
+  function psFetchBlocked(){
+    var area = $('ps-blocked-area'); if (!area) return;
+    area.innerHTML = '<div class="ad-loading"><div class="ad-loader"></div><span>Parsing...</span></div>';
+
+    Promise.all([
+      fetch('https://api.github.com/repos/' + PS_REPO + '/contents/SOLO_WORK_QUEUE.md').then(function(r){ psUpdateRateLimit(r); return r.json(); }),
+      fetch('https://api.github.com/repos/' + PS_REPO + '/contents/BACKLOG.md').then(function(r){ return r.json(); })
+    ])
+    .then(function(arr){
+      var swqContent = psDecodeBase64Utf8(arr[0] && arr[0].content);
+      var bkContent  = psDecodeBase64Utf8(arr[1] && arr[1].content);
+
+      var blockers = [];
+      blockers = blockers.concat(psExtractBlocked(swqContent, 'SOLO_WORK_QUEUE.md'));
+      blockers = blockers.concat(psExtractBlocked(bkContent,  'BACKLOG.md'));
+
+      // KPI 4 업데이트
+      var kpiVal = $('ps-kpi-blocked-val'); if (kpiVal) kpiVal.textContent = blockers.length;
+      var kpiBar = $('ps-kpi-blocked-bar');
+      if (kpiBar){
+        var pct = Math.min(100, blockers.length * 12);
+        kpiBar.style.width = pct + '%';
+      }
+
+      if (blockers.length === 0){
+        area.innerHTML = '<div class="ps-empty">✅ 현재 결정 대기 중인 BLOCKED 항목이 없습니다.</div>';
+        return;
+      }
+      var html = '<div class="ps-blocked-list">';
+      blockers.forEach(function(b){
+        var fileUrl = 'https://github.com/' + PS_REPO + '/blob/main/' + b.source + '#L' + b.line;
+        html += '<div class="ps-blocked-item" onclick="window.open(\'' + fileUrl + '\',\'_blank\')">'+
+          '<div class="ps-blocked-title">🔴 ' + psEsc(b.title) + '</div>'+
+          '<div class="ps-blocked-meta">' + psEsc(b.source) + ' · L' + b.line + (b.note ? ' · ' + psEsc(b.note) : '') + '</div>'+
+        '</div>';
+      });
+      html += '</div>';
+      area.innerHTML = html;
+    })
+    .catch(function(e){
+      console.warn('[ps] blocked fetch failed', e);
+      area.innerHTML = '<div class="ps-empty">⚠️ 데이터 가져오기 실패. 잠시 후 다시 시도해 주세요.</div>';
+    });
+  }
+
+  function psExtractBlocked(content, source){
+    if (!content) return [];
+    var lines = content.split('\n');
+    var out = [];
+    var seen = {};
+    for (var i=0;i<lines.length;i++){
+      var ln = lines[i];
+      // 패턴 1: 항목 헤더에 🔴 BLOCKED 포함 (예: "### D. 🔴 BLOCKED — sales.html ...")
+      var m = ln.match(/^###\s+([A-Z]\.|\d+\.)\s+🔴\s*(?:BLOCKED\s*)?[—\-:]?\s*(.+)$/);
+      if (m){
+        var title = m[2].replace(/^BLOCKED\s*[—\-:]?\s*/i, '').trim();
+        var key = source + ':' + title.slice(0, 40);
+        if (!seen[key]){ seen[key] = 1; out.push({ title:title, source:source, line:i+1, note:'' }); }
+        continue;
+      }
+      // 패턴 2: 헤더에 🔴 단독 (예: "## 🔴 P0 — ...")
+      var m2 = ln.match(/^##+\s+🔴\s+([^—\n]+(?:—\s*[^\n]+)?)$/);
+      if (m2){
+        var t2 = m2[1].trim();
+        var key2 = source + ':' + t2.slice(0, 40);
+        if (!seen[key2]){ seen[key2] = 1; out.push({ title:t2, source:source, line:i+1, note:'P0/P1 백로그' }); }
+        continue;
+      }
+      // 패턴 3: 본문 [BLOCKED-사유] 또는 🔴 BLOCKED 부분
+      var m3 = ln.match(/\[BLOCKED-?\s*([^\]]+)\]/);
+      if (m3){
+        var t3 = m3[1].trim();
+        var key3 = source + ':' + t3.slice(0, 40);
+        if (!seen[key3]){ seen[key3] = 1; out.push({ title:t3, source:source, line:i+1, note:'inline BLOCKED' }); }
+      }
+    }
+    return out;
+  }
+
+  // ----- 섹션 5: Up Next (SOLO_WORK_QUEUE.md의 미완료 🟢 AUTO) -----
+  function psFetchUpNext(){
+    var area = $('ps-upnext-area'); if (!area) return;
+    area.innerHTML = '<div class="ad-loading"><div class="ad-loader"></div><span>Loading queue...</span></div>';
+
+    fetch('https://api.github.com/repos/' + PS_REPO + '/contents/SOLO_WORK_QUEUE.md')
+      .then(function(r){ psUpdateRateLimit(r); return r.json(); })
+      .then(function(d){
+        var content = psDecodeBase64Utf8(d.content);
+        if (!content){ throw new Error('empty'); }
+
+        var lines = content.split('\n');
+        var items = [];
+        for (var i=0;i<lines.length;i++){
+          var ln = lines[i];
+          // 패턴: "### {letter}. 🟢 AUTO — {title}"  (DONE 제외)
+          var m = ln.match(/^###\s+([A-Z])\.\s+🟢\s*(?:AUTO\s*)?[—\-:]?\s*(.+)$/);
+          if (m){
+            // DONE 마킹 라인 스킵
+            if (/\[DONE\s+[a-f0-9]+\]/.test(ln)) continue;
+            var title = m[2].replace(/^AUTO\s*[—\-:]?\s*/i, '').trim();
+            // 인접 라인에서 예상 시간 추출
+            var hours = '';
+            for (var j=i+1; j<Math.min(i+8, lines.length); j++){
+              var lh = lines[j].match(/예상\s*시간\s*[:：]?\s*([0-9.]+\s*(?:시간|h))/);
+              if (lh){ hours = lh[1]; break; }
+            }
+            items.push({ letter:m[1], title:title, line:i+1, hours:hours });
+          }
+        }
+
+        // 우선순위: P0 → P1 → P2 (큐 파일 등장 순서가 이미 우선순위 반영)
+        items = items.slice(0, 5);
+
+        if (items.length === 0){
+          area.innerHTML = '<div class="ps-empty">🎉 자율 진행 가능한 큐가 비었습니다.</div>';
+          return;
+        }
+        var html = '<div class="ps-upnext-list">';
+        items.forEach(function(it, idx){
+          var fileUrl = 'https://github.com/' + PS_REPO + '/blob/main/SOLO_WORK_QUEUE.md#L' + it.line;
+          html += '<div class="ps-upnext-item">'+
+            '<div class="ps-upnext-title"><span class="ps-upnext-num">' + (idx+1) + '</span>🟢 ' + psEsc(it.title) + '</div>'+
+            '<div class="ps-upnext-meta">[' + psEsc(it.letter) + '] · ' +
+              (it.hours ? ('예상 ' + psEsc(it.hours) + ' · ') : '') +
+              '<a href="' + fileUrl + '" target="_blank" rel="noopener" style="color:#15803d;">SOLO_WORK_QUEUE.md L' + it.line + ' ↗</a>' +
+            '</div>'+
+          '</div>';
+        });
+        html += '</div>';
+        area.innerHTML = html;
+      })
+      .catch(function(e){
+        console.warn('[ps] upnext fetch failed', e);
+        area.innerHTML = '<div class="ps-empty">⚠️ 큐 데이터 가져오기 실패.</div>';
+      });
+  }
+
+  // ----- GitHub Rate Limit 표시 -----
+  function psUpdateRateLimit(response){
+    try {
+      var rem = response.headers.get('X-RateLimit-Remaining');
+      var lim = response.headers.get('X-RateLimit-Limit');
+      if (rem != null && lim != null){
+        var el = $('ps-gh-rate');
+        if (el) el.textContent = '· GitHub API ' + rem + ' / ' + lim;
+      }
+    } catch(e){}
+  }
 
   // ========= Agoda Matching tab (Phase 3 Step 4-3 / [6/8]) =========
   var amLoaded = false;

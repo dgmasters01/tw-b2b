@@ -619,7 +619,7 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
         .ps-phase-icon{flex:0 0 24px;font-size:16px;text-align:center}
 
         .ps-timeline{font-size:13px}
-        .ps-timeline-row{display:grid;grid-template-columns:90px 30px 1fr 90px;gap:10px;padding:9px 6px;border-bottom:1px solid #f3f2f6;align-items:center}
+        .ps-timeline-row{display:grid;grid-template-columns:90px 30px 1fr 60px 80px;gap:10px;padding:9px 6px;border-bottom:1px solid #f3f2f6;align-items:center;position:relative}
         .ps-timeline-row:hover{background:#fafafe}
         .ps-timeline-row:last-child{border-bottom:0}
         .ps-timeline-date{color:#888;font-size:12px;font-family:'SF Mono',Consolas,monospace}
@@ -628,17 +628,29 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
         .ps-timeline-msg .ps-tag-chip{display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:700;margin-right:6px;vertical-align:1px}
         .ps-timeline-link{font-size:12px;color:#534AB7;text-decoration:none;text-align:right}
         .ps-timeline-link:hover{text-decoration:underline}
+        .ps-timeline-copy{justify-self:end}
 
         .ps-blocked-list, .ps-upnext-list{display:flex;flex-direction:column;gap:10px}
-        .ps-blocked-item{background:#fef2f2;border-left:4px solid #ef4444;border-radius:6px;padding:11px 14px;cursor:pointer;transition:background .15s}
+        .ps-blocked-item{background:#fef2f2;border-left:4px solid #ef4444;border-radius:6px;padding:11px 14px;cursor:pointer;transition:background .15s;position:relative}
         .ps-blocked-item:hover{background:#fee5e5}
-        .ps-blocked-title{font-size:13px;font-weight:700;color:#b91c1c;margin-bottom:4px}
+        .ps-blocked-title{font-size:13px;font-weight:700;color:#b91c1c;margin-bottom:4px;padding-right:80px}
         .ps-blocked-meta{font-size:11px;color:#7c2222}
 
-        .ps-upnext-item{background:#f0f9f4;border-left:4px solid #22c55e;border-radius:6px;padding:11px 14px}
-        .ps-upnext-title{font-size:13px;font-weight:700;color:#15803d;margin-bottom:4px}
+        .ps-upnext-item{background:#f0f9f4;border-left:4px solid #22c55e;border-radius:6px;padding:11px 14px;position:relative}
+        .ps-upnext-title{font-size:13px;font-weight:700;color:#15803d;margin-bottom:4px;padding-right:80px}
         .ps-upnext-meta{font-size:11px;color:#3f6f4d}
         .ps-upnext-num{display:inline-block;background:#22c55e;color:#fff;width:20px;height:20px;border-radius:50%;text-align:center;line-height:20px;font-size:11px;font-weight:700;margin-right:8px}
+
+        /* 복사 버튼 */
+        .ps-copy-btn{position:absolute;top:10px;right:10px;background:#fff;border:1px solid #d4d4d8;border-radius:5px;padding:4px 9px;font-size:11px;font-weight:600;color:#52525b;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:4px;font-family:inherit;z-index:2}
+        .ps-copy-btn:hover{background:#534AB7;color:#fff;border-color:#534AB7}
+        .ps-copy-btn.ps-copied{background:#22c55e;color:#fff;border-color:#22c55e}
+        .ps-copy-btn:active{transform:scale(.95)}
+
+        /* 토스트 */
+        .ps-toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(20px);background:#1f2937;color:#fff;padding:11px 22px;border-radius:8px;font-size:13px;font-weight:600;box-shadow:0 6px 20px rgba(0,0,0,.18);opacity:0;transition:opacity .25s, transform .25s;z-index:9999;pointer-events:none}
+        .ps-toast.ps-toast-show{opacity:1;transform:translateX(-50%) translateY(0)}
+        .ps-toast-icon{display:inline-block;margin-right:6px}
 
         .ps-section-h{display:flex;align-items:center;justify-content:space-between;margin:0 0 14px;font-size:16px;font-weight:600}
         .ps-section-h .ps-refresh{font-size:11px;color:#534AB7;cursor:pointer;background:transparent;border:1px solid #534AB7;padding:4px 10px;border-radius:5px;font-weight:600}
@@ -698,7 +710,10 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
       <div class="ad-card" id="ps-section-blocked">
         <div class="ad-card-h">
           <h3>🚧 <span data-en="Blockers (Need Decision)" data-ko="결정 필요 항목 (BLOCKED)">Blockers (Need Decision)</span></h3>
-          <button class="ps-refresh" onclick="psFetchBlocked()" data-en="Refresh" data-ko="새로고침">Refresh</button>
+          <div style="display:flex;gap:8px">
+            <button class="ps-refresh" onclick="psCopyAllBlocked()" data-en="📋 Copy All" data-ko="📋 전체 복사">📋 Copy All</button>
+            <button class="ps-refresh" onclick="psFetchBlocked()" data-en="Refresh" data-ko="새로고침">Refresh</button>
+          </div>
         </div>
         <div id="ps-blocked-area">
           <div class="ad-loading"><div class="ad-loader"></div><span data-en="Parsing BACKLOG.md / SOLO_WORK_QUEUE.md..." data-ko="BACKLOG.md / SOLO_WORK_QUEUE.md 분석 중...">Parsing...</span></div>
@@ -709,7 +724,10 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
       <div class="ad-card">
         <div class="ad-card-h">
           <h3>⏭️ <span data-en="Up Next" data-ko="다음 작업 큐">Up Next</span></h3>
-          <button class="ps-refresh" onclick="psFetchUpNext()" data-en="Refresh" data-ko="새로고침">Refresh</button>
+          <div style="display:flex;gap:8px">
+            <button class="ps-refresh" onclick="psCopyAllUpNext()" data-en="📋 Copy All" data-ko="📋 전체 복사">📋 Copy All</button>
+            <button class="ps-refresh" onclick="psFetchUpNext()" data-en="Refresh" data-ko="새로고침">Refresh</button>
+          </div>
         </div>
         <div id="ps-upnext-area">
           <div class="ad-loading"><div class="ad-loader"></div><span data-en="Loading queue..." data-ko="큐 불러오는 중...">Loading queue...</span></div>
@@ -1118,6 +1136,10 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
     { name: 'Phase 5', label_en: 'i18n & Design Refresh',       label_ko: 'i18n / 디자인 개편',     percent: 0   }
   ];
 
+  // 데이터 캐시 (Copy All 용)
+  var PS_BLOCKED_CACHE = [];
+  var PS_UPNEXT_CACHE = [];
+
   function psBarColor(pct){
     if (pct >= 100) return '#22c55e';   // 초록
     if (pct >= 50)  return '#3b82f6';   // 파랑
@@ -1150,6 +1172,75 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
     return diff;
   }
 
+  // ----- 복사 헬퍼 + 토스트 -----
+  function psShowToast(msg, isError){
+    var existing = document.getElementById('ps-toast');
+    if (existing) existing.remove();
+    var t = document.createElement('div');
+    t.id = 'ps-toast';
+    t.className = 'ps-toast';
+    t.innerHTML = '<span class="ps-toast-icon">' + (isError ? '⚠️' : '✅') + '</span>' + psEsc(msg);
+    document.body.appendChild(t);
+    // 다음 프레임에 show 클래스 추가 (transition 트리거)
+    requestAnimationFrame(function(){ t.classList.add('ps-toast-show'); });
+    setTimeout(function(){
+      t.classList.remove('ps-toast-show');
+      setTimeout(function(){ if (t.parentNode) t.parentNode.removeChild(t); }, 280);
+    }, 1800);
+  }
+
+  function psCopyText(text, btnEl){
+    var ok = function(){
+      psShowToast('복사 완료');
+      if (btnEl){
+        var origHtml = btnEl.innerHTML;
+        btnEl.innerHTML = '✓ Copied';
+        btnEl.classList.add('ps-copied');
+        setTimeout(function(){
+          btnEl.innerHTML = origHtml;
+          btnEl.classList.remove('ps-copied');
+        }, 1400);
+      }
+    };
+    var fail = function(err){
+      console.warn('[ps] copy failed', err);
+      psShowToast('복사 실패 — 직접 선택해 주세요', true);
+    };
+    // 1순위: navigator.clipboard (HTTPS 또는 localhost에서만 작동)
+    if (navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(ok).catch(function(e){
+        // 2순위: execCommand fallback
+        psFallbackCopy(text) ? ok() : fail(e);
+      });
+    } else {
+      psFallbackCopy(text) ? ok() : fail(new Error('no clipboard api'));
+    }
+  }
+
+  function psFallbackCopy(text){
+    try {
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      ta.style.left = '-9999px';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      var ok = document.execCommand('copy');
+      document.body.removeChild(ta);
+      return ok;
+    } catch(e){ return false; }
+  }
+
+  // 전역 노출 — onclick 핸들러용
+  window.psCopyFromBtn = function(btn, ev){
+    if (ev){ ev.stopPropagation(); ev.preventDefault(); }
+    var text = btn.getAttribute('data-copy') || '';
+    psCopyText(text, btn);
+    return false;
+  };
+
   function loadProjectStatus(){
     // 매번 진입 시 갱신 (커밋 등 실시간성 중요)
     psRenderKPIDeadline();
@@ -1166,6 +1257,38 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
   window.psFetchRecentActivity = function(){ return psFetchRecentActivity(); };
   window.psFetchBlocked = function(){ return psFetchBlocked(); };
   window.psFetchUpNext = function(){ return psFetchUpNext(); };
+
+  // Copy All — 캐시된 BLOCKED 전체를 한 번에 복사
+  window.psCopyAllBlocked = function(){
+    if (!PS_BLOCKED_CACHE || PS_BLOCKED_CACHE.length === 0){
+      psShowToast('데이터 로딩 중입니다. 잠시 후 다시 시도해 주세요.', true);
+      return;
+    }
+    var lines = ['🚧 결정 필요 항목 (BLOCKED) — 총 ' + PS_BLOCKED_CACHE.length + '건', ''];
+    PS_BLOCKED_CACHE.forEach(function(b, i){
+      lines.push((i+1) + '. 🔴 ' + b.title);
+      lines.push('   위치: ' + b.source + ' L' + b.line);
+      lines.push('   URL: https://github.com/' + PS_REPO + '/blob/main/' + b.source + '#L' + b.line);
+      lines.push('');
+    });
+    psCopyText(lines.join('\n'));
+  };
+
+  // Copy All — 캐시된 Up Next 전체를 한 번에 복사
+  window.psCopyAllUpNext = function(){
+    if (!PS_UPNEXT_CACHE || PS_UPNEXT_CACHE.length === 0){
+      psShowToast('데이터 로딩 중입니다. 잠시 후 다시 시도해 주세요.', true);
+      return;
+    }
+    var lines = ['⏭️ 다음 작업 큐 (Up Next) — 총 ' + PS_UPNEXT_CACHE.length + '건', ''];
+    PS_UPNEXT_CACHE.forEach(function(it, i){
+      lines.push((i+1) + '. 🟢 ' + it.title + (it.hours ? ' (예상 ' + it.hours + ')' : ''));
+      lines.push('   [' + it.letter + '] · SOLO_WORK_QUEUE.md L' + it.line);
+      lines.push('   URL: https://github.com/' + PS_REPO + '/blob/main/SOLO_WORK_QUEUE.md#L' + it.line);
+      lines.push('');
+    });
+    psCopyText(lines.join('\n'));
+  };
 
   // ----- KPI 1: Deadline D-Day -----
   function psRenderKPIDeadline(){
@@ -1337,6 +1460,7 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
             '<div class="ps-timeline-tag">' + icon + '</div>'+
             '<div class="ps-timeline-msg">' + chipHtml + psEsc(msgClean) + '</div>'+
             '<a class="ps-timeline-link" href="' + psEsc(url) + '" target="_blank" rel="noopener">' + psEsc(sha) + ' ↗</a>'+
+            '<button class="ps-copy-btn ps-timeline-copy" data-copy="' + psEsc(date + '  ' + sha + '  ' + msgClean) + '" onclick="return psCopyFromBtn(this, event)" title="이 줄 전체 복사">📋</button>'+
           '</div>';
         });
         html += '</div>';
@@ -1378,6 +1502,9 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
       blockers = blockers.concat(psExtractBlocked(swqContent, 'SOLO_WORK_QUEUE.md'));
       blockers = blockers.concat(psExtractBlocked(bkContent,  'BACKLOG.md'));
 
+      // 캐시 저장 (Copy All 용)
+      PS_BLOCKED_CACHE = blockers;
+
       // KPI 4 업데이트
       var kpiVal = $('ps-kpi-blocked-val'); if (kpiVal) kpiVal.textContent = blockers.length;
       var kpiBar = $('ps-kpi-blocked-bar');
@@ -1393,7 +1520,9 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
       var html = '<div class="ps-blocked-list">';
       blockers.forEach(function(b){
         var fileUrl = 'https://github.com/' + PS_REPO + '/blob/main/' + b.source + '#L' + b.line;
-        html += '<div class="ps-blocked-item" onclick="window.open(\'' + fileUrl + '\',\'_blank\')">'+
+        var copyText = '🔴 ' + b.title + '\n위치: ' + b.source + ' L' + b.line + '\nURL: ' + fileUrl;
+        html += '<div class="ps-blocked-item" onclick="if(event.target.closest(\'.ps-copy-btn\'))return;window.open(\'' + fileUrl + '\',\'_blank\')">'+
+          '<button class="ps-copy-btn" data-copy="' + psEsc(copyText) + '" onclick="return psCopyFromBtn(this, event)" title="제목 + 위치 복사">📋 Copy</button>'+
           '<div class="ps-blocked-title">🔴 ' + psEsc(b.title) + '</div>'+
           '<div class="ps-blocked-meta">' + psEsc(b.source) + ' · L' + b.line + (b.note ? ' · ' + psEsc(b.note) : '') + '</div>'+
         '</div>';
@@ -1475,6 +1604,9 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
         // 우선순위: P0 → P1 → P2 (큐 파일 등장 순서가 이미 우선순위 반영)
         items = items.slice(0, 5);
 
+        // 캐시 저장 (Copy All 용)
+        PS_UPNEXT_CACHE = items;
+
         if (items.length === 0){
           area.innerHTML = '<div class="ps-empty">🎉 자율 진행 가능한 큐가 비었습니다.</div>';
           return;
@@ -1482,7 +1614,9 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
         var html = '<div class="ps-upnext-list">';
         items.forEach(function(it, idx){
           var fileUrl = 'https://github.com/' + PS_REPO + '/blob/main/SOLO_WORK_QUEUE.md#L' + it.line;
+          var copyText = (idx+1) + '. 🟢 ' + it.title + (it.hours ? ' (예상 ' + it.hours + ')' : '') + '\n[' + it.letter + '] · SOLO_WORK_QUEUE.md L' + it.line;
           html += '<div class="ps-upnext-item">'+
+            '<button class="ps-copy-btn" data-copy="' + psEsc(copyText) + '" onclick="return psCopyFromBtn(this, event)" title="작업 항목 복사">📋 Copy</button>'+
             '<div class="ps-upnext-title"><span class="ps-upnext-num">' + (idx+1) + '</span>🟢 ' + psEsc(it.title) + '</div>'+
             '<div class="ps-upnext-meta">[' + psEsc(it.letter) + '] · ' +
               (it.hours ? ('예상 ' + psEsc(it.hours) + ' · ') : '') +

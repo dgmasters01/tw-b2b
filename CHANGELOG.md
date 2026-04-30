@@ -5,6 +5,68 @@
 
 ---
 
+## 2026-04-30 (9차) — [기능추가] Project Status — 클립보드 복사 버튼 (개별 + 전체)
+
+### 변경 파일
+- `admin.html`: 복사 버튼 UI + 토스트 시스템 + 전역 함수 추가 (~110 lines)
+
+### 배경
+대표님 피드백: "내용을 드래그해서 복사하기 불편하다." Project Status 페이지의 BLOCKED / Up Next / Recent Activity 항목 텍스트를 원클릭으로 클립보드에 복사 필요.
+
+### 변경사항
+
+**A. 개별 항목 복사 버튼 (📋)**
+- BLOCKED 각 항목 우측 상단: 제목 + 위치(파일명/라인) + GitHub URL 복사
+- Up Next 각 항목 우측 상단: 번호 + 제목 + 예상 시간 + URL 복사
+- Recent Activity 각 행 우측: 날짜 + SHA + 커밋 메시지 복사
+
+**B. Copy All 헤더 버튼 (전체 복사)**
+- BLOCKED 섹션 헤더에 "📋 Copy All": 8개 항목 한 번에 텍스트 묶음으로 복사
+- Up Next 섹션 헤더에 "📋 Copy All": 5개 큐 항목 한 번에 복사
+- 형식: 헤더 1줄 + 각 항목 3줄(제목/위치/URL) + 빈줄
+
+**C. 토스트 알림**
+- 복사 성공 시 화면 하단 중앙에 "✅ 복사 완료" 토스트 1.8초 표시
+- 복사 실패 시 "⚠️ 복사 실패 — 직접 선택해 주세요" 토스트
+- 페이드 인/아웃 + Y축 슬라이드 애니메이션
+
+**D. 클립보드 호환성**
+- 1순위: `navigator.clipboard.writeText()` (HTTPS 환경)
+- 2순위 fallback: `document.execCommand('copy')` + 임시 textarea 트릭
+- 둘 다 실패 시 토스트 에러 표시
+
+**E. 데이터 캐싱**
+- `PS_BLOCKED_CACHE`, `PS_UPNEXT_CACHE` 변수 추가
+- fetch 시점에 데이터 캐시 → Copy All에서 재사용 (재호출 없음)
+
+**F. 이벤트 처리**
+- 복사 버튼 클릭 시 `event.stopPropagation()` + `event.preventDefault()` → 카드 자체의 GitHub 이동 onclick과 분리
+- BLOCKED 카드는 본문 클릭 시 GitHub 이동, 복사 버튼 클릭 시 복사만 실행
+
+**G. 전역 함수 노출**
+- `window.psCopyFromBtn(btn, event)` — onclick 핸들러용
+- `window.psCopyAllBlocked()` / `window.psCopyAllUpNext()` — 헤더 버튼용
+
+### 검증
+- inline script 3블록 모두 node --check 통과
+- JSDOM 통합 검증:
+  - 개별 복사 버튼: BLOCKED 8개 ✅ / Up Next 5개 ✅ / Recent Activity 2개 ✅
+  - Copy All 헤더 버튼 2개 ✅
+  - 클릭 → navigator.clipboard 호출 → 토스트 표시까지 정상 ✅
+  - Copy All Blocked 34줄 / Copy All Up Next 22줄 정상 ✅
+  - errors 0건
+
+### Vercel 함수 영향
+- 신규 함수 추가 없음. 9/12 그대로 유지.
+
+### 사유
+대표님 외근/이동 중 모바일에서도 항목 텍스트를 한 번에 복사해서 메신저/노트로 옮길 수 있어야 함. 드래그 선택은 모바일에서 특히 불편하므로 원클릭 복사 + 토스트 피드백으로 UX 개선.
+
+### 관련 commits
+- 다음 commit (이번 작업 단일 commit)
+
+---
+
 ## 2026-04-29 (8차) — [기능추가] admin.html 사이드바에 Project Status 메뉴 신설 (사업 진행도 실시간 대시보드)
 
 ### 변경 파일

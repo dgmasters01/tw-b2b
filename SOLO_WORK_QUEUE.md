@@ -26,15 +26,10 @@
 
 ---
 
-### B. 🟢 AUTO — admin.html Excel 업로드 UI (Phase A 백엔드 활용)
-**작업 내용**: `api/admin-booking-upload.js`(이미 main에 있음) 호출하는 UI 추가
-- admin.html `Bookings` 또는 새 탭에 SheetJS 기반 .xlsx/.csv 업로드 위젯
-- 파싱 결과 미리보기 → 확인 버튼 → POST 호출 → 결과 표시(`processed/skipped/errors`)
-- skipped CID 목록은 admin이 채널 매핑 보강할 수 있도록 `unknown_cids` 섹션 노출
-
-**예상 시간**: 2시간
-**자율 진행 사유**: 백엔드 완성됨, UI는 표준 패턴
-**🔴 BLOCKED 부분**: 실제 Agoda Booking Analytics 엑셀의 `cid` 컬럼명 — 대표님 답변 필요. 일단 'cid' 가정으로 작업하고 컬럼명 매핑 설정 UI도 함께 추가해서 나중에 변경 가능하게 함.
+### B. 🟢 ✅ **[DONE 2026-04-30 — 12차]** AUTO — admin.html Excel 업로드 UI (Phase A 백엔드 활용)
+**완료 내용**: Agoda Channel Upload 서브탭에 Mode 드롭다운 옵션 `⚡ Auto-cid (server)` 신설. 이 모드에서 채널은 자동 결정(cid → channel_cid_map 매핑)되며, CID 컬럼명 오버라이드 input과 Preview 버튼(첫 파일 5행 + 컬럼 자동 감지) 함께 추가. `processBagodaUploadServer()` 함수가 `/api/admin?action=booking-upload`을 1000행 chunk로 POST 호출, 결과에 unknown_cids 별도 섹션 노출(channel_cid_map 보강 가이드 포함). 기존 클라이언트 직접 RLS upsert 흐름은 회귀 방지로 mode='upsert'/'insert'로 그대로 유지.
+**🔴 BLOCKED 자율 처리 결과**: 실제 Agoda 엑셀 'cid' 컬럼명 — 자동 감지(`cid` / `affiliateid` 정규화 매칭) + 오버라이드 input으로 양면 대응. 실제 컬럼명 확인 후 입력하면 즉시 동작.
+**복귀 후 검수**: admin.html → Bookings → Agoda Channel Upload → Mode를 `⚡ Auto-cid (server)`로 변경 → 실제 Agoda 엑셀 1개 드래그 → Preview 눌러서 CID 컬럼 자동 감지 확인 → Process Upload → 결과의 unknown_cids 섹션 확인 후 channel_cid_map 보강.
 
 ---
 

@@ -5,6 +5,43 @@
 
 ---
 
+## 2026-04-30 (12차) — [기능추가] Agoda 업로드 — 서버사이드 booking-upload 모드 + Preview + CID 컬럼명 오버라이드
+
+### 변경 파일
+- `admin.html`: Agoda Channel Upload 서브탭에 (1) Mode 드롭다운에 `⚡ Auto-cid (server)` 옵션 추가, (2) CID 컬럼명 오버라이드 input 추가, (3) Preview 버튼 + 미리보기 영역 추가, (4) Mode 변경 시 채널 강제선택 비활성화 토글, (5) `processBagodaUploadServer()` 신설 — `/api/admin?action=booking-upload` 호출, (6) unknown_cids 결과 노출 (channel_cid_map 보강 가이드 포함), (7) `previewBagodaUpload()` 신설 — 첫 파일 5행 + 컬럼 자동 감지 결과 표시. 기존 클라이언트 직접 RLS upsert 흐름은 회귀 방지를 위해 그대로 유지하고 mode 분기로 위임.
+
+### 배경
+SOLO_WORK_QUEUE Up Next 2번 [B] — 백엔드 `api/admin?action=booking-upload`은 이미 main에 있으나 호출하는 UI가 없었음. 기존 UI는 채널을 사용자가 미리 선택해야 하는 클라이언트 직접 RLS upsert 방식 → channel_cid_map 자동 매핑 미활용. 데드라인 5/3 직결.
+
+### 변경사유
+- 백엔드 `handleBookingUpload`은 cid 컬럼만 있으면 `channel_cid_map`을 자동 룩업해서 channel_code를 결정 + service_role로 RLS 우회 → 6개 언어 채널을 가진 우리 운영에 훨씬 적합.
+- 기존 UI 흐름은 회귀 방지 + 비상시 fallback 유지를 위해 그대로 두고, Mode 드롭다운에 새 옵션을 추가하는 방식으로 병존 (운영자가 데이터 안전성 검증 후 점진적 전환 가능).
+- BLOCKED 항목인 'cid 컬럼명' 자율 처리: 자동 감지(`cid` / `affiliateid` 정규화 매칭) + 오버라이드 입력 필드 → 실제 Agoda 엑셀 컬럼명 확인 전이라도 운영 가능.
+- Preview는 DB write 없이 첫 파일 5행 + 컬럼 자동 감지 결과 표시 → 본 업로드 전 안전 검증 단계.
+
+### 핵심 동작 (server-auto-cid 모드)
+1. 사용자: Excel 드래그 → Preview 클릭 (선택사항) → CID 컬럼 자동 감지 결과 확인 → Process Upload
+2. 클라이언트: 모든 파일 raw row 객체로 변환, CID 컬럼은 'cid' 키로 normalize
+3. 1000행 chunk로 `/api/admin?action=booking-upload` POST
+4. 백엔드: cid → channel_cid_map 룩업 → channel_code 결정 → bookings_agoda upsert (channel_code,booking_id 충돌 시 merge)
+5. 결과: inserted/processed/skipped + unknown_cids 별도 섹션으로 노출 → admin이 channel_cid_map 보강 가능
+
+### 검증
+- `node --check api/admin.js` ✓ (이전 차에서 수정한 안전성 코드 그대로)
+- `admin.html` 3개 inline `<script>` 모두 `node --check` ✓
+- 함수 정의/호출 매칭: updateAgodaModeUI(1/2) previewBagodaUpload(1/1) processBagodaUploadServer(1/1) processBagodaUpload(1/1) — 모두 정상
+- 새 DOM ID 8개 모두 마크업+JS 매칭: btn-bagoda-preview, bagoda-preview, bagoda-preview-meta, bagoda-preview-table, bagoda-cid-col, bagoda-cid-col-wrap, bagoda-channel-label, bagoda-channel-hint
+
+### 회귀 위험
+- 기존 'upsert' / 'insert' 모드는 코드 변경 없음 (mode 분기 진입 전에 동일 함수 본문 그대로 실행)
+- 새 UI element는 기본 `display:none`이라 기존 사용자 경험 변화 없음 (Mode 변경 시에만 노출)
+
+### 관련
+- BACKLOG.md (Phase 4 booking visibility 후속), SOLO_WORK_QUEUE.md L36
+- 백엔드 핸들러: api/admin.js:368 handleBookingUpload (이미 main)
+
+---
+
 ## 2026-04-30 (11차) — [버그수정] Admin Hotels 매니저 정보 auth.users JOIN 보강 + list-users API 안전성
 
 ### 변경 파일

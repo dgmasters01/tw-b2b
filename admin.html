@@ -431,17 +431,24 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
 
           <div class="bk-form-grid" style="margin-bottom:18px;">
             <div>
-              <label class="bk-required">Channel</label>
+              <label class="bk-required" id="bagoda-channel-label">Channel</label>
               <select id="bagoda-channel">
                 <option value="">— Select channel —</option>
               </select>
+              <div id="bagoda-channel-hint" style="font-size:11.5px;color:#888;margin-top:4px;display:none;">Auto-cid 모드에서는 채널이 자동 결정됩니다 (선택 무시)</div>
             </div>
             <div>
               <label>Mode</label>
               <select id="bagoda-mode">
                 <option value="upsert">Upsert (insert new, update existing)</option>
                 <option value="insert">Insert only (skip duplicates)</option>
+                <option value="server-auto-cid">⚡ Auto-cid (server, channel from cid)</option>
               </select>
+            </div>
+            <div id="bagoda-cid-col-wrap" style="display:none;">
+              <label>CID column name override</label>
+              <input type="text" id="bagoda-cid-col" placeholder="cid (default)" style="padding:7px 12px;border:1px solid #e0e0e0;border-radius:6px;font-family:inherit;font-size:13px;width:100%;">
+              <div style="font-size:11.5px;color:#888;margin-top:4px;">실제 엑셀의 CID 컬럼명이 다를 때만 입력 (예: <code>Affiliate ID</code>). 비워두면 자동 감지.</div>
             </div>
           </div>
 
@@ -454,8 +461,15 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
           <div class="bk-file-list" id="bagoda-file-list"></div>
 
           <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap;">
+            <button class="ad-btn ad-btn-secondary" id="btn-bagoda-preview" disabled>👁️ Preview (parse only, no DB write)</button>
             <button class="ad-btn ad-btn-primary" id="btn-bagoda-process" disabled>🚀 Process Upload</button>
             <button class="ad-btn ad-btn-secondary" id="btn-bagoda-clear" style="display:none;">Clear</button>
+          </div>
+
+          <div id="bagoda-preview" style="display:none;margin-top:14px;padding:12px;background:#fafafa;border:1px solid #e8e8e8;border-radius:8px;">
+            <div style="font-size:13px;font-weight:600;margin-bottom:8px;">📋 Preview — first 5 rows × first file</div>
+            <div id="bagoda-preview-meta" style="font-size:12px;color:#666;margin-bottom:8px;"></div>
+            <div id="bagoda-preview-table" style="overflow-x:auto;font-size:11.5px;"></div>
           </div>
 
           <div class="bk-progress" id="bagoda-progress"><div class="bk-progress-bar" id="bagoda-progress-bar"></div></div>
@@ -2788,6 +2802,10 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
     setupAgodaDropZone();
     $('btn-bagoda-process').addEventListener('click', processBagodaUpload);
     $('btn-bagoda-clear').addEventListener('click', clearBagodaQueue);
+    // [기능추가 2026-04-30] Mode 변경 시 UI 토글 + Preview 핸들러
+    $('bagoda-mode').addEventListener('change', updateAgodaModeUI);
+    $('btn-bagoda-preview').addEventListener('click', previewBagodaUpload);
+    updateAgodaModeUI(); // 초기 상태 반영
 
     // Initial load
     loadBself();
@@ -3097,10 +3115,14 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
 
   function renderAgodaFileList(){
     var list = $('bagoda-file-list');
+    var previewBtn = $('btn-bagoda-preview');
     if (bagodaPendingFiles.length === 0){
       list.innerHTML = '';
       $('btn-bagoda-process').disabled = true;
+      if (previewBtn) previewBtn.disabled = true;
       $('btn-bagoda-clear').style.display = 'none';
+      // 미리보기 박스 숨김
+      var pv = $('bagoda-preview'); if (pv) pv.style.display = 'none';
       return;
     }
     var html = '';
@@ -3121,6 +3143,7 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
       });
     });
     $('btn-bagoda-process').disabled = false;
+    if (previewBtn) previewBtn.disabled = false;
     $('btn-bagoda-clear').style.display = 'inline-block';
   }
 
@@ -3293,7 +3316,228 @@ body{margin:0;background:#f5f5f7;font-family:'DM Sans','Noto Sans KR',sans-serif
     });
   }
 
+  // =====================================================================
+  // [기능추가 2026-04-30] Mode 토글 + 미리보기 + 서버사이드 booking-upload 호출 모드
+  // =====================================================================
+  function updateAgodaModeUI(){
+    var mode = $('bagoda-mode').value;
+    var isServer = (mode === 'server-auto-cid');
+    var channelSel = $('bagoda-channel');
+    var channelLabel = $('bagoda-channel-label');
+    var channelHint = $('bagoda-channel-hint');
+    var cidColWrap = $('bagoda-cid-col-wrap');
+    if (isServer) {
+      // 서버 모드: 채널은 자동 결정
+      channelLabel.classList.remove('bk-required'); // optional
+      channelLabel.textContent = 'Channel (optional in this mode)';
+      channelHint.style.display = 'block';
+      channelSel.disabled = true;
+      cidColWrap.style.display = '';
+    } else {
+      channelLabel.classList.add('bk-required');
+      channelLabel.textContent = 'Channel';
+      channelHint.style.display = 'none';
+      channelSel.disabled = false;
+      cidColWrap.style.display = 'none';
+    }
+  }
+
+  async function previewBagodaUpload(){
+    if (bagodaPendingFiles.length === 0){
+      T.toast('No files to preview', true);
+      return;
+    }
+    var previewBox = $('bagoda-preview');
+    var meta = $('bagoda-preview-meta');
+    var tableEl = $('bagoda-preview-table');
+    previewBox.style.display = 'block';
+    meta.textContent = '⏳ Parsing first file...';
+    tableEl.innerHTML = '';
+    try {
+      var parsed = await readFileAsRows(bagodaPendingFiles[0]);
+      var firstRows = parsed.rows.slice(0, 5);
+      var headers = parsed.headers;
+      // CID 컬럼 자동 감지: 'cid', 'affiliate id', 'affiliateid' 등
+      var cidColOverride = ($('bagoda-cid-col').value || '').trim().toLowerCase();
+      var cidColIdx = -1;
+      for (var i = 0; i < headers.length; i++){
+        var h = String(headers[i] || '').toLowerCase().trim();
+        var hNorm = h.replace(/[\s_-]/g, '');
+        if (cidColOverride && (h === cidColOverride || hNorm === cidColOverride.replace(/[\s_-]/g, ''))) { cidColIdx = i; break; }
+        if (!cidColOverride && (hNorm === 'cid' || hNorm === 'affiliateid')) { cidColIdx = i; break; }
+      }
+      var cidColMsg = (cidColIdx >= 0)
+        ? ('CID column detected: <code>' + esc(headers[cidColIdx]) + '</code> (index ' + cidColIdx + ')')
+        : '<span style="color:#c93030">⚠️ CID column not found. Use override field above.</span>';
+      meta.innerHTML = '📄 <strong>' + esc(bagodaPendingFiles[0].name) + '</strong> — '
+        + parsed.rows.length + ' data rows, ' + headers.length + ' columns. ' + cidColMsg;
+      // 테이블 렌더 (전체 헤더 + 5행)
+      var html = '<table style="border-collapse:collapse;width:100%;"><thead><tr style="background:#f0f0f0;">';
+      headers.forEach(function(h, i){
+        var hl = (i === cidColIdx) ? 'background:#fff3a5;font-weight:700;' : '';
+        html += '<th style="border:1px solid #ddd;padding:4px 6px;text-align:left;font-weight:600;' + hl + '">' + esc(h) + '</th>';
+      });
+      html += '</tr></thead><tbody>';
+      firstRows.forEach(function(r){
+        html += '<tr>';
+        headers.forEach(function(_, i){
+          var v = r[i];
+          var cellStr = (v == null) ? '' : String(v);
+          if (cellStr.length > 40) cellStr = cellStr.slice(0, 37) + '...';
+          var hl = (i === cidColIdx) ? 'background:#fffbe0;' : '';
+          html += '<td style="border:1px solid #eee;padding:3px 6px;' + hl + '">' + esc(cellStr) + '</td>';
+        });
+        html += '</tr>';
+      });
+      html += '</tbody></table>';
+      tableEl.innerHTML = html;
+    } catch(e) {
+      meta.textContent = '';
+      tableEl.innerHTML = '<div style="color:#c93030;">⚠️ Parse error: ' + esc(e.message || String(e)) + '</div>';
+    }
+  }
+
+  async function processBagodaUploadServer(){
+    // 서버 booking-upload API 호출 모드: cid 컬럼만 있으면 channel_cid_map으로 자동 매핑
+    if (bagodaPendingFiles.length === 0){
+      T.toast('No files to process', true);
+      return;
+    }
+    var processBtn = $('btn-bagoda-process');
+    processBtn.disabled = true;
+    processBtn.textContent = '⏳ Processing (server)...';
+    $('bagoda-result').innerHTML = '';
+    $('bagoda-progress').style.display = 'block';
+    $('bagoda-progress-bar').style.width = '0%';
+
+    var cidColOverride = ($('bagoda-cid-col').value || '').trim();
+    var allRowsAcrossFiles = [];
+    var fileReports = [];
+    // 1. 모든 파일을 raw_row 객체 배열로 변환
+    for (var fi = 0; fi < bagodaPendingFiles.length; fi++){
+      var file = bagodaPendingFiles[fi];
+      try {
+        var parsed = await readFileAsRows(file);
+        var headers = parsed.headers.map(function(h){ return String(h == null ? '' : h); });
+        // cid 컬럼 결정: override 있으면 우선, 없으면 자동
+        var cidColIdx = -1;
+        var cidNeedle = (cidColOverride || 'cid').toLowerCase().replace(/[\s_-]/g, '');
+        for (var hi = 0; hi < headers.length; hi++){
+          var hNorm = headers[hi].toLowerCase().replace(/[\s_-]/g, '');
+          if (hNorm === cidNeedle || (!cidColOverride && hNorm === 'affiliateid')) { cidColIdx = hi; break; }
+        }
+        // 각 row를 객체 변환 — cid 컬럼은 'cid' 키로 강제 normalize
+        var rowObjs = [];
+        parsed.rows.forEach(function(r){
+          var obj = {};
+          for (var i = 0; i < headers.length; i++){
+            var key = headers[i];
+            if (i === cidColIdx) key = 'cid'; // 백엔드 normalizeRow가 cid로 인식
+            if (key) obj[key] = r[i];
+          }
+          rowObjs.push(obj);
+        });
+        allRowsAcrossFiles.push.apply(allRowsAcrossFiles, rowObjs);
+        fileReports.push({ file: file.name, parsed: rowObjs.length, cidCol: cidColIdx >= 0 ? headers[cidColIdx] : '(not found)' });
+      } catch(e){
+        fileReports.push({ file: file.name, error: e.message || String(e) });
+      }
+      $('bagoda-progress-bar').style.width = ((fi + 1) / bagodaPendingFiles.length * 30) + '%';
+    }
+
+    if (allRowsAcrossFiles.length === 0){
+      $('bagoda-result').innerHTML = '<div class="bk-result-card"><div style="color:#c93030;">⚠️ No rows parsed. Check files and CID column override.</div></div>';
+      processBtn.disabled = false;
+      processBtn.textContent = '🚀 Process Upload';
+      $('bagoda-progress').style.display = 'none';
+      return;
+    }
+
+    // 2. 백엔드 호출 (chunked: 1000 rows per request, 5000 한도 안전)
+    $('bagoda-progress-bar').style.width = '40%';
+    var session = await T.sb.auth.getSession();
+    var token = session.data.session ? session.data.session.access_token : '';
+    var aggregated = { processed: 0, skipped_count: 0, inserted_count: 0, errors: [], skipped: [] };
+    var CHUNK = 1000;
+    for (var ci = 0; ci < allRowsAcrossFiles.length; ci += CHUNK){
+      var rowsChunk = allRowsAcrossFiles.slice(ci, ci + CHUNK);
+      try {
+        var resp = await fetch('/api/admin?action=booking-upload', {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ rows: rowsChunk, sourceFilename: 'merged-' + bagodaPendingFiles.length + '-files' })
+        });
+        var data = await resp.json();
+        if (!resp.ok) {
+          aggregated.errors.push({ chunk_start: ci, error: data.error || ('HTTP ' + resp.status) });
+        } else {
+          aggregated.processed += data.processed || 0;
+          aggregated.skipped_count += data.skipped_count || 0;
+          aggregated.inserted_count += data.inserted_count || 0;
+          (data.errors || []).forEach(function(e){ aggregated.errors.push(e); });
+          (data.skipped || []).forEach(function(s){ aggregated.skipped.push(s); });
+        }
+      } catch(e){
+        aggregated.errors.push({ chunk_start: ci, error: e.message || String(e) });
+      }
+      $('bagoda-progress-bar').style.width = (40 + (ci + CHUNK) / allRowsAcrossFiles.length * 60) + '%';
+    }
+    $('bagoda-progress-bar').style.width = '100%';
+    setTimeout(function(){ $('bagoda-progress').style.display = 'none'; }, 600);
+
+    // 3. unknown_cids 집계 (skipped 항목 중 'unknown cid:' 프리픽스 추출)
+    var unknownCids = {};
+    aggregated.skipped.forEach(function(s){
+      if (s && s.reason && s.reason.indexOf('unknown cid:') === 0){
+        var c = s.reason.replace('unknown cid:', '').trim();
+        unknownCids[c] = (unknownCids[c] || 0) + 1;
+      }
+    });
+
+    // 4. 결과 렌더
+    var html = '<div class="bk-result-card">'+
+      '<div style="font-size:14px;font-weight:600;margin-bottom:10px;">⚡ Server Upload Result (auto-cid)</div>'+
+      '<div class="bk-result-stats">'+
+        '<div class="bk-result-stat"><div class="bk-result-stat-val" style="color:#0a7c3a;">' + aggregated.inserted_count + '</div><div class="bk-result-stat-lbl">Inserted/Updated</div></div>'+
+        '<div class="bk-result-stat"><div class="bk-result-stat-val" style="color:#888;">' + aggregated.processed + '</div><div class="bk-result-stat-lbl">Processed</div></div>'+
+        '<div class="bk-result-stat"><div class="bk-result-stat-val" style="color:#c97a07;">' + aggregated.skipped_count + '</div><div class="bk-result-stat-lbl">Skipped</div></div>'+
+        '<div class="bk-result-stat"><div class="bk-result-stat-val" style="color:' + (aggregated.errors.length ? '#c93030' : '#1a1a1a') + ';">' + aggregated.errors.length + '</div><div class="bk-result-stat-lbl">Errors</div></div>'+
+      '</div>'+
+      '<div class="bk-result-list">';
+    fileReports.forEach(function(fr){
+      if (fr.error){
+        html += '<div class="bk-result-row"><span class="bk-result-tag err">ERR</span><span><strong>' + esc(fr.file) + '</strong>: ' + esc(fr.error) + '</span></div>';
+      } else {
+        html += '<div class="bk-result-row"><span class="bk-result-tag new">PARSED</span><span><strong>' + esc(fr.file) + '</strong>: ' + fr.parsed + ' rows, CID column: <code>' + esc(fr.cidCol) + '</code></span></div>';
+      }
+    });
+    var unknownKeys = Object.keys(unknownCids);
+    if (unknownKeys.length){
+      html += '<div class="bk-result-row" style="border-top:1px solid #eee;margin-top:8px;padding-top:8px;"><strong>🔴 Unknown CIDs (need channel_cid_map registration)</strong></div>';
+      unknownKeys.forEach(function(c){
+        html += '<div class="bk-result-row"><span class="bk-result-tag skp">UNK</span><span><code>' + esc(c) + '</code> — ' + unknownCids[c] + ' rows skipped</span></div>';
+      });
+      html += '<div class="bk-result-row" style="font-size:11.5px;color:#888;margin-top:6px;">→ Supabase Studio에서 <code>channel_cid_map</code> 테이블에 위 CID들을 채널 코드와 함께 등록하면 다음 업로드부터 매핑됩니다.</div>';
+    }
+    aggregated.errors.slice(0, 20).forEach(function(e){
+      html += '<div class="bk-result-row"><span class="bk-result-tag err">ERR</span><span>chunk@' + (e.chunk_start || 0) + ': ' + esc(String(e.error || e).slice(0, 200)) + '</span></div>';
+    });
+    html += '</div></div>';
+    $('bagoda-result').innerHTML = html;
+
+    processBtn.disabled = false;
+    processBtn.textContent = '🚀 Process Upload';
+    bagodaPendingFiles = [];
+    renderAgodaFileList();
+    loadBagodaStats();
+  }
+
   async function processBagodaUpload(){
+    // [기능추가 2026-04-30] mode가 'server-auto-cid'면 백엔드 booking-upload 호출로 위임
+    if ($('bagoda-mode').value === 'server-auto-cid') {
+      return processBagodaUploadServer();
+    }
+    // 기존 클라이언트 RLS upsert 흐름은 그대로 유지 (회귀 방지)
     var channel = $('bagoda-channel').value;
     var mode = $('bagoda-mode').value || 'upsert';
     if (!channel){

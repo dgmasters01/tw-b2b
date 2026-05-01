@@ -1,228 +1,61 @@
 <!DOCTYPE html>
-<html lang="ko">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>TW Booking Analytics</title>
-<link rel="stylesheet" href="shared.css">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="shared.js"></script>
 <style>
-/* ===== booking-analytics.html — v2 Aurora migration (20차) ===== */
-/* shared.css v2 가 base 톤·컬러·폰트·aurora-bg·glass-card·btn 모두 제공 */
-
-/* ---------- Topbar (sticky glass — 17/18/19차 표준) ---------- */
-.ba-topbar{
-  position:sticky;top:0;z-index:900;
-  background:rgba(10,10,15,.72);backdrop-filter:blur(16px) saturate(140%);
-  -webkit-backdrop-filter:blur(16px) saturate(140%);
-  border-bottom:1px solid var(--line);
-  padding:0 32px;display:flex;align-items:center;justify-content:space-between;
-  height:64px;
-}
-.ba-logo{display:flex;align-items:center;gap:12px;text-decoration:none}
-.ba-logo-icon{
-  width:32px;height:32px;border-radius:8px;
-  background:var(--aurora);
-  display:flex;align-items:center;justify-content:center;
-  font-size:13px;font-weight:800;color:#fff;
-  box-shadow:var(--glow-p);
-  font-family:var(--display);
-}
-.ba-logo-text{font-family:var(--display);font-size:16px;font-weight:700;color:var(--ink);letter-spacing:-.01em}
-.ba-nav-right{display:flex;gap:10px;align-items:center}
-.ba-user{font-size:13px;color:var(--ink-3);margin-right:6px}
-.ba-btn-out{
-  background:var(--glass);border:1px solid var(--line-2);
-  color:var(--ink-2);padding:8px 14px;border-radius:8px;
-  cursor:pointer;font-size:13px;font-family:var(--sans);
-  text-decoration:none;transition:var(--transition);
-}
-.ba-btn-out:hover{background:var(--glass-2);color:var(--ink);border-color:var(--line-3)}
-
-/* admin embed 시 topbar 숨김 */
-.ba-embed .ba-topbar{display:none}
-
-/* ---------- Container ---------- */
-.W{max-width:1100px;margin:0 auto;padding:32px 24px;position:relative;z-index:1}
-.H{margin-bottom:24px;display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:8px}
-.H h1{font-size:28px;font-weight:700;letter-spacing:-.02em;font-family:var(--display);color:var(--ink);
-  background:var(--aurora);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
-.H .m{font-size:11px;color:var(--ink-3);text-align:right}
-.H .u{background:rgba(72,201,176,.15);color:#48c9b0;padding:3px 10px;border-radius:6px;font-size:10px;font-weight:600;border:1px solid rgba(72,201,176,.3)}
-
-/* ---------- KPI cards (글래스 + aurora 그라디언트 텍스트) ---------- */
-.G{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:24px}
-.S{
-  background:var(--glass);border:1px solid var(--line-2);
-  border-radius:14px;padding:18px 20px;
-  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
-  transition:var(--transition);
-}
-.S:hover{background:var(--glass-2);border-color:var(--line-3)}
-.S .l{font-size:11px;color:var(--ink-3);margin-bottom:4px;text-transform:uppercase;letter-spacing:.05em}
-.S .v{
-  font-size:26px;font-weight:700;font-family:var(--display);letter-spacing:-.02em;
-  background:var(--aurora);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
-  line-height:1.2;
-}
-.S .s{font-size:11px;color:var(--ink-2);margin-top:4px}
-
-/* ---------- Tabs ---------- */
-.T{display:flex;gap:2px;border-bottom:1px solid var(--line);margin-bottom:24px;overflow-x:auto}
-.tb{padding:11px 16px;font-size:13px;cursor:pointer;border:none;background:none;color:var(--ink-3);white-space:nowrap;border-bottom:2px solid transparent;font-family:var(--sans);transition:var(--transition)}
-.tb.on{color:var(--ink);font-weight:600;border-bottom-color:transparent;background:linear-gradient(transparent 95%,var(--aurora-1) 95%)}
-.tb:hover{color:var(--ink)}
-
-/* ---------- Cards / chart wrappers ---------- */
-.C{
-  background:var(--glass);border:1px solid var(--line-2);
-  border-radius:14px;padding:20px;margin-bottom:18px;
-  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
-}
-.C h3{font-size:14px;font-weight:600;margin-bottom:14px;color:var(--ink-2);font-family:var(--sans)}
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#f8f7f4;--cd:#fff;--tx:#1a1a1a;--sb:#666;--ht:#999;--bd:#e8e6e1;--ac:#534AB7;--tl:#1D9E75;--cr:#D85A30;--bl:#378ADD}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--tx);line-height:1.5;font-size:14px}
+.W{max-width:940px;margin:0 auto;padding:20px 16px}
+.H{margin-bottom:20px;display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:8px}
+.H h1{font-size:22px;font-weight:700;letter-spacing:-.5px}.H .m{font-size:11px;color:var(--ht);text-align:right}
+.H .u{background:#E1F5EE;color:#0F6E56;padding:2px 8px;border-radius:6px;font-size:10px;font-weight:500}
+.G{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:20px}
+.S{background:var(--cd);border:1px solid var(--bd);border-radius:12px;padding:14px 16px}
+.S .l{font-size:11px;color:var(--ht);margin-bottom:2px}.S .v{font-size:22px;font-weight:600}.S .s{font-size:11px;color:var(--sb);margin-top:2px}
+.T{display:flex;gap:2px;border-bottom:1px solid var(--bd);margin-bottom:20px;overflow-x:auto}
+.tb{padding:10px 14px;font-size:13px;cursor:pointer;border:none;background:none;color:var(--sb);white-space:nowrap;border-bottom:2px solid transparent}
+.tb.on{color:var(--tx);font-weight:500;border-bottom-color:var(--ac)}.tb:hover{color:var(--tx)}
+.C{background:var(--cd);border:1px solid var(--bd);border-radius:12px;padding:16px;margin-bottom:16px}
+.C h3{font-size:14px;font-weight:500;margin-bottom:12px;color:var(--sb)}
 .cw{position:relative;height:280px;margin-bottom:8px}
-
-/* ---------- Tables ---------- */
 table{width:100%;border-collapse:collapse;font-size:13px}
-th{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line-2);color:var(--ink-3);font-weight:500;font-size:11px;white-space:nowrap;text-transform:uppercase;letter-spacing:.04em}
-td{padding:10px 12px;border-bottom:1px solid var(--line);color:var(--ink-2)}
-tr:hover{background:var(--glass-1)}
-tr.ck{cursor:pointer}
-tr.ck:hover{background:rgba(139,92,246,.08)}
+th{text-align:left;padding:8px 10px;border-bottom:1px solid var(--bd);color:var(--ht);font-weight:400;font-size:11px;white-space:nowrap}
+td{padding:8px 10px;border-bottom:1px solid #f0eee9}tr:hover{background:#faf9f6}
+tr.ck{cursor:pointer}tr.ck:hover{background:#f0eef8}
 .r{text-align:right}
-
-/* ---------- Rank badges (aurora 친화) ---------- */
-.rk{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;font-size:11px;font-weight:700}
-.r1{background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#3a2a08}
-.r2{background:linear-gradient(135deg,#cbd5e1,#94a3b8);color:#1e293b}
-.r3{background:linear-gradient(135deg,#fb923c,#ea580c);color:#fff}
-.rn{background:var(--glass-2);color:var(--ink-3);border:1px solid var(--line-2)}
-
-/* ---------- Status badges (다크 친화) ---------- */
-.bg{display:inline-block;padding:3px 10px;border-radius:10px;font-size:11px;font-weight:600;border:1px solid}
-.bk{background:rgba(139,92,246,.15);color:#a78bfa;border-color:rgba(139,92,246,.3)}
-.bj{background:rgba(251,146,60,.15);color:#fb923c;border-color:rgba(251,146,60,.3)}
-.bt{background:rgba(56,189,248,.15);color:#38bdf8;border-color:rgba(56,189,248,.3)}
-.bv{background:rgba(72,201,176,.15);color:#48c9b0;border-color:rgba(72,201,176,.3)}
-.be{background:rgba(236,72,153,.15);color:#ec4899;border-color:rgba(236,72,153,.3)}
-
-/* ---------- Stars ---------- */
-.st{color:#fbbf24;font-size:12px;letter-spacing:-1px}
-
-/* ---------- Breadcrumb ---------- */
-.bc{display:flex;align-items:center;gap:6px;font-size:13px;margin-bottom:16px;flex-wrap:wrap;color:var(--ink-2)}
-.bc span{color:var(--ink-3)}
-.bc a{color:var(--aurora-1);cursor:pointer;text-decoration:none}
-.bc a:hover{text-decoration:underline}
-
-/* ---------- Promo banner (aurora gradient) ---------- */
-.pb{
-  background:linear-gradient(135deg,rgba(139,92,246,.15),rgba(56,189,248,.1));
-  border:1px solid rgba(139,92,246,.3);
-  border-radius:14px;padding:18px 22px;margin-bottom:18px;
-  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
-}
-.pb h4{font-size:14px;font-weight:600;color:#a78bfa;margin-bottom:6px}
-.pb p{font-size:13px;color:var(--ink-2);line-height:1.7}
-
-/* ---------- Filter buttons ---------- */
+.rk{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;font-size:11px;font-weight:600}
+.r1{background:#FFD700;color:#7a6200}.r2{background:#C0C0C0;color:#555}.r3{background:#CD7F32;color:#fff}.rn{background:#f0eee9;color:#888}
+.bg{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:500}
+.bk{background:#EEEDFE;color:#534AB7}.bj{background:#FAECE7;color:#D85A30}.bt{background:#E6F1FB;color:#378ADD}.bv{background:#E1F5EE;color:#0F6E56}.be{background:#FBEAF0;color:#993556}
+.st{color:#EF9F27;font-size:12px;letter-spacing:-1px}
+.bc{display:flex;align-items:center;gap:6px;font-size:13px;margin-bottom:16px;flex-wrap:wrap}
+.bc span{color:var(--ht)}.bc a{color:var(--ac);cursor:pointer;text-decoration:none}
+.pb{background:linear-gradient(135deg,#f8f0ff,#f0f0ff);border:1px solid #d4c8f0;border-radius:12px;padding:16px 20px;margin-bottom:16px}
+.pb h4{font-size:14px;font-weight:500;color:#534AB7;margin-bottom:6px}.pb p{font-size:13px;color:#333;line-height:1.7}
 .fr{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
-.fb{
-  padding:6px 14px;border-radius:18px;font-size:12px;cursor:pointer;
-  border:1px solid var(--line-2);background:var(--glass);color:var(--ink-2);
-  font-family:var(--sans);transition:var(--transition);
-}
-.fb.on{background:var(--aurora);color:#fff;border-color:transparent;box-shadow:var(--glow-p)}
-.fb:hover{border-color:var(--line-3);color:var(--ink)}
-.fb.on:hover{color:#fff}
-
-/* ---------- Pending / placeholder pills ---------- */
-.pn{font-size:11px;color:#fbbf24;background:rgba(251,191,36,.12);padding:3px 8px;border-radius:6px;display:inline-block;border:1px solid rgba(251,191,36,.3)}
-
-/* ---------- Toggle button group ---------- */
-.vt{display:inline-flex;border:1px solid var(--line-2);border-radius:10px;overflow:hidden;margin-bottom:14px;background:var(--glass)}
-.vb{padding:8px 16px;font-size:12px;cursor:pointer;border:none;background:transparent;color:var(--ink-3);border-right:1px solid var(--line-2);font-family:var(--sans);transition:var(--transition)}
-.vb:last-child{border-right:none}
-.vb.on{background:var(--aurora);color:#fff}
-.vb:hover{color:var(--ink)}
-.vb.on:hover{color:#fff}
-
-/* ---------- Inputs ---------- */
-.ys{
-  padding:6px 12px;border:1px solid var(--line-2);border-radius:8px;
-  font-size:12px;background:var(--glass);color:var(--ink);
-  font-family:var(--sans);
-}
-.si{
-  padding:9px 14px;border:1px solid var(--line-2);border-radius:10px;
-  font-size:13px;width:100%;max-width:420px;margin-bottom:16px;
-  background:var(--glass);color:var(--ink);
-  font-family:var(--sans);transition:var(--transition);
-}
-.si:focus{outline:none;border-color:var(--aurora-1);background:var(--glass-2)}
-.si::placeholder{color:var(--ink-3)}
-
-/* ---------- 2-col grid ---------- */
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-
-/* ---------- Calendar heatmap cells ---------- */
-.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:16px}
-.cal-h{text-align:center;font-size:11px;color:var(--ink-3);padding:4px;text-transform:uppercase;letter-spacing:.04em}
-.cal-d{
-  text-align:center;padding:8px 4px;border-radius:6px;font-size:12px;cursor:pointer;
-  border:1px solid transparent;color:var(--ink-2);background:var(--glass);
-  transition:var(--transition);
-}
-.cal-d:hover{border-color:var(--aurora-1);background:var(--glass-2)}
-.cal-d .cn{font-weight:600;color:var(--ink)}
-.cal-d .ct{font-size:9px;color:var(--ink-3);margin-top:2px}
-
-/* ---------- Pagination ---------- */
-.pg{display:flex;gap:4px;justify-content:center;margin:14px 0}
-.pg button{
-  padding:6px 12px;border:1px solid var(--line-2);border-radius:8px;
-  background:var(--glass);cursor:pointer;font-size:12px;color:var(--ink-2);
-  font-family:var(--sans);transition:var(--transition);
-}
-.pg button:hover{border-color:var(--line-3);color:var(--ink)}
-.pg button.on{background:var(--aurora);color:#fff;border-color:transparent;box-shadow:var(--glow-p)}
-
-@media(max-width:640px){
-  .ba-topbar{padding:0 16px}
-  .W{padding:20px 14px}
-  .H h1{font-size:22px}
-  .G{grid-template-columns:repeat(2,1fr)}
-  .S .v{font-size:20px}
-  .g2{grid-template-columns:1fr}
-}
-</style>
-</head>
-<body>
-
-<!-- Aurora background (v2 standard) -->
-<div class="aurora-bg" aria-hidden="true">
-  <div class="aurora-blob b1"></div>
-  <div class="aurora-blob b2"></div>
-  <div class="aurora-blob b3"></div>
-  <div class="aurora-blob b4"></div>
-</div>
-<div class="aurora-grid" aria-hidden="true"></div>
-
-<!-- Sticky glass topbar (v2 standard — admin embed 시 .ba-embed로 숨김) -->
-<div class="ba-topbar" id="ba-topbar">
-  <a href="dashboard.html" class="ba-logo">
-    <div class="ba-logo-icon">TW</div>
-    <div class="ba-logo-text">TravelWinners</div>
-  </a>
-  <div class="ba-nav-right">
-    <span class="ba-user" id="ba-user-email">—</span>
-    <a href="settings.html" class="ba-btn-out">⚙ Settings</a>
-    <button class="ba-btn-out" id="ba-btn-logout">Sign out</button>
-  </div>
-</div>
-
+.fb{padding:5px 12px;border-radius:16px;font-size:12px;cursor:pointer;border:1px solid var(--bd);background:var(--cd);color:var(--sb)}
+.fb.on{background:var(--ac);color:#fff;border-color:var(--ac)}.fb:hover{border-color:var(--ac)}
+.pn{font-size:11px;color:#BA7517;background:#FAEEDA;padding:3px 8px;border-radius:6px;display:inline-block}
+.vt{display:inline-flex;border:1px solid var(--bd);border-radius:8px;overflow:hidden;margin-bottom:12px}
+.vb{padding:7px 14px;font-size:12px;cursor:pointer;border:none;background:var(--cd);color:var(--sb);border-right:1px solid var(--bd)}
+.vb:last-child{border-right:none}.vb.on{background:var(--ac);color:#fff}
+.ys{padding:5px 10px;border:1px solid var(--bd);border-radius:8px;font-size:12px;background:var(--cd)}
+.si{padding:8px 12px;border:1px solid var(--bd);border-radius:8px;font-size:13px;width:100%;max-width:400px;margin-bottom:16px;background:var(--cd)}
+.si:focus{outline:none;border-color:var(--ac)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:16px}
+.cal-h{text-align:center;font-size:11px;color:var(--ht);padding:4px}
+.cal-d{text-align:center;padding:8px 4px;border-radius:6px;font-size:12px;cursor:pointer;border:1px solid transparent}
+.cal-d:hover{border-color:var(--ac)}
+.cal-d .cn{font-weight:600}.cal-d .ct{font-size:9px;color:var(--ht);margin-top:2px}
+.pg{display:flex;gap:4px;justify-content:center;margin:12px 0}
+.pg button{padding:4px 10px;border:1px solid var(--bd);border-radius:6px;background:var(--cd);cursor:pointer;font-size:12px}
+.pg button.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+@media(max-width:640px){.G{grid-template-columns:repeat(2,1fr)}.S .v{font-size:18px}.g2{grid-template-columns:1fr}}
+</style></head><body>
 <div class="W">
 <div class="H"><div><h1>TW Booking Analytics</h1></div><div class="m">아고다 2계정 합산<br><span class="u">데이터: 2026.04.15</span></div></div>
 <div class="T" id="tabs"></div><div id="ct"></div>
@@ -275,31 +108,12 @@ D.yl.map(function(y){return'<tr><td><strong>'+y.yr+'</strong></td><td class="r">
 '<div><table style="font-size:12px"><thead><tr><th>\uC5F0\uB3C4</th><th class="r">\uC571</th><th class="r">\uC6F9</th><th class="r">\uC571%</th></tr></thead><tbody>'+
 D.yl.map(function(y){var d=D.dvy.filter(function(v){return v.y===y.yr});var ap=d.find(function(v){return v.d==="\uC571"});var wb=d.find(function(v){return v.d==="Website"});return'<tr><td>'+y.yr+'</td><td class="r">'+(ap?ap.b+'\uAC74':'-')+'</td><td class="r">'+(wb?wb.b+'\uAC74':'-')+'</td><td class="r">'+(ap&&wb?P(ap.b,ap.b+wb.b):'-')+'</td></tr>'}).join('')+'</tbody></table></div></div></div>'}
 
-/* [v2 Aurora 20차] Chart.js 글로벌 다크 디폴트 + 색상 팔레트 */
-if(typeof Chart!=='undefined'){
-  Chart.defaults.color='#a1a1aa';
-  Chart.defaults.borderColor='rgba(255,255,255,.06)';
-  Chart.defaults.font.family="Inter,'system-ui','-apple-system',sans-serif";
-}
-/* aurora 단일 색상 (시계열·기본 막대) */
-var BA_COLOR_AURORA1='#8b5cf6';        /* 보라 */
-var BA_COLOR_AURORA2='#ec4899';        /* 마젠타 (주말 강조용) */
-var BA_COLOR_AURORA1_BG='rgba(139,92,246,.7)';
-var BA_COLOR_AURORA1_BG_LIGHT='rgba(139,92,246,.15)';
-var BA_COLOR_EMERALD='#48c9b0';        /* 에메랄드 (예약금액) */
-/* 카테고리 다크 친화 7색 팔레트 */
-var BA_PALETTE=['#8b5cf6','#38bdf8','#fbbf24','#48c9b0','#ec4899','#a78bfa','#22d3ee'];
-/* 성급 색상 (원래 4색 자리에 다크 친화 그라디언트) */
-var BA_PALETTE_STAR=['rgba(255,255,255,.08)','#48c9b0','#38bdf8','#8b5cf6'];
-/* 그리드 색상 (다크 라인) */
-var BA_GRID='rgba(255,255,255,.06)';
-
 function iOC(){var m=fY(D.ps[CV]),lb=m.map(function(x){return x.ym.slice(2)});
-ch_.push(new Chart(document.getElementById('c1'),{type:'bar',data:{labels:lb,datasets:[{data:m.map(function(x){return x.b}),backgroundColor:BA_COLOR_AURORA1_BG,borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{font:{size:9},maxRotation:45}},y:{grid:{color:BA_GRID}}}}}));
-ch_.push(new Chart(document.getElementById('c2'),{type:'bar',data:{labels:lb,datasets:[{label:'\uC608\uC57D\uAE08\uC561',data:m.map(function(x){return x.a}),backgroundColor:BA_COLOR_EMERALD,borderRadius:3,yAxisID:'y'},{label:'\uC218\uC218\uB8CC',data:m.map(function(x){return x.c}),type:'line',borderColor:BA_COLOR_AURORA1,backgroundColor:BA_COLOR_AURORA1_BG_LIGHT,fill:true,tension:.3,pointRadius:2,yAxisID:'y2'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{font:{size:11}}},tooltip:{callbacks:{label:function(c){return c.dataset.label+': '+F(c.raw)}}}},scales:{x:{grid:{display:false},ticks:{font:{size:9},maxRotation:45}},y:{position:'left',grid:{color:BA_GRID},ticks:{font:{size:10},callback:function(v){return'$'+Math.round(v/1000)+'k'}}},y2:{position:'right',grid:{display:false},ticks:{font:{size:10},callback:function(v){return'$'+Math.round(v)}}}}}}));}
+ch_.push(new Chart(document.getElementById('c1'),{type:'bar',data:{labels:lb,datasets:[{data:m.map(function(x){return x.b}),backgroundColor:'rgba(83,74,183,.7)',borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{font:{size:9},maxRotation:45}},y:{grid:{color:'#f0eee9'}}}}}));
+ch_.push(new Chart(document.getElementById('c2'),{type:'bar',data:{labels:lb,datasets:[{label:'\uC608\uC57D\uAE08\uC561',data:m.map(function(x){return x.a}),backgroundColor:'#1D9E75',borderRadius:3,yAxisID:'y'},{label:'\uC218\uC218\uB8CC',data:m.map(function(x){return x.c}),type:'line',borderColor:'#534AB7',backgroundColor:'rgba(83,74,183,.12)',fill:true,tension:.3,pointRadius:2,yAxisID:'y2'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{font:{size:11}}},tooltip:{callbacks:{label:function(c){return c.dataset.label+': '+F(c.raw)}}}},scales:{x:{grid:{display:false},ticks:{font:{size:9},maxRotation:45}},y:{position:'left',grid:{color:'#f0eee9'},ticks:{font:{size:10},callback:function(v){return'$'+Math.round(v/1000)+'k'}}},y2:{position:'right',grid:{display:false},ticks:{font:{size:10},callback:function(v){return'$'+Math.round(v)}}}}}}));}
 
 function rCh(){return'<div class="C"><h3>\uCC44\uB110\uBCC4</h3><div class="cw" style="height:220px"><canvas id="cp"></canvas></div></div><div class="C"><h3>\uC0C1\uC138</h3><table><thead><tr><th>\uCC44\uB110</th><th>\uD0C0\uAC9F</th><th class="r">\uC608\uC57D</th><th class="r">\uAE08\uC561</th><th class="r">\uC218\uC218\uB8CC</th><th class="r">\uBE44\uC911</th></tr></thead><tbody>'+D.ch.map(function(c){return'<tr><td>'+c.ch+'</td><td>'+CB(c.ch)+'</td><td class="r"><strong>'+c.b.toLocaleString()+'\uAC74</strong></td><td class="r">'+F(c.a)+'</td><td class="r">'+F(c.c)+'</td><td class="r">'+P(c.b,D.sm.tb)+'</td></tr>'}).join('')+'</tbody></table></div>'}
-function iCC(){var c=D.ch,co=BA_PALETTE;ch_.push(new Chart(document.getElementById('cp'),{type:'doughnut',data:{labels:c.map(function(v){return v.ch}),datasets:[{data:c.map(function(v){return v.b}),backgroundColor:co,borderColor:'rgba(10,10,15,.5)',borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{font:{size:11},padding:8}}}}}))}
+function iCC(){var c=D.ch,co=['#534AB7','#1D9E75','#D85A30','#378ADD','#D4537E','#639922','#BA7517'];ch_.push(new Chart(document.getElementById('cp'),{type:'doughnut',data:{labels:c.map(function(v){return v.ch}),datasets:[{data:c.map(function(v){return v.b}),backgroundColor:co}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{font:{size:11},padding:8}}}}}))}
 
 function rHtD(hotel,city,country,nav){
 var bks=D.bk.filter(function(b){return b.h===hotel&&b.ci===city&&b.co===country}).sort(function(a,b){return b.d.localeCompare(a.d)});
@@ -312,7 +126,7 @@ return nav+
 '<div class="C"><h3>\uC608\uC57D \uC0C1\uC138 ('+bks.length+'\uAC74)</h3><div style="overflow-x:auto"><table><thead><tr><th>\uC608\uC57D\uBC88\uD638</th><th>\uC608\uC57D\uC77C</th><th>\uCCB4\uD06C\uC778</th><th>\uCCB4\uD06C\uC544\uC6C3</th><th class="r">\uAE08\uC561</th><th class="r">\uC218\uC218\uB8CC</th><th>\uC0C1\uD0DC</th><th>\uAE30\uAE30</th></tr></thead><tbody>'+
 bks.map(function(b){return'<tr><td style="font-family:monospace;font-size:12px">'+b.i+'</td><td>'+b.d+'</td><td>'+b.cd+'</td><td>'+b.od+'</td><td class="r">'+F(b.a)+'</td><td class="r">'+F(b.c)+'</td><td><span class="bg bv">'+(SM[b.s]||b.s)+'</span></td><td>'+b.dv+'</td></tr>'}).join('')+
 '</tbody></table></div></div>'+
-'<div class="C" id="hi-card"><h3>\uD638\uD154 \uAE30\uBCF8\uC815\uBCF4 <span id="hi-status" style="font-size:10px;color:var(--ink-3);font-weight:400;margin-left:6px">\uC870\uD68C \uC911...</span></h3><div id="hi-data" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px 20px;padding:14px 16px;background:var(--glass);border:1px dashed var(--line-2);border-radius:10px"><div><div style="font-size:11px;color:var(--ink-3);margin-bottom:2px">\uC8FC\uC18C</div><div data-fld="address" style="font-size:13px;color:var(--ink-3);font-style:italic">-</div></div><div><div style="font-size:11px;color:var(--ink-3);margin-bottom:2px">\uC804\uD654\uBC88\uD638</div><div data-fld="phone" style="font-size:13px;color:var(--ink-3);font-style:italic">-</div></div><div><div style="font-size:11px;color:var(--ink-3);margin-bottom:2px">\uC774\uBA54\uC77C</div><div data-fld="contact_email" style="font-size:13px;color:var(--ink-3);font-style:italic">-</div></div><div><div style="font-size:11px;color:var(--ink-3);margin-bottom:2px">\uC6F9\uC0AC\uC774\uD2B8</div><div data-fld="website" style="font-size:13px;color:var(--ink-3);font-style:italic">-</div></div><div><div style="font-size:11px;color:var(--ink-3);margin-bottom:2px">\uACE0\uAC1D \uD3C9\uC810</div><div data-fld="review_score" style="font-size:13px;color:var(--ink-3);font-style:italic">-</div></div><div><div style="font-size:11px;color:var(--ink-3);margin-bottom:2px">\uC601\uC5C5 \uB2F4\uB2F9\uC790</div><div data-fld="contact_name" style="font-size:13px;color:var(--ink-3);font-style:italic">-</div></div></div><div id="hi-note" style="font-size:11px;color:var(--ink-3);margin-top:8px;font-style:italic">\uD638\uD154 \uB9E4\uB2C8\uC800\uAC00 hotel-info\uC5D0\uC11C \uB4F1\uB85D\uD55C \uC815\uBCF4\uB97C \uC2E4\uC2DC\uAC04\uC73C\uB85C \uD45C\uC2DC\uD569\uB2C8\uB2E4.</div></div>'+
+'<div class="C" id="hi-card"><h3>\uD638\uD154 \uAE30\uBCF8\uC815\uBCF4 <span id="hi-status" style="font-size:10px;color:var(--ht);font-weight:400;margin-left:6px">\uC870\uD68C \uC911...</span></h3><div id="hi-data" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px 20px;padding:12px 14px;background:#faf9f6;border:1px dashed var(--bd);border-radius:8px"><div><div style="font-size:11px;color:var(--ht);margin-bottom:2px">\uC8FC\uC18C</div><div data-fld="address" style="font-size:13px;color:var(--ht);font-style:italic">-</div></div><div><div style="font-size:11px;color:var(--ht);margin-bottom:2px">\uC804\uD654\uBC88\uD638</div><div data-fld="phone" style="font-size:13px;color:var(--ht);font-style:italic">-</div></div><div><div style="font-size:11px;color:var(--ht);margin-bottom:2px">\uC774\uBA54\uC77C</div><div data-fld="contact_email" style="font-size:13px;color:var(--ht);font-style:italic">-</div></div><div><div style="font-size:11px;color:var(--ht);margin-bottom:2px">\uC6F9\uC0AC\uC774\uD2B8</div><div data-fld="website" style="font-size:13px;color:var(--ht);font-style:italic">-</div></div><div><div style="font-size:11px;color:var(--ht);margin-bottom:2px">\uACE0\uAC1D \uD3C9\uC810</div><div data-fld="review_score" style="font-size:13px;color:var(--ht);font-style:italic">-</div></div><div><div style="font-size:11px;color:var(--ht);margin-bottom:2px">\uC601\uC5C5 \uB2F4\uB2F9\uC790</div><div data-fld="contact_name" style="font-size:13px;color:var(--ht);font-style:italic">-</div></div></div><div id="hi-note" style="font-size:11px;color:var(--ht);margin-top:8px;font-style:italic">\uD638\uD154 \uB9E4\uB2C8\uC800\uAC00 hotel-info\uC5D0\uC11C \uB4F1\uB85D\uD55C \uC815\uBCF4\uB97C \uC2E4\uC2DC\uAC04\uC73C\uB85C \uD45C\uC2DC\uD569\uB2C8\uB2E4.</div></div>'+
 '<div class="pb"><h4>B2B \uC601\uC5C5 \uD3EC\uC778\uD2B8</h4><p>"\uADC0 \uD638\uD154\uC5D0 '+bks.length+'\uAC74\uC758 \uC2E4\uC81C \uC608\uC57D\uC774 \uBC1C\uC0DD. \uC544\uACE0\uB2E4 \uC2DC\uC2A4\uD15C\uC5D0\uC11C \uC608\uC57D\uBC88\uD638\uB85C \uC9C1\uC811 \uD655\uC778 \uAC00\uB2A5."</p></div>'}
 
 function drillCo(n){DS={co:n};dc();rr()}
@@ -381,15 +195,15 @@ return'<div class="C"><h3>\uC694\uC77C\uBCC4</h3><div class="cw" style="height:2
 '<div class="fr"><button class="fb" onclick="calYM=prevYM(calYM);calDay=null;dc();rr()">\u25C0</button><input type="month" class="ys" value="'+calYM+'" onchange="calYM=this.value;calDay=null;dc();rr()" style="font-size:14px;font-weight:600;padding:5px 12px"><button class="fb" onclick="calYM=nextYM(calYM);calDay=null;dc();rr()">\u25B6</button></div>'+
 '<div class="cal-grid"><div class="cal-h">\uC6D4</div><div class="cal-h">\uD654</div><div class="cal-h">\uC218</div><div class="cal-h">\uBAA9</div><div class="cal-h">\uAE08</div><div class="cal-h">\uD1A0</div><div class="cal-h">\uC77C</div>'+
 Array(afd).fill('<div style="padding:8px"></div>').join('')+
-Array.from({length:dim},function(_,i){var d=i+1,dd2=dm[d],cnt=dd2?dd2.b:0;var bg=cnt===0?'rgba(255,255,255,.03)':cnt<3?'rgba(139,92,246,.18)':cnt<6?'rgba(139,92,246,.38)':cnt<10?'rgba(139,92,246,.62)':'rgba(139,92,246,.88)';var tc=cnt>=6?'#fff':'var(--ink-2)';return'<div class="cal-d" style="background:'+bg+';color:'+tc+(calDay===d?';border:2px solid var(--aurora-1)':'')+'" onclick="calDay='+(calDay===d?'null':d)+';dc();rr()"><div class="cn">'+d+'</div>'+(cnt>0?'<div class="ct">'+cnt+'\uAC74</div>':'')+'</div>'}).join('')+
+Array.from({length:dim},function(_,i){var d=i+1,dd2=dm[d],cnt=dd2?dd2.b:0;var bg=cnt===0?'#f8f7f4':cnt<3?'#E1F5EE':cnt<6?'#9FE1CB':cnt<10?'#5DCAA5':'#1D9E75';var tc=cnt>=6?'#fff':'var(--tx)';return'<div class="cal-d" style="background:'+bg+';color:'+tc+(calDay===d?';border:2px solid var(--ac)':'')+'" onclick="calDay='+(calDay===d?'null':d)+';dc();rr()"><div class="cn">'+d+'</div>'+(cnt>0?'<div class="ct">'+cnt+'\uAC74</div>':'')+'</div>'}).join('')+
 '</div></div>'+dd+
 '<div class="C"><h3>'+calYM+' \uB098\uB77C\uBCC4 (\uC804\uCCB4) \u2014 \uD074\uB9AD\u2192\uB3C4\uC2DC\u2192\uD638\uD154</h3><table><thead><tr><th></th><th>\uB098\uB77C</th><th class="r">\uC608\uC57D</th><th class="r">\uAE08\uC561</th></tr></thead><tbody>'+
-(mcM.length?mcM.map(function(c,i){return'<tr class="ck" onclick="DS.patCo=\''+E(c.co)+'\';DS.patYM=calYM;dc();rr()"><td>'+R(i)+'</td><td><strong>'+c.co+'</strong></td><td class="r">'+c.b+'\uAC74</td><td class="r">'+F(c.a)+'</td></tr>'}).join(''):'<tr><td colspan="4" style="text-align:center;color:var(--ink-3)">\uB370\uC774\uD130 \uC5C6\uC74C</td></tr>')+
+(mcM.length?mcM.map(function(c,i){return'<tr class="ck" onclick="DS.patCo=\''+E(c.co)+'\';DS.patYM=calYM;dc();rr()"><td>'+R(i)+'</td><td><strong>'+c.co+'</strong></td><td class="r">'+c.b+'\uAC74</td><td class="r">'+F(c.a)+'</td></tr>'}).join(''):'<tr><td colspan="4" style="text-align:center;color:var(--ht)">\uB370\uC774\uD130 \uC5C6\uC74C</td></tr>')+
 '</tbody></table></div>'}
-function iPC(){ch_.push(new Chart(document.getElementById('dw'),{type:'bar',data:{labels:D.dow.map(function(d){return d.nm}),datasets:[{data:D.dow.map(function(d){return d.b}),backgroundColor:D.dow.map(function(_,i){return i>=5?BA_COLOR_AURORA2:BA_COLOR_AURORA1}),borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false}},y:{grid:{color:BA_GRID}}}}}));ch_.push(new Chart(document.getElementById('dm2'),{type:'bar',data:{labels:D.dom.map(function(d){return d.d+'\uC77C'}),datasets:[{data:D.dom.map(function(d){return d.b}),backgroundColor:BA_COLOR_EMERALD,borderRadius:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{font:{size:9}}},y:{grid:{color:BA_GRID}}}}}))}
+function iPC(){ch_.push(new Chart(document.getElementById('dw'),{type:'bar',data:{labels:D.dow.map(function(d){return d.nm}),datasets:[{data:D.dow.map(function(d){return d.b}),backgroundColor:D.dow.map(function(_,i){return i>=5?'#D85A30':'#534AB7'}),borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false}},y:{grid:{color:'#f0eee9'}}}}}));ch_.push(new Chart(document.getElementById('dm2'),{type:'bar',data:{labels:D.dom.map(function(d){return d.d+'\uC77C'}),datasets:[{data:D.dom.map(function(d){return d.b}),backgroundColor:'#1D9E75',borderRadius:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{font:{size:9}}},y:{grid:{color:'#f0eee9'}}}}}))}
 
-function rSt(){return'<div style="margin-bottom:12px"><span class="pn" id="st-banner">\uC131\uAE09\uC740 \uB4F1\uB85D \uD638\uD154 \uAE30\uC900 \uC2E4\uC2DC\uAC04 \uB3D9\uAE30\uD654. \uBBF8\uB4F1\uB85D\uC740 \uD3C9\uADE0\uB2E8\uAC00 \uCD94\uC815</span></div><div class="C"><h3>\uC131\uAE09\uBCC4</h3><div class="cw" style="height:200px"><canvas id="sc"></canvas></div><table><thead><tr><th>\uC131\uAE09</th><th class="r">\uC608\uC57D</th><th class="r">\uAE08\uC561</th><th class="r">\uC218\uC218\uB8CC</th><th class="r">\uD3C9\uADE0</th><th class="r">\uBE44\uC911</th></tr></thead><tbody>'+D.ss.map(function(s){return'<tr><td>'+Ss(s.st)+'</td><td class="r">'+s.b.toLocaleString()+'\uAC74</td><td class="r">'+F(s.a)+'</td><td class="r">'+F(s.c)+'</td><td class="r">'+A(s.a,s.b)+'</td><td class="r">'+P(s.b,D.sm.tb)+'</td></tr>'}).join('')+'</tbody></table></div><div class="C"><h3>\uB098\uB77C\uBCC4 \uC131\uAE09</h3><table><thead><tr><th>\uB098\uB77C</th><th class="r">\u2605\u2605</th><th class="r">\u2605\u2605\u2605</th><th class="r">\u2605\u2605\u2605\u2605</th><th class="r">\u2605\u2605\u2605\u2605\u2605</th></tr></thead><tbody>'+function(){var cos=[],seen={};D.sc.forEach(function(d){if(!seen[d.co]){seen[d.co]=1;cos.push(d.co)}});return cos.map(function(co){var rows=D.sc.filter(function(d){return d.co===co});return'<tr><td><strong>'+co+'</strong></td>'+[2,3,4,5].map(function(s){var r=rows.find(function(d){return d.s===s});return'<td class="r">'+(r?r.b+'\uAC74<br><span style="font-size:11px;color:var(--ink-3)">'+F(r.a)+'</span>':'-')+'</td>'}).join('')+'</tr>'}).join('')}()+'</tbody></table></div>'}
-function iSC(){var s=D.ss,co=BA_PALETTE_STAR;ch_.push(new Chart(document.getElementById('sc'),{type:'bar',data:{labels:s.map(function(v){return v.st+'\uC131\uAE09'}),datasets:[{data:s.map(function(v){return v.b}),backgroundColor:co,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false}},y:{grid:{color:BA_GRID}}}}}))}
+function rSt(){return'<div style="margin-bottom:12px"><span class="pn" id="st-banner">\uC131\uAE09\uC740 \uB4F1\uB85D \uD638\uD154 \uAE30\uC900 \uC2E4\uC2DC\uAC04 \uB3D9\uAE30\uD654. \uBBF8\uB4F1\uB85D\uC740 \uD3C9\uADE0\uB2E8\uAC00 \uCD94\uC815</span></div><div class="C"><h3>\uC131\uAE09\uBCC4</h3><div class="cw" style="height:200px"><canvas id="sc"></canvas></div><table><thead><tr><th>\uC131\uAE09</th><th class="r">\uC608\uC57D</th><th class="r">\uAE08\uC561</th><th class="r">\uC218\uC218\uB8CC</th><th class="r">\uD3C9\uADE0</th><th class="r">\uBE44\uC911</th></tr></thead><tbody>'+D.ss.map(function(s){return'<tr><td>'+Ss(s.st)+'</td><td class="r">'+s.b.toLocaleString()+'\uAC74</td><td class="r">'+F(s.a)+'</td><td class="r">'+F(s.c)+'</td><td class="r">'+A(s.a,s.b)+'</td><td class="r">'+P(s.b,D.sm.tb)+'</td></tr>'}).join('')+'</tbody></table></div><div class="C"><h3>\uB098\uB77C\uBCC4 \uC131\uAE09</h3><table><thead><tr><th>\uB098\uB77C</th><th class="r">\u2605\u2605</th><th class="r">\u2605\u2605\u2605</th><th class="r">\u2605\u2605\u2605\u2605</th><th class="r">\u2605\u2605\u2605\u2605\u2605</th></tr></thead><tbody>'+function(){var cos=[],seen={};D.sc.forEach(function(d){if(!seen[d.co]){seen[d.co]=1;cos.push(d.co)}});return cos.map(function(co){var rows=D.sc.filter(function(d){return d.co===co});return'<tr><td><strong>'+co+'</strong></td>'+[2,3,4,5].map(function(s){var r=rows.find(function(d){return d.s===s});return'<td class="r">'+(r?r.b+'\uAC74<br><span style="font-size:11px;color:var(--ht)">'+F(r.a)+'</span>':'-')+'</td>'}).join('')+'</tr>'}).join('')}()+'</tbody></table></div>'}
+function iSC(){var s=D.ss,co=['#f0eee9','#1D9E75','#378ADD','#534AB7'];ch_.push(new Chart(document.getElementById('sc'),{type:'bar',data:{labels:s.map(function(v){return v.st+'\uC131\uAE09'}),datasets:[{data:s.map(function(v){return v.b}),backgroundColor:co,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false}},y:{grid:{color:'#f0eee9'}}}}}))}
 
 var b2bQ2='';
 function rSa(){
@@ -408,13 +222,13 @@ return'<div class="pb"><h4>B2B \uC601\uC5C5 \uB300\uC2DC\uBCF4\uB4DC</h4><p>\uD6
 '<div class="S"><div class="l">\uAE00\uB85C\uBC8C \uCEE4\uBC84\uB9AC\uC9C0</div><div class="v">5\uAC1C\uAD6D</div><div class="s">\uD55C\uAD6D\u00B7\uC77C\uBCF8\u00B7\uB300\uB9CC\u00B7\uBCA0\uD2B8\uB0A8\u00B7\uC601\uC5B4\uAD8C</div></div>'+
 '<div class="S"><div class="l">\uD638\uD154 \uB124\uD2B8\uC6CC\uD06C</div><div class="v">'+s.th.toLocaleString()+'\uACF3</div><div class="s">'+s.tco+'\uAC1C\uAD6D '+s.tci+'\uB3C4\uC2DC</div></div></div></div>'+
 '<div class="C"><h3>\uD638\uD154 \uAC80\uC0C9</h3><input class="si" type="text" placeholder="\uD638\uD154\uBA85, \uB3C4\uC2DC, \uB098\uB77C..." value="'+b2bQ2+'" oninput="b2bQ2=this.value;rSaU()" id="b2bs"><div id="b2btbl">'+(b2bQ2?rSaSearch():
-'<div style="color:var(--ink-3);font-size:13px;padding:8px 0">\uAC80\uC0C9\uC5B4\uB97C \uC785\uB825\uD558\uBA74 \uD638\uD154\uC744 \uCC3E\uC744 \uC218 \uC788\uC2B5\uB2C8\uB2E4</div>')+'</div></div>'+
+'<div style="color:var(--ht);font-size:13px;padding:8px 0">\uAC80\uC0C9\uC5B4\uB97C \uC785\uB825\uD558\uBA74 \uD638\uD154\uC744 \uCC3E\uC744 \uC218 \uC788\uC2B5\uB2C8\uB2E4</div>')+'</div></div>'+
 '<div class="C"><h3>\uB3C4\uC2DC\uBCC4 \uC608\uC57D \uC2E4\uC801</h3><table><thead><tr><th></th><th>\uB3C4\uC2DC</th><th>\uB098\uB77C</th><th class="r">\uC608\uC57D</th><th class="r">\uAE08\uC561</th><th class="r">\uD3C9\uADE0</th><th class="r">\uD638\uD154</th></tr></thead><tbody>'+
 D.ci.map(function(c,i){return'<tr class="ck" onclick="DS.b2bCi={ci:\''+E(c.n)+'\',co:\''+E(c.co)+'\'}; dc();rr()"><td>'+R(i)+'</td><td><strong>'+c.n+'</strong></td><td>'+c.co+'</td><td class="r">'+c.b.toLocaleString()+'\uAC74</td><td class="r">'+F(c.a)+'</td><td class="r">'+A(c.a,c.b)+'</td><td class="r">'+c.h+'</td></tr>'}).join('')+'</tbody></table></div>'+
 '<div class="C"><h3>\uB098\uB77C\uBCC4</h3><table><thead><tr><th></th><th>\uB098\uB77C</th><th class="r">\uC608\uC57D</th><th class="r">\uAE08\uC561</th><th class="r">\uB3C4\uC2DC</th><th class="r">\uD638\uD154</th></tr></thead><tbody>'+
 D.co.map(function(c,i){return'<tr><td>'+R(i)+'</td><td><strong>'+c.n+'</strong></td><td class="r">'+c.b.toLocaleString()+'\uAC74</td><td class="r">'+F(c.a)+'</td><td class="r">'+c.ci+'</td><td class="r">'+c.h+'</td></tr>'}).join('')+'</tbody></table></div>'}
-function rSaSearch(){var q=b2bQ2.toLowerCase();var f=D.hf.filter(function(h){return h.h.toLowerCase().includes(q)||h.ci.toLowerCase().includes(q)||h.co.toLowerCase().includes(q)}).sort(function(a,b){return b.b-a.b}).slice(0,30);return'<table><thead><tr><th></th><th>\uD638\uD154</th><th>\uC131\uAE09</th><th>\uB3C4\uC2DC</th><th>\uB098\uB77C</th><th class="r">\uC608\uC57D</th><th class="r">\uAE08\uC561</th></tr></thead><tbody>'+f.map(function(h,i){return'<tr class="ck" onclick="DS.b2bHt={h:\''+E(h.h)+'\',ci:\''+E(h.ci)+'\',co:\''+E(h.co)+'\'}; dc();rr()"><td>'+R(i)+'</td><td style="font-weight:500">'+h.h+'</td><td>'+Ss(h.s)+'</td><td>'+h.ci+'</td><td>'+h.co+'</td><td class="r"><strong>'+h.b+'\uAC74</strong></td><td class="r">'+F(h.a)+'</td></tr>'}).join('')+'</tbody></table><div style="font-size:12px;color:var(--ink-3);margin-top:6px">'+f.length+'\uAC74 \uAC80\uC0C9\uB428</div>'}
-function rSaU(){var el=document.getElementById('b2btbl');if(!el)return;if(b2bQ2){el.innerHTML=rSaSearch()}else{el.innerHTML='<div style="color:var(--ink-3);font-size:13px;padding:8px 0">\uAC80\uC0C9\uC5B4\uB97C \uC785\uB825\uD558\uBA74 \uD638\uD154\uC744 \uCC3E\uC744 \uC218 \uC788\uC2B5\uB2C8\uB2E4</div>'}}
+function rSaSearch(){var q=b2bQ2.toLowerCase();var f=D.hf.filter(function(h){return h.h.toLowerCase().includes(q)||h.ci.toLowerCase().includes(q)||h.co.toLowerCase().includes(q)}).sort(function(a,b){return b.b-a.b}).slice(0,30);return'<table><thead><tr><th></th><th>\uD638\uD154</th><th>\uC131\uAE09</th><th>\uB3C4\uC2DC</th><th>\uB098\uB77C</th><th class="r">\uC608\uC57D</th><th class="r">\uAE08\uC561</th></tr></thead><tbody>'+f.map(function(h,i){return'<tr class="ck" onclick="DS.b2bHt={h:\''+E(h.h)+'\',ci:\''+E(h.ci)+'\',co:\''+E(h.co)+'\'}; dc();rr()"><td>'+R(i)+'</td><td style="font-weight:500">'+h.h+'</td><td>'+Ss(h.s)+'</td><td>'+h.ci+'</td><td>'+h.co+'</td><td class="r"><strong>'+h.b+'\uAC74</strong></td><td class="r">'+F(h.a)+'</td></tr>'}).join('')+'</tbody></table><div style="font-size:12px;color:var(--ht);margin-top:6px">'+f.length+'\uAC74 \uAC80\uC0C9\uB428</div>'}
+function rSaU(){var el=document.getElementById('b2btbl');if(!el)return;if(b2bQ2){el.innerHTML=rSaSearch()}else{el.innerHTML='<div style="color:var(--ht);font-size:13px;padding:8px 0">\uAC80\uC0C9\uC5B4\uB97C \uC785\uB825\uD558\uBA74 \uD638\uD154\uC744 \uCC3E\uC744 \uC218 \uC788\uC2B5\uB2C8\uB2E4</div>'}}
 
 function syncURL(){var h='#'+CT;if(DS&&Object.keys(DS).length)h+='/'+encodeURIComponent(JSON.stringify(DS));if(location.hash!==h){try{history.pushState({CT:CT,DS:DS},'',h)}catch(e){}}}
 function loadURL(){var h=location.hash.slice(1);if(!h){CT='overview';DS={};HP=0;return}var p=h.split('/');CT=p[0]||'overview';try{DS=p[1]?JSON.parse(decodeURIComponent(p[1])):{}}catch(e){DS={}}}
@@ -458,7 +272,7 @@ function fillHotelInfo(){
     var data=document.getElementById('hi-data');
     var hit=findHotel(h,ci,co);
     if(!hit){
-      if(status){status.textContent='\uD638\uD154 \uB9E4\uB2C8\uC800 \uB4F1\uB85D \uB300\uAE30 \uC911';status.style.color='var(--ink-3)';}
+      if(status){status.textContent='\uD638\uD154 \uB9E4\uB2C8\uC800 \uB4F1\uB85D \uB300\uAE30 \uC911';status.style.color='var(--ht)';}
       if(note)note.innerHTML='\uC774 \uD638\uD154\uC758 \uB9E4\uB2C8\uC800\uAC00 \uC544\uC9C1 hotel-info \uD398\uC774\uC9C0\uC5D0 \uB4F1\uB85D\uD558\uC9C0 \uC54A\uC558\uC2B5\uB2C8\uB2E4. \uB4F1\uB85D \uC640\uB8CC \uC2DC \uC790\uB3D9\uC73C\uB85C \uD45C\uC2DC\uB429\uB2C8\uB2E4.';
       return;
     }
@@ -469,7 +283,7 @@ function fillHotelInfo(){
         address:fmt(hit.address),
         phone:fmt(hit.phone||hit.contact_phone),
         contact_email:fmt(hit.contact_email),
-        website:hit.website?'<a href="'+hit.website+'" target="_blank" rel="noopener" style="color:var(--aurora-1)">'+hit.website+'</a>':'-',
+        website:hit.website?'<a href="'+hit.website+'" target="_blank" rel="noopener" style="color:var(--ac)">'+hit.website+'</a>':'-',
         review_score:hit.review_score!=null?(hit.review_score+(hit.review_count?' ('+hit.review_count+')':'')):'-',
         contact_name:fmt(hit.contact_name)
       };
@@ -477,7 +291,7 @@ function fillHotelInfo(){
         var el=data.querySelector('[data-fld="'+k+'"]');
         if(el){
           el.innerHTML=fields[k];
-          if(fields[k]!=='-'){el.style.color='var(--ink)';el.style.fontStyle='normal';}
+          if(fields[k]!=='-'){el.style.color='var(--tx)';el.style.fontStyle='normal';}
         }
       });
     }
@@ -549,51 +363,11 @@ global.BKA = {
 // 하위 호환: 기존 admin.html 이 호출하던 window.initAnalytics 를 mount 로 위임
 global.initAnalytics = function(){ _BKA_init(); _BKA_mount(); };
 
-/* ============================================================
- * [v2 Aurora 20차] Standalone 진입 가드 + topbar 바인딩
- * - admin.html embed 시: ba-topbar 마크업이 없음 → 가드/바인딩 우회
- * - admin.html이 BKA.mount() 호출하는 경로는 _BKA_mount 그대로 유지
- * ============================================================ */
-function _BKA_standaloneBoot(){
-  var topbar = document.getElementById('ba-topbar');
-  // admin embed 환경 (topbar 마크업 없음) → 인증·바인딩 우회, mount만
-  if (!topbar) { _BKA_mount(); return; }
-
-  var T = global.TW;
-  if (!T || typeof T.requireAuth !== 'function') {
-    // shared.js 미로딩 환경 안전망 — 인증 없이 마운트 (개발/디버깅 한정)
-    console.warn('[BKA] window.TW.requireAuth not available — fallback mount');
-    _BKA_mount();
-    return;
-  }
-
-  T.requireAuth(async function(user){
-    // topbar user-email 표시
-    var ueEl = document.getElementById('ba-user-email');
-    if (ueEl && user && user.email) ueEl.textContent = user.email;
-    // logout 버튼 바인딩
-    var btnOut = document.getElementById('ba-btn-logout');
-    if (btnOut) btnOut.addEventListener('click', function(){ T.logout(); });
-    // 관리자 status 라우팅: 매니저 페이지로 잘못 들어왔으면 admin.html로
-    if (typeof T.checkAdmin === 'function') {
-      try {
-        var ac = await T.checkAdmin(user);
-        if (ac && ac.is_admin) {
-          window.location.href = 'admin.html';
-          return;
-        }
-      } catch(e){ console.warn('[BKA] checkAdmin failed', e); }
-    }
-    // 인증 통과 → 정상 마운트
-    _BKA_mount();
-  });
-}
-
 // Standalone 자동 부팅 (단독 페이지 또는 admin iframe 직접 src 로딩 시)
 if (document.readyState === 'loading'){
-  document.addEventListener('DOMContentLoaded', _BKA_standaloneBoot);
+  document.addEventListener('DOMContentLoaded', _BKA_mount);
 } else {
-  _BKA_standaloneBoot();
+  _BKA_mount();
 }
 
 })(typeof window !== 'undefined' ? window : this);

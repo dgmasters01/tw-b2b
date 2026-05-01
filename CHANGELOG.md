@@ -5,6 +5,84 @@
 
 ---
 
+## 2026-05-01 (20차) — [디자인시스템] v2 Aurora — booking-analytics.html 마이그레이션
+
+### 변경 파일
+- `booking-analytics.html`: 예약/매출 분석 대시보드 v2 Aurora 마이그레이션 (1,067,373 bytes 374줄 → ~1,073,000 bytes 597줄)
+  - shared.css v2 외부 링크 + 페이지 전용 인라인 스타일 (`.ba-*` prefix 신규)
+  - **CSS 블록 전면 v2 토큰화** (~52줄 → ~196줄): legacy `:root{--ac:#534AB7; --tl:#1D9E75; --cr:#D85A30; --bl:#378ADD; --bg:#f8f7f4; --cd:#fff; --tx:#1a1a1a; --sb:#666; --ht:#999; --bd:#e8e6e1}` → `var(--aurora*) / var(--ink*) / var(--glass*) / var(--line*)` 토큰으로 전면 교체
+  - aurora-bg + 4 blob + aurora-grid 추가
+  - **Sticky glass topbar 신규** (`.ba-topbar`): TW 그라디언트 로고 + user-email + Settings 링크 + Sign out 버튼 (17/18/19차 패턴 통일)
+  - **W 컨테이너 확장**: max-width 940 → 1100px, padding 32px 24px (대시보드 정보 밀도 고려)
+  - **KPI 카드** (`.S`): 글래스모피즘 + 큰 숫자에 aurora 그라디언트 텍스트 (절충안 정책)
+  - **차트 5종 색상 토큰화** (Chart.js v4.4.0):
+    - 글로벌 디폴트: `Chart.defaults.color='#a1a1aa'`, `borderColor='rgba(255,255,255,.06)'`, `font.family='Inter'`
+    - 단일 시계열(c1, 월별 예약건수): aurora-1 보라 단색
+    - 이중축 차트(c2, 월별 금액&수수료): 막대=에메랄드(#48c9b0), 라인=aurora-1 보라
+    - 도넛(cp, 채널별): 카테고리 7색 다크 친화 팔레트 (보라/시안/앰버/에메랄드/마젠타/옅보라/청록)
+    - 요일별(dw): 주중=aurora-1 / 주말=aurora-2 마젠타 강조
+    - 일자별(dm2): 에메랄드 단색
+    - 성급별(sc): 등급 그라디언트 4단계 (white-08 → 에메랄드 → 시안 → 보라)
+  - **캘린더 히트맵**: legacy 5단계 그린(`#f8f7f4` → `#1D9E75`) → aurora 단일 색상 농도 그라디언트 (rgba(139,92,246, 0.03 → 0.18 → 0.38 → 0.62 → 0.88))
+  - **상태/배지 5종** (.bk/.bj/.bt/.bv/.be): rgba(*, .15) 글래스 배경 + .3 보더 + 다크 친화 잉크 색상
+  - **랭크 배지** (.r1/.r2/.r3): 골드/실버/브론즈 그라디언트 (다크 캔버스 가독성)
+  - **인라인 style legacy 변수 일괄 정리** (데이터 라인 우회 awk 처리):
+    - `var(--ht)` → `var(--ink-3)` (8회) / `var(--bd)` → `var(--line-2)` / `var(--cd)` → `var(--glass)` / `var(--tx)` → `var(--ink)` / `var(--sb)` → `var(--ink-2)` / `var(--ac)` → `var(--aurora-1)` / `var(--tl/cr/bl)` → 다크 친화 hex
+    - 호텔 기본정보 카드 인라인 스타일(`#faf9f6` 배경) → `var(--glass)` + `var(--line-2)` 점선 보더
+- `_backup_20260501/booking-analytics.html` (1,067,373 bytes): v1 백업
+
+### 배경
+17차(index) → 18차(sales/marketing) → 19차(hotel-info) 완료 후, 잔여 2종(booking-analytics, admin) 중 단독 처리. **374줄 본체 + 1.02MB 인라인 데이터(72번 줄, 단일 라인 1,019,022 byte)** 의 특수 구조. 데이터 라인은 booking 시계열 / 채널 / 도시 / 호텔 / 성급 집계가 사전 계산된 JSON으로 컴파일 타임에 박혀 있어 byte-for-byte 보존 필수. 또한 **standalone 페이지로서 자체 인증 가드가 필요**하면서도, **admin.html이 동일 페이지에 BKA.mount() 호출하는 iframe-less 통합 경로**(Phase 3 Step 2)는 깨지면 안 되는 이중 제약.
+
+### 변경사유
+- **데이터 라인 무결성 (a747e154...)**: 작업 전·후 SHA 동일성 검증을 4회 시점(STEP A/B/C/D)에 실시. legacy CSS 변수 일괄 교체 시 `awk -v dl=$DATALINE 'NR != dl'` 패턴으로 데이터 라인 명시적 우회. 결과 SHA `a747e154e4d90d883904022f0ac729d5bd85916652d9adcd4decdaaf56e65b5f` byte-for-byte 보존.
+- **standalone + admin embed 양쪽 호환**: `_BKA_mount`(외부 노출 마운트 함수)는 손대지 않고, standalone 진입 부트스트랩만 신규 함수 `_BKA_standaloneBoot`로 분리. 분기 조건 `document.getElementById('ba-topbar')` 존재 여부로 standalone(가드 + topbar 바인딩 후 mount) vs admin embed(곧장 mount) 자동 감지. admin.html의 `window.BKA.init(); window.BKA.mount()` 호출 경로는 무수정.
+- **인증 가드 신규 추가**: 17/18/19차 표준 — `T.requireAuth` → `user-email` 표시 → `btn-logout` 바인딩 → `T.checkAdmin`(is_admin이면 admin.html로 redirect) → 정상 마운트. shared.js 미로딩 환경 안전망(`window.TW.requireAuth` 부재 시 fallback 직접 마운트)도 포함.
+- **메시지 컨셉 일관성**: 17차(랜딩) ~ 19차(호텔 등록)까지 모두 v2 Aurora 다크 + 그라디언트 톤으로 통일된 상태에서 booking-analytics만 라이트 베이지 배경 + 솔리드 보라/그린/오렌지로 남으면 매니저 대시보드 진입 시 톤 단절 발생. 차트 색상 토큰화로 다크 캔버스에서도 정보 가독성 + Aurora 브랜드 임팩트 양립.
+- **차트 색상 절충안**: 풀 다크 변환은 정보 가독성 손실 우려, 풀 컬러풀 유지는 Aurora 톤 단절 우려 → 배경/그리드/축은 다크 토큰, KPI 큰 숫자는 aurora 그라디언트 텍스트, 단일 시계열은 aurora-1 단색, 카테고리는 다크 친화 7색 팔레트, 주말 강조는 aurora-2 마젠타. 결과적으로 다크 캔버스 위에서 데이터 구분 명확하면서 브랜드 일관성 유지.
+- **18-hotfix 교훈 준수**: 검증 단계에서 `T.client` 0회 확인. 이 페이지는 원래부터 `window.TW.db.getAllHotels()` wrapper만 사용하는 깔끔한 구조.
+
+### 검증
+1. **JS 문법 자동 검증**: `new Function()` 파싱 PASS (인라인 script ~30KB)
+2. **데이터 라인 SHA byte-for-byte**:
+   - 사전 SHA: `a747e154e4d90d883904022f0ac729d5bd85916652d9adcd4decdaaf56e65b5f`
+   - STEP A/B/C/D 사후 SHA 모두 동일 ✅
+3. **핵심 로직 보존**:
+   - `_BKA_init` ✅ / `_BKA_mount` ✅ / `_BKA_unmount` ✅ / `_BKA_invalidateCache` ✅
+   - 신규 `_BKA_standaloneBoot` (인증 가드 래퍼)
+   - 함수 시그니처: rOv/rCh/rCo/rCi/rHo/rPa/rSt/rSa, iOC/iCC/iPC/iSC, rr 모두 유지 ✅
+   - `global.BKA = {init, mount, unmount, invalidateCache}` 외부 노출 유지 ✅
+   - `global.initAnalytics` 하위 호환 유지 ✅
+   - `window.TW.db.getAllHotels` 호출 1회 ✅
+   - **T.client 0회 ✅ / T.sb 0회** (이 페이지는 원래부터 `T.db.*` wrapper만 사용)
+4. **v2 Aurora 표준 적용**:
+   - aurora-bg ✅ / aurora-blob 4개 ✅ / aurora-grid ✅
+   - shared.css 외부 링크 ✅
+   - sticky glass topbar (user-email + Settings + Sign out) ✅
+   - var(--aurora*) 다수 / var(--ink*) 다수 / var(--glass*) 다수 / var(--line*) 다수
+5. **legacy 잔재 sweep** (데이터 라인 제외):
+   - legacy hex 색상(`#534AB7` `#1D9E75` `#D85A30` `#378ADD` `#D4537E` `#639922` `#BA7517` `#f0eee9` `#f8f7f4` `#faf9f6` `#e8e6e1` 등) **0건 ✅**
+   - legacy CSS 변수(`var(--ht/bd/cd/tx/sb/ac/tl/cr/bl)`) **0건 ✅**
+   - legacy Google Fonts import **0건 ✅** (shared.css v2가 Inter 통일)
+6. **로컬 헤드리스 시뮬레이션** (Playwright + Chrome):
+   - `window.BKA` 존재 ✅ / `window.BKA.mount` 존재 ✅ / `window.initAnalytics` 존재 ✅
+   - 탭 8개 정상 렌더 (전체현황·채널별·나라별·도시별·호텔검색·예약패턴·성급별·B2B영업)
+   - `ba-user-email` 표시 OK (mock test@hotel.com)
+   - 첫 탭 진입 시 차트 2개 정상 마운트 (canvas count: 2)
+   - 콘솔 에러 / 페이지 에러 0건 ✅
+   - 미인증 상태 직접 접근 → login 페이지 redirect 정상 작동 ✅
+
+### 영향 범위
+- **standalone 페이지 (booking-analytics.html 직접 접근)**: 다크 Aurora 톤 + 인증 가드 추가됨 (이전엔 가드 없음)
+- **admin.html embed**: `BKA.mount()` 호출 경로 무수정 → 동작 동일. 단, 차트 색상은 다크 톤으로 변경되므로 admin 페이지 다른 영역과 톤 정합성 확인 필요(admin 자체 마이그레이션은 21차 예정).
+- **데이터 흐름**: 1MB 인라인 시계열 데이터 무수정. `T.db.getAllHotels()`로 호텔 캐시 조회 → 호텔명/별점 동기화 흐름 무수정.
+
+### 잔여 작업
+- **21차**: admin.html (분할 필수, 별도 차수에서 진행)
+- 큐 시스템 정비는 admin 마이그레이션 완료 후 별도 차수에서 일괄 처리
+
+---
+
 ## 2026-05-01 (19차) — [디자인시스템] v2 Aurora — hotel-info.html 마이그레이션
 
 ### 변경 파일

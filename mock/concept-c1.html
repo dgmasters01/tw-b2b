@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TW B2B — C1 Forest Lux</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=DM+Sans:wght@400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --forest-deep:#0D3620;
+  --forest:#1B5E3B;
+  --forest-mid:#2A7C50;
+  --forest-light:#E8F1EA;
+  --gold:#C8A951;
+  --gold-deep:#9F8233;
+  --gold-glow:#F5EDD3;
+  --cream:#FAF7F0;
+  --cream-warm:#F4EFE3;
+  --ink:#1A1A17;
+  --ink-soft:#3D3A33;
+  --ink-mute:#6E6A60;
+  --line:#D9D2BC;
+  --white:#FFFFFF;
+  --serif:'Cormorant Garamond', Georgia, serif;
+  --sans:'DM Sans', system-ui, sans-serif;
+  --mono:'DM Mono', monospace;
+  --r-sm:6px; --r:10px; --r-lg:18px;
+  --shadow-card:0 1px 0 rgba(13,54,32,.04), 0 12px 40px -12px rgba(13,54,32,.18);
+  --ease:cubic-bezier(.2,.8,.2,1);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--sans);
+  background:var(--cream);
+  color:var(--ink);
+  line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+.container{max-width:1240px;margin:0 auto;padding:0 32px}
+@media (max-width:640px){.container{padding:0 20px}}
+
+/* ======= NAV ======= */
+.nav{
+  position:sticky;top:0;z-index:100;
+  background:rgba(250,247,240,.88);
+  backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--line);
+}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;height:72px}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--serif);font-size:24px;font-weight:600;color:var(--forest-deep);letter-spacing:.5px}
+.brand-mark{width:28px;height:28px;border-radius:50%;background:var(--forest);position:relative;display:inline-flex;align-items:center;justify-content:center;color:var(--gold);font-family:var(--serif);font-style:italic;font-size:18px;font-weight:700}
+.nav-links{display:flex;align-items:center;gap:28px}
+.nav-link{color:var(--ink-soft);text-decoration:none;font-size:14px;letter-spacing:.3px;font-weight:500;transition:color .2s var(--ease)}
+.nav-link:hover{color:var(--forest)}
+.lang-pill{display:inline-flex;background:var(--white);border:1px solid var(--line);border-radius:99px;overflow:hidden}
+.lang-pill button{padding:6px 14px;border:none;background:transparent;font-family:var(--mono);font-size:12px;letter-spacing:.5px;color:var(--ink-mute);cursor:pointer;transition:all .2s var(--ease)}
+.lang-pill button.active{background:var(--forest-deep);color:var(--gold)}
+.btn-nav{padding:10px 22px;background:var(--forest-deep);color:var(--cream);border:none;border-radius:99px;font-family:var(--sans);font-size:14px;font-weight:500;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:8px;transition:all .25s var(--ease)}
+.btn-nav:hover{background:var(--forest);transform:translateY(-1px)}
+.menu-toggle{display:none;background:none;border:none;cursor:pointer;padding:6px}
+
+@media (max-width:880px){
+  .nav-links{display:none}
+  .menu-toggle{display:block}
+  .nav-links.open{
+    display:flex;flex-direction:column;align-items:flex-start;gap:18px;
+    position:absolute;top:72px;left:0;right:0;background:var(--cream);padding:24px 20px;border-bottom:1px solid var(--line)
+  }
+}
+
+/* ======= HERO ======= */
+.hero{position:relative;padding:88px 0 100px;overflow:hidden}
+.hero-bg{position:absolute;inset:0;pointer-events:none}
+.hero-bg::before{content:'';position:absolute;top:-200px;right:-200px;width:680px;height:680px;border-radius:50%;background:radial-gradient(circle,rgba(200,169,81,.18) 0%,rgba(200,169,81,0) 65%)}
+.hero-bg::after{content:'';position:absolute;bottom:-300px;left:-200px;width:780px;height:780px;border-radius:50%;background:radial-gradient(circle,rgba(27,94,59,.12) 0%,rgba(27,94,59,0) 65%)}
+.eyebrow{display:inline-flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11px;letter-spacing:2px;color:var(--gold-deep);text-transform:uppercase;margin-bottom:28px;padding:7px 14px;background:var(--gold-glow);border-radius:99px;border:1px solid rgba(159,130,51,.2)}
+.eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--forest);box-shadow:0 0 0 4px rgba(27,94,59,.15)}
+.hero-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:80px;align-items:center;position:relative}
+@media (max-width:980px){.hero-grid{grid-template-columns:1fr;gap:60px}}
+.h1{font-family:var(--serif);font-size:clamp(48px,7vw,84px);line-height:.98;font-weight:500;letter-spacing:-1px;color:var(--forest-deep);margin-bottom:32px}
+.h1 em{font-style:italic;color:var(--gold-deep);font-weight:400}
+.h1 .accent{position:relative;display:inline-block}
+.h1 .accent::after{content:'';position:absolute;left:0;right:0;bottom:8px;height:14px;background:var(--gold-glow);z-index:-1;border-radius:2px}
+.lead{font-size:18px;color:var(--ink-soft);max-width:520px;margin-bottom:40px;line-height:1.65}
+.lead strong{color:var(--forest-deep);font-weight:600}
+
+/* === Guarantee Badge — 5초 안에 보임 === */
+.guarantee-badge{
+  display:inline-flex;align-items:center;gap:14px;
+  padding:14px 22px;border-radius:99px;
+  background:linear-gradient(135deg,var(--forest-deep),var(--forest));
+  color:var(--cream);font-family:var(--sans);font-size:14px;font-weight:500;letter-spacing:.3px;
+  box-shadow:0 8px 24px -8px rgba(13,54,32,.4);
+  margin-bottom:36px;
+}
+.guarantee-badge svg{flex-shrink:0}
+.guarantee-badge .gb-amount{font-family:var(--serif);font-size:18px;font-weight:600;color:var(--gold);font-style:italic}
+
+.cta-row{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.btn-primary{
+  padding:18px 32px;border-radius:99px;border:none;
+  background:var(--forest-deep);color:var(--cream);
+  font-family:var(--sans);font-size:15px;font-weight:500;letter-spacing:.4px;cursor:pointer;
+  display:inline-flex;align-items:center;gap:10px;
+  transition:all .3s var(--ease);text-decoration:none;
+  box-shadow:0 12px 32px -10px rgba(13,54,32,.4);
+}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 18px 44px -12px rgba(13,54,32,.5);background:var(--forest)}
+.btn-primary .arr{transition:transform .25s var(--ease)}
+.btn-primary:hover .arr{transform:translateX(4px)}
+.btn-secondary{
+  padding:18px 28px;border-radius:99px;
+  background:transparent;border:1px solid var(--ink-mute);color:var(--ink);
+  font-family:var(--sans);font-size:15px;font-weight:500;letter-spacing:.4px;cursor:pointer;text-decoration:none;
+  transition:all .25s var(--ease)
+}
+.btn-secondary:hover{border-color:var(--forest-deep);color:var(--forest-deep)}
+
+/* === Hero Right — Stats Card === */
+.stats-card{
+  position:relative;background:var(--white);border-radius:24px;padding:40px;
+  box-shadow:var(--shadow-card);border:1px solid var(--line);
+}
+.stats-card::before{
+  content:'';position:absolute;top:-1px;left:24px;right:24px;height:2px;
+  background:linear-gradient(90deg,transparent,var(--gold),transparent);
+}
+.stats-card .sc-label{font-family:var(--mono);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--ink-mute);margin-bottom:8px}
+.stats-card .sc-title{font-family:var(--serif);font-size:22px;color:var(--forest-deep);margin-bottom:24px;font-weight:500}
+.stats-grid{display:grid;grid-template-columns:1fr;gap:0}
+.stat-row{display:flex;align-items:baseline;justify-content:space-between;padding:20px 0;border-bottom:1px dashed var(--line)}
+.stat-row:last-child{border-bottom:0}
+.stat-num{font-family:var(--serif);font-size:48px;font-weight:500;color:var(--forest-deep);letter-spacing:-1px;line-height:1}
+.stat-num em{font-style:italic;color:var(--gold-deep);font-size:.55em;margin-left:4px;letter-spacing:0}
+.stat-side{text-align:right}
+.stat-name{font-size:13px;color:var(--ink-soft);font-weight:500;margin-bottom:2px}
+.stat-detail{font-family:var(--mono);font-size:11px;color:var(--ink-mute);letter-spacing:.5px}
+
+/* ======= SECTION HEADERS ======= */
+.section{padding:100px 0;position:relative}
+.section-head{text-align:center;max-width:680px;margin:0 auto 64px}
+.section-eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:2.5px;color:var(--gold-deep);text-transform:uppercase;margin-bottom:18px}
+.section-title{font-family:var(--serif);font-size:clamp(36px,5vw,56px);line-height:1.05;font-weight:500;color:var(--forest-deep);letter-spacing:-.5px;margin-bottom:18px}
+.section-title em{font-style:italic;color:var(--gold-deep)}
+.section-sub{font-size:17px;color:var(--ink-soft);line-height:1.65}
+
+/* ======= 8 CHANNELS ======= */
+.channels{background:linear-gradient(180deg,var(--cream) 0%,var(--cream-warm) 100%);}
+.ch-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--shadow-card)}
+@media (max-width:880px){.ch-grid{grid-template-columns:repeat(2,1fr)}}
+.ch-card{background:var(--white);padding:28px 22px;display:flex;flex-direction:column;gap:14px;transition:background .25s var(--ease);position:relative}
+.ch-card:hover{background:var(--forest-light)}
+.ch-card.featured{background:var(--forest-deep);color:var(--cream)}
+.ch-card.featured .ch-flag{background:var(--gold);color:var(--forest-deep)}
+.ch-card.featured .ch-name{color:var(--cream)}
+.ch-card.featured .ch-meta{color:var(--gold-glow)}
+.ch-card.featured .ch-tag{background:var(--forest);color:var(--gold)}
+.ch-flag{width:32px;height:32px;border-radius:50%;background:var(--forest-light);color:var(--forest-deep);display:inline-flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.5px}
+.ch-name{font-family:var(--serif);font-size:20px;font-weight:600;color:var(--forest-deep);line-height:1.2}
+.ch-meta{font-family:var(--mono);font-size:11px;color:var(--ink-mute);letter-spacing:.5px;text-transform:uppercase}
+.ch-tag{display:inline-block;padding:4px 10px;background:var(--gold-glow);color:var(--gold-deep);border-radius:99px;font-family:var(--mono);font-size:10px;letter-spacing:.5px;text-transform:uppercase;width:fit-content;margin-top:auto}
+
+.ch-disclaimer{margin-top:36px;padding:22px 28px;background:var(--white);border-left:3px solid var(--gold);border-radius:0 var(--r) var(--r) 0;font-family:var(--serif);font-size:17px;color:var(--ink-soft);font-style:italic;line-height:1.55}
+.ch-disclaimer strong{font-style:normal;color:var(--forest-deep);font-weight:600;font-family:var(--sans);font-size:13px;letter-spacing:.5px;text-transform:uppercase;display:block;margin-bottom:6px}
+
+/* ======= PROCESS ======= */
+.process{background:var(--white);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.proc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0;position:relative}
+@media (max-width:880px){.proc-grid{grid-template-columns:1fr;gap:32px}}
+.proc-step{padding:32px 24px;position:relative}
+.proc-step:not(:last-child)::after{content:'';position:absolute;top:50px;right:0;width:1px;height:calc(100% - 64px);background:var(--line)}
+@media (max-width:880px){.proc-step:not(:last-child)::after{display:none}}
+.proc-num{font-family:var(--serif);font-size:14px;color:var(--gold-deep);font-style:italic;letter-spacing:1px;margin-bottom:12px}
+.proc-num::before{content:'No. ';font-style:normal;color:var(--ink-mute);font-family:var(--mono);font-size:10px;letter-spacing:1px;text-transform:uppercase;margin-right:4px}
+.proc-title{font-family:var(--serif);font-size:24px;font-weight:600;color:var(--forest-deep);margin-bottom:12px;line-height:1.15}
+.proc-desc{font-size:14px;color:var(--ink-soft);line-height:1.6}
+.proc-time{margin-top:14px;font-family:var(--mono);font-size:11px;color:var(--gold-deep);letter-spacing:.8px;text-transform:uppercase;display:inline-flex;align-items:center;gap:6px}
+.proc-time::before{content:'';width:4px;height:4px;border-radius:50%;background:var(--gold)}
+
+/* ======= COMPONENT GALLERY ======= */
+.gallery{background:var(--cream-warm);border-top:1px solid var(--line)}
+.gal-grid{display:grid;grid-template-columns:1fr 1fr;gap:32px}
+@media (max-width:880px){.gal-grid{grid-template-columns:1fr}}
+.gal-card{background:var(--white);border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden}
+.gal-head{padding:18px 24px;background:var(--forest-deep);color:var(--cream);font-family:var(--mono);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;display:flex;justify-content:space-between;align-items:center}
+.gal-head .gh-tag{background:var(--gold);color:var(--forest-deep);padding:3px 8px;border-radius:4px;font-size:9px}
+.gal-body{padding:32px 28px}
+
+/* Login form mockup */
+.lf-title{font-family:var(--serif);font-size:30px;color:var(--forest-deep);margin-bottom:8px;font-weight:500}
+.lf-title em{font-style:italic;color:var(--gold-deep)}
+.lf-sub{font-size:14px;color:var(--ink-mute);margin-bottom:28px}
+.field{margin-bottom:18px}
+.field label{display:block;font-family:var(--mono);font-size:10px;letter-spacing:1.2px;color:var(--ink-mute);text-transform:uppercase;margin-bottom:8px}
+.field input{width:100%;padding:14px 16px;border:1px solid var(--line);border-radius:var(--r-sm);font-family:var(--sans);font-size:15px;color:var(--ink);background:var(--cream);transition:border-color .2s var(--ease)}
+.field input:focus{outline:none;border-color:var(--forest-deep);background:var(--white)}
+.lf-btn{width:100%;padding:15px;background:var(--forest-deep);color:var(--cream);border:none;border-radius:var(--r-sm);font-family:var(--sans);font-size:14px;font-weight:500;letter-spacing:.4px;cursor:pointer;margin-top:12px;transition:background .2s var(--ease)}
+.lf-btn:hover{background:var(--forest)}
+.lf-divider{display:flex;align-items:center;gap:16px;margin:22px 0;color:var(--ink-mute);font-family:var(--mono);font-size:10px;letter-spacing:1px;text-transform:uppercase}
+.lf-divider::before,.lf-divider::after{content:'';flex:1;height:1px;background:var(--line)}
+
+/* Dashboard mockup */
+.dash-tile{padding:18px 20px;background:var(--cream);border:1px solid var(--line);border-radius:var(--r);margin-bottom:14px}
+.dash-tile.hero-tile{background:var(--forest-deep);color:var(--cream);border:0}
+.dash-tile.hero-tile .dt-label{color:var(--gold-glow)}
+.dash-tile.hero-tile .dt-value{color:var(--gold)}
+.dt-label{font-family:var(--mono);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink-mute);margin-bottom:6px}
+.dt-value{font-family:var(--serif);font-size:32px;color:var(--forest-deep);font-weight:500;letter-spacing:-.5px;line-height:1}
+.dt-value em{font-style:italic;color:var(--gold-deep);font-size:.55em;margin-left:4px}
+.dt-row{display:flex;justify-content:space-between;align-items:flex-end;gap:16px}
+.dt-meter{height:6px;background:var(--cream-warm);border-radius:99px;margin-top:14px;overflow:hidden}
+.dt-meter-fill{height:100%;background:linear-gradient(90deg,var(--gold-deep),var(--gold));border-radius:99px;width:62%}
+.dt-meter.hero{background:rgba(245,237,211,.15)}
+
+/* Component swatches */
+.comps{display:grid;grid-template-columns:repeat(2,1fr);gap:32px;margin-top:48px}
+@media (max-width:880px){.comps{grid-template-columns:1fr}}
+.comp-card{background:var(--white);border:1px solid var(--line);border-radius:var(--r-lg);padding:28px}
+.comp-head{font-family:var(--mono);font-size:10px;letter-spacing:1.5px;color:var(--ink-mute);text-transform:uppercase;margin-bottom:18px}
+.comp-row{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-bottom:18px}
+.comp-row:last-child{margin-bottom:0}
+.btn-demo{padding:11px 22px;border-radius:99px;font-family:var(--sans);font-size:13px;font-weight:500;border:none;cursor:pointer;letter-spacing:.3px;display:inline-flex;align-items:center;gap:6px}
+.btn-demo.primary{background:var(--forest-deep);color:var(--cream)}
+.btn-demo.secondary{background:transparent;border:1px solid var(--ink-soft);color:var(--ink)}
+.btn-demo.gold{background:var(--gold);color:var(--forest-deep);font-weight:600}
+.btn-demo.ghost{background:transparent;color:var(--forest-deep)}
+.badge-demo{padding:6px 12px;border-radius:99px;font-family:var(--mono);font-size:10px;letter-spacing:.8px;text-transform:uppercase;display:inline-flex;align-items:center;gap:6px}
+.badge-demo.gold{background:var(--gold-glow);color:var(--gold-deep)}
+.badge-demo.forest{background:var(--forest-light);color:var(--forest-deep)}
+.badge-demo.dark{background:var(--forest-deep);color:var(--gold)}
+
+/* Mobile preview */
+.mob-row{display:grid;grid-template-columns:1fr 1fr;gap:32px;margin-top:48px;align-items:start}
+@media (max-width:880px){.mob-row{grid-template-columns:1fr}}
+.mob-frame{
+  margin:0 auto;width:300px;height:600px;background:var(--ink);border-radius:36px;padding:10px;
+  box-shadow:0 30px 80px -30px rgba(13,54,32,.4);position:relative
+}
+.mob-frame::before{content:'';position:absolute;top:18px;left:50%;transform:translateX(-50%);width:96px;height:22px;background:var(--ink);border-radius:99px;z-index:2}
+.mob-screen{width:100%;height:100%;background:var(--cream);border-radius:28px;overflow:hidden;position:relative}
+.mob-nav{display:flex;align-items:center;justify-content:space-between;padding:38px 16px 14px;border-bottom:1px solid var(--line)}
+.mob-brand{font-family:var(--serif);font-size:15px;font-weight:600;color:var(--forest-deep)}
+.mob-menu{width:30px;height:30px;border-radius:50%;background:var(--forest-deep);display:flex;flex-direction:column;justify-content:center;align-items:center;gap:3px;cursor:pointer}
+.mob-menu span{display:block;width:12px;height:1.5px;background:var(--gold)}
+.mob-content{padding:18px 16px}
+.mob-eyebrow{font-family:var(--mono);font-size:8px;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold-deep);margin-bottom:10px}
+.mob-h{font-family:var(--serif);font-size:26px;line-height:1;color:var(--forest-deep);margin-bottom:14px;font-weight:500}
+.mob-h em{font-style:italic;color:var(--gold-deep)}
+.mob-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;background:var(--forest-deep);color:var(--cream);font-size:9px;border-radius:99px;margin-bottom:12px;font-weight:500}
+.mob-badge .mb-am{color:var(--gold);font-weight:700;font-family:var(--serif);font-style:italic}
+.mob-stats{display:flex;gap:8px;margin-bottom:14px}
+.mob-stat{flex:1;padding:10px 8px;background:var(--white);border:1px solid var(--line);border-radius:8px;text-align:center}
+.mob-stat-val{font-family:var(--serif);font-size:18px;color:var(--forest-deep);font-weight:600;line-height:1}
+.mob-stat-lab{font-family:var(--mono);font-size:7px;color:var(--ink-mute);letter-spacing:.5px;text-transform:uppercase;margin-top:4px}
+.mob-cta{display:block;width:100%;padding:11px;background:var(--forest-deep);color:var(--cream);text-align:center;border-radius:99px;font-size:11px;font-weight:500;text-decoration:none;margin-bottom:14px}
+.mob-section{margin-top:14px}
+.mob-section-title{font-family:var(--mono);font-size:8px;letter-spacing:1.5px;color:var(--ink-mute);text-transform:uppercase;margin-bottom:8px}
+.mob-ch{display:flex;align-items:center;gap:10px;padding:10px;background:var(--white);border:1px solid var(--line);border-radius:8px;margin-bottom:6px}
+.mob-ch-flag{width:22px;height:22px;border-radius:50%;background:var(--forest-light);color:var(--forest-deep);font-family:var(--mono);font-size:8px;font-weight:600;display:flex;align-items:center;justify-content:center}
+.mob-ch.featured .mob-ch-flag{background:var(--gold);color:var(--forest-deep)}
+.mob-ch-name{font-family:var(--serif);font-size:11px;color:var(--forest-deep);font-weight:600}
+.mob-ch-meta{font-family:var(--mono);font-size:8px;color:var(--ink-mute);letter-spacing:.3px;margin-top:1px}
+
+.mob-note{padding:30px;background:var(--white);border:1px solid var(--line);border-radius:var(--r-lg);font-size:14px;color:var(--ink-soft);line-height:1.7}
+.mob-note strong{display:block;font-family:var(--serif);font-size:20px;color:var(--forest-deep);margin-bottom:10px;font-weight:600}
+.mob-note ul{padding-left:0;list-style:none;margin-top:14px}
+.mob-note li{padding:8px 0;border-bottom:1px dashed var(--line);font-family:var(--mono);font-size:12px;color:var(--ink-soft);letter-spacing:.3px;display:flex;gap:10px;align-items:flex-start}
+.mob-note li:last-child{border-bottom:0}
+.mob-note li::before{content:'·';color:var(--gold);font-weight:700;font-size:18px;line-height:1}
+
+/* ======= FOOTER ======= */
+.footer{background:var(--forest-deep);color:var(--cream);padding:60px 0 32px;margin-top:0}
+.foot-grid{display:flex;justify-content:space-between;align-items:flex-end;gap:40px;flex-wrap:wrap}
+.foot-brand{font-family:var(--serif);font-size:32px;color:var(--gold);font-weight:500}
+.foot-brand em{font-style:italic;color:var(--cream)}
+.foot-tag{font-family:var(--mono);font-size:11px;letter-spacing:1.5px;color:var(--gold-glow);text-transform:uppercase;margin-top:6px}
+.foot-meta{font-family:var(--mono);font-size:10px;color:var(--gold-glow);opacity:.7;letter-spacing:.5px}
+.foot-bar{margin-top:40px;padding-top:24px;border-top:1px solid rgba(245,237,211,.15);display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);font-size:10px;color:var(--gold-glow);opacity:.7;letter-spacing:.5px;flex-wrap:wrap;gap:16px}
+
+/* Concept ribbon */
+.ribbon{position:fixed;top:14px;left:14px;z-index:200;background:var(--forest-deep);color:var(--gold);padding:6px 14px;border-radius:4px;font-family:var(--mono);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;box-shadow:0 8px 24px -8px rgba(0,0,0,.3)}
+</style>
+</head>
+<body>
+
+<div class="ribbon">C1 · Forest Lux</div>
+
+<!-- ============== NAV ============== -->
+<header class="nav">
+  <div class="container nav-inner">
+    <a href="#" class="brand"><span class="brand-mark">T</span>TravelWinners</a>
+    <nav class="nav-links" id="navlinks">
+      <a href="#channels" class="nav-link">Channels</a>
+      <a href="#process" class="nav-link">How it works</a>
+      <a href="#dashboard" class="nav-link">Dashboard</a>
+      <span class="lang-pill">
+        <button class="active">EN</button>
+        <button>한국어</button>
+      </span>
+      <a href="#" class="btn-nav">Sign in <span>→</span></a>
+    </nav>
+    <button class="menu-toggle" onclick="document.getElementById('navlinks').classList.toggle('open')">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+  </div>
+</header>
+
+<!-- ============== HERO ============== -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="container">
+    <div class="hero-grid">
+      <div>
+        <span class="eyebrow"><span class="dot"></span>Hotel Marketing Platform · Est. 2018</span>
+        <h1 class="h1">A quieter way<br>to fill <em>your</em><br><span class="accent">empty rooms.</span></h1>
+        <p class="lead"><strong>One $200 payment.</strong> Your hotel is featured across <strong>8 cultivated YouTube channels</strong> in 6 languages. Real bookings tracked through Agoda. <strong>Zero bookings in 6 months — 100% refund.</strong></p>
+        <div class="guarantee-badge">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+          <span>6-month booking guarantee · </span>
+          <span class="gb-amount">100% refund</span>
+        </div>
+        <div class="cta-row">
+          <a href="#" class="btn-primary">Begin a hotel listing <span class="arr">→</span></a>
+          <a href="#process" class="btn-secondary">See how it works</a>
+        </div>
+      </div>
+
+      <div class="stats-card">
+        <div class="sc-label">Performance to date</div>
+        <div class="sc-title">A track record, <em>not a promise.</em></div>
+        <div class="stats-grid">
+          <div class="stat-row">
+            <div class="stat-num">9M<em>+</em></div>
+            <div class="stat-side">
+              <div class="stat-name">Cumulative views</div>
+              <div class="stat-detail">Across 8 channels</div>
+            </div>
+          </div>
+          <div class="stat-row">
+            <div class="stat-num">3,774</div>
+            <div class="stat-side">
+              <div class="stat-name">Hotels listed</div>
+              <div class="stat-detail">Verified, paid contracts</div>
+            </div>
+          </div>
+          <div class="stat-row">
+            <div class="stat-num">$854K</div>
+            <div class="stat-side">
+              <div class="stat-name">Bookings tracked</div>
+              <div class="stat-detail">Through Agoda affiliate</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== 8 CHANNELS ============== -->
+<section class="section channels" id="channels">
+  <div class="container">
+    <div class="section-head">
+      <div class="section-eyebrow">— Distribution —</div>
+      <h2 class="section-title">Eight channels.<br><em>Six languages.</em> One quiet network.</h2>
+      <p class="section-sub">Each channel has been built deliberately, audience by audience. We do not show subscriber counts because they're beside the point — what matters is who is watching, and where they book afterward.</p>
+    </div>
+
+    <div class="ch-grid">
+      <div class="ch-card">
+        <span class="ch-flag">KR</span>
+        <div class="ch-name">여행능력자들</div>
+        <div class="ch-meta">Korean · 1st Account</div>
+        <span class="ch-tag">Flagship</span>
+      </div>
+      <div class="ch-card">
+        <span class="ch-flag">KR</span>
+        <div class="ch-name">호텔이야</div>
+        <div class="ch-meta">Korean · Main Content</div>
+        <span class="ch-tag">Core</span>
+      </div>
+      <div class="ch-card">
+        <span class="ch-flag">EN</span>
+        <div class="ch-name">Kotel</div>
+        <div class="ch-meta">English · Global</div>
+        <span class="ch-tag">Worldwide</span>
+      </div>
+      <div class="ch-card">
+        <span class="ch-flag">KR</span>
+        <div class="ch-name">호텔닷컴</div>
+        <div class="ch-meta">Korean · Trip.com</div>
+        <span class="ch-tag">Affiliate</span>
+      </div>
+      <div class="ch-card">
+        <span class="ch-flag">JP</span>
+        <div class="ch-name">ホテルだ</div>
+        <div class="ch-meta">Japanese · Inbound</div>
+        <span class="ch-tag">Japan</span>
+      </div>
+      <div class="ch-card">
+        <span class="ch-flag">TW</span>
+        <div class="ch-name">世界就是家</div>
+        <div class="ch-meta">Traditional Chinese</div>
+        <span class="ch-tag">Taiwan/HK</span>
+      </div>
+      <div class="ch-card featured">
+        <span class="ch-flag">VN</span>
+        <div class="ch-name">Korea Hotel</div>
+        <div class="ch-meta">Vietnamese · Outbound</div>
+        <span class="ch-tag">★ Differentiator</span>
+      </div>
+      <div class="ch-card">
+        <span class="ch-flag">KR</span>
+        <div class="ch-name">호텔이곳</div>
+        <div class="ch-meta">Korean · Growing</div>
+        <span class="ch-tag">Emerging</span>
+      </div>
+    </div>
+
+    <div class="ch-disclaimer">
+      <strong>Why we don't talk about subscribers</strong>
+      We measure what hotels actually need: <em>cumulative views (9M+)</em>, <em>videos produced</em>, and most importantly — <em>$854K in tracked bookings</em>. That is the real test of a channel.
+    </div>
+  </div>
+</section>
+
+<!-- ============== PROCESS ============== -->
+<section class="section process" id="process">
+  <div class="container">
+    <div class="section-head">
+      <div class="section-eyebrow">— The Process —</div>
+      <h2 class="section-title">A long quiet pour, <em>not a fast splash.</em></h2>
+      <p class="section-sub">Four steps from payment to live exposure. Each step is documented, photographed, and confirmed by email.</p>
+    </div>
+
+    <div class="proc-grid">
+      <div class="proc-step">
+        <div class="proc-num">01 — Payment</div>
+        <div class="proc-title">One quiet $200</div>
+        <div class="proc-desc">Single PayPal payment. No subscription. No hidden fees. The 6-month protection clock begins the moment we confirm.</div>
+        <div class="proc-time">Instant</div>
+      </div>
+      <div class="proc-step">
+        <div class="proc-num">02 — Production</div>
+        <div class="proc-title">A hand-edited film</div>
+        <div class="proc-desc">Our team produces a TOP3-format hotel feature. Properly framed, properly narrated, in the appropriate language for each channel.</div>
+        <div class="proc-time">3 working days</div>
+      </div>
+      <div class="proc-step">
+        <div class="proc-num">03 — Distribution</div>
+        <div class="proc-title">Eight channels light up</div>
+        <div class="proc-desc">Your hotel appears across all 8 channels with affiliate-tracked Agoda links. We confirm publication date by email with screenshots.</div>
+        <div class="proc-time">Same day</div>
+      </div>
+      <div class="proc-step">
+        <div class="proc-num">04 — Reporting</div>
+        <div class="proc-title">Quiet monthly proof</div>
+        <div class="proc-desc">Monthly PDF report — views, clicks, tracked bookings — sent to you and ready to forward to your director.</div>
+        <div class="proc-time">Every 30 days</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== COMPONENT GALLERY ============== -->
+<section class="section gallery" id="dashboard">
+  <div class="container">
+    <div class="section-head">
+      <div class="section-eyebrow">— Designed Surfaces —</div>
+      <h2 class="section-title">Sign in. <em>Settle in.</em><br>The same craft, every page.</h2>
+      <p class="section-sub">A taste of the screens hotel managers see after payment — the same Forest-and-Gold restraint, the same DM Sans clarity, the same Cormorant headline grace.</p>
+    </div>
+
+    <div class="gal-grid">
+      <!-- LOGIN -->
+      <div class="gal-card">
+        <div class="gal-head">
+          <span>login.html</span>
+          <span class="gh-tag">Surface</span>
+        </div>
+        <div class="gal-body">
+          <h3 class="lf-title">Welcome <em>back.</em></h3>
+          <div class="lf-sub">Sign in to see this month's bookings.</div>
+          <div class="field">
+            <label>Email</label>
+            <input type="email" value="manager@grandhotel-osaka.com" readonly>
+          </div>
+          <div class="field">
+            <label>Password</label>
+            <input type="password" value="••••••••••••" readonly>
+          </div>
+          <button class="lf-btn">Sign in →</button>
+          <div class="lf-divider">or</div>
+          <button class="lf-btn" style="background:var(--white);color:var(--forest-deep);border:1px solid var(--line)">Continue with Google</button>
+        </div>
+      </div>
+
+      <!-- DASHBOARD -->
+      <div class="gal-card">
+        <div class="gal-head">
+          <span>dashboard.html</span>
+          <span class="gh-tag">Manager view</span>
+        </div>
+        <div class="gal-body">
+          <div class="dash-tile hero-tile">
+            <div class="dt-row">
+              <div>
+                <div class="dt-label">Bookings this period</div>
+                <div class="dt-value">23<em>guests</em></div>
+              </div>
+              <div style="text-align:right">
+                <div class="dt-label">Tracked revenue</div>
+                <div class="dt-value">$5,420</div>
+              </div>
+            </div>
+            <div class="dt-meter hero"><div class="dt-meter-fill"></div></div>
+          </div>
+          <div class="dash-tile">
+            <div class="dt-row">
+              <div>
+                <div class="dt-label">Days into 6-month protection</div>
+                <div class="dt-value">112 / 180</div>
+              </div>
+            </div>
+            <div class="dt-meter"><div class="dt-meter-fill"></div></div>
+          </div>
+          <div class="dash-tile">
+            <div class="dt-row">
+              <div>
+                <div class="dt-label">Click traffic this month</div>
+                <div class="dt-value">1,284</div>
+              </div>
+              <span class="badge-demo gold">+18% MoM</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- COMPONENTS -->
+    <div class="comps">
+      <div class="comp-card">
+        <div class="comp-head">— Buttons —</div>
+        <div class="comp-row">
+          <button class="btn-demo primary">Begin listing →</button>
+          <button class="btn-demo secondary">Read more</button>
+          <button class="btn-demo gold">Download PDF</button>
+          <button class="btn-demo ghost">Cancel</button>
+        </div>
+        <div class="comp-row" style="margin-top:8px">
+          <button class="btn-demo primary" style="padding:9px 18px;font-size:12px">Small</button>
+          <button class="btn-demo primary">Default</button>
+          <button class="btn-demo primary" style="padding:14px 28px;font-size:15px">Large</button>
+        </div>
+      </div>
+
+      <div class="comp-card">
+        <div class="comp-head">— Badges & Pills —</div>
+        <div class="comp-row">
+          <span class="badge-demo gold">★ 6-month guarantee</span>
+          <span class="badge-demo forest">Live</span>
+          <span class="badge-demo dark">Featured</span>
+          <span class="badge-demo gold">+18% MoM</span>
+        </div>
+        <div class="comp-row" style="margin-top:8px;font-family:var(--serif);color:var(--ink-soft);font-size:14px;font-style:italic">
+          Calm, restrained pills. Never loud, never crowded.
+        </div>
+      </div>
+    </div>
+
+    <!-- MOBILE PREVIEW -->
+    <div class="mob-row">
+      <div class="mob-frame">
+        <div class="mob-screen">
+          <div class="mob-nav">
+            <span class="mob-brand">TravelWinners</span>
+            <span class="mob-menu"><span></span><span></span><span></span></span>
+          </div>
+          <div class="mob-content">
+            <div class="mob-eyebrow">Hotel Marketing · Est. 2018</div>
+            <div class="mob-h">A quieter way to fill <em>empty rooms.</em></div>
+            <div class="mob-badge">✓ 6-month guarantee · <span class="mb-am">100%</span> refund</div>
+            <div class="mob-stats">
+              <div class="mob-stat"><div class="mob-stat-val">9M+</div><div class="mob-stat-lab">Views</div></div>
+              <div class="mob-stat"><div class="mob-stat-val">3,774</div><div class="mob-stat-lab">Hotels</div></div>
+              <div class="mob-stat"><div class="mob-stat-val">$854K</div><div class="mob-stat-lab">Tracked</div></div>
+            </div>
+            <a href="#" class="mob-cta">Begin a listing →</a>
+            <div class="mob-section">
+              <div class="mob-section-title">— 8 channels —</div>
+              <div class="mob-ch featured">
+                <span class="mob-ch-flag">VN</span>
+                <div><div class="mob-ch-name">Korea Hotel</div><div class="mob-ch-meta">Vietnamese · ★ Differentiator</div></div>
+              </div>
+              <div class="mob-ch">
+                <span class="mob-ch-flag">KR</span>
+                <div><div class="mob-ch-name">여행능력자들</div><div class="mob-ch-meta">Korean · Flagship</div></div>
+              </div>
+              <div class="mob-ch">
+                <span class="mob-ch-flag">JP</span>
+                <div><div class="mob-ch-name">ホテルだ</div><div class="mob-ch-meta">Japanese · Inbound</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mob-note">
+        <strong>Mobile language toggle, finally fixed.</strong>
+        On mobile the EN/KR pill collapses into the hamburger menu. No more giant toggle eating the top of the screen, no more layout breaking at 360px.
+        <ul>
+          <li>Hamburger opens a vertical sheet</li>
+          <li>EN / KR pill is bottom of the sheet</li>
+          <li>Touch targets ≥ 44px</li>
+          <li>Tested at 320 / 360 / 414</li>
+          <li>No fixed-position items eating safe areas</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== FOOTER ============== -->
+<footer class="footer">
+  <div class="container">
+    <div class="foot-grid">
+      <div>
+        <div class="foot-brand">Travel<em>Winners</em></div>
+        <div class="foot-tag">Hotel marketing · Est. 2018 · Daegu, Korea</div>
+      </div>
+      <div class="foot-meta">
+        gohotelwinners.com<br>
+        Operating in 6 languages across 8 channels
+      </div>
+    </div>
+    <div class="foot-bar">
+      <span>© 2026 TravelWinners</span>
+      <span>Concept C1 · Forest Lux</span>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

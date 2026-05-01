@@ -5,6 +5,60 @@
 
 ---
 
+## 2026-05-01 (14차) — [디자인시스템] shared.css v2 — C3 Aurora Trendy 마이그레이션 시작 (login.html 시범 적용)
+
+### 변경 파일
+- `mock/concept-c1.html`, `mock/concept-c2.html`, `mock/concept-c3.html`, `mock/concept-c4.html`: 시안 4종 신규 보존 (비교군 + 향후 부분 차용 가능)
+- `mock/README.md`: 시안 4종 정리 + C3 채택 사유 + 디자인 토큰 문서화
+- `_backup_20260501/shared.css.v1.bak`: v1 백업 (Forest/Gold 테마, 388줄)
+- `_backup_20260501/shared.js.v1.bak`: shared.js 백업 (참고용, 변경 없음)
+- `shared.css`: **v1 → v2 전면 교체** — C3 Aurora 토큰 시스템 (746줄, +358줄)
+  - 신규 토큰: `--aurora-1~6`, `--bg/bg-2/bg-3/bg-4`, `--glass/glass-2/glass-3/glass-4`, `--ink/ink-2~5`, `--aurora` 그라디언트, `--glow-p/c/m`
+  - 신규 컴포넌트: `.aurora-bg`, `.aurora-blob.b1~b4`, `.aurora-grid`, `.glass-card`, `.eyebrow`, `.eyebrow-tag`, `.live-dot`
+  - v1 alias 보존: `--forest`, `--gold`, `--gray-*` 등 → Aurora 톤으로 매핑 → 기존 페이지 코드 안 깨짐
+  - 모든 v1 클래스(`.btn-primary`, `.field-input`, `.brand-panel`, `.shell` 등) 동일 이름 유지하되 Aurora 톤으로 재작성
+- `login.html`: 시범 마이그레이션 첫 페이지
+  - `<body>` 직후 `aurora-bg` + 4개 blob + `aurora-grid` 추가
+  - `style="border-color:var(--gold);background:var(--gold);..."` 등 v1 잔재 인라인 스타일 제거 (v2 CSS가 알아서 처리)
+  - `data-en/data-ko`에 `<em>back</em>` 마크업 추가 → form-title/brand-headline에서 Aurora 그라디언트 텍스트 효과
+- `docs/screenshots/v2-migration/login/before.png`, `after.png`: BEFORE/AFTER 비교 영구 보존 (메모리 규칙: 수정 전후 풀페이지 스크린샷 비교 원칙)
+
+### 배경
+대표님 비전: **"글로벌 정복, 새로운 트렌드 리드. 우리가 곧 유행이고 우리가 곧 트렌드다."** 호텔 산업이 본 적 없는 모던함이 차별화 포인트. 기존 v1 디자인은 정적이고 보수적인 호텔 업계 표준 톤(Forest/Gold) → B2B SaaS 글로벌 톤(Linear · Framer · Vercel · Cursor)으로 전면 전환. 4개 시안(C1 Editorial / C2 Premium / C3 Aurora / C4 Bold) 비교 후 C3 채택.
+
+### 변경사유
+- **v1 alias 보존 전략**: `--forest`, `--gold` 같은 v1 변수를 v2의 Aurora 컬러로 alias → 기존 8개 페이지(index/signup/dashboard 등)가 인라인 스타일에서 v1 변수를 쓰더라도 자동으로 Aurora 톤으로 보임. 페이지별 마이그레이션을 점진적으로 진행 가능 (한 번에 깨질 위험 없음).
+- **클래스명 호환**: v1의 `.btn-primary`, `.field-input`, `.brand-panel`, `.shell`, `.form-panel` 등을 그대로 유지하되 Aurora 톤으로 재작성 → HTML 구조 변경 최소화.
+- **`.aurora-bg` 분리**: blob 4개 + grid는 별도 div로 분리 → 페이지별로 추가 여부 선택 가능 (어드민/대시보드는 성능 위해 grid만 적용 가능).
+- **시안 4종 mock/ 보존**: C1/C2/C4도 추후 특정 페이지 차용 가능 (C1 에디토리얼 → 블로그, C2 프리미엄 → 5성급 카드, C4 강한 대비 → 프로모션 CTA).
+
+### 검증
+1. **JS 문법 체크**: `node --check` → ✅ 문법 OK (82줄 inline)
+2. **함수 존재 체크**: `T.$`, `T.toast`, `T.sb`, `T.checkAdmin`, `T.lang`, `window.TW` 모두 shared.js에 존재 ✅
+3. **페이지 표시 체크 (Playwright Chromium)**: ✅ 통과
+   - 핵심 요소 10개 모두 존재 (.shell, .brand-panel, .brand-logo-icon, .form-title, #login-email, #login-pw, #btn-login, .aurora-bg, .aurora-blob.b1 등)
+   - body 배경: `rgb(10,10,15)` = `--bg` 다크 캔버스 적용 확인
+   - body 글자색: `rgb(250,250,250)` = `--ink` 적용 확인
+   - btn-login background: Aurora 그라디언트 (purple→magenta→orange→cyan) 적용 확인
+   - 콘솔/페이지 에러 0건
+4. **BEFORE/AFTER 스크린샷 비교**: docs/screenshots/v2-migration/login/ 보존 — 다음 마이그레이션 페이지의 검수 기준점
+
+### 다음 단계 (다음 채팅에서)
+- signup.html, forgot-password.html, reset-password.html, verify-email.html — 5개 인증 페이지 일괄 마이그레이션 (login과 구조 유사)
+- index.html — 랜딩 페이지 (시각적 임팩트 가장 큰 페이지)
+- dashboard.html, settings.html — 매니저 페이지
+- sales.html, marketing.html, hotel-info.html, booking-analytics.html — 매니저 콘텐츠 페이지
+- admin.html (1.27MB) — 별도 채팅으로 분리 (가장 복잡)
+
+각 페이지 마이그레이션마다 docs/screenshots/v2-migration/[page]/before.png + after.png 보존.
+
+### 관련
+- DECISIONS.md — C3 Aurora Trendy 채택 결정
+- mock/README.md — 시안 4종 비교
+- 메모리 규칙: "shared.css v2부터 이 컨셉 기반으로 마이그레이션" 준수
+
+---
+
 ## 2026-04-30 (13차) — [문서] api/_lib 디렉토리 정책 문서화 (Vercel 12-Function 회피 이중 안전망)
 
 ### 변경 파일

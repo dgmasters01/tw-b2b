@@ -1,0 +1,2546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TW B2B — C4 Editorial Bold</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,800;9..144,900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ================================================================
+   CONCEPT C4 — EDITORIAL BOLD
+   매거진 톤 — Bloomberg Businessweek / NYT / Monocle 차분한 권위
+   - Fraunces (display serif) + Inter (body sans) + JetBrains Mono
+   - 흑백 중심 + 카민 레드(#C8102E) 단일 악센트
+   - 강한 그리드 라인, 큰 타입, 단(column) 레이아웃
+   - 차분한 럭셔리, 사진편집부 같은 톤
+   ================================================================ */
+:root{
+  --ink:#0E0E0E;
+  --ink-2:#1F1F1F;
+  --ink-3:#3A3A3A;
+  --ink-4:#5E5E5E;
+  --ink-5:#8A8A8A;
+  --ink-6:#B8B8B8;
+  --paper:#FBFAF7;
+  --paper-2:#F4F2EC;
+  --paper-3:#E8E5DD;
+  --line:#1F1F1F;
+  --line-soft:#D4D1C9;
+  --line-soft-2:#E8E5DD;
+  --carmine:#C8102E;
+  --carmine-deep:#A30D24;
+  --carmine-soft:#FBE9EC;
+  --green:#1F6B3A;
+  --amber:#B47A00;
+  --sans:'Inter','SF Pro Text',system-ui,-apple-system,sans-serif;
+  --serif:'Fraunces',Georgia,'Times New Roman',serif;
+  --mono:'JetBrains Mono','SF Mono',Menlo,monospace;
+  --r-sm:2px;
+  --r:3px;
+  --r-lg:4px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{background:var(--paper)}
+body{font-family:var(--sans);background:var(--paper);color:var(--ink);font-size:15px;line-height:1.6;-webkit-font-smoothing:antialiased;letter-spacing:-.005em}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+button{font:inherit;cursor:pointer;border:none;background:none;color:inherit}
+
+/* Util bar — masthead style */
+.masthead{
+  background:var(--ink);
+  color:var(--paper);
+  border-bottom:1px solid var(--ink);
+}
+.masthead-inner{
+  max-width:1280px;
+  margin:0 auto;
+  padding:8px 32px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+}
+.masthead-l{display:flex;gap:24px;align-items:center;color:rgba(251,250,247,.7)}
+.masthead-l b{color:var(--paper);font-weight:600}
+.masthead-l .sep{color:rgba(251,250,247,.3)}
+.masthead-r{display:flex;gap:14px;align-items:center}
+.lang-pill{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:3px 9px;
+  border:1px solid rgba(251,250,247,.2);
+  color:rgba(251,250,247,.85);
+  font-size:10.5px;
+  font-weight:500;
+  cursor:pointer;
+  transition:.15s;
+  letter-spacing:.04em;
+}
+.lang-pill:hover{background:rgba(251,250,247,.06);border-color:rgba(251,250,247,.4)}
+.lang-pill .dot{width:5px;height:5px;border-radius:50%;background:var(--carmine)}
+
+/* Header — newspaper style */
+.header{
+  background:var(--paper);
+  border-bottom:3px double var(--ink);
+  position:sticky;
+  top:0;
+  z-index:50;
+}
+.nav{
+  max-width:1280px;
+  margin:0 auto;
+  padding:20px 32px 18px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:32px;
+}
+.brand-wrap{display:flex;align-items:center;gap:12px}
+.brand-mark{
+  width:40px;height:40px;
+  border:1.5px solid var(--ink);
+  display:grid;place-items:center;
+  font-family:var(--serif);
+  font-weight:800;
+  font-size:18px;
+  letter-spacing:-.06em;
+  color:var(--ink);
+  background:var(--paper);
+  position:relative;
+}
+.brand-mark::after{
+  content:'';
+  position:absolute;
+  inset:-4px;
+  border:1px solid var(--ink);
+  pointer-events:none;
+}
+.brand-name{
+  font-family:var(--serif);
+  font-weight:700;
+  font-size:22px;
+  letter-spacing:-.02em;
+  color:var(--ink);
+  line-height:1;
+}
+.brand-name em{
+  color:var(--carmine);
+  font-style:italic;
+  font-weight:600;
+}
+.brand-sub{
+  font-family:var(--mono);
+  font-size:10px;
+  letter-spacing:.16em;
+  color:var(--ink-4);
+  text-transform:uppercase;
+  margin-top:3px;
+}
+.nav-links{display:flex;gap:0;align-items:center;border-left:1px solid var(--line-soft);padding-left:8px;margin-left:8px}
+.nav-links a{
+  font-size:13px;
+  font-weight:500;
+  color:var(--ink-2);
+  padding:6px 14px;
+  letter-spacing:.02em;
+  text-transform:uppercase;
+  font-family:var(--mono);
+  font-size:11px;
+  border-right:1px solid var(--line-soft);
+  transition:.15s;
+}
+.nav-links a:last-child{border-right:none}
+.nav-links a:hover{color:var(--carmine)}
+.nav-cta{display:flex;gap:8px;align-items:center}
+
+/* Buttons — geometric, no rounded */
+.btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  padding:11px 18px;
+  font-size:12.5px;
+  font-weight:600;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+  font-family:var(--mono);
+  transition:.15s ease;
+  white-space:nowrap;
+  border:1.5px solid transparent;
+}
+.btn-primary{
+  background:var(--ink);
+  color:var(--paper);
+  border-color:var(--ink);
+}
+.btn-primary:hover{background:var(--carmine);border-color:var(--carmine)}
+.btn-carmine{
+  background:var(--carmine);
+  color:var(--paper);
+  border-color:var(--carmine);
+}
+.btn-carmine:hover{background:var(--carmine-deep);border-color:var(--carmine-deep)}
+.btn-ghost{
+  background:transparent;
+  color:var(--ink);
+  border-color:var(--ink);
+}
+.btn-ghost:hover{background:var(--ink);color:var(--paper)}
+.btn-link{
+  color:var(--carmine);
+  padding:9px 0;
+  border-bottom:1px solid var(--carmine);
+  font-family:var(--mono);
+  font-size:12px;
+  font-weight:600;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+}
+.btn-link:hover{color:var(--carmine-deep);border-bottom-color:var(--carmine-deep)}
+.btn-lg{padding:14px 24px;font-size:13px}
+.btn .arrow{transition:transform .15s;font-family:var(--sans);font-weight:400}
+.btn:hover .arrow{transform:translateX(3px)}
+
+/* Hero — magazine cover */
+.hero{
+  position:relative;
+  background:var(--paper);
+  padding:80px 32px 0;
+  border-bottom:1px solid var(--line);
+}
+.hero-grid{
+  max-width:1280px;
+  margin:0 auto;
+  display:grid;
+  grid-template-columns:1.1fr 1fr;
+  gap:64px;
+  align-items:end;
+  position:relative;
+}
+.hero-grid::before{
+  content:'';
+  position:absolute;
+  left:50%;
+  top:0;
+  bottom:0;
+  width:1px;
+  background:var(--line-soft);
+  transform:translateX(20px);
+}
+.hero-eyebrow{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  margin-bottom:32px;
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  color:var(--ink-4);
+}
+.hero-eyebrow::before{
+  content:'';
+  width:32px;
+  height:1px;
+  background:var(--carmine);
+}
+.hero-eyebrow .issue{
+  color:var(--carmine);
+  font-weight:600;
+}
+h1.hero-title{
+  font-family:var(--serif);
+  font-size:104px;
+  line-height:.92;
+  letter-spacing:-.04em;
+  font-weight:700;
+  color:var(--ink);
+  margin-bottom:32px;
+  font-feature-settings:"ss01","ss02";
+}
+h1.hero-title em{
+  font-style:italic;
+  font-weight:600;
+  color:var(--carmine);
+}
+.hero-deck{
+  font-size:18px;
+  line-height:1.55;
+  color:var(--ink-3);
+  margin-bottom:36px;
+  max-width:560px;
+  font-family:var(--serif);
+  font-weight:400;
+}
+.hero-deck b{color:var(--ink);font-weight:600}
+.hero-cta{display:flex;gap:14px;margin-bottom:48px;align-items:center;flex-wrap:wrap}
+.hero-byline{
+  border-top:1px solid var(--ink);
+  padding-top:18px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  font-family:var(--mono);
+  font-size:10.5px;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--ink-4);
+  margin-bottom:60px;
+}
+.hero-byline b{color:var(--ink);font-weight:600}
+
+/* Hero right — stat sheet (table style) */
+.hero-right{
+  position:relative;
+  padding-left:32px;
+  padding-bottom:80px;
+}
+.stat-sheet{
+  border-top:3px double var(--ink);
+  border-bottom:3px double var(--ink);
+  padding:24px 0;
+}
+.stat-sheet-h{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding-bottom:16px;
+  border-bottom:1px solid var(--line-soft);
+  margin-bottom:8px;
+}
+.stat-sheet-title{
+  font-family:var(--serif);
+  font-size:18px;
+  font-weight:600;
+  letter-spacing:-.01em;
+  color:var(--ink);
+}
+.stat-sheet-meta{
+  font-family:var(--mono);
+  font-size:10px;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--carmine);
+  font-weight:600;
+  display:inline-flex;align-items:center;gap:6px;
+}
+.stat-sheet-meta::before{
+  content:'';
+  width:6px;height:6px;border-radius:50%;
+  background:var(--carmine);
+  animation:pulse 2s infinite;
+}
+@keyframes pulse{
+  0%,100%{box-shadow:0 0 0 0 rgba(200,16,46,.4)}
+  50%{box-shadow:0 0 0 6px rgba(200,16,46,0)}
+}
+.stat-row{
+  display:grid;
+  grid-template-columns:1fr auto;
+  align-items:end;
+  padding:18px 0;
+  border-bottom:1px solid var(--line-soft);
+  gap:24px;
+}
+.stat-row:last-child{border-bottom:none;padding-bottom:0}
+.stat-info{}
+.stat-label{
+  font-family:var(--mono);
+  font-size:10.5px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--ink-4);
+  margin-bottom:6px;
+}
+.stat-meta{
+  font-size:13px;
+  color:var(--ink-3);
+  line-height:1.4;
+  font-family:var(--serif);
+  font-style:italic;
+}
+.stat-num{
+  font-family:var(--serif);
+  font-size:52px;
+  font-weight:700;
+  color:var(--ink);
+  letter-spacing:-.025em;
+  line-height:.95;
+  text-align:right;
+}
+.stat-num em{
+  font-style:normal;
+  color:var(--carmine);
+  font-size:32px;
+  font-weight:600;
+  margin-left:1px;
+}
+.stat-foot{
+  margin-top:14px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  font-family:var(--mono);
+  font-size:9.5px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--ink-5);
+}
+.stat-foot b{color:var(--ink-3);font-weight:600}
+
+/* Banner row under hero */
+.hero-strip{
+  background:var(--ink);
+  color:var(--paper);
+  padding:0;
+}
+.hero-strip-inner{
+  max-width:1280px;
+  margin:0 auto;
+  padding:18px 32px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:32px;
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+}
+.hero-strip-l{display:flex;gap:32px;align-items:center;color:rgba(251,250,247,.7)}
+.hero-strip-l span{position:relative}
+.hero-strip-l span::before{content:'§';color:var(--carmine);margin-right:8px;font-family:var(--serif);font-style:italic;font-size:14px}
+.hero-strip-l b{color:var(--paper);font-weight:600}
+.hero-strip-r{
+  color:var(--carmine);
+  font-weight:600;
+}
+
+/* Guarantee — magazine pull-quote */
+.guarantee{
+  background:var(--paper-2);
+  border-bottom:1px solid var(--line);
+  padding:64px 32px;
+}
+.guarantee-inner{
+  max-width:1280px;
+  margin:0 auto;
+  display:grid;
+  grid-template-columns:auto 1fr auto;
+  gap:48px;
+  align-items:center;
+}
+.guarantee-mark{
+  font-family:var(--serif);
+  font-size:120px;
+  font-weight:700;
+  font-style:italic;
+  color:var(--carmine);
+  line-height:.7;
+  letter-spacing:-.04em;
+}
+.guarantee-text{
+  font-family:var(--serif);
+  font-size:28px;
+  line-height:1.25;
+  font-weight:500;
+  color:var(--ink);
+  letter-spacing:-.015em;
+  font-feature-settings:"ss01";
+}
+.guarantee-text b{
+  color:var(--carmine);
+  font-weight:700;
+}
+.guarantee-text em{
+  font-style:italic;
+  color:var(--ink);
+}
+.guarantee-cta{
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--ink);
+  font-weight:600;
+  border-bottom:2px solid var(--carmine);
+  padding-bottom:4px;
+  white-space:nowrap;
+  transition:.15s;
+}
+.guarantee-cta:hover{color:var(--carmine)}
+
+/* Sections */
+.section{
+  padding:120px 32px;
+  position:relative;
+  background:var(--paper);
+}
+.section.dark{
+  background:var(--ink);
+  color:var(--paper);
+}
+.section.dark .section-eyebrow{color:var(--carmine)}
+.section.dark h2.section-title{color:var(--paper)}
+.section.dark .section-deck{color:rgba(251,250,247,.7)}
+.section-inner{max-width:1280px;margin:0 auto}
+.section-head{
+  margin-bottom:80px;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:80px;
+  align-items:end;
+  position:relative;
+  padding-bottom:32px;
+  border-bottom:3px double var(--line);
+}
+.section.dark .section-head{border-bottom-color:rgba(251,250,247,.3)}
+.section-eyebrow{
+  display:inline-block;
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  color:var(--carmine);
+  font-weight:600;
+  margin-bottom:18px;
+}
+h2.section-title{
+  font-family:var(--serif);
+  font-size:72px;
+  line-height:.96;
+  letter-spacing:-.035em;
+  font-weight:700;
+  color:var(--ink);
+  font-feature-settings:"ss01";
+}
+h2.section-title em{
+  font-style:italic;
+  color:var(--carmine);
+  font-weight:600;
+}
+.section-deck{
+  font-family:var(--serif);
+  font-size:17px;
+  line-height:1.6;
+  color:var(--ink-3);
+  font-weight:400;
+}
+.section-deck b{color:var(--ink);font-weight:600}
+
+/* Channels — editorial table */
+.channel-list{
+  border-top:1px solid var(--line);
+  border-bottom:1px solid var(--line);
+}
+.channel-row{
+  display:grid;
+  grid-template-columns:60px 1.4fr 1fr 1.6fr 100px;
+  align-items:center;
+  padding:24px 0;
+  border-bottom:1px solid var(--line-soft);
+  transition:.15s;
+  position:relative;
+}
+.channel-row:last-child{border-bottom:none}
+.channel-row:hover{background:var(--paper-2)}
+.channel-row:hover .ch-num{color:var(--carmine)}
+.ch-num{
+  font-family:var(--serif);
+  font-size:32px;
+  font-weight:700;
+  color:var(--ink-5);
+  letter-spacing:-.02em;
+  font-style:italic;
+  transition:.15s;
+}
+.ch-info{padding-right:32px}
+.ch-flag{
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  font-family:var(--mono);
+  font-size:10px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--ink-4);
+  margin-bottom:6px;
+}
+.ch-flag-bar{width:14px;height:2px;background:var(--ink)}
+.ch-flag.carmine .ch-flag-bar{background:var(--carmine)}
+.ch-name{
+  font-family:var(--serif);
+  font-size:24px;
+  font-weight:700;
+  color:var(--ink);
+  letter-spacing:-.015em;
+  margin-bottom:2px;
+  line-height:1.1;
+}
+.ch-handle{
+  font-family:var(--mono);
+  font-size:11px;
+  color:var(--ink-5);
+  letter-spacing:.04em;
+}
+.ch-target{
+  font-size:14px;
+  color:var(--ink-3);
+  line-height:1.5;
+  font-family:var(--serif);
+  font-style:italic;
+  padding-right:24px;
+}
+.ch-tag{
+  font-family:var(--mono);
+  font-size:9.5px;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  font-weight:600;
+  color:var(--ink-4);
+  text-align:right;
+}
+.ch-tag.primary{color:var(--ink);border-right:3px solid var(--ink);padding-right:12px}
+.ch-tag.featured{color:var(--carmine);border-right:3px solid var(--carmine);padding-right:12px}
+.ch-tag.growing{color:var(--green);border-right:3px solid var(--green);padding-right:12px}
+
+/* Channel banner — three-column index */
+.ch-banner{
+  margin-top:64px;
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  border-top:3px double var(--ink);
+  border-bottom:3px double var(--ink);
+}
+.ch-banner-item{
+  padding:36px 40px;
+  border-right:1px solid var(--line-soft);
+  position:relative;
+}
+.ch-banner-item:last-child{border-right:none}
+.ch-banner-num{
+  font-family:var(--serif);
+  font-size:72px;
+  font-weight:700;
+  color:var(--ink);
+  letter-spacing:-.035em;
+  line-height:.95;
+  margin-bottom:14px;
+}
+.ch-banner-num em{
+  font-style:normal;
+  color:var(--carmine);
+  font-size:48px;
+}
+.ch-banner-label{
+  font-family:var(--serif);
+  font-size:17px;
+  color:var(--ink-2);
+  font-weight:500;
+  font-style:italic;
+  margin-bottom:8px;
+  line-height:1.3;
+}
+.ch-banner-meta{
+  font-family:var(--mono);
+  font-size:10px;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  color:var(--ink-5);
+}
+
+/* Process — timeline editorial */
+.proc-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  border-top:1px solid var(--ink);
+}
+.proc-step{
+  padding:40px 32px 40px 0;
+  border-right:1px solid var(--line-soft);
+  position:relative;
+}
+.proc-step:last-child{border-right:none}
+.proc-num{
+  font-family:var(--serif);
+  font-size:14px;
+  font-weight:600;
+  font-style:italic;
+  color:var(--carmine);
+  letter-spacing:.04em;
+  margin-bottom:24px;
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+}
+.proc-num::before{
+  content:'';
+  width:24px;height:1px;
+  background:var(--carmine);
+}
+.proc-title{
+  font-family:var(--serif);
+  font-size:32px;
+  font-weight:700;
+  color:var(--ink);
+  letter-spacing:-.025em;
+  margin-bottom:16px;
+  line-height:1.05;
+}
+.proc-desc{
+  font-size:14.5px;
+  color:var(--ink-3);
+  line-height:1.6;
+  margin-bottom:20px;
+}
+.proc-meta{
+  font-family:var(--mono);
+  font-size:10px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--ink-5);
+  border-top:1px solid var(--line-soft);
+  padding-top:14px;
+}
+
+/* Dashboard — section dark with paper card */
+.dash-frame{
+  background:var(--paper);
+  color:var(--ink);
+  border:1px solid var(--paper);
+  position:relative;
+  overflow:hidden;
+}
+.dash-bar{
+  height:42px;
+  background:var(--paper-3);
+  border-bottom:1px solid var(--line-soft);
+  display:flex;
+  align-items:center;
+  padding:0 16px;
+  gap:12px;
+}
+.dash-dots{display:flex;gap:6px}
+.dash-dot{width:11px;height:11px;border-radius:50%;border:1px solid rgba(0,0,0,.06)}
+.dash-dot:nth-child(1){background:#FF5F57}
+.dash-dot:nth-child(2){background:#FFBD2E}
+.dash-dot:nth-child(3){background:#28C940}
+.dash-url{
+  flex:1;
+  background:var(--paper);
+  border:1px solid var(--line-soft);
+  padding:6px 12px;
+  font-family:var(--mono);
+  font-size:11px;
+  color:var(--ink-4);
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.dash-url .lock{color:var(--green)}
+.dash-body{
+  display:grid;
+  grid-template-columns:230px 1fr;
+  min-height:540px;
+}
+.dash-side{
+  background:var(--paper-2);
+  border-right:1px solid var(--line-soft);
+  padding:20px 14px;
+}
+.dash-side-brand{
+  display:flex;align-items:center;gap:10px;
+  padding:8px 8px 14px;
+  border-bottom:1px solid var(--line-soft);
+  margin-bottom:14px;
+}
+.dash-side-brand .brand-mark{width:30px;height:30px;font-size:14px}
+.dash-side-brand .brand-mark::after{display:none}
+.dash-side-brand-text{font-family:var(--serif);font-size:16px;font-weight:700;color:var(--ink);letter-spacing:-.01em}
+.dash-nav-section{
+  font-family:var(--mono);
+  font-size:9.5px;
+  font-weight:600;
+  color:var(--ink-5);
+  text-transform:uppercase;
+  letter-spacing:.16em;
+  padding:10px 12px 8px;
+  margin-top:6px;
+}
+.dash-nav-item{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:9px 12px;
+  font-size:13px;
+  color:var(--ink-3);
+  font-weight:500;
+  cursor:pointer;
+  transition:.1s;
+  border-left:2px solid transparent;
+}
+.dash-nav-item:hover{background:var(--paper);color:var(--ink-2)}
+.dash-nav-item.active{
+  background:var(--paper);
+  color:var(--ink);
+  border-left-color:var(--carmine);
+  font-weight:600;
+}
+.dash-nav-icon{width:14px;height:14px;flex-shrink:0;color:currentColor}
+.dash-main{padding:28px 32px}
+.dash-h{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  margin-bottom:24px;
+  padding-bottom:18px;
+  border-bottom:1px solid var(--line-soft);
+}
+.dash-h-title{
+  font-family:var(--serif);
+  font-size:28px;
+  font-weight:700;
+  color:var(--ink);
+  letter-spacing:-.025em;
+  line-height:1;
+}
+.dash-h-sub{
+  font-family:var(--mono);
+  font-size:11px;
+  color:var(--ink-5);
+  letter-spacing:.06em;
+  margin-top:6px;
+  text-transform:uppercase;
+}
+.dash-h-pill{
+  font-family:var(--mono);
+  font-size:10px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  font-weight:600;
+  padding:5px 10px;
+  background:var(--carmine-soft);
+  color:var(--carmine);
+  border:1px solid var(--carmine);
+}
+.kpi-row{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:0;
+  margin-bottom:24px;
+  border-top:1px solid var(--line-soft);
+  border-bottom:1px solid var(--line-soft);
+}
+.kpi{
+  padding:18px 20px;
+  border-right:1px solid var(--line-soft);
+}
+.kpi:last-child{border-right:none}
+.kpi-label{
+  font-family:var(--mono);
+  font-size:9.5px;
+  color:var(--ink-5);
+  text-transform:uppercase;
+  letter-spacing:.14em;
+  margin-bottom:8px;
+}
+.kpi-num{
+  font-family:var(--serif);
+  font-size:32px;
+  font-weight:700;
+  color:var(--ink);
+  letter-spacing:-.025em;
+  line-height:.95;
+  margin-bottom:6px;
+}
+.kpi-delta{
+  font-family:var(--mono);
+  font-size:10.5px;
+  font-weight:600;
+  letter-spacing:.04em;
+}
+.kpi-delta.up{color:var(--green)}
+.kpi-delta.dn{color:var(--carmine)}
+.dash-chart{
+  border:1px solid var(--line-soft);
+  padding:22px;
+  background:var(--paper);
+}
+.dash-chart-h{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:18px;
+}
+.dash-chart-title{
+  font-family:var(--serif);
+  font-size:17px;
+  font-weight:600;
+  color:var(--ink);
+  letter-spacing:-.01em;
+}
+.dash-chart-tabs{
+  display:flex;
+  border:1px solid var(--line-soft);
+}
+.dash-chart-tab{
+  padding:5px 12px;
+  font-family:var(--mono);
+  font-size:10px;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  color:var(--ink-4);
+  font-weight:500;
+  cursor:pointer;
+  border-right:1px solid var(--line-soft);
+}
+.dash-chart-tab:last-child{border-right:none}
+.dash-chart-tab.active{background:var(--ink);color:var(--paper)}
+.spark-svg{width:100%;height:160px;display:block;margin-top:8px}
+
+/* Auth — editorial layout */
+.auth-grid{
+  display:grid;
+  grid-template-columns:1.1fr 1fr;
+  gap:80px;
+  align-items:start;
+}
+.auth-side{position:relative}
+.auth-side-eye{
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  color:var(--carmine);
+  font-weight:600;
+  margin-bottom:18px;
+}
+.auth-side-title{
+  font-family:var(--serif);
+  font-size:56px;
+  line-height:.98;
+  letter-spacing:-.035em;
+  font-weight:700;
+  color:var(--ink);
+  margin-bottom:24px;
+}
+.auth-side-title em{
+  font-style:italic;
+  color:var(--carmine);
+  font-weight:600;
+}
+.auth-side-text{
+  font-family:var(--serif);
+  font-size:17px;
+  color:var(--ink-3);
+  line-height:1.6;
+  margin-bottom:36px;
+  max-width:480px;
+}
+.auth-bullets{
+  display:flex;
+  flex-direction:column;
+  gap:0;
+  border-top:1px solid var(--line);
+}
+.auth-bul{
+  display:grid;
+  grid-template-columns:60px 1fr;
+  gap:20px;
+  align-items:flex-start;
+  padding:22px 0;
+  border-bottom:1px solid var(--line-soft);
+}
+.auth-bul-num{
+  font-family:var(--serif);
+  font-size:32px;
+  font-weight:700;
+  font-style:italic;
+  color:var(--carmine);
+  letter-spacing:-.02em;
+  line-height:1;
+}
+.auth-bul-text{
+  font-size:15px;
+  color:var(--ink-2);
+  line-height:1.55;
+  font-family:var(--serif);
+}
+.auth-bul-text b{color:var(--ink);font-weight:700;font-family:var(--sans)}
+
+/* Login card — paper form */
+.auth-card{
+  background:var(--paper);
+  border:1.5px solid var(--ink);
+  padding:40px;
+  position:relative;
+}
+.auth-card::before{
+  content:'';
+  position:absolute;
+  inset:-7px;
+  border:1px solid var(--ink);
+  pointer-events:none;
+}
+.auth-card-eye{
+  font-family:var(--mono);
+  font-size:10px;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  color:var(--carmine);
+  font-weight:600;
+  margin-bottom:8px;
+}
+.auth-card-h{
+  font-family:var(--serif);
+  font-size:36px;
+  font-weight:700;
+  color:var(--ink);
+  letter-spacing:-.02em;
+  margin-bottom:6px;
+  line-height:1;
+}
+.auth-card-sub{
+  font-family:var(--serif);
+  font-size:14px;
+  color:var(--ink-4);
+  margin-bottom:32px;
+  font-style:italic;
+  border-bottom:1px solid var(--line-soft);
+  padding-bottom:24px;
+}
+.field{margin-bottom:18px}
+.field label{
+  display:block;
+  font-family:var(--mono);
+  font-size:10px;
+  font-weight:600;
+  color:var(--ink-4);
+  margin-bottom:8px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+}
+.field input{
+  width:100%;
+  padding:11px 0;
+  font-size:15px;
+  font-family:var(--serif);
+  color:var(--ink);
+  background:transparent;
+  border:none;
+  border-bottom:1.5px solid var(--ink);
+  border-radius:0;
+  transition:.15s;
+}
+.field input:focus{outline:none;border-bottom-color:var(--carmine)}
+.field input::placeholder{color:var(--ink-5);font-style:italic}
+.field-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  font-size:13px;
+  margin:24px 0;
+}
+.checkbox{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  color:var(--ink-3);
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+}
+.checkbox input{width:14px;height:14px;accent-color:var(--carmine)}
+.auth-link{
+  color:var(--carmine);
+  font-weight:600;
+  border-bottom:1px solid var(--carmine);
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+}
+.auth-card .btn{width:100%}
+.auth-foot{
+  margin-top:24px;
+  text-align:center;
+  font-family:var(--serif);
+  font-size:14px;
+  color:var(--ink-4);
+  font-style:italic;
+}
+.auth-divider{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  margin:24px 0;
+  color:var(--ink-5);
+  font-family:var(--mono);
+  font-size:10px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+}
+.auth-divider::before,.auth-divider::after{
+  content:'';flex:1;height:1px;background:var(--line-soft);
+}
+
+/* Mobile */
+.mobile-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:48px;
+  align-items:start;
+}
+.mob-frame{
+  background:var(--ink);
+  border:1.5px solid var(--ink);
+  padding:9px;
+  margin:0 auto;
+  width:280px;
+  position:relative;
+  border-radius:38px;
+}
+.mob-frame::before{
+  content:'';
+  position:absolute;
+  top:18px;left:50%;
+  transform:translateX(-50%);
+  width:80px;height:20px;
+  background:var(--ink);
+  border-radius:0 0 14px 14px;
+  z-index:2;
+}
+.mob-screen{
+  background:var(--paper);
+  border-radius:30px;
+  overflow:hidden;
+  height:540px;
+  position:relative;
+}
+.mob-statusbar{
+  height:40px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:14px 24px 4px;
+  font-size:11px;
+  font-weight:600;
+  color:var(--ink);
+  font-family:var(--mono);
+}
+.mob-content{padding:0 16px;height:calc(100% - 40px);overflow:hidden;position:relative}
+.mob-caption{
+  text-align:center;
+  margin-top:20px;
+  font-family:var(--serif);
+  font-size:15px;
+  font-weight:700;
+  color:var(--ink);
+  letter-spacing:-.01em;
+}
+.mob-caption-sub{
+  text-align:center;
+  font-family:var(--mono);
+  font-size:10px;
+  color:var(--ink-5);
+  margin-top:5px;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+}
+
+/* Mobile 1 */
+.m1-nav{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:12px 4px;
+  border-bottom:1px solid var(--line);
+  margin-bottom:14px;
+}
+.m1-nav .brand-mark{width:24px;height:24px;font-size:11px}
+.m1-nav .brand-mark::after{inset:-3px}
+.m1-icons{display:flex;gap:6px;align-items:center}
+.m1-icon-btn{
+  width:28px;height:28px;
+  border:1px solid var(--ink);
+  display:grid;place-items:center;
+  color:var(--ink);
+  background:var(--paper);
+}
+.m1-icon-btn svg{width:13px;height:13px}
+.m1-lang{
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+  padding:4px 8px;
+  border:1px solid var(--ink);
+  font-family:var(--mono);
+  font-size:10px;
+  font-weight:600;
+  color:var(--ink);
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+.m1-eye{
+  font-family:var(--mono);
+  font-size:9px;
+  font-weight:600;
+  color:var(--carmine);
+  text-transform:uppercase;
+  letter-spacing:.16em;
+  margin-bottom:8px;
+}
+.m1-title{
+  font-family:var(--serif);
+  font-size:30px;
+  line-height:.98;
+  letter-spacing:-.03em;
+  font-weight:700;
+  color:var(--ink);
+  margin-bottom:12px;
+}
+.m1-title em{font-style:italic;color:var(--carmine);font-weight:600}
+.m1-sub{
+  font-family:var(--serif);
+  font-size:12.5px;
+  color:var(--ink-3);
+  line-height:1.5;
+  margin-bottom:14px;
+  font-style:italic;
+}
+.m1-stats{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  margin-bottom:14px;
+  border-top:1px solid var(--ink);
+  border-bottom:1px solid var(--ink);
+}
+.m1-stat{
+  padding:10px 4px;
+  text-align:center;
+  border-right:1px solid var(--line-soft);
+}
+.m1-stat:last-child{border-right:none}
+.m1-stat-num{
+  font-family:var(--serif);
+  font-size:18px;
+  font-weight:700;
+  color:var(--ink);
+  letter-spacing:-.02em;
+  line-height:1;
+}
+.m1-stat-num em{font-style:normal;color:var(--carmine);font-size:13px}
+.m1-stat-lab{
+  font-family:var(--mono);
+  font-size:8.5px;
+  color:var(--ink-4);
+  text-transform:uppercase;
+  letter-spacing:.12em;
+  margin-top:4px;
+}
+.m1-cta{
+  display:block;
+  background:var(--ink);
+  color:var(--paper);
+  text-align:center;
+  padding:12px;
+  font-family:var(--mono);
+  font-size:11px;
+  font-weight:600;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  margin-bottom:8px;
+}
+.m1-cta-2{
+  display:block;
+  background:var(--paper);
+  border:1.5px solid var(--ink);
+  color:var(--ink);
+  text-align:center;
+  padding:11px;
+  font-family:var(--mono);
+  font-size:11px;
+  font-weight:600;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  margin-bottom:14px;
+}
+.m1-guarantee{
+  background:var(--ink);
+  color:var(--paper);
+  padding:11px;
+  font-family:var(--serif);
+  font-size:11.5px;
+  line-height:1.45;
+}
+.m1-guarantee b{color:var(--carmine);font-weight:700}
+
+/* Mobile 2 */
+.m2-h{
+  padding:12px 4px 12px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  border-bottom:1px solid var(--ink);
+  margin-bottom:12px;
+}
+.m2-h-title{
+  font-family:var(--serif);
+  font-size:20px;
+  font-weight:700;
+  color:var(--ink);
+  letter-spacing:-.02em;
+  line-height:1;
+}
+.m2-bell{
+  width:28px;height:28px;
+  border:1px solid var(--ink);
+  display:grid;place-items:center;
+  color:var(--ink);
+  position:relative;
+}
+.m2-bell::after{
+  content:'';
+  position:absolute;top:4px;right:4px;
+  width:6px;height:6px;border-radius:50%;
+  background:var(--carmine);
+  border:1.5px solid var(--paper);
+}
+.m2-bell svg{width:13px;height:13px}
+.m2-status{
+  border-top:2px solid var(--ink);
+  border-bottom:1px solid var(--line-soft);
+  padding:13px 4px;
+  margin-bottom:12px;
+}
+.m2-status-h{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:6px;
+}
+.m2-status-label{
+  font-family:var(--mono);
+  font-size:9px;
+  color:var(--ink-4);
+  text-transform:uppercase;
+  letter-spacing:.16em;
+  font-weight:600;
+}
+.m2-status-pill{
+  font-family:var(--mono);
+  font-size:8.5px;
+  font-weight:700;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  padding:2px 6px;
+  background:var(--carmine);
+  color:var(--paper);
+}
+.m2-status-text{
+  font-family:var(--serif);
+  font-size:14px;
+  color:var(--ink);
+  font-weight:700;
+  letter-spacing:-.01em;
+}
+.m2-bar{
+  height:3px;background:var(--paper-3);
+  margin-top:10px;overflow:hidden;
+}
+.m2-bar div{height:100%;width:62%;background:var(--carmine)}
+.m2-kpi{
+  display:grid;grid-template-columns:1fr 1fr;
+  margin-bottom:12px;
+  border-top:1px solid var(--line-soft);
+}
+.m2-kpi-card{
+  padding:10px;
+  border-right:1px solid var(--line-soft);
+  border-bottom:1px solid var(--line-soft);
+}
+.m2-kpi-card:nth-child(2n){border-right:none}
+.m2-kpi-card:nth-last-child(-n+2){border-bottom:none}
+.m2-kpi-lab{
+  font-family:var(--mono);
+  font-size:8.5px;color:var(--ink-4);
+  text-transform:uppercase;letter-spacing:.14em;
+  margin-bottom:4px;
+}
+.m2-kpi-num{
+  font-family:var(--serif);
+  font-size:20px;font-weight:700;
+  color:var(--ink);letter-spacing:-.02em;line-height:1;
+}
+.m2-kpi-delta{
+  font-family:var(--mono);
+  font-size:9.5px;color:var(--green);
+  font-weight:600;margin-top:3px;letter-spacing:.04em;
+}
+.m2-list-title{
+  font-family:var(--mono);
+  font-size:9.5px;font-weight:600;
+  color:var(--ink-4);text-transform:uppercase;
+  letter-spacing:.16em;margin:8px 4px;
+  border-top:1px solid var(--ink);padding-top:10px;
+}
+.m2-list-item{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:9px 4px;border-bottom:1px solid var(--line-soft);
+}
+.m2-list-l{
+  font-family:var(--serif);font-size:13px;
+  color:var(--ink);font-weight:600;
+}
+.m2-list-r{
+  font-family:var(--mono);font-size:12px;
+  color:var(--carmine);font-weight:600;letter-spacing:.02em;
+}
+
+/* Mobile 3 */
+.m3-h{padding:14px 4px 12px;border-bottom:2px solid var(--ink);margin-bottom:0}
+.m3-h-title{
+  font-family:var(--serif);
+  font-size:18px;font-weight:700;
+  color:var(--ink);letter-spacing:-.02em;
+}
+.m3-h-sub{
+  font-family:var(--mono);font-size:9px;
+  color:var(--ink-5);text-transform:uppercase;
+  letter-spacing:.14em;margin-top:3px;
+}
+.m3-list{border-bottom:1px solid var(--ink)}
+.m3-row{
+  padding:13px 4px;display:flex;
+  justify-content:space-between;align-items:center;
+  border-bottom:1px solid var(--line-soft);cursor:pointer;
+}
+.m3-row:last-child{border-bottom:none}
+.m3-row.active{background:var(--paper-2)}
+.m3-l{display:flex;gap:11px;align-items:center}
+.m3-flag{
+  width:28px;height:28px;
+  border:1px solid var(--ink);
+  display:grid;place-items:center;
+  font-family:var(--mono);font-size:10px;
+  font-weight:700;color:var(--ink);
+  letter-spacing:.04em;
+}
+.m3-row.active .m3-flag{background:var(--ink);color:var(--paper)}
+.m3-name{
+  font-family:var(--serif);font-size:14px;
+  font-weight:600;color:var(--ink);letter-spacing:-.01em;
+}
+.m3-native{
+  font-family:var(--mono);font-size:9.5px;
+  color:var(--ink-5);margin-top:1px;letter-spacing:.04em;
+}
+.m3-check{
+  width:18px;height:18px;
+  background:var(--carmine);display:none;
+  place-items:center;color:var(--paper);
+}
+.m3-row.active .m3-check{display:grid}
+.m3-check svg{width:10px;height:10px}
+.m3-cta{
+  display:block;
+  background:var(--ink);color:var(--paper);
+  text-align:center;padding:13px;
+  margin-top:14px;
+  font-family:var(--mono);font-size:11px;
+  font-weight:600;letter-spacing:.1em;
+  text-transform:uppercase;
+}
+
+/* Components */
+.comp-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  border-top:1px solid var(--line);
+  border-bottom:1px solid var(--line);
+}
+.comp-card{
+  padding:36px 40px;
+  border-right:1px solid var(--line-soft);
+  border-bottom:1px solid var(--line-soft);
+}
+.comp-card:nth-child(2n){border-right:none}
+.comp-card:nth-last-child(-n+2){border-bottom:none}
+.comp-h{
+  font-family:var(--mono);
+  font-size:10.5px;
+  font-weight:600;
+  color:var(--ink-4);
+  text-transform:uppercase;
+  letter-spacing:.16em;
+  margin-bottom:24px;
+  padding-bottom:14px;
+  border-bottom:1px solid var(--line-soft);
+}
+.comp-row{
+  display:grid;
+  grid-template-columns:90px 1fr;
+  gap:16px;
+  align-items:center;
+  margin-bottom:18px;
+}
+.comp-row:last-child{margin-bottom:0}
+.comp-label{
+  font-family:var(--mono);
+  font-size:10px;color:var(--ink-5);
+  letter-spacing:.12em;text-transform:uppercase;
+}
+.comp-row-items{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+
+.bdg{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:4px 10px;
+  font-family:var(--mono);
+  font-size:10px;
+  font-weight:600;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  border:1px solid;
+}
+.bdg::before{
+  content:'';width:5px;height:5px;
+  background:currentColor;
+}
+.bdg.success{color:var(--green);border-color:var(--green);background:transparent}
+.bdg.brand{color:var(--carmine);border-color:var(--carmine);background:transparent}
+.bdg.warn{color:var(--amber);border-color:var(--amber);background:transparent}
+.bdg.danger{color:var(--carmine);background:var(--carmine);color:var(--paper);border-color:var(--carmine)}
+.bdg.danger::before{background:var(--paper)}
+.bdg.neutral{color:var(--ink-3);border-color:var(--ink-3);background:transparent}
+.bdg.solid{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.bdg.solid::before{background:var(--paper)}
+
+.swatch-row{display:flex;gap:8px;flex-wrap:wrap;width:100%}
+.swatch{width:74px;text-align:left}
+.swatch-block{
+  height:48px;
+  margin-bottom:6px;
+  border:1px solid var(--line-soft);
+}
+.swatch-name{
+  font-family:var(--mono);font-size:9.5px;
+  color:var(--ink-3);letter-spacing:.06em;
+  text-transform:uppercase;font-weight:600;
+}
+.swatch-hex{font-family:var(--mono);font-size:8.5px;color:var(--ink-5);letter-spacing:.04em}
+
+.type-sample{display:flex;flex-direction:column;gap:14px;width:100%}
+.type-row{
+  display:grid;grid-template-columns:90px 1fr;gap:16px;
+  align-items:baseline;
+  border-bottom:1px solid var(--line-soft);padding-bottom:12px;
+}
+.type-row:last-child{border-bottom:none;padding-bottom:0}
+.type-meta{
+  font-family:var(--mono);font-size:9.5px;
+  color:var(--ink-5);letter-spacing:.12em;
+  text-transform:uppercase;
+}
+.type-text{flex:1;color:var(--ink)}
+
+/* Footer — colophon */
+.foot{
+  background:var(--ink);
+  color:rgba(251,250,247,.65);
+  padding:80px 32px 32px;
+  border-top:6px solid var(--carmine);
+}
+.foot-inner{max-width:1280px;margin:0 auto}
+.foot-grid{
+  display:grid;
+  grid-template-columns:2fr 1fr 1fr 1fr;
+  gap:64px;
+  margin-bottom:48px;
+  padding-bottom:48px;
+  border-bottom:1px solid rgba(251,250,247,.15);
+}
+.foot-brand-name{
+  font-family:var(--serif);
+  font-size:32px;
+  font-weight:700;
+  color:var(--paper);
+  letter-spacing:-.02em;
+  margin-bottom:6px;
+}
+.foot-brand-name em{color:var(--carmine);font-style:italic}
+.foot-brand-tag{
+  font-family:var(--mono);
+  font-size:10px;letter-spacing:.16em;
+  text-transform:uppercase;color:rgba(251,250,247,.5);
+  margin-bottom:18px;
+}
+.foot-brand-text{
+  font-family:var(--serif);
+  font-size:14.5px;line-height:1.6;
+  color:rgba(251,250,247,.6);max-width:340px;
+  font-style:italic;
+}
+.foot-h{
+  font-family:var(--mono);
+  font-size:10.5px;font-weight:600;
+  color:var(--paper);text-transform:uppercase;
+  letter-spacing:.16em;margin-bottom:18px;
+}
+.foot-list{display:flex;flex-direction:column;gap:10px}
+.foot-list a{
+  font-family:var(--serif);
+  font-size:14.5px;color:rgba(251,250,247,.7);
+  transition:.1s;
+}
+.foot-list a:hover{color:var(--paper)}
+.foot-bot{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  font-family:var(--mono);
+  font-size:10px;letter-spacing:.14em;
+  text-transform:uppercase;
+  color:rgba(251,250,247,.5);
+}
+
+/* Responsive */
+@media(max-width:1100px){
+  h1.hero-title{font-size:84px}
+  .channel-row{grid-template-columns:48px 1.4fr 1fr 1.6fr 80px}
+}
+@media(max-width:980px){
+  .hero-grid{grid-template-columns:1fr;gap:48px}
+  .hero-grid::before{display:none}
+  .hero-right{padding-left:0;padding-bottom:48px}
+  h1.hero-title{font-size:64px}
+  .channel-row{grid-template-columns:1fr;gap:8px;padding:24px 0}
+  .ch-num{font-size:24px}
+  .ch-info{padding-right:0}
+  .ch-target{padding-right:0}
+  .ch-tag{text-align:left}
+  .ch-banner{grid-template-columns:1fr}
+  .ch-banner-item{border-right:none;border-bottom:1px solid var(--line-soft)}
+  .ch-banner-item:last-child{border-bottom:none}
+  .proc-grid{grid-template-columns:repeat(2,1fr)}
+  .proc-step:nth-child(2){border-right:none}
+  .proc-step:nth-child(-n+2){border-bottom:1px solid var(--line-soft)}
+  .auth-grid{grid-template-columns:1fr;gap:48px}
+  .mobile-grid{grid-template-columns:1fr;gap:48px}
+  .comp-grid{grid-template-columns:1fr}
+  .comp-card{border-right:none}
+  .foot-grid{grid-template-columns:1fr 1fr;gap:32px}
+  .nav-links{display:none}
+  .section{padding:72px 24px}
+  .hero{padding:48px 24px 0}
+  .guarantee-inner{grid-template-columns:1fr;gap:24px;text-align:center}
+  .guarantee-mark{font-size:80px}
+  .guarantee-text{font-size:22px}
+  .masthead-l{display:none}
+  h2.section-title{font-size:48px}
+  .section-head{grid-template-columns:1fr;gap:24px}
+  .dash-body{grid-template-columns:1fr}
+  .dash-side{display:none}
+  .kpi-row{grid-template-columns:repeat(2,1fr)}
+  .kpi:nth-child(2){border-right:none}
+  .kpi:nth-child(-n+2){border-bottom:1px solid var(--line-soft)}
+  .stat-num{font-size:40px}
+}
+@media(max-width:540px){
+  .foot-grid{grid-template-columns:1fr}
+  h1.hero-title{font-size:48px}
+  .hero-strip-l{flex-direction:column;gap:8px;align-items:flex-start}
+  .hero-strip-inner{flex-direction:column;gap:14px;align-items:flex-start}
+  .ch-banner-num{font-size:54px}
+  .stat-num{font-size:36px}
+}
+</style>
+</head>
+<body>
+
+<!-- ============ MASTHEAD ============ -->
+<div class="masthead">
+  <div class="masthead-inner">
+    <div class="masthead-l">
+      <span><b>Vol. 8</b> · No. 47</span>
+      <span class="sep">·</span>
+      <span>Hotel Marketing Platform</span>
+      <span class="sep">·</span>
+      <span>Operating since <b>2018</b></span>
+    </div>
+    <div class="masthead-r">
+      <span class="lang-pill"><span class="dot"></span>EN — English</span>
+    </div>
+  </div>
+</div>
+
+<!-- ============ HEADER ============ -->
+<header class="header">
+  <nav class="nav">
+    <div class="brand-wrap">
+      <div class="brand-mark">tw</div>
+      <div>
+        <div class="brand-name">TravelWinners <em>B2B</em></div>
+        <div class="brand-sub">The Hotel Exposure Quarterly</div>
+      </div>
+    </div>
+    <div class="nav-links">
+      <a href="#channels">Channels</a>
+      <a href="#process">Method</a>
+      <a href="#dashboard">Dashboard</a>
+      <a href="#auth">Pricing</a>
+      <a href="#components">Trust</a>
+    </div>
+    <div class="nav-cta">
+      <a href="#auth" class="btn btn-ghost">Sign in</a>
+      <a href="#auth" class="btn btn-carmine">List your hotel <span class="arrow">→</span></a>
+    </div>
+  </nav>
+</header>
+
+<!-- ============ HERO ============ -->
+<section class="hero">
+  <div class="hero-grid">
+    <div class="hero-left">
+      <div class="hero-eyebrow">
+        <span class="issue">Issue 047</span>
+        <span>· The Distribution Issue</span>
+      </div>
+      <h1 class="hero-title">
+        Reach <em>nine million</em><br>
+        travel viewers,<br>
+        for two hundred dollars.
+      </h1>
+      <p class="hero-deck">
+        TW B2B is the hotel exposure platform behind <b>eight YouTube channels in six languages</b>.
+        Pay once, get six months of guaranteed visibility — or your money back. A quiet promise,
+        rendered in numbers.
+      </p>
+      <div class="hero-cta">
+        <a href="#auth" class="btn btn-carmine btn-lg">List your hotel — $200 <span class="arrow">→</span></a>
+        <a href="#process" class="btn-link">Read the method →</a>
+      </div>
+      <div class="hero-byline">
+        <span><b>Filed</b> · gohotelwinners.com</span>
+        <span><b>Coverage</b> · KOR · ENG · JPN · CHT · VIE</span>
+        <span><b>Pricing</b> · One-time · USD</span>
+      </div>
+    </div>
+    <div class="hero-right">
+      <div class="stat-sheet">
+        <div class="stat-sheet-h">
+          <div class="stat-sheet-title">By the Numbers</div>
+          <div class="stat-sheet-meta">Live · trailing 12 mo.</div>
+        </div>
+        <div class="stat-row">
+          <div class="stat-info">
+            <div class="stat-label">Cumulative views</div>
+            <div class="stat-meta">Across 8 channels in 6 languages</div>
+          </div>
+          <div class="stat-num">9M<em>+</em></div>
+        </div>
+        <div class="stat-row">
+          <div class="stat-info">
+            <div class="stat-label">Bookings made</div>
+            <div class="stat-meta">Tracked through the Agoda affiliate</div>
+          </div>
+          <div class="stat-num">3,774</div>
+        </div>
+        <div class="stat-row">
+          <div class="stat-info">
+            <div class="stat-label">Booking revenue</div>
+            <div class="stat-meta">Verifiable, CID-mapped to source</div>
+          </div>
+          <div class="stat-num">$854K</div>
+        </div>
+      </div>
+      <div class="stat-foot">
+        <span><b>Verified</b> · Agoda</span>
+        <span>Last updated · just now</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ HERO STRIP ============ -->
+<div class="hero-strip">
+  <div class="hero-strip-inner">
+    <div class="hero-strip-l">
+      <span><b>Six-month</b> guarantee</span>
+      <span><b>One-time</b> $200 payment</span>
+      <span><b>No</b> subscription</span>
+      <span><b>Refund</b> if zero bookings</span>
+    </div>
+    <div class="hero-strip-r">→ Read the terms</div>
+  </div>
+</div>
+
+<!-- ============ GUARANTEE ============ -->
+<div class="guarantee">
+  <div class="guarantee-inner">
+    <div class="guarantee-mark">"</div>
+    <p class="guarantee-text">
+      Zero bookings in six months? <b>We refund 100%</b> of your two hundred dollars.
+      The risk sits with us, not with you — six languages, eight channels, <em>one quiet promise.</em>
+    </p>
+    <a href="#auth" class="guarantee-cta">Read terms →</a>
+  </div>
+</div>
+
+<!-- ============ CHANNELS ============ -->
+<section class="section" id="channels">
+  <div class="section-inner">
+    <div class="section-head">
+      <div>
+        <div class="section-eyebrow">Section I · Distribution</div>
+        <h2 class="section-title">Eight channels.<br><em>Six languages.</em></h2>
+      </div>
+      <p class="section-deck">
+        Every channel is built deliberately, audience by audience. We do not show subscriber counts —
+        what matters is <b>who is watching, and where they book afterward</b>.
+        These are the eight properties through which your hotel will appear.
+      </p>
+    </div>
+
+    <div class="channel-list">
+      <!-- 1 -->
+      <div class="channel-row">
+        <div class="ch-num">01</div>
+        <div class="ch-info">
+          <div class="ch-flag carmine"><span class="ch-flag-bar"></span>KOR · 한국어</div>
+          <div class="ch-name">여행능력자들</div>
+          <div class="ch-handle">@travelwinners</div>
+        </div>
+        <div></div>
+        <div class="ch-target">Korean outbound travelers — TravelWinners flagship channel since 2018.</div>
+        <div class="ch-tag primary">Primary</div>
+      </div>
+      <!-- 2 -->
+      <div class="channel-row">
+        <div class="ch-num">02</div>
+        <div class="ch-info">
+          <div class="ch-flag"><span class="ch-flag-bar"></span>KOR · 한국어</div>
+          <div class="ch-name">호텔이야</div>
+          <div class="ch-handle">@hotel-iya</div>
+        </div>
+        <div></div>
+        <div class="ch-target">Hotel-focused content for Korean travel planners and high-intent shoppers.</div>
+        <div class="ch-tag">Content</div>
+      </div>
+      <!-- 3 -->
+      <div class="channel-row">
+        <div class="ch-num">03</div>
+        <div class="ch-info">
+          <div class="ch-flag carmine"><span class="ch-flag-bar"></span>ENG · English</div>
+          <div class="ch-name">Kotel</div>
+          <div class="ch-handle">@koreahotelguide</div>
+        </div>
+        <div></div>
+        <div class="ch-target">English-speaking inbound to Asia — global reach, English-first audiences.</div>
+        <div class="ch-tag featured">Global</div>
+      </div>
+      <!-- 4 -->
+      <div class="channel-row">
+        <div class="ch-num">04</div>
+        <div class="ch-info">
+          <div class="ch-flag"><span class="ch-flag-bar"></span>KOR · 한국어</div>
+          <div class="ch-name">호텔닷컴</div>
+          <div class="ch-handle">@hoteldotcom</div>
+        </div>
+        <div></div>
+        <div class="ch-target">Trip.com-aligned audience — Korean buyers comparing booking platforms.</div>
+        <div class="ch-tag">Trip</div>
+      </div>
+      <!-- 5 -->
+      <div class="channel-row">
+        <div class="ch-num">05</div>
+        <div class="ch-info">
+          <div class="ch-flag"><span class="ch-flag-bar"></span>JPN · 日本語</div>
+          <div class="ch-name">ホテルだ</div>
+          <div class="ch-handle">@hoteruda</div>
+        </div>
+        <div></div>
+        <div class="ch-target">Japanese domestic and outbound travelers, planning Korea and beyond.</div>
+        <div class="ch-tag">Japan</div>
+      </div>
+      <!-- 6 -->
+      <div class="channel-row">
+        <div class="ch-num">06</div>
+        <div class="ch-info">
+          <div class="ch-flag"><span class="ch-flag-bar"></span>CHT · 繁體中文</div>
+          <div class="ch-name">世界就是家</div>
+          <div class="ch-handle">@worldishome</div>
+        </div>
+        <div></div>
+        <div class="ch-target">Taiwan and Hong Kong outbound — traditional Chinese, premium audience.</div>
+        <div class="ch-tag">Greater China</div>
+      </div>
+      <!-- 7 -->
+      <div class="channel-row">
+        <div class="ch-num">07</div>
+        <div class="ch-info">
+          <div class="ch-flag carmine"><span class="ch-flag-bar"></span>VIE · Tiếng Việt</div>
+          <div class="ch-name">Korea Hotel</div>
+          <div class="ch-handle">@koreahotel-vn</div>
+        </div>
+        <div></div>
+        <div class="ch-target">Vietnamese outbound travel to Korea and Japan — an underserved market, fast growing.</div>
+        <div class="ch-tag featured">Fastest growing</div>
+      </div>
+      <!-- 8 -->
+      <div class="channel-row">
+        <div class="ch-num">08</div>
+        <div class="ch-info">
+          <div class="ch-flag"><span class="ch-flag-bar"></span>KOR · 한국어</div>
+          <div class="ch-name">호텔이곳</div>
+          <div class="ch-handle">@hotel-here</div>
+        </div>
+        <div></div>
+        <div class="ch-target">Niche Korean audience — a curated, boutique-leaning channel in growth.</div>
+        <div class="ch-tag growing">Emerging</div>
+      </div>
+    </div>
+
+    <div class="ch-banner">
+      <div class="ch-banner-item">
+        <div class="ch-banner-num">9M<em>+</em></div>
+        <div class="ch-banner-label">Cumulative views across the network</div>
+        <div class="ch-banner-meta">Real exposure · not subscribers</div>
+      </div>
+      <div class="ch-banner-item">
+        <div class="ch-banner-num">3,774</div>
+        <div class="ch-banner-label">Trackable bookings to date</div>
+        <div class="ch-banner-meta">Affiliate-verified · CID-mapped</div>
+      </div>
+      <div class="ch-banner-item">
+        <div class="ch-banner-num">$854K</div>
+        <div class="ch-banner-label">Booking revenue tracked</div>
+        <div class="ch-banner-meta">Real money · not impressions</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PROCESS ============ -->
+<section class="section" id="process">
+  <div class="section-inner">
+    <div class="section-head">
+      <div>
+        <div class="section-eyebrow">Section II · The Method</div>
+        <h2 class="section-title">From payment<br>to live exposure<br>in <em>four steps.</em></h2>
+      </div>
+      <p class="section-deck">
+        Each step is documented, photographed, and confirmed by email.
+        <b>No agents, no chase calls.</b> A method, written down — and followed every time.
+      </p>
+    </div>
+    <div class="proc-grid">
+      <div class="proc-step">
+        <div class="proc-num">Step 01</div>
+        <div class="proc-title">Sign up</div>
+        <div class="proc-desc">Email and hotel name. Two minutes. No credit card stored. No commitment yet.</div>
+        <div class="proc-meta">~ 2 minutes</div>
+      </div>
+      <div class="proc-step">
+        <div class="proc-num">Step 02</div>
+        <div class="proc-title">Pay $200<br>via PayPal</div>
+        <div class="proc-desc">A single, one-time payment. The six-month exposure period begins on confirmation.</div>
+        <div class="proc-meta">One-time · USD</div>
+      </div>
+      <div class="proc-step">
+        <div class="proc-num">Step 03</div>
+        <div class="proc-title">We produce<br>and publish</div>
+        <div class="proc-desc">Your hotel appears across eight channels in six languages. Screenshots are emailed at every milestone.</div>
+        <div class="proc-meta">~ 7–14 days</div>
+      </div>
+      <div class="proc-step">
+        <div class="proc-num">Step 04</div>
+        <div class="proc-title">Track<br>bookings live</div>
+        <div class="proc-desc">A real-time dashboard tracks click-throughs and Agoda-verified bookings, for the full six months.</div>
+        <div class="proc-meta">6 months · live</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DASHBOARD ============ -->
+<section class="section dark" id="dashboard">
+  <div class="section-inner">
+    <div class="section-head">
+      <div>
+        <div class="section-eyebrow">Section III · The Console</div>
+        <h2 class="section-title">A clean room<br><em>for your numbers.</em></h2>
+      </div>
+      <p class="section-deck">
+        After payment, every hotel manager receives the same console: live click data,
+        booking metrics, screenshots of each published video, and a downloadable monthly report.
+        <b>The numbers, set in type.</b>
+      </p>
+    </div>
+
+    <div class="dash-frame">
+      <div class="dash-bar">
+        <div class="dash-dots"><span class="dash-dot"></span><span class="dash-dot"></span><span class="dash-dot"></span></div>
+        <div class="dash-url">
+          <span class="lock"><svg width="11" height="11" viewBox="0 0 11 11" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2" y="5" width="7" height="5" rx="1"/><path d="M3.5 5 V3.5 C3.5 2.5 4.5 1.5 5.5 1.5 C6.5 1.5 7.5 2.5 7.5 3.5 V5"/></svg></span>
+          gohotelwinners.com/dashboard
+        </div>
+      </div>
+      <div class="dash-body">
+        <aside class="dash-side">
+          <div class="dash-side-brand">
+            <div class="brand-mark">tw</div>
+            <div class="dash-side-brand-text">TW B2B</div>
+          </div>
+          <div class="dash-nav-section">Workspace</div>
+          <div class="dash-nav-item active">
+            <svg class="dash-nav-icon" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1.5" y="1.5" width="5" height="5"/><rect x="7.5" y="1.5" width="5" height="5"/><rect x="1.5" y="7.5" width="5" height="5"/><rect x="7.5" y="7.5" width="5" height="5"/></svg>
+            Overview
+          </div>
+          <div class="dash-nav-item">
+            <svg class="dash-nav-icon" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 11 V8 M5 11 V5 M8 11 V3 M11 11 V6"/></svg>
+            Performance
+          </div>
+          <div class="dash-nav-item">
+            <svg class="dash-nav-icon" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1.5" y="3" width="11" height="8"/><circle cx="7" cy="7" r="2"/></svg>
+            Published videos
+          </div>
+          <div class="dash-nav-item">
+            <svg class="dash-nav-icon" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 4 H12 M2 7 H12 M2 10 H8"/></svg>
+            Bookings
+          </div>
+          <div class="dash-nav-section">Account</div>
+          <div class="dash-nav-item">
+            <svg class="dash-nav-icon" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="5" r="2.5"/><path d="M2.5 12 C3 9.5 5 8 7 8 S11 9.5 11.5 12"/></svg>
+            Hotel profile
+          </div>
+          <div class="dash-nav-item">
+            <svg class="dash-nav-icon" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7" cy="7" r="3"/><path d="M5 1 L5 3 M9 1 L9 3 M5 11 L5 13 M9 11 L9 13 M1 5 L3 5 M1 9 L3 9 M11 5 L13 5 M11 9 L13 9"/></svg>
+            Settings
+          </div>
+        </aside>
+        <div class="dash-main">
+          <div class="dash-h">
+            <div>
+              <div class="dash-h-title">Overview</div>
+              <div class="dash-h-sub">Sakura Garden Hotel · Kyoto · Day 47 of 180</div>
+            </div>
+            <div class="dash-h-pill">Active · 4 mo. left</div>
+          </div>
+          <div class="kpi-row">
+            <div class="kpi">
+              <div class="kpi-label">Click-throughs</div>
+              <div class="kpi-num">2,418</div>
+              <div class="kpi-delta up">▲ 18.2% / 30d</div>
+            </div>
+            <div class="kpi">
+              <div class="kpi-label">Bookings</div>
+              <div class="kpi-num">37</div>
+              <div class="kpi-delta up">▲ 9 this week</div>
+            </div>
+            <div class="kpi">
+              <div class="kpi-label">Tracked revenue</div>
+              <div class="kpi-num">$8,420</div>
+              <div class="kpi-delta up">▲ 24.0%</div>
+            </div>
+            <div class="kpi">
+              <div class="kpi-label">Videos published</div>
+              <div class="kpi-num">12 / 12</div>
+              <div class="kpi-delta up">All 6 languages</div>
+            </div>
+          </div>
+          <div class="dash-chart">
+            <div class="dash-chart-h">
+              <div class="dash-chart-title">Bookings · last 30 days</div>
+              <div class="dash-chart-tabs">
+                <span class="dash-chart-tab">7d</span>
+                <span class="dash-chart-tab active">30d</span>
+                <span class="dash-chart-tab">90d</span>
+                <span class="dash-chart-tab">All</span>
+              </div>
+            </div>
+            <svg class="spark-svg" viewBox="0 0 600 160" preserveAspectRatio="none">
+              <defs>
+                <pattern id="grid" width="60" height="40" patternUnits="userSpaceOnUse">
+                  <path d="M 60 0 L 0 0 0 40" fill="none" stroke="#E8E5DD" stroke-width="0.5"/>
+                </pattern>
+              </defs>
+              <rect width="600" height="160" fill="url(#grid)"/>
+              <line x1="0" y1="40" x2="600" y2="40" stroke="#D4D1C9" stroke-width="0.5"/>
+              <line x1="0" y1="80" x2="600" y2="80" stroke="#D4D1C9" stroke-width="0.5"/>
+              <line x1="0" y1="120" x2="600" y2="120" stroke="#D4D1C9" stroke-width="0.5"/>
+              <!-- bars (editorial style) -->
+              <g fill="#0E0E0E">
+                <rect x="0" y="115" width="14" height="40"/>
+                <rect x="20" y="110" width="14" height="45"/>
+                <rect x="40" y="105" width="14" height="50"/>
+                <rect x="60" y="100" width="14" height="55"/>
+                <rect x="80" y="92" width="14" height="63"/>
+                <rect x="100" y="95" width="14" height="60"/>
+                <rect x="120" y="82" width="14" height="73"/>
+                <rect x="140" y="75" width="14" height="80"/>
+                <rect x="160" y="80" width="14" height="75"/>
+                <rect x="180" y="68" width="14" height="87"/>
+                <rect x="200" y="72" width="14" height="83"/>
+                <rect x="220" y="56" width="14" height="99"/>
+                <rect x="240" y="60" width="14" height="95"/>
+                <rect x="260" y="48" width="14" height="107"/>
+                <rect x="280" y="52" width="14" height="103"/>
+                <rect x="300" y="40" width="14" height="115"/>
+                <rect x="320" y="46" width="14" height="109"/>
+                <rect x="340" y="34" width="14" height="121"/>
+                <rect x="360" y="38" width="14" height="117"/>
+                <rect x="380" y="28" width="14" height="127"/>
+                <rect x="400" y="32" width="14" height="123"/>
+                <rect x="420" y="22" width="14" height="133"/>
+                <rect x="440" y="26" width="14" height="129"/>
+                <rect x="460" y="18" width="14" height="137"/>
+                <rect x="480" y="22" width="14" height="133"/>
+                <rect x="500" y="14" width="14" height="141"/>
+                <rect x="520" y="18" width="14" height="137"/>
+              </g>
+              <!-- last 3 in carmine (highlight) -->
+              <g fill="#C8102E">
+                <rect x="540" y="10" width="14" height="145"/>
+                <rect x="560" y="8" width="14" height="147"/>
+                <rect x="580" y="6" width="14" height="149"/>
+              </g>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ AUTH ============ -->
+<section class="section" id="auth">
+  <div class="section-inner">
+    <div class="auth-grid">
+      <div class="auth-side">
+        <div class="auth-side-eye">Section IV · Get Started</div>
+        <h2 class="auth-side-title">One form.<br>Two minutes.<br><em>Six months</em><br>of exposure.</h2>
+        <p class="auth-side-text">
+          List your hotel for two hundred dollars and watch it appear across our network.
+          We email screenshots, publish dates, and a live dashboard link the moment payment confirms.
+        </p>
+        <div class="auth-bullets">
+          <div class="auth-bul">
+            <div class="auth-bul-num">i.</div>
+            <div class="auth-bul-text">
+              <b>Sign up with your hotel email.</b> No credit card needed at this stage —
+              only PayPal at the moment of checkout.
+            </div>
+          </div>
+          <div class="auth-bul">
+            <div class="auth-bul-num">ii.</div>
+            <div class="auth-bul-text">
+              <b>Submit hotel details and photos</b> — or let our team source them
+              directly from Agoda's listing.
+            </div>
+          </div>
+          <div class="auth-bul">
+            <div class="auth-bul-num">iii.</div>
+            <div class="auth-bul-text">
+              <b>Pay $200, once.</b> You receive your dashboard credentials within an hour
+              of confirmed payment.
+            </div>
+          </div>
+          <div class="auth-bul">
+            <div class="auth-bul-num">iv.</div>
+            <div class="auth-bul-text">
+              <b>Six months guaranteed.</b> Zero bookings means a full refund.
+              The mathematics is on your side.
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="auth-card">
+        <div class="auth-card-eye">Hotel Manager Portal</div>
+        <div class="auth-card-h">Sign in</div>
+        <div class="auth-card-sub">gohotelwinners.com / dashboard</div>
+        <div class="field">
+          <label>Work email</label>
+          <input type="email" placeholder="manager@your-hotel.com">
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <input type="password" placeholder="••••••••••">
+        </div>
+        <div class="field-row">
+          <label class="checkbox"><input type="checkbox" checked>Remember me</label>
+          <a href="#" class="auth-link">Forgot password</a>
+        </div>
+        <button class="btn btn-primary btn-lg">Sign in <span class="arrow">→</span></button>
+        <div class="auth-divider">or</div>
+        <button class="btn btn-ghost btn-lg" style="width:100%">Create a new listing</button>
+        <div class="auth-foot">
+          New here? <a href="#" class="auth-link">List your hotel for $200</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ MOBILE ============ -->
+<section class="section" id="mobile" style="background:var(--paper-2)">
+  <div class="section-inner">
+    <div class="section-head">
+      <div>
+        <div class="section-eyebrow">Section V · Field Tested</div>
+        <h2 class="section-title">Crafted for<br><em>the manager's</em> phone.</h2>
+      </div>
+      <p class="section-deck">
+        Most hotel managers check their dashboard on the go. We standardized the language toggle,
+        compressed the navigation, and kept the booking timeline always one tap away.
+        <b>The same craft, in the palm of a hand.</b>
+      </p>
+    </div>
+    <div class="mobile-grid">
+      <!-- Mobile 1 -->
+      <div>
+        <div class="mob-frame">
+          <div class="mob-screen">
+            <div class="mob-statusbar"><span>9:41</span><span>● ● ●</span></div>
+            <div class="mob-content">
+              <div class="m1-nav">
+                <div class="brand-mark">tw</div>
+                <div class="m1-icons">
+                  <span class="m1-lang">EN ▾</span>
+                  <span class="m1-icon-btn"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 4 H12 M2 7 H12 M2 10 H12"/></svg></span>
+                </div>
+              </div>
+              <div class="m1-eye">Issue 047 · Distribution</div>
+              <div class="m1-title">Reach <em>9M+</em> travel viewers — for $200.</div>
+              <div class="m1-sub">Eight channels, six languages, six-month guarantee.</div>
+              <div class="m1-stats">
+                <div class="m1-stat"><div class="m1-stat-num">9M<em>+</em></div><div class="m1-stat-lab">Views</div></div>
+                <div class="m1-stat"><div class="m1-stat-num">3,774</div><div class="m1-stat-lab">Bookings</div></div>
+                <div class="m1-stat"><div class="m1-stat-num">$854K</div><div class="m1-stat-lab">Tracked</div></div>
+              </div>
+              <a href="#" class="m1-cta">List for $200 →</a>
+              <a href="#" class="m1-cta-2">Read the method</a>
+              <div class="m1-guarantee"><b>6-month guarantee.</b><br>Zero bookings = 100% refund. The risk is ours.</div>
+            </div>
+          </div>
+        </div>
+        <div class="mob-caption">Landing — manager view</div>
+        <div class="mob-caption-sub">Lang toggle · top right · standardized</div>
+      </div>
+
+      <!-- Mobile 2 -->
+      <div>
+        <div class="mob-frame">
+          <div class="mob-screen">
+            <div class="mob-statusbar"><span>9:41</span><span>● ● ●</span></div>
+            <div class="mob-content">
+              <div class="m2-h">
+                <div class="m2-h-title">Overview</div>
+                <div class="m2-bell">
+                  <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 6 C3 3.8 4.8 2 7 2 C9.2 2 11 3.8 11 6 V9 L12 11 H2 L3 9 Z"/><path d="M5.5 12 C5.5 12.8 6.2 13.5 7 13.5 C7.8 13.5 8.5 12.8 8.5 12"/></svg>
+                </div>
+              </div>
+              <div class="m2-status">
+                <div class="m2-status-h">
+                  <span class="m2-status-label">Listing status</span>
+                  <span class="m2-status-pill">Active</span>
+                </div>
+                <div class="m2-status-text">Sakura Garden — 4 mo. left</div>
+                <div class="m2-bar"><div></div></div>
+              </div>
+              <div class="m2-kpi">
+                <div class="m2-kpi-card">
+                  <div class="m2-kpi-lab">Clicks</div>
+                  <div class="m2-kpi-num">2,418</div>
+                  <div class="m2-kpi-delta">▲ 18.2%</div>
+                </div>
+                <div class="m2-kpi-card">
+                  <div class="m2-kpi-lab">Bookings</div>
+                  <div class="m2-kpi-num">37</div>
+                  <div class="m2-kpi-delta">▲ 9 this wk.</div>
+                </div>
+                <div class="m2-kpi-card">
+                  <div class="m2-kpi-lab">Revenue</div>
+                  <div class="m2-kpi-num">$8.4K</div>
+                  <div class="m2-kpi-delta">▲ 24.0%</div>
+                </div>
+                <div class="m2-kpi-card">
+                  <div class="m2-kpi-lab">Videos</div>
+                  <div class="m2-kpi-num">12/12</div>
+                  <div class="m2-kpi-delta">All published</div>
+                </div>
+              </div>
+              <div class="m2-list-title">Recent bookings</div>
+              <div class="m2-list-item"><span class="m2-list-l">Korea Hotel · VN</span><span class="m2-list-r">$184</span></div>
+              <div class="m2-list-item"><span class="m2-list-l">호텔이야 · KR</span><span class="m2-list-r">$220</span></div>
+              <div class="m2-list-item"><span class="m2-list-l">Kotel · EN</span><span class="m2-list-r">$310</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="mob-caption">Dashboard — manager phone</div>
+        <div class="mob-caption-sub">Live KPIs · thumb reach</div>
+      </div>
+
+      <!-- Mobile 3 -->
+      <div>
+        <div class="mob-frame">
+          <div class="mob-screen">
+            <div class="mob-statusbar"><span>9:41</span><span>● ● ●</span></div>
+            <div class="mob-content">
+              <div class="m3-h">
+                <div class="m3-h-title">Choose language</div>
+                <div class="m3-h-sub">5 supported · 1 active</div>
+              </div>
+              <div class="m3-list">
+                <div class="m3-row active">
+                  <div class="m3-l">
+                    <div class="m3-flag">EN</div>
+                    <div><div class="m3-name">English</div><div class="m3-native">For global hotel partners</div></div>
+                  </div>
+                  <div class="m3-check"><svg viewBox="0 0 10 10"><path d="M2 5 L4 7 L8 3" stroke="white" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                </div>
+                <div class="m3-row">
+                  <div class="m3-l">
+                    <div class="m3-flag">KR</div>
+                    <div><div class="m3-name">한국어</div><div class="m3-native">Korean</div></div>
+                  </div>
+                  <div class="m3-check"></div>
+                </div>
+                <div class="m3-row">
+                  <div class="m3-l">
+                    <div class="m3-flag">JP</div>
+                    <div><div class="m3-name">日本語</div><div class="m3-native">Japanese</div></div>
+                  </div>
+                  <div class="m3-check"></div>
+                </div>
+                <div class="m3-row">
+                  <div class="m3-l">
+                    <div class="m3-flag">繁</div>
+                    <div><div class="m3-name">繁體中文</div><div class="m3-native">Traditional Chinese</div></div>
+                  </div>
+                  <div class="m3-check"></div>
+                </div>
+                <div class="m3-row">
+                  <div class="m3-l">
+                    <div class="m3-flag">VN</div>
+                    <div><div class="m3-name">Tiếng Việt</div><div class="m3-native">Vietnamese</div></div>
+                  </div>
+                  <div class="m3-check"></div>
+                </div>
+              </div>
+              <a href="#" class="m3-cta">Apply selection</a>
+            </div>
+          </div>
+        </div>
+        <div class="mob-caption">Language picker — standardized</div>
+        <div class="mob-caption-sub">No more broken top-bar toggle</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ COMPONENTS ============ -->
+<section class="section" id="components">
+  <div class="section-inner">
+    <div class="section-head">
+      <div>
+        <div class="section-eyebrow">Colophon · Design System</div>
+        <h2 class="section-title">One language,<br><em>fifteen pages.</em></h2>
+      </div>
+      <p class="section-deck">
+        Every button, badge, input, and chart in TW B2B descends from a single token set.
+        <b>That is how the platform feels finished — not assembled.</b>
+        The colophon, set in type, for the patient reader.
+      </p>
+    </div>
+    <div class="comp-grid">
+      <div class="comp-card">
+        <div class="comp-h">Buttons</div>
+        <div class="comp-row">
+          <span class="comp-label">primary</span>
+          <div class="comp-row-items">
+            <button class="btn btn-primary">Save changes</button>
+            <button class="btn btn-primary btn-lg">List your hotel <span class="arrow">→</span></button>
+          </div>
+        </div>
+        <div class="comp-row">
+          <span class="comp-label">carmine</span>
+          <div class="comp-row-items">
+            <button class="btn btn-carmine">Confirm</button>
+            <button class="btn btn-carmine btn-lg">Read terms</button>
+          </div>
+        </div>
+        <div class="comp-row">
+          <span class="comp-label">ghost</span>
+          <div class="comp-row-items">
+            <button class="btn btn-ghost">Cancel</button>
+            <button class="btn btn-ghost btn-lg">View report</button>
+          </div>
+        </div>
+        <div class="comp-row">
+          <span class="comp-label">link</span>
+          <div class="comp-row-items">
+            <button class="btn-link">See how it works →</button>
+          </div>
+        </div>
+      </div>
+      <div class="comp-card">
+        <div class="comp-h">Status badges</div>
+        <div class="comp-row">
+          <span class="comp-label">success</span>
+          <div class="comp-row-items">
+            <span class="bdg success">Published</span>
+            <span class="bdg success">Active</span>
+            <span class="bdg success">Paid</span>
+          </div>
+        </div>
+        <div class="comp-row">
+          <span class="comp-label">brand</span>
+          <div class="comp-row-items">
+            <span class="bdg brand">In review</span>
+            <span class="bdg brand">Featured</span>
+          </div>
+        </div>
+        <div class="comp-row">
+          <span class="comp-label">solid</span>
+          <div class="comp-row-items">
+            <span class="bdg solid">Primary</span>
+            <span class="bdg solid">New</span>
+          </div>
+        </div>
+        <div class="comp-row">
+          <span class="comp-label">warn</span>
+          <div class="comp-row-items">
+            <span class="bdg warn">Expiring · 12 days</span>
+            <span class="bdg warn">Action needed</span>
+          </div>
+        </div>
+        <div class="comp-row">
+          <span class="comp-label">danger</span>
+          <div class="comp-row-items">
+            <span class="bdg danger">Refund issued</span>
+          </div>
+        </div>
+        <div class="comp-row">
+          <span class="comp-label">neutral</span>
+          <div class="comp-row-items">
+            <span class="bdg neutral">Draft</span>
+            <span class="bdg neutral">Archived</span>
+          </div>
+        </div>
+      </div>
+      <div class="comp-card">
+        <div class="comp-h">Color palette</div>
+        <div class="comp-row" style="grid-template-columns:1fr">
+          <div class="swatch-row">
+            <div class="swatch"><div class="swatch-block" style="background:#0E0E0E"></div><div class="swatch-name">ink</div><div class="swatch-hex">#0E0E0E</div></div>
+            <div class="swatch"><div class="swatch-block" style="background:#3A3A3A"></div><div class="swatch-name">ink-3</div><div class="swatch-hex">#3A3A3A</div></div>
+            <div class="swatch"><div class="swatch-block" style="background:#FBFAF7"></div><div class="swatch-name">paper</div><div class="swatch-hex">#FBFAF7</div></div>
+            <div class="swatch"><div class="swatch-block" style="background:#F4F2EC"></div><div class="swatch-name">paper-2</div><div class="swatch-hex">#F4F2EC</div></div>
+            <div class="swatch"><div class="swatch-block" style="background:#C8102E"></div><div class="swatch-name">carmine</div><div class="swatch-hex">#C8102E</div></div>
+            <div class="swatch"><div class="swatch-block" style="background:#FBE9EC"></div><div class="swatch-name">carmine-soft</div><div class="swatch-hex">#FBE9EC</div></div>
+          </div>
+        </div>
+        <div class="comp-row" style="grid-template-columns:1fr">
+          <div class="swatch-row">
+            <div class="swatch"><div class="swatch-block" style="background:#1F6B3A"></div><div class="swatch-name">green</div><div class="swatch-hex">#1F6B3A</div></div>
+            <div class="swatch"><div class="swatch-block" style="background:#B47A00"></div><div class="swatch-name">amber</div><div class="swatch-hex">#B47A00</div></div>
+            <div class="swatch"><div class="swatch-block" style="background:#D4D1C9"></div><div class="swatch-name">line-soft</div><div class="swatch-hex">#D4D1C9</div></div>
+            <div class="swatch"><div class="swatch-block" style="background:#5E5E5E"></div><div class="swatch-name">ink-4</div><div class="swatch-hex">#5E5E5E</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="comp-card">
+        <div class="comp-h">Typography</div>
+        <div class="comp-row" style="grid-template-columns:1fr">
+          <div class="type-sample">
+            <div class="type-row">
+              <span class="type-meta">display · 104</span>
+              <span class="type-text" style="font-family:var(--serif);font-size:32px;font-weight:700;letter-spacing:-.04em">Hotel Marketing</span>
+            </div>
+            <div class="type-row">
+              <span class="type-meta">h2 · 72 italic</span>
+              <span class="type-text" style="font-family:var(--serif);font-size:24px;font-weight:600;font-style:italic;letter-spacing:-.025em;color:var(--carmine)">Eight channels.</span>
+            </div>
+            <div class="type-row">
+              <span class="type-meta">deck · 17</span>
+              <span class="type-text" style="font-family:var(--serif);font-size:14px;color:var(--ink-3);font-style:italic">A quiet promise, rendered in numbers.</span>
+            </div>
+            <div class="type-row">
+              <span class="type-meta">body · 15</span>
+              <span class="type-text" style="font-size:14px;color:var(--ink-2)">Pay once, get six months of guaranteed visibility.</span>
+            </div>
+            <div class="type-row">
+              <span class="type-meta">caption mono</span>
+              <span class="type-text" style="font-family:var(--mono);font-size:11px;color:var(--ink-4);text-transform:uppercase;letter-spacing:.14em">Verified data · CID-mapped</span>
+            </div>
+            <div class="type-row">
+              <span class="type-meta">numeral · serif</span>
+              <span class="type-text" style="font-family:var(--serif);font-size:24px;font-weight:700;letter-spacing:-.025em">$854,213.42</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer class="foot">
+  <div class="foot-inner">
+    <div class="foot-grid">
+      <div>
+        <div class="foot-brand-name">TravelWinners <em>B2B</em></div>
+        <div class="foot-brand-tag">The Hotel Exposure Quarterly · Vol. 8</div>
+        <p class="foot-brand-text">
+          Hotel Marketing Platform — eight channels, six languages, one quiet promise.
+          Operated by TravelWinners since 2018.
+        </p>
+      </div>
+      <div>
+        <div class="foot-h">Platform</div>
+        <div class="foot-list">
+          <a href="#channels">Channels</a>
+          <a href="#process">Method</a>
+          <a href="#dashboard">Dashboard</a>
+          <a href="#auth">Pricing</a>
+        </div>
+      </div>
+      <div>
+        <div class="foot-h">Company</div>
+        <div class="foot-list">
+          <a href="#">About</a>
+          <a href="#">Track record</a>
+          <a href="#">Refund policy</a>
+          <a href="#">Contact</a>
+        </div>
+      </div>
+      <div>
+        <div class="foot-h">Legal</div>
+        <div class="foot-list">
+          <a href="#">Terms of service</a>
+          <a href="#">Privacy</a>
+          <a href="#">Affiliate disclosure</a>
+        </div>
+      </div>
+    </div>
+    <div class="foot-bot">
+      <span>© 2026 TravelWinners · gohotelwinners.com</span>
+      <span>Verified by Agoda · CID-mapped tracking</span>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

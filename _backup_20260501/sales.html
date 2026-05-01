@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TravelWinners B2B — Sales</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;500;700&family=DM+Sans:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="shared.js"></script>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f7f7f7;font-family:'DM Sans','Noto Sans KR',sans-serif;color:#1a1a1a;min-height:100vh}
+.sl-shell{max-width:1280px;margin:0 auto;padding:0 24px}
+.sl-topbar{display:flex;justify-content:space-between;align-items:center;padding:18px 0;border-bottom:1px solid #e8e8e8;background:#fff;margin:0 -24px;padding-left:24px;padding-right:24px}
+.sl-logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:#1a1a1a}
+.sl-logo-icon{width:36px;height:36px;background:#534AB7;color:#fff;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700}
+.sl-logo-text{font-family:'Fraunces',serif;font-size:20px;font-weight:600}
+.sl-nav-right{display:flex;gap:16px;align-items:center}
+.sl-user{font-size:13.5px;color:#666}
+.sl-btn-out{background:none;border:1px solid #d8d8d8;padding:7px 14px;border-radius:6px;cursor:pointer;font-size:13px;font-family:inherit}
+.sl-main{padding:32px 0 60px}
+.sl-h1{font-family:'Fraunces',serif;font-size:30px;font-weight:600;margin:0 0 6px}
+.sl-sub{color:#777;font-size:14px;margin:0 0 28px}
+.sl-card{background:#fff;border:1px solid #e8e8e8;border-radius:14px;padding:28px;margin-bottom:18px}
+.sl-loading{display:flex;flex-direction:column;align-items:center;padding:60px;gap:14px;color:#888;font-size:13px}
+.sl-loader{display:inline-block;width:20px;height:20px;border:2px solid #ddd;border-top-color:#534AB7;border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.sl-status-badge{display:inline-block;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:600;color:#fff}
+.sl-progress{display:flex;gap:8px;margin-top:20px;margin-bottom:8px}
+.sl-progress-step{flex:1;text-align:center;font-size:11.5px;color:#999;position:relative}
+.sl-progress-step::before{content:'';display:block;width:100%;height:4px;background:#eee;margin-bottom:8px;border-radius:2px}
+.sl-progress-step.done::before{background:#0a7c3a}
+.sl-progress-step.active::before{background:#534AB7}
+.sl-progress-step.done,.sl-progress-step.active{color:#1a1a1a;font-weight:600}
+.sl-pay-card{background:linear-gradient(135deg,#534AB7 0%,#3d3690 100%);color:#fff;border-radius:14px;padding:32px;margin-bottom:18px}
+.sl-pay-card h3{font-family:'Fraunces',serif;font-size:24px;margin:0 0 8px;font-weight:600}
+.sl-pay-amount{font-size:42px;font-weight:700;margin-bottom:8px}
+.sl-btn{padding:12px 24px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;border:none;font-family:inherit;text-decoration:none;display:inline-block}
+.sl-btn-primary{background:#1a1a1a;color:#fff}
+</style>
+</head>
+<body>
+<div class="sl-shell">
+  <div class="sl-topbar">
+    <a href="sales.html" class="sl-logo">
+      <div class="sl-logo-icon">TW</div>
+      <div class="sl-logo-text">TravelWinners</div>
+    </a>
+    <div class="sl-nav-right">
+      <span class="sl-user" id="user-email">—</span>
+      <a href="settings.html" class="sl-btn-out" style="text-decoration:none">⚙️ Settings</a>
+      <button class="sl-btn-out" id="btn-logout">Sign out</button>
+    </div>
+  </div>
+
+  <div class="sl-main" id="sl-main">
+    <div class="sl-loading"><div class="sl-loader"></div><div>Loading...</div></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var T = window.TW;
+  var $ = T.$;
+  var currentUser = null;
+
+  // status별 redirect 라우팅 정책
+  // - 결제 후 (paid / producing / published) → marketing.html
+  // - 결제 전 (pending / review / approved / rejected) → 본 페이지 유지
+  // - 호텔 미등록 → signup-flow 또는 hotel-info.html 로
+  T.requireAuth(async function(user){
+    currentUser = user;
+    $('user-email').textContent = user.email;
+
+    var ac = await T.checkAdmin(user);
+    if (ac.is_admin) {
+      window.location.href = 'admin.html';
+      return;
+    }
+
+    var hotelResp = await T.client
+      .from('hotels')
+      .select('*')
+      .eq('user_id', user.id)
+      .maybeSingle();
+
+    var hotel = hotelResp.data;
+    var status = hotel ? (hotel.status || 'pending') : null;
+
+    // 결제 완료 그룹은 marketing.html 로
+    if (status === 'paid' || status === 'producing' || status === 'published') {
+      window.location.href = 'marketing.html';
+      return;
+    }
+
+    renderSales(hotel, status);
+  });
+
+  $('btn-logout').addEventListener('click', T.logout);
+
+  function renderSales(hotel, status) {
+    var html = '';
+    html += '<h1 class="sl-h1">Get listed across 5 channels</h1>';
+    html += '<p class="sl-sub">Pre-payment workflow — review, approval, and payment for your hotel listing.</p>';
+
+    if (!hotel) {
+      // 호텔 미등록
+      html += '<div class="sl-card">';
+      html += '<h3 style="margin:0 0 12px">Step 1 — Register your hotel</h3>';
+      html += '<p style="color:#666;margin:0 0 16px">Add your hotel information to begin the listing process.</p>';
+      html += '<a href="hotel-info.html" class="sl-btn sl-btn-primary">Register hotel</a>';
+      html += '</div>';
+      $('sl-main').innerHTML = html;
+      return;
+    }
+
+    // status별 안내
+    var statusLabel = T.fmt.statusLabel(status, 'en');
+    var statusColor = T.fmt.statusColor(status);
+    html += '<div class="sl-card">';
+    html += '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:20px;flex-wrap:wrap">';
+    html += '  <div>';
+    html += '    <h3 style="margin:0 0 6px">' + (hotel.hotel_name || 'Your hotel') + '</h3>';
+    html += '    <div style="font-size:13px;color:#666">' + (hotel.city || '') + (hotel.country ? ', ' + hotel.country : '') + '</div>';
+    html += '  </div>';
+    html += '  <span class="sl-status-badge" style="background:' + statusColor + '">' + statusLabel + '</span>';
+    html += '</div>';
+
+    // 진행 단계 시각화
+    var steps = ['Pending', 'Review', 'Approved', 'Paid'];
+    var stepStatus = ['pending', 'review', 'approved', 'paid'];
+    var statusOrder = stepStatus.indexOf(status);
+    if (statusOrder === -1) statusOrder = 0;
+    html += '<div class="sl-progress">';
+    for (var i = 0; i < steps.length; i++) {
+      var cls = 'sl-progress-step';
+      if (i < statusOrder) cls += ' done';
+      else if (i === statusOrder) cls += ' active';
+      html += '<div class="' + cls + '">' + steps[i] + '</div>';
+    }
+    html += '</div>';
+    html += '</div>';
+
+    // status별 안내 카드
+    if (status === 'pending' || status === 'review') {
+      html += '<div class="sl-card">';
+      html += '<h3 style="margin:0 0 8px">Under review</h3>';
+      html += '<p style="color:#666;margin:0">Our team is reviewing your hotel. You will be notified by email once approved.</p>';
+      html += '</div>';
+    } else if (status === 'approved') {
+      html += '<div class="sl-pay-card">';
+      html += '  <h3>Approved — ready to publish</h3>';
+      html += '  <p style="opacity:.9;margin:0 0 18px">Complete one-time payment to launch your video on 5 language channels.</p>';
+      html += '  <div class="sl-pay-amount">$200</div>';
+      html += '  <div style="font-size:13px;opacity:.85;margin-bottom:18px">One-time · 6-month booking guarantee · Refund if zero bookings</div>';
+      html += '  <div id="paypal-button-container" style="background:#fff;border-radius:10px;padding:16px;min-height:55px"></div>';
+      html += '  <div id="pay-status" style="margin-top:14px;font-size:13px;min-height:18px"></div>';
+      html += '</div>';
+    } else if (status === 'rejected') {
+      html += '<div class="sl-card" style="border-color:#e0a0a0">';
+      html += '<h3 style="margin:0 0 8px;color:#a02020">Application not approved</h3>';
+      html += '<p style="color:#666;margin:0">Please contact support for next steps.</p>';
+      html += '</div>';
+    }
+
+    $('sl-main').innerHTML = html;
+
+    // PayPal Buttons 통합 (status === 'approved' 일 때만 렌더링)
+    if (status === 'approved') {
+      initPayPalButtons(hotel);
+    }
+  }
+
+  // ─────────────────────────────────────────────
+  // PayPal SDK 통합 (Phase B)
+  // ─────────────────────────────────────────────
+
+  var paypalSdkLoading = null;
+
+  // PayPal SDK 동적 로드 (config endpoint에서 client_id/env 받아와서)
+  function loadPayPalSdk() {
+    if (window.paypal) return Promise.resolve(window.paypal);
+    if (paypalSdkLoading) return paypalSdkLoading;
+
+    paypalSdkLoading = fetch('/api/paypal?action=config')
+      .then(function(r){ return r.json(); })
+      .then(function(cfg){
+        if (!cfg || !cfg.clientId) throw new Error('PayPal client_id not configured');
+        return new Promise(function(resolve, reject){
+          var s = document.createElement('script');
+          s.src = 'https://www.paypal.com/sdk/js?client-id=' + encodeURIComponent(cfg.clientId)
+                + '&currency=USD&intent=capture&components=buttons';
+          s.onload = function(){ resolve(window.paypal); };
+          s.onerror = function(){ reject(new Error('Failed to load PayPal SDK')); };
+          document.head.appendChild(s);
+        });
+      });
+    return paypalSdkLoading;
+  }
+
+  function setPayStatus(msg, color) {
+    var el = document.getElementById('pay-status');
+    if (!el) return;
+    el.textContent = msg || '';
+    el.style.color = color || '#fff';
+  }
+
+  function initPayPalButtons(hotel) {
+    var container = document.getElementById('paypal-button-container');
+    if (!container) return;
+    container.innerHTML = '<div style="text-align:center;color:#888;font-size:13px;padding:14px">Loading PayPal...</div>';
+
+    loadPayPalSdk().then(function(paypal){
+      container.innerHTML = '';
+      paypal.Buttons({
+        style: { layout: 'vertical', color: 'gold', shape: 'rect', label: 'paypal', height: 45 },
+
+        // 1) 주문 생성 — 백엔드에서 가격/매니저/소유권 검증 후 PayPal Order ID 반환
+        createOrder: async function() {
+          setPayStatus('Creating order...', '#fff');
+          var sess = await T.client.auth.getSession();
+          var token = sess && sess.data && sess.data.session ? sess.data.session.access_token : '';
+          var resp = await fetch('/api/paypal?action=create-order', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + token,
+            },
+            body: JSON.stringify({ hotel_id: hotel.id }),
+          });
+          var data = await resp.json().catch(function(){ return {}; });
+          if (!resp.ok || !data.order_id) {
+            var reason = data.reason || data.error || ('HTTP ' + resp.status);
+            setPayStatus('Could not create order: ' + reason, '#ffd2d2');
+            throw new Error('create-order failed: ' + reason);
+          }
+          setPayStatus('Order ready — please complete payment in PayPal', '#fff');
+          return data.order_id;
+        },
+
+        // 2) 결제 승인 — 백엔드에서 capture + payments INSERT + hotels.status='paid'
+        onApprove: async function(approval) {
+          setPayStatus('Capturing payment...', '#fff');
+          var sess = await T.client.auth.getSession();
+          var token = sess && sess.data && sess.data.session ? sess.data.session.access_token : '';
+          var resp = await fetch('/api/paypal?action=capture-order', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + token,
+            },
+            body: JSON.stringify({ order_id: approval.orderID, hotel_id: hotel.id }),
+          });
+          var data = await resp.json().catch(function(){ return {}; });
+          if (!resp.ok || !data.ok) {
+            setPayStatus('Capture failed: ' + (data.error || data.message || ('HTTP ' + resp.status)), '#ffd2d2');
+            return;
+          }
+          setPayStatus('✓ Payment successful! Redirecting to your dashboard...', '#c6f7c6');
+          // 1.5초 후 marketing.html로 이동 (status가 paid로 전환됐으므로)
+          setTimeout(function(){ window.location.href = 'marketing.html'; }, 1500);
+        },
+
+        onCancel: function() {
+          setPayStatus('Payment cancelled. You can try again anytime.', '#ffd2d2');
+        },
+
+        onError: function(err) {
+          console.error('PayPal Buttons error:', err);
+          setPayStatus('PayPal error — please retry or contact support.', '#ffd2d2');
+        },
+      }).render('#paypal-button-container').catch(function(err){
+        console.error('Buttons render failed:', err);
+        container.innerHTML = '<div style="color:#a02020;padding:14px;font-size:13px">Could not load PayPal. Please refresh the page.</div>';
+      });
+    }).catch(function(err){
+      console.error('PayPal SDK load error:', err);
+      container.innerHTML = '<div style="color:#a02020;padding:14px;font-size:13px">PayPal is temporarily unavailable. Please contact support.</div>';
+    });
+  }
+})();
+</script>
+</body>
+</html>

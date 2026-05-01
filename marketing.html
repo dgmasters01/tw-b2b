@@ -4,88 +4,268 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TravelWinners B2B — Marketing & Bookings</title>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;500;700&family=DM+Sans:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<meta name="description" content="Hotel marketing dashboard — track bookings, channel performance, and ROI across 8 YouTube channels in 6 languages.">
 <link rel="stylesheet" href="shared.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="shared.js"></script>
 <style>
-*{box-sizing:border-box}
-body{margin:0;background:#f7f7f7;font-family:'DM Sans','Noto Sans KR',sans-serif;color:#1a1a1a;min-height:100vh}
-.mk-shell{max-width:1280px;margin:0 auto;padding:0 24px}
-.mk-topbar{display:flex;justify-content:space-between;align-items:center;padding:18px 0;border-bottom:1px solid #e8e8e8;background:#fff;margin:0 -24px;padding-left:24px;padding-right:24px}
-.mk-logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:#1a1a1a}
-.mk-logo-icon{width:36px;height:36px;background:#534AB7;color:#fff;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700}
-.mk-logo-text{font-family:'Fraunces',serif;font-size:20px;font-weight:600}
-.mk-nav-right{display:flex;gap:16px;align-items:center}
-.mk-user{font-size:13.5px;color:#666}
-.mk-btn-out{background:none;border:1px solid #d8d8d8;padding:7px 14px;border-radius:6px;cursor:pointer;font-size:13px;font-family:inherit}
-.mk-main{padding:32px 0 60px}
-.mk-h1{font-family:'Fraunces',serif;font-size:30px;font-weight:600;margin:0 0 6px}
-.mk-sub{color:#777;font-size:14px;margin:0 0 28px}
-.mk-card{background:#fff;border:1px solid #e8e8e8;border-radius:14px;padding:28px;margin-bottom:18px}
-.mk-loading{display:flex;flex-direction:column;align-items:center;padding:60px;gap:14px;color:#888;font-size:13px}
-.mk-loader{display:inline-block;width:20px;height:20px;border:2px solid #ddd;border-top-color:#534AB7;border-radius:50%;animation:spin .8s linear infinite}
+/* ===== marketing.html — v2 Aurora bookings dashboard ===== */
+/* shared.css v2 가 base 톤·컬러·폰트·aurora-bg·glass 모두 제공 */
+
+/* ---------- Topbar ---------- */
+.mk-topbar{
+  position:sticky;top:0;z-index:900;
+  background:rgba(10,10,15,.72); backdrop-filter:blur(16px) saturate(140%);
+  -webkit-backdrop-filter:blur(16px) saturate(140%);
+  border-bottom:1px solid var(--line);
+  padding:0 32px; display:flex; align-items:center; justify-content:space-between;
+  height:64px;
+}
+.mk-logo{display:flex;align-items:center;gap:12px;text-decoration:none}
+.mk-logo-icon{
+  width:32px;height:32px;border-radius:8px;
+  background:var(--aurora);
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:800;color:#fff;
+  box-shadow:var(--glow-p);
+  font-family:var(--display);
+}
+.mk-logo-text{font-family:var(--display);font-size:16px;font-weight:700;color:var(--ink);letter-spacing:-.01em}
+.mk-nav-right{display:flex;gap:10px;align-items:center}
+.mk-user{font-size:13px;color:var(--ink-3);margin-right:6px}
+.mk-btn-out{
+  background:var(--glass); border:1px solid var(--line-2);
+  color:var(--ink-2); padding:8px 14px; border-radius:8px;
+  cursor:pointer; font-size:13px; font-family:var(--sans);
+  text-decoration:none; transition:var(--transition);
+}
+.mk-btn-out:hover{background:var(--glass-2); color:var(--ink); border-color:var(--line-3)}
+
+/* ---------- Shell ---------- */
+.mk-shell{max-width:1280px;margin:0 auto;padding:0 32px;position:relative;z-index:2}
+.mk-main{padding:48px 0 80px}
+
+.mk-h1{
+  font-family:var(--display);
+  font-size:38px;font-weight:700;color:var(--ink);
+  line-height:1.05;letter-spacing:-.025em;
+  margin:0 0 8px;
+}
+.mk-h1 em{
+  font-style:normal;font-weight:800;
+  background:var(--aurora);
+  -webkit-background-clip:text;background-clip:text;
+  color:transparent;
+}
+.mk-sub{
+  color:var(--ink-3);font-size:15px;line-height:1.55;
+  margin:0 0 32px;
+}
+.mk-h2{
+  font-family:var(--display);font-size:20px;font-weight:700;
+  color:var(--ink);margin:0 0 18px;letter-spacing:-.01em;
+}
+
+/* ---------- Loading ---------- */
+.mk-loading{
+  display:flex;flex-direction:column;align-items:center;
+  padding:80px 20px;gap:16px;color:var(--ink-3);font-size:14px;
+}
+.mk-loader{
+  display:inline-block;width:28px;height:28px;
+  border:2px solid var(--line-2); border-top-color:var(--aurora-1);
+  border-radius:50%;animation:spin .8s linear infinite;
+}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-/* Headline (예약 N건/추정매출/ROI) */
+/* ---------- Generic card (glass) ---------- */
+.mk-card{
+  background:var(--glass); border:1px solid var(--line-2);
+  border-radius:var(--r-lg);
+  backdrop-filter:blur(20px) saturate(140%);
+  box-shadow:var(--sh-2);
+  padding:28px 32px;margin-bottom:18px;
+  position:relative;overflow:hidden;
+}
+
+/* ---------- Headline (4 KPIs) ---------- */
 .mk-headline{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
-.mk-stat{background:#fff;border:1px solid #e8e8e8;border-radius:12px;padding:22px}
-.mk-stat-label{font-size:11.5px;color:#888;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;font-weight:600}
-.mk-stat-value{font-size:30px;font-weight:700;color:#1a1a1a;font-family:'Fraunces',serif}
-.mk-stat-sub{font-size:12px;color:#666;margin-top:4px}
-.mk-stat-roi{color:#0a7c3a}
+.mk-stat{
+  background:var(--glass); border:1px solid var(--line-2);
+  border-radius:var(--r-lg);
+  backdrop-filter:blur(18px);
+  padding:22px 24px;
+  position:relative;overflow:hidden;
+}
+.mk-stat::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--aurora-2),transparent);
+  opacity:.5;
+}
+.mk-stat-label{
+  font-size:11px;color:var(--ink-3);text-transform:uppercase;
+  letter-spacing:.06em;margin-bottom:10px;font-weight:700;
+}
+.mk-stat-value{
+  font-family:var(--display);font-size:34px;font-weight:800;
+  color:var(--ink);letter-spacing:-.02em;line-height:1;
+}
+.mk-stat-value.aurora{
+  background:var(--aurora);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.mk-stat-sub{font-size:12px;color:var(--ink-4);margin-top:6px}
+.mk-stat-roi{
+  background:linear-gradient(135deg,#34D9A4,#10B981);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
 
-/* 예약 카드 */
-.mk-booking-list{display:grid;grid-template-columns:1fr;gap:10px}
-.mk-booking-card{background:#fafafa;border:1px solid #ececec;border-radius:10px;padding:16px 18px;display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center}
-.mk-bk-meta{font-size:12.5px;color:#777;display:flex;gap:14px;flex-wrap:wrap;margin-top:4px}
-.mk-bk-id{font-family:'DM Sans',monospace;font-size:13px;color:#1a1a1a;font-weight:600}
-.mk-bk-amount{font-size:18px;font-weight:700;color:#0a7c3a;text-align:right}
-.mk-bk-amount-sub{font-size:11px;color:#888;text-align:right}
-.mk-channel-tag{display:inline-block;padding:2px 10px;border-radius:12px;font-size:11px;font-weight:600;background:#534AB7;color:#fff}
-.mk-channel-tag.ch-ko{background:#534AB7}
-.mk-channel-tag.ch-en{background:#0a7c3a}
-.mk-channel-tag.ch-ja{background:#c4500a}
-.mk-channel-tag.ch-vi{background:#a02890}
-.mk-channel-tag.ch-zh-tw{background:#0a6090}
-.mk-channel-tag.ch-other{background:#888}
-
-/* 채널별 전환 분석 */
+/* ---------- Channel grid ---------- */
 .mk-channel-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
-.mk-channel-card{border:1px solid #e8e8e8;border-radius:10px;padding:18px;background:#fff}
-.mk-ch-name{font-weight:600;font-size:14px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;gap:8px}
-.mk-ch-count{font-size:24px;font-weight:700;font-family:'Fraunces',serif;color:#1a1a1a}
-.mk-ch-amount{font-size:13px;color:#0a7c3a;margin-top:6px;font-weight:600}
-.mk-ch-bar{height:5px;background:#f0f0f0;border-radius:3px;margin-top:10px;overflow:hidden}
-.mk-ch-bar-fill{height:100%;background:#534AB7;transition:width .3s}
+.mk-channel-card{
+  background:var(--glass-2); border:1px solid var(--line-2);
+  border-radius:var(--r);
+  backdrop-filter:blur(16px);
+  padding:18px 20px;
+  transition:var(--transition);
+}
+.mk-channel-card:hover{
+  border-color:var(--line-3);
+  background:var(--glass-3);
+  transform:translateY(-1px);
+}
+.mk-ch-name{
+  font-weight:600;font-size:14px;color:var(--ink-2);
+  margin-bottom:10px;display:flex;justify-content:space-between;
+  align-items:center;gap:8px;
+}
+.mk-ch-count{
+  font-family:var(--display);font-size:28px;font-weight:800;
+  color:var(--ink);letter-spacing:-.02em;line-height:1;
+}
+.mk-ch-count-sub{font-size:11.5px;color:var(--ink-3);margin-top:4px;letter-spacing:.04em;text-transform:uppercase}
+.mk-ch-amount{
+  font-size:14px;font-weight:700;margin-top:10px;
+  background:linear-gradient(135deg,#34D9A4,#10B981);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.mk-ch-bar{
+  height:4px;background:rgba(255,255,255,.06);
+  border-radius:99px;margin-top:12px;overflow:hidden;
+}
+.mk-ch-bar-fill{
+  height:100%;
+  background:var(--aurora);
+  transition:width .5s ease;
+  box-shadow:0 0 8px rgba(124,58,237,.5);
+}
 
-.mk-h2{font-family:'Fraunces',serif;font-size:22px;font-weight:600;margin:0 0 14px}
-.mk-empty{text-align:center;padding:40px 20px;color:#888;font-size:13.5px}
-.mk-link{color:#534AB7;text-decoration:none;font-weight:600}
-.mk-link:hover{text-decoration:underline}
+/* Channel language tags */
+.mk-channel-tag{
+  display:inline-flex;align-items:center;
+  padding:3px 10px;border-radius:99px;
+  font-size:10.5px;font-weight:700;letter-spacing:.04em;
+  text-transform:uppercase;border:1px solid transparent;
+}
+.mk-channel-tag.ch-ko    {background:rgba(124,58,237,.18); color:#B89BF5; border-color:rgba(124,58,237,.32)}
+.mk-channel-tag.ch-en    {background:rgba(16,185,129,.16); color:#34D9A4; border-color:rgba(16,185,129,.3)}
+.mk-channel-tag.ch-ja    {background:rgba(245,158,11,.16); color:#FBBF40; border-color:rgba(245,158,11,.3)}
+.mk-channel-tag.ch-vi    {background:rgba(236,72,153,.16); color:#F472B6; border-color:rgba(236,72,153,.3)}
+.mk-channel-tag.ch-zh-tw {background:rgba(6,182,212,.16); color:#5DD8E8; border-color:rgba(6,182,212,.3)}
+.mk-channel-tag.ch-other {background:var(--glass-2); color:var(--ink-3); border-color:var(--line-2)}
 
-@media (max-width:720px){
+/* ---------- Bookings list ---------- */
+.mk-booking-list{display:grid;grid-template-columns:1fr;gap:10px}
+.mk-booking-card{
+  background:var(--glass-2); border:1px solid var(--line-2);
+  border-radius:var(--r);
+  backdrop-filter:blur(14px);
+  padding:16px 20px;
+  display:grid;grid-template-columns:1fr auto;gap:16px;align-items:center;
+  transition:var(--transition);
+}
+.mk-booking-card:hover{
+  border-color:var(--line-3);
+  background:var(--glass-3);
+}
+.mk-bk-id{
+  font-family:var(--mono);font-size:13px;color:var(--ink);
+  font-weight:600;letter-spacing:.02em;
+}
+.mk-bk-meta{
+  font-size:12.5px;color:var(--ink-3);
+  display:flex;gap:14px;flex-wrap:wrap;margin-top:6px;align-items:center;
+}
+.mk-bk-meta-item{display:inline-flex;align-items:center;gap:5px}
+.mk-bk-amount{
+  font-family:var(--display);font-size:20px;font-weight:800;
+  text-align:right;line-height:1;
+  background:linear-gradient(135deg,#34D9A4,#10B981);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.mk-bk-amount-sub{font-size:11px;color:var(--ink-4);text-align:right;margin-top:4px}
+
+/* ---------- Empty state ---------- */
+.mk-empty{
+  text-align:center;padding:48px 24px;
+  color:var(--ink-3);font-size:14px;line-height:1.6;
+}
+.mk-empty-icon{
+  font-size:32px;margin-bottom:12px;opacity:.5;
+}
+
+/* ---------- Helper text ---------- */
+.mk-foot-note{
+  margin:18px 0 0;font-size:13px;color:var(--ink-3);
+  line-height:1.55;
+}
+.mk-link{
+  color:var(--aurora-2);text-decoration:none;font-weight:600;
+  transition:var(--transition);
+}
+.mk-link:hover{color:#F472B6;text-decoration:underline}
+
+@media (max-width:960px){
   .mk-headline{grid-template-columns:repeat(2,1fr)}
-  .mk-booking-card{grid-template-columns:1fr}
+}
+@media (max-width:600px){
+  .mk-h1{font-size:30px}
+  .mk-headline{grid-template-columns:1fr;gap:10px}
+  .mk-booking-card{grid-template-columns:1fr;gap:10px}
+  .mk-bk-amount{text-align:left}
+  .mk-bk-amount-sub{text-align:left}
+  .mk-shell{padding:0 18px}
+  .mk-topbar{padding:0 18px}
+  .mk-card,.mk-stat{padding:20px}
 }
 </style>
 </head>
 <body>
-<div class="mk-shell">
-  <div class="mk-topbar">
-    <a href="marketing.html" class="mk-logo">
-      <div class="mk-logo-icon">TW</div>
-      <div class="mk-logo-text">TravelWinners</div>
-    </a>
-    <div class="mk-nav-right">
-      <span class="mk-user" id="user-email">—</span>
-      <a href="settings.html" class="mk-btn-out" style="text-decoration:none">⚙️ Settings</a>
-      <button class="mk-btn-out" id="btn-logout">Sign out</button>
-    </div>
-  </div>
 
+<!-- Aurora background (v2 standard) -->
+<div class="aurora-bg" aria-hidden="true">
+  <div class="aurora-blob b1"></div>
+  <div class="aurora-blob b2"></div>
+  <div class="aurora-blob b3"></div>
+  <div class="aurora-blob b4"></div>
+</div>
+<div class="aurora-grid" aria-hidden="true"></div>
+
+<div class="mk-topbar">
+  <a href="marketing.html" class="mk-logo">
+    <div class="mk-logo-icon">TW</div>
+    <div class="mk-logo-text">TravelWinners</div>
+  </a>
+  <div class="mk-nav-right">
+    <span class="mk-user" id="user-email">—</span>
+    <a href="settings.html" class="mk-btn-out">⚙ Settings</a>
+    <button class="mk-btn-out" id="btn-logout">Sign out</button>
+  </div>
+</div>
+
+<div class="mk-shell">
   <div class="mk-main" id="mk-main">
-    <div class="mk-loading"><div class="mk-loader"></div><div>Loading bookings...</div></div>
+    <div class="mk-loading"><div class="mk-loader"></div><div>Loading bookings…</div></div>
   </div>
 </div>
 
@@ -152,21 +332,25 @@ body{margin:0;background:#f7f7f7;font-family:'DM Sans','Noto Sans KR',sans-serif
     var html = '';
     html += '<h1 class="mk-h1">' + (hotel.hotel_name || 'Your hotel') + '</h1>';
     html += '<p class="mk-sub">Booking analytics & channel performance</p>';
-    html += '<div class="mk-card"><div class="mk-empty">' + msg + '</div></div>';
+    html += '<div class="mk-card"><div class="mk-empty"><div class="mk-empty-icon">⚠️</div>' + msg + '</div></div>';
     $('mk-main').innerHTML = html;
   }
 
   function renderMarketing(hotel, data) {
     var html = '';
     html += '<h1 class="mk-h1">' + (hotel.hotel_name || 'Your hotel') + '</h1>';
-    html += '<p class="mk-sub">Booking analytics & channel performance · ' + (hotel.city || '') + (hotel.country ? ', ' + hotel.country : '') + '</p>';
+    html += '<p class="mk-sub">Booking <em style="font-style:normal;color:var(--ink-2)">analytics</em> &amp; channel performance';
+    if (hotel.city || hotel.country) {
+      html += ' · ' + (hotel.city || '') + (hotel.country ? ', ' + hotel.country : '');
+    }
+    html += '</p>';
 
-    // ----- HEADLINE -----
+    // ----- HEADLINE (4 KPIs) -----
     var h = data.headline || {};
     html += '<div class="mk-headline">';
-    html += statCard('Bookings', String(h.booking_count || 0), '');
-    html += statCard('Estimated revenue', '$' + fmtMoney(h.total_amount_usd || 0), 'across all bookings');
-    html += statCard('Total nights', String(h.total_nights || 0), '');
+    html += statCard('Bookings', String(h.booking_count || 0), '', false, true);
+    html += statCard('Estimated revenue', '$' + fmtMoney(h.total_amount_usd || 0), 'across all bookings', false, true);
+    html += statCard('Total nights', String(h.total_nights || 0), 'guest nights booked');
     html += statCard('ROI', (h.roi_multiple || 0) + 'x', 'on $' + (h.subscription_usd || 200) + ' fee', true);
     html += '</div>';
 
@@ -175,7 +359,7 @@ body{margin:0;background:#f7f7f7;font-family:'DM Sans','Noto Sans KR',sans-serif
     html += '<h2 class="mk-h2">Channel performance</h2>';
     var stats = data.channel_stats || [];
     if (stats.length === 0) {
-      html += '<div class="mk-empty">No channel data yet — bookings will appear here once your video starts converting.</div>';
+      html += '<div class="mk-empty"><div class="mk-empty-icon">📊</div>No channel data yet — bookings will appear here once your video starts converting.</div>';
     } else {
       var maxCount = stats.reduce(function(m, s){ return Math.max(m, s.booking_count); }, 1);
       html += '<div class="mk-channel-grid">';
@@ -189,14 +373,14 @@ body{margin:0;background:#f7f7f7;font-family:'DM Sans','Noto Sans KR',sans-serif
         html += '    <span class="mk-channel-tag ' + langClass + '">' + (s.channel_language || '—') + '</span>';
         html += '  </div>';
         html += '  <div class="mk-ch-count">' + s.booking_count + '</div>';
-        html += '  <div style="font-size:12px;color:#888">bookings</div>';
+        html += '  <div class="mk-ch-count-sub">bookings</div>';
         html += '  <div class="mk-ch-amount">$' + fmtMoney(s.gross_amount_usd) + '</div>';
         html += '  <div class="mk-ch-bar"><div class="mk-ch-bar-fill" style="width:' + pct + '%"></div></div>';
         html += '</div>';
       }
       html += '</div>';
     }
-    html += '<p style="margin:18px 0 0;font-size:13px;color:#666">Bookings are tracked through Agoda Affiliate. Channels with no bookings yet may still be driving views — check <a class="mk-link" href="https://partners.agoda.com" target="_blank" rel="noopener">Agoda Partner Hub</a> for raw analytics.</p>';
+    html += '<p class="mk-foot-note">Bookings are tracked through Agoda Affiliate. Channels with no bookings yet may still be driving views — check <a class="mk-link" href="https://partners.agoda.com" target="_blank" rel="noopener">Agoda Partner Hub</a> for raw analytics.</p>';
     html += '</div>';
 
     // ----- 예약 목록 -----
@@ -204,7 +388,7 @@ body{margin:0;background:#f7f7f7;font-family:'DM Sans','Noto Sans KR',sans-serif
     html += '<h2 class="mk-h2">Recent bookings</h2>';
     var bookings = data.bookings || [];
     if (bookings.length === 0) {
-      html += '<div class="mk-empty">No completed bookings yet. Once guests check out, their bookings will appear here.</div>';
+      html += '<div class="mk-empty"><div class="mk-empty-icon">🌙</div>No completed bookings yet. Once guests check out, their bookings will appear here.</div>';
     } else {
       html += '<div class="mk-booking-list">';
       for (var j = 0; j < bookings.length; j++) {
@@ -214,9 +398,9 @@ body{margin:0;background:#f7f7f7;font-family:'DM Sans','Noto Sans KR',sans-serif
         html += '  <div>';
         html += '    <div class="mk-bk-id">#' + (b.booking_id_masked || '—') + '</div>';
         html += '    <div class="mk-bk-meta">';
-        html += '      <span>📅 ' + (b.checkin_date || '?') + ' → ' + (b.checkout_date || '?') + '</span>';
-        html += '      <span>🌙 ' + (b.nights || 0) + ' nights</span>';
-        if (b.customer_country) html += '      <span>🌍 ' + b.customer_country + '</span>';
+        html += '      <span class="mk-bk-meta-item">📅 ' + (b.checkin_date || '?') + ' → ' + (b.checkout_date || '?') + '</span>';
+        html += '      <span class="mk-bk-meta-item">🌙 ' + (b.nights || 0) + ' nights</span>';
+        if (b.customer_country) html += '      <span class="mk-bk-meta-item">🌍 ' + b.customer_country + '</span>';
         html += '      <span class="mk-channel-tag ' + langClass2 + '">' + (b.channel_name || 'Other') + '</span>';
         html += '    </div>';
         html += '  </div>';
@@ -233,8 +417,10 @@ body{margin:0;background:#f7f7f7;font-family:'DM Sans','Noto Sans KR',sans-serif
     $('mk-main').innerHTML = html;
   }
 
-  function statCard(label, value, sub, roi) {
-    var cls = 'mk-stat-value' + (roi ? ' mk-stat-roi' : '');
+  function statCard(label, value, sub, roi, aurora) {
+    var cls = 'mk-stat-value';
+    if (roi) cls += ' mk-stat-roi';
+    else if (aurora) cls += ' aurora';
     return '<div class="mk-stat">'
       + '<div class="mk-stat-label">' + label + '</div>'
       + '<div class="' + cls + '">' + value + '</div>'

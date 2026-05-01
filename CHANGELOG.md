@@ -5,7 +5,75 @@
 
 ---
 
-## 2026-05-01 (17차) — [디자인시스템] v2 Aurora — index.html 랜딩 페이지 마이그레이션
+## 2026-05-01 (18차) — [디자인시스템] v2 Aurora — sales / marketing 페이지 마이그레이션
+
+### 변경 파일
+- `sales.html`: 결제 직전 페이지 전면 재작성 (13,585 bytes → 23,469 bytes)
+  - shared.css v2 외부 링크 + 페이지 전용 인라인 스타일 (`.sl-*` prefix 유지)
+  - aurora-bg + 4 blob + aurora-grid 추가
+  - sticky topbar 글래스 블러 + 그라디언트 로고 아이콘
+  - 헤드라인 `Get listed across 5 channels` → `Activate your <em>listing</em>` (aurora 그라디언트 em)
+  - 서브카피 `5 language channels` → `8 YouTube channels covering 6 languages` 전면 통일
+  - **3축 trust strip 신규 추가** (Total Views 9M+ / Videos Produced 3,774 / Bookings Generated $854K)
+  - **8개 채널 칩 신규 추가**: TravelWinners·Hoteliya·Kotel·HotelDot·ホテルだ·世界就是家·Korea Hotel VN·Hotelygot (모든 status에서 노출 — 결제 직전 신뢰감 강화)
+  - status badge: Aurora 톤 + glow 효과 (pending/review/approved/rejected/paid)
+  - progress steps: aurora 그라디언트 + glow (4단계 Pending→Review→Approved→Paid)
+  - **Payment card (Aurora premium)**: 글래스모피즘 + 그라디언트 보더(mask 트릭) + radial glow + aurora-text $200 + meta dot list
+  - PayPal Buttons SDK 통합 코드 100% 보존 (config / create-order / capture-order endpoint, paypal.Buttons.render)
+  - status별 라우팅 100% 보존: paid/producing/published → marketing.html, admin → admin.html
+- `marketing.html`: 결제 후 대시보드 전면 재작성 (11,831 bytes → 16,386 bytes)
+  - shared.css v2 외부 링크 + 페이지 전용 인라인 스타일 (`.mk-*` prefix 유지)
+  - aurora-bg + 4 blob + aurora-grid 추가
+  - sticky topbar (sales와 동일 패턴)
+  - 헤드라인: 호텔명 그대로 + sub에 `analytics` 강조
+  - **4 KPI headline 글래스 카드** (Bookings / Estimated revenue / Total nights / ROI) — Aurora 그라디언트 텍스트 적용, ROI는 green-to-emerald 그라디언트
+  - **Channel performance 그리드**: 글래스 카드 + 호버 lift, 다국어 채널 태그(ko/en/ja/vi/zh-tw 별 컬러 차별화), aurora 그라디언트 progress bar + glow
+  - **Recent bookings 카드 리스트**: 글래스 + 호버, mono 폰트 booking ID, green 그라디언트 amount, channel-tag 노출
+  - Empty state 개선: 이모지 + ink-3 톤
+  - `/api/hotel-bookings?hotelId=` 호출 로직 100% 보존, 결제 전 status (pending/review/approved/rejected) → sales.html redirect 로직 100% 보존, admin → admin.html
+- `_backup_20260501/sales.html` (13,585 bytes): v1 백업
+- `_backup_20260501/marketing.html` (11,831 bytes): v1 백업
+- `docs/screenshots/v2-migration/sales-{before,after}-{pending,approved,no-hotel}.png` (6장)
+- `docs/screenshots/v2-migration/marketing-{before,after}-{with-data,empty}.png` (4장)
+
+### 배경
+17차(index 랜딩) 완료 후 잔여 5종(sales / marketing / hotel-info / booking-analytics / admin) 중 작은 두 페이지를 묶어 처리. sales는 결제 직전 페이지로 메모리 32 메시지 컨셉 위반(`Get listed across 5 channels` / `5 language channels`)이 가장 심각했던 곳 — 즉시 교정. marketing은 결제 후 대시보드로 4 KPI 자체가 메시지 3축(Bookings/Revenue/ROI)과 자연스럽게 부합하므로 디자인 톤만 v2 전환.
+
+### 변경사유
+- **메시지 컨셉 정확 반영** (메모리 32번): sales 페이지의 `5 channels` 단순 표기 → `8 channels in 6 languages` + 8개 채널 칩 명시적 노출. 결제 직전에 트래픽/콘텐츠/매출 3축을 시각적으로 보여줘 신뢰감 강화 (구독자 수 어필 0건).
+- **결제 카드 시그니처화**: sales.html의 핵심은 결제 카드. v1은 보라 단색 그라디언트로 임팩트 약함. v2는 글래스 + Aurora 그라디언트 보더(mask 합성) + radial glow + aurora-text $200으로 "호텔 산업이 본 적 없는 모던함" (대표님 비전) 구현.
+- **PayPal 결제 로직 무결성**: 결제는 사업의 마지막 관문이라 어떤 변경도 위험. 디자인만 교체하고 createOrder/onApprove/onCancel/onError 콜백 + setPayStatus 모두 byte-for-byte 보존.
+- **다국어 채널 가독성** (marketing): 채널 태그를 v1에서는 6색 fill로 처리했는데 다크 톤에서 부조화. v2는 각 언어별 brand-tinted glass + 매칭 보더로 다크 톤에 자연스럽게 융합.
+- **결제 카드 빈 공간 버그 수정**: `.sl-pay-card > * { position:relative }` 가 `.sl-pay-glow` (absolute) 까지 덮어 380px 빈 공간 발생. `:not(.sl-pay-glow)` 선택자로 분리 — 자가검증 단계에서 발견·수정.
+
+### 검증
+1. **JS 문법 자동 검증**: `node --check` PASS (sales 11,414 chars / marketing 6,848 chars)
+2. **핵심 로직 보존 (sales)**:
+   - T.requireAuth ✅ / T.checkAdmin ✅ / paypal.Buttons ✅
+   - PayPal endpoint 3종 (config / create-order / capture-order) 각 1회 ✅
+   - marketing.html redirect 5회 / admin.html redirect 1회 ✅
+3. **핵심 로직 보존 (marketing)**:
+   - T.requireAuth ✅ / T.checkAdmin ✅
+   - /api/hotel-bookings 호출 ✅ / encodeURIComponent ✅
+   - 결제 전 status 4종(pending/review/approved/rejected) → sales.html redirect 로직 보존 ✅
+   - admin.html redirect ✅
+4. **v2 Aurora 표준 적용**:
+   - sales: aurora-bg/blob×4/grid ✅, var(--aurora*) 11회, 그라디언트 헤드라인 em ✅
+   - marketing: aurora-bg/blob×4/grid ✅, var(--aurora*) 7회, var(--ink*) 21회, var(--glass*) 9회
+5. **메시지 컨셉 (메모리 32번)**:
+   - subscriber 어필 0회 ✅ (sales / marketing 모두)
+   - "5 channels" 잔존 0회 ✅ / "8 channels" 5회 ✅ / "6 languages" 4회 ✅ (sales)
+   - 8개 채널명 모두 노출 ✅ (TravelWinners·Hoteliya·Kotel·HotelDot·ホテルだ·世界就是家·Korea Hotel VN·Hotelygot)
+   - 3축(Total Views / Videos Produced / Bookings Generated) 모두 노출 ✅ (sales)
+6. **Playwright 시각 비교** (1440x900 fullpage):
+   - sales BEFORE/AFTER × 3 시나리오 (pending / approved / no-hotel) — Aurora 톤 전환 확실, 8 채널 칩·3축 trust 신규 노출, 결제 카드 빈 공간 버그 발견·수정 후 정상
+   - marketing BEFORE/AFTER × 2 시나리오 (with-data / empty) — KPI Aurora 그라디언트, 채널 카드 글래스, 다국어 태그 다색화, empty state 이모지 보강
+
+### 다음 단계
+v2 마이그레이션 잔여 3종: hotel-info(1085줄, 19차 단독), booking-analytics(374줄 + 1MB 인라인 데이터, 20차 단독, 신중 작업), admin(분할 필수, 별도 차수). 각 차수 1~2개 작업으로 분할.
+
+---
+
 
 ### 변경 파일
 - `index.html`: 랜딩 페이지 전면 재작성 (45,737 bytes → 63,876 bytes)

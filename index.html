@@ -4,330 +4,1079 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>TravelWinners — Hotel Marketing Partner Portal</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<meta name="description" content="The hotel exposure engine behind 8 YouTube channels in 6 languages. One $200 payment unlocks six months of guaranteed visibility — or your money back.">
+<link rel="stylesheet" href="shared.css">
 <style>
-:root{--forest:#1B5E3B;--forest-dark:#144A2E;--forest-deep:#0D3620;--forest-light:#E8F5EC;--forest-mist:#F4FAF6;--gold:#C8A951;--gold-light:#F5F0E0;--white:#FFFFFF;--gray-50:#FAFAFA;--gray-100:#F5F5F5;--gray-200:#E8E8E8;--gray-300:#D4D4D4;--gray-400:#A3A3A3;--gray-500:#737373;--gray-600:#525252;--gray-700:#404040;--gray-800:#262626;--gray-900:#171717;--radius:12px;--radius-sm:8px;--shadow:0 4px 20px rgba(0,0,0,0.08);--shadow-lg:0 12px 40px rgba(0,0,0,0.12);--transition:all .3s cubic-bezier(.4,0,.2,1)}
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Inter','Noto Sans KR',sans-serif;background:var(--white);color:var(--gray-800)}
-.lang-switch{position:fixed;top:20px;right:20px;z-index:1000;display:flex;gap:2px;background:var(--white);border-radius:20px;padding:3px;box-shadow:var(--shadow);border:1px solid var(--gray-200)}
-.lang-btn{padding:6px 14px;border:none;border-radius:17px;font-size:13px;font-weight:500;cursor:pointer;background:transparent;color:var(--gray-500);transition:var(--transition);font-family:'Inter',sans-serif}
-.lang-btn.active{background:var(--forest);color:var(--white)}
-.top-nav{position:fixed;top:0;left:0;right:0;z-index:900;background:rgba(255,255,255,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--gray-200);padding:0 48px;display:flex;align-items:center;justify-content:space-between;height:68px}
-.nav-logo{display:flex;align-items:center;gap:12px;text-decoration:none}
-.nav-logo-icon{width:36px;height:36px;background:var(--gold);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:var(--forest-deep);font-family:'Inter',sans-serif}
-.nav-logo-text{font-family:'Inter',sans-serif;font-size:18px;font-weight:700;color:var(--gray-900)}
-.nav-actions{display:flex;gap:12px;align-items:center}
-.nav-link{font-size:14px;color:var(--gray-600);text-decoration:none;padding:8px 16px;border-radius:var(--radius-sm);transition:var(--transition)}
-.nav-link:hover{color:var(--forest);background:var(--forest-mist)}
-.nav-cta{font-size:14px;font-weight:600;color:var(--white);background:var(--forest);padding:10px 24px;border-radius:var(--radius-sm);text-decoration:none;transition:var(--transition)}
-.nav-cta:hover{background:var(--forest-dark);transform:translateY(-1px);box-shadow:0 4px 16px rgba(27,94,59,.2)}
-.hero{padding:140px 48px 80px;text-align:center;background:linear-gradient(180deg,var(--forest-mist) 0%,var(--white) 100%);position:relative;overflow:hidden}
-.hero::before{content:'';position:absolute;top:-200px;left:50%;transform:translateX(-50%);width:800px;height:800px;background:radial-gradient(circle,rgba(27,94,59,.04) 0%,transparent 70%);pointer-events:none}
-.hero-badge{display:inline-flex;align-items:center;gap:8px;background:var(--gold-light);color:var(--forest-dark);padding:8px 20px;border-radius:24px;font-size:13px;font-weight:600;margin-bottom:28px;letter-spacing:.3px}
-.hero h1{font-family:'Inter',sans-serif;font-size:56px;font-weight:700;color:var(--gray-900);line-height:1.15;margin-bottom:24px;max-width:800px;margin-left:auto;margin-right:auto}
-.hero h1 em{font-style:normal;font-weight:800;color:var(--forest)}
-.hero>p{font-size:20px;color:var(--gray-500);line-height:1.7;max-width:600px;margin:0 auto 40px}
-.hero-cta-row{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
-.hero-btn-primary{display:inline-flex;align-items:center;gap:8px;padding:16px 36px;background:var(--forest);color:var(--white);font-size:16px;font-weight:600;border-radius:var(--radius-sm);text-decoration:none;transition:var(--transition);font-family:'Inter',sans-serif}
-.hero-btn-primary:hover{background:var(--forest-dark);transform:translateY(-2px);box-shadow:0 8px 24px rgba(27,94,59,.25)}
-.hero-btn-secondary{display:inline-flex;align-items:center;gap:8px;padding:16px 36px;background:transparent;color:var(--gray-600);font-size:16px;font-weight:500;border-radius:var(--radius-sm);text-decoration:none;transition:var(--transition);border:1.5px solid var(--gray-200);font-family:'Inter',sans-serif}
-.hero-btn-secondary:hover{border-color:var(--gray-400);color:var(--gray-800)}
-.hero-stats{display:flex;gap:48px;justify-content:center;margin-top:64px;padding-top:48px;border-top:1px solid var(--gray-200)}
-.hero-stat-num{font-family:'Inter',sans-serif;font-size:36px;font-weight:700;color:var(--forest)}
-.hero-stat-label{font-size:14px;color:var(--gray-500);margin-top:4px}
-.section{padding:100px 48px}
-.section-center{text-align:center;max-width:700px;margin:0 auto 60px}
-.section-badge{display:inline-flex;align-items:center;gap:6px;background:var(--forest-mist);color:var(--forest);padding:6px 16px;border-radius:20px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:20px}
-.section-title{font-family:'Inter',sans-serif;font-size:40px;font-weight:700;color:var(--gray-900);line-height:1.2;margin-bottom:16px}
-.section-desc{font-size:17px;color:var(--gray-500);line-height:1.7}
-.section-alt{background:var(--gray-50)}
-.steps-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:32px;max-width:1100px;margin:0 auto}
-.step-card{background:var(--white);border:1.5px solid var(--gray-200);border-radius:var(--radius);padding:40px 32px;position:relative;transition:var(--transition)}
-.step-card:hover{border-color:var(--forest);transform:translateY(-4px);box-shadow:var(--shadow-lg)}
-.step-num{width:48px;height:48px;background:var(--forest);color:var(--white);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Inter',sans-serif;font-size:20px;font-weight:700;margin-bottom:24px}
-.step-card h3{font-family:'Inter',sans-serif;font-size:22px;font-weight:700;color:var(--gray-900);margin-bottom:12px}
-.step-card p{font-size:15px;color:var(--gray-500);line-height:1.7}
-.features-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:24px;max-width:900px;margin:0 auto}
-.feature-item{display:flex;gap:16px;padding:28px;background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius);transition:var(--transition)}
-.feature-item:hover{border-color:var(--forest-light);box-shadow:var(--shadow)}
-.feature-icon{width:44px;height:44px;background:var(--forest-mist);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
-.feature-item h4{font-size:16px;font-weight:700;color:var(--gray-800);margin-bottom:6px}
-.feature-item p{font-size:14px;color:var(--gray-500);line-height:1.6}
-.pricing-card{max-width:480px;margin:0 auto;background:var(--white);border:2px solid var(--forest);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow-lg)}
-.pricing-header{background:linear-gradient(135deg,var(--forest-deep),var(--forest));padding:36px;text-align:center;color:var(--white)}
-.pricing-header h3{font-family:'Inter',sans-serif;font-size:24px;font-weight:700;margin-bottom:8px}
-.pricing-header p{font-size:14px;opacity:.75}
-.pricing-price{font-family:'Inter',sans-serif;font-size:56px;font-weight:700;margin:20px 0 4px}
-.pricing-price-sub{font-size:14px;opacity:.6}
-.pricing-body{padding:32px 36px}
-.pricing-feature{display:flex;align-items:flex-start;gap:12px;padding:12px 0;font-size:14px;color:var(--gray-600);line-height:1.5}
-.pricing-feature:not(:last-child){border-bottom:1px solid var(--gray-100)}
-.pricing-check{color:var(--forest);font-weight:700;flex-shrink:0;font-size:16px}
-.pricing-footer{padding:0 36px 36px}
-.pricing-guarantee{margin-top:16px;padding:14px;background:var(--forest-mist);border-radius:var(--radius-sm);border-left:3px solid var(--forest);font-size:13px;color:var(--gray-600);line-height:1.5}
-.pricing-guarantee strong{color:var(--forest)}
-/* Trust Grid */
-.trust-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;max-width:900px;margin:0 auto 40px}
-.trust-card{background:var(--white);border:1.5px solid var(--gray-200);border-radius:var(--radius);padding:32px 20px;text-align:center;transition:var(--transition)}
-.trust-card:hover{border-color:var(--forest-light);box-shadow:var(--shadow);transform:translateY(-3px)}
-.trust-icon{font-size:32px;margin-bottom:14px}
-.trust-num{font-family:'Inter',sans-serif;font-size:32px;font-weight:700;color:var(--forest);line-height:1}
-.trust-label{font-size:13px;color:var(--gray-500);margin-top:8px;font-weight:500}
-/* OTA Logos */
-.ota-logos{display:flex;flex-wrap:wrap;gap:24px;justify-content:center;align-items:center;max-width:700px;margin:0 auto;padding:32px 40px;background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius)}
-.ota-text-logo{font-size:20px;letter-spacing:-.3px;opacity:.45;transition:opacity .25s;cursor:default}
-.ota-text-logo:hover{opacity:1}
-.ota-booking{font-weight:700;color:var(--gray-800)}
-/* Analytics Preview */
-.analytics-preview{max-width:700px;margin:0 auto;background:var(--white);border:1.5px solid var(--gray-200);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
-.analytics-header{padding:18px 28px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--gray-200);background:var(--gray-50)}
-.analytics-title{font-size:14px;font-weight:700;color:var(--gray-800)}
-.analytics-badge{font-size:12px;font-weight:700;color:var(--forest);background:var(--forest-mist);padding:4px 14px;border-radius:20px}
-.analytics-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:0;padding:0}
-.analytics-stat{padding:28px 20px;text-align:center;border-right:1px solid var(--gray-100)}
-.analytics-stat:last-child{border-right:none}
-.analytics-stat-num{font-family:'Inter',sans-serif;font-size:28px;font-weight:700;color:var(--forest)}
-.analytics-stat-label{font-size:12px;color:var(--gray-500);margin-top:6px;font-weight:500}
-.analytics-note{padding:18px 28px;background:var(--forest-mist);border-left:3px solid var(--forest);margin:0 20px 20px;border-radius:var(--radius-sm);font-size:13px;color:var(--gray-600);line-height:1.7}
-.cta-section{padding:100px 48px;background:linear-gradient(165deg,var(--forest-deep),var(--forest),var(--forest-dark));text-align:center;color:var(--white)}
-.cta-section h2{font-family:'Inter',sans-serif;font-size:40px;font-weight:700;margin-bottom:16px}
-.cta-section p{font-size:18px;opacity:.7;max-width:500px;margin:0 auto 40px;line-height:1.6}
-.cta-btn{display:inline-flex;align-items:center;gap:8px;padding:18px 48px;background:var(--gold);color:var(--forest-deep);font-size:17px;font-weight:700;border-radius:var(--radius-sm);text-decoration:none;transition:var(--transition);font-family:'Inter',sans-serif}
-.cta-btn:hover{background:var(--white);transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,.2)}
-.site-footer{padding:40px 48px;background:var(--gray-900);color:rgba(255,255,255,.4);font-size:13px;display:flex;justify-content:space-between;align-items:center}
-.footer-logo{font-family:'Inter',sans-serif;font-size:16px;color:rgba(255,255,255,.6);font-weight:700}
-/* === LIVE FEED (Phase 1 Step 7) === */
-#live-feed{background:linear-gradient(180deg,var(--white) 0%,var(--forest-mist) 60%,var(--white) 100%)}
-#live-feed .section-badge{background:var(--white);color:var(--forest);box-shadow:0 0 0 1px rgba(27,94,59,.12);position:relative;padding-left:22px}
-#live-feed .section-badge::before{content:'';position:absolute;left:10px;top:50%;transform:translateY(-50%);width:7px;height:7px;border-radius:50%;background:#22C55E;box-shadow:0 0 0 4px rgba(34,197,94,.18);animation:lfPulse 2s ease-in-out infinite}
-@keyframes lfPulse{0%,100%{box-shadow:0 0 0 4px rgba(34,197,94,.18)}50%{box-shadow:0 0 0 7px rgba(34,197,94,.05)}}
-.lf-counters{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;max-width:1000px;margin:0 auto 56px}
-.lf-counter{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius);padding:28px 20px 24px;text-align:center;transition:var(--transition);position:relative;overflow:hidden}
-.lf-counter::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--forest),var(--gold));opacity:0;transition:opacity .25s}
-.lf-counter:hover{border-color:var(--forest-light);box-shadow:var(--shadow);transform:translateY(-2px)}
-.lf-counter:hover::before{opacity:1}
-.lf-counter-icon{font-size:24px;margin-bottom:14px;opacity:.85}
-.lf-counter-num{font-family:'Inter',sans-serif;font-size:36px;font-weight:800;color:var(--forest);line-height:1;letter-spacing:-.5px;font-variant-numeric:tabular-nums}
-.lf-counter-num.lf-loading{color:var(--gray-300)}
-.lf-counter-label{font-size:12px;color:var(--gray-500);margin-top:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
-.lf-stream-wrap{max-width:760px;margin:0 auto;background:var(--white);border:1.5px solid var(--gray-200);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
-.lf-stream-head{padding:18px 26px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--gray-100);background:linear-gradient(180deg,var(--gray-50),var(--white))}
-.lf-stream-title{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:700;color:var(--gray-800)}
-.lf-pulse-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#22C55E;position:relative}
-.lf-pulse-dot::after{content:'';position:absolute;inset:-3px;border-radius:50%;background:#22C55E;opacity:.4;animation:lfDot 1.6s ease-out infinite}
-@keyframes lfDot{0%{transform:scale(.8);opacity:.5}100%{transform:scale(2.2);opacity:0}}
-.lf-stream-meta{font-size:11px;color:var(--gray-400);font-weight:500;letter-spacing:.3px;text-transform:uppercase}
-.lf-stream{position:relative;padding:8px 0;min-height:240px}
-.lf-stream::before{content:'';position:absolute;left:48px;top:16px;bottom:16px;width:2px;background:linear-gradient(180deg,transparent,var(--gray-200) 12%,var(--gray-200) 88%,transparent);pointer-events:none}
-.lf-row{display:grid;grid-template-columns:80px 1fr auto;gap:16px;align-items:center;padding:14px 26px;position:relative;animation:lfSlideIn .45s cubic-bezier(.4,0,.2,1) both}
-@keyframes lfSlideIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
-.lf-row+.lf-row{border-top:1px solid var(--gray-100)}
-.lf-row-time{font-size:11px;color:var(--gray-400);font-weight:600;text-transform:uppercase;letter-spacing:.3px;text-align:right;padding-right:8px;font-variant-numeric:tabular-nums}
-.lf-row-dot{position:absolute;left:44px;top:50%;transform:translate(-50%,-50%);width:10px;height:10px;border-radius:50%;background:var(--forest);box-shadow:0 0 0 3px var(--white),0 0 0 4px var(--gray-200);z-index:1}
-.lf-row-dot.lf-ch-tw{background:#1B5E3B}
-.lf-row-dot.lf-ch-ht{background:#C8A951}
-.lf-row-dot.lf-ch-kt{background:#2577E3}
-.lf-row-dot.lf-ch-tc{background:#51B44D}
-.lf-row-dot.lf-ch-jp{background:#D85A30}
-.lf-row-dot.lf-ch-zh{background:#9333EA}
-.lf-row-body{min-width:0;padding-left:18px}
-.lf-row-line1{font-size:14px;color:var(--gray-800);font-weight:600;line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.lf-row-line1 .lf-hotel{color:var(--gray-900)}
-.lf-row-line1 .lf-loc{color:var(--gray-500);font-weight:500}
-.lf-row-line2{font-size:12px;color:var(--gray-500);margin-top:3px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.lf-chip{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600;background:var(--gray-100);color:var(--gray-600);letter-spacing:.2px}
-.lf-chip-stars{color:var(--gold);background:var(--gold-light)}
-.lf-chip-channel{background:var(--forest-mist);color:var(--forest);font-weight:700}
-.lf-row-amount{font-family:'Inter',sans-serif;font-size:15px;font-weight:700;color:var(--forest);font-variant-numeric:tabular-nums;text-align:right}
-.lf-row-amount-sub{font-size:10px;color:var(--gray-400);font-weight:500;text-transform:uppercase;letter-spacing:.3px;margin-top:1px}
-.lf-stream-empty{padding:48px 32px;text-align:center}
-.lf-empty-icon{font-size:36px;opacity:.5;margin-bottom:14px}
-.lf-empty-title{font-size:15px;font-weight:700;color:var(--gray-700);margin-bottom:6px}
-.lf-empty-desc{font-size:13px;color:var(--gray-500);line-height:1.6;max-width:380px;margin:0 auto}
-.lf-stream-foot{padding:12px 26px;background:var(--gray-50);border-top:1px solid var(--gray-100);text-align:center}
-.lf-foot-note{font-size:11px;color:var(--gray-400);font-weight:500}
-@media(max-width:768px){
-  .lf-counters{grid-template-columns:repeat(2,1fr);gap:12px}
-  .lf-counter{padding:22px 14px 20px}
-  .lf-counter-num{font-size:28px}
-  .lf-stream::before{left:36px}
-  .lf-row{grid-template-columns:60px 1fr auto;gap:10px;padding:12px 18px}
-  .lf-row-dot{left:32px}
-  .lf-row-body{padding-left:14px}
-  .lf-row-line1{font-size:13px;white-space:normal}
-  .lf-row-amount{font-size:13px}
+/* ===== index.html — v2 Aurora landing-only styles ===== */
+/* (shared.css v2 가 base 톤·컬러·폰트·aurora-bg 모두 제공 — 여기는 랜딩 전용 레이아웃만) */
+
+/* ---------- Top Nav ---------- */
+.top-nav{
+  position:fixed;top:0;left:0;right:0;z-index:900;
+  background:rgba(10,10,15,.72); backdrop-filter:blur(16px) saturate(140%);
+  -webkit-backdrop-filter:blur(16px) saturate(140%);
+  border-bottom:1px solid var(--line);
+  padding:0 48px; display:flex; align-items:center; justify-content:space-between;
+  height:64px;
 }
-@media(max-width:768px){.top-nav{padding:0 20px}.hero{padding:110px 24px 60px}.hero h1{font-size:32px}.hero-stats{flex-direction:column;gap:24px}.section{padding:60px 24px}.section-title{font-size:28px}.steps-grid,.features-grid{grid-template-columns:1fr}.trust-grid{grid-template-columns:repeat(2,1fr)}.analytics-stats{grid-template-columns:1fr}.analytics-stat{border-right:none;border-bottom:1px solid var(--gray-100)}.analytics-stat:last-child{border-bottom:none}.cta-section{padding:60px 24px}.site-footer{flex-direction:column;gap:12px;text-align:center;padding:32px 24px}.nav-link{display:none}}
+.nav-logo{display:flex;align-items:center;gap:12px;text-decoration:none}
+.nav-logo-icon{
+  width:32px;height:32px;border-radius:8px;
+  background:var(--aurora);
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:800;color:#fff;
+  box-shadow:var(--glow-p);
+  font-family:var(--display);
+}
+.nav-logo-text{font-family:var(--display);font-size:16px;font-weight:700;color:var(--ink);letter-spacing:-.01em}
+.nav-logo-text em{font-style:normal;font-weight:800;background:var(--aurora);-webkit-background-clip:text;background-clip:text;color:transparent;margin-left:4px}
+.nav-actions{display:flex;gap:10px;align-items:center}
+.nav-link{
+  font-size:13px;color:var(--ink-3);text-decoration:none;
+  padding:8px 14px;border-radius:8px;transition:var(--transition);
+}
+.nav-link:hover{color:var(--ink);background:var(--glass)}
+.nav-cta{
+  font-size:13px;font-weight:600;color:#fff;
+  background:var(--aurora);
+  padding:9px 18px;border-radius:8px;text-decoration:none;
+  transition:var(--transition);
+  box-shadow:var(--glow-p);
+}
+.nav-cta:hover{transform:translateY(-1px); box-shadow:0 0 60px rgba(124,58,237,.65)}
+
+/* lang-switch nav inline override */
+.top-nav .lang-switch{position:static}
+
+/* ---------- Hero ---------- */
+.hero{padding:140px 32px 96px;position:relative;z-index:2}
+.hero-inner{max-width:1240px;margin:0 auto;display:grid;grid-template-columns:1.05fr .95fr;gap:72px;align-items:center}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  background:var(--glass);border:1px solid var(--line-2);
+  color:var(--ink-2);padding:7px 16px;border-radius:99px;
+  font-size:12px;font-weight:600;letter-spacing:.02em;
+  backdrop-filter:blur(12px);
+  margin-bottom:28px;
+}
+.hero-badge-dot{
+  width:6px;height:6px;border-radius:50%;
+  background:var(--aurora-1);
+  box-shadow:0 0 12px var(--aurora-1);
+}
+.hero h1{
+  font-family:var(--display);
+  font-size:64px;font-weight:700;color:var(--ink);
+  line-height:1.02;letter-spacing:-.035em;
+  margin-bottom:24px;
+}
+.hero h1 em, .hero h1 .grad{
+  font-style:normal;font-weight:800;
+  background:var(--aurora);
+  -webkit-background-clip:text;background-clip:text;
+  color:transparent;
+}
+.hero-sub{
+  font-size:18px;color:var(--ink-3);line-height:1.6;
+  max-width:560px;margin-bottom:36px;
+}
+.hero-sub b{color:var(--ink-2);font-weight:600}
+.hero-cta-row{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:40px}
+.hero-btn-primary{
+  display:inline-flex;align-items:center;gap:10px;
+  padding:15px 28px; background:var(--aurora); color:#fff;
+  font-size:15px; font-weight:600; border-radius:10px;
+  text-decoration:none; transition:var(--transition);
+  box-shadow:var(--glow-p);
+  font-family:var(--sans);
+}
+.hero-btn-primary:hover{transform:translateY(-2px); box-shadow:0 0 80px rgba(124,58,237,.6)}
+.hero-btn-primary .arrow{transition:transform .2s}
+.hero-btn-primary:hover .arrow{transform:translateX(3px)}
+.hero-btn-secondary{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:14px 22px; background:var(--glass); color:var(--ink-2);
+  font-size:15px; font-weight:500; border-radius:10px;
+  text-decoration:none; transition:var(--transition);
+  border:1px solid var(--line-2);
+  font-family:var(--sans);
+  backdrop-filter:blur(12px);
+}
+.hero-btn-secondary:hover{border-color:var(--line-3); color:var(--ink); background:var(--glass-2)}
+.hero-trust{display:flex;gap:22px;align-items:center;flex-wrap:wrap;font-size:13px;color:var(--ink-3)}
+.hero-trust-item{display:inline-flex;align-items:center;gap:8px}
+.hero-trust-check{
+  width:16px;height:16px;border-radius:50%;
+  background:var(--aurora);
+  display:inline-flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.hero-trust-check svg{width:9px;height:9px}
+
+/* Hero right — stat card */
+.hero-right{position:relative}
+.hero-orb{
+  position:absolute; top:-40px; left:-40px;
+  width:340px; height:340px;
+  background:radial-gradient(circle, rgba(124,58,237,.35), rgba(236,72,153,.25) 40%, transparent 70%);
+  filter:blur(60px); pointer-events:none; z-index:0;
+}
+.stat-card{
+  position:relative; z-index:1;
+  background:var(--glass-2);
+  border:1px solid var(--line-2);
+  border-radius:20px;
+  padding:28px;
+  backdrop-filter:blur(20px) saturate(140%);
+  -webkit-backdrop-filter:blur(20px) saturate(140%);
+  box-shadow:var(--shadow-lg);
+}
+.stat-card-head{
+  display:flex;justify-content:space-between;align-items:center;
+  padding-bottom:18px; margin-bottom:18px;
+  border-bottom:1px solid var(--line);
+}
+.stat-card-head-title{font-size:12px;color:var(--ink-3);font-weight:500;letter-spacing:.02em}
+.stat-card-live{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:11px;font-weight:600;
+  color:var(--success);
+  padding:4px 10px;border-radius:99px;
+  background:rgba(16,185,129,.12);
+  border:1px solid rgba(16,185,129,.25);
+}
+.stat-card-live::before{
+  content:''; width:6px;height:6px;border-radius:50%;
+  background:var(--success);
+  box-shadow:0 0 8px var(--success);
+  animation:pulseDot 1.6s ease-in-out infinite;
+}
+@keyframes pulseDot{0%,100%{opacity:1}50%{opacity:.4}}
+
+.stat-row{
+  display:grid; grid-template-columns:40px 1fr auto;
+  gap:14px; align-items:center;
+  padding:14px 0;
+  border-bottom:1px solid var(--line);
+}
+.stat-row:last-child{border-bottom:none;padding-bottom:0}
+.stat-row:first-child{padding-top:0}
+.stat-icon-wrap{
+  width:40px;height:40px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.stat-icon-wrap.purple{background:rgba(124,58,237,.18); color:var(--aurora-1); border:1px solid rgba(124,58,237,.3)}
+.stat-icon-wrap.cyan{background:rgba(6,182,212,.18); color:var(--aurora-3); border:1px solid rgba(6,182,212,.3)}
+.stat-icon-wrap.magenta{background:rgba(236,72,153,.18); color:var(--aurora-2); border:1px solid rgba(236,72,153,.3)}
+.stat-icon-wrap svg{width:18px;height:18px}
+.stat-label{font-size:13px;color:var(--ink-2);font-weight:600}
+.stat-meta{font-size:11px;color:var(--ink-4);margin-top:2px}
+.stat-num{
+  font-family:var(--display);
+  font-size:24px;font-weight:700;
+  color:var(--ink);letter-spacing:-.02em;
+}
+.stat-num em{font-style:normal;font-weight:600;color:var(--ink-3);font-size:15px;margin-left:1px}
+
+/* ---------- Guarantee strip ---------- */
+.guarantee-strip{
+  max-width:1240px;margin:0 auto 0;padding:0 32px;
+  position:relative;z-index:2;
+}
+.guarantee-strip-inner{
+  background:linear-gradient(135deg, rgba(124,58,237,.12), rgba(236,72,153,.08) 50%, rgba(6,182,212,.10));
+  border:1px solid var(--line-2);
+  border-radius:16px;
+  padding:18px 28px;
+  display:grid; grid-template-columns:repeat(4, 1fr);
+  gap:32px; align-items:center;
+  backdrop-filter:blur(16px);
+}
+.gs-item{
+  display:flex;align-items:center;gap:14px;
+  padding-right:32px;
+  border-right:1px solid var(--line);
+}
+.gs-item:last-child{border-right:none;padding-right:0}
+.gs-icon{
+  width:36px;height:36px;border-radius:10px;
+  background:var(--glass-3);
+  border:1px solid var(--line-2);
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;color:var(--ink-2);
+}
+.gs-icon svg{width:18px;height:18px}
+.gs-text{display:flex;flex-direction:column;gap:2px}
+.gs-text-main{font-size:13px;font-weight:600;color:var(--ink)}
+.gs-text-sub{font-size:11px;color:var(--ink-4)}
+
+/* ---------- Section base ---------- */
+.section{padding:100px 32px;position:relative;z-index:2}
+.section-inner{max-width:1240px;margin:0 auto}
+.section-head{text-align:center;max-width:720px;margin:0 auto 64px}
+.section-eyebrow{
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:12px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.12em;
+  color:var(--ink-3);
+  margin-bottom:18px;
+}
+.section-eyebrow::before{
+  content:''; width:24px;height:1px;
+  background:var(--aurora);
+}
+.section-eyebrow::after{
+  content:''; width:24px;height:1px;
+  background:var(--aurora);
+}
+.section-title{
+  font-family:var(--display);
+  font-size:44px;font-weight:700;color:var(--ink);
+  line-height:1.08;letter-spacing:-.025em;
+  margin-bottom:18px;
+}
+.section-title em{
+  font-style:normal;font-weight:800;
+  background:var(--aurora);
+  -webkit-background-clip:text;background-clip:text;
+  color:transparent;
+}
+.section-sub{font-size:16px;color:var(--ink-3);line-height:1.6;max-width:580px;margin:0 auto}
+
+/* ---------- Channels grid (8 channels) ---------- */
+.channel-grid{
+  display:grid; grid-template-columns:repeat(4, 1fr);
+  gap:16px; margin-bottom:32px;
+}
+.channel-card{
+  position:relative;
+  background:var(--glass);
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:24px 22px;
+  transition:var(--transition);
+  backdrop-filter:blur(12px);
+}
+.channel-card:hover{
+  border-color:var(--line-3);
+  background:var(--glass-2);
+  transform:translateY(-3px);
+  box-shadow:var(--shadow);
+}
+.channel-card.primary{
+  border-color:rgba(124,58,237,.4);
+  background:linear-gradient(180deg, rgba(124,58,237,.10), rgba(124,58,237,.03));
+}
+.ch-pill{
+  position:absolute;top:14px;right:14px;
+  font-size:10px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.06em;
+  padding:3px 8px;border-radius:99px;
+}
+.ch-pill.primary{background:var(--aurora); color:#fff}
+.ch-pill.featured{background:rgba(6,182,212,.16); color:var(--aurora-3); border:1px solid rgba(6,182,212,.3)}
+.ch-pill.growing{background:rgba(245,158,11,.16); color:var(--aurora-5); border:1px solid rgba(245,158,11,.3)}
+.ch-flag{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:11px;font-weight:600;
+  color:var(--ink-3);
+  text-transform:uppercase;letter-spacing:.06em;
+  margin-bottom:14px;
+}
+.ch-flag-dot{
+  width:5px;height:5px;border-radius:50%;
+  background:var(--aurora-3);
+}
+.ch-name{
+  font-family:var(--display);
+  font-size:18px;font-weight:700;color:var(--ink);
+  letter-spacing:-.015em;
+  margin-bottom:4px;
+}
+.ch-handle{
+  font-family:var(--mono);
+  font-size:12px;color:var(--ink-4);
+  margin-bottom:12px;
+}
+.ch-target{font-size:12px;color:var(--ink-3);line-height:1.5}
+
+/* Channel banner (proof bar) */
+.ch-banner{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:1px;
+  background:var(--line);
+  border:1px solid var(--line-2);
+  border-radius:14px; overflow:hidden;
+}
+.ch-banner-item{
+  background:var(--bg-2);
+  padding:28px 24px; text-align:center;
+}
+.ch-banner-num{
+  font-family:var(--display);
+  font-size:38px;font-weight:700;
+  background:var(--aurora);
+  -webkit-background-clip:text;background-clip:text;
+  color:transparent;
+  letter-spacing:-.03em;line-height:1;
+}
+.ch-banner-num em{font-style:normal;font-weight:600;font-size:24px;-webkit-text-fill-color:initial;background:none;color:var(--ink-3)}
+.ch-banner-label{font-size:13px;color:var(--ink-2);font-weight:500;margin-top:10px}
+.ch-banner-meta{font-size:11px;color:var(--ink-4);margin-top:4px}
+
+/* ---------- Process steps ---------- */
+.steps-grid{
+  display:grid; grid-template-columns:repeat(3, 1fr);
+  gap:20px;
+}
+.step-card{
+  background:var(--glass);
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:32px 28px;
+  position:relative;
+  transition:var(--transition);
+  backdrop-filter:blur(12px);
+}
+.step-card:hover{border-color:var(--line-3); background:var(--glass-2); transform:translateY(-3px)}
+.step-num{
+  width:40px;height:40px;
+  border-radius:10px;
+  background:var(--aurora);
+  color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--display);font-size:16px;font-weight:700;
+  margin-bottom:20px;
+  box-shadow:var(--glow-p);
+}
+.step-card h3{
+  font-family:var(--display);
+  font-size:19px;font-weight:700;color:var(--ink);
+  margin-bottom:10px;letter-spacing:-.01em;
+}
+.step-card p{font-size:14px;color:var(--ink-3);line-height:1.6}
+
+/* ---------- Features ---------- */
+.features-grid{
+  display:grid; grid-template-columns:repeat(2, 1fr);
+  gap:16px;
+}
+.feature-item{
+  display:flex; gap:16px;
+  padding:24px;
+  background:var(--glass);
+  border:1px solid var(--line);
+  border-radius:14px;
+  transition:var(--transition);
+  backdrop-filter:blur(12px);
+}
+.feature-item:hover{border-color:var(--line-3); background:var(--glass-2)}
+.feature-icon{
+  width:42px;height:42px;border-radius:10px;
+  background:var(--glass-3);
+  border:1px solid var(--line-2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;flex-shrink:0;
+}
+.feature-item h4{font-size:15px;font-weight:700;color:var(--ink);margin-bottom:6px;letter-spacing:-.01em}
+.feature-item p{font-size:13px;color:var(--ink-3);line-height:1.55}
+
+/* ---------- Live feed (preserved IDs/classes for JS) ---------- */
+.lf-counters{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:1px;
+  background:var(--line);
+  border:1px solid var(--line-2);
+  border-radius:14px; overflow:hidden;
+  margin-bottom:32px;
+}
+.lf-counter{
+  background:var(--bg-2);
+  padding:24px 20px;text-align:center;
+}
+.lf-counter-icon{font-size:22px;margin-bottom:8px;opacity:.85}
+.lf-counter-num{
+  font-family:var(--display);
+  font-size:26px;font-weight:700;
+  color:var(--ink);
+  letter-spacing:-.02em;
+}
+.lf-counter-num.lf-loading{color:var(--ink-4)}
+.lf-counter-label{font-size:12px;color:var(--ink-4);margin-top:6px;font-weight:500}
+
+.lf-stream-card{
+  background:var(--glass-2);
+  border:1px solid var(--line-2);
+  border-radius:14px;
+  padding:8px;
+  backdrop-filter:blur(16px);
+}
+.lf-stream-head{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:14px 18px 12px;
+  border-bottom:1px solid var(--line);
+}
+.lf-stream-title{display:inline-flex;align-items:center;gap:10px;font-size:13px;font-weight:600;color:var(--ink-2)}
+.lf-pulse-dot{
+  width:8px;height:8px;border-radius:50%;
+  background:var(--success);
+  box-shadow:0 0 12px var(--success);
+  animation:pulseDot 1.6s ease-in-out infinite;
+}
+.lf-stream-meta{font-size:11px;color:var(--ink-4);font-family:var(--mono)}
+.lf-stream{display:flex;flex-direction:column}
+.lf-row{
+  display:grid;grid-template-columns:auto 8px 1fr auto;
+  gap:14px;align-items:center;
+  padding:14px 18px;
+  border-bottom:1px solid var(--line);
+}
+.lf-row:last-child{border-bottom:none}
+.lf-row-time{font-family:var(--mono);font-size:11px;color:var(--ink-4);min-width:62px}
+.lf-row-dot{
+  width:8px;height:8px;border-radius:50%;
+  background:var(--aurora-1);
+  box-shadow:0 0 8px var(--aurora-1);
+}
+.lf-row-dot.lf-ch-tw{background:var(--aurora-1);box-shadow:0 0 8px var(--aurora-1)}
+.lf-row-dot.lf-ch-ht{background:var(--aurora-2);box-shadow:0 0 8px var(--aurora-2)}
+.lf-row-dot.lf-ch-kt{background:var(--aurora-3);box-shadow:0 0 8px var(--aurora-3)}
+.lf-row-dot.lf-ch-tc{background:var(--aurora-5);box-shadow:0 0 8px var(--aurora-5)}
+.lf-row-dot.lf-ch-jp{background:var(--aurora-6);box-shadow:0 0 8px var(--aurora-6)}
+.lf-row-dot.lf-ch-zh{background:var(--aurora-4);box-shadow:0 0 8px var(--aurora-4)}
+.lf-row-line1{font-size:14px;color:var(--ink);font-weight:600}
+.lf-hotel{color:var(--ink)}
+.lf-loc{color:var(--ink-4);font-weight:400}
+.lf-row-line2{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+.lf-chip{
+  font-size:10px;font-weight:600;
+  padding:2px 8px;border-radius:99px;
+  background:var(--glass);border:1px solid var(--line);
+  color:var(--ink-3);
+  letter-spacing:.02em;
+}
+.lf-chip-stars{color:var(--aurora-5);border-color:rgba(245,158,11,.25);background:rgba(245,158,11,.08)}
+.lf-chip-channel{
+  background:rgba(124,58,237,.14);
+  color:var(--aurora-1);
+  border-color:rgba(124,58,237,.3);
+  font-weight:700;
+}
+.lf-row-amount{font-family:var(--display);font-size:14px;font-weight:700;color:var(--ink);text-align:right;letter-spacing:-.01em}
+.lf-row-amount-sub{font-size:10px;color:var(--ink-4);text-align:right;font-family:var(--mono)}
+.lf-stream-empty{padding:48px 24px;text-align:center}
+.lf-empty-icon{font-size:32px;margin-bottom:12px;opacity:.6}
+.lf-empty-title{font-size:14px;font-weight:600;color:var(--ink-2);margin-bottom:6px}
+.lf-empty-desc{font-size:12px;color:var(--ink-4);max-width:380px;margin:0 auto;line-height:1.55}
+.lf-stream-foot{padding:12px 18px;border-top:1px solid var(--line)}
+.lf-foot-note{font-size:11px;color:var(--ink-4)}
+
+/* ---------- Analytics preview ---------- */
+.analytics-preview{
+  max-width:880px;margin:0 auto;
+  background:var(--glass-2);
+  border:1px solid var(--line-2);
+  border-radius:14px;
+  padding:8px;
+  backdrop-filter:blur(16px);
+}
+.analytics-header{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:16px 22px 14px;border-bottom:1px solid var(--line);
+}
+.analytics-title{font-family:var(--mono);font-size:12px;color:var(--ink-3);font-weight:500}
+.analytics-badge{
+  font-size:11px;font-weight:600;
+  color:var(--success);
+  padding:4px 10px;border-radius:99px;
+  background:rgba(16,185,129,.12);
+  border:1px solid rgba(16,185,129,.25);
+}
+.analytics-stats{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  padding:24px 22px;gap:1px;background:var(--line);
+}
+.analytics-stat{background:transparent;text-align:center;padding:8px 16px}
+.analytics-stat-num{
+  font-family:var(--display);
+  font-size:30px;font-weight:700;
+  background:var(--aurora);
+  -webkit-background-clip:text;background-clip:text;
+  color:transparent;
+  letter-spacing:-.02em;
+}
+.analytics-stat-label{font-size:12px;color:var(--ink-4);margin-top:4px}
+.analytics-note{
+  padding:14px 22px;border-top:1px solid var(--line);
+  font-size:12px;color:var(--ink-3);line-height:1.55;
+}
+
+/* ---------- Pricing card ---------- */
+.pricing-wrap{display:flex;justify-content:center}
+.pricing-card{
+  width:100%;max-width:480px;
+  background:var(--glass-2);
+  border:1px solid var(--line-2);
+  border-radius:18px;overflow:hidden;
+  backdrop-filter:blur(16px);
+  position:relative;
+  box-shadow:var(--shadow-lg);
+}
+.pricing-header{
+  background:linear-gradient(135deg, rgba(124,58,237,.18), rgba(236,72,153,.10) 50%, rgba(6,182,212,.16));
+  padding:32px 32px 24px;text-align:center;
+  border-bottom:1px solid var(--line);
+}
+.pricing-header h3{font-family:var(--display);font-size:20px;font-weight:700;color:var(--ink);margin-bottom:6px;letter-spacing:-.01em}
+.pricing-header > p{font-size:13px;color:var(--ink-3)}
+.pricing-price{
+  font-family:var(--display);
+  font-size:56px;font-weight:800;
+  background:var(--aurora);
+  -webkit-background-clip:text;background-clip:text;
+  color:transparent;
+  margin:18px 0 4px;letter-spacing:-.03em;line-height:1;
+}
+.pricing-price-sub{font-size:13px;color:var(--ink-4)}
+.pricing-body{padding:24px 32px}
+.pricing-feature{display:flex;align-items:flex-start;gap:12px;padding:11px 0;font-size:14px;color:var(--ink-2);line-height:1.5}
+.pricing-feature:not(:last-child){border-bottom:1px solid var(--line)}
+.pricing-check{
+  flex-shrink:0;width:18px;height:18px;border-radius:50%;
+  background:var(--aurora);
+  display:inline-flex;align-items:center;justify-content:center;
+  margin-top:1px;
+}
+.pricing-check svg{width:10px;height:10px}
+.pricing-footer{padding:0 32px 32px}
+.pricing-guarantee{
+  margin-top:16px;padding:14px 16px;
+  background:var(--glass);
+  border-radius:10px;
+  border-left:3px solid var(--aurora-1);
+  font-size:12px;color:var(--ink-3);line-height:1.5;
+}
+.pricing-guarantee strong{color:var(--ink)}
+
+/* ---------- CTA section ---------- */
+.cta-section{
+  padding:100px 32px;text-align:center;
+  position:relative;z-index:2;
+}
+.cta-card{
+  max-width:880px;margin:0 auto;
+  padding:60px 40px;
+  background:linear-gradient(135deg, rgba(124,58,237,.14), rgba(236,72,153,.10) 50%, rgba(6,182,212,.12));
+  border:1px solid var(--line-2);
+  border-radius:24px;
+  backdrop-filter:blur(20px);
+  position:relative; overflow:hidden;
+}
+.cta-card::before{
+  content:''; position:absolute;
+  top:-100px;left:50%;transform:translateX(-50%);
+  width:600px;height:200px;
+  background:radial-gradient(ellipse, rgba(124,58,237,.4), transparent 70%);
+  filter:blur(50px);
+  pointer-events:none;
+}
+.cta-card h2{
+  position:relative;
+  font-family:var(--display);
+  font-size:40px;font-weight:700;color:var(--ink);
+  line-height:1.1;letter-spacing:-.025em;margin-bottom:16px;
+}
+.cta-card h2 em{font-style:normal;font-weight:800;background:var(--aurora);-webkit-background-clip:text;background-clip:text;color:transparent}
+.cta-card p{position:relative;font-size:16px;color:var(--ink-3);margin-bottom:28px;line-height:1.55;max-width:520px;margin-left:auto;margin-right:auto}
+.cta-btn{
+  position:relative;
+  display:inline-flex;align-items:center;gap:10px;
+  padding:16px 32px; background:var(--aurora); color:#fff;
+  font-size:15px; font-weight:600; border-radius:12px;
+  text-decoration:none; transition:var(--transition);
+  box-shadow:var(--glow-p);
+}
+.cta-btn:hover{transform:translateY(-2px); box-shadow:0 0 80px rgba(124,58,237,.6)}
+
+/* ---------- Footer ---------- */
+.site-footer{
+  padding:32px 48px;
+  border-top:1px solid var(--line);
+  display:flex;justify-content:space-between;align-items:center;
+  position:relative;z-index:2;
+  background:rgba(10,10,15,.6);
+  backdrop-filter:blur(12px);
+}
+.footer-logo{font-family:var(--display);font-size:14px;font-weight:700;color:var(--ink-2);letter-spacing:-.01em}
+.site-footer > div:last-child{font-size:12px;color:var(--ink-4)}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 1100px){
+  .hero-inner{grid-template-columns:1fr; gap:56px}
+  .hero h1{font-size:54px}
+  .channel-grid{grid-template-columns:repeat(2,1fr)}
+  .guarantee-strip-inner{grid-template-columns:repeat(2,1fr); gap:20px}
+  .gs-item{border-right:none;padding-right:0}
+  .gs-item:nth-child(odd){border-right:1px solid var(--line);padding-right:20px}
+}
+@media (max-width: 768px){
+  .top-nav{padding:0 20px;height:60px}
+  .nav-link{display:none}
+  .hero{padding:120px 20px 64px}
+  .hero h1{font-size:40px;letter-spacing:-.03em}
+  .hero-sub{font-size:16px}
+  .section{padding:64px 20px}
+  .section-title{font-size:30px}
+  .channel-grid{grid-template-columns:1fr;gap:12px}
+  .ch-banner{grid-template-columns:1fr;gap:1px}
+  .steps-grid,.features-grid{grid-template-columns:1fr}
+  .lf-counters{grid-template-columns:repeat(2,1fr)}
+  .analytics-stats{grid-template-columns:1fr;gap:16px}
+  .guarantee-strip-inner{grid-template-columns:1fr;gap:14px;padding:18px 20px}
+  .gs-item{border-right:none !important;padding-right:0 !important;border-bottom:1px solid var(--line);padding-bottom:14px}
+  .gs-item:last-child{border-bottom:none;padding-bottom:0}
+  .cta-card{padding:44px 24px}
+  .cta-card h2{font-size:28px}
+  .site-footer{flex-direction:column;gap:10px;padding:24px 20px;text-align:center}
+  .pricing-price{font-size:48px}
+  .stat-card{padding:22px}
+}
 </style>
 </head>
 <body>
+
+<!-- Aurora Background (v2 signature) -->
+<div class="aurora-bg">
+  <div class="aurora-blob b1"></div>
+  <div class="aurora-blob b2"></div>
+  <div class="aurora-blob b3"></div>
+  <div class="aurora-blob b4"></div>
+</div>
+<div class="aurora-grid"></div>
+
+<!-- Top Nav -->
 <nav class="top-nav">
-  <a href="index.html" class="nav-logo"><div class="nav-logo-icon">TW</div><div class="nav-logo-text">TravelWinners</div></a>
+  <a href="index.html" class="nav-logo">
+    <div class="nav-logo-icon">TW</div>
+    <div class="nav-logo-text">TravelWinners<em>B2B</em></div>
+  </a>
   <div class="nav-actions">
-    <div class="lang-switch" style="position:static;box-shadow:none;border:1px solid var(--gray-200)"><button class="lang-btn active" id="lang-en">EN</button><button class="lang-btn" id="lang-ko">한국어</button></div>
+    <div class="lang-switch">
+      <button class="lang-btn active" id="lang-en">EN</button>
+      <button class="lang-btn" id="lang-ko">한국어</button>
+    </div>
     <a href="login.html" class="nav-link" data-en="Sign In" data-ko="로그인">Sign In</a>
     <a href="signup.html" class="nav-cta" data-en="Get Started" data-ko="시작하기">Get Started</a>
   </div>
 </nav>
+
+<!-- Hero -->
 <section class="hero">
-  <div class="hero-badge" data-en="✦ Trusted by Hotels across Asia-Pacific" data-ko="✦ 아시아-태평양 호텔들이 신뢰하는 파트너">✦ Trusted by Hotels across Asia-Pacific</div>
-  <h1 data-en="Your Hotel on a <em>Global Stage</em>" data-ko="당신의 호텔을<br><em>전 세계 무대</em>로">Your Hotel on a <em>Global Stage</em></h1>
-  <p data-en="Get featured in professional TOP3 hotel recommendation videos across our 6-language YouTube channel network. One payment. Permanent exposure. Real bookings." data-ko="6개 언어 유튜브 채널 네트워크에서 TOP3 호텔 추천 영상으로 소개됩니다. 한 번 결제. 영구 노출. 실제 예약.">Get featured in professional TOP3 hotel recommendation videos across our 6-language YouTube channel network. One payment. Permanent exposure. Real bookings.</p>
-  <div class="hero-cta-row">
-    <a href="signup.html" class="hero-btn-primary" data-en="Get Started — $200 →" data-ko="시작하기 — $200 →">Get Started — $200 →</a>
-    <a href="#how-it-works" class="hero-btn-secondary" data-en="How It Works" data-ko="이용 방법">How It Works</a>
-  </div>
-  <div class="hero-stats">
-    <div><div class="hero-stat-num">6</div><div class="hero-stat-label" data-en="Language Channels" data-ko="언어 채널">Language Channels</div></div>
-    <div><div class="hero-stat-num">$200</div><div class="hero-stat-label" data-en="One-time Investment" data-ko="1회 투자">One-time Investment</div></div>
-    <div><div class="hero-stat-num">∞</div><div class="hero-stat-label" data-en="Video Stays Live Forever" data-ko="영구 게시">Video Stays Live Forever</div></div>
-  </div>
-</section>
-<section class="section section-alt" id="how-it-works">
-  <div class="section-center">
-    <div class="section-badge" data-en="How It Works" data-ko="이용 방법">How It Works</div>
-    <div class="section-title" data-en="Three simple steps to global exposure" data-ko="3단계로 전 세계에 노출">Three simple steps to global exposure</div>
-    <div class="section-desc" data-en="From sign-up to published video in just days." data-ko="가입부터 영상 게시까지 단 며칠.">From sign-up to published video in just days.</div>
-  </div>
-  <div class="steps-grid">
-    <div class="step-card"><div class="step-num">1</div><h3 data-en="Register & Verify" data-ko="가입 & 인증">Register & Verify</h3><p data-en="Create your account and enter your Agoda Property ID. We auto-fill your hotel details for accuracy." data-ko="계정을 만들고 아고다 숙소 ID를 입력하세요. 호텔 정보를 자동으로 불러옵니다.">Create your account and enter your Agoda Property ID. We auto-fill your hotel details for accuracy.</p></div>
-    <div class="step-card"><div class="step-num">2</div><h3 data-en="Pay & Schedule" data-ko="결제 & 일정 확인">Pay & Schedule</h3><p data-en="One-time $200 payment via PayPal. We schedule your hotel for the next available TOP3 video slot." data-ko="PayPal로 $200 일회 결제. 다음 가용 TOP3 영상 슬롯에 호텔을 배정합니다.">One-time $200 payment via PayPal. We schedule your hotel for the next available TOP3 video slot.</p></div>
-    <div class="step-card"><div class="step-num">3</div><h3 data-en="Go Live Globally" data-ko="전 세계 송출">Go Live Globally</h3><p data-en="Your hotel is featured in a professional video published across 6 language channels with Agoda booking links." data-ko="6개 언어 채널에 아고다 예약 링크와 함께 프로 영상으로 호텔이 소개됩니다.">Your hotel is featured in a professional video published across 6 language channels with Agoda booking links.</p></div>
-  </div>
-</section>
-<section class="section">
-  <div class="section-center">
-    <div class="section-badge" data-en="What You Get" data-ko="포함 서비스">What You Get</div>
-    <div class="section-title" data-en="Everything included in your package" data-ko="패키지에 포함된 모든 것">Everything included in your package</div>
-  </div>
-  <div class="features-grid">
-    <div class="feature-item"><div class="feature-icon">🎬</div><div><h4 data-en="Professional TOP3 Video" data-ko="프로 TOP3 영상">Professional TOP3 Video</h4><p data-en="Your hotel featured in a curated recommendation with narration, visuals, and booking links." data-ko="나레이션, 비주얼, 예약 링크가 포함된 큐레이션 추천 영상.">Your hotel featured in a curated recommendation with narration, visuals, and booking links.</p></div></div>
-    <div class="feature-item"><div class="feature-icon">🌍</div><div><h4 data-en="6-Language Distribution" data-ko="6개 언어 송출">6-Language Distribution</h4><p data-en="Korean, English, Sinhala, mixed — reaching travelers across multiple regions." data-ko="한국어, 영어, 싱할라어, 혼합 — 다양한 지역의 여행자에게 도달.">Korean, English, Sinhala, mixed — reaching travelers across multiple regions.</p></div></div>
-    <div class="feature-item"><div class="feature-icon">🔗</div><div><h4 data-en="Agoda Booking Integration" data-ko="아고다 예약 연동">Agoda Booking Integration</h4><p data-en="Direct booking links in every video description for measurable conversion." data-ko="모든 영상 설명에 직접 예약 링크 삽입으로 전환 측정 가능.">Direct booking links in every video description for measurable conversion.</p></div></div>
-    <div class="feature-item"><div class="feature-icon">♾️</div><div><h4 data-en="Permanent Exposure" data-ko="영구 노출">Permanent Exposure</h4><p data-en="Your video stays live forever. No monthly fees, no renewal — one-time investment." data-ko="영상은 영구 게시됩니다. 월 요금 없음, 갱신 없음 — 1회 투자.">Your video stays live forever. No monthly fees, no renewal — one-time investment.</p></div></div>
-  </div>
-</section>
-<!-- WHY TRAVELWINNERS (신뢰 지표) -->
-<section class="section section-alt" id="why-tw">
-  <div class="section-center">
-    <div class="section-badge" data-en="Why TravelWinners" data-ko="왜 트래블위너스인가">Why TravelWinners</div>
-    <div class="section-title" data-en="A proven media commerce company" data-ko="검증된 미디어 커머스 기업">A proven media commerce company</div>
-    <div class="section-desc" data-en="Operating since 2018. Global OTA partnerships and verified booking data across multiple countries." data-ko="2018년부터 운영. 글로벌 OTA 파트너십과 다국가 검증된 예약 데이터 보유.">Operating since 2018. Global OTA partnerships and verified booking data across multiple countries.</div>
-  </div>
-  <div class="trust-grid">
-    <div class="trust-card"><div class="trust-icon">📅</div><div class="trust-num" data-en="Since 2018" data-ko="2018년~">Since 2018</div><div class="trust-label" data-en="Operating" data-ko="운영 기간">Operating</div></div>
-    <div class="trust-card"><div class="trust-icon">📺</div><div class="trust-num">8</div><div class="trust-label" data-en="YouTube Channels" data-ko="유튜브 채널">YouTube Channels</div></div>
-    <div class="trust-card"><div class="trust-icon">🏨</div><div class="trust-num">1,000+</div><div class="trust-label" data-en="Hotels Featured" data-ko="소개된 호텔">Hotels Featured</div></div>
-    <div class="trust-card"><div class="trust-icon">🌍</div><div class="trust-num">5</div><div class="trust-label" data-en="Language Markets" data-ko="언어 시장">Language Markets</div></div>
-  </div>
-  <div class="ota-logos">
-    <span class="ota-text-logo" style="color:#E74C3C;font-weight:800">agoda</span>
-    <span class="ota-text-logo" style="color:#2577E3;font-weight:700">Trip.com</span>
-    <span class="ota-text-logo" style="color:#51B44D;font-weight:800">KKday</span>
-    <span class="ota-text-logo" style="color:#003580;font-weight:700">Expedia</span>
-    <span class="ota-text-logo ota-booking">Booking<span style="color:#003580">.com</span></span>
-  </div>
-</section>
-<!-- LIVE FEED (Phase 1 Step 7 — 라이브 예약 피드) -->
-<section class="section" id="live-feed">
-  <div class="section-center">
-    <div class="section-badge" data-en="● Live Activity" data-ko="● 실시간 활동">● Live Activity</div>
-    <div class="section-title" data-en="Real bookings, in real time" data-ko="실시간으로 살아있는 예약 데이터">Real bookings, in real time</div>
-    <div class="section-desc" data-en="Live counters and bookings as they happen across our channel network. No mockups — every entry is a verified booking." data-ko="채널 네트워크 전반에서 발생하는 실시간 카운터와 예약. 모형이 아닌 검증된 실제 예약 데이터입니다.">Live counters and bookings as they happen across our channel network. No mockups — every entry is a verified booking.</div>
-  </div>
-
-  <!-- Live counter widgets (7-1) -->
-  <div class="lf-counters">
-    <div class="lf-counter">
-      <div class="lf-counter-icon">📈</div>
-      <div class="lf-counter-num" data-counter="total_bookings">—</div>
-      <div class="lf-counter-label" data-en="Total Bookings" data-ko="누적 예약">Total Bookings</div>
-    </div>
-    <div class="lf-counter">
-      <div class="lf-counter-icon">💰</div>
-      <div class="lf-counter-num" data-counter="total_amount_usd" data-prefix="$" data-format="compact">—</div>
-      <div class="lf-counter-label" data-en="Booking Volume" data-ko="예약 금액">Booking Volume</div>
-    </div>
-    <div class="lf-counter">
-      <div class="lf-counter-icon">🏨</div>
-      <div class="lf-counter-num" data-counter="distinct_hotels">—</div>
-      <div class="lf-counter-label" data-en="Hotels Booked" data-ko="예약된 호텔">Hotels Booked</div>
-    </div>
-    <div class="lf-counter">
-      <div class="lf-counter-icon">🌐</div>
-      <div class="lf-counter-num" data-counter="active_channels">—</div>
-      <div class="lf-counter-label" data-en="Active Channels" data-ko="활성 채널">Active Channels</div>
-    </div>
-  </div>
-
-  <!-- Activity Stream (7-2) -->
-  <div class="lf-stream-wrap">
-    <div class="lf-stream-head">
-      <div class="lf-stream-title">
-        <span class="lf-pulse-dot"></span>
-        <span data-en="Recent Booking Activity" data-ko="최근 예약 활동">Recent Booking Activity</span>
+  <div class="hero-inner">
+    <div>
+      <span class="hero-badge">
+        <span class="hero-badge-dot"></span>
+        <span data-en="Built for hotel managers. Operating since 2018." data-ko="호텔 매니저를 위해 설계 · 2018년부터 운영">Built for hotel managers. Operating since 2018.</span>
+      </span>
+      <h1 data-en="Reach <em>9 million</em><br>travel viewers.<br>For two hundred dollars." data-ko="<em>900만</em> 여행 시청자에게<br>호텔을 노출하세요.<br>단, $200으로.">Reach <em>9 million</em><br>travel viewers.<br>For two hundred dollars.</h1>
+      <p class="hero-sub" data-en="TW B2B is the hotel exposure engine behind <b>8 YouTube channels in 6 languages</b>. One $200 payment unlocks six months of guaranteed visibility — or your money back." data-ko="TW B2B는 <b>6개 언어 8개 유튜브 채널</b>로 구성된 호텔 노출 엔진입니다. $200 1회 결제로 6개월 노출이 보장되며, 예약 0건이면 전액 환불해드립니다.">TW B2B is the hotel exposure engine behind <b>8 YouTube channels in 6 languages</b>. One $200 payment unlocks six months of guaranteed visibility — or your money back.</p>
+      <div class="hero-cta-row">
+        <a href="signup.html" class="hero-btn-primary"><span data-en="Start a listing — $200" data-ko="등록 시작 — $200">Start a listing — $200</span> <span class="arrow">→</span></a>
+        <a href="#process" class="hero-btn-secondary"><span data-en="See how it works" data-ko="이용 방법 보기">See how it works</span> →</a>
       </div>
-      <div class="lf-stream-meta" id="lf-stream-meta" data-en="Auto-refreshing" data-ko="자동 갱신 중">Auto-refreshing</div>
+      <div class="hero-trust">
+        <span class="hero-trust-item">
+          <span class="hero-trust-check"><svg viewBox="0 0 8 8"><path d="M1 4 L3 6 L7 2" stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          <span data-en="6-month booking guarantee" data-ko="6개월 예약 보장">6-month booking guarantee</span>
+        </span>
+        <span class="hero-trust-item">
+          <span class="hero-trust-check"><svg viewBox="0 0 8 8"><path d="M1 4 L3 6 L7 2" stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          <span data-en="One-time $200 — no subscription" data-ko="$200 1회 결제 · 구독 없음">One-time $200 — no subscription</span>
+        </span>
+        <span class="hero-trust-item">
+          <span class="hero-trust-check"><svg viewBox="0 0 8 8"><path d="M1 4 L3 6 L7 2" stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          <span data-en="3,774 verified bookings" data-ko="3,774건 검증된 예약">3,774 verified bookings</span>
+        </span>
+      </div>
     </div>
-    <div class="lf-stream" id="lf-stream" aria-live="polite">
-      <!-- 동적 채워짐 -->
-    </div>
-    <div class="lf-stream-empty" id="lf-stream-empty" hidden>
-      <div class="lf-empty-icon">🛎️</div>
-      <div class="lf-empty-title" data-en="Activity feed warming up" data-ko="활동 피드 준비 중">Activity feed warming up</div>
-      <div class="lf-empty-desc" data-en="Real bookings will appear here as they're confirmed across our channel network." data-ko="채널 네트워크에서 예약이 확정되는 즉시 이곳에 실시간으로 표시됩니다.">Real bookings will appear here as they're confirmed across our channel network.</div>
-    </div>
-    <div class="lf-stream-foot">
-      <span class="lf-foot-note" data-en="Customer details are never shown — only verified booking activity." data-ko="고객 정보는 절대 노출되지 않으며, 검증된 예약 활동만 표시됩니다.">Customer details are never shown — only verified booking activity.</span>
+
+    <!-- Hero right — performance card -->
+    <div class="hero-right">
+      <div class="hero-orb"></div>
+      <div class="stat-card">
+        <div class="stat-card-head">
+          <span class="stat-card-head-title" data-en="Network performance · trailing 12 months" data-ko="네트워크 성과 · 최근 12개월">Network performance · trailing 12 months</span>
+          <span class="stat-card-live" data-en="Live" data-ko="실시간">Live</span>
+        </div>
+        <div class="stat-row">
+          <div class="stat-icon-wrap purple">
+            <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M1 9 C1 9 4 3 9 3 C14 3 17 9 17 9 C17 9 14 15 9 15 C4 15 1 9 1 9 Z"/><circle cx="9" cy="9" r="3"/></svg>
+          </div>
+          <div>
+            <div class="stat-label" data-en="Cumulative views" data-ko="누적 조회수">Cumulative views</div>
+            <div class="stat-meta" data-en="8 channels · 6 languages" data-ko="8개 채널 · 6개 언어">8 channels · 6 languages</div>
+          </div>
+          <div class="stat-num">9M<em>+</em></div>
+        </div>
+        <div class="stat-row">
+          <div class="stat-icon-wrap cyan">
+            <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="4" width="14" height="11" rx="2"/><path d="M2 8 H16"/><path d="M6 4 V2" stroke-linecap="round"/><path d="M12 4 V2" stroke-linecap="round"/></svg>
+          </div>
+          <div>
+            <div class="stat-label" data-en="Bookings made" data-ko="발생 예약">Bookings made</div>
+            <div class="stat-meta" data-en="Tracked through Agoda" data-ko="아고다 추적">Tracked through Agoda</div>
+          </div>
+          <div class="stat-num">3,774</div>
+        </div>
+        <div class="stat-row">
+          <div class="stat-icon-wrap magenta">
+            <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 1 V17"/><path d="M5 4 H11.5 C13 4 14 5 14 6.5 S13 9 11.5 9 H6.5 C5 9 4 10 4 11.5 S5 14 6.5 14 H13"/></svg>
+          </div>
+          <div>
+            <div class="stat-label" data-en="Booking revenue tracked" data-ko="추적된 예약 매출">Booking revenue tracked</div>
+            <div class="stat-meta" data-en="Verifiable via affiliate" data-ko="제휴 검증 가능">Verifiable via affiliate</div>
+          </div>
+          <div class="stat-num">$854K</div>
+        </div>
+      </div>
     </div>
   </div>
 </section>
-<!-- TRANSPARENT DATA (투명한 데이터) -->
+
+<!-- Guarantee strip -->
+<div class="guarantee-strip">
+  <div class="guarantee-strip-inner">
+    <div class="gs-item">
+      <div class="gs-icon">
+        <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 1 L11 6 L16 7 L12 11 L13 16 L9 13.5 L5 16 L6 11 L2 7 L7 6 Z"/></svg>
+      </div>
+      <div class="gs-text">
+        <div class="gs-text-main" data-en="6-month guarantee" data-ko="6개월 보장">6-month guarantee</div>
+        <div class="gs-text-sub" data-en="Full refund if 0 bookings" data-ko="0건이면 전액 환불">Full refund if 0 bookings</div>
+      </div>
+    </div>
+    <div class="gs-item">
+      <div class="gs-icon">
+        <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="9" cy="9" r="7.5"/><path d="M9 4 V9 L12 11"/></svg>
+      </div>
+      <div class="gs-text">
+        <div class="gs-text-main" data-en="One-time $200" data-ko="$200 1회 결제">One-time $200</div>
+        <div class="gs-text-sub" data-en="No subscription, no renewal" data-ko="구독·갱신 없음">No subscription, no renewal</div>
+      </div>
+    </div>
+    <div class="gs-item">
+      <div class="gs-icon">
+        <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 9 L7 13 L15 5"/></svg>
+      </div>
+      <div class="gs-text">
+        <div class="gs-text-main" data-en="Permanent video" data-ko="영구 게시 영상">Permanent video</div>
+        <div class="gs-text-sub" data-en="Stays live forever after 6 months" data-ko="6개월 이후에도 영구 게시">Stays live forever after 6 months</div>
+      </div>
+    </div>
+    <div class="gs-item">
+      <div class="gs-icon">
+        <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 6 L9 2 L16 6 L9 10 Z"/><path d="M2 12 L9 16 L16 12"/></svg>
+      </div>
+      <div class="gs-text">
+        <div class="gs-text-main" data-en="Affiliate-tracked" data-ko="제휴 추적">Affiliate-tracked</div>
+        <div class="gs-text-sub" data-en="Every booking verifiable" data-ko="모든 예약 검증 가능">Every booking verifiable</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Channels (8 channels · 6 languages) -->
+<section class="section" id="channels">
+  <div class="section-inner">
+    <div class="section-head">
+      <div class="section-eyebrow" data-en="Distribution Network" data-ko="송출 네트워크">Distribution Network</div>
+      <h2 class="section-title" data-en="Eight channels.<br><em>Six languages.</em> One quiet network." data-ko="8개 채널.<br><em>6개 언어.</em> 조용한 하나의 네트워크.">Eight channels.<br><em>Six languages.</em> One quiet network.</h2>
+      <p class="section-sub" data-en="Every channel is built deliberately, audience by audience. We don't show subscriber counts — what matters is who is watching, and where they book afterward." data-ko="채널마다 시청자층을 따로 설계해 운영합니다. 구독자 수는 자랑하지 않습니다 — 누가 보고, 어디서 예약하는지가 본질입니다.">Every channel is built deliberately, audience by audience. We don't show subscriber counts — what matters is who is watching, and where they book afterward.</p>
+    </div>
+
+    <div class="channel-grid">
+      <div class="channel-card primary">
+        <span class="ch-pill primary" data-en="Primary" data-ko="대표">Primary</span>
+        <div class="ch-flag"><span class="ch-flag-dot"></span>KOR · 한국어</div>
+        <div class="ch-name">여행능력자들</div>
+        <div class="ch-handle">@travelwinners</div>
+        <div class="ch-target" data-en="TravelWinners flagship · Korean outbound travelers" data-ko="대표 채널 · 한국 아웃바운드 여행자">TravelWinners flagship · Korean outbound travelers</div>
+      </div>
+      <div class="channel-card">
+        <div class="ch-flag"><span class="ch-flag-dot"></span>KOR · 한국어</div>
+        <div class="ch-name">호텔이야</div>
+        <div class="ch-handle">@hotel-iya</div>
+        <div class="ch-target" data-en="Hotel-focused content for Korean travel planners" data-ko="한국 여행 플래너 대상 호텔 전문 콘텐츠">Hotel-focused content for Korean travel planners</div>
+      </div>
+      <div class="channel-card">
+        <span class="ch-pill featured" data-en="Global" data-ko="글로벌">Global</span>
+        <div class="ch-flag"><span class="ch-flag-dot"></span>ENG · English</div>
+        <div class="ch-name">Kotel</div>
+        <div class="ch-handle">@koreahotelguide</div>
+        <div class="ch-target" data-en="English-speaking inbound to Asia · global reach" data-ko="아시아 인바운드 영어권 시청자 · 글로벌 도달">English-speaking inbound to Asia · global reach</div>
+      </div>
+      <div class="channel-card">
+        <div class="ch-flag"><span class="ch-flag-dot"></span>KOR · 한국어</div>
+        <div class="ch-name">호텔닷컴</div>
+        <div class="ch-handle">@hoteldotcom</div>
+        <div class="ch-target" data-en="Trip.com-aligned audience · Korean buyers" data-ko="Trip.com 친화 시청자 · 한국 구매층">Trip.com-aligned audience · Korean buyers</div>
+      </div>
+      <div class="channel-card">
+        <div class="ch-flag"><span class="ch-flag-dot"></span>JPN · 日本語</div>
+        <div class="ch-name">ホテルだ</div>
+        <div class="ch-handle">@hoteruda</div>
+        <div class="ch-target" data-en="Japanese domestic and outbound travelers" data-ko="일본 국내 및 아웃바운드 여행자">Japanese domestic and outbound travelers</div>
+      </div>
+      <div class="channel-card">
+        <div class="ch-flag"><span class="ch-flag-dot"></span>CHT · 繁體中文</div>
+        <div class="ch-name">世界就是家</div>
+        <div class="ch-handle">@worldishome</div>
+        <div class="ch-target" data-en="Taiwan and Hong Kong outbound · traditional Chinese" data-ko="대만·홍콩 아웃바운드 · 번체 중국어">Taiwan and Hong Kong outbound · traditional Chinese</div>
+      </div>
+      <div class="channel-card">
+        <span class="ch-pill featured" data-en="Fast growing" data-ko="급성장">Fast growing</span>
+        <div class="ch-flag"><span class="ch-flag-dot"></span>VIE · Tiếng Việt</div>
+        <div class="ch-name">Korea Hotel</div>
+        <div class="ch-handle">@koreahotel-vn</div>
+        <div class="ch-target" data-en="Vietnamese outbound to Korea/Japan · underserved market" data-ko="베트남 아웃바운드 (한·일 등) · 미개척 시장">Vietnamese outbound to Korea/Japan · underserved market</div>
+      </div>
+      <div class="channel-card">
+        <span class="ch-pill growing" data-en="Emerging" data-ko="육성 중">Emerging</span>
+        <div class="ch-flag"><span class="ch-flag-dot"></span>KOR · 한국어</div>
+        <div class="ch-name">호텔이곳</div>
+        <div class="ch-handle">@hotel-here</div>
+        <div class="ch-target" data-en="Niche Korean audience · curated focus" data-ko="니치 한국 시청자 · 큐레이션 채널">Niche Korean audience · curated focus</div>
+      </div>
+    </div>
+
+    <div class="ch-banner">
+      <div class="ch-banner-item">
+        <div class="ch-banner-num">9M<em>+</em></div>
+        <div class="ch-banner-label" data-en="Cumulative views across the network" data-ko="네트워크 누적 조회수">Cumulative views across the network</div>
+        <div class="ch-banner-meta" data-en="Real exposure · not subscribers" data-ko="실 노출량 · 구독자 아님">Real exposure · not subscribers</div>
+      </div>
+      <div class="ch-banner-item">
+        <div class="ch-banner-num">3,774</div>
+        <div class="ch-banner-label" data-en="Trackable bookings to date" data-ko="누적 추적 가능 예약">Trackable bookings to date</div>
+        <div class="ch-banner-meta" data-en="Affiliate-verified" data-ko="제휴 검증 완료">Affiliate-verified</div>
+      </div>
+      <div class="ch-banner-item">
+        <div class="ch-banner-num">$854K</div>
+        <div class="ch-banner-label" data-en="Booking revenue tracked" data-ko="추적된 예약 매출">Booking revenue tracked</div>
+        <div class="ch-banner-meta" data-en="Real money, not impressions" data-ko="실제 매출 · 노출 아님">Real money, not impressions</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Process -->
+<section class="section" id="process">
+  <div class="section-inner">
+    <div class="section-head">
+      <div class="section-eyebrow" data-en="How It Works" data-ko="이용 방법">How It Works</div>
+      <h2 class="section-title" data-en="Three simple steps to <em>global exposure.</em>" data-ko="<em>전 세계 노출</em>까지 단 3단계.">Three simple steps to <em>global exposure.</em></h2>
+      <p class="section-sub" data-en="From sign-up to published video in just days. Each step is documented and confirmed by email." data-ko="가입부터 영상 게시까지 단 며칠. 모든 단계가 기록되고 이메일로 확인됩니다.">From sign-up to published video in just days. Each step is documented and confirmed by email.</p>
+    </div>
+    <div class="steps-grid">
+      <div class="step-card">
+        <div class="step-num">1</div>
+        <h3 data-en="Register & Verify" data-ko="가입 & 인증">Register & Verify</h3>
+        <p data-en="Create your account and enter your Agoda Property ID. We auto-fill your hotel details for accuracy." data-ko="계정을 만들고 아고다 숙소 ID를 입력하세요. 호텔 정보를 자동으로 불러옵니다.">Create your account and enter your Agoda Property ID. We auto-fill your hotel details for accuracy.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">2</div>
+        <h3 data-en="Pay & Schedule" data-ko="결제 & 일정 확인">Pay & Schedule</h3>
+        <p data-en="One-time $200 via PayPal. We schedule your hotel for the next available TOP3 video slot across the network." data-ko="PayPal로 $200 1회 결제. 다음 가용 TOP3 영상 슬롯에 호텔을 배정합니다.">One-time $200 via PayPal. We schedule your hotel for the next available TOP3 video slot across the network.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">3</div>
+        <h3 data-en="Go Live Globally" data-ko="전 세계 송출">Go Live Globally</h3>
+        <p data-en="Your hotel is featured in a professional video distributed across our 8 channels with Agoda booking links." data-ko="8개 채널에 아고다 예약 링크와 함께 프로 영상으로 호텔이 송출됩니다.">Your hotel is featured in a professional video distributed across our 8 channels with Agoda booking links.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- What you get -->
+<section class="section">
+  <div class="section-inner">
+    <div class="section-head">
+      <div class="section-eyebrow" data-en="What You Get" data-ko="포함 서비스">What You Get</div>
+      <h2 class="section-title" data-en="Everything in <em>one package.</em>" data-ko="모든 것이 <em>하나의 패키지</em>에.">Everything in <em>one package.</em></h2>
+    </div>
+    <div class="features-grid">
+      <div class="feature-item">
+        <div class="feature-icon">🎬</div>
+        <div>
+          <h4 data-en="Professional TOP3 Video" data-ko="프로 TOP3 영상">Professional TOP3 Video</h4>
+          <p data-en="Your hotel featured in a curated recommendation with narration, visuals, and booking links." data-ko="나레이션, 비주얼, 예약 링크가 포함된 큐레이션 추천 영상.">Your hotel featured in a curated recommendation with narration, visuals, and booking links.</p>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">🌐</div>
+        <div>
+          <h4 data-en="6-Language Distribution" data-ko="6개 언어 송출">6-Language Distribution</h4>
+          <p data-en="Korean, English, Japanese, Traditional Chinese, Vietnamese — reaching travelers across Asia and beyond." data-ko="한국어·영어·일본어·번체 중국어·베트남어 — 아시아 전역 여행자에게 도달.">Korean, English, Japanese, Traditional Chinese, Vietnamese — reaching travelers across Asia and beyond.</p>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">🔗</div>
+        <div>
+          <h4 data-en="Agoda Booking Integration" data-ko="아고다 예약 연동">Agoda Booking Integration</h4>
+          <p data-en="Direct booking links in every video description for measurable, attributable conversion." data-ko="모든 영상 설명에 직접 예약 링크 삽입 · 측정 및 귀속 가능한 전환.">Direct booking links in every video description for measurable, attributable conversion.</p>
+        </div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">♾️</div>
+        <div>
+          <h4 data-en="Permanent Exposure" data-ko="영구 노출">Permanent Exposure</h4>
+          <p data-en="Your video stays live forever after the 6-month guarantee period. No monthly fees." data-ko="6개월 보장 기간 이후에도 영상은 영구 게시 · 월 요금 없음.">Your video stays live forever after the 6-month guarantee period. No monthly fees.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Live feed (kept IDs/classes for JS) -->
+<section class="section" id="live-feed">
+  <div class="section-inner">
+    <div class="section-head">
+      <div class="section-eyebrow" data-en="● Live Activity" data-ko="● 실시간 활동">● Live Activity</div>
+      <h2 class="section-title" data-en="Real bookings, <em>in real time.</em>" data-ko="실시간으로 살아있는 <em>예약 데이터.</em>">Real bookings, <em>in real time.</em></h2>
+      <p class="section-sub" data-en="Live counters and bookings as they happen across our channel network. No mockups — every entry is a verified booking." data-ko="채널 네트워크에서 발생하는 실시간 카운터와 예약. 모형이 아닌 검증된 실제 예약 데이터입니다.">Live counters and bookings as they happen across our channel network. No mockups — every entry is a verified booking.</p>
+    </div>
+
+    <div class="lf-counters">
+      <div class="lf-counter">
+        <div class="lf-counter-icon">📅</div>
+        <div class="lf-counter-num lf-loading" data-counter="total_bookings">—</div>
+        <div class="lf-counter-label" data-en="Total Bookings" data-ko="총 예약">Total Bookings</div>
+      </div>
+      <div class="lf-counter">
+        <div class="lf-counter-icon">💰</div>
+        <div class="lf-counter-num lf-loading" data-counter="total_value_usd" data-prefix="$" data-format="compact">—</div>
+        <div class="lf-counter-label" data-en="Booking Value" data-ko="예약 금액">Booking Value</div>
+      </div>
+      <div class="lf-counter">
+        <div class="lf-counter-icon">🏨</div>
+        <div class="lf-counter-num lf-loading" data-counter="hotels_booked">—</div>
+        <div class="lf-counter-label" data-en="Hotels Booked" data-ko="예약된 호텔">Hotels Booked</div>
+      </div>
+      <div class="lf-counter">
+        <div class="lf-counter-icon">📺</div>
+        <div class="lf-counter-num lf-loading" data-counter="active_channels">—</div>
+        <div class="lf-counter-label" data-en="Active Channels" data-ko="활성 채널">Active Channels</div>
+      </div>
+    </div>
+
+    <div class="lf-stream-card">
+      <div class="lf-stream-head">
+        <div class="lf-stream-title">
+          <span class="lf-pulse-dot"></span>
+          <span data-en="Recent Booking Activity" data-ko="최근 예약 활동">Recent Booking Activity</span>
+        </div>
+        <div class="lf-stream-meta" id="lf-stream-meta" data-en="Auto-refreshing" data-ko="자동 갱신 중">Auto-refreshing</div>
+      </div>
+      <div class="lf-stream" id="lf-stream" aria-live="polite">
+        <!-- 동적 채워짐 -->
+      </div>
+      <div class="lf-stream-empty" id="lf-stream-empty" hidden>
+        <div class="lf-empty-icon">🛎️</div>
+        <div class="lf-empty-title" data-en="Activity feed warming up" data-ko="활동 피드 준비 중">Activity feed warming up</div>
+        <div class="lf-empty-desc" data-en="Real bookings will appear here as they're confirmed across our channel network." data-ko="채널 네트워크에서 예약이 확정되는 즉시 이곳에 실시간으로 표시됩니다.">Real bookings will appear here as they're confirmed across our channel network.</div>
+      </div>
+      <div class="lf-stream-foot">
+        <span class="lf-foot-note" data-en="Customer details are never shown — only verified booking activity." data-ko="고객 정보는 절대 노출되지 않으며, 검증된 예약 활동만 표시됩니다.">Customer details are never shown — only verified booking activity.</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Transparent data -->
 <section class="section" id="transparent-data">
-  <div class="section-center">
-    <div class="section-badge" data-en="Transparent Data" data-ko="투명한 데이터">Transparent Data</div>
-    <div class="section-title" data-en="Every booking is fully traceable" data-ko="모든 예약은 추적 가능합니다">Every booking is fully traceable</div>
-    <div class="section-desc" data-en="All bookings are verified through Agoda — booking IDs, dates, amounts, and hotel names are fully traceable." data-ko="모든 예약은 아고다를 통해 검증됩니다 — 예약번호, 날짜, 금액, 호텔명까지 모두 추적 가능합니다.">All bookings are verified through Agoda — booking IDs, dates, amounts, and hotel names are fully traceable.</div>
-  </div>
-  <div class="analytics-preview">
-    <div class="analytics-header">
-      <div class="analytics-title" data-en="TW Booking Analytics — Real-time System" data-ko="TW Booking Analytics — 실시간 시스템">TW Booking Analytics — Real-time System</div>
-      <div class="analytics-badge" data-en="● Verified" data-ko="● 검증됨">● Verified</div>
+  <div class="section-inner">
+    <div class="section-head">
+      <div class="section-eyebrow" data-en="Transparent Data" data-ko="투명한 데이터">Transparent Data</div>
+      <h2 class="section-title" data-en="Every booking is <em>fully traceable.</em>" data-ko="모든 예약은 <em>완전 추적 가능.</em>">Every booking is <em>fully traceable.</em></h2>
+      <p class="section-sub" data-en="All bookings are verified through Agoda — booking IDs, dates, amounts, and hotel names are fully traceable." data-ko="모든 예약은 아고다를 통해 검증됩니다 — 예약번호, 날짜, 금액, 호텔명까지 모두 추적 가능합니다.">All bookings are verified through Agoda — booking IDs, dates, amounts, and hotel names are fully traceable.</p>
     </div>
-    <div class="analytics-stats">
-      <div class="analytics-stat"><div class="analytics-stat-num">3,774</div><div class="analytics-stat-label" data-en="Bookings" data-ko="예약 건수">Bookings</div></div>
-      <div class="analytics-stat"><div class="analytics-stat-num">$854K</div><div class="analytics-stat-label" data-en="Booking Value" data-ko="예약 금액">Booking Value</div></div>
-      <div class="analytics-stat"><div class="analytics-stat-num">$35.9K</div><div class="analytics-stat-label" data-en="Commission" data-ko="수수료">Commission</div></div>
-    </div>
-    <div class="analytics-note" data-en="Each partner hotel can access this dashboard after payment, tracking views, clicks, and actual Agoda bookings in real-time." data-ko="각 파트너 호텔은 결제 후 이 대시보드에 접근할 수 있으며, 조회수, 클릭, 그리고 실제 아고다 예약을 실시간으로 추적합니다.">Each partner hotel can access this dashboard after payment, tracking views, clicks, and actual Agoda bookings in real-time.</div>
-  </div>
-</section>
-<section class="section section-alt">
-  <div class="section-center">
-    <div class="section-badge" data-en="Pricing" data-ko="가격">Pricing</div>
-    <div class="section-title" data-en="Simple, transparent pricing" data-ko="심플하고 투명한 가격">Simple, transparent pricing</div>
-  </div>
-  <div class="pricing-card">
-    <div class="pricing-header"><h3 data-en="TOP3 Hotel Introduction" data-ko="TOP3 호텔 소개">TOP3 Hotel Introduction</h3><p data-en="One-time fee, no hidden costs" data-ko="1회 비용, 추가 비용 없음">One-time fee, no hidden costs</p><div class="pricing-price">$200</div><div class="pricing-price-sub" data-en="per hotel, one-time" data-ko="호텔당 1회">per hotel, one-time</div></div>
-    <div class="pricing-body">
-      <div class="pricing-feature"><span class="pricing-check">✓</span><span data-en="Featured in professional TOP3 video" data-ko="프로 TOP3 추천 영상 소개">Featured in professional TOP3 video</span></div>
-      <div class="pricing-feature"><span class="pricing-check">✓</span><span data-en="Published across 6 language channels" data-ko="6개 언어 채널 동시 송출">Published across 6 language channels</span></div>
-      <div class="pricing-feature"><span class="pricing-check">✓</span><span data-en="Agoda booking links in every video" data-ko="아고다 예약 링크 포함">Agoda booking links in every video</span></div>
-      <div class="pricing-feature"><span class="pricing-check">✓</span><span data-en="Permanent video — stays live forever" data-ko="영구 게시 — 계속 노출">Permanent video — stays live forever</span></div>
-      <div class="pricing-feature"><span class="pricing-check">✓</span><span data-en="Stripe processing fee included" data-ko="Stripe 수수료 포함">Stripe processing fee included</span></div>
-    </div>
-    <div class="pricing-footer">
-      <a href="signup.html" class="hero-btn-primary" style="width:100%;justify-content:center;text-decoration:none" data-en="Get Started →" data-ko="시작하기 →">Get Started →</a>
-      <div class="pricing-guarantee"><strong data-en="Refund Guarantee:" data-ko="환불 보장:">Refund Guarantee:</strong> <span data-en="Zero bookings within 6 months → full refund minus Stripe fees." data-ko="6개월 내 예약 0건 시 Stripe 수수료 제외 전액 환불.">Zero bookings within 6 months → full refund minus Stripe fees.</span></div>
+    <div class="analytics-preview">
+      <div class="analytics-header">
+        <div class="analytics-title" data-en="TW Booking Analytics — Real-time System" data-ko="TW Booking Analytics — 실시간 시스템">TW Booking Analytics — Real-time System</div>
+        <div class="analytics-badge" data-en="● Verified" data-ko="● 검증됨">● Verified</div>
+      </div>
+      <div class="analytics-stats">
+        <div class="analytics-stat"><div class="analytics-stat-num">3,774</div><div class="analytics-stat-label" data-en="Bookings" data-ko="예약 건수">Bookings</div></div>
+        <div class="analytics-stat"><div class="analytics-stat-num">$854K</div><div class="analytics-stat-label" data-en="Booking Value" data-ko="예약 금액">Booking Value</div></div>
+        <div class="analytics-stat"><div class="analytics-stat-num">$35.9K</div><div class="analytics-stat-label" data-en="Commission" data-ko="수수료">Commission</div></div>
+      </div>
+      <div class="analytics-note" data-en="Each partner hotel can access this dashboard after payment, tracking views, clicks, and actual Agoda bookings in real-time." data-ko="각 파트너 호텔은 결제 후 이 대시보드에 접근할 수 있으며, 조회수, 클릭, 실제 아고다 예약을 실시간으로 추적합니다.">Each partner hotel can access this dashboard after payment, tracking views, clicks, and actual Agoda bookings in real-time.</div>
     </div>
   </div>
 </section>
+
+<!-- Pricing -->
+<section class="section" id="pricing">
+  <div class="section-inner">
+    <div class="section-head">
+      <div class="section-eyebrow" data-en="Pricing" data-ko="가격">Pricing</div>
+      <h2 class="section-title" data-en="Simple, transparent <em>pricing.</em>" data-ko="심플하고 투명한 <em>가격.</em>">Simple, transparent <em>pricing.</em></h2>
+    </div>
+    <div class="pricing-wrap">
+      <div class="pricing-card">
+        <div class="pricing-header">
+          <h3 data-en="TOP3 Hotel Introduction" data-ko="TOP3 호텔 소개">TOP3 Hotel Introduction</h3>
+          <p data-en="One-time fee, no hidden costs" data-ko="1회 비용 · 추가 비용 없음">One-time fee, no hidden costs</p>
+          <div class="pricing-price">$200</div>
+          <div class="pricing-price-sub" data-en="per hotel, one-time" data-ko="호텔당 1회">per hotel, one-time</div>
+        </div>
+        <div class="pricing-body">
+          <div class="pricing-feature">
+            <span class="pricing-check"><svg viewBox="0 0 8 8" fill="none"><path d="M1 4 L3 6 L7 2" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <span data-en="Featured in professional TOP3 video" data-ko="프로 TOP3 추천 영상 소개">Featured in professional TOP3 video</span>
+          </div>
+          <div class="pricing-feature">
+            <span class="pricing-check"><svg viewBox="0 0 8 8" fill="none"><path d="M1 4 L3 6 L7 2" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <span data-en="Distributed across 8 channels in 6 languages" data-ko="6개 언어 8개 채널 동시 송출">Distributed across 8 channels in 6 languages</span>
+          </div>
+          <div class="pricing-feature">
+            <span class="pricing-check"><svg viewBox="0 0 8 8" fill="none"><path d="M1 4 L3 6 L7 2" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <span data-en="Agoda booking links in every video" data-ko="아고다 예약 링크 포함">Agoda booking links in every video</span>
+          </div>
+          <div class="pricing-feature">
+            <span class="pricing-check"><svg viewBox="0 0 8 8" fill="none"><path d="M1 4 L3 6 L7 2" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <span data-en="Permanent video — stays live forever" data-ko="영구 게시 — 계속 노출">Permanent video — stays live forever</span>
+          </div>
+          <div class="pricing-feature">
+            <span class="pricing-check"><svg viewBox="0 0 8 8" fill="none"><path d="M1 4 L3 6 L7 2" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <span data-en="Real-time analytics dashboard access" data-ko="실시간 애널리틱스 대시보드 액세스">Real-time analytics dashboard access</span>
+          </div>
+        </div>
+        <div class="pricing-footer">
+          <a href="signup.html" class="hero-btn-primary" style="width:100%;justify-content:center"><span data-en="Get Started" data-ko="시작하기">Get Started</span> <span class="arrow">→</span></a>
+          <div class="pricing-guarantee">
+            <strong data-en="Refund Guarantee:" data-ko="환불 보장:">Refund Guarantee:</strong>
+            <span data-en="Zero bookings within 6 months → full refund." data-ko="6개월 내 예약 0건 시 전액 환불.">Zero bookings within 6 months → full refund.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Final CTA -->
 <section class="cta-section">
-  <h2 data-en="Ready to reach global travelers?" data-ko="전 세계 여행자에게<br>도달할 준비가 되셨나요?">Ready to reach global travelers?</h2>
-  <p data-en="Join TravelWinners today and put your hotel in front of millions of potential guests." data-ko="지금 TravelWinners에 가입하고 수백만 잠재 고객에게 호텔을 노출하세요.">Join TravelWinners today and put your hotel in front of millions of potential guests.</p>
-  <a href="signup.html" class="cta-btn" data-en="Get Started Now →" data-ko="지금 시작하기 →">Get Started Now →</a>
+  <div class="cta-card">
+    <h2 data-en="Ready to reach <em>global travelers?</em>" data-ko="<em>전 세계 여행자에게</em><br>도달할 준비가 되셨나요?">Ready to reach <em>global travelers?</em></h2>
+    <p data-en="Join TravelWinners today and put your hotel in front of millions of potential guests across 8 channels in 6 languages." data-ko="지금 TravelWinners에 가입하고, 6개 언어 8개 채널의 수백만 잠재 고객에게 호텔을 노출하세요.">Join TravelWinners today and put your hotel in front of millions of potential guests across 8 channels in 6 languages.</p>
+    <a href="signup.html" class="cta-btn"><span data-en="Get Started Now" data-ko="지금 시작하기">Get Started Now</span> →</a>
+  </div>
 </section>
-<footer class="site-footer"><div class="footer-logo">TravelWinners</div><div>© 2026 TravelWinners. All rights reserved.</div></footer>
+
+<footer class="site-footer">
+  <div class="footer-logo">TravelWinners B2B</div>
+  <div>© 2026 TravelWinners. All rights reserved.</div>
+</footer>
+
 <!-- Supabase JS SDK (라이브 피드용 anon 키, 공개 VIEW만 접근) -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>

@@ -5,6 +5,68 @@
 
 ---
 
+## 2026-05-01 (17차) — [디자인시스템] v2 Aurora — index.html 랜딩 페이지 마이그레이션
+
+### 변경 파일
+- `index.html`: 랜딩 페이지 전면 재작성 (45,737 bytes → 63,876 bytes)
+  - shared.css v2 외부 링크 + 페이지 전용 인라인 스타일로 분리
+  - aurora-bg + 4 blob (purple/magenta/cyan/amber) + aurora-grid 추가
+  - top-nav: 글래스 블러 + 언어 토글 (EN/한국어) 그라디언트 토큰화
+  - hero: 2열 그리드 (좌 텍스트 + 우 stat-card 글래스 카드)
+  - 헤드라인 "Reach **9 million** travel viewers." → `<em>` Aurora 그라디언트
+  - hero-stat-card: 3축 메시지 (Cumulative views 9M+ / Bookings 3,774 / Revenue $854K)
+  - guarantee-strip: 4 컬럼 (6-month / One-time $200 / Permanent / Affiliate-tracked)
+  - **channels 섹션 전면 재작성**: 8개 채널 카드 그리드 + ch-banner (9M+/3,774/$854K)
+    - 메모리 32번 정확 반영: 여행능력자들/호텔이야/Kotel/호텔닷컴/ホテルだ/世界就是家/Korea Hotel(VN)/호텔이곳
+    - "Eight channels. Six languages. One quiet network." 헤드라인
+    - 핵심 카피: "We don't show subscriber counts — what matters is who is watching, and where they book afterward."
+  - process: 3 step (Register & Verify / Pay & Schedule / Go Live Globally)
+  - features: 4 항목 글래스 카드 (Professional TOP3 Video / 6-Language Distribution / Agoda Booking / Permanent)
+  - live-feed: lf-counters 4개 + lf-stream + Supabase polling JS 그대로 보존
+  - transparent-data: 단일 글래스 통계 row (Bookings / Booking Value / Commission Earned)
+  - pricing: $200 글래스 카드 + 기능 리스트 + Refund Guarantee 강조
+  - cta-section: aurora 그라디언트 배경 + glow 버튼
+  - footer: 다크 톤
+  - 다국어 보존: data-en/data-ko 103쌍 모두 유지
+  - 모든 메시지 정확화: "6 language channels" → "8 channels in 6 languages" 전면 통일
+- `_backup_20260501/index.html.v1-backup-20260501`: v1 백업 (45,737 bytes)
+- `docs/screenshots/v2-migration/index-BEFORE.png` (825,816 bytes): v1 forest-green 톤 풀페이지
+- `docs/screenshots/v2-migration/index-AFTER.png` (1,289,137 bytes): v2 Aurora 풀페이지
+- `docs/screenshots/v2-migration/index-AFTER-hero.png` (574,819 bytes): hero 영역 1440x900
+
+### 배경
+14차(login) → 15차(인증 4종) → 16차(dashboard/settings)에 이어, 외부 노출의 핵심인 랜딩 페이지를 v2 Aurora로 전환. 시각적 임팩트가 가장 큰 페이지이므로 시그니처 요소(aurora blob, 그라디언트 헤드라인, 글래스 카드, 8개 채널 그리드)를 모두 활용. 자율 작업 분할 원칙에 따라 index 단독으로만 처리.
+
+### 변경사유
+- **메시지 컨셉 전면 갱신** (메모리 32번): 구독자 수 어필 금지 → 조회수 9M+/영상 누적/실 매출 $854K 3축으로 어필. v1의 "Trusted by Hotels across Asia-Pacific"같은 일반 카피를 데이터 기반 카피로 교체.
+- **채널 명단 정확화**: v1은 8 YouTube Channels로만 단순 표기. v2는 8개 채널을 카드 그리드로 명시적 노출 — 핸들/언어/타겟 시청자층을 각 카드에 표기. 베트남 채널(Korea Hotel @koreahotel-vn) "Vietnam outbound — fast growing" 명시.
+- **9 million 그라디언트 헤드라인**: "Reach 9 million travel viewers. For two hundred dollars." — 누적 조회수와 가격을 단일 헤드라인에 결합. `<em>` 태그에 aurora 그라디언트 적용.
+- **hero stat-card 도입**: 우측에 글래스 카드로 핵심 3지표 즉시 노출 (스크롤 없이 '얼마나 큰 네트워크인지' 파악 가능).
+- **글로벌 정복 비전 시각화**: 다크 캔버스 + 오로라 글로우 = "호텔 산업이 본 적 없는 모던함" — 대표님 비전 ("우리가 곧 트렌드") 직접 반영.
+- **라이브피드 JS 그대로 보존**: Supabase 폴링 (`vjsludfjsphwnumuoqaj.supabase.co`), 4개 카운터, lf-stream/lf-stream-empty/lf-stream-meta ID 모두 유지 — 데이터 레이어 무손상.
+
+### 검증
+1. **Playwright 자동 검증** (1440x900, networkidle):
+   - hasAuroraBg ✅ / aurora blob 4개 ✅ / aurora-grid ✅
+   - hero ✅ / hero `<em>` 그라디언트 2개 ✅
+   - guarantee-strip ✅ / sections 8개 ✅
+   - **lf-counters 4개 ✅** (data-counter: total_bookings, total_value_usd, hotels_booked, active_channels)
+   - lf-stream ✅ / lf-stream-meta ✅
+   - shared.css v2 링크 ✅
+   - data-en 103개 / data-ko 103개 ✅
+   - **8개 채널 텍스트 노출 검증 (모두 ✅)**: travelwinners / hotel-iya / Kotel / hoteldotcom / hoteruda / 世界就是家 / Korea Hotel / 호텔이곳
+2. **콘솔 에러 / JS 예외**: 0건 ✅
+3. **시각적 비교**: BEFORE(forest-green 화이트 배경) vs AFTER(다크 + 오로라) — 톤 전환 확실, 채널 그리드 신규 노출, 헤드라인 임팩트 압도적 강화
+4. **메시지 컨셉 정합성** (메모리 32번):
+   - 구독자 수 언급 0회 ✅
+   - 조회수(9M+) / 예약 수(3,774) / 매출($854K) 3축 노출 ✅
+   - 8개 채널 정확 ✅ / 6개 언어 정확 ✅
+
+### 다음 단계
+v2 마이그레이션 잔여: sales / marketing / hotel-info / booking-analytics / admin.html (admin은 분할 필수). index 완료로 외부 노출 페이지 1차 전환 완료 — 이후 매니저 영업/마케팅 페이지 순차 진행.
+
+---
+
 ## 2026-05-01 (16차) — [디자인시스템] v2 Aurora — 매니저 페이지 2종 마이그레이션 (dashboard / settings)
 
 ### 변경 파일

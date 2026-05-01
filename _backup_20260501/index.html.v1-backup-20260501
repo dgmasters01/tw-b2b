@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TravelWinners — Hotel Marketing Partner Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--forest:#1B5E3B;--forest-dark:#144A2E;--forest-deep:#0D3620;--forest-light:#E8F5EC;--forest-mist:#F4FAF6;--gold:#C8A951;--gold-light:#F5F0E0;--white:#FFFFFF;--gray-50:#FAFAFA;--gray-100:#F5F5F5;--gray-200:#E8E8E8;--gray-300:#D4D4D4;--gray-400:#A3A3A3;--gray-500:#737373;--gray-600:#525252;--gray-700:#404040;--gray-800:#262626;--gray-900:#171717;--radius:12px;--radius-sm:8px;--shadow:0 4px 20px rgba(0,0,0,0.08);--shadow-lg:0 12px 40px rgba(0,0,0,0.12);--transition:all .3s cubic-bezier(.4,0,.2,1)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter','Noto Sans KR',sans-serif;background:var(--white);color:var(--gray-800)}
+.lang-switch{position:fixed;top:20px;right:20px;z-index:1000;display:flex;gap:2px;background:var(--white);border-radius:20px;padding:3px;box-shadow:var(--shadow);border:1px solid var(--gray-200)}
+.lang-btn{padding:6px 14px;border:none;border-radius:17px;font-size:13px;font-weight:500;cursor:pointer;background:transparent;color:var(--gray-500);transition:var(--transition);font-family:'Inter',sans-serif}
+.lang-btn.active{background:var(--forest);color:var(--white)}
+.top-nav{position:fixed;top:0;left:0;right:0;z-index:900;background:rgba(255,255,255,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--gray-200);padding:0 48px;display:flex;align-items:center;justify-content:space-between;height:68px}
+.nav-logo{display:flex;align-items:center;gap:12px;text-decoration:none}
+.nav-logo-icon{width:36px;height:36px;background:var(--gold);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:var(--forest-deep);font-family:'Inter',sans-serif}
+.nav-logo-text{font-family:'Inter',sans-serif;font-size:18px;font-weight:700;color:var(--gray-900)}
+.nav-actions{display:flex;gap:12px;align-items:center}
+.nav-link{font-size:14px;color:var(--gray-600);text-decoration:none;padding:8px 16px;border-radius:var(--radius-sm);transition:var(--transition)}
+.nav-link:hover{color:var(--forest);background:var(--forest-mist)}
+.nav-cta{font-size:14px;font-weight:600;color:var(--white);background:var(--forest);padding:10px 24px;border-radius:var(--radius-sm);text-decoration:none;transition:var(--transition)}
+.nav-cta:hover{background:var(--forest-dark);transform:translateY(-1px);box-shadow:0 4px 16px rgba(27,94,59,.2)}
+.hero{padding:140px 48px 80px;text-align:center;background:linear-gradient(180deg,var(--forest-mist) 0%,var(--white) 100%);position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-200px;left:50%;transform:translateX(-50%);width:800px;height:800px;background:radial-gradient(circle,rgba(27,94,59,.04) 0%,transparent 70%);pointer-events:none}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:var(--gold-light);color:var(--forest-dark);padding:8px 20px;border-radius:24px;font-size:13px;font-weight:600;margin-bottom:28px;letter-spacing:.3px}
+.hero h1{font-family:'Inter',sans-serif;font-size:56px;font-weight:700;color:var(--gray-900);line-height:1.15;margin-bottom:24px;max-width:800px;margin-left:auto;margin-right:auto}
+.hero h1 em{font-style:normal;font-weight:800;color:var(--forest)}
+.hero>p{font-size:20px;color:var(--gray-500);line-height:1.7;max-width:600px;margin:0 auto 40px}
+.hero-cta-row{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+.hero-btn-primary{display:inline-flex;align-items:center;gap:8px;padding:16px 36px;background:var(--forest);color:var(--white);font-size:16px;font-weight:600;border-radius:var(--radius-sm);text-decoration:none;transition:var(--transition);font-family:'Inter',sans-serif}
+.hero-btn-primary:hover{background:var(--forest-dark);transform:translateY(-2px);box-shadow:0 8px 24px rgba(27,94,59,.25)}
+.hero-btn-secondary{display:inline-flex;align-items:center;gap:8px;padding:16px 36px;background:transparent;color:var(--gray-600);font-size:16px;font-weight:500;border-radius:var(--radius-sm);text-decoration:none;transition:var(--transition);border:1.5px solid var(--gray-200);font-family:'Inter',sans-serif}
+.hero-btn-secondary:hover{border-color:var(--gray-400);color:var(--gray-800)}
+.hero-stats{display:flex;gap:48px;justify-content:center;margin-top:64px;padding-top:48px;border-top:1px solid var(--gray-200)}
+.hero-stat-num{font-family:'Inter',sans-serif;font-size:36px;font-weight:700;color:var(--forest)}
+.hero-stat-label{font-size:14px;color:var(--gray-500);margin-top:4px}
+.section{padding:100px 48px}
+.section-center{text-align:center;max-width:700px;margin:0 auto 60px}
+.section-badge{display:inline-flex;align-items:center;gap:6px;background:var(--forest-mist);color:var(--forest);padding:6px 16px;border-radius:20px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:20px}
+.section-title{font-family:'Inter',sans-serif;font-size:40px;font-weight:700;color:var(--gray-900);line-height:1.2;margin-bottom:16px}
+.section-desc{font-size:17px;color:var(--gray-500);line-height:1.7}
+.section-alt{background:var(--gray-50)}
+.steps-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:32px;max-width:1100px;margin:0 auto}
+.step-card{background:var(--white);border:1.5px solid var(--gray-200);border-radius:var(--radius);padding:40px 32px;position:relative;transition:var(--transition)}
+.step-card:hover{border-color:var(--forest);transform:translateY(-4px);box-shadow:var(--shadow-lg)}
+.step-num{width:48px;height:48px;background:var(--forest);color:var(--white);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Inter',sans-serif;font-size:20px;font-weight:700;margin-bottom:24px}
+.step-card h3{font-family:'Inter',sans-serif;font-size:22px;font-weight:700;color:var(--gray-900);margin-bottom:12px}
+.step-card p{font-size:15px;color:var(--gray-500);line-height:1.7}
+.features-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:24px;max-width:900px;margin:0 auto}
+.feature-item{display:flex;gap:16px;padding:28px;background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius);transition:var(--transition)}
+.feature-item:hover{border-color:var(--forest-light);box-shadow:var(--shadow)}
+.feature-icon{width:44px;height:44px;background:var(--forest-mist);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.feature-item h4{font-size:16px;font-weight:700;color:var(--gray-800);margin-bottom:6px}
+.feature-item p{font-size:14px;color:var(--gray-500);line-height:1.6}
+.pricing-card{max-width:480px;margin:0 auto;background:var(--white);border:2px solid var(--forest);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow-lg)}
+.pricing-header{background:linear-gradient(135deg,var(--forest-deep),var(--forest));padding:36px;text-align:center;color:var(--white)}
+.pricing-header h3{font-family:'Inter',sans-serif;font-size:24px;font-weight:700;margin-bottom:8px}
+.pricing-header p{font-size:14px;opacity:.75}
+.pricing-price{font-family:'Inter',sans-serif;font-size:56px;font-weight:700;margin:20px 0 4px}
+.pricing-price-sub{font-size:14px;opacity:.6}
+.pricing-body{padding:32px 36px}
+.pricing-feature{display:flex;align-items:flex-start;gap:12px;padding:12px 0;font-size:14px;color:var(--gray-600);line-height:1.5}
+.pricing-feature:not(:last-child){border-bottom:1px solid var(--gray-100)}
+.pricing-check{color:var(--forest);font-weight:700;flex-shrink:0;font-size:16px}
+.pricing-footer{padding:0 36px 36px}
+.pricing-guarantee{margin-top:16px;padding:14px;background:var(--forest-mist);border-radius:var(--radius-sm);border-left:3px solid var(--forest);font-size:13px;color:var(--gray-600);line-height:1.5}
+.pricing-guarantee strong{color:var(--forest)}
+/* Trust Grid */
+.trust-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;max-width:900px;margin:0 auto 40px}
+.trust-card{background:var(--white);border:1.5px solid var(--gray-200);border-radius:var(--radius);padding:32px 20px;text-align:center;transition:var(--transition)}
+.trust-card:hover{border-color:var(--forest-light);box-shadow:var(--shadow);transform:translateY(-3px)}
+.trust-icon{font-size:32px;margin-bottom:14px}
+.trust-num{font-family:'Inter',sans-serif;font-size:32px;font-weight:700;color:var(--forest);line-height:1}
+.trust-label{font-size:13px;color:var(--gray-500);margin-top:8px;font-weight:500}
+/* OTA Logos */
+.ota-logos{display:flex;flex-wrap:wrap;gap:24px;justify-content:center;align-items:center;max-width:700px;margin:0 auto;padding:32px 40px;background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius)}
+.ota-text-logo{font-size:20px;letter-spacing:-.3px;opacity:.45;transition:opacity .25s;cursor:default}
+.ota-text-logo:hover{opacity:1}
+.ota-booking{font-weight:700;color:var(--gray-800)}
+/* Analytics Preview */
+.analytics-preview{max-width:700px;margin:0 auto;background:var(--white);border:1.5px solid var(--gray-200);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+.analytics-header{padding:18px 28px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--gray-200);background:var(--gray-50)}
+.analytics-title{font-size:14px;font-weight:700;color:var(--gray-800)}
+.analytics-badge{font-size:12px;font-weight:700;color:var(--forest);background:var(--forest-mist);padding:4px 14px;border-radius:20px}
+.analytics-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:0;padding:0}
+.analytics-stat{padding:28px 20px;text-align:center;border-right:1px solid var(--gray-100)}
+.analytics-stat:last-child{border-right:none}
+.analytics-stat-num{font-family:'Inter',sans-serif;font-size:28px;font-weight:700;color:var(--forest)}
+.analytics-stat-label{font-size:12px;color:var(--gray-500);margin-top:6px;font-weight:500}
+.analytics-note{padding:18px 28px;background:var(--forest-mist);border-left:3px solid var(--forest);margin:0 20px 20px;border-radius:var(--radius-sm);font-size:13px;color:var(--gray-600);line-height:1.7}
+.cta-section{padding:100px 48px;background:linear-gradient(165deg,var(--forest-deep),var(--forest),var(--forest-dark));text-align:center;color:var(--white)}
+.cta-section h2{font-family:'Inter',sans-serif;font-size:40px;font-weight:700;margin-bottom:16px}
+.cta-section p{font-size:18px;opacity:.7;max-width:500px;margin:0 auto 40px;line-height:1.6}
+.cta-btn{display:inline-flex;align-items:center;gap:8px;padding:18px 48px;background:var(--gold);color:var(--forest-deep);font-size:17px;font-weight:700;border-radius:var(--radius-sm);text-decoration:none;transition:var(--transition);font-family:'Inter',sans-serif}
+.cta-btn:hover{background:var(--white);transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,0,0,.2)}
+.site-footer{padding:40px 48px;background:var(--gray-900);color:rgba(255,255,255,.4);font-size:13px;display:flex;justify-content:space-between;align-items:center}
+.footer-logo{font-family:'Inter',sans-serif;font-size:16px;color:rgba(255,255,255,.6);font-weight:700}
+/* === LIVE FEED (Phase 1 Step 7) === */
+#live-feed{background:linear-gradient(180deg,var(--white) 0%,var(--forest-mist) 60%,var(--white) 100%)}
+#live-feed .section-badge{background:var(--white);color:var(--forest);box-shadow:0 0 0 1px rgba(27,94,59,.12);position:relative;padding-left:22px}
+#live-feed .section-badge::before{content:'';position:absolute;left:10px;top:50%;transform:translateY(-50%);width:7px;height:7px;border-radius:50%;background:#22C55E;box-shadow:0 0 0 4px rgba(34,197,94,.18);animation:lfPulse 2s ease-in-out infinite}
+@keyframes lfPulse{0%,100%{box-shadow:0 0 0 4px rgba(34,197,94,.18)}50%{box-shadow:0 0 0 7px rgba(34,197,94,.05)}}
+.lf-counters{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;max-width:1000px;margin:0 auto 56px}
+.lf-counter{background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius);padding:28px 20px 24px;text-align:center;transition:var(--transition);position:relative;overflow:hidden}
+.lf-counter::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--forest),var(--gold));opacity:0;transition:opacity .25s}
+.lf-counter:hover{border-color:var(--forest-light);box-shadow:var(--shadow);transform:translateY(-2px)}
+.lf-counter:hover::before{opacity:1}
+.lf-counter-icon{font-size:24px;margin-bottom:14px;opacity:.85}
+.lf-counter-num{font-family:'Inter',sans-serif;font-size:36px;font-weight:800;color:var(--forest);line-height:1;letter-spacing:-.5px;font-variant-numeric:tabular-nums}
+.lf-counter-num.lf-loading{color:var(--gray-300)}
+.lf-counter-label{font-size:12px;color:var(--gray-500);margin-top:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.lf-stream-wrap{max-width:760px;margin:0 auto;background:var(--white);border:1.5px solid var(--gray-200);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+.lf-stream-head{padding:18px 26px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--gray-100);background:linear-gradient(180deg,var(--gray-50),var(--white))}
+.lf-stream-title{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:700;color:var(--gray-800)}
+.lf-pulse-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#22C55E;position:relative}
+.lf-pulse-dot::after{content:'';position:absolute;inset:-3px;border-radius:50%;background:#22C55E;opacity:.4;animation:lfDot 1.6s ease-out infinite}
+@keyframes lfDot{0%{transform:scale(.8);opacity:.5}100%{transform:scale(2.2);opacity:0}}
+.lf-stream-meta{font-size:11px;color:var(--gray-400);font-weight:500;letter-spacing:.3px;text-transform:uppercase}
+.lf-stream{position:relative;padding:8px 0;min-height:240px}
+.lf-stream::before{content:'';position:absolute;left:48px;top:16px;bottom:16px;width:2px;background:linear-gradient(180deg,transparent,var(--gray-200) 12%,var(--gray-200) 88%,transparent);pointer-events:none}
+.lf-row{display:grid;grid-template-columns:80px 1fr auto;gap:16px;align-items:center;padding:14px 26px;position:relative;animation:lfSlideIn .45s cubic-bezier(.4,0,.2,1) both}
+@keyframes lfSlideIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.lf-row+.lf-row{border-top:1px solid var(--gray-100)}
+.lf-row-time{font-size:11px;color:var(--gray-400);font-weight:600;text-transform:uppercase;letter-spacing:.3px;text-align:right;padding-right:8px;font-variant-numeric:tabular-nums}
+.lf-row-dot{position:absolute;left:44px;top:50%;transform:translate(-50%,-50%);width:10px;height:10px;border-radius:50%;background:var(--forest);box-shadow:0 0 0 3px var(--white),0 0 0 4px var(--gray-200);z-index:1}
+.lf-row-dot.lf-ch-tw{background:#1B5E3B}
+.lf-row-dot.lf-ch-ht{background:#C8A951}
+.lf-row-dot.lf-ch-kt{background:#2577E3}
+.lf-row-dot.lf-ch-tc{background:#51B44D}
+.lf-row-dot.lf-ch-jp{background:#D85A30}
+.lf-row-dot.lf-ch-zh{background:#9333EA}
+.lf-row-body{min-width:0;padding-left:18px}
+.lf-row-line1{font-size:14px;color:var(--gray-800);font-weight:600;line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lf-row-line1 .lf-hotel{color:var(--gray-900)}
+.lf-row-line1 .lf-loc{color:var(--gray-500);font-weight:500}
+.lf-row-line2{font-size:12px;color:var(--gray-500);margin-top:3px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.lf-chip{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600;background:var(--gray-100);color:var(--gray-600);letter-spacing:.2px}
+.lf-chip-stars{color:var(--gold);background:var(--gold-light)}
+.lf-chip-channel{background:var(--forest-mist);color:var(--forest);font-weight:700}
+.lf-row-amount{font-family:'Inter',sans-serif;font-size:15px;font-weight:700;color:var(--forest);font-variant-numeric:tabular-nums;text-align:right}
+.lf-row-amount-sub{font-size:10px;color:var(--gray-400);font-weight:500;text-transform:uppercase;letter-spacing:.3px;margin-top:1px}
+.lf-stream-empty{padding:48px 32px;text-align:center}
+.lf-empty-icon{font-size:36px;opacity:.5;margin-bottom:14px}
+.lf-empty-title{font-size:15px;font-weight:700;color:var(--gray-700);margin-bottom:6px}
+.lf-empty-desc{font-size:13px;color:var(--gray-500);line-height:1.6;max-width:380px;margin:0 auto}
+.lf-stream-foot{padding:12px 26px;background:var(--gray-50);border-top:1px solid var(--gray-100);text-align:center}
+.lf-foot-note{font-size:11px;color:var(--gray-400);font-weight:500}
+@media(max-width:768px){
+  .lf-counters{grid-template-columns:repeat(2,1fr);gap:12px}
+  .lf-counter{padding:22px 14px 20px}
+  .lf-counter-num{font-size:28px}
+  .lf-stream::before{left:36px}
+  .lf-row{grid-template-columns:60px 1fr auto;gap:10px;padding:12px 18px}
+  .lf-row-dot{left:32px}
+  .lf-row-body{padding-left:14px}
+  .lf-row-line1{font-size:13px;white-space:normal}
+  .lf-row-amount{font-size:13px}
+}
+@media(max-width:768px){.top-nav{padding:0 20px}.hero{padding:110px 24px 60px}.hero h1{font-size:32px}.hero-stats{flex-direction:column;gap:24px}.section{padding:60px 24px}.section-title{font-size:28px}.steps-grid,.features-grid{grid-template-columns:1fr}.trust-grid{grid-template-columns:repeat(2,1fr)}.analytics-stats{grid-template-columns:1fr}.analytics-stat{border-right:none;border-bottom:1px solid var(--gray-100)}.analytics-stat:last-child{border-bottom:none}.cta-section{padding:60px 24px}.site-footer{flex-direction:column;gap:12px;text-align:center;padding:32px 24px}.nav-link{display:none}}
+</style>
+</head>
+<body>
+<nav class="top-nav">
+  <a href="index.html" class="nav-logo"><div class="nav-logo-icon">TW</div><div class="nav-logo-text">TravelWinners</div></a>
+  <div class="nav-actions">
+    <div class="lang-switch" style="position:static;box-shadow:none;border:1px solid var(--gray-200)"><button class="lang-btn active" id="lang-en">EN</button><button class="lang-btn" id="lang-ko">한국어</button></div>
+    <a href="login.html" class="nav-link" data-en="Sign In" data-ko="로그인">Sign In</a>
+    <a href="signup.html" class="nav-cta" data-en="Get Started" data-ko="시작하기">Get Started</a>
+  </div>
+</nav>
+<section class="hero">
+  <div class="hero-badge" data-en="✦ Trusted by Hotels across Asia-Pacific" data-ko="✦ 아시아-태평양 호텔들이 신뢰하는 파트너">✦ Trusted by Hotels across Asia-Pacific</div>
+  <h1 data-en="Your Hotel on a <em>Global Stage</em>" data-ko="당신의 호텔을<br><em>전 세계 무대</em>로">Your Hotel on a <em>Global Stage</em></h1>
+  <p data-en="Get featured in professional TOP3 hotel recommendation videos across our 6-language YouTube channel network. One payment. Permanent exposure. Real bookings." data-ko="6개 언어 유튜브 채널 네트워크에서 TOP3 호텔 추천 영상으로 소개됩니다. 한 번 결제. 영구 노출. 실제 예약.">Get featured in professional TOP3 hotel recommendation videos across our 6-language YouTube channel network. One payment. Permanent exposure. Real bookings.</p>
+  <div class="hero-cta-row">
+    <a href="signup.html" class="hero-btn-primary" data-en="Get Started — $200 →" data-ko="시작하기 — $200 →">Get Started — $200 →</a>
+    <a href="#how-it-works" class="hero-btn-secondary" data-en="How It Works" data-ko="이용 방법">How It Works</a>
+  </div>
+  <div class="hero-stats">
+    <div><div class="hero-stat-num">6</div><div class="hero-stat-label" data-en="Language Channels" data-ko="언어 채널">Language Channels</div></div>
+    <div><div class="hero-stat-num">$200</div><div class="hero-stat-label" data-en="One-time Investment" data-ko="1회 투자">One-time Investment</div></div>
+    <div><div class="hero-stat-num">∞</div><div class="hero-stat-label" data-en="Video Stays Live Forever" data-ko="영구 게시">Video Stays Live Forever</div></div>
+  </div>
+</section>
+<section class="section section-alt" id="how-it-works">
+  <div class="section-center">
+    <div class="section-badge" data-en="How It Works" data-ko="이용 방법">How It Works</div>
+    <div class="section-title" data-en="Three simple steps to global exposure" data-ko="3단계로 전 세계에 노출">Three simple steps to global exposure</div>
+    <div class="section-desc" data-en="From sign-up to published video in just days." data-ko="가입부터 영상 게시까지 단 며칠.">From sign-up to published video in just days.</div>
+  </div>
+  <div class="steps-grid">
+    <div class="step-card"><div class="step-num">1</div><h3 data-en="Register & Verify" data-ko="가입 & 인증">Register & Verify</h3><p data-en="Create your account and enter your Agoda Property ID. We auto-fill your hotel details for accuracy." data-ko="계정을 만들고 아고다 숙소 ID를 입력하세요. 호텔 정보를 자동으로 불러옵니다.">Create your account and enter your Agoda Property ID. We auto-fill your hotel details for accuracy.</p></div>
+    <div class="step-card"><div class="step-num">2</div><h3 data-en="Pay & Schedule" data-ko="결제 & 일정 확인">Pay & Schedule</h3><p data-en="One-time $200 payment via PayPal. We schedule your hotel for the next available TOP3 video slot." data-ko="PayPal로 $200 일회 결제. 다음 가용 TOP3 영상 슬롯에 호텔을 배정합니다.">One-time $200 payment via PayPal. We schedule your hotel for the next available TOP3 video slot.</p></div>
+    <div class="step-card"><div class="step-num">3</div><h3 data-en="Go Live Globally" data-ko="전 세계 송출">Go Live Globally</h3><p data-en="Your hotel is featured in a professional video published across 6 language channels with Agoda booking links." data-ko="6개 언어 채널에 아고다 예약 링크와 함께 프로 영상으로 호텔이 소개됩니다.">Your hotel is featured in a professional video published across 6 language channels with Agoda booking links.</p></div>
+  </div>
+</section>
+<section class="section">
+  <div class="section-center">
+    <div class="section-badge" data-en="What You Get" data-ko="포함 서비스">What You Get</div>
+    <div class="section-title" data-en="Everything included in your package" data-ko="패키지에 포함된 모든 것">Everything included in your package</div>
+  </div>
+  <div class="features-grid">
+    <div class="feature-item"><div class="feature-icon">🎬</div><div><h4 data-en="Professional TOP3 Video" data-ko="프로 TOP3 영상">Professional TOP3 Video</h4><p data-en="Your hotel featured in a curated recommendation with narration, visuals, and booking links." data-ko="나레이션, 비주얼, 예약 링크가 포함된 큐레이션 추천 영상.">Your hotel featured in a curated recommendation with narration, visuals, and booking links.</p></div></div>
+    <div class="feature-item"><div class="feature-icon">🌍</div><div><h4 data-en="6-Language Distribution" data-ko="6개 언어 송출">6-Language Distribution</h4><p data-en="Korean, English, Sinhala, mixed — reaching travelers across multiple regions." data-ko="한국어, 영어, 싱할라어, 혼합 — 다양한 지역의 여행자에게 도달.">Korean, English, Sinhala, mixed — reaching travelers across multiple regions.</p></div></div>
+    <div class="feature-item"><div class="feature-icon">🔗</div><div><h4 data-en="Agoda Booking Integration" data-ko="아고다 예약 연동">Agoda Booking Integration</h4><p data-en="Direct booking links in every video description for measurable conversion." data-ko="모든 영상 설명에 직접 예약 링크 삽입으로 전환 측정 가능.">Direct booking links in every video description for measurable conversion.</p></div></div>
+    <div class="feature-item"><div class="feature-icon">♾️</div><div><h4 data-en="Permanent Exposure" data-ko="영구 노출">Permanent Exposure</h4><p data-en="Your video stays live forever. No monthly fees, no renewal — one-time investment." data-ko="영상은 영구 게시됩니다. 월 요금 없음, 갱신 없음 — 1회 투자.">Your video stays live forever. No monthly fees, no renewal — one-time investment.</p></div></div>
+  </div>
+</section>
+<!-- WHY TRAVELWINNERS (신뢰 지표) -->
+<section class="section section-alt" id="why-tw">
+  <div class="section-center">
+    <div class="section-badge" data-en="Why TravelWinners" data-ko="왜 트래블위너스인가">Why TravelWinners</div>
+    <div class="section-title" data-en="A proven media commerce company" data-ko="검증된 미디어 커머스 기업">A proven media commerce company</div>
+    <div class="section-desc" data-en="Operating since 2018. Global OTA partnerships and verified booking data across multiple countries." data-ko="2018년부터 운영. 글로벌 OTA 파트너십과 다국가 검증된 예약 데이터 보유.">Operating since 2018. Global OTA partnerships and verified booking data across multiple countries.</div>
+  </div>
+  <div class="trust-grid">
+    <div class="trust-card"><div class="trust-icon">📅</div><div class="trust-num" data-en="Since 2018" data-ko="2018년~">Since 2018</div><div class="trust-label" data-en="Operating" data-ko="운영 기간">Operating</div></div>
+    <div class="trust-card"><div class="trust-icon">📺</div><div class="trust-num">8</div><div class="trust-label" data-en="YouTube Channels" data-ko="유튜브 채널">YouTube Channels</div></div>
+    <div class="trust-card"><div class="trust-icon">🏨</div><div class="trust-num">1,000+</div><div class="trust-label" data-en="Hotels Featured" data-ko="소개된 호텔">Hotels Featured</div></div>
+    <div class="trust-card"><div class="trust-icon">🌍</div><div class="trust-num">5</div><div class="trust-label" data-en="Language Markets" data-ko="언어 시장">Language Markets</div></div>
+  </div>
+  <div class="ota-logos">
+    <span class="ota-text-logo" style="color:#E74C3C;font-weight:800">agoda</span>
+    <span class="ota-text-logo" style="color:#2577E3;font-weight:700">Trip.com</span>
+    <span class="ota-text-logo" style="color:#51B44D;font-weight:800">KKday</span>
+    <span class="ota-text-logo" style="color:#003580;font-weight:700">Expedia</span>
+    <span class="ota-text-logo ota-booking">Booking<span style="color:#003580">.com</span></span>
+  </div>
+</section>
+<!-- LIVE FEED (Phase 1 Step 7 — 라이브 예약 피드) -->
+<section class="section" id="live-feed">
+  <div class="section-center">
+    <div class="section-badge" data-en="● Live Activity" data-ko="● 실시간 활동">● Live Activity</div>
+    <div class="section-title" data-en="Real bookings, in real time" data-ko="실시간으로 살아있는 예약 데이터">Real bookings, in real time</div>
+    <div class="section-desc" data-en="Live counters and bookings as they happen across our channel network. No mockups — every entry is a verified booking." data-ko="채널 네트워크 전반에서 발생하는 실시간 카운터와 예약. 모형이 아닌 검증된 실제 예약 데이터입니다.">Live counters and bookings as they happen across our channel network. No mockups — every entry is a verified booking.</div>
+  </div>
+
+  <!-- Live counter widgets (7-1) -->
+  <div class="lf-counters">
+    <div class="lf-counter">
+      <div class="lf-counter-icon">📈</div>
+      <div class="lf-counter-num" data-counter="total_bookings">—</div>
+      <div class="lf-counter-label" data-en="Total Bookings" data-ko="누적 예약">Total Bookings</div>
+    </div>
+    <div class="lf-counter">
+      <div class="lf-counter-icon">💰</div>
+      <div class="lf-counter-num" data-counter="total_amount_usd" data-prefix="$" data-format="compact">—</div>
+      <div class="lf-counter-label" data-en="Booking Volume" data-ko="예약 금액">Booking Volume</div>
+    </div>
+    <div class="lf-counter">
+      <div class="lf-counter-icon">🏨</div>
+      <div class="lf-counter-num" data-counter="distinct_hotels">—</div>
+      <div class="lf-counter-label" data-en="Hotels Booked" data-ko="예약된 호텔">Hotels Booked</div>
+    </div>
+    <div class="lf-counter">
+      <div class="lf-counter-icon">🌐</div>
+      <div class="lf-counter-num" data-counter="active_channels">—</div>
+      <div class="lf-counter-label" data-en="Active Channels" data-ko="활성 채널">Active Channels</div>
+    </div>
+  </div>
+
+  <!-- Activity Stream (7-2) -->
+  <div class="lf-stream-wrap">
+    <div class="lf-stream-head">
+      <div class="lf-stream-title">
+        <span class="lf-pulse-dot"></span>
+        <span data-en="Recent Booking Activity" data-ko="최근 예약 활동">Recent Booking Activity</span>
+      </div>
+      <div class="lf-stream-meta" id="lf-stream-meta" data-en="Auto-refreshing" data-ko="자동 갱신 중">Auto-refreshing</div>
+    </div>
+    <div class="lf-stream" id="lf-stream" aria-live="polite">
+      <!-- 동적 채워짐 -->
+    </div>
+    <div class="lf-stream-empty" id="lf-stream-empty" hidden>
+      <div class="lf-empty-icon">🛎️</div>
+      <div class="lf-empty-title" data-en="Activity feed warming up" data-ko="활동 피드 준비 중">Activity feed warming up</div>
+      <div class="lf-empty-desc" data-en="Real bookings will appear here as they're confirmed across our channel network." data-ko="채널 네트워크에서 예약이 확정되는 즉시 이곳에 실시간으로 표시됩니다.">Real bookings will appear here as they're confirmed across our channel network.</div>
+    </div>
+    <div class="lf-stream-foot">
+      <span class="lf-foot-note" data-en="Customer details are never shown — only verified booking activity." data-ko="고객 정보는 절대 노출되지 않으며, 검증된 예약 활동만 표시됩니다.">Customer details are never shown — only verified booking activity.</span>
+    </div>
+  </div>
+</section>
+<!-- TRANSPARENT DATA (투명한 데이터) -->
+<section class="section" id="transparent-data">
+  <div class="section-center">
+    <div class="section-badge" data-en="Transparent Data" data-ko="투명한 데이터">Transparent Data</div>
+    <div class="section-title" data-en="Every booking is fully traceable" data-ko="모든 예약은 추적 가능합니다">Every booking is fully traceable</div>
+    <div class="section-desc" data-en="All bookings are verified through Agoda — booking IDs, dates, amounts, and hotel names are fully traceable." data-ko="모든 예약은 아고다를 통해 검증됩니다 — 예약번호, 날짜, 금액, 호텔명까지 모두 추적 가능합니다.">All bookings are verified through Agoda — booking IDs, dates, amounts, and hotel names are fully traceable.</div>
+  </div>
+  <div class="analytics-preview">
+    <div class="analytics-header">
+      <div class="analytics-title" data-en="TW Booking Analytics — Real-time System" data-ko="TW Booking Analytics — 실시간 시스템">TW Booking Analytics — Real-time System</div>
+      <div class="analytics-badge" data-en="● Verified" data-ko="● 검증됨">● Verified</div>
+    </div>
+    <div class="analytics-stats">
+      <div class="analytics-stat"><div class="analytics-stat-num">3,774</div><div class="analytics-stat-label" data-en="Bookings" data-ko="예약 건수">Bookings</div></div>
+      <div class="analytics-stat"><div class="analytics-stat-num">$854K</div><div class="analytics-stat-label" data-en="Booking Value" data-ko="예약 금액">Booking Value</div></div>
+      <div class="analytics-stat"><div class="analytics-stat-num">$35.9K</div><div class="analytics-stat-label" data-en="Commission" data-ko="수수료">Commission</div></div>
+    </div>
+    <div class="analytics-note" data-en="Each partner hotel can access this dashboard after payment, tracking views, clicks, and actual Agoda bookings in real-time." data-ko="각 파트너 호텔은 결제 후 이 대시보드에 접근할 수 있으며, 조회수, 클릭, 그리고 실제 아고다 예약을 실시간으로 추적합니다.">Each partner hotel can access this dashboard after payment, tracking views, clicks, and actual Agoda bookings in real-time.</div>
+  </div>
+</section>
+<section class="section section-alt">
+  <div class="section-center">
+    <div class="section-badge" data-en="Pricing" data-ko="가격">Pricing</div>
+    <div class="section-title" data-en="Simple, transparent pricing" data-ko="심플하고 투명한 가격">Simple, transparent pricing</div>
+  </div>
+  <div class="pricing-card">
+    <div class="pricing-header"><h3 data-en="TOP3 Hotel Introduction" data-ko="TOP3 호텔 소개">TOP3 Hotel Introduction</h3><p data-en="One-time fee, no hidden costs" data-ko="1회 비용, 추가 비용 없음">One-time fee, no hidden costs</p><div class="pricing-price">$200</div><div class="pricing-price-sub" data-en="per hotel, one-time" data-ko="호텔당 1회">per hotel, one-time</div></div>
+    <div class="pricing-body">
+      <div class="pricing-feature"><span class="pricing-check">✓</span><span data-en="Featured in professional TOP3 video" data-ko="프로 TOP3 추천 영상 소개">Featured in professional TOP3 video</span></div>
+      <div class="pricing-feature"><span class="pricing-check">✓</span><span data-en="Published across 6 language channels" data-ko="6개 언어 채널 동시 송출">Published across 6 language channels</span></div>
+      <div class="pricing-feature"><span class="pricing-check">✓</span><span data-en="Agoda booking links in every video" data-ko="아고다 예약 링크 포함">Agoda booking links in every video</span></div>
+      <div class="pricing-feature"><span class="pricing-check">✓</span><span data-en="Permanent video — stays live forever" data-ko="영구 게시 — 계속 노출">Permanent video — stays live forever</span></div>
+      <div class="pricing-feature"><span class="pricing-check">✓</span><span data-en="Stripe processing fee included" data-ko="Stripe 수수료 포함">Stripe processing fee included</span></div>
+    </div>
+    <div class="pricing-footer">
+      <a href="signup.html" class="hero-btn-primary" style="width:100%;justify-content:center;text-decoration:none" data-en="Get Started →" data-ko="시작하기 →">Get Started →</a>
+      <div class="pricing-guarantee"><strong data-en="Refund Guarantee:" data-ko="환불 보장:">Refund Guarantee:</strong> <span data-en="Zero bookings within 6 months → full refund minus Stripe fees." data-ko="6개월 내 예약 0건 시 Stripe 수수료 제외 전액 환불.">Zero bookings within 6 months → full refund minus Stripe fees.</span></div>
+    </div>
+  </div>
+</section>
+<section class="cta-section">
+  <h2 data-en="Ready to reach global travelers?" data-ko="전 세계 여행자에게<br>도달할 준비가 되셨나요?">Ready to reach global travelers?</h2>
+  <p data-en="Join TravelWinners today and put your hotel in front of millions of potential guests." data-ko="지금 TravelWinners에 가입하고 수백만 잠재 고객에게 호텔을 노출하세요.">Join TravelWinners today and put your hotel in front of millions of potential guests.</p>
+  <a href="signup.html" class="cta-btn" data-en="Get Started Now →" data-ko="지금 시작하기 →">Get Started Now →</a>
+</section>
+<footer class="site-footer"><div class="footer-logo">TravelWinners</div><div>© 2026 TravelWinners. All rights reserved.</div></footer>
+<!-- Supabase JS SDK (라이브 피드용 anon 키, 공개 VIEW만 접근) -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function(){
+  var lang=localStorage.getItem('tw-lang')||'en';
+  function switchLang(l){lang=l;localStorage.setItem('tw-lang',l);document.getElementById('lang-en').classList.toggle('active',l==='en');document.getElementById('lang-ko').classList.toggle('active',l==='ko');document.querySelectorAll('[data-'+l+']').forEach(function(el){var v=el.getAttribute('data-'+l);if(el.tagName==='INPUT')el.placeholder=v;else el.innerHTML=v});try{window.dispatchEvent(new CustomEvent('tw-lang-change',{detail:{lang:l}}));}catch(e){}}
+  document.getElementById('lang-en').addEventListener('click',function(){switchLang('en')});
+  document.getElementById('lang-ko').addEventListener('click',function(){switchLang('ko')});
+  switchLang(lang);
+  document.querySelectorAll('a[href^="#"]').forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();var t=document.querySelector(this.getAttribute('href'));if(t)t.scrollIntoView({behavior:'smooth'})})});
+})();
+</script>
+<!-- Live Feed Module (Phase 1 Step 7) -->
+<script>
+(function(){
+  'use strict';
+  // ----- Supabase 클라이언트 (anon 키, 공개 VIEW 전용) -----
+  var SUPABASE_URL = 'https://vjsludfjsphwnumuoqaj.supabase.co';
+  var SUPABASE_ANON = 'sb_publishable_IluITb52iuwwHf9xgP99MA__KX-sNM6';
+  var sb = null;
+  try {
+    if (window.supabase && typeof window.supabase.createClient === 'function') {
+      sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+    }
+  } catch(e) {
+    console.warn('[LiveFeed] Supabase init failed:', e);
+  }
+
+  // ----- DOM refs -----
+  var streamEl = document.getElementById('lf-stream');
+  var emptyEl = document.getElementById('lf-stream-empty');
+  var metaEl = document.getElementById('lf-stream-meta');
+  if (!streamEl) return; // 섹션 없으면 종료
+
+  // ----- 상태 -----
+  var state = {
+    rows: [],            // v_public_recent_bookings 결과
+    stats: null,         // v_public_stats 결과
+    rotateIdx: 0,        // 셔플 시작 인덱스
+    rotateTimer: null,
+    timeUpdateTimer: null
+  };
+
+  // ----- 유틸 -----
+  function getLang(){ return localStorage.getItem('tw-lang') || 'en'; }
+
+  function fmtRelTime(iso) {
+    if (!iso) return '';
+    var lang = getLang();
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) return '';
+    var diff = Math.floor((Date.now() - d.getTime()) / 1000);
+    var L = {
+      en: {now:'just now', s:'s ago', m:'m ago', h:'h ago', d:'d ago'},
+      ko: {now:'방금', s:'초 전', m:'분 전', h:'시간 전', d:'일 전'}
+    }[lang] || {now:'just now', s:'s ago', m:'m ago', h:'h ago', d:'d ago'};
+    if (diff < 30) return L.now;
+    if (diff < 60) return diff + L.s;
+    if (diff < 3600) return Math.floor(diff/60) + L.m;
+    if (diff < 86400) return Math.floor(diff/3600) + L.h;
+    return Math.floor(diff/86400) + L.d;
+  }
+
+  function fmtCompactNum(n) {
+    n = Number(n) || 0;
+    if (n >= 1000000) return (n/1000000).toFixed(n>=10000000?0:1).replace(/\.0$/,'') + 'M';
+    if (n >= 1000) return (n/1000).toFixed(n>=10000?0:1).replace(/\.0$/,'') + 'K';
+    return String(Math.floor(n));
+  }
+
+  function fmtMoney(n) { return Number(n||0).toLocaleString('en-US', {maximumFractionDigits:0}); }
+
+  function escapeHTML(s) {
+    if (s == null) return '';
+    return String(s).replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+
+  function starString(n) {
+    var v = parseInt(n, 10);
+    if (!v || v < 1 || v > 5) return '';
+    return '★'.repeat(v);
+  }
+
+  function chDotClass(code) {
+    var map = {'TW':'lf-ch-tw','HT':'lf-ch-ht','KT':'lf-ch-kt','TC':'lf-ch-tc','JP':'lf-ch-jp','ZH':'lf-ch-zh'};
+    return map[code] || '';
+  }
+
+  // ----- 카운터 애니메이션 -----
+  function animateCounter(el, target, opts) {
+    opts = opts || {};
+    var prefix = opts.prefix || '';
+    var compact = opts.compact || false;
+    var duration = 1200;
+    var start = 0;
+    var t0 = performance.now();
+    el.classList.remove('lf-loading');
+    function step(t) {
+      var p = Math.min(1, (t - t0) / duration);
+      var eased = 1 - Math.pow(1 - p, 3); // easeOutCubic
+      var v = start + (target - start) * eased;
+      el.textContent = prefix + (compact ? fmtCompactNum(v) : Math.floor(v).toLocaleString('en-US'));
+      if (p < 1) requestAnimationFrame(step);
+      else el.textContent = prefix + (compact ? fmtCompactNum(target) : Math.floor(target).toLocaleString('en-US'));
+    }
+    requestAnimationFrame(step);
+  }
+
+  function renderCounters(stats) {
+    if (!stats) return;
+    var nodes = document.querySelectorAll('[data-counter]');
+    nodes.forEach(function(el){
+      var key = el.getAttribute('data-counter');
+      var prefix = el.getAttribute('data-prefix') || '';
+      var format = el.getAttribute('data-format') || '';
+      var val = Number(stats[key] || 0);
+      animateCounter(el, val, { prefix: prefix, compact: format === 'compact' });
+    });
+  }
+
+  function renderEmptyCounters() {
+    document.querySelectorAll('[data-counter]').forEach(function(el){
+      el.classList.add('lf-loading');
+      el.textContent = '—';
+    });
+  }
+
+  // ----- Activity Stream 렌더 -----
+  function buildRow(row) {
+    var lang = getLang();
+    var hotel = escapeHTML(row.hotel_name || (lang==='ko'?'(이름 미공개)':'(undisclosed)'));
+    var city = escapeHTML(row.hotel_city || '');
+    var country = escapeHTML(row.hotel_country || '');
+    var loc = [city, country].filter(Boolean).join(', ');
+    var stars = starString(row.hotel_star);
+    var ch = escapeHTML(row.channel_name || row.channel_code || '');
+    var nights = parseInt(row.nights, 10) || 0;
+    var rooms = parseInt(row.num_rooms, 10) || 0;
+    var amt = Number(row.booking_amount_usd || 0);
+    var dotClass = chDotClass(row.channel_code);
+    var time = escapeHTML(fmtRelTime(row.booked_at));
+
+    var meta = [];
+    if (stars) meta.push('<span class="lf-chip lf-chip-stars">' + stars + '</span>');
+    if (ch) meta.push('<span class="lf-chip lf-chip-channel">' + ch + '</span>');
+    if (nights) meta.push('<span class="lf-chip">' + nights + (lang==='ko'?'박':'N') + (rooms?' · '+rooms+(lang==='ko'?'실':'rm'):'') + '</span>');
+
+    return '' +
+      '<div class="lf-row">' +
+        '<div class="lf-row-time">' + time + '</div>' +
+        '<span class="lf-row-dot ' + dotClass + '"></span>' +
+        '<div class="lf-row-body">' +
+          '<div class="lf-row-line1"><span class="lf-hotel">' + hotel + '</span>' +
+            (loc ? ' <span class="lf-loc">— ' + loc + '</span>' : '') +
+          '</div>' +
+          '<div class="lf-row-line2">' + meta.join('') + '</div>' +
+        '</div>' +
+        '<div>' +
+          '<div class="lf-row-amount">$' + fmtMoney(amt) + '</div>' +
+          '<div class="lf-row-amount-sub">USD</div>' +
+        '</div>' +
+      '</div>';
+  }
+
+  function renderStream() {
+    if (!state.rows || state.rows.length === 0) {
+      streamEl.innerHTML = '';
+      streamEl.style.display = 'none';
+      if (emptyEl) emptyEl.hidden = false;
+      if (metaEl) {
+        var lang = getLang();
+        metaEl.textContent = lang==='ko' ? '데이터 대기 중' : 'Waiting for data';
+      }
+      return;
+    }
+    if (emptyEl) emptyEl.hidden = true;
+    streamEl.style.display = '';
+    // 7개씩 윈도우로 셔플 표시 (rotateIdx 부터)
+    var WINDOW = Math.min(7, state.rows.length);
+    var html = '';
+    for (var i = 0; i < WINDOW; i++) {
+      var idx = (state.rotateIdx + i) % state.rows.length;
+      html += buildRow(state.rows[idx]);
+    }
+    streamEl.innerHTML = html;
+    if (metaEl) {
+      var langm = getLang();
+      metaEl.textContent = (langm==='ko' ? '실시간 갱신' : 'Live · auto-refreshing');
+    }
+  }
+
+  function rotateOnce() {
+    if (!state.rows || state.rows.length === 0) return;
+    state.rotateIdx = (state.rotateIdx + 1) % state.rows.length;
+    renderStream();
+  }
+
+  function startRotation() {
+    if (state.rotateTimer) clearInterval(state.rotateTimer);
+    // 데이터가 윈도우(7) 이하면 회전할 의미 없음
+    if (!state.rows || state.rows.length <= 7) return;
+    state.rotateTimer = setInterval(rotateOnce, 4500);
+  }
+
+  function startTimeRefresh() {
+    if (state.timeUpdateTimer) clearInterval(state.timeUpdateTimer);
+    // 30초마다 시간 표시만 갱신
+    state.timeUpdateTimer = setInterval(renderStream, 30000);
+  }
+
+  // ----- 데이터 로드 -----
+  function loadData() {
+    if (!sb) {
+      console.warn('[LiveFeed] sb not initialized');
+      renderEmptyCounters();
+      renderStream();
+      return;
+    }
+    Promise.all([
+      sb.from('v_public_stats').select('*').single(),
+      sb.from('v_public_recent_bookings').select('*').limit(50)
+    ]).then(function(results){
+      var statsRes = results[0], rowsRes = results[1];
+      if (statsRes && !statsRes.error && statsRes.data) {
+        state.stats = statsRes.data;
+        renderCounters(state.stats);
+      } else {
+        renderEmptyCounters();
+        if (statsRes && statsRes.error) console.warn('[LiveFeed] stats error:', statsRes.error);
+      }
+      if (rowsRes && !rowsRes.error && Array.isArray(rowsRes.data)) {
+        state.rows = rowsRes.data;
+        state.rotateIdx = 0;
+        renderStream();
+        startRotation();
+        startTimeRefresh();
+      } else {
+        state.rows = [];
+        renderStream();
+        if (rowsRes && rowsRes.error) console.warn('[LiveFeed] rows error:', rowsRes.error);
+      }
+    }).catch(function(err){
+      console.warn('[LiveFeed] load error:', err);
+      renderEmptyCounters();
+      state.rows = [];
+      renderStream();
+    });
+  }
+
+  // ----- 언어 변경 시 다시 렌더 (시간 표시/메타 텍스트) -----
+  window.addEventListener('tw-lang-change', function(){
+    renderStream();
+    if (state.stats) renderCounters(state.stats);
+  });
+
+  // ----- 초기 진입 -----
+  // 카운터 초기 상태
+  renderEmptyCounters();
+  // 데이터 로드
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', loadData);
+  } else {
+    loadData();
+  }
+
+  // 5분마다 데이터 자동 재로드 (페이지가 오래 열려있을 때 신선도 유지)
+  setInterval(loadData, 5 * 60 * 1000);
+})();
+</script>
+</body>
+</html>

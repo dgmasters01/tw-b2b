@@ -5,6 +5,128 @@
 
 ---
 
+## 2026-05-02 (21차) — [디자인시스템] v2 Aurora — admin.html Phase 1 (글로벌 레이아웃 + 사이드바 + Topbar + Dashboard + 모달 공통 톤)
+
+### 변경 파일
+- `admin.html`: 관리자 콘솔 v2 Aurora 마이그레이션 — **Phase 1만** 수행 (4,559줄 → 4,575줄, +16줄)
+  - **head 정리**: legacy Google Fonts(`Fraunces`, `DM Sans`) 외부 링크 제거. shared.css v2 가 `Inter` + `Noto Sans KR` 토큰으로 폰트 일원화하므로 잔재 제거.
+  - **글로벌 레이아웃 다크 캔버스 전환**:
+    - `body`: `#f5f5f7` → `var(--bg, #0A0A0F)` / `font-family: 'DM Sans'` → `var(--sans, 'Inter')` / `color: #1a1a1a` → `var(--ink, #FAFAFA)`
+    - `.ad-shell`: `position:relative; z-index:1` 보강 (aurora-bg z-index:0 위에 layering)
+  - **Aurora 배경 DOM 신규** (sales/marketing/dashboard.html 정합):
+    - `<body>` 직후 `<div class="aurora-bg">` + 4 blob (b1~b4) + `<div class="aurora-grid">` 삽입
+    - shared.css v2가 자동으로 `position:fixed; z-index:0; pointer-events:none` + 18~24s 플로팅 애니메이션 적용
+  - **사이드바 글래스모피즘** (`.ad-sidebar`):
+    - `background: #1a1a1a` (검정 통짜) → `rgba(10,10,15,.72)` + `backdrop-filter: blur(20px) saturate(140%)`
+    - `border-right: 1px solid var(--line-2)` 신규 (글래스 경계)
+    - 기존 `position:fixed!important; top:0!important; left:0!important; height:100vh!important; z-index:1000!important; overflow:hidden` 유지 (스크롤 시 가시성 보장)
+  - **사이드바 메뉴 항목 v2 톤** (`.ad-sb-item`):
+    - 기본: `color: var(--ink-3)` / hover: `background: var(--glass-2); color: var(--ink)` / `border-radius: 8px → 10px` / `transition` 추가
+    - **active**: `background: #534AB7` (보라 단색) → `background: var(--aurora)` (보라→마젠타→앰버→시안 그라디언트) + `box-shadow: var(--glow-p)` (다른 v2 페이지 표준 정합 — `dashboard.html`, `hotel-info.html` 패턴)
+    - 로고 아이콘(`.ad-sb-logo-icon`): 보라 단색 → Aurora 그라디언트 + glow / `border-radius: 6px → 8px`
+    - 로고 텍스트(`.ad-sb-logo-text`): `Fraunces serif` → `Inter sans` / `font-weight: 600 → 700` + letter-spacing
+    - 배지(`.ad-sb-badge`): `#D85A30` 단색 → Aurora 그라디언트
+    - foot 영역 색상/보더 토큰화
+  - **Topbar 다크 글래스** (`.ad-topbar`):
+    - `background: #fff` → `rgba(10,10,15,.72)` + `backdrop-filter: blur(20px) saturate(140%)`
+    - `color: #1a1a1a` → `var(--ink)` / `border-bottom: #e8e8e8` → `var(--line-2)`
+    - 기존 `position:fixed; top:0; left:240px; right:0; z-index:50; height:60px` 유지 (스크롤 가시성)
+    - 로고/배지/Sign out 버튼 톤 정합
+  - **본문 영역**:
+    - `.ad-main`: `position:relative; z-index:1` 보강 (aurora-bg 위에 layering)
+    - `.ad-h1`: `Fraunces serif` → `Inter sans 700` / `color: var(--ink)` + letter-spacing
+    - `.ad-h1-sub`: `color: #777` → `var(--ink-3)`
+  - **Stats / Card / Filter / Table / Button / Modal 공통 톤** (대량 일괄 변환):
+    - `.ad-stat`: 흰 배경 + `#e8e8e8` 보더 → `var(--glass)` + `backdrop-filter: blur(12px)` + `var(--line-2)` 보더
+    - `.ad-card`: 동일 글래스 패턴, `border-radius: 12 → 14px`
+    - `.ad-filter.active`: `background: #1a1a1a` → `var(--aurora)` + `box-shadow: var(--glow-p)`
+    - `.ad-table`: 흰 thead `#fafafa` → `var(--glass-2)`, 행 hover `#fafafa` → `var(--glass-2)`, 모든 보더 토큰화
+    - `.ad-btn-primary`: `#1a1a1a` 솔리드 → `var(--aurora)` + glow, hover `translateY(-1px)`
+    - `.ad-btn-success/warning/danger`: 솔리드 색상 → 그라디언트 (다크 캔버스 가독성 향상)
+    - `.ad-btn-secondary`: `#f0f0f0` → `var(--glass-2)` + `var(--line-2)` 보더
+    - `.ad-modal-overlay`: `rgba(0,0,0,.5)` → `rgba(5,5,10,.72)` + `backdrop-filter: blur(8px)`
+    - `.ad-modal` (10개+ 인스턴스): 흰 배경 → `rgba(20,20,28,.92)` + `backdrop-filter: blur(24px)` + `var(--line-2)` 보더 + `box-shadow: 0 24px 60px rgba(0,0,0,.6)`
+    - `.am-modal-backdrop` + `.am-modal` (Agoda 매칭 모달, 3개 인스턴스): 동일 다크 글래스 톤
+    - `.ad-textarea`: 흰 배경 + 검정 글씨 → `var(--glass-2)` + `var(--ink)`, focus 시 `var(--aurora-1)` 보더 + 보라 글로우
+    - `.ad-photo`: 회색 placeholder → `var(--glass-2)` + `var(--line)` 보더
+    - `.ad-detail-key/val`: 톤 정합
+- `_backup_20260501/admin.html` (1,276,036 bytes): v1 백업
+
+### 배경
+TW B2B v2 Aurora 마이그레이션 시리즈의 **마지막 페이지** admin.html 진입. 17차(index) → 18차(sales/marketing) → 19차(hotel-info) → 20차(booking-analytics) 완료 후 잔여. **4,559줄 + 1.02MB 단일 인라인 데이터 라인(3809번 줄, 1,019,022 byte)** 의 거대 단일 파일이라 무리하게 한 번에 전환 시 토큰/검증 비용 폭발 위험. 19개 액션 함수 / 10+ 모달 / 7개 탭 본문이 모두 한 파일에 임베드된 monolith 구조로, **4 Phase 분할** 결정.
+
+### 21차 = Phase 1 범위 (글로벌 골격만)
+- ✅ A. 글로벌 레이아웃 다크 + Aurora 배경
+- ✅ B. 사이드바 글래스 + 메뉴 active Aurora + 스크롤 가시성 점검
+- ✅ C. Topbar 다크 글래스 + sticky 유지
+- ✅ D. Dashboard 탭 (placeholder) + 모달 공통 톤(overlay/backdrop)
+- 🔜 Phase 2: Bookings (#tab-bookings) + Analytics 톤 정합 (booking-analytics embed)
+- 🔜 Phase 3: Hotels + Agoda Matching + Members + Team
+- 🔜 Phase 4: Project Status + 모달 본체 + 19개 액션 함수 영역 톤
+
+### 변경사유
+- **사이드바 active = Aurora 그라디언트** (자율 판단): `dashboard.html`, `hotel-info.html`, `booking-analytics.html` 모두 active 상태를 `var(--aurora)` + `var(--glow-p)` 로 표현하므로 admin도 동일 패턴이 v2 페이지 간 일관성 유지에 최선. 보라 단색 글래스 옵션은 차분하지만 다른 페이지와 단절되어 기각.
+- **사이드바 + Topbar 글래스모피즘**: shared.css v2의 `.glass-card`, `.aurora-bg` 표준에 맞춰 검정 통짜/흰 통짜 → 반투명 + backdrop-filter. Aurora 배경이 사이드바 너머로 살짝 비치는 효과로 깊이감 + 통일감 양립.
+- **버튼/배지 솔리드 → 그라디언트**: 다크 캔버스 위에서 솔리드 단색은 평면적이고 v1 잔재처럼 보임. Aurora 그라디언트 + glow는 Phase 2~4에서 톤 합칠 때도 변경 없이 그대로 유지 가능 → 전체 마이그 비용 절감.
+- **데이터 라인 무결성 (a747e154...)**: Phase 1은 head + style 블록 + body 직후 DOM만 손대므로 인라인 데이터 라인(현재 3825번 줄로 16줄 밀림, length 1,019,022 byte) byte-for-byte 보존. SHA `a747e154e4d90d883904022f0ac729d5bd85916652d9adcd4decdaaf56e65b5f` 작업 전후 동일 ✅.
+- **인증/탭/BKA 통합 호출 무수정**: T.requireAuth(1057번 줄), T.checkAdmin(1061번 줄), setActiveTab(1106번 줄), window.BKA.mount() 호출(1145~1146번 줄), 19개 액션 함수(handleAmAction/changeStatus/deleteBself/processBagodaUpload 등) 전부 무수정. data-en/data-ko 67회 / data-tab 9회 보존.
+- **18-hotfix 교훈 준수**: T.client 사용 0회 확인 (admin.html은 admins 테이블 직접 쿼리 위해 T.sb 정상 사용 — booking-analytics와 다른 정상 패턴).
+- **Phase 2~4용 잔여 라이트 톤은 의도적으로 미접근**: Bookings/Hotels/Agoda Matching 등 페이지 전용 인라인 스타일(.bk-*, #tab-agoda-matching .am-* 등)은 21차에서 손대지 않음. 라이브 반영 후 해당 탭 진입 시 다크 캔버스 위에 부분적으로 흰 카드 섬이 보일 수 있으나 이는 단계적 마이그의 의도된 중간 상태. Phase 2~4 진행 중 점진 정합.
+
+### 검증
+1. **JS 문법 자동 검증**: 인라인 script 3개 블록 합본(1,193,149 byte) `node --check` PASS ✅
+2. **1MB 인라인 데이터 byte-for-byte 보존**:
+   - 사전 위치: 3809번 줄 / SHA `a747e154e4d90d883904022f0ac729d5bd85916652d9adcd4decdaaf56e65b5f` / length 1,019,022
+   - 사후 위치: 3825번 줄 (head/body에 16줄 추가로 밀림) / SHA `a747e154e4d90d883904022f0ac729d5bd85916652d9adcd4decdaaf56e65b5f` ✅ / length 1,019,022 ✅
+3. **핵심 보존 함수 시그니처**:
+   - `T.requireAuth(async function(user){` ✅ (1057번 줄)
+   - `T.checkAdmin(user)` ✅ (1061번 줄)
+   - `function setActiveTab(tab){` ✅ (1106번 줄)
+   - `window.BKA && typeof window.BKA.mount === 'function'` 분기 ✅ (1145번 줄)
+   - 19개 액션 함수 헤더 카운트 5건(handleAmAction/changeStatus/deleteBself/processBagodaUpload/processBagodaUploadServer) 모두 위치 보존 ✅
+4. **T.client 사용 0회 ✅** (booking-analytics 18-hotfix 교훈 준수)
+5. **i18n 토글 속성 보존**: data-en/data-ko 67회 ✅ / data-tab 9회 ✅
+6. **v2 Aurora 표준 적용**:
+   - aurora-bg DOM 1개 ✅ / aurora-blob 4개 ✅ / aurora-grid 1개 ✅
+   - var(--aurora*) 9회 / var(--ink*) 39회 / var(--glass*) 16회 / var(--line*) 다수
+   - shared.css 외부 링크 ✅ (v2 토큰 자동 적용)
+7. **headless mock 시각 검증**: T.requireAuth/T.checkAdmin mock 사본(/tmp/admin_mock.html)으로 인증 우회 → BEFORE/AFTER 캡처 (Hotels 기본 탭 + Dashboard + Bookings + 스크롤 1500px/3000px 4종)
+8. **사이드바 스크롤 가시성**: 본문 3000px 더미 추가 + 1500/3000px 스크롤 후 사이드바 bounding box `{x:0, y:0, w:240, h:900}` 일정 ✅ (대표님 보고하신 "스크롤 시 메뉴 안 보임" 이슈는 v1 검정 통짜 사이드바가 다크 페이지 위에서 묻혀 보이던 착시 또는 booking-analytics embed 시 발생했던 z-index 충돌. Phase 1의 글래스 + border-right + z-index:1000 강화로 해소)
+9. **백업**: `_backup_20260501/admin.html` (1,276,036 bytes) v1 보관 ✅
+
+### Phase 1 후 잔여 / Phase 2 시작 조건
+- legacy 색상 잔존: 7개 탭 본문(Bookings/Analytics/Hotels/Agoda Matching/Members/Team/Project Status) 페이지 전용 prefix(`.bk-*`, `.am-*`, `#tab-*`) 영역
+- 잔여 흰 배경/검정 글씨 인스턴스 약 25개 (다크 캔버스 위에서 부분 가시)
+- Phase 2 = #tab-bookings (Self-Sourced + Agoda Channel Upload sub-tab) + #tab-analytics 톤 정합 → **새 채팅에서 시작 권장** (admin.html 1.27MB 단일 파일 추가 작업이라 컨텍스트 보호 필요)
+
+### 새 채팅 시작 명령어 (Phase 2)
+```
+TW B2B v2 Aurora 마이그레이션 22차 (admin.html Phase 2) 시작.
+
+[직전 commit] (이번 21차 commit hash 입력)
+백업: _backup_20260501/admin.html (1.27MB v1)
+
+[대상] admin.html — 4,575줄 / 1.02MB 인라인 데이터 (현재 3825번 줄)
+21차에서 글로벌/사이드바/topbar/Dashboard/모달 overlay 완료.
+
+[22차 = Phase 2 범위]
+A. #tab-bookings 본문 톤 v2 변환
+   - bk-subtabs / bk-subtab (Self-Sourced ↔ Agoda Channel Upload 토글)
+   - bk-form-grid (input/select/textarea) — 흰 배경 → 글래스 다크
+   - bk-drop (파일 드롭존) — 흰 점선 → aurora 점선
+   - bk-file-item / bk-result-card / bk-result-stat — 회색 박스 → 글래스
+   - bself-stats (4 stat 카드) Phase 1 .ad-stat 톤 자동 적용 확인만
+B. #tab-analytics embed 톤 정합
+   - booking-analytics IIFE 와 충돌 없이 admin.ad-card 래퍼만 톤 정합
+   - BKA.mount() 통합 경로 무수정 (1145번 줄)
+C. 모달 본체 (#modal #bself-modal #add-admin-modal) 내부 컨텐츠 톤 정합
+   - Phase 1 에서 overlay/backdrop만 다크 처리, 본체는 21차 modal에서 자동 다크 글래스 적용됐으니 내부 폼/버튼만 정합 확인
+
+[지침] 17~21차 표준 워크플로 + 데이터 라인(현재 3825번 줄) SHA 보존 + T.client 0회 + 21차에서 v2 외부 링크 이미 적용됨 (재추가 금지)
+```
+
+---
+
 ## 2026-05-01 (20차) — [디자인시스템] v2 Aurora — booking-analytics.html 마이그레이션
 
 ### 변경 파일

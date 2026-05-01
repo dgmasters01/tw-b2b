@@ -5,6 +5,71 @@
 
 ---
 
+## 2026-05-01 (19차) — [디자인시스템] v2 Aurora — hotel-info.html 마이그레이션
+
+### 변경 파일
+- `hotel-info.html`: 호텔 등록/수정 폼 페이지 v2 Aurora 마이그레이션 (57,593 bytes 1085줄 → 62,415 bytes 1219줄)
+  - shared.css v2 외부 링크 + 페이지 전용 인라인 스타일 (`.hi-*` prefix 유지)
+  - **CSS 블록 전면 v2 토큰화** (~107줄 → ~210줄): legacy `#534AB7`(보라) / `#1a1a1a`(잉크) / `#fff`(카드 배경) / `#f7f7f7`(body 배경) / `#eee`(라인) 모두 `var(--aurora-1) / var(--ink) / var(--glass) / var(--bg) / var(--line)` 토큰으로 교체
+  - aurora-bg + 4 blob + aurora-grid 추가
+  - **Sticky glass topbar 신규** (shell 밖으로 분리): TW 그라디언트 로고 + user-email + EN/한국어 토글 + Settings 링크 + Sign out 버튼 (sales/marketing 패턴 통일)
+  - `hi-card` 글래스모피즘 변환 (반투명 배경 + 백드롭 블러 + 라인 보더 + shadow)
+  - `hi-step` indicator: aurora-1(active) + aurora-6(done) 그라디언트 적용
+  - `hi-btn-primary`: aurora 그라디언트 + glow-p (hover lift 효과)
+  - `hi-class-card` 별점 카드: aurora-1 보더 + 보라 글래스 fill (selected 상태)
+  - `hi-callout` 4종 (default/warning/success/error): rgba 글래스 + 다크 친화 텍스트(#c4b5fd / #fcd34d / #6ee7b7 / #fca5a5)
+  - `hi-search-card` 호텔 검색 결과 카드: 글래스 + aurora-1 호버
+  - `hi-modal` 진입 안내 모달: bg-2 + glass + glow-p + aurora 그라디언트 버튼
+  - `hi-badge-muted` 신규 클래스 (Not on Agoda 배지용, 인라인 스타일 → 클래스화)
+  - **인라인 legacy 색상 일괄 정리**:
+    - Contact Email 라디오 영역(`#f5f3ff` / `#e0d8f7` / `#666` / `#e0e0e0`) → rgba(124,58,237,*) + var(--line-2) + var(--ink-3)
+    - stars-warning 빨강(`#c93030`) → `#fca5a5`
+    - `$` USD 표시 회색(`#666` / `#888`) → var(--ink-2) + var(--ink-3)
+    - JS 동적 "Not on Agoda" 배지 인라인 스타일 → `hi-badge-muted` 클래스 사용
+  - legacy Google Fonts import 제거 (`Fraunces` + `DM Sans` + `Noto Sans KR`) — shared.css v2가 var(--display)/var(--sans)에 'Inter' 통일 적용
+  - **JS 최소 추가** (2곳, 기존 로직 byte-for-byte 보존):
+    - `T.requireAuth` 콜백 첫 부분에 `user-email` span 텍스트 세팅 (4줄)
+    - IIFE 끝에 `btn-logout` 클릭 → `T.logout` 핸들러 (2줄)
+- `_backup_20260501/hotel-info.html` (57,593 bytes): v1 백업
+
+### 배경
+17차(index 랜딩) + 18차(sales / marketing) 완료 후 잔여 3종(hotel-info / booking-analytics / admin) 중 가장 큰 단일 페이지(1085줄). hotel-info는 매니저 가입 직후 첫 진입 페이지이자 호텔 데이터 INSERT/UPDATE의 유일한 진입점이라 DB 무결성이 최우선. 18-hotfix에서 sales/marketing의 `T.client` 사용으로 라이브 장애가 발생했던 교훈을 받아, 이 페이지가 이미 사용하는 `T.db.*` wrapper 흐름을 그대로 유지하고 Supabase 클라이언트 직접 호출은 0회로 검증.
+
+### 변경사유
+- **메시지 컨셉 일관성**: index/sales/marketing이 모두 v2 Aurora로 통일된 상태에서 hotel-info만 legacy 흰배경/보라(#534AB7)로 남으면 매니저 첫 진입 인상이 깨짐. 가입 → 호텔 등록 → 결제 → 마케팅 대시보드의 전 여정을 동일한 Aurora 브랜드 톤으로 통합.
+- **DB 로직 byte-for-byte 보존**: 1029줄 `status: 'pending'`(신규 등록 시), 1035줄 `delete hotelData.status`(edit 모드에서 admin이 설정한 status 유지), 1036줄 `T.db.updateHotel`, 1038줄 `T.db.createHotel` 모두 무수정. 폼 수집 → 객체 빌드 → wrapper 호출 → cache invalidation(BroadcastChannel + localStorage `tw-hotels-dirty`) → status별 분기 redirect 로직까지 그대로.
+- **인증/라우팅 흐름 보존**: T.requireAuth → T.checkAdmin(is_admin이면 admin.html로 강제 이동) → T.db.getMyHotels → edit/new 모드 분기. 모든 분기와 redirect timing(setTimeout 1500ms / 1200ms / 2000ms)까지 변경 없음.
+- **18-hotfix 교훈 준수**: 검증 단계에서 `T.client` 0회 / `T.sb` 0회 확인. 이 페이지는 원래부터 `T.db.*` wrapper만 사용하는 깔끔한 구조라 hotfix 위험 자체가 없음.
+- **인라인 legacy 색 정리**: CSS 블록뿐 아니라 폼 내부 인라인 스타일(Contact Email 라디오 영역, $ USD 라벨, stars-warning, Not on Agoda 동적 배지)까지 모두 v2 토큰화. 다크 캔버스에서 흰 박스/안 보이는 회색 텍스트가 0건이 되도록 풀스윕.
+
+### 검증
+1. **JS 문법 자동 검증**: `node --check` PASS (28,165 chars)
+2. **핵심 로직 보존**:
+   - T.requireAuth 1회 ✅ / T.checkAdmin 1회 ✅ / T.logout 1회 ✅
+   - **T.client 0회 ✅ / T.sb 0회 ✅** (18-hotfix 교훈)
+   - T.db.getMyHotels 1회 ✅ / T.db.createHotel 1회 ✅ / T.db.updateHotel 1회 ✅
+   - T.api.agodaSearch 1회 ✅ / T.api.processHotel 1회 ✅
+   - `status: 'pending'` 1회 ✅ / `delete hotelData.status` 1회 ✅ (edit 모드 status preserve)
+   - `window.location.href = 'admin.html'` 1회 ✅ (관리자 강제 이동)
+3. **v2 Aurora 표준 적용**:
+   - aurora-bg ✅ / aurora-blob 4개 ✅ / aurora-grid ✅
+   - shared.css 외부 링크 ✅
+   - sticky glass topbar (user-email + Settings + Sign out) ✅
+   - var(--aurora*) 다수 / var(--ink*) 다수 / var(--glass*) 다수 / var(--line*) 다수
+4. **legacy 잔재 sweep**:
+   - `#534AB7` 0건 ✅ / `background:#f7f7f7` 0건 ✅
+   - `Fraunces` 0건 ✅ / `DM Sans` 0건 ✅
+   - 인라인 헥스 색상(`#666` / `#888` / `#e0e0e0` / `#f5f3ff` 등) 모두 var() 토큰으로 치환
+5. **Playwright 시각 비교** (1280x900~1100 fullpage):
+   - BEFORE: legacy 흰배경 + 보라 #534AB7 강조 + 진입 모달 흰 카드
+   - AFTER Step 1 (모달 닫음): 다크 캔버스 + aurora glow + glass topbar + glass card + Step 1 active 보라 그라디언트 배지 + 보라 글래스 callout + glass input + aurora-1 focus ring
+   - AFTER Step 2 (폼 강제 표시): 모든 hi-input/hi-select 글래스 / Property Type 드롭다운 다크 옵션 / Hotel Class 5★ Luxury 카드 aurora-5 별 / Starting Price `$` ink-2 / Save & Continue 버튼 aurora 그라디언트 + glow / Contact Email 라디오 보라 글래스 박스(이전엔 흰색) → 다크 통합 완료
+
+### 다음 단계
+v2 마이그레이션 잔여 2종: booking-analytics(374줄 + 1MB 인라인 데이터, 20차 단독, 신중 작업), admin(분할 필수, 별도 차수). 큐 시스템 정비는 19/20차/admin 모두 완료 후 별도 차수에서 일괄.
+
+---
+
 ## 2026-05-01 (18차) — [디자인시스템] v2 Aurora — sales / marketing 페이지 마이그레이션
 
 ### 변경 파일

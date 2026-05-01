@@ -5,6 +5,51 @@
 
 ---
 
+## 2026-05-01 (15차) — [디자인시스템] v2 Aurora 마이그레이션 — 인증 페이지 4종 일괄 적용 (signup/forgot/reset/verify)
+
+### 변경 파일
+- `signup.html`: aurora-bg + 4 blob + grid 추가, brand-headline "global stage" + form-title "account"에 Aurora 그라디언트 텍스트 적용
+- `forgot-password.html`: aurora-bg 추가, "password" Aurora 그라디언트, sent confirmation pane을 라이트(`#f0faf3`/`#0a7c3a`)에서 success 글래스(`rgba(16,185,129,*)` + glow)로 교체, v1 `--gray-500` 잔재 인라인 컬러를 `--ink-3`로 정리
+- `reset-password.html`: aurora-bg 추가, "new password" Aurora 그라디언트, loading/invalid pane의 v1 라이트 컬러(`#888`/`#fef0f0`/`#c93030`)를 다크 글래스(`rgba(239,68,68,.08)` + danger 톤)로 교체
+- `verify-email.html`: aurora-bg 추가, "email" Aurora 그라디언트, **4개 상태 박스 전면 재작성** — pending(보라 글래스 + 이메일 주소 그라디언트 텍스트), verifying(다크 톤), success(success 글래스 + glow), error(danger 글래스), 경고 박스(warn 톤 글래스)
+- `docs/screenshots/v2-migration/{signup,forgot-password,reset-password,verify-email}/before.png`, `after.png`: 4쌍 BEFORE/AFTER 영구 보존
+
+### 배경
+14차에서 login.html 시범 마이그레이션 성공 → 동일 패턴(`shell` + `brand-panel` + `form-panel`)을 공유하는 인증 페이지 4종(signup/forgot-password/reset-password/verify-email)에 일괄 적용. 자율 작업 분할 원칙에 따라 어드민/대시보드 등 큰 페이지와 분리하여 1개 채팅 단위로 처리.
+
+### 변경사유
+- **공통 패턴 일괄 처리**: 5개 인증 페이지가 모두 `<body><div class="shell">` 시작 → aurora-bg + grid 4줄 삽입이 가장 큰 공통 변경. 각 페이지마다 헤드라인 강조어에 `<em>` 태그로 그라디언트 텍스트 효과 추가.
+- **상태 박스(verify-email/forgot-password/reset-password) 전면 재작성**: 이 박스들은 v1에서 라이트 톤 하드코딩 색상(`#f7f6ff`, `#f0faf3`, `#fef0f0` 등)을 인라인으로 박아두어 다크 캔버스에서 흰색 박스로 노출되어 가독성 0이었음. 다크 글래스(`rgba(*,*,*,.08)` + 글로우 + backdrop-filter)로 전면 재작성하여 톤 통일.
+- **시맨틱 컬러 사용**: 성공=`var(--success)` + `var(--glow-success)`, 경고=`var(--warn)`, 에러=`var(--danger)` — shared.css v2의 시맨틱 토큰 일관 적용.
+- **이메일 주소 강조**: pending-email은 mono 폰트 + Aurora 그라디언트 텍스트로 시각적 hierarchy 부여.
+
+### 검증
+1. **JS 문법 체크 (4개 모두)**: `node --check` 통과 — signup(123줄), forgot(57줄), reset(119줄), verify(98줄)
+2. **Playwright 렌더링 (4개 모두)**: ✅ 통과
+   - body 배경 `rgb(10,10,15)` = 다크 캔버스
+   - `.aurora-bg`, `.aurora-blob.b1`, `.shell`, `.brand-panel` 모두 존재
+   - 콘솔 에러 0건
+3. **하드코딩 라이트 컬러 잔재 검사**: `grep -E "background:#[0-9a-f]|color:#[0-9a-f]"` → 0건
+4. **BEFORE/AFTER 비교**: docs/screenshots/v2-migration/* 8장 보존
+
+### 시각 결과
+- signup: 단계 표시(1=Aurora 원, 2=다크 원), "Create your **account**" 그라디언트, password requirements 박스 글래스
+- forgot-password: "Reset your **password**" / "Forgot **password?**" 그라디언트
+- reset-password: "Set your **new password**" / "Set **new password**" 그라디언트, 검증 중 로딩 화면도 다크 톤
+- verify-email: 4개 상태(pending/verifying/success/error) 모두 톤 통일, 이메일 주소 Aurora 그라디언트 텍스트
+
+### 다음 단계
+- index.html (랜딩 — 시각적 임팩트 가장 큰 페이지) — 별도 채팅 권장 (기존 코드 양 많음)
+- dashboard.html, settings.html — 매니저 핵심 페이지
+- sales.html, marketing.html, hotel-info.html, booking-analytics.html — 매니저 콘텐츠 페이지
+- admin.html (1.27MB) — 별도 채팅으로 분리 (가장 복잡, 토큰 위험)
+
+### 관련
+- 14차 (login.html 시범 마이그레이션) 패턴 그대로 적용
+- shared.css v2 토큰 시스템 일관 사용
+
+---
+
 ## 2026-05-01 (14차) — [디자인시스템] shared.css v2 — C3 Aurora Trendy 마이그레이션 시작 (login.html 시범 적용)
 
 ### 변경 파일

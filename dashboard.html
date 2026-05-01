@@ -10,69 +10,85 @@
 <script src="shared.js"></script>
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#f7f7f7;font-family:'DM Sans','Noto Sans KR',sans-serif;color:#1a1a1a;min-height:100vh}
-.dh-shell{max-width:1280px;margin:0 auto;padding:0 24px}
-.dh-topbar{display:flex;justify-content:space-between;align-items:center;padding:18px 0;border-bottom:1px solid #e8e8e8;background:#fff;margin:0 -24px;padding-left:24px;padding-right:24px}
-.dh-logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:#1a1a1a}
-.dh-logo-icon{width:36px;height:36px;background:#534AB7;color:#fff;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700}
-.dh-logo-text{font-family:'Fraunces',serif;font-size:20px;font-weight:600}
+body{margin:0;background:var(--bg);font-family:var(--sans);color:var(--ink);min-height:100vh}
+.dh-shell{max-width:1280px;margin:0 auto;padding:0 24px;position:relative;z-index:2}
+.dh-topbar{display:flex;justify-content:space-between;align-items:center;padding:18px 0;border-bottom:1px solid var(--line);background:rgba(10,10,15,.7);backdrop-filter:saturate(180%) blur(24px);margin:0 -24px;padding-left:24px;padding-right:24px;position:sticky;top:0;z-index:50}
+.dh-logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink)}
+.dh-logo-icon{width:36px;height:36px;background:var(--aurora);color:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;letter-spacing:-.04em;box-shadow:var(--glow-p)}
+.dh-logo-text{font-family:var(--display);font-size:20px;font-weight:700;letter-spacing:-.02em}
 .dh-nav-right{display:flex;gap:16px;align-items:center}
-.dh-lang{display:flex;gap:6px}
-.dh-lang button{background:#fff;border:1px solid #e0e0e0;padding:7px 12px;border-radius:6px;cursor:pointer;font-size:12.5px;font-weight:500}
-.dh-lang button.active{background:#1a1a1a;color:#fff;border-color:#1a1a1a}
-.dh-user{font-size:13.5px;color:#666}
-.dh-logout{background:none;border:1px solid #d8d8d8;padding:7px 14px;border-radius:6px;cursor:pointer;font-size:13px;font-family:inherit}
-.dh-logout:hover{background:#f5f5f5}
+.dh-lang{display:inline-flex;gap:2px;background:var(--glass);border:1px solid var(--line-2);border-radius:99px;padding:3px;backdrop-filter:blur(12px)}
+.dh-lang button{background:transparent;border:none;padding:6px 14px;border-radius:17px;cursor:pointer;font-size:12.5px;font-weight:500;color:var(--ink-3);font-family:var(--sans);transition:var(--transition)}
+.dh-lang button:hover{color:var(--ink-2)}
+.dh-lang button.active{background:var(--aurora);color:#fff;font-weight:600;box-shadow:var(--glow-p)}
+.dh-user{font-size:13.5px;color:var(--ink-3);font-family:var(--mono)}
+.dh-logout{background:var(--glass);color:var(--ink-3);border:1px solid var(--line-2);padding:7px 14px;border-radius:8px;cursor:pointer;font-size:13px;font-family:var(--sans);backdrop-filter:blur(8px);transition:var(--transition);text-decoration:none;display:inline-block}
+.dh-logout:hover{border-color:var(--line-3);color:var(--ink);background:var(--glass-2)}
 .dh-main{padding:32px 0 60px}
-.dh-section-title{font-family:'Fraunces',serif;font-size:30px;font-weight:600;margin:0 0 6px}
-.dh-section-sub{color:#777;font-size:14px;margin:0 0 28px}
-.dh-card{background:#fff;border:1px solid #e8e8e8;border-radius:14px;padding:28px;margin-bottom:18px}
-.dh-status-badge{display:inline-block;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:600;color:#fff}
+.dh-section-title{font-family:var(--display);font-size:32px;font-weight:700;margin:0 0 6px;letter-spacing:-.025em;color:var(--ink)}
+.dh-section-title em{font-style:normal;background:var(--aurora);-webkit-background-clip:text;background-clip:text;color:transparent}
+.dh-section-sub{color:var(--ink-3);font-size:14px;margin:0 0 28px}
+.dh-card{background:var(--glass);border:1px solid var(--line-2);border-radius:var(--r-lg);padding:28px;margin-bottom:18px;backdrop-filter:blur(24px) saturate(140%);box-shadow:var(--sh-2);position:relative;overflow:hidden}
+.dh-status-badge{display:inline-block;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:600;color:#fff;background:var(--aurora);box-shadow:var(--glow-p)}
 .dh-progress{display:flex;gap:8px;margin-top:20px;margin-bottom:8px}
-.dh-progress-step{flex:1;text-align:center;font-size:11.5px;color:#999;position:relative}
-.dh-progress-step::before{content:'';display:block;width:100%;height:4px;background:#eee;margin-bottom:8px;border-radius:2px}
-.dh-progress-step.done::before{background:#0a7c3a}
-.dh-progress-step.active::before{background:#534AB7}
-.dh-progress-step.done,.dh-progress-step.active{color:#1a1a1a;font-weight:600}
+.dh-progress-step{flex:1;text-align:center;font-size:11.5px;color:var(--ink-4);position:relative;font-family:var(--mono)}
+.dh-progress-step::before{content:'';display:block;width:100%;height:4px;background:var(--line);margin-bottom:8px;border-radius:2px}
+.dh-progress-step.done::before{background:var(--success);box-shadow:var(--glow-success)}
+.dh-progress-step.active::before{background:var(--aurora)}
+.dh-progress-step.done,.dh-progress-step.active{color:var(--ink);font-weight:600}
 .dh-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
 .dh-grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
-.dh-stat{background:#fff;border:1px solid #e8e8e8;border-radius:12px;padding:20px}
-.dh-stat-label{font-size:12px;color:#888;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
-.dh-stat-value{font-size:28px;font-weight:700;color:#1a1a1a}
-.dh-stat-trend{font-size:12px;color:#0a7c3a;margin-top:4px}
+.dh-stat{background:var(--glass);border:1px solid var(--line-2);border-radius:var(--r);padding:20px;backdrop-filter:blur(12px);position:relative;overflow:hidden;transition:var(--transition)}
+.dh-stat:hover{border-color:var(--line-3);transform:translateY(-2px)}
+.dh-stat-label{font-size:11.5px;color:var(--ink-4);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;font-family:var(--mono)}
+.dh-stat-value{font-size:28px;font-weight:700;color:var(--ink);font-family:var(--mono);letter-spacing:-.02em}
+.dh-stat-trend{font-size:12px;color:var(--success);margin-top:4px;font-weight:600}
 .dh-hotel-info{display:flex;gap:20px;align-items:flex-start}
-.dh-hotel-img{width:140px;height:100px;border-radius:8px;background:#eee;background-size:cover;background-position:center;flex-shrink:0}
-.dh-hotel-meta h2{font-family:'Fraunces',serif;font-size:22px;margin:0 0 4px;font-weight:600}
-.dh-hotel-meta-row{font-size:13px;color:#666;margin-bottom:4px}
-.dh-pay-card{background:linear-gradient(135deg,#534AB7 0%,#3d3690 100%);color:#fff;border-radius:14px;padding:32px;margin-bottom:18px}
-.dh-pay-card h3{font-family:'Fraunces',serif;font-size:24px;margin:0 0 8px;font-weight:600}
-.dh-pay-card p{margin:0 0 20px;opacity:.9;font-size:14.5px;line-height:1.6}
-.dh-pay-amount{font-size:42px;font-weight:700;margin-bottom:8px}
-.dh-pay-btn{background:#fff;color:#534AB7;border:none;padding:14px 32px;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit}
-.dh-pay-btn:hover{background:#f0f0ff}
-.dh-pay-btn:disabled{opacity:.7;cursor:not-allowed}
-.dh-pay-meta{display:flex;gap:16px;font-size:12.5px;opacity:.85;margin-top:14px;flex-wrap:wrap}
-.dh-empty{text-align:center;padding:60px 20px;color:#888}
-.dh-empty-icon{font-size:48px;margin-bottom:12px}
-.dh-empty h3{font-size:18px;margin:0 0 8px;color:#1a1a1a}
-.dh-btn{padding:12px 24px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;border:none;font-family:inherit;text-decoration:none;display:inline-block}
-.dh-btn-primary{background:#1a1a1a;color:#fff}
-.dh-btn-primary:hover{background:#000}
-.dh-loader{display:inline-block;width:20px;height:20px;border:2px solid #ddd;border-top-color:#534AB7;border-radius:50%;animation:spin .8s linear infinite}
+.dh-hotel-img{width:140px;height:100px;border-radius:10px;background:var(--bg-3);background-size:cover;background-position:center;flex-shrink:0;border:1px solid var(--line-2)}
+.dh-hotel-meta h2{font-family:var(--display);font-size:22px;margin:0 0 4px;font-weight:700;color:var(--ink);letter-spacing:-.02em}
+.dh-hotel-meta-row{font-size:13px;color:var(--ink-3);margin-bottom:4px}
+.dh-pay-card{background:linear-gradient(135deg,rgba(124,58,237,.18) 0%,rgba(236,72,153,.12) 50%,rgba(6,182,212,.18) 100%);color:var(--ink);border:1px solid var(--line-2);border-radius:var(--r-lg);padding:32px;margin-bottom:18px;backdrop-filter:blur(24px) saturate(140%);box-shadow:var(--sh-3),var(--glow-p);position:relative;overflow:hidden}
+.dh-pay-card::before{content:'';position:absolute;top:-50%;right:-30%;width:300px;height:300px;background:conic-gradient(from 180deg,#7C3AED,#EC4899,#F59E0B,#06B6D4,#7C3AED);border-radius:50%;filter:blur(80px);opacity:.3;pointer-events:none}
+.dh-pay-card>*{position:relative;z-index:1}
+.dh-pay-card h3{font-family:var(--display);font-size:24px;margin:0 0 8px;font-weight:700;letter-spacing:-.02em}
+.dh-pay-card p{margin:0 0 20px;color:var(--ink-2);font-size:14.5px;line-height:1.6}
+.dh-pay-amount{font-size:48px;font-weight:700;margin-bottom:8px;font-family:var(--mono);background:var(--aurora);-webkit-background-clip:text;background-clip:text;color:transparent;letter-spacing:-.02em}
+.dh-pay-btn{background:var(--aurora);color:#fff;border:none;padding:14px 32px;border-radius:var(--r-sm);font-size:15px;font-weight:700;cursor:pointer;font-family:var(--sans);box-shadow:var(--glow-p),0 1px 0 rgba(255,255,255,.2) inset;transition:var(--transition);letter-spacing:-.005em}
+.dh-pay-btn:hover{transform:translateY(-1px);box-shadow:var(--glow-p),var(--glow-m),0 1px 0 rgba(255,255,255,.2) inset}
+.dh-pay-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.dh-pay-meta{display:flex;gap:16px;font-size:12.5px;color:var(--ink-3);margin-top:14px;flex-wrap:wrap;font-family:var(--mono)}
+.dh-empty{text-align:center;padding:60px 20px;color:var(--ink-3)}
+.dh-empty-icon{font-size:48px;margin-bottom:12px;opacity:.6}
+.dh-empty h3{font-size:18px;margin:0 0 8px;color:var(--ink);font-family:var(--display);letter-spacing:-.02em}
+.dh-btn{padding:12px 24px;border-radius:var(--r-sm);font-size:14px;font-weight:600;cursor:pointer;border:none;font-family:var(--sans);text-decoration:none;display:inline-block;transition:var(--transition)}
+.dh-btn-primary{background:var(--aurora);color:#fff;box-shadow:var(--glow-p),0 1px 0 rgba(255,255,255,.2) inset}
+.dh-btn-primary:hover{transform:translateY(-1px);box-shadow:var(--glow-p),var(--glow-m),0 1px 0 rgba(255,255,255,.2) inset}
+.dh-loader{display:inline-block;width:20px;height:20px;border:2px solid var(--line-2);border-top-color:var(--aurora-1);border-radius:50%;animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-.dh-loading{display:flex;flex-direction:column;align-items:center;padding:60px;gap:14px;color:#888;font-size:13px}
+.dh-loading{display:flex;flex-direction:column;align-items:center;padding:60px;gap:14px;color:var(--ink-3);font-size:13px}
 .dh-table{width:100%;border-collapse:collapse;font-size:13.5px}
-.dh-table th{text-align:left;padding:10px 12px;background:#f7f7f7;color:#888;font-weight:500;font-size:12px;text-transform:uppercase;letter-spacing:.3px}
-.dh-table td{padding:12px;border-bottom:1px solid #f0f0f0}
+.dh-table th{text-align:left;padding:12px;background:var(--bg-2);color:var(--ink-3);font-weight:600;font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;font-family:var(--mono);border-bottom:1px solid var(--line-2)}
+.dh-table td{padding:14px 12px;border-bottom:1px solid var(--line);color:var(--ink-2)}
 .dh-table tr:last-child td{border-bottom:none}
-.dh-tabs{display:flex;gap:0;border-bottom:1px solid #e8e8e8;margin-bottom:20px}
-.dh-tab{padding:12px 18px;cursor:pointer;font-size:13.5px;color:#888;border-bottom:2px solid transparent;font-weight:500}
-.dh-tab.active{color:#1a1a1a;border-color:#534AB7;font-weight:600}
-.dh-h3{font-size:16px;font-weight:600;margin:0 0 14px}
+.dh-table tr:hover td{background:var(--glass)}
+.dh-tabs{display:flex;gap:0;border-bottom:1px solid var(--line);margin-bottom:20px}
+.dh-tab{padding:12px 18px;cursor:pointer;font-size:13.5px;color:var(--ink-3);border-bottom:2px solid transparent;font-weight:500;transition:var(--transition)}
+.dh-tab:hover{color:var(--ink-2)}
+.dh-tab.active{color:var(--ink);border-color:var(--aurora-1);font-weight:600}
+.dh-h3{font-size:16px;font-weight:700;margin:0 0 14px;color:var(--ink);letter-spacing:-.015em}
 @media (max-width:720px){.dh-grid-2,.dh-grid-3{grid-template-columns:1fr}.dh-hotel-info{flex-direction:column}.dh-hotel-img{width:100%;height:160px}}
 </style>
 </head>
 <body>
+<!-- Aurora background (v2) -->
+<div class="aurora-bg">
+  <div class="aurora-blob b1"></div>
+  <div class="aurora-blob b2"></div>
+  <div class="aurora-blob b3"></div>
+  <div class="aurora-blob b4"></div>
+</div>
+<div class="aurora-grid"></div>
+
 <div class="dh-shell">
   <div class="dh-topbar">
     <a href="dashboard.html" class="dh-logo">
@@ -161,7 +177,7 @@ body{margin:0;background:#f7f7f7;font-family:'DM Sans','Noto Sans KR',sans-serif
   }
 
   function renderNoHotel(){
-    var html = '<h1 class="dh-section-title" data-en="Welcome to TravelWinners!" data-ko="환영합니다!">Welcome to TravelWinners!</h1>';
+    var html = '<h1 class="dh-section-title" data-en="Welcome to <em>TravelWinners!</em>" data-ko="<em>TravelWinners</em>에 오신 걸 환영합니다!">Welcome to <em>TravelWinners!</em></h1>';
     html += '<p class="dh-section-sub" data-en="Get started by registering your hotel." data-ko="호텔을 등록하고 시작하세요.">Get started by registering your hotel.</p>';
     html += '<div class="dh-card"><div class="dh-empty">';
     html += '<div class="dh-empty-icon">🏨</div>';
@@ -181,7 +197,7 @@ body{margin:0;background:#f7f7f7;font-family:'DM Sans','Noto Sans KR',sans-serif
     var html = '';
     
     // === 헤더 ===
-    html += '<h1 class="dh-section-title">' + (lang === 'ko' ? '대시보드' : 'Dashboard') + '</h1>';
+    html += '<h1 class="dh-section-title">' + (lang === 'ko' ? '<em>대시보드</em>' : '<em>Dashboard</em>') + '</h1>';
     html += '<p class="dh-section-sub">' + (lang === 'ko' ? '호텔 정보, 결제 상태, 영상 진행상황을 한눈에 확인하세요.' : 'Track your hotel info, payment status, and video progress.') + '</p>';
 
     // === 호텔 카드 ===
@@ -244,7 +260,7 @@ body{margin:0;background:#f7f7f7;font-family:'DM Sans','Noto Sans KR',sans-serif
       html += '<p>' + (lang === 'ko' ? '$200 영상 제작 비용을 결제하시면 6개 언어 유튜브 채널에 호텔 영상이 게시됩니다.' : 'Complete the $200 video production payment to publish your hotel video across 6-language YouTube channels.') + '</p>';
       html += '<div class="dh-pay-amount">$200 USD</div>';
       // PayPal Buttons 컨테이너 (SDK 로드 후 paypal.Buttons() 가 렌더링)
-      html += '<div id="paypal-button-container" style="background:#fff;border-radius:8px;padding:16px;min-height:55px;max-width:420px"></div>';
+      html += '<div id="paypal-button-container" style="background:#fff;border-radius:10px;padding:16px;min-height:55px;max-width:420px;box-shadow:0 4px 16px rgba(0,0,0,.4)"></div>';
       html += '<div id="paypal-status-note" style="margin-top:10px;font-size:12.5px;opacity:.85;min-height:18px"></div>';
       html += '<div class="dh-pay-meta">';
       html += '<span>✓ ' + (lang === 'ko' ? '안전한 PayPal 결제' : 'Secure PayPal payment') + '</span>';
@@ -256,7 +272,7 @@ body{margin:0;background:#f7f7f7;font-family:'DM Sans','Noto Sans KR',sans-serif
       // 결제 완료 → 제작 중
       html += '<div class="dh-card">';
       html += '<h3 class="dh-h3">' + (lang === 'ko' ? '✅ 결제 완료 — 영상 제작 중' : '✅ Payment Received — Video in Production') + '</h3>';
-      html += '<p style="color:#666;line-height:1.7">' + (lang === 'ko' ? '결제가 완료되었습니다. 저희 팀이 호텔 영상을 제작 중입니다. 7일 이내 게시 예정입니다.' : 'Payment received. Our team is producing your hotel video. It will be published within 7 days.') + '</p>';
+      html += '<p style="color:var(--ink-2);line-height:1.7">' + (lang === 'ko' ? '결제가 완료되었습니다. 저희 팀이 호텔 영상을 제작 중입니다. 7일 이내 게시 예정입니다.' : 'Payment received. Our team is producing your hotel video. It will be published within 7 days.') + '</p>';
       html += '</div>';
     } else if (status === 'published'){
       // 게시됨 → 통계 표시
@@ -447,7 +463,7 @@ body{margin:0;background:#f7f7f7;font-family:'DM Sans','Noto Sans KR',sans-serif
       
       var payments = r.data || [];
       if (payments.length === 0){
-        area.innerHTML = '<div style="color:#888;font-size:13px;padding:8px 0">' + (T.lang === 'ko' ? '결제 내역이 없습니다.' : 'No payments yet.') + '</div>';
+        area.innerHTML = '<div style="color:var(--ink-3);font-size:13px;padding:8px 0">' + (T.lang === 'ko' ? '결제 내역이 없습니다.' : 'No payments yet.') + '</div>';
         return;
       }
 

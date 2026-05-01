@@ -398,11 +398,11 @@
     },
     statusColor: function (s) {
       var colors = {
-        pending: '#999', review: '#f0a830', approved: '#534AB7',
-        paid: '#0a7c3a', producing: '#534AB7', published: '#0a7c3a',
-        rejected: '#c93030', refunded: '#c93030'
+        pending: '#6E6E80', review: '#F59E0B', approved: '#7C3AED',
+        paid: '#10B981', producing: '#7C3AED', published: '#10B981',
+        rejected: '#EF4444', refunded: '#EF4444'
       };
-      return colors[s] || '#999';
+      return colors[s] || '#6E6E80';
     }
   };
 

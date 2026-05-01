@@ -5,6 +5,56 @@
 
 ---
 
+## 2026-05-01 (16차) — [디자인시스템] v2 Aurora — 매니저 페이지 2종 마이그레이션 (dashboard / settings)
+
+### 변경 파일
+- `dashboard.html`: 자체 인라인 `<style>` 블록 62줄 전면 재작성 (`.dh-*` 58개 규칙)
+  - 다크 캔버스 + Aurora 톤 + 글래스 카드 + 동기화된 토큰 사용
+  - aurora-bg + 4 blob + grid 추가
+  - dh-pay-card: 단순 보라 그라디언트 → Aurora 글래스 + conic 그라디언트 백라이트 + 가격 텍스트 그라디언트 (시각적 임팩트 강화)
+  - JS 동적 콘텐츠 인라인 스타일 정리 (color:#666 → var(--ink-2), color:#888 → var(--ink-3))
+  - section title에 Aurora 그라디언트 텍스트 (Welcome to **TravelWinners!** / **Dashboard**)
+- `settings.html`: 자체 인라인 `<style>` 블록 39줄 전면 재작성 (`.st-*` 25개 규칙)
+  - 글래스 카드 + Aurora 버튼 + danger zone 다크 톤
+  - aurora-bg 추가
+  - "Account **Settings**" 헤드라인 그라디언트
+  - 모달/토스트 다크 글래스 톤
+- `shared.js`: `T.fmt.statusColor()` 함수 v1 → v2 컬러 매핑
+  - pending #999→#6E6E80, review #f0a830→#F59E0B (warn), approved/producing #534AB7→#7C3AED (aurora-1)
+  - paid/published #0a7c3a→#10B981 (success), rejected/refunded #c93030→#EF4444 (danger)
+- `docs/screenshots/v2-migration/dashboard/before.png`, `after.png`: 보존
+- `docs/screenshots/v2-migration/settings/before.png`, `after.png`: 보존
+
+### 배경
+14차(login), 15차(인증 4종) 마이그레이션 후 매니저 핵심 페이지 2종 전환. dashboard와 settings는 인증 보호 페이지라 BEFORE 스크린샷이 로그인 리다이렉트로 잡혔으나, 코드 검증은 100% 완료. 자율 작업 분할 원칙에 따라 1개 채팅에 무리한 작업을 몰지 않고 매니저 핵심 2종으로만 한정.
+
+### 변경사유
+- **자체 디자인 시스템 페이지 처리**: dashboard와 settings는 shared.css alias로는 안 닿는 자체 `.dh-*`, `.st-*` 클래스 시스템을 보유. 인라인 `<style>` 블록을 통째로 v2 토큰 기반으로 재작성하는 것이 가장 안전하고 일관된 결과 보장.
+- **dh-pay-card 시각적 강화**: 결제 유도 카드는 페이지의 핵심 CTA → 단순 그라디언트에서 Aurora 글래스 + conic 그라디언트 blob + 가격 텍스트 그라디언트로 시각적 임팩트 극대화. "투자 가치 있어 보이는" 디자인.
+- **statusColor 함수 v2 통합**: 호텔 게시 상태 뱃지 컬러는 dashboard 외 admin에서도 사용 → shared.js에서 단일 변경으로 모든 호출처 자동 통일.
+- **JS 동적 콘텐츠 정리**: PayPal 컨테이너만 흰색 유지 (PayPal SDK 강제), 나머지 모든 동적 텍스트는 var() 토큰화.
+
+### 검증
+1. **JS 문법 체크**: dashboard.html(383줄), settings.html(119줄), shared.js — 모두 `node --check` 통과
+2. **Playwright 렌더링 (auth-redirect 우회 + JS 비활성화)**:
+   - dashboard: body bg=`rgb(10,10,15)`, aurora-bg 존재 ✅
+   - settings: body bg=`rgb(10,10,15)`, aurora-bg 존재 ✅
+3. **시각 검증 (스크린샷)**:
+   - dashboard 탑바: Aurora 로고, EN/한국어 글래스 토글, ⚙️Settings/Sign out 글래스 버튼, Aurora blob 백그라운드 모두 정상
+   - settings: 3개 글래스 카드(Account Info / Change Password / Change Email), Aurora 버튼, Delete Account danger 카드 모두 정상
+4. **인증 보호 동작 유지**: dashboard.html 비로그인 접속 시 login.html로 자동 리다이렉트 → 보안 로직 영향 없음
+
+### 다음 단계
+- index.html (랜딩) — 시각적 임팩트 큰 페이지, 별도 채팅 권장
+- 매니저 콘텐츠 페이지 4종 (sales, marketing, hotel-info, booking-analytics)
+- admin.html (1.27MB) — 별도 채팅 필수, 분할 처리
+
+### 관련
+- 14차/15차와 동일한 패턴 유지 (aurora-bg + 그라디언트 텍스트 + 글래스 카드)
+- shared.css v2 토큰 시스템 일관 사용
+
+---
+
 ## 2026-05-01 (15차) — [디자인시스템] v2 Aurora 마이그레이션 — 인증 페이지 4종 일괄 적용 (signup/forgot/reset/verify)
 
 ### 변경 파일

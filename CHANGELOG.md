@@ -74,6 +74,39 @@ v2 마이그레이션 잔여 3종: hotel-info(1085줄, 19차 단독), booking-an
 
 ---
 
+## 2026-05-01 (18-hotfix) — sales / marketing T.client → T.sb 핫픽스
+
+### 변경 파일
+- `sales.html`: `T.client` 3곳 → `T.sb` 일괄 치환
+  - line 334: 호텔 조회 (`T.sb.from('hotels')...`)
+  - line 531: PayPal createOrder 세션 토큰 (`T.sb.auth.getSession()`)
+  - line 554: PayPal onApprove 세션 토큰 (`T.sb.auth.getSession()`)
+- `marketing.html`: `T.client` 2곳 → `T.sb` 일괄 치환
+  - line 290: 호텔 조회
+  - line 305: 세션 토큰 (loadBookings용)
+
+### 배경
+18차 라이브 반영 직후 매니저 계정(joylife8760@naver.com)으로 marketing.html 직접 접속 시 무한 "Loading bookings..." 발생. 콘솔에서 `Uncaught (in promise) TypeError: Cannot read properties of undefined (reading 'from') at marketing.html:291` 확인.
+
+원인: shared.js는 Supabase 클라이언트를 `window.TW.sb`로 노출하는데(shared.js line 18: `window.TW.sb = sb;`), v1 sales/marketing은 존재하지 않는 `T.client`를 호출하고 있었음. 18차 마이그레이션 시 v1의 잠재 버그를 그대로 옮겼고, v2에서 다른 정상 페이지(dashboard 등 — 모두 `T.sb` 사용)와 동작 차이가 드러남.
+
+### 변경사유
+- **잠재 버그 노출**: v1 시기에는 결제 완료된 매니저가 직접 marketing.html URL로 접근하는 사례가 거의 없어 버그가 잠복. v2 라이브 반영 후 대표님 매니저 계정 테스트에서 즉시 발견.
+- **dashboard / index 등 다른 페이지들과 일관성 확보**: 모든 페이지가 `T.sb`로 통일되어 향후 shared.js 변경 시 영향 범위 명확화.
+- **PayPal 세션 토큰 흐름 보존**: createOrder/onApprove에서 `auth.getSession()` 호출도 함께 수정되어 결제 흐름 정상화.
+
+### 검증
+- `T.client` 잔존 0회 (sales / marketing 모두) ✅
+- `T.sb` 사용: sales 3회 / marketing 2회 (수정 전 T.client 횟수와 동일) ✅
+- JS 문법 `node --check` PASS (두 파일 모두) ✅
+- 라이브 콘솔 에러 재현 → 핫픽스 후 무한 로딩 해소 기대
+
+### 추후 권고
+17차 이전 페이지들(login / signup / dashboard / settings / index 등)은 모두 `T.sb` 사용 중이라 동일 버그 없음. v1 백업 파일에는 버그 그대로 남아 있으나 백업이므로 변경 불필요.
+
+---
+
+
 
 ### 변경 파일
 - `index.html`: 랜딩 페이지 전면 재작성 (45,737 bytes → 63,876 bytes)

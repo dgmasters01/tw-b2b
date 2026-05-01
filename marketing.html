@@ -287,7 +287,7 @@
     }
 
     // 호텔 + status 확인
-    var hotelResp = await T.client
+    var hotelResp = await T.sb
       .from('hotels')
       .select('*')
       .eq('user_id', user.id)
@@ -302,7 +302,7 @@
     }
 
     // 토큰 확보 (API 호출용)
-    var sessionResp = await T.client.auth.getSession();
+    var sessionResp = await T.sb.auth.getSession();
     currentSession = sessionResp.data.session;
 
     loadBookings(hotel);

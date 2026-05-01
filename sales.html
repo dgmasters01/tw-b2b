@@ -331,7 +331,7 @@
       return;
     }
 
-    var hotelResp = await T.client
+    var hotelResp = await T.sb
       .from('hotels')
       .select('*')
       .eq('user_id', user.id)
@@ -528,7 +528,7 @@
         // 1) 주문 생성 — 백엔드에서 가격/매니저/소유권 검증 후 PayPal Order ID 반환
         createOrder: async function() {
           setPayStatus('Creating order…');
-          var sess = await T.client.auth.getSession();
+          var sess = await T.sb.auth.getSession();
           var token = sess && sess.data && sess.data.session ? sess.data.session.access_token : '';
           var resp = await fetch('/api/paypal?action=create-order', {
             method: 'POST',
@@ -551,7 +551,7 @@
         // 2) 결제 승인 — 백엔드에서 capture + payments INSERT + hotels.status='paid'
         onApprove: async function(approval) {
           setPayStatus('Capturing payment…');
-          var sess = await T.client.auth.getSession();
+          var sess = await T.sb.auth.getSession();
           var token = sess && sess.data && sess.data.session ? sess.data.session.access_token : '';
           var resp = await fetch('/api/paypal?action=capture-order', {
             method: 'POST',

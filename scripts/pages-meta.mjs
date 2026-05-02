@@ -180,3 +180,29 @@ export const AUDIENCE_BADGES = {
   'manager': { label: '🔐 매니저',   color: '#8b5cf6' },
   'admin':   { label: '👑 관리자',   color: '#dc2626' },
 };
+
+// SYNC_ENGINE:GALLERY_AUTO_START
+// ⚠️ 이 섹션은 sync_engine.py가 자동 생성합니다. 직접 편집 금지.
+// 마지막 갱신: 2026-05-02 (총 19개 페이지)
+export const PAGE_TASK_META = {
+  "admin-business.html": { lastTaskId: "CHG-4", lastTaskTitle: "Business Docs 사이드바 강화 + Page Gallery iframe 한계 안내", lastUpdated: "2026-04-29", taskCount: 1 },
+  "admin-gallery.html": { lastTaskId: "CHG-4", lastTaskTitle: "Business Docs 사이드바 강화 + Page Gallery iframe 한계 안내", lastUpdated: "2026-04-29", taskCount: 2 },
+  "admin.html": { lastTaskId: "CHG-21", lastTaskTitle: "v2 Aurora — admin.html Phase 1 (글로벌 레이아웃 + 사이드바 + Topbar + Dashboard + 모달 공통 톤)", lastUpdated: "2026-05-02", taskCount: 15 },
+  "booking-analytics.html": { lastTaskId: "CHG-22", lastTaskTitle: "Analytics 탭 인터랙션 복구 — IIFE 스코프 브리지", lastUpdated: "2026-05-02", taskCount: 2 },
+  "dashboard.html": { lastTaskId: "CHG-21", lastTaskTitle: "v2 Aurora — admin.html Phase 1 (글로벌 레이아웃 + 사이드바 + Topbar + Dashboard + 모달 공통 톤)", lastUpdated: "2026-05-02", taskCount: 2 },
+  "forgot-password.html": { lastTaskId: "CHG-15", lastTaskTitle: "v2 Aurora 마이그레이션 — 인증 페이지 4종 일괄 적용 (signup/forgot/reset/verify)", lastUpdated: "2026-05-01", taskCount: 1 },
+  "hotel-info.html": { lastTaskId: "CHG-21", lastTaskTitle: "v2 Aurora — admin.html Phase 1 (글로벌 레이아웃 + 사이드바 + Topbar + Dashboard + 모달 공통 톤)", lastUpdated: "2026-05-02", taskCount: 4 },
+  "index.html": { lastTaskId: "CHG-18-hotfix", lastTaskTitle: "sales / marketing T.client → T.sb 핫픽스", lastUpdated: "2026-05-01", taskCount: 1 },
+  "login.html": { lastTaskId: "CHG-14", lastTaskTitle: "shared.css v2 — C3 Aurora Trendy 마이그레이션 시작 (login.html 시범 적용)", lastUpdated: "2026-05-01", taskCount: 1 },
+  "marketing.html": { lastTaskId: "CHG-18-hotfix", lastTaskTitle: "sales / marketing T.client → T.sb 핫픽스", lastUpdated: "2026-05-01", taskCount: 2 },
+  "mock/concept-c1.html": { lastTaskId: "CHG-14", lastTaskTitle: "shared.css v2 — C3 Aurora Trendy 마이그레이션 시작 (login.html 시범 적용)", lastUpdated: "2026-05-01", taskCount: 1 },
+  "mock/concept-c2.html": { lastTaskId: "CHG-14", lastTaskTitle: "shared.css v2 — C3 Aurora Trendy 마이그레이션 시작 (login.html 시범 적용)", lastUpdated: "2026-05-01", taskCount: 1 },
+  "mock/concept-c3.html": { lastTaskId: "CHG-14", lastTaskTitle: "shared.css v2 — C3 Aurora Trendy 마이그레이션 시작 (login.html 시범 적용)", lastUpdated: "2026-05-01", taskCount: 1 },
+  "mock/concept-c4.html": { lastTaskId: "CHG-14", lastTaskTitle: "shared.css v2 — C3 Aurora Trendy 마이그레이션 시작 (login.html 시범 적용)", lastUpdated: "2026-05-01", taskCount: 1 },
+  "reset-password.html": { lastTaskId: "CHG-15", lastTaskTitle: "v2 Aurora 마이그레이션 — 인증 페이지 4종 일괄 적용 (signup/forgot/reset/verify)", lastUpdated: "2026-05-01", taskCount: 1 },
+  "sales.html": { lastTaskId: "CHG-18-hotfix", lastTaskTitle: "sales / marketing T.client → T.sb 핫픽스", lastUpdated: "2026-05-01", taskCount: 2 },
+  "settings.html": { lastTaskId: "CHG-16", lastTaskTitle: "v2 Aurora — 매니저 페이지 2종 마이그레이션 (dashboard / settings)", lastUpdated: "2026-05-01", taskCount: 1 },
+  "signup.html": { lastTaskId: "CHG-15", lastTaskTitle: "v2 Aurora 마이그레이션 — 인증 페이지 4종 일괄 적용 (signup/forgot/reset/verify)", lastUpdated: "2026-05-01", taskCount: 1 },
+  "verify-email.html": { lastTaskId: "CHG-15", lastTaskTitle: "v2 Aurora 마이그레이션 — 인증 페이지 4종 일괄 적용 (signup/forgot/reset/verify)", lastUpdated: "2026-05-01", taskCount: 1 },
+};
+// SYNC_ENGINE:GALLERY_AUTO_END

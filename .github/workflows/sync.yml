@@ -1,0 +1,125 @@
+# TW B2B — tasks.json 자동 동기화 워크플로 (Phase 3-A-2)
+#
+# 헌법 부합:
+#   ② 무인 실행: tasks.json push 즉시 자동 실행
+#   ③ 어디서든 도달: 핸드폰 GitHub 앱에서 tasks.json 수정해도 자동 트리거
+#   ④ 전수 추적: 모든 자동 commit이 git history에 영구 기록
+#   ⑤ 무인 검증: --verify 단계가 실패하면 commit 차단
+#   ⑧ 통합 관리: BACKLOG / DECISIONS / Gallery 셋 동시 갱신
+#
+# 트리거 조건:
+#   1. main 브랜치 push 시 tasks.json이 변경된 경우
+#   2. 수동 실행 (workflow_dispatch) — 디버그용
+#
+# 실행 흐름:
+#   1. checkout (full history — git diff 위해)
+#   2. tasks.json 검증 (sync_engine.py --verify)
+#   3. 동기화 실행 (sync_engine.py --apply)
+#   4. 변경 사항이 있으면 자동 commit + push
+#   5. 변경 없거나 self-trigger인 경우 skip
+
+name: Auto Sync tasks.json → MD/Gallery
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'tasks.json'
+      - 'scripts/sync_engine.py'
+      - 'scripts/sync_md_from_tasks.py'
+      - '.github/workflows/sync.yml'
+  workflow_dispatch:  # 수동 트리거 허용 (디버그/강제 동기화)
+
+# 동시 실행 방지 — 같은 브랜치에서 여러 sync가 충돌하지 않도록
+concurrency:
+  group: sync-tasks-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write  # 자동 commit/push에 필요
+
+jobs:
+  sync:
+    name: Sync tasks.json → BACKLOG/DECISIONS/Gallery
+    runs-on: ubuntu-latest
+
+    # 무한 루프 방지: 봇이 만든 commit은 다시 트리거하지 않음
+    if: "!contains(github.event.head_commit.message, '[sync-bot]')"
+
+    steps:
+      - name: Checkout (full history)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Verify tasks.json schema
+        run: |
+          python3 scripts/sync_engine.py --verify
+          echo "✅ tasks.json 검증 통과"
+
+      - name: Run sync engine (apply)
+        run: |
+          python3 scripts/sync_engine.py --apply
+          echo "✅ 동기화 실행 완료"
+
+      - name: Cleanup backup files
+        run: |
+          # .before_sync 백업은 로컬 검토용 — 커밋하지 않음
+          find . -name "*.before_sync" -type f -delete
+          echo "✅ 백업 파일 정리 완료"
+
+      - name: Detect changes
+        id: changes
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+            echo "📝 변경 감지됨"
+            git status --short
+          else
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+            echo "⚪ 변경 없음 — commit skip"
+          fi
+
+      - name: Commit and push
+        if: steps.changes.outputs.has_changes == 'true'
+        run: |
+          git config user.name  "tw-b2b sync-bot"
+          git config user.email "sync-bot@gohotelwinners.com"
+
+          # 변경된 파일 명단을 commit body에 포함 (전수 추적)
+          CHANGED=$(git status --short | head -20)
+
+          git add -A
+          git commit -m "[sync-bot] tasks.json → MD/Gallery 자동 동기화
+
+          [변경사유] 헌법 8조 통합 관리 자동 동기화 (Phase 3-A-2 sync_engine)
+
+          변경된 파일:
+          ${CHANGED}
+
+          Trigger: ${{ github.event_name }}
+          Source commit: ${{ github.sha }}"
+
+          git push origin main
+          echo "✅ 자동 commit 푸시 완료"
+
+      - name: Summary
+        run: |
+          echo "## 🤖 동기화 결과" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          if [ "${{ steps.changes.outputs.has_changes }}" = "true" ]; then
+            echo "✅ **변경사항 자동 commit 완료**" >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "동기화 대상:" >> "$GITHUB_STEP_SUMMARY"
+            echo "- BACKLOG.md / CHANGELOG.md / SOLO_WORK_QUEUE.md" >> "$GITHUB_STEP_SUMMARY"
+            echo "- DECISIONS.md (대표님 결정/승인 작업)" >> "$GITHUB_STEP_SUMMARY"
+            echo "- scripts/pages-meta.mjs (admin-gallery 메타)" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "⚪ 변경사항 없음 — 모든 파일이 이미 최신 상태" >> "$GITHUB_STEP_SUMMARY"
+          fi

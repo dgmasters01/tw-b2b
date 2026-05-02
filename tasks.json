@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-02T07:22:10Z",
+  "updated_at": "2026-05-03T00:00:00Z",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -12,14 +12,66 @@
     "SOLO_WORK_QUEUE.md"
   ],
   "stats": {
-    "total": 51,
-    "done": 30,
+    "total": 52,
+    "done": 31,
     "in_progress": 1,
     "pending": 10,
     "blocked": 10,
     "autonomous_ready": 11
   },
   "tasks": [
+    {
+      "id": "PHASE-3A-2",
+      "title": "[Phase 3-A-2] 자동 동기화 엔진 구축 (sync_engine + GitHub Actions)",
+      "category": "infrastructure",
+      "status": "done",
+      "priority": "P0",
+      "size": "medium",
+      "parent_task": null,
+      "blocker": null,
+      "created_at": "2026-05-03T00:00:00Z",
+      "completed_at": "2026-05-03T00:00:00Z",
+      "claude_can_auto": true,
+      "autonomous": {
+        "can_run_alone": true,
+        "estimated_hours": 1,
+        "requires_decisions_first": []
+      },
+      "progress": null,
+      "tag": "헌법8조-통합관리",
+      "phase": "3-A-2",
+      "commit": null,
+      "files_changed": [
+        "scripts/sync_engine.py",
+        ".github/workflows/sync.yml",
+        "BACKLOG.md",
+        "CHANGELOG.md",
+        "SOLO_WORK_QUEUE.md",
+        "DECISIONS.md",
+        "scripts/pages-meta.mjs",
+        ".gitignore"
+      ],
+      "history": [
+        {
+          "at": "2026-05-03T00:00:00Z",
+          "event": "created",
+          "by": "claude",
+          "note": "Phase 3-A-1 설계서의 3-A-2 단계 시작"
+        },
+        {
+          "at": "2026-05-03T00:00:00Z",
+          "event": "done",
+          "by": "claude",
+          "commit": null,
+          "note": "헌법 8조 통합 관리 자동 동기화 구현 완료. tasks.json → BACKLOG/DECISIONS/Gallery 자동 갱신. GitHub Actions main push 시 자동 트리거."
+        }
+      ],
+      "source": "manual",
+      "source_anchor": null,
+      "notes": "tasks.json (단일 진실) → 3개 동기화 대상: ① BACKLOG/CHANGELOG/SOLO_WORK_QUEUE (legacy 통합) ② DECISIONS.md (human owner 작업 자동 섹션) ③ pages-meta.mjs PAGE_TASK_META (admin-gallery 메타). GitHub Actions가 main 브랜치 tasks.json push 감지 시 자동 실행, 봇 commit으로 동기화 결과 자동 push. 검증/롤백 자동화 포함.",
+      "owner": "autonomous",
+      "approval_required": false
+    },
     {
       "id": "CHG-25",
       "title": "일자별 인라인 호텔 클릭 → 호텔 엔딩 페이지 흐름 통일",

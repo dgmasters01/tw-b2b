@@ -485,6 +485,11 @@
     .task-meta-right { justify-content: flex-start; }
     .add-form-row { grid-template-columns: 1fr; }
   }
+
+  /* Phase 2-B-2: owner & approval visualization */
+  .pill-owner-auto { background:#dcfce7; color:#166534; border:1px solid #86efac; }
+  .pill-owner-human { background:#fed7aa; color:#9a3412; border:1px solid #fdba74; }
+  .task-row.approval-required { border-left: 3px solid #dc2626 !important; padding-left: 9px; }
 </style>
 </head>
 <body>
@@ -585,6 +590,9 @@
         <option value="P2">P2</option>
         <option value="P3">P3</option>
       </select>
+      <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;color:var(--text-muted);">
+        <input type="checkbox" id="f-outwork"> 🤖 외근모드 가능 작업만
+      </label>
       <button class="reset-btn" id="btn-reset-filter">초기화</button>
     </div>
 
@@ -934,11 +942,13 @@ function renderDashboard() {
 // ============================================================
 // 작업 목록
 // ============================================================
-['f-search', 'f-category', 'f-status', 'f-priority'].forEach(id => {
-  $(id).addEventListener('input', renderList);
+['f-search', 'f-category', 'f-status', 'f-priority', 'f-outwork'].forEach(id => {
+  const evt = (id === 'f-outwork') ? 'change' : 'input';
+  $(id).addEventListener(evt, renderList);
 });
 $('btn-reset-filter').addEventListener('click', () => {
   ['f-search', 'f-category', 'f-status', 'f-priority'].forEach(id => $(id).value = '');
+  $('f-outwork').checked = false;
   renderList();
 });
 
@@ -947,11 +957,16 @@ function renderList() {
   const fc = $('f-category').value;
   const fs = $('f-status').value;
   const fp = $('f-priority').value;
+  const fOutwork = $('f-outwork').checked;
 
   const filtered = DATA.tasks.filter(t => {
     if (fc && t.category !== fc) return false;
     if (fs && t.status !== fs) return false;
     if (fp && t.priority !== fp) return false;
+    if (fOutwork) {
+      const ok = (t.owner === 'autonomous') && (t.approval_required === false) && (t.status === 'pending' || t.status === 'blocked');
+      if (!ok) return false;
+    }
     if (q) {
       const hay = `${t.id} ${t.title} ${t.notes || ''} ${t.parent_task || ''}`.toLowerCase();
       if (!hay.includes(q)) return false;
@@ -995,10 +1010,11 @@ function renderList() {
           <span class="group-stats">${arr.length}개 작업 · ${doneCount} 완료</span>
         </div>
         ${arr.map(t => `
-          <div class="task-row ${t.status}" data-id="${t.id}">
+          <div class="task-row ${t.status}${t.approval_required ? ' approval-required' : ''}" data-id="${t.id}">
             <span class="task-id">${t.id}</span>
             <span><span class="pill pill-pri-${t.priority}">${t.priority}</span></span>
             <span><span class="pill pill-stat-${t.status}">${t.status}</span></span>
+            ${t.owner === 'autonomous' ? '<span><span class="pill pill-owner-auto">🤖 자동</span></span>' : t.owner === 'human' ? '<span><span class="pill pill-owner-human">👤 수동</span></span>' : ''}
             <span class="task-title">${escapeHtml(t.title)}</span>
             <span class="task-meta-right">
               <span class="pill pill-cat">${t.category}</span>

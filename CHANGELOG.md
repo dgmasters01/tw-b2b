@@ -9,6 +9,10 @@
 
 - [변경사유: tasks.json v2 마이그레이션 - owner/approval_required 추가] scripts/migrate_tasks_v2.ps1 작성 + tasks.json 51건 적용 (autonomous=34, human=17, 화이트리스트 4건: SQ-F/CHG-15/BL-005/SQ-G). 백업: tasks.json.bak_20260503
 
+## 2026-05-03 - Phase 2-B-2
+
+- [변경사유: tasks.json v2 신규 필드 시각화, 외근모드 자동화 준비] admin-tasks.html: owner/approval_required 시각화 추가 (owner 배지 자동/수동, approval_required 카드 좌측 빨간 테두리, 필터 토글 "외근모드 가능 작업만"). 백업: admin-tasks.html.bak_20260503_phase2b2
+
 ## 2026-05-03 (라이브 반영) - Phase 2-B-1 push 완료, 커밋 2772061, 라이브 200 OK 검증
 
 - [변경사유: 다음 채팅 핸드오프] HANDOFF_PHASE2B1_DONE.md 추가 (루트, .claude는 gitignore라 위치 변경)

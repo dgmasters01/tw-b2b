@@ -3940,7 +3940,7 @@ var cyear=+calYM.split('-')[0],cmonth=+calYM.split('-')[1];var dim=new Date(cyea
 var md=D.dl.filter(function(d){return d.dt.startsWith(calYM)});var dm={};md.forEach(function(d){dm[+d.dt.split('-')[2]]=d});
 var dd='';
 if(calDay){var dayBks=D.bk.filter(function(b){return b.d===calYM+'-'+(calDay<10?'0':'')+calDay});var bc={};dayBks.forEach(function(b){if(!bc[b.co])bc[b.co]={b:0,a:0,hs:{}};bc[b.co].b++;bc[b.co].a+=b.a;bc[b.co].hs[b.h]=1});var sorted=Object.entries(bc).sort(function(a,b){return b[1].b-a[1].b});
-dd='<div class="C"><h3>'+calYM+'-'+(calDay<10?'0':'')+calDay+' \uC608\uC57D ('+dayBks.length+'\uAC74)</h3><table><thead><tr><th></th><th>\uB098\uB77C</th><th class="r">\uC608\uC57D</th><th class="r">\uAE08\uC561</th><th class="r">\uD638\uD154</th></tr></thead><tbody>'+sorted.map(function(e,i){return'<tr class="ck" onclick="DS.patCo=\''+E(e[0])+'\';DS.patYM=calYM;dc();rr()"><td>'+R(i)+'</td><td><strong>'+e[0]+'</strong></td><td class="r">'+e[1].b+'\uAC74</td><td class="r">'+F(e[1].a)+'</td><td class="r">'+Object.keys(e[1].hs).length+'</td></tr>'}).join('')+'</tbody></table></div>';}
+dd='<div class="C"><h3>'+calYM+'-'+(calDay<10?'0':'')+calDay+' \uC608\uC57D ('+dayBks.length+'\uAC74)</h3><table><thead><tr><th></th><th>\uB098\uB77C</th><th class="r">\uC608\uC57D</th><th class="r">\uAE08\uC561</th><th class="r">\uD638\uD154</th></tr></thead><tbody>'+sorted.map(function(e,i){return'<tr class="ck"'+(DS.dayCo===e[0]?' style="background:#f0eef8"':'')+' onclick="event.stopPropagation();dayDrillCo(\''+E(e[0])+'\')"><td>'+R(i)+'</td><td><strong>'+e[0]+'</strong></td><td class="r">'+e[1].b+'\uAC74</td><td class="r">'+F(e[1].a)+'</td><td class="r">'+Object.keys(e[1].hs).length+'</td></tr>'}).join('')+'</tbody></table>'+rDayHotels()+'</div>';}
 var mcM=D.mc.filter(function(d){return d.ym===calYM}).sort(function(a,b){return b.b-a.b});
 return'<div class="C"><h3>\uC694\uC77C\uBCC4</h3><div class="cw" style="height:200px"><canvas id="dw"></canvas></div></div>'+
 '<div class="C"><h3>\uC77C\uC790\uBCC4 (1~31\uC77C)</h3><div class="cw" style="height:200px"><canvas id="dm2"></canvas></div></div>'+
@@ -3948,7 +3948,7 @@ return'<div class="C"><h3>\uC694\uC77C\uBCC4</h3><div class="cw" style="height:2
 '<div class="fr"><button class="fb" onclick="calYM=prevYM(calYM);calDay=null;dc();rr()">\u25C0</button><input type="month" class="ys" value="'+calYM+'" onchange="calYM=this.value;calDay=null;dc();rr()" style="font-size:14px;font-weight:600;padding:5px 12px"><button class="fb" onclick="calYM=nextYM(calYM);calDay=null;dc();rr()">\u25B6</button></div>'+
 '<div class="cal-grid"><div class="cal-h">\uC6D4</div><div class="cal-h">\uD654</div><div class="cal-h">\uC218</div><div class="cal-h">\uBAA9</div><div class="cal-h">\uAE08</div><div class="cal-h">\uD1A0</div><div class="cal-h">\uC77C</div>'+
 Array(afd).fill('<div style="padding:8px"></div>').join('')+
-Array.from({length:dim},function(_,i){var d=i+1,dd2=dm[d],cnt=dd2?dd2.b:0;var bg=cnt===0?'#f8f7f4':cnt<3?'#E1F5EE':cnt<6?'#9FE1CB':cnt<10?'#5DCAA5':'#1D9E75';var tc=cnt>=6?'#fff':'var(--tx)';return'<div class="cal-d" style="background:'+bg+';color:'+tc+(calDay===d?';border:2px solid var(--ac)':'')+'" onclick="calDay='+(calDay===d?'null':d)+';dc();rr()"><div class="cn">'+d+'</div>'+(cnt>0?'<div class="ct">'+cnt+'\uAC74</div>':'')+'</div>'}).join('')+
+Array.from({length:dim},function(_,i){var d=i+1,dd2=dm[d],cnt=dd2?dd2.b:0;var bg=cnt===0?'#f8f7f4':cnt<3?'#E1F5EE':cnt<6?'#9FE1CB':cnt<10?'#5DCAA5':'#1D9E75';var tc=cnt>=6?'#fff':'var(--tx)';return'<div class="cal-d" style="background:'+bg+';color:'+tc+(calDay===d?';border:2px solid var(--ac)':'')+'" onclick="event.stopPropagation();toggleCalDay('+d+')"><div class="cn">'+d+'</div>'+(cnt>0?'<div class="ct">'+cnt+'\uAC74</div>':'')+'</div>'}).join('')+
 '</div></div>'+dd+
 '<div class="C"><h3>'+calYM+' \uB098\uB77C\uBCC4 (\uC804\uCCB4) \u2014 \uD074\uB9AD\u2192\uB3C4\uC2DC\u2192\uD638\uD154</h3><table><thead><tr><th></th><th>\uB098\uB77C</th><th class="r">\uC608\uC57D</th><th class="r">\uAE08\uC561</th></tr></thead><tbody>'+
 (mcM.length?mcM.map(function(c,i){return'<tr class="ck" onclick="DS.patCo=\''+E(c.co)+'\';DS.patYM=calYM;dc();rr()"><td>'+R(i)+'</td><td><strong>'+c.co+'</strong></td><td class="r">'+c.b+'\uAC74</td><td class="r">'+F(c.a)+'</td></tr>'}).join(''):'<tr><td colspan="4" style="text-align:center;color:var(--ht)">\uB370\uC774\uD130 \uC5C6\uC74C</td></tr>')+
@@ -4166,6 +4166,66 @@ global.initAnalytics = function(){ _BKA_init(); _BKA_mount(); };
 //            연도 select, 나라/도시/호텔 드릴다운, breadcrumb,
 //            호텔 검색 페이징, B2B 영업 검색, 예약 패턴 달력.
 // ============================================================
+// ============================================================
+// [Phase 3 Step 2-fix2] 캘린더 토글 + 일자별 인라인 드릴다운 (23차+)
+// ------------------------------------------------------------
+// 1) toggleCalDay(d): 캘린더 일자 셀 클릭 핸들러.
+//    - 같은 일자 두 번째 클릭 = 선택 해제 (calDay=null)
+//    - DS는 건드리지 않음 → 베트남 등 다른 페이지로 점프하는 사고 방지
+// 2) dayDrillCo(co): 일자별 표의 나라 행 클릭 핸들러.
+//    - 캘린더와 일자별 표를 화면에 그대로 두고,
+//      그 일자 + 그 나라의 호텔 목록만 일자별 표 아래에 인라인으로 펼침
+//    - DS.dayCo 에 임시 저장. DS.patCo 와 분리 (예약 패턴 메인 분기와 충돌 방지)
+// 3) rDayHotels(): dayDrillCo 결과를 HTML로 반환. 펼친 상태가 아니면 빈 문자열.
+// ============================================================
+function toggleCalDay(d){
+  calDay = (calDay === d) ? null : d;
+  // 일자가 바뀌면 인라인 드릴다운 상태도 초기화
+  if (DS && DS.dayCo) { DS.dayCo = null; DS.dayHt = null; }
+  dc(); rr();
+}
+function dayDrillCo(co){
+  if (!DS) DS = {};
+  // 같은 나라 두 번째 클릭 = 펼침 해제
+  DS.dayCo = (DS.dayCo === co) ? null : co;
+  DS.dayHt = null;
+  dc(); rr();
+}
+function dayDrillHt(h, ci, c){
+  if (!DS) DS = {};
+  DS.dayHt = { h: h, ci: ci, co: c };
+  dc(); rr();
+}
+function rDayHotels(){
+  if (!DS || !DS.dayCo || !calDay) return '';
+  var ymd = calYM + '-' + (calDay<10?'0':'') + calDay;
+  // 호텔 상세까지 펼친 경우
+  if (DS.dayHt){
+    var bks = D.bk.filter(function(b){ return b.d===ymd && b.h===DS.dayHt.h && b.ci===DS.dayHt.ci && b.co===DS.dayHt.co; });
+    var totalA = bks.reduce(function(s,b){return s+b.a;},0);
+    return '<div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--bd)">'+
+      '<div class="bc" style="margin-bottom:10px"><a onclick="event.stopPropagation();DS.dayHt=null;dc();rr()">'+DS.dayCo+'</a><span>\u203A</span><strong>'+DS.dayHt.h+'</strong></div>'+
+      '<h3 style="margin-bottom:10px">'+DS.dayHt.h+' \u2014 '+ymd+' \uC608\uC57D ('+bks.length+'\uAC74, '+F(totalA)+')</h3>'+
+      '<table><thead><tr><th>\uC608\uC57D\uBC88\uD638</th><th>\uCCB4\uD06C\uC778</th><th>\uCCB4\uD06C\uC544\uC6C3</th><th class="r">\uAE08\uC561</th><th class="r">\uC218\uC218\uB8CC</th><th>\uC0C1\uD0DC</th></tr></thead><tbody>'+
+      bks.map(function(b){return '<tr><td style="font-family:monospace;font-size:12px">'+b.i+'</td><td>'+b.cd+'</td><td>'+b.od+'</td><td class="r">'+F(b.a)+'</td><td class="r">'+F(b.c)+'</td><td><span class="bg bv">'+(SM[b.s]||b.s)+'</span></td></tr>';}).join('')+
+      '</tbody></table></div>';
+  }
+  // 호텔 목록 단계
+  var dayBks = D.bk.filter(function(b){ return b.d===ymd && b.co===DS.dayCo; });
+  var hm = {};
+  dayBks.forEach(function(b){
+    var key = b.h + '||' + b.ci;
+    if (!hm[key]) hm[key] = { h:b.h, ci:b.ci, co:b.co, b:0, a:0 };
+    hm[key].b++; hm[key].a += b.a;
+  });
+  var hotels = Object.values(hm).sort(function(a,b){ return b.b - a.b; });
+  return '<div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--bd)">'+
+    '<h3 style="margin-bottom:10px">'+DS.dayCo+' \u2014 '+ymd+' \uD638\uD154\uBCC4 ('+hotels.length+'\uAC1C \uD638\uD154)</h3>'+
+    '<table><thead><tr><th></th><th>\uD638\uD154</th><th>\uB3C4\uC2DC</th><th class="r">\uC608\uC57D</th><th class="r">\uAE08\uC561</th></tr></thead><tbody>'+
+    hotels.map(function(h,i){return '<tr class="ck" onclick="event.stopPropagation();dayDrillHt(\''+E(h.h)+'\',\''+E(h.ci)+'\',\''+E(h.co)+'\')"><td>'+R(i)+'</td><td style="font-weight:500">'+h.h+'</td><td>'+h.ci+'</td><td class="r"><strong>'+h.b+'\uAC74</strong></td><td class="r">'+F(h.a)+'</td></tr>';}).join('')+
+    '</tbody></table></div>';
+}
+
 (function(){
   // --- 함수 노출 (인라인 onclick에서 직접 호출됨) ---
   global.sT     = sT;      // 탭 전환
@@ -4178,6 +4238,9 @@ global.initAnalytics = function(){ _BKA_init(); _BKA_mount(); };
   global.prevYM = prevYM;  // 달력 이전 달
   global.nextYM = nextYM;  // 달력 다음 달
   global.E      = E;       // 따옴표 이스케이프
+  global.toggleCalDay = toggleCalDay;  // 캘린더 일자 토글 (23차+)
+  global.dayDrillCo   = dayDrillCo;    // 일자별 나라 인라인 드릴다운 (23차+)
+  global.dayDrillHt   = dayDrillHt;    // 일자별 호텔 인라인 드릴다운 (23차+)
 
   // --- 변수 노출 (인라인이 변수를 직접 대입하므로 양방향 바인딩 필요) ---
   // DS, HP, hsq, b2bQ2, calYM, calDay 6개를 양방향으로 묶음.

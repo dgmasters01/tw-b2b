@@ -5,6 +5,12 @@
 
 ---
 
+## 2026-05-03
+
+- [변경사유: tasks.json v2 마이그레이션 - owner/approval_required 추가] scripts/migrate_tasks_v2.ps1 작성 + tasks.json 51건 적용 (autonomous=34, human=17, 화이트리스트 4건: SQ-F/CHG-15/BL-005/SQ-G). 백업: tasks.json.bak_20260503
+
+---
+
 ## 2026-05-02
 
 ### Added

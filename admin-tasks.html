@@ -490,6 +490,28 @@
   .pill-owner-auto { background:#dcfce7; color:#166534; border:1px solid #86efac; }
   .pill-owner-human { background:#fed7aa; color:#9a3412; border:1px solid #fdba74; }
   .task-row.approval-required { border-left: 3px solid #dc2626 !important; padding-left: 9px; }
+
+  /* Phase 2-B-2.5: Claude delegation button */
+  .delegate-btn {
+    padding: 10px 16px; border: none; border-radius: 8px;
+    font-size: 14px; font-weight: 600; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px;
+    transition: all 0.15s; margin-top: 12px;
+  }
+  .delegate-btn-auto { background: #16a34a; color: white; }
+  .delegate-btn-auto:hover { background: #15803d; transform: translateY(-1px); }
+  .delegate-btn-outwork { background: linear-gradient(135deg, #16a34a, #059669); color: white; box-shadow: 0 2px 8px rgba(22,163,74,0.3); }
+  .delegate-btn-outwork:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(22,163,74,0.4); }
+  .delegate-btn-disabled { background: #e5e7eb; color: #6b7280; cursor: not-allowed; }
+  .delegate-hint { font-size: 12px; color: var(--text-muted); margin-top: 6px; }
+  .toast-clipboard {
+    position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+    background: #16a34a; color: white; padding: 12px 20px;
+    border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+    z-index: 9999; font-size: 14px; font-weight: 600;
+    animation: toastSlide 0.3s ease-out;
+  }
+  @keyframes toastSlide { from { opacity: 0; transform: translate(-50%, 20px); } to { opacity: 1; transform: translate(-50%, 0); } }
 </style>
 </head>
 <body>
@@ -778,6 +800,8 @@ git push</pre>
     <label>메모</label>
     <textarea id="m-notes"></textarea>
 
+    <div id="m-delegate-container"></div>
+
     <div class="modal-actions">
       <button class="btn-danger" id="m-delete">🗑️ 삭제</button>
       <button class="btn-secondary" id="m-cancel">취소</button>
@@ -1034,6 +1058,59 @@ function renderList() {
 // ============================================================
 // 모달 (작업 상세 / 편집)
 // ============================================================
+function buildDelegationPrompt(task) {
+  const isOutwork = task.owner === 'autonomous' && !task.approval_required && (task.status === 'pending' || task.status === 'blocked');
+  const mode = isOutwork ? '외근모드 가능 작업' : '자동 위임 작업';
+  return `${task.id} 작업 시작 — ${mode}
+
+[작업 정보]
+- ID: ${task.id}
+- 제목: ${task.title}
+- 카테고리: ${task.category || '미분류'}
+- 우선순위: ${task.priority}
+- 상태: ${task.status}
+- 크기: ${task.size || 'medium'}
+- owner: ${task.owner}
+- approval_required: ${task.approval_required}
+${task.parent_task ? '- 상위 작업: ' + task.parent_task : ''}
+${task.blocker ? '- 블로커: ' + task.blocker : ''}
+${task.notes ? '- 메모: ' + task.notes : ''}
+
+[실행 지침]
+1. tasks.json에서 ID=${task.id} 항목 전체 읽기
+2. 작업 내용 분석 후 변경 계획 수립
+3. 백업 생성 (대상 파일.bak_YYYYMMDD)
+4. 변경 적용 + 자동 검증 (문법/구조/회귀)
+5. git diff 보여주고 대표님 승인 대기
+6. 승인 후 커밋 ([변경사유] 태그 포함) + 푸시 + Vercel 200 OK 폴링
+7. CHANGELOG.md 기록 + tasks.json에서 ${task.id} status를 done으로 업데이트
+8. 보고: 변경 라인 / 검증 결과 / 라이브 fingerprint / 잠재 리스크
+
+[금지]
+- 다른 작업(admin-business, admin-gallery 등) 동시 수정 금지
+- 검증 실패 시 커밋 금지
+- approval_required=${task.approval_required} ${task.approval_required ? '→ 변경 적용 전 반드시 대표님 승인 받을 것' : '→ 자동 진행 가능'}`;
+}
+
+function delegateToClaude(taskId) {
+  const task = DATA.tasks.find(t => t.id === taskId);
+  if (!task) { alert('작업을 찾을 수 없습니다: ' + taskId); return; }
+  if (task.owner !== 'autonomous') {
+    alert('👤 수동 작업입니다. 대표님이 직접 처리해주세요.');
+    return;
+  }
+  const prompt = buildDelegationPrompt(task);
+  navigator.clipboard.writeText(prompt).then(() => {
+    const toast = document.createElement('div');
+    toast.className = 'toast-clipboard';
+    toast.textContent = '📋 클립보드 복사 완료! PowerShell에서 Ctrl+V → Enter';
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+  }).catch(err => {
+    alert('클립보드 복사 실패: ' + err.message);
+  });
+}
+
 function openModal(id) {
   const t = DATA.tasks.find(x => x.id === id);
   if (!t) return;
@@ -1055,6 +1132,19 @@ function openModal(id) {
   $('m-parent').value = t.parent_task || '';
   $('m-blocker').value = t.blocker || '';
   $('m-notes').value = t.notes || '';
+
+  $('m-delegate-container').innerHTML = (() => {
+    if (t.owner === 'autonomous') {
+      const isOutwork = !t.approval_required && (t.status === 'pending' || t.status === 'blocked');
+      const cls = isOutwork ? 'delegate-btn-outwork' : 'delegate-btn-auto';
+      const icon = isOutwork ? '🚀' : '🤖';
+      const label = isOutwork ? 'Claude에 위임 (외근모드)' : 'Claude에 위임';
+      return `<button class="delegate-btn ${cls}" onclick="delegateToClaude('${t.id}')">${icon} ${label}</button>
+        <div class="delegate-hint">클릭 시 클립보드에 지시문 자동 복사 → PowerShell에서 Ctrl+V → Enter</div>`;
+    } else {
+      return `<button class="delegate-btn delegate-btn-disabled" disabled>👤 수동 작업 — 대표님 직접 처리 필요</button>`;
+    }
+  })();
 
   $('modal').classList.add('active');
 }

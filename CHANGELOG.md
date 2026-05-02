@@ -5,6 +5,45 @@
 
 ---
 
+## 2026-05-02 (23차) — [핫픽스] 예약 패턴 탭 드릴다운 에러 수정 (null.id)
+
+### 변경 파일
+- `admin.html`: BKA `rr()` 함수의 차트 초기화 호출에 DOM 가드 추가 (1줄 수정)
+
+### 문제
+- 예약 패턴 탭 → 일자별 캘린더에서 일자 클릭 → 그 날 예약된 나라 목록 표시까지는 정상
+- 그러나 나라 행(예: Vietnam) 클릭 시 화면에 다음 에러:
+  ```
+  Error
+  Cannot read properties of null (reading 'id')
+  ```
+- 매니저 영업의 핵심 플로우(어느 날 어느 호텔에 예약 들어왔는지 추적)가 차단됨
+
+### 원인
+- `rr()` 함수(3842줄)는 `case 'pattern'`에서 `rPa()` 호출 후 **무조건 `iPC()`를 호출**.
+- `iPC()`는 `<canvas id="dw">`와 `<canvas id="dm2">` 요소를 찾아 Chart.js로 차트 생성.
+- 그러나 `rPa()`의 분기 중 `if(DS.patCo)` 분기는 도시별 드릴다운 표만 렌더하고 캔버스를 만들지 않음.
+- 결과: `getElementById('dw')` → `null` → `new Chart(null, {...})` → Chart.js 내부에서 `null.id` 접근 → 에러.
+- `rr()`의 try/catch가 잡아 화면에 "Cannot read properties of null (reading 'id')" 표시.
+
+### 해결
+- `rr()` 안의 차트 초기화 호출 5곳에 DOM 가드 추가:
+  - `iOC()` 전: `if(document.getElementById('c1'))` 체크
+  - `iCC()` 전: `if(document.getElementById('cp'))` 체크
+  - `iPC()` 전: `if(document.getElementById('dw') && document.getElementById('dm2'))` 체크
+  - `iSC()` 전: `if(document.getElementById('sc'))` 체크
+- 캔버스가 있는 분기(메인 패턴 화면, 메인 오버뷰, 메인 채널 등)에서만 차트 생성. 드릴다운 분기에서는 차트 호출 자체를 건너뜀.
+- `rPa()` 함수 내부 로직은 손대지 않음 (분기 흐름 유지: 일자→나라→도시→호텔 4단계 드릴다운 정상).
+
+### 자동 검증
+- 7개 script 블록 문법 OK / inline 핸들러 매칭 OK / setActiveTab→BKA.mount 흐름 OK / DOM 컨테이너 OK.
+
+### 영향 범위
+- 예약 패턴 탭의 모든 드릴다운 정상 작동: 일자별 → 나라별 → 도시별 → 호텔별 → 예약 상세.
+- 다른 차트 case(전체 현황, 채널별, 성급별)에도 동일한 안전 가드 적용 — 향후 비슷한 분기 추가 시에도 사전 방지.
+
+---
+
 ## 2026-05-02 (22차) — [핫픽스] Analytics 탭 인터랙션 복구 — IIFE 스코프 브리지
 
 ### 변경 파일

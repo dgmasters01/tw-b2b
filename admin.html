@@ -3839,7 +3839,7 @@ function iT(){document.getElementById('tabs').innerHTML=TD.map(t=>'<button class
 function sT(id){CT=id;DS={};HP=0;iT();dc();rr()}
 function sV(v){CV=v;dc();rr()}
 function sYr(v){SY=v;dc();rr()}
-function rr(){var el=document.getElementById('ct');try{switch(CT){case'overview':el.innerHTML=rOv();iOC();break;case'channel':el.innerHTML=rCh();iCC();break;case'country':el.innerHTML=rCo();break;case'city':el.innerHTML=rCi();break;case'hotel':el.innerHTML=rHo();break;case'pattern':el.innerHTML=rPa();iPC();break;case'stars':el.innerHTML=rSt();iSC();break;case'sales':el.innerHTML=rSa();break}}catch(e){el.innerHTML='<div class="C"><h3>Error</h3><p>'+e.message+'</p></div>';console.error(e)}}
+function rr(){var el=document.getElementById('ct');try{switch(CT){case'overview':el.innerHTML=rOv();if(document.getElementById('c1'))iOC();break;case'channel':el.innerHTML=rCh();if(document.getElementById('cp'))iCC();break;case'country':el.innerHTML=rCo();break;case'city':el.innerHTML=rCi();break;case'hotel':el.innerHTML=rHo();break;case'pattern':el.innerHTML=rPa();if(document.getElementById('dw')&&document.getElementById('dm2'))iPC();break;case'stars':el.innerHTML=rSt();if(document.getElementById('sc'))iSC();break;case'sales':el.innerHTML=rSa();break}}catch(e){el.innerHTML='<div class="C"><h3>Error</h3><p>'+e.message+'</p></div>';console.error(e)}}
 
 var VL={booking:'\uC608\uC57D\uC77C',checkout:'\uCCB4\uD06C\uC544\uC6C3',settlement:'\uC815\uC0B0(\uC785\uAE08)'};
 function vTg(){return'<div class="vt">'+Object.keys(VL).map(function(k){return'<button class="vb '+(CV===k?'on':'')+'" onclick="sV(this.dataset.v)" data-v="'+k+'">'+VL[k]+'</button>'}).join('')+'</div>'}

@@ -4192,18 +4192,24 @@ function dayDrillCo(co){
   dc(); rr();
 }
 function dayDrillHt(h, ci, c){
-  // [25차] 호텔 클릭 시 호텔 엔딩 페이지로 통일 이동 (나라→도시→호텔 흐름과 일치)
   if (!DS) DS = {};
-  DS.patHt = { h: h, ci: ci, co: c };
-  DS.patCo = c;
-  DS.patYM = calYM;
-  DS.patCi = ci;
-  DS.dayHt = null;
+  DS.dayHt = { h: h, ci: ci, co: c };
   dc(); rr();
 }
 function rDayHotels(){
   if (!DS || !DS.dayCo || !calDay) return '';
   var ymd = calYM + '-' + (calDay<10?'0':'') + calDay;
+  // 호텔 상세까지 펼친 경우
+  if (DS.dayHt){
+    var bks = D.bk.filter(function(b){ return b.d===ymd && b.h===DS.dayHt.h && b.ci===DS.dayHt.ci && b.co===DS.dayHt.co; });
+    var totalA = bks.reduce(function(s,b){return s+b.a;},0);
+    return '<div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--bd)">'+
+      '<div class="bc" style="margin-bottom:10px"><a onclick="event.stopPropagation();DS.dayHt=null;dc();rr()">'+DS.dayCo+'</a><span>\u203A</span><strong>'+DS.dayHt.h+'</strong></div>'+
+      '<h3 style="margin-bottom:10px">'+DS.dayHt.h+' \u2014 '+ymd+' \uC608\uC57D ('+bks.length+'\uAC74, '+F(totalA)+')</h3>'+
+      '<table><thead><tr><th>\uC608\uC57D\uBC88\uD638</th><th>\uCCB4\uD06C\uC778</th><th>\uCCB4\uD06C\uC544\uC6C3</th><th class="r">\uAE08\uC561</th><th class="r">\uC218\uC218\uB8CC</th><th>\uC0C1\uD0DC</th></tr></thead><tbody>'+
+      bks.map(function(b){return '<tr><td style="font-family:monospace;font-size:12px">'+b.i+'</td><td>'+b.cd+'</td><td>'+b.od+'</td><td class="r">'+F(b.a)+'</td><td class="r">'+F(b.c)+'</td><td><span class="bg bv">'+(SM[b.s]||b.s)+'</span></td></tr>';}).join('')+
+      '</tbody></table></div>';
+  }
   // 호텔 목록 단계
   var dayBks = D.bk.filter(function(b){ return b.d===ymd && b.co===DS.dayCo; });
   var hm = {};

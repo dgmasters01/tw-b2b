@@ -4153,6 +4153,44 @@ global.BKA = {
 global.initAnalytics = function(){ _BKA_init(); _BKA_mount(); };
 
 
+// ============================================================
+// [Phase 3 Step 2-fix] 인라인 onclick 핸들러용 전역 노출 (Bridge)
+// ------------------------------------------------------------
+// 원인: BKA가 IIFE로 감싸져 있어 inline onclick="sT(...)" 등이
+//       전역 스코프에서 함수를 못 찾아 모든 인터랙션이 깨짐.
+// 해결: IIFE 안에서 정의된 함수/변수를 window에 reflect.
+//       함수는 직접 노출. 변수는 getter/setter로 양방향 동기화.
+//       (인라인이 'DS={}; dc();rr()' 처럼 변수에 재대입하므로
+//        단순 복사로는 안 되고 setter로 IIFE 내부 변수를 갱신해야 함.)
+// 영향 범위: Analytics 탭의 모든 인터랙션 — 탭 전환, 뷰 토글,
+//            연도 select, 나라/도시/호텔 드릴다운, breadcrumb,
+//            호텔 검색 페이징, B2B 영업 검색, 예약 패턴 달력.
+// ============================================================
+(function(){
+  // --- 함수 노출 (인라인 onclick에서 직접 호출됨) ---
+  global.sT     = sT;      // 탭 전환
+  global.sV     = sV;      // 뷰 모드 토글 (예약일/체크아웃/정산)
+  global.sYr    = sYr;     // 연도 필터
+  global.dc     = dc;      // 차트 destroy
+  global.rr     = rr;      // 재렌더
+  global.rHU    = rHU;     // 호텔 검색 페이징
+  global.rSaU   = rSaU;    // B2B 영업 검색 갱신
+  global.prevYM = prevYM;  // 달력 이전 달
+  global.nextYM = nextYM;  // 달력 다음 달
+  global.E      = E;       // 따옴표 이스케이프
+
+  // --- 변수 노출 (인라인이 변수를 직접 대입하므로 양방향 바인딩 필요) ---
+  // DS, HP, hsq, b2bQ2, calYM, calDay 6개를 양방향으로 묶음.
+  // 인라인 코드가 'DS.ht=null' 또는 'DS={}'처럼 쓰는 경우 모두 IIFE 내부 변수로 전달됨.
+  Object.defineProperty(global, 'DS',     { get:function(){return DS;},     set:function(v){DS=v;},     configurable:true });
+  Object.defineProperty(global, 'HP',     { get:function(){return HP;},     set:function(v){HP=v;},     configurable:true });
+  Object.defineProperty(global, 'hsq',    { get:function(){return hsq;},    set:function(v){hsq=v;},    configurable:true });
+  Object.defineProperty(global, 'b2bQ2',  { get:function(){return b2bQ2;},  set:function(v){b2bQ2=v;},  configurable:true });
+  Object.defineProperty(global, 'calYM',  { get:function(){return calYM;},  set:function(v){calYM=v;},  configurable:true });
+  Object.defineProperty(global, 'calDay', { get:function(){return calDay;}, set:function(v){calDay=v;}, configurable:true });
+})();
+
+
 // (Step 2 통합본: 자동 부팅 코드 제거 — admin.html 의 setActiveTab 이 BKA.mount() 호출)
 
 })(typeof window !== 'undefined' ? window : this);

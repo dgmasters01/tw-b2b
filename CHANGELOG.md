@@ -5,6 +5,40 @@
 
 ---
 
+## 2026-05-02 (22차) — [핫픽스] Analytics 탭 인터랙션 복구 — IIFE 스코프 브리지
+
+### 변경 파일
+- `admin.html`: BKA(Booking Analytics) IIFE 종료 직전 38줄 추가 (4,575줄 → 4,613줄, +38줄)
+
+### 문제
+- gohotelwinners.com/admin.html → Analytics 탭 진입 시 "전체 현황" 섹션(연도별/월별 차트)만 보이고, 그 아래에 있어야 할 채널별 / 나라별 / 도시별 / 호텔 검색 / 예약 패턴 / 성급별 / B2B 영업 6개 섹션이 안 보임.
+- 더 정확히는 8개 탭 버튼(상단 가로바)이 그려져 있지만 클릭 시 동작 안 함 + 페이지가 점프하는 증상.
+- 매니저 영업의 핵심 데이터(어느 호텔에 몇 건 예약 → 매니저에게 영업)가 차단된 상태였음.
+
+### 원인
+- Phase 3 Step 2 작업에서 booking-analytics 코드를 `(function(global){ 'use strict'; ... })(window)` IIFE로 감쌌음.
+- 그러나 IIFE 내부에서 `iT()`/`rOv()` 등이 동적으로 생성하는 HTML 안에는 inline 핸들러 (`onclick="sT(...)"` `onclick="DS={};dc();rr()"` 등)가 그대로 남아있음.
+- inline onclick은 항상 **전역(window) 스코프**에서 실행되므로, IIFE 내부의 `sT`/`DS`/`HP` 등을 찾지 못해 `ReferenceError`로 실패 → 모든 탭/드릴다운/페이징/달력/검색 인터랙션이 죽음.
+
+### 해결 (Bridge 패턴)
+- IIFE 종료 직전에 함수 10개와 변수 6개를 `window`에 노출하는 Bridge 블록 추가.
+  - 함수: `sT, sV, sYr, dc, rr, rHU, rSaU, prevYM, nextYM, E` — 단순 참조 복사
+  - 변수: `DS, HP, hsq, b2bQ2, calYM, calDay` — `Object.defineProperty`로 getter/setter 양방향 바인딩 (inline에서 `DS={}` 같은 재대입을 IIFE 내부 변수로 전달하기 위함)
+- standalone `booking-analytics.html`은 손대지 않음 (IIFE가 없는 평문 구조라 원래부터 정상 작동).
+
+### 자동 검증
+- 7개 `<script>` 블록 전체 문법 파싱 OK (총 1167.2 KB).
+- inline 핸들러에서 호출되는 함수 10개 / 대입되는 변수 6개가 모두 노출 목록과 매칭됨 (DS의 속성들은 별도 노출 불필요).
+- `setActiveTab('analytics') → BKA.mount()` 흐름 보존 OK.
+- DOM 컨테이너 `#tab-analytics`, `#tabs`, `#ct` 존재 OK.
+- IIFE → global 브리지 패턴 동작 검증용 미니 테스트 4건 통과 (함수 호출, 객체 재대입, 부분 속성 대입, 정수 대입).
+
+### 영향 범위
+- Analytics 탭의 모든 인터랙션 복구: 8개 탭 전환, 예약일/체크아웃/정산 뷰 토글, 연도 select 필터, 나라→도시→호텔 드릴다운, 모든 breadcrumb, 호텔 검색 페이징(50개 단위), B2B 영업 검색, 예약 패턴 달력(이전/다음 달, 일자 클릭).
+- 다른 탭(Hotels / Bookings / Members / Admins / Agoda Matching / Project Status)에는 영향 없음.
+
+---
+
 ## 2026-05-02 (21차) — [디자인시스템] v2 Aurora — admin.html Phase 1 (글로벌 레이아웃 + 사이드바 + Topbar + Dashboard + 모달 공통 톤)
 
 ### 변경 파일

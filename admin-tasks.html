@@ -1,0 +1,1276 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>Task Management — TravelWinners B2B Admin</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/shared.css">
+<style>
+  :root {
+    --bg: #f8fafc;
+    --panel: #ffffff;
+    --text: #0f172a;
+    --text-muted: #64748b;
+    --border: #e2e8f0;
+    --primary: #4f46e5;
+    --primary-hover: #6366f1;
+    --p0: #dc2626;
+    --p1: #ea580c;
+    --p2: #ca8a04;
+    --p3: #64748b;
+    --done: #16a34a;
+    --pending: #2563eb;
+    --in_progress: #9333ea;
+    --blocked: #dc2626;
+    --next_week: #64748b;
+  }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* ===== 상단 헤더 ===== */
+  .tm-header {
+    background: linear-gradient(135deg, #1e293b 0%, #312e81 100%);
+    color: #fff;
+    padding: 20px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .tm-header-left h1 { margin: 0; font-size: 20px; font-weight: 700; letter-spacing: -0.3px; }
+  .tm-header-left p { margin: 4px 0 0; font-size: 12px; color: #cbd5e1; }
+  .tm-header-right { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .tm-back-btn {
+    background: rgba(255,255,255,0.15);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.25);
+    padding: 8px 14px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    transition: background .15s;
+  }
+  .tm-back-btn:hover { background: rgba(255,255,255,0.25); }
+  .tm-meta {
+    display: flex;
+    gap: 12px;
+    font-size: 12px;
+    color: #cbd5e1;
+  }
+  .tm-meta span { background: rgba(255,255,255,0.1); padding: 4px 10px; border-radius: 12px; }
+  .tm-meta strong { color: #fff; }
+
+  /* ===== 탭 네비 ===== */
+  .tm-tabs {
+    background: var(--panel);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    gap: 0;
+    padding: 0 32px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    overflow-x: auto;
+  }
+  .tm-tab {
+    background: transparent;
+    border: 0;
+    border-bottom: 3px solid transparent;
+    padding: 14px 20px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-muted);
+    transition: all .15s;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .tm-tab:hover { color: var(--text); background: #f1f5f9; }
+  .tm-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+  .tm-tab .badge {
+    background: #e2e8f0;
+    color: #475569;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 700;
+  }
+  .tm-tab.active .badge { background: var(--primary); color: #fff; }
+
+  /* ===== 컨텐츠 영역 ===== */
+  .tm-main { padding: 24px 32px 60px; max-width: 1280px; }
+  .tm-panel { display: none; }
+  .tm-panel.active { display: block; }
+
+  /* ===== 대시보드 ===== */
+  .dash-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .dash-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .dash-card-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    margin: 0 0 8px;
+    font-weight: 600;
+  }
+  .dash-card-value {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--text);
+    margin: 0;
+    line-height: 1.1;
+  }
+  .dash-card-sub { font-size: 12px; color: var(--text-muted); margin: 6px 0 0; }
+  .dash-card.dday .dash-card-value { color: var(--p0); }
+  .dash-card.done .dash-card-value { color: var(--done); }
+  .dash-card.pending .dash-card-value { color: var(--pending); }
+  .dash-card.blocked .dash-card-value { color: var(--blocked); }
+
+  .dash-section-title {
+    font-size: 16px;
+    font-weight: 700;
+    margin: 28px 0 12px;
+    color: var(--text);
+  }
+
+  /* ===== 카테고리 진행률 바 ===== */
+  .cat-progress { display: grid; gap: 10px; }
+  .cat-row {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+  }
+  .cat-row-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+    font-size: 13px;
+  }
+  .cat-row-name { font-weight: 600; color: var(--text); }
+  .cat-row-stat { color: var(--text-muted); font-size: 12px; }
+  .cat-row-bar {
+    height: 8px;
+    background: #f1f5f9;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .cat-row-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #3b82f6, #6366f1);
+    border-radius: 4px;
+    transition: width .4s;
+  }
+
+  /* ===== 임박 작업 카드 ===== */
+  .urgent-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 12px;
+  }
+  .urgent-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--p0);
+    border-radius: 8px;
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: box-shadow .15s, transform .15s;
+  }
+  .urgent-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); transform: translateY(-1px); }
+  .urgent-card.p1 { border-left-color: var(--p1); }
+  .urgent-card.p2 { border-left-color: var(--p2); }
+  .urgent-card-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+  .urgent-card-title { font-size: 14px; font-weight: 600; color: var(--text); margin: 6px 0; line-height: 1.4; }
+  .urgent-card-meta { font-size: 11px; color: var(--text-muted); display: flex; gap: 8px; }
+
+  /* ===== 작업 목록 ===== */
+  .filter-bar {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .filter-bar select, .filter-bar input {
+    padding: 7px 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 13px;
+    background: #fff;
+    color: var(--text);
+    font-family: inherit;
+  }
+  .filter-bar input { min-width: 200px; }
+  .filter-bar label { font-size: 12px; color: var(--text-muted); font-weight: 600; }
+  .filter-bar button {
+    padding: 7px 14px;
+    background: var(--primary);
+    color: #fff;
+    border: 0;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .filter-bar button:hover { background: var(--primary-hover); }
+  .filter-bar .reset-btn { background: #f1f5f9; color: var(--text-muted); }
+
+  .task-group {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 14px;
+    overflow: hidden;
+  }
+  .task-group-head {
+    background: #f8fafc;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .task-group-head .group-stats { color: var(--text-muted); font-weight: 500; font-size: 11px; }
+
+  .task-row {
+    display: grid;
+    grid-template-columns: 70px 80px 70px 1fr auto;
+    gap: 12px;
+    padding: 10px 16px;
+    border-bottom: 1px solid #f1f5f9;
+    align-items: center;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background .12s;
+  }
+  .task-row:last-child { border-bottom: 0; }
+  .task-row:hover { background: #f8fafc; }
+  .task-row.done { opacity: 0.6; }
+  .task-row.done .task-title { text-decoration: line-through; }
+
+  .pill {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .3px;
+    text-align: center;
+  }
+  .pill-pri-P0 { background: #fee2e2; color: var(--p0); }
+  .pill-pri-P1 { background: #ffedd5; color: var(--p1); }
+  .pill-pri-P2 { background: #fef9c3; color: var(--p2); }
+  .pill-pri-P3 { background: #f1f5f9; color: var(--p3); }
+  .pill-stat-done { background: #dcfce7; color: var(--done); }
+  .pill-stat-pending { background: #dbeafe; color: var(--pending); }
+  .pill-stat-in_progress { background: #f3e8ff; color: var(--in_progress); }
+  .pill-stat-blocked { background: #fee2e2; color: var(--blocked); }
+  .pill-stat-next_week { background: #f1f5f9; color: var(--next_week); }
+  .pill-cat {
+    background: #ecfeff;
+    color: #0e7490;
+  }
+
+  .task-id { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; color: var(--text-muted); }
+  .task-title { font-weight: 500; color: var(--text); }
+  .task-row.done .task-title { color: var(--text-muted); }
+  .task-meta-right { display: flex; gap: 6px; align-items: center; font-size: 11px; color: var(--text-muted); }
+
+  /* ===== 작업 상세 모달 ===== */
+  .modal-bg {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15,23,42,0.5);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .modal-bg.active { display: flex; }
+  .modal-box {
+    background: #fff;
+    border-radius: 12px;
+    max-width: 640px;
+    width: 100%;
+    max-height: 85vh;
+    overflow-y: auto;
+    padding: 24px 28px;
+    position: relative;
+  }
+  .modal-close {
+    position: absolute;
+    top: 14px;
+    right: 18px;
+    background: transparent;
+    border: 0;
+    font-size: 24px;
+    cursor: pointer;
+    color: var(--text-muted);
+    line-height: 1;
+  }
+  .modal-close:hover { color: var(--text); }
+  .modal-box h3 { margin: 0 0 8px; font-size: 18px; font-weight: 700; }
+  .modal-box .meta-row { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0; }
+  .modal-box label { display: block; font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin: 14px 0 6px; letter-spacing: .3px; }
+  .modal-box input, .modal-box select, .modal-box textarea {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 13px;
+    font-family: inherit;
+    box-sizing: border-box;
+  }
+  .modal-box textarea { resize: vertical; min-height: 80px; line-height: 1.5; }
+  .modal-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+  }
+  .modal-actions button {
+    padding: 9px 18px;
+    border: 0;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .btn-primary { background: var(--primary); color: #fff; }
+  .btn-primary:hover { background: var(--primary-hover); }
+  .btn-secondary { background: #f1f5f9; color: var(--text); }
+  .btn-secondary:hover { background: #e2e8f0; }
+  .btn-danger { background: #fee2e2; color: var(--p0); }
+  .btn-danger:hover { background: #fecaca; }
+
+  /* ===== 작업 추가 폼 ===== */
+  .add-form {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px 28px;
+    max-width: 720px;
+  }
+  .add-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .add-form label { display: block; font-size: 12px; color: var(--text-muted); font-weight: 600; margin: 12px 0 6px; }
+  .add-form input, .add-form select, .add-form textarea {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 13px;
+    font-family: inherit;
+    box-sizing: border-box;
+  }
+  .add-form textarea { resize: vertical; min-height: 80px; line-height: 1.5; }
+  .add-form-buttons { display: flex; gap: 10px; margin-top: 20px; }
+  .add-form-buttons button {
+    padding: 10px 20px;
+    border: 0;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  /* ===== 다운로드 / 인계 영역 ===== */
+  .action-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 16px;
+  }
+  .action-card h4 {
+    margin: 0 0 8px;
+    font-size: 15px;
+    font-weight: 700;
+  }
+  .action-card p { margin: 0 0 14px; font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+  .action-card pre {
+    background: #0f172a;
+    color: #e2e8f0;
+    padding: 14px 16px;
+    border-radius: 6px;
+    font-size: 12px;
+    overflow-x: auto;
+    margin: 10px 0;
+    line-height: 1.6;
+  }
+  .action-card .btn {
+    display: inline-block;
+    padding: 9px 16px;
+    background: var(--primary);
+    color: #fff;
+    border: 0;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .action-card .btn:hover { background: var(--primary-hover); }
+  .action-card .btn.copied { background: var(--done); }
+
+  /* ===== 빈 상태 ===== */
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-muted);
+  }
+  .empty-state .icon { font-size: 48px; opacity: 0.4; margin-bottom: 12px; }
+
+  /* ===== 토스트 ===== */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--text);
+    color: #fff;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.2);
+    transition: transform .25s ease;
+    z-index: 200;
+    pointer-events: none;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  @media (max-width: 768px) {
+    .tm-header { padding: 16px; }
+    .tm-main { padding: 16px; }
+    .tm-tabs { padding: 0 16px; }
+    .task-row { grid-template-columns: 1fr; gap: 6px; padding: 12px; }
+    .task-meta-right { justify-content: flex-start; }
+    .add-form-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== 헤더 ===== -->
+<header class="tm-header">
+  <div class="tm-header-left">
+    <h1>📋 TW B2B 중앙 작업 관리 시스템</h1>
+    <p>모든 디자인/개발/버그/비즈니스/인프라 작업을 한 곳에서</p>
+  </div>
+  <div class="tm-header-right">
+    <div class="tm-meta">
+      <span>📅 마감 <strong id="meta-deadline">2026-05-03</strong></span>
+      <span>⏳ <strong id="meta-dday">D-?</strong></span>
+      <span>🔁 <strong id="meta-updated">-</strong></span>
+    </div>
+    <a href="/admin.html" class="tm-back-btn">← Admin</a>
+  </div>
+</header>
+
+<!-- ===== 탭 ===== -->
+<nav class="tm-tabs">
+  <button class="tm-tab active" data-tab="dashboard">📊 대시보드 <span class="badge" id="badge-dashboard">-</span></button>
+  <button class="tm-tab" data-tab="list">📋 작업 목록 <span class="badge" id="badge-list">-</span></button>
+  <button class="tm-tab" data-tab="add">➕ 작업 추가</button>
+  <button class="tm-tab" data-tab="handoff">🔄 채팅 인계</button>
+</nav>
+
+<main class="tm-main">
+
+  <!-- ===== 대시보드 탭 ===== -->
+  <section class="tm-panel active" id="panel-dashboard">
+
+    <div class="dash-grid">
+      <div class="dash-card dday">
+        <p class="dash-card-label">마감까지</p>
+        <p class="dash-card-value" id="card-dday">-</p>
+        <p class="dash-card-sub" id="card-dday-sub">2026-05-03</p>
+      </div>
+      <div class="dash-card done">
+        <p class="dash-card-label">전체 완료율</p>
+        <p class="dash-card-value" id="card-done-rate">-</p>
+        <p class="dash-card-sub" id="card-done-sub">- / -</p>
+      </div>
+      <div class="dash-card pending">
+        <p class="dash-card-label">진행 중 + 대기</p>
+        <p class="dash-card-value" id="card-active">-</p>
+        <p class="dash-card-sub">P0 우선 처리</p>
+      </div>
+      <div class="dash-card blocked">
+        <p class="dash-card-label">막혀있는 작업</p>
+        <p class="dash-card-value" id="card-blocked">-</p>
+        <p class="dash-card-sub">대표님 결정 대기</p>
+      </div>
+    </div>
+
+    <h3 class="dash-section-title">🚨 임박 작업 (P0 + 진행 중)</h3>
+    <div class="urgent-grid" id="urgent-list">
+      <div class="empty-state">로딩 중...</div>
+    </div>
+
+    <h3 class="dash-section-title">📂 카테고리별 진행률</h3>
+    <div class="cat-progress" id="cat-progress">
+      <div class="empty-state">로딩 중...</div>
+    </div>
+  </section>
+
+  <!-- ===== 작업 목록 탭 ===== -->
+  <section class="tm-panel" id="panel-list">
+    <div class="filter-bar">
+      <label>검색:</label>
+      <input type="text" id="f-search" placeholder="제목/ID/메모/그룹 검색">
+      <label>카테고리:</label>
+      <select id="f-category">
+        <option value="">전체</option>
+        <option value="design">design</option>
+        <option value="dev">dev</option>
+        <option value="bug">bug</option>
+        <option value="ux">ux</option>
+        <option value="infra">infra</option>
+        <option value="business">business</option>
+        <option value="docs">docs</option>
+      </select>
+      <label>상태:</label>
+      <select id="f-status">
+        <option value="">전체</option>
+        <option value="in_progress">진행중</option>
+        <option value="pending">대기</option>
+        <option value="blocked">막힘</option>
+        <option value="next_week">다음주</option>
+        <option value="done">완료</option>
+      </select>
+      <label>우선순위:</label>
+      <select id="f-priority">
+        <option value="">전체</option>
+        <option value="P0">P0</option>
+        <option value="P1">P1</option>
+        <option value="P2">P2</option>
+        <option value="P3">P3</option>
+      </select>
+      <button class="reset-btn" id="btn-reset-filter">초기화</button>
+    </div>
+
+    <div id="task-list-container">
+      <div class="empty-state">로딩 중...</div>
+    </div>
+  </section>
+
+  <!-- ===== 작업 추가 탭 ===== -->
+  <section class="tm-panel" id="panel-add">
+    <div class="action-card" style="margin-bottom:16px;background:#fef3c7;border-color:#fcd34d;">
+      <h4>📥 새 작업 추가</h4>
+      <p>아래 폼으로 작업을 추가하면 메모리에 저장됩니다. 변경 사항을 영구 반영하려면 하단 <strong>"💾 새 tasks.json 다운로드"</strong> 버튼을 누르고 PC에서 git push 하세요.</p>
+    </div>
+
+    <div class="add-form">
+      <div class="add-form-row">
+        <div>
+          <label>작업 ID *</label>
+          <input type="text" id="new-id" placeholder="자동 생성됨 (예: TASK-039)">
+        </div>
+        <div>
+          <label>그룹 (parent_task)</label>
+          <input type="text" id="new-parent" placeholder="예: hotel-info-redesign">
+        </div>
+      </div>
+      <label>제목 * (구체적이고 짧게)</label>
+      <input type="text" id="new-title" placeholder="예: hotel-info 좌측 사이드바 너비 통일">
+      <div class="add-form-row">
+        <div>
+          <label>카테고리 *</label>
+          <select id="new-category">
+            <option value="dev">dev</option>
+            <option value="design">design</option>
+            <option value="bug">bug</option>
+            <option value="ux">ux</option>
+            <option value="infra">infra</option>
+            <option value="business">business</option>
+            <option value="docs">docs</option>
+          </select>
+        </div>
+        <div>
+          <label>우선순위 *</label>
+          <select id="new-priority">
+            <option value="P0">P0 (긴급)</option>
+            <option value="P1" selected>P1 (중요)</option>
+            <option value="P2">P2 (개선)</option>
+            <option value="P3">P3 (자투리)</option>
+          </select>
+        </div>
+      </div>
+      <div class="add-form-row">
+        <div>
+          <label>크기 *</label>
+          <select id="new-size">
+            <option value="small">small (30분)</option>
+            <option value="medium" selected>medium (1-2h)</option>
+            <option value="large">large (반나절+)</option>
+          </select>
+        </div>
+        <div>
+          <label>상태</label>
+          <select id="new-status">
+            <option value="pending" selected>pending (대기)</option>
+            <option value="in_progress">in_progress (진행중)</option>
+            <option value="blocked">blocked (막힘)</option>
+            <option value="next_week">next_week (다음주)</option>
+          </select>
+        </div>
+      </div>
+      <label>Claude 자율 처리 가능?</label>
+      <select id="new-auto">
+        <option value="true" selected>예 (자율 진행)</option>
+        <option value="false">아니오 (대표님 결정 대기)</option>
+      </select>
+      <label>메모 / 상세 설명</label>
+      <textarea id="new-notes" placeholder="배경 / 작업 항목 / 검증 기준 / 막힘 사유 등"></textarea>
+
+      <div class="add-form-buttons">
+        <button class="btn-primary" id="btn-add">➕ 메모리에 추가</button>
+        <button class="btn-secondary" id="btn-clear-form">폼 초기화</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== 채팅 인계 탭 ===== -->
+  <section class="tm-panel" id="panel-handoff">
+
+    <div class="action-card" style="background:#dbeafe;border-color:#93c5fd;">
+      <h4>🔄 채팅 토큰 끊김 대비 0초 인계 시스템</h4>
+      <p>현재 채팅에서 토큰이 끊기면, 아래 컨텍스트 블록을 복사해 새 채팅 첫 메시지에 그대로 붙여넣으세요. Claude가 즉시 작업을 이어받을 수 있습니다.</p>
+    </div>
+
+    <div class="action-card">
+      <h4>📋 다음 채팅용 컨텍스트 블록</h4>
+      <p>현재 진행 중 작업 + 다음 P0/P1 대기 작업 + 핵심 시스템 정보가 포함됩니다.</p>
+      <pre id="handoff-block">생성 중...</pre>
+      <button class="btn" id="btn-copy-handoff">📎 클립보드 복사</button>
+    </div>
+
+    <div class="action-card">
+      <h4>💾 tasks.json 다운로드 + Git Push</h4>
+      <p>메모리 변경 사항을 영구 반영합니다. 다운로드한 파일을 <code>~/Desktop/tw-b2b/tasks.json</code>에 덮어쓴 뒤 아래 명령어를 실행하세요.</p>
+      <button class="btn" id="btn-download-json">💾 새 tasks.json 다운로드</button>
+      <pre id="git-cmd">cd ~/Desktop/tw-b2b
+git add tasks.json
+git commit -m "chore: tasks.json 업데이트 ($(date +%Y-%m-%d))"
+git push</pre>
+      <button class="btn" id="btn-copy-git">📎 명령어 복사</button>
+    </div>
+
+    <div class="action-card">
+      <h4>🛠️ 시스템 정보 (인계용 핵심 데이터)</h4>
+      <p style="margin:0">
+        <strong>Repo:</strong> <code id="info-repo">-</code><br>
+        <strong>HEAD:</strong> <code id="info-head">-</code><br>
+        <strong>라이브:</strong> <code>https://gohotelwinners.com</code><br>
+        <strong>로컬 git:</strong> <code>~/Desktop/tw-b2b</code><br>
+        <strong>총 작업:</strong> <span id="info-count">-</span>개 (완료 <span id="info-done">-</span> / 진행 <span id="info-progress">-</span> / 대기 <span id="info-pending">-</span> / 막힘 <span id="info-blocked">-</span>)
+      </p>
+    </div>
+  </section>
+
+</main>
+
+<!-- ===== 작업 상세 모달 ===== -->
+<div class="modal-bg" id="modal">
+  <div class="modal-box">
+    <button class="modal-close" id="modal-close">×</button>
+    <h3 id="modal-title">-</h3>
+    <div class="meta-row" id="modal-meta"></div>
+
+    <label>제목</label>
+    <input type="text" id="m-title">
+
+    <div class="add-form-row">
+      <div>
+        <label>카테고리</label>
+        <select id="m-category">
+          <option value="dev">dev</option>
+          <option value="design">design</option>
+          <option value="bug">bug</option>
+          <option value="ux">ux</option>
+          <option value="infra">infra</option>
+          <option value="business">business</option>
+          <option value="docs">docs</option>
+        </select>
+      </div>
+      <div>
+        <label>상태</label>
+        <select id="m-status">
+          <option value="pending">pending</option>
+          <option value="in_progress">in_progress</option>
+          <option value="blocked">blocked</option>
+          <option value="next_week">next_week</option>
+          <option value="done">done</option>
+        </select>
+      </div>
+    </div>
+    <div class="add-form-row">
+      <div>
+        <label>우선순위</label>
+        <select id="m-priority">
+          <option value="P0">P0</option>
+          <option value="P1">P1</option>
+          <option value="P2">P2</option>
+          <option value="P3">P3</option>
+        </select>
+      </div>
+      <div>
+        <label>크기</label>
+        <select id="m-size">
+          <option value="small">small</option>
+          <option value="medium">medium</option>
+          <option value="large">large</option>
+        </select>
+      </div>
+    </div>
+    <label>그룹 (parent_task)</label>
+    <input type="text" id="m-parent">
+    <label>막힘 사유 (blocker)</label>
+    <input type="text" id="m-blocker">
+    <label>메모</label>
+    <textarea id="m-notes"></textarea>
+
+    <div class="modal-actions">
+      <button class="btn-danger" id="m-delete">🗑️ 삭제</button>
+      <button class="btn-secondary" id="m-cancel">취소</button>
+      <button class="btn-primary" id="m-save">💾 저장</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">-</div>
+
+<script>
+'use strict';
+
+// ============================================================
+// 상태 / 데이터
+// ============================================================
+let DATA = { version: '1.0', updated_at: '', deadline: '2026-05-03', tasks: [] };
+let editingId = null;
+
+const $ = (id) => document.getElementById(id);
+const fmt = (d) => d ? new Date(d).toISOString().slice(0, 10) : '-';
+const nowISO = () => new Date().toISOString();
+
+const CATEGORY_LABEL = {
+  design: '디자인', dev: '개발', bug: '버그',
+  ux: 'UX', infra: '인프라', business: '비즈니스', docs: '문서'
+};
+
+// ============================================================
+// tasks.json 로드
+// ============================================================
+async function loadTasks() {
+  try {
+    const r = await fetch('/tasks.json?t=' + Date.now());
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    DATA = await r.json();
+    if (!Array.isArray(DATA.tasks)) DATA.tasks = [];
+    renderAll();
+  } catch (e) {
+    showToast('tasks.json 로드 실패: ' + e.message);
+    DATA = { version: '1.0', updated_at: nowISO(), deadline: '2026-05-03', tasks: [] };
+    renderAll();
+  }
+}
+
+// ============================================================
+// 탭 전환
+// ============================================================
+document.querySelectorAll('.tm-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tm-tab').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tm-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    $('panel-' + btn.dataset.tab).classList.add('active');
+    if (btn.dataset.tab === 'handoff') renderHandoff();
+  });
+});
+
+// ============================================================
+// 전체 렌더
+// ============================================================
+function renderAll() {
+  renderHeader();
+  renderDashboard();
+  renderList();
+  renderHandoff();
+}
+
+// ============================================================
+// 헤더
+// ============================================================
+function renderHeader() {
+  const dl = DATA.deadline || '2026-05-03';
+  $('meta-deadline').textContent = dl;
+  $('card-dday-sub').textContent = dl;
+
+  const ddays = Math.ceil((new Date(dl) - new Date()) / 86400000);
+  $('meta-dday').textContent = ddays >= 0 ? `D-${ddays}` : `D+${-ddays}`;
+  $('card-dday').textContent = ddays >= 0 ? `D-${ddays}` : `D+${-ddays}`;
+
+  $('meta-updated').textContent = fmt(DATA.updated_at) || '-';
+
+  // 탭 배지
+  const total = DATA.tasks.length;
+  const active = DATA.tasks.filter(t => t.status !== 'done').length;
+  $('badge-dashboard').textContent = total;
+  $('badge-list').textContent = active;
+}
+
+// ============================================================
+// 대시보드
+// ============================================================
+function renderDashboard() {
+  const tasks = DATA.tasks;
+  const total = tasks.length;
+  const done = tasks.filter(t => t.status === 'done').length;
+  const inProgress = tasks.filter(t => t.status === 'in_progress').length;
+  const pending = tasks.filter(t => t.status === 'pending').length;
+  const blocked = tasks.filter(t => t.status === 'blocked').length;
+
+  $('card-done-rate').textContent = total ? Math.round(done / total * 100) + '%' : '0%';
+  $('card-done-sub').textContent = `${done} / ${total}`;
+  $('card-active').textContent = inProgress + pending;
+  $('card-blocked').textContent = blocked;
+
+  // 임박 작업
+  const urgent = tasks
+    .filter(t => t.status !== 'done' && (t.priority === 'P0' || t.status === 'in_progress'))
+    .sort((a, b) => {
+      if (a.status === 'in_progress' && b.status !== 'in_progress') return -1;
+      if (b.status === 'in_progress' && a.status !== 'in_progress') return 1;
+      return (a.priority || 'P9').localeCompare(b.priority || 'P9');
+    });
+
+  if (urgent.length === 0) {
+    $('urgent-list').innerHTML = '<div class="empty-state"><div class="icon">🎉</div>P0 + 진행 중 작업 없음</div>';
+  } else {
+    $('urgent-list').innerHTML = urgent.map(t => `
+      <div class="urgent-card ${t.priority?.toLowerCase()}" data-id="${t.id}">
+        <div class="urgent-card-head">
+          <span class="pill pill-pri-${t.priority}">${t.priority || 'P?'}</span>
+          <span class="pill pill-stat-${t.status}">${t.status}</span>
+          <span class="pill pill-cat">${t.category || '-'}</span>
+        </div>
+        <div class="urgent-card-title">${escapeHtml(t.title)}</div>
+        <div class="urgent-card-meta">
+          <span>${t.id}</span>
+          ${t.parent_task ? `<span>📁 ${escapeHtml(t.parent_task)}</span>` : ''}
+          ${t.blocker ? `<span style="color:#dc2626">⚠️ ${escapeHtml(t.blocker)}</span>` : ''}
+        </div>
+      </div>
+    `).join('');
+    $('urgent-list').querySelectorAll('.urgent-card').forEach(el => {
+      el.addEventListener('click', () => openModal(el.dataset.id));
+    });
+  }
+
+  // 카테고리 진행률
+  const cats = {};
+  tasks.forEach(t => {
+    const c = t.category || 'other';
+    if (!cats[c]) cats[c] = { total: 0, done: 0 };
+    cats[c].total++;
+    if (t.status === 'done') cats[c].done++;
+  });
+  const sorted = Object.entries(cats).sort((a, b) => b[1].total - a[1].total);
+
+  $('cat-progress').innerHTML = sorted.map(([cat, st]) => {
+    const pct = st.total ? Math.round(st.done / st.total * 100) : 0;
+    return `
+      <div class="cat-row">
+        <div class="cat-row-head">
+          <span class="cat-row-name">${CATEGORY_LABEL[cat] || cat} <span class="pill pill-cat" style="margin-left:6px">${cat}</span></span>
+          <span class="cat-row-stat">${st.done} / ${st.total} 완료 · ${pct}%</span>
+        </div>
+        <div class="cat-row-bar"><div class="cat-row-bar-fill" style="width:${pct}%"></div></div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ============================================================
+// 작업 목록
+// ============================================================
+['f-search', 'f-category', 'f-status', 'f-priority'].forEach(id => {
+  $(id).addEventListener('input', renderList);
+});
+$('btn-reset-filter').addEventListener('click', () => {
+  ['f-search', 'f-category', 'f-status', 'f-priority'].forEach(id => $(id).value = '');
+  renderList();
+});
+
+function renderList() {
+  const q = $('f-search').value.trim().toLowerCase();
+  const fc = $('f-category').value;
+  const fs = $('f-status').value;
+  const fp = $('f-priority').value;
+
+  const filtered = DATA.tasks.filter(t => {
+    if (fc && t.category !== fc) return false;
+    if (fs && t.status !== fs) return false;
+    if (fp && t.priority !== fp) return false;
+    if (q) {
+      const hay = `${t.id} ${t.title} ${t.notes || ''} ${t.parent_task || ''}`.toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+
+  if (filtered.length === 0) {
+    $('task-list-container').innerHTML = '<div class="empty-state"><div class="icon">🔍</div>조건에 맞는 작업 없음</div>';
+    return;
+  }
+
+  // 그룹별 묶기
+  const groups = {};
+  filtered.forEach(t => {
+    const g = t.parent_task || '(미분류)';
+    if (!groups[g]) groups[g] = [];
+    groups[g].push(t);
+  });
+
+  // 우선순위 + 상태 정렬
+  const PRI_ORDER = { P0: 0, P1: 1, P2: 2, P3: 3 };
+  const STA_ORDER = { in_progress: 0, pending: 1, blocked: 2, next_week: 3, done: 4 };
+  Object.values(groups).forEach(arr => {
+    arr.sort((a, b) => {
+      const sd = (STA_ORDER[a.status] ?? 9) - (STA_ORDER[b.status] ?? 9);
+      if (sd !== 0) return sd;
+      return (PRI_ORDER[a.priority] ?? 9) - (PRI_ORDER[b.priority] ?? 9);
+    });
+  });
+
+  const groupKeys = Object.keys(groups).sort();
+
+  $('task-list-container').innerHTML = groupKeys.map(g => {
+    const arr = groups[g];
+    const doneCount = arr.filter(t => t.status === 'done').length;
+    return `
+      <div class="task-group">
+        <div class="task-group-head">
+          <span>📁 ${escapeHtml(g)}</span>
+          <span class="group-stats">${arr.length}개 작업 · ${doneCount} 완료</span>
+        </div>
+        ${arr.map(t => `
+          <div class="task-row ${t.status}" data-id="${t.id}">
+            <span class="task-id">${t.id}</span>
+            <span><span class="pill pill-pri-${t.priority}">${t.priority}</span></span>
+            <span><span class="pill pill-stat-${t.status}">${t.status}</span></span>
+            <span class="task-title">${escapeHtml(t.title)}</span>
+            <span class="task-meta-right">
+              <span class="pill pill-cat">${t.category}</span>
+              <span>${t.size}</span>
+            </span>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  }).join('');
+
+  $('task-list-container').querySelectorAll('.task-row').forEach(el => {
+    el.addEventListener('click', () => openModal(el.dataset.id));
+  });
+}
+
+// ============================================================
+// 모달 (작업 상세 / 편집)
+// ============================================================
+function openModal(id) {
+  const t = DATA.tasks.find(x => x.id === id);
+  if (!t) return;
+  editingId = id;
+
+  $('modal-title').textContent = `${t.id} — ${t.title}`;
+  $('modal-meta').innerHTML = `
+    <span class="pill pill-pri-${t.priority}">${t.priority}</span>
+    <span class="pill pill-stat-${t.status}">${t.status}</span>
+    <span class="pill pill-cat">${t.category}</span>
+    <span style="font-size:11px;color:#64748b;align-self:center">생성: ${fmt(t.created_at)}${t.completed_at ? ' · 완료: ' + fmt(t.completed_at) : ''}</span>
+  `;
+
+  $('m-title').value = t.title || '';
+  $('m-category').value = t.category || 'dev';
+  $('m-status').value = t.status || 'pending';
+  $('m-priority').value = t.priority || 'P1';
+  $('m-size').value = t.size || 'medium';
+  $('m-parent').value = t.parent_task || '';
+  $('m-blocker').value = t.blocker || '';
+  $('m-notes').value = t.notes || '';
+
+  $('modal').classList.add('active');
+}
+
+function closeModal() {
+  $('modal').classList.remove('active');
+  editingId = null;
+}
+
+$('modal-close').addEventListener('click', closeModal);
+$('m-cancel').addEventListener('click', closeModal);
+$('modal').addEventListener('click', (e) => { if (e.target.id === 'modal') closeModal(); });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && $('modal').classList.contains('active')) closeModal(); });
+
+$('m-save').addEventListener('click', () => {
+  if (!editingId) return;
+  const t = DATA.tasks.find(x => x.id === editingId);
+  if (!t) return;
+
+  const newStatus = $('m-status').value;
+  const wasNotDone = t.status !== 'done';
+
+  t.title = $('m-title').value.trim() || t.title;
+  t.category = $('m-category').value;
+  t.status = newStatus;
+  t.priority = $('m-priority').value;
+  t.size = $('m-size').value;
+  t.parent_task = $('m-parent').value.trim() || null;
+  t.blocker = $('m-blocker').value.trim() || null;
+  t.notes = $('m-notes').value.trim();
+
+  if (newStatus === 'done' && wasNotDone) {
+    t.completed_at = nowISO();
+  } else if (newStatus !== 'done') {
+    t.completed_at = null;
+  }
+
+  DATA.updated_at = nowISO();
+  closeModal();
+  renderAll();
+  showToast('✅ 저장됨 (메모리). tasks.json 다운로드 잊지 마세요!');
+});
+
+$('m-delete').addEventListener('click', () => {
+  if (!editingId) return;
+  if (!confirm(`정말 ${editingId} 작업을 삭제할까요?\n(메모리에서만 제거됩니다. tasks.json 다운로드 후 git push 해야 영구 반영)`)) return;
+  DATA.tasks = DATA.tasks.filter(t => t.id !== editingId);
+  DATA.updated_at = nowISO();
+  closeModal();
+  renderAll();
+  showToast('🗑️ 삭제됨 (메모리)');
+});
+
+// ============================================================
+// 작업 추가
+// ============================================================
+function nextId() {
+  const nums = DATA.tasks
+    .map(t => /^TASK-(\d+)$/.exec(t.id))
+    .filter(Boolean)
+    .map(m => parseInt(m[1], 10));
+  const max = nums.length ? Math.max(...nums) : 0;
+  return `TASK-${String(max + 1).padStart(3, '0')}`;
+}
+
+$('btn-add').addEventListener('click', () => {
+  const title = $('new-title').value.trim();
+  if (!title) { showToast('⚠️ 제목은 필수입니다'); return; }
+
+  const id = $('new-id').value.trim() || nextId();
+  if (DATA.tasks.some(t => t.id === id)) { showToast('⚠️ 동일 ID 존재: ' + id); return; }
+
+  const newTask = {
+    id,
+    title,
+    category: $('new-category').value,
+    status: $('new-status').value,
+    priority: $('new-priority').value,
+    size: $('new-size').value,
+    parent_task: $('new-parent').value.trim() || null,
+    blocker: null,
+    created_at: nowISO(),
+    completed_at: null,
+    claude_can_auto: $('new-auto').value === 'true',
+    notes: $('new-notes').value.trim()
+  };
+  DATA.tasks.push(newTask);
+  DATA.updated_at = nowISO();
+  showToast(`✅ ${id} 추가됨. tasks.json 다운로드 + git push 필요!`);
+  clearAddForm();
+  renderAll();
+});
+
+$('btn-clear-form').addEventListener('click', clearAddForm);
+
+function clearAddForm() {
+  ['new-id', 'new-title', 'new-parent', 'new-notes'].forEach(id => $(id).value = '');
+  $('new-category').value = 'dev';
+  $('new-priority').value = 'P1';
+  $('new-size').value = 'medium';
+  $('new-status').value = 'pending';
+  $('new-auto').value = 'true';
+}
+
+// ============================================================
+// 채팅 인계 + 다운로드
+// ============================================================
+function renderHandoff() {
+  const inProgress = DATA.tasks.filter(t => t.status === 'in_progress');
+  const nextPending = DATA.tasks
+    .filter(t => t.status === 'pending')
+    .sort((a, b) => (a.priority || 'P9').localeCompare(b.priority || 'P9'))
+    .slice(0, 5);
+
+  const total = DATA.tasks.length;
+  const done = DATA.tasks.filter(t => t.status === 'done').length;
+  const ip = DATA.tasks.filter(t => t.status === 'in_progress').length;
+  const pe = DATA.tasks.filter(t => t.status === 'pending').length;
+  const bl = DATA.tasks.filter(t => t.status === 'blocked').length;
+
+  $('info-repo').textContent = DATA.repo || 'dgmasters01/tw-b2b';
+  $('info-head').textContent = DATA.head_commit || 'main';
+  $('info-count').textContent = total;
+  $('info-done').textContent = done;
+  $('info-progress').textContent = ip;
+  $('info-pending').textContent = pe;
+  $('info-blocked').textContent = bl;
+
+  // 인계 블록
+  const lines = [];
+  lines.push('# TW B2B 작업 이어받기 (자동 인계)');
+  lines.push('');
+  lines.push(`- Repo: ${DATA.repo || 'dgmasters01/tw-b2b'}`);
+  lines.push(`- 라이브: https://gohotelwinners.com`);
+  lines.push(`- 로컬 git: ~/Desktop/tw-b2b (대표님 PC)`);
+  lines.push(`- 마감: ${DATA.deadline || '2026-05-03'}`);
+  lines.push(`- 작업관리: https://gohotelwinners.com/admin-tasks.html`);
+  lines.push(`- 마지막 업데이트: ${DATA.updated_at}`);
+  lines.push('');
+  lines.push(`## 작업 통계`);
+  lines.push(`- 총 ${total}개 (완료 ${done} / 진행 ${ip} / 대기 ${pe} / 막힘 ${bl})`);
+  lines.push('');
+  if (inProgress.length) {
+    lines.push('## 🔥 현재 진행 중');
+    inProgress.forEach(t => {
+      lines.push(`- [${t.id}] (${t.priority}, ${t.category}) ${t.title}`);
+      if (t.notes) lines.push(`  - 메모: ${t.notes.slice(0, 200)}`);
+    });
+    lines.push('');
+  }
+  if (nextPending.length) {
+    lines.push('## 📋 다음 우선 작업 (P0 → P1 순)');
+    nextPending.forEach(t => {
+      lines.push(`- [${t.id}] (${t.priority}, ${t.category}) ${t.title}`);
+    });
+    lines.push('');
+  }
+  lines.push('## 작업 흐름 (필수 준수)');
+  lines.push('1. tw-b2b GitHub raw로 BACKLOG.md / STATUS.md / 관련 코드 fetch하여 컨텍스트 파악');
+  lines.push('2. 코드 작성 → 자동 검증 (JS syntax + function 존재 + page state)');
+  lines.push('3. /mnt/user-data/outputs/에 staging');
+  lines.push('4. 대표님 PC에서: cd ~/Desktop/tw-b2b && git add -A && git commit -m "..." && git push');
+  lines.push('5. CHANGELOG.md 등록 + admin-tasks.html에서 상태 업데이트 (in_progress → done)');
+  lines.push('');
+  lines.push('첫 메시지: "tw-b2b admin-tasks.html 컨텍스트 받았음. 위 진행 중 작업부터 이어서 진행해줘"');
+
+  $('handoff-block').textContent = lines.join('\n');
+}
+
+$('btn-copy-handoff').addEventListener('click', async () => {
+  try {
+    await navigator.clipboard.writeText($('handoff-block').textContent);
+    const btn = $('btn-copy-handoff');
+    btn.classList.add('copied');
+    btn.textContent = '✅ 복사됨';
+    setTimeout(() => { btn.classList.remove('copied'); btn.textContent = '📎 클립보드 복사'; }, 1800);
+  } catch (e) {
+    showToast('복사 실패: ' + e.message);
+  }
+});
+
+$('btn-copy-git').addEventListener('click', async () => {
+  try {
+    await navigator.clipboard.writeText($('git-cmd').textContent);
+    const btn = $('btn-copy-git');
+    btn.classList.add('copied');
+    btn.textContent = '✅ 복사됨';
+    setTimeout(() => { btn.classList.remove('copied'); btn.textContent = '📎 명령어 복사'; }, 1800);
+  } catch (e) {
+    showToast('복사 실패: ' + e.message);
+  }
+});
+
+$('btn-download-json').addEventListener('click', () => {
+  DATA.updated_at = nowISO();
+  const blob = new Blob([JSON.stringify(DATA, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'tasks.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('💾 tasks.json 다운로드 완료. ~/Desktop/tw-b2b/에 덮어쓴 뒤 git push 하세요');
+});
+
+// ============================================================
+// 유틸
+// ============================================================
+function escapeHtml(s) {
+  if (s == null) return '';
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+let toastTimer = null;
+function showToast(msg) {
+  $('toast').textContent = msg;
+  $('toast').classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => $('toast').classList.remove('show'), 3000);
+}
+
+// ============================================================
+// 초기 로드
+// ============================================================
+loadTasks();
+</script>
+
+</body>
+</html>

@@ -183,11 +183,13 @@ export const AUDIENCE_BADGES = {
 
 // SYNC_ENGINE:GALLERY_AUTO_START
 // ⚠️ 이 섹션은 sync_engine.py가 자동 생성합니다. 직접 편집 금지.
-// 마지막 갱신: 2026-05-03 (총 20개 페이지)
+// 마지막 갱신: 2026-05-03 (총 22개 페이지)
 export const PAGE_TASK_META = {
   "admin-business.html": { lastTaskId: "CHG-4", lastTaskTitle: "Business Docs 사이드바 강화 + Page Gallery iframe 한계 안내", lastUpdated: "2026-04-29", taskCount: 1 },
   "admin-gallery.html": { lastTaskId: "CHG-4", lastTaskTitle: "Business Docs 사이드바 강화 + Page Gallery iframe 한계 안내", lastUpdated: "2026-04-29", taskCount: 2 },
-  "admin.html": { lastTaskId: "BL-AURORA-MIGRATION", lastTaskTitle: "[Aurora 통일 캠페인] 디자인 시스템 미적용 페이지 일괄 마이그레이션", lastUpdated: "2026-05-03", taskCount: 16 },
+  "admin-hub.html": { lastTaskId: "BL-CENTRAL-HUB", lastTaskTitle: "[중앙관리시스템] 4 카테고리 통합 진입점 + Service Ops 신설 (헌법 부칙 5 본체)", lastUpdated: "2026-05-03", taskCount: 1 },
+  "admin-service-ops.html": { lastTaskId: "BL-CENTRAL-HUB", lastTaskTitle: "[중앙관리시스템] 4 카테고리 통합 진입점 + Service Ops 신설 (헌법 부칙 5 본체)", lastUpdated: "2026-05-03", taskCount: 1 },
+  "admin.html": { lastTaskId: "BL-AURORA-MIGRATION", lastTaskTitle: "[Aurora 통일 캠페인] 디자인 시스템 미적용 페이지 일괄 마이그레이션", lastUpdated: "2026-05-03", taskCount: 17 },
   "booking-analytics.html": { lastTaskId: "BL-AURORA-MIGRATION", lastTaskTitle: "[Aurora 통일 캠페인] 디자인 시스템 미적용 페이지 일괄 마이그레이션", lastUpdated: "2026-05-03", taskCount: 3 },
   "dashboard.html": { lastTaskId: "CHG-21", lastTaskTitle: "v2 Aurora — admin.html Phase 1 (글로벌 레이아웃 + 사이드바 + Topbar + Dashboard + 모달 공통 톤)", lastUpdated: "2026-05-02", taskCount: 2 },
   "forgot-password.html": { lastTaskId: "CHG-15", lastTaskTitle: "v2 Aurora 마이그레이션 — 인증 페이지 4종 일괄 적용 (signup/forgot/reset/verify)", lastUpdated: "2026-05-01", taskCount: 1 },

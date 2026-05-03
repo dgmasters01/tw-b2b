@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-03T08:30:00Z",
+  "updated_at": "2026-05-03T09:30:00Z",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -12,14 +12,90 @@
     "SOLO_WORK_QUEUE.md"
   ],
   "stats": {
-    "total": 59,
+    "total": 60,
     "done": 31,
     "in_progress": 3,
-    "pending": 15,
+    "pending": 16,
     "blocked": 10,
-    "autonomous_ready": 15
+    "autonomous_ready": 16
   },
   "tasks": [
+    {
+      "id": "BL-CATEGORY-REMAP",
+      "title": "[카테고리 리매핑] 헌법 부칙 5 D-010 매핑 표를 코드에 반영 (6단계)",
+      "category": "infrastructure",
+      "status": "pending",
+      "priority": "P0",
+      "size": "large",
+      "parent_task": "BL-CENTRAL-HUB",
+      "blocker": null,
+      "created_at": "2026-05-03T09:30:00Z",
+      "completed_at": null,
+      "claude_can_auto": true,
+      "autonomous": {
+        "can_run_alone": true,
+        "estimated_hours": 2,
+        "requires_decisions_first": [
+          "D-010"
+        ]
+      },
+      "progress": "사전 박기 완료(09:30): ECHO_LOG/DECISIONS/INDEX/헌법 부칙 5 매핑 표 모두 등록. 다음: 6단계 코드 작업.",
+      "tag": "헌법부칙5-실제반영",
+      "phase": "Charter-v2",
+      "commit": null,
+      "files_changed": [
+        "admin-business.html",
+        "admin-tasks.html",
+        "admin-hub.html",
+        "js/stats.js",
+        "OPERATIONS_CHARTER.md"
+      ],
+      "history": [
+        {
+          "at": "2026-05-03T09:30:00Z",
+          "action": "사전 박기 완료",
+          "by": "Claude",
+          "note": "ECHO_LOG/DECISIONS/INDEX/헌법 매핑 표 등록"
+        }
+      ],
+      "source": "D-010 + 대표님 통찰 2건 (Hub-Tasks 중복 / BACKLOG 두 카테고리 중복)",
+      "source_anchor": "ECHO_LOG.md 2026-05-03 후반부",
+      "notes": "6단계 sub-task: ①admin-business에서 BACKLOG 제거 + JOURNEY/DECISIONS_INDEX 추가, ②admin-tasks에 ECHO_LOG/SOLO_WORK_QUEUE 추가, ③admin-hub 통계 제거 4카드 단순화, ④/js/stats.js 단일 모듈 신설, ⑤헌법 부칙 5 매핑 표 자가 검증 스크립트, ⑥commit + push + 라이브 검증.",
+      "owner": "Claude",
+      "approval_required": false,
+      "subtasks": [
+        {
+          "step": 1,
+          "title": "admin-business.html: BACKLOG 제거 + JOURNEY.md, DECISIONS_INDEX.md 추가",
+          "status": "pending"
+        },
+        {
+          "step": 2,
+          "title": "admin-tasks.html: ECHO_LOG.md, SOLO_WORK_QUEUE.md 추가",
+          "status": "pending"
+        },
+        {
+          "step": 3,
+          "title": "admin-hub.html: 통계 카드 4개 제거, 카테고리 카드 다루는 파일 목록만 표시",
+          "status": "pending"
+        },
+        {
+          "step": 4,
+          "title": "/js/stats.js 신설: 단일 통계 계산 모듈, hub/tasks 양쪽이 사용",
+          "status": "pending"
+        },
+        {
+          "step": 5,
+          "title": "scripts/charter-mapping-check.mjs 자가 검증 스크립트 신설 (헌법 부칙 5 매핑과 코드 일치 검증)",
+          "status": "pending"
+        },
+        {
+          "step": 6,
+          "title": "commit + push + 라이브 검증 (Vercel 90초 후 5개 페이지 모두 200 OK)",
+          "status": "pending"
+        }
+      ]
+    },
     {
       "id": "BL-CENTRAL-HUB",
       "title": "[중앙관리시스템] 4 카테고리 통합 진입점 + Service Ops 신설 (헌법 부칙 5 본체)",
@@ -39,7 +115,7 @@
           "D-004"
         ]
       },
-      "progress": "1단계 완료(2026-05-03): admin-hub.html + admin-service-ops.html 신설, admin.html 사이드바 통합, 헌법 부칙 5에 URL 매핑 등록. 2단계 예정: 자동 동기화 엔진 강화.",
+      "progress": "1단계 완료(2026-05-03 08:30): admin-hub.html + admin-service-ops.html 신설. ⚠️ 후속 점검에서 발견: Hub 통계가 admin-tasks와 중복, BACKLOG가 두 카테고리 중복, 5개 파일 매핑 누락. → BL-CATEGORY-REMAP으로 재설계 진행.",
       "tag": "헌법부칙5-본체",
       "phase": "Charter-v2",
       "commit": null,
@@ -59,7 +135,7 @@
       ],
       "source": "헌법 부칙 5 + 대표님 지시 (2026-05-03 '근본부터')",
       "source_anchor": "## 부칙 5",
-      "notes": "1단계: 골격(이번 채팅). 2단계: 자동 동기화 강화. 3단계: Aurora 디자인 통일.",
+      "notes": "1단계: 골격(이번 채팅). 2단계: 자동 동기화 강화. 3단계: Aurora 디자인 통일. [2026-05-03 09:30 보강] D-010 결정에 따라 BL-CATEGORY-REMAP이 본 작업의 후속 정리를 담당.",
       "owner": "Claude",
       "approval_required": false
     },

@@ -47,6 +47,25 @@
 **왜**: 회계·세무 시즌 필요. 메인 화면에서 1번 클릭으로 도달해야 함.
 **누가**: 이지형 대표님 + Claude
 
+### 결정 D-010: 카테고리별 단일 진실 파일 매핑 표준 ⭐⭐
+**무엇을**: 헌법 부칙 5의 4 카테고리 각각이 다루는 .md/.json 파일을 명시적으로 매핑한다. 한 파일이 두 카테고리에 동시 존재 불가, 누락 불가.
+
+| # | 카테고리 | URL | 단일 진실 파일 |
+|:--:|---|---|---|
+| 0 | Central Hub | `/admin-hub.html` | (라우팅만) |
+| 1 | Business Docs | `/admin-business.html` | BUSINESS / DECISIONS / DECISIONS_INDEX / JOURNEY / BUSINESS_FLOW |
+| 2 | Task & Status | `/admin-tasks.html` | tasks.json / BACKLOG / CHANGELOG / SOLO_WORK_QUEUE / ECHO_LOG |
+| 3 | Page Gallery | `/admin-gallery.html` | docs/screenshots / _backup_/ / pages-meta.mjs |
+| 4 | Service Ops | `/admin-service-ops.html` | SERVICE_OPS / RUNBOOK / INCIDENT_LOG (운영 후) |
+
+**왜**:
+- 1단계 작업(BL-CENTRAL-HUB) 후 발견: BACKLOG가 두 카테고리에 동시 존재 + JOURNEY/DECISIONS_INDEX/ECHO_LOG/SOLO_WORK_QUEUE 5개가 어느 페이지에도 노출 안 됨.
+- 헌법 부칙 5가 종이 위에만 있고 코드엔 반영 안 된 상태였음.
+- 대표님 통찰: "메뉴툴에 있는 메뉴들의 특성에 맞게 변경, 수정하여 최종 통합시스템을 만들어야 한다."
+
+**후속 작업**: BL-CATEGORY-REMAP (P0) — 6단계로 코드 정리.
+**누가**: 이지형 대표님 + Claude
+
 ---
 
 ## 🆕 2026-04-29 — 비즈니스 흐름 전면 정리

@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-03T09:30:00Z",
+  "updated_at": "2026-05-03T14:51:31Z",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -14,8 +14,8 @@
   "stats": {
     "total": 60,
     "done": 31,
-    "in_progress": 3,
-    "pending": 16,
+    "in_progress": 4,
+    "pending": 15,
     "blocked": 10,
     "autonomous_ready": 16
   },
@@ -24,7 +24,7 @@
       "id": "BL-CATEGORY-REMAP",
       "title": "[카테고리 리매핑] 헌법 부칙 5 D-010 매핑 표를 코드에 반영 (6단계)",
       "category": "infrastructure",
-      "status": "pending",
+      "status": "in_progress",
       "priority": "P0",
       "size": "large",
       "parent_task": "BL-CENTRAL-HUB",
@@ -39,7 +39,7 @@
           "D-010"
         ]
       },
-      "progress": "사전 박기 완료(09:30): ECHO_LOG/DECISIONS/INDEX/헌법 부칙 5 매핑 표 모두 등록. 다음: 6단계 코드 작업.",
+      "progress": "6단계 코드 작업 중 — 1~5단계 완료(admin-business/tasks/hub 매핑 정리, js/stats.js 신설, charter-mapping-check.mjs 자가 검증 26/27 통과). 6단계 진행: commit + push + 라이브 검증.",
       "tag": "헌법부칙5-실제반영",
       "phase": "Charter-v2",
       "commit": null,
@@ -56,6 +56,12 @@
           "action": "사전 박기 완료",
           "by": "Claude",
           "note": "ECHO_LOG/DECISIONS/INDEX/헌법 매핑 표 등록"
+        },
+        {
+          "at": "2026-05-03T14:51:31Z",
+          "action": "1~5단계 코드 작업 완료",
+          "by": "Claude",
+          "note": "admin-business/tasks/hub 매핑 정리 + js/stats.js 신설 + charter-mapping-check.mjs 자가 검증 26/27 통과(2.6은 self-reference). 6단계 push로 진입."
         }
       ],
       "source": "D-010 + 대표님 통찰 2건 (Hub-Tasks 중복 / BACKLOG 두 카테고리 중복)",
@@ -67,32 +73,32 @@
         {
           "step": 1,
           "title": "admin-business.html: BACKLOG 제거 + JOURNEY.md, DECISIONS_INDEX.md 추가",
-          "status": "pending"
+          "status": "done"
         },
         {
           "step": 2,
           "title": "admin-tasks.html: ECHO_LOG.md, SOLO_WORK_QUEUE.md 추가",
-          "status": "pending"
+          "status": "done"
         },
         {
           "step": 3,
           "title": "admin-hub.html: 통계 카드 4개 제거, 카테고리 카드 다루는 파일 목록만 표시",
-          "status": "pending"
+          "status": "done"
         },
         {
           "step": 4,
           "title": "/js/stats.js 신설: 단일 통계 계산 모듈, hub/tasks 양쪽이 사용",
-          "status": "pending"
+          "status": "done"
         },
         {
           "step": 5,
           "title": "scripts/charter-mapping-check.mjs 자가 검증 스크립트 신설 (헌법 부칙 5 매핑과 코드 일치 검증)",
-          "status": "pending"
+          "status": "done"
         },
         {
           "step": 6,
           "title": "commit + push + 라이브 검증 (Vercel 90초 후 5개 페이지 모두 200 OK)",
-          "status": "pending"
+          "status": "in_progress"
         }
       ]
     },

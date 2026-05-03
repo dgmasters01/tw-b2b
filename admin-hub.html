@@ -147,13 +147,7 @@
     </div>
   </div>
 
-  <!-- 빠른 통계 -->
-  <div class="quick-stats" id="quickStats">
-    <div class="qs-card"><div class="qs-label">전체 작업</div><div class="qs-num" id="qsTotal">-</div></div>
-    <div class="qs-card"><div class="qs-label">완료</div><div class="qs-num done" id="qsDone">-</div></div>
-    <div class="qs-card"><div class="qs-label">진행 중</div><div class="qs-num progress" id="qsInProgress">-</div></div>
-    <div class="qs-card"><div class="qs-label">대기</div><div class="qs-num pending" id="qsPending">-</div></div>
-  </div>
+  <!-- 빠른 통계 (제거됨 — D-010 카테고리 0: Hub는 라우팅만, 통계는 admin-tasks 단일 진실) -->
 
   <!-- 4 카테고리 카드 -->
   <div class="hub-grid">
@@ -164,10 +158,6 @@
       <div class="cat-num">CATEGORY 1</div>
       <h2 class="cat-title">📚 Business Docs</h2>
       <p class="cat-subtitle">왜 — 사업 방향 / 결정 / 매니저 여정</p>
-      <div class="cat-stats" id="catBusinessStats">
-        <div class="cat-stat"><span class="cat-stat-num">7</span><span class="cat-stat-label">정책 문서</span></div>
-        <div class="cat-stat"><span class="cat-stat-num" id="decisionCount">9</span><span class="cat-stat-label">의사결정</span></div>
-      </div>
       <div class="cat-files">
         <span class="cat-file">BUSINESS.md</span>
         <span class="cat-file">DECISIONS.md</span>
@@ -183,11 +173,6 @@
       <div class="cat-num">CATEGORY 2</div>
       <h2 class="cat-title">📋 Task & Status</h2>
       <p class="cat-subtitle">무엇을 + 어디까지 — 작업과 진도의 단일 시각화</p>
-      <div class="cat-stats" id="catTaskStats">
-        <div class="cat-stat"><span class="cat-stat-num" id="taskTotal">-</span><span class="cat-stat-label">전체</span></div>
-        <div class="cat-stat"><span class="cat-stat-num" id="taskP0">-</span><span class="cat-stat-label">P0</span></div>
-        <div class="cat-stat"><span class="cat-stat-num" id="taskP1">-</span><span class="cat-stat-label">P1</span></div>
-      </div>
       <div class="cat-files">
         <span class="cat-file">tasks.json</span>
         <span class="cat-file">BACKLOG.md</span>
@@ -203,15 +188,11 @@
       <div class="cat-num">CATEGORY 3</div>
       <h2 class="cat-title">📸 Page Gallery</h2>
       <p class="cat-subtitle">결과물 + 시각 시간 여행 — 페이지 분실 방지</p>
-      <div class="cat-stats" id="catGalleryStats">
-        <div class="cat-stat"><span class="cat-stat-num">14</span><span class="cat-stat-label">총 페이지</span></div>
-        <div class="cat-stat"><span class="cat-stat-num">8</span><span class="cat-stat-label">Aurora 적용</span></div>
-        <div class="cat-stat"><span class="cat-stat-num">6</span><span class="cat-stat-label">잔여</span></div>
-      </div>
       <div class="cat-files">
         <span class="cat-file">admin-gallery.html</span>
-        <span class="cat-file">docs/screenshots/v2-migration/</span>
+        <span class="cat-file">docs/screenshots/</span>
         <span class="cat-file">_backup_YYYYMMDD/</span>
+        <span class="cat-file">scripts/pages-meta.mjs</span>
       </div>
     </a>
 
@@ -221,10 +202,6 @@
       <div class="cat-num">CATEGORY 4</div>
       <h2 class="cat-title">🛠️ Service Operations</h2>
       <p class="cat-subtitle">운영 매뉴얼 — 정식 서비스 오픈 후 활성화</p>
-      <div class="cat-stats">
-        <div class="cat-stat"><span class="cat-stat-num">개발</span><span class="cat-stat-label">현재 단계</span></div>
-        <div class="cat-stat"><span class="cat-stat-num">대기</span><span class="cat-stat-label">운영 진입</span></div>
-      </div>
       <div class="cat-files">
         <span class="cat-file">SERVICE_OPS.md</span>
         <span class="cat-file">RUNBOOK.md</span>
@@ -257,37 +234,26 @@
 
 </div>
 
-<script>
-  // tasks.json 데이터 로드 + 통계 표시
-  fetch('/tasks.json')
-    .then(r => r.json())
-    .then(d => {
-      const stats = d.stats || {};
-      document.getElementById('qsTotal').textContent = stats.total || 0;
-      document.getElementById('qsDone').textContent = stats.done || 0;
-      document.getElementById('qsInProgress').textContent = stats.in_progress || 0;
-      document.getElementById('qsPending').textContent = stats.pending || 0;
+<script type="module">
+  // 헌법 부칙 5 / D-010 — Hub는 라우팅 + 카테고리 안내만.
+  // 통계 계산은 /js/stats.js 단일 모듈에 위임 (admin-tasks와 동일 출처).
+  // Hub에서는 P0 진행 중 항목만 상태 가시성(원칙 7) 차원에서 노출.
+  import { computeTasksStats } from '/js/stats.js?v=1';
 
-      // 카테고리별 통계
-      document.getElementById('taskTotal').textContent = stats.total || 0;
-      const tasks = d.tasks || [];
-      const p0 = tasks.filter(t => t.priority === 'P0' && t.status !== 'done').length;
-      const p1 = tasks.filter(t => t.priority === 'P1' && t.status !== 'done').length;
-      document.getElementById('taskP0').textContent = p0;
-      document.getElementById('taskP1').textContent = p1;
-
-      // P0 진행 중 표시
-      const p0Active = tasks.filter(t => t.priority === 'P0' && t.status !== 'done').slice(0, 3);
+  (async () => {
+    try {
+      const stats = await computeTasksStats();
+      const p0Active = stats.activeP0Ids.slice(0, 3);
       if (p0Active.length > 0) {
         document.getElementById('p0Banner').style.display = 'flex';
-        document.getElementById('p0List').textContent = p0Active.map(t => t.id).join(' · ');
+        document.getElementById('p0List').textContent = p0Active.join(' · ');
       }
-    })
-    .catch(() => {
-      console.warn('tasks.json 로드 실패');
-    });
+    } catch (e) {
+      console.warn('[hub] stats 로드 실패', e);
+    }
+  })();
 
-  // 최근 활동 — GitHub commit 5개
+  // 최근 활동 — GitHub commit 5개 (Hub의 부가 기능, 라우팅 보조)
   fetch('https://api.github.com/repos/dgmasters01/tw-b2b/commits?per_page=5')
     .then(r => r.json())
     .then(commits => {

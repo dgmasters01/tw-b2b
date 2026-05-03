@@ -111,6 +111,47 @@
   .tm-panel { display: none; }
   .tm-panel.active { display: block; }
 
+  /* ===== 단일 진실 파일 배너 (헌법 부칙 5 / D-010 카테고리 2) ===== */
+  .truth-files-banner {
+    background: linear-gradient(135deg, rgba(59,130,246,0.08), rgba(139,92,246,0.05));
+    border: 1px solid rgba(59,130,246,0.25);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .truth-files-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #93c5fd;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+  }
+  .truth-files-label::before { content: '📂 '; }
+  .truth-files-list { display: flex; flex-wrap: wrap; gap: 6px; }
+  .truth-file-chip {
+    font-size: 11px;
+    padding: 4px 9px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(148,163,184,0.25);
+    border-radius: 6px;
+    color: #cbd5e1;
+    font-family: ui-monospace, SFMono-Regular, monospace;
+    text-decoration: none;
+    transition: all .15s;
+  }
+  .truth-file-chip:hover { background: rgba(59,130,246,0.15); color: #fff; border-color: rgba(59,130,246,0.5); }
+  .truth-files-note {
+    margin-left: auto;
+    font-size: 11px;
+    color: #94a3b8;
+  }
+  @media (max-width: 700px) { .truth-files-note { margin-left: 0; width: 100%; } }
+
   /* ===== 대시보드 ===== */
   .dash-grid {
     display: grid;
@@ -541,6 +582,19 @@
 </nav>
 
 <main class="tm-main">
+
+  <!-- 단일 진실 파일 배너 (헌법 부칙 5 / D-010 — Category 2: Task & Status) -->
+  <div class="truth-files-banner">
+    <span class="truth-files-label">Category 2 · Task & Status</span>
+    <div class="truth-files-list">
+      <a class="truth-file-chip" href="https://github.com/dgmasters01/tw-b2b/blob/main/tasks.json" target="_blank">tasks.json</a>
+      <a class="truth-file-chip" href="https://github.com/dgmasters01/tw-b2b/blob/main/BACKLOG.md" target="_blank">BACKLOG.md</a>
+      <a class="truth-file-chip" href="https://github.com/dgmasters01/tw-b2b/blob/main/CHANGELOG.md" target="_blank">CHANGELOG.md</a>
+      <a class="truth-file-chip" href="https://github.com/dgmasters01/tw-b2b/blob/main/SOLO_WORK_QUEUE.md" target="_blank">SOLO_WORK_QUEUE.md</a>
+      <a class="truth-file-chip" href="https://github.com/dgmasters01/tw-b2b/blob/main/ECHO_LOG.md" target="_blank">ECHO_LOG.md</a>
+    </div>
+    <span class="truth-files-note">D-010 단일 진실 매핑</span>
+  </div>
 
   <!-- ===== 대시보드 탭 ===== -->
   <section class="tm-panel active" id="panel-dashboard">

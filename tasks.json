@@ -12,14 +12,221 @@
     "SOLO_WORK_QUEUE.md"
   ],
   "stats": {
-    "total": 52,
+    "total": 58,
     "done": 31,
-    "in_progress": 1,
-    "pending": 10,
+    "in_progress": 2,
+    "pending": 15,
     "blocked": 10,
-    "autonomous_ready": 11
+    "autonomous_ready": 15
   },
   "tasks": [
+    {
+      "id": "BL-AURORA-MIGRATION",
+      "title": "[Aurora 통일 캠페인] 디자인 시스템 미적용 페이지 일괄 마이그레이션",
+      "category": "design-system",
+      "status": "pending",
+      "priority": "P0",
+      "size": "large",
+      "parent_task": null,
+      "blocker": null,
+      "created_at": "2026-05-03T00:00:00Z",
+      "completed_at": null,
+      "claude_can_auto": true,
+      "autonomous": {
+        "can_run_alone": true,
+        "estimated_hours": 8,
+        "requires_decisions_first": [
+          "D-005"
+        ]
+      },
+      "progress": null,
+      "tag": "헌법부칙6-UX우선",
+      "phase": "Charter-v2",
+      "commit": null,
+      "files_changed": [
+        "sales.html",
+        "marketing.html",
+        "hotel-info.html",
+        "booking-analytics.html",
+        "admin.html",
+        "shared.css"
+      ],
+      "history": [],
+      "source": "DECISIONS.md L13 (D-005)",
+      "source_anchor": "## 2026-05-03 Charter v2",
+      "notes": "Aurora Trendy(C3) 전면 적용. 사업 시작 전 완료 의무. 임시 디자인 금지.",
+      "owner": "Claude",
+      "approval_required": false
+    },
+    {
+      "id": "BL-MANAGER-DASH-001",
+      "title": "[매니저 대시보드 신규 제작] 한 화면 7영역 (5초 파악)",
+      "category": "feature",
+      "status": "pending",
+      "priority": "P0",
+      "size": "large",
+      "parent_task": null,
+      "blocker": null,
+      "created_at": "2026-05-03T00:00:00Z",
+      "completed_at": null,
+      "claude_can_auto": true,
+      "autonomous": {
+        "can_run_alone": true,
+        "estimated_hours": 12,
+        "requires_decisions_first": [
+          "D-007",
+          "D-008"
+        ]
+      },
+      "progress": null,
+      "tag": "헌법7조-매니저적용",
+      "phase": "Charter-v2",
+      "commit": null,
+      "files_changed": [
+        "manager-dashboard.html",
+        "shared.css"
+      ],
+      "history": [],
+      "source": "BUSINESS.md 15-A 통찰 4 + JOURNEY.md C단계",
+      "source_anchor": "## C. 매니저 대시보드",
+      "notes": "7영역: 진행단계 / 호텔정보 / 콘텐츠 / 노출채널 / 예약결과 / 6개월보장+재제작 / 매출추정. 조회수는 보조.",
+      "owner": "Claude",
+      "approval_required": false
+    },
+    {
+      "id": "BL-TRACK-001",
+      "title": "[YouTube 더보기 단축 URL 클릭 카운트] 호텔별 진성 관심 측정 시스템",
+      "category": "analytics",
+      "status": "pending",
+      "priority": "P1",
+      "size": "medium",
+      "parent_task": null,
+      "blocker": null,
+      "created_at": "2026-05-03T00:00:00Z",
+      "completed_at": null,
+      "claude_can_auto": true,
+      "autonomous": {
+        "can_run_alone": true,
+        "estimated_hours": 6,
+        "requires_decisions_first": [
+          "D-006"
+        ]
+      },
+      "progress": null,
+      "tag": "사업차별화-핵심부품",
+      "phase": "Charter-v2",
+      "commit": null,
+      "files_changed": [
+        "api/h/[hotel_id].js",
+        "supabase/click_counts table",
+        "manager-dashboard.html"
+      ],
+      "history": [],
+      "source": "BUSINESS.md 15-A 통찰 6",
+      "source_anchor": "## 통찰 6. YouTube 더보기 카운트",
+      "notes": "gohotel.win/h/{hotel_id} → Supabase 카운트 +1 → Agoda 어필리에이트 리디렉션. 호텔별/순위별 분리.",
+      "owner": "Claude",
+      "approval_required": false
+    },
+    {
+      "id": "BL-INVOICE-001",
+      "title": "[인보이스/영수증 PDF 자동 생성·다운로드] 영구 보관 (1년+)",
+      "category": "feature",
+      "status": "pending",
+      "priority": "P1",
+      "size": "medium",
+      "parent_task": null,
+      "blocker": null,
+      "created_at": "2026-05-03T00:00:00Z",
+      "completed_at": null,
+      "claude_can_auto": true,
+      "autonomous": {
+        "can_run_alone": true,
+        "estimated_hours": 5,
+        "requires_decisions_first": [
+          "D-009"
+        ]
+      },
+      "progress": null,
+      "tag": "회계세무-필수",
+      "phase": "Charter-v2",
+      "commit": null,
+      "files_changed": [
+        "api/invoice/[payment_id].js",
+        "manager-dashboard.html"
+      ],
+      "history": [],
+      "source": "BUSINESS.md 15-A 통찰 7 + JOURNEY.md D단계",
+      "source_anchor": "## D. 별도 탭 — 서류",
+      "notes": "결제 직후 자동 발송 + 매니저 대시보드 별도 탭에서 1클릭 다운로드. PDF 3종: 인보이스/영수증/6개월리포트.",
+      "owner": "Claude",
+      "approval_required": false
+    },
+    {
+      "id": "BL-JOURNEY-DOC",
+      "title": "[JOURNEY.md 매니저 여정 정리] 비즈니스 독스 카테고리 강화",
+      "category": "documentation",
+      "status": "in_progress",
+      "priority": "P1",
+      "size": "small",
+      "parent_task": null,
+      "blocker": null,
+      "created_at": "2026-05-03T00:00:00Z",
+      "completed_at": null,
+      "claude_can_auto": true,
+      "autonomous": {
+        "can_run_alone": true,
+        "estimated_hours": 1,
+        "requires_decisions_first": [
+          "D-004"
+        ]
+      },
+      "progress": "v1 작성 완료 (5/3). 매니저 피드백 후 v2로 업데이트 예정.",
+      "tag": "헌법부칙5-비즈니스독스",
+      "phase": "Charter-v2",
+      "commit": null,
+      "files_changed": [
+        "JOURNEY.md"
+      ],
+      "history": [],
+      "source": "헌법 부칙 5",
+      "source_anchor": "## 부칙 5",
+      "notes": "8단계 매니저 여정 (A 결제전 → B 결제직후 → C 대시보드 → D 서류 → E 6개월 종료).",
+      "owner": "이지형 대표님 + Claude",
+      "approval_required": false
+    },
+    {
+      "id": "BL-DECISIONS-INDEX",
+      "title": "[DECISIONS_INDEX.md 자동 동기화] sync_engine 보강",
+      "category": "infrastructure",
+      "status": "pending",
+      "priority": "P2",
+      "size": "small",
+      "parent_task": null,
+      "blocker": null,
+      "created_at": "2026-05-03T00:00:00Z",
+      "completed_at": null,
+      "claude_can_auto": true,
+      "autonomous": {
+        "can_run_alone": true,
+        "estimated_hours": 2,
+        "requires_decisions_first": []
+      },
+      "progress": "DECISIONS_INDEX.md v1 수동 작성 완료 (5/3). sync_engine 자동화는 별도 작업.",
+      "tag": "헌법6조-AI가독성",
+      "phase": "Charter-v2",
+      "commit": null,
+      "files_changed": [
+        "scripts/sync_engine.py",
+        "DECISIONS_INDEX.md"
+      ],
+      "history": [],
+      "source": "헌법 6조 보강 (이중 형식 의무)",
+      "source_anchor": "## 원칙 6. AI 가독성",
+      "notes": "DECISIONS.md 변경 감지 → DECISIONS_INDEX.md 자동 갱신. ID 고정 불변 규칙.",
+      "owner": "Claude",
+      "approval_required": false
+    },
     {
       "id": "PHASE-3A-2",
       "title": "[Phase 3-A-2] 자동 동기화 엔진 구축 (sync_engine + GitHub Actions)",

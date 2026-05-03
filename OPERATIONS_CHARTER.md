@@ -41,6 +41,18 @@
   각자 책임 분리, 자동 동기화, 서로 참조.
   **한 파일에 통합하는 게 아니라, 4개가 동기화되는 것이 진짜 통합.**
 
+  **카테고리 URL 매핑 (2026-05-03 추가):**
+
+  | # | 카테고리 | 진입 URL | 단일 진실 파일 |
+  |:--:|---|---|---|
+  | 0 | **중앙 허브** | `/admin-hub.html` | (4 카테고리 통합 진입점) |
+  | 1 | Business Docs | `/admin-business.html` | BUSINESS.md / DECISIONS.md / DECISIONS_INDEX.md / JOURNEY.md / BUSINESS_FLOW.md |
+  | 2 | Task & Status | `/admin-tasks.html` | tasks.json / BACKLOG.md / CHANGELOG.md / SOLO_WORK_QUEUE.md / ECHO_LOG.md |
+  | 3 | Page Gallery | `/admin-gallery.html` | admin-gallery.html / docs/screenshots/v2-migration/ / _backup_YYYYMMDD/ |
+  | 4 | Service Operations | `/admin-service-ops.html` | SERVICE_OPS.md / RUNBOOK.md / INCIDENT_LOG.md (정식 오픈 후 활성화) |
+
+  **중앙 허브(`/admin-hub.html`)는 4 카테고리의 통합 진입점이며, 모든 신규 진입은 여기를 거친다.**
+
 - **부칙 6 — 개발 전략 "UX/UI 통일 우선, 콘텐츠 디테일 나중" (2026-05-03 신설):**
   - **UX/UI**: 디자인 시스템(Aurora Trendy)을 모든 페이지에 동일 적용 — **사업 시작 전 완료 의무**
   - **콘텐츠 디테일**: 표 안 멘트, 안내 문구, 데이터 표시 방식 등은 운영 중 매니저 피드백으로 개선

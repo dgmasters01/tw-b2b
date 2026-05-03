@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-03T00:00:00Z",
+  "updated_at": "2026-05-03T08:30:00Z",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -12,14 +12,57 @@
     "SOLO_WORK_QUEUE.md"
   ],
   "stats": {
-    "total": 58,
+    "total": 59,
     "done": 31,
-    "in_progress": 2,
+    "in_progress": 3,
     "pending": 15,
     "blocked": 10,
     "autonomous_ready": 15
   },
   "tasks": [
+    {
+      "id": "BL-CENTRAL-HUB",
+      "title": "[중앙관리시스템] 4 카테고리 통합 진입점 + Service Ops 신설 (헌법 부칙 5 본체)",
+      "category": "infrastructure",
+      "status": "in_progress",
+      "priority": "P0",
+      "size": "large",
+      "parent_task": null,
+      "blocker": null,
+      "created_at": "2026-05-03T08:30:00Z",
+      "completed_at": null,
+      "claude_can_auto": true,
+      "autonomous": {
+        "can_run_alone": true,
+        "estimated_hours": 4,
+        "requires_decisions_first": [
+          "D-004"
+        ]
+      },
+      "progress": "1단계 완료(2026-05-03): admin-hub.html + admin-service-ops.html 신설, admin.html 사이드바 통합, 헌법 부칙 5에 URL 매핑 등록. 2단계 예정: 자동 동기화 엔진 강화.",
+      "tag": "헌법부칙5-본체",
+      "phase": "Charter-v2",
+      "commit": null,
+      "files_changed": [
+        "admin-hub.html",
+        "admin-service-ops.html",
+        "admin.html",
+        "OPERATIONS_CHARTER.md"
+      ],
+      "history": [
+        {
+          "at": "2026-05-03T08:30:00Z",
+          "action": "1단계 완료",
+          "by": "Claude",
+          "note": "중앙 허브 + Service Ops 골격 + URL 매핑"
+        }
+      ],
+      "source": "헌법 부칙 5 + 대표님 지시 (2026-05-03 '근본부터')",
+      "source_anchor": "## 부칙 5",
+      "notes": "1단계: 골격(이번 채팅). 2단계: 자동 동기화 강화. 3단계: Aurora 디자인 통일.",
+      "owner": "Claude",
+      "approval_required": false
+    },
     {
       "id": "BL-AURORA-MIGRATION",
       "title": "[Aurora 통일 캠페인] 디자인 시스템 미적용 페이지 일괄 마이그레이션",

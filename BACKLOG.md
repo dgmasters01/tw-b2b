@@ -19,14 +19,14 @@
 
 ---
 
-## 🟢 P0 — [카테고리 리매핑] 헌법 부칙 5 D-010 매핑 표를 코드에 반영 (6단계)
+## ⚡ P0 — [카테고리 리매핑] 헌법 부칙 5 D-010 매핑 표를 코드에 반영 (6단계)
 
 **요약**: 6단계 sub-task: ①admin-business에서 BACKLOG 제거 + JOURNEY/DECISIONS_INDEX 추가, ②admin-tasks에 ECHO_LOG/SOLO_WORK_QUEUE 추가, ③admin-hub 통계 제거 4카드 단순화, ④/js/stats.js 단일 모듈 신설, ⑤헌법 부칙 5 매핑 표 자가 검증 스크립트, ⑥commit 
 
 - **자율성**: 🟢 AUTO
 - **예상 시간**: 2시간
 - **카테고리**: infrastructure
-- **상태**: pending
+- **상태**: in_progress
 - **결정 필요**:
   - D-010
 - **ID**: `BL-CATEGORY-REMAP` (출처: D-010 + 대표님 통찰 2건 (Hub-Tasks 중복 / BACKLOG 두 카테고리 중복))

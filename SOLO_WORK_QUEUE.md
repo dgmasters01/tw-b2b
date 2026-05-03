@@ -18,7 +18,19 @@
 
 ## 🔥 P0 — 데드라인 직결 작업
 
-### A. 🟢 AUTO — [중앙관리시스템] 4 카테고리 통합 진입점 + Service Ops 신설 (헌법 부칙 5 본체)
+### A. 🟢 AUTO — [카테고리 리매핑] 헌법 부칙 5 D-010 매핑 표를 코드에 반영 (6단계)
+
+**ID**: `BL-CATEGORY-REMAP`  
+**카테고리**: infrastructure  
+**예상 시간**: 2시간  
+**결정 필요 사항**:
+- D-010
+
+**메모**: 6단계 sub-task: ①admin-business에서 BACKLOG 제거 + JOURNEY/DECISIONS_INDEX 추가, ②admin-tasks에 ECHO_LOG/SOLO_WORK_QUEUE 추가, ③admin-hub 통계 제거 4카드 단순화, ④/js/stats.js 단일 모듈 신설, ⑤헌법 부칙 5 매핑 표 자가 검증 스크립트, ⑥commit + push + 라이브 검증.
+
+---
+
+### B. 🟢 AUTO — [중앙관리시스템] 4 카테고리 통합 진입점 + Service Ops 신설 (헌법 부칙 5 본체)
 
 **ID**: `BL-CENTRAL-HUB`  
 **카테고리**: infrastructure  
@@ -26,11 +38,11 @@
 **결정 필요 사항**:
 - D-004
 
-**메모**: 1단계: 골격(이번 채팅). 2단계: 자동 동기화 강화. 3단계: Aurora 디자인 통일.
+**메모**: 1단계: 골격(이번 채팅). 2단계: 자동 동기화 강화. 3단계: Aurora 디자인 통일. [2026-05-03 09:30 보강] D-010 결정에 따라 BL-CATEGORY-REMAP이 본 작업의 후속 정리를 담당.
 
 ---
 
-### B. 🟢 AUTO — [Aurora 통일 캠페인] 디자인 시스템 미적용 페이지 일괄 마이그레이션
+### C. 🟢 AUTO — [Aurora 통일 캠페인] 디자인 시스템 미적용 페이지 일괄 마이그레이션
 
 **ID**: `BL-AURORA-MIGRATION`  
 **카테고리**: design-system  
@@ -42,7 +54,7 @@
 
 ---
 
-### C. 🟢 AUTO — [매니저 대시보드 신규 제작] 한 화면 7영역 (5초 파악)
+### D. 🟢 AUTO — [매니저 대시보드 신규 제작] 한 화면 7영역 (5초 파악)
 
 **ID**: `BL-MANAGER-DASH-001`  
 **카테고리**: feature  
@@ -55,7 +67,7 @@
 
 ---
 
-### D. 🟢 AUTO — 통합 To-Do Inbox (관리자 대시보드 재설계)
+### E. 🟢 AUTO — 통합 To-Do Inbox (관리자 대시보드 재설계)
 
 **ID**: `BL-002`  
 **카테고리**: dev  
@@ -65,7 +77,7 @@
 
 ---
 
-### E. 🟢 AUTO — TW B2B 중앙 작업 관리 시스템 구축 (1단계: 데이터 통합 + 백업)
+### F. 🟢 AUTO — TW B2B 중앙 작업 관리 시스템 구축 (1단계: 데이터 통합 + 백업)
 
 **ID**: `IP-CTRL-001`  
 **카테고리**: dev  

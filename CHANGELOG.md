@@ -234,6 +234,21 @@
 
 ---
 
+## 2026-05-03 (Charter-v2) — [헌법부칙5-실제반영] [카테고리 리매핑] 헌법 부칙 5 D-010 매핑 표를 코드에 반영 (6단계)
+
+### 변경 파일
+- `admin-business.html`
+- `admin-tasks.html`
+- `admin-hub.html`
+- `js/stats.js`
+- `OPERATIONS_CHARTER.md`
+
+**Commit**: `60908ae`
+
+**요약**: 6단계 sub-task: ①admin-business에서 BACKLOG 제거 + JOURNEY/DECISIONS_INDEX 추가, ②admin-tasks에 ECHO_LOG/SOLO_WORK_QUEUE 추가, ③admin-hub 통계 제거 4카드 단순화, ④/js/stats.js 단일 모듈 신설, ⑤헌법 부칙 5 매핑 표 자가 검증 스크립트, ⑥commit + push + 라이브 검증.
+
+---
+
 ## 2026-04-29 (2차) — [버그수정] Agoda Matching 모달 핸들러 null-safe 처리 (P0 추가)
 
 ### 변경 파일

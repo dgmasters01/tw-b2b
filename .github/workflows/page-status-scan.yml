@@ -1,0 +1,85 @@
+# TW B2B — 페이지 완성도 자동 스캔 워크플로
+#
+# 헌법 부합:
+#   ② 무인 실행: HTML 파일 push 즉시 자동 측정
+#   ⑤ 무인 검증: scan-pages-status.mjs가 5차원 자동 채점
+#   ⑥ 사람용+AI용: pages-status.json (AI용 데이터) → admin-status.html (사람용 시각화)
+#   ⑧ 통합 관리: 단일 진실 출처 — admin-status.html이 이 파일만 읽음
+#
+# 트리거:
+#   1. main 브랜치 push에서 *.html 또는 pages-meta.mjs 또는 scan 스크립트 변경 시
+#   2. 수동 실행 (workflow_dispatch)
+#
+# 실행 흐름:
+#   1. checkout (full history — git log 기반 recency 측정 위해)
+#   2. Node 20 setup
+#   3. node scripts/scan-pages-status.mjs 실행 → pages-status.json 생성
+#   4. pages-status.json 변경되었으면 자동 commit + push
+#   5. self-trigger 방지 (이 워크플로우가 만든 commit은 다시 트리거 안 함)
+
+name: Auto Scan Page Completion Status
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '*.html'
+      - 'scripts/pages-meta.mjs'
+      - 'scripts/scan-pages-status.mjs'
+      - '.github/workflows/page-status-scan.yml'
+  workflow_dispatch:
+
+# 동일 워크플로우가 자기 자신이 만든 push로 무한 트리거되는 것을 방지
+concurrency:
+  group: page-status-scan-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    # self-trigger 방지: 이 워크플로우가 만든 commit이면 skip
+    if: ${{ !contains(github.event.head_commit.message, '[scan-bot]') }}
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout (full history)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Run page status scanner
+        run: |
+          echo "=== 스캔 시작 ==="
+          node scripts/scan-pages-status.mjs
+          echo "=== pages-status.json 생성 결과 ==="
+          if [ -f pages-status.json ]; then
+            node -e "const d = require('./pages-status.json'); console.log('총 ' + d.pages.length + '페이지, 평균 ' + d.totalAvgScore + '점'); console.log(JSON.stringify(d.counts, null, 2));"
+          else
+            echo "❌ pages-status.json 생성 실패"
+            exit 1
+          fi
+
+      - name: Commit & push if changed
+        run: |
+          git config user.name "page-scan-bot"
+          git config user.email "scan-bot@gohotelwinners.com"
+
+          if git diff --quiet pages-status.json; then
+            echo "변경 없음 — commit skip"
+            exit 0
+          fi
+
+          # 어떤 페이지가 점수 변동됐는지 한 줄 요약
+          AVG=$(node -e "console.log(require('./pages-status.json').totalAvgScore)")
+          PAGES=$(node -e "console.log(require('./pages-status.json').pages.length)")
+
+          git add pages-status.json
+          git commit -m "[scan-bot] pages-status.json 자동 갱신 (${PAGES}페이지, 평균 ${AVG}점) [변경사유: HTML 변경 → 완성도 재측정]"
+          git push origin main
+          echo "✅ pages-status.json 자동 갱신 완료"

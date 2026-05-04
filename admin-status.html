@@ -463,15 +463,15 @@
     </div>
   </section>
 
-  <!-- 자율 추천 콜투액션 -->
+  <!-- 🎯 현재 진행 / 다음 추천 (진행 중 작업이 있으면 그것이 우선, 없으면 P0 자율 가능 첫번째) -->
   <section class="next-action" id="next-action-box">
     <div class="next-action-row">
-      <span class="pill">🤖 자동 가능</span>
-      <span class="title" id="next-action-title">BL-PAGE-CAPTURE-AUTO — 스크린샷 자동 캡처 워크플로우 신설</span>
+      <span class="pill" id="next-action-pill">🎯 다음 추천</span>
+      <span class="title" id="next-action-title">로딩 중...</span>
       <button id="btn-reserve">▶ 예약 + 알림</button>
     </div>
-    <div class="next-action-hint">
-      예상 25분 · GitHub Actions만 추가 · 외관 결정 없음 · 버튼 누르면 ① priority_boost 자동 박힘 ② 클립보드 복사 + ops 알림 ③ 채팅에 붙여넣기 한 번 = 시작
+    <div class="next-action-hint" id="next-action-hint">
+      카드는 tasks.json의 진행 중 작업 또는 P0 자율 진행 가능 첫번째 작업을 표시합니다. 버튼 누르면 ① priority_boost 자동 박힘 ② 클립보드 복사 + ops 알림 ③ 채팅에 붙여넣기 한 번 = 시작
     </div>
   </section>
 
@@ -753,6 +753,8 @@
   const $ = (id) => document.getElementById(id);
   const fmtTime = (iso) => {
     if (!iso) return '-';
+    // 날짜만 있는 경우 (YYYY-MM-DD) — 시간 정보 없음
+    const dateOnly = /^\d{4}-\d{2}-\d{2}$/.test(String(iso).trim());
     const dt = new Date(iso);
     if (isNaN(dt.getTime())) return '-';
     const kst = new Date(dt.getTime() + 9 * 3600 * 1000);
@@ -761,6 +763,13 @@
     const sameYear = kst.getUTCFullYear() === now.getUTCFullYear();
     const pad = (n) => String(n).padStart(2,'0');
     const hh = pad(kst.getUTCHours()), mi = pad(kst.getUTCMinutes());
+    if (dateOnly) {
+      // 시간 정보 없는 날짜만 표시
+      const mo = pad(kst.getUTCMonth()+1), da = pad(kst.getUTCDate());
+      if (sameDay) return '오늘';
+      if (sameYear) return `${mo}-${da}`;
+      return `${String(kst.getUTCFullYear()).slice(2)}-${mo}-${da}`;
+    }
     if (sameDay) return `오늘 ${hh}:${mi}`;
     const mo = pad(kst.getUTCMonth()+1), da = pad(kst.getUTCDate());
     if (sameYear) return `${mo}-${da} ${hh}:${mi}`;
@@ -895,7 +904,7 @@
       <div style="display:flex;align-items:center;gap:10px;padding:7px 9px;background:rgba(22,163,74,0.10);border-radius:5px;">
         <span style="font-size:13px;">✅</span>
         <span style="font-size:11px;flex:1;">${escapeHtml(m.lastTask.lastTaskTitle || '-')}</span>
-        <span style="font-size:10px;color:var(--text-muted);">${escapeHtml(m.lastTask.lastTaskId || '')} · ${escapeHtml(m.lastTask.lastUpdated || '')}</span>
+        <span style="font-size:10px;color:var(--text-muted);">${escapeHtml(m.lastTask.lastTaskId || '')} · 🕒 ${fmtTime(m.lastTask.lastUpdated)}</span>
       </div>` : '<div style="font-size:11px;color:var(--text-muted);padding:7px 9px;">최근 작업 기록 없음</div>';
     return `
       <div style="margin-top:12px;padding:14px;background:var(--panel-2);border-radius:8px;border-top:1px solid var(--aurora-2);">
@@ -1042,8 +1051,11 @@
   });
   $('btn-reserve').addEventListener('click', async () => {
     // A+B 결합: ① 클립보드 복사 ② ops 알림 ③ 화면 피드백
-    const taskId = 'BL-PAGE-CAPTURE-AUTO';
-    const message = `${taskId} 시작\n\n작업: 스크린샷 자동 캡처 워크플로우 신설\n예상: 25분 · 자동 가능 · 외관 결정 없음\n시작자: 👤 이지형 (CEO)\n시각: ${new Date().toISOString()}\n\n채팅에 이 메시지 그대로 붙여넣어 시작하세요.`;
+    // taskId/title은 renderNextAction이 dataset에 동적 주입한 값을 사용
+    const btn = $('btn-reserve');
+    const taskId = btn.dataset.taskId || 'BL-PAGE-CAPTURE-AUTO';
+    const taskTitle = btn.dataset.taskTitle || '';
+    const message = `${taskId} 시작\n\n작업: ${taskTitle}\n시작자: 👤 이지형 (CEO)\n시각: ${new Date().toISOString()}\n\n채팅에 이 메시지 그대로 붙여넣어 시작하세요.`;
 
     // ① 클립보드 복사
     let clipOk = false;
@@ -1054,26 +1066,24 @@
       console.warn('clipboard 실패', e);
     }
 
-    // ② ops 알림 (Phase 3-C에선 시뮬, 실서비스에선 /api/email/ops/notify-claude-work 호출)
-    // 일단 fetch 시도 (실패해도 계속 진행)
+    // ② ops 알림 (베스트에포트, 실패해도 무시)
     try {
       await fetch('/api/email/ops/notify-claude-work', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           step: '🔵 작업 예약',
-          summary: `${taskId} 예약 — admin-status에서 ▶ 예약 버튼 클릭`,
+          summary: `${taskId} 예약 — admin-status에서 ▶ 예약 버튼 클릭. ${taskTitle}`,
           checklist: ['priority_boost 표시', '클립보드 복사 완료', 'CEO 알림'],
           blockers: '대표님 채팅 붙여넣기 대기',
           source: 'admin-status.html',
         }),
       });
     } catch (e) {
-      console.log('ops 알림은 실서비스에서 작동 (현재 시뮬)');
+      console.log('ops 알림 fetch 실패(베스트에포트)');
     }
 
     // ③ 화면 피드백
-    const btn = $('btn-reserve');
     const orig = btn.textContent;
     btn.textContent = clipOk ? '✅ 복사 완료 — 채팅에 붙여넣기' : '⚠️ 복사 실패 (수동)';
     btn.disabled = true;
@@ -1118,6 +1128,7 @@
       renderIntegratedUrgent(data);
       renderIntegratedProgress(data);
       renderAutoQueue(data);
+      renderNextAction(data);
     } catch (err) {
       console.error('[admin-status] tasks.json fetch 실패', err);
       $('integ-urgent').innerHTML = '<div class="urgent-empty">tasks.json 로딩 실패</div>';
@@ -1221,11 +1232,60 @@
   }
 
   // ──────────────────────────────────────────────────────────
-  // 자율 작업 큐 (IP-CTRL-001 5단계 — Claude 즉시 시작 가능 큐)
-  //   필터: claude_can_auto && status === 'pending' && !approval_required
-  //   정렬: P0 → P1 → P2 → P3
-  //   카드 클릭: 클립보드 복사 + ops 알림(GitHub Actions 트리거 가능 시) + 토스트
+  // 🎯 다음 추천 박스 (진행 중 작업 우선, 없으면 P0 자율 첫번째)
   // ──────────────────────────────────────────────────────────
+  function renderNextAction(data) {
+    const tasks = data.tasks || [];
+    // 우선순위 1: in_progress 중에서 P0 우선
+    const inProgress = tasks
+      .filter(t => t.status === 'in_progress')
+      .sort((a, b) => (a.priority || 'P9').localeCompare(b.priority || 'P9'));
+
+    let target = null;
+    let mode = '';
+    let hint = '';
+
+    if (inProgress.length > 0) {
+      target = inProgress[0];
+      mode = '🔄 진행 중';
+      const hours = target.autonomous?.estimated_hours;
+      hint = `현재 진행 중인 작업입니다. ${hours ? `예상 ${hours}h · ` : ''}이어서 작업하려면 예약 + 알림 버튼 → 클립보드 복사 → 새 채팅에 붙여넣기.`;
+    } else {
+      // 우선순위 2: 자율 가능 P0 → P1 첫번째
+      const autoQueue = tasks
+        .filter(t => t.claude_can_auto === true && t.status === 'pending' && !t.approval_required)
+        .sort((a, b) => (a.priority || 'P9').localeCompare(b.priority || 'P9'));
+      if (autoQueue.length > 0) {
+        target = autoQueue[0];
+        mode = '🎯 다음 추천';
+        const hours = target.autonomous?.estimated_hours;
+        hint = `Claude 자율 진행 가능 작업 중 우선순위 최상위. ${hours ? `예상 ${hours}h · ` : ''}버튼 누르면 ① 클립보드 복사 ② ops 알림 ③ 새 채팅 붙여넣기 한 번 = 시작.`;
+      }
+    }
+
+    const pill = document.getElementById('next-action-pill');
+    const title = document.getElementById('next-action-title');
+    const hintEl = document.getElementById('next-action-hint');
+    const btn = document.getElementById('btn-reserve');
+
+    if (!target) {
+      if (pill) pill.textContent = '✅ 모두 완료';
+      if (title) title.textContent = '진행 중이거나 자율 진행 가능한 작업이 없습니다';
+      if (hintEl) hintEl.textContent = '대표님 결정 대기 또는 막힌 작업만 남음. 결정 대기 박스 확인 부탁드립니다.';
+      if (btn) btn.style.display = 'none';
+      return;
+    }
+
+    if (pill) pill.textContent = mode;
+    if (title) title.textContent = `${target.id} — ${target.title || ''}`;
+    if (hintEl) hintEl.textContent = hint;
+    if (btn) {
+      btn.style.display = '';
+      btn.dataset.taskId = target.id;
+      btn.dataset.taskTitle = target.title || '';
+    }
+  }
+
   function renderAutoQueue(data) {
     const tasks = data.tasks || [];
     const queue = tasks

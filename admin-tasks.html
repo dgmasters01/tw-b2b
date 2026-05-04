@@ -580,8 +580,8 @@
 <!-- ===== 헤더 ===== -->
 <header class="tm-header">
   <div class="tm-header-left">
-    <h1>📋 TW B2B 중앙 작업 관리 시스템</h1>
-    <p>모든 디자인/개발/버그/비즈니스/인프라 작업을 한 곳에서</p>
+    <h1>📋 작업 목록 — Task & Status</h1>
+    <p>D-010 카테고리 2 단일 진실 — tasks.json / BACKLOG.md / CHANGELOG.md / SOLO_WORK_QUEUE.md / ECHO_LOG.md · 통합 현황은 <a href="/admin-status.html" style="color:#a78bfa;">admin-status</a>에서</p>
   </div>
   <div class="tm-header-right">
     <div class="tm-meta">
@@ -604,7 +604,6 @@
 <nav class="tm-tabs">
   <button class="tm-tab active" data-tab="list">📋 작업 목록 <span class="badge" id="badge-list">-</span></button>
   <button class="tm-tab" data-tab="add">➕ 작업 추가</button>
-  <button class="tm-tab" data-tab="handoff">🔄 채팅 인계</button>
 </nav>
 
 <main class="tm-main">
@@ -745,43 +744,11 @@
     </div>
   </section>
 
-  <!-- ===== 채팅 인계 탭 ===== -->
-  <section class="tm-panel" id="panel-handoff">
-
-    <div class="action-card" style="background:#dbeafe;border-color:#93c5fd;">
-      <h4>🔄 채팅 토큰 끊김 대비 0초 인계 시스템</h4>
-      <p>현재 채팅에서 토큰이 끊기면, 아래 컨텍스트 블록을 복사해 새 채팅 첫 메시지에 그대로 붙여넣으세요. Claude가 즉시 작업을 이어받을 수 있습니다.</p>
-    </div>
-
-    <div class="action-card">
-      <h4>📋 다음 채팅용 컨텍스트 블록</h4>
-      <p>현재 진행 중 작업 + 다음 P0/P1 대기 작업 + 핵심 시스템 정보가 포함됩니다.</p>
-      <pre id="handoff-block">생성 중...</pre>
-      <button class="btn" id="btn-copy-handoff">📎 클립보드 복사</button>
-    </div>
-
-    <div class="action-card">
-      <h4>💾 tasks.json 다운로드 + Git Push</h4>
-      <p>메모리 변경 사항을 영구 반영합니다. 다운로드한 파일을 <code>~/Desktop/tw-b2b/tasks.json</code>에 덮어쓴 뒤 아래 명령어를 실행하세요.</p>
-      <button class="btn" id="btn-download-json">💾 새 tasks.json 다운로드</button>
-      <pre id="git-cmd">cd ~/Desktop/tw-b2b
-git add tasks.json
-git commit -m "chore: tasks.json 업데이트 ($(date +%Y-%m-%d))"
-git push</pre>
-      <button class="btn" id="btn-copy-git">📎 명령어 복사</button>
-    </div>
-
-    <div class="action-card">
-      <h4>🛠️ 시스템 정보 (인계용 핵심 데이터)</h4>
-      <p style="margin:0">
-        <strong>Repo:</strong> <code id="info-repo">-</code><br>
-        <strong>HEAD:</strong> <code id="info-head">-</code><br>
-        <strong>라이브:</strong> <code>https://gohotelwinners.com</code><br>
-        <strong>로컬 git:</strong> <code>~/Desktop/tw-b2b</code><br>
-        <strong>총 작업:</strong> <span id="info-count">-</span>개 (완료 <span id="info-done">-</span> / 진행 <span id="info-progress">-</span> / 대기 <span id="info-pending">-</span> / 막힘 <span id="info-blocked">-</span>)
-      </p>
-    </div>
-  </section>
+  <!-- ===== 채팅 인계 탭 제거됨 (2026-05-04) =====
+       기능 이관: 자율 작업 큐 카드 클릭 = 채팅 인계 그 자체.
+       admin-status.html의 🤖 자율 작업 큐 섹션에서 카드 클릭하면
+       클립보드 자동 복사 + 새 채팅에 붙여넣기 한 번 = 인계 완료.
+       사유: D-010 단일 진실 — 한 기능은 한 곳에. -->
 
 </main>
 
@@ -1268,107 +1235,21 @@ function clearAddForm() {
 }
 
 // ============================================================
-// 채팅 인계 + 다운로드
+// 채팅 인계 + 다운로드 — 2026-05-04 제거됨
+// 기능 이관: admin-status.html의 🤖 자율 작업 큐 카드 클릭 = 채팅 인계.
+// 사유: D-010 단일 진실 원칙 — 한 기능은 한 곳에.
+// 자율 작업 큐 카드 동작:
+//   ① 클립보드 자동 복사 (taskId + title + 시각)
+//   ② ops 알림 베스트에포트
+//   ③ 토스트 안내
+// 대표님은 새 채팅 열고 Cmd+V 한 번 → Claude 자율 작업 즉시 시작.
 // ============================================================
-function renderHandoff() {
-  const inProgress = DATA.tasks.filter(t => t.status === 'in_progress');
-  const nextPending = DATA.tasks
-    .filter(t => t.status === 'pending')
-    .sort((a, b) => (a.priority || 'P9').localeCompare(b.priority || 'P9'))
-    .slice(0, 5);
-
-  const total = DATA.tasks.length;
-  const done = DATA.tasks.filter(t => t.status === 'done').length;
-  const ip = DATA.tasks.filter(t => t.status === 'in_progress').length;
-  const pe = DATA.tasks.filter(t => t.status === 'pending').length;
-  const bl = DATA.tasks.filter(t => t.status === 'blocked').length;
-
-  $('info-repo').textContent = DATA.repo || 'dgmasters01/tw-b2b';
-  $('info-head').textContent = DATA.head_commit || 'main';
-  $('info-count').textContent = total;
-  $('info-done').textContent = done;
-  $('info-progress').textContent = ip;
-  $('info-pending').textContent = pe;
-  $('info-blocked').textContent = bl;
-
-  // 인계 블록
-  const lines = [];
-  lines.push('# TW B2B 작업 이어받기 (자동 인계)');
-  lines.push('');
-  lines.push(`- Repo: ${DATA.repo || 'dgmasters01/tw-b2b'}`);
-  lines.push(`- 라이브: https://gohotelwinners.com`);
-  lines.push(`- 로컬 git: ~/Desktop/tw-b2b (대표님 PC)`);
-  lines.push(`- 마감: ${DATA.deadline || '2026-05-03'}`);
-  lines.push(`- 작업관리: https://gohotelwinners.com/admin-tasks.html`);
-  lines.push(`- 마지막 업데이트: ${DATA.updated_at}`);
-  lines.push('');
-  lines.push(`## 작업 통계`);
-  lines.push(`- 총 ${total}개 (완료 ${done} / 진행 ${ip} / 대기 ${pe} / 막힘 ${bl})`);
-  lines.push('');
-  if (inProgress.length) {
-    lines.push('## 🔥 현재 진행 중');
-    inProgress.forEach(t => {
-      lines.push(`- [${t.id}] (${t.priority}, ${t.category}) ${t.title}`);
-      if (t.notes) lines.push(`  - 메모: ${t.notes.slice(0, 200)}`);
-    });
-    lines.push('');
-  }
-  if (nextPending.length) {
-    lines.push('## 📋 다음 우선 작업 (P0 → P1 순)');
-    nextPending.forEach(t => {
-      lines.push(`- [${t.id}] (${t.priority}, ${t.category}) ${t.title}`);
-    });
-    lines.push('');
-  }
-  lines.push('## 작업 흐름 (필수 준수)');
-  lines.push('1. tw-b2b GitHub raw로 BACKLOG.md / STATUS.md / 관련 코드 fetch하여 컨텍스트 파악');
-  lines.push('2. 코드 작성 → 자동 검증 (JS syntax + function 존재 + page state)');
-  lines.push('3. /mnt/user-data/outputs/에 staging');
-  lines.push('4. 대표님 PC에서: cd ~/Desktop/tw-b2b && git add -A && git commit -m "..." && git push');
-  lines.push('5. CHANGELOG.md 등록 + admin-tasks.html에서 상태 업데이트 (in_progress → done)');
-  lines.push('');
-  lines.push('첫 메시지: "tw-b2b admin-tasks.html 컨텍스트 받았음. 위 진행 중 작업부터 이어서 진행해줘"');
-
-  $('handoff-block').textContent = lines.join('\n');
-}
-
-$('btn-copy-handoff').addEventListener('click', async () => {
-  try {
-    await navigator.clipboard.writeText($('handoff-block').textContent);
-    const btn = $('btn-copy-handoff');
-    btn.classList.add('copied');
-    btn.textContent = '✅ 복사됨';
-    setTimeout(() => { btn.classList.remove('copied'); btn.textContent = '📎 클립보드 복사'; }, 1800);
-  } catch (e) {
-    showToast('복사 실패: ' + e.message);
-  }
-});
-
-$('btn-copy-git').addEventListener('click', async () => {
-  try {
-    await navigator.clipboard.writeText($('git-cmd').textContent);
-    const btn = $('btn-copy-git');
-    btn.classList.add('copied');
-    btn.textContent = '✅ 복사됨';
-    setTimeout(() => { btn.classList.remove('copied'); btn.textContent = '📎 명령어 복사'; }, 1800);
-  } catch (e) {
-    showToast('복사 실패: ' + e.message);
-  }
-});
-
-$('btn-download-json').addEventListener('click', () => {
-  DATA.updated_at = nowISO();
-  const blob = new Blob([JSON.stringify(DATA, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'tasks.json';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-  showToast('💾 tasks.json 다운로드 완료. ~/Desktop/tw-b2b/에 덮어쓴 뒤 git push 하세요');
-});
+// ============================================================
+// 채팅 인계 + 다운로드 — 2026-05-04 제거됨
+// 기능 이관: admin-status.html의 🤖 자율 작업 큐 카드 클릭 = 채팅 인계.
+// 사유: D-010 단일 진실 원칙 — 한 기능은 한 곳에.
+// ============================================================
+function renderHandoff() { /* no-op (제거됨) */ }
 
 // ============================================================
 // 유틸

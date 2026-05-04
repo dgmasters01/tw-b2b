@@ -6,6 +6,58 @@
 
 ---
 
+## 2026-05-04 — [UX-FEEDBACK-1] 대표님 4가지 피드백 자율 시스템화
+
+### 변경 사유
+대표님 스크린샷 피드백 4건. 모두 시스템 디테일이라 Claude 자율 판단으로 즉시 수정.
+
+### 4건 변경
+
+**① 카테고리 카드 마지막 작업 시간 표시 (이미지 1)**
+- 현재: `BL-CENTRAL-HUB · 2026-05-04` (날짜만, "오늘 언제"인지 불명)
+- 개선: `BL-CENTRAL-HUB · 🕒 오늘 14:58` (분 단위, 상대 시간)
+- 작업: `admin-status.html` 카테고리 카드 펼침 영역 lastUpdated에 fmtTime 적용 + fmtTime에 dateOnly 분기 추가 (날짜만 있을 때 잘못된 시간 출력 방지)
+- 데이터 보강: `scripts/sync-page-task-meta.mjs` 신규 — git log 기반으로 PAGE_TASK_META.lastUpdated를 ISO datetime으로 자동 갱신. 22개 항목 모두 정확한 commit 시각으로 갱신됨.
+
+**② 상단 박스 라벨 명확화 (이미지 2)**
+- 현재: "🤖 자동 가능 / BL-PAGE-CAPTURE-AUTO / ▶ 예약 + 알림" (지금 하는 거? 해야 할 거? 모호)
+- 개선: 동적 렌더로 변경 — in_progress 작업이 있으면 "🔄 진행 중" + 그 작업 표시, 없으면 "🎯 다음 추천" + P0 자율 가능 첫번째 표시
+- 작업: `renderNextAction()` 신규, btn-reserve 핸들러를 동적 taskId/title (dataset 기반)로 변경
+
+**③ admin-tasks.html 페이지명 변경 (이미지 3)**
+- 현재: "TW B2B 중앙 작업 관리 시스템 / 모든 디자인/개발/버그/비즈니스/인프라 작업을 한 곳에서"
+- 개선: "📋 작업 목록 — Task & Status / D-010 카테고리 2 단일 진실 — tasks.json/BACKLOG/CHANGELOG/SOLO_WORK_QUEUE/ECHO_LOG · 통합 현황은 admin-status에서"
+- 사유: '중앙'은 admin-status(통합 진입점)에 귀속. admin-tasks는 카테고리 2 단일 진실 위치로 정체성 명확화.
+
+**④ 채팅 인계 탭 — admin-tasks에서 제거, 자율 작업 큐로 통합 (이미지 3 하단)**
+- 현재: admin-tasks에 [작업 목록 / 작업 추가 / 채팅 인계] 3 탭 + 별도 핸드오프 블록 + tasks.json 다운로드 + git 명령어 복사
+- 개선: admin-tasks 2 탭으로 단순화 (작업 목록 / 작업 추가). 채팅 인계 기능은 admin-status.html의 🤖 자율 작업 큐 카드 클릭 동작에 이미 통합됨 (클립보드 복사 + ops 알림 + 토스트).
+- 사유: D-010 단일 진실 — 한 기능은 한 곳에. 자율 작업 큐 카드 클릭 = 채팅 인계 그 자체이므로 별도 탭 잉여.
+- 작업: `panel-handoff` 섹션 통째 제거 + renderHandoff/btn-copy-handoff/btn-download-json/btn-copy-git 핸들러 제거 + tab 버튼 한 줄 제거
+
+### 변경 파일
+- `admin-status.html` — fmtTime dateOnly 분기 + 카테고리 카드 lastUpdated fmtTime 적용 + renderNextAction 신규 + btn-reserve 동적 taskId
+- `admin-tasks.html` — 페이지명 변경 + 채팅 인계 탭 제거 (HTML + JS 모두)
+- `scripts/pages-meta.mjs` — PAGE_TASK_META.lastUpdated 22개 항목 git history 기반 ISO datetime로 자동 갱신
+- `scripts/sync-page-task-meta.mjs` — 신규 git log → lastUpdated 자동 동기화 스크립트
+- `scripts/scan-pages-status.mjs` — sync 사용 안내 코멘트 추가
+- `_backup_20260504/admin-tasks.html.bak.before-handoff-removal` — 백업
+
+### 자가 검증
+- 17/17 PASS (통합 자가검증)
+- admin-status.html JS 문법 OK
+- admin-tasks.html JS 문법 OK
+- charter-mapping-check **30/30 PASS** 유지
+- scan-pages-status 평균 77점 유지
+
+### 헌법 자가 검증 PASS
+- 1조 (대표님 결정만): 위치/구조 자율 결정 + 즉시 실행 ✅
+- 부칙 5 D-010 (단일 진실): admin-tasks = 카테고리 2 단일 진실 위치, 채팅 인계 기능은 admin-status 자율 큐로 일원화 ✅
+- 7조 (5초 안에 파악): 페이지명 명확화, 시간 분 단위 표시, 진행/추천 라벨 명확화 ✅
+- 메모리 24번 (시스템 디테일은 Claude 자율): 4건 모두 자율 판단 후 즉시 박음 ✅
+
+---
+
 ## 2026-05-04 — [IP-CTRL-001 5단계] 자율 작업 큐 UI를 admin-status.html에 박음
 
 ### 변경 사유

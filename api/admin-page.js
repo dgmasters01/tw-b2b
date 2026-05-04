@@ -31,15 +31,17 @@ import { join } from 'node:path';
 
 const ALLOWED_REFERRER_HOSTS = ['gohotelwinners.com', 'www.gohotelwinners.com', 'tw-b2b.vercel.app'];
 
-// page slug → 정적 파일명 매핑
-// (정적 파일명을 그대로 사용하되 page 파라미터로 안전하게 매핑)
+// page slug → 정적 파일명 매핑 (_admin/ 폴더 안)
+// 폴더명 _ 접두사 → Vercel 정적 서빙 차단 (chat-logs 패턴 동일)
+// 내부 링크는 그대로 /admin-status.html 형식 유지 — vercel rewrites가 흡수
 const PAGE_FILE_MAP = {
-  'status':       'admin-status.html',
-  'tasks':        'admin-tasks.html',
-  'business':     'admin-business.html',
-  'service-ops':  'admin-service-ops.html',
-  'gallery':      'admin-gallery.html',
-  'admin':        'admin.html',
+  'status':       '_admin/admin-status.html',
+  'tasks':        '_admin/admin-tasks.html',
+  'business':     '_admin/admin-business.html',
+  'service-ops':  '_admin/admin-service-ops.html',
+  'gallery':      '_admin/admin-gallery.html',
+  'admin':        '_admin/admin.html',
+  'hub':          '_admin/admin-hub.html', // 폐기 안내 페이지 (혹시 직접 접근 시)
 };
 
 function isAllowedByReferer(req) {

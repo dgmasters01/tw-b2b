@@ -41,8 +41,16 @@ function check(name, ok, detail = '') {
 }
 
 function readIfExists(rel) {
-  const p = resolve(REPO_ROOT, rel);
-  return existsSync(p) ? readFileSync(p, 'utf8') : null;
+  // BL-REAL-SYSTEM Phase α — admin-*.html 파일은 _admin/ 폴더로 이동됨 (Vercel 정적 서빙 차단용)
+  // root에 없으면 _admin/도 시도 (vercel rewrites가 URL은 그대로 흡수)
+  const tryPaths = [
+    resolve(REPO_ROOT, rel),
+    /^admin(-|\.)/.test(rel) ? resolve(REPO_ROOT, '_admin', rel) : null,
+  ].filter(Boolean);
+  for (const p of tryPaths) {
+    if (existsSync(p)) return readFileSync(p, 'utf8');
+  }
+  return null;
 }
 
 // ────────────────────────────────────────────────────────────

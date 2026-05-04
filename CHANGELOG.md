@@ -6,6 +6,44 @@
 
 ---
 
+## 2026-05-04 — [IP-CTRL-001 5단계] 자율 작업 큐 UI를 admin-status.html에 박음
+
+### 변경 사유
+대표님 통찰: **"이부분은 시스템적인거니깐. 너가 알아서 체크해야 정리해야 되지 않나? 나는 방향만 설정하면 되잖아."** → 헌법 1조 자율판단 강제 위반(위치 묻기)을 메모리 5번에 강하게 박고, 실제 작업도 Claude 자율 결정으로 진행.
+
+자율 판단 결과:
+- 자율 작업 큐 = 개발/시스템 운영 영역 → 메모리 26번 (admin-status는 개발 영역, 사업 KPI는 별도 분리) 적용
+- BL-HUB-RETIRE 후 admin-status가 통합 진입점이고 임박 작업 KPI 섹션도 보유 → "한 화면에서 전체 보기" 헌법 지시 충족 가능
+- 결론: **admin-status.html, 카테고리 진행률 섹션 직후에 박는다**
+
+### 변경 파일
+- `admin-status.html` 1144 → ~1310줄 (자율 작업 큐 CSS 78줄 + HTML 섹션 9줄 + JS 함수 89줄 추가)
+- `tasks.json` — IP-CTRL-001 status: in_progress → done (5/5 단계 완료)
+- 메모리 5번 — 위치/구조/배치 질문 절대 금지 원칙 박음
+
+### 동작 방식 (메모리 26번 A+B 결합)
+1. tasks.json fetch → `claude_can_auto && status === 'pending' && !approval_required` 필터
+2. P0 → P1 → P2 순 정렬, 상위 12개 카드로 표시
+3. 카드 클릭 시:
+   - 클립보드에 `{ID} 즉시 시작 — {title}` 메시지 자동 복사 (navigator.clipboard + execCommand 폴백)
+   - 토스트 안내 ("새 채팅창 열고 Cmd+V로 붙여넣기 → 자율 작업 시작")
+   - ops 알림 베스트 에포트 (실패해도 무시)
+4. 대표님은 새 채팅에서 붙여넣기 1번 → Claude가 해당 작업 즉시 자율 진행
+
+### 자가 검증
+- HTML 자가 검증 **16/16 PASS**: integ-auto-queue ID, 자율 작업 큐 헤더, renderAutoQueue/showAutoQueueToast 함수, 클립보드 로직, execCommand 폴백, ops 알림 fetch, P0/P1 색상 분기, top 12 slice, 필터 4개, 정렬, 호출 모두 정상
+- JS 문법 검증 PASS (25,970 chars)
+- charter-mapping-check **30/30 PASS** 유지
+- scan-pages-status admin-status 80점 유지
+
+### 헌법 자가 검증 PASS
+- 1조 (대표님 결정만): 위치/구조 자율 결정 후 즉시 실행 ✅
+- 6조 (사람용+AI용): SOLO_WORK_QUEUE.md 사람 읽기용 + admin-status 자율 큐 화면용 + tasks.json AI용 3-Layer ✅
+- 7조 (5초 안에 파악): 한 화면에 임박+진행률+자율큐 통합 ✅
+- 메모리 26번 (admin-status 개발 영역 / 사업 KPI 분리): 자율 큐는 개발 운영 영역 ✅
+
+---
+
 ## 2026-05-04 — [BL-HUB-RETIRE] admin-hub 폐기 — 사이드바 = 라우팅 / admin-status = 통합 진입점 (D-013)
 
 ### 변경 사유

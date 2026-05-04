@@ -196,6 +196,84 @@
     text-align: center; padding: 16px; color: var(--text-muted); font-size: 11px;
     background: rgba(22,163,74,0.04); border-radius: 6px;
   }
+
+  /* ===== 자율 작업 큐 (IP-CTRL-001 5단계 — Claude 자율 진행 가능 작업 한눈에) ===== */
+  .auto-queue-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .auto-queue-card {
+    background: linear-gradient(135deg, rgba(34,197,94,0.08), rgba(34,197,94,0.02));
+    border: 1px solid rgba(34,197,94,0.25);
+    border-left: 3px solid #22c55e;
+    border-radius: 6px;
+    padding: 10px 12px;
+    cursor: pointer;
+    transition: transform .15s, border-left-color .15s, box-shadow .15s;
+  }
+  .auto-queue-card:hover {
+    transform: translateX(2px);
+    border-left-color: #4ade80;
+    box-shadow: 0 4px 12px rgba(34,197,94,0.15);
+  }
+  .auto-queue-card.p0 { border-left-color: #ef4444; background: linear-gradient(135deg, rgba(239,68,68,0.10), rgba(239,68,68,0.02)); }
+  .auto-queue-card.p1 { border-left-color: #f97316; background: linear-gradient(135deg, rgba(249,115,22,0.10), rgba(249,115,22,0.02)); }
+  .auto-queue-head { display: flex; gap: 5px; flex-wrap: wrap; align-items: center; margin-bottom: 6px; }
+  .auto-queue-bot-pill {
+    background: rgba(34,197,94,0.2);
+    color: #86efac;
+    font-size: 9px;
+    padding: 2px 5px;
+    border-radius: 3px;
+    font-weight: 600;
+  }
+  .auto-queue-title { font-size: 12px; color: var(--text); margin-bottom: 4px; line-height: 1.4; }
+  .auto-queue-meta { font-size: 9px; color: var(--text-muted); display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .auto-queue-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 2px 6px;
+    background: rgba(34,197,94,0.18);
+    color: #86efac;
+    border-radius: 3px;
+    font-weight: 600;
+    font-size: 9px;
+  }
+  .auto-queue-card:hover .auto-queue-action { background: rgba(34,197,94,0.3); color: #4ade80; }
+  .auto-queue-empty {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 11px;
+    padding: 16px;
+    background: rgba(34,197,94,0.05);
+    border: 1px dashed rgba(34,197,94,0.2);
+    border-radius: 6px;
+  }
+  .auto-queue-toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: linear-gradient(135deg, rgba(34,197,94,0.95), rgba(22,163,74,0.95));
+    color: #fff;
+    padding: 14px 20px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    z-index: 1000;
+    opacity: 0;
+    transition: transform .3s ease, opacity .3s ease;
+    max-width: 90vw;
+    text-align: center;
+  }
+  .auto-queue-toast.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+  }
   .progress-list { display: grid; gap: 7px; }
   .progress-row {
     background: var(--panel-2); border: 0.5px solid var(--border); border-radius: 5px;
@@ -518,6 +596,15 @@
     </div>
     <div class="progress-list" id="integ-progress">
       <div class="urgent-empty">로딩 중...</div>
+    </div>
+
+    <!-- 자율 작업 큐 (IP-CTRL-001 5단계 — Claude 자율 진행 가능, 카드 클릭 = 즉시 시작) -->
+    <div class="integ-section-h" style="margin-top:12px;">
+      <span class="label">🤖 자율 작업 큐 — Claude 즉시 시작 가능</span>
+      <span class="hint">카드 클릭 → 클립보드 자동 복사 + ops 알림 → 새 채팅에 붙여넣기</span>
+    </div>
+    <div class="auto-queue-grid" id="integ-auto-queue">
+      <div class="auto-queue-empty">로딩 중...</div>
     </div>
   </section>
 
@@ -1030,10 +1117,12 @@
       renderIntegratedKPI(data);
       renderIntegratedUrgent(data);
       renderIntegratedProgress(data);
+      renderAutoQueue(data);
     } catch (err) {
       console.error('[admin-status] tasks.json fetch 실패', err);
       $('integ-urgent').innerHTML = '<div class="urgent-empty">tasks.json 로딩 실패</div>';
       $('integ-progress').innerHTML = '<div class="urgent-empty">tasks.json 로딩 실패</div>';
+      $('integ-auto-queue').innerHTML = '<div class="auto-queue-empty">tasks.json 로딩 실패</div>';
     }
   }
 
@@ -1132,13 +1221,124 @@
   }
 
   // ──────────────────────────────────────────────────────────
+  // 자율 작업 큐 (IP-CTRL-001 5단계 — Claude 즉시 시작 가능 큐)
+  //   필터: claude_can_auto && status === 'pending' && !approval_required
+  //   정렬: P0 → P1 → P2 → P3
+  //   카드 클릭: 클립보드 복사 + ops 알림(GitHub Actions 트리거 가능 시) + 토스트
+  // ──────────────────────────────────────────────────────────
+  function renderAutoQueue(data) {
+    const tasks = data.tasks || [];
+    const queue = tasks
+      .filter(t =>
+        t.claude_can_auto === true &&
+        t.status === 'pending' &&
+        !t.approval_required
+      )
+      .sort((a, b) => {
+        const pa = (a.priority || 'P9');
+        const pb = (b.priority || 'P9');
+        return pa.localeCompare(pb);
+      })
+      .slice(0, 12); // 상위 12개만 (한 화면 안에 들어가게)
+
+    const wrap = $('integ-auto-queue');
+    if (queue.length === 0) {
+      wrap.innerHTML = '<div class="auto-queue-empty">🎉 자율 진행 가능 작업 없음 — 모두 진행 중이거나 결정 대기 중</div>';
+      return;
+    }
+
+    wrap.innerHTML = queue.map(t => {
+      const priCls = (t.priority || 'P2').toLowerCase();
+      const priLab = (typeof PRI_LABEL_KO !== 'undefined' && PRI_LABEL_KO[t.priority]) || (t.priority || '-');
+      const catLab = (typeof CATEGORY_LABEL_KO !== 'undefined' && CATEGORY_LABEL_KO[t.category]) || (t.category || '-');
+      const hours = t.autonomous && t.autonomous.estimated_hours
+        ? `⏱ 약 ${t.autonomous.estimated_hours}h`
+        : '';
+      const size = t.size ? `📐 ${t.size}` : '';
+      return `
+        <div class="auto-queue-card ${priCls}" data-id="${escapeHtml(t.id)}" data-title="${escapeHtml(t.title || '')}">
+          <div class="auto-queue-head">
+            <span class="auto-queue-bot-pill">🤖 AUTO</span>
+            <span class="urgent-pill ${priCls}">${priLab}</span>
+            <span class="urgent-pill cat">${escapeHtml(catLab)}</span>
+          </div>
+          <div class="auto-queue-title">${escapeHtml(t.title || '')}</div>
+          <div class="auto-queue-meta">
+            <span>${escapeHtml(t.id)}</span>
+            ${hours ? `<span>${hours}</span>` : ''}
+            ${size ? `<span>${size}</span>` : ''}
+            <span class="auto-queue-action">▶ 즉시 시작</span>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    wrap.querySelectorAll('.auto-queue-card').forEach(el => {
+      el.addEventListener('click', async () => {
+        const id = el.dataset.id;
+        const title = el.dataset.title;
+        const startMessage = `${id} 즉시 시작 — ${title}\n\n자율 작업 큐에서 선택됨. tasks.json에서 task 상세 확인 후 progress 업데이트하면서 진행, 완료 시 commit + push + ops 알림.`;
+        // 1) 클립보드 복사
+        let clipboardOk = false;
+        try {
+          await navigator.clipboard.writeText(startMessage);
+          clipboardOk = true;
+        } catch (e) {
+          // 폴백: textarea + execCommand
+          const ta = document.createElement('textarea');
+          ta.value = startMessage;
+          document.body.appendChild(ta);
+          ta.select();
+          try { clipboardOk = document.execCommand('copy'); } catch (_) {}
+          document.body.removeChild(ta);
+        }
+        // 2) 토스트 표시
+        showAutoQueueToast(
+          clipboardOk
+            ? `📋 클립보드 복사 완료 — ${id}\n새 채팅창 열고 Cmd+V로 붙여넣기 → 자율 작업 시작`
+            : `⚠️ 클립보드 복사 실패 — ${id}\n수동 복사: ${id} 즉시 시작`
+        );
+        // 3) ops 알림 (베스트 에포트, 실패해도 무시)
+        try {
+          fetch('/api/email/ops/notify-claude-work', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              step: `자율 작업 큐 트리거 — ${id}`,
+              summary: `대표님이 admin-status 자율 작업 큐에서 ${id}를 클릭. 클립보드에 시작 메시지 복사됨.`,
+              checklist: [`✅ 클립보드 복사 (${clipboardOk ? '성공' : '실패'})`, '⏳ 새 채팅에서 붙여넣기 대기'],
+              vercel_url: 'https://gohotelwinners.com/admin-status.html',
+              commit_hash: '',
+              blockers: ''
+            })
+          }).catch(() => {});
+        } catch (_) {}
+      });
+    });
+  }
+
+  function showAutoQueueToast(msg) {
+    const existing = document.querySelector('.auto-queue-toast');
+    if (existing) existing.remove();
+    const t = document.createElement('div');
+    t.className = 'auto-queue-toast';
+    t.textContent = msg;
+    document.body.appendChild(t);
+    requestAnimationFrame(() => t.classList.add('show'));
+    setTimeout(() => {
+      t.classList.remove('show');
+      setTimeout(() => t.remove(), 300);
+    }, 4500);
+  }
+
+  // ──────────────────────────────────────────────────────────
   // 초기 실행
   // ──────────────────────────────────────────────────────────
   updateDeadlineBanner();
   loadAndRender();
   loadActivity();
-  loadIntegratedTasks();  // ★ BL-PAGE-DEDUP 신규
-  console.log('[admin-status] BL-PAGE-DEDUP loaded — 임박/진행률 통합 흡수 (admin-tasks 대시보드 → admin-status)');
+  loadIntegratedTasks();  // ★ BL-PAGE-DEDUP + IP-CTRL-001 5단계 (자율 작업 큐 포함)
+  console.log('[admin-status] BL-PAGE-DEDUP + IP-CTRL-001 loaded — 임박/진행률/자율큐 통합');
 </script>
 </body>
 </html>

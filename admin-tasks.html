@@ -876,8 +876,38 @@ let DATA = { version: '1.0', updated_at: '', deadline: '2026-05-03', tasks: [] }
 let editingId = null;
 
 const $ = (id) => document.getElementById(id);
-const fmt = (d) => d ? new Date(d).toISOString().slice(0, 10) : '-';
+// 헌법 6조 — 사람용 가독성: 날짜만 X, 시간(KST) 함께 표시.
+// 같은날이면 'HH:mm' (간결), 다른날이면 'MM-DD HH:mm', 작년이면 'YY-MM-DD HH:mm'.
+const fmt = (d) => {
+  if (!d) return '-';
+  const dt = new Date(d);
+  if (isNaN(dt.getTime())) return '-';
+  // KST(+09:00)로 변환
+  const kst = new Date(dt.getTime() + 9 * 3600 * 1000);
+  const now = new Date(Date.now() + 9 * 3600 * 1000);
+  const sameDay = kst.toISOString().slice(0,10) === now.toISOString().slice(0,10);
+  const sameYear = kst.getUTCFullYear() === now.getUTCFullYear();
+  const pad = (n) => String(n).padStart(2,'0');
+  const hh = pad(kst.getUTCHours()), mi = pad(kst.getUTCMinutes());
+  if (sameDay) return `오늘 ${hh}:${mi}`;
+  const mo = pad(kst.getUTCMonth()+1), da = pad(kst.getUTCDate());
+  if (sameYear) return `${mo}-${da} ${hh}:${mi}`;
+  return `${String(kst.getUTCFullYear()).slice(2)}-${mo}-${da} ${hh}:${mi}`;
+};
 const nowISO = () => new Date().toISOString();
+
+// 헌법 6조 — 사람용 가독성: P0/P1/P2/P3 한글 병기.
+// 대표님이 화면에서 무슨 뜻인지 즉시 이해할 수 있도록 라벨 부여.
+const PRI_LABEL = { P0: '🔴 P0 긴급', P1: '🟠 P1 중요', P2: '🟡 P2 개선', P3: '🟢 P3 여유' };
+const priLabel = (p) => PRI_LABEL[p] || (p ? `⚪ ${p}` : '⚪ 미정');
+const STAT_LABEL = {
+  pending: '⏳ 대기',
+  in_progress: '🔄 진행 중',
+  done: '✅ 완료',
+  blocked: '🚫 막힘',
+  next_week: '📅 다음 주'
+};
+const statLabel = (s) => STAT_LABEL[s] || (s || '-');
 
 const CATEGORY_LABEL = {
   design: '디자인', dev: '개발', bug: '버그',
@@ -976,14 +1006,15 @@ function renderDashboard() {
     $('urgent-list').innerHTML = urgent.map(t => `
       <div class="urgent-card ${t.priority?.toLowerCase()}" data-id="${t.id}">
         <div class="urgent-card-head">
-          <span class="pill pill-pri-${t.priority}">${t.priority || 'P?'}</span>
-          <span class="pill pill-stat-${t.status}">${t.status}</span>
+          <span class="pill pill-pri-${t.priority}">${priLabel(t.priority)}</span>
+          <span class="pill pill-stat-${t.status}">${statLabel(t.status)}</span>
           <span class="pill pill-cat">${t.category || '-'}</span>
         </div>
         <div class="urgent-card-title">${escapeHtml(t.title)}</div>
         <div class="urgent-card-meta">
           <span>${t.id}</span>
           ${t.parent_task ? `<span>📁 ${escapeHtml(t.parent_task)}</span>` : ''}
+          <span style="color:#64748b">🕒 ${fmt(t.updated_at || t.created_at)}</span>
           ${t.blocker ? `<span style="color:#dc2626">⚠️ ${escapeHtml(t.blocker)}</span>` : ''}
         </div>
       </div>
@@ -1090,13 +1121,14 @@ function renderList() {
         ${arr.map(t => `
           <div class="task-row ${t.status}${t.approval_required ? ' approval-required' : ''}" data-id="${t.id}">
             <span class="task-id">${t.id}</span>
-            <span><span class="pill pill-pri-${t.priority}">${t.priority}</span></span>
-            <span><span class="pill pill-stat-${t.status}">${t.status}</span></span>
+            <span><span class="pill pill-pri-${t.priority}">${priLabel(t.priority)}</span></span>
+            <span><span class="pill pill-stat-${t.status}">${statLabel(t.status)}</span></span>
             ${t.owner === 'autonomous' ? '<span><span class="pill pill-owner-auto">🤖 자동</span></span>' : t.owner === 'human' ? '<span><span class="pill pill-owner-human">👤 수동</span></span>' : ''}
             <span class="task-title">${escapeHtml(t.title)}</span>
             <span class="task-meta-right">
               <span class="pill pill-cat">${t.category}</span>
               <span>${t.size}</span>
+              <span style="color:#64748b;font-size:11px;white-space:nowrap">🕒 ${fmt(t.updated_at || t.completed_at || t.created_at)}</span>
             </span>
           </div>
         `).join('')}
@@ -1172,10 +1204,10 @@ function openModal(id) {
 
   $('modal-title').textContent = `${t.id} — ${t.title}`;
   $('modal-meta').innerHTML = `
-    <span class="pill pill-pri-${t.priority}">${t.priority}</span>
-    <span class="pill pill-stat-${t.status}">${t.status}</span>
+    <span class="pill pill-pri-${t.priority}">${priLabel(t.priority)}</span>
+    <span class="pill pill-stat-${t.status}">${statLabel(t.status)}</span>
     <span class="pill pill-cat">${t.category}</span>
-    <span style="font-size:11px;color:#64748b;align-self:center">생성: ${fmt(t.created_at)}${t.completed_at ? ' · 완료: ' + fmt(t.completed_at) : ''}</span>
+    <span style="font-size:11px;color:#64748b;align-self:center">🆕 생성 ${fmt(t.created_at)}${t.updated_at && t.updated_at !== t.created_at ? ' · 🔁 갱신 ' + fmt(t.updated_at) : ''}${t.completed_at ? ' · ✅ 완료 ' + fmt(t.completed_at) : ''}</span>
   `;
 
   $('m-title').value = t.title || '';

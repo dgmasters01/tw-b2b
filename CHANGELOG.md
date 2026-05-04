@@ -2,7 +2,7 @@
 
 > ⚠️ **이 파일은 자동 생성됩니다.** 수동 편집하지 마세요.
 > 단일 진실 소스: `tasks.json` (v2.0)
-> 마지막 갱신: 2026-05-03
+> 마지막 갱신: 2026-05-04
 
 ---
 
@@ -246,6 +246,20 @@
 **Commit**: `60908ae`
 
 **요약**: 6단계 sub-task: ①admin-business에서 BACKLOG 제거 + JOURNEY/DECISIONS_INDEX 추가, ②admin-tasks에 ECHO_LOG/SOLO_WORK_QUEUE 추가, ③admin-hub 통계 제거 4카드 단순화, ④/js/stats.js 단일 모듈 신설, ⑤헌법 부칙 5 매핑 표 자가 검증 스크립트, ⑥commit + push + 라이브 검증.
+
+---
+
+## 2026-05-04 (Charter-v2) — [헌법부칙5-본체] [중앙관리시스템] 4 카테고리 통합 진입점 + Service Ops 신설 (헌법 부칙 5 본체)
+
+### 변경 파일
+- `admin-hub.html`
+- `admin-service-ops.html`
+- `admin.html`
+- `OPERATIONS_CHARTER.md`
+
+**Commit**: `d9faa7e+60908ae`
+
+**요약**: 1단계: 골격(이번 채팅). 2단계: 자동 동기화 강화. 3단계: Aurora 디자인 통일. [2026-05-03 09:30 보강] D-010 결정에 따라 BL-CATEGORY-REMAP이 본 작업의 후속 정리를 담당.
 
 ---
 

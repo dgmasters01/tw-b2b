@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-03T14:59:18Z",
+  "updated_at": "2026-05-04T01:36:38Z",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -13,8 +13,8 @@
   ],
   "stats": {
     "total": 60,
-    "done": 32,
-    "in_progress": 3,
+    "done": 33,
+    "in_progress": 2,
     "pending": 15,
     "blocked": 10,
     "autonomous_ready": 16
@@ -112,13 +112,13 @@
       "id": "BL-CENTRAL-HUB",
       "title": "[중앙관리시스템] 4 카테고리 통합 진입점 + Service Ops 신설 (헌법 부칙 5 본체)",
       "category": "infrastructure",
-      "status": "in_progress",
+      "status": "done",
       "priority": "P0",
       "size": "large",
       "parent_task": null,
       "blocker": null,
       "created_at": "2026-05-03T08:30:00Z",
-      "completed_at": null,
+      "completed_at": "2026-05-04T01:36:38Z",
       "claude_can_auto": true,
       "autonomous": {
         "can_run_alone": true,
@@ -127,10 +127,10 @@
           "D-004"
         ]
       },
-      "progress": "1단계 완료(2026-05-03 08:30): admin-hub.html + admin-service-ops.html 신설. ⚠️ 후속 점검에서 발견: Hub 통계가 admin-tasks와 중복, BACKLOG가 두 카테고리 중복, 5개 파일 매핑 누락. → BL-CATEGORY-REMAP으로 재설계 진행.",
+      "progress": "1단계(d9faa7e): admin-hub.html + admin-service-ops.html 신설 골격 완료. 후속 정리(60908ae, BL-CATEGORY-REMAP): 발견된 3대 결함(Hub-Tasks 통계 중복 / BACKLOG 두 카테고리 중복 / 5개 파일 매핑 누락) 모두 해소 + 자가 검증 27/27 PASS. 헌법 부칙 5 본체 + D-010 매핑 코드 정착. 4 카테고리 통합 진입점 ✅ 운영 가능.",
       "tag": "헌법부칙5-본체",
       "phase": "Charter-v2",
-      "commit": null,
+      "commit": "d9faa7e+60908ae",
       "files_changed": [
         "admin-hub.html",
         "admin-service-ops.html",
@@ -143,6 +143,12 @@
           "action": "1단계 완료",
           "by": "Claude",
           "note": "중앙 허브 + Service Ops 골격 + URL 매핑"
+        },
+        {
+          "at": "2026-05-04T01:36:38Z",
+          "action": "부모 task 완료 처리",
+          "by": "Claude (자율)",
+          "note": "자식 task BL-CATEGORY-REMAP done(60908ae) → 부모 BL-CENTRAL-HUB도 done. 4 카테고리 통합 진입점이 골격(d9faa7e) + 결함 정리(60908ae) 두 단계로 완성됨."
         }
       ],
       "source": "헌법 부칙 5 + 대표님 지시 (2026-05-03 '근본부터')",

@@ -67,6 +67,26 @@
   .tm-meta span { background: rgba(255,255,255,0.1); padding: 4px 10px; border-radius: 12px; }
   .tm-meta strong { color: #fff; }
 
+  /* ===== 통합 현황 CTA (BL-PAGE-DEDUP) ===== */
+  .status-cta-bar {
+    background: linear-gradient(135deg, rgba(139,92,246,0.10), rgba(236,72,153,0.06));
+    border-bottom: 1px solid rgba(139,92,246,0.25);
+    padding: 10px 32px;
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    font-size: 13px; color: #475569;
+  }
+  .status-cta-icon { font-size: 16px; }
+  .status-cta-text { flex: 1; min-width: 200px; }
+  .status-cta-text strong { color: #6d28d9; }
+  .status-cta-btn {
+    background: linear-gradient(135deg, #8b5cf6, #ec4899);
+    color: #fff; padding: 6px 14px; border-radius: 6px; font-size: 12px;
+    font-weight: 600; text-decoration: none; white-space: nowrap;
+    transition: transform .15s, box-shadow .15s;
+  }
+  .status-cta-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(139,92,246,0.3); }
+  @media (max-width: 700px) { .status-cta-bar { padding: 10px 16px; } }
+
   /* ===== 탭 네비 ===== */
   .tm-tabs {
     background: var(--panel);
@@ -573,10 +593,16 @@
   </div>
 </header>
 
-<!-- ===== 탭 ===== -->
+<!-- ===== 통합 현황 CTA (BL-PAGE-DEDUP — admin-status가 통합 진입점) ===== -->
+<div class="status-cta-bar">
+  <span class="status-cta-icon">📊</span>
+  <span class="status-cta-text">임박 작업 · 카테고리별 진행률 · KPI 4종은 <strong>admin-status</strong>로 통합되었습니다.</span>
+  <a class="status-cta-btn" href="/admin-status.html">통합 현황 → admin-status</a>
+</div>
+
+<!-- ===== 탭 (대시보드 탭은 admin-status로 흡수, 작업 CRUD만 유지) ===== -->
 <nav class="tm-tabs">
-  <button class="tm-tab active" data-tab="dashboard">📊 대시보드 <span class="badge" id="badge-dashboard">-</span></button>
-  <button class="tm-tab" data-tab="list">📋 작업 목록 <span class="badge" id="badge-list">-</span></button>
+  <button class="tm-tab active" data-tab="list">📋 작업 목록 <span class="badge" id="badge-list">-</span></button>
   <button class="tm-tab" data-tab="add">➕ 작업 추가</button>
   <button class="tm-tab" data-tab="handoff">🔄 채팅 인계</button>
 </nav>
@@ -596,45 +622,10 @@
     <span class="truth-files-note">D-010 단일 진실 매핑</span>
   </div>
 
-  <!-- ===== 대시보드 탭 ===== -->
-  <section class="tm-panel active" id="panel-dashboard">
+  <!-- ===== 대시보드 패널 제거됨 (BL-PAGE-DEDUP — admin-status로 흡수) ===== -->
 
-    <div class="dash-grid">
-      <div class="dash-card dday">
-        <p class="dash-card-label">마감까지</p>
-        <p class="dash-card-value" id="card-dday">-</p>
-        <p class="dash-card-sub" id="card-dday-sub">2026-05-03</p>
-      </div>
-      <div class="dash-card done">
-        <p class="dash-card-label">전체 완료율</p>
-        <p class="dash-card-value" id="card-done-rate">-</p>
-        <p class="dash-card-sub" id="card-done-sub">- / -</p>
-      </div>
-      <div class="dash-card pending">
-        <p class="dash-card-label">진행 중 + 대기</p>
-        <p class="dash-card-value" id="card-active">-</p>
-        <p class="dash-card-sub">P0 우선 처리</p>
-      </div>
-      <div class="dash-card blocked">
-        <p class="dash-card-label">막혀있는 작업</p>
-        <p class="dash-card-value" id="card-blocked">-</p>
-        <p class="dash-card-sub">대표님 결정 대기</p>
-      </div>
-    </div>
-
-    <h3 class="dash-section-title">🚨 임박 작업 (P0 + 진행 중)</h3>
-    <div class="urgent-grid" id="urgent-list">
-      <div class="empty-state">로딩 중...</div>
-    </div>
-
-    <h3 class="dash-section-title">📂 카테고리별 진행률</h3>
-    <div class="cat-progress" id="cat-progress">
-      <div class="empty-state">로딩 중...</div>
-    </div>
-  </section>
-
-  <!-- ===== 작업 목록 탭 ===== -->
-  <section class="tm-panel" id="panel-list">
+  <!-- ===== 작업 목록 탭 (기본 active) ===== -->
+  <section class="tm-panel active" id="panel-list">
     <div class="filter-bar">
       <label>검색:</label>
       <input type="text" id="f-search" placeholder="제목/ID/메모/그룹 검색">
@@ -924,11 +915,26 @@ async function loadTasks() {
     DATA = await r.json();
     if (!Array.isArray(DATA.tasks)) DATA.tasks = [];
     renderAll();
+    handleQueryStringId();  // ★ BL-PAGE-DEDUP: ?id= 진입 시 모달 자동 오픈
   } catch (e) {
     showToast('tasks.json 로드 실패: ' + e.message);
     DATA = { version: '1.0', updated_at: nowISO(), deadline: '2026-05-03', tasks: [] };
     renderAll();
   }
+}
+
+// ★ BL-PAGE-DEDUP — admin-status에서 카드 클릭 시 ?id=BL-XXX 진입하면 해당 모달 자동 오픈
+function handleQueryStringId() {
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get('id');
+  if (!id) return;
+  const exists = DATA.tasks.some(t => t.id === id);
+  if (!exists) {
+    showToast(`작업 ID "${id}"를 찾을 수 없습니다.`);
+    return;
+  }
+  // openModal 정의 이후 호출되도록 microtask로 지연
+  setTimeout(() => openModal(id), 0);
 }
 
 // ============================================================
@@ -945,108 +951,34 @@ document.querySelectorAll('.tm-tab').forEach(btn => {
 });
 
 // ============================================================
-// 전체 렌더
+// 전체 렌더 (BL-PAGE-DEDUP — renderDashboard 제거, admin-status로 흡수)
 // ============================================================
 function renderAll() {
   renderHeader();
-  renderDashboard();
   renderList();
   renderHandoff();
 }
 
 // ============================================================
-// 헤더
+// 헤더 (BL-PAGE-DEDUP — 대시보드 카드/배지 참조 제거)
 // ============================================================
 function renderHeader() {
   const dl = DATA.deadline || '2026-05-03';
   $('meta-deadline').textContent = dl;
-  $('card-dday-sub').textContent = dl;
 
   const ddays = Math.ceil((new Date(dl) - new Date()) / 86400000);
   $('meta-dday').textContent = ddays >= 0 ? `D-${ddays}` : `D+${-ddays}`;
-  $('card-dday').textContent = ddays >= 0 ? `D-${ddays}` : `D+${-ddays}`;
 
   $('meta-updated').textContent = fmt(DATA.updated_at) || '-';
 
-  // 탭 배지
-  const total = DATA.tasks.length;
+  // 탭 배지 (작업 목록만 남음)
   const active = DATA.tasks.filter(t => t.status !== 'done').length;
-  $('badge-dashboard').textContent = total;
   $('badge-list').textContent = active;
 }
 
 // ============================================================
-// 대시보드
+// 대시보드 함수 제거됨 (BL-PAGE-DEDUP — admin-status가 단일 통합 대시보드)
 // ============================================================
-function renderDashboard() {
-  const tasks = DATA.tasks;
-  const total = tasks.length;
-  const done = tasks.filter(t => t.status === 'done').length;
-  const inProgress = tasks.filter(t => t.status === 'in_progress').length;
-  const pending = tasks.filter(t => t.status === 'pending').length;
-  const blocked = tasks.filter(t => t.status === 'blocked').length;
-
-  $('card-done-rate').textContent = total ? Math.round(done / total * 100) + '%' : '0%';
-  $('card-done-sub').textContent = `${done} / ${total}`;
-  $('card-active').textContent = inProgress + pending;
-  $('card-blocked').textContent = blocked;
-
-  // 임박 작업
-  const urgent = tasks
-    .filter(t => t.status !== 'done' && (t.priority === 'P0' || t.status === 'in_progress'))
-    .sort((a, b) => {
-      if (a.status === 'in_progress' && b.status !== 'in_progress') return -1;
-      if (b.status === 'in_progress' && a.status !== 'in_progress') return 1;
-      return (a.priority || 'P9').localeCompare(b.priority || 'P9');
-    });
-
-  if (urgent.length === 0) {
-    $('urgent-list').innerHTML = '<div class="empty-state"><div class="icon">🎉</div>P0 + 진행 중 작업 없음</div>';
-  } else {
-    $('urgent-list').innerHTML = urgent.map(t => `
-      <div class="urgent-card ${t.priority?.toLowerCase()}" data-id="${t.id}">
-        <div class="urgent-card-head">
-          <span class="pill pill-pri-${t.priority}">${priLabel(t.priority)}</span>
-          <span class="pill pill-stat-${t.status}">${statLabel(t.status)}</span>
-          <span class="pill pill-cat">${t.category || '-'}</span>
-        </div>
-        <div class="urgent-card-title">${escapeHtml(t.title)}</div>
-        <div class="urgent-card-meta">
-          <span>${t.id}</span>
-          ${t.parent_task ? `<span>📁 ${escapeHtml(t.parent_task)}</span>` : ''}
-          <span style="color:#64748b">🕒 ${fmt(t.updated_at || t.created_at)}</span>
-          ${t.blocker ? `<span style="color:#dc2626">⚠️ ${escapeHtml(t.blocker)}</span>` : ''}
-        </div>
-      </div>
-    `).join('');
-    $('urgent-list').querySelectorAll('.urgent-card').forEach(el => {
-      el.addEventListener('click', () => openModal(el.dataset.id));
-    });
-  }
-
-  // 카테고리 진행률
-  const cats = {};
-  tasks.forEach(t => {
-    const c = t.category || 'other';
-    if (!cats[c]) cats[c] = { total: 0, done: 0 };
-    cats[c].total++;
-    if (t.status === 'done') cats[c].done++;
-  });
-  const sorted = Object.entries(cats).sort((a, b) => b[1].total - a[1].total);
-
-  $('cat-progress').innerHTML = sorted.map(([cat, st]) => {
-    const pct = st.total ? Math.round(st.done / st.total * 100) : 0;
-    return `
-      <div class="cat-row">
-        <div class="cat-row-head">
-          <span class="cat-row-name">${CATEGORY_LABEL[cat] || cat} <span class="pill pill-cat" style="margin-left:6px">${cat}</span></span>
-          <span class="cat-row-stat">${st.done} / ${st.total} 완료 · ${pct}%</span>
-        </div>
-        <div class="cat-row-bar"><div class="cat-row-bar-fill" style="width:${pct}%"></div></div>
-      </div>
-    `;
-  }).join('');
-}
 
 // ============================================================
 // 작업 목록

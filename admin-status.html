@@ -159,6 +159,77 @@
   .cat-meta .ceo { color: var(--ceo-text); }
   .cat-meta .time { margin-left: auto; }
 
+  /* ===== 임박 작업 + 카테고리 진행률 (BL-PAGE-DEDUP — admin-tasks 대시보드 흡수) ===== */
+  .integ-section {
+    background: var(--panel); border: 0.5px solid var(--border); border-radius: 10px;
+    padding: 14px; margin-bottom: 14px;
+  }
+  .integ-section-h {
+    display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;
+    flex-wrap: wrap; gap: 6px;
+  }
+  .integ-section-h .label { font-size: 12px; font-weight: 500; color: var(--text); }
+  .integ-section-h .hint { font-size: 10px; color: var(--text-muted); }
+  .urgent-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 8px;
+  }
+  .urgent-card {
+    background: rgba(96,165,250,0.05); border: 0.5px solid var(--border);
+    border-left: 3px solid var(--blocked);
+    border-radius: 6px; padding: 8px 10px; cursor: pointer; transition: transform .15s, border-color .15s;
+  }
+  .urgent-card:hover { transform: translateX(2px); border-left-color: var(--p1); }
+  .urgent-card.p1 { border-left-color: var(--p1); }
+  .urgent-card.p2 { border-left-color: var(--p2); }
+  .urgent-head { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 5px; }
+  .urgent-pill { font-size: 9px; padding: 2px 5px; border-radius: 3px; white-space: nowrap; font-weight: 500; }
+  .urgent-pill.p0 { background: rgba(220,38,38,0.2); color: #fca5a5; }
+  .urgent-pill.p1 { background: rgba(234,88,12,0.2); color: #fb923c; }
+  .urgent-pill.p2 { background: rgba(202,138,4,0.2); color: #fcd34d; }
+  .urgent-pill.in_progress { background: rgba(147,51,234,0.2); color: #c4b5fd; }
+  .urgent-pill.pending { background: rgba(37,99,235,0.2); color: #93c5fd; }
+  .urgent-pill.blocked { background: rgba(220,38,38,0.2); color: #fca5a5; }
+  .urgent-pill.cat { background: rgba(148,163,184,0.15); color: #cbd5e1; }
+  .urgent-title { font-size: 12px; color: var(--text); margin-bottom: 4px; line-height: 1.4; }
+  .urgent-meta { font-size: 9px; color: var(--text-muted); display: flex; gap: 8px; flex-wrap: wrap; }
+  .urgent-empty {
+    text-align: center; padding: 16px; color: var(--text-muted); font-size: 11px;
+    background: rgba(22,163,74,0.04); border-radius: 6px;
+  }
+  .progress-list { display: grid; gap: 7px; }
+  .progress-row {
+    background: var(--panel-2); border: 0.5px solid var(--border); border-radius: 5px;
+    padding: 7px 9px;
+  }
+  .progress-row-head {
+    display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;
+    flex-wrap: wrap; gap: 4px;
+  }
+  .progress-row-name { font-size: 11px; font-weight: 500; color: var(--text); }
+  .progress-row-stat { font-size: 10px; color: var(--text-muted); }
+  .progress-row-bar {
+    height: 5px; background: rgba(255,255,255,0.05); border-radius: 3px; overflow: hidden;
+  }
+  .progress-row-bar-fill {
+    height: 100%; background: linear-gradient(90deg, var(--aurora-1), var(--aurora-2));
+    transition: width .4s ease;
+  }
+  .integ-kpi-row {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px;
+    margin-bottom: 12px;
+  }
+  .integ-kpi {
+    background: var(--panel-2); border: 0.5px solid var(--border); border-radius: 6px;
+    padding: 8px 10px;
+  }
+  .integ-kpi .k-label { font-size: 9px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 3px; }
+  .integ-kpi .k-num { font-size: 18px; font-weight: 600; }
+  .integ-kpi .k-num.dday { color: #60a5fa; }
+  .integ-kpi .k-num.done { color: var(--done); }
+  .integ-kpi .k-num.active { color: #c4b5fd; }
+  .integ-kpi .k-num.blocked { color: var(--blocked); }
+  .integ-kpi .k-sub { font-size: 9px; color: var(--text-muted); }
+
   /* ===== 결정 대기 박스 ===== */
   .ceo-wait-box {
     background: rgba(251,191,36,0.06); border: 0.5px solid rgba(251,191,36,0.4);
@@ -434,6 +505,38 @@
         <span class="time">🕒 지금</span>
       </div>
     </a>
+  </section>
+
+  <!-- ★ 임박 작업 + 카테고리별 진행률 (BL-PAGE-DEDUP — admin-tasks 대시보드 흡수, "하나에서 전체") -->
+  <section class="integ-section">
+    <div class="integ-section-h">
+      <span class="label">📊 임박 작업 · 카테고리별 진행률 — tasks.json 단일 진실</span>
+      <span class="hint">카드 클릭 → /admin-tasks.html?id=&lt;ID&gt; 모달 자동 열림</span>
+    </div>
+
+    <!-- KPI 4종 (D-day / 완료율 / 진행+대기 / 막힘) -->
+    <div class="integ-kpi-row" id="integ-kpi-row">
+      <div class="integ-kpi"><div class="k-label">마감까지</div><div class="k-num dday" id="ik-dday">-</div><div class="k-sub" id="ik-dday-sub">-</div></div>
+      <div class="integ-kpi"><div class="k-label">전체 완료율</div><div class="k-num done" id="ik-done">-</div><div class="k-sub" id="ik-done-sub">-</div></div>
+      <div class="integ-kpi"><div class="k-label">진행 + 대기</div><div class="k-num active" id="ik-active">-</div><div class="k-sub">P0 우선 처리</div></div>
+      <div class="integ-kpi"><div class="k-label">막혀있는 작업</div><div class="k-num blocked" id="ik-blocked">-</div><div class="k-sub">대표님 결정 대기</div></div>
+    </div>
+
+    <!-- 임박 작업 (P0 + 진행 중) -->
+    <div class="integ-section-h" style="margin-top:12px;">
+      <span class="label">🚨 임박 작업 (P0 + 진행 중)</span>
+    </div>
+    <div class="urgent-grid" id="integ-urgent">
+      <div class="urgent-empty">로딩 중...</div>
+    </div>
+
+    <!-- 카테고리별 진행률 -->
+    <div class="integ-section-h" style="margin-top:12px;">
+      <span class="label">📂 카테고리별 진행률</span>
+    </div>
+    <div class="progress-list" id="integ-progress">
+      <div class="urgent-empty">로딩 중...</div>
+    </div>
   </section>
 
   <!-- 결정 대기 박스 -->
@@ -923,12 +1026,137 @@
   });
 
   // ──────────────────────────────────────────────────────────
+  // ★ BL-PAGE-DEDUP — tasks.json 직접 fetch + 임박/진행률 렌더
+  // (admin-tasks 대시보드 흡수, "하나에서 전체" 헌법 지시 충족)
+  // ──────────────────────────────────────────────────────────
+  const CATEGORY_LABEL_KO = {
+    design: '디자인', dev: '개발', bug: '버그', ux: 'UX',
+    infra: '인프라', infrastructure: '인프라',
+    business: '사업', docs: '문서', other: '기타',
+  };
+  const PRI_LABEL_KO = { P0: '🔴 P0 긴급', P1: '🟠 P1 중요', P2: '🟡 P2 보통' };
+  const STAT_LABEL_KO = {
+    in_progress: '진행중', pending: '대기', blocked: '막힘',
+    next_week: '다음주', done: '완료',
+  };
+
+  async function loadIntegratedTasks() {
+    try {
+      const res = await fetch('/tasks.json?t=' + Date.now());
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+      renderIntegratedKPI(data);
+      renderIntegratedUrgent(data);
+      renderIntegratedProgress(data);
+    } catch (err) {
+      console.error('[admin-status] tasks.json fetch 실패', err);
+      $('integ-urgent').innerHTML = '<div class="urgent-empty">tasks.json 로딩 실패</div>';
+      $('integ-progress').innerHTML = '<div class="urgent-empty">tasks.json 로딩 실패</div>';
+    }
+  }
+
+  function renderIntegratedKPI(data) {
+    const tasks = data.tasks || [];
+    const total = tasks.length;
+    const done = tasks.filter(t => t.status === 'done').length;
+    const inProgress = tasks.filter(t => t.status === 'in_progress').length;
+    const pending = tasks.filter(t => t.status === 'pending').length;
+    const blocked = tasks.filter(t => t.status === 'blocked').length;
+    const dl = data.deadline || '2026-05-03';
+    const ddays = Math.ceil((new Date(dl) - new Date()) / 86400000);
+
+    $('ik-dday').textContent = ddays >= 0 ? `D-${ddays}` : `D+${-ddays}`;
+    $('ik-dday-sub').textContent = dl;
+    $('ik-done').textContent = total ? Math.round(done / total * 100) + '%' : '0%';
+    $('ik-done-sub').textContent = `${done} / ${total}`;
+    $('ik-active').textContent = inProgress + pending;
+    $('ik-blocked').textContent = blocked;
+  }
+
+  function renderIntegratedUrgent(data) {
+    const tasks = data.tasks || [];
+    const urgent = tasks
+      .filter(t => t.status !== 'done' && (t.priority === 'P0' || t.status === 'in_progress'))
+      .sort((a, b) => {
+        if (a.status === 'in_progress' && b.status !== 'in_progress') return -1;
+        if (b.status === 'in_progress' && a.status !== 'in_progress') return 1;
+        return (a.priority || 'P9').localeCompare(b.priority || 'P9');
+      });
+
+    const wrap = $('integ-urgent');
+    if (urgent.length === 0) {
+      wrap.innerHTML = '<div class="urgent-empty">🎉 P0 + 진행 중 작업 없음</div>';
+      return;
+    }
+    wrap.innerHTML = urgent.map(t => {
+      const priCls = (t.priority || 'P2').toLowerCase();
+      const priLab = PRI_LABEL_KO[t.priority] || (t.priority || '-');
+      const statCls = t.status || 'pending';
+      const statLab = STAT_LABEL_KO[t.status] || (t.status || '-');
+      const catLab = CATEGORY_LABEL_KO[t.category] || (t.category || '-');
+      const updated = fmtTime(t.updated_at || t.created_at);
+      return `
+        <div class="urgent-card ${priCls}" data-id="${escapeHtml(t.id)}">
+          <div class="urgent-head">
+            <span class="urgent-pill ${priCls}">${priLab}</span>
+            <span class="urgent-pill ${statCls}">${statLab}</span>
+            <span class="urgent-pill cat">${escapeHtml(catLab)}</span>
+          </div>
+          <div class="urgent-title">${escapeHtml(t.title || '')}</div>
+          <div class="urgent-meta">
+            <span>${escapeHtml(t.id)}</span>
+            ${t.parent_task ? `<span>📁 ${escapeHtml(t.parent_task)}</span>` : ''}
+            <span>🕒 ${updated}</span>
+            ${t.blocker ? `<span style="color:#fca5a5">⚠️ ${escapeHtml(t.blocker)}</span>` : ''}
+          </div>
+        </div>
+      `;
+    }).join('');
+    wrap.querySelectorAll('.urgent-card').forEach(el => {
+      el.addEventListener('click', () => {
+        const id = el.dataset.id;
+        location.href = `/admin-tasks.html?id=${encodeURIComponent(id)}`;
+      });
+    });
+  }
+
+  function renderIntegratedProgress(data) {
+    const tasks = data.tasks || [];
+    const cats = {};
+    tasks.forEach(t => {
+      const c = t.category || 'other';
+      if (!cats[c]) cats[c] = { total: 0, done: 0 };
+      cats[c].total++;
+      if (t.status === 'done') cats[c].done++;
+    });
+    const sorted = Object.entries(cats).sort((a, b) => b[1].total - a[1].total);
+    if (sorted.length === 0) {
+      $('integ-progress').innerHTML = '<div class="urgent-empty">카테고리 데이터 없음</div>';
+      return;
+    }
+    $('integ-progress').innerHTML = sorted.map(([cat, st]) => {
+      const pct = st.total ? Math.round(st.done / st.total * 100) : 0;
+      const label = CATEGORY_LABEL_KO[cat] || cat;
+      return `
+        <div class="progress-row">
+          <div class="progress-row-head">
+            <span class="progress-row-name">${escapeHtml(label)} <span class="urgent-pill cat" style="margin-left:4px">${escapeHtml(cat)}</span></span>
+            <span class="progress-row-stat">${st.done} / ${st.total} 완료 · ${pct}%</span>
+          </div>
+          <div class="progress-row-bar"><div class="progress-row-bar-fill" style="width:${pct}%"></div></div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // ──────────────────────────────────────────────────────────
   // 초기 실행
   // ──────────────────────────────────────────────────────────
   updateDeadlineBanner();
   loadAndRender();
   loadActivity();
-  console.log('[admin-status] Phase 3-C loaded — 활동 이력 + ▶ 예약 A+B 결합 동작');
+  loadIntegratedTasks();  // ★ BL-PAGE-DEDUP 신규
+  console.log('[admin-status] BL-PAGE-DEDUP loaded — 임박/진행률 통합 흡수 (admin-tasks 대시보드 → admin-status)');
 </script>
 </body>
 </html>

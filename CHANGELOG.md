@@ -6,6 +6,31 @@
 
 ---
 
+## 2026-05-04 — [BL-PAGE-DEDUP] admin-hub/tasks/status 정보 중복 제거 — "하나에서 전체 관리" 헌법 지시 충족
+
+### 변경 사유
+대표님 핵심 지시: **"하나에서 전체를 관리할 수 있어야 한다"** — admin-status가 통합 관리의 단일 진입점이 되도록 hub/tasks의 중복 정보(P0/통계/진행률) 흡수 제거.
+
+### 변경 파일
+- `admin-hub.html` — 285줄 → 196줄 (P0 배너/헌법 빠른 참조/최근 활동 섹션 통째 제거, admin-status CTA 카드 + 4 카테고리 카드 + 푸터 헌법 링크 1줄만 유지)
+- `admin-tasks.html` — 1468줄 → 1400줄 (대시보드 탭/패널/`renderDashboard()` 통째 제거, 상단 통합 CTA 바 추가, `?id=` 쿼리 진입 시 `openModal()` 자동 호출 `handleQueryStringId()` 추가)
+- `admin-status.html` — 934줄 → 1162줄 (6 메뉴 카드 다음 / 결정 대기 앞에 "📊 임박 작업 · 카테고리별 진행률 · KPI 4종" 통합 섹션 추가, `tasks.json` 직접 fetch + `loadIntegratedTasks()` + `renderIntegratedKPI/Urgent/Progress()` 신규)
+- `tasks.json` — `BL-PAGE-DEDUP` task done 추가 (P0/infrastructure/medium), stats 재계산
+- `_backup_20260504/` — 3개 페이지 변경 전 백업
+
+### 자가 검증 결과 (Playwright + Node JS 문법 검증)
+- admin-hub: CTA 존재 ✅ / 4 카테고리 카드 ✅ / P0 배너 제거 ✅ / 헌법 빠른 참조 제거 ✅ / 최근 활동 제거 ✅ / 푸터 헌법 링크 ✅
+- admin-tasks: 대시보드 탭 제거 ✅ / list 탭 active ✅ / 통합 CTA 바 ✅ / `#panel-dashboard` 제거 ✅ / `?id=BL-CATEGORY-REMAP` 진입 → 모달 active ✅
+- admin-status: 통합 섹션 ✅ / KPI 4종 정상 로딩 (D+1, 56%, 17, 10) ✅ / 임박 카드 6장 ✅ / 카테고리 진행률 11종 ✅ / 콘솔 에러 0건 ✅
+
+### 헌법 자가 검증 PASS
+- 1조 (대표님 결정만): 시스템 자율 실행 ✅
+- 6조 (사람용+AI용 이중): 3-Layer summary/display/full 분리 유지 ✅
+- 부칙 5 (D-010 단일 진실 매핑): admin-tasks = Category 2 단일 진실 위치 유지, admin-status는 흡수 시각화 ✅
+- D-011 (3-State 권한 🤖/👥/👤): 그대로 유지 ✅
+
+---
+
 ## 2026-05-02 (25차) — [UX통일/리팩터] 일자별 인라인 호텔 클릭 → 호텔 엔딩 페이지 흐름 통일
 
 ### 변경 파일

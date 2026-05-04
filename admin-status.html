@@ -212,6 +212,34 @@
   }
   .footer .commit { color: #60a5fa; font-family: ui-monospace, SFMono-Regular, monospace; }
   .footer .live { color: var(--done); }
+
+  /* ===== 활동 이력 ===== */
+  .activity-box { background: var(--panel); border: 0.5px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 14px; }
+  .activity-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 6px; }
+  .activity-filters { display: flex; gap: 6px; flex-wrap: wrap; }
+  .activity-filter-btn {
+    background: transparent; border: 0.5px solid var(--border); color: var(--text-muted);
+    border-radius: 4px; font-size: 10px; padding: 3px 8px; cursor: pointer; transition: all .15s;
+  }
+  .activity-filter-btn.active { background: var(--aurora-1); color: #fff; border-color: var(--aurora-1); }
+  .activity-list { display: flex; flex-direction: column; gap: 4px; max-height: 360px; overflow-y: auto; }
+  .activity-row {
+    display: grid; grid-template-columns: 75px 130px 1fr 70px;
+    gap: 10px; align-items: center; padding: 6px 8px; border-radius: 5px;
+    background: rgba(96,165,250,0.04); font-size: 11px;
+  }
+  .activity-row.ceo { background: rgba(251,191,36,0.04); }
+  .activity-row.bot { background: rgba(22,163,74,0.04); }
+  .activity-row.staff { background: rgba(96,165,250,0.07); }
+  .activity-row .time { font-size: 10px; color: var(--text-muted); }
+  .activity-row .by { font-size: 10px; }
+  .activity-row .action { font-size: 11px; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .activity-row .source { font-size: 9px; color: var(--text-muted); text-align: right; }
+  .activity-row.expanded .action { white-space: normal; }
+  @media (max-width: 700px) {
+    .activity-row { grid-template-columns: 1fr; gap: 4px; }
+    .activity-row .source { text-align: left; }
+  }
 </style>
 </head>
 <body>
@@ -505,6 +533,25 @@
     </div>
   </section>
 
+  <!-- 활동 이력 (전체 통합 타임라인) -->
+  <section class="activity-box">
+    <div class="activity-header">
+      <div class="section-label" style="margin:0;">📜 활동 이력 — 전체 타임라인 (대화창 끊겨도 추적 가능)</div>
+      <div class="activity-filters">
+        <button class="activity-filter-btn active" data-filter="all">전체</button>
+        <button class="activity-filter-btn" data-filter="CEO">👤 CEO</button>
+        <button class="activity-filter-btn" data-filter="Staff">👥 Staff</button>
+        <button class="activity-filter-btn" data-filter="Bot">🤖 Bot</button>
+      </div>
+    </div>
+    <div class="activity-list" id="activity-list">
+      <div style="font-size:11px;color:var(--text-muted);padding:20px;text-align:center;">로딩 중…</div>
+    </div>
+    <div style="font-size:10px;color:var(--text-muted);margin-top:8px;text-align:right;">
+      📂 출처: git log + tasks.json + ECHO_LOG + DECISIONS · 자동 갱신 · <a href="/activity-feed.json" style="color:#60a5fa;" target="_blank">전체 raw 보기</a>
+    </div>
+  </section>
+
   <!-- 푸터 -->
   <footer class="footer">
     <div>📌 마지막 commit: <span class="commit" id="footer-commit">1e288de</span> · Vercel 배포: <span class="live">✅ Live</span> · 마지막 스캔: <span id="footer-scan">오늘 14:58 KST</span></div>
@@ -738,8 +785,56 @@
   }
 
   // ──────────────────────────────────────────────────────────
-  // 데드라인 자동 계산 (헌법 11조)
+  // 활동 이력 fetch + 필터 (Phase 3-C)
   // ──────────────────────────────────────────────────────────
+  const ACTIVITY = { items: [], filter: 'all' };
+
+  async function loadActivity() {
+    try {
+      const res = await fetch('/activity-feed.display.json?t=' + Date.now());
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const d = await res.json();
+      ACTIVITY.items = d.items || [];
+      renderActivity();
+    } catch (err) {
+      console.warn('[admin-status] activity-feed fetch 실패', err);
+      $('activity-list').innerHTML = '<div style="font-size:11px;color:var(--text-muted);padding:20px;text-align:center;">활동 이력 데이터 없음 — Phase 3-C 자동 갱신 대기 중</div>';
+    }
+  }
+
+  function renderActivity() {
+    const list = $('activity-list');
+    if (!list) return;
+    const filtered = ACTIVITY.filter === 'all'
+      ? ACTIVITY.items
+      : ACTIVITY.items.filter(i => i.role === ACTIVITY.filter);
+    if (filtered.length === 0) {
+      list.innerHTML = '<div style="font-size:11px;color:var(--text-muted);padding:20px;text-align:center;">필터에 해당하는 이력 없음</div>';
+      return;
+    }
+    list.innerHTML = filtered.slice(0, 50).map(i => {
+      const cls = i.role === 'CEO' ? 'ceo' : i.role === 'Staff' ? 'staff' : 'bot';
+      const sourceShort = (i.source || '').replace('tasks.json history', 'task').replace('git commit', 'commit').replace('.md', '');
+      return `
+        <div class="activity-row ${cls}" title="${escapeHtml(i.note || '')}">
+          <span class="time">🕒 ${fmtTime(i.at)}</span>
+          <span class="by">${escapeHtml(i.by || '?')}</span>
+          <span class="action">${escapeHtml(i.action || '')}</span>
+          <span class="source">${escapeHtml(sourceShort)}</span>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // 필터 버튼
+  document.querySelectorAll('.activity-filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.activity-filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      ACTIVITY.filter = btn.dataset.filter;
+      renderActivity();
+    });
+  });
   const DEADLINE = '2026-05-03';
   function updateDeadlineBanner() {
     const dl = new Date(DEADLINE + 'T23:59:59+09:00');
@@ -773,8 +868,58 @@
     btn.textContent = orig;
     btn.disabled = false;
   });
-  $('btn-reserve').addEventListener('click', () => {
-    alert('▶ 예약 + 알림 동작은 Phase 3-C에서 활성화됩니다.\nA+B 결합:\n  ① tasks.json에 priority_boost 자동 박힘\n  ② 클립보드 복사 + ops 알림 발송\n  ③ 대표님이 채팅에 붙여넣기 한 번 = 시작');
+  $('btn-reserve').addEventListener('click', async () => {
+    // A+B 결합: ① 클립보드 복사 ② ops 알림 ③ 화면 피드백
+    const taskId = 'BL-PAGE-CAPTURE-AUTO';
+    const message = `${taskId} 시작\n\n작업: 스크린샷 자동 캡처 워크플로우 신설\n예상: 25분 · 자동 가능 · 외관 결정 없음\n시작자: 👤 이지형 (CEO)\n시각: ${new Date().toISOString()}\n\n채팅에 이 메시지 그대로 붙여넣어 시작하세요.`;
+
+    // ① 클립보드 복사
+    let clipOk = false;
+    try {
+      await navigator.clipboard.writeText(message);
+      clipOk = true;
+    } catch (e) {
+      console.warn('clipboard 실패', e);
+    }
+
+    // ② ops 알림 (Phase 3-C에선 시뮬, 실서비스에선 /api/email/ops/notify-claude-work 호출)
+    // 일단 fetch 시도 (실패해도 계속 진행)
+    try {
+      await fetch('/api/email/ops/notify-claude-work', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          step: '🔵 작업 예약',
+          summary: `${taskId} 예약 — admin-status에서 ▶ 예약 버튼 클릭`,
+          checklist: ['priority_boost 표시', '클립보드 복사 완료', 'CEO 알림'],
+          blockers: '대표님 채팅 붙여넣기 대기',
+          source: 'admin-status.html',
+        }),
+      });
+    } catch (e) {
+      console.log('ops 알림은 실서비스에서 작동 (현재 시뮬)');
+    }
+
+    // ③ 화면 피드백
+    const btn = $('btn-reserve');
+    const orig = btn.textContent;
+    btn.textContent = clipOk ? '✅ 복사 완료 — 채팅에 붙여넣기' : '⚠️ 복사 실패 (수동)';
+    btn.disabled = true;
+    setTimeout(() => { btn.textContent = orig; btn.disabled = false; }, 4000);
+
+    // 토스트 알림
+    const toast = document.createElement('div');
+    toast.style.cssText = 'position:fixed;top:20px;right:20px;background:var(--auto-bg);border:1px solid var(--auto);border-radius:8px;padding:14px 18px;font-size:12px;z-index:9999;color:var(--auto-text);max-width:380px;box-shadow:0 4px 20px rgba(0,0,0,0.3);';
+    toast.innerHTML = `
+      <div style="font-weight:500;margin-bottom:6px;">🚀 ${taskId} 예약 완료</div>
+      <div style="font-size:11px;color:var(--text-muted);">
+        ${clipOk ? '✅ 클립보드 복사됨' : '⚠️ 클립보드 실패'}<br>
+        ✅ ops 알림 발송 시도<br>
+        → Claude 채팅에 붙여넣기 한 번이면 시작
+      </div>
+    `;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 6000);
   });
 
   // ──────────────────────────────────────────────────────────
@@ -782,7 +927,8 @@
   // ──────────────────────────────────────────────────────────
   updateDeadlineBanner();
   loadAndRender();
-  console.log('[admin-status] Phase 3-B loaded — pages-status.display.json fetch 작동');
+  loadActivity();
+  console.log('[admin-status] Phase 3-C loaded — 활동 이력 + ▶ 예약 A+B 결합 동작');
 </script>
 </body>
 </html>

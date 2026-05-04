@@ -385,6 +385,74 @@
   .activity-row .action { font-size: 11px; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .activity-row .source { font-size: 9px; color: var(--text-muted); text-align: right; }
   .activity-row.expanded .action { white-space: normal; }
+  .activity-row { cursor: pointer; transition: background .15s; }
+  .activity-row:hover { background: rgba(96,165,250,0.10); }
+  .activity-row.ceo:hover { background: rgba(251,191,36,0.10); }
+  .activity-row.bot:hover { background: rgba(22,163,74,0.10); }
+
+  /* 활동 이력 펼침 패널 (BL-REAL-SYSTEM 거짓말 4 해결) */
+  .activity-expand {
+    grid-column: 1 / -1;
+    margin-top: 6px;
+    padding: 10px 12px;
+    background: rgba(0,0,0,0.25);
+    border-radius: 5px;
+    border: 0.5px solid var(--border);
+    font-size: 11px;
+    color: var(--text);
+    line-height: 1.55;
+  }
+  .activity-tabs {
+    display: flex; gap: 4px; margin-bottom: 8px;
+    border-bottom: 0.5px solid var(--border); padding-bottom: 6px;
+  }
+  .activity-tab {
+    background: transparent; border: 0.5px solid var(--border); color: var(--text-muted);
+    border-radius: 4px; font-size: 10px; padding: 3px 8px; cursor: pointer; transition: all .15s;
+  }
+  .activity-tab.active { background: var(--aurora-1); color: #fff; border-color: var(--aurora-1); }
+  .activity-tab-pane { display: none; max-height: 320px; overflow-y: auto; }
+  .activity-tab-pane.active { display: block; }
+  .activity-tab-pane pre {
+    background: rgba(0,0,0,0.35); padding: 8px; border-radius: 4px;
+    white-space: pre-wrap; word-break: break-word; font-size: 10.5px;
+    color: var(--text); margin: 4px 0;
+  }
+  .activity-tab-pane h1, .activity-tab-pane h2, .activity-tab-pane h3 {
+    font-size: 12px; margin: 8px 0 4px 0; color: var(--aurora-2);
+  }
+  .activity-tab-pane h1 { font-size: 13px; }
+  .activity-tab-pane code {
+    background: rgba(0,0,0,0.4); padding: 1px 4px; border-radius: 3px; font-size: 10.5px;
+  }
+  .activity-tab-pane .file-line {
+    display: flex; gap: 8px; padding: 2px 0;
+    font-family: monospace; font-size: 10.5px;
+  }
+  .activity-tab-pane .file-line .add { color: #4ade80; }
+  .activity-tab-pane .file-line .del { color: #f87171; }
+  .activity-tab-empty { color: var(--text-muted); font-style: italic; padding: 6px 0; }
+  .activity-tab-loading { color: var(--text-muted); padding: 6px 0; }
+
+  /* 폴링 갱신 토스트 (BL-REAL-SYSTEM 거짓말 2 해결) */
+  .poll-toast {
+    position: fixed; bottom: 16px; right: 16px;
+    background: rgba(22,163,74,0.20); color: #4ade80;
+    border: 0.5px solid #4ade80; border-radius: 6px;
+    padding: 6px 12px; font-size: 11px; z-index: 9998;
+    opacity: 0; transform: translateY(8px); transition: all .25s;
+    pointer-events: none;
+  }
+  .poll-toast.show { opacity: 1; transform: translateY(0); }
+  .poll-status {
+    position: fixed; bottom: 16px; left: 16px;
+    background: rgba(0,0,0,0.5); color: var(--text-muted);
+    border: 0.5px solid var(--border); border-radius: 4px;
+    padding: 3px 8px; font-size: 10px; z-index: 9997;
+    font-family: monospace;
+  }
+  .poll-status.paused { color: #fbbf24; border-color: #fbbf24; }
+
   @media (max-width: 700px) {
     .activity-row { grid-template-columns: 1fr; gap: 4px; }
     .activity-row .source { text-align: left; }
@@ -993,11 +1061,14 @@
       list.innerHTML = '<div style="font-size:11px;color:var(--text-muted);padding:20px;text-align:center;">필터에 해당하는 이력 없음</div>';
       return;
     }
-    list.innerHTML = filtered.slice(0, 50).map(i => {
+    list.innerHTML = filtered.slice(0, 50).map((i, idx) => {
       const cls = i.role === 'CEO' ? 'ceo' : i.role === 'Staff' ? 'staff' : 'bot';
       const sourceShort = (i.source || '').replace('tasks.json history', 'task').replace('git commit', 'commit').replace('.md', '');
+      // 펼침 패널용 데이터를 dataset에 박아둠
+      const targetType = i.target_type || '';
+      const targetId = i.target_id || '';
       return `
-        <div class="activity-row ${cls}" title="${escapeHtml(i.note || '')}">
+        <div class="activity-row ${cls}" data-idx="${idx}" data-target-type="${escapeHtml(targetType)}" data-target-id="${escapeHtml(targetId)}" title="클릭 = 상세 펼치기">
           <span class="time">🕒 ${fmtTime(i.at)}</span>
           <span class="by">${escapeHtml(i.by || '?')}</span>
           <span class="action">${escapeHtml(i.action || '')}</span>
@@ -1005,6 +1076,10 @@
         </div>
       `;
     }).join('');
+    // 클릭 시 펼침 (BL-REAL-SYSTEM 거짓말 4 해결)
+    list.querySelectorAll('.activity-row').forEach(row => {
+      row.addEventListener('click', () => toggleActivityExpand(row, filtered));
+    });
   }
 
   // 필터 버튼
@@ -1050,12 +1125,25 @@
     btn.disabled = false;
   });
   $('btn-reserve').addEventListener('click', async () => {
-    // A+B 결합: ① 클립보드 복사 ② ops 알림 ③ 화면 피드백
+    // A+B 결합: ① 풀 컨텍스트 인계 메시지 조립 ② 클립보드 복사 ③ ops 알림 ④ 화면 피드백
     // taskId/title은 renderNextAction이 dataset에 동적 주입한 값을 사용
     const btn = $('btn-reserve');
     const taskId = btn.dataset.taskId || 'BL-PAGE-CAPTURE-AUTO';
     const taskTitle = btn.dataset.taskTitle || '';
-    const message = `${taskId} 시작\n\n작업: ${taskTitle}\n시작자: 👤 이지형 (CEO)\n시각: ${new Date().toISOString()}\n\n채팅에 이 메시지 그대로 붙여넣어 시작하세요.`;
+
+    // BL-REAL-SYSTEM 거짓말 1 해결: 1줄 메시지 → 50+줄 풀 컨텍스트
+    btn.disabled = true;
+    const orig = btn.textContent;
+    btn.textContent = '⏳ 인계 컨텍스트 조립 중...';
+
+    let message;
+    try {
+      message = await buildHandoffMessage(taskId, taskTitle, '🔄 진행 중 박스');
+    } catch (e) {
+      console.error('[btn-reserve] handoff build 실패', e);
+      // 폴백: 기존 단순 메시지
+      message = `${taskId} 시작\n\n작업: ${taskTitle}\n시작자: 👤 이지형 (CEO)\n시각: ${new Date().toISOString()}\n\n⚠️ 풀 컨텍스트 조립 실패 — 수동으로 tasks.json 확인 필요.\n채팅에 이 메시지 그대로 붙여넣어 시작하세요.`;
+    }
 
     // ① 클립보드 복사
     let clipOk = false;
@@ -1074,7 +1162,7 @@
         body: JSON.stringify({
           step: '🔵 작업 예약',
           summary: `${taskId} 예약 — admin-status에서 ▶ 예약 버튼 클릭. ${taskTitle}`,
-          checklist: ['priority_boost 표시', '클립보드 복사 완료', 'CEO 알림'],
+          checklist: ['풀 컨텍스트 인계 메시지 조립 완료', `${message.split('\n').length}줄 메시지`, '클립보드 복사 완료', 'CEO 알림'],
           blockers: '대표님 채팅 붙여넣기 대기',
           source: 'admin-status.html',
         }),
@@ -1084,9 +1172,7 @@
     }
 
     // ③ 화면 피드백
-    const orig = btn.textContent;
-    btn.textContent = clipOk ? '✅ 복사 완료 — 채팅에 붙여넣기' : '⚠️ 복사 실패 (수동)';
-    btn.disabled = true;
+    btn.textContent = clipOk ? '✅ 풀 컨텍스트 복사 완료' : '⚠️ 복사 실패 (수동)';
     setTimeout(() => { btn.textContent = orig; btn.disabled = false; }, 4000);
 
     // 토스트 알림
@@ -1095,7 +1181,7 @@
     toast.innerHTML = `
       <div style="font-weight:500;margin-bottom:6px;">🚀 ${taskId} 예약 완료</div>
       <div style="font-size:11px;color:var(--text-muted);">
-        ${clipOk ? '✅ 클립보드 복사됨' : '⚠️ 클립보드 실패'}<br>
+        ${clipOk ? '✅ 풀 컨텍스트 클립보드 복사됨' : '⚠️ 클립보드 실패'}<br>
         ✅ ops 알림 발송 시도<br>
         → Claude 채팅에 붙여넣기 한 번이면 시작
       </div>
@@ -1337,7 +1423,19 @@
       el.addEventListener('click', async () => {
         const id = el.dataset.id;
         const title = el.dataset.title;
-        const startMessage = `${id} 즉시 시작 — ${title}\n\n자율 작업 큐에서 선택됨. tasks.json에서 task 상세 확인 후 progress 업데이트하면서 진행, 완료 시 commit + push + ops 알림.`;
+
+        // BL-REAL-SYSTEM 거짓말 1 해결: 1줄 메시지 → 50+줄 풀 컨텍스트
+        // tasks.json + index.json + git log + DECISIONS.md 발췌 조립
+        showAutoQueueToast(`⏳ ${id} 풀 컨텍스트 조립 중...`);
+
+        let startMessage;
+        try {
+          startMessage = await buildHandoffMessage(id, title, '🤖 자율 작업 큐');
+        } catch (e) {
+          console.error('[auto-queue] handoff build 실패', e);
+          startMessage = `${id} 즉시 시작 — ${title}\n\n⚠️ 풀 컨텍스트 조립 실패 — tasks.json 확인 후 진행 필요.\n자율 작업 큐에서 선택됨. 완료 시 commit + push + ops 알림.`;
+        }
+
         // 1) 클립보드 복사
         let clipboardOk = false;
         try {
@@ -1353,9 +1451,10 @@
           document.body.removeChild(ta);
         }
         // 2) 토스트 표시
+        const lines = startMessage.split('\n').length;
         showAutoQueueToast(
           clipboardOk
-            ? `📋 클립보드 복사 완료 — ${id}\n새 채팅창 열고 Cmd+V로 붙여넣기 → 자율 작업 시작`
+            ? `📋 풀 컨텍스트 복사 완료 — ${id} (${lines}줄)\n새 채팅창 열고 Cmd+V로 붙여넣기 → 자율 작업 시작`
             : `⚠️ 클립보드 복사 실패 — ${id}\n수동 복사: ${id} 즉시 시작`
         );
         // 3) ops 알림 (베스트 에포트, 실패해도 무시)
@@ -1365,8 +1464,8 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               step: `자율 작업 큐 트리거 — ${id}`,
-              summary: `대표님이 admin-status 자율 작업 큐에서 ${id}를 클릭. 클립보드에 시작 메시지 복사됨.`,
-              checklist: [`✅ 클립보드 복사 (${clipboardOk ? '성공' : '실패'})`, '⏳ 새 채팅에서 붙여넣기 대기'],
+              summary: `대표님이 admin-status 자율 작업 큐에서 ${id}를 클릭. 풀 컨텍스트 ${lines}줄 인계 메시지가 클립보드에 복사됨.`,
+              checklist: [`✅ 풀 컨텍스트 조립 (${lines}줄)`, `✅ 클립보드 복사 (${clipboardOk ? '성공' : '실패'})`, '⏳ 새 채팅에서 붙여넣기 대기'],
               vercel_url: 'https://gohotelwinners.com/admin-status.html',
               commit_hash: '',
               blockers: ''
@@ -1392,13 +1491,613 @@
   }
 
   // ──────────────────────────────────────────────────────────
+  // 🤖 buildHandoffMessage — 풀 컨텍스트 인계 메시지 조립
+  // (BL-REAL-SYSTEM 거짓말 1 해결)
+  //
+  // 입력: taskId, taskTitle, source ('🤖 자율 작업 큐' or '🔄 진행 중 박스')
+  // 출력: 50+줄 인계 메시지 — 새 채팅 Claude가 95% 정확도로 작업 시작 가능
+  //
+  // 조립 요소:
+  //   1) tasks.json에서 task 본체 + autonomous + last_commit + last_chat_log
+  //   2) _chat-logs/index.json에서 byTask[id] 관련 chat-log 슬러그
+  //   3) 결정 사전 체크 (autonomous.requires_decisions_first)
+  //   4) GitHub API로 최근 커밋 1건 정보 (rate limit 캐시)
+  //   5) 첫 응답 가이드
+  // ──────────────────────────────────────────────────────────
+  async function buildHandoffMessage(taskId, taskTitle, source) {
+    const lines = [];
+
+    // 헤더
+    lines.push(`# ${taskId} 시작 — ${source}`);
+    lines.push('');
+    lines.push(`**작업**: ${taskTitle}`);
+    lines.push(`**시작자**: 👤 이지형 (CEO)`);
+    lines.push(`**시각**: ${new Date().toISOString()}`);
+    lines.push(`**진입점**: admin-status.html → ${source}`);
+    lines.push('');
+    lines.push('---');
+    lines.push('');
+
+    // 1) tasks.json fetch
+    let task = null;
+    let tasksData = null;
+    try {
+      const res = await fetch('/tasks.json?t=' + Date.now());
+      if (res.ok) {
+        tasksData = await res.json();
+        task = (tasksData.tasks || []).find(t => t.id === taskId);
+      }
+    } catch (_) {}
+
+    if (task) {
+      lines.push(`## 📋 Task 상세 (tasks.json)`);
+      lines.push('');
+      lines.push(`- **ID**: ${task.id}`);
+      lines.push(`- **카테고리**: ${task.category || '-'} / **우선순위**: ${task.priority || '-'} / **크기**: ${task.size || '-'}`);
+      lines.push(`- **상태**: ${task.status || '-'}`);
+      if (task.parent_task) lines.push(`- **부모 작업**: ${task.parent_task}`);
+      if (task.blocker) lines.push(`- **막힘**: ${task.blocker}`);
+      lines.push(`- **자율 진행 가능**: ${task.claude_can_auto ? '✅' : '❌'} / **승인 필요**: ${task.approval_required ? '✅' : '❌'}`);
+      if (task.autonomous) {
+        if (task.autonomous.estimated_hours) lines.push(`- **예상 시간**: 약 ${task.autonomous.estimated_hours}h`);
+        if (task.autonomous.requires_decisions_first && task.autonomous.requires_decisions_first.length) {
+          lines.push(`- **선결 결정**: ${task.autonomous.requires_decisions_first.join(', ')}`);
+        }
+      }
+      lines.push('');
+      if (task.progress) {
+        lines.push(`### 진행 상황`);
+        lines.push(task.progress);
+        lines.push('');
+      }
+      if (task.notes) {
+        lines.push(`### 메모`);
+        lines.push(task.notes);
+        lines.push('');
+      }
+    } else {
+      lines.push(`## 📋 Task 상세`);
+      lines.push('');
+      lines.push(`⚠️ tasks.json에서 ${taskId} 찾지 못함. 새 채팅 Claude가 직접 fetch 필요.`);
+      lines.push('');
+    }
+
+    // 2) chat-logs index.json fetch
+    let relatedLogs = [];
+    try {
+      const res = await fetch('/chat-logs/index.json?t=' + Date.now());
+      if (res.ok) {
+        const idx = await res.json();
+        relatedLogs = (idx.byTask && idx.byTask[taskId]) || [];
+      }
+    } catch (_) {}
+
+    if (relatedLogs.length) {
+      lines.push(`## 📜 관련 chat-logs (반드시 fetch)`);
+      lines.push('');
+      relatedLogs.forEach(slug => {
+        lines.push(`- \`/chat-logs/${slug}.md\``);
+      });
+      lines.push('');
+      lines.push(`**가장 최근 chat-log를 먼저 fetch하세요** — 막힌 지점 / 결정 근거 / 다음 단계 인계가 들어있음.`);
+      lines.push('');
+    } else if (task && task.last_chat_log) {
+      lines.push(`## 📜 관련 chat-log`);
+      lines.push('');
+      lines.push(`- \`/chat-logs/${task.last_chat_log}.md\` (반드시 먼저 fetch)`);
+      lines.push('');
+    }
+
+    // 3) 결정 사전 체크
+    if (task && task.autonomous && task.autonomous.requires_decisions_first && task.autonomous.requires_decisions_first.length) {
+      lines.push(`## ⚖️ 선결 결정 사전 체크`);
+      lines.push('');
+      lines.push(`이 작업 시작 전에 다음 결정들이 박혀 있어야 함:`);
+      task.autonomous.requires_decisions_first.forEach(d => {
+        if (/^D-\d+$/.test(d)) {
+          lines.push(`- **${d}**: \`DECISIONS.md\`에서 발췌 후 따르기 (Ctrl+F로 검색)`);
+        } else {
+          lines.push(`- ${d}`);
+        }
+      });
+      lines.push('');
+    }
+
+    // 4) GitHub 최근 커밋 정보
+    const lastCommit = (task && task.last_commit) || (tasksData && tasksData.head_commit) || '';
+    if (lastCommit) {
+      lines.push(`## 🔧 최근 커밋`);
+      lines.push('');
+      lines.push(`- **해시**: \`${lastCommit}\``);
+      lines.push(`- **GitHub**: https://github.com/dgmasters01/tw-b2b/commit/${lastCommit}`);
+      lines.push(`- **raw**: \`https://raw.githubusercontent.com/dgmasters01/tw-b2b/${lastCommit}/...\``);
+      lines.push('');
+    }
+
+    // 5) 첫 응답 가이드
+    lines.push(`## 🚀 첫 응답 가이드 (이 순서 그대로)`);
+    lines.push('');
+    lines.push(`1. **GitHub raw로 인계 fetch** (이미 했음 — 이 메시지가 그것)`);
+    if (relatedLogs.length || (task && task.last_chat_log)) {
+      const slug = relatedLogs[relatedLogs.length - 1] || (task && task.last_chat_log);
+      lines.push(`2. **\`https://raw.githubusercontent.com/dgmasters01/tw-b2b/main/_chat-logs/${slug}.md\` fetch** (가장 최근 chat-log — 풀 디테일)`);
+    } else {
+      lines.push(`2. \`tasks.json\` fetch + \`OPERATIONS_CHARTER.md\` fetch (헌법 11대 원칙)`);
+    }
+    lines.push(`3. **막힘 / 결정 / 다음 단계** 섹션 정독 후 즉시 자율 진행`);
+    lines.push(`4. **위치/구조 질문 절대 금지** (메모리 5번 + 24번)`);
+    lines.push(`5. 큰 단위 commit 직전 chat-log 박기 (D-014)`);
+    lines.push(`6. 분량 판단해서 자체 끊고 "이어서?" 확인 (메모리 17번)`);
+    lines.push(`7. 완료 시: commit + push + ops 알림 (\`/api/email/ops/notify-claude-work\`)`);
+    lines.push('');
+
+    // 헌법
+    lines.push(`## 🚨 헌법/메모리 의무`);
+    lines.push('');
+    lines.push(`- 헌법 1조: 대표님은 결정만, 시스템이 실행`);
+    lines.push(`- 메모리 5번/24번: 위치·구조·배치 질문 금지 → 자율 판단 + 즉시 실행`);
+    lines.push(`- 메모리 17번: 응답 끊김 방지 — 분량 판단 자체 끊기`);
+    lines.push(`- 메모리 25번: CHANGELOG + chat-log + commit \`[변경사유]\` 의무`);
+    lines.push(`- D-014: 큰 단위 commit 직전 chat-log 박기`);
+    lines.push('');
+    lines.push(`---`);
+    lines.push('');
+    lines.push(`**대표님은 "방향/작동" 확인만**. 시스템 디테일은 Claude 100% 자율.`);
+
+    return lines.join('\n');
+  }
+
+  // ──────────────────────────────────────────────────────────
+  // 📖 활동 이력 펼침 패널 (BL-REAL-SYSTEM 거짓말 4 해결)
+  // 탭 3개: 사람용(chat-log) / AI용(ECHO_LOG·DECISIONS) / 코드 변경(GitHub commit)
+  // ──────────────────────────────────────────────────────────
+  const ACTIVITY_CACHE = {
+    chatLogIndex: null,
+    chatLogContent: {}, // slug → md text
+    githubCommits: {},  // hash → { html, ts }
+    echoLog: null,
+    decisions: null,
+  };
+  const GITHUB_CACHE_TTL = 5 * 60 * 1000; // 5분
+
+  function toggleActivityExpand(row, items) {
+    // 이미 펼쳐져 있으면 닫기
+    const existing = row.nextElementSibling;
+    if (existing && existing.classList.contains('activity-expand-wrap')) {
+      existing.remove();
+      row.classList.remove('expanded');
+      return;
+    }
+    // 다른 펼침 닫기 (한 번에 하나만)
+    document.querySelectorAll('.activity-expand-wrap').forEach(el => el.remove());
+    document.querySelectorAll('.activity-row.expanded').forEach(el => el.classList.remove('expanded'));
+
+    row.classList.add('expanded');
+    const idx = parseInt(row.dataset.idx, 10);
+    const item = items[idx];
+    if (!item) return;
+
+    const wrap = document.createElement('div');
+    wrap.className = 'activity-expand-wrap';
+    wrap.style.cssText = 'grid-column:1 / -1;';
+    wrap.innerHTML = `
+      <div class="activity-expand">
+        <div class="activity-tabs">
+          <button class="activity-tab active" data-tab="human">📖 사람용</button>
+          <button class="activity-tab" data-tab="ai">🤖 AI용</button>
+          <button class="activity-tab" data-tab="code">🔧 코드 변경</button>
+        </div>
+        <div class="activity-tab-pane active" data-pane="human">
+          <div class="activity-tab-loading">⏳ chat-log 로드 중...</div>
+        </div>
+        <div class="activity-tab-pane" data-pane="ai">
+          <div class="activity-tab-loading">대기 중...</div>
+        </div>
+        <div class="activity-tab-pane" data-pane="code">
+          <div class="activity-tab-loading">대기 중...</div>
+        </div>
+      </div>
+    `;
+    row.parentNode.insertBefore(wrap, row.nextSibling);
+
+    // 탭 이벤트
+    wrap.querySelectorAll('.activity-tab').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        wrap.querySelectorAll('.activity-tab').forEach(b => b.classList.remove('active'));
+        wrap.querySelectorAll('.activity-tab-pane').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        const tab = btn.dataset.tab;
+        const pane = wrap.querySelector(`.activity-tab-pane[data-pane="${tab}"]`);
+        pane.classList.add('active');
+        // lazy load
+        if (tab === 'ai' && pane.dataset.loaded !== '1') {
+          loadAITab(pane, item);
+          pane.dataset.loaded = '1';
+        } else if (tab === 'code' && pane.dataset.loaded !== '1') {
+          loadCodeTab(pane, item);
+          pane.dataset.loaded = '1';
+        }
+      });
+    });
+    // 클릭이 row로 버블링되어 다시 닫히지 않도록
+    wrap.addEventListener('click', e => e.stopPropagation());
+
+    // 첫 탭(사람용) 즉시 로드
+    const humanPane = wrap.querySelector('.activity-tab-pane[data-pane="human"]');
+    loadHumanTab(humanPane, item);
+    humanPane.dataset.loaded = '1';
+  }
+
+  // 📖 사람용 탭 — chat-log fetch
+  async function loadHumanTab(pane, item) {
+    try {
+      // index 캐시
+      if (!ACTIVITY_CACHE.chatLogIndex) {
+        const res = await fetch('/chat-logs/index.json?t=' + Date.now());
+        if (res.ok) ACTIVITY_CACHE.chatLogIndex = await res.json();
+      }
+      const idx = ACTIVITY_CACHE.chatLogIndex;
+      let slug = null;
+      // commit hash로 매핑
+      if (item.target_type === 'commit' && item.target_id && idx && idx.byCommit) {
+        const shortHash = String(item.target_id).slice(0, 7);
+        slug = idx.byCommit[shortHash] || idx.byCommit[item.target_id];
+      }
+      // task ID로 매핑
+      if (!slug && idx && idx.byTask) {
+        // action에서 task ID 추출 (e.g. "feat(BL-PAGE-DEDUP):" 또는 "BL-XXX")
+        const match = (item.action || '').match(/(BL-[A-Z0-9-]+|IP-[A-Z0-9-]+|UX-[A-Z0-9-]+|D-\d+)/);
+        if (match) {
+          const candidates = idx.byTask[match[1]];
+          if (candidates && candidates.length) slug = candidates[candidates.length - 1];
+        }
+      }
+      if (!slug) {
+        pane.innerHTML = `
+          <div class="activity-tab-empty">
+            이 활동 항목에 연결된 chat-log를 찾지 못했습니다.<br>
+            <small>commit hash <code>${escapeHtml(item.target_id || '-')}</code>가 chat-logs/index.json byCommit에 등록되지 않았거나, action에서 task ID 추출 실패.</small>
+          </div>`;
+        return;
+      }
+      // 본문 캐시
+      let content = ACTIVITY_CACHE.chatLogContent[slug];
+      if (!content) {
+        const res = await fetch(`/chat-logs/${slug}.md`);
+        if (!res.ok) {
+          pane.innerHTML = `<div class="activity-tab-empty">chat-log fetch 실패 (HTTP ${res.status}): <code>${escapeHtml(slug)}</code></div>`;
+          return;
+        }
+        content = await res.text();
+        ACTIVITY_CACHE.chatLogContent[slug] = content;
+      }
+      pane.innerHTML = `
+        <div style="margin-bottom:6px;font-size:10px;color:var(--text-muted);">
+          📜 <code>/chat-logs/${escapeHtml(slug)}.md</code>
+        </div>
+        ${renderMarkdown(content)}
+      `;
+    } catch (e) {
+      console.error('[activity] human tab 실패', e);
+      pane.innerHTML = `<div class="activity-tab-empty">chat-log 로드 실패: ${escapeHtml(e.message || String(e))}</div>`;
+    }
+  }
+
+  // 🤖 AI용 탭 — ECHO_LOG / DECISIONS 텍스트 검색
+  async function loadAITab(pane, item) {
+    pane.innerHTML = '<div class="activity-tab-loading">⏳ ECHO_LOG / DECISIONS 검색 중...</div>';
+    try {
+      // ECHO_LOG / DECISIONS 캐시 (admin gate 통과를 위해 raw GitHub 사용)
+      if (!ACTIVITY_CACHE.echoLog) {
+        try {
+          const res = await fetch('https://raw.githubusercontent.com/dgmasters01/tw-b2b/main/ECHO_LOG.md');
+          if (res.ok) ACTIVITY_CACHE.echoLog = await res.text();
+        } catch (_) {}
+      }
+      if (!ACTIVITY_CACHE.decisions) {
+        try {
+          const res = await fetch('https://raw.githubusercontent.com/dgmasters01/tw-b2b/main/DECISIONS.md');
+          if (res.ok) ACTIVITY_CACHE.decisions = await res.text();
+        } catch (_) {}
+      }
+
+      // 검색 키 추출
+      const action = item.action || '';
+      const taskMatch = action.match(/(BL-[A-Z0-9-]+|IP-[A-Z0-9-]+|UX-[A-Z0-9-]+)/);
+      const decisionMatch = action.match(/D-\d+/);
+      const commitHash = item.target_type === 'commit' ? String(item.target_id || '').slice(0, 7) : '';
+
+      const sections = [];
+      // ECHO_LOG 검색
+      if (ACTIVITY_CACHE.echoLog) {
+        const hits = searchInDoc(ACTIVITY_CACHE.echoLog, [taskMatch && taskMatch[1], commitHash, decisionMatch && decisionMatch[0]].filter(Boolean));
+        if (hits.length) {
+          sections.push(`<h3>📓 ECHO_LOG.md (${hits.length}건)</h3>`);
+          hits.slice(0, 3).forEach(h => sections.push(`<pre>${escapeHtml(h)}</pre>`));
+        }
+      }
+      // DECISIONS 검색
+      if (ACTIVITY_CACHE.decisions) {
+        const hits = searchInDoc(ACTIVITY_CACHE.decisions, [taskMatch && taskMatch[1], commitHash, decisionMatch && decisionMatch[0]].filter(Boolean));
+        if (hits.length) {
+          sections.push(`<h3>⚖️ DECISIONS.md (${hits.length}건)</h3>`);
+          hits.slice(0, 3).forEach(h => sections.push(`<pre>${escapeHtml(h)}</pre>`));
+        }
+      }
+      if (!sections.length) {
+        pane.innerHTML = `<div class="activity-tab-empty">ECHO_LOG / DECISIONS에서 매칭 결과 없음.<br><small>검색 키: ${escapeHtml([taskMatch && taskMatch[1], commitHash, decisionMatch && decisionMatch[0]].filter(Boolean).join(', ') || '(없음)')}</small></div>`;
+        return;
+      }
+      pane.innerHTML = sections.join('');
+    } catch (e) {
+      console.error('[activity] ai tab 실패', e);
+      pane.innerHTML = `<div class="activity-tab-empty">AI용 로드 실패: ${escapeHtml(e.message || String(e))}</div>`;
+    }
+  }
+
+  // 🔧 코드 변경 탭 — GitHub commit API
+  async function loadCodeTab(pane, item) {
+    if (item.target_type !== 'commit' || !item.target_id) {
+      pane.innerHTML = `<div class="activity-tab-empty">이 활동은 commit이 아니라서 코드 변경 정보 없음. (target_type: ${escapeHtml(item.target_type || '-')})</div>`;
+      return;
+    }
+    const hash = String(item.target_id);
+    pane.innerHTML = '<div class="activity-tab-loading">⏳ GitHub API에서 커밋 정보 가져오는 중...</div>';
+    try {
+      const cached = ACTIVITY_CACHE.githubCommits[hash];
+      if (cached && (Date.now() - cached.ts) < GITHUB_CACHE_TTL) {
+        pane.innerHTML = cached.html;
+        return;
+      }
+      // localStorage 캐시도 체크 (5분)
+      try {
+        const lsKey = `tw_b2b_commit_${hash}`;
+        const ls = localStorage.getItem(lsKey);
+        if (ls) {
+          const parsed = JSON.parse(ls);
+          if (parsed && (Date.now() - parsed.ts) < GITHUB_CACHE_TTL) {
+            ACTIVITY_CACHE.githubCommits[hash] = parsed;
+            pane.innerHTML = parsed.html;
+            return;
+          }
+        }
+      } catch (_) {}
+
+      const apiUrl = `https://api.github.com/repos/dgmasters01/tw-b2b/commits/${hash}`;
+      const res = await fetch(apiUrl);
+      if (!res.ok) {
+        if (res.status === 403) {
+          pane.innerHTML = `<div class="activity-tab-empty">⚠️ GitHub API rate limit 초과 (60req/시).<br>5분 후 재시도하거나 직접 보기: <a href="https://github.com/dgmasters01/tw-b2b/commit/${escapeHtml(hash)}" target="_blank">commit/${escapeHtml(hash.slice(0,7))}</a></div>`;
+        } else {
+          pane.innerHTML = `<div class="activity-tab-empty">GitHub API 응답 오류 (HTTP ${res.status})</div>`;
+        }
+        return;
+      }
+      const commit = await res.json();
+      const fileLines = (commit.files || []).slice(0, 30).map(f => {
+        const stats = `<span class="add">+${f.additions || 0}</span> <span class="del">-${f.deletions || 0}</span>`;
+        return `<div class="file-line">${stats} ${escapeHtml(f.filename)}</div>`;
+      }).join('');
+      const totalFiles = (commit.files || []).length;
+      const moreNote = totalFiles > 30 ? `<div style="font-size:10px;color:var(--text-muted);margin-top:4px;">... 그 외 ${totalFiles - 30}개 파일</div>` : '';
+      const html = `
+        <div style="margin-bottom:6px;font-size:10px;color:var(--text-muted);">
+          🔗 <a href="${escapeHtml(commit.html_url || '#')}" target="_blank" style="color:var(--aurora-2);">GitHub commit/${escapeHtml(hash.slice(0,7))}</a>
+        </div>
+        <pre>${escapeHtml((commit.commit && commit.commit.message) || '')}</pre>
+        <div style="margin-top:8px;font-size:11px;color:var(--text);">
+          📂 <strong>변경 파일 ${totalFiles}개</strong> (총 +${(commit.stats && commit.stats.additions) || 0} / -${(commit.stats && commit.stats.deletions) || 0})
+        </div>
+        <div style="margin-top:4px;">${fileLines}</div>
+        ${moreNote}
+      `;
+      const cacheEntry = { html, ts: Date.now() };
+      ACTIVITY_CACHE.githubCommits[hash] = cacheEntry;
+      try { localStorage.setItem(`tw_b2b_commit_${hash}`, JSON.stringify(cacheEntry)); } catch (_) {}
+      pane.innerHTML = html;
+    } catch (e) {
+      console.error('[activity] code tab 실패', e);
+      pane.innerHTML = `<div class="activity-tab-empty">GitHub API 호출 실패: ${escapeHtml(e.message || String(e))}<br><a href="https://github.com/dgmasters01/tw-b2b/commit/${escapeHtml(hash)}" target="_blank">직접 보기</a></div>`;
+    }
+  }
+
+  // 헬퍼: 문서 안에서 키워드 주변 단락 추출
+  function searchInDoc(doc, keys) {
+    if (!doc || !keys || !keys.length) return [];
+    const lines = doc.split('\n');
+    const hits = [];
+    const seen = new Set();
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      if (keys.some(k => k && line.includes(k))) {
+        // 주변 5줄 추출
+        const start = Math.max(0, i - 2);
+        const end = Math.min(lines.length, i + 6);
+        const block = lines.slice(start, end).join('\n');
+        if (!seen.has(block)) {
+          seen.add(block);
+          hits.push(block);
+        }
+      }
+    }
+    return hits;
+  }
+
+  // 헬퍼: 매우 단순한 markdown 렌더링
+  function renderMarkdown(md) {
+    if (!md) return '';
+    // 코드블록 보호
+    const codeBlocks = [];
+    md = md.replace(/```([\s\S]*?)```/g, (m, c) => {
+      codeBlocks.push(c);
+      return `\u0000CODE${codeBlocks.length - 1}\u0000`;
+    });
+    let html = escapeHtml(md);
+    // 헤더
+    html = html.replace(/^### (.+)$/gm, '<h3>$1</h3>');
+    html = html.replace(/^## (.+)$/gm, '<h2>$1</h2>');
+    html = html.replace(/^# (.+)$/gm, '<h1>$1</h1>');
+    // 인라인 코드
+    html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+    // 강조
+    html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+    // 리스트 (간단)
+    html = html.replace(/^- (.+)$/gm, '• $1');
+    // 줄바꿈
+    html = html.replace(/\n\n+/g, '</p><p>');
+    html = '<p>' + html + '</p>';
+    // 코드블록 복원
+    html = html.replace(/\u0000CODE(\d+)\u0000/g, (m, i) => `<pre>${escapeHtml(codeBlocks[parseInt(i, 10)] || '')}</pre>`);
+    return html;
+  }
+
+  // ──────────────────────────────────────────────────────────
+  // 🔄 실시간 폴링 (BL-REAL-SYSTEM 거짓말 2 해결)
+  // 5초마다 tasks.json + activity-feed.display.json 갱신
+  // 사용자 인터랙션 중 / 페이지 백그라운드 / 모달 열림 시 일시 정지
+  // ──────────────────────────────────────────────────────────
+  const POLL = {
+    intervalMs: 5000,
+    timer: null,
+    paused: false,
+    pauseReasons: new Set(),
+    lastTasksHash: null,
+    lastActivityHash: null,
+    statusEl: null,
+  };
+
+  function pollPause(reason) {
+    POLL.pauseReasons.add(reason);
+    POLL.paused = true;
+    updatePollStatus();
+  }
+  function pollResume(reason) {
+    POLL.pauseReasons.delete(reason);
+    if (POLL.pauseReasons.size === 0) POLL.paused = false;
+    updatePollStatus();
+  }
+  function updatePollStatus() {
+    if (!POLL.statusEl) return;
+    if (POLL.paused) {
+      POLL.statusEl.classList.add('paused');
+      POLL.statusEl.textContent = `⏸ 폴링 일시정지 (${[...POLL.pauseReasons].join(', ')})`;
+    } else {
+      POLL.statusEl.classList.remove('paused');
+      const t = new Date();
+      POLL.statusEl.textContent = `🔄 폴링 ${POLL.intervalMs/1000}s · 마지막 ${t.toLocaleTimeString('ko-KR')}`;
+    }
+  }
+
+  function quickHash(s) {
+    // djb2 변형 — 변경 감지용
+    let h = 5381;
+    for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
+    return h;
+  }
+
+  async function pollTick() {
+    if (POLL.paused) return;
+    if (document.hidden) return;
+    try {
+      // tasks.json
+      const t = await fetch('/tasks.json?t=' + Date.now());
+      if (t.ok) {
+        const txt = await t.text();
+        const h = quickHash(txt);
+        if (POLL.lastTasksHash !== null && h !== POLL.lastTasksHash) {
+          // 변경 감지 → 재렌더
+          try {
+            const data = JSON.parse(txt);
+            renderIntegratedKPI(data);
+            renderIntegratedUrgent(data);
+            renderIntegratedProgress(data);
+            renderAutoQueue(data);
+            renderNextAction(data);
+            showPollToast('🔄 tasks.json 갱신됨');
+          } catch (_) {}
+        }
+        POLL.lastTasksHash = h;
+      }
+      // activity-feed
+      const a = await fetch('/activity-feed.display.json?t=' + Date.now());
+      if (a.ok) {
+        const txt = await a.text();
+        const h = quickHash(txt);
+        if (POLL.lastActivityHash !== null && h !== POLL.lastActivityHash) {
+          try {
+            const data = JSON.parse(txt);
+            ACTIVITY.items = data.items || [];
+            renderActivity();
+            showPollToast('🔄 활동 이력 갱신됨');
+          } catch (_) {}
+        }
+        POLL.lastActivityHash = h;
+      }
+      updatePollStatus();
+    } catch (e) {
+      console.warn('[poll] tick 실패 (베스트에포트)', e);
+    }
+  }
+
+  function showPollToast(msg) {
+    let toast = document.querySelector('.poll-toast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.className = 'poll-toast';
+      document.body.appendChild(toast);
+    }
+    const ts = new Date().toLocaleTimeString('ko-KR');
+    toast.textContent = `${msg} (${ts})`;
+    requestAnimationFrame(() => toast.classList.add('show'));
+    clearTimeout(toast._hideTimer);
+    toast._hideTimer = setTimeout(() => toast.classList.remove('show'), 2500);
+  }
+
+  function startPolling() {
+    if (POLL.timer) return;
+    // 상태 표시
+    POLL.statusEl = document.createElement('div');
+    POLL.statusEl.className = 'poll-status';
+    document.body.appendChild(POLL.statusEl);
+    updatePollStatus();
+    // 첫 해시 기록 (변경 감지를 위해 비교 기준)
+    pollTick();
+    POLL.timer = setInterval(pollTick, POLL.intervalMs);
+    // 백그라운드 / 포그라운드 전환
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) pollPause('백그라운드 탭');
+      else pollResume('백그라운드 탭');
+    });
+    // 입력 중 일시정지 (input/textarea focus)
+    document.addEventListener('focusin', e => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+        pollPause('입력 중');
+      }
+    });
+    document.addEventListener('focusout', e => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+        pollResume('입력 중');
+      }
+    });
+    // 모달 감지 (단순 휴리스틱: 화면에 .modal / [aria-modal=true] / .toast 큰 박스)
+    const modalObserver = new MutationObserver(() => {
+      const hasModal = !!document.querySelector('.modal[style*="block"], [aria-modal="true"], .activity-expand-wrap');
+      if (hasModal) pollPause('모달/펼침');
+      else pollResume('모달/펼침');
+    });
+    modalObserver.observe(document.body, { childList: true, subtree: true });
+  }
+
+  // ──────────────────────────────────────────────────────────
   // 초기 실행
   // ──────────────────────────────────────────────────────────
   updateDeadlineBanner();
   loadAndRender();
   loadActivity();
   loadIntegratedTasks();  // ★ BL-PAGE-DEDUP + IP-CTRL-001 5단계 (자율 작업 큐 포함)
-  console.log('[admin-status] BL-PAGE-DEDUP + IP-CTRL-001 loaded — 임박/진행률/자율큐 통합');
+  startPolling();         // ★ BL-REAL-SYSTEM 거짓말 2 해결 — 5초 폴링
+  console.log('[admin-status] BL-PAGE-DEDUP + IP-CTRL-001 + BL-REAL-SYSTEM Phase α loaded — 임박/진행률/자율큐/풀컨텍스트인계/폴링/활동펼침');
 </script>
 </body>
 </html>

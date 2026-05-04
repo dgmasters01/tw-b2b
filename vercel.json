@@ -25,6 +25,36 @@
       "source": "/_chat-logs/:path*",
       "destination": "/chat-logs/:path*",
       "permanent": false
+    },
+    {
+      "source": "/admin",
+      "destination": "/admin.html",
+      "permanent": false
+    },
+    {
+      "source": "/admin-status",
+      "destination": "/admin-status.html",
+      "permanent": false
+    },
+    {
+      "source": "/admin-tasks",
+      "destination": "/admin-tasks.html",
+      "permanent": false
+    },
+    {
+      "source": "/admin-business",
+      "destination": "/admin-business.html",
+      "permanent": false
+    },
+    {
+      "source": "/admin-service-ops",
+      "destination": "/admin-service-ops.html",
+      "permanent": false
+    },
+    {
+      "source": "/admin-gallery",
+      "destination": "/admin-gallery.html",
+      "permanent": false
     }
   ],
   "rewrites": [
@@ -35,6 +65,30 @@
     {
       "source": "/chat-logs/:slug.md",
       "destination": "/api/chat-log?slug=:slug"
+    },
+    {
+      "source": "/admin-status.html",
+      "destination": "/api/admin-page?page=status"
+    },
+    {
+      "source": "/admin-tasks.html",
+      "destination": "/api/admin-page?page=tasks"
+    },
+    {
+      "source": "/admin-business.html",
+      "destination": "/api/admin-page?page=business"
+    },
+    {
+      "source": "/admin-service-ops.html",
+      "destination": "/api/admin-page?page=service-ops"
+    },
+    {
+      "source": "/admin-gallery.html",
+      "destination": "/api/admin-page?page=gallery"
+    },
+    {
+      "source": "/admin.html",
+      "destination": "/api/admin-page?page=admin"
     }
   ]
 }

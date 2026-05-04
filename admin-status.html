@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>System Status — TravelWinners B2B Admin</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="개발 시스템 완성도 한눈에 보기 — 사업 KPI 별도 페이지">
+<style>
+  /* Aurora 다크 톤 (admin-hub.html과 100% 일관성) */
+  :root {
+    --bg: #0f172a;
+    --panel: #1e293b;
+    --panel-2: #0c1322;
+    --border: #334155;
+    --text: #f1f5f9;
+    --text-muted: #94a3b8;
+    --aurora-1: #8b5cf6;
+    --aurora-2: #ec4899;
+    --aurora-3: #06b6d4;
+    --done: #16a34a;
+    --pending: #2563eb;
+    --in_progress: #9333ea;
+    --blocked: #dc2626;
+    --p0: #dc2626;
+    --p1: #ea580c;
+    --p2: #ca8a04;
+    /* 3-State 배지 (D-011) */
+    --auto: #16a34a;
+    --auto-bg: rgba(22,163,74,0.10);
+    --auto-text: #86efac;
+    --staff: #2563eb;
+    --staff-bg: rgba(96,165,250,0.10);
+    --staff-text: #93c5fd;
+    --ceo: #ca8a04;
+    --ceo-bg: rgba(251,191,36,0.10);
+    --ceo-text: #fcd34d;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    min-height: 100vh; padding: 24px;
+  }
+  .container { max-width: 1280px; margin: 0 auto; }
+
+  /* ===== 상단 헤더 ===== */
+  .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; flex-wrap: wrap; gap: 12px; }
+  .header-title h1 {
+    font-size: 22px; font-weight: 500; margin: 0;
+    background: linear-gradient(135deg, var(--aurora-1), var(--aurora-2), var(--aurora-3));
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+    display: inline-block;
+  }
+  .header-title .subtitle { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+  .header-title .subtitle a { color: #60a5fa; text-decoration: underline; cursor: pointer; }
+  .header-actions { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+  .header-actions .role-tag { font-size: 10px; color: var(--text-muted); padding: 0 6px; }
+  .header-actions button {
+    background: transparent; border: 0.5px solid var(--border); color: var(--text-muted);
+    border-radius: 6px; font-size: 11px; padding: 5px 10px; cursor: pointer; transition: all .15s;
+  }
+  .header-actions button:hover { background: var(--panel); color: var(--text); }
+
+  /* ===== 데드라인 경고 배너 ===== */
+  .deadline-banner {
+    background: linear-gradient(135deg, rgba(220,38,38,0.18), rgba(234,88,12,0.10));
+    border: 1px solid var(--blocked); border-radius: 10px;
+    padding: 12px 16px; margin-bottom: 14px;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .deadline-banner.hidden { display: none; }
+  .deadline-banner .icon { font-size: 24px; }
+  .deadline-banner .title { font-size: 13px; font-weight: 500; color: #fca5a5; }
+  .deadline-banner .detail { font-size: 11px; color: #cbd5e1; margin-top: 2px; }
+
+  /* ===== 전체 평균 게이지 ===== */
+  .avg-card {
+    background: linear-gradient(135deg, rgba(139,92,246,0.10), rgba(6,182,212,0.05));
+    border: 0.5px solid rgba(139,92,246,0.3);
+    border-radius: 12px; padding: 16px; margin-bottom: 14px;
+    display: flex; align-items: center; gap: 18px; flex-wrap: wrap;
+  }
+  .avg-num-block { flex: 0 0 auto; }
+  .avg-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 4px; }
+  .avg-num { font-size: 34px; font-weight: 500; line-height: 1; }
+  .avg-num small { font-size: 14px; color: var(--text-muted); }
+  .avg-trend { font-size: 11px; color: var(--done); margin-top: 4px; }
+  .avg-bar-block { flex: 1; min-width: 200px; }
+  .avg-bar { height: 8px; background: var(--panel); border-radius: 4px; overflow: hidden; margin-bottom: 8px; }
+  .avg-bar-fill { height: 100%; background: linear-gradient(90deg, var(--aurora-1), var(--aurora-2)); transition: width .5s ease; }
+  .avg-counts { display: flex; gap: 8px; font-size: 11px; flex-wrap: wrap; }
+
+  /* ===== 3-State 통계 4 카드 ===== */
+  .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 14px; }
+  @media (max-width: 700px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+  .stat-card {
+    padding: 10px; border-radius: 8px; text-align: center; cursor: pointer; transition: all .15s;
+    border: 0.5px solid;
+  }
+  .stat-card:hover { transform: translateY(-2px); }
+  .stat-card.auto { background: var(--auto-bg); border-color: rgba(22,163,74,0.4); }
+  .stat-card.staff { background: var(--staff-bg); border-color: rgba(96,165,250,0.4); }
+  .stat-card.ceo { background: var(--ceo-bg); border-color: rgba(251,191,36,0.4); }
+  .stat-card.charter { background: rgba(148,163,184,0.10); border-color: rgba(148,163,184,0.3); }
+  .stat-card .stat-label { font-size: 10px; font-weight: 500; margin-bottom: 3px; }
+  .stat-card.auto .stat-label { color: var(--auto-text); }
+  .stat-card.staff .stat-label { color: var(--staff-text); }
+  .stat-card.ceo .stat-label { color: var(--ceo-text); }
+  .stat-card.charter .stat-label { color: #cbd5e1; }
+  .stat-card .stat-num { font-size: 22px; font-weight: 500; line-height: 1.1; }
+  .stat-card.auto .stat-num { color: var(--auto-text); }
+  .stat-card.staff .stat-num { color: var(--staff-text); }
+  .stat-card.ceo .stat-num { color: var(--ceo-text); }
+  .stat-card.charter .stat-num { color: var(--done); }
+  .stat-card .stat-num small { font-size: 11px; color: var(--text-muted); }
+  .stat-card .stat-sub { font-size: 9px; color: var(--text-muted); margin-top: 2px; }
+
+  /* ===== 자율 추천 콜투액션 ===== */
+  .next-action {
+    background: linear-gradient(135deg, rgba(22,163,74,0.10), rgba(22,163,74,0.04));
+    border: 1px solid rgba(22,163,74,0.4);
+    border-radius: 10px; padding: 14px; margin-bottom: 14px;
+  }
+  .next-action-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .next-action-row > .pill { background: rgba(22,163,74,0.25); color: var(--auto-text); font-size: 10px; padding: 3px 8px; border-radius: 4px; font-weight: 500; white-space: nowrap; }
+  .next-action-row > .title { font-size: 13px; font-weight: 500; flex: 1; min-width: 200px; }
+  .next-action-row > button {
+    background: var(--auto); color: #fff; border: none; border-radius: 6px;
+    font-size: 12px; padding: 8px 14px; cursor: pointer; font-weight: 500;
+  }
+  .next-action-hint {
+    font-size: 10px; color: var(--text-muted); margin-top: 8px;
+    border-top: 0.5px dashed rgba(22,163,74,0.3); padding-top: 8px;
+  }
+
+  /* ===== 6 카테고리 카드 그리드 ===== */
+  .section-label {
+    font-size: 11px; color: var(--text-muted);
+    text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 8px;
+  }
+  .cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+  @media (max-width: 700px) { .cat-grid { grid-template-columns: 1fr; } }
+  .cat-card {
+    background: var(--panel); border: 0.5px solid var(--border); border-radius: 10px;
+    padding: 11px; cursor: pointer; transition: all .15s;
+  }
+  .cat-card:hover { border-color: var(--aurora-2); transform: translateY(-2px); }
+  .cat-card.expanded { border: 1px solid var(--aurora-2); box-shadow: 0 0 0 2px rgba(236,72,153,0.2); }
+  .cat-card.warn { border-color: var(--blocked); }
+  .cat-row1 { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5px; }
+  .cat-row1 .label { font-size: 9px; color: var(--text-muted); letter-spacing: 0.5px; }
+  .cat-row1 .name { font-size: 13px; font-weight: 500; }
+  .cat-row1 .score { font-size: 17px; font-weight: 500; }
+  .cat-bar { height: 3px; background: var(--bg); border-radius: 2px; overflow: hidden; margin-bottom: 6px; }
+  .cat-bar-fill { height: 100%; transition: width .5s ease; }
+  .cat-meta { font-size: 10px; color: var(--text-muted); display: flex; gap: 5px; flex-wrap: wrap; }
+  .cat-meta .auto { color: var(--auto-text); }
+  .cat-meta .staff { color: var(--staff-text); }
+  .cat-meta .ceo { color: var(--ceo-text); }
+  .cat-meta .time { margin-left: auto; }
+
+  /* ===== 결정 대기 박스 ===== */
+  .ceo-wait-box {
+    background: rgba(251,191,36,0.06); border: 0.5px solid rgba(251,191,36,0.4);
+    border-radius: 10px; padding: 12px 14px; margin-bottom: 14px;
+  }
+  .ceo-wait-title { font-size: 12px; font-weight: 500; color: var(--ceo-text); margin-bottom: 8px; }
+  .ceo-wait-list { display: flex; flex-direction: column; gap: 5px; }
+  .ceo-wait-item {
+    display: flex; align-items: center; gap: 8px; padding: 6px 8px;
+    background: rgba(251,191,36,0.04); border-radius: 5px;
+  }
+  .pri-pill { font-size: 10px; padding: 2px 6px; border-radius: 3px; white-space: nowrap; font-weight: 500; }
+  .pri-pill.p0 { background: rgba(220,38,38,0.2); color: #fca5a5; }
+  .pri-pill.p1 { background: rgba(234,88,12,0.2); color: #fb923c; }
+  .pri-pill.p2 { background: rgba(202,138,4,0.2); color: #fcd34d; }
+  .ceo-wait-item .text { font-size: 11px; flex: 1; }
+  .ceo-wait-item .reason { font-size: 10px; color: var(--text-muted); }
+
+  /* ===== 시급 TOP 10 ===== */
+  .top-box { background: var(--panel); border: 0.5px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 14px; }
+  .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 6px; }
+  .top-list { display: flex; flex-direction: column; gap: 4px; }
+  .top-row {
+    display: grid; grid-template-columns: 24px 38px 1fr 70px 90px;
+    gap: 8px; align-items: center; padding: 6px 8px; border-radius: 5px;
+    background: rgba(96,165,250,0.05);
+  }
+  .top-row.crit-1 { background: rgba(220,38,38,0.10); }
+  .top-row.crit-2 { background: rgba(202,138,4,0.08); }
+  .top-row .rank { font-size: 10px; color: var(--text-muted); }
+  .top-row .score { font-size: 13px; font-weight: 500; text-align: center; }
+  .top-row .score.s-low { color: var(--blocked); }
+  .top-row .score.s-mid { color: var(--p2); }
+  .top-row .score.s-high { color: #60a5fa; }
+  .top-row .info .path { font-size: 12px; font-weight: 500; }
+  .top-row .info .hint { font-size: 9px; color: var(--text-muted); }
+  .state-pill {
+    font-size: 9px; padding: 2px 5px; border-radius: 3px; text-align: center; white-space: nowrap;
+  }
+  .state-pill.auto { background: rgba(22,163,74,0.2); color: var(--auto-text); }
+  .state-pill.staff { background: rgba(96,165,250,0.2); color: var(--staff-text); }
+  .state-pill.ceo { background: rgba(251,191,36,0.2); color: var(--ceo-text); }
+  .state-pill.hold { background: rgba(148,163,184,0.2); color: #cbd5e1; }
+  .top-row .when { font-size: 9px; color: var(--text-muted); text-align: right; }
+
+  /* ===== 푸터 ===== */
+  .footer {
+    background: var(--panel); border: 0.5px solid var(--border); border-radius: 10px;
+    padding: 11px 14px; font-size: 11px; color: var(--text-muted);
+    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;
+  }
+  .footer .commit { color: #60a5fa; font-family: ui-monospace, SFMono-Regular, monospace; }
+  .footer .live { color: var(--done); }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- 헤더 -->
+  <header class="header">
+    <div class="header-title">
+      <h1>📊 시스템 완성도 <small style="font-size:13px;font-weight:400;color:var(--text-muted);">(개발 영역)</small></h1>
+      <div class="subtitle">
+        사업 KPI(매출/매니저/예약/조회수)는 별도 사업 대시보드 →
+        <a href="/admin.html#business-kpi">/admin.html#business-kpi</a>
+      </div>
+    </div>
+    <div class="header-actions">
+      <span class="role-tag" id="role-tag">현재: 👤 CEO</span>
+      <button id="btn-i18n" title="언어 토글 — 다음 주 i18n 일괄 적용 예정">🌐 EN/KO</button>
+      <button id="btn-rescan" title="다시 측정 — 수동 트리거">🔄 다시 측정</button>
+      <a href="/admin-hub.html" style="text-decoration:none;"><button>← 허브로</button></a>
+    </div>
+  </header>
+
+  <!-- 데드라인 경고 (조건부) -->
+  <div class="deadline-banner" id="deadline-banner">
+    <div class="icon">🚨</div>
+    <div>
+      <div class="title" id="deadline-title">헌법 데드라인 D+1 — 어제(2026-05-03) 지났음</div>
+      <div class="detail" id="deadline-detail">잔여 작업 분포: 🤖 자동 16건 · 👥 직원 가능 8건 · 👤 대표님 결정 4건 · 🚫 막힘 3건. 데드라인 재설정 또는 즉시 진행 결정 필요.</div>
+    </div>
+  </div>
+
+  <!-- 전체 평균 게이지 -->
+  <section class="avg-card">
+    <div class="avg-num-block">
+      <div class="avg-label">전체 평균</div>
+      <div class="avg-num" id="avg-num">73<small>/100</small></div>
+      <div class="avg-trend" id="avg-trend">▲ 어제 대비 +3</div>
+    </div>
+    <div class="avg-bar-block">
+      <div class="avg-bar"><div class="avg-bar-fill" id="avg-bar-fill" style="width:73%"></div></div>
+      <div class="avg-counts" id="avg-counts">
+        <span style="color:var(--done);">🟢 완성 0</span>
+        <span style="color:#60a5fa;">🔵 본격 16</span>
+        <span style="color:var(--p2);">🟡 부분 2</span>
+        <span style="color:var(--p1);">🟠 골격 0</span>
+        <span style="color:var(--blocked);">🔴 미작성 1</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3-State 통계 4 카드 -->
+  <section class="stats-grid">
+    <div class="stat-card auto">
+      <div class="stat-label">🤖 자동 (Claude)</div>
+      <div class="stat-num" id="stat-auto">16</div>
+      <div class="stat-sub">시스템 자율</div>
+    </div>
+    <div class="stat-card staff">
+      <div class="stat-label">👥 직원 가능</div>
+      <div class="stat-num" id="stat-staff">8</div>
+      <div class="stat-sub">Staff 트리거 가능</div>
+    </div>
+    <div class="stat-card ceo">
+      <div class="stat-label">👤 대표님 결정</div>
+      <div class="stat-num" id="stat-ceo">4</div>
+      <div class="stat-sub">CEO 사업 정책</div>
+    </div>
+    <div class="stat-card charter">
+      <div class="stat-label">🛡️ 헌법 검증</div>
+      <div class="stat-num" id="stat-charter">27<small>/27</small></div>
+      <div class="stat-sub">PASS</div>
+    </div>
+  </section>
+
+  <!-- 자율 추천 콜투액션 -->
+  <section class="next-action" id="next-action-box">
+    <div class="next-action-row">
+      <span class="pill">🤖 자동 가능</span>
+      <span class="title" id="next-action-title">BL-PAGE-CAPTURE-AUTO — 스크린샷 자동 캡처 워크플로우 신설</span>
+      <button id="btn-reserve">▶ 예약 + 알림</button>
+    </div>
+    <div class="next-action-hint">
+      예상 25분 · GitHub Actions만 추가 · 외관 결정 없음 · 버튼 누르면 ① priority_boost 자동 박힘 ② 클립보드 복사 + ops 알림 ③ 채팅에 붙여넣기 한 번 = 시작
+    </div>
+  </section>
+
+  <!-- 6 카테고리 카드 -->
+  <div class="section-label">사이드바 6개 메뉴 · 카드 클릭 → 상세 펼침 (다음 단계 구현)</div>
+  <section class="cat-grid" id="cat-grid">
+    <!-- Card 1: Central Hub -->
+    <a class="cat-card" href="/admin-hub.html" style="text-decoration:none;color:inherit;">
+      <div class="cat-row1">
+        <div>
+          <div class="label">CATEGORY 1</div>
+          <div class="name">🎯 Central Hub</div>
+        </div>
+        <div class="score" style="color:var(--aurora-1);">77</div>
+      </div>
+      <div class="cat-bar"><div class="cat-bar-fill" style="width:77%;background:var(--aurora-1);"></div></div>
+      <div class="cat-meta">
+        <span class="auto">🤖 2</span>
+        <span class="staff">👥 0</span>
+        <span class="ceo">👤 0</span>
+        <span class="time">🕒 오늘 14:58</span>
+      </div>
+    </a>
+
+    <!-- Card 2: Task Management -->
+    <a class="cat-card" href="/admin-tasks.html" style="text-decoration:none;color:inherit;">
+      <div class="cat-row1">
+        <div>
+          <div class="label">CATEGORY 2</div>
+          <div class="name">📋 Task Management</div>
+        </div>
+        <div class="score" style="color:var(--aurora-2);">78</div>
+      </div>
+      <div class="cat-bar"><div class="cat-bar-fill" style="width:78%;background:var(--aurora-2);"></div></div>
+      <div class="cat-meta">
+        <span class="auto">🤖 1</span>
+        <span class="staff">👥 1</span>
+        <span class="ceo">👤 0</span>
+        <span class="time">🕒 오늘 01:45</span>
+      </div>
+    </a>
+
+    <!-- Card 3: Business Docs -->
+    <a class="cat-card" href="/admin-business.html" style="text-decoration:none;color:inherit;">
+      <div class="cat-row1">
+        <div>
+          <div class="label">CATEGORY 3</div>
+          <div class="name">📚 Business Docs</div>
+        </div>
+        <div class="score" style="color:var(--aurora-3);">82</div>
+      </div>
+      <div class="cat-bar"><div class="cat-bar-fill" style="width:82%;background:var(--aurora-3);"></div></div>
+      <div class="cat-meta">
+        <span class="auto">🤖 2</span>
+        <span class="staff">👥 2</span>
+        <span class="ceo">👤 0</span>
+        <span class="time">🕒 어제 23:12</span>
+      </div>
+    </a>
+
+    <!-- Card 4: Page Gallery -->
+    <a class="cat-card" href="/admin-gallery.html" style="text-decoration:none;color:inherit;">
+      <div class="cat-row1">
+        <div>
+          <div class="label">CATEGORY 4</div>
+          <div class="name">📸 Page Gallery</div>
+        </div>
+        <div class="score" style="color:var(--aurora-2);">70</div>
+      </div>
+      <div class="cat-bar"><div class="cat-bar-fill" style="width:70%;background:var(--aurora-2);"></div></div>
+      <div class="cat-meta">
+        <span class="auto">🤖 1</span>
+        <span class="staff">👥 3</span>
+        <span class="ceo">👤 1</span>
+        <span class="time">🕒 04-29 10:30</span>
+      </div>
+    </a>
+
+    <!-- Card 5: Service Operations -->
+    <a class="cat-card" href="/admin-service-ops.html" style="text-decoration:none;color:inherit;">
+      <div class="cat-row1">
+        <div>
+          <div class="label">CATEGORY 5</div>
+          <div class="name">🛠️ Service Operations</div>
+        </div>
+        <div class="score" style="color:var(--aurora-1);">74</div>
+      </div>
+      <div class="cat-bar"><div class="cat-bar-fill" style="width:74%;background:var(--aurora-1);"></div></div>
+      <div class="cat-meta">
+        <span class="auto">🤖 0</span>
+        <span class="staff">👥 0</span>
+        <span class="ceo">👤 0</span>
+        <span class="time">🕒 오늘 14:58</span>
+      </div>
+    </a>
+
+    <!-- Card 6: System Status (자기 자신) -->
+    <a class="cat-card warn" href="/admin-status.html" style="text-decoration:none;color:inherit;">
+      <div class="cat-row1">
+        <div>
+          <div class="label">CATEGORY 6 · 신규</div>
+          <div class="name">📊 System Status</div>
+        </div>
+        <div class="score" style="color:var(--blocked);" id="self-score">39</div>
+      </div>
+      <div class="cat-bar"><div class="cat-bar-fill" style="width:39%;background:var(--blocked);" id="self-bar"></div></div>
+      <div class="cat-meta">
+        <span style="color:var(--p1);">🚧 진행 중 (Phase 3-A)</span>
+        <span class="time">🕒 지금</span>
+      </div>
+    </a>
+  </section>
+
+  <!-- 결정 대기 박스 -->
+  <section class="ceo-wait-box">
+    <div class="ceo-wait-title">👤 대표님 결정 대기 4건 — 막혀있는 작업</div>
+    <div class="ceo-wait-list" id="ceo-wait-list">
+      <div class="ceo-wait-item">
+        <span class="pri-pill p0">🔴 P0 긴급</span>
+        <span class="text">BL-003 — Agoda 예약 검증 시스템</span>
+        <span class="reason">검증 정책/주기 결정 필요</span>
+      </div>
+      <div class="ceo-wait-item">
+        <span class="pri-pill p1">🟠 P1 중요</span>
+        <span class="text">BL-004 — 매니저 정보 변경 시스템 (3-Tier)</span>
+        <span class="reason">권한 등급 정의 필요</span>
+      </div>
+      <div class="ceo-wait-item">
+        <span class="pri-pill p1">🟠 P1 중요</span>
+        <span class="text">BL-005 — 호텔 담당자 교체 시스템</span>
+        <span class="reason">교체 절차/통보 정책 필요</span>
+      </div>
+      <div class="ceo-wait-item">
+        <span class="pri-pill p0">🔴 P0 긴급</span>
+        <span class="text">BL-AURORA-MIGRATION — 5페이지 디자인 시안</span>
+        <span class="reason">시안 검수 필요</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 시급 TOP 10 -->
+  <section class="top-box">
+    <div class="top-header">
+      <div class="section-label" style="margin:0;">⚠️ 시급 페이지 TOP 10 — 점수 낮은 순</div>
+      <div style="font-size:10px;color:var(--text-muted);">🤖 자동 · 👥 직원 · 👤 결정 · ⏸ 보류</div>
+    </div>
+    <div class="top-list" id="top-list">
+      <div class="top-row crit-1">
+        <span class="rank">1</span><span class="score s-low">0</span>
+        <div class="info"><div class="path">/admin-status.html</div><div class="hint">파일 없음 — 지금 만드는 중 (Phase 3-A)</div></div>
+        <span class="state-pill auto">🤖 자동</span>
+        <span class="when">🕒 진행 중</span>
+      </div>
+      <div class="top-row crit-2">
+        <span class="rank">2</span><span class="score s-mid">66</span>
+        <div class="info"><div class="path">/hotel-info.html</div><div class="hint">TODO 14건, 빈 태그 14건</div></div>
+        <span class="state-pill staff">👥 직원</span>
+        <span class="when">04-30 12:10</span>
+      </div>
+      <div class="top-row crit-2">
+        <span class="rank">3</span><span class="score s-mid">69</span>
+        <div class="info"><div class="path">/signup.html</div><div class="hint">함수 2 · fetch 0 · 핸들러 5</div></div>
+        <span class="state-pill auto">🤖 자동</span>
+        <span class="when">05-01 09:20</span>
+      </div>
+      <div class="top-row">
+        <span class="rank">4</span><span class="score s-high">70</span>
+        <div class="info"><div class="path">/admin-gallery.html</div><div class="hint">function: fetch 0 · 핸들러 1</div></div>
+        <span class="state-pill staff">👥 직원</span>
+        <span class="when">04-29 10:30</span>
+      </div>
+      <div class="top-row">
+        <span class="rank">5</span><span class="score s-high">73</span>
+        <div class="info"><div class="path">/reset-password.html</div><div class="hint">function: fetch 0 · 핸들러 3</div></div>
+        <span class="state-pill auto">🤖 자동</span>
+        <span class="when">05-01 11:40</span>
+      </div>
+      <div class="top-row">
+        <span class="rank">6</span><span class="score s-high">73</span>
+        <div class="info"><div class="path">/verify-email.html</div><div class="hint">함수 1 · 핸들러 1</div></div>
+        <span class="state-pill auto">🤖 자동</span>
+        <span class="when">05-01 11:55</span>
+      </div>
+      <div class="top-row">
+        <span class="rank">7</span><span class="score s-high">74</span>
+        <div class="info"><div class="path">/admin-service-ops.html</div><div class="hint">의도된 정적 안내 페이지</div></div>
+        <span class="state-pill hold">⏸ 보류</span>
+        <span class="when">오늘 14:58</span>
+      </div>
+      <div class="top-row">
+        <span class="rank">8</span><span class="score s-high">76</span>
+        <div class="info"><div class="path">/settings.html</div><div class="hint">함수 1 · fetch 1 · 핸들러 6</div></div>
+        <span class="state-pill staff">👥 직원</span>
+        <span class="when">05-01 13:20</span>
+      </div>
+      <div class="top-row">
+        <span class="rank">9</span><span class="score s-high">77</span>
+        <div class="info"><div class="path">/admin-hub.html</div><div class="hint">함수 4 · fetch 1 · 핸들러 0</div></div>
+        <span class="state-pill auto">🤖 자동</span>
+        <span class="when">오늘 14:58</span>
+      </div>
+      <div class="top-row">
+        <span class="rank">10</span><span class="score s-high">78</span>
+        <div class="info"><div class="path">/admin-tasks.html</div><div class="hint">TODO/준비중 5건</div></div>
+        <span class="state-pill auto">🤖 자동</span>
+        <span class="when">오늘 01:45</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 푸터 -->
+  <footer class="footer">
+    <div>📌 마지막 commit: <span class="commit" id="footer-commit">1e288de</span> · Vercel 배포: <span class="live">✅ Live</span> · 마지막 스캔: <span id="footer-scan">오늘 14:58 KST</span></div>
+    <div style="font-size:10px;">🛡️ 헌법 자가 검증 27/27 · D-011 박힘 · Phase 3-A 완료 (정적) · 다음: 3-B (동적 데이터)</div>
+  </footer>
+
+</div>
+
+<script>
+  // ============================================================
+  // Phase 3-A — 정적 데이터로 시작. Phase 3-B에서 fetch 연결.
+  // ============================================================
+  // 헌법 6조: 사람용 가독성 우선
+  // D-011: 3-State 권한 시스템
+  // 3-Layer 분리: summary.json (Claude용) + display.json (UI용) + full.json (분석용)
+  //   → Phase 3-B에서 admin-status가 display.json만 fetch
+  //   → 이 파일(admin-status.html)은 컨텍스트 가벼움 보장
+  // ============================================================
+
+  // i18n 토글 (Phase 3 마무리 또는 다음 주 일괄 i18n 작업에서 활성화)
+  document.getElementById('btn-i18n').addEventListener('click', () => {
+    alert('영·한 토글은 다음 주 i18n 일괄 작업(BL-I18N-BATCH)에서 활성화됩니다.\n메모리 #20 원칙 — 영어 본체 완성 후 단일 작업으로 처리.');
+  });
+
+  // 다시 측정 (Phase 3-B에서 fetch 연결)
+  document.getElementById('btn-rescan').addEventListener('click', () => {
+    alert('수동 재측정은 다음 단계(Phase 3-B)에서 활성화됩니다.\n현재는 GitHub Actions가 push마다 자동 측정 중.');
+  });
+
+  // 즉시 시작 버튼 (A+B 결합 — Phase 3-C에서 ops API 연결)
+  document.getElementById('btn-reserve').addEventListener('click', () => {
+    alert('▶ 예약 + 알림 동작은 Phase 3-C에서 활성화됩니다.\nA+B 결합:\n  ① tasks.json에 priority_boost 자동 박힘\n  ② 클립보드 복사 + ops 알림 발송\n  ③ 대표님이 채팅에 붙여넣기 한 번 = 시작');
+  });
+
+  // 카테고리 카드 클릭 (지금은 페이지 이동, Phase 3-B에서 펼침 모달 추가)
+  // 향후: cat-card에 expanded 클래스 토글하면 인라인 펼침으로 전환
+
+  // 데드라인 자동 계산 (헌법 데드라인)
+  const DEADLINE = '2026-05-03'; // 헌법 11조 — 정식 오픈 전까지
+  function updateDeadlineBanner() {
+    const dl = new Date(DEADLINE + 'T23:59:59+09:00');
+    const now = new Date();
+    const diffDays = Math.floor((now - dl) / 86400000);
+    const banner = document.getElementById('deadline-banner');
+    const title = document.getElementById('deadline-title');
+    if (diffDays > 0) {
+      title.textContent = `헌법 데드라인 D+${diffDays} — ${DEADLINE} 지났음`;
+      banner.classList.remove('hidden');
+    } else if (diffDays === 0) {
+      title.textContent = `헌법 데드라인 오늘 — ${DEADLINE}`;
+      banner.classList.remove('hidden');
+    } else {
+      banner.classList.add('hidden');
+    }
+  }
+  updateDeadlineBanner();
+
+  console.log('[admin-status] Phase 3-A loaded (정적 데이터). Phase 3-B에서 pages-status.display.json fetch 연결 예정.');
+</script>
+</body>
+</html>

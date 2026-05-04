@@ -33,6 +33,7 @@
 | D-011 | 3-State 권한 시스템 (🤖 자동 / 👥 직원 / 👤 대표님) + 영·한 체계 + admin-status 범위 | infra | 2026-05-04 | 확정 | BL-STATUS-DASH |
 | D-012 | 대용량 admin 페이지 3-Layer 분리 (Summary/Display/Full) + admin-tasks 대시보드 흡수 | infra | 2026-05-04 | 확정 | BL-STATUS-DASH, BL-PAGE-DEDUP |
 | D-013 | admin-hub.html 폐기 — 사이드바 = 라우팅 / admin-status = 통합 진입점 (클릭 단계 3→1) | infra | 2026-05-04 | 확정 | BL-HUB-RETIRE, D-010 매핑 표 카테고리 0 이관 |
+| D-014 | chat-logs 시스템 — 사람용+AI용 이중 형식 강제 (헌법 6조 본체) + 인증 게이트 | infra | 2026-05-04 | 확정 | BL-CHAT-LOG-SYSTEM Phase 1~3 |
 
 ---
 
@@ -53,6 +54,7 @@
 | D-011 | 2026-05-04 신규 | 대표님 병목 해제 — 단순 작업은 권한 직원이 트리거, 결정은 대표님 |
 | D-012 | 2026-05-04 신규 | 대용량 fetch 분리 + admin-tasks 흡수 |
 | D-013 | 2026-05-04 신규 | admin-hub 폐기 — 잉여 레이어 제거 (대표님 통찰 직접 반영) |
+| D-014 | 2026-05-04 신규 | 헌법 6조(사람용+AI용 이중) 본체 — chat-logs/ 풀 디테일 + 인증 게이트 + 활동 이력 ↔ chat-log 4중 연결 |
 
 ---
 
@@ -64,3 +66,4 @@
 | 2026-05-04 | D-010 D-011 등록 (3-State 권한 + admin-status 범위) |
 | 2026-05-04 | D-012 등록 (3-Layer 분리 + admin-tasks 흡수) |
 | 2026-05-04 | D-013 등록 (admin-hub.html 폐기 + D-010 카테고리 0 이관 개정) |
+| 2026-05-04 | D-014 등록 (chat-logs 시스템 — 사람용+AI용 이중 형식 강제 + 인증 게이트) |

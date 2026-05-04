@@ -6,6 +6,47 @@
 
 ---
 
+## 2026-05-04 — [BL-CHAT-LOG-SYSTEM Phase 1] chat-logs 시스템 인프라 + 백필 4개 (D-014)
+
+### 변경 사유
+대표님 핵심 합의 (헌법 6조 본체):
+> "내가 볼수 있는 화면과 너의 시스템 내용을 별도로 제공해서 시스템을 운영해야. 그래야 나도 그분을 찾아 볼수 있잖아. 너도 너가 읽을수 있게 정리해 놓은 코드를 잘 정리해야 쉽게 알수 있잖아. 이거는 너와 나의 합의점이라고 생각해. 서로가 알수 있는."
+
+→ 활동 이력에 commit 메시지 1줄만 남고 디테일이 사라지는 문제 해결. chat-logs 풀 디테일 한국어 + ECHO_LOG/DECISIONS 추출 + commit 메시지 3-Layer 구조.
+
+### Phase 1 변경 파일
+- `chat-logs/` 디렉토리 신설
+- `chat-logs/2026-05-04-bl-hub-retire.md` (백필 — admin-hub 폐기 작업)
+- `chat-logs/2026-05-04-ip-ctrl-001-autoqueue.md` (백필 — 자율 작업 큐 + 헌법 1조 자율판단 강제 박음)
+- `chat-logs/2026-05-04-ux-feedback-1.md` (백필 — 4가지 피드백, 채팅 인계 축소 솔직 기록)
+- `chat-logs/2026-05-04-chat-log-system.md` (이번 흐름 메타 기록)
+- `chat-logs/index.json` (자동 생성, 4개 항목 / commit 4 / task 5 매핑)
+- `api/chat-log.js` 신규 — 인증 게이트 API (x-admin-token 헤더 또는 gohotelwinners.com Referer 검증)
+- `vercel.json` — `/chat-logs/*` rewrite → `/api/chat-log` 라우팅 (직접 URL 노출 차단)
+- `scripts/build-chat-log-index.mjs` 신규 — frontmatter 읽어 commit hash → slug 매핑 인덱스 자동 생성
+- `tasks.json` — BL-JOURNEY-DOC done (v1 완료), BL-CHAT-LOG-SYSTEM 신규 등록 (P0/infrastructure/medium, in_progress)
+- `DECISIONS.md` — D-014 추가
+- `DECISIONS_INDEX.md` — D-014 등록 + 짝 매핑 + 변경 이력
+
+### 인증 게이트 작동 방식
+- chat-logs/*.md를 GitHub raw URL로 직접 접근 → 가능 (repo public)
+- gohotelwinners.com/chat-logs/*.md → vercel rewrite → /api/chat-log → 401 (토큰 + Referer 검증 실패 시)
+- admin-status.html에서 fetch → Referer가 gohotelwinners.com이라 200 응답
+- Vercel 환경변수 `ADMIN_VIEW_TOKEN` 추가 시 Claude도 토큰 헤더로 직접 fetch 가능
+
+### Phase 2/3 다음 채팅에 인계
+- **Phase 2**: 활동 이력 펼침 패널 (탭 3개 — 📖 사람용 / 🤖 AI용 / 🔧 코드 변경)
+- **Phase 3**: "진행 중" 화면 거짓말 수정 (status + updated_at 6시간 조건) + 채팅 인계 풀 컨텍스트 기능 admin-status 하단 박스로 부활 + 메모리에 "큰 작업 commit 직전 chat-log 박기 강제" 박음
+
+### 헌법 자가 검증 PASS
+- 1조 (대표님 결정만): 시스템 자율 실행 ✅
+- 4조 (전수 추적): chat-logs로 풀 디테일 영구 보존 ✅
+- 6조 (사람용+AI용 이중): 3-Layer (chat-logs / ECHO_LOG / commit) 명확 분리 ✅
+- 11조 (개발 단계 토큰 라이프사이클): 인증 게이트로 chat-logs 보호, 운영 진입 시 Supabase Auth로 전환 예정 ✅
+- 부칙 5 D-010 (단일 진실): chat-logs는 카테고리 2(Task & Status) 산하 풀 디테일 보조 ✅
+
+---
+
 ## 2026-05-04 — [UX-FEEDBACK-1] 대표님 4가지 피드백 자율 시스템화
 
 ### 변경 사유

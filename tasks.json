@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-04T14:28:25Z",
+  "updated_at": "2026-05-04T15:45:19Z",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -12,8 +12,8 @@
     "SOLO_WORK_QUEUE.md"
   ],
   "stats": {
-    "total": 63,
-    "done": 37,
+    "total": 64,
+    "done": 38,
     "in_progress": 1,
     "pending": 15,
     "blocked": 10,
@@ -303,13 +303,13 @@
       "id": "BL-JOURNEY-DOC",
       "title": "[JOURNEY.md 매니저 여정 정리] 비즈니스 독스 카테고리 강화",
       "category": "documentation",
-      "status": "in_progress",
+      "status": "done",
       "priority": "P1",
       "size": "small",
       "parent_task": null,
       "blocker": null,
       "created_at": "2026-05-03T00:00:00Z",
-      "completed_at": null,
+      "completed_at": "2026-05-04T15:45:19Z",
       "claude_can_auto": true,
       "autonomous": {
         "can_run_alone": true,
@@ -318,7 +318,7 @@
           "D-004"
         ]
       },
-      "progress": "v1 작성 완료 (5/3). 매니저 피드백 후 v2로 업데이트 예정.",
+      "progress": "v1 완료 (5/3, 137줄, commit 8759235). 매니저 실제 피드백 받은 후 별건 BL-JOURNEY-DOC-V2로 활성화 예정.",
       "tag": "헌법부칙5-비즈니스독스",
       "phase": "Charter-v2",
       "commit": null,
@@ -330,7 +330,8 @@
       "source_anchor": "## 부칙 5",
       "notes": "8단계 매니저 여정 (A 결제전 → B 결제직후 → C 대시보드 → D 서류 → E 6개월 종료).",
       "owner": "이지형 대표님 + Claude",
-      "approval_required": false
+      "approval_required": false,
+      "updated_at": "2026-05-04T15:45:19Z"
     },
     {
       "id": "BL-DECISIONS-INDEX",
@@ -2623,6 +2624,31 @@
       },
       "progress": "✅ 완료. (1) admin.html 사이드바 Tools 6→5. (2) vercel.json 301 리다이렉트 (admin-hub.html + /admin-hub). (3) admin-hub.html 폐기 안내 페이지 + meta refresh + JS replace 3중 안전망. (4) 헌법 부칙 5 / D-010 매핑 표 카테고리 0 admin-status로 이관. (5) DECISIONS.md D-012 + D-013 + DECISIONS_INDEX 동기화. (6) admin-status.html 5 카테고리 카드 재정렬, '허브로'→'Admin'. (7) admin-service-ops.html 'Back to Hub'→'Back to Admin'. (8) scripts/scan-pages-status.mjs sidebarMenus 5개 + categoryStats central-hub 제거 + retired 페이지 평균/카운트 제외. (9) scripts/charter-mapping-check.mjs Check 4 재정의 + Check 4-V 신설 (vercel redirect 검증). (10) scripts/pages-meta.mjs admin-hub status retired. (11) js/stats.js 주석 정정 (Category 0 admin-hub→admin-status). (12) pages-status.{json,display,summary} retired 마킹 + 평균 75→77 재계산.",
       "notes": "헌법 7조 (5초 안에 파악) 충족 — 클릭 단계 3→1 단순화. _backup_20260504/ 백업. live: gohotelwinners.com/admin-hub.html → 301 → admin-status.html.",
+      "links": []
+    },
+    {
+      "id": "BL-CHAT-LOG-SYSTEM",
+      "title": "[채팅 로그 시스템] 사람용+AI용 이중 형식 — 활동 이력 ↔ chat-logs ↔ ECHO_LOG ↔ commit 4중 연결",
+      "category": "infrastructure",
+      "status": "in_progress",
+      "priority": "P0",
+      "size": "medium",
+      "parent_task": null,
+      "blocker": null,
+      "created_at": "2026-05-04T15:45:19Z",
+      "updated_at": "2026-05-04T15:45:19Z",
+      "claude_can_auto": true,
+      "owner": "autonomous",
+      "approval_required": false,
+      "autonomous": {
+        "can_run_alone": true,
+        "estimated_hours": 3,
+        "requires_decisions_first": [
+          "D-014"
+        ]
+      },
+      "progress": "Phase 1 진행 중: chat-logs 디렉토리 + 인증 게이트 + 인덱스 스크립트 + 백필 4개. Phase 2: 활동 이력 펼침 패널. Phase 3: 거짓말 수정 + 인계 도구 부활 + 메모리 강제.",
+      "notes": "헌법 6조 사람용+AI용 이중 형식 충족. D-010 단일 진실 + 인증 게이트 (vercel rewrites + /api/chat-log).",
       "links": []
     }
   ]

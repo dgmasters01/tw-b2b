@@ -164,6 +164,48 @@
 
 ---
 
+### 결정 D-014: chat-logs 시스템 — 사람용+AI용 이중 형식 강제 (헌법 6조 본체) ⭐⭐⭐ 2026-05-04
+**무엇을**: 모든 큰 단위 작업은 commit 직전에 `chat-logs/{slug}.md`에 풀 디테일 한국어 기록을 남긴다. 활동 이력 화면에서 commit 클릭 → chat-log fetch → 펼침 패널로 표시.
+
+**왜** (대표님 발언):
+> "내가 계속 강조하는거는 내가 볼수 있는 화면과 너의 시스템 내용을 별도로 제공해서 시스템을 운영해야. 그래야 나도 그분을 찾아 볼수 있잖아. 무슨내용으로 했는지 내가 일어봐야 알수 있잖아. 너도 너가 읽을수 있게 정리해 놓은 코드를 잘 정리해야 쉽게 알수 있잖아. 이거는 너와 나의 합의점이라고 생각해. 서로가 알수 있는."
+
+**핵심 통찰** (대표님):
+> "사라지면 다시 기존에 이야기는 디테일하게 알수가 없겠네"
+→ 채팅이 끝나면 디테일 사라짐 = "결과만 남고 과정 사라짐" = 헌법 4조(전수 추적) 위반.
+
+**3-Layer 구조** (D-010 단일 진실 + 헌법 6조 이중 형식):
+
+| Layer | 파일 | 역할 | 누가 박나 |
+|---|---|---|---|
+| L1 채팅 로그 | `chat-logs/{YYYY-MM-DD-slug}.md` | 대표님 발언 원문 + Claude 자율 판단 근거 + 막힌 지점 + 검증 (한국어 풀어쓰기) | Claude, 큰 단계 commit 직전 |
+| L2 ECHO_LOG | `ECHO_LOG.md` | 결정/통찰/정책 변경 추출 | Claude (기존) |
+| L3 commit 메시지 | `git log` | 변경 사유 + 검증 결과 | Claude (기존) |
+
+**연결 키**: commit hash. 한 commit이 활동 이력 한 줄 = chat-log 한 파일 = ECHO_LOG 한 항목 = DECISIONS 한 항목 (있을 때만) = CHANGELOG 한 항목.
+
+**인증 게이트** (헌법 11조 "운영 진입 후 토큰 비움" 보강):
+- chat-logs는 GitHub repo에 두되 직접 URL 접근 차단
+- vercel.json `rewrites`로 `/chat-logs/*` → `/api/chat-log` API 함수 라우팅
+- API에서 토큰 검증(`x-admin-token` = `ADMIN_VIEW_TOKEN` env) 또는 Referer가 gohotelwinners.com인 경우만 200 응답
+- 장기: admin-* 전체 Supabase Auth 게이트는 별건 BL로 등록
+
+**활동 이력 화면 보강** (Phase 2):
+- activity-row 클릭 → 펼침 패널 (탭 3개)
+- 📖 사람용 = chat-logs/{commit_hash}.md fetch
+- 🤖 AI용 = ECHO_LOG / DECISIONS 발췌
+- 🔧 코드 변경 = commit diff 요약
+
+**자동화 의무**:
+- Claude는 큰 단위 작업 commit 직전 무조건 chat-log 박기 (메모리에 강제 박음, Phase 3에서 진행)
+- `scripts/build-chat-log-index.mjs` — frontmatter 읽어 `chat-logs/index.json` 자동 생성
+- 인덱스에 `byCommit` / `byTask` 매핑 → 활동 이력 화면이 commit hash로 조회
+
+**연관 작업**: BL-CHAT-LOG-SYSTEM (Phase 1: 이번 작업)
+**누가**: 이지형 대표님 핵심 합의 ("서로가 알수 있는" 시스템) + Claude 자율 실행
+
+---
+
 ## 🆕 2026-04-29 — 비즈니스 흐름 전면 정리
 
 ### 결정 1-C: 매니저 정보 변경 정책 (Tier 차등) ⭐ 2026-04-29 추가

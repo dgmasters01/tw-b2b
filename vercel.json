@@ -21,5 +21,15 @@
       "destination": "/admin-status.html",
       "permanent": true
     }
+  ],
+  "rewrites": [
+    {
+      "source": "/chat-logs/index.json",
+      "destination": "/api/chat-log?slug=index"
+    },
+    {
+      "source": "/chat-logs/:slug.md",
+      "destination": "/api/chat-log?slug=:slug"
+    }
   ]
 }

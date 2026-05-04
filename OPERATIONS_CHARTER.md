@@ -41,11 +41,11 @@
   각자 책임 분리, 자동 동기화, 서로 참조.
   **한 파일에 통합하는 게 아니라, 4개가 동기화되는 것이 진짜 통합.**
 
-  **카테고리별 단일 진실 파일 매핑 (D-010, 2026-05-03 표준):**
+  **카테고리별 단일 진실 파일 매핑 (D-010, 2026-05-03 표준 / 2026-05-04 D-013 개정):**
 
   | # | 카테고리 | 진입 URL | 단일 진실 파일 |
   |:--:|---|---|---|
-  | 0 | **중앙 허브** | `/admin-hub.html` | (라우팅만, 데이터 없음) |
+  | 0 | **통합 진입점 (System Status)** | `/admin-status.html` | pages-status.json / pages-status.summary.json / pages-status.display.json / scripts/scan-pages-status.mjs |
   | 1 | Business Docs | `/admin-business.html` | BUSINESS.md / DECISIONS.md / DECISIONS_INDEX.md / JOURNEY.md / BUSINESS_FLOW.md |
   | 2 | Task & Status | `/admin-tasks.html` | tasks.json / BACKLOG.md / CHANGELOG.md / SOLO_WORK_QUEUE.md / ECHO_LOG.md |
   | 3 | Page Gallery | `/admin-gallery.html` | scripts/pages-meta.mjs / docs/screenshots/ / _backup_YYYYMMDD/ |
@@ -54,9 +54,14 @@
   **이 매핑의 강제 규칙:**
   - 한 파일은 한 카테고리에만 귀속된다 (중복 금지).
   - 신설된 .md/.json은 반드시 위 표에 추가된다 (누락 금지).
-  - admin-hub.html은 통계 표시를 하지 않는다 (4 카테고리 카드만).
+  - admin-status.html은 5 카테고리 카드 + 시스템 완성도 점수 + 임박 작업/활동 이력을 통합 표시한다 (자기 자신 = Card 5).
   - 통계 계산은 `/js/stats.js` 단일 모듈만 담당한다.
-  - **중앙 허브(`/admin-hub.html`)는 4 카테고리의 통합 진입점이며, 모든 신규 진입은 여기를 거친다.**
+  - **통합 진입점(`/admin-status.html`)은 5 카테고리의 진입점이며, 모든 신규 진입은 여기를 거친다.**
+  - `/admin-hub.html` 은 폐기됨 (BL-HUB-RETIRE / D-013, 2026-05-04). vercel.json 301 리다이렉트로 admin-status.html로 이관.
+
+  **개정 이력:**
+  - 2026-05-03 D-010: 4 카테고리 + admin-hub.html 진입점으로 신설.
+  - 2026-05-04 D-013 (BL-HUB-RETIRE): admin-hub.html 폐기, 카테고리 0을 admin-status로 이관. 사이드바 = 라우팅 / admin-status = 통합 대시보드. 클릭 단계 3→1 단순화 (헌법 7조 충족).
 
 - **부칙 6 — 개발 전략 "UX/UI 통일 우선, 콘텐츠 디테일 나중" (2026-05-03 신설):**
   - **UX/UI**: 디자인 시스템(Aurora Trendy)을 모든 페이지에 동일 적용 — **사업 시작 전 완료 의무**

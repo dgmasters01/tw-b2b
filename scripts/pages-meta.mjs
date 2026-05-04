@@ -146,13 +146,13 @@ export const PAGES = [
   // ─── BACKLOG: 만들 예정인 페이지 ─────────────────────────────────────────
   {
     path: '/admin-hub.html',
-    name: '중앙 관리 진입점 (Central Hub)',
-    purpose: '4 카테고리 통합 진입점. 사이드바 #1. 헌법 부칙 5 본체.',
+    name: '중앙 관리 진입점 (폐기)',
+    purpose: '2026-05-04 BL-HUB-RETIRE / D-013 폐기 — admin-status.html로 301 리다이렉트.',
     audience: 'admin',
-    capture: true,
-    status: 'live',
-    visibleWhen: '관리자 로그인 후 첫 화면',
-    notes: '2026-05-04 신설 — BL-CENTRAL-HUB / BL-CATEGORY-REMAP 완료',
+    capture: false,
+    status: 'retired',
+    visibleWhen: '폐기됨 (사이드바 메뉴에서 제거)',
+    notes: '2026-05-04 폐기 — 사이드바가 라우팅 역할 처리, 별도 허브 잉여(D-013). vercel.json 301 리다이렉트.',
   },
   {
     path: '/admin-tasks.html',
@@ -227,7 +227,7 @@ export const AUDIENCE_BADGES = {
 export const PAGE_TASK_META = {
   "admin-business.html": { lastTaskId: "BL-CATEGORY-REMAP", lastTaskTitle: "[카테고리 리매핑] 헌법 부칙 5 D-010 매핑 표를 코드에 반영 (6단계)", lastUpdated: "2026-05-03", taskCount: 2 },
   "admin-gallery.html": { lastTaskId: "CHG-4", lastTaskTitle: "Business Docs 사이드바 강화 + Page Gallery iframe 한계 안내", lastUpdated: "2026-04-29", taskCount: 2 },
-  "admin-hub.html": { lastTaskId: "BL-CENTRAL-HUB", lastTaskTitle: "[중앙관리시스템] 4 카테고리 통합 진입점 + Service Ops 신설 (헌법 부칙 5 본체)", lastUpdated: "2026-05-04", taskCount: 2 },
+  "admin-hub.html": { lastTaskId: "BL-HUB-RETIRE", lastTaskTitle: "[admin-hub 폐기] 사이드바 = 라우팅 / admin-status = 통합 진입점 (D-013)", lastUpdated: "2026-05-04", taskCount: 3, retired: true },
   "admin-service-ops.html": { lastTaskId: "BL-CENTRAL-HUB", lastTaskTitle: "[중앙관리시스템] 4 카테고리 통합 진입점 + Service Ops 신설 (헌법 부칙 5 본체)", lastUpdated: "2026-05-04", taskCount: 1 },
   "admin-tasks.html": { lastTaskId: "BL-CATEGORY-REMAP", lastTaskTitle: "[카테고리 리매핑] 헌법 부칙 5 D-010 매핑 표를 코드에 반영 (6단계)", lastUpdated: "2026-05-03", taskCount: 1 },
   "admin.html": { lastTaskId: "BL-CENTRAL-HUB", lastTaskTitle: "[중앙관리시스템] 4 카테고리 통합 진입점 + Service Ops 신설 (헌법 부칙 5 본체)", lastUpdated: "2026-05-04", taskCount: 17 },

@@ -116,6 +116,54 @@
 
 ---
 
+### 결정 D-012: 대용량 admin 페이지 3-Layer 분리 + admin-tasks 대시보드 흡수 ⭐ 2026-05-04
+**무엇을**: admin-status.html이 대용량(>100KB) 데이터를 직접 fetch하지 않고 3-Layer로 분리한다. 그리고 admin-tasks의 KPI/임박작업 대시보드는 admin-status로 흡수한다 ("하나에서 전체 관리").
+
+**3-Layer 분리 (D-012)**:
+| Layer | 파일 | 역할 |
+|---|---|---|
+| Summary | `pages-status.summary.json` | 카드용 요약 (점수/카테고리별 평균/사이드바 점수) |
+| Display | `pages-status.display.json` | UI 표시용 (사이드바 메뉴, 카테고리 통계, top10 페이지) |
+| Full | `pages-status.json` | 전체 raw 데이터 (scan-bot 출력) |
+
+**왜**:
+- 대용량 fetch는 페이지 로딩 지연
+- 3-Layer로 분리 시 Summary는 5KB 이하 → 첫 화면 즉시 렌더
+- Display는 고정 키 구조 → UI 코드 안정
+- Full은 raw 보기 / 디버그용
+
+**admin-tasks 흡수 사유**:
+> 대표님: "사이드바에서 작업 관리 들어가면 admin-tasks가 임박/카테고리/완료율 또 보여줘. admin-status랑 똑같이 안 되고? 하나에서 전체 보면 되잖아."
+
+→ admin-tasks는 작업 모달/CRUD 전용, KPI 대시보드는 admin-status에 흡수.
+
+**연관 작업**: BL-STATUS-DASH (Phase 3-B 동적 fetch 구현 완료), BL-PAGE-DEDUP (admin-tasks 대시보드 제거 완료)
+
+---
+
+### 결정 D-013: admin-hub.html 폐기 — 사이드바 = 라우팅 / admin-status = 통합 진입점 ⭐⭐ 2026-05-04
+**무엇을**: admin-hub.html을 폐기하고 admin-status.html을 5 카테고리 통합 진입점으로 승격한다. 사이드바가 라우팅을 담당하므로 별도 허브 페이지가 잉여(redundant).
+
+**왜** (대표님 발언):
+> "사이드바 메뉴 6개에 admin-hub 안에도 4 카테고리 카드 또 있으면 중복이잖아. 필요 없는 거 같애."
+
+**핵심 통찰**: 사이드바가 이미 카테고리 라우팅 역할을 완벽히 처리하고 있는데, admin-hub가 똑같은 카드를 한 번 더 보여주는 건 클릭 단계만 늘리는 잉여 레이어. 헌법 7조 ("5초 안에 파악") 위배.
+
+**조치**:
+1. admin.html 사이드바 — Central Hub 메뉴 제거, System Status를 보라 그라디언트 강조 항목으로 승격 (Tools 6→5).
+2. vercel.json — `/admin-hub.html` + `/admin-hub` 둘 다 admin-status.html로 301 영구 리다이렉트.
+3. admin-hub.html — 폐기 안내 페이지로 교체 (meta refresh + JS replace + 사용자 안내 3중 안전망).
+4. 헌법 부칙 5 / D-010 매핑 표 — 카테고리 0(중앙 허브)을 admin-status로 이관, 강제 규칙 갱신.
+5. admin-status.html — 6 카테고리 카드 → 5 카테고리 카드 재정렬 (Card 1 Central Hub 제거 + Card 2~6 → 1~5).
+6. admin-status.html / admin-service-ops.html — '허브로' / 'Back to Hub' 버튼 → 'Admin' / 'Back to Admin'으로 변경.
+
+**효과**: 클릭 단계 3단계(사이드바 → admin-hub → 카테고리) → 1단계(사이드바 → 카테고리) 단순화.
+
+**연관 작업**: BL-HUB-RETIRE (이번 작업), BL-PAGE-DEDUP (선행 작업)
+**누가**: 이지형 대표님 통찰 + Claude 자율 실행
+
+---
+
 ## 🆕 2026-04-29 — 비즈니스 흐름 전면 정리
 
 ### 결정 1-C: 매니저 정보 변경 정책 (Tier 차등) ⭐ 2026-04-29 추가

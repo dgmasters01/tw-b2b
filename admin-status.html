@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="description" content="개발 시스템 완성도 한눈에 보기 — 사업 KPI 별도 페이지">
 <style>
-  /* Aurora 다크 톤 (admin-hub.html과 100% 일관성) */
+  /* Aurora 다크 톤 (BL-HUB-RETIRE 후 admin-status가 통합 진입점 역할) */
   :root {
     --bg: #0f172a;
     --panel: #1e293b;
@@ -329,7 +329,7 @@
       <span class="role-tag" id="role-tag">현재: 👤 CEO</span>
       <button id="btn-i18n" title="언어 토글 — 다음 주 i18n 일괄 적용 예정">🌐 EN/KO</button>
       <button id="btn-rescan" title="다시 측정 — 수동 트리거">🔄 다시 측정</button>
-      <a href="/admin-hub.html" style="text-decoration:none;"><button>← 허브로</button></a>
+      <a href="/admin.html" style="text-decoration:none;"><button>← Admin</button></a>
     </div>
   </header>
 
@@ -397,32 +397,14 @@
     </div>
   </section>
 
-  <!-- 6 카테고리 카드 -->
-  <div class="section-label">사이드바 6개 메뉴 · 카드 클릭 → 상세 펼침 (다음 단계 구현)</div>
+  <!-- 5 카테고리 카드 (BL-HUB-RETIRE: Central Hub 카드 제거 — admin-status가 통합 진입점) -->
+  <div class="section-label">사이드바 5개 메뉴 · 카드 클릭 → 상세 펼침 (다음 단계 구현)</div>
   <section class="cat-grid" id="cat-grid">
-    <!-- Card 1: Central Hub -->
-    <a class="cat-card" href="/admin-hub.html" style="text-decoration:none;color:inherit;">
-      <div class="cat-row1">
-        <div>
-          <div class="label">CATEGORY 1</div>
-          <div class="name">🎯 Central Hub</div>
-        </div>
-        <div class="score" style="color:var(--aurora-1);">77</div>
-      </div>
-      <div class="cat-bar"><div class="cat-bar-fill" style="width:77%;background:var(--aurora-1);"></div></div>
-      <div class="cat-meta">
-        <span class="auto">🤖 2</span>
-        <span class="staff">👥 0</span>
-        <span class="ceo">👤 0</span>
-        <span class="time">🕒 오늘 14:58</span>
-      </div>
-    </a>
-
-    <!-- Card 2: Task Management -->
+    <!-- Card 1: Task Management -->
     <a class="cat-card" href="/admin-tasks.html" style="text-decoration:none;color:inherit;">
       <div class="cat-row1">
         <div>
-          <div class="label">CATEGORY 2</div>
+          <div class="label">CATEGORY 1</div>
           <div class="name">📋 Task Management</div>
         </div>
         <div class="score" style="color:var(--aurora-2);">78</div>
@@ -436,11 +418,11 @@
       </div>
     </a>
 
-    <!-- Card 3: Business Docs -->
+    <!-- Card 2: Business Docs -->
     <a class="cat-card" href="/admin-business.html" style="text-decoration:none;color:inherit;">
       <div class="cat-row1">
         <div>
-          <div class="label">CATEGORY 3</div>
+          <div class="label">CATEGORY 2</div>
           <div class="name">📚 Business Docs</div>
         </div>
         <div class="score" style="color:var(--aurora-3);">82</div>
@@ -454,11 +436,11 @@
       </div>
     </a>
 
-    <!-- Card 4: Page Gallery -->
+    <!-- Card 3: Page Gallery -->
     <a class="cat-card" href="/admin-gallery.html" style="text-decoration:none;color:inherit;">
       <div class="cat-row1">
         <div>
-          <div class="label">CATEGORY 4</div>
+          <div class="label">CATEGORY 3</div>
           <div class="name">📸 Page Gallery</div>
         </div>
         <div class="score" style="color:var(--aurora-2);">70</div>
@@ -472,11 +454,11 @@
       </div>
     </a>
 
-    <!-- Card 5: Service Operations -->
+    <!-- Card 4: Service Operations -->
     <a class="cat-card" href="/admin-service-ops.html" style="text-decoration:none;color:inherit;">
       <div class="cat-row1">
         <div>
-          <div class="label">CATEGORY 5</div>
+          <div class="label">CATEGORY 4</div>
           <div class="name">🛠️ Service Operations</div>
         </div>
         <div class="score" style="color:var(--aurora-1);">74</div>
@@ -490,11 +472,11 @@
       </div>
     </a>
 
-    <!-- Card 6: System Status (자기 자신) -->
+    <!-- Card 5: System Status (자기 자신) -->
     <a class="cat-card warn" href="/admin-status.html" style="text-decoration:none;color:inherit;">
       <div class="cat-row1">
         <div>
-          <div class="label">CATEGORY 6 · 신규</div>
+          <div class="label">CATEGORY 5 · 신규</div>
           <div class="name">📊 System Status</div>
         </div>
         <div class="score" style="color:var(--blocked);" id="self-score">39</div>
@@ -621,11 +603,11 @@
         <span class="state-pill staff">👥 직원</span>
         <span class="when">05-01 13:20</span>
       </div>
-      <div class="top-row">
-        <span class="rank">9</span><span class="score s-high">77</span>
-        <div class="info"><div class="path">/admin-hub.html</div><div class="hint">함수 4 · fetch 1 · 핸들러 0</div></div>
-        <span class="state-pill auto">🤖 자동</span>
-        <span class="when">오늘 14:58</span>
+      <div class="top-row" style="opacity:.5;">
+        <span class="rank">9</span><span class="score" style="color:var(--text-muted);">—</span>
+        <div class="info"><div class="path" style="text-decoration:line-through;">/admin-hub.html</div><div class="hint">2026-05-04 폐기 → admin-status.html 통합 (D-013)</div></div>
+        <span class="state-pill" style="background:rgba(148,163,184,.15);color:#94a3b8;">🚪 retired</span>
+        <span class="when">오늘 폐기</span>
       </div>
       <div class="top-row">
         <span class="rank">10</span><span class="score s-high">78</span>

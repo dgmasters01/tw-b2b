@@ -203,9 +203,8 @@ function main() {
     );
   }
 
-  // 카테고리별 집계 (사이드바 6개 메뉴 매핑)
+  // 카테고리별 집계 (사이드바 5개 메뉴 매핑 — BL-HUB-RETIRE 후 admin-hub 폐기, admin-status가 통합 진입점)
   const byCategory = {
-    'central-hub':       results.filter(r => r.path === '/admin-hub.html'),
     'task-management':   results.filter(r => r.path === '/admin-tasks.html'),
     'business-docs':     results.filter(r => r.path === '/admin-business.html'),
     'page-gallery':      results.filter(r => r.path === '/admin-gallery.html'),
@@ -259,14 +258,13 @@ function main() {
     totalAvgScore: totalAvg,
     counts,
     categoryStats,
-    // 6개 사이드바 메뉴별 카드 표시용 데이터 (펼침 모달 포함)
+    // 5개 사이드바 메뉴별 카드 표시용 데이터 (BL-HUB-RETIRE: admin-hub 폐기, System Status가 통합 진입점)
     sidebarMenus: [
-      { key: 'central-hub',        label: '🎯 Central Hub',        url: '/admin-hub.html',          path: '/admin-hub.html' },
+      { key: 'system-status',      label: '📊 System Status',      url: '/admin-status.html',       path: '/admin-status.html' },
       { key: 'task-management',    label: '📋 Task Management',    url: '/admin-tasks.html',        path: '/admin-tasks.html' },
       { key: 'business-docs',      label: '📚 Business Docs',      url: '/admin-business.html',     path: '/admin-business.html' },
       { key: 'page-gallery',       label: '📸 Page Gallery',       url: '/admin-gallery.html',      path: '/admin-gallery.html' },
       { key: 'service-operations', label: '🛠️ Service Operations', url: '/admin-service-ops.html',  path: '/admin-service-ops.html' },
-      { key: 'system-status',      label: '📊 System Status',      url: '/admin-status.html',       path: '/admin-status.html' },
     ].map(m => {
       const r = results.find(x => x.path === m.path);
       return {

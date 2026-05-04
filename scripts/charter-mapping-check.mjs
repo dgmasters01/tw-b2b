@@ -12,7 +12,8 @@
 //      (특히 BACKLOG.md는 chip/링크/DOCS 배열에 없어야 함 — 주석은 허용)
 //   3. admin-tasks.html 안에 Category 2의 5개 파일이 모두 칩으로 노출되는가
 //      (tasks.json / BACKLOG / CHANGELOG / SOLO_WORK_QUEUE / ECHO_LOG)
-//   4. admin-hub.html 안에 통계 카드(quick-stats, cat-stats div)가 없는가
+//   4. admin-hub.html 폐기 검증 (BL-HUB-RETIRE / D-013) — meta refresh + 활성 UI 잔존 안 함
+//   4-V. vercel.json — /admin-hub.html + /admin-hub 둘 다 301 리다이렉트 등록됨
 //   5. js/stats.js가 존재하고 computeTasksStats를 export하는가
 //   6. tasks.json이 유효 JSON이고 BL-CATEGORY-REMAP이 status=in_progress 또는 done인가
 //
@@ -89,21 +90,45 @@ if (tasksHtml === null) {
 }
 
 // ────────────────────────────────────────────────────────────
-// Check 4 — admin-hub.html: 통계 카드 제거됨
+// Check 4 — admin-hub.html: 폐기 검증 (BL-HUB-RETIRE / D-013, 2026-05-04)
+//   파일은 존재해야 하지만 (vercel 리다이렉트 폴백용) 폐기 안내 페이지로 교체되어야 함.
+//   - meta refresh 또는 JS replace 둘 중 하나는 필수
+//   - 카테고리 카드/통계 카드/사이드바 메뉴 등 활성 UI는 모두 제거되어야 함
 // ────────────────────────────────────────────────────────────
 const hubHtml = readIfExists('admin-hub.html');
 if (hubHtml === null) {
-  check('4. admin-hub.html 존재', false, '파일 없음');
+  check('4. admin-hub.html 존재 (폐기 안내 폴백용)', false, '파일 없음 — 리다이렉트 폴백을 위해 안내 페이지로 유지 필요');
 } else {
-  check('4. admin-hub.html 존재', true);
-  const hasQuickStats = /id="quickStats"/.test(hubHtml);
-  check('4.1 quick-stats div 제거', !hasQuickStats);
-  const hasCatStats = /<div\s+class="cat-stats"/.test(hubHtml);
-  check('4.2 cat-stats div 제거', !hasCatStats);
-  const hasCatFiles = (hubHtml.match(/<div\s+class="cat-files"/g) || []).length;
-  check('4.3 cat-files 카드 4개 유지', hasCatFiles === 4, `현재 ${hasCatFiles}개`);
-  const importsStatsJs = /from\s+['"]\/js\/stats\.js/.test(hubHtml);
-  check('4.4 /js/stats.js import', importsStatsJs);
+  check('4. admin-hub.html 존재 (폐기 안내 폴백용)', true);
+  const isRetiredMeta = /http-equiv=["']refresh["'][^>]*url=\/admin-status\.html/i.test(hubHtml);
+  const isRetiredJs   = /window\.location\.replace\(["']\/admin-status\.html["']\)/.test(hubHtml);
+  check('4.1 폐기 페이지 — meta refresh OR JS replace 존재', isRetiredMeta || isRetiredJs);
+  const hasQuickStats = /id=["']quickStats["']/.test(hubHtml);
+  check('4.2 quick-stats 통계 div 미잔존', !hasQuickStats);
+  const hasCatFilesActive = (hubHtml.match(/<div\s+class=["']cat-files["']/g) || []).length;
+  check('4.3 cat-files 활성 카드 0개 (폐기 페이지는 안내 카드만)', hasCatFilesActive === 0, `현재 ${hasCatFilesActive}개`);
+  const hasSidebar = /class=["']ad-sb-/.test(hubHtml);
+  check('4.4 admin 사이드바 잔존 안 함', !hasSidebar);
+}
+
+// ────────────────────────────────────────────────────────────
+// Check 4-V — vercel.json: admin-hub 301 리다이렉트 등록됨 (BL-HUB-RETIRE)
+// ────────────────────────────────────────────────────────────
+const vercelJsonRaw = readIfExists('vercel.json');
+if (vercelJsonRaw === null) {
+  check('4-V. vercel.json 존재', false);
+} else {
+  try {
+    const vercel = JSON.parse(vercelJsonRaw);
+    check('4-V. vercel.json 유효 JSON', true);
+    const redirects = vercel.redirects || [];
+    const hasHubHtml = redirects.some(r => r.source === '/admin-hub.html' && r.destination === '/admin-status.html' && r.permanent === true);
+    const hasHubBare = redirects.some(r => r.source === '/admin-hub' && r.destination === '/admin-status.html' && r.permanent === true);
+    check('4-V.1 /admin-hub.html → /admin-status.html 301', hasHubHtml);
+    check('4-V.2 /admin-hub → /admin-status.html 301', hasHubBare);
+  } catch (e) {
+    check('4-V. vercel.json 유효 JSON', false, e.message);
+  }
 }
 
 // ────────────────────────────────────────────────────────────

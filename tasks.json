@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-04T07:37:17Z",
+  "updated_at": "2026-05-04T09:14:09Z",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -12,8 +12,8 @@
     "SOLO_WORK_QUEUE.md"
   ],
   "stats": {
-    "total": 62,
-    "done": 35,
+    "total": 63,
+    "done": 36,
     "in_progress": 2,
     "pending": 15,
     "blocked": 10,
@@ -2596,6 +2596,32 @@
       },
       "progress": "✅ A/B/C/D 모두 완료. (A) admin-status에 임박 작업+카테고리 진행률+KPI 4종 통합 흡수, tasks.json 직접 fetch, 카드 클릭 → /admin-tasks.html?id=<ID> 모달 자동 오픈. (B) admin-tasks 대시보드 탭 통째 제거 + 상단 통합 CTA 바 + ?id= 쿼리 진입 시 openModal 자동 호출. (C) admin-hub P0 배너/헌법 빠른 참조/최근 활동 통째 제거 → 4 카테고리 카드 + admin-status CTA + 푸터 헌법 링크 1줄. 모든 자가검증 PASS (콘솔 에러 0건, 모달 진입 OK).",
       "notes": "헌법 1조: 시스템이 모든 실행. 헌법 6조: 사람용+AI용 이중 형식 유지. D-010 단일 진실 매핑 유지 (admin-tasks가 Category 2 단일 진실). _backup_20260504/ 백업 완료. live: gohotelwinners.com/admin-status.html, admin-hub.html, admin-tasks.html — Vercel 배포 후 확인.",
+      "links": []
+    },
+    {
+      "id": "BL-HUB-RETIRE",
+      "title": "[admin-hub 폐기] 사이드바 = 라우팅 / admin-status = 통합 진입점 — 클릭 단계 단순화 (D-013)",
+      "category": "infrastructure",
+      "status": "done",
+      "priority": "P0",
+      "size": "small",
+      "parent_task": "BL-PAGE-DEDUP",
+      "blocker": null,
+      "created_at": "2026-05-04T09:14:09Z",
+      "completed_at": "2026-05-04T09:14:09Z",
+      "updated_at": "2026-05-04T09:14:09Z",
+      "claude_can_auto": true,
+      "owner": "autonomous",
+      "approval_required": false,
+      "autonomous": {
+        "can_run_alone": true,
+        "estimated_hours": 1,
+        "requires_decisions_first": [
+          "D-013"
+        ]
+      },
+      "progress": "✅ 완료. (1) admin.html 사이드바 Tools 6→5. (2) vercel.json 301 리다이렉트 (admin-hub.html + /admin-hub). (3) admin-hub.html 폐기 안내 페이지 + meta refresh + JS replace 3중 안전망. (4) 헌법 부칙 5 / D-010 매핑 표 카테고리 0 admin-status로 이관. (5) DECISIONS.md D-012 + D-013 + DECISIONS_INDEX 동기화. (6) admin-status.html 5 카테고리 카드 재정렬, '허브로'→'Admin'. (7) admin-service-ops.html 'Back to Hub'→'Back to Admin'. (8) scripts/scan-pages-status.mjs sidebarMenus 5개 + categoryStats central-hub 제거 + retired 페이지 평균/카운트 제외. (9) scripts/charter-mapping-check.mjs Check 4 재정의 + Check 4-V 신설 (vercel redirect 검증). (10) scripts/pages-meta.mjs admin-hub status retired. (11) js/stats.js 주석 정정 (Category 0 admin-hub→admin-status). (12) pages-status.{json,display,summary} retired 마킹 + 평균 75→77 재계산.",
+      "notes": "헌법 7조 (5초 안에 파악) 충족 — 클릭 단계 3→1 단순화. _backup_20260504/ 백업. live: gohotelwinners.com/admin-hub.html → 301 → admin-status.html.",
       "links": []
     }
   ]

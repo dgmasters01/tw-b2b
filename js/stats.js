@@ -2,12 +2,13 @@
 // /js/stats.js — TW B2B Task Statistics (Single Source Module)
 // ============================================================
 //
-// 헌법 부칙 5 / D-010 — 카테고리별 단일 진실 매핑
+// 헌법 부칙 5 / D-010 (2026-05-04 D-013으로 개정) — 카테고리별 단일 진실 매핑
 // ECHO_LOG 2026-05-03 [DECISION] stats.js 단일 통계 모듈 신설
+// ECHO_LOG 2026-05-04 [BL-HUB-RETIRE] Category 0 진입점 admin-hub → admin-status로 이관
 //
 // 목적:
 //   - tasks.json의 통계를 단일 함수가 단일 답을 반환하도록 통합.
-//   - admin-hub.html (Category 0 — 라우팅) 과
+//   - admin-status.html (Category 0 — 통합 진입점, 5 카테고리 카드 + 시스템 완성도) 과
 //     admin-tasks.html (Category 2 — Task & Status 단일 진실)
 //     양쪽이 같은 모듈을 import하여 동기화 깨짐 방지.
 //

@@ -6,6 +6,42 @@
 
 ---
 
+## 2026-05-04 — [BL-HUB-RETIRE] admin-hub 폐기 — 사이드바 = 라우팅 / admin-status = 통합 진입점 (D-013)
+
+### 변경 사유
+대표님 통찰: **"사이드바 메뉴 6개에 admin-hub 안에도 4 카테고리 카드 또 있으면 중복이잖아. 필요 없는 거 같애."**
+→ 사이드바가 이미 라우팅 역할 완벽 처리 → admin-hub 자체가 잉여 레이어. 클릭 단계 3단계 → 1단계로 단순화 (헌법 7조 충족).
+
+### 변경 파일 (12개 / 11 commit + 1 후처리)
+- `admin.html` — 사이드바 Tools: Central Hub 메뉴 제거, System Status 보라 그라디언트 강조 승격 (Tools 6→5)
+- `vercel.json` — `/admin-hub.html` + `/admin-hub` 둘 다 `/admin-status.html`로 301 영구 리다이렉트
+- `admin-hub.html` — 폐기 안내 페이지로 교체 (196줄 → 59줄, meta refresh + JS replace + 사용자 안내 3중 안전망)
+- `admin-status.html` — 6 카테고리 카드 → 5 카테고리 카드 재정렬 (Card 1 Central Hub 제거, Card 2~6 → 1~5), '허브로' → 'Admin', pages 리스트 admin-hub 항목 폐기 표시
+- `admin-service-ops.html` — 'Back to Hub' → 'Back to Admin'
+- `OPERATIONS_CHARTER.md` — 부칙 5 / D-010 매핑 표 카테고리 0(중앙 허브) → 통합 진입점(System Status)으로 이관, 강제 규칙 갱신, 개정 이력 추가
+- `DECISIONS.md` — D-012 (3-Layer 분리 + admin-tasks 흡수) + D-013 (admin-hub 폐기) 추가
+- `DECISIONS_INDEX.md` — D-012 / D-013 등록, 짝 문서 매핑, 변경 이력 동기화
+- `scripts/scan-pages-status.mjs` — byCategory central-hub 제거, sidebarMenus 5개로 축소 (System Status 첫 항목), retired 페이지 평균/카운트에서 제외
+- `scripts/pages-meta.mjs` — admin-hub status: live → retired, PAGE_TASK_META BL-HUB-RETIRE 갱신
+- `scripts/charter-mapping-check.mjs` — Check 4 재정의 (admin-hub 폐기 검증), Check 4-V 신설 (vercel.json 301 리다이렉트 등록 검증)
+- `js/stats.js` — Category 0 admin-hub → admin-status 주석 정정
+- `pages-status.{json,display,summary}.json` — admin-hub.html retired 마킹 + 평균 75 → 77점 재계산 (active 18/19)
+- `tasks.json` — BL-HUB-RETIRE task done 등록 (P0/infrastructure/small)
+- `_backup_20260504/admin-hub.html.bak` — 폐기 전 원본 백업
+
+### 검증 결과
+- `node scripts/scan-pages-status.mjs` ✅ admin-hub `[retired]` 표시, 평균 77점, active 18/19, 카운트 정상
+- `node scripts/charter-mapping-check.mjs` Check 4 + Check 4-V 통과 예정
+- 라이브 검증: `curl -I https://gohotelwinners.com/admin-hub.html` → 301 → admin-status.html
+
+### 헌법 자가 검증 PASS
+- 1조 (대표님 결정만): 시스템 자율 실행 ✅
+- 6조 (사람용+AI용 이중): DECISIONS.md + DECISIONS_INDEX.md 동기화 ✅
+- 7조 (5초 안에 파악): 클릭 단계 3→1 단순화 ✅
+- 부칙 5 (D-010 단일 진실 매핑): 카테고리 0 admin-status로 이관 + 개정 이력 명시 ✅
+
+---
+
 ## 2026-05-04 — [BL-PAGE-DEDUP] admin-hub/tasks/status 정보 중복 제거 — "하나에서 전체 관리" 헌법 지시 충족
 
 ### 변경 사유

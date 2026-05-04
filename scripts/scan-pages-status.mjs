@@ -196,20 +196,30 @@ function main() {
   const results = [];
   for (const page of PAGES) {
     const r = evaluatePage(page);
+    // BL-HUB-RETIRE: pages-meta.mjs의 status === 'retired' 페이지는 평균/카운트에서 제외
+    if (page.status === 'retired') {
+      r.retired = true;
+      r.retiredAt = '2026-05-04';
+      r.retiredReason = page.notes || 'BL-HUB-RETIRE / D-013';
+    }
     results.push(r);
     const pad = (s, n) => String(s).padEnd(n);
+    const retiredTag = r.retired ? ' [retired]' : '';
     console.log(
-      `  ${r.badge.label}  ${pad(r.totalScore + '점', 6)} ${pad(r.path, 32)} — ${r.weakest.dimension}: ${r.weakest.hint}`
+      `  ${r.badge.label}  ${pad(r.totalScore + '점', 6)} ${pad(r.path, 32)} — ${r.weakest.dimension}: ${r.weakest.hint}${retiredTag}`
     );
   }
 
+  // BL-HUB-RETIRE: retired 제외 active 결과 (카테고리/평균/카운트 계산 기준)
+  const activeResults = results.filter(r => !r.retired);
+
   // 카테고리별 집계 (사이드바 5개 메뉴 매핑 — BL-HUB-RETIRE 후 admin-hub 폐기, admin-status가 통합 진입점)
   const byCategory = {
-    'task-management':   results.filter(r => r.path === '/admin-tasks.html'),
-    'business-docs':     results.filter(r => r.path === '/admin-business.html'),
-    'page-gallery':      results.filter(r => r.path === '/admin-gallery.html'),
-    'service-operations':results.filter(r => r.path === '/admin-service-ops.html'),
-    'project-status':    results.filter(r => r.path === '/admin-status.html' || r.path === '/admin.html'),
+    'task-management':   activeResults.filter(r => r.path === '/admin-tasks.html'),
+    'business-docs':     activeResults.filter(r => r.path === '/admin-business.html'),
+    'page-gallery':      activeResults.filter(r => r.path === '/admin-gallery.html'),
+    'service-operations':activeResults.filter(r => r.path === '/admin-service-ops.html'),
+    'project-status':    activeResults.filter(r => r.path === '/admin-status.html' || r.path === '/admin.html'),
   };
   const categoryStats = {};
   for (const [k, v] of Object.entries(byCategory)) {
@@ -221,17 +231,19 @@ function main() {
     }
   }
 
-  // 전체 가중 평균
-  const totalAvg = Math.round(results.reduce((s,r) => s + r.totalScore, 0) / results.length);
+  // 전체 가중 평균 (BL-HUB-RETIRE: retired 제외 active 페이지 기준)
+  const totalAvg = activeResults.length
+    ? Math.round(activeResults.reduce((s,r) => s + r.totalScore, 0) / activeResults.length)
+    : 0;
   const counts = {
-    '🟢 완성':   results.filter(r => r.totalScore >= 90).length,
-    '🔵 본격':   results.filter(r => r.totalScore >= 70 && r.totalScore < 90).length,
-    '🟡 부분':   results.filter(r => r.totalScore >= 50 && r.totalScore < 70).length,
-    '🟠 골격':   results.filter(r => r.totalScore >= 30 && r.totalScore < 50).length,
-    '🔴 미작성': results.filter(r => r.totalScore < 30).length,
+    '🟢 완성':   activeResults.filter(r => r.totalScore >= 90).length,
+    '🔵 본격':   activeResults.filter(r => r.totalScore >= 70 && r.totalScore < 90).length,
+    '🟡 부분':   activeResults.filter(r => r.totalScore >= 50 && r.totalScore < 70).length,
+    '🟠 골격':   activeResults.filter(r => r.totalScore >= 30 && r.totalScore < 50).length,
+    '🔴 미작성': activeResults.filter(r => r.totalScore < 30).length,
   };
 
-  console.log(`\n전체 평균: ${totalAvg}점`);
+  console.log(`\n전체 평균: ${totalAvg}점 (active ${activeResults.length}/${results.length}개, retired ${results.length - activeResults.length}개 제외)`);
   for (const [k,v] of Object.entries(counts)) console.log(`  ${k}: ${v}개`);
 
   const output = {

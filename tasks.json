@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-04T16:24:54Z",
+  "updated_at": "2026-05-04T18:03:57Z",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -20,6 +20,46 @@
     "autonomous_ready": 12
   },
   "tasks": [
+    {
+      "id": "BL-ADMIN-AUTH-V2",
+      "title": "[권한 시스템 정식] 5단계 Owner/Admin/Staff/ReadOnly/Manager + 초대 + 즉시 박탈 + 무제한 이력",
+      "category": "infrastructure",
+      "status": "done",
+      "priority": "P0",
+      "size": "large",
+      "parent_task": null,
+      "blocker": null,
+      "created_at": "2026-05-05T00:00:00Z",
+      "completed_at": "2026-05-04T18:03:57Z",
+      "claude_can_auto": true,
+      "autonomous": {
+        "can_run_alone": true,
+        "estimated_hours": 4,
+        "requires_decisions_first": [
+          "D-015"
+        ]
+      },
+      "progress": "✅ 임시 비번 시스템(ADMIN_ACCESS_KEY 쿠키) 폐기. Supabase Auth 5단계 권한 정식 박힘. DB 9섹션 SQL 라이브 적용 8/8 PASS. API 5개 신규 + admin-page.js 재작성. 사용자 화면 3개 (admin-login / admin-accept-invite / admin-permissions). admin-status에 Card 6 권한 관리 통합 진입점 추가. Owner 삼중 보호: handle_new_user 트리거 + protect_owner_account 트리거 + RLS. D-015 + chat-log 2026-05-05-admin-auth-v2 박힘.",
+      "files_changed": [
+        "sql/bl-admin-auth-v2.sql",
+        "api/auth/session.js",
+        "api/admin/invite.js",
+        "api/admin/accept-invite.js",
+        "api/admin/change-role.js",
+        "api/admin/users-list.js",
+        "api/admin-page.js",
+        "admin-login.html",
+        "admin-accept-invite.html",
+        "_admin/admin-permissions.html",
+        "_admin/admin-status.html",
+        "vercel.json",
+        "DECISIONS.md",
+        "_chat-logs/2026-05-05-admin-auth-v2.md"
+      ],
+      "decisions": [
+        "D-015"
+      ]
+    },
     {
       "id": "BL-CATEGORY-REMAP",
       "title": "[카테고리 리매핑] 헌법 부칙 5 D-010 매핑 표를 코드에 반영 (6단계)",

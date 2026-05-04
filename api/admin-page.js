@@ -1,26 +1,23 @@
-// /api/admin-page.js
-// 인증 게이트 — admin-*.html 정적 파일을 admin 전용으로 보호.
+// /api/admin-page.js (BL-ADMIN-AUTH-V2 — 재작성)
+// 임시 비번 시스템(ADMIN_ACCESS_KEY 쿠키) 폐기됨.
+// 이제는 Supabase 세션 토큰만 인증 수단.
 //
-// 인증 우선순위 (하나라도 통과하면 OK):
-//   ① Cookie tw_admin_pass = ADMIN_ACCESS_KEY  (대표님 첫 인증 후 30일 영구 통과)
-//   ② Referer host ∈ gohotelwinners.com (admin 안에서 페이지 간 이동)
-//   ③ ?key=... = ADMIN_ACCESS_KEY  (북마크/직접 입력 첫 진입 — 자동 쿠키 발급)
-//   ④ x-admin-token = ADMIN_VIEW_TOKEN  (Claude/스크립트 자동화)
-//
-// 미통과 시: HTML 로그인 폼 표시 (JSON 401 대신 — 대표님이 직접 키 입력 가능)
-//
-// 환경변수:
-//   ADMIN_ACCESS_KEY  = 대표님이 Vercel에 등록 (영구 키, 단발 입력으로 쿠키 발급)
-//   ADMIN_VIEW_TOKEN  = (선택) Claude/스크립트용
-//
-// 정식 오픈 전에는 BL-ADMIN-AUTH로 Supabase Auth 교체 (헌법 11조 의무).
+// 인증 흐름:
+//   1) 쿠키 sb-access-token 확인
+//   2) 또는 Authorization: Bearer 헤더 (Claude/스크립트 자동화)
+//   3) 또는 x-admin-token (서비스 토큰, 운영 모드 후 자동화 전용)
+//   → 토큰으로 Supabase auth.getUser() 호출
+//   → admins 테이블에서 role 확인
+//   → admin/staff/readonly/owner만 통과
+//   → manager는 /dashboard.html로 리다이렉트
+//   → 그 외 → /admin-login.html
 
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
+import { createClient } from '@supabase/supabase-js';
 
-const ALLOWED_REFERRER_HOSTS = ['gohotelwinners.com', 'www.gohotelwinners.com', 'tw-b2b.vercel.app'];
-const COOKIE_NAME = 'tw_admin_pass';
-const COOKIE_MAX_AGE_DAYS = 30;
+const SUPABASE_URL = process.env.SUPABASE_URL || 'https://vjsludfjsphwnumuoqaj.supabase.co';
+const SUPABASE_ANON = process.env.SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 // page slug → 정적 파일명 매핑 (_admin/ 폴더 안)
 const PAGE_FILE_MAP = {
@@ -31,71 +28,41 @@ const PAGE_FILE_MAP = {
   'gallery':      '_admin/admin-gallery.html',
   'admin':        '_admin/admin.html',
   'hub':          '_admin/admin-hub.html',
+  'permissions':  '_admin/admin-permissions.html',
 };
 
-// page → URL 역매핑 (쿠키 발급 후 깨끗한 URL로 리다이렉트할 때 사용)
-const PAGE_URL_MAP = {
-  'status':       '/admin-status.html',
-  'tasks':        '/admin-tasks.html',
-  'business':     '/admin-business.html',
-  'service-ops':  '/admin-service-ops.html',
-  'gallery':      '/admin-gallery.html',
-  'admin':        '/admin.html',
-  'hub':          '/admin-hub.html',
+const PAGE_MIN_ROLE = {
+  'status':       'readonly',
+  'tasks':        'readonly',
+  'business':     'readonly',
+  'service-ops':  'readonly',
+  'gallery':      'readonly',
+  'admin':        'staff',
+  'hub':          'readonly',
+  'permissions':  'admin',
 };
 
-function isAllowedByReferer(req) {
-  const ref = req.headers['referer'] || '';
-  if (!ref) return false;
-  try {
-    const u = new URL(ref);
-    return ALLOWED_REFERRER_HOSTS.includes(u.host);
-  } catch (_) {
-    return false;
-  }
+function roleHasAccess(callerRole, requiredRole) {
+  const order = { 'owner': 5, 'admin': 4, 'staff': 3, 'readonly': 2, 'manager': 0 };
+  return (order[callerRole] || 0) >= (order[requiredRole] || 0);
 }
 
-function isAllowedByToken(req) {
-  const expected = process.env.ADMIN_VIEW_TOKEN;
-  if (!expected) return false;
-  const provided = req.headers['x-admin-token'] || '';
-  return provided && provided === expected;
-}
-
-function isAllowedByQueryKey(req) {
-  const expected = process.env.ADMIN_ACCESS_KEY;
-  if (!expected) return false;
-  const provided = String(req.query.key || '').trim();
-  return provided && provided === expected;
-}
-
-function isAllowedByCookie(req) {
-  const expected = process.env.ADMIN_ACCESS_KEY;
-  if (!expected) return false;
-  const cookieHeader = req.headers['cookie'] || '';
-  const parts = cookieHeader.split(';').map(s => s.trim()).filter(Boolean);
-  for (const p of parts) {
-    const idx = p.indexOf('=');
+function parseCookies(req) {
+  const out = {};
+  const header = req.headers['cookie'] || '';
+  for (const part of header.split(';')) {
+    const trimmed = part.trim();
+    if (!trimmed) continue;
+    const idx = trimmed.indexOf('=');
     if (idx < 0) continue;
-    const k = p.slice(0, idx);
-    const v = decodeURIComponent(p.slice(idx + 1));
-    if (k === COOKIE_NAME && v === expected) return true;
+    out[trimmed.slice(0, idx)] = decodeURIComponent(trimmed.slice(idx + 1));
   }
-  return false;
+  return out;
 }
 
-function setAuthCookie(res, value) {
-  const maxAge = COOKIE_MAX_AGE_DAYS * 24 * 60 * 60;
-  // SameSite=Lax — admin 페이지 간 이동 시 쿠키 전송, 외부에서 GET링크는 전송 안 함
-  res.setHeader(
-    'Set-Cookie',
-    `${COOKIE_NAME}=${encodeURIComponent(value)}; Max-Age=${maxAge}; Path=/; HttpOnly; Secure; SameSite=Lax`
-  );
-}
-
-function loginPageHTML(currentPage, errorMsg) {
+function loginRedirectHTML(currentPage, reason) {
   const safePage = (currentPage || 'status').replace(/[^a-z0-9-]/gi, '');
-  const errBlock = errorMsg ? `<div class="err">${errorMsg}</div>` : '';
+  const reasonText = reason || '인증이 필요합니다';
   return `<!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -103,66 +70,69 @@ function loginPageHTML(currentPage, errorMsg) {
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>관리자 인증 — TravelWinners B2B</title>
 <style>
-  :root {
-    --bg: #0a0a0f; --panel: rgba(20,20,30,0.85); --border: rgba(255,255,255,0.1);
-    --text: #e5e7eb; --text-muted: #9ca3af; --accent: #a78bfa;
-  }
-  * { box-sizing: border-box; }
-  body {
-    margin: 0; min-height: 100vh; background: var(--bg);
-    display: flex; align-items: center; justify-content: center;
-    font-family: -apple-system, BlinkMacSystemFont, 'Pretendard', sans-serif;
-    color: var(--text);
-    background-image: radial-gradient(ellipse at top, rgba(167,139,250,0.15), transparent 70%);
-  }
-  .card {
-    background: var(--panel); border: 0.5px solid var(--border); border-radius: 12px;
-    padding: 32px 28px; width: min(420px, 92vw);
-    backdrop-filter: blur(20px); box-shadow: 0 20px 60px rgba(0,0,0,0.4);
-  }
-  h1 { margin: 0 0 4px; font-size: 18px; font-weight: 600; }
-  .sub { font-size: 12px; color: var(--text-muted); margin-bottom: 20px; }
-  .err {
-    background: rgba(248,113,113,0.1); color: #fca5a5; border: 0.5px solid rgba(248,113,113,0.3);
-    padding: 8px 12px; border-radius: 6px; font-size: 12px; margin-bottom: 12px;
-    line-height: 1.5;
-  }
-  label { display: block; font-size: 11px; color: var(--text-muted); margin-bottom: 6px; }
-  input[type=password], input[type=text] {
-    width: 100%; background: rgba(0,0,0,0.3); border: 0.5px solid var(--border);
-    color: var(--text); padding: 10px 12px; border-radius: 6px; font-size: 13px;
-    font-family: inherit;
-  }
-  input:focus { outline: 1px solid var(--accent); border-color: var(--accent); }
-  button {
-    width: 100%; margin-top: 14px; padding: 10px 14px;
-    background: linear-gradient(135deg, #a78bfa, #6366f1); color: #fff;
-    border: 0; border-radius: 6px; font-size: 13px; font-weight: 500;
-    cursor: pointer; font-family: inherit;
-  }
-  button:hover { opacity: 0.9; }
-  .hint { font-size: 10px; color: var(--text-muted); margin-top: 14px; line-height: 1.5; }
-  .lock { font-size: 28px; margin-bottom: 8px; }
-  code { background: rgba(0,0,0,0.4); padding: 1px 6px; border-radius: 3px; font-size: 11px; }
+  body { margin: 0; min-height: 100vh; background: #0a0a0f; color: #e5e7eb;
+         display: flex; align-items: center; justify-content: center;
+         font-family: -apple-system, BlinkMacSystemFont, 'Pretendard', sans-serif;
+         background-image: radial-gradient(ellipse at top, rgba(167,139,250,0.15), transparent 70%); }
+  .card { background: rgba(20,20,30,0.85); border: 0.5px solid rgba(255,255,255,0.1);
+          border-radius: 12px; padding: 40px 32px; width: min(420px, 92vw); text-align: center;
+          backdrop-filter: blur(20px); }
+  .lock { font-size: 36px; margin-bottom: 12px; }
+  h1 { margin: 0 0 8px; font-size: 18px; }
+  .sub { font-size: 13px; color: #9ca3af; margin-bottom: 20px; }
+  .reason { background: rgba(248,113,113,0.1); color: #fca5a5; padding: 10px;
+            border-radius: 6px; font-size: 12px; margin-bottom: 16px; }
+  a { display: inline-block; margin-top: 8px; padding: 12px 24px;
+      background: linear-gradient(135deg, #a78bfa, #6366f1); color: #fff;
+      border-radius: 6px; text-decoration: none; font-size: 14px; font-weight: 500; }
 </style>
 </head>
 <body>
-  <form class="card" method="GET" action="">
-    <div class="lock">🔒</div>
-    <h1>관리자 인증 필요</h1>
-    <div class="sub">TravelWinners B2B — admin 영역</div>
-    ${errBlock}
-    <label for="key">접근 키</label>
-    <input type="password" id="key" name="key" autocomplete="current-password" required autofocus>
-    <button type="submit">인증 후 진입</button>
-    <div class="hint">
-      • 첫 인증 후 30일 동안 자동 통과 (쿠키 발급)<br>
-      • 키는 Vercel 환경변수 <code>ADMIN_ACCESS_KEY</code>에 등록되어 있어야 합니다<br>
-      • 페이지: <code>${safePage}</code>
-    </div>
-  </form>
+<div class="card">
+  <div class="lock">🔒</div>
+  <h1>관리자 인증 필요</h1>
+  <div class="sub">TravelWinners B2B — admin 영역</div>
+  <div class="reason">${reasonText}</div>
+  <a href="/admin-login.html?next=${safePage}">로그인하기</a>
+</div>
+<script>
+  setTimeout(function(){ window.location.href = '/admin-login.html?next=${safePage}'; }, 3000);
+</script>
 </body>
 </html>`;
+}
+
+function managerRedirectHTML() {
+  return `<!DOCTYPE html>
+<html lang="ko"><head><meta charset="UTF-8"><title>매니저 페이지로 이동</title>
+<meta http-equiv="refresh" content="0;url=/dashboard.html">
+</head><body><script>window.location.href='/dashboard.html';</script>
+<p>매니저 페이지로 이동합니다... <a href="/dashboard.html">클릭하세요</a></p>
+</body></html>`;
+}
+
+async function verifySupabaseToken(token) {
+  if (!token || !SUPABASE_ANON) return null;
+  try {
+    const sb = createClient(SUPABASE_URL, SUPABASE_ANON, {
+      auth: { persistSession: false },
+      global: { headers: { Authorization: `Bearer ${token}` } }
+    });
+    const { data: { user }, error: userErr } = await sb.auth.getUser(token);
+    if (userErr || !user) return null;
+
+    const { data: adminRow } = await sb
+      .from('admins')
+      .select('id, email, role, is_active, revoked_at')
+      .eq('id', user.id)
+      .maybeSingle();
+
+    if (!adminRow || !adminRow.is_active || adminRow.revoked_at) return null;
+    return { user_id: adminRow.id, email: adminRow.email, role: adminRow.role };
+  } catch (e) {
+    console.error('[admin-page] verifySupabaseToken error', e.message);
+    return null;
+  }
 }
 
 export default async function handler(req, res) {
@@ -170,51 +140,59 @@ export default async function handler(req, res) {
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-Frame-Options', 'SAMEORIGIN');
 
-  if (req.method !== 'GET') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
+  if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
 
   const page = String(req.query.page || 'status').trim();
   const filename = PAGE_FILE_MAP[page];
   if (!filename) {
     return res.status(400).json({ error: 'Invalid page', allowed: Object.keys(PAGE_FILE_MAP) });
   }
+  const requiredRole = PAGE_MIN_ROLE[page] || 'readonly';
 
-  // ?key= 로 들어온 경우: 키 검증 → 맞으면 쿠키 발급 + 깨끗한 URL로 302
-  if (req.query.key !== undefined) {
-    if (isAllowedByQueryKey(req)) {
-      setAuthCookie(res, process.env.ADMIN_ACCESS_KEY);
-      const cleanUrl = PAGE_URL_MAP[page] || '/admin-status.html';
-      res.setHeader('Location', cleanUrl);
-      return res.status(302).end();
-    } else {
-      res.setHeader('Content-Type', 'text/html; charset=utf-8');
-      return res.status(401).send(loginPageHTML(page, '접근 키가 올바르지 않습니다.'));
-    }
+  // 토큰 추출 (쿠키 → Authorization → x-admin-token)
+  const cookies = parseCookies(req);
+  let token = cookies['sb-access-token'] || null;
+
+  if (!token) {
+    const auth = req.headers['authorization'] || '';
+    if (auth.startsWith('Bearer ')) token = auth.slice(7);
+  }
+  if (!token) {
+    token = req.headers['x-admin-token'] || null;
   }
 
-  // 쿠키 / 토큰 / Referer 중 하나라도 통과하면 OK
-  if (isAllowedByToken(req) || isAllowedByCookie(req) || isAllowedByReferer(req)) {
-    try {
-      const root = process.cwd();
-      const buf = await readFile(join(root, filename), 'utf8');
-      res.setHeader('Content-Type', 'text/html; charset=utf-8');
-      return res.status(200).send(buf);
-    } catch (e) {
-      if (e.code === 'ENOENT') {
-        return res.status(404).json({ error: 'Page not found', page });
-      }
-      console.error('[admin-page] read error', e);
-      return res.status(500).json({ error: 'Internal error' });
-    }
-  }
-
-  // 미인증 → HTML 로그인 폼
-  if (!process.env.ADMIN_ACCESS_KEY) {
+  if (!token) {
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
-    return res.status(503).send(loginPageHTML(page,
-      'ADMIN_ACCESS_KEY 환경변수가 등록되지 않았습니다.<br>Vercel 대시보드 → Project Settings → Environment Variables에서 등록 후 Redeploy 필요.<br><strong>등록 전까지는 누구도 admin 진입 불가 — 정식 오픈 전 안전 상태.</strong>'));
+    return res.status(401).send(loginRedirectHTML(page, '로그인이 필요합니다'));
   }
-  res.setHeader('Content-Type', 'text/html; charset=utf-8');
-  return res.status(401).send(loginPageHTML(page, null));
+
+  const session = await verifySupabaseToken(token);
+  if (!session) {
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    return res.status(401).send(loginRedirectHTML(page, '세션이 만료되었거나 유효하지 않습니다'));
+  }
+
+  if (session.role === 'manager') {
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    return res.status(200).send(managerRedirectHTML());
+  }
+
+  if (!roleHasAccess(session.role, requiredRole)) {
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    return res.status(403).send(loginRedirectHTML(page,
+      `이 페이지는 ${requiredRole} 이상 권한이 필요합니다 (현재: ${session.role})`));
+  }
+
+  try {
+    const root = process.cwd();
+    const buf = await readFile(join(root, filename), 'utf8');
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    return res.status(200).send(buf);
+  } catch (e) {
+    if (e.code === 'ENOENT') {
+      return res.status(404).json({ error: 'Page not found', page });
+    }
+    console.error('[admin-page] read error', e);
+    return res.status(500).json({ error: 'Internal error' });
+  }
 }

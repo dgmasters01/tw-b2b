@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>초대 수락 — TravelWinners B2B</title>
+<style>
+  body { margin:0; min-height:100vh; background:#0a0a0f; color:#e5e7eb;
+         display:flex; align-items:center; justify-content:center;
+         font-family:-apple-system, BlinkMacSystemFont, 'Pretendard', sans-serif;
+         background-image: radial-gradient(ellipse at top, rgba(167,139,250,0.15), transparent 70%); }
+  .card { background:rgba(20,20,30,0.85); border:0.5px solid rgba(255,255,255,0.1);
+          border-radius:12px; padding:36px 32px; width:min(460px, 92vw);
+          backdrop-filter:blur(20px); }
+  .logo { font-size:32px; text-align:center; margin-bottom:8px; }
+  h1 { margin:0 0 4px; font-size:20px; text-align:center; }
+  .sub { font-size:12px; color:#9ca3af; margin-bottom:20px; text-align:center; }
+  .info { background:rgba(99,102,241,0.1); border:0.5px solid rgba(99,102,241,0.3);
+          padding:14px; border-radius:6px; font-size:13px; line-height:1.7; margin-bottom:18px; }
+  .info b { color:#a78bfa; }
+  label { display:block; font-size:11px; color:#9ca3af; margin-bottom:6px; margin-top:14px; }
+  input { width:100%; box-sizing:border-box; background:rgba(0,0,0,0.3);
+          border:0.5px solid rgba(255,255,255,0.1); color:#e5e7eb;
+          padding:11px 13px; border-radius:6px; font-size:14px; font-family:inherit; }
+  input:focus { outline:1px solid #a78bfa; border-color:#a78bfa; }
+  button { width:100%; margin-top:20px; padding:12px;
+           background:linear-gradient(135deg, #a78bfa, #6366f1); color:#fff;
+           border:0; border-radius:6px; font-size:14px; font-weight:500; cursor:pointer; }
+  button:disabled { opacity:0.5; cursor:not-allowed; }
+  .err { background:rgba(248,113,113,0.1); color:#fca5a5; padding:10px;
+         border-radius:6px; font-size:12px; margin-top:12px; }
+  .ok { background:rgba(74,222,128,0.1); color:#86efac; padding:10px;
+        border-radius:6px; font-size:12px; margin-top:12px; }
+  .pw-hint { font-size:11px; color:#666; margin-top:6px; line-height:1.5; }
+  .spinner { display:inline-block; width:12px; height:12px; border:2px solid #fff;
+             border-top-color:transparent; border-radius:50%; animation:sp 0.8s linear infinite; margin-right:6px; }
+  @keyframes sp { to { transform:rotate(360deg); } }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">📩</div>
+  <h1>초대 수락</h1>
+  <div class="sub">TravelWinners B2B</div>
+
+  <div id="loading" class="info">초대 정보를 확인하고 있습니다...</div>
+
+  <div id="invite-form" style="display:none">
+    <div id="invite-info" class="info"></div>
+
+    <label>이메일</label>
+    <input type="email" id="email" readonly>
+
+    <label>비밀번호 (8자 이상)</label>
+    <input type="password" id="password" autocomplete="new-password" minlength="8">
+    <div class="pw-hint">8자 이상, 영문+숫자 조합 권장</div>
+
+    <label>비밀번호 확인</label>
+    <input type="password" id="password2" autocomplete="new-password">
+
+    <label>표시 이름 (선택)</label>
+    <input type="text" id="display-name" placeholder="홍길동">
+
+    <button id="btn-accept">초대 수락하고 계정 만들기</button>
+    <div id="msg-box"></div>
+  </div>
+
+  <div id="error-box" style="display:none">
+    <div class="err" id="error-msg"></div>
+    <button onclick="window.location.href='/admin-login.html'" style="margin-top:14px">로그인 페이지로</button>
+  </div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const params = new URLSearchParams(window.location.search);
+const token = params.get('token');
+const email = params.get('email');
+
+function showError(text) {
+  $('loading').style.display = 'none';
+  $('invite-form').style.display = 'none';
+  $('error-box').style.display = 'block';
+  $('error-msg').textContent = text;
+}
+
+async function init() {
+  if (!token || !email) {
+    showError('초대 링크가 올바르지 않습니다 (token/email 누락)');
+    return;
+  }
+
+  try {
+    const r = await fetch(`/api/admin/accept-invite?token=${encodeURIComponent(token)}&email=${encodeURIComponent(email)}`);
+    const data = await r.json();
+
+    if (!r.ok) {
+      showError(data.error || '초대 확인 실패');
+      return;
+    }
+
+    $('loading').style.display = 'none';
+    $('invite-form').style.display = 'block';
+    $('email').value = data.email;
+    $('display-name').value = data.display_name || '';
+
+    const expiresAt = new Date(data.expires_at).toLocaleString('ko-KR');
+    $('invite-info').innerHTML = `
+      <b>${data.inviter_email || '관리자'}</b>님이 회원님을<br>
+      <b>${data.role}</b> 권한으로 초대했습니다.<br><br>
+      <span style="font-size:11px;color:#9ca3af">만료: ${expiresAt}</span>
+    `;
+  } catch (e) {
+    showError('초대 확인 중 오류: ' + e.message);
+  }
+}
+
+async function accept() {
+  const password = $('password').value;
+  const password2 = $('password2').value;
+  const displayName = $('display-name').value.trim();
+
+  const msgBox = $('msg-box');
+  msgBox.innerHTML = '';
+
+  if (password.length < 8) {
+    msgBox.innerHTML = '<div class="err">비밀번호는 8자 이상이어야 합니다</div>';
+    return;
+  }
+  if (password !== password2) {
+    msgBox.innerHTML = '<div class="err">비밀번호가 일치하지 않습니다</div>';
+    return;
+  }
+
+  const btn = $('btn-accept');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>계정 만드는 중...';
+
+  try {
+    const r = await fetch('/api/admin/accept-invite', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token, email, password, display_name: displayName })
+    });
+    const data = await r.json();
+
+    if (!r.ok) {
+      msgBox.innerHTML = `<div class="err">${data.error || '가입 실패'}</div>`;
+      btn.disabled = false;
+      btn.textContent = '초대 수락하고 계정 만들기';
+      return;
+    }
+
+    msgBox.innerHTML = `<div class="ok">계정 생성 완료! ${data.role} 권한으로 가입되었습니다.<br>로그인 페이지로 이동합니다...</div>`;
+    setTimeout(() => { window.location.href = '/admin-login.html'; }, 1500);
+  } catch (e) {
+    msgBox.innerHTML = `<div class="err">${e.message}</div>`;
+    btn.disabled = false;
+    btn.textContent = '초대 수락하고 계정 만들기';
+  }
+}
+
+$('btn-accept').addEventListener('click', accept);
+init();
+</script>
+</body>
+</html>

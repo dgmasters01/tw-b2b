@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>관리자 로그인 — TravelWinners B2B</title>
+<link rel="stylesheet" href="/shared.css">
+<style>
+  body { margin:0; min-height:100vh; background:var(--bg, #0a0a0f); color:var(--text, #e5e7eb);
+         display:flex; align-items:center; justify-content:center;
+         font-family:-apple-system, BlinkMacSystemFont, 'Pretendard', sans-serif;
+         background-image: radial-gradient(ellipse at top, rgba(167,139,250,0.15), transparent 70%); }
+  .card { background:rgba(20,20,30,0.85); border:0.5px solid rgba(255,255,255,0.1);
+          border-radius:12px; padding:36px 32px; width:min(420px, 92vw);
+          backdrop-filter:blur(20px); box-shadow:0 20px 60px rgba(0,0,0,0.4); }
+  .logo { font-size:32px; text-align:center; margin-bottom:8px; }
+  h1 { margin:0 0 4px; font-size:20px; font-weight:600; text-align:center; }
+  .sub { font-size:12px; color:#9ca3af; margin-bottom:24px; text-align:center; }
+  label { display:block; font-size:11px; color:#9ca3af; margin-bottom:6px; margin-top:14px; }
+  input { width:100%; box-sizing:border-box; background:rgba(0,0,0,0.3);
+          border:0.5px solid rgba(255,255,255,0.1); color:#e5e7eb;
+          padding:11px 13px; border-radius:6px; font-size:14px; font-family:inherit; }
+  input:focus { outline:1px solid #a78bfa; border-color:#a78bfa; }
+  button { width:100%; margin-top:20px; padding:12px;
+           background:linear-gradient(135deg, #a78bfa, #6366f1); color:#fff;
+           border:0; border-radius:6px; font-size:14px; font-weight:500;
+           cursor:pointer; font-family:inherit; }
+  button:hover { opacity:0.92; }
+  button:disabled { opacity:0.5; cursor:not-allowed; }
+  .err { background:rgba(248,113,113,0.1); color:#fca5a5; border:0.5px solid rgba(248,113,113,0.3);
+         padding:10px 12px; border-radius:6px; font-size:12px; margin-top:12px; line-height:1.5; }
+  .ok { background:rgba(74,222,128,0.1); color:#86efac; border:0.5px solid rgba(74,222,128,0.3);
+        padding:10px 12px; border-radius:6px; font-size:12px; margin-top:12px; line-height:1.5; }
+  .footer { font-size:11px; color:#666; margin-top:24px; text-align:center; line-height:1.7; }
+  .footer a { color:#a78bfa; text-decoration:none; }
+  .footer a:hover { text-decoration:underline; }
+  .spinner { display:inline-block; width:12px; height:12px; border:2px solid #fff;
+             border-top-color:transparent; border-radius:50%; animation:sp 0.8s linear infinite; margin-right:6px; }
+  @keyframes sp { to { transform:rotate(360deg); } }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">🔐</div>
+  <h1>관리자 로그인</h1>
+  <div class="sub">TravelWinners B2B — admin 영역</div>
+
+  <div id="msg-box"></div>
+
+  <label for="email">이메일</label>
+  <input type="email" id="email" autocomplete="username" autofocus required>
+
+  <label for="password">비밀번호</label>
+  <input type="password" id="password" autocomplete="current-password" required>
+
+  <button id="btn-login">로그인</button>
+
+  <div class="footer">
+    매니저(호텔)는 <a href="/login.html">여기서 로그인</a><br>
+    초대 메일을 받으셨다면 메일의 링크를 클릭해주세요
+  </div>
+</div>
+
+<script type="module">
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+const SUPABASE_URL = 'https://vjsludfjsphwnumuoqaj.supabase.co';
+const SUPABASE_ANON = 'sb_publishable_IluITb52iuwwHf9xgP99MA__KX-sNM6';
+
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON, {
+  auth: { persistSession: true, autoRefreshToken: true, storageKey: 'tw-admin-auth' }
+});
+
+const $ = id => document.getElementById(id);
+const msgBox = $('msg-box');
+
+function showErr(text) {
+  msgBox.innerHTML = `<div class="err">${text}</div>`;
+}
+function showOk(text) {
+  msgBox.innerHTML = `<div class="ok">${text}</div>`;
+}
+
+const params = new URLSearchParams(window.location.search);
+const nextPage = params.get('next') || 'status';
+
+async function checkExistingSession() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (session && session.access_token) {
+    document.cookie = `sb-access-token=${session.access_token}; Path=/; Max-Age=2592000; SameSite=Lax; Secure`;
+    showOk('이미 로그인되어 있습니다. 잠시 후 이동합니다...');
+    setTimeout(() => { window.location.href = `/admin-${nextPage}.html`; }, 800);
+  }
+}
+checkExistingSession();
+
+async function handleLogin() {
+  const email = $('email').value.trim();
+  const password = $('password').value;
+  if (!email || !password) {
+    showErr('이메일과 비밀번호를 입력해주세요');
+    return;
+  }
+
+  const btn = $('btn-login');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>로그인 중...';
+
+  try {
+    const { data, error } = await sb.auth.signInWithPassword({ email, password });
+    if (error) {
+      showErr('로그인 실패: ' + error.message);
+      btn.disabled = false;
+      btn.textContent = '로그인';
+      return;
+    }
+    if (!data.session) {
+      showErr('세션 생성 실패');
+      btn.disabled = false;
+      btn.textContent = '로그인';
+      return;
+    }
+
+    const sessionCheck = await fetch('/api/auth/session', {
+      headers: { 'Authorization': 'Bearer ' + data.session.access_token }
+    });
+    const sessionInfo = await sessionCheck.json();
+
+    if (!sessionInfo.authenticated || !sessionInfo.registered || !sessionInfo.active) {
+      showErr('계정 권한 확인 실패: ' + (sessionInfo.error || 'unknown'));
+      await sb.auth.signOut();
+      btn.disabled = false;
+      btn.textContent = '로그인';
+      return;
+    }
+
+    if (sessionInfo.user.role === 'manager') {
+      showErr('이 페이지는 admin 전용입니다. 매니저는 /login.html 사용해주세요');
+      await sb.auth.signOut();
+      btn.disabled = false;
+      btn.textContent = '로그인';
+      return;
+    }
+
+    document.cookie = `sb-access-token=${data.session.access_token}; Path=/; Max-Age=2592000; SameSite=Lax; Secure`;
+
+    showOk(`로그인 성공! (${sessionInfo.user.role}) 잠시 후 이동합니다...`);
+    setTimeout(() => { window.location.href = `/admin-${nextPage}.html`; }, 600);
+  } catch (e) {
+    showErr('Error: ' + e.message);
+    btn.disabled = false;
+    btn.textContent = '로그인';
+  }
+}
+
+$('btn-login').addEventListener('click', handleLogin);
+$('password').addEventListener('keydown', e => { if (e.key === 'Enter') handleLogin(); });
+$('email').addEventListener('keydown', e => { if (e.key === 'Enter') $('password').focus(); });
+</script>
+</body>
+</html>

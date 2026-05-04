@@ -164,7 +164,59 @@
 
 ---
 
-### 결정 D-014: chat-logs 시스템 — 사람용+AI용 이중 형식 강제 (헌법 6조 본체) ⭐⭐⭐ 2026-05-04
+### 결정 D-015: BL-ADMIN-AUTH-V2 — 5단계 권한 + 초대 + 즉시 박탈 + 무제한 이력 ⭐⭐⭐ 2026-05-05
+**무엇을**: 임시 비번 시스템(ADMIN_ACCESS_KEY 쿠키) 폐기. Supabase Auth 기반 정식 권한 시스템 박음.
+
+**왜** (대표님 발언):
+> "이메일로 회원가입, 관리자로 저정됨, 호텔은 자유롭게 가입하는데. 우리가 매칭하는게 있어서 내가 최종승인처리하는거로 알고 있는데 시스템을 그렇게 만들걸로 안고 있어."
+> "단순히 회원가입으로 가자"
+> "호텔 매칭 체크해야 되서. 맞는지 너가 확인 필요"
+
+**라이브 코드 검증 결과**: 호텔 매칭/승인 흐름은 이미 hotel-info.html(매니저) + _admin/admin.html(어드민)에 박혀있음. 권한 분리만 빠져있음 → BL-ADMIN-AUTH-V2가 채움.
+
+**5단계 권한 체계**:
+
+| Role | 가입 방식 | 권한 |
+|---|---|---|
+| **owner** | dgmasters01@gmail.com 자동 (DB 트리거) | 전체 (삼중 보호) |
+| **admin** | 초대 전용 (owner 발송) | staff/readonly 변경, 초대, 호텔 승인 |
+| **staff** | 초대 전용 (owner/admin 발송) | 호텔 매칭 처리, 콘텐츠 편집 |
+| **readonly** | 초대 전용 | 조회만 |
+| **manager** | 자유가입 (signup.html) | 자기 호텔만 (RLS) |
+
+**Owner 삼중 보호**:
+1. **DB 트리거** `protect_owner_account` — role/email/is_active 변경 차단, 삭제 차단
+2. **handle_new_user 트리거** — dgmasters01@gmail.com 가입 시 자동 owner 박힘
+3. **RLS 정책** — DELETE는 owner만 (단, owner 본인 삭제는 트리거가 차단)
+
+**보안 자동 장치**:
+- 비밀번호: bcrypt (Supabase 자동), 8자 이상 강제 (UI/API)
+- 세션: 30일, refreshToken 자동 갱신
+- 박탈 시: 즉시 모든 세션 종료 (auth.admin.signOut)
+- 이력: role_change_log 무제한 영구 보존 (10가지 action 추적)
+- RLS: admins/admin_invitations/role_change_log 모두 활성
+
+**박힌 파일** (한 commit 통합 — 분할 시 거짓 시스템):
+- SQL: `sql/bl-admin-auth-v2.sql` (Supabase Management API로 자동 적용)
+- API: `/api/auth/session` `/api/admin/invite` `/api/admin/accept-invite` `/api/admin/change-role` `/api/admin/users-list`
+- API 재작성: `/api/admin-page` (임시 비번 → Supabase 세션 검증)
+- 페이지: `/admin-login.html` `/admin-accept-invite.html` `/_admin/admin-permissions.html`
+- 라우팅: vercel.json (admin-permissions / admin-hub rewrites)
+- 통합: admin-status.html에 Card 6 권한 관리 추가
+
+**메일 발신자** (메모리 #10 표준):
+- 한국어 초대: `여행능력자들 <noreply@gohotelwinners.com>`
+- 그외 언어: `TravelWinners <noreply@gohotelwinners.com>`
+- Reply-To: info@gohotelwinners.com
+
+**Google OAuth 결정**: 보류. 직원 1~2명 단계에서 ROI 낮음. 5명 넘어가면 별건 BL-GOOGLE-OAUTH로 추가.
+
+**연관 작업**: BL-ADMIN-AUTH-V2 (이번 commit)
+**누가**: 이지형 대표님 결정 + Claude 자율 실행 (기술 디테일 100%)
+
+---
+
+
 **무엇을**: 모든 큰 단위 작업은 commit 직전에 `chat-logs/{slug}.md`에 풀 디테일 한국어 기록을 남긴다. 활동 이력 화면에서 commit 클릭 → chat-log fetch → 펼침 패널로 표시.
 
 **왜** (대표님 발언):

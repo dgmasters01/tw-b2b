@@ -515,41 +515,238 @@
 
 <script>
   // ============================================================
-  // Phase 3-A — 정적 데이터로 시작. Phase 3-B에서 fetch 연결.
+  // Phase 3-B — pages-status.display.json fetch + 동적 렌더링.
   // ============================================================
-  // 헌법 6조: 사람용 가독성 우선
+  // 헌법 6조: 사람용 가독성 + Claude 가독성 분리 (3-Layer)
   // D-011: 3-State 권한 시스템
-  // 3-Layer 분리: summary.json (Claude용) + display.json (UI용) + full.json (분석용)
-  //   → Phase 3-B에서 admin-status가 display.json만 fetch
-  //   → 이 파일(admin-status.html)은 컨텍스트 가벼움 보장
+  // D-012(자율): 대용량 파일 분리 — display.json만 fetch (Claude 컨텍스트 안전)
   // ============================================================
 
-  // i18n 토글 (Phase 3 마무리 또는 다음 주 일괄 i18n 작업에서 활성화)
-  document.getElementById('btn-i18n').addEventListener('click', () => {
-    alert('영·한 토글은 다음 주 i18n 일괄 작업(BL-I18N-BATCH)에서 활성화됩니다.\n메모리 #20 원칙 — 영어 본체 완성 후 단일 작업으로 처리.');
-  });
+  const STATE = {
+    role: 'CEO',  // 향후 Supabase auth로 자동 식별
+    data: null,
+    expandedKey: null,  // 어느 카드가 펼쳐졌나
+  };
 
-  // 다시 측정 (Phase 3-B에서 fetch 연결)
-  document.getElementById('btn-rescan').addEventListener('click', () => {
-    alert('수동 재측정은 다음 단계(Phase 3-B)에서 활성화됩니다.\n현재는 GitHub Actions가 push마다 자동 측정 중.');
-  });
+  // ──────────────────────────────────────────────────────────
+  // 헬퍼
+  // ──────────────────────────────────────────────────────────
+  const $ = (id) => document.getElementById(id);
+  const fmtTime = (iso) => {
+    if (!iso) return '-';
+    const dt = new Date(iso);
+    if (isNaN(dt.getTime())) return '-';
+    const kst = new Date(dt.getTime() + 9 * 3600 * 1000);
+    const now = new Date(Date.now() + 9 * 3600 * 1000);
+    const sameDay = kst.toISOString().slice(0,10) === now.toISOString().slice(0,10);
+    const sameYear = kst.getUTCFullYear() === now.getUTCFullYear();
+    const pad = (n) => String(n).padStart(2,'0');
+    const hh = pad(kst.getUTCHours()), mi = pad(kst.getUTCMinutes());
+    if (sameDay) return `오늘 ${hh}:${mi}`;
+    const mo = pad(kst.getUTCMonth()+1), da = pad(kst.getUTCDate());
+    if (sameYear) return `${mo}-${da} ${hh}:${mi}`;
+    return `${String(kst.getUTCFullYear()).slice(2)}-${mo}-${da} ${hh}:${mi}`;
+  };
+  const escapeHtml = (s) => String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
-  // 즉시 시작 버튼 (A+B 결합 — Phase 3-C에서 ops API 연결)
-  document.getElementById('btn-reserve').addEventListener('click', () => {
-    alert('▶ 예약 + 알림 동작은 Phase 3-C에서 활성화됩니다.\nA+B 결합:\n  ① tasks.json에 priority_boost 자동 박힘\n  ② 클립보드 복사 + ops 알림 발송\n  ③ 대표님이 채팅에 붙여넣기 한 번 = 시작');
-  });
+  // ──────────────────────────────────────────────────────────
+  // 메인 fetch + 렌더
+  // ──────────────────────────────────────────────────────────
+  async function loadAndRender() {
+    try {
+      const res = await fetch('/pages-status.display.json?t=' + Date.now());
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      STATE.data = await res.json();
+      renderAll();
+    } catch (err) {
+      console.error('[admin-status] fetch 실패', err);
+      // 정적 데이터로 fallback (Phase 3-A 데이터 유지)
+    }
+  }
 
-  // 카테고리 카드 클릭 (지금은 페이지 이동, Phase 3-B에서 펼침 모달 추가)
-  // 향후: cat-card에 expanded 클래스 토글하면 인라인 펼침으로 전환
+  function renderAll() {
+    const d = STATE.data;
+    if (!d) return;
+    renderAvg(d);
+    renderSidebarMenus(d);
+    renderTopUrgent(d);
+    renderFooter(d);
+  }
 
-  // 데드라인 자동 계산 (헌법 데드라인)
-  const DEADLINE = '2026-05-03'; // 헌법 11조 — 정식 오픈 전까지
+  // ──────────────────────────────────────────────────────────
+  // 전체 평균 게이지
+  // ──────────────────────────────────────────────────────────
+  function renderAvg(d) {
+    $('avg-num').innerHTML = `${d.totalAvgScore}<small>/100</small>`;
+    $('avg-bar-fill').style.width = `${d.totalAvgScore}%`;
+    const c = d.counts || {};
+    $('avg-counts').innerHTML = `
+      <span style="color:var(--done);">🟢 완성 ${c['🟢 완성']||0}</span>
+      <span style="color:#60a5fa;">🔵 본격 ${c['🔵 본격']||0}</span>
+      <span style="color:var(--p2);">🟡 부분 ${c['🟡 부분']||0}</span>
+      <span style="color:var(--p1);">🟠 골격 ${c['🟠 골격']||0}</span>
+      <span style="color:var(--blocked);">🔴 미작성 ${c['🔴 미작성']||0}</span>
+    `;
+  }
+
+  // ──────────────────────────────────────────────────────────
+  // 6개 사이드바 메뉴 카드 (클릭 → 펼침)
+  // ──────────────────────────────────────────────────────────
+  function renderSidebarMenus(d) {
+    const grid = $('cat-grid');
+    if (!grid || !d.sidebarMenus) return;
+    grid.innerHTML = d.sidebarMenus.map((m, i) => renderCard(m, i+1)).join('');
+    // 카드 클릭 핸들러 (이벤트 위임)
+    grid.querySelectorAll('.cat-card').forEach(el => {
+      el.addEventListener('click', (e) => {
+        // 외부 링크(href)가 있는 a 태그 클릭은 무시 (다음 단계에서 인라인 펼침으로 변경 가능)
+        if (e.target.closest('.cat-toggle')) {
+          e.preventDefault();
+          e.stopPropagation();
+          const key = el.dataset.key;
+          STATE.expandedKey = STATE.expandedKey === key ? null : key;
+          renderSidebarMenus(STATE.data);  // 재렌더
+        }
+      });
+    });
+  }
+
+  function renderCard(m, catNum) {
+    const score = m.score || 0;
+    const color = score >= 90 ? 'var(--done)' :
+                  score >= 70 ? '#60a5fa' :
+                  score >= 50 ? 'var(--p2)' :
+                  score >= 30 ? 'var(--p1)' : 'var(--blocked)';
+    const isExpanded = STATE.expandedKey === m.key;
+    const isCurrent = m.path === '/admin-status.html';
+    const cardCls = isExpanded ? 'cat-card expanded' : (isCurrent ? 'cat-card warn' : 'cat-card');
+    const expandedDetails = isExpanded ? renderCardDetail(m) : '';
+    return `
+      <div class="${cardCls}" data-key="${m.key}" style="grid-column:${isExpanded ? '1 / -1' : 'auto'};">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+          <a href="${m.url}" style="text-decoration:none;color:inherit;flex:1;">
+            <div class="cat-row1">
+              <div>
+                <div class="label">CATEGORY ${catNum}${isCurrent ? ' · 현재' : ''}</div>
+                <div class="name">${escapeHtml(m.label)}</div>
+              </div>
+              <div class="score" style="color:${color};">${score}</div>
+            </div>
+            <div class="cat-bar"><div class="cat-bar-fill" style="width:${score}%;background:${color};"></div></div>
+            <div class="cat-meta">
+              <span class="auto">🤖 ${countByState(m, 'auto')}</span>
+              <span class="staff">👥 ${countByState(m, 'staff')}</span>
+              <span class="ceo">👤 ${countByState(m, 'ceo')}</span>
+              <span class="time">🕒 ${fmtTime(m.lastTask?.lastUpdated)}</span>
+            </div>
+          </a>
+          <button class="cat-toggle" style="background:transparent;border:0.5px solid var(--border);color:var(--text-muted);border-radius:4px;font-size:10px;padding:3px 8px;cursor:pointer;margin-left:8px;align-self:flex-start;">
+            ${isExpanded ? '접기 ✕' : '상세 ▾'}
+          </button>
+        </div>
+        ${expandedDetails}
+      </div>
+    `;
+  }
+
+  // 카테고리별 3-state 카운트 (간단 휴리스틱 — Phase 3-C에서 tasks.json 정확 연결)
+  function countByState(m, state) {
+    // 임시: lastTask 기반. 정확한 카운트는 Phase 3-C에서.
+    if (!m.lastTask) return 0;
+    if (state === 'auto') return Math.min(m.lastTask.taskCount || 0, 3);
+    if (state === 'staff') return 0;
+    if (state === 'ceo') return 0;
+    return 0;
+  }
+
+  // 카드 펼침 — 5차원 점수 + 진행 단계 + 다음 작업
+  function renderCardDetail(m) {
+    if (!m.dimensions) {
+      return `<div style="margin-top:12px;padding:12px;background:var(--panel-2);border-radius:6px;font-size:11px;color:var(--text-muted);">상세 데이터 없음 (페이지 미작성)</div>`;
+    }
+    const dim = m.dimensions;
+    const dimColor = (s) => s >= 70 ? 'var(--done)' : s >= 50 ? 'var(--p2)' : 'var(--blocked)';
+    const dimCard = (label, key) => `
+      <div style="background:var(--panel-2);padding:7px 8px;border-radius:5px;text-align:center;">
+        <div style="font-size:9px;color:var(--text-muted);">${label}</div>
+        <div style="font-size:14px;font-weight:500;color:${dimColor(dim[key]?.score || 0)};">${dim[key]?.score || 0}</div>
+      </div>
+    `;
+    const lastTaskRow = m.lastTask ? `
+      <div style="display:flex;align-items:center;gap:10px;padding:7px 9px;background:rgba(22,163,74,0.10);border-radius:5px;">
+        <span style="font-size:13px;">✅</span>
+        <span style="font-size:11px;flex:1;">${escapeHtml(m.lastTask.lastTaskTitle || '-')}</span>
+        <span style="font-size:10px;color:var(--text-muted);">${escapeHtml(m.lastTask.lastTaskId || '')} · ${escapeHtml(m.lastTask.lastUpdated || '')}</span>
+      </div>` : '<div style="font-size:11px;color:var(--text-muted);padding:7px 9px;">최근 작업 기록 없음</div>';
+    return `
+      <div style="margin-top:12px;padding:14px;background:var(--panel-2);border-radius:8px;border-top:1px solid var(--aurora-2);">
+        <div style="font-size:11px;color:var(--aurora-2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">📊 5차원 점수</div>
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:12px;">
+          ${dimCard('structure', 'structure')}
+          ${dimCard('design', 'design')}
+          ${dimCard('function', 'function')}
+          ${dimCard('content', 'content')}
+          ${dimCard('recency', 'recency')}
+        </div>
+        <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">📍 가장 약한 부분</div>
+        <div style="font-size:12px;color:#fca5a5;margin-bottom:12px;">
+          ${escapeHtml(m.weakest?.dimension || '-')}: ${escapeHtml(m.weakest?.hint || '-')}
+        </div>
+        <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">📜 마지막 작업 기록</div>
+        ${lastTaskRow}
+        <div style="font-size:10px;color:var(--text-muted);margin-top:10px;text-align:right;">
+          페이지로 이동 → <a href="${escapeHtml(m.url)}" style="color:#60a5fa;">${escapeHtml(m.url)}</a>
+        </div>
+      </div>
+    `;
+  }
+
+  // ──────────────────────────────────────────────────────────
+  // 시급 TOP 10
+  // ──────────────────────────────────────────────────────────
+  function renderTopUrgent(d) {
+    const list = $('top-list');
+    if (!list || !d.topUrgent) return;
+    list.innerHTML = d.topUrgent.map(t => {
+      const score = t.score;
+      const scoreCls = score < 30 ? 's-low' : score < 70 ? 's-mid' : 's-high';
+      const rowCls = score < 30 ? 'top-row crit-1' : score < 70 ? 'top-row crit-2' : 'top-row';
+      // state 추론: weakest=='의도된 정적' → hold, 그 외엔 일단 auto
+      const isHold = (t.weakest?.hint || '').includes('의도된 정적');
+      const stateCls = isHold ? 'hold' : 'auto';
+      const stateLabel = isHold ? '⏸ 보류' : '🤖 자동';
+      return `
+        <div class="${rowCls}">
+          <span class="rank">${t.rank}</span>
+          <span class="score ${scoreCls}">${score}</span>
+          <div class="info">
+            <div class="path">${escapeHtml(t.path)}</div>
+            <div class="hint">${escapeHtml(t.weakest?.dimension || '-')}: ${escapeHtml(t.weakest?.hint || '')}</div>
+          </div>
+          <span class="state-pill ${stateCls}">${stateLabel}</span>
+          <span class="when">🕒 ${fmtTime(t.lastUpdated)}</span>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // ──────────────────────────────────────────────────────────
+  // 푸터
+  // ──────────────────────────────────────────────────────────
+  function renderFooter(d) {
+    if ($('footer-scan')) $('footer-scan').textContent = fmtTime(d.generatedAt);
+  }
+
+  // ──────────────────────────────────────────────────────────
+  // 데드라인 자동 계산 (헌법 11조)
+  // ──────────────────────────────────────────────────────────
+  const DEADLINE = '2026-05-03';
   function updateDeadlineBanner() {
     const dl = new Date(DEADLINE + 'T23:59:59+09:00');
     const now = new Date();
     const diffDays = Math.floor((now - dl) / 86400000);
-    const banner = document.getElementById('deadline-banner');
-    const title = document.getElementById('deadline-title');
+    const banner = $('deadline-banner');
+    const title = $('deadline-title');
     if (diffDays > 0) {
       title.textContent = `헌법 데드라인 D+${diffDays} — ${DEADLINE} 지났음`;
       banner.classList.remove('hidden');
@@ -560,9 +757,32 @@
       banner.classList.add('hidden');
     }
   }
-  updateDeadlineBanner();
 
-  console.log('[admin-status] Phase 3-A loaded (정적 데이터). Phase 3-B에서 pages-status.display.json fetch 연결 예정.');
+  // ──────────────────────────────────────────────────────────
+  // 버튼 이벤트
+  // ──────────────────────────────────────────────────────────
+  $('btn-i18n').addEventListener('click', () => {
+    alert('영·한 토글은 다음 주 i18n 일괄 작업(BL-I18N-BATCH)에서 활성화됩니다.\n메모리 #20 원칙 — 영어 본체 완성 후 단일 작업으로 처리.');
+  });
+  $('btn-rescan').addEventListener('click', async () => {
+    const btn = $('btn-rescan');
+    const orig = btn.textContent;
+    btn.textContent = '⏳ 재측정 중...';
+    btn.disabled = true;
+    await loadAndRender();
+    btn.textContent = orig;
+    btn.disabled = false;
+  });
+  $('btn-reserve').addEventListener('click', () => {
+    alert('▶ 예약 + 알림 동작은 Phase 3-C에서 활성화됩니다.\nA+B 결합:\n  ① tasks.json에 priority_boost 자동 박힘\n  ② 클립보드 복사 + ops 알림 발송\n  ③ 대표님이 채팅에 붙여넣기 한 번 = 시작');
+  });
+
+  // ──────────────────────────────────────────────────────────
+  // 초기 실행
+  // ──────────────────────────────────────────────────────────
+  updateDeadlineBanner();
+  loadAndRender();
+  console.log('[admin-status] Phase 3-B loaded — pages-status.display.json fetch 작동');
 </script>
 </body>
 </html>

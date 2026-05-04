@@ -29,7 +29,10 @@ import { PAGES, PAGE_TASK_META } from './pages-meta.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, '..');
-const OUT = resolve(REPO_ROOT, 'pages-status.json');
+// 3-Layer 출력 파일 경로 (D-012 대용량 파일 분리 원칙 / 헌법 ⑥ AI 가독성)
+const OUT_FULL    = resolve(REPO_ROOT, 'pages-status.json');           // 분석용 (전체)
+const OUT_DISPLAY = resolve(REPO_ROOT, 'pages-status.display.json');   // UI용 (admin-status.html이 fetch)
+const OUT_SUMMARY = resolve(REPO_ROOT, 'pages-status.summary.json');   // Claude용 (5KB 이내)
 
 // ────────────────────────────────────────────────────────────
 // 차원별 점수 계산
@@ -241,8 +244,76 @@ function main() {
     pages: results,
   };
 
-  writeFileSync(OUT, JSON.stringify(output, null, 2));
-  console.log(`\n✅ pages-status.json 생성 (${results.length}개 페이지, 평균 ${totalAvg}점)`);
+  // ────────────────────────────────────────────────────────────
+  // 3-Layer 분리 출력 (D-012 대용량 파일 분리 원칙)
+  // ────────────────────────────────────────────────────────────
+
+  // FULL (분석용) — 전체 데이터 그대로
+  writeFileSync(OUT_FULL, JSON.stringify(output, null, 2));
+
+  // DISPLAY (UI용) — admin-status.html이 fetch, 사람이 화면에서 보는 형태
+  // 시급 TOP은 점수 낮은 순으로 정렬해 미리 박아둠 (UI 계산 부담 줄임)
+  const sortedByScore = [...results].sort((a, b) => a.totalScore - b.totalScore);
+  const display = {
+    generatedAt: startedAt,
+    totalAvgScore: totalAvg,
+    counts,
+    categoryStats,
+    // 6개 사이드바 메뉴별 카드 표시용 데이터 (펼침 모달 포함)
+    sidebarMenus: [
+      { key: 'central-hub',        label: '🎯 Central Hub',        url: '/admin-hub.html',          path: '/admin-hub.html' },
+      { key: 'task-management',    label: '📋 Task Management',    url: '/admin-tasks.html',        path: '/admin-tasks.html' },
+      { key: 'business-docs',      label: '📚 Business Docs',      url: '/admin-business.html',     path: '/admin-business.html' },
+      { key: 'page-gallery',       label: '📸 Page Gallery',       url: '/admin-gallery.html',      path: '/admin-gallery.html' },
+      { key: 'service-operations', label: '🛠️ Service Operations', url: '/admin-service-ops.html',  path: '/admin-service-ops.html' },
+      { key: 'system-status',      label: '📊 System Status',      url: '/admin-status.html',       path: '/admin-status.html' },
+    ].map(m => {
+      const r = results.find(x => x.path === m.path);
+      return {
+        ...m,
+        score: r ? r.totalScore : 0,
+        badge: r ? r.badge : { label: '🔴 미작성', color: '#dc2626' },
+        weakest: r ? r.weakest : null,
+        dimensions: r ? r.dimensions : null,
+        lastTask: r ? r.lastTask : null,
+        fileExists: r ? r.fileExists : false,
+      };
+    }),
+    // 시급 TOP 10 — 점수 낮은 순, 충분한 정보 박음
+    topUrgent: sortedByScore.slice(0, 10).map((r, i) => ({
+      rank: i + 1,
+      path: r.path,
+      name: r.name,
+      score: r.totalScore,
+      badge: r.badge,
+      weakest: r.weakest,
+      lastTaskId: r.lastTask?.lastTaskId || null,
+      lastUpdated: r.lastTask?.lastUpdated || null,
+    })),
+    // 모든 페이지 — 카드 펼침 시 5차원 점수 + 이력 표시용
+    pages: results,
+  };
+  writeFileSync(OUT_DISPLAY, JSON.stringify(display, null, 2));
+
+  // SUMMARY (Claude용) — 5KB 이내, 끊어진 대화 들어온 새 Claude가 즉시 컨텍스트 복구
+  const critical = sortedByScore.filter(r => r.totalScore < 50);
+  const partial  = sortedByScore.filter(r => r.totalScore >= 50 && r.totalScore < 70);
+  const summary = {
+    generatedAt: startedAt,
+    totalAvgScore: totalAvg,
+    pageCount: results.length,
+    counts,
+    criticalPages: critical.map(r => ({ path: r.path, score: r.totalScore, weakest: r.weakest.dimension })),
+    partialPages:  partial.map(r => ({ path: r.path, score: r.totalScore, weakest: r.weakest.dimension })),
+    // 6 메뉴 압축
+    sidebarScores: display.sidebarMenus.map(m => ({ key: m.key, score: m.score })),
+  };
+  writeFileSync(OUT_SUMMARY, JSON.stringify(summary, null, 2));
+
+  console.log(`\n✅ 3-Layer 출력 완료:`);
+  console.log(`   - pages-status.json         ${(JSON.stringify(output).length/1024).toFixed(1)}KB (분석용)`);
+  console.log(`   - pages-status.display.json ${(JSON.stringify(display).length/1024).toFixed(1)}KB (UI용)`);
+  console.log(`   - pages-status.summary.json ${(JSON.stringify(summary).length/1024).toFixed(1)}KB (Claude용)`);
 }
 
 main();

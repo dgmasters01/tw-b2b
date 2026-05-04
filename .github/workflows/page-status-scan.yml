@@ -70,16 +70,16 @@ jobs:
           git config user.name "page-scan-bot"
           git config user.email "scan-bot@gohotelwinners.com"
 
-          if git diff --quiet pages-status.json; then
+          # 3-Layer 출력 모두 변경 감지 (D-012)
+          if git diff --quiet pages-status.json pages-status.display.json pages-status.summary.json 2>/dev/null; then
             echo "변경 없음 — commit skip"
             exit 0
           fi
 
-          # 어떤 페이지가 점수 변동됐는지 한 줄 요약
           AVG=$(node -e "console.log(require('./pages-status.json').totalAvgScore)")
           PAGES=$(node -e "console.log(require('./pages-status.json').pages.length)")
 
-          git add pages-status.json
-          git commit -m "[scan-bot] pages-status.json 자동 갱신 (${PAGES}페이지, 평균 ${AVG}점) [변경사유: HTML 변경 → 완성도 재측정]"
+          git add pages-status.json pages-status.display.json pages-status.summary.json
+          git commit -m "[scan-bot] pages-status 3-Layer 자동 갱신 (${PAGES}페이지, 평균 ${AVG}점) [변경사유: HTML 변경 → 완성도 재측정]"
           git push origin main
-          echo "✅ pages-status.json 자동 갱신 완료"
+          echo "✅ pages-status 3-Layer 자동 갱신 완료"

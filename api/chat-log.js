@@ -65,15 +65,16 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Invalid slug' });
   }
 
-  // 파일 읽기 (chat-logs/{slug}.md 또는 chat-logs/index.json)
+  // 파일 읽기 (_chat-logs/{slug}.md 또는 _chat-logs/index.json)
+  // 폴더명이 _ 접두사인 이유: Vercel 정적 서빙 차단을 위해. 빌드에는 포함됨.
   try {
     const root = process.cwd();
     if (slug === 'index') {
-      const buf = await readFile(join(root, 'chat-logs', 'index.json'), 'utf8');
+      const buf = await readFile(join(root, '_chat-logs', 'index.json'), 'utf8');
       res.setHeader('Content-Type', 'application/json; charset=utf-8');
       return res.status(200).send(buf);
     }
-    const buf = await readFile(join(root, 'chat-logs', `${slug}.md`), 'utf8');
+    const buf = await readFile(join(root, '_chat-logs', `${slug}.md`), 'utf8');
     res.setHeader('Content-Type', 'text/markdown; charset=utf-8');
     return res.status(200).send(buf);
   } catch (e) {

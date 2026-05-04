@@ -24,7 +24,7 @@
 import { readdirSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 
-const DIR = 'chat-logs';
+const DIR = '_chat-logs';
 
 function parseFrontmatter(md) {
   const m = md.match(/^---\n([\s\S]*?)\n---/);

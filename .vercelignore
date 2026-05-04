@@ -1,0 +1,7 @@
+# Vercel deploy ignore
+#
+# _chat-logs/ — Vercel은 _ 접두사 폴더를 정적 서빙하지 않음 (하지만 빌드에는 포함되어 API 함수가 readFile로 접근 가능).
+# 따라서 _chat-logs는 .vercelignore에 추가하지 않음.
+#
+# _backup_*/ — 백업 폴더는 정적 노출 + 빌드 모두 제외 (용량 + 보안)
+_backup_*/

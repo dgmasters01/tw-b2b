@@ -28,7 +28,8 @@ import { execSync } from 'node:child_process';
 const DIR = '_chat-logs';
 
 // git log에서 chat-log 파일이 변경된 commit + commit message에 task ID가 박힌 commit 자동 추출
-function buildAutoCommitMap(slugs, taskIdsBySlug) {
+// + 시간 근접성 fallback (BL-STATUS-FINAL-V2)
+function buildAutoCommitMap(slugs, taskIdsBySlug, allEntries) {
   const byCommit = {};
   // 1) chat-log 파일 자체가 변경된 commit
   for (const slug of slugs) {
@@ -40,12 +41,15 @@ function buildAutoCommitMap(slugs, taskIdsBySlug) {
   }
   // 2) commit message에 chat-log slug가 박힌 경우
   // 3) commit message에 task ID가 있고, 그 task가 chat-log에 매핑돼 있으면 같은 chat-log로 매핑
+  // 4) ★ 시간 근접성 fallback — 매핑 안 된 commit을 같은 날짜 chat-log로 매핑
+  let allCommits = [];
   try {
-    const recent = execSync('git log --format="%h|%s" -n 200', { encoding: 'utf8', stdio: ['pipe','pipe','ignore'] });
+    const recent = execSync('git log --format="%h|%ai|%s" -n 2000', { encoding: 'utf8', stdio: ['pipe','pipe','ignore'] });
     for (const line of recent.split('\n')) {
-      const [hash, ...rest] = line.split('|');
+      const [hash, dateIso, ...rest] = line.split('|');
       if (!hash) continue;
       const msg = rest.join('|');
+      allCommits.push({ hash: hash.trim(), date: dateIso, msg });
       // slug 직접 매칭
       for (const slug of slugs) {
         if (msg.includes(slug)) byCommit[hash.trim()] = slug;
@@ -64,6 +68,27 @@ function buildAutoCommitMap(slugs, taskIdsBySlug) {
       }
     }
   } catch (_) {}
+
+  // ★ 4) 시간 근접성 fallback — 같은 날짜의 chat-log로 매핑
+  if (allEntries && allEntries.length > 0) {
+    // 각 chat-log의 date를 epoch로 변환
+    const entryByDate = {};
+    for (const e of allEntries) {
+      if (e.date) {
+        if (!entryByDate[e.date]) entryByDate[e.date] = [];
+        entryByDate[e.date].push(e.slug);
+      }
+    }
+    for (const c of allCommits) {
+      if (byCommit[c.hash]) continue; // 이미 매핑됨
+      // commit date에서 YYYY-MM-DD 추출
+      const day = (c.date || '').slice(0, 10);
+      if (entryByDate[day]) {
+        // 같은 날짜의 chat-log 중 첫번째 (정렬 대신 최초 매핑)
+        byCommit[c.hash] = entryByDate[day][0] + ' (시간근접)';
+      }
+    }
+  }
   return byCommit;
 }
 
@@ -127,12 +152,13 @@ function main() {
   // ★ git log 자동 매핑 보강 — frontmatter commits 비어 있어도 매핑됨
   const slugs = all.map(e => e.slug);
   const taskIdsBySlug = Object.fromEntries(all.map(e => [e.slug, e.tasks || []]));
-  const autoByCommit = buildAutoCommitMap(slugs, taskIdsBySlug);
+  const autoByCommit = buildAutoCommitMap(slugs, taskIdsBySlug, all);
   // frontmatter commits가 명시된 건 그대로 유지 (우선순위 ↑), 없는 commit만 자동으로 박음
   for (const [hash, slug] of Object.entries(autoByCommit)) {
     if (!byCommit[hash]) byCommit[hash] = slug;
   }
   // 각 entry.commits에도 자동 매핑된 hash 박음 (commit_hash 역추적용)
+  // "(시간근접)" suffix는 entry.commits에는 박지 않음 (정확한 매핑만)
   for (const entry of all) {
     const autoCommits = Object.entries(autoByCommit).filter(([_, s]) => s === entry.slug).map(([h]) => h);
     const merged = Array.from(new Set([...(entry.commits || []), ...autoCommits]));

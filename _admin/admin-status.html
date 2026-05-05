@@ -144,6 +144,38 @@
     50% { box-shadow: 0 0 0 6px rgba(236,72,153,0.0); }
   }
 
+  /* ★ 임박 박스 KPI 클릭 시 강조 (BL-STATUS-FINAL-V2) */
+  .urgent-section-header { display: flex; align-items: center; gap: 8px; }
+  @keyframes slide-in-right {
+    0% { opacity: 0; transform: translateX(-20px); }
+    100% { opacity: 1; transform: translateX(0); }
+  }
+  /* 임박 박스 자체 강조 (KPI 클릭 후 ~3초 강한 강조) */
+  #integ-urgent.kpi-target-highlight {
+    animation: kpi-target-pulse 2s ease-out;
+    border-radius: 8px;
+  }
+  @keyframes kpi-target-pulse {
+    0% { box-shadow: 0 0 0 0 rgba(99,102,241,0.6), 0 0 30px rgba(236,72,153,0.4); transform: scale(1); }
+    20% { box-shadow: 0 0 0 8px rgba(99,102,241,0.4), 0 0 40px rgba(236,72,153,0.5); transform: scale(1.01); }
+    100% { box-shadow: 0 0 0 0 rgba(99,102,241,0), 0 0 0 rgba(236,72,153,0); transform: scale(1); }
+  }
+  /* 화살표 마커 (KPI → 임박 박스) */
+  .kpi-arrow-marker {
+    position: fixed;
+    pointer-events: none;
+    font-size: 32px;
+    z-index: 9999;
+    animation: arrow-fly 1.2s ease-out forwards;
+    opacity: 0;
+  }
+  @keyframes arrow-fly {
+    0% { opacity: 0; transform: scale(0.5); }
+    20% { opacity: 1; transform: scale(1.2); }
+    80% { opacity: 1; transform: scale(1) translateY(20px); }
+    100% { opacity: 0; transform: scale(0.8) translateY(40px); }
+  }
+
   /* ===== 자율 추천 콜투액션 ===== */
   .next-action {
     background: linear-gradient(135deg, rgba(22,163,74,0.10), rgba(22,163,74,0.04));
@@ -363,7 +395,24 @@
     display: grid; grid-template-columns: 24px 38px 1fr 70px 90px;
     gap: 8px; align-items: center; padding: 6px 8px; border-radius: 5px;
     background: rgba(96,165,250,0.05);
+    transition: all 0.15s;
+    border: 0.5px solid transparent;
   }
+  .top-row[data-page-path]:hover {
+    background: rgba(99,102,241,0.12);
+    border-color: var(--aurora-2);
+    transform: translateX(2px);
+    cursor: pointer;
+  }
+  .top-row[data-page-path]:hover::after {
+    content: '👉 클릭하면 카테고리 + 진행률 펼침';
+    position: absolute; right: 16px;
+    background: var(--aurora-2); color: white;
+    font-size: 10px; padding: 3px 8px; border-radius: 4px;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+  .top-row[data-page-path] { position: relative; }
   .top-row.crit-1 { background: rgba(220,38,38,0.10); }
   .top-row.crit-2 { background: rgba(202,138,4,0.08); }
   .top-row .rank { font-size: 10px; color: var(--text-muted); }
@@ -743,8 +792,9 @@
     </div>
 
     <!-- 임박 작업 (P0 + 진행 중) -->
-    <div class="integ-section-h" style="margin-top:12px;">
+    <div class="integ-section-h urgent-section-header" id="urgent-section-header" style="margin-top:12px;">
       <span class="label">🚨 임박 작업 (P0 + 진행 중)</span>
+      <span class="urgent-jump-hint" id="urgent-jump-hint" style="display:none;font-size:11px;color:var(--aurora-2);font-weight:500;margin-left:auto;animation:slide-in-right 0.4s;">👈 여기가 클릭한 KPI 결과입니다</span>
     </div>
     <div class="urgent-grid" id="integ-urgent">
       <div class="urgent-empty">로딩 중...</div>
@@ -781,6 +831,9 @@
     <div class="top-header">
       <div class="section-label" style="margin:0;">⚠️ 시급 페이지 TOP 10 — 점수 낮은 순</div>
       <div style="font-size:10px;color:var(--text-muted);">🤖 자동 · 👥 직원 · 👤 결정 · ⏸ 보류</div>
+    </div>
+    <div style="font-size:11px;color:var(--aurora-2);margin-bottom:8px;padding:6px 10px;background:rgba(99,102,241,0.08);border:0.5px solid rgba(99,102,241,0.3);border-radius:5px;">
+      💡 <strong>각 행 클릭</strong> → 위쪽 "사이드바 5개 메뉴" 카드와 "📂 카테고리별 진행률" 동시에 펼쳐지면서 분홍 펄스로 표시됩니다.
     </div>
     <div class="top-list" id="top-list">
       <div class="top-row crit-1">
@@ -1542,7 +1595,21 @@
       ? `<div class="urgent-filter-bar" style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:rgba(99,102,241,0.08);border:0.5px solid rgba(99,102,241,0.3);border-radius:6px;margin-bottom:8px;font-size:11px;"><span>필터: <strong>${filterLabel}</strong> · ${urgent.length}건</span><button id="urgent-filter-clear" style="margin-left:auto;background:transparent;border:0.5px solid var(--border);color:var(--text-muted);border-radius:4px;font-size:10px;padding:3px 8px;cursor:pointer;">필터 해제 ✕</button></div>`
       : '';
     if (urgent.length === 0) {
-      wrap.innerHTML = filterBar + '<div class="urgent-empty">🎉 ' + (filterLabel ? '해당 필터에 맞는 작업 없음' : 'P0 + 진행 중 작업 없음') + '</div>';
+      // ★ 0건 안내 의미화 (BL-STATUS-FINAL-V2)
+      let emptyMsg;
+      if (filterRole === 'auto') {
+        emptyMsg = `🎉 자동 진행 가능한 P0/진행중 작업 없음<br>
+          <span style="font-size:11px;color:var(--text-muted);font-weight:400;">→ 자동 13건 모두 P1/P2 우선순위에 있음. 카테고리별 진행률에서 확인하세요.</span>`;
+      } else if (filterRole === 'staff') {
+        emptyMsg = `👥 직원에게 부탁할 작업이 0건입니다<br>
+          <span style="font-size:11px;color:var(--text-muted);font-weight:400;">→ 모든 미완료 작업이 자동 진행 가능 또는 대표님 결정 대기. 직원 트리거 불필요.</span>`;
+      } else if (filterRole === 'ceo') {
+        emptyMsg = `👤 대표님 결정이 필요한 P0/진행중 작업 없음<br>
+          <span style="font-size:11px;color:var(--text-muted);font-weight:400;">→ 결정 대기 5건은 P1/P2 우선순위. 페이지 하단 "👤 대표님 결정 대기" 박스에서 확인.</span>`;
+      } else {
+        emptyMsg = '🎉 P0 + 진행 중 작업 없음 — 모두 처리 완료';
+      }
+      wrap.innerHTML = filterBar + `<div class="urgent-empty" style="padding:20px;text-align:center;line-height:1.6;">${emptyMsg}</div>`;
       const clearBtn = document.getElementById('urgent-filter-clear');
       if (clearBtn) clearBtn.addEventListener('click', () => { STATE.urgentFilter = 'all'; renderIntegratedUrgent(STATE.data); });
       return;
@@ -2148,10 +2215,17 @@
       }
       const idx = ACTIVITY_CACHE.chatLogIndex;
       let slug = null;
+      let isApprox = false;  // ★ 시간 근접성 매핑 표시
       // commit hash로 매핑
       if (item.target_type === 'commit' && item.target_id && idx && idx.byCommit) {
         const shortHash = String(item.target_id).slice(0, 7);
-        slug = idx.byCommit[shortHash] || idx.byCommit[item.target_id];
+        let raw = idx.byCommit[shortHash] || idx.byCommit[item.target_id];
+        if (raw && raw.includes(' (시간근접)')) {
+          isApprox = true;
+          slug = raw.replace(' (시간근접)', '');
+        } else {
+          slug = raw;
+        }
       }
       // task ID로 매핑
       if (!slug && idx && idx.byTask) {
@@ -2185,6 +2259,7 @@
         <div style="margin-bottom:6px;font-size:10px;color:var(--text-muted);">
           📜 <code>/chat-logs/${escapeHtml(slug)}.md</code>
         </div>
+        ${isApprox ? `<div style="padding:6px 10px;background:rgba(251,191,36,0.10);border:0.5px solid rgba(251,191,36,0.4);border-radius:5px;margin-bottom:8px;font-size:11px;color:#fcd34d;">⚠️ 정확한 매핑 아님 — 같은 날짜(${(item.timestamp||'').slice(0,10)})의 chat-log를 추정 표시. 별도 chat-log가 있을 수 있습니다.</div>` : ''}
         ${renderMarkdown(content)}
       `;
     } catch (e) {
@@ -2534,7 +2609,7 @@
   loadIntegratedTasks();  // ★ BL-PAGE-DEDUP + IP-CTRL-001 5단계 (자율 작업 큐 포함)
   startPolling();         // ★ BL-REAL-SYSTEM 거짓말 2 해결 — 5초 폴링
 
-  // ★ KPI 4카드 클릭 = 임박 박스 필터 (BL-STATUS-DRILL-DOWN + V2 시각 강조)
+  // ★ KPI 4카드 클릭 = 임박 박스 필터 (BL-STATUS-FINAL-V2 강한 시각 안내)
   document.querySelectorAll('.stat-card[data-role-filter]').forEach(card => {
     card.addEventListener('click', () => {
       const role = card.dataset.roleFilter;
@@ -2550,9 +2625,45 @@
           c.dataset.roleFilter === STATE.urgentFilter && STATE.urgentFilter !== 'all');
       });
       if (STATE.data) renderIntegratedUrgent(STATE.data);
-      // 임박 박스로 부드럽게 스크롤
+
+      // ★ 임박 박스로 부드럽게 스크롤 + 강한 시각 안내
       const target = document.getElementById('integ-urgent');
-      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      const hint = document.getElementById('urgent-jump-hint');
+      const header = document.getElementById('urgent-section-header');
+      if (target) {
+        // 1. 화살표 마커 박음 (KPI 위치에서 → 박스 방향)
+        if (STATE.urgentFilter !== 'all') {
+          const cardRect = card.getBoundingClientRect();
+          const arrow = document.createElement('div');
+          arrow.className = 'kpi-arrow-marker';
+          arrow.textContent = '👇';
+          arrow.style.left = (cardRect.left + cardRect.width / 2 - 16) + 'px';
+          arrow.style.top = (cardRect.bottom + 10) + 'px';
+          document.body.appendChild(arrow);
+          setTimeout(() => arrow.remove(), 1300);
+        }
+        // 2. 스크롤 (start 위치 — 헤더부터 보이게)
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        // 3. 임박 박스 자체 펄스 (2초간 강한 강조)
+        target.classList.remove('kpi-target-highlight');
+        void target.offsetWidth; // reflow 강제 (animation 재시작)
+        target.classList.add('kpi-target-highlight');
+        setTimeout(() => target.classList.remove('kpi-target-highlight'), 2200);
+        // 4. "👈 여기가 클릭한 KPI 결과입니다" 텍스트 박음 (필터 모드일 때만)
+        if (hint) {
+          if (STATE.urgentFilter !== 'all') {
+            hint.style.display = 'inline';
+            hint.style.animation = 'none';
+            void hint.offsetWidth;
+            hint.style.animation = 'slide-in-right 0.4s';
+            // 4초 후 자동 숨김
+            clearTimeout(STATE._hintTimer);
+            STATE._hintTimer = setTimeout(() => { hint.style.display = 'none'; }, 4000);
+          } else {
+            hint.style.display = 'none';
+          }
+        }
+      }
     });
   });
 

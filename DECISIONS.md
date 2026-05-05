@@ -164,6 +164,62 @@
 
 ---
 
+---
+
+### 결정 D-016: BL-ADMIN-AUTH-V2 라우터 통합 — Vercel Hobby 12 함수 한도 회피 ⭐⭐ 2026-05-04
+
+**무엇을**: D-015에서 추가한 신규 5개 함수(api/admin/* 4개 + api/auth/session 1개)를 라우터 패턴으로 기존 함수에 흡수. Vercel Hobby 플랜의 12개 Serverless Function 한도 회피.
+
+**왜**: D-015 박은 직후 Vercel Build Failed 발생 — `No more than 12 Serverless Functions can be added on the Hobby plan`. 함수 갯수 15개 → 한도 초과.
+
+**대표님 결정 (비용 정책)**: C 옵션 — 지금 라우터 통합으로 무료(Hobby) 유지 + 정식 오픈 직전 Pro($20/월) 전환.
+
+**왜 무료 유지가 맞나**:
+- 정식 오픈 전 = 매출 0 = $20/월도 부담
+- 매니저 1~2명 들어오면 즉시 회수 ($200/매니저)
+- Pro로 가도 라우터 패턴은 더 깨끗 (cold start ↓, 코드 책임 분리)
+
+**박은 변경**:
+
+| 변경 | Before | After |
+|---|---|---|
+| api/admin/accept-invite.js | 별도 함수 | api/_lib/admin-auth-handlers.js의 한 case |
+| api/admin/change-role.js | 별도 함수 | 동일 |
+| api/admin/invite.js | 별도 함수 | 동일 |
+| api/admin/users-list.js | 별도 함수 | 동일 |
+| api/auth/session.js | 별도 함수 | api/auth.js의 한 case |
+
+**라우팅 흐름** (vercel.json rewrites 추가):
+```
+클라이언트              vercel.json rewrites           실제 함수
+/api/admin/invite    → /api/admin?action=auth-invite → api/admin.js → adminAuthHandler
+/api/auth/session    → /api/auth?action=session     → api/auth.js
+```
+
+**핵심 설계**:
+- `api/admin.js`의 라우터에서 `action.startsWith('auth-')` 감지 → `_lib/admin-auth-handlers.js` 호출
+- auth-* 핸들러는 자체 Bearer JWT 인증 (`requireAdmin` 우회 — accept-invite는 가입 전 무인증 진입 필요)
+- 클라이언트 코드 변경 0 (rewrites가 흡수)
+
+**함수 갯수**:
+- D-015 박은 직후: **15개** ❌ (Build Failed)
+- D-016 박은 후: **12개** ✅ (정확히 한도)
+
+**파일 변경**:
+- 신규: `api/auth.js`, `api/_lib/admin-auth-handlers.js`
+- 수정: `api/admin.js` (auth-* prefix 분기 추가), `vercel.json` (rewrites 5개 추가)
+- 삭제: `api/admin/`, `api/auth/` 폴더 (5개 파일)
+
+**Phase β 마이그레이션 (정식 오픈 직전)**:
+- Pro 플랜 전환 → 함수 한도 해제
+- 라우터 패턴 유지 (코드 정리 가치)
+- 새 기능은 자유롭게 분리 가능
+
+**연관 작업**: D-015 (BL-ADMIN-AUTH-V2 본 작업)
+**누가**: 이지형 대표님(비용 정책 결정) + Claude 자율 실행(라우터 패턴 + rewrites)
+
+---
+
 ### 결정 D-015: BL-ADMIN-AUTH-V2 — 5단계 권한 + 초대 + 즉시 박탈 + 무제한 이력 ⭐⭐⭐ 2026-05-05
 **무엇을**: 임시 비번 시스템(ADMIN_ACCESS_KEY 쿠키) 폐기. Supabase Auth 기반 정식 권한 시스템 박음.
 

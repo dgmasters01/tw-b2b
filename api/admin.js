@@ -1,17 +1,27 @@
 // /api/admin.js
 // Admin 통합 router (Vercel Hobby 12-function 제한 회피용 단일 파일)
-// action 파라미터(query string ?action=...)로 4개 sub-handler 분기:
+// action 파라미터(query string ?action=...)로 sub-handler 분기:
+//
+// [기존 운영 핸들러 — requireAdmin 인증 필수]
 //   POST ?action=booking-upload   → TW Booking Analytics 엑셀 업로드
 //   GET/POST ?action=list-users   → Supabase Auth 사용자 + hotels 정보 조인
 //   POST ?action=send-invite      → Agoda 등록 안내 메일 발송 + 상태 업데이트
 //   POST ?action=update-match     → 호텔의 Agoda 매칭 상태 직접 수정
 //
+// [BL-ADMIN-AUTH-V2 권한 핸들러 — 자체 인증 (Bearer JWT)]
+//   GET  ?action=auth-users-list      → admins/invitations/role_change_log 통합 조회
+//   POST ?action=auth-invite          → 직원 초대 메일 발송 (Resend)
+//   GET  ?action=auth-accept-invite   → 초대 토큰 검증
+//   POST ?action=auth-accept-invite   → 가입 처리
+//   POST ?action=auth-change-role     → role 변경/박탈/복원
+//
 // ⚠️ 라우팅은 query string ?action=만 사용 (admin-update-match가 body.action을
 //    내부 분기에 사용하므로 body.action fallback은 절대 추가하지 말 것)
 //
-// 통합 전 4개 파일 (admin-booking-upload.js / admin-list-users.js /
-// admin-send-agoda-invite.js / admin-update-match.js)은
-// _backup_20260429/ 폴더에 보존됨.
+// auth-* 핸들러는 _lib/admin-auth-handlers.js로 분리 (Vercel 12 함수 한도, D-016).
+// 통합 전 운영 4개 파일은 _backup_20260429/ 폴더에 보존됨.
+
+import adminAuthHandler from './_lib/admin-auth-handlers.js';
 
 const SUPABASE_URL = process.env.SUPABASE_URL || 'https://vjsludfjsphwnumuoqaj.supabase.co';
 const RESEND_ENDPOINT = 'https://api.resend.com/emails';
@@ -525,12 +535,27 @@ export default async function handler(req, res) {
   const url = new URL(req.url || '/', 'http://x');
   const action = (url.searchParams.get('action') || '').toLowerCase();
 
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  // BL-ADMIN-AUTH-V2 권한 핸들러 (auth-*) — 자체 인증, requireAdmin 우회
+  // _lib/admin-auth-handlers.js의 default export (adminAuthHandler)가
+  // 내부에서 ?action= 검사 + 자체 Bearer JWT 인증을 수행함.
+  // 진입 시 query를 그대로 전달하되, 'auth-' prefix 제거하여 핸들러가 인식.
+  // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  if (action.startsWith('auth-')) {
+    // auth-users-list → users-list, auth-invite → invite, ...
+    const subAction = action.slice('auth-'.length);
+    // req.query를 mutate하여 sub action 전달 (Vercel API: req.query는 객체)
+    req.query = { ...req.query, action: subAction };
+    return await adminAuthHandler(req, res);
+  }
+
   // 화이트리스트 검증을 인증보다 먼저 수행 → 디버깅 시 라우팅 문제와 인증 문제를 명확히 분리
   const ALLOWED_ACTIONS = ['booking-upload', 'list-users', 'send-invite', 'update-match'];
   if (!action) {
     return res.status(400).json({
       error: 'missing_action',
       allowed: ALLOWED_ACTIONS,
+      auth_actions: ['auth-users-list', 'auth-invite', 'auth-accept-invite', 'auth-change-role'],
       hint: 'Use ?action=<name> in query string'
     });
   }
@@ -539,6 +564,7 @@ export default async function handler(req, res) {
       error: 'unknown_action',
       received: action,
       allowed: ALLOWED_ACTIONS,
+      auth_actions: ['auth-users-list', 'auth-invite', 'auth-accept-invite', 'auth-change-role'],
       hint: 'Use ?action=<name> in query string'
     });
   }

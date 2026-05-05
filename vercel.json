@@ -77,6 +77,26 @@
   ],
   "rewrites": [
     {
+      "source": "/api/admin/users-list",
+      "destination": "/api/admin?action=auth-users-list"
+    },
+    {
+      "source": "/api/admin/invite",
+      "destination": "/api/admin?action=auth-invite"
+    },
+    {
+      "source": "/api/admin/accept-invite",
+      "destination": "/api/admin?action=auth-accept-invite"
+    },
+    {
+      "source": "/api/admin/change-role",
+      "destination": "/api/admin?action=auth-change-role"
+    },
+    {
+      "source": "/api/auth/session",
+      "destination": "/api/auth?action=session"
+    },
+    {
       "source": "/chat-logs/index.json",
       "destination": "/api/chat-log?slug=index"
     },

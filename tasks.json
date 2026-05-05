@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-04T18:03:57Z",
+  "updated_at": "2026-05-05T01:04:31Z",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -39,7 +39,7 @@
           "D-015"
         ]
       },
-      "progress": "✅ 임시 비번 시스템(ADMIN_ACCESS_KEY 쿠키) 폐기. Supabase Auth 5단계 권한 정식 박힘. DB 9섹션 SQL 라이브 적용 8/8 PASS. API 5개 신규 + admin-page.js 재작성. 사용자 화면 3개 (admin-login / admin-accept-invite / admin-permissions). admin-status에 Card 6 권한 관리 통합 진입점 추가. Owner 삼중 보호: handle_new_user 트리거 + protect_owner_account 트리거 + RLS. D-015 + chat-log 2026-05-05-admin-auth-v2 박힘.",
+      "progress": "✅ 임시 비번 시스템(ADMIN_ACCESS_KEY 쿠키) 폐기. Supabase Auth 5단계 권한 정식 박힘. DB 9섹션 SQL 라이브 적용 8/8 PASS. API 5개 신규 + admin-page.js 재작성. 사용자 화면 3개 (admin-login / admin-accept-invite / admin-permissions). admin-status에 Card 6 권한 관리 통합 진입점 추가. Owner 삼중 보호: handle_new_user 트리거 + protect_owner_account 트리거 + RLS. D-015 + chat-log 2026-05-05-admin-auth-v2 박힘. [D-016] Vercel Hobby 12 함수 한도 회피를 위해 5개 신규 함수를 라우터 패턴으로 통합 — admin/* 4개 → _lib/admin-auth-handlers.js 모듈 추출 후 api/admin.js의 auth-* prefix로 흡수, auth/session 1개 → api/auth.js 라우터화. vercel.json rewrites로 클라이언트 URL 호환 유지(코드 변경 0). 함수 갯수 15→12 ✅. 정식 오픈 직전 Pro 전환 시점까지 라우터 패턴 유지.",
       "files_changed": [
         "sql/bl-admin-auth-v2.sql",
         "api/auth/session.js",
@@ -58,7 +58,9 @@
       ],
       "decisions": [
         "D-015"
-      ]
+      ],
+      "updated_at": "2026-05-05T01:04:31Z",
+      "last_chat_log": "2026-05-04-admin-auth-v2-router-consolidation"
     },
     {
       "id": "BL-CATEGORY-REMAP",

@@ -839,7 +839,8 @@
       <div style="font-size:10px;color:var(--text-muted);">🤖 자동 · 👥 직원 · 👤 결정 · ⏸ 보류</div>
     </div>
     <div style="font-size:11px;color:var(--aurora-2);margin-bottom:8px;padding:6px 10px;background:rgba(99,102,241,0.08);border:0.5px solid rgba(99,102,241,0.3);border-radius:5px;">
-      💡 <strong>각 행 클릭</strong> → 위쪽 "사이드바 5개 메뉴" 카드와 "📂 카테고리별 진행률" 동시에 펼쳐지면서 분홍 펄스로 표시됩니다.
+      💡 <strong>각 행 클릭</strong> → 위쪽 "사이드바 5개 메뉴" 카드와 "📂 카테고리별 진행률" 동시에 펼쳐지면서 분홍 펄스로 표시됩니다.<br>
+      <span style="font-size:10px;color:var(--text-muted);">단, <strong>(메뉴 외)</strong> 표시된 페이지는 펼침 대신 페이지로 직접 이동 (확인 후).</span>
     </div>
     <div class="top-list" id="top-list">
       <div class="top-row crit-1">
@@ -1272,7 +1273,13 @@
     for (const [key, stat] of Object.entries(cs)) {
       if ((stat.pages || []).includes(path)) return key;
     }
-    return null;
+    // ★ Fallback 매핑 — 메뉴에 직접 없지만 관련 카테고리가 있는 페이지
+    const FALLBACK_MAP = {
+      '/admin.html':            'task-management',   // 관리자 콘솔 → task 관리에 가까움
+      '/admin-hub.html':        'system-status',     // 폐기됐지만 통합 진입점
+      '/admin-permissions.html':'system-status',     // 권한 시스템도 시스템 상태 영역
+    };
+    return FALLBACK_MAP[path] || null;
   }
 
   function renderTopUrgent(d) {
@@ -1286,12 +1293,18 @@
       const isHold = (t.weakest?.hint || '').includes('의도된 정적');
       const stateCls = isHold ? 'hold' : 'auto';
       const stateLabel = isHold ? '⏸ 보류' : '🤖 자동';
+      // ★ 펼침 가능 여부 미리 판단 (사용자가 클릭 전 인지하도록)
+      const expandable = !!pageToMenuKey(t.path);
+      const expandHint = expandable
+        ? '클릭 → 해당 카테고리 카드 펼침'
+        : '클릭 → 페이지로 이동 (메뉴 외 페이지)';
+      const rowStyle = expandable ? 'cursor:pointer;' : 'cursor:pointer;opacity:0.85;';
       return `
-        <div class="${rowCls}" data-page-path="${escapeHtml(t.path)}" style="cursor:pointer;" title="클릭 → 해당 카테고리 카드 펼침">
+        <div class="${rowCls}" data-page-path="${escapeHtml(t.path)}" data-expandable="${expandable}" style="${rowStyle}" title="${expandHint}">
           <span class="rank">${t.rank}</span>
           <span class="score ${scoreCls}">${score}</span>
           <div class="info">
-            <div class="path">${escapeHtml(t.path)}</div>
+            <div class="path">${escapeHtml(t.path)} ${expandable ? '' : '<span style="font-size:9px;color:var(--text-muted);font-weight:400;">(메뉴 외)</span>'}</div>
             <div class="hint">${escapeHtml(t.weakest?.dimension || '-')}: ${escapeHtml(t.weakest?.hint || '')}</div>
           </div>
           <span class="state-pill ${stateCls}">${stateLabel}</span>
@@ -1340,8 +1353,13 @@
             }
           }
         } else {
-          // 매핑 없으면 페이지로 직접 이동
-          location.href = path;
+          // ★ 매핑 없는 페이지 — 사용자에게 안내 후 직접 이동 여부 확인
+          const ok = confirm(
+            `이 페이지(${path})는 위쪽 5개 카테고리 메뉴에 속하지 않습니다.\n` +
+            `펼침 기능은 카테고리에 매핑된 페이지에만 적용됩니다.\n\n` +
+            `해당 페이지로 직접 이동할까요?`
+          );
+          if (ok) location.href = path;
         }
       });
     });

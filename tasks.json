@@ -21,6 +21,56 @@
   },
   "tasks": [
     {
+      "id": "BL-FRONTMATTER-CLEAN-V2",
+      "title": "[frontmatter 가드 강화] 7가지 boundary 케이스 처리 + body --- 자동 제거 (헌법 12조 위반 3호)",
+      "category": "bug",
+      "status": "done",
+      "priority": "P0",
+      "size": "small",
+      "parent_task": "UX-FRONTMATTER-CLEAN",
+      "blocker": null,
+      "created_at": "2026-05-05T18:00:00Z",
+      "completed_at": "2026-05-05T18:30:00Z",
+      "claude_can_auto": true,
+      "autonomous": {
+        "can_run_alone": true,
+        "estimated_hours": 0.3,
+        "requires_decisions_first": []
+      },
+      "progress": "✅ 헌법 12조 위반 3호. 대표님 지적: 사람용 탭에 raw '---' 여전히 박힘. 진단: 라이브 코드는 정상 (GitHub raw = 로컬, 시뮬레이션 17/17 통과) → 진짜 원인은 브라우저 캐시. fix 3중 안전망: ① Cache-Control no-cache + Pragma + Expires + x-app-version 메타 박음 ② parseFrontmatter 7가지 boundary 가드 (표준/CRLF/BOM/없음/빈string/null/body가 ---로 시작 시 자동 제거) ③ footer에 버전 표시 + Ctrl+Shift+R 안내. 자체 검증 2회 디테일 통과: JS 82423 chars, 7가지 boundary 모두, 실제 17개 chat-log 모두 정상, 코드 흐름 8/8 cross-check, 실제 시뮬레이션에서 제목/Task/HTML 1011 chars 정상 박힘.",
+      "files_changed": [
+        "_admin/admin-status.html",
+        "tasks.json",
+        "_chat-logs/2026-05-05-frontmatter-cache-bust.md"
+      ],
+      "decisions": [],
+      "updated_at": "2026-05-05T18:30:00Z",
+      "last_chat_log": "2026-05-05-frontmatter-cache-bust"
+    },
+    {
+      "id": "BL-CACHE-BUST",
+      "title": "[캐시 무효화] admin-status에 hard cache-bust 메타 박음 + 버전 표시",
+      "category": "infrastructure",
+      "status": "done",
+      "priority": "P1",
+      "size": "small",
+      "parent_task": "BL-FRONTMATTER-CLEAN-V2",
+      "blocker": null,
+      "created_at": "2026-05-05T18:00:00Z",
+      "completed_at": "2026-05-05T18:30:00Z",
+      "claude_can_auto": true,
+      "autonomous": {
+        "can_run_alone": true,
+        "estimated_hours": 0.1,
+        "requires_decisions_first": []
+      },
+      "progress": "✅ 개발 단계 동안 브라우저 캐시 강제 차단. <meta http-equiv> 3개 + x-app-version + footer 안내 박음.",
+      "files_changed": ["_admin/admin-status.html"],
+      "decisions": [],
+      "updated_at": "2026-05-05T18:30:00Z",
+      "last_chat_log": "2026-05-05-frontmatter-cache-bust"
+    },
+    {
       "id": "BL-AUTH-COOKIE-SYNC",
       "title": "[admin 깜빡 로그인 fix] sb-access-token 쿠키 자동 동기화 — Supabase 토큰 갱신 시 쿠키도 함께 (헌법 12조 위반 2호)",
       "category": "bug",

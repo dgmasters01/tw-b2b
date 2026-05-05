@@ -5,6 +5,11 @@
 <title>System Status — TravelWinners B2B Admin</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="description" content="개발 시스템 완성도 한눈에 보기 — 사업 KPI 별도 페이지">
+<!-- ★ BL-CACHE-BUST — 캐시 무효화 (개발 단계 동안 브라우저 캐시 강제 차단) -->
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="x-app-version" content="2026-05-05-v3-self-qa">
 <style>
   /* Aurora 다크 톤 (BL-HUB-RETIRE 후 admin-status가 통합 진입점 역할) */
   :root {
@@ -922,7 +927,8 @@
   <!-- 푸터 -->
   <footer class="footer">
     <div>📌 마지막 commit: <span class="commit" id="footer-commit">1e288de</span> · Vercel 배포: <span class="live">✅ Live</span> · 마지막 스캔: <span id="footer-scan">오늘 14:58 KST</span></div>
-    <div style="font-size:10px;">🛡️ 헌법 자가 검증 27/27 · D-011 박힘 · Phase 3-A 완료 (정적) · 다음: 3-B (동적 데이터)</div>
+    <div style="font-size:10px;">🛡️ 헌법 자가 검증 27/27 · 헌법 12조 자체 검증 의무 박힘 · D-011 박힘 · Phase 3-A 완료 (정적) · 다음: 3-B (동적 데이터)</div>
+    <div style="font-size:9px;color:var(--text-muted);margin-top:4px;">앱 버전 <code>2026-05-05-v3-self-qa</code> · 화면 이상 시 <kbd style="font-family:monospace;background:rgba(255,255,255,0.05);padding:1px 4px;border:0.5px solid var(--border);border-radius:2px;">Ctrl+Shift+R</kbd>로 캐시 무효화</div>
   </footer>
 
 </div>
@@ -2317,16 +2323,31 @@
     }
   }
 
-  // ★ frontmatter 파싱 — '---'로 둘러싸인 YAML 블록 분리
+  // ★ frontmatter 파싱 — '---'로 둘러싸인 YAML 블록 분리 (BL-FRONTMATTER-CLEAN-V2 가드 강화)
   function parseFrontmatter(md) {
     if (!md) return { frontmatter: null, body: md || '' };
-    const m = md.match(/^---\s*\n([\s\S]*?)\n---\s*\n?([\s\S]*)$/);
-    if (!m) return { frontmatter: null, body: md };
+    // 패턴 1: 표준 frontmatter (--- \n yaml \n --- \n body)
+    let m = md.match(/^---\s*\n([\s\S]*?)\n---\s*\n?([\s\S]*)$/);
+    // 패턴 2 (가드): 줄바꿈이 \r\n인 경우 (Windows 스타일)
+    if (!m) m = md.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/);
+    // 패턴 3 (가드): 첫 --- 앞에 BOM 또는 공백
+    if (!m) m = md.match(/^[\uFEFF\s]*---\s*\n([\s\S]*?)\n---\s*\n?([\s\S]*)$/);
+    if (!m) {
+      // 매칭 실패해도 body 첫 줄이 ---로 시작하면 그 줄 제거 (사용자에게 raw 노출 방지)
+      let body = md;
+      if (body.startsWith('---')) {
+        const idx = body.indexOf('\n');
+        if (idx > -1) body = body.slice(idx + 1).trimStart();
+      }
+      return { frontmatter: null, body };
+    }
     const yaml = m[1];
-    const body = m[2];
+    let body = m[2];
+    // ★ body에서 leading --- 또는 빈 줄 정리 (간혹 frontmatter 끝 직후 ---가 남는 경우 가드)
+    body = body.replace(/^[\s\n]*---[\s\n]+/, '').trimStart();
     // 간단 YAML 파서 — key: value, [array]
     const fm = {};
-    yaml.split('\n').forEach(line => {
+    yaml.split(/\r?\n/).forEach(line => {
       const km = line.match(/^([a-zA-Z_]+):\s*(.+)$/);
       if (!km) return;
       const key = km[1];

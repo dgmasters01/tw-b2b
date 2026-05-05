@@ -5,7 +5,27 @@ date: 2026-05-05
 commits: []
 tasks: [BL-GALLERY-HOTFIX]
 decisions: []
+auto_migrated: true
 ---
+
+## 🎯 한 줄 요약
+admin-gallery.html 무한 Loading 핫픽스 — STATUS_BADGES retired 키 누락 + 대체 동작 가드
+
+## 📍 왜 발생했나
+**위반 시점**: 2026-05-05 16:00 (작업 7d9dba2 직후)
+
+## 🛠 어떻게 해결했나
+Fix 1: 매핑 누락 보충 / Fix 2: 대체 동작 가드 (헌법 12조 영구 적용)
+
+## ✅ 결과
+작업이 완료되었습니다 (✅ done).
+
+## ⏱ 다음 결정 필요
+없음
+
+---
+
+# 🔧 기술 상세 (개발자용)
 
 # 2026-05-05 admin-gallery 무한 Loading 핫픽스
 

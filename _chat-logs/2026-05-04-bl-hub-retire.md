@@ -5,7 +5,27 @@ date: 2026-05-04
 commits: [4d04557, 25615af]
 tasks: [BL-HUB-RETIRE]
 decisions: [D-013, D-012]
+auto_migrated: true
 ---
+
+## 🎯 한 줄 요약
+BL-HUB-RETIRE — admin-hub 폐기, admin-status 통합 진입점 승격
+
+## 📍 왜 발생했나
+**시간**: 2026-05-04 (1차 ~09:00 UTC + 마무리 ~09:30 UTC)
+
+## 🛠 어떻게 해결했나
+코드를 수정하고 라이브에 반영하여 정상 작동을 확인했습니다.
+
+## ✅ 결과
+작업이 정상적으로 마무리되었습니다.
+
+## ⏱ 다음 결정 필요
+없음
+
+---
+
+# 🔧 기술 상세 (개발자용)
 
 # BL-HUB-RETIRE — admin-hub 폐기
 

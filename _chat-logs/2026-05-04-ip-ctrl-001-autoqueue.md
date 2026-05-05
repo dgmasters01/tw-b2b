@@ -5,7 +5,27 @@ date: 2026-05-04
 commits: [7f340dc]
 tasks: [IP-CTRL-001]
 decisions: []
+auto_migrated: true
 ---
+
+## 🎯 한 줄 요약
+IP-CTRL-001 5단계 — 자율 작업 큐 UI + 헌법 1조 자율판단 강제 박음
+
+## 📍 왜 발생했나
+**시간**: 2026-05-04 16:00 KST 전후
+
+## 🛠 어떻게 해결했나
+메모리 24번 위반 자가 진단 / 메모리 5번 교체 / 위치 자율 판단
+
+## ✅ 결과
+tasks.json: IP-CTRL-001 status: in_progress → done (5/5 단계 완료)
+
+## ⏱ 다음 결정 필요
+없음
+
+---
+
+# 🔧 기술 상세 (개발자용)
 
 # IP-CTRL-001 5단계 — 자율 작업 큐 UI
 

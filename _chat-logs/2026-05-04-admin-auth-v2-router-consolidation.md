@@ -5,7 +5,27 @@ date: 2026-05-04
 commits: []
 tasks: [BL-ADMIN-AUTH-V2]
 decisions: [D-016]
+auto_migrated: true
 ---
+
+## 🎯 한 줄 요약
+BL-ADMIN-AUTH-V2 라우터 통합 — Vercel Hobby 12 함수 한도 회피 (D-016)
+
+## 📍 왜 발생했나
+**시간**: 2026-05-04 (이전 채팅 인계)
+
+## 🛠 어떻게 해결했나
+1. 5개 신규 함수 → 라우터 패턴 통합 / 2. `api/admin.js` 라우터 확장 / 3. `api/auth.js` 신규 (확장 대비)
+
+## ✅ 결과
+헌법 1조: 시스템 디테일(라우터 패턴 / 핸들러 분리 / rewrites)은 Claude 자율, 대표님은 비용 정책(C 옵션)만 결정
+
+## ⏱ 다음 결정 필요
+없음
+
+---
+
+# 🔧 기술 상세 (개발자용)
 
 # BL-ADMIN-AUTH-V2 라우터 통합 (D-016)
 

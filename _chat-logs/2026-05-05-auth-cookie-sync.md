@@ -5,7 +5,27 @@ date: 2026-05-05
 commits: []
 tasks: [BL-AUTH-COOKIE-SYNC]
 decisions: []
+auto_migrated: true
 ---
+
+## 🎯 한 줄 요약
+헌법 12조 위반 2호 — admin 페이지 클릭 시 깜빡 로그인 화면 (sb-access-token 쿠키 stale 문제) 영구 fix
+
+## 📍 왜 발생했나
+> "여기서 4개 더보기 누르면 갑자기 로그인 화면으로 넘어갔다가 조금 있다가 다시 이 화면으로 넘어감"
+
+## 🛠 어떻게 해결했나
+Layer 1 (즉각): SSR 인증 게이트가 stale 쿠키 거부 / Layer 2 (구조): 쿠키 갱신 자동화 미박음 / Layer 3 (방어): admin-status, admin-tasks, admin-service-ops에 supabase 미로드
+
+## ✅ 결과
+작업이 완료되었습니다 (✅ done).
+
+## ⏱ 다음 결정 필요
+없음
+
+---
+
+# 🔧 기술 상세 (개발자용)
 
 # 2026-05-05 admin 클릭 시 깜빡 로그인 fix
 

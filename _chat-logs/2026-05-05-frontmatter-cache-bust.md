@@ -5,7 +5,27 @@ date: 2026-05-05
 commits: []
 tasks: [BL-FRONTMATTER-CLEAN-V2, BL-CACHE-BUST]
 decisions: []
+auto_migrated: true
 ---
+
+## 🎯 한 줄 요약
+헌법 12조 위반 3호 — 메타데이터 가드 강화 + 캐시 무효화 메타 박음
+
+## 📍 왜 발생했나
+> "이거 아까 이러면 안 된다고 이야기 했는데. 이런식으로 되어 있으면 사람이 확인하는 창이 아닌데."
+
+## 🛠 어떻게 해결했나
+Fix 1: Hard cache-bust 메타 박음 / Fix 2: parseFrontmatter 가드 7가지 강화 / Fix 3: footer에 버전 + 캐시 무효화 안내
+
+## ✅ 결과
+작업이 완료되었습니다 (✅ done).
+
+## ⏱ 다음 결정 필요
+없음
+
+---
+
+# 🔧 기술 상세 (개발자용)
 
 # 2026-05-05 frontmatter 가드 강화 + 캐시 무효화
 

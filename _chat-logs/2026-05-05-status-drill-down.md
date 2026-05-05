@@ -5,7 +5,27 @@ date: 2026-05-05
 commits: []
 tasks: [BL-STATUS-DRILL-DOWN]
 decisions: [D-010]
+auto_migrated: true
 ---
+
+## 🎯 한 줄 요약
+admin-status 카테고리 매핑 정확화 + KPI 클릭 필터 + 시급 페이지 drill-down + 작업 기록 자동 매핑
+
+## 📍 왜 발생했나
+**선행**: BL-ADMIN-STATUS-LOOP-FIX (작업 73a0ec2)
+
+## 🛠 어떻게 해결했나
+카테고리 카드 값 부정확 (System Status 0/0/0) / KPI 4카드 클릭 → 임박 박스 필터 (원클릭 관리) / 카테고리 카드 펼침 = 세부 task + 페이지 리스트
+
+## ✅ 결과
+작업이 완료되었습니다 (✅ done).
+
+## ⏱ 다음 결정 필요
+없음
+
+---
+
+# 🔧 기술 상세 (개발자용)
 
 # 2026-05-05 admin-status 원클릭 통합 관리 박기
 

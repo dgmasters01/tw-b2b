@@ -2274,7 +2274,8 @@
     humanPane.dataset.loaded = '1';
   }
 
-  // 📖 사람용 탭 — chat-log fetch
+  // 📖 사람용 탭 — 사업가 카드 UI (CLAUDE.md 11조 표준)
+  // 5블록(🎯📍🛠✅⏱) 추출 → 카드 UI / 추출 실패 시 자동 용어 변환
   async function loadHumanTab(pane, item) {
     try {
       // index 캐시
@@ -2308,8 +2309,8 @@
       if (!slug) {
         pane.innerHTML = `
           <div class="activity-tab-empty">
-            이 활동 항목에 연결된 chat-log를 찾지 못했습니다.<br>
-            <small>commit hash <code>${escapeHtml(item.target_id || '-')}</code>가 chat-logs/index.json byCommit에 등록되지 않았거나, action에서 task ID 추출 실패.</small>
+            이 활동 항목에 연결된 작업 기록을 찾지 못했습니다.<br>
+            <small>작업 번호 <code>${escapeHtml(item.target_id || '-')}</code>가 인덱스에 등록되지 않았거나 매핑에 실패했습니다.</small>
           </div>`;
         return;
       }
@@ -2318,28 +2319,179 @@
       if (!content) {
         const res = await fetch(`/chat-logs/${slug}.md`);
         if (!res.ok) {
-          pane.innerHTML = `<div class="activity-tab-empty">chat-log fetch 실패 (HTTP ${res.status}): <code>${escapeHtml(slug)}</code></div>`;
+          pane.innerHTML = `<div class="activity-tab-empty">작업 기록을 불러오지 못했습니다 (HTTP ${res.status}): <code>${escapeHtml(slug)}</code></div>`;
           return;
         }
         content = await res.text();
         ACTIVITY_CACHE.chatLogContent[slug] = content;
       }
-      // ★ frontmatter 분리 (사람용 탭에서 메타데이터를 예쁜 박스로 표시, 본문은 깨끗하게)
+      // ★ frontmatter 분리
       const { frontmatter, body } = parseFrontmatter(content);
       const fmHtml = frontmatter ? renderFrontmatterBox(frontmatter) : '';
-      pane.innerHTML = `
+
+      // ★ 5블록 추출 (CLAUDE.md 11조 표준)
+      const summary = extractBusinessSummary(body);
+
+      // 헤더 (slug + 근접 매핑 경고)
+      const headerHtml = `
         <div style="margin-bottom:6px;font-size:10px;color:var(--text-muted);">
           📜 <code>/chat-logs/${escapeHtml(slug)}.md</code>
         </div>
-        ${isApprox ? `<div style="padding:6px 10px;background:rgba(251,191,36,0.10);border:0.5px solid rgba(251,191,36,0.4);border-radius:5px;margin-bottom:8px;font-size:11px;color:#fcd34d;">⚠️ 정확한 매핑 아님 — 같은 날짜(${(item.timestamp||'').slice(0,10)})의 chat-log를 추정 표시. 별도 chat-log가 있을 수 있습니다.</div>` : ''}
-        ${fmHtml}
-        ${renderMarkdown(body)}
+        ${isApprox ? `<div style="padding:6px 10px;background:rgba(251,191,36,0.10);border:0.5px solid rgba(251,191,36,0.4);border-radius:5px;margin-bottom:8px;font-size:11px;color:#fcd34d;">⚠️ 정확한 매핑 아님 — 같은 날짜(${(item.timestamp||'').slice(0,10)})의 작업 기록을 추정 표시합니다.</div>` : ''}
       `;
+
+      let mainHtml;
+      const isAutoMigrated = frontmatter && (frontmatter.auto_migrated === 'true' || frontmatter.auto_migrated === true);
+      if (summary.hasAllBlocks) {
+        // ✅ 5블록 모두 발견 → 사업가 카드 UI + 기술 상세 접기
+        const autoBadge = isAutoMigrated ? `
+          <div style="padding:6px 10px;background:rgba(99,102,241,0.08);border:0.5px solid rgba(99,102,241,0.30);border-radius:5px;margin-bottom:10px;font-size:11px;color:var(--aurora-2);line-height:1.5;">
+            ℹ️ 이 작업 기록은 자동 보강된 요약입니다. 정확한 디테일은 아래 <strong>🔧 기술 상세</strong>에서 확인하시거나 새로 작성된 작업 기록(앞으로의 표준)을 참고해 주세요.
+          </div>` : '';
+        mainHtml = autoBadge + renderBusinessCard(summary) + renderTechDetailsCollapsed(summary.techDetails);
+      } else {
+        // ⚠️ 표준 미적용 (구버전 chat-log) → 자동 용어 변환 + 안내 배지
+        const transformed = applyTermTranslation(body);
+        mainHtml = `
+          <div style="padding:8px 12px;background:rgba(251,191,36,0.08);border:0.5px solid rgba(251,191,36,0.35);border-radius:5px;margin-bottom:10px;font-size:11px;color:#fcd34d;line-height:1.5;">
+            ⚠️ 이 작업 기록은 사업가 시점 표준(CLAUDE.md 11조) 적용 전에 작성되었습니다. 자동 용어 변환만 적용되어 일부 표현이 어색할 수 있습니다.
+          </div>
+          ${renderMarkdown(transformed)}
+        `;
+      }
+
+      pane.innerHTML = headerHtml + fmHtml + mainHtml;
     } catch (e) {
       console.error('[activity] human tab 실패', e);
-      pane.innerHTML = `<div class="activity-tab-empty">chat-log 로드 실패: ${escapeHtml(e.message || String(e))}</div>`;
+      pane.innerHTML = `<div class="activity-tab-empty">작업 기록 로드 실패: ${escapeHtml(e.message || String(e))}</div>`;
     }
   }
+
+  // ★ 5블록 추출기 (CLAUDE.md 11조)
+  // body에서 ## 🎯 / ## 📍 / ## 🛠 / ## ✅ / ## ⏱ 헤딩 5개 + 그 이하 본문 추출
+  function extractBusinessSummary(body) {
+    if (!body) return { hasAllBlocks: false };
+    const blocks = {
+      goal: null,        // 🎯 한 줄 요약
+      cause: null,       // 📍 왜 발생했나
+      solution: null,    // 🛠 어떻게 해결했나
+      result: null,      // ✅ 결과
+      next: null,        // ⏱ 다음 결정 필요
+    };
+    // 헤딩 패턴: ## 🎯 ... / ## 📍 ... 등 (이모지 뒤 자유 텍스트)
+    const patterns = [
+      { key: 'goal',     re: /^##\s*🎯[^\n]*\n([\s\S]*?)(?=\n##\s|\n#\s|$)/m },
+      { key: 'cause',    re: /^##\s*📍[^\n]*\n([\s\S]*?)(?=\n##\s|\n#\s|$)/m },
+      { key: 'solution', re: /^##\s*🛠[^\n]*\n([\s\S]*?)(?=\n##\s|\n#\s|$)/m },
+      { key: 'result',   re: /^##\s*✅[^\n]*\n([\s\S]*?)(?=\n##\s|\n#\s|$)/m },
+      { key: 'next',     re: /^##\s*⏱[^\n]*\n([\s\S]*?)(?=\n##\s|\n#\s|$)/m },
+    ];
+    let foundCount = 0;
+    for (const p of patterns) {
+      const m = body.match(p.re);
+      if (m && m[1].trim()) {
+        blocks[p.key] = m[1].trim();
+        foundCount++;
+      }
+    }
+    // 4개 이상 발견 시 사업가 카드 UI 적용 (5번째 ⏱는 "없음" 일 수 있어서 4개 기준)
+    const hasAllBlocks = foundCount >= 4;
+    // 기술 상세: # 🔧 기술 상세 헤딩 이후 + 5블록 외 나머지
+    let techDetails = '';
+    const techMatch = body.match(/^#\s*🔧[\s\S]*$/m);
+    if (techMatch) {
+      techDetails = techMatch[0].replace(/^#\s*🔧[^\n]*\n?/, '').trim();
+    } else if (hasAllBlocks) {
+      // 5블록 이후 본문 전체를 기술 상세로
+      const lastBlockEnd = Math.max(
+        ...patterns.map(p => {
+          const m = body.match(p.re);
+          return m ? body.indexOf(m[0]) + m[0].length : -1;
+        })
+      );
+      if (lastBlockEnd > 0) techDetails = body.slice(lastBlockEnd).trim();
+    }
+    return { ...blocks, hasAllBlocks, techDetails };
+  }
+
+  // ★ 사업가 카드 UI 렌더 (5블록을 색상 구분 카드로)
+  function renderBusinessCard(s) {
+    const card = (icon, label, content, color) => {
+      if (!content) return '';
+      // 인라인 마크다운만 변환 (** 강조, ` 코드)
+      const inline = escapeHtml(content)
+        .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+        .replace(/`([^`]+)`/g, '<code>$1</code>')
+        .replace(/\n/g, '<br>');
+      return `
+        <div style="display:flex;gap:10px;padding:10px 12px;background:${color}10;border-left:3px solid ${color};border-radius:0 6px 6px 0;margin-bottom:8px;">
+          <div style="flex-shrink:0;font-size:18px;line-height:1;">${icon}</div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px;font-weight:500;letter-spacing:0.3px;">${label}</div>
+            <div style="font-size:13px;color:var(--text);line-height:1.55;">${inline}</div>
+          </div>
+        </div>
+      `;
+    };
+    return `
+      <div style="margin-bottom:14px;">
+        ${card('🎯', '한 줄 요약',      s.goal,     'rgba(99,102,241,1)')}
+        ${card('📍', '왜 발생했나',      s.cause,    'rgba(251,191,36,1)')}
+        ${card('🛠',  '어떻게 해결했나',  s.solution, 'rgba(34,197,94,1)')}
+        ${card('✅', '결과',             s.result,   'rgba(16,185,129,1)')}
+        ${s.next ? card('⏱',  '다음 결정 필요',  s.next, 'rgba(244,114,182,1)') : ''}
+      </div>
+    `;
+  }
+
+  // ★ 기술 상세 — 접힌 상태로 (사업가가 필요 시 펼쳐 봄)
+  function renderTechDetailsCollapsed(techDetails) {
+    if (!techDetails) return '';
+    return `
+      <details style="margin-top:12px;border:0.5px solid var(--border);border-radius:6px;padding:8px 12px;background:var(--panel-2);">
+        <summary style="cursor:pointer;font-size:12px;color:var(--text-muted);font-weight:500;user-select:none;">🔧 기술 상세 (개발자용 — 클릭해서 펼치기)</summary>
+        <div style="margin-top:10px;padding-top:10px;border-top:0.5px solid var(--border);font-size:12px;line-height:1.6;">
+          ${renderMarkdown(techDetails)}
+        </div>
+      </details>
+    `;
+  }
+
+  // ★ 자동 용어 변환 — 표준 미적용 chat-log용 (CLAUDE.md 11.2 표)
+  // 단어 경계만 정확히 변환 (마크다운 구조 보존)
+  function applyTermTranslation(text) {
+    if (!text) return '';
+    // 변환 규칙 (긴 것부터 매칭 — 부분 매칭 방지)
+    const rules = [
+      // 영문 (대소문자 구분 안 함, 단어 경계)
+      [/\bVercel\s+redeploy\b/gi, '서버 재배포'],
+      [/\bVercel\s+deploy\b/gi,   '서버 배포'],
+      [/\bstate:\s*READY\b/gi,    '배포 완료'],
+      [/\bHTTP\s*200\b/gi,        '정상 응답(200)'],
+      [/\bcommit\s+hash\b/gi,     '작업 번호'],
+      [/\bcommits?\b/gi,          '작업'],
+      [/\btasks?\s+ID\b/gi,       '업무 번호'],
+      [/\btasks?\b/gi,            '업무'],
+      [/\bphases?\b/gi,           '단계'],
+      [/\bfrontmatters?\b/gi,     '메타데이터'],
+      [/\bboundary\s*케이스/gi,   '예외 상황'],
+      [/\bboundary\s+case[s]?\b/gi, '예외 상황'],
+      [/\bfallbacks?\b/gi,        '대체 동작'],
+      [/\bnull-safe\b/gi,         '빈 값 보호'],
+      [/\bRPC\b/g,                '서버 호출'],
+      [/\brouter\s+통합\b/gi,     'API 함수 통합'],
+      [/\b라우터\s+통합\b/g,      'API 함수 통합'],
+      // 한글
+      [/chat-logs?\s*인계/g,      '이전 작업 기록 인수인계'],
+      [/chat-logs?/g,             '작업 기록'],
+    ];
+    let out = text;
+    for (const [re, replace] of rules) {
+      out = out.replace(re, replace);
+    }
+    return out;
+  }
+
 
   // ★ frontmatter 파싱 — '---'로 둘러싸인 YAML 블록 분리 (BL-FRONTMATTER-CLEAN-V2 가드 강화)
   function parseFrontmatter(md) {
@@ -2389,8 +2541,8 @@
         <div style="display:grid;grid-template-columns:60px 1fr;gap:6px 10px;align-items:start;">
           ${fm.title ? `<div style="color:var(--text-muted);">제목</div><div style="color:var(--text);font-weight:500;">${escapeHtml(fm.title)}</div>` : ''}
           ${fm.date ? `<div style="color:var(--text-muted);">날짜</div><div style="color:var(--text);">${escapeHtml(fm.date)}</div>` : ''}
-          ${fm.tasks ? `<div style="color:var(--text-muted);">Task</div><div>${tags(fm.tasks)}</div>` : ''}
-          ${fm.commits && (Array.isArray(fm.commits) ? fm.commits.length > 0 : fm.commits) ? `<div style="color:var(--text-muted);">Commit</div><div>${tags(fm.commits)}</div>` : ''}
+          ${fm.tasks ? `<div style="color:var(--text-muted);">업무</div><div>${tags(fm.tasks)}</div>` : ''}
+          ${fm.commits && (Array.isArray(fm.commits) ? fm.commits.length > 0 : fm.commits) ? `<div style="color:var(--text-muted);">작업</div><div>${tags(fm.commits)}</div>` : ''}
           ${fm.decisions && (Array.isArray(fm.decisions) ? fm.decisions.length > 0 : fm.decisions) ? `<div style="color:var(--text-muted);">결정</div><div>${tags(fm.decisions)}</div>` : ''}
         </div>
       </div>

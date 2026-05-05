@@ -5,7 +5,27 @@ date: 2026-05-04
 commits: []
 tasks: [BL-JOURNEY-DOC, BL-CHAT-LOG-SYSTEM]
 decisions: [D-014]
+auto_migrated: true
 ---
+
+## 🎯 한 줄 요약
+작업 기록 시스템 신설 — "결과만 남고 과정 사라짐" 해결 (BL-JOURNEY-DOC 검토에서 시작)
+
+## 📍 왜 발생했나
+**시간**: 2026-05-04 ~17:30 KST 진행 중
+
+## 🛠 어떻게 해결했나
+3-Layer 재설계 (D-010 단일 진실) / 활동 이력 화면 보강 (Phase 2) / 인증 게이트 (Phase 1, 지금)
+
+## ✅ 결과
+진행 메모: "v1 작성 완료 (5/3). 매니저 피드백 후 v2로 업데이트 예정"
+
+## ⏱ 다음 결정 필요
+없음
+
+---
+
+# 🔧 기술 상세 (개발자용)
 
 # chat-logs 시스템 신설 — Phase 1
 

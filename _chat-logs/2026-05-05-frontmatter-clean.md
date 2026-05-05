@@ -5,7 +5,27 @@ date: 2026-05-05
 commits: []
 tasks: [UX-FRONTMATTER-CLEAN]
 decisions: []
+auto_migrated: true
 ---
+
+## 🎯 한 줄 요약
+활동 이력 사람용 탭 메타데이터 정제 + admin-gallery 로딩 단계 표시
+
+## 📍 왜 발생했나
+**선행**: BL-GALLERY-HOTFIX (작업 0ea3356)
+
+## 🛠 어떻게 해결했나
+사람용 탭 메타데이터 정제 / admin-gallery 로딩 늦은 느낌
+
+## ✅ 결과
+작업이 완료되었습니다 (✅ done).
+
+## ⏱ 다음 결정 필요
+없음
+
+---
+
+# 🔧 기술 상세 (개발자용)
 
 # 2026-05-05 사람용 탭 정제 + 로딩 UX
 

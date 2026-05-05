@@ -5,7 +5,27 @@ date: 2026-05-05
 commits: []
 tasks: [BL-CACHE-BUST-HEADERS]
 decisions: []
+auto_migrated: true
 ---
+
+## 🎯 한 줄 요약
+헌법 12조 위반 4호 — 캐시 무효화 메타만으로 부족, HTTP 헤더 단 박음
+
+## 📍 왜 발생했나
+**선행**: BL-메타데이터-CLEAN-V2 (작업 818b696)
+
+## 🛠 어떻게 해결했나
+Fix 1: vercel.json에 admin 7개 페이지 헤더 박음 / Fix 2: api/admin-page.js SSR 응답에 직접 헤더 박음 / 1회차 (코드)
+
+## ✅ 결과
+작업이 완료되었습니다 (✅ done).
+
+## ⏱ 다음 결정 필요
+없음
+
+---
+
+# 🔧 기술 상세 (개발자용)
 
 # 2026-05-05 HTTP 헤더 단 캐시 무효화
 

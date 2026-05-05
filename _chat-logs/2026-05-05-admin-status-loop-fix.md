@@ -5,7 +5,27 @@ date: 2026-05-05
 commits: [73a0ec2]
 tasks: [BL-ADMIN-STATUS-LOOP-FIX, BL-ADMIN-AUTH-V2]
 decisions: []
+auto_migrated: true
 ---
+
+## 🎯 한 줄 요약
+admin-status 무한루프 fix + RLS hotfix SQL 영구 박기
+
+## 📍 왜 발생했나
+- BL-ADMIN-AUTH-V2 + D-016 라우터 통합 작업 `c56885c` ✅
+
+## 🛠 어떻게 해결했나
+코드 정적 분석 / 무한루프 메커니즘 / 왜 admin.html은 멀쩡한가
+
+## ✅ 결과
+작업이 완료되었습니다 (✅ done).
+
+## ⏱ 다음 결정 필요
+없음
+
+---
+
+# 🔧 기술 상세 (개발자용)
 
 # 2026-05-05 admin-status 무한루프 fix + RLS hotfix 영구 박기
 

@@ -5,7 +5,27 @@ date: 2026-05-05
 commits: []
 tasks: [BL-STATUS-FINAL-V3, CHARTER-12]
 decisions: [CHARTER-12]
+auto_migrated: true
 ---
+
+## 🎯 한 줄 요약
+헌법 12조 박음 (자체 검증 의무) + admin-status 5가지 UX 정확성 fix
+
+## 📍 왜 발생했나
+**선행**: BL-STATUS-FINAL-V2 (작업 3fec1dc)
+
+## 🛠 어떻게 해결했나
+"첫번째만 테두리가 고정되는거야?" / "15는 머야 전체 다 15야?" / "5차원 점수도 안 되는 것 같다 / 가장 약한 부분은 머야?"
+
+## ✅ 결과
+작업이 완료되었습니다 (✅ done).
+
+## ⏱ 다음 결정 필요
+없음
+
+---
+
+# 🔧 기술 상세 (개발자용)
 
 # 2026-05-05 헌법 12조 박음 + UX 정확성 fix
 

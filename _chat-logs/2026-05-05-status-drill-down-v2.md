@@ -5,7 +5,27 @@ date: 2026-05-05
 commits: []
 tasks: [BL-STATUS-DRILL-DOWN-V2]
 decisions: [D-010]
+auto_migrated: true
 ---
+
+## 🎯 한 줄 요약
+admin-status v2 — 결정 대기 동적화 + 진행률 펼침 + 카테고리 통합 + 임박 박스 정의 확장
+
+## 📍 왜 발생했나
+**선행**: BL-STATUS-DRILL-DOWN (작업 db728a7)
+
+## 🛠 어떻게 해결했나
+"임박 작업" 자동 클릭 시 0건 — "계속 작업하면 되는거야?" / Image 2 카테고리 카드 4/0/2 정확성 / Image 3 임박 박스 — "어떤 기능?"
+
+## ✅ 결과
+작업이 완료되었습니다 (✅ done).
+
+## ⏱ 다음 결정 필요
+없음
+
+---
+
+# 🔧 기술 상세 (개발자용)
 
 # 2026-05-05 admin-status v2 5가지 정확성 + 동적화
 

@@ -21,6 +21,37 @@
   },
   "tasks": [
     {
+      "id": "BL-AUTH-COOKIE-SYNC",
+      "title": "[admin 깜빡 로그인 fix] sb-access-token 쿠키 자동 동기화 — Supabase 토큰 갱신 시 쿠키도 함께 (헌법 12조 위반 2호)",
+      "category": "bug",
+      "status": "done",
+      "priority": "P0",
+      "size": "small",
+      "parent_task": "CHARTER-12",
+      "blocker": null,
+      "created_at": "2026-05-05T17:30:00Z",
+      "completed_at": "2026-05-05T18:00:00Z",
+      "claude_can_auto": true,
+      "autonomous": {
+        "can_run_alone": true,
+        "estimated_hours": 0.5,
+        "requires_decisions_first": []
+      },
+      "progress": "✅ 헌법 12조 위반 2호. 대표님 지적: '+4건 더 클릭 → 로그인 화면 → 다시 이 화면'. 원인 3-Layer: ① SSR 인증 게이트가 stale sb-access-token 쿠키 거부 → 401 → admin-login.html redirect ② Supabase JS 토큰 1시간마다 refresh하지만 쿠키는 갱신 안 함 ③ admin-status/admin-tasks/admin-service-ops 3개 페이지에 supabase + shared.js 미로드 → onAuthStateChange 리스너 없음. fix: shared.js에 onAuthStateChange 박음 (TOKEN_REFRESHED/SIGNED_IN/INITIAL_SESSION 시 쿠키 자동 갱신, SIGNED_OUT 시 삭제) + 누락 3개 페이지에 supabase CDN + shared.js v4 박음 + admin-permissions.html은 module 방식이라 직접 onAuthStateChange 박음. 자체 검증 8/8 통과 + boundary 케이스 6개 직접 점검 (신규 로그인/토큰 갱신/새로고침/로그아웃/HTTP localhost/shared.js 로드 실패).",
+      "files_changed": [
+        "shared.js",
+        "_admin/admin-status.html",
+        "_admin/admin-tasks.html",
+        "_admin/admin-service-ops.html",
+        "_admin/admin-permissions.html",
+        "tasks.json",
+        "_chat-logs/2026-05-05-auth-cookie-sync.md"
+      ],
+      "decisions": [],
+      "updated_at": "2026-05-05T18:00:00Z",
+      "last_chat_log": "2026-05-05-auth-cookie-sync"
+    },
+    {
       "id": "UX-FRONTMATTER-CLEAN",
       "title": "[활동 이력 사람용 탭 정제] frontmatter를 메타 박스로 분리 + admin-gallery Loading 단계 표시",
       "category": "ux",

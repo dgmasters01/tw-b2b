@@ -18,6 +18,35 @@
   window.TW.sb = sb;
   window.TW.lang = localStorage.getItem('tw-lang') || 'en';
 
+  // ★ BL-AUTH-COOKIE-SYNC — 토큰 갱신 시 sb-access-token 쿠키도 함께 갱신 (SSR 게이트와 동기화)
+  // 원인: Supabase JS가 토큰을 1시간마다 refresh하지만 쿠키는 갱신 안 함 → SSR이 stale 쿠키로 인증 실패 → 깜빡 로그인 화면 → 다시 로그인
+  // 해결: TOKEN_REFRESHED / SIGNED_IN 이벤트마다 document.cookie 재박음
+  if (sb && typeof sb.auth?.onAuthStateChange === 'function') {
+    sb.auth.onAuthStateChange(function (event, session) {
+      try {
+        if ((event === 'TOKEN_REFRESHED' || event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session && session.access_token) {
+          // Secure는 HTTPS에서만 동작 — localhost 개발 시 위해 location.protocol 확인
+          var secure = (location.protocol === 'https:') ? '; Secure' : '';
+          document.cookie = 'sb-access-token=' + session.access_token + '; Path=/; Max-Age=2592000; SameSite=Lax' + secure;
+        } else if (event === 'SIGNED_OUT') {
+          document.cookie = 'sb-access-token=; Path=/; Max-Age=0; SameSite=Lax';
+        }
+      } catch (err) {
+        console.warn('[TW.auth] cookie sync 실패:', err);
+      }
+    });
+    // 페이지 로드 직후에도 한 번 동기화 (refresh 직후 같은 세션이라도 쿠키가 stale일 수 있음)
+    sb.auth.getSession().then(function (r) {
+      try {
+        var s = r && r.data && r.data.session;
+        if (s && s.access_token) {
+          var secure = (location.protocol === 'https:') ? '; Secure' : '';
+          document.cookie = 'sb-access-token=' + s.access_token + '; Path=/; Max-Age=2592000; SameSite=Lax' + secure;
+        }
+      } catch (err) { /* silent */ }
+    });
+  }
+
   // ---------- Helpers ----------
   window.TW.$ = function (id) { return document.getElementById(id); };
 

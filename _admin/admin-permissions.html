@@ -198,6 +198,18 @@ const sb = createClient(SUPABASE_URL, SUPABASE_ANON, {
   auth: { persistSession:true, autoRefreshToken:true, storageKey:'tw-admin-auth' }
 });
 
+// ★ BL-AUTH-COOKIE-SYNC — 토큰 갱신 시 sb-access-token 쿠키 자동 동기화 (SSR 게이트)
+sb.auth.onAuthStateChange((event, session) => {
+  try {
+    if ((event === 'TOKEN_REFRESHED' || event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session?.access_token) {
+      const secure = (location.protocol === 'https:') ? '; Secure' : '';
+      document.cookie = 'sb-access-token=' + session.access_token + '; Path=/; Max-Age=2592000; SameSite=Lax' + secure;
+    } else if (event === 'SIGNED_OUT') {
+      document.cookie = 'sb-access-token=; Path=/; Max-Age=0; SameSite=Lax';
+    }
+  } catch (err) { console.warn('[permissions] cookie sync 실패:', err); }
+});
+
 const $ = id => document.getElementById(id);
 let CALLER = null;
 let DATA = { admins:[], invitations:[], log:[], stats:{} };

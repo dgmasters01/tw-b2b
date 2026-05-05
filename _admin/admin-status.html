@@ -115,6 +115,35 @@
   .stat-card .stat-num small { font-size: 11px; color: var(--text-muted); }
   .stat-card .stat-sub { font-size: 9px; color: var(--text-muted); margin-top: 2px; }
 
+  /* ★ KPI 활성 강조 (BL-STATUS-FINAL 시각 통합) */
+  .stat-card.active-filter {
+    box-shadow: 0 0 0 2px var(--aurora-2), 0 4px 12px rgba(99,102,241,0.3);
+    transform: translateY(-2px);
+  }
+  .stat-card.active-filter::after {
+    content: '✓ 활성';
+    position: absolute;
+    top: 4px;
+    right: 6px;
+    font-size: 8px;
+    color: var(--aurora-2);
+    font-weight: 600;
+  }
+  .stat-card { position: relative; }
+
+  /* 카테고리 카드 ↔ 진행률 ↔ 시급 페이지 연결 강조 */
+  .cat-card.linked-highlight,
+  .progress-row.linked-highlight,
+  .top-row.linked-highlight {
+    background: rgba(236, 72, 153, 0.08);
+    border-color: var(--aurora-2);
+    animation: pulse-highlight 1.5s ease-in-out;
+  }
+  @keyframes pulse-highlight {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(236,72,153,0.4); }
+    50% { box-shadow: 0 0 0 6px rgba(236,72,153,0.0); }
+  }
+
   /* ===== 자율 추천 콜투액션 ===== */
   .next-action {
     background: linear-gradient(135deg, rgba(22,163,74,0.10), rgba(22,163,74,0.04));
@@ -456,6 +485,53 @@
   @media (max-width: 700px) {
     .activity-row { grid-template-columns: 1fr; gap: 4px; }
     .activity-row .source { text-align: left; }
+
+    /* ★ 모바일 펼침 레이아웃 고도화 (BL-STATUS-FINAL) */
+    /* 컨테이너 padding 최소화 */
+    .container { padding: 8px; }
+
+    /* 헤더 — 액션 버튼이 좁은 화면에서 줄바꿈 */
+    .header { flex-direction: column; align-items: flex-start; gap: 8px; }
+    .header-actions { width: 100%; flex-wrap: wrap; gap: 4px; }
+    .header-actions button { font-size: 10px; padding: 6px 10px; }
+
+    /* 카테고리 카드 펼침 시 5차원 점수 5열 → 모바일 3열 */
+    .cat-card.expanded > div > div[style*="repeat(5,1fr)"] {
+      grid-template-columns: repeat(3, 1fr) !important;
+    }
+    /* 카테고리 카드 안 task row — flex-wrap으로 줄바꿈 */
+    .cat-task-row { flex-wrap: wrap; gap: 4px !important; padding: 6px !important; font-size: 10px !important; }
+    .cat-task-row > span { flex-basis: auto; }
+
+    /* 임박 박스 카드 — head pill들이 줄바꿈 */
+    .urgent-card .urgent-head { flex-wrap: wrap; gap: 4px; }
+    .urgent-card .urgent-pill { font-size: 9px; padding: 2px 6px; }
+    .urgent-card .urgent-meta { flex-wrap: wrap; font-size: 9px; gap: 6px; }
+
+    /* 진행률 펼침 task row 폰트 축소 */
+    #integ-progress .cat-task-row { font-size: 10px !important; }
+
+    /* 결정 대기 박스 — 줄바꿈 + 폰트 축소 */
+    .ceo-wait-item { flex-wrap: wrap; gap: 4px; padding: 6px; }
+    .ceo-wait-item .text { flex-basis: 100%; font-size: 11px; }
+    .ceo-wait-item .reason { font-size: 9px; }
+
+    /* 시급 페이지 row — 줄바꿈 */
+    .top-row { flex-wrap: wrap; gap: 4px; padding: 6px 8px; }
+    .top-row .info { flex-basis: 100%; }
+
+    /* 자율 작업 큐 카드 — 1열 (이미 grid 1열이지만 패딩/폰트 정리) */
+    .auto-queue-card { padding: 8px; }
+    .auto-queue-title { font-size: 11px; }
+    .auto-queue-meta { font-size: 9px; flex-wrap: wrap; gap: 4px; }
+
+    /* 통합 KPI 4박스 모바일 2x2 (이미 grid면 OK, 아니면 박음) */
+    .integ-kpi { padding: 8px; }
+    .integ-kpi .k-num { font-size: 18px; }
+    .integ-kpi .k-label, .integ-kpi .k-sub { font-size: 9px; }
+
+    /* 폴링 status 박스 — 모바일에서 너무 크지 않게 */
+    .poll-status { font-size: 9px !important; padding: 4px 8px !important; bottom: 8px !important; right: 8px !important; }
   }
 </style>
 </head>
@@ -1137,7 +1213,7 @@
         </div>
       `;
     }).join('');
-    // ★ 시급 페이지 row 클릭 → 카테고리 카드 펼침 + 스크롤 (drill-down)
+    // ★ 시급 페이지 row 클릭 → 카테고리 카드 펼침 + 진행률 행 강조 + 스크롤 (3-way drill-down)
     list.querySelectorAll('.top-row[data-page-path]').forEach(row => {
       row.addEventListener('click', () => {
         const path = row.dataset.pagePath;
@@ -1146,7 +1222,37 @@
           STATE.expandedKey = key;
           renderSidebarMenus(STATE.data);
           const card = document.querySelector(`.cat-card[data-key="${key}"]`);
-          if (card) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          if (card) {
+            card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            // 시각 강조 펄스
+            card.classList.add('linked-highlight');
+            setTimeout(() => card.classList.remove('linked-highlight'), 1500);
+          }
+          // 진행률 행에서 매칭되는 카테고리도 펼침
+          const cats = MENU_KEY_TO_CATEGORIES[key] || [];
+          if (cats.length > 0 && STATE.tasksData) {
+            // 가장 task 많은 카테고리를 expandedProgressCat에 박음
+            const counts = {};
+            (STATE.tasksData.tasks || []).forEach(t => {
+              const c = normalizeCategory(t.category);
+              if (cats.includes(t.category) || cats.includes(c)) {
+                counts[c] = (counts[c] || 0) + 1;
+              }
+            });
+            const top = Object.entries(counts).sort((a,b) => b[1]-a[1])[0];
+            if (top) {
+              STATE.expandedProgressCat = top[0];
+              renderIntegratedProgress(STATE.tasksData);
+              // 진행률 행 강조
+              setTimeout(() => {
+                const progRow = document.querySelector(`#integ-progress .progress-row[data-cat="${top[0]}"]`);
+                if (progRow) {
+                  progRow.classList.add('linked-highlight');
+                  setTimeout(() => progRow.classList.remove('linked-highlight'), 1500);
+                }
+              }, 100);
+            }
+          }
         } else {
           // 매핑 없으면 페이지로 직접 이동
           location.href = path;
@@ -2428,14 +2534,20 @@
   loadIntegratedTasks();  // ★ BL-PAGE-DEDUP + IP-CTRL-001 5단계 (자율 작업 큐 포함)
   startPolling();         // ★ BL-REAL-SYSTEM 거짓말 2 해결 — 5초 폴링
 
-  // ★ KPI 4카드 클릭 = 임박 박스 필터 (BL-STATUS-DRILL-DOWN)
+  // ★ KPI 4카드 클릭 = 임박 박스 필터 (BL-STATUS-DRILL-DOWN + V2 시각 강조)
   document.querySelectorAll('.stat-card[data-role-filter]').forEach(card => {
     card.addEventListener('click', () => {
       const role = card.dataset.roleFilter;
-      STATE.urgentFilter = role || 'all';
-      // 활성 표시
+      // 같은 카드 다시 클릭 = 필터 해제
+      if (STATE.urgentFilter === role && role !== 'all') {
+        STATE.urgentFilter = 'all';
+      } else {
+        STATE.urgentFilter = role || 'all';
+      }
+      // 활성 표시 (active-filter 클래스 토글)
       document.querySelectorAll('.stat-card[data-role-filter]').forEach(c => {
-        c.style.outline = c.dataset.roleFilter === STATE.urgentFilter && STATE.urgentFilter !== 'all' ? '2px solid var(--aurora-2)' : '';
+        c.classList.toggle('active-filter',
+          c.dataset.roleFilter === STATE.urgentFilter && STATE.urgentFilter !== 'all');
       });
       if (STATE.data) renderIntegratedUrgent(STATE.data);
       // 임박 박스로 부드럽게 스크롤

@@ -21,6 +21,34 @@
   },
   "tasks": [
     {
+      "id": "BL-STATUS-FINAL",
+      "title": "[admin-status 100% 완성] 모바일 펼침 레이아웃 + 시각 강조 통합 + chat-log 인덱스 GitHub Actions 자동 트리거",
+      "category": "infrastructure",
+      "status": "done",
+      "priority": "P0",
+      "size": "small",
+      "parent_task": "BL-STATUS-DRILL-DOWN-V2",
+      "blocker": null,
+      "created_at": "2026-05-05T13:30:00Z",
+      "completed_at": "2026-05-05T14:30:00Z",
+      "claude_can_auto": true,
+      "autonomous": {
+        "can_run_alone": true,
+        "estimated_hours": 2,
+        "requires_decisions_first": []
+      },
+      "progress": "✅ admin-status 88% → 100% 완성. 대표님 A안 채택 (이 채팅 12% 박고 닫음 → 새 채팅 매니저 대시보드). 박은 12% 3가지: ① 모바일 700px 이하 펼침 레이아웃 고도화 — container/header/cat-card 5차원3열/cat-task-row/urgent-card/progress-row/ceo-wait-item/top-row/auto-queue-card/integ-kpi/poll-status 10개 영역 모바일 최적화. ② 시각 강조 통합 — .stat-card.active-filter (✓ 활성 배지 + box-shadow), .linked-highlight + pulse-highlight 애니메이션 (1.5s 펄스), KPI 같은 카드 다시 클릭 = 토글 해제, 시급 페이지 클릭 시 카테고리 카드 + 진행률 행 양쪽 펼침 + 강조 (3-way drill-down 완성). ③ GitHub Actions chat-log-index.yml 신규 — _chat-logs/**.md 또는 tasks.json push 시 build-chat-log-index.mjs 자동 실행, [scan-bot] self-trigger 방지, fetch-depth 0으로 git log 전체 추출. 신규 chat-log에 frontmatter 박음 (slug/title/date/commits/tasks/decisions). 새 채팅 인계 메시지 chat-log에 박음 (대표님이 매니저 대시보드 새 채팅 열 때 붙여넣기 용).",
+      "files_changed": [
+        "_admin/admin-status.html",
+        ".github/workflows/chat-log-index.yml",
+        "_chat-logs/2026-05-05-status-final-100.md",
+        "tasks.json"
+      ],
+      "decisions": ["D-010"],
+      "updated_at": "2026-05-05T14:30:00Z",
+      "last_chat_log": "2026-05-05-status-final-100"
+    },
+    {
       "id": "BL-STATUS-DRILL-DOWN-V2",
       "title": "[admin-status v2] 결정 대기 동적화 + 진행률 펼침 + 카테고리 통합 + 임박 박스 정의 확장 + KPI 정확성 검증",
       "category": "infrastructure",

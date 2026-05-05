@@ -1,0 +1,73 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ccf/schema/chat-logs.schema.json",
+  "title": "CCF Chat-Log Schema (CLAUDE.md 11조 — 사업가 시점 5블록)",
+  "description": "모든 chat-log는 사업가가 5초 안에 파악 가능한 5블록을 frontmatter 직후에 의무 포함",
+  "type": "object",
+  "properties": {
+    "frontmatter": {
+      "type": "object",
+      "required": ["slug", "title", "date"],
+      "properties": {
+        "slug":      { "type": "string", "pattern": "^[a-z0-9-]+$" },
+        "title":     { "type": "string" },
+        "date":      { "type": "string", "format": "date" },
+        "tasks":     { "type": "array", "items": { "type": "string" } },
+        "commits":   { "type": "array", "items": { "type": "string" } },
+        "decisions": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "businessSummary": {
+      "type": "object",
+      "description": "사업가 시점 5블록 — 모든 chat-log 의무",
+      "required": ["oneLine", "why", "how", "result", "nextDecision"],
+      "properties": {
+        "oneLine":      { "type": "string", "description": "🎯 한 줄 요약 (비기술 용어, 1줄)" },
+        "why":          { "type": "string", "description": "📍 왜 발생했나 (2줄 이내)" },
+        "how":          { "type": "string", "description": "🛠 어떻게 해결했나 (2~3줄)" },
+        "result":       { "type": "string", "description": "✅ 결과 (사업 가치)" },
+        "nextDecision": { "type": "string", "description": "⏱ 다음 결정 필요 (없으면 '없음')" }
+      }
+    },
+    "techDetails": {
+      "type": "string",
+      "description": "🔧 기술 상세 — commit hash, task ID, Phase, 파일 경로 등"
+    }
+  },
+  "forbidden_terms_in_business_summary": [
+    "commit", "커밋",
+    "task ID", "태스크",
+    "Phase",
+    "Vercel deploy", "redeploy",
+    "RPC", "API",
+    "frontmatter",
+    "boundary 케이스",
+    "fallback",
+    "null-safe",
+    "state: READY",
+    "HTTP 200",
+    "commit hash",
+    "repo"
+  ],
+  "term_replacement_table": {
+    "commit": "작업",
+    "커밋": "작업 단위",
+    "task": "업무",
+    "Task ID": "업무 번호",
+    "Phase": "단계",
+    "Vercel deploy": "서버 배포",
+    "redeploy": "서버 재배포",
+    "chat-log 인계": "이전 작업 기록",
+    "라우터 통합": "API 함수 통합",
+    "RPC": "서버 호출",
+    "API": "서버 함수",
+    "frontmatter": "메타데이터",
+    "boundary 케이스": "예외 상황",
+    "fallback": "대체 동작",
+    "null-safe": "빈 값 보호",
+    "state: READY": "배포 완료",
+    "HTTP 200": "정상 응답",
+    "commit hash": "작업 번호",
+    "repo": "코드 저장소"
+  }
+}

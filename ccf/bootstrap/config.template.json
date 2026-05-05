@@ -1,0 +1,36 @@
+{
+  "$comment": "CCF 프로젝트별 설정 — 한 줄 이식 후 install.sh가 이 파일을 자동 생성하지 않으므로 직접 복사해 ccf-config.json으로 저장",
+  "project": {
+    "name": "프로젝트 이름",
+    "repo": "owner/repo",
+    "live_url": "https://example.com",
+    "preview_url": "https://example-preview.vercel.app",
+    "charter_path": "OPERATIONS_CHARTER.md",
+    "claude_md_path": "CLAUDE.md"
+  },
+  "ops_notification": {
+    "endpoint": "https://example.com/api/email/ops/notify-claude-work",
+    "token_env": "CLAUDE_OPS_TOKEN",
+    "header_name": "x-ops-token"
+  },
+  "queue": {
+    "category_bonus": {
+      "infrastructure": -10,
+      "bug": -5,
+      "ux": 0,
+      "feature": 0,
+      "docs": 5,
+      "dev": 0,
+      "design": 0,
+      "design-system": 0,
+      "analytics": 5
+    },
+    "size_weight": { "small": 0, "medium": 1, "large": 2 },
+    "polling_seconds": 5
+  },
+  "ui": {
+    "default_role": "CEO",
+    "show_blocked_count_in_kpi": true,
+    "command_center_at_top": true
+  }
+}

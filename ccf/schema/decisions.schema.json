@@ -1,0 +1,39 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ccf/schema/decisions.schema.json",
+  "title": "CCF Decisions Schema",
+  "description": "Single Source of Truth for business and technical decisions (D-NNN)",
+  "type": "object",
+  "required": ["decisions"],
+  "properties": {
+    "decisions": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/decision" }
+    }
+  },
+  "definitions": {
+    "decision": {
+      "type": "object",
+      "required": ["id", "title", "decided_at", "decision"],
+      "properties": {
+        "id":         { "type": "string", "pattern": "^D-\\d{3,}$" },
+        "title":      { "type": "string" },
+        "decided_at": { "type": "string", "format": "date" },
+        "decided_by": { "type": "string" },
+        "context":    { "type": "string", "description": "왜 이 결정이 필요했는가" },
+        "decision":   { "type": "string", "description": "결정 내용" },
+        "consequences": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "결정의 결과 / 영향"
+        },
+        "supersedes": { "type": ["string", "null"], "description": "이전 결정 ID" },
+        "superseded_by": { "type": ["string", "null"] },
+        "related_tasks": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    }
+  }
+}

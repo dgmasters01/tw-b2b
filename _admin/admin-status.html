@@ -1984,11 +1984,15 @@
   };
 
   function pollPause(reason) {
+    // 무한루프 방지: 이미 같은 reason으로 일시정지된 상태면 DOM 손대지 않음
+    if (POLL.pauseReasons.has(reason)) return;
     POLL.pauseReasons.add(reason);
     POLL.paused = true;
     updatePollStatus();
   }
   function pollResume(reason) {
+    // 무한루프 방지: 해당 reason이 없으면 DOM 손대지 않음
+    if (!POLL.pauseReasons.has(reason)) return;
     POLL.pauseReasons.delete(reason);
     if (POLL.pauseReasons.size === 0) POLL.paused = false;
     updatePollStatus();
@@ -2097,10 +2101,33 @@
       }
     });
     // 모달 감지 (단순 휴리스틱: 화면에 .modal / [aria-modal=true] / .toast 큰 박스)
-    const modalObserver = new MutationObserver(() => {
-      const hasModal = !!document.querySelector('.modal[style*="block"], [aria-modal="true"], .activity-expand-wrap');
-      if (hasModal) pollPause('모달/펼침');
-      else pollResume('모달/펼침');
+    // ★ 무한루프 fix: debounce + 자기 DOM(.poll-status, .poll-toast, .auto-queue-toast) 변경은 무시
+    let modalCheckTimer = null;
+    let lastHasModal = false;
+    const SELF_DOM_CLASSES = ['poll-status', 'poll-toast', 'auto-queue-toast', 'activity-expand-wrap'];
+    const isSelfMutation = (m) => {
+      const targets = [m.target, ...Array.from(m.addedNodes || []), ...Array.from(m.removedNodes || [])];
+      return targets.some(n => {
+        if (!n || n.nodeType !== 1) return false;
+        const cls = n.className || '';
+        if (typeof cls !== 'string') return false;
+        return SELF_DOM_CLASSES.some(c => cls.includes(c));
+      });
+    };
+    const modalObserver = new MutationObserver((mutations) => {
+      // 자기 DOM 변경은 즉시 무시 (무한루프 차단)
+      if (mutations.every(isSelfMutation)) return;
+      // debounce — 짧은 시간에 여러 mutation 와도 1번만 처리
+      if (modalCheckTimer) return;
+      modalCheckTimer = setTimeout(() => {
+        modalCheckTimer = null;
+        const hasModal = !!document.querySelector('.modal[style*="block"], [aria-modal="true"], .activity-expand-wrap');
+        // 상태 변화가 있을 때만 호출 (DOM 변경 최소화)
+        if (hasModal === lastHasModal) return;
+        lastHasModal = hasModal;
+        if (hasModal) pollPause('모달/펼침');
+        else pollResume('모달/펼침');
+      }, 300);
     });
     modalObserver.observe(document.body, { childList: true, subtree: true });
   }

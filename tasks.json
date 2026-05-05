@@ -21,6 +21,31 @@
   },
   "tasks": [
     {
+      "id": "BL-ADMIN-STATUS-LOOP-FIX",
+      "title": "[admin-status 무한루프 fix] MutationObserver 자기 DOM 변경 무시 + debounce + 상태 변화 비교",
+      "category": "infrastructure",
+      "status": "done",
+      "priority": "P0",
+      "size": "small",
+      "parent_task": "BL-ADMIN-AUTH-V2",
+      "blocker": null,
+      "created_at": "2026-05-05T11:00:00Z",
+      "completed_at": "2026-05-05T11:30:00Z",
+      "claude_can_auto": true,
+      "autonomous": {
+        "can_run_alone": true,
+        "estimated_hours": 0.5,
+        "requires_decisions_first": []
+      },
+      "progress": "✅ admin-status.html '자율 작업 큐 + 활동 이력 + 다음 추천 박스' 무한루프 진단 + fix 완료. 원인: MutationObserver(document.body, {subtree:true}) 콜백 안에서 pollPause/Resume → updatePollStatus → POLL.statusEl.textContent/classList 변경 → MutationObserver 재발화 무한 반복. setInterval(pollTick, 5000)이 매 틱마다 .poll-toast 생성하여 루프 강화. 3중 fix 박음: ① MutationObserver 콜백에 SELF_DOM_CLASSES (poll-status/poll-toast/auto-queue-toast/activity-expand-wrap) 자기 변경 즉시 무시 ② 300ms debounce로 다중 mutation 묶음 처리 ③ lastHasModal 비교로 상태 실제 변화 시에만 pollPause/Resume 호출. pollPause/Resume도 이미 같은 reason이면 DOM 손대지 않도록 가드. JS 문법 검증 통과 (54180 chars).",
+      "files_changed": [
+        "_admin/admin-status.html"
+      ],
+      "decisions": [],
+      "updated_at": "2026-05-05T11:30:00Z",
+      "last_chat_log": "2026-05-05-admin-status-loop-fix"
+    },
+    {
       "id": "BL-ADMIN-AUTH-V2",
       "title": "[권한 시스템 정식] 5단계 Owner/Admin/Staff/ReadOnly/Manager + 초대 + 즉시 박탈 + 무제한 이력",
       "category": "infrastructure",
@@ -39,9 +64,10 @@
           "D-015"
         ]
       },
-      "progress": "✅ 임시 비번 시스템(ADMIN_ACCESS_KEY 쿠키) 폐기. Supabase Auth 5단계 권한 정식 박힘. DB 9섹션 SQL 라이브 적용 8/8 PASS. API 5개 신규 + admin-page.js 재작성. 사용자 화면 3개 (admin-login / admin-accept-invite / admin-permissions). admin-status에 Card 6 권한 관리 통합 진입점 추가. Owner 삼중 보호: handle_new_user 트리거 + protect_owner_account 트리거 + RLS. D-015 + chat-log 2026-05-05-admin-auth-v2 박힘. [D-016] Vercel Hobby 12 함수 한도 회피를 위해 5개 신규 함수를 라우터 패턴으로 통합 — admin/* 4개 → _lib/admin-auth-handlers.js 모듈 추출 후 api/admin.js의 auth-* prefix로 흡수, auth/session 1개 → api/auth.js 라우터화. vercel.json rewrites로 클라이언트 URL 호환 유지(코드 변경 0). 함수 갯수 15→12 ✅. 정식 오픈 직전 Pro 전환 시점까지 라우터 패턴 유지.",
+      "progress": "✅ 임시 비번 시스템(ADMIN_ACCESS_KEY 쿠키) 폐기. Supabase Auth 5단계 권한 정식 박힘. DB 9섹션 SQL 라이브 적용 8/8 PASS. API 5개 신규 + admin-page.js 재작성. 사용자 화면 3개 (admin-login / admin-accept-invite / admin-permissions). admin-status에 Card 6 권한 관리 통합 진입점 추가. Owner 삼중 보호: handle_new_user 트리거 + protect_owner_account 트리거 + RLS. D-015 + chat-log 2026-05-05-admin-auth-v2 박힘. [D-016] Vercel Hobby 12 함수 한도 회피를 위해 5개 신규 함수를 라우터 패턴으로 통합 — admin/* 4개 → _lib/admin-auth-handlers.js 모듈 추출 후 api/admin.js의 auth-* prefix로 흡수, auth/session 1개 → api/auth.js 라우터화. vercel.json rewrites로 클라이언트 URL 호환 유지(코드 변경 0). 함수 갯수 15→12 ✅. 정식 오픈 직전 Pro 전환 시점까지 라우터 패턴 유지. [HOTFIX 2026-05-05] RLS 무한 재귀 (42P17) Supabase Management API로 라이브 fix 후 sql/bl-admin-auth-v2-rls-hotfix.sql로 영구 박음 — is_admin()/is_owner() SECURITY DEFINER 처리 + admins 자기 참조 정책 제거 + auth.users 신규 가입 시 admins 자동 동기화 트리거 + Owner 이메일 자동 owner 승격. admin.html Owner 인식 + Hotels/Members/Team 메뉴 라이브 검증 통과.",
       "files_changed": [
         "sql/bl-admin-auth-v2.sql",
+        "sql/bl-admin-auth-v2-rls-hotfix.sql",
         "api/auth/session.js",
         "api/admin/invite.js",
         "api/admin/accept-invite.js",
@@ -59,8 +85,8 @@
       "decisions": [
         "D-015"
       ],
-      "updated_at": "2026-05-05T01:04:31Z",
-      "last_chat_log": "2026-05-04-admin-auth-v2-router-consolidation"
+      "updated_at": "2026-05-05T11:00:00Z",
+      "last_chat_log": "2026-05-05-admin-status-loop-fix"
     },
     {
       "id": "BL-CATEGORY-REMAP",

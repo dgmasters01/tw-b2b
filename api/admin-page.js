@@ -187,6 +187,10 @@ export default async function handler(req, res) {
     const root = process.cwd();
     const buf = await readFile(join(root, filename), 'utf8');
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    // ★ BL-CACHE-BUST — admin 페이지 무조건 no-cache (개발 단계 동안 stale UI 차단)
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
     return res.status(200).send(buf);
   } catch (e) {
     if (e.code === 'ENOENT') {

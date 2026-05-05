@@ -21,6 +21,29 @@
   },
   "tasks": [
     {
+      "id": "BL-CACHE-BUST-HEADERS",
+      "title": "[HTTP 헤더 단 캐시 무효화] vercel.json + api/admin-page.js — meta 태그만으론 부족 (헌법 12조 위반 4호)",
+      "category": "infrastructure",
+      "status": "done",
+      "priority": "P0",
+      "size": "small",
+      "parent_task": "BL-CACHE-BUST",
+      "blocker": null,
+      "created_at": "2026-05-05T18:30:00Z",
+      "completed_at": "2026-05-05T19:00:00Z",
+      "claude_can_auto": true,
+      "autonomous": {
+        "can_run_alone": true,
+        "estimated_hours": 0.2,
+        "requires_decisions_first": []
+      },
+      "progress": "✅ 헌법 12조 위반 4호. 대표님 지적: 박은 fix가 또 화면에 안 보임. 진단: 라이브 코드 100% 정상 시뮬레이션 통과 → 진짜 원인은 이전 박은 meta http-equiv 단독으론 부족 (다음 페이지 로드부터 작동, 현재 캐시 무력). fix: ① vercel.json에 7개 admin 페이지 Cache-Control no-store 헤더 박음 ② api/admin-page.js SSR 응답에 직접 setHeader 박음. 학습: meta 태그 ≠ HTTP 헤더, SSR + CDN 캐시는 별도 헤더 박아야 완전 안전.",
+      "files_changed": ["vercel.json", "api/admin-page.js", "tasks.json", "_chat-logs/2026-05-05-cache-bust-http-headers.md"],
+      "decisions": [],
+      "updated_at": "2026-05-05T19:00:00Z",
+      "last_chat_log": "2026-05-05-cache-bust-http-headers"
+    },
+    {
       "id": "BL-FRONTMATTER-CLEAN-V2",
       "title": "[frontmatter 가드 강화] 7가지 boundary 케이스 처리 + body --- 자동 제거 (헌법 12조 위반 3호)",
       "category": "bug",

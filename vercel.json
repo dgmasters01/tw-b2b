@@ -1,140 +1,213 @@
 {
-  "buildCommand": "",
-  "outputDirectory": ".",
-  "framework": null,
-  "functions": {
-    "api/admin-page.js": {
-      "maxDuration": 30,
-      "includeFiles": "_admin/**"
+    "buildCommand": "",
+    "outputDirectory": ".",
+    "framework": null,
+    "functions": {
+        "api/admin-page.js": {
+            "maxDuration": 30,
+            "includeFiles": "_admin/**"
+        },
+        "api/chat-log.js": {
+            "maxDuration": 30,
+            "includeFiles": "_chat-logs/**"
+        },
+        "api/*.js": {
+            "maxDuration": 30
+        },
+        "api/email/**/*.js": {
+            "maxDuration": 30
+        }
     },
-    "api/chat-log.js": {
-      "maxDuration": 30,
-      "includeFiles": "_chat-logs/**"
-    },
-    "api/*.js": {
-      "maxDuration": 30
-    },
-    "api/email/**/*.js": {
-      "maxDuration": 30
-    }
-  },
-  "redirects": [
-    {
-      "source": "/admin-hub.html",
-      "destination": "/admin-status.html",
-      "permanent": true
-    },
-    {
-      "source": "/admin-hub",
-      "destination": "/admin-status.html",
-      "permanent": true
-    },
-    {
-      "source": "/_chat-logs/:path*",
-      "destination": "/chat-logs/:path*",
-      "permanent": false
-    },
-    {
-      "source": "/_admin/:path*",
-      "destination": "/:path*",
-      "permanent": false
-    },
-    {
-      "source": "/admin",
-      "destination": "/admin.html",
-      "permanent": false
-    },
-    {
-      "source": "/admin-status",
-      "destination": "/admin-status.html",
-      "permanent": false
-    },
-    {
-      "source": "/admin-tasks",
-      "destination": "/admin-tasks.html",
-      "permanent": false
-    },
-    {
-      "source": "/admin-business",
-      "destination": "/admin-business.html",
-      "permanent": false
-    },
-    {
-      "source": "/admin-service-ops",
-      "destination": "/admin-service-ops.html",
-      "permanent": false
-    },
-    {
-      "source": "/admin-gallery",
-      "destination": "/admin-gallery.html",
-      "permanent": false
-    },
-    {
-      "source": "/admin-permissions",
-      "destination": "/admin-permissions.html",
-      "permanent": false
-    }
-  ],
-  "rewrites": [
-    {
-      "source": "/api/admin/users-list",
-      "destination": "/api/admin?action=auth-users-list"
-    },
-    {
-      "source": "/api/admin/invite",
-      "destination": "/api/admin?action=auth-invite"
-    },
-    {
-      "source": "/api/admin/accept-invite",
-      "destination": "/api/admin?action=auth-accept-invite"
-    },
-    {
-      "source": "/api/admin/change-role",
-      "destination": "/api/admin?action=auth-change-role"
-    },
-    {
-      "source": "/api/auth/session",
-      "destination": "/api/auth?action=session"
-    },
-    {
-      "source": "/chat-logs/index.json",
-      "destination": "/api/chat-log?slug=index"
-    },
-    {
-      "source": "/chat-logs/:slug.md",
-      "destination": "/api/chat-log?slug=:slug"
-    },
-    {
-      "source": "/admin-status.html",
-      "destination": "/api/admin-page?page=status"
-    },
-    {
-      "source": "/admin-tasks.html",
-      "destination": "/api/admin-page?page=tasks"
-    },
-    {
-      "source": "/admin-business.html",
-      "destination": "/api/admin-page?page=business"
-    },
-    {
-      "source": "/admin-service-ops.html",
-      "destination": "/api/admin-page?page=service-ops"
-    },
-    {
-      "source": "/admin-gallery.html",
-      "destination": "/api/admin-page?page=gallery"
-    },
-    {
-      "source": "/admin.html",
-      "destination": "/api/admin-page?page=admin"
-    },
-    {
-      "source": "/admin-hub.html",
-      "destination": "/api/admin-page?page=hub"
-    },
-    {
-      "source": "/admin-permissions.html",
-      "destination": "/api/admin-page?page=permissions"
-    }
-  ]
+    "redirects": [
+        {
+            "source": "/admin-hub.html",
+            "destination": "/admin-status.html",
+            "permanent": true
+        },
+        {
+            "source": "/admin-hub",
+            "destination": "/admin-status.html",
+            "permanent": true
+        },
+        {
+            "source": "/_chat-logs/:path*",
+            "destination": "/chat-logs/:path*",
+            "permanent": false
+        },
+        {
+            "source": "/_admin/:path*",
+            "destination": "/:path*",
+            "permanent": false
+        },
+        {
+            "source": "/admin",
+            "destination": "/admin.html",
+            "permanent": false
+        },
+        {
+            "source": "/admin-status",
+            "destination": "/admin-status.html",
+            "permanent": false
+        },
+        {
+            "source": "/admin-tasks",
+            "destination": "/admin-tasks.html",
+            "permanent": false
+        },
+        {
+            "source": "/admin-business",
+            "destination": "/admin-business.html",
+            "permanent": false
+        },
+        {
+            "source": "/admin-service-ops",
+            "destination": "/admin-service-ops.html",
+            "permanent": false
+        },
+        {
+            "source": "/admin-gallery",
+            "destination": "/admin-gallery.html",
+            "permanent": false
+        },
+        {
+            "source": "/admin-permissions",
+            "destination": "/admin-permissions.html",
+            "permanent": false
+        }
+    ],
+    "rewrites": [
+        {
+            "source": "/api/admin/users-list",
+            "destination": "/api/admin?action=auth-users-list"
+        },
+        {
+            "source": "/api/admin/invite",
+            "destination": "/api/admin?action=auth-invite"
+        },
+        {
+            "source": "/api/admin/accept-invite",
+            "destination": "/api/admin?action=auth-accept-invite"
+        },
+        {
+            "source": "/api/admin/change-role",
+            "destination": "/api/admin?action=auth-change-role"
+        },
+        {
+            "source": "/api/auth/session",
+            "destination": "/api/auth?action=session"
+        },
+        {
+            "source": "/chat-logs/index.json",
+            "destination": "/api/chat-log?slug=index"
+        },
+        {
+            "source": "/chat-logs/:slug.md",
+            "destination": "/api/chat-log?slug=:slug"
+        },
+        {
+            "source": "/admin-status.html",
+            "destination": "/api/admin-page?page=status"
+        },
+        {
+            "source": "/admin-tasks.html",
+            "destination": "/api/admin-page?page=tasks"
+        },
+        {
+            "source": "/admin-business.html",
+            "destination": "/api/admin-page?page=business"
+        },
+        {
+            "source": "/admin-service-ops.html",
+            "destination": "/api/admin-page?page=service-ops"
+        },
+        {
+            "source": "/admin-gallery.html",
+            "destination": "/api/admin-page?page=gallery"
+        },
+        {
+            "source": "/admin.html",
+            "destination": "/api/admin-page?page=admin"
+        },
+        {
+            "source": "/admin-hub.html",
+            "destination": "/api/admin-page?page=hub"
+        },
+        {
+            "source": "/admin-permissions.html",
+            "destination": "/api/admin-page?page=permissions"
+        }
+    ],
+    "headers": [
+        {
+            "source": "/admin-status.html",
+            "headers": [
+                {
+                    "key": "Cache-Control",
+                    "value": "no-store, no-cache, must-revalidate, max-age=0"
+                },
+                {
+                    "key": "Pragma",
+                    "value": "no-cache"
+                },
+                {
+                    "key": "Expires",
+                    "value": "0"
+                }
+            ]
+        },
+        {
+            "source": "/admin-tasks.html",
+            "headers": [
+                {
+                    "key": "Cache-Control",
+                    "value": "no-store, no-cache, must-revalidate, max-age=0"
+                }
+            ]
+        },
+        {
+            "source": "/admin-business.html",
+            "headers": [
+                {
+                    "key": "Cache-Control",
+                    "value": "no-store, no-cache, must-revalidate, max-age=0"
+                }
+            ]
+        },
+        {
+            "source": "/admin-service-ops.html",
+            "headers": [
+                {
+                    "key": "Cache-Control",
+                    "value": "no-store, no-cache, must-revalidate, max-age=0"
+                }
+            ]
+        },
+        {
+            "source": "/admin-gallery.html",
+            "headers": [
+                {
+                    "key": "Cache-Control",
+                    "value": "no-store, no-cache, must-revalidate, max-age=0"
+                }
+            ]
+        },
+        {
+            "source": "/admin-permissions.html",
+            "headers": [
+                {
+                    "key": "Cache-Control",
+                    "value": "no-store, no-cache, must-revalidate, max-age=0"
+                }
+            ]
+        },
+        {
+            "source": "/admin.html",
+            "headers": [
+                {
+                    "key": "Cache-Control",
+                    "value": "no-store, no-cache, must-revalidate, max-age=0"
+                }
+            ]
+        }
+    ]
 }

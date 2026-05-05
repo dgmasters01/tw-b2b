@@ -21,6 +21,33 @@
   },
   "tasks": [
     {
+      "id": "BL-STATUS-DRILL-DOWN-V2",
+      "title": "[admin-status v2] 결정 대기 동적화 + 진행률 펼침 + 카테고리 통합 + 임박 박스 정의 확장 + KPI 정확성 검증",
+      "category": "infrastructure",
+      "status": "done",
+      "priority": "P0",
+      "size": "medium",
+      "parent_task": "BL-STATUS-DRILL-DOWN",
+      "blocker": null,
+      "created_at": "2026-05-05T12:30:00Z",
+      "completed_at": "2026-05-05T13:30:00Z",
+      "claude_can_auto": true,
+      "autonomous": {
+        "can_run_alone": true,
+        "estimated_hours": 1,
+        "requires_decisions_first": []
+      },
+      "progress": "✅ 대표님 5가지 지적 fix 박음. ① 임박 박스 자동 클릭 시 0건 → 필터 모드일 때 P0+진행중 제약 해제, 미완료 자동 13건 전체 표시. ② Image 2 카테고리 카드 4/0/2 등 정확성 검증 통과 (5개 카드 모두 정확). ③ 임박 박스 기능 명확화 (P0+진행중 박스). ④ Image 4 KPI (D+2/59%/18/10) 모두 정확 검증, 막힘 KPI sub-label '대표님 결정 대기' → 'status=blocked 전체'로 명확화, 결정 대기 박스 하드코딩 4건 → renderCeoWait() 동적 렌더 (status=blocked+blocker 정규식 OR approval_required OR pending+미해소 결정). ⑤ Image 5 카테고리 진행률 클릭 펼침 박음 (STATE.expandedProgressCat + 행 클릭 ▶/▼ + task 15건 인라인). 보너스: 카테고리 중복 통합 (infra→infrastructure, documentation→docs, ops→service-ops 4건 정규화 + CATEGORY_ALIAS 런타임 정규화), CATEGORY_LABEL_KO 14개로 확장 (service-ops/feature/analytics/design-system/permissions 라벨 박음). 11개 카테고리 → 8개로 통합.",
+      "files_changed": [
+        "_admin/admin-status.html",
+        "tasks.json",
+        "_chat-logs/2026-05-05-status-drill-down-v2.md"
+      ],
+      "decisions": ["D-010"],
+      "updated_at": "2026-05-05T13:30:00Z",
+      "last_chat_log": "2026-05-05-status-drill-down-v2"
+    },
+    {
       "id": "BL-STATUS-DRILL-DOWN",
       "title": "[admin-status 원클릭 통합 관리] KPI 클릭 필터 + 카테고리 매핑 정확화 + 카테고리 펼침 task/페이지 리스트 + 시급 페이지 drill-down + chat-log 자동 매핑",
       "category": "infrastructure",
@@ -46,7 +73,9 @@
         "_chat-logs/2026-05-05-status-drill-down.md",
         "tasks.json"
       ],
-      "decisions": ["D-010"],
+      "decisions": [
+        "D-010"
+      ],
       "updated_at": "2026-05-05T12:30:00Z",
       "last_chat_log": "2026-05-05-status-drill-down"
     },
@@ -400,7 +429,7 @@
     {
       "id": "BL-JOURNEY-DOC",
       "title": "[JOURNEY.md 매니저 여정 정리] 비즈니스 독스 카테고리 강화",
-      "category": "documentation",
+      "category": "docs",
       "status": "done",
       "priority": "P1",
       "size": "small",
@@ -2140,7 +2169,7 @@
     {
       "id": "BL-014",
       "title": "보안 — 토큰 폐기",
-      "category": "infra",
+      "category": "infrastructure",
       "status": "blocked",
       "priority": "P2",
       "size": "medium",
@@ -2473,7 +2502,7 @@
     {
       "id": "SQ-H",
       "title": "Supabase Management API 토큰 갱신 알림 자동화",
-      "category": "infra",
+      "category": "infrastructure",
       "status": "pending",
       "priority": "P1",
       "size": "medium",
@@ -2643,7 +2672,7 @@
       "title": "[시스템 완성도 통합 대시보드] admin-status.html 신설 + 3-Layer 분리 + 활동 이력",
       "priority": "P0",
       "status": "done",
-      "category": "infra",
+      "category": "infrastructure",
       "owner": "Claude",
       "claude_can_auto": true,
       "approval_required": false,

@@ -663,7 +663,7 @@
       <div class="integ-kpi"><div class="k-label">마감까지</div><div class="k-num dday" id="ik-dday">-</div><div class="k-sub" id="ik-dday-sub">-</div></div>
       <div class="integ-kpi"><div class="k-label">전체 완료율</div><div class="k-num done" id="ik-done">-</div><div class="k-sub" id="ik-done-sub">-</div></div>
       <div class="integ-kpi"><div class="k-label">진행 + 대기</div><div class="k-num active" id="ik-active">-</div><div class="k-sub">P0 우선 처리</div></div>
-      <div class="integ-kpi"><div class="k-label">막혀있는 작업</div><div class="k-num blocked" id="ik-blocked">-</div><div class="k-sub">대표님 결정 대기</div></div>
+      <div class="integ-kpi"><div class="k-label">막혀있는 작업</div><div class="k-num blocked" id="ik-blocked">-</div><div class="k-sub">status=blocked 전체</div></div>
     </div>
 
     <!-- 임박 작업 (P0 + 진행 중) -->
@@ -692,30 +692,11 @@
     </div>
   </section>
 
-  <!-- 결정 대기 박스 -->
-  <section class="ceo-wait-box">
-    <div class="ceo-wait-title">👤 대표님 결정 대기 4건 — 막혀있는 작업</div>
+  <!-- 결정 대기 박스 (renderCeoWait가 동적 렌더) -->
+  <section class="ceo-wait-box" id="ceo-wait-box">
+    <div class="ceo-wait-title" id="ceo-wait-title">👤 대표님 결정 대기 — 로딩 중...</div>
     <div class="ceo-wait-list" id="ceo-wait-list">
-      <div class="ceo-wait-item">
-        <span class="pri-pill p0">🔴 P0 긴급</span>
-        <span class="text">BL-003 — Agoda 예약 검증 시스템</span>
-        <span class="reason">검증 정책/주기 결정 필요</span>
-      </div>
-      <div class="ceo-wait-item">
-        <span class="pri-pill p1">🟠 P1 중요</span>
-        <span class="text">BL-004 — 매니저 정보 변경 시스템 (3-Tier)</span>
-        <span class="reason">권한 등급 정의 필요</span>
-      </div>
-      <div class="ceo-wait-item">
-        <span class="pri-pill p1">🟠 P1 중요</span>
-        <span class="text">BL-005 — 호텔 담당자 교체 시스템</span>
-        <span class="reason">교체 절차/통보 정책 필요</span>
-      </div>
-      <div class="ceo-wait-item">
-        <span class="pri-pill p0">🔴 P0 긴급</span>
-        <span class="text">BL-AURORA-MIGRATION — 5페이지 디자인 시안</span>
-        <span class="reason">시안 검수 필요</span>
-      </div>
+      <div style="font-size:11px;color:var(--text-muted);padding:8px;">tasks.json 로딩 중...</div>
     </div>
   </section>
 
@@ -829,7 +810,8 @@
     role: 'CEO',  // 향후 Supabase auth로 자동 식별
     data: null,
     tasksData: null,         // ★ tasks.json 캐시 (카테고리 카운트용)
-    expandedKey: null,       // 어느 카드가 펼쳐졌나
+    expandedKey: null,       // 어느 카테고리 카드가 펼쳐졌나
+    expandedProgressCat: null,  // 어느 진행률 행이 펼쳐졌나 (Image 5 클릭 펼침)
     urgentFilter: 'all',     // KPI 클릭 → 임박 박스 필터
   };
 
@@ -1343,8 +1325,11 @@
   // ──────────────────────────────────────────────────────────
   const CATEGORY_LABEL_KO = {
     design: '디자인', dev: '개발', bug: '버그', ux: 'UX',
-    infra: '인프라', infrastructure: '인프라',
-    business: '사업', docs: '문서', other: '기타',
+    infrastructure: '인프라', infra: '인프라',
+    business: '사업', docs: '문서', documentation: '문서',
+    'service-ops': '운영', ops: '운영', 'service-operations': '운영',
+    feature: '기능', analytics: '분석', 'design-system': '디자인 시스템',
+    permissions: '권한', auth: '권한', other: '기타',
   };
   const PRI_LABEL_KO = { P0: '🔴 P0 긴급', P1: '🟠 P1 중요', P2: '🟡 P2 보통' };
   const STAT_LABEL_KO = {
@@ -1363,6 +1348,7 @@
       renderIntegratedProgress(data);
       renderAutoQueue(data);
       renderNextAction(data);
+      renderCeoWait(data);             // ★ 결정 대기 박스 동적화
       // tasks.json 로드되면 카테고리 카드의 3-state 카운트 정확화 위해 재렌더
       if (STATE.data) renderSidebarMenus(STATE.data);
     } catch (err) {
@@ -1429,9 +1415,11 @@
   function renderIntegratedUrgent(data) {
     const tasks = data.tasks || [];
     const filterRole = STATE.urgentFilter || 'all';
-    const urgent = tasks
-      .filter(t => t.status !== 'done' && (t.priority === 'P0' || t.status === 'in_progress'))
-      .filter(t => filterRole === 'all' ? true : taskRole(t) === filterRole)
+    // ★ 필터 모드면 P0+진행중 제약 해제, 미완료 전체 중 해당 role만 표시
+    //   필터 'all'이면 기존대로 P0 + 진행중만
+    const urgent = (filterRole === 'all'
+        ? tasks.filter(t => t.status !== 'done' && (t.priority === 'P0' || t.status === 'in_progress'))
+        : tasks.filter(t => t.status !== 'done' && taskRole(t) === filterRole))
       .sort((a, b) => {
         if (a.status === 'in_progress' && b.status !== 'in_progress') return -1;
         if (b.status === 'in_progress' && a.status !== 'in_progress') return 1;
@@ -1440,9 +1428,9 @@
 
     const wrap = $('integ-urgent');
     // 필터 표시 + 해제 버튼
-    const filterLabel = filterRole === 'auto' ? '🤖 자동 진행 가능만'
-      : filterRole === 'staff' ? '👥 직원 트리거 가능만'
-      : filterRole === 'ceo' ? '👤 대표님 결정 대기만'
+    const filterLabel = filterRole === 'auto' ? '🤖 자동 진행 가능 전체'
+      : filterRole === 'staff' ? '👥 직원 트리거 가능 전체'
+      : filterRole === 'ceo' ? '👤 대표님 결정 대기 전체'
       : null;
     const filterBar = filterLabel
       ? `<div class="urgent-filter-bar" style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:rgba(99,102,241,0.08);border:0.5px solid rgba(99,102,241,0.3);border-radius:6px;margin-bottom:8px;font-size:11px;"><span>필터: <strong>${filterLabel}</strong> · ${urgent.length}건</span><button id="urgent-filter-clear" style="margin-left:auto;background:transparent;border:0.5px solid var(--border);color:var(--text-muted);border-radius:4px;font-size:10px;padding:3px 8px;cursor:pointer;">필터 해제 ✕</button></div>`
@@ -1493,13 +1481,27 @@
     if (clearBtn) clearBtn.addEventListener('click', () => { STATE.urgentFilter = 'all'; renderIntegratedUrgent(STATE.data); });
   }
 
+  // 카테고리 alias 정규화 (인프라 2개 등 통합)
+  const CATEGORY_ALIAS = {
+    'infra': 'infrastructure',
+    'documentation': 'docs',
+    'ops': 'service-ops',
+    'service-operations': 'service-ops',
+    'auth': 'permissions',
+  };
+  function normalizeCategory(c) {
+    const k = (c || 'other').toLowerCase();
+    return CATEGORY_ALIAS[k] || k;
+  }
+
   function renderIntegratedProgress(data) {
     const tasks = data.tasks || [];
     const cats = {};
     tasks.forEach(t => {
-      const c = t.category || 'other';
-      if (!cats[c]) cats[c] = { total: 0, done: 0 };
+      const c = normalizeCategory(t.category);
+      if (!cats[c]) cats[c] = { total: 0, done: 0, tasks: [] };
       cats[c].total++;
+      cats[c].tasks.push(t);
       if (t.status === 'done') cats[c].done++;
     });
     const sorted = Object.entries(cats).sort((a, b) => b[1].total - a[1].total);
@@ -1507,19 +1509,115 @@
       $('integ-progress').innerHTML = '<div class="urgent-empty">카테고리 데이터 없음</div>';
       return;
     }
+    const expandedCat = STATE.expandedProgressCat;
     $('integ-progress').innerHTML = sorted.map(([cat, st]) => {
       const pct = st.total ? Math.round(st.done / st.total * 100) : 0;
       const label = CATEGORY_LABEL_KO[cat] || cat;
+      const isExp = expandedCat === cat;
+      // 펼침 시 task 리스트 (미완료 우선)
+      const order = { 'in_progress': 1, 'pending': 2, 'blocked': 3, 'done': 4 };
+      const sortedTasks = [...st.tasks].sort((a,b) => (order[a.status]||9) - (order[b.status]||9) || (a.priority||'P9').localeCompare(b.priority||'P9'));
+      const taskRows = isExp ? sortedTasks.slice(0, 15).map(t => {
+        const r = taskRole(t);
+        const icon = r === 'auto' ? '🤖' : r === 'staff' ? '👥' : r === 'ceo' ? '👤' : r === 'blocked' ? '🚫' : '✅';
+        const statLab = STAT_LABEL_KO[t.status] || (t.status || '-');
+        const priLab = PRI_LABEL_KO[t.priority] || (t.priority || '-');
+        return `
+          <div class="cat-task-row" data-task-id="${escapeHtml(t.id)}" style="display:flex;align-items:center;gap:8px;padding:6px 9px;background:var(--panel-2);border:0.5px solid var(--border);border-radius:5px;margin-bottom:4px;cursor:pointer;font-size:11px;">
+            <span style="font-size:12px;">${icon}</span>
+            <span class="urgent-pill ${(t.priority||'P2').toLowerCase()}" style="font-size:9px;">${priLab}</span>
+            <span class="urgent-pill ${t.status || 'pending'}" style="font-size:9px;">${statLab}</span>
+            <span style="flex:1;color:var(--text);">${escapeHtml(t.title || '')}</span>
+            <span style="color:var(--text-muted);font-size:10px;">${escapeHtml(t.id)}</span>
+          </div>
+        `;
+      }).join('') + (sortedTasks.length > 15 ? `<div style="font-size:10px;color:var(--text-muted);text-align:center;padding:4px;">+${sortedTasks.length - 15}건 더 — admin-tasks.html에서 전체 보기</div>` : '') : '';
       return `
-        <div class="progress-row">
+        <div class="progress-row" data-cat="${escapeHtml(cat)}" style="cursor:pointer;${isExp ? 'background:rgba(99,102,241,0.05);border:0.5px solid rgba(99,102,241,0.3);border-radius:6px;padding:8px;' : ''}" title="클릭 → task 리스트 펼침">
           <div class="progress-row-head">
-            <span class="progress-row-name">${escapeHtml(label)} <span class="urgent-pill cat" style="margin-left:4px">${escapeHtml(cat)}</span></span>
+            <span class="progress-row-name">${isExp ? '▼' : '▶'} ${escapeHtml(label)} <span class="urgent-pill cat" style="margin-left:4px">${escapeHtml(cat)}</span></span>
             <span class="progress-row-stat">${st.done} / ${st.total} 완료 · ${pct}%</span>
           </div>
           <div class="progress-row-bar"><div class="progress-row-bar-fill" style="width:${pct}%"></div></div>
+          ${isExp ? `<div style="margin-top:10px;padding-top:8px;border-top:0.5px dashed var(--border);">${taskRows}</div>` : ''}
         </div>
       `;
     }).join('');
+    // 클릭 → 펼침 토글
+    document.querySelectorAll('#integ-progress .progress-row[data-cat]').forEach(row => {
+      row.addEventListener('click', (e) => {
+        if (e.target.closest('.cat-task-row')) return; // 안쪽 task row는 별도
+        const cat = row.dataset.cat;
+        STATE.expandedProgressCat = STATE.expandedProgressCat === cat ? null : cat;
+        if (STATE.tasksData) renderIntegratedProgress(STATE.tasksData);
+      });
+    });
+    // task row 클릭 → admin-tasks 이동
+    document.querySelectorAll('#integ-progress .cat-task-row').forEach(row => {
+      row.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const id = row.dataset.taskId;
+        if (id) location.href = `/admin-tasks.html?id=${encodeURIComponent(id)}`;
+      });
+    });
+  }
+
+  // ──────────────────────────────────────────────────────────
+  // 👤 결정 대기 박스 — 동적 렌더 (BL-STATUS-DRILL-DOWN-V2)
+  //
+  // 표시 규칙: status=blocked + blocker가 "대표님 결정" 포함
+  //   OR status=pending + autonomous.requires_decisions_first 미해소
+  //   → 우선순위 정렬 (P0 → P1 → P2)
+  //   → P0 우선 5건까지 표시, 나머지는 "+N건 더" 박음
+  // ──────────────────────────────────────────────────────────
+  function renderCeoWait(data) {
+    const tasks = data.tasks || [];
+    const titleEl = document.getElementById('ceo-wait-title');
+    const listEl = document.getElementById('ceo-wait-list');
+    if (!titleEl || !listEl) return;
+
+    const ceoTasks = tasks
+      .filter(t => t.status !== 'done')
+      .filter(t => {
+        // ① blocked + blocker에 "대표님 결정" 포함
+        if (t.status === 'blocked' && /대표님|결정|승인/.test(t.blocker || '')) return true;
+        // ② approval_required = true
+        if (t.approval_required === true) return true;
+        // ③ pending + autonomous.requires_decisions_first 미해소 + !claude_can_auto
+        const decs = (t.autonomous && t.autonomous.requires_decisions_first) || [];
+        if (decs.length > 0 && !t.claude_can_auto && t.status === 'pending') return true;
+        return false;
+      })
+      .sort((a, b) => (a.priority || 'P9').localeCompare(b.priority || 'P9'));
+
+    if (ceoTasks.length === 0) {
+      titleEl.textContent = '👤 대표님 결정 대기 0건 — 모든 결정 사항 처리 완료 ✅';
+      listEl.innerHTML = '<div style="font-size:11px;color:var(--text-muted);padding:8px;text-align:center;">결정 대기 작업 없음</div>';
+      return;
+    }
+
+    titleEl.textContent = `👤 대표님 결정 대기 ${ceoTasks.length}건 — 클릭 시 상세`;
+    const top = ceoTasks.slice(0, 8);
+    listEl.innerHTML = top.map(t => {
+      const priCls = (t.priority || 'P2').toLowerCase();
+      const priLab = PRI_LABEL_KO[t.priority] || (t.priority || '-');
+      const reason = t.blocker || ((t.autonomous?.requires_decisions_first || []).join(', ') ? `결정 필요: ${(t.autonomous.requires_decisions_first||[]).join(', ')}` : '결정 정책 정의 필요');
+      return `
+        <div class="ceo-wait-item" data-task-id="${escapeHtml(t.id)}" style="cursor:pointer;" title="클릭 → admin-tasks.html에서 상세 보기">
+          <span class="pri-pill ${priCls}">${priLab}</span>
+          <span class="text">${escapeHtml(t.id)} — ${escapeHtml((t.title || '').slice(0, 50))}</span>
+          <span class="reason">${escapeHtml(reason)}</span>
+        </div>
+      `;
+    }).join('') + (ceoTasks.length > 8 ? `<div style="font-size:10px;color:var(--text-muted);text-align:center;padding:6px;">+${ceoTasks.length - 8}건 더 — admin-tasks.html에서 전체 보기</div>` : '');
+
+    // 클릭 핸들러
+    listEl.querySelectorAll('.ceo-wait-item[data-task-id]').forEach(el => {
+      el.addEventListener('click', () => {
+        const id = el.dataset.taskId;
+        if (id) location.href = `/admin-tasks.html?id=${encodeURIComponent(id)}`;
+      });
+    });
   }
 
   // ──────────────────────────────────────────────────────────

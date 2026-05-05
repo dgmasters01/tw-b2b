@@ -507,27 +507,27 @@
     </div>
   </section>
 
-  <!-- 3-State 통계 4 카드 -->
+  <!-- 3-State 통계 4 카드 (클릭 → 임박 작업 박스 필터) -->
   <section class="stats-grid">
-    <div class="stat-card auto">
+    <div class="stat-card auto" data-role-filter="auto" title="클릭 → 자동 진행 가능 작업만 임박 박스에 표시">
       <div class="stat-label">🤖 자동 (Claude)</div>
-      <div class="stat-num" id="stat-auto">16</div>
-      <div class="stat-sub">시스템 자율</div>
+      <div class="stat-num" id="stat-auto">-</div>
+      <div class="stat-sub">시스템 자율 · 클릭 필터</div>
     </div>
-    <div class="stat-card staff">
+    <div class="stat-card staff" data-role-filter="staff" title="클릭 → 직원 트리거 가능 작업만 임박 박스에 표시">
       <div class="stat-label">👥 직원 가능</div>
-      <div class="stat-num" id="stat-staff">8</div>
-      <div class="stat-sub">Staff 트리거 가능</div>
+      <div class="stat-num" id="stat-staff">-</div>
+      <div class="stat-sub">Staff 트리거 가능 · 클릭 필터</div>
     </div>
-    <div class="stat-card ceo">
+    <div class="stat-card ceo" data-role-filter="ceo" title="클릭 → 대표님 결정 대기 작업만 임박 박스에 표시">
       <div class="stat-label">👤 대표님 결정</div>
-      <div class="stat-num" id="stat-ceo">4</div>
-      <div class="stat-sub">CEO 사업 정책</div>
+      <div class="stat-num" id="stat-ceo">-</div>
+      <div class="stat-sub">CEO 사업 정책 · 클릭 필터</div>
     </div>
-    <div class="stat-card charter">
+    <div class="stat-card charter" data-role-filter="all" title="클릭 → 필터 해제, 전체 표시">
       <div class="stat-label">🛡️ 헌법 검증</div>
       <div class="stat-num" id="stat-charter">27<small>/27</small></div>
-      <div class="stat-sub">PASS</div>
+      <div class="stat-sub">PASS · 클릭 = 전체</div>
     </div>
   </section>
 
@@ -828,8 +828,30 @@
   const STATE = {
     role: 'CEO',  // 향후 Supabase auth로 자동 식별
     data: null,
-    expandedKey: null,  // 어느 카드가 펼쳐졌나
+    tasksData: null,         // ★ tasks.json 캐시 (카테고리 카운트용)
+    expandedKey: null,       // 어느 카드가 펼쳐졌나
+    urgentFilter: 'all',     // KPI 클릭 → 임박 박스 필터
   };
+
+  // ──────────────────────────────────────────────────────────
+  // D-010 카테고리 ↔ 사이드바 메뉴키 매핑 (단일 진실)
+  // 헌법 부칙 5 — 카테고리 ↔ 페이지 1:1 박음
+  // ──────────────────────────────────────────────────────────
+  const MENU_KEY_TO_CATEGORIES = {
+    'system-status':      ['infrastructure', 'infra', 'design-system'],
+    'task-management':    ['dev', 'feature', 'bug', 'analytics'],
+    'business-docs':      ['docs', 'documentation'],
+    'page-gallery':       ['ux', 'design'],
+    'service-operations': ['service-ops', 'ops', 'service-operations'],
+    'permissions':        ['permissions', 'auth'],
+  };
+
+  // 메뉴키별 task 카운트 (3-State + 점수)
+  function tasksByMenuKey(menuKey) {
+    const tasks = (STATE.tasksData && STATE.tasksData.tasks) || [];
+    const cats = MENU_KEY_TO_CATEGORIES[menuKey] || [];
+    return tasks.filter(t => cats.includes(t.category || ''));
+  }
 
   // ──────────────────────────────────────────────────────────
   // 헬퍼
@@ -921,6 +943,15 @@
         }
       });
     });
+    // ★ 펼침된 카드 안의 task row 클릭 → admin-tasks.html?id=...
+    grid.querySelectorAll('.cat-task-row').forEach(row => {
+      row.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const id = row.dataset.taskId;
+        if (id) location.href = `/admin-tasks.html?id=${encodeURIComponent(id)}`;
+      });
+    });
   }
 
   function renderCard(m, catNum) {
@@ -961,13 +992,13 @@
     `;
   }
 
-  // 카테고리별 3-state 카운트 (간단 휴리스틱 — Phase 3-C에서 tasks.json 정확 연결)
+  // 카테고리별 3-state 카운트 (D-010 매핑 + tasks.json 직접 카운트)
   function countByState(m, state) {
-    // 임시: lastTask 기반. 정확한 카운트는 Phase 3-C에서.
-    if (!m.lastTask) return 0;
-    if (state === 'auto') return Math.min(m.lastTask.taskCount || 0, 3);
-    if (state === 'staff') return 0;
-    if (state === 'ceo') return 0;
+    if (!STATE.tasksData) return 0;
+    const ts = tasksByMenuKey(m.key).filter(t => t.status !== 'done');
+    if (state === 'auto')  return ts.filter(t => taskRole(t) === 'auto').length;
+    if (state === 'staff') return ts.filter(t => taskRole(t) === 'staff').length;
+    if (state === 'ceo')   return ts.filter(t => taskRole(t) === 'ceo').length;
     return 0;
   }
 
@@ -1004,7 +1035,9 @@
         <div style="font-size:12px;color:#fca5a5;margin-bottom:12px;">
           ${escapeHtml(m.weakest?.dimension || '-')}: ${escapeHtml(m.weakest?.hint || '-')}
         </div>
-        <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">📜 마지막 작업 기록</div>
+        ${renderCategoryTasksBlock(m.key)}
+        ${renderCategoryPagesBlock(m.key)}
+        <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;margin-top:14px;">📜 마지막 작업 기록</div>
         ${lastTaskRow}
         <div style="font-size:10px;color:var(--text-muted);margin-top:10px;text-align:right;">
           페이지로 이동 → <a href="${escapeHtml(m.url)}" style="color:#60a5fa;">${escapeHtml(m.url)}</a>
@@ -1013,9 +1046,91 @@
     `;
   }
 
+  // 카테고리 카드 펼침 — 해당 카테고리의 task 리스트 (status별 그룹)
+  function renderCategoryTasksBlock(menuKey) {
+    if (!STATE.tasksData) return '';
+    const ts = tasksByMenuKey(menuKey);
+    if (ts.length === 0) {
+      return `<div style="font-size:11px;color:var(--text-muted);padding:8px 10px;background:rgba(148,163,184,0.06);border-radius:5px;margin-bottom:10px;">이 카테고리에 박힌 task 없음 (D-010 매핑: ${(MENU_KEY_TO_CATEGORIES[menuKey]||[]).join(', ') || '-'})</div>`;
+    }
+    const order = { 'in_progress': 1, 'pending': 2, 'blocked': 3, 'done': 4 };
+    const sorted = [...ts].sort((a,b) => (order[a.status]||9) - (order[b.status]||9) || (a.priority||'P9').localeCompare(b.priority||'P9'));
+    const counts = {
+      done: ts.filter(t=>t.status==='done').length,
+      progress: ts.filter(t=>t.status==='in_progress').length,
+      pending: ts.filter(t=>t.status==='pending').length,
+      blocked: ts.filter(t=>t.status==='blocked').length,
+    };
+    const rows = sorted.slice(0, 12).map(t => {
+      const role = taskRole(t);
+      const roleIcon = role === 'auto' ? '🤖' : role === 'staff' ? '👥' : role === 'ceo' ? '👤' : role === 'blocked' ? '🚫' : '✅';
+      const statCls = t.status || 'pending';
+      const statLab = STAT_LABEL_KO[t.status] || (t.status || '-');
+      const priLab = PRI_LABEL_KO[t.priority] || (t.priority || '-');
+      return `
+        <div class="cat-task-row" data-task-id="${escapeHtml(t.id)}" style="display:flex;align-items:center;gap:8px;padding:6px 9px;background:var(--panel);border:0.5px solid var(--border);border-radius:5px;margin-bottom:4px;cursor:pointer;font-size:11px;">
+          <span style="font-size:12px;">${roleIcon}</span>
+          <span class="urgent-pill ${(t.priority||'P2').toLowerCase()}" style="font-size:9px;">${priLab}</span>
+          <span class="urgent-pill ${statCls}" style="font-size:9px;">${statLab}</span>
+          <span style="flex:1;color:var(--text);">${escapeHtml(t.title || '')}</span>
+          <span style="color:var(--text-muted);font-size:10px;">${escapeHtml(t.id)}</span>
+          <span style="color:var(--text-muted);font-size:10px;">🕒 ${fmtTime(t.updated_at || t.created_at)}</span>
+        </div>
+      `;
+    }).join('');
+    const more = ts.length > 12 ? `<div style="font-size:10px;color:var(--text-muted);text-align:center;padding:4px;">+${ts.length - 12}건 더 — admin-tasks.html에서 전체 보기</div>` : '';
+    return `
+      <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">📋 이 카테고리 task ${ts.length}건 — ✅ ${counts.done} · 🔄 ${counts.progress} · ⏳ ${counts.pending} · 🚫 ${counts.blocked}</div>
+      <div style="margin-bottom:14px;">
+        ${rows}
+        ${more}
+      </div>
+    `;
+  }
+
+  // 카테고리 카드 펼침 — 해당 카테고리에 속한 페이지 점수 리스트
+  function renderCategoryPagesBlock(menuKey) {
+    if (!STATE.data || !STATE.data.categoryStats) return '';
+    const cs = STATE.data.categoryStats[menuKey];
+    if (!cs || !cs.pages || cs.pages.length === 0) {
+      // categoryStats에 매핑이 없을 수 있음 — sidebarMenus.path 사용
+      return '';
+    }
+    const pageRows = cs.pages.map(p => {
+      const pageDetail = (STATE.data.pages || []).find(x => x.path === p);
+      const sc = pageDetail?.score ?? '-';
+      const sColor = sc >= 70 ? 'var(--done)' : sc >= 50 ? 'var(--p2)' : 'var(--blocked)';
+      const weakest = pageDetail?.weakest?.hint || '';
+      return `
+        <div style="display:flex;align-items:center;gap:8px;padding:5px 9px;background:var(--panel);border:0.5px solid var(--border);border-radius:5px;margin-bottom:4px;font-size:11px;">
+          <span style="color:${sColor};font-weight:500;width:30px;">${sc}</span>
+          <a href="${escapeHtml(p)}" style="color:var(--text);text-decoration:none;flex:1;">${escapeHtml(p)}</a>
+          <span style="color:var(--text-muted);font-size:10px;">${escapeHtml(weakest)}</span>
+        </div>
+      `;
+    }).join('');
+    return `
+      <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">📄 이 카테고리 페이지 (점수 측정)</div>
+      <div>${pageRows}</div>
+    `;
+  }
+
   // ──────────────────────────────────────────────────────────
   // 시급 TOP 10
   // ──────────────────────────────────────────────────────────
+  // 시급 페이지 path → 카테고리 카드 menuKey 역매핑
+  function pageToMenuKey(path) {
+    if (!STATE.data || !STATE.data.sidebarMenus) return null;
+    const m = STATE.data.sidebarMenus.find(x => x.path === path || x.url === path);
+    if (m) return m.key;
+    // categoryStats 역추적
+    const cs = STATE.data.categoryStats || {};
+    for (const [key, stat] of Object.entries(cs)) {
+      if ((stat.pages || []).includes(path)) return key;
+    }
+    return null;
+  }
+
   function renderTopUrgent(d) {
     const list = $('top-list');
     if (!list || !d.topUrgent) return;
@@ -1028,7 +1143,7 @@
       const stateCls = isHold ? 'hold' : 'auto';
       const stateLabel = isHold ? '⏸ 보류' : '🤖 자동';
       return `
-        <div class="${rowCls}">
+        <div class="${rowCls}" data-page-path="${escapeHtml(t.path)}" style="cursor:pointer;" title="클릭 → 해당 카테고리 카드 펼침">
           <span class="rank">${t.rank}</span>
           <span class="score ${scoreCls}">${score}</span>
           <div class="info">
@@ -1040,6 +1155,22 @@
         </div>
       `;
     }).join('');
+    // ★ 시급 페이지 row 클릭 → 카테고리 카드 펼침 + 스크롤 (drill-down)
+    list.querySelectorAll('.top-row[data-page-path]').forEach(row => {
+      row.addEventListener('click', () => {
+        const path = row.dataset.pagePath;
+        const key = pageToMenuKey(path);
+        if (key) {
+          STATE.expandedKey = key;
+          renderSidebarMenus(STATE.data);
+          const card = document.querySelector(`.cat-card[data-key="${key}"]`);
+          if (card) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } else {
+          // 매핑 없으면 페이지로 직접 이동
+          location.href = path;
+        }
+      });
+    });
   }
 
   // ──────────────────────────────────────────────────────────
@@ -1226,11 +1357,14 @@
       const res = await fetch('/tasks.json?t=' + Date.now());
       if (!res.ok) throw new Error('HTTP ' + res.status);
       const data = await res.json();
+      STATE.tasksData = data;          // ★ 카테고리 카드 카운트 + 펼침 상세에서 사용
       renderIntegratedKPI(data);
       renderIntegratedUrgent(data);
       renderIntegratedProgress(data);
       renderAutoQueue(data);
       renderNextAction(data);
+      // tasks.json 로드되면 카테고리 카드의 3-state 카운트 정확화 위해 재렌더
+      if (STATE.data) renderSidebarMenus(STATE.data);
     } catch (err) {
       console.error('[admin-status] tasks.json fetch 실패', err);
       $('integ-urgent').innerHTML = '<div class="urgent-empty">tasks.json 로딩 실패</div>';
@@ -1238,6 +1372,26 @@
       $('integ-auto-queue').innerHTML = '<div class="auto-queue-empty">tasks.json 로딩 실패</div>';
     }
   }
+
+  // ──────────────────────────────────────────────────────────
+  // 🎯 task → role 분류 (자동 / 직원 / CEO / 막힘)
+  //   - approval_required = true OR autonomous.requires_decisions_first 미해소 → ceo
+  //   - blocked → blocked
+  //   - claude_can_auto = true → auto
+  //   - 그 외 (사람 손 필요) → staff
+  // ──────────────────────────────────────────────────────────
+  function taskRole(t) {
+    if (t.status === 'done') return 'done';
+    if (t.status === 'blocked') return 'blocked';
+    if (t.approval_required === true) return 'ceo';
+    // 선결 결정이 박혀 있어야 자율 진행 가능 — 미해소면 CEO 대기
+    const decs = (t.autonomous && t.autonomous.requires_decisions_first) || [];
+    if (decs.length > 0 && !t.claude_can_auto) return 'ceo';
+    if (t.claude_can_auto === true) return 'auto';
+    return 'staff';
+  }
+
+  // 임박 박스 필터 상태는 STATE.urgentFilter에 박힘 (auto / staff / ceo / all)
 
   function renderIntegratedKPI(data) {
     const tasks = data.tasks || [];
@@ -1255,12 +1409,29 @@
     $('ik-done-sub').textContent = `${done} / ${total}`;
     $('ik-active').textContent = inProgress + pending;
     $('ik-blocked').textContent = blocked;
+
+    // 🤖/👥/👤 KPI 동적 계산 — 미완료(done 제외) 작업만 카운트
+    const open = tasks.filter(t => t.status !== 'done');
+    const cAuto = open.filter(t => taskRole(t) === 'auto').length;
+    const cStaff = open.filter(t => taskRole(t) === 'staff').length;
+    const cCeo = open.filter(t => taskRole(t) === 'ceo').length;
+    const elA = $('stat-auto');   if (elA) elA.textContent = cAuto;
+    const elS = $('stat-staff');  if (elS) elS.textContent = cStaff;
+    const elC = $('stat-ceo');    if (elC) elC.textContent = cCeo;
+
+    // 데드라인 배너 잔여 작업 분포 표기 갱신 (있으면)
+    const banner = $('deadline-detail');
+    if (banner) {
+      banner.textContent = `잔여 작업 분포: 🤖 자동 ${cAuto}건 · 👥 직원 가능 ${cStaff}건 · 👤 대표님 결정 ${cCeo}건 · 🚫 막힘 ${blocked}건. 데드라인 재설정 또는 즉시 진행 결정 필요.`;
+    }
   }
 
   function renderIntegratedUrgent(data) {
     const tasks = data.tasks || [];
+    const filterRole = STATE.urgentFilter || 'all';
     const urgent = tasks
       .filter(t => t.status !== 'done' && (t.priority === 'P0' || t.status === 'in_progress'))
+      .filter(t => filterRole === 'all' ? true : taskRole(t) === filterRole)
       .sort((a, b) => {
         if (a.status === 'in_progress' && b.status !== 'in_progress') return -1;
         if (b.status === 'in_progress' && a.status !== 'in_progress') return 1;
@@ -1268,23 +1439,39 @@
       });
 
     const wrap = $('integ-urgent');
+    // 필터 표시 + 해제 버튼
+    const filterLabel = filterRole === 'auto' ? '🤖 자동 진행 가능만'
+      : filterRole === 'staff' ? '👥 직원 트리거 가능만'
+      : filterRole === 'ceo' ? '👤 대표님 결정 대기만'
+      : null;
+    const filterBar = filterLabel
+      ? `<div class="urgent-filter-bar" style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:rgba(99,102,241,0.08);border:0.5px solid rgba(99,102,241,0.3);border-radius:6px;margin-bottom:8px;font-size:11px;"><span>필터: <strong>${filterLabel}</strong> · ${urgent.length}건</span><button id="urgent-filter-clear" style="margin-left:auto;background:transparent;border:0.5px solid var(--border);color:var(--text-muted);border-radius:4px;font-size:10px;padding:3px 8px;cursor:pointer;">필터 해제 ✕</button></div>`
+      : '';
     if (urgent.length === 0) {
-      wrap.innerHTML = '<div class="urgent-empty">🎉 P0 + 진행 중 작업 없음</div>';
+      wrap.innerHTML = filterBar + '<div class="urgent-empty">🎉 ' + (filterLabel ? '해당 필터에 맞는 작업 없음' : 'P0 + 진행 중 작업 없음') + '</div>';
+      const clearBtn = document.getElementById('urgent-filter-clear');
+      if (clearBtn) clearBtn.addEventListener('click', () => { STATE.urgentFilter = 'all'; renderIntegratedUrgent(STATE.data); });
       return;
     }
-    wrap.innerHTML = urgent.map(t => {
+    wrap.innerHTML = filterBar + urgent.map(t => {
       const priCls = (t.priority || 'P2').toLowerCase();
       const priLab = PRI_LABEL_KO[t.priority] || (t.priority || '-');
       const statCls = t.status || 'pending';
       const statLab = STAT_LABEL_KO[t.status] || (t.status || '-');
       const catLab = CATEGORY_LABEL_KO[t.category] || (t.category || '-');
       const updated = fmtTime(t.updated_at || t.created_at);
+      const role = taskRole(t);
+      const roleBadge = role === 'auto' ? '<span class="urgent-pill auto" style="background:rgba(22,163,74,0.20);color:var(--auto-text);">🤖 AUTO</span>'
+        : role === 'staff' ? '<span class="urgent-pill staff" style="background:rgba(96,165,250,0.20);color:var(--staff-text);">👥 STAFF</span>'
+        : role === 'ceo' ? '<span class="urgent-pill ceo" style="background:rgba(251,191,36,0.20);color:var(--ceo-text);">👤 CEO</span>'
+        : '';
       return `
         <div class="urgent-card ${priCls}" data-id="${escapeHtml(t.id)}">
           <div class="urgent-head">
             <span class="urgent-pill ${priCls}">${priLab}</span>
             <span class="urgent-pill ${statCls}">${statLab}</span>
             <span class="urgent-pill cat">${escapeHtml(catLab)}</span>
+            ${roleBadge}
           </div>
           <div class="urgent-title">${escapeHtml(t.title || '')}</div>
           <div class="urgent-meta">
@@ -1302,6 +1489,8 @@
         location.href = `/admin-tasks.html?id=${encodeURIComponent(id)}`;
       });
     });
+    const clearBtn = document.getElementById('urgent-filter-clear');
+    if (clearBtn) clearBtn.addEventListener('click', () => { STATE.urgentFilter = 'all'; renderIntegratedUrgent(STATE.data); });
   }
 
   function renderIntegratedProgress(data) {
@@ -2140,7 +2329,24 @@
   loadActivity();
   loadIntegratedTasks();  // ★ BL-PAGE-DEDUP + IP-CTRL-001 5단계 (자율 작업 큐 포함)
   startPolling();         // ★ BL-REAL-SYSTEM 거짓말 2 해결 — 5초 폴링
-  console.log('[admin-status] BL-PAGE-DEDUP + IP-CTRL-001 + BL-REAL-SYSTEM Phase α loaded — 임박/진행률/자율큐/풀컨텍스트인계/폴링/활동펼침');
+
+  // ★ KPI 4카드 클릭 = 임박 박스 필터 (BL-STATUS-DRILL-DOWN)
+  document.querySelectorAll('.stat-card[data-role-filter]').forEach(card => {
+    card.addEventListener('click', () => {
+      const role = card.dataset.roleFilter;
+      STATE.urgentFilter = role || 'all';
+      // 활성 표시
+      document.querySelectorAll('.stat-card[data-role-filter]').forEach(c => {
+        c.style.outline = c.dataset.roleFilter === STATE.urgentFilter && STATE.urgentFilter !== 'all' ? '2px solid var(--aurora-2)' : '';
+      });
+      if (STATE.data) renderIntegratedUrgent(STATE.data);
+      // 임박 박스로 부드럽게 스크롤
+      const target = document.getElementById('integ-urgent');
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+  });
+
+  console.log('[admin-status] BL-PAGE-DEDUP + IP-CTRL-001 + BL-REAL-SYSTEM Phase α + BL-STATUS-DRILL-DOWN loaded — 임박/진행률/자율큐/풀컨텍스트인계/폴링/활동펼침/KPI필터/카테고리매핑');
 </script>
 </body>
 </html>

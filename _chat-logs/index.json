@@ -1,13 +1,30 @@
 {
-  "generatedAt": "2026-05-05T07:10:36.000Z",
-  "count": 8,
+  "generatedAt": "2026-05-05T07:33:47.653Z",
+  "count": 10,
   "byCommit": {
     "6083794": "2026-05-04-ux-feedback-1",
     "4d04557": "2026-05-04-bl-hub-retire",
     "25615af": "2026-05-04-bl-hub-retire",
-    "7f340dc": "2026-05-04-ip-ctrl-001-autoqueue"
+    "7f340dc": "2026-05-04-ip-ctrl-001-autoqueue",
+    "73a0ec2": "2026-05-05-admin-status-loop-fix",
+    "c56885c": "2026-05-04-admin-auth-v2-router-consolidation",
+    "90bdc52": "2026-05-04-ux-feedback-1",
+    "78fbcc4": "2026-05-04-real-system-phase-a",
+    "23b02dc": "2026-05-04-real-system-truth-check",
+    "8d3f2b8": "2026-05-05-admin-auth-v2",
+    "fc560c8": "2026-05-04-admin-auth-v2-router-consolidation",
+    "f9502c4": "2026-05-04-real-system-phase-a",
+    "71eab56": "2026-05-04-real-system-phase-a",
+    "ea0d31f": "2026-05-04-real-system-phase-a",
+    "b720d3a": "2026-05-04-chat-log-system",
+    "bfce03e": "2026-05-04-chat-log-system"
   },
   "byTask": {
+    "BL-ADMIN-AUTH-V2": [
+      "2026-05-04-admin-auth-v2-router-consolidation",
+      "2026-05-05-admin-auth-v2",
+      "2026-05-05-admin-status-loop-fix"
+    ],
     "BL-HUB-RETIRE": [
       "2026-05-04-bl-hub-retire"
     ],
@@ -16,28 +33,81 @@
     ],
     "BL-CHAT-LOG-SYSTEM": [
       "2026-05-04-chat-log-system",
-      "2026-05-04-real-system-truth-check",
-      "2026-05-04-real-system-phase-a"
+      "2026-05-04-real-system-phase-a",
+      "2026-05-04-real-system-truth-check"
     ],
     "IP-CTRL-001": [
       "2026-05-04-ip-ctrl-001-autoqueue"
     ],
     "BL-REAL-SYSTEM": [
-      "2026-05-04-real-system-truth-check",
-      "2026-05-04-real-system-phase-a"
+      "2026-05-04-real-system-phase-a",
+      "2026-05-04-real-system-truth-check"
     ],
     "UX-FEEDBACK-1": [
       "2026-05-04-ux-feedback-1"
     ],
-    "BL-ADMIN-AUTH-V2": [
-      "2026-05-04-admin-auth-v2-router-consolidation",
-      "2026-05-05-admin-status-loop-fix"
-    ],
     "BL-ADMIN-STATUS-LOOP-FIX": [
       "2026-05-05-admin-status-loop-fix"
+    ],
+    "BL-STATUS-DRILL-DOWN": [
+      "2026-05-05-status-drill-down"
     ]
   },
   "all": [
+    {
+      "slug": "2026-05-05-admin-auth-v2",
+      "title": "BL-ADMIN-AUTH-V2 완료 — 5단계 권한 + 초대 시스템 + Owner 삼중 보호 (한 commit 통합)",
+      "date": "2026-05-05",
+      "commits": [
+        "8d3f2b8"
+      ],
+      "tasks": [
+        "BL-ADMIN-AUTH-V2"
+      ],
+      "decisions": [
+        "D-015"
+      ]
+    },
+    {
+      "slug": "2026-05-05-admin-status-loop-fix",
+      "title": "admin-status 무한루프 fix + RLS hotfix SQL 영구 박기",
+      "date": "2026-05-05",
+      "commits": [
+        "73a0ec2"
+      ],
+      "tasks": [
+        "BL-ADMIN-STATUS-LOOP-FIX",
+        "BL-ADMIN-AUTH-V2"
+      ],
+      "decisions": []
+    },
+    {
+      "slug": "2026-05-05-status-drill-down",
+      "title": "admin-status 카테고리 매핑 정확화 + KPI 클릭 필터 + 시급 페이지 drill-down + chat-log 자동 매핑",
+      "date": "2026-05-05",
+      "commits": [],
+      "tasks": [
+        "BL-STATUS-DRILL-DOWN"
+      ],
+      "decisions": [
+        "D-010"
+      ]
+    },
+    {
+      "slug": "2026-05-04-admin-auth-v2-router-consolidation",
+      "title": "BL-ADMIN-AUTH-V2 라우터 통합 — Vercel Hobby 12 함수 한도 회피 (D-016)",
+      "date": "2026-05-04",
+      "commits": [
+        "c56885c",
+        "fc560c8"
+      ],
+      "tasks": [
+        "BL-ADMIN-AUTH-V2"
+      ],
+      "decisions": [
+        "D-016"
+      ]
+    },
     {
       "slug": "2026-05-04-bl-hub-retire",
       "title": "BL-HUB-RETIRE — admin-hub 폐기, admin-status 통합 진입점 승격",
@@ -58,7 +128,10 @@
       "slug": "2026-05-04-chat-log-system",
       "title": "chat-logs 시스템 신설 — \"결과만 남고 과정 사라짐\" 해결 (BL-JOURNEY-DOC 검토에서 시작)",
       "date": "2026-05-04",
-      "commits": [],
+      "commits": [
+        "b720d3a",
+        "bfce03e"
+      ],
       "tasks": [
         "BL-JOURNEY-DOC",
         "BL-CHAT-LOG-SYSTEM"
@@ -80,10 +153,30 @@
       "decisions": []
     },
     {
+      "slug": "2026-05-04-real-system-phase-a",
+      "title": "BL-REAL-SYSTEM Phase α 완료 — 시스템 거짓말 4건 통합 해결 (admin 게이트 + 폴링 + 풀컨텍스트 + 활동펼침)",
+      "date": "2026-05-04",
+      "commits": [
+        "78fbcc4",
+        "f9502c4",
+        "71eab56",
+        "ea0d31f"
+      ],
+      "tasks": [
+        "BL-REAL-SYSTEM",
+        "BL-CHAT-LOG-SYSTEM"
+      ],
+      "decisions": [
+        "D-014"
+      ]
+    },
+    {
       "slug": "2026-05-04-real-system-truth-check",
       "title": "BL-REAL-SYSTEM 출발 전 진실 점검 — 시스템 거짓말 4건 발견 후 통합 작업 결정",
       "date": "2026-05-04",
-      "commits": [],
+      "commits": [
+        "23b02dc"
+      ],
       "tasks": [
         "BL-CHAT-LOG-SYSTEM",
         "BL-REAL-SYSTEM"
@@ -97,38 +190,13 @@
       "title": "UX-FEEDBACK-1 — 대표님 4가지 피드백 (시간/박스/페이지명/채팅인계)",
       "date": "2026-05-04",
       "commits": [
-        "6083794"
+        "6083794",
+        "90bdc52"
       ],
       "tasks": [
         "UX-FEEDBACK-1"
       ],
       "decisions": []
-    },
-    {
-      "slug": "2026-05-04-real-system-phase-a",
-      "title": "BL-REAL-SYSTEM Phase α 완료 — 시스템 거짓말 4건 통합 해결 (admin 게이트 + 폴링 + 풀컨텍스트 + 활동펼침)",
-      "date": "2026-05-04",
-      "commits": [],
-      "tasks": [
-        "BL-REAL-SYSTEM",
-        "BL-CHAT-LOG-SYSTEM"
-      ],
-      "decisions": [
-        "D-014"
-      ]
-    },
-    {
-      "slug": "2026-05-04-admin-auth-v2-router-consolidation",
-      "title": "BL-ADMIN-AUTH-V2 라우터 통합 — Vercel Hobby 12 함수 한도 회피 (D-016)",
-      "date": "2026-05-04",
-      "commits": [],
-      "tasks": [
-        "BL-ADMIN-AUTH-V2"
-      ],
-      "decisions": [
-        "D-016"
-      ]
-    },
-    "2026-05-05-admin-status-loop-fix"
+    }
   ]
 }

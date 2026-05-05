@@ -1,3 +1,12 @@
+---
+slug: 2026-05-05-admin-status-loop-fix
+title: admin-status 무한루프 fix + RLS hotfix SQL 영구 박기
+date: 2026-05-05
+commits: [73a0ec2]
+tasks: [BL-ADMIN-STATUS-LOOP-FIX, BL-ADMIN-AUTH-V2]
+decisions: []
+---
+
 # 2026-05-05 admin-status 무한루프 fix + RLS hotfix 영구 박기
 
 **TASK**: BL-ADMIN-STATUS-LOOP-FIX (신규, parent: BL-ADMIN-AUTH-V2)

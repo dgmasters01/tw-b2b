@@ -23,8 +23,49 @@
 
 import { readdirSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
+import { execSync } from 'node:child_process';
 
 const DIR = '_chat-logs';
+
+// git log에서 chat-log 파일이 변경된 commit + commit message에 task ID가 박힌 commit 자동 추출
+function buildAutoCommitMap(slugs, taskIdsBySlug) {
+  const byCommit = {};
+  // 1) chat-log 파일 자체가 변경된 commit
+  for (const slug of slugs) {
+    try {
+      const out = execSync(`git log --format="%h" -- _chat-logs/${slug}.md`, { encoding: 'utf8', stdio: ['pipe','pipe','ignore'] });
+      const hashes = out.split('\n').map(s => s.trim()).filter(Boolean);
+      for (const h of hashes) byCommit[h] = slug;
+    } catch (_) {}
+  }
+  // 2) commit message에 chat-log slug가 박힌 경우
+  // 3) commit message에 task ID가 있고, 그 task가 chat-log에 매핑돼 있으면 같은 chat-log로 매핑
+  try {
+    const recent = execSync('git log --format="%h|%s" -n 200', { encoding: 'utf8', stdio: ['pipe','pipe','ignore'] });
+    for (const line of recent.split('\n')) {
+      const [hash, ...rest] = line.split('|');
+      if (!hash) continue;
+      const msg = rest.join('|');
+      // slug 직접 매칭
+      for (const slug of slugs) {
+        if (msg.includes(slug)) byCommit[hash.trim()] = slug;
+      }
+      // task ID 매칭 (slug 우선되지 않을 때만)
+      if (!byCommit[hash.trim()]) {
+        for (const [slug, taskIds] of Object.entries(taskIdsBySlug)) {
+          for (const tid of taskIds) {
+            if (msg.includes(tid)) {
+              byCommit[hash.trim()] = slug;
+              break;
+            }
+          }
+          if (byCommit[hash.trim()]) break;
+        }
+      }
+    }
+  } catch (_) {}
+  return byCommit;
+}
 
 function parseFrontmatter(md) {
   const m = md.match(/^---\n([\s\S]*?)\n---/);
@@ -81,6 +122,21 @@ function main() {
       if (!byTask[t]) byTask[t] = [];
       byTask[t].push(slug);
     }
+  }
+
+  // ★ git log 자동 매핑 보강 — frontmatter commits 비어 있어도 매핑됨
+  const slugs = all.map(e => e.slug);
+  const taskIdsBySlug = Object.fromEntries(all.map(e => [e.slug, e.tasks || []]));
+  const autoByCommit = buildAutoCommitMap(slugs, taskIdsBySlug);
+  // frontmatter commits가 명시된 건 그대로 유지 (우선순위 ↑), 없는 commit만 자동으로 박음
+  for (const [hash, slug] of Object.entries(autoByCommit)) {
+    if (!byCommit[hash]) byCommit[hash] = slug;
+  }
+  // 각 entry.commits에도 자동 매핑된 hash 박음 (commit_hash 역추적용)
+  for (const entry of all) {
+    const autoCommits = Object.entries(autoByCommit).filter(([_, s]) => s === entry.slug).map(([h]) => h);
+    const merged = Array.from(new Set([...(entry.commits || []), ...autoCommits]));
+    entry.commits = merged;
   }
 
   // 날짜 역순 (최신이 위)

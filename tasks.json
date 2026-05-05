@@ -21,6 +21,36 @@
   },
   "tasks": [
     {
+      "id": "BL-STATUS-DRILL-DOWN",
+      "title": "[admin-status 원클릭 통합 관리] KPI 클릭 필터 + 카테고리 매핑 정확화 + 카테고리 펼침 task/페이지 리스트 + 시급 페이지 drill-down + chat-log 자동 매핑",
+      "category": "infrastructure",
+      "status": "done",
+      "priority": "P0",
+      "size": "medium",
+      "parent_task": null,
+      "blocker": null,
+      "created_at": "2026-05-05T11:30:00Z",
+      "completed_at": "2026-05-05T12:30:00Z",
+      "claude_can_auto": true,
+      "autonomous": {
+        "can_run_alone": true,
+        "estimated_hours": 1,
+        "requires_decisions_first": []
+      },
+      "progress": "✅ 대표님 4가지 지적 fix 박음. ① 카테고리 카드 매핑 정확화 — D-010 MENU_KEY_TO_CATEGORIES 매핑 표 박음, tasksByMenuKey()로 tasks.json 직접 카운트, STATE.tasksData 캐시. ② KPI 4카드 동적 계산 + 클릭 필터 — taskRole(t) 5분류(auto/staff/ceo/blocked/done), data-role-filter 속성, STATE.urgentFilter 갱신, 임박 박스 필터 표시바 + 해제 버튼 + 부드러운 스크롤. ③ 카테고리 카드 펼침 = task 리스트 + 페이지 점수 — renderCategoryTasksBlock + renderCategoryPagesBlock, 행 클릭 → admin-tasks.html?id=... 이동. ④ 시급 페이지 drill-down — pageToMenuKey() 역매핑, row 클릭 → 카테고리 카드 펼침 + 스크롤. ⑤ 보너스: chat-log 인덱스 자동 매핑 — build-chat-log-index.mjs에 git log 자동 추출 박음, byCommit 4 → 16건 (4배 증가).",
+      "files_changed": [
+        "_admin/admin-status.html",
+        "scripts/build-chat-log-index.mjs",
+        "_chat-logs/index.json",
+        "_chat-logs/2026-05-05-admin-status-loop-fix.md",
+        "_chat-logs/2026-05-05-status-drill-down.md",
+        "tasks.json"
+      ],
+      "decisions": ["D-010"],
+      "updated_at": "2026-05-05T12:30:00Z",
+      "last_chat_log": "2026-05-05-status-drill-down"
+    },
+    {
       "id": "BL-ADMIN-STATUS-LOOP-FIX",
       "title": "[admin-status 무한루프 fix] MutationObserver 자기 DOM 변경 무시 + debounce + 상태 변화 비교",
       "category": "infrastructure",

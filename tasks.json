@@ -21,6 +21,34 @@
   },
   "tasks": [
     {
+      "id": "BL-GALLERY-HOTFIX",
+      "title": "[admin-gallery 무한 Loading 핫픽스] STATUS_BADGES retired 키 누락 + fallback 가드 박음 (헌법 12조 위반 1호)",
+      "category": "bug",
+      "status": "done",
+      "priority": "P0",
+      "size": "small",
+      "parent_task": "CHARTER-12",
+      "blocker": null,
+      "created_at": "2026-05-05T16:30:00Z",
+      "completed_at": "2026-05-05T16:45:00Z",
+      "claude_can_auto": true,
+      "autonomous": {
+        "can_run_alone": true,
+        "estimated_hours": 0.25,
+        "requires_decisions_first": []
+      },
+      "progress": "✅ 헌법 12조 위반 1호. 대표님 지적: System Status 카드 클릭 → admin-gallery.html 무한 Loading. 원인 3-Layer: ① STATUS_BADGES['retired'] = undefined ② BL-HUB-RETIRE 작업 시 admin-hub.html을 retired로 박았으나 BADGES 매핑 누락 ③ cardHtml에 fallback 가드 없음. fix: pages-meta.mjs에 retired 키 박음 + cardHtml에 || fallback (❓ unknown 표시) 박음. 자체 검증: 19/19 페이지 매핑 OK, 19/19 cardHtml 시뮬레이션 OK, 다른 카드 대상 페이지 라이브 401 확인. 헌법 12조 ⑦번 boundary 케이스 정의 확장 (카드 클릭 → 이동 페이지 동작까지 검증).",
+      "files_changed": [
+        "scripts/pages-meta.mjs",
+        "_admin/admin-gallery.html",
+        "_chat-logs/2026-05-05-gallery-hotfix.md",
+        "tasks.json"
+      ],
+      "decisions": [],
+      "updated_at": "2026-05-05T16:45:00Z",
+      "last_chat_log": "2026-05-05-gallery-hotfix"
+    },
+    {
       "id": "CHARTER-12",
       "title": "[헌법 12조 박음] 자체 검증 의무 (Self-QA Before Handoff) — 인계 전 7개 검증 + 보고 형식 의무화",
       "category": "infrastructure",

@@ -213,6 +213,7 @@ export const STATUS_BADGES = {
   'new':             { label: '🔵 신설',        color: '#2563eb' },
   'planned':         { label: '⚪ 예정',         color: '#6b7280' },
   'archived':        { label: '⚫ 보관',         color: '#374151' },
+  'retired':         { label: '🚫 폐기',         color: '#7f1d1d' },
 };
 
 export const AUDIENCE_BADGES = {

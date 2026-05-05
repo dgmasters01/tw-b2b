@@ -173,8 +173,9 @@ function render(adminEmail) {
 function cardHtml(p) {
   const name = p.path.replace(/^\//, '').replace(/\.html$/, '');
   const thumbSrc = `/docs/screenshots/${name}.png`;
-  const statusBadge = STATUS_BADGES[p.status];
-  const audienceBadge = AUDIENCE_BADGES[p.audience];
+  // ★ 헌법 12조 fallback 가드 — 매핑 없어도 깨지지 않게
+  const statusBadge = STATUS_BADGES[p.status] || { label: '❓ ' + (p.status || 'unknown'), color: '#6b7280' };
+  const audienceBadge = AUDIENCE_BADGES[p.audience] || { label: '❓ ' + (p.audience || 'unknown'), color: '#6b7280' };
   const searchText = (p.path + ' ' + p.name + ' ' + p.purpose + ' ' + (p.notes || '')).toLowerCase();
 
   // iframe 라이브 미리보기는 status가 planned가 아닌 모든 페이지에서 사용 가능

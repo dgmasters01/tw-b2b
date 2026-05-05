@@ -124,5 +124,20 @@ export default async function handler(req, res) {
     return res.status(502).json({ error: 'Failed to send ops email', detail: result.error });
   }
 
-  return res.status(200).json({ ok: true, email_id: result.id });
+  // 4. CCF auto-status-updater — task_id 추출 후 응답에 detection 결과 포함
+  // (Vercel 서버리스 = 파일시스템 read-only. 실제 tasks.json 쓰기는
+  //  CLI/GitHub Actions 측 후속 작업이 처리. 여기선 detection만 반환.)
+  let detectedTaskId = null;
+  try {
+    const blob = `${body.step || ''} ${body.summary || ''}`;
+    const m = blob.match(/\b(BL-[A-Z][A-Z0-9-]+|D-\d{3,}|TASK-[A-Z][A-Z0-9-]+)\b/);
+    if (body.task_id && /^[A-Z][A-Z0-9-]+$/.test(body.task_id)) detectedTaskId = body.task_id;
+    else if (m) detectedTaskId = m[1];
+  } catch (e) { /* swallow — detection 실패가 메일 성공을 뒤집지 않음 */ }
+
+  return res.status(200).json({
+    ok: true,
+    email_id: result.id,
+    ccf_detected_task_id: detectedTaskId,
+  });
 }

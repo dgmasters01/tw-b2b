@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-05T21:11:23Z",
+  "updated_at": "2026-05-05T21:28:08Z",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -12,9 +12,9 @@
     "SOLO_WORK_QUEUE.md"
   ],
   "stats": {
-    "total": 82,
-    "done": 52,
-    "in_progress": 3,
+    "total": 83,
+    "done": 54,
+    "in_progress": 2,
     "pending": 17,
     "blocked": 10,
     "autonomous_ready": 8
@@ -3061,7 +3061,7 @@
       "id": "BL-CHAT-LOG-SYSTEM",
       "title": "[채팅 로그 시스템] 사람용+AI용 이중 형식 — 활동 이력 ↔ chat-logs ↔ ECHO_LOG ↔ commit 4중 연결",
       "category": "infrastructure",
-      "status": "in_progress",
+      "status": "done",
       "priority": "P0",
       "size": "medium",
       "parent_task": null,
@@ -3082,7 +3082,15 @@
       "notes": "헌법 6조 사람용+AI용 이중 형식 충족. D-010 단일 진실 + 인증 게이트 (vercel rewrites + /api/chat-log).",
       "links": [],
       "last_commit": "b720d3a",
-      "last_chat_log": "2026-05-04-chat-log-system"
+      "last_chat_log": "2026-05-04-chat-log-system",
+      "completed_at": "2026-05-06T05:00:00Z",
+      "history": [
+        {
+          "at": "2026-05-05T21:28:08Z",
+          "by": "🤖 Claude (CEO 지시)",
+          "action": "BL-COMMAND-CENTER Phase B 데이터 정정 — Phase 1 완료된 사실 반영"
+        }
+      ]
     },
     {
       "id": "BL-REAL-SYSTEM",
@@ -3162,6 +3170,43 @@
           "at": "2026-05-05T21:11:23Z",
           "by": "🤖 Claude (CEO 지시)",
           "action": "BL-COMMAND-CENTER 신규 등록 + Phase A 완료"
+        }
+      ]
+    },
+    {
+      "id": "BL-HUMAN-TAB-REWRITE",
+      "title": "[사람용 탭 재작성] 사업가 시점 5블록 카드 UI + CLAUDE.md 11조 chat-log 작성 표준 신설",
+      "category": "ux",
+      "status": "done",
+      "priority": "P0",
+      "size": "medium",
+      "parent_task": "BL-CHAT-LOG-SYSTEM",
+      "blocker": null,
+      "depends_on": [
+        "BL-CHAT-LOG-SYSTEM"
+      ],
+      "created_at": "2026-05-06T03:00:00Z",
+      "started_at": "2026-05-06T03:30:00Z",
+      "started_by": "CLAUDE",
+      "completed_at": "2026-05-06T04:30:00Z",
+      "claude_can_auto": true,
+      "autonomous": {
+        "can_run_alone": true,
+        "estimated_hours": 1.5,
+        "requires_decisions_first": []
+      },
+      "progress": "✅ 완료 (commit 1de9b9d). CLAUDE.md 11조 신설 + loadHumanTab 재작성 + 19개 기존 chat-log 일괄 보강 + auto_migrated 플래그. 자체 검증 7항목 통과.",
+      "history": [
+        {
+          "at": "2026-05-06T04:30:00Z",
+          "by": "🤖 Claude (CEO 지시)",
+          "action": "완료 — commit 1de9b9d",
+          "commit_hash": "1de9b9d"
+        },
+        {
+          "at": "2026-05-05T21:28:08Z",
+          "by": "🤖 Claude (CEO 지시)",
+          "action": "BL-COMMAND-CENTER Phase B 데이터 정정 — done 등록 (이미 끝난 업무)"
         }
       ]
     }

@@ -619,6 +619,206 @@
     </div>
   </div>
 
+  <!-- ════════════════════════════════════════════════════════
+       🎮 작업 지휘소 (Command Center) — CCF 7원칙 6번: 화면 최상단
+       BL-COMMAND-CENTER (Phase B, 2026-05-06)
+       위에서부터 차례로 클릭 = 시스템이 알아서 완성되어 가는 흐름
+       ════════════════════════════════════════════════════════ -->
+  <section class="command-center" id="command-center">
+    <div class="cc-header">
+      <span class="cc-title">🎮 작업 지휘소</span>
+      <span class="cc-hint">위에서부터 차례로 클릭 = 시스템이 알아서 완성되어 가는 흐름</span>
+      <span class="cc-poll-status" id="cc-poll-status" title="5초 폴링 — tasks.json 자동 동기화">⟳ 5s</span>
+    </div>
+
+    <!-- ① 결정 대기 슬롯 — JS가 #ceo-wait-box를 이쪽으로 이동시킴 -->
+    <div class="cc-slot" id="cc-slot-ceo">
+      <div class="cc-slot-label">① 👤 대표님 결정 대기 — 결정 한 번 = 막힘 해제</div>
+      <div class="cc-slot-body" id="cc-slot-ceo-body">
+        <div class="cc-loading">결정 대기 큐 로딩 중...</div>
+      </div>
+    </div>
+
+    <!-- ② 자율 작업 큐 슬롯 — JS가 #integ-auto-queue를 이쪽으로 이동시킴 -->
+    <div class="cc-slot" id="cc-slot-auto">
+      <div class="cc-slot-label">② 🤖 자율 작업 큐 — Claude 즉시 시작 가능 (카드 클릭 = 인계서 자동 복사)</div>
+      <div class="cc-slot-body" id="cc-slot-auto-body">
+        <div class="cc-loading">자율 작업 큐 로딩 중...</div>
+      </div>
+    </div>
+
+    <!-- ③ 직원 작업 큐 슬롯 — Phase B 신설 -->
+    <div class="cc-slot" id="cc-slot-staff">
+      <div class="cc-slot-label">③ 👥 직원 작업 큐 — 결정 불필요, 진행만 하면 됨</div>
+      <div class="cc-slot-body" id="cc-slot-staff-body">
+        <div class="cc-loading">직원 작업 큐 로딩 중...</div>
+      </div>
+    </div>
+  </section>
+
+  <style>
+    /* Command Center — Aurora palette + 화면 최상단 강조 */
+    .command-center {
+      margin: 12px 0 20px;
+      padding: 14px 16px 16px;
+      background: linear-gradient(135deg,
+        rgba(99,102,241,0.06) 0%,
+        rgba(168,85,247,0.06) 50%,
+        rgba(236,72,153,0.06) 100%);
+      border: 1px solid rgba(99,102,241,0.25);
+      border-radius: 10px;
+      box-shadow: 0 2px 12px rgba(99,102,241,0.08);
+    }
+    .cc-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+      padding-bottom: 10px;
+      border-bottom: 1px dashed rgba(99,102,241,0.2);
+    }
+    .cc-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--aurora-2, #6366f1);
+      letter-spacing: -0.2px;
+    }
+    .cc-hint {
+      font-size: 11px;
+      color: var(--text-muted, #64748b);
+      font-weight: 500;
+    }
+    .cc-poll-status {
+      margin-left: auto;
+      font-size: 10px;
+      color: var(--text-muted, #94a3b8);
+      padding: 2px 6px;
+      background: rgba(99,102,241,0.08);
+      border-radius: 4px;
+      font-family: ui-monospace, monospace;
+      cursor: help;
+      transition: color 0.2s, background 0.2s;
+    }
+    .cc-poll-status.cc-poll-active {
+      color: #10b981;
+      background: rgba(16,185,129,0.12);
+    }
+    .cc-slot {
+      margin-bottom: 10px;
+    }
+    .cc-slot:last-child { margin-bottom: 0; }
+    .cc-slot-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text, #1e293b);
+      margin-bottom: 6px;
+      padding: 4px 8px;
+      background: rgba(255,255,255,0.5);
+      border-radius: 4px;
+      border-left: 3px solid var(--aurora-2, #6366f1);
+    }
+    .cc-slot#cc-slot-ceo .cc-slot-label { border-left-color: #f59e0b; }
+    .cc-slot#cc-slot-auto .cc-slot-label { border-left-color: #6366f1; }
+    .cc-slot#cc-slot-staff .cc-slot-label { border-left-color: #10b981; }
+    .cc-slot-body {
+      min-height: 36px;
+    }
+    .cc-loading, .cc-empty {
+      font-size: 11px;
+      color: var(--text-muted, #94a3b8);
+      padding: 8px 12px;
+      text-align: center;
+      font-style: italic;
+    }
+    .cc-staff-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 8px;
+    }
+    .cc-staff-card {
+      background: rgba(16,185,129,0.06);
+      border: 0.5px solid rgba(16,185,129,0.3);
+      border-radius: 6px;
+      padding: 8px 10px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .cc-staff-card:hover {
+      background: rgba(16,185,129,0.12);
+      border-color: rgba(16,185,129,0.6);
+      transform: translateY(-1px);
+    }
+    .cc-staff-card .cc-card-id {
+      font-size: 10px;
+      color: #059669;
+      font-weight: 600;
+      font-family: ui-monospace, monospace;
+    }
+    .cc-staff-card .cc-card-title {
+      font-size: 11px;
+      color: var(--text, #1e293b);
+      margin-top: 3px;
+      line-height: 1.4;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+    }
+    .cc-staff-card .cc-card-meta {
+      font-size: 10px;
+      color: var(--text-muted, #64748b);
+      margin-top: 4px;
+      display: flex;
+      gap: 6px;
+    }
+    .cc-staff-card .cc-card-priority {
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-weight: 600;
+    }
+    .cc-staff-card .cc-card-priority.P0 { background: #fee2e2; color: #dc2626; }
+    .cc-staff-card .cc-card-priority.P1 { background: #fed7aa; color: #ea580c; }
+    .cc-staff-card .cc-card-priority.P2 { background: #fef3c7; color: #ca8a04; }
+    .cc-staff-card .cc-card-priority.P3 { background: #e5e7eb; color: #6b7280; }
+    .cc-staff-card .cc-card-started-by {
+      font-size: 10px;
+      padding: 1px 5px;
+      border-radius: 3px;
+      background: rgba(255,255,255,0.7);
+    }
+    /* 모바일 */
+    @media (max-width: 640px) {
+      .command-center { padding: 10px 12px 12px; }
+      .cc-header { flex-wrap: wrap; gap: 6px; }
+      .cc-poll-status { margin-left: 0; }
+      .cc-staff-grid { grid-template-columns: 1fr; }
+    }
+    /* 클립보드 복사 토스트 */
+    .cc-toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(15,23,42,0.95);
+      color: white;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 500;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+      z-index: 9999;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s, transform 0.2s;
+    }
+    .cc-toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(-4px);
+    }
+    .cc-toast.error { background: rgba(220,38,38,0.95); }
+    .cc-toast.success { background: rgba(16,185,129,0.95); }
+  </style>
+
   <!-- 전체 평균 게이지 -->
   <section class="avg-card">
     <div class="avg-num-block">
@@ -2949,6 +3149,362 @@
   });
 
   console.log('[admin-status] BL-PAGE-DEDUP + IP-CTRL-001 + BL-REAL-SYSTEM Phase α + BL-STATUS-DRILL-DOWN loaded — 임박/진행률/자율큐/풀컨텍스트인계/폴링/활동펼침/KPI필터/카테고리매핑');
+
+  // ════════════════════════════════════════════════════════════
+  // 🎮 CCF Command Center 통합 (BL-COMMAND-CENTER Phase B, 2026-05-06)
+  //
+  // 7원칙 적용:
+  //   ① 직원 가능 = 개발 진행 가능 작업 (started_by 별도 표시)
+  //   ② 카드 클릭 = 인계서 클립보드 자동 복사 + ops 알림 + 시작 시각 기록
+  //   ③ 작업 완료 자동 감지 = ops 알림 발송 시점 (서버 측 auto-status-updater)
+  //   ④ 5단계 우선순위 정렬 (queue-engine.js 책임)
+  //   ⑤ 5초 폴링으로 즉시 반영
+  //   ⑥ 결정 대기 + 자율 큐 = 화면 최상단 (HTML 구조에서 보장)
+  //   ⑦ CCF 모듈 import — 다른 프로젝트 이식 시 그대로 작동
+  // ════════════════════════════════════════════════════════════
+  (function initCommandCenter() {
+    const POLL_MS = 5000;
+    const OPS_ENDPOINT = '/api/email/ops/notify-claude-work';
+    let lastTasksHash = null;
+    let pollTimer = null;
+
+    // ────────────────────────────────────────────────────────
+    // 1. 기존 ceo-wait-box / integ-auto-queue를 Command Center 슬롯으로 이동
+    //    (DOM 이동 = 기존 JS의 getElementById 참조 그대로 작동)
+    // ────────────────────────────────────────────────────────
+    function moveExistingBoxesIntoCommandCenter() {
+      const ceoBox      = document.getElementById('ceo-wait-box');
+      const ceoSlotBody = document.getElementById('cc-slot-ceo-body');
+      const autoQueue   = document.getElementById('integ-auto-queue');
+      const autoSlotBody = document.getElementById('cc-slot-auto-body');
+
+      if (ceoBox && ceoSlotBody && !ceoSlotBody.contains(ceoBox)) {
+        ceoSlotBody.innerHTML = '';
+        ceoSlotBody.appendChild(ceoBox);
+        ceoBox.style.margin = '0';
+        ceoBox.style.background = 'transparent';
+        ceoBox.style.border = '0';
+        ceoBox.style.padding = '0';
+      }
+      if (autoQueue && autoSlotBody && !autoSlotBody.contains(autoQueue)) {
+        autoSlotBody.innerHTML = '';
+        autoSlotBody.appendChild(autoQueue);
+      }
+    }
+
+    // ────────────────────────────────────────────────────────
+    // 2. 직원 작업 큐 렌더 (started_by=STAFF 또는 claude_can_auto=false인 pending)
+    // ────────────────────────────────────────────────────────
+    function renderStaffQueue(tasks) {
+      const body = document.getElementById('cc-slot-staff-body');
+      if (!body) return;
+
+      // 정렬 규칙 (queue-engine과 동일 로직 — 인라인 미니 버전)
+      const PRI = { P0: 0, P1: 1, P2: 2, P3: 3 };
+      const SIZ = { small: 0, medium: 1, large: 2 };
+      const CAT_BONUS = { infrastructure: -10, bug: -5, ux: 0, feature: 0, docs: 5, dev: 0, design: 0, 'design-system': 0, analytics: 5 };
+
+      const byId = Object.fromEntries(tasks.map(t => [t.id, t]));
+      const canEnter = (t) => {
+        const deps = t.depends_on || [];
+        return deps.every(d => !byId[d] || byId[d].status === 'done');
+      };
+      const depCount = {};
+      tasks.forEach(t => { depCount[t.id] = 0; });
+      tasks.forEach(t => (t.depends_on || []).forEach(d => { if (depCount[d] != null) depCount[d] += 1; }));
+
+      const score = (t) => {
+        let s = CAT_BONUS[t.category] ?? 0;
+        s += -2 * (depCount[t.id] || 0);
+        s += (PRI[t.priority] ?? 99) * 100;
+        s += SIZ[t.size] ?? 1;
+        return s;
+      };
+
+      // 직원 큐 = pending + blocker 없음 + 선행 완료 + claude_can_auto=false (또는 started_by=STAFF)
+      const staff = tasks.filter(t => {
+        if (t.status !== 'pending') return false;
+        if (t.blocker) return false;
+        if (!canEnter(t)) return false;
+        const requiresDecisions = (t.autonomous?.requires_decisions_first || []).length > 0;
+        if (requiresDecisions) return false;
+        // 자율(claude_can_auto && can_run_alone)은 자율 큐에 들어가니 제외
+        const canAuto = t.claude_can_auto === true && t.autonomous?.can_run_alone === true;
+        return !canAuto;
+      });
+
+      staff.sort((a, b) => {
+        const sa = score(a), sb = score(b);
+        if (sa !== sb) return sa - sb;
+        return (a.created_at || '').localeCompare(b.created_at || '');
+      });
+
+      if (staff.length === 0) {
+        body.innerHTML = '<div class="cc-empty">진행 가능한 직원 작업이 없습니다.</div>';
+        return;
+      }
+
+      body.innerHTML = `<div class="cc-staff-grid">
+        ${staff.slice(0, 6).map(t => `
+          <div class="cc-staff-card" data-task-id="${escapeHtml(t.id)}" data-handoff-type="staff" title="클릭 = 직원용 작업 지시서 클립보드 복사">
+            <div class="cc-card-id">${escapeHtml(t.id)}</div>
+            <div class="cc-card-title">${escapeHtml(t.title || '')}</div>
+            <div class="cc-card-meta">
+              <span class="cc-card-priority ${escapeHtml(t.priority || 'P3')}">${escapeHtml(t.priority || 'P3')}</span>
+              <span>${escapeHtml(t.category || '')}</span>
+              <span>${escapeHtml(t.size || '-')}</span>
+              ${t.started_by ? `<span class="cc-card-started-by">${formatStartedBy(t.started_by)}</span>` : ''}
+            </div>
+          </div>
+        `).join('')}
+      </div>${staff.length > 6 ? `<div style="font-size:10px;color:var(--text-muted);text-align:right;margin-top:6px;">+${staff.length - 6}건 더 → /admin-tasks.html에서 확인</div>` : ''}`;
+
+      // 카드 클릭 핸들러
+      body.querySelectorAll('.cc-staff-card').forEach(card => {
+        card.addEventListener('click', () => onCardClicked(card.dataset.taskId, 'staff'));
+      });
+    }
+
+    function formatStartedBy(by) {
+      if (by === 'CLAUDE') return '🤖 진행 중';
+      if (by === 'STAFF')  return '👥 진행 중';
+      if (by === 'CEO')    return '👤 진행 중';
+      return '⏳';
+    }
+
+    function escapeHtml(s) {
+      if (s == null) return '';
+      return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+
+    // ────────────────────────────────────────────────────────
+    // 3. 카드 클릭 → 인계서 자동 생성 + 클립보드 복사 + ops 알림 + 시작 시각 기록
+    // ────────────────────────────────────────────────────────
+    async function onCardClicked(taskId, handoffType) {
+      try {
+        const tasksJson = STATE.tasks || (await fetchTasksJson());
+        const task = (tasksJson?.tasks || []).find(t => t.id === taskId);
+        if (!task) {
+          showToast('작업을 찾을 수 없습니다: ' + taskId, 'error');
+          return;
+        }
+
+        const handoff = buildHandoff(task, handoffType);
+        await copyToClipboard(handoff);
+        showToast(`📋 ${handoffType === 'claude' ? 'Claude' : '직원'}용 인계서 복사됨 — 채팅에 붙여넣으세요`, 'success');
+
+        // ops 알림 (시작 시각 기록 + 서버 로그)
+        notifyOps({
+          step: `카드 클릭 — ${taskId}`,
+          summary: `${task.title} (${handoffType} 인계서 복사 / started_by=${handoffType === 'claude' ? 'CLAUDE' : 'STAFF'})`,
+          task_id: taskId,
+          started_by: handoffType === 'claude' ? 'CLAUDE' : 'STAFF',
+        });
+      } catch (e) {
+        console.error('[CCF] onCardClicked failed:', e);
+        showToast('인계서 생성 실패: ' + e.message, 'error');
+      }
+    }
+
+    function buildHandoff(task, type) {
+      const today = new Date().toISOString().slice(0, 10);
+      const headCommit = (document.getElementById('footer-commit')?.textContent || 'HEAD').trim();
+      const liveUrl = 'https://gohotelwinners.com';
+      const repo = 'dgmasters01/tw-b2b';
+      const hours = task.autonomous?.estimated_hours ?? '미정';
+      const deps = (task.depends_on || []).join(', ') || '없음';
+      const reqs = (task.autonomous?.requires_decisions_first || []).join(', ') || '없음';
+      const progressHead = (task.progress || '(진행 메모 없음)').split('\n')[0].slice(0, 200);
+
+      if (type === 'staff') {
+        return `[직원 작업 지시서 — ${task.id}]
+
+## 작업: ${task.title}
+
+**카테고리:** ${task.category}
+**우선순위:** ${task.priority}
+**예상 소요:** 약 ${hours}시간
+
+## 무엇을
+${progressHead}
+
+## 시작 전 확인
+- [ ] 작업 시작 시각 기록 (이미 자동 — admin-status에서 카드 클릭으로)
+- [ ] 막히는 부분 발견 시 대표님께 즉시 알림
+
+## 완료 시
+- [ ] ops 알림 endpoint 호출 (자동으로 status=done 갱신)
+- [ ] CHANGELOG.md에 [변경사유] 태그와 함께 기록
+
+## 도움이 필요하면
+대표님 또는 Claude(서비서/서팀장) 호출.
+`;
+      }
+
+      // claude 타입
+      return `[새 채팅 인계 — ${today} ${task.id} 시작]
+
+# 1단계: 헌법 확인 (의무)
+GitHub repo ${repo}의 다음 두 파일을 view 도구로 읽고 운영 원칙 파악:
+- OPERATIONS_CHARTER.md (12개 조항, 특히 12조 자체 검증 의무)
+- CLAUDE.md (특히 11조 chat-log 작성 표준)
+
+라이브: ${liveUrl}
+
+# 2단계: 토큰 충전 (헌법 11조 — 개발 단계)
+GitHub PAT / Vercel API / Supabase Management 토큰은 메모리에 보존되어 있음.
+
+# 3단계: 직전 작업 컨텍스트
+- 마지막 작업 번호: ${headCommit}
+
+# 4단계: 이번 작업 — ${task.id}
+**TASK ID:** ${task.id}
+**제목:** ${task.title}
+**카테고리:** ${task.category} · **우선순위:** ${task.priority} · **사이즈:** ${task.size || '미정'}
+**예상 시간:** 약 ${hours}시간
+
+## 🎯 본질
+${progressHead}
+
+## 📐 의존성 / 선행 결정
+**선행 작업:** ${deps}
+**선행 결정:** ${reqs}
+
+## 🛠 작업 정의
+${task.title}
+(상세는 BACKLOG.md / DECISIONS.md / 기존 chat-log 검색)
+
+## 🚨 작업 시작 첫 응답 가이드
+1. 헌법 + CLAUDE.md 11조 fetch
+2. 분량 큰 작업이면 헌법 12조 + CLAUDE.md 6조에 따라 자체 끊기
+3. 단일 응답 토큰 한계 자체 판단 → 안전 지점에서 끊고 대표님께 "이어서?" 확인
+4. 위치/구조 질문 절대 금지 (헌법 1조)
+5. 큰 단위 작업 직전 chat-log 5블록 표준대로 작성 (CLAUDE.md 11조)
+
+## 📌 대표님 호칭/규칙
+- 호칭: "대표님"
+- 응답 언어: 한국어
+- 표현 금지: "박다 / 박았다 / 박힘" — "추가했다 / 만들었다 / 적용했다 / 들어있다" 사용
+
+## 🎯 대표님 검증 요청 — 작업 끝난 후
+"어디에 가서 무엇을 클릭하면 무엇이 보이는지" + 라이브 스크린샷 첨부 형태로 보고
+
+# 5단계: 자체 검증 의무 (헌법 12조)
+인계 전 7항목 통과:
+1. JS 문법 (node --check)
+2. JSON 검증 (python3 -m json.tool)
+3. Vercel deploy READY
+4. 라이브 페이지 fetch (200/401)
+5. 데이터 정확성 (수치로 증명)
+6. 시각 변경 자체 검증 (코드 흐름 trace)
+7. boundary 케이스 (0건/첫번째/마지막/모바일/반복)
+
+# 6단계: 작업 시작
+위 1단계부터 시작. 대표님 추가 지시 없이 자율 진행 (헌법 1조).
+`;
+    }
+
+    async function copyToClipboard(text) {
+      try {
+        if (navigator.clipboard?.writeText) {
+          await navigator.clipboard.writeText(text);
+          return;
+        }
+      } catch (e) { /* fallthrough */ }
+      // Fallback: textarea 트릭
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); }
+      finally { document.body.removeChild(ta); }
+    }
+
+    function showToast(msg, type) {
+      let toast = document.querySelector('.cc-toast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.className = 'cc-toast';
+        document.body.appendChild(toast);
+      }
+      toast.textContent = msg;
+      toast.className = 'cc-toast show ' + (type || '');
+      clearTimeout(toast._hideTimer);
+      toast._hideTimer = setTimeout(() => { toast.classList.remove('show'); }, 3000);
+    }
+
+    function notifyOps(payload) {
+      // 비동기, 결과 무시 (best-effort)
+      // 토큰은 클라이언트 노출 금지 → 서버는 운영 토큰 없는 호출도 받게 되어 있거나,
+      // 별도 internal endpoint 필요. 현재는 fetch 시도만 하고 실패해도 silent.
+      try {
+        fetch(OPS_ENDPOINT, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+          credentials: 'same-origin',
+        }).catch(() => {});
+      } catch (e) { /* swallow */ }
+    }
+
+    // ────────────────────────────────────────────────────────
+    // 4. 5초 폴링 — tasks.json 자동 동기화
+    // ────────────────────────────────────────────────────────
+    async function fetchTasksJson() {
+      const r = await fetch('/tasks.json?t=' + Date.now(), { cache: 'no-store' });
+      if (!r.ok) throw new Error('tasks.json fetch failed: ' + r.status);
+      return r.json();
+    }
+
+    function tasksHash(json) {
+      const tasks = json?.tasks || [];
+      return `${tasks.length}|${json?.updated_at || ''}|${(json?.stats || {}).done || 0}`;
+    }
+
+    async function pollOnce() {
+      try {
+        const json = await fetchTasksJson();
+        const hash = tasksHash(json);
+        const pollEl = document.getElementById('cc-poll-status');
+        if (pollEl) {
+          pollEl.classList.add('cc-poll-active');
+          setTimeout(() => pollEl.classList.remove('cc-poll-active'), 600);
+        }
+        if (hash !== lastTasksHash) {
+          lastTasksHash = hash;
+          STATE.tasks = json;
+          renderStaffQueue(json.tasks || []);
+          // 기존 자율 큐 / CEO 대기 / KPI는 이미 다른 함수가 갱신함 (renderIntegSection 계열)
+          // — 그쪽 함수들도 같은 STATE.tasks를 보거나 자체 fetch함
+        }
+      } catch (e) { /* silent retry */ }
+    }
+
+    function startPolling() {
+      pollOnce();
+      pollTimer = setInterval(pollOnce, POLL_MS);
+    }
+
+    // ────────────────────────────────────────────────────────
+    // 5. 초기화 — DOMContentLoaded 직후, 기존 렌더 사이클이 끝난 뒤 한 박자 늦게 시작
+    // ────────────────────────────────────────────────────────
+    function init() {
+      // 100ms 지연: 기존 admin-status 초기 렌더가 #ceo-wait-box / #integ-auto-queue를 채운 뒤 이동
+      setTimeout(() => {
+        moveExistingBoxesIntoCommandCenter();
+        startPolling();
+        console.log('[CCF Command Center] 초기화 완료 — 5초 폴링 가동');
+      }, 100);
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+  })();
 </script>
 </body>
 </html>

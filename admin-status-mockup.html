@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>admin-status 가안 (목업) — TW B2B</title>
+<title>admin-status 가안 v2 (목업) — TW B2B</title>
 <style>
   * { box-sizing: border-box; }
   body {
@@ -26,21 +26,15 @@
     color: #fbbf24;
   }
   .mockup-banner strong { color: #fde68a; }
-  .container {
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-
-  /* 영역 번호 라벨 */
+  .container { max-width: 1200px; margin: 0 auto; }
   .area-badge {
     display: inline-block;
     background: linear-gradient(135deg, #6366f1, #ec4899);
     color: white;
-    width: 24px;
-    height: 24px;
+    width: 26px; height: 26px;
     border-radius: 50%;
     text-align: center;
-    line-height: 24px;
+    line-height: 26px;
     font-size: 12px;
     font-weight: 700;
     margin-right: 8px;
@@ -49,10 +43,11 @@
   .area-title {
     display: flex;
     align-items: center;
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 600;
-    margin: 28px 0 10px;
+    margin: 24px 0 10px;
     color: #f1f5f9;
+    flex-wrap: wrap;
   }
   .area-purpose {
     font-size: 11px;
@@ -74,7 +69,7 @@
   .header h1 { margin: 0; font-size: 22px; font-weight: 700; }
   .header h1 .icon { color: #a78bfa; margin-right: 6px; }
   .header .sub { font-size: 11px; color: #94a3b8; margin-top: 4px; }
-  .header-actions { display: flex; gap: 8px; align-items: center; }
+  .header-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
   .btn-sm {
     background: rgba(99,102,241,0.1);
     border: 0.5px solid rgba(99,102,241,0.3);
@@ -93,7 +88,6 @@
     font-size: 11px;
   }
 
-  /* 데드라인 배너 */
   .deadline {
     margin-top: 12px;
     padding: 10px 14px;
@@ -108,273 +102,325 @@
   .deadline .title { font-weight: 600; color: #fca5a5; }
   .deadline .detail { font-size: 11px; color: #94a3b8; margin-top: 2px; }
 
-  /* 영역 ① 작업 지휘소 */
-  .command-center {
-    margin-top: 12px;
-    padding: 16px 18px;
-    background: linear-gradient(135deg, rgba(99,102,241,0.08), rgba(168,85,247,0.08));
-    border: 1px solid rgba(99,102,241,0.3);
-    border-radius: 12px;
-  }
-  .cc-tabs {
+  /* ① 현재 진행 중 */
+  .now-running {
+    background: linear-gradient(135deg, rgba(16,185,129,0.06), rgba(6,182,212,0.06));
+    border: 1px solid rgba(16,185,129,0.3);
+    border-radius: 10px;
+    padding: 14px 18px;
     display: flex;
-    gap: 6px;
-    margin-bottom: 12px;
-    border-bottom: 1px dashed rgba(99,102,241,0.2);
-    padding-bottom: 10px;
+    gap: 14px;
+    align-items: center;
+    flex-wrap: wrap;
   }
-  .cc-tab {
-    padding: 6px 12px;
+  .running-pill {
+    background: rgba(16,185,129,0.2);
+    border: 0.5px solid rgba(16,185,129,0.5);
+    color: #6ee7b7;
+    padding: 4px 10px;
+    border-radius: 5px;
+    font-size: 10px;
+    font-weight: 600;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .running-pill::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #10b981;
+    animation: pulse 1.5s infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+  .running-info { flex: 1; min-width: 0; }
+  .running-title { font-size: 13px; font-weight: 600; color: #f1f5f9; }
+  .running-sub { font-size: 11px; color: #94a3b8; margin-top: 2px; }
+  .running-action {
+    flex-shrink: 0;
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    border: 0;
+    padding: 8px 16px;
     border-radius: 6px;
     font-size: 12px;
     font-weight: 600;
     cursor: pointer;
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.08);
-    color: #cbd5e1;
+    box-shadow: 0 2px 8px rgba(16,185,129,0.3);
   }
-  .cc-tab.active {
-    background: rgba(99,102,241,0.2);
-    border-color: rgba(99,102,241,0.5);
-    color: #c7d2fe;
-  }
-  .cc-tab .count {
-    margin-left: 6px;
-    background: rgba(99,102,241,0.3);
-    color: #fff;
-    padding: 1px 7px;
-    border-radius: 10px;
-    font-size: 10px;
-  }
-  .cc-list { display: flex; flex-direction: column; gap: 6px; }
-  .cc-card {
+
+  /* ② 게이지 */
+  .gauge-card {
     background: rgba(15,23,42,0.6);
-    border: 0.5px solid rgba(255,255,255,0.08);
-    border-radius: 8px;
-    padding: 10px 14px;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+    padding: 14px 18px;
     display: flex;
+    gap: 18px;
     align-items: center;
-    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .gauge-num-block { flex-shrink: 0; }
+  .gauge-num { font-size: 36px; font-weight: 700; color: #f1f5f9; line-height: 1; }
+  .gauge-num small { font-size: 14px; color: #64748b; }
+  .gauge-label { font-size: 11px; color: #94a3b8; margin-bottom: 4px; }
+  .gauge-trend { color: #10b981; font-size: 11px; font-weight: 600; margin-top: 4px; }
+  .gauge-bar-block { flex: 1; min-width: 200px; }
+  .gauge-bar { height: 8px; background: rgba(255,255,255,0.08); border-radius: 4px; overflow: hidden; margin-bottom: 6px; }
+  .gauge-bar-fill { height: 100%; background: linear-gradient(90deg, #6366f1, #ec4899); width: 56%; border-radius: 4px; }
+  .gauge-counts { font-size: 11px; color: #94a3b8; display: flex; flex-wrap: wrap; gap: 12px; }
+  .gauge-counts .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 4px; vertical-align: middle; }
+  .dot.complete { background: #10b981; }
+  .dot.serious { background: #06b6d4; }
+  .dot.partial { background: #f59e0b; }
+  .dot.skel { background: #ef4444; }
+  .dot.none { background: #ef4444; }
+
+  /* ③ 4 KPI */
+  .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .kpi-card {
+    background: rgba(15,23,42,0.6);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+    padding: 14px 12px;
+    text-align: center;
     cursor: pointer;
-    transition: all 0.15s;
   }
-  .cc-card:hover {
-    background: rgba(99,102,241,0.08);
-    border-color: rgba(99,102,241,0.4);
-    transform: translateX(2px);
+  .kpi-card:hover { border-color: rgba(99,102,241,0.5); }
+  .kpi-card .label { font-size: 11px; color: #94a3b8; margin-bottom: 4px; }
+  .kpi-card .num { font-size: 26px; font-weight: 700; }
+  .kpi-card .num.auto { color: #10b981; }
+  .kpi-card .num.staff { color: #06b6d4; }
+  .kpi-card .num.ceo { color: #f59e0b; }
+  .kpi-card .num.charter { color: #a78bfa; }
+  .kpi-card .num.charter small { font-size: 14px; color: #94a3b8; }
+  .kpi-card .hint { font-size: 9px; color: #64748b; margin-top: 4px; }
+
+  /* ④ 작업 지휘소 */
+  .command-center {
+    background: linear-gradient(135deg, rgba(99,102,241,0.06), rgba(168,85,247,0.06), rgba(236,72,153,0.06));
+    border: 1px solid rgba(99,102,241,0.3);
+    border-radius: 12px;
+    padding: 14px 16px;
   }
-  .cc-card .pri {
-    padding: 3px 8px;
-    border-radius: 4px;
-    font-size: 10px;
-    font-weight: 700;
-    flex-shrink: 0;
-  }
-  .pri.P0 { background: rgba(239,68,68,0.2); color: #fca5a5; }
-  .pri.P1 { background: rgba(245,158,11,0.2); color: #fbbf24; }
-  .pri.P2 { background: rgba(99,102,241,0.2); color: #c7d2fe; }
-  .cc-card .id {
-    font-family: ui-monospace, monospace;
-    font-size: 10px;
-    color: #94a3b8;
-    flex-shrink: 0;
-  }
-  .cc-card .title {
-    flex: 1;
-    font-size: 12px;
-    color: #e2e8f0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  .cc-card .action-btn {
-    flex-shrink: 0;
-    background: linear-gradient(135deg, #6366f1, #8b5cf6);
-    color: white;
-    border: 0;
-    padding: 6px 14px;
-    border-radius: 5px;
-    font-size: 11px;
-    font-weight: 600;
-    cursor: pointer;
-    box-shadow: 0 2px 6px rgba(99,102,241,0.3);
-  }
-  .cc-card .action-btn.green {
-    background: linear-gradient(135deg, #10b981, #059669);
-  }
-  .cc-card .action-btn.amber {
-    background: linear-gradient(135deg, #f59e0b, #d97706);
-  }
-  .cc-card .action-hint {
-    flex-shrink: 0;
-    font-size: 10px;
-    color: #64748b;
-    margin-left: -4px;
-  }
-  .cc-poll {
+  .cc-slot { margin-bottom: 14px; }
+  .cc-slot:last-child { margin-bottom: 0; }
+  .cc-slot-head {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: 10px;
+    padding: 6px 10px;
+    margin-bottom: 8px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .cc-slot.ceo .cc-slot-head { background: rgba(245,158,11,0.12); color: #fbbf24; border-left: 3px solid #f59e0b; }
+  .cc-slot.auto .cc-slot-head { background: rgba(99,102,241,0.12); color: #c7d2fe; border-left: 3px solid #6366f1; }
+  .cc-slot.staff .cc-slot-head { background: rgba(16,185,129,0.12); color: #6ee7b7; border-left: 3px solid #10b981; }
+  .cc-slot-head .count { background: rgba(255,255,255,0.1); color: #fff; padding: 1px 8px; border-radius: 10px; font-size: 10px; }
+
+  .ceo-list { display: flex; flex-direction: column; gap: 4px; }
+  .ceo-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    background: rgba(245,158,11,0.04);
+    border: 0.5px solid rgba(245,158,11,0.2);
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .ceo-row:hover { background: rgba(245,158,11,0.1); }
+  .ceo-row .pri { padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; flex-shrink: 0; }
+  .pri.P0 { background: rgba(239,68,68,0.2); color: #fca5a5; }
+  .pri.P1 { background: rgba(245,158,11,0.2); color: #fbbf24; }
+  .pri.P2 { background: rgba(99,102,241,0.2); color: #c7d2fe; }
+  .ceo-row .id { font-family: ui-monospace, monospace; font-size: 10px; color: #94a3b8; flex-shrink: 0; min-width: 80px; }
+  .ceo-row .title { flex: 1; font-size: 12px; color: #e2e8f0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ceo-row .reason { flex-shrink: 0; font-size: 10px; color: #fbbf24; padding: 2px 8px; background: rgba(245,158,11,0.1); border-radius: 4px; }
+
+  .auto-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .auto-card {
+    background: rgba(15,23,42,0.7);
+    border: 0.5px solid rgba(255,255,255,0.08);
+    border-left: 3px solid #6366f1;
+    border-radius: 8px;
+    padding: 10px 12px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .auto-card:hover { background: rgba(99,102,241,0.06); }
+  .auto-card.cat-design-system { border-left-color: #ec4899; }
+  .auto-card.cat-feature { border-left-color: #f59e0b; }
+  .auto-card.cat-dev { border-left-color: #06b6d4; }
+  .auto-card.cat-infrastructure { border-left-color: #10b981; }
+  .auto-card.cat-analytics { border-left-color: #8b5cf6; }
+  .auto-card.cat-ux { border-left-color: #14b8a6; }
+  .auto-card.cat-bug { border-left-color: #f43f5e; }
+  .auto-card.cat-docs { border-left-color: #64748b; }
+
+  .auto-card-meta { display: flex; gap: 4px; flex-wrap: wrap; align-items: center; }
+  .auto-tag { font-size: 9px; padding: 2px 6px; border-radius: 3px; font-weight: 600; }
+  .auto-tag.auto { background: rgba(16,185,129,0.15); color: #6ee7b7; border: 0.5px solid rgba(16,185,129,0.3); }
+  .auto-tag.cat { background: rgba(255,255,255,0.06); color: #cbd5e1; }
+  .auto-card-title { font-size: 12px; color: #e2e8f0; line-height: 1.4; }
+  .auto-card-id { font-family: ui-monospace, monospace; font-size: 10px; color: #94a3b8; }
+  .auto-card-foot {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 4px;
+    padding-top: 6px;
+    border-top: 0.5px dashed rgba(255,255,255,0.06);
+    font-size: 10px;
+    color: #64748b;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .auto-start-btn {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    border: 0;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .staff-empty {
+    padding: 16px;
+    text-align: center;
+    font-size: 11px;
+    color: #64748b;
+    background: rgba(255,255,255,0.02);
+    border: 0.5px dashed rgba(255,255,255,0.1);
+    border-radius: 6px;
+  }
+
+  .cc-poll {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 12px;
     padding-top: 8px;
     border-top: 1px dashed rgba(99,102,241,0.15);
     font-size: 10px;
     color: #64748b;
   }
-  .cc-poll .live {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-  }
-  .cc-poll .live::before {
-    content: '';
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: #10b981;
-    animation: pulse 1.5s infinite;
-  }
-  @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.3; }
-  }
+  .cc-poll .live { display: inline-flex; align-items: center; gap: 4px; }
+  .cc-poll .live::before { content:''; width:6px; height:6px; border-radius:50%; background:#10b981; animation:pulse 1.5s infinite; }
 
-  /* 영역 ② 시스템 상태 */
-  .system-stats {
-    display: grid;
-    grid-template-columns: 2fr 3fr;
-    gap: 12px;
-    align-items: stretch;
-  }
-  .gauge-card {
-    background: rgba(15,23,42,0.6);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 10px;
-    padding: 16px 18px;
-  }
-  .gauge-num {
-    font-size: 36px;
-    font-weight: 700;
-    color: #f1f5f9;
-  }
-  .gauge-num small { font-size: 14px; color: #64748b; }
-  .gauge-label { font-size: 11px; color: #94a3b8; margin-bottom: 6px; }
-  .gauge-trend {
-    display: inline-block;
-    margin-left: 8px;
-    color: #10b981;
-    font-size: 11px;
-    font-weight: 600;
-  }
-  .gauge-bar {
-    height: 8px;
-    background: rgba(255,255,255,0.08);
-    border-radius: 4px;
-    overflow: hidden;
-    margin: 12px 0 8px;
-  }
-  .gauge-bar-fill {
-    height: 100%;
-    background: linear-gradient(90deg, #6366f1, #ec4899);
-    width: 56%;
-    border-radius: 4px;
-  }
-  .gauge-formula {
-    font-size: 10px;
-    color: #64748b;
-    margin-top: 4px;
-  }
-  .kpi-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 8px;
-  }
-  .kpi-card {
-    background: rgba(15,23,42,0.6);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 8px;
-    padding: 12px 10px;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.15s;
-  }
-  .kpi-card:hover {
-    border-color: rgba(99,102,241,0.5);
-    transform: translateY(-1px);
-  }
-  .kpi-card .label { font-size: 10px; color: #94a3b8; margin-bottom: 4px; }
-  .kpi-card .num { font-size: 24px; font-weight: 700; }
-  .kpi-card .num.auto { color: #10b981; }
-  .kpi-card .num.staff { color: #06b6d4; }
-  .kpi-card .num.ceo { color: #f59e0b; }
-  .kpi-card .num.charter { color: #a78bfa; }
-  .kpi-card .hint { font-size: 9px; color: #64748b; margin-top: 4px; }
-  .kpi-card.active {
-    background: rgba(99,102,241,0.12);
-    border-color: rgba(99,102,241,0.6);
-  }
-
-  /* 영역 ③ 페이지 완성도 */
-  .page-progress {
+  /* ⑤ 5 시스템 카테고리 카드 */
+  .sys-cat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .sys-cat-card {
     background: rgba(15,23,42,0.6);
     border: 1px solid rgba(255,255,255,0.08);
     border-radius: 10px;
     padding: 12px 14px;
   }
+  .sys-cat-card.current { border-color: rgba(236,72,153,0.4); }
+  .sys-cat-card .row1 {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+  }
+  .sys-cat-card .row1 .cat-num { font-size: 10px; color: #94a3b8; }
+  .sys-cat-card .row1 .detail-btn {
+    background: rgba(99,102,241,0.1);
+    color: #c7d2fe;
+    border: 0.5px solid rgba(99,102,241,0.3);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    cursor: pointer;
+  }
+  .sys-cat-card .row2 {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 6px;
+  }
+  .sys-cat-card .name { font-size: 14px; font-weight: 600; color: #f1f5f9; }
+  .sys-cat-card .score { font-size: 18px; font-weight: 700; color: #ef4444; }
+  .sys-cat-card .score small { font-size: 11px; color: #64748b; }
+  .sys-cat-card .bar { height: 4px; background: rgba(255,255,255,0.06); border-radius: 2px; overflow: hidden; margin-bottom: 8px; }
+  .sys-cat-card .bar-fill { height: 100%; background: #ef4444; width: 15%; }
+  .sys-cat-card .row3 {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 10px;
+    color: #94a3b8;
+  }
+
+  /* ⑥ 카테고리별 진행률 */
+  .work-cat {
+    background: rgba(15,23,42,0.6);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+    padding: 12px 16px;
+  }
+  .work-row {
+    padding: 8px 0;
+    border-bottom: 0.5px dashed rgba(255,255,255,0.06);
+  }
+  .work-row:last-child { border-bottom: 0; }
+  .work-row .top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .work-row .name { font-size: 12px; color: #e2e8f0; }
+  .work-row .name .tag {
+    font-size: 9px;
+    background: rgba(255,255,255,0.06);
+    padding: 1px 6px;
+    border-radius: 3px;
+    color: #94a3b8;
+    margin-left: 6px;
+  }
+  .work-row .ratio { font-size: 11px; color: #94a3b8; }
+  .work-row .ratio strong { color: #f1f5f9; }
+  .work-row .bar { height: 6px; background: rgba(255,255,255,0.06); border-radius: 3px; overflow: hidden; }
+  .work-row .bar-fill { height: 100%; background: linear-gradient(90deg, #6366f1, #ec4899); border-radius: 3px; }
+
+  /* ⑦ 페이지 TOP 10 */
+  .page-progress {
+    background: rgba(15,23,42,0.6);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+    padding: 8px 14px;
+  }
   .pp-row {
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 8px 10px;
+    padding: 8px 6px;
     border-radius: 6px;
     cursor: pointer;
-    transition: background 0.15s;
+    border-bottom: 0.5px dashed rgba(255,255,255,0.05);
   }
+  .pp-row:last-child { border-bottom: 0; }
   .pp-row:hover { background: rgba(99,102,241,0.06); }
-  .pp-row .rank {
-    width: 22px;
-    text-align: center;
-    color: #94a3b8;
-    font-size: 11px;
-    font-family: ui-monospace, monospace;
-  }
-  .pp-row .score {
-    width: 36px;
-    font-weight: 700;
-    font-size: 14px;
-    text-align: center;
-  }
+  .pp-row .rank { width: 22px; text-align: center; color: #94a3b8; font-size: 11px; }
+  .pp-row .score { width: 36px; font-weight: 700; font-size: 14px; text-align: center; }
   .pp-row .score.low { color: #ef4444; }
   .pp-row .score.mid { color: #f59e0b; }
   .pp-row .score.high { color: #10b981; }
-  .pp-row .path {
-    flex: 1;
-    font-family: ui-monospace, monospace;
-    font-size: 12px;
-    color: #cbd5e1;
-  }
-  .pp-row .path .reason {
-    color: #64748b;
-    font-size: 10px;
-    margin-top: 2px;
-    font-family: -apple-system, sans-serif;
-  }
-  .pp-row .badge {
-    background: rgba(16,185,129,0.15);
-    color: #6ee7b7;
-    border: 0.5px solid rgba(16,185,129,0.3);
-    padding: 2px 8px;
-    border-radius: 3px;
-    font-size: 10px;
-  }
-  .pp-row .ts {
-    font-size: 10px;
-    color: #64748b;
-    width: 80px;
-    text-align: right;
-  }
+  .pp-row .path { flex: 1; font-family: ui-monospace, monospace; font-size: 12px; color: #cbd5e1; }
+  .pp-row .path .reason { color: #64748b; font-size: 10px; margin-top: 2px; font-family: -apple-system, sans-serif; }
+  .pp-row .badge { background: rgba(99,102,241,0.15); color: #c7d2fe; border: 0.5px solid rgba(99,102,241,0.3); padding: 2px 8px; border-radius: 3px; font-size: 10px; }
+  .pp-row .ts { font-size: 10px; color: #64748b; width: 80px; text-align: right; }
 
-  /* 영역 ④ 활동 이력 */
+  /* ⑧ 활동 이력 */
   .activity {
     background: rgba(15,23,42,0.6);
     border: 1px solid rgba(255,255,255,0.08);
@@ -389,93 +435,9 @@
     font-size: 11px;
   }
   .act-row:last-child { border-bottom: 0; }
-  .act-row .when {
-    color: #64748b;
-    width: 110px;
-    flex-shrink: 0;
-    font-family: ui-monospace, monospace;
-  }
+  .act-row .when { color: #64748b; width: 110px; flex-shrink: 0; font-family: ui-monospace, monospace; }
   .act-row .who { width: 100px; flex-shrink: 0; color: #94a3b8; }
   .act-row .what { flex: 1; color: #cbd5e1; }
-
-  /* 모달 가안 */
-  .modal-mock {
-    margin-top: 28px;
-    padding: 16px;
-    border: 1px dashed rgba(245,158,11,0.4);
-    border-radius: 10px;
-    background: rgba(245,158,11,0.04);
-  }
-  .modal-mock-title {
-    font-size: 13px;
-    color: #fbbf24;
-    font-weight: 600;
-    margin-bottom: 8px;
-  }
-  .modal-preview {
-    background: rgba(15,23,42,0.95);
-    border: 1px solid rgba(255,255,255,0.12);
-    border-radius: 10px;
-    padding: 16px 18px;
-    max-width: 540px;
-    margin: 0 auto;
-  }
-  .modal-preview h3 {
-    margin: 0 0 8px;
-    font-size: 15px;
-    color: #f1f5f9;
-  }
-  .modal-preview .meta-row {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 12px;
-    flex-wrap: wrap;
-  }
-  .modal-preview .meta-tag {
-    background: rgba(99,102,241,0.15);
-    border: 0.5px solid rgba(99,102,241,0.3);
-    color: #c7d2fe;
-    padding: 2px 8px;
-    border-radius: 4px;
-    font-size: 10px;
-  }
-  .modal-preview .body {
-    font-size: 11px;
-    color: #cbd5e1;
-    line-height: 1.6;
-    background: rgba(255,255,255,0.03);
-    padding: 10px 12px;
-    border-radius: 6px;
-    margin-bottom: 12px;
-  }
-  .modal-preview .actions {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-  }
-  .modal-preview .actions button {
-    flex: 1;
-    min-width: 0;
-    padding: 8px 10px;
-    border-radius: 6px;
-    border: 0;
-    font-size: 11px;
-    font-weight: 600;
-    cursor: pointer;
-  }
-  .btn-primary {
-    background: linear-gradient(135deg, #6366f1, #8b5cf6);
-    color: white;
-  }
-  .btn-secondary {
-    background: rgba(255,255,255,0.06);
-    color: #cbd5e1;
-    border: 0.5px solid rgba(255,255,255,0.12) !important;
-  }
-  .btn-success {
-    background: linear-gradient(135deg, #10b981, #059669);
-    color: white;
-  }
 
   /* 변경 사항 안내 */
   .changes-summary {
@@ -485,45 +447,25 @@
     border: 1px solid rgba(16,185,129,0.25);
     border-radius: 10px;
   }
-  .changes-summary h2 {
-    margin: 0 0 12px;
-    font-size: 16px;
-    color: #6ee7b7;
-  }
-  .changes-summary ul {
-    margin: 0;
-    padding-left: 20px;
-    font-size: 12px;
-    line-height: 1.8;
-    color: #cbd5e1;
-  }
-  .changes-summary code {
-    background: rgba(255,255,255,0.06);
-    padding: 1px 6px;
-    border-radius: 3px;
-    font-size: 11px;
-    color: #fbbf24;
-  }
+  .changes-summary h2 { margin: 0 0 12px; font-size: 16px; color: #6ee7b7; }
+  .changes-summary ul { margin: 0; padding-left: 20px; font-size: 12px; line-height: 1.8; color: #cbd5e1; }
+  .changes-summary code { background: rgba(255,255,255,0.06); padding: 1px 6px; border-radius: 3px; font-size: 11px; color: #fbbf24; }
 
   /* 모바일 */
   @media (max-width: 768px) {
     body { padding: 10px; font-size: 12px; }
-    .system-stats { grid-template-columns: 1fr; }
     .kpi-grid { grid-template-columns: repeat(2, 1fr); }
-    .cc-card { flex-wrap: wrap; }
-    .cc-card .title { width: 100%; white-space: normal; order: 3; }
-    .cc-card .action-btn, .cc-card .action-hint { order: 4; }
+    .auto-grid { grid-template-columns: 1fr; }
+    .sys-cat-grid { grid-template-columns: 1fr; }
     .pp-row .ts { display: none; }
-    .act-row .when { width: 90px; }
-    .act-row .who { width: 80px; }
   }
 </style>
 </head>
 <body>
 
 <div class="mockup-banner">
-  ⚠️ <strong>이 화면은 가안(목업)입니다.</strong> 실제 데이터와 동작 없이 레이아웃과 흐름만 보여줍니다.
-  대표님 확인 후 실제 admin-status.html에 적용 예정. 라이브 URL: <code>/admin-status-mockup.html</code>
+  ⚠️ <strong>가안 v2 (목업).</strong> 기존 정보 모두 유지. <strong>순서만 재배열</strong>: ① 진행 중 → ② 게이지 → ③ KPI → ④ 작업 지휘소 → ⑤ 시스템 카테고리(전체) → ⑥ 작업 카테고리(중간) → ⑦ 페이지 TOP 10(세부) → ⑧ 활동.
+  라이브: <code>/admin-status-mockup.html</code>
 </div>
 
 <div class="container">
@@ -542,7 +484,7 @@
     </div>
   </div>
 
-  <!-- 데드라인 배너 -->
+  <!-- 데드라인 -->
   <div class="deadline">
     <div class="icon">🚨</div>
     <div>
@@ -551,309 +493,279 @@
     </div>
   </div>
 
-  <!-- ═══════════════════════════════════════════
-       영역 ① — 무엇을 할까 (작업 지휘소)
-       ═══════════════════════════════════════════ -->
+  <!-- ① 현재 진행 중 -->
   <div class="area-title">
     <span class="area-badge">①</span>
+    🟢 현재 진행 중
+    <span class="area-purpose">지금 무엇이 돌아가고 있나 — 이어가려면 클릭</span>
+  </div>
+
+  <div class="now-running">
+    <span class="running-pill">진행 중</span>
+    <div class="running-info">
+      <div class="running-title">BL-REAL-SYSTEM — 진실 시스템 (admin 인증 + 실시간 폴링 + 풀 컨텍스트 인계 + 활동 이력 펼침)</div>
+      <div class="running-sub">예상 4h · 이어서 작업하려면 "예약 + 알림" 버튼 → 클립보드 복사 → 새 채팅에 붙여넣기</div>
+    </div>
+    <button class="running-action">▶ 예약 + 알림</button>
+  </div>
+
+  <!-- ② 게이지 -->
+  <div class="area-title">
+    <span class="area-badge">②</span>
+    📊 전체 완성도
+    <span class="area-purpose">한 줄 점수 — ⑦ 페이지 TOP 10 점수의 평균</span>
+  </div>
+
+  <div class="gauge-card">
+    <div class="gauge-num-block">
+      <div class="gauge-label">전체 평균</div>
+      <div class="gauge-num">56<small>/100</small></div>
+      <div class="gauge-trend">▲ 어제 대비 +3</div>
+    </div>
+    <div class="gauge-bar-block">
+      <div class="gauge-bar"><div class="gauge-bar-fill"></div></div>
+      <div class="gauge-counts">
+        <span><span class="dot complete"></span>완성 0</span>
+        <span><span class="dot serious"></span>본격 10</span>
+        <span><span class="dot partial"></span>부분 2</span>
+        <span><span class="dot skel"></span>골격 0</span>
+        <span><span class="dot none"></span>미작성 6</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ③ 4 KPI -->
+  <div class="area-title">
+    <span class="area-badge">③</span>
+    🎯 작업 분포 KPI
+    <span class="area-purpose">②의 점수가 어디서 막혔나 — 카드 클릭 = ④ 영역에서 해당 종류만 보기</span>
+  </div>
+
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="label">🤖 자동 (Claude)</div>
+      <div class="num auto">13</div>
+      <div class="hint">시스템 자율 · 클릭 = ④ 자동 큐</div>
+    </div>
+    <div class="kpi-card">
+      <div class="label">👥 직원 가능</div>
+      <div class="num staff">0</div>
+      <div class="hint">Staff 트리거 · 클릭 = ④ 직원 큐</div>
+    </div>
+    <div class="kpi-card">
+      <div class="label">👤 대표님 결정</div>
+      <div class="num ceo">5</div>
+      <div class="hint">CEO 사업 정책 · 클릭 = ④ 결정 큐</div>
+    </div>
+    <div class="kpi-card">
+      <div class="label">🛡 헌법 검증</div>
+      <div class="num charter">27<small>/27</small></div>
+      <div class="hint">PASS · 클릭 = 전체</div>
+    </div>
+  </div>
+
+  <!-- ④ 작업 지휘소 -->
+  <div class="area-title">
+    <span class="area-badge">④</span>
     🎮 작업 지휘소 — 무엇을 할까
-    <span class="area-purpose">위에서부터 차례로 처리하면 시스템이 알아서 완성됨</span>
+    <span class="area-purpose">③ KPI의 숫자가 실제 카드로 풀려나옴</span>
   </div>
 
   <div class="command-center">
-    <!-- 탭으로 3종류 명확히 분리 -->
-    <div class="cc-tabs">
-      <div class="cc-tab"><span>👤 대표님 결정</span><span class="count">5</span></div>
-      <div class="cc-tab active"><span>🤖 자동 작업 (Claude)</span><span class="count">13</span></div>
-      <div class="cc-tab"><span>👥 직원 작업</span><span class="count">0</span></div>
-    </div>
-
-    <!-- 각 탭 안의 카드 — 같은 형태로 통일 -->
-    <div class="cc-list">
-
-      <div class="cc-card">
-        <span class="pri P0">P0</span>
-        <span class="id">BL-002</span>
-        <span class="title">통합 To-Do Inbox (관리자 대시보드 재설계)</span>
-        <span class="action-hint">클릭 = 인계서 복사</span>
-        <button class="action-btn">▶ 시작</button>
+    <div class="cc-slot ceo">
+      <div class="cc-slot-head">
+        <span>① 👤 대표님 결정 대기 — 결정 한 번 = 막힘 해제</span>
+        <span class="count">5건</span>
       </div>
-
-      <div class="cc-card">
-        <span class="pri P1">P1</span>
-        <span class="id">SQ-H</span>
-        <span class="title">Supabase Management API 토큰 갱신 알림 자동화</span>
-        <span class="action-hint">클릭 = 인계서 복사</span>
-        <button class="action-btn">▶ 시작</button>
-      </div>
-
-      <div class="cc-card">
-        <span class="pri P1">P1</span>
-        <span class="id">BL-ADMIN-AUTH-PERF</span>
-        <span class="title">admin-* 페이지 인증 속도 최적화 (1-2초 → 200ms)</span>
-        <span class="action-hint">클릭 = 인계서 복사</span>
-        <button class="action-btn">▶ 시작</button>
-      </div>
-
-      <div class="cc-card">
-        <span class="pri P1">P1</span>
-        <span class="id">BL-DECISIONS-INDEX</span>
-        <span class="title">DECISIONS_INDEX.md 자동 동기화 sync_engine 보강</span>
-        <span class="action-hint">클릭 = 인계서 복사</span>
-        <button class="action-btn">▶ 시작</button>
-      </div>
-
-      <div style="text-align:center;font-size:11px;color:#64748b;margin-top:6px;padding:6px;">
-        +9건 더 보기 → <a href="#" style="color:#a78bfa;">전체 자동 작업 큐</a>
+      <div class="ceo-list">
+        <div class="ceo-row"><span class="pri P0">P0</span><span class="id">BL-003</span><span class="title">Agoda 예약 검증 시스템 (Booking Verification)</span><span class="reason">대표님 결정 대기</span></div>
+        <div class="ceo-row"><span class="pri P0">P0</span><span class="id">BL-ADMIN-AUTH</span><span class="title">[admin Supabase Auth] 정식 오픈 전 의무 — 권한 등급</span><span class="reason">권한 등급 정책</span></div>
+        <div class="ceo-row"><span class="pri P1">P1</span><span class="id">BL-004</span><span class="title">매니저 정보 변경 시스템 (3-Tier 차등)</span><span class="reason">대표님 결정 대기</span></div>
+        <div class="ceo-row"><span class="pri P1">P1</span><span class="id">BL-005</span><span class="title">호텔 담당자 교체 시스템 (Manager Handover)</span><span class="reason">대표님 결정 대기</span></div>
+        <div class="ceo-row"><span class="pri P1">P1</span><span class="id">SQ-D</span><span class="title">sales.html 디자인 전면 개편</span><span class="reason">디자인 결정</span></div>
       </div>
     </div>
 
-    <!-- 폴링 표시 -->
+    <div class="cc-slot auto">
+      <div class="cc-slot-head">
+        <span>② 🤖 자동 작업 큐 — Claude 즉시 시작 가능 (카드 클릭 = 인계서 자동 복사)</span>
+        <span class="count">13건</span>
+      </div>
+      <div class="auto-grid">
+        <div class="auto-card cat-design-system">
+          <div class="auto-card-meta"><span class="auto-tag auto">🤖 AUTO</span><span class="pri P0">P0</span><span class="auto-tag cat">디자인 시스템</span></div>
+          <div class="auto-card-title">[Aurora 통일 캠페인] 디자인 시스템 미적용 페이지 일괄 마이그레이션</div>
+          <div class="auto-card-foot"><span><span class="auto-card-id">BL-AURORA-MIGRATION</span> · ⏱ 약 8h · large</span><button class="auto-start-btn">▶ 즉시 시작</button></div>
+        </div>
+        <div class="auto-card cat-feature">
+          <div class="auto-card-meta"><span class="auto-tag auto">🤖 AUTO</span><span class="pri P0">P0</span><span class="auto-tag cat">기능</span></div>
+          <div class="auto-card-title">[매니저 대시보드 신규 제작] 한 화면 7영역 (5초 파악)</div>
+          <div class="auto-card-foot"><span><span class="auto-card-id">BL-MANAGER-DASH-001</span> · ⏱ 약 12h · large</span><button class="auto-start-btn">▶ 즉시 시작</button></div>
+        </div>
+        <div class="auto-card cat-dev">
+          <div class="auto-card-meta"><span class="auto-tag auto">🤖 AUTO</span><span class="pri P0">P0</span><span class="auto-tag cat">개발</span></div>
+          <div class="auto-card-title">통합 To-Do Inbox (관리자 대시보드 재설계)</div>
+          <div class="auto-card-foot"><span><span class="auto-card-id">BL-002</span> · medium</span><button class="auto-start-btn">▶ 즉시 시작</button></div>
+        </div>
+        <div class="auto-card cat-infrastructure">
+          <div class="auto-card-meta"><span class="auto-tag auto">🤖 AUTO</span><span class="pri P1">P1</span><span class="auto-tag cat">인프라</span></div>
+          <div class="auto-card-title">[admin-* 페이지 인증 속도 최적화] Supabase getSession + checkAdmin 병렬 처리 + SSR 게이트</div>
+          <div class="auto-card-foot"><span><span class="auto-card-id">BL-ADMIN-AUTH-PERF</span> · ⏱ 약 3h · medium</span><button class="auto-start-btn">▶ 즉시 시작</button></div>
+        </div>
+        <div class="auto-card cat-analytics">
+          <div class="auto-card-meta"><span class="auto-tag auto">🤖 AUTO</span><span class="pri P1">P1</span><span class="auto-tag cat">분석</span></div>
+          <div class="auto-card-title">[YouTube 더보기 단축 URL 클릭 카운트] 호텔별 진성 관심 측정 시스템</div>
+          <div class="auto-card-foot"><span><span class="auto-card-id">BL-TRACK-001</span> · ⏱ 약 6h · medium</span><button class="auto-start-btn">▶ 즉시 시작</button></div>
+        </div>
+        <div class="auto-card cat-feature">
+          <div class="auto-card-meta"><span class="auto-tag auto">🤖 AUTO</span><span class="pri P1">P1</span><span class="auto-tag cat">기능</span></div>
+          <div class="auto-card-title">[인보이스/영수증 PDF 자동 생성·다운로드] 영구 보관 (1년+)</div>
+          <div class="auto-card-foot"><span><span class="auto-card-id">BL-INVOICE-001</span> · ⏱ 약 5h · medium</span><button class="auto-start-btn">▶ 즉시 시작</button></div>
+        </div>
+        <div class="auto-card cat-infrastructure">
+          <div class="auto-card-meta"><span class="auto-tag auto">🤖 AUTO</span><span class="pri P2">P2</span><span class="auto-tag cat">인프라</span></div>
+          <div class="auto-card-title">[DECISIONS_INDEX.md 자동 동기화] sync_engine 보강</div>
+          <div class="auto-card-foot"><span><span class="auto-card-id">BL-DECISIONS-INDEX</span> · ⏱ 약 2h · small</span><button class="auto-start-btn">▶ 즉시 시작</button></div>
+        </div>
+        <div style="grid-column:1/-1;text-align:center;font-size:10px;color:#64748b;padding:6px;">+6건 더 — admin-tasks.html에서 전체 보기 →</div>
+      </div>
+    </div>
+
+    <div class="cc-slot staff">
+      <div class="cc-slot-head">
+        <span>③ 👥 직원 작업 큐 — 결정 불필요, 진행만 하면 됨</span>
+        <span class="count">0건</span>
+      </div>
+      <div class="staff-empty">진행 가능한 직원 작업이 없습니다.</div>
+    </div>
+
     <div class="cc-poll">
       <span class="live">5초마다 자동 갱신</span>
       <span>마지막 갱신 12:34:08 KST</span>
     </div>
   </div>
 
-  <!-- 결정 모달 가안 -->
-  <div class="modal-mock">
-    <div class="modal-mock-title">📌 위 ① 영역에서 "👤 대표님 결정" 탭 → 카드 클릭 시 뜨는 모달 가안</div>
-    <div class="modal-preview">
-      <h3>BL-003 — Agoda 예약 검증 시스템</h3>
-      <div class="meta-row">
-        <span class="meta-tag">P0 긴급</span>
-        <span class="meta-tag" style="background:rgba(239,68,68,0.15);color:#fca5a5;border-color:rgba(239,68,68,0.3);">막힘 사유: 대표님 결정 대기</span>
-        <span class="meta-tag">DEV</span>
-      </div>
-      <div class="body">
-        <strong>배경:</strong> "아고다 본인 확인 가능한 도구 제공 필요. 호텔별 예약번호·날짜·시간 대조 가능해야 매니저 신뢰 확보"<br><br>
-        <strong>결정이 필요한 것:</strong><br>
-        1. Agoda Partner Hub 직접 대조 vs TW 자체 검증 시스템 구축 — 어느 쪽?<br>
-        2. 검증 데이터 보관 기간 (3개월 / 6개월 / 1년)?<br>
-        3. 매니저에게 검증 결과 노출 방식 (대시보드 / 메일 / 둘 다)?
-      </div>
-      <div class="actions">
-        <button class="btn-secondary">📋 작업 상세 보기 (admin-tasks.html)</button>
-        <button class="btn-primary">✏️ 결정 입력 → Claude에게 보내기</button>
-        <button class="btn-success">✅ 결정 완료 → 막힘 해제</button>
-      </div>
-      <div style="font-size:10px;color:#94a3b8;margin-top:10px;line-height:1.5;">
-        💡 <strong>"결정 입력"</strong> 클릭 → 결정문 입력 칸이 나오고, 입력 후 "보내기" 누르면 결정문이 클립보드에 자동 복사됨 → 채팅창에 붙여넣기만 하면 Claude가 처리.<br>
-        💡 <strong>"결정 완료"</strong> 클릭 → 이미 결정한 사항이라면 막힘만 해제하고 자동 작업 큐로 즉시 이동.
-      </div>
-    </div>
-  </div>
-
-  <!-- ═══════════════════════════════════════════
-       영역 ② — 시스템이 얼마나 완성됐나 (전체 평균 + 4 KPI)
-       ═══════════════════════════════════════════ -->
+  <!-- ⑤ 5 시스템 카테고리 -->
   <div class="area-title">
-    <span class="area-badge">②</span>
-    📊 시스템 완성도 — 얼마나 됐나
-    <span class="area-purpose">①의 처리 결과가 여기에 누적됨. KPI 카드 클릭 = ① 영역 필터</span>
+    <span class="area-badge">⑤</span>
+    📁 5 시스템 영역 — 전체 시각 (헌법 D-010)
+    <span class="area-purpose">시스템을 5개 영역으로 나눠 본 완성도 — 카드 클릭 = 해당 영역 진입</span>
   </div>
 
-  <div class="system-stats">
-    <!-- 좌: 게이지 -->
-    <div class="gauge-card">
-      <div class="gauge-label">전체 평균 (10개 페이지 점수의 평균)</div>
-      <div>
-        <span class="gauge-num">56<small>/100</small></span>
-        <span class="gauge-trend">▲ 어제 대비 +3</span>
-      </div>
-      <div class="gauge-bar"><div class="gauge-bar-fill"></div></div>
-      <div class="gauge-formula">계산식: ④ "시급 페이지 TOP 10"의 평균 점수</div>
-      <div style="font-size:11px;color:#94a3b8;margin-top:8px;">
-        ● 완성 0 · ● 본격 10 · ● 부분 2 · ● 골격 0 · ● 미작성 6
-      </div>
+  <div class="sys-cat-grid">
+    <div class="sys-cat-card current">
+      <div class="row1"><span class="cat-num">CATEGORY 1 · 현재</span><button class="detail-btn">상세 ▼</button></div>
+      <div class="row2"><span class="name">📊 System Status</span><span class="score">15<small>/100</small></span></div>
+      <div class="bar"><div class="bar-fill"></div></div>
+      <div class="row3"><span>🤖 4 · 👥 0 · 👤 2</span><span>—</span></div>
     </div>
-
-    <!-- 우: 4 KPI -->
-    <div class="kpi-grid">
-      <div class="kpi-card">
-        <div class="label">🤖 자동</div>
-        <div class="num auto">13</div>
-        <div class="hint">클릭 = ① 자동 탭</div>
-      </div>
-      <div class="kpi-card">
-        <div class="label">👥 직원</div>
-        <div class="num staff">0</div>
-        <div class="hint">클릭 = ① 직원 탭</div>
-      </div>
-      <div class="kpi-card active">
-        <div class="label">👤 대표님 결정</div>
-        <div class="num ceo">5</div>
-        <div class="hint">클릭 = ① 결정 탭</div>
-      </div>
-      <div class="kpi-card">
-        <div class="label">🛡 헌법 검증</div>
-        <div class="num charter">27/27</div>
-        <div class="hint">PASS</div>
-      </div>
+    <div class="sys-cat-card">
+      <div class="row1"><span class="cat-num">CATEGORY 2</span><button class="detail-btn">상세 ▼</button></div>
+      <div class="row2"><span class="name">📋 Task Management</span><span class="score">15<small>/100</small></span></div>
+      <div class="bar"><div class="bar-fill"></div></div>
+      <div class="row3"><span>🤖 6 · 👥 0 · 👤 3</span><span>05-04 16:38</span></div>
+    </div>
+    <div class="sys-cat-card">
+      <div class="row1"><span class="cat-num">CATEGORY 3</span><button class="detail-btn">상세 ▼</button></div>
+      <div class="row2"><span class="name">📚 Business Docs</span><span class="score">15<small>/100</small></span></div>
+      <div class="bar"><div class="bar-fill"></div></div>
+      <div class="row3"><span>🤖 1 · 👥 0 · 👤 0</span><span>05-03 23:55</span></div>
+    </div>
+    <div class="sys-cat-card">
+      <div class="row1"><span class="cat-num">CATEGORY 4</span><button class="detail-btn">상세 ▼</button></div>
+      <div class="row2"><span class="name">📷 Page Gallery</span><span class="score">15<small>/100</small></span></div>
+      <div class="bar"><div class="bar-fill"></div></div>
+      <div class="row3"><span>🤖 2 · 👥 0 · 👤 0</span><span>04-29 23:20</span></div>
+    </div>
+    <div class="sys-cat-card">
+      <div class="row1"><span class="cat-num">CATEGORY 5</span><button class="detail-btn">상세 ▼</button></div>
+      <div class="row2"><span class="name">🔧 Service Operations</span><span class="score">15<small>/100</small></span></div>
+      <div class="bar"><div class="bar-fill"></div></div>
+      <div class="row3"><span>🤖 0 · 👥 0 · 👤 0</span><span>05-04 18:11</span></div>
     </div>
   </div>
 
-  <!-- ═══════════════════════════════════════════
-       영역 ③ — 어느 페이지가 시급한가 (TOP 10)
-       ═══════════════════════════════════════════ -->
+  <!-- ⑥ 카테고리별 진행률 -->
   <div class="area-title">
-    <span class="area-badge">③</span>
-    ⚠️ 페이지별 완성도 TOP 10 — 점수 낮은 페이지 = 다음 작업 우선순위
-    <span class="area-purpose">"지금 만들어야 할 페이지"가 아니라, "이미 있지만 완성도가 낮은 페이지"</span>
+    <span class="area-badge">⑥</span>
+    📂 카테고리별 진행률 — 중간 시각 (작업 타입)
+    <span class="area-purpose">작업을 종류로 나눠 본 진척 — 어느 종류가 막혔는지 한눈에</span>
+  </div>
+
+  <div class="work-cat">
+    <div class="work-row"><div class="top"><span class="name">▶ 인프라 <span class="tag">infrastructure</span></span><span class="ratio"><strong>16 / 22</strong> 완료 · 73%</span></div><div class="bar"><div class="bar-fill" style="width:73%;"></div></div></div>
+    <div class="work-row"><div class="top"><span class="name">▶ 개발 <span class="tag">dev</span></span><span class="ratio"><strong>11 / 21</strong> 완료 · 52%</span></div><div class="bar"><div class="bar-fill" style="width:52%;"></div></div></div>
+    <div class="work-row"><div class="top"><span class="name">▶ 버그 <span class="tag">bug</span></span><span class="ratio"><strong>13 / 15</strong> 완료 · 87%</span></div><div class="bar"><div class="bar-fill" style="width:87%;"></div></div></div>
+    <div class="work-row"><div class="top"><span class="name">▶ UX <span class="tag">ux</span></span><span class="ratio"><strong>13 / 15</strong> 완료 · 87%</span></div><div class="bar"><div class="bar-fill" style="width:87%;"></div></div></div>
+    <div class="work-row"><div class="top"><span class="name">▶ 문서 <span class="tag">docs</span></span><span class="ratio"><strong>2 / 3</strong> 완료 · 67%</span></div><div class="bar"><div class="bar-fill" style="width:67%;"></div></div></div>
+    <div class="work-row"><div class="top"><span class="name">▶ 디자인 <span class="tag">design</span></span><span class="ratio"><strong>0 / 3</strong> 완료 · 0%</span></div><div class="bar"><div class="bar-fill" style="width:0%;"></div></div></div>
+    <div class="work-row"><div class="top"><span class="name">▶ 기능 <span class="tag">feature</span></span><span class="ratio"><strong>0 / 2</strong> 완료 · 0%</span></div><div class="bar"><div class="bar-fill" style="width:0%;"></div></div></div>
+    <div class="work-row"><div class="top"><span class="name">▶ 디자인 시스템 <span class="tag">design-system</span></span><span class="ratio"><strong>0 / 1</strong> 완료 · 0%</span></div><div class="bar"><div class="bar-fill" style="width:0%;"></div></div></div>
+    <div class="work-row"><div class="top"><span class="name">▶ 분석 <span class="tag">analytics</span></span><span class="ratio"><strong>0 / 1</strong> 완료 · 0%</span></div><div class="bar"><div class="bar-fill" style="width:0%;"></div></div></div>
+  </div>
+
+  <!-- ⑦ 페이지 TOP 10 -->
+  <div class="area-title">
+    <span class="area-badge">⑦</span>
+    ⚠️ 페이지 완성도 TOP 10 — 세부 시각 (페이지 단위)
+    <span class="area-purpose">완성도 낮은 순 · 행 클릭 = ④ 작업 지휘소에서 해당 페이지 작업으로 점프</span>
   </div>
 
   <div class="page-progress">
-    <div class="pp-row">
-      <span class="rank">1</span>
-      <span class="score low">15</span>
-      <span class="path">/admin.html
-        <div class="reason">structure: 기본 구조만 (Aurora 미적용)</div>
-      </span>
-      <span class="badge">관련 작업 4건</span>
-      <span class="ts">05-04 18:11</span>
-    </div>
-    <div class="pp-row">
-      <span class="rank">2</span>
-      <span class="score low">15</span>
-      <span class="path">/admin-gallery.html
-        <div class="reason">structure: 기본 구조만</div>
-      </span>
-      <span class="badge">관련 작업 2건</span>
-      <span class="ts">04-29 23:20</span>
-    </div>
-    <div class="pp-row">
-      <span class="rank">3</span>
-      <span class="score low">15</span>
-      <span class="path">/admin-business.html
-        <div class="reason">structure: 기본 구조만</div>
-      </span>
-      <span class="badge">관련 작업 1건</span>
-      <span class="ts">05-03 23:55</span>
-    </div>
-    <div class="pp-row" style="opacity:0.7;">
-      <span class="rank">…</span>
-      <span class="score">—</span>
-      <span class="path" style="color:#64748b;">7건 더 (4~10위)</span>
-      <span class="badge" style="background:transparent;border:0.5px dashed rgba(255,255,255,0.1);color:#64748b;">펼치기 ▼</span>
-      <span class="ts"></span>
-    </div>
-    <div class="pp-row">
-      <span class="rank">8</span>
-      <span class="score mid">66</span>
-      <span class="path">/hotel-info.html
-        <div class="reason">content: TODO 14건 + 빈 태그 14건</div>
-      </span>
-      <span class="badge">관련 작업 3건</span>
-      <span class="ts">05-02 00:02</span>
-    </div>
-    <div class="pp-row">
-      <span class="rank">9</span>
-      <span class="score mid">69</span>
-      <span class="path">/signup.html
-        <div class="reason">function: 함수 2 · 핸들러 5</div>
-      </span>
-      <span class="badge">관련 작업 1건</span>
-      <span class="ts">05-01 14:37</span>
-    </div>
-    <div class="pp-row">
-      <span class="rank">10</span>
-      <span class="score high">73</span>
-      <span class="path">/reset-password.html
-        <div class="reason">function: 함수 2 · 핸들러 3</div>
-      </span>
-      <span class="badge">관련 작업 0건</span>
-      <span class="ts">05-01 14:37</span>
-    </div>
-    <div style="font-size:11px;color:#94a3b8;margin-top:10px;padding-top:10px;border-top:1px dashed rgba(255,255,255,0.06);text-align:center;">
-      💡 행 클릭 = 해당 페이지의 관련 작업이 ① 영역으로 자동 점프
-    </div>
+    <div class="pp-row"><span class="rank">1</span><span class="score low">15</span><span class="path">/admin.html<div class="reason">structure: 기본 구조만 (Aurora 미적용)</div></span><span class="badge">관련 작업 4건</span><span class="ts">05-04 18:11</span></div>
+    <div class="pp-row"><span class="rank">2</span><span class="score low">15</span><span class="path">/admin-gallery.html<div class="reason">structure: 기본 구조만</div></span><span class="badge">관련 작업 2건</span><span class="ts">04-29 23:20</span></div>
+    <div class="pp-row"><span class="rank">3</span><span class="score low">15</span><span class="path">/admin-business.html<div class="reason">structure: 기본 구조만</div></span><span class="badge">관련 작업 1건</span><span class="ts">05-03 23:55</span></div>
+    <div class="pp-row"><span class="rank">4</span><span class="score low">15</span><span class="path">/admin-hub.html<div class="reason">structure: 기본 구조만</div></span><span class="badge">관련 작업 0건</span><span class="ts">05-04 18:11</span></div>
+    <div class="pp-row"><span class="rank">5</span><span class="score low">15</span><span class="path">/admin-tasks.html<div class="reason">structure: 기본 구조만</div></span><span class="badge">관련 작업 1건</span><span class="ts">05-04 16:38</span></div>
+    <div class="pp-row"><span class="rank">6</span><span class="score low">15</span><span class="path">/admin-service-ops.html<div class="reason">structure: 기본 구조만</div></span><span class="badge">관련 작업 0건</span><span class="ts">05-04 18:11</span></div>
+    <div class="pp-row"><span class="rank">7</span><span class="score low">15</span><span class="path">/admin-status.html<div class="reason">structure: 기본 구조만</div></span><span class="badge">관련 작업 0건</span><span class="ts">—</span></div>
+    <div class="pp-row"><span class="rank">8</span><span class="score mid">66</span><span class="path">/hotel-info.html (메뉴 외)<div class="reason">content: TODO 14건 + 빈 태그 14건</div></span><span class="badge">관련 작업 3건</span><span class="ts">05-02 00:02</span></div>
+    <div class="pp-row"><span class="rank">9</span><span class="score mid">69</span><span class="path">/signup.html (메뉴 외)<div class="reason">function: 함수 2 · 핸들러 5</div></span><span class="badge">관련 작업 1건</span><span class="ts">05-01 14:37</span></div>
+    <div class="pp-row"><span class="rank">10</span><span class="score high">73</span><span class="path">/reset-password.html (메뉴 외)<div class="reason">function: 함수 2 · 핸들러 3</div></span><span class="badge">관련 작업 0건</span><span class="ts">05-01 14:37</span></div>
   </div>
 
-  <!-- ═══════════════════════════════════════════
-       영역 ④ — 활동 이력 (최근 무엇이 일어났나)
-       ═══════════════════════════════════════════ -->
+  <!-- ⑧ 활동 이력 -->
   <div class="area-title">
-    <span class="area-badge">④</span>
-    📜 활동 이력 — 대화창 끊겨도 추적 가능
-    <span class="area-purpose">최근 30건. 클릭 = 상세 펼침</span>
+    <span class="area-badge">⑧</span>
+    📜 활동 이력
+    <span class="area-purpose">대화창 끊겨도 추적 가능 — 최근 30건. 클릭 = 상세 펼침</span>
   </div>
 
   <div class="activity">
-    <div class="act-row">
-      <span class="when">12:34:08</span>
-      <span class="who">🤖 Claude</span>
-      <span class="what">BL-COMMAND-CENTER Phase B+C 완료 — 작업 지휘소 적용 + 한 줄 이식 검증 (commit c3222b6)</span>
-    </div>
-    <div class="act-row">
-      <span class="when">12:31:47</span>
-      <span class="who">🤖 Claude</span>
-      <span class="what">tasks.json 데이터 정정 — BL-CHAT-LOG-SYSTEM done, BL-HUMAN-TAB-REWRITE done</span>
-    </div>
-    <div class="act-row">
-      <span class="when">12:25:12</span>
-      <span class="who">🤖 scan-bot</span>
-      <span class="what">chat-log index 자동 갱신</span>
-    </div>
-    <div class="act-row">
-      <span class="when">12:18:34</span>
-      <span class="who">🤖 Claude</span>
-      <span class="what">CCF 프레임워크 골격 (Phase A) — 12파일 추가 (commit d123ce5)</span>
-    </div>
-    <div class="act-row">
-      <span class="when">04:30:00</span>
-      <span class="who">🤖 Claude</span>
-      <span class="what">BL-HUMAN-TAB-REWRITE 완료 — 사람용 탭 5블록 카드 UI (commit 1de9b9d)</span>
-    </div>
+    <div class="act-row"><span class="when">12:34:08</span><span class="who">🤖 Claude</span><span class="what">BL-COMMAND-CENTER Phase B+C 완료 (commit c3222b6)</span></div>
+    <div class="act-row"><span class="when">12:31:47</span><span class="who">🤖 Claude</span><span class="what">tasks.json 데이터 정정 — BL-CHAT-LOG-SYSTEM done, BL-HUMAN-TAB-REWRITE done</span></div>
+    <div class="act-row"><span class="when">12:25:12</span><span class="who">🤖 scan-bot</span><span class="what">chat-log index 자동 갱신</span></div>
+    <div class="act-row"><span class="when">12:18:34</span><span class="who">🤖 Claude</span><span class="what">CCF 프레임워크 골격 (Phase A) — 12파일 추가 (commit d123ce5)</span></div>
+    <div class="act-row"><span class="when">04:30:00</span><span class="who">🤖 Claude</span><span class="what">BL-HUMAN-TAB-REWRITE 완료 — 사람용 탭 5블록 카드 UI (commit 1de9b9d)</span></div>
   </div>
 
-  <!-- ═══════════════════════════════════════════
-       변경 사항 요약
-       ═══════════════════════════════════════════ -->
   <div class="changes-summary">
-    <h2>✅ 가안에서 무엇이 달라졌나 (현재 화면 vs 가안)</h2>
+    <h2>✅ 가안 v2에서 무엇이 달라졌나 (현재 화면 → 가안 v2)</h2>
     <ul>
-      <li><strong>중복 제거 3건</strong> — 결정 대기·자율 큐·카테고리별 진행률이 두 군데씩 나오던 것을 모두 ① 작업 지휘소 한 곳으로 통합</li>
-      <li><strong>① 작업 지휘소 = 탭 구조</strong> — 결정 / 자동 / 직원 3탭으로 정리. KPI 카드(②) 클릭하면 해당 탭으로 자동 점프</li>
-      <li><strong>② 시스템 완성도</strong> — 게이지 옆에 <code>계산식: ③ 시급 페이지 TOP 10의 평균 점수</code> 명시. 수치 두 영역 관계 명확화</li>
-      <li><strong>③ TOP 10 = "이미 있지만 완성도 낮은 페이지"</strong>로 명확히 표기. "시급" 단어 제거</li>
-      <li><strong>결정 모달에 3개 버튼</strong> — ⓐ "작업 상세 보기" ⓑ "결정 입력 → Claude에게" ⓒ "결정 완료 → 막힘 해제". 대표님 행동이 명확</li>
-      <li><strong>"+7건 더" 진짜 링크</strong>로 작동 (현재 라이브는 텍스트만)</li>
-      <li><strong>5개 카테고리 카드 제거</strong> — 같은 정보(완성도)를 ②와 ③에서 이미 보여주므로 중복 제거</li>
-      <li><strong>"임박 작업 P0+진행 중" 영역 제거</strong> — ① 작업 지휘소가 이미 같은 역할</li>
-      <li><strong>현재 13개 영역 → 4개 영역</strong>으로 단순화 (헤더 + 데드라인은 별개로)</li>
+      <li><strong>빠진 정보 0건</strong> — 기존 화면의 모든 데이터 그대로 유지 (① 진행 중 / ⑤ 시스템 카테고리 / ⑥ 작업 카테고리 / ⑦ 페이지 TOP 10 모두 살림)</li>
+      <li><strong>순서만 재배열</strong>: <code>① 진행 중 → ② 게이지 → ③ KPI → ④ 지휘소 → ⑤ 전체(시스템) → ⑥ 중간(작업) → ⑦ 세부(페이지) → ⑧ 활동</code></li>
+      <li><strong>전체 → 세부 흐름 명확</strong>: ⑤(시스템 영역) → ⑥(작업 타입) → ⑦(페이지 단위)로 점점 좁아짐</li>
+      <li><strong>중복 제거 2건</strong>: 결정 대기·자율 큐가 두 군데 나오던 것을 ④ 작업 지휘소 한 곳에만 통합 (DOM 이동 흔적 제거)</li>
+      <li><strong>① 진행 중 영역 신설</strong>: in_progress 작업 + "예약+알림" 버튼이 가장 위에 노출 (이전엔 중간에 묻혀 있었음)</li>
+      <li><strong>각 카드의 "AUTO" 라벨·카테고리 색상·제목·예상 시간·시작 버튼 그대로 유지</strong> — 익숙한 모양</li>
+      <li><strong>각 영역 위에 번호(①~⑧) + "무엇을 위한 영역인가" 한 줄 설명</strong> — 헷갈림 방지</li>
+      <li><strong>"+N건 더" 진짜 링크</strong>로 admin-tasks.html 이동</li>
     </ul>
   </div>
 
   <div style="margin-top:32px;padding:20px;background:rgba(99,102,241,0.05);border:1px solid rgba(99,102,241,0.25);border-radius:10px;">
     <h2 style="margin:0 0 10px;font-size:15px;color:#c7d2fe;">🎯 대표님 결정 요청</h2>
     <p style="font-size:12px;color:#cbd5e1;line-height:1.7;margin:0 0 12px;">
-      이 가안의 흐름이 마음에 드시면 — 실제 admin-status.html을 이 구조로 재작성하겠습니다 (예상 2시간).
+      이 가안 v2가 좋으시면 — 실제 admin-status.html을 이 순서로 재배열하겠습니다 (예상 1.5시간).
     </p>
     <div style="font-size:11px;color:#94a3b8;line-height:1.6;">
-      <strong>① 좋아 → 그대로 진행</strong> = "가안대로 진행" 한 마디 주시면 됨<br>
-      <strong>② 부분 수정</strong> = 어느 영역을 어떻게 바꿀지 말씀<br>
-      <strong>③ 다시 짜자</strong> = 다른 흐름으로 새 가안 제작
+      <strong>① 좋아 → 본 작업 진행</strong> = "v2 진행" 한 마디<br>
+      <strong>② 부분 수정</strong> = 어느 영역 위치를 바꿀지 또는 어느 영역에 무엇을 추가할지<br>
+      <strong>③ 다시 짜자</strong> = 다른 흐름으로 새 가안
     </div>
   </div>
 
 </div>
-
-<script>
-  // 탭 클릭 → active 토글 (가안용 인터랙션)
-  document.querySelectorAll('.cc-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      document.querySelectorAll('.cc-tab').forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
-    });
-  });
-  // KPI 카드 클릭 → active 토글
-  document.querySelectorAll('.kpi-card').forEach(card => {
-    card.addEventListener('click', () => {
-      document.querySelectorAll('.kpi-card').forEach(c => c.classList.remove('active'));
-      card.classList.add('active');
-    });
-  });
-</script>
 
 </body>
 </html>

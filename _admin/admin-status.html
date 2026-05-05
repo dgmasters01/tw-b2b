@@ -207,7 +207,8 @@
   }
   .cat-card:hover { border-color: var(--aurora-2); transform: translateY(-2px); }
   .cat-card.expanded { border: 1px solid var(--aurora-2); box-shadow: 0 0 0 2px rgba(236,72,153,0.2); }
-  .cat-card.warn { border-color: var(--blocked); }
+  .cat-card.warn { border-color: rgba(202,138,4,0.4); }  /* warn = 노랑 (현재 페이지) — 호버 시 동일하게 aurora */
+  .cat-card.warn:hover { border-color: var(--aurora-2); }
   .cat-row1 { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5px; }
   .cat-row1 .label { font-size: 9px; color: var(--text-muted); letter-spacing: 0.5px; }
   .cat-row1 .name { font-size: 13px; font-weight: 500; }
@@ -1084,7 +1085,10 @@
                 <div class="label">CATEGORY ${catNum}${isCurrent ? ' · 현재' : ''}</div>
                 <div class="name">${escapeHtml(m.label)}</div>
               </div>
-              <div class="score" style="color:${color};">${score}</div>
+              <div style="text-align:right;">
+                <div style="font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;">완성도</div>
+                <div class="score" style="color:${color};" title="페이지 완성도 점수 (0-100). structure/design/function/content/recency 5차원 평균">${score}<small style="font-size:11px;color:var(--text-muted);font-weight:400;">/100</small></div>
+              </div>
             </div>
             <div class="cat-bar"><div class="cat-bar-fill" style="width:${score}%;background:${color};"></div></div>
             <div class="cat-meta">
@@ -1119,22 +1123,34 @@
       return `<div style="margin-top:12px;padding:12px;background:var(--panel-2);border-radius:6px;font-size:11px;color:var(--text-muted);">상세 데이터 없음 (페이지 미작성)</div>`;
     }
     const dim = m.dimensions;
-    const dimColor = (s) => s >= 70 ? 'var(--done)' : s >= 50 ? 'var(--p2)' : 'var(--blocked)';
-    const dimCard = (label, key) => `
-      <div style="background:var(--panel-2);padding:7px 8px;border-radius:5px;text-align:center;">
+    const fileExists = m.fileExists !== false;
+    const dimColor = (s) => s >= 70 ? 'var(--done)' : s >= 50 ? 'var(--p2)' : s > 0 ? 'var(--blocked)' : 'var(--text-muted)';
+    const dimCard = (label, key) => {
+      const score = dim[key]?.score || 0;
+      const hint = dim[key]?.hint || '';
+      return `
+      <div style="background:var(--panel-2);padding:7px 8px;border-radius:5px;text-align:center;" title="${escapeHtml(hint)}">
         <div style="font-size:9px;color:var(--text-muted);">${label}</div>
-        <div style="font-size:14px;font-weight:500;color:${dimColor(dim[key]?.score || 0)};">${dim[key]?.score || 0}</div>
+        <div style="font-size:14px;font-weight:500;color:${dimColor(score)};">${score}</div>
       </div>
     `;
+    };
     const lastTaskRow = m.lastTask ? `
       <div style="display:flex;align-items:center;gap:10px;padding:7px 9px;background:rgba(22,163,74,0.10);border-radius:5px;">
         <span style="font-size:13px;">✅</span>
         <span style="font-size:11px;flex:1;">${escapeHtml(m.lastTask.lastTaskTitle || '-')}</span>
         <span style="font-size:10px;color:var(--text-muted);">${escapeHtml(m.lastTask.lastTaskId || '')} · 🕒 ${fmtTime(m.lastTask.lastUpdated)}</span>
       </div>` : '<div style="font-size:11px;color:var(--text-muted);padding:7px 9px;">최근 작업 기록 없음</div>';
+    // ★ 파일 없음 안내 (대표님 지적 — 5차원 점수 0인 이유 명확화)
+    const noFileBanner = !fileExists ? `
+      <div style="padding:8px 10px;background:rgba(251,191,36,0.10);border:0.5px solid rgba(251,191,36,0.4);border-radius:5px;margin-bottom:12px;font-size:11px;color:#fcd34d;">
+        ⚠️ <strong>${escapeHtml(m.path)} 파일이 아직 없습니다.</strong>
+        <span style="display:block;margin-top:3px;color:var(--text-muted);font-size:10px;">structure/design/function/content 모두 0점은 정상 — 파일이 박히면 자동으로 측정됩니다. 본 카드의 task ${(STATE.tasksData?.tasks||[]).filter(t => (MENU_KEY_TO_CATEGORIES[m.key]||[]).includes(t.category)).length}건은 정상 추적 중입니다.</span>
+      </div>` : '';
     return `
       <div style="margin-top:12px;padding:14px;background:var(--panel-2);border-radius:8px;border-top:1px solid var(--aurora-2);">
-        <div style="font-size:11px;color:var(--aurora-2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">📊 5차원 점수</div>
+        ${noFileBanner}
+        <div style="font-size:11px;color:var(--aurora-2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">📊 5차원 점수 <span style="font-size:9px;color:var(--text-muted);font-weight:400;text-transform:none;">(structure/design/function/content/recency)</span></div>
         <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:12px;">
           ${dimCard('structure', 'structure')}
           ${dimCard('design', 'design')}
@@ -1142,7 +1158,7 @@
           ${dimCard('content', 'content')}
           ${dimCard('recency', 'recency')}
         </div>
-        <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">📍 가장 약한 부분</div>
+        <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">📍 가장 약한 부분 <span style="font-size:9px;color:var(--text-muted);font-weight:400;text-transform:none;">(점수 가장 낮은 차원 + 이유)</span></div>
         <div style="font-size:12px;color:#fca5a5;margin-bottom:12px;">
           ${escapeHtml(m.weakest?.dimension || '-')}: ${escapeHtml(m.weakest?.hint || '-')}
         </div>
@@ -1178,14 +1194,21 @@
       const statCls = t.status || 'pending';
       const statLab = STAT_LABEL_KO[t.status] || (t.status || '-');
       const priLab = PRI_LABEL_KO[t.priority] || (t.priority || '-');
+      // ★ 완료 task는 completed_at 표시 (BL-STATUS-FINAL-V3 대표님 지적 4)
+      const isDone = t.status === 'done';
+      const timeIcon = isDone ? '✅' : '🕒';
+      const timeVal = isDone
+        ? fmtTime(t.completed_at || t.updated_at)
+        : fmtTime(t.updated_at || t.created_at);
+      const timeLabel = isDone ? '완료' : '수정';
       return `
-        <div class="cat-task-row" data-task-id="${escapeHtml(t.id)}" style="display:flex;align-items:center;gap:8px;padding:6px 9px;background:var(--panel);border:0.5px solid var(--border);border-radius:5px;margin-bottom:4px;cursor:pointer;font-size:11px;">
+        <div class="cat-task-row" data-task-id="${escapeHtml(t.id)}" style="display:flex;align-items:center;gap:8px;padding:6px 9px;background:var(--panel);border:0.5px solid var(--border);border-radius:5px;margin-bottom:4px;cursor:pointer;font-size:11px;${isDone ? 'opacity:0.7;' : ''}">
           <span style="font-size:12px;">${roleIcon}</span>
           <span class="urgent-pill ${(t.priority||'P2').toLowerCase()}" style="font-size:9px;">${priLab}</span>
           <span class="urgent-pill ${statCls}" style="font-size:9px;">${statLab}</span>
           <span style="flex:1;color:var(--text);">${escapeHtml(t.title || '')}</span>
           <span style="color:var(--text-muted);font-size:10px;">${escapeHtml(t.id)}</span>
-          <span style="color:var(--text-muted);font-size:10px;">🕒 ${fmtTime(t.updated_at || t.created_at)}</span>
+          <span style="color:var(--text-muted);font-size:10px;" title="${timeLabel} 시각">${timeIcon} ${timeVal}</span>
         </div>
       `;
     }).join('');
@@ -1695,16 +1718,24 @@
         const icon = r === 'auto' ? '🤖' : r === 'staff' ? '👥' : r === 'ceo' ? '👤' : r === 'blocked' ? '🚫' : '✅';
         const statLab = STAT_LABEL_KO[t.status] || (t.status || '-');
         const priLab = PRI_LABEL_KO[t.priority] || (t.priority || '-');
+        // ★ 완료 task는 completed_at 표시 (BL-STATUS-FINAL-V3)
+        const isDone = t.status === 'done';
+        const timeIcon = isDone ? '✅' : '🕒';
+        const timeVal = isDone
+          ? fmtTime(t.completed_at || t.updated_at)
+          : fmtTime(t.updated_at || t.created_at);
+        const timeLabel = isDone ? '완료 시각' : '수정 시각';
         return `
-          <div class="cat-task-row" data-task-id="${escapeHtml(t.id)}" style="display:flex;align-items:center;gap:8px;padding:6px 9px;background:var(--panel-2);border:0.5px solid var(--border);border-radius:5px;margin-bottom:4px;cursor:pointer;font-size:11px;">
+          <div class="cat-task-row" data-task-id="${escapeHtml(t.id)}" style="display:flex;align-items:center;gap:8px;padding:6px 9px;background:var(--panel-2);border:0.5px solid var(--border);border-radius:5px;margin-bottom:4px;cursor:pointer;font-size:11px;${isDone ? 'opacity:0.7;' : ''}">
             <span style="font-size:12px;">${icon}</span>
             <span class="urgent-pill ${(t.priority||'P2').toLowerCase()}" style="font-size:9px;">${priLab}</span>
             <span class="urgent-pill ${t.status || 'pending'}" style="font-size:9px;">${statLab}</span>
             <span style="flex:1;color:var(--text);">${escapeHtml(t.title || '')}</span>
             <span style="color:var(--text-muted);font-size:10px;">${escapeHtml(t.id)}</span>
+            <span style="color:var(--text-muted);font-size:10px;" title="${timeLabel}">${timeIcon} ${timeVal}</span>
           </div>
         `;
-      }).join('') + (sortedTasks.length > 15 ? `<div style="font-size:10px;color:var(--text-muted);text-align:center;padding:4px;">+${sortedTasks.length - 15}건 더 — admin-tasks.html에서 전체 보기</div>` : '') : '';
+      }).join('') + (sortedTasks.length > 15 ? `<div class="cat-more-link" style="font-size:10px;color:var(--aurora-2);text-align:center;padding:6px;cursor:pointer;border:0.5px dashed rgba(99,102,241,0.3);border-radius:5px;margin-top:4px;" title="admin-tasks.html에서 전체 보기 — 펼침창 닫지 않음">+${sortedTasks.length - 15}건 더 →</div>` : '') : '';
       return `
         <div class="progress-row" data-cat="${escapeHtml(cat)}" style="cursor:pointer;${isExp ? 'background:rgba(99,102,241,0.05);border:0.5px solid rgba(99,102,241,0.3);border-radius:6px;padding:8px;' : ''}" title="클릭 → task 리스트 펼침">
           <div class="progress-row-head">
@@ -1720,6 +1751,7 @@
     document.querySelectorAll('#integ-progress .progress-row[data-cat]').forEach(row => {
       row.addEventListener('click', (e) => {
         if (e.target.closest('.cat-task-row')) return; // 안쪽 task row는 별도
+        if (e.target.closest('.cat-more-link')) return; // ★ +N건 더 링크는 별도 핸들러
         const cat = row.dataset.cat;
         STATE.expandedProgressCat = STATE.expandedProgressCat === cat ? null : cat;
         if (STATE.tasksData) renderIntegratedProgress(STATE.tasksData);
@@ -1731,6 +1763,15 @@
         e.stopPropagation();
         const id = row.dataset.taskId;
         if (id) location.href = `/admin-tasks.html?id=${encodeURIComponent(id)}`;
+      });
+    });
+    // ★ +N건 더 링크 클릭 → admin-tasks 이동 (펼침창 닫지 않음)
+    document.querySelectorAll('#integ-progress .cat-more-link').forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const parent = link.closest('.progress-row');
+        const cat = parent ? parent.dataset.cat : '';
+        location.href = `/admin-tasks.html${cat ? '?category=' + encodeURIComponent(cat) : ''}`;
       });
     });
   }

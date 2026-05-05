@@ -72,9 +72,13 @@
 </head>
 <body>
 <div class="gh-shell" id="root">
-  <div class="gh-deny">
-    <h1>Loading...</h1>
-    <p>권한 확인 중</p>
+  <div class="gh-deny" style="text-align:center;padding:40px 20px;">
+    <h1 id="gh-loading-title" style="color:#dc2626;">Loading...</h1>
+    <p id="gh-loading-step" style="color:#94a3b8;margin-top:8px;">⏳ 1/3 — 권한 확인 중</p>
+    <div style="max-width:280px;margin:16px auto 0;height:4px;background:rgba(148,163,184,0.15);border-radius:2px;overflow:hidden;">
+      <div id="gh-loading-bar" style="height:100%;background:linear-gradient(90deg,#6366f1,#ec4899);width:33%;transition:width 0.3s;"></div>
+    </div>
+    <p style="color:#64748b;font-size:11px;margin-top:14px;">평균 1-2초 소요 (Supabase 인증 + 매니저 권한 검증)</p>
   </div>
 </div>
 
@@ -94,18 +98,28 @@
 import { PAGES, STATUS_BADGES, AUDIENCE_BADGES } from '/scripts/pages-meta.mjs';
 
 (async function init(){
+  const setStep = (n, label, pct) => {
+    const stepEl = document.getElementById('gh-loading-step');
+    const barEl = document.getElementById('gh-loading-bar');
+    if (stepEl) stepEl.textContent = `⏳ ${n}/3 — ${label}`;
+    if (barEl) barEl.style.width = pct + '%';
+  };
+
   // 권한 검증 — admin.html과 동일한 로직 사용 (T.checkAdmin)
   // is_admin() RPC + admins 테이블 기반. profiles 테이블 의존 제거.
+  setStep(1, 'Supabase 클라이언트 확인', 33);
   if (!window.TW || !window.TW.sb) { renderDeny('Supabase 클라이언트 로드 실패'); return; }
   const { data: { session } } = await window.TW.sb.auth.getSession();
   if (!session) { window.location.href = '/login.html'; return; }
 
+  setStep(2, '관리자 권한 검증', 66);
   const ac = await window.TW.checkAdmin(session.user);
   if (!ac || !ac.is_admin) {
     renderDeny('관리자만 접근 가능한 페이지입니다.', session.user.email);
     return;
   }
 
+  setStep(3, '페이지 데이터 로드 + 렌더링', 100);
   render(session.user.email);
 })();
 

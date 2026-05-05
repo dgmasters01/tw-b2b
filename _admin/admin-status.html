@@ -2296,17 +2296,62 @@
         content = await res.text();
         ACTIVITY_CACHE.chatLogContent[slug] = content;
       }
+      // ★ frontmatter 분리 (사람용 탭에서 메타데이터를 예쁜 박스로 표시, 본문은 깨끗하게)
+      const { frontmatter, body } = parseFrontmatter(content);
+      const fmHtml = frontmatter ? renderFrontmatterBox(frontmatter) : '';
       pane.innerHTML = `
         <div style="margin-bottom:6px;font-size:10px;color:var(--text-muted);">
           📜 <code>/chat-logs/${escapeHtml(slug)}.md</code>
         </div>
         ${isApprox ? `<div style="padding:6px 10px;background:rgba(251,191,36,0.10);border:0.5px solid rgba(251,191,36,0.4);border-radius:5px;margin-bottom:8px;font-size:11px;color:#fcd34d;">⚠️ 정확한 매핑 아님 — 같은 날짜(${(item.timestamp||'').slice(0,10)})의 chat-log를 추정 표시. 별도 chat-log가 있을 수 있습니다.</div>` : ''}
-        ${renderMarkdown(content)}
+        ${fmHtml}
+        ${renderMarkdown(body)}
       `;
     } catch (e) {
       console.error('[activity] human tab 실패', e);
       pane.innerHTML = `<div class="activity-tab-empty">chat-log 로드 실패: ${escapeHtml(e.message || String(e))}</div>`;
     }
+  }
+
+  // ★ frontmatter 파싱 — '---'로 둘러싸인 YAML 블록 분리
+  function parseFrontmatter(md) {
+    if (!md) return { frontmatter: null, body: md || '' };
+    const m = md.match(/^---\s*\n([\s\S]*?)\n---\s*\n?([\s\S]*)$/);
+    if (!m) return { frontmatter: null, body: md };
+    const yaml = m[1];
+    const body = m[2];
+    // 간단 YAML 파서 — key: value, [array]
+    const fm = {};
+    yaml.split('\n').forEach(line => {
+      const km = line.match(/^([a-zA-Z_]+):\s*(.+)$/);
+      if (!km) return;
+      const key = km[1];
+      let val = km[2].trim();
+      // [a, b, c] 배열
+      if (val.startsWith('[') && val.endsWith(']')) {
+        val = val.slice(1, -1).split(',').map(s => s.trim()).filter(Boolean);
+      }
+      fm[key] = val;
+    });
+    return { frontmatter: fm, body };
+  }
+
+  // ★ frontmatter 메타 박스 — 사람이 한눈에 알아보게
+  function renderFrontmatterBox(fm) {
+    const tags = (arr) => Array.isArray(arr) && arr.length > 0
+      ? arr.map(t => `<span style="background:rgba(99,102,241,0.15);color:var(--aurora-2);padding:2px 7px;border-radius:3px;font-size:10px;margin-right:4px;">${escapeHtml(t)}</span>`).join('')
+      : '<span style="color:var(--text-muted);font-size:10px;">없음</span>';
+    return `
+      <div style="background:var(--panel-2);border:0.5px solid var(--border);border-radius:6px;padding:10px 12px;margin-bottom:12px;font-size:11px;">
+        <div style="display:grid;grid-template-columns:60px 1fr;gap:6px 10px;align-items:start;">
+          ${fm.title ? `<div style="color:var(--text-muted);">제목</div><div style="color:var(--text);font-weight:500;">${escapeHtml(fm.title)}</div>` : ''}
+          ${fm.date ? `<div style="color:var(--text-muted);">날짜</div><div style="color:var(--text);">${escapeHtml(fm.date)}</div>` : ''}
+          ${fm.tasks ? `<div style="color:var(--text-muted);">Task</div><div>${tags(fm.tasks)}</div>` : ''}
+          ${fm.commits && (Array.isArray(fm.commits) ? fm.commits.length > 0 : fm.commits) ? `<div style="color:var(--text-muted);">Commit</div><div>${tags(fm.commits)}</div>` : ''}
+          ${fm.decisions && (Array.isArray(fm.decisions) ? fm.decisions.length > 0 : fm.decisions) ? `<div style="color:var(--text-muted);">결정</div><div>${tags(fm.decisions)}</div>` : ''}
+        </div>
+      </div>
+    `;
   }
 
   // 🤖 AI용 탭 — ECHO_LOG / DECISIONS 텍스트 검색

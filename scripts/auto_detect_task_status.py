@@ -197,13 +197,14 @@ def update_task(task: dict, intent: str, commit_sha: str, commit_msg: str) -> bo
         elif current == "in_progress":
             event = "진행 중 commit 추가"
         else:
-            # done 상태에서 다시 fix 들어오면 리오픈
+            # [BUGFIX 2026-05-06] done 상태 작업은 봇이 자동 리오픈하지 않음.
+            #   기존 룰: done 작업에 fix commit 들어오면 자동 in_progress 리오픈
+            #   문제: 사람이 의도적으로 done 박은 작업도 봇이 commit subject만 보고
+            #         자동으로 되돌림. 자가 위반 사례 발생 (commit daca167).
+            #   새 룰: done 상태 유지. 진짜 리오픈이 필요하면 사람이 명시적으로 박음.
+            #         (commit subject 에 [reopen:N] 같은 명시 태그 박는 방식은 추후)
             if current == "done":
-                task["status"] = "in_progress"
-                task["started_at"] = now
-                task.pop("completed_at", None)
-                changed = True
-                event = "재오픈 (done → in_progress, auto-detected)"
+                event = "done 작업에 commit 추가 (status 유지 — 자동 리오픈 안 함)"
             else:
                 event = f"status 유지 ({current})"
     else:

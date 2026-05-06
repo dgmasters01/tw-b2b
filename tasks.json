@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-06T19:18:56+00:00",
+  "updated_at": "2026-05-06T19:19:42+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -12,9 +12,9 @@
     "SOLO_WORK_QUEUE.md"
   ],
   "stats": {
-    "total": 96,
-    "done": 70,
-    "in_progress": 0,
+    "total": 97,
+    "done": 69,
+    "in_progress": 2,
     "pending": 16,
     "blocked": 10,
     "autonomous_ready": 10
@@ -4058,7 +4058,7 @@
       "category": "feature",
       "priority": "P0",
       "size": "small",
-      "status": "done",
+      "status": "in_progress",
       "approval_required": false,
       "autonomous": {
         "can_run_alone": true,
@@ -4137,11 +4137,15 @@
           "by": "auto-detect-bot",
           "commit": "e606095",
           "note": "chore(BL-PROGRESS-AUTO-DONE-SYNC): PHASE-B status 수동 동기화 in_progress→done [step:done:3]"
+        },
+        {
+          "at": "2026-05-06T19:19:42+00:00",
+          "event": "단계 3 commit subject 내 \"→done\" 문자열이 classify_intent의 EXPLICIT_DONE 패턴에 우연히 걸려 status가 잘못 done 박힌 거 fix. 다시 in_progress로 복구. (이 결함 자체는 트랙 2 새 backlog로 분리 등재 예정.)",
+          "by": "BL-PROGRESS-AUTO-DONE-SYNC"
         }
       ],
       "started_at": "2026-05-06T19:17:16+00:00",
-      "updated_at": "2026-05-06T19:18:56+00:00",
-      "completed_at": "2026-05-06T19:18:56+00:00"
+      "updated_at": "2026-05-06T19:18:56+00:00"
     },
     {
       "id": "BL-OS-AUTO-SYNC-CHARTER",
@@ -4208,6 +4212,41 @@
           "event": "신규 작업 생성 — 그림 일치 OS 자동 동기화 메타 점검",
           "by": "Claude (자율 발견)",
           "note": "BL-PROGRESS-AUTO-DONE-SYNC 발견을 계기로 같은 패턴 다른 곳 점검 + 헌법 박기"
+        }
+      ]
+    },
+    {
+      "id": "BL-VERIFY-AUTO-SYNC-DUMMY",
+      "title": "단계 2 자동 룰 라이브 검증용 dummy",
+      "priority": "P3",
+      "category": "meta",
+      "status": "in_progress",
+      "created_at": "2026-05-06T19:19:42+00:00",
+      "started_at": "2026-05-06T19:19:42+00:00",
+      "updated_at": "2026-05-06T19:19:42+00:00",
+      "progress": {
+        "steps": [
+          {
+            "label": "dummy step 1",
+            "done": true,
+            "at": "2026-05-06T19:19:42+00:00"
+          },
+          {
+            "label": "dummy step 2",
+            "done": false,
+            "at": null
+          }
+        ],
+        "percent": 50,
+        "completed_count": 1,
+        "total_count": 2,
+        "updated_at": "2026-05-06T19:19:42+00:00"
+      },
+      "history": [
+        {
+          "at": "2026-05-06T19:19:42+00:00",
+          "event": "dummy 생성",
+          "by": "BL-PROGRESS-AUTO-DONE-SYNC"
         }
       ]
     }

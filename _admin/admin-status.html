@@ -3357,18 +3357,16 @@
     } catch (_) {}
 
     if (relatedLogs.length) {
-      lines.push(`## 📜 관련 chat-logs (반드시 fetch)`);
+      lines.push(`## 📜 관련 chat-log (필요 시 참조)`);
       lines.push('');
       relatedLogs.forEach(slug => {
         lines.push(`- \`/chat-logs/${slug}.md\``);
       });
       lines.push('');
-      lines.push(`**가장 최근 chat-log를 먼저 fetch하세요** — 막힌 지점 / 결정 근거 / 다음 단계 인계가 들어있음.`);
-      lines.push('');
     } else if (task && task.last_chat_log) {
-      lines.push(`## 📜 관련 chat-log`);
+      lines.push(`## 📜 관련 chat-log (필요 시 참조)`);
       lines.push('');
-      lines.push(`- \`/chat-logs/${task.last_chat_log}.md\` (반드시 먼저 fetch)`);
+      lines.push(`- \`/chat-logs/${task.last_chat_log}.md\``);
       lines.push('');
     }
 
@@ -3418,30 +3416,27 @@
     }
 
     // 5) 첫 응답 가이드
-    lines.push(`## 🚀 첫 응답 가이드 (이 순서 그대로)`);
+    // [BUGFIX 2026-05-06] '첫 응답 가이드 7가지 명령 리스트' 제거.
+    //   원래 박혀 있던 7가지 명령(GitHub fetch / chat-log fetch / 정독 / 자율 진행 /
+    //   commit / 분량 끊기 / ops 알림)이 새 Claude를 의례적 행동에 묶음.
+    //   결과: 본 작업 시작 못 하고 "fetch 했습니다" "정독했습니다" 같은 보고만 길어짐.
+    //   헌법 1조 위반: 대표님은 결정만, 시스템 절차는 화면에 노출 X.
+    //
+    //   인계서는 '본 작업 시작에 필요한 정보만' 박는다.
+    //   chat-log / tasks.json 등 추가 정보는 새 Claude 가 알아서 fetch.
+    lines.push(`## 🚀 다음 행동`);
     lines.push('');
-    lines.push(`1. **GitHub raw로 인계 fetch** (이미 했음 — 이 메시지가 그것)`);
-    if (relatedLogs.length || (task && task.last_chat_log)) {
-      const slug = relatedLogs[relatedLogs.length - 1] || (task && task.last_chat_log);
-      lines.push(`2. **\`https://raw.githubusercontent.com/dgmasters01/tw-b2b/main/_chat-logs/${slug}.md\` fetch** (가장 최근 chat-log — 풀 디테일)`);
-    } else {
-      lines.push(`2. \`tasks.json\` fetch + \`OPERATIONS_CHARTER.md\` fetch (헌법 11대 원칙)`);
-    }
-    lines.push(`3. **막힘 / 결정 / 다음 단계** 섹션 정독 후 즉시 자율 진행`);
-    lines.push(`4. **위치/구조 질문 절대 금지** (메모리 5번 + 24번)`);
-    lines.push(`5. 큰 단위 commit 직전 chat-log 박기 (D-014)`);
-    lines.push(`6. 분량 판단해서 자체 끊고 "이어서?" 확인 (메모리 17번)`);
-    lines.push(`7. 완료 시: commit + push + ops 알림 (\`/api/email/ops/notify-claude-work\`)`);
+    lines.push(`**위 "다음 시작 단계"부터 즉시 작업 시작.**`);
+    lines.push('');
+    lines.push(`작업 진행 중 추가 정보가 필요하면 자율적으로 fetch (chat-log, tasks.json, commits 등). 절차 보고 금지 — 작업 결과만 보고.`);
     lines.push('');
 
-    // 헌법
-    lines.push(`## 🚨 헌법/메모리 의무`);
+    // 헌법 — 핵심 3개만 (이전엔 5개로 길었음)
+    lines.push(`## 🚨 핵심 의무`);
     lines.push('');
-    lines.push(`- 헌법 1조: 대표님은 결정만, 시스템이 실행`);
-    lines.push(`- 메모리 5번/24번: 위치·구조·배치 질문 금지 → 자율 판단 + 즉시 실행`);
-    lines.push(`- 메모리 17번: 응답 끊김 방지 — 분량 판단 자체 끊기`);
-    lines.push(`- 메모리 25번: CHANGELOG + chat-log + commit \`[변경사유]\` 의무`);
-    lines.push(`- D-014: 큰 단위 commit 직전 chat-log 박기`);
+    lines.push(`- **헌법 1조**: 대표님은 결정만, 시스템이 실행. 위치/구조 질문 금지.`);
+    lines.push(`- **부칙 7**: 단계 1개 = commit 1개. subject 에 \`[step:done:N]\` 태그 박는다. 봇이 자동 갱신.`);
+    lines.push(`- **분량 판단**: 한 응답 안에 끝 못 보면 자체 끊기.`);
     lines.push('');
     lines.push(`---`);
     lines.push('');

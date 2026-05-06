@@ -4098,6 +4098,42 @@
     toast._hideTimer = setTimeout(() => toast.classList.remove('show'), 2500);
   }
 
+  // [BUGFIX 2026-05-06] 자동 빌드 감지 + 자동 reload
+  //   문제: admin-status.html 코드가 새 버전으로 push 됐어도 브라우저가
+  //         옛 캐시 사용 → 인계서가 옛 빌더로 만들어짐.
+  //         대표님이 매번 Ctrl+Shift+R 해야 했음 (헌법 1조 위반).
+  //   해결: 5초 폴링마다 main raw 의 admin-status.html 길이 + hash 체크.
+  //         페이지 로드 시점 hash 와 다르면 = 새 빌드 = 자동 reload.
+  let CURRENT_BUILD_HASH = null;
+  async function fetchSelfBuildHash() {
+    try {
+      const r = await fetch('/admin-status.html?cb=' + Date.now(), { cache: 'no-store' });
+      if (!r.ok) return null;
+      const txt = await r.text();
+      // 빠른 hash — 길이 + 첫 200자 + 마지막 200자 합쳐서
+      const sample = txt.length + ':' + txt.slice(0, 200) + ':' + txt.slice(-200);
+      return quickHash(sample);
+    } catch (_) {
+      return null;
+    }
+  }
+  async function checkAutoReload() {
+    const newHash = await fetchSelfBuildHash();
+    if (newHash === null) return;  // fetch 실패 시 무시
+    if (CURRENT_BUILD_HASH === null) {
+      // 페이지 로드 후 첫 체크 — 기준 hash 저장
+      CURRENT_BUILD_HASH = newHash;
+      return;
+    }
+    if (CURRENT_BUILD_HASH !== newHash) {
+      // 새 빌드 발견 → 토스트 1.5초 후 자동 reload
+      showPollToast('🔄 새 빌드 감지 — 1.5초 후 자동 새로고침');
+      setTimeout(() => {
+        location.reload();
+      }, 1500);
+    }
+  }
+
   function startPolling() {
     if (POLL.timer) return;
     // 상태 표시
@@ -4107,7 +4143,12 @@
     updatePollStatus();
     // 첫 해시 기록 (변경 감지를 위해 비교 기준)
     pollTick();
-    POLL.timer = setInterval(pollTick, POLL.intervalMs);
+    // 자기 자신 build hash 첫 기록
+    fetchSelfBuildHash().then(h => { CURRENT_BUILD_HASH = h; });
+    POLL.timer = setInterval(() => {
+      pollTick();
+      checkAutoReload();  // 5초마다 새 빌드 체크
+    }, POLL.intervalMs);
     // 백그라운드 / 포그라운드 전환
     document.addEventListener('visibilitychange', () => {
       if (document.hidden) pollPause('백그라운드 탭');

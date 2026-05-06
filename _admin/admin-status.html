@@ -1311,13 +1311,61 @@
       list-style: none;
       margin: 0 0 12px; padding: 0;
     }
-    .ceo-decision-ctx-options li {
-      font-size: 12.5px; color: #422006; line-height: 1.55;
-      padding: 6px 10px;
-      background: rgba(255,255,255,0.6);
-      border-radius: 6px;
-      margin-bottom: 5px;
-      border-left: 3px solid #ca8a04;
+    /* [BL-DECISION-MODAL-V2-PHASE-B 단계 4] 4개 안 카드 + 선택 표시
+       기존: 단순 <li> 리스트
+       지금: 클릭 가능 카드 + 선택 시 강조 + 옵션 라벨(A/B/C/D) */
+    .opt-card {
+      display: flex; gap: 10px;
+      padding: 10px 12px;
+      background: rgba(255,255,255,0.7);
+      border: 2px solid transparent;
+      border-radius: 8px;
+      margin-bottom: 6px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      align-items: flex-start;
+    }
+    .opt-card:hover {
+      background: rgba(255,255,255,0.95);
+      border-color: rgba(202,138,4,0.3);
+      transform: translateX(2px);
+    }
+    .opt-card.selected {
+      background: #fef9c3;
+      border-color: #ca8a04;
+      box-shadow: 0 2px 8px rgba(202,138,4,0.2);
+    }
+    .opt-card.selected .opt-label {
+      background: #ca8a04;
+      color: white;
+    }
+    .opt-label {
+      flex-shrink: 0;
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      background: rgba(202,138,4,0.15);
+      color: #854d0e;
+      font-weight: 700; font-size: 12px;
+      display: inline-flex; align-items: center; justify-content: center;
+      transition: all 0.15s ease;
+    }
+    .opt-text {
+      flex: 1;
+      font-size: 12.5px; color: #422006; line-height: 1.5;
+      padding-top: 4px;
+    }
+    .opt-card.selected .opt-text {
+      color: #1e293b;
+      font-weight: 500;
+    }
+    /* 옵션 카드 영역 마진 */
+    .opt-cards-wrap {
+      margin: 0 0 12px;
+    }
+    .opt-cards-empty {
+      font-size: 12px; color: #94a3b8;
+      font-style: italic;
+      padding: 8px 0;
     }
     .ceo-decision-ctx-rec {
       font-size: 12.5px; color: #1e293b; line-height: 1.55;
@@ -2658,10 +2706,21 @@
         <div class="ceo-decision-ctx-h">🧭 무엇을 결정해야 하는가</div>
         ${dCtx ? `<div class="ceo-decision-ctx-text">${escapeHtml(dCtx)}</div>` : ''}
         ${dOpts.length ? `
-          <div class="ceo-decision-ctx-h" style="margin-top:6px;">📑 옵션</div>
-          <ul class="ceo-decision-ctx-options">
-            ${dOpts.map(o => `<li>${escapeHtml(String(o))}</li>`).join('')}
-          </ul>
+          <div class="ceo-decision-ctx-h" style="margin-top:6px;">📑 옵션 (클릭 = 선택)</div>
+          <div class="opt-cards-wrap" id="opt-cards-wrap">
+            ${dOpts.map((o, i) => {
+              const txt = String(o);
+              // 옵션 텍스트 첫 부분에서 안 라벨 추출 (예: "A안 — ..." → "A")
+              const labelMatch = txt.match(/^([A-Za-z가-힣])\s*안\s*[—-]/);
+              const label = labelMatch ? labelMatch[1] : String.fromCharCode(65 + i);  // A,B,C,D 자동
+              return `
+                <div class="opt-card" data-idx="${i}" data-label="${escapeHtml(label)}" role="button" tabindex="0">
+                  <span class="opt-label">${escapeHtml(label)}</span>
+                  <div class="opt-text">${escapeHtml(txt)}</div>
+                </div>
+              `;
+            }).join('')}
+          </div>
         ` : ''}
         ${dRec ? `<div class="ceo-decision-ctx-rec">${escapeHtml(dRec)}</div>` : ''}
       </div>
@@ -2753,6 +2812,48 @@
 
     modal.querySelectorAll('[data-close]').forEach(el => {
       el.addEventListener('click', closeModal);
+    });
+
+    // [BL-DECISION-MODAL-V2-PHASE-B 단계 4] 안 카드 클릭 = 선택
+    //   - 선택된 카드만 .selected 클래스 박힘 (시각 강조)
+    //   - textarea 에 안 라벨 자동 미리채움 (예: "A안으로 진행. 이유는 ___")
+    //   - 우측 그림 맞추기 영역 placeholder 에 선택 안 표시 (단계 5에서 본격 활성화)
+    let selectedOptIdx = null;
+    modal.querySelectorAll('.opt-card').forEach(card => {
+      const handleSelect = () => {
+        const idx = parseInt(card.dataset.idx, 10);
+        const label = card.dataset.label;
+        // 기존 선택 해제 + 새 선택
+        modal.querySelectorAll('.opt-card.selected').forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+        selectedOptIdx = idx;
+        // textarea 미리채움 — 입력 모드 활성화 + 라벨 prefix
+        const textarea = modal.querySelector('#ceo-decision-input');
+        const wrap = modal.querySelector('#ceo-decision-input-wrap');
+        if (textarea && wrap) {
+          // 입력 영역 자동 펼침
+          wrap.style.display = 'block';
+          // 미리채움 — 사용자가 입력 안 했거나 옛 라벨 prefix만 있을 때만
+          const cur = textarea.value.trim();
+          const isEmpty = !cur;
+          const isOldLabelOnly = /^[A-Za-z가-힣]안으로 진행\. 이유는/.test(cur);
+          if (isEmpty || isOldLabelOnly) {
+            textarea.value = `${label}안으로 진행. 이유는 `;
+            // 커서를 끝으로 이동
+            setTimeout(() => {
+              textarea.focus();
+              textarea.setSelectionRange(textarea.value.length, textarea.value.length);
+            }, 50);
+          }
+        }
+        // 우측 그림 맞추기 placeholder 에 선택 안 라벨 표시 (단계 5 준비)
+        const phTitle = modal.querySelector('#cd-grim-placeholder .ph-title');
+        if (phTitle) phTitle.textContent = `${label}안 선택됨 — 그림 맞추기 (단계 6에서 활성화)`;
+      };
+      card.addEventListener('click', handleSelect);
+      card.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleSelect(); }
+      });
     });
 
     modal.querySelector('[data-action="detail"]')?.addEventListener('click', () => {

@@ -103,8 +103,22 @@ def get_commits_since(since_commit: str) -> list[tuple[str, str]]:
 
 
 def extract_task_ids(commit_msg: str) -> list[str]:
-    """commit msg에서 작업 ID 모두 추출 (중복 제거, 등장 순서 보존)."""
-    found = TASK_ID_PATTERN.findall(commit_msg)
+    """commit msg subject(첫 줄)에서 작업 ID 모두 추출 (중복 제거, 등장 순서 보존).
+
+    [BUGFIX 2026-05-06] subject 라인만 검사하도록 수정.
+    이전 룰은 [변경사유] 본문에 언급된 작업 ID까지 추출해서,
+    설명용으로 본문에 언급한 작업까지 자동으로 in_progress 박는 버그.
+    예: "fix(admin-status): 진행 중 박스 분리\\n\\n... BL-002 ..."
+        → 이전 룰: [admin-status, BL-002] 둘 다 추출
+        → 새 룰: [BL-DECISION-MODAL-V2-PHASE-B] 만 추출 (subject만)
+
+    안전장치:
+    - subject = commit message 첫 줄
+    - 본문은 [변경사유] 같은 설명용 영역이라 작업 ID 언급이 자주 발생
+    - 진짜로 여러 작업을 함께 처리할 때는 subject 에 모두 명시할 것
+    """
+    subject = (commit_msg or "").split("\n", 1)[0].strip()
+    found = TASK_ID_PATTERN.findall(subject)
     seen = set()
     result = []
     for tid in found:

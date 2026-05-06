@@ -119,14 +119,31 @@ def extract_task_ids(commit_msg: str) -> list[str]:
 
 def classify_intent(commit_msg: str) -> str:
     """commit msg → 'done' | 'in_progress' | 'update'.
-    
-    완료 신호가 있으면 done, 시작/진행 신호가 있으면 in_progress,
-    아니면 update (기존 status 유지, updated_at만 갱신).
+
+    [BUGFIX 2026-05-06] commit subject 라인(첫 줄)만 검사하도록 수정.
+    이전 룰은 [변경사유] 본문에 박힌 "완료" 같은 단어까지 잡아서,
+    in_progress로 박은 작업을 봇이 done으로 자동 변경하는 버그가 있었음.
+    예: "fix(...): in_progress 박기" subject + 본문 "풀어쓰기 완료"
+        → 이전 룰: done (잘못)
+        → 새 룰: in_progress (정확)
+
+    안전장치:
+    - 명시적 [done] / [완료] 태그가 subject에 있을 때만 done
+    - 일반 fix/feat/refactor subject는 무조건 in_progress
     """
-    if DONE_KEYWORDS.search(commit_msg):
+    subject = (commit_msg or "").split("\n", 1)[0].strip()
+
+    # 명시적 done 태그만 done으로 인식
+    EXPLICIT_DONE = re.compile(
+        r"(\[done\]|\[완료\]|^done:|^완료:|✅\s|→\s*done\b)",
+        re.IGNORECASE
+    )
+    if EXPLICIT_DONE.search(subject):
         return "done"
-    if START_KEYWORDS.search(commit_msg):
+
+    if START_KEYWORDS.search(subject):
         return "in_progress"
+
     return "update"
 
 

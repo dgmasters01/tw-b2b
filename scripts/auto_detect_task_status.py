@@ -207,7 +207,10 @@ def process_commits(commits: list[tuple[str, str]], dry_run: bool) -> dict:
 
     for sha, msg in commits:
         # auto-detect-bot 자체 commit은 무시 (무한 루프 방지)
-        if "[auto-detect-bot]" in msg or "[sync-bot]" in msg or "[scan-bot]" in msg:
+        # 첫 줄이 [bot-name]으로 시작할 때만 봇 commit으로 인정 (본문 우연 매칭 방지)
+        first_line = msg.split("\n", 1)[0]
+        BOT_PREFIX_PATTERN = re.compile(r"^\s*\[(auto-detect-bot|sync-bot|scan-bot)\]")
+        if BOT_PREFIX_PATTERN.match(first_line):
             continue
 
         task_ids = extract_task_ids(msg)

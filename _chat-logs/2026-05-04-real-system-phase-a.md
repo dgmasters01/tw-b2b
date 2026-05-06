@@ -2,11 +2,13 @@
 slug: 2026-05-04-real-system-phase-a
 title: BL-REAL-SYSTEM Phase α 완료 — 시스템 거짓말 4건 통합 해결 (admin 게이트 + 폴링 + 풀컨텍스트 + 활동펼침)
 date: 2026-05-04
-commits: []
+commits: [78fbcc4, ea0d31f, 71eab56, f9502c4, fc560c8, 8d3f2b8, 1f2387a]
 tasks: [BL-REAL-SYSTEM, BL-CHAT-LOG-SYSTEM]
 decisions: [D-014]
 auto_migrated: true
 ---
+
+> **[2026-05-06 좀비 정리 노트]** 이 chat-log 작성 시점에는 `commits: []`로 비어있어서 tasks.json의 BL-REAL-SYSTEM이 `status: in_progress`로 잘못 박혀 있었음. 2026-05-06에 git log 진실 점검 결과 78fbcc4(Phase α 통합)와 후속 fix 6건이 모두 완료된 상태였고, 5/5~5/6 후속 작업들이 이 위에서 정상 작동 중인 것이 실질 검증으로 확인됨. 따라서 status를 done으로 정리하고 commits 7건을 frontmatter에 보강함. (commit 86f2f2d)
 
 ## 🎯 한 줄 요약
 BL-REAL-SYSTEM Phase α 완료 — 시스템 거짓말 4건 통합 해결 (admin 게이트 + 폴링 + 풀컨텍스트 + 활동펼침)

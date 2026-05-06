@@ -4168,7 +4168,7 @@
       "category": "feature",
       "priority": "P1",
       "size": "medium",
-      "status": "pending",
+      "status": "in_progress",
       "approval_required": false,
       "autonomous": {
         "can_run_alone": true,
@@ -4191,35 +4191,40 @@
       "progress": {
         "steps": [
           {
-            "label": "BL-PROGRESS-AUTO-DONE-SYNC 완료 대기 (선행)",
+            "label": "단계 1 (선행) — BL-PROGRESS-AUTO-DONE-SYNC 완료 (트랙 1 commit 48328b8)",
+            "done": true,
+            "at": "2026-05-06T19:21:51+00:00"
+          },
+          {
+            "label": "단계 2 — auto_detect_task_status.py EXPLICIT_DONE 정규식 결함 fix (subject 끝 토큰만 / 명시 [done] 태그만 인정 / 방향 화살표 패턴 제거)",
             "done": false,
             "at": null
           },
           {
-            "label": "admin-status.html 5개 카테고리 카드 + 자율 큐 + 진행 중 박스 + 추천 박스 — 자동 동기화 누락 지점 전수 grep",
+            "label": "단계 3 — _admin/admin-status.html 자동 동기화 누락 지점 전수 grep (수동 새로고침 필요 표현 / polling 안 도는 영역 / 변경 감지 후 자동 reload 안 되는 컴포넌트)",
             "done": false,
             "at": null
           },
           {
-            "label": "발견 항목별 작은 backlog 작업 분리 등록 (예상 3~7건)",
+            "label": "단계 4 — 발견 항목별 작은 backlog 분리 등록 (예상 3~7건)",
             "done": false,
             "at": null
           },
           {
-            "label": "OPERATIONS_CHARTER.md — 12조 부칙 8 '자동 동기화 완성도' 원칙 한 단락 박기",
+            "label": "단계 5 — OPERATIONS_CHARTER.md 12조 부칙 8 '자동 동기화 완성도' 원칙 박기",
             "done": false,
             "at": null
           },
           {
-            "label": "commit + push + 자율 작업 큐에 새 backlog 항목들 떠있는지 라이브 검증",
+            "label": "단계 6 — commit + push + 라이브 검증 (admin-status.html에서 5초 폴링 + 자동 reload 확인)",
             "done": false,
             "at": null
           }
         ],
-        "percent": 0,
-        "completed_count": 0,
-        "total_count": 5,
-        "updated_at": "2026-05-06T19:11:36+00:00"
+        "percent": 17,
+        "completed_count": 1,
+        "total_count": 6,
+        "updated_at": "2026-05-06T19:58:28+00:00"
       },
       "history": [
         {
@@ -4227,6 +4232,12 @@
           "event": "신규 작업 생성 — 그림 일치 OS 자동 동기화 메타 점검",
           "by": "Claude (자율 발견)",
           "note": "BL-PROGRESS-AUTO-DONE-SYNC 발견을 계기로 같은 패턴 다른 곳 점검 + 헌법 박기"
+        },
+        {
+          "at": "2026-05-06T19:58:28+00:00",
+          "event": "트랙 2 단계 재정의 — 인계서 기준 6단계로 전환 (단계 1 선행 자동 충족)",
+          "by": "Claude (트랙 2 시작)",
+          "note": "트랙 1 완료(48328b8) 확인 후 단계 1 done 처리. EXPLICIT_DONE 정규식 결함 fix가 단계 2로 본격 시작."
         }
       ]
     }

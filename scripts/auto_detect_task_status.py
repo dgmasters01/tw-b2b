@@ -72,6 +72,15 @@ START_KEYWORDS = re.compile(
     re.IGNORECASE
 )
 
+# [BL-PROGRESS-SYNC-OS] step 갱신 태그 — commit subject에 [step:done:N] 박으면
+# tasks.json 의 progress.steps[N-1].done = true 자동 갱신
+# 형식 예: [step:done:3]  →  단계 3 완료 처리
+#         [step:done:3,4] →  단계 3, 4 한 번에 완료 처리
+STEP_DONE_PATTERN = re.compile(
+    r"\[step:done:([\d,\s]+)\]",
+    re.IGNORECASE
+)
+
 
 def now_iso() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="seconds")
@@ -206,11 +215,45 @@ def update_task(task: dict, intent: str, commit_sha: str, commit_msg: str) -> bo
         # status 변경이 없어도 updated_at 갱신은 변경으로 친다 (5초 폴링 감지용)
         changed = True
 
+    # [BL-PROGRESS-SYNC-OS] step 갱신 태그 처리
+    # commit subject에 [step:done:N] 또는 [step:done:N,M] 있으면 progress.steps 자동 갱신
+    subject = commit_msg.split("\n", 1)[0].strip()
+    step_match = STEP_DONE_PATTERN.search(subject)
+    step_events = []
+    if step_match and isinstance(task.get("progress"), dict):
+        progress = task["progress"]
+        steps = progress.get("steps", [])
+        if isinstance(steps, list):
+            # "3,4" → [3, 4]
+            try:
+                step_nums = [int(x.strip()) for x in step_match.group(1).split(",") if x.strip()]
+            except ValueError:
+                step_nums = []
+            for n in step_nums:
+                idx = n - 1  # 1-indexed → 0-indexed
+                if 0 <= idx < len(steps):
+                    if not steps[idx].get("done"):
+                        steps[idx]["done"] = True
+                        steps[idx]["at"] = now
+                        step_events.append(f"단계 {n}")
+                        changed = True
+            if step_events:
+                # progress 메타 재계산
+                done_count = sum(1 for s in steps if s.get("done"))
+                total = len(steps)
+                progress["completed_count"] = done_count
+                progress["total_count"] = total
+                progress["percent"] = round(done_count / total * 100) if total else 0
+                progress["updated_at"] = now
+
     # history에 기록 (전수 추적)
     history = task.setdefault("history", [])
+    final_event = event
+    if step_events:
+        final_event = f"{event} + {', '.join(step_events)} 완료 (auto-detected)"
     history.append({
         "at": now,
-        "event": event,
+        "event": final_event,
         "by": "auto-detect-bot",
         "commit": short_sha,
         "note": msg_first_line,

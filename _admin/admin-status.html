@@ -3176,6 +3176,36 @@
       lines.push('');
     }
 
+    // [BL-PROGRESS-SYNC-OS] 진행률 요약 — 라우팅 직후, Task 상세 직전.
+    //   이어가기 클릭 = 라이브 tasks.json fetch (cache buster) + 진짜 다음 단계 명시.
+    //   대표님이 같은 카드를 두 번 클릭해도 같은 자리에서 시작 (중복 방지).
+    if (task && task.progress && typeof task.progress === 'object' && Array.isArray(task.progress.steps)) {
+      const steps = task.progress.steps;
+      const total = steps.length;
+      const done = steps.filter(s => s.done).length;
+      const pct = total > 0 ? Math.round(done / total * 100) : 0;
+      const nextIdx = steps.findIndex(s => !s.done);
+      lines.push('## 🎯 어디부터 이어갈지 (라이브 tasks.json 기준)');
+      lines.push('');
+      lines.push(`**현재 진행률**: ${pct}% — ${done} / ${total} 단계 완료`);
+      lines.push('');
+      if (nextIdx === -1) {
+        lines.push('**다음 시작 단계**: ✅ 모든 단계 완료. 마무리 작업(검증/commit/push) 진행.');
+      } else {
+        const next = steps[nextIdx];
+        lines.push(`**다음 시작 단계**: ⏳ ${nextIdx + 1}. ${next.label || ''}`);
+        lines.push('');
+        lines.push('**중복 방지 의무**: 위 단계부터 시작. 이미 ☑️ 박힌 단계는 건드리지 말 것.');
+      }
+      lines.push('');
+      lines.push('**단계 끝 = commit 1개 의무**: 단계 N 끝나면 즉시 `[step:done:N]` 태그를 commit subject에 박고 push. 봇이 자동으로 progress 갱신 → 어드민 화면 동기화.');
+      lines.push('');
+      lines.push('예시 commit: `fix(BL-XXX): 좌우 분할 완성 [step:done:3]`');
+      lines.push('');
+      lines.push('---');
+      lines.push('');
+    }
+
     if (task) {
       lines.push(`## 📋 Task 상세 (tasks.json)`);
       lines.push('');

@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-06T19:17:50+00:00",
+  "updated_at": "2026-05-06T19:18:38+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -13,8 +13,8 @@
   ],
   "stats": {
     "total": 96,
-    "done": 68,
-    "in_progress": 2,
+    "done": 69,
+    "in_progress": 1,
     "pending": 16,
     "blocked": 10,
     "autonomous_ready": 10
@@ -3608,7 +3608,7 @@
       "category": "feature",
       "priority": "P0",
       "size": "medium",
-      "status": "in_progress",
+      "status": "done",
       "approval_required": false,
       "autonomous": {
         "can_run_alone": true,
@@ -3706,6 +3706,12 @@
           "event": "진행률 100% 도달했으나 status=in_progress 유지 (자동 done 룰 부재) — BL-PROGRESS-AUTO-DONE-SYNC 작업에서 처리 예정",
           "by": "Claude (자율 발견)",
           "note": "대표님 통찰로 시스템 완성도 위반 발견. 새 핫픽스 작업 박힘."
+        },
+        {
+          "at": "2026-05-06T19:18:38+00:00",
+          "event": "BL-PROGRESS-AUTO-DONE-SYNC 단계 3 — status 수동 동기화 (in_progress → done). progress.percent=100인데 status가 in_progress로 남아 있던 결손 fix.",
+          "by": "BL-PROGRESS-AUTO-DONE-SYNC",
+          "commit": "pending"
         }
       ],
       "progress": {

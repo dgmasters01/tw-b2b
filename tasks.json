@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-06T05:50:00Z",
+  "updated_at": "2026-05-06T05:55:00Z",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -3096,7 +3096,7 @@
       "id": "BL-REAL-SYSTEM",
       "title": "[진실 시스템] admin 인증 + 실시간 폴링 + 풀 컨텍스트 인계 + 활동 이력 펼침 — 4가지 묶음 (대표님 진실 점검 후 통합)",
       "category": "infrastructure",
-      "status": "in_progress",
+      "status": "done",
       "priority": "P0",
       "size": "large",
       "parent_task": "BL-CHAT-LOG-SYSTEM",
@@ -3111,11 +3111,21 @@
         "estimated_hours": 4,
         "requires_decisions_first": []
       },
-      "progress": "✅ Phase α 완료 — 4가지 거짓말 통합 해결: ①admin-* 인증 게이트 (api/admin-page.js + vercel.json rewrites) ②실시간 폴링 5초 (visibilitychange + 입력중 + 모달 일시정지 + 변경 감지 시 toast) ③풀 컨텍스트 인계 buildHandoffMessage 50+줄 (자율 큐 카드 + '진행 중' 박스 동일 함수) ④활동 이력 펼침 패널 탭 3개 (📖 사람용 chat-log / 🤖 AI용 ECHO_LOG·DECISIONS / 🔧 코드 변경 GitHub commit + localStorage 5분 캐시). 라이브 검증은 Vercel deploy 후 진행.",
+      "progress": "✅ Phase α 완료 — 4가지 거짓말 통합 해결: ①admin-* 인증 게이트 (api/admin-page.js + vercel.json rewrites) ②실시간 폴링 5초 (visibilitychange + 입력중 + 모달 일시정지 + 변경 감지 시 toast) ③풀 컨텍스트 인계 buildHandoffMessage 50+줄 (자율 큐 카드 + '진행 중' 박스 동일 함수) ④활동 이력 펼침 패널 탭 3개 (📖 사람용 chat-log / 🤖 AI용 ECHO_LOG·DECISIONS / 🔧 코드 변경 GitHub commit + localStorage 5분 캐시). 라이브 검증은 Vercel deploy 후 진행.\n\n[2026-05-06 좀비 정리] 코드 작업은 2026-05-04 78fbcc4(Phase α 통합) + 1.1/1.2/1.3 후속 fix로 완료. last_commit=1f2387a. chat-log frontmatter commits:[] 비어있어서 작업 지휘소가 in_progress로 표시되던 거짓 상태를 done으로 수정. 라이브에서 admin-status.html의 폴링/풀컨텍스트/활동이력펼침이 5/5/6일 후속 작업들로 정상 작동 중인 것이 실질 검증.",
       "notes": "Phase α (이번 작업): ①admin-* 인증 게이트 (chat-logs 방식 확장) ②실시간 폴링 5초 ③자율 큐 카드 풀 컨텍스트 인계 ④활동 이력 펼침 패널 탭 3개. Phase β (별건): Supabase Realtime 정석.",
-      "last_commit": null,
+      "last_commit": "1f2387a",
       "last_chat_log": "2026-05-04-real-system-phase-a",
-      "links": []
+      "links": [],
+      "done_at": "2026-05-04T18:18:48Z",
+      "primary_commits": [
+        "78fbcc4",
+        "ea0d31f",
+        "71eab56",
+        "f9502c4",
+        "fc560c8",
+        "8d3f2b8",
+        "1f2387a"
+      ]
     },
     {
       "id": "BL-ADMIN-AUTH",

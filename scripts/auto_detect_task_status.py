@@ -264,6 +264,29 @@ def update_task(task: dict, intent: str, commit_sha: str, commit_msg: str) -> bo
                 progress["percent"] = round(done_count / total * 100) if total else 0
                 progress["updated_at"] = now
 
+                # [BL-PROGRESS-AUTO-DONE-SYNC 단계 2] 100% 도달 → status=done 자동 전환
+                # 그림 일치 OS 본질 결손 fix:
+                #   이전: 모든 단계가 done 처리되어 percent=100이 되어도
+                #         task.status는 여전히 in_progress로 남음.
+                #         → 자율 작업 큐 카드가 "진행 중 + 이어가기" 라벨로
+                #           계속 보이는 모순 발생 (어제 PHASE-B 케이스).
+                #   새 룰: percent == 100 도달 순간 status=done + completed_at 박음.
+                #         dummy step (label 비어있음 또는 done이 이미 박힌 빈 list) 방지를
+                #         위해 total >= 1 + 모든 step에 label 있을 때만 적용.
+                if (
+                    total >= 1
+                    and progress["percent"] == 100
+                    and task.get("status") != "done"
+                    and all(s.get("label") for s in steps)
+                ):
+                    prev_status = task.get("status")
+                    task["status"] = "done"
+                    task["completed_at"] = now
+                    step_events.append(
+                        f"100% 도달 → status 자동 전환 ({prev_status} → done)"
+                    )
+                    changed = True
+
     # history에 기록 (전수 추적)
     history = task.setdefault("history", [])
     final_event = event

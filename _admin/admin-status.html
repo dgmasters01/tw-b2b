@@ -1117,7 +1117,7 @@
     }
     .cd-right .cd-col-h { color: #6d28d9; }
 
-    /* 우측 그림 맞추기 placeholder — 단계 4-6에서 채울 영역 */
+    /* 우측 그림 맞추기 placeholder — 단계 5에서 본격 슬롯으로 교체됨 */
     .cd-right-placeholder {
       background: linear-gradient(135deg, rgba(139,92,246,0.04), rgba(236,72,153,0.04));
       border: 1px dashed rgba(139,92,246,0.3);
@@ -1135,6 +1135,159 @@
       font-weight: 600; color: #6d28d9;
       font-size: 13px; margin-bottom: 6px;
     }
+
+    /* ──────────────────────────────────────────────────── */
+    /* [BL-DECISION-MODAL-V2-PHASE-B 단계 5] 그림 맞추기 슬롯 — 대화 흐름 + 자동 저장 */
+    /* 본질: 대표님 머릿속 그림 ↔ Claude 추측 그림을 라운드 단위로 맞춰가는 영역 */
+    /* 모달 닫혀도 task별로 localStorage에 자동 저장 (다시 열면 복원) */
+    /* ──────────────────────────────────────────────────── */
+    .grim-slot-wrap {
+      background: linear-gradient(135deg, rgba(139,92,246,0.04), rgba(236,72,153,0.04));
+      border: 1px solid rgba(139,92,246,0.18);
+      border-radius: 10px;
+      padding: 14px;
+    }
+    .grim-slot-intro {
+      font-size: 12px; color: #6d28d9;
+      line-height: 1.55;
+      padding: 10px 12px;
+      background: rgba(255,255,255,0.65);
+      border-radius: 8px;
+      margin-bottom: 12px;
+      border: 1px dashed rgba(139,92,246,0.25);
+    }
+    .grim-slot-intro strong {
+      color: #5b21b6;
+    }
+    .grim-rounds {
+      display: flex; flex-direction: column;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .grim-rounds-empty {
+      font-size: 12px; color: #94a3b8;
+      font-style: italic;
+      text-align: center;
+      padding: 14px 8px;
+    }
+    .grim-round {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 10px 12px;
+      position: relative;
+    }
+    .grim-round-h {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 8px;
+      font-size: 10px; font-weight: 700;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      margin-bottom: 8px;
+    }
+    .grim-round-num {
+      background: #ede9fe; color: #6d28d9;
+      padding: 2px 7px; border-radius: 10px;
+      font-size: 10px;
+    }
+    .grim-round-del {
+      background: transparent; border: 0; cursor: pointer;
+      color: #cbd5e1; font-size: 14px;
+      width: 20px; height: 20px;
+      border-radius: 4px;
+      display: inline-flex; align-items: center; justify-content: center;
+    }
+    .grim-round-del:hover { background: #fef2f2; color: #ef4444; }
+    .grim-pair {
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .grim-line {
+      display: flex; gap: 8px; align-items: flex-start;
+      font-size: 12.5px; line-height: 1.5;
+    }
+    .grim-line-tag {
+      flex-shrink: 0;
+      font-size: 10px; font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 10px;
+      margin-top: 2px;
+      white-space: nowrap;
+    }
+    .grim-line-tag.ceo {
+      background: #fef9c3; color: #854d0e;
+    }
+    .grim-line-tag.claude {
+      background: #ede9fe; color: #6d28d9;
+    }
+    .grim-line-text {
+      flex: 1;
+      color: #1e293b;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .grim-line-text[contenteditable="true"] {
+      outline: none;
+      background: #fefce8;
+      padding: 4px 6px;
+      border-radius: 4px;
+      border: 1px dashed #fde68a;
+      min-height: 20px;
+    }
+    .grim-line-text[contenteditable="true"]:focus {
+      background: #fef9c3;
+      border-color: #ca8a04;
+    }
+    .grim-line-text:empty::before {
+      content: attr(data-placeholder);
+      color: #cbd5e1;
+      font-style: italic;
+    }
+    .grim-actions {
+      display: flex; flex-wrap: wrap; gap: 8px;
+      padding-top: 10px;
+      border-top: 1px dashed rgba(139,92,246,0.2);
+    }
+    .grim-btn {
+      flex: 1; min-width: 110px;
+      padding: 9px 12px;
+      border: 1px solid rgba(139,92,246,0.3);
+      background: white;
+      color: #6d28d9;
+      border-radius: 7px;
+      cursor: pointer;
+      font-size: 12px; font-weight: 600;
+      transition: all 0.15s ease;
+      display: inline-flex; align-items: center; justify-content: center;
+      gap: 4px;
+    }
+    .grim-btn:hover {
+      background: #ede9fe;
+      border-color: #6d28d9;
+      transform: translateY(-1px);
+    }
+    .grim-btn.primary {
+      background: linear-gradient(135deg, #8b5cf6, #ec4899);
+      color: white;
+      border-color: transparent;
+    }
+    .grim-btn.primary:hover {
+      box-shadow: 0 4px 12px rgba(139,92,246,0.35);
+      transform: translateY(-1px);
+    }
+    .grim-btn:disabled {
+      opacity: 0.5; cursor: not-allowed; transform: none;
+    }
+    .grim-save-status {
+      font-size: 10px; color: #94a3b8;
+      text-align: right;
+      margin-top: 6px;
+      font-style: italic;
+      min-height: 14px;
+      transition: color 0.2s ease;
+    }
+    .grim-save-status.saved { color: #16a34a; }
+    .grim-save-status.saving { color: #ca8a04; }
     .ceo-decision-head {
       display: flex; align-items: center; justify-content: space-between;
       gap: 8px; margin-bottom: 8px;
@@ -2760,17 +2913,27 @@
             </div>
           </div>
 
-          <!-- 우측 = 그림 맞추기 (단계 4-6에서 본격 채워질 영역) -->
+          <!-- 우측 = 그림 맞추기 슬롯 (단계 5: 대화 흐름 + 자동 저장) -->
           <div class="cd-right">
-            <div class="cd-col-h">🎯 그림 맞추기</div>
-            <div class="cd-right-placeholder" id="cd-grim-placeholder">
-              <span class="ph-icon">🖼️</span>
-              <div class="ph-title">그림 맞추기 영역</div>
-              <div>
-                대표님 머릿속 그림과 Claude 그림을<br>
-                대화로 맞춰가는 영역입니다.<br><br>
-                <strong>단계 6에서 활성화 예정</strong>
+            <div class="cd-col-h">🎯 그림 맞추기 — 머릿속 ↔ Claude 그림</div>
+            <div class="grim-slot-wrap" id="grim-slot-wrap">
+              <div class="grim-slot-intro">
+                <strong>결정 ≠ 옵션 선택.</strong> 결정 = 머릿속 그림이 Claude 그림과 같아질 때까지 대화하는 과정.<br>
+                아래에 한 줄 그림을 적으면 자동 저장됩니다 (다시 열어도 복원).
               </div>
+              <div class="grim-rounds" id="grim-rounds"></div>
+              <div class="grim-actions">
+                <button type="button" class="grim-btn primary" data-action="grim-start" id="grim-start-btn">
+                  💬 그림 맞추기 시작
+                </button>
+                <button type="button" class="grim-btn" data-action="grim-add-round" id="grim-add-round-btn" style="display:none;">
+                  ➕ 라운드 추가
+                </button>
+                <button type="button" class="grim-btn" data-action="grim-clear" id="grim-clear-btn" style="display:none;">
+                  🗑️ 전체 비우기
+                </button>
+              </div>
+              <div class="grim-save-status" id="grim-save-status"></div>
             </div>
           </div>
 
@@ -2817,7 +2980,7 @@
     // [BL-DECISION-MODAL-V2-PHASE-B 단계 4] 안 카드 클릭 = 선택
     //   - 선택된 카드만 .selected 클래스 박힘 (시각 강조)
     //   - textarea 에 안 라벨 자동 미리채움 (예: "A안으로 진행. 이유는 ___")
-    //   - 우측 그림 맞추기 영역 placeholder 에 선택 안 표시 (단계 5에서 본격 활성화)
+    //   - 단계 5에서: 카드 선택 시 그림 맞추기 첫 라운드 자동 prefill (대표님 그림 자리)
     let selectedOptIdx = null;
     modal.querySelectorAll('.opt-card').forEach(card => {
       const handleSelect = () => {
@@ -2829,10 +2992,10 @@
         selectedOptIdx = idx;
         // textarea 미리채움 — 입력 모드 활성화 + 라벨 prefix
         const textarea = modal.querySelector('#ceo-decision-input');
-        const wrap = modal.querySelector('#ceo-decision-input-wrap');
-        if (textarea && wrap) {
+        const inWrap = modal.querySelector('#ceo-decision-input-wrap');
+        if (textarea && inWrap) {
           // 입력 영역 자동 펼침
-          wrap.style.display = 'block';
+          inWrap.style.display = 'block';
           // 미리채움 — 사용자가 입력 안 했거나 옛 라벨 prefix만 있을 때만
           const cur = textarea.value.trim();
           const isEmpty = !cur;
@@ -2846,15 +3009,219 @@
             }, 50);
           }
         }
-        // 우측 그림 맞추기 placeholder 에 선택 안 라벨 표시 (단계 5 준비)
-        const phTitle = modal.querySelector('#cd-grim-placeholder .ph-title');
-        if (phTitle) phTitle.textContent = `${label}안 선택됨 — 그림 맞추기 (단계 6에서 활성화)`;
       };
       card.addEventListener('click', handleSelect);
       card.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleSelect(); }
       });
     });
+
+    // [BL-DECISION-MODAL-V2-PHASE-B 단계 5] 그림 맞추기 슬롯 — 자동 저장 시스템
+    //   - localStorage 키: `grim-slot:${task.id}` 에 라운드 배열 저장
+    //   - 라운드 = { ceo: '대표님 그림 한 줄', claude: 'Claude 추측 한 줄', at: ISO }
+    //   - debounced auto-save (300ms)
+    //   - 모달 닫혀도 보존, 다시 열면 자동 복원
+    const GRIM_KEY = `grim-slot:${task.id}`;
+    let grimRounds = [];
+    let grimSaveTimer = null;
+
+    function loadGrimRounds() {
+      try {
+        const raw = localStorage.getItem(GRIM_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed)) grimRounds = parsed;
+        }
+      } catch (_) { grimRounds = []; }
+    }
+
+    function saveGrimRounds() {
+      const status = modal.querySelector('#grim-save-status');
+      if (status) {
+        status.textContent = '저장 중...';
+        status.className = 'grim-save-status saving';
+      }
+      try {
+        // 빈 라운드 (양쪽 다 빈) 자동 정리
+        const cleaned = grimRounds.filter(r =>
+          (r.ceo && r.ceo.trim()) || (r.claude && r.claude.trim())
+        );
+        if (cleaned.length === 0) {
+          localStorage.removeItem(GRIM_KEY);
+        } else {
+          localStorage.setItem(GRIM_KEY, JSON.stringify(cleaned));
+        }
+        if (status) {
+          setTimeout(() => {
+            const ts = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            status.textContent = `자동 저장됨 — ${ts}`;
+            status.className = 'grim-save-status saved';
+          }, 150);
+        }
+      } catch (e) {
+        if (status) {
+          status.textContent = '저장 실패: ' + (e?.message || 'unknown');
+          status.className = 'grim-save-status';
+        }
+      }
+    }
+
+    function debouncedSaveGrim() {
+      if (grimSaveTimer) clearTimeout(grimSaveTimer);
+      grimSaveTimer = setTimeout(saveGrimRounds, 300);
+    }
+
+    function renderGrimRounds() {
+      const wrap = modal.querySelector('#grim-rounds');
+      const startBtn = modal.querySelector('#grim-start-btn');
+      const addBtn = modal.querySelector('#grim-add-round-btn');
+      const clearBtn = modal.querySelector('#grim-clear-btn');
+      if (!wrap) return;
+
+      if (grimRounds.length === 0) {
+        wrap.innerHTML = `
+          <div class="grim-rounds-empty">
+            아직 그림이 없습니다.<br>
+            <strong>"💬 그림 맞추기 시작"</strong> 버튼을 누르세요.
+          </div>
+        `;
+        if (startBtn) startBtn.style.display = '';
+        if (addBtn) addBtn.style.display = 'none';
+        if (clearBtn) clearBtn.style.display = 'none';
+      } else {
+        wrap.innerHTML = grimRounds.map((r, i) => `
+          <div class="grim-round" data-round-idx="${i}">
+            <div class="grim-round-h">
+              <span><span class="grim-round-num">라운드 ${i + 1}</span></span>
+              <button type="button" class="grim-round-del" data-action="grim-del-round" data-idx="${i}" title="이 라운드 삭제" aria-label="이 라운드 삭제">✕</button>
+            </div>
+            <div class="grim-pair">
+              <div class="grim-line">
+                <span class="grim-line-tag ceo">대표님</span>
+                <div class="grim-line-text" contenteditable="true"
+                     data-field="ceo" data-idx="${i}"
+                     data-placeholder="머릿속 그림을 한 줄로...">${escapeHtml(r.ceo || '')}</div>
+              </div>
+              <div class="grim-line">
+                <span class="grim-line-tag claude">Claude</span>
+                <div class="grim-line-text" contenteditable="true"
+                     data-field="claude" data-idx="${i}"
+                     data-placeholder="Claude가 이해한 그림 (Claude 채팅에서 받아 붙여넣기)">${escapeHtml(r.claude || '')}</div>
+              </div>
+            </div>
+          </div>
+        `).join('');
+        if (startBtn) startBtn.style.display = 'none';
+        if (addBtn) addBtn.style.display = '';
+        if (clearBtn) clearBtn.style.display = '';
+      }
+
+      // 편집 이벤트 박기 (input = 키 입력마다)
+      wrap.querySelectorAll('.grim-line-text[contenteditable="true"]').forEach(el => {
+        el.addEventListener('input', () => {
+          const idx = parseInt(el.dataset.idx, 10);
+          const field = el.dataset.field;
+          if (Number.isNaN(idx) || !grimRounds[idx]) return;
+          // textContent 사용 (innerHTML 쓰면 contenteditable 안 줄바꿈/태그 들어감)
+          grimRounds[idx][field] = el.textContent || '';
+          grimRounds[idx].at = new Date().toISOString();
+          debouncedSaveGrim();
+        });
+        // Enter 키는 줄바꿈 대신 다음 필드로 이동 (한 줄 그림 강제)
+        el.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            const idx = parseInt(el.dataset.idx, 10);
+            const field = el.dataset.field;
+            if (field === 'ceo') {
+              const claudeEl = wrap.querySelector(`[data-idx="${idx}"][data-field="claude"]`);
+              claudeEl?.focus();
+            } else {
+              // claude 라인에서 Enter → blur
+              el.blur();
+            }
+          }
+        });
+      });
+
+      // 라운드 삭제 버튼
+      wrap.querySelectorAll('[data-action="grim-del-round"]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const idx = parseInt(btn.dataset.idx, 10);
+          if (Number.isNaN(idx)) return;
+          grimRounds.splice(idx, 1);
+          saveGrimRounds();
+          renderGrimRounds();
+        });
+      });
+    }
+
+    // 초기 로드 — 저장된 라운드 있으면 복원
+    loadGrimRounds();
+    renderGrimRounds();
+
+    // [BL-DECISION-MODAL-V2-PHASE-B 단계 6] 그림 맞추기 버튼 핸들러
+    //   - "💬 그림 맞추기 시작" → 첫 라운드 추가 + 대표님 칸 포커스
+    //     (선택된 옵션이 있으면 "A안으로 가는 그림: " prefill)
+    //   - "➕ 라운드 추가" → 새 빈 라운드 추가 + 새 대표님 칸 포커스
+    //   - "🗑️ 전체 비우기" → confirm 후 전체 삭제
+    function focusLastRoundCeo() {
+      // render 직후 DOM 업데이트 끝나면 마지막 라운드 ceo 칸 포커스
+      setTimeout(() => {
+        const lastIdx = grimRounds.length - 1;
+        if (lastIdx < 0) return;
+        const el = modal.querySelector(`.grim-line-text[data-idx="${lastIdx}"][data-field="ceo"]`);
+        if (el) {
+          el.focus();
+          // 커서를 텍스트 끝으로 (contenteditable)
+          const range = document.createRange();
+          range.selectNodeContents(el);
+          range.collapse(false);
+          const sel = window.getSelection();
+          sel.removeAllRanges();
+          sel.addRange(range);
+        }
+      }, 50);
+    }
+
+    function addGrimRound(prefillCeo = '') {
+      grimRounds.push({
+        ceo: prefillCeo,
+        claude: '',
+        at: new Date().toISOString()
+      });
+      saveGrimRounds();
+      renderGrimRounds();
+      focusLastRoundCeo();
+    }
+
+    modal.querySelector('#grim-start-btn')?.addEventListener('click', () => {
+      // 선택된 옵션이 있으면 첫 라운드 prefill
+      let prefill = '';
+      if (selectedOptIdx !== null && dOpts[selectedOptIdx]) {
+        const optTxt = String(dOpts[selectedOptIdx]);
+        const labelMatch = optTxt.match(/^([A-Za-z가-힣])\s*안\s*[—-]/);
+        const label = labelMatch ? labelMatch[1] : String.fromCharCode(65 + selectedOptIdx);
+        prefill = `${label}안으로 가는 그림: `;
+      }
+      addGrimRound(prefill);
+    });
+
+    modal.querySelector('#grim-add-round-btn')?.addEventListener('click', () => {
+      addGrimRound('');
+    });
+
+    modal.querySelector('#grim-clear-btn')?.addEventListener('click', () => {
+      if (grimRounds.length === 0) return;
+      const ok = confirm(`그림 맞추기 라운드 ${grimRounds.length}개를 모두 삭제할까요?\n(이 작업의 저장된 그림이 모두 사라집니다.)`);
+      if (!ok) return;
+      grimRounds = [];
+      saveGrimRounds();
+      renderGrimRounds();
+    });
+
+
 
     modal.querySelector('[data-action="detail"]')?.addEventListener('click', () => {
       location.href = `/admin-tasks.html?id=${encodeURIComponent(task.id)}`;

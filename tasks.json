@@ -4207,8 +4207,8 @@
           },
           {
             "label": "단계 4 — 발견 항목별 작은 backlog 분리 등록 (예상 3~7건)",
-            "done": false,
-            "at": null
+            "done": true,
+            "at": "2026-05-06T20:02:50+00:00"
           },
           {
             "label": "단계 5 — OPERATIONS_CHARTER.md 12조 부칙 8 '자동 동기화 완성도' 원칙 박기",
@@ -4221,10 +4221,10 @@
             "at": null
           }
         ],
-        "percent": 50,
-        "completed_count": 3,
+        "percent": 67,
+        "completed_count": 4,
         "total_count": 6,
-        "updated_at": "2026-05-06T20:02:13+00:00"
+        "updated_at": "2026-05-06T20:02:50+00:00"
       },
       "history": [
         {
@@ -4259,9 +4259,182 @@
           "by": "auto-detect-bot",
           "commit": "051f5ba",
           "note": "docs(BL-OS-AUTO-SYNC-CHARTER): admin-status.html 자동 동기화 누락 전수 점검 리포트 — 누락 3건 확정 [step:done:3]"
+        },
+        {
+          "at": "2026-05-06T20:02:50+00:00",
+          "event": "단계 4 완료 — backlog 3건 등록 (BL-SYNC-PAGES-STATUS / BL-SYNC-INPROGRESS-COMMITS / BL-SYNC-CHAT-LOGS-TAB)",
+          "by": "Claude (트랙 2 단계 4)",
+          "note": "단계 4는 봇이 매칭하기 어려운 backlog 등록 작업이라 step 태그 없이 직접 done 처리"
         }
       ],
       "updated_at": "2026-05-06T20:02:13+00:00"
+    },
+    {
+      "id": "BL-SYNC-PAGES-STATUS",
+      "title": "[그림 일치 OS] pages-status.display.json 폴링 누락 fix — 5개 카테고리 페이지 카드 자동 갱신",
+      "category": "fix",
+      "priority": "P1",
+      "size": "small",
+      "status": "pending",
+      "approval_required": false,
+      "autonomous": {
+        "can_run_alone": true,
+        "estimated_hours": 0.5,
+        "requires_decisions_first": [
+          "BL-OS-AUTO-SYNC-CHARTER"
+        ]
+      },
+      "decision_context": "BL-OS-AUTO-SYNC-CHARTER 단계 3 audit에서 발견. _admin/admin-status.html L1885 loadAndRender가 페이지 로드 시 1회만 fetch. GitHub Actions가 pages-status.display.json 갱신해도 5개 카테고리 페이지 카드가 stale. pollTick에 fetch + loadAndRender 재호출 추가 필요.",
+      "decision_options": [
+        "A안 — pollTick 안에 pages-status.display.json fetch + 변경 시 loadAndRender 재호출 (5초 폴링에 묶기)",
+        "B안 — pages-status 전용 폴링 setInterval 별도 생성 (간격 분리)"
+      ],
+      "decision_recommendation": "A안 권장. 기존 폴링 시스템에 묶는 게 단일 진실 원칙(시행령 1) + 자원 효율.",
+      "ceo_decision": "A안 — Claude 자율 (인프라 디테일, 헌법 자율 실행 원칙)",
+      "ceo_decision_at": "2026-05-06T20:02:50+00:00",
+      "order": 24,
+      "claude_can_auto": true,
+      "progress": {
+        "steps": [
+          {
+            "label": "pollTick 함수에 pages-status.display.json fetch 블록 추가",
+            "done": false,
+            "at": null
+          },
+          {
+            "label": "변경 hash 비교 후 loadAndRender 재호출 + 토스트 표시",
+            "done": false,
+            "at": null
+          },
+          {
+            "label": "commit + push + 라이브 검증 (5개 카테고리 카드 자동 갱신 확인)",
+            "done": false,
+            "at": null
+          }
+        ],
+        "percent": 0,
+        "completed_count": 0,
+        "total_count": 3,
+        "updated_at": "2026-05-06T20:02:50+00:00"
+      },
+      "history": [
+        {
+          "at": "2026-05-06T20:02:50+00:00",
+          "event": "신규 backlog — BL-OS-AUTO-SYNC-CHARTER 단계 3 audit 결과",
+          "by": "Claude (트랙 2 단계 4)",
+          "note": "audit 리포트 #1 HIGH"
+        }
+      ]
+    },
+    {
+      "id": "BL-SYNC-INPROGRESS-COMMITS",
+      "title": "[그림 일치 OS] In-Progress 박스 commit 자동 갱신 누락 fix",
+      "category": "fix",
+      "priority": "P2",
+      "size": "tiny",
+      "status": "pending",
+      "approval_required": false,
+      "autonomous": {
+        "can_run_alone": true,
+        "estimated_hours": 0.25,
+        "requires_decisions_first": [
+          "BL-OS-AUTO-SYNC-CHARTER"
+        ]
+      },
+      "decision_context": "BL-OS-AUTO-SYNC-CHARTER 단계 3 audit에서 발견. _admin/admin-status.html L4535-4548 pollTick의 activity-feed 변경 감지 블록이 renderActivity만 호출, renderInProgressCommits (L3473)는 호출 안 함. In-Progress 작업의 최신 commit이 박스에 자동 안 뜸. 수정: pollTick의 activity-feed 변경 시 renderInProgressCommits() 추가 호출 한 줄.",
+      "decision_options": [
+        "A안 — pollTick에 renderInProgressCommits() 호출 한 줄 추가",
+        "B안 — renderInProgressCommits 자체에 폴링 로직 분리"
+      ],
+      "decision_recommendation": "A안 권장. 한 줄 fix.",
+      "ceo_decision": "A안 — Claude 자율",
+      "ceo_decision_at": "2026-05-06T20:02:50+00:00",
+      "order": 25,
+      "claude_can_auto": true,
+      "progress": {
+        "steps": [
+          {
+            "label": "pollTick의 activity-feed 변경 감지 블록에 renderInProgressCommits() 호출 추가",
+            "done": false,
+            "at": null
+          },
+          {
+            "label": "commit + push + 라이브 검증",
+            "done": false,
+            "at": null
+          }
+        ],
+        "percent": 0,
+        "completed_count": 0,
+        "total_count": 2,
+        "updated_at": "2026-05-06T20:02:50+00:00"
+      },
+      "history": [
+        {
+          "at": "2026-05-06T20:02:50+00:00",
+          "event": "신규 backlog — BL-OS-AUTO-SYNC-CHARTER 단계 3 audit 결과",
+          "by": "Claude (트랙 2 단계 4)",
+          "note": "audit 리포트 #2 MEDIUM"
+        }
+      ]
+    },
+    {
+      "id": "BL-SYNC-CHAT-LOGS-TAB",
+      "title": "[그림 일치 OS] 챗 로그 / AI 탭 자동 갱신 누락 fix — 탭 활성 시 폴링",
+      "category": "fix",
+      "priority": "P3",
+      "size": "small",
+      "status": "pending",
+      "approval_required": false,
+      "autonomous": {
+        "can_run_alone": true,
+        "estimated_hours": 0.5,
+        "requires_decisions_first": [
+          "BL-OS-AUTO-SYNC-CHARTER"
+        ]
+      },
+      "decision_context": "BL-OS-AUTO-SYNC-CHARTER 단계 3 audit에서 발견. loadHumanTab(L4004 chat-logs/index.json), loadAITab(L4280 ECHO_LOG.md, L4286 DECISIONS.md)이 탭 진입 시 1회만 fetch. 새 챗 로그 / 결정 로그가 들어와도 자동 표시 안 됨. 사용자가 탭 다시 클릭하면 갱신되긴 함 (회복 가능). 수정: 탭 활성 상태일 때만 조건부 폴링 추가.",
+      "decision_options": [
+        "A안 — 탭 활성 상태 추적 + 활성 탭만 5초 폴링",
+        "B안 — 탭 진입 시 폴링 시작, 탭 이탈 시 폴링 중지",
+        "C안 — pollTick에 chat-logs/index.json만 추가 (ECHO_LOG/DECISIONS는 큰 파일이라 제외)"
+      ],
+      "decision_recommendation": "B안 권장. 탭 진입/이탈 이벤트 활용. ECHO_LOG/DECISIONS는 트래픽 부담 있으므로 폴링 간격 더 길게 (예: 30초).",
+      "ceo_decision": "B안 — Claude 자율",
+      "ceo_decision_at": "2026-05-06T20:02:50+00:00",
+      "order": 26,
+      "claude_can_auto": true,
+      "progress": {
+        "steps": [
+          {
+            "label": "챗 로그 탭 활성 상태 추적 변수 + 진입/이탈 이벤트 핸들러",
+            "done": false,
+            "at": null
+          },
+          {
+            "label": "활성 탭 폴링 setInterval (chat-logs 5초, ECHO_LOG/DECISIONS 30초)",
+            "done": false,
+            "at": null
+          },
+          {
+            "label": "commit + push + 라이브 검증",
+            "done": false,
+            "at": null
+          }
+        ],
+        "percent": 0,
+        "completed_count": 0,
+        "total_count": 3,
+        "updated_at": "2026-05-06T20:02:50+00:00"
+      },
+      "history": [
+        {
+          "at": "2026-05-06T20:02:50+00:00",
+          "event": "신규 backlog — BL-OS-AUTO-SYNC-CHARTER 단계 3 audit 결과",
+          "by": "Claude (트랙 2 단계 4)",
+          "note": "audit 리포트 #3 LOW"
+        }
+      ]
     }
   ]
 }

@@ -156,9 +156,12 @@ def classify_intent(commit_msg: str) -> str:
     """
     subject = (commit_msg or "").split("\n", 1)[0].strip()
 
-    # 명시적 done 태그만 done으로 인식
+    # 명시적 done 태그만 done으로 인식 (BL-OS-AUTO-SYNC-CHARTER 단계 2 fix, 2026-05-06):
+    #   - 방향 화살표 패턴 (→ done) 완전 제거 → "in_progress→done" 같은 비유적 표현 false positive 방지
+    #   - ✅ 이모지는 trailing 공백 없어도 인정 (subject 끝에 붙은 케이스)
+    #   - 명시 태그 [done] / [완료] / 콜론 시작 done: / 완료: / ✅ 만 인정
     EXPLICIT_DONE = re.compile(
-        r"(\[done\]|\[완료\]|^done:|^완료:|✅\s|→\s*done\b)",
+        r"(\[done\]|\[완료\]|^done:|^완료:|✅)",
         re.IGNORECASE
     )
     if EXPLICIT_DONE.search(subject):

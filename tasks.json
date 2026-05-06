@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-06T05:55:00Z",
+  "updated_at": "2026-05-06T06:13:19.787576Z",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -624,7 +624,17 @@
       "source_anchor": "## 2026-05-03 Charter v2",
       "notes": "Aurora Trendy(C3) 전면 적용. 사업 시작 전 완료 의무. 임시 디자인 금지.",
       "owner": "Claude",
-      "approval_required": false
+      "approval_required": false,
+      "decision_context": "8개 admin/index 페이지 중 Aurora 디자인 시스템(C3) 미적용 페이지를 일괄 마이그레이션할 범위와 우선순위를 결정해야 합니다. 현재 미적용: marketing.html / hotel-info.html / sales.html / dashboard.html(부분) / booking-analytics.html(1.1MB 거대). booking-analytics는 minified 거대 파일이라 마이그레이션 비용이 매우 큼.",
+      "decision_options": [
+        "A안: 공개 페이지 우선 (marketing/hotel-info/sales 3개) — 외부 노출 최우선, ~3h",
+        "B안: admin 내부 우선 (dashboard/booking-analytics) — 운영자 경험 개선, 단 booking-analytics 무거움 ~6h",
+        "C안: 전체 일괄 — 일관성 최대화, 단 8h 풀 소요",
+        "D안: booking-analytics 제외 + 나머지 전체 — 비용 대비 효과 최적, ~5h"
+      ],
+      "decision_recommendation": "권장: D안 — booking-analytics는 minified 거대 파일이라 ROI 낮고, 나머지 페이지가 외부+내부 모두 일관 효과를 큼. 추후 booking-analytics는 별도 BL로 분리.",
+      "ceo_decision": "",
+      "ceo_decision_at": ""
     },
     {
       "id": "BL-MANAGER-DASH-001",
@@ -659,7 +669,12 @@
       "source_anchor": "## C. 매니저 대시보드",
       "notes": "7영역: 진행단계 / 호텔정보 / 콘텐츠 / 노출채널 / 예약결과 / 6개월보장+재제작 / 매출추정. 조회수는 보조.",
       "owner": "Claude",
-      "approval_required": false
+      "approval_required": false,
+      "decision_context": "",
+      "decision_options": [],
+      "decision_recommendation": "",
+      "ceo_decision": "",
+      "ceo_decision_at": ""
     },
     {
       "id": "BL-TRACK-001",
@@ -694,7 +709,12 @@
       "source_anchor": "## 통찰 6. YouTube 더보기 카운트",
       "notes": "gohotel.win/h/{hotel_id} → Supabase 카운트 +1 → Agoda 어필리에이트 리디렉션. 호텔별/순위별 분리.",
       "owner": "Claude",
-      "approval_required": false
+      "approval_required": false,
+      "decision_context": "",
+      "decision_options": [],
+      "decision_recommendation": "",
+      "ceo_decision": "",
+      "ceo_decision_at": ""
     },
     {
       "id": "BL-INVOICE-001",
@@ -728,7 +748,12 @@
       "source_anchor": "## D. 별도 탭 — 서류",
       "notes": "결제 직후 자동 발송 + 매니저 대시보드 별도 탭에서 1클릭 다운로드. PDF 3종: 인보이스/영수증/6개월리포트.",
       "owner": "Claude",
-      "approval_required": false
+      "approval_required": false,
+      "decision_context": "",
+      "decision_options": [],
+      "decision_recommendation": "",
+      "ceo_decision": "",
+      "ceo_decision_at": ""
     },
     {
       "id": "BL-JOURNEY-DOC",
@@ -3152,7 +3177,17 @@
       "notes": "헌법 11조 운영 진입 의무. 단순 토큰 + Referer는 임시 수단.",
       "last_commit": null,
       "last_chat_log": null,
-      "links": []
+      "links": [],
+      "decision_context": "정식 오픈 전 admin-* 페이지 전체에 Supabase Auth 도입. 권한 등급 정책을 결정해야 시스템 설계 가능. 현재는 단순 게이트(BL-REAL-SYSTEM Phase α). 등급 수와 권한 분리가 사업 운영(직원 권한 위임)에 직접 영향.",
+      "decision_options": [
+        "A안: 2단계 (CEO / Staff) — 단순, Staff는 모든 admin 페이지 접근 가능",
+        "B안: 3단계 (CEO / Staff / Read-only) — 외주/파트너에게 읽기 권한 분리 가능",
+        "C안: 4단계 (CEO / Manager / Staff / Read-only) — Manager가 결제/매출 추가 권한 보유",
+        "D안: 페이지별 ACL 매핑 — 가장 유연하나 운영 복잡도 큼"
+      ],
+      "decision_recommendation": "권장: B안(3단계) — 현재 직원 1명 + 외주/파트너 보고서 공유 시나리오에 충분. C안은 Manager 역할이 정의되지 않아 시기상조. D안은 운영 부담.",
+      "ceo_decision": "",
+      "ceo_decision_at": ""
     },
     {
       "id": "BL-COMMAND-CENTER",

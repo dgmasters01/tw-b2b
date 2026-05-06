@@ -1116,30 +1116,16 @@
     .ceo-decision-ctx-rec::before {
       content: "💡 "; margin-right: 2px;
     }
-    .ceo-decision-ctx-empty {
+    .ceo-decision-ctx-pending {
       padding: 14px;
-      background: #fef2f2;
-      border: 1px dashed #fca5a5;
+      background: #f8fafc;
+      border: 1px dashed #cbd5e1;
       border-radius: 10px;
       margin-top: 12px;
     }
-    .ceo-decision-ctx-empty-msg {
-      font-size: 12.5px; color: #b91c1c;
-      line-height: 1.5; margin-bottom: 10px;
-    }
-    .ceo-decision-ctx-empty-btn {
-      display: inline-block;
-      font-size: 12px; font-weight: 600;
-      padding: 7px 12px;
-      background: white;
-      border: 1.5px solid #b91c1c;
-      color: #b91c1c;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: all 0.15s ease;
-    }
-    .ceo-decision-ctx-empty-btn:hover {
-      background: #b91c1c; color: white;
+    .ceo-decision-ctx-pending-msg {
+      font-size: 12.5px; color: #64748b;
+      line-height: 1.6;
     }
   </style>
 
@@ -2401,14 +2387,12 @@
         ${dRec ? `<div class="ceo-decision-ctx-rec">${escapeHtml(dRec)}</div>` : ''}
       </div>
     ` : `
-      <div class="ceo-decision-ctx-empty">
-        <div class="ceo-decision-ctx-empty-msg">
-          이 작업은 결정 맥락(무엇을 결정해야 하는지 / 옵션 / 권장안)이 정리되지 않았습니다.<br>
-          Claude에게 정리를 요청하면 다음 모달 열 때부터 풀 맥락이 표시됩니다.
+      <div class="ceo-decision-ctx-pending">
+        <div class="ceo-decision-ctx-pending-msg">
+          ⏳ 시스템이 이 작업의 결정 맥락을 아직 정리하지 못했습니다.<br>
+          잠시 후 다시 열어주시거나, 아래 [ⓐ 작업 상세 보기]로 admin-tasks.html에서<br>
+          전체 컨텍스트를 확인하실 수 있습니다.
         </div>
-        <button type="button" class="ceo-decision-ctx-empty-btn" data-action="request-context">
-          📤 Claude에게 결정 맥락 정리 요청
-        </button>
       </div>
     `;
 
@@ -2525,20 +2509,6 @@
           showToast(`📋 막힘 해제 요청 클립보드 복사됨 — Claude 채팅에 붙여넣으세요`, 'success');
         } else {
           alert('📋 클립보드 복사됨 — Claude 채팅에 붙여넣으세요');
-        }
-      }
-      closeModal();
-    });
-
-    // V2 — 결정 맥락이 비어있을 때 Claude에게 정리 요청 (BL-DECISION-MODAL-V2 사양 5번)
-    modal.querySelector('[data-action="request-context"]')?.addEventListener('click', async () => {
-      const handoff = `[결정 맥락 정리 요청 — ${task.id}]\n\n## 작업: ${task.title}\n**카테고리:** ${task.category}\n**우선순위:** ${task.priority}\n**의존:** ${(task.autonomous?.requires_decisions_first || []).join(', ') || '없음'}\n\n## 요청\ntasks.json의 ${task.id} 작업에 다음 3개 필드를 채워주세요:\n\n- decision_context: '이 작업은 무엇을 결정해야 하는가' (사업적 맥락 / 사용자 영향)\n- decision_options: ['A안: ...', 'B안: ...', 'C안: ...'] 배열 (각 옵션 trade-off 포함)\n- decision_recommendation: '권장: A안 — 이유...'\n\n## 다음 단계\n- BUSINESS.md / DECISIONS.md / OPERATIONS_CHARTER.md / 기존 chat-log 참조해서 사업 컨텍스트 풀 적재\n- 위 3개 필드 채워서 tasks.json commit + push\n- admin-status.html 결정 대기 카드 다시 클릭 시 풀 맥락 자동 표시 확인\n`;
-      const ok = await copyToCb(handoff);
-      if (ok) {
-        if (typeof showToast === 'function') {
-          showToast(`📋 결정 맥락 정리 요청 복사됨 — Claude 새 채팅에 붙여넣으세요`, 'success');
-        } else {
-          alert('📋 클립보드 복사됨 — Claude 새 채팅에 붙여넣으세요');
         }
       }
       closeModal();

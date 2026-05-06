@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-06T06:13:19.787576Z",
+  "updated_at": "2026-05-06T06:28:59.941327Z",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -670,9 +670,14 @@
       "notes": "7영역: 진행단계 / 호텔정보 / 콘텐츠 / 노출채널 / 예약결과 / 6개월보장+재제작 / 매출추정. 조회수는 보조.",
       "owner": "Claude",
       "approval_required": false,
-      "decision_context": "",
-      "decision_options": [],
-      "decision_recommendation": "",
+      "decision_context": "호텔 매니저가 로그인하면 한 화면 5초 안에 '내 호텔 상태'를 파악할 수 있는 매니저 전용 대시보드 신설(D-007 확정). D-008로 조회수는 보조 지표로 결정됨. 7개 영역(매출 추정 / 채널 노출 / 예약 수 / 클릭 / 매니저 메모 / 캠페인 / 액션) 구체 배치와 매출 추정 로직(예약 수×ADR? 실집계? Agoda CSV 의존?)을 결정해야 풀 구현 가능.",
+      "decision_options": [
+        "A안: 매출 추정 = 예약 수 × 평균 ADR (호텔 등록 시 평균값 입력) — 가장 단순, 정확도 60%, ~4h",
+        "B안: 매출 추정 = Agoda 업로드 CSV 실집계 — 정확도 95%, 단 매니저가 매주 CSV 업로드 필수, ~8h",
+        "C안: 하이브리드 — 평소 A안(추정), 매니저가 CSV 올린 주는 B안(실집계), '추정/실집계' 라벨 시각 구분 — ~6h",
+        "D안: 매출 영역 자체를 '예약 수'로 단순화 — 매출 추정 빼고 예약 건수만 표시, ~3h"
+      ],
+      "decision_recommendation": "권장: C안 — A안의 '항상 작동' 장점 + B안의 정확성 둘 다 확보. 매니저가 CSV 안 올려도 추정은 항상 보이고, 올린 주는 진짜 매출 보임. D-008(조회수 보조 지표화)와 자연스럽게 연결됨.",
       "ceo_decision": "",
       "ceo_decision_at": ""
     },
@@ -710,9 +715,14 @@
       "notes": "gohotel.win/h/{hotel_id} → Supabase 카운트 +1 → Agoda 어필리에이트 리디렉션. 호텔별/순위별 분리.",
       "owner": "Claude",
       "approval_required": false,
-      "decision_context": "",
-      "decision_options": [],
-      "decision_recommendation": "",
+      "decision_context": "YouTube 영상 더보기에 박힌 호텔별 단축 URL(gohotel.win/h/{hotel_id}) 클릭을 Supabase에 카운트하고 Agoda 어필리에이트로 리디렉션하는 진성 관심 측정 시스템(D-006 확정). 이미 결정은 끝났으나, 데이터 구조(호텔별 단순 카운트 / 순위별 / 영상별 / 클릭 시각 시계열)와 어디까지 분석 화면을 만들지를 결정해야 풀 구현 가능.",
+      "decision_options": [
+        "A안: 호텔별 총 카운트만 — 가장 단순, hotel_id × 1행, ~3h",
+        "B안: 호텔별 + 순위별(TOP1/2/3) 카운트 분리 — 어떤 순위가 클릭 잘 받는지 분석, ~4h",
+        "C안: B안 + 영상별 출처 — 어떤 영상이 클릭 잘 만드는지, ~5h",
+        "D안: C안 + 클릭 시각 시계열 — 호텔별/시간대별 클릭 패턴, 가장 풍부하나 데이터량 큼, ~8h"
+      ],
+      "decision_recommendation": "권장: C안 — 호텔/순위/영상 3축 분석으로 콘텐츠 ROI 측정 가능. D안의 시계열은 데이터 쌓인 후 별도 BL로 분리. A/B는 영상별 ROI를 못 봐서 의사결정에 부족.",
       "ceo_decision": "",
       "ceo_decision_at": ""
     },
@@ -749,9 +759,14 @@
       "notes": "결제 직후 자동 발송 + 매니저 대시보드 별도 탭에서 1클릭 다운로드. PDF 3종: 인보이스/영수증/6개월리포트.",
       "owner": "Claude",
       "approval_required": false,
-      "decision_context": "",
-      "decision_options": [],
-      "decision_recommendation": "",
+      "decision_context": "결제 완료 시 인보이스/영수증 PDF를 자동 생성하고 1년+ 영구 보관해서 매니저가 1클릭으로 다운로드 가능하게 함(D-009 확정). 이미 결정은 끝났으나, 보관 위치(Supabase Storage / Vercel Blob / S3) / 발행자 정보(여행능력자들 한국법인 / 베트남 법인) / 인보이스 양식(한/영 이중)을 결정해야 풀 구현 가능.",
+      "decision_options": [
+        "A안: Supabase Storage + 한국 여행능력자들 명의 + 한/영 이중 양식 — 단일 스택, ~5h",
+        "B안: Vercel Blob + 한국 명의 + 한/영 양식 — Vercel 통합 ↑, 단 별도 비용, ~5h",
+        "C안: Supabase Storage + 베트남 법인 명의 + 영문 양식 — 베트남 사업 정합성, ~5h",
+        "D안: 결제 통화/매니저 국가 따라 자동 분기 — 한국 결제→여행능력자들/한, 그 외→베트남/영 — ~9h"
+      ],
+      "decision_recommendation": "권장: D안 — TW가 한·베·스리랑카 다국가 사업이라 발행자 자동 분기는 필수. A/C는 단방향이라 다국가 운영 시 한계. 단, D안은 결제 통화 메타데이터가 PayPal 응답에 정확히 들어있는지 사전 확인 필요.",
       "ceo_decision": "",
       "ceo_decision_at": ""
     },
@@ -2143,7 +2158,17 @@
       "source_anchor": "#L149",
       "notes": "## 🔴 P0 — Agoda 예약 검증 시스템 (Booking Verification) ⭐⭐ 2026-04-29  **배경** (대표님 핵심 비즈니스 통찰): > \"아고다의 본인 확인 할 수 있는 것을 제공해줘야 돼. TW Booking Analytics에서 호텔별로 예약번호, 예약날짜, 시간 등 대조할 수 있는 것.\"  **핵심 가치**: - 우리가 \"예약 N건 발생\" 이라고 말로만 하면 매니저는 못 믿음 - 매니저가 본인 Agoda Partner Hub에서 직접 대조 가능 → 완벽한 증거 - 신뢰 = 비즈니스의 생존  **작업 항목**: 1. **DB 통합**: TW B2B ↔ TW Booking Analytics 데이터 연결    - hotels.agoda_hotel_id ↔ booking.hotel_id 매칭    - 매니저 결제 호텔에 한해서만 노출  2. **채널 매핑 시스템** ⭐ 2026-04-29 추가    - `channel_cid_map` 테이블 신설    - 5",
       "owner": "human",
-      "approval_required": true
+      "approval_required": true,
+      "decision_context": "고객이 호텔에 도착해 'TW를 통해 예약했다'고 말했을 때, 호텔 매니저가 그 예약이 진짜 TW 채널을 통해 들어온 것인지 검증할 수 있는 시스템이 필요합니다. 현재는 예약번호/날짜만 있고, 호텔 측에서 '이게 정말 너희 채널이냐'를 자체 확인할 방법이 없어서 매니저 신뢰도 + 협상력에 영향을 미침. 검증 시스템의 노출 범위(매니저만 / 고객까지 / 공개)와 인증 방식(예약번호+이름 / QR / 링크 토큰)을 결정해야 합니다.",
+      "decision_options": [
+        "A안: 매니저 전용 — admin.html 내부에 호텔별 예약 리스트 + Agoda 예약번호 검색 (외부 노출 X) — 가장 안전, ~2h",
+        "B안: 매니저 + 고객 자가 검증 — 고객이 예약번호+이름으로 verify.gohotelwinners.com에서 직접 확인 가능 — 신뢰도 ↑, ~5h",
+        "C안: QR 코드 발급 — 예약 확정 시 QR을 고객에게 발송, 호텔에서 스캔 시 즉시 검증 — UX 최고, ~8h + Agoda 발신 메일 대체 필요",
+        "D안: B + C 결합 — 가장 완성도 높지만 Agoda 메일 흐름과의 충돌/중복 처리 복잡, ~12h"
+      ],
+      "decision_recommendation": "권장: A안 → B안 단계적 확장. 1단계 매니저 전용으로 빠르게 신뢰도 확보, 운영 데이터 쌓이면 B안으로 확장. C안은 Agoda 발송 흐름 변경이 필요해 시기상조.",
+      "ceo_decision": "",
+      "ceo_decision_at": ""
     },
     {
       "id": "BL-004",
@@ -2178,7 +2203,17 @@
       "source_anchor": "#L199",
       "notes": "## 🔴 P1 — 매니저 정보 변경 시스템 (3-Tier 차등) ⭐ 2026-04-29  **배경** (대표님 통찰): > \"매니저 가입하면 내용이 잘못 되었을 경우, 변경해야 될 경우, 승인 필요할까?\"  호텔 바꿔치기 / 영상 재제작 비용 방지 위해 비즈니스 영향도에 따라 차등 처리.  **3-Tier 정책** (BUSINESS.md §7-A 참조): - Tier 1 (즉시 변경): 비밀번호, 휴대폰, 직책, 마케팅 동의 - Tier 2 (즉시 + 알림): 이메일, 사진, 이름 오타 - Tier 3 (관리자 승인 필수): 호텔명, 주소, Agoda 링크, 등급  **작업 항목**: 1. **settings.html 강화**    - 휴대폰 / 직책 / 마케팅 동의 변경 (Tier 1)    - 이메일 변경 (Tier 2, 재인증 필수)    - \"호텔 정보 변경 신청\" 버튼 (Tier 3)    - 변경 이력 로그 표시  2. **`hotel_change_requests` 테이블",
       "owner": "autonomous",
-      "approval_required": false
+      "approval_required": false,
+      "decision_context": "호텔 매니저가 본인 정보(연락처/이메일/직책)를 변경할 때 권한 등급에 따라 차등 처리(3-Tier). 자가 변경 가능 범위 / 승인 필요 범위 / CEO만 가능 범위를 정해야 시스템 설계 가능. BL-005(담당자 교체)와 연결되는 선결 작업.",
+      "decision_options": [
+        "A안: 모든 변경 자가 가능 — 매니저 자율, 단 악용 위험(다른 호텔 매니저로 교체 시도 등), ~3h",
+        "B안: 본인 연락처/이메일은 자가 / 직책 변경은 CEO 승인 / 호텔 자체 변경은 차단 — 균형형, ~5h",
+        "C안: 모든 변경 CEO 승인 — 안전 최우선, 단 운영 부담, ~2h",
+        "D안: 변경 이력 영구 기록 + B안 — 추후 BL-005 담당자 교체 추적과 연동 가능, ~7h"
+      ],
+      "decision_recommendation": "권장: D안 — BL-005 담당자 교체 시스템과 자연스럽게 연결되고 매니저 스토리(메모리: 대표님 통찰 '시스템을 계속 이용하면 스토리도 알 수 있잖아') 추적 가능. B안 권한 분리 + 변경 이력 영구 기록.",
+      "ceo_decision": "",
+      "ceo_decision_at": ""
     },
     {
       "id": "BL-005",
@@ -2213,7 +2248,17 @@
       "source_anchor": "#L231",
       "notes": "## 🔴 P1 — 호텔 담당자 교체 시스템 (Manager Handover) ⭐ 2026-04-29  **배경** (대표님 통찰): > \"호텔 담당자가 바뀔 수 있으니깐. 기존에 누구의 이름으로 결제를 했는지 표시 정리해 놓을. 이분들이 시스템을 계속 이용하면 스토리도 알 수 있잖아.\"  매니저는 떠나도 호텔은 남는다. 결제 이력은 호텔에 영구 귀속.  **작업 항목**: 1. **`hotel_managers` 테이블 신설**    - 한 호텔에 여러 매니저 가능 (primary + secondary)    - current / former 구분    - started_at / ended_at / handover_from  2. **데이터 마이그레이션**    - 기존 hotels.manager_id → hotel_managers 테이블    - 모든 기존 매니저 → role=primary, current=true  3. **`payments.paid_by_user_id`** 컬럼",
       "owner": "human",
-      "approval_required": true
+      "approval_required": true,
+      "decision_context": "호텔 담당 매니저가 바뀔 때 '결제 이력은 호텔에 영구 귀속, 매니저는 떠나도 호텔은 남는다'는 원칙(대표님 통찰)을 시스템에 박아넣음. 신구 매니저 교체 시 (1) 결제/예약 이력은 호텔 ID에 귀속 유지 (2) 매니저 개인 메모/스토리는 인계 (3) 권한 즉시 회수 흐름을 결정해야 합니다.",
+      "decision_options": [
+        "A안: 신매니저가 가입 → 호텔 매핑 신청 → CEO 승인 → 구매니저 권한 자동 회수 — 표준 흐름, ~4h",
+        "B안: 구매니저가 인계 시작 → 신매니저 초대 메일 → 신매니저 가입 후 자동 매핑 → 인수인계 노트 화면 — 인수인계 UX ↑, ~7h",
+        "C안: B안 + 인계 grace period(1주) — 신구 매니저 둘 다 일시 접근 가능, 데이터 인수 시간 확보, ~9h",
+        "D안: 단순 CEO 직접 매핑만 — 매니저 자가 인계 X, 모든 교체는 CEO 처리, ~2h"
+      ],
+      "decision_recommendation": "권장: B안 — 매니저 자율성과 데이터 보안의 균형. C안의 grace period는 보안 위험(구매니저가 신호텔 정보 빼갈 수 있음)이 높음. D안은 운영 부담 큼.",
+      "ceo_decision": "",
+      "ceo_decision_at": ""
     },
     {
       "id": "BL-006",
@@ -2248,7 +2293,12 @@
       "source_anchor": "#L268",
       "notes": "## 🟡 P2 — 호텔 스토리 / LTV 추적 ⭐ 2026-04-29  **배경**: 장기 고객 = 영업 자산. \"Lotte는 3번 결제한 충성 고객\" 같은 분석 가능.  **작업 항목**: 1. **DB 뷰**: `hotel_lifetime_stats` (자동 집계) 2. **admin.html 호텔 상세 페이지 강화** — 거래 요약 / 담당자 이력 / 영상 이력 / 영업 인사이트(사실 기반) 3. **marketing.html \"호텔 스토리\" 섹션** — 우리와 함께한 시간 (등급 표시 X) 4. **영업 자료 CSV export** — 재계약 후보 리스트  **제외**: 고객 등급 시스템(Bronze/Silver/Gold/Platinum) — 대표님 결정으로 폐기 (호텔 매니저 자존심 문제)  **관련 파일**: SQL 마이그레이션, `admin.html`, `marketing.html`  ---",
       "owner": "human",
-      "approval_required": true
+      "approval_required": true,
+      "decision_context": "",
+      "decision_options": [],
+      "decision_recommendation": "",
+      "ceo_decision": "",
+      "ceo_decision_at": ""
     },
     {
       "id": "BL-007",
@@ -2283,7 +2333,17 @@
       "source_anchor": "#L284",
       "notes": "## 🔴 P1 — 자동 알림 메일 시스템 누락  **배경**: 호텔 상태 변경 시 매니저에게 자동 알림 메일이 발송되어야 하는데, `admin.html`의 `changeStatus()` 에서 DB만 업데이트하고 메일 발송 로직 없음.  **현재 동작 중인 메일** (정상): - ✅ 회원가입 인증 메일 - ✅ ops 알림 메일 (`/api/email/ops/notify-claude-work`) - ✅ 결제 완료 시 ops 메일 (`/api/paypal` capture-order) - ✅ DB 저장 실패 시 ops 긴급 메일  **누락된 매니저 알림 메일**: 1. 호텔 등록 시 → \"Hotel registered, under review\" 2. 호텔 승인 시 (`approved`) → \"Approved! Please complete payment\" + sales.html 링크 3. 호텔 거절 시 (`rejected`) → \"Registration not approved — reason",
       "owner": "human",
-      "approval_required": true
+      "approval_required": true,
+      "decision_context": "admin.html에서 호텔 상태(active/inactive/pending 등) 변경 시 매니저에게 자동 알림 메일이 가야 하는데, 현재 changeStatus()는 DB만 업데이트하고 메일 발송 로직 없음. 회원가입 인증 메일 / ops 알림 메일은 정상 작동 중. 알림 트리거 범위(어떤 상태 변경 / 모든 변경 / 일부만)와 발송자 표시(TW 시스템 / 대표님 명의)를 결정해야 합니다.",
+      "decision_options": [
+        "A안: 모든 상태 변경에 자동 메일 — 매니저가 항상 알 수 있음, 단 노이즈 ↑, ~3h",
+        "B안: active ↔ inactive 같은 핵심 변경만 메일 — 시그널/노이즈 비율 좋음, ~3h",
+        "C안: 매니저별 알림 설정 — 매니저가 'all/important/none' 선택 가능, ~5h",
+        "D안: B안 + 일/주 단위 요약 메일(아침 9시) — 즉시 알림 + 요약 모두 제공, ~6h"
+      ],
+      "decision_recommendation": "권장: B안 — 핵심 변경만 알림으로 노이즈 최소화. 매니저 1명당 호텔이 많지 않아 C안의 개인화는 시기상조. D안의 요약 메일은 매니저 수가 늘어난 후 추가.",
+      "ceo_decision": "",
+      "ceo_decision_at": ""
     },
     {
       "id": "BL-008",
@@ -2458,7 +2518,12 @@
       "source_anchor": "#L380",
       "notes": "## ⏳ Phase 3 D단계 — PayPal 검증 후 진행  ### D-1. 회원 탈퇴 기능 - 매니저가 자기 계정 삭제 가능 - 호텔 데이터 처리 (cascade vs soft delete 결정) - Confirm 모달 필수  ### D-2. 이메일 변경 기능 - 매니저 settings에서 이메일 변경 - 새 이메일 인증 필수 - 변경 이력 로그  ### D-3. Custom SMTP (Resend 도메인 인증) - Resend → Domains → gohotelwinners.com 추가 - DNS 레코드 추가 (Vercel 도메인 관리) - 발신자 `noreply@gohotelwinners.com` 통일  ---",
       "owner": "human",
-      "approval_required": true
+      "approval_required": true,
+      "decision_context": "",
+      "decision_options": [],
+      "decision_recommendation": "",
+      "ceo_decision": "",
+      "ceo_decision_at": ""
     },
     {
       "id": "BL-013",
@@ -2493,7 +2558,12 @@
       "source_anchor": "#L399",
       "notes": "## 🚀 Live 전환 작업 (Sandbox 검증 완료 후)  - `PAYPAL_ENV` 환경변수: `sandbox` → `live` - PayPal Live Webhook 별도 등록 - `PAYPAL_WEBHOOK_ID` 환경변수 갱신 - 실제 결제 1건 테스트 ($1 소액) - 환불 프로세스 검증  ---",
       "owner": "human",
-      "approval_required": true
+      "approval_required": true,
+      "decision_context": "",
+      "decision_options": [],
+      "decision_recommendation": "",
+      "ceo_decision": "",
+      "ceo_decision_at": ""
     },
     {
       "id": "BL-014",
@@ -2528,7 +2598,12 @@
       "source_anchor": "#L409",
       "notes": "## 🔒 보안 — 토큰 폐기  이전 채팅에서 평문 노출된 토큰 폐기 필요: 1. **GitHub PAT** (`ghp_eLTTsY...`) — GitHub Settings → PAT → Revoke 2. **Supabase MGMT_TOKEN** (`sbp_b9475...`) — Supabase Account → Access Tokens → Revoke 3. **Supabase SERVICE_ROLE** (`sb_secret_Gbyfly...`) — Settings → API Keys → Rotate (Vercel 갱신) 4. **CLAUDE_OPS_TOKEN** (`sV1IWuv...`) — Vercel 환경변수 변경  **Supabase 토큰 만료**: 2026-05-26 (D-28). 5월 19일 알림.  ---",
       "owner": "human",
-      "approval_required": true
+      "approval_required": true,
+      "decision_context": "",
+      "decision_options": [],
+      "decision_recommendation": "",
+      "ceo_decision": "",
+      "ceo_decision_at": ""
     },
     {
       "id": "BL-015",
@@ -2563,7 +2638,12 @@
       "source_anchor": "#L421",
       "notes": "## 🟡 P2 — BEFORE/AFTER 스크린샷 자동 캡처 시스템 (Page Gallery 통합)  ### 배경 대표님 메모리 원칙: 모든 페이지 수정 시 ① 수정 전 풀페이지 스크린샷 ② 수정 작업 ③ 수정 후 풀페이지 스크린샷 ④ 작업 기록에 BEFORE/AFTER 비교 등록 ⑤ 관리자 페이지에서 전후 비교 확인 가능. Page Gallery 스크린샷도 수정 시 자동 갱신.  ### 현재 상태 - `admin-gallery.html`은 존재하나 BEFORE/AFTER 비교 기능 미구현 - 자동 캡처 인프라(Playwright + Vercel function 또는 GitHub Action) 미구축 - 매 작업마다 수동 캡처는 자율 작업 흐름과 충돌 → 수동으로는 누락 빈번  ### 제안 구조 1. **GitHub Action**: PR 또는 main push 시 변경된 .html 파일을 자동 감지하여 Playwright로 풀페이지 스크린샷 캡처 2. **저장 위치**: `_scr",
       "owner": "human",
-      "approval_required": true
+      "approval_required": true,
+      "decision_context": "",
+      "decision_options": [],
+      "decision_recommendation": "",
+      "ceo_decision": "",
+      "ceo_decision_at": ""
     },
     {
       "id": "SQ-DONE-A",
@@ -2721,7 +2801,17 @@
       "source_anchor": "#L56",
       "notes": "### D. 🔴 BLOCKED — sales.html 디자인 전면 개편 **대표님 결정 필요 사항**: 1. 디자인 톤: \"Stripe 풍 / Notion 풍 / Linear 풍 / Apple 풍\" 중 어느 쪽? (BACKLOG에 'Stripe/Notion/Linear 수준'이라고 적혀있는데 셋 중 하나로 좁혀야 함) 2. 5개 채널 시각화 — 실제 채널 구독자 수 / 영상 썸네일 사용 여부 3. 호텔 후기 카루셀 — 실제 후기 데이터 있는지, 없으면 placeholder?  **자율 진행 가능한 부분 (🟡 SEMI)**: 문구/구조/CTA는 BUSINESS.md 기준으로 구성 가능. **대표님이 디자인 톤만 정해주시면** Claude가 끝까지 만들 수 있음.  **예상 시간**: 결정 후 3-4시간  --",
       "owner": "autonomous",
-      "approval_required": false
+      "approval_required": false,
+      "decision_context": "sales.html을 'Stripe/Notion/Linear 수준'으로 전면 개편. 디자인 톤(Stripe / Notion / Linear / Apple)과 5개 채널 시각화 방식, 헤드라인 데이터(MRR / ARR / 채널 ROI / 컨버전)를 결정해야 풀 구현 가능. BL-AURORA-MIGRATION과 시각 일관성을 어떻게 맞출지도 결정 사항.",
+      "decision_options": [
+        "A안: Stripe 풍 (밝은 베이스 + 보라/그린 액센트 + 큰 타이포) — TW Aurora와 가장 거리 멀음, 일관성 깨짐 위험",
+        "B안: Linear 풍 (다크 + 미니멀 + 고밀도 데이터) — Aurora(다크+오로라)와 가장 정합성 ↑",
+        "C안: Notion 풍 (라이트 + 에디토리얼 + 큰 여백) — 데이터 밀도 낮음, 매출 화면에는 부적합",
+        "D안: TW Aurora 자체 확장 (Linear 영감 + Aurora 그라디언트) — 디자인 시스템 일관성 ↑, 가장 권장"
+      ],
+      "decision_recommendation": "권장: D안 — Aurora가 이미 TW B2B의 디자인 정체성. 외부 톤 차용보다 자체 확장이 일관성 ↑. Linear의 다크/미니멀/고밀도를 Aurora 그라디언트로 표현하면 매출 화면에 적합. 5개 채널은 가로 카드 + 채널별 컬러 점.",
+      "ceo_decision": "",
+      "ceo_decision_at": ""
     },
     {
       "id": "SQ-E",
@@ -2791,7 +2881,12 @@
       "source_anchor": "#L80",
       "notes": "### F. 🔴 BLOCKED — admin.html 디자인 개편 **대표님 결정 필요 사항**: 1. 좌측 사이드바 구조 — 현재 OVERVIEW/SALES/OPERATIONS/TOOLS 4그룹 유지? 2. Dashboard 첫 화면 — KPI 카드 우선 vs 활동 피드 우선? 3. 컬러 팔레트 — 현재 보라(#534AB7) 기조 유지 vs 변경?  **예상 시간**: 결정 후 2시간  ---  ## 🟡 P1 — 5/3 이전에 있으면 좋음",
       "owner": "human",
-      "approval_required": true
+      "approval_required": true,
+      "decision_context": "",
+      "decision_options": [],
+      "decision_recommendation": "",
+      "ceo_decision": "",
+      "ceo_decision_at": ""
     },
     {
       "id": "SQ-G",
@@ -2826,7 +2921,12 @@
       "source_anchor": "#L92",
       "notes": "### G. 🟢 AUTO — 자동 알림 메일 시스템 (BACKLOG의 P1) **작업 내용**: BACKLOG.md L280 참조. 6개 트리거 메일 구현 - 호텔 등록 / 승인 / 거절 / 결제 완료 / 영상 제작 시작 / 영상 게시 - 기존 `sendSystemEmail` 함수 활용 - 영어 본체 + 한국어 토글 (i18n 일괄 작업 시점까지 영어만)  **예상 시간**: 2시간 **자율 진행 사유**: 메일 템플릿은 BUSINESS.md 정책 그대로 사용  ---",
       "owner": "human",
-      "approval_required": true
+      "approval_required": true,
+      "decision_context": "",
+      "decision_options": [],
+      "decision_recommendation": "",
+      "ceo_decision": "",
+      "ceo_decision_at": ""
     },
     {
       "id": "SQ-H",
@@ -2861,7 +2961,12 @@
       "source_anchor": "#L103",
       "notes": "### H. 🟢 AUTO — Supabase Management API 토큰 갱신 알림 자동화 **작업 내용**: 토큰 만료 7일 전 ops 메일 자동 발송 (현재 토큰 만료 5/26) - Vercel Cron 또는 Supabase Edge Function 사용 - 현재는 메모리에만 알림 메모, 자동화 안 됨  **예상 시간**: 1시간 **자율 진행 사유**: 인프라 자동화  ---  ## 🟢 P2 — 자투리 시간에",
       "owner": "human",
-      "approval_required": true
+      "approval_required": true,
+      "decision_context": "",
+      "decision_options": [],
+      "decision_recommendation": "",
+      "ceo_decision": "",
+      "ceo_decision_at": ""
     },
     {
       "id": "SQ-DONE-I",

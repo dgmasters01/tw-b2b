@@ -231,6 +231,52 @@
   }
   .in-progress-meta .item { display: inline-flex; align-items: center; gap: 4px; }
   .in-progress-meta .item .label { color: rgba(196,181,253,0.7); }
+
+  /* ===== ⚡ 진행 중 박스 — 진행률 바 (BL-PROGRESS-BAR-OS) ===== */
+  .in-progress-progress {
+    margin-top: 10px; padding-top: 10px;
+    border-top: 0.5px dashed rgba(147,51,234,0.3);
+    display: none;  /* progress.steps 있는 작업만 JS가 표시 */
+  }
+  .in-progress-progress.visible { display: block; }
+  .in-progress-progress .pp-head {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 6px;
+    font-size: 10px; color: rgba(196,181,253,0.85);
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .in-progress-progress .pp-percent {
+    font-size: 11px; font-weight: 600; color: #c4b5fd;
+  }
+  .in-progress-progress .pp-bar {
+    background: rgba(147,51,234,0.15);
+    border-radius: 6px; height: 8px; overflow: hidden;
+    margin-bottom: 8px;
+  }
+  .in-progress-progress .pp-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #a855f7 0%, #ec4899 100%);
+    border-radius: 6px;
+    transition: width 0.4s ease;
+  }
+  .in-progress-progress .pp-steps {
+    display: grid; gap: 4px;
+    font-size: 10px; line-height: 1.5;
+  }
+  .in-progress-progress .pp-step {
+    display: flex; align-items: center; gap: 6px;
+    color: var(--text-muted);
+  }
+  .in-progress-progress .pp-step.done { color: rgba(196,181,253,0.85); }
+  .in-progress-progress .pp-step.current {
+    color: #fff; font-weight: 500;
+    background: rgba(147,51,234,0.18);
+    padding: 3px 6px; border-radius: 4px;
+    border-left: 2px solid #ec4899;
+  }
+  .in-progress-progress .pp-step .pp-mark {
+    font-size: 11px; flex-shrink: 0;
+  }
   .in-progress-recent {
     margin-top: 8px; padding-top: 8px;
     border-top: 0.5px dashed rgba(147,51,234,0.3);
@@ -728,6 +774,15 @@
       <span class="item"><span class="label">시작</span> <span id="ip-started">-</span></span>
       <span class="item"><span class="label">예상</span> <span id="ip-estimate">-</span></span>
       <span class="item"><span class="label">담당</span> <span id="ip-owner">-</span></span>
+    </div>
+    <!-- 진행률 바 (BL-PROGRESS-BAR-OS) — progress.steps 있을 때만 표시 -->
+    <div class="in-progress-progress" id="in-progress-progress">
+      <div class="pp-head">
+        <span>진행률</span>
+        <span class="pp-percent" id="ip-percent">-</span>
+      </div>
+      <div class="pp-bar"><div class="pp-bar-fill" id="ip-bar-fill" style="width:0%"></div></div>
+      <div class="pp-steps" id="ip-steps"></div>
     </div>
     <div class="in-progress-recent" id="in-progress-recent">
       <div class="label-row">최근 작업 활동 — 작업 시작 후 commit 5개</div>
@@ -2778,6 +2833,49 @@
 
     // 최근 commit 5개 — 우선 task.history에서, 없으면 activity-feed에서
     renderInProgressCommits(target);
+
+    // 진행률 바 (BL-PROGRESS-BAR-OS) — progress.steps 있을 때만 표시
+    renderInProgressProgress(target);
+  }
+
+  // ──────────────────────────────────────────────────────────
+  // 진행률 바 렌더 (BL-PROGRESS-BAR-OS)
+  //   task.progress.steps 가 있으면 진행률 바 + 단계 리스트 표시.
+  //   현재 진행 중인 단계 = 첫번째 done:false 단계.
+  // ──────────────────────────────────────────────────────────
+  function renderInProgressProgress(task) {
+    const wrap = $('in-progress-progress');
+    if (!wrap) return;
+    const prog = task.progress;
+    const steps = prog && Array.isArray(prog.steps) ? prog.steps : null;
+
+    if (!steps || steps.length === 0) {
+      wrap.classList.remove('visible');
+      return;
+    }
+    wrap.classList.add('visible');
+
+    const total = steps.length;
+    const done = steps.filter(s => s.done).length;
+    const percent = Math.round((done / total) * 100);
+
+    const percentEl = $('ip-percent');
+    if (percentEl) percentEl.textContent = `${percent}% · ${done} / ${total} 단계`;
+
+    const barFill = $('ip-bar-fill');
+    if (barFill) barFill.style.width = `${percent}%`;
+
+    // 첫번째 done:false 단계 = 현재 진행 중인 단계
+    const currentIdx = steps.findIndex(s => !s.done);
+
+    const stepsEl = $('ip-steps');
+    if (stepsEl) {
+      stepsEl.innerHTML = steps.map((s, i) => {
+        const cls = s.done ? 'done' : (i === currentIdx ? 'current' : '');
+        const mark = s.done ? '☑️' : (i === currentIdx ? '⏳' : '☐');
+        return `<div class="pp-step ${cls}"><span class="pp-mark">${mark}</span><span>${i + 1}. ${escapeHtml(s.label || '')}</span></div>`;
+      }).join('');
+    }
   }
 
   async function renderInProgressCommits(task) {

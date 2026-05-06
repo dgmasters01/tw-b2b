@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-06T18:56:26+00:00",
+  "updated_at": "2026-05-06T19:17:16+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -12,10 +12,10 @@
     "SOLO_WORK_QUEUE.md"
   ],
   "stats": {
-    "total": 94,
+    "total": 96,
     "done": 68,
-    "in_progress": 1,
-    "pending": 15,
+    "in_progress": 2,
+    "pending": 16,
     "blocked": 10,
     "autonomous_ready": 10
   },
@@ -4052,7 +4052,7 @@
       "category": "feature",
       "priority": "P0",
       "size": "small",
-      "status": "pending",
+      "status": "in_progress",
       "approval_required": false,
       "autonomous": {
         "can_run_alone": true,
@@ -4075,8 +4075,8 @@
         "steps": [
           {
             "label": "scripts/auto_detect_task_status.py — STEP_DONE_PATTERN.search() → findall() 변경 (다중 매칭)",
-            "done": false,
-            "at": null
+            "done": true,
+            "at": "2026-05-06T19:17:16+00:00"
           },
           {
             "label": "같은 스크립트 — update_task() 끝에 'progress.percent === 100 이면 task.status = done 자동' 룰 추가",
@@ -4099,10 +4099,10 @@
             "at": null
           }
         ],
-        "percent": 0,
-        "completed_count": 0,
+        "percent": 20,
+        "completed_count": 1,
         "total_count": 5,
-        "updated_at": "2026-05-06T19:11:36+00:00"
+        "updated_at": "2026-05-06T19:17:16+00:00"
       },
       "history": [
         {
@@ -4110,8 +4110,17 @@
           "event": "신규 작업 생성 — 그림 일치 OS 핫픽스",
           "by": "Claude (자율 발견)",
           "note": "대표님이 자율 작업 큐 화면에서 같은 작업이 두 곳에서 다른 상태 보이는 모순 발견 → 시스템 완성도 위반 2건 박힘"
+        },
+        {
+          "at": "2026-05-06T19:17:16+00:00",
+          "event": "진행 중 진입 (auto-detected) + 단계 1 완료 (auto-detected)",
+          "by": "auto-detect-bot",
+          "commit": "58bce36",
+          "note": "fix(BL-PROGRESS-AUTO-DONE-SYNC): STEP_DONE_PATTERN.search → findall 변경, 다중 step 태그 처리 [step:done:1]"
         }
-      ]
+      ],
+      "started_at": "2026-05-06T19:17:16+00:00",
+      "updated_at": "2026-05-06T19:17:16+00:00"
     },
     {
       "id": "BL-OS-AUTO-SYNC-CHARTER",

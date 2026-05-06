@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-06T08:40:26.835087Z",
+  "updated_at": "2026-05-06T08:49:38.884438Z",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -3372,7 +3372,7 @@
       "category": "feature",
       "priority": "P0",
       "size": "large",
-      "status": "pending",
+      "status": "done",
       "claude_can_auto": true,
       "approval_required": false,
       "depends_on": [
@@ -3384,7 +3384,7 @@
         "requires_decisions_first": []
       },
       "last_chat_log": "2026-05-06-bl-status-interactive",
-      "progress": "Phase A에서 만든 결정 입력 모달을 풀 사양으로 강화. 현재 모달은 '결정 사유가 명시되지 않았습니다'만 표시되어 대표님이 무엇을 결정해야 하는지 알 수 없음. V2에서 결정 맥락(작업 내용/옵션/트레이드오프)을 좌측에 표시하고, 우측에 입력란을 두어 좌측 보면서 우측에 답할 수 있도록 함. 저장 시 tasks.json 자동 갱신 + approval_required:false + 자율 큐 자동 이관.",
+      "progress": "Phase A에서 만든 결정 입력 모달을 풀 사양으로 강화. 현재 모달은 '결정 사유가 명시되지 않았습니다'만 표시되어 대표님이 무엇을 결정해야 하는지 알 수 없음. V2에서 결정 맥락(작업 내용/옵션/트레이드오프)을 좌측에 표시하고, 우측에 입력란을 두어 좌측 보면서 우측에 답할 수 있도록 함. 저장 시 tasks.json 자동 갱신 + approval_required:false + 자율 큐 자동 이관.\n\n[2026-05-06 split] Phase A 완료, Phase B/C는 별도 작업(BL-DECISION-MODAL-V2-PHASE-B/-C)으로 분리. 부모 작업 done 처리.",
       "notes": "## V2 풀 사양\n\n### 1. UI - 좌우 분할 모달 (모바일은 위아래)\n- 좌측: 결정 맥락 패널\n  - 작업 ID / 카테고리 / 우선순위 / 사이즈 / 예상 시간 (헤더)\n  - 작업 제목\n  - 무엇을 결정해야 하는가 (decision_context 필드)\n  - 옵션 목록 (decision_options 필드)\n  - 권장 안 (decision_recommendation 필드)\n  - 트레이드오프 (각 옵션의 장단점)\n- 우측: 입력 패널\n  - textarea (대표님이 결정 적기)\n  - [💾 결정 저장 + 자율 큐 이관] 버튼\n  - 보조: [📋 클립보드만 복사] 버튼 (V1 호환)\n\n### 2. tasks.json 신설 필드\n- decision_context: '이 작업은 무엇을 결정해야 하는가' (사업적 맥락 / 사용자 영향)\n- decision_options: ['A안: ...', 'B안: ...', 'C안: ...'] 배열\n- decision_recommendation: '권장: A안 — 이유...'\n- ceo_decision: 대표님이 입력한 결정 사항 (저장 시 채워짐)\n- ceo_decision_at: ISO 시각 (저장 시 채워짐)\n\n### 3. 저장 동작 (자동)\n- POST /api/tasks/save-decision endpoint 신설 (또는 GitHub Contents API 직접 사용)\n- task.ceo_decision = 입력값\n- task.ceo_decision_at = new Date().toISOString()\n- task.approval_required = false (막힘 해제)\n- commit + push\n- 5초 폴링으로 자율 큐에 자동 등장\n\n### 4. 모달 마지막 안내\n저장 완료 → '✅ 결정 저장됨. 자율 큐에서 [작업명] 카드 클릭 → 새 채팅에 Cmd+V 하시면 작업이 시작됩니다.' + [지금 자율 큐에서 보기] 버튼 (스크롤 이동)\n\n### 5. decision_context 비어있는 작업 처리\n- 모달 좌측에 '이 작업은 결정 맥락이 정리되지 않았습니다' 안내\n- [📤 Claude에게 결정 사항 정리 요청] 버튼\n  → 클립보드에 '[결정 맥락 정리 요청 — {id}] tasks.json의 decision_context / decision_options / decision_recommendation 채워줘' 포맷 복사\n  → 대표님이 새 채팅에 붙여넣기 → Claude가 채워서 commit\n  → 5초 후 자동 갱신, 모달 다시 열면 풀 맥락 표시됨\n\n### 6. 직전 채팅(BL-STATUS-INTERACTIVE) 좌표 메모\n- 모달 함수: openCeoDecisionModal (admin-status.html line ~2069)\n- 모달 CSS: .ceo-decision-* (admin-status.html line ~872 근처)\n- 결정 대기 카드 클릭 핸들러: line 2055\n- pollTick: line 3322 (V2 저장 후 STATE.data 동기화 함께 호출)\n\n### 7. 백엔드 API (선택)\n- 옵션 A: GitHub Contents API 직접 호출 (현재 admin-status.html이 하는 방식)\n- 옵션 B: /api/tasks/save-decision Vercel function 신설 (인증 + 검증 강화)\n- 권장: 옵션 B (보안 + 향후 확장)\n\n### 8. 자체 검증 의무 (헌법 12조)\n- JS 문법 / JSON 검증 / Vercel READY / 라이브 fetch / 데이터 정확성 (decision 저장 후 다시 fetch해서 값 확인) / 시각 변경 trace / boundary (decision_context 빈 작업 / 한글 입력 / 매우 긴 입력 / 저장 실패 폴백)\n\n### 9. Phase 분할 권장\n- Phase A (small, ~1h): tasks.json 5개 신설 필드 + 1~2개 작업에 샘플 채우기 + UI는 일단 좌측 패널만 표시\n- Phase B (medium, ~1h): 좌우 분할 UI 풀 구현 + 모바일 반응형\n- Phase C (medium, ~1h): 저장 동작 자동화 (GitHub Contents API 또는 /api 신설) + 폴링 갱신 + 안내 화면\n\n### 10. 대표님 검증 요청\n- 결정 대기 카드 클릭 → 모달 좌측에 결정 맥락 보이는지\n- 우측 입력란에 적고 [결정 저장] → 5초 후 자율 큐에 자동 이동하는지\n- decision_context 빈 작업 → '정리 요청' 버튼 정상 동작하는지"
     },
     {
@@ -3405,9 +3405,12 @@
         "이미 그림 일치 완료 — 대표님 통찰 12단계 누적 결과로 풀 사양 확정"
       ],
       "decision_recommendation": "진행 (그림 일치 완료, 시스템 완성도 골격 작업)",
-      "ceo_decision": "그림 일치 완료 — 진행",
-      "ceo_decision_at": "2026-05-06",
-      "progress": "[2026-05-06 채팅에서 그림 일치 완료]\n\n핵심 동작:\n1. 카드 클릭 → 클립보드 복사 → '📋 복사됨 (실행 대기)' 표시\n2. 첫 commit 감지 시 → tasks.json에 in_progress_at 박음 → '다음 추천' 영역 위에 누적 카드 추가 (시작 순서대로 ①②③)\n3. commit 갱신 시 진행률 바 자동 업데이트\n4. 끝남 자동 감지 (status=done + 운영 알림 + chat-log 3개 조건)\n5. 모두 끝났을 때 '💤 진행 중 작업 없음 / 새 작업 시작 가능'\n6. 활동 이력에 진행 중 시작/갱신/끝 모두 자동 박힘\n7. 동시 표시 (차단 X), 시작 순서대로 누적"
+      "ceo_decision": "",
+      "ceo_decision_at": "",
+      "progress": "[2026-05-06 채팅에서 그림 일치 완료]\n\n핵심 동작:\n1. 카드 클릭 → 클립보드 복사 → '📋 복사됨 (실행 대기)' 표시\n2. 첫 commit 감지 시 → tasks.json에 in_progress_at 박음 → '다음 추천' 영역 위에 누적 카드 추가 (시작 순서대로 ①②③)\n3. commit 갱신 시 진행률 바 자동 업데이트\n4. 끝남 자동 감지 (status=done + 운영 알림 + chat-log 3개 조건)\n5. 모두 끝났을 때 '💤 진행 중 작업 없음 / 새 작업 시작 가능'\n6. 활동 이력에 진행 중 시작/갱신/끝 모두 자동 박힘\n7. 동시 표시 (차단 X), 시작 순서대로 누적",
+      "grim_ilchi_completed": true,
+      "grim_ilchi_completed_at": "2026-05-06",
+      "grim_ilchi_chat_log": "_chat-logs/2026-05-06-bl-decision-modal-v2-grim-ilchi-os.md"
     },
     {
       "id": "BL-LIVE-STATUS-AUTO-DETECT",
@@ -3427,8 +3430,11 @@
         "이미 그림 일치 완료"
       ],
       "decision_recommendation": "진행 (BL-LIVE-STATUS-PANEL 의존)",
-      "ceo_decision": "그림 일치 완료 — 진행",
-      "ceo_decision_at": "2026-05-06"
+      "ceo_decision": "",
+      "ceo_decision_at": "",
+      "grim_ilchi_completed": true,
+      "grim_ilchi_completed_at": "2026-05-06",
+      "grim_ilchi_chat_log": "_chat-logs/2026-05-06-bl-decision-modal-v2-grim-ilchi-os.md"
     },
     {
       "id": "BL-MODAL-COPY-REWRITE",
@@ -3448,8 +3454,11 @@
         "이미 그림 일치 완료 — 대표님 통찰 2번 누적"
       ],
       "decision_recommendation": "진행",
-      "ceo_decision": "그림 일치 완료 — 진행",
-      "ceo_decision_at": "2026-05-06"
+      "ceo_decision": "",
+      "ceo_decision_at": "",
+      "grim_ilchi_completed": true,
+      "grim_ilchi_completed_at": "2026-05-06",
+      "grim_ilchi_chat_log": "_chat-logs/2026-05-06-bl-decision-modal-v2-grim-ilchi-os.md"
     },
     {
       "id": "BL-DECISION-MODAL-V2-PHASE-B",
@@ -3469,8 +3478,11 @@
         "이미 그림 일치 완료 — 대표님 통찰 4~6번 누적"
       ],
       "decision_recommendation": "진행",
-      "ceo_decision": "그림 일치 완료 — 진행",
-      "ceo_decision_at": "2026-05-06"
+      "ceo_decision": "",
+      "ceo_decision_at": "",
+      "grim_ilchi_completed": true,
+      "grim_ilchi_completed_at": "2026-05-06",
+      "grim_ilchi_chat_log": "_chat-logs/2026-05-06-bl-decision-modal-v2-grim-ilchi-os.md"
     },
     {
       "id": "BL-DECISION-MODAL-V2-PHASE-C",
@@ -3492,8 +3504,11 @@
         "이미 그림 일치 완료"
       ],
       "decision_recommendation": "진행 (Phase B 후)",
-      "ceo_decision": "그림 일치 완료 — 진행",
-      "ceo_decision_at": "2026-05-06"
+      "ceo_decision": "",
+      "ceo_decision_at": "",
+      "grim_ilchi_completed": true,
+      "grim_ilchi_completed_at": "2026-05-06",
+      "grim_ilchi_chat_log": "_chat-logs/2026-05-06-bl-decision-modal-v2-grim-ilchi-os.md"
     },
     {
       "id": "BL-ACTIVITY-LOG-DUAL-LANG",
@@ -3513,8 +3528,11 @@
         "이미 그림 일치 완료 — 대표님 통찰 7번 누적"
       ],
       "decision_recommendation": "진행",
-      "ceo_decision": "그림 일치 완료 — 진행",
-      "ceo_decision_at": "2026-05-06"
+      "ceo_decision": "",
+      "ceo_decision_at": "",
+      "grim_ilchi_completed": true,
+      "grim_ilchi_completed_at": "2026-05-06",
+      "grim_ilchi_chat_log": "_chat-logs/2026-05-06-bl-decision-modal-v2-grim-ilchi-os.md"
     },
     {
       "id": "BL-MODAL-EMPTY-FILL",
@@ -3534,8 +3552,11 @@
         "이미 그림 일치 완료"
       ],
       "decision_recommendation": "진행",
-      "ceo_decision": "그림 일치 완료 — 진행",
-      "ceo_decision_at": "2026-05-06"
+      "ceo_decision": "",
+      "ceo_decision_at": "",
+      "grim_ilchi_completed": true,
+      "grim_ilchi_completed_at": "2026-05-06",
+      "grim_ilchi_chat_log": "_chat-logs/2026-05-06-bl-decision-modal-v2-grim-ilchi-os.md"
     },
     {
       "id": "BL-OS-DETAILS-DOC",
@@ -3555,8 +3576,11 @@
         "이미 그림 일치 완료 — 대표님 통찰 9번 누적"
       ],
       "decision_recommendation": "진행",
-      "ceo_decision": "그림 일치 완료 — 진행",
-      "ceo_decision_at": "2026-05-06"
+      "ceo_decision": "",
+      "ceo_decision_at": "",
+      "grim_ilchi_completed": true,
+      "grim_ilchi_completed_at": "2026-05-06",
+      "grim_ilchi_chat_log": "_chat-logs/2026-05-06-bl-decision-modal-v2-grim-ilchi-os.md"
     },
     {
       "id": "BL-OS-5MENU-EXPAND",
@@ -3579,8 +3603,11 @@
         "이미 그림 일치 완료 — 대표님 통찰 8번 누적"
       ],
       "decision_recommendation": "진행 (System Status 완성 후)",
-      "ceo_decision": "그림 일치 완료 — 진행",
-      "ceo_decision_at": "2026-05-06"
+      "ceo_decision": "",
+      "ceo_decision_at": "",
+      "grim_ilchi_completed": true,
+      "grim_ilchi_completed_at": "2026-05-06",
+      "grim_ilchi_chat_log": "_chat-logs/2026-05-06-bl-decision-modal-v2-grim-ilchi-os.md"
     }
   ]
 }

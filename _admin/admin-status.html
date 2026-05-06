@@ -2674,31 +2674,34 @@
   // ──────────────────────────────────────────────────────────
   function renderNextAction(data) {
     const tasks = data.tasks || [];
-    // 우선순위 1: in_progress 중에서 P0 우선
-    const inProgress = tasks
-      .filter(t => t.status === 'in_progress')
-      .sort((a, b) => (a.priority || 'P9').localeCompare(b.priority || 'P9'));
-
+    // [BUGFIX 2026-05-06] 진행 중 작업은 아래 보라색 진행 중 박스가 담당.
+    //   여기는 "지금 진행 중 다음에 할 작업"만 표시 (= 항상 다음 추천).
+    //   진행 중 작업과 결정 대기 작업은 제외, order 필드도 반영해서 큐와 같은 순서.
     let target = null;
     let mode = '';
     let hint = '';
 
-    if (inProgress.length > 0) {
-      target = inProgress[0];
-      mode = '🔄 진행 중';
+    const autoQueue = tasks
+      .filter(t =>
+        t.claude_can_auto === true &&
+        t.status === 'pending' &&
+        !t.approval_required &&
+        !(t.autonomous?.requires_decisions_first || []).length
+      )
+      .sort((a, b) => {
+        const pa = (a.priority || 'P9');
+        const pb = (b.priority || 'P9');
+        if (pa !== pb) return pa.localeCompare(pb);
+        const oa = a.order ?? 999;
+        const ob = b.order ?? 999;
+        return oa - ob;
+      });
+
+    if (autoQueue.length > 0) {
+      target = autoQueue[0];
+      mode = '🎯 다음 추천';
       const hours = target.autonomous?.estimated_hours;
-      hint = `현재 진행 중인 작업입니다. ${hours ? `예상 ${hours}h · ` : ''}이어서 작업하려면 예약 + 알림 버튼 → 클립보드 복사 → 새 채팅에 붙여넣기.`;
-    } else {
-      // 우선순위 2: 자율 가능 P0 → P1 첫번째
-      const autoQueue = tasks
-        .filter(t => t.claude_can_auto === true && t.status === 'pending' && !t.approval_required)
-        .sort((a, b) => (a.priority || 'P9').localeCompare(b.priority || 'P9'));
-      if (autoQueue.length > 0) {
-        target = autoQueue[0];
-        mode = '🎯 다음 추천';
-        const hours = target.autonomous?.estimated_hours;
-        hint = `Claude 자율 진행 가능 작업 중 우선순위 최상위. ${hours ? `예상 ${hours}h · ` : ''}버튼 누르면 ① 클립보드 복사 ② ops 알림 ③ 새 채팅 붙여넣기 한 번 = 시작.`;
-      }
+      hint = `현재 진행 중 작업이 끝나면 자동으로 시작됩니다. ${hours ? `예상 ${hours}h · ` : ''}지금 미리 시작하려면 예약 + 알림 버튼 → 클립보드 복사 → 새 채팅에 붙여넣기.`;
     }
 
     const pill = document.getElementById('next-action-pill');
@@ -2897,7 +2900,7 @@
         </div>
       `;
     }).join('');
-    wrap.innerHTML = inProgressHtml + queueHtml;
+    wrap.innerHTML = queueHtml;
 
     wrap.querySelectorAll('.auto-queue-card').forEach(el => {
       el.addEventListener('click', async () => {

@@ -2584,12 +2584,18 @@
       .filter(t =>
         t.claude_can_auto === true &&
         t.status === 'pending' &&
-        !t.approval_required
+        !t.approval_required &&
+        // ★ 헌법 13조 정합성: 결정 대기 작업은 자율 큐 제외 (BL-AURORA-MIGRATION 등)
+        !(t.autonomous?.requires_decisions_first || []).length
       )
       .sort((a, b) => {
         const pa = (a.priority || 'P9');
         const pb = (b.priority || 'P9');
-        return pa.localeCompare(pb);
+        if (pa !== pb) return pa.localeCompare(pb);
+        // ★ 헌법 13조: priority 같으면 order 필드 (시스템 완성도 의존성 순서)
+        const oa = a.order ?? 999;
+        const ob = b.order ?? 999;
+        return oa - ob;
       })
       .slice(0, 12); // 상위 12개만 (한 화면 안에 들어가게)
 

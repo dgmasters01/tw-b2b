@@ -218,18 +218,35 @@ def update_task(task: dict, intent: str, commit_sha: str, commit_msg: str) -> bo
 
     # [BL-PROGRESS-SYNC-OS] step 갱신 태그 처리
     # commit subject에 [step:done:N] 또는 [step:done:N,M] 있으면 progress.steps 자동 갱신
+    #
+    # [BUGFIX 2026-05-07 BL-PROGRESS-AUTO-DONE-SYNC 단계 1]
+    # 이전: STEP_DONE_PATTERN.search() → 첫 매칭만 처리. 한 commit subject 안에
+    #      [step:done:1] 과 [step:done:2,3] 처럼 두 태그가 있으면 두 번째 무시.
+    # 새 룰: findall() 로 모든 매칭을 모아서 처리.
+    #      예시: "fix(...): A 단계 + B 단계 [step:done:1] [step:done:2,3]"
+    #      → 단계 1, 2, 3 모두 done 처리
     subject = commit_msg.split("\n", 1)[0].strip()
-    step_match = STEP_DONE_PATTERN.search(subject)
+    step_matches = STEP_DONE_PATTERN.findall(subject)
     step_events = []
-    if step_match and isinstance(task.get("progress"), dict):
+    if step_matches and isinstance(task.get("progress"), dict):
         progress = task["progress"]
         steps = progress.get("steps", [])
         if isinstance(steps, list):
-            # "3,4" → [3, 4]
-            try:
-                step_nums = [int(x.strip()) for x in step_match.group(1).split(",") if x.strip()]
-            except ValueError:
-                step_nums = []
+            # 모든 매칭에서 단계 번호 수집 (중복 제거, 등장 순서 보존)
+            seen_nums = set()
+            step_nums = []
+            for m in step_matches:
+                # m = "1" 또는 "2,3" 또는 "1, 2, 3"
+                try:
+                    for x in m.split(","):
+                        x = x.strip()
+                        if x:
+                            n = int(x)
+                            if n not in seen_nums:
+                                seen_nums.add(n)
+                                step_nums.append(n)
+                except ValueError:
+                    continue
             for n in step_nums:
                 idx = n - 1  # 1-indexed → 0-indexed
                 if 0 <= idx < len(steps):

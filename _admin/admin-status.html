@@ -619,11 +619,63 @@
     </div>
   </div>
 
-  <!-- ════════════════════════════════════════════════════════
-       🎮 작업 지휘소 (Command Center) — CCF 7원칙 6번: 화면 최상단
-       BL-COMMAND-CENTER (Phase B, 2026-05-06)
-       위에서부터 차례로 클릭 = 시스템이 알아서 완성되어 가는 흐름
-       ════════════════════════════════════════════════════════ -->
+
+  <!-- ① 현재 진행 중 / 다음 추천 (BL-STATUS-REORDER: 최상단으로 이동) -->
+  <section class="next-action" id="next-action-box">
+    <div class="next-action-row">
+      <span class="pill" id="next-action-pill">🎯 다음 추천</span>
+      <span class="title" id="next-action-title">로딩 중...</span>
+      <button id="btn-reserve">▶ 예약 + 알림</button>
+    </div>
+    <div class="next-action-hint" id="next-action-hint">
+      카드는 tasks.json의 진행 중 작업 또는 P0 자율 진행 가능 첫번째 작업을 표시합니다. 버튼 누르면 ① priority_boost 자동 박힘 ② 클립보드 복사 + ops 알림 ③ 채팅에 붙여넣기 한 번 = 시작
+    </div>
+  </section>
+
+  <!-- ② 전체 평균 게이지 -->
+  <section class="avg-card">
+    <div class="avg-num-block">
+      <div class="avg-label">전체 평균</div>
+      <div class="avg-num" id="avg-num">73<small>/100</small></div>
+      <div class="avg-trend" id="avg-trend">▲ 어제 대비 +3</div>
+    </div>
+    <div class="avg-bar-block">
+      <div class="avg-bar"><div class="avg-bar-fill" id="avg-bar-fill" style="width:73%"></div></div>
+      <div class="avg-counts" id="avg-counts">
+        <span style="color:var(--done);">🟢 완성 0</span>
+        <span style="color:#60a5fa;">🔵 본격 16</span>
+        <span style="color:var(--p2);">🟡 부분 2</span>
+        <span style="color:var(--p1);">🟠 골격 0</span>
+        <span style="color:var(--blocked);">🔴 미작성 1</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ③ 작업 분포 KPI 4종 (자동/직원/CEO/헌법) -->
+  <section class="stats-grid">
+    <div class="stat-card auto" data-role-filter="auto" title="클릭 → 자동 진행 가능 작업만 임박 박스에 표시">
+      <div class="stat-label">🤖 자동 (Claude)</div>
+      <div class="stat-num" id="stat-auto">-</div>
+      <div class="stat-sub">시스템 자율 · 클릭 필터</div>
+    </div>
+    <div class="stat-card staff" data-role-filter="staff" title="클릭 → 직원 트리거 가능 작업만 임박 박스에 표시">
+      <div class="stat-label">👥 직원 가능</div>
+      <div class="stat-num" id="stat-staff">-</div>
+      <div class="stat-sub">Staff 트리거 가능 · 클릭 필터</div>
+    </div>
+    <div class="stat-card ceo" data-role-filter="ceo" title="클릭 → 대표님 결정 대기 작업만 임박 박스에 표시">
+      <div class="stat-label">👤 대표님 결정</div>
+      <div class="stat-num" id="stat-ceo">-</div>
+      <div class="stat-sub">CEO 사업 정책 · 클릭 필터</div>
+    </div>
+    <div class="stat-card charter" data-role-filter="all" title="클릭 → 필터 해제, 전체 표시">
+      <div class="stat-label">🛡️ 헌법 검증</div>
+      <div class="stat-num" id="stat-charter">27<small>/27</small></div>
+      <div class="stat-sub">PASS · 클릭 = 전체</div>
+    </div>
+  </section>
+
+  <!-- ④ 🎮 작업 지휘소 (결정 대기 + 자율 큐 + 직원 큐) -->
   <section class="command-center" id="command-center">
     <div class="cc-header">
       <span class="cc-title">🎮 작업 지휘소</span>
@@ -656,226 +708,7 @@
     </div>
   </section>
 
-  <style>
-    /* Command Center — Aurora palette + 화면 최상단 강조 */
-    .command-center {
-      margin: 12px 0 20px;
-      padding: 14px 16px 16px;
-      background: linear-gradient(135deg,
-        rgba(99,102,241,0.06) 0%,
-        rgba(168,85,247,0.06) 50%,
-        rgba(236,72,153,0.06) 100%);
-      border: 1px solid rgba(99,102,241,0.25);
-      border-radius: 10px;
-      box-shadow: 0 2px 12px rgba(99,102,241,0.08);
-    }
-    .cc-header {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 12px;
-      padding-bottom: 10px;
-      border-bottom: 1px dashed rgba(99,102,241,0.2);
-    }
-    .cc-title {
-      font-size: 14px;
-      font-weight: 700;
-      color: var(--aurora-2, #6366f1);
-      letter-spacing: -0.2px;
-    }
-    .cc-hint {
-      font-size: 11px;
-      color: var(--text-muted, #64748b);
-      font-weight: 500;
-    }
-    .cc-poll-status {
-      margin-left: auto;
-      font-size: 10px;
-      color: var(--text-muted, #94a3b8);
-      padding: 2px 6px;
-      background: rgba(99,102,241,0.08);
-      border-radius: 4px;
-      font-family: ui-monospace, monospace;
-      cursor: help;
-      transition: color 0.2s, background 0.2s;
-    }
-    .cc-poll-status.cc-poll-active {
-      color: #10b981;
-      background: rgba(16,185,129,0.12);
-    }
-    .cc-slot {
-      margin-bottom: 10px;
-    }
-    .cc-slot:last-child { margin-bottom: 0; }
-    .cc-slot-label {
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--text, #1e293b);
-      margin-bottom: 6px;
-      padding: 4px 8px;
-      background: rgba(255,255,255,0.5);
-      border-radius: 4px;
-      border-left: 3px solid var(--aurora-2, #6366f1);
-    }
-    .cc-slot#cc-slot-ceo .cc-slot-label { border-left-color: #f59e0b; }
-    .cc-slot#cc-slot-auto .cc-slot-label { border-left-color: #6366f1; }
-    .cc-slot#cc-slot-staff .cc-slot-label { border-left-color: #10b981; }
-    .cc-slot-body {
-      min-height: 36px;
-    }
-    .cc-loading, .cc-empty {
-      font-size: 11px;
-      color: var(--text-muted, #94a3b8);
-      padding: 8px 12px;
-      text-align: center;
-      font-style: italic;
-    }
-    .cc-staff-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-      gap: 8px;
-    }
-    .cc-staff-card {
-      background: rgba(16,185,129,0.06);
-      border: 0.5px solid rgba(16,185,129,0.3);
-      border-radius: 6px;
-      padding: 8px 10px;
-      cursor: pointer;
-      transition: all 0.15s;
-    }
-    .cc-staff-card:hover {
-      background: rgba(16,185,129,0.12);
-      border-color: rgba(16,185,129,0.6);
-      transform: translateY(-1px);
-    }
-    .cc-staff-card .cc-card-id {
-      font-size: 10px;
-      color: #059669;
-      font-weight: 600;
-      font-family: ui-monospace, monospace;
-    }
-    .cc-staff-card .cc-card-title {
-      font-size: 11px;
-      color: var(--text, #1e293b);
-      margin-top: 3px;
-      line-height: 1.4;
-      overflow: hidden;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-    }
-    .cc-staff-card .cc-card-meta {
-      font-size: 10px;
-      color: var(--text-muted, #64748b);
-      margin-top: 4px;
-      display: flex;
-      gap: 6px;
-    }
-    .cc-staff-card .cc-card-priority {
-      padding: 1px 5px;
-      border-radius: 3px;
-      font-weight: 600;
-    }
-    .cc-staff-card .cc-card-priority.P0 { background: #fee2e2; color: #dc2626; }
-    .cc-staff-card .cc-card-priority.P1 { background: #fed7aa; color: #ea580c; }
-    .cc-staff-card .cc-card-priority.P2 { background: #fef3c7; color: #ca8a04; }
-    .cc-staff-card .cc-card-priority.P3 { background: #e5e7eb; color: #6b7280; }
-    .cc-staff-card .cc-card-started-by {
-      font-size: 10px;
-      padding: 1px 5px;
-      border-radius: 3px;
-      background: rgba(255,255,255,0.7);
-    }
-    /* 모바일 */
-    @media (max-width: 640px) {
-      .command-center { padding: 10px 12px 12px; }
-      .cc-header { flex-wrap: wrap; gap: 6px; }
-      .cc-poll-status { margin-left: 0; }
-      .cc-staff-grid { grid-template-columns: 1fr; }
-    }
-    /* 클립보드 복사 토스트 */
-    .cc-toast {
-      position: fixed;
-      bottom: 24px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(15,23,42,0.95);
-      color: white;
-      padding: 10px 18px;
-      border-radius: 8px;
-      font-size: 12px;
-      font-weight: 500;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
-      z-index: 9999;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.2s, transform 0.2s;
-    }
-    .cc-toast.show {
-      opacity: 1;
-      transform: translateX(-50%) translateY(-4px);
-    }
-    .cc-toast.error { background: rgba(220,38,38,0.95); }
-    .cc-toast.success { background: rgba(16,185,129,0.95); }
-  </style>
-
-  <!-- 전체 평균 게이지 -->
-  <section class="avg-card">
-    <div class="avg-num-block">
-      <div class="avg-label">전체 평균</div>
-      <div class="avg-num" id="avg-num">73<small>/100</small></div>
-      <div class="avg-trend" id="avg-trend">▲ 어제 대비 +3</div>
-    </div>
-    <div class="avg-bar-block">
-      <div class="avg-bar"><div class="avg-bar-fill" id="avg-bar-fill" style="width:73%"></div></div>
-      <div class="avg-counts" id="avg-counts">
-        <span style="color:var(--done);">🟢 완성 0</span>
-        <span style="color:#60a5fa;">🔵 본격 16</span>
-        <span style="color:var(--p2);">🟡 부분 2</span>
-        <span style="color:var(--p1);">🟠 골격 0</span>
-        <span style="color:var(--blocked);">🔴 미작성 1</span>
-      </div>
-    </div>
-  </section>
-
-  <!-- 3-State 통계 4 카드 (클릭 → 임박 작업 박스 필터) -->
-  <section class="stats-grid">
-    <div class="stat-card auto" data-role-filter="auto" title="클릭 → 자동 진행 가능 작업만 임박 박스에 표시">
-      <div class="stat-label">🤖 자동 (Claude)</div>
-      <div class="stat-num" id="stat-auto">-</div>
-      <div class="stat-sub">시스템 자율 · 클릭 필터</div>
-    </div>
-    <div class="stat-card staff" data-role-filter="staff" title="클릭 → 직원 트리거 가능 작업만 임박 박스에 표시">
-      <div class="stat-label">👥 직원 가능</div>
-      <div class="stat-num" id="stat-staff">-</div>
-      <div class="stat-sub">Staff 트리거 가능 · 클릭 필터</div>
-    </div>
-    <div class="stat-card ceo" data-role-filter="ceo" title="클릭 → 대표님 결정 대기 작업만 임박 박스에 표시">
-      <div class="stat-label">👤 대표님 결정</div>
-      <div class="stat-num" id="stat-ceo">-</div>
-      <div class="stat-sub">CEO 사업 정책 · 클릭 필터</div>
-    </div>
-    <div class="stat-card charter" data-role-filter="all" title="클릭 → 필터 해제, 전체 표시">
-      <div class="stat-label">🛡️ 헌법 검증</div>
-      <div class="stat-num" id="stat-charter">27<small>/27</small></div>
-      <div class="stat-sub">PASS · 클릭 = 전체</div>
-    </div>
-  </section>
-
-  <!-- 🎯 현재 진행 / 다음 추천 (진행 중 작업이 있으면 그것이 우선, 없으면 P0 자율 가능 첫번째) -->
-  <section class="next-action" id="next-action-box">
-    <div class="next-action-row">
-      <span class="pill" id="next-action-pill">🎯 다음 추천</span>
-      <span class="title" id="next-action-title">로딩 중...</span>
-      <button id="btn-reserve">▶ 예약 + 알림</button>
-    </div>
-    <div class="next-action-hint" id="next-action-hint">
-      카드는 tasks.json의 진행 중 작업 또는 P0 자율 진행 가능 첫번째 작업을 표시합니다. 버튼 누르면 ① priority_boost 자동 박힘 ② 클립보드 복사 + ops 알림 ③ 채팅에 붙여넣기 한 번 = 시작
-    </div>
-  </section>
-
-  <!-- 5 카테고리 카드 (BL-HUB-RETIRE: Central Hub 카드 제거 — admin-status가 통합 진입점) -->
-  <div class="section-label">사이드바 5개 메뉴 · 카드 클릭 → 상세 펼침 (다음 단계 구현)</div>
+  <!-- ⑤ 5 시스템 카테고리 카드 (전체 시각 — 헌법 D-010) -->
   <section class="cat-grid" id="cat-grid">
     <!-- Card 1: Task Management -->
     <a class="cat-card" href="/admin-tasks.html" style="text-decoration:none;color:inherit;">
@@ -982,7 +815,7 @@
     </a>
   </section>
 
-  <!-- ★ 임박 작업 + 카테고리별 진행률 (BL-PAGE-DEDUP — admin-tasks 대시보드 흡수, "하나에서 전체") -->
+  <!-- ⑥ 임박 작업 + 카테고리별 진행률 + 자율 큐 원본 (JS가 ④로 이동) (중간 시각) -->
   <section class="integ-section">
     <div class="integ-section-h">
       <span class="label">📊 임박 작업 · 카테고리별 진행률 — tasks.json 단일 진실</span>
@@ -1024,7 +857,7 @@
     </div>
   </section>
 
-  <!-- 결정 대기 박스 (renderCeoWait가 동적 렌더) -->
+  <!-- ⑦ 결정 대기 박스 원본 (JS가 ④로 이동) -->
   <section class="ceo-wait-box" id="ceo-wait-box">
     <div class="ceo-wait-title" id="ceo-wait-title">👤 대표님 결정 대기 — 로딩 중...</div>
     <div class="ceo-wait-list" id="ceo-wait-list">
@@ -1032,7 +865,7 @@
     </div>
   </section>
 
-  <!-- 시급 TOP 10 -->
+  <!-- ⑧ 시급 페이지 TOP 10 (세부 시각) -->
   <section class="top-box">
     <div class="top-header">
       <div class="section-label" style="margin:0;">⚠️ 시급 페이지 TOP 10 — 점수 낮은 순</div>
@@ -1106,7 +939,7 @@
     </div>
   </section>
 
-  <!-- 활동 이력 (전체 통합 타임라인) -->
+  <!-- ⑨ 활동 이력 -->
   <section class="activity-box">
     <div class="activity-header">
       <div class="section-label" style="margin:0;">📜 활동 이력 — 전체 타임라인 (대화창 끊겨도 추적 가능)</div>
@@ -1124,6 +957,7 @@
       📂 출처: git log + tasks.json + ECHO_LOG + DECISIONS · 자동 갱신 · <a href="/activity-feed.json" style="color:#60a5fa;" target="_blank">전체 raw 보기</a>
     </div>
   </section>
+
 
   <!-- 푸터 -->
   <footer class="footer">

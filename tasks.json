@@ -3700,6 +3700,12 @@
           "by": "auto-detect-bot",
           "commit": "37f17e9",
           "note": "chore(BL-DECISION-MODAL-V2-PHASE-B): 단계 6/7 수동 마킹 + 단계 8 진입 [step:done:6,7,8]"
+        },
+        {
+          "at": "2026-05-06T19:11:36+00:00",
+          "event": "진행률 100% 도달했으나 status=in_progress 유지 (자동 done 룰 부재) — BL-PROGRESS-AUTO-DONE-SYNC 작업에서 처리 예정",
+          "by": "Claude (자율 발견)",
+          "note": "대표님 통찰로 시스템 완성도 위반 발견. 새 핫픽스 작업 박힘."
         }
       ],
       "progress": {
@@ -4037,6 +4043,141 @@
           "by": "auto-detect-bot",
           "commit": "c173e3c",
           "note": "merge: 봇 commit 9c65f63 통합 + BL-PROGRESS-SYNC-OS done 강제 보장"
+        }
+      ]
+    },
+    {
+      "id": "BL-PROGRESS-AUTO-DONE-SYNC",
+      "title": "[그림 일치 OS 시스템 완성도] progress 100% → status=done 자동 동기화 + 봇 step 정규식 다중 매칭 fix",
+      "category": "feature",
+      "priority": "P0",
+      "size": "small",
+      "status": "pending",
+      "approval_required": false,
+      "autonomous": {
+        "can_run_alone": true,
+        "estimated_hours": 1,
+        "requires_decisions_first": []
+      },
+      "decision_context": "어제 BL-DECISION-MODAL-V2-PHASE-B 완료 후 발견된 시스템 완성도 위반 2건. (1) progress.percent=100 도달해도 task.status는 in_progress 그대로 → 자율 작업 큐에 '진행 중' + '이어가기' 버튼이 계속 보임 (단일 진실 원칙 위반). (2) 봇 정규식 STEP_DONE_PATTERN.search()가 한 subject 내 별도 태그 두 개 중 첫 번째만 잡음 → 단계 5+6 한 commit에 박으면 5만 처리되고 6 누락. 두 건 모두 봇 스크립트 한 곳에서 fix 가능.",
+      "decision_options": [
+        "A안 — 봇 스크립트에 두 룰 추가 (progress 100% → status=done 자동 + STEP_DONE_PATTERN.findall() 다중 매칭). 어제 PHASE-B status 수동 done 마킹.",
+        "B안 — progress 100% 자동 done은 위험 (개발자가 Phase B 끝낸 후 follow-up commit 추가 시 다시 in_progress로 못 돌림). 명시적 done 키워드만 유지.",
+        "C안 — 봇 정규식만 fix하고 progress 100% 자동 done은 미루기.",
+        "D안 — 봇 자체 폐기하고 다른 방식 (GitHub Action으로 직접 .yml 룰 박기)으로 재설계."
+      ],
+      "decision_recommendation": "A안 권장. 진짜 그림 일치 OS의 본질은 '대표님이 status 신경 안 써도 자동 동기화'. progress 100% 도달은 사람의 명시적 단계 마킹이 누적된 결과라 충분히 신뢰 가능한 신호. 리오픈은 [reopen:N] 같은 명시 태그로 별도 처리 가능 (미래 작업).",
+      "ceo_decision": "A안으로 진행 — 대표님 통찰 (2026-05-06 채팅): 작업 완료되면 다음 추천뿐 아니라 자율 작업 큐 카드도 자동 업데이트되어야 함",
+      "ceo_decision_at": "2026-05-06T19:11:36+00:00",
+      "order": 22,
+      "claude_can_auto": true,
+      "progress": {
+        "steps": [
+          {
+            "label": "scripts/auto_detect_task_status.py — STEP_DONE_PATTERN.search() → findall() 변경 (다중 매칭)",
+            "done": false,
+            "at": null
+          },
+          {
+            "label": "같은 스크립트 — update_task() 끝에 'progress.percent === 100 이면 task.status = done 자동' 룰 추가",
+            "done": false,
+            "at": null
+          },
+          {
+            "label": "어제 BL-DECISION-MODAL-V2-PHASE-B status 수동으로 done 박기 (즉시 화면 정리)",
+            "done": false,
+            "at": null
+          },
+          {
+            "label": "test commit으로 두 룰 라이브 검증 (작은 dummy task로 시뮬)",
+            "done": false,
+            "at": null
+          },
+          {
+            "label": "commit + push + 라이브 화면 검증 (자율 작업 큐에서 PHASE-B 카드 사라지는지)",
+            "done": false,
+            "at": null
+          }
+        ],
+        "percent": 0,
+        "completed_count": 0,
+        "total_count": 5,
+        "updated_at": "2026-05-06T19:11:36+00:00"
+      },
+      "history": [
+        {
+          "at": "2026-05-06T19:11:36+00:00",
+          "event": "신규 작업 생성 — 그림 일치 OS 핫픽스",
+          "by": "Claude (자율 발견)",
+          "note": "대표님이 자율 작업 큐 화면에서 같은 작업이 두 곳에서 다른 상태 보이는 모순 발견 → 시스템 완성도 위반 2건 박힘"
+        }
+      ]
+    },
+    {
+      "id": "BL-OS-AUTO-SYNC-CHARTER",
+      "title": "[그림 일치 OS 메타] 시스템 완성도 = 자동 동기화. 헌법에 명시 + 다른 자동화 누락 항목 전수 점검",
+      "category": "feature",
+      "priority": "P1",
+      "size": "medium",
+      "status": "pending",
+      "approval_required": false,
+      "autonomous": {
+        "can_run_alone": true,
+        "estimated_hours": 2,
+        "requires_decisions_first": [
+          "BL-PROGRESS-AUTO-DONE-SYNC"
+        ]
+      },
+      "decision_context": "BL-PROGRESS-AUTO-DONE-SYNC 핫픽스 후, 같은 종류의 자동 동기화 누락이 시스템 어디에 또 있는지 전수 점검. 대표님 통찰의 본질: '한 곳에서 작업 끝나면 모든 화면이 자동 일치되어야 한다'. progress↔status 외에도 (1) 새 commit 들어오면 activity-feed 자동 갱신 (2) 호텔 상태 변경 시 5개 카테고리 카드 즉시 반영 (3) 결정 모달에서 ceo_decision 입력 시 진행 중 박스 라벨 자동 변경 등 점검. 헌법 12조 부칙으로 '자동 동기화 완성도' 원칙 추가.",
+      "decision_options": [
+        "A안 — 전수 점검 + 헌법 12조 부칙 8 박기 + 발견된 누락 항목별로 작은 backlog 작업 분리 등록",
+        "B안 — 헌법만 박고 누락 항목은 발견 시점에 fix",
+        "C안 — 핫픽스(BL-PROGRESS-AUTO-DONE-SYNC)만 하고 메타 점검은 보류"
+      ],
+      "decision_recommendation": "A안 권장. 같은 패턴 누락이 한 번 나왔으면 다른 곳에도 있을 가능성 높음. 헌법 박는 비용 작고 미래 채팅에서 같은 모순 재발 방지 효과 큼.",
+      "ceo_decision": "A안 — 대표님 통찰 (2026-05-06): 자동으로 업데이트할 수 있지 않나",
+      "ceo_decision_at": "2026-05-06T19:11:36+00:00",
+      "order": 23,
+      "claude_can_auto": true,
+      "progress": {
+        "steps": [
+          {
+            "label": "BL-PROGRESS-AUTO-DONE-SYNC 완료 대기 (선행)",
+            "done": false,
+            "at": null
+          },
+          {
+            "label": "admin-status.html 5개 카테고리 카드 + 자율 큐 + 진행 중 박스 + 추천 박스 — 자동 동기화 누락 지점 전수 grep",
+            "done": false,
+            "at": null
+          },
+          {
+            "label": "발견 항목별 작은 backlog 작업 분리 등록 (예상 3~7건)",
+            "done": false,
+            "at": null
+          },
+          {
+            "label": "OPERATIONS_CHARTER.md — 12조 부칙 8 '자동 동기화 완성도' 원칙 한 단락 박기",
+            "done": false,
+            "at": null
+          },
+          {
+            "label": "commit + push + 자율 작업 큐에 새 backlog 항목들 떠있는지 라이브 검증",
+            "done": false,
+            "at": null
+          }
+        ],
+        "percent": 0,
+        "completed_count": 0,
+        "total_count": 5,
+        "updated_at": "2026-05-06T19:11:36+00:00"
+      },
+      "history": [
+        {
+          "at": "2026-05-06T19:11:36+00:00",
+          "event": "신규 작업 생성 — 그림 일치 OS 자동 동기화 메타 점검",
+          "by": "Claude (자율 발견)",
+          "note": "BL-PROGRESS-AUTO-DONE-SYNC 발견을 계기로 같은 패턴 다른 곳 점검 + 헌법 박기"
         }
       ]
     }

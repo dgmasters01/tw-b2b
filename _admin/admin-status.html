@@ -239,19 +239,30 @@
     display: none;  /* progress.steps 있는 작업만 JS가 표시 */
   }
   .in-progress-progress.visible { display: block; }
+  /* 헤드 = 클릭 가능 토글 영역 (한 줄 항상 보임) */
   .in-progress-progress .pp-head {
     display: flex; align-items: center; justify-content: space-between;
     margin-bottom: 6px;
     font-size: 10px; color: rgba(196,181,253,0.85);
     text-transform: uppercase; letter-spacing: 0.5px;
+    cursor: pointer;
+    user-select: none;
   }
+  .in-progress-progress .pp-head:hover { color: #fff; }
+  .in-progress-progress .pp-head-left {
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .in-progress-progress .pp-toggle {
+    font-size: 9px; transition: transform 0.2s ease;
+    color: rgba(196,181,253,0.6);
+  }
+  .in-progress-progress.expanded .pp-toggle { transform: rotate(90deg); }
   .in-progress-progress .pp-percent {
     font-size: 11px; font-weight: 600; color: #c4b5fd;
   }
   .in-progress-progress .pp-bar {
     background: rgba(147,51,234,0.15);
     border-radius: 6px; height: 8px; overflow: hidden;
-    margin-bottom: 8px;
   }
   .in-progress-progress .pp-bar-fill {
     height: 100%;
@@ -259,10 +270,14 @@
     border-radius: 6px;
     transition: width 0.4s ease;
   }
+  /* 단계 리스트 = 펼쳤을 때만 표시 */
   .in-progress-progress .pp-steps {
-    display: grid; gap: 4px;
+    display: none;
+    margin-top: 10px;
+    grid-gap: 4px; gap: 4px;
     font-size: 10px; line-height: 1.5;
   }
+  .in-progress-progress.expanded .pp-steps { display: grid; }
   .in-progress-progress .pp-step {
     display: flex; align-items: center; gap: 6px;
     color: var(--text-muted);
@@ -775,10 +790,13 @@
       <span class="item"><span class="label">예상</span> <span id="ip-estimate">-</span></span>
       <span class="item"><span class="label">담당</span> <span id="ip-owner">-</span></span>
     </div>
-    <!-- 진행률 바 (BL-PROGRESS-BAR-OS) — progress.steps 있을 때만 표시 -->
+    <!-- 진행률 바 (BL-PROGRESS-BAR-OS) — progress.steps 있을 때만 표시. 헤드 클릭 = 단계 펼침/접음 -->
     <div class="in-progress-progress" id="in-progress-progress">
-      <div class="pp-head">
-        <span>진행률</span>
+      <div class="pp-head" id="ip-progress-head" title="클릭 = 단계 상세 펼침/접음">
+        <span class="pp-head-left">
+          <span class="pp-toggle">▶</span>
+          <span>진행률</span>
+        </span>
         <span class="pp-percent" id="ip-percent">-</span>
       </div>
       <div class="pp-bar"><div class="pp-bar-fill" id="ip-bar-fill" style="width:0%"></div></div>
@@ -2875,6 +2893,15 @@
         const mark = s.done ? '☑️' : (i === currentIdx ? '⏳' : '☐');
         return `<div class="pp-step ${cls}"><span class="pp-mark">${mark}</span><span>${i + 1}. ${escapeHtml(s.label || '')}</span></div>`;
       }).join('');
+    }
+
+    // 헤드 클릭 = 펼침/접음 토글 (한 번만 박힘 — dataset 플래그)
+    const head = $('ip-progress-head');
+    if (head && !head.dataset.toggleBound) {
+      head.addEventListener('click', () => {
+        wrap.classList.toggle('expanded');
+      });
+      head.dataset.toggleBound = '1';
     }
   }
 

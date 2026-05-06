@@ -45,10 +45,12 @@ jobs:
     runs-on: ubuntu-latest
 
     # 무한 루프 방지: 봇 commit은 트리거 안 함
+    # head_commit.message 첫 줄이 [bot-name]으로 시작할 때만 스킵
+    # (본문에 우연히 봇 이름이 들어가도 영향 없도록)
     if: |
-      !contains(github.event.head_commit.message, '[auto-detect-bot]') &&
-      !contains(github.event.head_commit.message, '[sync-bot]') &&
-      !contains(github.event.head_commit.message, '[scan-bot]')
+      !startsWith(github.event.head_commit.message, '[auto-detect-bot]') &&
+      !startsWith(github.event.head_commit.message, '[sync-bot]') &&
+      !startsWith(github.event.head_commit.message, '[scan-bot]')
 
     steps:
       - name: Checkout (full history)

@@ -272,14 +272,35 @@
     margin-top: 8px;
   }
   .auto-queue-card {
+    position: relative; /* ★ Phase B-2: 순서 번호 absolute 기준 */
     background: linear-gradient(135deg, rgba(34,197,94,0.08), rgba(34,197,94,0.02));
     border: 1px solid rgba(34,197,94,0.25);
     border-left: 3px solid #22c55e;
     border-radius: 6px;
-    padding: 10px 12px;
+    padding: 10px 12px 10px 32px; /* ★ 좌측 padding 증가 (번호 자리 확보) */
     cursor: pointer;
     transition: transform .15s, border-left-color .15s, box-shadow .15s;
   }
+  /* ★ Phase B-2: 자율 큐 순서 번호 (1~13) — 위에서부터 차례로 */
+  .auto-queue-order {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: rgba(34,197,94,0.20);
+    color: #86efac;
+    font-size: 10px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    font-family: var(--font-mono, ui-monospace, monospace);
+  }
+  .auto-queue-card.p0 .auto-queue-order { background: rgba(239,68,68,0.20); color: #fca5a5; }
+  .auto-queue-card.p1 .auto-queue-order { background: rgba(249,115,22,0.20); color: #fdba74; }
   .auto-queue-card:hover {
     transform: translateX(2px);
     border-left-color: #4ade80;
@@ -576,7 +597,8 @@
     .top-row .info { flex-basis: 100%; }
 
     /* 자율 작업 큐 카드 — 1열 (이미 grid 1열이지만 패딩/폰트 정리) */
-    .auto-queue-card { padding: 8px; }
+    .auto-queue-card { padding: 8px 8px 8px 28px; } /* ★ Phase B-2: 좌측 번호 자리 */
+    .auto-queue-order { top: 6px; left: 6px; width: 16px; height: 16px; font-size: 9px; }
     .auto-queue-title { font-size: 11px; }
     .auto-queue-meta { font-size: 9px; flex-wrap: wrap; gap: 4px; }
 
@@ -2492,7 +2514,7 @@
       return;
     }
 
-    wrap.innerHTML = queue.map(t => {
+    wrap.innerHTML = queue.map((t, idx) => {
       const priCls = (t.priority || 'P2').toLowerCase();
       const priLab = (typeof PRI_LABEL_KO !== 'undefined' && PRI_LABEL_KO[t.priority]) || (t.priority || '-');
       const catLab = (typeof CATEGORY_LABEL_KO !== 'undefined' && CATEGORY_LABEL_KO[t.category]) || (t.category || '-');
@@ -2500,8 +2522,10 @@
         ? `⏱ 약 ${t.autonomous.estimated_hours}h`
         : '';
       const size = t.size ? `📐 ${t.size}` : '';
+      const orderNum = idx + 1; // ★ Phase B-2: 1번부터 시작하는 순서 번호
       return `
         <div class="auto-queue-card ${priCls}" data-id="${escapeHtml(t.id)}" data-title="${escapeHtml(t.title || '')}">
+          <span class="auto-queue-order" title="자율 큐 ${orderNum}번 — 위에서부터 차례로 실행">${orderNum}</span>
           <div class="auto-queue-head">
             <span class="auto-queue-bot-pill">🤖 AUTO</span>
             <span class="urgent-pill ${priCls}">${priLab}</span>
@@ -3332,11 +3356,20 @@
           // 변경 감지 → 재렌더
           try {
             const data = JSON.parse(txt);
+            // ★ STATE.data 동기화 (renderAvg/Sidebar/TopUrgent가 STATE.data 의존)
+            try { STATE.data = data; } catch (_) {}
+            // 통합 영역 (기존)
             renderIntegratedKPI(data);
             renderIntegratedUrgent(data);
             renderIntegratedProgress(data);
             renderAutoQueue(data);
             renderNextAction(data);
+            // ★ BL-STATUS-INTERACTIVE Phase B-1: 4 영역 추가 갱신
+            //   기존 pollTick에서 빠진 영역들 — 5초 폴링 시 함께 갱신
+            try { renderAvg(data); } catch (e) { console.warn('[poll] renderAvg 실패', e); }
+            try { renderSidebarMenus(data); } catch (e) { console.warn('[poll] renderSidebarMenus 실패', e); }
+            try { renderTopUrgent(data); } catch (e) { console.warn('[poll] renderTopUrgent 실패', e); }
+            try { renderCeoWait(data); } catch (e) { console.warn('[poll] renderCeoWait 실패', e); }
             showPollToast('🔄 tasks.json 갱신됨');
           } catch (_) {}
         }

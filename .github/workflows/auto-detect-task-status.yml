@@ -1,0 +1,145 @@
+# TW B2B — commit message 자동 감지 → tasks.json status 자동 갱신
+#
+# 작업: BL-LIVE-STATUS-AUTO-DETECT (헌법 12조 그림 일치 OS 1단계)
+#
+# 헌법 부합:
+#   ② 무인 실행: main push 즉시 자동 실행
+#   ④ 전수 추적: 모든 status 전환이 task.history에 기록
+#   ⑤ 무인 검증: 변경 사항 있을 때만 commit
+#   ⑦ 상태 가시성: tasks.json 갱신 → admin-status 5초 폴링 자동 감지
+#
+# 트리거 조건:
+#   1. main 브랜치 push 시 (모든 commit 분석)
+#   2. workflow_dispatch — 수동 실행 (디버그용)
+#
+# 실행 흐름:
+#   1. checkout (이전 commit과 비교 필요 → fetch-depth: 0)
+#   2. github.event.before 이후 모든 commit message 분석
+#   3. 작업 ID 추출 + intent 분류 (in_progress / done / update)
+#   4. tasks.json 갱신 (status + history + updated_at)
+#   5. 변경 있으면 [auto-detect-bot] commit + push
+
+name: Auto Detect Task Status from Commit Messages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      since_commit:
+        description: '이 commit 이후의 모든 commit 분석 (비우면 직전 1개만)'
+        required: false
+        type: string
+
+# 동시 실행 방지 (sync.yml과는 별도 group)
+concurrency:
+  group: auto-detect-task-status-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  auto-detect:
+    name: Detect Task IDs in Commits → Update tasks.json
+    runs-on: ubuntu-latest
+
+    # 무한 루프 방지: 봇 commit은 트리거 안 함
+    if: |
+      !contains(github.event.head_commit.message, '[auto-detect-bot]') &&
+      !contains(github.event.head_commit.message, '[sync-bot]') &&
+      !contains(github.event.head_commit.message, '[scan-bot]')
+
+    steps:
+      - name: Checkout (full history)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Determine since_commit
+        id: since
+        run: |
+          # workflow_dispatch에서 since_commit 입력 시 우선
+          if [ -n "${{ inputs.since_commit }}" ]; then
+            SINCE="${{ inputs.since_commit }}"
+          else
+            # github.event.before가 0000... 이면 (force push 등) 최근 1개만
+            BEFORE="${{ github.event.before }}"
+            if [ -z "$BEFORE" ] || [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
+              SINCE=""
+            else
+              SINCE="$BEFORE"
+            fi
+          fi
+          echo "since=$SINCE" >> "$GITHUB_OUTPUT"
+          echo "📍 분석 시작점: ${SINCE:-HEAD~1 (단일)}"
+
+      - name: Run auto-detect (dry-run preview)
+        run: |
+          if [ -n "${{ steps.since.outputs.since }}" ]; then
+            python3 scripts/auto_detect_task_status.py \
+              --since-commit "${{ steps.since.outputs.since }}" \
+              --dry-run
+          else
+            python3 scripts/auto_detect_task_status.py --dry-run
+          fi
+
+      - name: Run auto-detect (apply)
+        run: |
+          if [ -n "${{ steps.since.outputs.since }}" ]; then
+            python3 scripts/auto_detect_task_status.py \
+              --since-commit "${{ steps.since.outputs.since }}"
+          else
+            python3 scripts/auto_detect_task_status.py
+          fi
+
+      - name: Detect changes
+        id: changes
+        run: |
+          if [ -n "$(git status --porcelain tasks.json)" ]; then
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+            echo "📝 tasks.json 변경 감지됨"
+            git diff --stat tasks.json
+          else
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+            echo "⚪ 변경 없음 — commit skip"
+          fi
+
+      - name: Commit and push
+        if: steps.changes.outputs.has_changes == 'true'
+        run: |
+          git config user.name  "tw-b2b auto-detect-bot"
+          git config user.email "auto-detect-bot@gohotelwinners.com"
+
+          git add tasks.json
+          git commit -m "[auto-detect-bot] commit message → 작업 status 자동 갱신
+
+          [변경사유] BL-LIVE-STATUS-AUTO-DETECT — 헌법 12조 그림 일치 OS 1단계
+          (commit message에서 작업 ID 자동 추출 → tasks.json status/history 갱신)
+
+          Trigger: ${{ github.event_name }}
+          Source commit: ${{ github.sha }}"
+
+          git push origin main
+          echo "✅ 자동 commit 푸시 완료 → admin-status 5초 폴링이 감지함"
+
+      - name: Summary
+        run: |
+          echo "## 🤖 commit message 자동 감지 결과" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          if [ "${{ steps.changes.outputs.has_changes }}" = "true" ]; then
+            echo "✅ **tasks.json status 자동 갱신 완료**" >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "다음 단계 자동 흐름:" >> "$GITHUB_STEP_SUMMARY"
+            echo "1. admin-status.html 5초 폴링이 tasks.json 변경 감지" >> "$GITHUB_STEP_SUMMARY"
+            echo "2. \"⚡ 지금 진행 중\" 박스 자동 노출 또는 갱신" >> "$GITHUB_STEP_SUMMARY"
+            echo "3. 자율 작업 큐에 진행 중 카드(0번 ⚡) 자동 분리 표시" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "⚪ 변경 사항 없음 — 매칭된 작업이 없거나 이미 최신 상태" >> "$GITHUB_STEP_SUMMARY"
+          fi

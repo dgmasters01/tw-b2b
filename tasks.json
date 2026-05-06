@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-06T17:14:07+00:00",
+  "updated_at": "2026-05-06T17:40:18+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -12,8 +12,8 @@
     "SOLO_WORK_QUEUE.md"
   ],
   "stats": {
-    "total": 93,
-    "done": 67,
+    "total": 94,
+    "done": 68,
     "in_progress": 1,
     "pending": 15,
     "blocked": 10,
@@ -3890,6 +3890,92 @@
           "by": "auto-detect-bot",
           "commit": "d6ee37f",
           "note": "fix(BL-DECISION-MODAL-V2-PHASE-B): in_progress 박기 + 17개 작업 order 보정"
+        }
+      ]
+    },
+    {
+      "id": "BL-PROGRESS-SYNC-OS",
+      "title": "[그림 일치 OS 보강] 작업 단계 진행률 + 어드민 자동 동기화 시스템",
+      "category": "feature",
+      "priority": "P0",
+      "size": "medium",
+      "status": "done",
+      "approval_required": false,
+      "claude_can_auto": true,
+      "autonomous": {
+        "can_run_alone": true,
+        "estimated_hours": 2,
+        "requires_decisions_first": []
+      },
+      "decision_context": "대표님 통찰: '이어가기 붙여넣고 다른 일 하다 돌아오면 어디까지 했는지 몰라 잘못되면 중복' — 이 문제 해결을 위해 진행률 바 UI + 봇 자동 갱신 + 인계서 라이브 fetch 3단 동기화 시스템 박음.",
+      "decision_options": [],
+      "decision_recommendation": "",
+      "ceo_decision": "그림 일치 완료 — 진행",
+      "ceo_decision_at": "2026-05-06",
+      "grim_ilchi_completed": true,
+      "grim_ilchi_completed_at": "2026-05-06",
+      "grim_ilchi_chat_log": "_chat-logs/2026-05-06-bl-progress-sync-os-handoff-sync.md",
+      "order": 3,
+      "started_at": "2026-05-06T17:00:00+00:00",
+      "completed_at": "2026-05-06T17:40:18+00:00",
+      "updated_at": "2026-05-06T17:40:18+00:00",
+      "owner": "Claude",
+      "source": "live_chat",
+      "depends_on": [],
+      "progress": {
+        "steps": [
+          {
+            "label": "tasks.json progress 스키마 + 진행률 바 UI (a371f03)",
+            "done": true,
+            "at": "2026-05-06T17:13:10+00:00"
+          },
+          {
+            "label": "단계 리스트 토글 펼침/접음 + [object Object] 버그 수정 (6c43364)",
+            "done": true,
+            "at": "2026-05-06T17:21:00+00:00"
+          },
+          {
+            "label": "봇 자동 step 갱신 ([step:done:N] 태그) (591fd71)",
+            "done": true,
+            "at": "2026-05-06T17:34:00+00:00"
+          },
+          {
+            "label": "인계서 진행률 요약 + 다음 시작 단계 명시 (591fd71)",
+            "done": true,
+            "at": "2026-05-06T17:34:00+00:00"
+          },
+          {
+            "label": "헌법 부칙 7 + 인계서 commit 라이브 fetch + chat-log (5524356)",
+            "done": true,
+            "at": "2026-05-06T17:38:00+00:00"
+          }
+        ],
+        "percent": 100,
+        "completed_count": 5,
+        "total_count": 5,
+        "updated_at": "2026-05-06T17:40:18+00:00"
+      },
+      "outputs": {
+        "commits": [
+          "a371f03",
+          "6c43364",
+          "591fd71",
+          "5524356"
+        ],
+        "files_changed": [
+          "tasks.json",
+          "_admin/admin-status.html",
+          "scripts/auto_detect_task_status.py",
+          "OPERATIONS_CHARTER.md",
+          "_chat-logs/2026-05-06-bl-progress-sync-os-handoff-sync.md"
+        ]
+      },
+      "history": [
+        {
+          "at": "2026-05-06T17:40:18+00:00",
+          "event": "신규 등록 + done 처리 (자가 위반 정정)",
+          "by": "Claude (수동)",
+          "note": "이 작업은 PHASE-B 진행 중 별개로 발생한 작업. 대표님 지적으로 누락 발견 → 사후 등록."
         }
       ]
     }

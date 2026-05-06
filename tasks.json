@@ -4168,7 +4168,7 @@
       "category": "feature",
       "priority": "P1",
       "size": "medium",
-      "status": "in_progress",
+      "status": "done",
       "approval_required": false,
       "autonomous": {
         "can_run_alone": true,
@@ -4217,14 +4217,14 @@
           },
           {
             "label": "단계 6 — commit + push + 라이브 검증 (admin-status.html에서 5초 폴링 + 자동 reload 확인)",
-            "done": false,
-            "at": null
+            "done": true,
+            "at": "2026-05-06T20:04:42+00:00"
           }
         ],
-        "percent": 83,
-        "completed_count": 5,
+        "percent": 100,
+        "completed_count": 6,
         "total_count": 6,
-        "updated_at": "2026-05-06T20:03:38+00:00"
+        "updated_at": "2026-05-06T20:04:42+00:00"
       },
       "history": [
         {
@@ -4279,6 +4279,12 @@
           "by": "auto-detect-bot",
           "commit": "0f68f28",
           "note": "feat(charter): 12조 부칙 8 신설 — 자동 동기화 완성도 (BL-OS-AUTO-SYNC-CHARTER) [step:done:5]"
+        },
+        {
+          "at": "2026-05-06T20:04:42+00:00",
+          "event": "단계 6 완료 — 라이브 검증 통과 (부칙 8 charter raw 200 OK, 신규 backlog 3건 등록 확인). 트랙 2 전체 완료.",
+          "by": "Claude (트랙 2 완료)",
+          "note": "후속 발견 결함: 신규 backlog 'BL-SYNC-PAGES-STATUS'가 commit 본문 언급만으로 status=in_progress 자동 전환됨. 봇의 START_KEYWORDS가 작업 ID 자체를 진행 신호로 잘못 매칭. → BL-OS-AUTO-SYNC-CHARTER 트랙 3 후보로 메모."
         }
       ],
       "updated_at": "2026-05-06T20:03:38+00:00"
@@ -4289,7 +4295,7 @@
       "category": "fix",
       "priority": "P1",
       "size": "small",
-      "status": "in_progress",
+      "status": "pending",
       "approval_required": false,
       "autonomous": {
         "can_run_alone": true,
@@ -4344,6 +4350,12 @@
           "by": "auto-detect-bot",
           "commit": "0ca0666",
           "note": "feat(BL-OS-AUTO-SYNC-CHARTER): backlog 3건 분리 등록 — BL-SYNC-PAGES-STATUS / INPROGRESS-COMMITS / CHAT-LOGS-TAB [step:done:4"
+        },
+        {
+          "at": "2026-05-06T20:04:42+00:00",
+          "event": "수동 정정 — 봇이 commit 본문 언급만으로 잘못 in_progress 전환 → pending 복원",
+          "by": "Claude (트랙 2 마무리 검증)",
+          "note": "이 결함 자체는 트랙 3 후보 (START_KEYWORDS가 ID 매칭으로 false positive). BL-OS-AUTO-SYNC-CHARTER history에 기록됨."
         }
       ],
       "started_at": "2026-05-06T20:03:00+00:00",

@@ -3301,12 +3301,31 @@
       lines.push('');
     }
 
-    // 4) GitHub 최근 커밋 정보
-    const lastCommit = (task && task.last_commit) || (tasksData && tasksData.head_commit) || '';
+    // 4) GitHub 최근 커밋 정보 — 진짜 최신 hash를 GitHub API에서 fetch
+    //   tasksData.head_commit은 GitHub Actions 갱신 시점 기준이라 한 박자 늦음.
+    //   인계서가 항상 정확한 최신 commit을 가리키도록 라이브 fetch.
+    let lastCommit = '';
+    let commitMsg = '';
+    try {
+      const ghRes = await fetch('https://api.github.com/repos/dgmasters01/tw-b2b/commits/main', {
+        cache: 'no-store',
+        headers: { 'Accept': 'application/vnd.github.v3+json' }
+      });
+      if (ghRes.ok) {
+        const ghData = await ghRes.json();
+        lastCommit = (ghData.sha || '').slice(0, 7);
+        commitMsg = (ghData.commit?.message || '').split('\n', 1)[0].slice(0, 80);
+      }
+    } catch (_) {}
+    // GitHub API rate limit 등 실패 시 fallback
+    if (!lastCommit) {
+      lastCommit = (task && task.last_commit) || (tasksData && tasksData.head_commit) || '';
+    }
     if (lastCommit) {
       lines.push(`## 🔧 최근 커밋`);
       lines.push('');
       lines.push(`- **해시**: \`${lastCommit}\``);
+      if (commitMsg) lines.push(`- **메시지**: ${commitMsg}`);
       lines.push(`- **GitHub**: https://github.com/dgmasters01/tw-b2b/commit/${lastCommit}`);
       lines.push(`- **raw**: \`https://raw.githubusercontent.com/dgmasters01/tw-b2b/${lastCommit}/...\``);
       lines.push('');

@@ -199,6 +199,68 @@
     border-top: 0.5px dashed rgba(22,163,74,0.3); padding-top: 8px;
   }
 
+  /* ===== ⚡ 지금 진행 중 박스 (BL-LIVE-STATUS-PANEL — 다음 추천 바로 아래) ===== */
+  .in-progress-box {
+    background: linear-gradient(135deg, rgba(147,51,234,0.12), rgba(147,51,234,0.04));
+    border: 1px solid rgba(147,51,234,0.45);
+    border-radius: 10px; padding: 14px; margin-bottom: 14px;
+    display: none;  /* 진행 중 작업 있을 때만 JS가 표시 */
+  }
+  .in-progress-box.visible { display: block; }
+  .in-progress-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .in-progress-row > .pill {
+    background: rgba(147,51,234,0.28); color: #c4b5fd;
+    font-size: 10px; padding: 3px 8px; border-radius: 4px; font-weight: 500;
+    white-space: nowrap;
+    animation: ip-pulse 2s ease-in-out infinite;
+  }
+  @keyframes ip-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.55; }
+  }
+  .in-progress-row > .title { font-size: 13px; font-weight: 500; flex: 1; min-width: 200px; }
+  .in-progress-row > button {
+    background: rgba(147,51,234,0.85); color: #fff; border: none; border-radius: 6px;
+    font-size: 12px; padding: 8px 14px; cursor: pointer; font-weight: 500;
+  }
+  .in-progress-row > button:hover { background: rgba(147,51,234,1); }
+  .in-progress-meta {
+    font-size: 10px; color: var(--text-muted); margin-top: 8px;
+    border-top: 0.5px dashed rgba(147,51,234,0.3); padding-top: 8px;
+    display: flex; gap: 12px; flex-wrap: wrap;
+  }
+  .in-progress-meta .item { display: inline-flex; align-items: center; gap: 4px; }
+  .in-progress-meta .item .label { color: rgba(196,181,253,0.7); }
+  .in-progress-recent {
+    margin-top: 8px; padding-top: 8px;
+    border-top: 0.5px dashed rgba(147,51,234,0.3);
+    font-size: 10px; color: var(--text-muted);
+  }
+  .in-progress-recent .label-row {
+    color: rgba(196,181,253,0.85); margin-bottom: 4px; font-size: 9px;
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .in-progress-recent .commit-row {
+    display: flex; gap: 6px; padding: 2px 0; line-height: 1.5;
+  }
+  .in-progress-recent .commit-row .hash {
+    color: #c4b5fd; font-family: ui-monospace, SFMono-Regular, monospace;
+    font-size: 9px; white-space: nowrap;
+  }
+  .in-progress-recent .commit-row .msg {
+    color: var(--text-muted); flex: 1;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+
+  /* ===== 자율 작업 큐 안의 "0번 = 진행 중" 카드 (BL-LIVE-STATUS-PANEL) ===== */
+  .auto-queue-card.in-progress-card {
+    border-left: 4px solid #a855f7;
+    background: linear-gradient(135deg, rgba(147,51,234,0.10), rgba(147,51,234,0.02));
+  }
+  .auto-queue-card.in-progress-card .auto-queue-num {
+    background: rgba(147,51,234,0.25); color: #c4b5fd;
+  }
+
   /* ===== 6 카테고리 카드 그리드 ===== */
   .section-label {
     font-size: 11px; color: var(--text-muted);
@@ -651,6 +713,25 @@
     </div>
     <div class="next-action-hint" id="next-action-hint">
       카드는 tasks.json의 진행 중 작업 또는 P0 자율 진행 가능 첫번째 작업을 표시합니다. 버튼 누르면 ① priority_boost 자동 박힘 ② 클립보드 복사 + ops 알림 ③ 채팅에 붙여넣기 한 번 = 시작
+    </div>
+  </section>
+
+  <!-- ⚡ 지금 진행 중 박스 (BL-LIVE-STATUS-PANEL — 다음 추천 바로 아래) -->
+  <!-- 진행 중 작업 1건이 있을 때만 표시. 작업명 + 시작 시각 + 최근 commit 5개 + 이어가기 버튼. -->
+  <section class="in-progress-box" id="in-progress-box">
+    <div class="in-progress-row">
+      <span class="pill" id="in-progress-pill">⚡ 지금 진행 중</span>
+      <span class="title" id="in-progress-title">-</span>
+      <button id="btn-resume">▶ 이어가기</button>
+    </div>
+    <div class="in-progress-meta" id="in-progress-meta">
+      <span class="item"><span class="label">시작</span> <span id="ip-started">-</span></span>
+      <span class="item"><span class="label">예상</span> <span id="ip-estimate">-</span></span>
+      <span class="item"><span class="label">담당</span> <span id="ip-owner">-</span></span>
+    </div>
+    <div class="in-progress-recent" id="in-progress-recent">
+      <div class="label-row">최근 작업 활동 — 작업 시작 후 commit 5개</div>
+      <div id="in-progress-commits"><span style="color:var(--text-muted);">아직 활동 없음</span></div>
     </div>
   </section>
 
@@ -1490,6 +1571,13 @@
   // 전체 평균 게이지
   // ──────────────────────────────────────────────────────────
   function renderAvg(d) {
+    // ★ BL-LIVE-STATUS-PANEL 안전 가드 (2026-05-06):
+    //   totalAvgScore 필드가 없으면 (예: tasks.json만 받았을 때) 렌더 스킵.
+    //   pages-status.display.json fetch 후에만 정상 표시.
+    if (d == null || typeof d.totalAvgScore !== 'number') {
+      console.warn('[renderAvg] totalAvgScore 없음 — 렌더 스킵 (data source mismatch?)');
+      return;
+    }
     $('avg-num').innerHTML = `${d.totalAvgScore}<small>/100</small>`;
     $('avg-bar-fill').style.width = `${d.totalAvgScore}%`;
     const c = d.counts || {};
@@ -1985,6 +2073,63 @@
     setTimeout(() => toast.remove(), 6000);
   });
 
+  // ★ BL-LIVE-STATUS-PANEL: 진행 중 박스 "▶ 이어가기" 버튼 핸들러
+  //   btn-reserve와 동일한 인계서 빌더 재사용, source만 다름.
+  (function bindResumeButton() {
+    const resumeBtn = document.getElementById('btn-resume');
+    if (!resumeBtn) return;
+    resumeBtn.addEventListener('click', async () => {
+      const taskId = resumeBtn.dataset.taskId;
+      const taskTitle = resumeBtn.dataset.taskTitle || '';
+      if (!taskId) return;
+      resumeBtn.disabled = true;
+      const orig = resumeBtn.textContent;
+      resumeBtn.textContent = '⏳ 인계 컨텍스트 조립 중...';
+      let message;
+      try {
+        message = await buildHandoffMessage(taskId, taskTitle, '⚡ 진행 중 박스');
+      } catch (e) {
+        console.error('[btn-resume] handoff build 실패', e);
+        message = `${taskId} 이어가기\n\n작업: ${taskTitle}\n시각: ${new Date().toISOString()}\n\n⚠️ 풀 컨텍스트 조립 실패 — tasks.json 확인 후 진행 필요.`;
+      }
+      let clipOk = false;
+      try {
+        await navigator.clipboard.writeText(message);
+        clipOk = true;
+      } catch (e) {
+        console.warn('clipboard 실패', e);
+      }
+      try {
+        await fetch('/api/email/ops/notify-claude-work', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            step: '⚡ 진행 중 작업 이어가기',
+            summary: `${taskId} 이어가기 — 진행 중 박스에서 클릭. ${taskTitle}`,
+            checklist: ['풀 컨텍스트 조립', `${message.split('\n').length}줄 메시지`, '클립보드 복사', 'CEO 알림'],
+            blockers: '대표님 채팅 붙여넣기 대기',
+            source: 'admin-status.html (in-progress-box)',
+          }),
+        });
+      } catch (e) {
+        console.log('ops 알림 fetch 실패(베스트에포트)');
+      }
+      resumeBtn.textContent = clipOk ? '✅ 인계 복사 완료' : '⚠️ 복사 실패';
+      setTimeout(() => { resumeBtn.textContent = orig; resumeBtn.disabled = false; }, 4000);
+      const toast = document.createElement('div');
+      toast.style.cssText = 'position:fixed;top:20px;right:20px;background:rgba(147,51,234,0.15);border:1px solid rgba(147,51,234,0.45);border-radius:8px;padding:14px 18px;font-size:12px;z-index:9999;color:#c4b5fd;max-width:380px;box-shadow:0 4px 20px rgba(0,0,0,0.3);';
+      toast.innerHTML = `
+        <div style="font-weight:500;margin-bottom:6px;">⚡ ${taskId} 이어가기 준비 완료</div>
+        <div style="font-size:11px;color:var(--text-muted);">
+          ${clipOk ? '✅ 풀 컨텍스트 클립보드 복사됨' : '⚠️ 클립보드 실패'}<br>
+          → 새 채팅에 붙여넣으면 즉시 이어서 진행
+        </div>
+      `;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 6000);
+    });
+  })();
+
   // ──────────────────────────────────────────────────────────
   // ★ BL-PAGE-DEDUP — tasks.json 직접 fetch + 임박/진행률 렌더
   // (admin-tasks 대시보드 흡수, "하나에서 전체" 헌법 지시 충족)
@@ -2014,6 +2159,7 @@
       renderIntegratedProgress(data);
       renderAutoQueue(data);
       renderNextAction(data);
+      renderInProgressBox(data);       // ★ BL-LIVE-STATUS-PANEL — 진행 중 박스
       renderCeoWait(data);             // ★ 결정 대기 박스 동적화
       // tasks.json 로드되면 카테고리 카드의 3-state 카운트 정확화 위해 재렌더
       if (STATE.data) renderSidebarMenus(STATE.data);
@@ -2578,8 +2724,100 @@
     }
   }
 
+  // ──────────────────────────────────────────────────────────
+  // ⚡ 지금 진행 중 박스 (BL-LIVE-STATUS-PANEL — 다음 추천 바로 아래)
+  //   진행 중 작업 1건이 있으면 박스 visible, 없으면 hidden.
+  //   activity-feed.display.json 의 task 단위 commit 5개를 함께 표시.
+  // ──────────────────────────────────────────────────────────
+  function renderInProgressBox(data) {
+    const box = $('in-progress-box');
+    if (!box) return;
+    const tasks = data.tasks || [];
+    // 진행 중 = status:in_progress, P0 우선
+    const inProgress = tasks
+      .filter(t => t.status === 'in_progress')
+      .sort((a, b) => (a.priority || 'P9').localeCompare(b.priority || 'P9'));
+
+    if (inProgress.length === 0) {
+      box.classList.remove('visible');
+      return;
+    }
+    box.classList.add('visible');
+    const target = inProgress[0];
+    const title = $('in-progress-title');
+    if (title) title.textContent = `${target.id} — ${target.title || ''}`;
+
+    // 시작 시각 — history에서 가장 최근 in_progress 진입 시각
+    const startedEl = $('ip-started');
+    if (startedEl) {
+      const hist = (target.history || [])
+        .filter(h => h.action && /진행 중|in_progress|start/i.test(h.action))
+        .pop();
+      const startedAt = hist?.at || target.created_at;
+      startedEl.textContent = startedAt ? formatTime(startedAt) : '-';
+    }
+    // 예상 시간
+    const estEl = $('ip-estimate');
+    if (estEl) {
+      const h = target.autonomous?.estimated_hours;
+      estEl.textContent = h ? `약 ${h}h` : '-';
+    }
+    // 담당
+    const ownerEl = $('ip-owner');
+    if (ownerEl) ownerEl.textContent = target.owner || 'Claude';
+
+    // 이어가기 버튼 → 기존 인계서 빌더 재사용
+    const btn = $('btn-resume');
+    if (btn) {
+      btn.dataset.taskId = target.id;
+      btn.dataset.taskTitle = target.title || '';
+    }
+
+    // 최근 commit 5개 — 우선 task.history에서, 없으면 activity-feed에서
+    renderInProgressCommits(target);
+  }
+
+  async function renderInProgressCommits(task) {
+    const wrap = $('in-progress-commits');
+    if (!wrap) return;
+    let commits = [];
+    // 1순위: task.history 안에 commit 정보가 있으면
+    (task.history || []).forEach(h => {
+      if (h.commit) commits.push({ hash: String(h.commit).slice(0, 7), msg: h.note || h.action || '', at: h.at });
+    });
+    // 2순위: activity-feed.display.json 에서 task ID 매칭
+    if (commits.length < 5) {
+      try {
+        const r = await fetch('/activity-feed.display.json?t=' + Date.now());
+        if (r.ok) {
+          const af = await r.json();
+          const items = af.items || af.commits || [];
+          items.forEach(it => {
+            const matched = (it.taskIds || []).includes(task.id) || (it.message || '').includes(task.id);
+            if (matched && commits.length < 5) {
+              commits.push({ hash: String(it.sha || it.hash || '').slice(0, 7), msg: it.message || it.title || '', at: it.at || it.committedAt });
+            }
+          });
+        }
+      } catch (e) {}
+    }
+    if (commits.length === 0) {
+      wrap.innerHTML = '<span style="color:var(--text-muted);">아직 활동 없음 — 첫 commit이 들어오면 자동 표시됩니다</span>';
+      return;
+    }
+    wrap.innerHTML = commits.slice(0, 5).map(c =>
+      `<div class="commit-row"><span class="hash">${escapeHtml(c.hash)}</span><span class="msg">${escapeHtml(c.msg)}</span></div>`
+    ).join('');
+  }
+
   function renderAutoQueue(data) {
     const tasks = data.tasks || [];
+    // ★ BL-LIVE-STATUS-PANEL: 진행 중 작업을 큐 맨 위 0번 카드로 표시
+    const inProgressList = tasks
+      .filter(t => t.status === 'in_progress')
+      .sort((a, b) => (a.priority || 'P9').localeCompare(b.priority || 'P9'))
+      .slice(0, 3);  // 최대 3개까지 (보통 1개)
+
     const queue = tasks
       .filter(t =>
         t.claude_can_auto === true &&
@@ -2600,12 +2838,39 @@
       .slice(0, 12); // 상위 12개만 (한 화면 안에 들어가게)
 
     const wrap = $('integ-auto-queue');
-    if (queue.length === 0) {
+    if (queue.length === 0 && inProgressList.length === 0) {
       wrap.innerHTML = '<div class="auto-queue-empty">🎉 자율 진행 가능 작업 없음 — 모두 진행 중이거나 결정 대기 중</div>';
       return;
     }
 
-    wrap.innerHTML = queue.map((t, idx) => {
+    // ★ BL-LIVE-STATUS-PANEL: 진행 중 카드 HTML (보라 톤, "▶ 이어가기" 버튼)
+    const inProgressHtml = inProgressList.map(t => {
+      const priCls = (t.priority || 'P2').toLowerCase();
+      const priLab = (typeof PRI_LABEL_KO !== 'undefined' && PRI_LABEL_KO[t.priority]) || (t.priority || '-');
+      const catLab = (typeof CATEGORY_LABEL_KO !== 'undefined' && CATEGORY_LABEL_KO[t.category]) || (t.category || '-');
+      const hours = t.autonomous && t.autonomous.estimated_hours
+        ? `⏱ 약 ${t.autonomous.estimated_hours}h` : '';
+      const size = t.size ? `📐 ${t.size}` : '';
+      return `
+        <div class="auto-queue-card in-progress-card ${priCls}" data-id="${escapeHtml(t.id)}" data-title="${escapeHtml(t.title || '')}">
+          <span class="auto-queue-order auto-queue-num" title="지금 진행 중 — 큐 맨 위 표시">⚡</span>
+          <div class="auto-queue-head">
+            <span class="auto-queue-bot-pill" style="background:rgba(147,51,234,0.25);color:#c4b5fd;">⚡ 진행 중</span>
+            <span class="urgent-pill ${priCls}">${priLab}</span>
+            <span class="urgent-pill cat">${escapeHtml(catLab)}</span>
+          </div>
+          <div class="auto-queue-title">${escapeHtml(t.title || '')}</div>
+          <div class="auto-queue-meta">
+            <span>${escapeHtml(t.id)}</span>
+            ${hours ? `<span>${hours}</span>` : ''}
+            ${size ? `<span>${size}</span>` : ''}
+            <span class="auto-queue-action" style="color:#c4b5fd;">▶ 이어가기</span>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    const queueHtml = queue.map((t, idx) => {
       const priCls = (t.priority || 'P2').toLowerCase();
       const priLab = (typeof PRI_LABEL_KO !== 'undefined' && PRI_LABEL_KO[t.priority]) || (t.priority || '-');
       const catLab = (typeof CATEGORY_LABEL_KO !== 'undefined' && CATEGORY_LABEL_KO[t.category]) || (t.category || '-');
@@ -2632,6 +2897,7 @@
         </div>
       `;
     }).join('');
+    wrap.innerHTML = inProgressHtml + queueHtml;
 
     wrap.querySelectorAll('.auto-queue-card').forEach(el => {
       el.addEventListener('click', async () => {
@@ -3481,19 +3747,32 @@
           // 변경 감지 → 재렌더
           try {
             const data = JSON.parse(txt);
-            // ★ STATE.data 동기화 (renderAvg/Sidebar/TopUrgent가 STATE.data 의존)
-            try { STATE.data = data; } catch (_) {}
+            // ★ BL-LIVE-STATUS-PANEL 버그 수정 (2026-05-06):
+            //   tasks.json에는 totalAvgScore/counts/sidebarMenus가 없음.
+            //   통째 덮어쓰면 renderAvg에서 undefined/100 표시.
+            //   해결: tasks 필드만 머지, pages-status.display 출처 필드는 유지.
+            try {
+              if (STATE.data) {
+                STATE.data.tasks = data.tasks;
+                STATE.data.stats = data.stats;
+                STATE.data.head_commit = data.head_commit;
+                STATE.data.updated_at = data.updated_at;
+              } else {
+                STATE.data = data;
+              }
+            } catch (_) {}
             // 통합 영역 (기존)
             renderIntegratedKPI(data);
             renderIntegratedUrgent(data);
             renderIntegratedProgress(data);
             renderAutoQueue(data);
             renderNextAction(data);
+            try { renderInProgressBox(data); } catch (e) { console.warn('[poll] renderInProgressBox 실패', e); }
             // ★ BL-STATUS-INTERACTIVE Phase B-1: 4 영역 추가 갱신
             //   기존 pollTick에서 빠진 영역들 — 5초 폴링 시 함께 갱신
-            try { renderAvg(data); } catch (e) { console.warn('[poll] renderAvg 실패', e); }
-            try { renderSidebarMenus(data); } catch (e) { console.warn('[poll] renderSidebarMenus 실패', e); }
-            try { renderTopUrgent(data); } catch (e) { console.warn('[poll] renderTopUrgent 실패', e); }
+            try { renderAvg(STATE.data); } catch (e) { console.warn('[poll] renderAvg 실패', e); }
+            try { renderSidebarMenus(STATE.data); } catch (e) { console.warn('[poll] renderSidebarMenus 실패', e); }
+            try { renderTopUrgent(STATE.data); } catch (e) { console.warn('[poll] renderTopUrgent 실패', e); }
             try { renderCeoWait(data); } catch (e) { console.warn('[poll] renderCeoWait 실패', e); }
             showPollToast('🔄 tasks.json 갱신됨');
           } catch (_) {}

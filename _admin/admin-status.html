@@ -2652,6 +2652,40 @@
       }
     } catch (_) {}
 
+    // ★ Phase C-6: CLAUDE.md 12조 라우팅 판단 신호 — 헤더 직후에 박기
+    //   새 채팅 Claude가 0단계로 첫 줄에 판단을 명시하도록 신호 제공
+    {
+      const sizeKey = String(task?.size || '').toLowerCase();
+      const estH = parseFloat(task?.autonomous?.estimated_hours || 0);
+      let routingSignal = '✅ 이 채팅 진행 가능';
+      let routingReason = '작은~중간 규모 — 새 채팅에서 끝까지 갈 수 있는 분량';
+      if (sizeKey === 'xlarge' || estH >= 5) {
+        routingSignal = '🚨 새 채팅 강제';
+        routingReason = `초대형 작업 (size=${task?.size || '-'}, 예상 ${estH || '?'}h) — 새 채팅 필수.`;
+      } else if (sizeKey === 'large' || estH >= 3) {
+        routingSignal = '⚠️ 새 채팅 권장';
+        routingReason = `큰 규모 작업 (size=${task?.size || '-'}, 예상 ${estH || '?'}h) — 토큰 압박 가능성. 새 채팅에서 시작 권장.`;
+      }
+      lines.push('## 🚦 0단계: 채팅 라우팅 판단 (CLAUDE.md 12조 의무)');
+      lines.push('');
+      lines.push(`**카드 클릭 시점 권장 판단:** ${routingSignal}`);
+      lines.push('');
+      lines.push(`**사유:** ${routingReason}`);
+      lines.push('');
+      lines.push('**작업 핵심 메타 (12조 판단 근거):**');
+      lines.push(`- 작업 ID: ${taskId} / 카테고리: ${task?.category || '-'} / 우선순위: ${task?.priority || '-'}`);
+      lines.push(`- 사이즈: ${task?.size || '-'} / 예상 시간: 약 ${task?.autonomous?.estimated_hours || '?'}h`);
+      const deps = (task?.depends_on || []).join(', ') || '없음';
+      const reqs = (task?.autonomous?.requires_decisions_first || []).join(', ') || '없음';
+      lines.push(`- 의존성: ${deps}`);
+      lines.push(`- 선행 결정: ${reqs}`);
+      lines.push('');
+      lines.push('응답 첫 줄에 위 판단 그대로 또는 자체 재판단(현재 채팅 상태 점검 후)해서 박을 것.');
+      lines.push('');
+      lines.push('---');
+      lines.push('');
+    }
+
     if (task) {
       lines.push(`## 📋 Task 상세 (tasks.json)`);
       lines.push('');
@@ -3730,12 +3764,39 @@ ${progressHead}
       }
 
       // claude 타입
+      // ★ Phase C-6: CLAUDE.md 12조 라우팅 판단 신호 — size/예상시간 기준 권장 판단
+      const sizeKey = String(task.size || '').toLowerCase();
+      const estH = parseFloat(hours);
+      let routingSignal = '✅ 이 채팅 진행 가능';
+      let routingReason = '작은~중간 규모 — 새 채팅에서 끝까지 갈 수 있는 분량';
+      if (sizeKey === 'large' || estH >= 3) {
+        routingSignal = '⚠️ 새 채팅 권장';
+        routingReason = `큰 규모 작업 (size=${task.size || '-'}, 예상 ${hours}h) — 토큰 압박 가능성. 새 채팅에서 시작 권장.`;
+      } else if (sizeKey === 'xlarge' || estH >= 5) {
+        routingSignal = '🚨 새 채팅 강제';
+        routingReason = `초대형 작업 (size=${task.size || '-'}, 예상 ${hours}h) — 새 채팅 필수.`;
+      }
+
       return `[새 채팅 인계 — ${today} ${task.id} 시작]
+
+# 0단계: 채팅 라우팅 판단 (CLAUDE.md 12조 의무)
+
+🚦 **카드 클릭 시점 권장 판단:** ${routingSignal}
+
+**사유:** ${routingReason}
+
+**작업 핵심 메타 (12조 판단 근거):**
+- 작업 ID: ${task.id} / 카테고리: ${task.category} / 우선순위: ${task.priority}
+- 사이즈: ${task.size || '미정'} / 예상 시간: 약 ${hours}h
+- 의존성: ${deps}
+- 선행 결정: ${reqs}
+
+응답 첫 줄에 위 판단 그대로 또는 자체 재판단(현재 채팅 상태 점검 후)해서 박을 것.
 
 # 1단계: 헌법 확인 (의무)
 GitHub repo ${repo}의 다음 두 파일을 view 도구로 읽고 운영 원칙 파악:
 - OPERATIONS_CHARTER.md (12개 조항, 특히 12조 자체 검증 의무)
-- CLAUDE.md (특히 11조 chat-log 작성 표준)
+- CLAUDE.md (특히 11조 chat-log 작성 표준 + 12조 채팅 라우팅 판단 의무)
 
 라이브: ${liveUrl}
 

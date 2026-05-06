@@ -2900,7 +2900,12 @@
         </div>
       `;
     }).join('');
-    wrap.innerHTML = queueHtml;
+    // [BUGFIX 2026-05-06] 진행 중 카드를 큐 0번 자리에 표시.
+    //   상단 보라 박스와 시각적 중복이지만, 작업 흐름이 한눈에 보이려면
+    //   큐 1번 자리에 '지금 진행 중'이 있어야 다음 순서가 자연스럽게 읽힘.
+    //   상단 박스 = 자세한 메타 + 이어가기 버튼
+    //   큐 0번 = 큐 흐름 안의 시각적 위치 표시
+    wrap.innerHTML = inProgressHtml + queueHtml;
 
     wrap.querySelectorAll('.auto-queue-card').forEach(el => {
       el.addEventListener('click', async () => {

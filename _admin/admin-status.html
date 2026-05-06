@@ -869,6 +869,186 @@
     }
     .cc-toast.error { background: rgba(220,38,38,0.95); }
     .cc-toast.success { background: rgba(16,185,129,0.95); }
+
+    /* ──────────────────────────────────────────────────── */
+    /* 🎯 결정 입력 모달 (BL-STATUS-INTERACTIVE Phase A-2) */
+    /* ──────────────────────────────────────────────────── */
+    .ceo-decision-modal {
+      position: fixed; inset: 0; z-index: 10000;
+      display: none; opacity: 0;
+      transition: opacity 0.18s ease;
+    }
+    .ceo-decision-modal.show {
+      display: block; opacity: 1;
+    }
+    .ceo-decision-backdrop {
+      position: absolute; inset: 0;
+      background: rgba(15,23,42,0.55);
+      backdrop-filter: blur(2px);
+      -webkit-backdrop-filter: blur(2px);
+    }
+    .ceo-decision-panel {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: min(560px, calc(100vw - 32px));
+      max-height: calc(100vh - 64px);
+      overflow-y: auto;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 24px 48px rgba(0,0,0,0.25);
+      padding: 22px 24px 24px;
+    }
+    .ceo-decision-head {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 8px; margin-bottom: 8px;
+    }
+    .ceo-decision-head-left {
+      display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+    }
+    .ceo-decision-pill {
+      font-size: 10px; font-weight: 700;
+      padding: 3px 8px; border-radius: 4px;
+      background: #f1f5f9; color: #475569;
+    }
+    .ceo-decision-pill.pri.p0 { background: #fee2e2; color: #dc2626; }
+    .ceo-decision-pill.pri.p1 { background: #fed7aa; color: #ea580c; }
+    .ceo-decision-pill.pri.p2 { background: #fef3c7; color: #ca8a04; }
+    .ceo-decision-pill.pri.p3 { background: #e5e7eb; color: #6b7280; }
+    .ceo-decision-pill.cat { background: #ede9fe; color: #6d28d9; }
+    .ceo-decision-id {
+      font-size: 11px; color: #94a3b8; font-family: monospace;
+    }
+    .ceo-decision-close {
+      background: transparent; border: 0; cursor: pointer;
+      width: 28px; height: 28px; border-radius: 6px;
+      font-size: 16px; color: #64748b;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .ceo-decision-close:hover { background: #f1f5f9; color: #1e293b; }
+    .ceo-decision-title {
+      font-size: 16px; font-weight: 600;
+      color: #0f172a; line-height: 1.4;
+      margin: 4px 0 16px;
+    }
+    .ceo-decision-section {
+      margin-top: 14px; padding-top: 14px;
+      border-top: 1px solid #f1f5f9;
+    }
+    .ceo-decision-section-h {
+      font-size: 11px; font-weight: 700;
+      color: #64748b; text-transform: uppercase;
+      letter-spacing: 0.5px; margin-bottom: 8px;
+    }
+    .ceo-decision-reasons {
+      margin: 0; padding: 0 0 0 18px;
+      font-size: 13px; color: #334155; line-height: 1.6;
+    }
+    .ceo-decision-reasons li { margin-bottom: 4px; }
+    .ceo-decision-reasons-empty {
+      font-size: 12px; color: #94a3b8; font-style: italic;
+    }
+    .ceo-decision-actions {
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .ceo-decision-btn {
+      display: block; width: 100%;
+      text-align: left;
+      background: #f8fafc;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 12px 14px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .ceo-decision-btn:hover {
+      border-color: #6366f1;
+      background: #eef2ff;
+      transform: translateY(-1px);
+    }
+    .ceo-decision-btn.primary {
+      border-color: #6366f1;
+      background: #eef2ff;
+    }
+    .ceo-decision-btn.primary:hover {
+      background: #e0e7ff;
+    }
+    .ceo-decision-btn.ok {
+      border-color: #10b981;
+    }
+    .ceo-decision-btn.ok:hover {
+      border-color: #10b981;
+      background: #ecfdf5;
+    }
+    .ceo-decision-btn-h {
+      font-size: 13px; font-weight: 600;
+      color: #1e293b; margin-bottom: 2px;
+    }
+    .ceo-decision-btn-d {
+      font-size: 11px; color: #64748b; line-height: 1.4;
+    }
+    .ceo-decision-input-wrap {
+      margin-top: 12px;
+      padding: 12px;
+      background: #f8fafc;
+      border-radius: 10px;
+      border: 1px solid #e2e8f0;
+    }
+    .ceo-decision-textarea {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 10px 12px;
+      font-size: 13px;
+      font-family: inherit;
+      line-height: 1.5;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      background: white;
+      color: #0f172a;
+      resize: vertical;
+      min-height: 100px;
+    }
+    .ceo-decision-textarea:focus {
+      outline: none;
+      border-color: #6366f1;
+      box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
+    }
+    .ceo-decision-input-actions {
+      display: flex; gap: 6px; margin-top: 8px;
+    }
+    .ceo-decision-btn-mini {
+      flex: 1;
+      font-size: 12px; font-weight: 600;
+      padding: 8px 12px;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      background: white;
+      color: #1e293b;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .ceo-decision-btn-mini.primary {
+      background: #6366f1;
+      border-color: #6366f1;
+      color: white;
+    }
+    .ceo-decision-btn-mini.primary:hover {
+      background: #4f46e5;
+    }
+    .ceo-decision-btn-mini.cancel {
+      background: white;
+      color: #64748b;
+    }
+    .ceo-decision-btn-mini.cancel:hover {
+      background: #f1f5f9;
+    }
+    @media (max-width: 640px) {
+      .ceo-decision-panel {
+        width: calc(100vw - 16px);
+        padding: 18px 16px 20px;
+      }
+      .ceo-decision-title { font-size: 15px; }
+    }
   </style>
 
 
@@ -1421,7 +1601,7 @@
         </div>
       `;
     }).join('');
-    const more = ts.length > 12 ? `<div style="font-size:10px;color:var(--text-muted);text-align:center;padding:4px;">+${ts.length - 12}건 더 — admin-tasks.html에서 전체 보기</div>` : '';
+    const more = ts.length > 12 ? `<a href="/admin-tasks.html?category=${encodeURIComponent(ts[0]?.category || '')}" style="display:block;font-size:10px;color:var(--aurora-2);text-align:center;padding:6px;text-decoration:none;border:0.5px dashed rgba(99,102,241,0.3);border-radius:5px;margin-top:4px;cursor:pointer;" title="admin-tasks.html에서 전체 보기">+${ts.length - 12}건 더 → admin-tasks.html에서 전체 보기</a>` : '';
     return `
       <div style="font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">📋 이 카테고리 task ${ts.length}건 — ✅ ${counts.done} · 🔄 ${counts.progress} · ⏳ ${counts.pending} · 🚫 ${counts.blocked}</div>
       <div style="margin-bottom:14px;">
@@ -2049,15 +2229,191 @@
           <span class="reason">${escapeHtml(reason)}</span>
         </div>
       `;
-    }).join('') + (ceoTasks.length > 8 ? `<div style="font-size:10px;color:var(--text-muted);text-align:center;padding:6px;">+${ceoTasks.length - 8}건 더 — admin-tasks.html에서 전체 보기</div>` : '');
+    }).join('') + (ceoTasks.length > 8 ? `<a href="/admin-tasks.html?filter=ceo_wait" style="display:block;font-size:10px;color:var(--aurora-2);text-align:center;padding:6px;text-decoration:none;border:0.5px dashed rgba(99,102,241,0.3);border-radius:5px;margin-top:4px;cursor:pointer;" title="admin-tasks.html에서 결정 대기 전체 보기">+${ceoTasks.length - 8}건 더 → admin-tasks.html에서 전체 보기</a>` : '');
 
-    // 클릭 핸들러
+    // 클릭 핸들러 — 결정 입력 모달 호출 (BL-STATUS-INTERACTIVE Phase A-2)
     listEl.querySelectorAll('.ceo-wait-item[data-task-id]').forEach(el => {
       el.addEventListener('click', () => {
         const id = el.dataset.taskId;
-        if (id) location.href = `/admin-tasks.html?id=${encodeURIComponent(id)}`;
+        if (!id) return;
+        if (typeof openCeoDecisionModal === 'function') {
+          openCeoDecisionModal(id);
+        } else {
+          // 폴백 — 모달 미로딩 시 기존 동작
+          location.href = `/admin-tasks.html?id=${encodeURIComponent(id)}`;
+        }
       });
     });
+  }
+
+  // ──────────────────────────────────────────────────────────
+  // 🎯 결정 입력 모달 (BL-STATUS-INTERACTIVE Phase A-2)
+  //   - 결정 대기 카드 클릭 시 호출
+  //   - 3 버튼: ⓐ 작업 상세 / ⓑ 결정 입력(클립보드) / ⓒ 결정 완료(막힘 해제)
+  // ──────────────────────────────────────────────────────────
+  async function openCeoDecisionModal(taskId) {
+    let task = null;
+    try {
+      const data = STATE.data || (window.STATE && window.STATE.data);
+      task = (data?.tasks || []).find(t => t.id === taskId);
+    } catch (_) {}
+
+    if (!task) {
+      try {
+        const r = await fetch('/tasks.json?t=' + Date.now());
+        if (r.ok) {
+          const d = await r.json();
+          task = (d?.tasks || []).find(t => t.id === taskId);
+        }
+      } catch (_) {}
+    }
+
+    if (!task) {
+      alert('작업을 찾을 수 없습니다: ' + taskId);
+      return;
+    }
+
+    let modal = document.getElementById('ceo-decision-modal');
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.id = 'ceo-decision-modal';
+      modal.className = 'ceo-decision-modal';
+      document.body.appendChild(modal);
+    }
+
+    const reasons = (task.autonomous?.requires_decisions_first || []);
+    const reasonHtml = reasons.length > 0
+      ? `<ul class="ceo-decision-reasons">${reasons.map(r => `<li>${escapeHtml(r)}</li>`).join('')}</ul>`
+      : '<div class="ceo-decision-reasons-empty">결정 사유가 명시되지 않았습니다 (approval_required=true)</div>';
+
+    const priCls = (task.priority || 'P2').toLowerCase();
+    const priLab = (typeof PRI_LABEL_KO !== 'undefined' && PRI_LABEL_KO[task.priority]) || (task.priority || '-');
+    const catLab = (typeof CATEGORY_LABEL_KO !== 'undefined' && CATEGORY_LABEL_KO[task.category]) || (task.category || '-');
+
+    modal.innerHTML = `
+      <div class="ceo-decision-backdrop" data-close="1"></div>
+      <div class="ceo-decision-panel" role="dialog" aria-modal="true" aria-label="결정 입력">
+        <div class="ceo-decision-head">
+          <div class="ceo-decision-head-left">
+            <span class="ceo-decision-pill pri ${priCls}">${escapeHtml(priLab)}</span>
+            <span class="ceo-decision-pill cat">${escapeHtml(catLab)}</span>
+            <span class="ceo-decision-id">${escapeHtml(task.id)}</span>
+          </div>
+          <button type="button" class="ceo-decision-close" data-close="1" aria-label="닫기">✕</button>
+        </div>
+        <div class="ceo-decision-title">${escapeHtml(task.title || '')}</div>
+        <div class="ceo-decision-section">
+          <div class="ceo-decision-section-h">📍 결정이 필요한 이유</div>
+          ${reasonHtml}
+        </div>
+        <div class="ceo-decision-section">
+          <div class="ceo-decision-section-h">🎯 어떻게 결정하시겠어요?</div>
+          <div class="ceo-decision-actions">
+            <button type="button" class="ceo-decision-btn primary" data-action="detail">
+              <div class="ceo-decision-btn-h">ⓐ 작업 상세 보기</div>
+              <div class="ceo-decision-btn-d">admin-tasks.html에서 전체 컨텍스트 확인 후 결정</div>
+            </button>
+            <button type="button" class="ceo-decision-btn" data-action="input">
+              <div class="ceo-decision-btn-h">ⓑ 결정 입력</div>
+              <div class="ceo-decision-btn-d">아래 입력란에 결정 사항 작성 → 클립보드 복사 → Claude 채팅에 붙여넣기</div>
+            </button>
+            <button type="button" class="ceo-decision-btn ok" data-action="resolve">
+              <div class="ceo-decision-btn-h">ⓒ 결정 완료 (막힘 해제)</div>
+              <div class="ceo-decision-btn-d">approval_required=false로 즉시 해제 (이미 다른 곳에서 결정 완료한 경우)</div>
+            </button>
+          </div>
+          <div class="ceo-decision-input-wrap" id="ceo-decision-input-wrap" style="display:none;">
+            <textarea id="ceo-decision-input" class="ceo-decision-textarea" rows="6" placeholder="결정 내용을 입력하세요. 예: 'A안으로 진행. 이유는 매니저 동선이 짧아서.'"></textarea>
+            <div class="ceo-decision-input-actions">
+              <button type="button" class="ceo-decision-btn-mini primary" data-action="copy-decision">📋 복사 + Claude 인계서로 사용</button>
+              <button type="button" class="ceo-decision-btn-mini cancel" data-action="cancel-input">취소</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+    modal.classList.add('show');
+
+    const closeModal = () => {
+      modal.classList.remove('show');
+      setTimeout(() => { modal.innerHTML = ''; }, 200);
+    };
+
+    modal.querySelectorAll('[data-close]').forEach(el => {
+      el.addEventListener('click', closeModal);
+    });
+
+    modal.querySelector('[data-action="detail"]')?.addEventListener('click', () => {
+      location.href = `/admin-tasks.html?id=${encodeURIComponent(task.id)}`;
+    });
+
+    modal.querySelector('[data-action="input"]')?.addEventListener('click', () => {
+      const wrap = modal.querySelector('#ceo-decision-input-wrap');
+      if (wrap) {
+        wrap.style.display = 'block';
+        modal.querySelector('#ceo-decision-input')?.focus();
+      }
+    });
+
+    modal.querySelector('[data-action="cancel-input"]')?.addEventListener('click', () => {
+      const wrap = modal.querySelector('#ceo-decision-input-wrap');
+      if (wrap) wrap.style.display = 'none';
+    });
+
+    const copyToCb = async (text) => {
+      try {
+        await navigator.clipboard.writeText(text);
+        return true;
+      } catch (_) {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        let ok = false;
+        try { ok = document.execCommand('copy'); } catch (_) {}
+        document.body.removeChild(ta);
+        return ok;
+      }
+    };
+
+    modal.querySelector('[data-action="copy-decision"]')?.addEventListener('click', async () => {
+      const txt = modal.querySelector('#ceo-decision-input')?.value?.trim() || '';
+      if (!txt) {
+        alert('결정 내용을 입력하세요.');
+        return;
+      }
+      const handoff = `[대표님 결정 사항 — ${task.id}]\n\n## 작업: ${task.title}\n**카테고리:** ${task.category}\n**우선순위:** ${task.priority}\n\n## 결정 내용\n${txt}\n\n## 다음 단계\n- 위 결정에 따라 ${task.id} 진행 (approval_required=false 처리)\n- 작업 완료 시 commit + push + ops 알림\n`;
+      const ok = await copyToCb(handoff);
+      if (ok) {
+        if (typeof showToast === 'function') {
+          showToast(`📋 결정 내용 + 작업 컨텍스트 클립보드 복사됨 — Claude 채팅에 붙여넣으세요`, 'success');
+        } else {
+          alert('📋 클립보드 복사됨 — Claude 채팅에 붙여넣으세요');
+        }
+      }
+      closeModal();
+    });
+
+    modal.querySelector('[data-action="resolve"]')?.addEventListener('click', async () => {
+      const handoff = `[결정 완료 — ${task.id} 막힘 해제 요청]\n\n## 작업: ${task.title}\n**카테고리:** ${task.category}\n**우선순위:** ${task.priority}\n\n## 요청\n이 작업은 이미 다른 곳에서 결정이 완료되었습니다.\ntasks.json의 approval_required=false로 즉시 해제하고 자율 큐로 이관해주세요.\n\n## 다음 단계\n- tasks.json에서 ${task.id}.approval_required=false 변경\n- commit + push\n- 자율 큐로 자동 이관 확인\n`;
+      const ok = await copyToCb(handoff);
+      if (ok) {
+        if (typeof showToast === 'function') {
+          showToast(`📋 막힘 해제 요청 클립보드 복사됨 — Claude 채팅에 붙여넣으세요`, 'success');
+        } else {
+          alert('📋 클립보드 복사됨 — Claude 채팅에 붙여넣으세요');
+        }
+      }
+      closeModal();
+    });
+
+    const escHandler = (e) => {
+      if (e.key === 'Escape') {
+        closeModal();
+        document.removeEventListener('keydown', escHandler);
+      }
+    };
+    document.addEventListener('keydown', escHandler);
   }
 
   // ──────────────────────────────────────────────────────────
@@ -3255,7 +3611,7 @@
             </div>
           </div>
         `).join('')}
-      </div>${staff.length > 6 ? `<div style="font-size:10px;color:var(--text-muted);text-align:right;margin-top:6px;">+${staff.length - 6}건 더 → /admin-tasks.html에서 확인</div>` : ''}`;
+      </div>${staff.length > 6 ? `<a href="/admin-tasks.html?filter=staff" style="display:block;font-size:10px;color:var(--aurora-2);text-align:right;padding:6px;text-decoration:none;margin-top:6px;cursor:pointer;" title="admin-tasks.html에서 직원 큐 전체 보기">+${staff.length - 6}건 더 → /admin-tasks.html에서 확인</a>` : ''}`;
 
       // 카드 클릭 핸들러
       body.querySelectorAll('.cc-staff-card').forEach(card => {

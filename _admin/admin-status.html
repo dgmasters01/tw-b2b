@@ -1067,13 +1067,73 @@
       position: absolute;
       top: 50%; left: 50%;
       transform: translate(-50%, -50%);
-      width: min(560px, calc(100vw - 32px));
+      width: min(960px, calc(100vw - 32px));
       max-height: calc(100vh - 64px);
       overflow-y: auto;
       background: white;
       border-radius: 16px;
       box-shadow: 0 24px 48px rgba(0,0,0,0.25);
       padding: 22px 24px 24px;
+    }
+
+    /* [BL-DECISION-MODAL-V2-PHASE-B 단계 3] 좌우 분할 grid 레이아웃
+       좌측 = 결정 맥락 (decision_context / options / recommendation)
+       우측 = 그림 맞추기 (단계 4-5에서 박힐 영역, 지금은 placeholder)
+       768px 이하에서는 1-column 자동 전환 */
+    .ceo-decision-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-top: 12px;
+    }
+    @media (max-width: 768px) {
+      .ceo-decision-grid {
+        grid-template-columns: 1fr;
+        gap: 14px;
+      }
+    }
+    .cd-left, .cd-right {
+      min-width: 0;  /* grid 안 overflow 방지 */
+    }
+    .cd-left {
+      padding-right: 16px;
+      border-right: 1px solid #e2e8f0;
+    }
+    @media (max-width: 768px) {
+      .cd-left {
+        padding-right: 0;
+        border-right: 0;
+        border-bottom: 1px solid #e2e8f0;
+        padding-bottom: 16px;
+      }
+    }
+    .cd-col-h {
+      font-size: 11px; font-weight: 700;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 10px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .cd-right .cd-col-h { color: #6d28d9; }
+
+    /* 우측 그림 맞추기 placeholder — 단계 4-6에서 채울 영역 */
+    .cd-right-placeholder {
+      background: linear-gradient(135deg, rgba(139,92,246,0.04), rgba(236,72,153,0.04));
+      border: 1px dashed rgba(139,92,246,0.3);
+      border-radius: 10px;
+      padding: 24px 16px;
+      text-align: center;
+      color: #94a3b8;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+    .cd-right-placeholder .ph-icon {
+      font-size: 24px; margin-bottom: 8px; display: block;
+    }
+    .cd-right-placeholder .ph-title {
+      font-weight: 600; color: #6d28d9;
+      font-size: 13px; margin-bottom: 6px;
     }
     .ceo-decision-head {
       display: flex; align-items: center; justify-content: space-between;
@@ -2627,13 +2687,39 @@
           <button type="button" class="ceo-decision-close" data-close="1" aria-label="닫기">✕</button>
         </div>
         <div class="ceo-decision-title">${escapeHtml(task.title || '')}</div>
-        <div class="ceo-decision-section">
-          <div class="ceo-decision-section-h">📍 결정이 필요한 이유</div>
-          ${reasonHtml}
-          ${ctxHtml}
+
+        <!-- [BL-DECISION-MODAL-V2-PHASE-B 단계 3] 좌우 분할 grid -->
+        <div class="ceo-decision-grid">
+
+          <!-- 좌측 = 결정 맥락 (decision_context / options / recommendation) -->
+          <div class="cd-left">
+            <div class="cd-col-h">📍 결정 맥락</div>
+            <div class="ceo-decision-section">
+              <div class="ceo-decision-section-h">결정이 필요한 이유</div>
+              ${reasonHtml}
+              ${ctxHtml}
+            </div>
+          </div>
+
+          <!-- 우측 = 그림 맞추기 (단계 4-6에서 본격 채워질 영역) -->
+          <div class="cd-right">
+            <div class="cd-col-h">🎯 그림 맞추기</div>
+            <div class="cd-right-placeholder" id="cd-grim-placeholder">
+              <span class="ph-icon">🖼️</span>
+              <div class="ph-title">그림 맞추기 영역</div>
+              <div>
+                대표님 머릿속 그림과 Claude 그림을<br>
+                대화로 맞춰가는 영역입니다.<br><br>
+                <strong>단계 6에서 활성화 예정</strong>
+              </div>
+            </div>
+          </div>
+
         </div>
-        <div class="ceo-decision-section">
-          <div class="ceo-decision-section-h">🎯 어떻게 결정하시겠어요?</div>
+
+        <!-- 액션 버튼 — 분할 아래 전체 폭 -->
+        <div class="ceo-decision-section" style="margin-top:18px;border-top:1px solid #e2e8f0;padding-top:16px;">
+          <div class="ceo-decision-section-h">🎬 어떻게 결정하시겠어요?</div>
           <div class="ceo-decision-actions">
             <button type="button" class="ceo-decision-btn primary" data-action="detail">
               <div class="ceo-decision-btn-h">ⓐ 작업 상세 보기</div>

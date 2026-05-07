@@ -733,6 +733,61 @@
     /* 폴링 status 박스 — 모바일에서 너무 크지 않게 */
     .poll-status { font-size: 9px !important; padding: 4px 8px !important; bottom: 8px !important; right: 8px !important; }
   }
+
+  /* ═══════════════════════════════════════════════════════════════════
+     ★ BL-OS-PHASE-5 단계 5 — OS 사이드바 4영역 (DOCS/TOOLS/OS-CORE/SYSTEM)
+     menu-manifest.json + business-context/tools-manifest.json 자동 렌더
+     5초 polling (헌법 부칙 8 — 자동 동기화)
+     ═══════════════════════════════════════════════════════════════════ */
+  .os-shell { display: grid; grid-template-columns: 240px 1fr; gap: 16px; align-items: start; }
+  .os-sidebar {
+    position: sticky; top: 56px; align-self: start;
+    max-height: calc(100vh - 72px); overflow-y: auto; overflow-x: hidden;
+    background: rgba(15,23,42,0.55);
+    border: 1px solid rgba(99,102,241,0.22);
+    border-radius: 10px;
+    padding: 10px 8px;
+    font-size: 12px;
+  }
+  .os-sidebar .os-sb-area { margin-bottom: 10px; }
+  .os-sidebar .os-sb-area:last-child { margin-bottom: 0; }
+  .os-sidebar .os-sb-area-label {
+    font-size: 10px; font-weight: 600; letter-spacing: 0.04em;
+    color: var(--text-muted); text-transform: none;
+    padding: 4px 8px 6px; margin-top: 2px;
+    border-bottom: 1px dashed rgba(99,102,241,0.18);
+    margin-bottom: 4px;
+  }
+  .os-sidebar .os-sb-menu {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 8px; margin: 1px 0;
+    color: var(--text); text-decoration: none;
+    border-radius: 6px; line-height: 1.3;
+    transition: background 0.15s, color 0.15s;
+  }
+  .os-sidebar .os-sb-menu:hover { background: rgba(99,102,241,0.12); color: #c7d2fe; }
+  .os-sidebar .os-sb-menu.active { background: rgba(99,102,241,0.18); color: #a5b4fc; font-weight: 600; }
+  .os-sidebar .os-sb-menu .ic { font-size: 13px; width: 16px; text-align: center; flex-shrink: 0; }
+  .os-sidebar .os-sb-menu .lb { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .os-sidebar .os-sb-empty {
+    padding: 8px; font-size: 10px; color: var(--text-muted);
+    background: rgba(251,191,36,0.06); border: 1px dashed rgba(251,191,36,0.25);
+    border-radius: 6px; line-height: 1.4;
+  }
+  .os-sidebar .os-sb-warn {
+    padding: 6px 8px; margin-top: 4px; font-size: 9px; color: #f5d97b;
+    background: rgba(251,191,36,0.08); border-radius: 4px; line-height: 1.4;
+  }
+  .os-sidebar .os-sb-poll {
+    margin-top: 8px; padding: 4px 8px; font-size: 9px;
+    color: var(--text-muted); text-align: right;
+    border-top: 1px dashed rgba(148,163,184,0.15);
+  }
+  /* 모바일: 사이드바 위, main 아래 1열 */
+  @media (max-width: 900px) {
+    .os-shell { grid-template-columns: 1fr; }
+    .os-sidebar { position: relative; top: 0; max-height: none; }
+  }
 </style>
 <!-- ★ BL-OS-PHASE-3: Admin Skin 토큰 (다크/라이트) — body[data-skin]으로 토글 -->
 <link rel="stylesheet" href="/_os/skins/admin-skin.css">
@@ -835,6 +890,17 @@
       <a href="/admin.html" style="text-decoration:none;"><button>← Admin</button></a>
     </div>
   </header>
+
+  <!-- ═══ ★ BL-OS-PHASE-5 단계 5 — OS 사이드바 4영역 (DOCS/TOOLS/OS-CORE/SYSTEM) ═══
+       menu-manifest.json + business-context/tools-manifest.json 자동 렌더
+       5초 polling (헌법 부칙 8 — 자동 동기화)
+       구조 강제: DOCS 5개 / TOOLS dynamic / OS-CORE 1개 / SYSTEM 4개
+       === -->
+  <div class="os-shell">
+    <aside class="os-sidebar" id="os-sidebar" aria-label="OS 사이드바 (4영역)">
+      <div class="os-sb-empty" id="os-sb-loading">사이드바 manifest 로딩 중...</div>
+    </aside>
+    <main class="os-main">
 
   <!-- 데드라인 경고 (조건부) -->
   <div class="deadline-banner" id="deadline-banner">
@@ -1894,6 +1960,9 @@
     <div style="font-size:10px;">🛡️ 헌법 자가 검증 27/27 · 헌법 12조 자체 검증 의무 박힘 · D-011 박힘 · Phase 3-A 완료 (정적) · 다음: 3-B (동적 데이터)</div>
     <div style="font-size:9px;color:var(--text-muted);margin-top:4px;">앱 버전 <code>2026-05-05-v3-self-qa</code> · 화면 이상 시 <kbd style="font-family:monospace;background:rgba(255,255,255,0.05);padding:1px 4px;border:0.5px solid var(--border);border-radius:2px;">Ctrl+Shift+R</kbd>로 캐시 무효화</div>
   </footer>
+
+    </main><!-- /.os-main -->
+  </div><!-- /.os-shell — BL-OS-PHASE-5 단계 5 -->
 
 </div>
 
@@ -5373,5 +5442,114 @@ ${task.title}
     }
   })();
 </script>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     ★ BL-OS-PHASE-5 단계 5 — OS 사이드바 자동 렌더 (5초 polling)
+     데이터 소스 1: /_os/admin-pages/menu-manifest.json (영역 + 필수 메뉴)
+     데이터 소스 2: /business-context/tools-manifest.json (TOOLS 영역만 자율)
+     렌더 룰: areas[] 순서대로 박음 + 영역별 라벨 + 메뉴 링크
+     동기화: 5초 polling (헌법 부칙 8) — manifest 변경 시 5초 내 사이드바 갱신
+     ═══════════════════════════════════════════════════════════════════ -->
+<script>
+(function(){
+  const SB_POLL_MS = 5000;
+  const MENU_MANIFEST_URL = '/_os/admin-pages/menu-manifest.json';
+  const TOOLS_MANIFEST_URL = '/business-context/tools-manifest.json';
+  const sbEl = document.getElementById('os-sidebar');
+  if (!sbEl) { console.warn('[os-sidebar] #os-sidebar not found'); return; }
+
+  let lastSig = '';   // 변경 감지용 시그니처
+  let renderCount = 0;
+
+  function escHTML(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+  function fetchJson(url){
+    return fetch(url + '?t=' + Date.now(), { cache: 'no-store' })
+      .then(r => r.ok ? r.json() : null)
+      .catch(() => null);
+  }
+
+  function currentPath(){
+    try { return location.pathname.replace(/\/$/, '') || '/'; }
+    catch(e){ return '/'; }
+  }
+
+  function isActive(menuPath){
+    if (!menuPath) return false;
+    const cur = currentPath();
+    const mp = menuPath.replace(/\/$/, '') || '/';
+    return cur === mp;
+  }
+
+  function renderMenu(m){
+    const ic = escHTML(m.icon || '·');
+    const lb = escHTML(m.label || '(no label)');
+    const path = escHTML(m.path || '#');
+    const active = isActive(m.path) ? ' active' : '';
+    const title = m.role ? ' title="' + escHTML(m.role) + '"' : '';
+    return '<a class="os-sb-menu' + active + '" href="' + path + '"' + title + '>'
+         + '<span class="ic">' + ic + '</span>'
+         + '<span class="lb">' + lb + '</span>'
+         + '</a>';
+  }
+
+  function renderArea(area, toolsManifest){
+    const lblHtml = '<div class="os-sb-area-label">' + escHTML(area.label || area.id) + '</div>';
+    let body = '';
+    if (area.type === 'single' && area.menu) {
+      body = renderMenu(area.menu);
+    } else if (area.type === 'fixed' && Array.isArray(area.menus)) {
+      body = area.menus.map(renderMenu).join('');
+      // 누락 검증 (DOCS 5 / OS-CORE 1 / SYSTEM 4)
+      const expected = { docs: 5, 'os-core': 1, system: 4 };
+      const exp = expected[area.id];
+      if (exp && area.menus.length < exp) {
+        body += '<div class="os-sb-warn">⚠️ 헌법 위반: ' + area.id.toUpperCase() + ' 영역 메뉴 ' + area.menus.length + '/' + exp + '개</div>';
+      }
+    } else if (area.type === 'dynamic' && area.id === 'tools') {
+      // TOOLS 영역 — business-context/tools-manifest.json에서 가져옴
+      if (toolsManifest && Array.isArray(toolsManifest.menus) && toolsManifest.menus.length) {
+        body = toolsManifest.menus.map(renderMenu).join('');
+      } else {
+        const fb = area.fallback_message || 'TOOLS 메뉴 미정의';
+        body = '<div class="os-sb-empty">' + escHTML(fb) + '<br><small style="opacity:0.7;">→ business-context/tools-manifest.json 등록</small></div>';
+      }
+    } else {
+      body = '<div class="os-sb-empty">미지원 area type: ' + escHTML(area.type) + '</div>';
+    }
+    return '<div class="os-sb-area" data-area-id="' + escHTML(area.id) + '">' + lblHtml + body + '</div>';
+  }
+
+  function render(menuManifest, toolsManifest){
+    if (!menuManifest || !Array.isArray(menuManifest.areas)) {
+      sbEl.innerHTML = '<div class="os-sb-empty">⚠️ menu-manifest.json 로딩 실패<br><small>/_os/admin-pages/menu-manifest.json</small></div>';
+      return;
+    }
+    // 시그니처 (변경 감지)
+    const sig = JSON.stringify([menuManifest.version || '?', toolsManifest && toolsManifest.version || 'none',
+                                 menuManifest.areas.map(a => [a.id, a.type, (a.menus || []).map(m => m.id).join(','), a.menu && a.menu.id]),
+                                 toolsManifest && (toolsManifest.menus || []).map(m => m.id).join(',')]);
+    if (sig === lastSig && renderCount > 0) return;  // no change
+    lastSig = sig;
+    renderCount++;
+
+    const areas = menuManifest.areas.slice().sort((a, b) => (a.order || 0) - (b.order || 0));
+    let html = areas.map(a => renderArea(a, toolsManifest)).join('');
+    const ts = new Date().toLocaleTimeString('ko-KR', { hour12: false });
+    html += '<div class="os-sb-poll" title="5초 polling (헌법 부칙 8)">⟳ 5s · ' + ts + '</div>';
+    sbEl.innerHTML = html;
+  }
+
+  function pollOnce(){
+    Promise.all([fetchJson(MENU_MANIFEST_URL), fetchJson(TOOLS_MANIFEST_URL)])
+      .then(([menuM, toolsM]) => render(menuM, toolsM));
+  }
+
+  pollOnce();
+  setInterval(pollOnce, SB_POLL_MS);
+  console.log('[os-sidebar] BL-OS-PHASE-5 단계 5 — 5초 polling 가동');
+})();
+</script>
+<!-- ═══ End OS 사이드바 자동 렌더 ═══ -->
 </body>
 </html>

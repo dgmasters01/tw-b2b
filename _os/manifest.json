@@ -1,0 +1,117 @@
+{
+  "version": "0.1.0",
+  "created_at": "2026-05-07T05:55:00+00:00",
+  "name": "tw-os",
+  "description": "AI + 1인 사장이 사업 운영하는 OS — 한 번 완성, 모든 프로젝트에 설치만으로 즉시 자율 운영",
+  "vision": "전세계 시장 1등을 위한 미래 매출 가속 인프라",
+  "phase": "Phase 2 — OS 본체 분리 (단계적 이동 진행 중)",
+  "principles": "OPERATIONS_CHARTER.md 11대 원칙 + 부칙 1~9",
+
+  "assets": {
+    "scripts": {
+      "description": "OS 봇 + 동기화 엔진 (모두 _os/scripts/로 이동)",
+      "items": [
+        { "name": "sync_engine.py", "role": "tasks.json → MD/Gallery 동기화 엔진", "current_path": "scripts/sync_engine.py", "os_path": "_os/scripts/sync_engine.py" },
+        { "name": "sync_md_from_tasks.py", "role": "MD 자동 빌더", "current_path": "scripts/sync_md_from_tasks.py", "os_path": "_os/scripts/sync_md_from_tasks.py" },
+        { "name": "build_tasks_json.py", "role": "tasks.json 빌더 + schema 검증", "current_path": "scripts/build_tasks_json.py", "os_path": "_os/scripts/build_tasks_json.py" },
+        { "name": "auto_detect_task_status.py", "role": "commit message → status 자동 감지", "current_path": "scripts/auto_detect_task_status.py", "os_path": "_os/scripts/auto_detect_task_status.py" },
+        { "name": "build-activity-feed.mjs", "role": "활동 이력 3-Layer 빌더", "current_path": "scripts/build-activity-feed.mjs", "os_path": "_os/scripts/build-activity-feed.mjs" },
+        { "name": "build-chat-log-index.mjs", "role": "채팅 로그 인덱스 빌더", "current_path": "scripts/build-chat-log-index.mjs", "os_path": "_os/scripts/build-chat-log-index.mjs" },
+        { "name": "scan-pages-status.mjs", "role": "페이지 완성도 자동 스캐너", "current_path": "scripts/scan-pages-status.mjs", "os_path": "_os/scripts/scan-pages-status.mjs" },
+        { "name": "health_check_admin.mjs", "role": "_health.json 갱신 봇", "current_path": "scripts/health_check_admin.mjs", "os_path": "_os/scripts/health_check_admin.mjs" },
+        { "name": "snapshot_tasks.py", "role": "tasks.json 스냅샷", "current_path": "scripts/snapshot_tasks.py", "os_path": "_os/scripts/snapshot_tasks.py" },
+        { "name": "charter-mapping-check.mjs", "role": "헌법 매핑 검증", "current_path": "scripts/charter-mapping-check.mjs", "os_path": "_os/scripts/charter-mapping-check.mjs" },
+        { "name": "pages-meta.mjs", "role": "페이지 메타 (D-010 카테고리-파일 매핑)", "current_path": "scripts/pages-meta.mjs", "os_path": "_os/scripts/pages-meta.mjs" },
+        { "name": "sync-page-task-meta.mjs", "role": "페이지-작업 메타 동기화", "current_path": "scripts/sync-page-task-meta.mjs", "os_path": "_os/scripts/sync-page-task-meta.mjs" }
+      ],
+      "business_only": [
+        { "name": "apply-email-templates.py", "role": "Resend 메일 템플릿 — 사업 (호텔 알림 메일)", "stays_at": "scripts/apply-email-templates.py" },
+        { "name": "validate-paypal.mjs", "role": "PayPal 검증 — 사업 (결제)", "stays_at": "scripts/validate-paypal.mjs" },
+        { "name": "capture-pages.mjs", "role": "페이지 캡처 — 사업+OS 혼재, 추후 분리", "stays_at": "scripts/capture-pages.mjs" },
+        { "name": "migrate-chatlogs-to-business-format.mjs", "role": "1회성 마이그레이션", "stays_at": "scripts/migrate-chatlogs-to-business-format.mjs" },
+        { "name": "migrate_tasks_v2.ps1", "role": "1회성 마이그레이션", "stays_at": "scripts/migrate_tasks_v2.ps1" }
+      ]
+    },
+
+    "workflows": {
+      "description": "GitHub Actions 워크플로 — 실 파일은 .github/workflows에서만 동작 (GitHub 제약), 매니페스트로 OS 본체 표시",
+      "note": "GitHub은 .github/workflows/ 하위만 워크플로로 인식 — 이동 불가. 매니페스트로 'OS 본체 자산'임을 표시.",
+      "items": [
+        { "name": "sync.yml", "role": "tasks.json 자동 동기화 봇", "path": ".github/workflows/sync.yml", "is_os": true },
+        { "name": "auto-detect-task-status.yml", "role": "commit message status 감지 봇", "path": ".github/workflows/auto-detect-task-status.yml", "is_os": true },
+        { "name": "page-status-scan.yml", "role": "페이지 완성도 스캐너 봇", "path": ".github/workflows/page-status-scan.yml", "is_os": true },
+        { "name": "build-activity-feed.yml", "role": "활동 이력 자동 빌더 봇", "path": ".github/workflows/build-activity-feed.yml", "is_os": true },
+        { "name": "health-check-admin.yml", "role": "건강 검진 봇", "path": ".github/workflows/health-check-admin.yml", "is_os": true },
+        { "name": "chat-log-index.yml", "role": "채팅 로그 인덱스 봇", "path": ".github/workflows/chat-log-index.yml", "is_os": true }
+      ]
+    },
+
+    "admin_pages": {
+      "description": "관리자 페이지 — OS 본체 vs 사업 분류",
+      "os_pages": [
+        { "name": "admin-status.html", "role": "OS 시스템 완성도 단일 통합 관리 페이지 (D-010, D-011, D-012)", "path": "_admin/admin-status.html" },
+        { "name": "admin-tasks.html", "role": "OS 작업 관리 페이지", "path": "_admin/admin-tasks.html" },
+        { "name": "admin-hub.html", "role": "OS hub (BL-HUB-RETIRE 진행 중)", "path": "_admin/admin-hub.html" },
+        { "name": "admin-permissions.html", "role": "OS 권한 관리 (3-State + 5단계)", "path": "_admin/admin-permissions.html" },
+        { "name": "admin-gallery.html", "role": "OS 페이지 갤러리", "path": "_admin/admin-gallery.html" },
+        { "name": "admin-service-ops.html", "role": "OS 운영 매뉴얼", "path": "_admin/admin-service-ops.html" },
+        { "name": "admin-login.html", "role": "OS 인증 (BL-ADMIN-AUTH-V2)", "path": "admin-login.html" },
+        { "name": "admin-accept-invite.html", "role": "OS 초대 수락", "path": "admin-accept-invite.html" }
+      ],
+      "business_pages": [
+        { "name": "admin-business.html", "role": "사업 — 호텔/예약/매출 관리", "path": "_admin/admin-business.html" },
+        { "name": "admin.html", "role": "사업 종합 대시보드 (1.2MB, BL-LEGACY-ADMIN으로 분리 예정)", "path": "_admin/admin.html" }
+      ]
+    },
+
+    "data": {
+      "description": "OS 운영 데이터 — 단일 진실원",
+      "items": [
+        { "name": "tasks.json", "role": "작업 단일 진실원", "path": "tasks.json", "rationale": "루트에 유지 — sync_engine + 모든 봇 + admin-status가 참조" },
+        { "name": "_health.json", "role": "건강 검진 결과", "path": "_admin/_health.json" },
+        { "name": "activity-feed.{json,display.json,summary.json}", "role": "활동 이력 3-Layer (D-012)", "path": "activity-feed.*" },
+        { "name": "pages-status.{json,display.json,summary.json}", "role": "페이지 완성도 3-Layer (D-012)", "path": "pages-status.*" }
+      ]
+    },
+
+    "charter": {
+      "description": "헌법 + 운영 문서 — OS 본체 (실 파일은 루트 유지, 호환성)",
+      "items": [
+        { "name": "OPERATIONS_CHARTER.md", "role": "헌법 11대 원칙 + 부칙", "path": "OPERATIONS_CHARTER.md", "is_os_core": true },
+        { "name": "CLAUDE.md", "role": "Claude 자율 실행 매뉴얼", "path": "CLAUDE.md", "is_os_core": true },
+        { "name": "DECISIONS.md", "role": "사람용 결정 이력", "path": "DECISIONS.md", "is_os_core": true },
+        { "name": "DECISIONS_INDEX.md", "role": "AI용 결정 인덱스", "path": "DECISIONS_INDEX.md", "is_os_core": true },
+        { "name": "BACKLOG.md", "role": "백로그 사람용 시각화", "path": "BACKLOG.md", "is_os_core": true },
+        { "name": "CHANGELOG.md", "role": "변경 이력", "path": "CHANGELOG.md", "is_os_core": true },
+        { "name": "ECHO_LOG.md", "role": "결정 에코", "path": "ECHO_LOG.md", "is_os_core": true },
+        { "name": "STATUS.md", "role": "상태 보고", "path": "STATUS.md", "is_os_core": true },
+        { "name": "SOLO_WORK_QUEUE.md", "role": "단독 작업 큐", "path": "SOLO_WORK_QUEUE.md", "is_os_core": true },
+        { "name": "JOURNEY.md", "role": "여정 문서", "path": "JOURNEY.md", "is_os_core": true }
+      ],
+      "phase_reports": [
+        { "name": "HANDOVER_OS_PHASE0.md", "path": "HANDOVER_OS_PHASE0.md" },
+        { "name": "PHASE_1A_VERIFICATION_REPORT.md", "path": "PHASE_1A_VERIFICATION_REPORT.md" },
+        { "name": "PHASE_1B_VERIFICATION_REPORT.md", "path": "PHASE_1B_VERIFICATION_REPORT.md" }
+      ],
+      "business_docs": [
+        { "name": "BUSINESS.md", "role": "사업 — 한국어 사업계획서", "path": "BUSINESS.md" },
+        { "name": "BUSINESS_FLOW.md", "role": "사업 — 운영 플로우", "path": "BUSINESS_FLOW.md" }
+      ]
+    },
+
+    "snapshots": {
+      "description": "Phase 0 스냅샷 (baseline 비교용)",
+      "items": [
+        { "path": "_os_snapshots/2026-05-07_phase0-baseline/", "role": "Phase 0 baseline (admin-status/tasks/hub)" }
+      ]
+    }
+  },
+
+  "migration_status": {
+    "phase_2_step": "1/6",
+    "moved_files": [],
+    "redirect_paths": {},
+    "compatibility_notes": "단계 2부터 scripts/ 이동 시작. 워크플로 yml의 경로도 같은 commit에서 갱신 필요.",
+    "rollback_strategy": "각 단계 commit 별도 → 단계별 라이브 검증 실패 시 그 commit만 revert"
+  }
+}

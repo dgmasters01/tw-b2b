@@ -10,7 +10,48 @@
 
 ---
 
-## 🆕 2026-05-08 — 자격증명 라이프사이클 명문화 (헌법 부칙 4 보강)
+## 🆕 2026-05-08 — Vercel Pro 결제 활성화 (호스팅 인프라 안정화)
+
+### 결정 D-018: Vercel Hobby → Pro 업그레이드 (월 $20 + Spend Limit $50) ⭐⭐⭐ 2026-05-08
+**무엇을**: gohotelwinners.com 호스팅 플랜을 Hobby(무료) → Pro($20/월)로 업그레이드. 안전장치로 Spend Management hard limit $50 설정 권장.
+
+**왜**:
+1. **헌법 위반 해소**: Hobby 약관은 비상업적 사용 한정. gohotelwinners.com에서 $200 PayPal 결제 받으면 약관 위반 → 갑작스런 계정 정지 위험 (운영 중 사고 가능).
+2. **Vercel webhook race 영구 차단**: Hobby는 일일 100개 배포 한도. 봇 7개(activity/sync/scan/auto-detect/health/chat-log/charter-length) 운영 시 매일 한도 부딪힘. Pro는 3,000개/일.
+3. **사고 직접 경험**: 2026-05-08 헌법변경(D-017) 라이브 미반영 사고 발생. Vercel deployment list에서 89186e0 + 5983b9c + 후속 commit 모두 한도 초과로 빌드 차단됨.
+4. **상업 사용 약관 준수**: Pro 가입으로 commercial usage 정식 허용.
+
+**비용 분석**:
+- 월 고정 $20 (약 28,000원)
+- $20 included credit (대부분의 사용량 무료 흡수)
+- Spend Management hard limit $50 권장 → 폭주 시 자동 정지 (청구서 폭탄 방지)
+- 우리 사업 트래픽 예상 (B2B 호텔 운영자 + 일반 패키지 고객 수천~수만/월) 대비 Pro 한도 사용률 5% 이하
+
+**누가**: 이지형 대표님 (결제 등록) / 클로드 (분석·권고·검증).
+
+**대안 검토 결과 (모두 기각)**:
+- ❌ Hobby 유지: 약관 위반 + 일일 한도 사고 반복 → 사업 운영 불가
+- ❌ Cloudflare Pages 이전: 이전 작업 자체가 1주일 BL → ROI 낮음
+- ❌ Stripe 도입 (PayPal 대체): 베트남 법인 미지원 + 한국 직접 가입 불가 → 도입 어려움. PayPal 유지가 정석.
+
+**라이프사이클 (D-017 부칙 4 적용)**:
+- **개발기간 (현재~)**: Pro 활성. 카드 정보 등록 정상.
+- **서비스기간 진입 시**: 카드 정보 rotate (개인 카드 → 법인 카드 권장). Spend Management 검토.
+- **사업 종료·일시 중단 시**: Pro → Hobby 다운그레이드 가능 (commercial 종료 후).
+
+**문서 박힌 곳**:
+- DECISIONS.md (이 항목)
+- DECISIONS_INDEX.md (D-018 추가)
+- `_os/playbook/credentials-lifecycle.md` 카드·구독 섹션 추가 권장 (다음 채팅)
+- handoff/current.md (다음 채팅 1순위 = BL-VERCEL-DEPLOY-RACE-GUARD 영구 가드 구현)
+
+**관련 BL**:
+- BL-VERCEL-DEPLOY-RACE-GUARD (P0): 봇 commit 통합·Vercel quota 모니터링·webhook 정지 자동 감지
+- BL-VERCEL-DEPLOY-RACE-GUARD가 끝나면 Pro 한도(3,000/일) 안에서도 자동 안전망 가동
+
+---
+
+
 
 ### 결정 D-017: 토큰·키 라이프사이클 = 개발기간(등록 정상) → 서비스기간(일괄 폐기) ⭐⭐⭐ 2026-05-08
 **무엇을**: GitHub PAT·Vercel Token·Supabase Key·API Key 등 모든 자격증명의 라이프사이클을 헌법 부칙 4에 박고, 디테일은 `_os/playbook/credentials-lifecycle.md`에 분리.

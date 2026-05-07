@@ -37,6 +37,7 @@
 | D-015 | BL-ADMIN-AUTH-V2 — 5단계 권한 + 초대 + 즉시 박탈 + 무제한 이력 | policy | 2026-05-05 | 확정 | BL-ADMIN-AUTH-V2 |
 | D-016 | BL-ADMIN-AUTH-V2 라우터 통합 — Vercel Hobby 12 함수 한도 회피 | infra | 2026-05-04 | 확정 | BL-ADMIN-AUTH-V2 |
 | D-017 | 자격증명 라이프사이클 — 개발기간(등록 정상) → 서비스기간(일괄 폐기) | policy | 2026-05-08 | 확정 | 헌법 부칙 4, `_os/playbook/credentials-lifecycle.md` |
+| D-018 | Vercel Hobby → Pro 업그레이드 ($20/월) — 약관 준수 + 일일 배포 한도 30배 + webhook race 차단 | infra | 2026-05-08 | 확정 | BL-VERCEL-DEPLOY-RACE-GUARD, gohotelwinners.com 호스팅 |
 
 ---
 
@@ -61,6 +62,7 @@
 | D-015 | 2026-05-05 신규 | BL-ADMIN-AUTH-V2 권한 정책 본체 |
 | D-016 | 2026-05-04 신규 | Vercel Hobby 12 함수 한도 회피 위한 라우터 통합 |
 | D-017 | 2026-05-08 신규 (최상단) | 토큰·키 라이프사이클 — 헌법 부칙 4 보강 + `_os/playbook/credentials-lifecycle.md` 신설 |
+| D-018 | 2026-05-08 신규 (최상단) | Vercel Pro 결제 활성화 — 호스팅 인프라 안정화 + 헌법 위반(상업 사용) 해소 |
 
 ---
 

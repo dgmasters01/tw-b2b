@@ -734,6 +734,8 @@
     .poll-status { font-size: 9px !important; padding: 4px 8px !important; bottom: 8px !important; right: 8px !important; }
   }
 </style>
+<!-- ★ BL-OS-PHASE-3: Admin Skin 토큰 (다크/라이트) — body[data-skin]으로 토글 -->
+<link rel="stylesheet" href="/_os/skins/admin-skin.css">
 </head>
 <body>
 
@@ -828,6 +830,7 @@
     <div class="header-actions">
       <span class="role-tag" id="role-tag">현재: 👤 CEO</span>
       <button id="btn-i18n" title="언어 토글 — 다음 주 i18n 일괄 적용 예정">🌐 EN/KO</button>
+      <button id="btn-skin-toggle" title="Admin Skin — 다크/라이트 토글 (BL-OS-PHASE-3)">🌓 다크/라이트</button>
       <button id="btn-rescan" title="다시 측정 — 수동 트리거">🔄 다시 측정</button>
       <a href="/admin.html" style="text-decoration:none;"><button>← Admin</button></a>
     </div>
@@ -2421,6 +2424,27 @@
   $('btn-i18n').addEventListener('click', () => {
     alert('영·한 토글은 다음 주 i18n 일괄 작업(BL-I18N-BATCH)에서 활성화됩니다.\n메모리 #20 원칙 — 영어 본체 완성 후 단일 작업으로 처리.');
   });
+  // ★ BL-OS-PHASE-3: Admin Skin 토글 (다크/라이트)
+  //   localStorage('admin-skin')에서 초기값 로드 → body[data-skin] 적용 → 토글 시 저장
+  (function initAdminSkin() {
+    const stored = localStorage.getItem('admin-skin') || 'dark';
+    document.body.dataset.skin = stored;
+  })();
+  $('btn-skin-toggle').addEventListener('click', () => {
+    const cur = document.body.dataset.skin || 'dark';
+    const next = cur === 'dark' ? 'light' : 'dark';
+    document.body.dataset.skin = next;
+    localStorage.setItem('admin-skin', next);
+    const btn = $('btn-skin-toggle');
+    if (btn) btn.textContent = next === 'dark' ? '🌓 라이트로' : '🌓 다크로';
+  });
+  // 초기 버튼 라벨 갱신
+  (function initSkinBtnLabel() {
+    const btn = $('btn-skin-toggle');
+    if (!btn) return;
+    const cur = document.body.dataset.skin || 'dark';
+    btn.textContent = cur === 'dark' ? '🌓 라이트로' : '🌓 다크로';
+  })();
   $('btn-rescan').addEventListener('click', async () => {
     const btn = $('btn-rescan');
     const orig = btn.textContent;

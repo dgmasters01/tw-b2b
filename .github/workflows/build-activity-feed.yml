@@ -1,0 +1,124 @@
+# TW B2B — activity-feed 자동 갱신 워크플로 (BL-OS-PHASE-1A 단계 5)
+#
+# 헌법 부합:
+#   ② 무인 실행: tasks.json / git push 변경 즉시 자동 빌드
+#   ④ 전수 추적: 활동 이력 3-Layer (full/display/summary) 영구 갱신
+#   ⑥ AI 가독성: summary는 Claude용, display는 UI용
+#   부칙 8: 자동 동기화 완성도 — 한 곳 변경 시 화면이 자동으로 같이 바뀜
+#
+# 트리거:
+#   1. main / restructure-os-modularization push 시 자동 실행 (모든 변경 흡수)
+#   2. tasks.json 또는 build-activity-feed.mjs 변경 시 (paths 명시 — concurrency 활용)
+#   3. 수동 실행 (workflow_dispatch)
+#
+# 무한 루프 방지:
+#   - [activity-bot] 자기 commit 제외
+#   - 다른 봇([sync-bot]/[scan-bot]/[health-bot]/[auto-detect-bot]) commit도 흡수해야 하므로
+#     activity-feed는 제외 안 함 (다른 봇 활동도 이력에 박혀야 함)
+#
+# Race condition 가드:
+#   - sync-bot / health-bot / auto-detect-bot과 동일한 retry-rebase 3회
+
+name: Auto Build Activity Feed
+
+on:
+  push:
+    branches: [main, restructure-os-modularization]
+  workflow_dispatch:
+
+# 동일 브랜치에서 동시 실행 방지
+concurrency:
+  group: build-activity-feed-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build activity-feed 3-Layer
+    runs-on: ubuntu-latest
+
+    # 무한 루프 방지: activity-bot 자기 자신이 만든 commit은 다시 트리거하지 않음
+    if: ${{ !startsWith(github.event.head_commit.message, '[activity-bot]') }}
+
+    steps:
+      - name: Checkout (full history — git log 위해)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Run build-activity-feed.mjs
+        run: |
+          echo "=== activity-feed 빌드 시작 ==="
+          node scripts/build-activity-feed.mjs
+          echo "=== 빌드 결과 확인 ==="
+          for f in activity-feed.json activity-feed.display.json activity-feed.summary.json; do
+            if [ -f "$f" ]; then
+              SIZE=$(wc -c < "$f")
+              echo "✅ $f ($SIZE bytes)"
+            else
+              echo "❌ $f 생성 실패"; exit 1
+            fi
+          done
+
+      - name: Detect changes
+        id: changes
+        run: |
+          if git diff --quiet activity-feed.json activity-feed.display.json activity-feed.summary.json 2>/dev/null; then
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+            echo "⚪ 변경 없음 — commit skip"
+          else
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+            echo "📝 변경 감지됨"
+          fi
+
+      - name: Commit and push (race condition 가드)
+        if: steps.changes.outputs.has_changes == 'true'
+        run: |
+          git config user.name  "tw-b2b activity-bot"
+          git config user.email "activity-bot@gohotelwinners.com"
+
+          # 통계 추출
+          TOTAL=$(node -e "console.log(require('./activity-feed.summary.json').totalCount)")
+
+          git add activity-feed.json activity-feed.display.json activity-feed.summary.json
+          git commit -m "[activity-bot] activity-feed 3-Layer 자동 갱신 (총 ${TOTAL}건)
+
+          [변경사유] 헌법 4조 전수 추적 + 부칙 8 자동 동기화 완성도
+
+          Trigger: ${{ github.event_name }}
+          Source commit: ${{ github.sha }}"
+
+          # Race condition 가드 — sync-bot/health-bot/auto-detect-bot과 동일 패턴
+          # 다른 봇이 동시에 push했을 가능성 흡수
+          for attempt in 1 2 3; do
+            if git push origin HEAD:${{ github.ref_name }}; then
+              echo "✅ activity-feed 자동 commit 푸시 완료 (시도 ${attempt})"
+              break
+            fi
+            echo "⚠️ push 실패 (시도 ${attempt}) — pull --rebase 후 재시도"
+            git pull --rebase origin ${{ github.ref_name }} || {
+              echo "❌ rebase 충돌 — 수동 개입 필요"; exit 1;
+            }
+          done
+
+      - name: Summary
+        run: |
+          echo "## 🤖 activity-feed 빌드 결과" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          if [ "${{ steps.changes.outputs.has_changes }}" = "true" ]; then
+            TOTAL=$(node -e "console.log(require('./activity-feed.summary.json').totalCount)")
+            echo "✅ **활동 이력 ${TOTAL}건 자동 갱신**" >> "$GITHUB_STEP_SUMMARY"
+            echo "- activity-feed.full.json (분석용)" >> "$GITHUB_STEP_SUMMARY"
+            echo "- activity-feed.display.json (UI용)" >> "$GITHUB_STEP_SUMMARY"
+            echo "- activity-feed.summary.json (Claude용)" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "⚪ 변경사항 없음 — 모든 파일 최신 상태" >> "$GITHUB_STEP_SUMMARY"
+          fi

@@ -7,8 +7,13 @@
 #   ⑧ 통합 관리: 단일 진실 출처 — admin-status.html이 이 파일만 읽음
 #
 # 트리거:
-#   1. main 브랜치 push에서 *.html 또는 pages-meta.mjs 또는 scan 스크립트 변경 시
+#   1. main / restructure-os-modularization 브랜치 push에서 *.html 또는 pages-meta.mjs 또는 scan 스크립트 변경 시
 #   2. 수동 실행 (workflow_dispatch)
+#
+# BL-OS-PHASE-1A 단계 5 보강 (2026-05-07):
+#   - branches: [main] → [main, restructure-os-modularization] (다중 브랜치 listen)
+#   - git push origin main 하드코딩 → 동적 ${{ github.ref_name }}
+#   - retry-rebase 3회 가드 (sync-bot/health-bot/auto-detect-bot/activity-bot과 동일)
 #
 # 실행 흐름:
 #   1. checkout (full history — git log 기반 recency 측정 위해)
@@ -21,7 +26,7 @@ name: Auto Scan Page Completion Status
 
 on:
   push:
-    branches: [main]
+    branches: [main, restructure-os-modularization]
     paths:
       - '*.html'
       - 'scripts/pages-meta.mjs'
@@ -81,5 +86,16 @@ jobs:
 
           git add pages-status.json pages-status.display.json pages-status.summary.json
           git commit -m "[scan-bot] pages-status 3-Layer 자동 갱신 (${PAGES}페이지, 평균 ${AVG}점) [변경사유: HTML 변경 → 완성도 재측정]"
-          git push origin main
-          echo "✅ pages-status 3-Layer 자동 갱신 완료"
+
+          # Race condition 가드 (BL-OS-PHASE-1A 단계 5) — sync-bot/health-bot/auto-detect-bot/activity-bot과 동일 패턴
+          # push 직전 다른 봇이 동시에 push했을 가능성 흡수
+          for attempt in 1 2 3; do
+            if git push origin HEAD:${{ github.ref_name }}; then
+              echo "✅ pages-status 3-Layer 자동 갱신 완료 (시도 ${attempt})"
+              break
+            fi
+            echo "⚠️ push 실패 (시도 ${attempt}) — pull --rebase 후 재시도"
+            git pull --rebase origin ${{ github.ref_name }} || {
+              echo "❌ rebase 충돌 — 수동 개입 필요"; exit 1;
+            }
+          done

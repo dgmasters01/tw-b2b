@@ -57,7 +57,7 @@ jobs:
       - name: Run build-activity-feed.mjs
         run: |
           echo "=== activity-feed 빌드 시작 ==="
-          node scripts/build-activity-feed.mjs
+          node _os/scripts/build-activity-feed.mjs
           echo "=== 빌드 결과 확인 ==="
           for f in activity-feed.json activity-feed.display.json activity-feed.summary.json; do
             if [ -f "$f" ]; then

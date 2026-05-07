@@ -13,7 +13,7 @@
 # 실행 흐름:
 #   1. checkout (full history — git log 기반 byCommit 자동 추출 위해)
 #   2. Node 20 setup
-#   3. node scripts/build-chat-log-index.mjs 실행
+#   3. node _os/scripts/build-chat-log-index.mjs 실행
 #   4. _chat-logs/index.json 변경되었으면 자동 commit + push
 #   5. self-trigger 방지 ([scan-bot] commit은 다시 트리거 안 함)
 
@@ -24,7 +24,7 @@ on:
     branches: [main]
     paths:
       - '_chat-logs/**.md'
-      - 'scripts/build-chat-log-index.mjs'
+      - '_os/scripts/build-chat-log-index.mjs'
       - 'tasks.json'
       - '.github/workflows/chat-log-index.yml'
   workflow_dispatch:
@@ -49,7 +49,7 @@ jobs:
           node-version: 20
 
       - name: Build chat-log index
-        run: node scripts/build-chat-log-index.mjs
+        run: node _os/scripts/build-chat-log-index.mjs
 
       - name: Commit if changed
         run: |

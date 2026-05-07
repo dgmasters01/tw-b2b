@@ -18,7 +18,7 @@
 # 실행 흐름:
 #   1. checkout (full history — git log 기반 recency 측정 위해)
 #   2. Node 20 setup
-#   3. node scripts/scan-pages-status.mjs 실행 → pages-status.json 생성
+#   3. node _os/scripts/scan-pages-status.mjs 실행 → pages-status.json 생성
 #   4. pages-status.json 변경되었으면 자동 commit + push
 #   5. self-trigger 방지 (이 워크플로우가 만든 commit은 다시 트리거 안 함)
 
@@ -29,8 +29,8 @@ on:
     branches: [main, restructure-os-modularization]
     paths:
       - '*.html'
-      - 'scripts/pages-meta.mjs'
-      - 'scripts/scan-pages-status.mjs'
+      - '_os/scripts/pages-meta.mjs'
+      - '_os/scripts/scan-pages-status.mjs'
       - '.github/workflows/page-status-scan.yml'
   workflow_dispatch:
 
@@ -61,7 +61,7 @@ jobs:
       - name: Run page status scanner
         run: |
           echo "=== 스캔 시작 ==="
-          node scripts/scan-pages-status.mjs
+          node _os/scripts/scan-pages-status.mjs
           echo "=== pages-status.json 생성 결과 ==="
           if [ -f pages-status.json ]; then
             node -e "const d = require('./pages-status.json'); console.log('총 ' + d.pages.length + '페이지, 평균 ' + d.totalAvgScore + '점'); console.log(JSON.stringify(d.counts, null, 2));"

@@ -12,7 +12,7 @@
 import { execSync } from 'node:child_process';
 import { readFileSync, writeFileSync } from 'node:fs';
 
-const META_FILE = 'scripts/pages-meta.mjs';
+const META_FILE = '_os/scripts/pages-meta.mjs';
 const meta = readFileSync(META_FILE, 'utf8');
 
 // PAGE_TASK_META 블록 추출

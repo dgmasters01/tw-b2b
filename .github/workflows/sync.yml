@@ -25,8 +25,8 @@ on:
     branches: [main, restructure-os-modularization]
     paths:
       - 'tasks.json'
-      - 'scripts/sync_engine.py'
-      - 'scripts/sync_md_from_tasks.py'
+      - '_os/scripts/sync_engine.py'
+      - '_os/scripts/sync_md_from_tasks.py'
       - '.github/workflows/sync.yml'
   workflow_dispatch:  # 수동 트리거 허용 (디버그/강제 동기화)
 
@@ -64,12 +64,12 @@ jobs:
 
       - name: Verify tasks.json schema
         run: |
-          python3 scripts/sync_engine.py --verify
+          python3 _os/scripts/sync_engine.py --verify
           echo "✅ tasks.json 검증 통과"
 
       - name: Run sync engine (apply)
         run: |
-          python3 scripts/sync_engine.py --apply
+          python3 _os/scripts/sync_engine.py --apply
           echo "✅ 동기화 실행 완료"
 
       - name: Cleanup backup files
@@ -133,7 +133,7 @@ jobs:
             echo "동기화 대상:" >> "$GITHUB_STEP_SUMMARY"
             echo "- BACKLOG.md / CHANGELOG.md / SOLO_WORK_QUEUE.md" >> "$GITHUB_STEP_SUMMARY"
             echo "- DECISIONS.md (대표님 결정/승인 작업)" >> "$GITHUB_STEP_SUMMARY"
-            echo "- scripts/pages-meta.mjs (admin-gallery 메타)" >> "$GITHUB_STEP_SUMMARY"
+            echo "- _os/scripts/pages-meta.mjs (admin-gallery 메타)" >> "$GITHUB_STEP_SUMMARY"
           else
             echo "⚪ 변경사항 없음 — 모든 파일이 이미 최신 상태" >> "$GITHUB_STEP_SUMMARY"
           fi

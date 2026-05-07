@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-07T17:59:14+00:00",
+  "updated_at": "2026-05-07T18:15:59+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -5391,6 +5391,13 @@
           "event": "신설 (실측 결함 발견)",
           "by": "클로드 (TW OS)",
           "note": "2026-05-07 17:59:15 UTC: 89186e0(auto-detect-bot) + cc12a26(activity-bot) 같은 초 동시 push → Vercel webhook race로 89186e0 deployment 누락. cc12a26 위 sha만 production 배포 → 라이브 tasks.json이 89186e0 변경(BL-002 in_progress) 미반영. 5/8 발견."
+        },
+        {
+          "at": "2026-05-07T18:15:59+00:00",
+          "event": "관련 commit 추가 (status 유지)",
+          "by": "auto-detect-bot",
+          "commit": "ed1a017",
+          "note": "[BL-VERCEL-DEPLOY-RACE-GUARD] BL 신설 + 라이브 sync 복구 트리거"
         }
       ],
       "source": "실측 결함 (2026-05-08)",
@@ -5399,7 +5406,7 @@
       "owner": "autonomous",
       "approval_required": false,
       "order": null,
-      "updated_at": "2026-05-07T18:14:18+00:00"
+      "updated_at": "2026-05-07T18:15:59+00:00"
     }
   ]
 }

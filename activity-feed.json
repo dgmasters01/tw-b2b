@@ -1,12 +1,32 @@
 {
-  "generatedAt": "2026-05-07T07:28:48.153Z",
+  "generatedAt": "2026-05-07T08:17:03.831Z",
   "totalCount": 292,
   "byRole": {
-    "CEO": 118,
+    "CEO": 120,
     "Staff": 0,
-    "Bot": 174
+    "Bot": 172
   },
   "items": [
+    {
+      "at": "2026-05-07T17:16:46+09:00",
+      "by": "👤 이지형 (CEO)",
+      "role": "CEO",
+      "source": "git commit",
+      "action": "[BL-OS-PHASE-5] 단계 2: DOCS 5개 페이지 골격 + 소스 .md 자동 렌더링",
+      "target_type": "commit",
+      "target_id": "8a1d1b6",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-07T07:28:48Z",
+      "by": "👤 이지형 (CEO)",
+      "role": "CEO",
+      "source": "git commit",
+      "action": "[activity-bot] activity-feed 3-Layer 자동 갱신 (총 292건)",
+      "target_type": "commit",
+      "target_id": "861fba6",
+      "project": "TW B2B"
+    },
     {
       "at": "2026-05-07T16:28:27+09:00",
       "by": "👤 이지형 (CEO)",
@@ -2583,26 +2603,6 @@
       "action": "[scan-bot] chat-log index 자동 갱신 [변경사유: chat-log 파일 또는 tasks.json 변경 → byCommit/byTask 매핑 재구축]",
       "target_type": "commit",
       "target_id": "3bdfc83",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-05T16:41:53Z",
-      "by": "🤖 Claude (CEO 지시)",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "fix(BL-AUTH-COOKIE-SYNC): admin 클릭 시 깜빡 로그인 fix — sb-access-token 쿠키 자동 동기화 (헌법 12조 위반 2호) [변경사유: 대표님 지적 — admin-status에서 +4건 더 클릭 → 로그인 화면 깜빡 → 다시 admin-tasks로 돌아옴. 원인 3-Layer: SSR이 stale sb-access-token 쿠키 거부 / Supabase 토큰 1h refresh 시 쿠키 미갱신 / admin-status, admin-tasks, admin-service-ops 3개 페이지에 supabase + shared.js 미로드. fix: shared.js에 onAuthStateChange 박음 (TOKEN_REFRESHED/SIGNED_IN/INITIAL_SESSION 시 쿠키 자동 갱신 + SIGNED_OUT 시 삭제 + 페이지 로드 직후 초기 sync) + 누락 3개 페이지에 supabase CDN + shared.js v4 박음 + admin-permissions는 module이라 직접 onAuthStateChange. 자체 검증 8/8 통과 + boundary 6개 점검 (신규/refresh/새로고침/signout/HTTP/sb null).]",
-      "target_type": "commit",
-      "target_id": "5ae3d93",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-05T16:31:56Z",
-      "by": "🤖 scan-bot",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "[scan-bot] chat-log index 자동 갱신 [변경사유: chat-log 파일 또는 tasks.json 변경 → byCommit/byTask 매핑 재구축]",
-      "target_type": "commit",
-      "target_id": "88e2011",
       "project": "TW B2B"
     },
     {

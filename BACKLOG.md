@@ -198,16 +198,6 @@
 
 ---
 
-## ⚡ P1 — OS 모듈화 Phase 1B — admin-status.html UI 묶음 (단일 진실원 + 즉시 시작 + 빈 상태 + 7원소 라이브 검증)
-
-- **자율성**: 🟡 SEMI
-- **예상 시간**: 1.5시간
-- **카테고리**: infra
-- **상태**: in_progress
-- **ID**: `BL-OS-PHASE-1B` (출처: Phase 1A 인계서 결함 #4·#5·#6·#7 + 7원소)
-
----
-
 ## 🟢 P2 — [DECISIONS_INDEX.md 자동 동기화] sync_engine 보강
 
 **요약**: DECISIONS.md 변경 감지 → DECISIONS_INDEX.md 자동 갱신. ID 고정 불변 규칙.
@@ -340,6 +330,16 @@
 - **결정 필요**:
   - BL-OS-AUTO-SYNC-CHARTER
 - **ID**: `BL-SYNC-INPROGRESS-COMMITS` (출처: BL-OS-AUTO-SYNC-CHARTER 전수 점검 중 발견)
+
+---
+
+## 🟡 P2 — sync_engine.py — apply 시 tasks.json stats 자동 재계산 (사람 의무 제거)
+
+- **자율성**: 🟡 SEMI
+- **예상 시간**: 0.5시간
+- **카테고리**: infra
+- **상태**: pending
+- **ID**: `BL-SYNC-ENGINE-AUTO-STATS` (출처: BL-OS-PHASE-1B 단계 4 진행 중 발견 — 작업 추가 시 stats.total 수동 갱신 안 하면 sync-bot failure)
 
 ---
 

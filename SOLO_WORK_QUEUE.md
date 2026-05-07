@@ -82,14 +82,6 @@
 
 ---
 
-### F. 🟡 SEMI — OS 모듈화 Phase 1B — admin-status.html UI 묶음 (단일 진실원 + 즉시 시작 + 빈 상태 + 7원소 라이브 검증)
-
-**ID**: `BL-OS-PHASE-1B`  
-**카테고리**: infra  
-**예상 시간**: 1.5시간  
-
----
-
 ## 🟢 P2 — 자투리 시간에
 
 ### A. 🟢 AUTO — [DECISIONS_INDEX.md 자동 동기화] sync_engine 보강
@@ -169,6 +161,14 @@
 **예상 시간**: 미정시간  
 
 **메모**: ## 🟡 P2 — Chrome 안전 브라우징 경고  **현상**: 대표님 Chrome 일반 모드에서 `gohotelwinners.com` 접속 시 "위험한 사이트" 경고. 시크릿 모드/Edge에서는 정상.  **진단**: Google Safe Browsing — 2020-04-08 멀웨어 페이지 보관 이력 (이전 도메인 소유자 흔적). 현재 데이터 없음. Chrome 캐시 잔존.  **해결 옵션**: - A. Chrome 캐시 정리 (5분): `chrome://safebrowsing/` → Refresh Lists - B. Goog
+
+---
+
+### I. 🟡 SEMI — sync_engine.py — apply 시 tasks.json stats 자동 재계산 (사람 의무 제거)
+
+**ID**: `BL-SYNC-ENGINE-AUTO-STATS`  
+**카테고리**: infra  
+**예상 시간**: 0.5시간  
 
 ---
 

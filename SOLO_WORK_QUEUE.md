@@ -82,6 +82,14 @@
 
 ---
 
+### F. 🟡 SEMI — OS 모듈화 Phase 1B — admin-status.html UI 묶음 (단일 진실원 + 즉시 시작 + 빈 상태 + 7원소 라이브 검증)
+
+**ID**: `BL-OS-PHASE-1B`  
+**카테고리**: infra  
+**예상 시간**: 1.5시간  
+
+---
+
 ## 🟢 P2 — 자투리 시간에
 
 ### A. 🟢 AUTO — [DECISIONS_INDEX.md 자동 동기화] sync_engine 보강

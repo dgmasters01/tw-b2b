@@ -58,16 +58,6 @@
 
 ---
 
-## ⚡ P0 — OS 모듈화 Phase 1A — 백엔드 결함 수리 (auto-detect 다중 브랜치 + sync-bot 부활 + scan/activity 검증)
-
-- **자율성**: 🟡 SEMI
-- **예상 시간**: 미정시간
-- **카테고리**: OS
-- **상태**: in_progress
-- **ID**: `BL-OS-PHASE-1A` (출처: HANDOVER_OS_PHASE0.md Phase 1 결함 #1·#2·#8)
-
----
-
 ## 🟢 P1 — [admin-* 페이지 인증 속도 최적화] Supabase getSession + checkAdmin 병렬 처리 + SSR 게이트
 
 - **자율성**: 🟢 AUTO
@@ -205,6 +195,16 @@
 - **카테고리**: infrastructure
 - **상태**: pending
 - **ID**: `SQ-H` (출처: SOLO_WORK_QUEUE.md)
+
+---
+
+## ⚡ P1 — OS 모듈화 Phase 1B — admin-status.html UI 묶음 (단일 진실원 + 즉시 시작 + 빈 상태 + 7원소 라이브 검증)
+
+- **자율성**: 🟡 SEMI
+- **예상 시간**: 1.5시간
+- **카테고리**: infra
+- **상태**: in_progress
+- **ID**: `BL-OS-PHASE-1B` (출처: Phase 1A 인계서 결함 #4·#5·#6·#7 + 7원소)
 
 ---
 

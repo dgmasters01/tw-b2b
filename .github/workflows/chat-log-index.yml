@@ -60,6 +60,17 @@ jobs:
           else
             git add _chat-logs/index.json
             git commit -m "[scan-bot] chat-log index 자동 갱신 [변경사유: chat-log 파일 또는 tasks.json 변경 → byCommit/byTask 매핑 재구축]"
-            git push origin main
-            echo "✅ index.json 자동 갱신 + push 완료"
+
+            # Race condition 방지 — push 직전 원격 변경 흡수 (BL-CHATLOG-BOT-RACE)
+            # 다른 봇(activity-bot/sync-bot/health-bot)이 동시에 push했을 가능성 흡수
+            for attempt in 1 2 3; do
+              if git push origin main; then
+                echo "✅ index.json 자동 갱신 + push 완료 (시도 ${attempt})"
+                break
+              fi
+              echo "⚠️ push 실패 (시도 ${attempt}) — pull --rebase 후 재시도"
+              git pull --rebase --strategy-option=ours origin main || {
+                echo "❌ rebase 충돌 — 수동 개입 필요"; exit 1;
+              }
+            done
           fi

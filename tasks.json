@@ -4662,12 +4662,12 @@
       "title": "auto-detect-bot이 main 외 브랜치 commit 못 잡음 → restructure 브랜치 progress 자동 갱신 안 됨",
       "category": "OS",
       "priority": "P1",
-      "status": "todo",
+      "status": "done",
       "source": "BL-OS-PHASE-0 단계 3 라이브 검증 중 발견 (2026-05-07)",
       "created_at": "2026-05-07T02:23:39+00:00",
       "owner": "claude",
       "description": "Phase 0 단계 1·2·3 commit 모두 [step:done:N] 박혔지만 봇이 트리거 안 됨. auto-detect-task-status.yml이 'branches: [main]'만 listen. Phase 1에서 'branches: [main, restructure-os-modularization]'로 확장 또는 모든 브랜치로 확장.",
-      "updated_at": "2026-05-07T06:27:18+00:00",
+      "updated_at": "2026-05-07T17:24:53+00:00",
       "history": [
         {
           "at": "2026-05-07T06:27:18+00:00",
@@ -4682,6 +4682,12 @@
           "by": "auto-detect-bot",
           "commit": "790d9c0",
           "note": "chore(OS): Phase 0 완료 마킹 + 신규 결함 등록 (BL-AUTODETECT-MULTIBRANCH)"
+        },
+        {
+          "at": "2026-05-07T17:24:53+00:00",
+          "event": "status: todo → done",
+          "by": "claude (정석 인프라 청소)",
+          "note": "fix는 705c9e9 commit으로 박혀있었으나 status가 todo에 남아있던 결함. 라이브 검증: auto-detect-task-status.yml branches: [main, restructure-os-modularization] 확인. main 외 브랜치 commit도 잡힘. BL-OS-PHASE-5 단계 8~9 후속 정석 인프라 청소에서 종결."
         }
       ]
     },
@@ -5237,7 +5243,7 @@
       "title": "sync_engine.py — apply 시 tasks.json stats 자동 재계산 (사람 의무 제거)",
       "category": "infra",
       "priority": "P2",
-      "status": "pending",
+      "status": "done",
       "claude_can_auto": true,
       "approval_required": false,
       "owner": "Claude",
@@ -5255,8 +5261,15 @@
         {
           "at": "2026-05-07T05:53:13+00:00",
           "action": "BL-OS-PHASE-1B 작업 중 발견 — tasks.json에 작업 추가 시 stats를 자동 재계산하지 않으면 sync_engine.py --verify가 exit 1 → sync-bot 죽음. 자동화 누락 결함."
+        },
+        {
+          "at": "2026-05-07T17:24:53+00:00",
+          "event": "status: pending → done",
+          "by": "claude (정석 인프라 청소)",
+          "note": "sync_engine.py에 recompute_stats() 함수 신설 + main() apply 모드에서 자동 호출 + tasks.json 자동 갱신. verify 모드는 stats 불일치를 경고로만 처리(차단 안 함) → apply 모드가 자동 회복. 자체 테스트: stats 망가뜨림 → verify EXIT 0 + 경고 → apply 자동 회복 → verify 일치 확인. 헌법 부칙 11 영구 회복."
         }
-      ]
+      ],
+      "updated_at": "2026-05-07T17:24:53+00:00"
     },
     {
       "id": "BL-OS-REPO-ROOT-DYNAMIC",
@@ -5289,7 +5302,7 @@
       "title": "chat-log-index 봇 동시 push race fix — pre-push git pull --rebase 추가",
       "category": "infra",
       "priority": "P3",
-      "status": "pending",
+      "status": "done",
       "claude_can_auto": true,
       "approval_required": false,
       "owner": "Claude",
@@ -5307,6 +5320,39 @@
         {
           "at": "2026-05-07T16:30:47+00:00",
           "action": "단계 8 라이브 검증 중 chat-log-index.yml 간헐적 fetch-first reject 발견 (run_id 25479729132). 다른 봇과 동시 push 시점 race. 해결책: Commit 스텝 전에 git pull --rebase origin main 추가."
+        },
+        {
+          "at": "2026-05-07T17:24:53+00:00",
+          "event": "status: pending → done",
+          "by": "claude (정석 인프라 청소)",
+          "note": "chat-log-index.yml의 git push에 retry-rebase 3회 가드 추가 (sync.yml/health-check/page-status-scan/build-activity-feed/auto-detect와 동일 패턴). 봇 7개 모두 race 가드 통일됨."
+        }
+      ],
+      "updated_at": "2026-05-07T17:24:53+00:00"
+    },
+    {
+      "id": "BL-WORKFLOW-DEAD-BRANCH-CLEANUP",
+      "title": "워크플로 dead branch listening 정리 — restructure-os-modularization 통합 후 잔여",
+      "category": "infra",
+      "priority": "P3",
+      "status": "pending",
+      "claude_can_auto": true,
+      "approval_required": false,
+      "owner": "Claude",
+      "size": "S",
+      "source": "BL-OS-PHASE-5 단계 8~9 후속 정석 인프라 청소 중 발견 (2026-05-08)",
+      "created_at": "2026-05-07T17:24:53+00:00",
+      "deadline": null,
+      "order": 99,
+      "blocker": null,
+      "autonomous": {
+        "estimated_hours": 0.2,
+        "requires_decisions_first": []
+      },
+      "history": [
+        {
+          "at": "2026-05-07T17:24:53+00:00",
+          "action": "5개 봇(auto-detect/build-activity-feed/health-check/page-status-scan/sync)이 'restructure-os-modularization' 브랜치 listen 박혀있지만, PHASE-4에서 main 통합 후 해당 브랜치 삭제됨. 동작상 무해하지만 정석 청소 대상. 'branches: [main]'으로 통일."
         }
       ]
     }

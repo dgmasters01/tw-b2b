@@ -326,6 +326,61 @@ def update_gallery_meta(content: str, dry_run: bool = True) -> tuple[bool, str]:
 
 
 # ============================================================================
+# (D-pre) stats 자동 재계산 — 헌법 부칙 11 본체 (BL-SYNC-ENGINE-AUTO-STATS)
+# ============================================================================
+def recompute_stats(data: dict[str, Any]) -> tuple[dict[str, int], bool]:
+    """tasks.json의 stats를 실제 작업 배열로부터 재계산.
+
+    헌법 부칙 11 (자동 stats 재계산 의무):
+      - tasks 배열이 변경될 때마다 stats가 자동 재계산되어야 함.
+      - 사람이 수동으로 stats를 업데이트하는 의무 = "AI + 1인 사장 OS" 1조 위반.
+      - apply 모드에서 호출 → 재계산된 stats를 data['stats']에 박음.
+
+    재계산 항목 (기존 스키마 보존):
+      - total: len(tasks)
+      - done / in_progress / pending / blocked / todo: status 별 카운트
+      - autonomous_ready: claude_can_auto && !approval_required && status in (pending, todo)
+
+    반환: (new_stats, changed)
+      - new_stats: 재계산된 stats dict
+      - changed: 기존 stats와 달라졌으면 True
+    """
+    tasks = data.get("tasks", [])
+    if not isinstance(tasks, list):
+        return ({}, False)
+
+    counts = {"done": 0, "in_progress": 0, "pending": 0, "blocked": 0, "todo": 0}
+    auto_ready = 0
+    for t in tasks:
+        s = t.get("status", "")
+        if s in counts:
+            counts[s] += 1
+        if (t.get("claude_can_auto")
+                and not t.get("approval_required")
+                and s in ("pending", "todo")):
+            auto_ready += 1
+
+    new_stats = {
+        "total": len(tasks),
+        "done": counts["done"],
+        "in_progress": counts["in_progress"],
+        "pending": counts["pending"],
+        "blocked": counts["blocked"],
+        "autonomous_ready": auto_ready,
+        "todo": counts["todo"],
+    }
+
+    old_stats = data.get("stats", {})
+    # 기존 stats에 위 7개 키 외 다른 키가 있으면 보존 (확장성)
+    preserved = {k: v for k, v in old_stats.items() if k not in new_stats}
+    if preserved:
+        new_stats.update(preserved)
+
+    changed = (old_stats != new_stats)
+    return (new_stats, changed)
+
+
+# ============================================================================
 # (D) 검증 모드 — 헌법 5조 무인 검증
 # ============================================================================
 def verify_sync(data: dict[str, Any]) -> tuple[bool, list[str]]:
@@ -336,9 +391,19 @@ def verify_sync(data: dict[str, Any]) -> tuple[bool, list[str]]:
       2. BACKLOG.md 자동 생성 마커 존재
       3. DECISIONS.md 자동 섹션 마커 존재 (생성 후라면)
       4. pages-meta.mjs PAGE_TASK_META 마커 존재 (생성 후라면)
-      5. tasks.json stats가 실제 작업 수와 일치
+      5. tasks.json stats가 실제 작업 수와 일치 (auto-recoverable, 경고만)
+
+    반환: (ok, errors)
+      - ok: 차단 결함이 없으면 True
+      - errors: 차단 결함 목록 (stats 불일치는 제외 — apply 모드가 자동 회복)
+
+    헌법 부칙 11 (BL-SYNC-ENGINE-AUTO-STATS):
+      - stats 불일치는 verify에서 경고만 출력하고 차단하지 않음.
+      - apply 모드의 recompute_stats가 자동 회복하므로 sync 사이클 자체는 정상 진행.
+      - 차단 결함은 source 필드 누락 같은 사람 개입 필요 결함만.
     """
     errors: list[str] = []
+    warnings: list[str] = []  # auto-recoverable
 
     # 1. schema 검증
     required = ["version", "tasks", "stats"]
@@ -365,15 +430,21 @@ def verify_sync(data: dict[str, Any]) -> tuple[bool, list[str]]:
     else:
         errors.append("tasks가 배열 아님")
 
-    # 3. stats 검증
+    # 3. stats 검증 (auto-recoverable warning — 차단하지 않음)
     if "stats" in data and "tasks" in data:
         actual_total = len(data["tasks"])
         declared_total = data["stats"].get("total")
         if declared_total is not None and actual_total != declared_total:
-            errors.append(
+            warnings.append(
                 f"stats.total({declared_total}) != 실제 작업 수({actual_total}). "
-                f"sync_engine 실행 후 tasks.json의 stats를 업데이트해야 함."
+                f"→ apply 모드가 recompute_stats로 자동 회복함 (헌법 부칙 11)."
             )
+
+    # 경고는 stderr에 출력만 하고 차단하지 않음
+    if warnings:
+        print("ℹ️  검증 경고 (auto-recoverable):", file=sys.stderr)
+        for w in warnings:
+            print(f"   - {w}", file=sys.stderr)
 
     return (len(errors) == 0, errors)
 
@@ -405,6 +476,36 @@ def main() -> int:
 
     print(f"📦 tasks.json 로드 완료 — 총 {len(data['tasks'])}개 작업")
     print()
+
+    # ─── (D-pre) stats 자동 재계산 (헌법 부칙 11, BL-SYNC-ENGINE-AUTO-STATS) ───
+    # apply 모드에서만 실제 갱신. verify-only 모드에서는 차이만 보고.
+    new_stats, stats_changed = recompute_stats(data)
+    if stats_changed:
+        old_stats = data.get("stats", {})
+        if apply_mode and not verify_only:
+            data["stats"] = new_stats
+            TASKS_FILE.write_text(
+                json.dumps(data, ensure_ascii=False, indent=2),
+                encoding="utf-8"
+            )
+            print("🔄 stats 자동 재계산 + tasks.json 갱신 (헌법 부칙 11):")
+            for k, v in new_stats.items():
+                old_v = old_stats.get(k)
+                marker = " ←" if old_v != v else ""
+                print(f"   {k}: {old_v} → {v}{marker}")
+            print()
+        else:
+            print("🔄 stats 재계산 필요 (현재 dry-run/verify-only — 미반영):")
+            for k, v in new_stats.items():
+                old_v = old_stats.get(k)
+                if old_v != v:
+                    print(f"   {k}: {old_v} → {v}")
+            print()
+            # verify-only 모드에서 stats 자동 재계산하지 않으므로
+            # 검증 단계에서 declared_total != actual_total 경고가 나올 수 있음 (정상)
+    else:
+        print("✅ stats 일치 — 재계산 불필요")
+        print()
 
     # 검증 먼저 (헌법 5조 — 모든 모드에서 수행)
     ok, errors = verify_sync(data)

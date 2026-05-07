@@ -198,16 +198,6 @@
 
 ---
 
-## ⚡ P1 — OS 모듈화 Phase 4 — 헌법 부칙 9·10·11 박기 + restructure → main 통합
-
-- **자율성**: 🟡 SEMI
-- **예상 시간**: 1시간
-- **카테고리**: infra
-- **상태**: in_progress
-- **ID**: `BL-OS-PHASE-4` (출처: Phase 0 인계서 Phase 4)
-
----
-
 ## 🟢 P2 — [DECISIONS_INDEX.md 자동 동기화] sync_engine 보강
 
 **요약**: DECISIONS.md 변경 감지 → DECISIONS_INDEX.md 자동 갱신. ID 고정 불변 규칙.

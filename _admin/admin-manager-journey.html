@@ -118,7 +118,7 @@
 
   <div class="doc-footer" style="margin-top:24px;">
     <button onclick="loadMarkdown(true)">↻ 새로고침</button>
-    <span style="margin-left:12px;">자동 동기화: 5분 간격</span>
+    <span style="margin-left:12px;">자동 동기화: 5초 간격</span>
   </div>
 
 </div>
@@ -196,8 +196,8 @@ async function loadMarkdown(force) {
 // 최초 로드
 loadMarkdown(false);
 
-// 5분마다 자동 갱신 (부칙 8 — 자동 동기화)
-setInterval(() => loadMarkdown(true), 5 * 60 * 1000);
+// 5초마다 자동 갱신 (부칙 8 — 자동 동기화, BL-OS-PHASE-5 단계 7 통일)
+setInterval(() => loadMarkdown(true), 5 * 1000);
 </script>
 
 </body>

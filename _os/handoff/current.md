@@ -8,19 +8,25 @@
 
 ## 직전 채팅 종료 정보
 
-- **종료 일시**: 2026-05-08 (UTC)
-- **종료 사유**: 시스템 결함 발견(Vercel 빌드 큐 race) → 정석 fix BL 신설 + 즉시 라이브 복구 트리거. BL-002는 다음 채팅으로 이연.
-- **마지막 사업 commit**: (이 commit) `[BL-VERCEL-DEPLOY-RACE-GUARD] BL 신설 + 라이브 sync 복구 트리거`
+- **종료 일시**: 2026-05-08 (UTC, 두 번째 갱신)
+- **종료 사유**: D-017 헌법 부칙 4 보강 박음 + Vercel webhook 죽음 사고 + 대표님 Redeploy 1회 실시 + 라이브 sync 미완 확인. BL-VERCEL-DEPLOY-RACE-GUARD가 더 시급해짐.
+- **마지막 사업 commit**: (본 commit) `[handoff] Vercel webhook 사고 + Redeploy 학습 + 라이브 sync 강제 갱신`
 - **이번 채팅 성과**:
-  - 라이브 tasks.json이 BL-002 in_progress 미반영 결함 발견
-  - 원인 정밀 진단: 2026-05-07 17:59:15 UTC 동초 push race로 89186e0 Vercel deployment 누락 (cc12a26만 빌드)
-  - Vercel API 직접 검증으로 deployment list에 89186e0 없음 확인
-  - **BL-VERCEL-DEPLOY-RACE-GUARD** 신설 (P1, autonomous, medium, 1h 추정)
-  - 즉시 라이브 복구를 위한 commit push (89186e0 + 본 commit 둘 다 빌드되도록)
-- **잔여 BL**: 
-  - BL-VERCEL-DEPLOY-RACE-GUARD (P1, 다음 채팅 1순위 — 영구 가드 구현)
-  - BL-002 통합 To-Do Inbox (P0 in_progress, 다음 채팅 2순위)
-  - BL-WORKFLOW-DEAD-BRANCH-CLEANUP (P3, 긴급도 낮음)
+  - **헌법 부칙 4 보강 (D-017 명문화)** — 토큰 라이프사이클: 개발기간 = 등록·평문 노출 정상 상태, 서비스기간 = 일괄 폐기. 클로드 잔소리 영구 차단.
+  - `_os/playbook/credentials-lifecycle.md` 신설 (90줄 디테일)
+  - `_os/playbook/emergency.md` 4번 갱신 — "외부 유출 의심·만료" 시에만 발동
+  - DECISIONS.md / DECISIONS_INDEX.md D-017 박음 + D-015·D-016 누락 보강
+  - 헌법 163줄 유지 (부칙 14: 200줄 한계 내)
+  - **BL-VERCEL-DEPLOY-RACE-GUARD P1→P0 격상** — 라이브 sync 결함이 헌법 변경에까지 영향 미쳐 시스템 신뢰도 직격
+- **Vercel webhook 사고 시간선**:
+  - 2026-05-07 17:59:15: 첫 race (89186e0 누락) → ed1a017 commit으로 우연히 복구
+  - 2026-05-08: 18:15 이후 webhook 완전 정지 → 5번 push 모두 deployment 트리거 안 됨
+  - 대표님이 Vercel 대시보드 Redeploy 1회 누름 → `dpl_C8tgVXRKCcxmnrnheYuPWZ6vCgEE` 생성됐으나 `action: redeploy` + `originalDeploymentId: dpl_71XFz6VfnDRYahe7V9zZaNg2buqh` (= ed1a017 옛 commit 그대로 재배포) → 라이브 여전히 옛 버전
+- **학습 박힘**: Vercel "Redeploy" 버튼은 기본 = 같은 deployment 재현 (최신 commit 안 봄). 다음 채팅 BL 구현 시 이 동작 명시 + "Use existing build cache 해제 + Redeploy with latest commit" 옵션 고려.
+- **잔여 BL**:
+  - **BL-VERCEL-DEPLOY-RACE-GUARD (P0, 다음 채팅 즉시 1순위)** — webhook 죽음 감지 + 자동 복구 (단순 commit 트리거가 아닌, latest commit 강제 빌드까지)
+  - BL-002 통합 To-Do Inbox (P0 in_progress, 2순위)
+  - BL-WORKFLOW-DEAD-BRANCH-CLEANUP (P3)
 
 ---
 

@@ -3645,6 +3645,29 @@
   //   진행 중 작업 1건이 있으면 박스 visible, 없으면 hidden.
   //   activity-feed.display.json 의 task 단위 commit 5개를 함께 표시.
   // ──────────────────────────────────────────────────────────
+  // ──────────────────────────────────────────────────────────
+  // [BL-CLIPBOARD-FIX-2 2026-05-08] formatTime 함수 신설
+  //   원인: renderInProgressBox가 formatTime() 호출하는데 정의 누락 → ReferenceError
+  //   결과: 함수 중간 throw → btn-resume.dataset 주입 코드까지 도달 못 함 →
+  //         이어가기 버튼 클릭 시 핸들러 첫 줄 if(!taskId)return으로 막힘
+  //   fix: ISO 시각을 한국어 친화 포맷으로 안전 변환 (입력 비정상이어도 throw 없음)
+  // ──────────────────────────────────────────────────────────
+  function formatTime(iso) {
+    if (!iso) return '-';
+    try {
+      const d = new Date(iso);
+      if (isNaN(d.getTime())) return '-';
+      // YYYY-MM-DD HH:MM (KST 24h)
+      return d.toLocaleString('ko-KR', {
+        year: 'numeric', month: '2-digit', day: '2-digit',
+        hour: '2-digit', minute: '2-digit', hour12: false,
+        timeZone: 'Asia/Seoul'
+      });
+    } catch (e) {
+      return '-';
+    }
+  }
+
   function renderInProgressBox(data) {
     const box = $('in-progress-box');
     if (!box) return;

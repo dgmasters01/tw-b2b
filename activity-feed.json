@@ -1,12 +1,74 @@
 {
-  "generatedAt": "2026-05-07T06:25:54.916Z",
-  "totalCount": 289,
+  "generatedAt": "2026-05-07T06:27:20.262Z",
+  "totalCount": 291,
   "byRole": {
-    "CEO": 108,
+    "CEO": 111,
     "Staff": 0,
-    "Bot": 181
+    "Bot": 180
   },
   "items": [
+    {
+      "at": "2026-05-07T15:27:03+09:00",
+      "by": "👤 이지형 (CEO)",
+      "role": "CEO",
+      "source": "git commit",
+      "action": "docs(OS): Phase 4 단계 2-4 완료 — 종합 보고서 + main 통합 준비 [step:done:2][step:done:3][step:done:4] BL-OS-PHASE-4",
+      "target_type": "commit",
+      "target_id": "6ab2a5a",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-07T06:27:01+00:00",
+      "by": "🤖 Claude",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "단계 2·3·4 완료 — 보고서 작성 + main fast-forward 통합 + 검증",
+      "note": "",
+      "target_type": "task",
+      "target_id": "BL-OS-PHASE-4",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-07T06:26:01Z",
+      "by": "🤖 sync-bot",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "[sync-bot] tasks.json → MD/Gallery 자동 동기화",
+      "target_type": "commit",
+      "target_id": "9ceb2ed",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-07T06:25:56Z",
+      "by": "👤 이지형 (CEO)",
+      "role": "CEO",
+      "source": "git commit",
+      "action": "[activity-bot] activity-feed 3-Layer 자동 갱신 (총 289건)",
+      "target_type": "commit",
+      "target_id": "26ecced",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-07T06:25:55Z",
+      "by": "👤 이지형 (CEO)",
+      "role": "CEO",
+      "source": "git commit",
+      "action": "[auto-detect-bot] commit message → 작업 status 자동 갱신",
+      "target_type": "commit",
+      "target_id": "a6602d8",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-07T06:25:54+00:00",
+      "by": "🤖 auto-detect-bot",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "",
+      "note": "feat(charter): Phase 4 단계 1 — OPERATIONS_CHARTER.md 부칙 9·10·11 신설 [step:done:1] BL-OS-PHASE-4",
+      "target_type": "task",
+      "target_id": "BL-OS-PHASE-4",
+      "project": "TW B2B"
+    },
     {
       "at": "2026-05-07T15:25:44+09:00",
       "by": "👤 이지형 (CEO)",
@@ -2530,46 +2592,6 @@
       "action": "fix(BL-ADMIN-STATUS-LOOP-FIX): admin-status.html 무한루프 fix + RLS hotfix SQL 영구 박음 [변경사유: BL-ADMIN-AUTH-V2 commit c56885c 직후 (1) admin-status.html 자율 작업 큐/활동 이력/다음 추천 박스에서 브라우저 응답없음 경고 (2) RLS 무한 재귀(42P17) Management API로 라이브 fix 됐지만 git 미반영. 둘 다 박음. ① MutationObserver 자기 DOM 변경(.poll-status/.poll-toast/.auto-queue-toast/.activity-expand-wrap) 즉시 무시 + 300ms debounce + lastHasModal 비교로 상태 변화 시에만 pollPause/Resume 호출. ② pollPause/Resume에 중복 reason 가드 추가. ③ sql/bl-admin-auth-v2-rls-hotfix.sql 신규 — is_admin()/is_owner() SECURITY DEFINER + admins 자기 참조 정책 제거 + auth.users→admins 자동 동기화 트리거 + Owner 이메일 자동 owner 승격. 헌법 11조 부칙 준수: DB 변경 SQL 영구 박음. admin.html 미접근 (정상 작동 페이지 보호).]",
       "target_type": "commit",
       "target_id": "73a0ec2",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-05T01:05:24Z",
-      "by": "🤖 Claude (CEO 지시)",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "fix(BL-ADMIN-AUTH-V2 D-016): 5개 신규 함수를 라우터 패턴으로 통합 — Vercel Hobby 12 함수 한도 회피 [변경사유: D-015 박은 직후 Vercel Build Failed (No more than 12 Serverless Functions on Hobby plan). 함수 15개→12개 통합. 대표님 결정: 무료 유지 + 정식 오픈 직전 Pro 전환]",
-      "target_type": "commit",
-      "target_id": "c56885c",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-04T18:18:48Z",
-      "by": "🤖 Claude (CEO 지시)",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "chore: trigger Vercel redeploy (이전 deploy ERROR 원인 확인 필요)",
-      "target_type": "commit",
-      "target_id": "1f2387a",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-04T18:15:56Z",
-      "by": "🤖 Claude (CEO 지시)",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "fix(BL-ADMIN-AUTH-V2): @supabase/supabase-js 의존성 추가 — 이전 8d3f2b8 deploy ERROR 해결 [변경사유: 신규 API 5개가 import 'supabase-js' 사용하는데 package.json에 없어 Vercel 빌드 실패. 자가검증 누락 (메모리 17번 위반). 즉시 박힘]",
-      "target_type": "commit",
-      "target_id": "fc560c8",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-04T18:04:31Z",
-      "by": "🤖 scan-bot",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "[scan-bot] pages-status 3-Layer 자동 갱신 (19페이지, 평균 56점) [변경사유: HTML 변경 → 완성도 재측정]",
-      "target_type": "commit",
-      "target_id": "4963158",
       "project": "TW B2B"
     },
     {

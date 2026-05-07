@@ -1,0 +1,169 @@
+{
+  "version": "1.0.0",
+  "created_at": "2026-05-07",
+  "description": "OS 사이드바 4영역 단일 진실원 — DOCS / TOOLS / OS-CORE / SYSTEM. OS는 영역 + 필수 메뉴를 강제하며, TOOLS 영역만 각 프로젝트 자율 (business-context/tools-manifest.json 참조).",
+  "principle": "OS 핵심 원칙 — 틀은 강제, 내용은 자유 (OPERATIONS_CHARTER.md 참조)",
+  "rendering_rule": "사이드바는 이 manifest + business-context/tools-manifest.json을 합쳐 영역별 구분선 + 라벨 자동 박음. 영역 manifest 미박힘 = 사이드바 표시 안 됨.",
+
+  "areas": [
+    {
+      "id": "main",
+      "label": "📊 메인 대시보드",
+      "order": 0,
+      "type": "single",
+      "required": true,
+      "menu": {
+        "id": "admin-status",
+        "label": "관리자 콘솔",
+        "icon": "📊",
+        "path": "/admin-status.html",
+        "role": "OS 시스템 완성도 단일 통합 관리 페이지 (D-010, D-011, D-012)",
+        "is_landing": true
+      }
+    },
+    {
+      "id": "docs",
+      "label": "📁 DOCS (사업 문서)",
+      "order": 1,
+      "type": "fixed",
+      "required": true,
+      "description": "모든 프로젝트 필수 — 사업 운영 문서 5개 고정",
+      "menus": [
+        {
+          "id": "business-charter",
+          "label": "비즈니스 헌장",
+          "icon": "📜",
+          "path": "/admin-business-charter.html",
+          "source_file": "BUSINESS.md",
+          "required": true
+        },
+        {
+          "id": "decisions-history",
+          "label": "의사결정 이력",
+          "icon": "✅",
+          "path": "/admin-decisions.html",
+          "source_file": "DECISIONS.md",
+          "required": true
+        },
+        {
+          "id": "decisions-index",
+          "label": "의사결정 인덱스",
+          "icon": "📁",
+          "path": "/admin-decisions-index.html",
+          "source_file": "DECISIONS_INDEX.md",
+          "required": true
+        },
+        {
+          "id": "manager-journey",
+          "label": "매니저 여정",
+          "icon": "🌅",
+          "path": "/admin-manager-journey.html",
+          "source_file": "JOURNEY.md (manager section)",
+          "required": true
+        },
+        {
+          "id": "user-journey",
+          "label": "사용자 여정",
+          "icon": "🗺️",
+          "path": "/admin-user-journey.html",
+          "source_file": "BUSINESS_FLOW.md",
+          "required": true
+        }
+      ]
+    },
+    {
+      "id": "tools",
+      "label": "🛠️ TOOLS (사업 도구)",
+      "order": 2,
+      "type": "dynamic",
+      "required": false,
+      "description": "각 프로젝트가 자유롭게 채움 — business-context/tools-manifest.json이 정의. OS는 영역만 강제, 메뉴 내용은 강제 안 함.",
+      "examples": {
+        "gohotelwinners": ["호텔 관리", "예약 관리", "매니저 관리", "Agoda 매칭", "예약 분석"],
+        "ceylon-journey": ["패키지", "일정", "비자", "가이드", "예약"],
+        "hotel-iya": ["영상 제작", "호텔 DB", "채널 관리", "시나리오", "광고주"]
+      },
+      "source": "business-context/tools-manifest.json",
+      "fallback_message": "TOOLS 메뉴 미정의 — business-context/tools-manifest.json 등록 필요"
+    },
+    {
+      "id": "os-core",
+      "label": "🖼️ OS 본체",
+      "order": 3,
+      "type": "fixed",
+      "required": true,
+      "description": "모든 프로젝트 필수 — OS 핵심 페이지",
+      "menus": [
+        {
+          "id": "admin-gallery",
+          "label": "페이지 갤러리",
+          "icon": "🖼️",
+          "path": "/admin-gallery.html",
+          "role": "5차원 점수 + 카테고리별 페이지 카드 + 스크린샷 시간 여행",
+          "required": true
+        }
+      ]
+    },
+    {
+      "id": "system",
+      "label": "⚙️ SYSTEM (운영자 도구)",
+      "order": 4,
+      "type": "fixed",
+      "required": true,
+      "description": "OS 인프라 — 4개 운영자 도구 고정",
+      "menus": [
+        {
+          "id": "admin-status-system",
+          "label": "시스템 완성도",
+          "icon": "⚙️",
+          "path": "/admin-status.html",
+          "role": "5 카테고리 카드 + 시스템 완성도 점수 + 임박 작업/활동 이력",
+          "required": true,
+          "alias_of": "admin-status",
+          "note": "main 영역과 동일 페이지 — SYSTEM 영역 표시 시 별도 진입점 제공"
+        },
+        {
+          "id": "admin-tasks",
+          "label": "작업 관리",
+          "icon": "📋",
+          "path": "/admin-tasks.html",
+          "role": "작업 단위 + 결정 입력 모달 + tasks.json 동기화",
+          "required": true
+        },
+        {
+          "id": "admin-permissions",
+          "label": "권한",
+          "icon": "🔐",
+          "path": "/admin-permissions.html",
+          "role": "3-State (🤖 자동 / 👥 스태프 / 👤 CEO) + 5단계 권한",
+          "required": true
+        },
+        {
+          "id": "admin-service-ops",
+          "label": "운영 매뉴얼",
+          "icon": "📝",
+          "path": "/admin-service-ops.html",
+          "role": "알림 메일 / 백업 / 토큰 갱신 / 비상 절차",
+          "required": true
+        }
+      ]
+    }
+  ],
+
+  "auto_sync": {
+    "principle": "부칙 8 — 자동 동기화 완성도 (5초 내)",
+    "rule": "menu-manifest.json 또는 business-context/tools-manifest.json 변경 시 사이드바는 5초 내 자동 갱신",
+    "implementation": "사이드바 렌더 함수가 두 manifest를 polling (5초 간격) → 영역 + 메뉴 자동 재구성"
+  },
+
+  "enforcement": {
+    "missing_required_menu": "DOCS 5개 / OS-CORE 1개 / SYSTEM 4개 중 하나라도 누락 = 헌법 위반 신호 → admin-status에서 ⚠️ 배지로 표시",
+    "missing_tools_manifest": "business-context/tools-manifest.json 미존재 = TOOLS 영역 빈 영역 + 안내 메시지 표시 (강제 아님)",
+    "wrong_area_assignment": "메뉴를 잘못된 영역에 배치 시 admin-status에서 자체 보고 (각 메뉴의 area 속성으로 검증)"
+  },
+
+  "compatibility": {
+    "with_existing_admin_pages_manifest": "_os/admin-pages/manifest.json (Phase 2 신설)은 OS 본체 vs 사업 분류용. menu-manifest.json은 사이드바 영역 분리용. 두 manifest는 서로 보완.",
+    "page_overlap_handling": "한 페이지가 여러 manifest에 등장해도 OK — admin-status.html은 menu-manifest 기준 main + system 영역, admin-pages-manifest 기준 OS 페이지로 분류됨."
+  }
+}

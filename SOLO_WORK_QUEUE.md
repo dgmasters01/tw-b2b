@@ -194,3 +194,11 @@
 
 ---
 
+### C. 🟡 SEMI — OS 봇 스크립트 — repo root 동적 산출 (위치 의존성 제거)
+
+**ID**: `BL-OS-REPO-ROOT-DYNAMIC`  
+**카테고리**: infra  
+**예상 시간**: 1시간  
+
+---
+

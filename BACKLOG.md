@@ -367,6 +367,16 @@
 
 ---
 
+## 🟡 P3 — OS 봇 스크립트 — repo root 동적 산출 (위치 의존성 제거)
+
+- **자율성**: 🟡 SEMI
+- **예상 시간**: 1시간
+- **카테고리**: infra
+- **상태**: pending
+- **ID**: `BL-OS-REPO-ROOT-DYNAMIC` (출처: BL-OS-PHASE-2 단계 2 진행 중 발견 — scripts/ → _os/scripts/ 이동 시 7개 스크립트의 parent.parent / __dirname 패턴이 위치 의존적이라 모두 수정 필요)
+
+---
+
 ## ✅ DONE (자동 정리됨)
 
 - [BL-DONE-001] Admin Hotels 상세 패널 매니저 정보 누락 + 모달 닫기 불가 (2026-05-02)

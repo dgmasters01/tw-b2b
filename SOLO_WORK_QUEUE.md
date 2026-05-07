@@ -202,3 +202,11 @@
 
 ---
 
+### D. 🟡 SEMI — chat-log-index 봇 동시 push race fix — pre-push git pull --rebase 추가
+
+**ID**: `BL-CHATLOG-BOT-RACE`  
+**카테고리**: infra  
+**예상 시간**: 0.3시간  
+
+---
+

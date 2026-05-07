@@ -377,6 +377,16 @@
 
 ---
 
+## 🟡 P3 — chat-log-index 봇 동시 push race fix — pre-push git pull --rebase 추가
+
+- **자율성**: 🟡 SEMI
+- **예상 시간**: 0.3시간
+- **카테고리**: infra
+- **상태**: pending
+- **ID**: `BL-CHATLOG-BOT-RACE` (출처: BL-OS-PHASE-5 단계 8 라이브 검증 중 발견)
+
+---
+
 ## ✅ DONE (자동 정리됨)
 
 - [BL-DONE-001] Admin Hotels 상세 패널 매니저 정보 누락 + 모달 닫기 불가 (2026-05-02)

@@ -1,12 +1,73 @@
 {
-  "generatedAt": "2026-05-07T06:27:31.401Z",
-  "totalCount": 291,
+  "generatedAt": "2026-05-07T06:41:53.906Z",
+  "totalCount": 292,
   "byRole": {
-    "CEO": 111,
+    "CEO": 114,
     "Staff": 0,
-    "Bot": 180
+    "Bot": 178
   },
   "items": [
+    {
+      "at": "2026-05-07T15:41:34+09:00",
+      "by": "👤 이지형 (CEO)",
+      "role": "CEO",
+      "source": "git commit",
+      "action": "fix(OS): 부칙 9 정합성 — OS 본체에서 특정 사업명 제거 (이름 변경 자유 보장)",
+      "target_type": "commit",
+      "target_id": "890c639",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-07T06:27:32Z",
+      "by": "👤 이지형 (CEO)",
+      "role": "CEO",
+      "source": "git commit",
+      "action": "[activity-bot] activity-feed 3-Layer 자동 갱신 (총 291건)",
+      "target_type": "commit",
+      "target_id": "1cae812",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-07T06:27:25Z",
+      "by": "🤖 scan-bot",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "[scan-bot] pages-status 3-Layer 자동 갱신 (19페이지, 평균 55점) [변경사유: HTML 변경 → 완성도 재측정]",
+      "target_type": "commit",
+      "target_id": "00a4cc1",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-07T06:27:20Z",
+      "by": "👤 이지형 (CEO)",
+      "role": "CEO",
+      "source": "git commit",
+      "action": "[auto-detect-bot] commit message → 작업 status 자동 갱신",
+      "target_type": "commit",
+      "target_id": "4f26aa8",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-07T06:27:19Z",
+      "by": "🤖 sync-bot",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "[sync-bot] tasks.json → MD/Gallery 자동 동기화",
+      "target_type": "commit",
+      "target_id": "6465568",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-07T06:27:18+00:00",
+      "by": "🤖 auto-detect-bot",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "",
+      "note": "feat(OS): Phase 0 단계 3/3 — 건강 검진 봇 + admin-status 한 줄 UI [step:done:3] BL-OS-PHASE-0",
+      "target_type": "task",
+      "target_id": "BL-OS-PHASE-0",
+      "project": "TW B2B"
+    },
     {
       "at": "2026-05-07T15:27:03+09:00",
       "by": "👤 이지형 (CEO)",
@@ -2545,56 +2606,6 @@
       "project": "TW B2B"
     },
     {
-      "at": "2026-05-05T15:45:40Z",
-      "by": "🤖 Claude (CEO 지시)",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "feat(BL-STATUS-FINAL-V2): admin-status UX 명확성 — KPI 4중 시각 안내 + 0건 메시지 의미화 + 활동이력 시간근접 매핑 + 시급페이지 클릭 안내 [변경사유: 대표님 4가지 UX 지적 — (1) KPI 4곳 클릭 시 어디로 갔는지 모름 → 화살표 마커 fly-down + 임박박스 펄스 2초 + 여기 텍스트 4초 + scrollIntoView block start (2) 활동 이력 chat-log 못 찾음 → build-chat-log-index.mjs 시간근접 fallback (suffix 시간근접) + git log 500→2000, byCommit 18→42건. isApprox 플래그 + 노란 안내. (3) 0건 메시지 의미 없음 → 역할별 의미화 + 다음 액션 안내. (4) 시급페이지 클릭 가능 표시 부족 → 박스 헤더 안내 + 호버 효과 + 툴팁. JS 76316 chars OK. admin.html 미접근.]",
-      "target_type": "commit",
-      "target_id": "3fec1dc",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-05T08:19:55Z",
-      "by": "🤖 Claude (CEO 지시)",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "feat(BL-STATUS-FINAL): admin-status 88% → 100% 완성 — 모바일 펼침 레이아웃 + 시각 강조 통합 + chat-log 인덱스 자동 트리거 [변경사유: 대표님 A안 채택 (이 채팅 12% 박고 닫음 → 새 채팅 매니저 대시보드). 박은 12% 3가지 — ① 모바일 700px 이하 10개 영역 최적화 (container/header/cat-card 5차원3열/cat-task-row/urgent-card/progress-row/ceo-wait-item/top-row/auto-queue-card/integ-kpi/poll-status). ② 시각 강조 통합 — .stat-card.active-filter (✓ 활성 배지) + .linked-highlight pulse 애니메이션 + KPI 토글 해제 + 시급 페이지 클릭 시 카테고리+진행률 양쪽 펼침 (3-way drill-down 완성). ③ .github/workflows/chat-log-index.yml 신규 — _chat-logs/**.md 또는 tasks.json push 시 build-chat-log-index.mjs 자동 실행, [scan-bot] self-trigger 방지. JS OK 73410 chars. admin.html 미접근. 새 채팅 인계 메시지 chat-log에 박음.]",
-      "target_type": "commit",
-      "target_id": "c545cd9",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-05T07:54:35Z",
-      "by": "🤖 Claude (CEO 지시)",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "feat(BL-STATUS-DRILL-DOWN-V2): admin-status 5가지 정확성 + 결정 대기 동적화 + 진행률 펼침 + 카테고리 통합 [변경사유: 대표님 5가지 지적 — (1) 임박 박스 자동 클릭 0건 → 필터 모드 시 P0+진행중 제약 해제, 미완료 자동 13건 전체 표시. (2)(3)(4) 카테고리 카드/임박 박스/Image 4 KPI 정확성 검증 — 모두 데이터는 정확하나 (a) 결정 대기 박스 하드코딩 4건 → renderCeoWait() 동적 렌더 (status=blocked+blocker 정규식 OR approval_required OR pending+미해소 결정), (b) 막힘 KPI sub-label 명확화 'status=blocked 전체'. (5) 카테고리 진행률 클릭 펼침 박음 — STATE.expandedProgressCat + ▶/▼ 토글 + task 15건 인라인 + 행 클릭 admin-tasks 이동. 보너스: 카테고리 중복 통합 11개 → 8개 (infra→infrastructure, documentation→docs, ops→service-ops 정규화 + CATEGORY_ALIAS 런타임), CATEGORY_LABEL_KO 9개 → 14개 라벨 확장. JS OK 71919 chars. admin.html 미접근.]",
-      "target_type": "commit",
-      "target_id": "f24fa72",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-05T07:34:00Z",
-      "by": "🤖 Claude (CEO 지시)",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "feat(BL-STATUS-DRILL-DOWN): admin-status 원클릭 통합 관리 — KPI 클릭 필터 + 카테고리 매핑 정확화 + 카테고리 펼침 task/페이지 리스트 + 시급 페이지 drill-down + chat-log 자동 매핑 [변경사유: 대표님 4가지 지적 — (1) 카테고리 카드 0/0/0 부정확 (countByState 임시 휴리스틱) (2) 자동/직원/CEO KPI 카운트가 하드코딩 + 클릭 안 됨 (3) 카테고리 카드 펼침에 task 리스트 없음 (4) 시급 페이지 TOP 10 클릭해도 drill-down 없음. 박은 fix: ① D-010 MENU_KEY_TO_CATEGORIES 매핑 표 박음, tasksByMenuKey()로 tasks.json 직접 카운트, STATE.tasksData 캐시. ② taskRole() 5분류 + data-role-filter + STATE.urgentFilter + 필터 표시바 + 해제 버튼 + 역할 배지. ③ renderCategoryTasksBlock + renderCategoryPagesBlock, 카드 행 클릭 → admin-tasks.html 이동. ④ pageToMenuKey() 역매핑, 시급 row 클릭 → 카테고리 카드 펼침 + 스크롤. ⑤ build-chat-log-index.mjs git log 자동 추출 박음 → byCommit 4 → 16건 (활동 이력 chat-log 매핑 4배 증가). admin.html 미접근.]",
-      "target_type": "commit",
-      "target_id": "db728a7",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-05T07:10:54Z",
-      "by": "🤖 Claude (CEO 지시)",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "fix(BL-ADMIN-STATUS-LOOP-FIX): admin-status.html 무한루프 fix + RLS hotfix SQL 영구 박음 [변경사유: BL-ADMIN-AUTH-V2 commit c56885c 직후 (1) admin-status.html 자율 작업 큐/활동 이력/다음 추천 박스에서 브라우저 응답없음 경고 (2) RLS 무한 재귀(42P17) Management API로 라이브 fix 됐지만 git 미반영. 둘 다 박음. ① MutationObserver 자기 DOM 변경(.poll-status/.poll-toast/.auto-queue-toast/.activity-expand-wrap) 즉시 무시 + 300ms debounce + lastHasModal 비교로 상태 변화 시에만 pollPause/Resume 호출. ② pollPause/Resume에 중복 reason 가드 추가. ③ sql/bl-admin-auth-v2-rls-hotfix.sql 신규 — is_admin()/is_owner() SECURITY DEFINER + admins 자기 참조 정책 제거 + auth.users→admins 자동 동기화 트리거 + Owner 이메일 자동 owner 승격. 헌법 11조 부칙 준수: DB 변경 SQL 영구 박음. admin.html 미접근 (정상 작동 페이지 보호).]",
-      "target_type": "commit",
-      "target_id": "73a0ec2",
-      "project": "TW B2B"
-    },
-    {
       "at": "2026-05-04T06:53:49Z",
       "by": "🤖 Claude",
       "role": "Bot",
@@ -2647,24 +2658,6 @@
       "note": "",
       "target_type": "task",
       "target_id": "BL-STATUS-DASH",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-04T00:00:00Z",
-      "by": "👤 이지형 (CEO)",
-      "role": "CEO",
-      "source": "ECHO_LOG.md",
-      "action": "[DECISION] BL-HUB-RETIRE 완료 ⭐⭐⭐ — admin-hub 폐기, 사이드바 = 라우팅 / admin-status = 통합 진입점",
-      "target_type": "echo",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-04T00:00:00Z",
-      "by": "👤 이지형 (CEO)",
-      "role": "CEO",
-      "source": "ECHO_LOG.md",
-      "action": "[DECISION] BL-CHAT-LOG-SYSTEM Phase 1 — chat-logs 인프라 + 백필 4개 (D-014)",
-      "target_type": "echo",
       "project": "TW B2B"
     },
     {
@@ -2783,71 +2776,6 @@
       "source": "ECHO_LOG.md",
       "action": "[DECISION] stats.js 단일 통계 모듈 신설",
       "target_type": "echo",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-03T14:59Z:00",
-      "by": "👤 이지형 (CEO)",
-      "role": "CEO",
-      "source": "ECHO_LOG.md",
-      "action": "[DECISION] BL-CATEGORY-REMAP 6단계 완료 — D-010 매핑 코드 반영 ⭐",
-      "target_type": "echo",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-04T01:36Z:00",
-      "by": "👤 이지형 (CEO)",
-      "role": "CEO",
-      "source": "ECHO_LOG.md",
-      "action": "[DECISION] BL-CENTRAL-HUB 부모 task 완료 처리 (자율)",
-      "target_type": "echo",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-04T05:47Z:00",
-      "by": "👤 이지형 (CEO)",
-      "role": "CEO",
-      "source": "ECHO_LOG.md",
-      "action": "[DECISION] D-011 박힘 — 3-State 권한 시스템 ⭐⭐",
-      "target_type": "echo",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-04T06:53Z:00",
-      "by": "👤 이지형 (CEO)",
-      "role": "CEO",
-      "source": "ECHO_LOG.md",
-      "action": "[DECISION] BL-STATUS-DASH P0 완료 ⭐⭐ — 통합관리 시스템 1차 완성",
-      "target_type": "echo",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-04T07:35Z:00",
-      "by": "👤 이지형 (CEO)",
-      "role": "CEO",
-      "source": "ECHO_LOG.md",
-      "action": "[DECISION] BL-PAGE-DEDUP 완료 ⭐⭐⭐ — \"하나에서 전체 관리\" 헌법 지시 충족",
-      "target_type": "echo",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-03T00:00:00Z",
-      "by": "👤 이지형 (CEO)",
-      "role": "CEO",
-      "source": "DECISIONS.md",
-      "action": "D-004: 4 시스템 카테고리 (헌법 부칙 5)",
-      "target_type": "decision",
-      "target_id": "D-004",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-03T00:00:00Z",
-      "by": "👤 이지형 (CEO)",
-      "role": "CEO",
-      "source": "DECISIONS.md",
-      "action": "D-005: UX/UI 통일 우선, 콘텐츠 디테일 나중 (헌법 부칙 6)",
-      "target_type": "decision",
-      "target_id": "D-005",
       "project": "TW B2B"
     },
     {
@@ -2980,6 +2908,89 @@
       "note": "CHANGELOG에서 추출 (8차)",
       "target_type": "task",
       "target_id": "CHG-8",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-03T14:59Z:00",
+      "by": "👤 이지형 (CEO)",
+      "role": "CEO",
+      "source": "ECHO_LOG.md",
+      "action": "[DECISION] BL-CATEGORY-REMAP 6단계 완료 — D-010 매핑 코드 반영 ⭐",
+      "target_type": "echo",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-04T01:36Z:00",
+      "by": "👤 이지형 (CEO)",
+      "role": "CEO",
+      "source": "ECHO_LOG.md",
+      "action": "[DECISION] BL-CENTRAL-HUB 부모 task 완료 처리 (자율)",
+      "target_type": "echo",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-04T05:47Z:00",
+      "by": "👤 이지형 (CEO)",
+      "role": "CEO",
+      "source": "ECHO_LOG.md",
+      "action": "[DECISION] D-011 박힘 — 3-State 권한 시스템 ⭐⭐",
+      "target_type": "echo",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-04T06:53Z:00",
+      "by": "👤 이지형 (CEO)",
+      "role": "CEO",
+      "source": "ECHO_LOG.md",
+      "action": "[DECISION] BL-STATUS-DASH P0 완료 ⭐⭐ — 통합관리 시스템 1차 완성",
+      "target_type": "echo",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-04T07:35Z:00",
+      "by": "👤 이지형 (CEO)",
+      "role": "CEO",
+      "source": "ECHO_LOG.md",
+      "action": "[DECISION] BL-PAGE-DEDUP 완료 ⭐⭐⭐ — \"하나에서 전체 관리\" 헌법 지시 충족",
+      "target_type": "echo",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-04T00:00:00Z",
+      "by": "👤 이지형 (CEO)",
+      "role": "CEO",
+      "source": "ECHO_LOG.md",
+      "action": "[DECISION] BL-HUB-RETIRE 완료 ⭐⭐⭐ — admin-hub 폐기, 사이드바 = 라우팅 / admin-status = 통합 진입점",
+      "target_type": "echo",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-04T00:00:00Z",
+      "by": "👤 이지형 (CEO)",
+      "role": "CEO",
+      "source": "ECHO_LOG.md",
+      "action": "[DECISION] BL-CHAT-LOG-SYSTEM Phase 1 — chat-logs 인프라 + 백필 4개 (D-014)",
+      "target_type": "echo",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-03T00:00:00Z",
+      "by": "👤 이지형 (CEO)",
+      "role": "CEO",
+      "source": "DECISIONS.md",
+      "action": "D-004: 4 시스템 카테고리 (헌법 부칙 5)",
+      "target_type": "decision",
+      "target_id": "D-004",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-03T00:00:00Z",
+      "by": "👤 이지형 (CEO)",
+      "role": "CEO",
+      "source": "DECISIONS.md",
+      "action": "D-005: UX/UI 통일 우선, 콘텐츠 디테일 나중 (헌법 부칙 6)",
+      "target_type": "decision",
+      "target_id": "D-005",
       "project": "TW B2B"
     }
   ]

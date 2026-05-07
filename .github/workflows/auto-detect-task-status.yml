@@ -129,7 +129,7 @@ jobs:
           Trigger: ${{ github.event_name }}
           Source commit: ${{ github.sha }}"
 
-          git push origin main
+          git push origin HEAD:${{ github.ref_name }}
           echo "✅ 자동 commit 푸시 완료 → admin-status 5초 폴링이 감지함"
 
       - name: Summary

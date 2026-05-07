@@ -34,6 +34,9 @@
 | D-012 | 대용량 admin 페이지 3-Layer 분리 (Summary/Display/Full) + admin-tasks 대시보드 흡수 | infra | 2026-05-04 | 확정 | BL-STATUS-DASH, BL-PAGE-DEDUP |
 | D-013 | admin-hub.html 폐기 — 사이드바 = 라우팅 / admin-status = 통합 진입점 (클릭 단계 3→1) | infra | 2026-05-04 | 확정 | BL-HUB-RETIRE, D-010 매핑 표 카테고리 0 이관 |
 | D-014 | chat-logs 시스템 — 사람용+AI용 이중 형식 강제 (헌법 6조 본체) + 인증 게이트 | infra | 2026-05-04 | 확정 | BL-CHAT-LOG-SYSTEM Phase 1~3 |
+| D-015 | BL-ADMIN-AUTH-V2 — 5단계 권한 + 초대 + 즉시 박탈 + 무제한 이력 | policy | 2026-05-05 | 확정 | BL-ADMIN-AUTH-V2 |
+| D-016 | BL-ADMIN-AUTH-V2 라우터 통합 — Vercel Hobby 12 함수 한도 회피 | infra | 2026-05-04 | 확정 | BL-ADMIN-AUTH-V2 |
+| D-017 | 자격증명 라이프사이클 — 개발기간(등록 정상) → 서비스기간(일괄 폐기) | policy | 2026-05-08 | 확정 | 헌법 부칙 4, `_os/playbook/credentials-lifecycle.md` |
 
 ---
 
@@ -55,6 +58,9 @@
 | D-012 | 2026-05-04 신규 | 대용량 fetch 분리 + admin-tasks 흡수 |
 | D-013 | 2026-05-04 신규 | admin-hub 폐기 — 잉여 레이어 제거 (대표님 통찰 직접 반영) |
 | D-014 | 2026-05-04 신규 | 헌법 6조(사람용+AI용 이중) 본체 — chat-logs/ 풀 디테일 + 인증 게이트 + 활동 이력 ↔ chat-log 4중 연결 |
+| D-015 | 2026-05-05 신규 | BL-ADMIN-AUTH-V2 권한 정책 본체 |
+| D-016 | 2026-05-04 신규 | Vercel Hobby 12 함수 한도 회피 위한 라우터 통합 |
+| D-017 | 2026-05-08 신규 (최상단) | 토큰·키 라이프사이클 — 헌법 부칙 4 보강 + `_os/playbook/credentials-lifecycle.md` 신설 |
 
 ---
 

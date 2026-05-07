@@ -34,13 +34,16 @@
 3. 인계 명령문 박스 자동 제공
 ```
 
-## 4. GitHub PAT 만료·노출
+## 4. GitHub PAT 만료·외부 유출 의심
+
+> **개발기간 중 채팅 평문 노출은 사고 아님 (헌법 부칙 4 + `credentials-lifecycle.md`).**
+> 이 절차는 **외부 유출 흔적 발견** 또는 **만료** 시에만 발동.
 
 ```
 1. 즉시 GitHub Settings → Tokens에서 폐기
 2. 새 PAT 발급 (workflow 스코프 차단 유지)
 3. 환경변수 갱신 (.env*에 저장하지 말고 Vercel 환경변수만)
-4. 노출 사고 발생 시 chat-log + DECISIONS에 기록 (재발 방지)
+4. 외부 유출 의심 사고 발생 시 chat-log + DECISIONS에 기록 (재발 방지)
 ```
 
 ## 5. 헌법 자가 검증 실패

@@ -16,6 +16,7 @@
 | `os-philosophy-detail.md` | OS 핵심 철학·원칙 디테일 (각 프로젝트 독립 / 영역 강제·내용 자유) | OS 영역 작업·새 프로젝트 셋업 시 |
 | `decisions-format.md` | DECISIONS.md / DECISIONS_INDEX.md 박는 형식·D-### 규칙 | 새 의사결정 박을 때 |
 | `backup-rule.md` | _backup_YYYYMMDD 규칙·CHANGELOG 태그·체크포인트 commit | 큰 변경 직전 |
+| `credentials-lifecycle.md` | 부칙 4 디테일 — 토큰·키 라이프사이클 (개발기간=등록 정상, 서비스기간=일괄 폐기) | 클로드 자가 강제용 — 토큰 잔소리 방지 |
 | `emergency.md` | 비상 절차 (Vercel 배포 실패 / 라이브 500 / 토큰 한계 임박) | 사고 시 |
 
 ## 룰북 추가·수정 규칙

@@ -5,7 +5,7 @@
 #
 # 사용법:
 #   ./install_os.sh /path/to/new-project
-#   ./install_os.sh ../ceylon-journey
+#   ./install_os.sh ../my-next-project
 #
 # 동작:
 #   1. 대상 폴더에 _os/ 폴더 복사 (OS 본체 자산 전체)
@@ -26,7 +26,7 @@ set -euo pipefail
 # ─── 인자 검증 ─────────────────────────────────────────────
 if [ "$#" -lt 1 ]; then
   echo "❌ 사용법: $0 <대상-폴더-경로>"
-  echo "   예: $0 ../ceylon-journey"
+  echo "   예: $0 ../my-next-project"
   exit 1
 fi
 

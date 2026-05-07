@@ -12,12 +12,12 @@
     "SOLO_WORK_QUEUE.md"
   ],
   "stats": {
-    "total": 111,
+    "total": 112,
     "done": 82,
     "in_progress": 1,
-    "pending": 18,
+    "pending": 19,
     "blocked": 10,
-    "autonomous_ready": 14,
+    "autonomous_ready": 18,
     "todo": 0
   },
   "tasks": [
@@ -5363,6 +5363,43 @@
           "action": "5개 봇(auto-detect/build-activity-feed/health-check/page-status-scan/sync)이 'restructure-os-modularization' 브랜치 listen 박혀있지만, PHASE-4에서 main 통합 후 해당 브랜치 삭제됨. 동작상 무해하지만 정석 청소 대상. 'branches: [main]'으로 통일."
         }
       ]
+    },
+    {
+      "id": "BL-VERCEL-DEPLOY-RACE-GUARD",
+      "title": "Vercel 빌드 큐 누락 감지·자동 복구 가드 (헌법 부칙 8 강화)",
+      "category": "infrastructure",
+      "status": "pending",
+      "priority": "P1",
+      "size": "medium",
+      "parent_task": null,
+      "blocker": null,
+      "created_at": "2026-05-07T18:14:18+00:00",
+      "completed_at": null,
+      "claude_can_auto": true,
+      "autonomous": {
+        "can_run_alone": true,
+        "estimated_hours": 1.0,
+        "requires_decisions_first": []
+      },
+      "progress": null,
+      "tag": "",
+      "commit": null,
+      "files_changed": [],
+      "history": [
+        {
+          "at": "2026-05-07T18:14:18+00:00",
+          "event": "신설 (실측 결함 발견)",
+          "by": "클로드 (TW OS)",
+          "note": "2026-05-07 17:59:15 UTC: 89186e0(auto-detect-bot) + cc12a26(activity-bot) 같은 초 동시 push → Vercel webhook race로 89186e0 deployment 누락. cc12a26 위 sha만 production 배포 → 라이브 tasks.json이 89186e0 변경(BL-002 in_progress) 미반영. 5/8 발견."
+        }
+      ],
+      "source": "실측 결함 (2026-05-08)",
+      "source_anchor": null,
+      "notes": "## P1 — Vercel 빌드 큐 누락 감지·자동 복구 가드\n\n**문제**: 봇 commit 다수가 같은 초에 push될 때 Vercel webhook이 일부 commit의 deployment를 만들지 않는 race. 사람이 발견하기 전까지 라이브 = 옛 상태.\n\n**구현 항목**:\n1. `_os/scripts/health_check_admin.mjs`에 `checkVercelSync()` 추가\n   - git HEAD sha (GITHUB_SHA env) vs https://gohotelwinners.com/__vercel-sha 또는 Vercel API로 라이브 production deployment의 githubCommitSha 비교\n   - 불일치 시 yellow + summary에 명시 (red 안 함 — 차단 X)\n2. `.github/workflows/health-check-admin.yml`에 자동 복구 단계 추가\n   - checkVercelSync yellow 감지 → 빈 commit 자동 push (`[health-bot] vercel-sync 복구 트리거`)\n   - 무한 루프 방지: 본 봇 commit은 자기 트리거 안 함 (이미 health-bot prefix 가드 박혀 있음)\n3. `_admin/_health.json`에 `vercel_sync` 필드 신설 → admin-status가 빨강/노랑 표시\n\n**부칙 8 (자동 동기화 5초 내) 강화**: git push → Vercel 배포 완료까지의 전 구간을 봇이 검증하도록.\n\n**배경 commit 증거**: 89186e0(2026-05-07 17:59:15) Vercel deployment list에 존재하지 않음. cc12a26 기반 빌드만 라이브.",
+      "owner": "autonomous",
+      "approval_required": false,
+      "order": null,
+      "updated_at": "2026-05-07T18:14:18+00:00"
     }
   ]
 }

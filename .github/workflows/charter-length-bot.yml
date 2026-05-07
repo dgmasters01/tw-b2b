@@ -1,0 +1,58 @@
+# Charter Length Bot — 헌법 길이 자동 감시
+#
+# 헌법 부칙 14: OPERATIONS_CHARTER.md는 200줄 이하 강제.
+# 새 운영 룰은 헌법이 아닌 _os/playbook/에 박는다.
+#
+# 발견 경위:
+#   2026-05-07 헌법 474줄까지 자라면서 Claude가 끝까지 못 읽고 거짓 보고 사고 발생.
+#   같은 사고 재발 방지를 위해 시스템적으로 강제.
+#
+# 트리거:
+#   1. main 브랜치 push 시 OPERATIONS_CHARTER.md 변경된 경우
+#   2. _os/playbook/ 변경 시 (헌법이 참조하는 룰북 누락 검증)
+#   3. 수동 실행 (workflow_dispatch)
+#
+# 실행:
+#   _os/scripts/check-charter-length.mjs
+#   - 200줄 초과 시 exit 1 → CI 실패 → push 차단
+
+name: Charter Length Check
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'OPERATIONS_CHARTER.md'
+      - '_os/playbook/**'
+      - '_os/scripts/check-charter-length.mjs'
+      - '.github/workflows/charter-length-bot.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'OPERATIONS_CHARTER.md'
+      - '_os/playbook/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check-charter-length:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run charter length check
+        run: node _os/scripts/check-charter-length.mjs
+
+      - name: Report result
+        if: failure()
+        run: |
+          echo "::error::헌법이 200줄을 초과했거나 참조 룰북이 누락됨."
+          echo "::error::부칙 14 위반. 디테일을 _os/playbook/으로 이전 후 재시도하세요."

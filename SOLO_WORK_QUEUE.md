@@ -28,6 +28,22 @@
 
 ---
 
+### B. 🟢 AUTO — Vercel 빌드 큐 누락 감지·자동 복구 가드 (헌법 부칙 8 강화)
+
+**ID**: `BL-VERCEL-DEPLOY-RACE-GUARD`  
+**카테고리**: infrastructure  
+**예상 시간**: 1.0시간  
+
+**메모**: ## P1 — Vercel 빌드 큐 누락 감지·자동 복구 가드
+
+**문제**: 봇 commit 다수가 같은 초에 push될 때 Vercel webhook이 일부 commit의 deployment를 만들지 않는 race. 사람이 발견하기 전까지 라이브 = 옛 상태.
+
+**구현 항목**:
+1. `_os/scripts/health_check_admin.mjs`에 `checkVercelSync()` 추가
+   - git HEAD sha (GITHUB_SHA env) vs https://gohotelwinners.com/__vercel-sh
+
+---
+
 ## 🟡 P1 — 데드라인 이전에 있으면 좋음
 
 ### A. 🟢 AUTO — [admin-* 페이지 인증 속도 최적화] Supabase getSession + checkAdmin 병렬 처리 + SSR 게이트
@@ -79,22 +95,6 @@
 **예상 시간**: 미정시간  
 
 **메모**: ### H. 🟢 AUTO — Supabase Management API 토큰 갱신 알림 자동화 **작업 내용**: 토큰 만료 7일 전 ops 메일 자동 발송 (현재 토큰 만료 5/26) - Vercel Cron 또는 Supabase Edge Function 사용 - 현재는 메모리에만 알림 메모, 자동화 안 됨  **예상 시간**: 1시간 **자율 진행 사유**: 인프라 자동화  ---  ## 🟢 P2 — 자투리 시간에
-
----
-
-### F. 🟢 AUTO — Vercel 빌드 큐 누락 감지·자동 복구 가드 (헌법 부칙 8 강화)
-
-**ID**: `BL-VERCEL-DEPLOY-RACE-GUARD`  
-**카테고리**: infrastructure  
-**예상 시간**: 1.0시간  
-
-**메모**: ## P1 — Vercel 빌드 큐 누락 감지·자동 복구 가드
-
-**문제**: 봇 commit 다수가 같은 초에 push될 때 Vercel webhook이 일부 commit의 deployment를 만들지 않는 race. 사람이 발견하기 전까지 라이브 = 옛 상태.
-
-**구현 항목**:
-1. `_os/scripts/health_check_admin.mjs`에 `checkVercelSync()` 추가
-   - git HEAD sha (GITHUB_SHA env) vs https://gohotelwinners.com/__vercel-sh
 
 ---
 

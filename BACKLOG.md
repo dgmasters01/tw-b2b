@@ -58,6 +58,23 @@
 
 ---
 
+## 🟢 P0 — Vercel 빌드 큐 누락 감지·자동 복구 가드 (헌법 부칙 8 강화)
+
+**요약**: ## P1 — Vercel 빌드 큐 누락 감지·자동 복구 가드
+
+**문제**: 봇 commit 다수가 같은 초에 push될 때 Vercel webhook이 일부 commit의 deployment를 만들지 않는 race. 사람이 발견하기 전까지 라이브 = 옛 상태.
+
+**구현 항목**:
+1. `_os/scripts/health_check_admin.mjs`에
+
+- **자율성**: 🟢 AUTO
+- **예상 시간**: 1.0시간
+- **카테고리**: infrastructure
+- **상태**: pending
+- **ID**: `BL-VERCEL-DEPLOY-RACE-GUARD` (출처: 실측 결함 (2026-05-08))
+
+---
+
 ## 🟢 P1 — [admin-* 페이지 인증 속도 최적화] Supabase getSession + checkAdmin 병렬 처리 + SSR 게이트
 
 - **자율성**: 🟢 AUTO
@@ -195,23 +212,6 @@
 - **카테고리**: infrastructure
 - **상태**: pending
 - **ID**: `SQ-H` (출처: SOLO_WORK_QUEUE.md)
-
----
-
-## 🟢 P1 — Vercel 빌드 큐 누락 감지·자동 복구 가드 (헌법 부칙 8 강화)
-
-**요약**: ## P1 — Vercel 빌드 큐 누락 감지·자동 복구 가드
-
-**문제**: 봇 commit 다수가 같은 초에 push될 때 Vercel webhook이 일부 commit의 deployment를 만들지 않는 race. 사람이 발견하기 전까지 라이브 = 옛 상태.
-
-**구현 항목**:
-1. `_os/scripts/health_check_admin.mjs`에
-
-- **자율성**: 🟢 AUTO
-- **예상 시간**: 1.0시간
-- **카테고리**: infrastructure
-- **상태**: pending
-- **ID**: `BL-VERCEL-DEPLOY-RACE-GUARD` (출처: 실측 결함 (2026-05-08))
 
 ---
 

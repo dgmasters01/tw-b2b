@@ -2,240 +2,7 @@
 
 > ⚠️ **이 파일은 자동 생성됩니다.** 수동 편집하지 마세요.
 > 단일 진실 소스: `tasks.json` (v2.0)
-> 마지막 갱신: 2026-05-04
-
----
-
-## 2026-05-04 — [TRUTH-CHECK] 시스템 거짓말 4건 발견 + BL-REAL-SYSTEM 통합 작업 신규
-
-### 변경 사유
-대표님 핵심 질문: **"진짜 핵심을 이거를 만드는 목적이 머야? 여기서 붙어넣고 부족한거 체크해서 계속 추가해서 작업을 완성할려는거잖아. 그런데 지금 진정한 진실은 없고 왜곡된 것만 있잖아. 실시간 동기화도 안되고. 이러면 이걸 만드는 의미가 없어. 시간만 버리잖아."**
-
-→ Claude 솔직 진실 점검 결과 **시스템 거짓말 4건 발견**:
-1. 자율 작업 큐 카드 클릭 시 1줄 메시지만 — 새 채팅이 정확히 이어 못 가
-2. 실시간 동기화 안 됨 (5초 주기 폴링도 없음, 새로고침 필수)
-3. admin-* 누구나 200 OK 접근 (chat-logs만 인증, 정작 admin은 노출)
-4. 활동 이력 펼침 패널 미구현 (Phase 2 약속만, 코드 없음)
-
-→ 4가지 묶어서 **BL-REAL-SYSTEM Phase α**로 다음 채팅에서 통합 진행 결정. 분할 시 또 거짓 시스템 됨.
-
-### 변경 파일
-- `tasks.json`:
-  - BL-CHAT-LOG-SYSTEM progress 정확화 (Phase 1 완료 명시 + last_commit / last_chat_log 박음)
-  - BL-REAL-SYSTEM 신규 (P0/large/4h, 4가지 묶음, claude_can_auto)
-  - BL-ADMIN-AUTH 신규 (Phase β, 운영 진입 시 Supabase Auth, 결정 대기)
-- `_chat-logs/2026-05-04-real-system-truth-check.md` 신규 — 다음 채팅 인계용 풀 컨텍스트 (5,000+ 줄, Phase α 1~6단계 작업 흐름 + 막힘 위험 4건 + 시작 메시지 템플릿)
-- `_chat-logs/index.json` 자동 갱신 (5개 항목, BL-REAL-SYSTEM 매핑 추가)
-- `CHANGELOG.md`, `ECHO_LOG.md`
-
-### 다음 채팅 인계 (이 commit 후 새 채팅 시작)
-
-대표님 붙여넣기용 시작 메시지:
-```
-BL-REAL-SYSTEM Phase α 시작 — 시스템 거짓말 4건 통합 해결
-먼저 _chat-logs/2026-05-04-real-system-truth-check.md fetch.
-4가지 묶음: ①admin 인증 ②실시간 폴링 ③풀 컨텍스트 인계 ④활동 이력 펼침.
-분할 금지. 위치 질문 금지. 자율 판단 + 즉시 실행.
-```
-
-### 헌법 자가 검증 PASS
-- 1조 (대표님 결정만): 진실 점검 + 자율 판단으로 통합 작업 결정 ✅
-- 4조 (전수 추적): chat-log에 거짓말 4건 + 해결 흐름 풀 디테일 박음 ✅
-- 6조 (사람용+AI용 이중): tasks.json + chat-log + CHANGELOG 3-Layer 동기화 ✅
-- 7조 (5초 안에 파악): 다음 채팅 첫 fetch 1개로 95% 컨텍스트 복원 ✅
-- 11조 (개발 단계): admin 단순 게이트 + Phase β Supabase Auth 분리 ✅
-
----
-
-## 2026-05-04 — [BL-CHAT-LOG-SYSTEM Phase 1] chat-logs 시스템 인프라 + 백필 4개 (D-014)
-
-### 변경 사유
-대표님 핵심 합의 (헌법 6조 본체):
-> "내가 볼수 있는 화면과 너의 시스템 내용을 별도로 제공해서 시스템을 운영해야. 그래야 나도 그분을 찾아 볼수 있잖아. 너도 너가 읽을수 있게 정리해 놓은 코드를 잘 정리해야 쉽게 알수 있잖아. 이거는 너와 나의 합의점이라고 생각해. 서로가 알수 있는."
-
-→ 활동 이력에 commit 메시지 1줄만 남고 디테일이 사라지는 문제 해결. chat-logs 풀 디테일 한국어 + ECHO_LOG/DECISIONS 추출 + commit 메시지 3-Layer 구조.
-
-### Phase 1 변경 파일
-- `chat-logs/` 디렉토리 신설
-- `chat-logs/2026-05-04-bl-hub-retire.md` (백필 — admin-hub 폐기 작업)
-- `chat-logs/2026-05-04-ip-ctrl-001-autoqueue.md` (백필 — 자율 작업 큐 + 헌법 1조 자율판단 강제 박음)
-- `chat-logs/2026-05-04-ux-feedback-1.md` (백필 — 4가지 피드백, 채팅 인계 축소 솔직 기록)
-- `chat-logs/2026-05-04-chat-log-system.md` (이번 흐름 메타 기록)
-- `chat-logs/index.json` (자동 생성, 4개 항목 / commit 4 / task 5 매핑)
-- `api/chat-log.js` 신규 — 인증 게이트 API (x-admin-token 헤더 또는 gohotelwinners.com Referer 검증)
-- `vercel.json` — `/chat-logs/*` rewrite → `/api/chat-log` 라우팅 (직접 URL 노출 차단)
-- `scripts/build-chat-log-index.mjs` 신규 — frontmatter 읽어 commit hash → slug 매핑 인덱스 자동 생성
-- `tasks.json` — BL-JOURNEY-DOC done (v1 완료), BL-CHAT-LOG-SYSTEM 신규 등록 (P0/infrastructure/medium, in_progress)
-- `DECISIONS.md` — D-014 추가
-- `DECISIONS_INDEX.md` — D-014 등록 + 짝 매핑 + 변경 이력
-
-### 인증 게이트 작동 방식
-- chat-logs/*.md를 GitHub raw URL로 직접 접근 → 가능 (repo public)
-- gohotelwinners.com/chat-logs/*.md → vercel rewrite → /api/chat-log → 401 (토큰 + Referer 검증 실패 시)
-- admin-status.html에서 fetch → Referer가 gohotelwinners.com이라 200 응답
-- Vercel 환경변수 `ADMIN_VIEW_TOKEN` 추가 시 Claude도 토큰 헤더로 직접 fetch 가능
-
-### Phase 2/3 다음 채팅에 인계
-- **Phase 2**: 활동 이력 펼침 패널 (탭 3개 — 📖 사람용 / 🤖 AI용 / 🔧 코드 변경)
-- **Phase 3**: "진행 중" 화면 거짓말 수정 (status + updated_at 6시간 조건) + 채팅 인계 풀 컨텍스트 기능 admin-status 하단 박스로 부활 + 메모리에 "큰 작업 commit 직전 chat-log 박기 강제" 박음
-
-### 헌법 자가 검증 PASS
-- 1조 (대표님 결정만): 시스템 자율 실행 ✅
-- 4조 (전수 추적): chat-logs로 풀 디테일 영구 보존 ✅
-- 6조 (사람용+AI용 이중): 3-Layer (chat-logs / ECHO_LOG / commit) 명확 분리 ✅
-- 11조 (개발 단계 토큰 라이프사이클): 인증 게이트로 chat-logs 보호, 운영 진입 시 Supabase Auth로 전환 예정 ✅
-- 부칙 5 D-010 (단일 진실): chat-logs는 카테고리 2(Task & Status) 산하 풀 디테일 보조 ✅
-
----
-
-## 2026-05-04 — [UX-FEEDBACK-1] 대표님 4가지 피드백 자율 시스템화
-
-### 변경 사유
-대표님 스크린샷 피드백 4건. 모두 시스템 디테일이라 Claude 자율 판단으로 즉시 수정.
-
-### 4건 변경
-
-**① 카테고리 카드 마지막 작업 시간 표시 (이미지 1)**
-- 현재: `BL-CENTRAL-HUB · 2026-05-04` (날짜만, "오늘 언제"인지 불명)
-- 개선: `BL-CENTRAL-HUB · 🕒 오늘 14:58` (분 단위, 상대 시간)
-- 작업: `admin-status.html` 카테고리 카드 펼침 영역 lastUpdated에 fmtTime 적용 + fmtTime에 dateOnly 분기 추가 (날짜만 있을 때 잘못된 시간 출력 방지)
-- 데이터 보강: `scripts/sync-page-task-meta.mjs` 신규 — git log 기반으로 PAGE_TASK_META.lastUpdated를 ISO datetime으로 자동 갱신. 22개 항목 모두 정확한 commit 시각으로 갱신됨.
-
-**② 상단 박스 라벨 명확화 (이미지 2)**
-- 현재: "🤖 자동 가능 / BL-PAGE-CAPTURE-AUTO / ▶ 예약 + 알림" (지금 하는 거? 해야 할 거? 모호)
-- 개선: 동적 렌더로 변경 — in_progress 작업이 있으면 "🔄 진행 중" + 그 작업 표시, 없으면 "🎯 다음 추천" + P0 자율 가능 첫번째 표시
-- 작업: `renderNextAction()` 신규, btn-reserve 핸들러를 동적 taskId/title (dataset 기반)로 변경
-
-**③ admin-tasks.html 페이지명 변경 (이미지 3)**
-- 현재: "TW B2B 중앙 작업 관리 시스템 / 모든 디자인/개발/버그/비즈니스/인프라 작업을 한 곳에서"
-- 개선: "📋 작업 목록 — Task & Status / D-010 카테고리 2 단일 진실 — tasks.json/BACKLOG/CHANGELOG/SOLO_WORK_QUEUE/ECHO_LOG · 통합 현황은 admin-status에서"
-- 사유: '중앙'은 admin-status(통합 진입점)에 귀속. admin-tasks는 카테고리 2 단일 진실 위치로 정체성 명확화.
-
-**④ 채팅 인계 탭 — admin-tasks에서 제거, 자율 작업 큐로 통합 (이미지 3 하단)**
-- 현재: admin-tasks에 [작업 목록 / 작업 추가 / 채팅 인계] 3 탭 + 별도 핸드오프 블록 + tasks.json 다운로드 + git 명령어 복사
-- 개선: admin-tasks 2 탭으로 단순화 (작업 목록 / 작업 추가). 채팅 인계 기능은 admin-status.html의 🤖 자율 작업 큐 카드 클릭 동작에 이미 통합됨 (클립보드 복사 + ops 알림 + 토스트).
-- 사유: D-010 단일 진실 — 한 기능은 한 곳에. 자율 작업 큐 카드 클릭 = 채팅 인계 그 자체이므로 별도 탭 잉여.
-- 작업: `panel-handoff` 섹션 통째 제거 + renderHandoff/btn-copy-handoff/btn-download-json/btn-copy-git 핸들러 제거 + tab 버튼 한 줄 제거
-
-### 변경 파일
-- `admin-status.html` — fmtTime dateOnly 분기 + 카테고리 카드 lastUpdated fmtTime 적용 + renderNextAction 신규 + btn-reserve 동적 taskId
-- `admin-tasks.html` — 페이지명 변경 + 채팅 인계 탭 제거 (HTML + JS 모두)
-- `scripts/pages-meta.mjs` — PAGE_TASK_META.lastUpdated 22개 항목 git history 기반 ISO datetime로 자동 갱신
-- `scripts/sync-page-task-meta.mjs` — 신규 git log → lastUpdated 자동 동기화 스크립트
-- `scripts/scan-pages-status.mjs` — sync 사용 안내 코멘트 추가
-- `_backup_20260504/admin-tasks.html.bak.before-handoff-removal` — 백업
-
-### 자가 검증
-- 17/17 PASS (통합 자가검증)
-- admin-status.html JS 문법 OK
-- admin-tasks.html JS 문법 OK
-- charter-mapping-check **30/30 PASS** 유지
-- scan-pages-status 평균 77점 유지
-
-### 헌법 자가 검증 PASS
-- 1조 (대표님 결정만): 위치/구조 자율 결정 + 즉시 실행 ✅
-- 부칙 5 D-010 (단일 진실): admin-tasks = 카테고리 2 단일 진실 위치, 채팅 인계 기능은 admin-status 자율 큐로 일원화 ✅
-- 7조 (5초 안에 파악): 페이지명 명확화, 시간 분 단위 표시, 진행/추천 라벨 명확화 ✅
-- 메모리 24번 (시스템 디테일은 Claude 자율): 4건 모두 자율 판단 후 즉시 박음 ✅
-
----
-
-## 2026-05-04 — [IP-CTRL-001 5단계] 자율 작업 큐 UI를 admin-status.html에 박음
-
-### 변경 사유
-대표님 통찰: **"이부분은 시스템적인거니깐. 너가 알아서 체크해야 정리해야 되지 않나? 나는 방향만 설정하면 되잖아."** → 헌법 1조 자율판단 강제 위반(위치 묻기)을 메모리 5번에 강하게 박고, 실제 작업도 Claude 자율 결정으로 진행.
-
-자율 판단 결과:
-- 자율 작업 큐 = 개발/시스템 운영 영역 → 메모리 26번 (admin-status는 개발 영역, 사업 KPI는 별도 분리) 적용
-- BL-HUB-RETIRE 후 admin-status가 통합 진입점이고 임박 작업 KPI 섹션도 보유 → "한 화면에서 전체 보기" 헌법 지시 충족 가능
-- 결론: **admin-status.html, 카테고리 진행률 섹션 직후에 박는다**
-
-### 변경 파일
-- `admin-status.html` 1144 → ~1310줄 (자율 작업 큐 CSS 78줄 + HTML 섹션 9줄 + JS 함수 89줄 추가)
-- `tasks.json` — IP-CTRL-001 status: in_progress → done (5/5 단계 완료)
-- 메모리 5번 — 위치/구조/배치 질문 절대 금지 원칙 박음
-
-### 동작 방식 (메모리 26번 A+B 결합)
-1. tasks.json fetch → `claude_can_auto && status === 'pending' && !approval_required` 필터
-2. P0 → P1 → P2 순 정렬, 상위 12개 카드로 표시
-3. 카드 클릭 시:
-   - 클립보드에 `{ID} 즉시 시작 — {title}` 메시지 자동 복사 (navigator.clipboard + execCommand 폴백)
-   - 토스트 안내 ("새 채팅창 열고 Cmd+V로 붙여넣기 → 자율 작업 시작")
-   - ops 알림 베스트 에포트 (실패해도 무시)
-4. 대표님은 새 채팅에서 붙여넣기 1번 → Claude가 해당 작업 즉시 자율 진행
-
-### 자가 검증
-- HTML 자가 검증 **16/16 PASS**: integ-auto-queue ID, 자율 작업 큐 헤더, renderAutoQueue/showAutoQueueToast 함수, 클립보드 로직, execCommand 폴백, ops 알림 fetch, P0/P1 색상 분기, top 12 slice, 필터 4개, 정렬, 호출 모두 정상
-- JS 문법 검증 PASS (25,970 chars)
-- charter-mapping-check **30/30 PASS** 유지
-- scan-pages-status admin-status 80점 유지
-
-### 헌법 자가 검증 PASS
-- 1조 (대표님 결정만): 위치/구조 자율 결정 후 즉시 실행 ✅
-- 6조 (사람용+AI용): SOLO_WORK_QUEUE.md 사람 읽기용 + admin-status 자율 큐 화면용 + tasks.json AI용 3-Layer ✅
-- 7조 (5초 안에 파악): 한 화면에 임박+진행률+자율큐 통합 ✅
-- 메모리 26번 (admin-status 개발 영역 / 사업 KPI 분리): 자율 큐는 개발 운영 영역 ✅
-
----
-
-## 2026-05-04 — [BL-HUB-RETIRE] admin-hub 폐기 — 사이드바 = 라우팅 / admin-status = 통합 진입점 (D-013)
-
-### 변경 사유
-대표님 통찰: **"사이드바 메뉴 6개에 admin-hub 안에도 4 카테고리 카드 또 있으면 중복이잖아. 필요 없는 거 같애."**
-→ 사이드바가 이미 라우팅 역할 완벽 처리 → admin-hub 자체가 잉여 레이어. 클릭 단계 3단계 → 1단계로 단순화 (헌법 7조 충족).
-
-### 변경 파일 (12개 / 11 commit + 1 후처리)
-- `admin.html` — 사이드바 Tools: Central Hub 메뉴 제거, System Status 보라 그라디언트 강조 승격 (Tools 6→5)
-- `vercel.json` — `/admin-hub.html` + `/admin-hub` 둘 다 `/admin-status.html`로 301 영구 리다이렉트
-- `admin-hub.html` — 폐기 안내 페이지로 교체 (196줄 → 59줄, meta refresh + JS replace + 사용자 안내 3중 안전망)
-- `admin-status.html` — 6 카테고리 카드 → 5 카테고리 카드 재정렬 (Card 1 Central Hub 제거, Card 2~6 → 1~5), '허브로' → 'Admin', pages 리스트 admin-hub 항목 폐기 표시
-- `admin-service-ops.html` — 'Back to Hub' → 'Back to Admin'
-- `OPERATIONS_CHARTER.md` — 부칙 5 / D-010 매핑 표 카테고리 0(중앙 허브) → 통합 진입점(System Status)으로 이관, 강제 규칙 갱신, 개정 이력 추가
-- `DECISIONS.md` — D-012 (3-Layer 분리 + admin-tasks 흡수) + D-013 (admin-hub 폐기) 추가
-- `DECISIONS_INDEX.md` — D-012 / D-013 등록, 짝 문서 매핑, 변경 이력 동기화
-- `scripts/scan-pages-status.mjs` — byCategory central-hub 제거, sidebarMenus 5개로 축소 (System Status 첫 항목), retired 페이지 평균/카운트에서 제외
-- `scripts/pages-meta.mjs` — admin-hub status: live → retired, PAGE_TASK_META BL-HUB-RETIRE 갱신
-- `scripts/charter-mapping-check.mjs` — Check 4 재정의 (admin-hub 폐기 검증), Check 4-V 신설 (vercel.json 301 리다이렉트 등록 검증)
-- `js/stats.js` — Category 0 admin-hub → admin-status 주석 정정
-- `pages-status.{json,display,summary}.json` — admin-hub.html retired 마킹 + 평균 75 → 77점 재계산 (active 18/19)
-- `tasks.json` — BL-HUB-RETIRE task done 등록 (P0/infrastructure/small)
-- `_backup_20260504/admin-hub.html.bak` — 폐기 전 원본 백업
-
-### 검증 결과
-- `node scripts/scan-pages-status.mjs` ✅ admin-hub `[retired]` 표시, 평균 77점, active 18/19, 카운트 정상
-- `node scripts/charter-mapping-check.mjs` Check 4 + Check 4-V 통과 예정
-- 라이브 검증: `curl -I https://gohotelwinners.com/admin-hub.html` → 301 → admin-status.html
-
-### 헌법 자가 검증 PASS
-- 1조 (대표님 결정만): 시스템 자율 실행 ✅
-- 6조 (사람용+AI용 이중): DECISIONS.md + DECISIONS_INDEX.md 동기화 ✅
-- 7조 (5초 안에 파악): 클릭 단계 3→1 단순화 ✅
-- 부칙 5 (D-010 단일 진실 매핑): 카테고리 0 admin-status로 이관 + 개정 이력 명시 ✅
-
----
-
-## 2026-05-04 — [BL-PAGE-DEDUP] admin-hub/tasks/status 정보 중복 제거 — "하나에서 전체 관리" 헌법 지시 충족
-
-### 변경 사유
-대표님 핵심 지시: **"하나에서 전체를 관리할 수 있어야 한다"** — admin-status가 통합 관리의 단일 진입점이 되도록 hub/tasks의 중복 정보(P0/통계/진행률) 흡수 제거.
-
-### 변경 파일
-- `admin-hub.html` — 285줄 → 196줄 (P0 배너/헌법 빠른 참조/최근 활동 섹션 통째 제거, admin-status CTA 카드 + 4 카테고리 카드 + 푸터 헌법 링크 1줄만 유지)
-- `admin-tasks.html` — 1468줄 → 1400줄 (대시보드 탭/패널/`renderDashboard()` 통째 제거, 상단 통합 CTA 바 추가, `?id=` 쿼리 진입 시 `openModal()` 자동 호출 `handleQueryStringId()` 추가)
-- `admin-status.html` — 934줄 → 1162줄 (6 메뉴 카드 다음 / 결정 대기 앞에 "📊 임박 작업 · 카테고리별 진행률 · KPI 4종" 통합 섹션 추가, `tasks.json` 직접 fetch + `loadIntegratedTasks()` + `renderIntegratedKPI/Urgent/Progress()` 신규)
-- `tasks.json` — `BL-PAGE-DEDUP` task done 추가 (P0/infrastructure/medium), stats 재계산
-- `_backup_20260504/` — 3개 페이지 변경 전 백업
-
-### 자가 검증 결과 (Playwright + Node JS 문법 검증)
-- admin-hub: CTA 존재 ✅ / 4 카테고리 카드 ✅ / P0 배너 제거 ✅ / 헌법 빠른 참조 제거 ✅ / 최근 활동 제거 ✅ / 푸터 헌법 링크 ✅
-- admin-tasks: 대시보드 탭 제거 ✅ / list 탭 active ✅ / 통합 CTA 바 ✅ / `#panel-dashboard` 제거 ✅ / `?id=BL-CATEGORY-REMAP` 진입 → 모달 active ✅
-- admin-status: 통합 섹션 ✅ / KPI 4종 정상 로딩 (D+1, 56%, 17, 10) ✅ / 임박 카드 6장 ✅ / 카테고리 진행률 11종 ✅ / 콘솔 에러 0건 ✅
-
-### 헌법 자가 검증 PASS
-- 1조 (대표님 결정만): 시스템 자율 실행 ✅
-- 6조 (사람용+AI용 이중): 3-Layer summary/display/full 분리 유지 ✅
-- 부칙 5 (D-010 단일 진실 매핑): admin-tasks = Category 2 단일 진실 위치 유지, admin-status는 흡수 시각화 ✅
-- D-011 (3-State 권한 🤖/👥/👤): 그대로 유지 ✅
+> 마지막 갱신: 2026-05-07
 
 ---
 
@@ -493,6 +260,39 @@ BL-REAL-SYSTEM Phase α 시작 — 시스템 거짓말 4건 통합 해결
 **Commit**: `d9faa7e+60908ae`
 
 **요약**: 1단계: 골격(이번 채팅). 2단계: 자동 동기화 강화. 3단계: Aurora 디자인 통일. [2026-05-03 09:30 보강] D-010 결정에 따라 BL-CATEGORY-REMAP이 본 작업의 후속 정리를 담당.
+
+---
+
+## 2026-05-06 (Charter-v2) — [헌법부칙6-UX우선] [Aurora 통일 캠페인] 디자인 시스템 미적용 페이지 일괄 마이그레이션
+
+### 변경 파일
+- `sales.html`
+- `marketing.html`
+- `hotel-info.html`
+- `booking-analytics.html`
+- `admin.html`
+- `shared.css`
+
+**요약**: Aurora Trendy(C3) 전면 적용. 사업 시작 전 완료 의무. 임시 디자인 금지.
+
+---
+
+## 2026-05-06 (Charter-v2) — [헌법7조-매니저적용] [매니저 대시보드 신규 제작] 한 화면 7영역 (5초 파악)
+
+### 변경 파일
+- `manager-dashboard.html`
+- `shared.css`
+
+**요약**: 7영역: 진행단계 / 호텔정보 / 콘텐츠 / 노출채널 / 예약결과 / 6개월보장+재제작 / 매출추정. 조회수는 보조.
+
+---
+
+## 2026-05-04 (Charter-v2) — [헌법부칙5-비즈니스독스] [JOURNEY.md 매니저 여정 정리] 비즈니스 독스 카테고리 강화
+
+### 변경 파일
+- `JOURNEY.md`
+
+**요약**: 8단계 매니저 여정 (A 결제전 → B 결제직후 → C 대시보드 → D 서류 → E 6개월 종료).
 
 ---
 

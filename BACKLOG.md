@@ -5,7 +5,7 @@
 > 
 > 단일 진실 소스: `tasks.json` (v2.0)
 
-**마지막 업데이트**: 2026-05-04
+**마지막 업데이트**: 2026-05-07
 
 > 💡 **새 채팅 시작 시**: 다음 5개 문서를 먼저 보면 즉시 컨텍스트 파악 가능.
 > 
@@ -16,35 +16,6 @@
 > | **BUSINESS_FLOW.md** | 사용자 여정 (가입 → 결제 → 6개월) |
 > | **tasks.json** ⭐ | 모든 작업 + 우선순위 + history (이 파일 자동 생성 소스) |
 > | **admin-tasks.html** | 작업관리 화면 (편집 UI) |
-
----
-
-## 🟢 P0 — [Aurora 통일 캠페인] 디자인 시스템 미적용 페이지 일괄 마이그레이션
-
-**요약**: Aurora Trendy(C3) 전면 적용. 사업 시작 전 완료 의무. 임시 디자인 금지.
-
-- **자율성**: 🟢 AUTO
-- **예상 시간**: 8시간
-- **카테고리**: design-system
-- **상태**: pending
-- **결정 필요**:
-  - D-005
-- **ID**: `BL-AURORA-MIGRATION` (출처: DECISIONS.md L13 (D-005))
-
----
-
-## 🟢 P0 — [매니저 대시보드 신규 제작] 한 화면 7영역 (5초 파악)
-
-**요약**: 7영역: 진행단계 / 호텔정보 / 콘텐츠 / 노출채널 / 예약결과 / 6개월보장+재제작 / 매출추정. 조회수는 보조.
-
-- **자율성**: 🟢 AUTO
-- **예상 시간**: 12시간
-- **카테고리**: feature
-- **상태**: pending
-- **결정 필요**:
-  - D-007
-  - D-008
-- **ID**: `BL-MANAGER-DASH-001` (출처: BUSINESS.md 15-A 통찰 4 + JOURNEY.md C단계)
 
 ---
 
@@ -73,15 +44,37 @@
 
 ---
 
-## ⚡ P0 — TW B2B 중앙 작업 관리 시스템 구축 (1단계: 데이터 통합 + 백업)
+## 🟡 P0 — [admin Supabase Auth] 정식 오픈 전 의무 — admin-* 전체 인증 + 권한 등급 (CEO/Staff)
 
-**요약**: 1단계 완료 후 다음 채팅에서 화면 통합 + 자율 큐 + 진행률 + 롤백 UI 작업
+**요약**: 헌법 11조 운영 진입 의무. 단순 토큰 + Referer는 임시 수단.
+
+- **자율성**: 🟡 SEMI
+- **예상 시간**: 8시간
+- **카테고리**: infrastructure
+- **상태**: pending
+- **결정 필요**:
+  - 권한 등급 정책 결정 필요
+- **ID**: `BL-ADMIN-AUTH` (출처: 운영 중 발견 — admin 인증 시스템 초기 구축)
+
+---
+
+## ⚡ P0 — OS 모듈화 Phase 1A — 백엔드 결함 수리 (auto-detect 다중 브랜치 + sync-bot 부활 + scan/activity 검증)
+
+- **자율성**: 🟡 SEMI
+- **예상 시간**: 미정시간
+- **카테고리**: OS
+- **상태**: in_progress
+- **ID**: `BL-OS-PHASE-1A` (출처: HANDOVER_OS_PHASE0.md Phase 1 결함 #1·#2·#8)
+
+---
+
+## 🟢 P1 — [admin-* 페이지 인증 속도 최적화] Supabase getSession + checkAdmin 병렬 처리 + SSR 게이트
 
 - **자율성**: 🟢 AUTO
-- **예상 시간**: 2시간
-- **카테고리**: dev
-- **상태**: in_progress
-- **ID**: `IP-CTRL-001` (출처: manual)
+- **예상 시간**: 3시간
+- **카테고리**: infrastructure
+- **상태**: pending
+- **ID**: `BL-ADMIN-AUTH-PERF` (출처: 운영 중 발견 — admin 인증 성능 이슈)
 
 ---
 
@@ -110,20 +103,6 @@
 - **결정 필요**:
   - D-009
 - **ID**: `BL-INVOICE-001` (출처: BUSINESS.md 15-A 통찰 7 + JOURNEY.md D단계)
-
----
-
-## ⚡ P1 — [JOURNEY.md 매니저 여정 정리] 비즈니스 독스 카테고리 강화
-
-**요약**: 8단계 매니저 여정 (A 결제전 → B 결제직후 → C 대시보드 → D 서류 → E 6개월 종료).
-
-- **자율성**: 🟢 AUTO
-- **예상 시간**: 1시간
-- **카테고리**: documentation
-- **상태**: in_progress
-- **결정 필요**:
-  - D-004
-- **ID**: `BL-JOURNEY-DOC` (출처: 헌법 부칙 5)
 
 ---
 
@@ -223,7 +202,7 @@
 
 - **자율성**: 🟢 AUTO
 - **예상 시간**: 미정시간
-- **카테고리**: infra
+- **카테고리**: infrastructure
 - **상태**: pending
 - **ID**: `SQ-H` (출처: SOLO_WORK_QUEUE.md)
 
@@ -321,7 +300,7 @@
 
 - **자율성**: 🔴 BLOCKED
 - **예상 시간**: 미정시간
-- **카테고리**: infra
+- **카테고리**: infrastructure
 - **상태**: blocked
 - **막힘 사유**: 대표님 결정 대기
 - **ID**: `BL-014` (출처: BACKLOG.md)
@@ -352,6 +331,18 @@
 
 ---
 
+## 🟢 P2 — [그림 일치 OS] In-Progress 박스 commit 자동 갱신 누락 fix
+
+- **자율성**: 🟢 AUTO
+- **예상 시간**: 0.25시간
+- **카테고리**: fix
+- **상태**: pending
+- **결정 필요**:
+  - BL-OS-AUTO-SYNC-CHARTER
+- **ID**: `BL-SYNC-INPROGRESS-COMMITS` (출처: BL-OS-AUTO-SYNC-CHARTER 전수 점검 중 발견)
+
+---
+
 ## 🟢 P3 — Chrome 확장 프로그램 간섭 (사용자 환경)
 
 **요약**: ## 🟢 P3 — Chrome 확장 프로그램 간섭 (사용자 환경)  **현상**: `subtitle.js` 확장 프로그램(자막/번역)이 페이지 JS에 간섭. 콘솔 에러 `Extension context invalidated`.  **영향**: 사이트 동작에는 영향 없음. 디버깅 시 노이즈만 증가.  **해결**: 대표님 환경에서 확장 프로그램 비활성화. 코
@@ -361,6 +352,18 @@
 - **카테고리**: dev
 - **상태**: pending
 - **ID**: `BL-011` (출처: BACKLOG.md)
+
+---
+
+## 🟢 P3 — [그림 일치 OS] 챗 로그 / AI 탭 자동 갱신 누락 fix — 탭 활성 시 폴링
+
+- **자율성**: 🟢 AUTO
+- **예상 시간**: 0.5시간
+- **카테고리**: fix
+- **상태**: pending
+- **결정 필요**:
+  - BL-OS-AUTO-SYNC-CHARTER
+- **ID**: `BL-SYNC-CHAT-LOGS-TAB` (출처: BL-OS-AUTO-SYNC-CHARTER 전수 점검 중 발견)
 
 ---
 

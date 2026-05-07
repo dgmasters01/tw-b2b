@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>비즈니스 헌장 — TW B2B Admin</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/shared.css">
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<style>
+  :root {
+    --bg: #0f172a;
+    --panel: #1e293b;
+    --border: #334155;
+    --text: #f1f5f9;
+    --text-muted: #94a3b8;
+    --aurora-1: #8b5cf6;
+    --aurora-2: #ec4899;
+    --aurora-3: #06b6d4;
+  }
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+    margin: 0; padding: 0; min-height: 100vh;
+    background-image:
+      radial-gradient(at 20% 10%, rgba(6, 182, 212, 0.10) 0, transparent 40%),
+      radial-gradient(at 80% 80%, rgba(139, 92, 246, 0.08) 0, transparent 40%);
+  }
+  .doc-shell { max-width: 980px; margin: 0 auto; padding: 24px; }
+
+  .doc-header { margin-bottom: 24px; }
+  .doc-back { display:inline-flex; align-items:center; gap:8px; color:#94a3b8; text-decoration:none; font-size:13px; margin-bottom:16px; padding:6px 12px; border-radius:6px; background:rgba(255,255,255,0.04); transition: all 0.15s; }
+  .doc-back:hover { background:rgba(255,255,255,0.08); color:#fff; }
+  .doc-area-badge { display:inline-block; font-size:11px; font-weight:700; letter-spacing:0.06em; padding:4px 10px; border-radius:999px; background:rgba(139,92,246,0.15); color:#c4b5fd; border:1px solid rgba(139,92,246,0.35); margin-bottom:12px; }
+  .doc-h1 { font-size:30px; font-weight:800; margin:0 0 8px; background: linear-gradient(135deg, var(--aurora-3), var(--aurora-1)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; display:flex; align-items:center; gap:12px; }
+  .doc-h1 .doc-icon { -webkit-text-fill-color: initial; background: none; }
+  .doc-sub { color: var(--text-muted); font-size:14px; margin:0; }
+
+  .doc-meta-bar {
+    display:flex; flex-wrap:wrap; gap:12px; align-items:center;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin: 20px 0;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+  .doc-meta-bar .meta-item { display:inline-flex; align-items:center; gap:6px; }
+  .doc-meta-bar .meta-item strong { color: #c4b5fd; font-weight:600; }
+  .doc-meta-bar a { color: var(--aurora-3); text-decoration: none; }
+  .doc-meta-bar a:hover { text-decoration: underline; }
+  .doc-status-dot { display:inline-block; width:8px; height:8px; border-radius:50%; }
+  .doc-status-dot.green { background:#22c55e; box-shadow:0 0 8px rgba(34,197,94,0.5); }
+  .doc-status-dot.red { background:#ef4444; box-shadow:0 0 8px rgba(239,68,68,0.5); }
+  .doc-status-dot.yellow { background:#eab308; box-shadow:0 0 8px rgba(234,179,8,0.5); }
+
+  .doc-body {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 32px;
+    line-height: 1.7;
+  }
+  .doc-body.loading { opacity:0.6; text-align:center; padding: 80px 20px; color: var(--text-muted); }
+  .doc-body.error { border-color: rgba(239,68,68,0.4); background: rgba(239,68,68,0.05); }
+
+  /* Markdown rendered styles */
+  .doc-body h1, .doc-body h2, .doc-body h3, .doc-body h4 { color:#f1f5f9; font-weight:700; margin: 28px 0 12px; line-height:1.3; }
+  .doc-body h1 { font-size:26px; border-bottom:1px solid var(--border); padding-bottom:10px; }
+  .doc-body h2 { font-size:22px; color: #c4b5fd; }
+  .doc-body h3 { font-size:18px; color: #a5f3fc; }
+  .doc-body h4 { font-size:15px; color: #fde68a; }
+  .doc-body p { margin: 12px 0; color: #e2e8f0; }
+  .doc-body ul, .doc-body ol { padding-left: 22px; margin: 12px 0; }
+  .doc-body li { margin: 6px 0; color: #e2e8f0; }
+  .doc-body a { color: var(--aurora-3); }
+  .doc-body strong { color:#fff; }
+  .doc-body code { background: rgba(0,0,0,0.35); padding: 2px 6px; border-radius:4px; font-size:0.9em; color:#fbcfe8; font-family: 'SF Mono', Menlo, Consolas, monospace; }
+  .doc-body pre { background:#0b1220; border:1px solid var(--border); border-radius:8px; padding:14px; overflow:auto; margin: 14px 0; }
+  .doc-body pre code { background: transparent; padding: 0; color:#e2e8f0; }
+  .doc-body blockquote { border-left:4px solid var(--aurora-1); padding: 4px 16px; margin: 14px 0; color:#cbd5e1; background: rgba(139,92,246,0.05); border-radius:0 6px 6px 0; }
+  .doc-body table { width:100%; border-collapse:collapse; margin: 14px 0; font-size:14px; }
+  .doc-body th, .doc-body td { padding: 8px 12px; border: 1px solid var(--border); text-align:left; }
+  .doc-body th { background: rgba(139,92,246,0.1); color:#c4b5fd; font-weight:700; }
+  .doc-body hr { border:0; border-top:1px solid var(--border); margin: 24px 0; }
+
+  .doc-footer { margin-top:20px; text-align:center; color: var(--text-muted); font-size:12px; }
+  .doc-footer button { background: rgba(139,92,246,0.15); color:#c4b5fd; border:1px solid rgba(139,92,246,0.3); padding:8px 16px; border-radius:8px; cursor:pointer; font-size:12px; transition: all 0.15s; }
+  .doc-footer button:hover { background: rgba(139,92,246,0.25); }
+</style>
+</head>
+<body>
+<div class="doc-shell">
+
+  <div class="doc-header">
+    <a href="/admin-status.html" class="doc-back">← 관리자 콘솔</a>
+    <div class="doc-area-badge">📁 DOCS · 사업 문서</div>
+    <h1 class="doc-h1"><span class="doc-icon">📜</span>비즈니스 헌장</h1>
+    <p class="doc-sub">사업 정체성과 운영 원칙 — BUSINESS.md 단일 진실원</p>
+  </div>
+
+  <div class="doc-meta-bar">
+    <span class="meta-item">
+      <span class="doc-status-dot green" id="meta-status-dot"></span>
+      <strong id="meta-status">로딩 중…</strong>
+    </span>
+    <span class="meta-item">소스: <a href="https://github.com/dgmasters01/tw-b2b/blob/main/BUSINESS.md" target="_blank">BUSINESS.md</a></span>
+    <span class="meta-item">마지막 갱신: <strong id="meta-updated">—</strong></span>
+    <span class="meta-item">크기: <strong id="meta-size">—</strong></span>
+    <span class="meta-item" style="margin-left:auto;">메뉴 ID: <code style="font-size:11px;">business-charter</code></span>
+  </div>
+
+  <div id="doc-body" class="doc-body loading">
+    📥 BUSINESS.md 불러오는 중…
+  </div>
+
+  <div class="doc-footer" style="margin-top:24px;">
+    <button onclick="loadMarkdown(true)">↻ 새로고침</button>
+    <span style="margin-left:12px;">자동 동기화: 5분 간격</span>
+  </div>
+
+</div>
+
+<script>
+const SOURCE_MD = "BUSINESS.md";
+const REPO = "dgmasters01/tw-b2b";
+const RAW_URL = `https://raw.githubusercontent.com/${REPO}/main/${SOURCE_MD}`;
+const API_URL = `https://api.github.com/repos/${REPO}/contents/${SOURCE_MD}?ref=main`;
+
+async function loadMarkdown(force) {
+  const body = document.getElementById('doc-body');
+  const statusEl = document.getElementById('meta-status');
+  const dotEl = document.getElementById('meta-status-dot');
+  const updatedEl = document.getElementById('meta-updated');
+  const sizeEl = document.getElementById('meta-size');
+
+  body.className = 'doc-body loading';
+  body.textContent = `📥 ${SOURCE_MD} 불러오는 중…`;
+  statusEl.textContent = '로딩 중…';
+  dotEl.className = 'doc-status-dot yellow';
+
+  try {
+    // 1) 메타 가져오기 (크기, 마지막 commit 시각)
+    const metaRes = await fetch(API_URL + (force ? '&_=' + Date.now() : ''));
+    if (!metaRes.ok) throw new Error(`API ${metaRes.status}`);
+    const meta = await metaRes.json();
+    sizeEl.textContent = (meta.size / 1024).toFixed(1) + ' KB';
+
+    // 2) 본문 가져오기
+    const rawRes = await fetch(RAW_URL + (force ? '?_=' + Date.now() : ''));
+    if (!rawRes.ok) throw new Error(`Raw ${rawRes.status}`);
+    const md = await rawRes.text();
+
+    // 3) marked 렌더
+    if (typeof marked !== 'undefined') {
+      marked.setOptions({ breaks: true, gfm: true });
+      body.innerHTML = marked.parse(md);
+    } else {
+      body.innerHTML = '<pre>' + md.replace(/[<>&]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[c])) + '</pre>';
+    }
+    body.className = 'doc-body';
+
+    // 4) commit 시각 가져오기 (별도 API)
+    try {
+      const commitsRes = await fetch(`https://api.github.com/repos/${REPO}/commits?path=${SOURCE_MD}&per_page=1`);
+      if (commitsRes.ok) {
+        const commits = await commitsRes.json();
+        if (commits[0]) {
+          const d = new Date(commits[0].commit.author.date);
+          updatedEl.textContent = d.toLocaleString('ko-KR', { year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit' });
+        }
+      }
+    } catch (e) { /* commit 시각 가져오기 실패 무시 */ }
+
+    statusEl.textContent = '동기화 완료';
+    dotEl.className = 'doc-status-dot green';
+  } catch (err) {
+    body.className = 'doc-body error';
+    body.innerHTML = `
+      <h2 style="color:#fca5a5;">⚠️ 소스 파일을 불러올 수 없습니다</h2>
+      <p>${SOURCE_MD} 가져오기 실패: ${err.message}</p>
+      <p>다음을 확인해 주세요:</p>
+      <ul>
+        <li>${SOURCE_MD} 파일이 main 브랜치에 존재하는가</li>
+        <li>네트워크 연결</li>
+        <li><a href="https://github.com/${REPO}/blob/main/${SOURCE_MD}" target="_blank">GitHub에서 직접 확인</a></li>
+      </ul>
+    `;
+    statusEl.textContent = '동기화 실패';
+    dotEl.className = 'doc-status-dot red';
+  }
+}
+
+// 최초 로드
+loadMarkdown(false);
+
+// 5분마다 자동 갱신 (부칙 8 — 자동 동기화)
+setInterval(() => loadMarkdown(true), 5 * 60 * 1000);
+</script>
+
+</body>
+</html>

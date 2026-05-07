@@ -82,14 +82,6 @@
 
 ---
 
-### F. 🟡 SEMI — OS 모듈화 Phase 4 — 헌법 부칙 9·10·11 박기 + restructure → main 통합
-
-**ID**: `BL-OS-PHASE-4`  
-**카테고리**: infra  
-**예상 시간**: 1시간  
-
----
-
 ## 🟢 P2 — 자투리 시간에
 
 ### A. 🟢 AUTO — [DECISIONS_INDEX.md 자동 동기화] sync_engine 보강

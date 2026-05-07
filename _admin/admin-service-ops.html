@@ -74,15 +74,48 @@
 
   .charter-ref { font-size: 12px; color: #94a3b8; margin-top: 24px; padding: 14px 18px; background: rgba(139,92,246,0.05); border-left: 3px solid #8b5cf6; border-radius: 4px; }
   .charter-ref strong { color: #c4b5fd; }
+
+  /* 봇 상태 pill (BL-OS-PHASE-5 단계 3) */
+  .bot-pill { display:inline-flex; align-items:center; gap:5px; color: #cbd5e1; }
+  .bot-pill .dot { font-size: 11px; }
+  .bot-pill.green .dot { filter: drop-shadow(0 0 4px rgba(34,197,94,0.8)); }
+  .bot-pill.red .dot { filter: drop-shadow(0 0 4px rgba(239,68,68,0.8)); }
+
+  /* 부칙 12 박힘 알림 (BL-OS-PHASE-5 단계 3) */
+  .new-rule-banner {
+    background: linear-gradient(135deg, rgba(34,197,94,0.1), rgba(6,182,212,0.05));
+    border: 1px solid rgba(34,197,94,0.3);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+  .new-rule-banner .icon { font-size: 24px; }
+  .new-rule-banner h3 { margin: 0 0 4px; font-size: 14px; color: #86efac; }
+  .new-rule-banner p { margin: 0; font-size: 12.5px; color: #d1fae5; line-height:1.6; }
+  .new-rule-banner code { background: rgba(0,0,0,0.3); padding: 1px 6px; border-radius: 3px; font-size: 11px; color: #fbcfe8; }
 </style>
 </head>
 <body>
 <div class="so-shell">
 
   <header class="so-header">
-    <a class="so-back" href="/admin.html">← Back to Admin</a>
-    <h1 class="so-h1">🛠️ Service Operations</h1>
-    <p class="so-sub">운영 매뉴얼 — 4번째 시스템 카테고리 (헌법 부칙 5)</p>
+    <a class="so-back" href="/admin-status.html">← 관리자 콘솔</a>
+    <div style="display:inline-block; font-size:11px; font-weight:700; letter-spacing:0.06em; padding:4px 10px; border-radius:999px; background:rgba(99,102,241,0.15); color:#a5b4fc; border:1px solid rgba(99,102,241,0.35); margin-bottom:12px;">⚙️ SYSTEM · 운영자 도구</div>
+    <h1 class="so-h1">📝 운영 매뉴얼</h1>
+    <p class="so-sub">Service Operations — OS 4영역 중 SYSTEM 영역, 헌법 부칙 5</p>
+
+    <!-- 라이브 봇 상태 (헌법 7조 — 5초 가시성) -->
+    <div id="bot-status-bar" style="margin-top:14px; padding:10px 14px; background:var(--panel); border:1px solid var(--border); border-radius:10px; display:flex; flex-wrap:wrap; gap:14px; align-items:center; font-size:12px;">
+      <strong style="color:#c4b5fd;">🤖 봇 상태:</strong>
+      <span class="bot-pill" data-bot="sync-bot">sync-bot: <span class="dot">⚪</span></span>
+      <span class="bot-pill" data-bot="auto-detect-bot">auto-detect: <span class="dot">⚪</span></span>
+      <span class="bot-pill" data-bot="scan-bot">scan-bot: <span class="dot">⚪</span></span>
+      <span class="bot-pill" data-bot="chat-log-bot">chat-log-bot: <span class="dot">⚪</span></span>
+      <span style="margin-left:auto; color:#94a3b8;">갱신: <strong id="health-updated">—</strong></span>
+    </div>
   </header>
 
   <!-- 단계 안내 -->
@@ -91,6 +124,15 @@
     <div class="stage-banner-content">
       <h3>현재 단계: 개발 (gohotelwinners.com 정식 오픈 전)</h3>
       <p>운영 매뉴얼은 정식 서비스 오픈과 함께 활성화됩니다. 헌법 11조 메모리 사이클에 따라 토큰도 이 시점에 운영 모드로 전환됩니다.</p>
+    </div>
+  </div>
+
+  <!-- 부칙 12 박힘 알림 (BL-OS-PHASE-5 단계 3) -->
+  <div class="new-rule-banner">
+    <div class="icon">🆕</div>
+    <div>
+      <h3>부칙 12 박힘 — 작업 소요 선보고 의무 (2026-05-07)</h3>
+      <p>모든 작업 진행 시 첫 줄에 <code>[작업 소요: 약 X분 / N단계 / 변경 파일: A, B, C]</code> 명시 의무. 대표님이 작업 시작 전 규모를 5초 안에 파악, 채팅 라우팅 판단도 한 박자 빨라짐.</p>
     </div>
   </div>
 
@@ -171,6 +213,70 @@
       </ul>
     </div>
 
+    <!-- BL-OS-PHASE-5 단계 3 — 추가 운영 항목 5개 -->
+
+    <div class="so-card pre-active">
+      <span class="so-card-status pre-active">개발 단계 활성</span>
+      <h3 class="so-card-h">🤖 봇 5종 자동 작동 점검</h3>
+      <p class="so-card-sub">매 commit마다 봇 success 보장</p>
+      <ul class="so-card-list">
+        <li>sync-bot — tasks.json → MD 동기화</li>
+        <li>auto-detect-bot — commit msg → status</li>
+        <li>scan-bot — 페이지 완성도 자동 산정</li>
+        <li>activity-feed-bot — 활동 이력 빌더</li>
+        <li>health-check-bot — _health.json 갱신</li>
+      </ul>
+    </div>
+
+    <div class="so-card pre-active">
+      <span class="so-card-status pre-active">개발 단계 활성</span>
+      <h3 class="so-card-h">💾 백업 자동화 점검</h3>
+      <p class="so-card-sub">CLAUDE.md ② NEVER 룰 — 모든 수정 전 백업</p>
+      <ul class="so-card-list">
+        <li>_backup_YYYYMMDD 자동 생성</li>
+        <li>.gitignore에 _backup_*/ 등록 (커밋 차단)</li>
+        <li>이중 백업 (GitHub + Vercel snapshot)</li>
+        <li>결정 단위 복원 (시점 단위 가역성)</li>
+      </ul>
+    </div>
+
+    <div class="so-card pre-active">
+      <span class="so-card-status pre-active">개발 단계 활성</span>
+      <h3 class="so-card-h">🔑 토큰 갱신 운영 (개발 모드)</h3>
+      <p class="so-card-sub">헌법 11조 — 현재는 메모리 충전 단계</p>
+      <ul class="so-card-list">
+        <li>GitHub PAT — 만료 모니터링</li>
+        <li>Supabase service-role — 환경변수만</li>
+        <li>PayPal Sandbox→Live 전환 D-Day</li>
+        <li>Resend API 키 헬스체크</li>
+      </ul>
+    </div>
+
+    <div class="so-card pre-active">
+      <span class="so-card-status pre-active">개발 단계 활성</span>
+      <h3 class="so-card-h">📧 알림 메일 운영</h3>
+      <p class="so-card-sub">noreply@gohotelwinners.com / Resend</p>
+      <ul class="so-card-list">
+        <li>매니저 가입/결제 알림</li>
+        <li>예약 발생 알림 (호텔 매니저 + 대표님)</li>
+        <li>봇 실패 즉시 알림 (대표님)</li>
+        <li>주간 요약 리포트 (월요일 09:00 KST)</li>
+      </ul>
+    </div>
+
+    <div class="so-card pre-active">
+      <span class="so-card-status pre-active">개발 단계 활성</span>
+      <h3 class="so-card-h">🔄 자동 동기화 5초 점검</h3>
+      <p class="so-card-sub">부칙 8 — 그림 일치 OS 핵심</p>
+      <ul class="so-card-list">
+        <li>tasks.json → admin-status (5초)</li>
+        <li>activity-feed.display.json (5초)</li>
+        <li>pages-status.display.json (5초)</li>
+        <li>_health.json (5초)</li>
+        <li>menu-manifest.json (사이드바 갱신)</li>
+      </ul>
+    </div>
+
   </div>
 
   <!-- 헌법 참조 -->
@@ -179,9 +285,48 @@
     각자 책임 분리, 자동 동기화, 서로 참조. 한 파일에 통합하는 게 아니라, 4개가 동기화되는 것이 진짜 통합.
     <br><br>
     <strong>헌법 11조</strong>: 운영 모드 진입 = gohotelwinners.com 정식 서비스 오픈 시점. 이때 처음 토큰을 메모리에서 비운다.
+    <br><br>
+    <strong>부칙 12 (2026-05-07 신설)</strong>: 모든 작업 진행 시 첫 줄에 <code style="background:rgba(0,0,0,0.3); padding:1px 6px; border-radius:3px;">[작업 소요: 약 X분 / N단계 / 변경 파일: A, B, C]</code> 명시 의무. BL-OS-PHASE-5에서 박힘.
   </div>
 
 </div>
+
+<script>
+// 봇 상태 라이브 polling (헌법 7조 — 5초 가시성)
+async function loadBotStatus() {
+  try {
+    const r = await fetch('/_admin/_health.json?_=' + Date.now());
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const data = await r.json();
+    const botsCheck = (data.checks || []).find(c => c.name === 'bots');
+    const botStatus = botsCheck?.bot_status || {};
+    document.querySelectorAll('.bot-pill').forEach(pill => {
+      const bot = pill.dataset.bot;
+      const status = botStatus[bot];
+      const dot = pill.querySelector('.dot');
+      if (status === 'success') {
+        dot.textContent = '🟢';
+        pill.classList.add('green'); pill.classList.remove('red');
+      } else if (status === 'failure' || status === 'cancelled') {
+        dot.textContent = '🔴';
+        pill.classList.add('red'); pill.classList.remove('green');
+      } else {
+        dot.textContent = '⚪';
+        pill.classList.remove('green', 'red');
+      }
+    });
+    if (data.checked_at) {
+      const d = new Date(data.checked_at);
+      document.getElementById('health-updated').textContent = d.toLocaleTimeString('ko-KR');
+    }
+  } catch (e) {
+    console.warn('[service-ops] health fetch fail:', e.message);
+    document.getElementById('health-updated').textContent = '오류';
+  }
+}
+loadBotStatus();
+setInterval(loadBotStatus, 5000); // 5초 자동 갱신 (부칙 8)
+</script>
 
 <!-- ★ BL-AUTH-COOKIE-SYNC — Supabase + shared.js로 토큰 갱신 시 sb-access-token 쿠키 자동 동기화 -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>

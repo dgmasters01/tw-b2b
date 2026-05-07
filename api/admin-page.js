@@ -21,25 +21,37 @@ const SUPABASE_ANON = process.env.SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_S
 
 // page slug → 정적 파일명 매핑 (_admin/ 폴더 안)
 const PAGE_FILE_MAP = {
-  'status':       '_admin/admin-status.html',
-  'tasks':        '_admin/admin-tasks.html',
-  'business':     '_admin/admin-business.html',
-  'service-ops':  '_admin/admin-service-ops.html',
-  'gallery':      '_admin/admin-gallery.html',
-  'admin':        '_admin/admin.html',
-  'hub':          '_admin/admin-hub.html',
-  'permissions':  '_admin/admin-permissions.html',
+  'status':            '_admin/admin-status.html',
+  'tasks':             '_admin/admin-tasks.html',
+  'business':          '_admin/admin-business.html',
+  'service-ops':       '_admin/admin-service-ops.html',
+  'gallery':           '_admin/admin-gallery.html',
+  'admin':             '_admin/admin.html',
+  'hub':               '_admin/admin-hub.html',
+  'permissions':       '_admin/admin-permissions.html',
+  // BL-OS-PHASE-5 단계 2 — DOCS 5개
+  'business-charter':  '_admin/admin-business-charter.html',
+  'decisions':         '_admin/admin-decisions.html',
+  'decisions-index':   '_admin/admin-decisions-index.html',
+  'manager-journey':   '_admin/admin-manager-journey.html',
+  'user-journey':      '_admin/admin-user-journey.html',
 };
 
 const PAGE_MIN_ROLE = {
-  'status':       'readonly',
-  'tasks':        'readonly',
-  'business':     'readonly',
-  'service-ops':  'readonly',
-  'gallery':      'readonly',
-  'admin':        'staff',
-  'hub':          'readonly',
-  'permissions':  'admin',
+  'status':            'readonly',
+  'tasks':             'readonly',
+  'business':          'readonly',
+  'service-ops':       'readonly',
+  'gallery':           'readonly',
+  'admin':             'staff',
+  'hub':               'readonly',
+  'permissions':       'admin',
+  // BL-OS-PHASE-5 단계 2 — DOCS 5개 (readonly로 통일)
+  'business-charter':  'readonly',
+  'decisions':         'readonly',
+  'decisions-index':   'readonly',
+  'manager-journey':   'readonly',
+  'user-journey':      'readonly',
 };
 
 function roleHasAccess(callerRole, requiredRole) {

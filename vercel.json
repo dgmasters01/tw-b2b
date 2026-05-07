@@ -73,6 +73,31 @@
             "source": "/admin-permissions",
             "destination": "/admin-permissions.html",
             "permanent": false
+        },
+        {
+            "source": "/admin-business-charter",
+            "destination": "/admin-business-charter.html",
+            "permanent": false
+        },
+        {
+            "source": "/admin-decisions",
+            "destination": "/admin-decisions.html",
+            "permanent": false
+        },
+        {
+            "source": "/admin-decisions-index",
+            "destination": "/admin-decisions-index.html",
+            "permanent": false
+        },
+        {
+            "source": "/admin-manager-journey",
+            "destination": "/admin-manager-journey.html",
+            "permanent": false
+        },
+        {
+            "source": "/admin-user-journey",
+            "destination": "/admin-user-journey.html",
+            "permanent": false
         }
     ],
     "rewrites": [
@@ -135,6 +160,26 @@
         {
             "source": "/admin-permissions.html",
             "destination": "/api/admin-page?page=permissions"
+        },
+        {
+            "source": "/admin-business-charter.html",
+            "destination": "/api/admin-page?page=business-charter"
+        },
+        {
+            "source": "/admin-decisions.html",
+            "destination": "/api/admin-page?page=decisions"
+        },
+        {
+            "source": "/admin-decisions-index.html",
+            "destination": "/api/admin-page?page=decisions-index"
+        },
+        {
+            "source": "/admin-manager-journey.html",
+            "destination": "/api/admin-page?page=manager-journey"
+        },
+        {
+            "source": "/admin-user-journey.html",
+            "destination": "/api/admin-page?page=user-journey"
         }
     ],
     "headers": [
@@ -202,6 +247,51 @@
         },
         {
             "source": "/admin.html",
+            "headers": [
+                {
+                    "key": "Cache-Control",
+                    "value": "no-store, no-cache, must-revalidate, max-age=0"
+                }
+            ]
+        },
+        {
+            "source": "/admin-business-charter.html",
+            "headers": [
+                {
+                    "key": "Cache-Control",
+                    "value": "no-store, no-cache, must-revalidate, max-age=0"
+                }
+            ]
+        },
+        {
+            "source": "/admin-decisions.html",
+            "headers": [
+                {
+                    "key": "Cache-Control",
+                    "value": "no-store, no-cache, must-revalidate, max-age=0"
+                }
+            ]
+        },
+        {
+            "source": "/admin-decisions-index.html",
+            "headers": [
+                {
+                    "key": "Cache-Control",
+                    "value": "no-store, no-cache, must-revalidate, max-age=0"
+                }
+            ]
+        },
+        {
+            "source": "/admin-manager-journey.html",
+            "headers": [
+                {
+                    "key": "Cache-Control",
+                    "value": "no-store, no-cache, must-revalidate, max-age=0"
+                }
+            ]
+        },
+        {
+            "source": "/admin-user-journey.html",
             "headers": [
                 {
                     "key": "Cache-Control",

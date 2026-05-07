@@ -736,6 +736,84 @@
 </style>
 </head>
 <body>
+
+<!-- ═══ Phase 0 — Health Check Bar (BL-OS-PHASE-0) ═══
+     인계서 HANDOVER_OS_PHASE0.md Phase 0 안전망 — 빨간/초록 한 줄.
+     데이터 소스: /_admin/_health.json (health-check-admin.yml 워크플로 산출)
+     클릭 시 펼침 — 어디가 왜 깨졌는지 표시
+     ※ 헌법 부칙 8: 5초 폴링으로 자동 동기화 -->
+<div id="phase0-health-bar"
+     style="position:sticky;top:0;z-index:9999;width:100%;cursor:pointer;
+            font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;
+            padding:6px 16px;border-bottom:1px solid rgba(255,255,255,0.1);
+            background:#222;color:#888;transition:background 0.2s;"
+     onclick="(function(){var d=document.getElementById('phase0-health-detail');d.style.display=d.style.display==='none'?'block':'none';})()"
+     title="클릭하여 상세 보기 (5초 폴링)">
+  <span id="phase0-health-icon">⏳</span>
+  <span id="phase0-health-text">건강 검진 로딩 중...</span>
+  <span style="float:right;color:#666;font-size:11px;">▼ 클릭</span>
+</div>
+<div id="phase0-health-detail"
+     style="display:none;padding:12px 16px;background:#1a1a1a;color:#ccc;
+            font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;
+            border-bottom:1px solid rgba(255,255,255,0.1);white-space:pre-wrap;
+            max-height:300px;overflow-y:auto;">
+  상세 로딩 중...
+</div>
+<script>
+(function(){
+  var POLL_MS = 5000;
+  function colorMap(s){return s==='green'?{bg:'#0a3d12',fg:'#7be58a',ic:'✅'}:s==='yellow'?{bg:'#3d2f0a',fg:'#f5d97b',ic:'⚠️'}:s==='red'?{bg:'#3d0a0a',fg:'#f57b7b',ic:'🔴'}:{bg:'#222',fg:'#888',ic:'⏳'};}
+  function render(d){
+    var c = colorMap(d ? d.overall : null);
+    var bar = document.getElementById('phase0-health-bar');
+    var icon = document.getElementById('phase0-health-icon');
+    var text = document.getElementById('phase0-health-text');
+    var detail = document.getElementById('phase0-health-detail');
+    if(!bar) return;
+    bar.style.background = c.bg;
+    bar.style.color = c.fg;
+    icon.textContent = c.ic;
+    if(!d){ text.textContent = '건강 검진 데이터 없음 (워크플로 미실행 가능성)'; return; }
+    var checked = d.checked_at ? new Date(d.checked_at).toLocaleString('ko-KR',{hour12:false}) : '?';
+    text.textContent = '[Phase 0 안전망] ' + d.summary + '  ·  ' + checked;
+    var lines = [];
+    lines.push('전체 상태: ' + d.overall.toUpperCase());
+    lines.push('점검 시각: ' + checked);
+    lines.push('');
+    (d.checks || []).forEach(function(ch){
+      var ci = colorMap(ch.status).ic;
+      lines.push(ci + ' ' + ch.name + ': ' + ch.detail);
+      if(ch.changed_files && ch.changed_files.length){
+        ch.changed_files.forEach(function(f){ lines.push('    - ' + f.file + ' (' + f.reason + ')'); });
+      }
+      if(ch.missing_source && ch.missing_source.length){
+        var preview = ch.missing_source.slice(0, 5).join(', ');
+        lines.push('    누락 ID 예시(5건): ' + preview + (ch.missing_source.length > 5 ? ' ...' : ''));
+      }
+      if(ch.dead_bots && ch.dead_bots.length){
+        lines.push('    죽은 봇: ' + ch.dead_bots.join(', '));
+      }
+      if(ch.bot_status){
+        Object.keys(ch.bot_status).forEach(function(k){ lines.push('    - ' + k + ': ' + ch.bot_status[k]); });
+      }
+    });
+    lines.push('');
+    lines.push('출처: /_admin/_health.json (health-check-admin.yml — 10분 cron + push 트리거)');
+    detail.textContent = lines.join('\n');
+  }
+  function pollOnce(){
+    fetch('/_admin/_health.json?t=' + Date.now(), {cache:'no-store'})
+      .then(function(r){ return r.ok ? r.json() : null; })
+      .then(render)
+      .catch(function(){ render(null); });
+  }
+  pollOnce();
+  setInterval(pollOnce, POLL_MS);
+})();
+</script>
+<!-- ═══ End Phase 0 Health Check Bar ═══ -->
+
 <div class="container">
 
   <!-- 헤더 -->

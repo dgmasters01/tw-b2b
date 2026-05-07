@@ -1,0 +1,102 @@
+# TW B2B — Phase 0 Health Check Bot
+#
+# 작업: BL-OS-PHASE-0 단계 3/3
+#
+# 목적:
+#   admin-status 맨 위 한 줄에 빨간/초록 표시할 _admin/_health.json 자동 갱신.
+#   대표님 절대 걱정 "수정하면서 기존 게 사라지면 안 됨" 안전장치 #2.
+#
+# 트리거:
+#   1. push (main + restructure-os-modularization)
+#   2. workflow_dispatch (수동)
+#   3. schedule — 10분마다 (봇 죽음 즉시 감지)
+#
+# 헌법 부칙 8 준수:
+#   admin-status 5초 폴링이 _health.json 읽음 → 자동 동기화 보장.
+
+name: Phase 0 — Admin Health Check
+
+on:
+  push:
+    branches: [main, restructure-os-modularization]
+    paths:
+      - 'tasks.json'
+      - '_admin/**'
+      - '_os_snapshots/**'
+      - 'scripts/health_check_admin.mjs'
+      - '.github/workflows/health-check-admin.yml'
+  workflow_dispatch:
+  schedule:
+    - cron: '*/10 * * * *' # 10분마다
+
+concurrency:
+  group: health-check-admin-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  health-check:
+    name: Run health check + update _admin/_health.json
+    runs-on: ubuntu-latest
+
+    # 무한 루프 방지: 본 봇 commit은 트리거 안 함
+    if: |
+      !startsWith(github.event.head_commit.message, '[health-bot]')
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Collect bot statuses via GH API
+        id: bots
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -e
+          # 핵심 봇 4종의 최근 run conclusion
+          collect() {
+            local name="$1"
+            local file="$2"
+            local conclusion=$(gh api "/repos/${{ github.repository }}/actions/workflows/${file}/runs?per_page=1" \
+              --jq '.workflow_runs[0].conclusion // "unknown"' 2>/dev/null || echo "unknown")
+            echo "${name}=${conclusion}" >> $GITHUB_OUTPUT
+            echo "  - ${name}: ${conclusion}"
+          }
+          echo "Collecting bot statuses:"
+          collect "sync_bot" "sync.yml"
+          collect "auto_detect_bot" "auto-detect-task-status.yml"
+          collect "scan_bot" "page-status-scan.yml"
+          collect "chat_log_bot" "chat-log-index.yml"
+
+      - name: Run health check script
+        env:
+          SYNC_BOT_STATUS: ${{ steps.bots.outputs.sync_bot }}
+          AUTO_DETECT_BOT_STATUS: ${{ steps.bots.outputs.auto_detect_bot }}
+          SCAN_BOT_STATUS: ${{ steps.bots.outputs.scan_bot }}
+          CHAT_LOG_BOT_STATUS: ${{ steps.bots.outputs.chat_log_bot }}
+        run: |
+          # 빨강이라도 push는 막지 않음 (화면 표시만)
+          node scripts/health_check_admin.mjs || true
+
+      - name: Commit if changed
+        run: |
+          git config user.name "health-bot"
+          git config user.email "health-bot@tw-b2b.local"
+          git add _admin/_health.json
+          if git diff --staged --quiet; then
+            echo "변경 없음 — commit skip"
+            exit 0
+          fi
+          OVERALL=$(node -e "console.log(JSON.parse(require('fs').readFileSync('_admin/_health.json','utf8')).overall)")
+          git commit -m "[health-bot] _health.json 갱신 (overall=${OVERALL})"
+          git push

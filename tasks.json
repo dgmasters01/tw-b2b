@@ -12,10 +12,10 @@
     "SOLO_WORK_QUEUE.md"
   ],
   "stats": {
-    "total": 104,
+    "total": 105,
     "done": 75,
     "in_progress": 0,
-    "pending": 18,
+    "pending": 19,
     "blocked": 10,
     "autonomous_ready": 10,
     "todo": 1
@@ -4789,6 +4789,32 @@
         {
           "at": "2026-05-07T05:53:13+00:00",
           "action": "BL-OS-PHASE-1B 작업 중 발견 — tasks.json에 작업 추가 시 stats를 자동 재계산하지 않으면 sync_engine.py --verify가 exit 1 → sync-bot 죽음. 자동화 누락 결함."
+        }
+      ]
+    },
+    {
+      "id": "BL-OS-REPO-ROOT-DYNAMIC",
+      "title": "OS 봇 스크립트 — repo root 동적 산출 (위치 의존성 제거)",
+      "category": "infra",
+      "priority": "P3",
+      "status": "pending",
+      "claude_can_auto": true,
+      "approval_required": false,
+      "owner": "Claude",
+      "size": "S",
+      "source": "BL-OS-PHASE-2 단계 2 진행 중 발견 — scripts/ → _os/scripts/ 이동 시 7개 스크립트의 parent.parent / __dirname 패턴이 위치 의존적이라 모두 수정 필요",
+      "created_at": "2026-05-07T06:14:33+00:00",
+      "deadline": "2026-05-15",
+      "order": 80,
+      "blocker": null,
+      "autonomous": {
+        "estimated_hours": 1,
+        "requires_decisions_first": []
+      },
+      "history": [
+        {
+          "at": "2026-05-07T06:14:33+00:00",
+          "action": "BL-OS-PHASE-2 단계 2 핫픽스 중 발견 — 향후 폴더 이동 시 같은 결함 반복 방지. GITHUB_WORKSPACE 또는 git rev-parse --show-toplevel 사용으로 정석 해결."
         }
       ]
     }

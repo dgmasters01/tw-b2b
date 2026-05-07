@@ -1,0 +1,67 @@
+{
+  "version": "0.1.0",
+  "description": "관리자 페이지 매니페스트 — OS 본체 vs 사업 분류. 실 파일은 _admin/ 폴더에 유지 (Vercel 배포 경로 호환성).",
+  "constraint": "Vercel은 _admin/admin-status.html 같은 경로를 그대로 서빙. 이동하면 운영 중 URL 깨짐. 따라서 실 파일은 _admin/에 유지하고 매니페스트만 분리.",
+
+  "os_pages": [
+    {
+      "name": "admin-status.html",
+      "role": "OS 시스템 완성도 단일 통합 관리 페이지 (D-010 카테고리-파일 매핑, D-011 3-State 권한, D-012 3-Layer 파일 분리)",
+      "path": "_admin/admin-status.html",
+      "polls": ["tasks.json (5초)", "activity-feed.display.json (5초)", "pages-status.display.json (5초)", "_admin/_health.json (5초)"],
+      "phase_history": ["BL-PAGE-DEDUP", "BL-LIVE-STATUS-PANEL", "BL-OS-PHASE-1B (단일 진실원 + 즉시 시작 펼침 + 빈 상태 UI)"]
+    },
+    {
+      "name": "admin-tasks.html",
+      "role": "OS 작업 관리 페이지 — 작업 상세 + 결정 입력 모달",
+      "path": "_admin/admin-tasks.html"
+    },
+    {
+      "name": "admin-hub.html",
+      "role": "OS hub (BL-HUB-RETIRE 진행 중 — admin-status.html로 통합 예정)",
+      "path": "_admin/admin-hub.html",
+      "status": "retiring"
+    },
+    {
+      "name": "admin-permissions.html",
+      "role": "OS 권한 관리 — 3-State (🤖 자동 / 👥 스태프 / 👤 CEO) + 5단계 권한",
+      "path": "_admin/admin-permissions.html"
+    },
+    {
+      "name": "admin-gallery.html",
+      "role": "OS 페이지 갤러리 — 5차원 점수 + 카테고리별 페이지 카드",
+      "path": "_admin/admin-gallery.html"
+    },
+    {
+      "name": "admin-service-ops.html",
+      "role": "OS 운영 매뉴얼 — 알림 메일 / 백업 / 토큰 갱신 등",
+      "path": "_admin/admin-service-ops.html"
+    },
+    {
+      "name": "admin-login.html",
+      "role": "OS 인증 (BL-ADMIN-AUTH-V2 — 5단계 권한 + 초대 + Owner 삼중 보호)",
+      "path": "admin-login.html"
+    },
+    {
+      "name": "admin-accept-invite.html",
+      "role": "OS 초대 수락 페이지",
+      "path": "admin-accept-invite.html"
+    }
+  ],
+
+  "business_pages": [
+    {
+      "name": "admin-business.html",
+      "role": "사업 — 호텔/예약/매출 관리 페이지",
+      "path": "_admin/admin-business.html",
+      "is_os": false
+    },
+    {
+      "name": "admin.html",
+      "role": "사업 종합 대시보드 (1.2MB) — BL-LEGACY-ADMIN으로 분리 예정",
+      "path": "_admin/admin.html",
+      "is_os": false,
+      "size_warning": "1.28MB — 분리/경량화 backlog"
+    }
+  ]
+}

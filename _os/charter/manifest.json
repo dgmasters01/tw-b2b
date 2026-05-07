@@ -1,0 +1,94 @@
+{
+  "version": "0.1.0",
+  "description": "헌법 + 운영 문서 매니페스트 — 실 파일은 루트에 유지 (sync_engine 등이 직접 참조).",
+  "constraint": "OPERATIONS_CHARTER.md, CLAUDE.md, DECISIONS.md 등은 새 채팅 시작 시 raw fetch로 즉시 읽힘. 루트에 있어야 GitHub raw URL이 깔끔하고, sync_engine.py가 REPO/'BACKLOG.md' 같은 코드를 단순하게 유지 가능.",
+
+  "os_core": [
+    {
+      "name": "OPERATIONS_CHARTER.md",
+      "role": "헌법 11대 원칙 + 부칙 (대표님 비전 + 시스템 운영 원칙)",
+      "path": "OPERATIONS_CHARTER.md",
+      "is_os_core": true,
+      "raw_url": "https://raw.githubusercontent.com/dgmasters01/tw-b2b/main/OPERATIONS_CHARTER.md"
+    },
+    {
+      "name": "CLAUDE.md",
+      "role": "Claude 자율 실행 매뉴얼 — 새 채팅 시작 시 두 번째로 읽음",
+      "path": "CLAUDE.md",
+      "is_os_core": true
+    },
+    {
+      "name": "DECISIONS.md",
+      "role": "사람용 결정 이력 (자연어 서술)",
+      "path": "DECISIONS.md",
+      "is_os_core": true,
+      "pair": "DECISIONS_INDEX.md"
+    },
+    {
+      "name": "DECISIONS_INDEX.md",
+      "role": "AI용 결정 인덱스 (구조화 + 고정 ID)",
+      "path": "DECISIONS_INDEX.md",
+      "is_os_core": true,
+      "pair": "DECISIONS.md"
+    },
+    {
+      "name": "BACKLOG.md",
+      "role": "백로그 사람용 시각화 (sync_engine이 tasks.json에서 자동 생성)",
+      "path": "BACKLOG.md",
+      "is_os_core": true,
+      "auto_generated": true
+    },
+    {
+      "name": "CHANGELOG.md",
+      "role": "변경 이력 (자동 생성)",
+      "path": "CHANGELOG.md",
+      "is_os_core": true,
+      "auto_generated": true
+    },
+    {
+      "name": "ECHO_LOG.md",
+      "role": "결정 에코 로그",
+      "path": "ECHO_LOG.md",
+      "is_os_core": true
+    },
+    {
+      "name": "STATUS.md",
+      "role": "상태 보고 문서",
+      "path": "STATUS.md",
+      "is_os_core": true
+    },
+    {
+      "name": "SOLO_WORK_QUEUE.md",
+      "role": "단독 작업 큐 (sync_engine이 자동 갱신)",
+      "path": "SOLO_WORK_QUEUE.md",
+      "is_os_core": true,
+      "auto_generated": true
+    },
+    {
+      "name": "JOURNEY.md",
+      "role": "여정 문서",
+      "path": "JOURNEY.md",
+      "is_os_core": true
+    }
+  ],
+
+  "phase_reports": [
+    { "name": "HANDOVER_OS_PHASE0.md", "path": "HANDOVER_OS_PHASE0.md", "phase": "0" },
+    { "name": "PHASE_1A_VERIFICATION_REPORT.md", "path": "PHASE_1A_VERIFICATION_REPORT.md", "phase": "1A" },
+    { "name": "PHASE_1B_VERIFICATION_REPORT.md", "path": "PHASE_1B_VERIFICATION_REPORT.md", "phase": "1B" }
+  ],
+
+  "operational_docs": [
+    { "name": "AUTO_SYNC_AUDIT_2026-05-06.md", "role": "부칙 8 자동 동기화 점검 보고서", "path": "AUTO_SYNC_AUDIT_2026-05-06.md" },
+    { "name": "PHASE2.md", "role": "Phase 2 (구) 작업 문서", "path": "PHASE2.md" },
+    { "name": "PHASE3.md", "role": "Phase 3 (구) 작업 문서", "path": "PHASE3.md" },
+    { "name": "PHASE4_PROGRESS.md", "role": "Phase 4 (구) 진행 문서", "path": "PHASE4_PROGRESS.md" },
+    { "name": "HANDOFF_TASK_MGMT.md", "role": "작업 관리 인계서", "path": "HANDOFF_TASK_MGMT.md" },
+    { "name": "HANDOFF_PHASE2B1_DONE.md", "role": "(구) Phase 2-B1 완료 인계서", "path": "HANDOFF_PHASE2B1_DONE.md" }
+  ],
+
+  "business_docs": [
+    { "name": "BUSINESS.md", "role": "사업 — 한국어 사업계획서", "path": "BUSINESS.md", "is_os": false },
+    { "name": "BUSINESS_FLOW.md", "role": "사업 — 운영 플로우", "path": "BUSINESS_FLOW.md", "is_os": false }
+  ]
+}

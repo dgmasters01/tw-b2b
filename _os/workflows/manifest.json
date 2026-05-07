@@ -1,0 +1,65 @@
+{
+  "version": "0.1.0",
+  "description": "OS 봇 워크플로 매니페스트 — 실 파일은 .github/workflows/에 유지 (GitHub은 .github/workflows 하위만 워크플로로 인식)",
+  "constraint": "GitHub Actions는 워크플로를 .github/workflows/*.yml에서만 인식. 다른 경로로 옮기면 동작 안 함. 따라서 실 파일은 그대로 두고 매니페스트로 'OS 본체 자산'임을 표시.",
+
+  "workflows": [
+    {
+      "name": "Auto Sync tasks.json → MD/Gallery",
+      "file": ".github/workflows/sync.yml",
+      "is_os": true,
+      "calls": ["_os/scripts/sync_engine.py"],
+      "trigger": "tasks.json / sync_engine.py / sync_md_from_tasks.py / sync.yml 변경 시",
+      "output": "BACKLOG.md / CHANGELOG.md / SOLO_WORK_QUEUE.md / DECISIONS.md / pages-meta.mjs",
+      "concurrency": "cancel-in-progress: true (BL-OS-PHASE-1A 단계 5)",
+      "race_condition_guard": "retry-rebase 3회 + --strategy-option=ours"
+    },
+    {
+      "name": "Auto Detect Task Status from Commit Messages",
+      "file": ".github/workflows/auto-detect-task-status.yml",
+      "is_os": true,
+      "calls": ["_os/scripts/auto_detect_task_status.py"],
+      "trigger": "모든 push (자기 commit 제외)",
+      "output": "tasks.json status 갱신 + step:done 자동 마킹",
+      "concurrency": "cancel-in-progress: true",
+      "race_condition_guard": "retry-rebase 3회 + --strategy-option=ours"
+    },
+    {
+      "name": "Auto Build Activity Feed",
+      "file": ".github/workflows/build-activity-feed.yml",
+      "is_os": true,
+      "calls": ["_os/scripts/build-activity-feed.mjs"],
+      "trigger": "모든 push (BL-OS-PHASE-1A 단계 5에서 신설)",
+      "output": "activity-feed.json / .display.json / .summary.json (3-Layer)",
+      "concurrency": "cancel-in-progress: true",
+      "race_condition_guard": "retry-rebase 3회 + --strategy-option=ours"
+    },
+    {
+      "name": "Auto Scan Page Completion Status",
+      "file": ".github/workflows/page-status-scan.yml",
+      "is_os": true,
+      "calls": ["_os/scripts/scan-pages-status.mjs", "_os/scripts/pages-meta.mjs"],
+      "trigger": "*.html 또는 pages-meta.mjs 또는 scan-pages-status.mjs 변경 시",
+      "output": "pages-status.json / .display.json / .summary.json (3-Layer)",
+      "concurrency": "cancel-in-progress: true",
+      "race_condition_guard": "retry-rebase 3회 + --strategy-option=ours"
+    },
+    {
+      "name": "Phase 0 — Admin Health Check",
+      "file": ".github/workflows/health-check-admin.yml",
+      "is_os": true,
+      "calls": ["_os/scripts/health_check_admin.mjs"],
+      "trigger": "tasks.json / _admin/** / _os_snapshots/** 변경 시 + 10분 cron",
+      "output": "_admin/_health.json (admin-status 5초 폴링이 읽음)",
+      "concurrency": "default"
+    },
+    {
+      "name": "Auto Build Chat-Log Index",
+      "file": ".github/workflows/chat-log-index.yml",
+      "is_os": true,
+      "calls": ["_os/scripts/build-chat-log-index.mjs"],
+      "trigger": "_chat-logs/*.md 변경 시",
+      "output": "_chat-logs/index.json"
+    }
+  ]
+}

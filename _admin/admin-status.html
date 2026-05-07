@@ -907,26 +907,37 @@
 
   <!-- ③ 작업 분포 KPI 4종 (자동/직원/CEO/헌법) -->
   <section class="stats-grid">
-    <div class="stat-card auto" data-role-filter="auto" title="클릭 → 자동 진행 가능 작업만 임박 박스에 표시">
+    <div class="stat-card auto" data-role-filter="auto" title="클릭 → 자동 진행 가능 작업만 임박 박스에 표시 / 더블클릭 → 펼침">
       <div class="stat-label">🤖 자동 (Claude)</div>
       <div class="stat-num" id="stat-auto">-</div>
-      <div class="stat-sub">시스템 자율 · 클릭 필터</div>
+      <div class="stat-sub">시스템 자율 · 클릭 필터 · ▼ 더블클릭 펼침</div>
     </div>
-    <div class="stat-card staff" data-role-filter="staff" title="클릭 → 직원 트리거 가능 작업만 임박 박스에 표시">
+    <div class="stat-card staff" data-role-filter="staff" title="클릭 → 직원 트리거 가능 작업만 임박 박스에 표시 / 더블클릭 → 펼침">
       <div class="stat-label">👥 직원 가능</div>
       <div class="stat-num" id="stat-staff">-</div>
-      <div class="stat-sub">Staff 트리거 가능 · 클릭 필터</div>
+      <div class="stat-sub">Staff 트리거 가능 · 클릭 필터 · ▼ 더블클릭 펼침</div>
     </div>
-    <div class="stat-card ceo" data-role-filter="ceo" title="클릭 → 대표님 결정 대기 작업만 임박 박스에 표시">
+    <div class="stat-card ceo" data-role-filter="ceo" title="클릭 → 대표님 결정 대기 작업만 임박 박스에 표시 / 더블클릭 → 펼침">
       <div class="stat-label">👤 대표님 결정</div>
       <div class="stat-num" id="stat-ceo">-</div>
-      <div class="stat-sub">CEO 사업 정책 · 클릭 필터</div>
+      <div class="stat-sub">CEO 사업 정책 · 클릭 필터 · ▼ 더블클릭 펼침</div>
     </div>
     <div class="stat-card charter" data-role-filter="all" title="클릭 → 필터 해제, 전체 표시">
       <div class="stat-label">🛡️ 헌법 검증</div>
       <div class="stat-num" id="stat-charter">27<small>/27</small></div>
       <div class="stat-sub">PASS · 클릭 = 전체</div>
     </div>
+  </section>
+
+  <!-- ★ BL-OS-PHASE-1B 결함 #5: stat-card 더블클릭 펼침 영역 + 즉시 시작 버튼
+       stat-card를 더블클릭하면 그 카테고리 작업 목록이 펼쳐지고 첫 작업의 ▶ 즉시 시작 버튼이 나타남.
+       기본 hidden, JS가 더블클릭 이벤트로 toggle. -->
+  <section id="stat-expand-panel" style="display:none;background:rgba(15,23,42,0.55);border:1px solid rgba(99,102,241,0.25);border-radius:8px;padding:12px;margin:0 0 12px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+      <span id="stat-expand-title" style="font-size:13px;font-weight:600;color:var(--text-1);">-</span>
+      <button id="stat-expand-close" style="background:transparent;border:1px solid rgba(148,163,184,0.3);color:var(--text-muted);border-radius:4px;font-size:11px;padding:3px 8px;cursor:pointer;">✕ 닫기</button>
+    </div>
+    <div id="stat-expand-list" style="display:flex;flex-direction:column;gap:6px;max-height:280px;overflow:auto;"></div>
   </section>
 
   <!-- ④ 🎮 작업 지휘소 (결정 대기 + 자율 큐 + 직원 큐) -->
@@ -2832,16 +2843,16 @@
     const listEl = document.getElementById('ceo-wait-list');
     if (!titleEl || !listEl) return;
 
+    // ★ BL-OS-PHASE-1B 결함 #4 (단일 진실원): 헤더 cCeo와 동일 분류 함수 사용
+    //   기존: blocked+키워드 OR approval_required OR pending+decs+!claude_can_auto → 헤더와 미세하게 다름
+    //   변경: taskRole(t)==='ceo' (헤더 cCeo와 100% 동일) + 보조: blocked+키워드도 추가 흡수
     const ceoTasks = tasks
       .filter(t => t.status !== 'done')
       .filter(t => {
-        // ① blocked + blocker에 "대표님 결정" 포함
+        // ① 단일 진실원: taskRole이 ceo로 분류한 것 (헤더와 동일)
+        if (taskRole(t) === 'ceo') return true;
+        // ② 보조 흡수: blocked + blocker에 "대표님 결정" 키워드 (taskRole은 blocked를 별도 처리)
         if (t.status === 'blocked' && /대표님|결정|승인/.test(t.blocker || '')) return true;
-        // ② approval_required = true
-        if (t.approval_required === true) return true;
-        // ③ pending + autonomous.requires_decisions_first 미해소 + !claude_can_auto
-        const decs = (t.autonomous && t.autonomous.requires_decisions_first) || [];
-        if (decs.length > 0 && !t.claude_can_auto && t.status === 'pending') return true;
         return false;
       })
       .sort((a, b) => (a.priority || 'P9').localeCompare(b.priority || 'P9'));
@@ -3387,12 +3398,7 @@
     let hint = '';
 
     const autoQueue = tasks
-      .filter(t =>
-        t.claude_can_auto === true &&
-        t.status === 'pending' &&
-        !t.approval_required &&
-        !(t.autonomous?.requires_decisions_first || []).length
-      )
+      .filter(t => t.status === 'pending' && taskRole(t) === 'auto')  // ★ BL-OS-PHASE-1B: 단일 진실원
       .sort((a, b) => {
         const pa = (a.priority || 'P9');
         const pb = (b.priority || 'P9');
@@ -3446,11 +3452,36 @@
       .filter(t => t.status === 'in_progress')
       .sort((a, b) => (a.priority || 'P9').localeCompare(b.priority || 'P9'));
 
+    // ★ BL-OS-PHASE-1B 결함 #6: 빈 상태도 visible로 표시 (의도된 빈 상태 vs 결함 구분 — 부칙 8 원칙)
+    //   기존: 진행 중 0건 → 박스 hidden → 사용자가 "결함으로 사라짐"으로 오해
+    //   변경: 진행 중 0건 → "현재 진행 중 작업 없음 — 다음 추천에서 시작 가능" 명시 표시
     if (inProgress.length === 0) {
-      box.classList.remove('visible');
+      box.classList.add('visible');
+      const title = $('in-progress-title');
+      if (title) title.textContent = '✅ 현재 진행 중 작업 없음 — 다음 추천에서 시작 가능';
+      const startedEl = $('ip-started'); if (startedEl) startedEl.textContent = '-';
+      const estEl = $('ip-estimate'); if (estEl) estEl.textContent = '-';
+      const ownerEl = $('ip-owner'); if (ownerEl) ownerEl.textContent = '-';
+      const btn = $('btn-resume');
+      if (btn) {
+        btn.style.display = 'none';
+        delete btn.dataset.taskId;
+        delete btn.dataset.taskTitle;
+      }
+      const wrap = $('in-progress-commits');
+      if (wrap) wrap.innerHTML = '<span style="color:var(--text-muted);">진행 중 작업이 없으니 표시할 commit이 없습니다.</span>';
+      // 진행률 바도 hidden
+      const progWrap = $('in-progress-progress');
+      if (progWrap) progWrap.style.display = 'none';
       return;
     }
     box.classList.add('visible');
+    // ★ BL-OS-PHASE-1B 결함 #6: in_progress 있을 때 진행률 바 다시 표시 + 이어가기 버튼 visible
+    const progWrap = $('in-progress-progress');
+    if (progWrap) progWrap.style.display = '';
+    const btnResume = $('btn-resume');
+    if (btnResume) btnResume.style.display = '';
+
     const target = inProgress[0];
     const title = $('in-progress-title');
     if (title) title.textContent = `${target.id} — ${target.title || ''}`;
@@ -3573,19 +3604,17 @@
   function renderAutoQueue(data) {
     const tasks = data.tasks || [];
     // ★ BL-LIVE-STATUS-PANEL: 진행 중 작업을 큐 맨 위 0번 카드로 표시
+    // ★ BL-OS-PHASE-1B 결함 #4 (단일 진실원): in_progress 작업 중 taskRole==='auto'인 것만 (헤더 cAuto와 동일 분류)
     const inProgressList = tasks
-      .filter(t => t.status === 'in_progress')
+      .filter(t => t.status === 'in_progress' && taskRole(t) === 'auto')
       .sort((a, b) => (a.priority || 'P9').localeCompare(b.priority || 'P9'))
       .slice(0, 3);  // 최대 3개까지 (보통 1개)
 
+    // ★ BL-OS-PHASE-1B 결함 #4 (단일 진실원): pending 자율 큐도 taskRole 함수로 통일
+    //   기존: claude_can_auto===true && !approval_required && !decs.length → renderIntegratedKPI와 동일 분류식 직접 박혀있어 한 곳 변경하면 다른 곳 깨짐.
+    //   변경: taskRole(t)==='auto' && status==='pending' → 단일 진실원 (headerCAuto와 동일).
     const queue = tasks
-      .filter(t =>
-        t.claude_can_auto === true &&
-        t.status === 'pending' &&
-        !t.approval_required &&
-        // ★ 헌법 13조 정합성: 결정 대기 작업은 자율 큐 제외 (BL-AURORA-MIGRATION 등)
-        !(t.autonomous?.requires_decisions_first || []).length
-      )
+      .filter(t => t.status === 'pending' && taskRole(t) === 'auto')
       .sort((a, b) => {
         const pa = (a.priority || 'P9');
         const pb = (b.priority || 'P9');
@@ -4841,6 +4870,99 @@
       }
     });
   });
+
+  // ★ BL-OS-PHASE-1B 결함 #5: stat-card 더블클릭 = 펼침 영역에 그 카테고리 작업 목록 + 즉시 시작 버튼
+  //   클릭(필터)과 분리하기 위해 더블클릭 사용. 첫 작업에 ▶ 즉시 시작 버튼 박힘.
+  document.querySelectorAll('.stat-card[data-role-filter]').forEach(card => {
+    card.addEventListener('dblclick', (ev) => {
+      ev.preventDefault();
+      ev.stopPropagation();
+      const role = card.dataset.roleFilter;
+      const panel = document.getElementById('stat-expand-panel');
+      const titleEl = document.getElementById('stat-expand-title');
+      const listEl = document.getElementById('stat-expand-list');
+      if (!panel || !titleEl || !listEl) return;
+
+      // 'all' (헌법 검증) 카드는 펼침 대상이 없으니 닫기만
+      if (role === 'all') {
+        panel.style.display = 'none';
+        return;
+      }
+
+      const tasks = (STATE.data && STATE.data.tasks) || [];
+      // 단일 진실원: taskRole(t) === role + status≠done
+      const filtered = tasks
+        .filter(t => t.status !== 'done' && taskRole(t) === role)
+        .sort((a, b) => {
+          const pa = (a.priority || 'P9'), pb = (b.priority || 'P9');
+          if (pa !== pb) return pa.localeCompare(pb);
+          return (a.order ?? 999) - (b.order ?? 999);
+        });
+
+      const labelMap = {
+        auto: '🤖 자동 (Claude) — 즉시 시작 가능 작업',
+        staff: '👥 직원 가능 — 직원 트리거 가능 작업',
+        ceo: '👤 대표님 결정 — 결정 대기 작업'
+      };
+      titleEl.textContent = `${labelMap[role] || role} (${filtered.length}건)`;
+
+      if (filtered.length === 0) {
+        listEl.innerHTML = '<div style="font-size:11px;color:var(--text-muted);padding:8px;text-align:center;">해당 카테고리에 미완료 작업 없음 ✅</div>';
+        panel.style.display = 'block';
+        return;
+      }
+
+      // 첫 작업에만 ▶ 즉시 시작 버튼 박힘 (auto 카테고리만 — staff/ceo는 시작 권한이 다름)
+      listEl.innerHTML = filtered.slice(0, 12).map((t, idx) => {
+        const priCls = (t.priority || 'P2').toLowerCase();
+        const priLab = (typeof PRI_LABEL_KO !== 'undefined' && PRI_LABEL_KO[t.priority]) || (t.priority || '-');
+        const statusBadge = t.status === 'in_progress'
+          ? '<span style="background:rgba(147,51,234,0.25);color:#c4b5fd;padding:1px 6px;border-radius:3px;font-size:9px;">⚡ 진행 중</span>'
+          : t.status === 'blocked'
+          ? '<span style="background:rgba(239,68,68,0.25);color:#fca5a5;padding:1px 6px;border-radius:3px;font-size:9px;">🚫 막힘</span>'
+          : '';
+        const startBtn = (idx === 0 && role === 'auto' && t.status === 'pending')
+          ? `<button data-task-id="${escapeHtml(t.id)}" data-task-title="${escapeHtml(t.title || '')}" class="stat-expand-start-btn" style="background:rgba(34,197,94,0.25);border:1px solid rgba(34,197,94,0.5);color:#86efac;border-radius:4px;padding:3px 10px;font-size:11px;cursor:pointer;font-weight:600;white-space:nowrap;">▶ 즉시 시작</button>`
+          : '';
+        return `
+          <div style="display:flex;align-items:center;gap:8px;padding:6px 8px;background:rgba(15,23,42,0.4);border-radius:5px;border:1px solid rgba(99,102,241,0.15);">
+            <span class="pri-pill ${priCls}" style="font-size:10px;padding:1px 6px;border-radius:3px;">${priLab}</span>
+            ${statusBadge}
+            <span style="font-size:11px;flex:1;color:var(--text-1);">${escapeHtml(t.id)} — ${escapeHtml((t.title || '').slice(0, 60))}</span>
+            ${startBtn}
+          </div>
+        `;
+      }).join('') + (filtered.length > 12 ? `<div style="font-size:10px;color:var(--text-muted);text-align:center;padding:4px;">+${filtered.length - 12}건 더 → admin-tasks.html에서 전체 보기</div>` : '');
+
+      // ▶ 즉시 시작 버튼 클릭 → 기존 btn-reserve 핸들러 재사용 (인계서 빌더)
+      listEl.querySelectorAll('.stat-expand-start-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const id = btn.dataset.taskId;
+          const title = btn.dataset.taskTitle;
+          const reserveBtn = document.getElementById('btn-reserve');
+          if (reserveBtn && id) {
+            reserveBtn.dataset.taskId = id;
+            reserveBtn.dataset.taskTitle = title || '';
+            reserveBtn.click();
+          }
+        });
+      });
+
+      panel.style.display = 'block';
+      // 펼침 영역으로 부드럽게 스크롤
+      panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+  });
+
+  // 닫기 버튼
+  const expandCloseBtn = document.getElementById('stat-expand-close');
+  if (expandCloseBtn) {
+    expandCloseBtn.addEventListener('click', () => {
+      const panel = document.getElementById('stat-expand-panel');
+      if (panel) panel.style.display = 'none';
+    });
+  }
 
   console.log('[admin-status] BL-PAGE-DEDUP + IP-CTRL-001 + BL-REAL-SYSTEM Phase α + BL-STATUS-DRILL-DOWN loaded — 임박/진행률/자율큐/풀컨텍스트인계/폴링/활동펼침/KPI필터/카테고리매핑');
 

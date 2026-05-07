@@ -146,6 +146,32 @@ EOF
 done
 echo "   ✅ business-context/ (5개 .md + 99_uploads/)"
 
+# tools-manifest.json 빈 골격 (BL-OS-PHASE-5 단계 6 — 사이드바 TOOLS 영역 채움)
+TOOLS_MF="$TARGET_ABS/business-context/tools-manifest.json"
+if [ ! -f "$TOOLS_MF" ]; then
+  cat > "$TOOLS_MF" <<EOF
+{
+  "version": "1.0.0",
+  "created_at": "$(date -u +%Y-%m-%dT%H:%M:%S+00:00)",
+  "description": "사이드바 🛠️ TOOLS 영역 — 이 프로젝트의 사업 도구 메뉴. _os/admin-pages/menu-manifest.json은 영역만 강제, 메뉴 내용은 여기서 자율 정의.",
+  "principle": "OS 핵심 원칙 — 틀은 강제, 내용은 자유",
+  "rendering_target": "admin-status.html 사이드바 TOOLS 영역 (5초 polling 자동 동기화)",
+  "menus": [
+    {
+      "id": "example-tool-1",
+      "label": "(예시) 사업 도구 1",
+      "icon": "📦",
+      "path": "/example.html",
+      "role": "이 프로젝트의 사업 운영 도구 — 실제 메뉴로 교체하세요",
+      "required": false
+    }
+  ],
+  "_instruction": "menus[] 배열을 이 프로젝트 실제 사업 도구로 교체하세요. 예: gohotelwinners=[호텔관리,예약관리,매니저관리,Agoda매칭,예약분석], ceylon-journey=[패키지,일정,비자,가이드,예약]. path는 실제 라이브 페이지여야 합니다 (404 금지)."
+}
+EOF
+  echo "   ✅ business-context/tools-manifest.json (빈 골격 — 사이드바 TOOLS 영역 채움)"
+fi
+
 # ─── 5. _admin/ 골격 ────────────────────────────────────────
 echo ""
 echo "[5/6] _admin/ 골격 복사 중..."

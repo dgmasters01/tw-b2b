@@ -1,0 +1,43 @@
+{
+  "version": "1.0.0",
+  "created_at": "2026-05-08",
+  "description": "사이드바 🛠️ TOOLS 영역 — gohotelwinners 사업 도구 메뉴. _os/admin-pages/menu-manifest.json은 영역만 강제, 메뉴 내용은 여기서 자율 정의.",
+  "principle": "OS 핵심 원칙 — 틀은 강제, 내용은 자유",
+  "rendering_target": "admin-status.html 사이드바 TOOLS 영역 (5초 polling 자동 동기화)",
+  "project": "gohotelwinners",
+  "menus": [
+    {
+      "id": "hotel-info",
+      "label": "호텔 관리",
+      "icon": "🏨",
+      "path": "/hotel-info.html",
+      "role": "호텔 정보 등록·수정·이미지 관리",
+      "required": false
+    },
+    {
+      "id": "booking-analytics",
+      "label": "예약 분석",
+      "icon": "📊",
+      "path": "/booking-analytics.html",
+      "role": "예약 통계·채널별 매출·전환율 분석",
+      "required": false
+    },
+    {
+      "id": "sales",
+      "label": "영업 관리",
+      "icon": "💼",
+      "path": "/sales.html",
+      "role": "매니저·계약·정산 관리",
+      "required": false
+    },
+    {
+      "id": "marketing",
+      "label": "마케팅",
+      "icon": "📣",
+      "path": "/marketing.html",
+      "role": "캠페인·콘텐츠·채널 운영",
+      "required": false
+    }
+  ],
+  "_note": "실제 라이브 페이지만 등록 (404 방지). 새 사업 도구 추가 시 path 라이브 401 검증 필수. menu-manifest.json TOOLS 영역의 examples.gohotelwinners 5개 중 매니저 관리는 별도 페이지 미존재 — sales.html에 통합 운영 중."
+}

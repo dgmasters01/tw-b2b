@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-07T05:36:24+00:00",
+  "updated_at": "2026-05-07T05:40:02+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -13,8 +13,8 @@
   ],
   "stats": {
     "total": 102,
-    "done": 73,
-    "in_progress": 1,
+    "done": 74,
+    "in_progress": 0,
     "pending": 17,
     "blocked": 10,
     "autonomous_ready": 10
@@ -4579,7 +4579,7 @@
       "title": "OS 모듈화 Phase 1A — 백엔드 결함 수리 (auto-detect 다중 브랜치 + sync-bot 부활 + scan/activity 검증)",
       "category": "OS",
       "priority": "P0",
-      "status": "in_progress",
+      "status": "done",
       "source": "HANDOVER_OS_PHASE0.md Phase 1 결함 #1·#2·#8",
       "created_at": "2026-05-07T04:32:55+00:00",
       "owner": "claude",
@@ -4612,16 +4612,17 @@
           },
           {
             "label": "Phase 1A 종합 라이브 검증 (_health.json overall=green 또는 yellow only)",
-            "done": false
+            "done": true,
+            "at": "2026-05-07T05:40:02+00:00"
           }
         ],
-        "percent": 83,
-        "completed_count": 5,
+        "percent": 100,
+        "completed_count": 6,
         "total_count": 6,
-        "updated_at": "2026-05-07T05:32:40+00:00"
+        "updated_at": "2026-05-07T05:40:02+00:00"
       },
       "description": "Phase 1 백엔드 묶음. UI 작업(#3·#4·#5·#6·#7)은 Phase 1B에서. 본 작업 완료 후 _health.json red 줄 사라져야 함.",
-      "updated_at": "2026-05-07T05:36:24+00:00",
+      "updated_at": "2026-05-07T05:40:02+00:00",
       "history": [
         {
           "at": "2026-05-07T04:34:41+00:00",
@@ -4671,8 +4672,16 @@
           "by": "auto-detect-bot",
           "commit": "675b493",
           "note": "fix(OS): Phase 1A 단계 5/6 — 4개 봇 자기충돌 가드 전수 보강 [step:done:5] BL-OS-PHASE-1A"
+        },
+        {
+          "at": "2026-05-07T05:40:02+00:00",
+          "event": "진행 중 commit 추가 + 단계 6, 100% 도달 → status 자동 전환 (in_progress → done) 완료 (auto-detected)",
+          "by": "auto-detect-bot",
+          "commit": "26d3e1f",
+          "note": "docs(OS): Phase 1A 종합 라이브 검증 보고서 — 단계 1~6 전부 통과 [step:done:6] BL-OS-PHASE-1A"
         }
-      ]
+      ],
+      "completed_at": "2026-05-07T05:40:02+00:00"
     }
   ]
 }

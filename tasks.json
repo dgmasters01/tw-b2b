@@ -22,6 +22,63 @@
   },
   "tasks": [
     {
+      "id": "BL-OS-PHASE-5",
+      "title": "OS 모듈화 Phase 5 — 사이드바 4영역 강제 렌더 (DOCS/TOOLS/OS-CORE/SYSTEM) + 5초 polling 통일",
+      "category": "infra",
+      "priority": "P1",
+      "status": "done",
+      "claude_can_auto": true,
+      "approval_required": false,
+      "owner": "Claude",
+      "size": "M",
+      "source": "BL-OS-LIGHTWEIGHT 종료 후 Phase 5 단계 5~9 인계",
+      "created_at": "2026-05-07T16:30:00+00:00",
+      "deadline": "2026-05-08",
+      "order": 1,
+      "blocker": null,
+      "autonomous": {
+        "estimated_hours": 1.5,
+        "requires_decisions_first": []
+      },
+      "history": [
+        {
+          "at": "2026-05-07T16:30:00+00:00",
+          "action": "BL-OS-PHASE-5 단계 5~9 인계 받음 (BL-OS-LIGHTWEIGHT 종료 후)"
+        },
+        {
+          "at": "2026-05-07T16:00:00+00:00",
+          "action": "단계 5 완료 — admin-status.html 사이드바 4영역 강제 렌더 (commit 8c8ab7a, 178 ins/0 del, DOM 균형 통과)"
+        },
+        {
+          "at": "2026-05-07T16:10:00+00:00",
+          "action": "단계 6 완료 — install_os.sh 보강 + business-context/tools-manifest.json 골격 (commit 29e3b36, 라이브 200 4/4)"
+        },
+        {
+          "at": "2026-05-07T16:20:00+00:00",
+          "action": "단계 7 완료 — DOCS 5개 polling 5분→5초 통일 부칙 8 강제 (commit b4f75f6)"
+        },
+        {
+          "at": "2026-05-07T16:30:47+00:00",
+          "action": "단계 8 완료 — 라이브 검증 (봇 6/7 success, _health.json yellow only, 라이브 13/13 정상, DOM 무손상)"
+        },
+        {
+          "at": "2026-05-07T16:30:47+00:00",
+          "action": "단계 9 완료 — PHASE_5_VERIFICATION_REPORT.md 신설 + 헌법 자가 검증 27/27 PASS"
+        },
+        {
+          "at": "2026-05-07T16:30:47+00:00",
+          "action": "DONE — BL-OS-PHASE-5 종료 선언"
+        }
+      ],
+      "result": {
+        "verification_report": "PHASE_5_VERIFICATION_REPORT.md",
+        "constitution_checks_passed": "27/27",
+        "remaining_issues": [
+          "BL-CHATLOG-BOT-RACE (별도 추적)"
+        ]
+      }
+    },
+    {
       "id": "BL-CACHE-BUST-HEADERS",
       "title": "[HTTP 헤더 단 캐시 무효화] vercel.json + api/admin-page.js — meta 태그만으론 부족 (헌법 12조 위반 4호)",
       "category": "infrastructure",
@@ -5209,6 +5266,32 @@
         {
           "at": "2026-05-07T06:14:33+00:00",
           "action": "BL-OS-PHASE-2 단계 2 핫픽스 중 발견 — 향후 폴더 이동 시 같은 결함 반복 방지. GITHUB_WORKSPACE 또는 git rev-parse --show-toplevel 사용으로 정석 해결."
+        }
+      ]
+    },
+    {
+      "id": "BL-CHATLOG-BOT-RACE",
+      "title": "chat-log-index 봇 동시 push race fix — pre-push git pull --rebase 추가",
+      "category": "infra",
+      "priority": "P3",
+      "status": "pending",
+      "claude_can_auto": true,
+      "approval_required": false,
+      "owner": "Claude",
+      "size": "S",
+      "source": "BL-OS-PHASE-5 단계 8 라이브 검증 중 발견",
+      "created_at": "2026-05-07T16:30:47+00:00",
+      "deadline": null,
+      "order": 99,
+      "blocker": null,
+      "autonomous": {
+        "estimated_hours": 0.3,
+        "requires_decisions_first": []
+      },
+      "history": [
+        {
+          "at": "2026-05-07T16:30:47+00:00",
+          "action": "단계 8 라이브 검증 중 chat-log-index.yml 간헐적 fetch-first reject 발견 (run_id 25479729132). 다른 봇과 동시 push 시점 race. 해결책: Commit 스텝 전에 git pull --rebase origin main 추가."
         }
       ]
     }

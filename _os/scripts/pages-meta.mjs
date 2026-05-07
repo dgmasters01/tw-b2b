@@ -229,7 +229,7 @@ export const PAGE_TASK_META = {
   "_admin/admin-gallery.html": { lastTaskId: "BL-GALLERY-HOTFIX", lastTaskTitle: "[admin-gallery 무한 Loading 핫픽스] STATUS_BADGES retired 키 누락 + fallback 가드 박음 (헌법 1", lastUpdated: "2026-05-05", taskCount: 2 },
   "_admin/admin-permissions.html": { lastTaskId: "BL-AUTH-COOKIE-SYNC", lastTaskTitle: "[admin 깜빡 로그인 fix] sb-access-token 쿠키 자동 동기화 — Supabase 토큰 갱신 시 쿠키도 함께 (헌법 12조 위", lastUpdated: "2026-05-05", taskCount: 2 },
   "_admin/admin-service-ops.html": { lastTaskId: "BL-AUTH-COOKIE-SYNC", lastTaskTitle: "[admin 깜빡 로그인 fix] sb-access-token 쿠키 자동 동기화 — Supabase 토큰 갱신 시 쿠키도 함께 (헌법 12조 위", lastUpdated: "2026-05-05", taskCount: 1 },
-  "_admin/admin-status.html": { lastTaskId: "BL-ADMIN-STATUS-LOOP-FIX", lastTaskTitle: "[admin-status 무한루프 fix] MutationObserver 자기 DOM 변경 무시 + debounce + 상태 변화 비교", lastUpdated: "2026-05-05", taskCount: 11 },
+  "_admin/admin-status.html": { lastTaskId: "BL-CLIPBOARD-FIX", lastTaskTitle: "admin-status 클립보드 복사 결함 정석 fix (3-tier fallback)", lastUpdated: "2026-05-07", taskCount: 12 },
   "_admin/admin-tasks.html": { lastTaskId: "BL-AUTH-COOKIE-SYNC", lastTaskTitle: "[admin 깜빡 로그인 fix] sb-access-token 쿠키 자동 동기화 — Supabase 토큰 갱신 시 쿠키도 함께 (헌법 12조 위", lastUpdated: "2026-05-05", taskCount: 1 },
   "admin-accept-invite.html": { lastTaskId: "BL-ADMIN-AUTH-V2", lastTaskTitle: "[권한 시스템 정식] 5단계 Owner/Admin/Staff/ReadOnly/Manager + 초대 + 즉시 박탈 + 무제한 이력", lastUpdated: "2026-05-04", taskCount: 1 },
   "admin-business.html": { lastTaskId: "BL-CATEGORY-REMAP", lastTaskTitle: "[카테고리 리매핑] 헌법 부칙 5 D-010 매핑 표를 코드에 반영 (6단계)", lastUpdated: "2026-05-03", taskCount: 2 },

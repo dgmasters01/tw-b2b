@@ -12,10 +12,10 @@
     "SOLO_WORK_QUEUE.md"
   ],
   "stats": {
-    "total": 103,
+    "total": 104,
     "done": 74,
     "in_progress": 1,
-    "pending": 17,
+    "pending": 18,
     "blocked": 10,
     "autonomous_ready": 10,
     "todo": 1
@@ -4689,7 +4689,7 @@
       "title": "OS 모듈화 Phase 1B — admin-status.html UI 묶음 (단일 진실원 + 즉시 시작 + 빈 상태 + 7원소 라이브 검증)",
       "category": "infra",
       "priority": "P1",
-      "status": "in_progress",
+      "status": "done",
       "claude_can_auto": true,
       "approval_required": false,
       "owner": "Claude",
@@ -4718,6 +4718,10 @@
           "by": "auto-detect-bot",
           "commit": "f0a8890",
           "note": "fix(OS): Phase 1B 핫픽스 — tasks.json stats.total 재계산 (sync-bot failure 복구) BL-OS-PHASE-1B"
+        },
+        {
+          "at": "2026-05-07T05:53:13+00:00",
+          "action": "단계 4·5 완료 — 7원소 라이브 검증 + 종합 검증 통과 + 부수 발견 backlog 등록 (BL-SYNC-ENGINE-AUTO-STATS)"
         }
       ],
       "progress": {
@@ -4739,19 +4743,47 @@
           },
           {
             "label": "결함 #7 + 7원소 자동 갱신 라이브 검증 (5초 폴링 동작 확인)",
-            "done": false
+            "done": true,
+            "at": "2026-05-07T05:53:13+00:00"
           },
           {
             "label": "Phase 1B 종합 라이브 검증 (_health.json overall=yellow only, baseline 비교)",
-            "done": false
+            "done": true,
+            "at": "2026-05-07T05:53:13+00:00"
           }
         ],
-        "percent": 60,
-        "completed_count": 3,
+        "percent": 100,
+        "completed_count": 5,
         "total_count": 5,
-        "updated_at": "2026-05-07T05:49:21+00:00"
+        "updated_at": "2026-05-07T05:53:13+00:00"
       },
       "updated_at": "2026-05-07T05:51:56+00:00"
+    },
+    {
+      "id": "BL-SYNC-ENGINE-AUTO-STATS",
+      "title": "sync_engine.py — apply 시 tasks.json stats 자동 재계산 (사람 의무 제거)",
+      "category": "infra",
+      "priority": "P2",
+      "status": "pending",
+      "claude_can_auto": true,
+      "approval_required": false,
+      "owner": "Claude",
+      "size": "S",
+      "source": "BL-OS-PHASE-1B 단계 4 진행 중 발견 — 작업 추가 시 stats.total 수동 갱신 안 하면 sync-bot failure",
+      "created_at": "2026-05-07T05:53:13+00:00",
+      "deadline": "2026-05-10",
+      "order": 50,
+      "blocker": null,
+      "autonomous": {
+        "estimated_hours": 0.5,
+        "requires_decisions_first": []
+      },
+      "history": [
+        {
+          "at": "2026-05-07T05:53:13+00:00",
+          "action": "BL-OS-PHASE-1B 작업 중 발견 — tasks.json에 작업 추가 시 stats를 자동 재계산하지 않으면 sync_engine.py --verify가 exit 1 → sync-bot 죽음. 자동화 누락 결함."
+        }
+      ]
     }
   ]
 }

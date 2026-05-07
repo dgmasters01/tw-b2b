@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>Page Gallery — TravelWinners B2B Admin</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/shared.css">
+<style>
+  body { background:#0f172a; color:#e2e8f0; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; margin:0; padding:0; }
+  .gh-shell { max-width:1400px; margin:0 auto; padding:24px; }
+  .gh-h1 { font-size:28px; font-weight:700; margin:0 0 8px; }
+  .gh-sub { color:#94a3b8; font-size:14px; margin:0 0 24px; }
+  .gh-toolbar { display:flex; gap:12px; align-items:center; margin-bottom:24px; flex-wrap:wrap; }
+  .gh-toolbar input { background:#1e293b; border:1px solid #334155; color:#e2e8f0; padding:8px 12px; border-radius:6px; font-size:14px; min-width:240px; }
+  .gh-toolbar button { background:#3b82f6; color:#fff; border:0; padding:8px 16px; border-radius:6px; cursor:pointer; font-size:14px; }
+  .gh-toolbar button:hover { background:#2563eb; }
+  .gh-toolbar .gh-info { color:#64748b; font-size:13px; margin-left:auto; }
+
+  .gh-section { margin-bottom:32px; }
+  .gh-section-h { font-size:18px; font-weight:600; margin:0 0 12px; color:#cbd5e1; display:flex; align-items:center; gap:8px; }
+  .gh-section-h .gh-count { background:#334155; color:#94a3b8; font-size:12px; padding:2px 8px; border-radius:10px; font-weight:400; }
+
+  .gh-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:16px; }
+  .gh-card { background:#1e293b; border:1px solid #334155; border-radius:10px; overflow:hidden; transition:transform .15s,border-color .15s; }
+  .gh-card:hover { transform:translateY(-2px); border-color:#475569; }
+  .gh-thumb { width:100%; aspect-ratio:16/10; background:#0f172a; overflow:hidden; position:relative; display:flex; align-items:center; justify-content:center; }
+  .gh-thumb img { width:100%; height:100%; object-fit:cover; object-position:top; }
+  .gh-thumb-empty { color:#475569; font-size:13px; text-align:center; padding:16px; }
+  .gh-thumb-static { width:100%; height:100%; display:flex; align-items:center; justify-content:center; }
+  .gh-thumb-iframe { width:100%; height:100%; position:absolute; inset:0; background:#fff; overflow:hidden; }
+  /* iframe은 데스크톱(1280×800)으로 렌더링하고 컨테이너 폭에 맞춰 CSS 변수로 스케일 */
+  .gh-thumb-iframe iframe {
+    border:0; display:block;
+    width:1280px; height:800px;
+    transform: scale(var(--gh-iframe-scale, 0.4));
+    transform-origin: top left;
+  }
+  .gh-btn-act { background:#dc2626 !important; color:#fff !important; border-color:#dc2626 !important; }
+  .gh-card.previewing .gh-thumb { aspect-ratio:auto; }
+  .gh-body { padding:14px 16px; }
+  .gh-name { font-size:16px; font-weight:600; margin:0 0 4px; color:#f1f5f9; }
+  .gh-path { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12px; color:#64748b; margin:0 0 8px; }
+  .gh-purpose { font-size:13px; color:#94a3b8; margin:0 0 12px; line-height:1.5; }
+  .gh-meta { display:flex; gap:6px; margin-bottom:12px; flex-wrap:wrap; }
+  .gh-badge { font-size:11px; padding:3px 8px; border-radius:10px; font-weight:500; }
+  .gh-when { font-size:12px; color:#64748b; margin-bottom:12px; }
+  .gh-when strong { color:#94a3b8; }
+  .gh-notes { font-size:12px; color:#fbbf24; background:rgba(251,191,36,.08); padding:8px 10px; border-radius:6px; margin-bottom:12px; line-height:1.5; }
+  .gh-actions { display:flex; gap:8px; }
+  .gh-btn { flex:1; padding:8px 10px; border-radius:6px; font-size:13px; text-align:center; text-decoration:none; cursor:pointer; border:0; }
+  .gh-btn-pri { background:#3b82f6; color:#fff; }
+  .gh-btn-pri:hover { background:#2563eb; }
+  .gh-btn-sec { background:#334155; color:#cbd5e1; }
+  .gh-btn-sec:hover { background:#475569; }
+  .gh-btn[disabled] { opacity:.4; cursor:not-allowed; }
+
+  .gh-modal { position:fixed; inset:0; background:rgba(0,0,0,.85); display:none; align-items:center; justify-content:center; z-index:1000; padding:20px; }
+  .gh-modal.show { display:flex; }
+  .gh-modal-inner { background:#1e293b; border-radius:12px; max-width:1200px; width:100%; max-height:90vh; overflow:auto; padding:20px; }
+  .gh-modal-h { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
+  .gh-modal img { max-width:100%; height:auto; display:block; border-radius:6px; border:1px solid #334155; }
+  .gh-modal-x { background:#dc2626; color:#fff; border:0; padding:6px 12px; border-radius:6px; cursor:pointer; }
+
+  .gh-deny { text-align:center; padding:80px 20px; }
+  .gh-deny h1 { color:#dc2626; }
+  .gh-deny a { color:#3b82f6; }
+
+  @media (max-width:640px){
+    .gh-grid { grid-template-columns:1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="gh-shell" id="root">
+  <div class="gh-deny" style="text-align:center;padding:40px 20px;">
+    <h1 id="gh-loading-title" style="color:#dc2626;">Loading...</h1>
+    <p id="gh-loading-step" style="color:#94a3b8;margin-top:8px;">⏳ 1/3 — 권한 확인 중</p>
+    <div style="max-width:280px;margin:16px auto 0;height:4px;background:rgba(148,163,184,0.15);border-radius:2px;overflow:hidden;">
+      <div id="gh-loading-bar" style="height:100%;background:linear-gradient(90deg,#6366f1,#ec4899);width:33%;transition:width 0.3s;"></div>
+    </div>
+    <p style="color:#64748b;font-size:11px;margin-top:14px;">평균 1-2초 소요 (Supabase 인증 + 매니저 권한 검증)</p>
+  </div>
+</div>
+
+<div class="gh-modal" id="modal" onclick="if(event.target===this)closeModal()">
+  <div class="gh-modal-inner">
+    <div class="gh-modal-h">
+      <h3 id="modal-title" style="margin:0;color:#f1f5f9"></h3>
+      <button class="gh-modal-x" onclick="closeModal()">닫기</button>
+    </div>
+    <img id="modal-img" src="" alt="">
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/shared.js?v=3"></script>
+<script type="module">
+import { PAGES, STATUS_BADGES, AUDIENCE_BADGES } from '/scripts/pages-meta.mjs';
+
+(async function init(){
+  const setStep = (n, label, pct) => {
+    const stepEl = document.getElementById('gh-loading-step');
+    const barEl = document.getElementById('gh-loading-bar');
+    if (stepEl) stepEl.textContent = `⏳ ${n}/3 — ${label}`;
+    if (barEl) barEl.style.width = pct + '%';
+  };
+
+  // 권한 검증 — admin.html과 동일한 로직 사용 (T.checkAdmin)
+  // is_admin() RPC + admins 테이블 기반. profiles 테이블 의존 제거.
+  setStep(1, 'Supabase 클라이언트 확인', 33);
+  if (!window.TW || !window.TW.sb) { renderDeny('Supabase 클라이언트 로드 실패'); return; }
+  const { data: { session } } = await window.TW.sb.auth.getSession();
+  if (!session) { window.location.href = '/login.html'; return; }
+
+  setStep(2, '관리자 권한 검증', 66);
+  const ac = await window.TW.checkAdmin(session.user);
+  if (!ac || !ac.is_admin) {
+    renderDeny('관리자만 접근 가능한 페이지입니다.', session.user.email);
+    return;
+  }
+
+  setStep(3, '페이지 데이터 로드 + 렌더링', 100);
+  render(session.user.email);
+})();
+
+function renderDeny(msg, email) {
+  document.getElementById('root').innerHTML = `
+    <div class="gh-deny">
+      <h1>접근 거부</h1>
+      <p>${msg}</p>
+      ${email ? `<p style="color:#64748b;font-size:13px">${email}</p>` : ''}
+      <p><a href="/login.html">로그인 페이지로</a></p>
+    </div>`;
+}
+
+function render(adminEmail) {
+  const groups = {
+    'live':           [],
+    'partial':        [],
+    'needs-refactor': [],
+    'new':            [],
+    'planned':        [],
+    'archived':       [],
+  };
+  PAGES.forEach(p => { (groups[p.status] || (groups[p.status] = [])).push(p); });
+
+  const sectionTitle = {
+    'live':           '🟢 라이브 페이지',
+    'partial':        '🟡 부분 완성',
+    'needs-refactor': '🟠 리팩터 필요',
+    'new':            '🔵 신설',
+    'planned':        '⚪ 만들 예정 (BACKLOG)',
+    'archived':       '⚫ 보관',
+  };
+
+  const sectionsHtml = Object.entries(groups)
+    .filter(([k, list]) => list.length > 0)
+    .map(([key, list]) => `
+      <section class="gh-section">
+        <h2 class="gh-section-h">${sectionTitle[key] || key} <span class="gh-count">${list.length}</span></h2>
+        <div class="gh-grid">${list.map(cardHtml).join('')}</div>
+      </section>
+    `).join('');
+
+  document.getElementById('root').innerHTML = `
+    <h1 class="gh-h1">📸 Page Gallery</h1>
+    <p class="gh-sub">TravelWinners B2B — 라이브 사이트의 모든 페이지를 한눈에. <code style="color:#94a3b8">${adminEmail}</code></p>
+
+    <div class="gh-toolbar">
+      <input type="text" id="search" placeholder="페이지명 또는 경로 검색...">
+      <button onclick="window.location.href='/admin.html'">← 관리자 콘솔</button>
+      <span class="gh-info">총 ${PAGES.length}개 페이지 · 마지막 캡처: ${getLastCaptureDate()}</span>
+    </div>
+
+    ${sectionsHtml}
+  `;
+
+  document.getElementById('search').addEventListener('input', (e) => {
+    const q = e.target.value.toLowerCase().trim();
+    document.querySelectorAll('.gh-card').forEach(card => {
+      const text = card.dataset.search || '';
+      card.style.display = (!q || text.includes(q)) ? '' : 'none';
+    });
+  });
+}
+
+function cardHtml(p) {
+  const name = p.path.replace(/^\//, '').replace(/\.html$/, '');
+  const thumbSrc = `/docs/screenshots/${name}.png`;
+  // ★ 헌법 12조 fallback 가드 — 매핑 없어도 깨지지 않게
+  const statusBadge = STATUS_BADGES[p.status] || { label: '❓ ' + (p.status || 'unknown'), color: '#6b7280' };
+  const audienceBadge = AUDIENCE_BADGES[p.audience] || { label: '❓ ' + (p.audience || 'unknown'), color: '#6b7280' };
+  const searchText = (p.path + ' ' + p.name + ' ' + p.purpose + ' ' + (p.notes || '')).toLowerCase();
+
+  // iframe 라이브 미리보기는 status가 planned가 아닌 모든 페이지에서 사용 가능
+  // (admin이 로그인된 상태에서 same-origin iframe은 자동으로 세션 쿠키를 공유)
+  const canLivePreview = p.status !== 'planned';
+  const cardId = 'card-' + name.replace(/[^a-z0-9]/gi, '_');
+
+  const thumbInner = p.capture
+    ? `<img src="${thumbSrc}" alt="${escapeHtml(p.name)}" onerror="this.parentElement.querySelector('.gh-thumb-img').style.display='none';this.parentElement.querySelector('.gh-thumb-empty-fallback').style.display='flex';" class="gh-thumb-img">
+       <div class="gh-thumb-empty gh-thumb-empty-fallback" style="display:none">캡처 없음<br><small>아래 '라이브 미리보기' 버튼 클릭</small></div>`
+    : `<div class="gh-thumb-empty">${p.audience === 'planned' ? '아직 없음' : '🔒 캡처 대기 중'}<br><small>GitHub Actions 자동 캡처 후 표시<br>또는 '라이브 보기'로 새 탭에서 확인</small></div>`;
+
+  const thumbHtml = `<div class="gh-thumb-static">${thumbInner}</div>
+    <div class="gh-thumb-iframe" id="${cardId}-iframe-wrap" style="display:none">
+      <iframe id="${cardId}-iframe" src="about:blank" loading="lazy" referrerpolicy="same-origin" sandbox="allow-same-origin allow-scripts allow-forms allow-popups"></iframe>
+    </div>`;
+
+  const liveBtn = p.status === 'planned'
+    ? `<button class="gh-btn gh-btn-sec" disabled>아직 없음</button>`
+    : `<a class="gh-btn gh-btn-pri" href="${p.path}" target="_blank">라이브 보기</a>`;
+
+  const previewBtn = canLivePreview
+    ? `<button class="gh-btn gh-btn-sec" onclick="toggleLivePreview('${cardId}','${p.path}', this)">👁️ 라이브 미리보기</button>`
+    : `<button class="gh-btn gh-btn-sec" disabled>아직 없음</button>`;
+
+  const captureBtn = p.capture
+    ? `<button class="gh-btn gh-btn-sec" onclick="openModal('${name}','${escapeHtml(p.name)}')">📷 큰 캡처</button>`
+    : '';
+
+  return `
+    <article class="gh-card" id="${cardId}" data-search="${escapeAttr(searchText)}">
+      <div class="gh-thumb">${thumbHtml}</div>
+      <div class="gh-body">
+        <h3 class="gh-name">${escapeHtml(p.name)}</h3>
+        <p class="gh-path">${escapeHtml(p.path)}</p>
+        <p class="gh-purpose">${escapeHtml(p.purpose)}</p>
+        <div class="gh-meta">
+          <span class="gh-badge" style="background:${audienceBadge.color};color:#fff">${audienceBadge.label}</span>
+          <span class="gh-badge" style="background:${statusBadge.color};color:#fff">${statusBadge.label}</span>
+        </div>
+        <p class="gh-when"><strong>표시 조건:</strong> ${escapeHtml(p.visibleWhen)}</p>
+        ${p.notes ? `<p class="gh-notes">📝 ${escapeHtml(p.notes)}</p>` : ''}
+        <div class="gh-actions">${liveBtn}${previewBtn}${captureBtn}</div>
+      </div>
+    </article>`;
+}
+
+// iframe 라이브 미리보기 토글: 같은 도메인이라 admin 세션 쿠키가 자동 전달됨
+window.toggleLivePreview = function(cardId, path, btn) {
+  const wrap = document.getElementById(cardId + '-iframe-wrap');
+  const iframe = document.getElementById(cardId + '-iframe');
+  const card = document.getElementById(cardId);
+  const staticThumb = card.querySelector('.gh-thumb-static');
+  const isVisible = wrap.style.display !== 'none';
+
+  if (isVisible) {
+    wrap.style.display = 'none';
+    staticThumb.style.display = '';
+    iframe.src = 'about:blank';
+    btn.innerHTML = '👁️ 라이브 미리보기';
+    btn.classList.remove('gh-btn-act');
+    card.classList.remove('previewing');
+    // 인라인 스타일 정리
+    card.style.removeProperty('--gh-iframe-scale');
+    const thumb = card.querySelector('.gh-thumb');
+    thumb.style.height = '';
+  } else {
+    staticThumb.style.display = 'none';
+    wrap.style.display = '';
+    // 카드 너비 측정해서 정확히 1280px 페이지가 들어가도록 스케일 계산
+    const thumb = card.querySelector('.gh-thumb');
+    const cardW = thumb.getBoundingClientRect().width;
+    const scale = Math.min(cardW / 1280, 0.6);  // 최대 0.6배까지만 (너무 크면 가독성 저하)
+    card.style.setProperty('--gh-iframe-scale', scale.toFixed(4));
+    // 카드 높이는 1280×800 비율 유지 (800 × scale)
+    thumb.style.height = Math.round(800 * scale) + 'px';
+    // 캐시 우회 위해 timestamp 추가
+    iframe.src = path + (path.includes('?') ? '&' : '?') + '_pv=' + Date.now();
+    btn.innerHTML = '✕ 미리보기 닫기';
+    btn.classList.add('gh-btn-act');
+    card.classList.add('previewing');
+  }
+};
+
+function escapeHtml(s) { return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function escapeAttr(s) { return escapeHtml(s); }
+
+function getLastCaptureDate() {
+  // 첫 카드의 이미지 fetch는 비동기라 표시는 단순화 — 추후 자동 갱신 시 server timestamp 사용
+  return '최근';
+}
+
+window.openModal = function(name, title) {
+  document.getElementById('modal-title').textContent = title + ' (' + name + '.png)';
+  document.getElementById('modal-img').src = '/docs/screenshots/' + name + '.png';
+  document.getElementById('modal').classList.add('show');
+};
+window.closeModal = function() {
+  document.getElementById('modal').classList.remove('show');
+};
+</script>
+</body>
+</html>

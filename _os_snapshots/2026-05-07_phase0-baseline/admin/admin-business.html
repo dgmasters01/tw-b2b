@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>Business Docs — TravelWinners B2B Admin</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/shared.css">
+<style>
+  body { background:#f8fafc; color:#0f172a; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Apple SD Gothic Neo','Noto Sans KR',sans-serif; margin:0; padding:0; }
+
+  .bd-shell { display:grid; grid-template-columns:260px 1fr; min-height:100vh; }
+
+  /* === 좌측 네비 === */
+  .bd-nav { background:#0f172a; color:#cbd5e1; padding:20px 0; position:sticky; top:0; height:100vh; overflow-y:auto; }
+  .bd-nav-h { padding:0 20px 16px; border-bottom:1px solid #1e293b; margin-bottom:12px; }
+  .bd-nav-title { font-size:16px; font-weight:700; color:#f1f5f9; margin:0 0 4px; }
+  .bd-nav-sub { font-size:11px; color:#64748b; margin:0; }
+  .bd-nav-back { display:flex; align-items:center; gap:8px; padding:14px 20px; color:#fff; text-decoration:none; font-size:14px; font-weight:600; background:#4f46e5; border-radius:8px; margin:0 14px 16px; transition:background .15s; }
+  .bd-nav-back:hover { background:#6366f1; color:#fff; }
+  .bd-nav-quick { padding:0 14px 14px; border-bottom:1px solid #1e293b; margin-bottom:12px; }
+  .bd-nav-quick-title { font-size:11px; color:#64748b; text-transform:uppercase; letter-spacing:.5px; padding:0 6px 6px; }
+  .bd-nav-quick a { display:flex; align-items:center; gap:8px; padding:7px 10px; color:#cbd5e1; text-decoration:none; font-size:13px; border-radius:6px; }
+  .bd-nav-quick a:hover { background:#1e293b; color:#fff; }
+
+  .bd-doc-list { list-style:none; padding:0; margin:0; }
+  .bd-doc-item { padding:0; }
+  .bd-doc-btn {
+    width:100%; background:transparent; border:0; color:#cbd5e1; text-align:left;
+    padding:12px 20px; cursor:pointer; font-size:13px; display:flex; align-items:flex-start; gap:10px;
+    border-left:3px solid transparent; transition:all .12s;
+  }
+  .bd-doc-btn:hover { background:#1e293b; color:#f1f5f9; }
+  .bd-doc-btn.active { background:#1e293b; color:#f1f5f9; border-left-color:#3b82f6; }
+  .bd-doc-icon { font-size:18px; flex-shrink:0; line-height:1; padding-top:2px; }
+  .bd-doc-info { flex:1; min-width:0; }
+  .bd-doc-name { font-weight:600; margin:0 0 2px; font-size:13px; }
+  .bd-doc-desc { font-size:11px; color:#64748b; margin:0; line-height:1.4; }
+  .bd-doc-btn.active .bd-doc-desc { color:#94a3b8; }
+
+  /* === 우측 컨텐츠 === */
+  .bd-main { padding:24px 32px 60px; max-width:920px; }
+  .bd-toolbar { display:flex; gap:12px; align-items:center; margin-bottom:24px; padding-bottom:16px; border-bottom:1px solid #e2e8f0; flex-wrap:wrap; }
+  .bd-toolbar input { flex:1; min-width:200px; max-width:400px; padding:8px 12px; border:1px solid #cbd5e1; border-radius:6px; font-size:13px; }
+  .bd-toolbar button { padding:8px 14px; border:1px solid #cbd5e1; background:#fff; border-radius:6px; cursor:pointer; font-size:13px; color:#475569; }
+  .bd-toolbar button:hover { background:#f1f5f9; }
+  .bd-toolbar .bd-info { color:#64748b; font-size:12px; margin-left:auto; }
+
+  /* === Markdown 렌더링 === */
+  #content { line-height:1.7; color:#1e293b; }
+  #content h1 { font-size:28px; font-weight:700; border-bottom:2px solid #e2e8f0; padding-bottom:12px; margin:0 0 24px; color:#0f172a; }
+  #content h2 { font-size:22px; font-weight:700; margin:36px 0 14px; color:#0f172a; padding-top:16px; border-top:1px solid #f1f5f9; }
+  #content h2:first-of-type { border-top:none; padding-top:0; }
+  #content h3 { font-size:17px; font-weight:600; margin:24px 0 10px; color:#1e293b; }
+  #content p { margin:10px 0; }
+  #content ul, #content ol { padding-left:24px; margin:10px 0; }
+  #content li { margin:4px 0; }
+  #content code { background:#f1f5f9; padding:2px 6px; border-radius:4px; font-size:13px; color:#dc2626; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; }
+  #content pre { background:#0f172a; color:#e2e8f0; padding:16px 20px; border-radius:8px; overflow-x:auto; font-size:13px; line-height:1.5; }
+  #content pre code { background:transparent; color:inherit; padding:0; }
+  #content blockquote { border-left:4px solid #3b82f6; background:#eff6ff; padding:12px 16px; margin:16px 0; color:#1e40af; border-radius:0 6px 6px 0; }
+  #content blockquote p { margin:4px 0; }
+  #content table { width:100%; border-collapse:collapse; margin:16px 0; font-size:13px; }
+  #content th, #content td { border:1px solid #e2e8f0; padding:8px 12px; text-align:left; }
+  #content th { background:#f8fafc; font-weight:600; }
+  #content a { color:#3b82f6; }
+  #content hr { border:0; border-top:1px solid #e2e8f0; margin:24px 0; }
+  #content strong { color:#0f172a; font-weight:600; }
+  #content del { color:#94a3b8; }
+
+  /* 검색 하이라이트 */
+  .bd-highlight { background:#fef3c7; padding:0 2px; border-radius:2px; }
+
+  /* 로딩/에러 */
+  .bd-state { text-align:center; padding:80px 20px; color:#64748b; }
+  .bd-state h2 { color:#dc2626; margin:0 0 8px; }
+  .bd-state a { color:#3b82f6; }
+
+  @media (max-width:768px) {
+    .bd-shell { grid-template-columns:1fr; }
+    .bd-nav { position:static; height:auto; }
+    .bd-main { padding:20px 16px; }
+  }
+</style>
+</head>
+<body>
+<div id="root">
+  <div class="bd-state">
+    <h2>Loading...</h2>
+    <p>권한 확인 중</p>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/shared.js?v=3"></script>
+<script>
+// 헌법 부칙 5 / D-010 — Category 1 (Business Docs) 단일 진실 매핑
+// BACKLOG.md는 Category 2 (Task & Status)로 이동, JOURNEY/DECISIONS_INDEX 추가
+const DOCS = [
+  {
+    file: 'BUSINESS.md',
+    icon: '📜',
+    name: '비즈니스 헌장',
+    desc: '사업 방향 / 정책 / 가격 / 환불',
+    branch: 'main',
+  },
+  {
+    file: 'DECISIONS.md',
+    icon: '🗳️',
+    name: '의사결정 이력',
+    desc: '결정 변경 이력 (왜 이렇게 됐는가)',
+    branch: 'main',
+  },
+  {
+    file: 'DECISIONS_INDEX.md',
+    icon: '🗂️',
+    name: '의사결정 인덱스',
+    desc: 'D-001~D-010 빠른 색인 + 카테고리/상태',
+    branch: 'main',
+  },
+  {
+    file: 'JOURNEY.md',
+    icon: '🌅',
+    name: '매니저 여정',
+    desc: '가입~6개월 매니저 경험 흐름',
+    branch: 'main',
+  },
+  {
+    file: 'BUSINESS_FLOW.md',
+    icon: '🗺️',
+    name: '사용자 여정 (전체)',
+    desc: '가입 → 결제 → 6개월 전체 흐름',
+    branch: 'main',
+  },
+];
+
+let currentDoc = null;
+let currentMd = '';
+const ghBase = 'https://raw.githubusercontent.com/dgmasters01/tw-b2b/main/';
+
+(async function init(){
+  if (!window.TW || !window.TW.sb) {
+    renderDeny('Supabase 클라이언트 로드 실패');
+    return;
+  }
+  const { data: { session } } = await window.TW.sb.auth.getSession();
+  if (!session) { window.location.href = '/login.html'; return; }
+
+  // admin 권한 체크 — admin.html과 동일한 로직 사용 (T.checkAdmin)
+  // is_admin() RPC + admins 테이블 기반. profiles 테이블 의존 제거.
+  const ac = await window.TW.checkAdmin(session.user);
+  if (!ac || !ac.is_admin) {
+    renderDeny('관리자만 접근 가능한 페이지입니다.', session.user.email);
+    return;
+  }
+
+  renderShell(session.user.email);
+
+  // 첫 문서 자동 로드 (BUSINESS.md)
+  await loadDoc(DOCS[0].file);
+})();
+
+function renderDeny(msg, email){
+  document.getElementById('root').innerHTML = `
+    <div class="bd-state">
+      <h2>접근 거부</h2>
+      <p>${msg}</p>
+      ${email ? `<p style="color:#94a3b8;font-size:12px">${email}</p>` : ''}
+      <p><a href="/login.html">로그인 페이지로</a></p>
+    </div>`;
+}
+
+function renderShell(adminEmail){
+  document.getElementById('root').innerHTML = `
+    <div class="bd-shell">
+      <aside class="bd-nav">
+        <div class="bd-nav-h">
+          <h1 class="bd-nav-title">📚 Business Docs</h1>
+          <p class="bd-nav-sub">사업 방향 단일 진실 원천</p>
+        </div>
+        <a href="/admin.html" class="bd-nav-back">🏢 메인 대시보드 (관리자 콘솔)</a>
+        <div class="bd-nav-quick">
+          <div class="bd-nav-quick-title">바로가기</div>
+          <a href="/admin.html#tab-hotels">🏨 호텔 관리</a>
+          <a href="/admin.html#tab-bookings">📋 예약 관리</a>
+          <a href="/admin.html#tab-members">👥 매니저 관리</a>
+          <a href="/admin.html#tab-agoda-matching">🔗 Agoda 매칭</a>
+          <a href="/admin-gallery.html">🖼️ 페이지 갤러리</a>
+          <a href="/booking-analytics.html">📊 예약 분석</a>
+        </div>
+        <ul class="bd-doc-list" id="doc-list">
+          ${DOCS.map((d, i) => `
+            <li class="bd-doc-item">
+              <button class="bd-doc-btn" data-file="${d.file}">
+                <span class="bd-doc-icon">${d.icon}</span>
+                <div class="bd-doc-info">
+                  <div class="bd-doc-name">${d.name}</div>
+                  <div class="bd-doc-desc">${d.desc}</div>
+                </div>
+              </button>
+            </li>
+          `).join('')}
+        </ul>
+      </aside>
+
+      <main class="bd-main">
+        <div class="bd-toolbar">
+          <input type="text" id="search" placeholder="문서 내용 검색...">
+          <button onclick="window.print()">🖨️ 인쇄</button>
+          <button id="btn-reload">🔄 최신본 다시 불러오기</button>
+          <span class="bd-info" id="doc-info">${adminEmail}</span>
+        </div>
+        <div id="content">
+          <div class="bd-state">로딩 중...</div>
+        </div>
+      </main>
+    </div>
+  `;
+
+  // 좌측 네비 클릭 핸들러
+  document.querySelectorAll('.bd-doc-btn').forEach(btn => {
+    btn.addEventListener('click', () => loadDoc(btn.dataset.file));
+  });
+
+  // 검색 핸들러
+  document.getElementById('search').addEventListener('input', handleSearch);
+
+  // 새로고침 핸들러
+  document.getElementById('btn-reload').addEventListener('click', () => {
+    if (currentDoc) loadDoc(currentDoc, true);
+  });
+}
+
+async function loadDoc(filename, force){
+  currentDoc = filename;
+
+  // active 표시
+  document.querySelectorAll('.bd-doc-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.file === filename);
+  });
+
+  const contentEl = document.getElementById('content');
+  contentEl.innerHTML = '<div class="bd-state">📥 GitHub에서 로딩 중...</div>';
+
+  try {
+    const url = ghBase + filename + (force ? '?_=' + Date.now() : '');
+    const resp = await fetch(url);
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const md = await resp.text();
+    currentMd = md;
+    contentEl.innerHTML = renderMarkdown(md);
+
+    // info 갱신
+    const doc = DOCS.find(d => d.file === filename);
+    document.getElementById('doc-info').textContent =
+      `${doc.name} · ${md.split('\n').length}줄 · 최종 갱신: GitHub main 브랜치`;
+
+    // 스크롤 맨 위로
+    document.querySelector('.bd-main').scrollTo({ top:0, behavior:'instant' });
+  } catch (e) {
+    contentEl.innerHTML = `
+      <div class="bd-state">
+        <h2>로딩 실패</h2>
+        <p>${filename} 을 GitHub에서 가져오지 못했습니다.</p>
+        <p style="color:#94a3b8;font-size:12px">${e.message}</p>
+        <p><a href="https://github.com/dgmasters01/tw-b2b/blob/main/${filename}" target="_blank">GitHub에서 직접 보기</a></p>
+      </div>`;
+  }
+}
+
+function handleSearch(e){
+  const q = e.target.value.trim().toLowerCase();
+  const contentEl = document.getElementById('content');
+  if (!q) {
+    contentEl.innerHTML = renderMarkdown(currentMd);
+    return;
+  }
+
+  // 검색어 포함 라인만 필터 + 하이라이트
+  const lines = currentMd.split('\n');
+  const matches = [];
+  lines.forEach((line, i) => {
+    if (line.toLowerCase().includes(q)) {
+      // 앞뒤 1줄씩 컨텍스트로
+      const start = Math.max(0, i-1);
+      const end = Math.min(lines.length, i+2);
+      matches.push({ start, end, idx: i });
+    }
+  });
+
+  if (matches.length === 0) {
+    contentEl.innerHTML = `<div class="bd-state"><p>"${q}" 검색 결과 없음</p></div>`;
+    return;
+  }
+
+  // 매칭된 섹션만 모아서 표시
+  const seen = new Set();
+  const blocks = [];
+  matches.forEach(m => {
+    for (let i = m.start; i < m.end; i++) {
+      if (!seen.has(i)) {
+        seen.add(i);
+        blocks.push({ idx:i, line:lines[i] });
+      }
+    }
+    blocks.push({ idx:-1, line:'---' }); // 구분선
+  });
+
+  const filtered = blocks.map(b => b.line).join('\n');
+  let html = renderMarkdown(filtered);
+
+  // 검색어 하이라이트
+  const re = new RegExp('(' + q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ')', 'gi');
+  html = html.replace(/(>)([^<]+)(<)/g, (m, a, txt, b) => {
+    return a + txt.replace(re, '<span class="bd-highlight">$1</span>') + b;
+  });
+
+  contentEl.innerHTML = `<p style="color:#64748b;font-size:13px">📍 "${q}" 검색 결과 ${matches.length}개 매칭</p>` + html;
+}
+
+// === 간단한 Markdown 렌더러 ===
+function renderMarkdown(md){
+  const lines = md.split('\n');
+  let html = '';
+  let inCode = false;
+  let codeLang = '';
+  let codeBuf = [];
+  let inList = false;
+  let listType = '';
+  let inTable = false;
+  let tableRows = [];
+  let inBlockquote = false;
+  let bqBuf = [];
+  let inParaBuf = [];
+
+  function flushPara(){
+    if (inParaBuf.length) {
+      html += '<p>' + inline(inParaBuf.join(' ')) + '</p>\n';
+      inParaBuf = [];
+    }
+  }
+  function flushList(){
+    if (inList) {
+      html += `</${listType}>\n`;
+      inList = false; listType = '';
+    }
+  }
+  function flushTable(){
+    if (inTable && tableRows.length) {
+      html += '<table>\n';
+      tableRows.forEach((row, i) => {
+        if (i === 1 && row.every(c => /^-+:?$|^:?-+$|^:?-+:$/.test(c.trim()))) return; // separator
+        const tag = i === 0 ? 'th' : 'td';
+        html += '<tr>' + row.map(c => `<${tag}>${inline(c.trim())}</${tag}>`).join('') + '</tr>\n';
+      });
+      html += '</table>\n';
+      inTable = false; tableRows = [];
+    }
+  }
+  function flushBq(){
+    if (inBlockquote && bqBuf.length) {
+      html += '<blockquote>\n' + bqBuf.map(l => '<p>' + inline(l) + '</p>').join('\n') + '\n</blockquote>\n';
+      inBlockquote = false; bqBuf = [];
+    }
+  }
+
+  function inline(s){
+    s = escapeHtml(s);
+    s = s.replace(/`([^`]+)`/g, '<code>$1</code>');
+    s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+    s = s.replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, '<em>$1</em>');
+    s = s.replace(/~~([^~]+)~~/g, '<del>$1</del>');
+    s = s.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+    return s;
+  }
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+
+    // 코드 블록
+    if (line.startsWith('```')) {
+      flushPara(); flushList(); flushTable(); flushBq();
+      if (inCode) {
+        html += `<pre><code class="lang-${codeLang}">${escapeHtml(codeBuf.join('\n'))}</code></pre>\n`;
+        inCode = false; codeBuf = []; codeLang = '';
+      } else {
+        inCode = true;
+        codeLang = line.slice(3).trim();
+      }
+      continue;
+    }
+    if (inCode) { codeBuf.push(line); continue; }
+
+    // 헤더
+    if (/^# /.test(line))  { flushPara();flushList();flushTable();flushBq(); html += `<h1>${inline(line.slice(2))}</h1>\n`; continue; }
+    if (/^## /.test(line)) { flushPara();flushList();flushTable();flushBq(); html += `<h2>${inline(line.slice(3))}</h2>\n`; continue; }
+    if (/^### /.test(line)){ flushPara();flushList();flushTable();flushBq(); html += `<h3>${inline(line.slice(4))}</h3>\n`; continue; }
+    if (/^#### /.test(line)){flushPara();flushList();flushTable();flushBq(); html += `<h4>${inline(line.slice(5))}</h4>\n`; continue; }
+
+    // HR
+    if (/^---+$/.test(line.trim())) { flushPara();flushList();flushTable();flushBq(); html += '<hr>\n'; continue; }
+
+    // 인용문
+    if (/^> /.test(line)) {
+      flushPara(); flushList(); flushTable();
+      inBlockquote = true;
+      bqBuf.push(line.slice(2));
+      continue;
+    } else if (inBlockquote && line.trim() === '') {
+      flushBq();
+      continue;
+    } else {
+      flushBq();
+    }
+
+    // 테이블
+    if (/^\|.+\|$/.test(line.trim())) {
+      flushPara(); flushList();
+      inTable = true;
+      const cells = line.trim().slice(1, -1).split('|');
+      tableRows.push(cells);
+      continue;
+    } else if (inTable) {
+      flushTable();
+    }
+
+    // 리스트
+    const ulMatch = line.match(/^(\s*)[-*] (.+)$/);
+    const olMatch = line.match(/^(\s*)\d+\. (.+)$/);
+    if (ulMatch) {
+      flushPara(); flushTable();
+      if (!inList || listType !== 'ul') { flushList(); html += '<ul>\n'; inList = true; listType = 'ul'; }
+      html += `<li>${inline(ulMatch[2])}</li>\n`;
+      continue;
+    }
+    if (olMatch) {
+      flushPara(); flushTable();
+      if (!inList || listType !== 'ol') { flushList(); html += '<ol>\n'; inList = true; listType = 'ol'; }
+      html += `<li>${inline(olMatch[2])}</li>\n`;
+      continue;
+    }
+    if (inList && line.trim() === '') {
+      flushList();
+      continue;
+    }
+    if (inList) flushList();
+
+    // 빈 줄 = 단락 끝
+    if (line.trim() === '') { flushPara(); continue; }
+
+    // 일반 텍스트 (단락에 누적)
+    inParaBuf.push(line);
+  }
+
+  flushPara(); flushList(); flushTable(); flushBq();
+  return html;
+}
+
+function escapeHtml(s){
+  return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+</script>
+</body>
+</html>

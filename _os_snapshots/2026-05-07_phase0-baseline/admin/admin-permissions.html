@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>권한 관리 — TravelWinners B2B Admin</title>
+<style>
+  :root {
+    --bg:#0a0a0f; --panel:rgba(20,20,30,0.85); --border:rgba(255,255,255,0.08);
+    --text:#e5e7eb; --muted:#9ca3af; --accent:#a78bfa; --accent2:#6366f1;
+    --ok:#86efac; --warn:#fbbf24; --err:#fca5a5;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; min-height:100vh; background:var(--bg); color:var(--text);
+         font-family:-apple-system, BlinkMacSystemFont, 'Pretendard', sans-serif;
+         background-image: radial-gradient(ellipse at top, rgba(167,139,250,0.1), transparent 70%); }
+  .topbar { padding:14px 24px; border-bottom:0.5px solid var(--border);
+            display:flex; align-items:center; justify-content:space-between;
+            background:rgba(10,10,15,0.7); backdrop-filter:blur(10px); position:sticky; top:0; z-index:10; }
+  .topbar h1 { margin:0; font-size:16px; font-weight:600; }
+  .topbar .tag { font-size:11px; color:var(--muted); margin-left:10px; }
+  .topbar a { color:var(--accent); text-decoration:none; font-size:13px; margin-left:18px; }
+  .topbar a:hover { text-decoration:underline; }
+  .me { display:flex; align-items:center; gap:8px; font-size:12px; color:var(--muted); }
+  .me .role { background:rgba(167,139,250,0.15); color:var(--accent);
+              padding:2px 8px; border-radius:10px; font-size:10px; font-weight:600; }
+
+  .container { max-width:1280px; margin:0 auto; padding:24px; }
+
+  .stats { display:grid; grid-template-columns:repeat(6, 1fr); gap:12px; margin-bottom:20px; }
+  .stat { background:var(--panel); border:0.5px solid var(--border); border-radius:8px;
+          padding:14px 16px; backdrop-filter:blur(10px); }
+  .stat-lbl { font-size:11px; color:var(--muted); }
+  .stat-val { font-size:22px; font-weight:600; margin-top:4px; }
+  .stat.owner .stat-val { color:#fbbf24; }
+  .stat.admin .stat-val { color:var(--accent); }
+  .stat.staff .stat-val { color:#7dd3fc; }
+  .stat.readonly .stat-val { color:var(--muted); }
+  .stat.manager .stat-val { color:var(--ok); }
+  .stat.pending .stat-val { color:var(--warn); }
+
+  .panel { background:var(--panel); border:0.5px solid var(--border); border-radius:10px;
+           padding:18px 20px; margin-bottom:18px; backdrop-filter:blur(10px); }
+  .panel h2 { margin:0 0 14px; font-size:15px; font-weight:600; display:flex; align-items:center; gap:8px; }
+  .panel h2 .badge { background:rgba(255,255,255,0.05); padding:1px 8px; border-radius:8px;
+                     font-size:10px; color:var(--muted); font-weight:500; }
+
+  .invite-form { display:grid; grid-template-columns:2fr 1.5fr 1fr 1.2fr 100px; gap:8px; align-items:end; }
+  .invite-form label { font-size:10px; color:var(--muted); display:block; margin-bottom:4px; }
+  .invite-form input, .invite-form select {
+    width:100%; background:rgba(0,0,0,0.3); border:0.5px solid var(--border); color:var(--text);
+    padding:9px 11px; border-radius:5px; font-size:13px; font-family:inherit;
+  }
+  .invite-form input:focus, .invite-form select:focus { outline:1px solid var(--accent); border-color:var(--accent); }
+  .btn { background:linear-gradient(135deg, var(--accent), var(--accent2)); color:#fff;
+         border:0; padding:9px 14px; border-radius:5px; font-size:12px; font-weight:500; cursor:pointer;
+         font-family:inherit; }
+  .btn:hover { opacity:0.9; }
+  .btn:disabled { opacity:0.5; cursor:not-allowed; }
+  .btn.danger { background:linear-gradient(135deg, #ef4444, #dc2626); }
+  .btn.warn { background:linear-gradient(135deg, #f59e0b, #d97706); }
+  .btn.sm { padding:5px 9px; font-size:11px; }
+  .btn.ghost { background:transparent; border:0.5px solid var(--border); color:var(--text); }
+
+  table { width:100%; border-collapse:collapse; font-size:12px; }
+  th { text-align:left; color:var(--muted); font-weight:500; padding:9px 10px;
+       border-bottom:0.5px solid var(--border); font-size:11px; text-transform:uppercase; letter-spacing:0.04em; }
+  td { padding:11px 10px; border-bottom:0.5px solid rgba(255,255,255,0.04); }
+  tr:hover td { background:rgba(255,255,255,0.02); }
+  .role-pill { padding:2px 8px; border-radius:10px; font-size:10px; font-weight:600; }
+  .role-owner { background:rgba(251,191,36,0.15); color:#fbbf24; }
+  .role-admin { background:rgba(167,139,250,0.15); color:var(--accent); }
+  .role-staff { background:rgba(125,211,252,0.15); color:#7dd3fc; }
+  .role-readonly { background:rgba(156,163,175,0.15); color:var(--muted); }
+  .role-manager { background:rgba(134,239,172,0.15); color:var(--ok); }
+  .status-active { color:var(--ok); font-size:11px; }
+  .status-revoked { color:var(--err); font-size:11px; }
+
+  .filter-bar { display:flex; gap:6px; margin-bottom:14px; flex-wrap:wrap; }
+  .filter-bar button { background:transparent; border:0.5px solid var(--border); color:var(--muted);
+                       padding:5px 10px; border-radius:14px; font-size:11px; cursor:pointer; font-family:inherit; }
+  .filter-bar button.active { background:rgba(167,139,250,0.15); border-color:var(--accent); color:var(--accent); }
+
+  .toast { position:fixed; bottom:20px; right:20px; background:rgba(20,20,30,0.95);
+           border:0.5px solid var(--border); padding:10px 14px; border-radius:6px;
+           font-size:12px; backdrop-filter:blur(10px); z-index:100;
+           opacity:0; transform:translateY(8px); transition:all 0.2s; }
+  .toast.show { opacity:1; transform:translateY(0); }
+  .toast.err { border-color:rgba(248,113,113,0.5); color:var(--err); }
+  .toast.ok { border-color:rgba(134,239,172,0.5); color:var(--ok); }
+
+  .empty { text-align:center; color:var(--muted); padding:36px 20px; font-size:13px; }
+  .log-row { display:grid; grid-template-columns:120px 90px 1fr 1fr 140px; gap:10px;
+             padding:8px 10px; border-bottom:0.5px solid rgba(255,255,255,0.03); font-size:11px; }
+  .log-row:hover { background:rgba(255,255,255,0.02); }
+  .log-row .time { color:var(--muted); }
+  .log-row .action { color:var(--accent); font-weight:500; }
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div>
+    <h1>🛡 권한 관리</h1>
+    <span class="tag">BL-ADMIN-AUTH-V2</span>
+    <a href="/admin-status.html">← 통합 진입점</a>
+  </div>
+  <div class="me" id="me-info">로딩 중...</div>
+</div>
+
+<div class="container">
+
+  <div class="stats" id="stats">
+    <div class="stat owner"><div class="stat-lbl">Owner</div><div class="stat-val" id="s-owner">—</div></div>
+    <div class="stat admin"><div class="stat-lbl">Admin</div><div class="stat-val" id="s-admin">—</div></div>
+    <div class="stat staff"><div class="stat-lbl">Staff</div><div class="stat-val" id="s-staff">—</div></div>
+    <div class="stat readonly"><div class="stat-lbl">ReadOnly</div><div class="stat-val" id="s-readonly">—</div></div>
+    <div class="stat manager"><div class="stat-lbl">Manager</div><div class="stat-val" id="s-manager">—</div></div>
+    <div class="stat pending"><div class="stat-lbl">Pending Invites</div><div class="stat-val" id="s-pending">—</div></div>
+  </div>
+
+  <div class="panel">
+    <h2>📩 직원 초대 <span class="badge">admin / staff / readonly</span></h2>
+    <div class="invite-form">
+      <div>
+        <label>이메일</label>
+        <input type="email" id="inv-email" placeholder="staff@example.com">
+      </div>
+      <div>
+        <label>표시 이름 (선택)</label>
+        <input type="text" id="inv-name" placeholder="홍길동">
+      </div>
+      <div>
+        <label>권한</label>
+        <select id="inv-role">
+          <option value="staff">Staff (편집 가능)</option>
+          <option value="admin">Admin (직원 초대 가능)</option>
+          <option value="readonly">ReadOnly (조회만)</option>
+        </select>
+      </div>
+      <div>
+        <label>언어</label>
+        <select id="inv-lang">
+          <option value="ko">한국어</option>
+          <option value="en">English</option>
+        </select>
+      </div>
+      <div>
+        <button class="btn" id="btn-invite">초대 발송</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" id="pending-panel" style="display:none">
+    <h2>⏳ 대기 중인 초대 <span class="badge" id="pending-count">0</span></h2>
+    <table id="pending-table">
+      <thead><tr>
+        <th>이메일</th><th>권한</th><th>초대자</th><th>발송 시각</th><th>만료</th><th></th>
+      </tr></thead>
+      <tbody id="pending-tbody"></tbody>
+    </table>
+  </div>
+
+  <div class="panel">
+    <h2>👥 등록된 계정 <span class="badge" id="all-count">0</span></h2>
+    <div class="filter-bar" id="filter-bar">
+      <button data-filter="all" class="active">전체</button>
+      <button data-filter="owner">Owner</button>
+      <button data-filter="admin">Admin</button>
+      <button data-filter="staff">Staff</button>
+      <button data-filter="readonly">ReadOnly</button>
+      <button data-filter="manager">Manager</button>
+      <button data-filter="revoked">박탈됨</button>
+    </div>
+    <table id="users-table">
+      <thead><tr>
+        <th>이메일</th><th>이름</th><th>권한</th><th>상태</th><th>최근 로그인</th><th>가입일</th><th>관리</th>
+      </tr></thead>
+      <tbody id="users-tbody"></tbody>
+    </table>
+  </div>
+
+  <div class="panel">
+    <h2>📜 최근 활동 이력 <span class="badge">최근 50건</span></h2>
+    <div id="log-list"></div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+const SUPABASE_URL = 'https://vjsludfjsphwnumuoqaj.supabase.co';
+const SUPABASE_ANON = 'sb_publishable_IluITb52iuwwHf9xgP99MA__KX-sNM6';
+
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON, {
+  auth: { persistSession:true, autoRefreshToken:true, storageKey:'tw-admin-auth' }
+});
+
+// ★ BL-AUTH-COOKIE-SYNC — 토큰 갱신 시 sb-access-token 쿠키 자동 동기화 (SSR 게이트)
+sb.auth.onAuthStateChange((event, session) => {
+  try {
+    if ((event === 'TOKEN_REFRESHED' || event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session?.access_token) {
+      const secure = (location.protocol === 'https:') ? '; Secure' : '';
+      document.cookie = 'sb-access-token=' + session.access_token + '; Path=/; Max-Age=2592000; SameSite=Lax' + secure;
+    } else if (event === 'SIGNED_OUT') {
+      document.cookie = 'sb-access-token=; Path=/; Max-Age=0; SameSite=Lax';
+    }
+  } catch (err) { console.warn('[permissions] cookie sync 실패:', err); }
+});
+
+const $ = id => document.getElementById(id);
+let CALLER = null;
+let DATA = { admins:[], invitations:[], log:[], stats:{} };
+let CURRENT_FILTER = 'all';
+
+function toast(msg, type='ok') {
+  const t = $('toast');
+  t.className = 'toast ' + type + ' show';
+  t.textContent = msg;
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+function fmtDate(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  return d.toLocaleString('ko-KR', { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
+}
+
+function fmtRelative(iso) {
+  if (!iso) return '—';
+  const diff = (Date.now() - new Date(iso).getTime()) / 1000;
+  if (diff < 60) return '방금';
+  if (diff < 3600) return Math.floor(diff/60) + '분 전';
+  if (diff < 86400) return Math.floor(diff/3600) + '시간 전';
+  if (diff < 30*86400) return Math.floor(diff/86400) + '일 전';
+  return new Date(iso).toLocaleDateString('ko-KR');
+}
+
+async function getToken() {
+  const { data: { session } } = await sb.auth.getSession();
+  return session?.access_token || null;
+}
+
+async function api(path, opts={}) {
+  const token = await getToken();
+  if (!token) {
+    window.location.href = '/admin-login.html?next=permissions';
+    throw new Error('No session');
+  }
+  const r = await fetch(path, {
+    ...opts,
+    headers: {
+      'Content-Type':'application/json',
+      'Authorization':'Bearer ' + token,
+      ...(opts.headers || {})
+    }
+  });
+  const text = await r.text();
+  let data; try { data = JSON.parse(text); } catch { data = { raw:text }; }
+  if (!r.ok) throw new Error(data.error || ('HTTP ' + r.status));
+  return data;
+}
+
+async function init() {
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) {
+    window.location.href = '/admin-login.html?next=permissions';
+    return;
+  }
+
+  try {
+    const sessInfo = await api('/api/auth/session');
+    CALLER = sessInfo.user;
+    if (!['owner','admin'].includes(CALLER.role)) {
+      $('me-info').innerHTML = `${CALLER.email} <span class="role">${CALLER.role}</span>`;
+      document.querySelector('.container').innerHTML = '<div class="empty">권한 관리 페이지는 owner/admin 전용입니다.</div>';
+      return;
+    }
+    $('me-info').innerHTML = `${CALLER.email} <span class="role">${CALLER.role}</span>`;
+    await loadAll();
+  } catch (e) {
+    toast('초기화 실패: ' + e.message, 'err');
+  }
+}
+
+async function loadAll() {
+  try {
+    const r = await api('/api/admin/users-list');
+    DATA = { admins:r.admins, invitations:r.invitations, log:r.recent_log, stats:r.stats };
+    renderStats();
+    renderInvitations();
+    renderUsers();
+    renderLog();
+  } catch (e) {
+    toast('로딩 실패: ' + e.message, 'err');
+  }
+}
+
+function renderStats() {
+  $('s-owner').textContent = DATA.stats.owner || 0;
+  $('s-admin').textContent = DATA.stats.admin || 0;
+  $('s-staff').textContent = DATA.stats.staff || 0;
+  $('s-readonly').textContent = DATA.stats.readonly || 0;
+  $('s-manager').textContent = DATA.stats.manager || 0;
+  $('s-pending').textContent = DATA.stats.pending_invitations || 0;
+}
+
+function renderInvitations() {
+  const list = DATA.invitations || [];
+  $('pending-count').textContent = list.length;
+  if (list.length === 0) {
+    $('pending-panel').style.display = 'none';
+    return;
+  }
+  $('pending-panel').style.display = 'block';
+  const inviterMap = Object.fromEntries((DATA.admins||[]).map(a => [a.id, a.email]));
+  const tbody = $('pending-tbody');
+  tbody.innerHTML = list.map(inv => `
+    <tr>
+      <td>${inv.email}</td>
+      <td><span class="role-pill role-${inv.role}">${inv.role}</span></td>
+      <td>${inviterMap[inv.invited_by] || '—'}</td>
+      <td>${fmtDate(inv.invited_at)}</td>
+      <td>${fmtDate(inv.expires_at)}</td>
+      <td><button class="btn sm ghost" data-cancel="${inv.id}">취소</button></td>
+    </tr>
+  `).join('');
+  tbody.querySelectorAll('[data-cancel]').forEach(btn => {
+    btn.addEventListener('click', () => cancelInvite(btn.dataset.cancel));
+  });
+}
+
+function renderUsers() {
+  const list = (DATA.admins || []).filter(a => {
+    if (CURRENT_FILTER === 'all') return true;
+    if (CURRENT_FILTER === 'revoked') return !a.is_active;
+    return a.role === CURRENT_FILTER;
+  });
+  $('all-count').textContent = (DATA.admins || []).length;
+
+  if (list.length === 0) {
+    $('users-tbody').innerHTML = '<tr><td colspan="7" class="empty">표시할 계정이 없습니다</td></tr>';
+    return;
+  }
+
+  $('users-tbody').innerHTML = list.map(u => {
+    const isMe = u.id === CALLER.id;
+    const canManage = !isMe && (CALLER.role === 'owner' || (CALLER.role === 'admin' && ['staff','readonly'].includes(u.role)));
+    const isOwner = u.role === 'owner';
+
+    let actions = '';
+    if (isMe) actions = '<span style="color:var(--muted);font-size:10px">본인</span>';
+    else if (isOwner) actions = '<span style="color:var(--muted);font-size:10px">보호됨</span>';
+    else if (canManage) {
+      if (u.is_active) {
+        actions = `<button class="btn sm warn" data-action="revoke" data-id="${u.id}">박탈</button>`;
+        if (CALLER.role === 'owner') {
+          const roleOpts = ['admin','staff','readonly','manager'].filter(r => r !== u.role)
+            .map(r => `<option value="${r}">${r}</option>`).join('');
+          actions += ` <select data-rolesel="${u.id}" style="background:rgba(0,0,0,0.3);border:0.5px solid var(--border);color:var(--text);font-size:10px;padding:4px 6px;border-radius:4px"><option value="">권한 변경</option>${roleOpts}</select>`;
+        } else if (['staff','readonly'].includes(u.role)) {
+          const roleOpts = ['staff','readonly'].filter(r => r !== u.role)
+            .map(r => `<option value="${r}">${r}</option>`).join('');
+          actions += ` <select data-rolesel="${u.id}" style="background:rgba(0,0,0,0.3);border:0.5px solid var(--border);color:var(--text);font-size:10px;padding:4px 6px;border-radius:4px"><option value="">권한 변경</option>${roleOpts}</select>`;
+        }
+      } else {
+        actions = `<button class="btn sm" data-action="restore" data-id="${u.id}">복원</button>`;
+      }
+    }
+
+    return `
+      <tr>
+        <td>${u.email}${isMe ? ' <span style="color:var(--accent);font-size:10px">(나)</span>' : ''}</td>
+        <td>${u.display_name || '—'}</td>
+        <td><span class="role-pill role-${u.role}">${u.role}</span></td>
+        <td>${u.is_active
+          ? '<span class="status-active">● 활성</span>'
+          : '<span class="status-revoked">● 박탈됨</span>'}</td>
+        <td>${u.last_login_at ? fmtRelative(u.last_login_at) : '—'}</td>
+        <td>${fmtDate(u.created_at)}</td>
+        <td>${actions}</td>
+      </tr>
+    `;
+  }).join('');
+
+  $('users-tbody').querySelectorAll('[data-action]').forEach(btn => {
+    btn.addEventListener('click', () => doAction(btn.dataset.action, btn.dataset.id));
+  });
+  $('users-tbody').querySelectorAll('[data-rolesel]').forEach(sel => {
+    sel.addEventListener('change', () => {
+      if (sel.value) changeRole(sel.dataset.rolesel, sel.value);
+    });
+  });
+}
+
+function renderLog() {
+  const list = DATA.log || [];
+  if (list.length === 0) {
+    $('log-list').innerHTML = '<div class="empty">활동 이력이 없습니다</div>';
+    return;
+  }
+  $('log-list').innerHTML = list.map(l => {
+    let detail = '';
+    if (l.action === 'role_changed') detail = `${l.before_role} → ${l.after_role}`;
+    else if (l.action === 'revoked') detail = '계정 박탈';
+    else if (l.action === 'restored') detail = '계정 복원';
+    else if (l.action === 'invited') detail = `${l.after_role} 초대`;
+    else if (l.action === 'self_signup') detail = `${l.after_role} 가입`;
+    else if (l.action === 'accepted_invitation') detail = `${l.after_role} 가입`;
+    else detail = l.action;
+
+    return `
+      <div class="log-row">
+        <div class="time">${fmtRelative(l.performed_at)}</div>
+        <div class="action">${l.action}</div>
+        <div>${l.target_email}</div>
+        <div>${detail}</div>
+        <div class="time">by ${l.performed_by_email || 'system'}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+async function inviteUser() {
+  const email = $('inv-email').value.trim();
+  const name = $('inv-name').value.trim();
+  const role = $('inv-role').value;
+  const lang = $('inv-lang').value;
+  if (!email) return toast('이메일 입력 필요', 'err');
+
+  const btn = $('btn-invite');
+  btn.disabled = true;
+  btn.textContent = '발송 중...';
+  try {
+    const r = await api('/api/admin/invite', {
+      method:'POST',
+      body: JSON.stringify({ email, role, display_name:name, lang })
+    });
+    toast(r.warning || `${email}님께 초대 발송됨`, r.warning ? 'err' : 'ok');
+    $('inv-email').value = '';
+    $('inv-name').value = '';
+    await loadAll();
+  } catch (e) {
+    toast('초대 실패: ' + e.message, 'err');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '초대 발송';
+  }
+}
+
+async function doAction(action, targetId) {
+  const target = DATA.admins.find(a => a.id === targetId);
+  if (!target) return;
+  const confirmMsg = action === 'revoke' 
+    ? `${target.email} 계정을 박탈하시겠습니까?\n→ 즉시 모든 세션이 종료됩니다.` 
+    : `${target.email} 계정을 복원하시겠습니까?`;
+  if (!confirm(confirmMsg)) return;
+
+  try {
+    await api('/api/admin/change-role', {
+      method:'POST',
+      body: JSON.stringify({ target_id:targetId, action })
+    });
+    toast(`${target.email} ${action} 완료`, 'ok');
+    await loadAll();
+  } catch (e) {
+    toast(action + ' 실패: ' + e.message, 'err');
+  }
+}
+
+async function changeRole(targetId, newRole) {
+  const target = DATA.admins.find(a => a.id === targetId);
+  if (!target) return;
+  if (!confirm(`${target.email} 권한을 ${target.role} → ${newRole}로 변경하시겠습니까?`)) {
+    await loadAll();
+    return;
+  }
+  try {
+    await api('/api/admin/change-role', {
+      method:'POST',
+      body: JSON.stringify({ target_id:targetId, action:'change_role', new_role:newRole })
+    });
+    toast(`${target.email} → ${newRole}`, 'ok');
+    await loadAll();
+  } catch (e) {
+    toast('권한 변경 실패: ' + e.message, 'err');
+    await loadAll();
+  }
+}
+
+async function cancelInvite(invId) {
+  if (!confirm('초대를 취소하시겠습니까?')) return;
+  try {
+    // PATCH는 별도 엔드포인트 없이 직접 supabase update (RLS로 admin만 가능)
+    const { error } = await sb.from('admin_invitations').update({
+      cancelled_at: new Date().toISOString(),
+      cancelled_by: CALLER.id
+    }).eq('id', invId);
+    if (error) throw error;
+    toast('초대 취소됨', 'ok');
+    await loadAll();
+  } catch (e) {
+    toast('취소 실패: ' + e.message, 'err');
+  }
+}
+
+$('btn-invite').addEventListener('click', inviteUser);
+$('filter-bar').addEventListener('click', e => {
+  if (e.target.tagName !== 'BUTTON') return;
+  CURRENT_FILTER = e.target.dataset.filter;
+  $('filter-bar').querySelectorAll('button').forEach(b => b.classList.toggle('active', b === e.target));
+  renderUsers();
+});
+
+init();
+</script>
+</body>
+</html>

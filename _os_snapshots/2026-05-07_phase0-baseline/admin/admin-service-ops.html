@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>Service Operations — TravelWinners B2B Admin</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/shared.css">
+<style>
+  :root {
+    --bg: #0f172a;
+    --panel: #1e293b;
+    --border: #334155;
+    --text: #f1f5f9;
+    --text-muted: #94a3b8;
+    --aurora-1: #8b5cf6;
+    --aurora-2: #ec4899;
+    --aurora-3: #06b6d4;
+  }
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+    margin: 0; padding: 0; min-height: 100vh;
+    background-image:
+      radial-gradient(at 20% 10%, rgba(6, 182, 212, 0.10) 0, transparent 40%),
+      radial-gradient(at 80% 80%, rgba(139, 92, 246, 0.08) 0, transparent 40%);
+  }
+  .so-shell { max-width: 1200px; margin: 0 auto; padding: 24px; }
+
+  .so-header { margin-bottom: 32px; }
+  .so-back { display:inline-flex; align-items:center; gap:8px; color:#94a3b8; text-decoration:none; font-size:13px; margin-bottom:16px; padding:6px 12px; border-radius:6px; background:rgba(255,255,255,0.04); }
+  .so-back:hover { background:rgba(255,255,255,0.08); color:#fff; }
+  .so-h1 { font-size:32px; font-weight:800; margin:0 0 8px; background: linear-gradient(135deg, var(--aurora-3), var(--aurora-1)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .so-sub { color: var(--text-muted); font-size:14px; margin:0; }
+
+  .stage-banner {
+    background: linear-gradient(135deg, rgba(234,179,8,0.1), rgba(139,92,246,0.05));
+    border: 1px solid rgba(234,179,8,0.3);
+    border-radius: 12px;
+    padding: 18px 24px;
+    margin-bottom: 32px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .stage-banner-icon { font-size: 28px; }
+  .stage-banner-content h3 { margin: 0 0 4px; font-size: 15px; color: #fde68a; }
+  .stage-banner-content p { margin: 0; font-size: 13px; color: #fef3c7; }
+
+  .so-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; margin-bottom: 24px; }
+
+  .so-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .so-card.placeholder { opacity: 0.6; }
+  .so-card-h { font-size: 16px; font-weight: 700; margin: 0 0 6px; }
+  .so-card-sub { font-size: 12px; color: var(--text-muted); margin: 0 0 14px; }
+  .so-card-status {
+    display: inline-block;
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .so-card-status.future { background: rgba(234,179,8,0.15); color: #fde68a; border: 1px solid rgba(234,179,8,0.3); }
+  .so-card-status.pre-active { background: rgba(139,92,246,0.15); color: #c4b5fd; border: 1px solid rgba(139,92,246,0.3); }
+  .so-card-list { font-size: 13px; color: #cbd5e1; line-height: 1.7; padding-left: 18px; margin: 0; }
+
+  .charter-ref { font-size: 12px; color: #94a3b8; margin-top: 24px; padding: 14px 18px; background: rgba(139,92,246,0.05); border-left: 3px solid #8b5cf6; border-radius: 4px; }
+  .charter-ref strong { color: #c4b5fd; }
+</style>
+</head>
+<body>
+<div class="so-shell">
+
+  <header class="so-header">
+    <a class="so-back" href="/admin.html">← Back to Admin</a>
+    <h1 class="so-h1">🛠️ Service Operations</h1>
+    <p class="so-sub">운영 매뉴얼 — 4번째 시스템 카테고리 (헌법 부칙 5)</p>
+  </header>
+
+  <!-- 단계 안내 -->
+  <div class="stage-banner">
+    <div class="stage-banner-icon">⏳</div>
+    <div class="stage-banner-content">
+      <h3>현재 단계: 개발 (gohotelwinners.com 정식 오픈 전)</h3>
+      <p>운영 매뉴얼은 정식 서비스 오픈과 함께 활성화됩니다. 헌법 11조 메모리 사이클에 따라 토큰도 이 시점에 운영 모드로 전환됩니다.</p>
+    </div>
+  </div>
+
+  <!-- 운영 매뉴얼 항목 (골격) -->
+  <div class="so-grid">
+
+    <div class="so-card placeholder">
+      <span class="so-card-status future">정식 오픈 후</span>
+      <h3 class="so-card-h">📞 매니저 응대 매뉴얼</h3>
+      <p class="so-card-sub">SERVICE_OPS.md / 매니저 문의 응대 표준</p>
+      <ul class="so-card-list">
+        <li>결제 / 환불 문의 응대</li>
+        <li>호텔 매칭 이슈 응대</li>
+        <li>6개월 보장 발동 절차</li>
+        <li>재제작 권리 행사 절차</li>
+      </ul>
+    </div>
+
+    <div class="so-card placeholder">
+      <span class="so-card-status future">정식 오픈 후</span>
+      <h3 class="so-card-h">🚨 인시던트 대응</h3>
+      <p class="so-card-sub">RUNBOOK.md / 장애 발생 시 표준 절차</p>
+      <ul class="so-card-list">
+        <li>Vercel 배포 실패 대응</li>
+        <li>Supabase 연결 실패 대응</li>
+        <li>PayPal 결제 실패 대응</li>
+        <li>이메일 발송 실패 대응</li>
+      </ul>
+    </div>
+
+    <div class="so-card placeholder">
+      <span class="so-card-status future">정식 오픈 후</span>
+      <h3 class="so-card-h">📊 운영 KPI 모니터링</h3>
+      <p class="so-card-sub">매일 자동 점검 항목</p>
+      <ul class="so-card-list">
+        <li>신규 가입 / 결제 / 환불</li>
+        <li>채널 노출 8/8 점검</li>
+        <li>예약 데이터 정합성</li>
+        <li>매니저 NPS 추적</li>
+      </ul>
+    </div>
+
+    <div class="so-card placeholder">
+      <span class="so-card-status future">정식 오픈 후</span>
+      <h3 class="so-card-h">🔐 토큰 / 키 운영 모드</h3>
+      <p class="so-card-sub">헌법 11조 운영 모드 진입 절차</p>
+      <ul class="so-card-list">
+        <li>userMemories에서 토큰 제거</li>
+        <li>Vercel 환경변수만 사용</li>
+        <li>토큰 만료 알림 자동화</li>
+        <li>로테이션 스케줄 운영</li>
+      </ul>
+    </div>
+
+    <div class="so-card placeholder">
+      <span class="so-card-status future">정식 오픈 후</span>
+      <h3 class="so-card-h">📝 인시던트 로그</h3>
+      <p class="so-card-sub">INCIDENT_LOG.md / 발생한 모든 운영 사건 기록</p>
+      <ul class="so-card-list">
+        <li>발생 시간 / 영향 범위</li>
+        <li>대응 조치 / 복구 시간</li>
+        <li>근본 원인 분석</li>
+        <li>재발 방지 조치</li>
+      </ul>
+    </div>
+
+    <div class="so-card pre-active">
+      <span class="so-card-status pre-active">개발 단계 활성</span>
+      <h3 class="so-card-h">📋 사전 준비 체크리스트</h3>
+      <p class="so-card-sub">정식 오픈 전 완료 의무 항목</p>
+      <ul class="so-card-list">
+        <li>BL-AURORA-MIGRATION 완료</li>
+        <li>BL-MANAGER-DASH-001 완료</li>
+        <li>BL-TRACK-001 완료</li>
+        <li>BL-INVOICE-001 완료</li>
+        <li>한국어 i18n 일괄 적용</li>
+        <li>PayPal Live 전환 검증</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <!-- 헌법 참조 -->
+  <div class="charter-ref">
+    <strong>헌법 부칙 5</strong>: TW B2B 운영은 4개 통합 시스템(Business Docs / Task & Status / Page Gallery / Service Operations) 위에서 작동한다.
+    각자 책임 분리, 자동 동기화, 서로 참조. 한 파일에 통합하는 게 아니라, 4개가 동기화되는 것이 진짜 통합.
+    <br><br>
+    <strong>헌법 11조</strong>: 운영 모드 진입 = gohotelwinners.com 정식 서비스 오픈 시점. 이때 처음 토큰을 메모리에서 비운다.
+  </div>
+
+</div>
+
+<!-- ★ BL-AUTH-COOKIE-SYNC — Supabase + shared.js로 토큰 갱신 시 sb-access-token 쿠키 자동 동기화 -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/shared.js?v=4"></script>
+</body>
+</html>

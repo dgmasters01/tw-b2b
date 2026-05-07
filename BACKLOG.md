@@ -19,14 +19,14 @@
 
 ---
 
-## 🟢 P0 — 통합 To-Do Inbox (관리자 대시보드 재설계)
+## ⚡ P0 — 통합 To-Do Inbox (관리자 대시보드 재설계)
 
 **요약**: ## 🔴 P0 — 통합 To-Do Inbox (관리자 대시보드 재설계) ⭐⭐⭐ 2026-04-29  **배경** (대표님 핵심 운영 철학): > "한 사람이 처리해야 될 업무는 한 곳에서 우선순위가 표시되어 체크하면 정리할 수 있게 해야 됨. 내가 복잡하게 관리하게 하면 안 됨. 나에게 유리하게 해야 됨."  대표님 1인 운영. 처리 작업이 여러 탭에 흩어
 
 - **자율성**: 🟢 AUTO
 - **예상 시간**: 미정시간
 - **카테고리**: dev
-- **상태**: pending
+- **상태**: in_progress
 - **ID**: `BL-002` (출처: BACKLOG.md)
 
 ---
@@ -195,6 +195,23 @@
 - **카테고리**: infrastructure
 - **상태**: pending
 - **ID**: `SQ-H` (출처: SOLO_WORK_QUEUE.md)
+
+---
+
+## 🟢 P1 — Vercel 빌드 큐 누락 감지·자동 복구 가드 (헌법 부칙 8 강화)
+
+**요약**: ## P1 — Vercel 빌드 큐 누락 감지·자동 복구 가드
+
+**문제**: 봇 commit 다수가 같은 초에 push될 때 Vercel webhook이 일부 commit의 deployment를 만들지 않는 race. 사람이 발견하기 전까지 라이브 = 옛 상태.
+
+**구현 항목**:
+1. `_os/scripts/health_check_admin.mjs`에
+
+- **자율성**: 🟢 AUTO
+- **예상 시간**: 1.0시간
+- **카테고리**: infrastructure
+- **상태**: pending
+- **ID**: `BL-VERCEL-DEPLOY-RACE-GUARD` (출처: 실측 결함 (2026-05-08))
 
 ---
 

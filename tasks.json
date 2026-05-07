@@ -4535,6 +4535,46 @@
       "created_at": "2026-05-07T02:23:39+00:00",
       "owner": "claude",
       "description": "Phase 0 단계 1·2·3 commit 모두 [step:done:N] 박혔지만 봇이 트리거 안 됨. auto-detect-task-status.yml이 'branches: [main]'만 listen. Phase 1에서 'branches: [main, restructure-os-modularization]'로 확장 또는 모든 브랜치로 확장."
+    },
+    {
+      "id": "BL-OS-PHASE-1A",
+      "title": "OS 모듈화 Phase 1A — 백엔드 결함 수리 (auto-detect 다중 브랜치 + sync-bot 부활 + scan/activity 검증)",
+      "category": "OS",
+      "priority": "P0",
+      "status": "in_progress",
+      "source": "HANDOVER_OS_PHASE0.md Phase 1 결함 #1·#2·#8",
+      "created_at": "2026-05-07T04:32:55+00:00",
+      "owner": "claude",
+      "progress": {
+        "steps": [
+          {
+            "label": "결함 #8 auto-detect-bot 다중 브랜치 확장 (restructure 브랜치도 listen)",
+            "done": false
+          },
+          {
+            "label": "결함 #1-A tasks.json source 38건 일괄 복구",
+            "done": false
+          },
+          {
+            "label": "결함 #1-B tasks.json schema에 source 필수화 (build_tasks_json.py + sync_engine.py 검증)",
+            "done": false
+          },
+          {
+            "label": "결함 #1-C sync-bot 라이브 부활 검증 (워크플로 success)",
+            "done": false
+          },
+          {
+            "label": "결함 #2 scan-bot / activity-feed 정상화 라이브 검증",
+            "done": false
+          },
+          {
+            "label": "Phase 1A 종합 라이브 검증 (_health.json overall=green 또는 yellow only)",
+            "done": false
+          }
+        ],
+        "percent": 0
+      },
+      "description": "Phase 1 백엔드 묶음. UI 작업(#3·#4·#5·#6·#7)은 Phase 1B에서. 본 작업 완료 후 _health.json red 줄 사라져야 함."
     }
   ]
 }

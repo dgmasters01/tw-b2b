@@ -23,7 +23,7 @@ name: Auto Detect Task Status from Commit Messages
 
 on:
   push:
-    branches: [main]
+    branches: [main, restructure-os-modularization]
   workflow_dispatch:
     inputs:
       since_commit:
@@ -50,7 +50,8 @@ jobs:
     if: |
       !startsWith(github.event.head_commit.message, '[auto-detect-bot]') &&
       !startsWith(github.event.head_commit.message, '[sync-bot]') &&
-      !startsWith(github.event.head_commit.message, '[scan-bot]')
+      !startsWith(github.event.head_commit.message, '[scan-bot]') &&
+      !startsWith(github.event.head_commit.message, '[health-bot]')
 
     steps:
       - name: Checkout (full history)

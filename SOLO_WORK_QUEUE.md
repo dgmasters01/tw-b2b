@@ -164,14 +164,6 @@
 
 ---
 
-### I. 🟡 SEMI — sync_engine.py — apply 시 tasks.json stats 자동 재계산 (사람 의무 제거)
-
-**ID**: `BL-SYNC-ENGINE-AUTO-STATS`  
-**카테고리**: infra  
-**예상 시간**: 0.5시간  
-
----
-
 ## ⚪ P3 — 여유 시간
 
 ### A. 🟢 AUTO — Chrome 확장 프로그램 간섭 (사용자 환경)
@@ -202,11 +194,11 @@
 
 ---
 
-### D. 🟡 SEMI — chat-log-index 봇 동시 push race fix — pre-push git pull --rebase 추가
+### D. 🟡 SEMI — 워크플로 dead branch listening 정리 — restructure-os-modularization 통합 후 잔여
 
-**ID**: `BL-CHATLOG-BOT-RACE`  
+**ID**: `BL-WORKFLOW-DEAD-BRANCH-CLEANUP`  
 **카테고리**: infra  
-**예상 시간**: 0.3시간  
+**예상 시간**: 0.2시간  
 
 ---
 

@@ -333,16 +333,6 @@
 
 ---
 
-## 🟡 P2 — sync_engine.py — apply 시 tasks.json stats 자동 재계산 (사람 의무 제거)
-
-- **자율성**: 🟡 SEMI
-- **예상 시간**: 0.5시간
-- **카테고리**: infra
-- **상태**: pending
-- **ID**: `BL-SYNC-ENGINE-AUTO-STATS` (출처: BL-OS-PHASE-1B 단계 4 진행 중 발견 — 작업 추가 시 stats.total 수동 갱신 안 하면 sync-bot failure)
-
----
-
 ## 🟢 P3 — Chrome 확장 프로그램 간섭 (사용자 환경)
 
 **요약**: ## 🟢 P3 — Chrome 확장 프로그램 간섭 (사용자 환경)  **현상**: `subtitle.js` 확장 프로그램(자막/번역)이 페이지 JS에 간섭. 콘솔 에러 `Extension context invalidated`.  **영향**: 사이트 동작에는 영향 없음. 디버깅 시 노이즈만 증가.  **해결**: 대표님 환경에서 확장 프로그램 비활성화. 코
@@ -377,13 +367,13 @@
 
 ---
 
-## 🟡 P3 — chat-log-index 봇 동시 push race fix — pre-push git pull --rebase 추가
+## 🟡 P3 — 워크플로 dead branch listening 정리 — restructure-os-modularization 통합 후 잔여
 
 - **자율성**: 🟡 SEMI
-- **예상 시간**: 0.3시간
+- **예상 시간**: 0.2시간
 - **카테고리**: infra
 - **상태**: pending
-- **ID**: `BL-CHATLOG-BOT-RACE` (출처: BL-OS-PHASE-5 단계 8 라이브 검증 중 발견)
+- **ID**: `BL-WORKFLOW-DEAD-BRANCH-CLEANUP` (출처: BL-OS-PHASE-5 단계 8~9 후속 정석 인프라 청소 중 발견 (2026-05-08))
 
 ---
 

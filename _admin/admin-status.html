@@ -4450,6 +4450,7 @@
     pauseReasons: new Set(),
     lastTasksHash: null,
     lastActivityHash: null,
+    lastPagesStatusHash: null,  // BL-SYNC-PAGES-STATUS (2026-05-06): pages-status.display.json 폴링용
     statusEl: null,
   };
 
@@ -4545,6 +4546,33 @@
           } catch (_) {}
         }
         POLL.lastActivityHash = h;
+      }
+      // pages-status.display.json — BL-SYNC-PAGES-STATUS (2026-05-06):
+      //   5개 카테고리 페이지 카드 (renderAll → renderAvg/SidebarMenus/TopUrgent/Footer) 자동 갱신.
+      //   GitHub Actions가 갱신해도 화면 안 바뀌던 결함 fix. 헌법 12조 부칙 8 준수.
+      const ps = await fetch('/pages-status.display.json?t=' + Date.now());
+      if (ps.ok) {
+        const txt = await ps.text();
+        const h = quickHash(txt);
+        if (POLL.lastPagesStatusHash !== null && h !== POLL.lastPagesStatusHash) {
+          try {
+            const data = JSON.parse(txt);
+            // STATE.data 머지 — pages-status 출처 필드만 갱신 (tasks 필드는 pollTick의 tasks.json 블록이 관리)
+            if (STATE.data) {
+              STATE.data.totalAvgScore = data.totalAvgScore;
+              STATE.data.counts = data.counts;
+              STATE.data.sidebarMenus = data.sidebarMenus;
+              STATE.data.topUrgent = data.topUrgent;
+              STATE.data.footer = data.footer;
+            } else {
+              STATE.data = data;
+            }
+            // renderAll 재호출 — Avg/SidebarMenus/TopUrgent/Footer 4개 영역 일괄 갱신
+            renderAll();
+            showPollToast('🔄 페이지 상태 갱신됨');
+          } catch (_) {}
+        }
+        POLL.lastPagesStatusHash = h;
       }
       updatePollStatus();
     } catch (e) {

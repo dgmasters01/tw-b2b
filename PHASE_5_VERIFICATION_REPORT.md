@@ -160,8 +160,19 @@ b4f75f6 [BL-OS-PHASE-5] 단계 7: DOCS 5개 polling 5분→5초 통일
 | BL | 설명 | 우선순위 |
 |---|---|---|
 | BL-CHATLOG-BOT-RACE | chat-log-index 봇이 동시 push 시점 race로 간헐적 fetch-first reject. 해결책: pre-push 시 `git pull --rebase origin main` 추가. | 낮음 (간헐, 다음 commit에서 자가 회복) |
+| BL-SYNC-ENGINE-AUTO-STATS | (기존 등록됨, pending) sync_engine이 tasks.json 변경 시 stats 자동 재계산 안 함 → tasks 수 변경 commit마다 sync.yml `--verify` exit 1. 단계 9 commit `6e89bda`에서도 동일 재현 → 수동 stats 재계산 commit으로 회복. **부칙 11(자동 stats 재계산 의무) 위반 — 다음 채팅 우선 처리 권장.** | 중간 (사람 의무 발생 — 부칙 11 위반) |
 
-위 BL은 PHASE-5 스코프 외 (이미 PHASE-1A/3 작업 시점에 존재한 race). 별도 task로 등록만 하고 PHASE-5는 done 처리.
+위 2건은 PHASE-5 스코프 외. 별도 task로 등록·추적하고 PHASE-5 본체는 done 처리.
+
+### 5-1. 단계 9 commit 후 봇 재검증 (`6e89bda` 기준)
+
+| 봇 | 결과 | 비고 |
+|---|---|---|
+| auto-detect-task-status | ✅ success | `[step:done:9]` 잡음 |
+| build-activity-feed | ✅ success | activity-feed 갱신 |
+| health-check-admin | ✅ success | _health.json yellow 유지 |
+| sync.yml | ❌ failure → ✅ 회복 | stats 불일치 (108→110) → 수동 stats 재계산 commit으로 회복 |
+| chat-log-index | ❌ failure (기존 race) | BL-CHATLOG-BOT-RACE로 추적 |
 
 ---
 

@@ -346,13 +346,22 @@ def verify_sync(data: dict[str, Any]) -> tuple[bool, list[str]]:
         if k not in data:
             errors.append(f"tasks.json 필수 필드 누락: {k}")
 
-    # 2. tasks 배열 검증
+    # 2. tasks 배열 검증 (전수 — 샘플링 금지, 인계서 결함 #1 발생 원인 차단)
+    REQUIRED_TASK_FIELDS = ["id", "status", "source"]  # source 필수화 (BL-OS-PHASE-1A)
     if isinstance(data.get("tasks"), list):
-        for i, t in enumerate(data["tasks"][:5]):  # 샘플 5개만
-            if "id" not in t:
-                errors.append(f"task[{i}] id 누락")
-            if "status" not in t:
-                errors.append(f"task[{i}] status 누락")
+        missing_per_field: dict[str, list[str]] = {f: [] for f in REQUIRED_TASK_FIELDS}
+        for i, t in enumerate(data["tasks"]):
+            tid = t.get("id", f"<index {i}>")
+            for field in REQUIRED_TASK_FIELDS:
+                if field not in t:
+                    missing_per_field[field].append(tid)
+        for field, ids in missing_per_field.items():
+            if ids:
+                preview = ", ".join(ids[:5]) + (" ..." if len(ids) > 5 else "")
+                errors.append(
+                    f"{field} 필드 누락: {len(ids)}건 (예시: {preview}). "
+                    f"sync-bot KeyError 유발 — Phase 1A에서 source 38건 일괄 복구 후 재발 방지를 위해 schema 필수화."
+                )
     else:
         errors.append("tasks가 배열 아님")
 

@@ -4558,12 +4558,16 @@
           try {
             const data = JSON.parse(txt);
             // STATE.data 머지 — pages-status 출처 필드만 갱신 (tasks 필드는 pollTick의 tasks.json 블록이 관리)
+            // ★ 라이브 검증에서 발견 (2026-05-06): renderFooter는 d.generatedAt을 사용, d.footer는 필드 자체가 없음.
+            //   머지 대상은 실제 pages-status.display.json 키와 정확히 일치해야 stale/undefined 위험 방지.
             if (STATE.data) {
+              STATE.data.generatedAt = data.generatedAt;
               STATE.data.totalAvgScore = data.totalAvgScore;
               STATE.data.counts = data.counts;
+              STATE.data.categoryStats = data.categoryStats;
               STATE.data.sidebarMenus = data.sidebarMenus;
               STATE.data.topUrgent = data.topUrgent;
-              STATE.data.footer = data.footer;
+              STATE.data.pages = data.pages;
             } else {
               STATE.data = data;
             }

@@ -31,7 +31,7 @@ import { PAGES, PAGE_TASK_META } from './pages-meta.mjs';
 // (git history 기반 자동 갱신)
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = resolve(__dirname, '..');
+const REPO_ROOT = resolve(__dirname, '..', '..');  // _os/scripts/ → _os/ → repo root (BL-OS-PHASE-2)
 // 3-Layer 출력 파일 경로 (D-012 대용량 파일 분리 원칙 / 헌법 ⑥ AI 가독성)
 const OUT_FULL    = resolve(REPO_ROOT, 'pages-status.json');           // 분석용 (전체)
 const OUT_DISPLAY = resolve(REPO_ROOT, 'pages-status.display.json');   // UI용 (admin-status.html이 fetch)

@@ -46,7 +46,7 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parent.parent
+REPO_ROOT = Path(__file__).resolve().parent.parent.parent  # _os/scripts/ → _os/ → repo root (BL-OS-PHASE-2)
 TASKS_JSON = REPO_ROOT / "tasks.json"
 
 # 작업 ID 정규식 — 헌법 D-010 명명 규약 + 기존 데이터 패턴

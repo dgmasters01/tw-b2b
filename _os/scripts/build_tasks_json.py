@@ -12,7 +12,7 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-REPO = Path(__file__).resolve().parent.parent  # tw-b2b/
+REPO = Path(__file__).resolve().parent.parent.parent  # _os/scripts/ → _os/ → repo root (BL-OS-PHASE-2)  # tw-b2b/
 NOW = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 # ============================================================

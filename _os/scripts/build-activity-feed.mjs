@@ -24,7 +24,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = resolve(__dirname, '..');
+const REPO_ROOT = resolve(__dirname, '..', '..');  // _os/scripts/ → _os/ → repo root (BL-OS-PHASE-2)
 
 const OUT_FULL    = resolve(REPO_ROOT, 'activity-feed.json');
 const OUT_DISPLAY = resolve(REPO_ROOT, 'activity-feed.display.json');

@@ -48,10 +48,10 @@ from typing import Any
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import sync_md_from_tasks as legacy_sync  # noqa: E402
 
-REPO: Path = Path(__file__).resolve().parent.parent
+REPO: Path = Path(__file__).resolve().parent.parent.parent  # _os/scripts/ → _os/ → repo root (BL-OS-PHASE-2)
 TASKS_FILE: Path = REPO / "tasks.json"
 DECISIONS_FILE: Path = REPO / "DECISIONS.md"
-GALLERY_META_FILE: Path = REPO / "scripts" / "pages-meta.mjs"
+GALLERY_META_FILE: Path = REPO / "_os" / "scripts" / "pages-meta.mjs"
 
 NOW_ISO: str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
 AUTO_SECTION_START: str = "<!-- SYNC_ENGINE:DECISIONS_AUTO_START -->"

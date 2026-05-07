@@ -30,7 +30,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = resolve(__dirname, '..');
+const REPO_ROOT = resolve(__dirname, '..', '..');  // _os/scripts/ → _os/ → repo root (BL-OS-PHASE-2)
 
 const CATEGORY_1_FILES = ['BUSINESS.md', 'DECISIONS.md', 'DECISIONS_INDEX.md', 'JOURNEY.md', 'BUSINESS_FLOW.md'];
 const CATEGORY_2_FILES = ['tasks.json', 'BACKLOG.md', 'CHANGELOG.md', 'SOLO_WORK_QUEUE.md', 'ECHO_LOG.md'];

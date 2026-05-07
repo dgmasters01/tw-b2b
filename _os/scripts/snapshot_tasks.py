@@ -17,7 +17,7 @@ import shutil
 from datetime import datetime, timezone
 from pathlib import Path
 
-REPO = Path(__file__).resolve().parent.parent
+REPO = Path(__file__).resolve().parent.parent.parent  # _os/scripts/ → _os/ → repo root (BL-OS-PHASE-2)
 TASKS_FILE = REPO / 'tasks.json'
 SNAPSHOTS_DIR = REPO / 'tasks_snapshots'
 INDEX_FILE = SNAPSHOTS_DIR / 'index.json'

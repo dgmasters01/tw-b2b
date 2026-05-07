@@ -33,7 +33,7 @@ on:
 # 동시 실행 방지 — 같은 브랜치에서 여러 sync가 충돌하지 않도록
 concurrency:
   group: sync-tasks-${{ github.ref }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 permissions:
   contents: write  # 자동 commit/push에 필요
@@ -118,7 +118,7 @@ jobs:
               break
             fi
             echo "⚠️ push 실패 (시도 ${attempt}) — pull --rebase 후 재시도"
-            git pull --rebase origin ${{ github.ref_name }} || {
+            git pull --rebase --strategy-option=ours origin ${{ github.ref_name }} || {
               echo "❌ rebase 충돌 — 수동 개입 필요"; exit 1;
             }
           done

@@ -34,7 +34,7 @@ on:
 # 동시 실행 방지 (sync.yml과는 별도 group)
 concurrency:
   group: auto-detect-task-status-${{ github.ref }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 permissions:
   contents: write
@@ -136,7 +136,7 @@ jobs:
               break
             fi
             echo "⚠️ push 실패 (시도 ${attempt}) — pull --rebase 후 재시도"
-            git pull --rebase origin ${{ github.ref_name }} || {
+            git pull --rebase --strategy-option=ours origin ${{ github.ref_name }} || {
               echo "❌ rebase 충돌 — 수동 개입 필요"; exit 1;
             }
           done

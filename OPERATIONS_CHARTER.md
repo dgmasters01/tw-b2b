@@ -37,6 +37,7 @@
 - **부칙 12 — 작업 소요 선보고:** Claude는 매 응답 첫 줄에 `[작업 소요: 약 X분 / N단계 / 변경 파일: ...]` 박는다. 디테일·예시: `_os/playbook/work-time-reporting.md`.
 - **부칙 13 — 채팅 라우팅 자율 판단:** Claude는 매 응답마다 채팅 라우팅을 자율 판단한다. 옵션 묻지 않는다. 응답 두 번째 줄에 `🚦 ✅`/`⚠️` 표시. 디테일·인계 명령문 양식: `_os/playbook/chat-routing.md`.
 - **부칙 14 — 헌법 길이 200줄 이하 강제 (BL-OS-LIGHTWEIGHT, 2026-05-07 신설):** 헌법 본문은 200줄 이하. 새 운영 룰은 헌법이 아닌 `_os/playbook/`에 박는다. `charter-length-bot`이 매 push 검사, 초과 시 CI 실패.
+- **부칙 15 — chat-log 박기 의무 (BL-CHATLOG-AUTO-GATE, 2026-05-08 신설):** BL 작업 done 처리 시 `_chat-logs/{date}-{slug}.md` 박고 index.json `byTask`에 매핑 의무. `auto-detect-bot`이 done 트랜지션 감지 시 매핑 검증, 없으면 ⚠️ 워닝 박음. 디테일·예외: `_os/playbook/chatlog-auto-gate.md`.
 
 ---
 
@@ -150,7 +151,7 @@
  철학 — 각 프로젝트 완전 독립
  원칙 — 틀은 강제, 내용은 자유
 
-[부칙] 1~14 (디테일은 _os/playbook/)
+[부칙] 1~15 (디테일은 _os/playbook/)
 [적용] 통합: 호텔이야+8채널+TW B2B / 별개: CEYLON
 
 [안전장치] "헌법 확인" 한 마디 → 즉시 정지·재정렬

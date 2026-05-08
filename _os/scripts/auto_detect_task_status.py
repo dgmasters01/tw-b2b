@@ -197,8 +197,54 @@ def update_task(task: dict, intent: str, commit_sha: str, commit_msg: str) -> bo
             task.setdefault("started_at", now)
             changed = True
             event = "진행 중 진입 (auto-detected)"
+            # [BL-IPB-PROGRESS-RESTORE 단계 2] 부칙 7 자동 검증 게이트
+            # pending → in_progress 진입 순간 progress.steps 박혀있는지 확인.
+            # 비어있으면 task 본체에 결함 신호 박고 history에 워닝 기록.
+            # admin-status는 이 신호를 보고 ⚠️ 표시 + "진행률 % 미박힘" 경고.
+            # 봇이 작업을 막지는 않음 — 인계받은 Claude가 즉시 박도록 시그널만 박음.
+            prog = task.get("progress")
+            has_steps = (
+                isinstance(prog, dict)
+                and isinstance(prog.get("steps"), list)
+                and len(prog.get("steps", [])) > 0
+                and all(s.get("label") for s in prog["steps"])
+            )
+            if not has_steps:
+                task["progress_warning"] = {
+                    "code": "MISSING_PROGRESS_STEPS",
+                    "rule": "부칙 7 — 모든 작업은 progress.steps 박은 후 시작",
+                    "detected_at": now,
+                    "detected_by_commit": short_sha,
+                    "message": "in_progress 진입했으나 progress.steps 비어있음. tasks.json에서 progress.steps 박은 후 다음 commit에 [step:done:N] 태그.",
+                }
+                event = "진행 중 진입 (auto-detected) ⚠️ 부칙 7 위반 — progress.steps 미박힘"
+            else:
+                # 박혀있으면 기존 워닝이 있었더라도 제거 (자가 치유)
+                if "progress_warning" in task:
+                    task.pop("progress_warning", None)
         elif current == "in_progress":
             event = "진행 중 commit 추가"
+            # 진행 중 작업도 매 commit마다 progress.steps 박혀있는지 재검증.
+            # 도중에 누가 progress 통째로 지웠으면 워닝 다시 박힘.
+            prog = task.get("progress")
+            has_steps = (
+                isinstance(prog, dict)
+                and isinstance(prog.get("steps"), list)
+                and len(prog.get("steps", [])) > 0
+                and all(s.get("label") for s in prog["steps"])
+            )
+            if has_steps and "progress_warning" in task:
+                task.pop("progress_warning", None)
+                changed = True
+            elif not has_steps and "progress_warning" not in task:
+                task["progress_warning"] = {
+                    "code": "MISSING_PROGRESS_STEPS",
+                    "rule": "부칙 7 — 모든 작업은 progress.steps 박은 후 시작",
+                    "detected_at": now,
+                    "detected_by_commit": short_sha,
+                    "message": "in_progress 도중 progress.steps 미박힘 감지.",
+                }
+                changed = True
         else:
             # [BUGFIX 2026-05-06] done 상태 작업은 봇이 자동 리오픈하지 않음.
             #   기존 룰: done 작업에 fix commit 들어오면 자동 in_progress 리오픈
@@ -321,6 +367,7 @@ def process_commits(commits: list[tuple[str, str]], dry_run: bool) -> dict:
         "task_updates": [],
         "unmatched_commits": [],
         "tasks_changed": 0,
+        "progress_warnings": [],  # [BL-IPB-PROGRESS-RESTORE 단계 2] 부칙 7 위반 작업 목록
     }
 
     for sha, msg in commits:
@@ -351,6 +398,17 @@ def process_commits(commits: list[tuple[str, str]], dry_run: bool) -> dict:
             changed = update_task(task, intent, sha, msg)
             if changed:
                 summary["tasks_changed"] += 1
+            # [BL-IPB-PROGRESS-RESTORE 단계 2] 부칙 7 워닝 수집
+            if "progress_warning" in task:
+                pw = task["progress_warning"]
+                # 같은 task가 이미 워닝 목록에 있으면 중복 안 박음
+                if not any(w.get("task_id") == tid for w in summary["progress_warnings"]):
+                    summary["progress_warnings"].append({
+                        "task_id": tid,
+                        "code": pw.get("code"),
+                        "message": pw.get("message"),
+                        "commit": sha[:7],
+                    })
             summary["task_updates"].append({
                 "task_id": tid,
                 "commit": sha[:7],
@@ -436,6 +494,7 @@ def main():
     print(f"  - 작업 업데이트: {len(summary['task_updates'])}건")
     print(f"  - tasks.json 변경: {summary['tasks_changed']}건")
     print(f"  - 매칭 안 된 commit: {len(summary['unmatched_commits'])}개")
+    print(f"  - 부칙 7 워닝: {len(summary['progress_warnings'])}건")
     if summary["task_updates"]:
         print()
         print("✅ 매칭 결과:")
@@ -447,6 +506,26 @@ def main():
         print("⚪ 매칭 안 된 commit:")
         for c in summary["unmatched_commits"][:10]:
             print(f"  [{c['sha']}] {c['msg']}")
+    # [BL-IPB-PROGRESS-RESTORE 단계 2] 부칙 7 워닝 출력 + GitHub Actions Summary
+    if summary["progress_warnings"]:
+        print()
+        print("⚠️  부칙 7 위반 — progress.steps 미박힘:")
+        for w in summary["progress_warnings"]:
+            print(f"  ⚠️ {w['task_id']} (commit {w['commit']}): {w['message']}")
+        # GitHub Actions에서 실행되면 STEP_SUMMARY에도 박음
+        import os
+        gh_summary_path = os.environ.get("GITHUB_STEP_SUMMARY")
+        if gh_summary_path:
+            try:
+                with open(gh_summary_path, "a", encoding="utf-8") as gh:
+                    gh.write("\n## ⚠️ 부칙 7 위반 감지 — progress.steps 미박힘\n\n")
+                    gh.write("아래 작업이 in_progress 진입했지만 progress.steps가 비어있습니다.\n")
+                    gh.write("**해결: tasks.json 에서 해당 작업의 progress.steps 박은 후 다음 commit에 `[step:done:N]` 태그.**\n\n")
+                    for w in summary["progress_warnings"]:
+                        gh.write(f"- ⚠️ **{w['task_id']}** (commit `{w['commit']}`): {w['message']}\n")
+                    gh.write("\n_진행률 % 표시 + 자동 단계 갱신은 progress.steps 박힌 후부터 작동합니다._\n")
+            except OSError:
+                pass
 
     return 0
 

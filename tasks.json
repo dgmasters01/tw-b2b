@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-08T02:12:21+00:00",
+  "updated_at": "2026-05-08T02:31:26+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -13,9 +13,9 @@
   ],
   "stats": {
     "total": 117,
-    "done": 84,
+    "done": 85,
     "in_progress": 0,
-    "pending": 22,
+    "pending": 21,
     "blocked": 11,
     "autonomous_ready": 17,
     "todo": 0
@@ -2397,7 +2397,7 @@
       "category": "infra",
       "priority": "P0",
       "size": "small",
-      "status": "pending",
+      "status": "done",
       "claude_can_auto": true,
       "approval_required": false,
       "owner": "autonomous",
@@ -2410,29 +2410,32 @@
       },
       "blocker": "BL-IPB-PROGRESS-RESTORE 우선",
       "created_at": "2026-05-08T01:26:57.143371Z",
-      "updated_at": "2026-05-08T01:26:57.143371Z",
-      "completed_at": null,
+      "updated_at": "2026-05-08T02:31:26+00:00",
+      "completed_at": "2026-05-08T02:31:26+00:00",
       "source": "BL-002 분할",
       "order": 2,
       "progress": {
         "steps": [
           {
             "label": "봇 로직 검증 — auto_detect_task_status.py L325~ 100%→done 자동 전환 코드 점검 + 단위 테스트 8 시나리오 16 assertion",
-            "done": false
+            "done": true,
+            "at": "2026-05-08T02:31:26+00:00"
           },
           {
             "label": "회귀 테스트 영구 보존 — _os/scripts/tests/test_auto_done_transition.py 박음 (CI에서 재실행 가능)",
-            "done": false
+            "done": true,
+            "at": "2026-05-08T02:31:26+00:00"
           },
           {
             "label": "라이브 검증 — BL-IPB-PROGRESS-RESTORE의 history로 실 사용 케이스 100%→done 자동 전환 작동 입증",
-            "done": false
+            "done": true,
+            "at": "2026-05-08T02:31:26+00:00"
           }
         ],
-        "completed_count": 0,
+        "completed_count": 3,
         "total_count": 3,
-        "percent": 0,
-        "updated_at": "2026-05-08T02:30:54+00:00"
+        "percent": 100,
+        "updated_at": "2026-05-08T02:31:26+00:00"
       },
       "notes": "auto-detect-bot의 BL-PROGRESS-AUTO-DONE-SYNC 단계 2 로직(/_os/scripts/auto_detect_task_status.py L266~)이 이미 박혀있음. 단, progress.steps가 task에 박힌 상태에서만 동작. BL-IPB-PROGRESS-RESTORE 완료 후 실 사용 케이스로 검증.",
       "history": [
@@ -2440,9 +2443,17 @@
           "at": "2026-05-08T01:26:57.143371Z",
           "event": "BL 신설 (BL-002 분할)",
           "by": "Claude"
+        },
+        {
+          "at": "2026-05-08T02:31:26+00:00",
+          "event": "진행 중 진입 (auto-detected) + 단계 1, 단계 2, 단계 3, 100% 도달 → status 자동 전환 (in_progress → done) 완료 (auto-detected)",
+          "by": "auto-detect-bot",
+          "commit": "4153e00",
+          "note": "fix(BL-IPB-AUTO-DONE): 100%→done 자동 트랜지션 검증 + 회귀 테스트 영구 보존 [step:done:1,2,3]"
         }
       ],
-      "memo": "auto-detect-bot의 BL-PROGRESS-AUTO-DONE-SYNC 단계 2 로직(auto_detect_task_status.py L325~)이 이미 박혀있음. 이 작업은 (1) 8 시나리오 단위 테스트로 안전망 3중(total>=1, status!=done, all label) 검증, (2) test_auto_done_transition.py 영구 보존, (3) BL-IPB-PROGRESS-RESTORE의 c77bb80 commit history \"완료 (auto-detected) + 단계 3 완료 (auto-detected)\"가 실 사용 100%→done 자동 전환 증거."
+      "memo": "auto-detect-bot의 BL-PROGRESS-AUTO-DONE-SYNC 단계 2 로직(auto_detect_task_status.py L325~)이 이미 박혀있음. 이 작업은 (1) 8 시나리오 단위 테스트로 안전망 3중(total>=1, status!=done, all label) 검증, (2) test_auto_done_transition.py 영구 보존, (3) BL-IPB-PROGRESS-RESTORE의 c77bb80 commit history \"완료 (auto-detected) + 단계 3 완료 (auto-detected)\"가 실 사용 100%→done 자동 전환 증거.",
+      "started_at": "2026-05-08T02:31:26+00:00"
     },
     {
       "id": "BL-ACT-KST-FIX",

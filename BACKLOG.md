@@ -5,7 +5,7 @@
 > 
 > 단일 진실 소스: `tasks.json` (v2.0)
 
-**마지막 업데이트**: 2026-05-07
+**마지막 업데이트**: 2026-05-08
 
 > 💡 **새 채팅 시작 시**: 다음 5개 문서를 먼저 보면 즉시 컨텍스트 파악 가능.
 > 
@@ -19,15 +19,67 @@
 
 ---
 
-## ⚡ P0 — 통합 To-Do Inbox (관리자 대시보드 재설계)
+## 🟢 P0 — 통합 To-Do Inbox (관리자 대시보드 재설계)
 
 **요약**: ## 🔴 P0 — 통합 To-Do Inbox (관리자 대시보드 재설계) ⭐⭐⭐ 2026-04-29  **배경** (대표님 핵심 운영 철학): > "한 사람이 처리해야 될 업무는 한 곳에서 우선순위가 표시되어 체크하면 정리할 수 있게 해야 됨. 내가 복잡하게 관리하게 하면 안 됨. 나에게 유리하게 해야 됨."  대표님 1인 운영. 처리 작업이 여러 탭에 흩어
 
 - **자율성**: 🟢 AUTO
 - **예상 시간**: 미정시간
 - **카테고리**: dev
-- **상태**: in_progress
+- **상태**: blocked
+- **막힘 사유**: supabase 호텔/예약 인프라 박힌 후 4종 사업 source 연결. 진행률 표시 + 활동이력 결함 4건은 BL-IPB-* / BL-ACT-* 로 분리.
 - **ID**: `BL-002` (출처: BACKLOG.md)
+
+---
+
+## 🟢 P0 — ⚡ 진행 중 박스 진행률 % 복원 + 작업 시작 시 progress.steps 의무화 정책
+
+**요약**: 대표님 발견 결함: BL-002 진행 중에 % 표시 안 보임. 원인: progress: null. 봇 로직(auto-detect-bot)은 정상 — task에 progress.steps가 박혀있어야 동작함. 정책 결함이 본질: 인계받은 Claude가 매번 박아야 하는 의무 시스템화. 1단계 = BL-002에 progress.steps 박음 (이번 채팅 완료
+
+- **자율성**: 🟢 AUTO
+- **예상 시간**: 0.3시간
+- **카테고리**: infra
+- **상태**: pending
+- **ID**: `BL-IPB-PROGRESS-RESTORE` (출처: BL-002 분할)
+
+---
+
+## 🟢 P0 — 100% 도달 시 status=done 자동 트랜지션 검증
+
+**요약**: auto-detect-bot의 BL-PROGRESS-AUTO-DONE-SYNC 단계 2 로직(/_os/scripts/auto_detect_task_status.py L266~)이 이미 박혀있음. 단, progress.steps가 task에 박힌 상태에서만 동작. BL-IPB-PROGRESS-RESTORE 완료 후 실 사용 케이스로 검증.
+
+- **자율성**: 🟢 AUTO
+- **예상 시간**: 0.2시간
+- **카테고리**: infra
+- **상태**: pending
+- **막힘 사유**: BL-IPB-PROGRESS-RESTORE 우선
+- **결정 필요**:
+  - BL-IPB-PROGRESS-RESTORE 완료
+- **ID**: `BL-IPB-AUTO-DONE` (출처: BL-002 분할)
+
+---
+
+## 🟢 P0 — 활동 이력 시간 KST 정상화 (fmtTime 이중 변환 결함)
+
+**요약**: _admin/admin-status.html L2024 fmtTime 함수: 'new Date(dt.getTime() + 9*3600*1000)'로 +9h 더한 뒤 toISOString().slice(...) 사용. 이미 ISO 시각인데 또 +9h = 이중 변환. 정석 fix: formatTime 함수처럼 toLocaleString('ko-KR', {tim
+
+- **자율성**: 🟢 AUTO
+- **예상 시간**: 0.3시간
+- **카테고리**: bugfix
+- **상태**: pending
+- **ID**: `BL-ACT-KST-FIX` (출처: BL-002 분할)
+
+---
+
+## 🟢 P0 — 활동 이력 사람용 설명 인덱스 매핑 복원 (D-XXX, commit hash 누락)
+
+**요약**: 활동이력 펼침에서 'D-018', '1902554' 등 항목이 '기록 못 찾음'으로 표시. 원인: chat-logs/index.json의 byTask/byCommit 매핑 누락. scan-bot Python 스크립트(chat-log-index.yml)와 activity-feed 빌더 양쪽 점검 필요. D-XXX 결정은 DECISIONS.md 매핑으로 별도 
+
+- **자율성**: 🟢 AUTO
+- **예상 시간**: 0.7시간
+- **카테고리**: bugfix
+- **상태**: pending
+- **ID**: `BL-ACT-INDEX-RESTORE` (출처: BL-002 분할)
 
 ---
 

@@ -224,7 +224,7 @@ export const AUDIENCE_BADGES = {
 
 // SYNC_ENGINE:GALLERY_AUTO_START
 // ⚠️ 이 섹션은 sync_engine.py가 자동 생성합니다. 직접 편집 금지.
-// 마지막 갱신: 2026-05-07 (총 30개 페이지)
+// 마지막 갱신: 2026-05-08 (총 30개 페이지)
 export const PAGE_TASK_META = {
   "_admin/admin-gallery.html": { lastTaskId: "BL-GALLERY-HOTFIX", lastTaskTitle: "[admin-gallery 무한 Loading 핫픽스] STATUS_BADGES retired 키 누락 + fallback 가드 박음 (헌법 1", lastUpdated: "2026-05-05", taskCount: 2 },
   "_admin/admin-permissions.html": { lastTaskId: "BL-AUTH-COOKIE-SYNC", lastTaskTitle: "[admin 깜빡 로그인 fix] sb-access-token 쿠키 자동 동기화 — Supabase 토큰 갱신 시 쿠키도 함께 (헌법 12조 위", lastUpdated: "2026-05-05", taskCount: 2 },

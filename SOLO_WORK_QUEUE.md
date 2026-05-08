@@ -29,20 +29,7 @@
 
 ---
 
-### B. 🟢 AUTO — 100% 도달 시 status=done 자동 트랜지션 검증
-
-**ID**: `BL-IPB-AUTO-DONE`  
-**카테고리**: infra  
-**예상 시간**: 0.2시간  
-**막힘 사유**: BL-IPB-PROGRESS-RESTORE 우선  
-**결정 필요 사항**:
-- BL-IPB-PROGRESS-RESTORE 완료
-
-**메모**: auto-detect-bot의 BL-PROGRESS-AUTO-DONE-SYNC 단계 2 로직(/_os/scripts/auto_detect_task_status.py L266~)이 이미 박혀있음. 단, progress.steps가 task에 박힌 상태에서만 동작. BL-IPB-PROGRESS-RESTORE 완료 후 실 사용 케이스로 검증.
-
----
-
-### C. 🟢 AUTO — 활동 이력 시간 KST 정상화 (fmtTime 이중 변환 결함)
+### B. 🟢 AUTO — 활동 이력 시간 KST 정상화 (fmtTime 이중 변환 결함)
 
 **ID**: `BL-ACT-KST-FIX`  
 **카테고리**: bugfix  
@@ -52,7 +39,7 @@
 
 ---
 
-### D. 🟢 AUTO — 활동 이력 사람용 설명 인덱스 매핑 복원 (D-XXX, commit hash 누락)
+### C. 🟢 AUTO — 활동 이력 사람용 설명 인덱스 매핑 복원 (D-XXX, commit hash 누락)
 
 **ID**: `BL-ACT-INDEX-RESTORE`  
 **카테고리**: bugfix  
@@ -62,7 +49,7 @@
 
 ---
 
-### E. 🟢 AUTO — Vercel 빌드 큐 누락 감지·자동 복구 가드 (헌법 부칙 8 강화)
+### D. 🟢 AUTO — Vercel 빌드 큐 누락 감지·자동 복구 가드 (헌법 부칙 8 강화)
 
 **ID**: `BL-VERCEL-DEPLOY-RACE-GUARD`  
 **카테고리**: infrastructure  

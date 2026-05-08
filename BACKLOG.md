@@ -32,21 +32,6 @@
 
 ---
 
-## 🟢 P0 — 100% 도달 시 status=done 자동 트랜지션 검증
-
-**요약**: auto-detect-bot의 BL-PROGRESS-AUTO-DONE-SYNC 단계 2 로직(/_os/scripts/auto_detect_task_status.py L266~)이 이미 박혀있음. 단, progress.steps가 task에 박힌 상태에서만 동작. BL-IPB-PROGRESS-RESTORE 완료 후 실 사용 케이스로 검증.
-
-- **자율성**: 🟢 AUTO
-- **예상 시간**: 0.2시간
-- **카테고리**: infra
-- **상태**: pending
-- **막힘 사유**: BL-IPB-PROGRESS-RESTORE 우선
-- **결정 필요**:
-  - BL-IPB-PROGRESS-RESTORE 완료
-- **ID**: `BL-IPB-AUTO-DONE` (출처: BL-002 분할)
-
----
-
 ## 🟢 P0 — 활동 이력 시간 KST 정상화 (fmtTime 이중 변환 결함)
 
 **요약**: _admin/admin-status.html L2024 fmtTime 함수: 'new Date(dt.getTime() + 9*3600*1000)'로 +9h 더한 뒤 toISOString().slice(...) 사용. 이미 ISO 시각인데 또 +9h = 이중 변환. 정석 fix: formatTime 함수처럼 toLocaleString('ko-KR', {tim

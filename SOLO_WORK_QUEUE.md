@@ -99,16 +99,6 @@
 
 ---
 
-### F. 🟢 AUTO — AI용 탭 — 봇 commit 감지 시 안내 (매칭 결과 없음 → 봇 자동 갱신 안내)
-
-**ID**: `BL-AI-TAB-BOT-DETECT`  
-**카테고리**: infra  
-**예상 시간**: 0.5시간  
-
-**메모**: loadAITab에서 봇 commit (scan-bot/sync-bot/auto-detect-bot/health-bot/activity-bot) 감지 시 'ECHO_LOG/DECISIONS 매칭 없음' 대신 '봇 자동 갱신 — AI 컨텍스트 불필요' 안내 박기. 사람 commit이면서 매칭 0건일 때만 검색 키 노출.
-
----
-
 ## 🟢 P2 — 자투리 시간에
 
 ### A. 🟢 AUTO — [DECISIONS_INDEX.md 자동 동기화] sync_engine 보강

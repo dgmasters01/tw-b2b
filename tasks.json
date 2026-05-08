@@ -2414,7 +2414,26 @@
       "completed_at": null,
       "source": "BL-002 분할",
       "order": 2,
-      "progress": null,
+      "progress": {
+        "steps": [
+          {
+            "label": "봇 로직 검증 — auto_detect_task_status.py L325~ 100%→done 자동 전환 코드 점검 + 단위 테스트 8 시나리오 16 assertion",
+            "done": false
+          },
+          {
+            "label": "회귀 테스트 영구 보존 — _os/scripts/tests/test_auto_done_transition.py 박음 (CI에서 재실행 가능)",
+            "done": false
+          },
+          {
+            "label": "라이브 검증 — BL-IPB-PROGRESS-RESTORE의 history로 실 사용 케이스 100%→done 자동 전환 작동 입증",
+            "done": false
+          }
+        ],
+        "completed_count": 0,
+        "total_count": 3,
+        "percent": 0,
+        "updated_at": "2026-05-08T02:30:54+00:00"
+      },
       "notes": "auto-detect-bot의 BL-PROGRESS-AUTO-DONE-SYNC 단계 2 로직(/_os/scripts/auto_detect_task_status.py L266~)이 이미 박혀있음. 단, progress.steps가 task에 박힌 상태에서만 동작. BL-IPB-PROGRESS-RESTORE 완료 후 실 사용 케이스로 검증.",
       "history": [
         {
@@ -2422,7 +2441,8 @@
           "event": "BL 신설 (BL-002 분할)",
           "by": "Claude"
         }
-      ]
+      ],
+      "memo": "auto-detect-bot의 BL-PROGRESS-AUTO-DONE-SYNC 단계 2 로직(auto_detect_task_status.py L325~)이 이미 박혀있음. 이 작업은 (1) 8 시나리오 단위 테스트로 안전망 3중(total>=1, status!=done, all label) 검증, (2) test_auto_done_transition.py 영구 보존, (3) BL-IPB-PROGRESS-RESTORE의 c77bb80 commit history \"완료 (auto-detected) + 단계 3 완료 (auto-detected)\"가 실 사용 100%→done 자동 전환 증거."
     },
     {
       "id": "BL-ACT-KST-FIX",

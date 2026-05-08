@@ -4733,7 +4733,44 @@
   }
 
   // 🤖 AI용 탭 — ECHO_LOG / DECISIONS 텍스트 검색
+  // BL-AI-TAB-BOT-DETECT: 봇 commit 감지 패턴
+  // [scan-bot] / [sync-bot] / [auto-detect-bot] / [health-bot] / [activity-bot] 으로 시작하면 봇 자동 갱신
+  const BOT_COMMIT_PATTERN = /^\[(scan-bot|sync-bot|auto-detect-bot|health-bot|activity-bot)\]/;
+
+  function detectBotCommit(item) {
+    const action = String(item && item.action || '');
+    const m = action.match(BOT_COMMIT_PATTERN);
+    return m ? m[1] : null;
+  }
+
   async function loadAITab(pane, item) {
+    // BL-AI-TAB-BOT-DETECT: 봇 commit이면 ECHO_LOG/DECISIONS 검색 건너뛰고 안내만 노출
+    const botName = detectBotCommit(item);
+    if (botName) {
+      const botInfo = {
+        'scan-bot': '페이지 완성도 자동 측정 봇 (HTML 변경 감지 → pages-status 갱신)',
+        'sync-bot': 'tasks.json ↔ MD/Gallery 양방향 자동 동기화 봇',
+        'auto-detect-bot': 'commit 메시지 분석 → 작업 status 자동 갱신 봇',
+        'health-bot': '시스템 상태 모니터링 봇 (_health.json 주기 갱신, vercel-sync 복구)',
+        'activity-bot': '활동 피드 자동 갱신 봇 (activity-feed.json 빌드)'
+      };
+      pane.innerHTML = `
+        <div class="activity-tab-empty" style="text-align:left;padding:14px 16px;">
+          <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:6px;">
+            🤖 이 활동은 봇 자동 갱신 — AI 컨텍스트 불필요
+          </div>
+          <div style="font-size:11px;color:var(--text-muted);margin-bottom:10px;line-height:1.5;">
+            <strong style="color:var(--aurora-2);">[${escapeHtml(botName)}]</strong> ${escapeHtml(botInfo[botName] || '시스템 자동화 봇')}
+          </div>
+          <div style="font-size:10px;color:var(--text-muted);background:rgba(255,255,255,0.03);padding:8px 10px;border-radius:6px;line-height:1.5;">
+            봇이 자동으로 박은 commit이라 ECHO_LOG/DECISIONS에 의사결정 컨텍스트가 없습니다.<br>
+            기술적 세부사항은 <strong>코드 변경 탭</strong>에서 commit diff로 확인하세요.
+          </div>
+        </div>
+      `;
+      return;
+    }
+
     pane.innerHTML = '<div class="activity-tab-loading">⏳ ECHO_LOG / DECISIONS 검색 중...</div>';
     try {
       // ECHO_LOG / DECISIONS 캐시 (admin gate 통과를 위해 raw GitHub 사용)
@@ -4774,7 +4811,20 @@
         }
       }
       if (!sections.length) {
-        pane.innerHTML = `<div class="activity-tab-empty">ECHO_LOG / DECISIONS에서 매칭 결과 없음.<br><small>검색 키: ${escapeHtml([taskMatch && taskMatch[1], commitHash, decisionMatch && decisionMatch[0]].filter(Boolean).join(', ') || '(없음)')}</small></div>`;
+        const searchKeys = [taskMatch && taskMatch[1], commitHash, decisionMatch && decisionMatch[0]].filter(Boolean);
+        pane.innerHTML = `
+          <div class="activity-tab-empty" style="text-align:left;padding:14px 16px;">
+            <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:6px;">
+              📭 ECHO_LOG / DECISIONS 매칭 결과 없음
+            </div>
+            <div style="font-size:11px;color:var(--text-muted);line-height:1.5;">
+              검색 키: <code style="background:rgba(255,255,255,0.05);padding:2px 6px;border-radius:4px;">${escapeHtml(searchKeys.join(', ') || '(추출 실패)')}</code>
+            </div>
+            <div style="font-size:10px;color:var(--text-muted);margin-top:8px;line-height:1.5;">
+              이 commit은 의사결정 로그에 기록되지 않았거나 BL/IP/UX/D-NNN 태그가 없는 작업입니다.
+            </div>
+          </div>
+        `;
         return;
       }
       pane.innerHTML = sections.join('');

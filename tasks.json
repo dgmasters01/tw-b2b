@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-08T02:31:26+00:00",
+  "updated_at": "2026-05-08T04:17:56+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -14,8 +14,8 @@
   "stats": {
     "total": 117,
     "done": 85,
-    "in_progress": 0,
-    "pending": 21,
+    "in_progress": 1,
+    "pending": 20,
     "blocked": 11,
     "autonomous_ready": 16,
     "todo": 0
@@ -2461,7 +2461,7 @@
       "category": "bugfix",
       "priority": "P0",
       "size": "small",
-      "status": "pending",
+      "status": "in_progress",
       "claude_can_auto": true,
       "approval_required": false,
       "owner": "autonomous",
@@ -2472,7 +2472,7 @@
       },
       "blocker": null,
       "created_at": "2026-05-08T01:26:57.143371Z",
-      "updated_at": "2026-05-08T01:26:57.143371Z",
+      "updated_at": "2026-05-08T04:17:56+00:00",
       "completed_at": null,
       "source": "BL-002 분할",
       "order": 3,
@@ -2480,7 +2480,8 @@
         "steps": [
           {
             "label": "fmtTime 이중 변환 결함 fix — _admin/admin-status.html L2024 함수를 toLocaleString(ko-KR, Asia/Seoul) 기반으로 재작성. 활동이력/메뉴/카드 호출처 전부 자동 정상화",
-            "done": false
+            "done": true,
+            "at": "2026-05-08T04:17:56+00:00"
           },
           {
             "label": "인계서 결함 영구 복구 — buildHandoffMessage()에 \"📝 대표님 최근 활동 이력\" 섹션 추가. activity-feed.json fetch → 최근 10건(D-XXX 결정·commit·작업) 박음. 새 채팅 Claude가 직전 컨텍스트 즉시 파악 가능",
@@ -2491,10 +2492,10 @@
             "done": false
           }
         ],
-        "completed_count": 0,
+        "completed_count": 1,
         "total_count": 3,
-        "percent": 0,
-        "updated_at": "2026-05-08T04:16:47+00:00"
+        "percent": 33,
+        "updated_at": "2026-05-08T04:17:56+00:00"
       },
       "notes": "_admin/admin-status.html L2024 fmtTime 함수: 'new Date(dt.getTime() + 9*3600*1000)'로 +9h 더한 뒤 toISOString().slice(...) 사용. 이미 ISO 시각인데 또 +9h = 이중 변환. 정석 fix: formatTime 함수처럼 toLocaleString('ko-KR', {timeZone:'Asia/Seoul', ...}) 사용. 같은 함수가 활동이력/메뉴/카드 여러 곳에서 호출되므로 한 곳만 고치면 전부 정상화.",
       "history": [
@@ -2502,9 +2503,17 @@
           "at": "2026-05-08T01:26:57.143371Z",
           "event": "BL 신설 (BL-002 분할 — 진단 결과 fmtTime 이중 KST 변환 결함)",
           "by": "Claude"
+        },
+        {
+          "at": "2026-05-08T04:17:56+00:00",
+          "event": "진행 중 진입 (auto-detected) + 단계 1 완료 (auto-detected)",
+          "by": "auto-detect-bot",
+          "commit": "aef5a27",
+          "note": "fix(BL-ACT-KST-FIX): fmtTime 이중 변환 결함 fix [step:done:1]"
         }
       ],
-      "memo": "fmtTime 이중 변환 결함 + 인계서 활동이력 누락 결함 동시 fix. fmtTime: new Date(...+9h).toISOString().slice() 패턴이 이미 ISO를 또 +9h해서 시각 18시간 어긋남. toLocaleString(ko-KR, Asia/Seoul)로 정석 변환. 인계서: buildHandoffMessage()가 activity-feed.json 안 읽음 → 새 채팅 Claude가 대표님 직전 작업 모름. activity-feed.json fetch → 최근 10건(결정 D-XXX, commit, 작업) 인계서에 박는 섹션 추가. 대표님 발견 결함: \"기존에 정리해서 적용했는데 사라진 부분\"."
+      "memo": "fmtTime 이중 변환 결함 + 인계서 활동이력 누락 결함 동시 fix. fmtTime: new Date(...+9h).toISOString().slice() 패턴이 이미 ISO를 또 +9h해서 시각 18시간 어긋남. toLocaleString(ko-KR, Asia/Seoul)로 정석 변환. 인계서: buildHandoffMessage()가 activity-feed.json 안 읽음 → 새 채팅 Claude가 대표님 직전 작업 모름. activity-feed.json fetch → 최근 10건(결정 D-XXX, commit, 작업) 인계서에 박는 섹션 추가. 대표님 발견 결함: \"기존에 정리해서 적용했는데 사라진 부분\".",
+      "started_at": "2026-05-08T04:17:56+00:00"
     },
     {
       "id": "BL-ACT-INDEX-RESTORE",

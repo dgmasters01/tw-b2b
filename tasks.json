@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-08T04:51:41.107588Z",
+  "updated_at": "2026-05-08T04:52:49+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -12,9 +12,9 @@
     "SOLO_WORK_QUEUE.md"
   ],
   "stats": {
-    "total": 117,
+    "total": 118,
     "done": 87,
-    "in_progress": 0,
+    "in_progress": 1,
     "pending": 19,
     "blocked": 11,
     "autonomous_ready": 14,
@@ -2548,7 +2548,7 @@
       },
       "blocker": null,
       "created_at": "2026-05-08T01:26:57.143371Z",
-      "updated_at": "2026-05-08T04:45:36+00:00",
+      "updated_at": "2026-05-08T04:52:49+00:00",
       "completed_at": "2026-05-08T04:42:39.006437Z",
       "source": "BL-002 분할",
       "order": 4,
@@ -2632,6 +2632,13 @@
           "by": "auto-detect-bot",
           "commit": "67273d8",
           "note": "fix(BL-ACT-INDEX-RESTORE): activity-feed 봇 vs CEO 분류 정확화 [step:done:1]"
+        },
+        {
+          "at": "2026-05-08T04:52:49+00:00",
+          "event": "done 작업에 commit 추가 (status 유지 — 자동 리오픈 안 함)",
+          "by": "auto-detect-bot",
+          "commit": "016873c",
+          "note": "fix(BL-ACT-INDEX-RESTORE): chat-log 박기 + 4 commit 매핑 + BL-CHATLOG-AUTO-GATE 신설"
         }
       ]
     },
@@ -5848,7 +5855,7 @@
       "category": "infra",
       "priority": "P0",
       "size": "small",
-      "status": "pending",
+      "status": "in_progress",
       "claude_can_auto": false,
       "approval_required": true,
       "owner": "CEO",
@@ -5861,7 +5868,7 @@
       },
       "blocker": "헌법 변경 사항 — 대표님 결정 대기",
       "created_at": "2026-05-08T04:51:41.107588Z",
-      "updated_at": "2026-05-08T04:51:41.107588Z",
+      "updated_at": "2026-05-08T04:52:49+00:00",
       "completed_at": null,
       "source": "BL-ACT-INDEX-RESTORE 검증 중 발견",
       "order": 5,
@@ -5872,8 +5879,23 @@
           "at": "2026-05-08T04:51:41.107588Z",
           "event": "BL 신설 (BL-ACT-INDEX-RESTORE 검증 중 발견 — chat-log 자동 강제 게이트 누락)",
           "by": "Claude"
+        },
+        {
+          "at": "2026-05-08T04:52:49+00:00",
+          "event": "진행 중 진입 (auto-detected) ⚠️ 부칙 7 위반 — progress.steps 미박힘",
+          "by": "auto-detect-bot",
+          "commit": "016873c",
+          "note": "fix(BL-ACT-INDEX-RESTORE): chat-log 박기 + 4 commit 매핑 + BL-CHATLOG-AUTO-GATE 신설"
         }
-      ]
+      ],
+      "started_at": "2026-05-08T04:52:49+00:00",
+      "progress_warning": {
+        "code": "MISSING_PROGRESS_STEPS",
+        "rule": "부칙 7 — 모든 작업은 progress.steps 박은 후 시작",
+        "detected_at": "2026-05-08T04:52:49+00:00",
+        "detected_by_commit": "016873c",
+        "message": "in_progress 진입했으나 progress.steps 비어있음. tasks.json에서 progress.steps 박은 후 다음 commit에 [step:done:N] 태그."
+      }
     }
   ]
 }

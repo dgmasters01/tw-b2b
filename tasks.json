@@ -5901,12 +5901,14 @@
         }
       ],
       "started_at": "2026-05-08T04:52:49+00:00",
-      "progress_warning": {
-        "code": "MISSING_PROGRESS_STEPS",
-        "rule": "부칙 7 — 모든 작업은 progress.steps 박은 후 시작",
-        "detected_at": "2026-05-08T04:53:29+00:00",
-        "detected_by_commit": "34944e7",
-        "message": "in_progress 진입했으나 progress.steps 비어있음. tasks.json에서 progress.steps 박은 후 다음 commit에 [step:done:N] 태그."
+      "progress": {
+        "steps": [
+          { "label": "tasks.json progress.steps 박기 + 부칙 위반 워닝 해제", "done": false },
+          { "label": "헌법 부칙 15 신설 (chat-log 박기 의무 + 200줄 제한 준수)", "done": false },
+          { "label": "_os/playbook/chatlog-auto-gate.md 신설 (디테일·예시)", "done": false },
+          { "label": "auto_detect_task_status.py — done 트랜지션 시 byTask 매핑 검증 게이트", "done": false },
+          { "label": "라이브 검증 + DECISIONS.md 박기 + 작업 done 처리", "done": false }
+        ]
       }
     }
   ]

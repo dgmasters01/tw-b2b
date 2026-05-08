@@ -329,6 +329,25 @@
   }
   .cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
   @media (max-width: 700px) { .cat-grid { grid-template-columns: 1fr; } }
+
+  /* ★ BL-DEDUP-CONSOLIDATE step2: 카테고리별 진행률 (⑤ 묶음) */
+  .cat-progress-section {
+    margin-bottom: 14px;
+    padding: 10px 12px;
+    background: rgba(15,23,42,0.4);
+    border: 0.5px solid rgba(99,102,241,0.18);
+    border-radius: 8px;
+  }
+  .cat-progress-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    padding-bottom: 6px;
+    border-bottom: 0.5px dashed rgba(99,102,241,0.2);
+  }
+  .cat-progress-label { font-size: 12px; font-weight: 500; color: var(--text); }
+  .cat-progress-hint { font-size: 10px; color: var(--text-muted); }
   .cat-card {
     background: var(--panel); border: 0.5px solid var(--border); border-radius: 10px;
     padding: 11px; cursor: pointer; transition: all .15s;
@@ -708,7 +727,7 @@
     .urgent-card .urgent-meta { flex-wrap: wrap; font-size: 9px; gap: 6px; }
 
     /* 진행률 펼침 task row 폰트 축소 */
-    #integ-progress .cat-task-row { font-size: 10px !important; }
+    #cat-progress .cat-task-row { font-size: 10px !important; }
 
     /* 결정 대기 박스 — 줄바꿈 + 폰트 축소 */
     .ceo-wait-item { flex-wrap: wrap; gap: 4px; padding: 6px; }
@@ -1881,6 +1900,17 @@
     </a>
   </section>
 
+  <!-- ★ BL-DEDUP-CONSOLIDATE step2: 카테고리별 진행률 (⑥에서 ⑤ 묶음으로 이동) -->
+  <section class="cat-progress-section" id="cat-progress-section">
+    <div class="cat-progress-header">
+      <span class="cat-progress-label">📂 카테고리별 진행률</span>
+      <span class="cat-progress-hint">행 클릭 → 카테고리 카드 펼침 + 강조</span>
+    </div>
+    <div class="progress-list" id="cat-progress">
+      <div class="urgent-empty">로딩 중...</div>
+    </div>
+  </section>
+
   <!-- ⑥ 임박 작업 + 카테고리별 진행률 + 자율 큐 원본 (JS가 ④로 이동) (중간 시각) -->
   <section class="integ-section">
     <div class="integ-section-h">
@@ -1906,12 +1936,11 @@
     </div>
 
     <!-- 카테고리별 진행률 -->
-    <div class="integ-section-h" style="margin-top:12px;">
-      <span class="label">📂 카테고리별 진행률</span>
+    <!-- BL-DEDUP-CONSOLIDATE step2: 이 영역은 ⑤로 이동됨. 단계 5에서 통째로 제거 예정 -->
+    <div class="integ-section-h" style="margin-top:12px;display:none;" data-deprecated="step2-moved-to-section5">
+      <span class="label">📂 카테고리별 진행률 (이 자리는 ⑤로 이동, 단계 5에서 제거 예정)</span>
     </div>
-    <div class="progress-list" id="integ-progress">
-      <div class="urgent-empty">로딩 중...</div>
-    </div>
+    <div class="progress-list" id="integ-progress-deprecated" style="display:none;" data-deprecated="step2-moved-to-section5"></div>
 
     <!-- 자율 작업 큐 (IP-CTRL-001 5단계 — Claude 자율 진행 가능, 카드 클릭 = 즉시 시작) -->
     <div class="integ-section-h" style="margin-top:12px;">
@@ -2470,7 +2499,7 @@
               renderIntegratedProgress(STATE.tasksData);
               // 진행률 행 강조
               setTimeout(() => {
-                const progRow = document.querySelector(`#integ-progress .progress-row[data-cat="${top[0]}"]`);
+                const progRow = document.querySelector(`#cat-progress .progress-row[data-cat="${top[0]}"]`);
                 if (progRow) {
                   progRow.classList.add('linked-highlight');
                   setTimeout(() => progRow.classList.remove('linked-highlight'), 1500);
@@ -2878,7 +2907,7 @@
     } catch (err) {
       console.error('[admin-status] tasks.json fetch 실패', err);
       $('integ-urgent').innerHTML = '<div class="urgent-empty">tasks.json 로딩 실패</div>';
-      $('integ-progress').innerHTML = '<div class="urgent-empty">tasks.json 로딩 실패</div>';
+      $('cat-progress').innerHTML = '<div class="urgent-empty">tasks.json 로딩 실패</div>';
       $('integ-auto-queue').innerHTML = '<div class="auto-queue-empty">tasks.json 로딩 실패</div>';
     }
   }
@@ -3055,11 +3084,11 @@
     });
     const sorted = Object.entries(cats).sort((a, b) => b[1].total - a[1].total);
     if (sorted.length === 0) {
-      $('integ-progress').innerHTML = '<div class="urgent-empty">카테고리 데이터 없음</div>';
+      $('cat-progress').innerHTML = '<div class="urgent-empty">카테고리 데이터 없음</div>';
       return;
     }
     const expandedCat = STATE.expandedProgressCat;
-    $('integ-progress').innerHTML = sorted.map(([cat, st]) => {
+    $('cat-progress').innerHTML = sorted.map(([cat, st]) => {
       const pct = st.total ? Math.round(st.done / st.total * 100) : 0;
       const label = CATEGORY_LABEL_KO[cat] || cat;
       const isExp = expandedCat === cat;
@@ -3101,7 +3130,7 @@
       `;
     }).join('');
     // 클릭 → 펼침 토글
-    document.querySelectorAll('#integ-progress .progress-row[data-cat]').forEach(row => {
+    document.querySelectorAll('#cat-progress .progress-row[data-cat]').forEach(row => {
       row.addEventListener('click', (e) => {
         if (e.target.closest('.cat-task-row')) return; // 안쪽 task row는 별도
         if (e.target.closest('.cat-more-link')) return; // ★ +N건 더 링크는 별도 핸들러
@@ -3111,7 +3140,7 @@
       });
     });
     // task row 클릭 → admin-tasks 이동
-    document.querySelectorAll('#integ-progress .cat-task-row').forEach(row => {
+    document.querySelectorAll('#cat-progress .cat-task-row').forEach(row => {
       row.addEventListener('click', (e) => {
         e.stopPropagation();
         const id = row.dataset.taskId;
@@ -3119,7 +3148,7 @@
       });
     });
     // ★ +N건 더 링크 클릭 → admin-tasks 이동 (펼침창 닫지 않음)
-    document.querySelectorAll('#integ-progress .cat-more-link').forEach(link => {
+    document.querySelectorAll('#cat-progress .cat-more-link').forEach(link => {
       link.addEventListener('click', (e) => {
         e.stopPropagation();
         const parent = link.closest('.progress-row');

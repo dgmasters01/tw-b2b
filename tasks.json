@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-08T04:53:29+00:00",
+  "updated_at": "2026-05-08T08:20:25+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -13,9 +13,9 @@
   ],
   "stats": {
     "total": 118,
-    "done": 87,
+    "done": 88,
     "in_progress": 0,
-    "pending": 20,
+    "pending": 19,
     "blocked": 11,
     "autonomous_ready": 14,
     "todo": 0
@@ -5855,7 +5855,7 @@
       "category": "infra",
       "priority": "P0",
       "size": "small",
-      "status": "in_progress",
+      "status": "done",
       "claude_can_auto": false,
       "approval_required": true,
       "owner": "CEO",
@@ -5866,13 +5866,35 @@
           "헌법 부칙 7 또는 신설 부칙으로 chat-log 의무화 명문 박을지 결정"
         ]
       },
-      "blocker": "헌법 변경 사항 — 대표님 결정 대기",
       "created_at": "2026-05-08T04:51:41.107588Z",
-      "updated_at": "2026-05-08T04:53:29+00:00",
-      "completed_at": null,
+      "updated_at": "2026-05-08T08:20:25+00:00",
+      "completed_at": "2026-05-08T08:20:25+00:00",
       "source": "BL-ACT-INDEX-RESTORE 검증 중 발견",
       "order": 5,
-      "progress": null,
+      "progress": {
+        "steps": [
+          {
+            "label": "tasks.json progress.steps 박기 + 부칙 위반 워닝 해제",
+            "done": true
+          },
+          {
+            "label": "헌법 부칙 15 신설 (chat-log 박기 의무 + 200줄 제한 준수)",
+            "done": true
+          },
+          {
+            "label": "_os/playbook/chatlog-auto-gate.md 신설 (디테일·예시)",
+            "done": true
+          },
+          {
+            "label": "auto_detect_task_status.py — done 트랜지션 시 byTask 매핑 검증 게이트",
+            "done": true
+          },
+          {
+            "label": "라이브 검증 + DECISIONS.md 박기 + 작업 done 처리",
+            "done": true
+          }
+        ]
+      },
       "notes": "BL-ACT-INDEX-RESTORE 진행 중 chat-log를 박지 않아서 4개 commit 모두 byCommit 매핑 실패 → 활동이력 펼침에서 \"기록 못 찾음\". 영구 차단: (1) 헌법에 \"BL done 처리 시 _chat-logs/{date}-{slug}.md 박기 의무\" 명문, (2) auto-detect-bot에 검증 게이트 — done 트랜지션 감지 시 해당 BL ID가 byTask에 매핑됐는지 확인, 없으면 ⚠️ 박음.",
       "history": [
         {
@@ -5898,18 +5920,14 @@
           "by": "auto-detect-bot",
           "commit": "34944e7",
           "note": "fix: BL-CHATLOG-AUTO-GATE pending 복귀 (헌법 변경 포함, 대표님 결정 대기)"
+        },
+        {
+          "at": "2026-05-08T08:20:25+00:00",
+          "event": "done 처리 — 부칙 15 신설 + auto-detect-bot 게이트 + 6/6 단위테스트 통과",
+          "by": "Claude"
         }
       ],
-      "started_at": "2026-05-08T04:52:49+00:00",
-      "progress": {
-        "steps": [
-          { "label": "tasks.json progress.steps 박기 + 부칙 위반 워닝 해제", "done": false },
-          { "label": "헌법 부칙 15 신설 (chat-log 박기 의무 + 200줄 제한 준수)", "done": false },
-          { "label": "_os/playbook/chatlog-auto-gate.md 신설 (디테일·예시)", "done": false },
-          { "label": "auto_detect_task_status.py — done 트랜지션 시 byTask 매핑 검증 게이트", "done": false },
-          { "label": "라이브 검증 + DECISIONS.md 박기 + 작업 done 처리", "done": false }
-        ]
-      }
+      "started_at": "2026-05-08T04:52:49+00:00"
     }
   ]
 }

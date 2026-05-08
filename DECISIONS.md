@@ -230,6 +230,38 @@
 
 ---
 
+### 결정 D-014: 헌법 부칙 15 신설 — chat-log 박기 자동 강제 게이트 ⭐⭐ 2026-05-08
+
+**무엇을**: BL 작업 done 트랜지션 시 `_chat-logs/index.json byTask` 매핑 의무를 헌법(부칙 15) + auto-detect-bot(검증 게이트) 양쪽에 박는다.
+
+**왜** (사고 본질):
+선행 작업 **BL-ACT-INDEX-RESTORE** 진행 중 chat-log를 박지 않아 4개 commit (`67273d8`, `aa5dcd6`, `2ec94a3`, `f1c06fa`) 모두 byCommit 매핑 실패 → admin-status 활동이력 펼침에서 "기록 못 찾음" 발생. byCommit 시간근접 fallback이 일부 메웠지만 본질 해법은 **byTask 매핑 강제**.
+
+원인은 단순: 사람이 잊어도 시스템이 못 막았다. 부칙 7(progress.steps 강제)과 동일 패턴으로 부칙 15 추가.
+
+**핵심 통찰**: "자동화 게이트는 중복으로 보이더라도 누락보다 낫다." 사람이 잊을 수 있는 모든 의무는 봇이 검증해야 한다 — 헌법 명문 + 봇 코드 양쪽 동시.
+
+**조치**:
+1. `OPERATIONS_CHARTER.md` 부칙 15 신설 (1줄, 165줄로 200줄 제한 준수). 디테일은 playbook 참조.
+2. `_os/playbook/chatlog-auto-gate.md` 신설: 의무·검증게이트·자가치유·예외(`chatlog_exempt: true` / `META-` prefix)·작성형식·운영흐름.
+3. `_os/scripts/auto_detect_task_status.py` 패치: `update_task()`에 `chatlog_by_task` 인자 추가, done 트랜지션 직후 byTask 매핑 검증, 없으면 `task['chatlog_warning']` 박음, 매핑 박히면 자가 치유. summary에 `chatlog_warnings` 별도 수집 + GitHub Actions Summary 출력.
+4. 단위 테스트 6 케이스 통과: 매핑없음/매핑있음/자가치유/exempt/META-/in_progress 무영향.
+
+**효과**:
+- 앞으로 BL done 처리 시 chat-log byTask 매핑 자동 검증.
+- 박지 않으면 ⚠️ 워닝 노출, 박으면 자가 치유.
+- BL-ACT-INDEX-RESTORE 같은 사고 영구 차단.
+
+**비교 — 부칙 7 vs 부칙 15**:
+- 부칙 7: pending → in_progress 트랜지션 시 progress.steps 검증
+- 부칙 15: in_progress → done 트랜지션 시 chat-log byTask 매핑 검증
+- 두 게이트가 작업 라이프사이클 입구·출구를 모두 지킴.
+
+**연관 작업**: BL-CHATLOG-AUTO-GATE (이번 작업), BL-ACT-INDEX-RESTORE (선행 — 이 사고가 본 결정의 트리거)
+**누가**: Claude 발견·설계·실행 + 이지형 대표님 헌법 변경 승인 (자율 진행 가능: ❌ → 헌법 변경이라 대표님 결정 필요 작업이었음)
+
+---
+
 ### 결정 D-016: BL-ADMIN-AUTH-V2 라우터 통합 — Vercel Hobby 12 함수 한도 회피 ⭐⭐ 2026-05-04
 
 **무엇을**: D-015에서 추가한 신규 5개 함수(api/admin/* 4개 + api/auth/session 1개)를 라우터 패턴으로 기존 함수에 흡수. Vercel Hobby 플랜의 12개 Serverless Function 한도 회피.

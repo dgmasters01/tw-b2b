@@ -38,6 +38,8 @@
 | D-016 | BL-ADMIN-AUTH-V2 라우터 통합 — Vercel Hobby 12 함수 한도 회피 | infra | 2026-05-04 | 확정 | BL-ADMIN-AUTH-V2 |
 | D-017 | 자격증명 라이프사이클 — 개발기간(등록 정상) → 서비스기간(일괄 폐기) | policy | 2026-05-08 | 확정 | 헌법 부칙 4, `_os/playbook/credentials-lifecycle.md` |
 | D-018 | Vercel Hobby → Pro 업그레이드 ($20/월) — 약관 준수 + 일일 배포 한도 30배 + webhook race 차단 | infra | 2026-05-08 | 확정 | BL-VERCEL-DEPLOY-RACE-GUARD, gohotelwinners.com 호스팅 |
+| D-019 | admin-status.html 중복 3중 정리 + 작업 지휘소 통합 — ③·⑥·⑦ 제거 | infra | 2026-05-08 | 확정 | BL-DEDUP-CONSOLIDATE (8단계), BL-URGENT-CARD-FLOW 흡수 |
+| D-020 | 헌법 자가 검증에 사전 안전장치 3개(북극성/중복점검/한채팅한결정) — 방향 상실 방지 | policy | 2026-05-08 | 확정 | OPERATIONS_CHARTER.md 11조 자가검증, _os/boot.md 5-A |
 
 ---
 

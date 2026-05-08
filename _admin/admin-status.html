@@ -2022,28 +2022,44 @@
   // ──────────────────────────────────────────────────────────
   const $ = (id) => document.getElementById(id);
   const fmtTime = (iso) => {
+    // [BL-ACT-KST-FIX 2026-05-08] 이중 변환 결함 fix
+    //   원인: 기존 코드가 'new Date(dt.getTime() + 9*3600*1000)' 후 toISOString().slice()로
+    //         UTC 컴포넌트 추출 → 이미 ISO 시각인데 또 +9h 더해 시각이 9~18h 어긋남.
+    //         (브라우저 로컬 timezone에 따라 결과 들쭉날쭉)
+    //   fix: Intl.DateTimeFormat({timeZone:'Asia/Seoul'})로 KST 컴포넌트를 직접 추출.
+    //         같은 함수가 활동이력·메뉴·카드 여러 곳에서 호출되므로 한 곳 fix = 전부 정상화.
     if (!iso) return '-';
-    // 날짜만 있는 경우 (YYYY-MM-DD) — 시간 정보 없음
     const dateOnly = /^\d{4}-\d{2}-\d{2}$/.test(String(iso).trim());
     const dt = new Date(iso);
     if (isNaN(dt.getTime())) return '-';
-    const kst = new Date(dt.getTime() + 9 * 3600 * 1000);
-    const now = new Date(Date.now() + 9 * 3600 * 1000);
-    const sameDay = kst.toISOString().slice(0,10) === now.toISOString().slice(0,10);
-    const sameYear = kst.getUTCFullYear() === now.getUTCFullYear();
-    const pad = (n) => String(n).padStart(2,'0');
-    const hh = pad(kst.getUTCHours()), mi = pad(kst.getUTCMinutes());
+    // KST 컴포넌트 추출 (브라우저 로컬 tz 무관)
+    const KST_OPTS = { timeZone: 'Asia/Seoul', hour12: false,
+      year: 'numeric', month: '2-digit', day: '2-digit',
+      hour: '2-digit', minute: '2-digit' };
+    let parts, nowParts;
+    try {
+      parts = Object.fromEntries(
+        new Intl.DateTimeFormat('en-CA', KST_OPTS).formatToParts(dt)
+          .filter(p => p.type !== 'literal').map(p => [p.type, p.value]));
+      nowParts = Object.fromEntries(
+        new Intl.DateTimeFormat('en-CA', KST_OPTS).formatToParts(new Date())
+          .filter(p => p.type !== 'literal').map(p => [p.type, p.value]));
+    } catch (e) {
+      return '-';
+    }
+    const yy = parts.year, mo = parts.month, da = parts.day;
+    const hh = parts.hour === '24' ? '00' : parts.hour;  // Intl 일부 환경 24시 표기 보정
+    const mi = parts.minute;
+    const sameDay = (yy === nowParts.year && mo === nowParts.month && da === nowParts.day);
+    const sameYear = (yy === nowParts.year);
     if (dateOnly) {
-      // 시간 정보 없는 날짜만 표시
-      const mo = pad(kst.getUTCMonth()+1), da = pad(kst.getUTCDate());
       if (sameDay) return '오늘';
       if (sameYear) return `${mo}-${da}`;
-      return `${String(kst.getUTCFullYear()).slice(2)}-${mo}-${da}`;
+      return `${yy.slice(2)}-${mo}-${da}`;
     }
     if (sameDay) return `오늘 ${hh}:${mi}`;
-    const mo = pad(kst.getUTCMonth()+1), da = pad(kst.getUTCDate());
     if (sameYear) return `${mo}-${da} ${hh}:${mi}`;
-    return `${String(kst.getUTCFullYear()).slice(2)}-${mo}-${da} ${hh}:${mi}`;
+    return `${yy.slice(2)}-${mo}-${da} ${hh}:${mi}`;
   };
   const escapeHtml = (s) => String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 

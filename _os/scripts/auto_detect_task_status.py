@@ -173,8 +173,15 @@ def classify_intent(commit_msg: str) -> str:
     return "update"
 
 
-def update_task(task: dict, intent: str, commit_sha: str, commit_msg: str) -> bool:
-    """task를 intent에 따라 갱신. 변경되면 True."""
+def update_task(task: dict, intent: str, commit_sha: str, commit_msg: str, chatlog_by_task: dict | None = None) -> bool:
+    """task를 intent에 따라 갱신. 변경되면 True.
+
+    [BL-CHATLOG-AUTO-GATE, 2026-05-08] 부칙 15 자동 검증 게이트:
+    chatlog_by_task = _chat-logs/index.json 의 byTask 맵.
+    done 트랜지션 시 task.id가 byTask에 매핑돼있는지 확인.
+    매핑 없으면 task['chatlog_warning'] 박음. 다음 commit에서 매핑 박히면 자가 치유.
+    면제 대상: chatlog_exempt: true 박힌 task 또는 META- prefix BL.
+    """
     changed = False
     now = now_iso()
     short_sha = commit_sha[:7]
@@ -191,6 +198,29 @@ def update_task(task: dict, intent: str, commit_sha: str, commit_msg: str) -> bo
             event = "완료 (auto-detected)"
         else:
             event = "완료 commit 추가 (이미 done)"
+
+        # [BL-CHATLOG-AUTO-GATE 단계 4] 부칙 15 검증 게이트
+        # done 트랜지션 시 chat-log byTask 매핑 확인. 없으면 워닝 박음.
+        # 면제: chatlog_exempt: true 또는 BL ID가 META- 로 시작하는 메타 작업
+        tid = task.get("id", "")
+        is_exempt = task.get("chatlog_exempt", False) or tid.startswith("META-")
+        if not is_exempt and chatlog_by_task is not None:
+            mapped = chatlog_by_task.get(tid)
+            has_mapping = isinstance(mapped, list) and len(mapped) > 0
+            if not has_mapping:
+                task["chatlog_warning"] = {
+                    "code": "MISSING_CHATLOG_MAPPING",
+                    "rule": "부칙 15 — done 트랜지션 시 _chat-logs/index.json byTask 매핑 의무",
+                    "detected_at": now,
+                    "detected_by_commit": short_sha,
+                    "message": f"done 처리됐으나 byTask['{tid}'] 매핑 없음. _chat-logs/{{date}}-{{slug}}.md 박고 index.json byTask에 추가.",
+                }
+                changed = True
+            else:
+                # 매핑 박혀있으면 기존 워닝 자가 치유
+                if "chatlog_warning" in task:
+                    task.pop("chatlog_warning", None)
+                    changed = True
     elif intent == "in_progress":
         if current == "pending":
             task["status"] = "in_progress"
@@ -361,6 +391,18 @@ def process_commits(commits: list[tuple[str, str]], dry_run: bool) -> dict:
     with TASKS_JSON.open() as f:
         data = json.load(f)
 
+    # [BL-CHATLOG-AUTO-GATE 단계 4] 부칙 15 검증용 chat-log index 로드
+    chatlog_by_task = {}
+    chatlog_index_path = TASKS_JSON.parent / "_chat-logs" / "index.json"
+    if chatlog_index_path.exists():
+        try:
+            with chatlog_index_path.open() as f:
+                chatlog_idx = json.load(f)
+            chatlog_by_task = chatlog_idx.get("byTask", {}) or {}
+        except (json.JSONDecodeError, OSError) as e:
+            print(f"[WARN] chat-log index 로드 실패 (부칙 15 검증 건너뜀): {e}", file=sys.stderr)
+            chatlog_by_task = {}
+
     tasks_by_id = {t["id"]: t for t in data.get("tasks", [])}
     summary = {
         "commits_scanned": len(commits),
@@ -368,6 +410,7 @@ def process_commits(commits: list[tuple[str, str]], dry_run: bool) -> dict:
         "unmatched_commits": [],
         "tasks_changed": 0,
         "progress_warnings": [],  # [BL-IPB-PROGRESS-RESTORE 단계 2] 부칙 7 위반 작업 목록
+        "chatlog_warnings": [],  # [BL-CHATLOG-AUTO-GATE 단계 4] 부칙 15 위반 작업 목록
     }
 
     for sha, msg in commits:
@@ -395,7 +438,7 @@ def process_commits(commits: list[tuple[str, str]], dry_run: bool) -> dict:
                 })
                 continue
 
-            changed = update_task(task, intent, sha, msg)
+            changed = update_task(task, intent, sha, msg, chatlog_by_task=chatlog_by_task)
             if changed:
                 summary["tasks_changed"] += 1
             # [BL-IPB-PROGRESS-RESTORE 단계 2] 부칙 7 워닝 수집
@@ -407,6 +450,16 @@ def process_commits(commits: list[tuple[str, str]], dry_run: bool) -> dict:
                         "task_id": tid,
                         "code": pw.get("code"),
                         "message": pw.get("message"),
+                        "commit": sha[:7],
+                    })
+            # [BL-CHATLOG-AUTO-GATE 단계 4] 부칙 15 워닝 수집
+            if "chatlog_warning" in task:
+                cw = task["chatlog_warning"]
+                if not any(w.get("task_id") == tid for w in summary["chatlog_warnings"]):
+                    summary["chatlog_warnings"].append({
+                        "task_id": tid,
+                        "code": cw.get("code"),
+                        "message": cw.get("message"),
                         "commit": sha[:7],
                     })
             summary["task_updates"].append({
@@ -495,6 +548,7 @@ def main():
     print(f"  - tasks.json 변경: {summary['tasks_changed']}건")
     print(f"  - 매칭 안 된 commit: {len(summary['unmatched_commits'])}개")
     print(f"  - 부칙 7 워닝: {len(summary['progress_warnings'])}건")
+    print(f"  - 부칙 15 워닝: {len(summary['chatlog_warnings'])}건")
     if summary["task_updates"]:
         print()
         print("✅ 매칭 결과:")
@@ -524,6 +578,26 @@ def main():
                     for w in summary["progress_warnings"]:
                         gh.write(f"- ⚠️ **{w['task_id']}** (commit `{w['commit']}`): {w['message']}\n")
                     gh.write("\n_진행률 % 표시 + 자동 단계 갱신은 progress.steps 박힌 후부터 작동합니다._\n")
+            except OSError:
+                pass
+
+    # [BL-CHATLOG-AUTO-GATE 단계 4] 부칙 15 워닝 출력 + GitHub Actions Summary
+    if summary["chatlog_warnings"]:
+        print()
+        print("⚠️  부칙 15 위반 — chat-log byTask 매핑 누락:")
+        for w in summary["chatlog_warnings"]:
+            print(f"  ⚠️ {w['task_id']} (commit {w['commit']}): {w['message']}")
+        import os as _os_mod
+        gh_summary_path = _os_mod.environ.get("GITHUB_STEP_SUMMARY")
+        if gh_summary_path:
+            try:
+                with open(gh_summary_path, "a", encoding="utf-8") as gh:
+                    gh.write("\n## ⚠️ 부칙 15 위반 감지 — chat-log byTask 매핑 누락\n\n")
+                    gh.write("아래 작업이 done 처리됐지만 `_chat-logs/index.json` byTask에 매핑이 없습니다.\n")
+                    gh.write("**해결: `_chat-logs/{date}-{slug}.md` 박고 index.json byTask에 추가.**\n\n")
+                    for w in summary["chatlog_warnings"]:
+                        gh.write(f"- ⚠️ **{w['task_id']}** (commit `{w['commit']}`): {w['message']}\n")
+                    gh.write("\n_매핑 박히면 다음 commit에서 자동 자가 치유됩니다._\n")
             except OSError:
                 pass
 

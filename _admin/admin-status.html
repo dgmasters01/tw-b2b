@@ -1068,7 +1068,11 @@
     <div class="cc-slot" id="cc-slot-ceo">
       <div class="cc-slot-label">① 👤 대표님 결정 대기 — 결정 한 번 = 막힘 해제</div>
       <div class="cc-slot-body" id="cc-slot-ceo-body">
-        <div class="cc-loading">결정 대기 큐 로딩 중...</div>
+        <!-- ★ BL-DEDUP-CONSOLIDATE step4: ⑦ ceo-wait-box DOM 이동 → 슬롯에 직접 박음 (자립형) -->
+        <div class="ceo-wait-title" id="ceo-wait-title">👤 대표님 결정 대기 — 로딩 중...</div>
+        <div class="ceo-wait-list" id="ceo-wait-list">
+          <div style="font-size:11px;color:var(--text-muted);padding:8px;">tasks.json 로딩 중...</div>
+        </div>
       </div>
     </div>
 
@@ -1967,13 +1971,7 @@
     </div>
   </section>
 
-  <!-- ⑦ 결정 대기 박스 원본 (JS가 ④로 이동) -->
-  <section class="ceo-wait-box" id="ceo-wait-box">
-    <div class="ceo-wait-title" id="ceo-wait-title">👤 대표님 결정 대기 — 로딩 중...</div>
-    <div class="ceo-wait-list" id="ceo-wait-list">
-      <div style="font-size:11px;color:var(--text-muted);padding:8px;">tasks.json 로딩 중...</div>
-    </div>
-  </section>
+  <!-- ⑦ 제거됨 (BL-DEDUP-CONSOLIDATE step4) — ④ cc-slot-ceo-body 안에 직접 박음. DOM 이동 로직도 자립형으로 교체. -->
 
   <!-- ⑧ 시급 페이지 TOP 10 (세부 시각) -->
   <section class="top-box">
@@ -5507,23 +5505,12 @@
     let pollTimer = null;
 
     // ────────────────────────────────────────────────────────
-    // 1. 기존 ceo-wait-box / integ-auto-queue를 Command Center 슬롯으로 이동
-    //    (DOM 이동 = 기존 JS의 getElementById 참조 그대로 작동)
+    // 1. integ-auto-queue를 Command Center 자율 큐 슬롯으로 이동 (단계 5에서 자립형 렌더로 완전 교체 예정)
+    //    BL-DEDUP-CONSOLIDATE step4: ceo-wait-box는 ④ slot에 직접 박혀있어 이동 불필요.
     // ────────────────────────────────────────────────────────
     function moveExistingBoxesIntoCommandCenter() {
-      const ceoBox      = document.getElementById('ceo-wait-box');
-      const ceoSlotBody = document.getElementById('cc-slot-ceo-body');
       const autoQueue   = document.getElementById('integ-auto-queue');
       const autoSlotBody = document.getElementById('cc-slot-auto-body');
-
-      if (ceoBox && ceoSlotBody && !ceoSlotBody.contains(ceoBox)) {
-        ceoSlotBody.innerHTML = '';
-        ceoSlotBody.appendChild(ceoBox);
-        ceoBox.style.margin = '0';
-        ceoBox.style.background = 'transparent';
-        ceoBox.style.border = '0';
-        ceoBox.style.padding = '0';
-      }
       if (autoQueue && autoSlotBody && !autoSlotBody.contains(autoQueue)) {
         autoSlotBody.innerHTML = '';
         autoSlotBody.appendChild(autoQueue);

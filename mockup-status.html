@@ -2347,6 +2347,34 @@
           if (candidates && candidates.length) slug = candidates[candidates.length - 1];
         }
       }
+      // ★ BL-ACT-INDEX-RESTORE: D-NNN은 byTask 아닌 byDecision에서 찾음
+      let decisionDirect = null;  // chat-log 없이 DECISIONS.md 직접 안내 케이스
+      if (!slug && idx && idx.byDecision) {
+        const dMatch = (item.action || '').match(/\bD-\d{3}\b/);
+        if (dMatch) {
+          const entries = idx.byDecision[dMatch[0]];
+          if (entries && entries.length) {
+            // slug 있는 entry 우선
+            const withSlug = entries.find(e => e.slug);
+            if (withSlug) {
+              slug = withSlug.slug;
+            } else {
+              // chat-log 매핑 없음 — DECISIONS.md 직접 안내
+              decisionDirect = { id: dMatch[0], note: entries[0].note || '' };
+            }
+          }
+        }
+      }
+      // ★ DECISIONS.md 직접 안내 (chat-log 없는 D-NNN)
+      if (decisionDirect) {
+        pane.innerHTML = `
+          <div class="activity-tab-empty">
+            📜 <strong>${escapeHtml(decisionDirect.id)}</strong>는 chat-log에 별도 정리되지 않았습니다.<br>
+            <small>${escapeHtml(decisionDirect.note)}</small><br><br>
+            <a href="/DECISIONS.md" target="_blank" style="color:#60a5fa;">▶ DECISIONS.md 직접 보기</a>
+          </div>`;
+        return;
+      }
       if (!slug) {
         pane.innerHTML = `
           <div class="activity-tab-empty">

@@ -1026,25 +1026,6 @@
       <span class="cc-poll-status" id="cc-poll-status" title="5초 폴링 — tasks.json 자동 동기화">⟳ 5s</span>
     </div>
 
-    <!-- ★ BL-DEDUP-CONSOLIDATE step1: 작업 진행 KPI (완료/진행/막힘) — 헤더 직속 -->
-    <div class="cc-kpi-row" id="cc-kpi-row" aria-label="작업 진행 상태 한눈에 보기">
-      <div class="cc-kpi cc-kpi-done">
-        <span class="cc-kpi-label">완료</span>
-        <span class="cc-kpi-num" id="cc-kpi-done">-</span>
-        <span class="cc-kpi-sub" id="cc-kpi-done-sub">- / -</span>
-      </div>
-      <div class="cc-kpi cc-kpi-active">
-        <span class="cc-kpi-label">진행 + 대기</span>
-        <span class="cc-kpi-num" id="cc-kpi-active">-</span>
-        <span class="cc-kpi-sub">P0 우선</span>
-      </div>
-      <div class="cc-kpi cc-kpi-blocked">
-        <span class="cc-kpi-label">막힘</span>
-        <span class="cc-kpi-num" id="cc-kpi-blocked">-</span>
-        <span class="cc-kpi-sub">결정 한 번 = 해제</span>
-      </div>
-    </div>
-
     <!-- ① 결정 대기 슬롯 — JS가 #ceo-wait-box를 이쪽으로 이동시킴 -->
     <div class="cc-slot" id="cc-slot-ceo">
       <div class="cc-slot-label">① 👤 대표님 결정 대기 — 결정 한 번 = 막힘 해제</div>
@@ -1116,49 +1097,6 @@
     .cc-poll-status.cc-poll-active {
       color: #10b981;
       background: rgba(16,185,129,0.12);
-    }
-
-    /* ★ BL-DEDUP-CONSOLIDATE step1: 헤더 KPI 행 (완료/진행/막힘) */
-    .cc-kpi-row {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-      margin-bottom: 14px;
-    }
-    .cc-kpi {
-      background: rgba(99,102,241,0.06);
-      border: 0.5px solid rgba(99,102,241,0.18);
-      border-radius: 6px;
-      padding: 8px 10px;
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      transition: background 0.2s;
-    }
-    .cc-kpi:hover { background: rgba(99,102,241,0.1); }
-    .cc-kpi-label {
-      font-size: 10px;
-      color: var(--text-muted, #94a3b8);
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-    }
-    .cc-kpi-num {
-      font-size: 20px;
-      font-weight: 600;
-      line-height: 1.1;
-      color: var(--text, #e2e8f0);
-    }
-    .cc-kpi-done .cc-kpi-num { color: var(--done, #22c55e); }
-    .cc-kpi-active .cc-kpi-num { color: #c4b5fd; }
-    .cc-kpi-blocked .cc-kpi-num { color: var(--blocked, #ef4444); }
-    .cc-kpi-sub {
-      font-size: 9px;
-      color: var(--text-muted, #64748b);
-      margin-top: 2px;
-    }
-    @media (max-width: 640px) {
-      .cc-kpi { padding: 6px 8px; }
-      .cc-kpi-num { font-size: 17px; }
     }
     .cc-slot {
       margin-bottom: 10px;
@@ -2913,23 +2851,12 @@
     const dl = data.deadline || '2026-05-03';
     const ddays = Math.ceil((new Date(dl) - new Date()) / 86400000);
 
-    // ★ BL-DEDUP-CONSOLIDATE step1: null-safe setter — ⑥ 제거 후에도 안전
-    const setText = (id, txt) => { const el = $(id); if (el) el.textContent = txt; };
-
-    // ⑥ 임박 섹션 KPI (단계 5에서 제거 예정 — 그때까지 ④ 헤더와 동시 갱신)
-    setText('ik-dday', ddays >= 0 ? `D-${ddays}` : `D+${-ddays}`);
-    setText('ik-dday-sub', dl);
-    setText('ik-done', total ? Math.round(done / total * 100) + '%' : '0%');
-    setText('ik-done-sub', `${done} / ${total}`);
-    setText('ik-active', String(inProgress + pending));
-    setText('ik-blocked', String(blocked));
-
-    // ★ BL-DEDUP-CONSOLIDATE step1: ④ 작업 지휘소 헤더 KPI (단일 진실원)
-    const donePct = total ? Math.round(done / total * 100) : 0;
-    setText('cc-kpi-done', `${donePct}%`);
-    setText('cc-kpi-done-sub', `${done} / ${total}`);
-    setText('cc-kpi-active', String(inProgress + pending));
-    setText('cc-kpi-blocked', String(blocked));
+    $('ik-dday').textContent = ddays >= 0 ? `D-${ddays}` : `D+${-ddays}`;
+    $('ik-dday-sub').textContent = dl;
+    $('ik-done').textContent = total ? Math.round(done / total * 100) + '%' : '0%';
+    $('ik-done-sub').textContent = `${done} / ${total}`;
+    $('ik-active').textContent = inProgress + pending;
+    $('ik-blocked').textContent = blocked;
 
     // 🤖/👥/👤 KPI 동적 계산 — 미완료(done 제외) 작업만 카운트
     const open = tasks.filter(t => t.status !== 'done');

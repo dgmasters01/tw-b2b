@@ -76,21 +76,6 @@
 
 ---
 
-## 🟡 P0 — BL 작업 done 처리 시 chat-log 박기 자동 강제 게이트 (헌법 부칙 보강 필요)
-
-**요약**: BL-ACT-INDEX-RESTORE 진행 중 chat-log를 박지 않아서 4개 commit 모두 byCommit 매핑 실패 → 활동이력 펼침에서 "기록 못 찾음". 영구 차단: (1) 헌법에 "BL done 처리 시 _chat-logs/{date}-{slug}.md 박기 의무" 명문, (2) auto-detect-bot에 검증 게이트 — done 트랜지
-
-- **자율성**: 🟡 SEMI
-- **예상 시간**: 0.5시간
-- **카테고리**: infra
-- **상태**: pending
-- **막힘 사유**: 헌법 변경 사항 — 대표님 결정 대기
-- **결정 필요**:
-  - 헌법 부칙 7 또는 신설 부칙으로 chat-log 의무화 명문 박을지 결정
-- **ID**: `BL-CHATLOG-AUTO-GATE` (출처: BL-ACT-INDEX-RESTORE 검증 중 발견)
-
----
-
 ## 🟢 P1 — [admin-* 페이지 인증 속도 최적화] Supabase getSession + checkAdmin 병렬 처리 + SSR 게이트
 
 - **자율성**: 🟢 AUTO

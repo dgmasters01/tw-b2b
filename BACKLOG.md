@@ -32,18 +32,6 @@
 
 ---
 
-## 🟢 P0 — ⚡ 진행 중 박스 진행률 % 복원 + 작업 시작 시 progress.steps 의무화 정책
-
-**요약**: 대표님 발견 결함: BL-002 진행 중에 % 표시 안 보임. 원인: progress: null. 봇 로직(auto-detect-bot)은 정상 — task에 progress.steps가 박혀있어야 동작함. 정책 결함이 본질: 인계받은 Claude가 매번 박아야 하는 의무 시스템화. 1단계 = BL-002에 progress.steps 박음 (이번 채팅 완료
-
-- **자율성**: 🟢 AUTO
-- **예상 시간**: 0.3시간
-- **카테고리**: infra
-- **상태**: pending
-- **ID**: `BL-IPB-PROGRESS-RESTORE` (출처: BL-002 분할)
-
----
-
 ## 🟢 P0 — 100% 도달 시 status=done 자동 트랜지션 검증
 
 **요약**: auto-detect-bot의 BL-PROGRESS-AUTO-DONE-SYNC 단계 2 로직(/_os/scripts/auto_detect_task_status.py L266~)이 이미 박혀있음. 단, progress.steps가 task에 박힌 상태에서만 동작. BL-IPB-PROGRESS-RESTORE 완료 후 실 사용 케이스로 검증.

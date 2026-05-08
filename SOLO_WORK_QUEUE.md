@@ -29,17 +29,7 @@
 
 ---
 
-### B. 🟢 AUTO — ⚡ 진행 중 박스 진행률 % 복원 + 작업 시작 시 progress.steps 의무화 정책
-
-**ID**: `BL-IPB-PROGRESS-RESTORE`  
-**카테고리**: infra  
-**예상 시간**: 0.3시간  
-
-**메모**: 대표님 발견 결함: BL-002 진행 중에 % 표시 안 보임. 원인: progress: null. 봇 로직(auto-detect-bot)은 정상 — task에 progress.steps가 박혀있어야 동작함. 정책 결함이 본질: 인계받은 Claude가 매번 박아야 하는 의무 시스템화. 1단계 = BL-002에 progress.steps 박음 (이번 채팅 완료). 2단계 = 정책 박기 (다음 채팅).
-
----
-
-### C. 🟢 AUTO — 100% 도달 시 status=done 자동 트랜지션 검증
+### B. 🟢 AUTO — 100% 도달 시 status=done 자동 트랜지션 검증
 
 **ID**: `BL-IPB-AUTO-DONE`  
 **카테고리**: infra  
@@ -52,7 +42,7 @@
 
 ---
 
-### D. 🟢 AUTO — 활동 이력 시간 KST 정상화 (fmtTime 이중 변환 결함)
+### C. 🟢 AUTO — 활동 이력 시간 KST 정상화 (fmtTime 이중 변환 결함)
 
 **ID**: `BL-ACT-KST-FIX`  
 **카테고리**: bugfix  
@@ -62,7 +52,7 @@
 
 ---
 
-### E. 🟢 AUTO — 활동 이력 사람용 설명 인덱스 매핑 복원 (D-XXX, commit hash 누락)
+### D. 🟢 AUTO — 활동 이력 사람용 설명 인덱스 매핑 복원 (D-XXX, commit hash 누락)
 
 **ID**: `BL-ACT-INDEX-RESTORE`  
 **카테고리**: bugfix  
@@ -72,7 +62,7 @@
 
 ---
 
-### F. 🟢 AUTO — Vercel 빌드 큐 누락 감지·자동 복구 가드 (헌법 부칙 8 강화)
+### E. 🟢 AUTO — Vercel 빌드 큐 누락 감지·자동 복구 가드 (헌법 부칙 8 강화)
 
 **ID**: `BL-VERCEL-DEPLOY-RACE-GUARD`  
 **카테고리**: infrastructure  

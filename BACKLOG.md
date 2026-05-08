@@ -32,30 +32,6 @@
 
 ---
 
-## 🟢 P0 — 활동 이력 시간 KST 정상화 (fmtTime 이중 변환 결함)
-
-**요약**: _admin/admin-status.html L2024 fmtTime 함수: 'new Date(dt.getTime() + 9*3600*1000)'로 +9h 더한 뒤 toISOString().slice(...) 사용. 이미 ISO 시각인데 또 +9h = 이중 변환. 정석 fix: formatTime 함수처럼 toLocaleString('ko-KR', {tim
-
-- **자율성**: 🟢 AUTO
-- **예상 시간**: 0.3시간
-- **카테고리**: bugfix
-- **상태**: pending
-- **ID**: `BL-ACT-KST-FIX` (출처: BL-002 분할)
-
----
-
-## 🟢 P0 — 활동 이력 사람용 설명 인덱스 매핑 복원 (D-XXX, commit hash 누락)
-
-**요약**: 활동이력 펼침에서 'D-018', '1902554' 등 항목이 '기록 못 찾음'으로 표시. 원인: chat-logs/index.json의 byTask/byCommit 매핑 누락. scan-bot Python 스크립트(chat-log-index.yml)와 activity-feed 빌더 양쪽 점검 필요. D-XXX 결정은 DECISIONS.md 매핑으로 별도 
-
-- **자율성**: 🟢 AUTO
-- **예상 시간**: 0.7시간
-- **카테고리**: bugfix
-- **상태**: pending
-- **ID**: `BL-ACT-INDEX-RESTORE` (출처: BL-002 분할)
-
----
-
 ## 🔴 P0 — Agoda 예약 검증 시스템 (Booking Verification)
 
 **요약**: ## 🔴 P0 — Agoda 예약 검증 시스템 (Booking Verification) ⭐⭐ 2026-04-29  **배경** (대표님 핵심 비즈니스 통찰): > "아고다의 본인 확인 할 수 있는 것을 제공해줘야 돼. TW Booking Analytics에서 호텔별로 예약번호, 예약날짜, 시간 등 대조할 수 있는 것."  **핵심 가치**: - 우리가 "예

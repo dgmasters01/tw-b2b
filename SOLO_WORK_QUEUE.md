@@ -29,27 +29,7 @@
 
 ---
 
-### B. 🟢 AUTO — 활동 이력 시간 KST 정상화 (fmtTime 이중 변환 결함)
-
-**ID**: `BL-ACT-KST-FIX`  
-**카테고리**: bugfix  
-**예상 시간**: 0.3시간  
-
-**메모**: _admin/admin-status.html L2024 fmtTime 함수: 'new Date(dt.getTime() + 9*3600*1000)'로 +9h 더한 뒤 toISOString().slice(...) 사용. 이미 ISO 시각인데 또 +9h = 이중 변환. 정석 fix: formatTime 함수처럼 toLocaleString('ko-KR', {timeZone:'Asia/Seoul', ...}) 사용. 같은 함수가 활동이력/메뉴/카드 여러 곳에서 호출되므로 한 곳만 고치면 전부 정상화.
-
----
-
-### C. 🟢 AUTO — 활동 이력 사람용 설명 인덱스 매핑 복원 (D-XXX, commit hash 누락)
-
-**ID**: `BL-ACT-INDEX-RESTORE`  
-**카테고리**: bugfix  
-**예상 시간**: 0.7시간  
-
-**메모**: 활동이력 펼침에서 'D-018', '1902554' 등 항목이 '기록 못 찾음'으로 표시. 원인: chat-logs/index.json의 byTask/byCommit 매핑 누락. scan-bot Python 스크립트(chat-log-index.yml)와 activity-feed 빌더 양쪽 점검 필요. D-XXX 결정은 DECISIONS.md 매핑으로 별도 처리해야 함 (일반 task와 다름). 분량 medium.
-
----
-
-### D. 🟢 AUTO — Vercel 빌드 큐 누락 감지·자동 복구 가드 (헌법 부칙 8 강화)
+### B. 🟢 AUTO — Vercel 빌드 큐 누락 감지·자동 복구 가드 (헌법 부칙 8 강화)
 
 **ID**: `BL-VERCEL-DEPLOY-RACE-GUARD`  
 **카테고리**: infrastructure  

@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-08T04:52:49+00:00",
+  "updated_at": "2026-05-08T04:53:29+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -5855,7 +5855,7 @@
       "category": "infra",
       "priority": "P0",
       "size": "small",
-      "status": "pending",
+      "status": "in_progress",
       "claude_can_auto": false,
       "approval_required": true,
       "owner": "CEO",
@@ -5868,7 +5868,7 @@
       },
       "blocker": "헌법 변경 사항 — 대표님 결정 대기",
       "created_at": "2026-05-08T04:51:41.107588Z",
-      "updated_at": "2026-05-08T04:53:18.952397Z",
+      "updated_at": "2026-05-08T04:53:29+00:00",
       "completed_at": null,
       "source": "BL-ACT-INDEX-RESTORE 검증 중 발견",
       "order": 5,
@@ -5891,14 +5891,21 @@
           "at": "2026-05-08T04:53:18.952397Z",
           "event": "pending 복귀 — 헌법 변경 포함 작업, auto-detect-bot 자동 in_progress 트랜지션 차단 (대표님 결정 대기)",
           "by": "Claude"
+        },
+        {
+          "at": "2026-05-08T04:53:29+00:00",
+          "event": "진행 중 진입 (auto-detected) ⚠️ 부칙 7 위반 — progress.steps 미박힘",
+          "by": "auto-detect-bot",
+          "commit": "34944e7",
+          "note": "fix: BL-CHATLOG-AUTO-GATE pending 복귀 (헌법 변경 포함, 대표님 결정 대기)"
         }
       ],
       "started_at": "2026-05-08T04:52:49+00:00",
       "progress_warning": {
         "code": "MISSING_PROGRESS_STEPS",
         "rule": "부칙 7 — 모든 작업은 progress.steps 박은 후 시작",
-        "detected_at": "2026-05-08T04:52:49+00:00",
-        "detected_by_commit": "016873c",
+        "detected_at": "2026-05-08T04:53:29+00:00",
+        "detected_by_commit": "34944e7",
         "message": "in_progress 진입했으나 progress.steps 비어있음. tasks.json에서 progress.steps 박은 후 다음 commit에 [step:done:N] 태그."
       }
     }

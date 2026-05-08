@@ -76,6 +76,36 @@
 
 ---
 
+## 🟡 P0 — chat-log 사업가 5블록 표준 강제 (사람용 탭 가독성 fix)
+
+**요약**: 사람용 탭이 chat-log를 보여줄 때 사업가 용어가 아닌 개발자 용어 가득. 원인: 표준(_os/playbook/chat-log-format.md)은 박혀있는데 작성 시 미준수. fix: (1) 부칙에 5블록 표준 준수 명문 (2) auto-detect-bot이 chat-log 박힐 때 5블록 헤딩 + 사업가 용어 검증 (3) 검증 실패 시 워닝, 자가
+
+- **자율성**: 🟡 SEMI
+- **예상 시간**: 1.0시간
+- **카테고리**: infra
+- **상태**: pending
+- **막힘 사유**: Q2 결정 대기 — 부칙 합치기 vs 분리
+- **결정 필요**:
+  - Q2: 부칙 15에 합칠지 vs 부칙 16 신설할지 (제안: 부칙 15에 합치기)
+- **ID**: `BL-CHATLOG-BIZ-FORMAT` (출처: BL-CHATLOG-AUTO-GATE 검증 중 발견 (대표님 이미지 1))
+
+---
+
+## 🟡 P0 — 임박 작업 카드 클릭 흐름 재설계 (인계서/결정 모달 통합)
+
+**요약**: 현재: 임박 작업 카드 클릭 → location.href '/admin-tasks.html?id=...' (편집 모달로 점프, 흐름 깨짐). 직전 채팅 미적용 4종: (1) 결정 모달에 사업적 맥락/옵션/트레이드오프 표시 (2) 내용 보면서 입력란 동시 사용 가능 펼친 상태 (3) 결정 입력 → 실행 흐름 (A: tasks.json 자동 갱신 + 자율 큐 
+
+- **자율성**: 🟡 SEMI
+- **예상 시간**: 2.5시간
+- **카테고리**: infra
+- **상태**: pending
+- **막힘 사유**: Q1 결정 대기 — 실행 방식 A/B 선택
+- **결정 필요**:
+  - Q1: 결정 입력 → 실행 방식 (A안 즉시 실행 vs B안 클립보드 중계)
+- **ID**: `BL-URGENT-CARD-FLOW` (출처: BL-STATUS-INTERACTIVE 마지막 채팅 미적용 4종 + 대표님 이미지 4·5 지적)
+
+---
+
 ## 🟢 P1 — [admin-* 페이지 인증 속도 최적화] Supabase getSession + checkAdmin 병렬 처리 + SSR 게이트
 
 - **자율성**: 🟢 AUTO
@@ -213,6 +243,18 @@
 - **카테고리**: infrastructure
 - **상태**: pending
 - **ID**: `SQ-H` (출처: SOLO_WORK_QUEUE.md)
+
+---
+
+## 🟢 P1 — AI용 탭 — 봇 commit 감지 시 안내 (매칭 결과 없음 → 봇 자동 갱신 안내)
+
+**요약**: loadAITab에서 봇 commit (scan-bot/sync-bot/auto-detect-bot/health-bot/activity-bot) 감지 시 'ECHO_LOG/DECISIONS 매칭 없음' 대신 '봇 자동 갱신 — AI 컨텍스트 불필요' 안내 박기. 사람 commit이면서 매칭 0건일 때만 검색 키 노출.
+
+- **자율성**: 🟢 AUTO
+- **예상 시간**: 0.5시간
+- **카테고리**: infra
+- **상태**: pending
+- **ID**: `BL-AI-TAB-BOT-DETECT` (출처: 대표님 이미지 2 지적)
 
 ---
 

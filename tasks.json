@@ -2537,7 +2537,7 @@
       "category": "bugfix",
       "priority": "P0",
       "size": "medium",
-      "status": "pending",
+      "status": "in_progress",
       "claude_can_auto": true,
       "approval_required": false,
       "owner": "autonomous",
@@ -2548,16 +2548,45 @@
       },
       "blocker": null,
       "created_at": "2026-05-08T01:26:57.143371Z",
-      "updated_at": "2026-05-08T01:26:57.143371Z",
+      "updated_at": "2026-05-08T04:39:52.746292Z",
       "completed_at": null,
       "source": "BL-002 분할",
       "order": 4,
-      "progress": null,
+      "progress": {
+        "steps": [
+          {
+            "n": 1,
+            "label": "fromGitLog 봇 분류 패턴 확장 (auto-detect-bot/activity-bot/health-bot 인식 + Claude 의도 CEO 분류)",
+            "status": "done"
+          },
+          {
+            "n": 2,
+            "label": "build-chat-log-index.mjs에 byDecision 매핑 추가 (DECISIONS.md D-NNN 파싱)",
+            "status": "pending"
+          },
+          {
+            "n": 3,
+            "label": "활동 이력 + chat-log index 재빌드 + 결과 검증 (D-018, 1902554 매핑 확인)",
+            "status": "pending"
+          },
+          {
+            "n": 4,
+            "label": "tasks.json done + commit + push",
+            "status": "pending"
+          }
+        ],
+        "percent": 25
+      },
       "notes": "활동이력 펼침에서 'D-018', '1902554' 등 항목이 '기록 못 찾음'으로 표시. 원인: chat-logs/index.json의 byTask/byCommit 매핑 누락. scan-bot Python 스크립트(chat-log-index.yml)와 activity-feed 빌더 양쪽 점검 필요. D-XXX 결정은 DECISIONS.md 매핑으로 별도 처리해야 함 (일반 task와 다름). 분량 medium.",
       "history": [
         {
           "at": "2026-05-08T01:26:57.143371Z",
           "event": "BL 신설 (BL-002 분할 — D-018, 1902554 인덱스 등록 실패)",
+          "by": "Claude"
+        },
+        {
+          "at": "2026-05-08T04:38:02.232120Z",
+          "event": "in_progress (progress.steps 4단계 정의 — 부칙 7)",
           "by": "Claude"
         }
       ]

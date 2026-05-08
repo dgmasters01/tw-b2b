@@ -44,15 +44,50 @@ function fromGitLog(limit = 200) {
   const out = shellQuiet(`git log -${limit} --format="${fmt}"`);
   if (!out) return [];
   const items = [];
+  // ── BL-ACT-INDEX-RESTORE: 봇 vs 사람(CEO 의도) 정확 분류 ──
+  // 분류 원칙:
+  //   1. 자동봇 commit (subject가 [bot-name] 태그로 시작 OR author에 봇 패턴) → role='Bot'
+  //   2. Claude / 클로드 / "이지형 (자율 Claude)" 등 의도 author → role='CEO' (대표님 지시로 만든 commit)
+  //   3. Merge commit → role='Bot' (auto)
+  //   4. 그 외 author 매칭 안 되면 default 'CEO' 유지
+  const BOT_PATTERNS = [
+    { regex: /\[auto-detect-bot\]|auto-detect-bot/i, label: '🤖 auto-detect-bot' },
+    { regex: /\[sync-bot\]|sync-bot/i,               label: '🤖 sync-bot' },
+    { regex: /\[scan-bot\]|scan-bot/i,               label: '🤖 scan-bot' },
+    { regex: /\[health-bot\]|health-bot/i,           label: '🤖 health-bot' },
+    { regex: /\[activity-bot\]|activity-bot/i,       label: '🤖 activity-bot' },
+  ];
   for (const line of out.split('\n')) {
     const [hash, iso, author, subject] = line.split('||');
     if (!hash) continue;
-    const lower = (author || '').toLowerCase();
+    const authorLower  = (author  || '').toLowerCase();
+    const subjectLower = (subject || '').toLowerCase();
+    const probe = `${authorLower} || ${subjectLower}`;
+
     let role = 'CEO';
-    let by = '👤 이지형 (CEO)';
-    if (lower.includes('scan-bot')) { role = 'Bot'; by = '🤖 scan-bot'; }
-    else if (lower.includes('sync-bot')) { role = 'Bot'; by = '🤖 sync-bot'; }
-    else if (lower.includes('claude')) { role = 'Bot'; by = '🤖 Claude (CEO 지시)'; }
+    let by   = '👤 이지형 (CEO)';
+
+    // 1) 자동봇 — author 또는 subject 어느 쪽이든 매치되면 봇
+    let matchedBot = null;
+    for (const p of BOT_PATTERNS) {
+      if (p.regex.test(probe)) { matchedBot = p; break; }
+    }
+    if (matchedBot) {
+      role = 'Bot';
+      by   = matchedBot.label;
+    }
+    // 2) Merge commit — git 자동 (사람 결정 아님)
+    else if (/^merge\b/i.test(subject || '')) {
+      role = 'Bot';
+      by   = '🤖 git auto-merge';
+    }
+    // 3) Claude/클로드/자율 author — CEO 의도 commit (대표님 결정으로 Claude가 만든 것)
+    else if (/claude|클로드|자율/i.test(author || '')) {
+      role = 'CEO';
+      by   = '👤 이지형 (CEO 결정 → Claude 실행)';
+    }
+    // 4) 그 외 (직접 commit한 경우): 기본 CEO 유지
+
     items.push({
       at: iso,
       by, role,

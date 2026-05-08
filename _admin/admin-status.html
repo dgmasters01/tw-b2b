@@ -3765,9 +3765,35 @@
     const steps = prog && Array.isArray(prog.steps) ? prog.steps : null;
 
     if (!steps || steps.length === 0) {
-      wrap.classList.remove('visible');
+      // [BL-IPB-PROGRESS-RESTORE 2026-05-08] progress.steps 미박힘 = 결함 신호
+      //   기존: 그냥 hidden → 사용자가 "% 표시가 사라진 결함"으로 오해
+      //   변경: 명시적 경고 박기 — task가 in_progress인데 steps 없음 = 작업 시작 시 의무 위반
+      //   부칙 8 (자동 동기화 완성도) + 부칙 7 (단계 단위 commit) 원칙
+      wrap.classList.add('visible');
+      const percentEl = $('ip-percent');
+      if (percentEl) percentEl.textContent = '⚠️ progress.steps 미박힘';
+      const barFill = $('ip-bar-fill');
+      if (barFill) {
+        barFill.style.width = '100%';
+        barFill.style.background = 'rgba(251,191,36,0.5)';
+      }
+      const stepsEl = $('ip-steps');
+      if (stepsEl) {
+        stepsEl.innerHTML = `<div style="grid-column:1/-1;font-size:11px;color:#fbbf24;padding:8px;background:rgba(251,191,36,0.08);border:0.5px solid rgba(251,191,36,0.3);border-radius:4px;line-height:1.5;">
+          ⚠️ <strong>이 작업의 진행 단계가 박혀있지 않습니다.</strong><br>
+          <span style="font-size:10px;color:var(--text-muted);">
+            작업 시작 시 progress.steps 박는 의무 위반 (부칙 7).<br>
+            tasks.json에서 ${escapeHtml(task.id)}의 progress.steps 박은 후 commit 하면 % 표시 + 자동 갱신 작동.
+          </span>
+        </div>`;
+        wrap.classList.add('expanded');
+      }
       return;
     }
+    // 정상 경로: bar fill 색 원복 (이전 경고에서 변경됐을 수 있음)
+    const barFillReset = $('ip-bar-fill');
+    if (barFillReset) barFillReset.style.background = '';
+
     wrap.classList.add('visible');
 
     const total = steps.length;

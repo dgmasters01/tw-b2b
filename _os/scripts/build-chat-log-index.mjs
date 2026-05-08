@@ -122,6 +122,7 @@ function main() {
   const all = [];
   const byCommit = {};
   const byTask = {};
+  const byDecision = {};  // BL-ACT-INDEX-RESTORE: D-NNN → [{slug, source}] 매핑
 
   for (const f of files) {
     const md = readFileSync(join(DIR, f), 'utf8');
@@ -147,6 +148,13 @@ function main() {
       if (!byTask[t]) byTask[t] = [];
       byTask[t].push(slug);
     }
+    // BL-ACT-INDEX-RESTORE: frontmatter decisions에서 D-NNN 매핑
+    for (const dec of entry.decisions) {
+      const did = String(dec).trim();
+      if (!did) continue;
+      if (!byDecision[did]) byDecision[did] = [];
+      byDecision[did].push({ slug, source: 'frontmatter' });
+    }
   }
 
   // ★ git log 자동 매핑 보강 — frontmatter commits 비어 있어도 매핑됨
@@ -165,6 +173,64 @@ function main() {
     entry.commits = merged;
   }
 
+  // ★ BL-ACT-INDEX-RESTORE: DECISIONS.md 자동 파싱 — 모든 D-NNN 추출
+  // 매핑 우선순위:
+  //   1) frontmatter decisions: 명시 (위에서 이미 박음)
+  //   2) DECISIONS.md에 존재하지만 어떤 chat-log에도 없는 D-NNN — entry는 박지만 chat-log는 빈 배열 + source='decisions.md'
+  //   3) git log commit message에 [D-NNN] 박힌 commit이 매핑된 chat-log 있으면 그쪽으로 fallback
+  try {
+    const decMd = readFileSync('DECISIONS.md', 'utf8');
+    // 결정 D-NNN: 또는 D-NNN: 패턴
+    const dRe = /\bD-(\d{3})\b/g;
+    const allDIds = new Set();
+    let m;
+    while ((m = dRe.exec(decMd)) !== null) {
+      allDIds.add(`D-${m[1]}`);
+    }
+    // git log fallback — commit subject에 D-NNN 박힌 commit → 그 commit이 byCommit에 매핑됐으면 그 slug로
+    let recentLog = '';
+    try {
+      recentLog = execSync('git log --format="%h|%s" -n 2000', { encoding: 'utf8', stdio: ['pipe','pipe','ignore'] });
+    } catch (_) {}
+    const commitToD = {};  // hash → [D-NNN, ...]
+    for (const line of recentLog.split('\n')) {
+      const [hash, ...rest] = line.split('|');
+      if (!hash) continue;
+      const subj = rest.join('|');
+      let dm;
+      const localRe = /\bD-(\d{3})\b/g;
+      while ((dm = localRe.exec(subj)) !== null) {
+        const did = `D-${dm[1]}`;
+        if (!commitToD[hash.trim()]) commitToD[hash.trim()] = [];
+        commitToD[hash.trim()].push(did);
+        allDIds.add(did);
+      }
+    }
+    // 각 D-NNN에 대해: frontmatter 매핑 없으면 commit fallback → 그래도 없으면 빈 배열 + source='decisions.md'
+    for (const did of allDIds) {
+      if (byDecision[did] && byDecision[did].length > 0) continue;
+      // commit fallback
+      const candidateSlugs = new Set();
+      for (const [hash, dids] of Object.entries(commitToD)) {
+        if (!dids.includes(did)) continue;
+        const mappedSlug = byCommit[hash];
+        if (mappedSlug) {
+          // "(시간근접)" suffix 제거
+          const cleanSlug = mappedSlug.replace(/ \(시간근접\)$/, '');
+          candidateSlugs.add(cleanSlug);
+        }
+      }
+      if (candidateSlugs.size > 0) {
+        byDecision[did] = Array.from(candidateSlugs).map(s => ({ slug: s, source: 'commit-fallback' }));
+      } else {
+        // chat-log 매핑 없음 — DECISIONS.md 직접 보기 안내용
+        byDecision[did] = [{ slug: null, source: 'decisions.md', note: 'chat-log 매핑 없음. DECISIONS.md에서 직접 확인.' }];
+      }
+    }
+  } catch (e) {
+    console.warn(`  ⚠️  DECISIONS.md 파싱 실패: ${e.message}`);
+  }
+
   // 날짜 역순 (최신이 위)
   all.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
 
@@ -173,11 +239,12 @@ function main() {
     count: all.length,
     byCommit,
     byTask,
+    byDecision,  // BL-ACT-INDEX-RESTORE
     all,
   };
 
   writeFileSync(join(DIR, 'index.json'), JSON.stringify(index, null, 2));
-  console.log(`✅ chat-logs/index.json 갱신 — ${all.length}개 항목, commit ${Object.keys(byCommit).length}개, task ${Object.keys(byTask).length}개`);
+  console.log(`✅ chat-logs/index.json 갱신 — ${all.length}개 항목, commit ${Object.keys(byCommit).length}개, task ${Object.keys(byTask).length}개, decision ${Object.keys(byDecision).length}개`);
 }
 
 main();

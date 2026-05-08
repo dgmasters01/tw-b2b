@@ -4236,6 +4236,59 @@
       lines.push('');
     }
 
+    // [BL-ACT-KST-FIX 단계 2 — 인계서 결함 영구 복구 2026-05-08]
+    // 대표님 발견 결함: 인계서가 "최근 commit 1개"만 박아 새 채팅 Claude가
+    //   대표님 직전 컨텍스트(어떤 결정·작업·commit을 했는지)를 모르고 시작.
+    //   → 같은 질문 반복 / 같은 결함 재발생.
+    // fix: activity-feed.display.json fetch → 최근 사람 활동(CEO/Staff) 위주 10건 +
+    //      봇 활동 상위 3건을 인계서에 박는다. fmtTime으로 KST 시각 정상 표기.
+    // ──────────────────────────────────────────────────────────
+    try {
+      const afRes = await fetch('/activity-feed.display.json?t=' + Date.now());
+      if (afRes.ok) {
+        const af = await afRes.json();
+        const items = Array.isArray(af.items) ? af.items : [];
+        // 사람(CEO/Staff) 활동 우선 — 봇 활동은 노이즈 비율 높음
+        const human = items.filter(it => it.role === 'CEO' || it.role === 'Staff').slice(0, 10);
+        const bots = items.filter(it => it.role === 'Bot').slice(0, 3);
+        if (human.length || bots.length) {
+          lines.push(`## 📝 대표님 최근 활동 이력 (인계서 시점 기준)`);
+          lines.push('');
+          lines.push(`_새 채팅 Claude는 이 항목들을 보고 대표님이 직전에 무엇을 결정·작업했는지 즉시 파악. "어떤 작업 했었지?" 같은 질문 금지._`);
+          lines.push('');
+          if (human.length) {
+            lines.push(`### 사람 활동 (최근 ${human.length}건)`);
+            lines.push('');
+            human.forEach(it => {
+              const ts = fmtTime(it.at);
+              const who = (it.by || '').replace(/^👤\s*/, '').replace(/^👥\s*/, '');
+              const src = it.source || '';
+              const tt = it.target_type || '';
+              const tid = it.target_id ? ` \`${it.target_id}\`` : '';
+              const action = String(it.action || '').slice(0, 140);
+              lines.push(`- **${ts}** · ${who} · _${src}${tt ? ' · ' + tt : ''}_${tid}`);
+              lines.push(`  → ${action}`);
+            });
+            lines.push('');
+          }
+          if (bots.length) {
+            lines.push(`### 봇 활동 (최근 ${bots.length}건 — 참고용)`);
+            lines.push('');
+            bots.forEach(it => {
+              const ts = fmtTime(it.at);
+              const who = (it.by || '').replace(/^🤖\s*/, '');
+              const tid = it.target_id ? ` \`${it.target_id}\`` : '';
+              const action = String(it.action || '').slice(0, 100);
+              lines.push(`- **${ts}** · ${who}${tid} → ${action}`);
+            });
+            lines.push('');
+          }
+          lines.push(`_출처: \`/activity-feed.display.json\` (총 ${af.totalCount || items.length}건). 더 깊이 파악 필요 시 새 Claude가 ECHO_LOG.md / DECISIONS.md / chat-logs/ 자율 fetch._`);
+          lines.push('');
+        }
+      }
+    } catch (_) { /* activity-feed 없거나 fetch 실패 시 무시 — 인계서는 계속 생성 */ }
+
     // 4) GitHub 최근 커밋 정보 — 진짜 최신 hash를 GitHub API에서 fetch
     //   tasksData.head_commit은 GitHub Actions 갱신 시점 기준이라 한 박자 늦음.
     //   인계서가 항상 정확한 최신 commit을 가리키도록 라이브 fetch.

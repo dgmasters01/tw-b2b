@@ -91,18 +91,17 @@
 
 ---
 
-## 🟡 P0 — 임박 작업 카드 클릭 흐름 재설계 (인계서/결정 모달 통합)
+## 🟡 P0 — admin-status.html 중복 3중 정리 — ③·⑥·⑦ 제거 + 작업 지휘소로 통합
 
-**요약**: 현재: 임박 작업 카드 클릭 → location.href '/admin-tasks.html?id=...' (편집 모달로 점프, 흐름 깨짐). 직전 채팅 미적용 4종: (1) 결정 모달에 사업적 맥락/옵션/트레이드오프 표시 (2) 내용 보면서 입력란 동시 사용 가능 펼친 상태 (3) 결정 입력 → 실행 흐름 (A: tasks.json 자동 갱신 + 자율 큐 
+**요약**: 연결고리 지도(_os/playbook/dependency-map-bl-dedup-consolidate.md)를 손대기 전 100% 따른다. 113군데 연결 위험. 각 단계 = 1 commit + 라이브 검증 + 다음 단계 진입. 백업: _admin/_backup_20260508_pre-dedup_admin-status.html. BL-URGENT-CARD-
 
 - **자율성**: 🟡 SEMI
-- **예상 시간**: 2.5시간
+- **예상 시간**: 4.0시간
 - **카테고리**: infra
 - **상태**: pending
-- **막힘 사유**: Q1 결정 대기 — 실행 방식 A/B 선택
 - **결정 필요**:
-  - Q1: 결정 입력 → 실행 방식 (A안 즉시 실행 vs B안 클립보드 중계)
-- **ID**: `BL-URGENT-CARD-FLOW` (출처: BL-STATUS-INTERACTIVE 마지막 채팅 미적용 4종 + 대표님 이미지 4·5 지적)
+  - 대표님 OK 박힘 (2026-05-08 채팅)
+- **ID**: `BL-DEDUP-CONSOLIDATE` (출처: 대표님 진단 — 작업 지휘소·임박 카드·KPI 4종이 같은 데이터 2~3중 중복)
 
 ---
 
@@ -243,6 +242,20 @@
 - **카테고리**: infrastructure
 - **상태**: pending
 - **ID**: `SQ-H` (출처: SOLO_WORK_QUEUE.md)
+
+---
+
+## 🟡 P1 — OS 설치 시 PAT/시크릿 자동 박기 흐름 — install_os.sh 보강
+
+**요약**: BL-DEDUP-CONSOLIDATE와 별건. install_os.sh에 PAT 처리 로직이 박혀있지 않음 (현재 224줄, grep 확인). 설치 후 새 프로젝트에서 GitHub push·workflow 트리거 시 거부됨. Q 답변 후 진행.
+
+- **자율성**: 🟡 SEMI
+- **예상 시간**: 1.5시간
+- **카테고리**: infra
+- **상태**: pending
+- **결정 필요**:
+  - Q: PAT 박는 방식 — 환경변수 vs .env.local vs GitHub Secrets API
+- **ID**: `BL-OS-INSTALL-PAT-FLOW` (출처: 대표님 진단 (2026-05-08) — OS 설치 시 PAT 거부됨, 설치 자체가 안 됨)
 
 ---
 

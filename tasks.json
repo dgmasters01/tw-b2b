@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-08T04:45:36+00:00",
+  "updated_at": "2026-05-08T04:51:41.107588Z",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -5841,6 +5841,39 @@
       "approval_required": false,
       "order": null,
       "updated_at": "2026-05-07T19:19:22+00:00"
+    },
+    {
+      "id": "BL-CHATLOG-AUTO-GATE",
+      "title": "BL 작업 done 처리 시 chat-log 박기 자동 강제 게이트 (헌법 부칙 보강 필요)",
+      "category": "infra",
+      "priority": "P0",
+      "size": "small",
+      "status": "pending",
+      "claude_can_auto": false,
+      "approval_required": true,
+      "owner": "CEO",
+      "autonomous": {
+        "can_run_alone": false,
+        "estimated_hours": 0.5,
+        "requires_decisions_first": [
+          "헌법 부칙 7 또는 신설 부칙으로 chat-log 의무화 명문 박을지 결정"
+        ]
+      },
+      "blocker": "헌법 변경 사항 — 대표님 결정 대기",
+      "created_at": "2026-05-08T04:51:41.107588Z",
+      "updated_at": "2026-05-08T04:51:41.107588Z",
+      "completed_at": null,
+      "source": "BL-ACT-INDEX-RESTORE 검증 중 발견",
+      "order": 5,
+      "progress": null,
+      "notes": "BL-ACT-INDEX-RESTORE 진행 중 chat-log를 박지 않아서 4개 commit 모두 byCommit 매핑 실패 → 활동이력 펼침에서 \"기록 못 찾음\". 영구 차단: (1) 헌법에 \"BL done 처리 시 _chat-logs/{date}-{slug}.md 박기 의무\" 명문, (2) auto-detect-bot에 검증 게이트 — done 트랜지션 감지 시 해당 BL ID가 byTask에 매핑됐는지 확인, 없으면 ⚠️ 박음.",
+      "history": [
+        {
+          "at": "2026-05-08T04:51:41.107588Z",
+          "event": "BL 신설 (BL-ACT-INDEX-RESTORE 검증 중 발견 — chat-log 자동 강제 게이트 누락)",
+          "by": "Claude"
+        }
+      ]
     }
   ]
 }

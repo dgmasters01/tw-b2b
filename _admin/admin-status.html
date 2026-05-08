@@ -884,6 +884,9 @@
       }
     });
     lines.push('');
+    // ★ BL-DEDUP-CONSOLIDATE step6: 헌법 검증 27/27 PASS 흡수 (③ stat-card 'charter' 대체)
+    lines.push('🛡️ 헌법 검증: 27/27 PASS (charter-mapping-check 봇)');
+    lines.push('');
     lines.push('출처: /_admin/_health.json (health-check-admin.yml — 10분 cron + push 트리거)');
     detail.textContent = lines.join('\n');
   }
@@ -1002,40 +1005,7 @@
     </div>
   </section>
 
-  <!-- ③ 작업 분포 KPI 4종 (자동/직원/CEO/헌법) -->
-  <section class="stats-grid">
-    <div class="stat-card auto" data-role-filter="auto" title="클릭 → 자동 진행 가능 작업만 임박 박스에 표시 / 더블클릭 → 펼침">
-      <div class="stat-label">🤖 자동 (Claude)</div>
-      <div class="stat-num" id="stat-auto">-</div>
-      <div class="stat-sub">시스템 자율 · 클릭 필터 · ▼ 더블클릭 펼침</div>
-    </div>
-    <div class="stat-card staff" data-role-filter="staff" title="클릭 → 직원 트리거 가능 작업만 임박 박스에 표시 / 더블클릭 → 펼침">
-      <div class="stat-label">👥 직원 가능</div>
-      <div class="stat-num" id="stat-staff">-</div>
-      <div class="stat-sub">Staff 트리거 가능 · 클릭 필터 · ▼ 더블클릭 펼침</div>
-    </div>
-    <div class="stat-card ceo" data-role-filter="ceo" title="클릭 → 대표님 결정 대기 작업만 임박 박스에 표시 / 더블클릭 → 펼침">
-      <div class="stat-label">👤 대표님 결정</div>
-      <div class="stat-num" id="stat-ceo">-</div>
-      <div class="stat-sub">CEO 사업 정책 · 클릭 필터 · ▼ 더블클릭 펼침</div>
-    </div>
-    <div class="stat-card charter" data-role-filter="all" title="클릭 → 필터 해제, 전체 표시">
-      <div class="stat-label">🛡️ 헌법 검증</div>
-      <div class="stat-num" id="stat-charter">27<small>/27</small></div>
-      <div class="stat-sub">PASS · 클릭 = 전체</div>
-    </div>
-  </section>
-
-  <!-- ★ BL-OS-PHASE-1B 결함 #5: stat-card 더블클릭 펼침 영역 + 즉시 시작 버튼
-       stat-card를 더블클릭하면 그 카테고리 작업 목록이 펼쳐지고 첫 작업의 ▶ 즉시 시작 버튼이 나타남.
-       기본 hidden, JS가 더블클릭 이벤트로 toggle. -->
-  <section id="stat-expand-panel" style="display:none;background:rgba(15,23,42,0.55);border:1px solid rgba(99,102,241,0.25);border-radius:8px;padding:12px;margin:0 0 12px;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-      <span id="stat-expand-title" style="font-size:13px;font-weight:600;color:var(--text-1);">-</span>
-      <button id="stat-expand-close" style="background:transparent;border:1px solid rgba(148,163,184,0.3);color:var(--text-muted);border-radius:4px;font-size:11px;padding:3px 8px;cursor:pointer;">✕ 닫기</button>
-    </div>
-    <div id="stat-expand-list" style="display:flex;flex-direction:column;gap:6px;max-height:280px;overflow:auto;"></div>
-  </section>
+  <!-- ③ 제거됨 (BL-DEDUP-CONSOLIDATE step6) — 자동/직원/대표님 분류는 ④ 작업 지휘소 슬롯이 흡수, 헌법 검증 27/27은 건강 검진 박스로 흡수. -->
 
   <!-- ④ 🎮 작업 지휘소 (결정 대기 + 자율 큐 + 직원 큐) -->
   <section class="command-center" id="command-center">

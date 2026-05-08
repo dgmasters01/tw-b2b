@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-08T04:29:20+00:00",
+  "updated_at": "2026-05-08T04:45:36+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -13,9 +13,9 @@
   ],
   "stats": {
     "total": 117,
-    "done": 86,
+    "done": 87,
     "in_progress": 0,
-    "pending": 20,
+    "pending": 19,
     "blocked": 11,
     "autonomous_ready": 16,
     "todo": 0
@@ -2548,7 +2548,7 @@
       },
       "blocker": null,
       "created_at": "2026-05-08T01:26:57.143371Z",
-      "updated_at": "2026-05-08T04:42:39.006437Z",
+      "updated_at": "2026-05-08T04:45:36+00:00",
       "completed_at": "2026-05-08T04:42:39.006437Z",
       "source": "BL-002 분할",
       "order": 4,
@@ -2557,25 +2557,36 @@
           {
             "n": 1,
             "label": "fromGitLog 봇 분류 패턴 확장 (auto-detect-bot/activity-bot/health-bot 인식 + Claude 의도 CEO 분류)",
-            "status": "done"
+            "status": "done",
+            "done": true,
+            "at": "2026-05-08T04:45:36+00:00"
           },
           {
             "n": 2,
             "label": "build-chat-log-index.mjs에 byDecision 매핑 추가 (DECISIONS.md D-NNN 파싱)",
-            "status": "done"
+            "status": "done",
+            "done": true,
+            "at": "2026-05-08T04:45:36+00:00"
           },
           {
             "n": 3,
             "label": "활동 이력 + chat-log index 재빌드 + 결과 검증 (D-018, 1902554 매핑 확인)",
-            "status": "done"
+            "status": "done",
+            "done": true,
+            "at": "2026-05-08T04:45:36+00:00"
           },
           {
             "n": 4,
             "label": "tasks.json done + commit + push",
-            "status": "done"
+            "status": "done",
+            "done": true,
+            "at": "2026-05-08T04:45:36+00:00"
           }
         ],
-        "percent": 100
+        "percent": 100,
+        "completed_count": 4,
+        "total_count": 4,
+        "updated_at": "2026-05-08T04:45:36+00:00"
       },
       "notes": "활동이력 펼침에서 'D-018', '1902554' 등 항목이 '기록 못 찾음'으로 표시. 원인: chat-logs/index.json의 byTask/byCommit 매핑 누락. scan-bot Python 스크립트(chat-log-index.yml)와 activity-feed 빌더 양쪽 점검 필요. D-XXX 결정은 DECISIONS.md 매핑으로 별도 처리해야 함 (일반 task와 다름). 분량 medium.",
       "history": [
@@ -2593,6 +2604,34 @@
           "at": "2026-05-08T04:42:39.006437Z",
           "event": "done — 봇 vs CEO 분류 정확화 + byDecision 매핑 + frontend fix 양 파일 + 산출물 재빌드",
           "by": "Claude"
+        },
+        {
+          "at": "2026-05-08T04:45:36+00:00",
+          "event": "done 작업에 commit 추가 (status 유지 — 자동 리오픈 안 함) + 단계 4 완료 (auto-detected)",
+          "by": "auto-detect-bot",
+          "commit": "f1c06fa",
+          "note": "chore(BL-ACT-INDEX-RESTORE): status=done + 4단계 100% 완료 [step:done:4]"
+        },
+        {
+          "at": "2026-05-08T04:45:36+00:00",
+          "event": "done 작업에 commit 추가 (status 유지 — 자동 리오픈 안 함) + 단계 3 완료 (auto-detected)",
+          "by": "auto-detect-bot",
+          "commit": "2ec94a3",
+          "note": "fix(BL-ACT-INDEX-RESTORE): admin-status loadHumanTab byDecision 매핑 + 산출물 재빌드 [step:done:3]"
+        },
+        {
+          "at": "2026-05-08T04:45:36+00:00",
+          "event": "done 작업에 commit 추가 (status 유지 — 자동 리오픈 안 함) + 단계 2 완료 (auto-detected)",
+          "by": "auto-detect-bot",
+          "commit": "aa5dcd6",
+          "note": "feat(BL-ACT-INDEX-RESTORE): chat-log index에 byDecision D-NNN 매핑 추가 [step:done:2]"
+        },
+        {
+          "at": "2026-05-08T04:45:36+00:00",
+          "event": "done 작업에 commit 추가 (status 유지 — 자동 리오픈 안 함) + 단계 1 완료 (auto-detected)",
+          "by": "auto-detect-bot",
+          "commit": "67273d8",
+          "note": "fix(BL-ACT-INDEX-RESTORE): activity-feed 봇 vs CEO 분류 정확화 [step:done:1]"
         }
       ]
     },

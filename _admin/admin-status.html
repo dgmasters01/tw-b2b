@@ -1080,7 +1080,10 @@
     <div class="cc-slot" id="cc-slot-auto">
       <div class="cc-slot-label">② 🤖 자율 작업 큐 — Claude 즉시 시작 가능 (카드 클릭 = 인계서 자동 복사)</div>
       <div class="cc-slot-body" id="cc-slot-auto-body">
-        <div class="cc-loading">자율 작업 큐 로딩 중...</div>
+        <!-- ★ BL-DEDUP-CONSOLIDATE step5: ⑥에서 이동, 자립형 -->
+        <div class="auto-queue-grid" id="integ-auto-queue">
+          <div class="auto-queue-empty">로딩 중...</div>
+        </div>
       </div>
     </div>
 
@@ -1930,46 +1933,7 @@
     </div>
   </section>
 
-  <!-- ⑥ 임박 작업 + 카테고리별 진행률 + 자율 큐 원본 (JS가 ④로 이동) (중간 시각) -->
-  <section class="integ-section">
-    <div class="integ-section-h">
-      <span class="label">📊 임박 작업 · 카테고리별 진행률 — tasks.json 단일 진실</span>
-      <span class="hint">카드 클릭 → /admin-tasks.html?id=&lt;ID&gt; 모달 자동 열림</span>
-    </div>
-
-    <!-- KPI 4종 (D-day / 완료율 / 진행+대기 / 막힘) -->
-    <div class="integ-kpi-row" id="integ-kpi-row">
-      <div class="integ-kpi"><div class="k-label">마감까지</div><div class="k-num dday" id="ik-dday">-</div><div class="k-sub" id="ik-dday-sub">-</div></div>
-      <div class="integ-kpi"><div class="k-label">전체 완료율</div><div class="k-num done" id="ik-done">-</div><div class="k-sub" id="ik-done-sub">-</div></div>
-      <div class="integ-kpi"><div class="k-label">진행 + 대기</div><div class="k-num active" id="ik-active">-</div><div class="k-sub">P0 우선 처리</div></div>
-      <div class="integ-kpi"><div class="k-label">막혀있는 작업</div><div class="k-num blocked" id="ik-blocked">-</div><div class="k-sub">status=blocked 전체</div></div>
-    </div>
-
-    <!-- 임박 작업 (P0 + 진행 중) -->
-    <div class="integ-section-h urgent-section-header" id="urgent-section-header" style="margin-top:12px;">
-      <span class="label">🚨 임박 작업 (P0 + 진행 중)</span>
-      <span class="urgent-jump-hint" id="urgent-jump-hint" style="display:none;font-size:11px;color:var(--aurora-2);font-weight:500;margin-left:auto;animation:slide-in-right 0.4s;">👈 여기가 클릭한 KPI 결과입니다</span>
-    </div>
-    <div class="urgent-grid" id="integ-urgent">
-      <div class="urgent-empty">로딩 중...</div>
-    </div>
-
-    <!-- 카테고리별 진행률 -->
-    <!-- BL-DEDUP-CONSOLIDATE step2: 이 영역은 ⑤로 이동됨. 단계 5에서 통째로 제거 예정 -->
-    <div class="integ-section-h" style="margin-top:12px;display:none;" data-deprecated="step2-moved-to-section5">
-      <span class="label">📂 카테고리별 진행률 (이 자리는 ⑤로 이동, 단계 5에서 제거 예정)</span>
-    </div>
-    <div class="progress-list" id="integ-progress-deprecated" style="display:none;" data-deprecated="step2-moved-to-section5"></div>
-
-    <!-- 자율 작업 큐 (IP-CTRL-001 5단계 — Claude 자율 진행 가능, 카드 클릭 = 즉시 시작) -->
-    <div class="integ-section-h" style="margin-top:12px;">
-      <span class="label">🤖 자율 작업 큐 — Claude 즉시 시작 가능</span>
-      <span class="hint">카드 클릭 → 클립보드 자동 복사 + ops 알림 → 새 채팅에 붙여넣기</span>
-    </div>
-    <div class="auto-queue-grid" id="integ-auto-queue">
-      <div class="auto-queue-empty">로딩 중...</div>
-    </div>
-  </section>
+  <!-- ⑥ 제거됨 (BL-DEDUP-CONSOLIDATE step5) — KPI는 ④ 헤더로, 카테고리 진행률은 ⑤로, 자율 큐는 ④ 슬롯으로 흡수. 임박 카드는 작업 지휘소 슬롯이 대체. -->
 
   <!-- ⑦ 제거됨 (BL-DEDUP-CONSOLIDATE step4) — ④ cc-slot-ceo-body 안에 직접 박음. DOM 이동 로직도 자립형으로 교체. -->
 
@@ -2919,9 +2883,11 @@
       if (STATE.data) renderSidebarMenus(STATE.data);
     } catch (err) {
       console.error('[admin-status] tasks.json fetch 실패', err);
-      $('integ-urgent').innerHTML = '<div class="urgent-empty">tasks.json 로딩 실패</div>';
-      $('cat-progress').innerHTML = '<div class="urgent-empty">tasks.json 로딩 실패</div>';
-      $('integ-auto-queue').innerHTML = '<div class="auto-queue-empty">tasks.json 로딩 실패</div>';
+      // ★ BL-DEDUP-CONSOLIDATE step5: null-safe — ⑥ 제거 후 #integ-urgent 없음
+      const safeSet = (id, html) => { const el = document.getElementById(id); if (el) el.innerHTML = html; };
+      safeSet('integ-urgent', '<div class="urgent-empty">tasks.json 로딩 실패</div>');
+      safeSet('cat-progress', '<div class="urgent-empty">tasks.json 로딩 실패</div>');
+      safeSet('integ-auto-queue', '<div class="auto-queue-empty">tasks.json 로딩 실패</div>');
     }
   }
 
@@ -3004,6 +2970,9 @@
       });
 
     const wrap = $('integ-urgent');
+    // ★ BL-DEDUP-CONSOLIDATE step5: ⑥ 제거 후 #integ-urgent 없음 → 함수 즉시 종료
+    //   임박 카드 시각은 ④ 작업 지휘소 슬롯이 대체 (자율/직원/결정 슬롯)
+    if (!wrap) return;
     // 필터 표시 + 해제 버튼
     const filterLabel = filterRole === 'auto' ? '🤖 자동 진행 가능 전체'
       : filterRole === 'staff' ? '👥 직원 트리거 가능 전체'

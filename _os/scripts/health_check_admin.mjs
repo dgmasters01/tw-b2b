@@ -120,16 +120,121 @@ function checkBots() {
   return result;
 }
 
+// ─── 4. Vercel sync (BL-VERCEL-DEPLOY-RACE-GUARD 단계 2) ──────────
+//   GITHUB_SHA env vs Vercel 최근 production 배포의 githubCommitSha 비교
+//   불일치 시 yellow (red 아님 — 차단 X. 자동 복구 step이 빈 commit 재배포로 처리)
+//   VERCEL_TOKEN 미등록 시 graceful skip
+async function checkVercelSync() {
+  const result = { name: 'vercel_sync', status: 'green', detail: '', github_sha: '', vercel_sha: '' };
+  const token = process.env.VERCEL_TOKEN;
+  const githubSha = process.env.GITHUB_SHA || '';
+  if (!token) {
+    result.status = 'unknown';
+    result.detail = 'VERCEL_TOKEN 미등록 — Vercel 동기화 검증 skip';
+    return result;
+  }
+  if (!githubSha) {
+    result.status = 'unknown';
+    result.detail = 'GITHUB_SHA 환경변수 없음 — 로컬 실행으로 추정 skip';
+    return result;
+  }
+  try {
+    // Vercel API: 최근 production 배포 1건 — projectId 또는 app name 필요
+    // tw-b2b 프로젝트 한정으로 조회 (slug = 'tw-b2b' 가정. 다를 경우 yellow로 표시되고 detail로 알림)
+    const url = 'https://api.vercel.com/v6/deployments?app=tw-b2b&limit=1&target=production&state=READY';
+    const r = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+    if (!r.ok) {
+      result.status = 'yellow';
+      result.detail = `Vercel API ${r.status} ${r.statusText} — 권한/프로젝트명 확인 필요`;
+      return result;
+    }
+    const j = await r.json();
+    const d = j.deployments && j.deployments[0];
+    if (!d) {
+      result.status = 'yellow';
+      result.detail = 'Vercel READY 배포 없음 (또는 app=tw-b2b 미일치)';
+      return result;
+    }
+    const vercelSha = (d.meta && (d.meta.githubCommitSha || d.meta.gitCommitSha)) || '';
+    result.github_sha = githubSha.slice(0, 7);
+    result.vercel_sha = vercelSha.slice(0, 7) || '(unknown)';
+    result.deployment_url = d.url || '';
+    result.deployment_state = d.state || '';
+    if (!vercelSha) {
+      result.status = 'yellow';
+      result.detail = `Vercel 배포에 githubCommitSha 없음 (deploy=${result.deployment_url})`;
+      return result;
+    }
+    if (vercelSha === githubSha) {
+      result.detail = `라이브 sync 일치 (${result.github_sha})`;
+    } else {
+      result.status = 'yellow';
+      result.detail = `라이브 sync mismatch — github=${result.github_sha}, vercel=${result.vercel_sha}`;
+    }
+  } catch (e) {
+    result.status = 'yellow';
+    result.detail = `Vercel API 호출 실패: ${e.message}`;
+  }
+  return result;
+}
+
+// ─── 5. Vercel quota (BL-VERCEL-DEPLOY-RACE-GUARD 단계 4) ─────────
+//   Pro 플랜 일일 배포 한도 추적. 한도의 80% 이상 시 yellow.
+//   Vercel API에는 직접 quota 노출 없음 — 최근 24h 배포 count로 근사.
+async function checkVercelQuota() {
+  const result = { name: 'vercel_quota', status: 'green', detail: '', deployments_24h: 0, limit: 3000 };
+  const token = process.env.VERCEL_TOKEN;
+  if (!token) {
+    result.status = 'unknown';
+    result.detail = 'VERCEL_TOKEN 미등록 — Vercel quota 추적 skip';
+    return result;
+  }
+  try {
+    // 최근 24h 내 배포 수 조회 (since 파라미터 = 24h ago ms)
+    const since = Date.now() - 24 * 60 * 60 * 1000;
+    const url = `https://api.vercel.com/v6/deployments?app=tw-b2b&limit=100&since=${since}`;
+    const r = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+    if (!r.ok) {
+      result.status = 'yellow';
+      result.detail = `Vercel API ${r.status} — quota 조회 실패`;
+      return result;
+    }
+    const j = await r.json();
+    const count = (j.deployments || []).length;
+    result.deployments_24h = count;
+    const ratio = count / result.limit;
+    if (ratio >= 0.8) {
+      result.status = 'red';
+      result.detail = `24h 배포 ${count}/${result.limit} (${Math.round(ratio * 100)}%) — 한도 임박`;
+    } else if (ratio >= 0.5) {
+      result.status = 'yellow';
+      result.detail = `24h 배포 ${count}/${result.limit} (${Math.round(ratio * 100)}%) — 절반 사용`;
+    } else {
+      result.detail = `24h 배포 ${count}/${result.limit} (${Math.round(ratio * 100)}%)`;
+    }
+  } catch (e) {
+    result.status = 'yellow';
+    result.detail = `Vercel quota API 실패: ${e.message}`;
+  }
+  return result;
+}
+
 // ─── 메인 ──────────────────────────────────────────────────────────
-function main() {
-  const checks = [checkAdminBaseline(), checkTasksSchema(), checkBots()];
+async function main() {
+  const checks = [
+    checkAdminBaseline(),
+    checkTasksSchema(),
+    checkBots(),
+    await checkVercelSync(),    // BL-VERCEL-DEPLOY-RACE-GUARD 단계 2
+    await checkVercelQuota(),   // BL-VERCEL-DEPLOY-RACE-GUARD 단계 4
+  ];
   const overall = checks.some((c) => c.status === 'red')
     ? 'red'
     : checks.some((c) => c.status === 'yellow')
       ? 'yellow'
       : 'green';
   const summary = checks
-    .filter((c) => c.status !== 'green')
+    .filter((c) => c.status !== 'green' && c.status !== 'unknown')
     .map((c) => `[${c.status}] ${c.name}: ${c.detail}`)
     .join(' / ');
   const output = {

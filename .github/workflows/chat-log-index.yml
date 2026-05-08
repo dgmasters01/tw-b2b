@@ -5,10 +5,10 @@
 #   ⑥ 사람용+AI용: _chat-logs/*.md (사람용) ↔ index.json (AI용 byCommit/byTask 매핑)
 #   ⑧ 통합 관리: 단일 진실 출처 — admin-status.html이 이 인덱스만 읽음
 #
-# 트리거:
-#   1. main 브랜치 push에서 _chat-logs/*.md 또는 build-chat-log-index.mjs 변경 시
-#   2. tasks.json 변경 (task와 chat-log 매핑이 바뀔 수 있음)
-#   3. 수동 실행 (workflow_dispatch)
+# 트리거 (BL-VERCEL-DEPLOY-RACE-GUARD 단계 1 — 2026-05-08):
+#   1. schedule: 5분마다 실행 (Vercel 배포 race 차단, 봇 commit 분리)
+#   2. 수동 실행 (workflow_dispatch)
+#   변경 사유: push trigger 시 사업 commit 1건 → 봇 commit 4~6건 폭증
 #
 # 실행 흐름:
 #   1. checkout (full history — git log 기반 byCommit 자동 추출 위해)
@@ -20,13 +20,8 @@
 name: Auto Build Chat-Log Index
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - '_chat-logs/**.md'
-      - '_os/scripts/build-chat-log-index.mjs'
-      - 'tasks.json'
-      - '.github/workflows/chat-log-index.yml'
+  schedule:
+    - cron: '*/5 * * * *'  # BL-VERCEL-DEPLOY-RACE-GUARD: 5분마다 (push trigger 폐지)
   workflow_dispatch:
 
 permissions:

@@ -820,7 +820,7 @@
 <script>
 (function(){
   var POLL_MS = 5000;
-  function colorMap(s){return s==='green'?{bg:'#0a3d12',fg:'#7be58a',ic:'✅'}:s==='yellow'?{bg:'#3d2f0a',fg:'#f5d97b',ic:'⚠️'}:s==='red'?{bg:'#3d0a0a',fg:'#f57b7b',ic:'🔴'}:{bg:'#222',fg:'#888',ic:'⏳'};}
+  function colorMap(s){return s==='green'?{bg:'#0a3d12',fg:'#7be58a',ic:'✅'}:s==='yellow'?{bg:'#3d2f0a',fg:'#f5d97b',ic:'⚠️'}:s==='red'?{bg:'#3d0a0a',fg:'#f57b7b',ic:'🔴'}:s==='unknown'?{bg:'#1a1a1a',fg:'#888',ic:'⏸'}:{bg:'#222',fg:'#888',ic:'⏳'};}
   function render(d){
     var c = colorMap(d ? d.overall : null);
     var bar = document.getElementById('phase0-health-bar');
@@ -853,6 +853,15 @@
       }
       if(ch.bot_status){
         Object.keys(ch.bot_status).forEach(function(k){ lines.push('    - ' + k + ': ' + ch.bot_status[k]); });
+      }
+      // BL-VERCEL-DEPLOY-RACE-GUARD 단계 4 — Vercel 헬스 추가 정보
+      if(ch.name === 'vercel_sync' && (ch.github_sha || ch.vercel_sha)){
+        lines.push('    - github_sha: ' + (ch.github_sha || '-'));
+        lines.push('    - vercel_sha: ' + (ch.vercel_sha || '-'));
+        if(ch.deployment_url) lines.push('    - deployment: ' + ch.deployment_url + ' (' + (ch.deployment_state||'?') + ')');
+      }
+      if(ch.name === 'vercel_quota' && typeof ch.deployments_24h === 'number'){
+        lines.push('    - 24h 배포: ' + ch.deployments_24h + ' / ' + (ch.limit||'?'));
       }
     });
     lines.push('');

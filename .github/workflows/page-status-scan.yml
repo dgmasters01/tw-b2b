@@ -6,9 +6,11 @@
 #   ⑥ 사람용+AI용: pages-status.json (AI용 데이터) → admin-status.html (사람용 시각화)
 #   ⑧ 통합 관리: 단일 진실 출처 — admin-status.html이 이 파일만 읽음
 #
-# 트리거:
-#   1. main / restructure-os-modularization 브랜치 push에서 *.html 또는 pages-meta.mjs 또는 scan 스크립트 변경 시
+# 트리거 (BL-VERCEL-DEPLOY-RACE-GUARD 단계 1 — 2026-05-08):
+#   1. schedule: 5분마다 실행 (Vercel 배포 race 차단, 봇 commit 분리)
 #   2. 수동 실행 (workflow_dispatch)
+#   변경 사유: push trigger 시 사업 commit 1건 → 봇 commit 4~6건 폭증 + Vercel 동시 배포 race
+#   (이전 방식: branches [main, restructure-os-modularization] + paths *.html / pages-meta.mjs / scan 스크립트)
 #
 # BL-OS-PHASE-1A 단계 5 보강 (2026-05-07):
 #   - branches: [main] → [main, restructure-os-modularization] (다중 브랜치 listen)
@@ -25,13 +27,8 @@
 name: Auto Scan Page Completion Status
 
 on:
-  push:
-    branches: [main, restructure-os-modularization]
-    paths:
-      - '*.html'
-      - '_os/scripts/pages-meta.mjs'
-      - '_os/scripts/scan-pages-status.mjs'
-      - '.github/workflows/page-status-scan.yml'
+  schedule:
+    - cron: '*/5 * * * *'  # BL-VERCEL-DEPLOY-RACE-GUARD: 5분마다 (push trigger 폐지)
   workflow_dispatch:
 
 # 동일 워크플로우가 자기 자신이 만든 push로 무한 트리거되는 것을 방지

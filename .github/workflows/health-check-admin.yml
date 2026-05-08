@@ -1,6 +1,6 @@
 # TW B2B — Phase 0 Health Check Bot
 #
-# 작업: BL-OS-PHASE-0 단계 3/3
+# 작업: BL-OS-PHASE-0 단계 3/3 + BL-VERCEL-DEPLOY-RACE-GUARD 단계 1.5+2+3 (2026-05-08)
 #
 # 목적:
 #   admin-status 맨 위 한 줄에 빨간/초록 표시할 _admin/_health.json 자동 갱신.
@@ -10,6 +10,13 @@
 #   1. push (main + restructure-os-modularization)
 #   2. workflow_dispatch (수동)
 #   3. schedule — 10분마다 (봇 죽음 즉시 감지)
+#
+# BL-VERCEL-DEPLOY-RACE-GUARD 보강 (2026-05-08):
+#   - paths 와 run step 의 health_check_admin.mjs 경로를 _os/scripts/ 로 정렬
+#     (이전: scripts/ 으로 잘못 박혀 있어 path 트리거가 발 안 닿음)
+#   - VERCEL_TOKEN secret 주입 → checkVercelSync() 활성화
+#   - GITHUB_SHA 환경변수로 현재 commit sha 주입
+#   - vercel_sync==yellow 감지 시 빈 commit 자동 push 로 복구 (재배포 트리거)
 #
 # 헌법 부칙 8 준수:
 #   admin-status 5초 폴링이 _health.json 읽음 → 자동 동기화 보장.
@@ -23,7 +30,7 @@ on:
       - 'tasks.json'
       - '_admin/**'
       - '_os_snapshots/**'
-      - 'scripts/health_check_admin.mjs'
+      - '_os/scripts/health_check_admin.mjs'
       - '.github/workflows/health-check-admin.yml'
   workflow_dispatch:
   schedule:
@@ -51,6 +58,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0  # 빈 commit + push 위해 full history 필요
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -84,9 +92,12 @@ jobs:
           AUTO_DETECT_BOT_STATUS: ${{ steps.bots.outputs.auto_detect_bot }}
           SCAN_BOT_STATUS: ${{ steps.bots.outputs.scan_bot }}
           CHAT_LOG_BOT_STATUS: ${{ steps.bots.outputs.chat_log_bot }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          GITHUB_SHA: ${{ github.sha }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
           # 빨강이라도 push는 막지 않음 (화면 표시만)
-          node scripts/health_check_admin.mjs || true
+          node _os/scripts/health_check_admin.mjs || true
 
       - name: Commit if changed
         run: |
@@ -108,3 +119,36 @@ jobs:
             echo "⚠️ push 실패 (시도 ${attempt}) — pull --rebase 후 재시도"
             git pull --rebase || { echo "❌ rebase 충돌"; exit 1; }
           done
+
+      - name: Vercel sync 자동 복구 (yellow 감지 시 빈 commit 재배포)
+        if: github.event_name == 'schedule'  # schedule 트리거에서만 자동 복구 (push 직후엔 Vercel 따라잡는 중)
+        run: |
+          # _health.json이 yellow vercel_sync 신호를 박았으면 빈 commit으로 Vercel 재배포 트리거
+          if [ ! -f _admin/_health.json ]; then
+            echo "_health.json 없음 — skip"
+            exit 0
+          fi
+          VERCEL_SYNC_STATUS=$(node -e "
+            try {
+              const h = JSON.parse(require('fs').readFileSync('_admin/_health.json','utf8'));
+              const c = (h.checks||[]).find(x=>x.name==='vercel_sync');
+              console.log(c ? c.status : 'unknown');
+            } catch(e) { console.log('unknown'); }
+          ")
+          echo "vercel_sync status: ${VERCEL_SYNC_STATUS}"
+          if [ "${VERCEL_SYNC_STATUS}" = "yellow" ]; then
+            echo "⚠️ Vercel sync mismatch 감지 — 빈 commit으로 재배포 트리거"
+            git config user.name "health-bot"
+            git config user.email "health-bot@tw-b2b.local"
+            git commit --allow-empty -m "[health-bot] vercel-sync 자동 복구 — empty commit re-trigger"
+            for attempt in 1 2 3; do
+              if git push; then
+                echo "✅ 자동 복구 push 완료 (시도 ${attempt})"
+                break
+              fi
+              echo "⚠️ 복구 push 실패 (시도 ${attempt}) — pull --rebase 후 재시도"
+              git pull --rebase || { echo "❌ rebase 충돌 — 수동 처리 필요"; exit 0; }
+            done
+          else
+            echo "vercel_sync 정상 또는 unknown — 복구 불필요"
+          fi

@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-08T08:20:48+00:00",
+  "updated_at": "2026-05-08T08:41:15+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -12,10 +12,10 @@
     "SOLO_WORK_QUEUE.md"
   ],
   "stats": {
-    "total": 118,
+    "total": 121,
     "done": 88,
     "in_progress": 0,
-    "pending": 19,
+    "pending": 22,
     "blocked": 11,
     "autonomous_ready": 14,
     "todo": 0
@@ -5963,6 +5963,103 @@
         }
       ],
       "started_at": "2026-05-08T04:52:49+00:00"
+    },
+    {
+      "id": "BL-CHATLOG-BIZ-FORMAT",
+      "title": "chat-log 사업가 5블록 표준 강제 (사람용 탭 가독성 fix)",
+      "category": "infra",
+      "priority": "P0",
+      "size": "medium",
+      "status": "pending",
+      "claude_can_auto": false,
+      "approval_required": true,
+      "owner": "CEO",
+      "autonomous": {
+        "can_run_alone": false,
+        "estimated_hours": 1.0,
+        "requires_decisions_first": [
+          "Q2: 부칙 15에 합칠지 vs 부칙 16 신설할지 (제안: 부칙 15에 합치기)"
+        ]
+      },
+      "blocker": "Q2 결정 대기 — 부칙 합치기 vs 분리",
+      "created_at": "2026-05-08T08:41:15+00:00",
+      "updated_at": "2026-05-08T08:41:15+00:00",
+      "completed_at": null,
+      "source": "BL-CHATLOG-AUTO-GATE 검증 중 발견 (대표님 이미지 1)",
+      "order": 1,
+      "progress": null,
+      "notes": "사람용 탭이 chat-log를 보여줄 때 사업가 용어가 아닌 개발자 용어 가득. 원인: 표준(_os/playbook/chat-log-format.md)은 박혀있는데 작성 시 미준수. fix: (1) 부칙에 5블록 표준 준수 명문 (2) auto-detect-bot이 chat-log 박힐 때 5블록 헤딩 + 사업가 용어 검증 (3) 검증 실패 시 워닝, 자가 치유 (4) 기존 chat-log 재작성 (BL-ACT-INDEX-RESTORE, BL-CHATLOG-AUTO-GATE)",
+      "history": [
+        {
+          "at": "2026-05-08T08:41:15+00:00",
+          "event": "BL 신설 (대표님 이미지 1 지적)",
+          "by": "Claude"
+        }
+      ]
+    },
+    {
+      "id": "BL-AI-TAB-BOT-DETECT",
+      "title": "AI용 탭 — 봇 commit 감지 시 안내 (매칭 결과 없음 → 봇 자동 갱신 안내)",
+      "category": "infra",
+      "priority": "P1",
+      "size": "small",
+      "status": "pending",
+      "claude_can_auto": true,
+      "approval_required": false,
+      "owner": "AUTO",
+      "autonomous": {
+        "can_run_alone": true,
+        "estimated_hours": 0.5,
+        "requires_decisions_first": []
+      },
+      "blocker": null,
+      "created_at": "2026-05-08T08:41:15+00:00",
+      "updated_at": "2026-05-08T08:41:15+00:00",
+      "completed_at": null,
+      "source": "대표님 이미지 2 지적",
+      "order": 2,
+      "progress": null,
+      "notes": "loadAITab에서 봇 commit (scan-bot/sync-bot/auto-detect-bot/health-bot/activity-bot) 감지 시 'ECHO_LOG/DECISIONS 매칭 없음' 대신 '봇 자동 갱신 — AI 컨텍스트 불필요' 안내 박기. 사람 commit이면서 매칭 0건일 때만 검색 키 노출.",
+      "history": [
+        {
+          "at": "2026-05-08T08:41:15+00:00",
+          "event": "BL 신설 (대표님 이미지 2 지적)",
+          "by": "Claude"
+        }
+      ]
+    },
+    {
+      "id": "BL-URGENT-CARD-FLOW",
+      "title": "임박 작업 카드 클릭 흐름 재설계 (인계서/결정 모달 통합)",
+      "category": "infra",
+      "priority": "P0",
+      "size": "large",
+      "status": "pending",
+      "claude_can_auto": false,
+      "approval_required": true,
+      "owner": "CEO",
+      "autonomous": {
+        "can_run_alone": false,
+        "estimated_hours": 2.5,
+        "requires_decisions_first": [
+          "Q1: 결정 입력 → 실행 방식 (A안 즉시 실행 vs B안 클립보드 중계)"
+        ]
+      },
+      "blocker": "Q1 결정 대기 — 실행 방식 A/B 선택",
+      "created_at": "2026-05-08T08:41:15+00:00",
+      "updated_at": "2026-05-08T08:41:15+00:00",
+      "completed_at": null,
+      "source": "BL-STATUS-INTERACTIVE 마지막 채팅 미적용 4종 + 대표님 이미지 4·5 지적",
+      "order": 3,
+      "progress": null,
+      "notes": "현재: 임박 작업 카드 클릭 → location.href '/admin-tasks.html?id=...' (편집 모달로 점프, 흐름 깨짐). 직전 채팅 미적용 4종: (1) 결정 모달에 사업적 맥락/옵션/트레이드오프 표시 (2) 내용 보면서 입력란 동시 사용 가능 펼친 상태 (3) 결정 입력 → 실행 흐름 (A: tasks.json 자동 갱신 + 자율 큐 이동 / B: 클립보드 중계) (4) 모든 카드 클릭 일관된 흐름. 임박 작업 카드도 BL-CHATLOG-AUTO-GATE 카드처럼 인계서 모달이 떠야 함.",
+      "history": [
+        {
+          "at": "2026-05-08T08:41:15+00:00",
+          "event": "BL 신설 (대표님 이미지 4·5 + 직전 채팅 미적용 4종)",
+          "by": "Claude"
+        }
+      ]
     }
   ]
 }

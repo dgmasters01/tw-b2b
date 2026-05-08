@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-08T01:34:40+00:00",
+  "updated_at": "2026-05-08T02:11:08+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -14,8 +14,8 @@
   "stats": {
     "total": 117,
     "done": 83,
-    "in_progress": 0,
-    "pending": 23,
+    "in_progress": 1,
+    "pending": 22,
     "blocked": 11,
     "autonomous_ready": 18,
     "todo": 0
@@ -2318,7 +2318,7 @@
       "category": "infra",
       "priority": "P0",
       "size": "small",
-      "status": "pending",
+      "status": "in_progress",
       "claude_can_auto": true,
       "approval_required": false,
       "owner": "autonomous",
@@ -2329,7 +2329,7 @@
       },
       "blocker": null,
       "created_at": "2026-05-08T01:26:57.143371Z",
-      "updated_at": "2026-05-08T01:34:40+00:00",
+      "updated_at": "2026-05-08T02:11:08+00:00",
       "completed_at": null,
       "source": "BL-002 분할",
       "order": 1,
@@ -2344,7 +2344,8 @@
           {
             "n": 2,
             "label": "새 작업 시작 시 progress.steps 의무화 — auto-detect-bot 또는 헌법 부칙으로 정책 박기",
-            "done": false
+            "done": true,
+            "at": "2026-05-08T02:11:08+00:00"
           },
           {
             "n": 3,
@@ -2352,9 +2353,10 @@
           }
         ],
         "current_step": 2,
-        "percent": 33,
-        "completed_count": 1,
-        "total_count": 3
+        "percent": 67,
+        "completed_count": 2,
+        "total_count": 3,
+        "updated_at": "2026-05-08T02:11:08+00:00"
       },
       "notes": "대표님 발견 결함: BL-002 진행 중에 % 표시 안 보임. 원인: progress: null. 봇 로직(auto-detect-bot)은 정상 — task에 progress.steps가 박혀있어야 동작함. 정책 결함이 본질: 인계받은 Claude가 매번 박아야 하는 의무 시스템화. 1단계 = BL-002에 progress.steps 박음 (이번 채팅 완료). 2단계 = 정책 박기 (다음 채팅).",
       "history": [
@@ -2369,8 +2371,16 @@
           "by": "auto-detect-bot",
           "commit": "70fe47d",
           "note": "[BL-IPB-PROGRESS-RESTORE] progress.steps 미박힘 시 명시 경고 박음 [step:done:1]"
+        },
+        {
+          "at": "2026-05-08T02:11:08+00:00",
+          "event": "진행 중 진입 (auto-detected) + 단계 2 완료 (auto-detected)",
+          "by": "auto-detect-bot",
+          "commit": "5129494",
+          "note": "fix(BL-IPB-PROGRESS-RESTORE): 봇에 부칙 7 자동 검증 게이트 추가 [step:done:2]"
         }
-      ]
+      ],
+      "started_at": "2026-05-08T02:11:08+00:00"
     },
     {
       "id": "BL-IPB-AUTO-DONE",

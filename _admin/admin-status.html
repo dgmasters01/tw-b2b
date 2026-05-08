@@ -1262,6 +1262,21 @@
       border-radius: 3px;
       background: rgba(255,255,255,0.7);
     }
+    /* ★ BL-DEDUP-CONSOLIDATE step3: 직원 카드 액션 시각 표시 (자율 큐 ▶ 즉시 시작과 일관) */
+    .cc-staff-card .cc-card-action {
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: 3px;
+      background: rgba(96,165,250,0.18);
+      color: #60a5fa;
+      font-weight: 500;
+      margin-left: auto;
+      transition: background 0.2s, color 0.2s;
+    }
+    .cc-staff-card:hover .cc-card-action {
+      background: rgba(96,165,250,0.32);
+      color: #93c5fd;
+    }
     /* 모바일 */
     @media (max-width: 640px) {
       .command-center { padding: 10px 12px 12px; }
@@ -5577,6 +5592,7 @@
               <span>${escapeHtml(t.category || '')}</span>
               <span>${escapeHtml(t.size || '-')}</span>
               ${t.started_by ? `<span class="cc-card-started-by">${formatStartedBy(t.started_by)}</span>` : ''}
+              <span class="cc-card-action" title="클릭 = 직원용 인계서 클립보드 복사 + 메일/슬랙 발송">▶ 직원에게 보내기</span>
             </div>
           </div>
         `).join('')}

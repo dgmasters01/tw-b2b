@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-08T00:56:32+00:00",
+  "updated_at": "2026-05-08T01:26:57.143371Z",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -12,12 +12,12 @@
     "SOLO_WORK_QUEUE.md"
   ],
   "stats": {
-    "total": 113,
+    "total": 117,
     "done": 83,
-    "in_progress": 1,
-    "pending": 19,
-    "blocked": 10,
-    "autonomous_ready": 14,
+    "in_progress": 0,
+    "pending": 23,
+    "blocked": 11,
+    "autonomous_ready": 22,
     "todo": 0
   },
   "tasks": [
@@ -2227,11 +2227,11 @@
       "id": "BL-002",
       "title": "통합 To-Do Inbox (관리자 대시보드 재설계)",
       "category": "dev",
-      "status": "in_progress",
+      "status": "blocked",
       "priority": "P0",
       "size": "medium",
       "parent_task": null,
-      "blocker": null,
+      "blocker": "supabase 호텔/예약 인프라 박힌 후 4종 사업 source 연결. 진행률 표시 + 활동이력 결함 4건은 BL-IPB-* / BL-ACT-* 로 분리.",
       "created_at": "2026-05-02T07:22:10Z",
       "completed_at": null,
       "claude_can_auto": true,
@@ -2277,6 +2277,16 @@
           "by": "auto-detect-bot",
           "commit": "b282cd6",
           "note": "[handoff] BL-VERCEL-DEPLOY-RACE-GUARD 완료 → 다음 채팅 BL-VERCEL-HEALTH-ROUTING + BL-002 인계"
+        },
+        {
+          "at": "2026-05-08T01:03:40.902203Z",
+          "event": "progress.steps 박음 (4단계)",
+          "by": "Claude"
+        },
+        {
+          "at": "2026-05-08T01:26:57.143371Z",
+          "event": "BL 분할 — 진행률/활동이력 결함 4건은 BL-IPB-PROGRESS-RESTORE / BL-IPB-AUTO-DONE / BL-ACT-KST-FIX / BL-ACT-INDEX-RESTORE 로 분리. 본 카드는 supabase 의존으로 blocked.",
+          "by": "Claude"
         }
       ],
       "source": "BACKLOG.md",
@@ -2285,8 +2295,156 @@
       "owner": "autonomous",
       "approval_required": false,
       "order": 12,
-      "updated_at": "2026-05-08T00:56:32+00:00",
+      "updated_at": "2026-05-08T01:26:57.143371Z",
       "started_at": "2026-05-07T17:59:14+00:00"
+    },
+    {
+      "id": "BL-IPB-PROGRESS-RESTORE",
+      "title": "⚡ 진행 중 박스 진행률 % 복원 + 작업 시작 시 progress.steps 의무화 정책",
+      "category": "infra",
+      "priority": "P0",
+      "size": "small",
+      "status": "pending",
+      "claude_can_auto": true,
+      "approval_required": false,
+      "owner": "autonomous",
+      "autonomous": {
+        "can_run_alone": true,
+        "estimated_hours": 0.3,
+        "requires_decisions_first": []
+      },
+      "blocker": null,
+      "created_at": "2026-05-08T01:26:57.143371Z",
+      "updated_at": "2026-05-08T01:26:57.143371Z",
+      "completed_at": null,
+      "source": "BL-002 분할",
+      "order": 1,
+      "progress": {
+        "steps": [
+          {
+            "n": 1,
+            "label": "BL-002 진행 중에 progress.steps 박음 (이미 박힘 — push만)",
+            "done": true,
+            "at": "2026-05-08T01:26:57.143371Z"
+          },
+          {
+            "n": 2,
+            "label": "새 작업 시작 시 progress.steps 의무화 — auto-detect-bot 또는 헌법 부칙으로 정책 박기",
+            "done": false
+          },
+          {
+            "n": 3,
+            "label": "라이브 검증 — admin-status에서 진행률 % 박힘 + step:done 태그로 자동 갱신 작동"
+          }
+        ],
+        "current_step": 2,
+        "percent": 33,
+        "completed_count": 1,
+        "total_count": 3
+      },
+      "notes": "대표님 발견 결함: BL-002 진행 중에 % 표시 안 보임. 원인: progress: null. 봇 로직(auto-detect-bot)은 정상 — task에 progress.steps가 박혀있어야 동작함. 정책 결함이 본질: 인계받은 Claude가 매번 박아야 하는 의무 시스템화. 1단계 = BL-002에 progress.steps 박음 (이번 채팅 완료). 2단계 = 정책 박기 (다음 채팅).",
+      "history": [
+        {
+          "at": "2026-05-08T01:26:57.143371Z",
+          "event": "BL 신설 (BL-002 분할)",
+          "by": "Claude"
+        }
+      ]
+    },
+    {
+      "id": "BL-IPB-AUTO-DONE",
+      "title": "100% 도달 시 status=done 자동 트랜지션 검증",
+      "category": "infra",
+      "priority": "P0",
+      "size": "small",
+      "status": "pending",
+      "claude_can_auto": true,
+      "approval_required": false,
+      "owner": "autonomous",
+      "autonomous": {
+        "can_run_alone": true,
+        "estimated_hours": 0.2,
+        "requires_decisions_first": [
+          "BL-IPB-PROGRESS-RESTORE 완료"
+        ]
+      },
+      "blocker": "BL-IPB-PROGRESS-RESTORE 우선",
+      "created_at": "2026-05-08T01:26:57.143371Z",
+      "updated_at": "2026-05-08T01:26:57.143371Z",
+      "completed_at": null,
+      "source": "BL-002 분할",
+      "order": 2,
+      "progress": null,
+      "notes": "auto-detect-bot의 BL-PROGRESS-AUTO-DONE-SYNC 단계 2 로직(/_os/scripts/auto_detect_task_status.py L266~)이 이미 박혀있음. 단, progress.steps가 task에 박힌 상태에서만 동작. BL-IPB-PROGRESS-RESTORE 완료 후 실 사용 케이스로 검증.",
+      "history": [
+        {
+          "at": "2026-05-08T01:26:57.143371Z",
+          "event": "BL 신설 (BL-002 분할)",
+          "by": "Claude"
+        }
+      ]
+    },
+    {
+      "id": "BL-ACT-KST-FIX",
+      "title": "활동 이력 시간 KST 정상화 (fmtTime 이중 변환 결함)",
+      "category": "bugfix",
+      "priority": "P0",
+      "size": "small",
+      "status": "pending",
+      "claude_can_auto": true,
+      "approval_required": false,
+      "owner": "autonomous",
+      "autonomous": {
+        "can_run_alone": true,
+        "estimated_hours": 0.3,
+        "requires_decisions_first": []
+      },
+      "blocker": null,
+      "created_at": "2026-05-08T01:26:57.143371Z",
+      "updated_at": "2026-05-08T01:26:57.143371Z",
+      "completed_at": null,
+      "source": "BL-002 분할",
+      "order": 3,
+      "progress": null,
+      "notes": "_admin/admin-status.html L2024 fmtTime 함수: 'new Date(dt.getTime() + 9*3600*1000)'로 +9h 더한 뒤 toISOString().slice(...) 사용. 이미 ISO 시각인데 또 +9h = 이중 변환. 정석 fix: formatTime 함수처럼 toLocaleString('ko-KR', {timeZone:'Asia/Seoul', ...}) 사용. 같은 함수가 활동이력/메뉴/카드 여러 곳에서 호출되므로 한 곳만 고치면 전부 정상화.",
+      "history": [
+        {
+          "at": "2026-05-08T01:26:57.143371Z",
+          "event": "BL 신설 (BL-002 분할 — 진단 결과 fmtTime 이중 KST 변환 결함)",
+          "by": "Claude"
+        }
+      ]
+    },
+    {
+      "id": "BL-ACT-INDEX-RESTORE",
+      "title": "활동 이력 사람용 설명 인덱스 매핑 복원 (D-XXX, commit hash 누락)",
+      "category": "bugfix",
+      "priority": "P0",
+      "size": "medium",
+      "status": "pending",
+      "claude_can_auto": true,
+      "approval_required": false,
+      "owner": "autonomous",
+      "autonomous": {
+        "can_run_alone": true,
+        "estimated_hours": 0.7,
+        "requires_decisions_first": []
+      },
+      "blocker": null,
+      "created_at": "2026-05-08T01:26:57.143371Z",
+      "updated_at": "2026-05-08T01:26:57.143371Z",
+      "completed_at": null,
+      "source": "BL-002 분할",
+      "order": 4,
+      "progress": null,
+      "notes": "활동이력 펼침에서 'D-018', '1902554' 등 항목이 '기록 못 찾음'으로 표시. 원인: chat-logs/index.json의 byTask/byCommit 매핑 누락. scan-bot Python 스크립트(chat-log-index.yml)와 activity-feed 빌더 양쪽 점검 필요. D-XXX 결정은 DECISIONS.md 매핑으로 별도 처리해야 함 (일반 task와 다름). 분량 medium.",
+      "history": [
+        {
+          "at": "2026-05-08T01:26:57.143371Z",
+          "event": "BL 신설 (BL-002 분할 — D-018, 1902554 인덱스 등록 실패)",
+          "by": "Claude"
+        }
+      ]
     },
     {
       "id": "BL-003",

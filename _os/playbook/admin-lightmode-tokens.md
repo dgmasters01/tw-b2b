@@ -205,3 +205,38 @@ document.getElementById('theme-toggle').addEventListener('click', () => {
 **Last updated**: 2026-05-10
 **Decision ref**: D-022 (DECISIONS.md)
 **Chat log**: `_chat-logs/2026-05-10-bl-admin-lightmode-step1.md`
+
+---
+
+## 7. 2단계 진행 상황 (1차)
+
+**상태:** 🟡 진행 중 — 색 추출 완료, 토큰 확장안 설계 대기
+
+### 7-1. 추출 결과
+- 입력: `admin-status.html` 467곳 + `admin.html` 497곳 = **964곳**
+- §2 토큰 1:1 매핑: **221곳 (22%)**
+- 미매핑: **743곳 (78%) / 310종**
+- CSV: `_os/playbook/admin-lightmode-color-map.csv` (단일 진실원)
+- 분석: `_os/playbook/admin-lightmode-unmapped-analysis.md`
+
+### 7-2. 정책 결정 (대표님)
+- **D-022 후속 정책**: "디자인 정확도 우선" — §2 토큰 확장으로 실제 색 100% 커버
+- 미매핑 색을 기존 토큰으로 근사 매핑하지 않음
+
+### 7-3. 다음 세션 결정 사항 (3가지)
+| 결정 | 주제 | 비고 |
+|---|---|---|
+| D1 | tinted-overlay 설계 (색별 α-step / color-mix() / rgb-from syntax) | §2-9 신규 카테고리 |
+| D2 | blue-staff 라이트모드 오염 색 처리 (라이트 토큰 매핑 / 다크 강제) | 42종 157곳 |
+| D3 | violet-aurora 명도 변형 토큰 수 (풀 5단계 / 핵심 3단계 / 빈도 기준) | §2-7 확장 |
+
+### 7-4. 잔여 작업
+1. D1/D2/D3 결정 받기
+2. §2-9 (tinted-overlay) + §2-7 확장 설계
+3. extract_colors.py 룩업 테이블 업데이트 → CSV 재생성 (매핑률 95%+ 목표)
+4. §7 매핑 결과 표 (페이지별·토큰별·잔여) 본 섹션에 추가
+5. 4단계 시안 검토로 진행
+
+### 7-5. 재실행 가능 스크립트
+- `scripts/extract_colors.py` — HTML → CSV 매핑 추출
+- `scripts/analyze_unmapped.py` — 미매핑 색 HSL 카테고리 분류

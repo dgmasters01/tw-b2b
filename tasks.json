@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-09T01:49:16+00:00",
+  "updated_at": "2026-05-09T02:29:25+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -14,8 +14,8 @@
   "stats": {
     "total": 124,
     "done": 91,
-    "in_progress": 0,
-    "pending": 21,
+    "in_progress": 1,
+    "pending": 20,
     "blocked": 11,
     "autonomous_ready": 14,
     "todo": 0
@@ -5729,7 +5729,7 @@
       "id": "BL-VERCEL-DEPLOY-RACE-GUARD",
       "title": "Vercel 빌드 큐 누락 감지·자동 복구 가드 (헌법 부칙 8 강화)",
       "category": "infrastructure",
-      "status": "pending",
+      "status": "in_progress",
       "priority": "P0",
       "size": "medium",
       "parent_task": null,
@@ -5793,6 +5793,13 @@
           "by": "auto-detect-bot",
           "commit": "b282cd6",
           "note": "[handoff] BL-VERCEL-DEPLOY-RACE-GUARD 완료 → 다음 채팅 BL-VERCEL-HEALTH-ROUTING + BL-002 인계"
+        },
+        {
+          "at": "2026-05-09T02:29:25+00:00",
+          "event": "진행 중 진입 (auto-detected) ⚠️ 부칙 7 위반 — progress.steps 미박힘",
+          "by": "auto-detect-bot",
+          "commit": "70524c5",
+          "note": "fix(BL-VERCEL-DEPLOY-RACE-GUARD): checkVercelSync/Quota team scope 적용 (VERCEL_TEAM_ID 환경변수) — 403 Forbidden 결함 fix"
         }
       ],
       "source": "실측 결함 (2026-05-08)",
@@ -5801,7 +5808,15 @@
       "owner": "autonomous",
       "approval_required": false,
       "order": null,
-      "updated_at": "2026-05-08T00:56:32+00:00"
+      "updated_at": "2026-05-09T02:29:25+00:00",
+      "started_at": "2026-05-09T02:29:25+00:00",
+      "progress_warning": {
+        "code": "MISSING_PROGRESS_STEPS",
+        "rule": "부칙 7 — 모든 작업은 progress.steps 박은 후 시작",
+        "detected_at": "2026-05-09T02:29:25+00:00",
+        "detected_by_commit": "70524c5",
+        "message": "in_progress 진입했으나 progress.steps 비어있음. tasks.json에서 progress.steps 박은 후 다음 commit에 [step:done:N] 태그."
+      }
     },
     {
       "id": "BL-CLIPBOARD-FIX",

@@ -5235,7 +5235,11 @@
     // ★ 무한루프 fix: debounce + 자기 DOM(.poll-status, .poll-toast, .auto-queue-toast) 변경은 무시
     let modalCheckTimer = null;
     let lastHasModal = false;
-    const SELF_DOM_CLASSES = ['poll-status', 'poll-toast', 'auto-queue-toast', 'activity-expand-wrap'];
+    // BL-POLL-EXPAND-DEADLOCK fix (2026-05-09):
+    //   activity-expand-wrap 은 사용자 인터랙션 결과물이지 폴링 시스템이 만드는 DOM 이 아님.
+    //   여기에 포함시키면 활동 펼침→닫음 mutation 이 "자기 DOM"으로 분류되어 무시됨 → pollResume 호출 안 됨 → 폴링 영구 일시정지.
+    //   진짜 자기 DOM(폴링 시스템이 직접 변경하는 것)만 남김: poll-status / poll-toast / auto-queue-toast.
+    const SELF_DOM_CLASSES = ['poll-status', 'poll-toast', 'auto-queue-toast'];
     const isSelfMutation = (m) => {
       const targets = [m.target, ...Array.from(m.addedNodes || []), ...Array.from(m.removedNodes || [])];
       return targets.some(n => {

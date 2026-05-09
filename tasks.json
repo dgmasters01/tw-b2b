@@ -5729,13 +5729,13 @@
       "id": "BL-VERCEL-DEPLOY-RACE-GUARD",
       "title": "Vercel 빌드 큐 누락 감지·자동 복구 가드 (헌법 부칙 8 강화)",
       "category": "infrastructure",
-      "status": "in_progress",
+      "status": "done",
       "priority": "P0",
       "size": "medium",
       "parent_task": null,
       "blocker": null,
       "created_at": "2026-05-07T18:14:18+00:00",
-      "completed_at": null,
+      "completed_at": "2026-05-09T06:14:02+00:00",
       "claude_can_auto": true,
       "autonomous": {
         "can_run_alone": true,
@@ -5744,8 +5744,12 @@
       },
       "progress": null,
       "tag": "",
-      "commit": null,
-      "files_changed": [],
+      "commit": "4d0b113",
+      "files_changed": [
+        "_os/scripts/health_check_admin.mjs",
+        ".github/workflows/health-check-admin.yml",
+        "_admin/_health.json"
+      ],
       "history": [
         {
           "at": "2026-05-07T18:14:18+00:00",
@@ -5814,6 +5818,12 @@
           "by": "auto-detect-bot",
           "commit": "1d860d3",
           "note": "[BL-VERCEL-DEPLOY-RACE-GUARD] 디버그 step 제거 + VERCEL_TEAM_ID env 주입 제거"
+        },
+        {
+          "at": "2026-05-09T06:14:02+00:00",
+          "event": "done",
+          "by": "클로드 (TW OS)",
+          "note": "단계 5/5 완료. 직전 세션이 박은 잘못된 team scope 가정 제거(개인 계정 운영 원칙 적용), VERCEL_TOKEN 재발급, GitHub Secrets 업데이트. 라이브 _health.json: vercel_sync=green(b60b51f 동기화 확인), vercel_quota=green(20건/100). commits: 533e542(mjs team scope 제거) + 1d860d3(yml 디버그 step+TEAM_ID env 제거) + 4d0b113(health-bot _health.json 갱신)."
         }
       ],
       "source": "실측 결함 (2026-05-08)",

@@ -74,12 +74,12 @@
 
 ---
 
-## 🟢 P1 — [admin-* 페이지 인증 속도 최적화] Supabase getSession + checkAdmin 병렬 처리 + SSR 게이트
+## ⚡ P1 — [admin-* 페이지 인증 속도 최적화] Supabase getSession + checkAdmin 병렬 처리 + SSR 게이트
 
 - **자율성**: 🟢 AUTO
 - **예상 시간**: 3시간
 - **카테고리**: infrastructure
-- **상태**: pending
+- **상태**: in_progress
 - **ID**: `BL-ADMIN-AUTH-PERF` (출처: 운영 중 발견 — admin 인증 성능 이슈)
 
 ---

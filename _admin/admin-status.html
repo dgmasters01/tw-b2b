@@ -3867,7 +3867,7 @@
     wrap.classList.add('visible');
 
     const total = steps.length;
-    const done = steps.filter(s => s.done).length;
+    const done = steps.filter(s => (s.status === 'done' || s.done)).length;
     const percent = Math.round((done / total) * 100);
 
     const percentEl = $('ip-percent');
@@ -3877,13 +3877,13 @@
     if (barFill) barFill.style.width = `${percent}%`;
 
     // 첫번째 done:false 단계 = 현재 진행 중인 단계
-    const currentIdx = steps.findIndex(s => !s.done);
+    const currentIdx = steps.findIndex(s => !(s.status === 'done' || s.done));
 
     const stepsEl = $('ip-steps');
     if (stepsEl) {
       stepsEl.innerHTML = steps.map((s, i) => {
-        const cls = s.done ? 'done' : (i === currentIdx ? 'current' : '');
-        const mark = s.done ? '☑️' : (i === currentIdx ? '⏳' : '☐');
+        const cls = (s.status === 'done' || s.done) ? 'done' : (i === currentIdx ? 'current' : '');
+        const mark = (s.status === 'done' || s.done) ? '☑️' : (i === currentIdx ? '⏳' : '☐');
         return `<div class="pp-step ${cls}"><span class="pp-mark">${mark}</span><span>${i + 1}. ${escapeHtml(s.label || '')}</span></div>`;
       }).join('');
     }

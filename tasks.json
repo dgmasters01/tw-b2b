@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-09T07:26:46+00:00",
+  "updated_at": "2026-05-09T08:02:33.170969+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -12,13 +12,13 @@
     "SOLO_WORK_QUEUE.md"
   ],
   "stats": {
-    "total": 124,
+    "total": 127,
     "done": 92,
     "in_progress": 1,
-    "pending": 19,
+    "pending": 22,
     "blocked": 11,
-    "autonomous_ready": 12,
-    "todo": 0
+    "autonomous_ready": 14,
+    "todo": 1
   },
   "tasks": [
     {
@@ -258,7 +258,7 @@
       "decisions": [
         "D-021"
       ],
-      "updated_at": "2026-05-09T07:26:46+00:00",
+      "updated_at": "2026-05-09T08:02:33.170969+00:00",
       "order": 13,
       "history": [
         {
@@ -321,6 +321,12 @@
           "by": "auto-detect-bot",
           "commit": "300762e",
           "note": "feat(BL-ADMIN-AUTH-PERF step1): D-021 박음 — A-2 Edge Middleware 정석 + A-1 자가 반성 [step:done:1] [변경사유: 헌법 위반 옵션 제시 자가 반성 영구 "
+        },
+        {
+          "at": "2026-05-09T08:02:33.170969+00:00",
+          "event": "step 6 완료 + step 7 별도 BL 분리",
+          "by": "Claude",
+          "note": "admin-* 4개 페이지 인증 코드 제거 (다른 9개는 무인증). shared.js dead code는 BL-SHARED-AUTH-CLEANUP(P3)으로 분리."
         }
       ],
       "source": "운영 중 발견 — admin 인증 성능 이슈",
@@ -361,12 +367,14 @@
           {
             "n": 6,
             "title": "admin-* 12개 페이지에서 클라이언트 인증 코드 제거 (checkAdmin 호출 + getSession)",
-            "status": "pending"
+            "status": "done",
+            "note": "4 페이지 수정 (admin-gallery, admin-business, admin-permissions, admin.html). 다른 9개는 인증 코드 없음. shared.js dead code는 BL-SHARED-AUTH-CLEANUP으로 분리."
           },
           {
             "n": 7,
             "title": "shared.js _adminCache 제거 (middleware가 단일 게이트)",
-            "status": "pending"
+            "status": "done",
+            "note": "BL-SHARED-AUTH-CLEANUP으로 분리 (대표님 결정 2026-05-09). 호출처 0개로 안전."
           },
           {
             "n": 8,
@@ -6611,6 +6619,158 @@
           "by": "auto-detect-bot",
           "commit": "fe3b3c2",
           "note": "fix(BL-OPS-MAIL-AUTOBOT): 발신자 주소 noreply→ops 교정 — 운영(ops) vs 서비스(noreply) 메일 분리 정책 준수"
+        }
+      ]
+    },
+    {
+      "id": "BL-ACTIVITY-MODAL-BOT-FIX",
+      "title": "활동이력 — 봇 commit 클릭 시 사람용 탭 노출 결함 fix",
+      "category": "bug",
+      "priority": "P2",
+      "size": "small",
+      "status": "pending",
+      "claude_can_auto": true,
+      "approval_required": false,
+      "owner": "autonomous",
+      "autonomous": {
+        "can_run_alone": true,
+        "estimated_hours": 0.5,
+        "requires_decisions_first": []
+      },
+      "blocker": null,
+      "created_at": "2026-05-09T08:02:33.170969+00:00",
+      "updated_at": "2026-05-09T08:02:33.170969+00:00",
+      "completed_at": null,
+      "source": "대표님 발견 — 자동 봇이 박은 commit (auto-detect-bot 등) 클릭 시 모달이 사람용 설명 탭을 default로 보여주는데, 봇 commit은 사람용 설명이 없어 빈 화면 또는 깨진 표시.",
+      "order": 60,
+      "progress": {
+        "steps": [
+          {
+            "id": "step1",
+            "label": "admin-status 활동이력 모달 코드 위치 추적 + 결함 재현",
+            "status": "pending"
+          },
+          {
+            "id": "step2",
+            "label": "봇 commit 판별 로직 (by 필드 'auto-detect-bot' 등) + 사람용 탭 자동 비활성화",
+            "status": "pending"
+          },
+          {
+            "id": "step3",
+            "label": "AI용 raw 탭을 default로 전환 + 라이브 검증",
+            "status": "pending"
+          }
+        ]
+      },
+      "notes": "결함: 봇 commit (예: auto-detect-bot, charter-length-bot)은 사람용 narrative가 없는데, 활동이력 모달이 default로 사람용 탭을 띄움 → 사용자에게 빈 모달처럼 보임. 정석: 봇 출처 commit은 AI raw 탭을 default로 (또는 사람용 탭 자동 hide).",
+      "history": [
+        {
+          "at": "2026-05-09T08:02:33.170969+00:00",
+          "event": "BL 신설 (BL-ADMIN-AUTH-PERF 작업 중 대표님 지시로 백로그 등록)",
+          "by": "Claude"
+        }
+      ]
+    },
+    {
+      "id": "BL-PROGRESS-STEPS-AUTOFILL",
+      "title": "작업 시작 시 progress.steps 미박힘 자동 감지·자동 채움 + step:done:N 범위 자동 검증",
+      "category": "infra",
+      "priority": "P2",
+      "size": "small",
+      "status": "pending",
+      "claude_can_auto": true,
+      "approval_required": false,
+      "owner": "autonomous",
+      "autonomous": {
+        "can_run_alone": true,
+        "estimated_hours": 1.0,
+        "requires_decisions_first": []
+      },
+      "blocker": null,
+      "created_at": "2026-05-09T08:02:33.170969+00:00",
+      "updated_at": "2026-05-09T08:02:33.170969+00:00",
+      "completed_at": null,
+      "source": "대표님 진단 — BL-ADMIN-AUTH-PERF 시작 시 progress_steps 미박힘 채로 진행됐고 직전 채팅 끝에서야 강제 채움. 부칙 7 (단계=commit) 완전 자동화 미흡.",
+      "order": 61,
+      "progress": {
+        "steps": [
+          {
+            "id": "step1",
+            "label": "auto-detect-bot에 'in_progress 진입 시 progress.steps 검사' 룰 추가",
+            "status": "pending"
+          },
+          {
+            "id": "step2",
+            "label": "누락 감지 시 placeholder steps (step1~stepN, N=size별 default) 자동 박음 + warning commit",
+            "status": "pending"
+          },
+          {
+            "id": "step3",
+            "label": "step:done:N 태그 commit 본문에서 N 추출 + steps 배열 범위 검증 (out-of-range 시 워닝)",
+            "status": "pending"
+          },
+          {
+            "id": "step4",
+            "label": "라이브 테스트 (새 BL 시작 시 자동 채워지는지) + ops 메일 + chat-log",
+            "status": "pending"
+          }
+        ]
+      },
+      "notes": "정석: 헌법 부칙 7(단계 단위 commit) + 시행령 5번(무인 검증) 통합. 봇이 자동 강제. 사람이 매번 박는 게 아님. BL-ADMIN-AUTH-PERF의 progress_warning(MISSING_PROGRESS_STEPS) 트리거가 이미 있으니 그걸 확장.",
+      "history": [
+        {
+          "at": "2026-05-09T08:02:33.170969+00:00",
+          "event": "BL 신설 (BL-ADMIN-AUTH-PERF 작업 중 대표님 지시로 백로그 등록)",
+          "by": "Claude"
+        }
+      ]
+    },
+    {
+      "id": "BL-SHARED-AUTH-CLEANUP",
+      "title": "shared.js dead 인증 함수 제거 — checkAdmin / _adminCache / isAdmin / clearAdminCache",
+      "category": "infra",
+      "priority": "P3",
+      "size": "small",
+      "status": "pending",
+      "claude_can_auto": true,
+      "approval_required": false,
+      "owner": "autonomous",
+      "autonomous": {
+        "can_run_alone": true,
+        "estimated_hours": 0.5,
+        "requires_decisions_first": []
+      },
+      "blocker": null,
+      "created_at": "2026-05-09T08:02:33.170969+00:00",
+      "updated_at": "2026-05-09T08:02:33.170969+00:00",
+      "completed_at": null,
+      "source": "BL-ADMIN-AUTH-PERF (D-021) 완료 후 분리 — 호출처 0개 dead code. 이번 BL의 본질(admin 페이지 RPC 왕복 제거)에서 분리.",
+      "order": 62,
+      "progress": {
+        "steps": [
+          {
+            "id": "step1",
+            "label": "전체 repo grep으로 호출처 0 재확인 (HTML/JS 모두)",
+            "status": "pending"
+          },
+          {
+            "id": "step2",
+            "label": "shared.js L139~L183 4개 함수 + 캐시 변수 제거",
+            "status": "pending"
+          },
+          {
+            "id": "step3",
+            "label": "라이브 배포 + admin-* 12개 페이지 정상 작동 검증",
+            "status": "pending"
+          }
+        ]
+      },
+      "notes": "BL-ADMIN-AUTH-PERF (D-021, A-2 정석)에서 admin 페이지의 checkAdmin 호출 100% 제거 후, shared.js에 정의만 남은 dead code. 호출처 0개 확인됨 (2026-05-09). middleware.js가 단일 진실원이므로 정석은 제거이지만, 호출처 0으로 안전하므로 별도 BL로 분리 (대표님 결정 2026-05-09).",
+      "history": [
+        {
+          "at": "2026-05-09T08:02:33.170969+00:00",
+          "event": "BL 신설 (BL-ADMIN-AUTH-PERF 작업 중 분리 결정)",
+          "by": "Claude"
         }
       ]
     }

@@ -10,6 +10,52 @@
 
 ---
 
+## 🆕 2026-05-10 — admin 라이트 모드 정식 지원 5결정
+
+### 결정 D-022: BL-ADMIN-LIGHTMODE — 다크/라이트 토큰 한 쌍 + 사이드바 토글 + OS 따라가기 ⭐⭐⭐ 2026-05-10
+
+**무엇을**: admin-* 페이지 13개에 라이트 모드 정식 지원. shared.css 단일 진실원에 `[data-theme="light"]` 블록 1개로 다크↔라이트 토큰 매핑. 페이지 자체 :root 9개(7 다크 + 1 라이트 + 1 글래스)는 모두 삭제하고 shared.css 토큰만 사용. 사이드바 하단 공통 토글 1개로 13개 페이지 동시 전환. 기본값은 OS `prefers-color-scheme` 따라가되 사용자 토글이 우선 (localStorage 저장).
+
+**5결정**:
+1. **시안 색감**: 다크 기본 + 라이트 한 쌍 (확정 토큰 표 `_os/playbook/admin-lightmode-tokens.md`)
+2. **`admin-tasks.html` 라이트 잔재**: 다크로 통일 — 3단계 :root 삭제 시 자동 해소
+3. **라이트 본문 ink**: `#1E293B` (한 단계 부드럽게, `#0F172A`는 거의 검정이라 장시간 부담)
+4. **토글 위치**: 사이드바 하단 공통 — 한 곳 = 13개 페이지 동시 적용 (헌법 부칙 8 자동 동기화)
+5. **기본값**: `prefers-color-scheme` OS 설정 따라감 + 사용자 토글이 우선 (localStorage `tw-theme`)
+
+**왜 정석인가** (헌법 5기준):
+1. **단일 진실원**: shared.css 1군데. 페이지별 :root 9개 = 단일 진실원 위반 = 삭제.
+2. **표준 패턴**: `prefers-color-scheme`은 W3C CSS Media Queries Level 5 표준. CSS 변수 + data-attribute 토글은 업계 표준.
+3. **유지보수 비용 최소**: 토큰 표 1개에 다크/라이트 한 쌍 → 페이지 수정 시 변수 이름만 알면 됨.
+4. **자동 동기화**: 사이드바 토글 1번 = 13개 페이지 즉시 적용 (헌법 부칙 8).
+5. **재발·롤백 안전**: 페이지 :root 삭제로 직전 1차 시도가 깨진 진짜 원인(토큰 이름 충돌) 영구 제거. localStorage 1key 삭제로 OS 설정 복귀.
+
+**1차 시도 (2026-05-09 — commit 726994d, 362a104) revert 원인**:
+- 9개 페이지가 자체 :root에 다크 색을 박아두고 있고 토큰 이름이 shared.css와 다른 체계 (`--panel`/`--text`/`--border` vs shared의 `--bg-2`/`--ink`/`--line`).
+- shared.css만 라이트로 바꿔도 페이지 :root가 다크 색 덮어써서 안 바뀜.
+- → 같은 함정 재발 방지: 3단계에서 페이지 :root 9개 모두 삭제.
+
+**6단계 진행 계획**:
+1. ✅ 디자인 토큰 표 확정 (이 결정 — 2026-05-10)
+2. ⏸️ 13개 페이지 하드코딩 rgba/hex 전수 매핑 표 (status + admin 우선)
+3. ⏸️ shared.css에 `[data-theme="light"]` 박음 + 페이지 :root 9개 삭제
+4. ⏸️ admin-status + admin-tasks 2페이지 Before/After 스크린샷 검토
+5. ⏸️ 검토 통과한 토큰만 페이지 1개씩 commit
+6. ⏸️ 사이드바 하단 토글 박음 + localStorage 동작 검증
+
+**참고 commit**:
+- `d2deb98` — Phase 0 배너 fix (유지)
+- `726994d`, `362a104` — 1차 시도 revert (재발 방지 참고)
+
+**산출물**:
+- `_os/playbook/admin-lightmode-tokens.md` (확정 토큰 표 — 2~5단계 단일 참조원)
+- `_chat-logs/2026-05-10-bl-admin-lightmode-step1.md` (1단계 영구 기록)
+- `tasks.json` BL-ADMIN-LIGHTMODE (6단계 progress.steps)
+
+**누가**: 클로드 (대표님 결정 위임 — "5개 다 클로드 정석 판단으로 진행")
+
+---
+
 ## 🆕 2026-05-09 — admin-* 페이지 인증 속도 정석 박음 (Edge Middleware SSR 게이트)
 
 ### 결정 D-021: BL-ADMIN-AUTH-PERF — Edge Middleware 단일 게이트 (A-2 정석) ⭐⭐⭐ 2026-05-09

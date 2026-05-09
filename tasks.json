@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-09T14:30:57+00:00",
+  "updated_at": "2026-05-09T15:14:35.917018Z",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -12,15 +12,91 @@
     "SOLO_WORK_QUEUE.md"
   ],
   "stats": {
-    "total": 129,
+    "total": 130,
     "done": 95,
-    "in_progress": 0,
+    "in_progress": 1,
     "pending": 22,
     "blocked": 11,
     "autonomous_ready": 16,
-    "todo": 0
+    "todo": 0,
+    "cancelled": 0,
+    "updated_at": "2026-05-09T15:14:35.917018Z"
   },
   "tasks": [
+    {
+      "id": "BL-ADMIN-LIGHTMODE",
+      "title": "admin 13개 페이지 라이트 모드 정식 지원 — shared.css 단일 진실원 + 사이드바 토글",
+      "category": "design",
+      "priority": "P1",
+      "status": "in_progress",
+      "claude_can_auto": true,
+      "approval_required": false,
+      "owner": "Claude",
+      "size": "L",
+      "source": "직전 채팅 1차 시도 revert (726994d, 362a104) → 도서 설계도부터 다시",
+      "created_at": "2026-05-09T15:14:35.917018Z",
+      "deadline": null,
+      "order": 1,
+      "blocker": null,
+      "autonomous": {
+        "estimated_hours": 4.0,
+        "requires_decisions_first": []
+      },
+      "decision_ref": "D-022",
+      "history": [
+        {
+          "at": "2026-05-09T15:14:35.917018Z",
+          "action": "BL-ADMIN-LIGHTMODE 등록 — 1단계 디자인 토큰 표 확정 (D-022, 5결정 통과)"
+        }
+      ],
+      "result": null,
+      "updated_at": "2026-05-09T15:14:35.917018Z",
+      "progress": {
+        "steps": [
+          {
+            "n": 1,
+            "label": "디자인 토큰 표 확정 (다크/라이트 한 쌍, 5결정 D-022)",
+            "done": true,
+            "at": "2026-05-09T15:14:35.917018Z"
+          },
+          {
+            "n": 2,
+            "label": "13개 페이지 하드코딩 rgba/hex → 토큰 1:1 매핑 표 (status+admin 우선)",
+            "done": false,
+            "at": null
+          },
+          {
+            "n": 3,
+            "label": "shared.css에 [data-theme=light] 박음 + 페이지 :root 9개 삭제",
+            "done": false,
+            "at": null
+          },
+          {
+            "n": 4,
+            "label": "admin-status + admin-tasks Before/After 스크린샷 검토",
+            "done": false,
+            "at": null
+          },
+          {
+            "n": 5,
+            "label": "검토 통과 토큰만 페이지 1개씩 commit",
+            "done": false,
+            "at": null
+          },
+          {
+            "n": 6,
+            "label": "사이드바 하단 토글 박음 + localStorage 동작 검증",
+            "done": false,
+            "at": null
+          }
+        ],
+        "current_step": 2,
+        "percent": 17,
+        "completed_count": 1,
+        "total_count": 6,
+        "updated_at": "2026-05-09T15:14:35.917018Z"
+      }
+    },
     {
       "id": "BL-OS-PHASE-5",
       "title": "OS 모듈화 Phase 5 — 사이드바 4영역 강제 렌더 (DOCS/TOOLS/OS-CORE/SYSTEM) + 5초 polling 통일",

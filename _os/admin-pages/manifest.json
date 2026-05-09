@@ -1,5 +1,5 @@
 {
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "관리자 페이지 매니페스트 — OS 본체 vs 사업 분류. 실 파일은 _admin/ 폴더에 유지 (Vercel 배포 경로 호환성).",
   "constraint": "Vercel은 _admin/admin-status.html 같은 경로를 그대로 서빙. 이동하면 운영 중 URL 깨짐. 따라서 실 파일은 _admin/에 유지하고 매니페스트만 분리.",
 
@@ -9,7 +9,20 @@
       "role": "OS 시스템 완성도 단일 통합 관리 페이지 (D-010 카테고리-파일 매핑, D-011 3-State 권한, D-012 3-Layer 파일 분리)",
       "path": "_admin/admin-status.html",
       "polls": ["tasks.json (5초)", "activity-feed.display.json (5초)", "pages-status.display.json (5초)", "_admin/_health.json (5초)"],
-      "phase_history": ["BL-PAGE-DEDUP", "BL-LIVE-STATUS-PANEL", "BL-OS-PHASE-1B (단일 진실원 + 즉시 시작 펼침 + 빈 상태 UI)"]
+      "phase_history": ["BL-PAGE-DEDUP", "BL-LIVE-STATUS-PANEL", "BL-OS-PHASE-1B (단일 진실원 + 즉시 시작 펼침 + 빈 상태 UI)", "BL-DEDUP-CONSOLIDATE (③·⑥·⑦ 흡수 + 헌법 27/27)"],
+      "absorbed_from": [
+        "③ 작업 분포 KPI (BL-DEDUP-CONSOLIDATE step6)",
+        "⑥ 임박 섹션 (BL-DEDUP-CONSOLIDATE step5)",
+        "⑦ 결정 대기 박스 원본 (BL-DEDUP-CONSOLIDATE step4)",
+        "BL-URGENT-CARD-FLOW (▶ 즉시시작/▶ 메일발송 버튼, BL-DEDUP-CONSOLIDATE step3)",
+        "헌법 검증 27/27 → 건강 검진 박스 (BL-DEDUP-CONSOLIDATE step6)",
+        "KPI(완료/진행/막힘) → 작업 지휘소 헤더 (BL-DEDUP-CONSOLIDATE step1)"
+      ],
+      "verification": {
+        "live_url": "https://gohotelwinners.com/admin-status.html",
+        "backup": "_admin/_backup_20260508_pre-dedup_admin-status.html",
+        "dependency_map": "_os/playbook/dependency-map-bl-dedup-consolidate.md"
+      }
     },
     {
       "name": "admin-tasks.html",

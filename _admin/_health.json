@@ -1,7 +1,7 @@
 {
   "overall": "yellow",
-  "summary": "[yellow] admin_baseline: 2개 파일이 baseline과 다름 (의도 수정인지 확인 필요) / [yellow] vercel_sync: Vercel API 403 Forbidden — 토큰/프로젝트명 확인 필요 {\"error\":{\"code\":\"forbidden\",\"message\":\"Not authorized\",\"invalidToken\":true}} / [yellow] vercel_quota: Vercel API 403 — quota 조회 실패",
-  "checked_at": "2026-05-09T06:04:03.855Z",
+  "summary": "[yellow] admin_baseline: 2개 파일이 baseline과 다름 (의도 수정인지 확인 필요)",
+  "checked_at": "2026-05-09T06:13:06.354Z",
   "checks": [
     {
       "name": "admin_baseline",
@@ -33,24 +33,24 @@
       "dead_bots": [],
       "bot_status": {
         "sync-bot": "success",
-        "auto-detect-bot": "unknown",
+        "auto-detect-bot": "success",
         "scan-bot": "success",
         "chat-log-bot": "success"
       }
     },
     {
       "name": "vercel_sync",
-      "status": "yellow",
-      "detail": "Vercel API 403 Forbidden — 토큰/프로젝트명 확인 필요 {\"error\":{\"code\":\"forbidden\",\"message\":\"Not authorized\",\"invalidToken\":true}}",
-      "live_sha": null,
-      "vercel_sha": null,
+      "status": "green",
+      "detail": "Vercel 동기화 정상 (b60b51f)",
+      "live_sha": "b60b51f",
+      "vercel_sha": "b60b51f",
       "project": "tw-b2b"
     },
     {
       "name": "vercel_quota",
-      "status": "yellow",
-      "detail": "Vercel API 403 — quota 조회 실패",
-      "deployments_24h": 0,
+      "status": "green",
+      "detail": "24h 배포 20건 / 100 (20%)",
+      "deployments_24h": 20,
       "limit": 100
     }
   ]

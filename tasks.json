@@ -5744,11 +5744,12 @@
       },
       "progress": null,
       "tag": "",
-      "commit": "4d0b113",
+      "commit": "2ba0473",
       "files_changed": [
         "_os/scripts/health_check_admin.mjs",
         ".github/workflows/health-check-admin.yml",
-        "_admin/_health.json"
+        "_admin/_health.json",
+        "vercel.json"
       ],
       "history": [
         {
@@ -5845,6 +5846,12 @@
           "by": "auto-detect-bot",
           "commit": "2ba0473",
           "note": "[BL-VERCEL-DEPLOY-RACE-GUARD][step:done:7] vercel.json redirect source 정확히 좁히기"
+        },
+        {
+          "at": "2026-05-09T06:23:04+00:00",
+          "event": "추가 블로커 해결 (vercel.json redirect)",
+          "by": "클로드 (TW OS)",
+          "note": "검증 중 발견된 별건 블로커: vercel.json의 /_admin/:path* redirect 룰이 _health.json까지 잡아 라이브에서 404. 정석 해결: source를 /_admin/:path(.+\\.html)로 좁혀 html 파일에만 적용. 라이브 GET /_admin/_health.json = 200 OK 확인. /_admin/admin-status.html 옛 호환 redirect는 정상 유지. commit 2ba0473."
         }
       ],
       "source": "실측 결함 (2026-05-08)",

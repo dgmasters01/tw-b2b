@@ -75,13 +75,11 @@
 
 ---
 
-### E. 🟢 AUTO — 활동 이력 시스템 — 봇 commit 클릭 시 사람용 탭 빈 메시지 fix (정석 정리)
+### E. 🟡 SEMI — admin 13개 페이지 라이트 모드 정식 지원 — shared.css 단일 진실원 + 사이드바 토글
 
-**ID**: `BL-ACTIVITY-FEED-CLEANUP`  
-**카테고리**: bug  
-**예상 시간**: 0.5시간  
-
-**메모**: 이전 채팅(BL-GALLERY-PAGES-META-FIX 직후) 진단 결과 인계. DECISIONS.md D-022에 정석 fix 설계 박힘. 실행 시 D-022 + chat-log/2026-05/BL-ACTIVITY-FEED-CLEANUP.md 참조.
+**ID**: `BL-ADMIN-LIGHTMODE`  
+**카테고리**: design  
+**예상 시간**: 4.0시간  
 
 ---
 

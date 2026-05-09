@@ -74,6 +74,16 @@
 
 ---
 
+## ⚡ P1 — admin 13개 페이지 라이트 모드 정식 지원 — shared.css 단일 진실원 + 사이드바 토글
+
+- **자율성**: 🟡 SEMI
+- **예상 시간**: 4.0시간
+- **카테고리**: design
+- **상태**: in_progress
+- **ID**: `BL-ADMIN-LIGHTMODE` (출처: 직전 채팅 1차 시도 revert (726994d, 362a104) → 도서 설계도부터 다시)
+
+---
+
 ## 🟢 P1 — [YouTube 더보기 단축 URL 클릭 카운트] 호텔별 진성 관심 측정 시스템
 
 **요약**: gohotel.win/h/{hotel_id} → Supabase 카운트 +1 → Agoda 어필리에이트 리디렉션. 호텔별/순위별 분리.
@@ -215,18 +225,6 @@
 - **결정 필요**:
   - Q: PAT 박는 방식 — 환경변수 vs .env.local vs GitHub Secrets API
 - **ID**: `BL-OS-INSTALL-PAT-FLOW` (출처: 대표님 진단 (2026-05-08) — OS 설치 시 PAT 거부됨, 설치 자체가 안 됨)
-
----
-
-## 🟢 P1 — 활동 이력 시스템 — 봇 commit 클릭 시 사람용 탭 빈 메시지 fix (정석 정리)
-
-**요약**: 이전 채팅(BL-GALLERY-PAGES-META-FIX 직후) 진단 결과 인계. DECISIONS.md D-022에 정석 fix 설계 박힘. 실행 시 D-022 + chat-log/2026-05/BL-ACTIVITY-FEED-CLEANUP.md 참조.
-
-- **자율성**: 🟢 AUTO
-- **예상 시간**: 0.5시간
-- **카테고리**: bug
-- **상태**: pending
-- **ID**: `BL-ACTIVITY-FEED-CLEANUP` (출처: 대표님이 admin-status.html 활동 이력 펼침 패널에서 scan-bot commit 클릭 시 사람용 탭 빈 메시지('작업 번호 901d313이 인덱스에 등록되지 않았거나 매핑에 실패') 발견. 진단 결과: build-activity-feed.mjs(role 분류), activity-feed.display.json(데이터), 인계서 생성 로직, AI용 탭, 코드 변경 탭, renderActivity 필터 모두 정상. 유일한 결함 = loadHumanTab() 함수에 봇 commit 사전 분기 누락. AI용 탭은 BL-AI-TAB-BOT-DETECT(4794~4826라인)에서 정확히 처리 중이라 같은 패턴 적용하면 됨.)
 
 ---
 

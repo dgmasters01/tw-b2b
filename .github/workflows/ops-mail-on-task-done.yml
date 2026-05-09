@@ -58,14 +58,25 @@ jobs:
           FORCE_SEND: ${{ inputs.force_send }}
         run: node scripts/send-ops-mail.mjs
       
-      - name: Commit mail_sent markers
+      - name: Commit mail_sent markers (race-condition resilient)
         run: |
           git config user.name "ops-mail-bot"
           git config user.email "ops-mail-bot@gohotelwinners.com"
           git add tasks.json
           if git diff --cached --quiet; then
             echo "No mail_sent markers to commit"
-          else
-            git commit -m "[ops-mail-bot] tasks.json mail_sent 마커 박음"
-            git push
+            exit 0
           fi
+          git commit -m "[ops-mail-bot] tasks.json mail_sent 마커 박음"
+          # 다른 봇 commit과 race 시 최대 5회 재시도
+          for i in 1 2 3 4 5; do
+            git pull --rebase origin main || true
+            if git push origin main; then
+              echo "Push succeeded on attempt $i"
+              exit 0
+            fi
+            echo "Push attempt $i failed, retrying..."
+            sleep 2
+          done
+          echo "Push failed after 5 attempts"
+          exit 1

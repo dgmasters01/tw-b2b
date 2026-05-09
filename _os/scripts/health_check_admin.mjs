@@ -45,7 +45,7 @@ function checkAdminBaseline() {
   const result = { name: 'admin_baseline', status: 'green', detail: '', changed_files: [] };
   if (!fs.existsSync(BASELINE_HASH_FILE)) {
     result.status = 'yellow';
-    result.detail = 'baseline SHA256 파일 없음 — Phase 0 단계 2 미완료';
+    result.detail = '기준 파일 목록이 아직 만들어지지 않았어요 (안전망 초기 설정 필요)';
     return result;
   }
   const expected = {};
@@ -65,11 +65,11 @@ function checkAdminBaseline() {
     }
   }
   if (result.changed_files.length === 0) {
-    result.detail = `${Object.keys(expected).length}개 파일 모두 baseline과 일치`;
+    result.detail = `관리자 페이지 ${Object.keys(expected).length}개 모두 원본 그대로예요`;
   } else {
     // 의도된 수정과 손상을 구분 못 함 → 정보성 yellow
     result.status = 'yellow';
-    result.detail = `${result.changed_files.length}개 파일이 baseline과 다름 (의도 수정인지 확인 필요)`;
+    result.detail = `관리자 페이지 ${result.changed_files.length}개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요)`;
   }
   return result;
 }
@@ -79,18 +79,18 @@ function checkTasksSchema() {
   const result = { name: 'tasks_schema', status: 'green', detail: '', missing_source: [] };
   if (!fs.existsSync(TASKS_FILE)) {
     result.status = 'red';
-    result.detail = 'tasks.json 파일 없음';
+    result.detail = '작업 목록 파일이 안 보여요';
     return result;
   }
   const d = JSON.parse(fs.readFileSync(TASKS_FILE, 'utf8'));
   const missing = d.tasks.filter((t) => !t.source).map((t) => t.id);
   result.missing_source = missing;
   if (missing.length === 0) {
-    result.detail = `${d.tasks.length}건 모두 source 박힘`;
+    result.detail = `작업 ${d.tasks.length}건 모두 출처 박혀있어요 (정상)`;
   } else {
     // 인계서 결함 #1 — sync-bot 죽음의 원인
     result.status = 'red';
-    result.detail = `${d.tasks.length}건 중 ${missing.length}건 source 누락 → sync-bot 죽음 유발 (Phase 1에서 처리)`;
+    result.detail = `작업 ${d.tasks.length}건 중 ${missing.length}건에 출처가 없어요 (자동 동기화 봇 멈춤 위험)`;
   }
   return result;
 }
@@ -111,10 +111,10 @@ function checkBots() {
     }
   }
   if (result.dead_bots.length === 0) {
-    result.detail = '모든 봇 정상';
+    result.detail = '자동 일꾼들(봇) 전부 살아있어요';
   } else {
     result.status = 'red';
-    result.detail = `${result.dead_bots.length}개 봇 죽음: ${result.dead_bots.join(', ')}`;
+    result.detail = `자동 일꾼 ${result.dead_bots.length}명이 멈췄어요: ${result.dead_bots.join(', ')}`;
   }
   result.bot_status = botStatus;
   return result;
@@ -135,7 +135,7 @@ async function checkVercelSync() {
   const PROJECT = 'tw-b2b';
   if (!TOKEN) {
     result.status = 'yellow';
-    result.detail = 'VERCEL_TOKEN env 없음 (Vercel sync 검증 불가)';
+    result.detail = 'Vercel 출입카드(토큰)가 없어서 라이브 동기화 점검을 못해요';
     return result;
   }
   try {
@@ -144,14 +144,14 @@ async function checkVercelSync() {
     if (!r.ok) {
       const bodyText = await r.text().catch(() => '');
       result.status = 'yellow';
-      result.detail = `Vercel API ${r.status} ${r.statusText} — 토큰/프로젝트명 확인 필요 ${bodyText.slice(0,120)}`;
+      result.detail = `Vercel 서버가 거절했어요 (응답 ${r.status} ${r.statusText}). 출입카드나 프로젝트 이름 점검 필요. 자세한 응답: ${bodyText.slice(0,100)}`;
       return result;
     }
     const j = await r.json();
     const d = Array.isArray(j.deployments) && j.deployments[0];
     if (!d) {
       result.status = 'yellow';
-      result.detail = `Vercel READY 배포 없음 (또는 app=${PROJECT} 미일치)`;
+      result.detail = `Vercel에 라이브 버전이 아직 없어요 (또는 프로젝트 이름 ${PROJECT}가 안 맞아요)`;
       return result;
     }
     const vercelSha = d.meta && d.meta.githubCommitSha;
@@ -160,19 +160,19 @@ async function checkVercelSync() {
     result.live_sha = githubSha ? githubSha.slice(0, 7) : null;
     if (!githubSha) {
       result.status = 'green';
-      result.detail = `Vercel 최신 ${result.vercel_sha} (GITHUB_SHA env 없음 — 비교 skip)`;
+      result.detail = `Vercel 라이브는 ${result.vercel_sha} 버전이 떠 있어요 (비교용 기준값이 없어서 일치 점검은 건너뜀)`;
       return result;
     }
     if (vercelSha === githubSha) {
       result.status = 'green';
-      result.detail = `Vercel 동기화 정상 (${result.vercel_sha})`;
+      result.detail = `라이브 사이트가 GitHub와 같은 버전이에요 (${result.vercel_sha})`;
     } else {
       result.status = 'yellow';
-      result.detail = `Vercel 미동기화 — git=${result.live_sha} vs vercel=${result.vercel_sha} (자동 복구 필요)`;
+      result.detail = `라이브 사이트가 GitHub 새 버전(${result.live_sha})을 아직 못 따라잡았어요 (현재 라이브: ${result.vercel_sha}). 5~10분 후 자동 정상화 예정`;
     }
   } catch (e) {
     result.status = 'yellow';
-    result.detail = `Vercel API 호출 실패: ${e.message}`;
+    result.detail = `Vercel 서버에 말을 못 걸었어요: ${e.message}`;
   }
   return result;
 }
@@ -189,7 +189,7 @@ async function checkVercelQuota() {
   const PROJECT = 'tw-b2b';
   if (!TOKEN) {
     result.status = 'yellow';
-    result.detail = 'VERCEL_TOKEN env 없음 — quota 조회 skip';
+    result.detail = 'Vercel 출입카드(토큰)가 없어서 배포 한도 점검을 못해요';
     return result;
   }
   try {
@@ -198,7 +198,7 @@ async function checkVercelQuota() {
     const r = await fetch(url, { headers: { Authorization: `Bearer ${TOKEN}` } });
     if (!r.ok) {
       result.status = 'yellow';
-      result.detail = `Vercel API ${r.status} — quota 조회 실패`;
+      result.detail = `Vercel 서버가 거절했어요 (응답 ${r.status}). 배포 한도 점검 실패`;
       return result;
     }
     const j = await r.json();
@@ -207,13 +207,13 @@ async function checkVercelQuota() {
     const ratio = count / result.limit;
     if (ratio >= 0.8) {
       result.status = 'yellow';
-      result.detail = `24h 배포 ${count}건 (limit ${result.limit}의 ${Math.round(ratio*100)}%) — quota 80% 초과 위험`;
+      result.detail = `최근 24시간 동안 ${count}번 배포 (한도 ${result.limit}번 중 ${Math.round(ratio*100)}% 사용 — 80% 넘어서 주의 필요)`;
     } else {
-      result.detail = `24h 배포 ${count}건 / ${result.limit} (${Math.round(ratio*100)}%)`;
+      result.detail = `최근 24시간 동안 ${count}번 배포 (한도 ${result.limit}번 중 ${Math.round(ratio*100)}% 사용, 여유 있음)`;
     }
   } catch (e) {
     result.status = 'yellow';
-    result.detail = `Vercel quota 조회 실패: ${e.message}`;
+    result.detail = `배포 한도 정보 받기 실패: ${e.message}`;
   }
   return result;
 }

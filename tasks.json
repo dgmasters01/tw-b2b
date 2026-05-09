@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-09T01:28:16.003Z",
+  "updated_at": "2026-05-09T01:30:00+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -12,8 +12,8 @@
     "SOLO_WORK_QUEUE.md"
   ],
   "stats": {
-    "total": 123,
-    "done": 90,
+    "total": 124,
+    "done": 91,
     "in_progress": 0,
     "pending": 21,
     "blocked": 11,
@@ -6317,6 +6317,85 @@
           "at": "2026-05-08T13:53:59+00:00",
           "event": "BL 신설 (대표님 진단 — OS 설치 PAT 거부 문제)",
           "by": "Claude"
+        }
+      ]
+    },
+    {
+      "id": "BL-OPS-MAIL-AUTOBOT",
+      "title": "작업 완료 시 ops 메일 자동 발송 봇 신설",
+      "category": "infra",
+      "priority": "P0",
+      "size": "small",
+      "status": "done",
+      "claude_can_auto": true,
+      "approval_required": false,
+      "owner": "Claude",
+      "autonomous": {
+        "can_run_alone": true,
+        "estimated_hours": 0.5,
+        "requires_decisions_first": []
+      },
+      "blocker": null,
+      "created_at": "2026-05-09T01:25:00+00:00",
+      "updated_at": "2026-05-09T01:30:00+00:00",
+      "completed_at": "2026-05-09T01:28:20+00:00",
+      "source": "BL-DEDUP-CONSOLIDATE 완료 후 메일 미수신 — 대표님 지적 → 자가 진단 결과 메일 발송 자동화 봇이 처음부터 박혀있지 않았던 결함 발견",
+      "order": 999,
+      "progress": {
+        "steps": [
+          {
+            "id": "step1",
+            "label": "Resend secret 등록 (대표님)",
+            "status": "done",
+            "done_at": "2026-05-09T01:26:13+00:00"
+          },
+          {
+            "id": "step2",
+            "label": "워크플로 yml + 발송 스크립트 신설 push",
+            "status": "done",
+            "done_at": "2026-05-09T01:27:50+00:00"
+          },
+          {
+            "id": "step3",
+            "label": "수동 트리거로 BL-DEDUP-CONSOLIDATE 밀린 메일 발송",
+            "status": "done",
+            "done_at": "2026-05-09T01:28:20+00:00"
+          },
+          {
+            "id": "step4",
+            "label": "tasks.json mail_sent 마커 자동 commit 검증",
+            "status": "done",
+            "done_at": "2026-05-09T01:28:16+00:00"
+          }
+        ]
+      },
+      "notes": "ops-mail-on-task-done.yml 워크플로는 main push 시 tasks.json paths 변경 자동 트리거 + workflow_dispatch 수동 트리거 모두 지원. mail_sent 마커가 history에 박히므로 중복 발송 방지. force_send=true로 재발송 가능. 발송 실패 시 history 마커 안 박힘 (다음 trigger에서 재시도).",
+      "history": [
+        {
+          "at": "2026-05-09T01:25:00+00:00",
+          "event": "BL 신설 (BL-DEDUP-CONSOLIDATE 메일 누락 진단 결과)",
+          "by": "Claude"
+        },
+        {
+          "at": "2026-05-09T01:26:13+00:00",
+          "event": "step1 — RESEND_API_KEY secret 등록 완료 (대표님)",
+          "by": "CEO"
+        },
+        {
+          "at": "2026-05-09T01:27:50+00:00",
+          "event": "step2 — 워크플로 + 스크립트 신설 commit",
+          "by": "Claude",
+          "commit": "d74e0ff"
+        },
+        {
+          "at": "2026-05-09T01:28:07+00:00",
+          "event": "step3 — workflow_dispatch 수동 트리거 (task_id=BL-DEDUP-CONSOLIDATE, force_send=true)",
+          "by": "Claude"
+        },
+        {
+          "at": "2026-05-09T01:28:20+00:00",
+          "event": "step4 — 워크플로 success, 메일 발송 완료 (Resend id 630a1850-767b-4e30-...), mail_sent 마커 commit 19d3043",
+          "by": "ops-mail-bot"
         }
       ]
     }

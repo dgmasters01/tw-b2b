@@ -822,12 +822,13 @@
      style="position:sticky;top:0;z-index:9999;width:100%;cursor:pointer;
             font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;
             padding:6px 16px;border-bottom:1px solid rgba(255,255,255,0.1);
-            background:#222;color:#888;transition:background 0.2s;"
+            background:#222;color:#888;transition:background 0.2s;
+            display:flex;align-items:center;gap:8px;"
      onclick="(function(){var d=document.getElementById('phase0-health-detail');d.style.display=d.style.display==='none'?'block':'none';})()"
      title="클릭하여 상세 보기 (5초 폴링)">
-  <span id="phase0-health-icon">⏳</span>
-  <span id="phase0-health-text">건강 검진 로딩 중...</span>
-  <span style="float:right;color:#666;font-size:11px;">▼ 클릭</span>
+  <span id="phase0-health-icon" style="flex:0 0 auto;">⏳</span>
+  <span id="phase0-health-text" style="flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">건강 검진 로딩 중...</span>
+  <span style="flex:0 0 auto;color:#666;font-size:11px;">▼ 클릭</span>
 </div>
 <div id="phase0-health-detail"
      style="display:none;padding:12px 16px;background:#1a1a1a;color:#ccc;

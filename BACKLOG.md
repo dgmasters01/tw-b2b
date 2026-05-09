@@ -91,20 +91,6 @@
 
 ---
 
-## ⚡ P0 — admin-status.html 중복 3중 정리 — ③·⑥·⑦ 제거 + 작업 지휘소로 통합
-
-**요약**: 연결고리 지도(_os/playbook/dependency-map-bl-dedup-consolidate.md)를 손대기 전 100% 따른다. 113군데 연결 위험. 각 단계 = 1 commit + 라이브 검증 + 다음 단계 진입. 백업: _admin/_backup_20260508_pre-dedup_admin-status.html. BL-URGENT-CARD-
-
-- **자율성**: 🟡 SEMI
-- **예상 시간**: 4.0시간
-- **카테고리**: infra
-- **상태**: in_progress
-- **결정 필요**:
-  - 대표님 OK 박힘 (2026-05-08 채팅)
-- **ID**: `BL-DEDUP-CONSOLIDATE` (출처: 대표님 진단 — 작업 지휘소·임박 카드·KPI 4종이 같은 데이터 2~3중 중복)
-
----
-
 ## 🟢 P1 — [admin-* 페이지 인증 속도 최적화] Supabase getSession + checkAdmin 병렬 처리 + SSR 게이트
 
 - **자율성**: 🟢 AUTO

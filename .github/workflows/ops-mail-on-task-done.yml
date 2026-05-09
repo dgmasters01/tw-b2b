@@ -1,0 +1,71 @@
+# TW B2B — 작업 완료 시 ops 메일 자동 발송 봇
+#
+# 작업: BL-OPS-MAIL-AUTOBOT (헌법 부칙 8 — 자동 동기화 완성도 보강)
+#
+# 헌법 부합:
+#   ② 무인 실행: tasks.json status 전환 자동 감지 → 메일 발송
+#   ④ 전수 추적: 모든 발송이 tasks.json history에 mail_sent 마커 박힘
+#   ⑤ 무인 검증: Resend response.id 확인 후만 성공 처리
+#   ⑦ 상태 가시성: admin-status에서 mail_sent 마커 확인 가능
+#
+# 트리거:
+#   1. main 브랜치에 tasks.json push 시 자동
+#   2. workflow_dispatch — 수동 (밀린 메일 또는 디버그)
+#
+# 필요 secret:
+#   - RESEND_API_KEY
+
+name: ops-mail-on-task-done
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'tasks.json'
+  workflow_dispatch:
+    inputs:
+      task_id:
+        description: '메일 발송할 task ID (수동 트리거 시)'
+        required: false
+        default: ''
+      force_send:
+        description: '이미 mail_sent 마커 있어도 다시 보내기'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  send-mail:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Send completion mail
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          MANUAL_TASK_ID: ${{ inputs.task_id }}
+          FORCE_SEND: ${{ inputs.force_send }}
+        run: node scripts/send-ops-mail.mjs
+      
+      - name: Commit mail_sent markers
+        run: |
+          git config user.name "ops-mail-bot"
+          git config user.email "ops-mail-bot@gohotelwinners.com"
+          git add tasks.json
+          if git diff --cached --quiet; then
+            echo "No mail_sent markers to commit"
+          else
+            git commit -m "[ops-mail-bot] tasks.json mail_sent 마커 박음"
+            git push
+          fi

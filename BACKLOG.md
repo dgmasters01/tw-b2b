@@ -74,16 +74,6 @@
 
 ---
 
-## ⚡ P1 — [admin-* 페이지 인증 속도 최적화] Supabase getSession + checkAdmin 병렬 처리 + SSR 게이트
-
-- **자율성**: 🟢 AUTO
-- **예상 시간**: 3시간
-- **카테고리**: infrastructure
-- **상태**: in_progress
-- **ID**: `BL-ADMIN-AUTH-PERF` (출처: 운영 중 발견 — admin 인증 성능 이슈)
-
----
-
 ## 🟢 P1 — [YouTube 더보기 단축 URL 클릭 카운트] 호텔별 진성 관심 측정 시스템
 
 **요약**: gohotel.win/h/{hotel_id} → Supabase 카운트 +1 → Agoda 어필리에이트 리디렉션. 호텔별/순위별 분리.
@@ -225,6 +215,18 @@
 - **결정 필요**:
   - Q: PAT 박는 방식 — 환경변수 vs .env.local vs GitHub Secrets API
 - **ID**: `BL-OS-INSTALL-PAT-FLOW` (출처: 대표님 진단 (2026-05-08) — OS 설치 시 PAT 거부됨, 설치 자체가 안 됨)
+
+---
+
+## 🟢 P1 — admin-gallery — pages-meta.mjs 누락 fix (라이브 4일 깨짐 상태)
+
+**요약**: BL-ADMIN-AUTH-PERF와 무관한 사전 결함. admin-gallery는 BL-ADMIN-AUTH-PERF 작업으로 인증 코드는 정상 제거됐지만, 그 이전 단계 (JS 모듈 import)에서 막혀 페이지 자체가 표시 안 됨. 라이브 검증 시 발견한 핵심 후속 과제. P1로 즉시 처리 권장.
+
+- **자율성**: 🟢 AUTO
+- **예상 시간**: 0.5시간
+- **카테고리**: bug
+- **상태**: pending
+- **ID**: `BL-GALLERY-PAGES-META-FIX` (출처: BL-ADMIN-AUTH-PERF step 8 라이브 검증 중 발견. admin-gallery.html이 import하는 /scripts/pages-meta.mjs가 GitHub repo에 없음 → 라이브 404 → JS 모듈 진입 실패 → 'Loading 1/3 권한 확인 중'에서 영구 멈춤. 직전 commit 0ea3356 (2026-05-05) 이후 4일간 깨진 상태.)
 
 ---
 

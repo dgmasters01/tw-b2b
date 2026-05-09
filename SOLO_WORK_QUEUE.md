@@ -31,15 +31,7 @@
 
 ## 🟡 P1 — 데드라인 이전에 있으면 좋음
 
-### A. 🟢 AUTO — [admin-* 페이지 인증 속도 최적화] Supabase getSession + checkAdmin 병렬 처리 + SSR 게이트
-
-**ID**: `BL-ADMIN-AUTH-PERF`  
-**카테고리**: infrastructure  
-**예상 시간**: 3시간  
-
----
-
-### B. 🟢 AUTO — [YouTube 더보기 단축 URL 클릭 카운트] 호텔별 진성 관심 측정 시스템
+### A. 🟢 AUTO — [YouTube 더보기 단축 URL 클릭 카운트] 호텔별 진성 관심 측정 시스템
 
 **ID**: `BL-TRACK-001`  
 **카테고리**: analytics  
@@ -51,7 +43,7 @@
 
 ---
 
-### C. 🟢 AUTO — [인보이스/영수증 PDF 자동 생성·다운로드] 영구 보관 (1년+)
+### B. 🟢 AUTO — [인보이스/영수증 PDF 자동 생성·다운로드] 영구 보관 (1년+)
 
 **ID**: `BL-INVOICE-001`  
 **카테고리**: feature  
@@ -63,7 +55,7 @@
 
 ---
 
-### D. 🟢 AUTO — 자동 알림 메일 시스템 (BACKLOG의 P1)
+### C. 🟢 AUTO — 자동 알림 메일 시스템 (BACKLOG의 P1)
 
 **ID**: `SQ-G`  
 **카테고리**: dev  
@@ -73,13 +65,23 @@
 
 ---
 
-### E. 🟢 AUTO — Supabase Management API 토큰 갱신 알림 자동화
+### D. 🟢 AUTO — Supabase Management API 토큰 갱신 알림 자동화
 
 **ID**: `SQ-H`  
 **카테고리**: infrastructure  
 **예상 시간**: 미정시간  
 
 **메모**: ### H. 🟢 AUTO — Supabase Management API 토큰 갱신 알림 자동화 **작업 내용**: 토큰 만료 7일 전 ops 메일 자동 발송 (현재 토큰 만료 5/26) - Vercel Cron 또는 Supabase Edge Function 사용 - 현재는 메모리에만 알림 메모, 자동화 안 됨  **예상 시간**: 1시간 **자율 진행 사유**: 인프라 자동화  ---  ## 🟢 P2 — 자투리 시간에
+
+---
+
+### E. 🟢 AUTO — admin-gallery — pages-meta.mjs 누락 fix (라이브 4일 깨짐 상태)
+
+**ID**: `BL-GALLERY-PAGES-META-FIX`  
+**카테고리**: bug  
+**예상 시간**: 0.5시간  
+
+**메모**: BL-ADMIN-AUTH-PERF와 무관한 사전 결함. admin-gallery는 BL-ADMIN-AUTH-PERF 작업으로 인증 코드는 정상 제거됐지만, 그 이전 단계 (JS 모듈 import)에서 막혀 페이지 자체가 표시 안 됨. 라이브 검증 시 발견한 핵심 후속 과제. P1로 즉시 처리 권장.
 
 ---
 

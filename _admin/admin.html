@@ -1060,23 +1060,30 @@ body{margin:0;background:var(--bg,#0A0A0F);font-family:var(--sans,'Inter','Noto 
   })();
   var currentFilter = 'all';
 
-  T.requireAuth(async function(user){
+  // 인증 게이트는 middleware.js (Edge Routing Middleware)가 처리.
+  // BL-ADMIN-AUTH-PERF (D-021) — A-2 정석.
+  // role 정보(super_admin/admin/support)는 UI 분기에 필요해서 별도 조회.
+  T.sb.auth.getSession().then(async function(r){
+    if (!r.data.session) {
+      // middleware가 이미 차단했어야 하는 케이스 — 안전망
+      window.location.href = 'login.html';
+      return;
+    }
+    var user = r.data.session.user;
     $('user-email').textContent = user.email;
     var sbEmail = document.getElementById('sb-user-email');
     if (sbEmail) sbEmail.textContent = user.email;
-    var ac = await T.checkAdmin(user);
-    if (!ac.is_admin){
-      window.location.href = 'dashboard.html';
-      return;
-    }
-    // 관리자 역할 표시 (super_admin/admin/support)
-    currentAdminRole = ac.role || 'admin';
-    if (ac.role) {
-      var roleEl = document.getElementById('admin-role');
-      if (roleEl) roleEl.textContent = ac.role;
-    }
+    // role만 가져옴 (is_admin은 middleware가 보장)
+    var role = 'admin';
+    try {
+      var rRow = await T.sb.from('admins').select('role').eq('email', user.email).maybeSingle();
+      if (rRow.data && rRow.data.role) role = rRow.data.role;
+    } catch(e) {}
+    currentAdminRole = role;
+    var roleEl = document.getElementById('admin-role');
+    if (roleEl) roleEl.textContent = role;
     // Super admin이 아니면 "Add Team Member" 버튼 숨김
-    if (ac.role !== 'super_admin') {
+    if (role !== 'super_admin') {
       var addBtn = document.getElementById('btn-add-admin');
       if (addBtn) addBtn.style.display = 'none';
     }

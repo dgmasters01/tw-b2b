@@ -138,36 +138,22 @@ let currentMd = '';
 const ghBase = 'https://raw.githubusercontent.com/dgmasters01/tw-b2b/main/';
 
 (async function init(){
-  if (!window.TW || !window.TW.sb) {
-    renderDeny('Supabase 클라이언트 로드 실패');
-    return;
-  }
-  const { data: { session } } = await window.TW.sb.auth.getSession();
-  if (!session) { window.location.href = '/login.html'; return; }
-
-  // admin 권한 체크 — admin.html과 동일한 로직 사용 (T.checkAdmin)
-  // is_admin() RPC + admins 테이블 기반. profiles 테이블 의존 제거.
-  const ac = await window.TW.checkAdmin(session.user);
-  if (!ac || !ac.is_admin) {
-    renderDeny('관리자만 접근 가능한 페이지입니다.', session.user.email);
-    return;
+  // 인증은 middleware.js (Edge Routing Middleware) 단일 게이트가 처리.
+  // 이 페이지에 도달했다는 것 = 이미 admin 검증 통과. RPC 왕복 0건.
+  // BL-ADMIN-AUTH-PERF (D-021) — A-2 정석.
+  let userEmail = '';
+  if (window.TW && window.TW.sb) {
+    try {
+      const { data: { session } } = await window.TW.sb.auth.getSession();
+      if (session) userEmail = session.user.email;
+    } catch (e) { /* user 정보 없어도 페이지는 표시 — 인증은 이미 통과 */ }
   }
 
-  renderShell(session.user.email);
+  renderShell(userEmail);
 
   // 첫 문서 자동 로드 (BUSINESS.md)
   await loadDoc(DOCS[0].file);
 })();
-
-function renderDeny(msg, email){
-  document.getElementById('root').innerHTML = `
-    <div class="bd-state">
-      <h2>접근 거부</h2>
-      <p>${msg}</p>
-      ${email ? `<p style="color:#94a3b8;font-size:12px">${email}</p>` : ''}
-      <p><a href="/login.html">로그인 페이지로</a></p>
-    </div>`;
-}
 
 function renderShell(adminEmail){
   document.getElementById('root').innerHTML = `

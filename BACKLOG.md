@@ -218,15 +218,15 @@
 
 ---
 
-## 🟢 P1 — admin-gallery — pages-meta.mjs 누락 fix (라이브 4일 깨짐 상태)
+## 🟢 P1 — 활동 이력 시스템 — 봇 commit 클릭 시 사람용 탭 빈 메시지 fix (정석 정리)
 
-**요약**: BL-ADMIN-AUTH-PERF와 무관한 사전 결함. admin-gallery는 BL-ADMIN-AUTH-PERF 작업으로 인증 코드는 정상 제거됐지만, 그 이전 단계 (JS 모듈 import)에서 막혀 페이지 자체가 표시 안 됨. 라이브 검증 시 발견한 핵심 후속 과제. P1로 즉시 처리 권장.
+**요약**: 이전 채팅(BL-GALLERY-PAGES-META-FIX 직후) 진단 결과 인계. DECISIONS.md D-022에 정석 fix 설계 박힘. 실행 시 D-022 + chat-log/2026-05/BL-ACTIVITY-FEED-CLEANUP.md 참조.
 
 - **자율성**: 🟢 AUTO
 - **예상 시간**: 0.5시간
 - **카테고리**: bug
 - **상태**: pending
-- **ID**: `BL-GALLERY-PAGES-META-FIX` (출처: BL-ADMIN-AUTH-PERF step 8 라이브 검증 중 발견. admin-gallery.html이 import하는 /scripts/pages-meta.mjs가 GitHub repo에 없음 → 라이브 404 → JS 모듈 진입 실패 → 'Loading 1/3 권한 확인 중'에서 영구 멈춤. 직전 commit 0ea3356 (2026-05-05) 이후 4일간 깨진 상태.)
+- **ID**: `BL-ACTIVITY-FEED-CLEANUP` (출처: 대표님이 admin-status.html 활동 이력 펼침 패널에서 scan-bot commit 클릭 시 사람용 탭 빈 메시지('작업 번호 901d313이 인덱스에 등록되지 않았거나 매핑에 실패') 발견. 진단 결과: build-activity-feed.mjs(role 분류), activity-feed.display.json(데이터), 인계서 생성 로직, AI용 탭, 코드 변경 탭, renderActivity 필터 모두 정상. 유일한 결함 = loadHumanTab() 함수에 봇 commit 사전 분기 누락. AI용 탭은 BL-AI-TAB-BOT-DETECT(4794~4826라인)에서 정확히 처리 중이라 같은 패턴 적용하면 됨.)
 
 ---
 

@@ -75,13 +75,13 @@
 
 ---
 
-### E. 🟢 AUTO — admin-gallery — pages-meta.mjs 누락 fix (라이브 4일 깨짐 상태)
+### E. 🟢 AUTO — 활동 이력 시스템 — 봇 commit 클릭 시 사람용 탭 빈 메시지 fix (정석 정리)
 
-**ID**: `BL-GALLERY-PAGES-META-FIX`  
+**ID**: `BL-ACTIVITY-FEED-CLEANUP`  
 **카테고리**: bug  
 **예상 시간**: 0.5시간  
 
-**메모**: BL-ADMIN-AUTH-PERF와 무관한 사전 결함. admin-gallery는 BL-ADMIN-AUTH-PERF 작업으로 인증 코드는 정상 제거됐지만, 그 이전 단계 (JS 모듈 import)에서 막혀 페이지 자체가 표시 안 됨. 라이브 검증 시 발견한 핵심 후속 과제. P1로 즉시 처리 권장.
+**메모**: 이전 채팅(BL-GALLERY-PAGES-META-FIX 직후) 진단 결과 인계. DECISIONS.md D-022에 정석 fix 설계 박힘. 실행 시 D-022 + chat-log/2026-05/BL-ACTIVITY-FEED-CLEANUP.md 참조.
 
 ---
 

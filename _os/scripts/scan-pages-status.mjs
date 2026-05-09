@@ -25,7 +25,7 @@ import { readFileSync, existsSync, writeFileSync, statSync } from 'node:fs';
 import { execSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve, join } from 'node:path';
-import { PAGES, PAGE_TASK_META } from './pages-meta.mjs';
+import { PAGES, PAGE_TASK_META } from '../../scripts/pages-meta.mjs';
 // 💡 lastUpdated 정확한 ISO datetime이 필요하면 이 스크립트 실행 전에:
 //    node scripts/sync-page-task-meta.mjs
 // (git history 기반 자동 갱신)

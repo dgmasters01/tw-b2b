@@ -59,23 +59,6 @@
 
 ---
 
-## 🟢 P0 — Vercel 빌드 큐 누락 감지·자동 복구 가드 (헌법 부칙 8 강화)
-
-**요약**: ## P1 — Vercel 빌드 큐 누락 감지·자동 복구 가드
-
-**문제**: 봇 commit 다수가 같은 초에 push될 때 Vercel webhook이 일부 commit의 deployment를 만들지 않는 race. 사람이 발견하기 전까지 라이브 = 옛 상태.
-
-**구현 항목**:
-1. `_os/scripts/health_check_admin.mjs`에
-
-- **자율성**: 🟢 AUTO
-- **예상 시간**: 1시간
-- **카테고리**: infrastructure
-- **상태**: pending
-- **ID**: `BL-VERCEL-DEPLOY-RACE-GUARD` (출처: 실측 결함 (2026-05-08))
-
----
-
 ## 🟡 P0 — chat-log 사업가 5블록 표준 강제 (사람용 탭 가독성 fix)
 
 **요약**: 사람용 탭이 chat-log를 보여줄 때 사업가 용어가 아닌 개발자 용어 가득. 원인: 표준(_os/playbook/chat-log-format.md)은 박혀있는데 작성 시 미준수. fix: (1) 부칙에 5블록 표준 준수 명문 (2) auto-detect-bot이 chat-log 박힐 때 5블록 헤딩 + 사업가 용어 검증 (3) 검증 실패 시 워닝, 자가

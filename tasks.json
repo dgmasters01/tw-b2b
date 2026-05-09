@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-09T06:21:35+00:00",
+  "updated_at": "2026-05-09T06:23:21+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -5852,6 +5852,13 @@
           "event": "추가 블로커 해결 (vercel.json redirect)",
           "by": "클로드 (TW OS)",
           "note": "검증 중 발견된 별건 블로커: vercel.json의 /_admin/:path* redirect 룰이 _health.json까지 잡아 라이브에서 404. 정석 해결: source를 /_admin/:path(.+\\.html)로 좁혀 html 파일에만 적용. 라이브 GET /_admin/_health.json = 200 OK 확인. /_admin/admin-status.html 옛 호환 redirect는 정상 유지. commit 2ba0473."
+        },
+        {
+          "at": "2026-05-09T06:23:21+00:00",
+          "event": "관련 commit 추가 (status 유지)",
+          "by": "auto-detect-bot",
+          "commit": "bd7f82a",
+          "note": "[BL-VERCEL-DEPLOY-RACE-GUARD] history 갱신 — vercel.json redirect 블로커 해결 기록"
         }
       ],
       "source": "실측 결함 (2026-05-08)",
@@ -5860,7 +5867,7 @@
       "owner": "autonomous",
       "approval_required": false,
       "order": null,
-      "updated_at": "2026-05-09T06:21:35+00:00",
+      "updated_at": "2026-05-09T06:23:21+00:00",
       "started_at": "2026-05-09T02:29:25+00:00",
       "progress_warning": {
         "code": "MISSING_PROGRESS_STEPS",

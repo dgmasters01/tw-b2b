@@ -4479,6 +4479,29 @@
     // 클릭이 row로 버블링되어 다시 닫히지 않도록
     wrap.addEventListener('click', e => e.stopPropagation());
 
+    // BL-ACTIVITY-FEED-CLEANUP step2 (D-023): 봇 commit이면 디폴트 탭을 'code'(코드 변경)로 자동 전환
+    // 봇 활동 본질 = "무엇이 바뀌었는가" 가 핵심이지 "왜 결정했는가" 가 아님.
+    // CEO/Staff commit 은 기존대로 'human' 디폴트.
+    const defaultBotName = detectBotCommit(item);
+    if (defaultBotName) {
+      // 사람용 탭 → 코드 변경 탭으로 active 전환
+      wrap.querySelectorAll('.activity-tab').forEach(b => b.classList.remove('active'));
+      wrap.querySelectorAll('.activity-tab-pane').forEach(p => p.classList.remove('active'));
+      const codeBtn = wrap.querySelector('.activity-tab[data-tab="code"]');
+      const codePane = wrap.querySelector('.activity-tab-pane[data-pane="code"]');
+      if (codeBtn && codePane) {
+        codeBtn.classList.add('active');
+        codePane.classList.add('active');
+        loadCodeTab(codePane, item);
+        codePane.dataset.loaded = '1';
+      }
+      // 사람용 탭은 미리 로드 (분기 메시지) — 사용자가 클릭했을 때 즉시 표시되도록
+      const humanPane = wrap.querySelector('.activity-tab-pane[data-pane="human"]');
+      loadHumanTab(humanPane, item);
+      humanPane.dataset.loaded = '1';
+      return;
+    }
+
     // 첫 탭(사람용) 즉시 로드
     const humanPane = wrap.querySelector('.activity-tab-pane[data-pane="human"]');
     loadHumanTab(humanPane, item);

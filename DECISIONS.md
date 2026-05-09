@@ -10,6 +10,46 @@
 
 ---
 
+## 🆕 2026-05-09 — admin-* 페이지 인증 속도 정석 박음 (Edge Middleware SSR 게이트)
+
+### 결정 D-021: BL-ADMIN-AUTH-PERF — Edge Middleware 단일 게이트 (A-2 정석) ⭐⭐⭐ 2026-05-09
+
+**무엇을**: admin-* 페이지 12개의 클라이언트 사이드 직렬 인증(Supabase JS 로드 → getSession → checkAdmin RPC → admins SELECT, 네트워크 4건 직렬)을 Vercel Edge Middleware 1군데로 흡수. middleware.ts가 모든 admin 요청을 가로채 Supabase JWT 직접 검증 + `is_admin` RPC 호출까지 처리. 검증 통과한 요청만 admin HTML 반환. 비통과 요청은 Edge에서 즉시 `/login.html` 리디렉트.
+
+**왜 A-2가 정석인가** (헌법 5기준):
+1. **단일 진실원**: 인증 로직 1군데. A-1은 Edge + 페이지 둘 다 = 2군데 = 위반.
+2. **표준 패턴**: Vercel Edge Middleware = Supabase 공식 SSR 인증 패턴.
+3. **유지보수**: 새 admin 페이지 추가 시 middleware matcher만 수정. 페이지마다 인증 코드 박을 필요 없음.
+4. **보안**: 비로그인자는 admin HTML 자체를 못 받음. 현재는 HTML 받고 → JS 실행 → 튕김 (깜빡임 + 보안 누수).
+5. **재발 방지**: A-1 → A-2는 결국 재작업. 처음부터 종착지로.
+
+**왜 A-1을 만들지 않았나** (자가 반성):
+- 첫 응답에서 A-1(쿠키만 검증) + A-2(완전 검증) 비교 후 A-1 추천한 것은 **헌법 위반**.
+- 메모리 절대 원칙 인용: "임시방편·수동 우회·하드코딩 옵션은 대표님께 제안조차 금지. 정석 방안만 1~3개 제시."
+- A-1 추천 이유("빨라서·단계적이라서")는 비정석 사유. 정석 5기준으로 재평가하니 A-1은 어느 기준도 충족 못 함.
+- 대표님이 "정석은 뭐야"라고 짚어주신 후 자가 교정. **이 패턴(A-1 같은 비정석 옵션 제시)을 사전 안전장치 3개 다음에 추가 검토 필요** (D-020 후속).
+
+**Vercel Hobby 12 함수 한도 회피** (D-016 재발 방지):
+- 현재 Serverless Function 카운트: 12개 (정확히 한도). `api/auth/verify.js` 신규 = 13개 = 빌드 실패.
+- 정석 설계: 검증 로직을 `middleware.ts` 내부에 직접 박음. Edge Middleware는 함수 카운트에서 분리.
+- 결과: Function 카운트 12 → 12 (변동 없음). Edge Runtime이 페이지보다 가까이 = 더 빠름.
+
+**구현 단계** (5 step):
+1. D-021 박음 (이 결정)
+2. tasks.json BL-ADMIN-AUTH-PERF progress.steps 박음
+3. middleware.ts 작성 (Supabase JWT 직접 검증 + is_admin RPC + redirect)
+4. vercel.json admin-* 리디렉트 ↔ middleware matcher 충돌 검증
+5. 2편 인계서 작성 + push (실제 페이지 12개 인증 코드 제거 + 라이브 검증은 새 채팅)
+
+**연관 작업**:
+- D-015, D-016 (BL-ADMIN-AUTH-V2 — 권한 시스템 + Hobby 한도 회피 선례)
+- BL-DEDUP-CONSOLIDATE (직전 작업)
+- 후속: 2편 (`HANDOFF_BL-ADMIN-AUTH-PERF_PHASE2.md` 기반 새 채팅)
+
+**누가**: 이지형 대표님 (정석 방향 결정) / 클로드 (코드 점검·진단·실행 + 자가 반성).
+
+---
+
 ## 🆕 2026-05-08 — admin-status 화면 통합 + 헌법 안전장치 강화
 
 ### 결정 D-020: 헌법 자가 검증에 사전 안전장치 3개 박음 — 방향 상실 방지 ⭐⭐⭐ 2026-05-08

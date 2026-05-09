@@ -69,7 +69,7 @@
 1. `_os/scripts/health_check_admin.mjs`에
 
 - **자율성**: 🟢 AUTO
-- **예상 시간**: 1.0시간
+- **예상 시간**: 1시간
 - **카테고리**: infrastructure
 - **상태**: pending
 - **ID**: `BL-VERCEL-DEPLOY-RACE-GUARD` (출처: 실측 결함 (2026-05-08))
@@ -81,7 +81,7 @@
 **요약**: 사람용 탭이 chat-log를 보여줄 때 사업가 용어가 아닌 개발자 용어 가득. 원인: 표준(_os/playbook/chat-log-format.md)은 박혀있는데 작성 시 미준수. fix: (1) 부칙에 5블록 표준 준수 명문 (2) auto-detect-bot이 chat-log 박힐 때 5블록 헤딩 + 사업가 용어 검증 (3) 검증 실패 시 워닝, 자가
 
 - **자율성**: 🟡 SEMI
-- **예상 시간**: 1.0시간
+- **예상 시간**: 1시간
 - **카테고리**: infra
 - **상태**: pending
 - **막힘 사유**: Q2 결정 대기 — 부칙 합치기 vs 분리

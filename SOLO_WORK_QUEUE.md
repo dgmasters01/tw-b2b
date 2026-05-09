@@ -33,7 +33,7 @@
 
 **ID**: `BL-VERCEL-DEPLOY-RACE-GUARD`  
 **카테고리**: infrastructure  
-**예상 시간**: 1.0시간  
+**예상 시간**: 1시간  
 
 **메모**: ## P1 — Vercel 빌드 큐 누락 감지·자동 복구 가드
 

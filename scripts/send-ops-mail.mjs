@@ -92,7 +92,7 @@ for (const t of candidates) {
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      from: '여행능력자들 <noreply@gohotelwinners.com>',
+      from: 'TW B2B Ops <ops@gohotelwinners.com>',
       to: ['dgmasters01@gmail.com'],
       subject,
       html

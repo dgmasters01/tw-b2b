@@ -8,15 +8,14 @@
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <style>
   :root {
-    --bg: #0f172a;
-    --panel: #1e293b;
-    --border: #334155;
-    --text: #f1f5f9;
-    --text-muted: #94a3b8;
-    --aurora-1: #8b5cf6;
-    --aurora-2: #ec4899;
-    --aurora-3: #06b6d4;
-  }
+  /* BL-ADMIN-LIGHTMODE 3단계 — shared.css 단일 진실원 alias (D-022)
+     페이지 본문 호환 위해 토큰 이름 유지, 값은 shared.css가 다크/라이트 자동 반전 */
+  --panel: var(--bg-2);
+  --border: var(--line-2);
+  --text: var(--ink);
+  --text-muted: var(--ink-3);
+  /* --bg, --aurora-1/2/3 는 shared.css 직접 사용 (페이지 재정의 삭제) */
+}
   * { box-sizing: border-box; }
   body {
     background: var(--bg);

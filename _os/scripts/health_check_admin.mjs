@@ -124,27 +124,27 @@ function checkBots() {
 //   GITHUB_SHA env vs Vercel 최근 production 배포의 githubCommitSha 비교
 //   불일치 시 yellow (red 아님 — 차단 X. 자동 복구 step이 빈 commit 재배포로 처리)
 //   VERCEL_TOKEN 미등록 시 graceful skip
+//
+//   [2026-05-09 정정] 대표님 운영 원칙: 모든 Vercel 프로젝트를 개인 계정
+//   (dgmasters01-9797, Hobby) 안에서 각각 독립 운영 — 팀(team) 사용 안함.
+//   API 호출 시 teamId 파라미터 절대 사용 금지. 직전 세션이 박은 team scope
+//   분기는 잘못된 가정이었으므로 완전 제거.
 async function checkVercelSync() {
   const result = { name: 'vercel_sync', status: 'green', detail: '', live_sha: null, vercel_sha: null, project: 'tw-b2b' };
   const TOKEN = process.env.VERCEL_TOKEN || process.env.VERCEL_API_TOKEN;
-  const TEAM_ID = process.env.VERCEL_TEAM_ID;
   const PROJECT = 'tw-b2b';
   if (!TOKEN) {
     result.status = 'yellow';
     result.detail = 'VERCEL_TOKEN env 없음 (Vercel sync 검증 불가)';
     return result;
   }
-  if (!TEAM_ID) {
-    result.status = 'yellow';
-    result.detail = 'VERCEL_TEAM_ID env 없음 (Hobby 플랜은 personal team scope 필수)';
-    return result;
-  }
   try {
-    const url = `https://api.vercel.com/v6/deployments?app=${PROJECT}&target=production&state=READY&limit=1&teamId=${encodeURIComponent(TEAM_ID)}`;
+    const url = `https://api.vercel.com/v6/deployments?app=${PROJECT}&target=production&state=READY&limit=1`;
     const r = await fetch(url, { headers: { Authorization: `Bearer ${TOKEN}` } });
     if (!r.ok) {
+      const bodyText = await r.text().catch(() => '');
       result.status = 'yellow';
-      result.detail = `Vercel API ${r.status} ${r.statusText} — 권한/프로젝트명/team scope 확인 필요`;
+      result.detail = `Vercel API ${r.status} ${r.statusText} — 토큰/프로젝트명 확인 필요 ${bodyText.slice(0,120)}`;
       return result;
     }
     const j = await r.json();
@@ -178,21 +178,23 @@ async function checkVercelSync() {
 }
 
 // ─── 5. Vercel quota (BL-VERCEL-DEPLOY-RACE-GUARD 단계 4) ─────────
-//   Pro 플랜 일일 배포 한도 추적. 한도의 80% 이상 시 yellow.
+//   Hobby 플랜 일일 배포 한도 추적 (limit=100). 한도의 80% 이상 시 yellow.
 //   Vercel API에는 직접 quota 노출 없음 — 최근 24h 배포 count로 근사.
+//
+//   [2026-05-09 정정] 개인 계정(Hobby) 기준. teamId 파라미터 사용 안함.
+//   limit 3000 → 100 (Hobby 플랜 실제 한도).
 async function checkVercelQuota() {
-  const result = { name: 'vercel_quota', status: 'green', detail: '', deployments_24h: 0, limit: 3000 };
+  const result = { name: 'vercel_quota', status: 'green', detail: '', deployments_24h: 0, limit: 100 };
   const TOKEN = process.env.VERCEL_TOKEN || process.env.VERCEL_API_TOKEN;
-  const TEAM_ID = process.env.VERCEL_TEAM_ID;
   const PROJECT = 'tw-b2b';
-  if (!TOKEN || !TEAM_ID) {
+  if (!TOKEN) {
     result.status = 'yellow';
-    result.detail = 'VERCEL_TOKEN 또는 VERCEL_TEAM_ID env 없음 — quota 조회 skip';
+    result.detail = 'VERCEL_TOKEN env 없음 — quota 조회 skip';
     return result;
   }
   try {
     const since = Date.now() - 24 * 60 * 60 * 1000;
-    const url = `https://api.vercel.com/v6/deployments?app=${PROJECT}&since=${since}&teamId=${encodeURIComponent(TEAM_ID)}`;
+    const url = `https://api.vercel.com/v6/deployments?app=${PROJECT}&since=${since}`;
     const r = await fetch(url, { headers: { Authorization: `Bearer ${TOKEN}` } });
     if (!r.ok) {
       result.status = 'yellow';

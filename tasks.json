@@ -241,7 +241,7 @@
       "id": "BL-ADMIN-AUTH-PERF",
       "title": "[admin-* 페이지 인증 속도 최적화] Supabase getSession + checkAdmin 병렬 처리 + SSR 게이트",
       "category": "infrastructure",
-      "status": "pending",
+      "status": "in_progress",
       "priority": "P1",
       "size": "medium",
       "parent_task": null,
@@ -255,8 +255,10 @@
       },
       "progress": "📍 발견: admin-gallery 등 admin-* 페이지 로딩 시 1-2초 지연. 원인: 클라이언트 사이드 직렬 인증 (Supabase JS CDN 로드 → getSession 왕복 → checkAdmin RPC 왕복 → 페이지 데이터 fetch). 박을 fix 후보: ① Vercel Edge Middleware로 SSR 인증 게이트 (admin-* 페이지 전체 1번 처리) ② getSession + checkAdmin 병렬화 (현재 직렬) ③ checkAdmin 결과 sessionStorage 캐시 (10분 TTL). 임시 박음: Loading 화면 progress bar + 단계 표시. 정식 fix는 별도 작업.",
       "memo": "BL-ADMIN-AUTH-V2 후속. 모든 admin-* 페이지에 영향 — 정식 오픈 전 박는 게 좋음.",
-      "decisions": [],
-      "updated_at": "2026-05-06T17:05:46+00:00",
+      "decisions": [
+        "D-021"
+      ],
+      "updated_at": "2026-05-09T07:19:21Z",
       "order": 13,
       "history": [
         {
@@ -271,9 +273,68 @@
           "event": "pending 강제 복원 (auto-detect-bot이 commit 본문 ID 언급으로 잘못 in_progress 박은 것 되돌림)",
           "by": "Claude (수동)",
           "note": "본문에 작업 ID 언급한 것뿐인데 봇이 in_progress 처리. extract_task_ids 패치 같이 박힘."
+        },
+        {
+          "at": "2026-05-09T07:19:21Z",
+          "event": "in_progress 진입 — 1편 시작 (D-021 박음, A-2 정석 채택)",
+          "by": "Claude (대표님 결정 후 실행)",
+          "commit": "4463709",
+          "note": "A-2 Edge Middleware 단일 게이트 / 5+4 = 9 step 분해 / 1편(이 채팅) 5단계, 2편(새 채팅) 4단계"
         }
       ],
-      "source": "운영 중 발견 — admin 인증 성능 이슈"
+      "source": "운영 중 발견 — admin 인증 성능 이슈",
+      "progress_steps": {
+        "phase1_in_this_chat": [
+          {
+            "n": 1,
+            "title": "D-021 결정 레코드 박음",
+            "status": "done",
+            "commit": "4463709"
+          },
+          {
+            "n": 2,
+            "title": "tasks.json progress.steps 박음 + decisions 매핑",
+            "status": "in_progress"
+          },
+          {
+            "n": 3,
+            "title": "middleware.ts 작성 (Supabase JWT 직접 검증 + is_admin RPC)",
+            "status": "pending"
+          },
+          {
+            "n": 4,
+            "title": "vercel.json admin-* 리디렉트 ↔ middleware matcher 충돌 검증",
+            "status": "pending"
+          },
+          {
+            "n": 5,
+            "title": "2편 인계서 작성 (HANDOFF_BL-ADMIN-AUTH-PERF_PHASE2.md) + push",
+            "status": "pending"
+          }
+        ],
+        "phase2_in_new_chat": [
+          {
+            "n": 6,
+            "title": "admin-* 12개 페이지에서 클라이언트 인증 코드 제거 (checkAdmin 호출 + getSession)",
+            "status": "pending"
+          },
+          {
+            "n": 7,
+            "title": "shared.js _adminCache 제거 (middleware가 단일 게이트)",
+            "status": "pending"
+          },
+          {
+            "n": 8,
+            "title": "Vercel 배포 + 라이브 검증 (BEFORE/AFTER 로딩 시간 측정)",
+            "status": "pending"
+          },
+          {
+            "n": 9,
+            "title": "ops 메일 발송 + chat-log 박음 + tasks.json done 처리",
+            "status": "pending"
+          }
+        ]
+      }
     },
     {
       "id": "BL-GALLERY-HOTFIX",

@@ -1202,3 +1202,77 @@ main, header, footer, section, .shell, .form-panel, .brand-panel,
 }
 
 /* admin 라이트 가독성 패치 끝 — step7 */
+
+/* ============================================================
+ * BL-ADMIN-LIGHTMODE step8 — 활동 이력 모달 라이트 발란스
+ * (대표님 진단 2026-05-10: 펼친 패널 핑크 헤딩·보라 버튼·코드 회색 배경 → 카드와 톤 안 맞음)
+ * ============================================================ */
+
+/* ── 8-A. 활동 이력 박스 본체 + 행 hover 톤 다운 ── */
+[data-theme="light"] .activity-box { background: var(--bg-2); border-color: var(--line); }
+[data-theme="light"] .activity-row { background: rgba(37,99,235,0.04); }
+[data-theme="light"] .activity-row.ceo { background: rgba(202,138,4,0.05); }
+[data-theme="light"] .activity-row.bot { background: rgba(22,163,74,0.05); }
+[data-theme="light"] .activity-row.staff { background: rgba(37,99,235,0.07); }
+[data-theme="light"] .activity-row:hover { background: rgba(37,99,235,0.10); }
+[data-theme="light"] .activity-row.ceo:hover { background: rgba(202,138,4,0.10); }
+[data-theme="light"] .activity-row.bot:hover { background: rgba(22,163,74,0.10); }
+[data-theme="light"] .activity-row .time,
+[data-theme="light"] .activity-row .source { color: var(--ink-3); }
+[data-theme="light"] .activity-row .action { color: var(--ink); }
+
+/* ── 8-B. 필터 버튼 (전체/CEO/Staff/Bot) — 카드 위에서 부드럽게 ── */
+[data-theme="light"] .activity-filter-btn {
+  border-color: var(--line-2); color: var(--ink-3); background: transparent;
+}
+[data-theme="light"] .activity-filter-btn:hover { background: var(--bg-3); color: var(--ink); }
+[data-theme="light"] .activity-filter-btn.active {
+  background: rgba(124,58,237,0.12); color: #5b21b6; border-color: rgba(124,58,237,0.30);
+}
+
+/* ── 8-C. 펼친 패널 본체 — 어두운 박스 → 부드러운 카드 톤 ── */
+[data-theme="light"] .activity-expand {
+  background: var(--bg-3);             /* 위 카드와 자연스럽게 한 톤 낮은 흰 */
+  border-color: var(--line);
+  color: var(--ink);
+}
+
+/* ── 8-D. 사람용/AI용/코드 변경 탭 — 활성 시 부드러운 보라 ── */
+[data-theme="light"] .activity-tab {
+  border-color: var(--line-2); color: var(--ink-3); background: transparent;
+}
+[data-theme="light"] .activity-tab:hover { background: var(--bg-2); color: var(--ink); }
+[data-theme="light"] .activity-tab.active {
+  background: rgba(124,58,237,0.12); color: #5b21b6; border-color: rgba(124,58,237,0.30);
+}
+[data-theme="light"] .activity-tabs { border-bottom-color: var(--line); }
+
+/* ── 8-E. 탭 내용 헤딩 — 핑크 → 진한 자주 (튀지 않게) ── */
+[data-theme="light"] .activity-tab-pane h1,
+[data-theme="light"] .activity-tab-pane h2,
+[data-theme="light"] .activity-tab-pane h3 { color: #5b21b6; }
+
+/* ── 8-F. pre/code 블록 — 어두운 회색 → 라이트 톤 ── */
+[data-theme="light"] .activity-tab-pane pre {
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  color: var(--ink);
+}
+[data-theme="light"] .activity-tab-pane code {
+  background: rgba(124,58,237,0.08);
+  color: #5b21b6;
+}
+[data-theme="light"] .activity-tab-pane .file-line .add { color: #15803d; }
+[data-theme="light"] .activity-tab-pane .file-line .del { color: #b91c1c; }
+[data-theme="light"] .activity-tab-empty,
+[data-theme="light"] .activity-tab-loading { color: var(--ink-3); }
+
+/* ── 8-G. poll 토스트/상태 (사이드 알림) ── */
+[data-theme="light"] .poll-toast {
+  background: rgba(22,163,74,0.14); color: #15803d; border-color: rgba(22,163,74,0.30);
+}
+[data-theme="light"] .poll-status {
+  background: var(--bg-2); color: var(--ink-3); border-color: var(--line);
+}
+
+/* admin 라이트 — 활동 이력 모달 발란스 끝 — step8 */

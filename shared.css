@@ -1074,8 +1074,9 @@ main, header, footer, section, .shell, .form-panel, .brand-panel,
 [data-theme="light"] .os-sidebar h4 { color: var(--ink-3) !important; }
 
 /* ----- 7. 사이드바 하단 라이트/다크 토글 (6단계 미리 슬롯 박음) ----- */
+/* ★ step9: bottom 16→56 — 좌하단 .poll-status (⏸ 폴링 일시정지)와 겹침 회피 */
 .theme-toggle-fixed {
-  position: fixed; bottom: 16px; left: 16px; z-index: 50;
+  position: fixed; bottom: 56px; left: 16px; z-index: 50;
   display: inline-flex; align-items: center; gap: 6px;
   padding: 8px 12px; border-radius: 99px;
   background: var(--bg-2); border: 1px solid var(--line-2);
@@ -1087,7 +1088,7 @@ main, header, footer, section, .shell, .form-panel, .brand-panel,
 .theme-toggle-fixed:hover { transform: translateY(-1px); background: var(--bg-3); }
 .theme-toggle-fixed .tt-icon { font-size: 14px; line-height: 1; }
 @media (max-width: 700px) {
-  .theme-toggle-fixed { bottom: 12px; left: 12px; padding: 6px 10px; font-size: 11px; }
+  .theme-toggle-fixed { bottom: 48px; left: 12px; padding: 6px 10px; font-size: 11px; }
 }
 
 /* admin 공통 라이트 분기 끝 — step5-shared */

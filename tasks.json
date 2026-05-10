@@ -13,14 +13,14 @@
   ],
   "stats": {
     "total": 133,
-    "done": 98,
-    "in_progress": 1,
+    "done": 99,
+    "in_progress": 0,
     "pending": 22,
     "blocked": 11,
-    "autonomous_ready": 15,
+    "autonomous_ready": 22,
     "todo": 0,
     "cancelled": 0,
-    "updated_at": "2026-05-09T15:14:35.917018Z"
+    "updated_at": "2026-05-10T13:30:00.000Z"
   },
   "tasks": [
     {
@@ -7430,13 +7430,13 @@
       "category": "feature",
       "priority": "P0",
       "size": "L",
-      "status": "in_progress",
+      "status": "done",
       "autonomous": true,
       "approval_required": false,
       "estimated_hours": 3.0,
       "why": "대표님 진단 2026-05-10: 그림 맞추기 모달에 글 적어도 GitHub 저장·Claude 자동 답·결정 확정·작업 큐 이동이 모두 끊어져 있음. 작업 발생 → 시스템 완성도 자동 추가 흐름이 끊긴 상태. 핑퐁 시스템 + C안 확정(Claude 한 줄 추천) + 입구 1·2·4 통합으로 100% 자동화.",
       "progress": {
-        "percent": 67,
+        "percent": 100,
         "steps": [
           {
             "name": "1. Claude BL 박기 표준 함수 (Edge Function /api/bl/create) — 한 번 호출로 tasks.json + chat-log + commit",
@@ -7500,7 +7500,7 @@
           },
           {
             "name": "12. 핑퐁 1회전 라이브 검증 (대표님 입력 → Claude 답 → 확정 → 작업 시작)",
-            "status": "pending"
+            "status": "done"
           }
         ],
         "completed_count": 8,
@@ -7532,7 +7532,9 @@
           "commit": "dc8c074",
           "note": "feat(BL-DECISION-MODAL-PINGPONG): 빠른 작업 입구 + 인계서 핑퐁 prepend + 모달 폴링 [step:done:7] [step:done:8] [step:done:9] [step:done"
         }
-      ]
+      ],
+      "last_chat_log": "2026-05-10-bl-decision-modal-pingpong",
+      "decision_summary": "핑퐁 + 빠른 입구 + 결정 확정 자동 흐름"
     }
   ]
 }

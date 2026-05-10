@@ -2893,10 +2893,9 @@
         input.focus();
         return;
       }
-      const sess = window.tw_admin_session_v1;
-      const token = sess && sess.access_token;
+      const token = await getAdminAccessToken();
       if (!token) {
-        alert('로그인이 필요합니다.');
+        alert('로그인이 필요합니다. 페이지를 새로고침한 후 다시 시도하세요.');
         return;
       }
       const status = modal.querySelector('#qt-status');
@@ -3796,10 +3795,21 @@
       fetchGrimRoundsFromGitHub().catch(() => {});
     }
 
+    // ★ BL-DECISION-MODAL-PINGPONG fix (2026-05-10):
+    // 정석 admin 토큰 가져오기 — shared.js의 window.TW.sb 사용 (Supabase 클라이언트)
+    // 이전 'window.tw_admin_session_v1'은 정의되지 않은 변수였음 (4곳 모두 같은 사고)
+    async function getAdminAccessToken() {
+      try {
+        const sb = window.TW && window.TW.sb;
+        if (!sb) return null;
+        const r = await sb.auth.getSession();
+        return (r && r.data && r.data.session && r.data.session.access_token) || null;
+      } catch (_) { return null; }
+    }
+
     async function fetchGrimRoundsFromGitHub() {
       try {
-        const sess = window.tw_admin_session_v1;
-        const token = sess && sess.access_token;
+        const token = await getAdminAccessToken();
         if (!token) return; // 토큰 없으면 GitHub fetch 스킵 (localStorage만 사용)
         const res = await fetch(`/api/decision?action=pingpong-load&task_id=${encodeURIComponent(task.id)}`, {
           headers: { 'Authorization': `Bearer ${token}` }
@@ -3861,10 +3871,9 @@
         return { ok: false, error: 'empty' };
       }
 
-      const sess = window.tw_admin_session_v1;
-      const token = sess && sess.access_token;
+      const token = await getAdminAccessToken();
       if (!token) {
-        alert('로그인이 필요합니다.');
+        alert('로그인이 필요합니다. 페이지를 새로고침한 후 다시 시도하세요.');
         return { ok: false, error: 'no token' };
       }
 
@@ -4199,10 +4208,9 @@
       );
       if (!ok) return;
 
-      const sess = window.tw_admin_session_v1;
-      const token = sess && sess.access_token;
+      const token = await getAdminAccessToken();
       if (!token) {
-        alert('로그인이 필요합니다.');
+        alert('로그인이 필요합니다. 페이지를 새로고침한 후 다시 시도하세요.');
         return;
       }
 

@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-10T14:11:41+00:00",
+  "updated_at": "2026-05-10T14:31:06+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -14,8 +14,8 @@
   "stats": {
     "total": 134,
     "done": 99,
-    "in_progress": 0,
-    "pending": 23,
+    "in_progress": 1,
+    "pending": 22,
     "blocked": 11,
     "autonomous_ready": 23,
     "todo": 0,
@@ -7558,7 +7558,7 @@
       "category": "fix",
       "priority": "P1",
       "size": "small",
-      "status": "pending",
+      "status": "in_progress",
       "autonomous": true,
       "approval_required": false,
       "estimated_hours": 0.5,
@@ -7588,7 +7588,25 @@
           }
         ]
       },
-      "created_at": "2026-05-10T14:00:00.000Z"
+      "created_at": "2026-05-10T14:00:00.000Z",
+      "started_at": "2026-05-10T14:31:06+00:00",
+      "progress_warning": {
+        "code": "MISSING_PROGRESS_STEPS",
+        "rule": "부칙 7 — 모든 작업은 progress.steps 박은 후 시작",
+        "detected_at": "2026-05-10T14:31:06+00:00",
+        "detected_by_commit": "8138436",
+        "message": "in_progress 진입했으나 progress.steps 비어있음. tasks.json에서 progress.steps 박은 후 다음 commit에 [step:done:N] 태그."
+      },
+      "updated_at": "2026-05-10T14:31:06+00:00",
+      "history": [
+        {
+          "at": "2026-05-10T14:31:06+00:00",
+          "event": "진행 중 진입 (auto-detected) ⚠️ 부칙 7 위반 — progress.steps 미박힘",
+          "by": "auto-detect-bot",
+          "commit": "8138436",
+          "note": "fix(BL-OPS-MAIL-QUOTA-FIX): ops 메일 워크플로 임시 비활성화 (Resend 일일 한도 200% 초과)"
+        }
+      ]
     }
   ]
 }

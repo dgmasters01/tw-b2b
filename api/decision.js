@@ -21,14 +21,50 @@ const GITHUB_REPO = 'dgmasters01/tw-b2b';
 const GITHUB_API = 'https://api.github.com';
 
 // ============================================================
-// 인증
+// 인증 — dual: ops-token (Claude/봇) OR admin JWT (어드민 화면)
 // ============================================================
-function checkAuth(req) {
+async function checkAuth(req) {
+  // 1) ops-token 우선 시도 (Claude/봇 호출)
   const expected = process.env.CLAUDE_OPS_TOKEN;
-  if (!expected) return { ok: false, status: 500, error: 'CLAUDE_OPS_TOKEN not configured' };
-  const provided = req.headers['x-ops-token'] || '';
-  if (provided !== expected) return { ok: false, status: 401, error: 'Invalid x-ops-token' };
-  return { ok: true };
+  const opsProvided = req.headers['x-ops-token'] || '';
+  if (expected && opsProvided === expected) {
+    return { ok: true, by: 'ops-token' };
+  }
+
+  // 2) admin JWT 시도 (어드민 페이지 호출)
+  const auth = req.headers['authorization'] || '';
+  const token = auth.startsWith('Bearer ') ? auth.slice(7) : null;
+  if (!token) return { ok: false, status: 401, error: 'No auth (need x-ops-token or Bearer JWT)' };
+
+  // Supabase JWT 검증 — admin 테이블 조회
+  try {
+    const { createClient } = await import('@supabase/supabase-js');
+    const SUPABASE_URL = process.env.SUPABASE_URL;
+    const SUPABASE_ANON = process.env.SUPABASE_ANON_KEY;
+    if (!SUPABASE_URL || !SUPABASE_ANON) {
+      return { ok: false, status: 500, error: 'Supabase env not configured' };
+    }
+    const sb = createClient(SUPABASE_URL, SUPABASE_ANON, {
+      global: { headers: { Authorization: `Bearer ${token}` } },
+      auth: { persistSession: false }
+    });
+    const { data: { user }, error: uErr } = await sb.auth.getUser(token);
+    if (uErr || !user) return { ok: false, status: 401, error: 'Invalid JWT' };
+
+    const { data: caller } = await sb.from('admins')
+      .select('id, email, role, is_active').eq('id', user.id).maybeSingle();
+    if (!caller || !caller.is_active) {
+      return { ok: false, status: 403, error: 'Inactive admin account' };
+    }
+    // Owner/Admin/Staff 모두 허용 (decision 도구는 사업 운영 도구)
+    const allowed = ['owner', 'admin', 'staff'];
+    if (!allowed.includes(caller.role)) {
+      return { ok: false, status: 403, error: `Insufficient role: ${caller.role}` };
+    }
+    return { ok: true, by: 'admin-jwt', caller };
+  } catch (e) {
+    return { ok: false, status: 500, error: 'auth error: ' + e.message };
+  }
 }
 
 // ============================================================
@@ -347,8 +383,8 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-ops-token');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
-  // 인증
-  const auth = checkAuth(req);
+  // 인증 (dual: ops-token OR admin JWT)
+  const auth = await checkAuth(req);
   if (!auth.ok) return res.status(auth.status).json({ error: auth.error });
 
   const action = (req.query.action || '').toLowerCase();

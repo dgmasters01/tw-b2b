@@ -545,6 +545,24 @@
   .pri-pill.p2 { background: rgba(202,138,4,0.2); color: #fcd34d; }
   .ceo-wait-item .text { font-size: 11px; flex: 1; }
   .ceo-wait-item .reason { font-size: 10px; color: var(--text-muted); }
+  /* ★ BL-DECISION-MODAL-PINGPONG step6: 핑퐁 차례 배지 (작업 카드용) */
+  .pp-turn-pill {
+    display: inline-block; padding: 2px 7px; border-radius: 9px;
+    font-size: 9.5px; font-weight: 600;
+    margin-right: 6px; white-space: nowrap;
+  }
+  .pp-turn-pill.claude {
+    background: rgba(124,58,237,0.18); color: #c4b5fd;
+    animation: pp-pulse 2.5s ease-in-out infinite;
+  }
+  .pp-turn-pill.ceo {
+    background: rgba(251,191,36,0.18); color: #fcd34d;
+    animation: pp-pulse 2.5s ease-in-out infinite;
+  }
+  @keyframes pp-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.65; }
+  }
 
   /* ===== 시급 TOP 10 ===== */
   .top-box { background: var(--panel); border: 0.5px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 14px; }
@@ -1568,6 +1586,30 @@
       display: inline-flex; align-items: center; justify-content: center;
     }
     .grim-round-del:hover { background: #fef2f2; color: #ef4444; }
+
+    /* ★ BL-DECISION-MODAL-PINGPONG step4: 차례 배지 + 전달 버튼 */
+    .grim-turn-badge {
+      display: inline-block; padding: 2px 8px; border-radius: 10px;
+      font-size: 10px; font-weight: 600; margin-left: 6px;
+      vertical-align: middle;
+    }
+    .grim-turn-badge.ceo-turn { background: rgba(202,138,4,0.14); color: #854d0e; }
+    .grim-turn-badge.claude-turn { background: rgba(124,58,237,0.14); color: #5b21b6; }
+    .grim-turn-badge.done { background: rgba(22,163,74,0.14); color: #15803d; }
+    .grim-round-actions {
+      display: flex; justify-content: flex-end; margin-top: 8px;
+      padding-top: 8px; border-top: 0.5px dashed rgba(124,58,237,0.20);
+    }
+    .grim-send-btn {
+      background: #6d28d9; color: #fff; border: none;
+      padding: 6px 14px; border-radius: 6px;
+      font-size: 11.5px; font-weight: 500; cursor: pointer;
+      transition: background .15s;
+    }
+    .grim-send-btn:hover:not(:disabled) { background: #5b21b6; }
+    .grim-send-btn:disabled {
+      background: #9ca3af; cursor: not-allowed; opacity: 0.6;
+    }
     .grim-pair {
       display: flex; flex-direction: column; gap: 6px;
     }
@@ -3279,10 +3321,20 @@
       const priCls = (t.priority || 'P2').toLowerCase();
       const priLab = PRI_LABEL_KO[t.priority] || (t.priority || '-');
       const reason = t.blocker || ((t.autonomous?.requires_decisions_first || []).join(', ') ? `결정 필요: ${(t.autonomous.requires_decisions_first||[]).join(', ')}` : '결정 정책 정의 필요');
+
+      // ★ BL-DECISION-MODAL-PINGPONG step6: 핑퐁 차례 배지
+      let turnBadge = '';
+      if (t.pingpong_turn === 'claude') {
+        turnBadge = '<span class="pp-turn-pill claude" title="Claude가 답할 차례 — 새 채팅에서 이어가세요">🤖 Claude 차례</span>';
+      } else if (t.pingpong_turn === 'ceo' && (t.pingpong_rounds || 0) > 0) {
+        turnBadge = '<span class="pp-turn-pill ceo" title="대표님이 답할 차례 — Claude가 답을 보냈습니다">👤 대표님 차례</span>';
+      }
+
       return `
         <div class="ceo-wait-item" data-task-id="${escapeHtml(t.id)}" style="cursor:pointer;" title="클릭 → admin-tasks.html에서 상세 보기">
           <span class="pri-pill ${priCls}">${priLab}</span>
           <span class="text">${escapeHtml(t.id)} — ${escapeHtml((t.title || '').slice(0, 50))}</span>
+          ${turnBadge}
           <span class="reason">${escapeHtml(reason)}</span>
         </div>
       `;
@@ -3525,6 +3577,9 @@
     let grimSaveTimer = null;
 
     function loadGrimRounds() {
+      // ★ BL-DECISION-MODAL-PINGPONG step5 (2026-05-10):
+      // 우선 localStorage(빠른 복원) → 백그라운드에서 GitHub fetch (단일 진실원).
+      // 다른 기기에서 박은 라운드도 보임.
       try {
         const raw = localStorage.getItem(GRIM_KEY);
         if (raw) {
@@ -3532,16 +3587,39 @@
           if (Array.isArray(parsed)) grimRounds = parsed;
         }
       } catch (_) { grimRounds = []; }
+
+      // 백그라운드: GitHub에서 fetch해서 동기화 (다른 기기 라운드 끌어옴)
+      fetchGrimRoundsFromGitHub().catch(() => {});
+    }
+
+    async function fetchGrimRoundsFromGitHub() {
+      try {
+        const sess = window.tw_admin_session_v1;
+        const token = sess && sess.access_token;
+        if (!token) return; // 토큰 없으면 GitHub fetch 스킵 (localStorage만 사용)
+        const res = await fetch(`/api/decision?action=pingpong-load&task_id=${encodeURIComponent(task.id)}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!res.ok) return;
+        const j = await res.json();
+        if (Array.isArray(j.rounds) && j.rounds.length > 0) {
+          // GitHub이 권위. localStorage 덮어씀.
+          grimRounds = j.rounds;
+          try { localStorage.setItem(GRIM_KEY, JSON.stringify(j.rounds)); } catch (_) {}
+          renderGrimRounds();
+        }
+      } catch (_) { /* 네트워크 실패 시 localStorage 그대로 */ }
     }
 
     function saveGrimRounds() {
+      // 빠른 자동 저장 (localStorage만, 글자별 debounce용).
+      // GitHub commit은 명시적 "💾 저장하고 Claude에게 전달" 버튼 누를 때만 (sendRoundToGitHub).
       const status = modal.querySelector('#grim-save-status');
       if (status) {
         status.textContent = '저장 중...';
         status.className = 'grim-save-status saving';
       }
       try {
-        // 빈 라운드 (양쪽 다 빈) 자동 정리
         const cleaned = grimRounds.filter(r =>
           (r.ceo && r.ceo.trim()) || (r.claude && r.claude.trim())
         );
@@ -3553,7 +3631,7 @@
         if (status) {
           setTimeout(() => {
             const ts = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-            status.textContent = `자동 저장됨 — ${ts}`;
+            status.textContent = `자동 저장됨 (이 기기) — ${ts}`;
             status.className = 'grim-save-status saved';
           }, 150);
         }
@@ -3562,6 +3640,72 @@
           status.textContent = '저장 실패: ' + (e?.message || 'unknown');
           status.className = 'grim-save-status';
         }
+      }
+    }
+
+    // ★ BL-DECISION-MODAL-PINGPONG step4 (2026-05-10): 라운드 GitHub 전달
+    // 호출 시점: 대표님이 "💾 저장하고 Claude에게 전달" 버튼 누름.
+    // 동작: 해당 라운드의 ceo 칸을 GitHub _decisions/pingpong/{BL}.json 에 박음.
+    //       동시에 tasks.json의 pingpong_turn = 'claude' 자동 전환.
+    async function sendRoundToGitHub(roundIdx, side) {
+      const status = modal.querySelector('#grim-save-status');
+      const round = grimRounds[roundIdx];
+      if (!round) return { ok: false, error: 'round not found' };
+      const text = (round[side] || '').trim();
+      if (!text) {
+        alert('빈 라운드입니다. 그림을 한 줄 적어주세요.');
+        return { ok: false, error: 'empty' };
+      }
+
+      const sess = window.tw_admin_session_v1;
+      const token = sess && sess.access_token;
+      if (!token) {
+        alert('로그인이 필요합니다.');
+        return { ok: false, error: 'no token' };
+      }
+
+      if (status) {
+        status.textContent = '☁️ Claude에게 전달 중...';
+        status.className = 'grim-save-status saving';
+      }
+
+      try {
+        const res = await fetch('/api/decision?action=pingpong-round', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            task_id: task.id,
+            round_index: roundIdx,
+            side: side,
+            text: text,
+          }),
+        });
+        if (!res.ok) {
+          const j = await res.json().catch(() => ({}));
+          throw new Error(j.error || `HTTP ${res.status}`);
+        }
+        const j = await res.json();
+        if (status) {
+          const ts = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+          status.textContent = `✅ Claude에게 전달됨 — ${ts} · 다음 차례: ${j.next_turn === 'claude' ? '🤖 Claude' : '👤 대표님'}`;
+          status.className = 'grim-save-status saved';
+        }
+        // 응답 라운드로 동기화
+        if (Array.isArray(j.rounds)) {
+          grimRounds = j.rounds;
+          try { localStorage.setItem(GRIM_KEY, JSON.stringify(j.rounds)); } catch (_) {}
+          renderGrimRounds();
+        }
+        return { ok: true, next_turn: j.next_turn };
+      } catch (e) {
+        if (status) {
+          status.textContent = '전달 실패: ' + (e?.message || 'unknown');
+          status.className = 'grim-save-status';
+        }
+        return { ok: false, error: e?.message };
       }
     }
 
@@ -3588,10 +3732,19 @@
         if (addBtn) addBtn.style.display = 'none';
         if (clearBtn) clearBtn.style.display = 'none';
       } else {
-        wrap.innerHTML = grimRounds.map((r, i) => `
+        wrap.innerHTML = grimRounds.map((r, i) => {
+          const ceoText = (r.ceo || '').trim();
+          const claudeText = (r.claude || '').trim();
+          // 차례 추측: ceo만 있으면 '🤖 Claude 차례', 둘 다 있으면 '✅ 라운드 완료', 둘 다 없으면 '👤 대표님 차례'
+          let turnBadge = '';
+          if (ceoText && !claudeText) turnBadge = '<span class="grim-turn-badge claude-turn">🤖 Claude 차례</span>';
+          else if (ceoText && claudeText) turnBadge = '<span class="grim-turn-badge done">✅ 라운드 완료</span>';
+          else turnBadge = '<span class="grim-turn-badge ceo-turn">👤 대표님 차례</span>';
+
+          return `
           <div class="grim-round" data-round-idx="${i}">
             <div class="grim-round-h">
-              <span><span class="grim-round-num">라운드 ${i + 1}</span></span>
+              <span><span class="grim-round-num">라운드 ${i + 1}</span> ${turnBadge}</span>
               <button type="button" class="grim-round-del" data-action="grim-del-round" data-idx="${i}" title="이 라운드 삭제" aria-label="이 라운드 삭제">✕</button>
             </div>
             <div class="grim-pair">
@@ -3608,8 +3761,13 @@
                      data-placeholder="Claude가 이해한 그림 (Claude 채팅에서 받아 붙여넣기)">${escapeHtml(r.claude || '')}</div>
               </div>
             </div>
+            <div class="grim-round-actions">
+              <button type="button" class="grim-send-btn" data-action="grim-send-round" data-idx="${i}" data-side="ceo" ${!ceoText ? 'disabled' : ''}>
+                💾 저장하고 Claude에게 전달
+              </button>
+            </div>
           </div>
-        `).join('');
+        `;}).join('');
         if (startBtn) startBtn.style.display = 'none';
         if (addBtn) addBtn.style.display = '';
         if (clearBtn) clearBtn.style.display = '';
@@ -3652,6 +3810,41 @@
           grimRounds.splice(idx, 1);
           saveGrimRounds();
           renderGrimRounds();
+        });
+      });
+
+      // ★ BL-DECISION-MODAL-PINGPONG step4: "💾 저장하고 Claude에게 전달" 버튼
+      wrap.querySelectorAll('[data-action="grim-send-round"]').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          e.stopPropagation();
+          const idx = parseInt(btn.dataset.idx, 10);
+          const side = btn.dataset.side || 'ceo';
+          if (Number.isNaN(idx)) return;
+          // 빈 라운드 검증
+          const r = grimRounds[idx];
+          if (!r || !(r[side] || '').trim()) {
+            alert('라운드에 그림을 한 줄 적어주세요.');
+            return;
+          }
+          // 먼저 localStorage 저장 (UI 즉시 반영)
+          saveGrimRounds();
+          // 버튼 비활성화 + 라벨 변경
+          btn.disabled = true;
+          const orig = btn.textContent;
+          btn.textContent = '☁️ 전달 중...';
+          try {
+            const result = await sendRoundToGitHub(idx, side);
+            if (result.ok) {
+              btn.textContent = '✅ Claude에게 전달됨';
+              setTimeout(() => { btn.textContent = orig; btn.disabled = false; }, 2500);
+            } else {
+              btn.textContent = '❌ 실패 (재시도)';
+              setTimeout(() => { btn.textContent = orig; btn.disabled = false; }, 2500);
+            }
+          } catch (err) {
+            btn.textContent = '❌ 실패 (재시도)';
+            setTimeout(() => { btn.textContent = orig; btn.disabled = false; }, 2500);
+          }
         });
       });
     }

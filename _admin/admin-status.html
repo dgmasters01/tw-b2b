@@ -5185,34 +5185,24 @@
   }
 
   async function loadAITab(pane, item) {
-    // BL-AI-TAB-BOT-DETECT: 봇 commit이면 ECHO_LOG/DECISIONS 검색 건너뛰고 안내만 노출
+    // ★ BL-HUMAN-TAB-ALWAYS-SHOW step5+6 (2026-05-10): AI용 탭 정석 재설계.
+    //   활동 이력 본질 = "대화창 끊겨도 새 Claude가 컨텍스트 빠르게 잡기" (헌법 6·7원칙).
+    //   봇 활동이라도 차단 ❌ — 봇 정체·트리거·결과·관련 파일·다음 영향을 raw로 노출 ✅.
+    //   3-Layer 강제: ① AI 컨텍스트 카드 (항상) ② ECHO_LOG/DECISIONS 매칭 ③ chat-log raw
+
+    // ===== 1단계: AI 컨텍스트 카드 항상 빌드 =====
+    const contextCardHtml = buildAIContextCard(item);
+
     const botName = detectBotCommit(item);
     if (botName) {
-      const botInfo = {
-        'scan-bot': '페이지 완성도 자동 측정 봇 (HTML 변경 감지 → pages-status 갱신)',
-        'sync-bot': 'tasks.json ↔ MD/Gallery 양방향 자동 동기화 봇',
-        'auto-detect-bot': 'commit 메시지 분석 → 작업 status 자동 갱신 봇',
-        'health-bot': '시스템 상태 모니터링 봇 (_health.json 주기 갱신, vercel-sync 복구)',
-        'activity-bot': '활동 피드 자동 갱신 봇 (activity-feed.json 빌드)'
-      };
-      pane.innerHTML = `
-        <div class="activity-tab-empty" style="text-align:left;padding:14px 16px;">
-          <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:6px;">
-            🤖 이 활동은 봇 자동 갱신 — AI 컨텍스트 불필요
-          </div>
-          <div style="font-size:11px;color:var(--text-muted);margin-bottom:10px;line-height:1.5;">
-            <strong style="color:var(--aurora-2);">[${escapeHtml(botName)}]</strong> ${escapeHtml(botInfo[botName] || '시스템 자동화 봇')}
-          </div>
-          <div style="font-size:10px;color:var(--text-muted);background:rgba(255,255,255,0.03);padding:8px 10px;border-radius:6px;line-height:1.5;">
-            봇이 자동으로 박은 commit이라 ECHO_LOG/DECISIONS에 의사결정 컨텍스트가 없습니다.<br>
-            기술적 세부사항은 <strong>코드 변경 탭</strong>에서 commit diff로 확인하세요.
-          </div>
-        </div>
-      `;
+      // ── 봇 활동: 컨텍스트 카드 + 봇 동작 raw 정보 ──
+      const botRaw = buildBotRawInfo(botName, item);
+      pane.innerHTML = contextCardHtml + botRaw;
       return;
     }
 
-    pane.innerHTML = '<div class="activity-tab-loading">⏳ ECHO_LOG / DECISIONS 검색 중...</div>';
+    // ── 사람/Claude 작업: 컨텍스트 카드 + ECHO_LOG/DECISIONS 검색 ──
+    pane.innerHTML = contextCardHtml + '<div class="activity-tab-loading" style="margin-top:10px;">⏳ ECHO_LOG / DECISIONS 검색 중...</div>';
     try {
       // ECHO_LOG / DECISIONS 캐시 (admin gate 통과를 위해 raw GitHub 사용)
       if (!ACTIVITY_CACHE.echoLog) {
@@ -5253,27 +5243,153 @@
       }
       if (!sections.length) {
         const searchKeys = [taskMatch && taskMatch[1], commitHash, decisionMatch && decisionMatch[0]].filter(Boolean);
-        pane.innerHTML = `
-          <div class="activity-tab-empty" style="text-align:left;padding:14px 16px;">
-            <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:6px;">
-              📭 ECHO_LOG / DECISIONS 매칭 결과 없음
-            </div>
-            <div style="font-size:11px;color:var(--text-muted);line-height:1.5;">
-              검색 키: <code style="background:rgba(255,255,255,0.05);padding:2px 6px;border-radius:4px;">${escapeHtml(searchKeys.join(', ') || '(추출 실패)')}</code>
-            </div>
-            <div style="font-size:10px;color:var(--text-muted);margin-top:8px;line-height:1.5;">
-              이 commit은 의사결정 로그에 기록되지 않았거나 BL/IP/UX/D-NNN 태그가 없는 작업입니다.
-            </div>
-          </div>
-        `;
+        pane.innerHTML = contextCardHtml + `
+          <div style="margin-top:10px;padding:10px 12px;background:rgba(148,163,184,0.06);border:0.5px solid rgba(148,163,184,0.20);border-radius:5px;font-size:11px;color:var(--text-muted);line-height:1.6;">
+            <div style="font-weight:600;color:var(--text);margin-bottom:4px;">📭 ECHO_LOG / DECISIONS 매칭 없음</div>
+            검색 키: <code style="background:rgba(255,255,255,0.05);padding:2px 6px;border-radius:4px;">${escapeHtml(searchKeys.join(', ') || '(추출 실패)')}</code><br>
+            <span style="font-size:10px;">→ 이 commit은 의사결정 로그에 기록 없음. 코드 변경 탭에서 raw diff 확인.</span>
+          </div>`;
         return;
       }
-      pane.innerHTML = sections.join('');
+      pane.innerHTML = contextCardHtml + sections.join('');
     } catch (e) {
       console.error('[activity] ai tab 실패', e);
-      pane.innerHTML = `<div class="activity-tab-empty">AI용 로드 실패: ${escapeHtml(e.message || String(e))}</div>`;
+      pane.innerHTML = contextCardHtml + `<div class="activity-tab-empty" style="margin-top:10px;">AI용 로드 실패: ${escapeHtml(e.message || String(e))}</div>`;
     }
   }
+
+  // ★ BL-HUMAN-TAB-ALWAYS-SHOW step5: AI 컨텍스트 카드 빌더
+  // 새 Claude가 활동 1개 보고 컨텍스트 빠르게 잡을 수 있도록 raw 메타데이터 노출.
+  function buildAIContextCard(item) {
+    const action = item.action || '';
+    const actor = item.actor || item.by || '시스템';
+    const targetType = item.target_type || '';
+    const targetId = item.target_id || '';
+    const timestamp = item.timestamp || '';
+    const botName = detectBotCommit(item);
+
+    const taskMatch = action.match(/(BL-[A-Z0-9-]+|IP-[A-Z0-9-]+|UX-[A-Z0-9-]+|D-\d+)/);
+    const taskId = taskMatch ? taskMatch[1] : null;
+    const stepMatches = action.match(/\[step:done:(\d+)\]/g) || [];
+    const stepNums = stepMatches.map(s => s.match(/\d+/)[0]);
+    const reasonMatch = action.match(/\[변경사유:\s*([^\]]+)\]/);
+
+    // 메타 라인 빌드
+    const meta = [];
+    if (timestamp) meta.push(['timestamp', timestamp]);
+    if (actor) meta.push(['actor', actor]);
+    if (targetType) meta.push(['target_type', targetType]);
+    if (targetId) meta.push(['target_id', String(targetId).slice(0, 12)]);
+    if (taskId) meta.push(['task_id', taskId]);
+    if (stepNums.length) meta.push(['steps_done', stepNums.join(', ')]);
+    if (botName) meta.push(['bot', botName]);
+    if (reasonMatch) meta.push(['reason', reasonMatch[1].trim()]);
+
+    const metaHtml = meta.map(([k, v]) =>
+      `<div style="display:flex;gap:8px;padding:2px 0;font-family:ui-monospace,monospace;font-size:10.5px;line-height:1.5;">
+        <span style="color:var(--text-muted);min-width:90px;">${escapeHtml(k)}</span>
+        <span style="color:var(--text);word-break:break-all;">${escapeHtml(v)}</span>
+      </div>`
+    ).join('');
+
+    // raw action 전체 (truncate 없이)
+    const rawHtml = `
+      <div style="margin-top:8px;padding:8px 10px;background:rgba(0,0,0,0.25);border-radius:4px;border-left:2px solid #60a5fa;">
+        <div style="font-size:9px;color:var(--text-muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;">raw action</div>
+        <div style="font-family:ui-monospace,monospace;font-size:10.5px;color:var(--text);line-height:1.5;word-break:break-word;">${escapeHtml(action || '(empty)')}</div>
+      </div>
+    `;
+
+    return `
+      <div style="margin-bottom:12px;padding:11px 14px;background:rgba(124,58,237,0.06);border-left:3px solid #a855f7;border-radius:5px;">
+        <div style="font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">🤖 ai context — 활동 메타데이터</div>
+        ${metaHtml}
+        ${rawHtml}
+      </div>
+    `;
+  }
+
+  // ★ BL-HUMAN-TAB-ALWAYS-SHOW step5: 봇 활동 raw 정보 빌더
+  // 봇별 정체·트리거·결과·관련 파일·영향 시스템을 raw 형식으로 노출 (새 Claude 컨텍스트용).
+  function buildBotRawInfo(botName, item) {
+    const action = item.action || '';
+    const BOT_RAW_INFO = {
+      'scan-bot': {
+        purpose: '페이지 완성도 자동 측정 봇',
+        trigger: 'GitHub Actions: HTML 파일 변경 push 시 실행',
+        scripts: ['_os/scripts/scan-pages-status.mjs', '_os/scripts/build-activity-feed.mjs'],
+        outputs: ['_admin/_pages-status.summary.json', '_admin/_pages-status.display.json', '_admin/_pages-status.full.json', '_chat-logs/index.json'],
+        affects: ['admin-status.html (TOP10 긴급 페이지)', 'admin-gallery.html', '활동 이력'],
+        related_decisions: ['D-010 (카테고리-파일 단일 매핑)', 'D-012 (3-Layer 파일 분리)']
+      },
+      'sync-bot': {
+        purpose: 'tasks.json ↔ MD/Gallery 양방향 동기화 봇',
+        trigger: 'GitHub Actions: tasks.json 또는 MD 문서 변경 시 실행',
+        scripts: ['_os/scripts/sync-tasks-md.mjs', '_os/scripts/build-page-gallery.mjs'],
+        outputs: ['BACKLOG.md', 'admin-gallery.html (페이지 목록)'],
+        affects: ['admin-tasks.html', 'admin-gallery.html', 'BACKLOG.md'],
+        related_decisions: []
+      },
+      'auto-detect-bot': {
+        purpose: 'commit 메시지 분석 → 작업 status 자동 갱신 봇',
+        trigger: 'GitHub Actions: 새 commit push 시 실행',
+        scripts: ['_os/scripts/auto-detect-task-status.mjs'],
+        outputs: ['tasks.json (status, progress.percent, progress.steps[].status)'],
+        affects: ['admin-status.html (작업 지휘소)', 'admin-tasks.html'],
+        related_decisions: ['부칙 7 (단계 1개 = commit 1개, [step:done:N] 태그)']
+      },
+      'health-bot': {
+        purpose: '시스템 상태 모니터링 봇 (vercel-sync 복구 자동화)',
+        trigger: '주기 실행 (cron) + push 트리거',
+        scripts: ['_os/scripts/health-check.mjs'],
+        outputs: ['_admin/_health.json'],
+        affects: ['admin-status.html (헬스 인디케이터)', '복구 자동 트리거'],
+        related_decisions: []
+      },
+      'activity-bot': {
+        purpose: '활동 피드 자동 갱신 봇',
+        trigger: 'git log 변경, tasks.json/ECHO_LOG/DECISIONS 변경 시',
+        scripts: ['_os/scripts/build-activity-feed.mjs'],
+        outputs: ['activity-feed.summary.json', 'activity-feed.display.json', 'activity-feed.json'],
+        affects: ['admin-status.html ⑨ 활동 이력 패널'],
+        related_decisions: ['D-012 (3-Layer)', 'D-023 (chat-log 박기 의무)']
+      }
+    };
+
+    const info = BOT_RAW_INFO[botName] || {
+      purpose: '시스템 자동화 봇',
+      trigger: '(unknown)',
+      scripts: [],
+      outputs: [],
+      affects: [],
+      related_decisions: []
+    };
+
+    const renderList = (label, arr) => arr.length
+      ? `<div style="margin-top:8px;">
+           <div style="font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">${escapeHtml(label)}</div>
+           <ul style="margin:0;padding-left:18px;font-size:10.5px;color:var(--text);line-height:1.65;">
+             ${arr.map(x => `<li><code style="background:rgba(255,255,255,0.04);padding:1px 4px;border-radius:3px;font-size:10px;">${escapeHtml(x)}</code></li>`).join('')}
+           </ul>
+         </div>`
+      : '';
+
+    return `
+      <div style="margin-top:10px;padding:11px 14px;background:rgba(34,197,94,0.05);border-left:3px solid #16a34a;border-radius:5px;">
+        <div style="font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">🤖 bot definition — ${escapeHtml(botName)}</div>
+        <div style="font-size:11.5px;color:var(--text);font-weight:500;margin-bottom:6px;">${escapeHtml(info.purpose)}</div>
+        <div style="display:flex;gap:8px;padding:2px 0;font-family:ui-monospace,monospace;font-size:10.5px;line-height:1.5;">
+          <span style="color:var(--text-muted);min-width:90px;">trigger</span>
+          <span style="color:var(--text);">${escapeHtml(info.trigger)}</span>
+        </div>
+        ${renderList('scripts (실행 스크립트)', info.scripts)}
+        ${renderList('outputs (생성·갱신 파일)', info.outputs)}
+        ${renderList('affects (영향받는 화면)', info.affects)}
+        ${renderList('related decisions', info.related_decisions)}
+      </div>
+    `;
+  }
+
 
   // 🔧 코드 변경 탭 — GitHub commit API
   async function loadCodeTab(pane, item) {

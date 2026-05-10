@@ -7423,6 +7423,73 @@
         }
       ],
       "last_chat_log": "2026-05-10-bl-human-tab-always-show"
+    },
+    {
+      "id": "BL-DECISION-MODAL-PINGPONG",
+      "title": "그림 맞추기 핑퐁 시스템 + 결정 확정 자동화 + 빠른 작업 입구",
+      "category": "feature",
+      "priority": "P0",
+      "size": "L",
+      "status": "in_progress",
+      "autonomous": true,
+      "approval_required": false,
+      "estimated_hours": 3.0,
+      "why": "대표님 진단 2026-05-10: 그림 맞추기 모달에 글 적어도 GitHub 저장·Claude 자동 답·결정 확정·작업 큐 이동이 모두 끊어져 있음. 작업 발생 → 시스템 완성도 자동 추가 흐름이 끊긴 상태. 핑퐁 시스템 + C안 확정(Claude 한 줄 추천) + 입구 1·2·4 통합으로 100% 자동화.",
+      "progress": {
+        "percent": 0,
+        "steps": [
+          {
+            "name": "1. Claude BL 박기 표준 함수 (Edge Function /api/bl/create) — 한 번 호출로 tasks.json + chat-log + commit",
+            "status": "pending"
+          },
+          {
+            "name": "2. 핑퐁 라운드 GitHub 저장 (_decisions/pending/{BL}.json) — Edge Function /api/pingpong/round",
+            "status": "pending"
+          },
+          {
+            "name": "3. tasks.json에 pingpong_turn 필드 추가 (ceo/claude/done) + decision_summary 필드",
+            "status": "pending"
+          },
+          {
+            "name": "4. 모달 \"💾 저장하고 Claude에게 전달\" 버튼 + GitHub 저장 호출",
+            "status": "pending"
+          },
+          {
+            "name": "5. 모달 라운드 복원 — localStorage 대신 GitHub fetch 우선",
+            "status": "pending"
+          },
+          {
+            "name": "6. 작업 카드에 🟡 Claude 차례 / 🟢 대표님 차례 배지 자동 표시",
+            "status": "pending"
+          },
+          {
+            "name": "7. 새 채팅 인계서에 핑퐁 라운드 자동 prepend (build-handoff)",
+            "status": "pending"
+          },
+          {
+            "name": "8. Claude commit으로 답 박으면 모달 자동 갱신 (commit 메시지 패턴 감지)",
+            "status": "pending"
+          },
+          {
+            "name": "9. \"✅ 결정 확정\" 버튼 + Claude 한 줄 추천 자동 채움 (마지막 라운드 분석)",
+            "status": "pending"
+          },
+          {
+            "name": "10. 확정 누르면 D-NNN 자동 박음 + tasks status 전환 + chat-log 자동 생성",
+            "status": "pending"
+          },
+          {
+            "name": "11. admin-status 상단 ✏️ \"새 작업 박기\" 버튼 + 1줄 입력 → 자동 BL 생성",
+            "status": "pending"
+          },
+          {
+            "name": "12. 핑퐁 1회전 라이브 검증 (대표님 입력 → Claude 답 → 확정 → 작업 시작)",
+            "status": "pending"
+          }
+        ]
+      },
+      "created_at": "2026-05-10T13:00:00.000Z",
+      "started_at": "2026-05-10T13:00:00.000Z"
     }
   ]
 }

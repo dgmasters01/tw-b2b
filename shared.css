@@ -943,3 +943,151 @@ main, header, footer, section, .shell, .form-panel, .brand-panel,
   .live-dot::before { animation: none; }
   * { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
 }
+
+/* ============================================================
+   ☀️ ADMIN 공통 라이트 분기 — BL-ADMIN-LIGHTMODE step5-shared (D-022)
+   admin-status가 step5c에서 페이지 인라인으로 박은 79건 중
+   "모든 admin 페이지에 공통" 패턴만 shared.css로 끌어올림.
+   페이지 고유 분기는 페이지 내부에 그대로 둔다.
+   효과: 11개 admin 페이지 자동 라이트 적용, 신규 admin도 자동.
+   ============================================================ */
+
+/* ----- 1. 다크 전용 인라인 글자색 → 라이트 반전 (가장 광범위) ----- */
+[data-theme="light"] [style*="color:#fff"],
+[data-theme="light"] [style*="color: #fff"]      { color: var(--ink) !important; }
+[data-theme="light"] [style*="color:#cbd5e1"],
+[data-theme="light"] [style*="color: #cbd5e1"]   { color: var(--ink-3) !important; }
+[data-theme="light"] [style*="color:#94a3b8"],
+[data-theme="light"] [style*="color: #94a3b8"]   { color: var(--ink-3) !important; }
+[data-theme="light"] [style*="color:#64748b"],
+[data-theme="light"] [style*="color: #64748b"]   { color: var(--ink-3) !important; }
+[data-theme="light"] [style*="color:#c4b5fd"],
+[data-theme="light"] [style*="color: #c4b5fd"]   { color: var(--accent-purple-deep) !important; }
+[data-theme="light"] [style*="color:#a78bfa"],
+[data-theme="light"] [style*="color: #a78bfa"]   { color: var(--accent-purple-deep) !important; }
+[data-theme="light"] [style*="color:#60a5fa"],
+[data-theme="light"] [style*="color: #60a5fa"]   { color: #2563eb !important; }
+[data-theme="light"] [style*="color:#93c5fd"],
+[data-theme="light"] [style*="color: #93c5fd"]   { color: #1d4ed8 !important; }
+[data-theme="light"] [style*="color:#fca5a5"],
+[data-theme="light"] [style*="color: #fca5a5"]   { color: var(--priority-p0) !important; }
+[data-theme="light"] [style*="color:#fb923c"],
+[data-theme="light"] [style*="color: #fb923c"]   { color: var(--priority-p1) !important; }
+[data-theme="light"] [style*="color:#fcd34d"],
+[data-theme="light"] [style*="color: #fcd34d"]   { color: #a16207 !important; }
+[data-theme="light"] [style*="color:#86efac"],
+[data-theme="light"] [style*="color: #86efac"]   { color: #15803d !important; }
+[data-theme="light"] [style*="color:#4ade80"],
+[data-theme="light"] [style*="color: #4ade80"]   { color: #15803d !important; }
+
+/* ----- 2. 다크 전용 인라인 배경 → 라이트 반전 ----- */
+[data-theme="light"] [style*="background:rgba(255,255,255"],
+[data-theme="light"] [style*="background: rgba(255,255,255"] {
+  background: rgba(15,23,42,0.04) !important;
+}
+[data-theme="light"] [style*="background:rgba(15,23,42"],
+[data-theme="light"] [style*="background: rgba(15,23,42"] {
+  background: rgba(15,23,42,0.04) !important;
+}
+[data-theme="light"] [style*="background:rgba(0,0,0"],
+[data-theme="light"] [style*="background: rgba(0,0,0"] {
+  background: rgba(15,23,42,0.06) !important;
+}
+[data-theme="light"] [style*="background:rgba(10,10,15"],
+[data-theme="light"] [style*="background: rgba(10,10,15"] {
+  background: var(--bg-2) !important;
+}
+
+/* ----- 3. doc-* 공통 (charter / decisions / decisions-index / journey 5종) ----- */
+[data-theme="light"] .doc-back {
+  background: var(--glass) !important;
+  color: var(--ink-3) !important;
+}
+[data-theme="light"] .doc-back:hover {
+  background: var(--glass-2) !important;
+  color: var(--ink) !important;
+}
+[data-theme="light"] .doc-area-badge {
+  background: var(--accent-purple-bg) !important;
+  color: var(--accent-purple-deep) !important;
+  border-color: var(--line-2) !important;
+}
+
+/* ----- 4. so-* 공통 (admin-service-ops) ----- */
+[data-theme="light"] .so-back {
+  background: var(--glass) !important;
+  color: var(--ink-3) !important;
+}
+[data-theme="light"] .so-back:hover {
+  background: var(--glass-2) !important;
+  color: var(--ink) !important;
+}
+
+/* ----- 5. topbar (admin-permissions 등) — sticky 다크 강제 → 라이트 ----- */
+[data-theme="light"] .topbar {
+  background: rgba(255,255,255,0.7) !important;
+  border-bottom-color: var(--line-2) !important;
+}
+
+/* ----- 6. OS 사이드바 공통 (모든 admin 페이지 동일 레이아웃) ----- */
+[data-theme="light"] .os-sidebar {
+  background: var(--bg-2);
+  border: 1px solid var(--line-2);
+  color: var(--ink);
+}
+[data-theme="light"] .os-sidebar .os-sb-area-label {
+  color: var(--ink-3);
+  border-bottom: 1px dashed var(--line-2);
+}
+[data-theme="light"] .os-sidebar .os-sb-menu { color: var(--ink-2); }
+[data-theme="light"] .os-sidebar .os-sb-menu:hover {
+  background: var(--accent-purple-bg);
+  color: var(--accent-purple-deep);
+}
+[data-theme="light"] .os-sidebar .os-sb-menu.active {
+  background: rgba(124,58,237,0.15);
+  color: var(--accent-purple-deep);
+}
+[data-theme="light"] .os-sidebar .os-sb-empty {
+  background: #fef3c7;
+  border: 1px dashed #fcd34d;
+  color: #92400e;
+}
+[data-theme="light"] .os-sidebar .os-sb-warn {
+  color: #b45309;
+  background: #fef3c7;
+}
+[data-theme="light"] .os-sidebar .os-sb-poll {
+  color: var(--ink-4);
+  border-top: 1px dashed var(--line-2);
+}
+[data-theme="light"] .os-sidebar a,
+[data-theme="light"] .os-sidebar .menu-item,
+[data-theme="light"] .os-sidebar li { color: var(--ink-2) !important; }
+[data-theme="light"] .os-sidebar a:hover,
+[data-theme="light"] .os-sidebar .menu-item:hover {
+  background: var(--bg-3);
+  color: var(--ink) !important;
+}
+[data-theme="light"] .os-sidebar .section-title,
+[data-theme="light"] .os-sidebar h3,
+[data-theme="light"] .os-sidebar h4 { color: var(--ink-3) !important; }
+
+/* ----- 7. 사이드바 하단 라이트/다크 토글 (6단계 미리 슬롯 박음) ----- */
+.theme-toggle-fixed {
+  position: fixed; bottom: 16px; left: 16px; z-index: 50;
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 12px; border-radius: 99px;
+  background: var(--bg-2); border: 1px solid var(--line-2);
+  color: var(--ink-2); font-size: 12px; font-weight: 500;
+  cursor: pointer; backdrop-filter: blur(8px);
+  box-shadow: var(--sh-2);
+  transition: transform .15s, background .15s;
+}
+.theme-toggle-fixed:hover { transform: translateY(-1px); background: var(--bg-3); }
+.theme-toggle-fixed .tt-icon { font-size: 14px; line-height: 1; }
+@media (max-width: 700px) {
+  .theme-toggle-fixed { bottom: 12px; left: 12px; padding: 6px 10px; font-size: 11px; }
+}
+
+/* admin 공통 라이트 분기 끝 — step5-shared */

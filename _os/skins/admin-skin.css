@@ -203,3 +203,48 @@ body[data-skin] :focus-visible {
     --admin-border-strong: rgba(15, 23, 42, 0.2);
   }
 }
+
+/* ─── 7. shared.css [data-theme] 동기화 (BL-ADMIN-LIGHTMODE step5-shared) ───
+ * shared.css가 <html data-theme="light">로 토글하면 admin-skin도 같이 라이트.
+ * body[data-skin]만으로 토글하면 두 시스템이 어긋남 → 이 분기로 통일.
+ * 정석 단일 진실원: html[data-theme]가 최상위, body[data-skin]은 페이지별 오버라이드.
+ * D-022 결정: 토큰 표 한 쌍(다크/라이트), 한 토글로 모든 admin 페이지 동시 전환.
+ */
+html[data-theme="light"] body,
+html[data-theme="light"] body[data-skin],
+html[data-theme="light"] body[data-skin="dark"] {
+  --admin-bg-0: #f8fafc;
+  --admin-bg-1: #ffffff;
+  --admin-bg-2: #f1f5f9;
+  --admin-text-1: #0f172a;
+  --admin-text-2: #334155;
+  --admin-text-muted: #64748b;
+  --admin-border: rgba(15, 23, 42, 0.08);
+  --admin-border-strong: rgba(15, 23, 42, 0.2);
+  --admin-red: #dc2626;
+  --admin-red-bg: rgba(220, 38, 38, 0.10);
+  --admin-red-border: rgba(220, 38, 38, 0.3);
+  --admin-yellow: #d97706;
+  --admin-yellow-bg: rgba(217, 119, 6, 0.10);
+  --admin-yellow-border: rgba(217, 119, 6, 0.3);
+  --admin-green: #16a34a;
+  --admin-green-bg: rgba(22, 163, 74, 0.10);
+  --admin-green-border: rgba(22, 163, 74, 0.3);
+  --admin-link: #2563eb;
+  --admin-link-hover: #1d4ed8;
+  --admin-focus-ring: rgba(37, 99, 235, 0.4);
+}
+
+/* OS 자동 라이트도 admin-skin과 동기화 */
+@media (prefers-color-scheme: light) {
+  html:not([data-theme]) body[data-skin="dark"] {
+    --admin-bg-0: #f8fafc;
+    --admin-bg-1: #ffffff;
+    --admin-bg-2: #f1f5f9;
+    --admin-text-1: #0f172a;
+    --admin-text-2: #334155;
+    --admin-text-muted: #64748b;
+    --admin-border: rgba(15, 23, 42, 0.08);
+    --admin-border-strong: rgba(15, 23, 42, 0.2);
+  }
+}

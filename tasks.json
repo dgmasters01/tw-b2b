@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-10T12:47:10+00:00",
+  "updated_at": "2026-05-10T13:53:34+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -12,9 +12,9 @@
     "SOLO_WORK_QUEUE.md"
   ],
   "stats": {
-    "total": 132,
+    "total": 133,
     "done": 98,
-    "in_progress": 0,
+    "in_progress": 1,
     "pending": 22,
     "blocked": 11,
     "autonomous_ready": 15,
@@ -7436,19 +7436,25 @@
       "estimated_hours": 3.0,
       "why": "대표님 진단 2026-05-10: 그림 맞추기 모달에 글 적어도 GitHub 저장·Claude 자동 답·결정 확정·작업 큐 이동이 모두 끊어져 있음. 작업 발생 → 시스템 완성도 자동 추가 흐름이 끊긴 상태. 핑퐁 시스템 + C안 확정(Claude 한 줄 추천) + 입구 1·2·4 통합으로 100% 자동화.",
       "progress": {
-        "percent": 0,
+        "percent": 25,
         "steps": [
           {
             "name": "1. Claude BL 박기 표준 함수 (Edge Function /api/bl/create) — 한 번 호출로 tasks.json + chat-log + commit",
-            "status": "pending"
+            "status": "pending",
+            "done": true,
+            "at": "2026-05-10T13:53:34+00:00"
           },
           {
             "name": "2. 핑퐁 라운드 GitHub 저장 (_decisions/pending/{BL}.json) — Edge Function /api/pingpong/round",
-            "status": "pending"
+            "status": "pending",
+            "done": true,
+            "at": "2026-05-10T13:53:34+00:00"
           },
           {
             "name": "3. tasks.json에 pingpong_turn 필드 추가 (ceo/claude/done) + decision_summary 필드",
-            "status": "pending"
+            "status": "pending",
+            "done": true,
+            "at": "2026-05-10T13:53:34+00:00"
           },
           {
             "name": "4. 모달 \"💾 저장하고 Claude에게 전달\" 버튼 + GitHub 저장 호출",
@@ -7486,10 +7492,30 @@
             "name": "12. 핑퐁 1회전 라이브 검증 (대표님 입력 → Claude 답 → 확정 → 작업 시작)",
             "status": "pending"
           }
-        ]
+        ],
+        "completed_count": 3,
+        "total_count": 12,
+        "updated_at": "2026-05-10T13:53:34+00:00"
       },
       "created_at": "2026-05-10T13:00:00.000Z",
-      "started_at": "2026-05-10T13:00:00.000Z"
+      "started_at": "2026-05-10T13:00:00.000Z",
+      "progress_warning": {
+        "code": "MISSING_PROGRESS_STEPS",
+        "rule": "부칙 7 — 모든 작업은 progress.steps 박은 후 시작",
+        "detected_at": "2026-05-10T13:53:34+00:00",
+        "detected_by_commit": "59383eb",
+        "message": "in_progress 도중 progress.steps 미박힘 감지."
+      },
+      "updated_at": "2026-05-10T13:53:34+00:00",
+      "history": [
+        {
+          "at": "2026-05-10T13:53:34+00:00",
+          "event": "진행 중 commit 추가 + 단계 1, 단계 2, 단계 3 완료 (auto-detected)",
+          "by": "auto-detect-bot",
+          "commit": "59383eb",
+          "note": "feat(BL-DECISION-MODAL-PINGPONG): /api/decision 통합 라우터 + tasks 등록 [step:done:1] [step:done:2] [step:done:3]"
+        }
+      ]
     }
   ]
 }

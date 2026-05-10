@@ -4739,13 +4739,58 @@
       addGrimRound('');
     });
 
-    modal.querySelector('#grim-clear-btn')?.addEventListener('click', () => {
-      if (grimRounds.length === 0) return;
-      const ok = confirm(`그림 맞추기 라운드 ${grimRounds.length}개를 모두 삭제할까요?\n(이 작업의 저장된 그림이 모두 사라집니다.)`);
+    modal.querySelector('#grim-clear-btn')?.addEventListener('click', async () => {
+      if (grimRounds.length === 0) {
+        alert('비울 라운드가 없습니다.');
+        return;
+      }
+      const ok = confirm(`그림 맞추기 라운드 ${grimRounds.length}개를 모두 삭제할까요?\n\n⚠️ GitHub의 _decisions/pingpong/${task.id}.json 파일도 함께 영구 삭제됩니다.\n(이 작업의 모든 핑퐁 기록이 영원히 사라집니다.)`);
       if (!ok) return;
-      grimRounds = [];
-      saveGrimRounds();
-      renderGrimRounds();
+
+      const btn = modal.querySelector('#grim-clear-btn');
+      const orig = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = '☁️ GitHub 비우는 중...';
+
+      try {
+        // ★ BL-PINGPONG-CLEAR-GITHUB step2: GitHub 호출로 진짜 비우기
+        const token = await getAdminAccessToken();
+        if (token) {
+          const res = await fetch('/api/decision?action=pingpong-clear', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`,
+            },
+            body: JSON.stringify({ task_id: task.id }),
+          });
+          if (!res.ok) {
+            const j = await res.json().catch(() => ({}));
+            throw new Error(j.error || `HTTP ${res.status}`);
+          }
+        }
+        // 로컬 비우기
+        grimRounds = [];
+        matchedForConfirm = false;
+        try { localStorage.removeItem(GRIM_KEY); } catch (_) {}
+        renderGrimRounds();
+        showPingpongToast({
+          type: 'success',
+          title: '✅ 전체 비우기 완료',
+          body: `${task.id}의 모든 라운드가 GitHub + 로컬에서 영구 삭제됐습니다.<br>이제 깨끗한 상태입니다 — 새로 그림 적기 시작하세요.`,
+          durationMs: 5000,
+        });
+        btn.textContent = orig;
+        btn.disabled = false;
+      } catch (e) {
+        showPingpongToast({
+          type: 'error',
+          title: '비우기 실패',
+          body: 'GitHub 삭제 사고: ' + (e?.message || 'unknown') + '<br>로컬은 안 비웠습니다 (다시 시도하세요).',
+        });
+        btn.textContent = orig;
+        btn.disabled = false;
+      }
     });
 
     // ★ BL-DECISION-MODAL-PINGPONG step9: Claude 추천 한 줄 (마지막 라운드 분석)

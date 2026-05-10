@@ -324,6 +324,54 @@ async function handleDecisionConfirm(req, res) {
 // ============================================================
 // HANDLER 5: quick-task (입구 4 — 대표님 한 줄 → 자동 BL)
 // ============================================================
+// ============================================================
+// HANDLER 6: pingpong-clear (전체 비우기 — GitHub + tasks 정리)
+// ============================================================
+// BL-PINGPONG-CLEAR-GITHUB (2026-05-10):
+// 대표님 진단: 화면에서 비우기 눌러도 GitHub 라운드 그대로 → 폴링이 다시 가져옴.
+// 이 핸들러: ① _decisions/pingpong/{BL}.json 파일 삭제 ② tasks.json의 pingpong_turn/rounds 정리.
+async function handlePingpongClear(req, res) {
+  const { task_id } = req.body || {};
+  if (!task_id) return res.status(400).json({ error: 'task_id required' });
+
+  // 1) GitHub 핑퐁 파일 삭제 (있으면)
+  const path = `_decisions/pingpong/${task_id}.json`;
+  const file = await ghRead(path);
+  let deleted = false;
+  if (file) {
+    const res1 = await ghFetch(`/contents/${encodeURIComponent(path)}`, {
+      method: 'DELETE',
+      body: JSON.stringify({
+        message: `clear(${task_id}): 핑퐁 라운드 전체 비우기`,
+        sha: file.sha,
+        branch: 'main',
+      }),
+    });
+    if (!res1.ok) {
+      const txt = await res1.text();
+      return res.status(500).json({ error: `GitHub 삭제 실패: ${res1.status} ${txt.slice(0, 200)}` });
+    }
+    deleted = true;
+  }
+
+  // 2) tasks.json의 pingpong 필드 정리
+  const tj = await ghRead('tasks.json');
+  if (tj) {
+    const data = JSON.parse(tj.content);
+    const task = data.tasks.find(t => t.id === task_id);
+    if (task) {
+      task.pingpong_turn = null;
+      task.pingpong_rounds = 0;
+      // decision_summary는 결정 확정과 별개라 안 건드림
+      data.stats = recalcStats(data.tasks);
+      await ghWrite('tasks.json', JSON.stringify(data, null, 2), tj.sha,
+        `clear(${task_id}): 핑퐁 필드 정리 (전체 비우기)`);
+    }
+  }
+
+  return res.status(200).json({ ok: true, deleted, task_id });
+}
+
 async function handleQuickTask(req, res) {
   const { text } = req.body || {};
   if (!text || text.trim().length < 5) {
@@ -411,10 +459,14 @@ export default async function handler(req, res) {
         if (req.method !== 'POST') return res.status(405).json({ error: 'POST only' });
         return await handleQuickTask(req, res);
 
+      case 'pingpong-clear':
+        if (req.method !== 'POST') return res.status(405).json({ error: 'POST only' });
+        return await handlePingpongClear(req, res);
+
       default:
         return res.status(400).json({
           error: 'unknown action',
-          available: ['bl-create', 'pingpong-round', 'pingpong-load', 'decision-confirm', 'quick-task']
+          available: ['bl-create', 'pingpong-round', 'pingpong-load', 'decision-confirm', 'quick-task', 'pingpong-clear']
         });
     }
   } catch (e) {

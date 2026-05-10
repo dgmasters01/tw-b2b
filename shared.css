@@ -1091,3 +1091,114 @@ main, header, footer, section, .shell, .form-panel, .brand-panel,
 }
 
 /* admin 공통 라이트 분기 끝 — step5-shared */
+
+/* ============================================================
+ * BL-ADMIN-LIGHTMODE step7 — 라이트 가독성 fix
+ * (대표님 진단 2026-05-10: 보라 글자/P0 빨강/AUTO 로봇/카테고리 회색 배경)
+ * ============================================================ */
+
+/* ── 7-A. ⚡ 진행 중 박스 (in-progress-box) 라이트 가독성 ── */
+[data-theme="light"] .in-progress-box {
+  background: linear-gradient(135deg, rgba(124,58,237,0.08), rgba(124,58,237,0.02));
+  border-color: rgba(124,58,237,0.30);
+}
+[data-theme="light"] .in-progress-row > .pill {
+  background: rgba(124,58,237,0.14);
+  color: #5b21b6;  /* 진한 보라 — 흰 배경에서 또렷 */
+}
+[data-theme="light"] .in-progress-row > .title { color: var(--ink); }
+[data-theme="light"] .in-progress-row > button {
+  background: #6d28d9; color: #fff;
+}
+[data-theme="light"] .in-progress-row > button:hover { background: #5b21b6; }
+[data-theme="light"] .in-progress-meta { color: var(--ink-3); border-top-color: rgba(124,58,237,0.20); }
+[data-theme="light"] .in-progress-meta .item .label { color: rgba(91,33,182,0.75); }
+[data-theme="light"] .in-progress-progress { border-top-color: rgba(124,58,237,0.20); }
+[data-theme="light"] .in-progress-progress .pp-step.done { color: #5b21b6; }
+[data-theme="light"] .in-progress-progress .pp-step.current {
+  color: var(--ink); background: rgba(124,58,237,0.10);
+}
+[data-theme="light"] .in-progress-recent { border-top-color: rgba(124,58,237,0.20); color: var(--ink-3); }
+[data-theme="light"] .in-progress-recent .label-row { color: #5b21b6; }
+[data-theme="light"] .in-progress-recent .commit-row .hash { color: #5b21b6; }
+[data-theme="light"] .in-progress-recent .commit-row .msg { color: var(--ink-3); }
+
+/* ── 7-B. 자율 큐 안의 "0번 = 진행 중" 카드 ── */
+[data-theme="light"] .auto-queue-card.in-progress-card {
+  background: linear-gradient(135deg, rgba(124,58,237,0.06), rgba(124,58,237,0.01));
+  border-color: rgba(124,58,237,0.25);
+}
+[data-theme="light"] .auto-queue-card.in-progress-card .auto-queue-num {
+  background: rgba(124,58,237,0.14); color: #5b21b6;
+}
+
+/* ── 7-C. 자율 큐 카드 (AUTO 로봇 / BL-XXX / 시간 글자) 라이트 가독성 ── */
+[data-theme="light"] .auto-queue-card {
+  background: linear-gradient(135deg, rgba(22,163,74,0.05), rgba(22,163,74,0.01));
+  border-color: rgba(22,163,74,0.20);
+  border-left-color: #16a34a;
+}
+[data-theme="light"] .auto-queue-card:hover {
+  border-left-color: #15803d;
+  box-shadow: 0 4px 12px rgba(22,163,74,0.12);
+}
+[data-theme="light"] .auto-queue-order { background: rgba(22,163,74,0.14); color: #15803d; }
+[data-theme="light"] .auto-queue-card.p0 .auto-queue-order { background: rgba(220,38,38,0.14); color: #b91c1c; }
+[data-theme="light"] .auto-queue-card.p1 .auto-queue-order { background: rgba(234,88,12,0.14); color: #c2410c; }
+[data-theme="light"] .auto-queue-card.p0 {
+  border-left-color: #dc2626;
+  background: linear-gradient(135deg, rgba(220,38,38,0.06), rgba(220,38,38,0.01));
+}
+[data-theme="light"] .auto-queue-card.p1 {
+  border-left-color: #ea580c;
+  background: linear-gradient(135deg, rgba(234,88,12,0.06), rgba(234,88,12,0.01));
+}
+[data-theme="light"] .auto-queue-bot-pill {
+  background: rgba(22,163,74,0.14); color: #15803d;
+}
+[data-theme="light"] .auto-queue-title { color: var(--ink); }
+[data-theme="light"] .auto-queue-meta { color: var(--ink-3); }
+[data-theme="light"] .auto-queue-action {
+  background: rgba(22,163,74,0.14); color: #15803d;
+}
+[data-theme="light"] .auto-queue-card:hover .auto-queue-action {
+  background: rgba(22,163,74,0.22); color: #166534;
+}
+[data-theme="light"] .auto-queue-empty { color: var(--ink-3); }
+
+/* ── 7-D. 카테고리별 진행률 박스 — 라이트에서 위 카드와 톤 통일 ── */
+[data-theme="light"] .cat-progress-section {
+  background: var(--bg-2);  /* 흰 카드와 동일 톤 */
+  border-color: var(--line);
+}
+[data-theme="light"] .cat-progress-header { color: var(--ink-2); }
+[data-theme="light"] .cat-progress-label { color: var(--ink); }
+[data-theme="light"] .cat-progress-hint { color: var(--ink-3); }
+[data-theme="light"] .cat-row1 .label { color: var(--ink-3); }
+[data-theme="light"] .cat-row1 .name { color: var(--ink); }
+[data-theme="light"] .cat-row1 .score { color: var(--ink); }
+
+/* ── 7-E. state-pill (자동/직원/대표님/보류) 라이트 ── */
+[data-theme="light"] .state-pill.auto { background: rgba(22,163,74,0.14); color: #15803d; }
+[data-theme="light"] .state-pill.staff { background: rgba(37,99,235,0.14); color: #1d4ed8; }
+[data-theme="light"] .state-pill.ceo { background: rgba(202,138,4,0.16); color: #854d0e; }
+[data-theme="light"] .state-pill.hold { background: rgba(100,116,139,0.18); color: #475569; }
+
+/* ── 7-F. priority pill 공통 (P0 긴급 / P1 중요 / P2 보통) ── */
+[data-theme="light"] [class*="prio-p0"],
+[data-theme="light"] .pill.p0,
+[data-theme="light"] .priority-p0 {
+  background: rgba(220,38,38,0.14) !important; color: #b91c1c !important;
+}
+[data-theme="light"] [class*="prio-p1"],
+[data-theme="light"] .pill.p1,
+[data-theme="light"] .priority-p1 {
+  background: rgba(234,88,12,0.14) !important; color: #c2410c !important;
+}
+[data-theme="light"] [class*="prio-p2"],
+[data-theme="light"] .pill.p2,
+[data-theme="light"] .priority-p2 {
+  background: rgba(202,138,4,0.16) !important; color: #854d0e !important;
+}
+
+/* admin 라이트 가독성 패치 끝 — step7 */

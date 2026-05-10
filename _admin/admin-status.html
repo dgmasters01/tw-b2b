@@ -4354,8 +4354,17 @@
               </div>` : ''}
               ${(() => {
                 if (ceoText && claudeText) {
-                  // 라운드 완료 — 완료 배지만
-                  return '<div class="pp-round-done">✅ 라운드 완료 — 다음 라운드 추가하거나 결정 확정으로</div>';
+                  // ★ BL-PINGPONG-CLAUDE-SAVE step1 (2026-05-10):
+                  // 양쪽 다 채워짐 — Claude 답을 GitHub에 박는 버튼 + 다음 라운드 자동 흐름.
+                  // 이전엔 '라운드 완료' 안내만 박아서 Claude 답이 GitHub에 안 박히는 사고.
+                  // 이제 무한 반복 가능 — 라운드 N개 자유롭게.
+                  const claudeSaved = r.at && r.claude_saved_at;  // claude 답이 저장된 시각
+                  if (claudeSaved) {
+                    return '<div class="pp-round-done">✅ 라운드 완료 — 다음 라운드 추가하거나 결정 확정으로</div>';
+                  }
+                  return `<button type="button" class="pp-unified-btn" data-action="grim-save-claude" data-idx="${i}" title="Claude 답을 GitHub에 저장 + 자동으로 다음 라운드 준비">
+                    💾 Claude 답 저장 + 다음 라운드
+                  </button>`;
                 } else {
                   // ★ BL-PINGPONG-BUTTON-VISIBLE (2026-05-10): 통합 버튼 항상 표시
                   // 사라지는 버튼은 사용자 혼란. 빈 라운드면 disabled로 회색 표시 + 안내.
@@ -4539,6 +4548,80 @@
             showPingpongToast({
               type: 'error',
               title: '실패',
+              body: err?.message || 'unknown',
+            });
+            btn.disabled = false;
+            btn.textContent = orig;
+          }
+        });
+      });
+
+      // ★ BL-PINGPONG-CLAUDE-SAVE step2·3 (2026-05-10):
+      // "💾 Claude 답 저장 + 다음 라운드" 버튼 — 양쪽 채워진 라운드에 박힘.
+      // 동작: ① sendRoundToGitHub(idx, 'claude') → claude 답 GitHub 박기
+      //       ② r.claude_saved_at 마커 박기 (재저장 방지)
+      //       ③ 다음 라운드 자동 추가 (빈 라운드)
+      //       ④ 새 라운드의 ceo 칸 자동 포커스
+      // 결과: 무한 라운드 가능 — 라운드 N개 자유롭게.
+      wrap.querySelectorAll('[data-action="grim-save-claude"]').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          e.stopPropagation();
+          const idx = parseInt(btn.dataset.idx, 10);
+          if (Number.isNaN(idx)) return;
+          const r = grimRounds[idx];
+          if (!r || !(r.claude || '').trim()) {
+            alert('Claude 답이 비어있습니다. Claude 칸에 답을 붙여넣으세요.');
+            return;
+          }
+          const orig = btn.textContent;
+          btn.disabled = true;
+          btn.textContent = '☁️ Claude 답 저장 중...';
+
+          try {
+            // ① Claude 답 GitHub 박기
+            saveGrimRounds();
+            const saveResult = await sendRoundToGitHub(idx, 'claude');
+            if (!saveResult.ok) {
+              btn.disabled = false;
+              btn.textContent = orig;
+              return;
+            }
+
+            // ② 라운드 완료 마커
+            grimRounds[idx].claude_saved_at = new Date().toISOString();
+            saveGrimRounds();
+
+            // ③ 다음 라운드 자동 추가 (빈 라운드)
+            const nextIdx = grimRounds.length;
+            grimRounds.push({ ceo: '', claude: '', at: null });
+            saveGrimRounds();
+            renderGrimRounds();
+
+            // ④ 새 라운드의 대표님 칸 자동 포커스
+            setTimeout(() => {
+              const nextCeoEl = wrap.querySelector(`[data-idx="${nextIdx}"][data-field="ceo"]`);
+              if (nextCeoEl) {
+                nextCeoEl.focus();
+                // 화면 스크롤 (새 라운드가 아래쪽이면 보이게)
+                nextCeoEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              }
+            }, 200);
+
+            // 큰 토스트 — 다음 단계 안내
+            showPingpongToast({
+              type: 'success',
+              title: '✅ 라운드 ' + (idx + 1) + ' 완료!',
+              body: `Claude 답이 GitHub에 저장됐습니다.<br><br>` +
+                `<strong>다음 단계</strong>:<br>` +
+                `🆕 라운드 ${nextIdx + 1}이 자동으로 추가됐습니다.<br>` +
+                `더 이야기하고 싶으시면 새 라운드의 <strong>"대표님" 칸</strong>에 적으세요.<br>` +
+                `그림이 같다고 판단되면 <strong>"✅ 그림 일치 — 결정 확정으로"</strong> 누르세요.`,
+              durationMs: 8000,
+            });
+          } catch (err) {
+            showPingpongToast({
+              type: 'error',
+              title: 'Claude 답 저장 실패',
               body: err?.message || 'unknown',
             });
             btn.disabled = false;

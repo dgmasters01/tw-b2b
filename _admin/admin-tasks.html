@@ -36,22 +36,23 @@
 
   /* ===== 상단 헤더 ===== */
   .tm-header {
-    background: linear-gradient(135deg, #1e293b 0%, #312e81 100%);
-    color: #fff;
+    background: linear-gradient(135deg, var(--bg-3) 0%, var(--accent-purple-bg) 100%);
+    color: var(--ink);
     padding: 20px 32px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     flex-wrap: wrap;
     gap: 12px;
+    border-bottom: 1px solid var(--line-2);
   }
   .tm-header-left h1 { margin: 0; font-size: 20px; font-weight: 700; letter-spacing: -0.3px; }
-  .tm-header-left p { margin: 4px 0 0; font-size: 12px; color: #cbd5e1; }
+  .tm-header-left p { margin: 4px 0 0; font-size: 12px; color: var(--ink-3); }
   .tm-header-right { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
   .tm-back-btn {
-    background: rgba(255,255,255,0.15);
-    color: #fff;
-    border: 1px solid rgba(255,255,255,0.25);
+    background: var(--glass-2);
+    color: var(--ink);
+    border: 1px solid var(--line-2);
     padding: 8px 14px;
     border-radius: 8px;
     text-decoration: none;
@@ -59,15 +60,15 @@
     font-weight: 600;
     transition: background .15s;
   }
-  .tm-back-btn:hover { background: rgba(255,255,255,0.25); }
+  .tm-back-btn:hover { background: var(--glass-3); }
   .tm-meta {
     display: flex;
     gap: 12px;
     font-size: 12px;
-    color: #cbd5e1;
+    color: var(--ink-3);
   }
-  .tm-meta span { background: rgba(255,255,255,0.1); padding: 4px 10px; border-radius: 12px; }
-  .tm-meta strong { color: #fff; }
+  .tm-meta span { background: var(--glass); padding: 4px 10px; border-radius: 12px; }
+  .tm-meta strong { color: var(--ink); }
 
   /* ===== 통합 현황 CTA (BL-PAGE-DEDUP) ===== */
   .status-cta-bar {
@@ -75,13 +76,13 @@
     border-bottom: 1px solid rgba(139,92,246,0.25);
     padding: 10px 32px;
     display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
-    font-size: 13px; color: #475569;
+    font-size: 13px; color: var(--ink-2);
   }
   .status-cta-icon { font-size: 16px; }
   .status-cta-text { flex: 1; min-width: 200px; }
-  .status-cta-text strong { color: #6d28d9; }
+  .status-cta-text strong { color: var(--aurora-1); }
   .status-cta-btn {
-    background: linear-gradient(135deg, #8b5cf6, #ec4899);
+    background: linear-gradient(135deg, var(--aurora-1), var(--aurora-2));
     color: #fff; padding: 6px 14px; border-radius: 6px; font-size: 12px;
     font-weight: 600; text-decoration: none; white-space: nowrap;
     transition: transform .15s, box-shadow .15s;
@@ -116,11 +117,11 @@
     align-items: center;
     gap: 8px;
   }
-  .tm-tab:hover { color: var(--text); background: #f1f5f9; }
+  .tm-tab:hover { color: var(--text); background: var(--bg-3); }
   .tm-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
   .tm-tab .badge {
-    background: #e2e8f0;
-    color: #475569;
+    background: var(--bg-4);
+    color: var(--ink-3);
     font-size: 11px;
     padding: 2px 8px;
     border-radius: 10px;
@@ -148,7 +149,7 @@
   .truth-files-label {
     font-size: 11px;
     font-weight: 700;
-    color: #93c5fd;
+    color: var(--aurora-3);
     text-transform: uppercase;
     letter-spacing: 0.05em;
     white-space: nowrap;
@@ -158,19 +159,19 @@
   .truth-file-chip {
     font-size: 11px;
     padding: 4px 9px;
-    background: rgba(255,255,255,0.06);
-    border: 1px solid rgba(148,163,184,0.25);
+    background: var(--glass);
+    border: 1px solid var(--line-2);
     border-radius: 6px;
-    color: #cbd5e1;
+    color: var(--ink-2);
     font-family: ui-monospace, SFMono-Regular, monospace;
     text-decoration: none;
     transition: all .15s;
   }
-  .truth-file-chip:hover { background: rgba(59,130,246,0.15); color: #fff; border-color: rgba(59,130,246,0.5); }
+  .truth-file-chip:hover { background: rgba(59,130,246,0.15); color: var(--ink); border-color: rgba(59,130,246,0.5); }
   .truth-files-note {
     margin-left: auto;
     font-size: 11px;
-    color: #94a3b8;
+    color: var(--ink-3);
   }
   @media (max-width: 700px) { .truth-files-note { margin-left: 0; width: 100%; } }
 
@@ -235,13 +236,13 @@
   .cat-row-stat { color: var(--text-muted); font-size: 12px; }
   .cat-row-bar {
     height: 8px;
-    background: #f1f5f9;
+    background: var(--bg-3);
     border-radius: 4px;
     overflow: hidden;
   }
   .cat-row-bar-fill {
     height: 100%;
-    background: linear-gradient(90deg, #3b82f6, #6366f1);
+    background: linear-gradient(90deg, var(--aurora-1), var(--aurora-2));
     border-radius: 4px;
     transition: width .4s;
   }
@@ -290,7 +291,7 @@
     border: 1px solid var(--border);
     border-radius: 6px;
     font-size: 13px;
-    background: #fff;
+    background: var(--bg-2);
     color: var(--text);
     font-family: inherit;
   }
@@ -307,7 +308,7 @@
     font-weight: 600;
   }
   .filter-bar button:hover { background: var(--primary-hover); }
-  .filter-bar .reset-btn { background: #f1f5f9; color: var(--text-muted); }
+  .filter-bar .reset-btn { background: var(--bg-3); color: var(--text-muted); }
 
   .task-group {
     background: var(--panel);
@@ -317,7 +318,7 @@
     overflow: hidden;
   }
   .task-group-head {
-    background: #f8fafc;
+    background: var(--bg-3);
     padding: 10px 16px;
     border-bottom: 1px solid var(--border);
     font-size: 12px;
@@ -334,14 +335,14 @@
     grid-template-columns: 70px 80px 70px 1fr auto;
     gap: 12px;
     padding: 10px 16px;
-    border-bottom: 1px solid #f1f5f9;
+    border-bottom: 1px solid var(--line);
     align-items: center;
     font-size: 13px;
     cursor: pointer;
     transition: background .12s;
   }
   .task-row:last-child { border-bottom: 0; }
-  .task-row:hover { background: #f8fafc; }
+  .task-row:hover { background: var(--glass); }
   .task-row.done { opacity: 0.6; }
   .task-row.done .task-title { text-decoration: line-through; }
 
@@ -355,19 +356,28 @@
     letter-spacing: .3px;
     text-align: center;
   }
-  .pill-pri-P0 { background: #fee2e2; color: var(--p0); }
-  .pill-pri-P1 { background: #ffedd5; color: var(--p1); }
-  .pill-pri-P2 { background: #fef9c3; color: var(--p2); }
-  .pill-pri-P3 { background: #f1f5f9; color: var(--p3); }
-  .pill-stat-done { background: #dcfce7; color: var(--done); }
-  .pill-stat-pending { background: #dbeafe; color: var(--pending); }
-  .pill-stat-in_progress { background: #f3e8ff; color: var(--in_progress); }
-  .pill-stat-blocked { background: #fee2e2; color: var(--blocked); }
-  .pill-stat-next_week { background: #f1f5f9; color: var(--next_week); }
-  .pill-cat {
-    background: #ecfeff;
-    color: #0e7490;
-  }
+  /* pill — 다크 기본(글래스+컬러 텍스트), [data-theme="light"]에서 파스텔 배경으로 분기 */
+  .pill-pri-P0 { background: rgba(220,38,38,0.18); color: var(--p0); }
+  .pill-pri-P1 { background: rgba(234,88,12,0.18); color: var(--p1); }
+  .pill-pri-P2 { background: rgba(202,138,4,0.18); color: var(--p2); }
+  .pill-pri-P3 { background: var(--glass-2); color: var(--p3); }
+  .pill-stat-done { background: rgba(16,185,129,0.18); color: var(--done); }
+  .pill-stat-pending { background: rgba(37,99,235,0.18); color: var(--pending); }
+  .pill-stat-in_progress { background: rgba(147,51,234,0.18); color: var(--in_progress); }
+  .pill-stat-blocked { background: rgba(239,68,68,0.18); color: var(--blocked); }
+  .pill-stat-next_week { background: var(--glass-2); color: var(--next_week); }
+  .pill-cat { background: var(--glass-2); color: var(--aurora-3); }
+
+  [data-theme="light"] .pill-pri-P0 { background: #fee2e2; }
+  [data-theme="light"] .pill-pri-P1 { background: #ffedd5; }
+  [data-theme="light"] .pill-pri-P2 { background: #fef9c3; }
+  [data-theme="light"] .pill-pri-P3 { background: #f1f5f9; }
+  [data-theme="light"] .pill-stat-done { background: #dcfce7; }
+  [data-theme="light"] .pill-stat-pending { background: #dbeafe; }
+  [data-theme="light"] .pill-stat-in_progress { background: #f3e8ff; }
+  [data-theme="light"] .pill-stat-blocked { background: #fee2e2; }
+  [data-theme="light"] .pill-stat-next_week { background: #f1f5f9; }
+  [data-theme="light"] .pill-cat { background: #ecfeff; color: #0e7490; }
 
   .task-id { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; color: var(--text-muted); }
   .task-title { font-weight: 500; color: var(--text); }
@@ -387,7 +397,8 @@
   }
   .modal-bg.active { display: flex; }
   .modal-box {
-    background: #fff;
+    background: var(--panel);
+    border: 1px solid var(--border);
     border-radius: 12px;
     max-width: 640px;
     width: 100%;
@@ -439,10 +450,12 @@
   }
   .btn-primary { background: var(--primary); color: #fff; }
   .btn-primary:hover { background: var(--primary-hover); }
-  .btn-secondary { background: #f1f5f9; color: var(--text); }
-  .btn-secondary:hover { background: #e2e8f0; }
-  .btn-danger { background: #fee2e2; color: var(--p0); }
-  .btn-danger:hover { background: #fecaca; }
+  .btn-secondary { background: var(--bg-3); color: var(--text); border: 1px solid var(--border); }
+  .btn-secondary:hover { background: var(--bg-4); }
+  .btn-danger { background: rgba(220,38,38,0.15); color: var(--p0); }
+  .btn-danger:hover { background: rgba(220,38,38,0.25); }
+  [data-theme="light"] .btn-danger { background: #fee2e2; }
+  [data-theme="light"] .btn-danger:hover { background: #fecaca; }
 
   /* ===== 작업 추가 폼 ===== */
   .add-form {
@@ -489,8 +502,9 @@
   }
   .action-card p { margin: 0 0 14px; font-size: 13px; color: var(--text-muted); line-height: 1.6; }
   .action-card pre {
-    background: #0f172a;
-    color: #e2e8f0;
+    background: var(--bg-4);
+    color: var(--ink);
+    border: 1px solid var(--line-2);
     padding: 14px 16px;
     border-radius: 6px;
     font-size: 12px;
@@ -549,10 +563,23 @@
     .add-form-row { grid-template-columns: 1fr; }
   }
 
+  /* 안내 노트 카드 (라이트 노란 / 다크 호박색 글래스) */
+  .action-card--note {
+    margin-bottom: 16px;
+    background: rgba(245,158,11,0.12);
+    border-color: rgba(245,158,11,0.4);
+  }
+  [data-theme="light"] .action-card--note {
+    background: #fef3c7;
+    border-color: #fcd34d;
+  }
+
   /* Phase 2-B-2: owner & approval visualization */
-  .pill-owner-auto { background:#dcfce7; color:#166534; border:1px solid #86efac; }
-  .pill-owner-human { background:#fed7aa; color:#9a3412; border:1px solid #fdba74; }
-  .task-row.approval-required { border-left: 3px solid #dc2626 !important; padding-left: 9px; }
+  .pill-owner-auto { background: rgba(22,163,74,0.18); color: #4ade80; border:1px solid rgba(22,163,74,0.4); }
+  .pill-owner-human { background: rgba(154,52,18,0.22); color: #fdba74; border:1px solid rgba(154,52,18,0.45); }
+  [data-theme="light"] .pill-owner-auto { background:#dcfce7; color:#166534; border:1px solid #86efac; }
+  [data-theme="light"] .pill-owner-human { background:#fed7aa; color:#9a3412; border:1px solid #fdba74; }
+  .task-row.approval-required { border-left: 3px solid var(--p0) !important; padding-left: 9px; }
 
   /* Phase 2-B-2.5: Claude delegation button */
   .delegate-btn {
@@ -671,7 +698,7 @@
 
   <!-- ===== 작업 추가 탭 ===== -->
   <section class="tm-panel" id="panel-add">
-    <div class="action-card" style="margin-bottom:16px;background:#fef3c7;border-color:#fcd34d;">
+    <div class="action-card action-card--note">
       <h4>📥 새 작업 추가</h4>
       <p>아래 폼으로 작업을 추가하면 메모리에 저장됩니다. 변경 사항을 영구 반영하려면 하단 <strong>"💾 새 tasks.json 다운로드"</strong> 버튼을 누르고 PC에서 git push 하세요.</p>
     </div>

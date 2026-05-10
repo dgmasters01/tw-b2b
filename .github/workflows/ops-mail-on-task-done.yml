@@ -39,6 +39,12 @@ permissions:
 
 jobs:
   send-mail:
+    # ★ BL-OPS-MAIL-QUOTA-FIX (2026-05-10): 임시 비활성화
+    # 사유: Resend 일일 100통 한도 200% 초과 (대표님이 메일 받음).
+    # tasks.json이 commit마다 변경되어 매번 메일 발송 → 과다 발송.
+    # 정식 fix(BL-OPS-MAIL-QUOTA-FIX): 메일 묶음 + 빈도 제한 별개 BL로 박을 예정.
+    # 그 BL 완료 후 이 줄 제거하면 다시 동작.
+    if: false
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

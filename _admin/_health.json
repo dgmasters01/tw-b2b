@@ -1,7 +1,7 @@
 {
-  "overall": "yellow",
-  "summary": "[yellow] admin_baseline: 관리자 페이지 7개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요)",
-  "checked_at": "2026-05-10T07:35:17.926Z",
+  "overall": "red",
+  "summary": "[yellow] admin_baseline: 관리자 페이지 7개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요) / [red] tasks_schema: 작업 132건 중 1건에 출처가 없어요 (자동 동기화 봇 멈춤 위험) / [yellow] vercel_sync: 라이브 사이트가 GitHub 새 버전(cb734e5)을 아직 못 따라잡았어요 (현재 라이브: c0a3bf2). 5~10분 후 자동 정상화 예정",
+  "checked_at": "2026-05-10T10:18:35.792Z",
   "checks": [
     {
       "name": "admin_baseline",
@@ -31,7 +31,7 @@
         {
           "file": "admin-status.html",
           "reason": "modified",
-          "current_sha": "0fe9699ffbd3"
+          "current_sha": "179896ccb80e"
         },
         {
           "file": "admin-tasks.html",
@@ -47,9 +47,11 @@
     },
     {
       "name": "tasks_schema",
-      "status": "green",
-      "detail": "작업 131건 모두 출처 박혀있어요 (정상)",
-      "missing_source": []
+      "status": "red",
+      "detail": "작업 132건 중 1건에 출처가 없어요 (자동 동기화 봇 멈춤 위험)",
+      "missing_source": [
+        "BL-HUMAN-TAB-ALWAYS-SHOW"
+      ]
     },
     {
       "name": "bots",
@@ -57,18 +59,18 @@
       "detail": "자동 일꾼들(봇) 전부 살아있어요",
       "dead_bots": [],
       "bot_status": {
-        "sync-bot": "success",
-        "auto-detect-bot": "success",
+        "sync-bot": "unknown",
+        "auto-detect-bot": "unknown",
         "scan-bot": "success",
-        "chat-log-bot": "unknown"
+        "chat-log-bot": "success"
       }
     },
     {
       "name": "vercel_sync",
-      "status": "green",
-      "detail": "라이브 사이트가 GitHub와 같은 버전이에요 (df2a361)",
-      "live_sha": "df2a361",
-      "vercel_sha": "df2a361",
+      "status": "yellow",
+      "detail": "라이브 사이트가 GitHub 새 버전(cb734e5)을 아직 못 따라잡았어요 (현재 라이브: c0a3bf2). 5~10분 후 자동 정상화 예정",
+      "live_sha": "cb734e5",
+      "vercel_sha": "c0a3bf2",
       "project": "tw-b2b"
     },
     {

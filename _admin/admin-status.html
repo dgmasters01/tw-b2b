@@ -4029,18 +4029,94 @@
       try {
         const token = await getAdminAccessToken();
         if (!token) return; // 토큰 없으면 GitHub fetch 스킵 (localStorage만 사용)
+
+        // ★ BL-PINGPONG-PASTE-PROTECT step2: 편집 중이면 fetch 스킵 (자동 사라짐 사고 fix)
+        // 대표님이 contenteditable 칸 안에 포커스 박혀있으면 폴링이 덮어씌우면 안 됨.
+        const activeEl = document.activeElement;
+        if (activeEl && activeEl.classList && activeEl.classList.contains('grim-line-text')) {
+          // 편집 중 — 폴링 무시
+          return;
+        }
+
         const res = await fetch(`/api/decision?action=pingpong-load&task_id=${encodeURIComponent(task.id)}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         if (!res.ok) return;
         const j = await res.json();
         if (Array.isArray(j.rounds) && j.rounds.length > 0) {
-          // GitHub이 권위. localStorage 덮어씀.
-          grimRounds = j.rounds;
-          try { localStorage.setItem(GRIM_KEY, JSON.stringify(j.rounds)); } catch (_) {}
-          renderGrimRounds();
+          // ★ step3: mergeRounds — GitHub가 빈 값이고 로컬이 채워진 값이면 로컬 우선
+          // 이전엔 'GitHub이 권위'로 무조건 덮어씀 → Claude 칸 자동 사라짐 사고 원인
+          grimRounds = mergeRounds(grimRounds, j.rounds);
+          try { localStorage.setItem(GRIM_KEY, JSON.stringify(grimRounds)); } catch (_) {}
+          renderGrimRoundsPreservingFocus();
         }
       } catch (_) { /* 네트워크 실패 시 localStorage 그대로 */ }
+    }
+
+    // ★ BL-PINGPONG-PASTE-PROTECT step3: 로컬·서버 라운드 병합 — 로컬 우선
+    // 대표님이 Claude 칸에 답 붙여넣고 아직 GitHub에 박지 않은 상태에서 폴링이 빈 값으로 덮으면 안 됨.
+    // 규칙: 같은 라운드 인덱스에서 ceo/claude 각각 비교, 더 긴 텍스트 우선 (= 채워진 값).
+    //       서버 라운드가 더 많으면 그건 추가.
+    function mergeRounds(local, server) {
+      const out = [];
+      const maxLen = Math.max(local.length, server.length);
+      for (let i = 0; i < maxLen; i++) {
+        const l = local[i] || { ceo: '', claude: '', at: null };
+        const s = server[i] || { ceo: '', claude: '', at: null };
+        const ceoLocal = (l.ceo || '').trim();
+        const ceoServer = (s.ceo || '').trim();
+        const claudeLocal = (l.claude || '').trim();
+        const claudeServer = (s.claude || '').trim();
+        out.push({
+          // 더 긴 텍스트 우선 (= 채워진 쪽)
+          ceo: ceoLocal.length >= ceoServer.length ? l.ceo : s.ceo,
+          claude: claudeLocal.length >= claudeServer.length ? l.claude : s.claude,
+          // at은 더 최근 시각 우선
+          at: (s.at && (!l.at || new Date(s.at) > new Date(l.at))) ? s.at : l.at,
+        });
+      }
+      return out;
+    }
+
+    // ★ BL-PINGPONG-PASTE-PROTECT step4: render 시 현재 focus + selection 보존
+    // contenteditable 다시 그리면 caret 위치 잃어서 사용자 편집 흐름 끊김.
+    function renderGrimRoundsPreservingFocus() {
+      // 현재 포커스 위치 기억
+      const activeEl = document.activeElement;
+      let savedFocus = null;
+      if (activeEl && activeEl.classList && activeEl.classList.contains('grim-line-text')) {
+        const idx = activeEl.dataset.idx;
+        const field = activeEl.dataset.field;
+        const sel = window.getSelection();
+        let caretOffset = 0;
+        if (sel && sel.rangeCount > 0) {
+          const range = sel.getRangeAt(0);
+          caretOffset = range.startOffset;
+        }
+        savedFocus = { idx, field, caretOffset };
+      }
+      renderGrimRounds();
+      // 포커스 복원
+      if (savedFocus) {
+        const sel = `[data-idx="${savedFocus.idx}"][data-field="${savedFocus.field}"]`;
+        const target = modal.querySelector(sel);
+        if (target) {
+          target.focus();
+          // caret 복원
+          try {
+            const range = document.createRange();
+            const textNode = target.firstChild;
+            if (textNode && textNode.nodeType === 3) {
+              const offset = Math.min(savedFocus.caretOffset, textNode.length);
+              range.setStart(textNode, offset);
+              range.setEnd(textNode, offset);
+              const sel2 = window.getSelection();
+              sel2.removeAllRanges();
+              sel2.addRange(range);
+            }
+          } catch (_) { /* selection 복원 실패해도 focus는 됨 */ }
+        }
+      }
     }
 
     function saveGrimRounds() {
@@ -4559,14 +4635,15 @@
         lines.push('   - "✅ 같은 그림 — [요약]" 또는');
         lines.push('   - "❓ 헷갈림 — [어디가 다른지 짚기]" 또는');
         lines.push('   - "💡 추가 그림 — [Claude가 본 다른 측면]"');
-        lines.push('4. 답을 다음 형식으로 줘서 대표님이 모달에 붙여넣기 쉽게:');
         lines.push('');
-        lines.push('```');
-        lines.push('[Claude 답 — 라운드 ' + (roundIdx + 1) + ']');
-        lines.push('(여기에 1~3문장)');
-        lines.push('```');
+        lines.push('### ⚠️ 중요 — 답 형식 (대표님이 마우스로 쉽게 복사하실 수 있게)');
         lines.push('');
-        lines.push('5. 답 박은 후, 대표님이 모달의 "Claude" 칸에 붙여넣고 💾 누르면 GitHub에 박힘 → 다음 라운드.');
+        lines.push('답을 절대 코드블록(` ``` `)이나 인용구(>)로 감싸지 마세요. 그냥 평문으로 한 문단만 박으세요. 짧고 명확하게.');
+        lines.push('');
+        lines.push('답 끝에 마무리 한 줄 추가:');
+        lines.push('"👆 위 답을 마우스로 드래그 → Ctrl+C → 모달 \\"Claude\\" 칸에 붙여넣으세요."');
+        lines.push('');
+        lines.push('이렇게 하면 대표님이 답을 마우스로 쉽게 복사 → 모달의 "Claude" 칸에 붙여넣기 → 💾 누르면 GitHub에 박힘 → 다음 라운드.');
       }
 
       lines.push('');
@@ -4581,9 +4658,11 @@
     loadGrimRounds();
     renderGrimRounds();
 
-    // ★ BL-DECISION-MODAL-PINGPONG step8 (2026-05-10): 모달 열려 있는 동안 5초 폴링
+    // ★ BL-DECISION-MODAL-PINGPONG step8 (2026-05-10): 모달 열려 있는 동안 폴링
     //   Claude가 새 채팅에서 답을 박으면 즉시 모달에 자동 반영.
     //   모달 닫을 때 정리.
+    // ★ BL-PINGPONG-PASTE-PROTECT (2026-05-10): 5초 → 10초로 늘림
+    //   대표님 편집 빈도 vs 다른 기기 동기화 빈도 균형. 편집 중엔 fetchGrimRoundsFromGitHub 자체가 스킵.
     let _ppPollTimer = null;
     function startPingpongPolling() {
       if (_ppPollTimer) return;
@@ -4592,7 +4671,7 @@
         if (modal.style.display !== 'none' && document.body.contains(modal)) {
           fetchGrimRoundsFromGitHub().catch(() => {});
         }
-      }, 5000);
+      }, 10000);
     }
     function stopPingpongPolling() {
       if (_ppPollTimer) {

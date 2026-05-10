@@ -38,6 +38,7 @@
 - **부칙 13 — 채팅 라우팅 자율 판단:** Claude는 매 응답마다 채팅 라우팅을 자율 판단한다. 옵션 묻지 않는다. 응답 두 번째 줄에 `🚦 ✅`/`⚠️` 표시. 디테일·인계 명령문 양식: `_os/playbook/chat-routing.md`.
 - **부칙 14 — 헌법 길이 200줄 이하 강제 (BL-OS-LIGHTWEIGHT, 2026-05-07 신설):** 헌법 본문은 200줄 이하. 새 운영 룰은 헌법이 아닌 `_os/playbook/`에 박는다. `charter-length-bot`이 매 push 검사, 초과 시 CI 실패.
 - **부칙 15 — chat-log 박기 의무 (BL-CHATLOG-AUTO-GATE, 2026-05-08 신설):** BL 작업 done 처리 시 `_chat-logs/{date}-{slug}.md` 박고 index.json `byTask`에 매핑 의무. `auto-detect-bot`이 done 트랜지션 감지 시 매핑 검증, 없으면 ⚠️ 워닝 박음. 디테일·예외: `_os/playbook/chatlog-auto-gate.md`.
+- **부칙 16 — 클로드 행동 강제 게이트 (BL-CLAUDE-DISCIPLINE, 2026-05-10 신설):** 매 응답 첫 5줄 강제(① 작업소요 ② 라우팅 ③ fetch완료 ④ 북극성+결정 ⑤ 중복점검grep). 라이브 fetch 의무(인계서만 믿지 말 것). 묻는 것은 4가지뿐(비즈니스/서비스/전체 틀/디자인 큰 방향+이미지) — 개발 순서·기술 선택은 자율. 보고는 초등학생 언어 + "어디/무엇/어떻게" 4줄 + 디자인은 이미지. 모든 인계서 머리에 `_os/handoff-header.md` 자동 prepend로 강제. 위반 시 "헌법 확인" 한 마디로 즉시 정지·자가 진단. 디테일: `_os/playbook/claude-discipline.md`.
 
 ---
 

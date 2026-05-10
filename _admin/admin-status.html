@@ -4112,6 +4112,23 @@
   async function buildHandoffMessage(taskId, taskTitle, source) {
     const lines = [];
 
+    // ★ BL-CLAUDE-DISCIPLINE (D-023, 2026-05-10) — 헌법 부칙 16 강제 헤더
+    //   _os/handoff-header.md를 모든 인계서 머리에 자동 prepend.
+    //   목적: 새 채팅 클로드가 부칙 16(첫 5줄 양식·라이브 fetch·금지 행동·이미지 보고) 100% 강제.
+    //   단일 진실원: _os/handoff-header.md (이 파일 1개만 수정하면 모든 인계서 자동 반영)
+    try {
+      const hdrRes = await fetch('/_os/handoff-header.md?t=' + Date.now());
+      if (hdrRes.ok) {
+        const hdrText = await hdrRes.text();
+        lines.push(hdrText);
+        lines.push('');
+      }
+    } catch (_) {
+      // fetch 실패 시 헤더 누락된 채로 진행 (인계서 자체는 망가지지 않게)
+      lines.push('⚠️ 강제 헤더 fetch 실패 — _os/handoff-header.md 확인 필요');
+      lines.push('');
+    }
+
     // 헤더
     lines.push(`# ${taskId} 시작 — ${source}`);
     lines.push('');

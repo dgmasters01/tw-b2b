@@ -7315,6 +7315,39 @@
       ],
       "notes": "이전 채팅(BL-GALLERY-PAGES-META-FIX 직후) 진단 결과 인계. DECISIONS.md D-022에 정석 fix 설계 박힘. 실행 시 D-022 + chat-log/2026-05/BL-ACTIVITY-FEED-CLEANUP.md 참조.",
       "started_at": "2026-05-09T14:28:43+00:00"
+    },
+    {
+      "id": "BL-HUMAN-TAB-ALWAYS-SHOW",
+      "title": "활동 이력 사람용 탭 — 모든 활동의 정체를 항상 노출 (3-Layer 강제)",
+      "category": "fix",
+      "priority": "P1",
+      "size": "small",
+      "status": "in_progress",
+      "autonomous": true,
+      "approval_required": false,
+      "estimated_hours": 0.5,
+      "why": "대표님 진단 2026-05-10: 사람용 탭이 chat-log 매핑돼야만 내용 표시 → 봇 commit·매핑 실패 시 활동 정체 불명. 사람용 탭의 본질 임무는 \"이 활동이 무엇인지\" 항상 알려주는 것. chat-log는 보너스.",
+      "progress": {
+        "percent": 0,
+        "steps": [
+          {
+            "name": "🎯 무엇 카드 빌더 함수 박음 (commit subject 의미 변환)",
+            "status": "pending"
+          },
+          {
+            "name": "📍 왜 카드 빌더 함수 박음 (봇 임무·결정 본문·작업 사유)",
+            "status": "pending"
+          },
+          {
+            "name": "loadHumanTab 재설계 — 항상 🎯+📍 박고 chat-log 있으면 🛠 추가",
+            "status": "pending"
+          },
+          {
+            "name": "봇·결정·매핑 실패·정상 4 케이스 라이브 검증",
+            "status": "pending"
+          }
+        ]
+      }
     }
   ]
 }

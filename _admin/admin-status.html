@@ -11,34 +11,23 @@
 <meta http-equiv="Expires" content="0">
 <meta name="x-app-version" content="2026-05-05-v3-self-qa">
 <style>
-  /* Aurora 다크 톤 (BL-HUB-RETIRE 후 admin-status가 통합 진입점 역할) */
   :root {
-    --bg: #0f172a;
-    --panel: #1e293b;
-    --panel-2: #0c1322;
-    --border: #334155;
-    --text: #f1f5f9;
-    --text-muted: #94a3b8;
-    --aurora-1: #8b5cf6;
-    --aurora-2: #ec4899;
-    --aurora-3: #06b6d4;
-    --done: #16a34a;
-    --pending: #2563eb;
-    --in_progress: #9333ea;
-    --blocked: #dc2626;
-    --p0: #dc2626;
-    --p1: #ea580c;
-    --p2: #ca8a04;
-    /* 3-State 배지 (D-011) */
-    --auto: #16a34a;
-    --auto-bg: rgba(22,163,74,0.10);
-    --auto-text: #86efac;
-    --staff: #2563eb;
-    --staff-bg: rgba(96,165,250,0.10);
-    --staff-text: #93c5fd;
-    --ceo: #ca8a04;
-    --ceo-bg: rgba(251,191,36,0.10);
-    --ceo-text: #fcd34d;
+    /* BL-ADMIN-LIGHTMODE 3단계 — shared.css 단일 진실원 alias (D-022)
+       페이지 본문 토큰 이름 유지, 값은 shared.css가 다크/라이트 자동 반전
+       --bg / --aurora-1/2/3 / --auto* / --staff* / --ceo* 는 shared.css 직접 사용 */
+    --panel:        var(--bg-2);
+    --panel-2:      var(--bg-3);
+    --border:       var(--line-2);
+    --text:         var(--ink);
+    --text-1:       var(--ink);
+    --text-muted:   var(--ink-3);
+    --done:         var(--success);
+    --pending:      var(--status-pending);
+    --in_progress:  var(--status-in-progress);
+    --blocked:      var(--danger);
+    --p0:           var(--priority-p0);
+    --p1:           var(--priority-p1);
+    --p2:           var(--priority-p2);
   }
   * { box-sizing: border-box; }
   body {

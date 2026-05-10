@@ -6,9 +6,18 @@
 <title>권한 관리 — TravelWinners B2B Admin</title>
 <style>
   :root {
-    --bg:#0a0a0f; --panel:rgba(20,20,30,0.85); --border:rgba(255,255,255,0.08);
-    --text:#e5e7eb; --muted:#9ca3af; --accent:#a78bfa; --accent2:#6366f1;
-    --ok:#86efac; --warn:#fbbf24; --err:#fca5a5;
+    /* BL-ADMIN-LIGHTMODE 3단계 — shared.css 단일 진실원 alias (D-022)
+       --bg 는 shared.css 직접 사용. permissions 단축 토큰 매핑:
+       --muted=ink-3, --accent=aurora-1, --accent2=aurora-1 동계, --ok/warn/err=시맨틱 */
+    --panel:    var(--bg-2);
+    --border:   var(--line-2);
+    --text:     var(--ink);
+    --muted:    var(--ink-3);
+    --accent:   var(--aurora-1);
+    --accent2:  var(--accent-purple-soft);
+    --ok:       var(--success);
+    --warn:     var(--warn);
+    --err:      var(--danger);
   }
   * { box-sizing:border-box; }
   body { margin:0; min-height:100vh; background:var(--bg); color:var(--text);

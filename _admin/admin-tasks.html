@@ -7,22 +7,24 @@
 <link rel="stylesheet" href="/shared.css">
 <style>
   :root {
-    --bg: #f8fafc;
-    --panel: #ffffff;
-    --text: #0f172a;
-    --text-muted: #64748b;
-    --border: #e2e8f0;
-    --primary: #4f46e5;
-    --primary-hover: #6366f1;
-    --p0: #dc2626;
-    --p1: #ea580c;
-    --p2: #ca8a04;
-    --p3: #64748b;
-    --done: #16a34a;
-    --pending: #2563eb;
-    --in_progress: #9333ea;
-    --blocked: #dc2626;
-    --next_week: #64748b;
+    /* BL-ADMIN-LIGHTMODE 3단계 — shared.css 단일 진실원 alias (D-022)
+       D-022 결정②: admin-tasks 라이트 잔재 → 다크로 통일됨 (alias 적용으로 자동 해소)
+       --bg 는 shared.css 직접 사용 */
+    --panel:        var(--bg-2);
+    --text:         var(--ink);
+    --text-muted:   var(--ink-3);
+    --border:       var(--line-2);
+    --primary:      var(--aurora-1);
+    --primary-hover: var(--accent-purple-soft);
+    --p0:           var(--priority-p0);
+    --p1:           var(--priority-p1);
+    --p2:           var(--priority-p2);
+    --p3:           var(--priority-p3);
+    --done:         var(--success);
+    --pending:      var(--status-pending);
+    --in_progress:  var(--status-in-progress);
+    --blocked:      var(--danger);
+    --next_week:    var(--ink-4);
   }
   body {
     background: var(--bg);

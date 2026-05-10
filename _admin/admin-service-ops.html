@@ -7,14 +7,12 @@
 <link rel="stylesheet" href="/shared.css">
 <style>
   :root {
-    --bg: #0f172a;
-    --panel: #1e293b;
-    --border: #334155;
-    --text: #f1f5f9;
-    --text-muted: #94a3b8;
-    --aurora-1: #8b5cf6;
-    --aurora-2: #ec4899;
-    --aurora-3: #06b6d4;
+    /* BL-ADMIN-LIGHTMODE 3단계 — shared.css 단일 진실원 alias (D-022)
+       --bg / --aurora-1/2/3 는 shared.css 직접 사용 (페이지 재정의 삭제) */
+    --panel:        var(--bg-2);
+    --border:       var(--line-2);
+    --text:         var(--ink);
+    --text-muted:   var(--ink-3);
   }
   * { box-sizing: border-box; }
   body {

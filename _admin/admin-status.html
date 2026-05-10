@@ -4354,16 +4354,19 @@
               </div>` : ''}
               ${(() => {
                 if (ceoText && claudeText) {
-                  // 라운드 완료 — 버튼 없음
+                  // 라운드 완료 — 완료 배지만
                   return '<div class="pp-round-done">✅ 라운드 완료 — 다음 라운드 추가하거나 결정 확정으로</div>';
-                } else if (ceoText && !claudeText) {
-                  // Claude 답 받을 차례 — 통합 버튼 (GitHub 박기 + 새 탭 자동)
-                  return `<button type="button" class="pp-unified-btn" data-action="grim-unified-send" data-idx="${i}" title="GitHub에 저장 + claude.ai 새 탭 자동 열기 + 클립보드 복사">
-                    💾 그림 저장하고 Claude에게 보내기
-                  </button>`;
                 } else {
-                  // 빈 라운드 — 비활성 안내
-                  return '<div class="pp-round-empty-hint">👆 위에 그림을 한 줄 적으세요</div>';
+                  // ★ BL-PINGPONG-BUTTON-VISIBLE (2026-05-10): 통합 버튼 항상 표시
+                  // 사라지는 버튼은 사용자 혼란. 빈 라운드면 disabled로 회색 표시 + 안내.
+                  // ceoText 있으면 활성화 (보라 펄스).
+                  const disabled = !ceoText;
+                  const btnText = ceoText
+                    ? '💾 그림 저장하고 Claude에게 보내기'
+                    : '👆 위에 그림을 한 줄 적으면 활성화됩니다';
+                  return `<button type="button" class="pp-unified-btn" data-action="grim-unified-send" data-idx="${i}" ${disabled ? 'disabled' : ''} title="GitHub에 저장 + claude.ai 새 탭 자동 열기 + 클립보드 복사">
+                    ${btnText}
+                  </button>`;
                 }
               })()}
             </div>
@@ -4384,6 +4387,31 @@
           grimRounds[idx][field] = el.textContent || '';
           grimRounds[idx].at = new Date().toISOString();
           debouncedSaveGrim();
+
+          // ★ BL-PINGPONG-BUTTON-VISIBLE step1·2: 즉시 버튼 + 배지 갱신
+          // render 다시 호출 안 하고 직접 DOM 변경 (편집 흐름 안 끊음).
+          const card = wrap.querySelector(`[data-round-idx="${idx}"]`);
+          if (card) {
+            const ceoText = (grimRounds[idx].ceo || '').trim();
+            const claudeText = (grimRounds[idx].claude || '').trim();
+            // 통합 버튼 활성/비활성 + 라벨 변경
+            const btn = card.querySelector('.pp-unified-btn');
+            if (btn && !(ceoText && claudeText)) {
+              btn.disabled = !ceoText;
+              btn.textContent = ceoText
+                ? '💾 그림 저장하고 Claude에게 보내기'
+                : '👆 위에 그림을 한 줄 적으면 활성화됩니다';
+            }
+            // 차례 배지 갱신
+            const headerSpan = card.querySelector('.grim-round-h > span');
+            if (headerSpan) {
+              const numHtml = `<span class="grim-round-num">라운드 ${idx + 1}</span>`;
+              let badge = '<span class="grim-turn-badge ceo-turn">👤 대표님 차례</span>';
+              if (ceoText && !claudeText) badge = '<span class="grim-turn-badge claude-turn">🤖 Claude 차례</span>';
+              else if (ceoText && claudeText) badge = '<span class="grim-turn-badge done">✅ 라운드 완료</span>';
+              headerSpan.innerHTML = numHtml + ' ' + badge;
+            }
+          }
         });
         // Enter 키는 줄바꿈 대신 다음 필드로 이동 (한 줄 그림 강제)
         el.addEventListener('keydown', (e) => {

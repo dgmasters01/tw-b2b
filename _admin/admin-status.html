@@ -4791,94 +4791,204 @@
   }
 
   // ★ BL-HUMAN-TAB-ALWAYS-SHOW: 활동 정체 카드 빌더 (🎯 무엇 + 📍 왜)
-  // 모든 활동(봇·사람·결정·매핑 실패)에서 항상 호출 — 활동의 정체를 한눈에 노출.
+  // ★ A형 부드러운 설명체 (2026-05-10): 개발 모르는 사람도 이해되는 일상어로 변환.
+  // 모든 활동(봇·사람·결정·매핑 실패)에서 항상 호출.
   function buildActivityIdentityCards(item) {
-    const action = item.action || '';
+    const action = (item.action || '').trim();
     const actor = item.actor || item.by || '시스템';
-    const targetType = item.target_type || '';
-    const targetId = item.target_id || '';
-    const timestamp = item.timestamp || '';
-
-    // 봇 활동 식별
     const botName = detectBotCommit(item);
-    const botInfo = {
-      'scan-bot':        { 임무: '페이지 완성도 자동 측정', 트리거: 'HTML 변경 감지', 결과: 'pages-status 점수 갱신' },
-      'sync-bot':        { 임무: 'tasks.json ↔ MD/Gallery 양방향 동기화', 트리거: '파일 변경 감지', 결과: '연결된 문서들 자동 갱신' },
-      'auto-detect-bot': { 임무: 'commit 메시지 분석', 트리거: '새 commit push', 결과: '작업 status 자동 갱신' },
-      'health-bot':      { 임무: '시스템 상태 모니터링', 트리거: '주기 실행', 결과: '_health.json 갱신, vercel-sync 복구' },
-      'activity-bot':    { 임무: '활동 피드 자동 갱신', 트리거: 'git/tasks 변경', 결과: 'activity-feed.json 빌드' }
-    };
 
-    // 작업번호 추출 (BL-/IP-/UX-/D-)
+    // 작업번호 추출 (사람용 카드에서 표시는 안 하지만 변환 로직에서 사용)
     const taskMatch = action.match(/(BL-[A-Z0-9-]+|IP-[A-Z0-9-]+|UX-[A-Z0-9-]+|D-\d+)/);
     const taskId = taskMatch ? taskMatch[1] : null;
 
-    // ===== 🎯 무엇 — 한 줄 요약 (의미 변환) =====
+    // ===== 🎯 무엇 + 📍 왜 — 일상어로 빌드 =====
     let whatLine = '';
-    if (botName) {
-      const info = botInfo[botName] || { 결과: '시스템 자동화 작업' };
-      whatLine = info.결과;
-      // commit subject에서 구체 숫자/내용 뽑아 보강 (예: "19페이지, 평균 53점")
-      const detailMatch = action.match(/\(([^)]+)\)/);
-      if (detailMatch) whatLine += ` — ${detailMatch[1]}`;
-    } else if (action.match(/^D-\d{3}/)) {
-      // 결정 활동
-      whatLine = action.replace(/^D-\d{3}:\s*/, '').replace(/\s+\d{4}-\d{2}-\d{2}\s*$/, '');
-    } else if (taskId) {
-      // 작업 commit — subject에서 의미 추출
-      whatLine = action
-        .replace(/^\[?[a-z]+\]?\(?[A-Z0-9-]+\)?:?\s*/, '')  // "feat(BL-XXX):" 제거
-        .replace(/^\[?BL-[A-Z0-9-]+\]?\s*/, '')             // 앞 [BL-XXX] 제거
-        .replace(/\[step:done:\d+\]/g, '')                  // [step:done:N] 제거
-        .replace(/\[변경사유:[^\]]*\]/g, '')                // [변경사유:...] 제거
-        .replace(/\[헌법변경[^\]]*\]/g, '')                 // [헌법변경...] 제거
-        .trim();
-    } else {
-      whatLine = action;
-    }
-    if (!whatLine || whatLine.length < 3) whatLine = action || '활동';
+    let whyLine = '';
 
-    // ===== 📍 왜 — 누가, 왜, 어떤 맥락 =====
-    let whyLines = [];
-    // 누가
     if (botName) {
-      const info = botInfo[botName] || {};
-      whyLines.push(`<strong>[${escapeHtml(botName)}]</strong> ${info.임무 ? escapeHtml(info.임무) + ' 봇' : '시스템 자동화 봇'}`);
-      if (info.트리거) whyLines.push(`<span style="color:var(--text-muted);">트리거 — ${escapeHtml(info.트리거)}</span>`);
-    } else if (actor) {
-      whyLines.push(`<strong>${escapeHtml(actor)}</strong>의 작업`);
-    }
-    // 작업번호 + 의미
-    if (taskId) {
-      whyLines.push(`<span style="color:var(--text-muted);">작업번호 — <code>${escapeHtml(taskId)}</code></span>`);
-    }
-    // 변경사유 추출
-    const reasonMatch = action.match(/\[변경사유:\s*([^\]]+)\]/);
-    if (reasonMatch) {
-      whyLines.push(`<span style="color:var(--text-muted);">변경사유 — ${escapeHtml(reasonMatch[1].trim())}</span>`);
-    }
-    // step 진행 정보
-    const stepMatch = action.match(/\[step:done:(\d+)\]/);
-    if (stepMatch) {
-      whyLines.push(`<span style="color:var(--text-muted);">단계 ${escapeHtml(stepMatch[1])} 완료</span>`);
+      // ── 봇 활동: 봇별 특화 일상어 변환 ──
+      const result = humanizeBotAction(botName, action);
+      whatLine = result.what;
+      whyLine = result.why;
+    } else if (action.match(/^D-\d{3}/)) {
+      // ── D-NNN 결정 ──
+      const cleanTitle = action
+        .replace(/^D-\d{3}:\s*/, '')
+        .replace(/\s+\d{4}-\d{2}-\d{2}\s*$/, '')
+        .trim();
+      whatLine = `중요한 결정을 하나 내렸습니다 — ${cleanTitle}`;
+      whyLine = `대표님이 직접 결정한 사항입니다. 회사 운영의 큰 방향을 정하는 결정 기록(${taskId || 'D'})에 추가됐습니다.`;
+    } else if (taskId) {
+      // ── 사람/Claude commit: 의미 있는 한 줄로 ──
+      const cleanTitle = humanizeCommitSubject(action);
+      whatLine = cleanTitle;
+
+      // 변경사유 추출
+      const reasonMatch = action.match(/\[변경사유:\s*([^\]]+)\]/);
+      const stepMatch = action.match(/\[step:done:(\d+)\]/g);
+      const stepCount = stepMatch ? stepMatch.length : 0;
+
+      const whyParts = [];
+      whyParts.push(`<strong>${escapeHtml(actor)}</strong>이 진행한 작업입니다.`);
+      if (reasonMatch) {
+        whyParts.push(`이유: ${escapeHtml(humanizeText(reasonMatch[1].trim()))}`);
+      }
+      if (stepCount > 0) {
+        whyParts.push(`이번에 ${stepCount}개 단계를 완료했습니다.`);
+      }
+      whyLine = whyParts.join(' ');
+    } else if (!action) {
+      // ── action 빈 경우 (auto-detect-bot 일부) ──
+      whatLine = '시스템이 자동으로 처리한 작은 갱신 작업입니다.';
+      whyLine = `<strong>${escapeHtml(actor)}</strong>이 알아서 처리했습니다. 별도로 사람이 결정한 일은 없습니다.`;
+    } else {
+      // ── 기타 ──
+      whatLine = humanizeText(action);
+      whyLine = `<strong>${escapeHtml(actor)}</strong>의 활동입니다.`;
     }
 
     // ===== 카드 HTML 조립 =====
     return `
       <div style="margin-bottom:12px;">
-        <div style="padding:10px 12px;background:rgba(124,58,237,0.06);border-left:3px solid #a855f7;border-radius:5px;margin-bottom:6px;">
-          <div style="font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">🎯 무엇</div>
-          <div style="font-size:13px;font-weight:500;color:var(--text);line-height:1.5;">${escapeHtml(whatLine)}</div>
+        <div style="padding:11px 14px;background:rgba(124,58,237,0.06);border-left:3px solid #a855f7;border-radius:5px;margin-bottom:6px;">
+          <div style="font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px;">🎯 무엇</div>
+          <div style="font-size:13.5px;font-weight:500;color:var(--text);line-height:1.6;">${escapeHtml(whatLine)}</div>
         </div>
-        <div style="padding:10px 12px;background:rgba(96,165,250,0.06);border-left:3px solid #60a5fa;border-radius:5px;">
-          <div style="font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">📍 왜</div>
-          <div style="font-size:11.5px;color:var(--text);line-height:1.6;display:flex;flex-direction:column;gap:3px;">
-            ${whyLines.map(l => `<div>${l}</div>`).join('')}
-          </div>
+        <div style="padding:11px 14px;background:rgba(96,165,250,0.06);border-left:3px solid #60a5fa;border-radius:5px;">
+          <div style="font-size:9px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px;">📍 왜</div>
+          <div style="font-size:12px;color:var(--text);line-height:1.65;">${whyLine}</div>
         </div>
       </div>
     `;
   }
+
+  // ★ 봇 활동 일상어 변환기
+  // 각 봇이 만드는 정형 메시지를 분석해서 사람이 이해하는 문장으로 바꿈.
+  function humanizeBotAction(botName, action) {
+    // scan-bot — 페이지 점수 갱신
+    if (botName === 'scan-bot') {
+      const pagesMatch = action.match(/(\d+)페이지[,\s]*평균\s*(\d+)점/);
+      if (pagesMatch) {
+        return {
+          what: `사이트의 ${pagesMatch[1]}개 페이지가 얼마나 잘 만들어졌는지 자동으로 점수를 다시 매겼습니다. 평균 ${pagesMatch[2]}점입니다.`,
+          why: `누군가 페이지 내용을 고치면, 이 도우미가 자동으로 그 페이지의 완성도를 다시 계산합니다. 사람이 한 일이 아니라 시스템이 알아서 한 작업입니다.`
+        };
+      }
+      if (action.includes('chat-log index')) {
+        return {
+          what: '작업 기록들을 한눈에 찾을 수 있도록 목록을 자동으로 다시 정리했습니다.',
+          why: '새 작업 기록이 추가되거나 작업 정보가 바뀌면, 이 도우미가 알아서 목록을 업데이트해서 나중에 빠르게 찾을 수 있게 해줍니다.'
+        };
+      }
+      return {
+        what: '사이트의 완성도 점수를 자동으로 다시 계산했습니다.',
+        why: '누군가 페이지를 고치면, 이 도우미가 자동으로 점수를 매깁니다. 사람이 한 일이 아닙니다.'
+      };
+    }
+
+    // health-bot — 시스템 상태
+    if (botName === 'health-bot') {
+      const stateMatch = action.match(/overall=(\w+)/);
+      const stateMap = {
+        'green':  { ko: '🟢 초록(정상)',  desc: '모든 시스템이 잘 돌아가고 있습니다.' },
+        'yellow': { ko: '🟡 노랑(주의)',  desc: '몇 가지 가벼운 이슈가 있어 확인이 필요합니다.' },
+        'red':    { ko: '🔴 빨강(문제)',  desc: '문제가 발생해서 살펴봐야 합니다.' }
+      };
+      const s = stateMatch && stateMap[stateMatch[1]];
+      return {
+        what: s
+          ? `시스템 상태 점검 결과를 업데이트했습니다. 현재 상태: ${s.ko}.`
+          : '시스템 상태 점검 결과를 업데이트했습니다.',
+        why: `이 도우미가 정기적으로 사이트와 시스템들이 잘 돌아가는지 점검하고 결과를 기록합니다.${s ? ' ' + s.desc : ''}`
+      };
+    }
+
+    // auto-detect-bot — 작업 상태 자동 갱신
+    if (botName === 'auto-detect-bot') {
+      return {
+        what: '진행 중이던 작업 하나가 끝난 것을 시스템이 알아채고, 작업 목록의 상태를 자동으로 갱신했습니다.',
+        why: '작업이 완료되면 이 도우미가 자동으로 알아채고 진행률과 상태를 업데이트합니다. 사람이 따로 보고할 필요가 없습니다.'
+      };
+    }
+
+    // activity-bot — 활동 이력 갱신
+    if (botName === 'activity-bot') {
+      const countMatch = action.match(/총\s*(\d+)건/);
+      return {
+        what: countMatch
+          ? `지금 보고 계신 활동 이력 목록을 새로 정리했습니다. 현재까지 총 ${countMatch[1]}건의 활동이 기록돼 있습니다.`
+          : '활동 이력 목록을 새로 정리했습니다.',
+        why: '회사에서 일어난 모든 일(작업·결정·자동 갱신)을 한곳에서 볼 수 있도록 이 도우미가 정기적으로 모아서 정리합니다.'
+      };
+    }
+
+    // sync-bot — 양방향 동기화
+    if (botName === 'sync-bot') {
+      return {
+        what: '여러 곳에 흩어진 작업 정보들을 서로 일치시켰습니다.',
+        why: '같은 작업 정보가 여러 문서·화면에 나뉘어 있을 때 한쪽이 바뀌면 이 도우미가 자동으로 다른 쪽도 똑같이 맞춰줍니다.'
+      };
+    }
+
+    // 기타 봇
+    return {
+      what: '시스템 도우미가 자동으로 처리한 작업입니다.',
+      why: `<strong>${escapeHtml(botName)}</strong>이 사람이 신경 쓰지 않아도 알아서 진행하는 자동 작업입니다.`
+    };
+  }
+
+  // ★ commit subject 일상어 변환
+  // "feat(BL-XXX): 제목 [step:done:N]" → "제목" 같은 식
+  function humanizeCommitSubject(raw) {
+    let s = raw
+      .replace(/^[a-z]+\([^)]+\):\s*/, '')         // "feat(BL-XXX):" 제거
+      .replace(/^\[[A-Z0-9-]+\]\s*/, '')           // "[BL-XXX]" 제거
+      .replace(/\[step:done:\d+\]/g, '')            // "[step:done:N]" 제거
+      .replace(/\[변경사유:[^\]]*\]/g, '')          // 변경사유 따로 처리
+      .replace(/\[헌법변경[^\]]*\]/g, '')           // 헌법변경 제거
+      .replace(/\[관련[^\]]*\]/g, '')               // 관련 commit 제거
+      .replace(/\s+/g, ' ')
+      .trim();
+    // 제목에 남아있는 개발 용어 한 번 더 변환
+    s = humanizeText(s);
+    return s || raw;
+  }
+
+  // ★ 텍스트 안 개발 용어 → 일상어 사전 변환
+  function humanizeText(text) {
+    if (!text) return '';
+    const dict = [
+      // 시스템/인프라
+      [/HTML 변경[\s→]+완성도 재측정/g, '페이지 코드가 바뀌면 점수 다시 계산'],
+      [/HTML 변경/g, '페이지 코드 변경'],
+      [/pages-status/g, '페이지 완성도 점수'],
+      [/3-Layer 자동 갱신/g, '여러 단계로 자동 정리'],
+      [/_health\.json/g, '시스템 상태 기록'],
+      [/_health/g, '시스템 상태'],
+      [/activity-feed/g, '활동 이력'],
+      [/chat-log\s+index/g, '작업 기록 목록'],
+      [/chat-log/g, '작업 기록'],
+      [/byCommit\/byTask 매핑/g, '작업 기록 ↔ 변경 내역 연결'],
+      [/매핑 재구축/g, '연결 다시 정리'],
+      [/CEO 결정\s*→\s*Claude 실행/g, '대표님 결정 → 시스템 실행'],
+      // 작업 단위
+      [/\bcommit\b/g, '작업 결과 저장'],
+      [/\bpush\b/g, '시스템에 반영'],
+      [/frontmatter/g, '문서 머리말'],
+      // 색상/상태
+      [/overall=red/g, '🔴 빨강(문제 있음)'],
+      [/overall=yellow/g, '🟡 노랑(주의)'],
+      [/overall=green/g, '🟢 초록(정상)'],
+      // 우리 시스템 고유어
+      [/Vercel/g, '서비스 운영 인프라'],
+      [/Supabase/g, '데이터베이스'],
+    ];
+    let out = text;
+    for (const [re, to] of dict) out = out.replace(re, to);
+    return out;
+  }
+
 
 
   // ★ 5블록 추출기 (CLAUDE.md 11조)

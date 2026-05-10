@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-10T13:57:42+00:00",
+  "updated_at": "2026-05-10T14:04:26+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -7436,7 +7436,7 @@
       "estimated_hours": 3.0,
       "why": "대표님 진단 2026-05-10: 그림 맞추기 모달에 글 적어도 GitHub 저장·Claude 자동 답·결정 확정·작업 큐 이동이 모두 끊어져 있음. 작업 발생 → 시스템 완성도 자동 추가 흐름이 끊긴 상태. 핑퐁 시스템 + C안 확정(Claude 한 줄 추천) + 입구 1·2·4 통합으로 100% 자동화.",
       "progress": {
-        "percent": 92,
+        "percent": 67,
         "steps": [
           {
             "name": "1. Claude BL 박기 표준 함수 (Edge Function /api/bl/create) — 한 번 호출로 tasks.json + chat-log + commit",
@@ -7470,32 +7470,42 @@
           },
           {
             "name": "7. 새 채팅 인계서에 핑퐁 라운드 자동 prepend (build-handoff)",
-            "status": "done"
+            "status": "done",
+            "done": true,
+            "at": "2026-05-10T14:04:26+00:00"
           },
           {
             "name": "8. Claude commit으로 답 박으면 모달 자동 갱신 (commit 메시지 패턴 감지)",
-            "status": "done"
+            "status": "done",
+            "done": true,
+            "at": "2026-05-10T14:04:26+00:00"
           },
           {
             "name": "9. \"✅ 결정 확정\" 버튼 + Claude 한 줄 추천 자동 채움 (마지막 라운드 분석)",
-            "status": "done"
+            "status": "done",
+            "done": true,
+            "at": "2026-05-10T14:04:26+00:00"
           },
           {
             "name": "10. 확정 누르면 D-NNN 자동 박음 + tasks status 전환 + chat-log 자동 생성",
-            "status": "done"
+            "status": "done",
+            "done": true,
+            "at": "2026-05-10T14:04:26+00:00"
           },
           {
             "name": "11. admin-status 상단 ✏️ \"새 작업 박기\" 버튼 + 1줄 입력 → 자동 BL 생성",
-            "status": "done"
+            "status": "done",
+            "done": true,
+            "at": "2026-05-10T14:04:26+00:00"
           },
           {
             "name": "12. 핑퐁 1회전 라이브 검증 (대표님 입력 → Claude 답 → 확정 → 작업 시작)",
             "status": "pending"
           }
         ],
-        "completed_count": 3,
+        "completed_count": 8,
         "total_count": 12,
-        "updated_at": "2026-05-10T13:57:42+00:00"
+        "updated_at": "2026-05-10T14:04:26+00:00"
       },
       "created_at": "2026-05-10T13:00:00.000Z",
       "started_at": "2026-05-10T13:00:00.000Z",
@@ -7506,7 +7516,7 @@
         "detected_by_commit": "946a0fb",
         "message": "in_progress 도중 progress.steps 미박힘 감지."
       },
-      "updated_at": "2026-05-10T13:57:42+00:00",
+      "updated_at": "2026-05-10T14:04:26+00:00",
       "history": [
         {
           "at": "2026-05-10T13:57:42+00:00",
@@ -7514,6 +7524,13 @@
           "by": "auto-detect-bot",
           "commit": "946a0fb",
           "note": "feat(BL-DECISION-MODAL-PINGPONG): dual auth + 모달 GitHub 저장 + 차례 배지 [step:done:4] [step:done:5] [step:done:6]"
+        },
+        {
+          "at": "2026-05-10T14:04:26+00:00",
+          "event": "진행 중 commit 추가 + 단계 7, 단계 8, 단계 9, 단계 10, 단계 11 완료 (auto-detected)",
+          "by": "auto-detect-bot",
+          "commit": "dc8c074",
+          "note": "feat(BL-DECISION-MODAL-PINGPONG): 빠른 작업 입구 + 인계서 핑퐁 prepend + 모달 폴링 [step:done:7] [step:done:8] [step:done:9] [step:done"
         }
       ]
     }

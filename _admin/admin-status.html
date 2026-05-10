@@ -1065,6 +1065,7 @@
       <button id="btn-i18n" title="언어 토글 — 다음 주 i18n 일괄 적용 예정">🌐 EN/KO</button>
       <button id="btn-skin-toggle" title="Admin Skin — 다크/라이트 토글 (BL-OS-PHASE-3)">🌓 다크/라이트</button>
       <button id="btn-rescan" title="다시 측정 — 수동 트리거">🔄 다시 측정</button>
+      <button id="btn-quick-task" title="빠른 작업 입력 — 한 줄 적으면 자동으로 BL 생성 (BL-DECISION-MODAL-PINGPONG step11)" style="background:linear-gradient(135deg,#a855f7,#7c3aed);color:#fff;border:none;font-weight:600;">✏️ 새 작업 박기</button>
       <a href="/admin.html" style="text-decoration:none;"><button>← Admin</button></a>
     </div>
   </header>
@@ -1610,6 +1611,61 @@
     .grim-send-btn:disabled {
       background: #9ca3af; cursor: not-allowed; opacity: 0.6;
     }
+
+    /* ★ BL-DECISION-MODAL-PINGPONG step9·10: 결정 확정 박스 (C안) */
+    .grim-confirm-box {
+      margin-top: 14px; padding: 14px;
+      background: linear-gradient(135deg, rgba(22,163,74,0.06), rgba(22,163,74,0.02));
+      border: 1px solid rgba(22,163,74,0.30);
+      border-radius: 8px;
+    }
+    .grim-confirm-h {
+      font-size: 12px; font-weight: 600; color: #15803d;
+      margin-bottom: 6px;
+    }
+    .grim-confirm-hint {
+      font-size: 10.5px; color: var(--text-muted);
+      line-height: 1.55; margin-bottom: 10px;
+    }
+    .grim-confirm-row {
+      display: flex; gap: 6px; margin-bottom: 8px;
+    }
+    .grim-suggest-btn {
+      background: rgba(124,58,237,0.10); color: #6d28d9;
+      border: 0.5px solid rgba(124,58,237,0.30);
+      padding: 5px 10px; border-radius: 5px;
+      font-size: 11px; cursor: pointer;
+    }
+    .grim-suggest-btn:hover { background: rgba(124,58,237,0.18); }
+    .grim-confirm-input {
+      width: 100%; box-sizing: border-box;
+      padding: 8px 10px; border: 1px solid rgba(22,163,74,0.35);
+      border-radius: 5px; font-size: 12.5px;
+      font-family: inherit; resize: vertical;
+      background: #fff; color: #1e293b;
+    }
+    .grim-confirm-input:focus {
+      outline: none; border-color: #16a34a;
+      box-shadow: 0 0 0 2px rgba(22,163,74,0.15);
+    }
+    .grim-confirm-actions {
+      display: flex; justify-content: flex-end; margin-top: 10px;
+    }
+    .grim-confirm-btn {
+      background: #16a34a; color: #fff; border: none;
+      padding: 8px 16px; border-radius: 6px;
+      font-size: 12px; font-weight: 600; cursor: pointer;
+    }
+    .grim-confirm-btn:hover:not(:disabled) { background: #15803d; }
+    .grim-confirm-btn:disabled {
+      background: #9ca3af; cursor: not-allowed; opacity: 0.7;
+    }
+    .grim-confirm-status {
+      font-size: 10.5px; color: var(--text-muted);
+      margin-top: 6px; min-height: 14px;
+    }
+    .grim-confirm-status.saving { color: #6d28d9; }
+    .grim-confirm-status.saved { color: #15803d; font-weight: 500; }
     .grim-pair {
       display: flex; flex-direction: column; gap: 6px;
     }
@@ -2758,6 +2814,135 @@
     btn.disabled = false;
   });
 
+  // ★ BL-DECISION-MODAL-PINGPONG step11: 빠른 작업 박기 (입구 4)
+  // 대표님이 한 줄 적으면 → /api/decision?action=quick-task → 자동으로 BL 생성 + 그림 맞추기 모달 자동 열림
+  $('btn-quick-task').addEventListener('click', () => {
+    openQuickTaskModal();
+  });
+
+  function openQuickTaskModal() {
+    // 기존 모달 있으면 제거
+    const existing = document.getElementById('quick-task-modal');
+    if (existing) existing.remove();
+
+    const modal = document.createElement('div');
+    modal.id = 'quick-task-modal';
+    modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:10000;display:flex;align-items:center;justify-content:center;padding:20px;';
+    modal.innerHTML = `
+      <div style="background:var(--bg-2,#fff);color:var(--ink,#1e293b);border-radius:12px;padding:22px;max-width:560px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.4);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+          <h2 style="margin:0;font-size:17px;font-weight:600;">✏️ 새 작업 박기</h2>
+          <button id="qt-close" style="background:transparent;border:0;font-size:22px;cursor:pointer;color:var(--text-muted,#64748b);line-height:1;">×</button>
+        </div>
+        <div style="font-size:11.5px;color:var(--text-muted,#64748b);line-height:1.6;margin-bottom:12px;">
+          하고 싶은 일을 한 줄로 적어주세요. 시스템이 자동으로 작업번호·카테고리·우선순위를 정해서 박습니다.
+          <br>그 다음에 그림 맞추기 모달이 자동으로 열려서 Claude와 핑퐁을 시작합니다.
+        </div>
+        <textarea id="qt-input" rows="3" placeholder="예) 매니저 페이지에서 예약 검증 시스템 만들기"
+          style="width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid var(--line,#e2e8f0);border-radius:6px;font-size:13px;font-family:inherit;resize:vertical;background:var(--bg-3,#f8fafc);color:var(--ink,#1e293b);"></textarea>
+        <div style="display:flex;gap:8px;margin-top:6px;flex-wrap:wrap;font-size:10.5px;color:var(--text-muted,#64748b);">
+          <span>💡 자동 추측:</span>
+          <span id="qt-preview-cat">카테고리 —</span> ·
+          <span id="qt-preview-pri">우선순위 —</span> ·
+          <span id="qt-preview-size">크기 —</span>
+        </div>
+        <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:14px;">
+          <button id="qt-cancel" style="background:transparent;border:1px solid var(--line,#e2e8f0);color:var(--ink-2,#475569);padding:8px 14px;border-radius:6px;font-size:12px;cursor:pointer;">취소</button>
+          <button id="qt-submit" style="background:#7c3aed;color:#fff;border:none;padding:8px 16px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;">📥 박기 + 그림 맞추기 시작</button>
+        </div>
+        <div id="qt-status" style="font-size:11px;color:var(--text-muted,#64748b);margin-top:10px;min-height:14px;"></div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+
+    const input = modal.querySelector('#qt-input');
+    const previewCat = modal.querySelector('#qt-preview-cat');
+    const previewPri = modal.querySelector('#qt-preview-pri');
+    const previewSize = modal.querySelector('#qt-preview-size');
+
+    // 실시간 추측 미리보기 (서버랑 동일 로직)
+    function updatePreview() {
+      const t = (input.value || '').trim().toLowerCase();
+      let cat = '기능';
+      if (/fix|버그|결함|에러|오류/.test(t)) cat = '버그 수정';
+      else if (/디자인|색|폰트|레이아웃|배치/.test(t)) cat = '디자인';
+      else if (/문서|docs|readme|매뉴얼/.test(t)) cat = '문서';
+      else if (/봇|자동|sync|scan|스크립트/.test(t)) cat = '자동화';
+      else if (/ux|사용자|경험|버튼|클릭/.test(t)) cat = 'UX';
+      let pri = 'P2 보통';
+      if (/긴급|급함|asap|p0/i.test(input.value)) pri = 'P0 긴급';
+      else if (/중요|p1/i.test(input.value)) pri = 'P1 중요';
+      const size = t.length < 30 ? '작음' : t.length < 100 ? '보통' : '큼';
+      previewCat.textContent = `카테고리 — ${cat}`;
+      previewPri.textContent = `우선순위 — ${pri}`;
+      previewSize.textContent = `크기 — ${size}`;
+    }
+    input.addEventListener('input', updatePreview);
+    updatePreview();
+    setTimeout(() => input.focus(), 50);
+
+    function close() { modal.remove(); }
+    modal.querySelector('#qt-close').addEventListener('click', close);
+    modal.querySelector('#qt-cancel').addEventListener('click', close);
+    modal.addEventListener('click', e => { if (e.target === modal) close(); });
+
+    modal.querySelector('#qt-submit').addEventListener('click', async () => {
+      const text = (input.value || '').trim();
+      if (text.length < 5) {
+        alert('5자 이상 적어주세요.');
+        input.focus();
+        return;
+      }
+      const sess = window.tw_admin_session_v1;
+      const token = sess && sess.access_token;
+      if (!token) {
+        alert('로그인이 필요합니다.');
+        return;
+      }
+      const status = modal.querySelector('#qt-status');
+      const submitBtn = modal.querySelector('#qt-submit');
+      submitBtn.disabled = true;
+      submitBtn.textContent = '☁️ 박는 중...';
+      status.textContent = '시스템에 작업 등록 중...';
+      status.style.color = '#7c3aed';
+      try {
+        const res = await fetch('/api/decision?action=quick-task', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify({ text }),
+        });
+        if (!res.ok) {
+          const j = await res.json().catch(() => ({}));
+          throw new Error(j.error || `HTTP ${res.status}`);
+        }
+        const j = await res.json();
+        status.textContent = `✅ ${j.task.id} 박혔습니다. 그림 맞추기 모달 여는 중...`;
+        status.style.color = '#15803d';
+        // 1.5초 후 모달 닫고 페이지 새로고침 (작업 카드 갱신 → 클릭 시 그림 맞추기)
+        setTimeout(() => {
+          close();
+          location.reload();
+        }, 1500);
+      } catch (e) {
+        status.textContent = '실패: ' + (e?.message || 'unknown');
+        status.style.color = '#dc2626';
+        submitBtn.disabled = false;
+        submitBtn.textContent = '📥 박기 + 그림 맞추기 시작';
+      }
+    });
+
+    // Ctrl/Cmd+Enter 단축키
+    input.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        e.preventDefault();
+        modal.querySelector('#qt-submit').click();
+      }
+    });
+  }
+
   // ──────────────────────────────────────────────────────────
   // [BL-CLIPBOARD-FIX 2026-05-08] 클립보드 복사 정석 헬퍼
   //   원인: navigator.clipboard.writeText는 "user activation" 토큰 필요.
@@ -3485,6 +3670,25 @@
                 </button>
               </div>
               <div class="grim-save-status" id="grim-save-status"></div>
+
+              <!-- ★ BL-DECISION-MODAL-PINGPONG step9·10: 결정 확정 (C안) -->
+              <div class="grim-confirm-box" id="grim-confirm-box" style="display:none;">
+                <div class="grim-confirm-h">🎯 결정 한 줄 (이 작업의 본질)</div>
+                <div class="grim-confirm-hint">라운드를 다 돌았으면 결정의 본질을 한 줄로 정리하세요. Claude가 마지막 라운드를 보고 추천 한 줄을 자동으로 채워드립니다 — 마음에 들면 그대로, 어색하면 다듬어주세요.</div>
+                <div class="grim-confirm-row">
+                  <button type="button" class="grim-suggest-btn" id="grim-suggest-btn">💡 Claude 추천 한 줄 받기</button>
+                </div>
+                <div class="grim-confirm-input-wrap">
+                  <textarea id="grim-confirm-input" class="grim-confirm-input" rows="2"
+                    placeholder="예) 매니저만 예약 검증, 손님 노출 안 함"></textarea>
+                </div>
+                <div class="grim-confirm-actions">
+                  <button type="button" class="grim-confirm-btn" id="grim-confirm-btn">
+                    ✅ 결정 확정 — 작업 시작
+                  </button>
+                </div>
+                <div class="grim-confirm-status" id="grim-confirm-status"></div>
+              </div>
             </div>
           </div>
 
@@ -3853,6 +4057,34 @@
     loadGrimRounds();
     renderGrimRounds();
 
+    // ★ BL-DECISION-MODAL-PINGPONG step8 (2026-05-10): 모달 열려 있는 동안 5초 폴링
+    //   Claude가 새 채팅에서 답을 박으면 즉시 모달에 자동 반영.
+    //   모달 닫을 때 정리.
+    let _ppPollTimer = null;
+    function startPingpongPolling() {
+      if (_ppPollTimer) return;
+      _ppPollTimer = setInterval(() => {
+        // 모달이 열려 있을 때만
+        if (modal.style.display !== 'none' && document.body.contains(modal)) {
+          fetchGrimRoundsFromGitHub().catch(() => {});
+        }
+      }, 5000);
+    }
+    function stopPingpongPolling() {
+      if (_ppPollTimer) {
+        clearInterval(_ppPollTimer);
+        _ppPollTimer = null;
+      }
+    }
+    startPingpongPolling();
+    // 모달 닫힐 때 정리 (X 버튼/배경 클릭 시 hook)
+    const _closeOriginal = modal.querySelector('[data-action="close-modal"]');
+    if (_closeOriginal) {
+      _closeOriginal.addEventListener('click', stopPingpongPolling);
+    }
+    // 페이지 떠날 때도 정리
+    window.addEventListener('beforeunload', stopPingpongPolling, { once: true });
+
     // [BL-DECISION-MODAL-V2-PHASE-B 단계 6] 그림 맞추기 버튼 핸들러
     //   - "💬 그림 맞추기 시작" → 첫 라운드 추가 + 대표님 칸 포커스
     //     (선택된 옵션이 있으면 "A안으로 가는 그림: " prefill)
@@ -3912,6 +4144,133 @@
       saveGrimRounds();
       renderGrimRounds();
     });
+
+    // ★ BL-DECISION-MODAL-PINGPONG step9: Claude 추천 한 줄 (마지막 라운드 분석)
+    // 마지막 대표님 라운드를 기반으로 본질 한 줄 추출 — 사업가 언어 + 결정 동사
+    modal.querySelector('#grim-suggest-btn')?.addEventListener('click', () => {
+      const input = modal.querySelector('#grim-confirm-input');
+      if (!input) return;
+      // 마지막 비어있지 않은 ceo 라운드 찾기
+      const lastCeo = [...grimRounds].reverse().find(r => (r.ceo || '').trim());
+      if (!lastCeo) {
+        alert('아직 대표님 그림이 없습니다. 먼저 그림 맞추기를 진행하세요.');
+        return;
+      }
+      // 압축 규칙: 25자 이내, 사업가 언어, 결정 동사 살림
+      let raw = (lastCeo.ceo || '').trim();
+      // 1) 첫 문장만 (마침표 / 물음표 / 느낌표 / 줄바꿈)
+      const sentences = raw.split(/[.!?。\n]/).map(s => s.trim()).filter(Boolean);
+      let candidate = sentences[0] || raw;
+      // 2) 일상어 변환 (humanizeText 재사용 — admin-status에 이미 있음)
+      if (typeof humanizeText === 'function') candidate = humanizeText(candidate);
+      // 3) 25자 초과 시 핵심 명사 + 동사 우선
+      if (candidate.length > 30) {
+        // 마지막 동사형(됨/안 함/맞음/아님 등) 살리고 앞 명사구 압축
+        const verbMatch = candidate.match(/(.+?)(맞음|아님|됨|안 함|함|있음|없음|필요|불필요|진행|중단|확정|보류)\.?$/);
+        if (verbMatch) {
+          const noun = verbMatch[1].slice(-Math.min(20, verbMatch[1].length));
+          candidate = noun + verbMatch[2];
+        } else {
+          candidate = candidate.slice(0, 30) + (candidate.length > 30 ? '…' : '');
+        }
+      }
+      input.value = candidate;
+      input.focus();
+      input.select();
+    });
+
+    // ★ BL-DECISION-MODAL-PINGPONG step10: 결정 확정 — D-NNN 자동 박음 + 작업 시작
+    modal.querySelector('#grim-confirm-btn')?.addEventListener('click', async () => {
+      const input = modal.querySelector('#grim-confirm-input');
+      const status = modal.querySelector('#grim-confirm-status');
+      const summary = (input?.value || '').trim();
+      if (!summary || summary.length < 5) {
+        alert('결정 한 줄을 5자 이상 적어주세요.');
+        input?.focus();
+        return;
+      }
+      const ok = confirm(
+        `이 결정을 확정하면 다음이 자동으로 일어납니다:\n\n` +
+        `1. DECISIONS.md에 D-NNN 박힙니다 (영구 기록)\n` +
+        `2. 작업 ${task.id}이 "결정 대기" → "진행 중"으로 이동\n` +
+        `3. 자율 작업 큐로 이동 (즉시 시작 가능)\n\n` +
+        `결정 한 줄: "${summary}"\n\n` +
+        `확정할까요?`
+      );
+      if (!ok) return;
+
+      const sess = window.tw_admin_session_v1;
+      const token = sess && sess.access_token;
+      if (!token) {
+        alert('로그인이 필요합니다.');
+        return;
+      }
+
+      const btn = modal.querySelector('#grim-confirm-btn');
+      btn.disabled = true;
+      btn.textContent = '☁️ 확정 중...';
+      if (status) {
+        status.textContent = '결정 박는 중...';
+        status.className = 'grim-confirm-status saving';
+      }
+
+      try {
+        const res = await fetch('/api/decision?action=decision-confirm', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            task_id: task.id,
+            decision_summary: summary,
+          }),
+        });
+        if (!res.ok) {
+          const j = await res.json().catch(() => ({}));
+          throw new Error(j.error || `HTTP ${res.status}`);
+        }
+        const j = await res.json();
+        if (status) {
+          status.textContent = `✅ 확정 완료 — ${j.decision_id} 박힘. 작업이 진행 중으로 이동했습니다.`;
+          status.className = 'grim-confirm-status saved';
+        }
+        btn.textContent = `✅ ${j.decision_id} 확정됨`;
+        // 3초 후 모달 닫고 페이지 새로고침 (작업 카드 갱신)
+        setTimeout(() => {
+          // 모달 닫기
+          modal.style.display = 'none';
+          // 작업 지휘소 새로고침 트리거 (5초 폴링이 알아서 잡지만 즉시 반영)
+          if (typeof renderCeoWait === 'function' && window.STATE && window.STATE.lastTasksData) {
+            renderCeoWait(window.STATE.lastTasksData);
+          }
+          location.reload();
+        }, 2500);
+      } catch (e) {
+        if (status) {
+          status.textContent = '확정 실패: ' + (e?.message || 'unknown');
+          status.className = 'grim-confirm-status';
+        }
+        btn.disabled = false;
+        btn.textContent = '✅ 결정 확정 — 작업 시작';
+      }
+    });
+
+    // ★ 확정 박스 표시 토글 — renderGrimRounds 끝에서 호출
+    function updateConfirmBoxVisibility() {
+      const box = modal.querySelector('#grim-confirm-box');
+      if (!box) return;
+      // 라운드 1개 이상이면 표시
+      box.style.display = grimRounds.length > 0 ? 'block' : 'none';
+    }
+    // renderGrimRounds 가 호출될 때마다 같이 호출되도록 hook
+    const _origRender = renderGrimRounds;
+    renderGrimRounds = function() {
+      _origRender.apply(this, arguments);
+      updateConfirmBoxVisibility();
+    };
+    // 첫 호출
+    updateConfirmBoxVisibility();
 
 
 
@@ -4515,6 +4874,45 @@
       const done = steps.filter(s => s.done).length;
       const pct = total > 0 ? Math.round(done / total * 100) : 0;
       const nextIdx = steps.findIndex(s => !s.done);
+
+      // ★ BL-DECISION-MODAL-PINGPONG step7 (2026-05-10): 핑퐁 라운드 자동 prepend
+      //   대표님이 그림 맞추기 모달에 적은 라운드를 새 채팅 인계서 머리에 자동 박음.
+      //   새 Claude는 첫 줄에서 대표님 그림을 읽고 즉시 답할 수 있음.
+      try {
+        const ppRes = await fetch(`/_decisions/pingpong/${taskId}.json?t=${Date.now()}`);
+        if (ppRes.ok) {
+          const rounds = await ppRes.json();
+          if (Array.isArray(rounds) && rounds.length > 0) {
+            lines.push('## 🏓 그림 맞추기 핑퐁 — 대표님이 박은 라운드');
+            lines.push('');
+            lines.push('대표님이 그림 맞추기 모달에 적으신 내용입니다. **이 라운드들을 먼저 읽고 답할 차례인지 확인하세요.**');
+            lines.push('');
+            rounds.forEach((r, i) => {
+              const ceo = (r.ceo || '').trim();
+              const claude = (r.claude || '').trim();
+              lines.push(`**라운드 ${i + 1}**`);
+              if (ceo) lines.push(`- 👤 **대표님**: ${ceo}`);
+              if (claude) lines.push(`- 🤖 **Claude**: ${claude}`);
+              if (!ceo && !claude) lines.push(`- _(빈 라운드)_`);
+              lines.push('');
+            });
+            // 차례 안내
+            const lastRound = rounds[rounds.length - 1];
+            const lastCeo = (lastRound?.ceo || '').trim();
+            const lastClaude = (lastRound?.claude || '').trim();
+            if (lastCeo && !lastClaude) {
+              lines.push('🟡 **현재 차례: Claude (당신)**. 마지막 라운드의 대표님 그림을 보고, 같은 그림인지 다른지 답하세요.');
+              lines.push('답 박는 방법: `/api/decision?action=pingpong-round` POST로 side="claude" 박거나, 채팅에서 답하면 대표님이 모달에 직접 붙여넣기.');
+            } else if (lastCeo && lastClaude) {
+              lines.push('🟢 **현재 차례: 대표님**. 라운드 양쪽 다 채워졌습니다. 그림 일치하면 결정 확정 또는 라운드 추가.');
+            }
+            lines.push('');
+            lines.push('---');
+            lines.push('');
+          }
+        }
+      } catch (_) { /* 핑퐁 없으면 조용히 패스 */ }
+
       lines.push('## 🎯 어디부터 이어갈지 (라이브 tasks.json 기준)');
       lines.push('');
       lines.push(`**현재 진행률**: ${pct}% — ${done} / ${total} 단계 완료`);

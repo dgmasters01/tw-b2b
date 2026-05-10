@@ -1,7 +1,7 @@
 {
   "overall": "red",
-  "summary": "[yellow] admin_baseline: 관리자 페이지 7개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요) / [red] tasks_schema: 작업 143건 중 12건에 출처가 없어요 (자동 동기화 봇 멈춤 위험)",
-  "checked_at": "2026-05-10T17:22:03.896Z",
+  "summary": "[yellow] admin_baseline: 관리자 페이지 7개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요) / [red] tasks_schema: 작업 143건 중 12건에 출처가 없어요 (자동 동기화 봇 멈춤 위험) / [red] bots: 자동 일꾼 1명이 멈췄어요: sync-bot",
+  "checked_at": "2026-05-10T17:39:03.782Z",
   "checks": [
     {
       "name": "admin_baseline",
@@ -66,22 +66,24 @@
     },
     {
       "name": "bots",
-      "status": "green",
-      "detail": "자동 일꾼들(봇) 전부 살아있어요",
-      "dead_bots": [],
+      "status": "red",
+      "detail": "자동 일꾼 1명이 멈췄어요: sync-bot",
+      "dead_bots": [
+        "sync-bot"
+      ],
       "bot_status": {
-        "sync-bot": "unknown",
-        "auto-detect-bot": "unknown",
+        "sync-bot": "failure",
+        "auto-detect-bot": "success",
         "scan-bot": "success",
-        "chat-log-bot": "success"
+        "chat-log-bot": "unknown"
       }
     },
     {
       "name": "vercel_sync",
       "status": "green",
-      "detail": "라이브 사이트가 GitHub와 같은 버전이에요 (5ca203f)",
-      "live_sha": "5ca203f",
-      "vercel_sha": "5ca203f",
+      "detail": "라이브 사이트가 GitHub와 같은 버전이에요 (eb16959)",
+      "live_sha": "eb16959",
+      "vercel_sha": "eb16959",
       "project": "tw-b2b"
     },
     {

@@ -3732,6 +3732,10 @@
   //   - 3 버튼: ⓐ 작업 상세 / ⓑ 결정 입력(클립보드) / ⓒ 결정 완료(막힘 해제)
   // ──────────────────────────────────────────────────────────
   async function openCeoDecisionModal(taskId) {
+    // ★ BL-PINGPONG-BL-ISOLATION (2026-05-10): 모달 열기 시 이전 폴링 정지
+    // 이전 BL 모달의 폴링 잔류가 새 BL grimRounds에 영향 미치는 사고 방지.
+    try { if (typeof window._stopPingpongPolling === 'function') window._stopPingpongPolling(); } catch (_) {}
+
     let task = null;
     try {
       const data = STATE.data || (window.STATE && window.STATE.data);
@@ -3941,6 +3945,9 @@
     modal.classList.add('show');
 
     const closeModal = () => {
+      // ★ BL-PINGPONG-BL-ISOLATION (2026-05-10): 모달 닫을 때 폴링 정지
+      // 이전 BL 폴링이 다른 BL 모달까지 영향 미치는 사고 방지.
+      try { if (typeof stopPingpongPolling === 'function') stopPingpongPolling(); } catch (_) {}
       modal.classList.remove('show');
       setTimeout(() => { modal.innerHTML = ''; }, 200);
     };
@@ -3993,11 +4000,21 @@
     //   - 라운드 = { ceo: '대표님 그림 한 줄', claude: 'Claude 추측 한 줄', at: ISO }
     //   - debounced auto-save (300ms)
     //   - 모달 닫혀도 보존, 다시 열면 자동 복원
+    // ★ BL-PINGPONG-BL-ISOLATION (2026-05-10): BL별 격리 강화
+    //   대표님 진단: 다른 BL 모달 열었는데 이전 BL 핑퐁 보임. 모달 함수가
+    //   매번 호출될 때마다 grimRounds 클로저 새로 만들어지지만, 안전하게
+    //   빈 배열로 강제 초기화 + GRIM_KEY 매번 재계산으로 격리 보장.
     const GRIM_KEY = `grim-slot:${task.id}`;
-    let grimRounds = [];
+    let grimRounds = [];  // 강제 초기화 (이전 BL 데이터 잔류 방지)
     let grimSaveTimer = null;
 
     function loadGrimRounds() {
+      // ★ BL-PINGPONG-BL-ISOLATION step1·2 (2026-05-10):
+      // 1) 시작 시 grimRounds 강제 [] (이전 BL 잔류 방지)
+      // 2) localStorage 키도 task.id로 정확히 (BL별 격리)
+      // 3) 다른 BL의 키 절대 안 읽음
+      grimRounds = [];  // 강제 초기화
+
       // ★ BL-DECISION-MODAL-PINGPONG step5 (2026-05-10):
       // 우선 localStorage(빠른 복원) → 백그라운드에서 GitHub fetch (단일 진실원).
       // 다른 기기에서 박은 라운드도 보임.
@@ -4801,6 +4818,8 @@
         _ppPollTimer = null;
       }
     }
+    // ★ BL-PINGPONG-BL-ISOLATION: 다음 모달 열기 전 이전 폴링 정지하기 위해 window 노출
+    window._stopPingpongPolling = stopPingpongPolling;
     startPingpongPolling();
     // 모달 닫힐 때 정리 (X 버튼/배경 클릭 시 hook)
     const _closeOriginal = modal.querySelector('[data-action="close-modal"]');

@@ -12,15 +12,15 @@
     "SOLO_WORK_QUEUE.md"
   ],
   "stats": {
-    "total": 142,
-    "done": 107,
+    "total": 143,
+    "done": 108,
     "in_progress": 1,
     "pending": 22,
     "blocked": 11,
     "autonomous_ready": 23,
     "todo": 0,
     "cancelled": 0,
-    "updated_at": "2026-05-10T17:06:31.934Z"
+    "updated_at": "2026-05-10T17:45:00.000Z"
   },
   "tasks": [
     {
@@ -8149,6 +8149,38 @@
           "note": "fix(BL-PINGPONG-INPUT-RERENDER): input 이벤트에서 양쪽 채워지면 render 다시 호출 [step:done:1] [step:done:2]"
         }
       ]
+    },
+    {
+      "id": "BL-PINGPONG-BL-ISOLATION",
+      "title": "핑퐁 BL별 격리 강화 — 다른 BL 모달에 이전 BL 데이터 보이는 사고 fix",
+      "category": "fix",
+      "priority": "P0",
+      "size": "small",
+      "status": "done",
+      "autonomous": true,
+      "approval_required": false,
+      "estimated_hours": 0.25,
+      "why": "대표님 진단 2026-05-10 02:15: BL-ADMIN-AUTH 모달 열었는데 BL-003 핑퐁 라운드 그대로 보임. localStorage GRIM_KEY는 BL별인데 화면에는 잘못된 데이터. 모달 함수의 grimRounds 클로저 재사용 사고 가능성. fix 필수.",
+      "progress": {
+        "percent": 100,
+        "steps": [
+          {
+            "name": "1. 모달 열 때 grimRounds 강제 [] 초기화 (이전 BL 데이터 잔류 방지)",
+            "status": "done"
+          },
+          {
+            "name": "2. loadGrimRounds — task.id 명시적으로 키 매번 재계산",
+            "status": "done"
+          },
+          {
+            "name": "3. 라이브 검증",
+            "status": "done"
+          }
+        ]
+      },
+      "created_at": "2026-05-10T17:35:00.000Z",
+      "started_at": "2026-05-10T17:35:00.000Z",
+      "decision_summary": "모달 격리 강화 — 다른 BL 데이터 잔류 사고 fix"
     }
   ]
 }

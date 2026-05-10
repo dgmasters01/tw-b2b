@@ -1598,8 +1598,23 @@
     .grim-turn-badge.claude-turn { background: rgba(124,58,237,0.14); color: #5b21b6; }
     .grim-turn-badge.done { background: rgba(22,163,74,0.14); color: #15803d; }
     .grim-round-actions {
-      display: flex; justify-content: flex-end; margin-top: 8px;
+      display: flex; justify-content: space-between; align-items: center;
+      gap: 10px; margin-top: 8px;
       padding-top: 8px; border-top: 0.5px dashed rgba(124,58,237,0.20);
+    }
+    /* ★ BL-PINGPONG-RESULT-VISIBLE step3: 박힌 시간 + GitHub 링크 */
+    .grim-round-savedinfo {
+      font-size: 10.5px; color: var(--text-muted, #64748b);
+      display: flex; align-items: center; gap: 6px;
+      flex: 1;
+    }
+    .grim-round-savedinfo a {
+      color: #6d28d9; text-decoration: none;
+      padding: 2px 5px; border-radius: 3px;
+      transition: background .15s;
+    }
+    .grim-round-savedinfo a:hover {
+      background: rgba(124,58,237,0.12);
     }
     .grim-send-btn {
       background: #6d28d9; color: #fff; border: none;
@@ -3861,6 +3876,64 @@
     // 호출 시점: 대표님이 "💾 저장하고 Claude에게 전달" 버튼 누름.
     // 동작: 해당 라운드의 ceo 칸을 GitHub _decisions/pingpong/{BL}.json 에 박음.
     //       동시에 tasks.json의 pingpong_turn = 'claude' 자동 전환.
+    // ★ BL-PINGPONG-RESULT-VISIBLE step1 (2026-05-10):
+    // 큰 성공 토스트 — 화면 가운데 5초 떠 있는 결과 알림.
+    // 회색 작은 글자 한 줄 만으로는 "박혔는지 안 박혔는지" 안 보임 사고 fix.
+    function showPingpongToast(opts) {
+      // opts: { type: 'success'|'error', title, body, githubUrl?, durationMs? }
+      const existing = document.getElementById('pingpong-toast');
+      if (existing) existing.remove();
+
+      const isErr = opts.type === 'error';
+      const wrap = document.createElement('div');
+      wrap.id = 'pingpong-toast';
+      wrap.style.cssText = `
+        position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+        z-index: 100000;
+        min-width: 320px; max-width: 480px;
+        background: ${isErr ? 'linear-gradient(135deg, #dc2626, #991b1b)' : 'linear-gradient(135deg, #16a34a, #15803d)'};
+        color: #fff;
+        padding: 24px 28px; border-radius: 14px;
+        box-shadow: 0 25px 60px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,255,255,0.08) inset;
+        font-family: inherit;
+        animation: ppToastIn .25s ease-out;
+      `;
+      const icon = isErr ? '❌' : '✅';
+      const linkHtml = opts.githubUrl
+        ? `<a href="${opts.githubUrl}" target="_blank" rel="noopener" style="display:inline-block;margin-top:10px;color:#fff;text-decoration:underline;font-size:11.5px;opacity:0.9;">📄 GitHub에서 직접 보기 →</a>`
+        : '';
+      wrap.innerHTML = `
+        <div style="font-size:22px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:10px;">
+          <span style="font-size:28px;">${icon}</span>
+          <span>${opts.title || ''}</span>
+        </div>
+        <div style="font-size:13px;line-height:1.55;opacity:0.95;">${opts.body || ''}</div>
+        ${linkHtml}
+        <button id="pingpong-toast-close" style="position:absolute;top:8px;right:10px;background:transparent;border:0;color:rgba(255,255,255,0.7);font-size:18px;cursor:pointer;line-height:1;">×</button>
+      `;
+      document.body.appendChild(wrap);
+
+      // 애니메이션 keyframes (1회 박음)
+      if (!document.getElementById('pingpong-toast-css')) {
+        const style = document.createElement('style');
+        style.id = 'pingpong-toast-css';
+        style.textContent = `
+          @keyframes ppToastIn {
+            from { opacity: 0; transform: translate(-50%, -45%) scale(0.95); }
+            to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+          }
+        `;
+        document.head.appendChild(style);
+      }
+
+      const close = () => { try { wrap.remove(); } catch (_) {} };
+      wrap.querySelector('#pingpong-toast-close')?.addEventListener('click', close);
+
+      // 자동 닫기 (default 5초, error는 8초)
+      const dur = opts.durationMs || (isErr ? 8000 : 5000);
+      setTimeout(close, dur);
+    }
+
     async function sendRoundToGitHub(roundIdx, side) {
       const status = modal.querySelector('#grim-save-status');
       const round = grimRounds[roundIdx];
@@ -3901,12 +3974,27 @@
           throw new Error(j.error || `HTTP ${res.status}`);
         }
         const j = await res.json();
+        const ts = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        const turnLabel = j.next_turn === 'claude' ? '🤖 Claude 차례' : '👤 대표님 차례';
+        const turnDesc = j.next_turn === 'claude'
+          ? 'Claude가 답할 차례입니다. 새 채팅 열고 인계서 붙여넣으면 자동으로 답해드립니다.'
+          : '대표님이 답할 차례입니다. 라운드를 추가하거나 결정 확정하세요.';
+
         if (status) {
-          const ts = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-          status.textContent = `✅ Claude에게 전달됨 — ${ts} · 다음 차례: ${j.next_turn === 'claude' ? '🤖 Claude' : '👤 대표님'}`;
+          status.textContent = `✅ Claude에게 전달됨 — ${ts} · 다음 차례: ${turnLabel}`;
           status.className = 'grim-save-status saved';
         }
-        // 응답 라운드로 동기화
+
+        // ★ BL-PINGPONG-RESULT-VISIBLE step1·3: 큰 성공 토스트 + GitHub 링크
+        const githubUrl = `https://github.com/dgmasters01/tw-b2b/blob/main/_decisions/pingpong/${task.id}.json`;
+        showPingpongToast({
+          type: 'success',
+          title: 'GitHub에 박혔습니다',
+          body: `${task.id} 라운드 ${roundIdx + 1} (${side === 'ceo' ? '대표님' : 'Claude'}) — ${ts}<br>다음 차례: <strong>${turnLabel}</strong><br><span style="opacity:0.85;font-size:11.5px;">${turnDesc}</span>`,
+          githubUrl: githubUrl,
+        });
+
+        // ★ step2: 응답 받자마자 라운드 즉시 갱신 (5초 폴링 안 기다림)
         if (Array.isArray(j.rounds)) {
           grimRounds = j.rounds;
           try { localStorage.setItem(GRIM_KEY, JSON.stringify(j.rounds)); } catch (_) {}
@@ -3918,6 +4006,12 @@
           status.textContent = '전달 실패: ' + (e?.message || 'unknown');
           status.className = 'grim-save-status';
         }
+        // ★ step1: 실패도 큰 토스트로 명확히 알림
+        showPingpongToast({
+          type: 'error',
+          title: '전달 실패',
+          body: `${task.id} 라운드 ${roundIdx + 1} 박지 못했습니다.<br><strong>원인:</strong> ${e?.message || 'unknown'}<br><span style="opacity:0.85;font-size:11.5px;">다시 💾 버튼을 누르거나, 페이지를 새로고침하세요.</span>`,
+        });
         return { ok: false, error: e?.message };
       }
     }
@@ -3975,6 +4069,10 @@
               </div>
             </div>
             <div class="grim-round-actions">
+              ${r.at ? `<div class="grim-round-savedinfo">
+                ☁️ GitHub에 박힘 — ${new Date(r.at).toLocaleString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit', month: 'short', day: 'numeric' })}
+                <a href="https://github.com/dgmasters01/tw-b2b/blob/main/_decisions/pingpong/${task.id}.json" target="_blank" rel="noopener" title="GitHub에서 직접 보기">📄</a>
+              </div>` : ''}
               <button type="button" class="grim-send-btn" data-action="grim-send-round" data-idx="${i}" data-side="ceo" ${!ceoText ? 'disabled' : ''}>
                 💾 저장하고 Claude에게 전달
               </button>

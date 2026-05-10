@@ -1616,6 +1616,29 @@
     .grim-round-savedinfo a:hover {
       background: rgba(124,58,237,0.12);
     }
+
+    /* ★ BL-PINGPONG-CHAT-RELAY: Claude에게 보내고 답받기 — 강조 버튼 */
+    .grim-relay-btn {
+      background: linear-gradient(135deg, #f59e0b, #ea580c);
+      color: #fff; border: none;
+      padding: 7px 14px; border-radius: 6px;
+      font-size: 11.5px; font-weight: 600; cursor: pointer;
+      box-shadow: 0 4px 12px rgba(245,158,11,0.35);
+      transition: transform .15s, box-shadow .15s;
+      animation: relayPulse 2.2s ease-in-out infinite;
+    }
+    .grim-relay-btn:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 18px rgba(245,158,11,0.50);
+    }
+    .grim-relay-btn:disabled {
+      background: #9ca3af; cursor: not-allowed; opacity: 0.7;
+      animation: none; box-shadow: none;
+    }
+    @keyframes relayPulse {
+      0%, 100% { box-shadow: 0 4px 12px rgba(245,158,11,0.35); }
+      50% { box-shadow: 0 4px 18px rgba(245,158,11,0.65); }
+    }
     .grim-send-btn {
       background: #6d28d9; color: #fff; border: none;
       padding: 6px 14px; border-radius: 6px;
@@ -4073,6 +4096,9 @@
                 ☁️ GitHub에 박힘 — ${new Date(r.at).toLocaleString('ko-KR', { hour: '2-digit', minute: '2-digit', second: '2-digit', month: 'short', day: 'numeric' })}
                 <a href="https://github.com/dgmasters01/tw-b2b/blob/main/_decisions/pingpong/${task.id}.json" target="_blank" rel="noopener" title="GitHub에서 직접 보기">📄</a>
               </div>` : ''}
+              ${ceoText && !claudeText ? `<button type="button" class="grim-relay-btn" data-action="grim-relay-claude" data-idx="${i}" title="claude.ai 새 탭 열고 컨텍스트 자동 복사">
+                🚀 Claude에게 보내고 답받기
+              </button>` : ''}
               <button type="button" class="grim-send-btn" data-action="grim-send-round" data-idx="${i}" data-side="ceo" ${!ceoText ? 'disabled' : ''}>
                 💾 저장하고 Claude에게 전달
               </button>
@@ -4158,6 +4184,139 @@
           }
         });
       });
+
+      // ★ BL-PINGPONG-CHAT-RELAY step2·3 (2026-05-10):
+      // "🚀 Claude에게 보내고 답받기" 버튼 — Claude 차례 라운드에만 박힘.
+      // 클릭 = 클립보드에 풀 메시지(헌법 헤더 + BL 컨텍스트 + 모든 라운드 + 답 요청) 자동 복사
+      //       + claude.ai 새 탭 자동 오픈. 대표님은 Ctrl+V 한 번만 누르면 됨.
+      // Max 플랜 그대로 사용 — Claude API 비용 0원 정석.
+      wrap.querySelectorAll('[data-action="grim-relay-claude"]').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          e.stopPropagation();
+          const idx = parseInt(btn.dataset.idx, 10);
+          if (Number.isNaN(idx)) return;
+          const orig = btn.textContent;
+          btn.disabled = true;
+          btn.textContent = '☁️ 메시지 조립 중...';
+
+          try {
+            const message = await buildPingpongChatRelay(idx);
+            // 클립보드 복사 (기존 헬퍼 재사용 — 3-tier fallback)
+            const clipResult = await copyToClipboardWithFallback(
+              message, task.id, task.title || '', '핑퐁'
+            );
+            if (clipResult.ok) {
+              btn.textContent = '✅ 복사됨, 새 탭 여는 중...';
+              // claude.ai 새 채팅 새 탭 오픈
+              window.open('https://claude.ai/new', '_blank', 'noopener,noreferrer');
+              // 큰 토스트 알림
+              showPingpongToast({
+                type: 'success',
+                title: 'Claude에게 보냈습니다',
+                body: `claude.ai 새 탭이 열렸습니다.<br>거기서 <strong>Ctrl+V</strong> (또는 ⌘+V) 한 번만 누르면 끝입니다.<br><br><span style="opacity:0.85;font-size:11.5px;">Claude가 답하면 → 답 복사 → 모달의 "Claude" 칸에 붙여넣기 → 💾 저장하고 Claude에게 전달.</span>`,
+                durationMs: 8000,
+              });
+              setTimeout(() => { btn.textContent = orig; btn.disabled = false; }, 3000);
+            } else {
+              btn.textContent = '❌ 클립보드 실패';
+              showPingpongToast({
+                type: 'error',
+                title: '클립보드 복사 실패',
+                body: '브라우저 보안 설정 또는 권한 문제. 페이지 다시 로드 후 시도하세요.',
+              });
+              setTimeout(() => { btn.textContent = orig; btn.disabled = false; }, 3000);
+            }
+          } catch (err) {
+            btn.textContent = '❌ 실패';
+            showPingpongToast({
+              type: 'error',
+              title: '메시지 조립 실패',
+              body: err?.message || 'unknown',
+            });
+            setTimeout(() => { btn.textContent = orig; btn.disabled = false; }, 3000);
+          }
+        });
+      });
+    }
+
+    // ★ BL-PINGPONG-CHAT-RELAY step1: 풀 메시지 빌더
+    // 새 채팅 Claude가 한 번에 컨텍스트 전부 받도록 조립.
+    // 헌법 헤더(부칙 16 강제) + 작업 컨텍스트 + 모든 라운드 + 답 요청 형식.
+    async function buildPingpongChatRelay(roundIdx) {
+      const lines = [];
+
+      // 1) 헌법 강제 헤더 (모든 인계서 머리에 의무 — buildHandoffMessage와 동일 패턴)
+      try {
+        const hdrRes = await fetch('/_os/handoff-header.md?t=' + Date.now());
+        if (hdrRes.ok) {
+          lines.push(await hdrRes.text());
+          lines.push('');
+        }
+      } catch (_) { /* fetch 실패 시 패스 */ }
+
+      // 2) 핑퐁 모드 명시
+      lines.push('# 🏓 그림 맞추기 핑퐁 — 대표님이 답을 원합니다');
+      lines.push('');
+      lines.push(`**작업**: ${task.id} — ${task.title || ''}`);
+      lines.push(`**시각**: ${new Date().toISOString()}`);
+      lines.push(`**진입점**: admin-status 그림 맞추기 모달 → "Claude에게 보내고 답받기"`);
+      lines.push('');
+      lines.push('---');
+      lines.push('');
+
+      // 3) 결정 맥락 (모달의 "결정 맥락" 부분 — task.why 또는 description)
+      if (task.why) {
+        lines.push('## 📍 결정 맥락');
+        lines.push('');
+        lines.push(task.why);
+        lines.push('');
+      }
+
+      // 4) 핑퐁 라운드 전체 (지금까지의 대화)
+      lines.push('## 🏓 지금까지의 핑퐁 라운드');
+      lines.push('');
+      grimRounds.forEach((r, i) => {
+        const ceo = (r.ceo || '').trim();
+        const claude = (r.claude || '').trim();
+        lines.push(`**라운드 ${i + 1}**`);
+        if (ceo) lines.push(`- 👤 **대표님**: ${ceo}`);
+        if (claude) lines.push(`- 🤖 **Claude**: ${claude}`);
+        if (!ceo && !claude) lines.push(`- _(빈 라운드)_`);
+        lines.push('');
+      });
+
+      // 5) 답 요청 — 마지막 대표님 라운드에 답해야 함
+      const targetRound = grimRounds[roundIdx];
+      if (targetRound) {
+        lines.push('---');
+        lines.push('');
+        lines.push(`## 🎯 Claude(당신)가 답할 라운드 — 라운드 ${roundIdx + 1}`);
+        lines.push('');
+        lines.push(`대표님의 그림: "${(targetRound.ceo || '').trim()}"`);
+        lines.push('');
+        lines.push('### 답하는 방법');
+        lines.push('1. 대표님 그림을 정확히 읽기');
+        lines.push('2. 같은 그림인지 / 다른 그림인지 / 헷갈리는 부분이 있는지 판단');
+        lines.push('3. 짧은 답 박기 (1~3문장 압축):');
+        lines.push('   - "✅ 같은 그림 — [요약]" 또는');
+        lines.push('   - "❓ 헷갈림 — [어디가 다른지 짚기]" 또는');
+        lines.push('   - "💡 추가 그림 — [Claude가 본 다른 측면]"');
+        lines.push('4. 답을 다음 형식으로 줘서 대표님이 모달에 붙여넣기 쉽게:');
+        lines.push('');
+        lines.push('```');
+        lines.push('[Claude 답 — 라운드 ' + (roundIdx + 1) + ']');
+        lines.push('(여기에 1~3문장)');
+        lines.push('```');
+        lines.push('');
+        lines.push('5. 답 박은 후, 대표님이 모달의 "Claude" 칸에 붙여넣고 💾 누르면 GitHub에 박힘 → 다음 라운드.');
+      }
+
+      lines.push('');
+      lines.push('---');
+      lines.push('');
+      lines.push('**규칙**: 핑퐁은 "그림 맞추기"이지 "답을 정답으로 박는 것"이 아닙니다. 대표님과 같은 그림이 될 때까지 라운드를 돌리세요. 코드 변경/실행 행동은 절대 금지 — 답만.');
+
+      return lines.join('\n');
     }
 
     // 초기 로드 — 저장된 라운드 있으면 복원

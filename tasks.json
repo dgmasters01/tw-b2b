@@ -12,15 +12,15 @@
     "SOLO_WORK_QUEUE.md"
   ],
   "stats": {
-    "total": 135,
-    "done": 100,
+    "total": 136,
+    "done": 101,
     "in_progress": 1,
     "pending": 22,
     "blocked": 11,
     "autonomous_ready": 23,
     "todo": 0,
     "cancelled": 0,
-    "updated_at": "2026-05-10T15:15:00.000Z"
+    "updated_at": "2026-05-10T15:35:00.000Z"
   },
   "tasks": [
     {
@@ -7681,6 +7681,42 @@
           "note": "feat(BL-PINGPONG-RESULT-VISIBLE): 핑퐁 결과 가시성 UX fix — 큰 토스트 + 즉시 갱신 + 박힌 시간/링크 [step:done:1] [step:done:2] [step:done:3] "
         }
       ]
+    },
+    {
+      "id": "BL-PINGPONG-CHAT-RELAY",
+      "title": "핑퐁 메신저 흐름 — Claude 차례에 새 채팅 자동 열기 + 컨텍스트 자동 복사",
+      "category": "feature",
+      "priority": "P0",
+      "size": "small",
+      "status": "done",
+      "autonomous": true,
+      "approval_required": false,
+      "estimated_hours": 0.5,
+      "why": "대표님 진단 2026-05-10: 핑퐁 시스템에서 \"Claude 차례\" 떴을 때 대표님이 새 채팅 만들고 인계서 손으로 복사·붙여넣기 해야 답 받음. 메신저처럼 자동 흐름이 안 됨. Claude API 사용은 Max 플랜과 별개 비용 발생 → 대표님 결정 비용없는 정석. 방향 B: 모달에서 클릭 1번으로 claude.ai 새 탭 + 헌법+BL컨텍스트+대표님 라운드 자동 클립보드 복사.",
+      "progress": {
+        "percent": 100,
+        "steps": [
+          {
+            "name": "1. buildPingpongChatRelay() 함수 — 헌법 + BL 컨텍스트 + 라운드 풀 메시지 조립",
+            "status": "done"
+          },
+          {
+            "name": "2. \"🚀 Claude에게 보내고 답받기\" 버튼 — Claude 차례일 때만 표시",
+            "status": "done"
+          },
+          {
+            "name": "3. 클립보드 복사 + claude.ai 새 탭 자동 열기 (기존 헬퍼 재사용)",
+            "status": "done"
+          },
+          {
+            "name": "4. 라이브 검증",
+            "status": "done"
+          }
+        ]
+      },
+      "created_at": "2026-05-10T15:25:00.000Z",
+      "started_at": "2026-05-10T15:25:00.000Z",
+      "decision_summary": "claude.ai 새 탭 자동 + 헌법+컨텍스트+라운드 자동 복사 (비용 0)"
     }
   ]
 }

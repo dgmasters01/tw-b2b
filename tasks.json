@@ -12,15 +12,15 @@
     "SOLO_WORK_QUEUE.md"
   ],
   "stats": {
-    "total": 141,
-    "done": 106,
+    "total": 142,
+    "done": 107,
     "in_progress": 1,
     "pending": 22,
     "blocked": 11,
     "autonomous_ready": 23,
     "todo": 0,
     "cancelled": 0,
-    "updated_at": "2026-05-10T16:56:26.295Z"
+    "updated_at": "2026-05-10T17:30:00.000Z"
   },
   "tasks": [
     {
@@ -8090,6 +8090,34 @@
           "note": "fix(BL-PINGPONG-CLAUDE-SAVE): Claude 답 저장 + 다음 라운드 자동 — 무한 라운드 가능 [step:done:1] [step:done:2] [step:done:3] [step:done:4"
         }
       ]
+    },
+    {
+      "id": "BL-PINGPONG-INPUT-RERENDER",
+      "title": "핑퐁 input 이벤트 — 양쪽 채워지면 render 다시 호출 (분기 누락 fix)",
+      "category": "fix",
+      "priority": "P0",
+      "size": "small",
+      "status": "done",
+      "autonomous": true,
+      "approval_required": false,
+      "estimated_hours": 0.15,
+      "why": "대표님 진단 2026-05-10 02:00: 라운드 2 양쪽 채워졌는데 버튼이 그대로 \"그림 저장하고 Claude에게 보내기\"로 남음. input 이벤트 즉시 갱신 로직에서 양쪽 채워진 분기 누락. render 다시 호출이 정석.",
+      "progress": {
+        "percent": 100,
+        "steps": [
+          {
+            "name": "1. input 이벤트에서 양쪽 채워지는 순간 renderGrimRoundsPreservingFocus 호출",
+            "status": "done"
+          },
+          {
+            "name": "2. 라이브 검증",
+            "status": "done"
+          }
+        ]
+      },
+      "created_at": "2026-05-10T17:25:00.000Z",
+      "started_at": "2026-05-10T17:25:00.000Z",
+      "decision_summary": "양쪽 채워지면 render 다시 호출 — 분기 누락 사고 fix"
     }
   ]
 }

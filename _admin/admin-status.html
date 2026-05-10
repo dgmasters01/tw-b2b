@@ -4399,11 +4399,22 @@
 
           // ★ BL-PINGPONG-BUTTON-VISIBLE step1·2: 즉시 버튼 + 배지 갱신
           // render 다시 호출 안 하고 직접 DOM 변경 (편집 흐름 안 끊음).
+          // ★ BL-PINGPONG-INPUT-RERENDER (2026-05-10): 양쪽 채워지면 render 다시 호출
+          //   라운드 카드 분기(3가지 상태)는 render에서만 정확히 결정되고 핸들러도 자동 등록.
+          //   focus 보존 위해 renderGrimRoundsPreservingFocus 사용.
           const card = wrap.querySelector(`[data-round-idx="${idx}"]`);
           if (card) {
             const ceoText = (grimRounds[idx].ceo || '').trim();
             const claudeText = (grimRounds[idx].claude || '').trim();
-            // 통합 버튼 활성/비활성 + 라벨 변경
+            const claudeSaved = grimRounds[idx].claude_saved_at;
+
+            // 양쪽 채워지고 아직 저장 안 됐으면 render 다시 호출 → "Claude 답 저장 + 다음 라운드" 버튼 박힘
+            if (ceoText && claudeText && !claudeSaved) {
+              renderGrimRoundsPreservingFocus();
+              return;
+            }
+
+            // 단일 칸 편집 중 (ceo만 또는 claude만) → 직접 DOM 토글 (가벼운 갱신)
             const btn = card.querySelector('.pp-unified-btn');
             if (btn && !(ceoText && claudeText)) {
               btn.disabled = !ceoText;

@@ -95,24 +95,6 @@
 
 ---
 
-## 🟢 P0 — [자동] 페이지 /admin-hub.html 완성도 14점 (약함: structure)
-
-**요약**: scan-bot 자동 등록 (2026-05-11T03:56:28.755Z)
-
-페이지: /admin-hub.html
-점수: 14
-약점: structure
-
-진단 hint: scan-pages-status.mjs 결과. 약점 차원 보강 필요.
-
-- **자율성**: 🟢 AUTO
-- **예상 시간**: 2시간
-- **카테고리**: infrastructure
-- **상태**: pending
-- **ID**: `BL-AUTO-PAGE-STATUS-ADMIN-HUB` (출처: auto_from_page_status)
-
----
-
 ## 🟢 P1 — [YouTube 더보기 단축 URL 클릭 카운트] 호텔별 진성 관심 측정 시스템
 
 **요약**: gohotel.win/h/{hotel_id} → Supabase 카운트 +1 → Agoda 어필리에이트 리디렉션. 호텔별/순위별 분리.

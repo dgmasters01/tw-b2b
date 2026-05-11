@@ -29,22 +29,6 @@
 
 ---
 
-### B. 🟢 AUTO — [자동] 페이지 /admin-hub.html 완성도 14점 (약함: structure)
-
-**ID**: `BL-AUTO-PAGE-STATUS-ADMIN-HUB`  
-**카테고리**: infrastructure  
-**예상 시간**: 2시간  
-
-**메모**: scan-bot 자동 등록 (2026-05-11T03:56:28.755Z)
-
-페이지: /admin-hub.html
-점수: 14
-약점: structure
-
-진단 hint: scan-pages-status.mjs 결과. 약점 차원 보강 필요.
-
----
-
 ## 🟡 P1 — 데드라인 이전에 있으면 좋음
 
 ### A. 🟢 AUTO — [YouTube 더보기 단축 URL 클릭 카운트] 호텔별 진성 관심 측정 시스템

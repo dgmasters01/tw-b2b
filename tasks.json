@@ -30,18 +30,18 @@
       "category": "fix",
       "priority": "P0",
       "size": "small",
-      "status": "in_progress",
+      "status": "done",
       "owner": "claude",
       "claude_can_auto": true,
       "approval_required": false,
       "chatlog_exempt": true,
       "source": "대표님 직접 보고 (2026-05-11) — 다음추천이 BL-TRACK-001로 떠 있는데, 결정 안 박힌 사업 시스템 작업이 자율 큐에 무작정 박혀있는 사고",
       "created_at": "2026-05-11T07:26:10.019Z",
-      "updated_at": "2026-05-11T07:27:18+00:00",
+      "updated_at": "2026-05-11T07:29:35.775Z",
       "started_at": "2026-05-11T07:26:10.019Z",
       "notes": "결함 본질: admin-status taskRole() 함수의 결정 선행 가드가 AND 조건(decs.length>0 && !claude_can_auto)으로 잘못 작성됨. BL-TRACK-001 같은 claude_can_auto=true 작업은 requires_decisions_first가 박혀있어도 ceo 분류 안 되고 auto 큐로 넘어감.\n\nfix: requires_decisions_first가 비어있지 않으면 무조건 ceo (헌법 1조 — 대표님 결정 우선). 결정 완료 후 BL의 requires_decisions_first 비우면 자동으로 auto 큐 진입.\n\n현재 위반 4건: BL-TRACK-001 (D-006), BL-INVOICE-001 (D-009), BL-SYNC-INPROGRESS-COMMITS (BL-OS-AUTO-SYNC-CHARTER), BL-SYNC-CHAT-LOGS-TAB (BL-OS-AUTO-SYNC-CHARTER)",
       "progress": {
-        "percent": 75,
+        "percent": 100,
         "steps": [
           {
             "n": 1,
@@ -60,7 +60,7 @@
           {
             "n": 3,
             "label": "commit + push + 라이브 검증 (다음추천 큐 재정렬 확인)",
-            "status": "pending"
+            "status": "done"
           },
           {
             "n": 4,
@@ -99,8 +99,15 @@
           "by": "auto-detect-bot",
           "commit": "899f14f",
           "note": "fix(BL-DECISION-GATE-IN-QUEUE): 다음추천 큐가 결정 미박힘 사업 BL을 자율로 잘못 분류 — taskRole 가드 강화 [step:done:1] [step:done:2] [step:done:"
+        },
+        {
+          "at": "2026-05-11T07:29:35.775Z",
+          "action": "done",
+          "by": "claude",
+          "note": "단계 3 검증 완료. vercel_sync green, live=vercel=899f14f. 라이브 admin-status.html taskRole에 새 가드 박힘 확인."
         }
-      ]
+      ],
+      "completed_at": "2026-05-11T07:29:35.775Z"
     },
     {
       "id": "BL-SCAN-CRON-DEAD-FIX",

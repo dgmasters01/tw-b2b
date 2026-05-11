@@ -37,7 +37,7 @@
       "chatlog_exempt": true,
       "source": "대표님 직접 보고 (2026-05-11 16:00 KST) — 시스템완성도가 또 자동갱신 안된것 같은데. 왜 자동갱신이 안되?",
       "created_at": "2026-05-11T07:08:05.845Z",
-      "updated_at": "2026-05-11T07:12:45+00:00",
+      "updated_at": "2026-05-11T07:17:10.468Z",
       "started_at": "2026-05-11T07:08:05.845Z",
       "notes": "진단 결과:\n- page-status-scan.yml schedule-only cron 마지막 실행: 2026-05-10 22:32 UTC = 8.5시간 전\n- build-activity-feed.yml: 같은 시각 멈춤\n- chat-log-index.yml: 같은 시각 멈춤\n- health-check-admin.yml: push trigger 병행 → 5.7분 전도 정상 작동\n- auto-task-from-health.yml: push trigger 병행 → 5.7분 전도 정상 작동\n→ schedule-only 3봇이 동시에 일제히 멈춤. GitHub Actions cron은 known issue: heavy load 시 silently drop. push trigger와 병행하지 않으면 영영 안 도는 케이스.\n\n정석 fix: 3개 schedule-only 봇에 push trigger 부활 (paths 매우 좁힘 + concurrency + 기존 retry-rebase 가드 활용). 직전 BL-VERCEL-DEPLOY-RACE-GUARD가 막은 race는 paths 좁히기와 concurrency로 해결 가능 (health-check-admin 이미 같은 패턴으로 안정 운영 중).",
       "progress": {
@@ -75,7 +75,8 @@
             "n": 5,
             "label": "라이브 admin-status 완성도 카드 자동 갱신 확인",
             "done": true,
-            "at": "2026-05-11T07:12:45+00:00"
+            "at": "2026-05-11T07:12:45+00:00",
+            "status": "done"
           }
         ],
         "completed_count": 5,
@@ -114,9 +115,15 @@
           "by": "auto-detect-bot",
           "commit": "0bcb095",
           "note": "test(BL-SCAN-CRON-DEAD-FIX): admin-status.html 표식 한 줄 — push trigger 라이브 검증 [step:done:5]"
+        },
+        {
+          "at": "2026-05-11T07:17:10.468Z",
+          "action": "done",
+          "by": "claude",
+          "note": "단계 5 라이브 검증 완료. a55b15e [scan-bot] pages-status 3-Layer 자동 갱신 commit 박힘. main pages-status.summary.json generatedAt = 4분 전 (이전: 8.5시간 전 stale). 시스템 완성도 자동 갱신 부활."
         }
       ],
-      "completed_at": "2026-05-11T07:12:45+00:00"
+      "completed_at": "2026-05-11T07:17:10.468Z"
     },
     {
       "id": "BL-RESERVE-BTN-START-TASK",

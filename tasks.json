@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-11T08:45:20.359Z",
+  "updated_at": "2026-05-11T08:47:34+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -37,38 +37,49 @@
       "chatlog_exempt": true,
       "source": "대표님 직접 보고 (2026-05-11) — 잠시 멈춤·결정 대기·다음 추천 중 무엇 먼저인지, 결정 vs 추천 중 무엇 먼저인지 순서 모름",
       "created_at": "2026-05-11T08:45:20.359Z",
-      "updated_at": "2026-05-11T08:47:24.404Z",
+      "updated_at": "2026-05-11T08:47:34+00:00",
       "started_at": "2026-05-11T08:45:20.359Z",
       "notes": "본질 문제: 박스가 5개(진행중/잠시멈춤/결정대기/다음추천/자율큐)인데 어느 박스를 봐야 하는지 안내가 없어 매번 헷갈림.\n\nfix: 페이지 최상단에 작업 흐름 안내 헤더 신설.\n- 대표님 상황(시간 있음/없음/짧음)별 권장 행동 1줄\n- 각 박스에 ① ② ③ 순서 번호 박기\n- 상황별 분기 (\"결정 1개 박으면 N건 풀림\" vs \"Claude에게 시킬 작업 N건 있음\")",
       "progress": {
-        "percent": 0,
+        "percent": 80,
         "steps": [
           {
             "n": 1,
             "label": "라이브 박스 상태 정밀 진단",
-            "status": "done"
+            "status": "done",
+            "done": true,
+            "at": "2026-05-11T08:47:34+00:00"
           },
           {
             "n": 2,
             "label": "흐름 안내 헤더 HTML/CSS 신설 (페이지 최상단)",
-            "status": "done"
+            "status": "done",
+            "done": true,
+            "at": "2026-05-11T08:47:34+00:00"
           },
           {
             "n": 3,
             "label": "동적 렌더링 — 상황별 분기 메시지",
-            "status": "done"
+            "status": "done",
+            "done": true,
+            "at": "2026-05-11T08:47:34+00:00"
           },
           {
             "n": 4,
             "label": "commit + push + 라이브 검증",
-            "status": "done"
+            "status": "done",
+            "done": true,
+            "at": "2026-05-11T08:47:34+00:00"
           },
           {
             "n": 5,
             "label": "결과 보고 — 대표님 흐름 안내",
             "status": "pending"
           }
-        ]
+        ],
+        "completed_count": 4,
+        "total_count": 5,
+        "updated_at": "2026-05-11T08:47:34+00:00"
       },
       "history": [
         {
@@ -88,6 +99,13 @@
           "action": "progress",
           "by": "claude",
           "note": "단계 2·3·4 완료 — HTML/CSS/JS + renderFlowGuide + 두 호출부 박음"
+        },
+        {
+          "at": "2026-05-11T08:47:34+00:00",
+          "event": "진행 중 commit 추가 + 단계 1, 단계 2, 단계 3, 단계 4 완료 (auto-detected)",
+          "by": "auto-detect-bot",
+          "commit": "729fead",
+          "note": "feat(BL-FLOW-GUIDE-HEADER): 작업 흐름 안내 헤더 신설 — 지금 뭐부터 해야 하는지 한눈에 [step:done:1] [step:done:2] [step:done:3] [step:done:4]"
         }
       ]
     },

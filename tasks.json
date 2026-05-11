@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-11T07:26:10.019Z",
+  "updated_at": "2026-05-11T07:27:18+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -37,21 +37,25 @@
       "chatlog_exempt": true,
       "source": "대표님 직접 보고 (2026-05-11) — 다음추천이 BL-TRACK-001로 떠 있는데, 결정 안 박힌 사업 시스템 작업이 자율 큐에 무작정 박혀있는 사고",
       "created_at": "2026-05-11T07:26:10.019Z",
-      "updated_at": "2026-05-11T07:26:54.932Z",
+      "updated_at": "2026-05-11T07:27:18+00:00",
       "started_at": "2026-05-11T07:26:10.019Z",
       "notes": "결함 본질: admin-status taskRole() 함수의 결정 선행 가드가 AND 조건(decs.length>0 && !claude_can_auto)으로 잘못 작성됨. BL-TRACK-001 같은 claude_can_auto=true 작업은 requires_decisions_first가 박혀있어도 ceo 분류 안 되고 auto 큐로 넘어감.\n\nfix: requires_decisions_first가 비어있지 않으면 무조건 ceo (헌법 1조 — 대표님 결정 우선). 결정 완료 후 BL의 requires_decisions_first 비우면 자동으로 auto 큐 진입.\n\n현재 위반 4건: BL-TRACK-001 (D-006), BL-INVOICE-001 (D-009), BL-SYNC-INPROGRESS-COMMITS (BL-OS-AUTO-SYNC-CHARTER), BL-SYNC-CHAT-LOGS-TAB (BL-OS-AUTO-SYNC-CHARTER)",
       "progress": {
-        "percent": 0,
+        "percent": 75,
         "steps": [
           {
             "n": 1,
             "label": "결함 정밀 분석 — taskRole() AND 조건 결함 + 위반 4건 식별",
-            "status": "done"
+            "status": "done",
+            "done": true,
+            "at": "2026-05-11T07:27:18+00:00"
           },
           {
             "n": 2,
             "label": "admin-status.html taskRole() 결정 선행 가드 fix",
-            "status": "done"
+            "status": "done",
+            "done": true,
+            "at": "2026-05-11T07:27:18+00:00"
           },
           {
             "n": 3,
@@ -61,9 +65,14 @@
           {
             "n": 4,
             "label": "진척도 한눈 보고 — 이 응답으로 직접 (별도 카드는 BL-DAILY-HEALTH-CARD에 위임)",
-            "status": "done"
+            "status": "done",
+            "done": true,
+            "at": "2026-05-11T07:27:18+00:00"
           }
-        ]
+        ],
+        "completed_count": 3,
+        "total_count": 4,
+        "updated_at": "2026-05-11T07:27:18+00:00"
       },
       "history": [
         {
@@ -83,6 +92,13 @@
           "action": "progress",
           "by": "claude",
           "note": "단계 2 완료 — taskRole 가드 fix + 시뮬레이션 검증 (BL-TRACK-001이 ceo 큐로 자동 이동 확인). 단계 3·4 재구성."
+        },
+        {
+          "at": "2026-05-11T07:27:18+00:00",
+          "event": "진행 중 commit 추가 + 단계 1, 단계 2, 단계 4 완료 (auto-detected)",
+          "by": "auto-detect-bot",
+          "commit": "899f14f",
+          "note": "fix(BL-DECISION-GATE-IN-QUEUE): 다음추천 큐가 결정 미박힘 사업 BL을 자율로 잘못 분류 — taskRole 가드 강화 [step:done:1] [step:done:2] [step:done:"
         }
       ]
     },

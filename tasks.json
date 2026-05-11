@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-11T04:34:39.563Z",
+  "updated_at": "2026-05-11T04:34:47+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -36,7 +36,7 @@
       "approval_required": false,
       "source": "대표님 직접 보고 (2026-05-11) — 다음추천 예약알림을 계속 이어 붙이는데 지금진행중으로 안 넘어옴, 연동 안 되는 것 같음",
       "created_at": "2026-05-11T04:28:06.337Z",
-      "updated_at": "2026-05-11T04:34:39.563Z",
+      "updated_at": "2026-05-11T04:34:47+00:00",
       "started_at": "2026-05-11T04:28:06.337Z",
       "notes": "결함 본질: btn-reserve 핸들러(_admin/admin-status.html 3291줄)가 클립보드 복사 + ops 알림만 수행, tasks.json status 전환 안 함. 힌트 텍스트(1135줄)는 \"priority_boost 자동 박힘\"이라 약속했지만 코드에 그 로직 없음. 다음추천 카드 hint(5243줄)는 \"Claude commit 박을 때 전환\"이라 일관성 없음. fix: /api/admin?action=start-task sub-handler 신설 → GitHub Contents API로 tasks.json patch (pending→in_progress + started_at). btn-reserve 핸들러에서 이 endpoint 호출.",
       "progress": {
@@ -73,12 +73,14 @@
           {
             "n": 5,
             "label": "라이브 검증 — 다음추천 누름 → 진행 중 박스 자동 전환",
-            "status": "done"
+            "status": "done",
+            "done": true,
+            "at": "2026-05-11T04:34:47+00:00"
           }
         ],
-        "completed_count": 4,
+        "completed_count": 5,
         "total_count": 5,
-        "updated_at": "2026-05-11T04:30:49+00:00"
+        "updated_at": "2026-05-11T04:34:47+00:00"
       },
       "history": [
         {
@@ -111,6 +113,13 @@
           "action": "done",
           "by": "claude",
           "note": "단계 5 라이브 검증 완료 — /api/admin?action=start-task 라이브 응답 정상 (인증 가드 작동), Vercel sha 0aeb2ad 반영 확인. ⚠️ 다음추천 버튼이 실제로 작동하려면 Vercel 환경 변수 GITHUB_PAT(repo 쓰기 권한) 등록 필요 — 대표님 액션 (헌법 부칙 4: 권한 부여는 대표님)."
+        },
+        {
+          "at": "2026-05-11T04:34:47+00:00",
+          "event": "done 작업에 commit 추가 (status 유지 — 자동 리오픈 안 함) + 단계 5 완료 (auto-detected)",
+          "by": "auto-detect-bot",
+          "commit": "ce104ae",
+          "note": "done(BL-RESERVE-BTN-START-TASK): start-task endpoint 라이브 검증 완료 [step:done:5]"
         }
       ],
       "completed_at": "2026-05-11T04:34:39.563Z",

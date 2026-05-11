@@ -229,6 +229,60 @@
   .paused-resume-btn:hover { transform: translateY(-1px); }
   .paused-resume-btn:disabled { opacity: 0.5; cursor: wait; }
 
+  /* ★ BL-DECISION-IMPACT-CARD (2026-05-11): 결정 영향력 카드 — 결정 박으면 풀리는 BL 한눈에 */
+  .decision-impact-card {
+    background: linear-gradient(135deg, rgba(168,85,247,0.10), rgba(124,58,237,0.04));
+    border: 1px solid rgba(168,85,247,0.45);
+    border-radius: 10px; padding: 14px; margin-bottom: 14px;
+  }
+  .dic-head { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
+  .dic-pill {
+    background: rgba(168,85,247,0.28) !important; color: #c4b5fd !important;
+    font-size: 11px !important; padding: 3px 9px !important; border-radius: 4px !important; font-weight: 600 !important;
+  }
+  .dic-subtitle { font-size: 11.5px; color: var(--text-muted); }
+  .dic-list { display: flex; flex-direction: column; gap: 10px; }
+  .dic-item {
+    background: rgba(168,85,247,0.06);
+    border: 1px solid rgba(168,85,247,0.25);
+    border-left: 4px solid rgba(168,85,247,0.6);
+    border-radius: 8px; padding: 12px 14px;
+  }
+  .dic-item-head {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 8px; flex-wrap: wrap;
+  }
+  .dic-impact-badge {
+    background: linear-gradient(135deg, #a855f7, #7c3aed);
+    color: #fff; font-size: 11px; font-weight: 700;
+    padding: 3px 9px; border-radius: 4px; white-space: nowrap;
+  }
+  .dic-decision-id {
+    font-family: 'SF Mono', Monaco, monospace; font-size: 12px;
+    color: var(--text-bright); font-weight: 600;
+  }
+  .dic-decision-desc {
+    flex: 1; min-width: 250px; font-size: 12.5px; color: var(--text-1);
+  }
+  .dic-unlocks {
+    font-size: 11.5px; color: var(--text-muted); margin-top: 6px; padding-left: 4px;
+  }
+  .dic-unlocks-label { color: #c4b5fd; font-weight: 600; margin-right: 6px; }
+  .dic-bl-chip {
+    display: inline-block; background: rgba(168,85,247,0.12);
+    border: 1px solid rgba(168,85,247,0.3); border-radius: 4px;
+    padding: 1px 7px; margin: 2px 4px 2px 0; font-size: 10.5px;
+    color: #ddd6fe; font-family: 'SF Mono', Monaco, monospace;
+  }
+  [data-theme="light"] .decision-impact-card {
+    background: linear-gradient(135deg, rgba(168,85,247,0.06), rgba(124,58,237,0.02));
+    border-color: rgba(124,58,237,0.35);
+  }
+  [data-theme="light"] .dic-pill { background: #ede9fe !important; color: #6d28d9 !important; }
+  [data-theme="light"] .dic-item { background: #faf5ff; border-color: rgba(124,58,237,0.25); border-left-color: #7c3aed; }
+  [data-theme="light"] .dic-decision-id, [data-theme="light"] .dic-decision-desc { color: #4c1d95; }
+  [data-theme="light"] .dic-unlocks-label { color: #6d28d9; }
+  [data-theme="light"] .dic-bl-chip { background: #f3e8ff; color: #5b21b6; border-color: #c4b5fd; }
+
   .in-progress-box.visible { display: block; }
   .in-progress-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
   .in-progress-row > .pill {
@@ -1178,6 +1232,23 @@
     </div>
     <div class="paused-list" id="paused-list">
       <!-- 동적으로 박힘 -->
+    </div>
+  </section>
+
+  <!-- 🔓 결정 영향력 카드 (BL-DECISION-IMPACT-CARD, 2026-05-11) -->
+  <!-- 대표님이 어떤 결정을 박으면 어떤 BL이 풀리는지 한눈에.
+       "긴급 결정 다 박으면 새 작업이 자동 생성되나?" 질문에 시각적으로 답.
+       영향력 큰 결정부터 정렬. 결정 박은 후 BL의 requires_decisions_first 비우면 자동으로 자율 큐 진입. -->
+  <section class="decision-impact-card" id="decision-impact-card" style="display:none;">
+    <div class="dic-head">
+      <span class="pill dic-pill">🔓 결정 영향력</span>
+      <span class="dic-subtitle">결정 1개 박으면 BL N개가 풀려서 자율 큐로 이동 — 영향력 큰 결정부터</span>
+    </div>
+    <div class="dic-list" id="dic-list">
+      <!-- 동적 렌더링 -->
+    </div>
+    <div class="dic-empty" id="dic-empty" style="display:none;color:var(--text-muted);font-size:12px;padding:12px;text-align:center;">
+      ✅ 결정 대기 작업 없음 — 모든 BL이 자율 진행 가능 상태
     </div>
   </section>
 
@@ -3483,6 +3554,7 @@
       renderNextAction(data);
       renderInProgressBox(data);       // ★ BL-LIVE-STATUS-PANEL — 진행 중 박스
       try { renderPausedBox(data); } catch (e) { console.warn('renderPausedBox 실패', e); }  // ★ BL-AUTO-REORDER-PAUSE
+      try { renderDecisionImpactCard(data); } catch (e) { console.warn('renderDecisionImpactCard 실패', e); }  // ★ BL-DECISION-IMPACT-CARD
       renderCeoWait(data);             // ★ 결정 대기 박스 동적화
       // tasks.json 로드되면 카테고리 카드의 3-state 카운트 정확화 위해 재렌더
       if (STATE.data) renderSidebarMenus(STATE.data);
@@ -5491,6 +5563,92 @@
         }
       });
     });
+  }
+
+  // ──────────────────────────────────────────────────────────
+  // 🔓 결정 영향력 카드 렌더 (BL-DECISION-IMPACT-CARD, 2026-05-11)
+  //
+  // 대표님 본질 고민에 답:
+  //   "결정 24개를 무엇부터 박아야 페이지가 만들어지는지 모르겠다"
+  //   "긴급 결정 다 박으면 새 작업이 자동 생성되나?"
+  //
+  // 알고리즘:
+  //   1. CEO 결정 대기 BL 모두 모음 (taskRole === 'ceo' && requires_decisions_first 있는 것)
+  //   2. 결정 ID별로 그룹핑 (이 결정 박으면 풀리는 BL 목록)
+  //   3. 영향력 계산: 풀리는 BL 수 × 평균 우선순위 가중치 (P0=4, P1=3, P2=2, P3=1)
+  //   4. 영향력 높은 결정부터 표시. 각 카드에 "이거 박으면 N개 BL 풀림" 표시.
+  //
+  // 사용 흐름:
+  //   대표님이 카드 보고 → 영향력 큰 결정부터 박음 → BL.requires_decisions_first 비움
+  //   → 다음 5초 폴링에서 taskRole이 'auto'로 자동 분류 → 자율 큐 진입 → Claude 작업 시작
+  // ──────────────────────────────────────────────────────────
+  function renderDecisionImpactCard(data) {
+    const box = $('decision-impact-card');
+    if (!box) return;
+    const list = $('dic-list');
+    const empty = $('dic-empty');
+    if (!list) return;
+    const tasks = data.tasks || [];
+
+    // CEO 결정 대기 BL 모음
+    const ceoBls = tasks.filter(t => {
+      if (t.status !== 'pending') return false;
+      if (taskRole(t) !== 'ceo') return false;
+      const ad = t.autonomous || {};
+      const decs = ad.requires_decisions_first || [];
+      return Array.isArray(decs) && decs.length > 0;
+    });
+
+    if (ceoBls.length === 0) {
+      box.style.display = 'block';
+      list.innerHTML = '';
+      if (empty) empty.style.display = 'block';
+      return;
+    }
+
+    // 결정별 그룹핑
+    const byDecision = {};
+    for (const bl of ceoBls) {
+      const decs = bl.autonomous.requires_decisions_first;
+      for (const dec of decs) {
+        if (!byDecision[dec]) byDecision[dec] = [];
+        byDecision[dec].push(bl);
+      }
+    }
+
+    // 영향력 계산 (우선순위 가중)
+    const PRIO_WEIGHT = { P0: 4, P1: 3, P2: 2, P3: 1 };
+    const grouped = Object.entries(byDecision).map(([dec, bls]) => {
+      const impact = bls.reduce((sum, b) => sum + (PRIO_WEIGHT[b.priority] || 1), 0);
+      return { decision: dec, bls, impact, count: bls.length };
+    }).sort((a, b) => b.impact - a.impact);
+
+    box.style.display = 'block';
+    if (empty) empty.style.display = 'none';
+
+    // 결정 ID가 D-### 형태면 짧게, 자유 텍스트(질문)면 그대로 표시
+    const isShortId = (s) => /^(D-|BL-|SQ-|CHG-|IP-)/.test(s);
+
+    list.innerHTML = grouped.map(g => {
+      const decIsShort = isShortId(g.decision);
+      const decId = decIsShort ? g.decision : '결정 필요';
+      const decDesc = decIsShort
+        ? `결정 본문은 DECISIONS.md 또는 컨셉 결정의 세부를 박아주세요`
+        : g.decision;  // 자유 텍스트 질문은 그대로
+      const chips = g.bls.map(b => 
+        `<span class="dic-bl-chip" title="${escapeHtml(b.title || '')}">${escapeHtml(b.id)} <span style="opacity:0.7">${b.priority || ''}</span></span>`
+      ).join('');
+      return `<div class="dic-item">
+        <div class="dic-item-head">
+          <span class="dic-impact-badge">+${g.count}건 풀림</span>
+          <span class="dic-decision-id">${escapeHtml(decId)}</span>
+          <span class="dic-decision-desc">${escapeHtml(decDesc)}</span>
+        </div>
+        <div class="dic-unlocks">
+          <span class="dic-unlocks-label">결정 박으면 자율 큐로 진입:</span>${chips}
+        </div>
+      </div>`;
+    }).join('');
   }
 
   // ──────────────────────────────────────────────────────────

@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-11T07:29:46+00:00",
+  "updated_at": "2026-05-11T07:38:24.143Z",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -12,18 +12,85 @@
     "SOLO_WORK_QUEUE.md"
   ],
   "stats": {
-    "total": 167,
+    "total": 168,
     "done": 122,
-    "in_progress": 0,
+    "in_progress": 1,
     "pending": 27,
     "blocked": 11,
     "autonomous_ready": 19,
     "todo": 0,
     "paused": 1,
     "cancelled": 0,
-    "updated_at": "2026-05-11T07:26:10.019Z"
+    "updated_at": "2026-05-11T07:38:24.143Z"
   },
   "tasks": [
+    {
+      "id": "BL-DECISION-IMPACT-CARD",
+      "title": "결정 영향력 카드 — 어떤 결정 박으면 어떤 BL/페이지가 풀리는지 한눈에",
+      "category": "feature",
+      "priority": "P0",
+      "size": "medium",
+      "status": "in_progress",
+      "owner": "claude",
+      "claude_can_auto": true,
+      "approval_required": false,
+      "chatlog_exempt": true,
+      "source": "대표님 직접 보고 (2026-05-11) — 결정 24개를 무엇부터 박아야 페이지가 만들어지고 기능 순서가 정해지는지 모르겠다. 알려주는 게 있어야 하지 않나",
+      "created_at": "2026-05-11T07:38:24.143Z",
+      "updated_at": "2026-05-11T07:40:28.307Z",
+      "started_at": "2026-05-11T07:38:24.143Z",
+      "notes": "대표님 본질 고민:\n1. 페이지 골격이 먼저, 기능은 그 위 — 어디 노출/연동될지도 모르고 기능 먼저 만드는 게 말이 안 됨\n2. 결정 24개 중 무엇부터? 의존성 트리가 안 보임\n3. 긴급 결정 다 박으면 새 작업이 자동 생성되나? 시스템이 알려줘야 함\n\nfix: admin-status에 \"결정 영향력 카드\" 신설. 각 결정마다 박혀있을 때 풀리는 BL 목록 + 페이지 영향 + 영향력 점수 표시. 대표님이 영향력 큰 결정부터 박을 수 있게.",
+      "progress": {
+        "percent": 0,
+        "steps": [
+          {
+            "n": 1,
+            "label": "대표님 본질 고민 정밀 분석 — 결정-페이지-BL 의존성",
+            "status": "done"
+          },
+          {
+            "n": 2,
+            "label": "결정 영향력 카드 데이터 모델 정의 (영향력 계산)",
+            "status": "done"
+          },
+          {
+            "n": 3,
+            "label": "admin-status.html에 카드 신설 + JS 렌더링",
+            "status": "done"
+          },
+          {
+            "n": 4,
+            "label": "commit + push + 라이브 검증",
+            "status": "pending"
+          },
+          {
+            "n": 5,
+            "label": "대표님께 보고 — 무엇부터 결정 박으면 어떻게 풀리는지",
+            "status": "pending"
+          }
+        ]
+      },
+      "history": [
+        {
+          "at": "2026-05-11T07:38:24.143Z",
+          "action": "created",
+          "by": "claude",
+          "note": "대표님 직접 보고 받아 P0 BL"
+        },
+        {
+          "at": "2026-05-11T07:38:24.143Z",
+          "action": "started",
+          "by": "claude",
+          "note": "단계 1 완료 — 결정 8종이 BL 12건 막고 있음, BL-SERVICE-MAP이 부모 결정"
+        },
+        {
+          "at": "2026-05-11T07:40:28.307Z",
+          "action": "progress",
+          "by": "claude",
+          "note": "단계 2·3 완료 — 결정 영향력 카드 HTML/CSS/JS 추가 (158줄), renderPausedBox 호출부에 통합"
+        }
+      ]
+    },
     {
       "id": "BL-DECISION-GATE-IN-QUEUE",
       "title": "다음추천 큐가 결정 미박힘 작업을 자율로 잘못 분류 — 결정 선행 가드 강화",

@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-11T15:23:26.587Z",
+  "updated_at": "2026-05-11T15:25:21+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -37,7 +37,7 @@
       "chatlog_exempt": true,
       "source": "대표님 직접 보고 (2026-05-11 15:30) — Agoda 예약 검증 핑퐁 다 하고 그림일치 결정확정 눌렀는데 아무 변화 없음",
       "created_at": "2026-05-11T15:22:29.039Z",
-      "updated_at": "2026-05-11T15:25:00.737Z",
+      "updated_at": "2026-05-11T15:25:21+00:00",
       "started_at": "2026-05-11T15:22:29.039Z",
       "notes": "진단:\n- BL-003 라이브 status=blocked, pingpong_rounds=9, pingpong_turn=ceo (확정 안 박힘)\n- 최근 commit에 feat(BL-003): 결정 확정 D-NNN 없음 (핸들러 도달 X)\n- _decisions/pingpong/BL-003.json에 9라운드 모두 남음 (결정 내용 살아있음)\n- 마지막 라운드 결론: BL-003을 BL-003-A(Agoda Matching=호텔 가입 수동 승인) + BL-003-B(예약검증)로 쪼개기\n\nfix 3종:\n1) BL-003 결정 직접 박기 (스크립트로 안전하게)\n   - DECISIONS.md에 D-NNN 박음\n   - BL-003 status=done + decision_summary 박음\n   - BL-003-A, BL-003-B 신규 BL 생성\n2) 결정 확정 흐름 에러 가시화\n   - 5829줄 핸들러에 alert() 추가 (status 영역만으로는 못 봄)\n   - 401/500 등 명확한 에러 메시지\n3) 결정 모달 손실 방지\n   - 핑퐁 라운드가 있는데 확정 시도 후 실패하면 모달 닫지 말고 재시도 가능하게",
       "progress": {
@@ -88,6 +88,13 @@
           "action": "progress",
           "by": "claude",
           "note": "단계 2·3·4 완료 — BL-003 D-025 박음 + BL-003-A/B 생성 + 결정 모달 에러 가시화"
+        },
+        {
+          "at": "2026-05-11T15:25:21+00:00",
+          "event": "진행 중 commit 추가",
+          "by": "auto-detect-bot",
+          "commit": "53c5313",
+          "note": "fix(BL-DECISION-CONFIRM-RESCUE): BL-003 핑퐁 9라운드 결정 손실 복구 + 확정 흐름 에러 가시화"
         }
       ]
     },
@@ -4342,6 +4349,13 @@
           "action": "decision_confirmed",
           "by": "claude (rescue)",
           "note": "BL-DECISION-CONFIRM-RESCUE: 핑퐁 9라운드 결정 확정 손실 사고 복구 — 마지막 라운드 결론으로 D-025 박고 BL-003-A/B로 쪼갬"
+        },
+        {
+          "at": "2026-05-11T15:25:21+00:00",
+          "event": "done 작업에 commit 추가 (status 유지 — 자동 리오픈 안 함)",
+          "by": "auto-detect-bot",
+          "commit": "53c5313",
+          "note": "fix(BL-DECISION-CONFIRM-RESCUE): BL-003 핑퐁 9라운드 결정 손실 복구 + 확정 흐름 에러 가시화"
         }
       ],
       "source": "BACKLOG.md",
@@ -4363,7 +4377,7 @@
       "copy_rewritten_by": "BL-MODAL-COPY-REWRITE",
       "pingpong_turn": "done",
       "pingpong_rounds": 9,
-      "updated_at": "2026-05-11T15:23:26.587Z",
+      "updated_at": "2026-05-11T15:25:21+00:00",
       "decision_summary": "BL-003을 BL-003-A(Agoda Matching = 호텔 가입 수동 승인, 우선순위 1) + BL-003-B(Agoda 예약검증, 우선순위 2)로 쪼개기. BL-003 자체는 쪼개기 결정으로 완료.",
       "decision_resolved": true,
       "decision_resolved_at": "2026-05-11T15:23:26.587Z",

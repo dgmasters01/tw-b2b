@@ -3498,8 +3498,12 @@
 
   // ──────────────────────────────────────────────────────────
   // 🎯 task → role 분류 (자동 / 직원 / CEO / 막힘)
-  //   - approval_required = true OR autonomous.requires_decisions_first 미해소 → ceo
   //   - blocked → blocked
+  //   - approval_required = true → ceo
+  //   - autonomous.requires_decisions_first 미비어 → ceo (BL-DECISION-GATE-IN-QUEUE 2026-05-11)
+  //     이전 룰: '!claude_can_auto AND decs.length > 0' → claude_can_auto=true인 작업은 가드 우회 사고.
+  //     새 룰: 결정 선행 박힌 작업은 무조건 ceo. 결정 완료 후 requires_decisions_first 비우면 auto 진입.
+  //     헌법 1조 — 대표님 결정 우선, 시스템 실행. 사업 시스템 BL이 결정 없이 자율 진행하면 안 됨.
   //   - claude_can_auto = true → auto
   //   - 그 외 (사람 손 필요) → staff
   // ──────────────────────────────────────────────────────────
@@ -3507,9 +3511,9 @@
     if (t.status === 'done') return 'done';
     if (t.status === 'blocked') return 'blocked';
     if (t.approval_required === true) return 'ceo';
-    // 선결 결정이 박혀 있어야 자율 진행 가능 — 미해소면 CEO 대기
+    // 결정 선행 가드 — 사업 가치 BL이 결정 없이 자율 큐로 빠지는 사고 차단
     const decs = (t.autonomous && t.autonomous.requires_decisions_first) || [];
-    if (decs.length > 0 && !t.claude_can_auto) return 'ceo';
+    if (Array.isArray(decs) && decs.length > 0) return 'ceo';
     if (t.claude_can_auto === true) return 'auto';
     return 'staff';
   }

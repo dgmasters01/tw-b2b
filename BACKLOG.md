@@ -95,7 +95,7 @@
 
 ---
 
-## 🟢 P0 — [자동] 페이지 /admin.html 완성도 14점 (약함: structure)
+## ⚡ P0 — [자동] 점검 봇이 admin 페이지 7개를 "파일 없음"으로 잘못 판단 — _admin/ 폴더 fallback 추가
 
 **요약**: scan-bot 자동 등록 (2026-05-11T03:56:28.755Z)
 
@@ -105,10 +105,13 @@
 
 진단 hint: scan-pages-status.mjs 결과. 약점 차원 보강 필요.
 
+[2026-05-11 정밀 분석]
+결함 본질: scan-pages-status.mjs가 _admin/ 폴더 이동(BL-REA
+
 - **자율성**: 🟢 AUTO
 - **예상 시간**: 2시간
 - **카테고리**: infrastructure
-- **상태**: pending
+- **상태**: in_progress
 - **ID**: `BL-AUTO-PAGE-STATUS-ADMIN` (출처: auto_from_page_status)
 
 ---

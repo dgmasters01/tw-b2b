@@ -6,29 +6,31 @@
 #   ⑥ 사람용+AI용: pages-status.json (AI용 데이터) → admin-status.html (사람용 시각화)
 #   ⑧ 통합 관리: 단일 진실 출처 — admin-status.html이 이 파일만 읽음
 #
-# 트리거 (BL-VERCEL-DEPLOY-RACE-GUARD 단계 1 — 2026-05-08):
-#   1. schedule: 5분마다 실행 (Vercel 배포 race 차단, 봇 commit 분리)
-#   2. 수동 실행 (workflow_dispatch)
-#   변경 사유: push trigger 시 사업 commit 1건 → 봇 commit 4~6건 폭증 + Vercel 동시 배포 race
-#   (이전 방식: branches [main, restructure-os-modularization] + paths *.html / pages-meta.mjs / scan 스크립트)
+# 트리거 (BL-SCAN-CRON-DEAD-FIX, 2026-05-11):
+#   1. push trigger 부활 (paths 매우 좁힘): HTML/페이지 메타/scan 스크립트 변경 시
+#      - schedule-only로 운영하다 GitHub Actions cron이 8.5시간 동안 silently drop된 사고.
+#      - 직전 BL-VERCEL-DEPLOY-RACE-GUARD가 막은 race는 paths 좁히기 + concurrency + retry-rebase로 해결.
+#      - paths가 매우 좁아서 봇 commit(JSON 출력)은 트리거 안 함.
+#      - 게다가 self-trigger 가드(`if: !contains(...'[scan-bot]')`)가 추가 안전망.
+#   2. schedule: 5분마다 백업 — push trigger 누락 케이스 대비 (GitHub cron 불안정 본질 회피)
+#   3. workflow_dispatch: 수동 실행
 #
-# BL-OS-PHASE-1A 단계 5 보강 (2026-05-07):
-#   - branches: [main] → [main, restructure-os-modularization] (다중 브랜치 listen)
-#   - git push origin main 하드코딩 → 동적 ${{ github.ref_name }}
-#   - retry-rebase 3회 가드 (sync-bot/health-bot/auto-detect-bot/activity-bot과 동일)
-#
-# 실행 흐름:
-#   1. checkout (full history — git log 기반 recency 측정 위해)
-#   2. Node 20 setup
-#   3. node _os/scripts/scan-pages-status.mjs 실행 → pages-status.json 생성
-#   4. pages-status.json 변경되었으면 자동 commit + push
-#   5. self-trigger 방지 (이 워크플로우가 만든 commit은 다시 트리거 안 함)
+# 이전 결정 BL-VERCEL-DEPLOY-RACE-GUARD (schedule-only):
+#   "push trigger 시 사업 commit 1건 → 봇 commit 4~6건 폭증 + Vercel 동시 배포 race"
+#   → 부분 해소되었으나 cron 자체 안정성 문제 발견. 정석은 paths 좁힘 + concurrency.
 
 name: Auto Scan Page Completion Status
 
 on:
+  push:
+    branches: [main, restructure-os-modularization]
+    paths:
+      - '**.html'
+      - 'scripts/pages-meta.mjs'
+      - '_os/scripts/scan-pages-status.mjs'
+      - '.github/workflows/page-status-scan.yml'
   schedule:
-    - cron: '*/5 * * * *'  # BL-VERCEL-DEPLOY-RACE-GUARD: 5분마다 (push trigger 폐지)
+    - cron: '*/5 * * * *'  # 백업 — push 누락 케이스 대비
   workflow_dispatch:
 
 # 동일 워크플로우가 자기 자신이 만든 push로 무한 트리거되는 것을 방지

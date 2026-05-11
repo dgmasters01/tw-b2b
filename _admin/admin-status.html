@@ -370,6 +370,65 @@
   .link-clear-banner.visible { display: block; }
   .link-clear-banner:hover { background: rgba(251,191,36,1); }
 
+  /* ★ BL-FLOW-GUIDE-HEADER (2026-05-11): 작업 흐름 안내 헤더 */
+  .flow-guide {
+    background: linear-gradient(135deg, rgba(16,185,129,0.10), rgba(5,150,105,0.04));
+    border: 1px solid rgba(16,185,129,0.40);
+    border-radius: 10px; padding: 14px 16px; margin-bottom: 14px;
+  }
+  .fg-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+  .fg-pill {
+    background: rgba(16,185,129,0.30) !important;
+    color: #6ee7b7 !important;
+    font-size: 12px !important;
+    padding: 4px 10px !important;
+    border-radius: 5px !important;
+    font-weight: 700 !important;
+  }
+  .fg-status { font-size: 13px; color: var(--text-1); font-weight: 600; }
+  .fg-options { display: flex; flex-direction: column; gap: 8px; }
+  .fg-option {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 12px; border-radius: 6px;
+    background: rgba(15,23,42,0.30);
+    border: 1px solid rgba(16,185,129,0.20);
+  }
+  .fg-option.primary {
+    background: rgba(16,185,129,0.12);
+    border-color: rgba(16,185,129,0.55);
+    border-left: 4px solid #10b981;
+  }
+  .fg-option-num {
+    flex-shrink: 0; width: 28px; height: 28px;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(16,185,129,0.25); color: #6ee7b7;
+    border-radius: 50%; font-weight: 700; font-size: 14px;
+  }
+  .fg-option.primary .fg-option-num {
+    background: #10b981; color: #fff;
+  }
+  .fg-option-body { flex: 1; font-size: 12.5px; color: var(--text-1); line-height: 1.5; }
+  .fg-option-body strong { color: var(--text-bright); }
+  .fg-option-body .fg-time {
+    display: inline-block;
+    font-size: 11px; color: var(--text-muted);
+    background: rgba(99,102,241,0.15);
+    border: 1px solid rgba(99,102,241,0.3);
+    padding: 1px 7px; border-radius: 4px;
+    margin-left: 6px;
+  }
+  [data-theme="light"] .flow-guide {
+    background: linear-gradient(135deg, rgba(16,185,129,0.06), rgba(5,150,105,0.02));
+    border-color: rgba(5,150,105,0.30);
+  }
+  [data-theme="light"] .fg-pill { background: #d1fae5 !important; color: #047857 !important; }
+  [data-theme="light"] .fg-option { background: #f0fdf4; border-color: rgba(16,185,129,0.20); }
+  [data-theme="light"] .fg-option.primary { background: #ecfdf5; border-left-color: #059669; }
+  [data-theme="light"] .fg-option-num { background: #d1fae5; color: #047857; }
+  [data-theme="light"] .fg-option.primary .fg-option-num { background: #059669; color: #fff; }
+  [data-theme="light"] .fg-option-body { color: #1e293b; }
+  [data-theme="light"] .fg-option-body .fg-time { background: #e0e7ff; color: #4338ca; border-color: #c7d2fe; }
+
   .in-progress-box.visible { display: block; }
   .in-progress-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
   .in-progress-row > .pill {
@@ -1264,6 +1323,18 @@
     </div>
   </div>
 
+  <!-- 🧭 BL-FLOW-GUIDE-HEADER (2026-05-11): 작업 흐름 안내 헤더 -->
+  <!-- 대표님 본질 질문에 답: "잠시멈춤·결정대기·다음추천 중 무엇 먼저인지 모르겠다"
+       해결: 페이지 최상단에 "지금 상황 + 권장 행동 + 박스 우선순위 ① ② ③" 한눈에. -->
+  <section class="flow-guide" id="flow-guide-header">
+    <div class="fg-row">
+      <span class="fg-pill">🧭 지금 뭐부터?</span>
+      <span class="fg-status" id="fg-status">상태 로딩 중...</span>
+    </div>
+    <div class="fg-options" id="fg-options">
+      <!-- 동적 렌더링 — 상황별 권장 행동 -->
+    </div>
+  </section>
 
   <!-- ① 현재 진행 중 / 다음 추천 (BL-STATUS-REORDER: 최상단으로 이동) -->
   <section class="next-action" id="next-action-box">
@@ -3658,6 +3729,7 @@
       // BL-CEO-WAIT-HUMAN-LANG (2026-05-11): renderDecisionImpactCard 호출 제거 — 기존 ceo-wait 박스로 흡수
       renderCeoWait(data);             // ★ 결정 대기 박스 동적화
       try { renderPageMap(); } catch (e) { console.warn('renderPageMap 실패', e); }  // ★ BL-PAGE-MAP-SIMPLE
+      try { renderFlowGuide(data); } catch (e) { console.warn('renderFlowGuide 실패', e); }  // ★ BL-FLOW-GUIDE-HEADER
       // tasks.json 로드되면 카테고리 카드의 3-state 카운트 정확화 위해 재렌더
       if (STATE.data) renderSidebarMenus(STATE.data);
     } catch (err) {
@@ -4331,6 +4403,109 @@
 
     // 렌더 직후 기존 하이라이트 상태 재적용 (페이지 지도가 다시 그려졌어도 유지)
     applyLinkHighlight();
+  }
+
+  // ──────────────────────────────────────────────────────────
+  // 🧭 BL-FLOW-GUIDE-HEADER (2026-05-11): 작업 흐름 안내 헤더
+  //
+  // 대표님 본질 질문에 답:
+  //   "잠시 멈춤·결정 대기·다음 추천 중 무엇 먼저인지 모르겠다"
+  //   "결정 vs 추천 중 무엇 먼저?"
+  //
+  // 알고리즘:
+  //   1. 진행 중 작업이 있나? → 있으면 ① "지금 진행 중" 안내
+  //   2. P0 결정 대기 있나? → 있으면 ② "결정 1개 박으면 N건 풀림" 권장
+  //   3. 다음 추천 있나? → 있으면 ③ "Claude에게 시킬 작업 N건" 권장
+  //   4. 잠시 멈춤 있나? → 있으면 ④ "이어가기" 옵션
+  //
+  // 같은 데이터를 보지만 "지금 뭐부터 해야 하는지"를 한 줄로 안내.
+  // ──────────────────────────────────────────────────────────
+  function renderFlowGuide(data) {
+    const wrap = document.getElementById('fg-options');
+    const statusEl = document.getElementById('fg-status');
+    if (!wrap || !statusEl) return;
+    const tasks = data.tasks || [];
+
+    // 상태별 집계
+    const inProgress = tasks.filter(t => t.status === 'in_progress');
+    const paused = tasks.filter(t => t.status === 'paused');
+    const ceoWait = tasks.filter(t => {
+      if (t.status === 'done') return false;
+      if (taskRole(t) === 'ceo') return true;
+      if (t.status === 'blocked' && /대표님|결정|승인/.test(t.blocker || '')) return true;
+      return false;
+    });
+    const ceoP0 = ceoWait.filter(t => (t.priority || '') === 'P0');
+    const autoPending = tasks.filter(t => t.status === 'pending' && taskRole(t) === 'auto');
+    const nextRec = autoPending.sort((a,b) => {
+      const pa = a.priority || 'P9', pb = b.priority || 'P9';
+      if (pa !== pb) return pa.localeCompare(pb);
+      return (a.order ?? 999) - (b.order ?? 999);
+    })[0];
+
+    // 상태 한 줄 — 지금 시스템 상황
+    if (inProgress.length > 0) {
+      statusEl.textContent = `⚡ 지금 진행 중: ${inProgress.length}건 — 끝날 때까지 새 작업 시작 자제`;
+    } else if (ceoP0.length > 0) {
+      statusEl.textContent = `🟢 앞 작업 다 됨. 대표님 결정 P0 ${ceoP0.length}건이 사업 가치 가장 큼`;
+    } else if (autoPending.length > 0) {
+      statusEl.textContent = `🟢 앞 작업 다 됨. Claude에게 시킬 자율 작업 ${autoPending.length}건 대기 중`;
+    } else {
+      statusEl.textContent = `🎉 모든 작업 완료 — 새 작업 등록하거나 휴식`;
+    }
+
+    // 권장 행동 옵션 — 상황별 1~4개
+    const opts = [];
+
+    // 옵션 1: 진행 중 있으면 그게 1순위
+    if (inProgress.length > 0) {
+      const t = inProgress[0];
+      opts.push({
+        primary: true,
+        num: '⚡',
+        body: `<strong>지금 ${escapeHtml(t.id)} 진행 중</strong> — 끝날 때까지 다음 작업 시작 자제 <span class="fg-time">자동 진행</span><br>아래 "🔄 진행 중" 박스에서 상태 확인`,
+      });
+    }
+
+    // 옵션 2: P0 결정 대기 — 사업 가치 가장 큼
+    if (ceoP0.length > 0) {
+      opts.push({
+        primary: inProgress.length === 0,  // 진행 중 없으면 1순위
+        num: '👤',
+        body: `<strong>대표님 결정 P0 ${ceoP0.length}건</strong> — 결정 1개 박으면 페이지/사업 가치가 풀림 <span class="fg-time">대표님 시간 5분</span><br>아래 "👤 대표님 결정 대기" 박스 클릭 → 결정 입력 모달`,
+      });
+    }
+
+    // 옵션 3: 다음 추천 — Claude에게 즉시 시킬 수 있음
+    if (nextRec) {
+      const isPrimary = inProgress.length === 0 && ceoP0.length === 0;
+      opts.push({
+        primary: isPrimary,
+        num: '🤖',
+        body: `<strong>Claude에게 시킬 작업 ${autoPending.length}건 대기</strong> — 다음 추천: ${escapeHtml(nextRec.title || '').slice(0, 50)} <span class="fg-time">대표님 시간 0분</span><br>위 "🎯 다음 추천" 박스에서 ▶ 예약 + 알림 클릭`,
+      });
+    }
+
+    // 옵션 4: 잠시 멈춤 — 이어가기 가능
+    if (paused.length > 0) {
+      opts.push({
+        primary: false,
+        num: '⏸️',
+        body: `<strong>잠시 멈춘 작업 ${paused.length}건</strong> — 급한 거 끝나면 이어가기 <span class="fg-time">선택</span><br>아래 "⏸️ 잠시 멈춤" 박스에서 ▶ 이어가기`,
+      });
+    }
+
+    if (opts.length === 0) {
+      wrap.innerHTML = '<div class="fg-option"><span class="fg-option-num">🎉</span><div class="fg-option-body">모든 작업 완료 — 휴식하거나 새 작업 등록</div></div>';
+      return;
+    }
+
+    wrap.innerHTML = opts.map(o => `
+      <div class="fg-option ${o.primary ? 'primary' : ''}">
+        <span class="fg-option-num">${o.num}</span>
+        <div class="fg-option-body">${o.body}</div>
+      </div>
+    `).join('');
   }
 
   // ──────────────────────────────────────────────────────────
@@ -7691,6 +7866,7 @@
             try { renderSidebarMenus(STATE.data); } catch (e) { console.warn('[poll] renderSidebarMenus 실패', e); }
             try { renderTopUrgent(STATE.data); } catch (e) { console.warn('[poll] renderTopUrgent 실패', e); }
             try { renderCeoWait(data); } catch (e) { console.warn('[poll] renderCeoWait 실패', e); }
+            try { renderFlowGuide(data); } catch (e) { console.warn('[poll] renderFlowGuide 실패', e); }  // ★ BL-FLOW-GUIDE-HEADER
             showPollToast('🔄 tasks.json 갱신됨');
           } catch (_) {}
         }

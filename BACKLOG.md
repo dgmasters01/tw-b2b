@@ -44,14 +44,14 @@
 
 ---
 
-## 🟡 P0 — [admin Supabase Auth] 정식 오픈 전 의무 — admin-* 전체 인증 + 권한 등급 (CEO/Staff)
+## ⚡ P0 — [admin Supabase Auth] 정식 오픈 전 의무 — admin-* 전체 인증 + 권한 등급 (CEO/Staff)
 
 **요약**: 헌법 11조 운영 진입 의무. 단순 토큰 + Referer는 임시 수단.
 
 - **자율성**: 🟡 SEMI
 - **예상 시간**: 8시간
 - **카테고리**: infrastructure
-- **상태**: pending
+- **상태**: in_progress
 - **결정 필요**:
   - 권한 등급 정책 결정 필요
 - **ID**: `BL-ADMIN-AUTH` (출처: 운영 중 발견 — admin 인증 시스템 초기 구축)

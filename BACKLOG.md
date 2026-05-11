@@ -19,24 +19,6 @@
 
 ---
 
-## ⚡ P0 — getAdminAccessToken 스코프 결함 — paused-resume-btn 등 6개 호출 위치에서 is not defined
-
-**요약**: 결함 본질: getAdminAccessToken이 openCeoDecisionModal() 함수 내부에 inner function으로 박혀있어서 결정 모달 밖에서는 미정의.
-
-현재 호출 위치 7건 중 모달 밖 호출 6건:
-- 3393 qt-submit (quick-task 박기)
-- 5109 ??? (확인 필요)
-- 5764 ??? (확인 필요)
-- 585
-
-- **자율성**: 🟡 SEMI
-- **예상 시간**: 미정시간
-- **카테고리**: fix
-- **상태**: in_progress
-- **ID**: `BL-ADMIN-TOKEN-SCOPE-FIX` (출처: 대표님 직접 보고 (2026-05-11) — 잠시 멈춤 이어가기 클릭하니 alert: "이어가기 실패: getAdminAccessToken is not defined")
-
----
-
 ## 🟢 P0 — 통합 To-Do Inbox (관리자 대시보드 재설계)
 
 **요약**: ## 🔴 P0 — 통합 To-Do Inbox (관리자 대시보드 재설계) ⭐⭐⭐ 2026-04-29  **배경** (대표님 핵심 운영 철학): > "한 사람이 처리해야 될 업무는 한 곳에서 우선순위가 표시되어 체크하면 정리할 수 있게 해야 됨. 내가 복잡하게 관리하게 하면 안 됨. 나에게 유리하게 해야 됨."  대표님 1인 운영. 처리 작업이 여러 탭에 흩어

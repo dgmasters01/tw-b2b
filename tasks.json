@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-11T08:09:51.092Z",
+  "updated_at": "2026-05-11T08:12:13+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -37,31 +37,39 @@
       "chatlog_exempt": true,
       "source": "대표님 직접 보고 (2026-05-11) — 페이지가 지금 어디까지 만들어졌는지, 없는 페이지는 무엇인지 파악할 수가 없어. 어떻게 해결할 수 있을까?",
       "created_at": "2026-05-11T08:09:51.092Z",
-      "updated_at": "2026-05-11T08:11:57.141Z",
+      "updated_at": "2026-05-11T08:12:13+00:00",
       "started_at": "2026-05-11T08:09:51.092Z",
       "notes": "대표님 본질 질문 2개:\n1. 페이지가 어디까지 만들어졌나\n2. 없는 페이지는 무엇인가\n\n진단:\n- 등록된 19개 페이지 중 본격 13개 + 일부 5개 + 폐기 1개 = 사실상 \"없는 페이지\"는 0개\n- 진짜 본질: 페이지 안에 들어가야 할 기능 BL이 결정 대기 중\n- BL-SERVICE-MAP은 디자인 결정 대기 중이라 못 진행\n\nfix: BL-SERVICE-MAP 디자인 결정 없이도 가능한 단순한 표 형태로 페이지 지도. 그림이 필요 없이 결정-페이지-BL 매핑만.",
       "progress": {
-        "percent": 0,
+        "percent": 67,
         "steps": [
           {
             "n": 1,
             "label": "대표님 본질 질문 분석 + 페이지 정밀 진단",
-            "status": "done"
+            "status": "done",
+            "done": true,
+            "at": "2026-05-11T08:12:13+00:00"
           },
           {
             "n": 2,
             "label": "페이지-BL 매핑 데이터 모델 (PAGE_BLS_MAP)",
-            "status": "done"
+            "status": "done",
+            "done": true,
+            "at": "2026-05-11T08:12:13+00:00"
           },
           {
             "n": 3,
             "label": "admin-status.html 페이지 지도 카드 HTML+CSS+JS",
-            "status": "done"
+            "status": "done",
+            "done": true,
+            "at": "2026-05-11T08:12:13+00:00"
           },
           {
             "n": 4,
             "label": "commit + push + Vercel 배포 대기",
-            "status": "done"
+            "status": "done",
+            "done": true,
+            "at": "2026-05-11T08:12:13+00:00"
           },
           {
             "n": 5,
@@ -73,7 +81,10 @@
             "label": "결과 보고 + 대표님께 다음 액션 권장",
             "status": "pending"
           }
-        ]
+        ],
+        "completed_count": 4,
+        "total_count": 6,
+        "updated_at": "2026-05-11T08:12:13+00:00"
       },
       "history": [
         {
@@ -93,6 +104,13 @@
           "action": "progress",
           "by": "claude",
           "note": "단계 2·3·4 완료 — HTML/CSS/JS + PAGE_INFO 매핑(19페이지) + 3트랙 렌더링"
+        },
+        {
+          "at": "2026-05-11T08:12:13+00:00",
+          "event": "진행 중 commit 추가 + 단계 1, 단계 2, 단계 3, 단계 4 완료 (auto-detected)",
+          "by": "auto-detect-bot",
+          "commit": "857d49d",
+          "note": "feat(BL-PAGE-MAP-SIMPLE): 페이지 지도 카드 신설 — guest/manager/admin 흐름별 진척 + 묶인 BL [step:done:1] [step:done:2] [step:done:3] [s"
         }
       ]
     },

@@ -39,6 +39,26 @@
 
 ---
 
+### C. 🟡 SEMI — getAdminAccessToken 스코프 결함 — paused-resume-btn 등 6개 호출 위치에서 is not defined
+
+**ID**: `BL-ADMIN-TOKEN-SCOPE-FIX`  
+**카테고리**: fix  
+**예상 시간**: 미정시간  
+
+**메모**: 결함 본질: getAdminAccessToken이 openCeoDecisionModal() 함수 내부에 inner function으로 박혀있어서 결정 모달 밖에서는 미정의.
+
+현재 호출 위치 7건 중 모달 밖 호출 6건:
+- 3393 qt-submit (quick-task 박기)
+- 5109 ??? (확인 필요)
+- 5764 ??? (확인 필요)
+- 5857 결정 확정 핸들러
+- 6264 paused-resume-btn ← 대표님 결함
+- 그 외...
+
+fix: getAdminAccessToken을 script 최상위 스코프로 끌어
+
+---
+
 ## 🟡 P1 — 데드라인 이전에 있으면 좋음
 
 ### A. 🟢 AUTO — [YouTube 더보기 단축 URL 클릭 카운트] 호텔별 진성 관심 측정 시스템

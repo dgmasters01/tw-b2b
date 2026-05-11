@@ -45,6 +45,16 @@
 
 ---
 
+### C. 🟡 SEMI — 다음추천 ▶ 예약+알림 버튼이 작업을 실제로 진행 중으로 전환 — 약속과 작동 일치
+
+**ID**: `BL-RESERVE-BTN-START-TASK`  
+**카테고리**: fix  
+**예상 시간**: 미정시간  
+
+**메모**: 결함 본질: btn-reserve 핸들러(_admin/admin-status.html 3291줄)가 클립보드 복사 + ops 알림만 수행, tasks.json status 전환 안 함. 힌트 텍스트(1135줄)는 "priority_boost 자동 박힘"이라 약속했지만 코드에 그 로직 없음. 다음추천 카드 hint(5243줄)는 "Claude commit 박을 때 전환"이라 일관성 없음. fix: /api/admin?action=start-task sub-handler 신설 → GitHub Contents API로 tasks.json
+
+---
+
 ## 🟡 P1 — 데드라인 이전에 있으면 좋음
 
 ### A. 🟢 AUTO — [YouTube 더보기 단축 URL 클릭 카운트] 호텔별 진성 관심 측정 시스템

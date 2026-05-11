@@ -29,22 +29,6 @@
 
 ---
 
-### B. 🟡 SEMI — 시스템 완성도 자동 갱신 멈춤 — GitHub cron 8.5h 동안 안 돔, push trigger 부활 + 안전망
-
-**ID**: `BL-SCAN-CRON-DEAD-FIX`  
-**카테고리**: fix  
-**예상 시간**: 미정시간  
-
-**메모**: 진단 결과:
-- page-status-scan.yml schedule-only cron 마지막 실행: 2026-05-10 22:32 UTC = 8.5시간 전
-- build-activity-feed.yml: 같은 시각 멈춤
-- chat-log-index.yml: 같은 시각 멈춤
-- health-check-admin.yml: push trigger 병행 → 5.7분 전도 정상 작동
-- auto-task-from-health.yml: push trigger 병행 → 5.7분 전도 정상 작동
-→ schedule-only 3봇이 동시에 일제
-
----
-
 ## 🟡 P1 — 데드라인 이전에 있으면 좋음
 
 ### A. 🟢 AUTO — [YouTube 더보기 단축 URL 클릭 카운트] 호텔별 진성 관심 측정 시스템

@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-11T17:13:17+00:00",
+  "updated_at": "2026-05-11T17:16:01.790Z",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -12,17 +12,73 @@
     "SOLO_WORK_QUEUE.md"
   ],
   "stats": {
-    "total": 181,
+    "total": 182,
     "done": 135,
-    "in_progress": 1,
+    "in_progress": 2,
     "pending": 28,
     "blocked": 10,
     "autonomous_ready": 29,
     "todo": 0,
     "cancelled": 0,
-    "updated_at": "2026-05-11T17:13:05.180Z"
+    "updated_at": "2026-05-11T17:16:01.790Z",
+    "paused": 1
   },
   "tasks": [
+    {
+      "id": "BL-PAUSED-RESUME-CLIPBOARD",
+      "title": "잠시 멈춤 이어가기 클립보드 복사 결함 fix",
+      "category": "fix",
+      "priority": "P0",
+      "size": "small",
+      "status": "in_progress",
+      "owner": "claude",
+      "claude_can_auto": true,
+      "approval_required": false,
+      "chatlog_exempt": true,
+      "source": "대표님 직접 보고 (2026-05-11) — 잠시 멈춤 이어가기 누른 후 클립보드 복사 안 됨",
+      "created_at": "2026-05-11T17:16:01.790Z",
+      "updated_at": "2026-05-11T17:16:48.647Z",
+      "started_at": "2026-05-11T17:16:01.790Z",
+      "progress": {
+        "percent": 0,
+        "steps": [
+          {
+            "n": 1,
+            "label": "진단 — 잠시 멈춤 핸들러 클립보드 복사 누락",
+            "status": "done"
+          },
+          {
+            "n": 2,
+            "label": "buildHandoffMessage + 클립보드 복사 추가",
+            "status": "done"
+          },
+          {
+            "n": 3,
+            "label": "commit + push + 라이브 검증",
+            "status": "done"
+          },
+          {
+            "n": 4,
+            "label": "대표님 보고",
+            "status": "pending"
+          }
+        ]
+      },
+      "history": [
+        {
+          "at": "2026-05-11T17:16:01.790Z",
+          "action": "created",
+          "by": "claude",
+          "note": "P0"
+        },
+        {
+          "at": "2026-05-11T17:16:48.647Z",
+          "action": "progress",
+          "by": "claude",
+          "note": "단계 2 완료 — 핸들러에 buildHandoffMessage + clipboard 복사 + 토스트 추가"
+        }
+      ]
+    },
     {
       "id": "BL-SUGGEST-BTN-RETIRE",
       "title": "Claude 추천 다시 받기 버튼 폐기 — 자동 채움과 100% 중복 (D-019 정신)",

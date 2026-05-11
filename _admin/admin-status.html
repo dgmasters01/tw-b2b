@@ -6254,18 +6254,23 @@
     }).join('');
 
     // 이어가기 버튼 핸들러
+    // ★ BL-PAUSED-RESUME-CLIPBOARD (2026-05-11): 자율 큐 카드와 UX 통일
+    //   대표님 보고: 잠시 멈춤 ▶ 이어가기 누른 후 클립보드에 인계서 없음.
+    //   이전: bl-resume API만 호출하고 location.reload (인계서 복사 없음)
+    //   변경: API 호출 + buildHandoffMessage로 풀 컨텍스트 인계서 클립보드 복사 + 토스트
     list.querySelectorAll('[data-resume-id]').forEach(btn => {
       btn.addEventListener('click', async (e) => {
         const taskId = btn.dataset.resumeId;
         if (!taskId) return;
-        const ok = confirm(`${taskId} 작업을 이어가시겠습니까?\n\n현재 진행 중인 작업이 있으면 자동으로 "잠시 멈춤"으로 옮겨집니다.`);
+        const ok = confirm(`${taskId} 작업을 이어가시겠습니까?\n\n자동으로:\n  ① 작업을 진행 중으로 옮김\n  ② 풀 컨텍스트 인계서를 클립보드에 복사\n  ③ 새 채팅에 붙여넣어 작업 재개\n\n(현재 진행 중인 작업이 있으면 자동으로 잠시 멈춤으로 옮겨집니다)`);
         if (!ok) return;
         const orig = btn.textContent;
         btn.disabled = true;
         btn.textContent = '☁️ 복원 중...';
         try {
           const token = await getAdminAccessToken();
-          if (!token) throw new Error('admin 인증 필요');
+          if (!token) throw new Error('admin 인증 필요 — 로그인 새로고침 후 다시 시도하세요');
+          // 1) bl-resume API 호출 — status 전환
           const res = await fetch('/api/decision?action=bl-resume', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
@@ -6275,12 +6280,59 @@
             const j = await res.json().catch(() => ({}));
             throw new Error(j.error || `HTTP ${res.status}`);
           }
-          // 페이지 새로고침 — 진행 중 박스 + 잠시 멈춤 박스 갱신
-          setTimeout(() => location.reload(), 800);
+          // 2) 풀 컨텍스트 인계서 조립 (자율 큐 카드와 동일)
+          btn.textContent = '⏳ 인계서 조립 중...';
+          if (typeof showAutoQueueToast === 'function') {
+            showAutoQueueToast(`⏳ ${taskId} 풀 컨텍스트 조립 중...`);
+          }
+          // task 제목 가져오기 (data-resume-id 카드에서)
+          const card = btn.closest('.paused-item') || btn.closest('[data-resume-id]') || btn;
+          const titleEl = card.querySelector('.paused-item-title, .paused-item-h, strong');
+          const taskTitle = titleEl ? (titleEl.textContent || '').trim() : taskId;
+          let handoffMsg;
+          try {
+            if (typeof buildHandoffMessage === 'function') {
+              handoffMsg = await buildHandoffMessage(taskId, taskTitle, '⏸️ 잠시 멈춤 이어가기');
+            } else {
+              throw new Error('buildHandoffMessage 미정의');
+            }
+          } catch (buildErr) {
+            console.error('[paused-resume] handoff build 실패', buildErr);
+            handoffMsg = `${taskId} 이어가기 — ${taskTitle}\n\n⚠️ 풀 컨텍스트 조립 실패 — tasks.json 확인 후 진행 필요.\n잠시 멈춤에서 이어가기 선택됨. 완료 시 commit + push + ops 알림.`;
+          }
+          // 3) 클립보드 복사 (clipboard API → textarea 폴백)
+          let clipboardOk = false;
+          try {
+            await navigator.clipboard.writeText(handoffMsg);
+            clipboardOk = true;
+          } catch (_) {
+            const ta = document.createElement('textarea');
+            ta.value = handoffMsg;
+            document.body.appendChild(ta);
+            ta.select();
+            try { clipboardOk = document.execCommand('copy'); } catch (_) {}
+            document.body.removeChild(ta);
+          }
+          // 4) 결과 토스트
+          const lines = handoffMsg.split('\n').length;
+          if (typeof showAutoQueueToast === 'function') {
+            showAutoQueueToast(
+              clipboardOk
+                ? `📋 인계서 복사 완료 — ${taskId} (${lines}줄)\n새 채팅창에 Cmd+V로 붙여넣기 → 작업 재개. 1.5초 후 페이지 새로고침.`
+                : `⚠️ 클립보드 복사 실패 — ${taskId}. 수동 복사 필요. 페이지 새로고침은 진행됩니다.`
+            );
+          }
+          btn.textContent = clipboardOk ? '✅ 복사됨 — 새로고침 중' : '⚠️ 복사 실패 — 새로고침 중';
+          // 5) 페이지 새로고침 (진행 중 박스 + 잠시 멈춤 박스 갱신)
+          setTimeout(() => location.reload(), 1800);
         } catch (e) {
           btn.disabled = false;
           btn.textContent = orig;
-          alert('이어가기 실패: ' + (e?.message || 'unknown'));
+          alert(
+            `❌ 이어가기 실패\n\n` +
+            `에러: ${e?.message || 'unknown'}\n\n` +
+            `작업 상태는 그대로 보존됐습니다. 페이지 새로고침 후 다시 시도하세요.`
+          );
         }
       });
     });

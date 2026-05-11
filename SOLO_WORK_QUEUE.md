@@ -39,23 +39,6 @@
 
 ---
 
-### C. 🟡 SEMI — BL-003 핑퐁 9라운드 결정 손실 복구 + 확정 흐름 에러 가시화
-
-**ID**: `BL-DECISION-CONFIRM-RESCUE`  
-**카테고리**: fix  
-**예상 시간**: 미정시간  
-
-**메모**: 진단:
-- BL-003 라이브 status=blocked, pingpong_rounds=9, pingpong_turn=ceo (확정 안 박힘)
-- 최근 commit에 feat(BL-003): 결정 확정 D-NNN 없음 (핸들러 도달 X)
-- _decisions/pingpong/BL-003.json에 9라운드 모두 남음 (결정 내용 살아있음)
-- 마지막 라운드 결론: BL-003을 BL-003-A(Agoda Matching=호텔 가입 수동 승인) + BL-003-B(예약검증)로 쪼개기
-
-fix 3종:
-1) BL-003 결정 직접 박기
-
----
-
 ## 🟡 P1 — 데드라인 이전에 있으면 좋음
 
 ### A. 🟢 AUTO — [YouTube 더보기 단축 URL 클릭 카운트] 호텔별 진성 관심 측정 시스템

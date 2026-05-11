@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-11T07:08:05.845Z",
+  "updated_at": "2026-05-11T07:10:15+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -37,37 +37,48 @@
       "chatlog_exempt": true,
       "source": "대표님 직접 보고 (2026-05-11 16:00 KST) — 시스템완성도가 또 자동갱신 안된것 같은데. 왜 자동갱신이 안되?",
       "created_at": "2026-05-11T07:08:05.845Z",
-      "updated_at": "2026-05-11T07:09:47.998Z",
+      "updated_at": "2026-05-11T07:10:15+00:00",
       "started_at": "2026-05-11T07:08:05.845Z",
       "notes": "진단 결과:\n- page-status-scan.yml schedule-only cron 마지막 실행: 2026-05-10 22:32 UTC = 8.5시간 전\n- build-activity-feed.yml: 같은 시각 멈춤\n- chat-log-index.yml: 같은 시각 멈춤\n- health-check-admin.yml: push trigger 병행 → 5.7분 전도 정상 작동\n- auto-task-from-health.yml: push trigger 병행 → 5.7분 전도 정상 작동\n→ schedule-only 3봇이 동시에 일제히 멈춤. GitHub Actions cron은 known issue: heavy load 시 silently drop. push trigger와 병행하지 않으면 영영 안 도는 케이스.\n\n정석 fix: 3개 schedule-only 봇에 push trigger 부활 (paths 매우 좁힘 + concurrency + 기존 retry-rebase 가드 활용). 직전 BL-VERCEL-DEPLOY-RACE-GUARD가 막은 race는 paths 좁히기와 concurrency로 해결 가능 (health-check-admin 이미 같은 패턴으로 안정 운영 중).",
       "progress": {
-        "percent": 0,
+        "percent": 80,
         "steps": [
           {
             "n": 1,
             "label": "GitHub Actions 실행 이력으로 결함 정밀 진단 — schedule-only 3봇 8.5h 멈춤 확인",
-            "status": "done"
+            "status": "done",
+            "done": true,
+            "at": "2026-05-11T07:10:15+00:00"
           },
           {
             "n": 2,
             "label": "page-status-scan.yml push trigger 부활 (paths 좁힘 + 기존 concurrency 활용)",
-            "status": "done"
+            "status": "done",
+            "done": true,
+            "at": "2026-05-11T07:10:15+00:00"
           },
           {
             "n": 3,
             "label": "build-activity-feed.yml + chat-log-index.yml 동일 패턴 적용",
-            "status": "done"
+            "status": "done",
+            "done": true,
+            "at": "2026-05-11T07:10:15+00:00"
           },
           {
             "n": 4,
             "label": "commit + push → 즉시 작동 검증 (push 시 scan-bot commit 박힘)",
-            "status": "done"
+            "status": "done",
+            "done": true,
+            "at": "2026-05-11T07:10:15+00:00"
           },
           {
             "n": 5,
             "label": "라이브 admin-status 완성도 카드 자동 갱신 확인"
           }
-        ]
+        ],
+        "completed_count": 4,
+        "total_count": 5,
+        "updated_at": "2026-05-11T07:10:15+00:00"
       },
       "history": [
         {
@@ -87,6 +98,13 @@
           "action": "progress",
           "by": "claude",
           "note": "단계 2·3·4 완료 — 3개 워크플로 push trigger 부활 (page-status-scan paths 좁힘, chat-log-index paths 좁힘, activity-feed concurrency cancel 활용)"
+        },
+        {
+          "at": "2026-05-11T07:10:15+00:00",
+          "event": "진행 중 commit 추가 + 단계 1, 단계 2, 단계 3, 단계 4 완료 (auto-detected)",
+          "by": "auto-detect-bot",
+          "commit": "5e8471e",
+          "note": "fix(BL-SCAN-CRON-DEAD-FIX): 시스템 완성도 자동 갱신 멈춤 — push trigger 부활 + cron 백업 [step:done:1] [step:done:2] [step:done:3] [step"
         }
       ]
     },

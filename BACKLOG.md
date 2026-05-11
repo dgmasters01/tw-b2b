@@ -19,6 +19,22 @@
 
 ---
 
+## ⚡ P0 — 시스템 완성도 자동 갱신 멈춤 — GitHub cron 8.5h 동안 안 돔, push trigger 부활 + 안전망
+
+**요약**: 진단 결과:
+- page-status-scan.yml schedule-only cron 마지막 실행: 2026-05-10 22:32 UTC = 8.5시간 전
+- build-activity-feed.yml: 같은 시각 멈춤
+- chat-log-index.yml: 같은 시각 멈춤
+- health-check-admin.yml: push trigger 병행 → 5
+
+- **자율성**: 🟡 SEMI
+- **예상 시간**: 미정시간
+- **카테고리**: fix
+- **상태**: in_progress
+- **ID**: `BL-SCAN-CRON-DEAD-FIX` (출처: 대표님 직접 보고 (2026-05-11 16:00 KST) — 시스템완성도가 또 자동갱신 안된것 같은데. 왜 자동갱신이 안되?)
+
+---
+
 ## 🟢 P0 — 통합 To-Do Inbox (관리자 대시보드 재설계)
 
 **요약**: ## 🔴 P0 — 통합 To-Do Inbox (관리자 대시보드 재설계) ⭐⭐⭐ 2026-04-29  **배경** (대표님 핵심 운영 철학): > "한 사람이 처리해야 될 업무는 한 곳에서 우선순위가 표시되어 체크하면 정리할 수 있게 해야 됨. 내가 복잡하게 관리하게 하면 안 됨. 나에게 유리하게 해야 됨."  대표님 1인 운영. 처리 작업이 여러 탭에 흩어

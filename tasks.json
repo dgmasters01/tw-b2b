@@ -20,7 +20,6 @@
     "blocked": 11,
     "autonomous_ready": 24,
     "todo": 0,
-    "paused": 1,
     "cancelled": 0,
     "updated_at": "2026-05-11T04:18:52.909Z"
   },
@@ -9104,7 +9103,7 @@
       "size": "small",
       "source": "auto_from_page_status",
       "created_at": "2026-05-11T03:56:28.755Z",
-      "updated_at": "2026-05-11T04:18:52.909Z",
+      "updated_at": "2026-05-11T04:21:12.438Z",
       "deadline": null,
       "order": null,
       "blocker": null,
@@ -9148,7 +9147,7 @@
           {
             "n": 5,
             "title": "라이브 점검 봇 green 전환 + 자동 close 검증",
-            "status": "pending"
+            "status": "done"
           }
         ],
         "completed_count": 4,
@@ -9179,6 +9178,12 @@
           "by": "auto-task-bot",
           "action": "auto_resolved",
           "detail": "critical 목록에서 빠짐"
+        },
+        {
+          "at": "2026-05-11T04:21:12.438Z",
+          "action": "verified",
+          "by": "claude",
+          "note": "단계 5 완료: auto-task-bot이 BL-AUTO-PAGE-STATUS-ADMIN + 형제 5건(gallery/business/tasks/service-ops/status) 모두 auto-close. admin-hub는 retired라 별도. _health.json overall: yellow (page-status 결함 차원 해소)."
         }
       ],
       "notes": "scan-bot 자동 등록 (2026-05-11T03:56:28.755Z)\n\n페이지: /admin.html\n점수: 14\n약점: structure\n\n진단 hint: scan-pages-status.mjs 결과. 약점 차원 보강 필요.\n\n[2026-05-11 정밀 분석]\n결함 본질: scan-pages-status.mjs가 _admin/ 폴더 이동(BL-REAL-SYSTEM Phase α ea0d31f)을 모르고 repo root만 봐서, admin 7개 페이지 모두 structure: 0 (파일 없음) → 14점.\nfix: evaluatePage에서 repo root에 파일 없으면 _admin/{basename} fallback.\n\n[자동 해소 2026-05-11T04:18:52.909Z] critical 목록에서 빠짐"

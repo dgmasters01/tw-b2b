@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-11T16:33:30+00:00",
+  "updated_at": "2026-05-11T16:37:48.258Z",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -12,18 +12,90 @@
     "SOLO_WORK_QUEUE.md"
   ],
   "stats": {
-    "total": 179,
+    "total": 180,
     "done": 133,
-    "in_progress": 1,
+    "in_progress": 2,
     "pending": 28,
     "blocked": 10,
     "autonomous_ready": 21,
     "todo": 0,
     "cancelled": 0,
-    "updated_at": "2026-05-11T16:31:00.068Z",
+    "updated_at": "2026-05-11T16:37:48.258Z",
     "paused": 1
   },
   "tasks": [
+    {
+      "id": "BL-DECISION-AUTOFILL",
+      "title": "핑퐁 끝나면 결정 한 줄 자동 채움 — 사용자 추가 작업 0",
+      "category": "fix",
+      "priority": "P0",
+      "size": "small",
+      "status": "in_progress",
+      "owner": "claude",
+      "claude_can_auto": true,
+      "approval_required": false,
+      "chatlog_exempt": true,
+      "source": "대표님 직접 보고 (2026-05-11) — 핑퐁 라운드 다 끝났는데 또 결정 한 줄 정리하라는 게 중복. Claude 추천 한 줄 받기가 뭐냐. 결정 확정으로 작업리스트에 박혀야 하는 거 아니냐.",
+      "created_at": "2026-05-11T16:37:48.258Z",
+      "updated_at": "2026-05-11T16:39:10.645Z",
+      "started_at": "2026-05-11T16:37:48.258Z",
+      "notes": "본질 결함: 핑퐁 라운드 9까지 다 돌리면 마지막 Claude 답이 이미 충분히 정리된 결정 본문임 (예: \"a안으로 갑니다. 박을 것 3가지: 접속 로그, 실행 로그, 최근 활동 박스...\"). 그런데 시스템이 또 \"결정 한 줄\"을 입력하라고 요구하고, 추천 한 줄 받기는 대표님 짧은 답만 25자로 압축 → 본질 손실.\n\nfix 2종:\n1) \"그림 일치\" 누르는 순간 마지막 라운드 Claude 답을 자동으로 textarea에 채움\n2) \"Claude 추천 한 줄 받기\" 버튼도 마지막 Claude 답 사용 (대표님 답 압축 X)\n3) 결정 한 줄 박스 위 안내 텍스트도 보강 — \"Claude 답이 자동으로 채워졌어요. 그대로 ▶ 확정 또는 어색하면 다듬으세요\"",
+      "progress": {
+        "percent": 0,
+        "steps": [
+          {
+            "n": 1,
+            "label": "진단 — 자동 채움 누락 + 추천 한 줄이 대표님 답 압축인 결함",
+            "status": "done"
+          },
+          {
+            "n": 2,
+            "label": "그림 일치 핸들러에 자동 채움 박기",
+            "status": "done"
+          },
+          {
+            "n": 3,
+            "label": "Claude 추천 한 줄 받기 동작 변경 — Claude 답 그대로",
+            "status": "done"
+          },
+          {
+            "n": 4,
+            "label": "결정 한 줄 박스 안내 텍스트 갱신",
+            "status": "done"
+          },
+          {
+            "n": 5,
+            "label": "commit + push + 라이브 검증",
+            "status": "done"
+          },
+          {
+            "n": 6,
+            "label": "대표님께 결과 보고",
+            "status": "pending"
+          }
+        ]
+      },
+      "history": [
+        {
+          "at": "2026-05-11T16:37:48.258Z",
+          "action": "created",
+          "by": "claude",
+          "note": "P0"
+        },
+        {
+          "at": "2026-05-11T16:37:48.258Z",
+          "action": "started",
+          "by": "claude",
+          "note": "단계 1 진단 완료"
+        },
+        {
+          "at": "2026-05-11T16:39:10.645Z",
+          "action": "progress",
+          "by": "claude",
+          "note": "단계 2-5 완료 — 그림 일치 자동 채움 + 추천 한 줄 동작 변경 + 안내 텍스트 갱신"
+        }
+      ]
+    },
     {
       "id": "BL-DECISION-CONFIRM-D026-FIX",
       "title": "D-026 결정 본문 정정 — 진단 테스트로 박힌 결정 즉시 복구",

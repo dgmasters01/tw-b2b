@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-11T15:27:43+00:00",
+  "updated_at": "2026-05-11T16:05:43.055Z",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -12,18 +12,80 @@
     "SOLO_WORK_QUEUE.md"
   ],
   "stats": {
-    "total": 176,
+    "total": 177,
     "done": 130,
-    "in_progress": 0,
+    "in_progress": 1,
     "pending": 29,
     "blocked": 10,
     "autonomous_ready": 21,
     "todo": 0,
     "cancelled": 0,
-    "updated_at": "2026-05-11T15:23:26.587Z",
+    "updated_at": "2026-05-11T16:05:43.055Z",
     "paused": 1
   },
   "tasks": [
+    {
+      "id": "BL-TASKS-CACHE-BUST",
+      "title": "done 작업이 화면 결정 대기에 남는 결함 — tasks.json fetch 캐시 완전 우회",
+      "category": "fix",
+      "priority": "P0",
+      "size": "small",
+      "status": "in_progress",
+      "owner": "claude",
+      "claude_can_auto": true,
+      "approval_required": false,
+      "chatlog_exempt": true,
+      "source": "대표님 직접 보고 (2026-05-11) — BL-003 결정 확정 직접 박았는데도 화면에 결정 대기로 남아있음",
+      "created_at": "2026-05-11T16:05:43.055Z",
+      "updated_at": "2026-05-11T16:06:59.756Z",
+      "started_at": "2026-05-11T16:05:43.055Z",
+      "notes": "진단:\n- GitHub tasks.json: BL-003 status=done, decision_resolved=True (확정됨)\n- 대표님 화면: 여전히 ①번 결정 대기 + Claude 차례 배지\n- 5개 fetch(/tasks.json) 중 1개만 cache:no-store, 4개는 query string만\n- Vercel/CDN/브라우저 캐시가 옛 데이터 반환 가능\n\nfix:\n1) 4개 fetch에 cache:no-store + 강력 헤더 추가\n2) tasks.json 갱신 시 강제 화면 새로고침 안내 alert (5초 폴링 실패 시 백업)",
+      "progress": {
+        "percent": 0,
+        "steps": [
+          {
+            "n": 1,
+            "label": "결함 진단 — fetch 캐시 우회 누락 4건 식별",
+            "status": "done"
+          },
+          {
+            "n": 2,
+            "label": "4개 fetch 모두 cache:no-store + pragma 헤더",
+            "status": "done"
+          },
+          {
+            "n": 3,
+            "label": "commit + push + 라이브 검증",
+            "status": "done"
+          },
+          {
+            "n": 4,
+            "label": "대표님 즉시 새로고침 안내",
+            "status": "pending"
+          }
+        ]
+      },
+      "history": [
+        {
+          "at": "2026-05-11T16:05:43.055Z",
+          "action": "created",
+          "by": "claude",
+          "note": "P0"
+        },
+        {
+          "at": "2026-05-11T16:05:43.055Z",
+          "action": "started",
+          "by": "claude",
+          "note": "단계 1 진단 완료"
+        },
+        {
+          "at": "2026-05-11T16:06:59.756Z",
+          "action": "progress",
+          "by": "claude",
+          "note": "단계 2·3 완료 — 4개 fetch에 cache:no-store + pragma 헤더 박음 (3740/4610/6629/7945)"
+        }
+      ]
+    },
     {
       "id": "BL-DECISION-CONFIRM-RESCUE",
       "title": "BL-003 핑퐁 9라운드 결정 손실 복구 + 확정 흐름 에러 가시화",

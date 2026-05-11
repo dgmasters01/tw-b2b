@@ -3735,7 +3735,12 @@
 
   async function loadIntegratedTasks() {
     try {
-      const res = await fetch('/tasks.json?t=' + Date.now());
+      // ★ BL-TASKS-CACHE-BUST (2026-05-11): cache:no-store + pragma 헤더
+      // tasks.json은 5초마다 갱신되는 핵심 데이터. Vercel/CDN/브라우저 캐시 완전 우회 필수.
+      const res = await fetch('/tasks.json?t=' + Date.now(), {
+        cache: 'no-store',
+        headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate', 'Pragma': 'no-cache' }
+      });
       if (!res.ok) throw new Error('HTTP ' + res.status);
       const data = await res.json();
       STATE.tasksData = data;          // ★ 카테고리 카드 카운트 + 펼침 상세에서 사용
@@ -4601,7 +4606,11 @@
 
     if (!task) {
       try {
-        const r = await fetch('/tasks.json?t=' + Date.now());
+        // ★ BL-TASKS-CACHE-BUST (2026-05-11): cache:no-store
+        const r = await fetch('/tasks.json?t=' + Date.now(), {
+          cache: 'no-store',
+          headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate', 'Pragma': 'no-cache' }
+        });
         if (r.ok) {
           const d = await r.json();
           task = (d?.tasks || []).find(t => t.id === taskId);
@@ -6616,7 +6625,11 @@
     let task = null;
     let tasksData = null;
     try {
-      const res = await fetch('/tasks.json?t=' + Date.now());
+      // ★ BL-TASKS-CACHE-BUST (2026-05-11): cache:no-store
+      const res = await fetch('/tasks.json?t=' + Date.now(), {
+        cache: 'no-store',
+        headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate', 'Pragma': 'no-cache' }
+      });
       if (res.ok) {
         tasksData = await res.json();
         task = (tasksData.tasks || []).find(t => t.id === taskId);
@@ -7926,7 +7939,13 @@
     if (document.hidden) return;
     try {
       // tasks.json
-      const t = await fetch('/tasks.json?t=' + Date.now());
+      // ★ BL-TASKS-CACHE-BUST (2026-05-11): cache:no-store + pragma
+      // 5초 폴링이 옛 데이터를 반환받으면 화면이 영원히 업데이트 안 됨.
+      // 대표님이 결정 확정 박은 뒤에도 화면에 결정 대기로 남아있던 결함의 핵심 원인.
+      const t = await fetch('/tasks.json?t=' + Date.now(), {
+        cache: 'no-store',
+        headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate', 'Pragma': 'no-cache' }
+      });
       if (t.ok) {
         const txt = await t.text();
         const h = quickHash(txt);

@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-11T01:03:30+00:00",
+  "updated_at": "2026-05-11T01:57:59.563633Z",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -8299,7 +8299,7 @@
             "at": "2026-05-11T01:03:30+00:00"
           },
           {
-            "name": "6. 헌법 부칙 — 새 P0 박을 때 자동 재정렬 규칙",
+            "name": "6. _os/playbook/auto-reorder-pause.md + chat-log 박기 (부칙 14·15 의무)",
             "status": "done",
             "done": true,
             "at": "2026-05-11T01:03:30+00:00"
@@ -8329,6 +8329,158 @@
           "note": "feat(BL-AUTO-REORDER-PAUSE): 자동 재정렬 + 잠시 멈춤 시스템 — 작업 길 잃지 않게 [step:done:1] [step:done:2] [step:done:3] [step:done:4] [st"
         }
       ]
+    },
+    {
+      "id": "BL-ONELINE-SUMMARY-CARD",
+      "title": "[한 줄 요약 카드] 모든 admin 페이지 상단에 \"이 페이지는 X를 한다\" 한 줄 카드 고정",
+      "status": "pending",
+      "priority": "P1",
+      "category": "ux",
+      "owner": "claude",
+      "size": "small",
+      "claude_can_auto": true,
+      "approval_required": false,
+      "autonomous": {
+        "can_run_alone": true,
+        "estimated_hours": 2,
+        "requires_decisions_first": []
+      },
+      "blocker": null,
+      "progress": {
+        "percent": 0,
+        "steps": []
+      },
+      "notes": "대표님 통찰 (2026-05-10): 페이지 들어가면 '뭐 하는 페이지지?' 0.3초 안에 파악 필요. shared.css에 .page-summary-card 추가 + 각 admin 페이지 헤더 직후 박기. 사업가 언어 (개발자 톤 금지).",
+      "source": "ceo_insight_2026-05-10",
+      "created_at": "2026-05-11T01:57:59.563633Z",
+      "updated_at": "2026-05-11T01:57:59.563633Z"
+    },
+    {
+      "id": "BL-HUMAN-LANG-AUDIT",
+      "title": "[점검 사람 언어 일괄 정제] admin 전체 메시지/UI 개발자톤 → 사업가톤 일괄 변환",
+      "status": "pending",
+      "priority": "P1",
+      "category": "ux",
+      "owner": "claude",
+      "size": "medium",
+      "claude_can_auto": true,
+      "approval_required": false,
+      "autonomous": {
+        "can_run_alone": true,
+        "estimated_hours": 4,
+        "requires_decisions_first": []
+      },
+      "blocker": null,
+      "progress": {
+        "percent": 0,
+        "steps": []
+      },
+      "notes": "대표님 통찰 (2026-05-10): 점검 메시지/에러/상태 표시가 여전히 개발자 용어. 부칙 16 '초등학생 언어' 강제와 미스매치. 스캔 → 후보 추출 → 일괄 치환 PR.",
+      "source": "ceo_insight_2026-05-10",
+      "created_at": "2026-05-11T01:57:59.563633Z",
+      "updated_at": "2026-05-11T01:57:59.563633Z"
+    },
+    {
+      "id": "BL-AUTO-TASK-REGISTER",
+      "title": "[점검 자동 작업 등록 봇] health-check / scan 결과를 tasks.json에 자동 BL 등록",
+      "status": "pending",
+      "priority": "P1",
+      "category": "infrastructure",
+      "owner": "claude",
+      "size": "medium",
+      "claude_can_auto": true,
+      "approval_required": false,
+      "autonomous": {
+        "can_run_alone": true,
+        "estimated_hours": 5,
+        "requires_decisions_first": []
+      },
+      "blocker": null,
+      "progress": {
+        "percent": 0,
+        "steps": []
+      },
+      "notes": "대표님 통찰 (2026-05-10): 점검 봇이 빨간불 잡아도 BL로 안 박혀 흘러감. health-bot / auto-detect-bot이 issue 발견 시 tasks.json에 BL 자동 추가 + 중복 방지 dedup 로직.",
+      "source": "ceo_insight_2026-05-10",
+      "created_at": "2026-05-11T01:57:59.563633Z",
+      "updated_at": "2026-05-11T01:57:59.563633Z"
+    },
+    {
+      "id": "BL-DECISION-WORK-VIZ",
+      "title": "[결정-작업 시각화] 어떤 결정이 어떤 작업을 풀어주는지 한 화면 시각화",
+      "status": "pending",
+      "priority": "P1",
+      "category": "ux",
+      "owner": "claude",
+      "size": "medium",
+      "claude_can_auto": true,
+      "approval_required": false,
+      "autonomous": {
+        "can_run_alone": true,
+        "estimated_hours": 4,
+        "requires_decisions_first": []
+      },
+      "blocker": null,
+      "progress": {
+        "percent": 0,
+        "steps": []
+      },
+      "notes": "대표님 통찰 (2026-05-10): 결정 모달은 있지만 '이 결정 하면 무슨 작업이 풀리는지' 안 보임. admin-status 결정 대기 카드에 연결 작업 트리 표시 (D-XXX → BL-YYY).",
+      "source": "ceo_insight_2026-05-10",
+      "created_at": "2026-05-11T01:57:59.563633Z",
+      "updated_at": "2026-05-11T01:57:59.563633Z"
+    },
+    {
+      "id": "BL-SERVICE-PAGE-MAP",
+      "title": "[서비스 페이지 지도] 방문자→고객 여정 단일 시각 자료 (gohotelwinners.com 전체)",
+      "status": "pending",
+      "priority": "P1",
+      "category": "business",
+      "owner": "ceo_decision_required",
+      "size": "medium",
+      "claude_can_auto": false,
+      "approval_required": true,
+      "autonomous": {
+        "can_run_alone": false,
+        "estimated_hours": 6,
+        "requires_decisions_first": [
+          "디자인 큰 방향 검수 (대표님 그림)"
+        ]
+      },
+      "blocker": "디자인 큰 방향 결정 대기",
+      "progress": {
+        "percent": 0,
+        "steps": []
+      },
+      "notes": "대표님 통찰 (2026-05-10): admin-status는 시스템 지도, 사업가는 서비스 페이지 흐름 지도가 별도로 필요. 랜딩 → 상품 → 결제 → 대시보드 흐름을 한 장에. 부칙 16에 따라 디자인 방향만 대표님 검수.",
+      "source": "ceo_insight_2026-05-10",
+      "created_at": "2026-05-11T01:57:59.563633Z",
+      "updated_at": "2026-05-11T01:57:59.563633Z"
+    },
+    {
+      "id": "BL-STEP-SELF-VERIFY",
+      "title": "[step 자가 검증 봇] step 텍스트에 헌법/부칙/playbook/chat-log/commit 키워드 있으면 done 전 실제 파일 변경 자동 검증",
+      "status": "pending",
+      "priority": "P0",
+      "category": "infrastructure",
+      "owner": "claude",
+      "size": "medium",
+      "claude_can_auto": true,
+      "approval_required": false,
+      "autonomous": {
+        "can_run_alone": true,
+        "estimated_hours": 3,
+        "requires_decisions_first": []
+      },
+      "blocker": null,
+      "progress": {
+        "percent": 0,
+        "steps": []
+      },
+      "notes": "재발 방지 (2026-05-11): BL-AUTO-REORDER-PAUSE step 6 거짓 done 사고 — 텍스트는 '헌법 부칙'인데 실제로는 playbook에 박았고, 또 chat-log 누락. auto-detect-bot에 키워드 매핑 검증 추가: '헌법/부칙' → OPERATIONS_CHARTER.md diff 필수 / 'playbook' → _os/playbook/*.md 신규/수정 필수 / 'chat-log' → _chat-logs/*.md + index.json byTask 매핑 필수. 미충족 시 done 차단 + ⚠️ 워닝.",
+      "source": "self_qa_2026-05-11",
+      "created_at": "2026-05-11T01:57:59.563633Z",
+      "updated_at": "2026-05-11T01:57:59.563633Z"
     }
   ]
 }

@@ -39,6 +39,24 @@
 
 ---
 
+### C. 🟡 SEMI — done 작업이 화면 결정 대기에 남는 결함 — tasks.json fetch 캐시 완전 우회
+
+**ID**: `BL-TASKS-CACHE-BUST`  
+**카테고리**: fix  
+**예상 시간**: 미정시간  
+
+**메모**: 진단:
+- GitHub tasks.json: BL-003 status=done, decision_resolved=True (확정됨)
+- 대표님 화면: 여전히 ①번 결정 대기 + Claude 차례 배지
+- 5개 fetch(/tasks.json) 중 1개만 cache:no-store, 4개는 query string만
+- Vercel/CDN/브라우저 캐시가 옛 데이터 반환 가능
+
+fix:
+1) 4개 fetch에 cache:no-store + 강력 헤더 추가
+2) tasks.json 갱신 시 강제 화면 새로고침 안내 alert (5초 폴링
+
+---
+
 ## 🟡 P1 — 데드라인 이전에 있으면 좋음
 
 ### A. 🟢 AUTO — [YouTube 더보기 단축 URL 클릭 카운트] 호텔별 진성 관심 측정 시스템

@@ -29,18 +29,6 @@
 
 ---
 
-### B. 🟡 SEMI — 다음추천 큐가 결정 미박힘 작업을 자율로 잘못 분류 — 결정 선행 가드 강화
-
-**ID**: `BL-DECISION-GATE-IN-QUEUE`  
-**카테고리**: fix  
-**예상 시간**: 미정시간  
-
-**메모**: 결함 본질: admin-status taskRole() 함수의 결정 선행 가드가 AND 조건(decs.length>0 && !claude_can_auto)으로 잘못 작성됨. BL-TRACK-001 같은 claude_can_auto=true 작업은 requires_decisions_first가 박혀있어도 ceo 분류 안 되고 auto 큐로 넘어감.
-
-fix: requires_decisions_first가 비어있지 않으면 무조건 ceo (헌법 1조 — 대표님 결정 우선). 결정 완료 후 BL의 requires_decisions_firs
-
----
-
 ## 🟡 P1 — 데드라인 이전에 있으면 좋음
 
 ### A. 🟢 AUTO — [YouTube 더보기 단축 URL 클릭 카운트] 호텔별 진성 관심 측정 시스템

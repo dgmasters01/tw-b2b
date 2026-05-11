@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-11T16:39:26+00:00",
+  "updated_at": "2026-05-11T16:41:48+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -37,11 +37,11 @@
       "chatlog_exempt": true,
       "source": "대표님 직접 보고 (2026-05-11) — 핑퐁 라운드 다 끝났는데 또 결정 한 줄 정리하라는 게 중복. Claude 추천 한 줄 받기가 뭐냐. 결정 확정으로 작업리스트에 박혀야 하는 거 아니냐.",
       "created_at": "2026-05-11T16:37:48.258Z",
-      "updated_at": "2026-05-11T16:41:27.232Z",
+      "updated_at": "2026-05-11T16:41:48+00:00",
       "started_at": "2026-05-11T16:37:48.258Z",
       "notes": "본질 결함: 핑퐁 라운드 9까지 다 돌리면 마지막 Claude 답이 이미 충분히 정리된 결정 본문임 (예: \"a안으로 갑니다. 박을 것 3가지: 접속 로그, 실행 로그, 최근 활동 박스...\"). 그런데 시스템이 또 \"결정 한 줄\"을 입력하라고 요구하고, 추천 한 줄 받기는 대표님 짧은 답만 25자로 압축 → 본질 손실.\n\nfix 2종:\n1) \"그림 일치\" 누르는 순간 마지막 라운드 Claude 답을 자동으로 textarea에 채움\n2) \"Claude 추천 한 줄 받기\" 버튼도 마지막 Claude 답 사용 (대표님 답 압축 X)\n3) 결정 한 줄 박스 위 안내 텍스트도 보강 — \"Claude 답이 자동으로 채워졌어요. 그대로 ▶ 확정 또는 어색하면 다듬으세요\"",
       "progress": {
-        "percent": 100,
+        "percent": 17,
         "steps": [
           {
             "n": 1,
@@ -71,9 +71,14 @@
           {
             "n": 6,
             "label": "대표님께 결과 보고",
-            "status": "done"
+            "status": "done",
+            "done": true,
+            "at": "2026-05-11T16:41:48+00:00"
           }
-        ]
+        ],
+        "completed_count": 1,
+        "total_count": 6,
+        "updated_at": "2026-05-11T16:41:48+00:00"
       },
       "history": [
         {
@@ -106,6 +111,13 @@
           "action": "done",
           "by": "claude",
           "note": "단계 6 라이브 검증 — vercel green, 식별자 4건 박힘"
+        },
+        {
+          "at": "2026-05-11T16:41:48+00:00",
+          "event": "관련 commit 추가 (status 유지) + 단계 6 완료 (auto-detected)",
+          "by": "auto-detect-bot",
+          "commit": "9874aba",
+          "note": "done(BL-DECISION-AUTOFILL): 자동 채움 라이브 검증 [step:done:6]"
         }
       ],
       "completed_at": "2026-05-11T16:41:27.232Z"

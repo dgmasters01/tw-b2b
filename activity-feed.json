@@ -1,12 +1,1575 @@
 {
-  "generatedAt": "2026-05-10T22:32:31.290Z",
-  "totalCount": 429,
+  "generatedAt": "2026-05-11T07:10:36.995Z",
+  "totalCount": 480,
   "byRole": {
-    "CEO": 95,
+    "CEO": 96,
     "Staff": 0,
-    "Bot": 334
+    "Bot": 384
   },
   "items": [
+    {
+      "at": "2026-05-11T07:10:16Z",
+      "by": "🤖 scan-bot",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "[scan-bot] chat-log index 자동 갱신 [변경사유: chat-log 파일 또는 tasks.json 변경 → byCommit/byTask 매핑 재구축]",
+      "target_type": "commit",
+      "target_id": "e590dcb",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T07:10:14Z",
+      "by": "🤖 sync-bot",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "[sync-bot] tasks.json → MD/Gallery 자동 동기화",
+      "target_type": "commit",
+      "target_id": "981d07a",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T07:10:03Z",
+      "by": "👤 이지형 (CEO 결정 → Claude 실행)",
+      "role": "CEO",
+      "source": "git commit",
+      "action": "fix(BL-SCAN-CRON-DEAD-FIX): 시스템 완성도 자동 갱신 멈춤 — push trigger 부활 + cron 백업 [step:done:1] [step:done:2] [step:done:3] [step:done:4]",
+      "target_type": "commit",
+      "target_id": "5e8471e",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T07:09:47.998Z",
+      "by": "🤖 claude",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "progress",
+      "note": "단계 2·3·4 완료 — 3개 워크플로 push trigger 부활 (page-status-scan paths 좁힘, chat-log-index paths 좁힘, activity-feed concurrency cancel 활용)",
+      "target_type": "task",
+      "target_id": "BL-SCAN-CRON-DEAD-FIX",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T07:08:05.845Z",
+      "by": "🤖 claude",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "created",
+      "note": "대표님 직접 보고 받아 P0 BL 박음",
+      "target_type": "task",
+      "target_id": "BL-SCAN-CRON-DEAD-FIX",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T07:08:05.845Z",
+      "by": "🤖 claude",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "started",
+      "note": "단계 1 — GitHub Actions API로 진단 완료, 결함 root cause 식별",
+      "target_type": "task",
+      "target_id": "BL-SCAN-CRON-DEAD-FIX",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T07:01:33Z",
+      "by": "🤖 health-bot",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "[health-bot] _health.json 갱신 (overall=yellow)",
+      "target_type": "commit",
+      "target_id": "65fbc82",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T07:01:31Z",
+      "by": "🤖 sync-bot",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "[sync-bot] tasks.json → MD/Gallery 자동 동기화",
+      "target_type": "commit",
+      "target_id": "ec7f342",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T07:01:25Z",
+      "by": "🤖 auto-detect-bot",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "[auto-detect-bot] commit message → 작업 status 자동 갱신",
+      "target_type": "commit",
+      "target_id": "f7aaac6",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T07:01:25+00:00",
+      "by": "🤖 auto-detect-bot",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "",
+      "note": "fix(BL-AUTO-PAGE-STATUS-ADMIN-HUB): retired 페이지가 점검 BL 무한 생성 — 이중 안전망 추가 [step:done:1] [step:done:2] [step:done:3] [step",
+      "target_type": "task",
+      "target_id": "BL-AUTO-PAGE-STATUS-ADMIN-HUB",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T07:01:13Z",
+      "by": "👤 이지형 (CEO 결정 → Claude 실행)",
+      "role": "CEO",
+      "source": "git commit",
+      "action": "fix(BL-AUTO-PAGE-STATUS-ADMIN-HUB): retired 페이지가 점검 BL 무한 생성 — 이중 안전망 추가 [step:done:1] [step:done:2] [step:done:3] [step:done:4]",
+      "target_type": "commit",
+      "target_id": "da8ef6e",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T07:00:58.972Z",
+      "by": "🤖 claude",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "verified",
+      "note": "단계 2·3 완료: scan-pages-status.mjs retired 제외 필터 + auto-task-from-health.mjs 이중 안전망. 단계 4: 로컬 검증에서 retired 셋 인식 + admin-hub BL 자동 close 확인. 봇이 의도대로 작동.",
+      "target_type": "task",
+      "target_id": "BL-AUTO-PAGE-STATUS-ADMIN-HUB",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T07:00:47.368Z",
+      "by": "🤖 auto-task-bot",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "auto_resolved",
+      "note": "",
+      "target_type": "task",
+      "target_id": "BL-AUTO-PAGE-STATUS-ADMIN-HUB",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T06:59:19.624Z",
+      "by": "🤖 claude",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "started",
+      "note": "단계 1 완료 — 결함 정밀 분석. retired 페이지 처리 결함, 직전 BL과 동일 root cause",
+      "target_type": "task",
+      "target_id": "BL-AUTO-PAGE-STATUS-ADMIN-HUB",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T04:34:50Z",
+      "by": "🤖 health-bot",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "[health-bot] _health.json 갱신 (overall=yellow)",
+      "target_type": "commit",
+      "target_id": "95f1a67",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T04:34:49Z",
+      "by": "🤖 auto-detect-bot",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "[auto-detect-bot] commit message → 작업 status 자동 갱신",
+      "target_type": "commit",
+      "target_id": "4faf656",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T04:34:48Z",
+      "by": "🤖 sync-bot",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "[sync-bot] tasks.json → MD/Gallery 자동 동기화",
+      "target_type": "commit",
+      "target_id": "8424dd6",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T04:34:47+00:00",
+      "by": "🤖 auto-detect-bot",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "",
+      "note": "done(BL-RESERVE-BTN-START-TASK): start-task endpoint 라이브 검증 완료 [step:done:5]",
+      "target_type": "task",
+      "target_id": "BL-RESERVE-BTN-START-TASK",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T04:34:39.563Z",
+      "by": "🤖 claude",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "done",
+      "note": "단계 5 라이브 검증 완료 — /api/admin?action=start-task 라이브 응답 정상 (인증 가드 작동), Vercel sha 0aeb2ad 반영 확인. ⚠️ 다음추천 버튼이 실제로 작동하려면 Vercel 환경 변수 GITHUB_PAT(repo 쓰기 권한) 등록 필요 — 대표님 액션 (헌법 부칙 4: 권한 부여는 대표님).",
+      "target_type": "task",
+      "target_id": "BL-RESERVE-BTN-START-TASK",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T04:34:39Z",
+      "by": "👤 이지형 (CEO 결정 → Claude 실행)",
+      "role": "CEO",
+      "source": "git commit",
+      "action": "done(BL-RESERVE-BTN-START-TASK): start-task endpoint 라이브 검증 완료 [step:done:5]",
+      "target_type": "commit",
+      "target_id": "ce104ae",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T04:30:49Z",
+      "by": "🤖 auto-detect-bot",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "[auto-detect-bot] commit message → 작업 status 자동 갱신",
+      "target_type": "commit",
+      "target_id": "1454211",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T04:30:49+00:00",
+      "by": "🤖 auto-detect-bot",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "",
+      "note": "feat(BL-RESERVE-BTN-START-TASK): 다음추천 ▶ 예약+알림 버튼 즉시 진행 중 전환 — 약속과 작동 일치 [step:done:1] [step:done:2] [step:done:3] [step:",
+      "target_type": "task",
+      "target_id": "BL-RESERVE-BTN-START-TASK",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T04:30:45Z",
+      "by": "🤖 health-bot",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "[health-bot] _health.json 갱신 (overall=yellow)",
+      "target_type": "commit",
+      "target_id": "729fb12",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T04:30:43Z",
+      "by": "🤖 sync-bot",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "[sync-bot] tasks.json → MD/Gallery 자동 동기화",
+      "target_type": "commit",
+      "target_id": "d4d72a6",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T04:30:32Z",
+      "by": "👤 이지형 (CEO 결정 → Claude 실행)",
+      "role": "CEO",
+      "source": "git commit",
+      "action": "feat(BL-RESERVE-BTN-START-TASK): 다음추천 ▶ 예약+알림 버튼 즉시 진행 중 전환 — 약속과 작동 일치 [step:done:1] [step:done:2] [step:done:3] [step:done:4]",
+      "target_type": "commit",
+      "target_id": "0aeb2ad",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T04:30:17.531Z",
+      "by": "🤖 claude",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "progress",
+      "note": "단계 2·3 완료 — api/admin.js start-task sub-handler 추가 + admin-status.html btn-reserve 핸들러 보강 + hint 텍스트 정확화",
+      "target_type": "task",
+      "target_id": "BL-RESERVE-BTN-START-TASK",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T04:28:06.337Z",
+      "by": "🤖 claude",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "created",
+      "note": "대표님 직접 보고 받아 신규 P0 BL 박음",
+      "target_type": "task",
+      "target_id": "BL-RESERVE-BTN-START-TASK",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T04:28:06.337Z",
+      "by": "🤖 claude",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "started",
+      "note": "단계 1 즉시 진행 — 라이브 코드 분석 완료",
+      "target_type": "task",
+      "target_id": "BL-RESERVE-BTN-START-TASK",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T04:21:32Z",
+      "by": "🤖 health-bot",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "[health-bot] _health.json 갱신 (overall=yellow)",
+      "target_type": "commit",
+      "target_id": "050b1c6",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T04:21:29Z",
+      "by": "🤖 auto-detect-bot",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "[auto-detect-bot] commit message → 작업 status 자동 갱신",
+      "target_type": "commit",
+      "target_id": "ae2994a",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T04:21:28+00:00",
+      "by": "🤖 auto-detect-bot",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "",
+      "note": "done(BL-AUTO-PAGE-STATUS-ADMIN): auto-task-bot 자동 close 검증 완료 — 형제 5건도 같이 해소 [step:done:5]",
+      "target_type": "task",
+      "target_id": "BL-AUTO-PAGE-STATUS-ADMIN",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T04:21:22Z",
+      "by": "🤖 sync-bot",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "[sync-bot] tasks.json → MD/Gallery 자동 동기화",
+      "target_type": "commit",
+      "target_id": "3182ce6",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T04:21:12.438Z",
+      "by": "🤖 claude",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "verified",
+      "note": "단계 5 완료: auto-task-bot이 BL-AUTO-PAGE-STATUS-ADMIN + 형제 5건(gallery/business/tasks/service-ops/status) 모두 auto-close. admin-hub는 retired라 별도. _health.json overall: yellow (page-status 결함 차원 해소).",
+      "target_type": "task",
+      "target_id": "BL-AUTO-PAGE-STATUS-ADMIN",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T04:21:12Z",
+      "by": "👤 이지형 (CEO 결정 → Claude 실행)",
+      "role": "CEO",
+      "source": "git commit",
+      "action": "done(BL-AUTO-PAGE-STATUS-ADMIN): auto-task-bot 자동 close 검증 완료 — 형제 5건도 같이 해소 [step:done:5]",
+      "target_type": "commit",
+      "target_id": "4609c77",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T04:18:57Z",
+      "by": "🤖 auto-detect-bot",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "[auto-detect-bot] commit message → 작업 status 자동 갱신",
+      "target_type": "commit",
+      "target_id": "fbce01b",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T04:18:56Z",
+      "by": "🤖 sync-bot",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "[sync-bot] tasks.json → MD/Gallery 자동 동기화",
+      "target_type": "commit",
+      "target_id": "fcc9e62",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T04:18:54Z",
+      "by": "🤖 health-bot",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "[health-bot] _health.json 갱신 (overall=yellow)",
+      "target_type": "commit",
+      "target_id": "c4a625f",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T04:18:53Z",
+      "by": "👤 이지형 (CEO)",
+      "role": "CEO",
+      "source": "git commit",
+      "action": "[auto-task-bot] BL 0건 등록 / 6건 해소 [변경사유: 점검 봇 발견 자동 등록]",
+      "target_type": "commit",
+      "target_id": "6f9142d",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T04:18:52.909Z",
+      "by": "🤖 auto-task-bot",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "auto_resolved",
+      "note": "",
+      "target_type": "task",
+      "target_id": "BL-AUTO-PAGE-STATUS-ADMIN",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T04:18:40Z",
+      "by": "👤 이지형 (CEO 결정 → Claude 실행)",
+      "role": "CEO",
+      "source": "git commit",
+      "action": "fix(BL-AUTO-PAGE-STATUS-ADMIN): scan 스크립트 _admin/ 폴더 fallback 추가 — admin 7개 모두 점수 회복 [step:done:1] [step:done:2] [step:done:3] [step:done:4]",
+      "target_type": "commit",
+      "target_id": "754f793",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T04:18:27.953Z",
+      "by": "🤖 claude",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "progress",
+      "note": "단계 2·3·4 완료: scan 스크립트 fix + 로컬 검증 (admin 7개 14→평균 76점) + commit 준비",
+      "target_type": "task",
+      "target_id": "BL-AUTO-PAGE-STATUS-ADMIN",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T04:17:51.270Z",
+      "by": "🤖 claude",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "started",
+      "note": "단계 1 완료 (결함 분석) — admin 7개 모두 14점이 본질, scan 스크립트 fix가 정석",
+      "target_type": "task",
+      "target_id": "BL-AUTO-PAGE-STATUS-ADMIN",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T04:07:55Z",
+      "by": "🤖 health-bot",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "[health-bot] _health.json 갱신 (overall=yellow)",
+      "target_type": "commit",
+      "target_id": "8382a60",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T04:07:53Z",
+      "by": "🤖 sync-bot",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "[sync-bot] tasks.json → MD/Gallery 자동 동기화",
+      "target_type": "commit",
+      "target_id": "233a5ae",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T04:07:45Z",
+      "by": "🤖 auto-detect-bot",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "[auto-detect-bot] commit message → 작업 status 자동 갱신",
+      "target_type": "commit",
+      "target_id": "9d216e1",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T04:07:45+00:00",
+      "by": "🤖 auto-detect-bot",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "",
+      "note": "done(BL-AUTO-TASKS-SCHEMA-13MISSING): tasks_schema check green 전환 확인 — 자동 close [step:done:6]",
+      "target_type": "task",
+      "target_id": "BL-AUTO-TASKS-SCHEMA-13MISSING",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T04:07:35Z",
+      "by": "👤 이지형 (CEO 결정 → Claude 실행)",
+      "role": "CEO",
+      "source": "git commit",
+      "action": "done(BL-AUTO-TASKS-SCHEMA-13MISSING): tasks_schema check green 전환 확인 — 자동 close [step:done:6]",
+      "target_type": "commit",
+      "target_id": "e6bbb6c",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T04:07:28.737Z",
+      "by": "🤖 claude",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "done",
+      "note": "단계 6 완료 — tasks_schema check green 전환 확인 (_health.json overall red→yellow, tasks_schema 13건→0건)",
+      "target_type": "task",
+      "target_id": "BL-AUTO-TASKS-SCHEMA-13MISSING",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T04:04:30Z",
+      "by": "🤖 sync-bot",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "[sync-bot] tasks.json → MD/Gallery 자동 동기화",
+      "target_type": "commit",
+      "target_id": "ee80f38",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T04:04:28Z",
+      "by": "🤖 health-bot",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "[health-bot] _health.json 갱신 (overall=yellow)",
+      "target_type": "commit",
+      "target_id": "c7efa6e",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T04:04:25Z",
+      "by": "🤖 auto-detect-bot",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "[auto-detect-bot] commit message → 작업 status 자동 갱신",
+      "target_type": "commit",
+      "target_id": "a404612",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T04:04:25+00:00",
+      "by": "🤖 auto-detect-bot",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "",
+      "note": "fix(BL-AUTO-TASKS-SCHEMA-13MISSING): 13건 출처 누락 채움 — 점검 봇 green 전환 [step:done:1] [step:done:2] [step:done:3] [step:done:4",
+      "target_type": "task",
+      "target_id": "BL-AUTO-TASKS-SCHEMA-13MISSING",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T04:04:11Z",
+      "by": "👤 이지형 (CEO 결정 → Claude 실행)",
+      "role": "CEO",
+      "source": "git commit",
+      "action": "fix(BL-AUTO-TASKS-SCHEMA-13MISSING): 13건 출처 누락 채움 — 점검 봇 green 전환 [step:done:1] [step:done:2] [step:done:3] [step:done:4] [step:done:5]",
+      "target_type": "commit",
+      "target_id": "5433976",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T04:04:01.312Z",
+      "by": "🤖 claude",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "source_filled",
+      "note": "BL-AUTO-TASKS-SCHEMA-13MISSING 작업 — auto-task-registry 룰북 schema 준수",
+      "target_type": "task",
+      "target_id": "BL-HUMAN-TAB-ALWAYS-SHOW",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T04:04:01.312Z",
+      "by": "🤖 claude",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "started",
+      "note": "단계 1~4 완료, 5 진행 중",
+      "target_type": "task",
+      "target_id": "BL-AUTO-TASKS-SCHEMA-13MISSING",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T03:58:08Z",
+      "by": "🤖 health-bot",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "[health-bot] _health.json 갱신 (overall=red)",
+      "target_type": "commit",
+      "target_id": "45b8671",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T03:58:06Z",
+      "by": "🤖 auto-detect-bot",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "[auto-detect-bot] commit message → 작업 status 자동 갱신",
+      "target_type": "commit",
+      "target_id": "efd8396",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T03:58:06+00:00",
+      "by": "🤖 auto-detect-bot",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "",
+      "note": "fix(BL-BASELINE-AUTO-TASK): step 2·3 done 마킹 정정 (rebase 중 잃은 표시 복구)",
+      "target_type": "task",
+      "target_id": "BL-BASELINE-AUTO-TASK",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T03:57:51Z",
+      "by": "👤 이지형 (CEO 결정 → Claude 실행)",
+      "role": "CEO",
+      "source": "git commit",
+      "action": "fix(BL-BASELINE-AUTO-TASK): step 2·3 done 마킹 정정 (rebase 중 잃은 표시 복구)",
+      "target_type": "commit",
+      "target_id": "9dc67d4",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T03:57:31Z",
+      "by": "🤖 health-bot",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "[health-bot] _health.json 갱신 (overall=red)",
+      "target_type": "commit",
+      "target_id": "02ee181",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T03:57:28Z",
+      "by": "🤖 auto-detect-bot",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "[auto-detect-bot] commit message → 작업 status 자동 갱신",
+      "target_type": "commit",
+      "target_id": "666b439",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T03:57:28+00:00",
+      "by": "🤖 auto-detect-bot",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "",
+      "note": "feat(BL-BASELINE-AUTO-TASK): 5단계 — 라이브 검증 통과, 전체 완료 [step:done:5] [변경사유: 워크플로 수동 트리거 라이브 실행 → 9건 BL 자동 등록 확인]",
+      "target_type": "task",
+      "target_id": "BL-BASELINE-AUTO-TASK",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T03:57:18.764Z",
+      "by": "🤖 claude",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "step:done:5",
+      "note": "",
+      "target_type": "task",
+      "target_id": "BL-BASELINE-AUTO-TASK",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T03:57:18.764Z",
+      "by": "🤖 claude",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "task_done",
+      "note": "",
+      "target_type": "task",
+      "target_id": "BL-BASELINE-AUTO-TASK",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T03:57:18Z",
+      "by": "👤 이지형 (CEO 결정 → Claude 실행)",
+      "role": "CEO",
+      "source": "git commit",
+      "action": "feat(BL-BASELINE-AUTO-TASK): 5단계 — 라이브 검증 통과, 전체 완료 [step:done:5] [변경사유: 워크플로 수동 트리거 라이브 실행 → 9건 BL 자동 등록 확인]",
+      "target_type": "commit",
+      "target_id": "4dbe212",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T03:56:41Z",
+      "by": "🤖 health-bot",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "[health-bot] _health.json 갱신 (overall=red)",
+      "target_type": "commit",
+      "target_id": "944ef4b",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T03:56:30Z",
+      "by": "🤖 auto-detect-bot",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "[auto-detect-bot] commit message → 작업 status 자동 갱신",
+      "target_type": "commit",
+      "target_id": "1fbf402",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T03:56:28.755Z",
+      "by": "🤖 auto-task-bot",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "created",
+      "note": "",
+      "target_type": "task",
+      "target_id": "BL-AUTO-ADMIN-BASELINE-7FILES",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T03:56:28Z",
+      "by": "👤 이지형 (CEO)",
+      "role": "CEO",
+      "source": "git commit",
+      "action": "[auto-task-bot] BL 9건 등록 / 0건 해소 [변경사유: 점검 봇 발견 자동 등록]",
+      "target_type": "commit",
+      "target_id": "8de8c73",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T03:56:28+00:00",
+      "by": "🤖 auto-detect-bot",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "",
+      "note": "feat(BL-BASELINE-AUTO-TASK): 4단계 — GitHub Actions 워크플로 박음 (트리거 push+cron15m+manual, race retry 3회) [step:done:4] [변경사유: ",
+      "target_type": "task",
+      "target_id": "BL-BASELINE-AUTO-TASK",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T03:56:20.162Z",
+      "by": "🤖 claude",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "step:done:4",
+      "note": "",
+      "target_type": "task",
+      "target_id": "BL-BASELINE-AUTO-TASK",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T03:56:20Z",
+      "by": "👤 이지형 (CEO 결정 → Claude 실행)",
+      "role": "CEO",
+      "source": "git commit",
+      "action": "feat(BL-BASELINE-AUTO-TASK): 4단계 — GitHub Actions 워크플로 박음 (트리거 push+cron15m+manual, race retry 3회) [step:done:4] [변경사유: 점검 봇 push 시 자동 BL 등록 트리거]",
+      "target_type": "commit",
+      "target_id": "dcf4763",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T03:55:59Z",
+      "by": "🤖 health-bot",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "[health-bot] _health.json 갱신 (overall=red)",
+      "target_type": "commit",
+      "target_id": "266bb3e",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T03:55:58Z",
+      "by": "🤖 auto-detect-bot",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "[auto-detect-bot] commit message → 작업 status 자동 갱신",
+      "target_type": "commit",
+      "target_id": "b7eef15",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T03:55:58+00:00",
+      "by": "🤖 auto-detect-bot",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "",
+      "note": "feat(BL-BASELINE-AUTO-TASK): 2+3단계 — 코어 스크립트 + dedup 로직 + auto-close [step:done:2] [step:done:3] [변경사유: 점검 결과 → 자동 BL 등록",
+      "target_type": "task",
+      "target_id": "BL-BASELINE-AUTO-TASK",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T03:55:47Z",
+      "by": "👤 이지형 (CEO 결정 → Claude 실행)",
+      "role": "CEO",
+      "source": "git commit",
+      "action": "feat(BL-BASELINE-AUTO-TASK): 2+3단계 — 코어 스크립트 + dedup 로직 + auto-close [step:done:2] [step:done:3] [변경사유: 점검 결과 → 자동 BL 등록 핵심 로직, dedup 로컬 검증 통과]",
+      "target_type": "commit",
+      "target_id": "1073c03",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T03:54:19Z",
+      "by": "🤖 health-bot",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "[health-bot] _health.json 갱신 (overall=red)",
+      "target_type": "commit",
+      "target_id": "b67e057",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T03:54:16Z",
+      "by": "🤖 auto-detect-bot",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "[auto-detect-bot] commit message → 작업 status 자동 갱신",
+      "target_type": "commit",
+      "target_id": "2fbae3f",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T03:54:16+00:00",
+      "by": "🤖 auto-detect-bot",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "",
+      "note": "feat(BL-BASELINE-AUTO-TASK): 1단계 — 설계 + 룰북 + DECISIONS D-024 + steps 박음 [step:done:1] [변경사유: 점검 봇 빨간불이 BL로 안 박혀 흘러가는 문제,",
+      "target_type": "task",
+      "target_id": "BL-BASELINE-AUTO-TASK",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T03:54:06.528Z",
+      "by": "🤖 claude",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "step:done:1",
+      "note": "",
+      "target_type": "task",
+      "target_id": "BL-BASELINE-AUTO-TASK",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T03:54:06Z",
+      "by": "👤 이지형 (CEO 결정 → Claude 실행)",
+      "role": "CEO",
+      "source": "git commit",
+      "action": "feat(BL-BASELINE-AUTO-TASK): 1단계 — 설계 + 룰북 + DECISIONS D-024 + steps 박음 [step:done:1] [변경사유: 점검 봇 빨간불이 BL로 안 박혀 흘러가는 문제, 자동 BL 등록 인프라 설계]",
+      "target_type": "commit",
+      "target_id": "8d8af5b",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T03:52:43.209Z",
+      "by": "🤖 claude",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "steps_planned",
+      "note": "",
+      "target_type": "task",
+      "target_id": "BL-BASELINE-AUTO-TASK",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T02:39:09Z",
+      "by": "🤖 health-bot",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "[health-bot] _health.json 갱신 (overall=red)",
+      "target_type": "commit",
+      "target_id": "a0ccc5c",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T02:38:54Z",
+      "by": "👤 이지형 (CEO)",
+      "role": "CEO",
+      "source": "git commit",
+      "action": "fix(BL-ID-MISMATCH): 잘못된 5개 obsoleted + 대표님 결정 5개 정확한 이름으로 신규 + 페이지 Phase 1~3 우선순위 박기",
+      "target_type": "commit",
+      "target_id": "c1843eb",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T02:10:59Z",
+      "by": "🤖 auto-detect-bot",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "[auto-detect-bot] commit message → 작업 status 자동 갱신",
+      "target_type": "commit",
+      "target_id": "d8e4466",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T02:10:58+00:00",
+      "by": "🤖 auto-detect-bot",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "",
+      "note": "merge(BL-STEP-SELF-VERIFY): tasks.json 머지 — done 상태 + 봇 갱신 통합",
+      "target_type": "task",
+      "target_id": "BL-STEP-SELF-VERIFY",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T02:10:57Z",
+      "by": "🤖 health-bot",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "[health-bot] _health.json 갱신 (overall=red)",
+      "target_type": "commit",
+      "target_id": "6e5d07a",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T02:10:43Z",
+      "by": "🤖 git auto-merge",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "merge(BL-STEP-SELF-VERIFY): tasks.json 머지 — done 상태 + 봇 갱신 통합",
+      "target_type": "commit",
+      "target_id": "4149fab",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T02:10:30Z",
+      "by": "👤 이지형 (CEO)",
+      "role": "CEO",
+      "source": "git commit",
+      "action": "done(BL-STEP-SELF-VERIFY): 라이브 검증 + chat-log 박기 [step:done:5]",
+      "target_type": "commit",
+      "target_id": "c50888d",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T02:09:26Z",
+      "by": "🤖 auto-detect-bot",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "[auto-detect-bot] commit message → 작업 status 자동 갱신",
+      "target_type": "commit",
+      "target_id": "11b3cd4",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T02:09:26+00:00",
+      "by": "🤖 auto-detect-bot",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "",
+      "note": "docs(BL-STEP-SELF-VERIFY): playbook 디테일 확장 — 5룰 매핑 표·동작 흐름·복구 절차 [step:done:4]",
+      "target_type": "task",
+      "target_id": "BL-STEP-SELF-VERIFY",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T02:09:17Z",
+      "by": "🤖 git auto-merge",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "Merge branch 'main' of https://github.com/dgmasters01/tw-b2b",
+      "target_type": "commit",
+      "target_id": "65ae019",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T02:09:16Z",
+      "by": "👤 이지형 (CEO)",
+      "role": "CEO",
+      "source": "git commit",
+      "action": "docs(BL-STEP-SELF-VERIFY): playbook 디테일 확장 — 5룰 매핑 표·동작 흐름·복구 절차 [step:done:4]",
+      "target_type": "commit",
+      "target_id": "fe1b40d",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T02:08:23Z",
+      "by": "🤖 auto-detect-bot",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "[auto-detect-bot] commit message → 작업 status 자동 갱신",
+      "target_type": "commit",
+      "target_id": "9775300",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T02:08:23+00:00",
+      "by": "🤖 auto-detect-bot",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "",
+      "note": "feat(BL-STEP-SELF-VERIFY): step-self-verify.yml workflow — push 트리거 + 자동 롤백 + ops 알림 [step:done:3]",
+      "target_type": "task",
+      "target_id": "BL-STEP-SELF-VERIFY",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T02:08:08Z",
+      "by": "🤖 git auto-merge",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "Merge branch 'main' of https://github.com/dgmasters01/tw-b2b",
+      "target_type": "commit",
+      "target_id": "06786fd",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T02:08:04Z",
+      "by": "👤 이지형 (CEO)",
+      "role": "CEO",
+      "source": "git commit",
+      "action": "feat(BL-STEP-SELF-VERIFY): step-self-verify.yml workflow — push 트리거 + 자동 롤백 + ops 알림 [step:done:3]",
+      "target_type": "commit",
+      "target_id": "2b432a5",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T02:07:30Z",
+      "by": "🤖 auto-detect-bot",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "[auto-detect-bot] commit message → 작업 status 자동 갱신",
+      "target_type": "commit",
+      "target_id": "cbfcdac",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T02:07:30+00:00",
+      "by": "🤖 auto-detect-bot",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "",
+      "note": "feat(BL-STEP-SELF-VERIFY): step-self-verify-bot.mjs 신규 — 키워드별 산출물 검증 [step:done:2]",
+      "target_type": "task",
+      "target_id": "BL-STEP-SELF-VERIFY",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T02:07:14Z",
+      "by": "🤖 git auto-merge",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "Merge branch 'main' of https://github.com/dgmasters01/tw-b2b",
+      "target_type": "commit",
+      "target_id": "4494ce9",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T02:07:10Z",
+      "by": "👤 이지형 (CEO)",
+      "role": "CEO",
+      "source": "git commit",
+      "action": "feat(BL-STEP-SELF-VERIFY): step-self-verify-bot.mjs 신규 — 키워드별 산출물 검증 [step:done:2]",
+      "target_type": "commit",
+      "target_id": "3dbd89c",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T02:06:20Z",
+      "by": "🤖 auto-detect-bot",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "[auto-detect-bot] commit message → 작업 status 자동 갱신",
+      "target_type": "commit",
+      "target_id": "44d925c",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T02:06:20+00:00",
+      "by": "🤖 auto-detect-bot",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "",
+      "note": "start(BL-STEP-SELF-VERIFY): 5단계 progress 박고 in_progress 전환 [step:done:1]",
+      "target_type": "task",
+      "target_id": "BL-STEP-SELF-VERIFY",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T02:06:16Z",
+      "by": "🤖 health-bot",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "[health-bot] _health.json 갱신 (overall=red)",
+      "target_type": "commit",
+      "target_id": "e180299",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T02:06:05Z",
+      "by": "👤 이지형 (CEO)",
+      "role": "CEO",
+      "source": "git commit",
+      "action": "start(BL-STEP-SELF-VERIFY): 5단계 progress 박고 in_progress 전환 [step:done:1]",
+      "target_type": "commit",
+      "target_id": "9a167e2",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T02:01:07Z",
+      "by": "🤖 health-bot",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "[health-bot] _health.json 갱신 (overall=red)",
+      "target_type": "commit",
+      "target_id": "dba57fb",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T02:01:04Z",
+      "by": "🤖 auto-detect-bot",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "[auto-detect-bot] commit message → 작업 status 자동 갱신",
+      "target_type": "commit",
+      "target_id": "5ae94cf",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T02:01:04+00:00",
+      "by": "🤖 auto-detect-bot",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "",
+      "note": "fix(BL-AUTO-REORDER-PAUSE): step 6 정정 + chat-log 보수 + 통찰 5개 + 재발방지 BL 박기",
+      "target_type": "task",
+      "target_id": "BL-AUTO-REORDER-PAUSE",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T01:58:50Z",
+      "by": "👤 이지형 (CEO)",
+      "role": "CEO",
+      "source": "git commit",
+      "action": "fix(BL-AUTO-REORDER-PAUSE): step 6 정정 + chat-log 보수 + 통찰 5개 + 재발방지 BL 박기",
+      "target_type": "commit",
+      "target_id": "0b053bc",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T01:03:34Z",
+      "by": "🤖 health-bot",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "[health-bot] _health.json 갱신 (overall=red)",
+      "target_type": "commit",
+      "target_id": "4c2b4df",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T01:03:30Z",
+      "by": "🤖 auto-detect-bot",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "[auto-detect-bot] commit message → 작업 status 자동 갱신",
+      "target_type": "commit",
+      "target_id": "6ba6dbd",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T01:03:30+00:00",
+      "by": "🤖 auto-detect-bot",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "",
+      "note": "feat(BL-AUTO-REORDER-PAUSE): 자동 재정렬 + 잠시 멈춤 시스템 — 작업 길 잃지 않게 [step:done:1] [step:done:2] [step:done:3] [step:done:4] [st",
+      "target_type": "task",
+      "target_id": "BL-AUTO-REORDER-PAUSE",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T01:03:20Z",
+      "by": "👤 이지형 (CEO 결정 → Claude 실행)",
+      "role": "CEO",
+      "source": "git commit",
+      "action": "feat(BL-AUTO-REORDER-PAUSE): 자동 재정렬 + 잠시 멈춤 시스템 — 작업 길 잃지 않게 [step:done:1] [step:done:2] [step:done:3] [step:done:4] [step:done:5] [step:done:6] [step:done:7]",
+      "target_type": "commit",
+      "target_id": "13d50aa",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T00:22:21Z",
+      "by": "🤖 health-bot",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "[health-bot] _health.json 갱신 (overall=red)",
+      "target_type": "commit",
+      "target_id": "09cc72b",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T00:22:20Z",
+      "by": "🤖 auto-detect-bot",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "[auto-detect-bot] commit message → 작업 status 자동 갱신",
+      "target_type": "commit",
+      "target_id": "07c40ac",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T00:22:19+00:00",
+      "by": "🤖 auto-detect-bot",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "",
+      "note": "clear(BL-003): 핑퐁 필드 정리 (전체 비우기)",
+      "target_type": "task",
+      "target_id": "BL-003",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T09:22:10+09:00",
+      "by": "👤 이지형 (CEO)",
+      "role": "CEO",
+      "source": "git commit",
+      "action": "clear(BL-003): 핑퐁 필드 정리 (전체 비우기)",
+      "target_type": "commit",
+      "target_id": "e24ae94",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-10T17:21:56+00:00",
+      "by": "🤖 auto-detect-bot",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "",
+      "note": "fix(BL-PINGPONG-BL-ISOLATION): BL별 격리 강화 — 다른 BL 모달에 이전 BL 데이터 보이는 사고 fix [step:done:1] [step:done:2] [step:done:3]",
+      "target_type": "task",
+      "target_id": "BL-PINGPONG-BL-ISOLATION",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-10T17:02:28+00:00",
+      "by": "🤖 auto-detect-bot",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "",
+      "note": "fix(BL-PINGPONG-INPUT-RERENDER): input 이벤트에서 양쪽 채워지면 render 다시 호출 [step:done:1] [step:done:2]",
+      "target_type": "task",
+      "target_id": "BL-PINGPONG-INPUT-RERENDER",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-10T16:53:16+00:00",
+      "by": "🤖 auto-detect-bot",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "",
+      "note": "fix(BL-PINGPONG-CLAUDE-SAVE): Claude 답 저장 + 다음 라운드 자동 — 무한 라운드 가능 [step:done:1] [step:done:2] [step:done:3] [step:done:4",
+      "target_type": "task",
+      "target_id": "BL-PINGPONG-CLAUDE-SAVE",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-10T16:37:15+00:00",
+      "by": "🤖 auto-detect-bot",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "",
+      "note": "fix(BL-PINGPONG-BUTTON-VISIBLE): 통합 버튼 항상 표시 — 사라지는 사고 fix [step:done:1] [step:done:2] [step:done:3]",
+      "target_type": "task",
+      "target_id": "BL-PINGPONG-BUTTON-VISIBLE",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-10T16:14:01+00:00",
+      "by": "🤖 auto-detect-bot",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "",
+      "note": "fix(BL-PINGPONG-CLEAR-GITHUB): 비우기 = GitHub도 진짜 삭제 — 핑퐁 작업 완전 종료 [step:done:1] [step:done:2] [step:done:3]",
+      "target_type": "task",
+      "target_id": "BL-PINGPONG-CLEAR-GITHUB",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-10T16:02:01+00:00",
+      "by": "🤖 auto-detect-bot",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "",
+      "note": "fix(BL-PINGPONG-PASTE-PROTECT): Claude 답 자동 사라짐 사고 + 코드블록 제거 [step:done:1] [step:done:2] [step:done:3] [step:done:4] [st",
+      "target_type": "task",
+      "target_id": "BL-PINGPONG-PASTE-PROTECT",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-10T15:43:18+00:00",
+      "by": "🤖 auto-detect-bot",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "",
+      "note": "feat(BL-PINGPONG-3STAGE-UX): 핑퐁 모달 3단계 흐름 — 초등학생도 헷갈리지 않게 [step:done:1] [step:done:2] [step:done:3] [step:done:4] [step:",
+      "target_type": "task",
+      "target_id": "BL-PINGPONG-3STAGE-UX",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-10T15:27:33+00:00",
+      "by": "🤖 auto-detect-bot",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "",
+      "note": "feat(BL-PINGPONG-CHAT-RELAY): Claude 차례에 새 채팅 자동 열기 + 컨텍스트 자동 복사 (Max 플랜 그대로, 비용 0) [step:done:1] [step:done:2] [step:do",
+      "target_type": "task",
+      "target_id": "BL-PINGPONG-CHAT-RELAY",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-10T15:10:05+00:00",
+      "by": "🤖 auto-detect-bot",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "",
+      "note": "feat(BL-PINGPONG-RESULT-VISIBLE): 핑퐁 결과 가시성 UX fix — 큰 토스트 + 즉시 갱신 + 박힌 시간/링크 [step:done:1] [step:done:2] [step:done:3] ",
+      "target_type": "task",
+      "target_id": "BL-PINGPONG-RESULT-VISIBLE",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-10T14:31:06+00:00",
+      "by": "🤖 auto-detect-bot",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "",
+      "note": "fix(BL-OPS-MAIL-QUOTA-FIX): ops 메일 워크플로 임시 비활성화 (Resend 일일 한도 200% 초과)",
+      "target_type": "task",
+      "target_id": "BL-OPS-MAIL-QUOTA-FIX",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-10T14:11:41+00:00",
+      "by": "🤖 auto-detect-bot",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "",
+      "note": "fix(BL-DECISION-MODAL-PINGPONG): 세션 토큰 가져오기 정석 fix — '로그인이 필요합니다' 사고 해결",
+      "target_type": "task",
+      "target_id": "BL-DECISION-MODAL-PINGPONG",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-04T00:00:00Z",
+      "by": "👤 이지형 (CEO)",
+      "role": "CEO",
+      "source": "ECHO_LOG.md",
+      "action": "[DECISION] BL-HUB-RETIRE 완료 ⭐⭐⭐ — admin-hub 폐기, 사이드바 = 라우팅 / admin-status = 통합 진입점",
+      "target_type": "echo",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-04T00:00:00Z",
+      "by": "👤 이지형 (CEO)",
+      "role": "CEO",
+      "source": "ECHO_LOG.md",
+      "action": "[DECISION] BL-CHAT-LOG-SYSTEM Phase 1 — chat-logs 인프라 + 백필 4개 (D-014)",
+      "target_type": "echo",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-03T00:00:00Z",
+      "by": "👤 이지형 (CEO)",
+      "role": "CEO",
+      "source": "ECHO_LOG.md",
+      "action": "[DECISION] ECHO_LOG.md 자동화는 Claude push 방식으로 (GitHub Actions 우회)",
+      "target_type": "echo",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-03T00:00:00Z",
+      "by": "👤 이지형 (CEO)",
+      "role": "CEO",
+      "source": "ECHO_LOG.md",
+      "action": "[DECISION] 헌법 11조 \"단계\" 정의 명확화",
+      "target_type": "echo",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-03T00:00:00Z",
+      "by": "👤 이지형 (CEO)",
+      "role": "CEO",
+      "source": "ECHO_LOG.md",
+      "action": "[INSIGHT] Central Hub와 Task Management 통계 중복 발견 ⭐ 대표님 지적",
+      "target_type": "echo",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-03T00:00:00Z",
+      "by": "👤 이지형 (CEO)",
+      "role": "CEO",
+      "source": "ECHO_LOG.md",
+      "action": "[INSIGHT] BACKLOG.md가 두 카테고리에 동시 존재 ⭐ 대표님 지적",
+      "target_type": "echo",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-03T00:00:00Z",
+      "by": "👤 이지형 (CEO)",
+      "role": "CEO",
+      "source": "ECHO_LOG.md",
+      "action": "[INSIGHT] 5개 파일이 어느 카테고리에도 박혀있지 않음",
+      "target_type": "echo",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-03T00:00:00Z",
+      "by": "👤 이지형 (CEO)",
+      "role": "CEO",
+      "source": "ECHO_LOG.md",
+      "action": "[DECISION] D-010 — 카테고리별 단일 진실 파일 매핑 표준 ⭐⭐",
+      "target_type": "echo",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-03T00:00:00Z",
+      "by": "👤 이지형 (CEO)",
+      "role": "CEO",
+      "source": "ECHO_LOG.md",
+      "action": "[DECISION] stats.js 단일 통계 모듈 신설",
+      "target_type": "echo",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-03T14:59Z:00",
+      "by": "👤 이지형 (CEO)",
+      "role": "CEO",
+      "source": "ECHO_LOG.md",
+      "action": "[DECISION] BL-CATEGORY-REMAP 6단계 완료 — D-010 매핑 코드 반영 ⭐",
+      "target_type": "echo",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-04T01:36Z:00",
+      "by": "👤 이지형 (CEO)",
+      "role": "CEO",
+      "source": "ECHO_LOG.md",
+      "action": "[DECISION] BL-CENTRAL-HUB 부모 task 완료 처리 (자율)",
+      "target_type": "echo",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-04T05:47Z:00",
+      "by": "👤 이지형 (CEO)",
+      "role": "CEO",
+      "source": "ECHO_LOG.md",
+      "action": "[DECISION] D-011 박힘 — 3-State 권한 시스템 ⭐⭐",
+      "target_type": "echo",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-04T06:53Z:00",
+      "by": "👤 이지형 (CEO)",
+      "role": "CEO",
+      "source": "ECHO_LOG.md",
+      "action": "[DECISION] BL-STATUS-DASH P0 완료 ⭐⭐ — 통합관리 시스템 1차 완성",
+      "target_type": "echo",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-04T07:35Z:00",
+      "by": "👤 이지형 (CEO)",
+      "role": "CEO",
+      "source": "ECHO_LOG.md",
+      "action": "[DECISION] BL-PAGE-DEDUP 완료 ⭐⭐⭐ — \"하나에서 전체 관리\" 헌법 지시 충족",
+      "target_type": "echo",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-08T09:00Z:00",
+      "by": "👤 이지형 (CEO)",
+      "role": "CEO",
+      "source": "ECHO_LOG.md",
+      "action": "[DECISION] BL-AI-TAB-BOT-DETECT 완료 — AI용 탭 봇/사람 commit 분류 (자율)",
+      "target_type": "echo",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-08T09:30Z:00",
+      "by": "👤 이지형 (CEO)",
+      "role": "CEO",
+      "source": "ECHO_LOG.md",
+      "action": "[DECISION] D-019 + D-020 박음 — admin-status 통합 + 헌법 안전장치 3개 ⭐⭐⭐",
+      "target_type": "echo",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-09T00:58Z:00",
+      "by": "👤 이지형 (CEO)",
+      "role": "CEO",
+      "source": "ECHO_LOG.md",
+      "action": "[DECISION] BL-DEDUP-CONSOLIDATE step7 완료 — 매니페스트 동기화 (자율)",
+      "target_type": "echo",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-09T01:08Z:00",
+      "by": "👤 이지형 (CEO)",
+      "role": "CEO",
+      "source": "ECHO_LOG.md",
+      "action": "[DECISION] BL-IPB-PROGRESS-FIELD-MISMATCH 결함 fix — UI 단일 진실원 보정 (자율, A안)",
+      "target_type": "echo",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-09T01:12Z:00",
+      "by": "👤 이지형 (CEO)",
+      "role": "CEO",
+      "source": "ECHO_LOG.md",
+      "action": "[DECISION] BL-DEDUP-CONSOLIDATE step8 + 전체 완료 — 8/8 단계 완료",
+      "target_type": "echo",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-09T01:30Z:00",
+      "by": "👤 이지형 (CEO)",
+      "role": "CEO",
+      "source": "ECHO_LOG.md",
+      "action": "[DECISION] BL-OPS-MAIL-AUTOBOT — 작업 완료 메일 자동화 봇 신설 (밀린 메일 발송)",
+      "target_type": "echo",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-11T00:00:00Z",
+      "by": "👤 이지형 (CEO)",
+      "role": "CEO",
+      "source": "DECISIONS.md",
+      "action": "D-024: BL-BASELINE-AUTO-TASK — 점검 결과를 tasks.json에 자동 등록  2026-05-11",
+      "target_type": "decision",
+      "target_id": "D-024",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-10T22:32:37Z",
+      "by": "🤖 health-bot",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "[health-bot] _health.json 갱신 (overall=red)",
+      "target_type": "commit",
+      "target_id": "ad72202",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-10T22:32:34Z",
+      "by": "🤖 scan-bot",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "[scan-bot] chat-log index 자동 갱신 [변경사유: chat-log 파일 또는 tasks.json 변경 → byCommit/byTask 매핑 재구축]",
+      "target_type": "commit",
+      "target_id": "37589fa",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-10T22:32:31Z",
+      "by": "🤖 activity-bot",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "[activity-bot] activity-feed 3-Layer 자동 갱신 (총 429건)",
+      "target_type": "commit",
+      "target_id": "7104ae4",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-10T22:32:25Z",
+      "by": "🤖 scan-bot",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "[scan-bot] pages-status 3-Layer 자동 갱신 (19페이지, 평균 53점) [변경사유: HTML 변경 → 완성도 재측정]",
+      "target_type": "commit",
+      "target_id": "89123c9",
+      "project": "TW B2B"
+    },
     {
       "at": "2026-05-10T20:09:29Z",
       "by": "🤖 scan-bot",
@@ -149,17 +1712,6 @@
       "project": "TW B2B"
     },
     {
-      "at": "2026-05-10T17:21:56+00:00",
-      "by": "🤖 auto-detect-bot",
-      "role": "Bot",
-      "source": "tasks.json history",
-      "action": "",
-      "note": "fix(BL-PINGPONG-BL-ISOLATION): BL별 격리 강화 — 다른 BL 모달에 이전 BL 데이터 보이는 사고 fix [step:done:1] [step:done:2] [step:done:3]",
-      "target_type": "task",
-      "target_id": "BL-PINGPONG-BL-ISOLATION",
-      "project": "TW B2B"
-    },
-    {
       "at": "2026-05-10T17:21:47Z",
       "by": "👤 이지형 (CEO 결정 → Claude 실행)",
       "role": "CEO",
@@ -289,17 +1841,6 @@
       "action": "[auto-detect-bot] commit message → 작업 status 자동 갱신",
       "target_type": "commit",
       "target_id": "06a467e",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-10T17:02:28+00:00",
-      "by": "🤖 auto-detect-bot",
-      "role": "Bot",
-      "source": "tasks.json history",
-      "action": "",
-      "note": "fix(BL-PINGPONG-INPUT-RERENDER): input 이벤트에서 양쪽 채워지면 render 다시 호출 [step:done:1] [step:done:2]",
-      "target_type": "task",
-      "target_id": "BL-PINGPONG-INPUT-RERENDER",
       "project": "TW B2B"
     },
     {
@@ -435,17 +1976,6 @@
       "project": "TW B2B"
     },
     {
-      "at": "2026-05-10T16:53:16+00:00",
-      "by": "🤖 auto-detect-bot",
-      "role": "Bot",
-      "source": "tasks.json history",
-      "action": "",
-      "note": "fix(BL-PINGPONG-CLAUDE-SAVE): Claude 답 저장 + 다음 라운드 자동 — 무한 라운드 가능 [step:done:1] [step:done:2] [step:done:3] [step:done:4",
-      "target_type": "task",
-      "target_id": "BL-PINGPONG-CLAUDE-SAVE",
-      "project": "TW B2B"
-    },
-    {
       "at": "2026-05-10T16:53:07Z",
       "by": "👤 이지형 (CEO 결정 → Claude 실행)",
       "role": "CEO",
@@ -524,17 +2054,6 @@
       "action": "[auto-detect-bot] commit message → 작업 status 자동 갱신",
       "target_type": "commit",
       "target_id": "f3ad9cd",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-10T16:37:15+00:00",
-      "by": "🤖 auto-detect-bot",
-      "role": "Bot",
-      "source": "tasks.json history",
-      "action": "",
-      "note": "fix(BL-PINGPONG-BUTTON-VISIBLE): 통합 버튼 항상 표시 — 사라지는 사고 fix [step:done:1] [step:done:2] [step:done:3]",
-      "target_type": "task",
-      "target_id": "BL-PINGPONG-BUTTON-VISIBLE",
       "project": "TW B2B"
     },
     {
@@ -660,17 +2179,6 @@
       "project": "TW B2B"
     },
     {
-      "at": "2026-05-10T16:14:01+00:00",
-      "by": "🤖 auto-detect-bot",
-      "role": "Bot",
-      "source": "tasks.json history",
-      "action": "",
-      "note": "fix(BL-PINGPONG-CLEAR-GITHUB): 비우기 = GitHub도 진짜 삭제 — 핑퐁 작업 완전 종료 [step:done:1] [step:done:2] [step:done:3]",
-      "target_type": "task",
-      "target_id": "BL-PINGPONG-CLEAR-GITHUB",
-      "project": "TW B2B"
-    },
-    {
       "at": "2026-05-10T16:13:51Z",
       "by": "👤 이지형 (CEO 결정 → Claude 실행)",
       "role": "CEO",
@@ -749,17 +2257,6 @@
       "action": "[auto-detect-bot] commit message → 작업 status 자동 갱신",
       "target_type": "commit",
       "target_id": "38e3466",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-10T16:02:01+00:00",
-      "by": "🤖 auto-detect-bot",
-      "role": "Bot",
-      "source": "tasks.json history",
-      "action": "",
-      "note": "fix(BL-PINGPONG-PASTE-PROTECT): Claude 답 자동 사라짐 사고 + 코드블록 제거 [step:done:1] [step:done:2] [step:done:3] [step:done:4] [st",
-      "target_type": "task",
-      "target_id": "BL-PINGPONG-PASTE-PROTECT",
       "project": "TW B2B"
     },
     {
@@ -844,17 +2341,6 @@
       "project": "TW B2B"
     },
     {
-      "at": "2026-05-10T15:43:18+00:00",
-      "by": "🤖 auto-detect-bot",
-      "role": "Bot",
-      "source": "tasks.json history",
-      "action": "",
-      "note": "feat(BL-PINGPONG-3STAGE-UX): 핑퐁 모달 3단계 흐름 — 초등학생도 헷갈리지 않게 [step:done:1] [step:done:2] [step:done:3] [step:done:4] [step:",
-      "target_type": "task",
-      "target_id": "BL-PINGPONG-3STAGE-UX",
-      "project": "TW B2B"
-    },
-    {
       "at": "2026-05-10T15:43:09Z",
       "by": "👤 이지형 (CEO 결정 → Claude 실행)",
       "role": "CEO",
@@ -885,17 +2371,6 @@
       "project": "TW B2B"
     },
     {
-      "at": "2026-05-10T15:27:33+00:00",
-      "by": "🤖 auto-detect-bot",
-      "role": "Bot",
-      "source": "tasks.json history",
-      "action": "",
-      "note": "feat(BL-PINGPONG-CHAT-RELAY): Claude 차례에 새 채팅 자동 열기 + 컨텍스트 자동 복사 (Max 플랜 그대로, 비용 0) [step:done:1] [step:done:2] [step:do",
-      "target_type": "task",
-      "target_id": "BL-PINGPONG-CHAT-RELAY",
-      "project": "TW B2B"
-    },
-    {
       "at": "2026-05-10T15:27:23Z",
       "by": "👤 이지형 (CEO 결정 → Claude 실행)",
       "role": "CEO",
@@ -923,17 +2398,6 @@
       "action": "[health-bot] _health.json 갱신 (overall=red)",
       "target_type": "commit",
       "target_id": "2a97f6e",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-10T15:10:05+00:00",
-      "by": "🤖 auto-detect-bot",
-      "role": "Bot",
-      "source": "tasks.json history",
-      "action": "",
-      "note": "feat(BL-PINGPONG-RESULT-VISIBLE): 핑퐁 결과 가시성 UX fix — 큰 토스트 + 즉시 갱신 + 박힌 시간/링크 [step:done:1] [step:done:2] [step:done:3] ",
-      "target_type": "task",
-      "target_id": "BL-PINGPONG-RESULT-VISIBLE",
       "project": "TW B2B"
     },
     {
@@ -1119,17 +2583,6 @@
       "project": "TW B2B"
     },
     {
-      "at": "2026-05-10T14:31:06+00:00",
-      "by": "🤖 auto-detect-bot",
-      "role": "Bot",
-      "source": "tasks.json history",
-      "action": "",
-      "note": "fix(BL-OPS-MAIL-QUOTA-FIX): ops 메일 워크플로 임시 비활성화 (Resend 일일 한도 200% 초과)",
-      "target_type": "task",
-      "target_id": "BL-OPS-MAIL-QUOTA-FIX",
-      "project": "TW B2B"
-    },
-    {
       "at": "2026-05-10T14:30:56Z",
       "by": "👤 이지형 (CEO 결정 → Claude 실행)",
       "role": "CEO",
@@ -1147,17 +2600,6 @@
       "action": "[auto-detect-bot] commit message → 작업 status 자동 갱신",
       "target_type": "commit",
       "target_id": "36b5ea0",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-10T14:11:41+00:00",
-      "by": "🤖 auto-detect-bot",
-      "role": "Bot",
-      "source": "tasks.json history",
-      "action": "",
-      "note": "fix(BL-DECISION-MODAL-PINGPONG): 세션 토큰 가져오기 정석 fix — '로그인이 필요합니다' 사고 해결",
-      "target_type": "task",
-      "target_id": "BL-DECISION-MODAL-PINGPONG",
       "project": "TW B2B"
     },
     {
@@ -1548,16 +2990,6 @@
       "project": "TW B2B"
     },
     {
-      "at": "2026-05-10T10:18:34Z",
-      "by": "🤖 auto-detect-bot",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "[auto-detect-bot] commit message → 작업 status 자동 갱신",
-      "target_type": "commit",
-      "target_id": "071494e",
-      "project": "TW B2B"
-    },
-    {
       "at": "2026-05-10T10:18:34+00:00",
       "by": "🤖 auto-detect-bot",
       "role": "Bot",
@@ -1566,26 +2998,6 @@
       "note": "feat(BL-HUMAN-TAB-ALWAYS-SHOW): 사람용 탭 — 모든 활동의 정체 항상 노출 [step:done:1] [step:done:2] [step:done:3]",
       "target_type": "task",
       "target_id": "BL-HUMAN-TAB-ALWAYS-SHOW",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-10T10:18:20Z",
-      "by": "👤 이지형 (CEO 결정 → Claude 실행)",
-      "role": "CEO",
-      "source": "git commit",
-      "action": "feat(BL-HUMAN-TAB-ALWAYS-SHOW): 사람용 탭 — 모든 활동의 정체 항상 노출 [step:done:1] [step:done:2] [step:done:3]",
-      "target_type": "commit",
-      "target_id": "cb734e5",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-10T10:06:27Z",
-      "by": "🤖 auto-detect-bot",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "[auto-detect-bot] commit message → 작업 status 자동 갱신",
-      "target_type": "commit",
-      "target_id": "c0a3bf2",
       "project": "TW B2B"
     },
     {
@@ -1600,66 +3012,6 @@
       "project": "TW B2B"
     },
     {
-      "at": "2026-05-10T10:06:16Z",
-      "by": "👤 이지형 (CEO 결정 → Claude 실행)",
-      "role": "CEO",
-      "source": "git commit",
-      "action": "fix(BL-ADMIN-LIGHTMODE step9): 라이트 토글 버튼 좌하단 폴링 상태와 겹침 회피 [step:done:9]",
-      "target_type": "commit",
-      "target_id": "7f97e80",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-10T07:35:20Z",
-      "by": "🤖 health-bot",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "[health-bot] _health.json 갱신 (overall=yellow)",
-      "target_type": "commit",
-      "target_id": "4f4f790",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-10T07:35:19Z",
-      "by": "🤖 scan-bot",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "[scan-bot] chat-log index 자동 갱신 [변경사유: chat-log 파일 또는 tasks.json 변경 → byCommit/byTask 매핑 재구축]",
-      "target_type": "commit",
-      "target_id": "2b09c2e",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-10T07:35:15Z",
-      "by": "🤖 activity-bot",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "[activity-bot] activity-feed 3-Layer 자동 갱신 (총 395건)",
-      "target_type": "commit",
-      "target_id": "85b601e",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-10T07:34:30Z",
-      "by": "🤖 scan-bot",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "[scan-bot] pages-status 3-Layer 자동 갱신 (19페이지, 평균 53점) [변경사유: HTML 변경 → 완성도 재측정]",
-      "target_type": "commit",
-      "target_id": "df2a361",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-10T04:54:26Z",
-      "by": "🤖 auto-detect-bot",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "[auto-detect-bot] commit message → 작업 status 자동 갱신",
-      "target_type": "commit",
-      "target_id": "d8acd41",
-      "project": "TW B2B"
-    },
-    {
       "at": "2026-05-10T04:54:26+00:00",
       "by": "🤖 auto-detect-bot",
       "role": "Bot",
@@ -1668,26 +3020,6 @@
       "note": "fix(BL-ADMIN-LIGHTMODE step8): 활동 이력 모달 라이트 발란스 [step:done:8]",
       "target_type": "task",
       "target_id": "BL-ADMIN-LIGHTMODE",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-10T04:54:13Z",
-      "by": "👤 이지형 (CEO 결정 → Claude 실행)",
-      "role": "CEO",
-      "source": "git commit",
-      "action": "fix(BL-ADMIN-LIGHTMODE step8): 활동 이력 모달 라이트 발란스 [step:done:8]",
-      "target_type": "commit",
-      "target_id": "f16179b",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-10T04:50:23Z",
-      "by": "🤖 auto-detect-bot",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "[auto-detect-bot] commit message → 작업 status 자동 갱신",
-      "target_type": "commit",
-      "target_id": "c5b3e18",
       "project": "TW B2B"
     },
     {
@@ -1702,36 +3034,6 @@
       "project": "TW B2B"
     },
     {
-      "at": "2026-05-10T04:50:11Z",
-      "by": "👤 이지형 (CEO 결정 → Claude 실행)",
-      "role": "CEO",
-      "source": "git commit",
-      "action": "fix(BL-ADMIN-LIGHTMODE step7): 라이트 모드 가독성 4개 영역 fix [step:done:7]",
-      "target_type": "commit",
-      "target_id": "150daa3",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-10T04:39:37Z",
-      "by": "🤖 health-bot",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "[health-bot] _health.json 갱신 (overall=yellow)",
-      "target_type": "commit",
-      "target_id": "b03be61",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-10T04:39:31Z",
-      "by": "🤖 auto-detect-bot",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "[auto-detect-bot] commit message → 작업 status 자동 갱신",
-      "target_type": "commit",
-      "target_id": "b23a948",
-      "project": "TW B2B"
-    },
-    {
       "at": "2026-05-10T04:39:31+00:00",
       "by": "🤖 auto-detect-bot",
       "role": "Bot",
@@ -1740,46 +3042,6 @@
       "note": "feat(BL-ADMIN-LIGHTMODE step5+6): admin-gallery 토글 인프라 연결 — 11페이지 완주 [step:done:5] [step:done:6]",
       "target_type": "task",
       "target_id": "BL-ADMIN-LIGHTMODE",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-10T04:39:13Z",
-      "by": "👤 이지형 (CEO 결정 → Claude 실행)",
-      "role": "CEO",
-      "source": "git commit",
-      "action": "feat(BL-ADMIN-LIGHTMODE step5+6): admin-gallery 토글 인프라 연결 — 11페이지 완주 [step:done:5] [step:done:6]",
-      "target_type": "commit",
-      "target_id": "1e767fb",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-10T04:39:01Z",
-      "by": "👤 이지형 (CEO 결정 → Claude 실행)",
-      "role": "CEO",
-      "source": "git commit",
-      "action": "feat(BL-ADMIN-LIGHTMODE step5): admin-business 토글 인프라 연결",
-      "target_type": "commit",
-      "target_id": "117e36b",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-10T04:38:49Z",
-      "by": "👤 이지형 (CEO 결정 → Claude 실행)",
-      "role": "CEO",
-      "source": "git commit",
-      "action": "feat(BL-ADMIN-LIGHTMODE step5): admin-tasks 토글 인프라 연결",
-      "target_type": "commit",
-      "target_id": "d75e9c2",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-10T04:29:43Z",
-      "by": "🤖 auto-detect-bot",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "[auto-detect-bot] commit message → 작업 status 자동 갱신",
-      "target_type": "commit",
-      "target_id": "be6ebb8",
       "project": "TW B2B"
     },
     {
@@ -1794,26 +3056,6 @@
       "project": "TW B2B"
     },
     {
-      "at": "2026-05-10T04:29:35Z",
-      "by": "👤 이지형 (CEO 결정 → Claude 실행)",
-      "role": "CEO",
-      "source": "git commit",
-      "action": "docs(BL-ADMIN-LIGHTMODE): 다음 채팅 인계서 — 통합 인프라 완료, 11페이지 추가 남음",
-      "target_type": "commit",
-      "target_id": "380d7ce",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-10T04:28:02Z",
-      "by": "🤖 auto-detect-bot",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "[auto-detect-bot] commit message → 작업 status 자동 갱신",
-      "target_type": "commit",
-      "target_id": "589fbac",
-      "project": "TW B2B"
-    },
-    {
       "at": "2026-05-10T04:28:02+00:00",
       "by": "🤖 auto-detect-bot",
       "role": "Bot",
@@ -1822,36 +3064,6 @@
       "note": "feat(BL-ADMIN-LIGHTMODE step6-infra): admin 라이트/다크 토글 자동 주입 스크립트",
       "target_type": "task",
       "target_id": "BL-ADMIN-LIGHTMODE",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-10T04:27:46Z",
-      "by": "👤 이지형 (CEO 결정 → Claude 실행)",
-      "role": "CEO",
-      "source": "git commit",
-      "action": "feat(BL-ADMIN-LIGHTMODE step6-infra): admin 라이트/다크 토글 자동 주입 스크립트",
-      "target_type": "commit",
-      "target_id": "798e2e7",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-10T04:27:35Z",
-      "by": "👤 이지형 (CEO 결정 → Claude 실행)",
-      "role": "CEO",
-      "source": "git commit",
-      "action": "feat(BL-ADMIN-LIGHTMODE step5-shared): admin 공통 라이트 분기 + 두 토큰 시스템 통합",
-      "target_type": "commit",
-      "target_id": "37e7908",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-10T02:18:32Z",
-      "by": "🤖 auto-detect-bot",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "[auto-detect-bot] commit message → 작업 status 자동 갱신",
-      "target_type": "commit",
-      "target_id": "b734d7c",
       "project": "TW B2B"
     },
     {
@@ -1866,36 +3078,6 @@
       "project": "TW B2B"
     },
     {
-      "at": "2026-05-10T02:18:21Z",
-      "by": "👤 이지형 (CEO 결정 → Claude 실행)",
-      "role": "CEO",
-      "source": "git commit",
-      "action": "docs(BL-ADMIN-LIGHTMODE): 다음 채팅 인계서 갱신 — admin-status 정확 매핑 작업",
-      "target_type": "commit",
-      "target_id": "80633d5",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-10T02:17:01Z",
-      "by": "🤖 health-bot",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "[health-bot] _health.json 갱신 (overall=yellow)",
-      "target_type": "commit",
-      "target_id": "a5bc8b6",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-10T02:16:54Z",
-      "by": "🤖 auto-detect-bot",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "[auto-detect-bot] commit message → 작업 status 자동 갱신",
-      "target_type": "commit",
-      "target_id": "3817b52",
-      "project": "TW B2B"
-    },
-    {
       "at": "2026-05-10T02:16:54+00:00",
       "by": "🤖 auto-detect-bot",
       "role": "Bot",
@@ -1904,36 +3086,6 @@
       "note": "fix(BL-ADMIN-LIGHTMODE step5c-partial): admin-status 라이트 분기 1차 — 사이드바+카드 부분 fix",
       "target_type": "task",
       "target_id": "BL-ADMIN-LIGHTMODE",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-10T02:16:46Z",
-      "by": "👤 이지형 (CEO 결정 → Claude 실행)",
-      "role": "CEO",
-      "source": "git commit",
-      "action": "fix(BL-ADMIN-LIGHTMODE step5c-partial): admin-status 라이트 분기 1차 — 사이드바+카드 부분 fix",
-      "target_type": "commit",
-      "target_id": "13e141a",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-10T02:07:51Z",
-      "by": "🤖 health-bot",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "[health-bot] _health.json 갱신 (overall=yellow)",
-      "target_type": "commit",
-      "target_id": "cf44f69",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-10T02:07:45Z",
-      "by": "🤖 auto-detect-bot",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "[auto-detect-bot] commit message → 작업 status 자동 갱신",
-      "target_type": "commit",
-      "target_id": "54e1596",
       "project": "TW B2B"
     },
     {
@@ -1948,36 +3100,6 @@
       "project": "TW B2B"
     },
     {
-      "at": "2026-05-10T02:07:31Z",
-      "by": "👤 이지형 (CEO 결정 → Claude 실행)",
-      "role": "CEO",
-      "source": "git commit",
-      "action": "fix(BL-ADMIN-LIGHTMODE step5b): admin-tasks 본문 하드코딩 색 → shared.css 토큰 변환 [step:done:5b]",
-      "target_type": "commit",
-      "target_id": "79c30bd",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-10T02:03:45Z",
-      "by": "👤 이지형 (CEO 결정 → Claude 실행)",
-      "role": "CEO",
-      "source": "git commit",
-      "action": "fix(BL-ADMIN-LIGHTMODE step5a): admin-status + admin-permissions shared.css link 누락 fix [step:done:5a]",
-      "target_type": "commit",
-      "target_id": "e4c9e37",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-10T01:42:03Z",
-      "by": "🤖 auto-detect-bot",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "[auto-detect-bot] commit message → 작업 status 자동 갱신",
-      "target_type": "commit",
-      "target_id": "c30e429",
-      "project": "TW B2B"
-    },
-    {
       "at": "2026-05-10T01:42:03+00:00",
       "by": "🤖 auto-detect-bot",
       "role": "Bot",
@@ -1986,36 +3108,6 @@
       "note": "fix(BL-CLAUDE-DISCIPLINE): 의무 2 라이브 fetch 강화 — 헌법 3종 명시",
       "target_type": "task",
       "target_id": "BL-CLAUDE-DISCIPLINE",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-10T01:41:53Z",
-      "by": "👤 이지형 (CEO 결정 → Claude 실행)",
-      "role": "CEO",
-      "source": "git commit",
-      "action": "fix(BL-CLAUDE-DISCIPLINE): 의무 2 라이브 fetch 강화 — 헌법 3종 명시",
-      "target_type": "commit",
-      "target_id": "9bba62a",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-10T01:38:07Z",
-      "by": "🤖 health-bot",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "[health-bot] _health.json 갱신 (overall=yellow)",
-      "target_type": "commit",
-      "target_id": "d587a46",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-10T01:37:57Z",
-      "by": "🤖 auto-detect-bot",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "[auto-detect-bot] commit message → 작업 status 자동 갱신",
-      "target_type": "commit",
-      "target_id": "a5d84a4",
       "project": "TW B2B"
     },
     {
@@ -2030,16 +3122,6 @@
       "project": "TW B2B"
     },
     {
-      "at": "2026-05-10T01:37:43Z",
-      "by": "👤 이지형 (CEO 결정 → Claude 실행)",
-      "role": "CEO",
-      "source": "git commit",
-      "action": "review(BL-ADMIN-LIGHTMODE step4): 다크/라이트 4종 캡처 비교 검토 — FAIL 판정 [step:done:4]",
-      "target_type": "commit",
-      "target_id": "2271691",
-      "project": "TW B2B"
-    },
-    {
       "at": "2026-05-10T01:36:25+00:00",
       "by": "🤖 Claude",
       "role": "Bot",
@@ -2048,26 +3130,6 @@
       "note": "검토 산출물: _os/handoff/BL-ADMIN-LIGHTMODE_step4_review.md",
       "target_type": "task",
       "target_id": "BL-ADMIN-LIGHTMODE",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-10T01:17:49Z",
-      "by": "🤖 health-bot",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "[health-bot] _health.json 갱신 (overall=yellow)",
-      "target_type": "commit",
-      "target_id": "848963f",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-10T01:17:42Z",
-      "by": "🤖 auto-detect-bot",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "[auto-detect-bot] commit message → 작업 status 자동 갱신",
-      "target_type": "commit",
-      "target_id": "4c4ced3",
       "project": "TW B2B"
     },
     {
@@ -2082,26 +3144,6 @@
       "project": "TW B2B"
     },
     {
-      "at": "2026-05-10T01:17:28Z",
-      "by": "👤 이지형 (CEO 결정 → Claude 실행)",
-      "role": "CEO",
-      "source": "git commit",
-      "action": "feat(BL-ADMIN-LIGHTMODE step3): 그룹 B 4페이지 :root → shared.css alias + aurora 라이트 명시 [step:done:3]",
-      "target_type": "commit",
-      "target_id": "6ee4939",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-10T01:09:48Z",
-      "by": "🤖 auto-detect-bot",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "[auto-detect-bot] commit message → 작업 status 자동 갱신",
-      "target_type": "commit",
-      "target_id": "c23630d",
-      "project": "TW B2B"
-    },
-    {
       "at": "2026-05-10T01:09:48+00:00",
       "by": "🤖 auto-detect-bot",
       "role": "Bot",
@@ -2110,46 +3152,6 @@
       "note": "docs(BL-CLAUDE-DISCIPLINE): chat-log 박음 + index.json byTask 매핑 [부칙15]",
       "target_type": "task",
       "target_id": "BL-CLAUDE-DISCIPLINE",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-10T01:09:40Z",
-      "by": "👤 이지형 (CEO 결정 → Claude 실행)",
-      "role": "CEO",
-      "source": "git commit",
-      "action": "docs(BL-CLAUDE-DISCIPLINE): chat-log 박음 + index.json byTask 매핑 [부칙15]",
-      "target_type": "commit",
-      "target_id": "a8b2f1e",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-10T01:06:54Z",
-      "by": "🤖 health-bot",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "[health-bot] _health.json 갱신 (overall=yellow)",
-      "target_type": "commit",
-      "target_id": "60876f4",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-10T01:06:53Z",
-      "by": "🤖 sync-bot",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "[sync-bot] tasks.json → MD/Gallery 자동 동기화",
-      "target_type": "commit",
-      "target_id": "01877b8",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-10T01:06:50Z",
-      "by": "🤖 auto-detect-bot",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "[auto-detect-bot] commit message → 작업 status 자동 갱신",
-      "target_type": "commit",
-      "target_id": "96c481d",
       "project": "TW B2B"
     },
     {
@@ -2164,16 +3166,6 @@
       "project": "TW B2B"
     },
     {
-      "at": "2026-05-10T01:06:36Z",
-      "by": "👤 이지형 (CEO 결정 → Claude 실행)",
-      "role": "CEO",
-      "source": "git commit",
-      "action": "feat(BL-CLAUDE-DISCIPLINE): 헌법 부칙 16 + 인계서 강제 헤더 + 4개 의무 [step:done:1] [step:done:2] [step:done:3] [step:done:4] [step:done:5] [step:done:6] [헌법변경]",
-      "target_type": "commit",
-      "target_id": "68e168e",
-      "project": "TW B2B"
-    },
-    {
       "at": "2026-05-10T01:06:06.144514+00:00",
       "by": "🤖 Claude",
       "role": "Bot",
@@ -2182,6 +3174,71 @@
       "note": "",
       "target_type": "task",
       "target_id": "BL-CLAUDE-DISCIPLINE",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-10T00:00:00Z",
+      "by": "👤 이지형 (CEO)",
+      "role": "CEO",
+      "source": "DECISIONS.md",
+      "action": "D-023: BL-CLAUDE-DISCIPLINE — 헌법 부칙 16 + 인계서 강제 헤더 + 4개 의무  2026-05-10",
+      "target_type": "decision",
+      "target_id": "D-023",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-09T15:56:15+00:00",
+      "by": "🤖 auto-detect-bot",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "",
+      "note": "feat(BL-ADMIN-LIGHTMODE step3-A): 그룹 A 5페이지 :root 다크 하드코딩 → shared.css alias 변환",
+      "target_type": "task",
+      "target_id": "BL-ADMIN-LIGHTMODE",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-09T15:45:29+00:00",
+      "by": "🤖 auto-detect-bot",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "",
+      "note": "feat(BL-ADMIN-LIGHTMODE step2): 결정 D1/D2/D3 반영 + shared.css 라이트 모드 인프라 박음 [step:done:2]",
+      "target_type": "task",
+      "target_id": "BL-ADMIN-LIGHTMODE",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-09T15:33:39+00:00",
+      "by": "🤖 auto-detect-bot",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "",
+      "note": "feat(BL-ADMIN-LIGHTMODE): step2 색 토큰 매핑 1차 — admin-status + admin",
+      "target_type": "task",
+      "target_id": "BL-ADMIN-LIGHTMODE",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-09T15:15:17+00:00",
+      "by": "🤖 auto-detect-bot",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "",
+      "note": "[BL-ADMIN-LIGHTMODE] [step:done:1] [헌법변경 없음] 1단계 디자인 토큰 표 확정 + D-022 5결정",
+      "target_type": "task",
+      "target_id": "BL-ADMIN-LIGHTMODE",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-09T15:14:35.917018Z",
+      "by": "🤖 Claude",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "BL-ADMIN-LIGHTMODE 등록 — 1단계 디자인 토큰 표 확정 (D-022, 5결정 통과)",
+      "note": "",
+      "target_type": "task",
+      "target_id": "BL-ADMIN-LIGHTMODE",
       "project": "TW B2B"
     },
     {
@@ -2251,14 +3308,36 @@
       "project": "TW B2B"
     },
     {
+      "at": "2026-05-09T13:32:08+00:00",
+      "by": "🤖 auto-detect-bot",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "",
+      "note": "chore(BL-ADMIN-AUTH-PERF): step 8+9 done + BL 완료 + 후속 BL 1건 신설 [step:done:8] [step:done:9]",
+      "target_type": "task",
+      "target_id": "BL-ADMIN-AUTH-PERF",
+      "project": "TW B2B"
+    },
+    {
       "at": "2026-05-09T13:29:35.638948+00:00",
       "by": "🤖 Claude",
       "role": "Bot",
       "source": "tasks.json history",
       "action": "",
-      "note": "",
+      "note": "admin-* 4개 페이지 인증 코드 제거 + Edge Middleware 단일 게이트 + 라이브 RPC 0건 확인. admin-gallery 사전 결함은 BL-GALLERY-PAGES-META-FIX(P1)으로 분리.",
       "target_type": "task",
-      "target_id": "BL-GALLERY-PAGES-META-FIX",
+      "target_id": "BL-ADMIN-AUTH-PERF",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-09T08:04:03+00:00",
+      "by": "🤖 auto-detect-bot",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "",
+      "note": "chore(BL-ADMIN-AUTH-PERF + 백로그): tasks.json 갱신 + 신규 BL 3건",
+      "target_type": "task",
+      "target_id": "BL-ADMIN-AUTH-PERF",
       "project": "TW B2B"
     },
     {
@@ -2267,9 +3346,42 @@
       "role": "Bot",
       "source": "tasks.json history",
       "action": "",
-      "note": "",
+      "note": "admin-* 4개 페이지 인증 코드 제거 (다른 9개는 무인증). shared.js dead code는 BL-SHARED-AUTH-CLEANUP(P3)으로 분리.",
       "target_type": "task",
-      "target_id": "BL-ACTIVITY-MODAL-BOT-FIX",
+      "target_id": "BL-ADMIN-AUTH-PERF",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-09T07:26:46+00:00",
+      "by": "🤖 auto-detect-bot",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "",
+      "note": "feat(BL-ADMIN-AUTH-PERF step5): 2편 인계서 박음 + 1편 done [step:done:5] [변경사유: 새 채팅에서 admin-* 12개 인증 제거+라이브 검증 진행 위한 풀 컨텍스트 인계",
+      "target_type": "task",
+      "target_id": "BL-ADMIN-AUTH-PERF",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-09T07:25:51.387255+00:00",
+      "by": "🤖 Claude",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "",
+      "note": "새 채팅에서 HANDOFF_BL-ADMIN-AUTH-PERF_PHASE2.md 기준으로 2편 진행",
+      "target_type": "task",
+      "target_id": "BL-ADMIN-AUTH-PERF",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-09T07:19:21Z",
+      "by": "👤 이지형 (CEO)",
+      "role": "CEO",
+      "source": "tasks.json history",
+      "action": "",
+      "note": "A-2 Edge Middleware 단일 게이트 / 5+4 = 9 step 분해 / 1편(이 채팅) 5단계, 2편(새 채팅) 4단계",
+      "target_type": "task",
+      "target_id": "BL-ADMIN-AUTH-PERF",
       "project": "TW B2B"
     },
     {
@@ -2460,6 +3572,26 @@
       "project": "TW B2B"
     },
     {
+      "at": "2026-05-09T00:00:00Z",
+      "by": "👤 이지형 (CEO)",
+      "role": "CEO",
+      "source": "DECISIONS.md",
+      "action": "D-021: BL-ADMIN-AUTH-PERF — Edge Middleware 단일 게이트 (A-2 정석)  2026-05-09",
+      "target_type": "decision",
+      "target_id": "D-021",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-09T00:00:00Z",
+      "by": "👤 이지형 (CEO)",
+      "role": "CEO",
+      "source": "DECISIONS.md",
+      "action": "D-023: BL-ACTIVITY-FEED-CLEANUP — 봇 commit 클릭 시 사람용 탭 빈 메시지 정석 fix  2026-05-09",
+      "target_type": "decision",
+      "target_id": "D-023",
+      "project": "TW B2B"
+    },
+    {
       "at": "2026-05-08T15:03:18+00:00",
       "by": "🤖 auto-detect-bot",
       "role": "Bot",
@@ -2632,7 +3764,7 @@
       "action": "",
       "note": "fix(BL-ACT-INDEX-RESTORE): chat-log 박기 + 4 commit 매핑 + BL-CHATLOG-AUTO-GATE 신설",
       "target_type": "task",
-      "target_id": "BL-CHATLOG-AUTO-GATE",
+      "target_id": "BL-ACT-INDEX-RESTORE",
       "project": "TW B2B"
     },
     {
@@ -2647,6 +3779,138 @@
       "project": "TW B2B"
     },
     {
+      "at": "2026-05-08T04:45:36+00:00",
+      "by": "🤖 auto-detect-bot",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "",
+      "note": "chore(BL-ACT-INDEX-RESTORE): status=done + 4단계 100% 완료 [step:done:4]",
+      "target_type": "task",
+      "target_id": "BL-ACT-INDEX-RESTORE",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-08T04:42:39.006437Z",
+      "by": "🤖 Claude",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "",
+      "note": "",
+      "target_type": "task",
+      "target_id": "BL-ACT-INDEX-RESTORE",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-08T04:38:02.232120Z",
+      "by": "🤖 Claude",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "",
+      "note": "",
+      "target_type": "task",
+      "target_id": "BL-ACT-INDEX-RESTORE",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-08T04:29:20+00:00",
+      "by": "🤖 auto-detect-bot",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "",
+      "note": "✅ BL-ACT-KST-FIX: 라이브 검증 완료 — fmtTime 정상 + 인계서 활동이력 박힘 [step:done:3]",
+      "target_type": "task",
+      "target_id": "BL-ACT-KST-FIX",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-08T04:18:41+00:00",
+      "by": "🤖 auto-detect-bot",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "",
+      "note": "fix(BL-ACT-KST-FIX): 인계서에 대표님 최근 활동 이력 섹션 영구 복구 [step:done:2]",
+      "target_type": "task",
+      "target_id": "BL-ACT-KST-FIX",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-08T04:17:56+00:00",
+      "by": "🤖 auto-detect-bot",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "",
+      "note": "fix(BL-ACT-KST-FIX): fmtTime 이중 변환 결함 fix [step:done:1]",
+      "target_type": "task",
+      "target_id": "BL-ACT-KST-FIX",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-08T02:31:26+00:00",
+      "by": "🤖 auto-detect-bot",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "",
+      "note": "fix(BL-IPB-AUTO-DONE): 100%→done 자동 트랜지션 검증 + 회귀 테스트 영구 보존 [step:done:1,2,3]",
+      "target_type": "task",
+      "target_id": "BL-IPB-AUTO-DONE",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-08T02:12:21+00:00",
+      "by": "🤖 auto-detect-bot",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "",
+      "note": "✅ BL-IPB-PROGRESS-RESTORE: 라이브 검증 — admin-status에 67% 박힘 + 봇 자동 갱신 작동 확인 [step:done:3]",
+      "target_type": "task",
+      "target_id": "BL-IPB-PROGRESS-RESTORE",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-08T02:11:08+00:00",
+      "by": "🤖 auto-detect-bot",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "",
+      "note": "fix(BL-IPB-PROGRESS-RESTORE): 봇에 부칙 7 자동 검증 게이트 추가 [step:done:2]",
+      "target_type": "task",
+      "target_id": "BL-IPB-PROGRESS-RESTORE",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-08T01:34:40+00:00",
+      "by": "🤖 auto-detect-bot",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "",
+      "note": "[handoff] BL-002 분할 후속 처리 인계서 박음",
+      "target_type": "task",
+      "target_id": "BL-002",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-08T01:26:57.143371Z",
+      "by": "🤖 Claude",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "",
+      "note": "",
+      "target_type": "task",
+      "target_id": "BL-002",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-08T01:03:40.902203Z",
+      "by": "🤖 Claude",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "",
+      "note": "",
+      "target_type": "task",
+      "target_id": "BL-002",
+      "project": "TW B2B"
+    },
+    {
       "at": "2026-05-08T00:56:32+00:00",
       "by": "🤖 auto-detect-bot",
       "role": "Bot",
@@ -2654,7 +3918,7 @@
       "action": "",
       "note": "[handoff] BL-VERCEL-DEPLOY-RACE-GUARD 완료 → 다음 채팅 BL-VERCEL-HEALTH-ROUTING + BL-002 인계",
       "target_type": "task",
-      "target_id": "BL-VERCEL-DEPLOY-RACE-GUARD",
+      "target_id": "BL-002",
       "project": "TW B2B"
     },
     {
@@ -2666,6 +3930,26 @@
       "note": "[BL-VERCEL-DEPLOY-RACE-GUARD] 4단계 정석 가드 + path 정렬 [step:done:1,1.5,2,3,4]",
       "target_type": "task",
       "target_id": "BL-VERCEL-DEPLOY-RACE-GUARD",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-08T00:00:00Z",
+      "by": "👤 이지형 (CEO)",
+      "role": "CEO",
+      "source": "DECISIONS.md",
+      "action": "D-020: 헌법 자가 검증에 사전 안전장치 3개 박음 — 방향 상실 방지  2026-05-08",
+      "target_type": "decision",
+      "target_id": "D-020",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-08T00:00:00Z",
+      "by": "👤 이지형 (CEO)",
+      "role": "CEO",
+      "source": "DECISIONS.md",
+      "action": "D-019: admin-status.html 중복 3중 정리 + 작업 지휘소 통합  2026-05-08",
+      "target_type": "decision",
+      "target_id": "D-019",
       "project": "TW B2B"
     },
     {
@@ -2735,6 +4019,17 @@
       "project": "TW B2B"
     },
     {
+      "at": "2026-05-07T17:59:14+00:00",
+      "by": "🤖 auto-detect-bot",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "",
+      "note": "[handoff] BL-002 통합 To-Do Inbox 시작 인계서 박음 — 새 채팅 진입 준비",
+      "target_type": "task",
+      "target_id": "BL-002",
+      "project": "TW B2B"
+    },
+    {
       "at": "2026-05-07T17:24:53+00:00",
       "by": "🤖 claude (정석 인프라 청소)",
       "role": "Bot",
@@ -2757,6 +4052,61 @@
       "project": "TW B2B"
     },
     {
+      "at": "2026-05-07T16:35:10+00:00",
+      "by": "🤖 auto-detect-bot",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "",
+      "note": "[BL-OS-PHASE-5] 단계 9 후속: tasks.json stats 수동 재계산 (108→110) + 보고서 5-1절 보강",
+      "target_type": "task",
+      "target_id": "BL-OS-PHASE-5",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-07T16:31:58+00:00",
+      "by": "🤖 auto-detect-bot",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "",
+      "note": "[BL-OS-PHASE-5] 단계 9: PHASE_5_VERIFICATION_REPORT.md + tasks.json done 마킹 + handoff 갱신 [step:done:9]",
+      "target_type": "task",
+      "target_id": "BL-OS-PHASE-5",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-07T16:30:47+00:00",
+      "by": "🤖 Claude",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "단계 8 완료 — 라이브 검증 (봇 6/7 success, _health.json yellow only, 라이브 13/13 정상, DOM 무손상)",
+      "note": "",
+      "target_type": "task",
+      "target_id": "BL-OS-PHASE-5",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-07T16:30:47+00:00",
+      "by": "🤖 Claude",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "단계 9 완료 — PHASE_5_VERIFICATION_REPORT.md 신설 + 헌법 자가 검증 27/27 PASS",
+      "note": "",
+      "target_type": "task",
+      "target_id": "BL-OS-PHASE-5",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-07T16:30:47+00:00",
+      "by": "🤖 Claude",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "DONE — BL-OS-PHASE-5 종료 선언",
+      "note": "",
+      "target_type": "task",
+      "target_id": "BL-OS-PHASE-5",
+      "project": "TW B2B"
+    },
+    {
       "at": "2026-05-07T16:30:47+00:00",
       "by": "🤖 Claude",
       "role": "Bot",
@@ -2765,6 +4115,50 @@
       "note": "",
       "target_type": "task",
       "target_id": "BL-CHATLOG-BOT-RACE",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-07T16:30:00+00:00",
+      "by": "🤖 Claude",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "BL-OS-PHASE-5 단계 5~9 인계 받음 (BL-OS-LIGHTWEIGHT 종료 후)",
+      "note": "",
+      "target_type": "task",
+      "target_id": "BL-OS-PHASE-5",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-07T16:20:00+00:00",
+      "by": "🤖 Claude",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "단계 7 완료 — DOCS 5개 polling 5분→5초 통일 부칙 8 강제 (commit b4f75f6)",
+      "note": "",
+      "target_type": "task",
+      "target_id": "BL-OS-PHASE-5",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-07T16:10:00+00:00",
+      "by": "🤖 Claude",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "단계 6 완료 — install_os.sh 보강 + business-context/tools-manifest.json 골격 (commit 29e3b36, 라이브 200 4/4)",
+      "note": "",
+      "target_type": "task",
+      "target_id": "BL-OS-PHASE-5",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-07T16:00:00+00:00",
+      "by": "🤖 Claude",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "단계 5 완료 — admin-status.html 사이드바 4영역 강제 렌더 (commit 8c8ab7a, 178 ins/0 del, DOM 균형 통과)",
+      "note": "",
+      "target_type": "task",
+      "target_id": "BL-OS-PHASE-5",
       "project": "TW B2B"
     },
     {
@@ -3065,14 +4459,14 @@
       "project": "TW B2B"
     },
     {
-      "at": "2026-05-06T20:03:00+00:00",
+      "at": "2026-05-06T20:03:38+00:00",
       "by": "🤖 auto-detect-bot",
       "role": "Bot",
       "source": "tasks.json history",
       "action": "",
-      "note": "feat(BL-OS-AUTO-SYNC-CHARTER): backlog 3건 분리 등록 — BL-SYNC-PAGES-STATUS / INPROGRESS-COMMITS / CHAT-LOGS-TAB [step:done:4",
+      "note": "feat(charter): 12조 부칙 8 신설 — 자동 동기화 완성도 (BL-OS-AUTO-SYNC-CHARTER) [step:done:5]",
       "target_type": "task",
-      "target_id": "BL-SYNC-PAGES-STATUS",
+      "target_id": "BL-OS-AUTO-SYNC-CHARTER",
       "project": "TW B2B"
     },
     {
@@ -3081,851 +4475,9 @@
       "role": "Bot",
       "source": "tasks.json history",
       "action": "",
-      "note": "audit 리포트 #1 HIGH",
+      "note": "단계 4는 봇이 매칭하기 어려운 backlog 등록 작업이라 step 태그 없이 직접 done 처리",
       "target_type": "task",
-      "target_id": "BL-SYNC-PAGES-STATUS",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-03T00:00:00Z",
-      "by": "👤 이지형 (CEO)",
-      "role": "CEO",
-      "source": "ECHO_LOG.md",
-      "action": "[DECISION] ECHO_LOG.md 자동화는 Claude push 방식으로 (GitHub Actions 우회)",
-      "target_type": "echo",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-03T00:00:00Z",
-      "by": "👤 이지형 (CEO)",
-      "role": "CEO",
-      "source": "ECHO_LOG.md",
-      "action": "[DECISION] 헌법 11조 \"단계\" 정의 명확화",
-      "target_type": "echo",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-03T00:00:00Z",
-      "by": "👤 이지형 (CEO)",
-      "role": "CEO",
-      "source": "ECHO_LOG.md",
-      "action": "[INSIGHT] Central Hub와 Task Management 통계 중복 발견 ⭐ 대표님 지적",
-      "target_type": "echo",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-03T00:00:00Z",
-      "by": "👤 이지형 (CEO)",
-      "role": "CEO",
-      "source": "ECHO_LOG.md",
-      "action": "[INSIGHT] BACKLOG.md가 두 카테고리에 동시 존재 ⭐ 대표님 지적",
-      "target_type": "echo",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-03T00:00:00Z",
-      "by": "👤 이지형 (CEO)",
-      "role": "CEO",
-      "source": "ECHO_LOG.md",
-      "action": "[INSIGHT] 5개 파일이 어느 카테고리에도 박혀있지 않음",
-      "target_type": "echo",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-03T00:00:00Z",
-      "by": "👤 이지형 (CEO)",
-      "role": "CEO",
-      "source": "ECHO_LOG.md",
-      "action": "[DECISION] D-010 — 카테고리별 단일 진실 파일 매핑 표준 ⭐⭐",
-      "target_type": "echo",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-03T00:00:00Z",
-      "by": "👤 이지형 (CEO)",
-      "role": "CEO",
-      "source": "ECHO_LOG.md",
-      "action": "[DECISION] stats.js 단일 통계 모듈 신설",
-      "target_type": "echo",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-03T14:59Z:00",
-      "by": "👤 이지형 (CEO)",
-      "role": "CEO",
-      "source": "ECHO_LOG.md",
-      "action": "[DECISION] BL-CATEGORY-REMAP 6단계 완료 — D-010 매핑 코드 반영 ⭐",
-      "target_type": "echo",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-04T01:36Z:00",
-      "by": "👤 이지형 (CEO)",
-      "role": "CEO",
-      "source": "ECHO_LOG.md",
-      "action": "[DECISION] BL-CENTRAL-HUB 부모 task 완료 처리 (자율)",
-      "target_type": "echo",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-04T05:47Z:00",
-      "by": "👤 이지형 (CEO)",
-      "role": "CEO",
-      "source": "ECHO_LOG.md",
-      "action": "[DECISION] D-011 박힘 — 3-State 권한 시스템 ⭐⭐",
-      "target_type": "echo",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-04T06:53Z:00",
-      "by": "👤 이지형 (CEO)",
-      "role": "CEO",
-      "source": "ECHO_LOG.md",
-      "action": "[DECISION] BL-STATUS-DASH P0 완료 ⭐⭐ — 통합관리 시스템 1차 완성",
-      "target_type": "echo",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-04T07:35Z:00",
-      "by": "👤 이지형 (CEO)",
-      "role": "CEO",
-      "source": "ECHO_LOG.md",
-      "action": "[DECISION] BL-PAGE-DEDUP 완료 ⭐⭐⭐ — \"하나에서 전체 관리\" 헌법 지시 충족",
-      "target_type": "echo",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-09T00:00:00Z",
-      "by": "👤 이지형 (CEO)",
-      "role": "CEO",
-      "source": "DECISIONS.md",
-      "action": "D-023: BL-ACTIVITY-FEED-CLEANUP — 봇 commit 클릭 시 사람용 탭 빈 메시지 정석 fix  2026-05-09",
-      "target_type": "decision",
-      "target_id": "D-023",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-04T00:00:00Z",
-      "by": "👤 이지형 (CEO)",
-      "role": "CEO",
-      "source": "ECHO_LOG.md",
-      "action": "[DECISION] BL-HUB-RETIRE 완료 ⭐⭐⭐ — admin-hub 폐기, 사이드바 = 라우팅 / admin-status = 통합 진입점",
-      "target_type": "echo",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-04T00:00:00Z",
-      "by": "👤 이지형 (CEO)",
-      "role": "CEO",
-      "source": "ECHO_LOG.md",
-      "action": "[DECISION] BL-CHAT-LOG-SYSTEM Phase 1 — chat-logs 인프라 + 백필 4개 (D-014)",
-      "target_type": "echo",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-08T09:00Z:00",
-      "by": "👤 이지형 (CEO)",
-      "role": "CEO",
-      "source": "ECHO_LOG.md",
-      "action": "[DECISION] BL-AI-TAB-BOT-DETECT 완료 — AI용 탭 봇/사람 commit 분류 (자율)",
-      "target_type": "echo",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-08T09:30Z:00",
-      "by": "👤 이지형 (CEO)",
-      "role": "CEO",
-      "source": "ECHO_LOG.md",
-      "action": "[DECISION] D-019 + D-020 박음 — admin-status 통합 + 헌법 안전장치 3개 ⭐⭐⭐",
-      "target_type": "echo",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-09T00:58Z:00",
-      "by": "👤 이지형 (CEO)",
-      "role": "CEO",
-      "source": "ECHO_LOG.md",
-      "action": "[DECISION] BL-DEDUP-CONSOLIDATE step7 완료 — 매니페스트 동기화 (자율)",
-      "target_type": "echo",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-09T01:08Z:00",
-      "by": "👤 이지형 (CEO)",
-      "role": "CEO",
-      "source": "ECHO_LOG.md",
-      "action": "[DECISION] BL-IPB-PROGRESS-FIELD-MISMATCH 결함 fix — UI 단일 진실원 보정 (자율, A안)",
-      "target_type": "echo",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-09T01:12Z:00",
-      "by": "👤 이지형 (CEO)",
-      "role": "CEO",
-      "source": "ECHO_LOG.md",
-      "action": "[DECISION] BL-DEDUP-CONSOLIDATE step8 + 전체 완료 — 8/8 단계 완료",
-      "target_type": "echo",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-09T01:30Z:00",
-      "by": "👤 이지형 (CEO)",
-      "role": "CEO",
-      "source": "ECHO_LOG.md",
-      "action": "[DECISION] BL-OPS-MAIL-AUTOBOT — 작업 완료 메일 자동화 봇 신설 (밀린 메일 발송)",
-      "target_type": "echo",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-10T00:00:00Z",
-      "by": "👤 이지형 (CEO)",
-      "role": "CEO",
-      "source": "DECISIONS.md",
-      "action": "D-023: BL-CLAUDE-DISCIPLINE — 헌법 부칙 16 + 인계서 강제 헤더 + 4개 의무  2026-05-10",
-      "target_type": "decision",
-      "target_id": "D-023",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-09T22:28:17Z",
-      "by": "🤖 scan-bot",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "[scan-bot] chat-log index 자동 갱신 [변경사유: chat-log 파일 또는 tasks.json 변경 → byCommit/byTask 매핑 재구축]",
-      "target_type": "commit",
-      "target_id": "80f0f70",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-09T22:28:12Z",
-      "by": "🤖 health-bot",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "[health-bot] vercel-sync 자동 복구 — empty commit re-trigger",
-      "target_type": "commit",
-      "target_id": "89cb3d3",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-09T22:28:11Z",
-      "by": "🤖 health-bot",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "[health-bot] _health.json 갱신 (overall=yellow)",
-      "target_type": "commit",
-      "target_id": "c94b2e1",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-09T22:28:08Z",
-      "by": "🤖 activity-bot",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "[activity-bot] activity-feed 3-Layer 자동 갱신 (총 388건)",
-      "target_type": "commit",
-      "target_id": "73aaad0",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-09T22:27:55Z",
-      "by": "🤖 scan-bot",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "[scan-bot] pages-status 3-Layer 자동 갱신 (19페이지, 평균 53점) [변경사유: HTML 변경 → 완성도 재측정]",
-      "target_type": "commit",
-      "target_id": "448061e",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-09T20:07:17Z",
-      "by": "🤖 scan-bot",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "[scan-bot] chat-log index 자동 갱신 [변경사유: chat-log 파일 또는 tasks.json 변경 → byCommit/byTask 매핑 재구축]",
-      "target_type": "commit",
-      "target_id": "9cfb6f6",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-09T20:06:57Z",
-      "by": "🤖 health-bot",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "[health-bot] _health.json 갱신 (overall=yellow)",
-      "target_type": "commit",
-      "target_id": "a7fa2b8",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-09T20:06:07Z",
-      "by": "🤖 activity-bot",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "[activity-bot] activity-feed 3-Layer 자동 갱신 (총 388건)",
-      "target_type": "commit",
-      "target_id": "538c1bd",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-09T20:05:49Z",
-      "by": "🤖 scan-bot",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "[scan-bot] pages-status 3-Layer 자동 갱신 (19페이지, 평균 53점) [변경사유: HTML 변경 → 완성도 재측정]",
-      "target_type": "commit",
-      "target_id": "2796205",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-09T17:37:47Z",
-      "by": "🤖 scan-bot",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "[scan-bot] chat-log index 자동 갱신 [변경사유: chat-log 파일 또는 tasks.json 변경 → byCommit/byTask 매핑 재구축]",
-      "target_type": "commit",
-      "target_id": "bbb5b6c",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-09T17:37:40Z",
-      "by": "🤖 health-bot",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "[health-bot] _health.json 갱신 (overall=yellow)",
-      "target_type": "commit",
-      "target_id": "25e70f9",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-09T17:37:09Z",
-      "by": "🤖 activity-bot",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "[activity-bot] activity-feed 3-Layer 자동 갱신 (총 388건)",
-      "target_type": "commit",
-      "target_id": "8ce9a15",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-09T17:36:54Z",
-      "by": "🤖 scan-bot",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "[scan-bot] pages-status 3-Layer 자동 갱신 (19페이지, 평균 53점) [변경사유: HTML 변경 → 완성도 재측정]",
-      "target_type": "commit",
-      "target_id": "78e17b1",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-09T15:56:19Z",
-      "by": "🤖 health-bot",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "[health-bot] _health.json 갱신 (overall=yellow)",
-      "target_type": "commit",
-      "target_id": "3f8dcd6",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-09T15:56:16Z",
-      "by": "🤖 auto-detect-bot",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "[auto-detect-bot] commit message → 작업 status 자동 갱신",
-      "target_type": "commit",
-      "target_id": "efbf207",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-09T15:56:15+00:00",
-      "by": "🤖 auto-detect-bot",
-      "role": "Bot",
-      "source": "tasks.json history",
-      "action": "",
-      "note": "feat(BL-ADMIN-LIGHTMODE step3-A): 그룹 A 5페이지 :root 다크 하드코딩 → shared.css alias 변환",
-      "target_type": "task",
-      "target_id": "BL-ADMIN-LIGHTMODE",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-09T15:56:03Z",
-      "by": "👤 이지형 (CEO 결정 → Claude 실행)",
-      "role": "CEO",
-      "source": "git commit",
-      "action": "feat(BL-ADMIN-LIGHTMODE step3-A): 그룹 A 5페이지 :root 다크 하드코딩 → shared.css alias 변환",
-      "target_type": "commit",
-      "target_id": "68f0966",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-09T15:45:29Z",
-      "by": "🤖 auto-detect-bot",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "[auto-detect-bot] commit message → 작업 status 자동 갱신",
-      "target_type": "commit",
-      "target_id": "0147b48",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-09T15:45:29+00:00",
-      "by": "🤖 auto-detect-bot",
-      "role": "Bot",
-      "source": "tasks.json history",
-      "action": "",
-      "note": "feat(BL-ADMIN-LIGHTMODE step2): 결정 D1/D2/D3 반영 + shared.css 라이트 모드 인프라 박음 [step:done:2]",
-      "target_type": "task",
-      "target_id": "BL-ADMIN-LIGHTMODE",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-09T15:45:15Z",
-      "by": "👤 이지형 (CEO 결정 → Claude 실행)",
-      "role": "CEO",
-      "source": "git commit",
-      "action": "feat(BL-ADMIN-LIGHTMODE step2): 결정 D1/D2/D3 반영 + shared.css 라이트 모드 인프라 박음 [step:done:2]",
-      "target_type": "commit",
-      "target_id": "afe0e9a",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-09T15:33:39Z",
-      "by": "🤖 auto-detect-bot",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "[auto-detect-bot] commit message → 작업 status 자동 갱신",
-      "target_type": "commit",
-      "target_id": "990d34c",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-09T15:33:39+00:00",
-      "by": "🤖 auto-detect-bot",
-      "role": "Bot",
-      "source": "tasks.json history",
-      "action": "",
-      "note": "feat(BL-ADMIN-LIGHTMODE): step2 색 토큰 매핑 1차 — admin-status + admin",
-      "target_type": "task",
-      "target_id": "BL-ADMIN-LIGHTMODE",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-10T00:33:30+09:00",
-      "by": "👤 이지형 (CEO)",
-      "role": "CEO",
-      "source": "git commit",
-      "action": "feat(BL-ADMIN-LIGHTMODE): step2 색 토큰 매핑 1차 — admin-status + admin",
-      "target_type": "commit",
-      "target_id": "e9349cd",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-09T15:15:20Z",
-      "by": "🤖 health-bot",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "[health-bot] _health.json 갱신 (overall=yellow)",
-      "target_type": "commit",
-      "target_id": "0776565",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-09T15:15:19Z",
-      "by": "🤖 sync-bot",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "[sync-bot] tasks.json → MD/Gallery 자동 동기화",
-      "target_type": "commit",
-      "target_id": "f44b8a2",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-09T15:15:17Z",
-      "by": "🤖 auto-detect-bot",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "[auto-detect-bot] commit message → 작업 status 자동 갱신",
-      "target_type": "commit",
-      "target_id": "0e64ffe",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-09T15:15:17+00:00",
-      "by": "🤖 auto-detect-bot",
-      "role": "Bot",
-      "source": "tasks.json history",
-      "action": "",
-      "note": "[BL-ADMIN-LIGHTMODE] [step:done:1] [헌법변경 없음] 1단계 디자인 토큰 표 확정 + D-022 5결정",
-      "target_type": "task",
-      "target_id": "BL-ADMIN-LIGHTMODE",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-09T15:15:05Z",
-      "by": "👤 이지형 (CEO 결정 → Claude 실행)",
-      "role": "CEO",
-      "source": "git commit",
-      "action": "[BL-ADMIN-LIGHTMODE] [step:done:1] [헌법변경 없음] 1단계 디자인 토큰 표 확정 + D-022 5결정",
-      "target_type": "commit",
-      "target_id": "6c9b650",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-09T15:14:35.917018Z",
-      "by": "🤖 Claude",
-      "role": "Bot",
-      "source": "tasks.json history",
-      "action": "BL-ADMIN-LIGHTMODE 등록 — 1단계 디자인 토큰 표 확정 (D-022, 5결정 통과)",
-      "note": "",
-      "target_type": "task",
-      "target_id": "BL-ADMIN-LIGHTMODE",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-09T14:57:40Z",
-      "by": "🤖 health-bot",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "[health-bot] _health.json 갱신 (overall=yellow)",
-      "target_type": "commit",
-      "target_id": "586fe64",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-09T14:57:10Z",
-      "by": "👤 이지형 (CEO)",
-      "role": "CEO",
-      "source": "git commit",
-      "action": "Revert \"feat(BL-LIGHT-MODE-FOUNDATION step2): 라이트 모드 색 변수 기반 추가 + admin-status 1차 적용 [step:done:2]\"",
-      "target_type": "commit",
-      "target_id": "726994d",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-09T13:32:08+00:00",
-      "by": "🤖 auto-detect-bot",
-      "role": "Bot",
-      "source": "tasks.json history",
-      "action": "",
-      "note": "chore(BL-ADMIN-AUTH-PERF): step 8+9 done + BL 완료 + 후속 BL 1건 신설 [step:done:8] [step:done:9]",
-      "target_type": "task",
-      "target_id": "BL-ADMIN-AUTH-PERF",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-09T08:04:03+00:00",
-      "by": "🤖 auto-detect-bot",
-      "role": "Bot",
-      "source": "tasks.json history",
-      "action": "",
-      "note": "chore(BL-ADMIN-AUTH-PERF + 백로그): tasks.json 갱신 + 신규 BL 3건",
-      "target_type": "task",
-      "target_id": "BL-ADMIN-AUTH-PERF",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-09T07:26:46+00:00",
-      "by": "🤖 auto-detect-bot",
-      "role": "Bot",
-      "source": "tasks.json history",
-      "action": "",
-      "note": "feat(BL-ADMIN-AUTH-PERF step5): 2편 인계서 박음 + 1편 done [step:done:5] [변경사유: 새 채팅에서 admin-* 12개 인증 제거+라이브 검증 진행 위한 풀 컨텍스트 인계",
-      "target_type": "task",
-      "target_id": "BL-ADMIN-AUTH-PERF",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-09T07:25:51.387255+00:00",
-      "by": "🤖 Claude",
-      "role": "Bot",
-      "source": "tasks.json history",
-      "action": "",
-      "note": "새 채팅에서 HANDOFF_BL-ADMIN-AUTH-PERF_PHASE2.md 기준으로 2편 진행",
-      "target_type": "task",
-      "target_id": "BL-ADMIN-AUTH-PERF",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-09T07:19:21Z",
-      "by": "👤 이지형 (CEO)",
-      "role": "CEO",
-      "source": "tasks.json history",
-      "action": "",
-      "note": "A-2 Edge Middleware 단일 게이트 / 5+4 = 9 step 분해 / 1편(이 채팅) 5단계, 2편(새 채팅) 4단계",
-      "target_type": "task",
-      "target_id": "BL-ADMIN-AUTH-PERF",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-09T00:00:00Z",
-      "by": "👤 이지형 (CEO)",
-      "role": "CEO",
-      "source": "DECISIONS.md",
-      "action": "D-021: BL-ADMIN-AUTH-PERF — Edge Middleware 단일 게이트 (A-2 정석)  2026-05-09",
-      "target_type": "decision",
-      "target_id": "D-021",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-08T04:45:36+00:00",
-      "by": "🤖 auto-detect-bot",
-      "role": "Bot",
-      "source": "tasks.json history",
-      "action": "",
-      "note": "chore(BL-ACT-INDEX-RESTORE): status=done + 4단계 100% 완료 [step:done:4]",
-      "target_type": "task",
-      "target_id": "BL-ACT-INDEX-RESTORE",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-08T04:42:39.006437Z",
-      "by": "🤖 Claude",
-      "role": "Bot",
-      "source": "tasks.json history",
-      "action": "",
-      "note": "",
-      "target_type": "task",
-      "target_id": "BL-ACT-INDEX-RESTORE",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-08T04:38:02.232120Z",
-      "by": "🤖 Claude",
-      "role": "Bot",
-      "source": "tasks.json history",
-      "action": "",
-      "note": "",
-      "target_type": "task",
-      "target_id": "BL-ACT-INDEX-RESTORE",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-08T04:29:20+00:00",
-      "by": "🤖 auto-detect-bot",
-      "role": "Bot",
-      "source": "tasks.json history",
-      "action": "",
-      "note": "✅ BL-ACT-KST-FIX: 라이브 검증 완료 — fmtTime 정상 + 인계서 활동이력 박힘 [step:done:3]",
-      "target_type": "task",
-      "target_id": "BL-ACT-KST-FIX",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-08T04:18:41+00:00",
-      "by": "🤖 auto-detect-bot",
-      "role": "Bot",
-      "source": "tasks.json history",
-      "action": "",
-      "note": "fix(BL-ACT-KST-FIX): 인계서에 대표님 최근 활동 이력 섹션 영구 복구 [step:done:2]",
-      "target_type": "task",
-      "target_id": "BL-ACT-KST-FIX",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-08T04:17:56+00:00",
-      "by": "🤖 auto-detect-bot",
-      "role": "Bot",
-      "source": "tasks.json history",
-      "action": "",
-      "note": "fix(BL-ACT-KST-FIX): fmtTime 이중 변환 결함 fix [step:done:1]",
-      "target_type": "task",
-      "target_id": "BL-ACT-KST-FIX",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-08T02:31:26+00:00",
-      "by": "🤖 auto-detect-bot",
-      "role": "Bot",
-      "source": "tasks.json history",
-      "action": "",
-      "note": "fix(BL-IPB-AUTO-DONE): 100%→done 자동 트랜지션 검증 + 회귀 테스트 영구 보존 [step:done:1,2,3]",
-      "target_type": "task",
-      "target_id": "BL-IPB-AUTO-DONE",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-08T02:12:21+00:00",
-      "by": "🤖 auto-detect-bot",
-      "role": "Bot",
-      "source": "tasks.json history",
-      "action": "",
-      "note": "✅ BL-IPB-PROGRESS-RESTORE: 라이브 검증 — admin-status에 67% 박힘 + 봇 자동 갱신 작동 확인 [step:done:3]",
-      "target_type": "task",
-      "target_id": "BL-IPB-PROGRESS-RESTORE",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-08T02:11:08+00:00",
-      "by": "🤖 auto-detect-bot",
-      "role": "Bot",
-      "source": "tasks.json history",
-      "action": "",
-      "note": "fix(BL-IPB-PROGRESS-RESTORE): 봇에 부칙 7 자동 검증 게이트 추가 [step:done:2]",
-      "target_type": "task",
-      "target_id": "BL-IPB-PROGRESS-RESTORE",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-08T01:34:40+00:00",
-      "by": "🤖 auto-detect-bot",
-      "role": "Bot",
-      "source": "tasks.json history",
-      "action": "",
-      "note": "[handoff] BL-002 분할 후속 처리 인계서 박음",
-      "target_type": "task",
-      "target_id": "BL-002",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-08T01:26:57.143371Z",
-      "by": "🤖 Claude",
-      "role": "Bot",
-      "source": "tasks.json history",
-      "action": "",
-      "note": "",
-      "target_type": "task",
-      "target_id": "BL-002",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-08T01:03:40.902203Z",
-      "by": "🤖 Claude",
-      "role": "Bot",
-      "source": "tasks.json history",
-      "action": "",
-      "note": "",
-      "target_type": "task",
-      "target_id": "BL-002",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-08T00:00:00Z",
-      "by": "👤 이지형 (CEO)",
-      "role": "CEO",
-      "source": "DECISIONS.md",
-      "action": "D-020: 헌법 자가 검증에 사전 안전장치 3개 박음 — 방향 상실 방지  2026-05-08",
-      "target_type": "decision",
-      "target_id": "D-020",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-08T00:00:00Z",
-      "by": "👤 이지형 (CEO)",
-      "role": "CEO",
-      "source": "DECISIONS.md",
-      "action": "D-019: admin-status.html 중복 3중 정리 + 작업 지휘소 통합  2026-05-08",
-      "target_type": "decision",
-      "target_id": "D-019",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-07T17:59:14+00:00",
-      "by": "🤖 auto-detect-bot",
-      "role": "Bot",
-      "source": "tasks.json history",
-      "action": "",
-      "note": "[handoff] BL-002 통합 To-Do Inbox 시작 인계서 박음 — 새 채팅 진입 준비",
-      "target_type": "task",
-      "target_id": "BL-002",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-07T16:35:10+00:00",
-      "by": "🤖 auto-detect-bot",
-      "role": "Bot",
-      "source": "tasks.json history",
-      "action": "",
-      "note": "[BL-OS-PHASE-5] 단계 9 후속: tasks.json stats 수동 재계산 (108→110) + 보고서 5-1절 보강",
-      "target_type": "task",
-      "target_id": "BL-OS-PHASE-5",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-07T16:31:58+00:00",
-      "by": "🤖 auto-detect-bot",
-      "role": "Bot",
-      "source": "tasks.json history",
-      "action": "",
-      "note": "[BL-OS-PHASE-5] 단계 9: PHASE_5_VERIFICATION_REPORT.md + tasks.json done 마킹 + handoff 갱신 [step:done:9]",
-      "target_type": "task",
-      "target_id": "BL-OS-PHASE-5",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-07T16:30:47+00:00",
-      "by": "🤖 Claude",
-      "role": "Bot",
-      "source": "tasks.json history",
-      "action": "단계 8 완료 — 라이브 검증 (봇 6/7 success, _health.json yellow only, 라이브 13/13 정상, DOM 무손상)",
-      "note": "",
-      "target_type": "task",
-      "target_id": "BL-OS-PHASE-5",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-07T16:30:47+00:00",
-      "by": "🤖 Claude",
-      "role": "Bot",
-      "source": "tasks.json history",
-      "action": "단계 9 완료 — PHASE_5_VERIFICATION_REPORT.md 신설 + 헌법 자가 검증 27/27 PASS",
-      "note": "",
-      "target_type": "task",
-      "target_id": "BL-OS-PHASE-5",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-07T16:30:47+00:00",
-      "by": "🤖 Claude",
-      "role": "Bot",
-      "source": "tasks.json history",
-      "action": "DONE — BL-OS-PHASE-5 종료 선언",
-      "note": "",
-      "target_type": "task",
-      "target_id": "BL-OS-PHASE-5",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-07T16:30:00+00:00",
-      "by": "🤖 Claude",
-      "role": "Bot",
-      "source": "tasks.json history",
-      "action": "BL-OS-PHASE-5 단계 5~9 인계 받음 (BL-OS-LIGHTWEIGHT 종료 후)",
-      "note": "",
-      "target_type": "task",
-      "target_id": "BL-OS-PHASE-5",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-07T16:20:00+00:00",
-      "by": "🤖 Claude",
-      "role": "Bot",
-      "source": "tasks.json history",
-      "action": "단계 7 완료 — DOCS 5개 polling 5분→5초 통일 부칙 8 강제 (commit b4f75f6)",
-      "note": "",
-      "target_type": "task",
-      "target_id": "BL-OS-PHASE-5",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-07T16:10:00+00:00",
-      "by": "🤖 Claude",
-      "role": "Bot",
-      "source": "tasks.json history",
-      "action": "단계 6 완료 — install_os.sh 보강 + business-context/tools-manifest.json 골격 (commit 29e3b36, 라이브 200 4/4)",
-      "note": "",
-      "target_type": "task",
-      "target_id": "BL-OS-PHASE-5",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-07T16:00:00+00:00",
-      "by": "🤖 Claude",
-      "role": "Bot",
-      "source": "tasks.json history",
-      "action": "단계 5 완료 — admin-status.html 사이드바 4영역 강제 렌더 (commit 8c8ab7a, 178 ins/0 del, DOM 균형 통과)",
-      "note": "",
-      "target_type": "task",
-      "target_id": "BL-OS-PHASE-5",
+      "target_id": "BL-OS-AUTO-SYNC-CHARTER",
       "project": "TW B2B"
     },
     {

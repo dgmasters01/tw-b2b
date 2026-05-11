@@ -1,0 +1,171 @@
+# TW B2B — step 자가 검증 봇 (Step Self-Verify Bot)
+#
+# 작업: BL-STEP-SELF-VERIFY
+# 근거: 2026-05-10 BL-AUTO-REORDER-PAUSE step 6 거짓 done 사고
+#
+# 부칙 부합:
+#   부칙 7  — 단계 1개 = commit 1개. subject에 [step:done:N] 태그. 봇이 검증 의무.
+#   부칙 14 — 헌법 본문 아닌 playbook(_os/playbook/step-self-verify.md)에 룰 박음.
+#   부칙 15 — chat-log 박기 의무 자동 검증.
+#
+# 트리거:
+#   1. main push (auto-detect-bot, step-verify-bot 자기 자신 등 봇 commit 제외)
+#   2. workflow_dispatch — 수동 실행 (since_commit 입력 가능)
+#
+# 실행 흐름:
+#   1. checkout (full history — git diff 분석 필요)
+#   2. Node 20 setup
+#   3. step-self-verify-bot.mjs 실행 (since-commit = github.event.before)
+#   4. tasks.json 변경 감지 시:
+#      - [step-verify-bot] commit + push
+#      - ops 알림 발송 (/api/email/ops/notify-claude-work)
+
+name: Step Self-Verify Bot
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      since_commit:
+        description: '이 commit 이후 검증 (비우면 직전 1개)'
+        required: false
+        type: string
+
+concurrency:
+  group: step-self-verify-${{ github.ref }}
+  cancel-in-progress: false  # 검증 누락 방지 — 순차 실행
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    name: Step Keyword → Artifact Verify
+    runs-on: ubuntu-latest
+
+    # 봇 commit 자체는 검증 안 함 (무한 루프 방지)
+    if: |
+      !startsWith(github.event.head_commit.message, '[step-verify-bot]') &&
+      !startsWith(github.event.head_commit.message, '[auto-detect-bot]') &&
+      !startsWith(github.event.head_commit.message, '[sync-bot]') &&
+      !startsWith(github.event.head_commit.message, '[scan-bot]') &&
+      !startsWith(github.event.head_commit.message, '[health-bot]') &&
+      !startsWith(github.event.head_commit.message, '[activity-bot]')
+
+    steps:
+      - name: Checkout (full history)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Determine since_commit
+        id: since
+        run: |
+          if [ -n "${{ inputs.since_commit }}" ]; then
+            SINCE="${{ inputs.since_commit }}"
+          else
+            BEFORE="${{ github.event.before }}"
+            if [ -z "$BEFORE" ] || [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
+              SINCE=""
+            else
+              SINCE="$BEFORE"
+            fi
+          fi
+          echo "since=$SINCE" >> "$GITHUB_OUTPUT"
+          echo "📍 검증 시작점: ${SINCE:-HEAD~1 (단일)}"
+
+      - name: Run step-self-verify-bot (dry-run preview)
+        run: |
+          if [ -n "${{ steps.since.outputs.since }}" ]; then
+            node _os/scripts/step-self-verify-bot.mjs --since-commit "${{ steps.since.outputs.since }}" --dry-run
+          else
+            node _os/scripts/step-self-verify-bot.mjs --dry-run
+          fi
+
+      - name: Run step-self-verify-bot (apply)
+        id: verify
+        run: |
+          if [ -n "${{ steps.since.outputs.since }}" ]; then
+            node _os/scripts/step-self-verify-bot.mjs --since-commit "${{ steps.since.outputs.since }}" | tee /tmp/verify.log
+          else
+            node _os/scripts/step-self-verify-bot.mjs | tee /tmp/verify.log
+          fi
+          # 위반 건수 추출
+          VIOLATION_COUNT=$(grep -c '^❌' /tmp/verify.log || true)
+          echo "violation_count=$VIOLATION_COUNT" >> "$GITHUB_OUTPUT"
+
+      - name: Detect changes
+        id: changes
+        run: |
+          if [ -n "$(git status --porcelain tasks.json)" ]; then
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+            git diff --stat tasks.json
+          else
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Commit and push (rollback)
+        if: steps.changes.outputs.has_changes == 'true'
+        run: |
+          git config user.name  "tw-b2b step-verify-bot"
+          git config user.email "step-verify-bot@gohotelwinners.com"
+
+          git add tasks.json
+          git commit -m "[step-verify-bot] step 검증 실패 → 자동 롤백 (${{ steps.verify.outputs.violation_count }}건)
+
+          [변경사유] BL-STEP-SELF-VERIFY — step 텍스트 키워드 대비 실제 산출물 미충족
+          (헌법/부칙·playbook·chat-log·commit 태그 검증)
+
+          롤백 내용: 위반 step의 status: done → pending,
+                    task status: done → in_progress,
+                    notes에 ⚠️ 워닝 추가, history에 verification_failed 박음
+
+          누락분 박고 다시 done 처리 필요.
+
+          Trigger: ${{ github.event_name }}
+          Source commit: ${{ github.sha }}"
+
+          for attempt in 1 2 3; do
+            if git push origin HEAD:${{ github.ref_name }}; then
+              echo "✅ 롤백 commit push 완료 (시도 ${attempt})"
+              break
+            fi
+            echo "⚠️ push 실패 (시도 ${attempt}) — pull --rebase 후 재시도"
+            git pull --rebase --strategy-option=ours origin ${{ github.ref_name }} || {
+              echo "❌ rebase 충돌 — 수동 개입 필요"; exit 1;
+            }
+          done
+
+      - name: Send ops alert on violation
+        if: steps.changes.outputs.has_changes == 'true'
+        run: |
+          curl -s -X POST "https://gohotelwinners.com/api/email/ops/notify-claude-work" \
+            -H "Content-Type: application/json" \
+            -H "x-ops-token: ${{ secrets.OPS_TOKEN || 'sV1IWuvgBYcn94lQZXBjFLjgdsh3lrBK' }}" \
+            -d "{
+              \"task_id\": \"BL-STEP-SELF-VERIFY\",
+              \"step\": \"⚠️ step 검증 실패 자동 롤백 (${{ steps.verify.outputs.violation_count }}건)\",
+              \"summary\": \"step 텍스트와 실제 commit 산출물 mismatch 감지. tasks.json 자동 롤백 완료. admin-status 열어서 ⚠️ 워닝 확인 후 누락분 박기.\"
+            }" || echo "⚠️ ops 알림 실패 (검증 결과는 commit에 박힘)"
+
+      - name: Summary
+        run: |
+          echo "## 🤖 step-self-verify-bot 결과" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          if [ "${{ steps.changes.outputs.has_changes }}" = "true" ]; then
+            echo "❌ **위반 ${{ steps.verify.outputs.violation_count }}건 발견 → 자동 롤백 완료**" >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "다음 행동:" >> "$GITHUB_STEP_SUMMARY"
+            echo "1. admin-status 열어서 ⚠️ 워닝 작업 확인" >> "$GITHUB_STEP_SUMMARY"
+            echo "2. 누락 산출물 박기 (헌법/playbook/chat-log)" >> "$GITHUB_STEP_SUMMARY"
+            echo "3. 다시 done 처리하는 commit 박기" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "✅ **검증 통과 — 위반 없음**" >> "$GITHUB_STEP_SUMMARY"
+          fi

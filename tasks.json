@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-11T04:28:06.337Z",
+  "updated_at": "2026-05-11T04:30:49+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -36,36 +36,47 @@
       "approval_required": false,
       "source": "대표님 직접 보고 (2026-05-11) — 다음추천 예약알림을 계속 이어 붙이는데 지금진행중으로 안 넘어옴, 연동 안 되는 것 같음",
       "created_at": "2026-05-11T04:28:06.337Z",
-      "updated_at": "2026-05-11T04:30:17.531Z",
+      "updated_at": "2026-05-11T04:30:49+00:00",
       "started_at": "2026-05-11T04:28:06.337Z",
       "notes": "결함 본질: btn-reserve 핸들러(_admin/admin-status.html 3291줄)가 클립보드 복사 + ops 알림만 수행, tasks.json status 전환 안 함. 힌트 텍스트(1135줄)는 \"priority_boost 자동 박힘\"이라 약속했지만 코드에 그 로직 없음. 다음추천 카드 hint(5243줄)는 \"Claude commit 박을 때 전환\"이라 일관성 없음. fix: /api/admin?action=start-task sub-handler 신설 → GitHub Contents API로 tasks.json patch (pending→in_progress + started_at). btn-reserve 핸들러에서 이 endpoint 호출.",
       "progress": {
-        "percent": 0,
+        "percent": 80,
         "steps": [
           {
             "n": 1,
             "label": "결함 정밀 분석 + 정석 fix 방향 확정",
-            "status": "done"
+            "status": "done",
+            "done": true,
+            "at": "2026-05-11T04:30:49+00:00"
           },
           {
             "n": 2,
             "label": "api/admin.js에 start-task sub-handler 추가 (GitHub Contents API patch)",
-            "status": "done"
+            "status": "done",
+            "done": true,
+            "at": "2026-05-11T04:30:49+00:00"
           },
           {
             "n": 3,
             "label": "admin-status.html btn-reserve 핸들러에 start-task 호출 추가",
-            "status": "done"
+            "status": "done",
+            "done": true,
+            "at": "2026-05-11T04:30:49+00:00"
           },
           {
             "n": 4,
-            "label": "commit + push + Vercel 배포 대기"
+            "label": "commit + push + Vercel 배포 대기",
+            "done": true,
+            "at": "2026-05-11T04:30:49+00:00"
           },
           {
             "n": 5,
             "label": "라이브 검증 — 다음추천 누름 → 진행 중 박스 자동 전환"
           }
-        ]
+        ],
+        "completed_count": 4,
+        "total_count": 5,
+        "updated_at": "2026-05-11T04:30:49+00:00"
       },
       "history": [
         {
@@ -85,6 +96,13 @@
           "action": "progress",
           "by": "claude",
           "note": "단계 2·3 완료 — api/admin.js start-task sub-handler 추가 + admin-status.html btn-reserve 핸들러 보강 + hint 텍스트 정확화"
+        },
+        {
+          "at": "2026-05-11T04:30:49+00:00",
+          "event": "진행 중 commit 추가 + 단계 1, 단계 2, 단계 3, 단계 4 완료 (auto-detected)",
+          "by": "auto-detect-bot",
+          "commit": "0aeb2ad",
+          "note": "feat(BL-RESERVE-BTN-START-TASK): 다음추천 ▶ 예약+알림 버튼 즉시 진행 중 전환 — 약속과 작동 일치 [step:done:1] [step:done:2] [step:done:3] [step:"
         }
       ]
     },

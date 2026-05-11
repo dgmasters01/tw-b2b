@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-11T16:14:51+00:00",
+  "updated_at": "2026-05-11T16:17:06+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -37,11 +37,11 @@
       "chatlog_exempt": true,
       "source": "대표님 직접 보고 (2026-05-11) — 잠시 멈춤 이어가기 클릭하니 alert: \"이어가기 실패: getAdminAccessToken is not defined\"",
       "created_at": "2026-05-11T16:13:46.120Z",
-      "updated_at": "2026-05-11T16:16:52.459Z",
+      "updated_at": "2026-05-11T16:17:06+00:00",
       "started_at": "2026-05-11T16:13:46.120Z",
       "notes": "결함 본질: getAdminAccessToken이 openCeoDecisionModal() 함수 내부에 inner function으로 박혀있어서 결정 모달 밖에서는 미정의.\n\n현재 호출 위치 7건 중 모달 밖 호출 6건:\n- 3393 qt-submit (quick-task 박기)\n- 5109 ??? (확인 필요)\n- 5764 ??? (확인 필요)\n- 5857 결정 확정 핸들러\n- 6264 paused-resume-btn ← 대표님 결함\n- 그 외...\n\nfix: getAdminAccessToken을 script 최상위 스코프로 끌어올림 (전역 헬퍼). 모달 내부 inner function 제거.",
       "progress": {
-        "percent": 100,
+        "percent": 25,
         "steps": [
           {
             "n": 1,
@@ -61,9 +61,14 @@
           {
             "n": 4,
             "label": "commit + push + 라이브 검증",
-            "status": "done"
+            "status": "done",
+            "done": true,
+            "at": "2026-05-11T16:17:06+00:00"
           }
-        ]
+        ],
+        "completed_count": 1,
+        "total_count": 4,
+        "updated_at": "2026-05-11T16:17:06+00:00"
       },
       "history": [
         {
@@ -96,6 +101,13 @@
           "action": "done",
           "by": "claude",
           "note": "단계 4 라이브 검증 — vercel green, 정의 1건만 (전역 스코프)"
+        },
+        {
+          "at": "2026-05-11T16:17:06+00:00",
+          "event": "done 작업에 commit 추가 (status 유지 — 자동 리오픈 안 함) + 단계 4 완료 (auto-detected)",
+          "by": "auto-detect-bot",
+          "commit": "77f5119",
+          "note": "done(BL-ADMIN-TOKEN-SCOPE-FIX): 라이브 검증 완료 [step:done:4]"
         }
       ],
       "completed_at": "2026-05-11T16:16:52.459Z"

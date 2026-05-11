@@ -1,0 +1,108 @@
+# TW B2B — 자동 작업 등록 봇 (auto-task-from-health)
+#
+# 작업: BL-BASELINE-AUTO-TASK 단계 4 (2026-05-11)
+# 결정: D-024
+# 룰북: _os/playbook/auto-task-registry.md
+#
+# 목적:
+#   점검 봇 3종(health-check-admin / page-status-scan / charter-length-bot)이
+#   _admin/_health.json, pages-status.summary.json에 빨간불 박는 순간 →
+#   _os/scripts/auto-task-from-health.mjs가 tasks.json에 BL 자동 등록.
+#
+# 트리거:
+#   1. push (main) — health-bot 또는 scan-bot이 push할 때마다
+#   2. schedule — 15분마다 안전망 (놓친 발견 잡기)
+#   3. workflow_dispatch — 수동
+#
+# 무한 루프 방지:
+#   - 본 봇 commit ([auto-task-bot] prefix)은 트리거 안 함
+#   - health-bot, scan-bot commit도 paths로 우회 (점검 파일만 listen)
+#
+# 헌법 부합:
+#   부칙 3 (인프라 먼저) / 부칙 8 (자동 동기화) / 부칙 11 (stats 재계산)
+#   시행령 5 (무인 검증) / 시행령 7 (상태 가시성)
+
+name: Auto Task From Health
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '_admin/_health.json'
+      - 'pages-status.summary.json'
+      - '_os/scripts/auto-task-from-health.mjs'
+      - '.github/workflows/auto-task-from-health.yml'
+  schedule:
+    - cron: '*/15 * * * *'  # 15분마다 안전망
+  workflow_dispatch:
+
+concurrency:
+  group: auto-task-from-health-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  register-tasks:
+    name: 점검 결과 → tasks.json 자동 BL 등록
+    runs-on: ubuntu-latest
+
+    # 무한 루프 방지: 본 봇 commit 은 트리거 안 함
+    if: |
+      !startsWith(github.event.head_commit.message, '[auto-task-bot]')
+
+    steps:
+      - name: Checkout (full history — rebase 가드 위해)
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Setup Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run auto-task-from-health
+        id: run
+        run: |
+          set -e
+          OUTPUT=$(node _os/scripts/auto-task-from-health.mjs)
+          echo "$OUTPUT"
+          # COMMIT_SUMMARY, CHANGED 추출
+          SUMMARY=$(echo "$OUTPUT" | grep -E "^COMMIT_SUMMARY=" | cut -d= -f2-)
+          CHANGED=$(echo "$OUTPUT" | grep -E "^CHANGED=" | cut -d= -f2-)
+          echo "summary=${SUMMARY}" >> $GITHUB_OUTPUT
+          echo "changed=${CHANGED}" >> $GITHUB_OUTPUT
+
+      - name: Commit & push if changed
+        if: steps.run.outputs.changed == '1'
+        run: |
+          git config user.name "auto-task-bot"
+          git config user.email "auto-task-bot@tw-b2b.local"
+
+          if git diff --quiet tasks.json; then
+            echo "tasks.json 변경 없음 — commit skip"
+            exit 0
+          fi
+
+          git add tasks.json
+          git commit -m "[auto-task-bot] ${{ steps.run.outputs.summary }} [변경사유: 점검 봇 발견 자동 등록]"
+
+          # Race condition 가드 (sync-bot/health-bot/scan-bot 패턴과 동일)
+          for attempt in 1 2 3; do
+            if git push origin HEAD:${{ github.ref_name }}; then
+              echo "✅ push 완료 (시도 ${attempt})"
+              break
+            fi
+            echo "⚠️ push 실패 (시도 ${attempt}) — pull --rebase 후 재시도"
+            git pull --rebase --strategy-option=ours origin ${{ github.ref_name }} || {
+              echo "❌ rebase 충돌 — 수동 개입 필요"; exit 1;
+            }
+          done
+
+      - name: Report
+        if: always()
+        run: |
+          echo "::notice title=auto-task-bot 결과::${{ steps.run.outputs.summary }}"

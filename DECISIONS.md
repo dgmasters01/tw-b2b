@@ -12,6 +12,29 @@
 
 ## 🆕 2026-05-11 — 점검 봇 발견 → 자동 BL 등록 인프라
 
+
+### 결정 D-025: BL-003 — Agoda 예약 검증을 Matching(호텔 가입 승인) + 예약검증 둘로 쪼개기 ⭐⭐⭐ 2026-05-11
+
+**확정 시각**: 2026-05-11T15:23:26.587Z
+
+**결정 한 줄**: BL-003을 BL-003-A(Agoda Matching = 호텔 가입 수동 승인 페이지, P0 1순위) + BL-003-B(Agoda Affiliate 엑셀 업로드 → 호텔별 예약 검증 페이지, P1)로 쪼개기. 본질이 두 가지였음 — 매니저 온보딩 게이트와 매출 검증.
+
+**핑퐁 라운드 (9회)**: _decisions/pingpong/BL-003.json 참조. 9라운드 핵심:
+- R1-2: 검증의 단일 진실원이 "고객 진술"이 아니라 Agoda Affiliate 대시보드 데이터임을 정리
+- R3-4: 매니저 가입 시 자동 매칭(agoda_hotels + Google Places API) + 호텔 URL 붙여넣기 흐름 확정
+- R5-6: Agoda는 실시간 예약 API 미제공 → Affiliate 엑셀 업로드 방식이 표준
+- R7: analytics 페이지(아고다 제휴 호텔별 예약리스트)를 admin 페이지에 차용
+- R8: "Agoda Matching" 본질이 예약 검증이 아니라 **호텔 가입 수동 승인**임을 대표님이 정정
+- R9: BL-003-A(가입 승인) + BL-003-B(예약 검증) 쪼개기 합의
+
+**파급 작업**:
+- BL-003-A (P0 1순위): admin/agoda-matching 페이지 신설 — 매니저 가입 시 자동 매칭 실패 호텔의 대기 큐 + 수동 매칭 + 승인 알림
+- BL-003-B (P1): admin/agoda-booking-verify 페이지 신설 — Affiliate 엑셀 업로드 + 호텔별 매출 정리
+
+**복구 메모**: 대표님이 admin-status에서 "🚀 결정 확정" 버튼 눌렀으나 흐름이 끊겨 commit이 박히지 않은 사고 발생. BL-DECISION-CONFIRM-RESCUE로 핑퐁 9라운드 보존된 결론을 그대로 D-025로 박음. 결정 확정 흐름의 에러 가시화는 같은 BL의 단계 3에서 처리.
+
+---
+
 ### 결정 D-024: BL-BASELINE-AUTO-TASK — 점검 결과를 tasks.json에 자동 등록 ⭐⭐⭐ 2026-05-11
 
 **무엇을**: 기존 점검 봇 3종(health-check-admin / page-status-scan / charter-length-bot)이 빨간불·노란불을 발견해도 `_health.json`·`pages-status.json`·CI exit 1에서 끝나고 **tasks.json BL로 안 박혀 흘러가던 문제**를, 새 봇 `auto-task-from-health`로 자동 등록. 안정 ID(`BL-AUTO-{CHECK}-{KEY}`) + dedup(active 상태 검사) + 24h 가드 + 자동 close 로직 박음.

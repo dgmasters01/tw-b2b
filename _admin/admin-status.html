@@ -5847,7 +5847,13 @@
 
       const token = await getAdminAccessToken();
       if (!token) {
-        alert('로그인이 필요합니다. 페이지를 새로고침한 후 다시 시도하세요.');
+        // ★ BL-DECISION-CONFIRM-RESCUE (2026-05-11): 토큰 누락 시 핑퐁 손실 방지 안내
+        alert(
+          '❌ 로그인 만료\n\n' +
+          '결정을 박을 권한 토큰이 없습니다.\n' +
+          '페이지를 새로고침해서 다시 로그인한 후 결정 대기에서 같은 작업을 클릭하세요.\n\n' +
+          '핑퐁 라운드는 GitHub에 안전하게 저장돼 있어 손실되지 않습니다.'
+        );
         return;
       }
 
@@ -5881,6 +5887,9 @@
           status.className = 'grim-confirm-status saved';
         }
         btn.textContent = `✅ ${j.decision_id} 확정됨`;
+        // ★ BL-DECISION-CONFIRM-RESCUE (2026-05-11): 성공 시 명확한 alert 추가
+        // 대표님이 status 영역만으로는 성공 인지 못한 사고 방지
+        alert(`✅ 결정 확정 완료\n\n결정 ID: ${j.decision_id}\n작업 상태: 결정 대기 → 진행 중\n\n곧 페이지가 새로고침됩니다.`);
         // 3초 후 모달 닫고 페이지 새로고침 (작업 카드 갱신)
         setTimeout(() => {
           // 모달 닫기
@@ -5892,12 +5901,24 @@
           location.reload();
         }, 2500);
       } catch (e) {
+        // ★ BL-DECISION-CONFIRM-RESCUE (2026-05-11): 실패 시 명확한 alert + 모달 유지(재시도 가능)
+        const errMsg = e?.message || 'unknown';
         if (status) {
-          status.textContent = '확정 실패: ' + (e?.message || 'unknown');
+          status.textContent = '❌ 확정 실패: ' + errMsg + ' — 모달은 그대로 둡니다. 다시 시도하거나 화면 닫지 마세요.';
           status.className = 'grim-confirm-status';
+          status.style.color = '#ef4444';
+          status.style.fontWeight = '700';
         }
+        // 명확한 alert — status 영역만으로는 못 봄
+        alert(
+          `❌ 결정 확정 실패\n\n` +
+          `에러: ${errMsg}\n\n` +
+          `핑퐁 라운드는 그대로 보존됩니다. 모달도 닫지 않습니다.\n` +
+          `다시 시도하거나, 새로고침 후 결정 대기에서 같은 작업을 클릭하세요.\n\n` +
+          `반복 실패 시 admin-status 화면 그대로 두고 클로드에게 알려주세요 — 핑퐁 라운드는 GitHub에 안전하게 저장돼 있습니다.`
+        );
         btn.disabled = false;
-        btn.textContent = '✅ 결정 확정 — 작업 시작';
+        btn.textContent = '🚀 결정 확정 — 작업 시작 (재시도)';
       }
     });
 

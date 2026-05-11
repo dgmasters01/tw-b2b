@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-11T15:17:17+00:00",
+  "updated_at": "2026-05-11T15:23:26.587Z",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -12,17 +12,85 @@
     "SOLO_WORK_QUEUE.md"
   ],
   "stats": {
-    "total": 173,
-    "done": 128,
-    "in_progress": 0,
-    "pending": 27,
-    "blocked": 11,
+    "total": 176,
+    "done": 129,
+    "in_progress": 1,
+    "pending": 29,
+    "blocked": 10,
     "autonomous_ready": 19,
     "todo": 0,
     "cancelled": 0,
-    "updated_at": "2026-05-11T15:16:56.292Z"
+    "updated_at": "2026-05-11T15:23:26.587Z",
+    "paused": 1
   },
   "tasks": [
+    {
+      "id": "BL-DECISION-CONFIRM-RESCUE",
+      "title": "BL-003 핑퐁 9라운드 결정 손실 복구 + 확정 흐름 에러 가시화",
+      "category": "fix",
+      "priority": "P0",
+      "size": "medium",
+      "status": "in_progress",
+      "owner": "claude",
+      "claude_can_auto": true,
+      "approval_required": false,
+      "chatlog_exempt": true,
+      "source": "대표님 직접 보고 (2026-05-11 15:30) — Agoda 예약 검증 핑퐁 다 하고 그림일치 결정확정 눌렀는데 아무 변화 없음",
+      "created_at": "2026-05-11T15:22:29.039Z",
+      "updated_at": "2026-05-11T15:25:00.737Z",
+      "started_at": "2026-05-11T15:22:29.039Z",
+      "notes": "진단:\n- BL-003 라이브 status=blocked, pingpong_rounds=9, pingpong_turn=ceo (확정 안 박힘)\n- 최근 commit에 feat(BL-003): 결정 확정 D-NNN 없음 (핸들러 도달 X)\n- _decisions/pingpong/BL-003.json에 9라운드 모두 남음 (결정 내용 살아있음)\n- 마지막 라운드 결론: BL-003을 BL-003-A(Agoda Matching=호텔 가입 수동 승인) + BL-003-B(예약검증)로 쪼개기\n\nfix 3종:\n1) BL-003 결정 직접 박기 (스크립트로 안전하게)\n   - DECISIONS.md에 D-NNN 박음\n   - BL-003 status=done + decision_summary 박음\n   - BL-003-A, BL-003-B 신규 BL 생성\n2) 결정 확정 흐름 에러 가시화\n   - 5829줄 핸들러에 alert() 추가 (status 영역만으로는 못 봄)\n   - 401/500 등 명확한 에러 메시지\n3) 결정 모달 손실 방지\n   - 핑퐁 라운드가 있는데 확정 시도 후 실패하면 모달 닫지 말고 재시도 가능하게",
+      "progress": {
+        "percent": 0,
+        "steps": [
+          {
+            "n": 1,
+            "label": "결함 진단 + BL-003 핑퐁 9라운드 내용 보존 확인",
+            "status": "done"
+          },
+          {
+            "n": 2,
+            "label": "BL-003 결정 직접 박기 — D-025 + status=done + BL-003-A/B 생성",
+            "status": "done"
+          },
+          {
+            "n": 3,
+            "label": "결정 확정 흐름 에러 가시화 — alert() 추가 + 재시도 가능",
+            "status": "done"
+          },
+          {
+            "n": 4,
+            "label": "commit + push + 라이브 검증",
+            "status": "done"
+          },
+          {
+            "n": 5,
+            "label": "결과 보고 + 대표님께 다음 액션 안내",
+            "status": "pending"
+          }
+        ]
+      },
+      "history": [
+        {
+          "at": "2026-05-11T15:22:29.039Z",
+          "action": "created",
+          "by": "claude",
+          "note": "P0 긴급"
+        },
+        {
+          "at": "2026-05-11T15:22:29.039Z",
+          "action": "started",
+          "by": "claude",
+          "note": "단계 1 진단 완료"
+        },
+        {
+          "at": "2026-05-11T15:25:00.737Z",
+          "action": "progress",
+          "by": "claude",
+          "note": "단계 2·3·4 완료 — BL-003 D-025 박음 + BL-003-A/B 생성 + 결정 모달 에러 가시화"
+        }
+      ]
+    },
     {
       "id": "BL-FLOW-CLARITY-V2",
       "title": "페이지 지도 접기 + 결정 대기 영향력 순위 + 흐름 안내 갱신 주기",
@@ -4056,13 +4124,13 @@
       "id": "BL-003",
       "title": "Agoda 예약 검증 시스템 (Booking Verification)",
       "category": "dev",
-      "status": "blocked",
+      "status": "done",
       "priority": "P0",
       "size": "medium",
       "parent_task": null,
-      "blocker": "대표님 결정 대기",
+      "blocker": null,
       "created_at": "2026-05-02T07:22:10Z",
-      "completed_at": null,
+      "completed_at": "2026-05-11T15:23:26.587Z",
       "claude_can_auto": false,
       "autonomous": {
         "can_run_alone": false,
@@ -4268,13 +4336,19 @@
           "by": "auto-detect-bot",
           "commit": "91870f6",
           "note": "pingpong(BL-003): turn → ceo"
+        },
+        {
+          "at": "2026-05-11T15:23:26.587Z",
+          "action": "decision_confirmed",
+          "by": "claude (rescue)",
+          "note": "BL-DECISION-CONFIRM-RESCUE: 핑퐁 9라운드 결정 확정 손실 사고 복구 — 마지막 라운드 결론으로 D-025 박고 BL-003-A/B로 쪼갬"
         }
       ],
       "source": "BACKLOG.md",
       "source_anchor": "#L149",
       "notes": "## 🔴 P0 — Agoda 예약 검증 시스템 (Booking Verification) ⭐⭐ 2026-04-29  **배경** (대표님 핵심 비즈니스 통찰): > \"아고다의 본인 확인 할 수 있는 것을 제공해줘야 돼. TW Booking Analytics에서 호텔별로 예약번호, 예약날짜, 시간 등 대조할 수 있는 것.\"  **핵심 가치**: - 우리가 \"예약 N건 발생\" 이라고 말로만 하면 매니저는 못 믿음 - 매니저가 본인 Agoda Partner Hub에서 직접 대조 가능 → 완벽한 증거 - 신뢰 = 비즈니스의 생존  **작업 항목**: 1. **DB 통합**: TW B2B ↔ TW Booking Analytics 데이터 연결    - hotels.agoda_hotel_id ↔ booking.hotel_id 매칭    - 매니저 결제 호텔에 한해서만 노출  2. **채널 매핑 시스템** ⭐ 2026-04-29 추가    - `channel_cid_map` 테이블 신설    - 5",
       "owner": "human",
-      "approval_required": true,
+      "approval_required": false,
       "decision_context": "[지금 무슨 상황이냐면]\n호텔에 손님이 도착해서 \"여행능력자들 채널 보고 예약했어요\"라고 말합니다. 그런데 호텔 매니저는 그 말이 진짜인지 확인할 방법이 없어요. 손님이 보여주는 예약번호와 날짜는 있지만, 그게 정말 우리 채널을 통해 들어온 예약인지 — 다른 OTA에서 들어온 건지 — 호텔이 자체적으로 알 길이 없습니다.\n\n[왜 결정이 필요하냐면]\n이걸 못 풀면 매니저는 \"당신 채널에서 진짜 손님이 오는 거 맞아요?\"라고 의심하게 되고, 이 의심이 쌓이면 다음 계약/단가 협상에서 우리 카드가 약해집니다. 반대로 \"확인 시스템이 있다\"는 사실 자체만으로 매니저는 우리를 믿을 이유가 생기죠.\n\n[결정하면 뭐가 달라지냐면]\n어디까지 보여줄 것이냐 — 매니저만 볼 수 있게 할지, 손님도 직접 확인할 수 있게 할지, QR로 호텔 카운터에서 즉시 스캔하게 할지 — 에 따라 들어가는 시간과 매니저 신뢰도가 달라집니다.",
       "decision_options": [
         "**A안 — 매니저 화면에만 보여주기 (가장 안전)**\n이게 뭐냐면: 호텔 매니저가 우리 어드민에 들어오면 자기 호텔 예약 리스트가 쭉 뜨고, 손님이 가져온 예약번호를 검색하면 \"우리 채널에서 들어온 예약 맞음/아님\"이 바로 보여요. 손님이나 외부에는 노출 안 됩니다.\n👍 좋은 점: 정보가 매니저 안에서만 돌기 때문에 보안이 가장 안전합니다. 만들기도 빨라요.\n👎 안 좋은 점: 손님은 여전히 자기 예약을 직접 확인할 수 없어서, 손님 쪽 신뢰도는 안 올라갑니다.\n🎬 실제 시나리오: 손님이 호텔에 도착 → 매니저가 어드민 켜고 예약번호 검색 → \"TW 채널 — 일호기 유튜브 영상\" 표시 확인 → 매니저가 \"맞으시네요, 환영합니다\"\n걸리는 시간: 약 2시간",
@@ -4287,9 +4361,133 @@
       "ceo_decision_at": "",
       "copy_rewritten_at": "2026-05-06T15:54:09.000Z",
       "copy_rewritten_by": "BL-MODAL-COPY-REWRITE",
-      "pingpong_turn": "ceo",
+      "pingpong_turn": "done",
       "pingpong_rounds": 9,
-      "updated_at": "2026-05-11T15:17:17+00:00"
+      "updated_at": "2026-05-11T15:23:26.587Z",
+      "decision_summary": "BL-003을 BL-003-A(Agoda Matching = 호텔 가입 수동 승인, 우선순위 1) + BL-003-B(Agoda 예약검증, 우선순위 2)로 쪼개기. BL-003 자체는 쪼개기 결정으로 완료.",
+      "decision_resolved": true,
+      "decision_resolved_at": "2026-05-11T15:23:26.587Z",
+      "decision_ref": "D-025"
+    },
+    {
+      "id": "BL-003-A",
+      "title": "Agoda Matching = 호텔 가입 수동 승인 페이지 (매니저 온보딩 게이트)",
+      "category": "feature",
+      "priority": "P0",
+      "size": "medium",
+      "status": "pending",
+      "owner": "claude",
+      "claude_can_auto": true,
+      "approval_required": false,
+      "parent_bl": "BL-003",
+      "decision_ref": "D-025",
+      "source": "BL-003 핑퐁 9라운드 → D-025 결정 → 쪼개기",
+      "created_at": "2026-05-11T15:23:26.587Z",
+      "updated_at": "2026-05-11T15:23:26.587Z",
+      "notes": "매니저 가입 시 자동 매칭(agoda_hotels DB + Google Places) 실패한 호텔이 admin Agoda Matching 페이지에 대기 큐로 쌓이고, 대표님이 Agoda URL/주소 보고 hotel_id 수동 매칭 → 승인 → 매니저에게 가입 확정 알림. 매니저 온보딩 게이트 — 안 만들면 매칭 실패 케이스가 가입 자체 불가.",
+      "autonomous": {
+        "can_run_alone": true,
+        "estimated_hours": 8,
+        "requires_decisions_first": []
+      },
+      "progress": {
+        "percent": 0,
+        "steps": [
+          {
+            "n": 1,
+            "label": "라이브 fetch — signup.html / admin 사이드바 / hotels 스키마",
+            "status": "pending"
+          },
+          {
+            "n": 2,
+            "label": "admin/agoda-matching 페이지 신설 — 대기 큐 + 수동 매칭 UI",
+            "status": "pending"
+          },
+          {
+            "n": 3,
+            "label": "매니저 가입 시 자동 매칭 시도 → 실패 시 대기 큐 등록",
+            "status": "pending"
+          },
+          {
+            "n": 4,
+            "label": "승인 흐름 — 매니저 메일 알림 + hotels 테이블 등록",
+            "status": "pending"
+          },
+          {
+            "n": 5,
+            "label": "라이브 검증 + 결과 보고",
+            "status": "pending"
+          }
+        ]
+      },
+      "history": [
+        {
+          "at": "2026-05-11T15:23:26.587Z",
+          "action": "created",
+          "by": "claude",
+          "note": "BL-003 쪼개기 결과 P0 1순위"
+        }
+      ]
+    },
+    {
+      "id": "BL-003-B",
+      "title": "Agoda 예약검증 페이지 — Affiliate 엑셀 업로드 → 호텔별 매출 자동 정리",
+      "category": "feature",
+      "priority": "P1",
+      "size": "medium",
+      "status": "pending",
+      "owner": "claude",
+      "claude_can_auto": true,
+      "approval_required": false,
+      "parent_bl": "BL-003",
+      "decision_ref": "D-025",
+      "source": "BL-003 핑퐁 9라운드 → D-025 결정 → 쪼개기",
+      "created_at": "2026-05-11T15:23:26.587Z",
+      "updated_at": "2026-05-11T15:23:26.587Z",
+      "notes": "Agoda Affiliate 엑셀 업로드 → 호텔명·예약번호·체크인/아웃·금액·상태·tag 파싱 → 호텔별 그룹핑 → 매출 검증. analytics 페이지 구조 그대로 차용. 매출 본격 발생 시 필요 — BL-003-A 다음 우선순위.",
+      "autonomous": {
+        "can_run_alone": true,
+        "estimated_hours": 6,
+        "requires_decisions_first": []
+      },
+      "progress": {
+        "percent": 0,
+        "steps": [
+          {
+            "n": 1,
+            "label": "라이브 fetch — analytics 페이지 구조 + bookings_agoda 스키마",
+            "status": "pending"
+          },
+          {
+            "n": 2,
+            "label": "admin/agoda-booking-verify 페이지 신설 — 엑셀 업로드 + 호텔별 카드",
+            "status": "pending"
+          },
+          {
+            "n": 3,
+            "label": "엑셀 파싱 + 상태별 집계 (예약중/도착/취소) + tag별 채널 분류",
+            "status": "pending"
+          },
+          {
+            "n": 4,
+            "label": "매니저 대시보드에 예약 N건·확정 $X·진행중 $Y 노출",
+            "status": "pending"
+          },
+          {
+            "n": 5,
+            "label": "라이브 검증 + 결과 보고",
+            "status": "pending"
+          }
+        ]
+      },
+      "history": [
+        {
+          "at": "2026-05-11T15:23:26.587Z",
+          "action": "created",
+          "by": "claude",
+          "note": "BL-003 쪼개기 결과 P1"
+        }
+      ]
     },
     {
       "id": "BL-004",

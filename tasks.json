@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-11T16:29:29+00:00",
+  "updated_at": "2026-05-11T16:31:00.068Z",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -12,17 +12,73 @@
     "SOLO_WORK_QUEUE.md"
   ],
   "stats": {
-    "total": 178,
+    "total": 179,
     "done": 132,
-    "in_progress": 1,
+    "in_progress": 2,
     "pending": 28,
     "blocked": 10,
     "autonomous_ready": 21,
     "todo": 0,
     "cancelled": 0,
-    "updated_at": "2026-05-11T16:29:14.548Z"
+    "updated_at": "2026-05-11T16:31:00.068Z",
+    "paused": 1
   },
   "tasks": [
+    {
+      "id": "BL-DECISION-CONFIRM-D026-FIX",
+      "title": "D-026 결정 본문 정정 — 진단 테스트로 박힌 결정 즉시 복구",
+      "category": "fix",
+      "priority": "P0",
+      "size": "small",
+      "status": "in_progress",
+      "owner": "claude",
+      "claude_can_auto": true,
+      "approval_required": false,
+      "chatlog_exempt": true,
+      "source": "대표님 직접 보고 (2026-05-11) — 결정 확정 또 실패 → Chrome 진단 중 API 테스트가 D-026 박음",
+      "created_at": "2026-05-11T16:31:00.068Z",
+      "updated_at": "2026-05-11T16:31:00.068Z",
+      "started_at": "2026-05-11T16:31:00.068Z",
+      "progress": {
+        "percent": 0,
+        "steps": [
+          {
+            "n": 1,
+            "label": "진단 — getAdminAccessToken/API 정상, D-026 박힘 확인",
+            "status": "done"
+          },
+          {
+            "n": 2,
+            "label": "DECISIONS.md D-026 본문 정정",
+            "status": "done"
+          },
+          {
+            "n": 3,
+            "label": "tasks.json BL-ADMIN-AUTH decision_summary 정정",
+            "status": "done"
+          },
+          {
+            "n": 4,
+            "label": "commit + push + 대표님 보고",
+            "status": "pending"
+          }
+        ]
+      },
+      "history": [
+        {
+          "at": "2026-05-11T16:31:00.068Z",
+          "action": "created",
+          "by": "claude",
+          "note": "P0 즉시 정정"
+        },
+        {
+          "at": "2026-05-11T16:31:00.068Z",
+          "action": "progress",
+          "by": "claude",
+          "note": "단계 1·2·3 완료"
+        }
+      ]
+    },
     {
       "id": "BL-ADMIN-TOKEN-SCOPE-FIX",
       "title": "getAdminAccessToken 스코프 결함 — paused-resume-btn 등 6개 호출 위치에서 is not defined",
@@ -5831,7 +5887,7 @@
       "parent_task": null,
       "blocker": null,
       "created_at": "2026-05-04T16:13:23Z",
-      "updated_at": "2026-05-11T16:29:29+00:00",
+      "updated_at": "2026-05-11T16:31:00.068Z",
       "claude_can_auto": false,
       "owner": "ceo_decision_required",
       "approval_required": true,
@@ -5888,9 +5944,15 @@
           "by": "auto-detect-bot",
           "commit": "8ae358c",
           "note": "feat(D-026): BL-ADMIN-AUTH 결정 확정 — a안으로 갑니다. 박을 것 3가지: 접속 로그, 실행 로그, admin-status 페이지"
+        },
+        {
+          "at": "2026-05-11T16:31:00.068Z",
+          "action": "decision_summary_cleaned",
+          "by": "claude (rescue)",
+          "note": "BL-DECISION-CONFIRM-D026-FIX: 진단 테스트 표식 제거 + 정식 본문으로 정정"
         }
       ],
-      "decision_summary": "a안으로 갑니다. 박을 것 3가지: 접속 로그, 실행 로그, admin-status 페이지 하단 최근 활동 박스. 권한은 CEO(전체) / Staff(제한) 두 단계. (테스트 호출 — 실제 결정 박을 때 같은 결과인지 진단)",
+      "decision_summary": "A안 채택 (2단계 권한 CEO/Staff). 박을 것 3가지: ①접속 로그(누가 언제 admin 들어왔나) ②실행 로그(누가 언제 무슨 버튼 눌렀나 — 호텔 승인·삭제·수정 등 중요 액션) ③admin-status 페이지 하단 \"최근 활동\" 박스에 시간순으로 한 줄씩 표시. 권한은 이메일로 구분되니까 로그에 자동으로 누가 했는지 박힘.",
       "started_at": "2026-05-11T16:29:14.548Z",
       "progress_warning": {
         "code": "MISSING_PROGRESS_STEPS",

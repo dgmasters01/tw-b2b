@@ -140,9 +140,27 @@ function scoreRecency(filePath, relPath) {
 // ────────────────────────────────────────────────────────────
 // 페이지 1개 종합 평가
 // ────────────────────────────────────────────────────────────
+//
+// 경로 해석 (BL-AUTO-PAGE-STATUS-ADMIN, 2026-05-11):
+//   page.path는 URL 경로 (/admin.html 등). repo 루트에 파일이 있으면 그대로 사용.
+//   없으면 _admin/{basename} fallback — admin-* 페이지들은 BL-REAL-SYSTEM Phase α
+//   (ea0d31f, 2026-05-09)에서 Vercel 정적 파일 우선처리 회피를 위해 _admin/ 폴더로
+//   이동되었고, api/admin-page.js의 PAGE_FILE_MAP이 URL→파일 매핑을 보유.
+//   scan 스크립트도 같은 매핑 규칙을 따라야 점수가 실제 페이지 본체를 반영.
+function resolvePageFile(urlPath) {
+  const relPath = urlPath.replace(/^\//, '');
+  // 1차: repo root (대부분 페이지)
+  const rootPath = resolve(REPO_ROOT, relPath);
+  if (existsSync(rootPath)) return { filePath: rootPath, relPath };
+  // 2차: _admin/ 폴더 (BL-REAL-SYSTEM Phase α 이후 admin-* 페이지들)
+  const adminPath = resolve(REPO_ROOT, '_admin', relPath);
+  if (existsSync(adminPath)) return { filePath: adminPath, relPath: `_admin/${relPath}` };
+  // 둘 다 없음 — root 경로 반환 (기존 동작 보존: scoreStructure가 0점 박음)
+  return { filePath: rootPath, relPath };
+}
+
 function evaluatePage(page) {
-  const relPath = page.path.replace(/^\//, '');
-  const filePath = resolve(REPO_ROOT, relPath);
+  const { filePath, relPath } = resolvePageFile(page.path);
   const html = existsSync(filePath) ? readFileSync(filePath, 'utf8') : '';
 
   const dim = {

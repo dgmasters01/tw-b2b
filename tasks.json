@@ -9093,17 +9093,17 @@
     },
     {
       "id": "BL-AUTO-PAGE-STATUS-ADMIN",
-      "title": "[자동] 페이지 /admin.html 완성도 14점 (약함: structure)",
+      "title": "[자동] 점검 봇이 admin 페이지 7개를 \"파일 없음\"으로 잘못 판단 — _admin/ 폴더 fallback 추가",
       "category": "infrastructure",
       "priority": "P0",
-      "status": "pending",
+      "status": "in_progress",
       "claude_can_auto": true,
       "approval_required": false,
       "owner": "claude",
       "size": "small",
       "source": "auto_from_page_status",
       "created_at": "2026-05-11T03:56:28.755Z",
-      "updated_at": "2026-05-11T03:56:28.755Z",
+      "updated_at": "2026-05-11T04:18:27.953Z",
       "deadline": null,
       "order": null,
       "blocker": null,
@@ -9114,8 +9114,34 @@
       },
       "decision_ref": "D-024",
       "progress": {
-        "percent": 0,
-        "steps": []
+        "percent": 80,
+        "steps": [
+          {
+            "n": 1,
+            "title": "결함 정밀 분석 (admin 7개 모두 14점, _admin/ 이동 모름)",
+            "status": "done"
+          },
+          {
+            "n": 2,
+            "title": "scan-pages-status.mjs evaluatePage에 _admin/ fallback 추가",
+            "status": "done"
+          },
+          {
+            "n": 3,
+            "title": "스캔 로컬 실행 → admin 7개 점수 끌어올림 검증",
+            "status": "done"
+          },
+          {
+            "n": 4,
+            "title": "commit + push (scan-bot 자동 재실행)",
+            "status": "done"
+          },
+          {
+            "n": 5,
+            "title": "라이브 점검 봇 green 전환 + 자동 close 검증",
+            "status": "pending"
+          }
+        ]
       },
       "history": [
         {
@@ -9123,9 +9149,21 @@
           "by": "auto-task-bot",
           "action": "created",
           "detail": "페이지 /admin.html 완성도 14점 (약함: structure)"
+        },
+        {
+          "at": "2026-05-11T04:17:51.270Z",
+          "action": "started",
+          "by": "claude",
+          "note": "단계 1 완료 (결함 분석) — admin 7개 모두 14점이 본질, scan 스크립트 fix가 정석"
+        },
+        {
+          "at": "2026-05-11T04:18:27.953Z",
+          "action": "progress",
+          "by": "claude",
+          "note": "단계 2·3·4 완료: scan 스크립트 fix + 로컬 검증 (admin 7개 14→평균 76점) + commit 준비"
         }
       ],
-      "notes": "scan-bot 자동 등록 (2026-05-11T03:56:28.755Z)\n\n페이지: /admin.html\n점수: 14\n약점: structure\n\n진단 hint: scan-pages-status.mjs 결과. 약점 차원 보강 필요."
+      "notes": "scan-bot 자동 등록 (2026-05-11T03:56:28.755Z)\n\n페이지: /admin.html\n점수: 14\n약점: structure\n\n진단 hint: scan-pages-status.mjs 결과. 약점 차원 보강 필요.\n\n[2026-05-11 정밀 분석]\n결함 본질: scan-pages-status.mjs가 _admin/ 폴더 이동(BL-REAL-SYSTEM Phase α ea0d31f)을 모르고 repo root만 봐서, admin 7개 페이지 모두 structure: 0 (파일 없음) → 14점.\nfix: evaluatePage에서 repo root에 파일 없으면 _admin/{basename} fallback."
     },
     {
       "id": "BL-AUTO-PAGE-STATUS-ADMIN-GALLERY",

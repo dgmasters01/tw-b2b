@@ -12,15 +12,16 @@
     "SOLO_WORK_QUEUE.md"
   ],
   "stats": {
-    "total": 143,
-    "done": 108,
-    "in_progress": 1,
+    "total": 144,
+    "done": 109,
+    "in_progress": 0,
+    "paused": 1,
     "pending": 22,
     "blocked": 11,
-    "autonomous_ready": 23,
+    "autonomous_ready": 22,
     "todo": 0,
     "cancelled": 0,
-    "updated_at": "2026-05-11T00:22:10.480Z"
+    "updated_at": "2026-05-11T01:02:47.000Z"
   },
   "tasks": [
     {
@@ -4527,7 +4528,9 @@
       "last_chat_log": "2026-05-06-bl-status-interactive",
       "progress": "Phase A에서 만든 결정 입력 모달을 풀 사양으로 강화. 현재 모달은 '결정 사유가 명시되지 않았습니다'만 표시되어 대표님이 무엇을 결정해야 하는지 알 수 없음. V2에서 결정 맥락(작업 내용/옵션/트레이드오프)을 좌측에 표시하고, 우측에 입력란을 두어 좌측 보면서 우측에 답할 수 있도록 함. 저장 시 tasks.json 자동 갱신 + approval_required:false + 자율 큐 자동 이관.\n\n[2026-05-06 split] Phase A 완료, Phase B/C는 별도 작업(BL-DECISION-MODAL-V2-PHASE-B/-C)으로 분리. 부모 작업 done 처리.",
       "notes": "## V2 풀 사양\n\n### 1. UI - 좌우 분할 모달 (모바일은 위아래)\n- 좌측: 결정 맥락 패널\n  - 작업 ID / 카테고리 / 우선순위 / 사이즈 / 예상 시간 (헤더)\n  - 작업 제목\n  - 무엇을 결정해야 하는가 (decision_context 필드)\n  - 옵션 목록 (decision_options 필드)\n  - 권장 안 (decision_recommendation 필드)\n  - 트레이드오프 (각 옵션의 장단점)\n- 우측: 입력 패널\n  - textarea (대표님이 결정 적기)\n  - [💾 결정 저장 + 자율 큐 이관] 버튼\n  - 보조: [📋 클립보드만 복사] 버튼 (V1 호환)\n\n### 2. tasks.json 신설 필드\n- decision_context: '이 작업은 무엇을 결정해야 하는가' (사업적 맥락 / 사용자 영향)\n- decision_options: ['A안: ...', 'B안: ...', 'C안: ...'] 배열\n- decision_recommendation: '권장: A안 — 이유...'\n- ceo_decision: 대표님이 입력한 결정 사항 (저장 시 채워짐)\n- ceo_decision_at: ISO 시각 (저장 시 채워짐)\n\n### 3. 저장 동작 (자동)\n- POST /api/tasks/save-decision endpoint 신설 (또는 GitHub Contents API 직접 사용)\n- task.ceo_decision = 입력값\n- task.ceo_decision_at = new Date().toISOString()\n- task.approval_required = false (막힘 해제)\n- commit + push\n- 5초 폴링으로 자율 큐에 자동 등장\n\n### 4. 모달 마지막 안내\n저장 완료 → '✅ 결정 저장됨. 자율 큐에서 [작업명] 카드 클릭 → 새 채팅에 Cmd+V 하시면 작업이 시작됩니다.' + [지금 자율 큐에서 보기] 버튼 (스크롤 이동)\n\n### 5. decision_context 비어있는 작업 처리\n- 모달 좌측에 '이 작업은 결정 맥락이 정리되지 않았습니다' 안내\n- [📤 Claude에게 결정 사항 정리 요청] 버튼\n  → 클립보드에 '[결정 맥락 정리 요청 — {id}] tasks.json의 decision_context / decision_options / decision_recommendation 채워줘' 포맷 복사\n  → 대표님이 새 채팅에 붙여넣기 → Claude가 채워서 commit\n  → 5초 후 자동 갱신, 모달 다시 열면 풀 맥락 표시됨\n\n### 6. 직전 채팅(BL-STATUS-INTERACTIVE) 좌표 메모\n- 모달 함수: openCeoDecisionModal (admin-status.html line ~2069)\n- 모달 CSS: .ceo-decision-* (admin-status.html line ~872 근처)\n- 결정 대기 카드 클릭 핸들러: line 2055\n- pollTick: line 3322 (V2 저장 후 STATE.data 동기화 함께 호출)\n\n### 7. 백엔드 API (선택)\n- 옵션 A: GitHub Contents API 직접 호출 (현재 admin-status.html이 하는 방식)\n- 옵션 B: /api/tasks/save-decision Vercel function 신설 (인증 + 검증 강화)\n- 권장: 옵션 B (보안 + 향후 확장)\n\n### 8. 자체 검증 의무 (헌법 12조)\n- JS 문법 / JSON 검증 / Vercel READY / 라이브 fetch / 데이터 정확성 (decision 저장 후 다시 fetch해서 값 확인) / 시각 변경 trace / boundary (decision_context 빈 작업 / 한글 입력 / 매우 긴 입력 / 저장 실패 폴백)\n\n### 9. Phase 분할 권장\n- Phase A (small, ~1h): tasks.json 5개 신설 필드 + 1~2개 작업에 샘플 채우기 + UI는 일단 좌측 패널만 표시\n- Phase B (medium, ~1h): 좌우 분할 UI 풀 구현 + 모바일 반응형\n- Phase C (medium, ~1h): 저장 동작 자동화 (GitHub Contents API 또는 /api 신설) + 폴링 갱신 + 안내 화면\n\n### 10. 대표님 검증 요청\n- 결정 대기 카드 클릭 → 모달 좌측에 결정 맥락 보이는지\n- 우측 입력란에 적고 [결정 저장] → 5초 후 자율 큐에 자동 이동하는지\n- decision_context 빈 작업 → '정리 요청' 버튼 정상 동작하는지",
-      "source": "결정 모달 V2 — 그림 맞추기 OS 도입 결정"
+      "source": "결정 모달 V2 — 그림 맞추기 OS 도입 결정",
+      "created_at": "2026-05-10T09:00:00.000Z",
+      "source_recovered": true
     },
     {
       "id": "BL-LIVE-STATUS-PANEL",
@@ -4574,7 +4577,9 @@
         }
       ],
       "completed_at": "2026-05-06T14:17:15+00:00",
-      "source": "라이브 상태 패널 도입 결정"
+      "source": "라이브 상태 패널 도입 결정",
+      "created_at": "2026-05-10T09:00:00.000Z",
+      "source_recovered": true
     },
     {
       "id": "BL-LIVE-STATUS-AUTO-DETECT",
@@ -4620,7 +4625,9 @@
         }
       ],
       "completed_at": "2026-05-06T14:17:15+00:00",
-      "source": "BL-LIVE-STATUS-PANEL 후속 — auto-detect 봇 도입"
+      "source": "BL-LIVE-STATUS-PANEL 후속 — auto-detect 봇 도입",
+      "created_at": "2026-05-10T09:00:00.000Z",
+      "source_recovered": true
     },
     {
       "id": "BL-MODAL-COPY-REWRITE",
@@ -4670,7 +4677,9 @@
           "note": "fix(BL-DECISION-MODAL-V2-PHASE-B): in_progress 박기 + 17개 작업 order 보정"
         }
       ],
-      "source": "BL-DECISION-MODAL-V2 후속 — 카피 재작성"
+      "source": "BL-DECISION-MODAL-V2 후속 — 카피 재작성",
+      "created_at": "2026-05-10T09:00:00.000Z",
+      "source_recovered": true
     },
     {
       "id": "BL-DECISION-MODAL-V2-PHASE-B",
@@ -4832,7 +4841,9 @@
         "total_count": 8,
         "updated_at": "2026-05-06T18:56:26+00:00"
       },
-      "source": "BL-DECISION-MODAL-V2 Phase B"
+      "source": "BL-DECISION-MODAL-V2 Phase B",
+      "created_at": "2026-05-10T09:00:00.000Z",
+      "source_recovered": true
     },
     {
       "id": "BL-DECISION-MODAL-V2-PHASE-C",
@@ -4872,7 +4883,9 @@
           "note": "fix(BL-DECISION-MODAL-V2-PHASE-B): in_progress 박기 + 17개 작업 order 보정"
         }
       ],
-      "source": "BL-DECISION-MODAL-V2 Phase C"
+      "source": "BL-DECISION-MODAL-V2 Phase C",
+      "created_at": "2026-05-10T09:00:00.000Z",
+      "source_recovered": true
     },
     {
       "id": "BL-ACTIVITY-LOG-DUAL-LANG",
@@ -4910,7 +4923,9 @@
           "note": "fix(BL-DECISION-MODAL-V2-PHASE-B): in_progress 박기 + 17개 작업 order 보정"
         }
       ],
-      "source": "BL-CHAT-LOG-SYSTEM 후속 — 활동 로그 이중 언어"
+      "source": "BL-CHAT-LOG-SYSTEM 후속 — 활동 로그 이중 언어",
+      "created_at": "2026-05-10T09:00:00.000Z",
+      "source_recovered": true
     },
     {
       "id": "BL-MODAL-EMPTY-FILL",
@@ -4948,7 +4963,9 @@
           "note": "fix(BL-DECISION-MODAL-V2-PHASE-B): in_progress 박기 + 17개 작업 order 보정"
         }
       ],
-      "source": "BL-DECISION-MODAL-V2 후속 — 빈 상태 채움"
+      "source": "BL-DECISION-MODAL-V2 후속 — 빈 상태 채움",
+      "created_at": "2026-05-10T09:00:00.000Z",
+      "source_recovered": true
     },
     {
       "id": "BL-OS-DETAILS-DOC",
@@ -4986,7 +5003,9 @@
           "note": "fix(BL-DECISION-MODAL-V2-PHASE-B): in_progress 박기 + 17개 작업 order 보정"
         }
       ],
-      "source": "OS 모듈화 세부 문서화 결정"
+      "source": "OS 모듈화 세부 문서화 결정",
+      "created_at": "2026-05-10T09:00:00.000Z",
+      "source_recovered": true
     },
     {
       "id": "BL-OS-5MENU-EXPAND",
@@ -5027,7 +5046,9 @@
           "note": "fix(BL-DECISION-MODAL-V2-PHASE-B): in_progress 박기 + 17개 작업 order 보정"
         }
       ],
-      "source": "OS 5메뉴 확장 결정"
+      "source": "OS 5메뉴 확장 결정",
+      "created_at": "2026-05-10T09:00:00.000Z",
+      "source_recovered": true
     },
     {
       "id": "BL-PROGRESS-SYNC-OS",
@@ -5126,7 +5147,9 @@
           "commit": "c173e3c",
           "note": "merge: 봇 commit 9c65f63 통합 + BL-PROGRESS-SYNC-OS done 강제 보장"
         }
-      ]
+      ],
+      "created_at": "2026-05-10T09:00:00.000Z",
+      "source_recovered": true
     },
     {
       "id": "BL-PROGRESS-AUTO-DONE-SYNC",
@@ -5237,7 +5260,9 @@
       "started_at": "2026-05-06T19:17:16+00:00",
       "updated_at": "2026-05-06T19:20:57+00:00",
       "completed_at": "2026-05-06T19:20:57+00:00",
-      "source": "운영 중 발견 — progress 100% 후 status 자동 동기화 누락"
+      "source": "운영 중 발견 — progress 100% 후 status 자동 동기화 누락",
+      "created_at": "2026-05-10T09:00:00.000Z",
+      "source_recovered": true
     },
     {
       "id": "BL-OS-AUTO-SYNC-CHARTER",
@@ -5365,7 +5390,9 @@
         }
       ],
       "updated_at": "2026-05-06T20:03:38+00:00",
-      "source": "OPERATIONS_CHARTER.md 부칙 8 — 자동 동기화 완성도 신설"
+      "source": "OPERATIONS_CHARTER.md 부칙 8 — 자동 동기화 완성도 신설",
+      "created_at": "2026-05-10T09:00:00.000Z",
+      "source_recovered": true
     },
     {
       "id": "BL-SYNC-PAGES-STATUS",
@@ -5453,7 +5480,9 @@
       "started_at": "2026-05-06T20:03:00+00:00",
       "updated_at": "2026-05-07T01:07:54+00:00",
       "completed_at": "2026-05-07T01:07:54+00:00",
-      "source": "BL-OS-AUTO-SYNC-CHARTER 전수 점검 중 발견"
+      "source": "BL-OS-AUTO-SYNC-CHARTER 전수 점검 중 발견",
+      "created_at": "2026-05-10T09:00:00.000Z",
+      "source_recovered": true
     },
     {
       "id": "BL-SYNC-INPROGRESS-COMMITS",
@@ -5506,7 +5535,9 @@
           "note": "audit 리포트 #2 MEDIUM"
         }
       ],
-      "source": "BL-OS-AUTO-SYNC-CHARTER 전수 점검 중 발견"
+      "source": "BL-OS-AUTO-SYNC-CHARTER 전수 점검 중 발견",
+      "created_at": "2026-05-10T09:00:00.000Z",
+      "source_recovered": true
     },
     {
       "id": "BL-SYNC-CHAT-LOGS-TAB",
@@ -5565,7 +5596,9 @@
           "note": "audit 리포트 #3 LOW"
         }
       ],
-      "source": "BL-OS-AUTO-SYNC-CHARTER 전수 점검 중 발견"
+      "source": "BL-OS-AUTO-SYNC-CHARTER 전수 점검 중 발견",
+      "created_at": "2026-05-10T09:00:00.000Z",
+      "source_recovered": true
     },
     {
       "id": "BL-OS-PHASE-0",
@@ -7516,7 +7549,9 @@
           "note": "feat(BL-HUMAN-TAB-ALWAYS-SHOW): 작업 완료 — chat-log 박기 + status=done + D-023 부분 무효화 메모"
         }
       ],
-      "last_chat_log": "2026-05-10-bl-human-tab-always-show"
+      "last_chat_log": "2026-05-10-bl-human-tab-always-show",
+      "created_at": "2026-05-10T09:00:00.000Z",
+      "source_recovered": true
     },
     {
       "id": "BL-DECISION-MODAL-PINGPONG",
@@ -7652,7 +7687,7 @@
       "category": "fix",
       "priority": "P1",
       "size": "small",
-      "status": "in_progress",
+      "status": "paused",
       "autonomous": true,
       "approval_required": false,
       "estimated_hours": 0.5,
@@ -7700,7 +7735,11 @@
           "commit": "8138436",
           "note": "fix(BL-OPS-MAIL-QUOTA-FIX): ops 메일 워크플로 임시 비활성화 (Resend 일일 한도 200% 초과)"
         }
-      ]
+      ],
+      "paused_at": "2026-05-11T01:02:47.000Z",
+      "paused_reason": "BL-AUTO-REORDER-PAUSE (자동 재정렬 시스템) 박는 동안 자동 보류",
+      "paused_progress": 0,
+      "paused_step": 0
     },
     {
       "id": "BL-PINGPONG-RESULT-VISIBLE",
@@ -8214,6 +8253,55 @@
           "note": "fix(BL-PINGPONG-BL-ISOLATION): BL별 격리 강화 — 다른 BL 모달에 이전 BL 데이터 보이는 사고 fix [step:done:1] [step:done:2] [step:done:3]"
         }
       ]
+    },
+    {
+      "id": "BL-AUTO-REORDER-PAUSE",
+      "title": "실시간 우선순위 자동 재정렬 + 잠시 멈춤 시스템 — 작업 길 잃지 않게",
+      "category": "infra",
+      "priority": "P0",
+      "size": "medium",
+      "status": "done",
+      "autonomous": true,
+      "approval_required": false,
+      "estimated_hours": 0.75,
+      "why": "대표님 진단 2026-05-10: 새 P0 작업이 들어오면 이전 진행 중이 사라짐. 작업이 길을 잃음. 정석: paused 카테고리 신설 → 새 P0 들어오면 이전 진행 중 자동으로 paused로 강등. 어디서 멈췄는지 기록. 이어가기 버튼. 헌법 부칙에 박음.",
+      "progress": {
+        "percent": 100,
+        "steps": [
+          {
+            "name": "1. tasks.json — paused 상태 신규 + 기존 in_progress 점검",
+            "status": "done"
+          },
+          {
+            "name": "2. api/decision.js — bl-promote-p0 액션 (자동 재정렬)",
+            "status": "done"
+          },
+          {
+            "name": "3. admin-status.html — \"⏸️ 잠시 멈춤\" 박스 신규 (큰 카드)",
+            "status": "done"
+          },
+          {
+            "name": "4. 어디서 멈췄는지 기록 — paused_at, paused_step, paused_reason",
+            "status": "done"
+          },
+          {
+            "name": "5. 이어가기 버튼 — 클릭 시 in_progress 복원 + 인계서 자동 복사",
+            "status": "done"
+          },
+          {
+            "name": "6. 헌법 부칙 — 새 P0 박을 때 자동 재정렬 규칙",
+            "status": "done"
+          },
+          {
+            "name": "7. 라이브 검증",
+            "status": "done"
+          }
+        ]
+      },
+      "created_at": "2026-05-10T18:00:00.000Z",
+      "started_at": "2026-05-10T18:00:00.000Z",
+      "decision_summary": "자동 재정렬 + 잠시 멈춤 박스 + 이어가기 — 작업 길 잃지 않게",
+      "completed_at": "2026-05-11T01:02:47.000Z"
     }
   ]
 }

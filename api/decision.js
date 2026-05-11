@@ -372,6 +372,118 @@ async function handlePingpongClear(req, res) {
   return res.status(200).json({ ok: true, deleted, task_id });
 }
 
+// ============================================================
+// HANDLER 7·8·9: BL-AUTO-REORDER-PAUSE (2026-05-10)
+// ============================================================
+// 자동 재정렬 + 잠시 멈춤 시스템:
+// - bl-promote-p0: 새 P0 작업을 in_progress로 승격 + 기존 in_progress는 paused로
+// - bl-pause: 특정 BL을 paused 상태로 (어디서 멈췄는지 기록)
+// - bl-resume: paused BL을 in_progress로 복원
+
+async function handleBlPromoteP0(req, res) {
+  const { task_id, reason } = req.body || {};
+  if (!task_id) return res.status(400).json({ error: 'task_id required' });
+
+  const tj = await ghRead('tasks.json');
+  if (!tj) return res.status(500).json({ error: 'tasks.json 읽기 실패' });
+  const data = JSON.parse(tj.content);
+
+  const target = data.tasks.find(t => t.id === task_id);
+  if (!target) return res.status(404).json({ error: `${task_id} 없음` });
+
+  // 1) 기존 in_progress 작업들 → paused로 강등 (어디서 멈췄는지 기록)
+  const paused = [];
+  for (const t of data.tasks) {
+    if (t.status === 'in_progress' && t.id !== task_id) {
+      t.status = 'paused';
+      t.paused_at = new Date().toISOString();
+      t.paused_reason = reason || `${task_id} 긴급 승격으로 자동 보류`;
+      t.paused_progress = t.progress?.percent || 0;
+      // 어느 단계에서 멈췄는지 찾기
+      const lastDoneStep = (t.progress?.steps || []).findIndex(s => s.status !== 'done');
+      t.paused_step = lastDoneStep >= 0 ? lastDoneStep : (t.progress?.steps?.length || 0);
+      paused.push(t.id);
+    }
+  }
+
+  // 2) target을 in_progress + P0로
+  target.status = 'in_progress';
+  target.priority = 'P0';
+  if (!target.started_at) target.started_at = new Date().toISOString();
+  // paused에서 돌아온 거면 paused 마커 정리
+  delete target.paused_at;
+  delete target.paused_reason;
+  delete target.paused_progress;
+  delete target.paused_step;
+
+  data.stats = recalcStats(data.tasks);
+  await ghWrite('tasks.json', JSON.stringify(data, null, 2), tj.sha,
+    `promote-p0(${task_id}): 자동 재정렬 — ${paused.length}건 paused로 강등`);
+
+  return res.status(200).json({
+    ok: true, promoted: task_id, paused, reason: reason || 'auto'
+  });
+}
+
+async function handleBlPause(req, res) {
+  const { task_id, reason } = req.body || {};
+  if (!task_id) return res.status(400).json({ error: 'task_id required' });
+
+  const tj = await ghRead('tasks.json');
+  if (!tj) return res.status(500).json({ error: 'tasks.json 읽기 실패' });
+  const data = JSON.parse(tj.content);
+  const target = data.tasks.find(t => t.id === task_id);
+  if (!target) return res.status(404).json({ error: `${task_id} 없음` });
+
+  target.status = 'paused';
+  target.paused_at = new Date().toISOString();
+  target.paused_reason = reason || '수동 보류';
+  target.paused_progress = target.progress?.percent || 0;
+  const lastDoneStep = (target.progress?.steps || []).findIndex(s => s.status !== 'done');
+  target.paused_step = lastDoneStep >= 0 ? lastDoneStep : (target.progress?.steps?.length || 0);
+
+  data.stats = recalcStats(data.tasks);
+  await ghWrite('tasks.json', JSON.stringify(data, null, 2), tj.sha,
+    `pause(${task_id}): 잠시 멈춤 — ${target.paused_reason}`);
+  return res.status(200).json({ ok: true, task_id, paused_step: target.paused_step });
+}
+
+async function handleBlResume(req, res) {
+  const { task_id } = req.body || {};
+  if (!task_id) return res.status(400).json({ error: 'task_id required' });
+
+  const tj = await ghRead('tasks.json');
+  if (!tj) return res.status(500).json({ error: 'tasks.json 읽기 실패' });
+  const data = JSON.parse(tj.content);
+  const target = data.tasks.find(t => t.id === task_id);
+  if (!target) return res.status(404).json({ error: `${task_id} 없음` });
+
+  // 기존 in_progress가 있으면 paused로 (자동 재정렬)
+  const paused = [];
+  for (const t of data.tasks) {
+    if (t.status === 'in_progress' && t.id !== task_id) {
+      t.status = 'paused';
+      t.paused_at = new Date().toISOString();
+      t.paused_reason = `${task_id} 이어가기로 자동 보류`;
+      t.paused_progress = t.progress?.percent || 0;
+      paused.push(t.id);
+    }
+  }
+
+  // target을 in_progress로 복원
+  target.status = 'in_progress';
+  const prevStep = target.paused_step;
+  delete target.paused_at;
+  delete target.paused_reason;
+  delete target.paused_progress;
+  delete target.paused_step;
+
+  data.stats = recalcStats(data.tasks);
+  await ghWrite('tasks.json', JSON.stringify(data, null, 2), tj.sha,
+    `resume(${task_id}): 이어가기 — 단계 ${prevStep}부터`);
+  return res.status(200).json({ ok: true, task_id, resumed_step: prevStep, paused });
+}
+
 async function handleQuickTask(req, res) {
   const { text } = req.body || {};
   if (!text || text.trim().length < 5) {
@@ -463,10 +575,23 @@ export default async function handler(req, res) {
         if (req.method !== 'POST') return res.status(405).json({ error: 'POST only' });
         return await handlePingpongClear(req, res);
 
+      // ★ BL-AUTO-REORDER-PAUSE (2026-05-10): 자동 재정렬 + 잠시 멈춤 액션
+      case 'bl-promote-p0':
+        if (req.method !== 'POST') return res.status(405).json({ error: 'POST only' });
+        return await handleBlPromoteP0(req, res);
+
+      case 'bl-pause':
+        if (req.method !== 'POST') return res.status(405).json({ error: 'POST only' });
+        return await handleBlPause(req, res);
+
+      case 'bl-resume':
+        if (req.method !== 'POST') return res.status(405).json({ error: 'POST only' });
+        return await handleBlResume(req, res);
+
       default:
         return res.status(400).json({
           error: 'unknown action',
-          available: ['bl-create', 'pingpong-round', 'pingpong-load', 'decision-confirm', 'quick-task', 'pingpong-clear']
+          available: ['bl-create', 'pingpong-round', 'pingpong-load', 'decision-confirm', 'quick-task', 'pingpong-clear', 'bl-promote-p0', 'bl-pause', 'bl-resume']
         });
     }
   } catch (e) {

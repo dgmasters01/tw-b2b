@@ -196,6 +196,39 @@
     border-radius: 10px; padding: 14px; margin-bottom: 14px;
     display: none;  /* 진행 중 작업 있을 때만 JS가 표시 */
   }
+
+  /* ★ BL-AUTO-REORDER-PAUSE (2026-05-10): 잠시 멈춤 박스 */
+  .paused-box {
+    background: linear-gradient(135deg, rgba(245,158,11,0.10), rgba(217,119,6,0.04));
+    border: 1px solid rgba(245,158,11,0.45);
+    border-radius: 10px; padding: 14px; margin-bottom: 14px;
+  }
+  .paused-head { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+  .paused-pill {
+    background: rgba(245,158,11,0.28) !important; color: #fbbf24 !important;
+    font-size: 11px !important; padding: 3px 9px !important; border-radius: 4px !important; font-weight: 600 !important;
+  }
+  .paused-subtitle { font-size: 11.5px; color: var(--text-muted); }
+  .paused-list { display: flex; flex-direction: column; gap: 8px; }
+  .paused-item {
+    background: rgba(245,158,11,0.06);
+    border: 1px solid rgba(245,158,11,0.25);
+    border-radius: 8px; padding: 10px 14px;
+    display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  }
+  .paused-item-title { flex: 1; font-weight: 600; font-size: 13px; color: var(--text-bright); }
+  .paused-item-meta { font-size: 11px; color: var(--text-muted); display: flex; gap: 12px; }
+  .paused-item-meta strong { color: #fbbf24; }
+  .paused-resume-btn {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: #fff; border: none;
+    padding: 6px 14px; border-radius: 6px;
+    font-size: 11.5px; font-weight: 600; cursor: pointer;
+    transition: transform .15s;
+  }
+  .paused-resume-btn:hover { transform: translateY(-1px); }
+  .paused-resume-btn:disabled { opacity: 0.5; cursor: wait; }
+
   .in-progress-box.visible { display: block; }
   .in-progress-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
   .in-progress-row > .pill {
@@ -1131,6 +1164,20 @@
     <div class="in-progress-recent" id="in-progress-recent">
       <div class="label-row">최근 작업 활동 — 작업 시작 후 commit 5개</div>
       <div id="in-progress-commits"><span style="color:var(--text-muted);">아직 활동 없음</span></div>
+    </div>
+  </section>
+
+  <!-- ⏸️ 잠시 멈춤 박스 (BL-AUTO-REORDER-PAUSE — 진행 중 박스 바로 아래) -->
+  <!-- 새 P0가 들어오면 이전 진행 중이 자동으로 여기로 이동.
+       어디서 멈췄는지 표시 + 이어가기 버튼.
+       작업이 길을 잃지 않게. -->
+  <section class="paused-box" id="paused-box" style="display:none;">
+    <div class="paused-head">
+      <span class="pill paused-pill">⏸️ 잠시 멈춤</span>
+      <span class="paused-subtitle">급한 작업 끝나면 여기서 이어가기 — 작업 길 잃지 않게</span>
+    </div>
+    <div class="paused-list" id="paused-list">
+      <!-- 동적으로 박힘 -->
     </div>
   </section>
 
@@ -3390,6 +3437,7 @@
       renderAutoQueue(data);
       renderNextAction(data);
       renderInProgressBox(data);       // ★ BL-LIVE-STATUS-PANEL — 진행 중 박스
+      try { renderPausedBox(data); } catch (e) { console.warn('renderPausedBox 실패', e); }  // ★ BL-AUTO-REORDER-PAUSE
       renderCeoWait(data);             // ★ 결정 대기 박스 동적화
       // tasks.json 로드되면 카테고리 카드의 3-state 카운트 정확화 위해 재렌더
       if (STATE.data) renderSidebarMenus(STATE.data);
@@ -5322,6 +5370,79 @@
     renderInProgressProgress(target);
   }
 
+  // ★ BL-AUTO-REORDER-PAUSE (2026-05-10): 잠시 멈춤 박스 렌더
+  // status='paused'인 작업들을 보여줌 — 어디서 멈췄는지 + 이어가기 버튼.
+  // 새 P0 작업이 들어오면 이전 in_progress가 자동으로 여기로 옮겨짐.
+  function renderPausedBox(data) {
+    const box = $('paused-box');
+    if (!box) return;
+    const tasks = data.tasks || [];
+    const paused = tasks
+      .filter(t => t.status === 'paused')
+      .sort((a, b) => (b.paused_at || '').localeCompare(a.paused_at || ''));  // 최근 멈춤 먼저
+
+    if (paused.length === 0) {
+      box.style.display = 'none';
+      return;
+    }
+    box.style.display = 'block';
+
+    const list = $('paused-list');
+    list.innerHTML = paused.map(t => {
+      const totalSteps = t.progress?.steps?.length || 0;
+      const stepProgress = totalSteps > 0
+        ? `${t.paused_step || 0}/${totalSteps} 단계`
+        : `${t.paused_progress || 0}%`;
+      const pausedTime = t.paused_at
+        ? new Date(t.paused_at).toLocaleString('ko-KR', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+        : '-';
+      const reason = t.paused_reason || '자동 보류';
+      return `<div class="paused-item" data-task-id="${escapeHtml(t.id)}">
+        <div class="paused-item-title">${escapeHtml(t.id)} — ${escapeHtml(t.title || '')}</div>
+        <div class="paused-item-meta">
+          <span>📍 멈춘 위치: <strong>${stepProgress}</strong></span>
+          <span>⏱ ${pausedTime}</span>
+          <span>💬 ${escapeHtml(reason)}</span>
+        </div>
+        <button type="button" class="paused-resume-btn" data-resume-id="${escapeHtml(t.id)}" title="이 작업을 이어가기 — 현재 진행 중 작업은 자동으로 잠시 멈춤으로">
+          ▶ 이어가기
+        </button>
+      </div>`;
+    }).join('');
+
+    // 이어가기 버튼 핸들러
+    list.querySelectorAll('[data-resume-id]').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        const taskId = btn.dataset.resumeId;
+        if (!taskId) return;
+        const ok = confirm(`${taskId} 작업을 이어가시겠습니까?\n\n현재 진행 중인 작업이 있으면 자동으로 "잠시 멈춤"으로 옮겨집니다.`);
+        if (!ok) return;
+        const orig = btn.textContent;
+        btn.disabled = true;
+        btn.textContent = '☁️ 복원 중...';
+        try {
+          const token = await getAdminAccessToken();
+          if (!token) throw new Error('admin 인증 필요');
+          const res = await fetch('/api/decision?action=bl-resume', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify({ task_id: taskId }),
+          });
+          if (!res.ok) {
+            const j = await res.json().catch(() => ({}));
+            throw new Error(j.error || `HTTP ${res.status}`);
+          }
+          // 페이지 새로고침 — 진행 중 박스 + 잠시 멈춤 박스 갱신
+          setTimeout(() => location.reload(), 800);
+        } catch (e) {
+          btn.disabled = false;
+          btn.textContent = orig;
+          alert('이어가기 실패: ' + (e?.message || 'unknown'));
+        }
+      });
+    });
+  }
+
   // ──────────────────────────────────────────────────────────
   // 진행률 바 렌더 (BL-PROGRESS-BAR-OS)
   //   task.progress.steps 가 있으면 진행률 바 + 단계 리스트 표시.
@@ -6981,6 +7102,7 @@
             renderAutoQueue(data);
             renderNextAction(data);
             try { renderInProgressBox(data); } catch (e) { console.warn('[poll] renderInProgressBox 실패', e); }
+            try { renderPausedBox(data); } catch (e) { console.warn('[poll] renderPausedBox 실패', e); }
             // ★ BL-STATUS-INTERACTIVE Phase B-1: 4 영역 추가 갱신
             //   기존 pollTick에서 빠진 영역들 — 5초 폴링 시 함께 갱신
             try { renderAvg(STATE.data); } catch (e) { console.warn('[poll] renderAvg 실패', e); }

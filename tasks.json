@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-11T07:38:24.143Z",
+  "updated_at": "2026-05-11T07:40:38+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -37,26 +37,32 @@
       "chatlog_exempt": true,
       "source": "대표님 직접 보고 (2026-05-11) — 결정 24개를 무엇부터 박아야 페이지가 만들어지고 기능 순서가 정해지는지 모르겠다. 알려주는 게 있어야 하지 않나",
       "created_at": "2026-05-11T07:38:24.143Z",
-      "updated_at": "2026-05-11T07:40:28.307Z",
+      "updated_at": "2026-05-11T07:40:38+00:00",
       "started_at": "2026-05-11T07:38:24.143Z",
       "notes": "대표님 본질 고민:\n1. 페이지 골격이 먼저, 기능은 그 위 — 어디 노출/연동될지도 모르고 기능 먼저 만드는 게 말이 안 됨\n2. 결정 24개 중 무엇부터? 의존성 트리가 안 보임\n3. 긴급 결정 다 박으면 새 작업이 자동 생성되나? 시스템이 알려줘야 함\n\nfix: admin-status에 \"결정 영향력 카드\" 신설. 각 결정마다 박혀있을 때 풀리는 BL 목록 + 페이지 영향 + 영향력 점수 표시. 대표님이 영향력 큰 결정부터 박을 수 있게.",
       "progress": {
-        "percent": 0,
+        "percent": 60,
         "steps": [
           {
             "n": 1,
             "label": "대표님 본질 고민 정밀 분석 — 결정-페이지-BL 의존성",
-            "status": "done"
+            "status": "done",
+            "done": true,
+            "at": "2026-05-11T07:40:38+00:00"
           },
           {
             "n": 2,
             "label": "결정 영향력 카드 데이터 모델 정의 (영향력 계산)",
-            "status": "done"
+            "status": "done",
+            "done": true,
+            "at": "2026-05-11T07:40:38+00:00"
           },
           {
             "n": 3,
             "label": "admin-status.html에 카드 신설 + JS 렌더링",
-            "status": "done"
+            "status": "done",
+            "done": true,
+            "at": "2026-05-11T07:40:38+00:00"
           },
           {
             "n": 4,
@@ -68,7 +74,10 @@
             "label": "대표님께 보고 — 무엇부터 결정 박으면 어떻게 풀리는지",
             "status": "pending"
           }
-        ]
+        ],
+        "completed_count": 3,
+        "total_count": 5,
+        "updated_at": "2026-05-11T07:40:38+00:00"
       },
       "history": [
         {
@@ -88,6 +97,13 @@
           "action": "progress",
           "by": "claude",
           "note": "단계 2·3 완료 — 결정 영향력 카드 HTML/CSS/JS 추가 (158줄), renderPausedBox 호출부에 통합"
+        },
+        {
+          "at": "2026-05-11T07:40:38+00:00",
+          "event": "진행 중 commit 추가 + 단계 1, 단계 2, 단계 3 완료 (auto-detected)",
+          "by": "auto-detect-bot",
+          "commit": "c670b04",
+          "note": "feat(BL-DECISION-IMPACT-CARD): 결정 영향력 카드 신설 — 어떤 결정 박으면 어떤 BL 풀리는지 한눈에 [step:done:1] [step:done:2] [step:done:3]"
         }
       ]
     },

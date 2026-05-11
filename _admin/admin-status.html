@@ -269,6 +269,11 @@
   }
   .pm-track-title { font-weight: 700; font-size: 13px; color: var(--text-bright); }
   .pm-track-count { font-size: 11px; color: var(--text-muted); }
+  /* ★ BL-FLOW-CLARITY-V2: 접기 화살표 */
+  .pm-track-arrow { font-size: 10px; color: var(--text-muted); margin-right: 4px; transition: transform .15s; }
+  .pm-track.collapsed .pm-track-head { border-bottom: none; padding-bottom: 0; margin-bottom: 0; }
+  .pm-track.collapsed { padding-bottom: 8px; }
+  .pm-track-head:hover .pm-track-arrow { color: #6ee7b7; }
 
   .pm-page-list { display: flex; flex-direction: column; gap: 6px; }
   .pm-page-item {
@@ -386,6 +391,20 @@
     font-weight: 700 !important;
   }
   .fg-status { font-size: 13px; color: var(--text-1); font-weight: 600; }
+  /* ★ BL-FLOW-CLARITY-V2: 자동 갱신 표식 */
+  .fg-refresh-chip {
+    margin-left: auto;
+    font-size: 10.5px; color: #6ee7b7;
+    background: rgba(16,185,129,0.18);
+    border: 1px solid rgba(16,185,129,0.35);
+    padding: 2px 8px; border-radius: 4px;
+    white-space: nowrap;
+  }
+  [data-theme="light"] .fg-refresh-chip {
+    color: #047857;
+    background: #d1fae5;
+    border-color: #6ee7b7;
+  }
   .fg-options { display: flex; flex-direction: column; gap: 8px; }
   .fg-option {
     display: flex; align-items: center; gap: 12px;
@@ -1330,6 +1349,7 @@
     <div class="fg-row">
       <span class="fg-pill">🧭 지금 뭐부터?</span>
       <span class="fg-status" id="fg-status">상태 로딩 중...</span>
+      <span class="fg-refresh-chip" title="5초마다 자동 갱신 — 작업 상태 바뀌면 즉시 반영">⟳ 5초마다 자동 갱신</span>
     </div>
     <div class="fg-options" id="fg-options">
       <!-- 동적 렌더링 — 상황별 권장 행동 -->
@@ -4057,6 +4077,17 @@
     if (!titleEl || !listEl) return;
 
     // ★ BL-OS-PHASE-1B 결함 #4 (단일 진실원): 헤더 cCeo와 동일 분류 함수 사용
+    // ★ BL-FLOW-CLARITY-V2 (2026-05-11): 영향력 점수 기반 정렬 — 사업 가치 큰 결정부터
+    //   영향력 = 우선순위(P0=100/P1=30/P2=10/P3=3) + 페이지 묶임 1개당 +50
+    //   같은 우선순위라도 페이지에 묶인 결정이 먼저 (사업 가치 직접 풀어줌)
+    const PRIO_SCORE = { P0: 100, P1: 30, P2: 10, P3: 3 };
+    const impactScore = (t) => {
+      const prio = PRIO_SCORE[t.priority] || 1;
+      let pageCount = 0;
+      try { pageCount = pagesForBl(t.id).length; } catch (_) {}
+      return prio + (pageCount * 50);
+    };
+
     const ceoTasks = tasks
       .filter(t => t.status !== 'done')
       .filter(t => {
@@ -4064,7 +4095,7 @@
         if (t.status === 'blocked' && /대표님|결정|승인/.test(t.blocker || '')) return true;
         return false;
       })
-      .sort((a, b) => (a.priority || 'P9').localeCompare(b.priority || 'P9'));
+      .sort((a, b) => impactScore(b) - impactScore(a));
 
     if (ceoTasks.length === 0) {
       titleEl.textContent = '👤 대표님 결정 대기 0건 — 모든 결정 사항 처리 완료 ✅';
@@ -4082,9 +4113,9 @@
       }
     }
 
-    titleEl.textContent = `👤 대표님 결정 대기 ${ceoTasks.length}건 — 클릭 시 상세, 박으면 작업 풀림`;
+    titleEl.textContent = `👤 대표님 결정 대기 ${ceoTasks.length}건 — 순위 ① ② ③ 영향력 큰 결정부터, 클릭하면 결정 입력 모달`;
     const top = ceoTasks.slice(0, 8);
-    listEl.innerHTML = top.map(t => {
+    listEl.innerHTML = top.map((t, idx) => {
       const priCls = (t.priority || 'P2').toLowerCase();
       const priLab = PRI_LABEL_KO[t.priority] || (t.priority || '-');
       const decs = (t.autonomous && t.autonomous.requires_decisions_first) || [];
@@ -4115,8 +4146,14 @@
         ? `<button type="button" class="ceo-wait-link-btn" data-link-bl="${escapeHtml(t.id)}" title="🔗 이 작업이 들어가는 페이지 ${linkedPages.length}개 표시" style="background:rgba(99,102,241,0.18);border:1px solid rgba(99,102,241,0.4);color:#c7d2fe;font-size:10px;padding:2px 7px;border-radius:4px;cursor:pointer;margin-right:6px;flex-shrink:0;">🔗 ${linkedPages.length}</button>`
         : '';
 
+      // ★ BL-FLOW-CLARITY-V2 (2026-05-11): 순위 번호 — 영향력 큰 순서 명확화
+      const RANK_CIRCLES = ['①','②','③','④','⑤','⑥','⑦','⑧'];
+      const rankNum = RANK_CIRCLES[idx] || `${idx + 1}`;
+      const rankColor = idx < 3 ? '#fbbf24' : (idx < 5 ? '#f97316' : 'var(--text-muted)');
+
       return `
-        <div class="ceo-wait-item" data-task-id="${escapeHtml(t.id)}" style="cursor:pointer;" title="카드 클릭 → 결정 모달 / 🔗 클릭 → 페이지 연동 (BL ID: ${escapeHtml(t.id)})">
+        <div class="ceo-wait-item" data-task-id="${escapeHtml(t.id)}" style="cursor:pointer;" title="순위 ${idx + 1}위 — 카드 클릭 → 결정 모달 / 🔗 클릭 → 페이지 연동 (BL ID: ${escapeHtml(t.id)})">
+          <span class="ceo-wait-rank" style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;font-size:14px;font-weight:700;color:${rankColor};flex-shrink:0;" title="영향력 순위 ${idx + 1}위">${rankNum}</span>
           <span class="pri-pill ${priCls}">${priLab}</span>
           ${impactBadge}
           ${linkBtn}
@@ -4365,13 +4402,17 @@
       const items = tracks[trackKey] || [];
       const liveCount = items.filter(i => i.cat === 'live').length;
       const totalCount = items.filter(i => i.cat !== 'retired').length;
-      return `<div class="pm-track">
-        <div class="pm-track-head">
+      // ★ BL-FLOW-CLARITY-V2 (2026-05-11): 접기/펼치기 — localStorage에서 상태 복원, 기본 접힘
+      const collapsed = localStorage.getItem(`pm-track-${trackKey}`) !== 'open';
+      const blCount = items.reduce((sum, p) => sum + (p.bls?.length || 0), 0);
+      return `<div class="pm-track ${collapsed ? 'collapsed' : ''}" data-track="${trackKey}">
+        <div class="pm-track-head" data-track-toggle="${trackKey}" style="cursor:pointer;" title="클릭 = 펼치기/접기">
+          <span class="pm-track-arrow">${collapsed ? '▶' : '▼'}</span>
           <span style="font-size:14px">${meta.emoji}</span>
           <span class="pm-track-title">${meta.title}</span>
-          <span class="pm-track-count">${liveCount}/${totalCount} 본격</span>
+          <span class="pm-track-count">${liveCount}/${totalCount} 본격${blCount > 0 ? ` · 🔗 ${blCount}개 BL` : ''}</span>
         </div>
-        <div class="pm-page-list">
+        <div class="pm-page-list" style="${collapsed ? 'display:none;' : ''}">
           ${items.map(p => {
             const blChip = p.bls.length > 0
               ? `<span class="pm-page-bls" title="이 페이지 안에 들어가야 할 작업/결정: ${p.bls.join(', ')}">🔗 ${p.bls.length}개 BL</span>`
@@ -4385,6 +4426,30 @@
         </div>
       </div>`;
     }).join('');
+
+    // ★ BL-FLOW-CLARITY-V2: 트랙 접기/펼치기 토글
+    wrap.querySelectorAll('[data-track-toggle]').forEach(head => {
+      head.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const trackKey = head.dataset.trackToggle;
+        const track = head.closest('.pm-track');
+        if (!track) return;
+        const list = track.querySelector('.pm-page-list');
+        const arrow = head.querySelector('.pm-track-arrow');
+        const wasCollapsed = track.classList.contains('collapsed');
+        if (wasCollapsed) {
+          track.classList.remove('collapsed');
+          if (list) list.style.display = '';
+          if (arrow) arrow.textContent = '▼';
+          localStorage.setItem(`pm-track-${trackKey}`, 'open');
+        } else {
+          track.classList.add('collapsed');
+          if (list) list.style.display = 'none';
+          if (arrow) arrow.textContent = '▶';
+          localStorage.setItem(`pm-track-${trackKey}`, 'closed');
+        }
+      });
+    });
 
     // ★ BL-3WAY-LINK-CARDS (2026-05-11): 클릭 = 연동 하이라이트 토글, 더블클릭 = 새 탭
     wrap.querySelectorAll('.pm-page-item').forEach(el => {
@@ -4469,10 +4534,20 @@
 
     // 옵션 2: P0 결정 대기 — 사업 가치 가장 큼
     if (ceoP0.length > 0) {
+      // ★ BL-FLOW-CLARITY-V2 (2026-05-11): 영향력 순위 1번 BL 이름 표시
+      // 같은 영향력 계산식: P0=100 + 페이지 묶임 1개당 +50
+      const PRIO_SCORE = { P0: 100, P1: 30, P2: 10, P3: 3 };
+      const topByImpact = [...ceoWait].sort((a, b) => {
+        const sa = (PRIO_SCORE[a.priority] || 1) + (pagesForBl(a.id).length * 50);
+        const sb = (PRIO_SCORE[b.priority] || 1) + (pagesForBl(b.id).length * 50);
+        return sb - sa;
+      })[0];
+      const topTitle = topByImpact ? (HUMAN_TITLE_MAP[topByImpact.id] || topByImpact.title || '') : '';
+      const topShort = topTitle.length > 40 ? topTitle.slice(0, 40) + '...' : topTitle;
       opts.push({
-        primary: inProgress.length === 0,  // 진행 중 없으면 1순위
+        primary: inProgress.length === 0,
         num: '👤',
-        body: `<strong>대표님 결정 P0 ${ceoP0.length}건</strong> — 결정 1개 박으면 페이지/사업 가치가 풀림 <span class="fg-time">대표님 시간 5분</span><br>아래 "👤 대표님 결정 대기" 박스 클릭 → 결정 입력 모달`,
+        body: `<strong>대표님 결정 P0 ${ceoP0.length}건</strong> — 1순위: "${escapeHtml(topShort)}" <span class="fg-time">대표님 시간 5분</span><br>아래 "👤 대표님 결정 대기" 박스의 ① 카드부터 클릭 → 결정 입력 모달`,
       });
     }
 

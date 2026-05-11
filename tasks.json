@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-11T02:06:05.039680Z",
+  "updated_at": "2026-05-11T02:06:20+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -14,9 +14,9 @@
   "stats": {
     "total": 150,
     "done": 109,
-    "in_progress": 0,
+    "in_progress": 1,
     "paused": 1,
-    "pending": 28,
+    "pending": 27,
     "blocked": 11,
     "autonomous_ready": 22,
     "todo": 0,
@@ -8514,8 +8514,24 @@
       "notes": "재발 방지 (2026-05-11): BL-AUTO-REORDER-PAUSE step 6 거짓 done 사고 — 텍스트는 '헌법 부칙'인데 실제로는 playbook에 박았고, 또 chat-log 누락. auto-detect-bot에 키워드 매핑 검증 추가: '헌법/부칙' → OPERATIONS_CHARTER.md diff 필수 / 'playbook' → _os/playbook/*.md 신규/수정 필수 / 'chat-log' → _chat-logs/*.md + index.json byTask 매핑 필수. 미충족 시 done 차단 + ⚠️ 워닝.",
       "source": "self_qa_2026-05-11",
       "created_at": "2026-05-11T01:57:59.563633Z",
-      "updated_at": "2026-05-11T02:06:05.039680Z",
-      "started_at": "2026-05-11T02:06:05.039680Z"
+      "updated_at": "2026-05-11T02:06:20+00:00",
+      "started_at": "2026-05-11T02:06:05.039680Z",
+      "progress_warning": {
+        "code": "MISSING_PROGRESS_STEPS",
+        "rule": "부칙 7 — 모든 작업은 progress.steps 박은 후 시작",
+        "detected_at": "2026-05-11T02:06:20+00:00",
+        "detected_by_commit": "9a167e2",
+        "message": "in_progress 도중 progress.steps 미박힘 감지."
+      },
+      "history": [
+        {
+          "at": "2026-05-11T02:06:20+00:00",
+          "event": "진행 중 commit 추가",
+          "by": "auto-detect-bot",
+          "commit": "9a167e2",
+          "note": "start(BL-STEP-SELF-VERIFY): 5단계 progress 박고 in_progress 전환 [step:done:1]"
+        }
+      ]
     }
   ]
 }

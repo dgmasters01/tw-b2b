@@ -29,6 +29,33 @@
 
 ---
 
+### B. 🟢 AUTO — Agoda Matching = 호텔 가입 수동 승인 페이지 (매니저 온보딩 게이트)
+
+**ID**: `BL-003-A`  
+**카테고리**: feature  
+**예상 시간**: 8시간  
+
+**메모**: 매니저 가입 시 자동 매칭(agoda_hotels DB + Google Places) 실패한 호텔이 admin Agoda Matching 페이지에 대기 큐로 쌓이고, 대표님이 Agoda URL/주소 보고 hotel_id 수동 매칭 → 승인 → 매니저에게 가입 확정 알림. 매니저 온보딩 게이트 — 안 만들면 매칭 실패 케이스가 가입 자체 불가.
+
+---
+
+### C. 🟡 SEMI — BL-003 핑퐁 9라운드 결정 손실 복구 + 확정 흐름 에러 가시화
+
+**ID**: `BL-DECISION-CONFIRM-RESCUE`  
+**카테고리**: fix  
+**예상 시간**: 미정시간  
+
+**메모**: 진단:
+- BL-003 라이브 status=blocked, pingpong_rounds=9, pingpong_turn=ceo (확정 안 박힘)
+- 최근 commit에 feat(BL-003): 결정 확정 D-NNN 없음 (핸들러 도달 X)
+- _decisions/pingpong/BL-003.json에 9라운드 모두 남음 (결정 내용 살아있음)
+- 마지막 라운드 결론: BL-003을 BL-003-A(Agoda Matching=호텔 가입 수동 승인) + BL-003-B(예약검증)로 쪼개기
+
+fix 3종:
+1) BL-003 결정 직접 박기
+
+---
+
 ## 🟡 P1 — 데드라인 이전에 있으면 좋음
 
 ### A. 🟢 AUTO — [YouTube 더보기 단축 URL 클릭 카운트] 호텔별 진성 관심 측정 시스템
@@ -55,7 +82,17 @@
 
 ---
 
-### C. 🟢 AUTO — 자동 알림 메일 시스템 (BACKLOG의 P1)
+### C. 🟢 AUTO — Agoda 예약검증 페이지 — Affiliate 엑셀 업로드 → 호텔별 매출 자동 정리
+
+**ID**: `BL-003-B`  
+**카테고리**: feature  
+**예상 시간**: 6시간  
+
+**메모**: Agoda Affiliate 엑셀 업로드 → 호텔명·예약번호·체크인/아웃·금액·상태·tag 파싱 → 호텔별 그룹핑 → 매출 검증. analytics 페이지 구조 그대로 차용. 매출 본격 발생 시 필요 — BL-003-A 다음 우선순위.
+
+---
+
+### D. 🟢 AUTO — 자동 알림 메일 시스템 (BACKLOG의 P1)
 
 **ID**: `SQ-G`  
 **카테고리**: dev  
@@ -65,7 +102,7 @@
 
 ---
 
-### D. 🟢 AUTO — Supabase Management API 토큰 갱신 알림 자동화
+### E. 🟢 AUTO — Supabase Management API 토큰 갱신 알림 자동화
 
 **ID**: `SQ-H`  
 **카테고리**: infrastructure  
@@ -75,7 +112,7 @@
 
 ---
 
-### E. 🟢 AUTO — [건강검진 사람 말] 점검 결과를 사업가 언어로 풀어줌
+### F. 🟢 AUTO — [건강검진 사람 말] 점검 결과를 사업가 언어로 풀어줌
 
 **ID**: `BL-BASELINE-HUMAN-LANG`  
 **카테고리**: ux  
@@ -87,7 +124,7 @@
 
 ---
 
-### F. 🟢 AUTO — [결정 → 페이지 → 작업 흐름 시각화] 대표님 판단 도구
+### G. 🟢 AUTO — [결정 → 페이지 → 작업 흐름 시각화] 대표님 판단 도구
 
 **ID**: `BL-DEPENDENCY-GRAPH`  
 **카테고리**: ux  
@@ -99,7 +136,7 @@
 
 ---
 
-### G. 🟢 AUTO — [일일 건강 카드] 위 4개(사람말 + 자동등록 + 지도 + 의존성)를 한 줄로 압축
+### H. 🟢 AUTO — [일일 건강 카드] 위 4개(사람말 + 자동등록 + 지도 + 의존성)를 한 줄로 압축
 
 **ID**: `BL-DAILY-HEALTH-CARD`  
 **카테고리**: ux  
@@ -112,7 +149,7 @@
 
 ---
 
-### H. 🟢 AUTO — [자동] 관리자 페이지 7개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요)
+### I. 🟢 AUTO — [자동] 관리자 페이지 7개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요)
 
 **ID**: `BL-AUTO-ADMIN-BASELINE-7FILES`  
 **카테고리**: infrastructure  

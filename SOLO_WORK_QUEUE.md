@@ -29,23 +29,7 @@
 
 ---
 
-### B. 🟢 AUTO — [자동] 작업 155건 중 13건에 출처가 없어요 (자동 동기화 봇 멈춤 위험)
-
-**ID**: `BL-AUTO-TASKS-SCHEMA-13MISSING`  
-**카테고리**: infrastructure  
-**예상 시간**: 1시간  
-
-**메모**: 점검 봇 자동 등록 (2026-05-11T03:56:28.755Z)
-
-check_name: tasks_schema
-status: red
-detail: 작업 155건 중 13건에 출처가 없어요 (자동 동기화 봇 멈춤 위험)
-
-진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 green으로 박으면 자동 done.
-
----
-
-### C. 🟢 AUTO — [자동] 페이지 /admin.html 완성도 14점 (약함: structure)
+### B. 🟢 AUTO — [자동] 페이지 /admin.html 완성도 14점 (약함: structure)
 
 **ID**: `BL-AUTO-PAGE-STATUS-ADMIN`  
 **카테고리**: infrastructure  
@@ -61,7 +45,7 @@ detail: 작업 155건 중 13건에 출처가 없어요 (자동 동기화 봇 멈
 
 ---
 
-### D. 🟢 AUTO — [자동] 페이지 /admin-gallery.html 완성도 14점 (약함: structure)
+### C. 🟢 AUTO — [자동] 페이지 /admin-gallery.html 완성도 14점 (약함: structure)
 
 **ID**: `BL-AUTO-PAGE-STATUS-ADMIN-GALLERY`  
 **카테고리**: infrastructure  
@@ -77,7 +61,7 @@ detail: 작업 155건 중 13건에 출처가 없어요 (자동 동기화 봇 멈
 
 ---
 
-### E. 🟢 AUTO — [자동] 페이지 /admin-business.html 완성도 14점 (약함: structure)
+### D. 🟢 AUTO — [자동] 페이지 /admin-business.html 완성도 14점 (약함: structure)
 
 **ID**: `BL-AUTO-PAGE-STATUS-ADMIN-BUSINESS`  
 **카테고리**: infrastructure  
@@ -93,7 +77,7 @@ detail: 작업 155건 중 13건에 출처가 없어요 (자동 동기화 봇 멈
 
 ---
 
-### F. 🟢 AUTO — [자동] 페이지 /admin-hub.html 완성도 14점 (약함: structure)
+### E. 🟢 AUTO — [자동] 페이지 /admin-hub.html 완성도 14점 (약함: structure)
 
 **ID**: `BL-AUTO-PAGE-STATUS-ADMIN-HUB`  
 **카테고리**: infrastructure  
@@ -109,7 +93,7 @@ detail: 작업 155건 중 13건에 출처가 없어요 (자동 동기화 봇 멈
 
 ---
 
-### G. 🟢 AUTO — [자동] 페이지 /admin-tasks.html 완성도 14점 (약함: structure)
+### F. 🟢 AUTO — [자동] 페이지 /admin-tasks.html 완성도 14점 (약함: structure)
 
 **ID**: `BL-AUTO-PAGE-STATUS-ADMIN-TASKS`  
 **카테고리**: infrastructure  
@@ -125,7 +109,7 @@ detail: 작업 155건 중 13건에 출처가 없어요 (자동 동기화 봇 멈
 
 ---
 
-### H. 🟢 AUTO — [자동] 페이지 /admin-service-ops.html 완성도 14점 (약함: structure)
+### G. 🟢 AUTO — [자동] 페이지 /admin-service-ops.html 완성도 14점 (약함: structure)
 
 **ID**: `BL-AUTO-PAGE-STATUS-ADMIN-SERVICE-OPS`  
 **카테고리**: infrastructure  
@@ -141,7 +125,7 @@ detail: 작업 155건 중 13건에 출처가 없어요 (자동 동기화 봇 멈
 
 ---
 
-### I. 🟢 AUTO — [자동] 페이지 /admin-status.html 완성도 14점 (약함: structure)
+### H. 🟢 AUTO — [자동] 페이지 /admin-status.html 완성도 14점 (약함: structure)
 
 **ID**: `BL-AUTO-PAGE-STATUS-ADMIN-STATUS`  
 **카테고리**: infrastructure  

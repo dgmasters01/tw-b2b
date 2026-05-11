@@ -95,24 +95,6 @@
 
 ---
 
-## ⚡ P0 — [자동] 작업 155건 중 13건에 출처가 없어요 (자동 동기화 봇 멈춤 위험)
-
-**요약**: 점검 봇 자동 등록 (2026-05-11T03:56:28.755Z)
-
-check_name: tasks_schema
-status: red
-detail: 작업 155건 중 13건에 출처가 없어요 (자동 동기화 봇 멈춤 위험)
-
-진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 green으로 박으면 자
-
-- **자율성**: 🟢 AUTO
-- **예상 시간**: 1시간
-- **카테고리**: infrastructure
-- **상태**: in_progress
-- **ID**: `BL-AUTO-TASKS-SCHEMA-13MISSING` (출처: auto_from_tasks_schema)
-
----
-
 ## 🟢 P0 — [자동] 페이지 /admin.html 완성도 14점 (약함: structure)
 
 **요약**: scan-bot 자동 등록 (2026-05-11T03:56:28.755Z)

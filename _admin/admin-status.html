@@ -2124,16 +2124,8 @@
       font-size: 10.5px; color: var(--text-muted);
       line-height: 1.55; margin-bottom: 10px;
     }
-    .grim-confirm-row {
-      display: flex; gap: 6px; margin-bottom: 8px;
-    }
-    .grim-suggest-btn {
-      background: rgba(124,58,237,0.10); color: #6d28d9;
-      border: 0.5px solid rgba(124,58,237,0.30);
-      padding: 5px 10px; border-radius: 5px;
-      font-size: 11px; cursor: pointer;
-    }
-    .grim-suggest-btn:hover { background: rgba(124,58,237,0.18); }
+    /* ★ BL-SUGGEST-BTN-RETIRE (2026-05-11): .grim-confirm-row + .grim-suggest-btn 폐기.
+       자동 채움(BL-DECISION-AUTOFILL)과 100% 중복 — D-019 중복 3중 정리 정신 위반. */
     .grim-confirm-input {
       width: 100%; box-sizing: border-box;
       padding: 8px 10px; border: 1px solid rgba(22,163,74,0.35);
@@ -4787,12 +4779,12 @@
 
               <!-- ★ BL-DECISION-MODAL-PINGPONG step9·10: 결정 확정 (C안) -->
               <!-- ★ BL-DECISION-AUTOFILL (2026-05-11): "그림 일치" 누른 직후 자동 채움 -->
+              <!-- ★ BL-SUGGEST-BTN-RETIRE (2026-05-11): grim-suggest-btn 폐기.
+                   자동 채움과 100% 중복(D-019 정신 위반). 잘못 다듬어서 마지막 답 잃었으면
+                   그림 일치를 다시 누르면 자동 채움 재실행. 별도 버튼 불필요. -->
               <div class="grim-confirm-box" id="grim-confirm-box" style="display:none;">
                 <div class="grim-confirm-h">🎯 결정 한 줄 (이 작업의 본질)</div>
                 <div class="grim-confirm-hint">✅ 핑퐁 마지막 Claude 답을 자동으로 채워드렸어요. <strong>그대로 ▶ 결정 확정 — 작업 시작</strong>을 누르시면 바로 박힙니다. 어색하면 아래에서 다듬으셔도 됩니다.</div>
-                <div class="grim-confirm-row">
-                  <button type="button" class="grim-suggest-btn" id="grim-suggest-btn">💡 Claude 추천 다시 받기 (마지막 답으로 덮어쓰기)</button>
-                </div>
                 <div class="grim-confirm-input-wrap">
                   <textarea id="grim-confirm-input" class="grim-confirm-input" rows="2"
                     placeholder="핑퐁 끝나면 자동으로 채워집니다. 비어있으면 결정을 한 줄로 적어주세요."></textarea>
@@ -5821,26 +5813,10 @@
       }
     });
 
-    // ★ BL-DECISION-MODAL-PINGPONG step9: Claude 추천 한 줄
-    // ★ BL-DECISION-AUTOFILL (2026-05-11): 대표님 답 압축이 아니라 마지막 Claude 답 그대로 사용
-    //   기존 결함: 대표님 짧은 답("그래 그런식으 확정하자")만 25자로 잘라 본질 손실
-    //   해결: 핑퐁 마지막 Claude 답이 이미 정리된 결정 본문 — 그대로 textarea에 박음
-    //   대표님은 어색하면 다듬기만 (수정 가능)
-    modal.querySelector('#grim-suggest-btn')?.addEventListener('click', () => {
-      const input = modal.querySelector('#grim-confirm-input');
-      if (!input) return;
-      // 마지막 비어있지 않은 Claude 답 찾기 (이게 결정 본문 그 자체)
-      const lastClaude = [...grimRounds].reverse().find(r => (r.claude || '').trim());
-      if (!lastClaude) {
-        alert('아직 Claude 답을 받지 못한 라운드입니다.\n핑퐁을 먼저 진행하세요 (라운드의 Claude 칸에 답 붙여넣기).');
-        return;
-      }
-      // 마지막 Claude 답 그대로 (이미 결정 본문)
-      input.value = lastClaude.claude.trim();
-      input.focus();
-      // 텍스트 끝으로 커서 (전체 선택 X — 다듬기 쉽게)
-      input.setSelectionRange(input.value.length, input.value.length);
-    });
+    // ★ BL-SUGGEST-BTN-RETIRE (2026-05-11): grim-suggest-btn 핸들러 폐기.
+    //   기존: 마지막 Claude 답을 textarea에 채움
+    //   폐기 이유: BL-DECISION-AUTOFILL의 "그림 일치" 핸들러가 이미 같은 동작 자동 수행.
+    //   100% 중복 → D-019 중복 3중 정리 정신 위반. 잘못 다듬어서 잃었으면 그림 일치 재클릭.
 
     // ★ BL-DECISION-MODAL-PINGPONG step10: 결정 확정 — D-NNN 자동 박음 + 작업 시작
     modal.querySelector('#grim-confirm-btn')?.addEventListener('click', async () => {

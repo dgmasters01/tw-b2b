@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-11T07:00:47.368Z",
+  "updated_at": "2026-05-11T07:01:25+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -9394,7 +9394,7 @@
       "size": "small",
       "source": "auto_from_page_status",
       "created_at": "2026-05-11T03:56:28.755Z",
-      "updated_at": "2026-05-11T07:00:58.972Z",
+      "updated_at": "2026-05-11T07:01:25+00:00",
       "deadline": null,
       "order": null,
       "blocker": null,
@@ -9410,24 +9410,35 @@
           {
             "n": 1,
             "label": "결함 본질 분석 (admin-hub는 D-013으로 폐기됨, 점수 끌어올림 불가)",
-            "status": "done"
+            "status": "done",
+            "done": true,
+            "at": "2026-05-11T07:01:25+00:00"
           },
           {
             "n": 2,
             "label": "scan-pages-status.mjs criticalPages 생성 시 retired 페이지 제외",
-            "status": "done"
+            "status": "done",
+            "done": true,
+            "at": "2026-05-11T07:01:25+00:00"
           },
           {
             "n": 3,
             "label": "auto-task-from-health.mjs 안전망 — retired 페이지 BL 생성 거부",
-            "status": "done"
+            "status": "done",
+            "done": true,
+            "at": "2026-05-11T07:01:25+00:00"
           },
           {
             "n": 4,
             "label": "commit + push + 봇 자동 close 검증",
-            "status": "done"
+            "status": "done",
+            "done": true,
+            "at": "2026-05-11T07:01:25+00:00"
           }
-        ]
+        ],
+        "completed_count": 4,
+        "total_count": 4,
+        "updated_at": "2026-05-11T07:01:25+00:00"
       },
       "history": [
         {
@@ -9453,6 +9464,13 @@
           "action": "verified",
           "by": "claude",
           "note": "단계 2·3 완료: scan-pages-status.mjs retired 제외 필터 + auto-task-from-health.mjs 이중 안전망. 단계 4: 로컬 검증에서 retired 셋 인식 + admin-hub BL 자동 close 확인. 봇이 의도대로 작동."
+        },
+        {
+          "at": "2026-05-11T07:01:25+00:00",
+          "event": "done 작업에 commit 추가 (status 유지 — 자동 리오픈 안 함) + 단계 1, 단계 2, 단계 3, 단계 4 완료 (auto-detected)",
+          "by": "auto-detect-bot",
+          "commit": "da8ef6e",
+          "note": "fix(BL-AUTO-PAGE-STATUS-ADMIN-HUB): retired 페이지가 점검 BL 무한 생성 — 이중 안전망 추가 [step:done:1] [step:done:2] [step:done:3] [step"
         }
       ],
       "notes": "scan-bot 자동 등록 (2026-05-11T03:56:28.755Z)\n\n페이지: /admin-hub.html\n점수: 14\n약점: structure\n\n진단 hint: scan-pages-status.mjs 결과. 약점 차원 보강 필요.\n\n[2026-05-11 정밀 분석]\n결함 본질: admin-hub.html은 BL-HUB-RETIRE/D-013으로 폐기된 페이지(2KB 골격만 남음, 401 응답). 직전 BL-AUTO-PAGE-STATUS-ADMIN에서 _admin/ fallback fix로 다른 admin 6개는 회복했지만 admin-hub는 본질적으로 보강 불가. scan-pages-status.mjs criticalPages 생성 시 retired 페이지 제외 필요 + auto-task-from-health.mjs 안전망 추가.\n\n[자동 해소 2026-05-11T07:00:47.368Z] retired 페이지 BL — retired 셋과 매칭되어 자동 close",

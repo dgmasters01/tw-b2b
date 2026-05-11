@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-11T03:54:06.528Z",
+  "updated_at": "2026-05-11T03:54:16+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -8642,7 +8642,9 @@
             "title": "설계 + 룰북 + steps 박기",
             "status": "done",
             "started_at": "2026-05-11T03:52:43.209Z",
-            "done_at": "2026-05-11T03:54:06.528Z"
+            "done_at": "2026-05-11T03:54:06.528Z",
+            "done": true,
+            "at": "2026-05-11T03:54:16+00:00"
           },
           {
             "step": 2,
@@ -8664,12 +8666,15 @@
             "title": "라이브 검증 + ops 알림 + 4줄 보고",
             "status": "pending"
           }
-        ]
+        ],
+        "completed_count": 1,
+        "total_count": 5,
+        "updated_at": "2026-05-11T03:54:16+00:00"
       },
       "notes": "대표님 통찰 (2026-05-10): 점검 봇이 빨간불 잡아도 BL로 안 박혀 흘러감. health-bot / page-status-scan / charter-length-bot 결과를 tasks.json에 자동 BL 등록. 중복 방지 dedup 로직 필수.\n\nP0인 이유: Phase 0~1 작업 박는 동안 발생하는 점검 결과를 흘리지 않게 잡아주는 인프라. BL-BASELINE-HUMAN-LANG과 짝꿍.",
       "source": "ceo_insight_2026-05-10",
       "created_at": "2026-05-11T02:38:01.191240Z",
-      "updated_at": "2026-05-11T03:54:06.528Z",
+      "updated_at": "2026-05-11T03:54:16+00:00",
       "history": [
         {
           "at": "2026-05-11T03:52:43.209Z",
@@ -8682,8 +8687,22 @@
           "by": "claude",
           "action": "step:done:1",
           "detail": "설계+룰북+steps 박음"
+        },
+        {
+          "at": "2026-05-11T03:54:16+00:00",
+          "event": "진행 중 commit 추가 + 단계 1 완료 (auto-detected)",
+          "by": "auto-detect-bot",
+          "commit": "8d8af5b",
+          "note": "feat(BL-BASELINE-AUTO-TASK): 1단계 — 설계 + 룰북 + DECISIONS D-024 + steps 박음 [step:done:1] [변경사유: 점검 봇 빨간불이 BL로 안 박혀 흘러가는 문제,"
         }
-      ]
+      ],
+      "progress_warning": {
+        "code": "MISSING_PROGRESS_STEPS",
+        "rule": "부칙 7 — 모든 작업은 progress.steps 박은 후 시작",
+        "detected_at": "2026-05-11T03:54:16+00:00",
+        "detected_by_commit": "8d8af5b",
+        "message": "in_progress 도중 progress.steps 미박힘 감지."
+      }
     },
     {
       "id": "BL-SERVICE-MAP",

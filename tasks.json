@@ -30,18 +30,18 @@
       "category": "fix",
       "priority": "P0",
       "size": "small",
-      "status": "in_progress",
+      "status": "done",
       "owner": "claude",
       "claude_can_auto": true,
       "approval_required": false,
       "chatlog_exempt": true,
       "source": "대표님 직접 보고 (2026-05-11) — 추천 다시 받기 버튼 필요하나? 자동으로 채워졌는데",
       "created_at": "2026-05-11T16:53:59.306Z",
-      "updated_at": "2026-05-11T16:57:24+00:00",
+      "updated_at": "2026-05-11T16:59:11.942Z",
       "started_at": "2026-05-11T16:53:59.306Z",
       "notes": "직전 BL-DECISION-AUTOFILL에서 그림 일치 시 자동 채움 박았는데 추천 버튼이 여전히 존재. 자동 채움 + 추천 버튼 = 같은 동작 (마지막 Claude 답을 textarea에). D-019 중복 3중 정리 정신 위반.\n\nfix: grim-suggest-btn HTML + 핸들러 + CSS 모두 제거. 사용자가 textarea 직접 수정해서 마지막 답 잃었으면 그림 일치를 다시 누르면 됨 (자동 채움 재실행). 별도 버튼 불필요.",
       "progress": {
-        "percent": 0,
+        "percent": 100,
         "steps": [
           {
             "n": 1,
@@ -61,7 +61,7 @@
           {
             "n": 4,
             "label": "대표님 보고",
-            "status": "pending"
+            "status": "done"
           }
         ]
       },
@@ -90,8 +90,15 @@
           "by": "auto-detect-bot",
           "commit": "f839fa6",
           "note": "fix(BL-SUGGEST-BTN-RETIRE): Claude 추천 다시 받기 버튼 폐기 — 자동 채움과 100% 중복"
+        },
+        {
+          "at": "2026-05-11T16:59:11.942Z",
+          "action": "done",
+          "by": "claude",
+          "note": "단계 4 라이브 검증 — 버튼 흔적 0건, vercel 곧 따라잡힘"
         }
-      ]
+      ],
+      "completed_at": "2026-05-11T16:59:11.942Z"
     },
     {
       "id": "BL-DECISION-AUTOFILL",

@@ -13,5 +13,10 @@
     "ceo": "어떤게 하는게 좋을까? 기술적인것은 내가 모르잖아.이부분의 호텔의 정보는 매니저가 가입하고 기본정보를 기록하는것하고도 연동이된다.",
     "claude": "기술 선택은 제가 자율로 정합니다(헌법 부칙 16). 정석은 이렇습니다: 호텔 매니저가 가입할 때 호텔명만 입력하면 시스템이 자동으로 ① Agoda 호텔 마스터 리스트(주기적으로 받아둔 CSV를 Supabase agoda_hotels 테이블에 적재)에서 매칭해 Agoda hotel_id·체인·도시·기본 정보를 가져오고 ② Google Places API로 정확한 주소·좌표·사진·평점을 보강해서 hotels 테이블을 한 번에 채우는 흐름 — 그러면 매니저는 빈 칸 채울 필요 없이 \"확인\" 한 번만 누르면 끝납니다. 예약 검증 쪽은 Agoda가 affiliate에 실시간 예약 API를 공식 제공하지 않아서 Affiliate 대시보드에서 주기적으로 엑셀 다운로드 → admin의 \"Agoda Matching\" 업로드 → bookings_agoda 자동 갱신 방식이 표준이고, 이게 매니저 호텔 정보(hotels.agoda_hotel_id)와 키로 연결되니까 \"어느 호텔에 몇 건 예약이 잡혔는지\"가 자동으로 매니저 대시보드까지 흘러갑니다 — 이 그림으로 가도 될까요?",
     "at": "2026-05-11T15:00:52.375Z"
+  },
+  {
+    "ceo": "agoda.com/ko-kr/radisson-blu-plaza-bangkok/hotel/bangkok-th.html?countryId=106&finalPriceView=1&isShowMobileAppPrice=false&cid=1922887&numberOfBedrooms=&familyMode=false&adults=2&children=0&rooms=1&maxRooms=0&checkIn=2026-05-27&isCalendarCallout=false&childAges=&numberOfGuest=0&missingChildAges=false&travellerType=1&showReviewSubmissionEntry=false&currencyCode=KRW&isFreeOccSearch=false&tag=f7739694-dbb7-41bd-aa27-be7c942ce354&flightSearchCriteria=[object%20Object]&los=3&searchrequestid=800c9b5c-8c8e-4a92-ba70-9e6e510b949b\n너가 말한것 처럼 우리 db에없는곳은 아고다의 자기호텔의 주소를 붙어 넣으면 너가 정보를 찾는다고 했어.\n그리고 호텔 매니저 회원가입페이지를 참고해서 한번봐. 그러면 이해가 더 빨리 될거야",
+    "claude": "",
+    "at": "2026-05-11T15:02:43.242Z"
   }
 ]

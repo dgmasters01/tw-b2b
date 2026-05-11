@@ -229,59 +229,16 @@
   .paused-resume-btn:hover { transform: translateY(-1px); }
   .paused-resume-btn:disabled { opacity: 0.5; cursor: wait; }
 
-  /* ★ BL-DECISION-IMPACT-CARD (2026-05-11): 결정 영향력 카드 — 결정 박으면 풀리는 BL 한눈에 */
-  .decision-impact-card {
-    background: linear-gradient(135deg, rgba(168,85,247,0.10), rgba(124,58,237,0.04));
-    border: 1px solid rgba(168,85,247,0.45);
-    border-radius: 10px; padding: 14px; margin-bottom: 14px;
-  }
-  .dic-head { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
-  .dic-pill {
-    background: rgba(168,85,247,0.28) !important; color: #c4b5fd !important;
-    font-size: 11px !important; padding: 3px 9px !important; border-radius: 4px !important; font-weight: 600 !important;
-  }
-  .dic-subtitle { font-size: 11.5px; color: var(--text-muted); }
-  .dic-list { display: flex; flex-direction: column; gap: 10px; }
-  .dic-item {
-    background: rgba(168,85,247,0.06);
-    border: 1px solid rgba(168,85,247,0.25);
-    border-left: 4px solid rgba(168,85,247,0.6);
-    border-radius: 8px; padding: 12px 14px;
-  }
-  .dic-item-head {
-    display: flex; align-items: center; gap: 10px; margin-bottom: 8px; flex-wrap: wrap;
-  }
-  .dic-impact-badge {
+  /* BL-CEO-WAIT-HUMAN-LANG (2026-05-11): 영향력 배지 — 기존 ceo-wait 박스에 흡수 */
+  .ceo-wait-impact-badge {
     background: linear-gradient(135deg, #a855f7, #7c3aed);
-    color: #fff; font-size: 11px; font-weight: 700;
-    padding: 3px 9px; border-radius: 4px; white-space: nowrap;
+    color: #fff; font-size: 10px; font-weight: 700;
+    padding: 2px 7px; border-radius: 4px; white-space: nowrap;
+    margin-right: 6px;
   }
-  .dic-decision-id {
-    font-family: 'SF Mono', Monaco, monospace; font-size: 12px;
-    color: var(--text-bright); font-weight: 600;
+  [data-theme="light"] .ceo-wait-impact-badge {
+    background: linear-gradient(135deg, #9333ea, #6d28d9);
   }
-  .dic-decision-desc {
-    flex: 1; min-width: 250px; font-size: 12.5px; color: var(--text-1);
-  }
-  .dic-unlocks {
-    font-size: 11.5px; color: var(--text-muted); margin-top: 6px; padding-left: 4px;
-  }
-  .dic-unlocks-label { color: #c4b5fd; font-weight: 600; margin-right: 6px; }
-  .dic-bl-chip {
-    display: inline-block; background: rgba(168,85,247,0.12);
-    border: 1px solid rgba(168,85,247,0.3); border-radius: 4px;
-    padding: 1px 7px; margin: 2px 4px 2px 0; font-size: 10.5px;
-    color: #ddd6fe; font-family: 'SF Mono', Monaco, monospace;
-  }
-  [data-theme="light"] .decision-impact-card {
-    background: linear-gradient(135deg, rgba(168,85,247,0.06), rgba(124,58,237,0.02));
-    border-color: rgba(124,58,237,0.35);
-  }
-  [data-theme="light"] .dic-pill { background: #ede9fe !important; color: #6d28d9 !important; }
-  [data-theme="light"] .dic-item { background: #faf5ff; border-color: rgba(124,58,237,0.25); border-left-color: #7c3aed; }
-  [data-theme="light"] .dic-decision-id, [data-theme="light"] .dic-decision-desc { color: #4c1d95; }
-  [data-theme="light"] .dic-unlocks-label { color: #6d28d9; }
-  [data-theme="light"] .dic-bl-chip { background: #f3e8ff; color: #5b21b6; border-color: #c4b5fd; }
 
   .in-progress-box.visible { display: block; }
   .in-progress-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
@@ -1235,22 +1192,9 @@
     </div>
   </section>
 
-  <!-- 🔓 결정 영향력 카드 (BL-DECISION-IMPACT-CARD, 2026-05-11) -->
-  <!-- 대표님이 어떤 결정을 박으면 어떤 BL이 풀리는지 한눈에.
-       "긴급 결정 다 박으면 새 작업이 자동 생성되나?" 질문에 시각적으로 답.
-       영향력 큰 결정부터 정렬. 결정 박은 후 BL의 requires_decisions_first 비우면 자동으로 자율 큐 진입. -->
-  <section class="decision-impact-card" id="decision-impact-card" style="display:none;">
-    <div class="dic-head">
-      <span class="pill dic-pill">🔓 결정 영향력</span>
-      <span class="dic-subtitle">결정 1개 박으면 BL N개가 풀려서 자율 큐로 이동 — 영향력 큰 결정부터</span>
-    </div>
-    <div class="dic-list" id="dic-list">
-      <!-- 동적 렌더링 -->
-    </div>
-    <div class="dic-empty" id="dic-empty" style="display:none;color:var(--text-muted);font-size:12px;padding:12px;text-align:center;">
-      ✅ 결정 대기 작업 없음 — 모든 BL이 자율 진행 가능 상태
-    </div>
-  </section>
+  <!-- BL-CEO-WAIT-HUMAN-LANG (2026-05-11): 결정 영향력 카드 폐기.
+       기존 "👤 대표님 결정 대기" 박스(작업 지휘소 ①)와 중복이라 D-019 정신 위반.
+       영향력 정보(+N건 풀림)는 기존 박스로 흡수, 사람말 제목도 같이 처리. -->
 
   <!-- ② 전체 평균 게이지 -->
   <section class="avg-card">
@@ -3554,7 +3498,7 @@
       renderNextAction(data);
       renderInProgressBox(data);       // ★ BL-LIVE-STATUS-PANEL — 진행 중 박스
       try { renderPausedBox(data); } catch (e) { console.warn('renderPausedBox 실패', e); }  // ★ BL-AUTO-REORDER-PAUSE
-      try { renderDecisionImpactCard(data); } catch (e) { console.warn('renderDecisionImpactCard 실패', e); }  // ★ BL-DECISION-IMPACT-CARD
+      // BL-CEO-WAIT-HUMAN-LANG (2026-05-11): renderDecisionImpactCard 호출 제거 — 기존 ceo-wait 박스로 흡수
       renderCeoWait(data);             // ★ 결정 대기 박스 동적화
       // tasks.json 로드되면 카테고리 카드의 3-state 카운트 정확화 위해 재렌더
       if (STATE.data) renderSidebarMenus(STATE.data);
@@ -3828,7 +3772,54 @@
   //   OR status=pending + autonomous.requires_decisions_first 미해소
   //   → 우선순위 정렬 (P0 → P1 → P2)
   //   → P0 우선 5건까지 표시, 나머지는 "+N건 더" 박음
+  //
+  // BL-CEO-WAIT-HUMAN-LANG (2026-05-11):
+  //   ① 제목을 사람 말로 풀어줌 (HUMAN_TITLE_MAP) — 대표님이 영문 BL ID/키워드 보고 못 알아본 사고
+  //   ② 영향력 배지 흡수 — 이 결정 박으면 자율 큐로 풀리는 BL 수 표시 (decision-impact-card 폐기, 흡수)
   // ──────────────────────────────────────────────────────────
+
+  // 사람 말 제목 매핑 — 영문 ID/키워드 대신 사업 관점의 짧은 한 줄
+  // 키: BL ID. 매핑 없는 BL은 t.title을 그대로 사용 (이미 한글이거나 충분히 명확한 경우).
+  const HUMAN_TITLE_MAP = {
+    'BL-CHATLOG-BIZ-FORMAT':    '채팅 기록을 사업가가 읽기 쉬운 형식으로',
+    'BL-URGENT-CARD-FLOW':      '긴급 카드 누르면 어떻게 작업으로 이어질지',
+    'BL-003':                   'Agoda 예약이 실제로 들어왔는지 자동 확인',
+    'BL-ADMIN-AUTH':            '관리자 페이지 권한 — 누가 무엇까지 볼지',
+    'BL-SERVICE-MAP':           '서비스 전체 지도 — 페이지가 어떻게 연결되는지',
+    'BL-TRACK-001':             '유튜브 더보기 링크 누른 사람 수 카운트',
+    'BL-INVOICE-001':           '결제 후 인보이스/영수증 PDF 자동 발행',
+    'SQ-G':                     '특정 사건 발생 시 자동 알림 메일',
+    'SQ-H':                     'Supabase 토큰 만료 임박 시 자동 알림',
+    'BL-OS-INSTALL-PAT-FLOW':   '새 환경에서 비밀번호·토큰 한 번에 박는 방법',
+    'BL-004':                   '매니저가 자기 정보 어디까지 바꿀 수 있게',
+    'BL-005':                   '호텔 담당자 바뀔 때 인수인계 흐름',
+    'BL-007':                   '특정 사건 자동 알림 메일 (BL-007)',
+    'SQ-D':                     '영업 페이지(sales) 디자인 새로 만들기',
+    'SQ-E':                     '마케팅 페이지(marketing) 디자인 새로 만들기',
+    'SQ-F':                     '관리자(admin) 페이지 디자인 새로 만들기',
+    'BL-SERVICE-PAGE-MAP':      '방문자가 고객이 되는 흐름 시각화',
+    'BL-015':                   '페이지 수정 전후 스크린샷 자동 비교',
+    'BL-SYNC-INPROGRESS-COMMITS': '진행 중 박스에 commit 자동 갱신 누락 fix',
+    'BL-006':                   '호텔 스토리 / LTV(고객 평생가치) 추적',
+    'BL-012':                   'PayPal 결제 정식 오픈 전 검증 단계',
+    'BL-013':                   'PayPal 샌드박스 → 실제 결제 전환',
+    'BL-014':                   '서비스 오픈 전 보안 토큰 일괄 폐기',
+    'BL-SYNC-CHAT-LOGS-TAB':    '채팅 기록 탭 자동 갱신 누락 fix',
+  };
+
+  // 결정 사유를 사람 말로 — blocker나 requires_decisions_first의 영문/기호를 풀어줌
+  const HUMAN_REASON_MAP = {
+    'D-006':                                                        '유튜브 더보기 단축 URL 세부 (도메인 / DB / 매니저 노출)',
+    'D-009':                                                        '인보이스/영수증 PDF 세부 (발행 주체 / 통화 / 양식)',
+    'BL-OS-AUTO-SYNC-CHARTER':                                      '그림 일치 OS 헌법 — 자동 동기화 정책',
+    '권한 등급 정책 결정 필요':                                       '관리자 권한 등급 (사장/직원/읽기/매니저)',
+    '디자인 큰 방향 검수 (대표님 그림)':                              '디자인 큰 방향 — 대표님 그림 1장',
+    'Q2: 부칙 15에 합칠지 vs 부칙 16 신설할지 (제안: 부칙 15에 합치기)': '헌법 부칙 합칠지 분리할지 (제안: 합치기)',
+    'Q1: 결정 입력 → 실행 방식 (A안 즉시 실행 vs B안 클립보드 중계)': '결정 입력 후 실행 방식 A/B 선택',
+    'Q: PAT 박는 방식 — 환경변수 vs .env.local vs GitHub Secrets API':'PAT 어디 박을지 (환경변수/.env/Secrets)',
+    '대표님 결정 대기':                                              '대표님 결정 대기',
+  };
+
   function renderCeoWait(data) {
     const tasks = data.tasks || [];
     const titleEl = document.getElementById('ceo-wait-title');
@@ -3836,14 +3827,10 @@
     if (!titleEl || !listEl) return;
 
     // ★ BL-OS-PHASE-1B 결함 #4 (단일 진실원): 헤더 cCeo와 동일 분류 함수 사용
-    //   기존: blocked+키워드 OR approval_required OR pending+decs+!claude_can_auto → 헤더와 미세하게 다름
-    //   변경: taskRole(t)==='ceo' (헤더 cCeo와 100% 동일) + 보조: blocked+키워드도 추가 흡수
     const ceoTasks = tasks
       .filter(t => t.status !== 'done')
       .filter(t => {
-        // ① 단일 진실원: taskRole이 ceo로 분류한 것 (헤더와 동일)
         if (taskRole(t) === 'ceo') return true;
-        // ② 보조 흡수: blocked + blocker에 "대표님 결정" 키워드 (taskRole은 blocked를 별도 처리)
         if (t.status === 'blocked' && /대표님|결정|승인/.test(t.blocker || '')) return true;
         return false;
       })
@@ -3855,12 +3842,33 @@
       return;
     }
 
-    titleEl.textContent = `👤 대표님 결정 대기 ${ceoTasks.length}건 — 클릭 시 상세`;
+    // ★ BL-CEO-WAIT-HUMAN-LANG: 영향력 계산 — 이 결정 박으면 풀리는 같은 결정 묶음 크기
+    // 같은 requires_decisions_first를 공유하는 BL 수를 셈 (decision-impact-card 폐기 후 흡수)
+    const decisionGroupCount = {};
+    for (const t of ceoTasks) {
+      const decs = (t.autonomous && t.autonomous.requires_decisions_first) || [];
+      for (const dec of decs) {
+        decisionGroupCount[dec] = (decisionGroupCount[dec] || 0) + 1;
+      }
+    }
+
+    titleEl.textContent = `👤 대표님 결정 대기 ${ceoTasks.length}건 — 클릭 시 상세, 박으면 작업 풀림`;
     const top = ceoTasks.slice(0, 8);
     listEl.innerHTML = top.map(t => {
       const priCls = (t.priority || 'P2').toLowerCase();
       const priLab = PRI_LABEL_KO[t.priority] || (t.priority || '-');
-      const reason = t.blocker || ((t.autonomous?.requires_decisions_first || []).join(', ') ? `결정 필요: ${(t.autonomous.requires_decisions_first||[]).join(', ')}` : '결정 정책 정의 필요');
+      const decs = (t.autonomous && t.autonomous.requires_decisions_first) || [];
+      const firstDec = decs[0] || '';
+      const rawReason = t.blocker || (firstDec ? `결정 필요: ${firstDec}` : '결정 정책 정의 필요');
+      // 사람말 매핑 적용
+      const humanReason = HUMAN_REASON_MAP[firstDec] || HUMAN_REASON_MAP[t.blocker] || rawReason;
+      const humanTitle = HUMAN_TITLE_MAP[t.id] || (t.title || '');
+
+      // 영향력 배지 — 같은 결정으로 묶인 BL 수가 2+ 이상이면 표시
+      let impactBadge = '';
+      if (firstDec && decisionGroupCount[firstDec] >= 2) {
+        impactBadge = `<span class="ceo-wait-impact-badge" title="이 결정 박으면 ${decisionGroupCount[firstDec]}건 한 번에 풀림">+${decisionGroupCount[firstDec]}건 풀림</span>`;
+      }
 
       // ★ BL-DECISION-MODAL-PINGPONG step6: 핑퐁 차례 배지
       let turnBadge = '';
@@ -3871,11 +3879,12 @@
       }
 
       return `
-        <div class="ceo-wait-item" data-task-id="${escapeHtml(t.id)}" style="cursor:pointer;" title="클릭 → admin-tasks.html에서 상세 보기">
+        <div class="ceo-wait-item" data-task-id="${escapeHtml(t.id)}" style="cursor:pointer;" title="클릭 → 결정 모달에서 입력하면 작업 자동 풀림 (BL ID: ${escapeHtml(t.id)})">
           <span class="pri-pill ${priCls}">${priLab}</span>
-          <span class="text">${escapeHtml(t.id)} — ${escapeHtml((t.title || '').slice(0, 50))}</span>
+          ${impactBadge}
+          <span class="text">${escapeHtml(humanTitle)}</span>
           ${turnBadge}
-          <span class="reason">${escapeHtml(reason)}</span>
+          <span class="reason">${escapeHtml(humanReason)}</span>
         </div>
       `;
     }).join('') + (ceoTasks.length > 8 ? `<a href="/admin-tasks.html?filter=ceo_wait" style="display:block;font-size:10px;color:var(--aurora-2);text-align:center;padding:6px;text-decoration:none;border:0.5px dashed rgba(99,102,241,0.3);border-radius:5px;margin-top:4px;cursor:pointer;" title="admin-tasks.html에서 결정 대기 전체 보기">+${ceoTasks.length - 8}건 더 → admin-tasks.html에서 전체 보기</a>` : '');
@@ -5565,91 +5574,9 @@
     });
   }
 
-  // ──────────────────────────────────────────────────────────
-  // 🔓 결정 영향력 카드 렌더 (BL-DECISION-IMPACT-CARD, 2026-05-11)
-  //
-  // 대표님 본질 고민에 답:
-  //   "결정 24개를 무엇부터 박아야 페이지가 만들어지는지 모르겠다"
-  //   "긴급 결정 다 박으면 새 작업이 자동 생성되나?"
-  //
-  // 알고리즘:
-  //   1. CEO 결정 대기 BL 모두 모음 (taskRole === 'ceo' && requires_decisions_first 있는 것)
-  //   2. 결정 ID별로 그룹핑 (이 결정 박으면 풀리는 BL 목록)
-  //   3. 영향력 계산: 풀리는 BL 수 × 평균 우선순위 가중치 (P0=4, P1=3, P2=2, P3=1)
-  //   4. 영향력 높은 결정부터 표시. 각 카드에 "이거 박으면 N개 BL 풀림" 표시.
-  //
-  // 사용 흐름:
-  //   대표님이 카드 보고 → 영향력 큰 결정부터 박음 → BL.requires_decisions_first 비움
-  //   → 다음 5초 폴링에서 taskRole이 'auto'로 자동 분류 → 자율 큐 진입 → Claude 작업 시작
-  // ──────────────────────────────────────────────────────────
-  function renderDecisionImpactCard(data) {
-    const box = $('decision-impact-card');
-    if (!box) return;
-    const list = $('dic-list');
-    const empty = $('dic-empty');
-    if (!list) return;
-    const tasks = data.tasks || [];
-
-    // CEO 결정 대기 BL 모음
-    const ceoBls = tasks.filter(t => {
-      if (t.status !== 'pending') return false;
-      if (taskRole(t) !== 'ceo') return false;
-      const ad = t.autonomous || {};
-      const decs = ad.requires_decisions_first || [];
-      return Array.isArray(decs) && decs.length > 0;
-    });
-
-    if (ceoBls.length === 0) {
-      box.style.display = 'block';
-      list.innerHTML = '';
-      if (empty) empty.style.display = 'block';
-      return;
-    }
-
-    // 결정별 그룹핑
-    const byDecision = {};
-    for (const bl of ceoBls) {
-      const decs = bl.autonomous.requires_decisions_first;
-      for (const dec of decs) {
-        if (!byDecision[dec]) byDecision[dec] = [];
-        byDecision[dec].push(bl);
-      }
-    }
-
-    // 영향력 계산 (우선순위 가중)
-    const PRIO_WEIGHT = { P0: 4, P1: 3, P2: 2, P3: 1 };
-    const grouped = Object.entries(byDecision).map(([dec, bls]) => {
-      const impact = bls.reduce((sum, b) => sum + (PRIO_WEIGHT[b.priority] || 1), 0);
-      return { decision: dec, bls, impact, count: bls.length };
-    }).sort((a, b) => b.impact - a.impact);
-
-    box.style.display = 'block';
-    if (empty) empty.style.display = 'none';
-
-    // 결정 ID가 D-### 형태면 짧게, 자유 텍스트(질문)면 그대로 표시
-    const isShortId = (s) => /^(D-|BL-|SQ-|CHG-|IP-)/.test(s);
-
-    list.innerHTML = grouped.map(g => {
-      const decIsShort = isShortId(g.decision);
-      const decId = decIsShort ? g.decision : '결정 필요';
-      const decDesc = decIsShort
-        ? `결정 본문은 DECISIONS.md 또는 컨셉 결정의 세부를 박아주세요`
-        : g.decision;  // 자유 텍스트 질문은 그대로
-      const chips = g.bls.map(b => 
-        `<span class="dic-bl-chip" title="${escapeHtml(b.title || '')}">${escapeHtml(b.id)} <span style="opacity:0.7">${b.priority || ''}</span></span>`
-      ).join('');
-      return `<div class="dic-item">
-        <div class="dic-item-head">
-          <span class="dic-impact-badge">+${g.count}건 풀림</span>
-          <span class="dic-decision-id">${escapeHtml(decId)}</span>
-          <span class="dic-decision-desc">${escapeHtml(decDesc)}</span>
-        </div>
-        <div class="dic-unlocks">
-          <span class="dic-unlocks-label">결정 박으면 자율 큐로 진입:</span>${chips}
-        </div>
-      </div>`;
-    }).join('');
-  }
+  // BL-CEO-WAIT-HUMAN-LANG (2026-05-11): renderDecisionImpactCard 폐기.
+  //   기존 renderCeoWait()와 중복(D-019 정신 위반). 영향력 정보와 사람말 매핑은
+  //   renderCeoWait() 안에 흡수됨.
 
   // ──────────────────────────────────────────────────────────
   // 진행률 바 렌더 (BL-PROGRESS-BAR-OS)

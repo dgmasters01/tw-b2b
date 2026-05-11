@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-11T07:44:13+00:00",
+  "updated_at": "2026-05-11T08:00:01.831Z",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -12,18 +12,81 @@
     "SOLO_WORK_QUEUE.md"
   ],
   "stats": {
-    "total": 168,
+    "total": 169,
     "done": 123,
-    "in_progress": 0,
+    "in_progress": 1,
     "pending": 27,
     "blocked": 11,
     "autonomous_ready": 19,
     "todo": 0,
     "paused": 1,
     "cancelled": 0,
-    "updated_at": "2026-05-11T07:38:24.143Z"
+    "updated_at": "2026-05-11T08:00:01.831Z"
   },
   "tasks": [
+    {
+      "id": "BL-CEO-WAIT-HUMAN-LANG",
+      "title": "대표님 결정 대기 박스 — 중복 영향력 카드 폐기 + 제목 사람말 풀기",
+      "category": "fix",
+      "priority": "P0",
+      "size": "small",
+      "status": "done",
+      "owner": "claude",
+      "claude_can_auto": true,
+      "approval_required": false,
+      "chatlog_exempt": true,
+      "source": "대표님 직접 보고 (2026-05-11) — ①결정 영향력 카드와 결정 대기 박스가 중복, 기존 활용 권고 ②제목이 클로드 언어(BL-ADMIN-AUTH 등 영문 ID + 영문 키워드)라 사람이 못 알아봄",
+      "created_at": "2026-05-11T08:00:01.831Z",
+      "updated_at": "2026-05-11T08:03:00.134Z",
+      "started_at": "2026-05-11T08:00:01.831Z",
+      "notes": "결함 본질:\n1. 직전 BL-DECISION-IMPACT-CARD(c670b04)가 D-019(중복 3중 정리) 정신 위반 — 기존 ceo-wait 박스와 같은 데이터를 2번 렌더\n2. ceo-wait 박스 제목이 BL-ID + 영문 키워드(autonomous.requires_decisions_first의 raw 값)라 비개발자 대표님이 읽을 수 없음\n\nfix:\n1. decision-impact-card section/CSS/JS 완전 제거\n2. renderCeoWait()에 영향력 정보 흡수 (+N건 풀림 배지) + 제목을 사람 말로 풀기 (HUMAN_LABEL_MAP)\n3. blocker 또는 requires_decisions_first 첫 항목을 HUMAN_LABEL_MAP에서 매핑",
+      "progress": {
+        "percent": 100,
+        "steps": [
+          {
+            "n": 1,
+            "label": "결함 정밀 분석 — 중복 + 제목 클로드 언어",
+            "status": "done"
+          },
+          {
+            "n": 2,
+            "label": "결정 영향력 카드 폐기 (HTML/CSS/JS 제거)",
+            "status": "done"
+          },
+          {
+            "n": 3,
+            "label": "renderCeoWait에 영향력 배지 + 사람말 제목 매핑 흡수",
+            "status": "done"
+          },
+          {
+            "n": 4,
+            "label": "commit + push + 라이브 검증",
+            "status": "done"
+          }
+        ]
+      },
+      "history": [
+        {
+          "at": "2026-05-11T08:00:01.831Z",
+          "action": "created",
+          "by": "claude",
+          "note": "대표님 보고 받아 P0"
+        },
+        {
+          "at": "2026-05-11T08:00:01.831Z",
+          "action": "started",
+          "by": "claude",
+          "note": "단계 1 — 결함 확인"
+        },
+        {
+          "at": "2026-05-11T08:03:00.134Z",
+          "action": "done",
+          "by": "claude",
+          "note": "단계 2·3·4 완료 — decision-impact-card HTML/CSS/JS 완전 제거, renderCeoWait에 HUMAN_TITLE_MAP/HUMAN_REASON_MAP + 영향력 배지 흡수. D-019 정신 복원."
+        }
+      ],
+      "completed_at": "2026-05-11T08:03:00.134Z"
+    },
     {
       "id": "BL-DECISION-IMPACT-CARD",
       "title": "결정 영향력 카드 — 어떤 결정 박으면 어떤 BL/페이지가 풀리는지 한눈에",

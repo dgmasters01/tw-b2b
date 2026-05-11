@@ -1132,7 +1132,7 @@
       <button id="btn-reserve">▶ 예약 + 알림</button>
     </div>
     <div class="next-action-hint" id="next-action-hint">
-      카드는 tasks.json의 진행 중 작업 또는 P0 자율 진행 가능 첫번째 작업을 표시합니다. 버튼 누르면 ① priority_boost 자동 박힘 ② 클립보드 복사 + ops 알림 ③ 채팅에 붙여넣기 한 번 = 시작
+      카드는 tasks.json의 진행 중 작업 또는 P0 자율 진행 가능 첫번째 작업을 표시합니다. 버튼 누르면 ① tasks.json 즉시 in_progress 전환 ② 풀 컨텍스트 클립보드 복사 ③ ops 알림 발송 → 새 채팅에 붙여넣기 한 번이면 시작
     </div>
   </section>
 
@@ -3313,15 +3313,57 @@
     const clipResult = await copyToClipboardWithFallback(message, taskId, taskTitle, '예약');
     const clipOk = clipResult.ok;
 
+    // ★ BL-RESERVE-BTN-START-TASK (2026-05-11) — tasks.json status: pending → in_progress 즉시 전환
+    //   힌트 텍스트가 약속한 "priority_boost 자동 박힘"의 실제 구현.
+    //   GitHub Contents API patch (서버에서). 클릭과 동시에 진행 중 박스로 전환되어 보임.
+    //   기존: Claude가 첫 commit 박을 때만 auto-detect-bot이 전환 → 사용자 입장에서 연동 안 됨
+    let startTaskOk = false;
+    let startTaskNote = '';
+    try {
+      const session = await window.supabase?.auth?.getSession();
+      const token = session?.data?.session?.access_token;
+      if (!token) {
+        startTaskNote = '세션 토큰 없음 — Claude commit 시 자동 전환 대기';
+      } else {
+        const startResp = await fetch('/api/admin?action=start-task', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify({ taskId })
+        });
+        const startData = await startResp.json().catch(() => ({}));
+        if (startResp.ok && startData.ok) {
+          startTaskOk = true;
+          startTaskNote = startData.already_in_progress
+            ? '이미 진행 중'
+            : `pending → in_progress 즉시 전환됨 (commit ${startData.commit_sha?.slice(0, 7) || ''})`;
+        } else {
+          startTaskNote = `start-task 실패: ${startData.error || startResp.status}`;
+          console.warn('[btn-reserve] start-task 실패', startData);
+        }
+      }
+    } catch (e) {
+      console.warn('[btn-reserve] start-task 호출 예외', e);
+      startTaskNote = `start-task 예외: ${e.message}`;
+    }
+
     // ② ops 알림 (베스트에포트, 실패해도 무시)
     try {
       await fetch('/api/email/ops/notify-claude-work', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          step: '🔵 작업 예약',
+          step: startTaskOk ? '⚡ 작업 진행 중 진입' : '🔵 작업 예약',
           summary: `${taskId} 예약 — admin-status에서 ▶ 예약 버튼 클릭. ${taskTitle}`,
-          checklist: ['풀 컨텍스트 인계 메시지 조립 완료', `${message.split('\n').length}줄 메시지`, '클립보드 복사 완료', 'CEO 알림'],
+          checklist: [
+            '풀 컨텍스트 인계 메시지 조립 완료',
+            `${message.split('\n').length}줄 메시지`,
+            '클립보드 복사 완료',
+            startTaskOk ? `✅ tasks.json 즉시 in_progress 전환 (${startTaskNote})` : `⏳ in_progress 전환 대기 (${startTaskNote})`,
+            'CEO 알림',
+          ],
           blockers: '대표님 채팅 붙여넣기 대기',
           source: 'admin-status.html',
         }),
@@ -3331,7 +3373,9 @@
     }
 
     // ③ 화면 피드백
-    btn.textContent = clipOk ? '✅ 풀 컨텍스트 복사 완료' : '📋 수동 복사 모달 열림';
+    btn.textContent = clipOk
+      ? (startTaskOk ? '✅ 진행 중 전환 + 풀 컨텍스트 복사' : '✅ 풀 컨텍스트 복사 완료')
+      : '📋 수동 복사 모달 열림';
     setTimeout(() => { btn.textContent = orig; btn.disabled = false; }, 4000);
 
     // 토스트 알림 (모달이 떠있을 때는 생략 — 중복 UI 방지)
@@ -3341,6 +3385,7 @@
       toast.innerHTML = `
         <div style="font-weight:500;margin-bottom:6px;">🚀 ${taskId} 예약 완료</div>
         <div style="font-size:11px;color:var(--text-muted);">
+          ${startTaskOk ? '⚡ <strong>진행 중 박스로 자동 전환됨</strong><br>' : ''}
           ✅ 풀 컨텍스트 클립보드 복사됨<br>
           ✅ ops 알림 발송 시도<br>
           → Claude 채팅에 붙여넣기 한 번이면 시작
@@ -5240,7 +5285,8 @@
       target = autoQueue[0];
       mode = '🎯 다음 추천';
       const hours = target.autonomous?.estimated_hours;
-      hint = `현재 진행 중 작업이 끝나면 자동으로 시작됩니다. ${hours ? `예상 ${hours}h · ` : ''}지금 미리 시작하려면 예약 + 알림 버튼 → 클립보드 복사 → 새 채팅에 붙여넣기.`;
+      // BL-RESERVE-BTN-START-TASK (2026-05-11): 예약 버튼이 즉시 in_progress 전환하므로 hint 정확화
+      hint = `${hours ? `예상 ${hours}h · ` : ''}▶ 예약 + 알림 버튼 → 즉시 진행 중 전환 + 풀 컨텍스트 클립보드 복사 → 새 채팅에 붙여넣기.`;
     }
 
     const pill = document.getElementById('next-action-pill');

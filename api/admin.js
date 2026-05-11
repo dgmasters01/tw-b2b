@@ -517,6 +517,143 @@ async function handleBookingUpload(req, res, serviceKey, _admin) {
 }
 
 // =============================================================
+// Sub-handler 5: start-task (BL-RESERVE-BTN-START-TASK)
+// =============================================================
+// 다음추천 ▶ 예약+알림 버튼이 작업을 실제로 진행 중으로 전환.
+// GitHub Contents API로 tasks.json patch — pending → in_progress + started_at.
+// 봇이 commit 박을 때까지 기다릴 필요 없이 즉시 5초 폴링이 감지.
+//
+// body: { taskId: 'BL-XXX' }
+// 환경 변수 GITHUB_PAT 필요 (repo 쓰기 권한)
+async function handleStartTask(req, res, serviceKey, admin) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+  const body = req.body || {};
+  const taskId = (body.taskId || '').toString().trim();
+  if (!taskId) return res.status(400).json({ error: 'taskId is required' });
+  // 안전: 작업 ID 패턴 화이트리스트 (injection 방지)
+  if (!/^(BL-[A-Z0-9]+(-[A-Z0-9]+)*|CHG-\d+(-[a-z]+)?|SQ-[A-Z0-9]+|IP-CTRL-\d+)$/.test(taskId)) {
+    return res.status(400).json({ error: 'Invalid taskId format' });
+  }
+
+  const GH_PAT = process.env.GITHUB_PAT || process.env.GH_PAT;
+  if (!GH_PAT) {
+    return res.status(500).json({
+      error: 'GITHUB_PAT 환경 변수 미설정',
+      hint: 'Vercel 환경 변수에 GITHUB_PAT(repo 쓰기 권한) 박아주세요.'
+    });
+  }
+
+  const REPO = 'dgmasters01/tw-b2b';
+  const FILE_PATH = 'tasks.json';
+  const BRANCH = 'main';
+  const GH_API = `https://api.github.com/repos/${REPO}/contents/${FILE_PATH}?ref=${BRANCH}`;
+
+  try {
+    // 1) 라이브 tasks.json + sha fetch
+    const getResp = await fetch(GH_API, {
+      headers: {
+        'Authorization': `Bearer ${GH_PAT}`,
+        'Accept': 'application/vnd.github.v3+json',
+        'User-Agent': 'tw-b2b-start-task',
+      }
+    });
+    if (!getResp.ok) {
+      const t = await getResp.text();
+      return res.status(502).json({ error: 'GitHub fetch 실패', detail: t.slice(0, 300) });
+    }
+    const meta = await getResp.json();
+    const content = Buffer.from(meta.content, 'base64').toString('utf-8');
+    const data = JSON.parse(content);
+
+    // 2) 해당 task 찾아서 status 전환
+    const task = (data.tasks || []).find(t => t.id === taskId);
+    if (!task) {
+      return res.status(404).json({ error: `Task ${taskId} not found in tasks.json` });
+    }
+    if (task.status === 'in_progress') {
+      return res.status(200).json({
+        ok: true,
+        already_in_progress: true,
+        message: `${taskId} 이미 진행 중 상태입니다.`,
+        task: { id: task.id, status: task.status, started_at: task.started_at }
+      });
+    }
+    if (task.status === 'done') {
+      return res.status(409).json({
+        error: `${taskId}은 이미 완료된 작업입니다 (status: done).`,
+        hint: '이미 done 처리된 작업은 재시작할 수 없습니다.'
+      });
+    }
+    if (task.status === 'blocked') {
+      return res.status(409).json({
+        error: `${taskId}은 막힌 상태입니다 (blocked).`,
+        hint: '먼저 blocked 사유를 해소해주세요.'
+      });
+    }
+
+    const now = new Date().toISOString();
+    const prevStatus = task.status;
+    task.status = 'in_progress';
+    if (!task.started_at) task.started_at = now;
+    task.updated_at = now;
+    if (!Array.isArray(task.history)) task.history = [];
+    task.history.push({
+      at: now,
+      action: 'started',
+      by: admin?.email || 'admin',
+      note: `다음추천 ▶ 예약+알림 버튼 클릭 → 즉시 in_progress 전환 (이전: ${prevStatus})`
+    });
+
+    // 3) stats 재계산
+    const counts = { done:0, in_progress:0, paused:0, pending:0, blocked:0, cancelled:0, todo:0 };
+    for (const t of data.tasks) {
+      const s = t.status || 'pending';
+      if (s in counts) counts[s] += 1;
+    }
+    data.stats = { ...(data.stats || {}), ...counts, total: data.tasks.length, updated_at: now };
+    data.updated_at = now;
+
+    // 4) GitHub PUT — patch
+    const newContent = Buffer.from(JSON.stringify(data, null, 2), 'utf-8').toString('base64');
+    const putResp = await fetch(`https://api.github.com/repos/${REPO}/contents/${FILE_PATH}`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${GH_PAT}`,
+        'Accept': 'application/vnd.github.v3+json',
+        'User-Agent': 'tw-b2b-start-task',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        message: `[start-task] ${taskId} 즉시 진행 중 전환 — admin-status 다음추천 버튼\n\n[변경사유] BL-RESERVE-BTN-START-TASK — 다음추천 ▶ 예약+알림 버튼이 약속한 priority_boost + status 전환을 실행.\nClicked by: ${admin?.email || 'admin'}\nPrev status: ${prevStatus} → in_progress`,
+        content: newContent,
+        sha: meta.sha,
+        branch: BRANCH,
+      })
+    });
+    if (!putResp.ok) {
+      const t = await putResp.text();
+      return res.status(502).json({ error: 'GitHub PUT 실패', detail: t.slice(0, 500) });
+    }
+    const putData = await putResp.json();
+    return res.status(200).json({
+      ok: true,
+      taskId,
+      prev_status: prevStatus,
+      new_status: 'in_progress',
+      started_at: task.started_at,
+      commit_sha: putData.commit?.sha,
+      commit_url: putData.commit?.html_url,
+      message: `${taskId} 즉시 진행 중으로 전환 완료. 5초 폴링이 감지하면 진행 중 박스가 자동 표시됩니다.`,
+    });
+  } catch (err) {
+    console.error('[handleStartTask] error:', err);
+    return res.status(500).json({ error: 'start-task internal error', detail: err.message });
+  }
+}
+
+// =============================================================
 // 메인 라우터
 // =============================================================
 export default async function handler(req, res) {
@@ -550,7 +687,7 @@ export default async function handler(req, res) {
   }
 
   // 화이트리스트 검증을 인증보다 먼저 수행 → 디버깅 시 라우팅 문제와 인증 문제를 명확히 분리
-  const ALLOWED_ACTIONS = ['booking-upload', 'list-users', 'send-invite', 'update-match'];
+  const ALLOWED_ACTIONS = ['booking-upload', 'list-users', 'send-invite', 'update-match', 'start-task'];
   if (!action) {
     return res.status(400).json({
       error: 'missing_action',
@@ -585,6 +722,8 @@ export default async function handler(req, res) {
         return await handleSendInvite(req, res, serviceKey, adminCheck);
       case 'update-match':
         return await handleUpdateMatch(req, res, serviceKey, adminCheck);
+      case 'start-task':
+        return await handleStartTask(req, res, serviceKey, adminCheck);
       default:
         // unreachable: 위에서 화이트리스트로 이미 차단됨
         return res.status(500).json({ error: 'router_inconsistency', received: action });

@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-11T03:55:44.108Z",
+  "updated_at": "2026-05-11T03:55:58+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -8635,7 +8635,7 @@
       "blocker": null,
       "dependencies": [],
       "progress": {
-        "percent": 20,
+        "percent": 60,
         "steps": [
           {
             "step": 1,
@@ -8649,12 +8649,16 @@
           {
             "step": 2,
             "title": "auto-task-from-health.mjs 코어 스크립트",
-            "status": "pending"
+            "status": "pending",
+            "done": true,
+            "at": "2026-05-11T03:55:58+00:00"
           },
           {
             "step": 3,
             "title": "dedup 로직 + 안정 ID 규칙 (BL-AUTO-{check}-{stable_key})",
-            "status": "pending"
+            "status": "pending",
+            "done": true,
+            "at": "2026-05-11T03:55:58+00:00"
           },
           {
             "step": 4,
@@ -8667,14 +8671,14 @@
             "status": "pending"
           }
         ],
-        "completed_count": 1,
+        "completed_count": 3,
         "total_count": 5,
-        "updated_at": "2026-05-11T03:54:16+00:00"
+        "updated_at": "2026-05-11T03:55:58+00:00"
       },
       "notes": "대표님 통찰 (2026-05-10): 점검 봇이 빨간불 잡아도 BL로 안 박혀 흘러감. health-bot / page-status-scan / charter-length-bot 결과를 tasks.json에 자동 BL 등록. 중복 방지 dedup 로직 필수.\n\nP0인 이유: Phase 0~1 작업 박는 동안 발생하는 점검 결과를 흘리지 않게 잡아주는 인프라. BL-BASELINE-HUMAN-LANG과 짝꿍.",
       "source": "ceo_insight_2026-05-10",
       "created_at": "2026-05-11T02:38:01.191240Z",
-      "updated_at": "2026-05-11T03:54:16+00:00",
+      "updated_at": "2026-05-11T03:55:58+00:00",
       "history": [
         {
           "at": "2026-05-11T03:52:43.209Z",
@@ -8694,6 +8698,13 @@
           "by": "auto-detect-bot",
           "commit": "8d8af5b",
           "note": "feat(BL-BASELINE-AUTO-TASK): 1단계 — 설계 + 룰북 + DECISIONS D-024 + steps 박음 [step:done:1] [변경사유: 점검 봇 빨간불이 BL로 안 박혀 흘러가는 문제,"
+        },
+        {
+          "at": "2026-05-11T03:55:58+00:00",
+          "event": "진행 중 commit 추가 + 단계 2, 단계 3 완료 (auto-detected)",
+          "by": "auto-detect-bot",
+          "commit": "1073c03",
+          "note": "feat(BL-BASELINE-AUTO-TASK): 2+3단계 — 코어 스크립트 + dedup 로직 + auto-close [step:done:2] [step:done:3] [변경사유: 점검 결과 → 자동 BL 등록"
         }
       ],
       "progress_warning": {

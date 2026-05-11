@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-11T16:09:36+00:00",
+  "updated_at": "2026-05-11T16:13:46.120Z",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -12,18 +12,80 @@
     "SOLO_WORK_QUEUE.md"
   ],
   "stats": {
-    "total": 177,
+    "total": 178,
     "done": 131,
-    "in_progress": 0,
+    "in_progress": 1,
     "pending": 29,
     "blocked": 10,
     "autonomous_ready": 21,
     "todo": 0,
     "cancelled": 0,
-    "updated_at": "2026-05-11T16:05:43.055Z",
+    "updated_at": "2026-05-11T16:13:46.120Z",
     "paused": 1
   },
   "tasks": [
+    {
+      "id": "BL-ADMIN-TOKEN-SCOPE-FIX",
+      "title": "getAdminAccessToken 스코프 결함 — paused-resume-btn 등 6개 호출 위치에서 is not defined",
+      "category": "fix",
+      "priority": "P0",
+      "size": "small",
+      "status": "in_progress",
+      "owner": "claude",
+      "claude_can_auto": true,
+      "approval_required": false,
+      "chatlog_exempt": true,
+      "source": "대표님 직접 보고 (2026-05-11) — 잠시 멈춤 이어가기 클릭하니 alert: \"이어가기 실패: getAdminAccessToken is not defined\"",
+      "created_at": "2026-05-11T16:13:46.120Z",
+      "updated_at": "2026-05-11T16:14:36.119Z",
+      "started_at": "2026-05-11T16:13:46.120Z",
+      "notes": "결함 본질: getAdminAccessToken이 openCeoDecisionModal() 함수 내부에 inner function으로 박혀있어서 결정 모달 밖에서는 미정의.\n\n현재 호출 위치 7건 중 모달 밖 호출 6건:\n- 3393 qt-submit (quick-task 박기)\n- 5109 ??? (확인 필요)\n- 5764 ??? (확인 필요)\n- 5857 결정 확정 핸들러\n- 6264 paused-resume-btn ← 대표님 결함\n- 그 외...\n\nfix: getAdminAccessToken을 script 최상위 스코프로 끌어올림 (전역 헬퍼). 모달 내부 inner function 제거.",
+      "progress": {
+        "percent": 0,
+        "steps": [
+          {
+            "n": 1,
+            "label": "결함 진단 — inner function 스코프 식별",
+            "status": "done"
+          },
+          {
+            "n": 2,
+            "label": "getAdminAccessToken 전역 헬퍼로 이동",
+            "status": "done"
+          },
+          {
+            "n": 3,
+            "label": "모달 내부 inner function 정의 제거",
+            "status": "done"
+          },
+          {
+            "n": 4,
+            "label": "commit + push + 라이브 검증",
+            "status": "pending"
+          }
+        ]
+      },
+      "history": [
+        {
+          "at": "2026-05-11T16:13:46.120Z",
+          "action": "created",
+          "by": "claude",
+          "note": "P0 긴급"
+        },
+        {
+          "at": "2026-05-11T16:13:46.120Z",
+          "action": "started",
+          "by": "claude",
+          "note": "단계 1 진단 완료"
+        },
+        {
+          "at": "2026-05-11T16:14:36.119Z",
+          "action": "progress",
+          "by": "claude",
+          "note": "단계 2·3 완료 — getAdminAccessToken 전역 헬퍼로 이동 + 모달 내부 inner function 제거"
+        }
+      ]
+    },
     {
       "id": "BL-TASKS-CACHE-BUST",
       "title": "done 작업이 화면 결정 대기에 남는 결함 — tasks.json fetch 캐시 완전 우회",

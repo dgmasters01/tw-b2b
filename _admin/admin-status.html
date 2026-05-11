@@ -2760,6 +2760,33 @@
   };
 
   // ──────────────────────────────────────────────────────────
+  // 🔑 BL-ADMIN-TOKEN-SCOPE-FIX (2026-05-11): getAdminAccessToken 전역 헬퍼
+  //
+  // 결함 본질:
+  //   이전에는 openCeoDecisionModal() 내부의 inner function으로 정의되어 있었음.
+  //   결정 모달 밖(qt-submit / paused-resume-btn / 다음 추천 ▶ 시작 등 6개 호출 위치)에서
+  //   `getAdminAccessToken is not defined` ReferenceError 발생.
+  //
+  // 대표님 직접 보고 (2026-05-11):
+  //   "잠시 멈춤 이어가기 누르니 alert: 이어가기 실패: getAdminAccessToken is not defined"
+  //
+  // fix: script 최상위 스코프로 끌어올려 모든 핸들러에서 호출 가능하게.
+  //   - shared.js의 window.TW.sb (Supabase 클라이언트) 의존
+  //   - 세션 없으면 null 반환 (호출부에서 alert로 처리)
+  // ──────────────────────────────────────────────────────────
+  async function getAdminAccessToken() {
+    try {
+      const sb = window.TW && window.TW.sb;
+      if (!sb) return null;
+      const r = await sb.auth.getSession();
+      return (r && r.data && r.data.session && r.data.session.access_token) || null;
+    } catch (_) { return null; }
+  }
+  // 윈도우 전역으로도 노출 (debug + 안전망)
+  window.getAdminAccessToken = getAdminAccessToken;
+
+
+  // ──────────────────────────────────────────────────────────
   // D-010 카테고리 ↔ 사이드바 메뉴키 매핑 (단일 진실)
   // 헌법 부칙 5 — 카테고리 ↔ 페이지 1:1 박음
   // ──────────────────────────────────────────────────────────
@@ -4896,17 +4923,10 @@
       fetchGrimRoundsFromGitHub().catch(() => {});
     }
 
-    // ★ BL-DECISION-MODAL-PINGPONG fix (2026-05-10):
-    // 정석 admin 토큰 가져오기 — shared.js의 window.TW.sb 사용 (Supabase 클라이언트)
-    // 이전 'window.tw_admin_session_v1'은 정의되지 않은 변수였음 (4곳 모두 같은 사고)
-    async function getAdminAccessToken() {
-      try {
-        const sb = window.TW && window.TW.sb;
-        if (!sb) return null;
-        const r = await sb.auth.getSession();
-        return (r && r.data && r.data.session && r.data.session.access_token) || null;
-      } catch (_) { return null; }
-    }
+    // ★ BL-ADMIN-TOKEN-SCOPE-FIX (2026-05-11): inner function 정의 제거.
+    // getAdminAccessToken은 이제 script 최상위 전역 헬퍼 (STATE 정의 직후).
+    // 이전에는 여기 inner function으로 박혀서 결정 모달 밖 호출 시 ReferenceError 발생.
+    // (모든 호출 위치 — qt-submit / paused-resume-btn / 다음 추천 / 결정 확정 등 6개 — 같은 함수 사용)
 
     async function fetchGrimRoundsFromGitHub() {
       try {

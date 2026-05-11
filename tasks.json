@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-11T08:15:48+00:00",
+  "updated_at": "2026-05-11T08:26:56.336Z",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -12,18 +12,90 @@
     "SOLO_WORK_QUEUE.md"
   ],
   "stats": {
-    "total": 170,
+    "total": 171,
     "done": 125,
-    "in_progress": 0,
+    "in_progress": 1,
     "pending": 27,
     "blocked": 11,
     "autonomous_ready": 19,
     "todo": 0,
     "paused": 1,
     "cancelled": 0,
-    "updated_at": "2026-05-11T08:09:51.092Z"
+    "updated_at": "2026-05-11T08:26:56.336Z"
   },
   "tasks": [
+    {
+      "id": "BL-3WAY-LINK-CARDS",
+      "title": "페이지 지도 ↔ 결정 대기 ↔ 자율 큐 3방향 클릭 연동 + BL-페이지 매핑 보강",
+      "category": "feature",
+      "priority": "P0",
+      "size": "medium",
+      "status": "in_progress",
+      "owner": "claude",
+      "claude_can_auto": true,
+      "approval_required": false,
+      "chatlog_exempt": true,
+      "source": "대표님 직접 보고 (2026-05-11) — 카드 만들었는데 연동이 안 됨. 어떻게 하면 전체와 작업을 쉽게 연동해서 추천 순서대로 파악하면서 작업 지시할 수 있을까?",
+      "created_at": "2026-05-11T08:26:56.336Z",
+      "updated_at": "2026-05-11T08:30:54.952Z",
+      "started_at": "2026-05-11T08:26:56.336Z",
+      "notes": "대표님 본질: 페이지 지도 / 결정 대기 / 자율 큐 3개 카드가 따로따로 작동. 같은 BL이 어디 묶이는지, 어떤 페이지에 들어가는지 시각적으로 연결 안 됨.\n\nfix 2가지:\n1) PAGE_INFO 매핑 보강 — 자율 큐 12건 모두 페이지 매핑\n2) 3방향 클릭 연동:\n   - 페이지 카드 클릭 → 묶인 BL이 결정 대기 + 자율 큐에서 하이라이트\n   - BL 클릭 (결정 대기/자율 큐) → 묶인 페이지가 페이지 지도에서 하이라이트\n   - 같은 하이라이트 상태 유지 + 한 번 더 클릭하면 해제",
+      "progress": {
+        "percent": 0,
+        "steps": [
+          {
+            "n": 1,
+            "label": "진단 — 자율 큐 12건 페이지 매핑 0건, 결정 대기 24건 중 4건만 매핑",
+            "status": "done"
+          },
+          {
+            "n": 2,
+            "label": "PAGE_INFO 매핑 보강 (자율 큐 + 결정 대기 모든 BL → 페이지)",
+            "status": "done"
+          },
+          {
+            "n": 3,
+            "label": "3방향 하이라이트 시스템 — STATE.highlightedBl/Path",
+            "status": "done"
+          },
+          {
+            "n": 4,
+            "label": "클릭 핸들러 — 페이지/BL 클릭 시 양방향 하이라이트",
+            "status": "done"
+          },
+          {
+            "n": 5,
+            "label": "commit + push + 라이브 검증",
+            "status": "done"
+          },
+          {
+            "n": 6,
+            "label": "결과 보고 + 대표님 사용법 안내",
+            "status": "pending"
+          }
+        ]
+      },
+      "history": [
+        {
+          "at": "2026-05-11T08:26:56.336Z",
+          "action": "created",
+          "by": "claude",
+          "note": "대표님 보고 P0"
+        },
+        {
+          "at": "2026-05-11T08:26:56.336Z",
+          "action": "started",
+          "by": "claude",
+          "note": "단계 1 진단 완료"
+        },
+        {
+          "at": "2026-05-11T08:30:54.952Z",
+          "action": "progress",
+          "by": "claude",
+          "note": "단계 2-5 완료 — PAGE_INFO 매핑 보강(13개→18개 매핑), 3방향 하이라이트 시스템 + CSS + JS 완성, ceo-wait/auto-queue에 🔗 버튼"
+        }
+      ]
+    },
     {
       "id": "BL-PAGE-MAP-SIMPLE",
       "title": "페이지 지도 시각화 — guest→manager→admin 흐름별 진척 + 결정/BL 연결",

@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-11T02:38:01.191240Z",
+  "updated_at": "2026-05-11T03:54:06.528Z",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -12,16 +12,16 @@
     "SOLO_WORK_QUEUE.md"
   ],
   "stats": {
-    "total": 150,
+    "total": 155,
     "done": 110,
-    "in_progress": 0,
+    "in_progress": 1,
     "paused": 1,
-    "pending": 27,
+    "pending": 26,
     "blocked": 11,
-    "autonomous_ready": 22,
+    "autonomous_ready": 23,
     "todo": 0,
     "cancelled": 0,
-    "updated_at": "2026-05-11T01:02:47.000Z"
+    "updated_at": "2026-05-11T03:52:43.209Z"
   },
   "tasks": [
     {
@@ -8620,7 +8620,7 @@
     {
       "id": "BL-BASELINE-AUTO-TASK",
       "title": "[건강검진 자동 작업 등록] 점검에서 발견된 문제를 자동으로 작업 카드 박음",
-      "status": "pending",
+      "status": "in_progress",
       "priority": "P0",
       "category": "infrastructure",
       "owner": "claude",
@@ -8635,13 +8635,55 @@
       "blocker": null,
       "dependencies": [],
       "progress": {
-        "percent": 0,
-        "steps": []
+        "percent": 20,
+        "steps": [
+          {
+            "step": 1,
+            "title": "설계 + 룰북 + steps 박기",
+            "status": "done",
+            "started_at": "2026-05-11T03:52:43.209Z",
+            "done_at": "2026-05-11T03:54:06.528Z"
+          },
+          {
+            "step": 2,
+            "title": "auto-task-from-health.mjs 코어 스크립트",
+            "status": "pending"
+          },
+          {
+            "step": 3,
+            "title": "dedup 로직 + 안정 ID 규칙 (BL-AUTO-{check}-{stable_key})",
+            "status": "pending"
+          },
+          {
+            "step": 4,
+            "title": "GitHub Actions 워크플로 yml + 트리거 wiring",
+            "status": "pending"
+          },
+          {
+            "step": 5,
+            "title": "라이브 검증 + ops 알림 + 4줄 보고",
+            "status": "pending"
+          }
+        ]
       },
       "notes": "대표님 통찰 (2026-05-10): 점검 봇이 빨간불 잡아도 BL로 안 박혀 흘러감. health-bot / page-status-scan / charter-length-bot 결과를 tasks.json에 자동 BL 등록. 중복 방지 dedup 로직 필수.\n\nP0인 이유: Phase 0~1 작업 박는 동안 발생하는 점검 결과를 흘리지 않게 잡아주는 인프라. BL-BASELINE-HUMAN-LANG과 짝꿍.",
       "source": "ceo_insight_2026-05-10",
       "created_at": "2026-05-11T02:38:01.191240Z",
-      "updated_at": "2026-05-11T02:38:01.191240Z"
+      "updated_at": "2026-05-11T03:54:06.528Z",
+      "history": [
+        {
+          "at": "2026-05-11T03:52:43.209Z",
+          "by": "claude",
+          "action": "steps_planned",
+          "detail": "5단계 박음 + 작업 시작 (in_progress 전환)"
+        },
+        {
+          "at": "2026-05-11T03:54:06.528Z",
+          "by": "claude",
+          "action": "step:done:1",
+          "detail": "설계+룰북+steps 박음"
+        }
+      ]
     },
     {
       "id": "BL-SERVICE-MAP",

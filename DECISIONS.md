@@ -10,6 +10,42 @@
 
 ---
 
+## 🆕 2026-05-11 — 점검 봇 발견 → 자동 BL 등록 인프라
+
+### 결정 D-024: BL-BASELINE-AUTO-TASK — 점검 결과를 tasks.json에 자동 등록 ⭐⭐⭐ 2026-05-11
+
+**무엇을**: 기존 점검 봇 3종(health-check-admin / page-status-scan / charter-length-bot)이 빨간불·노란불을 발견해도 `_health.json`·`pages-status.json`·CI exit 1에서 끝나고 **tasks.json BL로 안 박혀 흘러가던 문제**를, 새 봇 `auto-task-from-health`로 자동 등록. 안정 ID(`BL-AUTO-{CHECK}-{KEY}`) + dedup(active 상태 검사) + 24h 가드 + 자동 close 로직 박음.
+
+**왜 정석인가** (헌법 5기준):
+1. **단일 진실원**: tasks.json이 작업 큐의 유일 source — 점검 결과가 그쪽으로 흐르는 게 정석.
+2. **표준 패턴**: 기존 5개 봇과 동일 구조(node script + workflow yml + concurrency + race retry 3회).
+3. **유지보수 비용 최소**: 룰북 1개(`auto-task-registry.md`) + 스크립트 1개 + 워크플로 1개. 분산 안 함.
+4. **자동 동기화**: 부칙 8 — health-bot push → auto-task-bot 자동 트리거 → tasks.json 갱신 → admin-status 5초 폴링 → 화면 즉시 갱신.
+5. **재발·롤백 안전**: git revert 1번으로 3개 파일 동시 롤백. dedup 덕에 중복 박기 사고 원천 차단.
+
+**원인 (대표님 통찰 2026-05-10)**:
+- "점검 봇이 빨간불 잡아도 BL로 안 박혀 흘러감. health-bot / page-status-scan / charter-length-bot 결과를 tasks.json에 자동 BL 등록. 중복 방지 dedup 로직 필수."
+- 짝꿍: BL-BASELINE-HUMAN-LANG (점검 결과를 사업가 언어로 풀기)
+
+**핵심 로직**:
+- 안정 ID: `BL-AUTO-{CHECK_NAME}-{STABLE_KEY}` — 같은 종류 사고는 같은 ID로 매칭
+- dedup: active 상태(pending/in_progress/paused/blocked) BL 있으면 SKIP / done인데 24h 안이면 SKIP / 24h 지났으면 REOPEN
+- auto-close: 같은 check가 green으로 돌아오면 active BL 자동 done 처리
+- 예외(BL 안 박음): vercel_sync yellow / vercel_quota yellow / bots unknown only — 기다리면 풀리는 것은 정보성
+
+**산출물**:
+- `_os/playbook/auto-task-registry.md` (룰북 단일 진실원, 300줄 이하)
+- `_os/scripts/auto-task-from-health.mjs` (코어 스크립트)
+- `.github/workflows/auto-task-from-health.yml` (트리거 + race retry 3회)
+- `tasks.json` BL-BASELINE-AUTO-TASK 5단계 progress 박음
+
+**검증**:
+- 자체 검증 11개 통과 (룰북 8번 섹션)
+- dedup 로컬 테스트: 동일 ID 2회 호출 시 1회만 박힘
+- 라이브 검증: 첫 실행에서 현재 _health.json red 상태 → BL 자동 등록 → admin-status 화면 갱신 확인
+
+---
+
 ## 🆕 2026-05-10 — 클로드 행동 강제 게이트 (부칙 16 신설)
 
 ### 결정 D-023: BL-CLAUDE-DISCIPLINE — 헌법 부칙 16 + 인계서 강제 헤더 + 4개 의무 ⭐⭐⭐ 2026-05-10

@@ -240,6 +240,86 @@
     background: linear-gradient(135deg, #9333ea, #6d28d9);
   }
 
+  /* ★ BL-PAGE-MAP-SIMPLE (2026-05-11): 페이지 지도 카드 */
+  .page-map {
+    background: linear-gradient(135deg, rgba(99,102,241,0.10), rgba(79,70,229,0.04));
+    border: 1px solid rgba(99,102,241,0.40);
+    border-radius: 10px; padding: 16px; margin-bottom: 14px;
+  }
+  .pm-head { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+  .pm-pill {
+    background: rgba(99,102,241,0.28) !important; color: #c7d2fe !important;
+    font-size: 11px !important; padding: 3px 9px !important; border-radius: 4px !important; font-weight: 600 !important;
+  }
+  .pm-subtitle { font-size: 11.5px; color: var(--text-muted); }
+
+  .pm-tracks { display: grid; grid-template-columns: 1fr; gap: 14px; }
+  @media (min-width: 1200px) {
+    .pm-tracks { grid-template-columns: 1fr 1fr 1fr; }
+  }
+
+  .pm-track {
+    background: rgba(15,23,42,0.35);
+    border: 1px solid rgba(99,102,241,0.20);
+    border-radius: 8px; padding: 12px;
+  }
+  .pm-track-head {
+    display: flex; align-items: center; gap: 8px; margin-bottom: 10px;
+    padding-bottom: 8px; border-bottom: 1px dashed rgba(99,102,241,0.20);
+  }
+  .pm-track-title { font-weight: 700; font-size: 13px; color: var(--text-bright); }
+  .pm-track-count { font-size: 11px; color: var(--text-muted); }
+
+  .pm-page-list { display: flex; flex-direction: column; gap: 6px; }
+  .pm-page-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 7px 10px; border-radius: 6px;
+    background: rgba(15,23,42,0.25);
+    border: 1px solid rgba(99,102,241,0.10);
+    border-left: 3px solid;
+    cursor: pointer; transition: transform .12s, background .12s;
+  }
+  .pm-page-item:hover { transform: translateX(2px); background: rgba(99,102,241,0.10); }
+  .pm-page-item.live      { border-left-color: #16a34a; }
+  .pm-page-item.partial   { border-left-color: #ca8a04; }
+  .pm-page-item.skeleton  { border-left-color: #ea580c; }
+  .pm-page-item.missing   { border-left-color: #dc2626; }
+  .pm-page-item.retired   { border-left-color: #6b7280; opacity: 0.6; }
+
+  .pm-page-name { flex: 1; font-size: 12px; font-weight: 500; color: var(--text-1); }
+  .pm-page-score { font-size: 10.5px; color: var(--text-muted); font-family: 'SF Mono', Monaco, monospace; }
+  .pm-page-bls {
+    font-size: 10px; color: #c4b5fd;
+    background: rgba(168,85,247,0.15);
+    border: 1px solid rgba(168,85,247,0.3);
+    padding: 1px 6px; border-radius: 4px; white-space: nowrap;
+  }
+
+  .pm-legend {
+    display: flex; gap: 14px; margin-top: 12px; padding-top: 10px;
+    border-top: 1px dashed rgba(99,102,241,0.15);
+    font-size: 10.5px; color: var(--text-muted); flex-wrap: wrap;
+  }
+  .pm-legend-item { display: inline-flex; align-items: center; gap: 5px; }
+  .pm-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; }
+  .pm-dot.live     { background: #16a34a; }
+  .pm-dot.partial  { background: #ca8a04; }
+  .pm-dot.skeleton { background: #ea580c; }
+  .pm-dot.missing  { background: #dc2626; }
+  .pm-dot.retired  { background: #6b7280; }
+
+  [data-theme="light"] .page-map {
+    background: linear-gradient(135deg, rgba(99,102,241,0.05), rgba(79,70,229,0.02));
+    border-color: rgba(99,102,241,0.30);
+  }
+  [data-theme="light"] .pm-pill { background: #e0e7ff !important; color: #4338ca !important; }
+  [data-theme="light"] .pm-track { background: #fafafa; border-color: rgba(99,102,241,0.20); }
+  [data-theme="light"] .pm-track-title { color: #1e293b; }
+  [data-theme="light"] .pm-page-item { background: #fff; border-color: rgba(99,102,241,0.10); }
+  [data-theme="light"] .pm-page-item:hover { background: #f5f3ff; }
+  [data-theme="light"] .pm-page-name { color: #1e293b; }
+  [data-theme="light"] .pm-page-bls { background: #f3e8ff; color: #5b21b6; border-color: #c4b5fd; }
+
   .in-progress-box.visible { display: block; }
   .in-progress-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
   .in-progress-row > .pill {
@@ -1212,6 +1292,33 @@
         <span style="color:var(--p1);">🟠 골격 0</span>
         <span style="color:var(--blocked);">🔴 미작성 1</span>
       </div>
+    </div>
+  </section>
+
+  <!-- 🗺️ 페이지 지도 (BL-PAGE-MAP-SIMPLE, 2026-05-11) -->
+  <!-- 대표님 본질 질문에 답:
+       "페이지가 지금 어디까지 만들어졌는지, 없는 페이지는 무엇인지 파악할 수가 없어"
+
+       구조: guest(공개) → manager(매니저) → admin(관리자) 3개 트랙
+       각 페이지 카드에: 사람말 이름 + 사업 흐름상 위치 + 진척 상태 + 묶인 결정/BL
+  -->
+  <section class="page-map" id="page-map-card">
+    <div class="pm-head">
+      <span class="pill pm-pill">🗺️ 페이지 지도</span>
+      <span class="pm-subtitle">서비스 진입 흐름 — 만들어진 / 일부 / 없는 페이지 + 그 페이지에 묶인 결정/작업</span>
+    </div>
+
+    <!-- 3개 트랙: guest / manager / admin -->
+    <div class="pm-tracks" id="pm-tracks">
+      <!-- JS가 동적으로 렌더 -->
+    </div>
+
+    <div class="pm-legend">
+      <span class="pm-legend-item"><span class="pm-dot live"></span>본격 사용 가능</span>
+      <span class="pm-legend-item"><span class="pm-dot partial"></span>일부만 만듦</span>
+      <span class="pm-legend-item"><span class="pm-dot skeleton"></span>골격만</span>
+      <span class="pm-legend-item"><span class="pm-dot missing"></span>없음</span>
+      <span class="pm-legend-item"><span class="pm-dot retired"></span>폐기</span>
     </div>
   </section>
 
@@ -3500,6 +3607,7 @@
       try { renderPausedBox(data); } catch (e) { console.warn('renderPausedBox 실패', e); }  // ★ BL-AUTO-REORDER-PAUSE
       // BL-CEO-WAIT-HUMAN-LANG (2026-05-11): renderDecisionImpactCard 호출 제거 — 기존 ceo-wait 박스로 흡수
       renderCeoWait(data);             // ★ 결정 대기 박스 동적화
+      try { renderPageMap(); } catch (e) { console.warn('renderPageMap 실패', e); }  // ★ BL-PAGE-MAP-SIMPLE
       // tasks.json 로드되면 카테고리 카드의 3-state 카운트 정확화 위해 재렌더
       if (STATE.data) renderSidebarMenus(STATE.data);
     } catch (err) {
@@ -3900,6 +4008,128 @@
           // 폴백 — 모달 미로딩 시 기존 동작
           location.href = `/admin-tasks.html?id=${encodeURIComponent(id)}`;
         }
+      });
+    });
+  }
+
+  // ──────────────────────────────────────────────────────────
+  // 🗺️ 페이지 지도 (BL-PAGE-MAP-SIMPLE, 2026-05-11)
+  //
+  // 대표님 본질 질문에 답: "페이지가 어디까지 만들어졌나 + 없는 페이지는 무엇인가"
+  //
+  // 데이터 소스:
+  //   1) pages-status.summary.json (또는 pages-status.json) — 각 페이지 점수
+  //   2) 사람말 페이지 매핑 (PAGE_INFO) — audience + 사업 흐름 위치 + 묶인 BL ID
+  //
+  // 진척 카테고리: live(≥70) / partial(50-70) / skeleton(30-50) / missing(<30) / retired
+  // ──────────────────────────────────────────────────────────
+
+  // 사람말 페이지 정보 매핑 — pages-meta.mjs의 정보를 사람 말로 풀어줌
+  // 묶인 BL이 있으면 보라색 chip으로 표시 (그 페이지 안에 들어가야 할 기능)
+  const PAGE_INFO = {
+    // GUEST (공개) — 사업 진입 순서
+    '/index.html':           { name: '메인 랜딩',           role: '호텔 매니저 첫 진입',         track: 'guest', order: 1,  bls: [] },
+    '/signup.html':          { name: '회원가입',             role: '이메일·비번 가입',             track: 'guest', order: 2,  bls: [] },
+    '/login.html':           { name: '로그인',               role: '매니저/관리자 통합',           track: 'guest', order: 3,  bls: [] },
+    '/forgot-password.html': { name: '비밀번호 찾기',         role: '재설정 메일 발송',             track: 'guest', order: 4,  bls: [] },
+    '/reset-password.html':  { name: '비밀번호 재설정',       role: '메일 링크 클릭 후',            track: 'guest', order: 5,  bls: [] },
+    '/verify-email.html':    { name: '이메일 인증',           role: '가입 후 인증 클릭 도착',       track: 'guest', order: 6,  bls: [] },
+    // MANAGER (매니저) — 가입 후 흐름
+    '/dashboard.html':       { name: '매니저 대시보드',       role: '진행 단계 + 호텔 정보',        track: 'manager', order: 1, bls: [] },
+    '/hotel-info.html':      { name: '호텔 정보 관리',         role: 'Google Places + Agoda 매칭', track: 'manager', order: 2, bls: ['BL-005'] },
+    '/sales.html':           { name: '세일즈 페이지',         role: '결제 유도 — $200 가치 어필',  track: 'manager', order: 3, bls: ['BL-INVOICE-001','BL-012','BL-013'] },
+    '/marketing.html':       { name: '매니저 성과 페이지',     role: '영상 진행/노출/인보이스',     track: 'manager', order: 4, bls: ['BL-TRACK-001','BL-INVOICE-001'] },
+    '/settings.html':        { name: '계정 설정',             role: '비번 변경/탈퇴',               track: 'manager', order: 5, bls: ['BL-004'] },
+    // ADMIN (관리자)
+    '/admin.html':           { name: '관리자 콘솔',           role: '호텔 승인/거절/매칭',          track: 'admin', order: 1, bls: ['BL-ADMIN-AUTH'] },
+    '/admin-status.html':    { name: '시스템 완성도',         role: '대표님 현황판 (지금 이 페이지)',track: 'admin', order: 2, bls: [] },
+    '/admin-tasks.html':     { name: '작업 관리',             role: '전체 작업 목록',               track: 'admin', order: 3, bls: [] },
+    '/admin-business.html':  { name: '비즈니스 문서',         role: '헌법/결정/플로우 뷰어',         track: 'admin', order: 4, bls: [] },
+    '/admin-gallery.html':   { name: '페이지 갤러리',         role: '스크린샷 시각 비교',            track: 'admin', order: 5, bls: ['BL-015'] },
+    '/admin-service-ops.html':{ name: '운영 매뉴얼',          role: '정식 오픈 후 운영 절차',       track: 'admin', order: 6, bls: [] },
+    '/booking-analytics.html':{ name: '예약 분석',            role: '도시별/국가별 통계',           track: 'admin', order: 7, bls: ['BL-003'] },
+    '/admin-hub.html':       { name: '중앙 허브(폐기)',        role: 'BL-HUB-RETIRE D-013',          track: 'admin', order: 99, bls: [] },
+  };
+
+  function pageProgressCat(score, retired) {
+    if (retired) return 'retired';
+    if (score >= 70) return 'live';
+    if (score >= 50) return 'partial';
+    if (score >= 30) return 'skeleton';
+    return 'missing';
+  }
+
+  async function renderPageMap() {
+    const wrap = $('pm-tracks');
+    if (!wrap) return;
+
+    // pages-status.summary.json fetch (가벼움)
+    let pageScores = {};
+    try {
+      const res = await fetch('/pages-status.json?t=' + Date.now());
+      if (res.ok) {
+        const data = await res.json();
+        for (const p of (data.pages || [])) {
+          pageScores[p.path] = { score: p.totalScore, retired: !!p.retired };
+        }
+      }
+    } catch (e) {
+      console.warn('renderPageMap: pages-status.json fetch 실패', e);
+    }
+
+    // 트랙별 묶기
+    const tracks = { guest: [], manager: [], admin: [] };
+    for (const [path, info] of Object.entries(PAGE_INFO)) {
+      const s = pageScores[path] || { score: 0, retired: false };
+      const cat = pageProgressCat(s.score, s.retired);
+      tracks[info.track]?.push({
+        path,
+        ...info,
+        score: s.score,
+        cat,
+      });
+    }
+    for (const t of Object.keys(tracks)) {
+      tracks[t].sort((a, b) => a.order - b.order);
+    }
+
+    const TRACK_META = {
+      guest:   { emoji: '🌐', title: '공개 페이지 (호텔 매니저 진입)', sub: '회원가입 전 누구나' },
+      manager: { emoji: '🏨', title: '매니저 페이지 (가입 후)',         sub: '호텔 정보 입력 후 진입' },
+      admin:   { emoji: '👤', title: '관리자 페이지 (사장 + 직원)',     sub: '운영자 전용' },
+    };
+
+    wrap.innerHTML = ['guest', 'manager', 'admin'].map(trackKey => {
+      const meta = TRACK_META[trackKey];
+      const items = tracks[trackKey] || [];
+      const liveCount = items.filter(i => i.cat === 'live').length;
+      const totalCount = items.filter(i => i.cat !== 'retired').length;
+      return `<div class="pm-track">
+        <div class="pm-track-head">
+          <span style="font-size:14px">${meta.emoji}</span>
+          <span class="pm-track-title">${meta.title}</span>
+          <span class="pm-track-count">${liveCount}/${totalCount} 본격</span>
+        </div>
+        <div class="pm-page-list">
+          ${items.map(p => {
+            const blChip = p.bls.length > 0
+              ? `<span class="pm-page-bls" title="이 페이지 안에 들어가야 할 작업/결정: ${p.bls.join(', ')}">🔗 ${p.bls.length}개 BL</span>`
+              : '';
+            return `<div class="pm-page-item ${p.cat}" data-path="${escapeHtml(p.path)}" data-bls="${escapeHtml(p.bls.join(','))}" title="${escapeHtml(p.role)} (${p.score}점) — 클릭 시 새 탭으로 페이지 열기">
+              <span class="pm-page-name">${escapeHtml(p.name)}</span>
+              ${blChip}
+              <span class="pm-page-score">${p.score}점</span>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>`;
+    }).join('');
+
+    // 카드 클릭 → 새 탭에서 페이지 열기
+    wrap.querySelectorAll('.pm-page-item').forEach(el => {
+      el.addEventListener('click', () => {
+        const path = el.dataset.path;
+        if (path) window.open(path, '_blank');
       });
     });
   }

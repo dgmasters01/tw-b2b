@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-11T08:03:11+00:00",
+  "updated_at": "2026-05-11T08:09:51.092Z",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -12,18 +12,90 @@
     "SOLO_WORK_QUEUE.md"
   ],
   "stats": {
-    "total": 169,
+    "total": 170,
     "done": 124,
-    "in_progress": 0,
+    "in_progress": 1,
     "pending": 27,
     "blocked": 11,
     "autonomous_ready": 19,
     "todo": 0,
     "paused": 1,
     "cancelled": 0,
-    "updated_at": "2026-05-11T08:00:01.831Z"
+    "updated_at": "2026-05-11T08:09:51.092Z"
   },
   "tasks": [
+    {
+      "id": "BL-PAGE-MAP-SIMPLE",
+      "title": "페이지 지도 시각화 — guest→manager→admin 흐름별 진척 + 결정/BL 연결",
+      "category": "feature",
+      "priority": "P0",
+      "size": "medium",
+      "status": "in_progress",
+      "owner": "claude",
+      "claude_can_auto": true,
+      "approval_required": false,
+      "chatlog_exempt": true,
+      "source": "대표님 직접 보고 (2026-05-11) — 페이지가 지금 어디까지 만들어졌는지, 없는 페이지는 무엇인지 파악할 수가 없어. 어떻게 해결할 수 있을까?",
+      "created_at": "2026-05-11T08:09:51.092Z",
+      "updated_at": "2026-05-11T08:11:57.141Z",
+      "started_at": "2026-05-11T08:09:51.092Z",
+      "notes": "대표님 본질 질문 2개:\n1. 페이지가 어디까지 만들어졌나\n2. 없는 페이지는 무엇인가\n\n진단:\n- 등록된 19개 페이지 중 본격 13개 + 일부 5개 + 폐기 1개 = 사실상 \"없는 페이지\"는 0개\n- 진짜 본질: 페이지 안에 들어가야 할 기능 BL이 결정 대기 중\n- BL-SERVICE-MAP은 디자인 결정 대기 중이라 못 진행\n\nfix: BL-SERVICE-MAP 디자인 결정 없이도 가능한 단순한 표 형태로 페이지 지도. 그림이 필요 없이 결정-페이지-BL 매핑만.",
+      "progress": {
+        "percent": 0,
+        "steps": [
+          {
+            "n": 1,
+            "label": "대표님 본질 질문 분석 + 페이지 정밀 진단",
+            "status": "done"
+          },
+          {
+            "n": 2,
+            "label": "페이지-BL 매핑 데이터 모델 (PAGE_BLS_MAP)",
+            "status": "done"
+          },
+          {
+            "n": 3,
+            "label": "admin-status.html 페이지 지도 카드 HTML+CSS+JS",
+            "status": "done"
+          },
+          {
+            "n": 4,
+            "label": "commit + push + Vercel 배포 대기",
+            "status": "done"
+          },
+          {
+            "n": 5,
+            "label": "라이브 검증 — 카드 등장 + 클릭 동작",
+            "status": "pending"
+          },
+          {
+            "n": 6,
+            "label": "결과 보고 + 대표님께 다음 액션 권장",
+            "status": "pending"
+          }
+        ]
+      },
+      "history": [
+        {
+          "at": "2026-05-11T08:09:51.092Z",
+          "action": "created",
+          "by": "claude",
+          "note": "대표님 직접 보고 P0"
+        },
+        {
+          "at": "2026-05-11T08:09:51.092Z",
+          "action": "started",
+          "by": "claude",
+          "note": "단계 1 진단 완료"
+        },
+        {
+          "at": "2026-05-11T08:11:57.141Z",
+          "action": "progress",
+          "by": "claude",
+          "note": "단계 2·3·4 완료 — HTML/CSS/JS + PAGE_INFO 매핑(19페이지) + 3트랙 렌더링"
+        }
+      ]
+    },
     {
       "id": "BL-CEO-WAIT-HUMAN-LANG",
       "title": "대표님 결정 대기 박스 — 중복 영향력 카드 폐기 + 제목 사람말 풀기",

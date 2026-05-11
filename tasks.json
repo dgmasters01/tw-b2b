@@ -30,18 +30,18 @@
       "category": "fix",
       "priority": "P0",
       "size": "medium",
-      "status": "in_progress",
+      "status": "done",
       "owner": "claude",
       "claude_can_auto": true,
       "approval_required": false,
       "chatlog_exempt": true,
       "source": "대표님 직접 보고 (2026-05-11 15:30) — Agoda 예약 검증 핑퐁 다 하고 그림일치 결정확정 눌렀는데 아무 변화 없음",
       "created_at": "2026-05-11T15:22:29.039Z",
-      "updated_at": "2026-05-11T15:25:21+00:00",
+      "updated_at": "2026-05-11T15:27:26.692Z",
       "started_at": "2026-05-11T15:22:29.039Z",
       "notes": "진단:\n- BL-003 라이브 status=blocked, pingpong_rounds=9, pingpong_turn=ceo (확정 안 박힘)\n- 최근 commit에 feat(BL-003): 결정 확정 D-NNN 없음 (핸들러 도달 X)\n- _decisions/pingpong/BL-003.json에 9라운드 모두 남음 (결정 내용 살아있음)\n- 마지막 라운드 결론: BL-003을 BL-003-A(Agoda Matching=호텔 가입 수동 승인) + BL-003-B(예약검증)로 쪼개기\n\nfix 3종:\n1) BL-003 결정 직접 박기 (스크립트로 안전하게)\n   - DECISIONS.md에 D-NNN 박음\n   - BL-003 status=done + decision_summary 박음\n   - BL-003-A, BL-003-B 신규 BL 생성\n2) 결정 확정 흐름 에러 가시화\n   - 5829줄 핸들러에 alert() 추가 (status 영역만으로는 못 봄)\n   - 401/500 등 명확한 에러 메시지\n3) 결정 모달 손실 방지\n   - 핑퐁 라운드가 있는데 확정 시도 후 실패하면 모달 닫지 말고 재시도 가능하게",
       "progress": {
-        "percent": 0,
+        "percent": 100,
         "steps": [
           {
             "n": 1,
@@ -66,7 +66,7 @@
           {
             "n": 5,
             "label": "결과 보고 + 대표님께 다음 액션 안내",
-            "status": "pending"
+            "status": "done"
           }
         ]
       },
@@ -95,8 +95,15 @@
           "by": "auto-detect-bot",
           "commit": "53c5313",
           "note": "fix(BL-DECISION-CONFIRM-RESCUE): BL-003 핑퐁 9라운드 결정 손실 복구 + 확정 흐름 에러 가시화"
+        },
+        {
+          "at": "2026-05-11T15:27:26.692Z",
+          "action": "done",
+          "by": "claude",
+          "note": "단계 5 라이브 검증 — BL-003 done + BL-003-A/B pending 자율큐 진입 확인"
         }
-      ]
+      ],
+      "completed_at": "2026-05-11T15:27:26.692Z"
     },
     {
       "id": "BL-FLOW-CLARITY-V2",

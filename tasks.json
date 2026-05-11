@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-11T04:34:47+00:00",
+  "updated_at": "2026-05-11T07:00:47.368Z",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -13,15 +13,15 @@
   ],
   "stats": {
     "total": 165,
-    "done": 119,
+    "done": 120,
     "in_progress": 0,
-    "pending": 28,
-    "blocked": 11,
-    "autonomous_ready": 20,
-    "todo": 0,
     "paused": 1,
+    "pending": 27,
+    "blocked": 11,
+    "autonomous_ready": 23,
+    "todo": 0,
     "cancelled": 0,
-    "updated_at": "2026-05-11T04:34:39.563Z"
+    "updated_at": "2026-05-11T07:00:47.368Z"
   },
   "tasks": [
     {
@@ -9384,17 +9384,17 @@
     },
     {
       "id": "BL-AUTO-PAGE-STATUS-ADMIN-HUB",
-      "title": "[자동] 페이지 /admin-hub.html 완성도 14점 (약함: structure)",
+      "title": "[자동] retired된 admin-hub.html이 점검 BL을 무한 생성 — retired 페이지 제외 필터 추가",
       "category": "infrastructure",
       "priority": "P0",
-      "status": "pending",
+      "status": "done",
       "claude_can_auto": true,
       "approval_required": false,
       "owner": "claude",
       "size": "small",
       "source": "auto_from_page_status",
       "created_at": "2026-05-11T03:56:28.755Z",
-      "updated_at": "2026-05-11T03:56:28.755Z",
+      "updated_at": "2026-05-11T07:00:58.972Z",
       "deadline": null,
       "order": null,
       "blocker": null,
@@ -9405,8 +9405,29 @@
       },
       "decision_ref": "D-024",
       "progress": {
-        "percent": 0,
-        "steps": []
+        "percent": 100,
+        "steps": [
+          {
+            "n": 1,
+            "label": "결함 본질 분석 (admin-hub는 D-013으로 폐기됨, 점수 끌어올림 불가)",
+            "status": "done"
+          },
+          {
+            "n": 2,
+            "label": "scan-pages-status.mjs criticalPages 생성 시 retired 페이지 제외",
+            "status": "done"
+          },
+          {
+            "n": 3,
+            "label": "auto-task-from-health.mjs 안전망 — retired 페이지 BL 생성 거부",
+            "status": "done"
+          },
+          {
+            "n": 4,
+            "label": "commit + push + 봇 자동 close 검증",
+            "status": "done"
+          }
+        ]
       },
       "history": [
         {
@@ -9414,9 +9435,30 @@
           "by": "auto-task-bot",
           "action": "created",
           "detail": "페이지 /admin-hub.html 완성도 14점 (약함: structure)"
+        },
+        {
+          "at": "2026-05-11T06:59:19.624Z",
+          "action": "started",
+          "by": "claude",
+          "note": "단계 1 완료 — 결함 정밀 분석. retired 페이지 처리 결함, 직전 BL과 동일 root cause"
+        },
+        {
+          "at": "2026-05-11T07:00:47.368Z",
+          "by": "auto-task-bot",
+          "action": "auto_resolved",
+          "detail": "retired 페이지 BL — auto-task-bot retired 안전망으로 close (BL-AUTO-PAGE-STATUS-ADMIN-HUB)"
+        },
+        {
+          "at": "2026-05-11T07:00:58.972Z",
+          "action": "verified",
+          "by": "claude",
+          "note": "단계 2·3 완료: scan-pages-status.mjs retired 제외 필터 + auto-task-from-health.mjs 이중 안전망. 단계 4: 로컬 검증에서 retired 셋 인식 + admin-hub BL 자동 close 확인. 봇이 의도대로 작동."
         }
       ],
-      "notes": "scan-bot 자동 등록 (2026-05-11T03:56:28.755Z)\n\n페이지: /admin-hub.html\n점수: 14\n약점: structure\n\n진단 hint: scan-pages-status.mjs 결과. 약점 차원 보강 필요."
+      "notes": "scan-bot 자동 등록 (2026-05-11T03:56:28.755Z)\n\n페이지: /admin-hub.html\n점수: 14\n약점: structure\n\n진단 hint: scan-pages-status.mjs 결과. 약점 차원 보강 필요.\n\n[2026-05-11 정밀 분석]\n결함 본질: admin-hub.html은 BL-HUB-RETIRE/D-013으로 폐기된 페이지(2KB 골격만 남음, 401 응답). 직전 BL-AUTO-PAGE-STATUS-ADMIN에서 _admin/ fallback fix로 다른 admin 6개는 회복했지만 admin-hub는 본질적으로 보강 불가. scan-pages-status.mjs criticalPages 생성 시 retired 페이지 제외 필요 + auto-task-from-health.mjs 안전망 추가.\n\n[자동 해소 2026-05-11T07:00:47.368Z] retired 페이지 BL — retired 셋과 매칭되어 자동 close",
+      "started_at": "2026-05-11T06:59:19.624Z",
+      "completed_at": "2026-05-11T07:00:58.972Z",
+      "chatlog_exempt": true
     },
     {
       "id": "BL-AUTO-PAGE-STATUS-ADMIN-TASKS",

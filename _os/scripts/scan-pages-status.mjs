@@ -327,8 +327,14 @@ function main() {
   writeFileSync(OUT_DISPLAY, JSON.stringify(display, null, 2));
 
   // SUMMARY (Claude용) — 5KB 이내, 끊어진 대화 들어온 새 Claude가 즉시 컨텍스트 복구
-  const critical = sortedByScore.filter(r => r.totalScore < 50);
-  const partial  = sortedByScore.filter(r => r.totalScore >= 50 && r.totalScore < 70);
+  //
+  // retired 제외 (BL-AUTO-PAGE-STATUS-ADMIN-HUB, 2026-05-11):
+  //   retired 페이지(BL-HUB-RETIRE/D-013로 폐기된 admin-hub 등)는 본질적으로
+  //   점수를 끌어올릴 수 없는 골격 잔존물. criticalPages에 박히면 점검 BL이
+  //   무한 생성되어 작업 큐가 잡음으로 가득 참. retired는 평균에서도 이미 제외되므로
+  //   summary 영역에서도 동일하게 제외하는 게 일관성.
+  const critical = sortedByScore.filter(r => r.totalScore < 50 && !r.retired);
+  const partial  = sortedByScore.filter(r => r.totalScore >= 50 && r.totalScore < 70 && !r.retired);
   const summary = {
     generatedAt: startedAt,
     totalAvgScore: totalAvg,

@@ -32,6 +32,9 @@ import path from 'node:path';
 const ROOT = process.cwd();
 const HEALTH_FILE = path.join(ROOT, '_admin/_health.json');
 const PAGES_SUMMARY_FILE = path.join(ROOT, 'pages-status.summary.json');
+// BL-AUTO-PAGE-STATUS-ADMIN-HUB (2026-05-11): retired 페이지 식별용 full 파일
+//   summary에는 retired 정보가 없어서 안전망 차원에서 full을 함께 읽어 retired 셋 추출.
+const PAGES_FULL_FILE = path.join(ROOT, 'pages-status.json');
 const TASKS_FILE = path.join(ROOT, 'tasks.json');
 
 const NOW = new Date().toISOString();
@@ -195,14 +198,43 @@ function autoCloseHealthy(tasks, check) {
 }
 
 // ─── pages-status critical 페이지 처리 ──────────────────────────
-function processPageStatus(tasks, pagesSummary) {
+//
+// retired 안전망 (BL-AUTO-PAGE-STATUS-ADMIN-HUB, 2026-05-11):
+//   summary에는 retired 정보가 없어서, full(pages-status.json)에서 retired
+//   페이지의 BL ID 셋을 추출해 받음. 1차로 새 BL 생성 거부, 2차로 이미 등록된
+//   active retired BL을 자동 close. scan 스크립트의 summary 필터(1차 안전망)와
+//   함께 이중 방어. retired 페이지가 다시 critical에 박혀도 봇 자체가 거부.
+function processPageStatus(tasks, pagesSummary, retiredBlIds = new Set()) {
   const results = [];
   if (!pagesSummary || !Array.isArray(pagesSummary.criticalPages)) return results;
+
+  // 안전망 2: 이미 등록된 active retired BL 자동 close
+  for (const t of tasks) {
+    if (!t.id.startsWith('BL-AUTO-PAGE-STATUS-')) continue;
+    if (!isActive(t.status)) continue;
+    if (!retiredBlIds.has(t.id)) continue;
+    t.status = 'done';
+    t.updated_at = NOW;
+    if (!t.progress) t.progress = { percent: 100, steps: [] };
+    t.progress.percent = 100;
+    t.history = t.history || [];
+    t.history.push({
+      at: NOW, by: 'auto-task-bot', action: 'auto_resolved',
+      detail: 'retired 페이지 BL — auto-task-bot retired 안전망으로 close (BL-AUTO-PAGE-STATUS-ADMIN-HUB)'
+    });
+    t.notes = (t.notes || '') + `\n\n[자동 해소 ${NOW}] retired 페이지 BL — retired 셋과 매칭되어 자동 close`;
+    results.push({ action: 'close', blId: t.id });
+  }
 
   for (const page of pagesSummary.criticalPages) {
     const slug = (page.path || '').replace(/^\//, '').replace(/\.html$/, '').toUpperCase().replace(/[^A-Z0-9]/g, '-');
     if (!slug) continue;
     const blId = `BL-AUTO-PAGE-STATUS-${slug}`;
+    // 안전망 1: retired 페이지는 새 BL 생성 거부
+    if (retiredBlIds.has(blId)) {
+      results.push({ action: 'skip_retired', blId });
+      continue;
+    }
     const detail = `페이지 ${page.path} 완성도 ${page.score}점 (약함: ${page.weakest})`;
 
     const existing = tasks.find(t => t.id === blId);
@@ -280,7 +312,23 @@ function recomputeStats(data) {
 function main() {
   const health = loadJSON(HEALTH_FILE);
   const pagesSummary = loadJSON(PAGES_SUMMARY_FILE);
+  const pagesFull = loadJSON(PAGES_FULL_FILE);
   const tasksData = loadJSON(TASKS_FILE);
+
+  // retired 페이지의 BL ID 셋 추출 (BL-AUTO-PAGE-STATUS-ADMIN-HUB)
+  //   pages-status.json (full)의 r.retired === true 인 페이지를 BL ID로 변환.
+  //   processPageStatus에 넘겨 새 BL 거부 + 기존 active retired BL 자동 close.
+  const retiredBlIds = new Set();
+  if (pagesFull && Array.isArray(pagesFull.pages)) {
+    for (const p of pagesFull.pages) {
+      if (!p.retired) continue;
+      const slug = (p.path || '').replace(/^\//, '').replace(/\.html$/, '').toUpperCase().replace(/[^A-Z0-9]/g, '-');
+      if (slug) retiredBlIds.add(`BL-AUTO-PAGE-STATUS-${slug}`);
+    }
+  }
+  if (retiredBlIds.size > 0) {
+    console.log(`ℹ️ retired 페이지 BL 거부 셋: ${[...retiredBlIds].join(', ')}`);
+  }
 
   if (!tasksData || !Array.isArray(tasksData.tasks)) {
     console.error('❌ tasks.json 로드 실패');
@@ -309,8 +357,8 @@ function main() {
     console.log('ℹ️ _health.json 없음 — health 처리 skip');
   }
 
-  // 2. pages-status critical 처리
-  const pageResults = processPageStatus(tasksData.tasks, pagesSummary);
+  // 2. pages-status critical 처리 (retired 안전망 포함)
+  const pageResults = processPageStatus(tasksData.tasks, pagesSummary, retiredBlIds);
   for (const r of pageResults) {
     if (r.action === 'create') created.push(r.blId);
     else if (r.action === 'reopen') reopened.push(r.blId);

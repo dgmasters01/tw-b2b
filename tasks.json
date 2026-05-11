@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-11T04:04:25+00:00",
+  "updated_at": "2026-05-11T04:07:28.737Z",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -13,15 +13,15 @@
   ],
   "stats": {
     "total": 164,
-    "done": 111,
-    "in_progress": 1,
+    "done": 112,
+    "in_progress": 0,
     "paused": 1,
     "pending": 34,
     "blocked": 11,
     "autonomous_ready": 26,
     "todo": 0,
     "cancelled": 0,
-    "updated_at": "2026-05-11T04:04:01.312Z"
+    "updated_at": "2026-05-11T04:07:28.737Z"
   },
   "tasks": [
     {
@@ -8981,14 +8981,14 @@
       "title": "[자동] 작업 155건 중 13건에 출처가 없어요 (자동 동기화 봇 멈춤 위험)",
       "category": "infrastructure",
       "priority": "P0",
-      "status": "in_progress",
+      "status": "done",
       "claude_can_auto": true,
       "approval_required": false,
       "owner": "claude",
       "size": "small",
       "source": "auto_from_tasks_schema",
       "created_at": "2026-05-11T03:56:28.755Z",
-      "updated_at": "2026-05-11T04:04:25+00:00",
+      "updated_at": "2026-05-11T04:07:28.737Z",
       "deadline": null,
       "order": null,
       "blocker": null,
@@ -8999,7 +8999,7 @@
       },
       "decision_ref": "D-024",
       "progress": {
-        "percent": 83,
+        "percent": 100,
         "steps": [
           {
             "n": 1,
@@ -9032,14 +9032,14 @@
           {
             "n": 5,
             "title": "commit + push (단계별 [step:done:N] 태그)",
-            "status": "in_progress",
+            "status": "done",
             "done": true,
             "at": "2026-05-11T04:04:25+00:00"
           },
           {
             "n": 6,
             "title": "라이브 점검 봇 green 전환 확인 + 자동 close 검증",
-            "status": "pending"
+            "status": "done"
           }
         ],
         "completed_count": 5,
@@ -9065,6 +9065,12 @@
           "by": "auto-detect-bot",
           "commit": "5433976",
           "note": "fix(BL-AUTO-TASKS-SCHEMA-13MISSING): 13건 출처 누락 채움 — 점검 봇 green 전환 [step:done:1] [step:done:2] [step:done:3] [step:done:4"
+        },
+        {
+          "at": "2026-05-11T04:07:28.737Z",
+          "action": "done",
+          "by": "claude",
+          "note": "단계 6 완료 — tasks_schema check green 전환 확인 (_health.json overall red→yellow, tasks_schema 13건→0건)"
         }
       ],
       "notes": "점검 봇 자동 등록 (2026-05-11T03:56:28.755Z)\n\ncheck_name: tasks_schema\nstatus: red\ndetail: 작업 155건 중 13건에 출처가 없어요 (자동 동기화 봇 멈춤 위험)\n\n진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 green으로 박으면 자동 done.",

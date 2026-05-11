@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-11T08:31:06+00:00",
+  "updated_at": "2026-05-11T08:33:23+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -13,8 +13,8 @@
   ],
   "stats": {
     "total": 171,
-    "done": 125,
-    "in_progress": 1,
+    "done": 126,
+    "in_progress": 0,
     "pending": 27,
     "blocked": 11,
     "autonomous_ready": 19,
@@ -37,7 +37,7 @@
       "chatlog_exempt": true,
       "source": "대표님 직접 보고 (2026-05-11) — 카드 만들었는데 연동이 안 됨. 어떻게 하면 전체와 작업을 쉽게 연동해서 추천 순서대로 파악하면서 작업 지시할 수 있을까?",
       "created_at": "2026-05-11T08:26:56.336Z",
-      "updated_at": "2026-05-11T08:33:11.797Z",
+      "updated_at": "2026-05-11T08:33:23+00:00",
       "started_at": "2026-05-11T08:26:56.336Z",
       "notes": "대표님 본질: 페이지 지도 / 결정 대기 / 자율 큐 3개 카드가 따로따로 작동. 같은 BL이 어디 묶이는지, 어떤 페이지에 들어가는지 시각적으로 연결 안 됨.\n\nfix 2가지:\n1) PAGE_INFO 매핑 보강 — 자율 큐 12건 모두 페이지 매핑\n2) 3방향 클릭 연동:\n   - 페이지 카드 클릭 → 묶인 BL이 결정 대기 + 자율 큐에서 하이라이트\n   - BL 클릭 (결정 대기/자율 큐) → 묶인 페이지가 페이지 지도에서 하이라이트\n   - 같은 하이라이트 상태 유지 + 한 번 더 클릭하면 해제",
       "progress": {
@@ -81,12 +81,14 @@
           {
             "n": 6,
             "label": "결과 보고 + 대표님 사용법 안내",
-            "status": "done"
+            "status": "done",
+            "done": true,
+            "at": "2026-05-11T08:33:23+00:00"
           }
         ],
-        "completed_count": 5,
+        "completed_count": 6,
         "total_count": 6,
-        "updated_at": "2026-05-11T08:31:06+00:00"
+        "updated_at": "2026-05-11T08:33:23+00:00"
       },
       "history": [
         {
@@ -119,6 +121,13 @@
           "action": "done",
           "by": "claude",
           "note": "단계 6 라이브 검증 완료 — vercel green, ac0caf6, 식별자 27건 박힘"
+        },
+        {
+          "at": "2026-05-11T08:33:23+00:00",
+          "event": "관련 commit 추가 (status 유지) + 단계 6 완료 (auto-detected)",
+          "by": "auto-detect-bot",
+          "commit": "208572d",
+          "note": "done(BL-3WAY-LINK-CARDS): 3방향 연동 라이브 검증 완료 [step:done:6]"
         }
       ],
       "completed_at": "2026-05-11T08:33:11.797Z"

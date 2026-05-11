@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-11T08:00:01.831Z",
+  "updated_at": "2026-05-11T08:03:11+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -37,7 +37,7 @@
       "chatlog_exempt": true,
       "source": "대표님 직접 보고 (2026-05-11) — ①결정 영향력 카드와 결정 대기 박스가 중복, 기존 활용 권고 ②제목이 클로드 언어(BL-ADMIN-AUTH 등 영문 ID + 영문 키워드)라 사람이 못 알아봄",
       "created_at": "2026-05-11T08:00:01.831Z",
-      "updated_at": "2026-05-11T08:03:00.134Z",
+      "updated_at": "2026-05-11T08:03:11+00:00",
       "started_at": "2026-05-11T08:00:01.831Z",
       "notes": "결함 본질:\n1. 직전 BL-DECISION-IMPACT-CARD(c670b04)가 D-019(중복 3중 정리) 정신 위반 — 기존 ceo-wait 박스와 같은 데이터를 2번 렌더\n2. ceo-wait 박스 제목이 BL-ID + 영문 키워드(autonomous.requires_decisions_first의 raw 값)라 비개발자 대표님이 읽을 수 없음\n\nfix:\n1. decision-impact-card section/CSS/JS 완전 제거\n2. renderCeoWait()에 영향력 정보 흡수 (+N건 풀림 배지) + 제목을 사람 말로 풀기 (HUMAN_LABEL_MAP)\n3. blocker 또는 requires_decisions_first 첫 항목을 HUMAN_LABEL_MAP에서 매핑",
       "progress": {
@@ -46,24 +46,35 @@
           {
             "n": 1,
             "label": "결함 정밀 분석 — 중복 + 제목 클로드 언어",
-            "status": "done"
+            "status": "done",
+            "done": true,
+            "at": "2026-05-11T08:03:11+00:00"
           },
           {
             "n": 2,
             "label": "결정 영향력 카드 폐기 (HTML/CSS/JS 제거)",
-            "status": "done"
+            "status": "done",
+            "done": true,
+            "at": "2026-05-11T08:03:11+00:00"
           },
           {
             "n": 3,
             "label": "renderCeoWait에 영향력 배지 + 사람말 제목 매핑 흡수",
-            "status": "done"
+            "status": "done",
+            "done": true,
+            "at": "2026-05-11T08:03:11+00:00"
           },
           {
             "n": 4,
             "label": "commit + push + 라이브 검증",
-            "status": "done"
+            "status": "done",
+            "done": true,
+            "at": "2026-05-11T08:03:11+00:00"
           }
-        ]
+        ],
+        "completed_count": 4,
+        "total_count": 4,
+        "updated_at": "2026-05-11T08:03:11+00:00"
       },
       "history": [
         {
@@ -83,6 +94,13 @@
           "action": "done",
           "by": "claude",
           "note": "단계 2·3·4 완료 — decision-impact-card HTML/CSS/JS 완전 제거, renderCeoWait에 HUMAN_TITLE_MAP/HUMAN_REASON_MAP + 영향력 배지 흡수. D-019 정신 복원."
+        },
+        {
+          "at": "2026-05-11T08:03:11+00:00",
+          "event": "done 작업에 commit 추가 (status 유지 — 자동 리오픈 안 함) + 단계 1, 단계 2, 단계 3, 단계 4 완료 (auto-detected)",
+          "by": "auto-detect-bot",
+          "commit": "6e03984",
+          "note": "fix(BL-CEO-WAIT-HUMAN-LANG): 중복 카드 폐기 + 결정 대기 박스 사람말로 — D-019 정신 복원 [step:done:1] [step:done:2] [step:done:3] [step:done"
         }
       ],
       "completed_at": "2026-05-11T08:03:00.134Z"

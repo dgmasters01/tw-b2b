@@ -29,59 +29,7 @@
 
 ---
 
-### B. 🟢 AUTO — [자동] 점검 봇이 admin 페이지 7개를 "파일 없음"으로 잘못 판단 — _admin/ 폴더 fallback 추가
-
-**ID**: `BL-AUTO-PAGE-STATUS-ADMIN`  
-**카테고리**: infrastructure  
-**예상 시간**: 2시간  
-
-**메모**: scan-bot 자동 등록 (2026-05-11T03:56:28.755Z)
-
-페이지: /admin.html
-점수: 14
-약점: structure
-
-진단 hint: scan-pages-status.mjs 결과. 약점 차원 보강 필요.
-
-[2026-05-11 정밀 분석]
-결함 본질: scan-pages-status.mjs가 _admin/ 폴더 이동(BL-REAL-SYSTEM Phase α ea0d31f)을 모르고 repo root만 봐서, admin 7개 페이지 모두 structure: 0 (파일 없음) → 14점.
-fix: evalu
-
----
-
-### C. 🟢 AUTO — [자동] 페이지 /admin-gallery.html 완성도 14점 (약함: structure)
-
-**ID**: `BL-AUTO-PAGE-STATUS-ADMIN-GALLERY`  
-**카테고리**: infrastructure  
-**예상 시간**: 2시간  
-
-**메모**: scan-bot 자동 등록 (2026-05-11T03:56:28.755Z)
-
-페이지: /admin-gallery.html
-점수: 14
-약점: structure
-
-진단 hint: scan-pages-status.mjs 결과. 약점 차원 보강 필요.
-
----
-
-### D. 🟢 AUTO — [자동] 페이지 /admin-business.html 완성도 14점 (약함: structure)
-
-**ID**: `BL-AUTO-PAGE-STATUS-ADMIN-BUSINESS`  
-**카테고리**: infrastructure  
-**예상 시간**: 2시간  
-
-**메모**: scan-bot 자동 등록 (2026-05-11T03:56:28.755Z)
-
-페이지: /admin-business.html
-점수: 14
-약점: structure
-
-진단 hint: scan-pages-status.mjs 결과. 약점 차원 보강 필요.
-
----
-
-### E. 🟢 AUTO — [자동] 페이지 /admin-hub.html 완성도 14점 (약함: structure)
+### B. 🟢 AUTO — [자동] 페이지 /admin-hub.html 완성도 14점 (약함: structure)
 
 **ID**: `BL-AUTO-PAGE-STATUS-ADMIN-HUB`  
 **카테고리**: infrastructure  
@@ -90,54 +38,6 @@ fix: evalu
 **메모**: scan-bot 자동 등록 (2026-05-11T03:56:28.755Z)
 
 페이지: /admin-hub.html
-점수: 14
-약점: structure
-
-진단 hint: scan-pages-status.mjs 결과. 약점 차원 보강 필요.
-
----
-
-### F. 🟢 AUTO — [자동] 페이지 /admin-tasks.html 완성도 14점 (약함: structure)
-
-**ID**: `BL-AUTO-PAGE-STATUS-ADMIN-TASKS`  
-**카테고리**: infrastructure  
-**예상 시간**: 2시간  
-
-**메모**: scan-bot 자동 등록 (2026-05-11T03:56:28.755Z)
-
-페이지: /admin-tasks.html
-점수: 14
-약점: structure
-
-진단 hint: scan-pages-status.mjs 결과. 약점 차원 보강 필요.
-
----
-
-### G. 🟢 AUTO — [자동] 페이지 /admin-service-ops.html 완성도 14점 (약함: structure)
-
-**ID**: `BL-AUTO-PAGE-STATUS-ADMIN-SERVICE-OPS`  
-**카테고리**: infrastructure  
-**예상 시간**: 2시간  
-
-**메모**: scan-bot 자동 등록 (2026-05-11T03:56:28.755Z)
-
-페이지: /admin-service-ops.html
-점수: 14
-약점: structure
-
-진단 hint: scan-pages-status.mjs 결과. 약점 차원 보강 필요.
-
----
-
-### H. 🟢 AUTO — [자동] 페이지 /admin-status.html 완성도 14점 (약함: structure)
-
-**ID**: `BL-AUTO-PAGE-STATUS-ADMIN-STATUS`  
-**카테고리**: infrastructure  
-**예상 시간**: 2시간  
-
-**메모**: scan-bot 자동 등록 (2026-05-11T03:56:28.755Z)
-
-페이지: /admin-status.html
 점수: 14
 약점: structure
 

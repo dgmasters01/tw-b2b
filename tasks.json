@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-11T02:01:04+00:00",
+  "updated_at": "2026-05-11T02:06:05.039680Z",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -8467,7 +8467,7 @@
     {
       "id": "BL-STEP-SELF-VERIFY",
       "title": "[step 자가 검증 봇] step 텍스트에 헌법/부칙/playbook/chat-log/commit 키워드 있으면 done 전 실제 파일 변경 자동 검증",
-      "status": "pending",
+      "status": "in_progress",
       "priority": "P0",
       "category": "infrastructure",
       "owner": "claude",
@@ -8482,12 +8482,40 @@
       "blocker": null,
       "progress": {
         "percent": 0,
-        "steps": []
+        "steps": [
+          {
+            "name": "1. tasks.json — BL-STEP-SELF-VERIFY 5단계 progress 박고 in_progress 전환",
+            "status": "done",
+            "done": true,
+            "at": "2026-05-11T02:06:05.039680Z"
+          },
+          {
+            "name": "2. _os/scripts/step-self-verify-bot.mjs — 키워드 → 산출물 검증 봇 신규",
+            "status": "pending",
+            "done": false
+          },
+          {
+            "name": "3. .github/workflows/step-self-verify.yml — push 트리거 + done 차단 + ⚠️ 워닝 commit",
+            "status": "pending",
+            "done": false
+          },
+          {
+            "name": "4. _os/playbook/step-self-verify.md — 봇 동작·예외·롤백 디테일 확장",
+            "status": "pending",
+            "done": false
+          },
+          {
+            "name": "5. 라이브 검증 — 일부러 위반 commit 박아 봇이 차단하는지 확인 + chat-log 박기",
+            "status": "pending",
+            "done": false
+          }
+        ]
       },
       "notes": "재발 방지 (2026-05-11): BL-AUTO-REORDER-PAUSE step 6 거짓 done 사고 — 텍스트는 '헌법 부칙'인데 실제로는 playbook에 박았고, 또 chat-log 누락. auto-detect-bot에 키워드 매핑 검증 추가: '헌법/부칙' → OPERATIONS_CHARTER.md diff 필수 / 'playbook' → _os/playbook/*.md 신규/수정 필수 / 'chat-log' → _chat-logs/*.md + index.json byTask 매핑 필수. 미충족 시 done 차단 + ⚠️ 워닝.",
       "source": "self_qa_2026-05-11",
       "created_at": "2026-05-11T01:57:59.563633Z",
-      "updated_at": "2026-05-11T01:57:59.563633Z"
+      "updated_at": "2026-05-11T02:06:05.039680Z",
+      "started_at": "2026-05-11T02:06:05.039680Z"
     }
   ]
 }

@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-11T04:07:45+00:00",
+  "updated_at": "2026-05-11T04:18:52.909Z",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -13,15 +13,15 @@
   ],
   "stats": {
     "total": 164,
-    "done": 112,
+    "done": 118,
     "in_progress": 0,
     "paused": 1,
-    "pending": 34,
+    "pending": 28,
     "blocked": 11,
-    "autonomous_ready": 26,
+    "autonomous_ready": 24,
     "todo": 0,
     "cancelled": 0,
-    "updated_at": "2026-05-11T04:07:28.737Z"
+    "updated_at": "2026-05-11T04:18:52.909Z"
   },
   "tasks": [
     {
@@ -9096,14 +9096,14 @@
       "title": "[자동] 점검 봇이 admin 페이지 7개를 \"파일 없음\"으로 잘못 판단 — _admin/ 폴더 fallback 추가",
       "category": "infrastructure",
       "priority": "P0",
-      "status": "in_progress",
+      "status": "done",
       "claude_can_auto": true,
       "approval_required": false,
       "owner": "claude",
       "size": "small",
       "source": "auto_from_page_status",
       "created_at": "2026-05-11T03:56:28.755Z",
-      "updated_at": "2026-05-11T04:18:27.953Z",
+      "updated_at": "2026-05-11T04:18:52.909Z",
       "deadline": null,
       "order": null,
       "blocker": null,
@@ -9114,7 +9114,7 @@
       },
       "decision_ref": "D-024",
       "progress": {
-        "percent": 80,
+        "percent": 100,
         "steps": [
           {
             "n": 1,
@@ -9161,23 +9161,29 @@
           "action": "progress",
           "by": "claude",
           "note": "단계 2·3·4 완료: scan 스크립트 fix + 로컬 검증 (admin 7개 14→평균 76점) + commit 준비"
+        },
+        {
+          "at": "2026-05-11T04:18:52.909Z",
+          "by": "auto-task-bot",
+          "action": "auto_resolved",
+          "detail": "critical 목록에서 빠짐"
         }
       ],
-      "notes": "scan-bot 자동 등록 (2026-05-11T03:56:28.755Z)\n\n페이지: /admin.html\n점수: 14\n약점: structure\n\n진단 hint: scan-pages-status.mjs 결과. 약점 차원 보강 필요.\n\n[2026-05-11 정밀 분석]\n결함 본질: scan-pages-status.mjs가 _admin/ 폴더 이동(BL-REAL-SYSTEM Phase α ea0d31f)을 모르고 repo root만 봐서, admin 7개 페이지 모두 structure: 0 (파일 없음) → 14점.\nfix: evaluatePage에서 repo root에 파일 없으면 _admin/{basename} fallback."
+      "notes": "scan-bot 자동 등록 (2026-05-11T03:56:28.755Z)\n\n페이지: /admin.html\n점수: 14\n약점: structure\n\n진단 hint: scan-pages-status.mjs 결과. 약점 차원 보강 필요.\n\n[2026-05-11 정밀 분석]\n결함 본질: scan-pages-status.mjs가 _admin/ 폴더 이동(BL-REAL-SYSTEM Phase α ea0d31f)을 모르고 repo root만 봐서, admin 7개 페이지 모두 structure: 0 (파일 없음) → 14점.\nfix: evaluatePage에서 repo root에 파일 없으면 _admin/{basename} fallback.\n\n[자동 해소 2026-05-11T04:18:52.909Z] critical 목록에서 빠짐"
     },
     {
       "id": "BL-AUTO-PAGE-STATUS-ADMIN-GALLERY",
       "title": "[자동] 페이지 /admin-gallery.html 완성도 14점 (약함: structure)",
       "category": "infrastructure",
       "priority": "P0",
-      "status": "pending",
+      "status": "done",
       "claude_can_auto": true,
       "approval_required": false,
       "owner": "claude",
       "size": "small",
       "source": "auto_from_page_status",
       "created_at": "2026-05-11T03:56:28.755Z",
-      "updated_at": "2026-05-11T03:56:28.755Z",
+      "updated_at": "2026-05-11T04:18:52.909Z",
       "deadline": null,
       "order": null,
       "blocker": null,
@@ -9188,7 +9194,7 @@
       },
       "decision_ref": "D-024",
       "progress": {
-        "percent": 0,
+        "percent": 100,
         "steps": []
       },
       "history": [
@@ -9197,23 +9203,29 @@
           "by": "auto-task-bot",
           "action": "created",
           "detail": "페이지 /admin-gallery.html 완성도 14점 (약함: structure)"
+        },
+        {
+          "at": "2026-05-11T04:18:52.909Z",
+          "by": "auto-task-bot",
+          "action": "auto_resolved",
+          "detail": "critical 목록에서 빠짐"
         }
       ],
-      "notes": "scan-bot 자동 등록 (2026-05-11T03:56:28.755Z)\n\n페이지: /admin-gallery.html\n점수: 14\n약점: structure\n\n진단 hint: scan-pages-status.mjs 결과. 약점 차원 보강 필요."
+      "notes": "scan-bot 자동 등록 (2026-05-11T03:56:28.755Z)\n\n페이지: /admin-gallery.html\n점수: 14\n약점: structure\n\n진단 hint: scan-pages-status.mjs 결과. 약점 차원 보강 필요.\n\n[자동 해소 2026-05-11T04:18:52.909Z] critical 목록에서 빠짐"
     },
     {
       "id": "BL-AUTO-PAGE-STATUS-ADMIN-BUSINESS",
       "title": "[자동] 페이지 /admin-business.html 완성도 14점 (약함: structure)",
       "category": "infrastructure",
       "priority": "P0",
-      "status": "pending",
+      "status": "done",
       "claude_can_auto": true,
       "approval_required": false,
       "owner": "claude",
       "size": "small",
       "source": "auto_from_page_status",
       "created_at": "2026-05-11T03:56:28.755Z",
-      "updated_at": "2026-05-11T03:56:28.755Z",
+      "updated_at": "2026-05-11T04:18:52.909Z",
       "deadline": null,
       "order": null,
       "blocker": null,
@@ -9224,7 +9236,7 @@
       },
       "decision_ref": "D-024",
       "progress": {
-        "percent": 0,
+        "percent": 100,
         "steps": []
       },
       "history": [
@@ -9233,9 +9245,15 @@
           "by": "auto-task-bot",
           "action": "created",
           "detail": "페이지 /admin-business.html 완성도 14점 (약함: structure)"
+        },
+        {
+          "at": "2026-05-11T04:18:52.909Z",
+          "by": "auto-task-bot",
+          "action": "auto_resolved",
+          "detail": "critical 목록에서 빠짐"
         }
       ],
-      "notes": "scan-bot 자동 등록 (2026-05-11T03:56:28.755Z)\n\n페이지: /admin-business.html\n점수: 14\n약점: structure\n\n진단 hint: scan-pages-status.mjs 결과. 약점 차원 보강 필요."
+      "notes": "scan-bot 자동 등록 (2026-05-11T03:56:28.755Z)\n\n페이지: /admin-business.html\n점수: 14\n약점: structure\n\n진단 hint: scan-pages-status.mjs 결과. 약점 차원 보강 필요.\n\n[자동 해소 2026-05-11T04:18:52.909Z] critical 목록에서 빠짐"
     },
     {
       "id": "BL-AUTO-PAGE-STATUS-ADMIN-HUB",
@@ -9278,14 +9296,14 @@
       "title": "[자동] 페이지 /admin-tasks.html 완성도 14점 (약함: structure)",
       "category": "infrastructure",
       "priority": "P0",
-      "status": "pending",
+      "status": "done",
       "claude_can_auto": true,
       "approval_required": false,
       "owner": "claude",
       "size": "small",
       "source": "auto_from_page_status",
       "created_at": "2026-05-11T03:56:28.755Z",
-      "updated_at": "2026-05-11T03:56:28.755Z",
+      "updated_at": "2026-05-11T04:18:52.909Z",
       "deadline": null,
       "order": null,
       "blocker": null,
@@ -9296,7 +9314,7 @@
       },
       "decision_ref": "D-024",
       "progress": {
-        "percent": 0,
+        "percent": 100,
         "steps": []
       },
       "history": [
@@ -9305,23 +9323,29 @@
           "by": "auto-task-bot",
           "action": "created",
           "detail": "페이지 /admin-tasks.html 완성도 14점 (약함: structure)"
+        },
+        {
+          "at": "2026-05-11T04:18:52.909Z",
+          "by": "auto-task-bot",
+          "action": "auto_resolved",
+          "detail": "critical 목록에서 빠짐"
         }
       ],
-      "notes": "scan-bot 자동 등록 (2026-05-11T03:56:28.755Z)\n\n페이지: /admin-tasks.html\n점수: 14\n약점: structure\n\n진단 hint: scan-pages-status.mjs 결과. 약점 차원 보강 필요."
+      "notes": "scan-bot 자동 등록 (2026-05-11T03:56:28.755Z)\n\n페이지: /admin-tasks.html\n점수: 14\n약점: structure\n\n진단 hint: scan-pages-status.mjs 결과. 약점 차원 보강 필요.\n\n[자동 해소 2026-05-11T04:18:52.909Z] critical 목록에서 빠짐"
     },
     {
       "id": "BL-AUTO-PAGE-STATUS-ADMIN-SERVICE-OPS",
       "title": "[자동] 페이지 /admin-service-ops.html 완성도 14점 (약함: structure)",
       "category": "infrastructure",
       "priority": "P0",
-      "status": "pending",
+      "status": "done",
       "claude_can_auto": true,
       "approval_required": false,
       "owner": "claude",
       "size": "small",
       "source": "auto_from_page_status",
       "created_at": "2026-05-11T03:56:28.755Z",
-      "updated_at": "2026-05-11T03:56:28.755Z",
+      "updated_at": "2026-05-11T04:18:52.909Z",
       "deadline": null,
       "order": null,
       "blocker": null,
@@ -9332,7 +9356,7 @@
       },
       "decision_ref": "D-024",
       "progress": {
-        "percent": 0,
+        "percent": 100,
         "steps": []
       },
       "history": [
@@ -9341,23 +9365,29 @@
           "by": "auto-task-bot",
           "action": "created",
           "detail": "페이지 /admin-service-ops.html 완성도 14점 (약함: structure)"
+        },
+        {
+          "at": "2026-05-11T04:18:52.909Z",
+          "by": "auto-task-bot",
+          "action": "auto_resolved",
+          "detail": "critical 목록에서 빠짐"
         }
       ],
-      "notes": "scan-bot 자동 등록 (2026-05-11T03:56:28.755Z)\n\n페이지: /admin-service-ops.html\n점수: 14\n약점: structure\n\n진단 hint: scan-pages-status.mjs 결과. 약점 차원 보강 필요."
+      "notes": "scan-bot 자동 등록 (2026-05-11T03:56:28.755Z)\n\n페이지: /admin-service-ops.html\n점수: 14\n약점: structure\n\n진단 hint: scan-pages-status.mjs 결과. 약점 차원 보강 필요.\n\n[자동 해소 2026-05-11T04:18:52.909Z] critical 목록에서 빠짐"
     },
     {
       "id": "BL-AUTO-PAGE-STATUS-ADMIN-STATUS",
       "title": "[자동] 페이지 /admin-status.html 완성도 14점 (약함: structure)",
       "category": "infrastructure",
       "priority": "P0",
-      "status": "pending",
+      "status": "done",
       "claude_can_auto": true,
       "approval_required": false,
       "owner": "claude",
       "size": "small",
       "source": "auto_from_page_status",
       "created_at": "2026-05-11T03:56:28.755Z",
-      "updated_at": "2026-05-11T03:56:28.755Z",
+      "updated_at": "2026-05-11T04:18:52.909Z",
       "deadline": null,
       "order": null,
       "blocker": null,
@@ -9368,7 +9398,7 @@
       },
       "decision_ref": "D-024",
       "progress": {
-        "percent": 0,
+        "percent": 100,
         "steps": []
       },
       "history": [
@@ -9377,9 +9407,15 @@
           "by": "auto-task-bot",
           "action": "created",
           "detail": "페이지 /admin-status.html 완성도 14점 (약함: structure)"
+        },
+        {
+          "at": "2026-05-11T04:18:52.909Z",
+          "by": "auto-task-bot",
+          "action": "auto_resolved",
+          "detail": "critical 목록에서 빠짐"
         }
       ],
-      "notes": "scan-bot 자동 등록 (2026-05-11T03:56:28.755Z)\n\n페이지: /admin-status.html\n점수: 14\n약점: structure\n\n진단 hint: scan-pages-status.mjs 결과. 약점 차원 보강 필요."
+      "notes": "scan-bot 자동 등록 (2026-05-11T03:56:28.755Z)\n\n페이지: /admin-status.html\n점수: 14\n약점: structure\n\n진단 hint: scan-pages-status.mjs 결과. 약점 차원 보강 필요.\n\n[자동 해소 2026-05-11T04:18:52.909Z] critical 목록에서 빠짐"
     }
   ]
 }

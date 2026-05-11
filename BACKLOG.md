@@ -5,7 +5,7 @@
 > 
 > 단일 진실 소스: `tasks.json` (v2.0)
 
-**마지막 업데이트**: 2026-05-10
+**마지막 업데이트**: 2026-05-11
 
 > 💡 **새 채팅 시작 시**: 다음 5개 문서를 먼저 보면 즉시 컨텍스트 파악 가능.
 > 
@@ -74,13 +74,168 @@
 
 ---
 
-## ⚡ P1 — admin 13개 페이지 라이트 모드 정식 지원 — shared.css 단일 진실원 + 사이드바 토글
+## 🟡 P0 — [서비스 페이지 전체 지도] 페이지 골격 + 진행률 표시 — 모든 작업의 부모
+
+**요약**: 대표님 통찰 (2026-05-10) — 서비스 페이지 전체 지도 + 진행률 표시.
+
+핵심 본질: "어느 페이지에 무엇을 박을지" 모르면 자율 작업 못 박음. 페이지 = 모든 작업의 부모.
+
+## 📋 Phase 1~3 페이지 우선순위 (Claude 자율 판단 — 사업 매출 흐름 기준)
+
+### Phase 1 — 매출 직결 흐름 (사업 시작 가능 상태 만들기)
 
 - **자율성**: 🟡 SEMI
-- **예상 시간**: 4.0시간
-- **카테고리**: design
+- **예상 시간**: 8시간
+- **카테고리**: infrastructure
+- **상태**: pending
+- **막힘 사유**: 디자인 큰 방향 결정 대기
+- **결정 필요**:
+  - 디자인 큰 방향 검수 (대표님 그림)
+- **ID**: `BL-SERVICE-MAP` (출처: ceo_insight_2026-05-10)
+
+---
+
+## ⚡ P0 — [자동] 작업 155건 중 13건에 출처가 없어요 (자동 동기화 봇 멈춤 위험)
+
+**요약**: 점검 봇 자동 등록 (2026-05-11T03:56:28.755Z)
+
+check_name: tasks_schema
+status: red
+detail: 작업 155건 중 13건에 출처가 없어요 (자동 동기화 봇 멈춤 위험)
+
+진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 green으로 박으면 자
+
+- **자율성**: 🟢 AUTO
+- **예상 시간**: 1시간
+- **카테고리**: infrastructure
 - **상태**: in_progress
-- **ID**: `BL-ADMIN-LIGHTMODE` (출처: 직전 채팅 1차 시도 revert (726994d, 362a104) → 도서 설계도부터 다시)
+- **ID**: `BL-AUTO-TASKS-SCHEMA-13MISSING` (출처: auto_from_tasks_schema)
+
+---
+
+## 🟢 P0 — [자동] 페이지 /admin.html 완성도 14점 (약함: structure)
+
+**요약**: scan-bot 자동 등록 (2026-05-11T03:56:28.755Z)
+
+페이지: /admin.html
+점수: 14
+약점: structure
+
+진단 hint: scan-pages-status.mjs 결과. 약점 차원 보강 필요.
+
+- **자율성**: 🟢 AUTO
+- **예상 시간**: 2시간
+- **카테고리**: infrastructure
+- **상태**: pending
+- **ID**: `BL-AUTO-PAGE-STATUS-ADMIN` (출처: auto_from_page_status)
+
+---
+
+## 🟢 P0 — [자동] 페이지 /admin-gallery.html 완성도 14점 (약함: structure)
+
+**요약**: scan-bot 자동 등록 (2026-05-11T03:56:28.755Z)
+
+페이지: /admin-gallery.html
+점수: 14
+약점: structure
+
+진단 hint: scan-pages-status.mjs 결과. 약점 차원 보강 필요.
+
+- **자율성**: 🟢 AUTO
+- **예상 시간**: 2시간
+- **카테고리**: infrastructure
+- **상태**: pending
+- **ID**: `BL-AUTO-PAGE-STATUS-ADMIN-GALLERY` (출처: auto_from_page_status)
+
+---
+
+## 🟢 P0 — [자동] 페이지 /admin-business.html 완성도 14점 (약함: structure)
+
+**요약**: scan-bot 자동 등록 (2026-05-11T03:56:28.755Z)
+
+페이지: /admin-business.html
+점수: 14
+약점: structure
+
+진단 hint: scan-pages-status.mjs 결과. 약점 차원 보강 필요.
+
+- **자율성**: 🟢 AUTO
+- **예상 시간**: 2시간
+- **카테고리**: infrastructure
+- **상태**: pending
+- **ID**: `BL-AUTO-PAGE-STATUS-ADMIN-BUSINESS` (출처: auto_from_page_status)
+
+---
+
+## 🟢 P0 — [자동] 페이지 /admin-hub.html 완성도 14점 (약함: structure)
+
+**요약**: scan-bot 자동 등록 (2026-05-11T03:56:28.755Z)
+
+페이지: /admin-hub.html
+점수: 14
+약점: structure
+
+진단 hint: scan-pages-status.mjs 결과. 약점 차원 보강 필요.
+
+- **자율성**: 🟢 AUTO
+- **예상 시간**: 2시간
+- **카테고리**: infrastructure
+- **상태**: pending
+- **ID**: `BL-AUTO-PAGE-STATUS-ADMIN-HUB` (출처: auto_from_page_status)
+
+---
+
+## 🟢 P0 — [자동] 페이지 /admin-tasks.html 완성도 14점 (약함: structure)
+
+**요약**: scan-bot 자동 등록 (2026-05-11T03:56:28.755Z)
+
+페이지: /admin-tasks.html
+점수: 14
+약점: structure
+
+진단 hint: scan-pages-status.mjs 결과. 약점 차원 보강 필요.
+
+- **자율성**: 🟢 AUTO
+- **예상 시간**: 2시간
+- **카테고리**: infrastructure
+- **상태**: pending
+- **ID**: `BL-AUTO-PAGE-STATUS-ADMIN-TASKS` (출처: auto_from_page_status)
+
+---
+
+## 🟢 P0 — [자동] 페이지 /admin-service-ops.html 완성도 14점 (약함: structure)
+
+**요약**: scan-bot 자동 등록 (2026-05-11T03:56:28.755Z)
+
+페이지: /admin-service-ops.html
+점수: 14
+약점: structure
+
+진단 hint: scan-pages-status.mjs 결과. 약점 차원 보강 필요.
+
+- **자율성**: 🟢 AUTO
+- **예상 시간**: 2시간
+- **카테고리**: infrastructure
+- **상태**: pending
+- **ID**: `BL-AUTO-PAGE-STATUS-ADMIN-SERVICE-OPS` (출처: auto_from_page_status)
+
+---
+
+## 🟢 P0 — [자동] 페이지 /admin-status.html 완성도 14점 (약함: structure)
+
+**요약**: scan-bot 자동 등록 (2026-05-11T03:56:28.755Z)
+
+페이지: /admin-status.html
+점수: 14
+약점: structure
+
+진단 hint: scan-pages-status.mjs 결과. 약점 차원 보강 필요.
+
+- **자율성**: 🟢 AUTO
+- **예상 시간**: 2시간
+- **카테고리**: infrastructure
+- **상태**: pending
+- **ID**: `BL-AUTO-PAGE-STATUS-ADMIN-STATUS` (출처: auto_from_page_status)
 
 ---
 
@@ -225,6 +380,67 @@
 - **결정 필요**:
   - Q: PAT 박는 방식 — 환경변수 vs .env.local vs GitHub Secrets API
 - **ID**: `BL-OS-INSTALL-PAT-FLOW` (출처: 대표님 진단 (2026-05-08) — OS 설치 시 PAT 거부됨, 설치 자체가 안 됨)
+
+---
+
+## 🟢 P1 — [건강검진 사람 말] 점검 결과를 사업가 언어로 풀어줌
+
+**요약**: 대표님 통찰 (2026-05-10): 건강검진(health-check) 결과가 개발자 용어로 박혀있음. 사람 말로 풀어줘야 대표님이 즉시 판단 가능. BL-BASELINE-AUTO-TASK(자동 작업 등록)와 짝꿍 — 둘이 함께 박혀야 점검→이해→작업 흐름 완성.
+
+범위: _admin/_health.json + admin-status 빨간 배너 + 점검 결
+
+- **자율성**: 🟢 AUTO
+- **예상 시간**: 4시간
+- **카테고리**: ux
+- **상태**: pending
+- **ID**: `BL-BASELINE-HUMAN-LANG` (출처: ceo_insight_2026-05-10)
+
+---
+
+## 🟢 P1 — [결정 → 페이지 → 작업 흐름 시각화] 대표님 판단 도구
+
+**요약**: 대표님 통찰 (2026-05-10): 어느 결정부터 해야 어느 페이지가 만들어지고, 그 위에 어느 자율 작업이 박히는지 한 화면에 보이게. BL-SERVICE-MAP(페이지 지도) done 후 그 위에 의존성 그래프 그림.
+
+표시 요소: D-XXX (결정) → 페이지 (Phase 1~3) → BL-XXX (세부 작업) 3단 트리. 막힌 결정 클릭 시 결정 
+
+- **자율성**: 🟢 AUTO
+- **예상 시간**: 4시간
+- **카테고리**: ux
+- **상태**: pending
+- **ID**: `BL-DEPENDENCY-GRAPH` (출처: ceo_insight_2026-05-10)
+
+---
+
+## 🟢 P1 — [일일 건강 카드] 위 4개(사람말 + 자동등록 + 지도 + 의존성)를 한 줄로 압축
+
+**요약**: 대표님 통찰 (2026-05-10): 위 4개를 한눈에 보는 통합 카드. admin-status 최상단에 박힘. 'X점 / 페이지 N개 / 결정 M개 대기 / 자동등록 K건' 한 줄.
+
+선행: 1~4 done. 단독으로는 의미 없음 — 위 4개가 박혀야 압축할 정보가 생김.
+
+- **자율성**: 🟢 AUTO
+- **예상 시간**: 2시간
+- **카테고리**: ux
+- **상태**: pending
+- **막힘 사유**: BL-BASELINE-HUMAN-LANG + BL-BASELINE-AUTO-TASK + BL-SERVICE-MAP + BL-DEPENDENCY-GRAPH done 대기
+- **ID**: `BL-DAILY-HEALTH-CARD` (출처: ceo_insight_2026-05-10)
+
+---
+
+## 🟢 P1 — [자동] 관리자 페이지 7개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요)
+
+**요약**: 점검 봇 자동 등록 (2026-05-11T03:56:28.755Z)
+
+check_name: admin_baseline
+status: yellow
+detail: 관리자 페이지 7개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요)
+
+진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 gr
+
+- **자율성**: 🟢 AUTO
+- **예상 시간**: 1시간
+- **카테고리**: infrastructure
+- **상태**: pending
+- **ID**: `BL-AUTO-ADMIN-BASELINE-7FILES` (출처: auto_from_admin_baseline)
 
 ---
 
@@ -380,7 +596,7 @@
 **요약**: 정석: 헌법 부칙 7(단계 단위 commit) + 시행령 5번(무인 검증) 통합. 봇이 자동 강제. 사람이 매번 박는 게 아님. BL-ADMIN-AUTH-PERF의 progress_warning(MISSING_PROGRESS_STEPS) 트리거가 이미 있으니 그걸 확장.
 
 - **자율성**: 🟢 AUTO
-- **예상 시간**: 1.0시간
+- **예상 시간**: 1시간
 - **카테고리**: infra
 - **상태**: pending
 - **ID**: `BL-PROGRESS-STEPS-AUTOFILL` (출처: 대표님 진단 — BL-ADMIN-AUTH-PERF 시작 시 progress_steps 미박힘 채로 진행됐고 직전 채팅 끝에서야 강제 채움. 부칙 7 (단계=commit) 완전 자동화 미흡.)

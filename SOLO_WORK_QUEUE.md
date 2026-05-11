@@ -3,7 +3,7 @@
 > ⚠️ **이 파일은 자동 생성됩니다.** 수동 편집하지 마세요.
 > 단일 진실 소스: `tasks.json` (v2.0)
 > **데드라인**: 2026-05-03
-> **갱신**: 2026-05-10
+> **갱신**: 2026-05-11
 > **목적**: 대표님 외근/자리비움 시 Claude 자율 처리 가능 작업
 
 ## 작업 분류 체계
@@ -26,6 +26,134 @@
 **막힘 사유**: supabase 호텔/예약 인프라 박힌 후 4종 사업 source 연결. 진행률 표시 + 활동이력 결함 4건은 BL-IPB-* / BL-ACT-* 로 분리.  
 
 **메모**: ## 🔴 P0 — 통합 To-Do Inbox (관리자 대시보드 재설계) ⭐⭐⭐ 2026-04-29  **배경** (대표님 핵심 운영 철학): > "한 사람이 처리해야 될 업무는 한 곳에서 우선순위가 표시되어 체크하면 정리할 수 있게 해야 됨. 내가 복잡하게 관리하게 하면 안 됨. 나에게 유리하게 해야 됨."  대표님 1인 운영. 처리 작업이 여러 탭에 흩어져 있으면 누락 발생. 한 곳에 통합 필요.  **작업 항목**: 1. **admin.html Dashboard 탭 = To-Do Inbox** 으로 재설계    - 모든 처리 작
+
+---
+
+### B. 🟢 AUTO — [자동] 작업 155건 중 13건에 출처가 없어요 (자동 동기화 봇 멈춤 위험)
+
+**ID**: `BL-AUTO-TASKS-SCHEMA-13MISSING`  
+**카테고리**: infrastructure  
+**예상 시간**: 1시간  
+
+**메모**: 점검 봇 자동 등록 (2026-05-11T03:56:28.755Z)
+
+check_name: tasks_schema
+status: red
+detail: 작업 155건 중 13건에 출처가 없어요 (자동 동기화 봇 멈춤 위험)
+
+진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 green으로 박으면 자동 done.
+
+---
+
+### C. 🟢 AUTO — [자동] 페이지 /admin.html 완성도 14점 (약함: structure)
+
+**ID**: `BL-AUTO-PAGE-STATUS-ADMIN`  
+**카테고리**: infrastructure  
+**예상 시간**: 2시간  
+
+**메모**: scan-bot 자동 등록 (2026-05-11T03:56:28.755Z)
+
+페이지: /admin.html
+점수: 14
+약점: structure
+
+진단 hint: scan-pages-status.mjs 결과. 약점 차원 보강 필요.
+
+---
+
+### D. 🟢 AUTO — [자동] 페이지 /admin-gallery.html 완성도 14점 (약함: structure)
+
+**ID**: `BL-AUTO-PAGE-STATUS-ADMIN-GALLERY`  
+**카테고리**: infrastructure  
+**예상 시간**: 2시간  
+
+**메모**: scan-bot 자동 등록 (2026-05-11T03:56:28.755Z)
+
+페이지: /admin-gallery.html
+점수: 14
+약점: structure
+
+진단 hint: scan-pages-status.mjs 결과. 약점 차원 보강 필요.
+
+---
+
+### E. 🟢 AUTO — [자동] 페이지 /admin-business.html 완성도 14점 (약함: structure)
+
+**ID**: `BL-AUTO-PAGE-STATUS-ADMIN-BUSINESS`  
+**카테고리**: infrastructure  
+**예상 시간**: 2시간  
+
+**메모**: scan-bot 자동 등록 (2026-05-11T03:56:28.755Z)
+
+페이지: /admin-business.html
+점수: 14
+약점: structure
+
+진단 hint: scan-pages-status.mjs 결과. 약점 차원 보강 필요.
+
+---
+
+### F. 🟢 AUTO — [자동] 페이지 /admin-hub.html 완성도 14점 (약함: structure)
+
+**ID**: `BL-AUTO-PAGE-STATUS-ADMIN-HUB`  
+**카테고리**: infrastructure  
+**예상 시간**: 2시간  
+
+**메모**: scan-bot 자동 등록 (2026-05-11T03:56:28.755Z)
+
+페이지: /admin-hub.html
+점수: 14
+약점: structure
+
+진단 hint: scan-pages-status.mjs 결과. 약점 차원 보강 필요.
+
+---
+
+### G. 🟢 AUTO — [자동] 페이지 /admin-tasks.html 완성도 14점 (약함: structure)
+
+**ID**: `BL-AUTO-PAGE-STATUS-ADMIN-TASKS`  
+**카테고리**: infrastructure  
+**예상 시간**: 2시간  
+
+**메모**: scan-bot 자동 등록 (2026-05-11T03:56:28.755Z)
+
+페이지: /admin-tasks.html
+점수: 14
+약점: structure
+
+진단 hint: scan-pages-status.mjs 결과. 약점 차원 보강 필요.
+
+---
+
+### H. 🟢 AUTO — [자동] 페이지 /admin-service-ops.html 완성도 14점 (약함: structure)
+
+**ID**: `BL-AUTO-PAGE-STATUS-ADMIN-SERVICE-OPS`  
+**카테고리**: infrastructure  
+**예상 시간**: 2시간  
+
+**메모**: scan-bot 자동 등록 (2026-05-11T03:56:28.755Z)
+
+페이지: /admin-service-ops.html
+점수: 14
+약점: structure
+
+진단 hint: scan-pages-status.mjs 결과. 약점 차원 보강 필요.
+
+---
+
+### I. 🟢 AUTO — [자동] 페이지 /admin-status.html 완성도 14점 (약함: structure)
+
+**ID**: `BL-AUTO-PAGE-STATUS-ADMIN-STATUS`  
+**카테고리**: infrastructure  
+**예상 시간**: 2시간  
+
+**메모**: scan-bot 자동 등록 (2026-05-11T03:56:28.755Z)
+
+페이지: /admin-status.html
+점수: 14
+약점: structure
+
+진단 hint: scan-pages-status.mjs 결과. 약점 차원 보강 필요.
 
 ---
 
@@ -75,11 +203,56 @@
 
 ---
 
-### E. 🟡 SEMI — admin 13개 페이지 라이트 모드 정식 지원 — shared.css 단일 진실원 + 사이드바 토글
+### E. 🟢 AUTO — [건강검진 사람 말] 점검 결과를 사업가 언어로 풀어줌
 
-**ID**: `BL-ADMIN-LIGHTMODE`  
-**카테고리**: design  
-**예상 시간**: 4.0시간  
+**ID**: `BL-BASELINE-HUMAN-LANG`  
+**카테고리**: ux  
+**예상 시간**: 4시간  
+
+**메모**: 대표님 통찰 (2026-05-10): 건강검진(health-check) 결과가 개발자 용어로 박혀있음. 사람 말로 풀어줘야 대표님이 즉시 판단 가능. BL-BASELINE-AUTO-TASK(자동 작업 등록)와 짝꿍 — 둘이 함께 박혀야 점검→이해→작업 흐름 완성.
+
+범위: _admin/_health.json + admin-status 빨간 배너 + 점검 결과 메시지 전체.
+
+---
+
+### F. 🟢 AUTO — [결정 → 페이지 → 작업 흐름 시각화] 대표님 판단 도구
+
+**ID**: `BL-DEPENDENCY-GRAPH`  
+**카테고리**: ux  
+**예상 시간**: 4시간  
+
+**메모**: 대표님 통찰 (2026-05-10): 어느 결정부터 해야 어느 페이지가 만들어지고, 그 위에 어느 자율 작업이 박히는지 한 화면에 보이게. BL-SERVICE-MAP(페이지 지도) done 후 그 위에 의존성 그래프 그림.
+
+표시 요소: D-XXX (결정) → 페이지 (Phase 1~3) → BL-XXX (세부 작업) 3단 트리. 막힌 결정 클릭 시 결정 모달 자동 열기.
+
+---
+
+### G. 🟢 AUTO — [일일 건강 카드] 위 4개(사람말 + 자동등록 + 지도 + 의존성)를 한 줄로 압축
+
+**ID**: `BL-DAILY-HEALTH-CARD`  
+**카테고리**: ux  
+**예상 시간**: 2시간  
+**막힘 사유**: BL-BASELINE-HUMAN-LANG + BL-BASELINE-AUTO-TASK + BL-SERVICE-MAP + BL-DEPENDENCY-GRAPH done 대기  
+
+**메모**: 대표님 통찰 (2026-05-10): 위 4개를 한눈에 보는 통합 카드. admin-status 최상단에 박힘. 'X점 / 페이지 N개 / 결정 M개 대기 / 자동등록 K건' 한 줄.
+
+선행: 1~4 done. 단독으로는 의미 없음 — 위 4개가 박혀야 압축할 정보가 생김.
+
+---
+
+### H. 🟢 AUTO — [자동] 관리자 페이지 7개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요)
+
+**ID**: `BL-AUTO-ADMIN-BASELINE-7FILES`  
+**카테고리**: infrastructure  
+**예상 시간**: 1시간  
+
+**메모**: 점검 봇 자동 등록 (2026-05-11T03:56:28.755Z)
+
+check_name: admin_baseline
+status: yellow
+detail: 관리자 페이지 7개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요)
+
+진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 green으로 박으면 자동 done.
 
 ---
 
@@ -139,7 +312,7 @@
 
 **ID**: `BL-PROGRESS-STEPS-AUTOFILL`  
 **카테고리**: infra  
-**예상 시간**: 1.0시간  
+**예상 시간**: 1시간  
 
 **메모**: 정석: 헌법 부칙 7(단계 단위 commit) + 시행령 5번(무인 검증) 통합. 봇이 자동 강제. 사람이 매번 박는 게 아님. BL-ADMIN-AUTH-PERF의 progress_warning(MISSING_PROGRESS_STEPS) 트리거가 이미 있으니 그걸 확장.
 

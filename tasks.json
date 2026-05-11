@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-11T03:56:28.755Z",
+  "updated_at": "2026-05-11T03:57:18.764Z",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -13,15 +13,15 @@
   ],
   "stats": {
     "total": 164,
-    "done": 110,
-    "in_progress": 1,
+    "done": 111,
+    "in_progress": 0,
     "paused": 1,
     "pending": 35,
     "blocked": 11,
-    "autonomous_ready": 32,
+    "autonomous_ready": 31,
     "todo": 0,
     "cancelled": 0,
-    "updated_at": "2026-05-11T03:56:28.755Z"
+    "updated_at": "2026-05-11T03:57:18.764Z"
   },
   "tasks": [
     {
@@ -8620,7 +8620,7 @@
     {
       "id": "BL-BASELINE-AUTO-TASK",
       "title": "[건강검진 자동 작업 등록] 점검에서 발견된 문제를 자동으로 작업 카드 박음",
-      "status": "in_progress",
+      "status": "done",
       "priority": "P0",
       "category": "infrastructure",
       "owner": "claude",
@@ -8635,7 +8635,7 @@
       "blocker": null,
       "dependencies": [],
       "progress": {
-        "percent": 80,
+        "percent": 100,
         "steps": [
           {
             "step": 1,
@@ -8671,7 +8671,8 @@
           {
             "step": 5,
             "title": "라이브 검증 + ops 알림 + 4줄 보고",
-            "status": "pending"
+            "status": "done",
+            "done_at": "2026-05-11T03:57:18.764Z"
           }
         ],
         "completed_count": 4,
@@ -8681,7 +8682,7 @@
       "notes": "대표님 통찰 (2026-05-10): 점검 봇이 빨간불 잡아도 BL로 안 박혀 흘러감. health-bot / page-status-scan / charter-length-bot 결과를 tasks.json에 자동 BL 등록. 중복 방지 dedup 로직 필수.\n\nP0인 이유: Phase 0~1 작업 박는 동안 발생하는 점검 결과를 흘리지 않게 잡아주는 인프라. BL-BASELINE-HUMAN-LANG과 짝꿍.",
       "source": "ceo_insight_2026-05-10",
       "created_at": "2026-05-11T02:38:01.191240Z",
-      "updated_at": "2026-05-11T03:56:28+00:00",
+      "updated_at": "2026-05-11T03:57:18.764Z",
       "history": [
         {
           "at": "2026-05-11T03:52:43.209Z",
@@ -8721,6 +8722,18 @@
           "by": "auto-detect-bot",
           "commit": "dcf4763",
           "note": "feat(BL-BASELINE-AUTO-TASK): 4단계 — GitHub Actions 워크플로 박음 (트리거 push+cron15m+manual, race retry 3회) [step:done:4] [변경사유: "
+        },
+        {
+          "at": "2026-05-11T03:57:18.764Z",
+          "by": "claude",
+          "action": "step:done:5",
+          "detail": "라이브 검증 통과 — 9건 BL 자동 등록 + dedup 작동 + admin-status 갱신 확인"
+        },
+        {
+          "at": "2026-05-11T03:57:18.764Z",
+          "by": "claude",
+          "action": "task_done",
+          "detail": "BL-BASELINE-AUTO-TASK 전체 완료"
         }
       ],
       "progress_warning": {

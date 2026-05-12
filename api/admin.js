@@ -712,25 +712,63 @@ export default async function handler(req, res) {
     return res.status(adminCheck.status).json({ error: adminCheck.error });
   }
 
+  // ★ BL-ADMIN-AUTH (D-026) 2026-05-12: 모든 admin action 자동 action_logs 박기
+  const { logAction } = await import('./_lib/admin-log.js').catch(() => ({ logAction: null }));
+  const startedAt = Date.now();
+  const userMeta = {
+    userId: adminCheck.user?.id || adminCheck.userId,
+    email: adminCheck.user?.email || adminCheck.email,
+    role: adminCheck.role || 'admin',
+  };
+
+  let actionResult = null;
+  let actionError = null;
   try {
     switch (action) {
       case 'booking-upload':
-        return await handleBookingUpload(req, res, serviceKey, adminCheck);
+        actionResult = await handleBookingUpload(req, res, serviceKey, adminCheck);
+        return actionResult;
       case 'list-users':
-        return await handleListUsers(req, res, serviceKey, adminCheck);
+        actionResult = await handleListUsers(req, res, serviceKey, adminCheck);
+        return actionResult;
       case 'send-invite':
-        return await handleSendInvite(req, res, serviceKey, adminCheck);
+        actionResult = await handleSendInvite(req, res, serviceKey, adminCheck);
+        return actionResult;
       case 'update-match':
-        return await handleUpdateMatch(req, res, serviceKey, adminCheck);
+        actionResult = await handleUpdateMatch(req, res, serviceKey, adminCheck);
+        return actionResult;
       case 'start-task':
-        return await handleStartTask(req, res, serviceKey, adminCheck);
+        actionResult = await handleStartTask(req, res, serviceKey, adminCheck);
+        return actionResult;
       default:
         // unreachable: 위에서 화이트리스트로 이미 차단됨
         return res.status(500).json({ error: 'router_inconsistency', received: action });
     }
   } catch (err) {
     console.error('admin router error:', err);
+    actionError = err;
     return res.status(500).json({ error: 'internal_error', detail: err.message });
+  } finally {
+    // ★ logAction은 viewer/list-users 같은 단순 조회는 skip (소음 줄이기)
+    const NON_LOG_ACTIONS = ['list-users'];
+    if (logAction && !NON_LOG_ACTIONS.includes(action)) {
+      try {
+        await logAction({
+          ...userMeta,
+          actionType: `admin_${action}`,
+          targetType: req.body?.target_type || req.body?.hotel_id ? 'hotel' : null,
+          targetId: req.body?.hotel_id || req.body?.target_id || null,
+          targetLabel: req.body?.hotel_name || req.body?.target_label || null,
+          details: {
+            duration_ms: Date.now() - startedAt,
+            body_keys: Object.keys(req.body || {}),
+          },
+          result: actionError ? 'fail' : 'success',
+          errorMessage: actionError?.message || null,
+          req,
+        });
+      } catch (_) { /* logging 실패는 응답에 영향 없음 */ }
+    }
   }
 }
 

@@ -91,6 +91,12 @@ export default async function adminAuthHandler(req, res) {
 
   const action = String(req.query.action || '').trim();
 
+  // ★ BL-ADMIN-AUTH (D-026) 2026-05-12: 모든 admin-auth action 자동 로그
+  const { logAction } = await import('./admin-log.js').catch(() => ({ logAction: null }));
+  const startedAt = Date.now();
+  let actionError = null;
+  let userMetaCache = null;  // requireCaller 결과 캐싱 (logAction용)
+
   try {
     switch (action) {
       case 'users-list':
@@ -118,7 +124,46 @@ export default async function adminAuthHandler(req, res) {
     }
   } catch (e) {
     console.error('[admin-actions]', action, 'error:', e);
+    actionError = e;
     return res.status(500).json({ error: 'Internal error', detail: e.message });
+  } finally {
+    // ★ list 조회는 로그 안 박음 (users-list, accept-invite GET = verify-token 단순 조회)
+    const NON_LOG_ACTIONS = ['users-list'];
+    const NON_LOG_METHODS_GET = ['accept-invite'];
+    const isSimpleGet = NON_LOG_METHODS_GET.includes(action) && req.method === 'GET';
+    if (logAction && !NON_LOG_ACTIONS.includes(action) && !isSimpleGet) {
+      try {
+        // requireCaller가 호출됐다면 res.locals 등에 user 정보 박혔을 수 있으나,
+        // 안전하게 Authorization 헤더에서 user_id만 디코드 (불가하면 skip)
+        const token = (req.headers['authorization'] || '').replace(/^Bearer\s+/i, '');
+        let userId = null, email = null, role = 'admin';
+        if (token) {
+          try {
+            // JWT payload 디코드만 (검증은 이미 requireCaller가 함)
+            const payload = JSON.parse(Buffer.from(token.split('.')[1], 'base64url').toString());
+            userId = payload.sub;
+            email = payload.email;
+          } catch (_) { /* skip */ }
+        }
+        if (userId) {
+          await logAction({
+            userId, email, role,
+            actionType: `auth_${action}`,
+            targetType: action === 'change-role' ? 'admin' : (action === 'invite' ? 'invitation' : null),
+            targetId: req.body?.user_id || req.body?.target_user_id || req.body?.email || null,
+            targetLabel: req.body?.email || req.body?.display_name || null,
+            details: {
+              duration_ms: Date.now() - startedAt,
+              new_role: req.body?.new_role,
+              method: req.method,
+            },
+            result: actionError ? 'fail' : 'success',
+            errorMessage: actionError?.message || null,
+            req,
+          });
+        }
+      } catch (_) { /* logging 실패는 응답에 영향 없음 */ }
+    }
   }
 }
 

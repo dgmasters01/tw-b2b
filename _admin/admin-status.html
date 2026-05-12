@@ -4797,15 +4797,59 @@
     const catLab = (typeof CATEGORY_LABEL_KO !== 'undefined' && CATEGORY_LABEL_KO[task.category]) || (task.category || '-');
 
     // V2 — 결정 맥락 블록 (decision_context / decision_options / decision_recommendation)
-    const dCtx = (task.decision_context || '').trim();
-    const dOpts = Array.isArray(task.decision_options) ? task.decision_options : [];
-    const dRec = (task.decision_recommendation || '').trim();
+    let dCtx = (task.decision_context || '').trim();
+    let dOpts = Array.isArray(task.decision_options) ? task.decision_options : [];
+    let dRec = (task.decision_recommendation || '').trim();
     const hasV2Ctx = !!(dCtx || dOpts.length || dRec);
 
-    const ctxHtml = hasV2Ctx ? `
+    // ★ BL-DECISION-CTX-FROM-NOTES (2026-05-12): V2 필드 없으면 notes에서 자동 빌드
+    //   대표님 보고 (2026-05-12): "결정 박스에 시스템이 정리 못함만 떠서 결정 못 함"
+    //   라이브 진단: BL.notes 필드에 풍부한 컨텍스트가 박혀있는데 모달이 안 보여줌.
+    //   fix: V2 필드 없으면 notes + source + blocker로 컨텍스트 자동 빌드.
+    if (!hasV2Ctx && (task.notes || task.blocker || task.source)) {
+      const parts = [];
+      if (task.notes) {
+        parts.push(String(task.notes).trim());
+      }
+      if (task.source) {
+        parts.push('\n📥 출처: ' + task.source);
+      }
+      if (task.blocker && task.blocker !== '대표님 결정 대기') {
+        parts.push('\n🚫 막힘 사유: ' + task.blocker);
+      }
+      dCtx = parts.join('\n');
+
+      // notes에서 A/B/C/D안 자동 추출 (옵션 카드 빌드)
+      // 패턴: "A안 — ..." / "A안: ..." / "(A: ...)" / "- A. ..." 등
+      const optPatterns = [
+        /([A-D])안\s*[—\-:]\s*([^\n]+?)(?=(?:\n|$|[A-D]안\s*[—\-:]))/g,
+        /\(([A-D]):\s*([^)]+)\)/g,
+        /^[\s\-•]*([A-D])[\.\)]\s+(.+)$/gm,
+      ];
+      const extracted = [];
+      const seen = new Set();
+      for (const pattern of optPatterns) {
+        const matches = [...(task.notes || '').matchAll(pattern)];
+        for (const m of matches) {
+          const label = m[1];
+          const text = m[2].trim().replace(/[\.,;]\s*$/, '');
+          if (text.length > 5 && text.length < 200 && !seen.has(label)) {
+            extracted.push(`${label}안 — ${text}`);
+            seen.add(label);
+          }
+        }
+        if (extracted.length >= 2) break;  // 최소 2개 옵션 추출되면 멈춤
+      }
+      if (extracted.length >= 2) {
+        dOpts = extracted;
+      }
+    }
+
+    const finalHasCtx = !!(dCtx || dOpts.length || dRec);
+    const ctxHtml = finalHasCtx ? `
       <div class="ceo-decision-ctx">
         <div class="ceo-decision-ctx-h">🧭 무엇을 결정해야 하는가</div>
-        ${dCtx ? `<div class="ceo-decision-ctx-text">${escapeHtml(dCtx)}</div>` : ''}
+        ${dCtx ? `<div class="ceo-decision-ctx-text" style="white-space:pre-wrap;line-height:1.55;">${escapeHtml(dCtx)}</div>` : ''}
         ${dOpts.length ? `
           <div class="ceo-decision-ctx-h" style="margin-top:6px;">📑 옵션 (클릭 = 선택)</div>
           <div class="opt-cards-wrap" id="opt-cards-wrap">
@@ -4828,9 +4872,9 @@
     ` : `
       <div class="ceo-decision-ctx-pending">
         <div class="ceo-decision-ctx-pending-msg">
-          ⏳ 시스템이 이 작업의 결정 맥락을 아직 정리하지 못했습니다.<br>
-          잠시 후 다시 열어주시거나, 아래 [ⓐ 작업 상세 보기]로 admin-tasks.html에서<br>
-          전체 컨텍스트를 확인하실 수 있습니다.
+          ⏳ 이 작업의 컨텍스트가 비어있습니다.<br>
+          아래 <strong>[ⓐ 작업 상세 보기]</strong>로 admin-tasks.html에서 전체 컨텍스트를 확인하세요.<br>
+          또는 <strong>[ⓑ 결정 입력]</strong>으로 클로드에게 컨텍스트 채워달라고 요청 가능.
         </div>
       </div>
     `;

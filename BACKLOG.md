@@ -297,24 +297,6 @@ detail: 관리자 페이지 7개가 원본과 살짝 달라요 (대표님이 일
 
 ---
 
-## 🟢 P1 — Supabase SQL 자동 적용 인프라 — sql/ 폴더 변경 시 GitHub Actions가 Management API로 자동 RUN
-
-**요약**: 발생 맥락: BL-ADMIN-ACTIVITY-MOVE 작업 중 발견.
-
-기술 흐름 (정석):
-1) .github/workflows/supabase-sql-apply.yml — push 시 sql/*.sql 감지
-2) Supabase Management API POST /v1/projects/{ref}/database/query (curl)
-3) 응답 검증 
-
-- **자율성**: 🟢 AUTO
-- **예상 시간**: 1.0시간
-- **카테고리**: infra
-- **상태**: pending
-- **막힘 사유**: GitHub Secrets에 SUPABASE_MGMT_TOKEN 등록 필요 (대표님 1번)
-- **ID**: `BL-SUPABASE-SQL-AUTO-APPLY` (출처: ceo_derived)
-
----
-
 ## 🟢 P2 — [DECISIONS_INDEX.md 자동 동기화] sync_engine 보강
 
 **요약**: DECISIONS.md 변경 감지 → DECISIONS_INDEX.md 자동 갱신. ID 고정 불변 규칙.

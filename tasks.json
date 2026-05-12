@@ -6601,13 +6601,13 @@
       "id": "BL-ADMIN-AUTH",
       "title": "[admin Supabase Auth] 정식 오픈 전 의무 — admin-* 전체 인증 + 권한 등급 (CEO/Staff)",
       "category": "infrastructure",
-      "status": "in_progress",
+      "status": "done",
       "priority": "P0",
       "size": "medium",
       "parent_task": null,
       "blocker": null,
       "created_at": "2026-05-04T16:13:23Z",
-      "updated_at": "2026-05-12T00:20:47.180Z",
+      "updated_at": "2026-05-12T00:24:22.979Z",
       "claude_can_auto": false,
       "owner": "ceo_decision_required",
       "approval_required": true,
@@ -6619,7 +6619,7 @@
         ]
       },
       "progress": {
-        "percent": 0,
+        "percent": 100,
         "steps": [
           {
             "n": 1,
@@ -6654,7 +6654,7 @@
           {
             "n": 7,
             "label": "commit + push + 라이브 검증",
-            "status": "pending"
+            "status": "done"
           }
         ]
       },
@@ -6748,6 +6748,12 @@
           "action": "progress",
           "by": "claude",
           "note": "단계 4 — admin.js + admin-auth-handlers.js에 logAction 자동 박기 (finally wrap 패턴, list-users 같은 단순 조회는 skip)"
+        },
+        {
+          "at": "2026-05-12T00:24:22.979Z",
+          "action": "done",
+          "by": "claude",
+          "note": "단계 7 라이브 검증 — admin 사용자 활동 박스 렌더 확인, find 결과 region 매치"
         }
       ],
       "decision_summary": "a안으로 갑니다. 박을 것 3가지: ①접속 로그(누가 언제 admin 들어왔나) ②실행 로그(누가 언제 무슨 버튼 눌렀나 — 호텔 승인·삭제·수정 등 중요 액션) ③admin-status 페이지 하단 \"최근 활동\" 박스에 시간순으로 한 줄씩 표시. 권한은 CEO(대표님 — 전체 권한) / Staff(초대된 스탭 — 제한 권한) 두 단계로 나누고, 둘 다 이메일로 구분되니까 로그에 자동으로 누가 했는지 박힙니다. 이대로 BL-ADMIN-AUTH 진행하겠습니다",
@@ -6758,7 +6764,8 @@
         "detected_at": "2026-05-11T16:29:40+00:00",
         "detected_by_commit": "48c8ade",
         "message": "in_progress 도중 progress.steps 미박힘 감지."
-      }
+      },
+      "completed_at": "2026-05-12T00:24:22.979Z"
     },
     {
       "id": "BL-COMMAND-CENTER",

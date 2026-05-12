@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-12T02:29:58Z",
+  "updated_at": "2026-05-12T02:30:21+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -12416,7 +12416,7 @@
       "size": "small",
       "source": "ceo_decision",
       "created_at": "2026-05-12T02:12:52Z",
-      "updated_at": "2026-05-12T02:29:58Z",
+      "updated_at": "2026-05-12T02:30:21+00:00",
       "deadline": null,
       "order": null,
       "blocker": null,
@@ -12482,6 +12482,13 @@
           "by": "claude",
           "action": "done",
           "detail": "BL-ADMIN-ACTIVITY-MOVE 작업 자체 완료. 코드는 admin.html로 100% 이전, 사이드바 메뉴 박힘, V2 컨텍스트 박힘. SQL 1회 적용은 정석 자동화로 분리(BL-SUPABASE-SQL-AUTO-APPLY) — 한 번 박히면 영구 자동, 헌법 부칙 4 정신."
+        },
+        {
+          "at": "2026-05-12T02:30:21+00:00",
+          "event": "관련 commit 추가 (status 유지)",
+          "by": "auto-detect-bot",
+          "commit": "2c84ab4",
+          "note": "done(BL-ADMIN-ACTIVITY-MOVE): 작업 완료 + SQL 자동화 BL 신규 등록 [step:done:4] [step:done:5]"
         }
       ],
       "decision_context": "[지금 무슨 상황이냐면]\n대표님이 admin 화면 들어가셨더니 같은 페이지(admin-status.html) 안에 활동 박스가 2개 같이 보였어요. 위쪽은 📜 활동 이력(클로드/봇이 만든 작업 기록), 아래쪽은 👤 ADMIN 사용자 활동(사람이 들어와서 무엇을 했나). 그런데 이 두 박스가 한 페이지에 같이 있으면 시야가 분산됩니다.\n\n[왜 결정이 필요하냐면]\n헌법 부칙 5는 \"시스템 카테고리 분리\"가 원칙입니다 — admin-status는 시스템이 얼마나 만들어졌나 보는 페이지, admin.html은 사람이 시스템을 어떻게 운영하나 보는 페이지. 사용자 활동은 운영 영역이라 admin.html로 옮기는 게 맞아요. 대표님이 직접 OK 박으셔서 이전 작업 완료.\n\n[결정하면 뭐가 달라지냐면]\n이전 완료 후 admin-status는 시스템 영역만 남아 깔끔해지고, admin.html Dashboard 탭에 들어가시면 첫 화면에서 \"오늘 누가 들어왔고 무엇을 했나\" 한눈에 보입니다. SQL 적용만 대표님이 1번 클릭하시면 박스 데이터가 살아납니다.",

@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-12T18:12:27.223929+00:00",
+  "updated_at": "2026-05-12T18:12:51+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -14,9 +14,9 @@
   "stats": {
     "total": 207,
     "done": 145,
-    "in_progress": 0,
+    "in_progress": 3,
     "paused": 1,
-    "pending": 42,
+    "pending": 39,
     "blocked": 10,
     "autonomous_ready": 38,
     "todo": 0,
@@ -6647,7 +6647,7 @@
       "id": "SQ-G",
       "title": "자동 알림 메일 시스템 (BACKLOG의 P1)",
       "category": "dev",
-      "status": "pending",
+      "status": "in_progress",
       "priority": "P1",
       "size": "medium",
       "parent_task": null,
@@ -6670,6 +6670,13 @@
           "event": "imported",
           "by": "claude-builder",
           "note": "SOLO_WORK_QUEUE.md L92에서 추출"
+        },
+        {
+          "at": "2026-05-12T18:12:51+00:00",
+          "event": "진행 중 진입 (auto-detected) ⚠️ 부칙 7 위반 — progress.steps 미박힘",
+          "by": "auto-detect-bot",
+          "commit": "f34a6d2",
+          "note": "feat(결정 3개 박음): SQ-G + SQ-H + BL-OS-INSTALL-PAT-FLOW 자율 큐 이동"
         }
       ],
       "source": "SOLO_WORK_QUEUE.md",
@@ -6691,14 +6698,22 @@
         "B안 — 메일별 내용 대표님이 먼저 검토 → 6개 메일 카피 다 보고 결정, 정확도 ↑"
       ],
       "recommendation": "🤖 클로드 추천: A안 — BUSINESS.md에 메일 정책 이미 박혀있어 클로드가 자율 박을 수 있음. 박은 후 대표님이 한 번에 보시고 수정 요청 가능.",
-      "updated_at": "2026-05-12T18:12:27.223929+00:00",
-      "decision_summary": "대표님 결정 (2026-05-13): A안 — 6개 트리거 메일 다 자동 발송. 호텔 상태 변할 때마다 매니저에게 자동 메일. 6개: 호텔 등록/승인/거절/결제완료/영상제작시작/영상게시. 영어 default + 한국 매니저만 한국어 (D-032 적용). Resend SMTP 사용."
+      "updated_at": "2026-05-12T18:12:51+00:00",
+      "decision_summary": "대표님 결정 (2026-05-13): A안 — 6개 트리거 메일 다 자동 발송. 호텔 상태 변할 때마다 매니저에게 자동 메일. 6개: 호텔 등록/승인/거절/결제완료/영상제작시작/영상게시. 영어 default + 한국 매니저만 한국어 (D-032 적용). Resend SMTP 사용.",
+      "started_at": "2026-05-12T18:12:51+00:00",
+      "progress_warning": {
+        "code": "MISSING_PROGRESS_STEPS",
+        "rule": "부칙 7 — 모든 작업은 progress.steps 박은 후 시작",
+        "detected_at": "2026-05-12T18:12:51+00:00",
+        "detected_by_commit": "f34a6d2",
+        "message": "in_progress 진입했으나 progress.steps 비어있음. tasks.json에서 progress.steps 박은 후 다음 commit에 [step:done:N] 태그."
+      }
     },
     {
       "id": "SQ-H",
       "title": "Supabase Management API 토큰 갱신 알림 자동화",
       "category": "infrastructure",
-      "status": "pending",
+      "status": "in_progress",
       "priority": "P1",
       "size": "medium",
       "parent_task": null,
@@ -6721,6 +6736,13 @@
           "event": "imported",
           "by": "claude-builder",
           "note": "SOLO_WORK_QUEUE.md L103에서 추출"
+        },
+        {
+          "at": "2026-05-12T18:12:51+00:00",
+          "event": "진행 중 진입 (auto-detected) ⚠️ 부칙 7 위반 — progress.steps 미박힘",
+          "by": "auto-detect-bot",
+          "commit": "f34a6d2",
+          "note": "feat(결정 3개 박음): SQ-G + SQ-H + BL-OS-INSTALL-PAT-FLOW 자율 큐 이동"
         }
       ],
       "source": "SOLO_WORK_QUEUE.md",
@@ -6742,8 +6764,16 @@
         "B안 — 알림만 수동 (대표님 캘린더 등록) → 시스템 복잡도 0, 대표님 기억 의존"
       ],
       "recommendation": "🤖 클로드 추천: A안 — 토큰 만료로 시스템 멈추는 사고 영구 차단. 헌법 부칙 4 정신(시스템 활용 100%)에 정확히 맞음.",
-      "updated_at": "2026-05-12T18:12:27.223929+00:00",
-      "decision_summary": "대표님 결정 (2026-05-13): OK — 토큰 만료 7일 전 자동 메일 알림 박음. 현재 Supabase 토큰 만료 2026-06-04 → 5/28에 대표님 이메일로 자동 알림. Vercel Cron 또는 Supabase Edge Function 사용. 다른 토큰(PAT/Vercel/Cloudflare/Resend) 만료일도 자동 추가."
+      "updated_at": "2026-05-12T18:12:51+00:00",
+      "decision_summary": "대표님 결정 (2026-05-13): OK — 토큰 만료 7일 전 자동 메일 알림 박음. 현재 Supabase 토큰 만료 2026-06-04 → 5/28에 대표님 이메일로 자동 알림. Vercel Cron 또는 Supabase Edge Function 사용. 다른 토큰(PAT/Vercel/Cloudflare/Resend) 만료일도 자동 추가.",
+      "started_at": "2026-05-12T18:12:51+00:00",
+      "progress_warning": {
+        "code": "MISSING_PROGRESS_STEPS",
+        "rule": "부칙 7 — 모든 작업은 progress.steps 박은 후 시작",
+        "detected_at": "2026-05-12T18:12:51+00:00",
+        "detected_by_commit": "f34a6d2",
+        "message": "in_progress 진입했으나 progress.steps 비어있음. tasks.json에서 progress.steps 박은 후 다음 commit에 [step:done:N] 태그."
+      }
     },
     {
       "id": "SQ-DONE-I",
@@ -9990,7 +10020,7 @@
       "category": "infra",
       "priority": "P1",
       "size": "medium",
-      "status": "pending",
+      "status": "in_progress",
       "claude_can_auto": true,
       "approval_required": false,
       "owner": "CEO",
@@ -10003,7 +10033,7 @@
       },
       "blocker": null,
       "created_at": "2026-05-08T13:53:59+00:00",
-      "updated_at": "2026-05-12T18:12:27.223929+00:00",
+      "updated_at": "2026-05-12T18:12:51+00:00",
       "completed_at": null,
       "source": "대표님 진단 (2026-05-08) — OS 설치 시 PAT 거부됨, 설치 자체가 안 됨",
       "order": 22,
@@ -10037,6 +10067,13 @@
           "at": "2026-05-08T13:53:59+00:00",
           "event": "BL 신설 (대표님 진단 — OS 설치 PAT 거부 문제)",
           "by": "Claude"
+        },
+        {
+          "at": "2026-05-12T18:12:51+00:00",
+          "event": "진행 중 진입 (auto-detected)",
+          "by": "auto-detect-bot",
+          "commit": "f34a6d2",
+          "note": "feat(결정 3개 박음): SQ-G + SQ-H + BL-OS-INSTALL-PAT-FLOW 자율 큐 이동"
         }
       ],
       "decision_context": "[지금 무슨 상황이냐면]\n새 프로젝트(예: CEYLON JOURNEY, 추후 신규 채널 사이트)를 만들 때 install_os.sh 한 줄 실행하면 운영 시스템(OS)이 자동으로 깔리도록 만들었어요. 그런데 지금 그 스크립트(224줄)에 GitHub 인증 토큰(PAT) 자동 박는 로직이 빠져 있습니다. 설치 후 첫 push 또는 자동 작업 트리거에서 \"권한 없음\"으로 거부돼요.\n\n[왜 결정이 필요하냐면]\n이것도 자율 진행 가능 작업입니다. install_os.sh에 PAT 입력받는 단계 하나 추가하고 GitHub Secrets에 자동 등록하는 흐름 박으면 됩니다. 결정 대기 박스에 있는 이유는 분류 누락이에요.\n\n[결정하면 뭐가 달라지냐면]\n\"자율 진행 OK\" 한 마디면 클로드가 박습니다. 앞으로 새 프로젝트 만들 때 install_os.sh 한 줄로 끝나고, PAT 박는 수동 작업 영구 제거.",
@@ -10050,7 +10087,8 @@
         "B안 — 보류 (지금은 수동 PAT 등록 유지) → 변경 비용 0, 새 프로젝트마다 수동 단계"
       ],
       "decision_recommendation": "🤖 클로드 추천: A안 — CEYLON JOURNEY 다음 신규 프로젝트 만들 때 무조건 필요. 지금 박아두면 영구 자동.",
-      "decision_summary": "대표님 결정 (2026-05-13): OK — 그냥 박음. PAT 박는 방식 = GitHub Secrets API (Claude 자율 결정 — 헌법 부칙 17 자격증명 라이프사이클 부합, 가장 안전). install_os.sh 보강 → 새 컴퓨터/직원 설치 시 PAT 자동 박음."
+      "decision_summary": "대표님 결정 (2026-05-13): OK — 그냥 박음. PAT 박는 방식 = GitHub Secrets API (Claude 자율 결정 — 헌법 부칙 17 자격증명 라이프사이클 부합, 가장 안전). install_os.sh 보강 → 새 컴퓨터/직원 설치 시 PAT 자동 박음.",
+      "started_at": "2026-05-12T18:12:51+00:00"
     },
     {
       "id": "BL-OPS-MAIL-AUTOBOT",

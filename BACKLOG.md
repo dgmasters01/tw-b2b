@@ -19,22 +19,6 @@
 
 ---
 
-## ⚡ P0 — 결정 대기 15건 사람말 컨텍스트 대량 보강 + 신규 BL 자동 검증 + UI 4종 fix
-
-**요약**: 본질 결함: 직전 fix BL-DECISION-CTX-FROM-NOTES는 notes에서 자동 빌드하지만 notes 자체가 개발자 언어면 효과 반감.
-
-진단 결과 (라이브 2026-05-12):
-- 결정 대기 23건 중 V2 필드(decision_context/options/recommendation) 박힌 BL: 8건
-- V2 필드 없는 BL: 15건 →
-
-- **자율성**: 🟡 SEMI
-- **예상 시간**: 미정시간
-- **카테고리**: fix
-- **상태**: in_progress
-- **ID**: `BL-DECISION-CTX-MASS-FILL` (출처: 대표님 직접 보고 (2026-05-12) — 7가지 본질 결함 한 번에 fix)
-
----
-
 ## 🟢 P0 — 통합 To-Do Inbox (관리자 대시보드 재설계)
 
 **요약**: ## 🔴 P0 — 통합 To-Do Inbox (관리자 대시보드 재설계) ⭐⭐⭐ 2026-04-29  **배경** (대표님 핵심 운영 철학): > "한 사람이 처리해야 될 업무는 한 곳에서 우선순위가 표시되어 체크하면 정리할 수 있게 해야 됨. 내가 복잡하게 관리하게 하면 안 됨. 나에게 유리하게 해야 됨."  대표님 1인 운영. 처리 작업이 여러 탭에 흩어
@@ -93,24 +77,6 @@
 - **결정 필요**:
   - 디자인 큰 방향 검수 (대표님 그림)
 - **ID**: `BL-SERVICE-MAP` (출처: ceo_insight_2026-05-10)
-
----
-
-## 🟢 P0 — [자동] 자동 일꾼 1명이 멈췄어요: sync-bot
-
-**요약**: 점검 봇 자동 등록 (2026-05-11T20:24:23.985Z)
-
-check_name: bots
-status: red
-detail: 자동 일꾼 1명이 멈췄어요: sync-bot
-
-진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 green으로 박으면 자동 done.
-
-- **자율성**: 🟢 AUTO
-- **예상 시간**: 1시간
-- **카테고리**: infrastructure
-- **상태**: pending
-- **ID**: `BL-AUTO-BOTS-SYNC-BOT` (출처: auto_from_bots)
 
 ---
 

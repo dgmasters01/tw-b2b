@@ -29,13 +29,13 @@
 
 ---
 
-### B. 🟢 AUTO — Agoda Matching = 호텔 가입 수동 승인 페이지 (매니저 온보딩 게이트)
+### B. 🟢 AUTO — BEFORE/AFTER 스크린샷 자동 캡처 시스템 (Page Gallery 통합)
 
-**ID**: `BL-003-A`  
-**카테고리**: feature  
-**예상 시간**: 8시간  
+**ID**: `BL-015`  
+**카테고리**: dev  
+**예상 시간**: 4-6시간  
 
-**메모**: 매니저 가입 시 자동 매칭(agoda_hotels DB + Google Places) 실패한 호텔이 admin Agoda Matching 페이지에 대기 큐로 쌓이고, 대표님이 Agoda URL/주소 보고 hotel_id 수동 매칭 → 승인 → 매니저에게 가입 확정 알림. 매니저 온보딩 게이트 — 안 만들면 매칭 실패 케이스가 가입 자체 불가.
+**메모**: ## 🟡 P2 — BEFORE/AFTER 스크린샷 자동 캡처 시스템 (Page Gallery 통합)  ### 배경 대표님 메모리 원칙: 모든 페이지 수정 시 ① 수정 전 풀페이지 스크린샷 ② 수정 작업 ③ 수정 후 풀페이지 스크린샷 ④ 작업 기록에 BEFORE/AFTER 비교 등록 ⑤ 관리자 페이지에서 전후 비교 확인 가능. Page Gallery 스크린샷도 수정 시 자동 갱신.  ### 현재 상태 - `admin-gallery.html`은 존재하나 BEFORE/AFTER 비교 기능 미구현 - 자동 캡처 인프라(Playwright 
 
 ---
 
@@ -46,16 +46,6 @@
 **예상 시간**: 미정시간  
 
 **메모**: 관련 발견: pages-meta.mjs에 audience 필드(public/manager/admin)는 있지만 갤러리에서 사용 안 함. flow 필드 + flowOrder 숫자 추가 필요. 빠진 페이지(sales.html / marketing.html 등)는 status: 'planned'로 등록되어 있으나 흐름 안에서의 위치 표시가 약함. 작업 시 BUSINESS_FLOW.md의 6단계 흐름과 정합성 유지 필수.
-
----
-
-### D. 🟡 SEMI — [자동] BEFORE/AFTER 자동 캡처 봇 복구 + 갤러리 이력 보기 박기
-
-**ID**: `BL-CAPTURE-BOT-RESTORE`  
-**카테고리**: infrastructure  
-**예상 시간**: 미정시간  
-
-**메모**: 관련 발견: scripts/capture-pages.mjs는 이미 archive 로직 박혀있음(line 108-113, copyFileSync로 outPath → archivePath 복사). 즉 워크플로 파일만 복구하면 archive 로직은 자동 작동. 갤러리 카드의 '📅 이력 보기' 버튼은 admin-gallery.html에 추가 필요. 자동 캡처에는 매니저/관리자 로그인 컨텍스트도 필요하므로 GitHub Actions Secrets에 TW_MANAGER_EMAIL/PASSWORD, TW_ADMIN_EMAIL/PASSWORD 등
 
 ---
 
@@ -180,17 +170,7 @@ detail: 관리자 페이지 7개가 원본과 살짝 달라요 (대표님이 일
 
 ---
 
-### B. 🟢 AUTO — BEFORE/AFTER 스크린샷 자동 캡처 시스템 (Page Gallery 통합)
-
-**ID**: `BL-015`  
-**카테고리**: dev  
-**예상 시간**: 4-6시간  
-
-**메모**: ## 🟡 P2 — BEFORE/AFTER 스크린샷 자동 캡처 시스템 (Page Gallery 통합)  ### 배경 대표님 메모리 원칙: 모든 페이지 수정 시 ① 수정 전 풀페이지 스크린샷 ② 수정 작업 ③ 수정 후 풀페이지 스크린샷 ④ 작업 기록에 BEFORE/AFTER 비교 등록 ⑤ 관리자 페이지에서 전후 비교 확인 가능. Page Gallery 스크린샷도 수정 시 자동 갱신.  ### 현재 상태 - `admin-gallery.html`은 존재하나 BEFORE/AFTER 비교 기능 미구현 - 자동 캡처 인프라(Playwright 
-
----
-
-### C. 🟢 AUTO — README.md 업데이트
+### B. 🟢 AUTO — README.md 업데이트
 
 **ID**: `SQ-J`  
 **카테고리**: docs  
@@ -200,7 +180,7 @@ detail: 관리자 페이지 7개가 원본과 살짝 달라요 (대표님이 일
 
 ---
 
-### D. 🟢 AUTO — [그림 일치 OS] In-Progress 박스 commit 자동 갱신 누락 fix
+### C. 🟢 AUTO — [그림 일치 OS] In-Progress 박스 commit 자동 갱신 누락 fix
 
 **ID**: `BL-SYNC-INPROGRESS-COMMITS`  
 **카테고리**: fix  
@@ -210,7 +190,7 @@ detail: 관리자 페이지 7개가 원본과 살짝 달라요 (대표님이 일
 
 ---
 
-### E. 🟢 AUTO — 활동이력 — 봇 commit 클릭 시 사람용 탭 노출 결함 fix
+### D. 🟢 AUTO — 활동이력 — 봇 commit 클릭 시 사람용 탭 노출 결함 fix
 
 **ID**: `BL-ACTIVITY-MODAL-BOT-FIX`  
 **카테고리**: bug  
@@ -220,7 +200,7 @@ detail: 관리자 페이지 7개가 원본과 살짝 달라요 (대표님이 일
 
 ---
 
-### F. 🟢 AUTO — 작업 시작 시 progress.steps 미박힘 자동 감지·자동 채움 + step:done:N 범위 자동 검증
+### E. 🟢 AUTO — 작업 시작 시 progress.steps 미박힘 자동 감지·자동 채움 + step:done:N 범위 자동 검증
 
 **ID**: `BL-PROGRESS-STEPS-AUTOFILL`  
 **카테고리**: infra  
@@ -230,7 +210,7 @@ detail: 관리자 페이지 7개가 원본과 살짝 달라요 (대표님이 일
 
 ---
 
-### G. 🟡 SEMI — 호텔 스토리 / LTV 추적
+### F. 🟡 SEMI — 호텔 스토리 / LTV 추적
 
 **ID**: `BL-006`  
 **카테고리**: dev  
@@ -240,7 +220,7 @@ detail: 관리자 페이지 7개가 원본과 살짝 달라요 (대표님이 일
 
 ---
 
-### H. 🟡 SEMI — 호텔 검색 UX 이슈
+### G. 🟡 SEMI — 호텔 검색 UX 이슈
 
 **ID**: `BL-008`  
 **카테고리**: ux  
@@ -250,7 +230,7 @@ detail: 관리자 페이지 7개가 원본과 살짝 달라요 (대표님이 일
 
 ---
 
-### I. 🟡 SEMI — Admin Console UI 버그
+### H. 🟡 SEMI — Admin Console UI 버그
 
 **ID**: `BL-009`  
 **카테고리**: bug  
@@ -260,7 +240,7 @@ detail: 관리자 페이지 7개가 원본과 살짝 달라요 (대표님이 일
 
 ---
 
-### J. 🟡 SEMI — Chrome 안전 브라우징 경고
+### I. 🟡 SEMI — Chrome 안전 브라우징 경고
 
 **ID**: `BL-010`  
 **카테고리**: ux  

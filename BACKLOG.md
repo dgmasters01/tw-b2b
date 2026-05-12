@@ -32,15 +32,15 @@
 
 ---
 
-## 🟢 P0 — Agoda Matching = 호텔 가입 수동 승인 페이지 (매니저 온보딩 게이트)
+## 🟢 P0 — BEFORE/AFTER 스크린샷 자동 캡처 시스템 (Page Gallery 통합)
 
-**요약**: 매니저 가입 시 자동 매칭(agoda_hotels DB + Google Places) 실패한 호텔이 admin Agoda Matching 페이지에 대기 큐로 쌓이고, 대표님이 Agoda URL/주소 보고 hotel_id 수동 매칭 → 승인 → 매니저에게 가입 확정 알림. 매니저 온보딩 게이트 — 안 만들면 매칭 실패 케이스가 가입 자체 불가.
+**요약**: ## 🟡 P2 — BEFORE/AFTER 스크린샷 자동 캡처 시스템 (Page Gallery 통합)  ### 배경 대표님 메모리 원칙: 모든 페이지 수정 시 ① 수정 전 풀페이지 스크린샷 ② 수정 작업 ③ 수정 후 풀페이지 스크린샷 ④ 작업 기록에 BEFORE/AFTER 비교 등록 ⑤ 관리자 페이지에서 전후 비교 확인 가능. Page Gallery 스크린샷
 
 - **자율성**: 🟢 AUTO
-- **예상 시간**: 8시간
-- **카테고리**: feature
+- **예상 시간**: 4-6시간
+- **카테고리**: dev
 - **상태**: pending
-- **ID**: `BL-003-A` (출처: BL-003 핑퐁 9라운드 → D-025 결정 → 쪼개기)
+- **ID**: `BL-015` (출처: BACKLOG.md)
 
 ---
 
@@ -89,18 +89,6 @@
 - **카테고리**: feature
 - **상태**: pending
 - **ID**: `BL-GALLERY-FLOW-COMPLETENESS` (출처: 대표님 통찰 (2026-05-12) — 갤러리에 페이지는 다 있는데 흐름 순서·카테고리·빠진 곳 표시가 없어 매니저 가입 흐름 따라가기 어려움)
-
----
-
-## 🟡 P0 — [자동] BEFORE/AFTER 자동 캡처 봇 복구 + 갤러리 이력 보기 박기
-
-**요약**: 관련 발견: scripts/capture-pages.mjs는 이미 archive 로직 박혀있음(line 108-113, copyFileSync로 outPath → archivePath 복사). 즉 워크플로 파일만 복구하면 archive 로직은 자동 작동. 갤러리 카드의 '📅 이력 보기' 버튼은 admin-gallery.html에 추가 필요. 자동 캡처에는 
-
-- **자율성**: 🟡 SEMI
-- **예상 시간**: 미정시간
-- **카테고리**: infrastructure
-- **상태**: pending
-- **ID**: `BL-CAPTURE-BOT-RESTORE` (출처: 대표님 통찰 (2026-05-12) — 디자인 변경 시 옛 좋은 부분과 합치려면 전후 비교가 필요한데, 통합되면서 캡처 봇 워크플로가 사라져 archive 폴더에 옛 버전이 안 쌓임)
 
 ---
 
@@ -417,18 +405,6 @@ detail: 관리자 페이지 7개가 원본과 살짝 달라요 (대표님이 일
 - **상태**: blocked
 - **막힘 사유**: 대표님 결정 대기
 - **ID**: `BL-014` (출처: BACKLOG.md)
-
----
-
-## 🟢 P2 — BEFORE/AFTER 스크린샷 자동 캡처 시스템 (Page Gallery 통합)
-
-**요약**: ## 🟡 P2 — BEFORE/AFTER 스크린샷 자동 캡처 시스템 (Page Gallery 통합)  ### 배경 대표님 메모리 원칙: 모든 페이지 수정 시 ① 수정 전 풀페이지 스크린샷 ② 수정 작업 ③ 수정 후 풀페이지 스크린샷 ④ 작업 기록에 BEFORE/AFTER 비교 등록 ⑤ 관리자 페이지에서 전후 비교 확인 가능. Page Gallery 스크린샷
-
-- **자율성**: 🟢 AUTO
-- **예상 시간**: 4-6시간
-- **카테고리**: dev
-- **상태**: pending
-- **ID**: `BL-015` (출처: BACKLOG.md)
 
 ---
 

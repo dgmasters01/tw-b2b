@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-12T00:15:56.084Z",
+  "updated_at": "2026-05-12T00:19:11+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -6607,7 +6607,7 @@
       "parent_task": null,
       "blocker": null,
       "created_at": "2026-05-04T16:13:23Z",
-      "updated_at": "2026-05-12T00:18:54.952Z",
+      "updated_at": "2026-05-12T00:19:11+00:00",
       "claude_can_auto": false,
       "owner": "ceo_decision_required",
       "approval_required": true,
@@ -6619,7 +6619,7 @@
         ]
       },
       "progress": {
-        "percent": 0,
+        "percent": 14,
         "steps": [
           {
             "n": 1,
@@ -6644,7 +6644,9 @@
           {
             "n": 5,
             "label": "admin 진입 시 자동 logAccess (shared.js의 admin guard에서)",
-            "status": "done"
+            "status": "done",
+            "done": true,
+            "at": "2026-05-12T00:19:11+00:00"
           },
           {
             "n": 6,
@@ -6656,7 +6658,10 @@
             "label": "commit + push + 라이브 검증",
             "status": "pending"
           }
-        ]
+        ],
+        "completed_count": 1,
+        "total_count": 7,
+        "updated_at": "2026-05-12T00:19:11+00:00"
       },
       "notes": "진단 (2026-05-12): D-016/BL-ADMIN-AUTH-V2로 admins 테이블 + 5단계 role + 초대 시스템 이미 박힘.\nD-026 결정 요구사항 3가지 중 1개만 박혀있고 2개는 누락:\n  ① 접속 로그 → ❌ access_logs 테이블 없음 (이번 작업)\n  ② 실행 로그 → ❌ action_logs 테이블 없음 (이번 작업)\n  ③ admin-status 하단 최근 활동 박스 → ❌ 없음 (이번 작업)\n\nD-026 CEO/Staff 2단계는 기존 5단계와 매핑:\n  CEO = owner (대표님 1명, 전체 권한)\n  Staff = admin/staff (초대된 스탭, 제한 권한)\n  readonly/manager는 그대로 (이미 동작 중)\n\nsize=medium 재판정 — 한 채팅 완주 가능.",
       "last_commit": null,
@@ -6748,17 +6753,17 @@
           "action": "progress",
           "by": "claude",
           "note": "단계 4 — admin.js + admin-auth-handlers.js에 logAction 자동 박기 (finally wrap 패턴, list-users 같은 단순 조회는 skip)"
+        },
+        {
+          "at": "2026-05-12T00:19:11+00:00",
+          "event": "진행 중 commit 추가 + 단계 5 완료 (auto-detected)",
+          "by": "auto-detect-bot",
+          "commit": "70e322c",
+          "note": "feat(BL-ADMIN-AUTH): admin 진입 시 shared.js checkAdmin이 access_logs 자동 박음 [step:done:5]"
         }
       ],
       "decision_summary": "a안으로 갑니다. 박을 것 3가지: ①접속 로그(누가 언제 admin 들어왔나) ②실행 로그(누가 언제 무슨 버튼 눌렀나 — 호텔 승인·삭제·수정 등 중요 액션) ③admin-status 페이지 하단 \"최근 활동\" 박스에 시간순으로 한 줄씩 표시. 권한은 CEO(대표님 — 전체 권한) / Staff(초대된 스탭 — 제한 권한) 두 단계로 나누고, 둘 다 이메일로 구분되니까 로그에 자동으로 누가 했는지 박힙니다. 이대로 BL-ADMIN-AUTH 진행하겠습니다",
-      "started_at": "2026-05-11T16:29:14.548Z",
-      "progress_warning": {
-        "code": "MISSING_PROGRESS_STEPS",
-        "rule": "부칙 7 — 모든 작업은 progress.steps 박은 후 시작",
-        "detected_at": "2026-05-11T16:29:40+00:00",
-        "detected_by_commit": "48c8ade",
-        "message": "in_progress 도중 progress.steps 미박힘 감지."
-      }
+      "started_at": "2026-05-11T16:29:14.548Z"
     },
     {
       "id": "BL-COMMAND-CENTER",

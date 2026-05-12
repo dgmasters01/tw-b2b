@@ -13,14 +13,17 @@
   ],
   "stats": {
     "total": 190,
-    "done": 143,
-    "in_progress": 1,
+    "done": 144,
+    "in_progress": 0,
     "pending": 27,
     "blocked": 10,
     "autonomous_ready": 20,
     "todo": 0,
-    "cancelled": 0,
-    "updated_at": "2026-05-12T07:38:25.913Z"
+    "cancelled": 1,
+    "updated_at": "2026-05-12T07:48:08+00:00",
+    "paused": 0,
+    "absorbed": 3,
+    "obsoleted": 5
   },
   "tasks": [
     {
@@ -6198,20 +6201,55 @@
       "id": "BL-015",
       "title": "BEFORE/AFTER 스크린샷 자동 캡처 시스템 (Page Gallery 통합)",
       "category": "dev",
-      "status": "in_progress",
+      "status": "done",
       "priority": "P0",
       "size": "medium",
       "parent_task": null,
       "blocker": null,
       "created_at": "2026-05-02T07:22:10Z",
-      "completed_at": null,
+      "completed_at": "2026-05-12T07:48:08+00:00",
       "claude_can_auto": true,
       "autonomous": {
         "can_run_alone": true,
         "estimated_hours": "4-6",
         "requires_decisions_first": []
       },
-      "progress": null,
+      "progress": {
+        "percent": 100,
+        "completed_count": 4,
+        "total_count": 4,
+        "updated_at": "2026-05-12T07:48:08+00:00",
+        "steps": [
+          {
+            "n": 1,
+            "label": "캡처 봇 자동 워크플로 신설 (이중 트리거)",
+            "status": "done",
+            "done": true,
+            "at": "2026-05-12T07:48:08+00:00"
+          },
+          {
+            "n": 2,
+            "label": "admin-gallery 카드에 📅 이력 보기 + BEFORE/AFTER 비교 UI",
+            "status": "done",
+            "done": true,
+            "at": "2026-05-12T07:48:08+00:00"
+          },
+          {
+            "n": 3,
+            "label": "pages-meta 동적 감지 (자율 판단으로 단계 2가 흡수)",
+            "status": "done",
+            "done": true,
+            "at": "2026-05-12T07:48:08+00:00"
+          },
+          {
+            "n": 4,
+            "label": "라이브 검증 + 첫 캡처 트리거 + 사업가 보고",
+            "status": "done",
+            "done": true,
+            "at": "2026-05-12T07:48:08+00:00"
+          }
+        ]
+      },
       "tag": "",
       "commit": null,
       "files_changed": [],
@@ -6270,6 +6308,11 @@
           "by": "auto-detect-bot",
           "commit": "bf94c23",
           "note": "feat(BL-015): 갤러리 카드에 📅 이력 보기 + BEFORE/AFTER 비교 UI 박음 [step:done:2]"
+        },
+        {
+          "at": "2026-05-12T07:48:08+00:00",
+          "actor": "claude (under 이지형 대표님 결정 A안)",
+          "action": "completed_after_rebase_fix"
         }
       ],
       "source": "BACKLOG.md",
@@ -6291,7 +6334,7 @@
         "B안 — 보류 (지금처럼 수동 캡처 유지) → 변경 비용 0, 누락 빈번"
       ],
       "recommendation": "🤖 클로드 추천: A안 — 헌법 부칙 16 의무 5(디자인 변경 시 Before/After 첨부)와 완벽히 맞물림. 박으면 의무 자동 충족.",
-      "updated_at": "2026-05-12T07:42:44+00:00",
+      "updated_at": "2026-05-12T07:48:08+00:00",
       "decision_ref": "D-028",
       "pingpong_turn": "done",
       "pingpong_rounds": 1,

@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-12T02:12:52Z",
+  "updated_at": "2026-05-12T02:13:17+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -12,9 +12,9 @@
     "SOLO_WORK_QUEUE.md"
   ],
   "stats": {
-    "total": 185,
+    "total": 186,
     "done": 141,
-    "in_progress": 0,
+    "in_progress": 1,
     "pending": 28,
     "blocked": 10,
     "autonomous_ready": 21,
@@ -12416,7 +12416,7 @@
       "size": "small",
       "source": "ceo_decision",
       "created_at": "2026-05-12T02:12:52Z",
-      "updated_at": "2026-05-12T02:12:52Z",
+      "updated_at": "2026-05-12T02:13:17+00:00",
       "deadline": null,
       "order": null,
       "blocker": "Supabase SQL 적용 대기 (대표님 1번 클릭 필요)",
@@ -12462,12 +12462,26 @@
           "by": "claude",
           "action": "created",
           "detail": "대표님 결정: ADMIN 사용자 활동 박스 admin.html로 이전 (부칙 5 시스템 카테고리 분리). 작업 완료."
+        },
+        {
+          "at": "2026-05-12T02:13:17+00:00",
+          "event": "진행 중 commit 추가",
+          "by": "auto-detect-bot",
+          "commit": "74176bb",
+          "note": "feat(BL-ADMIN-ACTIVITY-MOVE): ADMIN 사용자 활동 박스 admin-status → admin.html 이전 [step:done:1] [step:done:2] [step:done:3]"
         }
       ],
       "decision_context": "[지금 무슨 상황이냐면]\n대표님이 admin 화면 들어가셨더니 같은 페이지(admin-status.html) 안에 활동 박스가 2개 같이 보였어요. 위쪽은 📜 활동 이력(클로드/봇이 만든 작업 기록), 아래쪽은 👤 ADMIN 사용자 활동(사람이 들어와서 무엇을 했나). 그런데 이 두 박스가 한 페이지에 같이 있으면 시야가 분산됩니다.\n\n[왜 결정이 필요하냐면]\n헌법 부칙 5는 \"시스템 카테고리 분리\"가 원칙입니다 — admin-status는 시스템이 얼마나 만들어졌나 보는 페이지, admin.html은 사람이 시스템을 어떻게 운영하나 보는 페이지. 사용자 활동은 운영 영역이라 admin.html로 옮기는 게 맞아요. 대표님이 직접 OK 박으셔서 이전 작업 완료.\n\n[결정하면 뭐가 달라지냐면]\n이전 완료 후 admin-status는 시스템 영역만 남아 깔끔해지고, admin.html Dashboard 탭에 들어가시면 첫 화면에서 \"오늘 누가 들어왔고 무엇을 했나\" 한눈에 보입니다. SQL 적용만 대표님이 1번 클릭하시면 박스 데이터가 살아납니다.",
       "options": null,
       "recommendation": null,
-      "notes": "이전 작업 (2026-05-12):\n- admin-status.html: CSS 블록(라인 875~917) + HTML 박스(2763~2779) + JS 함수(4728~4800) + 호출 2곳 모두 제거\n- admin.html: Dashboard 탭에 박스 박음 (다크 글래스 톤 — var(--glass), var(--ink), --line)\n- 폴링 주기: 5초 → 30초 (admin.html은 운영 화면이라 부담 작게)\n- 새 BL이 결정 대기 박스 진입 → 부칙 17에 따라 V2 컨텍스트 박힘\n\n대표님 1번 클릭 필요 (헌법 부칙 4 — 권한 부여는 대표님):\n1) Supabase SQL Editor 열기: https://supabase.com/dashboard/project/vjsludfjsphwnumuoqaj/sql/new\n2) SQL 원본 복사: https://raw.githubusercontent.com/dgmasters01/tw-b2b/main/sql/admin-auth-logs.sql\n3) 붙여넣기 → RUN (10초)\n적용 후 admin.html Dashboard 탭에 박스 자동 작동.\nSQL은 멱등성 보장 (IF NOT EXISTS / OR REPLACE) — 여러 번 실행해도 안전."
+      "notes": "이전 작업 (2026-05-12):\n- admin-status.html: CSS 블록(라인 875~917) + HTML 박스(2763~2779) + JS 함수(4728~4800) + 호출 2곳 모두 제거\n- admin.html: Dashboard 탭에 박스 박음 (다크 글래스 톤 — var(--glass), var(--ink), --line)\n- 폴링 주기: 5초 → 30초 (admin.html은 운영 화면이라 부담 작게)\n- 새 BL이 결정 대기 박스 진입 → 부칙 17에 따라 V2 컨텍스트 박힘\n\n대표님 1번 클릭 필요 (헌법 부칙 4 — 권한 부여는 대표님):\n1) Supabase SQL Editor 열기: https://supabase.com/dashboard/project/vjsludfjsphwnumuoqaj/sql/new\n2) SQL 원본 복사: https://raw.githubusercontent.com/dgmasters01/tw-b2b/main/sql/admin-auth-logs.sql\n3) 붙여넣기 → RUN (10초)\n적용 후 admin.html Dashboard 탭에 박스 자동 작동.\nSQL은 멱등성 보장 (IF NOT EXISTS / OR REPLACE) — 여러 번 실행해도 안전.",
+      "progress_warning": {
+        "code": "MISSING_PROGRESS_STEPS",
+        "rule": "부칙 7 — 모든 작업은 progress.steps 박은 후 시작",
+        "detected_at": "2026-05-12T02:13:17+00:00",
+        "detected_by_commit": "74176bb",
+        "message": "in_progress 도중 progress.steps 미박힘 감지."
+      }
     }
   ]
 }

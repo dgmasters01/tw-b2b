@@ -148,6 +148,23 @@ detail: 관리자 페이지 7개가 원본과 살짝 달라요 (대표님이 일
 
 ---
 
+### J. 🟢 AUTO — ADMIN 사용자 활동 박스 admin-status → admin.html 이전 (부칙 5 카테고리 분리)
+
+**ID**: `BL-ADMIN-ACTIVITY-MOVE`  
+**카테고리**: infra  
+**예상 시간**: 0.7시간  
+**막힘 사유**: Supabase SQL 적용 대기 (대표님 1번 클릭 필요)  
+
+**메모**: 이전 작업 (2026-05-12):
+- admin-status.html: CSS 블록(라인 875~917) + HTML 박스(2763~2779) + JS 함수(4728~4800) + 호출 2곳 모두 제거
+- admin.html: Dashboard 탭에 박스 박음 (다크 글래스 톤 — var(--glass), var(--ink), --line)
+- 폴링 주기: 5초 → 30초 (admin.html은 운영 화면이라 부담 작게)
+- 새 BL이 결정 대기 박스 진입 → 부칙 17에 따라 V2 컨텍스트 박힘
+
+대표님 1번 클릭 필요 (헌법 
+
+---
+
 ## 🟢 P2 — 자투리 시간에
 
 ### A. 🟢 AUTO — [DECISIONS_INDEX.md 자동 동기화] sync_engine 보강

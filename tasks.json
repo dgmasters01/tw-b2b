@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-12T01:03:55+00:00",
+  "updated_at": "2026-05-12T01:18:48Z",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -21,7 +21,8 @@
     "todo": 0,
     "cancelled": 0,
     "updated_at": "2026-05-12T01:03:17.931Z",
-    "paused": 0
+    "paused": 0,
+    "decision_pending": 24
   },
   "tasks": [
     {
@@ -4849,7 +4850,8 @@
       "approval_required": false,
       "order": 12,
       "updated_at": "2026-05-08T01:34:40+00:00",
-      "started_at": "2026-05-07T17:59:14+00:00"
+      "started_at": "2026-05-07T17:59:14+00:00",
+      "decision_context": "[지금 무슨 상황이냐면]\n대표님 1인 운영입니다. 처리해야 할 일이 호텔 승인, 매니저 등록 변경, Agoda 매칭 실패, 영상 제작 시작 같은 여러 가지로 나뉘어 있는데, 지금은 어드민 화면 안에서 탭마다 흩어져 있어서 한쪽 탭만 보다가 다른 쪽을 놓치기 쉬워요.\n\n[왜 결정이 필요하냐면]\n\"한 곳에 모아놓고 우선순위 자동 정렬, 체크하면 끝나는 통합 받은편지함\" 식으로 admin.html 첫 화면(Dashboard 탭)을 통째로 재설계해야 합니다. 대표님이 매일 켜는 화면이라서 어떤 모양·어떤 순서·어떤 항목을 위쪽에 띄울지가 운영 속도를 좌우합니다.\n\n[결정하면 뭐가 달라지냐면]\n대표님이 어드민 들어가자마자 \"오늘 처리할 일 N건\"이 빨강(긴급) → 주황(중요) → 노랑(일반) 순으로 한 화면에 떨어집니다. 각 항목 체크하면 사라지고, 누락 위험이 사라집니다. 운영 시간 하루 30분 이상 절약 예상."
     },
     {
       "id": "BL-IPB-PROGRESS-RESTORE",
@@ -5729,7 +5731,7 @@
       "notes": "## 🟡 P2 — 호텔 스토리 / LTV 추적 ⭐ 2026-04-29  **배경**: 장기 고객 = 영업 자산. \"Lotte는 3번 결제한 충성 고객\" 같은 분석 가능.  **작업 항목**: 1. **DB 뷰**: `hotel_lifetime_stats` (자동 집계) 2. **admin.html 호텔 상세 페이지 강화** — 거래 요약 / 담당자 이력 / 영상 이력 / 영업 인사이트(사실 기반) 3. **marketing.html \"호텔 스토리\" 섹션** — 우리와 함께한 시간 (등급 표시 X) 4. **영업 자료 CSV export** — 재계약 후보 리스트  **제외**: 고객 등급 시스템(Bronze/Silver/Gold/Platinum) — 대표님 결정으로 폐기 (호텔 매니저 자존심 문제)  **관련 파일**: SQL 마이그레이션, `admin.html`, `marketing.html`  ---",
       "owner": "human",
       "approval_required": true,
-      "decision_context": "",
+      "decision_context": "[지금 무슨 상황이냐면]\n호텔 매니저가 우리 서비스로 한 번 결제하면 6개월 보장이 끝납니다. 그런데 충성 고객(예: 같은 매니저가 3번 결제, Lotte 같은 큰 체인)을 추적하는 시스템이 없어요. 그래서 \"이 호텔이 우리 자산인지, 새로 영업해야 할 곳인지\" 데이터로 안 보입니다.\n\n[왜 결정이 필요하냐면]\n호텔별로 누가 거래했는지(LTV) 자동 집계하는 DB 뷰를 박고, admin.html 호텔 상세 페이지에 거래 요약/담당자 이력/영상 이력을 보여주고, marketing.html에 \"호텔 스토리\" 섹션을 박는 게 작업 핵심입니다. 등급 시스템(Bronze/Silver/Gold)은 이미 폐기 결정(호텔 매니저 자존심 문제). 남은 결정은 작업 시작 여부.\n\n[결정하면 뭐가 달라지냐면]\n\"진행 OK\" 한 마디면 시작 가능. 박히면 대표님이 매월 \"재계약 후보 리스트 CSV\"를 다운받아 영업할 수 있게 됩니다. 신규 영업보다 재계약이 비용 1/5라 매출 직결 효과 큼.",
       "decision_options": [],
       "decision_recommendation": "",
       "ceo_decision": "",
@@ -5957,7 +5959,7 @@
       "notes": "## ⏳ Phase 3 D단계 — PayPal 검증 후 진행  ### D-1. 회원 탈퇴 기능 - 매니저가 자기 계정 삭제 가능 - 호텔 데이터 처리 (cascade vs soft delete 결정) - Confirm 모달 필수  ### D-2. 이메일 변경 기능 - 매니저 settings에서 이메일 변경 - 새 이메일 인증 필수 - 변경 이력 로그  ### D-3. Custom SMTP (Resend 도메인 인증) - Resend → Domains → gohotelwinners.com 추가 - DNS 레코드 추가 (Vercel 도메인 관리) - 발신자 `noreply@gohotelwinners.com` 통일  ---",
       "owner": "human",
       "approval_required": true,
-      "decision_context": "",
+      "decision_context": "[지금 무슨 상황이냐면]\nPayPal 결제 흐름(Phase 3 A~C) 검증이 끝나면 추가로 박을 3가지가 남아 있어요. (1) 매니저가 본인 계정 삭제하는 기능, (2) 매니저가 이메일 변경하는 기능, (3) Resend(메일 보내기 도구)에 회사 도메인 인증해서 noreply@gohotelwinners.com으로 발신자 통일.\n\n[왜 결정이 필요하냐면]\n계정 삭제 기능은 \"호텔 데이터를 같이 지울지(cascade), 아니면 호텔은 남기고 매니저만 떼어낼지(soft delete)\" 정책 결정이 필요해요. 한 번 가면 되돌리기 힘들기 때문에 대표님 결정 필요.\n\n[결정하면 뭐가 달라지냐면]\n\"호텔 데이터는 남긴다\" 결정이면 매니저가 떠나도 호텔이 다른 매니저에게 이관 가능(영업 자산 보존). \"같이 지운다\" 결정이면 개인정보 보호에 강해짐. 이메일 변경 기능과 Resend 도메인 인증은 자율 진행 가능 작업이라 같이 박힙니다.",
       "decision_options": [],
       "decision_recommendation": "",
       "ceo_decision": "",
@@ -5997,7 +5999,7 @@
       "notes": "## 🚀 Live 전환 작업 (Sandbox 검증 완료 후)  - `PAYPAL_ENV` 환경변수: `sandbox` → `live` - PayPal Live Webhook 별도 등록 - `PAYPAL_WEBHOOK_ID` 환경변수 갱신 - 실제 결제 1건 테스트 ($1 소액) - 환불 프로세스 검증  ---",
       "owner": "human",
       "approval_required": true,
-      "decision_context": "",
+      "decision_context": "[지금 무슨 상황이냐면]\nPayPal 결제가 지금은 Sandbox(테스트) 모드로 박혀있어요. 실제 매니저가 결제하면 진짜 돈이 안 빠집니다. 매출이 발생하려면 Live(실결제) 모드로 전환해야 합니다.\n\n[왜 결정이 필요하냐면]\nPAYPAL_ENV 환경변수를 sandbox → live로 바꾸고, Live 전용 Webhook 따로 등록하고, 실제 결제 1건($1 소액) 테스트 후 환불 흐름까지 검증해야 합니다. 한 번 켜면 진짜 돈이 들어오기 시작하니 \"사업 시작 가능 상태\"가 됐는지 대표님 결정 필요.\n\n[결정하면 뭐가 달라지냐면]\n\"Live 전환 OK\" 한 마디면 클로드가 환경 전환하고 $1 테스트 후 환불 검증 박습니다. 이 순간부터 사이트에서 발생하는 결제는 전부 실매출입니다. 사업 정식 시작.",
       "decision_options": [],
       "decision_recommendation": "",
       "ceo_decision": "",
@@ -6037,7 +6039,7 @@
       "notes": "## 🔒 보안 — 토큰 폐기  이전 채팅에서 평문 노출된 토큰 폐기 필요: 1. **GitHub PAT** (`ghp_eLTTsY...`) — GitHub Settings → PAT → Revoke 2. **Supabase MGMT_TOKEN** (`sbp_b9475...`) — Supabase Account → Access Tokens → Revoke 3. **Supabase SERVICE_ROLE** (`sb_secret_Gbyfly...`) — Settings → API Keys → Rotate (Vercel 갱신) 4. **CLAUDE_OPS_TOKEN** (`sV1IWuv...`) — Vercel 환경변수 변경  **Supabase 토큰 만료**: 2026-05-26 (D-28). 5월 19일 알림.  ---",
       "owner": "human",
       "approval_required": true,
-      "decision_context": "",
+      "decision_context": "[지금 무슨 상황이냐면]\n개발 기간 동안 GitHub 토큰, Supabase 토큰 같은 게 채팅에 평문으로 노출됐어요. 헌법 부칙 4·11에 따라 개발 모드에서는 정상이지만, 정식 운영 진입 시점에 일괄 폐기하고 재발급해야 합니다.\n\n[왜 결정이 필요하냐면]\n지금 폐기하면 진행 중인 작업이 멈춥니다(헌법 부칙 4 — 개발기간 토큰 폐기 잔소리 금지). 정식 운영 진입 시점(= BL-013 PayPal Live 전환 완료 시점)에 일괄로 폐기·재발급해야 사고 안 납니다. 그래서 BL-013 끝난 직후에 시작해야 하는데, 그 타이밍을 대표님이 박아주셔야 합니다.\n\n[결정하면 뭐가 달라지냐면]\n\"BL-013 완료 직후 자동 시작\" 결정이면 클로드가 PayPal Live 전환 확인 즉시 4종 토큰(GitHub PAT / Supabase MGMT / Supabase SERVICE_ROLE / CLAUDE_OPS_TOKEN) 일괄 폐기·재발급 박습니다. Supabase MGMT 토큰은 별도로 2026-05-26 만료라 그 전에 갱신 필수.",
       "decision_options": [],
       "decision_recommendation": "",
       "ceo_decision": "",
@@ -6077,7 +6079,7 @@
       "notes": "## 🟡 P2 — BEFORE/AFTER 스크린샷 자동 캡처 시스템 (Page Gallery 통합)  ### 배경 대표님 메모리 원칙: 모든 페이지 수정 시 ① 수정 전 풀페이지 스크린샷 ② 수정 작업 ③ 수정 후 풀페이지 스크린샷 ④ 작업 기록에 BEFORE/AFTER 비교 등록 ⑤ 관리자 페이지에서 전후 비교 확인 가능. Page Gallery 스크린샷도 수정 시 자동 갱신.  ### 현재 상태 - `admin-gallery.html`은 존재하나 BEFORE/AFTER 비교 기능 미구현 - 자동 캡처 인프라(Playwright + Vercel function 또는 GitHub Action) 미구축 - 매 작업마다 수동 캡처는 자율 작업 흐름과 충돌 → 수동으로는 누락 빈번  ### 제안 구조 1. **GitHub Action**: PR 또는 main push 시 변경된 .html 파일을 자동 감지하여 Playwright로 풀페이지 스크린샷 캡처 2. **저장 위치**: `_scr",
       "owner": "human",
       "approval_required": true,
-      "decision_context": "",
+      "decision_context": "[지금 무슨 상황이냐면]\n대표님 원칙: 모든 페이지 수정 시 ① 수정 전 풀페이지 캡처 ② 수정 ③ 수정 후 풀페이지 캡처 ④ 작업 기록에 Before/After 비교 ⑤ 어드민에서 전후 비교 확인 가능. 지금은 admin-gallery.html은 있지만 Before/After 비교 기능이 없고, 자동 캡처도 박혀있지 않아서 매번 수동으로 캡처하다 누락이 빈번해요.\n\n[왜 결정이 필요하냐면]\n자동 캡처 시스템(GitHub Action에서 변경된 .html 파일 감지 → Playwright로 풀페이지 캡처 → admin-gallery에 자동 등록)을 박을지 결정해야 합니다. 박는 데 2~3시간, 한 번 박으면 Before/After 누락 영구 차단.\n\n[결정하면 뭐가 달라지냐면]\n\"진행 OK\" 한 마디면 클로드가 박습니다. 앞으로 모든 디자인 변경이 자동으로 Before/After 비교 가능해지고, 대표님이 어드민에서 \"이번 주 무엇이 어떻게 바뀌었는지\" 시각으로 한 번에 확인 가능. 디자인 변경 보고 시 이미지 첨부 의무(부칙 16)와 완벽히 맞물림.",
       "decision_options": [],
       "decision_recommendation": "",
       "ceo_decision": "",
@@ -6302,7 +6304,8 @@
       "source_anchor": "#L68",
       "notes": "### E. 🔴 BLOCKED — marketing.html 대시보드 디자인 개편 **대표님 결정 필요 사항**: 1. 4개 헤드라인 카드의 배경/색감 — sales.html과 동일 톤? 2. 6개월 D-Day 카운트의 시각적 강조 정도 — 큰 숫자? 진행 바? 둘 다? 3. PDF 보고서 다운로드 버튼 위치/강조도  **자율 진행 가능한 부분 (🟡 SEMI)**: 데이터 표시 로직, 차트 라이브러리 선택, 반응형 처리는 자율.  **예상 시간**: 결정 후 2-3시간  ---",
       "owner": "autonomous",
-      "approval_required": false
+      "approval_required": false,
+      "decision_context": "[지금 무슨 상황이냐면]\nmarketing.html 대시보드는 지금 데이터는 잘 들어오지만 디자인이 거칠어요. 4개의 큰 헤드라인 카드(주요 KPI), 6개월 D-Day 카운트(보장 기간 남은 일수), PDF 보고서 다운로드 버튼이 화면에 어떻게 배치되고 강조될지가 명확하지 않습니다.\n\n[왜 결정이 필요하냐면]\n대표님이 이 페이지를 호텔 매니저(고객)에게 보여줄 때 \"와 신뢰감 있다\"가 나와야 하는데, 헤드라인 카드 색감을 sales.html과 똑같이 갈지 다른 톤으로 갈지, D-Day를 큰 숫자로 박을지 진행 바로 박을지, PDF 버튼을 상단 강조로 둘지 하단 작게 둘지가 사업 임팩트가 큽니다.\n\n[결정하면 뭐가 달라지냐면]\n결정 후 2~3시간이면 디자인 마무리됩니다. sales.html과 통일하면 매니저가 한 사이트로 인식하고 신뢰가 올라갑니다. PDF 버튼이 상단이면 매니저가 회사 대표에게 결과 자료 공유하기 쉬워져 재계약률 상승 효과 기대."
     },
     {
       "id": "SQ-F",
@@ -6338,7 +6341,7 @@
       "notes": "### F. 🔴 BLOCKED — admin.html 디자인 개편 **대표님 결정 필요 사항**: 1. 좌측 사이드바 구조 — 현재 OVERVIEW/SALES/OPERATIONS/TOOLS 4그룹 유지? 2. Dashboard 첫 화면 — KPI 카드 우선 vs 활동 피드 우선? 3. 컬러 팔레트 — 현재 보라(#534AB7) 기조 유지 vs 변경?  **예상 시간**: 결정 후 2시간  ---  ## 🟡 P1 — 5/3 이전에 있으면 좋음",
       "owner": "human",
       "approval_required": true,
-      "decision_context": "",
+      "decision_context": "[지금 무슨 상황이냐면]\nadmin.html은 대표님이 매일 켜는 운영 화면입니다. 지금은 왼쪽 사이드바에 OVERVIEW / SALES / OPERATIONS / TOOLS 4개 그룹이 있고, 첫 화면은 KPI 카드들이 떠 있어요. 그런데 운영하다 보니 \"이 구조가 맞는지\" 점검할 시점이 됐습니다.\n\n[왜 결정이 필요하냐면]\n왼쪽 사이드바 4그룹 구조를 유지할지 단순화할지, 첫 화면을 KPI 카드 우선으로 둘지 활동 피드(누가 무엇을 했나) 우선으로 둘지, 현재 보라색(#534AB7) 메인 컬러를 유지할지 다른 톤으로 갈지 — 모두 대표님이 매일 보는 화면이라 작업 효율과 직결됩니다.\n\n[결정하면 뭐가 달라지냐면]\n결정 후 2시간이면 전체 개편 끝납니다. 첫 화면을 활동 피드 우선으로 가면 \"직원이/봇이/대표님이 방금 뭘 했는지\" 진입 즉시 보이고, KPI 우선으로 가면 \"오늘 매출/예약 숫자\"가 먼저 보입니다. 둘 다 좋은 안이라 대표님 운영 스타일에 맞춰야 해요.",
       "decision_options": [],
       "decision_recommendation": "",
       "ceo_decision": "",
@@ -6378,7 +6381,7 @@
       "notes": "### G. 🟢 AUTO — 자동 알림 메일 시스템 (BACKLOG의 P1) **작업 내용**: BACKLOG.md L280 참조. 6개 트리거 메일 구현 - 호텔 등록 / 승인 / 거절 / 결제 완료 / 영상 제작 시작 / 영상 게시 - 기존 `sendSystemEmail` 함수 활용 - 영어 본체 + 한국어 토글 (i18n 일괄 작업 시점까지 영어만)  **예상 시간**: 2시간 **자율 진행 사유**: 메일 템플릿은 BUSINESS.md 정책 그대로 사용  ---",
       "owner": "human",
       "approval_required": true,
-      "decision_context": "",
+      "decision_context": "[지금 무슨 상황이냐면]\n호텔 매니저가 가입하고, 호텔 등록하고, 승인받고, 결제하고, 영상 제작이 시작되고 게시되는 — 이 6단계 흐름마다 매니저에게 자동으로 안내 메일이 가야 합니다. 지금은 기존 sendSystemEmail 함수만 박혀있고, 6개 트리거 메일 자체가 미구현 상태입니다.\n\n[왜 결정이 필요하냐면]\n이건 사실 자율 진행 가능 작업이에요. 메일 내용 정책(BUSINESS.md)도 이미 박혀있고, 영어 본체 + 한국어 토글 정책도 정해져 있어요. 그래서 자율 큐로 옮기고 클로드가 그냥 박으면 됩니다. 결정 대기 박스에 있는 이유는 단순히 분류 누락이에요.\n\n[결정하면 뭐가 달라지냐면]\n\"자율 진행 OK\" 한 마디면 클로드가 2시간 안에 6개 메일 다 박고 검증까지 끝냅니다. 매니저는 가입~게시 흐름에서 알아서 메일을 받게 되고, 대표님 카톡 문의 횟수 감소.",
       "decision_options": [],
       "decision_recommendation": "",
       "ceo_decision": "",
@@ -6419,7 +6422,7 @@
       "notes": "### H. 🟢 AUTO — Supabase Management API 토큰 갱신 알림 자동화 **작업 내용**: 토큰 만료 7일 전 ops 메일 자동 발송 (현재 토큰 만료 5/26) - Vercel Cron 또는 Supabase Edge Function 사용 - 현재는 메모리에만 알림 메모, 자동화 안 됨  **예상 시간**: 1시간 **자율 진행 사유**: 인프라 자동화  ---  ## 🟢 P2 — 자투리 시간에",
       "owner": "human",
       "approval_required": true,
-      "decision_context": "",
+      "decision_context": "[지금 무슨 상황이냐면]\nSupabase 관리용 토큰이 2026-05-26에 만료됩니다(현재 시점 D-14). 만료되면 데이터베이스 자동 관리 작업이 다 멈춰요. 지금은 메모리에만 \"5월 19일 알림\" 박혀있고, 자동 알림은 안 됩니다.\n\n[왜 결정이 필요하냐면]\n이것도 자율 진행 가능 작업이에요. 토큰 만료 7일 전에 ops 메일이 자동 발송되게 박으면 됩니다(Vercel Cron 또는 Supabase Edge Function 사용). 결정 대기 박스에 있는 이유는 분류 누락이에요.\n\n[결정하면 뭐가 달라지냐면]\n\"자율 진행 OK\" 한 마디면 클로드가 1시간 안에 박습니다. 앞으로는 어떤 토큰이든 만료 7일 전에 메일이 자동으로 오고, 대표님은 메일 받고 갱신 한 번만 하시면 됩니다. 토큰 만료로 시스템 멈추는 사고 영구 차단.",
       "decision_options": [],
       "decision_recommendation": "",
       "ceo_decision": "",
@@ -9367,7 +9370,8 @@
           "event": "BL 신설 (대표님 이미지 1 지적)",
           "by": "Claude"
         }
-      ]
+      ],
+      "decision_context": "[지금 무슨 상황이냐면]\n대화 기록(chat-log)은 작업이 끝날 때마다 자동으로 박히는데, 지금 사람용 탭에서 열어 보면 \"fetch\", \"commit\", \"race condition\" 같은 개발자 단어로 가득 차 있어서 대표님이 읽어도 무슨 작업이 끝났는지 한눈에 안 들어옵니다. 규칙(_os/playbook/chat-log-format.md)에는 \"사업가 5블록 형식으로 박아라\"라고 분명히 있는데, 클로드가 작성할 때 그걸 지키지 않아요.\n\n[왜 결정이 필요하냐면]\n이걸 헌법 부칙으로 격상해서 강제할지(어기면 자동 워닝), 아니면 그냥 룰북 권고로 둘지를 정해야 합니다. 그리고 이미 잘못 박힌 과거 chat-log들을 사업가 언어로 다시 박는 작업도 같이 할지 정해야 해요.\n\n[결정하면 뭐가 달라지냐면]\n부칙으로 격상하면 클로드가 안 지킬 때 시스템이 자동으로 차단하고 알려줍니다. 대표님이 chat-log를 펼쳤을 때 \"오늘 무슨 사업 결정이 끝났는지\" 한 줄로 보입니다. 룰북 권고만 두면 지금처럼 클로드 기분에 따라 들쭉날쭉 박힙니다."
     },
     {
       "id": "BL-AI-TAB-BOT-DETECT",
@@ -9461,7 +9465,8 @@
           "note": "feat(BL-DEDUP-CONSOLIDATE step3): 직원 카드에 ▶ 액션 박음 + BL-URGENT-CARD-FLOW 흡수 마무리"
         }
       ],
-      "absorbed_into": "BL-DEDUP-CONSOLIDATE"
+      "absorbed_into": "BL-DEDUP-CONSOLIDATE",
+      "decision_context": "[지금 무슨 상황이냐면]\n어드민 화면에 \"임박 작업 카드\"가 있어요. 대표님이 그걸 클릭하면 지금은 다른 페이지(admin-tasks.html)로 휙 이동하는데, 그 페이지는 편집 화면이라서 \"내가 지금 무슨 결정을 내려야 하는지\"가 잘 안 보입니다. 흐름이 끊겨서 결정을 미루게 돼요.\n\n[왜 결정이 필요하냐면]\n다른 카드들(예: 결정 대기 박스, BL-CHATLOG-AUTO-GATE 카드)은 이미 \"클릭하면 결정 모달이 그 자리에서 펼쳐지고, 사업적 맥락과 옵션이 같이 보이고, 결정 입력하면 끝\"이라는 흐름으로 통일돼 있어요. 임박 작업 카드도 같은 흐름으로 만들지(A안), 아니면 임박은 임박대로 다른 흐름을 둘지(B안) 정해야 합니다.\n\n[결정하면 뭐가 달라지냐면]\nA안(통일)으로 가면 대표님이 어떤 카드를 클릭해도 \"결정 한 번 누르면 끝\"이라는 똑같은 패턴이 됩니다. 헷갈림 0. B안으로 두면 임박 작업은 따로 학습해야 하지만, 임박 작업만의 특수 기능(예: 일괄 처리)이 가능해집니다. 클로드 추천은 A안(통일이 운영 비용 압도적으로 낮음)."
     },
     {
       "id": "BL-DEDUP-CONSOLIDATE",
@@ -9695,7 +9700,8 @@
           "event": "BL 신설 (대표님 진단 — OS 설치 PAT 거부 문제)",
           "by": "Claude"
         }
-      ]
+      ],
+      "decision_context": "[지금 무슨 상황이냐면]\n새 프로젝트(예: CEYLON JOURNEY, 추후 신규 채널 사이트)를 만들 때 install_os.sh 한 줄 실행하면 운영 시스템(OS)이 자동으로 깔리도록 만들었어요. 그런데 지금 그 스크립트(224줄)에 GitHub 인증 토큰(PAT) 자동 박는 로직이 빠져 있습니다. 설치 후 첫 push 또는 자동 작업 트리거에서 \"권한 없음\"으로 거부돼요.\n\n[왜 결정이 필요하냐면]\n이것도 자율 진행 가능 작업입니다. install_os.sh에 PAT 입력받는 단계 하나 추가하고 GitHub Secrets에 자동 등록하는 흐름 박으면 됩니다. 결정 대기 박스에 있는 이유는 분류 누락이에요.\n\n[결정하면 뭐가 달라지냐면]\n\"자율 진행 OK\" 한 마디면 클로드가 박습니다. 앞으로 새 프로젝트 만들 때 install_os.sh 한 줄로 끝나고, PAT 박는 수동 작업 영구 제거."
     },
     {
       "id": "BL-OPS-MAIL-AUTOBOT",
@@ -11355,7 +11361,8 @@
       "updated_at": "2026-05-11T02:38:01.191240Z",
       "obsoleted_at": "2026-05-11T02:38:01.191240Z",
       "obsoleted_reason": "Claude가 대표님 이전 채팅 결정 이름을 기억 없이 새로 박음 → 정확한 ID BL-SERVICE-MAP로 대체",
-      "replaced_by": "BL-SERVICE-MAP"
+      "replaced_by": "BL-SERVICE-MAP",
+      "decision_context": "[지금 무슨 상황이냐면]\n이 BL은 2026-05-11 ID 혼동 사고로 잘못 박힌 항목이에요. 같은 내용이 새 BL인 BL-SERVICE-MAP으로 옮겨졌고, 그쪽이 현재 진행 중입니다. 이 항목은 사실상 중복입니다.\n\n[왜 결정이 필요하냐면]\n중복 항목을 결정 대기 박스에 계속 남겨두면 시야가 흐트러집니다. 이 항목을 \"absorbed\"(흡수됨) 상태로 닫고 결정 대기에서 제거할지 결정해야 합니다.\n\n[결정하면 뭐가 달라지냐면]\n\"absorbed로 닫기\" 한 마디면 결정 대기 박스에서 사라지고 BL-SERVICE-MAP 하나로 정리됩니다. 시야 깨끗해지고 같은 결정 두 번 안 묻게 됩니다."
     },
     {
       "id": "BL-STEP-SELF-VERIFY",
@@ -11676,7 +11683,8 @@
       "notes": "대표님 통찰 (2026-05-10) — 서비스 페이지 전체 지도 + 진행률 표시.\n\n핵심 본질: \"어느 페이지에 무엇을 박을지\" 모르면 자율 작업 못 박음. 페이지 = 모든 작업의 부모.\n\n## 📋 Phase 1~3 페이지 우선순위 (Claude 자율 판단 — 사업 매출 흐름 기준)\n\n### Phase 1 — 매출 직결 흐름 (사업 시작 가능 상태 만들기)\n| 순서 | 페이지 | 현재 | 근거 |\n|---|---|---|---|\n| 1-1 | /sales.html (세일즈/결제) | 79점 | 결제 = 매출 발생 지점. 가장 빨리 완성 |\n| 1-2 | /dashboard.html (매니저 대시보드) | 80점 | 결제 후 첫 화면. 결제 박스 임시 → 정식 |\n| 1-3 | /index.html (랜딩) | 74점 | 결제 흐름의 시작점 |\n| 1-4 | /signup.html + /login.html (인증) | 65~75점 | 결제 전 필수 흐름 |\n| 1-5 | /hotel-info.html (호텔 등록) | 61점 | 결제 후 매니저가 호텔 박는 페이지 |\n\n### Phase 2 — 운영 인프라 (사업 시작 후 즉시 필요)\n| 순서 | 페이지 | 현재 | 근거 |\n|---|---|---|---|\n| 2-1 | /admin-status.html (시스템 완성도) | 14점 | 대표님 일일 운영 도구. 매일 보심 |\n| 2-2 | /admin.html (관리자 콘솔) | 14점 | 호텔 승인/매니저 관리 |\n| 2-3 | /admin-tasks.html (작업 관리) | 14점 | 작업 흐름 운영 도구 |\n| 2-4 | /booking-analytics.html (예약 분석) | 74점 | 매출 분석 |\n\n### Phase 3 — 부가 운영 도구\n/marketing.html, /admin-gallery.html, /admin-business.html, /admin-service-ops.html, /admin-decisions.html, /admin-permissions.html, /settings.html\n\n## 🎯 시각화 산출물 (이 BL이 만들어야 할 것)\n1. admin-status.html에 \"🗺️ 서비스 페이지 지도\" 섹션 신규 — 모든 페이지를 Phase 1~3로 그룹핑 + 진행률 바\n2. 각 페이지 카드 클릭 시 → 해당 페이지의 세부 작업 BL 자동 등록 (BL-BASELINE-AUTO-TASK와 연동)\n3. 페이지별 audience 정정 — /sales.html이 admin으로 잘못 분류됨 → public 매출 흐름으로 이동\n\n## 🔗 분류 오류 발견\n- /sales.html: 현재 admin 분류 → public 매출 흐름으로 정정 필요\n- /dashboard.html: 현재 admin 분류이지만 매니저용 → public/manager로 정정 필요\n\n## 📌 페이지 우선순위 동의 (2026-05-11)\n대표님 OK 박음 — Phase 1-1 sales(결제) 부터, Phase 2-1 admin-status가 운영 1순위.\n",
       "source": "ceo_insight_2026-05-10",
       "created_at": "2026-05-11T02:38:01.191240Z",
-      "updated_at": "2026-05-11T02:38:01.191240Z"
+      "updated_at": "2026-05-11T02:38:01.191240Z",
+      "decision_context": "[지금 무슨 상황이냐면]\ngohotelwinners.com 사이트에 페이지가 약 15~20개 있는데(랜딩, 결제, 매니저 대시보드, 어드민 여러 개 등), 지금은 \"어느 페이지에 무엇을 박을지\" 한눈에 보여주는 지도가 없습니다. 그래서 클로드가 새 작업을 박을 때마다 \"이걸 어느 페이지에 추가하지?\" 헷갈리고, 작업이 엉뚱한 곳에 박히는 사고가 반복돼요.\n\n[왜 결정이 필요하냐면]\n페이지 전체 지도를 admin-status.html 안에 새 섹션으로 박는 게 BL의 본질입니다. 디자인 방향(가로 흐름 vs 세로 흐름, Phase 1/2/3 색 구분, 진행률 바 모양, 카드 클릭 시 동작) 같은 큰 시각 방향은 대표님이 보고 결정하실 영역이에요. 대표님은 2026-05-11에 이미 \"Phase 1-1 sales(결제) → Phase 2-1 admin-status가 운영 1순위\" 우선순위는 OK 박으셨고, 시각화 방향만 남았습니다.\n\n[결정하면 뭐가 달라지냐면]\n지도가 박히면 어드민 진입 즉시 \"어느 페이지가 몇 % 완성됐고, 다음 작업은 어디에 박을지\" 한눈에 보입니다. 새 작업 발견 시 클로드가 \"이 작업은 sales.html에 묶여요\"라고 자동 분류해서 박을 수 있어요. 사고 재발 방지 + 운영 속도 2배."
     },
     {
       "id": "BL-DEPENDENCY-GRAPH",

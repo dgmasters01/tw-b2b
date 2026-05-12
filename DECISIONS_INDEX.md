@@ -41,6 +41,7 @@
 | D-019 | admin-status.html 중복 3중 정리 + 작업 지휘소 통합 — ③·⑥·⑦ 제거 | infra | 2026-05-08 | 확정 | BL-DEDUP-CONSOLIDATE (8단계), BL-URGENT-CARD-FLOW 흡수 |
 | D-020 | 헌법 자가 검증에 사전 안전장치 3개(북극성/중복점검/한채팅한결정) — 방향 상실 방지 | policy | 2026-05-08 | 확정 | OPERATIONS_CHARTER.md 11조 자가검증, _os/boot.md 5-A |
 | D-021 | BL-ADMIN-AUTH-PERF — Edge Middleware 단일 게이트 (A-2 정석, Hobby 12 한도 회피) | infra | 2026-05-09 | 확정 | middleware.ts(신규), admin-* 12개 페이지 인증 코드 제거 (2편) |
+| D-028 | 갤러리 완성도(흐름·카테고리·빈페이지) + BEFORE/AFTER 자동 이력 보관 봇 복구 | infra | 2026-05-12 | 확정 | BL-GALLERY-FLOW-COMPLETENESS, BL-CAPTURE-BOT-RESTORE |
 
 ---
 
@@ -67,6 +68,7 @@
 | D-017 | 2026-05-08 신규 (최상단) | 토큰·키 라이프사이클 — 헌법 부칙 4 보강 + `_os/playbook/credentials-lifecycle.md` 신설 |
 | D-018 | 2026-05-08 신규 (최상단) | Vercel Pro 결제 활성화 — 호스팅 인프라 안정화 + 헌법 위반(상업 사용) 해소 |
 | D-021 | 2026-05-09 신규 (최상단) | BL-ADMIN-AUTH-PERF Edge Middleware 정석 — A-1 비정석 옵션 자가 반성 포함 |
+| D-028 | 2026-05-12 신규 (Pending 섹션 직전) | 갤러리 완성도 + BEFORE/AFTER 이력 — 대표님 매니저 체험 중 발견 |
 
 ---
 
@@ -79,3 +81,4 @@
 | 2026-05-04 | D-012 등록 (3-Layer 분리 + admin-tasks 흡수) |
 | 2026-05-04 | D-013 등록 (admin-hub.html 폐기 + D-010 카테고리 0 이관 개정) |
 | 2026-05-04 | D-014 등록 (chat-logs 시스템 — 사람용+AI용 이중 형식 강제 + 인증 게이트) |
+| 2026-05-12 | D-028 등록 (갤러리 완성도 + BEFORE/AFTER 자동 이력 — 대표님 매니저 체험 중 발견) |

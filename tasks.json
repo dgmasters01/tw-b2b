@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-12T14:31:26+00:00",
+  "updated_at": "2026-05-12T17:04:42.051339Z",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -12,7 +12,7 @@
     "SOLO_WORK_QUEUE.md"
   ],
   "stats": {
-    "total": 190,
+    "total": 206,
     "done": 145,
     "in_progress": 0,
     "pending": 25,
@@ -23,7 +23,16 @@
     "updated_at": "2026-05-12T09:07:58+00:00",
     "paused": 1,
     "absorbed": 3,
-    "obsoleted": 5
+    "obsoleted": 5,
+    "by_status": {
+      "done": 145,
+      "pending": 41,
+      "blocked": 10,
+      "absorbed": 3,
+      "obsoleted": 5,
+      "cancelled": 1,
+      "paused": 1
+    }
   },
   "tasks": [
     {
@@ -13212,6 +13221,394 @@
           "reason": "중복 BL — BL-015가 동일 범위로 먼저 박혀있었음 (2026-05-02)"
         }
       ]
+    },
+    {
+      "id": "BL-RENAME-GOHOTEL",
+      "title": "[journey→gohotel 일괄 변경] 13곳 파일·라우팅·메뉴 통일 + 301 리다이렉트",
+      "category": "infra",
+      "priority": "P0",
+      "size": "small",
+      "status": "pending",
+      "owner": "claude",
+      "claude_can_auto": true,
+      "approval_required": false,
+      "decision_ref": "D-031",
+      "estimated_hours": 1,
+      "order": 1,
+      "blocker": null,
+      "depends_on": [],
+      "progress": {
+        "percent": 0,
+        "steps": []
+      },
+      "notes": "JOURNEY.md → GOHOTEL_FLOW.md / admin-manager-journey.html → admin-gohotel-manager-stages.html / admin-user-journey.html → admin-gohotel-overview.html. vercel.json 라우팅 10곳 + menu-manifest 2곳 + 헌법/BUSINESS 본문 8곳. 301 redirect 박음.",
+      "created_at": "2026-05-12T17:04:42.051339Z",
+      "updated_at": "2026-05-12T17:04:42.051339Z"
+    },
+    {
+      "id": "BL-PAST-VIDEO-RECON",
+      "title": "[호텔별 과거 누적 매출 자동 집계] 우리만 보는 admin 영역 — D-035 사전 데이터",
+      "category": "analytics",
+      "priority": "P0",
+      "size": "medium",
+      "status": "pending",
+      "owner": "claude",
+      "claude_can_auto": true,
+      "approval_required": false,
+      "decision_ref": "D-035",
+      "estimated_hours": 4,
+      "order": 2,
+      "blocker": null,
+      "depends_on": [],
+      "progress": {
+        "percent": 0,
+        "steps": []
+      },
+      "notes": "agoda_hotel_id + google_place_id 매칭 → bookings_self.amount + bookings_agoda.amount 합산 → 호텔별 누적 매출 산출. admin → '📺 영상 자산 성과' 탭 신설. 매니저 노출은 BL-SIGNUP-ENRICHMENT에서 별도.",
+      "created_at": "2026-05-12T17:04:42.051339Z",
+      "updated_at": "2026-05-12T17:04:42.051339Z"
+    },
+    {
+      "id": "BL-AGODA-TOS-CHECK",
+      "title": "[Agoda Affiliate 약관 검토] D-035 매니저 노출 가능 여부 확인",
+      "category": "policy",
+      "priority": "P0",
+      "size": "small",
+      "status": "pending",
+      "owner": "이지형",
+      "claude_can_auto": false,
+      "approval_required": true,
+      "decision_ref": "D-035",
+      "estimated_hours": 2,
+      "order": 3,
+      "blocker": "Agoda Affiliate 약관 원문 확인 필요",
+      "depends_on": [],
+      "progress": {
+        "percent": 0,
+        "steps": []
+      },
+      "notes": "affiliate 매칭 데이터를 호텔(제3자)에게 노출 가능 여부. 약관 위반 위험 시 D-035 보류 + Self-Sourced만 사용.",
+      "created_at": "2026-05-12T17:04:42.051339Z",
+      "updated_at": "2026-05-12T17:04:42.051339Z"
+    },
+    {
+      "id": "BL-HOTEL-DETAIL-PAGE",
+      "title": "[호텔 상세 페이지 + 커뮤니케이션 이력] 매니저/호텔 분리 + 1:1 문의·메일·메모 타임라인",
+      "category": "feature",
+      "priority": "P1",
+      "size": "medium",
+      "status": "pending",
+      "owner": "claude",
+      "claude_can_auto": true,
+      "approval_required": false,
+      "decision_ref": null,
+      "estimated_hours": 5,
+      "order": 4,
+      "blocker": null,
+      "depends_on": [
+        "BL-RENAME-GOHOTEL"
+      ],
+      "progress": {
+        "percent": 0,
+        "steps": []
+      },
+      "notes": "통찰 ⑥+⑨ 합본. admin Hotels 탭 행 = 호텔 카드 / 호텔명 클릭 → 단일 호텔 상세 슬라이드 패널. '📨 커뮤니케이션 이력' 영역 신설 — 1:1 문의/메일 송수신/내부 메모/status 변경 이력 시간순.",
+      "created_at": "2026-05-12T17:04:42.051339Z",
+      "updated_at": "2026-05-12T17:04:42.051339Z"
+    },
+    {
+      "id": "BL-REVENUE-DASHBOARD",
+      "title": "[매출 차트 토글] 일/주/월/분기/년 보기 + 전월비/전년비 — booking-analytics 보강",
+      "category": "analytics",
+      "priority": "P1",
+      "size": "medium",
+      "status": "pending",
+      "owner": "claude",
+      "claude_can_auto": true,
+      "approval_required": false,
+      "decision_ref": null,
+      "estimated_hours": 4,
+      "order": 5,
+      "blocker": null,
+      "depends_on": [],
+      "progress": {
+        "percent": 0,
+        "steps": []
+      },
+      "notes": "booking-analytics.html 보강. 5개 토글 [일/주/월/분기/년]. Self-Sourced vs Agoda 채널 vs B2B $200 매출 3종 분리.",
+      "created_at": "2026-05-12T17:04:42.051339Z",
+      "updated_at": "2026-05-12T17:04:42.051339Z"
+    },
+    {
+      "id": "BL-RENEWAL-WATCH",
+      "title": "[재계약 관리 탭] D-30 임박 호텔 + 저성과 호텔(매출 $200 미만) 자동 추출",
+      "category": "feature",
+      "priority": "P1",
+      "size": "medium",
+      "status": "pending",
+      "owner": "claude",
+      "claude_can_auto": true,
+      "approval_required": false,
+      "decision_ref": null,
+      "estimated_hours": 5,
+      "order": 6,
+      "blocker": null,
+      "depends_on": [
+        "BL-PAST-VIDEO-RECON"
+      ],
+      "progress": {
+        "percent": 0,
+        "steps": []
+      },
+      "notes": "admin Sales 영역 → '💎 재계약 관리' 탭 신설. 3개 필터: 예약 0건 / 매출 $200 미만(이벤트 송출 후보) / D-30 임박. 통찰 ② 박힘.",
+      "created_at": "2026-05-12T17:04:42.051339Z",
+      "updated_at": "2026-05-12T17:04:42.051339Z"
+    },
+    {
+      "id": "BL-REFUND-FLOW",
+      "title": "[환불 관리 탭] PayPal Refund API 연동 + 환불 이력 영구 보관",
+      "category": "feature",
+      "priority": "P1",
+      "size": "medium",
+      "status": "pending",
+      "owner": "claude",
+      "claude_can_auto": true,
+      "approval_required": false,
+      "decision_ref": "D-033",
+      "estimated_hours": 5,
+      "order": 7,
+      "blocker": null,
+      "depends_on": [],
+      "progress": {
+        "percent": 0,
+        "steps": []
+      },
+      "notes": "marketing.html 매니저 본인 신청 → admin '↩️ 환불·취소' 탭 등장 → 대표님 확인 → PayPal Refund API. 영수증 PDF 5년 보관.",
+      "created_at": "2026-05-12T17:04:42.051339Z",
+      "updated_at": "2026-05-12T17:04:42.051339Z"
+    },
+    {
+      "id": "BL-SIGNUP-ENRICHMENT",
+      "title": "[신규 매니저 가입 시 누적 매출 표시] D-035 3구간 임계값 분기 노출",
+      "category": "feature",
+      "priority": "P0",
+      "size": "medium",
+      "status": "pending",
+      "owner": "claude",
+      "claude_can_auto": true,
+      "approval_required": false,
+      "decision_ref": "D-035",
+      "estimated_hours": 5,
+      "order": 8,
+      "blocker": null,
+      "depends_on": [
+        "BL-PAST-VIDEO-RECON",
+        "BL-AGODA-TOS-CHECK"
+      ],
+      "progress": {
+        "percent": 0,
+        "steps": []
+      },
+      "notes": "signup.html 호텔 입력 직후 백그라운드 매칭 → verify-email 또는 sales.html에서 표시. $1,000+ 강력 / $200~999 부드러움 / <$200 숨김.",
+      "created_at": "2026-05-12T17:04:42.051339Z",
+      "updated_at": "2026-05-12T17:04:42.051339Z"
+    },
+    {
+      "id": "BL-SIGNUP-COUNTRY-FIELD",
+      "title": "[가입 시 국가 선택 필수] 동남아 7개국 상단 노출",
+      "category": "feature",
+      "priority": "P1",
+      "size": "small",
+      "status": "pending",
+      "owner": "claude",
+      "claude_can_auto": true,
+      "approval_required": false,
+      "decision_ref": "D-032",
+      "estimated_hours": 2,
+      "order": 9,
+      "blocker": null,
+      "depends_on": [],
+      "progress": {
+        "percent": 0,
+        "steps": []
+      },
+      "notes": "베트남/태국/필리핀/인도네시아/말레이시아/싱가포르 상단 + 기타 국가.",
+      "created_at": "2026-05-12T17:04:42.051339Z",
+      "updated_at": "2026-05-12T17:04:42.051339Z"
+    },
+    {
+      "id": "BL-EMAIL-LOCALE-ROUTING",
+      "title": "[자동 메일 12개 영어 default] 한국 매니저만 한국어 분기",
+      "category": "feature",
+      "priority": "P1",
+      "size": "medium",
+      "status": "pending",
+      "owner": "claude",
+      "claude_can_auto": true,
+      "approval_required": false,
+      "decision_ref": "D-032",
+      "estimated_hours": 4,
+      "order": 10,
+      "blocker": null,
+      "depends_on": [
+        "BL-SIGNUP-COUNTRY-FIELD"
+      ],
+      "progress": {
+        "percent": 0,
+        "steps": []
+      },
+      "notes": "Resend SMTP locale 분기. 12개 메일 템플릿 영어 + 한국어 2벌.",
+      "created_at": "2026-05-12T17:04:42.051339Z",
+      "updated_at": "2026-05-12T17:04:42.051339Z"
+    },
+    {
+      "id": "BL-ADMIN-COUNTRY-FILTER",
+      "title": "[admin Members 탭 국가별 필터] 동남아 그룹 강조",
+      "category": "feature",
+      "priority": "P2",
+      "size": "small",
+      "status": "pending",
+      "owner": "claude",
+      "claude_can_auto": true,
+      "approval_required": false,
+      "decision_ref": "D-032",
+      "estimated_hours": 2,
+      "order": 11,
+      "blocker": null,
+      "depends_on": [
+        "BL-SIGNUP-COUNTRY-FIELD"
+      ],
+      "progress": {
+        "percent": 0,
+        "steps": []
+      },
+      "notes": "재계약·환불 관리 시 국가별 정렬 가능하게.",
+      "created_at": "2026-05-12T17:04:42.051339Z",
+      "updated_at": "2026-05-12T17:04:42.051339Z"
+    },
+    {
+      "id": "BL-RECEIPT-ARCHIVE",
+      "title": "[영수증 PDF 5년 영구 보관] Supabase + S3 백업",
+      "category": "infra",
+      "priority": "P2",
+      "size": "small",
+      "status": "pending",
+      "owner": "claude",
+      "claude_can_auto": true,
+      "approval_required": false,
+      "decision_ref": "D-033",
+      "estimated_hours": 3,
+      "order": 12,
+      "blocker": null,
+      "depends_on": [
+        "BL-REFUND-FLOW"
+      ],
+      "progress": {
+        "percent": 0,
+        "steps": []
+      },
+      "notes": "회계 의무 5년. 결제 영수증 + 환불 영수증 둘 다.",
+      "created_at": "2026-05-12T17:04:42.051339Z",
+      "updated_at": "2026-05-12T17:04:42.051339Z"
+    },
+    {
+      "id": "BL-EVENT-SITE-FOUNDATION",
+      "title": "[이벤트 사이트 신규 브랜드 신설] 도메인 확보 + 기본 디자인 + 호텔 송출 흐름",
+      "category": "feature",
+      "priority": "P1",
+      "size": "xlarge",
+      "status": "pending",
+      "owner": "claude",
+      "claude_can_auto": false,
+      "approval_required": true,
+      "decision_ref": "D-034",
+      "estimated_hours": 25,
+      "order": 13,
+      "blocker": "D-034-A 도메인 후보 확정 필요 (hoteldeal/stayhunt/hotelwin.deal 등)",
+      "depends_on": [],
+      "progress": {
+        "percent": 0,
+        "steps": []
+      },
+      "notes": "별도 브랜드/도메인. B2B와 분리. 도메인 후보 확정 후 본격 시작.",
+      "created_at": "2026-05-12T17:04:42.051339Z",
+      "updated_at": "2026-05-12T17:04:42.051339Z"
+    },
+    {
+      "id": "BL-EVENT-CUSTOMER-DB",
+      "title": "[이벤트 사이트 고객 회원가입 + 마케팅 동의 DB] 고객 자산화",
+      "category": "feature",
+      "priority": "P2",
+      "size": "medium",
+      "status": "pending",
+      "owner": "claude",
+      "claude_can_auto": true,
+      "approval_required": false,
+      "decision_ref": "D-034",
+      "estimated_hours": 8,
+      "order": 14,
+      "blocker": null,
+      "depends_on": [
+        "BL-EVENT-SITE-FOUNDATION"
+      ],
+      "progress": {
+        "percent": 0,
+        "steps": []
+      },
+      "notes": "마케팅 동의 받은 일반 고객 = TW의 영구 자산. 재마케팅 메일 가능.",
+      "created_at": "2026-05-12T17:04:42.051339Z",
+      "updated_at": "2026-05-12T17:04:42.051339Z"
+    },
+    {
+      "id": "BL-EVENT-PAYMENT-PROXY",
+      "title": "[이벤트 사이트 호텔 대리 결제] Agoda affiliate 또는 직접 결제",
+      "category": "payment",
+      "priority": "P2",
+      "size": "medium",
+      "status": "pending",
+      "owner": "claude",
+      "claude_can_auto": true,
+      "approval_required": false,
+      "decision_ref": "D-034",
+      "estimated_hours": 6,
+      "order": 15,
+      "blocker": null,
+      "depends_on": [
+        "BL-EVENT-SITE-FOUNDATION"
+      ],
+      "progress": {
+        "percent": 0,
+        "steps": []
+      },
+      "notes": "이벤트 고객 응모/구매 → 우리가 호텔에 대리 결제 → 호텔에 예약 발생.",
+      "created_at": "2026-05-12T17:04:42.051339Z",
+      "updated_at": "2026-05-12T17:04:42.051339Z"
+    },
+    {
+      "id": "BL-EVENT-HOTEL-NOTIFY",
+      "title": "[이벤트 송출 호텔 알림 + admin 송출 관리 탭]",
+      "category": "feature",
+      "priority": "P2",
+      "size": "small",
+      "status": "pending",
+      "owner": "claude",
+      "claude_can_auto": true,
+      "approval_required": false,
+      "decision_ref": "D-034",
+      "estimated_hours": 3,
+      "order": 16,
+      "blocker": null,
+      "depends_on": [
+        "BL-EVENT-SITE-FOUNDATION",
+        "BL-RENEWAL-WATCH"
+      ],
+      "progress": {
+        "percent": 0,
+        "steps": []
+      },
+      "notes": "admin Hotels 탭에서 매출 $200 미만 호텔 → '이벤트 송출' 버튼. 호텔에 '예약 N건 추가 발생' 메일.",
+      "created_at": "2026-05-12T17:04:42.051339Z",
+      "updated_at": "2026-05-12T17:04:42.051339Z"
     }
   ]
 }

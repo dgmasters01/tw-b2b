@@ -210,6 +210,12 @@ function cardHtml(p) {
     ? `<button class="gh-btn gh-btn-sec" onclick="openModal('${name}','${escapeHtml(p.name)}')">📷 큰 캡처</button>`
     : '';
 
+  // BL-015 / D-028 — 이력 보기 버튼 (archive 폴더에 옛 캡처 있을 때만 활성)
+  // 실제 archive 존재 여부는 클릭 시 fetch로 확인 (성능상 카드 렌더링 시점에는 단순 표시)
+  const historyBtn = p.capture
+    ? `<button class="gh-btn gh-btn-sec" onclick="openHistoryModal('${name}','${escapeHtml(p.name)}')" title="archive 폴더에 쌓인 옛 캡처 보기">📅 이력 보기</button>`
+    : '';
+
   return `
     <article class="gh-card" id="${cardId}" data-search="${escapeAttr(searchText)}">
       <div class="gh-thumb">${thumbHtml}</div>
@@ -223,7 +229,7 @@ function cardHtml(p) {
         </div>
         <p class="gh-when"><strong>표시 조건:</strong> ${escapeHtml(p.visibleWhen)}</p>
         ${p.notes ? `<p class="gh-notes">📝 ${escapeHtml(p.notes)}</p>` : ''}
-        <div class="gh-actions">${liveBtn}${previewBtn}${captureBtn}</div>
+        <div class="gh-actions">${liveBtn}${previewBtn}${captureBtn}${historyBtn}</div>
       </div>
     </article>`;
 }
@@ -280,6 +286,91 @@ window.openModal = function(name, title) {
 };
 window.closeModal = function() {
   document.getElementById('modal').classList.remove('show');
+};
+
+// BL-015 / D-028 — 이력 모달 (archive 폴더에 쌓인 날짜별 옛 캡처 보기)
+// archive 경로 형식: /docs/screenshots/archive/{name}-{YYYYMMDD}.png
+window.openHistoryModal = async function(name, title) {
+  const modal = document.getElementById('modal');
+  const titleEl = document.getElementById('modal-title');
+  const imgEl = document.getElementById('modal-img');
+  const inner = modal.querySelector('.gh-modal-inner');
+
+  titleEl.textContent = '📅 ' + title + ' — 변경 이력';
+  imgEl.style.display = 'none';
+
+  // 이력 컨테이너 신설 (재사용)
+  let histEl = document.getElementById('history-container');
+  if (!histEl) {
+    histEl = document.createElement('div');
+    histEl.id = 'history-container';
+    histEl.style.cssText = 'margin-top:16px';
+    inner.appendChild(histEl);
+  }
+  histEl.innerHTML = '<p style="color:#94a3b8;text-align:center;padding:24px;">⏳ 이력 캡처 검색 중...</p>';
+  modal.classList.add('show');
+
+  // archive 폴더 PNG 목록 fetch (GitHub raw API 또는 정적 manifest)
+  // 최초 구현: 최근 30일 시도 (날짜 역순, 존재하는 것만 표시)
+  const today = new Date();
+  const candidates = [];
+  for (let i = 0; i < 60; i++) {
+    const d = new Date(today.getTime() - i * 86400000);
+    const ymd = d.getFullYear() + String(d.getMonth() + 1).padStart(2, '0') + String(d.getDate()).padStart(2, '0');
+    candidates.push({ ymd, label: `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}` });
+  }
+
+  // 병렬로 HEAD 요청 (존재하는 것만 필터)
+  const checks = await Promise.all(candidates.map(c =>
+    fetch(`/docs/screenshots/archive/${name}-${c.ymd}.png`, { method: 'HEAD' })
+      .then(r => r.ok ? c : null)
+      .catch(() => null)
+  ));
+  const existing = checks.filter(Boolean);
+
+  if (existing.length === 0) {
+    histEl.innerHTML = `
+      <div style="background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.3);border-radius:8px;padding:16px;margin-top:8px">
+        <p style="color:#fbbf24;margin:0 0 8px;font-weight:600">📭 아직 보관된 이력이 없습니다</p>
+        <p style="color:#94a3b8;font-size:13px;margin:0;line-height:1.6">
+          capture-bot이 매일 KST 03:00 또는 페이지 변경 push 시 자동으로 옛 캡처를
+          <code style="color:#cbd5e1">docs/screenshots/archive/</code> 폴더에 누적합니다.<br>
+          첫 캡처 후 24시간 정도 지나면 BEFORE/AFTER 비교가 가능해집니다.
+        </p>
+      </div>`;
+    return;
+  }
+
+  // 현재 + 이력 나란히 표시 (현재 = 좌측, 이력 = 우측 슬라이더)
+  const currentSrc = `/docs/screenshots/${name}.png`;
+  histEl.innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+      <div>
+        <p style="color:#22c55e;font-size:12px;font-weight:600;margin:0 0 6px">🟢 현재 (AFTER)</p>
+        <img src="${currentSrc}" alt="현재" style="width:100%;border-radius:6px;border:1px solid #334155">
+      </div>
+      <div>
+        <p style="color:#3b82f6;font-size:12px;font-weight:600;margin:0 0 6px">🔵 옛 버전 (BEFORE) — <select id="hist-date" style="background:#1e293b;color:#cbd5e1;border:1px solid #334155;border-radius:4px;padding:2px 6px;font-size:11px">${existing.map((c, i) => `<option value="${c.ymd}"${i===0?' selected':''}>${c.label}</option>`).join('')}</select></p>
+        <img id="hist-img" src="/docs/screenshots/archive/${name}-${existing[0].ymd}.png" alt="이력" style="width:100%;border-radius:6px;border:1px solid #334155">
+      </div>
+    </div>
+    <p style="color:#64748b;font-size:11px;text-align:center;margin:0">${existing.length}일치 이력 누적 · 가장 최근 → 옛순 정렬</p>
+  `;
+
+  // 날짜 선택 바인딩
+  document.getElementById('hist-date').addEventListener('change', (e) => {
+    document.getElementById('hist-img').src = `/docs/screenshots/archive/${name}-${e.target.value}.png`;
+  });
+};
+
+// 기존 closeModal에 이력 컨테이너 정리 추가
+const _origCloseModal = window.closeModal;
+window.closeModal = function() {
+  const histEl = document.getElementById('history-container');
+  if (histEl) histEl.innerHTML = '';
+  const imgEl = document.getElementById('modal-img');
+  if (imgEl) imgEl.style.display = '';
+  _origCloseModal();
 };
 </script>
 </body>

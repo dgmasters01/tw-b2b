@@ -32,14 +32,14 @@
 
 ---
 
-## 🟢 P0 — BEFORE/AFTER 스크린샷 자동 캡처 시스템 (Page Gallery 통합)
+## ⚡ P0 — BEFORE/AFTER 스크린샷 자동 캡처 시스템 (Page Gallery 통합)
 
 **요약**: ## 🟡 P2 — BEFORE/AFTER 스크린샷 자동 캡처 시스템 (Page Gallery 통합)  ### 배경 대표님 메모리 원칙: 모든 페이지 수정 시 ① 수정 전 풀페이지 스크린샷 ② 수정 작업 ③ 수정 후 풀페이지 스크린샷 ④ 작업 기록에 BEFORE/AFTER 비교 등록 ⑤ 관리자 페이지에서 전후 비교 확인 가능. Page Gallery 스크린샷
 
 - **자율성**: 🟢 AUTO
 - **예상 시간**: 4-6시간
 - **카테고리**: dev
-- **상태**: pending
+- **상태**: in_progress
 - **ID**: `BL-015` (출처: BACKLOG.md)
 
 ---

@@ -10,16 +10,28 @@
       "id": "main",
       "label": "📊 메인 대시보드",
       "order": 0,
-      "type": "single",
+      "type": "fixed",
       "required": true,
-      "menu": {
-        "id": "admin-status",
-        "label": "관리자 콘솔",
-        "icon": "📊",
-        "path": "/admin-status.html",
-        "role": "OS 시스템 완성도 단일 통합 관리 페이지 (D-010, D-011, D-012)",
-        "is_landing": true
-      }
+      "description": "시스템 완성도(개발 영역) + 운영 콘솔(운영 영역) — 헌법 부칙 5 카테고리 분리",
+      "menus": [
+        {
+          "id": "admin-status",
+          "label": "시스템 완성도",
+          "icon": "📊",
+          "path": "/admin-status.html",
+          "role": "OS 시스템 완성도 단일 통합 관리 페이지 (D-010, D-011, D-012)",
+          "is_landing": true,
+          "required": true
+        },
+        {
+          "id": "admin-console",
+          "label": "운영 콘솔",
+          "icon": "🎛️",
+          "path": "/admin.html",
+          "role": "사람이 시스템을 운영하는 화면 — 호텔 승인/매칭/예약/사용자 활동 (BL-ADMIN-ACTIVITY-MOVE 2026-05-12)",
+          "required": true
+        }
+      ]
     },
     {
       "id": "docs",

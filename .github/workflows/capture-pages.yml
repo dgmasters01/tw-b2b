@@ -116,10 +116,7 @@ jobs:
             git add docs/screenshots/
             COUNT=$(git diff --cached --name-only docs/screenshots/ | wc -l)
             ARCHIVE_COUNT=$(git diff --cached --name-only docs/screenshots/archive/ 2>/dev/null | wc -l || echo 0)
-            git commit -m "[capture-bot] 페이지 캡처 갱신 ($COUNT장 / archive $ARCHIVE_COUNT장 누적)
-
-[변경사유] BL-015 / D-028 — BEFORE/AFTER 자동 보관 (이중 트리거)
-트리거: ${{ github.event_name }}"
+            git commit -m "[capture-bot] 페이지 캡처 갱신 ($COUNT장 / archive $ARCHIVE_COUNT장 누적) [변경사유: BL-015 / D-028 — BEFORE/AFTER 자동 보관 / 트리거: ${{ github.event_name }}]"
             git push
             echo "✅ $COUNT장 캡처 push 완료"
           else

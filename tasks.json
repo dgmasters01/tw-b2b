@@ -6163,11 +6163,11 @@
       "category": "infrastructure",
       "status": "in_progress",
       "priority": "P0",
-      "size": "large",
+      "size": "medium",
       "parent_task": null,
       "blocker": null,
       "created_at": "2026-05-04T16:13:23Z",
-      "updated_at": "2026-05-12T00:13:37+00:00",
+      "updated_at": "2026-05-12T00:15:43.107Z",
       "claude_can_auto": false,
       "owner": "ceo_decision_required",
       "approval_required": true,
@@ -6178,8 +6178,47 @@
           "권한 등급 정책 결정 필요"
         ]
       },
-      "progress": "BL-REAL-SYSTEM의 Phase α 단순 게이트 후, 운영 진입 전 Supabase Auth로 교체. 권한 등급(CEO/Staff/Read-only) 정책 결정 필요.",
-      "notes": "헌법 11조 운영 진입 의무. 단순 토큰 + Referer는 임시 수단.",
+      "progress": {
+        "percent": 0,
+        "steps": [
+          {
+            "n": 1,
+            "label": "sql/admin-auth-logs.sql 생성 — access_logs + action_logs 테이블 + RLS",
+            "status": "done"
+          },
+          {
+            "n": 2,
+            "label": "Supabase에 SQL 실행 + 검증 (관리 API)",
+            "status": "pending"
+          },
+          {
+            "n": 3,
+            "label": "api/_lib/admin-log.js 헬퍼 — logAccess() + logAction() 함수",
+            "status": "pending"
+          },
+          {
+            "n": 4,
+            "label": "admin-auth-handlers.js + admin.js 호출 위치에 logAction 박기",
+            "status": "pending"
+          },
+          {
+            "n": 5,
+            "label": "admin 진입 시 자동 logAccess (shared.js의 admin guard에서)",
+            "status": "pending"
+          },
+          {
+            "n": 6,
+            "label": "admin-status.html 하단 \"📜 최근 활동\" 박스 신설 + 5초 폴링",
+            "status": "pending"
+          },
+          {
+            "n": 7,
+            "label": "commit + push + 라이브 검증",
+            "status": "pending"
+          }
+        ]
+      },
+      "notes": "진단 (2026-05-12): D-016/BL-ADMIN-AUTH-V2로 admins 테이블 + 5단계 role + 초대 시스템 이미 박힘.\nD-026 결정 요구사항 3가지 중 1개만 박혀있고 2개는 누락:\n  ① 접속 로그 → ❌ access_logs 테이블 없음 (이번 작업)\n  ② 실행 로그 → ❌ action_logs 테이블 없음 (이번 작업)\n  ③ admin-status 하단 최근 활동 박스 → ❌ 없음 (이번 작업)\n\nD-026 CEO/Staff 2단계는 기존 5단계와 매핑:\n  CEO = owner (대표님 1명, 전체 권한)\n  Staff = admin/staff (초대된 스탭, 제한 권한)\n  readonly/manager는 그대로 (이미 동작 중)\n\nsize=medium 재판정 — 한 채팅 완주 가능.",
       "last_commit": null,
       "last_chat_log": null,
       "links": [],
@@ -6251,6 +6290,12 @@
           "by": "auto-detect-bot",
           "commit": "f107e88",
           "note": "resume(BL-ADMIN-AUTH): 이어가기 — 단계 undefined부터"
+        },
+        {
+          "at": "2026-05-12T00:15:00.993Z",
+          "action": "steps_defined",
+          "by": "claude",
+          "note": "단계 7개 정식 정의 + size=large→medium 재판정 (D-016으로 인프라 80% 이미 박힘)"
         }
       ],
       "decision_summary": "a안으로 갑니다. 박을 것 3가지: ①접속 로그(누가 언제 admin 들어왔나) ②실행 로그(누가 언제 무슨 버튼 눌렀나 — 호텔 승인·삭제·수정 등 중요 액션) ③admin-status 페이지 하단 \"최근 활동\" 박스에 시간순으로 한 줄씩 표시. 권한은 CEO(대표님 — 전체 권한) / Staff(초대된 스탭 — 제한 권한) 두 단계로 나누고, 둘 다 이메일로 구분되니까 로그에 자동으로 누가 했는지 박힙니다. 이대로 BL-ADMIN-AUTH 진행하겠습니다",

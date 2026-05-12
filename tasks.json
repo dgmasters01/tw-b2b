@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-12T00:36:43.780Z",
+  "updated_at": "2026-05-12T01:03:17.931Z",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -12,18 +12,107 @@
     "SOLO_WORK_QUEUE.md"
   ],
   "stats": {
-    "total": 184,
+    "total": 185,
     "done": 139,
     "in_progress": 0,
-    "pending": 29,
+    "pending": 30,
     "blocked": 10,
     "autonomous_ready": 22,
     "todo": 0,
     "cancelled": 0,
-    "updated_at": "2026-05-12T00:35:38.937Z",
+    "updated_at": "2026-05-12T01:03:17.931Z",
     "paused": 0
   },
   "tasks": [
+    {
+      "id": "BL-DECISION-CTX-MASS-FILL",
+      "title": "결정 대기 15건 사람말 컨텍스트 대량 보강 + 신규 BL 자동 검증 + UI 4종 fix",
+      "category": "fix",
+      "priority": "P0",
+      "size": "medium",
+      "status": "pending",
+      "owner": "claude",
+      "claude_can_auto": true,
+      "approval_required": false,
+      "chatlog_exempt": true,
+      "source": "대표님 직접 보고 (2026-05-12) — 7가지 본질 결함 한 번에 fix",
+      "created_at": "2026-05-12T01:03:17.931Z",
+      "updated_at": "2026-05-12T01:03:17.931Z",
+      "decision_context": "[지금 무슨 상황이냐면]\n대표님 결정 대기 박스에 23건 BL이 있는데, 그 중 15건은 화면에 '개발자 언어' 또는 '시스템이 정리 못함'으로만 보입니다. BL-INVOICE-001(P1) 같은 결정은 잘 정리돼서 결정 가능한데, BL-CHATLOG-BIZ-FORMAT(P0) 같은 결정은 개발자 단어 가득해서 결정 불가.\n\n[왜 결정이 필요하냐면]\n이번 fix는 매우 큰 작업이라 한 채팅에서 모두 할 수 없고, Phase 2~4로 쪼개야 합니다. 각 Phase가 무엇을 박을지 대표님이 우선순위를 정해주셔야 새 채팅에서 자율 진행 가능.\n\n[결정하면 뭐가 달라지냐면]\n결정만 박으면 새 채팅 클로드가 인계서 받아서 자율로 진행. 대표님은 결정 확정만 누르고 다른 일 하실 수 있음.\n\n7가지 fix 내용:\n  Q1·Q2·Q3: 결정 대기 15건 사람말 V2 컨텍스트 대량 보강 (BL-INVOICE-001 처럼)\n  Q4: '+14건 더' 새 탭 X → 같은 페이지 인라인 펼치기 (▼ 토글)\n  Q5: 작업 지휘소 막힘 카드 10건 → 21건 정확화 (계산 로직 fix)\n  Q7: 자율 큐 / 직원 큐 헤더에 카운트 표시 ('18건', '0건')\n  Q3: auto-task-bot이 새 BL 박을 때 컨텍스트 검증 (사람말 비율 + 옵션 추출 가능 여부)\n  Q6: 신규 페이지 만들면 대표님 보고 의무 헌법 명문\n  Q6: 위 모든 사고 재발 방지 헌법 부칙 17 신설",
+      "decision_options": [
+        "A안 — 한 번에 다 처리 (Phase 2+3+4 한 채팅) — 위험: 끊김 사고 가능. 시간 약 90분.",
+        "B안 — Phase 2(BL 15건 풍부화) 먼저 새 채팅에서 — 가장 영향력 큼. 대표님이 즉시 결정 가능해짐. 시간 약 30분.",
+        "C안 — Phase 3(UI 4종 fix) 먼저 새 채팅에서 — 화면 개선 즉시 체감. 시간 약 30분.",
+        "D안 — Phase 4(헌법 부칙 + 봇 가드) 먼저 새 채팅에서 — 재발 방지가 가장 중요. 시간 약 30분."
+      ],
+      "decision_recommendation": "권장: B안 (Phase 2 먼저). 사유: 15건 풍부화가 가장 큰 효과 — 대표님이 결정 가능한 BL이 8건 → 23건으로 늘어나면서 진짜 가속도 시작. Phase 3·4는 그 후 새 채팅에서 순차.",
+      "notes": "본질 결함: 직전 fix BL-DECISION-CTX-FROM-NOTES는 notes에서 자동 빌드하지만 notes 자체가 개발자 언어면 효과 반감.\n\n진단 결과 (라이브 2026-05-12):\n- 결정 대기 23건 중 V2 필드(decision_context/options/recommendation) 박힌 BL: 8건\n- V2 필드 없는 BL: 15건 → 화면에 개발자 언어로만 표시\n- 잘 박힌 예시: BL-INVOICE-001 (대표님이 Image 1로 만족 표시)\n- 못 박힌 예시: BL-CHATLOG-BIZ-FORMAT (대표님이 Image 2로 불만 표시)\n\n대상 15건 BL: BL-002, BL-CHATLOG-BIZ-FORMAT, BL-URGENT-CARD-FLOW, BL-SERVICE-MAP, SQ-E, SQ-F, SQ-G, SQ-H, BL-OS-INSTALL-PAT-FLOW, BL-SERVICE-PAGE-MAP, BL-006, BL-012, BL-013, BL-014, BL-015\n\nUI 4종 fix 디테일:\n- Q4 (펼치기): '+14건 더' → '▼ 14건 더 보기 (펼치기)' 토글로. admin-tasks.html 새 탭 이동 X. localStorage로 상태 저장.\n- Q5 (카드 정확화): admin-status.html stats 계산 — 막힘 = approval_required=true OR requires_decisions_first 있음 OR status=blocked\n- Q7 (헤더 카운트): 자율 큐 헤더 = '🤖 자율 작업 큐 N건' / 직원 큐 헤더 = '👥 직원 작업 큐 N건'\n\n재발 방지 (헌법 부칙):\n- 신규 BL 박힐 때 auto-task-bot 검증: notes 길이 ≥100자 + 사업가 단어 ≥3종 + 옵션 추출 가능 → 모두 통과해야 published\n- 신규 페이지 생성 시 즉시 대표님 보고 의무",
+      "progress": {
+        "percent": 13,
+        "steps": [
+          {
+            "n": 1,
+            "label": "진단 — 15건 컨텍스트 비어있음 확인 + 7가지 결함 정밀 분석",
+            "status": "done"
+          },
+          {
+            "n": 2,
+            "label": "Phase 2: BL 15건 사람말 V2 컨텍스트 보강 (BL-INVOICE-001 형식)",
+            "status": "pending"
+          },
+          {
+            "n": 3,
+            "label": "Phase 3-Q4: 결정 대기 더 보기 인라인 펼치기 UI (다른 창 X)",
+            "status": "pending"
+          },
+          {
+            "n": 4,
+            "label": "Phase 3-Q5: 작업 지휘소 막힘 카드 정확화 (10 → 21)",
+            "status": "pending"
+          },
+          {
+            "n": 5,
+            "label": "Phase 3-Q7: 자율 큐 / 직원 큐 헤더 카운트",
+            "status": "pending"
+          },
+          {
+            "n": 6,
+            "label": "Phase 4-Q3: auto-task-bot 컨텍스트 검증 가드",
+            "status": "pending"
+          },
+          {
+            "n": 7,
+            "label": "Phase 4-Q6: 헌법 부칙 17 — 신규 BL 컨텍스트 의무 + 신규 페이지 보고 의무",
+            "status": "pending"
+          },
+          {
+            "n": 8,
+            "label": "라이브 검증 + 대표님 보고",
+            "status": "pending"
+          }
+        ]
+      },
+      "history": [
+        {
+          "at": "2026-05-12T01:03:17.931Z",
+          "action": "created",
+          "by": "claude",
+          "note": "P0 대표님 직접 보고 7가지"
+        },
+        {
+          "at": "2026-05-12T01:03:17.931Z",
+          "action": "progress",
+          "by": "claude",
+          "note": "단계 1 진단 done — V2 필드 박힌 BL 8건/23건, 15건 풍부화 필요"
+        },
+        {
+          "at": "2026-05-12T01:03:17.931Z",
+          "action": "paused_handoff",
+          "by": "claude",
+          "note": "분량 90분 — 새 채팅 강제. B안(Phase 2 먼저) 권장."
+        }
+      ]
+    },
     {
       "id": "BL-DECISION-CTX-FROM-NOTES",
       "title": "결정 모달 — 결정 맥락 박스가 notes에서 자동 컨텍스트 빌드",

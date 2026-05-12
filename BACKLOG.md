@@ -5,7 +5,7 @@
 > 
 > 단일 진실 소스: `tasks.json` (v2.0)
 
-**마지막 업데이트**: 2026-05-11
+**마지막 업데이트**: 2026-05-12
 
 > 💡 **새 채팅 시작 시**: 다음 5개 문서를 먼저 보면 즉시 컨텍스트 파악 가능.
 > 
@@ -44,20 +44,6 @@
 
 ---
 
-## ⚡ P0 — [admin Supabase Auth] 정식 오픈 전 의무 — admin-* 전체 인증 + 권한 등급 (CEO/Staff)
-
-**요약**: 헌법 11조 운영 진입 의무. 단순 토큰 + Referer는 임시 수단.
-
-- **자율성**: 🟡 SEMI
-- **예상 시간**: 8시간
-- **카테고리**: infrastructure
-- **상태**: in_progress
-- **결정 필요**:
-  - 권한 등급 정책 결정 필요
-- **ID**: `BL-ADMIN-AUTH` (출처: 운영 중 발견 — admin 인증 시스템 초기 구축)
-
----
-
 ## 🟡 P0 — chat-log 사업가 5블록 표준 강제 (사람용 탭 가독성 fix)
 
 **요약**: 사람용 탭이 chat-log를 보여줄 때 사업가 용어가 아닌 개발자 용어 가득. 원인: 표준(_os/playbook/chat-log-format.md)은 박혀있는데 작성 시 미준수. fix: (1) 부칙에 5블록 표준 준수 명문 (2) auto-detect-bot이 chat-log 박힐 때 5블록 헤딩 + 사업가 용어 검증 (3) 검증 실패 시 워닝, 자가
@@ -91,6 +77,24 @@
 - **결정 필요**:
   - 디자인 큰 방향 검수 (대표님 그림)
 - **ID**: `BL-SERVICE-MAP` (출처: ceo_insight_2026-05-10)
+
+---
+
+## 🟢 P0 — [자동] 자동 일꾼 1명이 멈췄어요: sync-bot
+
+**요약**: 점검 봇 자동 등록 (2026-05-11T20:24:23.985Z)
+
+check_name: bots
+status: red
+detail: 자동 일꾼 1명이 멈췄어요: sync-bot
+
+진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 green으로 박으면 자동 done.
+
+- **자율성**: 🟢 AUTO
+- **예상 시간**: 1시간
+- **카테고리**: infrastructure
+- **상태**: pending
+- **ID**: `BL-AUTO-BOTS-SYNC-BOT` (출처: auto_from_bots)
 
 ---
 

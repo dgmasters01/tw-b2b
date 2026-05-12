@@ -3,7 +3,7 @@
 > ⚠️ **이 파일은 자동 생성됩니다.** 수동 편집하지 마세요.
 > 단일 진실 소스: `tasks.json` (v2.0)
 > **데드라인**: 2026-05-03
-> **갱신**: 2026-05-11
+> **갱신**: 2026-05-12
 > **목적**: 대표님 외근/자리비움 시 Claude 자율 처리 가능 작업
 
 ## 작업 분류 체계
@@ -36,6 +36,22 @@
 **예상 시간**: 8시간  
 
 **메모**: 매니저 가입 시 자동 매칭(agoda_hotels DB + Google Places) 실패한 호텔이 admin Agoda Matching 페이지에 대기 큐로 쌓이고, 대표님이 Agoda URL/주소 보고 hotel_id 수동 매칭 → 승인 → 매니저에게 가입 확정 알림. 매니저 온보딩 게이트 — 안 만들면 매칭 실패 케이스가 가입 자체 불가.
+
+---
+
+### C. 🟢 AUTO — [자동] 자동 일꾼 1명이 멈췄어요: sync-bot
+
+**ID**: `BL-AUTO-BOTS-SYNC-BOT`  
+**카테고리**: infrastructure  
+**예상 시간**: 1시간  
+
+**메모**: 점검 봇 자동 등록 (2026-05-11T20:24:23.985Z)
+
+check_name: bots
+status: red
+detail: 자동 일꾼 1명이 멈췄어요: sync-bot
+
+진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 green으로 박으면 자동 done.
 
 ---
 

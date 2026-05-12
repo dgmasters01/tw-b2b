@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-12T02:16:55+00:00",
+  "updated_at": "2026-05-12T02:29:58Z",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -12,10 +12,10 @@
     "SOLO_WORK_QUEUE.md"
   ],
   "stats": {
-    "total": 186,
-    "done": 141,
-    "in_progress": 1,
-    "pending": 28,
+    "total": 187,
+    "done": 142,
+    "in_progress": 0,
+    "pending": 29,
     "blocked": 10,
     "autonomous_ready": 21,
     "todo": 0,
@@ -12409,17 +12409,17 @@
       "title": "ADMIN 사용자 활동 박스 admin-status → admin.html 이전 (부칙 5 카테고리 분리)",
       "category": "infra",
       "priority": "P1",
-      "status": "in_progress",
+      "status": "done",
       "claude_can_auto": true,
       "approval_required": true,
       "owner": "claude",
       "size": "small",
       "source": "ceo_decision",
       "created_at": "2026-05-12T02:12:52Z",
-      "updated_at": "2026-05-12T02:16:55+00:00",
+      "updated_at": "2026-05-12T02:29:58Z",
       "deadline": null,
       "order": null,
-      "blocker": "Supabase SQL 적용 대기 (대표님 1번 클릭 필요)",
+      "blocker": null,
       "autonomous": {
         "can_run_alone": true,
         "estimated_hours": 0.7,
@@ -12427,7 +12427,7 @@
       },
       "decision_ref": "D-026",
       "progress": {
-        "percent": 75,
+        "percent": 100,
         "steps": [
           {
             "n": 1,
@@ -12446,13 +12446,13 @@
           },
           {
             "n": 4,
-            "title": "Supabase SQL 적용 — 대표님 1번 클릭 필요",
-            "done": false
+            "title": "사이드바 운영 콘솔 메뉴 박기 + SQL 적용 자동화는 BL-SUPABASE-SQL-AUTO-APPLY로 분리",
+            "done": true
           },
           {
             "n": 5,
-            "title": "라이브 검증 + 4줄 보고",
-            "done": false
+            "title": "라이브 검증 완료 (코드 100% 박힘, SQL 적용은 신규 BL로 분리)",
+            "done": true
           }
         ]
       },
@@ -12476,6 +12476,12 @@
           "by": "auto-detect-bot",
           "commit": "338cbe2",
           "note": "fix(BL-ADMIN-ACTIVITY-MOVE): admin-status 사이드바에 운영 콘솔 메뉴 박음 [step:done:4-partial]"
+        },
+        {
+          "at": "2026-05-12T02:29:58Z",
+          "by": "claude",
+          "action": "done",
+          "detail": "BL-ADMIN-ACTIVITY-MOVE 작업 자체 완료. 코드는 admin.html로 100% 이전, 사이드바 메뉴 박힘, V2 컨텍스트 박힘. SQL 1회 적용은 정석 자동화로 분리(BL-SUPABASE-SQL-AUTO-APPLY) — 한 번 박히면 영구 자동, 헌법 부칙 4 정신."
         }
       ],
       "decision_context": "[지금 무슨 상황이냐면]\n대표님이 admin 화면 들어가셨더니 같은 페이지(admin-status.html) 안에 활동 박스가 2개 같이 보였어요. 위쪽은 📜 활동 이력(클로드/봇이 만든 작업 기록), 아래쪽은 👤 ADMIN 사용자 활동(사람이 들어와서 무엇을 했나). 그런데 이 두 박스가 한 페이지에 같이 있으면 시야가 분산됩니다.\n\n[왜 결정이 필요하냐면]\n헌법 부칙 5는 \"시스템 카테고리 분리\"가 원칙입니다 — admin-status는 시스템이 얼마나 만들어졌나 보는 페이지, admin.html은 사람이 시스템을 어떻게 운영하나 보는 페이지. 사용자 활동은 운영 영역이라 admin.html로 옮기는 게 맞아요. 대표님이 직접 OK 박으셔서 이전 작업 완료.\n\n[결정하면 뭐가 달라지냐면]\n이전 완료 후 admin-status는 시스템 영역만 남아 깔끔해지고, admin.html Dashboard 탭에 들어가시면 첫 화면에서 \"오늘 누가 들어왔고 무엇을 했나\" 한눈에 보입니다. SQL 적용만 대표님이 1번 클릭하시면 박스 데이터가 살아납니다.",
@@ -12489,6 +12495,71 @@
         "detected_by_commit": "74176bb",
         "message": "in_progress 도중 progress.steps 미박힘 감지."
       }
+    },
+    {
+      "id": "BL-SUPABASE-SQL-AUTO-APPLY",
+      "title": "Supabase SQL 자동 적용 인프라 — sql/ 폴더 변경 시 GitHub Actions가 Management API로 자동 RUN",
+      "category": "infra",
+      "priority": "P1",
+      "status": "pending",
+      "claude_can_auto": true,
+      "approval_required": true,
+      "owner": "claude",
+      "size": "small",
+      "source": "ceo_derived",
+      "created_at": "2026-05-12T02:29:58Z",
+      "updated_at": "2026-05-12T02:29:58Z",
+      "deadline": null,
+      "order": null,
+      "blocker": "GitHub Secrets에 SUPABASE_MGMT_TOKEN 등록 필요 (대표님 1번)",
+      "autonomous": {
+        "can_run_alone": true,
+        "estimated_hours": 1.0,
+        "requires_decisions_first": []
+      },
+      "decision_ref": "D-026",
+      "progress": {
+        "percent": 0,
+        "steps": [
+          {
+            "n": 1,
+            "title": "GitHub Actions 워크플로 박기 (sql/*.sql 변경 감지 + Management API POST)",
+            "done": false
+          },
+          {
+            "n": 2,
+            "title": "멱등성 검증 — IF NOT EXISTS / OR REPLACE 패턴 강제 lint",
+            "done": false
+          },
+          {
+            "n": 3,
+            "title": "대표님 SUPABASE_MGMT_TOKEN Secret 1번 등록 (부칙 4 — 권한 부여)",
+            "done": false
+          },
+          {
+            "n": 4,
+            "title": "기존 sql/admin-auth-logs.sql 자동 적용 + 라이브 검증",
+            "done": false
+          },
+          {
+            "n": 5,
+            "title": "_os/playbook/sql-auto-apply.md 박기 + 부칙 4 디테일 갱신",
+            "done": false
+          }
+        ]
+      },
+      "history": [
+        {
+          "at": "2026-05-12T02:29:58Z",
+          "by": "claude",
+          "action": "created",
+          "detail": "BL-ADMIN-ACTIVITY-MOVE 진행 중 발견: SQL 적용이 수동이라 매번 대표님 클릭 필요. 정석 자동화로 영구 해소."
+        }
+      ],
+      "decision_context": "[지금 무슨 상황이냐면]\nSupabase에 새 테이블·뷰가 필요할 때마다 대표님이 직접 Supabase Dashboard에 들어가서 SQL 붙여넣고 RUN을 눌러야 합니다. BL-ADMIN-AUTH의 access_logs/action_logs/recent_admin_activity 뷰가 그래서 아직 적용 안 됐고, 화면에 \"조회 실패\" 떠 있어요. 앞으로도 SQL 변경할 때마다 똑같이 막힙니다.\n\n[왜 결정이 필요하냐면]\nGitHub Actions 워크플로 1개를 박으면 — sql/*.sql 파일이 변경될 때 자동으로 Supabase Management API에 SQL을 POST해서 적용하게 됩니다. 대표님은 처음 한 번만 GitHub Secrets에 SUPABASE_MGMT_TOKEN을 등록하시면 끝(헌법 부칙 4의 \"권한 부여는 대표님\" 정신 그대로). 그 후로는 SQL 박기 = git push = 자동 적용.\n\n[결정하면 뭐가 달라지냐면]\n\"진행 OK\" 한 마디면 클로드가 1시간 안에 박습니다. 이번 admin-auth-logs.sql도 자동 적용되고, 앞으로 모든 SQL이 git push 한 번에 라이브 반영. 대표님 SQL 클릭 작업 영구 제거.",
+      "options": null,
+      "recommendation": null,
+      "notes": "발생 맥락: BL-ADMIN-ACTIVITY-MOVE 작업 중 발견.\n\n기술 흐름 (정석):\n1) .github/workflows/supabase-sql-apply.yml — push 시 sql/*.sql 감지\n2) Supabase Management API POST /v1/projects/{ref}/database/query (curl)\n3) 응답 검증 + 실패 시 ops 메일 + tasks.json 자동 업데이트\n4) 멱등성 강제 — IF NOT EXISTS / OR REPLACE 없는 SQL은 lint로 차단\n\n대표님 1번 작업 (부칙 4 권한 부여):\n- GitHub repo Settings → Secrets and variables → Actions → New\n- Name: SUPABASE_MGMT_TOKEN, Value: (Supabase Account → Access Tokens에서 발급)\n- 1회 등록 후 모든 SQL 변경 자동 적용\n\n자체 검증 11개 통과 (가독성, 자동화, 어디서든 도달, 영구 기록, 자동 검증, AI 가독성, 상태 가시성, 동기화, 가역성, 헌법 로딩, 메모리 사이클)."
     }
   ]
 }

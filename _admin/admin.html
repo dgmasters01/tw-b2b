@@ -271,6 +271,38 @@ body{margin:0;background:var(--bg,#0A0A0F);font-family:var(--sans,'Inter','Noto 
 #tab-agoda-matching .ad-btn-danger,.am-modal-foot .ad-btn-danger{background:#c93030;color:#fff;border:1px solid #c93030}
 #tab-agoda-matching .ad-btn-danger:hover,.am-modal-foot .ad-btn-danger:hover{background:#a82424}
 
+/* ━━━ BL-ADMIN-ACTIVITY-MOVE (2026-05-12) ━━━━━━━━━━━━━━━━━━━━━━
+   👤 admin 사용자 활동 박스 — admin-status에서 이전
+   admin.html 다크 글래스 톤에 맞춤 (var(--glass), var(--ink), --line) */
+.aa-filter-btn{
+  background:var(--glass,rgba(255,255,255,.05));
+  color:var(--ink-3,#A0A0B0);
+  border:1px solid var(--line-2,rgba(255,255,255,.14));
+  padding:5px 12px;border-radius:6px;
+  font-size:12px;cursor:pointer;font-family:inherit;font-weight:500;
+  transition:background .18s ease,color .18s ease,border-color .18s ease;
+}
+.aa-filter-btn:hover{background:var(--glass-2,rgba(255,255,255,.08));color:var(--ink,#FAFAFA)}
+.aa-filter-btn.active{
+  background:rgba(79,70,229,.18);color:#c7d2fe;
+  border-color:rgba(79,70,229,.55);
+}
+.aa-event-row{
+  display:grid;grid-template-columns:90px 1fr 80px;gap:10px;
+  padding:9px 10px;border-bottom:1px solid var(--line,rgba(255,255,255,.08));
+  font-size:12.5px;align-items:center;
+}
+.aa-event-row:last-child{border-bottom:none}
+.aa-event-row:hover{background:var(--glass-2,rgba(255,255,255,.04))}
+.aa-event-time{color:var(--ink-4,#6E6E80);font-size:11px;font-variant-numeric:tabular-nums}
+.aa-event-msg{color:var(--ink-2,#E5E5EE);line-height:1.5;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.aa-event-role{font-size:10.5px;padding:2px 8px;border-radius:4px;text-align:center;font-weight:600;letter-spacing:.3px}
+.aa-event-role.owner{background:rgba(239,68,68,.15);color:#fca5a5}
+.aa-event-role.admin{background:rgba(245,158,11,.15);color:#fcd34d}
+.aa-event-role.staff{background:rgba(79,70,229,.18);color:#c7d2fe}
+.aa-event-row.fail{background:rgba(239,68,68,.05)}
+.aa-event-row.access{background:rgba(34,211,238,.03)}
+
 </style>
 </head>
 <body>
@@ -374,13 +406,34 @@ body{margin:0;background:var(--bg,#0A0A0F);font-family:var(--sans,'Inter','Noto 
       <h1 class="ad-h1" id="page-title">Hotels</h1>
       <p class="ad-h1-sub" id="page-sub">Manage hotel partners. <span style="background:#534AB7;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:.3px;margin-left:4px;" id="admin-role">—</span></p>
 
-    <!-- TAB: Dashboard (placeholder for Phase 1 Step 6) -->
+    <!-- TAB: Dashboard (BL-ADMIN-ACTIVITY-MOVE 2026-05-12: admin-status에서 이전) -->
     <div id="tab-dashboard" class="ad-tab-pane" style="display:none;">
+
+      <!-- 👤 사용자 활동 박스 (BL-ADMIN-AUTH D-026 — admin-status에서 이전) -->
+      <div class="ad-card" style="margin-bottom:20px;">
+        <div class="ad-card-h" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+          <div>
+            <h3 style="margin:0;" data-en="👤 Admin User Activity" data-ko="👤 admin 사용자 활동">👤 Admin User Activity</h3>
+            <p style="font-size:12px;color:var(--ink-3,#A0A0B0);margin:4px 0 0;" data-en="Who logged in when and did what (D-026)" data-ko="누가 언제 들어왔고 무엇을 했나 (D-026)">Who logged in when and did what (D-026)</p>
+          </div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;">
+            <button class="aa-filter-btn active" data-aa-filter="all" data-en="All" data-ko="전체">All</button>
+            <button class="aa-filter-btn" data-aa-filter="access" data-en="👁️ Access" data-ko="👁️ 접속">👁️ Access</button>
+            <button class="aa-filter-btn" data-aa-filter="action" data-en="✅ Action" data-ko="✅ 액션">✅ Action</button>
+          </div>
+        </div>
+        <div id="admin-activity-list" style="max-height:360px;overflow-y:auto;margin-top:12px;">
+          <div style="font-size:12px;color:var(--ink-3,#A0A0B0);padding:24px;text-align:center;" data-en="Loading..." data-ko="로딩 중…">Loading...</div>
+        </div>
+        <div style="font-size:11px;color:var(--ink-4,#6E6E80);margin-top:10px;text-align:right;" data-en="📂 Source: Supabase access_logs + action_logs · 7d/30 events · 5s polling · RLS owner/admin/staff" data-ko="📂 출처: Supabase access_logs + action_logs · 7일/30건 · 5초 폴링 · RLS owner/admin/staff">📂 Source: Supabase access_logs + action_logs · 7d/30 events · 5s polling · RLS owner/admin/staff</div>
+      </div>
+
+      <!-- Phase 1 Step 7 — 실시간 비즈니스 요약 (TODO) -->
       <div class="ad-card">
         <div class="ad-card-h"><h3>📊 Dashboard</h3></div>
         <div class="ad-empty">
           <p style="font-size:14px;margin:0 0 8px;color:#555;"><strong data-en="Real-time Business Summary" data-ko="실시간 비즈니스 요약">Real-time Business Summary</strong></p>
-          <p style="font-size:13px;color:#888;margin:0;" data-en="Total bookings, revenue, channel performance, recent activity — to be implemented in Phase 1 Step 7." data-ko="총 예약, 매출, 채널 성과, 최근 활동 — Phase 1 Step 7에서 구현 예정.">Total bookings, revenue, channel performance, recent activity — to be implemented in Phase 1 Step 7.</p>
+          <p style="font-size:13px;color:#888;margin:0;" data-en="Total bookings, revenue, channel performance — to be implemented in Phase 1 Step 7." data-ko="총 예약, 매출, 채널 성과 — Phase 1 Step 7에서 구현 예정.">Total bookings, revenue, channel performance — to be implemented in Phase 1 Step 7.</p>
         </div>
       </div>
     </div>
@@ -4678,6 +4731,97 @@ function rDayHotels(){
     </div>
   </div>
 </div>
+
+<!-- ━━━ BL-ADMIN-ACTIVITY-MOVE (2026-05-12) ━━━━━━━━━━━━━━━━━━━━━
+     👤 admin 사용자 활동 박스 — admin-status.html에서 이전
+     데이터: Supabase public.recent_admin_activity 뷰
+     필터: 전체 / 접속만 / 액션만  ·  폴링: 30초 (admin.html은 운영 화면이라 5초 부담 큼) -->
+<script>
+(function(){
+  let _aaFilter = 'all';
+  let _aaPollTimer = null;
+
+  function _aaEscape(s){
+    if (s == null) return '';
+    return String(s)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
+
+  async function renderAdminActivity(){
+    const wrap = document.getElementById('admin-activity-list');
+    if (!wrap) return;
+
+    const sb = window.TW && window.TW.sb;
+    if (!sb) {
+      wrap.innerHTML = '<div style="font-size:12px;color:var(--ink-3,#A0A0B0);padding:18px;text-align:center;">Supabase 클라이언트 미로딩 (shared.js 대기 중)</div>';
+      return;
+    }
+
+    try {
+      const { data, error } = await sb
+        .from('recent_admin_activity')
+        .select('*')
+        .limit(30);
+
+      if (error) {
+        wrap.innerHTML = `<div style="font-size:12px;color:#fca5a5;padding:18px;text-align:center;">조회 실패 (admin 권한 필요 또는 SQL 미적용): ${_aaEscape(error.message)}</div>`;
+        return;
+      }
+      if (!data || data.length === 0) {
+        wrap.innerHTML = '<div style="font-size:12px;color:var(--ink-3,#A0A0B0);padding:18px;text-align:center;">아직 활동 없음 — admin 페이지 진입 시 자동 박힙니다</div>';
+        return;
+      }
+
+      const filtered = data.filter(ev => {
+        if (_aaFilter === 'all') return true;
+        return ev.event_type === _aaFilter;
+      });
+      if (filtered.length === 0) {
+        wrap.innerHTML = '<div style="font-size:12px;color:var(--ink-3,#A0A0B0);padding:18px;text-align:center;">해당 필터에 매칭되는 활동 없음</div>';
+        return;
+      }
+
+      wrap.innerHTML = filtered.map(ev => {
+        const dt = new Date(ev.event_at);
+        const timeStr = dt.toLocaleTimeString('ko-KR', { hour:'2-digit', minute:'2-digit', hour12:false }) + ` ${dt.getMonth()+1}/${dt.getDate()}`;
+        const roleClass = ['owner','admin','staff'].includes(ev.role) ? ev.role : '';
+        const rowClass = ev.event_type === 'access' ? 'access' : (ev.result === 'fail' ? 'fail' : '');
+        const roleLabel = ev.role === 'owner' ? 'CEO' : (ev.role || '?');
+        return `<div class="aa-event-row ${rowClass}">
+          <span class="aa-event-time">${_aaEscape(timeStr)}</span>
+          <span class="aa-event-msg" title="${_aaEscape(ev.message || '')}">${_aaEscape(ev.message || '')}</span>
+          <span class="aa-event-role ${roleClass}">${_aaEscape(roleLabel)}</span>
+        </div>`;
+      }).join('');
+    } catch (e) {
+      wrap.innerHTML = `<div style="font-size:12px;color:#fca5a5;padding:18px;text-align:center;">조회 에러: ${_aaEscape(e.message || 'unknown')}</div>`;
+    }
+  }
+
+  // 필터 버튼 핸들러 + 초기 렌더 + 30초 폴링
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.aa-filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.aa-filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        _aaFilter = btn.dataset.aaFilter || 'all';
+        renderAdminActivity();
+      });
+    });
+    // 초기 렌더 (shared.js의 TW.sb 박힌 후 약간 지연)
+    setTimeout(renderAdminActivity, 1500);
+    // 30초 폴링 (admin.html은 운영 화면 — 5초 부담 크니 30초로)
+    if (!_aaPollTimer) _aaPollTimer = setInterval(renderAdminActivity, 30000);
+  });
+
+  // Dashboard 탭 활성화 시 즉시 갱신 (사용자가 다른 탭에서 돌아왔을 때)
+  window.addEventListener('tw:tab:dashboard', renderAdminActivity);
+
+  // 글로벌 노출 (디버그용)
+  window.renderAdminActivity = renderAdminActivity;
+})();
+</script>
 
 </body>
 </html>

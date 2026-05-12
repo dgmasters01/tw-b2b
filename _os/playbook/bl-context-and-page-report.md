@@ -46,6 +46,7 @@
 ```
 
 **원칙**:
+- **options + recommendation 필수** (BL-DECISION-MODAL-FIELD-FIX 2026-05-12) — 결정 대기 BL은 `decision_context` 3블록 + `options` 2~3안 + `recommendation` 클로드 추천 모두 박아야 대표님이 클릭만으로 결정 가능.
 - 사업가 언어 (대표님이 영업 사원/매니저와 대화하는 톤)
 - 개발자 단어("commit", "API", "셀렉터", "토큰") 사용 시 옆에 풀어쓰기 첨부
 - 길이 약 400~600자

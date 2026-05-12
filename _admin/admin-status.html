@@ -4723,17 +4723,22 @@
     const priLab = (typeof PRI_LABEL_KO !== 'undefined' && PRI_LABEL_KO[task.priority]) || (task.priority || '-');
     const catLab = (typeof CATEGORY_LABEL_KO !== 'undefined' && CATEGORY_LABEL_KO[task.category]) || (task.category || '-');
 
-    // V2 — 결정 맥락 블록 (decision_context / decision_options / decision_recommendation)
+    // V2 — 결정 맥락 블록 (decision_context / options / recommendation)
+    // ★ BL-DECISION-MODAL-FIELD-FIX (2026-05-12): 필드명 호환
+    //   기존: task.decision_options / task.decision_recommendation (안 박혀있음)
+    //   라이브: task.options / task.recommendation (BL-INVOICE-001 등에 박힌 표준)
+    //   둘 다 읽음 — JSON 필드 통일 안 끝나도 동작
     let dCtx = (task.decision_context || '').trim();
-    let dOpts = Array.isArray(task.decision_options) ? task.decision_options : [];
-    let dRec = (task.decision_recommendation || '').trim();
+    let dOpts = Array.isArray(task.decision_options) ? task.decision_options
+              : (Array.isArray(task.options) ? task.options : []);
+    let dRec = (task.decision_recommendation || task.recommendation || '').trim();
     const hasV2Ctx = !!(dCtx || dOpts.length || dRec);
 
     // ★ BL-DECISION-CTX-FROM-NOTES (2026-05-12): V2 필드 없으면 notes에서 자동 빌드
-    //   대표님 보고 (2026-05-12): "결정 박스에 시스템이 정리 못함만 떠서 결정 못 함"
-    //   라이브 진단: BL.notes 필드에 풍부한 컨텍스트가 박혀있는데 모달이 안 보여줌.
-    //   fix: V2 필드 없으면 notes + source + blocker로 컨텍스트 자동 빌드.
-    if (!hasV2Ctx && (task.notes || task.blocker || task.source)) {
+    //   ★ BL-DECISION-MODAL-FIELD-FIX (2026-05-12 부가): decision_context 박혀있으면
+    //     notes 자동 빌드 건너뜀 — V2 사업가 언어가 notes 개발자 언어로 오염되지 않게.
+    //     options/recommendation은 dCtx 있어도 notes에서 추가로 추출 가능 (dOpts 비어있을 때만).
+    if (!dCtx && !hasV2Ctx && (task.notes || task.blocker || task.source)) {
       const parts = [];
       if (task.notes) {
         parts.push(String(task.notes).trim());

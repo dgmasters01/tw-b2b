@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-12T17:36:05.435Z",
+  "updated_at": "2026-05-12T18:12:27.223929+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -21,7 +21,16 @@
     "autonomous_ready": 38,
     "todo": 0,
     "cancelled": 1,
-    "updated_at": "2026-05-12T17:36:05.435Z"
+    "updated_at": "2026-05-12T17:36:05.435Z",
+    "by_status": {
+      "done": 145,
+      "pending": 42,
+      "blocked": 10,
+      "absorbed": 3,
+      "obsoleted": 5,
+      "cancelled": 1,
+      "paused": 1
+    }
   },
   "tasks": [
     {
@@ -6667,7 +6676,7 @@
       "source_anchor": "#L92",
       "notes": "### G. 🟢 AUTO — 자동 알림 메일 시스템 (BACKLOG의 P1) **작업 내용**: BACKLOG.md L280 참조. 6개 트리거 메일 구현 - 호텔 등록 / 승인 / 거절 / 결제 완료 / 영상 제작 시작 / 영상 게시 - 기존 `sendSystemEmail` 함수 활용 - 영어 본체 + 한국어 토글 (i18n 일괄 작업 시점까지 영어만)  **예상 시간**: 2시간 **자율 진행 사유**: 메일 템플릿은 BUSINESS.md 정책 그대로 사용  ---",
       "owner": "human",
-      "approval_required": true,
+      "approval_required": false,
       "decision_context": "[지금 무슨 상황이냐면]\n호텔 매니저가 가입하고, 호텔 등록하고, 승인받고, 결제하고, 영상 제작이 시작되고 게시되는 — 이 6단계 흐름마다 매니저에게 자동으로 안내 메일이 가야 합니다. 지금은 기존 sendSystemEmail 함수만 박혀있고, 6개 트리거 메일 자체가 미구현 상태입니다.\n\n[왜 결정이 필요하냐면]\n이건 사실 자율 진행 가능 작업이에요. 메일 내용 정책(BUSINESS.md)도 이미 박혀있고, 영어 본체 + 한국어 토글 정책도 정해져 있어요. 그래서 자율 큐로 옮기고 클로드가 그냥 박으면 됩니다. 결정 대기 박스에 있는 이유는 단순히 분류 누락이에요.\n\n[결정하면 뭐가 달라지냐면]\n\"자율 진행 OK\" 한 마디면 클로드가 2시간 안에 6개 메일 다 박고 검증까지 끝냅니다. 매니저는 가입~게시 흐름에서 알아서 메일을 받게 되고, 대표님 카톡 문의 횟수 감소.",
       "decision_options": [
         "A안 — 자율 진행 OK (6개 메일 클로드가 박음) → 2시간 안에 끝, 대표님 결정 0",
@@ -6676,12 +6685,14 @@
       "decision_recommendation": "🤖 클로드 추천: A안 — BUSINESS.md에 메일 정책 이미 박혀있어 클로드가 자율 박을 수 있음. 박은 후 대표님이 한 번에 보시고 수정 요청 가능.",
       "ceo_decision": "",
       "ceo_decision_at": "",
-      "order": 16,
+      "order": 20,
       "options": [
         "A안 — 자율 진행 OK (6개 메일 클로드가 박음) → 2시간 안에 끝, 대표님 결정 0",
         "B안 — 메일별 내용 대표님이 먼저 검토 → 6개 메일 카피 다 보고 결정, 정확도 ↑"
       ],
-      "recommendation": "🤖 클로드 추천: A안 — BUSINESS.md에 메일 정책 이미 박혀있어 클로드가 자율 박을 수 있음. 박은 후 대표님이 한 번에 보시고 수정 요청 가능."
+      "recommendation": "🤖 클로드 추천: A안 — BUSINESS.md에 메일 정책 이미 박혀있어 클로드가 자율 박을 수 있음. 박은 후 대표님이 한 번에 보시고 수정 요청 가능.",
+      "updated_at": "2026-05-12T18:12:27.223929+00:00",
+      "decision_summary": "대표님 결정 (2026-05-13): A안 — 6개 트리거 메일 다 자동 발송. 호텔 상태 변할 때마다 매니저에게 자동 메일. 6개: 호텔 등록/승인/거절/결제완료/영상제작시작/영상게시. 영어 default + 한국 매니저만 한국어 (D-032 적용). Resend SMTP 사용."
     },
     {
       "id": "SQ-H",
@@ -6716,7 +6727,7 @@
       "source_anchor": "#L103",
       "notes": "### H. 🟢 AUTO — Supabase Management API 토큰 갱신 알림 자동화 **작업 내용**: 토큰 만료 7일 전 ops 메일 자동 발송 (현재 토큰 만료 5/26) - Vercel Cron 또는 Supabase Edge Function 사용 - 현재는 메모리에만 알림 메모, 자동화 안 됨  **예상 시간**: 1시간 **자율 진행 사유**: 인프라 자동화  ---  ## 🟢 P2 — 자투리 시간에",
       "owner": "human",
-      "approval_required": true,
+      "approval_required": false,
       "decision_context": "[지금 무슨 상황이냐면]\nSupabase 관리용 토큰이 2026-05-26에 만료됩니다(현재 시점 D-14). 만료되면 데이터베이스 자동 관리 작업이 다 멈춰요. 지금은 메모리에만 \"5월 19일 알림\" 박혀있고, 자동 알림은 안 됩니다.\n\n[왜 결정이 필요하냐면]\n이것도 자율 진행 가능 작업이에요. 토큰 만료 7일 전에 ops 메일이 자동 발송되게 박으면 됩니다(Vercel Cron 또는 Supabase Edge Function 사용). 결정 대기 박스에 있는 이유는 분류 누락이에요.\n\n[결정하면 뭐가 달라지냐면]\n\"자율 진행 OK\" 한 마디면 클로드가 1시간 안에 박습니다. 앞으로는 어떤 토큰이든 만료 7일 전에 메일이 자동으로 오고, 대표님은 메일 받고 갱신 한 번만 하시면 됩니다. 토큰 만료로 시스템 멈추는 사고 영구 차단.",
       "decision_options": [
         "A안 — 자율 진행 OK (토큰 만료 7일 전 자동 메일 알림 박음) → 1시간, 영구 자동",
@@ -6725,12 +6736,14 @@
       "decision_recommendation": "🤖 클로드 추천: A안 — 토큰 만료로 시스템 멈추는 사고 영구 차단. 헌법 부칙 4 정신(시스템 활용 100%)에 정확히 맞음.",
       "ceo_decision": "",
       "ceo_decision_at": "",
-      "order": 17,
+      "order": 21,
       "options": [
         "A안 — 자율 진행 OK (토큰 만료 7일 전 자동 메일 알림 박음) → 1시간, 영구 자동",
         "B안 — 알림만 수동 (대표님 캘린더 등록) → 시스템 복잡도 0, 대표님 기억 의존"
       ],
-      "recommendation": "🤖 클로드 추천: A안 — 토큰 만료로 시스템 멈추는 사고 영구 차단. 헌법 부칙 4 정신(시스템 활용 100%)에 정확히 맞음."
+      "recommendation": "🤖 클로드 추천: A안 — 토큰 만료로 시스템 멈추는 사고 영구 차단. 헌법 부칙 4 정신(시스템 활용 100%)에 정확히 맞음.",
+      "updated_at": "2026-05-12T18:12:27.223929+00:00",
+      "decision_summary": "대표님 결정 (2026-05-13): OK — 토큰 만료 7일 전 자동 메일 알림 박음. 현재 Supabase 토큰 만료 2026-06-04 → 5/28에 대표님 이메일로 자동 알림. Vercel Cron 또는 Supabase Edge Function 사용. 다른 토큰(PAT/Vercel/Cloudflare/Resend) 만료일도 자동 추가."
     },
     {
       "id": "SQ-DONE-I",
@@ -9978,8 +9991,8 @@
       "priority": "P1",
       "size": "medium",
       "status": "pending",
-      "claude_can_auto": false,
-      "approval_required": true,
+      "claude_can_auto": true,
+      "approval_required": false,
       "owner": "CEO",
       "autonomous": {
         "can_run_alone": false,
@@ -9990,10 +10003,10 @@
       },
       "blocker": null,
       "created_at": "2026-05-08T13:53:59+00:00",
-      "updated_at": "2026-05-08T13:53:59+00:00",
+      "updated_at": "2026-05-12T18:12:27.223929+00:00",
       "completed_at": null,
       "source": "대표님 진단 (2026-05-08) — OS 설치 시 PAT 거부됨, 설치 자체가 안 됨",
-      "order": 50,
+      "order": 22,
       "progress": {
         "steps": [
           {
@@ -10036,7 +10049,8 @@
         "A안 — 자율 진행 OK (install_os.sh에 PAT 입력 단계 + GitHub Secrets 자동 등록) → 박은 후 새 프로젝트 한 줄로 끝",
         "B안 — 보류 (지금은 수동 PAT 등록 유지) → 변경 비용 0, 새 프로젝트마다 수동 단계"
       ],
-      "decision_recommendation": "🤖 클로드 추천: A안 — CEYLON JOURNEY 다음 신규 프로젝트 만들 때 무조건 필요. 지금 박아두면 영구 자동."
+      "decision_recommendation": "🤖 클로드 추천: A안 — CEYLON JOURNEY 다음 신규 프로젝트 만들 때 무조건 필요. 지금 박아두면 영구 자동.",
+      "decision_summary": "대표님 결정 (2026-05-13): OK — 그냥 박음. PAT 박는 방식 = GitHub Secrets API (Claude 자율 결정 — 헌법 부칙 17 자격증명 라이프사이클 부합, 가장 안전). install_os.sh 보강 → 새 컴퓨터/직원 설치 시 PAT 자동 박음."
     },
     {
       "id": "BL-OPS-MAIL-AUTOBOT",

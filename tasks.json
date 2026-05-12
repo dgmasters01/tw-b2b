@@ -6167,7 +6167,7 @@
       "parent_task": null,
       "blocker": null,
       "created_at": "2026-05-04T16:13:23Z",
-      "updated_at": "2026-05-12T00:15:43.107Z",
+      "updated_at": "2026-05-12T00:17:00.730Z",
       "claude_can_auto": false,
       "owner": "ceo_decision_required",
       "approval_required": true,
@@ -6189,12 +6189,12 @@
           {
             "n": 2,
             "label": "Supabase에 SQL 실행 + 검증 (관리 API)",
-            "status": "pending"
+            "status": "done"
           },
           {
             "n": 3,
             "label": "api/_lib/admin-log.js 헬퍼 — logAccess() + logAction() 함수",
-            "status": "pending"
+            "status": "done"
           },
           {
             "n": 4,
@@ -6296,6 +6296,12 @@
           "action": "steps_defined",
           "by": "claude",
           "note": "단계 7개 정식 정의 + size=large→medium 재판정 (D-016으로 인프라 80% 이미 박힘)"
+        },
+        {
+          "at": "2026-05-12T00:17:00.730Z",
+          "action": "progress",
+          "by": "claude",
+          "note": "단계 2(SQL 적용 가이드) + 3(admin-log.js 헬퍼 — logAccess/logAction/fetchRecentActivity) 완료"
         }
       ],
       "decision_summary": "a안으로 갑니다. 박을 것 3가지: ①접속 로그(누가 언제 admin 들어왔나) ②실행 로그(누가 언제 무슨 버튼 눌렀나 — 호텔 승인·삭제·수정 등 중요 액션) ③admin-status 페이지 하단 \"최근 활동\" 박스에 시간순으로 한 줄씩 표시. 권한은 CEO(대표님 — 전체 권한) / Staff(초대된 스탭 — 제한 권한) 두 단계로 나누고, 둘 다 이메일로 구분되니까 로그에 자동으로 누가 했는지 박힙니다. 이대로 BL-ADMIN-AUTH 진행하겠습니다",

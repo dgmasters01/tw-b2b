@@ -2763,6 +2763,60 @@ body{margin:0;background:var(--bg,#0A0A0F);font-family:var(--sans,'Inter','Noto 
         return;
       }
       T.toast('Status updated to ' + newStatus);
+
+      // ★ SQ-G (2026-05-13): 자동 메일 발송 trigger 6개
+      // 대표님 결정 A안 (D-032 영어 default 적용)
+      // status 6개: registered/approved/rejected/paid/producing/published
+      // 인증: Supabase admin Bearer 토큰 (서버에서 admin role 검증)
+      var EMAIL_TRIGGER_STATUSES = ['registered', 'approved', 'rejected', 'paid', 'producing', 'published'];
+      if (EMAIL_TRIGGER_STATUSES.indexOf(newStatus) !== -1) {
+        var hotel = allHotels.find(function(h){ return h.id === hotelId; });
+        if (hotel) {
+          var managerEmail = hotel._resolvedManagerEmail || hotel.manager_email || hotel.contact_email;
+          var managerName = hotel.manager_name || hotel.contact_name || '';
+          var hotelName = hotel.hotel_name || hotel.hotel_name_local || 'your hotel';
+          if (managerEmail) {
+            // 비동기 발송 — UI 차단 안 함, 실패해도 status 변경은 유효
+            getAdminToken().then(function(token){
+              if (!token) {
+                console.warn('[SQ-G] No admin token — skipping email');
+                return;
+              }
+              return fetch('/api/email/hotel-status-notify', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': 'Bearer ' + token,
+                },
+                body: JSON.stringify({
+                  hotel_id: hotelId,
+                  new_status: newStatus,
+                  manager_email: managerEmail,
+                  manager_name: managerName,
+                  hotel_name: hotelName,
+                  language: 'en',  // 영어 default (D-032), 미래 BL-EMAIL-LOCALE-ROUTING에서 한국어 분기
+                }),
+              });
+            }).then(function(emailResp){
+              if (!emailResp) return null;
+              return emailResp.json();
+            }).then(function(emailData){
+              if (!emailData) return;
+              if (emailData.ok) {
+                T.toast('✉️ Notification email sent to ' + managerEmail);
+              } else {
+                console.warn('[SQ-G] email send failed:', emailData.error);
+                T.toast('⚠️ Status updated but email failed: ' + (emailData.error || 'unknown'), true);
+              }
+            }).catch(function(err){
+              console.warn('[SQ-G] email fetch error:', err);
+            });
+          } else {
+            console.warn('[SQ-G] No manager email for hotel', hotelId, '— skipping notification');
+          }
+        }
+      }
+
       closeModal();
       loadAll();
     });

@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-12T04:10:21Z",
+  "updated_at": "2026-05-12T04:10:48.741Z",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -137,6 +137,11 @@
           "by": "auto-detect-bot",
           "commit": "e25bea2",
           "note": "done(BL-DECISION-CTX-MASS-FILL): BL 완료 처리 [step:done:8]"
+        },
+        {
+          "at": "2026-05-12T04:10:48.741Z",
+          "event": "mail_sent — Resend id: 4e86654b-047b-4027-83cd-10459ca7a65d (bundle 4)",
+          "by": "ops-mail-bot"
         }
       ],
       "started_at": "2026-05-12T01:03:55+00:00"
@@ -12400,6 +12405,11 @@
           "by": "auto-task-bot",
           "action": "auto_resolved",
           "detail": "점검 봇 bots이 green으로 전환됨"
+        },
+        {
+          "at": "2026-05-12T04:10:48.741Z",
+          "event": "mail_sent — Resend id: 4e86654b-047b-4027-83cd-10459ca7a65d (bundle 4)",
+          "by": "ops-mail-bot"
         }
       ],
       "notes": "점검 봇 자동 등록 (2026-05-11T20:24:23.985Z)\n\ncheck_name: bots\nstatus: red\ndetail: 자동 일꾼 1명이 멈췄어요: sync-bot\n\n진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 green으로 박으면 자동 done.\n\n[자동 해소 2026-05-12T01:40:42.008Z] 점검 봇 green 전환"
@@ -12489,6 +12499,11 @@
           "by": "auto-detect-bot",
           "commit": "2c84ab4",
           "note": "done(BL-ADMIN-ACTIVITY-MOVE): 작업 완료 + SQL 자동화 BL 신규 등록 [step:done:4] [step:done:5]"
+        },
+        {
+          "at": "2026-05-12T04:10:48.741Z",
+          "event": "mail_sent — Resend id: 4e86654b-047b-4027-83cd-10459ca7a65d (bundle 4)",
+          "by": "ops-mail-bot"
         }
       ],
       "decision_context": "[지금 무슨 상황이냐면]\n대표님이 admin 화면 들어가셨더니 같은 페이지(admin-status.html) 안에 활동 박스가 2개 같이 보였어요. 위쪽은 📜 활동 이력(클로드/봇이 만든 작업 기록), 아래쪽은 👤 ADMIN 사용자 활동(사람이 들어와서 무엇을 했나). 그런데 이 두 박스가 한 페이지에 같이 있으면 시야가 분산됩니다.\n\n[왜 결정이 필요하냐면]\n헌법 부칙 5는 \"시스템 카테고리 분리\"가 원칙입니다 — admin-status는 시스템이 얼마나 만들어졌나 보는 페이지, admin.html은 사람이 시스템을 어떻게 운영하나 보는 페이지. 사용자 활동은 운영 영역이라 admin.html로 옮기는 게 맞아요. 대표님이 직접 OK 박으셔서 이전 작업 완료.\n\n[결정하면 뭐가 달라지냐면]\n이전 완료 후 admin-status는 시스템 영역만 남아 깔끔해지고, admin.html Dashboard 탭에 들어가시면 첫 화면에서 \"오늘 누가 들어왔고 무엇을 했나\" 한눈에 보입니다. SQL 적용만 대표님이 1번 클릭하시면 박스 데이터가 살아납니다.",
@@ -12521,7 +12536,7 @@
       "blocker": "GitHub Secrets에 SUPABASE_MGMT_TOKEN 등록 필요 (대표님 1번)",
       "autonomous": {
         "can_run_alone": true,
-        "estimated_hours": 1.0,
+        "estimated_hours": 1,
         "requires_decisions_first": []
       },
       "decision_ref": "D-026",
@@ -12614,6 +12629,11 @@
           "by": "claude",
           "action": "done",
           "detail": "대표님 본질 지적으로 박스 완전 삭제. 헌법 원칙 추가 필요: 1인 운영 + 특정 직원 한정 사업 모델에 안 맞는 패턴 박지 말 것."
+        },
+        {
+          "at": "2026-05-12T04:10:48.741Z",
+          "event": "mail_sent — Resend id: 4e86654b-047b-4027-83cd-10459ca7a65d (bundle 4)",
+          "by": "ops-mail-bot"
         }
       ],
       "decision_context": "[지금 무슨 상황이냐면]\n클로드가 admin.html에 \"사용자 활동 박스\"를 박았는데, 대표님 사업 현실에 안 맞아요. 대표님 1인 운영이고, 들어오는 사람은 대표님 본인과 특정 초대 직원(스리랑카 1명)뿐이라 \"누가 언제 들어왔나\"를 보여줘봤자 시야만 어지럽힙니다.\n\n[왜 결정이 필요하냐면]\n대표님이 원칙 박으심: \"나 혼자 한눈에 쉽게 파악하고 쉽게 작업할 수 있는 게 원칙. 초대 직원은 특정한 사람이고 역할은 정해져 있어 전체를 할 수 없다.\" 이 원칙에 따르면 admin 화면은 사업 숫자·처리할 일 위주여야지 사용자 활동 로그가 들어갈 자리 없음.\n\n[결정하면 뭐가 달라지냐면]\n박스 삭제 완료. 대표님이 admin Dashboard 들어가시면 깔끔하게 사업 정보만 보입니다. 부수 효과로 SQL 적용 작업도 영구 제거 (대표님 클릭 부담 0).",

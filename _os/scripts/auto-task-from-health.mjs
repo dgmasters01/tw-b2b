@@ -101,6 +101,47 @@ function shouldSkipByRule(check) {
   return null;
 }
 
+// ─── BL-DECISION-CTX-MASS-FILL Q6 / 헌법 부칙 17 후보:
+//     신규 BL 컨텍스트 검증 가드 (auto-task-bot) ───────────────────
+//
+// 봇이 새 BL 만들 때 — 결정 대기 박스에 들어갈 BL은 사업가 V2 컨텍스트가 비어있으면
+// 자동으로 기본 템플릿 박음 (BL-INVOICE-001 형식). 인프라성 자동 BL은 그대로 둠.
+//
+// 판정: approval_required=true OR autonomous.requires_decisions_first.length > 0
+//       → 결정 대기 박스에 들어가게 됨 → V2 컨텍스트 필수
+function needsDecisionContext(bl) {
+  if (bl.approval_required === true) return true;
+  const decs = (bl.autonomous && bl.autonomous.requires_decisions_first) || [];
+  if (Array.isArray(decs) && decs.length > 0) return true;
+  return false;
+}
+
+function ensureDecisionContext(bl, sourceDesc = '봇 자동 등록') {
+  if (!needsDecisionContext(bl)) return false;          // 결정 대기 안 들어감 → 패스
+  if (bl.decision_context && bl.decision_context.length >= 100) return false;  // 이미 박힘
+
+  // 기본 V2 템플릿 자동 박음 (BL-INVOICE-001 3블록 형식)
+  const title = bl.title || bl.id;
+  const detail = bl.notes || '';
+  bl.decision_context = `[지금 무슨 상황이냐면]
+${sourceDesc}으로 새 작업이 발견됐어요: "${title}".
+${detail.split('\n')[0] || '자세한 진단은 작업 notes 참조'}
+
+[왜 결정이 필요하냐면]
+이 작업은 자동 진행이 아닌 대표님 결정·승인이 필요합니다.
+(approval_required=true 또는 결정 선행 의존성이 박혀있어 결정 대기 박스에 들어옴)
+⚠️ 자동 생성 컨텍스트입니다 — 클로드가 작업 시작 전 사업가 언어로 보강해야 합니다.
+
+[결정하면 뭐가 달라지냐면]
+결정 후 자율 큐로 이관되어 즉시 진행 가능해집니다.
+보강된 컨텍스트는 같은 결정 한 번이 풀어줄 작업 묶음 크기를 명확히 보여줍니다.`;
+
+  // 워닝 마커 박기 (admin-status 화면에서 노란 배지로 표시 가능)
+  bl.auto_context_warning = true;
+
+  return true;
+}
+
 // ─── 핵심: 점검 결과 → BL 생성/재개/skip 판단 ────────────────────
 function processHealthCheck(tasks, check) {
   if (check.status === 'green') return { action: 'noop' };
@@ -168,6 +209,7 @@ function processHealthCheck(tasks, check) {
   };
 
   tasks.push(newBL);
+  ensureDecisionContext(newBL, `점검 봇(${check.name}) 자동 등록`);
   return { action: 'create', blId };
 }
 
@@ -272,6 +314,7 @@ function processPageStatus(tasks, pagesSummary, retiredBlIds = new Set()) {
       notes: `scan-bot 자동 등록 (${NOW})\n\n페이지: ${page.path}\n점수: ${page.score}\n약점: ${page.weakest}\n\n진단 hint: scan-pages-status.mjs 결과. 약점 차원 보강 필요.`
     };
     tasks.push(newBL);
+    ensureDecisionContext(newBL, `페이지 스캔 봇 자동 등록`);
     results.push({ action: 'create', blId });
   }
 

@@ -297,19 +297,21 @@ detail: 관리자 페이지 7개가 원본과 살짝 달라요 (대표님이 일
 
 ---
 
-## ⚡ P1 — ADMIN 사용자 활동 박스 admin-status → admin.html 이전 (부칙 5 카테고리 분리)
+## 🟢 P1 — Supabase SQL 자동 적용 인프라 — sql/ 폴더 변경 시 GitHub Actions가 Management API로 자동 RUN
 
-**요약**: 이전 작업 (2026-05-12):
-- admin-status.html: CSS 블록(라인 875~917) + HTML 박스(2763~2779) + JS 함수(4728~4800) + 호출 2곳 모두 제거
-- admin.html: Dashboard 탭에 박스 박음 (다크 글래스 톤 — var(--glass), var(--ink), --line)
-- 폴링 주기
+**요약**: 발생 맥락: BL-ADMIN-ACTIVITY-MOVE 작업 중 발견.
+
+기술 흐름 (정석):
+1) .github/workflows/supabase-sql-apply.yml — push 시 sql/*.sql 감지
+2) Supabase Management API POST /v1/projects/{ref}/database/query (curl)
+3) 응답 검증 
 
 - **자율성**: 🟢 AUTO
-- **예상 시간**: 0.7시간
+- **예상 시간**: 1.0시간
 - **카테고리**: infra
-- **상태**: in_progress
-- **막힘 사유**: Supabase SQL 적용 대기 (대표님 1번 클릭 필요)
-- **ID**: `BL-ADMIN-ACTIVITY-MOVE` (출처: ceo_decision)
+- **상태**: pending
+- **막힘 사유**: GitHub Secrets에 SUPABASE_MGMT_TOKEN 등록 필요 (대표님 1번)
+- **ID**: `BL-SUPABASE-SQL-AUTO-APPLY` (출처: ceo_derived)
 
 ---
 

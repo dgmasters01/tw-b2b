@@ -55,6 +55,22 @@ detail: 자동 일꾼 1명이 멈췄어요: sync-bot
 
 ---
 
+### D. 🟡 SEMI — 결정 대기 15건 사람말 컨텍스트 대량 보강 + 신규 BL 자동 검증 + UI 4종 fix
+
+**ID**: `BL-DECISION-CTX-MASS-FILL`  
+**카테고리**: fix  
+**예상 시간**: 미정시간  
+
+**메모**: 본질 결함: 직전 fix BL-DECISION-CTX-FROM-NOTES는 notes에서 자동 빌드하지만 notes 자체가 개발자 언어면 효과 반감.
+
+진단 결과 (라이브 2026-05-12):
+- 결정 대기 23건 중 V2 필드(decision_context/options/recommendation) 박힌 BL: 8건
+- V2 필드 없는 BL: 15건 → 화면에 개발자 언어로만 표시
+- 잘 박힌 예시: BL-INVOICE-001 (대표님이 Image 1로 만족 표시)
+- 못 박힌 예시: BL-CHATLOG-BIZ-FORMAT (대
+
+---
+
 ## 🟡 P1 — 데드라인 이전에 있으면 좋음
 
 ### A. 🟢 AUTO — [YouTube 더보기 단축 URL 클릭 카운트] 호텔별 진성 관심 측정 시스템

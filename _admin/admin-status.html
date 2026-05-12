@@ -3909,10 +3909,37 @@
     const elS = $('stat-staff');  if (elS) elS.textContent = cStaff;
     const elC = $('stat-ceo');    if (elC) elC.textContent = cCeo;
 
+    // ★ BL-DECISION-CTX-MASS-FILL Q5: 막힘 KPI 정확화 (광의 정의)
+    //   기존: status='blocked'만 카운트 (=10건)
+    //   신규: 진행이 막힌 모든 미완료 작업 카운트
+    //         = approval_required=true OR requires_decisions_first 있음 OR status=blocked
+    //         (=19~21건 — 결정 한 번이 풀어줄 수 있는 모든 막힘)
+    const blockedBroad = open.filter(t => {
+      if (t.status === 'blocked') return true;
+      if (t.approval_required === true) return true;
+      const decs = (t.autonomous && t.autonomous.requires_decisions_first) || [];
+      if (Array.isArray(decs) && decs.length > 0) return true;
+      return false;
+    }).length;
+    // 헤더 KPI '막힘' 카드 (cc-kpi-blocked) — 광의 정의로 갱신
+    setText('cc-kpi-blocked', String(blockedBroad));
+    setText('ik-blocked', String(blockedBroad));
+
+    // ★ BL-DECISION-CTX-MASS-FILL Q7: 자율 큐 / 직원 큐 헤더 카운트 동적 갱신
+    //   라벨이 정적이라 N건 안 보였음 → 동적으로 카운트 박음
+    const slotAutoLabel = document.querySelector('#cc-slot-auto .cc-slot-label');
+    if (slotAutoLabel) {
+      slotAutoLabel.textContent = `② 🤖 자율 작업 큐 ${cAuto}건 — Claude 즉시 시작 가능 (카드 클릭 = 인계서 자동 복사)`;
+    }
+    const slotStaffLabel = document.querySelector('#cc-slot-staff .cc-slot-label');
+    if (slotStaffLabel) {
+      slotStaffLabel.textContent = `③ 👥 직원 작업 큐 ${cStaff}건 — 결정 불필요, 진행만 하면 됨`;
+    }
+
     // 데드라인 배너 잔여 작업 분포 표기 갱신 (있으면)
     const banner = $('deadline-detail');
     if (banner) {
-      banner.textContent = `잔여 작업 분포: 🤖 자동 ${cAuto}건 · 👥 직원 가능 ${cStaff}건 · 👤 대표님 결정 ${cCeo}건 · 🚫 막힘 ${blocked}건. 데드라인 재설정 또는 즉시 진행 결정 필요.`;
+      banner.textContent = `잔여 작업 분포: 🤖 자동 ${cAuto}건 · 👥 직원 가능 ${cStaff}건 · 👤 대표님 결정 ${cCeo}건 · 🚫 막힘 ${blockedBroad}건. 데드라인 재설정 또는 즉시 진행 결정 필요.`;
     }
   }
 
@@ -4200,8 +4227,12 @@
     }
 
     titleEl.textContent = `👤 대표님 결정 대기 ${ceoTasks.length}건 — 순위 ① ② ③ 영향력 큰 결정부터, 클릭하면 결정 입력 모달`;
-    const top = ceoTasks.slice(0, 8);
-    listEl.innerHTML = top.map((t, idx) => {
+    // ★ BL-DECISION-CTX-MASS-FILL Q4: 인라인 펼치기 (admin-tasks.html 이동 X)
+    //   처음 8건은 항상 표시, 9번째부터는 expand-target 클래스로 숨김
+    //   "▼ N건 더 보기 (펼치기)" 토글 → 누르면 펼침 + localStorage 저장
+    const EXPAND_KEY = 'ceo_wait_expanded';
+    const isExpanded = localStorage.getItem(EXPAND_KEY) === '1';
+    listEl.innerHTML = ceoTasks.map((t, idx) => {
       const priCls = (t.priority || 'P2').toLowerCase();
       const priLab = PRI_LABEL_KO[t.priority] || (t.priority || '-');
       const decs = (t.autonomous && t.autonomous.requires_decisions_first) || [];
@@ -4237,8 +4268,14 @@
       const rankNum = RANK_CIRCLES[idx] || `${idx + 1}`;
       const rankColor = idx < 3 ? '#fbbf24' : (idx < 5 ? '#f97316' : 'var(--text-muted)');
 
+      // ★ BL-DECISION-CTX-MASS-FILL Q4: 9번째부터 ceo-wait-expand-target 클래스
+      //   isExpanded면 항상 보임, 안 펼쳐졌으면 display:none
+      const isHidden = idx >= 8;
+      const hiddenStyle = (isHidden && !isExpanded) ? 'display:none;' : '';
+      const hiddenClass = isHidden ? ' ceo-wait-expand-target' : '';
+
       return `
-        <div class="ceo-wait-item" data-task-id="${escapeHtml(t.id)}" style="cursor:pointer;" title="순위 ${idx + 1}위 — 카드 클릭 → 결정 모달 / 🔗 클릭 → 페이지 연동 (BL ID: ${escapeHtml(t.id)})">
+        <div class="ceo-wait-item${hiddenClass}" data-task-id="${escapeHtml(t.id)}" style="cursor:pointer;${hiddenStyle}" title="순위 ${idx + 1}위 — 카드 클릭 → 결정 모달 / 🔗 클릭 → 페이지 연동 (BL ID: ${escapeHtml(t.id)})">
           <span class="ceo-wait-rank" style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;font-size:14px;font-weight:700;color:${rankColor};flex-shrink:0;" title="영향력 순위 ${idx + 1}위">${rankNum}</span>
           <span class="pri-pill ${priCls}">${priLab}</span>
           ${impactBadge}
@@ -4248,7 +4285,7 @@
           <span class="reason">${escapeHtml(humanReason)}</span>
         </div>
       `;
-    }).join('') + (ceoTasks.length > 8 ? `<a href="/admin-tasks.html?filter=ceo_wait" style="display:block;font-size:10px;color:var(--aurora-2);text-align:center;padding:6px;text-decoration:none;border:0.5px dashed rgba(99,102,241,0.3);border-radius:5px;margin-top:4px;cursor:pointer;" title="admin-tasks.html에서 결정 대기 전체 보기">+${ceoTasks.length - 8}건 더 → admin-tasks.html에서 전체 보기</a>` : '');
+    }).join('') + (ceoTasks.length > 8 ? `<div class="ceo-wait-expand-toggle" style="display:block;font-size:11px;color:var(--aurora-2);text-align:center;padding:8px;text-decoration:none;border:0.5px dashed rgba(99,102,241,0.3);border-radius:5px;margin-top:6px;cursor:pointer;user-select:none;background:rgba(99,102,241,0.05);" title="결정 대기 전체를 이 자리에서 펼침 (admin-tasks.html 이동 X)">${isExpanded ? '▲ 접기 (처음 8건만 보기)' : `▼ ${ceoTasks.length - 8}건 더 보기 (펼치기)`}</div>` : '');
 
     // 🔗 연동 버튼 핸들러 (BL-3WAY-LINK-CARDS) — stopPropagation으로 카드 클릭과 분리
     listEl.querySelectorAll('.ceo-wait-link-btn[data-link-bl]').forEach(btn => {
@@ -4272,6 +4309,24 @@
         }
       });
     });
+
+    // ★ BL-DECISION-CTX-MASS-FILL Q4: 펼치기 토글 클릭 핸들러
+    //   누르면 9번째부터 그 자리에서 펼쳐짐 (admin-tasks.html 이동 X)
+    //   localStorage에 저장 → 새로고침해도 상태 유지
+    const toggle = listEl.querySelector('.ceo-wait-expand-toggle');
+    if (toggle) {
+      toggle.addEventListener('click', () => {
+        const wasExpanded = localStorage.getItem(EXPAND_KEY) === '1';
+        localStorage.setItem(EXPAND_KEY, wasExpanded ? '0' : '1');
+        // 즉시 재렌더 (전체 화면 fetch 없이 빠른 토글)
+        if (typeof loadStatus === 'function') {
+          loadStatus();
+        } else {
+          // fallback — 같은 데이터로 다시 렌더
+          renderCeoWait(data);
+        }
+      });
+    }
 
     // 렌더 직후 기존 하이라이트 상태 재적용
     applyLinkHighlight();

@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-12T00:15:56.084Z",
+  "updated_at": "2026-05-12T00:24:33+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -13,8 +13,8 @@
   ],
   "stats": {
     "total": 183,
-    "done": 137,
-    "in_progress": 1,
+    "done": 138,
+    "in_progress": 0,
     "pending": 29,
     "blocked": 10,
     "autonomous_ready": 22,
@@ -6607,7 +6607,7 @@
       "parent_task": null,
       "blocker": null,
       "created_at": "2026-05-04T16:13:23Z",
-      "updated_at": "2026-05-12T00:24:22.979Z",
+      "updated_at": "2026-05-12T00:24:33+00:00",
       "claude_can_auto": false,
       "owner": "ceo_decision_required",
       "approval_required": true,
@@ -6619,7 +6619,7 @@
         ]
       },
       "progress": {
-        "percent": 100,
+        "percent": 14,
         "steps": [
           {
             "n": 1,
@@ -6654,9 +6654,14 @@
           {
             "n": 7,
             "label": "commit + push + 라이브 검증",
-            "status": "done"
+            "status": "done",
+            "done": true,
+            "at": "2026-05-12T00:24:33+00:00"
           }
-        ]
+        ],
+        "completed_count": 1,
+        "total_count": 7,
+        "updated_at": "2026-05-12T00:24:33+00:00"
       },
       "notes": "진단 (2026-05-12): D-016/BL-ADMIN-AUTH-V2로 admins 테이블 + 5단계 role + 초대 시스템 이미 박힘.\nD-026 결정 요구사항 3가지 중 1개만 박혀있고 2개는 누락:\n  ① 접속 로그 → ❌ access_logs 테이블 없음 (이번 작업)\n  ② 실행 로그 → ❌ action_logs 테이블 없음 (이번 작업)\n  ③ admin-status 하단 최근 활동 박스 → ❌ 없음 (이번 작업)\n\nD-026 CEO/Staff 2단계는 기존 5단계와 매핑:\n  CEO = owner (대표님 1명, 전체 권한)\n  Staff = admin/staff (초대된 스탭, 제한 권한)\n  readonly/manager는 그대로 (이미 동작 중)\n\nsize=medium 재판정 — 한 채팅 완주 가능.",
       "last_commit": null,
@@ -6754,6 +6759,13 @@
           "action": "done",
           "by": "claude",
           "note": "단계 7 라이브 검증 — admin 사용자 활동 박스 렌더 확인, find 결과 region 매치"
+        },
+        {
+          "at": "2026-05-12T00:24:33+00:00",
+          "event": "관련 commit 추가 (status 유지) + 단계 7 완료 (auto-detected)",
+          "by": "auto-detect-bot",
+          "commit": "fc7cc6c",
+          "note": "done(BL-ADMIN-AUTH): admin 활동 박스 라이브 렌더 검증 [step:done:7]"
         }
       ],
       "decision_summary": "a안으로 갑니다. 박을 것 3가지: ①접속 로그(누가 언제 admin 들어왔나) ②실행 로그(누가 언제 무슨 버튼 눌렀나 — 호텔 승인·삭제·수정 등 중요 액션) ③admin-status 페이지 하단 \"최근 활동\" 박스에 시간순으로 한 줄씩 표시. 권한은 CEO(대표님 — 전체 권한) / Staff(초대된 스탭 — 제한 권한) 두 단계로 나누고, 둘 다 이메일로 구분되니까 로그에 자동으로 누가 했는지 박힙니다. 이대로 BL-ADMIN-AUTH 진행하겠습니다",

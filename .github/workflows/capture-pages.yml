@@ -1,0 +1,127 @@
+# TW B2B — 페이지 자동 캡처 봇 (BL-015 / D-028)
+#
+# 작업: BL-015 BEFORE/AFTER 스크린샷 자동 캡처 시스템
+# 결정: D-028 — A안 채택 (이중 트리거)
+# 룰북: scripts/capture-pages.mjs (archive 로직 line 108~113에 박혀있음)
+#
+# 목적:
+#   대표님이 디자인 변경 시 "옛 좋은 부분과 지금 디자인 합치자" 말씀하실 때,
+#   archive 폴더에 날짜별 캡처가 자동 쌓여있어 BEFORE/AFTER 비교 가능하게 함.
+#   헌법 부칙 16 의무 5(디자인 변경 시 Before/After 첨부)와 완벽 맞물림.
+#
+# 트리거 (대표님 결정 = 이중 트리거):
+#   1. schedule (매일 새벽 18:00 UTC = KST 03:00) — 베이스라인 보관
+#   2. push (main, .html 변경 감지) — 즉시 BEFORE/AFTER 캡처
+#   3. workflow_dispatch — 수동 (검증·디버깅용)
+#
+# 무한 루프 방지:
+#   - 본 봇 commit ([capture-bot] prefix)은 paths 필터로 우회
+#   - docs/screenshots/** 자기 자신은 trigger paths에서 제외
+#
+# 헌법 부합:
+#   부칙 7 (단계 단위 commit) / 부칙 16 의무 5 (BEFORE/AFTER)
+#   시행령 4 (전수 추적) / 시행령 8 (통합 관리) / 시행령 9 (가역성)
+
+name: Capture Pages (BEFORE/AFTER auto-archive)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '**.html'
+      - 'shared.css'
+      - 'scripts/pages-meta.mjs'
+      - 'scripts/capture-pages.mjs'
+      - '.github/workflows/capture-pages.yml'
+  schedule:
+    # 매일 KST 03:00 (UTC 18:00 전날) — 베이스라인 야간 캡처
+    - cron: '0 18 * * *'
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: '캡처 범위 (public-only / all / manager / admin)'
+        required: false
+        default: 'public-only'
+        type: choice
+        options:
+          - public-only
+          - all
+          - manager
+          - admin
+
+concurrency:
+  group: capture-pages-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  capture:
+    name: 페이지 캡처 + archive 보관
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 1
+
+      - name: 봇 commit이면 즉시 skip (무한 루프 방지)
+        id: skip_check
+        run: |
+          MSG="${{ github.event.head_commit.message }}"
+          if echo "$MSG" | grep -qE '^\[capture-bot\]|^\[auto-task-bot\]|^\[sync-bot\]|^\[health-bot\]|^\[scan-bot\]|^\[activity-bot\]'; then
+            echo "skip=true" >> $GITHUB_OUTPUT
+            echo "✋ 봇 commit이므로 캡처 skip: $MSG"
+          else
+            echo "skip=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Setup Node.js
+        if: steps.skip_check.outputs.skip != 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Playwright
+        if: steps.skip_check.outputs.skip != 'true'
+        run: |
+          npm install playwright
+          npx playwright install --with-deps chromium
+
+      - name: 라이브 사이트 캡처 (archive 자동 누적)
+        if: steps.skip_check.outputs.skip != 'true'
+        env:
+          TW_MANAGER_EMAIL: ${{ secrets.TW_MANAGER_EMAIL }}
+          TW_MANAGER_PASSWORD: ${{ secrets.TW_MANAGER_PASSWORD }}
+          TW_ADMIN_EMAIL: ${{ secrets.TW_ADMIN_EMAIL }}
+          TW_ADMIN_PASSWORD: ${{ secrets.TW_ADMIN_PASSWORD }}
+        run: |
+          MODE="${{ github.event.inputs.mode || 'public-only' }}"
+          echo "🎬 캡처 모드: $MODE"
+          if [ "$MODE" = "public-only" ]; then
+            node scripts/capture-pages.mjs
+          else
+            node scripts/capture-pages.mjs --auth=$MODE
+          fi
+
+      - name: 변경된 캡처가 있으면 commit
+        if: steps.skip_check.outputs.skip != 'true'
+        run: |
+          git config user.email "capture-bot@gohotelwinners.com"
+          git config user.name "capture-bot"
+          if [ -n "$(git status --porcelain docs/screenshots/)" ]; then
+            git add docs/screenshots/
+            COUNT=$(git diff --cached --name-only docs/screenshots/ | wc -l)
+            ARCHIVE_COUNT=$(git diff --cached --name-only docs/screenshots/archive/ 2>/dev/null | wc -l || echo 0)
+            git commit -m "[capture-bot] 페이지 캡처 갱신 ($COUNT장 / archive $ARCHIVE_COUNT장 누적)
+
+[변경사유] BL-015 / D-028 — BEFORE/AFTER 자동 보관 (이중 트리거)
+트리거: ${{ github.event_name }}"
+            git push
+            echo "✅ $COUNT장 캡처 push 완료"
+          else
+            echo "ℹ️ 캡처 변동 없음 (skip commit)"
+          fi

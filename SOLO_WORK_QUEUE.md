@@ -39,6 +39,26 @@
 
 ---
 
+### C. 🟡 SEMI — [자동] 갤러리 — 사용자 흐름·카테고리·빈 페이지 표시 박기
+
+**ID**: `BL-GALLERY-FLOW-COMPLETENESS`  
+**카테고리**: feature  
+**예상 시간**: 미정시간  
+
+**메모**: 관련 발견: pages-meta.mjs에 audience 필드(public/manager/admin)는 있지만 갤러리에서 사용 안 함. flow 필드 + flowOrder 숫자 추가 필요. 빠진 페이지(sales.html / marketing.html 등)는 status: 'planned'로 등록되어 있으나 흐름 안에서의 위치 표시가 약함. 작업 시 BUSINESS_FLOW.md의 6단계 흐름과 정합성 유지 필수.
+
+---
+
+### D. 🟡 SEMI — [자동] BEFORE/AFTER 자동 캡처 봇 복구 + 갤러리 이력 보기 박기
+
+**ID**: `BL-CAPTURE-BOT-RESTORE`  
+**카테고리**: infrastructure  
+**예상 시간**: 미정시간  
+
+**메모**: 관련 발견: scripts/capture-pages.mjs는 이미 archive 로직 박혀있음(line 108-113, copyFileSync로 outPath → archivePath 복사). 즉 워크플로 파일만 복구하면 archive 로직은 자동 작동. 갤러리 카드의 '📅 이력 보기' 버튼은 admin-gallery.html에 추가 필요. 자동 캡처에는 매니저/관리자 로그인 컨텍스트도 필요하므로 GitHub Actions Secrets에 TW_MANAGER_EMAIL/PASSWORD, TW_ADMIN_EMAIL/PASSWORD 등
+
+---
+
 ## 🟡 P1 — 데드라인 이전에 있으면 좋음
 
 ### A. 🟢 AUTO — [YouTube 더보기 단축 URL 클릭 카운트] 호텔별 진성 관심 측정 시스템

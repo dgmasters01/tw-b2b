@@ -80,6 +80,30 @@
 
 ---
 
+## 🟡 P0 — [자동] 갤러리 — 사용자 흐름·카테고리·빈 페이지 표시 박기
+
+**요약**: 관련 발견: pages-meta.mjs에 audience 필드(public/manager/admin)는 있지만 갤러리에서 사용 안 함. flow 필드 + flowOrder 숫자 추가 필요. 빠진 페이지(sales.html / marketing.html 등)는 status: 'planned'로 등록되어 있으나 흐름 안에서의 위치 표시가 약함. 작업 시 BUS
+
+- **자율성**: 🟡 SEMI
+- **예상 시간**: 미정시간
+- **카테고리**: feature
+- **상태**: pending
+- **ID**: `BL-GALLERY-FLOW-COMPLETENESS` (출처: 대표님 통찰 (2026-05-12) — 갤러리에 페이지는 다 있는데 흐름 순서·카테고리·빠진 곳 표시가 없어 매니저 가입 흐름 따라가기 어려움)
+
+---
+
+## 🟡 P0 — [자동] BEFORE/AFTER 자동 캡처 봇 복구 + 갤러리 이력 보기 박기
+
+**요약**: 관련 발견: scripts/capture-pages.mjs는 이미 archive 로직 박혀있음(line 108-113, copyFileSync로 outPath → archivePath 복사). 즉 워크플로 파일만 복구하면 archive 로직은 자동 작동. 갤러리 카드의 '📅 이력 보기' 버튼은 admin-gallery.html에 추가 필요. 자동 캡처에는 
+
+- **자율성**: 🟡 SEMI
+- **예상 시간**: 미정시간
+- **카테고리**: infrastructure
+- **상태**: pending
+- **ID**: `BL-CAPTURE-BOT-RESTORE` (출처: 대표님 통찰 (2026-05-12) — 디자인 변경 시 옛 좋은 부분과 합치려면 전후 비교가 필요한데, 통합되면서 캡처 봇 워크플로가 사라져 archive 폴더에 옛 버전이 안 쌓임)
+
+---
+
 ## 🟢 P1 — [YouTube 더보기 단축 URL 클릭 카운트] 호텔별 진성 관심 측정 시스템
 
 **요약**: gohotel.win/h/{hotel_id} → Supabase 카운트 +1 → Agoda 어필리에이트 리디렉션. 호텔별/순위별 분리.

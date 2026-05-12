@@ -29,16 +29,6 @@
 
 ---
 
-### B. 🟡 SEMI — [자동] 갤러리 — 사용자 흐름·카테고리·빈 페이지 표시 박기
-
-**ID**: `BL-GALLERY-FLOW-COMPLETENESS`  
-**카테고리**: feature  
-**예상 시간**: 미정시간  
-
-**메모**: 관련 발견: pages-meta.mjs에 audience 필드(public/manager/admin)는 있지만 갤러리에서 사용 안 함. flow 필드 + flowOrder 숫자 추가 필요. 빠진 페이지(sales.html / marketing.html 등)는 status: 'planned'로 등록되어 있으나 흐름 안에서의 위치 표시가 약함. 작업 시 BUSINESS_FLOW.md의 6단계 흐름과 정합성 유지 필수.
-
----
-
 ## 🟡 P1 — 데드라인 이전에 있으면 좋음
 
 ### A. 🟢 AUTO — [YouTube 더보기 단축 URL 클릭 카운트] 호텔별 진성 관심 측정 시스템

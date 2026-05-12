@@ -14,13 +14,16 @@
   "stats": {
     "total": 190,
     "done": 144,
-    "in_progress": 1,
+    "in_progress": 0,
     "pending": 26,
     "blocked": 10,
     "autonomous_ready": 20,
     "todo": 0,
-    "cancelled": 0,
-    "updated_at": "2026-05-12T09:02:29.355Z"
+    "cancelled": 1,
+    "updated_at": "2026-05-12T09:07:58+00:00",
+    "paused": 1,
+    "absorbed": 3,
+    "obsoleted": 5
   },
   "tasks": [
     {
@@ -12027,7 +12030,7 @@
       "notes": "대표님 통찰 (2026-05-10) — 서비스 페이지 전체 지도 + 진행률 표시.\n\n핵심 본질: \"어느 페이지에 무엇을 박을지\" 모르면 자율 작업 못 박음. 페이지 = 모든 작업의 부모.\n\n## 📋 Phase 1~3 페이지 우선순위 (Claude 자율 판단 — 사업 매출 흐름 기준)\n\n### Phase 1 — 매출 직결 흐름 (사업 시작 가능 상태 만들기)\n| 순서 | 페이지 | 현재 | 근거 |\n|---|---|---|---|\n| 1-1 | /sales.html (세일즈/결제) | 79점 | 결제 = 매출 발생 지점. 가장 빨리 완성 |\n| 1-2 | /dashboard.html (매니저 대시보드) | 80점 | 결제 후 첫 화면. 결제 박스 임시 → 정식 |\n| 1-3 | /index.html (랜딩) | 74점 | 결제 흐름의 시작점 |\n| 1-4 | /signup.html + /login.html (인증) | 65~75점 | 결제 전 필수 흐름 |\n| 1-5 | /hotel-info.html (호텔 등록) | 61점 | 결제 후 매니저가 호텔 박는 페이지 |\n\n### Phase 2 — 운영 인프라 (사업 시작 후 즉시 필요)\n| 순서 | 페이지 | 현재 | 근거 |\n|---|---|---|---|\n| 2-1 | /admin-status.html (시스템 완성도) | 14점 | 대표님 일일 운영 도구. 매일 보심 |\n| 2-2 | /admin.html (관리자 콘솔) | 14점 | 호텔 승인/매니저 관리 |\n| 2-3 | /admin-tasks.html (작업 관리) | 14점 | 작업 흐름 운영 도구 |\n| 2-4 | /booking-analytics.html (예약 분석) | 74점 | 매출 분석 |\n\n### Phase 3 — 부가 운영 도구\n/marketing.html, /admin-gallery.html, /admin-business.html, /admin-service-ops.html, /admin-decisions.html, /admin-permissions.html, /settings.html\n\n## 🎯 시각화 산출물 (이 BL이 만들어야 할 것)\n1. admin-status.html에 \"🗺️ 서비스 페이지 지도\" 섹션 신규 — 모든 페이지를 Phase 1~3로 그룹핑 + 진행률 바\n2. 각 페이지 카드 클릭 시 → 해당 페이지의 세부 작업 BL 자동 등록 (BL-BASELINE-AUTO-TASK와 연동)\n3. 페이지별 audience 정정 — /sales.html이 admin으로 잘못 분류됨 → public 매출 흐름으로 이동\n\n## 🔗 분류 오류 발견\n- /sales.html: 현재 admin 분류 → public 매출 흐름으로 정정 필요\n- /dashboard.html: 현재 admin 분류이지만 매니저용 → public/manager로 정정 필요\n\n## 📌 페이지 우선순위 동의 (2026-05-11)\n대표님 OK 박음 — Phase 1-1 sales(결제) 부터, Phase 2-1 admin-status가 운영 1순위.\n",
       "source": "ceo_insight_2026-05-10",
       "created_at": "2026-05-11T02:38:01.191240Z",
-      "updated_at": "2026-05-11T02:38:01.191240Z",
+      "updated_at": "2026-05-12T09:07:58+00:00",
       "decision_context": "[지금 무슨 상황이냐면]\ngohotelwinners.com 사이트에 페이지가 약 15~20개 있는데(랜딩, 결제, 매니저 대시보드, 어드민 여러 개 등), 지금은 \"어느 페이지에 무엇을 박을지\" 한눈에 보여주는 지도가 없습니다. 그래서 클로드가 새 작업을 박을 때마다 \"이걸 어느 페이지에 추가하지?\" 헷갈리고, 작업이 엉뚱한 곳에 박히는 사고가 반복돼요.\n\n[왜 결정이 필요하냐면]\n페이지 전체 지도를 admin-status.html 안에 새 섹션으로 박는 게 BL의 본질입니다. 디자인 방향(가로 흐름 vs 세로 흐름, Phase 1/2/3 색 구분, 진행률 바 모양, 카드 클릭 시 동작) 같은 큰 시각 방향은 대표님이 보고 결정하실 영역이에요. 대표님은 2026-05-11에 이미 \"Phase 1-1 sales(결제) → Phase 2-1 admin-status가 운영 1순위\" 우선순위는 OK 박으셨고, 시각화 방향만 남았습니다.\n\n[결정하면 뭐가 달라지냐면]\n지도가 박히면 어드민 진입 즉시 \"어느 페이지가 몇 % 완성됐고, 다음 작업은 어디에 박을지\" 한눈에 보입니다. 새 작업 발견 시 클로드가 \"이 작업은 sales.html에 묶여요\"라고 자동 분류해서 박을 수 있어요. 사고 재발 방지 + 운영 속도 2배.",
       "options": [
         "A안 — 세로 흐름 (Phase 1 → 2 → 3 위에서 아래로) → 모바일에서도 잘 보임, 진행 단계 직관적",
@@ -12040,7 +12043,20 @@
         "B안 — 가로 흐름 (왼쪽→오른쪽 타임라인) → 데스크탑에서 시원함, 모바일에서 좁아짐",
         "C안 — 격자 (카드 그리드) → 페이지 수 많을 때 한눈에 다 보임"
       ],
-      "decision_recommendation": "🤖 클로드 추천: A안 — 대표님 핸드폰으로도 자주 보시는 화면이라 세로 흐름이 안전. Phase 색 구분 + 진행률 바."
+      "decision_recommendation": "🤖 클로드 추천: A안 — 대표님 핸드폰으로도 자주 보시는 화면이라 세로 흐름이 안전. Phase 색 구분 + 진행률 바.",
+      "order": 5,
+      "decision_ref": "D-028",
+      "child_tasks": [
+        "BL-GALLERY-FLOW-COMPLETENESS"
+      ],
+      "history": [
+        {
+          "at": "2026-05-12T09:07:58+00:00",
+          "actor": "claude (under 이지형 대표님 ① 결정)",
+          "action": "promoted_order_5_and_linked_BL-GALLERY_as_child",
+          "reason": "핑퐁 최종 결정 — 갤러리 흐름은 service-map 안에 한 줄로 자동 통합"
+        }
+      ]
     },
     {
       "id": "BL-DEPENDENCY-GRAPH",
@@ -12984,13 +13000,13 @@
       "category": "feature",
       "priority": "P0",
       "size": "medium",
-      "status": "in_progress",
+      "status": "paused",
       "owner": "claude",
       "claude_can_auto": true,
       "approval_required": true,
       "source": "대표님 통찰 (2026-05-12) — 갤러리에 페이지는 다 있는데 흐름 순서·카테고리·빠진 곳 표시가 없어 매니저 가입 흐름 따라가기 어려움",
       "created_at": "2026-05-12T06:26:49.000Z",
-      "updated_at": "2026-05-12T09:02:41+00:00",
+      "updated_at": "2026-05-12T09:07:58+00:00",
       "decision_context": "[지금 무슨 상황이냐면]\n어드민 페이지 갤러리(admin-gallery.html)에 19개 페이지가 다 등록되어 있지만, 6개 상태 그룹(라이브/부분완성/리팩터필요/신설/만들예정/보관)으로만 나뉘어 있습니다. 대표님이 직접 매니저 입장으로 가입 흐름을 타시면서 '이메일 인증 다음에 뭐가 나오지?' 궁금하실 때, 갤러리에서 hotel-info 카드를 바로 찾을 수 없습니다. 카드들이 알파벳 순도 아니고 흐름 순서도 아닌 등록 순서대로 뒤섞여 있습니다.\n\n[왜 결정이 필요하냐면]\n갤러리는 '대표님이 모든 페이지를 한눈에 보고, 빠진 곳을 즉시 파악하기 위한' 시스템 완성도 도구입니다. 지금처럼 흐름이 안 보이면 '매니저 가입 흐름에서 sales.html이 아직 안 만들어졌네' 같은 빈 곳 파악이 안 됩니다. 헌법 12조(그림 일치) + 시행령 8(통합관리) 위반 상태입니다. 또한 페이지 신설 시 흐름 안에 자동으로 자리잡지 못해, 만들 예정 페이지가 별도 그룹으로만 보이고 흐름 안에서 '여기 빠짐' 표시가 약합니다.\n\n[결정하면 뭐가 달라지냐면]\n갤러리 맨 위에 '📊 사용자 흐름 한눈에 보기' 띠 3줄 등장 — ① 매니저 가입 흐름(index→signup→verify→hotel-info→sales→dashboard) ② 매니저 일상 흐름(login→dashboard→marketing→booking-analytics→settings) ③ 관리자 흐름(admin→admin-status→admin-tasks→admin-gallery 등). 각 칸이 번호+썸네일+화살표로 연결되어 시각적으로 한눈에 흐름 잡힘. 빈 페이지는 '❌ 아직 없음 — 만들 예정' 빨간 카드로 흐름 안 정확한 위치에 표시. 그 아래 기존 카테고리별 그룹(Public/매니저/관리자)을 A~Z 알파벳 정렬로 정리. 결과적으로 대표님이 갤러리 한 번 들어가면 '어디까지 만들어졌고 어디가 빠졌는지' 5초 안에 파악 가능.",
       "decision_options": [
         "A안 — 흐름 3개(가입/일상/관리자)로 분리 박기. 추천. 매니저 입장에서 '처음 한 번 타는 길'과 '매일 들어오는 길'이 명확히 구분되어 사업 그림 잡기 좋음. 약 3시간.",
@@ -13054,6 +13070,12 @@
           "by": "auto-detect-bot",
           "commit": "c89e9e8",
           "note": "feat(BL-GALLERY-FLOW-COMPLETENESS): 결정 확정 D-030 — pending → in_progress"
+        },
+        {
+          "at": "2026-05-12T09:07:58+00:00",
+          "actor": "claude (under 이지형 대표님 ① 결정)",
+          "action": "paused_to_be_absorbed_into_BL-SERVICE-MAP",
+          "reason": "핑퐁 최종 결정 — 부모 작업 먼저 박고 자식으로 흡수"
         }
       ],
       "decision_summary": "진행 승인 확인했습니다. 핑퐁 모달 닫으시고 새 채팅에서 \"BL-SERVICE-MAP-OS 시작\"이라고 한 마디만 주세요 — 헌법 3종 + boot.md 라이브 fetch부터 박고 1단계(service-map.md 신설) → 2단계(헌법 부칙 추가) → 3단계(boot.md 갱신) 순서로 각 단계 1 commit씩 박겠습니다. 갤러리 작업(BL-GALLERY-FLOW-COMPLETENESS)은 service-map.md가 박힌 다음에 그 지도 안 한 줄로 자동 들어갑니다. 핑퐁은 여기서 종료 — 그림 일치.",
@@ -13064,7 +13086,10 @@
         "detected_at": "2026-05-12T09:02:41+00:00",
         "detected_by_commit": "c89e9e8",
         "message": "in_progress 도중 progress.steps 미박힘 감지."
-      }
+      },
+      "paused_at": "2026-05-12T09:07:58+00:00",
+      "paused_reason": "대표님 핑퐁 최종 결정 (2026-05-12 18:02) — \"service-map.md가 박힌 다음에 그 지도 안 한 줄로 자동 들어갑니다\". 갤러리 흐름 작업은 부모 작업(BL-SERVICE-MAP)에 자식으로 통합되므로, BL-SERVICE-MAP 완료 전까지 일시 멈춤.",
+      "parent_task": "BL-SERVICE-MAP"
     },
     {
       "id": "BL-CAPTURE-BOT-RESTORE",

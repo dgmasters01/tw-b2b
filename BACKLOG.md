@@ -44,6 +44,24 @@
 
 ---
 
+## ⚡ P0 — [admin Supabase Auth] 정식 오픈 전 의무 — admin-* 전체 인증 + 권한 등급 (CEO/Staff)
+
+**요약**: 진단 (2026-05-12): D-016/BL-ADMIN-AUTH-V2로 admins 테이블 + 5단계 role + 초대 시스템 이미 박힘.
+D-026 결정 요구사항 3가지 중 1개만 박혀있고 2개는 누락:
+  ① 접속 로그 → ❌ access_logs 테이블 없음 (이번 작업)
+  ② 실행 로그 → ❌ action_logs 테이블 없음 (이번 작업)
+  
+
+- **자율성**: 🟡 SEMI
+- **예상 시간**: 8시간
+- **카테고리**: infrastructure
+- **상태**: in_progress
+- **결정 필요**:
+  - 권한 등급 정책 결정 필요
+- **ID**: `BL-ADMIN-AUTH` (출처: 운영 중 발견 — admin 인증 시스템 초기 구축)
+
+---
+
 ## 🟡 P0 — chat-log 사업가 5블록 표준 강제 (사람용 탭 가독성 fix)
 
 **요약**: 사람용 탭이 chat-log를 보여줄 때 사업가 용어가 아닌 개발자 용어 가득. 원인: 표준(_os/playbook/chat-log-format.md)은 박혀있는데 작성 시 미준수. fix: (1) 부칙에 5블록 표준 준수 명문 (2) auto-detect-bot이 chat-log 박힐 때 5블록 헤딩 + 사업가 용어 검증 (3) 검증 실패 시 워닝, 자가

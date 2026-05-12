@@ -313,6 +313,81 @@
   .pm-dot.missing  { background: #dc2626; }
   .pm-dot.retired  { background: #6b7280; }
 
+  /* ★ BL-SERVICE-MAP (2026-05-12): 보기 모드 토글 + Phase 그룹 + 진행률 바 */
+  .pm-view-toggle {
+    display: inline-flex; gap: 2px; margin-bottom: 12px;
+    background: rgba(15,23,42,0.35); padding: 3px;
+    border-radius: 7px; border: 1px solid rgba(99,102,241,0.20);
+  }
+  .pm-view-btn {
+    font-size: 11.5px; padding: 5px 11px; border-radius: 5px;
+    background: transparent; color: var(--text-muted);
+    border: none; cursor: pointer; font-weight: 500;
+    transition: background .15s, color .15s;
+    display: inline-flex; align-items: center; gap: 5px;
+  }
+  .pm-view-btn:hover { color: var(--text-1); }
+  .pm-view-btn.active {
+    background: rgba(99,102,241,0.28); color: #c7d2fe;
+    box-shadow: 0 0 0 1px rgba(99,102,241,0.40);
+  }
+  .pm-view-ico { font-size: 12px; }
+  [data-theme="light"] .pm-view-toggle { background: #fafafa; border-color: rgba(99,102,241,0.20); }
+  [data-theme="light"] .pm-view-btn { color: #475569; }
+  [data-theme="light"] .pm-view-btn:hover { color: #1e293b; }
+  [data-theme="light"] .pm-view-btn.active { background: #e0e7ff; color: #4338ca; box-shadow: 0 0 0 1px rgba(99,102,241,0.30); }
+
+  /* Phase 그룹 — 매출 흐름 보기 전용 (세로 흐름) */
+  .pm-tracks.is-phase { grid-template-columns: 1fr; }
+  .pm-track.pm-phase {
+    background: rgba(15,23,42,0.35);
+    border: 1px solid rgba(99,102,241,0.20);
+    border-left: 4px solid;
+    border-radius: 8px; padding: 12px;
+  }
+  .pm-track.pm-phase-1 { border-left-color: #f59e0b; }
+  .pm-track.pm-phase-2 { border-left-color: #3b82f6; }
+  .pm-track.pm-phase-3 { border-left-color: #6b7280; }
+
+  .pm-phase-badge {
+    display: inline-block; font-size: 10.5px; font-weight: 700;
+    padding: 2px 8px; border-radius: 4px; margin-right: 6px;
+    letter-spacing: 0.4px;
+  }
+  .pm-phase-1 .pm-phase-badge { background: #fef3c7; color: #92400e; }
+  .pm-phase-2 .pm-phase-badge { background: #dbeafe; color: #1e40af; }
+  .pm-phase-3 .pm-phase-badge { background: #e5e7eb; color: #374151; }
+  [data-theme="dark"] .pm-phase-1 .pm-phase-badge,
+  :root .pm-phase-1 .pm-phase-badge { background: rgba(245,158,11,0.20); color: #fcd34d; }
+  :root .pm-phase-2 .pm-phase-badge { background: rgba(59,130,246,0.20); color: #93c5fd; }
+  :root .pm-phase-3 .pm-phase-badge { background: rgba(107,114,128,0.25); color: #d1d5db; }
+  [data-theme="light"] .pm-phase-1 .pm-phase-badge { background: #fef3c7; color: #92400e; }
+  [data-theme="light"] .pm-phase-2 .pm-phase-badge { background: #dbeafe; color: #1e40af; }
+  [data-theme="light"] .pm-phase-3 .pm-phase-badge { background: #e5e7eb; color: #374151; }
+
+  .pm-phase-sub { font-size: 11px; color: var(--text-muted); font-weight: 400; margin-left: 4px; }
+
+  /* 진행률 바 — 페이지 카드 안 */
+  .pm-page-bar-wrap {
+    flex: 1; height: 6px; background: rgba(0,0,0,0.18);
+    border-radius: 3px; overflow: hidden; min-width: 60px;
+  }
+  [data-theme="light"] .pm-page-bar-wrap { background: rgba(0,0,0,0.06); }
+  .pm-page-bar {
+    height: 100%; border-radius: 3px;
+    transition: width .25s ease;
+  }
+  .pm-page-bar.live     { background: #16a34a; }
+  .pm-page-bar.partial  { background: #ca8a04; }
+  .pm-page-bar.skeleton { background: #ea580c; }
+  .pm-page-bar.missing  { background: #dc2626; }
+  .pm-page-bar.retired  { background: #6b7280; }
+
+  /* 매출 흐름 모드일 때 페이지 카드 — 진행률 바 들어갈 자리 확보 */
+  .pm-tracks.is-phase .pm-page-item { gap: 10px; }
+  .pm-tracks.is-phase .pm-page-name { min-width: 130px; flex: 0 0 auto; }
+  .pm-tracks.is-phase .pm-page-score { min-width: 36px; text-align: right; }
+
   [data-theme="light"] .page-map {
     background: linear-gradient(135deg, rgba(99,102,241,0.05), rgba(79,70,229,0.02));
     border-color: rgba(99,102,241,0.30);
@@ -1451,7 +1526,17 @@
       <span class="pm-subtitle">서비스 진입 흐름 — 만들어진 / 일부 / 없는 페이지 + 그 페이지에 묶인 결정/작업</span>
     </div>
 
-    <!-- 3개 트랙: guest / manager / admin -->
+    <!-- ★ BL-SERVICE-MAP (2026-05-12): 보기 모드 토글 — 사용자 종류 ↔ 매출 흐름 -->
+    <div class="pm-view-toggle" role="tablist" aria-label="페이지 지도 보기 모드">
+      <button type="button" class="pm-view-btn active" data-view="audience" role="tab" aria-selected="true">
+        <span class="pm-view-ico">👥</span> 사용자 종류 보기
+      </button>
+      <button type="button" class="pm-view-btn" data-view="phase" role="tab" aria-selected="false">
+        <span class="pm-view-ico">💰</span> 매출 흐름 보기
+      </button>
+    </div>
+
+    <!-- 3개 트랙: guest / manager / admin (또는 Phase 1/2/3 — 같은 wrap 안에서 JS가 모드 전환) -->
     <div class="pm-tracks" id="pm-tracks">
       <!-- JS가 동적으로 렌더 -->
     </div>
@@ -4288,29 +4373,32 @@
 
   // 사람말 페이지 정보 매핑 — pages-meta.mjs의 정보를 사람 말로 풀어줌
   // 묶인 BL이 있으면 보라색 chip으로 표시 (그 페이지 안에 들어가야 할 기능)
+  // ★ BL-SERVICE-MAP (2026-05-12): phase / phaseOrder 필드 추가
+  //   phase: 1 = 매출 직결 / 2 = 운영 인프라 / 3 = 부가 / 'retired'
+  //   phaseOrder: 같은 Phase 안에서 매출 가까운 순서 (작은 숫자 = 매출 더 가까움)
   const PAGE_INFO = {
     // GUEST (공개) — 사업 진입 순서
-    '/index.html':           { name: '메인 랜딩',           role: '호텔 매니저 첫 진입',         track: 'guest', order: 1,  bls: ['BL-010'] },
-    '/signup.html':          { name: '회원가입',             role: '이메일·비번 가입',             track: 'guest', order: 2,  bls: ['BL-010'] },
-    '/login.html':           { name: '로그인',               role: '매니저/관리자 통합',           track: 'guest', order: 3,  bls: [] },
-    '/forgot-password.html': { name: '비밀번호 찾기',         role: '재설정 메일 발송',             track: 'guest', order: 4,  bls: [] },
-    '/reset-password.html':  { name: '비밀번호 재설정',       role: '메일 링크 클릭 후',            track: 'guest', order: 5,  bls: [] },
-    '/verify-email.html':    { name: '이메일 인증',           role: '가입 후 인증 클릭 도착',       track: 'guest', order: 6,  bls: [] },
+    '/index.html':           { name: '메인 랜딩',           role: '호텔 매니저 첫 진입',         track: 'guest', order: 1,  bls: ['BL-010'], phase: 1, phaseOrder: 3 },
+    '/signup.html':          { name: '회원가입',             role: '이메일·비번 가입',             track: 'guest', order: 2,  bls: ['BL-010'], phase: 1, phaseOrder: 4 },
+    '/login.html':           { name: '로그인',               role: '매니저/관리자 통합',           track: 'guest', order: 3,  bls: [], phase: 1, phaseOrder: 5 },
+    '/forgot-password.html': { name: '비밀번호 찾기',         role: '재설정 메일 발송',             track: 'guest', order: 4,  bls: [], phase: 1, phaseOrder: 6 },
+    '/reset-password.html':  { name: '비밀번호 재설정',       role: '메일 링크 클릭 후',            track: 'guest', order: 5,  bls: [], phase: 1, phaseOrder: 7 },
+    '/verify-email.html':    { name: '이메일 인증',           role: '가입 후 인증 클릭 도착',       track: 'guest', order: 6,  bls: [], phase: 1, phaseOrder: 8 },
     // MANAGER (매니저) — 가입 후 흐름
-    '/dashboard.html':       { name: '매니저 대시보드',       role: '진행 단계 + 호텔 정보',        track: 'manager', order: 1, bls: [] },
-    '/hotel-info.html':      { name: '호텔 정보 관리',         role: 'Google Places + Agoda 매칭', track: 'manager', order: 2, bls: ['BL-005','BL-008','BL-006'] },
-    '/sales.html':           { name: '세일즈 페이지',         role: '결제 유도 — $200 가치 어필',  track: 'manager', order: 3, bls: ['BL-INVOICE-001','BL-012','BL-013','SQ-D'] },
-    '/marketing.html':       { name: '매니저 성과 페이지',     role: '영상 진행/노출/인보이스',     track: 'manager', order: 4, bls: ['BL-TRACK-001','BL-INVOICE-001','BL-006','SQ-E'] },
-    '/settings.html':        { name: '계정 설정',             role: '비번 변경/탈퇴',               track: 'manager', order: 5, bls: ['BL-004'] },
+    '/dashboard.html':       { name: '매니저 대시보드',       role: '진행 단계 + 호텔 정보',        track: 'manager', order: 1, bls: [], phase: 1, phaseOrder: 2 },
+    '/hotel-info.html':      { name: '호텔 정보 관리',         role: 'Google Places + Agoda 매칭', track: 'manager', order: 2, bls: ['BL-005','BL-008','BL-006'], phase: 1, phaseOrder: 9 },
+    '/sales.html':           { name: '세일즈 페이지',         role: '결제 유도 — $200 가치 어필',  track: 'manager', order: 3, bls: ['BL-INVOICE-001','BL-012','BL-013','SQ-D'], phase: 1, phaseOrder: 1 },
+    '/marketing.html':       { name: '매니저 성과 페이지',     role: '영상 진행/노출/인보이스',     track: 'manager', order: 4, bls: ['BL-TRACK-001','BL-INVOICE-001','BL-006','SQ-E'], phase: 3, phaseOrder: 1 },
+    '/settings.html':        { name: '계정 설정',             role: '비번 변경/탈퇴',               track: 'manager', order: 5, bls: ['BL-004'], phase: 3, phaseOrder: 6 },
     // ADMIN (관리자)
-    '/admin.html':           { name: '관리자 콘솔',           role: '호텔 승인/거절/매칭',          track: 'admin', order: 1, bls: ['BL-ADMIN-AUTH','BL-009','SQ-F','BL-003'] },
-    '/admin-status.html':    { name: '시스템 완성도',         role: '대표님 현황판 (지금 이 페이지)',track: 'admin', order: 2, bls: ['BL-SERVICE-MAP','BL-DEPENDENCY-GRAPH','BL-DAILY-HEALTH-CARD','BL-BASELINE-HUMAN-LANG','BL-URGENT-CARD-FLOW','BL-AUTO-ADMIN-BASELINE-7FILES'] },
-    '/admin-tasks.html':     { name: '작업 관리',             role: '전체 작업 목록',               track: 'admin', order: 3, bls: [] },
-    '/admin-business.html':  { name: '비즈니스 문서',         role: '헌법/결정/플로우 뷰어',         track: 'admin', order: 4, bls: ['BL-DECISIONS-INDEX','BL-CHATLOG-BIZ-FORMAT'] },
-    '/admin-gallery.html':   { name: '페이지 갤러리',         role: '스크린샷 시각 비교',            track: 'admin', order: 5, bls: ['BL-015'] },
-    '/admin-service-ops.html':{ name: '운영 매뉴얼',          role: '정식 오픈 후 운영 절차',       track: 'admin', order: 6, bls: ['BL-014','BL-OS-INSTALL-PAT-FLOW'] },
-    '/booking-analytics.html':{ name: '예약 분석',            role: '도시별/국가별 통계',           track: 'admin', order: 7, bls: ['BL-003'] },
-    '/admin-hub.html':       { name: '중앙 허브(폐기)',        role: 'BL-HUB-RETIRE D-013',          track: 'admin', order: 99, bls: [] },
+    '/admin.html':           { name: '관리자 콘솔',           role: '호텔 승인/거절/매칭',          track: 'admin', order: 1, bls: ['BL-ADMIN-AUTH','BL-009','SQ-F','BL-003'], phase: 2, phaseOrder: 2 },
+    '/admin-status.html':    { name: '시스템 완성도',         role: '대표님 현황판 (지금 이 페이지)',track: 'admin', order: 2, bls: ['BL-SERVICE-MAP','BL-DEPENDENCY-GRAPH','BL-DAILY-HEALTH-CARD','BL-BASELINE-HUMAN-LANG','BL-URGENT-CARD-FLOW','BL-AUTO-ADMIN-BASELINE-7FILES'], phase: 2, phaseOrder: 1 },
+    '/admin-tasks.html':     { name: '작업 관리',             role: '전체 작업 목록',               track: 'admin', order: 3, bls: [], phase: 2, phaseOrder: 3 },
+    '/admin-business.html':  { name: '비즈니스 문서',         role: '헌법/결정/플로우 뷰어',         track: 'admin', order: 4, bls: ['BL-DECISIONS-INDEX','BL-CHATLOG-BIZ-FORMAT'], phase: 3, phaseOrder: 3 },
+    '/admin-gallery.html':   { name: '페이지 갤러리',         role: '스크린샷 시각 비교',            track: 'admin', order: 5, bls: ['BL-015'], phase: 3, phaseOrder: 4 },
+    '/admin-service-ops.html':{ name: '운영 매뉴얼',          role: '정식 오픈 후 운영 절차',       track: 'admin', order: 6, bls: ['BL-014','BL-OS-INSTALL-PAT-FLOW'], phase: 3, phaseOrder: 5 },
+    '/booking-analytics.html':{ name: '예약 분석',            role: '도시별/국가별 통계',           track: 'admin', order: 7, bls: ['BL-003'], phase: 2, phaseOrder: 4 },
+    '/admin-hub.html':       { name: '중앙 허브(폐기)',        role: 'BL-HUB-RETIRE D-013',          track: 'admin', order: 99, bls: [], phase: 'retired', phaseOrder: 99 },
   };
 
   // 시스템 차원 BL — 특정 페이지 X, 전체 인프라/봇에 영향

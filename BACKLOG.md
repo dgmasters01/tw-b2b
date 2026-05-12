@@ -32,18 +32,6 @@
 
 ---
 
-## ⚡ P0 — BEFORE/AFTER 스크린샷 자동 캡처 시스템 (Page Gallery 통합)
-
-**요약**: ## 🟡 P2 — BEFORE/AFTER 스크린샷 자동 캡처 시스템 (Page Gallery 통합)  ### 배경 대표님 메모리 원칙: 모든 페이지 수정 시 ① 수정 전 풀페이지 스크린샷 ② 수정 작업 ③ 수정 후 풀페이지 스크린샷 ④ 작업 기록에 BEFORE/AFTER 비교 등록 ⑤ 관리자 페이지에서 전후 비교 확인 가능. Page Gallery 스크린샷
-
-- **자율성**: 🟢 AUTO
-- **예상 시간**: 4-6시간
-- **카테고리**: dev
-- **상태**: in_progress
-- **ID**: `BL-015` (출처: BACKLOG.md)
-
----
-
 ## 🟡 P0 — chat-log 사업가 5블록 표준 강제 (사람용 탭 가독성 fix)
 
 **요약**: 사람용 탭이 chat-log를 보여줄 때 사업가 용어가 아닌 개발자 용어 가득. 원인: 표준(_os/playbook/chat-log-format.md)은 박혀있는데 작성 시 미준수. fix: (1) 부칙에 5블록 표준 준수 명문 (2) auto-detect-bot이 chat-log 박힐 때 5블록 헤딩 + 사업가 용어 검증 (3) 검증 실패 시 워닝, 자가
@@ -516,4 +504,5 @@ detail: 관리자 페이지 7개가 원본과 살짝 달라요 (대표님이 일
 
 - [BL-DONE-001] Admin Hotels 상세 패널 매니저 정보 누락 + 모달 닫기 불가 (2026-05-02)
 - [BL-003] Agoda 예약 검증 시스템 (Booking Verification) (2026-05-11)
+- [BL-015] BEFORE/AFTER 스크린샷 자동 캡처 시스템 (Page Gallery 통합) (2026-05-12)
 

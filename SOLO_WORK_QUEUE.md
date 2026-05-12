@@ -29,17 +29,7 @@
 
 ---
 
-### B. 🟢 AUTO — BEFORE/AFTER 스크린샷 자동 캡처 시스템 (Page Gallery 통합)
-
-**ID**: `BL-015`  
-**카테고리**: dev  
-**예상 시간**: 4-6시간  
-
-**메모**: ## 🟡 P2 — BEFORE/AFTER 스크린샷 자동 캡처 시스템 (Page Gallery 통합)  ### 배경 대표님 메모리 원칙: 모든 페이지 수정 시 ① 수정 전 풀페이지 스크린샷 ② 수정 작업 ③ 수정 후 풀페이지 스크린샷 ④ 작업 기록에 BEFORE/AFTER 비교 등록 ⑤ 관리자 페이지에서 전후 비교 확인 가능. Page Gallery 스크린샷도 수정 시 자동 갱신.  ### 현재 상태 - `admin-gallery.html`은 존재하나 BEFORE/AFTER 비교 기능 미구현 - 자동 캡처 인프라(Playwright 
-
----
-
-### C. 🟡 SEMI — [자동] 갤러리 — 사용자 흐름·카테고리·빈 페이지 표시 박기
+### B. 🟡 SEMI — [자동] 갤러리 — 사용자 흐름·카테고리·빈 페이지 표시 박기
 
 **ID**: `BL-GALLERY-FLOW-COMPLETENESS`  
 **카테고리**: feature  

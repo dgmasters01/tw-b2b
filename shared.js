@@ -172,6 +172,27 @@
         role: role,
         expires: Date.now() + ADMIN_CACHE_TTL
       };
+
+      // ★ BL-ADMIN-AUTH (D-026) 2026-05-12: admin 페이지 진입 시 자동 access_logs 박기
+      // 캐시 miss로 새로 checkAdmin이 호출됐고 admin 사용자면 → 새 세션/탭 진입으로 간주
+      // owner/admin/staff만 박음 (readonly/manager는 admin이 아니라 매니저 영역)
+      if (isAdminUser && role && ['owner', 'admin', 'staff'].includes(role)) {
+        try {
+          sb.from('access_logs').insert({
+            user_id: user.id,
+            email: user.email,
+            role: role,
+            path: window.location.pathname,
+            user_agent: navigator.userAgent,
+            referer: document.referrer || null,
+          }).then(function (r) {
+            if (r.error && window.console) {
+              console.warn('[access_logs] insert failed:', r.error.message);
+            }
+          });
+        } catch (logErr) { /* silent — logging은 admin 흐름 막지 않음 */ }
+      }
+
       return { is_admin: isAdminUser, role: role };
     } catch (e) {
       console.error('checkAdmin error:', e);

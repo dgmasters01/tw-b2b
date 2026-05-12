@@ -9536,23 +9536,28 @@
         "percent": 0,
         "steps": [
           {
-            "name": "1. send-ops-mail.mjs 분석 — 어디서 task당 메일 발송하는지",
+            "n": 1,
+            "label": "워크플로 paths 좁히기 + status:done diff 필터 추가",
             "status": "pending"
           },
           {
-            "name": "2. 묶음 발송 로직 — done 여러 개를 1통으로 (HTML 테이블)",
+            "n": 2,
+            "label": "send-ops-mail.mjs 묶음 발송 (N건 → 1통)",
+            "status": "done"
+          },
+          {
+            "n": 3,
+            "label": "_ops-mail-state.json 빈도 제한 (1h 가드)",
+            "status": "done"
+          },
+          {
+            "n": 4,
+            "label": "notify-claude-work.js API에도 가드 적용",
             "status": "pending"
           },
           {
-            "name": "3. 트리거 필터 — pingpong_turn / decision_summary 변경만이면 메일 스킵",
-            "status": "pending"
-          },
-          {
-            "name": "4. 한도 도달 자동 차단 — Resend 429 응답 시 그날 발송 중단",
-            "status": "pending"
-          },
-          {
-            "name": "5. if: false 제거 + 라이브 검증",
+            "n": 5,
+            "label": "if:false 제거 + commit/push + 라이브 검증",
             "status": "pending"
           }
         ]
@@ -9566,7 +9571,7 @@
         "detected_by_commit": "8138436",
         "message": "in_progress 진입했으나 progress.steps 비어있음. tasks.json에서 progress.steps 박은 후 다음 commit에 [step:done:N] 태그."
       },
-      "updated_at": "2026-05-11T17:13:17+00:00",
+      "updated_at": "2026-05-12T00:05:38.037Z",
       "history": [
         {
           "at": "2026-05-10T14:31:06+00:00",
@@ -9587,9 +9592,22 @@
           "by": "auto-detect-bot",
           "commit": "1cc5c84",
           "note": "resume(BL-OPS-MAIL-QUOTA-FIX): 이어가기 — 단계 0부터"
+        },
+        {
+          "at": "2026-05-12T00:04:28.200Z",
+          "action": "steps_defined",
+          "by": "claude",
+          "note": "단계 5개 정식 정의 + notes 박음. 이전엔 label/n=None이라 어디부터 시작할지 모호했음."
+        },
+        {
+          "at": "2026-05-12T00:05:38.037Z",
+          "action": "progress",
+          "by": "claude",
+          "note": "단계 2·3 완료 — send-ops-mail.mjs 묶음 발송(N→1) + 빈도 제한(1h) + 일일 80통 한도 가드 + 긴급 우회"
         }
       ],
-      "source": "운영 중 발견 — ops 메일 자동 발송 한도 초과 (Resend 100건/일 초과)"
+      "source": "운영 중 발견 — ops 메일 자동 발송 한도 초과 (Resend 100건/일 초과)",
+      "notes": "사고: tasks.json은 commit마다 변경되는데 ops-mail-on-task-done.yml이 paths:tasks.json으로만 트리거 → 매 commit마다 발송 → Resend 일일 100통 한도 200% 초과 (2026-05-10 대표님 메일 폭주 사고).\n\n임시: 워크플로에 if:false 박아 비활성화 (메일 안 옴).\n\n정식 fix 4단계:\n1) 워크플로 내부 필터 — tasks.json diff에서 status:done으로 새로 전환된 task만 추출\n2) 묶음 발송 — 한 push에서 N건 done이면 1통으로 묶기\n3) 빈도 제한 — _ops-mail-state.json 마커로 1시간 내 재발송 차단 (긴급 키워드는 우회)\n4) notify-claude-work.js API에도 동일 가드 — 직접 호출 폭주 방지\n5) if:false 제거 + 검증"
     },
     {
       "id": "BL-PINGPONG-RESULT-VISIBLE",

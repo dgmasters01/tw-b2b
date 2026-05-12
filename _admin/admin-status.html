@@ -871,6 +871,50 @@
 
   /* ===== 활동 이력 ===== */
   .activity-box { background: var(--panel); border: 0.5px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 14px; }
+
+  /* ★ BL-ADMIN-AUTH (D-026) 2026-05-12: admin 사용자 활동 박스 */
+  .admin-activity-box {
+    background: var(--panel);
+    border: 0.5px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    margin-bottom: 14px;
+    border-left: 3px solid rgba(99, 102, 241, 0.5);
+  }
+  .aa-filter-btn {
+    background: rgba(99,102,241,0.10); color: var(--text-2);
+    border: 0.5px solid rgba(99,102,241,0.25);
+    padding: 3px 10px; border-radius: 4px;
+    font-size: 11px; cursor: pointer;
+    margin-left: 4px;
+  }
+  .aa-filter-btn.active {
+    background: rgba(99,102,241,0.30); color: #c7d2fe;
+    border-color: rgba(99,102,241,0.55);
+  }
+  .aa-filter-btn:hover { background: rgba(99,102,241,0.20); }
+  .admin-activity-list {
+    max-height: 320px; overflow-y: auto;
+    margin-top: 10px;
+  }
+  .aa-event-row {
+    display: grid;
+    grid-template-columns: 70px 1fr 90px;
+    gap: 8px;
+    padding: 6px 4px;
+    border-bottom: 0.5px solid rgba(99,102,241,0.10);
+    font-size: 12px;
+    align-items: center;
+  }
+  .aa-event-row:last-child { border-bottom: none; }
+  .aa-event-time { color: var(--text-muted); font-size: 10.5px; }
+  .aa-event-msg { color: var(--text-1); line-height: 1.4; }
+  .aa-event-role { font-size: 10px; padding: 1px 6px; border-radius: 3px; text-align: center; }
+  .aa-event-role.owner { background: rgba(239,68,68,0.18); color: #fca5a5; }
+  .aa-event-role.admin { background: rgba(245,158,11,0.18); color: #fcd34d; }
+  .aa-event-role.staff { background: rgba(99,102,241,0.18); color: #c7d2fe; }
+  .aa-event-row.fail { background: rgba(239,68,68,0.06); }
+  .aa-event-row.access { background: rgba(34,211,238,0.04); }
   .activity-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 6px; }
   .activity-filters { display: flex; gap: 6px; flex-wrap: wrap; }
   .activity-filter-btn {
@@ -2716,6 +2760,23 @@
     </div>
   </section>
 
+  <!-- ⑩ BL-ADMIN-AUTH (D-026): admin 사용자 활동 박스 -->
+  <section class="admin-activity-box" id="admin-activity-box">
+    <div class="activity-header">
+      <div class="section-label" style="margin:0;">👤 admin 사용자 활동 — 누가 언제 들어왔고 무엇을 했나 (D-026)</div>
+      <div class="activity-filters">
+        <button class="aa-filter-btn active" data-aa-filter="all">전체</button>
+        <button class="aa-filter-btn" data-aa-filter="access">👁️ 접속</button>
+        <button class="aa-filter-btn" data-aa-filter="action">✅ 액션</button>
+      </div>
+    </div>
+    <div class="admin-activity-list" id="admin-activity-list">
+      <div style="font-size:11px;color:var(--text-muted);padding:20px;text-align:center;">로딩 중…</div>
+    </div>
+    <div style="font-size:10px;color:var(--text-muted);margin-top:8px;text-align:right;">
+      📂 출처: Supabase access_logs + action_logs · 7일/30건 · 5초 폴링 · RLS owner/admin/staff
+    </div>
+  </section>
 
   <!-- 푸터 -->
   <footer class="footer">
@@ -3774,6 +3835,7 @@
       renderCeoWait(data);             // ★ 결정 대기 박스 동적화
       try { renderPageMap(); } catch (e) { console.warn('renderPageMap 실패', e); }  // ★ BL-PAGE-MAP-SIMPLE
       try { renderFlowGuide(data); } catch (e) { console.warn('renderFlowGuide 실패', e); }  // ★ BL-FLOW-GUIDE-HEADER
+      try { renderAdminActivity(); } catch (e) { console.warn('renderAdminActivity 실패', e); }  // ★ BL-ADMIN-AUTH D-026
       // tasks.json 로드되면 카테고리 카드의 3-state 카운트 정확화 위해 재렌더
       if (STATE.data) renderSidebarMenus(STATE.data);
     } catch (err) {
@@ -4606,6 +4668,81 @@
       </div>
     `).join('');
   }
+
+  // ──────────────────────────────────────────────────────────
+  // 👤 BL-ADMIN-AUTH (D-026) 2026-05-12: admin 사용자 활동 박스 렌더
+  //
+  // 결정 D-026 ③ 요구사항: admin-status 페이지 하단 "최근 활동" 박스
+  // 데이터: Supabase public.recent_admin_activity 뷰 (access_logs + action_logs UNION)
+  // 필터: 전체 / 접속만 / 액션만
+  // 폴링: 5초
+  // ──────────────────────────────────────────────────────────
+  let _aaFilter = 'all';
+
+  async function renderAdminActivity() {
+    const wrap = document.getElementById('admin-activity-list');
+    if (!wrap) return;
+
+    const sb = window.TW && window.TW.sb;
+    if (!sb) {
+      wrap.innerHTML = '<div style="font-size:11px;color:var(--text-muted);padding:12px;text-align:center;">Supabase 클라이언트 미로딩</div>';
+      return;
+    }
+
+    try {
+      const { data, error } = await sb
+        .from('recent_admin_activity')
+        .select('*')
+        .limit(30);
+
+      if (error) {
+        wrap.innerHTML = `<div style="font-size:11px;color:#fca5a5;padding:12px;text-align:center;">조회 실패 (admin 권한 필요): ${escapeHtml(error.message)}</div>`;
+        return;
+      }
+      if (!data || data.length === 0) {
+        wrap.innerHTML = '<div style="font-size:11px;color:var(--text-muted);padding:12px;text-align:center;">아직 활동 없음 — admin 페이지 진입 시 자동 박힙니다</div>';
+        return;
+      }
+
+      const filtered = data.filter(ev => {
+        if (_aaFilter === 'all') return true;
+        return ev.event_type === _aaFilter;
+      });
+      if (filtered.length === 0) {
+        wrap.innerHTML = '<div style="font-size:11px;color:var(--text-muted);padding:12px;text-align:center;">해당 필터에 매칭되는 활동 없음</div>';
+        return;
+      }
+
+      wrap.innerHTML = filtered.map(ev => {
+        const dt = new Date(ev.event_at);
+        const timeStr = dt.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit', hour12: false }) + ` ${dt.getMonth()+1}/${dt.getDate()}`;
+        const roleClass = ['owner','admin','staff'].includes(ev.role) ? ev.role : '';
+        const rowClass = ev.event_type === 'access' ? 'access' : (ev.result === 'fail' ? 'fail' : '');
+        const roleLabel = ev.role === 'owner' ? 'CEO' : (ev.role || '?');
+        return `<div class="aa-event-row ${rowClass}">
+          <span class="aa-event-time">${escapeHtml(timeStr)}</span>
+          <span class="aa-event-msg">${escapeHtml(ev.message || '')}</span>
+          <span class="aa-event-role ${roleClass}">${escapeHtml(roleLabel)}</span>
+        </div>`;
+      }).join('');
+    } catch (e) {
+      wrap.innerHTML = `<div style="font-size:11px;color:#fca5a5;padding:12px;text-align:center;">조회 에러: ${escapeHtml(e.message || 'unknown')}</div>`;
+    }
+  }
+
+  // 필터 버튼 핸들러 (DOMContentLoaded 시점에 박음)
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.aa-filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.aa-filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        _aaFilter = btn.dataset.aaFilter || 'all';
+        renderAdminActivity();
+      });
+    });
+    // 초기 렌더 (shared.js 로드 후 약간 지연)
+    setTimeout(renderAdminActivity, 1500);
+  });
 
   // ──────────────────────────────────────────────────────────
   // 🎯 결정 입력 모달 (BL-STATUS-INTERACTIVE Phase A-2)
@@ -8037,6 +8174,7 @@
             try { renderTopUrgent(STATE.data); } catch (e) { console.warn('[poll] renderTopUrgent 실패', e); }
             try { renderCeoWait(data); } catch (e) { console.warn('[poll] renderCeoWait 실패', e); }
             try { renderFlowGuide(data); } catch (e) { console.warn('[poll] renderFlowGuide 실패', e); }  // ★ BL-FLOW-GUIDE-HEADER
+            try { renderAdminActivity(); } catch (e) { console.warn('[poll] renderAdminActivity 실패', e); }  // ★ BL-ADMIN-AUTH D-026
             showPollToast('🔄 tasks.json 갱신됨');
           } catch (_) {}
         }

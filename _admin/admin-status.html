@@ -4546,59 +4546,102 @@
       console.warn('renderPageMap: pages-status.json fetch 실패', e);
     }
 
-    // 트랙별 묶기
-    const tracks = { guest: [], manager: [], admin: [] };
+    // 모든 페이지 정규화 — score / cat 결합
+    const allPages = [];
     for (const [path, info] of Object.entries(PAGE_INFO)) {
       const s = pageScores[path] || { score: 0, retired: false };
       const cat = pageProgressCat(s.score, s.retired);
-      tracks[info.track]?.push({
-        path,
-        ...info,
-        score: s.score,
-        cat,
-      });
-    }
-    for (const t of Object.keys(tracks)) {
-      tracks[t].sort((a, b) => a.order - b.order);
+      allPages.push({ path, ...info, score: s.score, cat });
     }
 
-    const TRACK_META = {
-      guest:   { emoji: '🌐', title: '공개 페이지 (호텔 매니저 진입)', sub: '회원가입 전 누구나' },
-      manager: { emoji: '🏨', title: '매니저 페이지 (가입 후)',         sub: '호텔 정보 입력 후 진입' },
-      admin:   { emoji: '👤', title: '관리자 페이지 (사장 + 직원)',     sub: '운영자 전용' },
-    };
+    // ★ BL-SERVICE-MAP (2026-05-12): 보기 모드 결정 (localStorage 영구)
+    const view = localStorage.getItem('pm-view-mode') === 'phase' ? 'phase' : 'audience';
+    wrap.classList.toggle('is-phase', view === 'phase');
 
-    wrap.innerHTML = ['guest', 'manager', 'admin'].map(trackKey => {
-      const meta = TRACK_META[trackKey];
-      const items = tracks[trackKey] || [];
-      const liveCount = items.filter(i => i.cat === 'live').length;
-      const totalCount = items.filter(i => i.cat !== 'retired').length;
-      // ★ BL-FLOW-CLARITY-V2 (2026-05-11): 접기/펼치기 — localStorage에서 상태 복원, 기본 접힘
-      const collapsed = localStorage.getItem(`pm-track-${trackKey}`) !== 'open';
-      const blCount = items.reduce((sum, p) => sum + (p.bls?.length || 0), 0);
-      return `<div class="pm-track ${collapsed ? 'collapsed' : ''}" data-track="${trackKey}">
-        <div class="pm-track-head" data-track-toggle="${trackKey}" style="cursor:pointer;" title="클릭 = 펼치기/접기">
-          <span class="pm-track-arrow">${collapsed ? '▶' : '▼'}</span>
-          <span style="font-size:14px">${meta.emoji}</span>
-          <span class="pm-track-title">${meta.title}</span>
-          <span class="pm-track-count">${liveCount}/${totalCount} 본격${blCount > 0 ? ` · 🔗 ${blCount}개 BL` : ''}</span>
-        </div>
-        <div class="pm-page-list" style="${collapsed ? 'display:none;' : ''}">
-          ${items.map(p => {
-            const blChip = p.bls.length > 0
-              ? `<span class="pm-page-bls" title="이 페이지 안에 들어가야 할 작업/결정: ${p.bls.join(', ')}">🔗 ${p.bls.length}개 BL</span>`
-              : '';
-            return `<div class="pm-page-item ${p.cat}" data-path="${escapeHtml(p.path)}" data-bls="${escapeHtml(p.bls.join(','))}" title="${escapeHtml(p.role)} (${p.score}점) — 클릭: 묶인 작업 하이라이트 / 더블클릭: 페이지 새 탭으로 열기">
-              <span class="pm-page-name">${escapeHtml(p.name)}</span>
-              ${blChip}
-              <span class="pm-page-score">${p.score}점</span>
-            </div>`;
-          }).join('')}
-        </div>
+    // 페이지 카드 1개 HTML — 양쪽 모드 공통 (진행률 바 포함)
+    function pageItemHtml(p) {
+      const blChip = p.bls.length > 0
+        ? `<span class="pm-page-bls" title="이 페이지 안에 들어가야 할 작업/결정: ${p.bls.join(', ')}">🔗 ${p.bls.length}개 BL</span>`
+        : '';
+      const pct = Math.max(0, Math.min(100, p.score));
+      return `<div class="pm-page-item ${p.cat}" data-path="${escapeHtml(p.path)}" data-bls="${escapeHtml(p.bls.join(','))}" title="${escapeHtml(p.role)} (${p.score}점) — 클릭: 묶인 작업 하이라이트 / 더블클릭: 페이지 새 탭으로 열기">
+        <span class="pm-page-name">${escapeHtml(p.name)}</span>
+        <span class="pm-page-bar-wrap" aria-label="${p.score}점 진행률"><span class="pm-page-bar ${p.cat}" style="width:${pct}%"></span></span>
+        ${blChip}
+        <span class="pm-page-score">${p.score}점</span>
       </div>`;
-    }).join('');
+    }
 
-    // ★ BL-FLOW-CLARITY-V2: 트랙 접기/펼치기 토글
+    if (view === 'audience') {
+      // ===== 모드 A: 사용자 종류 보기 (기존 — guest/manager/admin) =====
+      const tracks = { guest: [], manager: [], admin: [] };
+      for (const p of allPages) tracks[p.track]?.push(p);
+      for (const t of Object.keys(tracks)) tracks[t].sort((a, b) => a.order - b.order);
+
+      const TRACK_META = {
+        guest:   { emoji: '🌐', title: '공개 페이지 (호텔 매니저 진입)', sub: '회원가입 전 누구나' },
+        manager: { emoji: '🏨', title: '매니저 페이지 (가입 후)',         sub: '호텔 정보 입력 후 진입' },
+        admin:   { emoji: '👤', title: '관리자 페이지 (사장 + 직원)',     sub: '운영자 전용' },
+      };
+
+      wrap.innerHTML = ['guest', 'manager', 'admin'].map(trackKey => {
+        const meta = TRACK_META[trackKey];
+        const items = tracks[trackKey] || [];
+        const liveCount = items.filter(i => i.cat === 'live').length;
+        const totalCount = items.filter(i => i.cat !== 'retired').length;
+        const collapsed = localStorage.getItem(`pm-track-${trackKey}`) !== 'open';
+        const blCount = items.reduce((sum, p) => sum + (p.bls?.length || 0), 0);
+        return `<div class="pm-track ${collapsed ? 'collapsed' : ''}" data-track="${trackKey}">
+          <div class="pm-track-head" data-track-toggle="${trackKey}" style="cursor:pointer;" title="클릭 = 펼치기/접기">
+            <span class="pm-track-arrow">${collapsed ? '▶' : '▼'}</span>
+            <span style="font-size:14px">${meta.emoji}</span>
+            <span class="pm-track-title">${meta.title}</span>
+            <span class="pm-track-count">${liveCount}/${totalCount} 본격${blCount > 0 ? ` · 🔗 ${blCount}개 BL` : ''}</span>
+          </div>
+          <div class="pm-page-list" style="${collapsed ? 'display:none;' : ''}">
+            ${items.map(pageItemHtml).join('')}
+          </div>
+        </div>`;
+      }).join('');
+    } else {
+      // ===== 모드 B: 매출 흐름 보기 (★ 신설 — Phase 1/2/3 그룹핑, 세로 흐름) =====
+      const phases = { 1: [], 2: [], 3: [] };
+      for (const p of allPages) {
+        if (p.phase === 1 || p.phase === 2 || p.phase === 3) phases[p.phase].push(p);
+        // 'retired'는 매출 흐름 모드에서 숨김 (사용자 종류 모드에선 그대로 보임)
+      }
+      for (const k of [1, 2, 3]) phases[k].sort((a, b) => (a.phaseOrder || 99) - (b.phaseOrder || 99));
+
+      const PHASE_META = {
+        1: { badge: 'PHASE 1', title: '💰 매출 직결 흐름',   sub: '결제까지 가는 길 — 가장 먼저 완성' },
+        2: { badge: 'PHASE 2', title: '⚙️ 운영 인프라',     sub: '사업 시작 후 즉시 필요' },
+        3: { badge: 'PHASE 3', title: '🛠️ 부가 운영 도구',  sub: '나중에 박아도 됨' },
+      };
+
+      wrap.innerHTML = [1, 2, 3].map(phaseKey => {
+        const meta = PHASE_META[phaseKey];
+        const items = phases[phaseKey] || [];
+        const liveCount = items.filter(i => i.cat === 'live').length;
+        const totalCount = items.filter(i => i.cat !== 'retired').length;
+        const collapsed = localStorage.getItem(`pm-phase-${phaseKey}`) === 'closed'; // 매출 흐름은 기본 펼침
+        const blCount = items.reduce((sum, p) => sum + (p.bls?.length || 0), 0);
+        const avgScore = items.length > 0 ? Math.round(items.reduce((s, p) => s + (p.score || 0), 0) / items.length) : 0;
+        return `<div class="pm-track pm-phase pm-phase-${phaseKey} ${collapsed ? 'collapsed' : ''}" data-phase="${phaseKey}">
+          <div class="pm-track-head" data-phase-toggle="${phaseKey}" style="cursor:pointer;" title="클릭 = 펼치기/접기">
+            <span class="pm-track-arrow">${collapsed ? '▶' : '▼'}</span>
+            <span class="pm-phase-badge">${meta.badge}</span>
+            <span class="pm-track-title">${meta.title}</span>
+            <span class="pm-phase-sub">${meta.sub}</span>
+            <span class="pm-track-count" style="margin-left:auto;">${liveCount}/${totalCount} 본격 · 평균 ${avgScore}점${blCount > 0 ? ` · 🔗 ${blCount}개 BL` : ''}</span>
+          </div>
+          <div class="pm-page-list" style="${collapsed ? 'display:none;' : ''}">
+            ${items.map(pageItemHtml).join('')}
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    // ★ BL-FLOW-CLARITY-V2: 트랙 접기/펼치기 토글 (사용자 종류 모드)
     wrap.querySelectorAll('[data-track-toggle]').forEach(head => {
       head.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -4622,6 +4665,30 @@
       });
     });
 
+    // ★ BL-SERVICE-MAP: Phase 그룹 접기/펼치기 (매출 흐름 모드)
+    wrap.querySelectorAll('[data-phase-toggle]').forEach(head => {
+      head.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const phaseKey = head.dataset.phaseToggle;
+        const track = head.closest('.pm-track');
+        if (!track) return;
+        const list = track.querySelector('.pm-page-list');
+        const arrow = head.querySelector('.pm-track-arrow');
+        const wasCollapsed = track.classList.contains('collapsed');
+        if (wasCollapsed) {
+          track.classList.remove('collapsed');
+          if (list) list.style.display = '';
+          if (arrow) arrow.textContent = '▼';
+          localStorage.setItem(`pm-phase-${phaseKey}`, 'open');
+        } else {
+          track.classList.add('collapsed');
+          if (list) list.style.display = 'none';
+          if (arrow) arrow.textContent = '▶';
+          localStorage.setItem(`pm-phase-${phaseKey}`, 'closed');
+        }
+      });
+    });
+
     // ★ BL-3WAY-LINK-CARDS (2026-05-11): 클릭 = 연동 하이라이트 토글, 더블클릭 = 새 탭
     wrap.querySelectorAll('.pm-page-item').forEach(el => {
       el.addEventListener('click', (e) => {
@@ -4639,6 +4706,37 @@
 
     // 렌더 직후 기존 하이라이트 상태 재적용 (페이지 지도가 다시 그려졌어도 유지)
     applyLinkHighlight();
+  }
+
+  // ★ BL-SERVICE-MAP (2026-05-12): 보기 모드 토글 버튼 이벤트 바인딩 (DOMContentLoaded 1회)
+  function bindPmViewToggle() {
+    const btns = document.querySelectorAll('#page-map-card .pm-view-btn');
+    if (!btns.length) return;
+    btns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const view = btn.dataset.view;
+        if (!view) return;
+        localStorage.setItem('pm-view-mode', view);
+        btns.forEach(b => {
+          const isActive = b.dataset.view === view;
+          b.classList.toggle('active', isActive);
+          b.setAttribute('aria-selected', isActive ? 'true' : 'false');
+        });
+        renderPageMap();
+      });
+    });
+    // 초기 상태 — 저장된 모드 따라 active 표시
+    const saved = localStorage.getItem('pm-view-mode') === 'phase' ? 'phase' : 'audience';
+    btns.forEach(b => {
+      const isActive = b.dataset.view === saved;
+      b.classList.toggle('active', isActive);
+      b.setAttribute('aria-selected', isActive ? 'true' : 'false');
+    });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bindPmViewToggle);
+  } else {
+    bindPmViewToggle();
   }
 
   // ──────────────────────────────────────────────────────────

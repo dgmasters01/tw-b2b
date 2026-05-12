@@ -39,6 +39,7 @@
 - **부칙 14 — 헌법 길이 200줄 이하 강제 (BL-OS-LIGHTWEIGHT, 2026-05-07 신설):** 헌법 본문은 200줄 이하. 새 운영 룰은 헌법이 아닌 `_os/playbook/`에 박는다. `charter-length-bot`이 매 push 검사, 초과 시 CI 실패.
 - **부칙 15 — chat-log 박기 의무 (BL-CHATLOG-AUTO-GATE, 2026-05-08 신설):** BL 작업 done 처리 시 `_chat-logs/{date}-{slug}.md` 박고 index.json `byTask`에 매핑 의무. `auto-detect-bot`이 done 트랜지션 감지 시 매핑 검증, 없으면 ⚠️ 워닝 박음. 디테일·예외: `_os/playbook/chatlog-auto-gate.md`.
 - **부칙 16 — 클로드 행동 강제 게이트 (BL-CLAUDE-DISCIPLINE, 2026-05-10 신설):** 매 응답 첫 5줄 강제(① 작업소요 ② 라우팅 ③ fetch완료 ④ 북극성+결정 ⑤ 중복점검grep). 라이브 fetch 의무(인계서만 믿지 말 것). 묻는 것은 4가지뿐(비즈니스/서비스/전체 틀/디자인 큰 방향+이미지) — 개발 순서·기술 선택은 자율. 보고는 초등학생 언어 + "어디/무엇/어떻게" 4줄 + 디자인은 이미지. 모든 인계서 머리에 `_os/handoff-header.md` 자동 prepend로 강제. 위반 시 "헌법 확인" 한 마디로 즉시 정지·자가 진단. 디테일: `_os/playbook/claude-discipline.md`.
+- **부칙 17 — 신규 BL 컨텍스트 + 신규 페이지 보고 의무 (BL-DECISION-CTX-MASS-FILL, 2026-05-12 신설):** 결정 대기 박스에 들어갈 신규 BL(approval_required=true OR requires_decisions_first 있음)은 사업가 V2 컨텍스트 3블록(`[지금 무슨 상황이냐면]/[왜 결정이 필요하냐면]/[결정하면 뭐가 달라지냐면]`) 필수. auto-task-bot이 기본 템플릿 자동 박고 `auto_context_warning=true` 마커. 클로드는 작업 시작 전 사업가 언어로 보강 의무. 신규 페이지 생성 시 즉시 대표님께 "어디/무엇/어떻게" 4줄 보고. 디테일: `_os/playbook/bl-context-and-page-report.md`.
 
 ---
 
@@ -162,7 +163,7 @@
  철학 — 각 프로젝트 완전 독립
  원칙 — 틀은 강제, 내용은 자유
 
-[부칙] 1~15 (디테일은 _os/playbook/)
+[부칙] 1~17 (디테일은 _os/playbook/)
 [적용] 통합: 호텔이야+8채널+TW B2B / 별개: CEYLON
 
 [안전장치] "헌법 확인" 한 마디 → 즉시 정지·재정렬

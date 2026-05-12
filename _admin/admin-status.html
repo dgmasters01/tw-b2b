@@ -7242,6 +7242,7 @@
     githubCommits: {},  // hash → { html, ts }
     echoLog: null,
     decisions: null,
+    formatReport: null, // ★ D-036 (2026-05-13): chat-log 5블록 검증 보고서
   };
   const GITHUB_CACHE_TTL = 5 * 60 * 1000; // 5분
 
@@ -7422,10 +7423,32 @@
       const summary = extractBusinessSummary(body);
 
       // 헤더 (slug + 근접 매핑 경고)
+      // ★ D-036 (2026-05-13): chat-log 5블록 검증 보고서 배지
+      let formatBadge = '';
+      try {
+        if (!ACTIVITY_CACHE.formatReport) {
+          const rep = await fetch('/chat-logs/_format-report.json?t=' + Date.now());
+          if (rep.ok) ACTIVITY_CACHE.formatReport = await rep.json();
+        }
+        const report = ACTIVITY_CACHE.formatReport;
+        if (report && Array.isArray(report.files)) {
+          const fileReport = report.files.find(f => f.slug === slug);
+          if (fileReport) {
+            if (fileReport.status === 'non_compliant') {
+              formatBadge = `<div style="padding:6px 10px;background:rgba(220,38,38,0.10);border:0.5px solid rgba(220,38,38,0.40);border-radius:5px;margin-bottom:8px;font-size:11px;color:#fca5a5;line-height:1.5;">⚠️ <strong>5블록 표준 위반</strong> — 사업가 시점 5블록(🎯📍🛠✅⏱) 헤딩 0개 누락. 자동 용어 변환만 적용됨. <span style="opacity:0.7;">(D-036 검증 봇)</span></div>`;
+            } else if (fileReport.status === 'partial') {
+              const missing = (fileReport.missing_blocks || []).join('');
+              formatBadge = `<div style="padding:6px 10px;background:rgba(251,191,36,0.10);border:0.5px solid rgba(251,191,36,0.40);border-radius:5px;margin-bottom:8px;font-size:11px;color:#fcd34d;line-height:1.5;">⚠️ <strong>5블록 일부 누락</strong> (${fileReport.score}점) — 빠진 블록: ${escapeHtml(missing)}. <span style="opacity:0.7;">(D-036 검증 봇)</span></div>`;
+            }
+          }
+        }
+      } catch (e) { /* 보고서 못 받아도 사람용 탭은 정상 표시 */ }
+
       const headerHtml = `
         <div style="margin:10px 0 6px;font-size:10px;color:var(--text-muted);">
           🛠 <strong style="color:var(--text);">세부 작업 기록</strong> · <code>/chat-logs/${escapeHtml(slug)}.md</code>
         </div>
+        ${formatBadge}
         ${isApprox ? `<div style="padding:6px 10px;background:rgba(251,191,36,0.10);border:0.5px solid rgba(251,191,36,0.4);border-radius:5px;margin-bottom:8px;font-size:11px;color:#fcd34d;">⚠️ 정확한 매핑 아님 — 같은 날짜(${(item.timestamp||'').slice(0,10)})의 작업 기록을 추정 표시합니다.</div>` : ''}
       `;
 

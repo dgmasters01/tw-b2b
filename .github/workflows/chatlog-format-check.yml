@@ -1,0 +1,69 @@
+# TW B2B — chat-log 5블록 표준 검증 워크플로 (D-036)
+#
+# 헌법 부합:
+#   ② 무인 실행: chat-log 박힐 때마다 자동 검증
+#   ⑥ 사람용+AI용: 5블록 표준은 _os/playbook/chat-log-format.md 진실원
+#   ⑪ Claude 자체 보고: 위반 시 _format-report.json → 사람용 탭 ⚠️ 배지
+#
+# D-036 결정 (2026-05-13):
+#   - 헌법 손 안 댐 (부칙 신설 안 함)
+#   - 검증 봇이 워닝만 표시 (강제 차단 아님)
+#   - chat-log 박힐 때 5블록 누락이면 _format-report.json 생성
+#
+# 트리거:
+#   1. push trigger: _chat-logs/*.md 또는 봇 자체 변경 시
+#   2. schedule: 매일 1회 (밤 03:00 KST = UTC 18:00) — 백업
+#   3. workflow_dispatch (수동)
+#
+# self-trigger 방지:
+#   - [chatlog-format-bot] commit message는 if 가드로 차단
+
+name: ChatLog Format Check (D-036)
+
+on:
+  push:
+    branches: [main, restructure-os-modularization]
+    paths:
+      - '_chat-logs/**'
+      - 'scripts/chatlog-format-bot.py'
+      - '.github/workflows/chatlog-format-check.yml'
+  schedule:
+    - cron: '0 18 * * *'  # 매일 UTC 18:00 = KST 03:00
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  format-check:
+    # self-trigger 방지
+    if: "!contains(github.event.head_commit.message, '[chatlog-format-bot]')"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Run chat-log format check
+        run: python3 scripts/chatlog-format-bot.py .
+
+      - name: Commit format report
+        run: |
+          git config user.name "chatlog-format-bot"
+          git config user.email "chatlog-format-bot@anthropic"
+
+          # _format-report.json 변경 있을 때만 commit
+          if git diff --quiet _chat-logs/_format-report.json; then
+            echo "✅ 보고서 변동 없음 — commit 스킵"
+          else
+            git add _chat-logs/_format-report.json
+            git commit -m "[chatlog-format-bot] _format-report.json 갱신 (D-036)"
+            git push origin HEAD:${GITHUB_REF#refs/heads/}
+          fi

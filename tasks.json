@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-12T02:30:21+00:00",
+  "updated_at": "2026-05-12T04:10:21Z",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -12508,14 +12508,14 @@
       "title": "Supabase SQL 자동 적용 인프라 — sql/ 폴더 변경 시 GitHub Actions가 Management API로 자동 RUN",
       "category": "infra",
       "priority": "P1",
-      "status": "pending",
+      "status": "cancelled",
       "claude_can_auto": true,
       "approval_required": true,
       "owner": "claude",
       "size": "small",
       "source": "ceo_derived",
       "created_at": "2026-05-12T02:29:58Z",
-      "updated_at": "2026-05-12T02:29:58Z",
+      "updated_at": "2026-05-12T04:10:21Z",
       "deadline": null,
       "order": null,
       "blocker": "GitHub Secrets에 SUPABASE_MGMT_TOKEN 등록 필요 (대표님 1번)",
@@ -12561,12 +12561,65 @@
           "by": "claude",
           "action": "created",
           "detail": "BL-ADMIN-ACTIVITY-MOVE 진행 중 발견: SQL 적용이 수동이라 매번 대표님 클릭 필요. 정석 자동화로 영구 해소."
+        },
+        {
+          "at": "2026-05-12T04:10:21Z",
+          "by": "claude",
+          "action": "cancelled",
+          "detail": "대표님 본질 지적: 1인 운영 + 특정 직원 한정 시스템이라 access_log 박스 자체가 불필요. 박스 삭제로 SQL 적용 자체가 사라짐."
         }
       ],
       "decision_context": "[지금 무슨 상황이냐면]\nSupabase에 새 테이블·뷰가 필요할 때마다 대표님이 직접 Supabase Dashboard에 들어가서 SQL 붙여넣고 RUN을 눌러야 합니다. BL-ADMIN-AUTH의 access_logs/action_logs/recent_admin_activity 뷰가 그래서 아직 적용 안 됐고, 화면에 \"조회 실패\" 떠 있어요. 앞으로도 SQL 변경할 때마다 똑같이 막힙니다.\n\n[왜 결정이 필요하냐면]\nGitHub Actions 워크플로 1개를 박으면 — sql/*.sql 파일이 변경될 때 자동으로 Supabase Management API에 SQL을 POST해서 적용하게 됩니다. 대표님은 처음 한 번만 GitHub Secrets에 SUPABASE_MGMT_TOKEN을 등록하시면 끝(헌법 부칙 4의 \"권한 부여는 대표님\" 정신 그대로). 그 후로는 SQL 박기 = git push = 자동 적용.\n\n[결정하면 뭐가 달라지냐면]\n\"진행 OK\" 한 마디면 클로드가 1시간 안에 박습니다. 이번 admin-auth-logs.sql도 자동 적용되고, 앞으로 모든 SQL이 git push 한 번에 라이브 반영. 대표님 SQL 클릭 작업 영구 제거.",
       "options": null,
       "recommendation": null,
       "notes": "발생 맥락: BL-ADMIN-ACTIVITY-MOVE 작업 중 발견.\n\n기술 흐름 (정석):\n1) .github/workflows/supabase-sql-apply.yml — push 시 sql/*.sql 감지\n2) Supabase Management API POST /v1/projects/{ref}/database/query (curl)\n3) 응답 검증 + 실패 시 ops 메일 + tasks.json 자동 업데이트\n4) 멱등성 강제 — IF NOT EXISTS / OR REPLACE 없는 SQL은 lint로 차단\n\n대표님 1번 작업 (부칙 4 권한 부여):\n- GitHub repo Settings → Secrets and variables → Actions → New\n- Name: SUPABASE_MGMT_TOKEN, Value: (Supabase Account → Access Tokens에서 발급)\n- 1회 등록 후 모든 SQL 변경 자동 적용\n\n자체 검증 11개 통과 (가독성, 자동화, 어디서든 도달, 영구 기록, 자동 검증, AI 가독성, 상태 가시성, 동기화, 가역성, 헌법 로딩, 메모리 사이클)."
+    },
+    {
+      "id": "BL-ADMIN-ACTIVITY-REMOVE",
+      "title": "ADMIN 사용자 활동 박스 완전 삭제 — 1인 운영 원칙 위반",
+      "category": "fix",
+      "priority": "P1",
+      "status": "done",
+      "claude_can_auto": true,
+      "approval_required": false,
+      "owner": "claude",
+      "size": "small",
+      "source": "ceo_decision",
+      "created_at": "2026-05-12T04:10:21Z",
+      "updated_at": "2026-05-12T04:10:21Z",
+      "decision_ref": "D-027",
+      "progress": {
+        "percent": 100,
+        "steps": [
+          {
+            "n": 1,
+            "title": "본질 진단 — 1인 운영 + 특정 직원 한정 = 사용자 활동 추적 불필요",
+            "done": true
+          },
+          {
+            "n": 2,
+            "title": "admin.html에서 박스 HTML/CSS/JS 완전 제거",
+            "done": true
+          },
+          {
+            "n": 3,
+            "title": "BL-SUPABASE-SQL-AUTO-APPLY 취소 (SQL 적용 자체가 불필요)",
+            "done": true
+          }
+        ]
+      },
+      "history": [
+        {
+          "at": "2026-05-12T04:10:21Z",
+          "by": "claude",
+          "action": "done",
+          "detail": "대표님 본질 지적으로 박스 완전 삭제. 헌법 원칙 추가 필요: 1인 운영 + 특정 직원 한정 사업 모델에 안 맞는 패턴 박지 말 것."
+        }
+      ],
+      "decision_context": "[지금 무슨 상황이냐면]\n클로드가 admin.html에 \"사용자 활동 박스\"를 박았는데, 대표님 사업 현실에 안 맞아요. 대표님 1인 운영이고, 들어오는 사람은 대표님 본인과 특정 초대 직원(스리랑카 1명)뿐이라 \"누가 언제 들어왔나\"를 보여줘봤자 시야만 어지럽힙니다.\n\n[왜 결정이 필요하냐면]\n대표님이 원칙 박으심: \"나 혼자 한눈에 쉽게 파악하고 쉽게 작업할 수 있는 게 원칙. 초대 직원은 특정한 사람이고 역할은 정해져 있어 전체를 할 수 없다.\" 이 원칙에 따르면 admin 화면은 사업 숫자·처리할 일 위주여야지 사용자 활동 로그가 들어갈 자리 없음.\n\n[결정하면 뭐가 달라지냐면]\n박스 삭제 완료. 대표님이 admin Dashboard 들어가시면 깔끔하게 사업 정보만 보입니다. 부수 효과로 SQL 적용 작업도 영구 제거 (대표님 클릭 부담 0).",
+      "options": null,
+      "recommendation": null,
+      "notes": "본질 학습 (향후 적용):\n- 1인 운영 사업에서는 access_log/action_log/audit_log 같은 \"누가 무엇을 했나\" 패턴 박지 말 것\n- admin 화면 = 사업 숫자(매출/예약/매니저) + 처리할 일(승인/매칭/문의) 위주\n- 디자인 원칙: \"대표님이 5초 안에 파악할 수 있는가\" 단일 기준\n\n삭제 완료:\n- admin.html Dashboard 탭 HTML 박스 제거\n- CSS aa-filter-btn / aa-event-row 등 제거\n- JS renderAdminActivity 함수 + DOMContentLoaded 핸들러 제거\n- BL-SUPABASE-SQL-AUTO-APPLY 취소\n\n남은 흔적 (안전, 어디서도 안 부름):\n- sql/admin-auth-logs.sql (Supabase에 적용 안 됐고 호출하는 코드 없음)\n- api/_lib/admin-log.js (호출 0건 확인되면 다음 청소 작업에서 제거)"
     }
   ]
 }

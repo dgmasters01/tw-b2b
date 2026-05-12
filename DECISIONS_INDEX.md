@@ -42,6 +42,11 @@
 | D-020 | 헌법 자가 검증에 사전 안전장치 3개(북극성/중복점검/한채팅한결정) — 방향 상실 방지 | policy | 2026-05-08 | 확정 | OPERATIONS_CHARTER.md 11조 자가검증, _os/boot.md 5-A |
 | D-021 | BL-ADMIN-AUTH-PERF — Edge Middleware 단일 게이트 (A-2 정석, Hobby 12 한도 회피) | infra | 2026-05-09 | 확정 | middleware.ts(신규), admin-* 12개 페이지 인증 코드 제거 (2편) |
 | D-028 | 갤러리 완성도(흐름·카테고리·빈페이지) + BEFORE/AFTER 자동 이력 보관 봇 복구 | infra | 2026-05-12 | 확정 | BL-GALLERY-FLOW-COMPLETENESS, BL-CAPTURE-BOT-RESTORE |
+| D-031 | "journey" 단어 폐기 — 서비스명(GoHotel) 접두사로 통일 (Claude 자율 결정) | infra | 2026-05-13 | 확정 | BL-RENAME-GOHOTEL, JOURNEY.md→GOHOTEL_FLOW.md, 13곳 일괄 변경 |
+| D-032 | 동남아 1차 타겟 명시 + 영어 default 메일 + 국가 필드 필수 | strategy | 2026-05-13 | 확정 | BL-SIGNUP-COUNTRY-FIELD, BL-EMAIL-LOCALE-ROUTING, BL-ADMIN-COUNTRY-FILTER |
+| D-033 | 환불·취소 정책 명확화 + 영수증 5년 영구 보관 | policy | 2026-05-13 | 확정 | BL-REFUND-FLOW, BL-RECEIPT-ARCHIVE |
+| D-034 | 이벤트 사이트 = 별도 브랜드/도메인 신설 (B2B와 분리) | strategy | 2026-05-13 | 확정 | BL-EVENT-SITE-FOUNDATION, BL-EVENT-CUSTOMER-DB, BL-EVENT-PAYMENT-PROXY, BL-EVENT-HOTEL-NOTIFY |
+| D-035 | 신규 매니저 가입 시 누적 매출 임계값 3구간 분기 노출 ($1,000+/$200~999/<$200) | analytics | 2026-05-13 | 확정 | BL-PAST-VIDEO-RECON, BL-SIGNUP-ENRICHMENT, BL-AGODA-TOS-CHECK |
 
 ---
 

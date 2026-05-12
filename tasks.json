@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-12T00:07:11.255Z",
+  "updated_at": "2026-05-12T00:07:32+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -9533,12 +9533,14 @@
       "estimated_hours": 0.5,
       "why": "대표님 진단 2026-05-10: Resend 일일 100통 한도 200% 초과 알림 받음. 원인 — tasks.json commit마다 ops-mail-on-task-done 워크플로 트리거 + done 트랜지션 task당 1통씩 발송. 임시 fix(이 BL 직전 commit): if: false로 워크플로 비활성화. 정식 fix 필요: ① 한 commit에 done 여러 개면 1통으로 묶음 ② pingpong_turn 같은 사소한 변경은 트리거 제외 ③ 한도 도달 시 자동 차단.",
       "progress": {
-        "percent": 100,
+        "percent": 60,
         "steps": [
           {
             "n": 1,
             "label": "워크플로 paths 좁히기 + status:done diff 필터 추가",
-            "status": "done"
+            "status": "done",
+            "done": true,
+            "at": "2026-05-12T00:07:32+00:00"
           },
           {
             "n": 2,
@@ -9553,14 +9555,21 @@
           {
             "n": 4,
             "label": "notify-claude-work.js API에도 가드 적용",
-            "status": "done"
+            "status": "done",
+            "done": true,
+            "at": "2026-05-12T00:07:32+00:00"
           },
           {
             "n": 5,
             "label": "if:false 제거 + commit/push + 라이브 검증",
-            "status": "done"
+            "status": "done",
+            "done": true,
+            "at": "2026-05-12T00:07:32+00:00"
           }
-        ]
+        ],
+        "completed_count": 3,
+        "total_count": 5,
+        "updated_at": "2026-05-12T00:07:32+00:00"
       },
       "created_at": "2026-05-10T14:00:00.000Z",
       "started_at": "2026-05-10T14:31:06+00:00",
@@ -9571,7 +9580,7 @@
         "detected_by_commit": "8138436",
         "message": "in_progress 진입했으나 progress.steps 비어있음. tasks.json에서 progress.steps 박은 후 다음 commit에 [step:done:N] 태그."
       },
-      "updated_at": "2026-05-12T00:07:11.255Z",
+      "updated_at": "2026-05-12T00:07:32+00:00",
       "history": [
         {
           "at": "2026-05-10T14:31:06+00:00",
@@ -9616,6 +9625,13 @@
           "action": "progress",
           "by": "claude",
           "note": "단계 1·4·5 완료 — 워크플로 봇 commit 필터 + notify-claude-work API 가드 + if:false 제거"
+        },
+        {
+          "at": "2026-05-12T00:07:32+00:00",
+          "event": "done 작업에 commit 추가 (status 유지 — 자동 리오픈 안 함) + 단계 1, 단계 4, 단계 5 완료 (auto-detected)",
+          "by": "auto-detect-bot",
+          "commit": "8ab7b95",
+          "note": "fix(BL-OPS-MAIL-QUOTA-FIX): 워크플로 재활성화 + API 가드 [step:done:1] [step:done:4] [step:done:5]"
         }
       ],
       "source": "운영 중 발견 — ops 메일 자동 발송 한도 초과 (Resend 100건/일 초과)",

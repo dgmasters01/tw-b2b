@@ -1,7 +1,7 @@
 {
-  "overall": "yellow",
-  "summary": "[yellow] admin_baseline: 관리자 페이지 7개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요)",
-  "checked_at": "2026-05-12T16:37:24.194Z",
+  "overall": "red",
+  "summary": "[yellow] admin_baseline: 관리자 페이지 7개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요) / [red] tasks_schema: 작업 206건 중 16건에 출처가 없어요 (자동 동기화 봇 멈춤 위험) / [yellow] vercel_sync: 라이브 사이트가 GitHub 새 버전(0c85bdb)을 아직 못 따라잡았어요 (현재 라이브: 763af3d). 5~10분 후 자동 정상화 예정",
+  "checked_at": "2026-05-12T17:05:13.995Z",
   "checks": [
     {
       "name": "admin_baseline",
@@ -47,9 +47,26 @@
     },
     {
       "name": "tasks_schema",
-      "status": "green",
-      "detail": "작업 190건 모두 출처 박혀있어요 (정상)",
-      "missing_source": []
+      "status": "red",
+      "detail": "작업 206건 중 16건에 출처가 없어요 (자동 동기화 봇 멈춤 위험)",
+      "missing_source": [
+        "BL-RENAME-GOHOTEL",
+        "BL-PAST-VIDEO-RECON",
+        "BL-AGODA-TOS-CHECK",
+        "BL-HOTEL-DETAIL-PAGE",
+        "BL-REVENUE-DASHBOARD",
+        "BL-RENEWAL-WATCH",
+        "BL-REFUND-FLOW",
+        "BL-SIGNUP-ENRICHMENT",
+        "BL-SIGNUP-COUNTRY-FIELD",
+        "BL-EMAIL-LOCALE-ROUTING",
+        "BL-ADMIN-COUNTRY-FILTER",
+        "BL-RECEIPT-ARCHIVE",
+        "BL-EVENT-SITE-FOUNDATION",
+        "BL-EVENT-CUSTOMER-DB",
+        "BL-EVENT-PAYMENT-PROXY",
+        "BL-EVENT-HOTEL-NOTIFY"
+      ]
     },
     {
       "name": "bots",
@@ -57,18 +74,18 @@
       "detail": "자동 일꾼들(봇) 전부 살아있어요",
       "dead_bots": [],
       "bot_status": {
-        "sync-bot": "success",
-        "auto-detect-bot": "success",
+        "sync-bot": "unknown",
+        "auto-detect-bot": "unknown",
         "scan-bot": "success",
-        "chat-log-bot": "success"
+        "chat-log-bot": "unknown"
       }
     },
     {
       "name": "vercel_sync",
-      "status": "green",
-      "detail": "라이브 사이트가 GitHub와 같은 버전이에요 (d1682d4)",
-      "live_sha": "d1682d4",
-      "vercel_sha": "d1682d4",
+      "status": "yellow",
+      "detail": "라이브 사이트가 GitHub 새 버전(0c85bdb)을 아직 못 따라잡았어요 (현재 라이브: 763af3d). 5~10분 후 자동 정상화 예정",
+      "live_sha": "0c85bdb",
+      "vercel_sha": "763af3d",
       "project": "tw-b2b"
     },
     {

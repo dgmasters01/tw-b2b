@@ -1412,11 +1412,11 @@
     <main class="os-main">
 
   <!-- 데드라인 경고 (조건부) -->
-  <div class="deadline-banner" id="deadline-banner">
+  <div class="deadline-banner hidden" id="deadline-banner">
     <div class="icon">🚨</div>
     <div>
-      <div class="title" id="deadline-title">헌법 데드라인 D+1 — 어제(2026-05-03) 지났음</div>
-      <div class="detail" id="deadline-detail">잔여 작업 분포: 🤖 자동 16건 · 👥 직원 가능 8건 · 👤 대표님 결정 4건 · 🚫 막힘 3건. 데드라인 재설정 또는 즉시 진행 결정 필요.</div>
+      <div class="title" id="deadline-title">헌법 데드라인 갱신됨 — 2026-06-30 사업 시작 목표</div>
+      <div class="detail" id="deadline-detail">신규 BL 16개(약 84h) + 결정 5개 박힘 (D-031~D-035). 자세한 작업 흐름은 ① 🎯 다음 추천 → ② ⚡ 진행 중 → ③ ⏸ 잠시 멈춤 박스 순서로 진행.</div>
     </div>
   </div>
 
@@ -3364,7 +3364,7 @@
       renderActivity();
     });
   });
-  const DEADLINE = '2026-05-03';
+  const DEADLINE = '2026-06-30';  // ★ 2026-05-13 갱신: 5/3 데드라인 지남 → 신규 BL 16개(약 84h) 반영해서 6/30 사업 시작 목표
   function updateDeadlineBanner() {
     const dl = new Date(DEADLINE + 'T23:59:59+09:00');
     const now = new Date();

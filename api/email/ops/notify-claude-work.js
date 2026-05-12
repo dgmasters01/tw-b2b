@@ -2,6 +2,11 @@
 // Claude 작업 완료 시 자동 호출되는 운영 알림 endpoint
 // 인증: x-ops-token 헤더 = process.env.CLAUDE_OPS_TOKEN
 //
+// ★ BL-OPS-MAIL-QUOTA-FIX (2026-05-12): 빈도 제한 가드 추가
+//   in-memory rate limiter — Vercel serverless instance lifetime 내에서 1시간 1통 가드
+//   (다중 인스턴스는 완벽 차단 못 하지만 같은 인스턴스 폭주는 방지)
+//   영구 가드는 send-ops-mail.mjs의 _ops-mail-state.json이 처리
+//
 // Body:
 //   {
 //     step: string,          // 작업 단계명 (예: "Phase 3 Step 5", "RLS UPDATE 정책 보강")
@@ -10,9 +15,20 @@
 //     vercel_url: string,    // 배포 링크
 //     blockers: string,      // 막힐 가능성 (옵션)
 //     commit_hash: string,   // 커밋 해시 (옵션)
+//     urgent: boolean,       // ★ BL-OPS-MAIL-QUOTA-FIX: true면 가드 우회 (P0 장애만)
 //   }
 
 import { sendOpsEmail } from '../../_lib/email-sender.js';
+
+// ★ BL-OPS-MAIL-QUOTA-FIX: in-memory rate limiter (인스턴스 lifetime)
+// 1시간 가드 + 일일 카운트
+const RATE_STATE = globalThis.__opsMailRateState || (globalThis.__opsMailRateState = {
+  last_sent_at: 0,
+  daily_count: 0,
+  daily_date: '',
+});
+const RATE_WINDOW_MS = 60 * 60 * 1000;   // 1시간
+const DAILY_LIMIT = 50;                   // API 직접 호출은 더 엄격 (50통)
 
 function escapeHtml(s) {
   if (s == null) return '';
@@ -112,6 +128,36 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'step and summary are required' });
   }
 
+  // ★ BL-OPS-MAIL-QUOTA-FIX (2026-05-12): 빈도 제한 가드
+  const NOW = Date.now();
+  const TODAY = new Date().toISOString().slice(0, 10);
+  if (RATE_STATE.daily_date !== TODAY) {
+    RATE_STATE.daily_date = TODAY;
+    RATE_STATE.daily_count = 0;
+  }
+  const isUrgent = body.urgent === true;
+
+  if (!isUrgent && RATE_STATE.last_sent_at) {
+    const sinceLast = NOW - RATE_STATE.last_sent_at;
+    if (sinceLast < RATE_WINDOW_MS) {
+      const remainingMin = Math.ceil((RATE_WINDOW_MS - sinceLast) / 60000);
+      return res.status(429).json({
+        ok: false,
+        skipped: 'rate_limit',
+        message: `1시간 내 재발송 차단. ${remainingMin}분 후 재시도 가능 (urgent:true 우회 가능).`,
+        last_sent_at: new Date(RATE_STATE.last_sent_at).toISOString(),
+      });
+    }
+  }
+  if (RATE_STATE.daily_count >= DAILY_LIMIT) {
+    return res.status(429).json({
+      ok: false,
+      skipped: 'daily_limit',
+      message: `일일 ${DAILY_LIMIT}통 한도 도달. 내일 재시도 또는 send-ops-mail.mjs 묶음 발송 이용.`,
+      daily_count: RATE_STATE.daily_count,
+    });
+  }
+
   // 3. 메일 발송
   const subject = '[TW B2B] ✅ ' + body.step + ' 완료';
   const result = await sendOpsEmail({
@@ -123,6 +169,10 @@ export default async function handler(req, res) {
   if (!result.ok) {
     return res.status(502).json({ error: 'Failed to send ops email', detail: result.error });
   }
+
+  // ★ BL-OPS-MAIL-QUOTA-FIX: 성공 시 RATE_STATE 갱신
+  RATE_STATE.last_sent_at = Date.now();
+  RATE_STATE.daily_count += 1;
 
   // 4. CCF auto-status-updater — task_id 추출 후 응답에 detection 결과 포함
   // (Vercel 서버리스 = 파일시스템 read-only. 실제 tasks.json 쓰기는
@@ -139,5 +189,11 @@ export default async function handler(req, res) {
     ok: true,
     email_id: result.id,
     ccf_detected_task_id: detectedTaskId,
+    // ★ BL-OPS-MAIL-QUOTA-FIX: 가드 상태 노출 (디버그 + 모니터링)
+    quota: {
+      daily_count: RATE_STATE.daily_count,
+      daily_limit: DAILY_LIMIT,
+      next_window_at: new Date(RATE_STATE.last_sent_at + RATE_WINDOW_MS).toISOString(),
+    },
   });
 }

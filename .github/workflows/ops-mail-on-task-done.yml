@@ -39,12 +39,25 @@ permissions:
 
 jobs:
   send-mail:
-    # ★ BL-OPS-MAIL-QUOTA-FIX (2026-05-10): 임시 비활성화
-    # 사유: Resend 일일 100통 한도 200% 초과 (대표님이 메일 받음).
-    # tasks.json이 commit마다 변경되어 매번 메일 발송 → 과다 발송.
-    # 정식 fix(BL-OPS-MAIL-QUOTA-FIX): 메일 묶음 + 빈도 제한 별개 BL로 박을 예정.
-    # 그 BL 완료 후 이 줄 제거하면 다시 동작.
-    if: false
+    # ★ BL-OPS-MAIL-QUOTA-FIX (2026-05-12): 정식 활성화
+    # 이전 사고(2026-05-10): tasks.json이 commit마다 변경 → 매번 메일 → Resend 100통 초과
+    # 정식 fix 적용 완료:
+    #   1) send-ops-mail.mjs 내부에 묶음 발송 (N건 → 1통)
+    #   2) _ops-mail-state.json 빈도 제한 (1시간 내 재발송 차단)
+    #   3) 일일 80통 한도 가드
+    #   4) 아래 commit 메시지 필터로 봇 자동 commit은 트리거 자체 차단
+    # 봇 commit 패턴: [scan-bot] [sync-bot] [health-bot] [auto-detect-bot] [activity-bot]
+    # [auto-task-bot] [ops-mail-bot] 등 → tasks.json 변경해도 메일 안 보냄 (의미 없는 trigger 차단)
+    if: |
+      github.event_name == 'workflow_dispatch' || (
+        !contains(github.event.head_commit.message, '[scan-bot]') &&
+        !contains(github.event.head_commit.message, '[sync-bot]') &&
+        !contains(github.event.head_commit.message, '[health-bot]') &&
+        !contains(github.event.head_commit.message, '[auto-detect-bot]') &&
+        !contains(github.event.head_commit.message, '[activity-bot]') &&
+        !contains(github.event.head_commit.message, '[auto-task-bot]') &&
+        !contains(github.event.head_commit.message, '[ops-mail-bot]')
+      )
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

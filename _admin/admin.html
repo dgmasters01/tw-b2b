@@ -313,6 +313,10 @@ body{margin:0;background:var(--bg,#0A0A0F);font-family:var(--sans,'Inter','Noto 
       <button class="ad-sb-item" data-tab="analytics">
         <span class="ad-sb-icon">📈</span><span>Analytics</span>
       </button>
+      <!-- BL-PAST-VIDEO-RECON / D-035: 호텔별 우리 채널 누적 매출 (우리만 보는 영역) -->
+      <button class="ad-sb-item" data-tab="video-revenue">
+        <span class="ad-sb-icon">📺</span><span data-en="Video Asset Revenue" data-ko="영상 자산 성과">Video Asset Revenue</span>
+      </button>
 
       <div class="ad-sb-section">Operations</div>
       <button class="ad-sb-item active" data-tab="hotels">
@@ -527,6 +531,94 @@ body{margin:0;background:var(--bg,#0A0A0F);font-family:var(--sans,'Inter','Noto 
         <div class="T" id="tabs"></div>
         <div id="ct"></div>
       </div>
+    </div>
+
+    <!-- ================================================================ -->
+    <!-- TAB: Video Asset Revenue (BL-PAST-VIDEO-RECON / D-035)            -->
+    <!-- 호텔별 우리 채널이 만든 누적 매출 — 우리만 보는 영역              -->
+    <!-- 매칭: hotel_id(UUID) → agoda_hotel_id → name+city+country 폴백   -->
+    <!-- 3구간: strong(>=$1k) / soft($200~$999) / hide(<$200)              -->
+    <!-- ================================================================ -->
+    <div id="tab-video-revenue" class="ad-tab-pane" style="display:none;">
+
+      <!-- 요약 카드 4개 (Hotels 탭과 동일 스타일: ad-stats / ad-stat) -->
+      <div class="ad-stats" id="vr-stats-area">
+        <div class="ad-stat">
+          <div class="ad-stat-lbl" data-en="Total Hotels" data-ko="전체 호텔">Total Hotels</div>
+          <div class="ad-stat-val" id="vr-total-hotels">—</div>
+        </div>
+        <div class="ad-stat" style="border-left:3px solid #10b981">
+          <div class="ad-stat-lbl" data-en="Strong ($1,000+)" data-ko="강력 ($1,000+)">Strong ($1,000+)</div>
+          <div class="ad-stat-val" id="vr-strong-count" style="color:#10b981">—</div>
+        </div>
+        <div class="ad-stat" style="border-left:3px solid #f59e0b">
+          <div class="ad-stat-lbl" data-en="Soft ($200~$999)" data-ko="부드러움 ($200~$999)">Soft ($200~$999)</div>
+          <div class="ad-stat-val" id="vr-soft-count" style="color:#f59e0b">—</div>
+        </div>
+        <div class="ad-stat" style="border-left:3px solid #4f46e5">
+          <div class="ad-stat-lbl" data-en="Total Revenue (USD)" data-ko="누적 매출 (USD)">Total Revenue (USD)</div>
+          <div class="ad-stat-val" id="vr-total-revenue" style="color:#4f46e5">—</div>
+        </div>
+      </div>
+
+      <!-- 안내 박스 (D-035 / D-038 컨텍스트) -->
+      <div class="ad-card" style="background:linear-gradient(90deg,rgba(79,70,229,.08),rgba(16,185,129,.05));border-left:3px solid #4f46e5;margin-bottom:12px">
+        <div style="padding:12px 16px;font-size:13px;line-height:1.6;color:#374151">
+          <strong style="color:#1f2937"
+            data-en="📺 Internal-only view. Per-hotel cumulative revenue from our 8 YouTube channels."
+            data-ko="📺 우리만 보는 영역. 우리 8개 유튜브 채널이 만든 호텔별 누적 매출.">
+            📺 우리만 보는 영역. 우리 8개 유튜브 채널이 만든 호텔별 누적 매출.
+          </strong>
+          <br>
+          <span style="color:#6b7280;font-size:12px"
+            data-en="Used as sales material for new manager signup (D-035 3-tier branching). Matching: hotel_id (UUID) → agoda_hotel_id → name+city+country fallback."
+            data-ko="신규 매니저 가입 시 D-035 3구간 분기 영업 무기로 사용. 매칭 키: hotel_id(UUID) → agoda_hotel_id → 호텔명+도시+국가 폴백.">
+            신규 매니저 가입 시 D-035 3구간 분기 영업 무기로 사용. 매칭 키: hotel_id(UUID) → agoda_hotel_id → 호텔명+도시+국가 폴백.
+          </span>
+        </div>
+      </div>
+
+      <!-- 필터 바 -->
+      <div class="ad-card" style="margin-bottom:12px">
+        <div style="padding:12px 16px;display:flex;flex-wrap:wrap;gap:10px;align-items:center">
+          <div style="display:inline-flex;gap:0;border:1px solid #e5e7eb;border-radius:6px;overflow:hidden">
+            <button class="vr-tier-btn active" data-tier="all"   type="button" style="padding:7px 14px;background:#111;color:#fff;border:0;cursor:pointer;font-size:12px;font-weight:600" data-en="All" data-ko="전체">All</button>
+            <button class="vr-tier-btn"        data-tier="strong" type="button" style="padding:7px 14px;background:#fff;color:#374151;border:0;border-left:1px solid #e5e7eb;cursor:pointer;font-size:12px;font-weight:600" data-en="Strong" data-ko="강력">Strong</button>
+            <button class="vr-tier-btn"        data-tier="soft"   type="button" style="padding:7px 14px;background:#fff;color:#374151;border:0;border-left:1px solid #e5e7eb;cursor:pointer;font-size:12px;font-weight:600" data-en="Soft" data-ko="부드러움">Soft</button>
+            <button class="vr-tier-btn"        data-tier="hide"   type="button" style="padding:7px 14px;background:#fff;color:#374151;border:0;border-left:1px solid #e5e7eb;cursor:pointer;font-size:12px;font-weight:600" data-en="Hide (<$200)" data-ko="숨김 (<$200)">Hide</button>
+          </div>
+          <input type="text" id="vr-search" placeholder="Search hotel name..." style="flex:1;min-width:200px;padding:7px 12px;border:1px solid #e5e7eb;border-radius:6px;font-size:13px">
+          <button type="button" id="vr-refresh-btn" style="padding:7px 14px;background:#4f46e5;color:#fff;border:0;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600" data-en="Refresh" data-ko="새로고침">Refresh</button>
+          <span id="vr-meta" style="font-size:11px;color:#9ca3af;margin-left:auto"></span>
+        </div>
+      </div>
+
+      <!-- 테이블 카드 -->
+      <div class="ad-card">
+        <div class="ad-card-h">
+          <h3 data-en="Hotels by Revenue (DESC)" data-ko="매출 순 호텔 목록 (내림차순)">Hotels by Revenue (DESC)</h3>
+        </div>
+        <div id="vr-table-wrap" style="overflow-x:auto">
+          <div id="vr-loading" style="padding:40px;text-align:center;color:#9ca3af;font-size:13px" data-en="Loading..." data-ko="불러오는 중...">Loading...</div>
+          <table id="vr-table" style="display:none;width:100%;border-collapse:collapse;font-size:13px">
+            <thead style="background:#f9fafb;border-bottom:2px solid #e5e7eb">
+              <tr>
+                <th style="text-align:left;padding:10px 12px;font-weight:600;color:#374151" data-en="#" data-ko="#">#</th>
+                <th style="text-align:left;padding:10px 12px;font-weight:600;color:#374151" data-en="Tier" data-ko="구간">Tier</th>
+                <th style="text-align:left;padding:10px 12px;font-weight:600;color:#374151" data-en="Hotel" data-ko="호텔">Hotel</th>
+                <th style="text-align:right;padding:10px 12px;font-weight:600;color:#374151" data-en="Revenue (USD)" data-ko="매출 (USD)">Revenue (USD)</th>
+                <th style="text-align:right;padding:10px 12px;font-weight:600;color:#374151" data-en="Bookings" data-ko="예약 건수">Bookings</th>
+                <th style="text-align:left;padding:10px 12px;font-weight:600;color:#374151" data-en="First → Last" data-ko="첫 → 마지막">First → Last</th>
+                <th style="text-align:left;padding:10px 12px;font-weight:600;color:#374151" data-en="Match" data-ko="매칭">Match</th>
+                <th style="text-align:left;padding:10px 12px;font-weight:600;color:#374151" data-en="Status" data-ko="상태">Status</th>
+              </tr>
+            </thead>
+            <tbody id="vr-tbody"></tbody>
+          </table>
+          <div id="vr-empty" style="display:none;padding:40px;text-align:center;color:#9ca3af;font-size:13px" data-en="No hotels match your filters." data-ko="필터에 맞는 호텔이 없습니다.">No hotels match your filters.</div>
+        </div>
+      </div>
+
     </div>
 
     <!-- TAB: Hotels -->
@@ -1117,7 +1209,9 @@ body{margin:0;background:var(--bg,#0A0A0F);font-family:var(--sans,'Inter','Noto 
     admins:    { title: 'Team',        sub: 'Internal admin and support members.',
                  title_ko: '팀',        sub_ko: '내부 관리자 및 지원 인력' },
     'project-status': { title: 'Project Status', sub: 'Live business progress dashboard — KPIs, phases, recent activity.',
-                 title_ko: '프로젝트 진행도', sub_ko: 'KPI · Phase · 최근 활동 · 진행 현황 한눈에 보기' }
+                 title_ko: '프로젝트 진행도', sub_ko: 'KPI · Phase · 최근 활동 · 진행 현황 한눈에 보기' },
+    'video-revenue': { title: 'Video Asset Revenue', sub: 'Per-hotel cumulative revenue from our YouTube channels. Internal only. D-035 / BL-PAST-VIDEO-RECON.',
+                 title_ko: '영상 자산 성과', sub_ko: '호텔별 우리 채널 누적 매출. 우리만 보는 영역. (D-035 / BL-PAST-VIDEO-RECON)' }
   };
 
   function setActiveTab(tab){
@@ -1154,6 +1248,7 @@ body{margin:0;background:var(--bg,#0A0A0F);font-family:var(--sans,'Inter','Noto 
     if (tab === 'bookings' && !bookingsInitialized) initBookings();
     if (tab === 'agoda-matching' && !amLoaded) loadAgodaMatching();
     if (tab === 'project-status') { try { loadProjectStatus(); } catch(e){ console.error('[ps] load failed', e); } }
+    if (tab === 'video-revenue') { try { initVideoRevenue(); } catch(e){ console.error('[vr] init failed', e); } }
 
     // Phase 3 Step 2: Analytics native mount (iframe 제거)
     // 진입: BKA.mount() — 차트 destroy + 재렌더 + 별점 동기화
@@ -4322,6 +4417,233 @@ function rDayHotels(){
 // (Step 2 통합본: 자동 부팅 코드 제거 — admin.html 의 setActiveTab 이 BKA.mount() 호출)
 
 })(typeof window !== 'undefined' ? window : this);
+</script>
+
+
+<!-- ============================================
+  BL-PAST-VIDEO-RECON / D-035: Video Asset Revenue
+  - admin '📺 Video Asset Revenue' 탭 데이터 로딩 + 필터 + 렌더링
+  - API: GET /api/admin?action=past-video-revenue&tier=...&search=...
+  - 진입: setActiveTab('video-revenue') → initVideoRevenue() (lazy, idempotent)
+============================================ -->
+<script>
+(function(){
+  'use strict';
+
+  var VR_STATE = {
+    loaded: false,
+    rows: [],
+    summary: null,
+    filter: { tier: 'all', search: '' },
+    inflight: false
+  };
+
+  function vrEl(id){ return document.getElementById(id); }
+  function vrFmtMoney(n){
+    var v = Number(n) || 0;
+    return '$' + v.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  }
+  function vrFmtDate(s){
+    if (!s) return '—';
+    try { return new Date(s).toISOString().slice(0,10); } catch(_) { return s; }
+  }
+  function vrEscape(s){
+    if (s == null) return '';
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  // 어드민 인증 토큰 (BL-ADMIN-AUTH-V2: Bearer JWT)
+  // shared.js / supabase-js 가 sb-* localStorage에 저장. 가장 흔한 키 패턴 탐지.
+  function vrGetAuthToken(){
+    try {
+      if (window.TW && window.TW.supabase && window.TW.supabase.auth) {
+        // 동기 접근 가능한 fallback이 없으므로 storage에서 직접
+      }
+      for (var i=0; i<localStorage.length; i++){
+        var k = localStorage.key(i);
+        if (k && /^sb-.+-auth-token$/.test(k)){
+          var raw = localStorage.getItem(k);
+          if (!raw) continue;
+          var parsed = JSON.parse(raw);
+          if (parsed && parsed.access_token) return parsed.access_token;
+        }
+      }
+    } catch(_){}
+    return null;
+  }
+
+  async function vrFetch(){
+    if (VR_STATE.inflight) return;
+    VR_STATE.inflight = true;
+    var loading = vrEl('vr-loading');
+    var table = vrEl('vr-table');
+    var empty = vrEl('vr-empty');
+    var meta = vrEl('vr-meta');
+    if (loading) loading.style.display = 'block';
+    if (table) table.style.display = 'none';
+    if (empty) empty.style.display = 'none';
+    if (meta) meta.textContent = '';
+
+    try {
+      var token = vrGetAuthToken();
+      if (!token) {
+        if (loading) loading.innerHTML = '⚠️ 인증 토큰 없음. 다시 로그인해 주세요.';
+        return;
+      }
+      var params = new URLSearchParams();
+      params.set('action', 'past-video-revenue');
+      if (VR_STATE.filter.tier && VR_STATE.filter.tier !== 'all') {
+        params.set('tier', VR_STATE.filter.tier);
+      }
+      if (VR_STATE.filter.search && VR_STATE.filter.search.trim()) {
+        params.set('search', VR_STATE.filter.search.trim());
+      }
+      var resp = await fetch('/api/admin?' + params.toString(), {
+        method: 'GET',
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+      if (!resp.ok) {
+        var t = await resp.text();
+        if (loading) loading.innerHTML = '❌ 데이터 로드 실패 (' + resp.status + ')<br><span style="font-size:11px;color:#9ca3af">' + vrEscape(t.slice(0,200)) + '</span>';
+        return;
+      }
+      var data = await resp.json();
+      VR_STATE.rows = Array.isArray(data.rows) ? data.rows : [];
+      VR_STATE.summary = data.summary || null;
+      VR_STATE.loaded = true;
+      vrRender();
+      if (meta) {
+        meta.textContent = (data.generated_at || '').slice(0,19).replace('T',' ') + ' · ' + VR_STATE.rows.length + ' rows';
+      }
+    } catch (err) {
+      if (loading) loading.innerHTML = '❌ ' + vrEscape(err.message || String(err));
+    } finally {
+      VR_STATE.inflight = false;
+    }
+  }
+
+  function vrRender(){
+    var loading = vrEl('vr-loading');
+    var table = vrEl('vr-table');
+    var empty = vrEl('vr-empty');
+    var tbody = vrEl('vr-tbody');
+
+    // 요약 카드
+    var s = VR_STATE.summary || {};
+    var setText = function(id, v){ var e = vrEl(id); if (e) e.textContent = v; };
+    setText('vr-total-hotels', (s.total_hotels != null ? s.total_hotels : VR_STATE.rows.length).toLocaleString());
+    setText('vr-strong-count', (s.strong_count || 0).toLocaleString());
+    setText('vr-soft-count',   (s.soft_count   || 0).toLocaleString());
+    setText('vr-total-revenue', vrFmtMoney(s.total_revenue_usd || 0));
+
+    if (loading) loading.style.display = 'none';
+
+    if (!VR_STATE.rows.length){
+      if (table) table.style.display = 'none';
+      if (empty) empty.style.display = 'block';
+      if (tbody) tbody.innerHTML = '';
+      return;
+    }
+    if (empty) empty.style.display = 'none';
+    if (table) table.style.display = 'table';
+
+    var TIER_COLOR = { strong: '#10b981', soft: '#f59e0b', hide: '#9ca3af' };
+    var TIER_LABEL = {
+      strong: '<span style="background:#10b98115;color:#10b981;padding:3px 8px;border-radius:4px;font-size:11px;font-weight:600">💪 Strong</span>',
+      soft:   '<span style="background:#f59e0b15;color:#f59e0b;padding:3px 8px;border-radius:4px;font-size:11px;font-weight:600">🌱 Soft</span>',
+      hide:   '<span style="background:#9ca3af15;color:#6b7280;padding:3px 8px;border-radius:4px;font-size:11px;font-weight:600">🔒 Hide</span>'
+    };
+
+    var html = VR_STATE.rows.map(function(r, i){
+      var tier = r.revenue_tier || 'hide';
+      var matchBadges = '';
+      var methods = (r.match_methods || '').split(',').filter(Boolean);
+      if (methods.length){
+        matchBadges = methods.map(function(m){
+          var label = m === 'hotel_id_direct' ? 'UUID' : m === 'agoda_hotel_id' ? 'Agoda' : 'Name';
+          return '<span style="background:#f3f4f6;color:#374151;padding:2px 6px;border-radius:3px;font-size:10px;margin-right:3px">' + vrEscape(label) + '</span>';
+        }).join('');
+      } else {
+        matchBadges = '<span style="color:#d1d5db;font-size:11px">—</span>';
+      }
+      var statusBadge = r.hotel_status
+        ? '<span style="background:#eef2ff;color:#4f46e5;padding:2px 6px;border-radius:3px;font-size:10px">' + vrEscape(r.hotel_status) + '</span>'
+        : '<span style="color:#d1d5db;font-size:11px">—</span>';
+      var dateRange = r.first_booking_date
+        ? vrFmtDate(r.first_booking_date) + ' → ' + vrFmtDate(r.last_booking_date)
+        : '<span style="color:#d1d5db">—</span>';
+      var revenueStyle = tier === 'strong'
+        ? 'color:#10b981;font-weight:700'
+        : tier === 'soft' ? 'color:#f59e0b;font-weight:600' : 'color:#6b7280';
+      return ''
+        + '<tr style="border-bottom:1px solid #f3f4f6">'
+        + '<td style="padding:10px 12px;color:#9ca3af;font-size:11px">' + (i+1) + '</td>'
+        + '<td style="padding:10px 12px">' + TIER_LABEL[tier] + '</td>'
+        + '<td style="padding:10px 12px">'
+        +   '<div style="font-weight:600;color:#111827">' + vrEscape(r.hotel_name || '—') + '</div>'
+        +   '<div style="font-size:11px;color:#9ca3af">' + vrEscape(r.address || '') + '</div>'
+        + '</td>'
+        + '<td style="padding:10px 12px;text-align:right;' + revenueStyle + '">' + vrFmtMoney(r.total_revenue_usd) + '</td>'
+        + '<td style="padding:10px 12px;text-align:right;color:#374151">'
+        +   '<div>' + (Number(r.total_bookings)||0).toLocaleString() + '</div>'
+        +   '<div style="font-size:10px;color:#9ca3af">self ' + (Number(r.self_bookings)||0) + ' / agoda ' + (Number(r.agoda_bookings)||0) + '</div>'
+        + '</td>'
+        + '<td style="padding:10px 12px;font-size:11px;color:#6b7280">' + dateRange + '</td>'
+        + '<td style="padding:10px 12px">' + matchBadges + '</td>'
+        + '<td style="padding:10px 12px">' + statusBadge + '</td>'
+        + '</tr>';
+    }).join('');
+    if (tbody) tbody.innerHTML = html;
+  }
+
+  function vrBindEvents(){
+    // tier 버튼
+    document.querySelectorAll('.vr-tier-btn').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        document.querySelectorAll('.vr-tier-btn').forEach(function(b){
+          b.classList.remove('active');
+          b.style.background = '#fff';
+          b.style.color = '#374151';
+        });
+        btn.classList.add('active');
+        btn.style.background = '#111';
+        btn.style.color = '#fff';
+        VR_STATE.filter.tier = btn.getAttribute('data-tier') || 'all';
+        vrFetch();
+      });
+    });
+    // 검색 (debounce 300ms)
+    var searchInput = vrEl('vr-search');
+    if (searchInput){
+      var debounceTimer = null;
+      searchInput.addEventListener('input', function(){
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(function(){
+          VR_STATE.filter.search = searchInput.value || '';
+          vrFetch();
+        }, 300);
+      });
+    }
+    // refresh
+    var refreshBtn = vrEl('vr-refresh-btn');
+    if (refreshBtn){
+      refreshBtn.addEventListener('click', function(){ vrFetch(); });
+    }
+  }
+
+  // 외부 진입점 (admin.html setActiveTab 에서 호출)
+  window.initVideoRevenue = function(){
+    if (window.__vr_inited) {
+      // 재진입 시 데이터만 다시 가져오기 (필터/검색 입력 상태는 유지)
+      vrFetch();
+      return;
+    }
+    window.__vr_inited = true;
+    vrBindEvents();
+    vrFetch();
+  };
+
+})();
 </script>
 
 

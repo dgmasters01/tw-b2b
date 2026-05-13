@@ -141,7 +141,7 @@ def extract_task_ids(commit_msg: str) -> list[str]:
 
 
 def classify_intent(commit_msg: str) -> str:
-    """commit msg → 'done' | 'in_progress' | 'update'.
+    """commit msg → 'done' | 'in_progress' | 'update' | 'keep'.
 
     [BUGFIX 2026-05-06] commit subject 라인(첫 줄)만 검사하도록 수정.
     이전 룰은 [변경사유] 본문에 박힌 "완료" 같은 단어까지 잡아서,
@@ -150,11 +150,22 @@ def classify_intent(commit_msg: str) -> str:
         → 이전 룰: done (잘못)
         → 새 룰: in_progress (정확)
 
+    [BL-HEALTH-AUTOHEAL 후속 2026-05-13] [status:keep] 마커 추가:
+    pending 상태로 명시 정정하는 commit에 [status:keep] 박으면 봇이 건드리지 않음.
+    예: "fix(BL-XXX): in_progress (거짓) → pending 정정 [status:keep]"
+        → 봇이 자동으로 in_progress로 박지 않음
+
     안전장치:
+    - [status:keep] 마커 있으면 무조건 'keep' (변경 없음)
     - 명시적 [done] / [완료] 태그가 subject에 있을 때만 done
     - 일반 fix/feat/refactor subject는 무조건 in_progress
     """
     subject = (commit_msg or "").split("\n", 1)[0].strip()
+
+    # [BL-HEALTH-AUTOHEAL 후속 2026-05-13] [status:keep] 마커 = 봇 건드림 금지
+    KEEP_MARKER = re.compile(r"\[status:keep\]", re.IGNORECASE)
+    if KEEP_MARKER.search(subject):
+        return "keep"
 
     # 명시적 done 태그만 done으로 인식 (BL-OS-AUTO-SYNC-CHARTER 단계 2 fix, 2026-05-06):
     #   - 방향 화살표 패턴 (→ done) 완전 제거 → "in_progress→done" 같은 비유적 표현 false positive 방지

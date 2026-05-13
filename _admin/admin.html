@@ -2479,7 +2479,7 @@ body{margin:0;background:var(--bg,#0A0A0F);font-family:var(--sans,'Inter','Noto 
       return;
     }
     var html = '<div class="ad-table-wrap"><table class="ad-table">';
-    html += '<thead><tr><th>Email</th><th>Status</th><th>Hotel</th><th>Joined</th><th>Last Login</th></tr></thead><tbody>';
+    html += '<thead><tr><th>Email</th><th>Status</th><th>Hotel</th><th>Joined</th><th>Last Login</th><th style="text-align:right">상세</th></tr></thead><tbody>';
     filtered.forEach(function(m){
       var statusBadge = m.is_verified ? 
         '<span class="ad-status" style="background:#0a7c3a;">Verified</span>' : 
@@ -2490,16 +2490,26 @@ body{margin:0;background:var(--bg,#0A0A0F);font-family:var(--sans,'Inter','Noto 
         '<span style="color:#aaa;">— no hotel</span>';
       var created = new Date(m.created_at).toISOString().substring(0,10);
       var lastLogin = m.last_sign_in_at ? new Date(m.last_sign_in_at).toISOString().substring(0,10) : '—';
-      html += '<tr>';
+      // BL-MANAGER-HUB-PAGE: 행 클릭 시 허브 페이지로 점프
+      var hubUrl = '/admin-manager-hub.html?id=' + encodeURIComponent(m.id) + '&email=' + encodeURIComponent(m.email);
+      html += '<tr class="ad-row-clickable" data-hub-url="' + hubUrl + '" style="cursor:pointer">';
       html += '<td><strong>' + m.email + '</strong></td>';
       html += '<td>' + statusBadge + '</td>';
       html += '<td>' + hotelStr + '</td>';
       html += '<td>' + created + '</td>';
       html += '<td>' + lastLogin + '</td>';
+      html += '<td style="text-align:right"><a class="ad-btn ad-btn-primary" href="' + hubUrl + '" onclick="event.stopPropagation()" style="text-decoration:none;font-size:11.5px;padding:4px 10px">상세 →</a></td>';
       html += '</tr>';
     });
     html += '</tbody></table></div>';
     area.innerHTML = html;
+    // 행 클릭 이벤트 위임
+    area.querySelectorAll('.ad-row-clickable').forEach(function(tr){
+      tr.addEventListener('click', function(){
+        var url = tr.getAttribute('data-hub-url');
+        if (url) location.href = url;
+      });
+    });
   }
 
   // ========= Admins tab =========

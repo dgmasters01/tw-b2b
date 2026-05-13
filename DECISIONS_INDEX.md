@@ -47,6 +47,9 @@
 | D-033 | 환불·취소 정책 명확화 + 영수증 5년 영구 보관 | policy | 2026-05-13 | 확정 | BL-REFUND-FLOW, BL-RECEIPT-ARCHIVE |
 | D-034 | 이벤트 사이트 = 별도 브랜드/도메인 신설 (B2B와 분리) | strategy | 2026-05-13 | 확정 | BL-EVENT-SITE-FOUNDATION, BL-EVENT-CUSTOMER-DB, BL-EVENT-PAYMENT-PROXY, BL-EVENT-HOTEL-NOTIFY |
 | D-035 | 신규 매니저 가입 시 누적 매출 임계값 3구간 분기 노출 ($1,000+/$200~999/<$200) | analytics | 2026-05-13 | 확정 | BL-PAST-VIDEO-RECON, BL-SIGNUP-ENRICHMENT, BL-AGODA-TOS-CHECK |
+| D-036 | BL-CHATLOG-BIZ-FORMAT — C안 + 검증 봇 (헌법 손 안 댐, 워닝만) | infra | 2026-05-12 | 확정 | BL-CHATLOG-BIZ-FORMAT |
+| D-037 | BL-URGENT-CARD-FLOW — A안 통합 모달 (인계서/결정/핑퐁 분리 X) | infra | 2026-05-13 | 확정 | BL-URGENT-CARD-FLOW |
+| D-038 | BL-AGODA-TOS-CHECK — Agoda 약관 검토 완료, D-035 그대로 진행 (4중 안전 구조) | policy | 2026-05-13 | 확정 | BL-AGODA-TOS-CHECK done, BL-SIGNUP-ENRICHMENT 설계 기준 |
 
 ---
 

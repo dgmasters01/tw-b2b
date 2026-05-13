@@ -1,0 +1,70 @@
+# TW B2B — 매니저 자동 캠페인 cron (BL-MANAGER-AUTO-CAMPAIGN)
+#
+# 헌법 부합:
+#   ② 무인 실행: 매일 09:00 KST (UTC 00:00) 자동 발송
+#   부칙 17: 매니저 생애주기 자동 캠페인 (welcome/early/30/rebill/final)
+#
+# 작동:
+#   1. cron 트리거 (매일 09:00 KST = UTC 00:00)
+#   2. /api/cron/manager-campaign.js POST 호출 (x-cron-token 인증)
+#   3. API가 v_hotel_manager_full에서 단계 도달 매니저 추출
+#   4. manager_campaign_log UNIQUE 제약으로 중복 발송 차단
+#   5. Resend로 stage별 메일 발송 + 로그 박기
+
+name: Manager Auto Campaign
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # 매일 UTC 00:00 = KST 09:00
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'dry_run 모드 (실제 발송 안 함)'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  send-campaign:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call manager-campaign cron endpoint
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
+        run: |
+          if [ -z "$CRON_SECRET" ]; then
+            echo "❌ CRON_SECRET not configured in repository secrets"
+            exit 1
+          fi
+
+          URL="https://gohotelwinners.com/api/cron/manager-campaign"
+          if [ "$DRY_RUN" = "true" ]; then
+            URL="$URL?dry_run=1"
+          fi
+
+          echo "→ POST $URL"
+          RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "$URL" \
+            -H "x-cron-token: $CRON_SECRET" \
+            -H "Content-Type: application/json")
+
+          HTTP_CODE=$(echo "$RESPONSE" | tail -1)
+          BODY=$(echo "$RESPONSE" | sed '$d')
+
+          echo "HTTP $HTTP_CODE"
+          echo "$BODY" | head -50
+
+          if [ "$HTTP_CODE" != "200" ]; then
+            echo "❌ Cron call failed"
+            exit 1
+          fi
+
+          # 결과 요약 출력
+          SENT=$(echo "$BODY" | grep -o '"sent":[0-9]*' | head -1 | grep -o '[0-9]*')
+          ERRORS=$(echo "$BODY" | grep -o '"errors":\[[^]]*\]' | head -1)
+          echo "✅ Campaign sent: $SENT manager(s)"
+          if [ "$ERRORS" != '"errors":[]' ] && [ -n "$ERRORS" ]; then
+            echo "⚠️ Errors encountered: $ERRORS"
+          fi

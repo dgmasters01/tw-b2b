@@ -458,7 +458,10 @@ body {
           <!-- ─── 좌측: 매니저 화면 ─── -->
           <div>
             <div class="mh-card">
-              <div class="mh-card-label">🏨 호텔 정보 (매니저가 보는 화면)</div>
+              <div class="mh-card-label" style="display:flex;align-items:center;justify-content:space-between;">
+                <span>🏨 호텔 정보 (매니저가 보는 화면)</span>
+                ${m.hotel_id ? `<a href="/dashboard.html?impersonate=${encodeURIComponent(m.manager_id)}&hotel=${encodeURIComponent(m.hotel_id)}" target="_blank" style="font-size:11px;background:var(--glass-2,rgba(255,255,255,.08));border:1px solid var(--line-2,rgba(255,255,255,.14));color:var(--ink-2,#E5E5EE);padding:3px 10px;border-radius:6px;text-decoration:none;font-weight:500;">↗ 매니저 화면 열기</a>` : ''}
+              </div>
               ${hotelHtml}
             </div>
 
@@ -611,15 +614,62 @@ body {
     setTimeout(() => t.classList.remove('show'), 2200);
   }
 
-  // ────────── 푸시 버튼 (1차 — 발송은 BL-MANAGER-MANUAL-PUSH에서) ──────────
-  function handlePush(type) {
+  // ────────── 푸시 버튼 — 실제 API 호출 (BL-MANAGER-MANUAL-PUSH) ──────────
+  async function handlePush(type) {
     const labels = {
       new_video: '새 영상 알림',
       rebill: '재결제 제안',
       report: '성과 리포트',
       channel_add: '채널 추가 제안',
     };
-    toast('🚧 [' + labels[type] + '] 메일 발송 기능은 다음 단계에서 박힙니다 (BL-MANAGER-MANUAL-PUSH)');
+    const label = labels[type] || type;
+    const m = window.MH_currentManager;
+    if (!m || !m.manager_id) { toast('매니저 정보 없음'); return; }
+    if (!m.manager_email) { toast('매니저 이메일 없음 — 발송 불가'); return; }
+
+    try {
+      const sess = await sb.auth.getSession();
+      const token = sess.data.session?.access_token;
+      if (!token) { toast('로그인 만료 — 다시 로그인하세요'); return; }
+
+      // 1단계: dryRun 미리보기
+      toast('📨 [' + label + '] 미리보기 생성 중…');
+      const previewResp = await fetch('/api/admin?action=manager-push', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ manager_id: m.manager_id, push_type: type, dry_run: true }),
+      });
+      const preview = await previewResp.json();
+      if (!previewResp.ok) {
+        toast('❌ 미리보기 실패: ' + (preview.error || previewResp.status));
+        return;
+      }
+
+      // 2단계: 사용자에게 확인 — 미리보기 + confirm
+      const msg = `[${label}] 발송 확인\n\n` +
+        `받는 사람: ${preview.preview.to}\n` +
+        `제목: ${preview.preview.subject}\n\n` +
+        `정말 발송할까요?`;
+      if (!confirm(msg)) { toast('취소됨'); return; }
+
+      // 3단계: 실제 발송
+      toast('🚀 발송 중…');
+      const sendResp = await fetch('/api/admin?action=manager-push', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ manager_id: m.manager_id, push_type: type }),
+      });
+      const sendData = await sendResp.json();
+      if (!sendResp.ok) {
+        toast('❌ 발송 실패: ' + (sendData.error || sendResp.status));
+        return;
+      }
+      toast('✅ [' + label + '] 발송 완료 → ' + sendData.sent_to);
+      // CS 메모에 자동 기록되었으니 화면 재로드
+      setTimeout(() => loadManager(), 800);
+    } catch (e) {
+      toast('❌ 예외: ' + e.message);
+    }
   }
 
   // ────────── CS 메모 추가 ──────────

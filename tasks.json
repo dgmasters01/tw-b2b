@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-13T15:01:16+00:00",
+  "updated_at": "2026-05-13T15:55:50.030158+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -14510,6 +14510,175 @@
           "commit": "caf0f8a",
           "note": "feat(BL-NEW): 후속 BL 2건 등록 — BL-ADMIN-AUTH-V2-BACKFILL-DISARM + BL-AUTO-DETECT-BOT-STEP-TAG-FIX (부칙 17 사업가 V2 컨텍스트 박음)"
         }
+      ]
+    },
+    {
+      "id": "BL-MANAGER-HUB-VIEW",
+      "title": "[허브 페이지] 매니저 통합 VIEW 박기 (v_hotel_manager_full)",
+      "category": "infra",
+      "priority": "P0",
+      "size": "small",
+      "status": "pending",
+      "owner": "claude",
+      "claude_can_auto": true,
+      "approval_required": false,
+      "estimated_hours": 4,
+      "order": 1,
+      "blocker": null,
+      "depends_on": [],
+      "progress": {
+        "percent": 0,
+        "steps": []
+      },
+      "notes": "Manager Hub 페이지 시리즈. 좌우 분할 1개 페이지로 매니저 생애주기 관리. 사업 시작 전 필수.",
+      "biz_context_v2": {
+        "지금_무슨_상황이냐면": "매니저 한 명 정보가 6개 테이블에 흩어져 있음. 화면 만들 때마다 다른 SQL 짜야 됨.",
+        "왜_결정이_필요하냐면": "허브 페이지가 단일 진실원에서 데이터 가져와야 통화 중 1초 안에 모든 정보 파악 가능.",
+        "결정하면_뭐가_달라지냐면": "매니저 1명 = SQL 1줄. 모든 화면이 같은 VIEW 사용."
+      },
+      "created_at": "2026-05-13T15:55:50.030158+00:00",
+      "updated_at": "2026-05-13T15:55:50.030158+00:00",
+      "source": "chat:2026-05-13 매니저 허브 페이지 설계",
+      "target_pages": [
+        "_admin/admin.html (members 탭)",
+        "_admin/admin-manager-hub.html (신규)"
+      ]
+    },
+    {
+      "id": "BL-MANAGER-HUB-PAGE",
+      "title": "[허브 페이지] 가입자 클릭 → 좌우 분할 상세 페이지 (Aurora)",
+      "category": "feature",
+      "priority": "P0",
+      "size": "medium",
+      "status": "pending",
+      "owner": "claude",
+      "claude_can_auto": true,
+      "approval_required": false,
+      "estimated_hours": 12,
+      "order": 2,
+      "blocker": null,
+      "depends_on": [
+        "BL-MANAGER-HUB-VIEW"
+      ],
+      "progress": {
+        "percent": 0,
+        "steps": []
+      },
+      "notes": "Manager Hub 페이지 시리즈. 좌우 분할 1개 페이지로 매니저 생애주기 관리. 사업 시작 전 필수.",
+      "biz_context_v2": {
+        "지금_무슨_상황이냐면": "가입자 클릭해도 아무 일 안 일어남. 매니저 정보 따로 못 봄.",
+        "왜_결정이_필요하냐면": "통화 중 매니저 화면 + 결제·CS·캠페인 정보 한 화면에서 봐야 영업 효율.",
+        "결정하면_뭐가_달라지냐면": "가입자 1번 클릭 → 좌측 매니저 화면 + 우측 관리 패널 한눈에. 다른 페이지 연동의 허브."
+      },
+      "created_at": "2026-05-13T15:55:50.030158+00:00",
+      "updated_at": "2026-05-13T15:55:50.030158+00:00",
+      "source": "chat:2026-05-13 매니저 허브 페이지 설계",
+      "target_pages": [
+        "_admin/admin.html (members 탭)",
+        "_admin/admin-manager-hub.html (신규)"
+      ]
+    },
+    {
+      "id": "BL-MANAGER-IMPERSONATE",
+      "title": "[허브 좌측] 매니저 본인 화면 실제 연동 (호텔 정보·예약·매출·영상)",
+      "category": "feature",
+      "priority": "P0",
+      "size": "medium",
+      "status": "pending",
+      "owner": "claude",
+      "claude_can_auto": true,
+      "approval_required": false,
+      "estimated_hours": 8,
+      "order": 3,
+      "blocker": null,
+      "depends_on": [
+        "BL-MANAGER-HUB-PAGE"
+      ],
+      "progress": {
+        "percent": 0,
+        "steps": []
+      },
+      "notes": "Manager Hub 페이지 시리즈. 좌우 분할 1개 페이지로 매니저 생애주기 관리. 사업 시작 전 필수.",
+      "biz_context_v2": {
+        "지금_무슨_상황이냐면": "허브 좌측에 placeholder만 있음. 매니저가 보는 진짜 화면이 아님.",
+        "왜_결정이_필요하냐면": "매니저랑 통화 중 '내 화면에 X 보이나요?' 답하려면 똑같은 화면 봐야 함.",
+        "결정하면_뭐가_달라지냐면": "좌측 = 매니저가 자기 페이지에서 보는 그대로. 호텔 정보·예약·매출·영상 8채널 실제 데이터."
+      },
+      "created_at": "2026-05-13T15:55:50.030158+00:00",
+      "updated_at": "2026-05-13T15:55:50.030158+00:00",
+      "source": "chat:2026-05-13 매니저 허브 페이지 설계",
+      "target_pages": [
+        "_admin/admin.html (members 탭)",
+        "_admin/admin-manager-hub.html (신규)"
+      ]
+    },
+    {
+      "id": "BL-MANAGER-MANUAL-PUSH",
+      "title": "[허브 우측] 수동 푸시 버튼 4개 — 실제 메일 발송 + 템플릿",
+      "category": "feature",
+      "priority": "P1",
+      "size": "medium",
+      "status": "pending",
+      "owner": "claude",
+      "claude_can_auto": true,
+      "approval_required": false,
+      "estimated_hours": 10,
+      "order": 4,
+      "blocker": null,
+      "depends_on": [
+        "BL-MANAGER-HUB-PAGE"
+      ],
+      "progress": {
+        "percent": 0,
+        "steps": []
+      },
+      "notes": "Manager Hub 페이지 시리즈. 좌우 분할 1개 페이지로 매니저 생애주기 관리. 사업 시작 전 필수.",
+      "biz_context_v2": {
+        "지금_무슨_상황이냐면": "푸시 버튼 자체 없음. 매니저에게 개별 메일 보낼 때마다 카카오/메일 직접 작성.",
+        "왜_결정이_필요하냐면": "재결제 유도·새 영상 알림·성과 리포트·채널 추가 제안 — 영업 핵심 4종을 클릭 1번에.",
+        "결정하면_뭐가_달라지냐면": "버튼 클릭 → 매니저 정보 자동 치환된 템플릿 미리보기 → 발송. Resend로 자동 메일."
+      },
+      "created_at": "2026-05-13T15:55:50.030158+00:00",
+      "updated_at": "2026-05-13T15:55:50.030158+00:00",
+      "source": "chat:2026-05-13 매니저 허브 페이지 설계",
+      "target_pages": [
+        "_admin/admin.html (members 탭)",
+        "_admin/admin-manager-hub.html (신규)"
+      ]
+    },
+    {
+      "id": "BL-MANAGER-AUTO-CAMPAIGN",
+      "title": "[허브 자동화] D-0/7/30/150/170 자동 캠페인 봇 (cron)",
+      "category": "infra",
+      "priority": "P1",
+      "size": "large",
+      "status": "pending",
+      "owner": "claude",
+      "claude_can_auto": true,
+      "approval_required": false,
+      "estimated_hours": 16,
+      "order": 5,
+      "blocker": null,
+      "depends_on": [
+        "BL-MANAGER-HUB-VIEW",
+        "BL-MANAGER-MANUAL-PUSH"
+      ],
+      "progress": {
+        "percent": 0,
+        "steps": []
+      },
+      "notes": "Manager Hub 페이지 시리즈. 좌우 분할 1개 페이지로 매니저 생애주기 관리. 사업 시작 전 필수.",
+      "biz_context_v2": {
+        "지금_무슨_상황이냐면": "결제 후 6개월 보장 기간 동안 매니저랑 접점 없음. 재결제 매출 0%.",
+        "왜_결정이_필요하냐면": "결제 D-0 환영 → D-7 영업 → D-30 성과 → D-150 재결제 → D-170 환불·연장. 자동으로 돌아야 사업 확장 가능.",
+        "결정하면_뭐가_달라지냐면": "매일 새벽 cron이 모든 매니저 D-N 계산 → 해당 단계 자동 메일. 대표님 손 0번. 재결제 매출 자동 발생."
+      },
+      "created_at": "2026-05-13T15:55:50.030158+00:00",
+      "updated_at": "2026-05-13T15:55:50.030158+00:00",
+      "source": "chat:2026-05-13 매니저 허브 페이지 설계",
+      "target_pages": [
+        "_admin/admin.html (members 탭)",
+        "_admin/admin-manager-hub.html (신규)"
       ]
     }
   ]

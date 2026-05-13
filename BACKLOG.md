@@ -205,14 +205,14 @@ detail: 작업 206건 중 16건에 출처가 없어요 (자동 동기화 봇 멈
 
 ---
 
-## ⚡ P1 — OS 설치 시 PAT/시크릿 자동 박기 흐름 — install_os.sh 보강
+## 🟡 P1 — OS 설치 시 PAT/시크릿 자동 박기 흐름 — install_os.sh 보강
 
 **요약**: BL-DEDUP-CONSOLIDATE와 별건. install_os.sh에 PAT 처리 로직이 박혀있지 않음 (현재 224줄, grep 확인). 설치 후 새 프로젝트에서 GitHub push·workflow 트리거 시 거부됨. Q 답변 후 진행.
 
 - **자율성**: 🟡 SEMI
 - **예상 시간**: 1.5시간
 - **카테고리**: infra
-- **상태**: in_progress
+- **상태**: pending
 - **결정 필요**:
   - Q: PAT 박는 방식 — 환경변수 vs .env.local vs GitHub Secrets API
 - **ID**: `BL-OS-INSTALL-PAT-FLOW` (출처: 대표님 진단 (2026-05-08) — OS 설치 시 PAT 거부됨, 설치 자체가 안 됨)

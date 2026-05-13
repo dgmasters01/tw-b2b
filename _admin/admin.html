@@ -690,12 +690,21 @@ body{margin:0;background:var(--bg,#0A0A0F);font-family:var(--sans,'Inter','Noto 
     <!-- TAB: Members (Hotel Managers) -->
     <div id="tab-members" class="ad-tab-pane" style="display:none;">
       <div class="ad-stats">
-        <div class="ad-stat"><div class="ad-stat-lbl">Total Managers</div><div class="ad-stat-val" id="mb-total">—</div></div>
-        <div class="ad-stat"><div class="ad-stat-lbl">With Hotel</div><div class="ad-stat-val" id="mb-with-hotel">—</div></div>
-        <div class="ad-stat"><div class="ad-stat-lbl">Without Hotel</div><div class="ad-stat-val" id="mb-no-hotel">—</div></div>
-        <div class="ad-stat"><div class="ad-stat-lbl">Verified</div><div class="ad-stat-val" id="mb-verified">—</div></div>
-        <div class="ad-stat"><div class="ad-stat-lbl">Last 7 days</div><div class="ad-stat-val" id="mb-recent">—</div></div>
-        <div class="ad-stat"><div class="ad-stat-lbl">Last 30 days</div><div class="ad-stat-val" id="mb-month">—</div></div>
+        <div class="ad-stat"><div class="ad-stat-lbl" data-en="Total Managers" data-ko="전체 가입자">Total Managers</div><div class="ad-stat-val" id="mb-total">—</div></div>
+        <div class="ad-stat" style="border-color:rgba(16,185,129,.35);background:rgba(16,185,129,.06);">
+          <div class="ad-stat-lbl" data-en="Paid" data-ko="결제 완료">Paid</div>
+          <div class="ad-stat-val" id="mb-paid" style="color:#34D399;">—</div>
+        </div>
+        <div class="ad-stat"><div class="ad-stat-lbl" data-en="Signup Only" data-ko="가입만 (미결제)">Signup Only</div><div class="ad-stat-val" id="mb-signup-only">—</div></div>
+        <div class="ad-stat"><div class="ad-stat-lbl" data-en="Hotel Registered" data-ko="호텔 등록">Hotel Registered</div><div class="ad-stat-val" id="mb-hotel-reg">—</div></div>
+        <div class="ad-stat" style="border-color:rgba(236,72,153,.35);background:rgba(236,72,153,.06);">
+          <div class="ad-stat-lbl" data-en="Rebill Window" data-ko="재결제 임박">Rebill Window</div>
+          <div class="ad-stat-val" id="mb-rebill" style="color:#F9A8D4;">—</div>
+        </div>
+        <div class="ad-stat" style="border-color:rgba(239,68,68,.35);background:rgba(239,68,68,.06);">
+          <div class="ad-stat-lbl" data-en="Refund Risk" data-ko="환불 위험">Refund Risk</div>
+          <div class="ad-stat-val" id="mb-risk" style="color:#FCA5A5;">—</div>
+        </div>
       </div>
 
       <div class="ad-card">
@@ -2443,6 +2452,8 @@ body{margin:0;background:var(--bg,#0A0A0F);font-family:var(--sans,'Inter','Noto 
         return;
       }
       membersData = data.members || [];
+      // BL-MANAGER-HUB-PAGE step 6: VIEW 영업 통계 병렬 로드
+      membersSalesData = await loadMembersSalesView();
       membersLoaded = true;
       renderMembersStats();
       renderMembers();
@@ -2451,21 +2462,46 @@ body{margin:0;background:var(--bg,#0A0A0F);font-family:var(--sans,'Inter','Noto 
     }
   }
 
+  // BL-MANAGER-HUB-PAGE step 6: VIEW에서 영업 관점 통계 추가 로드
+  var membersSalesData = null; // v_hotel_manager_full 캐시
+
+  async function loadMembersSalesView() {
+    try {
+      var r = await T.sb.from('v_hotel_manager_full')
+        .select('manager_id, hotel_id, payment_status, lifecycle_stage, guarantee_status, days_since_payment, guarantee_days_left');
+      if (r.error) { console.warn('VIEW load failed:', r.error.message); return null; }
+      return r.data || [];
+    } catch(e) { console.warn('VIEW load exception:', e); return null; }
+  }
+
   function renderMembersStats(){
     var total = membersData.length;
-    var withHotel = membersData.filter(function(m){ return m.hotels.length > 0; }).length;
-    var noHotel = total - withHotel;
-    var verified = membersData.filter(function(m){ return m.is_verified; }).length;
-    var sevenDaysAgo = Date.now() - 7*24*3600*1000;
-    var thirtyDaysAgo = Date.now() - 30*24*3600*1000;
-    var recent = membersData.filter(function(m){ return new Date(m.created_at).getTime() > sevenDaysAgo; }).length;
-    var month = membersData.filter(function(m){ return new Date(m.created_at).getTime() > thirtyDaysAgo; }).length;
     document.getElementById('mb-total').textContent = total;
-    document.getElementById('mb-with-hotel').textContent = withHotel;
-    document.getElementById('mb-no-hotel').textContent = noHotel;
-    document.getElementById('mb-verified').textContent = verified;
-    document.getElementById('mb-recent').textContent = recent;
-    document.getElementById('mb-month').textContent = month;
+
+    // VIEW 기반 영업 통계 (있을 때만)
+    if (membersSalesData) {
+      var paid = membersSalesData.filter(function(m){ return m.payment_status === 'completed'; }).length;
+      var signupOnly = membersSalesData.filter(function(m){ return m.lifecycle_stage === 'signup_only'; }).length;
+      var hotelReg = membersSalesData.filter(function(m){ return m.hotel_id != null; }).length;
+      var rebill = membersSalesData.filter(function(m){
+        return m.lifecycle_stage === 'rebill_window' || m.lifecycle_stage === 'final_decision_window';
+      }).length;
+      var risk = membersSalesData.filter(function(m){ return m.guarantee_status === 'risk_refund'; }).length;
+
+      document.getElementById('mb-paid').textContent = paid;
+      document.getElementById('mb-signup-only').textContent = signupOnly;
+      document.getElementById('mb-hotel-reg').textContent = hotelReg;
+      document.getElementById('mb-rebill').textContent = rebill;
+      document.getElementById('mb-risk').textContent = risk;
+    } else {
+      // fallback: VIEW 못 가져오면 기본 정보로 표시
+      var withHotel = membersData.filter(function(m){ return m.hotels && m.hotels.length > 0; }).length;
+      document.getElementById('mb-paid').textContent = '—';
+      document.getElementById('mb-signup-only').textContent = total - withHotel;
+      document.getElementById('mb-hotel-reg').textContent = withHotel;
+      document.getElementById('mb-rebill').textContent = '—';
+      document.getElementById('mb-risk').textContent = '—';
+    }
   }
 
   function renderMembers(){

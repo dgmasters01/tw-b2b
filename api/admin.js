@@ -654,6 +654,92 @@ async function handleStartTask(req, res, serviceKey, admin) {
 }
 
 // =============================================================
+// Sub-handler 6: past-video-revenue (BL-PAST-VIDEO-RECON / D-035)
+// =============================================================
+// 호텔별 우리 채널 누적 매출 집계 — admin 우리만 보는 영역 전용
+// VIEW: v_hotel_past_revenue (sql/07-hotel-past-revenue-view.sql)
+// 매칭: agoda_hotel_id + hotel_id(UUID) + name+city+country 폴백
+// 3구간: strong(>=$1k) / soft($200~$999) / hide(<$200)
+// 쿼리:
+//   GET ?action=past-video-revenue                 → 전체 (DESC by revenue)
+//   GET ?action=past-video-revenue&tier=strong     → 강력만
+//   GET ?action=past-video-revenue&min_revenue=200 → $200+ 만
+//   GET ?action=past-video-revenue&search=hilton   → 호텔명 부분일치
+async function handlePastVideoRevenue(req, res, serviceKey, _admin) {
+  if (req.method !== 'GET') {
+    return res.status(405).json({ error: 'Method not allowed (GET only)' });
+  }
+  try {
+    const { tier, min_revenue, search, limit } = req.query || {};
+
+    // PostgREST 쿼리 빌더
+    const params = new URLSearchParams();
+    params.set('select', '*');
+    params.set('order', 'total_revenue_usd.desc,hotel_created_at.desc');
+
+    if (tier && ['strong', 'soft', 'hide'].includes(tier)) {
+      params.set('revenue_tier', 'eq.' + tier);
+    }
+    if (min_revenue && !isNaN(Number(min_revenue))) {
+      params.append('total_revenue_usd', 'gte.' + Number(min_revenue));
+    }
+    if (search && typeof search === 'string' && search.trim()) {
+      // ilike 부분 일치 (호텔명)
+      params.append('hotel_name', 'ilike.*' + search.trim() + '*');
+    }
+    const lim = Number(limit) > 0 && Number(limit) <= 500 ? Number(limit) : 200;
+    params.set('limit', String(lim));
+
+    const url = SUPABASE_URL + '/rest/v1/v_hotel_past_revenue?' + params.toString();
+    const resp = await fetch(url, {
+      headers: {
+        'Authorization': 'Bearer ' + serviceKey,
+        'apikey': serviceKey,
+        'Accept': 'application/json',
+      },
+    });
+    if (!resp.ok) {
+      const t = await resp.text();
+      return res.status(502).json({
+        error: 'supabase_view_query_failed',
+        status: resp.status,
+        detail: t.slice(0, 500),
+        hint: 'v_hotel_past_revenue VIEW가 Supabase에 적용되었는지 확인 (sql/07-hotel-past-revenue-view.sql)',
+      });
+    }
+    const rows = await resp.json();
+
+    // 집계 통계 (응답 페이로드에 같이 박음 — UI 카드용)
+    const summary = {
+      total_hotels: rows.length,
+      strong_count: rows.filter(r => r.revenue_tier === 'strong').length,
+      soft_count:   rows.filter(r => r.revenue_tier === 'soft').length,
+      hide_count:   rows.filter(r => r.revenue_tier === 'hide').length,
+      total_revenue_usd: rows.reduce((s, r) => s + Number(r.total_revenue_usd || 0), 0),
+      total_bookings: rows.reduce((s, r) => s + Number(r.total_bookings || 0), 0),
+      hotels_with_revenue: rows.filter(r => Number(r.total_revenue_usd) > 0).length,
+    };
+
+    return res.status(200).json({
+      ok: true,
+      rows,
+      summary,
+      filters: { tier: tier || null, min_revenue: min_revenue || null, search: search || null, limit: lim },
+      generated_at: new Date().toISOString(),
+      meta: {
+        source: 'v_hotel_past_revenue',
+        decision_ref: 'D-035',
+        bl_ref: 'BL-PAST-VIDEO-RECON',
+        tier_thresholds: { strong: 1000, soft: 200 },
+      },
+    });
+  } catch (err) {
+    console.error('[handlePastVideoRevenue] error:', err);
+    return res.status(500).json({ error: 'past_video_revenue_internal', detail: err.message });
+  }
+}
+
+// =============================================================
 // 메인 라우터
 // =============================================================
 export default async function handler(req, res) {
@@ -687,7 +773,7 @@ export default async function handler(req, res) {
   }
 
   // 화이트리스트 검증을 인증보다 먼저 수행 → 디버깅 시 라우팅 문제와 인증 문제를 명확히 분리
-  const ALLOWED_ACTIONS = ['booking-upload', 'list-users', 'send-invite', 'update-match', 'start-task'];
+  const ALLOWED_ACTIONS = ['booking-upload', 'list-users', 'send-invite', 'update-match', 'start-task', 'past-video-revenue'];
   if (!action) {
     return res.status(400).json({
       error: 'missing_action',
@@ -740,6 +826,9 @@ export default async function handler(req, res) {
       case 'start-task':
         actionResult = await handleStartTask(req, res, serviceKey, adminCheck);
         return actionResult;
+      case 'past-video-revenue':
+        actionResult = await handlePastVideoRevenue(req, res, serviceKey, adminCheck);
+        return actionResult;
       default:
         // unreachable: 위에서 화이트리스트로 이미 차단됨
         return res.status(500).json({ error: 'router_inconsistency', received: action });
@@ -750,7 +839,7 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'internal_error', detail: err.message });
   } finally {
     // ★ logAction은 viewer/list-users 같은 단순 조회는 skip (소음 줄이기)
-    const NON_LOG_ACTIONS = ['list-users'];
+    const NON_LOG_ACTIONS = ['list-users', 'past-video-revenue'];
     if (logAction && !NON_LOG_ACTIONS.includes(action)) {
       try {
         await logAction({

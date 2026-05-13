@@ -301,38 +301,38 @@ body{margin:0;background:var(--bg,#0A0A0F);font-family:var(--sans,'Inter','Noto 
     </div>
 
     <nav class="ad-sb-nav">
-      <div class="ad-sb-section">Overview</div>
+      <div class="ad-sb-section" data-en="Overview" data-ko="개요">Overview</div>
       <button class="ad-sb-item" data-tab="dashboard">
-        <span class="ad-sb-icon">📊</span><span>Dashboard</span>
+        <span class="ad-sb-icon">📊</span><span data-en="Dashboard" data-ko="대시보드">Dashboard</span>
       </button>
 
-      <div class="ad-sb-section">Sales</div>
+      <div class="ad-sb-section" data-en="Sales" data-ko="영업">Sales</div>
       <button class="ad-sb-item" data-tab="bookings">
-        <span class="ad-sb-icon">🧾</span><span>Bookings</span>
+        <span class="ad-sb-icon">🧾</span><span data-en="Bookings" data-ko="예약">Bookings</span>
       </button>
       <button class="ad-sb-item" data-tab="analytics">
-        <span class="ad-sb-icon">📈</span><span>Analytics</span>
+        <span class="ad-sb-icon">📈</span><span data-en="Analytics" data-ko="분석">Analytics</span>
       </button>
       <!-- BL-PAST-VIDEO-RECON / D-035: 호텔별 우리 채널 누적 매출 (우리만 보는 영역) -->
       <button class="ad-sb-item" data-tab="video-revenue">
         <span class="ad-sb-icon">📺</span><span data-en="Video Asset Revenue" data-ko="영상 자산 성과">Video Asset Revenue</span>
       </button>
 
-      <div class="ad-sb-section">Operations</div>
+      <div class="ad-sb-section" data-en="Operations" data-ko="운영">Operations</div>
       <button class="ad-sb-item active" data-tab="hotels">
-        <span class="ad-sb-icon">🏨</span><span>Hotels</span>
+        <span class="ad-sb-icon">🏨</span><span data-en="Hotels" data-ko="호텔 파트너">Hotels</span>
       </button>
       <button class="ad-sb-item" data-tab="agoda-matching">
         <span class="ad-sb-icon">🔗</span><span data-en="Agoda Matching" data-ko="아고다 매칭">Agoda Matching</span>
       </button>
       <button class="ad-sb-item" data-tab="members">
-        <span class="ad-sb-icon">👥</span><span>Members</span>
+        <span class="ad-sb-icon">👥</span><span data-en="Members" data-ko="가입자">Members</span>
       </button>
       <button class="ad-sb-item" data-tab="admins">
-        <span class="ad-sb-icon">⚙️</span><span>Team</span>
+        <span class="ad-sb-icon">⚙️</span><span data-en="Team" data-ko="우리 팀">Team</span>
       </button>
 
-      <div class="ad-sb-section">Tools</div>
+      <div class="ad-sb-section" data-en="Tools" data-ko="도구">Tools</div>
       <a class="ad-sb-item" href="/admin-status.html" style="text-decoration:none; background:linear-gradient(90deg,rgba(79,70,229,.15),transparent); border-left:3px solid #4f46e5">
         <span class="ad-sb-icon">📊</span><span data-en="System Status" data-ko="시스템 완성도">System Status</span>
       </a>
@@ -624,33 +624,33 @@ body{margin:0;background:var(--bg,#0A0A0F);font-family:var(--sans,'Inter','Noto 
     <!-- TAB: Hotels -->
     <div id="tab-hotels" class="ad-tab-pane">
       <div class="ad-stats" id="stats-area">
-        <div class="ad-stat"><div class="ad-stat-lbl">Total Hotels</div><div class="ad-stat-val" id="st-total">—</div></div>
-        <div class="ad-stat"><div class="ad-stat-lbl">Pending</div><div class="ad-stat-val" id="st-pending">—</div></div>
-        <div class="ad-stat"><div class="ad-stat-lbl">Approved</div><div class="ad-stat-val" id="st-approved">—</div></div>
-        <div class="ad-stat"><div class="ad-stat-lbl">Paid</div><div class="ad-stat-val" id="st-paid">—</div></div>
-        <div class="ad-stat"><div class="ad-stat-lbl">Producing</div><div class="ad-stat-val" id="st-producing">—</div></div>
-        <div class="ad-stat"><div class="ad-stat-lbl">Published</div><div class="ad-stat-val" id="st-published">—</div></div>
+        <div class="ad-stat"><div class="ad-stat-lbl" data-en="Total Hotels" data-ko="전체 호텔">Total Hotels</div><div class="ad-stat-val" id="st-total">—</div></div>
+        <div class="ad-stat"><div class="ad-stat-lbl" data-en="Pending" data-ko="검토 대기">Pending</div><div class="ad-stat-val" id="st-pending">—</div></div>
+        <div class="ad-stat"><div class="ad-stat-lbl" data-en="Approved" data-ko="승인됨">Approved</div><div class="ad-stat-val" id="st-approved">—</div></div>
+        <div class="ad-stat"><div class="ad-stat-lbl" data-en="Paid" data-ko="결제 완료">Paid</div><div class="ad-stat-val" id="st-paid">—</div></div>
+        <div class="ad-stat"><div class="ad-stat-lbl" data-en="Producing" data-ko="영상 제작 중">Producing</div><div class="ad-stat-val" id="st-producing">—</div></div>
+        <div class="ad-stat"><div class="ad-stat-lbl" data-en="Published" data-ko="발행 완료">Published</div><div class="ad-stat-val" id="st-published">—</div></div>
       </div>
 
       <div class="ad-card">
         <div class="ad-card-h">
-          <h3>Hotel Partners</h3>
-          <button class="ad-btn ad-btn-secondary" id="btn-refresh">↻ Refresh</button>
+          <h3 data-en="Hotel Partners" data-ko="호텔 파트너 목록">Hotel Partners</h3>
+          <button class="ad-btn ad-btn-secondary" id="btn-refresh" data-en="↻ Refresh" data-ko="↻ 새로고침">↻ Refresh</button>
         </div>
 
         <div class="ad-filter-row" id="filter-row">
-          <button class="ad-filter active" data-filter="all">All</button>
-          <button class="ad-filter" data-filter="pending">Pending</button>
-          <button class="ad-filter" data-filter="review">Review</button>
-          <button class="ad-filter" data-filter="approved">Approved</button>
-          <button class="ad-filter" data-filter="paid">Paid</button>
-          <button class="ad-filter" data-filter="producing">Producing</button>
-          <button class="ad-filter" data-filter="published">Published</button>
-          <button class="ad-filter" data-filter="rejected">Rejected</button>
+          <button class="ad-filter active" data-filter="all" data-en="All" data-ko="전체">All</button>
+          <button class="ad-filter" data-filter="pending" data-en="Pending" data-ko="검토 대기">Pending</button>
+          <button class="ad-filter" data-filter="review" data-en="Review" data-ko="검토 중">Review</button>
+          <button class="ad-filter" data-filter="approved" data-en="Approved" data-ko="승인됨">Approved</button>
+          <button class="ad-filter" data-filter="paid" data-en="Paid" data-ko="결제 완료">Paid</button>
+          <button class="ad-filter" data-filter="producing" data-en="Producing" data-ko="영상 제작 중">Producing</button>
+          <button class="ad-filter" data-filter="published" data-en="Published" data-ko="발행 완료">Published</button>
+          <button class="ad-filter" data-filter="rejected" data-en="Rejected" data-ko="거부됨">Rejected</button>
         </div>
 
         <div id="hotels-area">
-          <div class="ad-loading"><div class="ad-loader"></div><span>Loading hotels...</span></div>
+          <div class="ad-loading"><div class="ad-loader"></div><span data-en="Loading hotels..." data-ko="호텔 목록 불러오는 중...">Loading hotels...</span></div>
         </div>
       </div>
     </div>
@@ -1169,6 +1169,10 @@ body{margin:0;background:var(--bg,#0A0A0F);font-family:var(--sans,'Inter','Noto 
     $('user-email').textContent = user.email;
     var sbEmail = document.getElementById('sb-user-email');
     if (sbEmail) sbEmail.textContent = user.email;
+    // BL-ADMIN-I18N-DEFAULT (2026-05-13): 이메일 화면에 박힌 직후 언어 재감지.
+    // 대표님 계정(dgmasters01@gmail.com)이면 자동으로 한국어로 전환. 단, 사용자가
+    // 이미 EN/한국어 버튼을 명시적으로 누른 적 있으면 그 선택을 우선 유지.
+    try { if (typeof window.TW_applyLang === 'function') window.TW_applyLang(); } catch(e){}
     // role만 가져옴 (is_admin은 middleware가 보장)
     var role = 'admin';
     try {
@@ -2727,7 +2731,8 @@ body{margin:0;background:var(--bg,#0A0A0F);font-family:var(--sans,'Inter','Noto 
     }
 
     if (filtered.length === 0){
-      $('hotels-area').innerHTML = '<div class="ad-empty">No hotels in this category.</div>';
+      var _emptyLang = (window.TW && window.TW.lang === 'ko') ? '이 카테고리에 호텔이 없습니다.' : 'No hotels in this category.';
+      $('hotels-area').innerHTML = '<div class="ad-empty">' + _emptyLang + '</div>';
       return;
     }
 
@@ -4907,7 +4912,27 @@ function rDayHotels(){
   window.TW_applyLang = function(){ setLang(getLang()); };
 
   function getLang(){
-    try { return localStorage.getItem('tw-lang') || 'en'; } catch(e){ return 'en'; }
+    try {
+      // 1순위: 사용자가 명시적으로 선택한 언어 (EN/한국어 버튼 클릭한 적 있으면)
+      var saved = localStorage.getItem('tw-lang');
+      if (saved === 'en' || saved === 'ko') return saved;
+
+      // 2순위: 대표님 계정 자동 감지 → 한국어 디폴트
+      // BL-ADMIN-I18N-DEFAULT (2026-05-13): 대표님은 한국어만 보시므로
+      // 명시 토글 전까지는 자동으로 한국어로 시작.
+      // 영어권 직원이 로그인하면 EN 버튼 한 번 누르면 그 후로는 영어로 유지됨.
+      var ownerEmails = ['dgmasters01@gmail.com'];
+      // 페이지 상단 #user-email 또는 #sb-user-email 에 로그인된 이메일이 박혀있음
+      var emailEl = document.getElementById('user-email') || document.getElementById('sb-user-email');
+      var currentEmail = (emailEl && emailEl.textContent || '').trim().toLowerCase();
+      if (currentEmail && ownerEmails.indexOf(currentEmail) !== -1) return 'ko';
+
+      // 3순위: 브라우저 언어가 한국어면 한국어
+      if (navigator && navigator.language && navigator.language.toLowerCase().indexOf('ko') === 0) return 'ko';
+
+      // 4순위: 영어 디폴트
+      return 'en';
+    } catch(e){ return 'en'; }
   }
 
   // ---- 초기화 ----

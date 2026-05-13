@@ -1169,10 +1169,6 @@ body{margin:0;background:var(--bg,#0A0A0F);font-family:var(--sans,'Inter','Noto 
     $('user-email').textContent = user.email;
     var sbEmail = document.getElementById('sb-user-email');
     if (sbEmail) sbEmail.textContent = user.email;
-    // BL-ADMIN-I18N-DEFAULT (2026-05-13): 이메일 화면에 박힌 직후 언어 재감지.
-    // 대표님 계정(dgmasters01@gmail.com)이면 자동으로 한국어로 전환. 단, 사용자가
-    // 이미 EN/한국어 버튼을 명시적으로 누른 적 있으면 그 선택을 우선 유지.
-    try { if (typeof window.TW_applyLang === 'function') window.TW_applyLang(); } catch(e){}
     // role만 가져옴 (is_admin은 middleware가 보장)
     var role = 'admin';
     try {
@@ -4912,27 +4908,11 @@ function rDayHotels(){
   window.TW_applyLang = function(){ setLang(getLang()); };
 
   function getLang(){
-    try {
-      // 1순위: 사용자가 명시적으로 선택한 언어 (EN/한국어 버튼 클릭한 적 있으면)
-      var saved = localStorage.getItem('tw-lang');
-      if (saved === 'en' || saved === 'ko') return saved;
-
-      // 2순위: 대표님 계정 자동 감지 → 한국어 디폴트
-      // BL-ADMIN-I18N-DEFAULT (2026-05-13): 대표님은 한국어만 보시므로
-      // 명시 토글 전까지는 자동으로 한국어로 시작.
-      // 영어권 직원이 로그인하면 EN 버튼 한 번 누르면 그 후로는 영어로 유지됨.
-      var ownerEmails = ['dgmasters01@gmail.com'];
-      // 페이지 상단 #user-email 또는 #sb-user-email 에 로그인된 이메일이 박혀있음
-      var emailEl = document.getElementById('user-email') || document.getElementById('sb-user-email');
-      var currentEmail = (emailEl && emailEl.textContent || '').trim().toLowerCase();
-      if (currentEmail && ownerEmails.indexOf(currentEmail) !== -1) return 'ko';
-
-      // 3순위: 브라우저 언어가 한국어면 한국어
-      if (navigator && navigator.language && navigator.language.toLowerCase().indexOf('ko') === 0) return 'ko';
-
-      // 4순위: 영어 디폴트
-      return 'en';
-    } catch(e){ return 'en'; }
+    // 개발 중 — 영한 둘 다 시각/구성/어색함 검증해야 하므로 자동 디폴트 X.
+    // EN 버튼이 기본(active 상태). 사용자가 명시 선택하면 그 선택 영구 유지.
+    // (BL-ADMIN-I18N-DEFAULT의 자동 한국어 디폴트는 2026-05-13 롤백 — 대표님 결정:
+    //  "지금은 영어도 디자인 및 구성이 잘되어 있는지 어색하지 아닌지 한국어 영어 두개 다 체크")
+    try { return localStorage.getItem('tw-lang') || 'en'; } catch(e){ return 'en'; }
   }
 
   // ---- 초기화 ----

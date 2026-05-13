@@ -120,11 +120,48 @@ import { PAGES, STATUS_BADGES, AUDIENCE_BADGES } from '/scripts/pages-meta.mjs';
     } catch (e) { /* user 정보 없어도 페이지는 표시 — 인증은 이미 통과 */ }
   }
 
-  setStep(2, '페이지 데이터 로드 + 렌더링', 100);
-  render(userEmail);
+  setStep(2, '페이지 데이터 + BL 매핑 로드', 100);
+
+  // ★ BL-DEPENDENCY-MAP (2026-05-13): tasks.json에서 BL → target_pages 매핑 fetch
+  //   각 페이지 카드에 "이 페이지에 박힐 BL N건" 표시
+  let blByPage = {};  // { '/sales.html': [{id, title, priority, size}], ... }
+  try {
+    const tasksRes = await fetch('/tasks.json?t=' + Date.now(), {
+      cache: 'no-store',
+      headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate' }
+    });
+    if (tasksRes.ok) {
+      const tasksData = await tasksRes.json();
+      (tasksData.tasks || []).forEach(t => {
+        if (!t || t.status !== 'pending') return;
+        const targets = Array.isArray(t.target_pages) ? t.target_pages : [];
+        targets.forEach(page => {
+          if (page.startsWith('__')) return;  // __os__, __email__ 등은 페이지 카드 안 박음
+          if (!blByPage[page]) blByPage[page] = [];
+          blByPage[page].push({
+            id: t.id,
+            title: t.title || '',
+            priority: t.priority || 'P9',
+            size: t.size || '?',
+            hours: t.estimated_hours || 0,
+          });
+        });
+      });
+      // 각 페이지 BL 우선순위 정렬 (P0 먼저)
+      Object.keys(blByPage).forEach(k => {
+        blByPage[k].sort((a, b) => (a.priority || 'P9').localeCompare(b.priority || 'P9'));
+      });
+    }
+  } catch (e) {
+    console.warn('[BL-DEPENDENCY-MAP] tasks.json fetch 실패 — BL 카운트 없이 진행', e);
+  }
+
+  render(userEmail, blByPage);
 })();
 
-function render(adminEmail) {
+function render(adminEmail, blByPage = {}) {
+  // ★ BL-DEPENDENCY-MAP (2026-05-13): 페이지별 BL 카운트
+  // blByPage = { '/sales.html': [{id, title, priority, size}], ... }
   const groups = {
     'live':           [],
     'partial':        [],
@@ -149,7 +186,7 @@ function render(adminEmail) {
     .map(([key, list]) => `
       <section class="gh-section">
         <h2 class="gh-section-h">${sectionTitle[key] || key} <span class="gh-count">${list.length}</span></h2>
-        <div class="gh-grid">${list.map(cardHtml).join('')}</div>
+        <div class="gh-grid">${list.map(p => cardHtml(p, blByPage[p.path] || [])).join('')}</div>
       </section>
     `).join('');
 
@@ -175,13 +212,47 @@ function render(adminEmail) {
   });
 }
 
-function cardHtml(p) {
+function cardHtml(p, bls = []) {
   const name = p.path.replace(/^\//, '').replace(/\.html$/, '');
   const thumbSrc = `/docs/screenshots/${name}.png`;
   // ★ 헌법 12조 fallback 가드 — 매핑 없어도 깨지지 않게
   const statusBadge = STATUS_BADGES[p.status] || { label: '❓ ' + (p.status || 'unknown'), color: '#6b7280' };
   const audienceBadge = AUDIENCE_BADGES[p.audience] || { label: '❓ ' + (p.audience || 'unknown'), color: '#6b7280' };
   const searchText = (p.path + ' ' + p.name + ' ' + p.purpose + ' ' + (p.notes || '')).toLowerCase();
+
+  // ★ BL-DEPENDENCY-MAP (2026-05-13): 이 페이지에 박힐 BL 박스
+  const blCount = bls.length;
+  const totalHours = bls.reduce((sum, b) => sum + (b.hours || 0), 0);
+  const p0Count = bls.filter(b => b.priority === 'P0').length;
+
+  let blBoxHtml = '';
+  if (blCount > 0) {
+    const blListItems = bls.slice(0, 5).map(b => `
+      <li style="padding:4px 8px; font-size:11px; border-radius:4px; background:rgba(255,255,255,0.05); margin-bottom:3px;">
+        <span style="display:inline-block; min-width:28px; font-weight:700; color:${b.priority === 'P0' ? '#dc2626' : b.priority === 'P1' ? '#f59e0b' : '#6b7280'}">${b.priority}</span>
+        <span style="color:#cbd5e1; font-size:10.5px;">${escapeHtml(b.id)}</span><br>
+        <span style="color:#94a3b8; font-size:10.5px; padding-left:32px; display:block;">${escapeHtml(b.title.slice(0, 60))}${b.title.length > 60 ? '...' : ''}</span>
+      </li>
+    `).join('');
+    const more = blCount > 5 ? `<li style="font-size:10.5px; color:#94a3b8; text-align:center; padding:4px;">+ ${blCount - 5}개 더</li>` : '';
+
+    blBoxHtml = `
+      <div style="margin-top:10px; padding:10px 12px; background:rgba(99,102,241,0.08); border-left:3px solid #6366f1; border-radius:4px;">
+        <div style="font-size:11.5px; font-weight:600; color:#a5b4fc; margin-bottom:6px;">
+          🧩 이 페이지에 박힐 BL <strong>${blCount}건</strong>
+          ${p0Count > 0 ? `<span style="background:#dc2626; color:#fff; font-size:10px; padding:1px 6px; border-radius:3px; margin-left:4px;">P0 ${p0Count}</span>` : ''}
+          ${totalHours > 0 ? `<span style="color:#94a3b8; font-size:10.5px; margin-left:4px;">· 약 ${totalHours}h</span>` : ''}
+        </div>
+        <ul style="list-style:none; padding:0; margin:0;">${blListItems}${more}</ul>
+      </div>
+    `;
+  } else if (p.status !== 'retired' && p.status !== 'archived') {
+    blBoxHtml = `
+      <div style="margin-top:10px; padding:8px 12px; background:rgba(34,197,94,0.05); border-left:3px solid #16a34a; border-radius:4px; font-size:11px; color:#86efac;">
+        ✅ 이 페이지에 대기 중인 BL 없음 (정상 운영 중)
+      </div>
+    `;
+  }
 
   // iframe 라이브 미리보기는 status가 planned가 아닌 모든 페이지에서 사용 가능
   // (admin이 로그인된 상태에서 same-origin iframe은 자동으로 세션 쿠키를 공유)
@@ -229,6 +300,7 @@ function cardHtml(p) {
         </div>
         <p class="gh-when"><strong>표시 조건:</strong> ${escapeHtml(p.visibleWhen)}</p>
         ${p.notes ? `<p class="gh-notes">📝 ${escapeHtml(p.notes)}</p>` : ''}
+        ${blBoxHtml}
         <div class="gh-actions">${liveBtn}${previewBtn}${captureBtn}${historyBtn}</div>
       </div>
     </article>`;

@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-13T02:50:43.443Z",
+  "updated_at": "2026-05-13T04:27:45.244998+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -3279,7 +3279,10 @@
       "ceo_decision_at": "",
       "copy_rewritten_at": "2026-05-06T15:54:09.000Z",
       "copy_rewritten_by": "BL-MODAL-COPY-REWRITE",
-      "order": 14
+      "order": 14,
+      "target_pages": [
+        "/marketing.html"
+      ]
     },
     {
       "id": "BL-INVOICE-001",
@@ -3331,7 +3334,12 @@
         "B안 — 전부 베트남 법인+영문 통일 → 글로벌 일관, 한국 매니저 회계 불편",
         "C안 — 전부 한국 법인+한국어 통일 → 한국 매니저 편함, 글로벌 확장 시 재작업"
       ],
-      "recommendation": "🤖 클로드 추천: A안 — '글로벌 정복' 대표님 비전에 맞고, 매니저 회계 처리 편의가 재계약률에 직결. 자동 분기 한 번 박으면 영구."
+      "recommendation": "🤖 클로드 추천: A안 — '글로벌 정복' 대표님 비전에 맞고, 매니저 회계 처리 편의가 재계약률에 직결. 자동 분기 한 번 박으면 영구.",
+      "target_pages": [
+        "/sales.html",
+        "/marketing.html",
+        "/settings.html"
+      ]
     },
     {
       "id": "BL-JOURNEY-DOC",
@@ -3404,7 +3412,10 @@
       "notes": "DECISIONS.md 변경 감지 → DECISIONS_INDEX.md 자동 갱신. ID 고정 불변 규칙.",
       "owner": "Claude",
       "approval_required": false,
-      "order": 19
+      "order": 19,
+      "target_pages": [
+        "__os__"
+      ]
     },
     {
       "id": "PHASE-3A-2",
@@ -5727,6 +5738,9 @@
           "by": "claude",
           "note": "BL-003 쪼개기 결과 P1"
         }
+      ],
+      "target_pages": [
+        "/admin.html"
       ]
     },
     {
@@ -5869,7 +5883,11 @@
         "A안 — 진행 OK (LTV 추적 DB뷰 + 호텔 상세 페이지 거래/담당자/영상 이력 박음) → 매월 재계약 후보 CSV 자동, 영업 비용 1/5",
         "B안 — 보류 (재계약 영업은 수동 관리) → 변경 비용 0, 대표님이 매월 데이터 직접 확인 부담"
       ],
-      "recommendation": "🤖 클로드 추천: A안 — '올해 많이 버는 것이 목표'라는 대표님 사업 목표에 정확히 맞음. 신규 영업보다 재계약이 매출 직결."
+      "recommendation": "🤖 클로드 추천: A안 — '올해 많이 버는 것이 목표'라는 대표님 사업 목표에 정확히 맞음. 신규 영업보다 재계약이 매출 직결.",
+      "target_pages": [
+        "/admin.html",
+        "/marketing.html"
+      ]
     },
     {
       "id": "BL-007",
@@ -5951,7 +5969,10 @@
       "source_anchor": "#L310",
       "notes": "## 🟡 P2 — 호텔 검색 UX 이슈  ### Issue #1: 호텔 검색 결과 정렬 부정확 **현상**: `Lotte Hotel S` 입력 시 결과 순서: Seattle → New York → Chicago → New York → Seoul (5번째). 한국 사용자에게 Seoul이 가장 마지막에 표시.  **해결**: 가입 시 country 받아 location bias로 사용 / 기본 location bias를 한국 좌표로 / review_count DESC 정렬.  **관련 파일**: `api/google-places.js`, `hotel-info.html`  ### Issue #2: 짧은 검색어로 결과 0건 **현상**: `Lotte` (5글자) → \"No results\". `Lotte Hotel S` → 5개 결과.  **해결**: 짧은 검색어 시 자동 city 추론 / 결과 0건 시 친절한 안내 / lodging 필터 완화.  **관련 파일**: `api/google-p",
       "owner": "autonomous",
-      "approval_required": false
+      "approval_required": false,
+      "target_pages": [
+        "/hotel-info.html"
+      ]
     },
     {
       "id": "BL-009",
@@ -5986,7 +6007,10 @@
       "source_anchor": "#L328",
       "notes": "## 🟡 P2 — Admin Console UI 버그  ### Issue #3: Hotels 목록의 MANAGER 컬럼 비어있음 ✅ [DONE 2026-04-29] **현상**: Admin Console > Hotels > Hotel Partners 목록에서 MANAGER 컬럼이 \"-\"로 표시됨. 매니저 정보(이지형 / leejifilm@hanmail.net)가 표시되어야 함.  **원인**: 컬럼명 불일치 — hotel-info.html은 `contact_name`/`contact_email`/`contact_phone` 저장, admin.html은 `manager_email`/`manager_name`/`manager_phone` 조회 → admin.html에 fallback 추가로 해결 (CHANGELOG 2026-04-29 참조).  **관련 파일**: `admin.html`  ---  ### Issue #4: Page Gallery iframe 미리보기에서 로그인 화면이 표",
       "owner": "autonomous",
-      "approval_required": false
+      "approval_required": false,
+      "target_pages": [
+        "/admin.html"
+      ]
     },
     {
       "id": "BL-010",
@@ -6021,7 +6045,10 @@
       "source_anchor": "#L354",
       "notes": "## 🟡 P2 — Chrome 안전 브라우징 경고  **현상**: 대표님 Chrome 일반 모드에서 `gohotelwinners.com` 접속 시 \"위험한 사이트\" 경고. 시크릿 모드/Edge에서는 정상.  **진단**: Google Safe Browsing — 2020-04-08 멀웨어 페이지 보관 이력 (이전 도메인 소유자 흔적). 현재 데이터 없음. Chrome 캐시 잔존.  **해결 옵션**: - A. Chrome 캐시 정리 (5분): `chrome://safebrowsing/` → Refresh Lists - B. Google Search Console 재검토 요청 (24~72시간) - C. 새 도메인 전환 (가장 안전, $10~20): `travelwinners.io` 등  **현재 영향**: 대표님 본인 환경만. 다른 사용자에게는 영향 없음 추정. **결정 시점**: 매니저 영업 시작 전 (B 또는 C 권장)  ---",
       "owner": "autonomous",
-      "approval_required": false
+      "approval_required": false,
+      "target_pages": [
+        "/index.html"
+      ]
     },
     {
       "id": "BL-011",
@@ -6057,7 +6084,10 @@
       "notes": "## 🟢 P3 — Chrome 확장 프로그램 간섭 (사용자 환경)  **현상**: `subtitle.js` 확장 프로그램(자막/번역)이 페이지 JS에 간섭. 콘솔 에러 `Extension context invalidated`.  **영향**: 사이트 동작에는 영향 없음. 디버깅 시 노이즈만 증가.  **해결**: 대표님 환경에서 확장 프로그램 비활성화. 코드 수정 불필요.  ---",
       "owner": "autonomous",
       "approval_required": false,
-      "order": 21
+      "order": 21,
+      "target_pages": [
+        "__user-env__"
+      ]
     },
     {
       "id": "BL-012",
@@ -6875,7 +6905,10 @@
       "notes": "### J. 🟢 AUTO — README.md 업데이트 **작업 내용**: 현재 어떤 시스템들이 라이브에 있는지, 각 페이지 목적, 환경변수 목록 등을 한 페이지에 정리.  **예상 시간**: 30분 **가치**: 새 채팅에서 컨텍스트 파악 시간 단축  ---  ## 🚫 데드라인 후 (5/3 이후)  - 호텔 검색 UX 이슈 (BACKLOG P2 Issue #1, #2) - 호텔 스토리 / LTV 추적 (BACKLOG P2) - Phase 3 D단계 (회원 탈퇴 / 이메일 변경) - i18n 한국어 일괄 적용  ---  ## 자율 작업 진행 시 Claude 의무  1. **시작 시**: 이 큐의 최상단 🟢 AUTO 작업부터 진행 2. **각 작업 완료 시**:    - 자동 검증 (JS 문법 + 페이지 표시",
       "owner": "autonomous",
       "approval_required": false,
-      "order": 20
+      "order": 20,
+      "target_pages": [
+        "__docs__"
+      ]
     },
     {
       "id": "IP-CTRL-001",
@@ -8503,7 +8536,10 @@
       ],
       "source": "BL-OS-AUTO-SYNC-CHARTER 전수 점검 중 발견",
       "created_at": "2026-05-10T09:00:00.000Z",
-      "source_recovered": true
+      "source_recovered": true,
+      "target_pages": [
+        "/admin-status.html"
+      ]
     },
     {
       "id": "BL-SYNC-CHAT-LOGS-TAB",
@@ -8564,7 +8600,10 @@
       ],
       "source": "BL-OS-AUTO-SYNC-CHARTER 전수 점검 중 발견",
       "created_at": "2026-05-10T09:00:00.000Z",
-      "source_recovered": true
+      "source_recovered": true,
+      "target_pages": [
+        "/admin-status.html"
+      ]
     },
     {
       "id": "BL-OS-PHASE-0",
@@ -9304,6 +9343,9 @@
           "at": "2026-05-07T06:14:33+00:00",
           "action": "BL-OS-PHASE-2 단계 2 핫픽스 중 발견 — 향후 폴더 이동 시 같은 결함 반복 방지. GITHUB_WORKSPACE 또는 git rev-parse --show-toplevel 사용으로 정석 해결."
         }
+      ],
+      "target_pages": [
+        "__os__"
       ]
     },
     {
@@ -9368,6 +9410,9 @@
           "at": "2026-05-07T17:24:53+00:00",
           "action": "5개 봇(auto-detect/build-activity-feed/health-check/page-status-scan/sync)이 'restructure-os-modularization' 브랜치 listen 박혀있지만, PHASE-4에서 main 통합 후 해당 브랜치 삭제됨. 동작상 무해하지만 정석 청소 대상. 'branches: [main]'으로 통일."
         }
+      ],
+      "target_pages": [
+        "__os__"
       ]
     },
     {
@@ -10227,7 +10272,10 @@
         "B안 — 보류 (지금은 수동 PAT 등록 유지) → 변경 비용 0, 새 프로젝트마다 수동 단계"
       ],
       "decision_recommendation": "🤖 클로드 추천: A안 — CEYLON JOURNEY 다음 신규 프로젝트 만들 때 무조건 필요. 지금 박아두면 영구 자동.",
-      "decision_summary": "대표님 결정 (2026-05-13): OK — 그냥 박음. PAT 박는 방식 = GitHub Secrets API (Claude 자율 결정 — 헌법 부칙 17 자격증명 라이프사이클 부합, 가장 안전). install_os.sh 보강 → 새 컴퓨터/직원 설치 시 PAT 자동 박음."
+      "decision_summary": "대표님 결정 (2026-05-13): OK — 그냥 박음. PAT 박는 방식 = GitHub Secrets API (Claude 자율 결정 — 헌법 부칙 17 자격증명 라이프사이클 부합, 가장 안전). install_os.sh 보강 → 새 컴퓨터/직원 설치 시 PAT 자동 박음.",
+      "target_pages": [
+        "__os__"
+      ]
     },
     {
       "id": "BL-OPS-MAIL-AUTOBOT",
@@ -10376,6 +10424,9 @@
           "event": "BL 신설 (BL-ADMIN-AUTH-PERF 작업 중 대표님 지시로 백로그 등록)",
           "by": "Claude"
         }
+      ],
+      "target_pages": [
+        "/admin-status.html"
       ]
     },
     {
@@ -10430,6 +10481,9 @@
           "event": "BL 신설 (BL-ADMIN-AUTH-PERF 작업 중 대표님 지시로 백로그 등록)",
           "by": "Claude"
         }
+      ],
+      "target_pages": [
+        "__os__"
       ]
     },
     {
@@ -10479,6 +10533,9 @@
           "event": "BL 신설 (BL-ADMIN-AUTH-PERF 작업 중 분리 결정)",
           "by": "Claude"
         }
+      ],
+      "target_pages": [
+        "__os__"
       ]
     },
     {
@@ -12041,7 +12098,10 @@
       "notes": "대표님 통찰 (2026-05-10): 건강검진(health-check) 결과가 개발자 용어로 박혀있음. 사람 말로 풀어줘야 대표님이 즉시 판단 가능. BL-BASELINE-AUTO-TASK(자동 작업 등록)와 짝꿍 — 둘이 함께 박혀야 점검→이해→작업 흐름 완성.\n\n범위: _admin/_health.json + admin-status 빨간 배너 + 점검 결과 메시지 전체.",
       "source": "ceo_insight_2026-05-10",
       "created_at": "2026-05-11T02:38:01.191240Z",
-      "updated_at": "2026-05-11T02:38:01.191240Z"
+      "updated_at": "2026-05-11T02:38:01.191240Z",
+      "target_pages": [
+        "/admin-status.html"
+      ]
     },
     {
       "id": "BL-BASELINE-AUTO-TASK",
@@ -12364,7 +12424,11 @@
       "notes": "대표님 통찰 (2026-05-10): 어느 결정부터 해야 어느 페이지가 만들어지고, 그 위에 어느 자율 작업이 박히는지 한 화면에 보이게. BL-SERVICE-MAP(페이지 지도) done 후 그 위에 의존성 그래프 그림.\n\n표시 요소: D-XXX (결정) → 페이지 (Phase 1~3) → BL-XXX (세부 작업) 3단 트리. 막힌 결정 클릭 시 결정 모달 자동 열기.",
       "source": "ceo_insight_2026-05-10",
       "created_at": "2026-05-11T02:38:01.191240Z",
-      "updated_at": "2026-05-11T02:38:01.191240Z"
+      "updated_at": "2026-05-11T02:38:01.191240Z",
+      "target_pages": [
+        "/admin-status.html",
+        "/admin-gallery.html"
+      ]
     },
     {
       "id": "BL-DAILY-HEALTH-CARD",
@@ -12395,7 +12459,10 @@
       "notes": "대표님 통찰 (2026-05-10): 위 4개를 한눈에 보는 통합 카드. admin-status 최상단에 박힘. 'X점 / 페이지 N개 / 결정 M개 대기 / 자동등록 K건' 한 줄.\n\n선행: 1~4 done. 단독으로는 의미 없음 — 위 4개가 박혀야 압축할 정보가 생김.",
       "source": "ceo_insight_2026-05-10",
       "created_at": "2026-05-11T02:38:01.191240Z",
-      "updated_at": "2026-05-11T02:38:01.191240Z"
+      "updated_at": "2026-05-11T02:38:01.191240Z",
+      "target_pages": [
+        "/admin-status.html"
+      ]
     },
     {
       "id": "BL-AUTO-ADMIN-BASELINE-7FILES",
@@ -12431,7 +12498,10 @@
           "detail": "점검 봇 발견 (admin_baseline=yellow): 관리자 페이지 7개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요)"
         }
       ],
-      "notes": "점검 봇 자동 등록 (2026-05-11T03:56:28.755Z)\n\ncheck_name: admin_baseline\nstatus: yellow\ndetail: 관리자 페이지 7개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요)\n\n진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 green으로 박으면 자동 done."
+      "notes": "점검 봇 자동 등록 (2026-05-11T03:56:28.755Z)\n\ncheck_name: admin_baseline\nstatus: yellow\ndetail: 관리자 페이지 7개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요)\n\n진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 green으로 박으면 자동 done.",
+      "target_pages": [
+        "__os__"
+      ]
     },
     {
       "id": "BL-AUTO-TASKS-SCHEMA-13MISSING",
@@ -13489,7 +13559,11 @@
       "notes": "agoda_hotel_id + google_place_id 매칭 → bookings_self.amount + bookings_agoda.amount 합산 → 호텔별 누적 매출 산출. admin → '📺 영상 자산 성과' 탭 신설. 매니저 노출은 BL-SIGNUP-ENRICHMENT에서 별도.",
       "created_at": "2026-05-12T17:04:42.051339Z",
       "updated_at": "2026-05-12T17:04:42.051339Z",
-      "source": "decision:D-035"
+      "source": "decision:D-035",
+      "target_pages": [
+        "/admin.html",
+        "/sales.html"
+      ]
     },
     {
       "id": "BL-AGODA-TOS-CHECK",
@@ -13554,7 +13628,11 @@
       "notes": "통찰 ⑥+⑨ 합본. admin Hotels 탭 행 = 호텔 카드 / 호텔명 클릭 → 단일 호텔 상세 슬라이드 패널. '📨 커뮤니케이션 이력' 영역 신설 — 1:1 문의/메일 송수신/내부 메모/status 변경 이력 시간순.",
       "created_at": "2026-05-12T17:04:42.051339Z",
       "updated_at": "2026-05-12T17:04:42.051339Z",
-      "source": "autoheal:feature-2026-05-13"
+      "source": "autoheal:feature-2026-05-13",
+      "target_pages": [
+        "/marketing.html",
+        "/admin.html"
+      ]
     },
     {
       "id": "BL-REVENUE-DASHBOARD",
@@ -13578,7 +13656,11 @@
       "notes": "booking-analytics.html 보강. 5개 토글 [일/주/월/분기/년]. Self-Sourced vs Agoda 채널 vs B2B $200 매출 3종 분리.",
       "created_at": "2026-05-12T17:04:42.051339Z",
       "updated_at": "2026-05-12T17:04:42.051339Z",
-      "source": "autoheal:analytics-2026-05-13"
+      "source": "autoheal:analytics-2026-05-13",
+      "target_pages": [
+        "/booking-analytics.html",
+        "/marketing.html"
+      ]
     },
     {
       "id": "BL-RENEWAL-WATCH",
@@ -13604,7 +13686,10 @@
       "notes": "admin Sales 영역 → '💎 재계약 관리' 탭 신설. 3개 필터: 예약 0건 / 매출 $200 미만(이벤트 송출 후보) / D-30 임박. 통찰 ② 박힘.",
       "created_at": "2026-05-12T17:04:42.051339Z",
       "updated_at": "2026-05-12T17:04:42.051339Z",
-      "source": "autoheal:feature-2026-05-13"
+      "source": "autoheal:feature-2026-05-13",
+      "target_pages": [
+        "/admin.html"
+      ]
     },
     {
       "id": "BL-REFUND-FLOW",
@@ -13628,7 +13713,11 @@
       "notes": "marketing.html 매니저 본인 신청 → admin '↩️ 환불·취소' 탭 등장 → 대표님 확인 → PayPal Refund API. 영수증 PDF 5년 보관.",
       "created_at": "2026-05-12T17:04:42.051339Z",
       "updated_at": "2026-05-12T17:04:42.051339Z",
-      "source": "decision:D-033"
+      "source": "decision:D-033",
+      "target_pages": [
+        "/marketing.html",
+        "/admin.html"
+      ]
     },
     {
       "id": "BL-SIGNUP-ENRICHMENT",
@@ -13655,7 +13744,11 @@
       "notes": "signup.html 호텔 입력 직후 백그라운드 매칭 → verify-email 또는 sales.html에서 표시. $1,000+ 강력 / $200~999 부드러움 / <$200 숨김.",
       "created_at": "2026-05-12T17:04:42.051339Z",
       "updated_at": "2026-05-12T17:04:42.051339Z",
-      "source": "decision:D-035"
+      "source": "decision:D-035",
+      "target_pages": [
+        "/signup.html",
+        "/sales.html"
+      ]
     },
     {
       "id": "BL-SIGNUP-COUNTRY-FIELD",
@@ -13679,7 +13772,10 @@
       "notes": "베트남/태국/필리핀/인도네시아/말레이시아/싱가포르 상단 + 기타 국가.",
       "created_at": "2026-05-12T17:04:42.051339Z",
       "updated_at": "2026-05-12T17:04:42.051339Z",
-      "source": "decision:D-032+chat-log:2026-05-13-sq-g-auto-status-email"
+      "source": "decision:D-032+chat-log:2026-05-13-sq-g-auto-status-email",
+      "target_pages": [
+        "/signup.html"
+      ]
     },
     {
       "id": "BL-EMAIL-LOCALE-ROUTING",
@@ -13705,7 +13801,10 @@
       "notes": "Resend SMTP locale 분기. 12개 메일 템플릿 영어 + 한국어 2벌.",
       "created_at": "2026-05-12T17:04:42.051339Z",
       "updated_at": "2026-05-12T17:04:42.051339Z",
-      "source": "decision:D-032+chat-log:2026-05-13-sq-g-auto-status-email"
+      "source": "decision:D-032+chat-log:2026-05-13-sq-g-auto-status-email",
+      "target_pages": [
+        "__email__"
+      ]
     },
     {
       "id": "BL-ADMIN-COUNTRY-FILTER",
@@ -13731,7 +13830,10 @@
       "notes": "재계약·환불 관리 시 국가별 정렬 가능하게.",
       "created_at": "2026-05-12T17:04:42.051339Z",
       "updated_at": "2026-05-12T17:04:42.051339Z",
-      "source": "decision:D-032+chat-log:2026-05-13-sq-g-auto-status-email"
+      "source": "decision:D-032+chat-log:2026-05-13-sq-g-auto-status-email",
+      "target_pages": [
+        "/admin.html"
+      ]
     },
     {
       "id": "BL-RECEIPT-ARCHIVE",
@@ -13757,7 +13859,11 @@
       "notes": "회계 의무 5년. 결제 영수증 + 환불 영수증 둘 다.",
       "created_at": "2026-05-12T17:04:42.051339Z",
       "updated_at": "2026-05-12T17:04:42.051339Z",
-      "source": "decision:D-033"
+      "source": "decision:D-033",
+      "target_pages": [
+        "/marketing.html",
+        "/settings.html"
+      ]
     },
     {
       "id": "BL-EVENT-SITE-FOUNDATION",
@@ -13781,7 +13887,10 @@
       "notes": "별도 브랜드/도메인. B2B와 분리. 도메인 후보 확정 후 본격 시작.",
       "created_at": "2026-05-12T17:04:42.051339Z",
       "updated_at": "2026-05-12T17:04:42.051339Z",
-      "source": "decision:D-034"
+      "source": "decision:D-034",
+      "target_pages": [
+        "__event-site__"
+      ]
     },
     {
       "id": "BL-EVENT-CUSTOMER-DB",
@@ -13807,7 +13916,10 @@
       "notes": "마케팅 동의 받은 일반 고객 = TW의 영구 자산. 재마케팅 메일 가능.",
       "created_at": "2026-05-12T17:04:42.051339Z",
       "updated_at": "2026-05-12T17:04:42.051339Z",
-      "source": "decision:D-034"
+      "source": "decision:D-034",
+      "target_pages": [
+        "__event-site__"
+      ]
     },
     {
       "id": "BL-EVENT-PAYMENT-PROXY",
@@ -13833,7 +13945,10 @@
       "notes": "이벤트 고객 응모/구매 → 우리가 호텔에 대리 결제 → 호텔에 예약 발생.",
       "created_at": "2026-05-12T17:04:42.051339Z",
       "updated_at": "2026-05-12T17:04:42.051339Z",
-      "source": "decision:D-034"
+      "source": "decision:D-034",
+      "target_pages": [
+        "__event-site__"
+      ]
     },
     {
       "id": "BL-EVENT-HOTEL-NOTIFY",
@@ -13860,7 +13975,11 @@
       "notes": "admin Hotels 탭에서 매출 $200 미만 호텔 → '이벤트 송출' 버튼. 호텔에 '예약 N건 추가 발생' 메일.",
       "created_at": "2026-05-12T17:04:42.051339Z",
       "updated_at": "2026-05-12T17:04:42.051339Z",
-      "source": "decision:D-034"
+      "source": "decision:D-034",
+      "target_pages": [
+        "__event-site__",
+        "/admin.html"
+      ]
     },
     {
       "id": "BL-AUTO-TASKS-SCHEMA-16MISSING",
@@ -13896,7 +14015,10 @@
           "detail": "점검 봇 발견 (tasks_schema=red): 작업 206건 중 16건에 출처가 없어요 (자동 동기화 봇 멈춤 위험)"
         }
       ],
-      "notes": "점검 봇 자동 등록 (2026-05-12T17:36:05.435Z)\n\ncheck_name: tasks_schema\nstatus: red\ndetail: 작업 206건 중 16건에 출처가 없어요 (자동 동기화 봇 멈춤 위험)\n\n진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 green으로 박으면 자동 done."
+      "notes": "점검 봇 자동 등록 (2026-05-12T17:36:05.435Z)\n\ncheck_name: tasks_schema\nstatus: red\ndetail: 작업 206건 중 16건에 출처가 없어요 (자동 동기화 봇 멈춤 위험)\n\n진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 green으로 박으면 자동 done.",
+      "target_pages": [
+        "__os__"
+      ]
     },
     {
       "id": "BL-HEALTH-AUTOHEAL",

@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-13T09:02:04.413Z",
+  "updated_at": "2026-05-13T09:07:42.540099Z",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -14194,7 +14194,7 @@
       "category": "security",
       "priority": "P0",
       "size": "medium",
-      "status": "pending",
+      "status": "in_progress",
       "owner": "claude",
       "claude_can_auto": true,
       "approval_required": false,
@@ -14204,7 +14204,38 @@
       "depends_on": [],
       "progress": {
         "percent": 0,
-        "steps": []
+        "steps": [
+          {
+            "n": 1,
+            "title": "트리거 함수 재정의 SQL 작성 (③번 분기 제거)",
+            "done": false
+          },
+          {
+            "n": 2,
+            "title": "잘못 박힌 4건 정리 SQL 작성 (오타 2건 완전 삭제 + 고객 2건 admins만 제거)",
+            "done": false
+          },
+          {
+            "n": 3,
+            "title": "검증 쿼리 + 사전 백업 SQL 작성 (부칙 9 가역성)",
+            "done": false
+          },
+          {
+            "n": 4,
+            "title": "롤백 SQL 작성 (비상시 원상복귀 경로)",
+            "done": false
+          },
+          {
+            "n": 5,
+            "title": "GitHub commit + push — 대표님 Supabase SQL Editor 실행 인계",
+            "done": false
+          },
+          {
+            "n": 6,
+            "title": "라이브 실행 결과 검증 + tasks.json done 마킹 + chat-log 박기",
+            "done": false
+          }
+        ]
       },
       "notes": "DB 트리거 handle_new_user() ③번 분기가 모든 가입자를 admins 테이블에 manager로 박는 결함. 호텔 매니저 고객(leejifilm, joylife8760)이 admin 콘솔 접근 가능 상태. 이메일 미인증(1hogitravel@gmai.com 오타)도 admins 박힘. ③번 분기 완전 제거 + 1hogitravel 2건 완전 삭제 + leejifilm/joylife8760은 admins에서만 제거 (auth+hotels 유지, 개발 완료 시 BL-PRELAUNCH-CLEANUP에서 삭제).",
       "biz_context_v2": {
@@ -14213,7 +14244,7 @@
         "결정하면_뭐가_달라지냐면": "새 회원가입자는 admins 테이블에 절대 안 박힘. 기존 잘못 박힌 4명 정리됨. 호텔 매니저 ≠ 우리 직원 분리 완성."
       },
       "created_at": "2026-05-13T09:01:35.824392Z",
-      "updated_at": "2026-05-13T09:01:35.824392Z",
+      "updated_at": "2026-05-13T09:07:42.540099Z",
       "source": "chat:2026-05-13 보안 진단",
       "target_pages": [
         "DB 트리거 + admins 테이블"

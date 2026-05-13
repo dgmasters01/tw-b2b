@@ -44,19 +44,6 @@
 
 ---
 
-## 🟡 P0 — [Agoda Affiliate 약관 검토] D-035 매니저 노출 가능 여부 확인
-
-**요약**: affiliate 매칭 데이터를 호텔(제3자)에게 노출 가능 여부. 약관 위반 위험 시 D-035 보류 + Self-Sourced만 사용.
-
-- **자율성**: 🟡 SEMI
-- **예상 시간**: 미정시간
-- **카테고리**: policy
-- **상태**: pending
-- **막힘 사유**: Agoda Affiliate 약관 원문 확인 필요
-- **ID**: `BL-AGODA-TOS-CHECK` (출처: decision:D-035)
-
----
-
 ## 🟡 P0 — [신규 매니저 가입 시 누적 매출 표시] D-035 3구간 임계값 분기 노출
 
 **요약**: signup.html 호텔 입력 직후 백그라운드 매칭 → verify-email 또는 sales.html에서 표시. $1,000+ 강력 / $200~999 부드러움 / <$200 숨김.

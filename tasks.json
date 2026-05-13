@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-13T02:07:46.883123+00:00",
+  "updated_at": "2026-05-13T02:07:56+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -10159,7 +10159,7 @@
       },
       "blocker": null,
       "created_at": "2026-05-08T13:53:59+00:00",
-      "updated_at": "2026-05-13T02:07:46.883123+00:00",
+      "updated_at": "2026-05-13T02:07:56+00:00",
       "completed_at": null,
       "source": "대표님 진단 (2026-05-08) — OS 설치 시 PAT 거부됨, 설치 자체가 안 됨",
       "order": 22,
@@ -10200,6 +10200,13 @@
           "by": "auto-detect-bot",
           "commit": "f34a6d2",
           "note": "feat(결정 3개 박음): SQ-G + SQ-H + BL-OS-INSTALL-PAT-FLOW 자율 큐 이동"
+        },
+        {
+          "at": "2026-05-13T02:07:56+00:00",
+          "event": "관련 commit 추가 (status 유지)",
+          "by": "auto-detect-bot",
+          "commit": "c55aa63",
+          "note": "fix(BL-OS-INSTALL-PAT-FLOW): in_progress (거짓) → pending 재정정 [status:keep]"
         }
       ],
       "decision_context": "[지금 무슨 상황이냐면]\n새 프로젝트(예: CEYLON JOURNEY, 추후 신규 채널 사이트)를 만들 때 install_os.sh 한 줄 실행하면 운영 시스템(OS)이 자동으로 깔리도록 만들었어요. 그런데 지금 그 스크립트(224줄)에 GitHub 인증 토큰(PAT) 자동 박는 로직이 빠져 있습니다. 설치 후 첫 push 또는 자동 작업 트리거에서 \"권한 없음\"으로 거부돼요.\n\n[왜 결정이 필요하냐면]\n이것도 자율 진행 가능 작업입니다. install_os.sh에 PAT 입력받는 단계 하나 추가하고 GitHub Secrets에 자동 등록하는 흐름 박으면 됩니다. 결정 대기 박스에 있는 이유는 분류 누락이에요.\n\n[결정하면 뭐가 달라지냐면]\n\"자율 진행 OK\" 한 마디면 클로드가 박습니다. 앞으로 새 프로젝트 만들 때 install_os.sh 한 줄로 끝나고, PAT 박는 수동 작업 영구 제거.",

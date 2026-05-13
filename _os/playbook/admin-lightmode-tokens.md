@@ -281,7 +281,7 @@ document.getElementById('theme-toggle').addEventListener('click', () => {
 
 | 그룹 | 페이지 | 처리 방법 (3단계) |
 |---|---|---|
-| **그룹 1 — 자체 :root 다크** (7개) | `admin-business-charter`, `admin-decisions`, `admin-decisions-index`, `admin-manager-journey`, `admin-service-ops`, `admin-status`, `admin-user-journey` | :root 블록 삭제 → shared.css 토큰만 사용 |
+| **그룹 1 — 자체 :root 다크** (7개) | `admin-business-charter`, `admin-decisions`, `admin-decisions-index`, `admin-gohotel-manager-stages`, `admin-service-ops`, `admin-status`, `admin-gohotel-overview` | :root 블록 삭제 → shared.css 토큰만 사용 |
 | **그룹 2 — 자체 :root 라이트** (1개) | `admin-tasks` | :root 블록 삭제 → 결정② 자동 해소 |
 | **그룹 3 — 자체 :root 글래스** (1개) | `admin-permissions` | :root 블록 삭제 |
 | **그룹 4 — :root 없음** (4개) | `admin`, `admin-business`, `admin-gallery`, `admin-hub` | 변경 없음 (이미 정석) |
@@ -300,8 +300,8 @@ document.getElementById('theme-toggle').addEventListener('click', () => {
 | `admin-business-charter.html` | 17 | 29 | 🟡 P2 |
 | `admin-decisions.html` | 17 | 29 | 🟡 P2 |
 | `admin-decisions-index.html` | 17 | 29 | 🟡 P2 |
-| `admin-manager-journey.html` | 17 | 29 | 🟡 P2 |
-| `admin-user-journey.html` | 17 | 29 | 🟡 P2 |
+| `admin-gohotel-manager-stages.html` | 17 | 29 | 🟡 P2 |
+| `admin-gohotel-overview.html` | 17 | 29 | 🟡 P2 |
 | `admin-gallery.html` | 3 | 51 | 🟢 P3 |
 | `admin-hub.html` | 3 | 8 | 🟢 P3 |
 | `admin-business.html` | 0 | 56 | 🟢 P3 |

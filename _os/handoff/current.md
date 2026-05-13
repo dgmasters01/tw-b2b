@@ -41,10 +41,10 @@ admin-skin.css는 별도 토글 시스템(`body[data-skin]`) 운영 중이었고
 3. admin-business-charter.html
 4. admin-decisions-index.html
 5. admin-decisions.html
-6. admin-manager-journey.html
+6. admin-gohotel-manager-stages.html
 7. admin-permissions.html
 8. admin-service-ops.html
-9. admin-user-journey.html
+9. admin-gohotel-overview.html
 10. admin-business.html
 11. admin-gallery.html
 

@@ -45,7 +45,7 @@
   - 비즈니스 헌장 (BUSINESS.md)
   - 의사결정 이력 (DECISIONS.md)
   - 의사결정 인덱스 (DECISIONS_INDEX.md)
-  - 매니저 여정 (JOURNEY.md)
+  - 매니저 여정 (GOHOTEL_FLOW.md)
   - 사용자 여정 (BUSINESS_FLOW.md)
 - **OS-CORE 1개 페이지 (필수):** 페이지 갤러리 (admin-gallery)
 - **SYSTEM 4개 페이지 (필수):** 시스템 완성도 / 작업 관리 / 권한 / 운영 매뉴얼

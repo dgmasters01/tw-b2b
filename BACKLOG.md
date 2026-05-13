@@ -44,18 +44,6 @@
 
 ---
 
-## ⚡ P0 — [보안 구멍 막기] 회원가입 자동 admin 권한 부여 차단 + 잘못 권한 받은 4명 정리
-
-**요약**: DB 트리거 handle_new_user() ③번 분기가 모든 가입자를 admins 테이블에 manager로 박는 결함. 호텔 매니저 고객(leejifilm, joylife8760)이 admin 콘솔 접근 가능 상태. 이메일 미인증(1hogitravel@gmai.com 오타)도 admins 박힘. ③번 분기 완전 제거 + 1hogitravel 2건 완전 삭
-
-- **자율성**: 🟡 SEMI
-- **예상 시간**: 미정시간
-- **카테고리**: security
-- **상태**: in_progress
-- **ID**: `BL-SECURITY-SIGNUP-TRIGGER` (출처: chat:2026-05-13 보안 진단)
-
----
-
 ## 🟡 P0 — [가입자/사용자 관리 도구] admin 화면에서 직접 삭제·권한 조작·재인증 가능하게
 
 **요약**: Hotels/Members/Team 각 행 옆 작업 메뉴(... 버튼) 추가. 액션: 사용자 삭제 / 권한 빼앗기 / 권한 주기 / 재인증 요청. 모든 조작 → action_logs 자동 기록. Team 페이지 '+ Add Team Member' 버튼 admin_invitations 흐름 실제 작동. API: auth-delete-user, auth-cha
@@ -370,26 +358,26 @@ detail: 관리자 페이지 7개가 원본과 살짝 달라요 (대표님이 일
 
 ---
 
-## 🟡 P1 — [보안 후속] admin-auth-v2.sql 8번 백필 섹션 무력화 — 재실행 시 보안 사고 재발 방지
+## ⚡ P1 — [보안 후속] admin-auth-v2.sql 8번 백필 섹션 무력화 — 재실행 시 보안 사고 재발 방지
 
 **요약**: sql/bl-admin-auth-v2.sql 387번 줄 8번 섹션이 auth.users 전수 → admins 자동 박기. 이 SQL이 재실행되면 BL-SECURITY-SIGNUP-TRIGGER로 정리한 4건이 다시 박힘. 백필 코드 주석 처리 + 상단에 ⚠️ DEPRECATED 경고 추가 + bl-admin-auth-v2-rls-hotfix.sql도 같이
 
 - **자율성**: 🟡 SEMI
 - **예상 시간**: 미정시간
 - **카테고리**: security
-- **상태**: pending
+- **상태**: in_progress
 - **ID**: `BL-ADMIN-AUTH-V2-BACKFILL-DISARM` (출처: chat:2026-05-13 BL-SECURITY-SIGNUP-TRIGGER 진단 중 발견)
 
 ---
 
-## 🟡 P1 — [인프라] auto-detect-bot의 [step:done:N] 태그 인식 누락 진단·수정
+## ⚡ P1 — [인프라] auto-detect-bot의 [step:done:N] 태그 인식 누락 진단·수정
 
 **요약**: BL-SECURITY-SIGNUP-TRIGGER 작업에서 [step:done:1]~[step:done:5] 태그를 박은 commit 4건이 push됐으나 auto-detect-bot이 step 인식 못 하고 progress.percent=0% 유지. 수동 보정으로 83% 갱신함. 봇 스크립트(자동 progress 갱신 로직) 점검 필요. status는 in
 
 - **자율성**: 🟡 SEMI
 - **예상 시간**: 미정시간
 - **카테고리**: infra
-- **상태**: pending
+- **상태**: in_progress
 - **ID**: `BL-AUTO-DETECT-BOT-STEP-TAG-FIX` (출처: chat:2026-05-13 BL-SECURITY-SIGNUP-TRIGGER 단계 6 검증 중 발견)
 
 ---

@@ -39,17 +39,7 @@
 
 ---
 
-### C. 🟡 SEMI — [보안 구멍 막기] 회원가입 자동 admin 권한 부여 차단 + 잘못 권한 받은 4명 정리
-
-**ID**: `BL-SECURITY-SIGNUP-TRIGGER`  
-**카테고리**: security  
-**예상 시간**: 미정시간  
-
-**메모**: DB 트리거 handle_new_user() ③번 분기가 모든 가입자를 admins 테이블에 manager로 박는 결함. 호텔 매니저 고객(leejifilm, joylife8760)이 admin 콘솔 접근 가능 상태. 이메일 미인증(1hogitravel@gmai.com 오타)도 admins 박힘. ③번 분기 완전 제거 + 1hogitravel 2건 완전 삭제 + leejifilm/joylife8760은 admins에서만 제거 (auth+hotels 유지, 개발 완료 시 BL-PRELAUNCH-CLEANUP에서 삭제).
-
----
-
-### D. 🟡 SEMI — [가입자/사용자 관리 도구] admin 화면에서 직접 삭제·권한 조작·재인증 가능하게
+### C. 🟡 SEMI — [가입자/사용자 관리 도구] admin 화면에서 직접 삭제·권한 조작·재인증 가능하게
 
 **ID**: `BL-ADMIN-USER-MANAGEMENT`  
 **카테고리**: admin  

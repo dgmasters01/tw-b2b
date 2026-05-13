@@ -51,7 +51,17 @@ jobs:
           node-version: '20'
 
       - name: Run tasks-source-autoheal
-        run: node scripts/tasks-source-autoheal.js
+        id: autoheal
+        run: |
+          # 봇 실행 결과 캡처 — commit message에 박을 것
+          OUTPUT=$(node scripts/tasks-source-autoheal.js 2>&1)
+          echo "$OUTPUT"
+          # 핵심 통계 추출
+          HEALED=$(echo "$OUTPUT" | grep "치유:" | head -1 | grep -oE '[0-9]+' | head -1 || echo "0")
+          MISSING=$(echo "$OUTPUT" | grep "여전히 누락:" | head -1 | grep -oE '[0-9]+' | head -1 || echo "0")
+          echo "healed=${HEALED}" >> $GITHUB_OUTPUT
+          echo "missing=${MISSING}" >> $GITHUB_OUTPUT
+          echo "📊 결과 캡처: healed=${HEALED} missing=${MISSING}"
 
       - name: Commit if changed
         run: |
@@ -59,12 +69,22 @@ jobs:
           git config user.email "autoheal-bot@anthropic"
 
           if git diff --quiet tasks.json; then
-            echo "✅ 변경 없음 — 자가 치유 commit 스킵"
+            echo "✅ 변경 없음 — 자가 치유 commit 스킵 (이미 정상)"
           else
             git add tasks.json
-            git commit -m "[autoheal-bot] tasks.json source 자동 박음 (BL-HEALTH-AUTOHEAL)"
+            # ★ BL-HEALTH-AUTOHEAL 후속 (2026-05-13): 결과를 commit message에 명시
+            #   대표님이 git log 또는 admin-status에서 한 줄로 결과 확인 가능
+            HEALED="${{ steps.autoheal.outputs.healed }}"
+            MISSING="${{ steps.autoheal.outputs.missing }}"
+            COMMIT_MSG="[autoheal-bot] tasks.json source ${HEALED}건 자동 박음 (BL-HEALTH-AUTOHEAL)"
+            if [ "$MISSING" != "0" ] && [ -n "$MISSING" ]; then
+              COMMIT_MSG="${COMMIT_MSG}
+
+⚠️ 여전히 누락된 BL ${MISSING}건 — 사람 개입 필요"
+            fi
+            git commit -m "$COMMIT_MSG"
             git push origin HEAD:${GITHUB_REF#refs/heads/}
-            echo "💾 자가 치유 commit + push 완료"
+            echo "💾 자가 치유 commit + push 완료: ${HEALED}건 박음, ${MISSING}건 누락"
           fi
 
       - name: Trigger health-check workflow

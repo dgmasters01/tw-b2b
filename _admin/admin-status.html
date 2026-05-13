@@ -1382,13 +1382,32 @@
     detail.textContent = lines.join('\n');
   }
   function pollOnce(){
-    fetch('/_admin/_health.json?t=' + Date.now(), {cache:'no-store'})
+    // ★ BL-HEALTH-AUTOHEAL 후속 (2026-05-13): 강력 캐시 우회
+    //   - 쿼리스트링 ?t= (CDN 캐시 우회)
+    //   - cache:'no-store' (브라우저 캐시 차단)
+    //   - Cache-Control 명시 헤더 (Vercel CDN edge 우회)
+    //   - Pragma:no-cache (구형 프록시 대비)
+    fetch('/_admin/_health.json?t=' + Date.now(), {
+      cache: 'no-store',
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+      },
+    })
       .then(function(r){ return r.ok ? r.json() : null; })
       .then(render)
       .catch(function(){ render(null); });
   }
   pollOnce();
   setInterval(pollOnce, POLL_MS);
+
+  // ★ BL-HEALTH-AUTOHEAL 후속 (2026-05-13): 탭 visible/focus 시 즉시 재폴링
+  //   브라우저가 background 탭의 setInterval을 늦추므로,
+  //   탭 다시 활성화될 때 옛 데이터 안 보이게 즉시 갱신
+  document.addEventListener('visibilitychange', function(){
+    if (!document.hidden) pollOnce();
+  });
+  window.addEventListener('focus', pollOnce);
 })();
 </script>
 <!-- ═══ End Phase 0 Health Check Bar ═══ -->

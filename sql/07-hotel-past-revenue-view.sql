@@ -91,7 +91,7 @@ matched_bookings AS (
 
   UNION ALL
 
-  -- agoda: hotel_id가 NULL이지만 hotel_id_agoda(TEXT)로 hotels.agoda_hotel_id 매칭
+  -- agoda: hotel_id가 NULL이지만 hotel_id_agoda(TEXT)로 hotels.agoda_hotel_id(BIGINT) 매칭
   SELECT
     h.id                     AS resolved_hotel_id,
     h.hotel_name             AS resolved_hotel_name,
@@ -104,10 +104,11 @@ matched_bookings AS (
     ba.channel_code,
     ba.booked_at
   FROM bookings_agoda ba
-  INNER JOIN hotels h ON h.agoda_hotel_id = ba.hotel_id_agoda
+  INNER JOIN hotels h ON h.agoda_hotel_id::text = ba.hotel_id_agoda
   WHERE COALESCE(ba.is_cancelled, FALSE) = FALSE
     AND ba.hotel_id IS NULL
     AND ba.hotel_id_agoda IS NOT NULL
+    AND h.agoda_hotel_id IS NOT NULL
 ),
 
 -- ============================================================
@@ -148,7 +149,7 @@ SELECT
   h.review_score,
   h.image_url,
   h.status                            AS hotel_status,
-  h.email                             AS manager_email,
+  h.contact_email                     AS manager_email,
   h.created_at                        AS hotel_created_at,
 
   -- 집계

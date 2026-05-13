@@ -12,16 +12,16 @@
     "SOLO_WORK_QUEUE.md"
   ],
   "stats": {
-    "total": 209,
+    "total": 214,
     "done": 155,
     "in_progress": 0,
     "paused": 1,
-    "pending": 35,
+    "pending": 40,
     "blocked": 10,
     "autonomous_ready": 34,
     "todo": 0,
     "cancelled": 1,
-    "updated_at": "2026-05-13T08:21:57.999Z"
+    "updated_at": "2026-05-13T09:01:35.824392Z"
   },
   "tasks": [
     {
@@ -13808,7 +13808,8 @@
       "blocker": null,
       "depends_on": [
         "BL-PAST-VIDEO-RECON",
-        "BL-AGODA-TOS-CHECK"
+        "BL-AGODA-TOS-CHECK",
+        "BL-SECURITY-SIGNUP-TRIGGER"
       ],
       "progress": {
         "percent": 0,
@@ -13816,7 +13817,7 @@
       },
       "notes": "signup.html 호텔 입력 직후 백그라운드 매칭 → verify-email 또는 sales.html에서 표시. $1,000+ 강력 / $200~999 부드러움 / <$200 숨김.",
       "created_at": "2026-05-12T17:04:42.051339Z",
-      "updated_at": "2026-05-12T17:04:42.051339Z",
+      "updated_at": "2026-05-13T09:01:35.824392Z",
       "source": "decision:D-035",
       "target_pages": [
         "/signup.html",
@@ -14175,6 +14176,177 @@
           "event": "mail_sent — Resend id: 980a56c5-7c01-401c-8389-80b3ab280a60 (bundle 2)",
           "by": "ops-mail-bot"
         }
+      ]
+    },
+    {
+      "id": "BL-SECURITY-SIGNUP-TRIGGER",
+      "title": "[보안 구멍 막기] 회원가입 자동 admin 권한 부여 차단 + 잘못 권한 받은 4명 정리",
+      "category": "security",
+      "priority": "P0",
+      "size": "medium",
+      "status": "pending",
+      "owner": "claude",
+      "claude_can_auto": true,
+      "approval_required": false,
+      "estimated_hours": 1.5,
+      "order": 1,
+      "blocker": null,
+      "depends_on": [],
+      "progress": {
+        "percent": 0,
+        "steps": []
+      },
+      "notes": "DB 트리거 handle_new_user() ③번 분기가 모든 가입자를 admins 테이블에 manager로 박는 결함. 호텔 매니저 고객(leejifilm, joylife8760)이 admin 콘솔 접근 가능 상태. 이메일 미인증(1hogitravel@gmai.com 오타)도 admins 박힘. ③번 분기 완전 제거 + 1hogitravel 2건 완전 삭제 + leejifilm/joylife8760은 admins에서만 제거 (auth+hotels 유지, 개발 완료 시 BL-PRELAUNCH-CLEANUP에서 삭제).",
+      "biz_context_v2": {
+        "지금_무슨_상황이냐면": "호텔 매니저 고객 누구나 회원가입만 하면 자동으로 우리 admin 콘솔에 들어올 수 있는 상태. 결제 완료한 호텔 매니저 2명(leejifilm, joylife8760)이 지금 이 순간 우리 운영 데이터·다른 호텔·예약·내부 결정 다 볼 수 있음. 오타 이메일 가입(1hogitravel@gmai.com)도 이메일 인증 없이 admin 권한 받은 상태.",
+        "왜_결정이_필요하냐면": "결제 후 신뢰가 깨질 사건 1순위. 실제 호텔 매니저 모집 본격 시작하기 전 반드시 막아야 함. 우회나 임시방편 X. 정석 트리거 수정.",
+        "결정하면_뭐가_달라지냐면": "새 회원가입자는 admins 테이블에 절대 안 박힘. 기존 잘못 박힌 4명 정리됨. 호텔 매니저 ≠ 우리 직원 분리 완성."
+      },
+      "created_at": "2026-05-13T09:01:35.824392Z",
+      "updated_at": "2026-05-13T09:01:35.824392Z",
+      "source": "chat:2026-05-13 보안 진단",
+      "target_pages": [
+        "DB 트리거 + admins 테이블"
+      ]
+    },
+    {
+      "id": "BL-ADMIN-USER-MANAGEMENT",
+      "title": "[가입자/사용자 관리 도구] admin 화면에서 직접 삭제·권한 조작·재인증 가능하게",
+      "category": "admin",
+      "priority": "P0",
+      "size": "large",
+      "status": "pending",
+      "owner": "claude",
+      "claude_can_auto": true,
+      "approval_required": false,
+      "estimated_hours": 3,
+      "order": 2,
+      "blocker": null,
+      "depends_on": [
+        "BL-SECURITY-SIGNUP-TRIGGER"
+      ],
+      "progress": {
+        "percent": 0,
+        "steps": []
+      },
+      "notes": "Hotels/Members/Team 각 행 옆 작업 메뉴(... 버튼) 추가. 액션: 사용자 삭제 / 권한 빼앗기 / 권한 주기 / 재인증 요청. 모든 조작 → action_logs 자동 기록. Team 페이지 '+ Add Team Member' 버튼 admin_invitations 흐름 실제 작동. API: auth-delete-user, auth-change-role(기존), auth-invite(기존) 연결.",
+      "biz_context_v2": {
+        "지금_무슨_상황이냐면": "admin 화면에서 잘못 가입한 사람 삭제 버튼 0개. 권한 변경 UI 0개. 새 직원 admin 추가하는 Team 페이지 버튼은 있는데 admin_invitations 테이블 비어있음 — 실제 작동 안 함. 결함 발견해도 대표님이 SQL 손대야 처리 가능.",
+        "왜_결정이_필요하냐면": "BL-SECURITY-SIGNUP-TRIGGER 끝나도 앞으로 또 잘못 가입한 사람 생길 수 있음. 실제 영업 직원 채용 시 admin 추가도 필요. SQL 수동 작업은 헌법 1조(대표님은 결정만) 위반.",
+        "결정하면_뭐가_달라지냐면": "admin 화면 한 곳에서 모든 사용자 관리. 누가 언제 무엇을 했는지 자동 기록. 영업 직원 채용·퇴사 흐름 정상 작동."
+      },
+      "created_at": "2026-05-13T09:01:35.824392Z",
+      "updated_at": "2026-05-13T09:01:35.824392Z",
+      "source": "chat:2026-05-13 보안 진단",
+      "target_pages": [
+        "/admin.html#tab-hotels",
+        "/admin.html#tab-members",
+        "/admin.html#tab-admins",
+        "/api/admin"
+      ]
+    },
+    {
+      "id": "BL-MEMBERS-DATA-SOURCE",
+      "title": "[가입자 화면 정리] Members 페이지 실제 고객 보이게 + 미인증 좀비 자동 청소",
+      "category": "admin",
+      "priority": "P1",
+      "size": "medium",
+      "status": "pending",
+      "owner": "claude",
+      "claude_can_auto": true,
+      "approval_required": false,
+      "estimated_hours": 2,
+      "order": 3,
+      "blocker": null,
+      "depends_on": [
+        "BL-SECURITY-SIGNUP-TRIGGER"
+      ],
+      "progress": {
+        "percent": 0,
+        "steps": []
+      },
+      "notes": "Members 페이지 list-users API가 admin 제외 필터 적용 중 → 호텔 매니저(고객)가 admins에 박혀있으면 안 보이는 악순환. BL-SECURITY-SIGNUP-TRIGGER 끝나면 자연 해결되지만 데이터 소스 자체 재정의 필요. 가입 후 7일간 이메일 인증 안 받은 좀비 사용자 자동 삭제 봇 신설. 현재 좀비 1명 (1hogitravel@gmai.com — BL-SECURITY-SIGNUP-TRIGGER에서 처리).",
+      "biz_context_v2": {
+        "지금_무슨_상황이냐면": "Members 페이지가 admins 테이블에 있는 사람은 자동 제외하고 보여줌. 호텔 매니저 고객이 admins에 잘못 박혀있어서 페이지에 안 보임. 가입만 하고 이메일 인증 안 받은 사람이 auth.users에 영원히 남음.",
+        "왜_결정이_필요하냐면": "보안 결함 막아도 데이터 소스 그대로면 같은 문제 반복. 좀비 가입자 누적되면 통계 왜곡, 이메일 발송 비용 낭비.",
+        "결정하면_뭐가_달라지냐면": "Members 페이지에 진짜 호텔 매니저 고객만 보임. 미인증자는 7일 후 자동 청소. 통계 정확."
+      },
+      "created_at": "2026-05-13T09:01:35.824392Z",
+      "updated_at": "2026-05-13T09:01:35.824392Z",
+      "source": "chat:2026-05-13 보안 진단",
+      "target_pages": [
+        "/admin.html#tab-members",
+        "/api/admin?action=list-users",
+        ".github/workflows (zombie cleanup bot)"
+      ]
+    },
+    {
+      "id": "BL-ADMIN-LABEL-CLEANUP",
+      "title": "[화면 라벨 정리] 사이드바 메뉴 사업 본질 맞춤 + 영한 토글 전수 점검",
+      "category": "ui",
+      "priority": "P2",
+      "size": "small",
+      "status": "pending",
+      "owner": "claude",
+      "claude_can_auto": true,
+      "approval_required": false,
+      "estimated_hours": 1,
+      "order": 4,
+      "blocker": null,
+      "depends_on": [
+        "BL-ADMIN-USER-MANAGEMENT"
+      ],
+      "progress": {
+        "percent": 0,
+        "steps": []
+      },
+      "notes": "현재 Members='가입자/플랫폼에 가입한 호텔 매니저', Team='팀/내부 관리자 및 지원 인력' — 둘 다 admin이 보면 헷갈림. 'Members → 호텔 매니저', 'Team → 우리 직원' 식으로 사업 본질에 맞게 재라벨링. admin.html 전체 영한 data-en/data-ko 빠진 곳 전수 점검. 대표님이 EN/한국어 토글 검증 시 어색·결함 발견 시 그때그때 추가 보강.",
+      "biz_context_v2": {
+        "지금_무슨_상황이냐면": "Members와 Team 두 메뉴가 사업 본질과 안 맞게 섞여있음. 대표님이 보시면 둘 차이를 매번 추론해야 함. 일부 영어 라벨에 한국어 토글 빠짐.",
+        "왜_결정이_필요하냐면": "사이드바는 매일 매시간 보는 화면. 라벨이 직관적이지 않으면 대표님 업무 속도 떨어짐. 영한 동등 검증이 정책인데 빠진 곳 있으면 디자인 검수 못함.",
+        "결정하면_뭐가_달라지냐면": "사이드바 보면 누가 누구인지 즉시 인지. 영한 토글이 admin 전체에 100% 작동."
+      },
+      "created_at": "2026-05-13T09:01:35.824392Z",
+      "updated_at": "2026-05-13T09:01:35.824392Z",
+      "source": "chat:2026-05-13 보안 진단",
+      "target_pages": [
+        "/admin.html"
+      ]
+    },
+    {
+      "id": "BL-PRELAUNCH-CLEANUP",
+      "title": "[운영 모드 진입 정리] 테스트 데이터 삭제 + 토큰 일괄 폐기 + 하드코딩 환경변수화",
+      "category": "ops",
+      "priority": "P1",
+      "size": "medium",
+      "status": "pending",
+      "owner": "claude",
+      "claude_can_auto": false,
+      "approval_required": true,
+      "estimated_hours": 2,
+      "order": 5,
+      "blocker": null,
+      "depends_on": [
+        "BL-SECURITY-SIGNUP-TRIGGER",
+        "BL-ADMIN-USER-MANAGEMENT",
+        "BL-MEMBERS-DATA-SOURCE",
+        "BL-ADMIN-LABEL-CLEANUP"
+      ],
+      "progress": {
+        "percent": 0,
+        "steps": []
+      },
+      "notes": "헌법 부칙 11 메모리 사이클 — 운영 진입 시점에 일괄 정리. 1) 테스트 호텔 매니저 leejifilm/joylife8760 + Lotte Hotel Seattle/The Westin Tokyo 삭제. 2) handle_new_user 트리거 owner 이메일 dgmasters01@gmail.com 하드코딩 → OWNER_EMAILS 환경변수화. 3) 모든 토큰(GitHub PAT, Supabase Management, Vercel, Cloudflare, Resend, ops endpoint) 일괄 폐기·재발급. 4) 평문 노출 토큰을 commit/issue/chat-log에서 일괄 마스킹. 5) RLS·middleware 보안 최종 점검. approval_required=true (라이브 데이터 삭제 + 토큰 재발급은 대표님 직접 승인 필요).",
+      "biz_context_v2": {
+        "지금_무슨_상황이냐면": "개발 기간 동안 박은 평문 토큰들이 GitHub commit·chat-log에 남아있음(헌법 부칙 4 정상 — 개발기간 한정). 테스트용 호텔 데이터 2건이 라이브 hotels 테이블에 paid 상태로 박혀있음. owner 이메일은 코드에 하드코딩.",
+        "왜_결정이_필요하냐면": "실제 호텔 매니저 모집 시작하기 전 = 운영 모드 진입 시점. 이 시점에 정리 안 하면 실제 고객이 테스트 데이터 보거나 노출된 토큰으로 사고 발생 가능.",
+        "결정하면_뭐가_달라지냐면": "라이브 오픈 가능한 상태. 토큰 노출 0건. 테스트 데이터 0건. 대표님 이메일 변경에도 owner 권한 유지."
+      },
+      "created_at": "2026-05-13T09:01:35.824392Z",
+      "updated_at": "2026-05-13T09:01:35.824392Z",
+      "source": "chat:2026-05-13 보안 진단",
+      "target_pages": [
+        "hotels 테이블 + auth.users + DB 트리거 + 환경변수 + 모든 토큰"
       ]
     }
   ]

@@ -5,7 +5,7 @@
 > 
 > 단일 진실 소스: `tasks.json` (v2.0)
 
-**마지막 업데이트**: 2026-05-12
+**마지막 업데이트**: 2026-05-13
 
 > 💡 **새 채팅 시작 시**: 다음 5개 문서를 먼저 보면 즉시 컨텍스트 파악 가능.
 > 
@@ -32,38 +32,58 @@
 
 ---
 
-## 🟡 P0 — chat-log 사업가 5블록 표준 강제 (사람용 탭 가독성 fix)
+## 🟡 P0 — [호텔별 과거 누적 매출 자동 집계] 우리만 보는 admin 영역 — D-035 사전 데이터
 
-**요약**: 사람용 탭이 chat-log를 보여줄 때 사업가 용어가 아닌 개발자 용어 가득. 원인: 표준(_os/playbook/chat-log-format.md)은 박혀있는데 작성 시 미준수. fix: (1) 부칙에 5블록 표준 준수 명문 (2) auto-detect-bot이 chat-log 박힐 때 5블록 헤딩 + 사업가 용어 검증 (3) 검증 실패 시 워닝, 자가
+**요약**: agoda_hotel_id + google_place_id 매칭 → bookings_self.amount + bookings_agoda.amount 합산 → 호텔별 누적 매출 산출. admin → '📺 영상 자산 성과' 탭 신설. 매니저 노출은 BL-SIGNUP-ENRICHMENT에서 별도.
 
 - **자율성**: 🟡 SEMI
-- **예상 시간**: 1시간
-- **카테고리**: infra
+- **예상 시간**: 미정시간
+- **카테고리**: analytics
 - **상태**: pending
-- **막힘 사유**: Q2 결정 대기 — 부칙 합치기 vs 분리
-- **결정 필요**:
-  - Q2: 부칙 15에 합칠지 vs 부칙 16 신설할지 (제안: 부칙 15에 합치기)
-- **ID**: `BL-CHATLOG-BIZ-FORMAT` (출처: BL-CHATLOG-AUTO-GATE 검증 중 발견 (대표님 이미지 1))
+- **ID**: `BL-PAST-VIDEO-RECON` (출처: decision:D-035)
 
 ---
 
-## ⚡ P0 — [서비스 페이지 전체 지도] 페이지 골격 + 진행률 표시 — 모든 작업의 부모
+## 🟡 P0 — [Agoda Affiliate 약관 검토] D-035 매니저 노출 가능 여부 확인
 
-**요약**: 🚨 [2026-05-12 라이브 점검 결과 — 새 클로드 즉시 파악 필수]
-
-BL-SERVICE-MAP의 본질 70%는 이미 BL-PAGE-MAP-SIMPLE(2026-05-11)로 admin-status.html에 박혀있음:
-  ✅ 페이지 카드 18개 (line 1441 #page-map-card)
-  ✅ guest/manager/admin 3개 트랙
- 
+**요약**: affiliate 매칭 데이터를 호텔(제3자)에게 노출 가능 여부. 약관 위반 위험 시 D-035 보류 + Self-Sourced만 사용.
 
 - **자율성**: 🟡 SEMI
-- **예상 시간**: 8시간
+- **예상 시간**: 미정시간
+- **카테고리**: policy
+- **상태**: pending
+- **막힘 사유**: Agoda Affiliate 약관 원문 확인 필요
+- **ID**: `BL-AGODA-TOS-CHECK` (출처: decision:D-035)
+
+---
+
+## 🟡 P0 — [신규 매니저 가입 시 누적 매출 표시] D-035 3구간 임계값 분기 노출
+
+**요약**: signup.html 호텔 입력 직후 백그라운드 매칭 → verify-email 또는 sales.html에서 표시. $1,000+ 강력 / $200~999 부드러움 / <$200 숨김.
+
+- **자율성**: 🟡 SEMI
+- **예상 시간**: 미정시간
+- **카테고리**: feature
+- **상태**: pending
+- **ID**: `BL-SIGNUP-ENRICHMENT` (출처: decision:D-035)
+
+---
+
+## 🟢 P0 — [자동] 작업 206건 중 16건에 출처가 없어요 (자동 동기화 봇 멈춤 위험)
+
+**요약**: 점검 봇 자동 등록 (2026-05-12T17:36:05.435Z)
+
+check_name: tasks_schema
+status: red
+detail: 작업 206건 중 16건에 출처가 없어요 (자동 동기화 봇 멈춤 위험)
+
+진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 green으로 박으면 자
+
+- **자율성**: 🟢 AUTO
+- **예상 시간**: 1시간
 - **카테고리**: infrastructure
-- **상태**: in_progress
-- **막힘 사유**: 디자인 큰 방향 결정 대기
-- **결정 필요**:
-  - 디자인 큰 방향 검수 (대표님 그림)
-- **ID**: `BL-SERVICE-MAP` (출처: ceo_insight_2026-05-10)
+- **상태**: pending
+- **ID**: `BL-AUTO-TASKS-SCHEMA-16MISSING` (출처: auto_from_tasks_schema)
 
 ---
 
@@ -185,38 +205,14 @@ BL-SERVICE-MAP의 본질 70%는 이미 BL-PAGE-MAP-SIMPLE(2026-05-11)로 admin-s
 
 ---
 
-## 🟢 P1 — 자동 알림 메일 시스템 (BACKLOG의 P1)
-
-**요약**: ### G. 🟢 AUTO — 자동 알림 메일 시스템 (BACKLOG의 P1) **작업 내용**: BACKLOG.md L280 참조. 6개 트리거 메일 구현 - 호텔 등록 / 승인 / 거절 / 결제 완료 / 영상 제작 시작 / 영상 게시 - 기존 `sendSystemEmail` 함수 활용 - 영어 본체 + 한국어 토글 (i18n 일괄 작업 시점까지 영어만) 
-
-- **자율성**: 🟢 AUTO
-- **예상 시간**: 미정시간
-- **카테고리**: dev
-- **상태**: pending
-- **ID**: `SQ-G` (출처: SOLO_WORK_QUEUE.md)
-
----
-
-## 🟢 P1 — Supabase Management API 토큰 갱신 알림 자동화
-
-**요약**: ### H. 🟢 AUTO — Supabase Management API 토큰 갱신 알림 자동화 **작업 내용**: 토큰 만료 7일 전 ops 메일 자동 발송 (현재 토큰 만료 5/26) - Vercel Cron 또는 Supabase Edge Function 사용 - 현재는 메모리에만 알림 메모, 자동화 안 됨  **예상 시간**: 1시간 **자율 진행 사유
-
-- **자율성**: 🟢 AUTO
-- **예상 시간**: 미정시간
-- **카테고리**: infrastructure
-- **상태**: pending
-- **ID**: `SQ-H` (출처: SOLO_WORK_QUEUE.md)
-
----
-
-## 🟡 P1 — OS 설치 시 PAT/시크릿 자동 박기 흐름 — install_os.sh 보강
+## ⚡ P1 — OS 설치 시 PAT/시크릿 자동 박기 흐름 — install_os.sh 보강
 
 **요약**: BL-DEDUP-CONSOLIDATE와 별건. install_os.sh에 PAT 처리 로직이 박혀있지 않음 (현재 224줄, grep 확인). 설치 후 새 프로젝트에서 GitHub push·workflow 트리거 시 거부됨. Q 답변 후 진행.
 
 - **자율성**: 🟡 SEMI
 - **예상 시간**: 1.5시간
 - **카테고리**: infra
-- **상태**: pending
+- **상태**: in_progress
 - **결정 필요**:
   - Q: PAT 박는 방식 — 환경변수 vs .env.local vs GitHub Secrets API
 - **ID**: `BL-OS-INSTALL-PAT-FLOW` (출처: 대표님 진단 (2026-05-08) — OS 설치 시 PAT 거부됨, 설치 자체가 안 됨)
@@ -281,6 +277,91 @@ detail: 관리자 페이지 7개가 원본과 살짝 달라요 (대표님이 일
 - **카테고리**: infrastructure
 - **상태**: pending
 - **ID**: `BL-AUTO-ADMIN-BASELINE-7FILES` (출처: auto_from_admin_baseline)
+
+---
+
+## 🟡 P1 — [호텔 상세 페이지 + 커뮤니케이션 이력] 매니저/호텔 분리 + 1:1 문의·메일·메모 타임라인
+
+**요약**: 통찰 ⑥+⑨ 합본. admin Hotels 탭 행 = 호텔 카드 / 호텔명 클릭 → 단일 호텔 상세 슬라이드 패널. '📨 커뮤니케이션 이력' 영역 신설 — 1:1 문의/메일 송수신/내부 메모/status 변경 이력 시간순.
+
+- **자율성**: 🟡 SEMI
+- **예상 시간**: 미정시간
+- **카테고리**: feature
+- **상태**: pending
+- **ID**: `BL-HOTEL-DETAIL-PAGE` (출처: autoheal:feature-2026-05-13)
+
+---
+
+## 🟡 P1 — [매출 차트 토글] 일/주/월/분기/년 보기 + 전월비/전년비 — booking-analytics 보강
+
+**요약**: booking-analytics.html 보강. 5개 토글 [일/주/월/분기/년]. Self-Sourced vs Agoda 채널 vs B2B $200 매출 3종 분리.
+
+- **자율성**: 🟡 SEMI
+- **예상 시간**: 미정시간
+- **카테고리**: analytics
+- **상태**: pending
+- **ID**: `BL-REVENUE-DASHBOARD` (출처: autoheal:analytics-2026-05-13)
+
+---
+
+## 🟡 P1 — [재계약 관리 탭] D-30 임박 호텔 + 저성과 호텔(매출 $200 미만) 자동 추출
+
+**요약**: admin Sales 영역 → '💎 재계약 관리' 탭 신설. 3개 필터: 예약 0건 / 매출 $200 미만(이벤트 송출 후보) / D-30 임박. 통찰 ② 박힘.
+
+- **자율성**: 🟡 SEMI
+- **예상 시간**: 미정시간
+- **카테고리**: feature
+- **상태**: pending
+- **ID**: `BL-RENEWAL-WATCH` (출처: autoheal:feature-2026-05-13)
+
+---
+
+## 🟡 P1 — [환불 관리 탭] PayPal Refund API 연동 + 환불 이력 영구 보관
+
+**요약**: marketing.html 매니저 본인 신청 → admin '↩️ 환불·취소' 탭 등장 → 대표님 확인 → PayPal Refund API. 영수증 PDF 5년 보관.
+
+- **자율성**: 🟡 SEMI
+- **예상 시간**: 미정시간
+- **카테고리**: feature
+- **상태**: pending
+- **ID**: `BL-REFUND-FLOW` (출처: decision:D-033)
+
+---
+
+## 🟡 P1 — [가입 시 국가 선택 필수] 동남아 7개국 상단 노출
+
+**요약**: 베트남/태국/필리핀/인도네시아/말레이시아/싱가포르 상단 + 기타 국가.
+
+- **자율성**: 🟡 SEMI
+- **예상 시간**: 미정시간
+- **카테고리**: feature
+- **상태**: pending
+- **ID**: `BL-SIGNUP-COUNTRY-FIELD` (출처: decision:D-032+chat-log:2026-05-13-sq-g-auto-status-email)
+
+---
+
+## 🟡 P1 — [자동 메일 12개 영어 default] 한국 매니저만 한국어 분기
+
+**요약**: Resend SMTP locale 분기. 12개 메일 템플릿 영어 + 한국어 2벌.
+
+- **자율성**: 🟡 SEMI
+- **예상 시간**: 미정시간
+- **카테고리**: feature
+- **상태**: pending
+- **ID**: `BL-EMAIL-LOCALE-ROUTING` (출처: decision:D-032+chat-log:2026-05-13-sq-g-auto-status-email)
+
+---
+
+## 🟡 P1 — [이벤트 사이트 신규 브랜드 신설] 도메인 확보 + 기본 디자인 + 호텔 송출 흐름
+
+**요약**: 별도 브랜드/도메인. B2B와 분리. 도메인 후보 확정 후 본격 시작.
+
+- **자율성**: 🟡 SEMI
+- **예상 시간**: 미정시간
+- **카테고리**: feature
+- **상태**: pending
+- **막힘 사유**: D-034-A 도메인 후보 확정 필요 (hoteldeal/stayhunt/hotelwin.deal 등)
+- **ID**: `BL-EVENT-SITE-FOUNDATION` (출처: decision:D-034)
 
 ---
 
@@ -428,6 +509,66 @@ detail: 관리자 페이지 7개가 원본과 살짝 달라요 (대표님이 일
 - **카테고리**: infra
 - **상태**: pending
 - **ID**: `BL-PROGRESS-STEPS-AUTOFILL` (출처: 대표님 진단 — BL-ADMIN-AUTH-PERF 시작 시 progress_steps 미박힘 채로 진행됐고 직전 채팅 끝에서야 강제 채움. 부칙 7 (단계=commit) 완전 자동화 미흡.)
+
+---
+
+## 🟡 P2 — [admin Members 탭 국가별 필터] 동남아 그룹 강조
+
+**요약**: 재계약·환불 관리 시 국가별 정렬 가능하게.
+
+- **자율성**: 🟡 SEMI
+- **예상 시간**: 미정시간
+- **카테고리**: feature
+- **상태**: pending
+- **ID**: `BL-ADMIN-COUNTRY-FILTER` (출처: decision:D-032+chat-log:2026-05-13-sq-g-auto-status-email)
+
+---
+
+## 🟡 P2 — [영수증 PDF 5년 영구 보관] Supabase + S3 백업
+
+**요약**: 회계 의무 5년. 결제 영수증 + 환불 영수증 둘 다.
+
+- **자율성**: 🟡 SEMI
+- **예상 시간**: 미정시간
+- **카테고리**: infra
+- **상태**: pending
+- **ID**: `BL-RECEIPT-ARCHIVE` (출처: decision:D-033)
+
+---
+
+## 🟡 P2 — [이벤트 사이트 고객 회원가입 + 마케팅 동의 DB] 고객 자산화
+
+**요약**: 마케팅 동의 받은 일반 고객 = TW의 영구 자산. 재마케팅 메일 가능.
+
+- **자율성**: 🟡 SEMI
+- **예상 시간**: 미정시간
+- **카테고리**: feature
+- **상태**: pending
+- **ID**: `BL-EVENT-CUSTOMER-DB` (출처: decision:D-034)
+
+---
+
+## 🟡 P2 — [이벤트 사이트 호텔 대리 결제] Agoda affiliate 또는 직접 결제
+
+**요약**: 이벤트 고객 응모/구매 → 우리가 호텔에 대리 결제 → 호텔에 예약 발생.
+
+- **자율성**: 🟡 SEMI
+- **예상 시간**: 미정시간
+- **카테고리**: payment
+- **상태**: pending
+- **ID**: `BL-EVENT-PAYMENT-PROXY` (출처: decision:D-034)
+
+---
+
+## 🟡 P2 — [이벤트 송출 호텔 알림 + admin 송출 관리 탭]
+
+**요약**: admin Hotels 탭에서 매출 $200 미만 호텔 → '이벤트 송출' 버튼. 호텔에 '예약 N건 추가 발생' 메일.
+
+- **자율성**: 🟡 SEMI
+- **예상 시간**: 미정시간
+- **카테고리**: feature
+- **상태**: pending
+- **ID**: `BL-EVENT-HOTEL-NOTIFY` (출처: decision:D-034)
 
 ---
 

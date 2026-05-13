@@ -3,7 +3,7 @@
 > ⚠️ **이 파일은 자동 생성됩니다.** 수동 편집하지 마세요.
 > 단일 진실 소스: `tasks.json` (v2.0)
 > **데드라인**: 2026-05-03
-> **갱신**: 2026-05-12
+> **갱신**: 2026-05-13
 > **목적**: 대표님 외근/자리비움 시 Claude 자율 처리 가능 작업
 
 ## 작업 분류 체계
@@ -26,6 +26,42 @@
 **막힘 사유**: supabase 호텔/예약 인프라 박힌 후 4종 사업 source 연결. 진행률 표시 + 활동이력 결함 4건은 BL-IPB-* / BL-ACT-* 로 분리.  
 
 **메모**: ## 🔴 P0 — 통합 To-Do Inbox (관리자 대시보드 재설계) ⭐⭐⭐ 2026-04-29  **배경** (대표님 핵심 운영 철학): > "한 사람이 처리해야 될 업무는 한 곳에서 우선순위가 표시되어 체크하면 정리할 수 있게 해야 됨. 내가 복잡하게 관리하게 하면 안 됨. 나에게 유리하게 해야 됨."  대표님 1인 운영. 처리 작업이 여러 탭에 흩어져 있으면 누락 발생. 한 곳에 통합 필요.  **작업 항목**: 1. **admin.html Dashboard 탭 = To-Do Inbox** 으로 재설계    - 모든 처리 작
+
+---
+
+### B. 🟢 AUTO — [자동] 작업 206건 중 16건에 출처가 없어요 (자동 동기화 봇 멈춤 위험)
+
+**ID**: `BL-AUTO-TASKS-SCHEMA-16MISSING`  
+**카테고리**: infrastructure  
+**예상 시간**: 1시간  
+
+**메모**: 점검 봇 자동 등록 (2026-05-12T17:36:05.435Z)
+
+check_name: tasks_schema
+status: red
+detail: 작업 206건 중 16건에 출처가 없어요 (자동 동기화 봇 멈춤 위험)
+
+진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 green으로 박으면 자동 done.
+
+---
+
+### C. 🟡 SEMI — [호텔별 과거 누적 매출 자동 집계] 우리만 보는 admin 영역 — D-035 사전 데이터
+
+**ID**: `BL-PAST-VIDEO-RECON`  
+**카테고리**: analytics  
+**예상 시간**: 미정시간  
+
+**메모**: agoda_hotel_id + google_place_id 매칭 → bookings_self.amount + bookings_agoda.amount 합산 → 호텔별 누적 매출 산출. admin → '📺 영상 자산 성과' 탭 신설. 매니저 노출은 BL-SIGNUP-ENRICHMENT에서 별도.
+
+---
+
+### D. 🟡 SEMI — [신규 매니저 가입 시 누적 매출 표시] D-035 3구간 임계값 분기 노출
+
+**ID**: `BL-SIGNUP-ENRICHMENT`  
+**카테고리**: feature  
+**예상 시간**: 미정시간  
+
+**메모**: signup.html 호텔 입력 직후 백그라운드 매칭 → verify-email 또는 sales.html에서 표시. $1,000+ 강력 / $200~999 부드러움 / <$200 숨김.
 
 ---
 
@@ -65,27 +101,7 @@
 
 ---
 
-### D. 🟢 AUTO — 자동 알림 메일 시스템 (BACKLOG의 P1)
-
-**ID**: `SQ-G`  
-**카테고리**: dev  
-**예상 시간**: 미정시간  
-
-**메모**: ### G. 🟢 AUTO — 자동 알림 메일 시스템 (BACKLOG의 P1) **작업 내용**: BACKLOG.md L280 참조. 6개 트리거 메일 구현 - 호텔 등록 / 승인 / 거절 / 결제 완료 / 영상 제작 시작 / 영상 게시 - 기존 `sendSystemEmail` 함수 활용 - 영어 본체 + 한국어 토글 (i18n 일괄 작업 시점까지 영어만)  **예상 시간**: 2시간 **자율 진행 사유**: 메일 템플릿은 BUSINESS.md 정책 그대로 사용  ---
-
----
-
-### E. 🟢 AUTO — Supabase Management API 토큰 갱신 알림 자동화
-
-**ID**: `SQ-H`  
-**카테고리**: infrastructure  
-**예상 시간**: 미정시간  
-
-**메모**: ### H. 🟢 AUTO — Supabase Management API 토큰 갱신 알림 자동화 **작업 내용**: 토큰 만료 7일 전 ops 메일 자동 발송 (현재 토큰 만료 5/26) - Vercel Cron 또는 Supabase Edge Function 사용 - 현재는 메모리에만 알림 메모, 자동화 안 됨  **예상 시간**: 1시간 **자율 진행 사유**: 인프라 자동화  ---  ## 🟢 P2 — 자투리 시간에
-
----
-
-### F. 🟢 AUTO — [건강검진 사람 말] 점검 결과를 사업가 언어로 풀어줌
+### D. 🟢 AUTO — [건강검진 사람 말] 점검 결과를 사업가 언어로 풀어줌
 
 **ID**: `BL-BASELINE-HUMAN-LANG`  
 **카테고리**: ux  
@@ -97,7 +113,7 @@
 
 ---
 
-### G. 🟢 AUTO — [결정 → 페이지 → 작업 흐름 시각화] 대표님 판단 도구
+### E. 🟢 AUTO — [결정 → 페이지 → 작업 흐름 시각화] 대표님 판단 도구
 
 **ID**: `BL-DEPENDENCY-GRAPH`  
 **카테고리**: ux  
@@ -109,7 +125,7 @@
 
 ---
 
-### H. 🟢 AUTO — [일일 건강 카드] 위 4개(사람말 + 자동등록 + 지도 + 의존성)를 한 줄로 압축
+### F. 🟢 AUTO — [일일 건강 카드] 위 4개(사람말 + 자동등록 + 지도 + 의존성)를 한 줄로 압축
 
 **ID**: `BL-DAILY-HEALTH-CARD`  
 **카테고리**: ux  
@@ -122,7 +138,7 @@
 
 ---
 
-### I. 🟢 AUTO — [자동] 관리자 페이지 7개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요)
+### G. 🟢 AUTO — [자동] 관리자 페이지 7개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요)
 
 **ID**: `BL-AUTO-ADMIN-BASELINE-7FILES`  
 **카테고리**: infrastructure  
@@ -135,6 +151,78 @@ status: yellow
 detail: 관리자 페이지 7개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요)
 
 진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 green으로 박으면 자동 done.
+
+---
+
+### H. 🟡 SEMI — OS 설치 시 PAT/시크릿 자동 박기 흐름 — install_os.sh 보강
+
+**ID**: `BL-OS-INSTALL-PAT-FLOW`  
+**카테고리**: infra  
+**예상 시간**: 1.5시간  
+**결정 필요 사항**:
+- Q: PAT 박는 방식 — 환경변수 vs .env.local vs GitHub Secrets API
+
+**메모**: BL-DEDUP-CONSOLIDATE와 별건. install_os.sh에 PAT 처리 로직이 박혀있지 않음 (현재 224줄, grep 확인). 설치 후 새 프로젝트에서 GitHub push·workflow 트리거 시 거부됨. Q 답변 후 진행.
+
+---
+
+### I. 🟡 SEMI — [호텔 상세 페이지 + 커뮤니케이션 이력] 매니저/호텔 분리 + 1:1 문의·메일·메모 타임라인
+
+**ID**: `BL-HOTEL-DETAIL-PAGE`  
+**카테고리**: feature  
+**예상 시간**: 미정시간  
+
+**메모**: 통찰 ⑥+⑨ 합본. admin Hotels 탭 행 = 호텔 카드 / 호텔명 클릭 → 단일 호텔 상세 슬라이드 패널. '📨 커뮤니케이션 이력' 영역 신설 — 1:1 문의/메일 송수신/내부 메모/status 변경 이력 시간순.
+
+---
+
+### J. 🟡 SEMI — [매출 차트 토글] 일/주/월/분기/년 보기 + 전월비/전년비 — booking-analytics 보강
+
+**ID**: `BL-REVENUE-DASHBOARD`  
+**카테고리**: analytics  
+**예상 시간**: 미정시간  
+
+**메모**: booking-analytics.html 보강. 5개 토글 [일/주/월/분기/년]. Self-Sourced vs Agoda 채널 vs B2B $200 매출 3종 분리.
+
+---
+
+### K. 🟡 SEMI — [재계약 관리 탭] D-30 임박 호텔 + 저성과 호텔(매출 $200 미만) 자동 추출
+
+**ID**: `BL-RENEWAL-WATCH`  
+**카테고리**: feature  
+**예상 시간**: 미정시간  
+
+**메모**: admin Sales 영역 → '💎 재계약 관리' 탭 신설. 3개 필터: 예약 0건 / 매출 $200 미만(이벤트 송출 후보) / D-30 임박. 통찰 ② 박힘.
+
+---
+
+### L. 🟡 SEMI — [환불 관리 탭] PayPal Refund API 연동 + 환불 이력 영구 보관
+
+**ID**: `BL-REFUND-FLOW`  
+**카테고리**: feature  
+**예상 시간**: 미정시간  
+
+**메모**: marketing.html 매니저 본인 신청 → admin '↩️ 환불·취소' 탭 등장 → 대표님 확인 → PayPal Refund API. 영수증 PDF 5년 보관.
+
+---
+
+### M. 🟡 SEMI — [가입 시 국가 선택 필수] 동남아 7개국 상단 노출
+
+**ID**: `BL-SIGNUP-COUNTRY-FIELD`  
+**카테고리**: feature  
+**예상 시간**: 미정시간  
+
+**메모**: 베트남/태국/필리핀/인도네시아/말레이시아/싱가포르 상단 + 기타 국가.
+
+---
+
+### N. 🟡 SEMI — [자동 메일 12개 영어 default] 한국 매니저만 한국어 분기
+
+**ID**: `BL-EMAIL-LOCALE-ROUTING`  
+**카테고리**: feature  
+**예상 시간**: 미정시간  
+
+**메모**: Resend SMTP locale 분기. 12개 메일 템플릿 영어 + 한국어 2벌.
 
 ---
 
@@ -227,6 +315,56 @@ detail: 관리자 페이지 7개가 원본과 살짝 달라요 (대표님이 일
 **예상 시간**: 미정시간  
 
 **메모**: ## 🟡 P2 — Chrome 안전 브라우징 경고  **현상**: 대표님 Chrome 일반 모드에서 `gohotelwinners.com` 접속 시 "위험한 사이트" 경고. 시크릿 모드/Edge에서는 정상.  **진단**: Google Safe Browsing — 2020-04-08 멀웨어 페이지 보관 이력 (이전 도메인 소유자 흔적). 현재 데이터 없음. Chrome 캐시 잔존.  **해결 옵션**: - A. Chrome 캐시 정리 (5분): `chrome://safebrowsing/` → Refresh Lists - B. Goog
+
+---
+
+### J. 🟡 SEMI — [admin Members 탭 국가별 필터] 동남아 그룹 강조
+
+**ID**: `BL-ADMIN-COUNTRY-FILTER`  
+**카테고리**: feature  
+**예상 시간**: 미정시간  
+
+**메모**: 재계약·환불 관리 시 국가별 정렬 가능하게.
+
+---
+
+### K. 🟡 SEMI — [영수증 PDF 5년 영구 보관] Supabase + S3 백업
+
+**ID**: `BL-RECEIPT-ARCHIVE`  
+**카테고리**: infra  
+**예상 시간**: 미정시간  
+
+**메모**: 회계 의무 5년. 결제 영수증 + 환불 영수증 둘 다.
+
+---
+
+### L. 🟡 SEMI — [이벤트 사이트 고객 회원가입 + 마케팅 동의 DB] 고객 자산화
+
+**ID**: `BL-EVENT-CUSTOMER-DB`  
+**카테고리**: feature  
+**예상 시간**: 미정시간  
+
+**메모**: 마케팅 동의 받은 일반 고객 = TW의 영구 자산. 재마케팅 메일 가능.
+
+---
+
+### M. 🟡 SEMI — [이벤트 사이트 호텔 대리 결제] Agoda affiliate 또는 직접 결제
+
+**ID**: `BL-EVENT-PAYMENT-PROXY`  
+**카테고리**: payment  
+**예상 시간**: 미정시간  
+
+**메모**: 이벤트 고객 응모/구매 → 우리가 호텔에 대리 결제 → 호텔에 예약 발생.
+
+---
+
+### N. 🟡 SEMI — [이벤트 송출 호텔 알림 + admin 송출 관리 탭]
+
+**ID**: `BL-EVENT-HOTEL-NOTIFY`  
+**카테고리**: feature  
+**예상 시간**: 미정시간  
+
+**메모**: admin Hotels 탭에서 매출 $200 미만 호텔 → '이벤트 송출' 버튼. 호텔에 '예약 N건 추가 발생' 메일.
 
 ---
 

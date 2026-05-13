@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-13T15:59:41.749Z",
+  "updated_at": "2026-05-13T16:01:04.209607+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -14523,7 +14523,7 @@
       "category": "infra",
       "priority": "P0",
       "size": "small",
-      "status": "in_progress",
+      "status": "done",
       "owner": "claude",
       "claude_can_auto": true,
       "approval_required": false,
@@ -14532,8 +14532,24 @@
       "blocker": null,
       "depends_on": [],
       "progress": {
-        "percent": 0,
-        "steps": []
+        "percent": 100,
+        "steps": [
+          {
+            "n": 1,
+            "title": "v_hotel_manager_full VIEW SQL 박기 (6개 테이블 LEFT JOIN LATERAL)",
+            "done": true
+          },
+          {
+            "n": 2,
+            "title": "Supabase 라이브 적용 + 검증 (매니저 3명 정상 조회)",
+            "done": true
+          },
+          {
+            "n": 3,
+            "title": "GitHub commit + sql/ 폴더에 영구 박기",
+            "done": true
+          }
+        ]
       },
       "notes": "Manager Hub 페이지 시리즈. 좌우 분할 1개 페이지로 매니저 생애주기 관리. 사업 시작 전 필수.",
       "biz_context_v2": {
@@ -14542,7 +14558,7 @@
         "결정하면_뭐가_달라지냐면": "매니저 1명 = SQL 1줄. 모든 화면이 같은 VIEW 사용."
       },
       "created_at": "2026-05-13T15:55:50.030158+00:00",
-      "updated_at": "2026-05-13T15:59:54+00:00",
+      "updated_at": "2026-05-13T16:01:04.209607+00:00",
       "source": "chat:2026-05-13 매니저 허브 페이지 설계",
       "target_pages": [
         "_admin/admin.html (members 탭)",
@@ -14564,7 +14580,8 @@
           "commit": "ac11621",
           "note": "feat(BL-NEW): 매니저 허브 시리즈 BL 5건 등록 + BL-MANAGER-HUB-VIEW done (사업가 V2 컨텍스트 박음) [변경사유: 부칙 17 사업가 V2 의무]"
         }
-      ]
+      ],
+      "completed_at": "2026-05-13T16:01:04.209607+00:00"
     },
     {
       "id": "BL-MANAGER-HUB-PAGE",
@@ -14572,7 +14589,7 @@
       "category": "feature",
       "priority": "P0",
       "size": "medium",
-      "status": "pending",
+      "status": "in_progress",
       "owner": "claude",
       "claude_can_auto": true,
       "approval_required": false,
@@ -14583,8 +14600,39 @@
         "BL-MANAGER-HUB-VIEW"
       ],
       "progress": {
-        "percent": 0,
-        "steps": []
+        "percent": 60,
+        "steps": [
+          {
+            "n": 1,
+            "title": "좌우 분할 페이지 골격 + Aurora 디자인 (admin-manager-hub.html 신설)",
+            "done": true
+          },
+          {
+            "n": 2,
+            "title": "admin.html members 탭 행 클릭 진입점 박기",
+            "done": true
+          },
+          {
+            "n": 3,
+            "title": "VIEW 데이터 바인딩 (호텔 카드·KPI·영상·결제·캠페인·CS)",
+            "done": true
+          },
+          {
+            "n": 4,
+            "title": "CS 메모 추가/조회 동작 (admin_notes insert)",
+            "done": true
+          },
+          {
+            "n": 5,
+            "title": "대표님 라이브 화면 확인 + 피드백 반영",
+            "done": false
+          },
+          {
+            "n": 6,
+            "title": "결제완료/재결제임박 상단 통계 박스 영업 관점 재배치 (옵션)",
+            "done": false
+          }
+        ]
       },
       "notes": "Manager Hub 페이지 시리즈. 좌우 분할 1개 페이지로 매니저 생애주기 관리. 사업 시작 전 필수.",
       "biz_context_v2": {
@@ -14593,7 +14641,7 @@
         "결정하면_뭐가_달라지냐면": "가입자 1번 클릭 → 좌측 매니저 화면 + 우측 관리 패널 한눈에. 다른 페이지 연동의 허브."
       },
       "created_at": "2026-05-13T15:55:50.030158+00:00",
-      "updated_at": "2026-05-13T15:55:50.030158+00:00",
+      "updated_at": "2026-05-13T16:01:04.209607+00:00",
       "source": "chat:2026-05-13 매니저 허브 페이지 설계",
       "target_pages": [
         "_admin/admin.html (members 탭)",

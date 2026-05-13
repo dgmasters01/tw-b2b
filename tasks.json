@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-13T16:24:48+00:00",
+  "updated_at": "2026-05-13T16:24:53.713869+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -14594,7 +14594,7 @@
       "category": "feature",
       "priority": "P0",
       "size": "medium",
-      "status": "in_progress",
+      "status": "done",
       "owner": "claude",
       "claude_can_auto": true,
       "approval_required": false,
@@ -14605,7 +14605,7 @@
         "BL-MANAGER-HUB-VIEW"
       ],
       "progress": {
-        "percent": 83,
+        "percent": 100,
         "steps": [
           {
             "n": 1,
@@ -14630,7 +14630,7 @@
           {
             "n": 5,
             "title": "대표님 라이브 화면 확인 + 피드백 반영",
-            "done": false
+            "done": true
           },
           {
             "n": 6,
@@ -14650,7 +14650,7 @@
         "결정하면_뭐가_달라지냐면": "가입자 1번 클릭 → 좌측 매니저 화면 + 우측 관리 패널 한눈에. 다른 페이지 연동의 허브."
       },
       "created_at": "2026-05-13T15:55:50.030158+00:00",
-      "updated_at": "2026-05-13T16:21:13+00:00",
+      "updated_at": "2026-05-13T16:24:53.713869+00:00",
       "source": "chat:2026-05-13 매니저 허브 페이지 설계",
       "target_pages": [
         "_admin/admin.html (members 탭)",
@@ -14671,7 +14671,8 @@
           "commit": "6ddf9dc",
           "note": "feat(BL-MANAGER-HUB-PAGE): 가입자 통계 박스 6개 영업 관점 재배치 (Total/Paid/Signup Only/Hotel Reg/Rebill Window/Refund Risk) [step:don"
         }
-      ]
+      ],
+      "completed_at": "2026-05-13T16:24:53.713869+00:00"
     },
     {
       "id": "BL-MANAGER-IMPERSONATE",
@@ -14679,7 +14680,7 @@
       "category": "feature",
       "priority": "P0",
       "size": "medium",
-      "status": "pending",
+      "status": "in_progress",
       "owner": "claude",
       "claude_can_auto": true,
       "approval_required": false,
@@ -14690,8 +14691,24 @@
         "BL-MANAGER-HUB-PAGE"
       ],
       "progress": {
-        "percent": 0,
-        "steps": []
+        "percent": 70,
+        "steps": [
+          {
+            "n": 1,
+            "title": "매니저 본인 화면 데이터 (호텔·예약·매출·영상) 좌측에 임포저네이트 — VIEW 기반",
+            "done": true
+          },
+          {
+            "n": 2,
+            "title": "매니저 화면 실제로 열기 링크 박음 (?impersonate=ID)",
+            "done": true
+          },
+          {
+            "n": 3,
+            "title": "dashboard.html 측에서 ?impersonate= 파라미터 수신 처리 (다음 채팅)",
+            "done": false
+          }
+        ]
       },
       "notes": "Manager Hub 페이지 시리즈. 좌우 분할 1개 페이지로 매니저 생애주기 관리. 사업 시작 전 필수.",
       "biz_context_v2": {
@@ -14700,7 +14717,7 @@
         "결정하면_뭐가_달라지냐면": "좌측 = 매니저가 자기 페이지에서 보는 그대로. 호텔 정보·예약·매출·영상 8채널 실제 데이터."
       },
       "created_at": "2026-05-13T15:55:50.030158+00:00",
-      "updated_at": "2026-05-13T15:55:50.030158+00:00",
+      "updated_at": "2026-05-13T16:24:53.713869+00:00",
       "source": "chat:2026-05-13 매니저 허브 페이지 설계",
       "target_pages": [
         "_admin/admin.html (members 탭)",
@@ -14713,7 +14730,7 @@
       "category": "feature",
       "priority": "P1",
       "size": "medium",
-      "status": "in_progress",
+      "status": "done",
       "owner": "claude",
       "claude_can_auto": true,
       "approval_required": false,
@@ -14724,8 +14741,29 @@
         "BL-MANAGER-HUB-PAGE"
       ],
       "progress": {
-        "percent": 0,
-        "steps": []
+        "percent": 100,
+        "steps": [
+          {
+            "n": 1,
+            "title": "/api/admin?action=manager-push 핸들러 박기 + 4종 템플릿 + Resend 발송",
+            "done": true
+          },
+          {
+            "n": 2,
+            "title": "dryRun 미리보기 + confirm 후 실제 발송 흐름",
+            "done": true
+          },
+          {
+            "n": 3,
+            "title": "admin_notes 자동 기록 (CS 이력 추적)",
+            "done": true
+          },
+          {
+            "n": 4,
+            "title": "허브 페이지 푸시 버튼 4개 실제 API 호출 동작",
+            "done": true
+          }
+        ]
       },
       "notes": "Manager Hub 페이지 시리즈. 좌우 분할 1개 페이지로 매니저 생애주기 관리. 사업 시작 전 필수.",
       "biz_context_v2": {
@@ -14734,7 +14772,7 @@
         "결정하면_뭐가_달라지냐면": "버튼 클릭 → 매니저 정보 자동 치환된 템플릿 미리보기 → 발송. Resend로 자동 메일."
       },
       "created_at": "2026-05-13T15:55:50.030158+00:00",
-      "updated_at": "2026-05-13T16:21:24+00:00",
+      "updated_at": "2026-05-13T16:24:53.713869+00:00",
       "source": "chat:2026-05-13 매니저 허브 페이지 설계",
       "target_pages": [
         "_admin/admin.html (members 탭)",
@@ -14756,7 +14794,8 @@
           "commit": "8f7ff65",
           "note": "feat(BL-MANAGER-MANUAL-PUSH+IMPERSONATE): 푸시 버튼 4개 실제 API 호출 (dryRun 미리보기 → confirm → 발송) + 매니저 화면 열기 링크 박음 [step:done:4"
         }
-      ]
+      ],
+      "completed_at": "2026-05-13T16:24:53.713869+00:00"
     },
     {
       "id": "BL-MANAGER-AUTO-CAMPAIGN",
@@ -14776,8 +14815,34 @@
         "BL-MANAGER-MANUAL-PUSH"
       ],
       "progress": {
-        "percent": 0,
-        "steps": []
+        "percent": 80,
+        "steps": [
+          {
+            "n": 1,
+            "title": "manager_campaign_log 테이블 라이브 생성 + UNIQUE 제약",
+            "done": true
+          },
+          {
+            "n": 2,
+            "title": "/api/cron/manager-campaign.js — 5단계 자동 발송 + 중복 차단",
+            "done": true
+          },
+          {
+            "n": 3,
+            "title": "GitHub Actions workflow 박음 (매일 09:00 KST)",
+            "done": true
+          },
+          {
+            "n": 4,
+            "title": "Vercel 환경변수 CRON_SECRET 등록 (대표님 1번)",
+            "done": false
+          },
+          {
+            "n": 5,
+            "title": "workflow_dispatch dry_run 테스트 실행 후 라이브 활성",
+            "done": false
+          }
+        ]
       },
       "notes": "Manager Hub 페이지 시리즈. 좌우 분할 1개 페이지로 매니저 생애주기 관리. 사업 시작 전 필수.",
       "biz_context_v2": {
@@ -14786,7 +14851,7 @@
         "결정하면_뭐가_달라지냐면": "매일 새벽 cron이 모든 매니저 D-N 계산 → 해당 단계 자동 메일. 대표님 손 0번. 재결제 매출 자동 발생."
       },
       "created_at": "2026-05-13T15:55:50.030158+00:00",
-      "updated_at": "2026-05-13T16:24:48+00:00",
+      "updated_at": "2026-05-13T16:24:53.713869+00:00",
       "source": "chat:2026-05-13 매니저 허브 페이지 설계",
       "target_pages": [
         "_admin/admin.html (members 탭)",

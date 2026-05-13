@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-13T16:25:21.390Z",
+  "updated_at": "2026-05-13T16:41:45+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -14696,7 +14696,7 @@
         "BL-MANAGER-HUB-PAGE"
       ],
       "progress": {
-        "percent": 70,
+        "percent": 100,
         "steps": [
           {
             "n": 1,
@@ -14711,9 +14711,13 @@
           {
             "n": 3,
             "title": "dashboard.html 측에서 ?impersonate= 파라미터 수신 처리 (다음 채팅)",
-            "done": false
+            "done": true,
+            "at": "2026-05-13T16:41:45+00:00"
           }
-        ]
+        ],
+        "completed_count": 3,
+        "total_count": 3,
+        "updated_at": "2026-05-13T16:41:45+00:00"
       },
       "notes": "Manager Hub 페이지 시리즈. 좌우 분할 1개 페이지로 매니저 생애주기 관리. 사업 시작 전 필수.",
       "biz_context_v2": {
@@ -14722,11 +14726,27 @@
         "결정하면_뭐가_달라지냐면": "좌측 = 매니저가 자기 페이지에서 보는 그대로. 호텔 정보·예약·매출·영상 8채널 실제 데이터."
       },
       "created_at": "2026-05-13T15:55:50.030158+00:00",
-      "updated_at": "2026-05-13T16:24:53.713869+00:00",
+      "updated_at": "2026-05-13T16:41:45+00:00",
       "source": "chat:2026-05-13 매니저 허브 페이지 설계",
       "target_pages": [
         "_admin/admin.html (members 탭)",
         "_admin/admin-manager-hub.html (신규)"
+      ],
+      "progress_warning": {
+        "code": "MISSING_PROGRESS_STEPS",
+        "rule": "부칙 7 — 모든 작업은 progress.steps 박은 후 시작",
+        "detected_at": "2026-05-13T16:41:45+00:00",
+        "detected_by_commit": "5063b38",
+        "message": "in_progress 도중 progress.steps 미박힘 감지."
+      },
+      "history": [
+        {
+          "at": "2026-05-13T16:41:45+00:00",
+          "event": "진행 중 commit 추가 + 단계 3 완료 (auto-detected)",
+          "by": "auto-detect-bot",
+          "commit": "5063b38",
+          "note": "feat(BL-MANAGER-IMPERSONATE): hotels SELECT RLS 정책 2종 박음 — hotels_select_own (매니저 본인) + hotels_select_admin (임포저네이트) [st"
+        }
       ]
     },
     {

@@ -49,17 +49,7 @@
 
 ---
 
-### D. 🟡 SEMI — [허브 페이지] 매니저 통합 VIEW 박기 (v_hotel_manager_full)
-
-**ID**: `BL-MANAGER-HUB-VIEW`  
-**카테고리**: infra  
-**예상 시간**: 미정시간  
-
-**메모**: Manager Hub 페이지 시리즈. 좌우 분할 1개 페이지로 매니저 생애주기 관리. 사업 시작 전 필수.
-
----
-
-### E. 🟡 SEMI — [허브 페이지] 가입자 클릭 → 좌우 분할 상세 페이지 (Aurora)
+### D. 🟡 SEMI — [허브 페이지] 가입자 클릭 → 좌우 분할 상세 페이지 (Aurora)
 
 **ID**: `BL-MANAGER-HUB-PAGE`  
 **카테고리**: feature  
@@ -69,7 +59,7 @@
 
 ---
 
-### F. 🟡 SEMI — [허브 좌측] 매니저 본인 화면 실제 연동 (호텔 정보·예약·매출·영상)
+### E. 🟡 SEMI — [허브 좌측] 매니저 본인 화면 실제 연동 (호텔 정보·예약·매출·영상)
 
 **ID**: `BL-MANAGER-IMPERSONATE`  
 **카테고리**: feature  

@@ -32,18 +32,6 @@
 
 ---
 
-## 🟡 P0 — [호텔별 과거 누적 매출 자동 집계] 우리만 보는 admin 영역 — D-035 사전 데이터
-
-**요약**: agoda_hotel_id + google_place_id 매칭 → bookings_self.amount + bookings_agoda.amount 합산 → 호텔별 누적 매출 산출. admin → '📺 영상 자산 성과' 탭 신설. 매니저 노출은 BL-SIGNUP-ENRICHMENT에서 별도.
-
-- **자율성**: 🟡 SEMI
-- **예상 시간**: 미정시간
-- **카테고리**: analytics
-- **상태**: pending
-- **ID**: `BL-PAST-VIDEO-RECON` (출처: decision:D-035)
-
----
-
 ## 🟡 P0 — [신규 매니저 가입 시 누적 매출 표시] D-035 3구간 임계값 분기 노출
 
 **요약**: signup.html 호텔 입력 직후 백그라운드 매칭 → verify-email 또는 sales.html에서 표시. $1,000+ 강력 / $200~999 부드러움 / <$200 숨김.

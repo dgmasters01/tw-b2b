@@ -45,17 +45,7 @@ detail: 작업 206건 중 16건에 출처가 없어요 (자동 동기화 봇 멈
 
 ---
 
-### C. 🟡 SEMI — [호텔별 과거 누적 매출 자동 집계] 우리만 보는 admin 영역 — D-035 사전 데이터
-
-**ID**: `BL-PAST-VIDEO-RECON`  
-**카테고리**: analytics  
-**예상 시간**: 미정시간  
-
-**메모**: agoda_hotel_id + google_place_id 매칭 → bookings_self.amount + bookings_agoda.amount 합산 → 호텔별 누적 매출 산출. admin → '📺 영상 자산 성과' 탭 신설. 매니저 노출은 BL-SIGNUP-ENRICHMENT에서 별도.
-
----
-
-### D. 🟡 SEMI — [신규 매니저 가입 시 누적 매출 표시] D-035 3구간 임계값 분기 노출
+### C. 🟡 SEMI — [신규 매니저 가입 시 누적 매출 표시] D-035 3구간 임계값 분기 노출
 
 **ID**: `BL-SIGNUP-ENRICHMENT`  
 **카테고리**: feature  

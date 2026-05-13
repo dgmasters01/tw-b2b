@@ -3006,13 +3006,18 @@
         }
       });
     });
-    // ★ 펼침된 카드 안의 task row 클릭 → admin-tasks.html?id=...
+    // ★ D-037 (2026-05-13): 펼침된 카드 안의 task row 클릭 → 통합 모달 (admin-tasks 점프 폐기)
     grid.querySelectorAll('.cat-task-row').forEach(row => {
       row.addEventListener('click', (e) => {
         e.preventDefault();
         e.stopPropagation();
         const id = row.dataset.taskId;
-        if (id) location.href = `/admin-tasks.html?id=${encodeURIComponent(id)}`;
+        if (!id) return;
+        if (typeof openCeoDecisionModal === 'function') {
+          openCeoDecisionModal(id);
+        } else {
+          location.href = `/admin-tasks.html?id=${encodeURIComponent(id)}`;
+        }
       });
     });
   }
@@ -4056,7 +4061,18 @@
     wrap.querySelectorAll('.urgent-card').forEach(el => {
       el.addEventListener('click', () => {
         const id = el.dataset.id;
-        location.href = `/admin-tasks.html?id=${encodeURIComponent(id)}`;
+        if (!id) return;
+        // ★ D-037 (2026-05-13): A안 — 통합 모달
+        // 이전 흐름: location.href '/admin-tasks.html?id=...' 점프 (흐름 깨짐)
+        // 새 흐름: 인계서/결정/핑퐁 통합 모달 — openCeoDecisionModal()
+        // tasks.json 자동 갱신 + 자율 큐 이동은 모달 내부 핑퐁/결정 박을 때 자동
+        if (typeof openCeoDecisionModal === 'function') {
+          openCeoDecisionModal(id);
+        } else {
+          // 폴백 — 함수 미로드 시
+          console.warn('[D-037] openCeoDecisionModal 미정의 — 폴백 사용');
+          location.href = `/admin-tasks.html?id=${encodeURIComponent(id)}`;
+        }
       });
     });
     const clearBtn = document.getElementById('urgent-filter-clear');
@@ -4143,12 +4159,17 @@
         if (STATE.tasksData) renderIntegratedProgress(STATE.tasksData);
       });
     });
-    // task row 클릭 → admin-tasks 이동
+    // ★ D-037 (2026-05-13): task row 클릭 → 통합 모달 (admin-tasks 점프 폐기)
     document.querySelectorAll('#cat-progress .cat-task-row').forEach(row => {
       row.addEventListener('click', (e) => {
         e.stopPropagation();
         const id = row.dataset.taskId;
-        if (id) location.href = `/admin-tasks.html?id=${encodeURIComponent(id)}`;
+        if (!id) return;
+        if (typeof openCeoDecisionModal === 'function') {
+          openCeoDecisionModal(id);
+        } else {
+          location.href = `/admin-tasks.html?id=${encodeURIComponent(id)}`;
+        }
       });
     });
     // ★ +N건 더 링크 클릭 → admin-tasks 이동 (펼침창 닫지 않음)

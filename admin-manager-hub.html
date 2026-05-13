@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manager Hub — TravelWinners Admin</title>
+<link rel="stylesheet" href="shared.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="shared.js"></script>
+<style>
+* { box-sizing: border-box; }
+html { overflow-x: hidden; }
+body {
+  margin: 0;
+  background: var(--bg, #0A0A0F);
+  font-family: var(--sans, 'Inter', 'Noto Sans KR', sans-serif);
+  color: var(--ink, #FAFAFA);
+  min-height: 100vh;
+}
+
+/* ── 상단 헤더 ── */
+.mh-topbar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 24px;
+  background: rgba(10, 10, 15, .72);
+  backdrop-filter: blur(20px) saturate(140%);
+  -webkit-backdrop-filter: blur(20px) saturate(140%);
+  border-bottom: 1px solid var(--line-2, rgba(255,255,255,.14));
+  position: sticky; top: 0; z-index: 50;
+  flex-wrap: wrap;
+}
+.mh-back {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--glass-2, rgba(255,255,255,.08));
+  color: var(--ink, #FAFAFA);
+  border: 1px solid var(--line-2, rgba(255,255,255,.14));
+  padding: 6px 12px; border-radius: 8px;
+  text-decoration: none; font-size: 13px; cursor: pointer;
+  transition: background .18s ease;
+}
+.mh-back:hover { background: var(--glass-3, rgba(255,255,255,.12)); }
+.mh-email { font-size: 16px; font-weight: 600; color: var(--ink, #FAFAFA); }
+.mh-badge {
+  display: inline-block;
+  padding: 3px 10px; border-radius: 12px;
+  font-size: 11px; font-weight: 600;
+}
+.mh-badge.b-paid    { background: rgba(16,185,129,.18); color: #34D399; border: 1px solid rgba(16,185,129,.3); }
+.mh-badge.b-pending { background: rgba(245,158,11,.18); color: #FBBF24; border: 1px solid rgba(245,158,11,.3); }
+.mh-badge.b-hotel   { background: rgba(124,58,237,.18); color: #C4B5FD; border: 1px solid rgba(124,58,237,.3); }
+.mh-badge.b-day     { background: rgba(236,72,153,.18); color: #F9A8D4; border: 1px solid rgba(236,72,153,.3); }
+.mh-badge.b-refund  { background: rgba(239,68,68,.18); color: #FCA5A5; border: 1px solid rgba(239,68,68,.3); }
+
+/* ── 본문 좌우 분할 ── */
+.mh-main { padding: 18px 24px; }
+.mh-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 16px;
+}
+@media (max-width: 1100px) { .mh-grid { grid-template-columns: 1fr; } }
+
+/* ── 카드 (공통) ── */
+.mh-card {
+  background: var(--glass, rgba(255,255,255,.05));
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--line-2, rgba(255,255,255,.14));
+  border-radius: 14px;
+  padding: 18px;
+  margin-bottom: 14px;
+}
+.mh-card-label {
+  font-size: 11px;
+  color: var(--ink-3, #A0A0B0);
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  display: flex; align-items: center; gap: 6px;
+}
+
+/* ── 좌측: 호텔 카드 ── */
+.mh-hotel-head { display: flex; gap: 14px; margin-bottom: 12px; }
+.mh-hotel-thumb {
+  width: 88px; height: 88px;
+  background: var(--aurora, linear-gradient(135deg, #7C3AED, #EC4899, #06B6D4));
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 36px;
+  flex-shrink: 0;
+  background-size: cover; background-position: center;
+}
+.mh-hotel-thumb-icon { color: #fff; }
+.mh-hotel-info { flex: 1; min-width: 0; }
+.mh-hotel-name {
+  font-size: 17px; font-weight: 700;
+  color: var(--ink, #FAFAFA);
+  margin-bottom: 4px;
+  word-break: break-word;
+}
+.mh-hotel-meta {
+  font-size: 12.5px;
+  color: var(--ink-3, #A0A0B0);
+  line-height: 1.6;
+}
+.mh-hotel-meta-row { margin-bottom: 2px; }
+.mh-hotel-stars { color: #FBBF24; }
+.mh-hotel-rating {
+  display: inline-block;
+  background: rgba(124,58,237,.18);
+  color: #C4B5FD;
+  padding: 2px 8px;
+  border-radius: 8px;
+  font-size: 11.5px;
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+.mh-hotel-mini {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.mh-mini-cell {
+  background: var(--glass-2, rgba(255,255,255,.06));
+  border-radius: 8px;
+  padding: 8px;
+  text-align: center;
+}
+.mh-mini-lbl { font-size: 10px; color: var(--ink-3, #A0A0B0); text-transform: uppercase; letter-spacing: .3px; }
+.mh-mini-val { font-size: 14px; font-weight: 700; color: var(--ink, #FAFAFA); margin-top: 2px; }
+.mh-mini-val.ok { color: #34D399; }
+.mh-mini-val.warn { color: #FBBF24; }
+
+/* ── 좌측: KPI 박스 3개 ── */
+.mh-kpi-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.mh-kpi {
+  background: var(--glass-2, rgba(255,255,255,.06));
+  border-radius: 10px;
+  padding: 12px;
+}
+.mh-kpi-lbl { font-size: 11px; color: var(--ink-3, #A0A0B0); text-transform: uppercase; letter-spacing: .4px; margin-bottom: 4px; }
+.mh-kpi-val { font-size: 22px; font-weight: 700; color: var(--ink, #FAFAFA); }
+.mh-kpi-sub { font-size: 11px; color: var(--ink-4, #6E6E80); margin-top: 2px; }
+
+/* ── 좌측: 영상 채널 그리드 ── */
+.mh-channels {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  font-size: 11px;
+}
+.mh-channel {
+  background: var(--glass-2, rgba(255,255,255,.06));
+  border-radius: 8px;
+  padding: 8px 6px;
+  text-align: center;
+}
+.mh-channel-name { color: var(--ink-2, #E5E5EE); font-size: 11px; font-weight: 500; }
+.mh-channel-status { font-size: 14px; margin-top: 2px; }
+.mh-channel.live .mh-channel-status { color: #34D399; }
+.mh-channel.pending .mh-channel-status { color: #6E6E80; }
+
+/* ── 우측: 결제 카드 ── */
+.mh-pay-amt { font-size: 22px; font-weight: 700; color: var(--ink, #FAFAFA); }
+.mh-pay-date { font-size: 12.5px; color: var(--ink-3, #A0A0B0); margin-top: 2px; }
+.mh-pay-row { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line, rgba(255,255,255,.08)); }
+.mh-pay-line { display: flex; justify-content: space-between; padding: 4px 0; font-size: 13px; }
+.mh-pay-line-lbl { color: var(--ink-3, #A0A0B0); }
+.mh-pay-line-val { color: var(--ink, #FAFAFA); font-weight: 600; }
+.mh-guarantee-state {
+  margin-top: 10px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 600;
+  text-align: center;
+}
+.mh-guarantee-state.safe     { background: rgba(16,185,129,.15); color: #34D399; }
+.mh-guarantee-state.moderate { background: rgba(245,158,11,.15); color: #FBBF24; }
+.mh-guarantee-state.risk_refund { background: rgba(239,68,68,.18); color: #FCA5A5; }
+.mh-guarantee-state.pending  { background: rgba(124,58,237,.15); color: #C4B5FD; }
+.mh-guarantee-state.no_payment { background: var(--glass-2, rgba(255,255,255,.06)); color: var(--ink-3, #A0A0B0); }
+
+/* ── 우측: 캠페인 단계 ── */
+.mh-stage { display: flex; gap: 10px; padding: 6px 0; font-size: 13px; align-items: center; }
+.mh-stage-icon { font-size: 14px; width: 18px; text-align: center; }
+.mh-stage.done .mh-stage-text { color: var(--ink-2, #E5E5EE); }
+.mh-stage.now { background: rgba(236,72,153,.1); margin: 0 -6px; padding: 6px; border-radius: 6px; }
+.mh-stage.now .mh-stage-text { color: #F9A8D4; font-weight: 600; }
+.mh-stage.pending .mh-stage-text { color: var(--ink-4, #6E6E80); }
+.mh-stage-when { margin-left: auto; font-size: 11.5px; color: var(--ink-4, #6E6E80); }
+
+/* ── 우측: 푸시 버튼 그리드 ── */
+.mh-push-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.mh-push-btn {
+  background: var(--glass-2, rgba(255,255,255,.08));
+  border: 1px solid var(--line-2, rgba(255,255,255,.14));
+  color: var(--ink, #FAFAFA);
+  padding: 12px 10px;
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+  display: flex; flex-direction: column; gap: 3px;
+  transition: background .18s ease, transform .12s ease;
+}
+.mh-push-btn:hover { background: var(--glass-3, rgba(255,255,255,.14)); transform: translateY(-1px); }
+.mh-push-btn-emoji { font-size: 16px; }
+.mh-push-btn-title { font-size: 12.5px; font-weight: 600; color: var(--ink, #FAFAFA); }
+.mh-push-btn-sub { font-size: 10.5px; color: var(--ink-3, #A0A0B0); }
+
+/* ── 우측: CS 메모 ── */
+.mh-note-list { font-size: 12.5px; line-height: 1.7; color: var(--ink-2, #E5E5EE); }
+.mh-note-item { padding: 6px 0; border-bottom: 1px solid var(--line, rgba(255,255,255,.06)); }
+.mh-note-item:last-child { border-bottom: none; }
+.mh-note-when { font-size: 11px; color: var(--ink-4, #6E6E80); }
+.mh-note-empty { font-size: 12.5px; color: var(--ink-4, #6E6E80); text-align: center; padding: 8px; }
+.mh-note-add {
+  width: 100%;
+  background: var(--glass-2, rgba(255,255,255,.06));
+  border: 1px solid var(--line-2, rgba(255,255,255,.14));
+  color: var(--ink, #FAFAFA);
+  font-family: inherit;
+  font-size: 13px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  resize: vertical;
+  margin-top: 10px;
+  min-height: 60px;
+}
+.mh-note-save {
+  margin-top: 6px;
+  background: var(--aurora, linear-gradient(135deg, #7C3AED, #EC4899, #06B6D4));
+  color: #fff;
+  border: none;
+  padding: 7px 16px;
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+/* ── 로딩 / 에러 ── */
+.mh-loading {
+  display: flex;
+  align-items: center; justify-content: center;
+  padding: 60px 20px;
+  color: var(--ink-3, #A0A0B0);
+  font-size: 14px;
+}
+.mh-loading::before {
+  content: ''; display: inline-block;
+  width: 16px; height: 16px;
+  border: 2px solid var(--line-2, rgba(255,255,255,.14));
+  border-top-color: var(--ink, #FAFAFA);
+  border-radius: 50%;
+  margin-right: 10px;
+  animation: spin .8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.mh-error {
+  background: rgba(239,68,68,.12);
+  border: 1px solid rgba(239,68,68,.3);
+  color: #FCA5A5;
+  padding: 14px 18px;
+  border-radius: 10px;
+  font-size: 13px;
+  margin: 20px;
+}
+
+/* ── 토스트 ── */
+.mh-toast {
+  position: fixed;
+  bottom: 24px; right: 24px;
+  background: rgba(10,10,15,.95);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--line-2, rgba(255,255,255,.14));
+  color: var(--ink, #FAFAFA);
+  padding: 12px 18px;
+  border-radius: 10px;
+  font-size: 13px;
+  z-index: 1000;
+  opacity: 0; transform: translateY(10px);
+  transition: opacity .25s ease, transform .25s ease;
+  pointer-events: none;
+}
+.mh-toast.show { opacity: 1; transform: translateY(0); }
+</style>
+</head>
+<body>
+
+<div id="mh-content">
+  <div class="mh-loading">매니저 정보 불러오는 중…</div>
+</div>
+
+<div class="mh-toast" id="mh-toast"></div>
+
+<script>
+(function(){
+  'use strict';
+
+  const SUPA_URL = 'https://vjsludfjsphwnumuoqaj.supabase.co';
+  const SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZqc2x1ZGZqc3Bod251bXVvcWFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NTc5OTAsImV4cCI6MjA5MjAzMzk5MH0.hVLhCc9AazdNNJsia_d87vq5C0IcgFgMCqWR1rh3L_8';
+  const sb = supabase.createClient(SUPA_URL, SUPA_ANON);
+
+  const params = new URLSearchParams(location.search);
+  const managerId = params.get('id');
+  const managerEmail = params.get('email');
+
+  if (!managerId && !managerEmail) {
+    document.getElementById('mh-content').innerHTML =
+      '<div class="mh-error">매니저 식별자 누락 — ?id=UUID 또는 ?email=… 필요</div>';
+    return;
+  }
+
+  // ────────── 라이브 데이터 로드 ──────────
+  async function loadManager() {
+    try {
+      // 1) 세션 체크
+      const { data: sessionData } = await sb.auth.getSession();
+      if (!sessionData.session) {
+        location.href = '/admin-login.html?next=' + encodeURIComponent(location.pathname + location.search);
+        return;
+      }
+
+      // 2) VIEW에서 매니저 정보 가져오기
+      let q = sb.from('v_hotel_manager_full').select('*');
+      if (managerId) q = q.eq('manager_id', managerId);
+      else q = q.eq('manager_email', managerEmail);
+      const { data, error } = await q.limit(1).maybeSingle();
+
+      if (error) {
+        document.getElementById('mh-content').innerHTML =
+          '<div class="mh-error">데이터 로드 실패: ' + error.message + '</div>';
+        return;
+      }
+      if (!data) {
+        document.getElementById('mh-content').innerHTML =
+          '<div class="mh-error">매니저 정보 없음</div>';
+        return;
+      }
+
+      // 3) CS 메모 별도 로드 (admin_notes)
+      let notes = [];
+      if (data.hotel_id) {
+        const nr = await sb.from('admin_notes')
+          .select('id, note, created_at, author_id')
+          .eq('hotel_id', data.hotel_id)
+          .order('created_at', { ascending: false })
+          .limit(20);
+        if (!nr.error) notes = nr.data || [];
+      }
+
+      render(data, notes);
+    } catch (e) {
+      document.getElementById('mh-content').innerHTML =
+        '<div class="mh-error">예외: ' + e.message + '</div>';
+    }
+  }
+
+  // ────────── 렌더링 ──────────
+  function render(m, notes) {
+    const fmt = (n) => n == null ? '—' : Number(n).toLocaleString();
+    const fmtMoney = (n, cur) => n == null ? '—' : (cur || '$') + Number(n).toLocaleString(undefined, {maximumFractionDigits: 0});
+    const fmtDate = (iso) => iso ? new Date(iso).toISOString().slice(0,10) : '—';
+    const stars = (n) => n ? '★'.repeat(Math.floor(n)) + '☆'.repeat(5 - Math.floor(n)) : '';
+
+    // 헤더 배지
+    const badges = [];
+    if (m.payment_status === 'completed') badges.push('<span class="mh-badge b-paid">결제완료</span>');
+    else badges.push('<span class="mh-badge b-pending">미결제</span>');
+    if (m.hotel_id) badges.push('<span class="mh-badge b-hotel">호텔등록</span>');
+    if (m.days_since_payment != null) badges.push('<span class="mh-badge b-day">D+' + m.days_since_payment + '일</span>');
+    if (m.payment_refunded_at) badges.push('<span class="mh-badge b-refund">환불</span>');
+
+    // 호텔 카드
+    const hotelHtml = m.hotel_id ? `
+      <div class="mh-hotel-head">
+        <div class="mh-hotel-thumb" ${m.hotel_image_url ? `style="background-image:url('${escapeHtml(m.hotel_image_url)}')"` : ''}>
+          ${m.hotel_image_url ? '' : '<span class="mh-hotel-thumb-icon">🏨</span>'}
+        </div>
+        <div class="mh-hotel-info">
+          <div class="mh-hotel-name">${escapeHtml(m.hotel_name || '—')}</div>
+          <div class="mh-hotel-meta">
+            <div class="mh-hotel-meta-row"><span class="mh-hotel-stars">${stars(m.star_rating)}</span> ${m.star_rating ? m.star_rating + '성' : ''} · ${escapeHtml(m.property_type || 'Hotel')}</div>
+            <div class="mh-hotel-meta-row">📍 ${escapeHtml(m.hotel_city || '')}${m.hotel_country ? ', ' + escapeHtml(m.hotel_country) : ''}</div>
+            ${m.hotel_address ? `<div class="mh-hotel-meta-row" style="font-size:11.5px">${escapeHtml(m.hotel_address)}</div>` : ''}
+            ${m.agoda_review_score ? `<span class="mh-hotel-rating">아고다 ${m.agoda_review_score} · 리뷰 ${fmt(m.agoda_review_count)}건</span>` : ''}
+          </div>
+        </div>
+      </div>
+      <div class="mh-hotel-mini">
+        <div class="mh-mini-cell">
+          <div class="mh-mini-lbl">평균 객단가</div>
+          <div class="mh-mini-val">${fmtMoney(m.hotel_daily_rate, '$')}</div>
+        </div>
+        <div class="mh-mini-cell">
+          <div class="mh-mini-lbl">조식</div>
+          <div class="mh-mini-val">${m.include_breakfast ? '포함' : '별도'}</div>
+        </div>
+        <div class="mh-mini-cell">
+          <div class="mh-mini-lbl">아고다 매칭</div>
+          <div class="mh-mini-val ${m.agoda_match_status === 'matched' ? 'ok' : 'warn'}">${matchLabel(m.agoda_match_status)}</div>
+        </div>
+      </div>
+    ` : `<div style="text-align:center;padding:20px;color:var(--ink-3,#A0A0B0)">호텔 등록 안 됨</div>`;
+
+    // 영상 채널 8개
+    const channelNames = ['호텔이야','Kotel','호텔닷컴','ホテルだ','世界就是家','KoreaHotel','호텔이곳','여행능력자들'];
+    const channelHtml = channelNames.map((name, i) => {
+      const isLive = i < (m.video_channels_active || 0);
+      return `<div class="mh-channel ${isLive ? 'live' : 'pending'}">
+        <div class="mh-channel-name">${name}</div>
+        <div class="mh-channel-status">${isLive ? '✓' : '○'}</div>
+      </div>`;
+    }).join('');
+
+    // 캠페인 단계
+    const stages = computeStages(m);
+    const stageHtml = stages.map(s =>
+      `<div class="mh-stage ${s.state}">
+        <span class="mh-stage-icon">${s.icon}</span>
+        <span class="mh-stage-text">${s.label}</span>
+        <span class="mh-stage-when">${s.when}</span>
+      </div>`
+    ).join('');
+
+    // CS 메모
+    const notesHtml = notes.length === 0
+      ? '<div class="mh-note-empty">아직 메모 없음</div>'
+      : notes.map(n => `
+          <div class="mh-note-item">
+            <div>${escapeHtml(n.note)}</div>
+            <div class="mh-note-when">${fmtDate(n.created_at)}</div>
+          </div>
+        `).join('');
+
+    document.getElementById('mh-content').innerHTML = `
+      <div class="mh-topbar">
+        <a class="mh-back" href="/admin.html#members">← 가입자 목록</a>
+        <span class="mh-email">${escapeHtml(m.manager_email)}</span>
+        ${badges.join('')}
+      </div>
+      <div class="mh-main">
+        <div class="mh-grid">
+
+          <!-- ─── 좌측: 매니저 화면 ─── -->
+          <div>
+            <div class="mh-card">
+              <div class="mh-card-label">🏨 호텔 정보 (매니저가 보는 화면)</div>
+              ${hotelHtml}
+            </div>
+
+            <div class="mh-card">
+              <div class="mh-card-label">📊 누적 성과</div>
+              <div class="mh-kpi-row">
+                <div class="mh-kpi">
+                  <div class="mh-kpi-lbl">예약</div>
+                  <div class="mh-kpi-val">${fmt(m.booking_count)}건</div>
+                  <div class="mh-kpi-sub">${m.last_booking_at ? '최근 ' + fmtDate(m.last_booking_at) : '예약 없음'}</div>
+                </div>
+                <div class="mh-kpi">
+                  <div class="mh-kpi-lbl">매출</div>
+                  <div class="mh-kpi-val">${fmtMoney(m.booking_revenue, '$')}</div>
+                  <div class="mh-kpi-sub">커미션 ${fmtMoney(m.booking_commission, '$')}</div>
+                </div>
+                <div class="mh-kpi">
+                  <div class="mh-kpi-lbl">조회수</div>
+                  <div class="mh-kpi-val">${shortNum(m.video_total_views || 0)}</div>
+                  <div class="mh-kpi-sub">클릭 ${fmt(m.video_total_clicks)}</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="mh-card">
+              <div class="mh-card-label">📺 영상 노출 — ${m.video_channels_active || 0}/8 채널 활성</div>
+              <div class="mh-channels">${channelHtml}</div>
+            </div>
+          </div>
+
+          <!-- ─── 우측: 관리 패널 ─── -->
+          <div>
+            <div class="mh-card">
+              <div class="mh-card-label">💰 결제 & 6개월 보장</div>
+              <div class="mh-pay-amt">${fmtMoney(m.payment_amount, '$')}</div>
+              <div class="mh-pay-date">${m.payment_paid_at ? fmtDate(m.payment_paid_at) + ' 결제' : '미결제'}</div>
+              ${m.payment_paid_at ? `
+                <div class="mh-pay-row">
+                  <div class="mh-pay-line"><span class="mh-pay-line-lbl">보장 만료</span><span class="mh-pay-line-val">${fmtDate(m.guarantee_expires_at)}</span></div>
+                  <div class="mh-pay-line"><span class="mh-pay-line-lbl">D-day</span><span class="mh-pay-line-val">${m.guarantee_days_left != null ? (m.guarantee_days_left >= 0 ? 'D-' + m.guarantee_days_left : 'D+' + Math.abs(m.guarantee_days_left) + ' (만료)') : '—'}</span></div>
+                </div>
+              ` : ''}
+              <div class="mh-guarantee-state ${m.guarantee_status}">${guaranteeLabel(m.guarantee_status)}</div>
+            </div>
+
+            <div class="mh-card">
+              <div class="mh-card-label">📨 자동 마케팅 단계 (D-0/7/30/150/170)</div>
+              ${stageHtml}
+            </div>
+
+            <div class="mh-card">
+              <div class="mh-card-label">🚀 지금 푸시하기 (수동)</div>
+              <div class="mh-push-grid">
+                <button class="mh-push-btn" onclick="window.MH_push('new_video')">
+                  <span class="mh-push-btn-emoji">🎬</span>
+                  <span class="mh-push-btn-title">새 영상 알림</span>
+                  <span class="mh-push-btn-sub">매니저에게 신규 업로드 알림</span>
+                </button>
+                <button class="mh-push-btn" onclick="window.MH_push('rebill')">
+                  <span class="mh-push-btn-emoji">💎</span>
+                  <span class="mh-push-btn-title">재결제 제안</span>
+                  <span class="mh-push-btn-sub">보장 연장·할인 안내</span>
+                </button>
+                <button class="mh-push-btn" onclick="window.MH_push('report')">
+                  <span class="mh-push-btn-emoji">📊</span>
+                  <span class="mh-push-btn-title">성과 리포트</span>
+                  <span class="mh-push-btn-sub">조회·예약·매출 요약</span>
+                </button>
+                <button class="mh-push-btn" onclick="window.MH_push('channel_add')">
+                  <span class="mh-push-btn-emoji">🎁</span>
+                  <span class="mh-push-btn-title">채널 추가 제안</span>
+                  <span class="mh-push-btn-sub">노출 확대 권유</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="mh-card">
+              <div class="mh-card-label">💬 CS 이력 & 메모 (${notes.length}건)</div>
+              <div class="mh-note-list" id="mh-notes">${notesHtml}</div>
+              <textarea class="mh-note-add" id="mh-note-input" placeholder="새 메모 작성…"></textarea>
+              <button class="mh-note-save" onclick="window.MH_addNote()">메모 추가</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // 전역 핸들러 등록
+    window.MH_currentManager = m;
+    window.MH_push = handlePush;
+    window.MH_addNote = handleAddNote;
+  }
+
+  // ────────── 캠페인 단계 계산 ──────────
+  function computeStages(m) {
+    const d = m.days_since_payment;
+    const stages = [
+      { day: 0,   key: 'welcome',  label: 'D-0 환영 메일' },
+      { day: 7,   key: 'early',    label: 'D-7 영업 제안' },
+      { day: 30,  key: 'report',   label: 'D-30 성과 리포트' },
+      { day: 150, key: 'rebill',   label: 'D-150 재결제 유도' },
+      { day: 170, key: 'final',    label: 'D-170 환불·연장' },
+    ];
+    if (d == null) {
+      return stages.map(s => ({
+        icon: '⏸', state: 'pending', label: s.label, when: '결제 대기'
+      }));
+    }
+    return stages.map(s => {
+      if (d > s.day + 2) return { icon: '✅', state: 'done', label: s.label, when: '발송 완료' };
+      if (d >= s.day - 1 && d <= s.day + 2) return { icon: '⏳', state: 'now', label: s.label, when: '오늘 발송' };
+      return { icon: '⏸', state: 'pending', label: s.label, when: 'D-' + (s.day - d) };
+    });
+  }
+
+  function guaranteeLabel(state) {
+    return {
+      safe: '🟢 안전 — 예약 활발',
+      moderate: '🟡 진행 중 — 예약 발생',
+      pending: '🟣 모니터링 중',
+      risk_refund: '🔴 환불 위험 — 예약 부족',
+      no_payment: '⚪ 결제 전',
+    }[state] || state;
+  }
+
+  function matchLabel(status) {
+    return {
+      matched: '연결됨',
+      pending: '대기 중',
+      unmatched: '미연결',
+    }[status] || '확인 필요';
+  }
+
+  function shortNum(n) {
+    if (n >= 1_000_000) return (n/1_000_000).toFixed(1) + 'M';
+    if (n >= 1_000) return (n/1_000).toFixed(1) + 'K';
+    return String(n);
+  }
+
+  function escapeHtml(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
+  function toast(msg) {
+    const t = document.getElementById('mh-toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2200);
+  }
+
+  // ────────── 푸시 버튼 (1차 — 발송은 BL-MANAGER-MANUAL-PUSH에서) ──────────
+  function handlePush(type) {
+    const labels = {
+      new_video: '새 영상 알림',
+      rebill: '재결제 제안',
+      report: '성과 리포트',
+      channel_add: '채널 추가 제안',
+    };
+    toast('🚧 [' + labels[type] + '] 메일 발송 기능은 다음 단계에서 박힙니다 (BL-MANAGER-MANUAL-PUSH)');
+  }
+
+  // ────────── CS 메모 추가 ──────────
+  async function handleAddNote() {
+    const txt = document.getElementById('mh-note-input').value.trim();
+    if (!txt) { toast('메모 내용을 입력해주세요'); return; }
+    const m = window.MH_currentManager;
+    if (!m.hotel_id) { toast('호텔이 없는 매니저는 메모 추가 불가'); return; }
+
+    const sess = await sb.auth.getSession();
+    const authorId = sess.data.session?.user?.id;
+
+    const { error } = await sb.from('admin_notes').insert({
+      hotel_id: m.hotel_id,
+      author_id: authorId,
+      note: txt,
+    });
+    if (error) { toast('저장 실패: ' + error.message); return; }
+    document.getElementById('mh-note-input').value = '';
+    toast('✅ 메모 저장됨');
+    loadManager(); // 재로드
+  }
+
+  loadManager();
+})();
+</script>
+
+</body>
+</html>

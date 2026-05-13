@@ -14523,7 +14523,7 @@
       "category": "infra",
       "priority": "P0",
       "size": "small",
-      "status": "pending",
+      "status": "in_progress",
       "owner": "claude",
       "claude_can_auto": true,
       "approval_required": false,
@@ -14542,11 +14542,28 @@
         "결정하면_뭐가_달라지냐면": "매니저 1명 = SQL 1줄. 모든 화면이 같은 VIEW 사용."
       },
       "created_at": "2026-05-13T15:55:50.030158+00:00",
-      "updated_at": "2026-05-13T15:55:50.030158+00:00",
+      "updated_at": "2026-05-13T15:59:54+00:00",
       "source": "chat:2026-05-13 매니저 허브 페이지 설계",
       "target_pages": [
         "_admin/admin.html (members 탭)",
         "_admin/admin-manager-hub.html (신규)"
+      ],
+      "started_at": "2026-05-13T15:59:54+00:00",
+      "progress_warning": {
+        "code": "MISSING_PROGRESS_STEPS",
+        "rule": "부칙 7 — 모든 작업은 progress.steps 박은 후 시작",
+        "detected_at": "2026-05-13T15:59:54+00:00",
+        "detected_by_commit": "ac11621",
+        "message": "in_progress 진입했으나 progress.steps 비어있음. tasks.json에서 progress.steps 박은 후 다음 commit에 [step:done:N] 태그."
+      },
+      "history": [
+        {
+          "at": "2026-05-13T15:59:54+00:00",
+          "event": "진행 중 진입 (auto-detected) ⚠️ 부칙 7 위반 — progress.steps 미박힘",
+          "by": "auto-detect-bot",
+          "commit": "ac11621",
+          "note": "feat(BL-NEW): 매니저 허브 시리즈 BL 5건 등록 + BL-MANAGER-HUB-VIEW done (사업가 V2 컨텍스트 박음) [변경사유: 부칙 17 사업가 V2 의무]"
+        }
       ]
     },
     {

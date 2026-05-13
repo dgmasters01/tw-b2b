@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-13T09:07:42.540099Z",
+  "updated_at": "2026-05-13T09:09:20+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -14,9 +14,9 @@
   "stats": {
     "total": 214,
     "done": 155,
-    "in_progress": 0,
+    "in_progress": 1,
     "paused": 1,
-    "pending": 40,
+    "pending": 39,
     "blocked": 10,
     "autonomous_ready": 34,
     "todo": 0,
@@ -14244,10 +14244,26 @@
         "결정하면_뭐가_달라지냐면": "새 회원가입자는 admins 테이블에 절대 안 박힘. 기존 잘못 박힌 4명 정리됨. 호텔 매니저 ≠ 우리 직원 분리 완성."
       },
       "created_at": "2026-05-13T09:01:35.824392Z",
-      "updated_at": "2026-05-13T09:07:42.540099Z",
+      "updated_at": "2026-05-13T09:09:20+00:00",
       "source": "chat:2026-05-13 보안 진단",
       "target_pages": [
         "DB 트리거 + admins 테이블"
+      ],
+      "progress_warning": {
+        "code": "MISSING_PROGRESS_STEPS",
+        "rule": "부칙 7 — 모든 작업은 progress.steps 박은 후 시작",
+        "detected_at": "2026-05-13T09:09:20+00:00",
+        "detected_by_commit": "837fa6f",
+        "message": "in_progress 도중 progress.steps 미박힘 감지."
+      },
+      "history": [
+        {
+          "at": "2026-05-13T09:09:20+00:00",
+          "event": "진행 중 commit 추가",
+          "by": "auto-detect-bot",
+          "commit": "837fa6f",
+          "note": "feat(BL-SECURITY-SIGNUP-TRIGGER): tasks.json 6단계 박기 + in_progress 전환 [변경사유: 부칙 7 단계 박기 의무]"
+        }
       ]
     },
     {

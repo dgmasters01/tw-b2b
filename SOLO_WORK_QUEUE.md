@@ -49,6 +49,36 @@
 
 ---
 
+### D. 🟡 SEMI — [허브 페이지] 매니저 통합 VIEW 박기 (v_hotel_manager_full)
+
+**ID**: `BL-MANAGER-HUB-VIEW`  
+**카테고리**: infra  
+**예상 시간**: 미정시간  
+
+**메모**: Manager Hub 페이지 시리즈. 좌우 분할 1개 페이지로 매니저 생애주기 관리. 사업 시작 전 필수.
+
+---
+
+### E. 🟡 SEMI — [허브 페이지] 가입자 클릭 → 좌우 분할 상세 페이지 (Aurora)
+
+**ID**: `BL-MANAGER-HUB-PAGE`  
+**카테고리**: feature  
+**예상 시간**: 미정시간  
+
+**메모**: Manager Hub 페이지 시리즈. 좌우 분할 1개 페이지로 매니저 생애주기 관리. 사업 시작 전 필수.
+
+---
+
+### F. 🟡 SEMI — [허브 좌측] 매니저 본인 화면 실제 연동 (호텔 정보·예약·매출·영상)
+
+**ID**: `BL-MANAGER-IMPERSONATE`  
+**카테고리**: feature  
+**예상 시간**: 미정시간  
+
+**메모**: Manager Hub 페이지 시리즈. 좌우 분할 1개 페이지로 매니저 생애주기 관리. 사업 시작 전 필수.
+
+---
+
 ## 🟡 P1 — 데드라인 이전에 있으면 좋음
 
 ### A. 🟢 AUTO — [YouTube 더보기 단축 URL 클릭 카운트] 호텔별 진성 관심 측정 시스템
@@ -237,6 +267,26 @@ detail: 관리자 페이지 7개가 원본과 살짝 달라요 (대표님이 일
 **예상 시간**: 미정시간  
 
 **메모**: BL-SECURITY-SIGNUP-TRIGGER 작업에서 [step:done:1]~[step:done:5] 태그를 박은 commit 4건이 push됐으나 auto-detect-bot이 step 인식 못 하고 progress.percent=0% 유지. 수동 보정으로 83% 갱신함. 봇 스크립트(자동 progress 갱신 로직) 점검 필요. status는 in_progress로 전환됐으나 steps[].done 갱신 누락. 헌법 부칙 7 의무 위반 상태.
+
+---
+
+### R. 🟡 SEMI — [허브 우측] 수동 푸시 버튼 4개 — 실제 메일 발송 + 템플릿
+
+**ID**: `BL-MANAGER-MANUAL-PUSH`  
+**카테고리**: feature  
+**예상 시간**: 미정시간  
+
+**메모**: Manager Hub 페이지 시리즈. 좌우 분할 1개 페이지로 매니저 생애주기 관리. 사업 시작 전 필수.
+
+---
+
+### S. 🟡 SEMI — [허브 자동화] D-0/7/30/150/170 자동 캠페인 봇 (cron)
+
+**ID**: `BL-MANAGER-AUTO-CAMPAIGN`  
+**카테고리**: infra  
+**예상 시간**: 미정시간  
+
+**메모**: Manager Hub 페이지 시리즈. 좌우 분할 1개 페이지로 매니저 생애주기 관리. 사업 시작 전 필수.
 
 ---
 

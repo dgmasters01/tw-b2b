@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-13T16:01:33.630Z",
+  "updated_at": "2026-05-13T16:21:13+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -14605,7 +14605,7 @@
         "BL-MANAGER-HUB-VIEW"
       ],
       "progress": {
-        "percent": 60,
+        "percent": 83,
         "steps": [
           {
             "n": 1,
@@ -14635,9 +14635,13 @@
           {
             "n": 6,
             "title": "결제완료/재결제임박 상단 통계 박스 영업 관점 재배치 (옵션)",
-            "done": false
+            "done": true,
+            "at": "2026-05-13T16:21:13+00:00"
           }
-        ]
+        ],
+        "completed_count": 5,
+        "total_count": 6,
+        "updated_at": "2026-05-13T16:21:13+00:00"
       },
       "notes": "Manager Hub 페이지 시리즈. 좌우 분할 1개 페이지로 매니저 생애주기 관리. 사업 시작 전 필수.",
       "biz_context_v2": {
@@ -14646,11 +14650,27 @@
         "결정하면_뭐가_달라지냐면": "가입자 1번 클릭 → 좌측 매니저 화면 + 우측 관리 패널 한눈에. 다른 페이지 연동의 허브."
       },
       "created_at": "2026-05-13T15:55:50.030158+00:00",
-      "updated_at": "2026-05-13T16:01:04.209607+00:00",
+      "updated_at": "2026-05-13T16:21:13+00:00",
       "source": "chat:2026-05-13 매니저 허브 페이지 설계",
       "target_pages": [
         "_admin/admin.html (members 탭)",
         "_admin/admin-manager-hub.html (신규)"
+      ],
+      "progress_warning": {
+        "code": "MISSING_PROGRESS_STEPS",
+        "rule": "부칙 7 — 모든 작업은 progress.steps 박은 후 시작",
+        "detected_at": "2026-05-13T16:21:13+00:00",
+        "detected_by_commit": "6ddf9dc",
+        "message": "in_progress 도중 progress.steps 미박힘 감지."
+      },
+      "history": [
+        {
+          "at": "2026-05-13T16:21:13+00:00",
+          "event": "진행 중 commit 추가 + 단계 6 완료 (auto-detected)",
+          "by": "auto-detect-bot",
+          "commit": "6ddf9dc",
+          "note": "feat(BL-MANAGER-HUB-PAGE): 가입자 통계 박스 6개 영업 관점 재배치 (Total/Paid/Signup Only/Hotel Reg/Rebill Window/Refund Risk) [step:don"
+        }
       ]
     },
     {

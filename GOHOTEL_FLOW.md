@@ -13,7 +13,7 @@
 | 비즈니스 독스 | BUSINESS.md | 사업 방향 / 정책 |
 | 비즈니스 독스 | DECISIONS.md | 의사결정 변경 이력 |
 | 비즈니스 독스 | BUSINESS_FLOW.md | 시스템 플로우 |
-| **비즈니스 독스** | **JOURNEY.md (이 문서)** | **매니저 시점의 시간 여정** |
+| **비즈니스 독스** | **GOHOTEL_FLOW.md (이 문서)** | **매니저 시점의 시간 여정** |
 | Task & Status | tasks.json / admin-tasks.html | 작업 진도 |
 | Page Gallery | admin-gallery.html | 페이지 결과물 |
 | Service Operations | (운영 진입 후 신설) | 운영 매뉴얼 |

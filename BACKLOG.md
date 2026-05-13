@@ -44,21 +44,27 @@
 
 ---
 
-## 🟢 P0 — [자동] 작업 206건 중 16건에 출처가 없어요 (자동 동기화 봇 멈춤 위험)
+## ⚡ P0 — [보안 구멍 막기] 회원가입 자동 admin 권한 부여 차단 + 잘못 권한 받은 4명 정리
 
-**요약**: 점검 봇 자동 등록 (2026-05-12T17:36:05.435Z)
+**요약**: DB 트리거 handle_new_user() ③번 분기가 모든 가입자를 admins 테이블에 manager로 박는 결함. 호텔 매니저 고객(leejifilm, joylife8760)이 admin 콘솔 접근 가능 상태. 이메일 미인증(1hogitravel@gmai.com 오타)도 admins 박힘. ③번 분기 완전 제거 + 1hogitravel 2건 완전 삭
 
-check_name: tasks_schema
-status: red
-detail: 작업 206건 중 16건에 출처가 없어요 (자동 동기화 봇 멈춤 위험)
+- **자율성**: 🟡 SEMI
+- **예상 시간**: 미정시간
+- **카테고리**: security
+- **상태**: in_progress
+- **ID**: `BL-SECURITY-SIGNUP-TRIGGER` (출처: chat:2026-05-13 보안 진단)
 
-진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 green으로 박으면 자
+---
 
-- **자율성**: 🟢 AUTO
-- **예상 시간**: 1시간
-- **카테고리**: infrastructure
+## 🟡 P0 — [가입자/사용자 관리 도구] admin 화면에서 직접 삭제·권한 조작·재인증 가능하게
+
+**요약**: Hotels/Members/Team 각 행 옆 작업 메뉴(... 버튼) 추가. 액션: 사용자 삭제 / 권한 빼앗기 / 권한 주기 / 재인증 요청. 모든 조작 → action_logs 자동 기록. Team 페이지 '+ Add Team Member' 버튼 admin_invitations 흐름 실제 작동. API: auth-delete-user, auth-cha
+
+- **자율성**: 🟡 SEMI
+- **예상 시간**: 미정시간
+- **카테고리**: admin
 - **상태**: pending
-- **ID**: `BL-AUTO-TASKS-SCHEMA-16MISSING` (출처: auto_from_tasks_schema)
+- **ID**: `BL-ADMIN-USER-MANAGEMENT` (출처: chat:2026-05-13 보안 진단)
 
 ---
 
@@ -340,6 +346,54 @@ detail: 관리자 페이지 7개가 원본과 살짝 달라요 (대표님이 일
 
 ---
 
+## 🟡 P1 — [가입자 화면 정리] Members 페이지 실제 고객 보이게 + 미인증 좀비 자동 청소
+
+**요약**: Members 페이지 list-users API가 admin 제외 필터 적용 중 → 호텔 매니저(고객)가 admins에 박혀있으면 안 보이는 악순환. BL-SECURITY-SIGNUP-TRIGGER 끝나면 자연 해결되지만 데이터 소스 자체 재정의 필요. 가입 후 7일간 이메일 인증 안 받은 좀비 사용자 자동 삭제 봇 신설. 현재 좀비 1명 (1hogitra
+
+- **자율성**: 🟡 SEMI
+- **예상 시간**: 미정시간
+- **카테고리**: admin
+- **상태**: pending
+- **ID**: `BL-MEMBERS-DATA-SOURCE` (출처: chat:2026-05-13 보안 진단)
+
+---
+
+## 🟡 P1 — [운영 모드 진입 정리] 테스트 데이터 삭제 + 토큰 일괄 폐기 + 하드코딩 환경변수화
+
+**요약**: 헌법 부칙 11 메모리 사이클 — 운영 진입 시점에 일괄 정리. 1) 테스트 호텔 매니저 leejifilm/joylife8760 + Lotte Hotel Seattle/The Westin Tokyo 삭제. 2) handle_new_user 트리거 owner 이메일 dgmasters01@gmail.com 하드코딩 → OWNER_EMAILS 환경변수화. 3) 
+
+- **자율성**: 🟡 SEMI
+- **예상 시간**: 미정시간
+- **카테고리**: ops
+- **상태**: pending
+- **ID**: `BL-PRELAUNCH-CLEANUP` (출처: chat:2026-05-13 보안 진단)
+
+---
+
+## 🟡 P1 — [보안 후속] admin-auth-v2.sql 8번 백필 섹션 무력화 — 재실행 시 보안 사고 재발 방지
+
+**요약**: sql/bl-admin-auth-v2.sql 387번 줄 8번 섹션이 auth.users 전수 → admins 자동 박기. 이 SQL이 재실행되면 BL-SECURITY-SIGNUP-TRIGGER로 정리한 4건이 다시 박힘. 백필 코드 주석 처리 + 상단에 ⚠️ DEPRECATED 경고 추가 + bl-admin-auth-v2-rls-hotfix.sql도 같이
+
+- **자율성**: 🟡 SEMI
+- **예상 시간**: 미정시간
+- **카테고리**: security
+- **상태**: pending
+- **ID**: `BL-ADMIN-AUTH-V2-BACKFILL-DISARM` (출처: chat:2026-05-13 BL-SECURITY-SIGNUP-TRIGGER 진단 중 발견)
+
+---
+
+## 🟡 P1 — [인프라] auto-detect-bot의 [step:done:N] 태그 인식 누락 진단·수정
+
+**요약**: BL-SECURITY-SIGNUP-TRIGGER 작업에서 [step:done:1]~[step:done:5] 태그를 박은 commit 4건이 push됐으나 auto-detect-bot이 step 인식 못 하고 progress.percent=0% 유지. 수동 보정으로 83% 갱신함. 봇 스크립트(자동 progress 갱신 로직) 점검 필요. status는 in
+
+- **자율성**: 🟡 SEMI
+- **예상 시간**: 미정시간
+- **카테고리**: infra
+- **상태**: pending
+- **ID**: `BL-AUTO-DETECT-BOT-STEP-TAG-FIX` (출처: chat:2026-05-13 BL-SECURITY-SIGNUP-TRIGGER 단계 6 검증 중 발견)
+
+---
+
 ## 🟢 P2 — [DECISIONS_INDEX.md 자동 동기화] sync_engine 보강
 
 **요약**: DECISIONS.md 변경 감지 → DECISIONS_INDEX.md 자동 갱신. ID 고정 불변 규칙.
@@ -544,6 +598,18 @@ detail: 관리자 페이지 7개가 원본과 살짝 달라요 (대표님이 일
 - **카테고리**: feature
 - **상태**: pending
 - **ID**: `BL-EVENT-HOTEL-NOTIFY` (출처: decision:D-034)
+
+---
+
+## 🟡 P2 — [화면 라벨 정리] 사이드바 메뉴 사업 본질 맞춤 + 영한 토글 전수 점검
+
+**요약**: 현재 Members='가입자/플랫폼에 가입한 호텔 매니저', Team='팀/내부 관리자 및 지원 인력' — 둘 다 admin이 보면 헷갈림. 'Members → 호텔 매니저', 'Team → 우리 직원' 식으로 사업 본질에 맞게 재라벨링. admin.html 전체 영한 data-en/data-ko 빠진 곳 전수 점검. 대표님이 EN/한국어 토글 검증 시 어
+
+- **자율성**: 🟡 SEMI
+- **예상 시간**: 미정시간
+- **카테고리**: ui
+- **상태**: pending
+- **ID**: `BL-ADMIN-LABEL-CLEANUP` (출처: chat:2026-05-13 보안 진단)
 
 ---
 

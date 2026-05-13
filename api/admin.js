@@ -742,6 +742,251 @@ async function handlePastVideoRevenue(req, res, serviceKey, _admin) {
 // =============================================================
 // 메인 라우터
 // =============================================================
+// =============================================================
+// Sub-handler 7: manager-push (BL-MANAGER-MANUAL-PUSH)
+// 매니저에게 수동 푸시 메일 발송 — 허브 페이지 우측 4개 버튼에서 호출.
+// 4종 템플릿: new_video / rebill / report / channel_add
+// 발송 후 admin_notes에 자동 기록 (CS 이력 추적).
+// =============================================================
+async function handleManagerPush(req, res, serviceKey, admin) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+  const resendKey = process.env.RESEND_API_KEY;
+  if (!resendKey) {
+    return res.status(500).json({ error: 'RESEND_API_KEY not configured' });
+  }
+
+  const body = req.body || {};
+  const managerId = body.manager_id;
+  const pushType = (body.push_type || '').toString();
+  const isDryRun = !!body.dry_run;
+
+  const ALLOWED = ['new_video', 'rebill', 'report', 'channel_add'];
+  if (!ALLOWED.includes(pushType)) {
+    return res.status(400).json({ error: 'invalid push_type', allowed: ALLOWED });
+  }
+  if (!managerId) {
+    return res.status(400).json({ error: 'manager_id required' });
+  }
+
+  // 매니저 + 호텔 통합 정보 (VIEW 사용)
+  const viewResp = await fetch(
+    SUPABASE_URL + '/rest/v1/v_hotel_manager_full?manager_id=eq.' + encodeURIComponent(managerId),
+    { headers: { 'Authorization': 'Bearer ' + serviceKey, 'apikey': serviceKey } }
+  );
+  const rows = await viewResp.json();
+  if (!Array.isArray(rows) || rows.length === 0) {
+    return res.status(404).json({ error: 'Manager not found in v_hotel_manager_full', manager_id: managerId });
+  }
+  const m = rows[0];
+
+  if (!m.manager_email) {
+    return res.status(400).json({ error: 'Manager has no email — cannot send push' });
+  }
+
+  // 템플릿 빌드
+  const template = buildManagerPushTemplate(pushType, m);
+  if (!template) {
+    return res.status(500).json({ error: 'template_build_failed', push_type: pushType });
+  }
+
+  // dryRun: 발송 안 하고 미리보기만
+  if (isDryRun) {
+    return res.status(200).json({
+      success: true,
+      dry_run: true,
+      preview: {
+        to: m.manager_email,
+        from: FROM_EMAIL,
+        subject: template.subject,
+        html: template.html,
+        text: template.text,
+      },
+      manager: { email: m.manager_email, hotel_name: m.hotel_name },
+    });
+  }
+
+  // 실제 발송 (Resend)
+  const sendResp = await fetch(RESEND_ENDPOINT, {
+    method: 'POST',
+    headers: {
+      'Authorization': 'Bearer ' + resendKey,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      from: FROM_EMAIL,
+      to: [m.manager_email],
+      reply_to: REPLY_TO,
+      subject: template.subject,
+      html: template.html,
+      text: template.text,
+    }),
+  });
+  const sendData = await sendResp.json().catch(() => ({}));
+  if (!sendResp.ok) {
+    return res.status(500).json({
+      error: 'resend_failed',
+      status: sendResp.status,
+      detail: sendData,
+    });
+  }
+
+  // admin_notes 자동 기록 (CS 이력)
+  if (m.hotel_id) {
+    try {
+      await fetch(SUPABASE_URL + '/rest/v1/admin_notes', {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + serviceKey,
+          'apikey': serviceKey,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=minimal',
+        },
+        body: JSON.stringify({
+          hotel_id: m.hotel_id,
+          author_id: null, // 시스템 메모
+          note: `📨 [수동 푸시] ${template.label} 발송 — by ${admin.email} (resend_id: ${sendData.id || '?'})`,
+        }),
+      });
+    } catch (e) {
+      // 메모 실패는 메일 발송 성공을 막지 않음
+      console.warn('admin_notes log failed:', e.message);
+    }
+  }
+
+  return res.status(200).json({
+    success: true,
+    sent_to: m.manager_email,
+    resend_id: sendData.id,
+    push_type: pushType,
+    label: template.label,
+  });
+}
+
+// =============================================================
+// 매니저 푸시 템플릿 빌더 (4종)
+// =============================================================
+function buildManagerPushTemplate(pushType, m) {
+  const hotelName = m.hotel_name || 'your hotel';
+  const managerName = m.hotel_contact_name || 'there';
+  const channels = m.video_channels_active || 0;
+  const views = m.video_total_views || 0;
+  const bookings = m.booking_count || 0;
+  const revenue = m.booking_revenue || 0;
+  const daysLeft = m.guarantee_days_left;
+
+  const templates = {
+    new_video: {
+      label: '새 영상 알림',
+      subject: `🎬 New video published for ${hotelName}!`,
+      preheader: `Your hotel just got new exposure on our YouTube channels.`,
+      body: `
+        <p>Hi ${managerName},</p>
+        <p>Great news! We just published a new video featuring <strong>${hotelName}</strong> on our YouTube channels.</p>
+        <p>Your hotel is now exposed on <strong>${channels}/8 channels</strong> with <strong>${formatNum(views)} total views</strong> to date.</p>
+        <p>Check your dashboard to see the latest stats:</p>
+        <p style="text-align:center;margin:30px 0;">
+          <a href="https://gohotelwinners.com/dashboard.html" style="background:linear-gradient(135deg,#7C3AED,#EC4899);color:#fff;padding:12px 28px;text-decoration:none;border-radius:8px;font-weight:600;">View dashboard →</a>
+        </p>
+      `,
+    },
+    rebill: {
+      label: '재결제 제안',
+      subject: `💎 Extend your TravelWinners protection for ${hotelName}`,
+      preheader: `Your 6-month booking guarantee is approaching. Renew with priority.`,
+      body: `
+        <p>Hi ${managerName},</p>
+        <p>Your TravelWinners 6-month booking guarantee for <strong>${hotelName}</strong> ${daysLeft != null && daysLeft >= 0 ? `expires in <strong>${daysLeft} days</strong>` : 'has ended'}.</p>
+        <p>So far, your hotel has generated <strong>${bookings} bookings</strong> totalling <strong>$${formatNum(revenue)}</strong>.</p>
+        <p>To keep your hotel featured on all 8 channels and continue receiving bookings, you can extend your partnership for another 6 months.</p>
+        <p style="text-align:center;margin:30px 0;">
+          <a href="https://gohotelwinners.com/dashboard.html#rebill" style="background:linear-gradient(135deg,#7C3AED,#EC4899);color:#fff;padding:12px 28px;text-decoration:none;border-radius:8px;font-weight:600;">Extend partnership →</a>
+        </p>
+        <p style="font-size:13px;color:#888;">Reply to this email if you have questions about renewal terms.</p>
+      `,
+    },
+    report: {
+      label: '성과 리포트',
+      subject: `📊 Your ${hotelName} performance report`,
+      preheader: `Bookings, revenue and channel exposure summary.`,
+      body: `
+        <p>Hi ${managerName},</p>
+        <p>Here's the latest performance summary for <strong>${hotelName}</strong>:</p>
+        <table style="width:100%;border-collapse:collapse;margin:20px 0;">
+          <tr><td style="padding:10px;background:#f7f7f7;border-radius:6px 0 0 6px;width:50%;">Total bookings</td><td style="padding:10px;background:#f7f7f7;border-radius:0 6px 6px 0;text-align:right;font-size:18px;font-weight:600;">${bookings}</td></tr>
+          <tr><td colspan="2" style="height:6px;"></td></tr>
+          <tr><td style="padding:10px;background:#f7f7f7;border-radius:6px 0 0 6px;">Total revenue</td><td style="padding:10px;background:#f7f7f7;border-radius:0 6px 6px 0;text-align:right;font-size:18px;font-weight:600;">$${formatNum(revenue)}</td></tr>
+          <tr><td colspan="2" style="height:6px;"></td></tr>
+          <tr><td style="padding:10px;background:#f7f7f7;border-radius:6px 0 0 6px;">Active channels</td><td style="padding:10px;background:#f7f7f7;border-radius:0 6px 6px 0;text-align:right;font-size:18px;font-weight:600;">${channels} / 8</td></tr>
+          <tr><td colspan="2" style="height:6px;"></td></tr>
+          <tr><td style="padding:10px;background:#f7f7f7;border-radius:6px 0 0 6px;">Total YouTube views</td><td style="padding:10px;background:#f7f7f7;border-radius:0 6px 6px 0;text-align:right;font-size:18px;font-weight:600;">${formatNum(views)}</td></tr>
+        </table>
+        <p style="text-align:center;margin:30px 0;">
+          <a href="https://gohotelwinners.com/dashboard.html" style="background:linear-gradient(135deg,#7C3AED,#EC4899);color:#fff;padding:12px 28px;text-decoration:none;border-radius:8px;font-weight:600;">Full report →</a>
+        </p>
+      `,
+    },
+    channel_add: {
+      label: '채널 추가 제안',
+      subject: `🎁 Expand ${hotelName}'s reach — unlock more channels`,
+      preheader: `Get featured on additional language channels for greater exposure.`,
+      body: `
+        <p>Hi ${managerName},</p>
+        <p>Your hotel is currently featured on <strong>${channels}/8</strong> of our channels.</p>
+        <p>By unlocking the remaining channels, <strong>${hotelName}</strong> can reach travelers in additional languages including Japanese, Chinese, and Vietnamese — significantly expanding your booking pipeline.</p>
+        <p>Past performance shows hotels on all 8 channels generate <strong>3-5x more bookings</strong> on average.</p>
+        <p style="text-align:center;margin:30px 0;">
+          <a href="https://gohotelwinners.com/dashboard.html#channels" style="background:linear-gradient(135deg,#7C3AED,#EC4899);color:#fff;padding:12px 28px;text-decoration:none;border-radius:8px;font-weight:600;">Add channels →</a>
+        </p>
+      `,
+    },
+  };
+
+  const tpl = templates[pushType];
+  if (!tpl) return null;
+
+  const html = wrapEmailShell({ preheader: tpl.preheader, body: tpl.body });
+  const text = stripHtml(tpl.body) + '\n\nDashboard: https://gohotelwinners.com/dashboard.html';
+
+  return {
+    label: tpl.label,
+    subject: tpl.subject,
+    html,
+    text,
+  };
+}
+
+function formatNum(n) {
+  return Number(n || 0).toLocaleString();
+}
+
+function stripHtml(s) {
+  return String(s || '').replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
+}
+
+function wrapEmailShell({ preheader, body }) {
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"><title></title></head>
+<body style="margin:0;padding:0;background:#f5f5f7;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+<div style="display:none;max-height:0;overflow:hidden;">${preheader || ''}</div>
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f5f7;padding:30px 0;">
+  <tr><td align="center">
+    <table width="600" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:12px;overflow:hidden;max-width:600px;width:100%;">
+      <tr><td style="background:linear-gradient(135deg,#7C3AED 0%,#EC4899 50%,#06B6D4 100%);padding:24px 30px;color:#fff;">
+        <div style="font-size:18px;font-weight:700;">TravelWinners B2B</div>
+        <div style="font-size:13px;opacity:.85;margin-top:2px;">Global hotel exposure platform</div>
+      </td></tr>
+      <tr><td style="padding:30px;color:#222;font-size:14.5px;line-height:1.65;">${body}</td></tr>
+      <tr><td style="padding:18px 30px;background:#f7f7f7;color:#888;font-size:12px;text-align:center;">
+        TravelWinners · gohotelwinners.com · <a href="mailto:partners@gohotelwinners.com" style="color:#888;">partners@gohotelwinners.com</a>
+      </td></tr>
+    </table>
+  </td></tr>
+</table>
+</body></html>`;
+}
+
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -773,7 +1018,7 @@ export default async function handler(req, res) {
   }
 
   // 화이트리스트 검증을 인증보다 먼저 수행 → 디버깅 시 라우팅 문제와 인증 문제를 명확히 분리
-  const ALLOWED_ACTIONS = ['booking-upload', 'list-users', 'send-invite', 'update-match', 'start-task', 'past-video-revenue'];
+  const ALLOWED_ACTIONS = ['booking-upload', 'list-users', 'send-invite', 'update-match', 'start-task', 'past-video-revenue', 'manager-push'];
   if (!action) {
     return res.status(400).json({
       error: 'missing_action',
@@ -828,6 +1073,9 @@ export default async function handler(req, res) {
         return actionResult;
       case 'past-video-revenue':
         actionResult = await handlePastVideoRevenue(req, res, serviceKey, adminCheck);
+        return actionResult;
+      case 'manager-push':
+        actionResult = await handleManagerPush(req, res, serviceKey, adminCheck);
         return actionResult;
       default:
         // unreachable: 위에서 화이트리스트로 이미 차단됨

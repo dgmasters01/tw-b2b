@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-13T01:24:56.411Z",
+  "updated_at": "2026-05-13T01:33:27.544332+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -12,7 +12,7 @@
     "SOLO_WORK_QUEUE.md"
   ],
   "stats": {
-    "total": 207,
+    "total": 208,
     "done": 149,
     "in_progress": 2,
     "pending": 37,
@@ -20,7 +20,17 @@
     "autonomous_ready": 37,
     "todo": 0,
     "cancelled": 0,
-    "updated_at": "2026-05-13T01:21:10.683Z"
+    "updated_at": "2026-05-13T01:21:10.683Z",
+    "by_status": {
+      "done": 151,
+      "pending": 37,
+      "blocked": 10,
+      "absorbed": 2,
+      "in_progress": 1,
+      "obsoleted": 5,
+      "cancelled": 1,
+      "paused": 1
+    }
   },
   "tasks": [
     {
@@ -13442,7 +13452,8 @@
           "event": "mail_sent — Resend id: 31d35a9e-b388-4991-9a60-5f28e75be043 (bundle 2)",
           "by": "ops-mail-bot"
         }
-      ]
+      ],
+      "source": "chat-log:2026-05-13-bl-rename-gohotel"
     },
     {
       "id": "BL-PAST-VIDEO-RECON",
@@ -13465,7 +13476,8 @@
       },
       "notes": "agoda_hotel_id + google_place_id 매칭 → bookings_self.amount + bookings_agoda.amount 합산 → 호텔별 누적 매출 산출. admin → '📺 영상 자산 성과' 탭 신설. 매니저 노출은 BL-SIGNUP-ENRICHMENT에서 별도.",
       "created_at": "2026-05-12T17:04:42.051339Z",
-      "updated_at": "2026-05-12T17:04:42.051339Z"
+      "updated_at": "2026-05-12T17:04:42.051339Z",
+      "source": "decision:D-035"
     },
     {
       "id": "BL-AGODA-TOS-CHECK",
@@ -13488,7 +13500,8 @@
       },
       "notes": "affiliate 매칭 데이터를 호텔(제3자)에게 노출 가능 여부. 약관 위반 위험 시 D-035 보류 + Self-Sourced만 사용.",
       "created_at": "2026-05-12T17:04:42.051339Z",
-      "updated_at": "2026-05-12T17:04:42.051339Z"
+      "updated_at": "2026-05-12T17:04:42.051339Z",
+      "source": "decision:D-035"
     },
     {
       "id": "BL-HOTEL-DETAIL-PAGE",
@@ -13513,7 +13526,8 @@
       },
       "notes": "통찰 ⑥+⑨ 합본. admin Hotels 탭 행 = 호텔 카드 / 호텔명 클릭 → 단일 호텔 상세 슬라이드 패널. '📨 커뮤니케이션 이력' 영역 신설 — 1:1 문의/메일 송수신/내부 메모/status 변경 이력 시간순.",
       "created_at": "2026-05-12T17:04:42.051339Z",
-      "updated_at": "2026-05-12T17:04:42.051339Z"
+      "updated_at": "2026-05-12T17:04:42.051339Z",
+      "source": "autoheal:feature-2026-05-13"
     },
     {
       "id": "BL-REVENUE-DASHBOARD",
@@ -13536,7 +13550,8 @@
       },
       "notes": "booking-analytics.html 보강. 5개 토글 [일/주/월/분기/년]. Self-Sourced vs Agoda 채널 vs B2B $200 매출 3종 분리.",
       "created_at": "2026-05-12T17:04:42.051339Z",
-      "updated_at": "2026-05-12T17:04:42.051339Z"
+      "updated_at": "2026-05-12T17:04:42.051339Z",
+      "source": "autoheal:analytics-2026-05-13"
     },
     {
       "id": "BL-RENEWAL-WATCH",
@@ -13561,7 +13576,8 @@
       },
       "notes": "admin Sales 영역 → '💎 재계약 관리' 탭 신설. 3개 필터: 예약 0건 / 매출 $200 미만(이벤트 송출 후보) / D-30 임박. 통찰 ② 박힘.",
       "created_at": "2026-05-12T17:04:42.051339Z",
-      "updated_at": "2026-05-12T17:04:42.051339Z"
+      "updated_at": "2026-05-12T17:04:42.051339Z",
+      "source": "autoheal:feature-2026-05-13"
     },
     {
       "id": "BL-REFUND-FLOW",
@@ -13584,7 +13600,8 @@
       },
       "notes": "marketing.html 매니저 본인 신청 → admin '↩️ 환불·취소' 탭 등장 → 대표님 확인 → PayPal Refund API. 영수증 PDF 5년 보관.",
       "created_at": "2026-05-12T17:04:42.051339Z",
-      "updated_at": "2026-05-12T17:04:42.051339Z"
+      "updated_at": "2026-05-12T17:04:42.051339Z",
+      "source": "decision:D-033"
     },
     {
       "id": "BL-SIGNUP-ENRICHMENT",
@@ -13610,7 +13627,8 @@
       },
       "notes": "signup.html 호텔 입력 직후 백그라운드 매칭 → verify-email 또는 sales.html에서 표시. $1,000+ 강력 / $200~999 부드러움 / <$200 숨김.",
       "created_at": "2026-05-12T17:04:42.051339Z",
-      "updated_at": "2026-05-12T17:04:42.051339Z"
+      "updated_at": "2026-05-12T17:04:42.051339Z",
+      "source": "decision:D-035"
     },
     {
       "id": "BL-SIGNUP-COUNTRY-FIELD",
@@ -13633,7 +13651,8 @@
       },
       "notes": "베트남/태국/필리핀/인도네시아/말레이시아/싱가포르 상단 + 기타 국가.",
       "created_at": "2026-05-12T17:04:42.051339Z",
-      "updated_at": "2026-05-12T17:04:42.051339Z"
+      "updated_at": "2026-05-12T17:04:42.051339Z",
+      "source": "decision:D-032+chat-log:2026-05-13-sq-g-auto-status-email"
     },
     {
       "id": "BL-EMAIL-LOCALE-ROUTING",
@@ -13658,7 +13677,8 @@
       },
       "notes": "Resend SMTP locale 분기. 12개 메일 템플릿 영어 + 한국어 2벌.",
       "created_at": "2026-05-12T17:04:42.051339Z",
-      "updated_at": "2026-05-12T17:04:42.051339Z"
+      "updated_at": "2026-05-12T17:04:42.051339Z",
+      "source": "decision:D-032+chat-log:2026-05-13-sq-g-auto-status-email"
     },
     {
       "id": "BL-ADMIN-COUNTRY-FILTER",
@@ -13683,7 +13703,8 @@
       },
       "notes": "재계약·환불 관리 시 국가별 정렬 가능하게.",
       "created_at": "2026-05-12T17:04:42.051339Z",
-      "updated_at": "2026-05-12T17:04:42.051339Z"
+      "updated_at": "2026-05-12T17:04:42.051339Z",
+      "source": "decision:D-032+chat-log:2026-05-13-sq-g-auto-status-email"
     },
     {
       "id": "BL-RECEIPT-ARCHIVE",
@@ -13708,7 +13729,8 @@
       },
       "notes": "회계 의무 5년. 결제 영수증 + 환불 영수증 둘 다.",
       "created_at": "2026-05-12T17:04:42.051339Z",
-      "updated_at": "2026-05-12T17:04:42.051339Z"
+      "updated_at": "2026-05-12T17:04:42.051339Z",
+      "source": "decision:D-033"
     },
     {
       "id": "BL-EVENT-SITE-FOUNDATION",
@@ -13731,7 +13753,8 @@
       },
       "notes": "별도 브랜드/도메인. B2B와 분리. 도메인 후보 확정 후 본격 시작.",
       "created_at": "2026-05-12T17:04:42.051339Z",
-      "updated_at": "2026-05-12T17:04:42.051339Z"
+      "updated_at": "2026-05-12T17:04:42.051339Z",
+      "source": "decision:D-034"
     },
     {
       "id": "BL-EVENT-CUSTOMER-DB",
@@ -13756,7 +13779,8 @@
       },
       "notes": "마케팅 동의 받은 일반 고객 = TW의 영구 자산. 재마케팅 메일 가능.",
       "created_at": "2026-05-12T17:04:42.051339Z",
-      "updated_at": "2026-05-12T17:04:42.051339Z"
+      "updated_at": "2026-05-12T17:04:42.051339Z",
+      "source": "decision:D-034"
     },
     {
       "id": "BL-EVENT-PAYMENT-PROXY",
@@ -13781,7 +13805,8 @@
       },
       "notes": "이벤트 고객 응모/구매 → 우리가 호텔에 대리 결제 → 호텔에 예약 발생.",
       "created_at": "2026-05-12T17:04:42.051339Z",
-      "updated_at": "2026-05-12T17:04:42.051339Z"
+      "updated_at": "2026-05-12T17:04:42.051339Z",
+      "source": "decision:D-034"
     },
     {
       "id": "BL-EVENT-HOTEL-NOTIFY",
@@ -13807,7 +13832,8 @@
       },
       "notes": "admin Hotels 탭에서 매출 $200 미만 호텔 → '이벤트 송출' 버튼. 호텔에 '예약 N건 추가 발생' 메일.",
       "created_at": "2026-05-12T17:04:42.051339Z",
-      "updated_at": "2026-05-12T17:04:42.051339Z"
+      "updated_at": "2026-05-12T17:04:42.051339Z",
+      "source": "decision:D-034"
     },
     {
       "id": "BL-AUTO-TASKS-SCHEMA-16MISSING",
@@ -13844,6 +13870,27 @@
         }
       ],
       "notes": "점검 봇 자동 등록 (2026-05-12T17:36:05.435Z)\n\ncheck_name: tasks_schema\nstatus: red\ndetail: 작업 206건 중 16건에 출처가 없어요 (자동 동기화 봇 멈춤 위험)\n\n진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 green으로 박으면 자동 done."
+    },
+    {
+      "id": "BL-HEALTH-AUTOHEAL",
+      "title": "[빨간불 자가 치유] tasks.json source 자동 박기 + push 즉시 재평가",
+      "category": "infra",
+      "priority": "P0",
+      "size": "medium",
+      "status": "done",
+      "owner": "claude",
+      "claude_can_auto": true,
+      "approval_required": false,
+      "estimated_hours": 0.75,
+      "created_at": "2026-05-13T01:33:27.544332+00:00",
+      "updated_at": "2026-05-13T01:33:27.544332+00:00",
+      "completed_at": "2026-05-13T01:33:27.544332+00:00",
+      "source": "chat-log:2026-05-13-bl-health-autoheal",
+      "notes": "대표님 지적: 빨간불 실시간 갱신 안 됨 → 자가 치유 봇 + push 트리거 + health-bot 재실행 연쇄",
+      "progress": {
+        "percent": 100,
+        "steps": []
+      }
     }
   ]
 }

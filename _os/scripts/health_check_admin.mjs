@@ -104,6 +104,7 @@ function checkBots() {
     'auto-detect-bot': process.env.AUTO_DETECT_BOT_STATUS || 'unknown',
     'scan-bot': process.env.SCAN_BOT_STATUS || 'unknown',
     'chat-log-bot': process.env.CHAT_LOG_BOT_STATUS || 'unknown',
+    'autoheal-bot': process.env.AUTOHEAL_BOT_STATUS || 'unknown', // ★ BL-HEALTH-AUTOHEAL (2026-05-13)
   };
   for (const [name, status] of Object.entries(botStatus)) {
     if (status === 'failure') {

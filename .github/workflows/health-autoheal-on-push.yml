@@ -1,0 +1,82 @@
+# TW B2B — Health 자가 치유 워크플로 (BL-HEALTH-AUTOHEAL)
+#
+# 헌법 부합:
+#   ② 무인 실행: tasks.json 변경 시 자동
+#   ⑪ Claude 자체 보고: source 자동 박은 결과 commit message
+#
+# 문제 (대표님 지적 2026-05-13):
+#   "너가 갱신을 하고 위에 위험요소 체크하는거를 실시가 체크가 안되는거 같애.
+#    이거를 너가 실시간 체크하는 방법을 찾고 스스로 해결하는것도 찾아야 될것 같은데"
+#
+# 해결:
+#   1. tasks.json push → 자동으로 자가 치유 봇 실행
+#   2. source 누락 BL 발견 시 자동 박음
+#   3. 변경 있으면 자동 commit + push → health-bot 재실행 트리거
+#   4. health-bot이 다시 평가 → 빨간불 자동 해소
+
+name: Health Autoheal on Push (BL-HEALTH-AUTOHEAL)
+
+on:
+  push:
+    branches: [main, restructure-os-modularization]
+    paths:
+      - 'tasks.json'
+      - '_chat-logs/index.json'
+      - 'scripts/tasks-source-autoheal.js'
+      - '.github/workflows/health-autoheal-on-push.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: health-autoheal-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  autoheal:
+    # self-trigger 방지
+    if: "!contains(github.event.head_commit.message, '[autoheal-bot]')"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run tasks-source-autoheal
+        run: node scripts/tasks-source-autoheal.js
+
+      - name: Commit if changed
+        run: |
+          git config user.name "autoheal-bot"
+          git config user.email "autoheal-bot@anthropic"
+
+          if git diff --quiet tasks.json; then
+            echo "✅ 변경 없음 — 자가 치유 commit 스킵"
+          else
+            git add tasks.json
+            git commit -m "[autoheal-bot] tasks.json source 자동 박음 (BL-HEALTH-AUTOHEAL)"
+            git push origin HEAD:${GITHUB_REF#refs/heads/}
+            echo "💾 자가 치유 commit + push 완료"
+          fi
+
+      - name: Trigger health-check workflow
+        if: success()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // 자가 치유 후 health-check 재실행 트리거 (즉시 빨간불 재평가)
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'health-check-admin.yml',
+              ref: context.ref.replace('refs/heads/', ''),
+            });
+            console.log('✅ health-check-admin workflow 재실행 트리거됨');

@@ -1,0 +1,64 @@
+# TW B2B — 토큰 만료 자동 체크 cron (SQ-H, D-017)
+#
+# 헌법 부합:
+#   ② 무인 실행: 매일 09:00 KST (UTC 00:00) 자동 실행
+#   부칙 17: 자격증명 라이프사이클 — 만료 7일 전 ops 알림
+#
+# 작동:
+#   1. cron 트리거 (매일 09:00 KST = UTC 00:00)
+#   2. 또는 _data/tokens-registry.json 변경 시 트리거 (즉시 확인)
+#   3. node scripts/token-expiry-check.js 실행
+#   4. 만료 임박 발견 시 → ops@gohotelwinners.com 발송
+#   5. _data/token-alert-log.json 박고 commit (중복 알림 방지)
+
+name: Token Expiry Check (SQ-H)
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # 매일 UTC 00:00 = KST 09:00
+  push:
+    branches: [main, restructure-os-modularization]
+    paths:
+      - '_data/tokens-registry.json'
+      - 'scripts/token-expiry-check.js'
+      - '.github/workflows/token-expiry-cron.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  check-tokens:
+    # self-trigger 방지
+    if: "!contains(github.event.head_commit.message, '[token-expiry-bot]')"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run token expiry check
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+        run: node scripts/token-expiry-check.js
+
+      - name: Commit alert log
+        run: |
+          git config user.name "token-expiry-bot"
+          git config user.email "token-expiry-bot@anthropic"
+
+          # alert log 변경 있을 때만 commit
+          if [ -f _data/token-alert-log.json ] && ! git diff --quiet _data/token-alert-log.json 2>/dev/null; then
+            git add _data/token-alert-log.json
+            git commit -m "[token-expiry-bot] 토큰 만료 알림 발송 이력 박음 (SQ-H, D-017)"
+            git push origin HEAD:${GITHUB_REF#refs/heads/}
+          else
+            echo "✅ 발송 이력 변동 없음 — commit 스킵"
+          fi

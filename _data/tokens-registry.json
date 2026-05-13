@@ -1,0 +1,83 @@
+{
+  "_comment": "TW B2B — 토큰 만료일 등록부 (SQ-H, D-017)",
+  "_description": "헌법 부칙 17 자격증명 라이프사이클 단일 진실원. 만료 7일 전 자동 알림 발송 (token-expiry-check.js + GitHub Actions cron).",
+  "_format": {
+    "id": "토큰 식별자 (영문 케밥)",
+    "name": "사람용 이름",
+    "expires_at": "ISO 8601 만료일",
+    "renewal_url": "갱신 페이지 URL",
+    "scope": "토큰 권한 범위 요약",
+    "warn_days_before": "기본 7일 (만료 N일 전부터 알림)",
+    "active": "false면 점검 스킵"
+  },
+  "_last_updated": "2026-05-13",
+  "tokens": [
+    {
+      "id": "supabase-management-api",
+      "name": "Supabase Management API Token",
+      "expires_at": "2026-06-04T00:00:00.000Z",
+      "renewal_url": "https://supabase.com/dashboard/account/tokens",
+      "scope": "전체 Supabase 프로젝트 관리 (DB schema 변경, RLS 정책, edge function 배포)",
+      "warn_days_before": 7,
+      "active": true,
+      "owner": "이지형",
+      "env_var": "SUPABASE_MGMT_TOKEN"
+    },
+    {
+      "id": "github-pat",
+      "name": "GitHub Personal Access Token",
+      "expires_at": "2026-08-01T00:00:00.000Z",
+      "renewal_url": "https://github.com/settings/tokens",
+      "scope": "repo + workflow (TW B2B repo 전체 접근 + GitHub Actions 트리거)",
+      "warn_days_before": 7,
+      "active": true,
+      "owner": "이지형",
+      "env_var": "GITHUB_PAT"
+    },
+    {
+      "id": "vercel-token",
+      "name": "Vercel API Token",
+      "expires_at": "2026-12-31T00:00:00.000Z",
+      "renewal_url": "https://vercel.com/account/tokens",
+      "scope": "Full Account (배포 트리거, 환경변수 관리)",
+      "warn_days_before": 7,
+      "active": true,
+      "owner": "이지형",
+      "env_var": "VERCEL_TOKEN"
+    },
+    {
+      "id": "cloudflare-dns",
+      "name": "Cloudflare DNS Token",
+      "expires_at": "2027-01-01T00:00:00.000Z",
+      "renewal_url": "https://dash.cloudflare.com/profile/api-tokens",
+      "scope": "gohotelwinners.com DNS 레코드 편집 전용",
+      "warn_days_before": 7,
+      "active": true,
+      "owner": "이지형",
+      "env_var": "CLOUDFLARE_DNS_TOKEN"
+    },
+    {
+      "id": "resend-api",
+      "name": "Resend API Key",
+      "expires_at": "2099-12-31T00:00:00.000Z",
+      "renewal_url": "https://resend.com/api-keys",
+      "scope": "noreply@gohotelwinners.com + ops@gohotelwinners.com 발송",
+      "warn_days_before": 7,
+      "active": true,
+      "owner": "이지형",
+      "env_var": "RESEND_API_KEY",
+      "_note": "Resend API key는 명시 만료 없음 (수동 폐기까지 유효) — 99년으로 박음"
+    },
+    {
+      "id": "paypal-business",
+      "name": "PayPal Business Credentials",
+      "expires_at": "2099-12-31T00:00:00.000Z",
+      "renewal_url": "https://www.paypal.com/businessprofile/credentials",
+      "scope": "Merchant ID HAY86YMQP9T5C 결제 처리",
+      "warn_days_before": 7,
+      "active": true,
+      "owner": "이지형",
+      "_note": "PayPal Business는 계정 단위 — 만료 없음. Webhook secret만 주기 갱신 필요 시 별도 등록."
+    }
+  ]
+}

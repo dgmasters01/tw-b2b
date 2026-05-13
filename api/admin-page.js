@@ -33,8 +33,12 @@ const PAGE_FILE_MAP = {
   'business-charter':  '_admin/admin-business-charter.html',
   'decisions':         '_admin/admin-decisions.html',
   'decisions-index':   '_admin/admin-decisions-index.html',
-  'manager-journey':   '_admin/admin-manager-journey.html',
-  'user-journey':      '_admin/admin-user-journey.html',
+  // BL-RENAME-GOHOTEL (D-031, 2026-05-13) — journey → gohotel
+  'gohotel-manager-stages': '_admin/admin-gohotel-manager-stages.html',
+  'gohotel-overview':       '_admin/admin-gohotel-overview.html',
+  // 구 이름 (호환성 유지 — vercel.json 301 redirect와 별도로 직접 호출 대비)
+  'manager-journey':        '_admin/admin-gohotel-manager-stages.html',
+  'user-journey':           '_admin/admin-gohotel-overview.html',
 };
 
 const PAGE_MIN_ROLE = {
@@ -50,8 +54,11 @@ const PAGE_MIN_ROLE = {
   'business-charter':  'readonly',
   'decisions':         'readonly',
   'decisions-index':   'readonly',
-  'manager-journey':   'readonly',
-  'user-journey':      'readonly',
+  // BL-RENAME-GOHOTEL (D-031, 2026-05-13) — 새 이름 + 구 이름 호환성
+  'gohotel-manager-stages': 'readonly',
+  'gohotel-overview':       'readonly',
+  'manager-journey':        'readonly',
+  'user-journey':           'readonly',
 };
 
 function roleHasAccess(callerRole, requiredRole) {

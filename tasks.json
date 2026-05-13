@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-13T14:04:28.018450+00:00",
+  "updated_at": "2026-05-13T14:05:16.023790+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -14404,6 +14404,70 @@
       "source": "chat:2026-05-13 보안 진단",
       "target_pages": [
         "hotels 테이블 + auth.users + DB 트리거 + 환경변수 + 모든 토큰"
+      ]
+    },
+    {
+      "id": "BL-ADMIN-AUTH-V2-BACKFILL-DISARM",
+      "title": "[보안 후속] admin-auth-v2.sql 8번 백필 섹션 무력화 — 재실행 시 보안 사고 재발 방지",
+      "category": "security",
+      "priority": "P1",
+      "size": "small",
+      "status": "pending",
+      "owner": "claude",
+      "claude_can_auto": true,
+      "approval_required": false,
+      "estimated_hours": 0.5,
+      "order": 2,
+      "blocker": null,
+      "depends_on": [
+        "BL-SECURITY-SIGNUP-TRIGGER"
+      ],
+      "progress": {
+        "percent": 0,
+        "steps": []
+      },
+      "notes": "sql/bl-admin-auth-v2.sql 387번 줄 8번 섹션이 auth.users 전수 → admins 자동 박기. 이 SQL이 재실행되면 BL-SECURITY-SIGNUP-TRIGGER로 정리한 4건이 다시 박힘. 백필 코드 주석 처리 + 상단에 ⚠️ DEPRECATED 경고 추가 + bl-admin-auth-v2-rls-hotfix.sql도 같이 점검.",
+      "biz_context_v2": {
+        "지금_무슨_상황이냐면": "방금 막은 보안 구멍을 만든 원흉 SQL 파일이 repo에 그대로 남아있다. 누가(또는 향후 클로드가) 이 파일을 다시 실행하면 자동 admin 부여 결함이 통째로 부활한다.",
+        "왜_결정이_필요하냐면": "보안 패치를 박았어도 원본 코드가 살아있으면 시한폭탄이다. 정석은 원본 코드의 위험 분기를 주석 처리하고 상단에 큰 경고 박는 것.",
+        "결정하면_뭐가_달라지냐면": "v2 SQL 재실행해도 admins 자동 박기는 동작하지 않는다. 보안 패치가 영구 보호된다."
+      },
+      "created_at": "2026-05-13T14:05:16.023790+00:00",
+      "updated_at": "2026-05-13T14:05:16.023790+00:00",
+      "source": "chat:2026-05-13 BL-SECURITY-SIGNUP-TRIGGER 진단 중 발견",
+      "target_pages": [
+        "sql/bl-admin-auth-v2.sql + sql/bl-admin-auth-v2-rls-hotfix.sql"
+      ]
+    },
+    {
+      "id": "BL-AUTO-DETECT-BOT-STEP-TAG-FIX",
+      "title": "[인프라] auto-detect-bot의 [step:done:N] 태그 인식 누락 진단·수정",
+      "category": "infra",
+      "priority": "P1",
+      "size": "small",
+      "status": "pending",
+      "owner": "claude",
+      "claude_can_auto": true,
+      "approval_required": false,
+      "estimated_hours": 1.0,
+      "order": 3,
+      "blocker": null,
+      "depends_on": [],
+      "progress": {
+        "percent": 0,
+        "steps": []
+      },
+      "notes": "BL-SECURITY-SIGNUP-TRIGGER 작업에서 [step:done:1]~[step:done:5] 태그를 박은 commit 4건이 push됐으나 auto-detect-bot이 step 인식 못 하고 progress.percent=0% 유지. 수동 보정으로 83% 갱신함. 봇 스크립트(자동 progress 갱신 로직) 점검 필요. status는 in_progress로 전환됐으나 steps[].done 갱신 누락. 헌법 부칙 7 의무 위반 상태.",
+      "biz_context_v2": {
+        "지금_무슨_상황이냐면": "단계별 commit 태그를 박아도 어드민 화면 진행률이 갱신 안 된다. 대표님이 화면 보고 '이 작업 안 끝났네' 오판할 위험. 부칙 7 자동화가 실질적으로 작동 안 함.",
+        "왜_결정이_필요하냐면": "진행률 자동 갱신은 헌법 부칙 7의 핵심. 봇 신뢰도가 깨지면 클로드가 매번 수동 보정해야 함 — 자동화 1조 위반.",
+        "결정하면_뭐가_달라지냐면": "commit에 [step:done:N] 박으면 5초 안에 어드민 진행률·percent 자동 갱신. 클로드 수동 보정 불필요."
+      },
+      "created_at": "2026-05-13T14:05:16.023790+00:00",
+      "updated_at": "2026-05-13T14:05:16.023790+00:00",
+      "source": "chat:2026-05-13 BL-SECURITY-SIGNUP-TRIGGER 단계 6 검증 중 발견",
+      "target_pages": [
+        ".github/workflows + scripts/auto-detect-bot 또는 동등 스크립트"
       ]
     }
   ]

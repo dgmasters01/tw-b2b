@@ -5,7 +5,7 @@
 > 
 > 단일 진실 소스: `tasks.json` (v2.0)
 
-**마지막 업데이트**: 2026-05-13
+**마지막 업데이트**: 2026-05-14
 
 > 💡 **새 채팅 시작 시**: 다음 5개 문서를 먼저 보면 즉시 컨텍스트 파악 가능.
 > 
@@ -355,18 +355,6 @@ detail: 관리자 페이지 7개가 원본과 살짝 달라요 (대표님이 일
 - **카테고리**: ops
 - **상태**: pending
 - **ID**: `BL-PRELAUNCH-CLEANUP` (출처: chat:2026-05-13 보안 진단)
-
----
-
-## ⚡ P1 — [보안 후속] admin-auth-v2.sql 8번 백필 섹션 무력화 — 재실행 시 보안 사고 재발 방지
-
-**요약**: sql/bl-admin-auth-v2.sql 387번 줄 8번 섹션이 auth.users 전수 → admins 자동 박기. 이 SQL이 재실행되면 BL-SECURITY-SIGNUP-TRIGGER로 정리한 4건이 다시 박힘. 백필 코드 주석 처리 + 상단에 ⚠️ DEPRECATED 경고 추가 + bl-admin-auth-v2-rls-hotfix.sql도 같이
-
-- **자율성**: 🟡 SEMI
-- **예상 시간**: 미정시간
-- **카테고리**: security
-- **상태**: in_progress
-- **ID**: `BL-ADMIN-AUTH-V2-BACKFILL-DISARM` (출처: chat:2026-05-13 BL-SECURITY-SIGNUP-TRIGGER 진단 중 발견)
 
 ---
 

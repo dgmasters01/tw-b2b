@@ -3,7 +3,7 @@
 > ⚠️ **이 파일은 자동 생성됩니다.** 수동 편집하지 마세요.
 > 단일 진실 소스: `tasks.json` (v2.0)
 > **데드라인**: 2026-05-03
-> **갱신**: 2026-05-13
+> **갱신**: 2026-05-14
 > **목적**: 대표님 외근/자리비움 시 Claude 자율 처리 가능 작업
 
 ## 작업 분류 체계
@@ -220,17 +220,7 @@ detail: 관리자 페이지 7개가 원본과 살짝 달라요 (대표님이 일
 
 ---
 
-### P. 🟡 SEMI — [보안 후속] admin-auth-v2.sql 8번 백필 섹션 무력화 — 재실행 시 보안 사고 재발 방지
-
-**ID**: `BL-ADMIN-AUTH-V2-BACKFILL-DISARM`  
-**카테고리**: security  
-**예상 시간**: 미정시간  
-
-**메모**: sql/bl-admin-auth-v2.sql 387번 줄 8번 섹션이 auth.users 전수 → admins 자동 박기. 이 SQL이 재실행되면 BL-SECURITY-SIGNUP-TRIGGER로 정리한 4건이 다시 박힘. 백필 코드 주석 처리 + 상단에 ⚠️ DEPRECATED 경고 추가 + bl-admin-auth-v2-rls-hotfix.sql도 같이 점검.
-
----
-
-### Q. 🟡 SEMI — [인프라] auto-detect-bot의 [step:done:N] 태그 인식 누락 진단·수정
+### P. 🟡 SEMI — [인프라] auto-detect-bot의 [step:done:N] 태그 인식 누락 진단·수정
 
 **ID**: `BL-AUTO-DETECT-BOT-STEP-TAG-FIX`  
 **카테고리**: infra  
@@ -240,7 +230,7 @@ detail: 관리자 페이지 7개가 원본과 살짝 달라요 (대표님이 일
 
 ---
 
-### R. 🟡 SEMI — [허브 자동화] D-0/7/30/150/170 자동 캠페인 봇 (cron)
+### Q. 🟡 SEMI — [허브 자동화] D-0/7/30/150/170 자동 캠페인 봇 (cron)
 
 **ID**: `BL-MANAGER-AUTO-CAMPAIGN`  
 **카테고리**: infra  

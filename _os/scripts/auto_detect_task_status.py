@@ -322,6 +322,17 @@ def update_task(task: dict, intent: str, commit_sha: str, commit_msg: str, chatl
         progress = task["progress"]
         steps = progress.get("steps", [])
         if isinstance(steps, list):
+            # [BL-AUTO-DETECT-BOT-STEP-TAG-FIX 2026-05-14]
+            # label/title 자동 동기화 — 한쪽만 있어도 다른 쪽도 박음 (idempotent).
+            # 향후 모든 봇 검사·UI 렌더링이 둘 중 어느 키를 봐도 동작 보장.
+            for s in steps:
+                if isinstance(s, dict):
+                    has_label = bool(s.get("label"))
+                    has_title = bool(s.get("title"))
+                    if has_title and not has_label:
+                        s["label"] = s["title"]
+                    elif has_label and not has_title:
+                        s["title"] = s["label"]
             # 모든 매칭에서 단계 번호 수집 (중복 제거, 등장 순서 보존)
             seen_nums = set()
             step_nums = []
@@ -363,11 +374,19 @@ def update_task(task: dict, intent: str, commit_sha: str, commit_msg: str, chatl
                 #   새 룰: percent == 100 도달 순간 status=done + completed_at 박음.
                 #         dummy step (label 비어있음 또는 done이 이미 박힌 빈 list) 방지를
                 #         위해 total >= 1 + 모든 step에 label 있을 때만 적용.
+                #
+                # [BUGFIX 2026-05-14 BL-AUTO-DETECT-BOT-STEP-TAG-FIX]
+                # 이전: s.get("label") 만 검사 → 일부 BL이 title 키로만 박혀있어
+                #      label 누락 → all() False → status 자동 전환 막힘.
+                #      증상: 매니저 허브 시리즈 BL 5개 모두 percent=100인데
+                #            status=in_progress 잔존 → "이어가기" 라벨 모순.
+                # 새 룰: label 또는 title 중 하나라도 있으면 OK (호환).
+                #      향후 신규 BL은 둘 다 박는 것이 표준(가이드 별도).
                 if (
                     total >= 1
                     and progress["percent"] == 100
                     and task.get("status") != "done"
-                    and all(s.get("label") for s in steps)
+                    and all(s.get("label") or s.get("title") for s in steps)
                 ):
                     prev_status = task.get("status")
                     task["status"] = "done"

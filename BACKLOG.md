@@ -358,18 +358,6 @@ detail: 관리자 페이지 7개가 원본과 살짝 달라요 (대표님이 일
 
 ---
 
-## ⚡ P1 — [인프라] auto-detect-bot의 [step:done:N] 태그 인식 누락 진단·수정
-
-**요약**: BL-SECURITY-SIGNUP-TRIGGER 작업에서 [step:done:1]~[step:done:5] 태그를 박은 commit 4건이 push됐으나 auto-detect-bot이 step 인식 못 하고 progress.percent=0% 유지. 수동 보정으로 83% 갱신함. 봇 스크립트(자동 progress 갱신 로직) 점검 필요. status는 in
-
-- **자율성**: 🟡 SEMI
-- **예상 시간**: 미정시간
-- **카테고리**: infra
-- **상태**: in_progress
-- **ID**: `BL-AUTO-DETECT-BOT-STEP-TAG-FIX` (출처: chat:2026-05-13 BL-SECURITY-SIGNUP-TRIGGER 단계 6 검증 중 발견)
-
----
-
 ## ⚡ P1 — [허브 자동화] D-0/7/30/150/170 자동 캠페인 봇 (cron)
 
 **요약**: Manager Hub 페이지 시리즈. 좌우 분할 1개 페이지로 매니저 생애주기 관리. 사업 시작 전 필수.

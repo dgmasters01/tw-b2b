@@ -220,17 +220,7 @@ detail: 관리자 페이지 7개가 원본과 살짝 달라요 (대표님이 일
 
 ---
 
-### P. 🟡 SEMI — [인프라] auto-detect-bot의 [step:done:N] 태그 인식 누락 진단·수정
-
-**ID**: `BL-AUTO-DETECT-BOT-STEP-TAG-FIX`  
-**카테고리**: infra  
-**예상 시간**: 미정시간  
-
-**메모**: BL-SECURITY-SIGNUP-TRIGGER 작업에서 [step:done:1]~[step:done:5] 태그를 박은 commit 4건이 push됐으나 auto-detect-bot이 step 인식 못 하고 progress.percent=0% 유지. 수동 보정으로 83% 갱신함. 봇 스크립트(자동 progress 갱신 로직) 점검 필요. status는 in_progress로 전환됐으나 steps[].done 갱신 누락. 헌법 부칙 7 의무 위반 상태.
-
----
-
-### Q. 🟡 SEMI — [허브 자동화] D-0/7/30/150/170 자동 캠페인 봇 (cron)
+### P. 🟡 SEMI — [허브 자동화] D-0/7/30/150/170 자동 캠페인 봇 (cron)
 
 **ID**: `BL-MANAGER-AUTO-CAMPAIGN`  
 **카테고리**: infra  

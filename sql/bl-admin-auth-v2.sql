@@ -1,12 +1,32 @@
 -- ════════════════════════════════════════════════════════════════
 -- BL-ADMIN-AUTH-V2 — 5단계 권한 시스템 + 초대 + 활동 이력
 -- ════════════════════════════════════════════════════════════════
--- 결정 (D-015):
+--
+-- 🚨🚨🚨 DEPRECATED — 절대 재실행 금지 (BL-ADMIN-AUTH-V2-BACKFILL-DISARM, 2026-05-14)
+--
+-- 이 파일은 2026-04 초기 설계로 박은 SQL입니다.
+-- 그 사이 보안 정책이 변경됐습니다:
+--
+--   변경 ⑤ (구):  manager: 자유 가입 (signup.html에서 auto role='manager')
+--   변경 ⑤ (신):  manager: 초대 토큰을 통해서만 박힘 (BL-SECURITY-SIGNUP-TRIGGER, 2026-05-13)
+--
+-- 이 파일을 그대로 재실행하면 8번 백필 섹션이 auth.users 전체를
+-- admins 테이블에 manager로 박아 넣어, 호텔 매니저 고객(leejifilm/joylife8760 등)이
+-- 다시 admin 콘솔에 접근 가능해집니다. = 보안 사고 재발 100%.
+--
+-- 안전한 재참조 방법:
+--   • 본 파일은 "참조 전용" — 새 환경 셋업 시에도 그대로 실행하지 말 것
+--   • 8번 백필 섹션(387~392라인)은 이미 SQL 주석(/* ... */)으로 무력화됨
+--   • 트리거 함수(handle_new_user)는 BL-SECURITY-SIGNUP-TRIGGER가 라이브 재정의
+--   • 새 환경 셋업이 필요하면 sql/bl-security-signup-trigger.sql 을 정본으로 사용
+--
+-- ════════════════════════════════════════════════════════════════
+-- 결정 (D-015) — 원본 헤더 (참조용):
 --   ① admins 테이블 확장 (단일 진실, users 신설 안 함 — 기존 is_admin() 호환)
 --   ② 5단계 role: owner / admin / staff / readonly / manager
 --   ③ Owner: dgmasters01@gmail.com 자동 박힘 (DB 트리거 + 삼중 보호)
 --   ④ admin/staff/readonly: 초대 전용 (자체 가입 차단)
---   ⑤ manager: 자유 가입 (signup.html에서 auto role='manager')
+--   ⑤ manager: 자유 가입 → ⚠️ 폐기, 초대 전용으로 변경 (2026-05-13)
 --   ⑥ 즉시 박탈 (revoke), 30일 세션, 무제한 이력
 -- ════════════════════════════════════════════════════════════════
 
@@ -383,13 +403,28 @@ CREATE POLICY "role_log_select_admin" ON public.role_change_log
 -- ────────────────────────────────────────────────────────────────
 -- 8. 누락된 매니저 백필 — auth.users에는 있지만 admins에 없는 사용자
 -- ────────────────────────────────────────────────────────────────
-
+--
+-- 🚨 DISARMED — 2026-05-14 (BL-ADMIN-AUTH-V2-BACKFILL-DISARM)
+-- 이 백필이 BL-SECURITY-SIGNUP-TRIGGER로 정리한 4건을 다시 박는 시한폭탄이었음.
+-- 호텔 매니저 고객 가입자가 자동 admins에 들어가는 결함의 원흉.
+-- SQL 블록 주석(/* ... */)으로 영구 무력화. 재실행해도 0건 INSERT.
+--
+-- 새 환경에서 admins 시드가 필요하면 dgmasters01@gmail.com 가입 시
+-- handle_new_user 트리거(BL-SECURITY-SIGNUP-TRIGGER로 재정의됨)가
+-- 자동 owner 박음. 별도 백필 불필요.
+--
+/*
 INSERT INTO public.admins (id, email, role, is_active, created_at)
 SELECT u.id, u.email, 'manager', true, COALESCE(u.created_at, now())
 FROM auth.users u
 LEFT JOIN public.admins a ON (a.id = u.id OR a.email = u.email)
 WHERE a.id IS NULL AND u.email IS NOT NULL
 ON CONFLICT (email) DO NOTHING;
+*/
+
+-- 안전 검증 메모 (실행 안 됨):
+SELECT 'BACKFILL_DISARMED' AS status,
+       '2026-05-14 BL-ADMIN-AUTH-V2-BACKFILL-DISARM' AS note;
 
 -- ────────────────────────────────────────────────────────────────
 -- 9. updated_at 자동 갱신 (admins 기존 트리거 보존 — 있으면 skip)

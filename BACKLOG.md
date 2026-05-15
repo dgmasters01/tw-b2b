@@ -56,6 +56,18 @@
 
 ---
 
+## ⚡ P0 — [가입자 단계별 차등 화면] 결제 안 한 사람한테 시스템 노출 차단
+
+**요약**: 단계: ①가입만 함 → 호텔등록 유도 화면 ②호텔등록·미결제 → sales.html 결제유도 ③결제완료 → dashboard.html. dashboard.html 진입 시 hotels.status 확인 후 자동 redirect. BL-SALES-PAGE-BUILD가 먼저 박혀야 함.
+
+- **자율성**: 🟡 SEMI
+- **예상 시간**: 미정시간
+- **카테고리**: feature
+- **상태**: in_progress
+- **ID**: `BL-USER-STAGE-GATING` (출처: chat:2026-05-15 영업 깔때기 페이지 구축 (sales.html + 단계별 라우팅))
+
+---
+
 ## 🟢 P1 — [YouTube 더보기 단축 URL 클릭 카운트] 호텔별 진성 관심 측정 시스템
 
 **요약**: gohotel.win/h/{hotel_id} → Supabase 카운트 +1 → Agoda 어필리에이트 리디렉션. 호텔별/순위별 분리.

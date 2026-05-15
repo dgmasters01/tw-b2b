@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-15T04:57:58+00:00",
+  "updated_at": "2026-05-15T04:59:43.213400+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -14643,17 +14643,59 @@
         "BL-SECURITY-SIGNUP-TRIGGER"
       ],
       "progress": {
-        "percent": 0,
-        "steps": []
+        "percent": 60,
+        "completed_count": 3,
+        "total_count": 5,
+        "updated_at": "2026-05-15T04:59:43.213400+00:00",
+        "steps": [
+          {
+            "n": 1,
+            "label": "action_logs 통합 audit 테이블 신설 + RLS",
+            "title": "action_logs 테이블",
+            "status": "done",
+            "done": true,
+            "at": "2026-05-15T04:59:43.213400+00:00"
+          },
+          {
+            "n": 2,
+            "label": "API 3종 신설 (delete-user / change-role / re-verify) + logAdminAction 헬퍼",
+            "title": "API 3종 + audit 헬퍼",
+            "status": "done",
+            "done": true,
+            "at": "2026-05-15T04:59:43.213400+00:00"
+          },
+          {
+            "n": 3,
+            "label": "admin.html Members 탭 ⋯ 메뉴 + 작업 모달 (권한/재인증/삭제)",
+            "title": "Members 탭 ⋯ 메뉴",
+            "status": "done",
+            "done": true,
+            "at": "2026-05-15T04:59:43.213400+00:00"
+          },
+          {
+            "n": 4,
+            "label": "Hotels 탭 ⋯ 메뉴 박기 (호텔 행 → 매니저 작업)",
+            "title": "Hotels 탭 ⋯ 메뉴",
+            "status": "pending",
+            "done": false
+          },
+          {
+            "n": 5,
+            "label": "Team(Admins) 탭 + Add Team Member 흐름 + ⋯ 메뉴",
+            "title": "Team 탭 ⋯ 메뉴",
+            "status": "pending",
+            "done": false
+          }
+        ]
       },
-      "notes": "Hotels/Members/Team 각 행 옆 작업 메뉴(... 버튼) 추가. 액션: 사용자 삭제 / 권한 빼앗기 / 권한 주기 / 재인증 요청. 모든 조작 → action_logs 자동 기록. Team 페이지 '+ Add Team Member' 버튼 admin_invitations 흐름 실제 작동. API: auth-delete-user, auth-change-role(기존), auth-invite(기존) 연결.",
+      "notes": "단계 1·2·3 완료 (API 3종 + Members 탭). Hotels·Team 탭 ⋯ 메뉴는 다음 채팅. 분량 정직 끊기.",
       "biz_context_v2": {
         "지금_무슨_상황이냐면": "admin 화면에서 잘못 가입한 사람 삭제 버튼 0개. 권한 변경 UI 0개. 새 직원 admin 추가하는 Team 페이지 버튼은 있는데 admin_invitations 테이블 비어있음 — 실제 작동 안 함. 결함 발견해도 대표님이 SQL 손대야 처리 가능.",
         "왜_결정이_필요하냐면": "BL-SECURITY-SIGNUP-TRIGGER 끝나도 앞으로 또 잘못 가입한 사람 생길 수 있음. 실제 영업 직원 채용 시 admin 추가도 필요. SQL 수동 작업은 헌법 1조(대표님은 결정만) 위반.",
         "결정하면_뭐가_달라지냐면": "admin 화면 한 곳에서 모든 사용자 관리. 누가 언제 무엇을 했는지 자동 기록. 영업 직원 채용·퇴사 흐름 정상 작동."
       },
       "created_at": "2026-05-13T09:01:35.824392Z",
-      "updated_at": "2026-05-15T04:57:58+00:00",
+      "updated_at": "2026-05-15T04:59:43.213400+00:00",
       "source": "chat:2026-05-13 보안 진단",
       "target_pages": [
         "/admin.html#tab-hotels",

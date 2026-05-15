@@ -1319,6 +1319,149 @@ async function handleReVerify(req, res, serviceKey, admin) {
 }
 
 
+// =============================================================
+// [BL-ADMIN-USER-MANAGEMENT step4] handleUpdateHotelStatus
+//   호텔 status 변경 + before/after audit 자동 기록
+//   기존: admin.html에서 T.db.setHotelStatus 직접 호출 → action_logs 누락
+//   개선: 모든 status 변경이 이 API 거치게 함 → 통합 audit
+//   허용 status: pending / review / approved / rejected / paid / producing / published
+// =============================================================
+const HOTEL_STATUS_WHITELIST = ['pending', 'review', 'approved', 'rejected', 'paid', 'producing', 'published'];
+
+async function handleUpdateHotelStatus(req, res, serviceKey, admin) {
+  if (req.method !== 'POST') return res.status(405).json({ error: 'POST_required' });
+  const { hotel_id, new_status, reason } = req.body || {};
+  if (!hotel_id) return res.status(400).json({ error: 'hotel_id_required' });
+  if (!new_status) return res.status(400).json({ error: 'new_status_required' });
+  if (!HOTEL_STATUS_WHITELIST.includes(new_status)) {
+    return res.status(400).json({ error: 'invalid_status', allowed: HOTEL_STATUS_WHITELIST });
+  }
+
+  // before state
+  const beforeResp = await fetch(SUPABASE_URL + '/rest/v1/hotels?id=eq.' + encodeURIComponent(hotel_id) + '&select=id,hotel_name,status,city,country', {
+    headers: { 'Authorization': 'Bearer ' + serviceKey, 'apikey': serviceKey }
+  });
+  if (!beforeResp.ok) {
+    return res.status(500).json({ error: 'hotel_fetch_failed' });
+  }
+  const beforeRows = await beforeResp.json();
+  if (!beforeRows.length) return res.status(404).json({ error: 'hotel_not_found' });
+  const before = beforeRows[0];
+
+  // 같은 status로 변경 시도 차단 (소음 줄이기)
+  if (before.status === new_status) {
+    return res.status(200).json({ success: true, unchanged: true, status: new_status });
+  }
+
+  // PATCH
+  const patchResp = await fetch(SUPABASE_URL + '/rest/v1/hotels?id=eq.' + encodeURIComponent(hotel_id), {
+    method: 'PATCH',
+    headers: {
+      'Authorization': 'Bearer ' + serviceKey,
+      'apikey': serviceKey,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=representation'
+    },
+    body: JSON.stringify({ status: new_status, updated_at: new Date().toISOString() })
+  });
+  if (!patchResp.ok) {
+    const errBody = await patchResp.text();
+    return res.status(500).json({ error: 'patch_failed', detail: errBody });
+  }
+  const after = (await patchResp.json())[0];
+
+  return res.status(200).json({
+    success: true,
+    hotel_id,
+    hotel_name: before.hotel_name,
+    before: { status: before.status },
+    after: { status: after.status },
+    reason: reason || null
+  });
+  // ※ action_logs 자동 기록은 router의 finally 블록이 처리 (targetType=hotel, targetId=hotel_id)
+}
+
+// =============================================================
+// [BL-ADMIN-USER-MANAGEMENT step4] handleRefundHotel
+//   환불 처리 — status=paid 일 때만 가능
+//   1) hotels.status=refunded 변경
+//   2) payments 테이블에 refund 행 추가 (amount 음수)
+//   3) before/after audit 자동 기록
+// =============================================================
+async function handleRefundHotel(req, res, serviceKey, admin) {
+  if (req.method !== 'POST') return res.status(405).json({ error: 'POST_required' });
+  const { hotel_id, reason, refund_amount } = req.body || {};
+  if (!hotel_id) return res.status(400).json({ error: 'hotel_id_required' });
+  if (!reason || reason.length < 5) {
+    return res.status(400).json({ error: 'reason_required', hint: 'min 5 chars' });
+  }
+
+  // 호텔 + 결제 이력 조회
+  const hotelResp = await fetch(SUPABASE_URL + '/rest/v1/hotels?id=eq.' + encodeURIComponent(hotel_id) + '&select=id,hotel_name,status', {
+    headers: { 'Authorization': 'Bearer ' + serviceKey, 'apikey': serviceKey }
+  });
+  if (!hotelResp.ok) return res.status(500).json({ error: 'hotel_fetch_failed' });
+  const hotels = await hotelResp.json();
+  if (!hotels.length) return res.status(404).json({ error: 'hotel_not_found' });
+  const hotel = hotels[0];
+
+  // 보호: paid/producing/published 일 때만 환불 가능
+  if (!['paid', 'producing', 'published'].includes(hotel.status)) {
+    return res.status(400).json({ error: 'cannot_refund', current_status: hotel.status, hint: 'only paid/producing/published can be refunded' });
+  }
+
+  // 마지막 completed 결제 조회 (refund_amount 미지정 시 결제 금액 그대로)
+  let amount = refund_amount;
+  if (amount == null) {
+    const payResp = await fetch(SUPABASE_URL + '/rest/v1/payments?hotel_id=eq.' + encodeURIComponent(hotel_id) + '&status=eq.completed&order=created_at.desc&limit=1', {
+      headers: { 'Authorization': 'Bearer ' + serviceKey, 'apikey': serviceKey }
+    });
+    const pays = payResp.ok ? await payResp.json() : [];
+    amount = pays.length ? pays[0].amount : 200; // 기본 $200
+  }
+
+  // 1) hotels.status = refunded
+  const patchResp = await fetch(SUPABASE_URL + '/rest/v1/hotels?id=eq.' + encodeURIComponent(hotel_id), {
+    method: 'PATCH',
+    headers: { 'Authorization': 'Bearer ' + serviceKey, 'apikey': serviceKey, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ status: 'refunded', updated_at: new Date().toISOString() })
+  });
+  if (!patchResp.ok) {
+    return res.status(500).json({ error: 'hotel_status_patch_failed' });
+  }
+
+  // 2) payments에 refund 행 추가
+  const refundResp = await fetch(SUPABASE_URL + '/rest/v1/payments', {
+    method: 'POST',
+    headers: {
+      'Authorization': 'Bearer ' + serviceKey,
+      'apikey': serviceKey,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=representation'
+    },
+    body: JSON.stringify({
+      hotel_id,
+      amount: -Math.abs(amount),
+      currency: 'USD',
+      status: 'refunded',
+      payment_method: 'admin_refund',
+      notes: 'Refund issued by admin: ' + admin.email + ' — ' + reason
+    })
+  });
+  const refundRow = refundResp.ok ? (await refundResp.json())[0] : null;
+
+  return res.status(200).json({
+    success: true,
+    hotel_id,
+    hotel_name: hotel.hotel_name,
+    before: { status: hotel.status },
+    after: { status: 'refunded' },
+    refund: refundRow,
+    reason
+  });
+}
+
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -1350,7 +1493,7 @@ export default async function handler(req, res) {
   }
 
   // 화이트리스트 검증을 인증보다 먼저 수행 → 디버깅 시 라우팅 문제와 인증 문제를 명확히 분리
-  const ALLOWED_ACTIONS = ['booking-upload', 'list-users', 'send-invite', 'update-match', 'start-task', 'past-video-revenue', 'manager-push', 'delete-user', 'change-role', 're-verify'];
+  const ALLOWED_ACTIONS = ['booking-upload', 'list-users', 'send-invite', 'update-match', 'start-task', 'past-video-revenue', 'manager-push', 'delete-user', 'change-role', 're-verify', 'update-hotel-status', 'refund-hotel'];
   if (!action) {
     return res.status(400).json({
       error: 'missing_action',
@@ -1417,6 +1560,12 @@ export default async function handler(req, res) {
         return actionResult;
       case 're-verify':
         actionResult = await handleReVerify(req, res, serviceKey, adminCheck);
+        return actionResult;
+      case 'update-hotel-status':
+        actionResult = await handleUpdateHotelStatus(req, res, serviceKey, adminCheck);
+        return actionResult;
+      case 'refund-hotel':
+        actionResult = await handleRefundHotel(req, res, serviceKey, adminCheck);
         return actionResult;
       default:
         // unreachable: 위에서 화이트리스트로 이미 차단됨

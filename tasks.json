@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-15T07:34:29+00:00",
+  "updated_at": "2026-05-15T08:11:38.134962+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -12,16 +12,16 @@
     "SOLO_WORK_QUEUE.md"
   ],
   "stats": {
-    "total": 223,
+    "total": 226,
     "done": 166,
     "in_progress": 2,
-    "pending": 38,
+    "pending": 41,
     "blocked": 10,
     "autonomous_ready": 35,
     "todo": 0,
     "cancelled": 0,
     "updated_at": "2026-05-15T04:44:10.218Z",
-    "last_recalc": "2026-05-15T07:16:16.447433+00:00"
+    "last_recalc": "2026-05-15T08:11:38.134962+00:00"
   },
   "tasks": [
     {
@@ -15658,6 +15658,193 @@
       ],
       "completed_at": "2026-05-15T07:16:16.447433+00:00",
       "source": "chat:2026-05-15 영업 깔때기 페이지 구축 (sales.html + 단계별 라우팅)"
+    },
+    {
+      "id": "BL-PAGE-ROLES-SPLIT",
+      "title": "[페이지 역할 분리 헌법화] 시스템 완성도 vs admin.html 역할 명확화",
+      "category": "infra",
+      "priority": "P0",
+      "size": "small",
+      "status": "pending",
+      "autoOK": true,
+      "requireApproval": false,
+      "source": "chat:2026-05-15 시스템 완성도 vs admin.html 역할 분리",
+      "createdAt": "2026-05-15T08:11:38.134962+00:00",
+      "updatedAt": "2026-05-15T08:11:38.134962+00:00",
+      "biz_context_v2": {
+        "지금_무슨_상황이냐면": "admin-status.html(시스템 완성도)이 사업 KPI 안내를 /admin.html#business-kpi로 가리키는데, admin.html은 로그인 페이지로 redirect되고 #business-kpi 앵커는 존재 안 함. 가짜 안내 상태.",
+        "왜_결정이_필요하냐면": "두 페이지 역할이 헌법에 안 박혀있어서 클로드가 매번 헷갈림. 대표님 그림 — 시스템 완성도=프로젝트 만드는 공사 현장 / admin.html=서비스 굴리는 운영 대시보드.",
+        "결정하면_뭐가_달라지냐면": "DECISIONS.md D-036 + _os/playbook/page-roles.md 박힘. 다음 클로드가 새 채팅에서 두 페이지 역할 0초 만에 파악. 가짜 링크 정정."
+      },
+      "notes": "1) DECISIONS.md D-036 박기 2) _os/playbook/page-roles.md 신설 3) admin-status.html 1422~1423줄 가짜 링크 정정 4) service-map.md에 두 페이지 역할 명시. 헌법(OPERATIONS_CHARTER.md)에는 한 줄도 박지 않음 — 부칙 14 200줄 강제 준수.",
+      "progress": {
+        "percent": 0,
+        "steps": [
+          {
+            "n": 1,
+            "label": "DECISIONS.md D-036 박기 — 두 페이지 역할 분리 결정",
+            "title": "D-036",
+            "status": "pending",
+            "done": false
+          },
+          {
+            "n": 2,
+            "label": "_os/playbook/page-roles.md 신설 — 운영 룰북 (시스템완성도/admin.html 무엇·언제·어떻게)",
+            "title": "playbook 신설",
+            "status": "pending",
+            "done": false
+          },
+          {
+            "n": 3,
+            "label": "admin-status.html 1422~1423줄 가짜 링크 정정 (실제 admin.html이 비어있음 안내로 교체 또는 박을 곳 표시)",
+            "title": "가짜 링크 정정",
+            "status": "pending",
+            "done": false
+          },
+          {
+            "n": 4,
+            "label": "라이브 검증 + commit + chat-log",
+            "title": "검증",
+            "status": "pending",
+            "done": false
+          }
+        ]
+      }
+    },
+    {
+      "id": "BL-ADMIN-OPERATIONS-DASHBOARD",
+      "title": "[운영 대시보드 본격 구축] admin.html을 서비스 운영의 단일 진입점으로",
+      "category": "feature",
+      "priority": "P0",
+      "size": "large",
+      "status": "pending",
+      "autoOK": true,
+      "requireApproval": true,
+      "source": "chat:2026-05-15 시스템 완성도 vs admin.html 역할 분리",
+      "createdAt": "2026-05-15T08:11:38.134962+00:00",
+      "updatedAt": "2026-05-15T08:11:38.134962+00:00",
+      "depends_on": [
+        "BL-PAGE-ROLES-SPLIT"
+      ],
+      "biz_context_v2": {
+        "지금_무슨_상황이냐면": "admin.html 라이브가 146줄짜리 로그인 페이지. 사업 KPI(매출/매니저/예약/영상) 화면 0개. Supabase 6개 테이블에 데이터는 있으나 대표님이 볼 수 있는 화면이 없음.",
+        "왜_결정이_필요하냐면": "사업이 굴러갈 때 매니저 승인·결제·환불·매출 분석을 매일 봐야 함. userPreferences '올해 많은 돈을 버는게 목표' 직결. 화면 없으면 영업 깔때기 전환율도 측정 불가.",
+        "결정하면_뭐가_달라지냐면": "admin.html이 운영 대시보드로 변신. ①사업 KPI ②매니저 관리 ③영업 깔때기 분석 ④채널별 성과 ⑤예약 분석 5박스가 박힘. 5초 폴링으로 자동 갱신."
+      },
+      "notes": "디자인 큰 방향은 대표님 승인 필요. 클로드 추천 5박스 구조: ①사업 KPI(매출·매니저·영상·예약) ②매니저 관리(승인·거절·환불) ③영업 깔때기 분석(가입→심사→승인→결제→게시) ④채널별 성과 ⑤예약 분석. Aurora v2 디자인. 데이터: hotels/payments/videos/bookings/hotel_status_history/admin_notes 6개 테이블 재사용.",
+      "progress": {
+        "percent": 0,
+        "steps": [
+          {
+            "n": 1,
+            "label": "디자인 큰 방향 결정 (대표님 승인) — 5박스 구조 + 우선순위 + 어떤 박스 먼저",
+            "title": "디자인 결정",
+            "status": "pending",
+            "done": false
+          },
+          {
+            "n": 2,
+            "label": "/api/business-kpi.js 신설 — Supabase 6개 테이블 집계 엔드포인트",
+            "title": "API 박기",
+            "status": "pending",
+            "done": false
+          },
+          {
+            "n": 3,
+            "label": "admin.html 사업 KPI 박스 박기 (5초 폴링 + Aurora 디자인)",
+            "title": "사업 KPI",
+            "status": "pending",
+            "done": false
+          },
+          {
+            "n": 4,
+            "label": "매니저 관리 박스 (승인·거절·환불 버튼)",
+            "title": "매니저 관리",
+            "status": "pending",
+            "done": false
+          },
+          {
+            "n": 5,
+            "label": "영업 깔때기 분석 박스 (전환율 표시)",
+            "title": "깔때기",
+            "status": "pending",
+            "done": false
+          },
+          {
+            "n": 6,
+            "label": "채널별 성과 + 예약 분석 박스",
+            "title": "채널·예약",
+            "status": "pending",
+            "done": false
+          },
+          {
+            "n": 7,
+            "label": "라이브 검증 + commit + chat-log",
+            "title": "검증",
+            "status": "pending",
+            "done": false
+          }
+        ]
+      }
+    },
+    {
+      "id": "BL-SYSTEM-MANUAL-AUTOGEN",
+      "title": "[시스템 매뉴얼 자동 생성] 시스템 완성도 안에 다음 클로드를 위한 시스템 매뉴얼 자동 박기",
+      "category": "infra",
+      "priority": "P1",
+      "size": "medium",
+      "status": "pending",
+      "autoOK": true,
+      "requireApproval": false,
+      "source": "chat:2026-05-15 시스템 완성도 vs admin.html 역할 분리",
+      "createdAt": "2026-05-15T08:11:38.134962+00:00",
+      "updatedAt": "2026-05-15T08:11:38.134962+00:00",
+      "biz_context_v2": {
+        "지금_무슨_상황이냐면": "_os/service-map.md가 부분 박혀있으나 다음 클로드가 새 채팅에서 사업 구조를 0초로 파악할 만큼 충분치 않음. 대표님 인사이트: '시스템 완성도 안에 매뉴얼이 박혀야 다음 클로드가 추가 개발·에러 보수 가능'.",
+        "왜_결정이_필요하냐면": "헌법 11대 원칙 6번 'AI 가독성' 정신 그대로. 시스템이 커질수록 매뉴얼 없으면 클로드가 헌법·playbook·코드 fetch 폭주.",
+        "결정하면_뭐가_달라지냐면": "service-map.md가 본격 매뉴얼로 확장 — ①기능 인벤토리 ②위치 지도 ③데이터 연결도(테이블·API) ④자동화 인벤토리(봇·워크플로) ⑤의존성 그래프. 시스템 완성도 페이지에서 1클릭으로 열림. 새 파일 박힐 때마다 자동 갱신."
+      },
+      "notes": "service-map.md 확장 + 자동 갱신 봇 (signup-trigger 패턴 따라 GitHub Actions push 시 자동 재생성). 매뉴얼 형식: 사람 + AI 둘 다 읽기 좋게 (헌법 원칙 6).",
+      "progress": {
+        "percent": 0,
+        "steps": [
+          {
+            "n": 1,
+            "label": "매뉴얼 5섹션 그림 결정 (대표님 확인)",
+            "title": "그림 결정",
+            "status": "pending",
+            "done": false
+          },
+          {
+            "n": 2,
+            "label": "_os/service-map.md 5섹션 확장",
+            "title": "매뉴얼 박기",
+            "status": "pending",
+            "done": false
+          },
+          {
+            "n": 3,
+            "label": "자동 갱신 봇 신설 (.github/workflows/system-manual-rebuild.yml)",
+            "title": "자동 갱신 봇",
+            "status": "pending",
+            "done": false
+          },
+          {
+            "n": 4,
+            "label": "시스템 완성도 페이지에서 매뉴얼 1클릭 열기 박기",
+            "title": "진입점",
+            "status": "pending",
+            "done": false
+          },
+          {
+            "n": 5,
+            "label": "라이브 검증 + commit + chat-log",
+            "title": "검증",
+            "status": "pending",
+            "done": false
+          }
+        ]
+      }
     }
   ]
 }

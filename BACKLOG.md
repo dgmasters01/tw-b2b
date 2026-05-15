@@ -68,6 +68,30 @@
 
 ---
 
+## 🟡 P0 — [페이지 역할 분리 헌법화] 시스템 완성도 vs admin.html 역할 명확화
+
+**요약**: 1) DECISIONS.md D-036 박기 2) _os/playbook/page-roles.md 신설 3) admin-status.html 1422~1423줄 가짜 링크 정정 4) service-map.md에 두 페이지 역할 명시. 헌법(OPERATIONS_CHARTER.md)에는 한 줄도 박지 않음 — 부칙 14 200줄 강제 준수.
+
+- **자율성**: 🟡 SEMI
+- **예상 시간**: 미정시간
+- **카테고리**: infra
+- **상태**: pending
+- **ID**: `BL-PAGE-ROLES-SPLIT` (출처: chat:2026-05-15 시스템 완성도 vs admin.html 역할 분리)
+
+---
+
+## 🟡 P0 — [운영 대시보드 본격 구축] admin.html을 서비스 운영의 단일 진입점으로
+
+**요약**: 디자인 큰 방향은 대표님 승인 필요. 클로드 추천 5박스 구조: ①사업 KPI(매출·매니저·영상·예약) ②매니저 관리(승인·거절·환불) ③영업 깔때기 분석(가입→심사→승인→결제→게시) ④채널별 성과 ⑤예약 분석. Aurora v2 디자인. 데이터: hotels/payments/videos/bookings/hotel_status_history/admin_no
+
+- **자율성**: 🟡 SEMI
+- **예상 시간**: 미정시간
+- **카테고리**: feature
+- **상태**: pending
+- **ID**: `BL-ADMIN-OPERATIONS-DASHBOARD` (출처: chat:2026-05-15 시스템 완성도 vs admin.html 역할 분리)
+
+---
+
 ## 🟢 P1 — [YouTube 더보기 단축 URL 클릭 카운트] 호텔별 진성 관심 측정 시스템
 
 **요약**: gohotel.win/h/{hotel_id} → Supabase 카운트 +1 → Agoda 어필리에이트 리디렉션. 호텔별/순위별 분리.
@@ -367,6 +391,18 @@ detail: 관리자 페이지 7개가 원본과 살짝 달라요 (대표님이 일
 - **카테고리**: ops
 - **상태**: pending
 - **ID**: `BL-PRELAUNCH-CLEANUP` (출처: chat:2026-05-13 보안 진단)
+
+---
+
+## 🟡 P1 — [시스템 매뉴얼 자동 생성] 시스템 완성도 안에 다음 클로드를 위한 시스템 매뉴얼 자동 박기
+
+**요약**: service-map.md 확장 + 자동 갱신 봇 (signup-trigger 패턴 따라 GitHub Actions push 시 자동 재생성). 매뉴얼 형식: 사람 + AI 둘 다 읽기 좋게 (헌법 원칙 6).
+
+- **자율성**: 🟡 SEMI
+- **예상 시간**: 미정시간
+- **카테고리**: infra
+- **상태**: pending
+- **ID**: `BL-SYSTEM-MANUAL-AUTOGEN` (출처: chat:2026-05-15 시스템 완성도 vs admin.html 역할 분리)
 
 ---
 

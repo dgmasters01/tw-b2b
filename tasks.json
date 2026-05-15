@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-15T06:09:33+00:00",
+  "updated_at": "2026-05-15T06:10:11.838843+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -14695,7 +14695,7 @@
         "결정하면_뭐가_달라지냐면": "admin 화면 한 곳에서 모든 사용자 관리. 누가 언제 무엇을 했는지 자동 기록. 영업 직원 채용·퇴사 흐름 정상 작동."
       },
       "created_at": "2026-05-13T09:01:35.824392Z",
-      "updated_at": "2026-05-15T06:09:33+00:00",
+      "updated_at": "2026-05-15T05:01:02+00:00",
       "source": "chat:2026-05-13 보안 진단",
       "target_pages": [
         "/admin.html#tab-hotels",
@@ -14725,13 +14725,6 @@
           "by": "auto-detect-bot",
           "commit": "7e6265b",
           "note": "docs(BL-ADMIN-USER-MANAGEMENT): chat-log Week 1 박음 — API 3종 + action_logs + Members 탭 [변경사유: 부칙 15 chat-log 의무]"
-        },
-        {
-          "at": "2026-05-15T06:09:33+00:00",
-          "event": "진행 중 commit 추가",
-          "by": "auto-detect-bot",
-          "commit": "3ea92c3",
-          "note": "fix(BL-ADMIN-USER-MANAGEMENT): 사용자 작업 모달 한글화 — admin/staff/readonly/manager → 최고관리자/일반관리자/조회전용/가입자 + 개발자 언어(auth.users/a"
         }
       ]
     },
@@ -15458,6 +15451,132 @@
         }
       ],
       "completed_at": "2026-05-15T03:04:43.143601+00:00"
+    },
+    {
+      "id": "BL-USER-STAGE-GATING",
+      "title": "[가입자 단계별 차등 화면] 결제 안 한 사람한테 시스템 노출 차단",
+      "category": "feature",
+      "priority": "P0",
+      "size": "large",
+      "status": "pending",
+      "autoOK": true,
+      "requireApproval": false,
+      "createdAt": "2026-05-15T06:10:11.838843+00:00",
+      "updatedAt": "2026-05-15T06:10:11.838843+00:00",
+      "depends_on": [
+        "BL-SALES-PAGE-BUILD"
+      ],
+      "biz_context_v2": {
+        "지금_무슨_상황이냐면": "지금 dashboard.html이 가입한 모든 사람에게 시스템 전체를 보여줌. 결제 안 한 사람도 매니저 시스템(예약·분석·CS 등) 다 볼 수 있어서 결제할 이유가 약해짐.",
+        "왜_결정이_필요하냐면": "영업 깔때기가 새는 핵심 결함. 결제 안 한 사람은 결제 유도 페이지(sales.html)만 봐야 하고, 결제 완료자만 시스템 전체 접근 가능하게 막아야 함.",
+        "결정하면_뭐가_달라지냐면": "결제 안 한 사람이 dashboard 직접 접근해도 자동으로 sales.html로 redirect됨. 결제 유도 화면을 강제 노출. 결제 전환율 상승 기대."
+      },
+      "notes": "단계: ①가입만 함 → 호텔등록 유도 화면 ②호텔등록·미결제 → sales.html 결제유도 ③결제완료 → dashboard.html. dashboard.html 진입 시 hotels.status 확인 후 자동 redirect. BL-SALES-PAGE-BUILD가 먼저 박혀야 함.",
+      "progress": {
+        "percent": 0,
+        "steps": [
+          {
+            "n": 1,
+            "label": "dashboard.html 라이브 현재 흐름 분석 + 라우팅 결함 진단",
+            "title": "현재 dashboard 분석",
+            "status": "pending",
+            "done": false
+          },
+          {
+            "n": 2,
+            "label": "dashboard.html 진입 시 hotels.status 확인 → 미결제는 sales.html로 redirect",
+            "title": "redirect 라우팅 박기",
+            "status": "pending",
+            "done": false
+          },
+          {
+            "n": 3,
+            "label": "호텔 미등록자는 hotel-info.html로 redirect (status=pending 이전 상태)",
+            "title": "호텔 미등록자 라우팅",
+            "status": "pending",
+            "done": false
+          },
+          {
+            "n": 4,
+            "label": "결제 완료자만 dashboard 전체 접근 + 미결제자 직접 URL 입력 차단",
+            "title": "차단 가드",
+            "status": "pending",
+            "done": false
+          },
+          {
+            "n": 5,
+            "label": "각 단계 테스트 매니저로 라이브 검증 + commit + chat-log",
+            "title": "라이브 검증",
+            "status": "pending",
+            "done": false
+          }
+        ]
+      }
+    },
+    {
+      "id": "BL-SALES-PAGE-BUILD",
+      "title": "[결제 유도 영업 페이지 신설] sales.html — 호텔 등록·결제 전 매니저가 보는 화면",
+      "category": "feature",
+      "priority": "P0",
+      "size": "large",
+      "status": "pending",
+      "autoOK": true,
+      "requireApproval": true,
+      "createdAt": "2026-05-15T06:10:11.838843+00:00",
+      "updatedAt": "2026-05-15T06:10:11.838843+00:00",
+      "biz_context_v2": {
+        "지금_무슨_상황이냐면": "sales.html이 pages-meta.mjs에 planned로 등록만 되어있고 실제 파일 없음. 결제 안 한 매니저들이 봐야 할 영업 페이지가 비어있는 상태.",
+        "왜_결정이_필요하냐면": "영업 시작하려면 이 페이지가 반드시 박혀야 함. BL-USER-STAGE-GATING의 핵심 의존 페이지.",
+        "결정하면_뭐가_달라지냐면": "결제 안 한 매니저가 이 페이지에서 ①6언어 채널 가치 ②6개월 보장 ③별도 트래픽 송출 ④$200 1회 결제 등을 보고 PayPal 결제 버튼 클릭 가능."
+      },
+      "notes": "index.html(public)의 가치 어필을 매니저용으로 재구성. 본인 호텔명 노출, 등록 호텔 결제 시점 stat, 다른 호텔 영상 샘플 등. Aurora 디자인 시스템 사용. PayPal 결제 버튼 → status=paid 전환. 디자인 큰 방향은 대표님 승인 필요.",
+      "progress": {
+        "percent": 0,
+        "steps": [
+          {
+            "n": 1,
+            "label": "디자인 큰 방향 결정 (대표님 승인) — index.html 톤 그대로 vs 신규 톤",
+            "title": "디자인 방향 결정",
+            "status": "pending",
+            "done": false
+          },
+          {
+            "n": 2,
+            "label": "sales.html 골격 + 6언어 채널 가치 어필 + 가격 + 보장 박스",
+            "title": "페이지 골격",
+            "status": "pending",
+            "done": false
+          },
+          {
+            "n": 3,
+            "label": "본인 호텔명 동적 표시 + 호텔 정보 미니 카드",
+            "title": "동적 컨텐츠",
+            "status": "pending",
+            "done": false
+          },
+          {
+            "n": 4,
+            "label": "PayPal 결제 버튼 연결 (기존 API 재활용)",
+            "title": "PayPal 결제 연결",
+            "status": "pending",
+            "done": false
+          },
+          {
+            "n": 5,
+            "label": "다른 호텔 영상 샘플 갤러리 (영업 자료)",
+            "title": "영상 샘플 갤러리",
+            "status": "pending",
+            "done": false
+          },
+          {
+            "n": 6,
+            "label": "라이브 검증 + commit + chat-log",
+            "title": "라이브 검증",
+            "status": "pending",
+            "done": false
+          }
+        ]
+      }
     }
   ]
 }

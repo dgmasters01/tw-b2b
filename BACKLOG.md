@@ -32,18 +32,6 @@
 
 ---
 
-## ⚡ P0 — [자동] 갤러리 — 사용자 흐름·카테고리·빈 페이지 표시 박기
-
-**요약**: 관련 발견: pages-meta.mjs에 audience 필드(public/manager/admin)는 있지만 갤러리에서 사용 안 함. flow 필드 + flowOrder 숫자 추가 필요. 빠진 페이지(sales.html / marketing.html 등)는 status: 'planned'로 등록되어 있으나 흐름 안에서의 위치 표시가 약함. 작업 시 BUS
-
-- **자율성**: 🟡 SEMI
-- **예상 시간**: 미정시간
-- **카테고리**: feature
-- **상태**: in_progress
-- **ID**: `BL-GALLERY-FLOW-COMPLETENESS` (출처: 대표님 통찰 (2026-05-12) — 갤러리에 페이지는 다 있는데 흐름 순서·카테고리·빠진 곳 표시가 없어 매니저 가입 흐름 따라가기 어려움)
-
----
-
 ## 🟡 P0 — [신규 매니저 가입 시 누적 매출 표시] D-035 3구간 임계값 분기 노출
 
 **요약**: signup.html 호텔 입력 직후 백그라운드 매칭 → verify-email 또는 sales.html에서 표시. $1,000+ 강력 / $200~999 부드러움 / <$200 숨김.

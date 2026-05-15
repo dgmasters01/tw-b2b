@@ -2814,7 +2814,11 @@ body{margin:0;background:var(--bg,#0A0A0F);font-family:var(--sans,'Inter','Noto 
       html += '<td>' + (h.star_rating ? T.fmt.stars(h.star_rating) : '-') + '</td>';
       html += '<td>' + (h.daily_rate ? T.fmt.money(h.daily_rate, h.currency) : '-') + '</td>';
       html += '<td>' + T.fmt.date(h.created_at) + '</td>';
-      html += '<td><button class="ad-btn ad-btn-primary" data-hotel-id="' + esc(h.id) + '">View</button></td>';
+      // [BL-ADMIN-USER-MANAGEMENT step4 2026-05-15] Actions = View + ⋯ 빠른 작업 메뉴
+      html += '<td style="white-space:nowrap">';
+      html += '<button class="ad-btn ad-btn-primary" data-hotel-id="' + esc(h.id) + '" style="margin-right:4px">View</button>';
+      html += '<button class="ad-btn ad-hm-menu" data-hotel-menu-id="' + esc(h.id) + '" data-hotel-status="' + esc(h.status || '') + '" data-hotel-name="' + esc(h.hotel_name || '') + '" data-manager-email="' + esc(h._resolvedManagerEmail || '') + '" data-manager-name="' + esc(h._resolvedManagerName || '') + '" style="font-size:13px;padding:4px 10px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);color:#cbd5e1;border-radius:5px;cursor:pointer">⋯</button>';
+      html += '</td>';
       html += '</tr>';
     });
 
@@ -2827,6 +2831,146 @@ body{margin:0;background:var(--bg,#0A0A0F);font-family:var(--sans,'Inter','Noto 
         openHotelModal(id);
       });
     });
+
+    // [BL-ADMIN-USER-MANAGEMENT step4] ⋯ 메뉴 클릭 핸들러
+    document.querySelectorAll('[data-hotel-menu-id]').forEach(function(btn){
+      btn.addEventListener('click', function(e){
+        e.stopPropagation();
+        openHotelQuickMenu({
+          id: btn.getAttribute('data-hotel-menu-id'),
+          status: btn.getAttribute('data-hotel-status'),
+          name: btn.getAttribute('data-hotel-name'),
+          managerEmail: btn.getAttribute('data-manager-email'),
+          managerName: btn.getAttribute('data-manager-name')
+        });
+      });
+    });
+  }
+
+  // [BL-ADMIN-USER-MANAGEMENT step4 2026-05-15] 호텔 행 ⋯ 빠른 작업 모달
+  //   상황별 액션 분기:
+  //     pending/review → Approve / Reject
+  //     approved       → Mark Paid (호텔이 결제했다고 어드민이 수동 표시)
+  //     paid           → Start Production / Refund
+  //     producing      → Mark Published / Refund
+  //     published      → Refund (드물지만 환불 가능)
+  //     rejected/refunded → Reopen to pending
+  //   모든 액션:
+  //     - 공통: View Manager (매니저 이메일로 가입자 탭 점프) — 항상 표시
+  //     - status 변경은 /api/admin?action=update-hotel-status (audit 자동)
+  //     - refund는 /api/admin?action=refund-hotel (audit 자동 + payments 음수 행)
+  function openHotelQuickMenu(h){
+    var modal = document.getElementById('hotel-quick-modal');
+    if (!modal){
+      // 모달 1회만 박음 (페이지 진입 후 캐시)
+      modal = document.createElement('div');
+      modal.id = 'hotel-quick-modal';
+      modal.className = 'ad-modal';
+      modal.innerHTML = '<div class="ad-modal-card" style="max-width:480px"><div class="ad-modal-head"><div class="ad-modal-title" id="hqm-title">Hotel quick action</div><button class="ad-modal-close" id="hqm-close">×</button></div><div class="ad-modal-body" id="hqm-body"></div></div>';
+      document.body.appendChild(modal);
+      modal.addEventListener('click', function(e){ if (e.target === modal) modal.classList.remove('show'); });
+      document.getElementById('hqm-close').addEventListener('click', function(){ modal.classList.remove('show'); });
+    }
+
+    document.getElementById('hqm-title').textContent = (h.name || 'Hotel') + ' — quick action';
+    var s = (h.status || '').toLowerCase();
+    var html = '<div style="color:#94a3b8;font-size:12.5px;margin-bottom:14px">Status: <span style="color:#cbd5e1;font-weight:500">' + esc(s) + '</span>'
+             + ' · Manager: <span style="color:#cbd5e1">' + esc(h.managerEmail || '-') + '</span></div>';
+
+    // 액션 버튼들 — status별 분기
+    html += '<div style="display:grid;gap:8px">';
+    if (s === 'pending' || s === 'review'){
+      html += hqmBtn('approved', '✅ Approve', '#16a34a', h);
+      html += hqmBtn('rejected', '✕ Reject', '#dc2626', h);
+    } else if (s === 'approved'){
+      html += hqmBtn('paid', '💳 Mark as Paid', '#7c3aed', h);
+      html += hqmBtn('pending', '↶ Revert to Pending', '#64748b', h);
+    } else if (s === 'paid'){
+      html += hqmBtn('producing', '▶ Start Production', '#0ea5e9', h);
+      html += hqmRefundBtn(h);
+    } else if (s === 'producing'){
+      html += hqmBtn('published', '📺 Mark as Published', '#16a34a', h);
+      html += hqmRefundBtn(h);
+    } else if (s === 'published'){
+      html += hqmRefundBtn(h);
+    } else if (s === 'rejected' || s === 'refunded'){
+      html += hqmBtn('pending', '↶ Reopen to Pending', '#64748b', h);
+    }
+
+    // 공통: View Manager (매니저 이메일로 가입자 탭 점프)
+    if (h.managerEmail){
+      html += '<button class="ad-btn" data-jump-manager="' + esc(h.managerEmail) + '" style="background:rgba(124,58,237,.18);color:#c4b5fd;border:1px solid rgba(124,58,237,.4);padding:9px 14px;border-radius:6px;cursor:pointer;font-size:13px;text-align:left">👤 View Manager — ' + esc(h.managerEmail) + '</button>';
+    }
+    html += '</div>';
+    document.getElementById('hqm-body').innerHTML = html;
+    modal.classList.add('show');
+
+    // 액션 위임
+    document.querySelectorAll('#hqm-body [data-hqm-action]').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var newStatus = btn.getAttribute('data-hqm-action');
+        var hid = btn.getAttribute('data-hqm-hid');
+        if (!confirm('Change status to: ' + newStatus + '?')) return;
+        hqmCallApi('update-hotel-status', { hotel_id: hid, new_status: newStatus, reason: 'admin quick action from Hotels tab' });
+      });
+    });
+    var refundBtn = document.querySelector('#hqm-body [data-hqm-refund]');
+    if (refundBtn){
+      refundBtn.addEventListener('click', function(){
+        var hid = refundBtn.getAttribute('data-hqm-refund');
+        var reason = prompt('Refund reason (min 5 chars):');
+        if (!reason || reason.length < 5){ alert('Reason too short.'); return; }
+        if (!confirm('Issue refund for this hotel?\nStatus → refunded\npayments table will record a negative row.')) return;
+        hqmCallApi('refund-hotel', { hotel_id: hid, reason: reason });
+      });
+    }
+    var jumpBtn = document.querySelector('#hqm-body [data-jump-manager]');
+    if (jumpBtn){
+      jumpBtn.addEventListener('click', function(){
+        var email = jumpBtn.getAttribute('data-jump-manager');
+        modal.classList.remove('show');
+        // Members 탭으로 점프 + 검색
+        var membersTab = document.querySelector('[data-tab="members"]');
+        if (membersTab){ membersTab.click(); }
+        // 검색 박스에 이메일 박기 (있으면)
+        setTimeout(function(){
+          var sb = document.getElementById('members-search') || document.querySelector('#tab-members input[type="search"]');
+          if (sb){ sb.value = email; sb.dispatchEvent(new Event('input', {bubbles:true})); }
+        }, 200);
+      });
+    }
+  }
+
+  function hqmBtn(newStatus, label, color, h){
+    return '<button class="ad-btn" data-hqm-action="' + esc(newStatus) + '" data-hqm-hid="' + esc(h.id) + '" style="background:' + color + ';color:#fff;border:none;padding:9px 14px;border-radius:6px;cursor:pointer;font-size:13px;text-align:left;font-weight:500">' + label + '</button>';
+  }
+
+  function hqmRefundBtn(h){
+    return '<button class="ad-btn" data-hqm-refund="' + esc(h.id) + '" style="background:#b91c1c;color:#fff;border:none;padding:9px 14px;border-radius:6px;cursor:pointer;font-size:13px;text-align:left;font-weight:500">💸 Issue Refund</button>';
+  }
+
+  async function hqmCallApi(action, body){
+    var modal = document.getElementById('hotel-quick-modal');
+    try {
+      var tokenFn = (typeof getAdminToken === 'function') ? getAdminToken : (T && T.auth && T.auth.getToken);
+      var token = tokenFn ? await tokenFn() : null;
+      if (!token){ T.toast('No admin token', true); return; }
+      var resp = await fetch('/api/admin?action=' + encodeURIComponent(action), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify(body)
+      });
+      var data = await resp.json();
+      if (!resp.ok || data.error){
+        T.toast('Failed: ' + (data.error || resp.status), true);
+        return;
+      }
+      T.toast('✅ ' + action + ' done');
+      if (modal) modal.classList.remove('show');
+      loadAll();
+    } catch (e){
+      T.toast('Error: ' + e.message, true);
+    }
   }
 
   function openHotelModal(hotelId){

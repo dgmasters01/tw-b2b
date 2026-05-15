@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TravelWinners B2B — Activate Listing</title>
+<meta name="description" content="Activate your hotel across 8 YouTube channels in 6 languages. One $200 payment, 6-month booking guarantee.">
+<link rel="stylesheet" href="shared.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="shared.js"></script>
+<style>
+/* ===== sales.html — v2 Aurora pre-payment styles ===== */
+/* shared.css v2 가 base 톤·컬러·폰트·aurora-bg·glass-card·btn 모두 제공 */
+
+/* ---------- Topbar ---------- */
+.sl-topbar{
+  position:sticky;top:0;z-index:900;
+  background:rgba(10,10,15,.72); backdrop-filter:blur(16px) saturate(140%);
+  -webkit-backdrop-filter:blur(16px) saturate(140%);
+  border-bottom:1px solid var(--line);
+  padding:0 32px; display:flex; align-items:center; justify-content:space-between;
+  height:64px;
+}
+.sl-logo{display:flex;align-items:center;gap:12px;text-decoration:none}
+.sl-logo-icon{
+  width:32px;height:32px;border-radius:8px;
+  background:var(--aurora);
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:800;color:#fff;
+  box-shadow:var(--glow-p);
+  font-family:var(--display);
+}
+.sl-logo-text{font-family:var(--display);font-size:16px;font-weight:700;color:var(--ink);letter-spacing:-.01em}
+.sl-nav-right{display:flex;gap:10px;align-items:center}
+.sl-user{font-size:13px;color:var(--ink-3);margin-right:6px}
+.sl-btn-out{
+  background:var(--glass); border:1px solid var(--line-2);
+  color:var(--ink-2); padding:8px 14px; border-radius:8px;
+  cursor:pointer; font-size:13px; font-family:var(--sans);
+  text-decoration:none; transition:var(--transition);
+}
+.sl-btn-out:hover{background:var(--glass-2); color:var(--ink); border-color:var(--line-3)}
+
+/* ---------- Shell ---------- */
+.sl-shell{max-width:1100px;margin:0 auto;padding:0 32px;position:relative;z-index:2}
+.sl-main{padding:48px 0 80px}
+
+.sl-h1{
+  font-family:var(--display);
+  font-size:42px;font-weight:700;color:var(--ink);
+  line-height:1.05;letter-spacing:-.025em;
+  margin:0 0 12px;
+}
+.sl-h1 em{
+  font-style:normal;font-weight:800;
+  background:var(--aurora);
+  -webkit-background-clip:text;background-clip:text;
+  color:transparent;
+}
+.sl-sub{
+  color:var(--ink-3);font-size:16px;line-height:1.6;
+  margin:0 0 36px;max-width:640px;
+}
+
+/* ---------- Loading ---------- */
+.sl-loading{
+  display:flex;flex-direction:column;align-items:center;
+  padding:80px 20px;gap:16px;color:var(--ink-3);font-size:14px;
+}
+.sl-loader{
+  display:inline-block;width:28px;height:28px;
+  border:2px solid var(--line-2); border-top-color:var(--aurora-1);
+  border-radius:50%;animation:spin .8s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ---------- Hotel info card ---------- */
+.sl-hotel-card{
+  background:var(--glass); border:1px solid var(--line-2);
+  border-radius:var(--r-lg);
+  backdrop-filter:blur(24px) saturate(140%);
+  box-shadow:var(--sh-2);
+  padding:28px 32px;margin-bottom:18px;
+  position:relative;overflow:hidden;
+}
+.sl-hotel-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--aurora-2),transparent);
+  opacity:.5;
+}
+.sl-hotel-row{
+  display:flex;justify-content:space-between;align-items:flex-start;
+  gap:20px;flex-wrap:wrap;
+}
+.sl-hotel-name{
+  font-family:var(--display);font-size:22px;font-weight:700;
+  color:var(--ink);margin:0 0 4px;letter-spacing:-.01em;
+}
+.sl-hotel-loc{font-size:13.5px;color:var(--ink-3)}
+.sl-status-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:6px 14px;border-radius:99px;
+  font-size:12px;font-weight:700;letter-spacing:.02em;
+  border:1px solid var(--line-2);
+}
+.sl-status-badge::before{
+  content:'';width:6px;height:6px;border-radius:50%;
+}
+.sl-status-pending{background:rgba(160,160,180,.12); color:var(--ink-2)}
+.sl-status-pending::before{background:var(--ink-3)}
+.sl-status-review{background:rgba(6,182,212,.14); color:#5DD8E8; border-color:rgba(6,182,212,.3)}
+.sl-status-review::before{background:#06B6D4; box-shadow:0 0 8px #06B6D4}
+.sl-status-approved{background:rgba(16,185,129,.14); color:#34D9A4; border-color:rgba(16,185,129,.32)}
+.sl-status-approved::before{background:#10B981; box-shadow:0 0 8px #10B981}
+.sl-status-rejected{background:rgba(239,68,68,.14); color:#FF7A7A; border-color:rgba(239,68,68,.3)}
+.sl-status-rejected::before{background:#EF4444; box-shadow:0 0 8px #EF4444}
+.sl-status-paid{background:rgba(124,58,237,.16); color:#B89BF5; border-color:rgba(124,58,237,.35)}
+.sl-status-paid::before{background:#7C3AED; box-shadow:0 0 8px #7C3AED}
+
+/* ---------- Progress steps ---------- */
+.sl-progress{
+  display:flex;gap:10px;margin-top:24px;
+}
+.sl-progress-step{
+  flex:1;text-align:center;font-size:11.5px;
+  color:var(--ink-4);letter-spacing:.04em;text-transform:uppercase;
+  font-weight:600;
+}
+.sl-progress-step::before{
+  content:'';display:block;width:100%;height:3px;
+  background:var(--line);margin-bottom:10px;border-radius:99px;
+  transition:var(--transition);
+}
+.sl-progress-step.done{color:var(--ink-2)}
+.sl-progress-step.done::before{background:var(--success); box-shadow:0 0 12px rgba(16,185,129,.5)}
+.sl-progress-step.active{color:var(--ink)}
+.sl-progress-step.active::before{
+  background:var(--aurora);
+  box-shadow:0 0 18px rgba(124,58,237,.6);
+}
+
+/* ---------- Pre-payment trust strip (3축: Views / Videos / Bookings) ---------- */
+.sl-trust{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:14px;
+  margin:18px 0 18px;
+}
+.sl-trust-cell{
+  background:var(--glass); border:1px solid var(--line-2);
+  border-radius:var(--r);
+  backdrop-filter:blur(16px);
+  padding:18px 20px;
+}
+.sl-trust-num{
+  font-family:var(--display);font-size:26px;font-weight:800;
+  background:var(--aurora);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  letter-spacing:-.02em;line-height:1;margin-bottom:6px;
+}
+.sl-trust-lbl{font-size:11.5px;color:var(--ink-3);letter-spacing:.04em;text-transform:uppercase;font-weight:600}
+.sl-trust-sub{font-size:12px;color:var(--ink-4);margin-top:3px}
+
+/* ---------- Channel chips (8개) ---------- */
+.sl-channels-wrap{
+  background:var(--glass); border:1px solid var(--line-2);
+  border-radius:var(--r-lg);
+  backdrop-filter:blur(20px);
+  padding:22px 24px;margin-bottom:18px;
+}
+.sl-channels-title{
+  font-size:12px;color:var(--ink-3);letter-spacing:.06em;text-transform:uppercase;
+  font-weight:700;margin-bottom:14px;
+}
+.sl-channels-title em{
+  font-style:normal;
+  background:var(--aurora);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  font-weight:800;
+}
+.sl-channels{display:flex;flex-wrap:wrap;gap:8px}
+.sl-chip{
+  display:inline-flex;align-items:center;gap:6px;
+  background:var(--glass-2); border:1px solid var(--line-2);
+  border-radius:99px;padding:6px 13px;
+  font-size:12px;color:var(--ink-2);font-weight:500;
+}
+.sl-chip-flag{font-size:11px}
+.sl-chip-lang{color:var(--ink-4);font-size:11px;margin-left:2px}
+
+/* ---------- Generic info card ---------- */
+.sl-card{
+  background:var(--glass); border:1px solid var(--line-2);
+  border-radius:var(--r-lg);
+  backdrop-filter:blur(20px) saturate(140%);
+  box-shadow:var(--sh-2);
+  padding:28px 32px;margin-bottom:18px;
+  position:relative;overflow:hidden;
+}
+.sl-card h3{
+  font-family:var(--display);font-size:18px;font-weight:700;
+  color:var(--ink);margin:0 0 8px;letter-spacing:-.01em;
+}
+.sl-card p{color:var(--ink-3);font-size:14px;line-height:1.6;margin:0}
+.sl-card.danger{border-color:rgba(239,68,68,.35)}
+.sl-card.danger h3{color:#FF8A8A}
+
+/* ---------- Payment card (Aurora premium) ---------- */
+.sl-pay-card{
+  position:relative;overflow:hidden;
+  border-radius:var(--r-lg);
+  background:linear-gradient(135deg, rgba(124,58,237,.18) 0%, rgba(236,72,153,.14) 50%, rgba(6,182,212,.16) 100%);
+  border:1px solid rgba(255,255,255,.16);
+  backdrop-filter:blur(28px) saturate(160%);
+  box-shadow:0 20px 60px rgba(124,58,237,.25), 0 0 0 1px rgba(255,255,255,.04) inset;
+  padding:36px 36px 32px;margin-bottom:18px;
+  color:var(--ink);
+}
+.sl-pay-card::before{
+  content:'';position:absolute;inset:-1px;border-radius:inherit;
+  padding:1px;
+  background:linear-gradient(135deg,rgba(124,58,237,.55),rgba(236,72,153,.4),rgba(6,182,212,.45));
+  -webkit-mask:linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;
+  pointer-events:none;
+}
+.sl-pay-glow{
+  position:absolute;width:380px;height:380px;border-radius:50%;
+  background:radial-gradient(circle, rgba(124,58,237,.45), transparent 65%);
+  top:-130px;right:-100px;filter:blur(40px);pointer-events:none;
+}
+.sl-pay-card > *:not(.sl-pay-glow){position:relative;z-index:1}
+.sl-pay-card h3{
+  font-family:var(--display);font-size:24px;font-weight:700;
+  margin:0 0 8px;letter-spacing:-.015em;color:var(--ink);
+}
+.sl-pay-tag{color:var(--ink-2);opacity:.92;margin:0 0 22px;font-size:14.5px;line-height:1.55}
+.sl-pay-amount{
+  font-family:var(--display);font-size:54px;font-weight:800;
+  background:var(--aurora);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  letter-spacing:-.03em;line-height:1;margin-bottom:6px;
+}
+.sl-pay-meta{
+  font-size:13px;color:var(--ink-3);margin-bottom:22px;
+  display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;
+}
+.sl-pay-meta span{display:inline-flex;align-items:center;gap:6px}
+.sl-pay-meta span::before{
+  content:'';width:4px;height:4px;border-radius:50%;background:var(--aurora-2);
+  box-shadow:0 0 6px var(--aurora-2);
+}
+#paypal-button-container{
+  background:rgba(255,255,255,.96);
+  border-radius:10px;padding:16px;min-height:55px;
+}
+#pay-status{
+  margin-top:14px;font-size:13px;min-height:18px;
+  color:var(--ink-2);
+}
+
+/* ---------- Buttons ---------- */
+.sl-btn{
+  display:inline-flex;align-items:center;justify-content:center;
+  padding:13px 28px;border-radius:10px;
+  font-size:14.5px;font-weight:700;cursor:pointer;border:none;
+  font-family:var(--sans);text-decoration:none;
+  transition:var(--transition);
+}
+.sl-btn-primary{
+  background:var(--aurora);color:#fff;
+  box-shadow:var(--glow-p);
+}
+.sl-btn-primary:hover{transform:translateY(-1px); box-shadow:0 0 60px rgba(124,58,237,.55)}
+
+@media (max-width:720px){
+  .sl-h1{font-size:32px}
+  .sl-trust{grid-template-columns:1fr;gap:10px}
+  .sl-pay-card{padding:28px 22px}
+  .sl-pay-amount{font-size:42px}
+  .sl-shell{padding:0 18px}
+  .sl-topbar{padding:0 18px}
+  .sl-hotel-card,.sl-card{padding:22px}
+}
+</style>
+</head>
+<body>
+
+<!-- Aurora background (v2 standard) -->
+<div class="aurora-bg" aria-hidden="true">
+  <div class="aurora-blob b1"></div>
+  <div class="aurora-blob b2"></div>
+  <div class="aurora-blob b3"></div>
+  <div class="aurora-blob b4"></div>
+</div>
+<div class="aurora-grid" aria-hidden="true"></div>
+
+<div class="sl-topbar">
+  <a href="sales.html" class="sl-logo">
+    <div class="sl-logo-icon">TW</div>
+    <div class="sl-logo-text">TravelWinners</div>
+  </a>
+  <div class="sl-nav-right">
+    <span class="sl-user" id="user-email">—</span>
+    <a href="settings.html" class="sl-btn-out">⚙ Settings</a>
+    <button class="sl-btn-out" id="btn-logout">Sign out</button>
+  </div>
+</div>
+
+<div class="sl-shell">
+  <div class="sl-main" id="sl-main">
+    <div class="sl-loading"><div class="sl-loader"></div><div>Loading…</div></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var T = window.TW;
+  var $ = T.$;
+  var currentUser = null;
+
+  // status별 redirect 라우팅 정책
+  // - 결제 후 (paid / producing / published) → marketing.html
+  // - 결제 전 (pending / review / approved / rejected) → 본 페이지 유지
+  // - 호텔 미등록 → signup-flow 또는 hotel-info.html 로
+  T.requireAuth(async function(user){
+    currentUser = user;
+    $('user-email').textContent = user.email;
+
+    var ac = await T.checkAdmin(user);
+    if (ac.is_admin) {
+      window.location.href = 'admin.html';
+      return;
+    }
+
+    var hotelResp = await T.sb
+      .from('hotels')
+      .select('*')
+      .eq('user_id', user.id)
+      .maybeSingle();
+
+    var hotel = hotelResp.data;
+    var status = hotel ? (hotel.status || 'pending') : null;
+
+    // 결제 완료 그룹은 marketing.html 로
+    if (status === 'paid' || status === 'producing' || status === 'published') {
+      window.location.href = 'marketing.html';
+      return;
+    }
+
+    renderSales(hotel, status);
+  });
+
+  $('btn-logout').addEventListener('click', T.logout);
+
+  // ---- Channel data (8 channels — memory rule 32) ----
+  var CHANNELS = [
+    { name: 'TravelWinners',   lang: 'KO', flag: '🇰🇷' },
+    { name: 'Hoteliya',        lang: 'KO', flag: '🇰🇷' },
+    { name: 'Kotel',           lang: 'EN', flag: '🌐' },
+    { name: 'HotelDot',        lang: 'KO', flag: '🇰🇷' },
+    { name: 'ホテルだ',          lang: 'JA', flag: '🇯🇵' },
+    { name: '世界就是家',        lang: 'ZH', flag: '🇹🇼' },
+    { name: 'Korea Hotel VN',  lang: 'VI', flag: '🇻🇳' },
+    { name: 'Hotelygot',       lang: 'KO', flag: '🇰🇷' }
+  ];
+
+  function renderTrust() {
+    // 3축: Views / Videos / Bookings (memory rule 32 — 구독자 수 어필 금지)
+    return ''
+      + '<div class="sl-trust">'
+      +   '<div class="sl-trust-cell">'
+      +     '<div class="sl-trust-num">9M+</div>'
+      +     '<div class="sl-trust-lbl">Total Views</div>'
+      +     '<div class="sl-trust-sub">Cumulative impressions across channels</div>'
+      +   '</div>'
+      +   '<div class="sl-trust-cell">'
+      +     '<div class="sl-trust-num">3,774</div>'
+      +     '<div class="sl-trust-lbl">Videos Produced</div>'
+      +     '<div class="sl-trust-sub">Hotel reviews shipped to date</div>'
+      +   '</div>'
+      +   '<div class="sl-trust-cell">'
+      +     '<div class="sl-trust-num">$854K</div>'
+      +     '<div class="sl-trust-lbl">Bookings Generated</div>'
+      +     '<div class="sl-trust-sub">Verified affiliate revenue</div>'
+      +   '</div>'
+      + '</div>';
+  }
+
+  function renderChannels() {
+    var chips = '';
+    for (var i = 0; i < CHANNELS.length; i++) {
+      var c = CHANNELS[i];
+      chips += '<span class="sl-chip"><span class="sl-chip-flag">' + c.flag + '</span>'
+            +  '<span>' + c.name + '</span>'
+            +  '<span class="sl-chip-lang">' + c.lang + '</span></span>';
+    }
+    return ''
+      + '<div class="sl-channels-wrap">'
+      +   '<div class="sl-channels-title">Your hotel goes live across <em>8 channels</em> in <em>6 languages</em></div>'
+      +   '<div class="sl-channels">' + chips + '</div>'
+      + '</div>';
+  }
+
+  function renderSales(hotel, status) {
+    var html = '';
+    html += '<h1 class="sl-h1">Activate your <em>listing</em></h1>';
+    html += '<p class="sl-sub">One $200 payment puts your hotel on 8 YouTube channels covering 6 languages — backed by a 6-month booking guarantee or full refund.</p>';
+
+    if (!hotel) {
+      // 호텔 미등록
+      html += '<div class="sl-card">';
+      html += '<h3>Step 1 — Register your hotel</h3>';
+      html += '<p style="margin-bottom:18px">Add your hotel information to begin the listing process. Review takes 2–3 business days.</p>';
+      html += '<a href="hotel-info.html" class="sl-btn sl-btn-primary">Register hotel →</a>';
+      html += '</div>';
+      // trust + channels still shown for context
+      html += renderTrust();
+      html += renderChannels();
+      $('sl-main').innerHTML = html;
+      return;
+    }
+
+    // status별 안내
+    var statusLabel = T.fmt.statusLabel(status, 'en');
+    var statusClass = 'sl-status-' + status;
+    html += '<div class="sl-hotel-card">';
+    html += '  <div class="sl-hotel-row">';
+    html += '    <div>';
+    html += '      <div class="sl-hotel-name">' + (hotel.hotel_name || 'Your hotel') + '</div>';
+    html += '      <div class="sl-hotel-loc">' + (hotel.city || '') + (hotel.country ? ', ' + hotel.country : '') + '</div>';
+    html += '    </div>';
+    html += '    <span class="sl-status-badge ' + statusClass + '">' + statusLabel + '</span>';
+    html += '  </div>';
+
+    // 진행 단계 시각화
+    var steps = ['Pending', 'Review', 'Approved', 'Paid'];
+    var stepStatus = ['pending', 'review', 'approved', 'paid'];
+    var statusOrder = stepStatus.indexOf(status);
+    if (statusOrder === -1) statusOrder = 0;
+    html += '  <div class="sl-progress">';
+    for (var i = 0; i < steps.length; i++) {
+      var cls = 'sl-progress-step';
+      if (i < statusOrder) cls += ' done';
+      else if (i === statusOrder) cls += ' active';
+      html += '<div class="' + cls + '">' + steps[i] + '</div>';
+    }
+    html += '  </div>';
+    html += '</div>';
+
+    // trust strip + channel chips (모든 status에서 노출 — 결제 직전 신뢰감 강화)
+    html += renderTrust();
+    html += renderChannels();
+
+    // status별 안내 카드
+    if (status === 'pending' || status === 'review') {
+      html += '<div class="sl-card">';
+      html += '<h3>Under review</h3>';
+      html += '<p>Our team is reviewing your hotel. You will be notified by email once approved — typically within 2–3 business days.</p>';
+      html += '</div>';
+    } else if (status === 'approved') {
+      html += '<div class="sl-pay-card">';
+      html += '  <div class="sl-pay-glow"></div>';
+      html += '  <h3>Approved — ready to publish</h3>';
+      html += '  <p class="sl-pay-tag">Complete the one-time payment to launch your video across all 8 channels in 6 languages.</p>';
+      html += '  <div class="sl-pay-amount">$200</div>';
+      html += '  <div class="sl-pay-meta"><span>One-time payment</span><span>6-month booking guarantee</span><span>100% refund if zero bookings</span></div>';
+      html += '  <div id="paypal-button-container"></div>';
+      html += '  <div id="pay-status"></div>';
+      html += '</div>';
+    } else if (status === 'rejected') {
+      html += '<div class="sl-card danger">';
+      html += '<h3>Application not approved</h3>';
+      html += '<p>Please contact support for next steps.</p>';
+      html += '</div>';
+    }
+
+    $('sl-main').innerHTML = html;
+
+    // PayPal Buttons 통합 (status === 'approved' 일 때만 렌더링)
+    if (status === 'approved') {
+      initPayPalButtons(hotel);
+    }
+  }
+
+  // ─────────────────────────────────────────────
+  // PayPal SDK 통합 (Phase B) — 로직 100% 보존
+  // ─────────────────────────────────────────────
+
+  var paypalSdkLoading = null;
+
+  // PayPal SDK 동적 로드 (config endpoint에서 client_id/env 받아와서)
+  function loadPayPalSdk() {
+    if (window.paypal) return Promise.resolve(window.paypal);
+    if (paypalSdkLoading) return paypalSdkLoading;
+
+    paypalSdkLoading = fetch('/api/paypal?action=config')
+      .then(function(r){ return r.json(); })
+      .then(function(cfg){
+        if (!cfg || !cfg.clientId) throw new Error('PayPal client_id not configured');
+        return new Promise(function(resolve, reject){
+          var s = document.createElement('script');
+          s.src = 'https://www.paypal.com/sdk/js?client-id=' + encodeURIComponent(cfg.clientId)
+                + '&currency=USD&intent=capture&components=buttons';
+          s.onload = function(){ resolve(window.paypal); };
+          s.onerror = function(){ reject(new Error('Failed to load PayPal SDK')); };
+          document.head.appendChild(s);
+        });
+      });
+    return paypalSdkLoading;
+  }
+
+  function setPayStatus(msg, color) {
+    var el = document.getElementById('pay-status');
+    if (!el) return;
+    el.textContent = msg || '';
+    el.style.color = color || '';
+  }
+
+  function initPayPalButtons(hotel) {
+    var container = document.getElementById('paypal-button-container');
+    if (!container) return;
+    container.innerHTML = '<div style="text-align:center;color:#888;font-size:13px;padding:14px">Loading PayPal…</div>';
+
+    loadPayPalSdk().then(function(paypal){
+      container.innerHTML = '';
+      paypal.Buttons({
+        style: { layout: 'vertical', color: 'gold', shape: 'rect', label: 'paypal', height: 45 },
+
+        // 1) 주문 생성 — 백엔드에서 가격/매니저/소유권 검증 후 PayPal Order ID 반환
+        createOrder: async function() {
+          setPayStatus('Creating order…');
+          var sess = await T.sb.auth.getSession();
+          var token = sess && sess.data && sess.data.session ? sess.data.session.access_token : '';
+          var resp = await fetch('/api/paypal?action=create-order', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + token,
+            },
+            body: JSON.stringify({ hotel_id: hotel.id }),
+          });
+          var data = await resp.json().catch(function(){ return {}; });
+          if (!resp.ok || !data.order_id) {
+            var reason = data.reason || data.error || ('HTTP ' + resp.status);
+            setPayStatus('Could not create order: ' + reason, '#FF8A8A');
+            throw new Error('create-order failed: ' + reason);
+          }
+          setPayStatus('Order ready — please complete payment in PayPal');
+          return data.order_id;
+        },
+
+        // 2) 결제 승인 — 백엔드에서 capture + payments INSERT + hotels.status='paid'
+        onApprove: async function(approval) {
+          setPayStatus('Capturing payment…');
+          var sess = await T.sb.auth.getSession();
+          var token = sess && sess.data && sess.data.session ? sess.data.session.access_token : '';
+          var resp = await fetch('/api/paypal?action=capture-order', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + token,
+            },
+            body: JSON.stringify({ order_id: approval.orderID, hotel_id: hotel.id }),
+          });
+          var data = await resp.json().catch(function(){ return {}; });
+          if (!resp.ok || !data.ok) {
+            setPayStatus('Capture failed: ' + (data.error || data.message || ('HTTP ' + resp.status)), '#FF8A8A');
+            return;
+          }
+          setPayStatus('✓ Payment successful! Redirecting to your dashboard…', '#34D9A4');
+          // 1.5초 후 marketing.html로 이동 (status가 paid로 전환됐으므로)
+          setTimeout(function(){ window.location.href = 'marketing.html'; }, 1500);
+        },
+
+        onCancel: function() {
+          setPayStatus('Payment cancelled. You can try again anytime.', '#FFB37A');
+        },
+
+        onError: function(err) {
+          console.error('PayPal Buttons error:', err);
+          setPayStatus('PayPal error — please retry or contact support.', '#FF8A8A');
+        },
+      }).render('#paypal-button-container').catch(function(err){
+        console.error('Buttons render failed:', err);
+        container.innerHTML = '<div style="color:#FF8A8A;padding:14px;font-size:13px">Could not load PayPal. Please refresh the page.</div>';
+      });
+    }).catch(function(err){
+      console.error('PayPal SDK load error:', err);
+      container.innerHTML = '<div style="color:#FF8A8A;padding:14px;font-size:13px">PayPal is temporarily unavailable. Please contact support.</div>';
+    });
+  }
+})();
+</script>
+</body>
+</html>

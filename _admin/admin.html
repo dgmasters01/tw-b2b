@@ -2859,17 +2859,21 @@ body{margin:0;background:var(--bg,#0A0A0F);font-family:var(--sans,'Inter','Noto 
   //     - 공통: View Manager (매니저 이메일로 가입자 탭 점프) — 항상 표시
   //     - status 변경은 /api/admin?action=update-hotel-status (audit 자동)
   //     - refund는 /api/admin?action=refund-hotel (audit 자동 + payments 음수 행)
+  //
+  // [HOTFIX 2026-05-15] CSS 클래스 정정:
+  //   기존: modal.className='ad-modal' + classList.add('show') → 라이브 CSS에 .ad-modal.show 룰 없어서 보이지 않음
+  //   정정: 인라인 style로 display 직접 토글 + ad-modal-overlay 패턴 사용
   function openHotelQuickMenu(h){
     var modal = document.getElementById('hotel-quick-modal');
     if (!modal){
-      // 모달 1회만 박음 (페이지 진입 후 캐시)
       modal = document.createElement('div');
       modal.id = 'hotel-quick-modal';
-      modal.className = 'ad-modal';
-      modal.innerHTML = '<div class="ad-modal-card" style="max-width:480px"><div class="ad-modal-head"><div class="ad-modal-title" id="hqm-title">Hotel quick action</div><button class="ad-modal-close" id="hqm-close">×</button></div><div class="ad-modal-body" id="hqm-body"></div></div>';
+      // 인라인 style로 overlay 박음 — 라이브 CSS 의존 안 함
+      modal.style.cssText = 'position:fixed;inset:0;background:rgba(5,5,10,.72);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;z-index:9999;padding:20px';
+      modal.innerHTML = '<div id="hqm-card" style="background:rgba(20,20,28,.94);backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,.14);border-radius:14px;max-width:480px;width:100%;padding:24px;color:#E5E5EE;box-shadow:0 24px 60px rgba(0,0,0,.6)"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px"><div id="hqm-title" style="font-size:17px;font-weight:600;color:#FAFAFA">Hotel quick action</div><button id="hqm-close" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:#cbd5e1;width:30px;height:30px;border-radius:6px;cursor:pointer;font-size:18px;line-height:1">×</button></div><div id="hqm-body"></div></div>';
       document.body.appendChild(modal);
-      modal.addEventListener('click', function(e){ if (e.target === modal) modal.classList.remove('show'); });
-      document.getElementById('hqm-close').addEventListener('click', function(){ modal.classList.remove('show'); });
+      modal.addEventListener('click', function(e){ if (e.target === modal) modal.style.display = 'none'; });
+      document.getElementById('hqm-close').addEventListener('click', function(){ modal.style.display = 'none'; });
     }
 
     document.getElementById('hqm-title').textContent = (h.name || 'Hotel') + ' — quick action';
@@ -2903,7 +2907,7 @@ body{margin:0;background:var(--bg,#0A0A0F);font-family:var(--sans,'Inter','Noto 
     }
     html += '</div>';
     document.getElementById('hqm-body').innerHTML = html;
-    modal.classList.add('show');
+    modal.style.display = 'flex';
 
     // 액션 위임
     document.querySelectorAll('#hqm-body [data-hqm-action]').forEach(function(btn){
@@ -2928,7 +2932,7 @@ body{margin:0;background:var(--bg,#0A0A0F);font-family:var(--sans,'Inter','Noto 
     if (jumpBtn){
       jumpBtn.addEventListener('click', function(){
         var email = jumpBtn.getAttribute('data-jump-manager');
-        modal.classList.remove('show');
+        modal.style.display = 'none';
         // Members 탭으로 점프 + 검색
         var membersTab = document.querySelector('[data-tab="members"]');
         if (membersTab){ membersTab.click(); }

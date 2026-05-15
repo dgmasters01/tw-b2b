@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-15T04:51:00+00:00",
+  "updated_at": "2026-05-15T04:57:58+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -14,8 +14,8 @@
   "stats": {
     "total": 221,
     "done": 165,
-    "in_progress": 0,
-    "pending": 39,
+    "in_progress": 1,
+    "pending": 38,
     "blocked": 10,
     "autonomous_ready": 36,
     "todo": 0,
@@ -14632,7 +14632,7 @@
       "category": "admin",
       "priority": "P0",
       "size": "large",
-      "status": "pending",
+      "status": "in_progress",
       "owner": "claude",
       "claude_can_auto": true,
       "approval_required": false,
@@ -14653,13 +14653,30 @@
         "결정하면_뭐가_달라지냐면": "admin 화면 한 곳에서 모든 사용자 관리. 누가 언제 무엇을 했는지 자동 기록. 영업 직원 채용·퇴사 흐름 정상 작동."
       },
       "created_at": "2026-05-13T09:01:35.824392Z",
-      "updated_at": "2026-05-13T09:01:35.824392Z",
+      "updated_at": "2026-05-15T04:57:58+00:00",
       "source": "chat:2026-05-13 보안 진단",
       "target_pages": [
         "/admin.html#tab-hotels",
         "/admin.html#tab-members",
         "/admin.html#tab-admins",
         "/api/admin"
+      ],
+      "started_at": "2026-05-15T04:57:58+00:00",
+      "progress_warning": {
+        "code": "MISSING_PROGRESS_STEPS",
+        "rule": "부칙 7 — 모든 작업은 progress.steps 박은 후 시작",
+        "detected_at": "2026-05-15T04:57:58+00:00",
+        "detected_by_commit": "1c1e114",
+        "message": "in_progress 진입했으나 progress.steps 비어있음. tasks.json에서 progress.steps 박은 후 다음 commit에 [step:done:N] 태그."
+      },
+      "history": [
+        {
+          "at": "2026-05-15T04:57:58+00:00",
+          "event": "진행 중 진입 (auto-detected) ⚠️ 부칙 7 위반 — progress.steps 미박힘",
+          "by": "auto-detect-bot",
+          "commit": "1c1e114",
+          "note": "feat(BL-ADMIN-USER-MANAGEMENT): Members 탭 ⋯ 작업 메뉴 박음 + 권한 변경/재인증/삭제 모달 (Hotels·Team 탭은 다음 단계) [step:done:3] [변경사유: 가입자 행"
+        }
       ]
     },
     {

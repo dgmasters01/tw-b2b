@@ -5139,13 +5139,13 @@ function rDayHotels(){
       <!-- 작업 선택 화면 (기본) -->
       <div id="um-actions" style="display:flex;flex-direction:column;gap:8px;">
         <button class="um-action-btn" data-action="change-role" style="text-align:left;padding:14px 16px;background:rgba(99,102,241,.08);border:1px solid rgba(99,102,241,.3);border-radius:8px;color:#a5b4fc;cursor:pointer;font-size:14px;">
-          🔑 <strong>권한 주기/빼앗기</strong> — admin/staff/readonly/manager 변경 또는 비활성화
+          🔑 <strong>권한 주기/빼앗기</strong> — 최고관리자 / 일반관리자 / 조회전용 / 가입자 권한 변경 또는 비활성화
         </button>
         <button class="um-action-btn" data-action="re-verify" style="text-align:left;padding:14px 16px;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.3);border-radius:8px;color:#86efac;cursor:pointer;font-size:14px;">
           📧 <strong>재인증 요청</strong> — 매직 링크 메일 발송 (이메일 재인증)
         </button>
         <button class="um-action-btn" data-action="delete-user" style="text-align:left;padding:14px 16px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.35);border-radius:8px;color:#fca5a5;cursor:pointer;font-size:14px;">
-          🗑️ <strong>사용자 삭제</strong> — auth.users + admins + hotels 일괄 삭제 (되돌릴 수 없음)
+          🗑️ <strong>사용자 삭제</strong> — 이 사람을 시스템에서 완전히 삭제 (되돌릴 수 없음)
         </button>
       </div>
 
@@ -5201,10 +5201,10 @@ function rDayHotels(){
         '<label style="display:block;margin-bottom:8px;font-size:13px;color:#bbb">새 권한 (Role):</label>' +
         '<select id="um-new-role" style="width:100%;padding:10px;background:#0f0f1a;border:1px solid rgba(255,255,255,.14);border-radius:6px;color:#e5e5ee;margin-bottom:14px;font-size:14px">' +
           '<option value="">(변경 안 함)</option>' +
-          '<option value="admin">admin — 모든 관리 권한</option>' +
-          '<option value="staff">staff — 일반 관리자</option>' +
-          '<option value="readonly">readonly — 조회만 가능</option>' +
-          '<option value="manager">manager — 일반 가입자</option>' +
+          '<option value="admin">최고관리자 (admin) — 모든 권한</option>' +
+          '<option value="staff">일반관리자 (staff) — 대부분 관리 가능</option>' +
+          '<option value="readonly">조회 전용 (readonly) — 보기만 가능</option>' +
+          '<option value="manager">가입자 (manager) — 호텔 매니저 기본</option>' +
         '</select>' +
         '<label style="display:flex;align-items:center;gap:8px;margin-bottom:14px;cursor:pointer;font-size:13px;color:#bbb;">' +
           '<input type="checkbox" id="um-is-active-toggle"> 활성 상태 변경' +
@@ -5236,7 +5236,7 @@ function rDayHotels(){
         '<div style="margin-bottom:14px;font-weight:600;color:#fca5a5;">🗑️ 사용자 완전 삭제</div>' +
         '<div style="padding:12px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:6px;font-size:13px;color:#fca5a5;line-height:1.6;margin-bottom:14px;">' +
           '⚠️ <strong>되돌릴 수 없는 작업입니다.</strong><br>' +
-          '<code style="color:#fca5a5">' + currentUserEmail + '</code> 의 auth 계정 + admins 행 + 호텔 정보가 모두 삭제됩니다. 결제·예약 이력은 보존되나 user_id가 NULL이 됩니다.' +
+          '<code style="color:#fca5a5">' + currentUserEmail + '</code> 의 로그인 계정·권한·등록 호텔 정보가 모두 삭제됩니다. 과거 결제·예약 기록은 보존되지만 사용자 연결은 끊어집니다.' +
         '</div>' +
         '<label style="display:block;margin-bottom:6px;font-size:13px;color:#bbb">사유 (필수):</label>' +
         '<textarea id="um-reason" rows="2" required style="width:100%;padding:10px;background:#0f0f1a;border:1px solid rgba(255,255,255,.14);border-radius:6px;color:#e5e5ee;font-size:13px;font-family:inherit;resize:vertical" placeholder="예: 사용자 직접 요청, 부정 행위 적발 등"></textarea>' +

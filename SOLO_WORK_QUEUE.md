@@ -3,7 +3,7 @@
 > ⚠️ **이 파일은 자동 생성됩니다.** 수동 편집하지 마세요.
 > 단일 진실 소스: `tasks.json` (v2.0)
 > **데드라인**: 2026-05-03
-> **갱신**: 2026-05-14
+> **갱신**: 2026-05-15
 > **목적**: 대표님 외근/자리비움 시 Claude 자율 처리 가능 작업
 
 ## 작업 분류 체계
@@ -29,7 +29,17 @@
 
 ---
 
-### B. 🟡 SEMI — [신규 매니저 가입 시 누적 매출 표시] D-035 3구간 임계값 분기 노출
+### B. 🟡 SEMI — [자동] 갤러리 — 사용자 흐름·카테고리·빈 페이지 표시 박기
+
+**ID**: `BL-GALLERY-FLOW-COMPLETENESS`  
+**카테고리**: feature  
+**예상 시간**: 미정시간  
+
+**메모**: 관련 발견: pages-meta.mjs에 audience 필드(public/manager/admin)는 있지만 갤러리에서 사용 안 함. flow 필드 + flowOrder 숫자 추가 필요. 빠진 페이지(sales.html / marketing.html 등)는 status: 'planned'로 등록되어 있으나 흐름 안에서의 위치 표시가 약함. 작업 시 BUSINESS_FLOW.md의 6단계 흐름과 정합성 유지 필수.
+
+---
+
+### C. 🟡 SEMI — [신규 매니저 가입 시 누적 매출 표시] D-035 3구간 임계값 분기 노출
 
 **ID**: `BL-SIGNUP-ENRICHMENT`  
 **카테고리**: feature  
@@ -39,7 +49,7 @@
 
 ---
 
-### C. 🟡 SEMI — [가입자/사용자 관리 도구] admin 화면에서 직접 삭제·권한 조작·재인증 가능하게
+### D. 🟡 SEMI — [가입자/사용자 관리 도구] admin 화면에서 직접 삭제·권한 조작·재인증 가능하게
 
 **ID**: `BL-ADMIN-USER-MANAGEMENT`  
 **카테고리**: admin  
@@ -217,16 +227,6 @@ detail: 관리자 페이지 7개가 원본과 살짝 달라요 (대표님이 일
 **예상 시간**: 미정시간  
 
 **메모**: Members 페이지 list-users API가 admin 제외 필터 적용 중 → 호텔 매니저(고객)가 admins에 박혀있으면 안 보이는 악순환. BL-SECURITY-SIGNUP-TRIGGER 끝나면 자연 해결되지만 데이터 소스 자체 재정의 필요. 가입 후 7일간 이메일 인증 안 받은 좀비 사용자 자동 삭제 봇 신설. 현재 좀비 1명 (1hogitravel@gmai.com — BL-SECURITY-SIGNUP-TRIGGER에서 처리).
-
----
-
-### P. 🟡 SEMI — [허브 자동화] D-0/7/30/150/170 자동 캠페인 봇 (cron)
-
-**ID**: `BL-MANAGER-AUTO-CAMPAIGN`  
-**카테고리**: infra  
-**예상 시간**: 미정시간  
-
-**메모**: 단계 4·5는 대표님 직접 작업 대기. 가이드: _os/playbook/cron-secret-setup.md. 등록 완료 후 GitHub Actions에서 dry_run 워크플로 1회 실행 → 200 응답 확인하면 본 BL 자동 100%.
 
 ---
 

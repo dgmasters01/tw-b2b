@@ -5,7 +5,7 @@
 > 
 > 단일 진실 소스: `tasks.json` (v2.0)
 
-**마지막 업데이트**: 2026-05-14
+**마지막 업데이트**: 2026-05-15
 
 > 💡 **새 채팅 시작 시**: 다음 5개 문서를 먼저 보면 즉시 컨텍스트 파악 가능.
 > 
@@ -29,6 +29,18 @@
 - **상태**: blocked
 - **막힘 사유**: supabase 호텔/예약 인프라 박힌 후 4종 사업 source 연결. 진행률 표시 + 활동이력 결함 4건은 BL-IPB-* / BL-ACT-* 로 분리.
 - **ID**: `BL-002` (출처: BACKLOG.md)
+
+---
+
+## ⚡ P0 — [자동] 갤러리 — 사용자 흐름·카테고리·빈 페이지 표시 박기
+
+**요약**: 관련 발견: pages-meta.mjs에 audience 필드(public/manager/admin)는 있지만 갤러리에서 사용 안 함. flow 필드 + flowOrder 숫자 추가 필요. 빠진 페이지(sales.html / marketing.html 등)는 status: 'planned'로 등록되어 있으나 흐름 안에서의 위치 표시가 약함. 작업 시 BUS
+
+- **자율성**: 🟡 SEMI
+- **예상 시간**: 미정시간
+- **카테고리**: feature
+- **상태**: in_progress
+- **ID**: `BL-GALLERY-FLOW-COMPLETENESS` (출처: 대표님 통찰 (2026-05-12) — 갤러리에 페이지는 다 있는데 흐름 순서·카테고리·빠진 곳 표시가 없어 매니저 가입 흐름 따라가기 어려움)
 
 ---
 
@@ -355,18 +367,6 @@ detail: 관리자 페이지 7개가 원본과 살짝 달라요 (대표님이 일
 - **카테고리**: ops
 - **상태**: pending
 - **ID**: `BL-PRELAUNCH-CLEANUP` (출처: chat:2026-05-13 보안 진단)
-
----
-
-## ⚡ P1 — [허브 자동화] D-0/7/30/150/170 자동 캠페인 봇 (cron)
-
-**요약**: 단계 4·5는 대표님 직접 작업 대기. 가이드: _os/playbook/cron-secret-setup.md. 등록 완료 후 GitHub Actions에서 dry_run 워크플로 1회 실행 → 200 응답 확인하면 본 BL 자동 100%.
-
-- **자율성**: 🟡 SEMI
-- **예상 시간**: 미정시간
-- **카테고리**: infra
-- **상태**: in_progress
-- **ID**: `BL-MANAGER-AUTO-CAMPAIGN` (출처: chat:2026-05-13 매니저 허브 페이지 설계)
 
 ---
 

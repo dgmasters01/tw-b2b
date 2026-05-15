@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-15T08:21:47+00:00",
+  "updated_at": "2026-05-15T08:22:43.903340+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -14,14 +14,14 @@
   "stats": {
     "total": 226,
     "done": 166,
-    "in_progress": 5,
-    "pending": 38,
+    "in_progress": 2,
+    "pending": 41,
     "blocked": 10,
     "autonomous_ready": 35,
     "todo": 0,
     "cancelled": 0,
     "updated_at": "2026-05-15T04:44:10.218Z",
-    "last_recalc": "2026-05-15T08:11:38.134962+00:00"
+    "last_recalc": "2026-05-15T08:22:43.903340+00:00"
   },
   "tasks": [
     {
@@ -15665,12 +15665,12 @@
       "category": "infra",
       "priority": "P0",
       "size": "small",
-      "status": "in_progress",
+      "status": "pending",
       "autoOK": true,
       "requireApproval": false,
       "source": "chat:2026-05-15 시스템 완성도 vs admin.html 역할 분리",
       "createdAt": "2026-05-15T08:11:38.134962+00:00",
-      "updatedAt": "2026-05-15T08:21:35.747773+00:00",
+      "updatedAt": "2026-05-15T08:22:43.903340+00:00",
       "biz_context_v2": {
         "지금_무슨_상황이냐면": "admin-status.html(시스템 완성도)이 사업 KPI 안내를 /admin.html#business-kpi로 가리키는데, admin.html은 로그인 페이지로 redirect되고 #business-kpi 앵커는 존재 안 함. 가짜 안내 상태.",
         "왜_결정이_필요하냐면": "두 페이지 역할이 헌법에 안 박혀있어서 클로드가 매번 헷갈림. 대표님 그림 — 시스템 완성도=프로젝트 만드는 공사 현장 / admin.html=서비스 굴리는 운영 대시보드.",
@@ -15710,7 +15710,6 @@
           }
         ]
       },
-      "started_at": "2026-05-15T08:11:51+00:00",
       "updated_at": "2026-05-15T08:21:47+00:00",
       "history": [
         {
@@ -15728,7 +15727,9 @@
           "note": "chore(tasks): 신규 BL 3건에 order 필드 박기 — 다음 추천 자리에 BL-PAGE-ROLES-SPLIT 박힘 [변경사유: 클로드 추천 우선순위, 페이지 역할 헌법 박혀야 다음 작업 헷갈리지 않음]"
         }
       ],
-      "order": 1
+      "order": 1,
+      "claude_can_auto": true,
+      "approval_required": false
     },
     {
       "id": "BL-ADMIN-OPERATIONS-DASHBOARD",
@@ -15736,12 +15737,12 @@
       "category": "feature",
       "priority": "P0",
       "size": "large",
-      "status": "in_progress",
+      "status": "pending",
       "autoOK": true,
       "requireApproval": true,
       "source": "chat:2026-05-15 시스템 완성도 vs admin.html 역할 분리",
       "createdAt": "2026-05-15T08:11:38.134962+00:00",
-      "updatedAt": "2026-05-15T08:21:35.747773+00:00",
+      "updatedAt": "2026-05-15T08:22:43.903340+00:00",
       "depends_on": [
         "BL-PAGE-ROLES-SPLIT"
       ],
@@ -15805,7 +15806,6 @@
           }
         ]
       },
-      "started_at": "2026-05-15T08:11:51+00:00",
       "updated_at": "2026-05-15T08:11:51+00:00",
       "history": [
         {
@@ -15816,7 +15816,9 @@
           "note": "feat(BL-NEW): 신규 BL 3건 등록 — BL-PAGE-ROLES-SPLIT + BL-ADMIN-OPERATIONS-DASHBOARD + BL-SYSTEM-MANUAL-AUTOGEN [변경사유: 대표님 헌법"
         }
       ],
-      "order": 2
+      "order": 2,
+      "claude_can_auto": false,
+      "approval_required": true
     },
     {
       "id": "BL-SYSTEM-MANUAL-AUTOGEN",
@@ -15824,12 +15826,12 @@
       "category": "infra",
       "priority": "P1",
       "size": "medium",
-      "status": "in_progress",
+      "status": "pending",
       "autoOK": true,
       "requireApproval": false,
       "source": "chat:2026-05-15 시스템 완성도 vs admin.html 역할 분리",
       "createdAt": "2026-05-15T08:11:38.134962+00:00",
-      "updatedAt": "2026-05-15T08:21:35.747773+00:00",
+      "updatedAt": "2026-05-15T08:22:43.903340+00:00",
       "biz_context_v2": {
         "지금_무슨_상황이냐면": "_os/service-map.md가 부분 박혀있으나 다음 클로드가 새 채팅에서 사업 구조를 0초로 파악할 만큼 충분치 않음. 대표님 인사이트: '시스템 완성도 안에 매뉴얼이 박혀야 다음 클로드가 추가 개발·에러 보수 가능'.",
         "왜_결정이_필요하냐면": "헌법 11대 원칙 6번 'AI 가독성' 정신 그대로. 시스템이 커질수록 매뉴얼 없으면 클로드가 헌법·playbook·코드 fetch 폭주.",
@@ -15876,7 +15878,6 @@
           }
         ]
       },
-      "started_at": "2026-05-15T08:11:51+00:00",
       "updated_at": "2026-05-15T08:11:51+00:00",
       "history": [
         {
@@ -15887,7 +15888,9 @@
           "note": "feat(BL-NEW): 신규 BL 3건 등록 — BL-PAGE-ROLES-SPLIT + BL-ADMIN-OPERATIONS-DASHBOARD + BL-SYSTEM-MANUAL-AUTOGEN [변경사유: 대표님 헌법"
         }
       ],
-      "order": 3
+      "order": 3,
+      "claude_can_auto": true,
+      "approval_required": false
     }
   ]
 }

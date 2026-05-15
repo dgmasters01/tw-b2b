@@ -220,6 +220,16 @@ detail: 관리자 페이지 7개가 원본과 살짝 달라요 (대표님이 일
 
 ---
 
+### P. 🟡 SEMI — [시스템 매뉴얼 자동 생성] 시스템 완성도 안에 다음 클로드를 위한 시스템 매뉴얼 자동 박기
+
+**ID**: `BL-SYSTEM-MANUAL-AUTOGEN`  
+**카테고리**: infra  
+**예상 시간**: 미정시간  
+
+**메모**: service-map.md 확장 + 자동 갱신 봇 (signup-trigger 패턴 따라 GitHub Actions push 시 자동 재생성). 매뉴얼 형식: 사람 + AI 둘 다 읽기 좋게 (헌법 원칙 6).
+
+---
+
 ## 🟢 P2 — 자투리 시간에
 
 ### A. 🟢 AUTO — [DECISIONS_INDEX.md 자동 동기화] sync_engine 보강

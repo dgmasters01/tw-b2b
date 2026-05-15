@@ -45,7 +45,7 @@
 **카테고리**: admin  
 **예상 시간**: 미정시간  
 
-**메모**: Hotels/Members/Team 각 행 옆 작업 메뉴(... 버튼) 추가. 액션: 사용자 삭제 / 권한 빼앗기 / 권한 주기 / 재인증 요청. 모든 조작 → action_logs 자동 기록. Team 페이지 '+ Add Team Member' 버튼 admin_invitations 흐름 실제 작동. API: auth-delete-user, auth-change-role(기존), auth-invite(기존) 연결.
+**메모**: 단계 1·2·3 완료 (API 3종 + Members 탭). Hotels·Team 탭 ⋯ 메뉴는 다음 채팅. 분량 정직 끊기.
 
 ---
 

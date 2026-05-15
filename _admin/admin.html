@@ -2515,7 +2515,7 @@ body{margin:0;background:var(--bg,#0A0A0F);font-family:var(--sans,'Inter','Noto 
       return;
     }
     var html = '<div class="ad-table-wrap"><table class="ad-table">';
-    html += '<thead><tr><th>Email</th><th>Status</th><th>Hotel</th><th>Joined</th><th>Last Login</th><th style="text-align:right">상세</th></tr></thead><tbody>';
+    html += '<thead><tr><th>Email</th><th>Status</th><th>Hotel</th><th>Joined</th><th>Last Login</th><th style="text-align:right;width:180px">작업</th></tr></thead><tbody>';
     filtered.forEach(function(m){
       var statusBadge = m.is_verified ? 
         '<span class="ad-status" style="background:#0a7c3a;">Verified</span>' : 
@@ -2534,7 +2534,11 @@ body{margin:0;background:var(--bg,#0A0A0F);font-family:var(--sans,'Inter','Noto 
       html += '<td>' + hotelStr + '</td>';
       html += '<td>' + created + '</td>';
       html += '<td>' + lastLogin + '</td>';
-      html += '<td style="text-align:right"><a class="ad-btn ad-btn-primary" href="' + hubUrl + '" onclick="event.stopPropagation()" style="text-decoration:none;font-size:11.5px;padding:4px 10px">상세 →</a></td>';
+      // BL-ADMIN-USER-MANAGEMENT (2026-05-15): 상세 + ⋯ 작업 메뉴
+      html += '<td style="text-align:right;white-space:nowrap" onclick="event.stopPropagation()">';
+      html += '<a class="ad-btn ad-btn-primary" href="' + hubUrl + '" style="text-decoration:none;font-size:11.5px;padding:4px 10px;margin-right:4px">상세 →</a>';
+      html += '<button class="ad-btn ad-um-menu" data-user-id="' + m.id + '" data-user-email="' + m.email + '" style="font-size:13px;padding:4px 10px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);color:#cbd5e1;border-radius:5px;cursor:pointer">⋯</button>';
+      html += '</td>';
       html += '</tr>';
     });
     html += '</tbody></table></div>';
@@ -2544,6 +2548,13 @@ body{margin:0;background:var(--bg,#0A0A0F);font-family:var(--sans,'Inter','Noto 
       tr.addEventListener('click', function(){
         var url = tr.getAttribute('data-hub-url');
         if (url) location.href = url;
+      });
+    });
+    // ⋯ 메뉴 클릭 → 작업 모달 열기
+    area.querySelectorAll('.ad-um-menu').forEach(function(btn){
+      btn.addEventListener('click', function(ev){
+        ev.stopPropagation();
+        window.__umOpenMenu(btn.dataset.userId, btn.dataset.userEmail, btn);
       });
     });
   }
@@ -5111,6 +5122,210 @@ function rDayHotels(){
 </div>
 
 <!-- BL-ADMIN-ACTIVITY-REMOVE (2026-05-12): 사용자 활동 박스 JS 제거 — 1인 운영 원칙(대표님 본인이 한눈에 사업 파악)에 맞지 않음 -->
+
+<!-- ════════════════════════════════════════════════════════════════════════
+     BL-ADMIN-USER-MANAGEMENT (2026-05-15)
+     사용자 관리 작업 모달 — 삭제 / 권한 변경 / 재인증
+     ════════════════════════════════════════════════════════════════════════ -->
+<div id="um-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;align-items:center;justify-content:center;backdrop-filter:blur(8px);">
+  <div style="background:#1a1a2e;border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:24px;width:95%;max-width:480px;color:#e5e5ee;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <h3 id="um-modal-title" style="margin:0;font-size:17px;">사용자 작업</h3>
+      <button onclick="window.__umCloseMenu()" style="background:transparent;border:0;color:#888;font-size:22px;cursor:pointer">×</button>
+    </div>
+    <div id="um-modal-email" style="font-size:13px;color:#a5b4fc;margin-bottom:18px;font-family:ui-monospace,monospace;background:rgba(99,102,241,.08);padding:8px 12px;border-radius:6px;"></div>
+
+    <div id="um-modal-body">
+      <!-- 작업 선택 화면 (기본) -->
+      <div id="um-actions" style="display:flex;flex-direction:column;gap:8px;">
+        <button class="um-action-btn" data-action="change-role" style="text-align:left;padding:14px 16px;background:rgba(99,102,241,.08);border:1px solid rgba(99,102,241,.3);border-radius:8px;color:#a5b4fc;cursor:pointer;font-size:14px;">
+          🔑 <strong>권한 주기/빼앗기</strong> — admin/staff/readonly/manager 변경 또는 비활성화
+        </button>
+        <button class="um-action-btn" data-action="re-verify" style="text-align:left;padding:14px 16px;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.3);border-radius:8px;color:#86efac;cursor:pointer;font-size:14px;">
+          📧 <strong>재인증 요청</strong> — 매직 링크 메일 발송 (이메일 재인증)
+        </button>
+        <button class="um-action-btn" data-action="delete-user" style="text-align:left;padding:14px 16px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.35);border-radius:8px;color:#fca5a5;cursor:pointer;font-size:14px;">
+          🗑️ <strong>사용자 삭제</strong> — auth.users + admins + hotels 일괄 삭제 (되돌릴 수 없음)
+        </button>
+      </div>
+
+      <!-- 작업 디테일 폼 (선택 후) -->
+      <div id="um-detail" style="display:none;"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var modal = document.getElementById('um-modal');
+  var titleEl = document.getElementById('um-modal-title');
+  var emailEl = document.getElementById('um-modal-email');
+  var actionsEl = document.getElementById('um-actions');
+  var detailEl = document.getElementById('um-detail');
+  var currentUserId = null;
+  var currentUserEmail = null;
+
+  window.__umOpenMenu = function(userId, userEmail){
+    currentUserId = userId;
+    currentUserEmail = userEmail;
+    titleEl.textContent = '사용자 작업';
+    emailEl.textContent = userEmail + '\n' + userId;
+    actionsEl.style.display = 'flex';
+    detailEl.style.display = 'none';
+    detailEl.innerHTML = '';
+    modal.style.display = 'flex';
+  };
+
+  window.__umCloseMenu = function(){
+    modal.style.display = 'none';
+    currentUserId = null;
+    currentUserEmail = null;
+  };
+
+  // 작업 버튼 클릭 → 디테일 폼 표시
+  document.querySelectorAll('.um-action-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var action = btn.dataset.action;
+      actionsEl.style.display = 'none';
+      detailEl.style.display = 'block';
+      renderDetail(action);
+    });
+  });
+
+  function renderDetail(action){
+    if (action === 'change-role') {
+      detailEl.innerHTML =
+        '<button onclick="window.__umBack()" style="background:transparent;border:0;color:#888;font-size:13px;cursor:pointer;margin-bottom:12px;">← 뒤로</button>' +
+        '<div style="margin-bottom:14px;font-weight:600;color:#a5b4fc;">🔑 권한 변경</div>' +
+        '<div style="font-size:13px;color:#888;margin-bottom:14px;">' + currentUserEmail + ' 권한을 변경합니다.</div>' +
+        '<label style="display:block;margin-bottom:8px;font-size:13px;color:#bbb">새 권한 (Role):</label>' +
+        '<select id="um-new-role" style="width:100%;padding:10px;background:#0f0f1a;border:1px solid rgba(255,255,255,.14);border-radius:6px;color:#e5e5ee;margin-bottom:14px;font-size:14px">' +
+          '<option value="">(변경 안 함)</option>' +
+          '<option value="admin">admin — 모든 관리 권한</option>' +
+          '<option value="staff">staff — 일반 관리자</option>' +
+          '<option value="readonly">readonly — 조회만 가능</option>' +
+          '<option value="manager">manager — 일반 가입자</option>' +
+        '</select>' +
+        '<label style="display:flex;align-items:center;gap:8px;margin-bottom:14px;cursor:pointer;font-size:13px;color:#bbb;">' +
+          '<input type="checkbox" id="um-is-active-toggle"> 활성 상태 변경' +
+        '</label>' +
+        '<select id="um-is-active" style="width:100%;padding:10px;background:#0f0f1a;border:1px solid rgba(255,255,255,.14);border-radius:6px;color:#e5e5ee;margin-bottom:14px;font-size:14px;display:none">' +
+          '<option value="true">true — 활성화 (권한 복원)</option>' +
+          '<option value="false">false — 비활성화 (권한 박탈)</option>' +
+        '</select>' +
+        '<label style="display:block;margin-bottom:6px;font-size:13px;color:#bbb">사유 (감사 기록용):</label>' +
+        '<textarea id="um-reason" rows="2" style="width:100%;padding:10px;background:#0f0f1a;border:1px solid rgba(255,255,255,.14);border-radius:6px;color:#e5e5ee;font-size:13px;font-family:inherit;resize:vertical" placeholder="예: 부적절한 행동, 직책 변경 등"></textarea>' +
+        '<button onclick="window.__umSubmitChangeRole()" style="margin-top:16px;width:100%;padding:12px;background:linear-gradient(135deg,#7C3AED,#EC4899);color:#fff;border:0;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer">권한 변경 실행</button>';
+      // toggle handler
+      var toggle = document.getElementById('um-is-active-toggle');
+      var selectEl = document.getElementById('um-is-active');
+      toggle.addEventListener('change', function(){
+        selectEl.style.display = toggle.checked ? 'block' : 'none';
+      });
+    } else if (action === 're-verify') {
+      detailEl.innerHTML =
+        '<button onclick="window.__umBack()" style="background:transparent;border:0;color:#888;font-size:13px;cursor:pointer;margin-bottom:12px;">← 뒤로</button>' +
+        '<div style="margin-bottom:14px;font-weight:600;color:#86efac;">📧 재인증 메일 발송</div>' +
+        '<div style="font-size:13px;color:#bbb;margin-bottom:14px;line-height:1.6">' + currentUserEmail + ' 으로 매직 링크를 발송합니다. 사용자가 메일의 링크를 클릭하면 자동 로그인 + 이메일 재인증이 완료됩니다.</div>' +
+        '<label style="display:block;margin-bottom:6px;font-size:13px;color:#bbb">사유 (감사 기록용, 선택):</label>' +
+        '<textarea id="um-reason" rows="2" style="width:100%;padding:10px;background:#0f0f1a;border:1px solid rgba(255,255,255,.14);border-radius:6px;color:#e5e5ee;font-size:13px;font-family:inherit;resize:vertical" placeholder="예: 인증 메일 못 받음, 이메일 변경 의심 등"></textarea>' +
+        '<button onclick="window.__umSubmitReVerify()" style="margin-top:16px;width:100%;padding:12px;background:linear-gradient(135deg,#16a34a,#15803d);color:#fff;border:0;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer">매직 링크 발송</button>';
+    } else if (action === 'delete-user') {
+      detailEl.innerHTML =
+        '<button onclick="window.__umBack()" style="background:transparent;border:0;color:#888;font-size:13px;cursor:pointer;margin-bottom:12px;">← 뒤로</button>' +
+        '<div style="margin-bottom:14px;font-weight:600;color:#fca5a5;">🗑️ 사용자 완전 삭제</div>' +
+        '<div style="padding:12px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:6px;font-size:13px;color:#fca5a5;line-height:1.6;margin-bottom:14px;">' +
+          '⚠️ <strong>되돌릴 수 없는 작업입니다.</strong><br>' +
+          '<code style="color:#fca5a5">' + currentUserEmail + '</code> 의 auth 계정 + admins 행 + 호텔 정보가 모두 삭제됩니다. 결제·예약 이력은 보존되나 user_id가 NULL이 됩니다.' +
+        '</div>' +
+        '<label style="display:block;margin-bottom:6px;font-size:13px;color:#bbb">사유 (필수):</label>' +
+        '<textarea id="um-reason" rows="2" required style="width:100%;padding:10px;background:#0f0f1a;border:1px solid rgba(255,255,255,.14);border-radius:6px;color:#e5e5ee;font-size:13px;font-family:inherit;resize:vertical" placeholder="예: 사용자 직접 요청, 부정 행위 적발 등"></textarea>' +
+        '<label style="display:flex;align-items:center;gap:8px;margin-top:12px;font-size:13px;color:#bbb;cursor:pointer">' +
+          '<input type="checkbox" id="um-confirm-delete"> ' + currentUserEmail + ' 을 완전 삭제할 것을 확인합니다.' +
+        '</label>' +
+        '<button onclick="window.__umSubmitDelete()" style="margin-top:16px;width:100%;padding:12px;background:linear-gradient(135deg,#dc2626,#991b1b);color:#fff;border:0;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer">사용자 완전 삭제</button>';
+    }
+  }
+
+  window.__umBack = function(){
+    actionsEl.style.display = 'flex';
+    detailEl.style.display = 'none';
+    detailEl.innerHTML = '';
+  };
+
+  async function callAPI(action, payload){
+    var sess = await window.TW.sb.auth.getSession();
+    var token = sess.data.session && sess.data.session.access_token;
+    if (!token) { alert('로그인 만료 — 다시 로그인하세요'); return null; }
+    var resp = await fetch('/api/admin?action=' + action, {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    return { ok: resp.ok, status: resp.status, body: await resp.json() };
+  }
+
+  window.__umSubmitChangeRole = async function(){
+    var role = document.getElementById('um-new-role').value;
+    var toggle = document.getElementById('um-is-active-toggle').checked;
+    var isActive = toggle ? (document.getElementById('um-is-active').value === 'true') : null;
+    var reason = document.getElementById('um-reason').value.trim();
+    if (!role && !toggle) { alert('새 권한 또는 활성 상태 중 하나는 선택하세요'); return; }
+    var payload = { user_id: currentUserId, reason: reason };
+    if (role) payload.new_role = role;
+    if (toggle) payload.is_active = isActive;
+    var r = await callAPI('change-role', payload);
+    if (!r) return;
+    if (r.ok) {
+      alert('✅ 권한 변경 완료\n변경 전: ' + (r.body.before ? r.body.before.role + '/active=' + r.body.before.is_active : '?') +
+            '\n변경 후: ' + (r.body.after ? r.body.after.role + '/active=' + r.body.after.is_active : '?'));
+      window.__umCloseMenu();
+      if (typeof loadMembers === 'function') loadMembers();
+    } else {
+      alert('❌ 실패: ' + (r.body.error || r.status));
+    }
+  };
+
+  window.__umSubmitReVerify = async function(){
+    var reason = document.getElementById('um-reason').value.trim();
+    var r = await callAPI('re-verify', { user_id: currentUserId, reason: reason });
+    if (!r) return;
+    if (r.ok) {
+      alert('✅ 매직 링크 발송 완료\n수신자: ' + r.body.email + '\n사용자가 메일 링크 클릭 시 자동 로그인됩니다.');
+      window.__umCloseMenu();
+    } else {
+      alert('❌ 실패: ' + (r.body.error || r.status));
+    }
+  };
+
+  window.__umSubmitDelete = async function(){
+    var confirmCb = document.getElementById('um-confirm-delete').checked;
+    var reason = document.getElementById('um-reason').value.trim();
+    if (!confirmCb) { alert('확인 체크박스를 체크하세요'); return; }
+    if (!reason) { alert('삭제 사유는 필수입니다'); return; }
+    if (!confirm('정말 ' + currentUserEmail + ' 을 완전 삭제하시겠습니까?\n\n되돌릴 수 없습니다.')) return;
+    var r = await callAPI('delete-user', { user_id: currentUserId, reason: reason });
+    if (!r) return;
+    if (r.ok) {
+      alert('✅ 사용자 삭제 완료\n삭제 이메일: ' + r.body.deleted_email +
+            '\n영향 호텔 수: ' + r.body.affected_hotels);
+      window.__umCloseMenu();
+      if (typeof loadMembers === 'function') loadMembers();
+    } else {
+      alert('❌ 실패: ' + (r.body.error || r.status) + (r.body.detail ? '\n' + JSON.stringify(r.body.detail).slice(0, 200) : ''));
+    }
+  };
+
+  // ESC로 닫기
+  document.addEventListener('keydown', function(ev){
+    if (ev.key === 'Escape' && modal.style.display === 'flex') window.__umCloseMenu();
+  });
+  // 배경 클릭으로 닫기
+  modal.addEventListener('click', function(ev){
+    if (ev.target === modal) window.__umCloseMenu();
+  });
+})();
+</script>
 
 </body>
 </html>

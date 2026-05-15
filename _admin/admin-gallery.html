@@ -159,9 +159,74 @@ import { PAGES, STATUS_BADGES, AUDIENCE_BADGES } from '/scripts/pages-meta.mjs';
   render(userEmail, blByPage);
 })();
 
-function render(adminEmail, blByPage = {}) {
-  // ★ BL-DEPENDENCY-MAP (2026-05-13): 페이지별 BL 카운트
-  // blByPage = { '/sales.html': [{id, title, priority, size}], ... }
+// ★ BL-GALLERY-FLOW-COMPLETENESS (2026-05-15)
+// 그룹화 분기 — flow 모드 또는 status 모드별 sections HTML 반환.
+function renderByMode(mode, blByPage) {
+  if (mode === 'flow') {
+    return renderFlowMode(blByPage);
+  }
+  return renderStatusMode(blByPage);
+}
+
+// flow 모드 — BUSINESS_FLOW.md 7단계 + 흐름 외(extra/admin-tools/retired)
+function renderFlowMode(blByPage) {
+  const flowGroups = {
+    'stage0':      [], 'stage1': [], 'stage2': [], 'stage3': [],
+    'stage4':      [], 'stage5': [], 'stage6': [],
+    'extra':       [], 'admin-tools': [], 'retired': [],
+  };
+  PAGES.forEach(p => {
+    const f = p.flow || 'extra';
+    if (!flowGroups[f]) flowGroups[f] = [];
+    flowGroups[f].push(p);
+  });
+
+  // 각 flow 그룹 내부 정렬: flowOrder → name
+  Object.values(flowGroups).forEach(list => {
+    list.sort((a, b) => (a.flowOrder ?? 999) - (b.flowOrder ?? 999) || a.name.localeCompare(b.name));
+  });
+
+  const flowTitle = {
+    'stage0':       { icon: '0️⃣', title: '비회원 진입',         desc: '메인 랜딩, 가치 어필' },
+    'stage1':       { icon: '1️⃣', title: '가입 ~ 호텔 등록',     desc: '계정 생성 + 호텔 정보 등록 (status: pending)' },
+    'stage2':       { icon: '2️⃣', title: '관리자 검증',          desc: 'Agoda 매칭 확인 + 승인/거절 (status: review → approved)' },
+    'stage3':       { icon: '3️⃣', title: '결제 유도',            desc: '$200 가치 어필 + 결제 (status: approved → paid)' },
+    'stage4':       { icon: '4️⃣', title: '영상 제작·진행',        desc: '6언어 영상 제작 → 채널 배포 (status: paid → producing → published)' },
+    'stage5':       { icon: '5️⃣', title: '6개월 노출·성과',       desc: '조회수·예약 통계·월간 리포트 (status: published)' },
+    'stage6':       { icon: '6️⃣', title: '6개월 종료 결정',       desc: '재결제 / 환불 / 종료 (status: completed)' },
+    'extra':        { icon: '⚙️', title: '매니저 부가 (흐름 외)',  desc: '계정 설정, 비밀번호 등' },
+    'admin-tools':  { icon: '🛠️', title: '관리자 도구 (흐름 외)',  desc: '갤러리, 비즈니스 문서, 작업 관리, 시스템 상태 등' },
+    'retired':      { icon: '🚫', title: '폐기',                    desc: '더 이상 사용 안 함' },
+  };
+
+  // flow 순서대로 + 비어있는 그룹도 표시(빈 단계는 placeholder로)
+  const flowKeys = ['stage0','stage1','stage2','stage3','stage4','stage5','stage6','extra','admin-tools','retired'];
+
+  return flowKeys
+    .map(key => {
+      const list = flowGroups[key] || [];
+      const meta = flowTitle[key] || { icon: '❓', title: key, desc: '' };
+      const cards = list.length > 0
+        ? list.map(p => cardHtml(p, blByPage[p.path] || [])).join('')
+        : `<div class="gh-grid-empty" style="grid-column:1/-1;text-align:center;padding:30px 20px;color:#64748b;font-size:13px;background:rgba(148,163,184,.04);border-radius:8px;border:1px dashed #334155;">
+             📝 이 단계 페이지가 아직 없습니다 — 만들 페이지를 BACKLOG에 등록하면 여기 표시됩니다
+           </div>`;
+      return `
+        <section class="gh-section">
+          <h2 class="gh-section-h">
+            <span style="font-size:22px;">${meta.icon}</span>
+            <span>${meta.title}</span>
+            <span class="gh-count">${list.length}</span>
+            <span style="font-weight:400;color:#64748b;font-size:13px;margin-left:8px;">${meta.desc}</span>
+          </h2>
+          <div class="gh-grid">${cards}</div>
+        </section>
+      `;
+    }).join('');
+}
+
+// status 모드 — 기존 그룹화 (live/partial/planned 등)
+function renderStatusMode(blByPage) {
   const groups = {
     'live':           [],
     'partial':        [],
@@ -181,7 +246,7 @@ function render(adminEmail, blByPage = {}) {
     'archived':       '⚫ 보관',
   };
 
-  const sectionsHtml = Object.entries(groups)
+  return Object.entries(groups)
     .filter(([k, list]) => list.length > 0)
     .map(([key, list]) => `
       <section class="gh-section">
@@ -189,6 +254,17 @@ function render(adminEmail, blByPage = {}) {
         <div class="gh-grid">${list.map(p => cardHtml(p, blByPage[p.path] || [])).join('')}</div>
       </section>
     `).join('');
+}
+
+function render(adminEmail, blByPage = {}) {
+  // ★ BL-DEPENDENCY-MAP (2026-05-13): 페이지별 BL 카운트
+  // blByPage = { '/sales.html': [{id, title, priority, size}], ... }
+
+  // ★ BL-GALLERY-FLOW-COMPLETENESS (2026-05-15): 그룹화 모드 토글
+  // - 'status' 모드: 기존 — live/partial/planned 등 완성도 기준
+  // - 'flow'   모드: BUSINESS_FLOW.md 7단계 — 매니저 여정 순서 기준
+  const groupMode = (localStorage.getItem('gh_group_mode') || 'flow');
+  window.__ghGroups = renderByMode(groupMode, blByPage);
 
   document.getElementById('root').innerHTML = `
     <h1 class="gh-h1">📸 Page Gallery</h1>
@@ -196,12 +272,25 @@ function render(adminEmail, blByPage = {}) {
 
     <div class="gh-toolbar">
       <input type="text" id="search" placeholder="페이지명 또는 경로 검색...">
+      <div class="gh-mode-toggle" style="display:flex;gap:0;border:1px solid #334155;border-radius:6px;overflow:hidden;">
+        <button class="gh-mode-btn ${groupMode==='flow'?'gh-mode-active':''}" data-mode="flow" style="background:${groupMode==='flow'?'#3b82f6':'#1e293b'};color:${groupMode==='flow'?'#fff':'#94a3b8'};border:0;padding:8px 14px;cursor:pointer;font-size:13px;">🗺️ 흐름 순서</button>
+        <button class="gh-mode-btn ${groupMode==='status'?'gh-mode-active':''}" data-mode="status" style="background:${groupMode==='status'?'#3b82f6':'#1e293b'};color:${groupMode==='status'?'#fff':'#94a3b8'};border:0;padding:8px 14px;cursor:pointer;font-size:13px;">📊 완성도</button>
+      </div>
       <button onclick="window.location.href='/admin.html'">← 관리자 콘솔</button>
       <span class="gh-info">총 ${PAGES.length}개 페이지 · 마지막 캡처: ${getLastCaptureDate()}</span>
     </div>
 
-    ${sectionsHtml}
+    ${window.__ghGroups}
   `;
+
+  // 그룹 모드 토글 핸들러
+  document.querySelectorAll('.gh-mode-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const mode = btn.dataset.mode;
+      localStorage.setItem('gh_group_mode', mode);
+      render(adminEmail, blByPage);
+    });
+  });
 
   document.getElementById('search').addEventListener('input', (e) => {
     const q = e.target.value.toLowerCase().trim();
@@ -288,15 +377,16 @@ function cardHtml(p, bls = []) {
     : '';
 
   return `
-    <article class="gh-card" id="${cardId}" data-search="${escapeAttr(searchText)}">
+    <article class="gh-card" id="${cardId}" data-search="${escapeAttr(searchText)}" data-flow="${p.flow || ''}">
       <div class="gh-thumb">${thumbHtml}</div>
       <div class="gh-body">
-        <h3 class="gh-name">${escapeHtml(p.name)}</h3>
+        <h3 class="gh-name">${escapeHtml(p.name)}${p.status === 'planned' ? ' <span style="font-size:11px;background:#fbbf24;color:#000;padding:2px 8px;border-radius:10px;font-weight:600;vertical-align:middle;margin-left:4px;">⭐ 신설 예정</span>' : ''}</h3>
         <p class="gh-path">${escapeHtml(p.path)}</p>
         <p class="gh-purpose">${escapeHtml(p.purpose)}</p>
         <div class="gh-meta">
           <span class="gh-badge" style="background:${audienceBadge.color};color:#fff">${audienceBadge.label}</span>
           <span class="gh-badge" style="background:${statusBadge.color};color:#fff">${statusBadge.label}</span>
+          ${p.flowLabel ? `<span class="gh-badge" style="background:rgba(99,102,241,0.15);color:#a5b4fc;border:1px solid rgba(99,102,241,0.4);">🗺️ ${escapeHtml(p.flowLabel)}</span>` : ''}
         </div>
         <p class="gh-when"><strong>표시 조건:</strong> ${escapeHtml(p.visibleWhen)}</p>
         ${p.notes ? `<p class="gh-notes">📝 ${escapeHtml(p.notes)}</p>` : ''}

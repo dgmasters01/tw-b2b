@@ -394,6 +394,24 @@ detail: 관리자 페이지 7개가 원본과 살짝 달라요 (대표님이 일
 
 ---
 
+## 🟢 P1 — [자동] 관리자 페이지 1개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요)
+
+**요약**: 점검 봇 자동 등록 (2026-05-15T10:02:38.806Z)
+
+check_name: admin_baseline
+status: yellow
+detail: 관리자 페이지 1개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요)
+
+진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 gr
+
+- **자율성**: 🟢 AUTO
+- **예상 시간**: 1시간
+- **카테고리**: infrastructure
+- **상태**: pending
+- **ID**: `BL-AUTO-ADMIN-BASELINE-1FILES` (출처: auto_from_admin_baseline)
+
+---
+
 ## 🟢 P2 — [DECISIONS_INDEX.md 자동 동기화] sync_engine 보강
 
 **요약**: DECISIONS.md 변경 감지 → DECISIONS_INDEX.md 자동 갱신. ID 고정 불변 규칙.

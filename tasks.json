@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-15T08:53:06.181Z",
+  "updated_at": "2026-05-15T10:02:38.806Z",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -12,16 +12,16 @@
     "SOLO_WORK_QUEUE.md"
   ],
   "stats": {
-    "total": 226,
+    "total": 227,
     "done": 167,
     "in_progress": 2,
-    "pending": 40,
+    "paused": 0,
+    "pending": 41,
     "blocked": 10,
-    "autonomous_ready": 36,
+    "autonomous_ready": 39,
     "todo": 0,
-    "cancelled": 0,
-    "updated_at": "2026-05-15T04:44:10.218Z",
-    "last_recalc": "2026-05-15T08:52:52.068097+00:00"
+    "cancelled": 1,
+    "updated_at": "2026-05-15T10:02:38.806Z"
   },
   "tasks": [
     {
@@ -15936,6 +15936,42 @@
       "order": 3,
       "claude_can_auto": true,
       "approval_required": false
+    },
+    {
+      "id": "BL-AUTO-ADMIN-BASELINE-1FILES",
+      "title": "[자동] 관리자 페이지 1개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요)",
+      "category": "infrastructure",
+      "priority": "P1",
+      "status": "pending",
+      "claude_can_auto": true,
+      "approval_required": false,
+      "owner": "claude",
+      "size": "small",
+      "source": "auto_from_admin_baseline",
+      "created_at": "2026-05-15T10:02:38.806Z",
+      "updated_at": "2026-05-15T10:02:38.806Z",
+      "deadline": null,
+      "order": null,
+      "blocker": null,
+      "autonomous": {
+        "can_run_alone": true,
+        "estimated_hours": 1,
+        "requires_decisions_first": []
+      },
+      "decision_ref": "D-024",
+      "progress": {
+        "percent": 0,
+        "steps": []
+      },
+      "history": [
+        {
+          "at": "2026-05-15T10:02:38.806Z",
+          "by": "auto-task-bot",
+          "action": "created",
+          "detail": "점검 봇 발견 (admin_baseline=yellow): 관리자 페이지 1개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요)"
+        }
+      ],
+      "notes": "점검 봇 자동 등록 (2026-05-15T10:02:38.806Z)\n\ncheck_name: admin_baseline\nstatus: yellow\ndetail: 관리자 페이지 1개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요)\n\n진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 green으로 박으면 자동 done."
     }
   ]
 }

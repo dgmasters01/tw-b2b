@@ -16039,6 +16039,51 @@
         }
       ],
       "notes": "점검 봇 자동 등록 (2026-05-15T16:30:05.675Z)\n\ncheck_name: admin_baseline\nstatus: yellow\ndetail: 관리자 페이지 2개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요)\n\n진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 green으로 박으면 자동 done."
+    },
+    {
+      "id": "BL-MGR-DASHBOARD-V1",
+      "title": "[매니저 대시보드 V1] 호텔 매니저용 5탭 통합 대시보드 (홈/영상/계약&결제/고객분석/문의)",
+      "status": "in_progress",
+      "priority": "high",
+      "created_at": "2026-05-17",
+      "owner": "claude",
+      "north_star": "호텔 매니저가 본인 호텔의 영상 노출·예약·매출·고객 분석을 한 화면에서 보고 다음 액션(연장 결제/문의)을 결정할 수 있게 한다",
+      "single_decision": "매니저 대시보드 V1 페이지 박기 — manager-dashboard.html 신설, 5탭 구조, Aurora 디자인, i18n KO/EN 토글",
+      "duplication_check": "manager-hub.html은 운영자(대표님)용 / manager-dashboard.html은 매니저(호텔 담당자) 본인용 — 역할 완전 분리",
+      "decisions_locked": [
+        "탭 구조: 홈/영상/계약&결제/고객분석/문의 (5개)",
+        "언어: 한국어/EN 토글, 중국어/일본어 금지",
+        "호텔 카드: 정보+담당자+수정 버튼 통합",
+        "진행 상태 5단계: 결제→노출대기→진행→정산→마감",
+        "영상: 본편+무상추가, 채널별 타겟 국가",
+        "채널 타겟 라벨: 영어권/한국/일본/대만/베트남/태국",
+        "계약: 1차/2차 카드 분리, 진행중 위 / 종료 아래",
+        "예약 귀속: 예약일(booked_at) 기준",
+        "매출 인정: 체크아웃 완료(checkout_date 경과) + 노쇼",
+        "취소: 매출 외 분리 표시",
+        "선결제: D-30부터 가능, 자동 노출 시작",
+        "알림: D-30/D-7/D-0 메일 3회 + 화면 배너",
+        "고객분석: 6가지 인사이트 + PDF/엑셀 다운로드",
+        "채널별 분석 V1: 채널별 예약건수+예약금액만 (조회수/CTR은 V2)",
+        "국가별 예약금액: customer_country × SUM(booking_amount_usd)",
+        "객실인원: room_type/num_adults/num_children 원본 표시 (커플/가족 라벨링은 V2)"
+      ],
+      "steps": [
+        "디자인 확인 (대표님 이미지 + 텍스트 설명)",
+        "Supabase VIEW: v_manager_dashboard (매니저별 호텔/영상/예약/매출 집계)",
+        "manager-dashboard.html 박기 (Aurora 디자인, 5탭, i18n)",
+        "탭1: 홈 (호텔 카드 + 진행 5단계 + 알림 배너)",
+        "탭2: 영상 (본편/무상추가, 채널 타겟 6라벨)",
+        "탭3: 계약&결제 (1차/2차 카드, 진행중/종료 분리)",
+        "탭4: 고객분석 (6 인사이트 + PDF/엑셀 다운로드)",
+        "탭5: 문의 (Resend 메일 전송)",
+        "라이브 검증 + 인계서"
+      ],
+      "files_planned": [
+        "manager-dashboard.html",
+        "sql/v_manager_dashboard.sql",
+        "_os/playbook/manager-dashboard-spec.md"
+      ]
     }
   ]
 }

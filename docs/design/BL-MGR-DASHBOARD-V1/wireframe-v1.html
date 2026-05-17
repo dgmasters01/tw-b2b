@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>BL-MGR-DASHBOARD-V1 · Wireframe v1 (홈 탭)</title>
+<style>
+:root {
+  --bg: #f7f7f5;
+  --card: #ffffff;
+  --border: rgba(0,0,0,.1);
+  --border-strong: rgba(0,0,0,.2);
+  --text: #1a1a1a;
+  --muted: #6b6b6b;
+  --hint: #999;
+  --info-bg: #E6F1FB;
+  --info-text: #185FA5;
+  --info-border: #378ADD;
+  --success-bg: #EAF3DE;
+  --success-text: #3B6D11;
+  --warn-bg: #FAEEDA;
+  --warn-text: #854F0B;
+  --secondary: #f1f1ef;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+body { margin: 0; padding: 24px; background: var(--bg); color: var(--text); }
+.container { max-width: 920px; margin: 0 auto; }
+.frame { background: var(--card); border-radius: var(--radius-lg); border: 0.5px solid var(--border); overflow: hidden; }
+.header { padding: 14px 18px; border-bottom: 0.5px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+.hotel-meta { display: flex; align-items: center; gap: 10px; }
+.icon-circle { width: 28px; height: 28px; border-radius: 8px; background: var(--info-bg); color: var(--info-text); display: flex; align-items: center; justify-content: center; font-size: 14px; }
+.lang-toggle { font-size: 11px; padding: 4px 8px; border: 0.5px solid var(--border); border-radius: var(--radius-md); }
+.tabs { display: flex; border-bottom: 0.5px solid var(--border); background: var(--secondary); }
+.tab { flex: 1; padding: 12px 8px; text-align: center; font-size: 12px; color: var(--muted); cursor: pointer; }
+.tab.active { background: var(--card); border-bottom: 2px solid var(--info-text); color: var(--text); font-weight: 500; }
+.banner { padding: 12px 18px; background: var(--warn-bg); color: var(--warn-text); border-bottom: 0.5px solid var(--border); font-size: 12px; }
+.body { padding: 18px; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+.card { background: var(--card); border: 0.5px solid var(--border); border-radius: var(--radius-lg); padding: 14px; }
+.kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 16px; }
+.kpi { background: var(--secondary); border-radius: var(--radius-md); padding: 12px; }
+.kpi-label { font-size: 11px; color: var(--muted); margin: 0; }
+.kpi-value { font-size: 20px; font-weight: 500; margin: 4px 0 0; }
+.stepper { display: flex; align-items: center; gap: 4px; font-size: 10px; }
+.step { flex: 1; text-align: center; }
+.step-dot { width: 22px; height: 22px; border-radius: 50%; margin: 0 auto 4px; display: flex; align-items: center; justify-content: center; font-size: 12px; }
+.step.done .step-dot { background: var(--success-bg); color: var(--success-text); }
+.step.current .step-dot { background: var(--info-bg); color: var(--info-text); font-weight: 500; }
+.step.todo .step-dot { background: var(--secondary); color: var(--hint); }
+.step-line { width: 8px; height: 1px; background: var(--border); }
+.contract-card { padding: 10px 12px; border-radius: var(--radius-md); margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; }
+.contract-card.active { border: 0.5px solid var(--info-border); background: var(--info-bg); color: var(--info-text); }
+.contract-card.done { border: 0.5px solid var(--border); opacity: 0.7; }
+.video-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; font-size: 11px; }
+.video-item { padding: 6px 8px; background: var(--secondary); border-radius: var(--radius-md); display: flex; justify-content: space-between; }
+.meta-info { font-size: 12px; line-height: 1.7; color: var(--muted); }
+h4 { margin: 0 0 10px; font-size: 12px; font-weight: 500; }
+.muted-label { font-size: 11px; color: var(--muted); margin: 0; }
+button { font-size: 11px; padding: 4px 10px; border: 0.5px solid var(--border); background: transparent; border-radius: var(--radius-md); cursor: pointer; }
+.legend { margin-top: 24px; padding: 16px; background: var(--card); border-radius: var(--radius-lg); border: 0.5px solid var(--border); font-size: 12px; line-height: 1.7; color: var(--muted); }
+.legend strong { color: var(--text); }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1 style="font-size: 22px; font-weight: 500; margin: 0 0 4px;">BL-MGR-DASHBOARD-V1 · Wireframe v1</h1>
+<p style="margin: 0 0 24px; color: var(--muted); font-size: 13px;">매니저 대시보드 · 홈 탭 / 16개 확정 결정 반영 / 2026-05-17</p>
+
+<div class="frame">
+
+<div class="header">
+  <div class="hotel-meta">
+    <div class="icon-circle">🏨</div>
+    <div>
+      <p style="margin:0;font-size:14px;font-weight:500;">Hotel ABC · Hanoi</p>
+      <p style="margin:0;font-size:11px;color:var(--muted);">Manager · Mr. Nguyen</p>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:8px;">
+    <span class="lang-toggle">KO / EN</span>
+    <span style="font-size:16px;">🔔</span>
+    <span style="font-size:16px;">↪</span>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab active">🏠 홈</div>
+  <div class="tab">🎬 영상</div>
+  <div class="tab">📝 계약·결제</div>
+  <div class="tab">📊 고객 분석</div>
+  <div class="tab">💬 문의</div>
+</div>
+
+<div class="banner">
+  ⚠ 계약 만료 D-7 · 연장 결제 시 노출 끊김 없이 이어집니다 · <u>선결제 진행</u>
+</div>
+
+<div class="body">
+
+  <div class="grid-2">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
+        <div>
+          <p class="muted-label">호텔 정보 · 담당자</p>
+          <p style="margin:4px 0 0;font-size:15px;font-weight:500;">Hotel ABC</p>
+        </div>
+        <button>수정</button>
+      </div>
+      <div class="meta-info">
+        <div>📍 Hanoi · ⭐ 4성</div>
+        <div>👤 Mr. Nguyen · nguyen@hotelabc.com</div>
+        <div>🆔 Agoda ID 1234567</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <p class="muted-label" style="margin-bottom:12px;">진행 상태</p>
+      <div class="stepper">
+        <div class="step done"><div class="step-dot">✓</div><div>결제</div></div>
+        <div class="step-line"></div>
+        <div class="step done"><div class="step-dot">✓</div><div>노출 대기</div></div>
+        <div class="step-line"></div>
+        <div class="step current"><div class="step-dot">3</div><div>진행 중</div></div>
+        <div class="step-line"></div>
+        <div class="step todo"><div class="step-dot">4</div><div>정산</div></div>
+        <div class="step-line"></div>
+        <div class="step todo"><div class="step-dot">5</div><div>마감</div></div>
+      </div>
+      <p style="margin:12px 0 0;font-size:11px;color:var(--muted);">남은 기간 · 7일 · 2026-05-24 종료</p>
+    </div>
+  </div>
+
+  <div class="kpi-grid">
+    <div class="kpi"><p class="kpi-label">총 노출</p><p class="kpi-value">128K</p></div>
+    <div class="kpi"><p class="kpi-label">예약 건수</p><p class="kpi-value">17</p></div>
+    <div class="kpi"><p class="kpi-label">예약 금액 (USD)</p><p class="kpi-value">$4,820</p></div>
+    <div class="kpi"><p class="kpi-label">매출 인정</p><p class="kpi-value">$3,640</p></div>
+  </div>
+
+  <div class="card" style="margin-bottom:12px;">
+    <h4>계약 카드</h4>
+    <div class="contract-card active">
+      <div>
+        <p style="margin:0;font-weight:500;">1차 계약 · 진행 중</p>
+        <p style="margin:2px 0 0;font-size:11px;">2025-11-24 ~ 2026-05-24 · $200</p>
+      </div>
+      <span style="font-size:10px;padding:3px 8px;background:var(--card);color:var(--info-text);border-radius:999px;font-weight:500;">D-7</span>
+    </div>
+    <div class="contract-card done">
+      <div>
+        <p style="margin:0;">0차 계약 · 종료</p>
+        <p style="margin:2px 0 0;font-size:11px;color:var(--muted);">2025-05-24 ~ 2025-11-24 · 완료</p>
+      </div>
+      <span style="font-size:10px;padding:3px 8px;background:var(--secondary);color:var(--muted);border-radius:999px;">마감</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+      <h4 style="margin:0;">영상 · 채널별 타겟</h4>
+      <span style="font-size:11px;color:var(--muted);">본편 1 · 무상 추가 2</span>
+    </div>
+    <div class="video-grid">
+      <div class="video-item"><span>🇰🇷 한국</span><span style="font-weight:500;">52K</span></div>
+      <div class="video-item"><span>🌐 영어권</span><span style="font-weight:500;">38K</span></div>
+      <div class="video-item"><span>🇯🇵 일본</span><span style="font-weight:500;">21K</span></div>
+      <div class="video-item"><span>🇹🇼 대만</span><span style="font-weight:500;">9K</span></div>
+      <div class="video-item"><span>🇻🇳 베트남</span><span style="font-weight:500;">6K</span></div>
+      <div class="video-item"><span>🇹🇭 태국</span><span style="font-weight:500;">2K</span></div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<div class="legend">
+<p><strong>이 와이어프레임이 박는 16개 결정</strong></p>
+<ol>
+<li>탭 5개 — 홈 / 영상 / 계약·결제 / 고객 분석 / 문의 ✅</li>
+<li>언어 토글 KO/EN, 중일은 없음 ✅</li>
+<li>호텔 카드 — 정보 + 담당자 + 수정 버튼 통합 ✅</li>
+<li>진행 5단계 스테퍼 — 결제 / 노출 대기 / 진행 / 정산 / 마감 ✅</li>
+<li>영상 본편 + 무상 추가 표기 ✅</li>
+<li>채널 타겟 6라벨 — 영어권/한국/일본/대만/베트남/태국 ✅</li>
+<li>계약 1차/2차 카드 분리, 진행 중 위 · 종료 아래 ✅</li>
+<li>예약 귀속 — 예약일(booked_at) 기준 (KPI 17건은 booked_at 기준 집계) ✅</li>
+<li>매출 인정 — 체크아웃 완료 + 노쇼 ($3,640 = USD 예약금액 $4,820 중 체크아웃 완료분) ✅</li>
+<li>취소는 매출 외 분리 표시 (KPI 영역 외 분리 예정) ✅</li>
+<li>선결제 — D-30부터 가능, 자동 노출 시작 (배너 “선결제 진행”) ✅</li>
+<li>알림 — D-30 / D-7 / D-0 메일 + 화면 배너 (지금 D-7 배너 표시) ✅</li>
+<li>고객 분석 — 6가지 인사이트 + PDF/엑셀 다운로드 (탭4에서 전개) ✅</li>
+<li>채널별 분석 V1 — 채널별 예약 건수 + 예약 금액만 (영상 카드 노출 수치는 V2에서 YouTube API 별도 BL) ✅</li>
+<li>국가별 예약 금액 — customer_country × SUM(booking_amount_usd) (탭4에서 전개) ✅</li>
+<li>객실 인원 — room_type / num_adults / num_children 원본 표시 (V1) ✅</li>
+</ol>
+<p style="margin-top:12px;"><strong>실제 페이지 적용 시</strong> — TW B2B v2 Aurora 표준(다크 캔버스 + aurora-1 보라 / aurora-2 마젠타 / aurora-3 시안 그라디언트 + 글래스모피즘 카드)으로 입힘. 이 와이어프레임은 구조 확인용 라이트 톤.</p>
+</div>
+
+</div>
+</body>
+</html>

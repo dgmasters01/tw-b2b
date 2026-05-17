@@ -59,8 +59,7 @@
 | 인계 받은 작업 이어가기 | `_os/handoff/current.md` |
 | 작업 표준 워크플로 | `_os/playbook/workflow.md` |
 | chat-log 작성 표준 | `_os/playbook/chat-log-format.md` |
-| 디자인 작업 | `_os/templates/` + `_os/skins/` + `_os/playbook/design-artifacts-rule.md` |
-| 페이지·UI BL 시작 시 (의무) | `_os/playbook/design-artifacts-rule.md` — design_artifacts 자동 박제 룰 |
+| 디자인 작업 | `_os/templates/` + `_os/skins/` |
 | 봇·자동화 작업 | `_os/workflows/` + `.github/workflows/` |
 | 기타 (단순 문답·보고) | (안 읽어도 됨) |
 

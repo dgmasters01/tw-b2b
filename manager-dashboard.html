@@ -170,6 +170,110 @@ body{margin:0;background:var(--bg);font-family:var(--sans);color:var(--ink);min-
 .md-extra-stats{text-align:right;font-family:var(--mono);font-size:11px;color:var(--ink-3)}
 .md-extra-stats strong{display:block;color:var(--ink);font-size:15px;margin-bottom:2px}
 
+/* ---- Tab 3: Payments ---- */
+.md-refund-banner{display:flex;gap:14px;align-items:flex-start;padding:16px 18px;
+  background:rgba(124,58,237,.10);border:1px solid rgba(124,58,237,.28);
+  border-radius:var(--r-lg);margin:14px 0 18px}
+.md-refund-icon{font-size:22px;flex-shrink:0;line-height:1}
+.md-refund-body{flex:1}
+.md-refund-title{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:3px;letter-spacing:.01em}
+.md-refund-text{font-size:12.5px;color:var(--ink-2);line-height:1.55}
+.md-pay-card{background:linear-gradient(135deg,rgba(124,58,237,.16),rgba(6,182,212,.14));
+  border:1px solid var(--line-2);border-radius:var(--r-lg);padding:22px;
+  margin-bottom:14px;backdrop-filter:blur(24px);position:relative;overflow:hidden}
+.md-pay-card.pending{background:var(--glass);border-style:dashed}
+.md-pay-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:12px;flex-wrap:wrap}
+.md-pay-rank{font-size:15px;font-weight:700;font-family:var(--display);color:var(--ink)}
+.md-pay-status{padding:4px 10px;border-radius:99px;font-size:11px;font-weight:600;font-family:var(--mono);letter-spacing:.04em}
+.md-pay-btns{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.md-pay-meta-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;
+  padding-top:14px;border-top:1px solid var(--line)}
+.md-pay-meta-label{font-size:11px;color:var(--ink-4);text-transform:uppercase;
+  letter-spacing:.06em;font-family:var(--mono);margin-bottom:4px}
+.md-pay-meta-value{font-size:14px;font-weight:600;color:var(--ink);font-family:var(--mono)}
+.md-pay-meta-sub{font-size:11px;color:var(--ink-3);margin-top:2px}
+
+/* ---- Tab 4: Inquiry ---- */
+.md-cs-card{display:flex;gap:14px;align-items:center;padding:18px 20px;
+  background:var(--glass);border:1px solid var(--line-2);border-radius:var(--r-lg);margin-bottom:16px}
+.md-cs-avatar{width:54px;height:54px;border-radius:50%;background:linear-gradient(135deg,var(--aurora-1),var(--aurora-3));
+  display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0}
+.md-cs-body{flex:1}
+.md-cs-name{font-size:15px;font-weight:700;color:var(--ink);display:flex;align-items:center;gap:8px}
+.md-cs-online{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--success);font-family:var(--mono);font-weight:600}
+.md-cs-online::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--success);box-shadow:0 0 6px var(--success)}
+.md-cs-sub{font-size:12.5px;color:var(--ink-3);margin-top:3px}
+.md-cs-action{flex-shrink:0}
+.md-faq-list{display:flex;flex-direction:column;gap:8px;margin-bottom:18px}
+.md-faq-item{background:var(--glass);border:1px solid var(--line);border-radius:10px;overflow:hidden;transition:var(--transition)}
+.md-faq-item[open]{border-color:var(--line-3)}
+.md-faq-q{padding:14px 16px;font-size:13.5px;font-weight:600;color:var(--ink);cursor:pointer;
+  display:flex;justify-content:space-between;align-items:center;list-style:none;gap:10px}
+.md-faq-q::-webkit-details-marker{display:none}
+.md-faq-q::after{content:'▸';color:var(--ink-3);font-size:11px;transition:var(--transition);flex-shrink:0}
+.md-faq-item[open] .md-faq-q::after{transform:rotate(90deg);color:var(--aurora-3)}
+.md-faq-a{padding:0 16px 14px;font-size:12.5px;color:var(--ink-2);line-height:1.6}
+.md-faq-a a{color:var(--aurora-3);text-decoration:none;font-weight:600}
+.md-faq-a a:hover{text-decoration:underline}
+.md-inq-toolbar{display:flex;gap:10px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
+.md-inq-search{flex:1;min-width:220px;padding:10px 14px;background:var(--glass);border:1px solid var(--line-2);
+  border-radius:8px;color:var(--ink);font-size:13px;font-family:var(--sans)}
+.md-inq-search:focus{outline:none;border-color:var(--aurora-3)}
+.md-inq-filters{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.md-inq-chip{padding:6px 12px;background:var(--glass);border:1px solid var(--line);border-radius:99px;
+  font-size:12px;color:var(--ink-3);cursor:pointer;font-family:var(--mono);font-weight:600;transition:var(--transition)}
+.md-inq-chip:hover{color:var(--ink);border-color:var(--line-2)}
+.md-inq-chip.active{background:var(--aurora);color:#fff;border-color:transparent}
+.md-inq-item{padding:14px 16px;background:var(--glass);border:1px solid var(--line);border-radius:10px;
+  margin-bottom:8px;display:flex;justify-content:space-between;align-items:flex-start;gap:14px;cursor:pointer;transition:var(--transition)}
+.md-inq-item:hover{border-color:var(--line-3)}
+.md-inq-status{font-size:11px;font-weight:700;font-family:var(--mono);padding:3px 8px;border-radius:99px;flex-shrink:0;letter-spacing:.04em}
+.md-inq-status.waiting{background:rgba(245,158,11,.18);color:var(--warn)}
+.md-inq-status.done{background:rgba(16,185,129,.18);color:var(--success)}
+.md-inq-body{flex:1;min-width:0}
+.md-inq-meta{font-size:11px;color:var(--ink-3);font-family:var(--mono);margin-bottom:4px}
+.md-inq-title{font-size:13px;font-weight:600;color:var(--ink);line-height:1.45}
+.md-inq-tag{font-size:11px;color:var(--aurora-3);font-weight:600;margin-top:3px}
+.md-pager{display:flex;justify-content:center;align-items:center;gap:8px;padding:14px;
+  border-top:1px solid var(--line);font-size:12px;color:var(--ink-3);font-family:var(--mono)}
+.md-pager-btn{padding:5px 10px;background:var(--glass);border:1px solid var(--line);border-radius:6px;
+  color:var(--ink-2);cursor:pointer;font-family:var(--mono)}
+.md-pager-btn:disabled{opacity:.4;cursor:not-allowed}
+
+/* ---- Tab 5: Analytics ---- */
+.md-country-list{display:flex;flex-direction:column;gap:10px;margin-top:14px}
+.md-country-row{display:flex;align-items:center;gap:14px;padding:14px 16px;
+  background:var(--glass);border:1px solid var(--line);border-radius:10px}
+.md-country-flag{font-size:24px;flex-shrink:0;line-height:1}
+.md-country-info{flex:1;min-width:0}
+.md-country-name{font-size:13.5px;font-weight:700;color:var(--ink)}
+.md-country-sub{font-size:11.5px;color:var(--ink-3);margin-top:2px}
+.md-country-stats{text-align:right;font-family:var(--mono);flex-shrink:0}
+.md-country-pct{font-size:14px;font-weight:700;color:var(--ink)}
+.md-country-rev{font-size:11px;color:var(--ink-3);margin-top:2px}
+.md-trend-chart{display:flex;align-items:flex-end;gap:8px;height:160px;padding:14px 4px 4px;
+  border-bottom:1px solid var(--line);margin-top:10px}
+.md-trend-bar{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0}
+.md-trend-fill{width:80%;max-width:42px;background:linear-gradient(180deg,var(--aurora-3),var(--aurora-1));
+  border-radius:6px 6px 0 0;min-height:2px;transition:height .6s ease}
+.md-trend-fill.empty{background:var(--glass-2)}
+.md-trend-value{font-size:10.5px;color:var(--ink-2);font-family:var(--mono);font-weight:600}
+.md-trend-label{font-size:10px;color:var(--ink-4);font-family:var(--mono);text-align:center}
+.md-funnel{display:flex;align-items:stretch;gap:6px;margin-top:14px;flex-wrap:wrap}
+.md-funnel-step{flex:1;min-width:140px;padding:14px;background:var(--glass);
+  border:1px solid var(--line);border-radius:10px;text-align:center}
+.md-funnel-num{font-size:20px;font-weight:700;color:var(--ink);font-family:var(--display)}
+.md-funnel-label{font-size:11px;color:var(--ink-3);font-family:var(--mono);text-transform:uppercase;
+  letter-spacing:.05em;margin-top:4px}
+.md-funnel-sub{font-size:11px;color:var(--aurora-3);margin-top:4px;font-family:var(--mono);font-weight:600}
+.md-funnel-arrow{display:flex;align-items:center;color:var(--ink-4);font-size:18px;padding:0 2px}
+.md-v11-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-top:14px}
+.md-v11-item{padding:14px;background:var(--glass);border:1px dashed var(--line-2);border-radius:10px;opacity:.85}
+.md-v11-title{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:5px}
+.md-v11-desc{font-size:11.5px;color:var(--ink-3);line-height:1.5;margin-bottom:8px}
+.md-v11-tag{display:inline-block;padding:3px 8px;background:rgba(124,58,237,.18);color:var(--aurora-2);
+  font-size:10.5px;font-weight:600;border-radius:99px;font-family:var(--mono);letter-spacing:.04em}
+
 /* ---- Mobile ---- */
 @media (max-width: 900px){
   .md-shell{padding:0 16px}
@@ -178,6 +282,10 @@ body{margin:0;background:var(--bg);font-family:var(--sans);color:var(--ink);min-
   .md-hotel-card{flex-direction:column}
   .md-hotel-img{width:100%;height:140px}
   .md-logo-sub{display:none}
+  .md-pay-meta-row{grid-template-columns:1fr;gap:10px}
+  .md-funnel{flex-direction:column}
+  .md-funnel-arrow{transform:rotate(90deg);justify-content:center;padding:4px 0}
+  .md-trend-chart{height:120px}
 }
 </style>
 </head>
@@ -1045,7 +1153,183 @@ function renderExtraVideos(extras){
   }).join('');
   list.innerHTML = items;
 }
-function loadPaymentsTab(){ window.__paymentsLoaded = true; /* Step 4 */ }
+// =====================================================================
+// TAB 3: Payments
+// =====================================================================
+async function loadPaymentsTab(){
+  window.__paymentsLoaded = true;
+  if (!currentHotel) return;
+
+  // 결제 카드 fetch
+  const { data: payments, error: pErr } = await supabase
+    .from('v_manager_payments')
+    .select('*')
+    .eq('hotel_id', currentHotel.hotel_id)
+    .order('payment_order');
+  if (pErr) console.error('[payments] fetch error', pErr);
+  renderPaymentCards(payments || []);
+
+  // 예약 명세 fetch (5건 우선)
+  const { data: bookings, count, error: bErr } = await supabase
+    .from('v_manager_recent_bookings')
+    .select('*', { count: 'exact' })
+    .eq('hotel_id', currentHotel.hotel_id)
+    .order('booked_date', { ascending: false })
+    .limit(5);
+  if (bErr) console.error('[bookings] fetch error', bErr);
+
+  window.__bookingsLoaded = bookings || [];
+  window.__bookingsTotal = count || 0;
+  renderBookingTable(window.__bookingsLoaded);
+  updateBookingSummary();
+}
+
+function renderPaymentCards(payments){
+  const wrap = document.getElementById('paymentCardsList');
+  if (!wrap) return;
+  if (!payments.length) {
+    wrap.innerHTML = `<div class="md-card"><div class="md-empty">
+      <div class="md-empty-icon">📝</div>
+      <div class="md-empty-msg">${currentLang === 'ko' ? '결제 내역이 없습니다' : 'No payments yet'}</div>
+    </div></div>`;
+    return;
+  }
+  wrap.innerHTML = payments.map((p) => {
+    const isCompleted = ['paid','completed','succeeded','captured'].includes((p.payment_status||'').toLowerCase());
+    const rankLabel = currentLang === 'ko'
+      ? `${p.payment_order}차 계약`
+      : `Contract #${p.payment_order}`;
+    const statusBadge = isCompleted
+      ? `<span class="md-pay-status md-badge-live">${currentLang === 'ko' ? '운영 중' : 'ACTIVE'}</span>`
+      : `<span class="md-pay-status md-badge-pending">${currentLang === 'ko' ? '대기' : 'PENDING'}</span>`;
+    const invoiceBtn = `<button class="md-video-btn" onclick="downloadDoc('invoice','${p.payment_id}')">📄 ${currentLang === 'ko' ? '인보이스' : 'Invoice'}</button>`;
+    const receiptBtn = p.receipt_url
+      ? `<a href="${escapeAttr(p.receipt_url)}" target="_blank" rel="noopener" class="md-video-btn">🧾 ${currentLang === 'ko' ? '영수증' : 'Receipt'}</a>`
+      : `<button class="md-video-btn" onclick="downloadDoc('receipt','${p.payment_id}')">🧾 ${currentLang === 'ko' ? '영수증' : 'Receipt'}</button>`;
+    // 정책 4: 계약서 = 결제 완료 카드에만
+    const contractBtn = isCompleted
+      ? `<button class="md-video-btn" onclick="downloadDoc('contract','${p.payment_id}')">📋 ${currentLang === 'ko' ? '계약서' : 'Contract'}</button>`
+      : '';
+    const daysLeft = isCompleted && p.guarantee_end_at
+      ? `D-${Math.max(0, daysDiff(new Date(), p.guarantee_end_at))}`
+      : (currentLang === 'ko' ? '자동 시작' : 'auto start');
+    return `
+      <div class="md-pay-card ${isCompleted ? '' : 'pending'}">
+        <div class="md-pay-head">
+          <div class="md-pay-rank">${rankLabel}</div>
+          ${statusBadge}
+        </div>
+        <div class="md-pay-btns">${invoiceBtn}${receiptBtn}${contractBtn}</div>
+        <div class="md-pay-meta-row">
+          <div>
+            <div class="md-pay-meta-label">${currentLang === 'ko' ? '선결제일' : 'Paid'}</div>
+            <div class="md-pay-meta-value">${fmtDate(p.paid_at)}</div>
+            <div class="md-pay-meta-sub">${fmtMoney(p.amount)} · ${p.method || 'PayPal'}</div>
+          </div>
+          <div>
+            <div class="md-pay-meta-label">${currentLang === 'ko' ? '노출 시작' : 'Live from'}</div>
+            <div class="md-pay-meta-value">${fmtDate(p.paid_at)}</div>
+            <div class="md-pay-meta-sub">${currentLang === 'ko' ? '실제 게시일' : 'actual publish date'}</div>
+          </div>
+          <div>
+            <div class="md-pay-meta-label">${currentLang === 'ko' ? '보장 기한' : 'Guarantee Until'}</div>
+            <div class="md-pay-meta-value">${fmtDate(p.guarantee_end_at)}</div>
+            <div class="md-pay-meta-sub">${daysLeft}</div>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+const COUNTRY_FLAG = { KR:'🇰🇷', JP:'🇯🇵', US:'🇺🇸', TW:'🇹🇼', OTHER:'🌍' };
+
+function renderBookingTable(bookings){
+  const tbody = document.getElementById('bookingTableBody');
+  if (!tbody) return;
+  if (!bookings.length) {
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--ink-3)">
+      ${currentLang === 'ko' ? '예약 내역 없음' : 'No bookings yet'}</td></tr>`;
+    document.getElementById('bookingLoadMore').style.display = 'none';
+    return;
+  }
+  const statusLabel = (b) => {
+    if (b.is_cancelled) return currentLang === 'ko' ? '취소' : 'Cancelled';
+    if (b.booking_status === 'no_show') return currentLang === 'ko' ? '노쇼' : 'No-show';
+    if (b.is_completed) return currentLang === 'ko' ? '체크아웃 완료' : 'Checked out';
+    return currentLang === 'ko' ? '예약 확정' : 'Confirmed';
+  };
+  tbody.innerHTML = bookings.map(b => `
+    <tr>
+      <td class="ch-name">${escapeHtml(b.booking_no || '—')}</td>
+      <td>${fmtShortDate(b.booked_date)}</td>
+      <td>${fmtShortDate(b.checkin_date)}</td>
+      <td>${fmtShortDate(b.checkout_date)}</td>
+      <td>${COUNTRY_FLAG[b.guest_country] || '🌍'} ${escapeHtml(b.guest_country || '—')}</td>
+      <td>${fmtMoney(b.booking_amount_usd)}</td>
+      <td>${statusLabel(b)}</td>
+    </tr>`).join('');
+  const loadMore = document.getElementById('bookingLoadMore');
+  if (loadMore) loadMore.style.display = (window.__bookingsTotal > bookings.length) ? 'block' : 'none';
+}
+
+function updateBookingSummary(){
+  const total = window.__bookingsTotal || 0;
+  const el = document.getElementById('bookingSummary');
+  if (el) el.textContent = currentLang === 'ko'
+    ? `이번 계약 기간 예약 ${total}건`
+    : `${total} bookings this period`;
+}
+
+async function loadMoreBookings(){
+  const start = window.__bookingsLoaded.length;
+  const { data: more, error } = await supabase
+    .from('v_manager_recent_bookings')
+    .select('*')
+    .eq('hotel_id', currentHotel.hotel_id)
+    .order('booked_date', { ascending: false })
+    .range(start, start + 9);
+  if (error) { console.error('[bookings] loadMore error', error); return; }
+  if (more && more.length) {
+    window.__bookingsLoaded = window.__bookingsLoaded.concat(more);
+    renderBookingTable(window.__bookingsLoaded);
+  }
+}
+
+function exportBookings(format){
+  if (format !== 'csv') return;
+  const rows = window.__bookingsLoaded || [];
+  if (!rows.length) { alert(currentLang === 'ko' ? '내보낼 예약이 없습니다' : 'No bookings to export'); return; }
+  const header = ['booking_no','booked_date','checkin','checkout','country','amount_usd','status'];
+  const csvEsc = v => { const s = String(v ?? ''); return /[",\n]/.test(s) ? `"${s.replace(/"/g,'""')}"` : s; };
+  const csv = [header.join(',')].concat(rows.map(b => [
+    b.booking_no, b.booked_date, b.checkin_date, b.checkout_date,
+    b.guest_country, b.booking_amount_usd,
+    b.is_cancelled ? 'cancelled' : (b.booking_status || 'confirmed')
+  ].map(csvEsc).join(','))).join('\n');
+  const blob = new Blob(["\ufeff" + csv], {type:'text/csv;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `bookings_${currentHotel.hotel_id}_${new Date().toISOString().slice(0,10)}.csv`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+// Stub — 실제 PDF 생성은 BL-DOC-PDF-GEN에서 처리
+function downloadDoc(type, paymentId){
+  const labels = {
+    invoice: currentLang === 'ko' ? '인보이스' : 'Invoice',
+    receipt: currentLang === 'ko' ? '영수증' : 'Receipt',
+    contract: currentLang === 'ko' ? '계약서' : 'Contract'
+  };
+  alert(currentLang === 'ko'
+    ? `${labels[type]} PDF 다운로드 — 곧 제공됩니다 (BL-DOC-PDF-GEN)`
+    : `${labels[type]} PDF download — coming soon (BL-DOC-PDF-GEN)`);
+}
+
+function escapeHtml(s){ return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function escapeAttr(s){ return String(s ?? '').replace(/"/g, '&quot;'); }
+
 function loadInquiryTab(){ window.__inquiryLoaded = true; /* Step 5 */ }
 function loadAnalyticsTab(){ window.__analyticsLoaded = true; /* Step 6 */ }
 

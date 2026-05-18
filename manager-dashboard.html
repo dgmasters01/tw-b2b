@@ -521,18 +521,66 @@ body{margin:0;background:var(--bg);font-family:var(--sans);color:var(--ink);min-
 
     </section>
 
-    <!-- ============ TAB 3 : PAYMENTS (placeholder, Step 4) ============ -->
+    <!-- ============ TAB 3 : PAYMENTS ============ -->
     <section class="md-tab-panel" id="tab-payments">
-      <div class="md-card">
-        <h3 class="md-card-title" data-en="Payments" data-ko="결제">Payments</h3>
-        <p class="md-card-sub"
-           data-en="Payment history · Invoice · Receipt · Contract"
-           data-ko="결제 내역 · 인보이스 · 영수증 · 계약서">Payment history · Invoice · Receipt · Contract</p>
-        <div class="md-empty">
+
+      <!-- Contract summary -->
+      <div class="md-section-head">
+        <h3 class="md-section-title" data-en="Contract Summary" data-ko="계약 요약">Contract Summary</h3>
+      </div>
+
+      <div id="paymentCardsList">
+        <div class="md-card"><div class="md-empty">
           <div class="md-empty-icon">📝</div>
           <div class="md-empty-msg" data-en="Loading..." data-ko="불러오는 중...">Loading...</div>
+        </div></div>
+      </div>
+
+      <!-- Refund guarantee banner -->
+      <div class="md-refund-banner">
+        <div class="md-refund-icon">🛡</div>
+        <div class="md-refund-body">
+          <div class="md-refund-title" data-en="Refund Guarantee" data-ko="환불 보장">Refund Guarantee</div>
+          <div class="md-refund-text"
+               data-en="100% refund if zero bookings within the 6-month guarantee period. (See contract clause 4)"
+               data-ko="6개월 보장 기한 내 예약 0건 시 100% 환불됩니다. (계약서 4조 참조)">100% refund if zero bookings within the 6-month guarantee period. (See contract clause 4)</div>
         </div>
       </div>
+
+      <!-- Booking list (7 columns) -->
+      <div class="md-section-head">
+        <h3 class="md-section-title" data-en="Booking List" data-ko="예약 내역">Booking List</h3>
+        <div style="display:flex;gap:8px;align-items:center">
+          <span class="md-section-period" id="bookingSummary"
+                data-en="—" data-ko="—">—</span>
+          <button class="md-video-btn" onclick="exportBookings('csv')">⬇ CSV</button>
+        </div>
+      </div>
+
+      <div class="md-card" style="padding:0;overflow-x:auto">
+        <table class="md-video-table" id="bookingTable">
+          <thead>
+            <tr>
+              <th data-en="Booking No." data-ko="예약번호">Booking No.</th>
+              <th data-en="Booked Date" data-ko="예약일">Booked Date</th>
+              <th data-en="Check-in" data-ko="체크인">Check-in</th>
+              <th data-en="Check-out" data-ko="체크아웃">Check-out</th>
+              <th data-en="Country" data-ko="국가">Country</th>
+              <th data-en="Amount" data-ko="금액">Amount</th>
+              <th data-en="Status" data-ko="상태">Status</th>
+            </tr>
+          </thead>
+          <tbody id="bookingTableBody">
+            <tr><td colspan="7" style="text-align:center;padding:32px;color:var(--ink-3)">Loading…</td></tr>
+          </tbody>
+        </table>
+        <div id="bookingLoadMore" style="text-align:center;padding:14px;border-top:1px solid var(--line);display:none">
+          <button class="md-video-btn" onclick="loadMoreBookings()" id="loadMoreBtn">
+            <span data-en="Show more" data-ko="더 보기">Show more</span>
+          </button>
+        </div>
+      </div>
+
     </section>
 
     <!-- ============ TAB 4 : SUPPORT (placeholder, Step 5) ============ -->

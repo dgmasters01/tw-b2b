@@ -802,18 +802,139 @@ body{margin:0;background:var(--bg);font-family:var(--sans);color:var(--ink);min-
 
     </section>
 
-    <!-- ============ TAB 5 : ANALYTICS (placeholder, Step 6) ============ -->
+    <!-- ============ TAB 5 : ANALYTICS (Step 6) ============ -->
     <section class="md-tab-panel" id="tab-analytics">
-      <div class="md-card">
-        <h3 class="md-card-title" data-en="Customer Analytics" data-ko="고객 분석">Customer Analytics</h3>
-        <p class="md-card-sub"
-           data-en="Booking data flowing through 8 channels and 6 languages"
-           data-ko="8개 채널·6개 언어를 통해 들어온 예약 데이터입니다">Booking data flowing through 8 channels and 6 languages</p>
-        <div class="md-empty">
-          <div class="md-empty-icon">📊</div>
-          <div class="md-empty-msg" data-en="Loading..." data-ko="불러오는 중...">Loading...</div>
+
+      <div class="md-section-head">
+        <h3 class="md-section-title" data-en="Customer Analytics" data-ko="고객 분석">Customer Analytics</h3>
+        <span class="md-section-period"
+              data-en="Booking data via 8 channels · 6 languages (main + extra unified)"
+              data-ko="8개 채널·6개 언어 통합 집계 (본편 + 추가 노출 통합)">Booking data via 8 channels · 6 languages</span>
+        <button class="md-video-btn" onclick="exportAnalytics('csv')" style="margin-left:auto">⬇ CSV</button>
+      </div>
+
+      <!-- KPI 4 cards -->
+      <div class="md-kpi-grid" id="analyticsKpiGrid">
+        <div class="md-kpi-card">
+          <div class="md-kpi-label" data-en="Total Bookings" data-ko="총 예약 건수">Total Bookings</div>
+          <div class="md-kpi-value" id="anaTotal">—</div>
+          <div class="md-kpi-sub" id="anaTotalSub">—</div>
+        </div>
+        <div class="md-kpi-card">
+          <div class="md-kpi-label" data-en="Confirmed Revenue (USD)" data-ko="확정 매출 (USD)">Confirmed Revenue (USD)</div>
+          <div class="md-kpi-value" id="anaRevenue">—</div>
+          <div class="md-kpi-sub" id="anaRevenueSub">—</div>
+        </div>
+        <div class="md-kpi-card">
+          <div class="md-kpi-label" data-en="Total Nights" data-ko="총 박야 (Nights)">Total Nights</div>
+          <div class="md-kpi-value" id="anaNights">—</div>
+          <div class="md-kpi-sub" id="anaNightsSub">—</div>
+        </div>
+        <div class="md-kpi-card">
+          <div class="md-kpi-label" data-en="No-show Revenue (incl.)" data-ko="노쇼 매출 (포함)">No-show Revenue (incl.)</div>
+          <div class="md-kpi-value" id="anaNoshow">—</div>
+          <div class="md-kpi-sub" id="anaNoshowSub">—</div>
         </div>
       </div>
+
+      <!-- Country distribution -->
+      <div class="md-section-head" style="margin-top:24px">
+        <h3 class="md-section-title" data-en="Booking by Country" data-ko="국가별 예약 분포">Booking by Country</h3>
+        <span class="md-section-period" id="anaCountryPeriod"
+              data-en="4 countries (guest residence)" data-ko="4개국 (예약자 거주 국가 기준)">4 countries</span>
+      </div>
+      <div class="md-card">
+        <div class="md-country-list" id="anaCountryList">
+          <div class="md-empty" style="padding:24px"><div class="md-empty-icon">🌍</div>
+            <div class="md-empty-msg" data-en="Loading..." data-ko="불러오는 중...">Loading...</div></div>
+        </div>
+      </div>
+
+      <!-- Monthly trend -->
+      <div class="md-section-head" style="margin-top:24px">
+        <h3 class="md-section-title" data-en="Monthly Booking Trend" data-ko="월별 예약 추이">Monthly Booking Trend</h3>
+        <span class="md-section-period"
+              data-en="Last 6 months · main + extra unified"
+              data-ko="최근 6개월 · 본편 + 추가 노출 통합">Last 6 months</span>
+      </div>
+      <div class="md-card">
+        <div class="md-trend-chart" id="anaTrendChart">
+          <div class="md-empty" style="margin:auto"><div class="md-empty-msg" data-en="Loading..." data-ko="불러오는 중...">Loading...</div></div>
+        </div>
+        <div id="anaTrendSummary" style="margin-top:10px;font-size:12.5px;color:var(--ink-2);font-family:var(--mono)">—</div>
+      </div>
+
+      <!-- Funnel -->
+      <div class="md-section-head" style="margin-top:24px">
+        <h3 class="md-section-title" data-en="Booking Flow" data-ko="예약 흐름 요약">Booking Flow</h3>
+        <span class="md-section-period"
+              data-en="8 YouTube channels → Agoda affiliate links → direct hotel booking"
+              data-ko="8개 유튜브 채널 → Agoda 제휴링크 → 호텔 직접 예약">8 channels → Agoda → booking</span>
+      </div>
+      <div class="md-card">
+        <div class="md-funnel" id="anaFunnel">
+          <div class="md-funnel-step">
+            <div class="md-funnel-num" id="anaExposure">—</div>
+            <div class="md-funnel-label" data-en="Video Views" data-ko="영상 노출">Video Views</div>
+            <div class="md-funnel-sub" data-en="8 channels · 6 languages" data-ko="8개 채널 · 6개 언어">8 channels · 6 languages</div>
+          </div>
+          <div class="md-funnel-arrow">→</div>
+          <div class="md-funnel-step">
+            <div class="md-funnel-num" id="anaAgoda">—</div>
+            <div class="md-funnel-label" data-en="Agoda Click (CID)" data-ko="Agoda 진입 (CID)">Agoda Click</div>
+            <div class="md-funnel-sub" id="anaAgodaCvr">—</div>
+          </div>
+          <div class="md-funnel-arrow">→</div>
+          <div class="md-funnel-step">
+            <div class="md-funnel-num" id="anaBookings">—</div>
+            <div class="md-funnel-label" data-en="Bookings" data-ko="예약 완료">Bookings</div>
+            <div class="md-funnel-sub" id="anaBookingsCvr">—</div>
+          </div>
+          <div class="md-funnel-arrow">→</div>
+          <div class="md-funnel-step">
+            <div class="md-funnel-num" id="anaCheckin">—</div>
+            <div class="md-funnel-label" data-en="Confirmed Revenue" data-ko="매출 확정">Confirmed Revenue</div>
+            <div class="md-funnel-sub" id="anaCheckinSub">—</div>
+          </div>
+        </div>
+        <div style="margin-top:12px;padding:12px;background:var(--glass);border-radius:8px;font-size:12px;color:var(--ink-3);line-height:1.6">
+          💡 <strong data-en="No-show/Cancellation Policy" data-ko="노쇼·취소 매출 처리 정책">No-show/Cancellation Policy</strong> —
+          <span data-en="No-show = revenue included · Cancellation = revenue excluded"
+                data-ko="노쇼 = 매출 포함 · 취소 = 매출 제외">No-show = revenue included · Cancellation = revenue excluded</span>
+        </div>
+      </div>
+
+      <!-- V1.1 roadmap -->
+      <div class="md-section-head" style="margin-top:24px">
+        <h3 class="md-section-title" data-en="Coming in V1.1" data-ko="곧 추가될 분석">Coming in V1.1</h3>
+        <span class="md-section-period"
+              data-en="BL-MGR-DASHBOARD-V1.1 roadmap"
+              data-ko="BL-MGR-DASHBOARD-V1.1 로드맵">BL-MGR-DASHBOARD-V1.1 roadmap</span>
+      </div>
+      <div class="md-v11-list">
+        <div class="md-v11-item">
+          <div class="md-v11-title">📊 <span data-en="Average Daily Rate (ADR)" data-ko="평균 객단가 (ADR)">Average Daily Rate (ADR)</span></div>
+          <div class="md-v11-desc"
+               data-en="SUM(revenue USD) ÷ SUM(nights) — country comparison"
+               data-ko="SUM(매출 USD) ÷ SUM(박야) · 확정 매출 기준 · 국가별 비교">SUM(revenue) ÷ SUM(nights) — country comparison</div>
+          <span class="md-v11-tag" data-en="V1.1 planned" data-ko="V1.1 예정">V1.1 planned</span>
+        </div>
+        <div class="md-v11-item">
+          <div class="md-v11-title">📅 <span data-en="Day/Season Patterns" data-ko="인기 요일·시즌 분석">Day/Season Patterns</span></div>
+          <div class="md-v11-desc"
+               data-en="Check-in day-of-week and monthly seasonality — season pricing reference"
+               data-ko="체크인 요일·월별 패턴 · 시즌 가격·프로모션 기획 참고">Check-in day-of-week and monthly seasonality</div>
+          <span class="md-v11-tag" data-en="V1.1 planned" data-ko="V1.1 예정">V1.1 planned</span>
+        </div>
+        <div class="md-v11-item">
+          <div class="md-v11-title">📺 <span data-en="Channel View Trend" data-ko="채널별 조회 수 추이">Channel View Trend</span></div>
+          <div class="md-v11-desc"
+               data-en="8-channel cumulative views with country attribution"
+               data-ko="8개 채널 영상 누적 시청 · 국가별 노출 기여도 시각화">8-channel cumulative views with country attribution</div>
+          <span class="md-v11-tag" data-en="V1.1 planned" data-ko="V1.1 예정">V1.1 planned</span>
+        </div>
+      </div>
+
     </section>
 
   </main>
@@ -846,6 +967,30 @@ function setLang(lang){
     const txt = el.getAttribute('data-' + lang);
     if (txt !== null) el.textContent = txt;
   });
+  // placeholder i18n (search inputs)
+  document.querySelectorAll('[data-en-placeholder],[data-ko-placeholder]').forEach(el => {
+    const ph = el.getAttribute('data-' + lang + '-placeholder');
+    if (ph !== null) el.placeholder = ph;
+  });
+  // 동적 렌더 컨텐츠 재갱신 (이미 로드된 탭만)
+  if (window.__paymentsLoaded && currentHotel) {
+    if (window.__bookingsLoaded) {
+      renderBookingTable(window.__bookingsLoaded);
+      updateBookingSummary();
+    }
+    // 결제 카드는 재fetch 없이 재렌더만 — 이미 fetch한 데이터가 있다면
+    if (window.__paymentsData) renderPaymentCards(window.__paymentsData);
+  }
+  if (window.__inquiryLoaded) {
+    renderInquiryFilters();
+    renderInquiryList();
+  }
+  if (window.__analyticsLoaded && window.__anaStats) {
+    renderAnalyticsKPI(window.__anaStats);
+    renderAnalyticsCountries(window.__anaCountries || [], window.__anaStats);
+    renderAnalyticsTrend(window.__anaTrend || []);
+    renderAnalyticsFunnel(window.__anaStats);
+  }
 }
 
 // ---- Tabs ----
@@ -1262,6 +1407,7 @@ async function loadPaymentsTab(){
     .eq('hotel_id', currentHotel.hotel_id)
     .order('payment_order');
   if (pErr) console.error('[payments] fetch error', pErr);
+  window.__paymentsData = payments || [];
   renderPaymentCards(payments || []);
 
   // 예약 명세 fetch (5건 우선)
@@ -1569,7 +1715,229 @@ function openInquiry(id){
     : `Inquiry detail (#${id}) — coming soon (BL-INQUIRY-SCHEMA)`);
 }
 
-function loadAnalyticsTab(){ window.__analyticsLoaded = true; /* Step 6 */ }
+// =====================================================================
+// TAB 5: Analytics
+// =====================================================================
+const COUNTRY_META = {
+  KR: { flag:'🇰🇷', name_en:'Korea', name_ko:'한국', lang_en:'Korean (4 of 8 channels)', lang_ko:'언어: 한국어 · 8개 채널 중 4개' },
+  JP: { flag:'🇯🇵', name_en:'Japan', name_ko:'일본', lang_en:'日本語', lang_ko:'언어: 日本語' },
+  US: { flag:'🇺🇸', name_en:'United States', name_ko:'미국', lang_en:'English', lang_ko:'언어: English' },
+  TW: { flag:'🇹🇼', name_en:'Taiwan', name_ko:'대만', lang_en:'繁體中文 · 世界就是家 channel', lang_ko:'언어: 繁體中文 · 世界就是家 채널' },
+  OTHER: { flag:'🌍', name_en:'Other', name_ko:'기타', lang_en:'—', lang_ko:'—' }
+};
+
+async function loadAnalyticsTab(){
+  window.__analyticsLoaded = true;
+  if (!currentHotel) return;
+
+  // 1. KPI stats
+  const { data: stats } = await supabase
+    .from('v_manager_booking_stats')
+    .select('*')
+    .eq('hotel_id', currentHotel.hotel_id)
+    .maybeSingle();
+  window.__anaStats = stats || {};
+  renderAnalyticsKPI(stats);
+
+  // 2. Country distribution (4개국만, OTHER 제외)
+  const { data: countries } = await supabase
+    .from('v_manager_country_distribution')
+    .select('*')
+    .eq('hotel_id', currentHotel.hotel_id);
+  window.__anaCountries = countries || [];
+  renderAnalyticsCountries(countries || [], stats);
+
+  // 3. Monthly trend (최근 6개월)
+  const { data: trend } = await supabase
+    .from('v_manager_monthly_trend')
+    .select('*')
+    .eq('hotel_id', currentHotel.hotel_id)
+    .order('month_start');
+  window.__anaTrend = trend || [];
+  renderAnalyticsTrend(trend || []);
+
+  // 4. Funnel — booking 데이터 + KPI 재사용
+  renderAnalyticsFunnel(stats);
+}
+
+function renderAnalyticsKPI(s){
+  s = s || {};
+  const total = Number(s.total_bookings || 0);
+  const rev = Number(s.confirmed_revenue_usd || 0);
+  const nights = Number(s.total_nights || 0);
+  const noshow = Number(s.noshow_count || 0);
+  const noshowRev = Number(s.noshow_revenue_usd || 0);
+
+  document.getElementById('anaTotal').textContent = fmtNum(total) + (currentLang === 'ko' ? '건' : '');
+  document.getElementById('anaTotalSub').textContent = currentLang === 'ko'
+    ? `취소 ${fmtNum(s.cancelled_count||0)}건 제외`
+    : `excl. ${fmtNum(s.cancelled_count||0)} cancelled`;
+
+  document.getElementById('anaRevenue').textContent = fmtMoney(rev);
+  document.getElementById('anaRevenueSub').textContent = currentLang === 'ko'
+    ? '취소 제외 · 노쇼 포함'
+    : 'excl. cancelled · incl. no-show';
+
+  document.getElementById('anaNights').textContent = fmtNum(nights) + (currentLang === 'ko' ? '박' : '');
+  const adr = nights ? (rev / nights).toFixed(0) : 0;
+  document.getElementById('anaNightsSub').textContent = total
+    ? (currentLang === 'ko' ? `평균 체류 ${(nights/total).toFixed(1)}박/예약` : `Avg. ${(nights/total).toFixed(1)} nights/booking`)
+    : '—';
+
+  // 정책 6: 노쇼 0건 시 회색 정직 표시
+  const noshowEl = document.getElementById('anaNoshow');
+  const noshowSubEl = document.getElementById('anaNoshowSub');
+  if (noshow === 0) {
+    noshowEl.textContent = currentLang === 'ko' ? '없음' : 'None';
+    noshowEl.style.color = 'var(--ink-3)';
+    noshowSubEl.textContent = currentLang === 'ko'
+      ? '이번 계약 기간 노쇼 발생 0건'
+      : 'No no-shows this period';
+  } else {
+    noshowEl.textContent = fmtMoney(noshowRev);
+    noshowEl.style.color = '';
+    noshowSubEl.textContent = currentLang === 'ko'
+      ? `노쇼 ${fmtNum(noshow)}건 · 매출 포함`
+      : `${fmtNum(noshow)} no-shows · revenue included`;
+  }
+}
+
+function renderAnalyticsCountries(countries, stats){
+  const list = document.getElementById('anaCountryList');
+  if (!list) return;
+  // 정책: KR/JP/US/TW만 표시 (OTHER 제외)
+  const filtered = (countries || []).filter(c => ['KR','JP','US','TW'].includes(c.country_code));
+  if (!filtered.length) {
+    list.innerHTML = `<div class="md-empty" style="padding:24px">
+      <div class="md-empty-icon">🌍</div>
+      <div class="md-empty-msg">${currentLang === 'ko' ? '아직 예약 데이터가 없습니다' : 'No booking data yet'}</div>
+    </div>`;
+    return;
+  }
+  const total = filtered.reduce((sum, c) => sum + Number(c.booking_count || 0), 0) || 1;
+  // 박야 = stats 전체에서 비례 추정 (VIEW가 박야 미포함이므로 ratio 계산)
+  const totalNights = Number(stats?.total_nights || 0);
+  filtered.sort((a, b) => Number(b.booking_count) - Number(a.booking_count));
+  list.innerHTML = filtered.map(c => {
+    const meta = COUNTRY_META[c.country_code] || COUNTRY_META.OTHER;
+    const cnt = Number(c.booking_count || 0);
+    const rev = Number(c.revenue_usd || 0);
+    const pct = ((cnt / total) * 100).toFixed(1);
+    const nights = totalNights ? Math.round(totalNights * (cnt / total)) : 0;
+    return `
+      <div class="md-country-row">
+        <div class="md-country-flag">${meta.flag}</div>
+        <div class="md-country-info">
+          <div class="md-country-name">${currentLang === 'ko' ? meta.name_ko : meta.name_en}</div>
+          <div class="md-country-sub">${currentLang === 'ko' ? meta.lang_ko : meta.lang_en}</div>
+        </div>
+        <div class="md-country-stats">
+          <div class="md-country-pct">${fmtNum(cnt)}${currentLang === 'ko' ? '건' : ''} · ${pct}%</div>
+          <div class="md-country-rev">${fmtMoney(rev)} · ${fmtNum(nights)}${currentLang === 'ko' ? '박' : ' nights'}</div>
+        </div>
+      </div>`;
+  }).join('');
+  // period 라벨 갱신
+  const periodEl = document.getElementById('anaCountryPeriod');
+  if (periodEl) periodEl.textContent = currentLang === 'ko'
+    ? `총 ${fmtNum(total)}건 · ${filtered.length}개국 (예약자 거주 국가 기준)`
+    : `${fmtNum(total)} bookings · ${filtered.length} countries (guest residence)`;
+}
+
+function renderAnalyticsTrend(trend){
+  const chart = document.getElementById('anaTrendChart');
+  const summary = document.getElementById('anaTrendSummary');
+  if (!chart) return;
+  if (!trend.length) {
+    chart.innerHTML = `<div class="md-empty" style="margin:auto"><div class="md-empty-icon">📈</div>
+      <div class="md-empty-msg">${currentLang === 'ko' ? '추이 데이터가 없습니다' : 'No trend data yet'}</div></div>`;
+    if (summary) summary.textContent = '';
+    return;
+  }
+  const max = Math.max(...trend.map(m => Number(m.bookings || 0))) || 1;
+  chart.innerHTML = trend.map(m => {
+    const cnt = Number(m.bookings || 0);
+    const pct = (cnt / max) * 100;
+    return `
+      <div class="md-trend-bar" title="${m.month_label}: ${fmtNum(cnt)}">
+        <div class="md-trend-value">${fmtNum(cnt)}</div>
+        <div class="md-trend-fill ${cnt === 0 ? 'empty' : ''}" style="height:${Math.max(2, pct)}%"></div>
+        <div class="md-trend-label">${m.month_label.slice(2)}</div>
+      </div>`;
+  }).join('');
+  // 추세 요약 — 마지막 달 vs 직전 달
+  if (summary) {
+    if (trend.length >= 2) {
+      const last = Number(trend[trend.length - 1].bookings || 0);
+      const prev = Number(trend[trend.length - 2].bookings || 0);
+      const lastLabel = trend[trend.length - 1].month_label;
+      let delta = '';
+      if (prev > 0) {
+        const pct = (((last - prev) / prev) * 100).toFixed(0);
+        delta = (pct >= 0 ? '+' : '') + pct + '%';
+      } else if (last > 0) {
+        delta = currentLang === 'ko' ? '신규' : 'new';
+      }
+      summary.innerHTML = currentLang === 'ko'
+        ? `📈 ${lastLabel} 예약 ${fmtNum(last)}건${delta ? ` (전월 대비 ${delta})` : ''}`
+        : `📈 ${lastLabel}: ${fmtNum(last)} bookings${delta ? ` (vs prev. month ${delta})` : ''}`;
+    } else {
+      summary.textContent = '';
+    }
+  }
+}
+
+function renderAnalyticsFunnel(stats){
+  // 영상 노출 = video_summary에서 가져옴 (재사용)
+  // Agoda click·video view = 별도 추적 필요 (현재 VIEW에 없음 → "—" 표시)
+  const total = Number(stats?.total_bookings || 0);
+  const rev = Number(stats?.confirmed_revenue_usd || 0);
+
+  // 영상 노출 (video_summary 재fetch — 가벼우니 별도 query)
+  supabase.from('v_manager_video_summary').select('total_views').eq('hotel_id', currentHotel.hotel_id)
+    .maybeSingle().then(({ data }) => {
+      const views = Number(data?.total_views || 0);
+      document.getElementById('anaExposure').textContent = views ? fmtNum(views) : '—';
+      // Agoda click = 추적 미구현 → placeholder
+      document.getElementById('anaAgoda').textContent = '—';
+      document.getElementById('anaAgodaCvr').textContent = currentLang === 'ko'
+        ? '추적 준비 중 (V1.1)' : 'tracking soon (V1.1)';
+    });
+
+  document.getElementById('anaBookings').textContent = fmtNum(total) + (currentLang === 'ko' ? '건' : '');
+  document.getElementById('anaBookingsCvr').textContent = '—';
+  document.getElementById('anaCheckin').textContent = fmtMoney(rev);
+  document.getElementById('anaCheckinSub').textContent = currentLang === 'ko'
+    ? `노쇼 ${fmtNum(stats?.noshow_count||0)}건 · 취소 ${fmtNum(stats?.cancelled_count||0)}건 제외`
+    : `${fmtNum(stats?.noshow_count||0)} no-show · excl. ${fmtNum(stats?.cancelled_count||0)} cancelled`;
+}
+
+function exportAnalytics(format){
+  if (format !== 'csv') return;
+  const countries = (window.__anaCountries || []).filter(c => ['KR','JP','US','TW'].includes(c.country_code));
+  const trend = window.__anaTrend || [];
+  if (!countries.length && !trend.length) {
+    alert(currentLang === 'ko' ? '내보낼 데이터가 없습니다' : 'No data to export');
+    return;
+  }
+  const csvEsc = v => { const s = String(v ?? ''); return /[",\n]/.test(s) ? `"${s.replace(/"/g,'""')}"` : s; };
+  const lines = [];
+  lines.push('# Country Distribution');
+  lines.push(['country_code','bookings','revenue_usd'].join(','));
+  countries.forEach(c => lines.push([c.country_code, c.booking_count, c.revenue_usd].map(csvEsc).join(',')));
+  lines.push('');
+  lines.push('# Monthly Trend (last 6 months)');
+  lines.push(['month','bookings','revenue_usd'].join(','));
+  trend.forEach(m => lines.push([m.month_label, m.bookings, m.revenue_usd].map(csvEsc).join(',')));
+  const csv = lines.join('\n');
+  const blob = new Blob(["\ufeff" + csv], {type:'text/csv;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `analytics_${currentHotel.hotel_id}_${new Date().toISOString().slice(0,10)}.csv`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
 
 // ---- Boot ----
 document.addEventListener('DOMContentLoaded', init);

@@ -691,20 +691,115 @@ body{margin:0;background:var(--bg);font-family:var(--sans);color:var(--ink);min-
 
     </section>
 
-    <!-- ============ TAB 4 : SUPPORT (placeholder, Step 5) ============ -->
+    <!-- ============ TAB 4 : SUPPORT (Step 5) ============ -->
     <section class="md-tab-panel" id="tab-inquiry">
-      <div class="md-card">
-        <h3 class="md-card-title"
-            data-en="gohotelwinners Customer Success"
-            data-ko="gohotelwinners Customer Success">gohotelwinners Customer Success</h3>
-        <p class="md-card-sub"
-           data-en="Avg. reply within 4 hours · Korean, English"
-           data-ko="평균 4시간 이내 답변 · 한국어, English">Avg. reply within 4 hours · Korean, English</p>
-        <div class="md-empty">
-          <div class="md-empty-icon">💬</div>
-          <div class="md-empty-msg" data-en="Loading..." data-ko="불러오는 중...">Loading...</div>
+
+      <!-- Customer Success card -->
+      <div class="md-cs-card">
+        <div class="md-cs-avatar">🎧</div>
+        <div class="md-cs-body">
+          <div class="md-cs-name">
+            <span data-en="gohotelwinners Customer Success" data-ko="gohotelwinners Customer Success">gohotelwinners Customer Success</span>
+            <span class="md-cs-online"><span data-en="Online" data-ko="온라인">Online</span></span>
+          </div>
+          <div class="md-cs-sub"
+               data-en="Avg. reply within 4 hours · Korean, English"
+               data-ko="평균 4시간 이내 답변 · 한국어, English">Avg. reply within 4 hours · Korean, English</div>
+        </div>
+        <div class="md-cs-action">
+          <button class="md-video-btn primary" onclick="openNewInquiry()">
+            <span data-en="+ New Inquiry" data-ko="+ 새 문의 작성">+ New Inquiry</span>
+          </button>
         </div>
       </div>
+
+      <!-- FAQ -->
+      <div class="md-section-head">
+        <h3 class="md-section-title" data-en="Frequently Asked Questions" data-ko="자주 묻는 질문">Frequently Asked Questions</h3>
+        <span class="md-section-period"
+              data-en="Check here first. If not resolved, use [New Inquiry] above."
+              data-ko="먼저 확인해 보세요. 해결되지 않으면 위 [새 문의 작성]을 이용하세요.">Check here first. If not resolved, use [New Inquiry] above.</span>
+      </div>
+      <div class="md-faq-list">
+        <details class="md-faq-item">
+          <summary class="md-faq-q"><span data-en="Q1. How is the video publishing schedule decided?" data-ko="Q1. 영상 게시 일정은 어떻게 정해지나요?">Q1. How is the video publishing schedule decided?</span></summary>
+          <div class="md-faq-a"
+               data-en="After payment, our production team queues your hotel for shooting and editing. The first video typically goes live within 2-4 weeks, and the remaining channels follow on a staggered schedule to maximize cumulative exposure. You can see exact dates per channel in the Videos tab."
+               data-ko="결제 후 제작팀이 촬영·편집 큐에 호텔을 등록합니다. 첫 영상은 보통 2~4주 내 게시되며, 나머지 채널은 누적 노출 효과를 극대화하기 위해 시간차를 두고 순차 게시됩니다. 채널별 정확한 날짜는 영상 탭에서 확인하실 수 있습니다.">After payment, our production team queues your hotel for shooting and editing.</div>
+        </details>
+        <details class="md-faq-item">
+          <summary class="md-faq-q"><span data-en="Q2. I want to add or update hotel info (photos, description)" data-ko="Q2. 호텔 정보(사진·설명)를 추가/변경하고 싶어요">Q2. I want to add or update hotel info (photos, description)</span></summary>
+          <div class="md-faq-a"
+               data-en="Submit a request via [New Inquiry] with category &quot;Info Change Request&quot;. Attach new photos or describe the changes. Our team will review and apply the changes within 2 business days. Changes to videos already live may require additional production (separate quote)."
+               data-ko="[새 문의 작성]에서 카테고리 &quot;정보 변경 신청&quot;을 선택하고 새 사진을 첨부하거나 변경 사항을 적어주세요. 영업일 2일 이내에 검토 후 반영됩니다. 이미 게시된 영상 수정은 별도 제작 견적이 필요할 수 있습니다.">Submit a request via [New Inquiry] with category "Info Change Request".</div>
+        </details>
+        <details class="md-faq-item">
+          <summary class="md-faq-q"><span data-en="Q3. How are bookings counted? (Integrated across 8 channels?)" data-ko="Q3. 예약은 어떻게 집계되나요? (8개 채널 통합되나요?)">Q3. How are bookings counted? (Integrated across 8 channels?)</span></summary>
+          <div class="md-faq-a"
+               data-en="Yes — all bookings via our Agoda affiliate links (across 8 channels) are tracked using channel-specific CIDs and aggregated into the Analytics tab. Each booking is attributed to the source channel and language so you can see country distribution and trends."
+               data-ko="네 — 8개 채널의 Agoda 제휴 링크를 통한 모든 예약은 채널별 CID로 추적되어 고객 분석 탭에 통합 집계됩니다. 예약마다 출처 채널과 언어가 기록되어 국가별 분포와 추이를 확인하실 수 있습니다.">Yes — all bookings via our Agoda affiliate links are tracked using channel-specific CIDs.</div>
+        </details>
+        <details class="md-faq-item">
+          <summary class="md-faq-q"><span data-en="Q4. What happens after the 6-month guarantee period?" data-ko="Q4. 6개월 보장 기한 후에는 어떻게 되나요?">Q4. What happens after the 6-month guarantee period?</span></summary>
+          <div class="md-faq-a"
+               data-en="If you receive zero bookings within 6 months from publish date, you are eligible for 100% refund per the contract. After the period, videos remain online and continue to generate exposure — you may renew the contract at the same price to extend the guarantee. Contact CS to renew."
+               data-ko="게시일로부터 6개월 내 예약이 0건이면 계약에 따라 100% 환불 대상입니다. 보장 기간 후에도 영상은 계속 온라인에 남아 노출을 제공하며, 동일 가격으로 재계약하여 보장 기간을 연장하실 수 있습니다. 재계약은 CS로 문의 주세요.">100% refund if zero bookings within 6 months from publish date.</div>
+        </details>
+        <details class="md-faq-item">
+          <summary class="md-faq-q"><span data-en="Q5. How do I renew or terminate the contract?" data-ko="Q5. 계약을 갱신하거나 종료하려면?">Q5. How do I renew or terminate the contract?</span></summary>
+          <div class="md-faq-a"
+               data-en="Renewal: submit [New Inquiry] within 30 days of guarantee expiry — same price ($200) and same terms apply. Termination: simply do nothing — videos stay live but no new production after the period unless you renew. For early termination requests during an active period, contact CS."
+               data-ko="갱신: 보장 기한 만료 30일 전부터 [새 문의 작성]으로 신청해 주세요 — 동일 가격($200), 동일 조건 적용. 종료: 별도 절차 없이 만료되며 영상은 계속 노출되지만 신규 제작은 갱신 후에만 진행됩니다. 진행 중 조기 종료는 CS로 문의 주세요.">Renewal: submit New Inquiry within 30 days of guarantee expiry — same price and terms.</div>
+        </details>
+      </div>
+
+      <!-- Inquiry list -->
+      <div class="md-section-head">
+        <h3 class="md-section-title" data-en="My Inquiries" data-ko="내 문의 내역">My Inquiries</h3>
+        <span class="md-section-period" id="inquirySummary"
+              data-en="—" data-ko="—">—</span>
+      </div>
+
+      <div class="md-inq-toolbar">
+        <input type="search" class="md-inq-search" id="inquirySearch"
+               oninput="filterInquiries()"
+               data-en-placeholder="Search inquiry title or content"
+               data-ko-placeholder="문의 제목·내용 검색"
+               placeholder="Search inquiry title or content">
+      </div>
+
+      <div class="md-inq-filters" id="inquiryFilters">
+        <button class="md-inq-chip active" data-filter="all" onclick="setInquiryFilter('all')">
+          <span data-en="All" data-ko="전체">All</span> <span id="inqCount-all">0</span>
+        </button>
+        <button class="md-inq-chip" data-filter="waiting" onclick="setInquiryFilter('waiting')">
+          <span data-en="Waiting" data-ko="답변 대기">Waiting</span> <span id="inqCount-waiting">0</span>
+        </button>
+        <button class="md-inq-chip" data-filter="done" onclick="setInquiryFilter('done')">
+          <span data-en="Answered" data-ko="답변 완료">Answered</span> <span id="inqCount-done">0</span>
+        </button>
+        <button class="md-inq-chip" data-filter="mine" onclick="setInquiryFilter('mine')">
+          <span data-en="Sent by me" data-ko="내가 보낸">Sent by me</span>
+        </button>
+        <button class="md-inq-chip" data-filter="info" onclick="setInquiryFilter('info')">
+          <span data-en="Info Change" data-ko="정보 변경 신청">Info Change</span>
+        </button>
+      </div>
+
+      <div class="md-card" style="padding:0">
+        <div id="inquiryList">
+          <div class="md-empty" style="padding:48px 20px">
+            <div class="md-empty-icon">💬</div>
+            <div class="md-empty-msg" data-en="Loading..." data-ko="불러오는 중...">Loading...</div>
+          </div>
+        </div>
+        <div class="md-pager" id="inquiryPager" style="display:none">
+          <button class="md-pager-btn" id="inqPrev" onclick="changeInquiryPage(-1)">‹</button>
+          <span id="inqPageInfo">—</span>
+          <button class="md-pager-btn" id="inqNext" onclick="changeInquiryPage(1)">›</button>
+        </div>
+      </div>
+
     </section>
 
     <!-- ============ TAB 5 : ANALYTICS (placeholder, Step 6) ============ -->
@@ -1330,7 +1425,150 @@ function downloadDoc(type, paymentId){
 function escapeHtml(s){ return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function escapeAttr(s){ return String(s ?? '').replace(/"/g, '&quot;'); }
 
-function loadInquiryTab(){ window.__inquiryLoaded = true; /* Step 5 */ }
+// =====================================================================
+// TAB 4: Inquiry  (inquiries 테이블 — BL-INQUIRY-SCHEMA에서 신설 예정)
+// =====================================================================
+function loadInquiryTab(){
+  window.__inquiryLoaded = true;
+  // 정책: inquiries 테이블 미존재 → 빈 배열 + i18n placeholder 적용
+  window.__inquiries = [];
+  window.__inquiryFilter = 'all';
+  window.__inquiryPage = 1;
+  applyInquiryPlaceholders();
+  renderInquiryFilters();
+  renderInquiryList();
+}
+
+function applyInquiryPlaceholders(){
+  // search input placeholder i18n
+  const search = document.getElementById('inquirySearch');
+  if (search) {
+    const ph = search.getAttribute('data-' + currentLang + '-placeholder');
+    if (ph) search.placeholder = ph;
+  }
+}
+
+function setInquiryFilter(f){
+  window.__inquiryFilter = f;
+  window.__inquiryPage = 1;
+  document.querySelectorAll('#inquiryFilters .md-inq-chip').forEach(c =>
+    c.classList.toggle('active', c.dataset.filter === f));
+  renderInquiryList();
+}
+
+function filterInquiries(){
+  window.__inquiryPage = 1;
+  renderInquiryList();
+}
+
+function getFilteredInquiries(){
+  const list = window.__inquiries || [];
+  const filter = window.__inquiryFilter || 'all';
+  const q = (document.getElementById('inquirySearch')?.value || '').trim().toLowerCase();
+  return list.filter(it => {
+    if (filter === 'waiting' && it.status !== 'waiting') return false;
+    if (filter === 'done' && it.status !== 'answered') return false;
+    if (filter === 'mine' && !it.sent_by_me) return false;
+    if (filter === 'info' && it.category !== 'info_change') return false;
+    if (q) {
+      const hay = ((it.title||'') + ' ' + (it.body||'')).toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+}
+
+function renderInquiryFilters(){
+  const all = (window.__inquiries || []).length;
+  const waiting = (window.__inquiries || []).filter(i => i.status === 'waiting').length;
+  const done = (window.__inquiries || []).filter(i => i.status === 'answered').length;
+  const setN = (id, n) => { const el = document.getElementById(id); if (el) el.textContent = n; };
+  setN('inqCount-all', all);
+  setN('inqCount-waiting', waiting);
+  setN('inqCount-done', done);
+  const sum = document.getElementById('inquirySummary');
+  if (sum) sum.textContent = currentLang === 'ko'
+    ? `총 ${all}건 · 답변 대기 ${waiting}건`
+    : `${all} total · ${waiting} waiting`;
+}
+
+const PER_PAGE_INQ = 10;
+
+function renderInquiryList(){
+  const list = document.getElementById('inquiryList');
+  const pager = document.getElementById('inquiryPager');
+  if (!list) return;
+  const filtered = getFilteredInquiries();
+
+  if (filtered.length === 0) {
+    list.innerHTML = `<div class="md-empty" style="padding:48px 20px">
+      <div class="md-empty-icon">💬</div>
+      <div class="md-empty-msg">${currentLang === 'ko' ? '문의 내역이 없습니다 — 위 [+ 새 문의 작성]을 이용해 주세요' : 'No inquiries yet — use [+ New Inquiry] above'}</div>
+    </div>`;
+    if (pager) pager.style.display = 'none';
+    renderInquiryFilters();
+    return;
+  }
+
+  const totalPages = Math.ceil(filtered.length / PER_PAGE_INQ);
+  if (window.__inquiryPage > totalPages) window.__inquiryPage = totalPages;
+  const start = (window.__inquiryPage - 1) * PER_PAGE_INQ;
+  const slice = filtered.slice(start, start + PER_PAGE_INQ);
+
+  list.innerHTML = slice.map(it => {
+    const statusCls = it.status === 'waiting' ? 'waiting' : 'done';
+    const statusLabel = it.status === 'waiting'
+      ? (currentLang === 'ko' ? '● 답변 대기' : '● Waiting')
+      : (currentLang === 'ko' ? '● 답변 완료' : '● Answered');
+    const metaParts = [fmtShortDate(it.created_at)];
+    if (it.answered_at) metaParts.push((currentLang === 'ko' ? 'CS 답변 ' : 'CS replied ') + fmtShortDate(it.answered_at));
+    return `
+      <div class="md-inq-item" onclick="openInquiry('${escapeAttr(it.id)}')">
+        <div class="md-inq-body">
+          <div class="md-inq-meta">${metaParts.join(' · ')}</div>
+          <div class="md-inq-title">${escapeHtml(it.title || '—')}</div>
+          ${it.category_label ? `<div class="md-inq-tag">${escapeHtml(it.category_label)} →</div>` : ''}
+        </div>
+        <span class="md-inq-status ${statusCls}">${statusLabel}</span>
+      </div>`;
+  }).join('');
+
+  if (pager) {
+    if (totalPages > 1) {
+      pager.style.display = 'flex';
+      document.getElementById('inqPrev').disabled = window.__inquiryPage <= 1;
+      document.getElementById('inqNext').disabled = window.__inquiryPage >= totalPages;
+      const showingStart = start + 1;
+      const showingEnd = Math.min(start + PER_PAGE_INQ, filtered.length);
+      document.getElementById('inqPageInfo').textContent = currentLang === 'ko'
+        ? `${filtered.length}건 중 ${showingStart}-${showingEnd} 표시 · 페이지당 ${PER_PAGE_INQ}건`
+        : `${showingStart}-${showingEnd} of ${filtered.length} · ${PER_PAGE_INQ}/page`;
+    } else {
+      pager.style.display = 'none';
+    }
+  }
+  renderInquiryFilters();
+}
+
+function changeInquiryPage(delta){
+  const filtered = getFilteredInquiries();
+  const totalPages = Math.ceil(filtered.length / PER_PAGE_INQ);
+  window.__inquiryPage = Math.max(1, Math.min(totalPages, window.__inquiryPage + delta));
+  renderInquiryList();
+}
+
+function openNewInquiry(){
+  alert(currentLang === 'ko'
+    ? '새 문의 작성 — 곧 제공됩니다 (BL-INQUIRY-SCHEMA)'
+    : 'New inquiry form — coming soon (BL-INQUIRY-SCHEMA)');
+}
+
+function openInquiry(id){
+  alert(currentLang === 'ko'
+    ? `문의 상세 (#${id}) — 곧 제공됩니다 (BL-INQUIRY-SCHEMA)`
+    : `Inquiry detail (#${id}) — coming soon (BL-INQUIRY-SCHEMA)`);
+}
+
 function loadAnalyticsTab(){ window.__analyticsLoaded = true; /* Step 6 */ }
 
 // ---- Boot ----

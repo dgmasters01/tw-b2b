@@ -1,0 +1,289 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 1900" font-family="Inter, -apple-system, 'Noto Sans KR', sans-serif">
+  <!-- ============ STYLES ============ -->
+  <style>
+    .canvas { fill: #0B0F1A; }
+    .card { fill: #131826; stroke: #1F2A3D; stroke-width: 1; rx: 12; }
+    .card-soft { fill: #0F1422; stroke: #1A2236; stroke-width: 1; rx: 12; }
+    .accent { fill: #6EA8FF; }
+    .accent-bg { fill: #1A2A4A; }
+    .good { fill: #10B981; }
+    .warn { fill: #F59E0B; }
+    .danger { fill: #EF4444; }
+    .muted { fill: #6B7689; font-size: 11px; }
+    .label { fill: #8A93A6; font-size: 12px; font-weight: 500; }
+    .title { fill: #E6ECF8; font-size: 14px; font-weight: 600; }
+    .body { fill: #C9D2E3; font-size: 12px; }
+    .h1 { fill: #F1F5FF; font-size: 22px; font-weight: 700; }
+    .h2 { fill: #F1F5FF; font-size: 16px; font-weight: 600; }
+    .h3 { fill: #F1F5FF; font-size: 13px; font-weight: 600; }
+    .num-big { fill: #F1F5FF; font-size: 28px; font-weight: 700; }
+    .num-mid { fill: #F1F5FF; font-size: 18px; font-weight: 700; }
+    .num-small { fill: #F1F5FF; font-size: 14px; font-weight: 600; }
+    .tab { fill: #131826; stroke: #1F2A3D; }
+    .tab-active { fill: #1A2A4A; stroke: #6EA8FF; stroke-width: 1.5; }
+    .badge-good { fill: #0F2A1F; stroke: #10B981; }
+    .badge-mute { fill: #1A2236; stroke: #2A3450; }
+    .pill { rx: 14; }
+    .axis { stroke: #2A3450; stroke-width: 1; }
+    .grid { stroke: #1A2236; stroke-width: 1; stroke-dasharray: 3 3; }
+    .bar-primary { fill: #6EA8FF; }
+    .bar-soft { fill: #2A4A7A; }
+  </style>
+
+  <!-- ============ CANVAS ============ -->
+  <rect class="canvas" width="1280" height="1900"/>
+
+  <!-- ============ TOP BAR ============ -->
+  <rect x="0" y="0" width="1280" height="64" fill="#0F1422" stroke="#1A2236"/>
+  <text x="32" y="40" class="h2">gohotelwinners</text>
+  <text x="200" y="40" class="label">Hotel Manager Dashboard</text>
+  <circle cx="1200" cy="32" r="14" fill="#1A2A4A" stroke="#2A3450"/>
+  <text x="1200" y="36" text-anchor="middle" fill="#6EA8FF" font-size="11" font-weight="600">SH</text>
+  <text x="1226" y="36" class="label">Seaside Hotel</text>
+
+  <!-- ============ TABS ============ -->
+  <g transform="translate(32, 88)">
+    <rect class="tab pill" x="0" y="0" width="80" height="36"/>
+    <text x="40" y="23" text-anchor="middle" class="label">🏠 홈</text>
+    <rect class="tab pill" x="92" y="0" width="80" height="36"/>
+    <text x="132" y="23" text-anchor="middle" class="label">🎬 영상</text>
+    <rect class="tab pill" x="184" y="0" width="80" height="36"/>
+    <text x="224" y="23" text-anchor="middle" class="label">📝 결제</text>
+    <rect class="tab pill" x="276" y="0" width="80" height="36"/>
+    <text x="316" y="23" text-anchor="middle" class="label">💬 문의</text>
+    <rect class="tab-active pill" x="368" y="0" width="100" height="36"/>
+    <text x="418" y="23" text-anchor="middle" fill="#6EA8FF" font-size="12" font-weight="600">📊 고객 분석</text>
+  </g>
+
+  <!-- ============ PAGE TITLE ============ -->
+  <text x="32" y="168" class="h1">고객 분석</text>
+  <text x="32" y="194" class="label">8개 채널·6개 언어를 통해 들어온 예약 데이터입니다 (본편 + 추가 노출 통합)</text>
+
+  <!-- Period selector + filter -->
+  <g transform="translate(900, 152)">
+    <rect class="tab pill" x="0" y="0" width="120" height="40"/>
+    <text x="60" y="25" text-anchor="middle" class="label">전체 기간 ▾</text>
+    <rect class="tab pill" x="132" y="0" width="120" height="40"/>
+    <text x="192" y="25" text-anchor="middle" class="label">국가 전체 ▾</text>
+    <rect class="pill" x="264" y="0" width="84" height="40" fill="#1A2A4A" stroke="#6EA8FF"/>
+    <text x="306" y="25" text-anchor="middle" fill="#6EA8FF" font-size="12" font-weight="600">CSV 내보내기</text>
+  </g>
+
+  <!-- ============ KPI 4 CARDS (본편 + 추가 통합) ============ -->
+  <!-- #10: 본편/추가 분리 X, 통합 표시 -->
+  <text x="32" y="234" class="h2">예약 요약</text>
+  <text x="138" y="234" class="muted">본편 영상 + 추가 노출 옵션 통합 집계</text>
+
+  <!-- KPI 1: 총 예약 -->
+  <rect class="card" x="32" y="252" width="296" height="116"/>
+  <text x="52" y="278" class="label">총 예약 건수</text>
+  <text x="52" y="316" class="num-big">142</text>
+  <text x="118" y="316" class="label" font-size="13">건</text>
+  <rect class="badge-good pill" x="52" y="330" width="88" height="22"/>
+  <text x="96" y="345" text-anchor="middle" fill="#10B981" font-size="11" font-weight="600">↑ 전월 +18%</text>
+
+  <!-- KPI 2: 확정 매출 -->
+  <rect class="card" x="344" y="252" width="296" height="116"/>
+  <text x="364" y="278" class="label">확정 매출 (USD)</text>
+  <text x="364" y="316" class="num-big">$32,180</text>
+  <rect class="badge-good pill" x="364" y="330" width="88" height="22"/>
+  <text x="408" y="345" text-anchor="middle" fill="#10B981" font-size="11" font-weight="600">↑ 전월 +12%</text>
+
+  <!-- KPI 3: 객실 박야 합 -->
+  <rect class="card" x="656" y="252" width="296" height="116"/>
+  <text x="676" y="278" class="label">총 박야 (Nights)</text>
+  <text x="676" y="316" class="num-big">384</text>
+  <text x="752" y="316" class="label" font-size="13">박</text>
+  <text x="676" y="350" class="muted">평균 체류 2.7박/예약</text>
+
+  <!-- KPI 4: 노쇼 매출 (#12 새로 추가) -->
+  <rect class="card" x="968" y="252" width="280" height="116"/>
+  <text x="988" y="278" class="label">노쇼 매출 (포함)</text>
+  <text x="988" y="316" class="num-big">$0</text>
+  <text x="988" y="346" class="muted">이번 계약 기간 노쇼 발생 0건</text>
+  <rect class="badge-mute pill" x="1156" y="266" width="78" height="22"/>
+  <text x="1195" y="281" text-anchor="middle" class="muted">매출 포함 ⓘ</text>
+
+  <!-- ============ COUNTRY BREAKDOWN (#11: 채널박스 삭제, 국가만) ============ -->
+  <text x="32" y="408" class="h2">국가별 예약 분포</text>
+  <text x="218" y="408" class="muted">총 142건 · 4개국 (예약자 거주 국가 기준)</text>
+
+  <rect class="card" x="32" y="424" width="1216" height="280"/>
+
+  <!-- Country row 1: 한국 (top) -->
+  <g transform="translate(52, 460)">
+    <text x="0" y="20" class="h3">🇰🇷  한국</text>
+    <text x="120" y="20" class="muted">언어: 한국어 · 8개 채널 중 4개</text>
+    <text x="1170" y="20" text-anchor="end" class="num-small">68건 · 47.9%</text>
+    <text x="1170" y="38" text-anchor="end" class="label">$14,820 매출 · 188박</text>
+    <rect x="0" y="44" width="1170" height="10" fill="#1A2236" rx="5"/>
+    <rect x="0" y="44" width="560" height="10" fill="#6EA8FF" rx="5"/>
+  </g>
+
+  <!-- Country row 2: 일본 -->
+  <g transform="translate(52, 526)">
+    <text x="0" y="20" class="h3">🇯🇵  일본</text>
+    <text x="120" y="20" class="muted">언어: 日本語</text>
+    <text x="1170" y="20" text-anchor="end" class="num-small">38건 · 26.8%</text>
+    <text x="1170" y="38" text-anchor="end" class="label">$9,420 매출 · 112박</text>
+    <rect x="0" y="44" width="1170" height="10" fill="#1A2236" rx="5"/>
+    <rect x="0" y="44" width="313" height="10" fill="#6EA8FF" rx="5"/>
+  </g>
+
+  <!-- Country row 3: 미국 -->
+  <g transform="translate(52, 592)">
+    <text x="0" y="20" class="h3">🇺🇸  미국</text>
+    <text x="120" y="20" class="muted">언어: English</text>
+    <text x="1170" y="20" text-anchor="end" class="num-small">22건 · 15.5%</text>
+    <text x="1170" y="38" text-anchor="end" class="label">$5,180 매출 · 56박</text>
+    <rect x="0" y="44" width="1170" height="10" fill="#1A2236" rx="5"/>
+    <rect x="0" y="44" width="181" height="10" fill="#6EA8FF" rx="5"/>
+  </g>
+
+  <!-- Country row 4: 대만 -->
+  <g transform="translate(52, 658)">
+    <text x="0" y="20" class="h3">🇹🇼  대만</text>
+    <text x="120" y="20" class="muted">언어: 繁體中文 · 世界就是家 채널</text>
+    <text x="1170" y="20" text-anchor="end" class="num-small">14건 · 9.8%</text>
+    <text x="1170" y="38" text-anchor="end" class="label">$2,760 매출 · 28박</text>
+    <rect x="0" y="44" width="1170" height="10" fill="#1A2236" rx="5"/>
+    <rect x="0" y="44" width="115" height="10" fill="#6EA8FF" rx="5"/>
+  </g>
+
+  <!-- ============ MONTHLY TREND CHART ============ -->
+  <text x="32" y="744" class="h2">월별 예약 추이</text>
+  <text x="170" y="744" class="muted">최근 6개월 · 본편 + 추가 노출 통합</text>
+
+  <rect class="card" x="32" y="760" width="1216" height="320"/>
+
+  <!-- Chart area -->
+  <g transform="translate(72, 800)">
+    <!-- Y-axis labels -->
+    <text x="-12" y="6" text-anchor="end" class="muted">40</text>
+    <text x="-12" y="56" text-anchor="end" class="muted">30</text>
+    <text x="-12" y="106" text-anchor="end" class="muted">20</text>
+    <text x="-12" y="156" text-anchor="end" class="muted">10</text>
+    <text x="-12" y="206" text-anchor="end" class="muted">0</text>
+
+    <!-- Grid lines -->
+    <line x1="0" y1="0" x2="1100" y2="0" class="grid"/>
+    <line x1="0" y1="50" x2="1100" y2="50" class="grid"/>
+    <line x1="0" y1="100" x2="1100" y2="100" class="grid"/>
+    <line x1="0" y1="150" x2="1100" y2="150" class="grid"/>
+    <line x1="0" y1="200" x2="1100" y2="200" class="axis"/>
+
+    <!-- Bars (6 months) -->
+    <!-- Dec 2025 -->
+    <rect x="40" y="155" width="100" height="45" class="bar-soft" rx="4"/>
+    <text x="90" y="220" text-anchor="middle" class="label">'25.12</text>
+    <text x="90" y="146" text-anchor="middle" class="num-small">9</text>
+    <!-- Jan -->
+    <rect x="220" y="135" width="100" height="65" class="bar-soft" rx="4"/>
+    <text x="270" y="220" text-anchor="middle" class="label">'26.01</text>
+    <text x="270" y="126" text-anchor="middle" class="num-small">13</text>
+    <!-- Feb -->
+    <rect x="400" y="105" width="100" height="95" class="bar-soft" rx="4"/>
+    <text x="450" y="220" text-anchor="middle" class="label">'26.02</text>
+    <text x="450" y="96" text-anchor="middle" class="num-small">19</text>
+    <!-- Mar -->
+    <rect x="580" y="85" width="100" height="115" class="bar-primary" rx="4"/>
+    <text x="630" y="220" text-anchor="middle" class="label">'26.03</text>
+    <text x="630" y="76" text-anchor="middle" class="num-small">23</text>
+    <!-- Apr -->
+    <rect x="760" y="55" width="100" height="145" class="bar-primary" rx="4"/>
+    <text x="810" y="220" text-anchor="middle" class="label">'26.04</text>
+    <text x="810" y="46" text-anchor="middle" class="num-small">29</text>
+    <!-- May -->
+    <rect x="940" y="25" width="100" height="175" class="bar-primary" rx="4"/>
+    <text x="990" y="220" text-anchor="middle" class="label">'26.05</text>
+    <text x="990" y="16" text-anchor="middle" class="num-small">34</text>
+  </g>
+
+  <!-- Trend annotation -->
+  <text x="52" y="1052" class="label">📈 6개월 연속 상승 추세 · 5월 예약 34건 (전월 대비 +17%)</text>
+
+  <!-- ============ BOOKING SOURCE BREAKDOWN (no channel boxes — #11) ============ -->
+  <text x="32" y="1120" class="h2">예약 흐름 요약</text>
+  <text x="168" y="1120" class="muted">8개 유튜브 채널 → Agoda 제휴링크 → 호텔 직접 예약</text>
+
+  <rect class="card" x="32" y="1136" width="1216" height="160"/>
+
+  <!-- Funnel-like horizontal flow -->
+  <g transform="translate(72, 1170)">
+    <!-- Stage 1: 영상 노출 -->
+    <rect x="0" y="0" width="240" height="92" fill="#1A2A4A" stroke="#6EA8FF" rx="10"/>
+    <text x="120" y="28" text-anchor="middle" class="label">영상 노출</text>
+    <text x="120" y="58" text-anchor="middle" class="num-mid">52,400회</text>
+    <text x="120" y="78" text-anchor="middle" class="muted">8개 채널 · 6개 언어</text>
+
+    <!-- Arrow -->
+    <text x="262" y="55" class="muted" font-size="20">→</text>
+
+    <!-- Stage 2: Agoda 진입 -->
+    <rect x="290" y="0" width="240" height="92" fill="#0F1422" stroke="#2A3450" rx="10"/>
+    <text x="410" y="28" text-anchor="middle" class="label">Agoda 진입 (CID 추적)</text>
+    <text x="410" y="58" text-anchor="middle" class="num-mid">3,824회</text>
+    <text x="410" y="78" text-anchor="middle" class="muted">전환율 7.3%</text>
+
+    <!-- Arrow -->
+    <text x="552" y="55" class="muted" font-size="20">→</text>
+
+    <!-- Stage 3: 예약 완료 -->
+    <rect x="580" y="0" width="240" height="92" fill="#0F2A1F" stroke="#10B981" rx="10"/>
+    <text x="700" y="28" text-anchor="middle" class="label">예약 완료</text>
+    <text x="700" y="58" text-anchor="middle" class="num-mid">142건</text>
+    <text x="700" y="78" text-anchor="middle" class="muted">전환율 3.7%</text>
+
+    <!-- Arrow -->
+    <text x="842" y="55" class="muted" font-size="20">→</text>
+
+    <!-- Stage 4: 체크인 -->
+    <rect x="870" y="0" width="240" height="92" fill="#131826" stroke="#1F2A3D" rx="10"/>
+    <text x="990" y="28" text-anchor="middle" class="label">체크인 / 매출 확정</text>
+    <text x="990" y="58" text-anchor="middle" class="num-mid">$32,180</text>
+    <text x="990" y="78" text-anchor="middle" class="muted">노쇼 0건 · 취소 5건 제외</text>
+  </g>
+
+  <!-- ============ V1.1 PREVIEW SECTION ============ -->
+  <text x="32" y="1342" class="h2">곧 추가될 분석</text>
+  <text x="178" y="1342" class="muted">BL-MGR-DASHBOARD-V1.1 로드맵</text>
+
+  <rect class="card-soft" x="32" y="1358" width="394" height="120"/>
+  <text x="52" y="1388" class="h3">📊 평균 객단가 (ADR)</text>
+  <text x="52" y="1410" class="body">SUM(매출 USD) ÷ SUM(박야)</text>
+  <text x="52" y="1430" class="body">확정 매출 기준 · 국가별 비교</text>
+  <rect class="badge-mute pill" x="52" y="1444" width="76" height="22"/>
+  <text x="90" y="1459" text-anchor="middle" class="muted">V1.1 예정</text>
+
+  <rect class="card-soft" x="442" y="1358" width="394" height="120"/>
+  <text x="462" y="1388" class="h3">📅 인기 요일·시즌 분석</text>
+  <text x="462" y="1410" class="body">체크인 요일·월별 패턴</text>
+  <text x="462" y="1430" class="body">시즌 가격·프로모션 기획 참고</text>
+  <rect class="badge-mute pill" x="462" y="1444" width="76" height="22"/>
+  <text x="500" y="1459" text-anchor="middle" class="muted">V1.1 예정</text>
+
+  <rect class="card-soft" x="852" y="1358" width="396" height="120"/>
+  <text x="872" y="1388" class="h3">📺 채널별 조회 수 추이</text>
+  <text x="872" y="1410" class="body">8개 채널 영상 누적 시청</text>
+  <text x="872" y="1430" class="body">국가별 노출 기여도 시각화</text>
+  <rect class="badge-mute pill" x="872" y="1444" width="76" height="22"/>
+  <text x="910" y="1459" text-anchor="middle" class="muted">V1.1 예정</text>
+
+  <!-- ============ NO-SHOW POLICY EXPLAINER ============ -->
+  <rect class="card-soft" x="32" y="1510" width="1216" height="120"/>
+  <text x="52" y="1542" class="h3">💡 노쇼·취소 매출 처리 정책</text>
+  <text x="52" y="1566" class="body">• <tspan font-weight="600" fill="#10B981">노쇼 = 매출 포함</tspan> (호텔 측은 객실을 비워두었기 때문에 결제는 유효). 별도 카드로 정직하게 표시합니다.</text>
+  <text x="52" y="1586" class="body">• <tspan font-weight="600" fill="#EF4444">취소 = 매출 제외</tspan> (체크인 전 정상 절차에 따라 환불된 건). 위 매출에는 5건 취소 분 제외 후 집계.</text>
+  <text x="52" y="1610" class="muted">이번 계약 기간 노쇼 발생: 0건 / 정상 취소: 5건 — 출처: docs/design/BL-MGR-DASHBOARD-V1/decisions-summary.md v2</text>
+
+  <!-- ============ POLICY ANNOTATION ============ -->
+  <rect class="card-soft" x="32" y="1660" width="1216" height="220"/>
+  <text x="52" y="1692" class="h3">📌 와이어프레임 v2 정책 박제 (정정 #10·#11·#12·#13)</text>
+  <text x="52" y="1718" class="body">• #10: 본편 + 추가 노출 분리하지 않고 통합 표시 (추가 노출은 본편의 서비스성 부속물, 영상 탭 #3 원칙과 일관)</text>
+  <text x="52" y="1738" class="body">• #11: 채널 박스 2개(한국/해외) 삭제. 채널 명단은 영상 탭에서만. 분석 탭은 국가 단위로만 표시.</text>
+  <text x="52" y="1758" class="body">• #12: 노쇼 매출 카드 신설. "0건"일 때 회색 처리 + "이번 계약 기간 노쇼 발생 0건" 정직 표시.</text>
+  <text x="52" y="1778" class="body">• #13: ADR(평균 객단가)·인기 요일·채널별 조회수는 BL-MGR-DASHBOARD-V1.1로 미룸. "곧 추가될 분석" 섹션에 예고.</text>
+  <text x="52" y="1808" class="body">• 분석 탭 기본 정책: 8개 채널 → Agoda 제휴링크 → 호텔 직접 예약 흐름의 정직한 집계.</text>
+  <text x="52" y="1828" class="body">• CSV 내보내기 = 회계팀 전달용. 월별/국가별 raw 데이터.</text>
+  <text x="52" y="1856" class="muted">출처: decisions-summary.md v2 + BACKLOG.md (BL-MGR-DASHBOARD-V1.1)</text>
+</svg>

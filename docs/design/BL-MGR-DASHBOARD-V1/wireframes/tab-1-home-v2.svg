@@ -1,0 +1,339 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 1720" font-family="Inter, -apple-system, 'Noto Sans KR', sans-serif">
+  <!-- ============ STYLES ============ -->
+  <style>
+    .canvas { fill: #0B0F1A; }
+    .card { fill: #131826; stroke: #1F2A3D; stroke-width: 1; rx: 12; }
+    .card-soft { fill: #0F1422; stroke: #1A2236; stroke-width: 1; rx: 12; }
+    .accent { fill: #6EA8FF; }
+    .accent-bg { fill: #1A2A4A; }
+    .good { fill: #10B981; }
+    .warn { fill: #F59E0B; }
+    .muted { fill: #6B7689; font-size: 11px; }
+    .label { fill: #8A93A6; font-size: 12px; font-weight: 500; }
+    .title { fill: #E6ECF8; font-size: 14px; font-weight: 600; }
+    .h1 { fill: #F1F5FF; font-size: 22px; font-weight: 700; }
+    .h2 { fill: #F1F5FF; font-size: 16px; font-weight: 600; }
+    .num-big { fill: #F1F5FF; font-size: 28px; font-weight: 700; }
+    .num-mid { fill: #F1F5FF; font-size: 18px; font-weight: 700; }
+    .tab { fill: #131826; stroke: #1F2A3D; }
+    .tab-active { fill: #1A2A4A; stroke: #6EA8FF; stroke-width: 1.5; }
+    .badge-live { fill: #0F2A1F; stroke: #10B981; }
+    .badge-soon { fill: #2A2010; stroke: #F59E0B; }
+    .divider { stroke: #1F2A3D; stroke-width: 1; }
+  </style>
+
+  <!-- ============ CANVAS ============ -->
+  <rect class="canvas" width="1280" height="1720"/>
+
+  <!-- ============ HEADER ============ -->
+  <rect x="0" y="0" width="1280" height="56" fill="#0B0F1A"/>
+  <line x1="0" y1="56" x2="1280" y2="56" class="divider"/>
+  <text x="32" y="35" class="h2" fill="#F1F5FF">gohotelwinners</text>
+  <text x="180" y="36" font-size="12" fill="#6B7689">/ Manager Dashboard</text>
+
+  <!-- Header right: lang toggle + bell + name + menu -->
+  <g transform="translate(950, 16)">
+    <rect width="60" height="24" rx="4" fill="#131826" stroke="#1F2A3D"/>
+    <text x="14" y="16" font-size="11" fill="#F1F5FF" font-weight="600">한</text>
+    <text x="36" y="16" font-size="11" fill="#6B7689">EN</text>
+  </g>
+  <circle cx="1050" cy="28" r="4" class="warn"/>
+  <text x="1030" y="32" font-size="14" fill="#E6ECF8">🔔</text>
+  <text x="1080" y="32" font-size="12" fill="#E6ECF8">Sarah Chen</text>
+  <text x="1180" y="32" font-size="12" fill="#6B7689">⋯</text>
+
+  <!-- ============ TABS ============ -->
+  <g transform="translate(32, 76)">
+    <rect class="tab-active" width="100" height="36" rx="8"/>
+    <text x="50" y="23" text-anchor="middle" font-size="13" fill="#F1F5FF" font-weight="600">🏠 홈</text>
+
+    <rect class="tab" x="110" width="100" height="36" rx="8"/>
+    <text x="160" y="23" text-anchor="middle" font-size="13" fill="#8A93A6">🎬 영상</text>
+
+    <rect class="tab" x="220" width="100" height="36" rx="8"/>
+    <text x="270" y="23" text-anchor="middle" font-size="13" fill="#8A93A6">📝 결제</text>
+
+    <rect class="tab" x="330" width="100" height="36" rx="8"/>
+    <text x="380" y="23" text-anchor="middle" font-size="13" fill="#8A93A6">💬 문의</text>
+
+    <rect class="tab" x="440" width="120" height="36" rx="8"/>
+    <text x="500" y="23" text-anchor="middle" font-size="13" fill="#8A93A6">📊 고객 분석</text>
+  </g>
+
+  <!-- ============ HOTEL CARD (Tier 1/2 정책) ============ -->
+  <g transform="translate(32, 136)">
+    <rect class="card" width="1216" height="120"/>
+    <!-- 호텔 사진 자리 -->
+    <rect x="20" y="20" width="80" height="80" rx="8" fill="#1F2A3D"/>
+    <text x="60" y="65" text-anchor="middle" font-size="10" fill="#6B7689">호텔 사진</text>
+
+    <text x="120" y="42" class="h1">Hanok Stay Bukchon</text>
+    <text x="120" y="64" font-size="12" fill="#8A93A6">서울특별시 종로구 · ⭐ 4.6 · Boutique Hotel</text>
+    <text x="120" y="84" font-size="11" fill="#6B7689">매니저: Sarah Chen · sarah@hanokstay.kr · 등록일 2026-03-14</text>
+
+    <!-- 정보 변경 신청 버튼 (Tier 2) -->
+    <rect x="1060" y="78" width="140" height="28" rx="6" fill="#131826" stroke="#1F2A3D"/>
+    <text x="1130" y="96" text-anchor="middle" font-size="11" fill="#6EA8FF">호텔 정보 변경 신청 →</text>
+
+    <!-- 운영 중 뱃지 -->
+    <rect x="1060" y="20" width="80" height="24" rx="12" class="badge-live" stroke-width="1"/>
+    <circle cx="1078" cy="32" r="3" class="good"/>
+    <text x="1090" y="36" font-size="11" fill="#10B981" font-weight="600">운영 중</text>
+  </g>
+
+  <!-- ============ 진행 상태 5단계 (이미지 015 기준) ============ -->
+  <g transform="translate(32, 276)">
+    <text x="0" y="0" class="h2">진행 상태</text>
+    <text x="0" y="20" font-size="12" fill="#6B7689">결제 → 등록 → 제작 → 노출 → 6개월 운영</text>
+
+    <g transform="translate(0, 36)">
+      <rect class="card" width="1216" height="96"/>
+
+      <!-- 5단계 점 -->
+      <!-- 단계 1 -->
+      <circle cx="120" cy="48" r="14" class="good"/>
+      <text x="120" y="52" text-anchor="middle" font-size="11" fill="#0B0F1A" font-weight="700">✓</text>
+      <text x="120" y="80" text-anchor="middle" font-size="11" fill="#E6ECF8" font-weight="600">결제 완료</text>
+      <text x="120" y="94" text-anchor="middle" font-size="10" fill="#6B7689">3월 10일</text>
+
+      <line x1="140" y1="48" x2="320" y2="48" stroke="#10B981" stroke-width="2"/>
+
+      <!-- 단계 2 -->
+      <circle cx="340" cy="48" r="14" class="good"/>
+      <text x="340" y="52" text-anchor="middle" font-size="11" fill="#0B0F1A" font-weight="700">✓</text>
+      <text x="340" y="80" text-anchor="middle" font-size="11" fill="#E6ECF8" font-weight="600">정보 등록</text>
+      <text x="340" y="94" text-anchor="middle" font-size="10" fill="#6B7689">3월 14일</text>
+
+      <line x1="360" y1="48" x2="540" y2="48" stroke="#10B981" stroke-width="2"/>
+
+      <!-- 단계 3 -->
+      <circle cx="560" cy="48" r="14" class="good"/>
+      <text x="560" y="52" text-anchor="middle" font-size="11" fill="#0B0F1A" font-weight="700">✓</text>
+      <text x="560" y="80" text-anchor="middle" font-size="11" fill="#E6ECF8" font-weight="600">영상 제작</text>
+      <text x="560" y="94" text-anchor="middle" font-size="10" fill="#6B7689">5월 1일</text>
+
+      <line x1="580" y1="48" x2="760" y2="48" stroke="#6EA8FF" stroke-width="2" stroke-dasharray="4 4"/>
+
+      <!-- 단계 4 - 현재 -->
+      <circle cx="780" cy="48" r="16" fill="#1A2A4A" stroke="#6EA8FF" stroke-width="2"/>
+      <text x="780" y="52" text-anchor="middle" font-size="11" fill="#6EA8FF" font-weight="700">●</text>
+      <text x="780" y="80" text-anchor="middle" font-size="11" fill="#6EA8FF" font-weight="700">언어 노출 진행</text>
+      <text x="780" y="94" text-anchor="middle" font-size="10" fill="#8A93A6">2/6개 언어 진행 중</text>
+
+      <line x1="800" y1="48" x2="980" y2="48" stroke="#1F2A3D" stroke-width="2"/>
+
+      <!-- 단계 5 -->
+      <circle cx="1000" cy="48" r="14" fill="#131826" stroke="#1F2A3D" stroke-width="2"/>
+      <text x="1000" y="80" text-anchor="middle" font-size="11" fill="#8A93A6">6개월 운영</text>
+      <text x="1000" y="94" text-anchor="middle" font-size="10" fill="#6B7689">9월 20일까지</text>
+    </g>
+  </g>
+
+  <!-- ============ 보장 알림 배너 (D-X) ============ -->
+  <g transform="translate(32, 432)">
+    <rect class="card-soft" width="1216" height="56" stroke="#6EA8FF" stroke-opacity="0.3"/>
+    <text x="20" y="22" font-size="11" fill="#6EA8FF" font-weight="600">📅 6개월 보장 기한</text>
+    <text x="20" y="42" font-size="13" fill="#E6ECF8">2026-09-20까지 · <tspan font-weight="700" fill="#F1F5FF">D-125</tspan> · 0건 시 100% 환불 보장</text>
+    <text x="1080" y="36" font-size="11" fill="#6EA8FF">정책 자세히 →</text>
+  </g>
+
+  <!-- ============ 핵심 운영 지표 4카드 ============ -->
+  <g transform="translate(32, 508)">
+    <text x="0" y="0" class="h2">이번 계약 기간 운영 현황</text>
+    <text x="0" y="20" font-size="12" fill="#6B7689">2026-03-20 → 2026-09-20 (D-125)</text>
+
+    <g transform="translate(0, 36)">
+      <!-- 카드 1 -->
+      <rect class="card" width="290" height="120"/>
+      <text x="20" y="28" class="label">예약 발생</text>
+      <text x="20" y="64" class="num-big">12</text>
+      <text x="80" y="64" font-size="13" fill="#8A93A6">건</text>
+      <text x="20" y="92" font-size="11" fill="#6B7689">노쇼 1건 포함 · 취소 2건 별도</text>
+      <text x="20" y="108" font-size="11" fill="#10B981">▲ 전월 +3건</text>
+
+      <!-- 카드 2 -->
+      <rect class="card" x="306" width="290" height="120"/>
+      <text x="326" y="28" class="label">호텔 매출 (USD)</text>
+      <text x="326" y="64" class="num-big">$8,420</text>
+      <text x="326" y="92" font-size="11" fill="#6B7689">체크아웃 완료 + 노쇼 기준</text>
+      <text x="326" y="108" font-size="11" fill="#10B981">▲ 전월 +$2,140</text>
+
+      <!-- 카드 3 -->
+      <rect class="card" x="612" width="290" height="120"/>
+      <text x="632" y="28" class="label">영상 노출 (조회수)</text>
+      <text x="632" y="64" class="num-big">142,830</text>
+      <text x="632" y="92" font-size="11" fill="#6B7689">본편 1편 · 8채널 누적</text>
+      <text x="632" y="108" font-size="11" fill="#10B981">▲ 지난 30일 +18,420</text>
+
+      <!-- 카드 4 -->
+      <rect class="card" x="918" width="298" height="120"/>
+      <text x="938" y="28" class="label">미답변 문의</text>
+      <text x="938" y="64" class="num-big">2</text>
+      <text x="988" y="64" font-size="13" fill="#8A93A6">건</text>
+      <text x="938" y="92" font-size="11" fill="#6B7689">평균 답변 시간 4시간 이내</text>
+      <text x="938" y="108" font-size="11" fill="#F59E0B">⚠ 답변 대기 중</text>
+    </g>
+  </g>
+
+  <!-- ============ 채널 위계 v3 (한국 메인 + 해외 Plus, 世界就是家 = 대만 단독) ============ -->
+  <g transform="translate(32, 712)">
+    <text x="0" y="0" class="h2">현재 노출 중인 채널</text>
+    <text x="0" y="20" font-size="12" fill="#6B7689">한국 4채널 (메인 진입) + 해외 4채널 (글로벌 확장) — 8채널 모두 운영 중</text>
+
+    <!-- 🥇 한국 박스 (위, 메인) -->
+    <g transform="translate(0, 36)">
+      <rect class="card" width="1216" height="140"/>
+      <text x="20" y="28" class="label">🥇 한국 4채널 — 메인 진입</text>
+      <text x="20" y="50" font-size="12" fill="#6EA8FF">한국의 관광객이 당신 호텔을 예약합니다</text>
+
+      <!-- 4채널 카드 -->
+      <g transform="translate(20, 64)">
+        <!-- 호텔이야 한국 -->
+        <rect width="284" height="60" rx="8" class="card-soft"/>
+        <rect x="12" y="12" width="36" height="36" rx="6" fill="#1F2A3D"/>
+        <text x="30" y="34" text-anchor="middle" font-size="14" fill="#E6ECF8">📺</text>
+        <text x="58" y="28" font-size="12" fill="#E6ECF8" font-weight="600">호텔이야 한국</text>
+        <text x="58" y="44" font-size="10" fill="#8A93A6">한국어 · KR</text>
+        <rect x="220" y="14" width="50" height="20" rx="10" class="badge-live" stroke-width="1"/>
+        <circle cx="234" cy="24" r="3" class="good"/>
+        <text x="244" y="28" font-size="10" fill="#10B981" font-weight="600">노출중</text>
+
+        <!-- 호텔이곳 -->
+        <rect x="296" width="284" height="60" rx="8" class="card-soft"/>
+        <rect x="308" y="12" width="36" height="36" rx="6" fill="#1F2A3D"/>
+        <text x="326" y="34" text-anchor="middle" font-size="14" fill="#E6ECF8">📺</text>
+        <text x="354" y="28" font-size="12" fill="#E6ECF8" font-weight="600">호텔이곳</text>
+        <text x="354" y="44" font-size="10" fill="#8A93A6">한국어 · KR</text>
+        <rect x="516" y="14" width="50" height="20" rx="10" class="badge-live" stroke-width="1"/>
+        <circle cx="530" cy="24" r="3" class="good"/>
+        <text x="540" y="28" font-size="10" fill="#10B981" font-weight="600">노출중</text>
+
+        <!-- 호텔닷컴 -->
+        <rect x="592" width="284" height="60" rx="8" class="card-soft"/>
+        <rect x="604" y="12" width="36" height="36" rx="6" fill="#1F2A3D"/>
+        <text x="622" y="34" text-anchor="middle" font-size="14" fill="#E6ECF8">📺</text>
+        <text x="650" y="28" font-size="12" fill="#E6ECF8" font-weight="600">호텔닷컴</text>
+        <text x="650" y="44" font-size="10" fill="#8A93A6">한국어 · KR</text>
+        <rect x="812" y="14" width="50" height="20" rx="10" class="badge-live" stroke-width="1"/>
+        <circle cx="826" cy="24" r="3" class="good"/>
+        <text x="836" y="28" font-size="10" fill="#10B981" font-weight="600">노출중</text>
+
+        <!-- 여행능력자들 -->
+        <rect x="888" width="284" height="60" rx="8" class="card-soft"/>
+        <rect x="900" y="12" width="36" height="36" rx="6" fill="#1F2A3D"/>
+        <text x="918" y="34" text-anchor="middle" font-size="14" fill="#E6ECF8">📺</text>
+        <text x="946" y="28" font-size="12" fill="#E6ECF8" font-weight="600">여행능력자들</text>
+        <text x="946" y="44" font-size="10" fill="#8A93A6">한국어 · KR</text>
+        <rect x="1108" y="14" width="50" height="20" rx="10" class="badge-live" stroke-width="1"/>
+        <circle cx="1122" cy="24" r="3" class="good"/>
+        <text x="1132" y="28" font-size="10" fill="#10B981" font-weight="600">노출중</text>
+      </g>
+    </g>
+
+    <!-- 🥈 해외 박스 (아래, Plus) -->
+    <g transform="translate(0, 192)">
+      <rect class="card" width="1216" height="140"/>
+      <text x="20" y="28" class="label">🥈 해외 4채널 — 글로벌 확장</text>
+      <text x="20" y="50" font-size="12" fill="#6EA8FF">일본, 대만, 베트남, 영어권 관광객에게도 당신의 호텔을 소개합니다</text>
+
+      <g transform="translate(20, 64)">
+        <!-- Koreahotelguide -->
+        <rect width="284" height="60" rx="8" class="card-soft"/>
+        <rect x="12" y="12" width="36" height="36" rx="6" fill="#1F2A3D"/>
+        <text x="30" y="34" text-anchor="middle" font-size="14" fill="#E6ECF8">🌐</text>
+        <text x="58" y="28" font-size="12" fill="#E6ECF8" font-weight="600">Koreahotelguide</text>
+        <text x="58" y="44" font-size="10" fill="#8A93A6">English · US·GB·AU·IN</text>
+        <rect x="220" y="14" width="50" height="20" rx="10" class="badge-live" stroke-width="1"/>
+        <circle cx="234" cy="24" r="3" class="good"/>
+        <text x="244" y="28" font-size="10" fill="#10B981" font-weight="600">노출중</text>
+
+        <!-- 호텔이야 일본 -->
+        <rect x="296" width="284" height="60" rx="8" class="card-soft"/>
+        <rect x="308" y="12" width="36" height="36" rx="6" fill="#1F2A3D"/>
+        <text x="326" y="34" text-anchor="middle" font-size="14" fill="#E6ECF8">🌐</text>
+        <text x="354" y="28" font-size="12" fill="#E6ECF8" font-weight="600">호텔이야 일본</text>
+        <text x="354" y="44" font-size="10" fill="#8A93A6">日本語 · JP</text>
+        <rect x="516" y="14" width="50" height="20" rx="10" class="badge-live" stroke-width="1"/>
+        <circle cx="530" cy="24" r="3" class="good"/>
+        <text x="540" y="28" font-size="10" fill="#10B981" font-weight="600">노출중</text>
+
+        <!-- 世界就是家 (대만 단독 — v3 정정) -->
+        <rect x="592" width="284" height="60" rx="8" class="card-soft"/>
+        <rect x="604" y="12" width="36" height="36" rx="6" fill="#1F2A3D"/>
+        <text x="622" y="34" text-anchor="middle" font-size="14" fill="#E6ECF8">🌐</text>
+        <text x="650" y="28" font-size="12" fill="#E6ECF8" font-weight="600">世界就是家</text>
+        <text x="650" y="44" font-size="10" fill="#8A93A6">中文 · TW (대만)</text>
+        <rect x="812" y="14" width="50" height="20" rx="10" class="badge-live" stroke-width="1"/>
+        <circle cx="826" cy="24" r="3" class="good"/>
+        <text x="836" y="28" font-size="10" fill="#10B981" font-weight="600">노출중</text>
+
+        <!-- Korea Hotel 베트남어 -->
+        <rect x="888" width="284" height="60" rx="8" class="card-soft"/>
+        <rect x="900" y="12" width="36" height="36" rx="6" fill="#1F2A3D"/>
+        <text x="918" y="34" text-anchor="middle" font-size="14" fill="#E6ECF8">🌐</text>
+        <text x="946" y="28" font-size="12" fill="#E6ECF8" font-weight="600">Korea Hotel 베트남어</text>
+        <text x="946" y="44" font-size="10" fill="#8A93A6">Tiếng Việt · VN</text>
+        <rect x="1108" y="14" width="50" height="20" rx="10" class="badge-live" stroke-width="1"/>
+        <circle cx="1122" cy="24" r="3" class="good"/>
+        <text x="1132" y="28" font-size="10" fill="#10B981" font-weight="600">노출중</text>
+      </g>
+    </g>
+  </g>
+
+  <!-- ============ 최근 활동 타임라인 ============ -->
+  <g transform="translate(32, 1260)">
+    <text x="0" y="0" class="h2">최근 활동</text>
+    <text x="0" y="20" font-size="12" fill="#6B7689">최근 7일</text>
+
+    <g transform="translate(0, 36)">
+      <rect class="card" width="1216" height="380"/>
+
+      <!-- Activity 1 -->
+      <g transform="translate(20, 24)">
+        <circle cx="6" cy="6" r="6" class="good"/>
+        <text x="22" y="10" font-size="13" fill="#E6ECF8" font-weight="600">새 예약 발생 — 일본 게스트</text>
+        <text x="22" y="28" font-size="11" fill="#8A93A6">체크인 6/12 · 3박 · $620 · 호텔이야 일본 채널 추정</text>
+        <text x="1080" y="14" font-size="11" fill="#6B7689">2시간 전</text>
+      </g>
+      <line x1="20" y1="80" x2="1196" y2="80" class="divider"/>
+
+      <!-- Activity 2 -->
+      <g transform="translate(20, 100)">
+        <circle cx="6" cy="6" r="6" class="accent"/>
+        <text x="22" y="10" font-size="13" fill="#E6ECF8" font-weight="600">영상 게시 — 호텔이곳</text>
+        <text x="22" y="28" font-size="11" fill="#8A93A6">"Hanok Stay Bukchon 객실 투어" · 8분 영상 · 한국어</text>
+        <text x="1100" y="14" font-size="11" fill="#6B7689">어제</text>
+      </g>
+      <line x1="20" y1="156" x2="1196" y2="156" class="divider"/>
+
+      <!-- Activity 3 -->
+      <g transform="translate(20, 176)">
+        <circle cx="6" cy="6" r="6" class="warn"/>
+        <text x="22" y="10" font-size="13" fill="#E6ECF8" font-weight="600">새 문의 — 매니저</text>
+        <text x="22" y="28" font-size="11" fill="#8A93A6">"체크인 시간 변경 가능 여부" · 답변 대기 중</text>
+        <text x="1098" y="14" font-size="11" fill="#6B7689">3일 전</text>
+      </g>
+      <line x1="20" y1="232" x2="1196" y2="232" class="divider"/>
+
+      <!-- Activity 4 -->
+      <g transform="translate(20, 252)">
+        <circle cx="6" cy="6" r="6" class="good"/>
+        <text x="22" y="10" font-size="13" fill="#E6ECF8" font-weight="600">새 예약 발생 — 한국 게스트</text>
+        <text x="22" y="28" font-size="11" fill="#8A93A6">체크인 5/22 · 2박 · $380 · 호텔이야 한국 채널 추정</text>
+        <text x="1098" y="14" font-size="11" fill="#6B7689">5일 전</text>
+      </g>
+      <line x1="20" y1="308" x2="1196" y2="308" class="divider"/>
+
+      <!-- Activity 5 -->
+      <g transform="translate(20, 328)">
+        <circle cx="6" cy="6" r="6" class="accent"/>
+        <text x="22" y="10" font-size="13" fill="#E6ECF8" font-weight="600">호텔 정보 업데이트 적용</text>
+        <text x="22" y="28" font-size="11" fill="#8A93A6">조식 시간 변경 · Tier 2 승인 완료</text>
+        <text x="1100" y="14" font-size="11" fill="#6B7689">6일 전</text>
+      </g>
+    </g>
+  </g>
+
+  <!-- ============ FOOTER 메타 ============ -->
+  <text x="32" y="1700" font-size="10" fill="#4A5366">BL-MGR-DASHBOARD-V1 / 🏠 홈 탭 v2 / 2026-05-18 / 정정 #1·#2 반영 (Hero 제거, 世界就是家 = 대만 TW 단독)</text>
+</svg>

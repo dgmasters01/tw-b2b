@@ -1,0 +1,210 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 1880" font-family="Inter, -apple-system, 'Noto Sans KR', sans-serif">
+  <!-- ============ STYLES ============ -->
+  <style>
+    .canvas { fill: #0B0F1A; }
+    .card { fill: #131826; stroke: #1F2A3D; stroke-width: 1; rx: 12; }
+    .card-soft { fill: #0F1422; stroke: #1A2236; stroke-width: 1; rx: 12; }
+    .accent { fill: #6EA8FF; }
+    .accent-bg { fill: #1A2A4A; }
+    .good { fill: #10B981; }
+    .warn { fill: #F59E0B; }
+    .danger { fill: #EF4444; }
+    .muted { fill: #6B7689; font-size: 11px; }
+    .label { fill: #8A93A6; font-size: 12px; font-weight: 500; }
+    .title { fill: #E6ECF8; font-size: 14px; font-weight: 600; }
+    .h1 { fill: #F1F5FF; font-size: 22px; font-weight: 700; }
+    .h2 { fill: #F1F5FF; font-size: 16px; font-weight: 600; }
+    .h3 { fill: #F1F5FF; font-size: 13px; font-weight: 600; }
+    .body { fill: #C9D2E3; font-size: 12px; }
+    .num-mid { fill: #F1F5FF; font-size: 18px; font-weight: 700; }
+    .tab { fill: #131826; stroke: #1F2A3D; }
+    .tab-active { fill: #1A2A4A; stroke: #6EA8FF; stroke-width: 1.5; }
+    .badge-good { fill: #0F2A1F; stroke: #10B981; }
+    .badge-warn { fill: #2A1F0F; stroke: #F59E0B; }
+    .badge-mute { fill: #1A2236; stroke: #2A3450; }
+    .pill { rx: 14; }
+    .input { fill: #0B0F1A; stroke: #2A3450; stroke-width: 1; rx: 8; }
+  </style>
+
+  <!-- ============ CANVAS ============ -->
+  <rect class="canvas" width="1280" height="1880"/>
+
+  <!-- ============ TOP BAR ============ -->
+  <rect x="0" y="0" width="1280" height="64" fill="#0F1422" stroke="#1A2236"/>
+  <text x="32" y="40" class="h2">gohotelwinners</text>
+  <text x="200" y="40" class="label">Hotel Manager Dashboard</text>
+  <circle cx="1200" cy="32" r="14" fill="#1A2A4A" stroke="#2A3450"/>
+  <text x="1200" y="36" text-anchor="middle" fill="#6EA8FF" font-size="11" font-weight="600">SH</text>
+  <text x="1226" y="36" class="label">Seaside Hotel</text>
+
+  <!-- ============ TABS ============ -->
+  <g transform="translate(32, 88)">
+    <rect class="tab pill" x="0" y="0" width="80" height="36"/>
+    <text x="40" y="23" text-anchor="middle" class="label">🏠 홈</text>
+    <rect class="tab pill" x="92" y="0" width="80" height="36"/>
+    <text x="132" y="23" text-anchor="middle" class="label">🎬 영상</text>
+    <rect class="tab pill" x="184" y="0" width="80" height="36"/>
+    <text x="224" y="23" text-anchor="middle" class="label">📝 결제</text>
+    <rect class="tab-active pill" x="276" y="0" width="80" height="36"/>
+    <text x="316" y="23" text-anchor="middle" fill="#6EA8FF" font-size="12" font-weight="600">💬 문의</text>
+    <rect class="tab pill" x="368" y="0" width="100" height="36"/>
+    <text x="418" y="23" text-anchor="middle" class="label">📊 고객 분석</text>
+  </g>
+
+  <!-- ============ PAGE TITLE ============ -->
+  <text x="32" y="168" class="h1">문의</text>
+  <text x="32" y="194" class="label">호텔 정보 변경 · 영상 질문 · 예약 · 계약 관련 어떤 문의든 받습니다</text>
+
+  <!-- ============ CUSTOMER SUCCESS CARD (#7) ============ -->
+  <rect class="card" x="32" y="220" width="1216" height="92"/>
+  <!-- Avatar headset icon -->
+  <circle cx="84" cy="266" r="28" fill="#1A2A4A" stroke="#6EA8FF" stroke-width="1.5"/>
+  <text x="84" y="274" text-anchor="middle" font-size="22">🎧</text>
+  <!-- Label -->
+  <text x="128" y="252" class="h2">gohotelwinners Customer Success</text>
+  <rect class="badge-good pill" x="128" y="262" width="58" height="22"/>
+  <text x="157" y="277" text-anchor="middle" fill="#10B981" font-size="11" font-weight="600">● 온라인</text>
+  <text x="196" y="278" class="label">평균 4시간 이내 답변 · 한국어, English</text>
+  <text x="128" y="298" class="muted">호텔 정보 / 영상 일정 / 예약 집계 / 계약 갱신 — 어떤 질문이든 가장 빠르게 답변드립니다.</text>
+  <!-- New inquiry button -->
+  <rect class="pill" x="1064" y="244" width="160" height="44" fill="#6EA8FF"/>
+  <text x="1144" y="271" text-anchor="middle" fill="#0B0F1A" font-size="13" font-weight="700">+ 새 문의 작성</text>
+
+  <!-- ============ FAQ SECTION (#8) ============ -->
+  <text x="32" y="354" class="h2">자주 묻는 질문</text>
+  <text x="156" y="354" class="muted">먼저 확인해 보세요. 해결되지 않으면 위 [새 문의 작성]</text>
+
+  <!-- FAQ 1 (expanded sample) -->
+  <rect class="card" x="32" y="372" width="1216" height="120"/>
+  <text x="52" y="398" class="h3">Q1.  영상 게시 일정은 어떻게 정해지나요?</text>
+  <text x="1216" y="398" text-anchor="end" class="muted" transform="translate(0,0)">▼</text>
+  <line x1="52" y1="412" x2="1228" y2="412" stroke="#1F2A3D"/>
+  <text x="52" y="436" class="body">선결제 완료일로부터 약 4~6주 내 첫 영상이 게시됩니다. 8개 채널 동시가 아니라 채널별로 시간차를 두고</text>
+  <text x="52" y="454" class="body">전략적으로 분배합니다 (한국 4채널 + 해외 4채널). 정확한 게시일은 영상 탭의 채널별 카드에서 확인하실 수 있습니다.</text>
+  <text x="52" y="478" class="muted">▸ 영상 탭에서 채널별 게시일 보기</text>
+
+  <!-- FAQ 2 (collapsed) -->
+  <rect class="card" x="32" y="504" width="1216" height="48"/>
+  <text x="52" y="533" class="h3">Q2.  호텔 정보(사진·설명)를 추가 또는 변경하고 싶어요</text>
+  <text x="1228" y="533" text-anchor="end" class="label">▸</text>
+
+  <!-- FAQ 3 (collapsed) -->
+  <rect class="card" x="32" y="564" width="1216" height="48"/>
+  <text x="52" y="593" class="h3">Q3.  예약은 어떻게 집계되나요? (8개 채널 통합되나요?)</text>
+  <text x="1228" y="593" text-anchor="end" class="label">▸</text>
+
+  <!-- FAQ 4 (collapsed) -->
+  <rect class="card" x="32" y="624" width="1216" height="48"/>
+  <text x="52" y="653" class="h3">Q4.  6개월 보장 기한 후에는 어떻게 되나요?</text>
+  <text x="1228" y="653" text-anchor="end" class="label">▸</text>
+
+  <!-- FAQ 5 (collapsed) -->
+  <rect class="card" x="32" y="684" width="1216" height="48"/>
+  <text x="52" y="713" class="h3">Q5.  계약을 갱신하거나 종료하려면?</text>
+  <text x="1228" y="713" text-anchor="end" class="label">▸</text>
+
+  <!-- ============ SEARCH + FILTER (#9) ============ -->
+  <text x="32" y="784" class="h2">내 문의 내역</text>
+  <text x="160" y="784" class="muted">총 8건 · 답변 대기 1건</text>
+
+  <!-- Search bar -->
+  <rect class="input" x="32" y="802" width="380" height="40"/>
+  <text x="48" y="827" class="muted">🔍  문의 제목·내용 검색</text>
+
+  <!-- Filter pills -->
+  <g transform="translate(424, 802)">
+    <rect class="tab-active pill" x="0" y="0" width="56" height="40"/>
+    <text x="28" y="25" text-anchor="middle" fill="#6EA8FF" font-size="12" font-weight="600">전체 8</text>
+    <rect class="tab pill" x="68" y="0" width="88" height="40"/>
+    <text x="112" y="25" text-anchor="middle" class="label">답변 대기 1</text>
+    <rect class="tab pill" x="168" y="0" width="88" height="40"/>
+    <text x="212" y="25" text-anchor="middle" class="label">답변 완료 6</text>
+    <rect class="tab pill" x="268" y="0" width="76" height="40"/>
+    <text x="306" y="25" text-anchor="middle" class="label">내가 보낸</text>
+    <rect class="tab pill" x="356" y="0" width="110" height="40"/>
+    <text x="411" y="25" text-anchor="middle" class="label">정보 변경 신청</text>
+  </g>
+
+  <!-- ============ INQUIRY LIST ============ -->
+  <!-- Inquiry 1: 답변 대기 (warn) -->
+  <rect class="card" x="32" y="864" width="1216" height="88"/>
+  <rect class="badge-warn pill" x="52" y="884" width="74" height="22"/>
+  <text x="89" y="899" text-anchor="middle" fill="#F59E0B" font-size="11" font-weight="600">● 답변 대기</text>
+  <text x="138" y="899" class="muted">2026-05-17 14:22 · 8시간 전</text>
+  <text x="52" y="924" class="h3">9월 노출 시작 전 호텔 신관 사진 추가 가능한가요?</text>
+  <text x="52" y="944" class="muted">신관 오픈에 맞춰 객실 사진 12장 추가 요청드립니다. 별관 외부 사진은 그대로 유지하고...</text>
+  <text x="1216" y="924" text-anchor="end" class="label">정보 변경 신청 →</text>
+
+  <!-- Inquiry 2: 답변 완료 (good) -->
+  <rect class="card" x="32" y="964" width="1216" height="88"/>
+  <rect class="badge-good pill" x="52" y="984" width="74" height="22"/>
+  <text x="89" y="999" text-anchor="middle" fill="#10B981" font-size="11" font-weight="600">● 답변 완료</text>
+  <text x="138" y="999" class="muted">2026-05-15 · CS 답변 2026-05-15 (3시간 후)</text>
+  <text x="52" y="1024" class="h3">호텔이야 채널 영상 시청 수가 갑자기 올라간 이유?</text>
+  <text x="52" y="1044" class="muted">CS: 5월 둘째 주 알고리즘 추천 + 일본 골든위크 검색 급증 영향입니다. 캡처와 함께 자세한 분석은 첨부...</text>
+  <text x="1216" y="1024" text-anchor="end" class="label">영상 →</text>
+
+  <!-- Inquiry 3 -->
+  <rect class="card" x="32" y="1064" width="1216" height="88"/>
+  <rect class="badge-good pill" x="52" y="1084" width="74" height="22"/>
+  <text x="89" y="1099" text-anchor="middle" fill="#10B981" font-size="11" font-weight="600">● 답변 완료</text>
+  <text x="138" y="1099" class="muted">2026-05-10 · CS 답변 2026-05-10 (2시간 후)</text>
+  <text x="52" y="1124" class="h3">2차 계약 결제 영수증을 회계팀에 전달해야 합니다</text>
+  <text x="52" y="1144" class="muted">CS: 결제 탭 우상단 [영수증] 버튼에서 PDF 다운로드 가능합니다. 회계팀 발송용 별도 양식 필요시...</text>
+  <text x="1216" y="1124" text-anchor="end" class="label">결제 →</text>
+
+  <!-- Inquiry 4 -->
+  <rect class="card" x="32" y="1164" width="1216" height="88"/>
+  <rect class="badge-good pill" x="52" y="1184" width="74" height="22"/>
+  <text x="89" y="1199" text-anchor="middle" fill="#10B981" font-size="11" font-weight="600">● 답변 완료</text>
+  <text x="138" y="1199" class="muted">2026-04-28 · CS 답변 2026-04-28 (1시간 후)</text>
+  <text x="52" y="1224" class="h3">예약자 국적 통계가 분석 탭에 어떻게 잡히나요?</text>
+  <text x="52" y="1244" class="muted">CS: Agoda 예약 정보의 거주국가 기준이며, 8개 채널 통합 집계됩니다. 노쇼·취소 처리 방식 별도 안내...</text>
+  <text x="1216" y="1224" text-anchor="end" class="label">고객 분석 →</text>
+
+  <!-- Inquiry 5 -->
+  <rect class="card" x="32" y="1264" width="1216" height="88"/>
+  <rect class="badge-good pill" x="52" y="1284" width="74" height="22"/>
+  <text x="89" y="1299" text-anchor="middle" fill="#10B981" font-size="11" font-weight="600">● 답변 완료</text>
+  <text x="138" y="1299" class="muted">2026-04-15 · CS 답변 2026-04-15 (4시간 후)</text>
+  <text x="52" y="1324" class="h3">호텔 주변 명소 영상 1편 추가 노출 옵션 견적</text>
+  <text x="52" y="1344" class="muted">CS: 본편 계약 기간 내 한정으로 추가 노출 가능합니다. 본 계약 종료일과 동일하게 보장됩니다...</text>
+  <text x="1216" y="1324" text-anchor="end" class="label">영상 →</text>
+
+  <!-- Inquiry 6 -->
+  <rect class="card" x="32" y="1364" width="1216" height="88"/>
+  <rect class="badge-good pill" x="52" y="1384" width="74" height="22"/>
+  <text x="89" y="1399" text-anchor="middle" fill="#10B981" font-size="11" font-weight="600">● 답변 완료</text>
+  <text x="138" y="1399" class="muted">2026-03-22 · CS 답변 2026-03-22 (5시간 후)</text>
+  <text x="52" y="1424" class="h3">호텔 로고 변경 — 신규 CI 적용 부탁드립니다</text>
+  <text x="52" y="1444" class="muted">CS: 신규 CI PNG/SVG 받았습니다. 5/1부터 모든 영상 인트로·아웃트로 적용 완료. 미리보기 영상...</text>
+  <text x="1216" y="1424" text-anchor="end" class="label">정보 변경 신청 →</text>
+
+  <!-- ============ PAGINATION (#9) ============ -->
+  <g transform="translate(540, 1480)">
+    <rect class="tab pill" x="0" y="0" width="40" height="36"/>
+    <text x="20" y="23" text-anchor="middle" class="label">‹</text>
+    <rect class="tab-active pill" x="52" y="0" width="40" height="36"/>
+    <text x="72" y="23" text-anchor="middle" fill="#6EA8FF" font-size="12" font-weight="600">1</text>
+    <rect class="tab pill" x="104" y="0" width="40" height="36"/>
+    <text x="124" y="23" text-anchor="middle" class="label">2</text>
+    <rect class="tab pill" x="156" y="0" width="40" height="36"/>
+    <text x="176" y="23" text-anchor="middle" class="label">›</text>
+  </g>
+  <text x="640" y="1540" text-anchor="middle" class="muted">8건 중 1-6 표시 · 페이지당 10건</text>
+
+  <!-- ============ FOOTER NOTE ============ -->
+  <rect class="card-soft" x="32" y="1580" width="1216" height="80"/>
+  <text x="52" y="1612" class="h3">💡 답변이 늦어지는 경우</text>
+  <text x="52" y="1634" class="body">주말·공휴일 또는 베트남/한국 시차로 인해 답변이 지연될 수 있습니다.</text>
+  <text x="52" y="1652" class="body">긴급한 정보 변경(잘못된 정보 노출 등)은 문의 제목에 [긴급]을 붙여주세요. 우선 처리됩니다.</text>
+
+  <!-- ============ POLICY ANNOTATION (designer note) ============ -->
+  <rect class="card-soft" x="32" y="1690" width="1216" height="170"/>
+  <text x="52" y="1722" class="h3">📌 와이어프레임 v2 정책 박제 (정정 #7·#8·#9)</text>
+  <text x="52" y="1748" class="body">• 담당자 라벨: "gohotelwinners Customer Success" (LJ 이니셜 폐기, 헤드셋 아이콘 아바타)</text>
+  <text x="52" y="1768" class="body">• FAQ 5개 고정 박스: 영상 일정 / 정보 변경 / 예약 집계 / 보장 기한 후 / 갱신·종료 (접힘식, 펼친 항목 1번만 표시)</text>
+  <text x="52" y="1788" class="body">• 검색바 + 5개 필터 (전체/답변 대기/답변 완료/내가 보낸/정보 변경 신청) + 페이지네이션 10건씩</text>
+  <text x="52" y="1808" class="body">• 검색/필터/페이지네이션은 문의 6건 이상일 때만 자동 노출. 6건 미만이면 카드만 표시.</text>
+  <text x="52" y="1834" class="muted">출처: docs/design/BL-MGR-DASHBOARD-V1/decisions-summary.md v2 + copy-hierarchy.md v2</text>
+</svg>

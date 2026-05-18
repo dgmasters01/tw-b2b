@@ -132,6 +132,44 @@ body{margin:0;background:var(--bg);font-family:var(--sans);color:var(--ink);min-
 .md-skeleton{background:linear-gradient(90deg,var(--glass) 25%,var(--glass-3) 50%,var(--glass) 75%);background-size:200% 100%;animation:skel 1.4s ease-in-out infinite;border-radius:6px;height:14px;width:60%;margin:6px 0}
 @keyframes skel{0%{background-position:200% 0}100%{background-position:-200% 0}}
 
+/* ---- Videos Tab ---- */
+.md-main-video{display:flex;gap:20px;align-items:flex-start}
+.md-video-thumb{width:280px;aspect-ratio:16/9;border-radius:10px;background:var(--bg-3) center/cover no-repeat;flex-shrink:0;position:relative;border:1px solid var(--line-2);overflow:hidden}
+.md-video-thumb::after{content:'▶';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.32);color:#fff;font-size:32px;opacity:0;transition:.2s}
+.md-video-thumb:hover::after{opacity:1}
+.md-video-thumb.placeholder{background:linear-gradient(135deg,rgba(124,58,237,.4),rgba(6,182,212,.3));display:flex;align-items:center;justify-content:center;font-size:32px;color:rgba(255,255,255,.6)}
+.md-video-meta{flex:1}
+.md-video-title{font-family:var(--display);font-size:17px;font-weight:700;margin:0 0 8px;color:var(--ink);letter-spacing:-.015em}
+.md-video-sub{font-size:12.5px;color:var(--ink-3);margin-bottom:14px;line-height:1.5}
+.md-video-status{padding:4px 10px;border-radius:99px;font-size:11px;font-weight:600;background:rgba(16,185,129,.18);color:var(--success);font-family:var(--mono);display:inline-block}
+.md-video-actions{display:flex;gap:10px;margin-top:12px}
+.md-video-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:var(--glass-2);border:1px solid var(--line-2);border-radius:8px;color:var(--ink-2);text-decoration:none;font-size:12.5px;font-weight:600;transition:var(--transition);cursor:pointer}
+.md-video-btn:hover{border-color:var(--line-3);background:var(--glass-3);color:var(--ink)}
+.md-video-btn.primary{background:var(--aurora);color:#fff;border-color:transparent}
+
+.md-video-table{width:100%;border-collapse:collapse;font-size:13px}
+.md-video-table thead{background:var(--glass-2);position:sticky;top:0}
+.md-video-table th{text-align:left;padding:13px 16px;font-size:11px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.06em;font-weight:600;font-family:var(--mono);border-bottom:1px solid var(--line-2)}
+.md-video-table td{padding:13px 16px;border-bottom:1px solid var(--line);color:var(--ink-2)}
+.md-video-table tbody tr:hover{background:var(--glass)}
+.md-video-table tbody tr:last-child td{border-bottom:none}
+.md-video-table td.ch-name{font-weight:600;color:var(--ink)}
+.md-video-table td.ch-watch a{color:var(--aurora-3);text-decoration:none;font-weight:600;font-size:12.5px;font-family:var(--mono)}
+.md-video-table td.ch-watch a:hover{text-decoration:underline}
+.md-badge-live{padding:3px 10px;border-radius:99px;font-size:10.5px;font-weight:600;background:rgba(16,185,129,.18);color:var(--success);font-family:var(--mono)}
+.md-badge-sched{padding:3px 10px;border-radius:99px;font-size:10.5px;font-weight:600;background:rgba(245,158,11,.18);color:var(--warn);font-family:var(--mono)}
+.md-badge-pending{padding:3px 10px;border-radius:99px;font-size:10.5px;font-weight:600;background:var(--glass-2);color:var(--ink-4);font-family:var(--mono)}
+
+/* Extra videos */
+.md-extra-item{display:flex;gap:14px;align-items:flex-start;padding:14px 0;border-bottom:1px solid var(--line)}
+.md-extra-item:last-child{border-bottom:none}
+.md-extra-thumb{width:100px;aspect-ratio:16/9;border-radius:6px;background:var(--bg-3) center/cover no-repeat;flex-shrink:0;border:1px solid var(--line-2)}
+.md-extra-info{flex:1;font-size:12.5px}
+.md-extra-title{font-weight:600;color:var(--ink);margin-bottom:3px}
+.md-extra-meta{color:var(--ink-3);font-size:11.5px}
+.md-extra-stats{text-align:right;font-family:var(--mono);font-size:11px;color:var(--ink-3)}
+.md-extra-stats strong{display:block;color:var(--ink);font-size:15px;margin-bottom:2px}
+
 /* ---- Mobile ---- */
 @media (max-width: 900px){
   .md-shell{padding:0 16px}
@@ -414,18 +452,73 @@ body{margin:0;background:var(--bg);font-family:var(--sans);color:var(--ink);min-
 
     </section>
 
-    <!-- ============ TAB 2 : VIDEOS (placeholder, Step 3) ============ -->
+    <!-- ============ TAB 2 : VIDEOS ============ -->
     <section class="md-tab-panel" id="tab-videos">
-      <div class="md-card">
-        <h3 class="md-card-title" data-en="Videos" data-ko="영상">Videos</h3>
-        <p class="md-card-sub"
-           data-en="Main video + Korea 4 / Global 4 channel exposure"
-           data-ko="본편 영상 + 한국 4 / 해외 4 채널 노출">Main video + Korea 4 / Global 4 channel exposure</p>
-        <div class="md-empty">
-          <div class="md-empty-icon">🎬</div>
-          <div class="md-empty-msg" data-en="Loading..." data-ko="불러오는 중...">Loading...</div>
+
+      <!-- Main video card -->
+      <div class="md-section-head">
+        <h3 class="md-section-title" data-en="Main Video" data-ko="본편 영상">Main Video</h3>
+        <span class="md-section-period"
+              data-en="Included in contract · 1 video"
+              data-ko="계약에 포함된 메인 영상 · 1편">Included in contract · 1 video</span>
+      </div>
+
+      <div class="md-card" id="mainVideoCard">
+        <div class="md-empty"><div class="md-empty-icon">🎬</div>
+          <div class="md-empty-msg" data-en="Loading..." data-ko="불러오는 중...">Loading...</div></div>
+      </div>
+
+      <!-- 8-channel exposure table -->
+      <div class="md-section-head">
+        <h3 class="md-section-title"
+            data-en="8-channel exposure status"
+            data-ko="8채널 노출 현황">8-channel exposure status</h3>
+        <span class="md-section-period"
+              data-en="Korea 4 (Main) + Global 4 (Expansion)"
+              data-ko="한국 4 (메인) + 해외 4 (글로벌)">Korea 4 (Main) + Global 4 (Expansion)</span>
+      </div>
+
+      <div class="md-card" style="padding:0;overflow-x:auto">
+        <table class="md-video-table" id="channelTable">
+          <thead>
+            <tr>
+              <th data-en="YouTube Channel" data-ko="유튜브 채널">YouTube Channel</th>
+              <th data-en="Language" data-ko="언어">Language</th>
+              <th data-en="Target" data-ko="타겟 국가">Target</th>
+              <th data-en="Published" data-ko="게시일">Published</th>
+              <th data-en="Status" data-ko="상태">Status</th>
+              <th data-en="Video" data-ko="영상">Video</th>
+            </tr>
+          </thead>
+          <tbody id="channelTableBody">
+            <tr><td colspan="6" style="text-align:center;padding:32px;color:var(--ink-3)">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Extra exposure section (0편 시 숨김) -->
+      <div id="extraExposureSection" style="display:none">
+        <div class="md-section-head">
+          <h3 class="md-section-title"
+              data-en="Extra Exposure Videos"
+              data-ko="추가 노출 영상">Extra Exposure Videos</h3>
+          <span class="md-section-period"
+                data-en="Service-provided · same guarantee period as main"
+                data-ko="서비스 제공 · 본편 보장 기한과 동일">Service-provided · same guarantee period as main</span>
+        </div>
+
+        <div class="md-card" id="extraVideosCard">
+          <p style="font-size:12.5px;color:var(--ink-3);margin:0 0 14px"
+             data-en="TravelWinners may add ancillary videos (optional · 0~N)"
+             data-ko="TravelWinners가 추가로 게시하는 부속 영상 (옵션 · 0편 ~ N편)">TravelWinners may add ancillary videos (optional · 0~N)</p>
+          <div id="extraVideosList"></div>
+          <div style="margin-top:14px;padding:11px 14px;background:rgba(124,58,237,.08);border:1px solid rgba(124,58,237,.22);border-radius:8px;font-size:12px;color:var(--ink-2)">
+            <span data-en="💡 Extra exposure videos are service-provided at TravelWinners' discretion and end together with the main contract guarantee period."
+                  data-ko="💡 추가 노출은 TravelWinners 운영 판단으로 무상 제공되는 서비스 영상입니다. 본편 보장 기한 종료 시 함께 종료됩니다.">💡 Extra exposure videos are service-provided at TravelWinners' discretion and end together with the main contract guarantee period.</span>
+          </div>
         </div>
       </div>
+
     </section>
 
     <!-- ============ TAB 3 : PAYMENTS (placeholder, Step 4) ============ -->
@@ -755,7 +848,155 @@ function openInfoChangeRequest(){
   switchTab('inquiry');
   // Step 5에서 폼 자동 채움 처리
 }
-function loadVideosTab(){ window.__videosLoaded = true; /* Step 3 */ }
+// ---- Tab 2: Videos ----
+const CHANNEL_DEFS = [
+  // 한국 4 (메인) — display_order 1~4
+  { name:'호텔이야 한국', lang:'Korean', langKo:'한국어', flag:'🇰🇷 KR', isKorea:true, icon:'📺' },
+  { name:'호텔이곳',     lang:'Korean', langKo:'한국어', flag:'🇰🇷 KR', isKorea:true, icon:'📺' },
+  { name:'호텔닷컴',     lang:'Korean', langKo:'한국어', flag:'🇰🇷 KR', isKorea:true, icon:'📺' },
+  { name:'여행능력자들', lang:'Korean', langKo:'한국어', flag:'🇰🇷 KR', isKorea:true, icon:'📺' },
+  // 해외 4 (글로벌)
+  { name:'Koreahotelguide',       lang:'English',  langKo:'English',  flag:'🇺🇸🇬🇧🇦🇺🇮🇳', isKorea:false, icon:'🌐' },
+  { name:'호텔이야 일본',          lang:'日本語',   langKo:'日本語',    flag:'🇯🇵 JP', isKorea:false, icon:'🌐' },
+  { name:'世界就是家',             lang:'繁體中文', langKo:'中文',     flag:'🇹🇼 TW', flagKo:'🇹🇼 TW (대만)', isKorea:false, icon:'🌐' },
+  { name:'Korea Hotel 베트남어',   lang:'Tiếng Việt', langKo:'Tiếng Việt', flag:'🇻🇳 VN', isKorea:false, icon:'🌐' },
+];
+
+async function loadVideosTab(){
+  window.__videosLoaded = true;
+  if (!currentHotel) return;
+
+  // Fetch all videos for this hotel
+  const { data: videos, error } = await supabase
+    .from('videos')
+    .select('*')
+    .eq('hotel_id', currentHotel.hotel_id)
+    .order('published_at', { ascending: true, nullsFirst: false });
+
+  if (error) { console.error('videos fetch error', error); }
+
+  const allVideos = videos || [];
+  // 본편 = 첫 영상 (현재 schema에 is_main/is_extra 컬럼 없음 → 가장 오래된 영상을 본편으로 가정)
+  // 추가 노출 = 그 외
+  const mainVideo = allVideos[0] || null;
+  const extraVideos = allVideos.slice(1);
+
+  renderMainVideo(mainVideo);
+  renderChannelTable(allVideos);
+  renderExtraVideos(extraVideos);
+}
+
+function renderMainVideo(v){
+  const card = document.getElementById('mainVideoCard');
+  if (!v) {
+    card.innerHTML = `
+      <div class="md-empty">
+        <div class="md-empty-icon">⏳</div>
+        <div class="md-empty-msg">${currentLang === 'ko' ? '본편 영상 제작 중입니다' : 'Main video is being produced'}</div>
+        <div class="md-empty-sub">${currentLang === 'ko' ? '제작 완료까지 4~6주 소요' : 'Production takes 4-6 weeks'}</div>
+      </div>`;
+    return;
+  }
+  const thumb = v.thumbnail_url
+    ? `<div class="md-video-thumb" style="background-image:url('${v.thumbnail_url}')" onclick="window.open('${v.youtube_url||'#'}','_blank')"></div>`
+    : `<div class="md-video-thumb placeholder">🎬</div>`;
+  const title = v.title || (currentLang === 'ko' ? '본편 영상' : 'Main video');
+  const pubDate = v.published_at ? fmtShortDate(v.published_at) : '—';
+  const ytBtn = v.youtube_url
+    ? `<a href="${v.youtube_url}" target="_blank" rel="noopener" class="md-video-btn">↗ ${currentLang === 'ko' ? '유튜브 열기' : 'Open YouTube'}</a>`
+    : '';
+  card.innerHTML = `
+    <div class="md-main-video">
+      ${thumb}
+      <div class="md-video-meta">
+        <h4 class="md-video-title">${title}</h4>
+        <div class="md-video-sub">
+          ${currentLang === 'ko' ? '제작 완료' : 'Produced'}: ${pubDate} ·
+          ${currentLang === 'ko' ? '본편 1편 (계약 기간 6개월 보장)' : 'Main video 1 (6-month contract guarantee)'}
+        </div>
+        <span class="md-video-status">${currentLang === 'ko' ? '노출중' : 'LIVE'}</span>
+        <div class="md-video-actions">
+          ${v.youtube_url ? `<a href="${v.youtube_url}" target="_blank" rel="noopener" class="md-video-btn primary">▶ ${currentLang === 'ko' ? '영상 재생' : 'Play'}</a>` : ''}
+          ${ytBtn}
+        </div>
+      </div>
+    </div>`;
+}
+
+function renderChannelTable(videos){
+  const tbody = document.getElementById('channelTableBody');
+  // Map: channel_name → video
+  const vByCh = {};
+  (videos || []).forEach(v => {
+    if (v.channel_name) vByCh[v.channel_name.toLowerCase()] = v;
+  });
+
+  const rows = CHANNEL_DEFS.map(ch => {
+    // 매칭: channel_name이 정확히 일치하거나 일부 포함
+    const key = ch.name.toLowerCase();
+    const v = vByCh[key] || Object.values(vByCh).find(x => (x.channel_name||'').toLowerCase().includes(key));
+    const lang = currentLang === 'ko' ? ch.langKo : ch.lang;
+    const flag = (currentLang === 'ko' && ch.flagKo) ? ch.flagKo : ch.flag;
+    let pubCell = '—';
+    let statusBadge = `<span class="md-badge-pending">${currentLang === 'ko' ? '대기' : 'PENDING'}</span>`;
+    let watchCell = '—';
+    if (v) {
+      if (v.status === 'published' && v.published_at) {
+        pubCell = fmtShortDate(v.published_at);
+        statusBadge = `<span class="md-badge-live">${currentLang === 'ko' ? '노출중' : 'LIVE'}</span>`;
+        watchCell = v.youtube_url
+          ? `<a href="${v.youtube_url}" target="_blank" rel="noopener">${currentLang === 'ko' ? '보기 →' : 'Watch →'}</a>`
+          : '—';
+      } else if (v.scheduled_at) {
+        pubCell = `${fmtShortDate(v.scheduled_at)} ${currentLang === 'ko' ? '(예정)' : '(scheduled)'}`;
+        statusBadge = `<span class="md-badge-sched">${currentLang === 'ko' ? '게시 예정' : 'SCHEDULED'}</span>`;
+      }
+    }
+    return `
+      <tr>
+        <td class="ch-name">${ch.icon} ${ch.name}</td>
+        <td>${lang}</td>
+        <td>${flag}</td>
+        <td>${pubCell}</td>
+        <td>${statusBadge}</td>
+        <td class="ch-watch">${watchCell}</td>
+      </tr>`;
+  }).join('');
+  tbody.innerHTML = rows;
+}
+
+function renderExtraVideos(extras){
+  const section = document.getElementById('extraExposureSection');
+  const list = document.getElementById('extraVideosList');
+  // 정책: 0편 = 섹션 통째 숨김 (policy-extra-exposure.md)
+  if (!extras || extras.length === 0) {
+    section.style.display = 'none';
+    return;
+  }
+  section.style.display = 'block';
+  // 헤더에 현재 N편 표시
+  const items = extras.map(v => {
+    const thumb = v.thumbnail_url
+      ? `<div class="md-extra-thumb" style="background-image:url('${v.thumbnail_url}')"></div>`
+      : `<div class="md-extra-thumb">🎬</div>`;
+    return `
+      <div class="md-extra-item">
+        ${thumb}
+        <div class="md-extra-info">
+          <div class="md-extra-title">${v.title || (currentLang === 'ko' ? '추가 영상' : 'Extra video')}</div>
+          <div class="md-extra-meta">
+            ${currentLang === 'ko' ? '게시일' : 'Published'}: ${fmtShortDate(v.published_at)} ·
+            ${currentLang === 'ko' ? '채널' : 'Channel'}: ${v.channel_name || '—'}
+          </div>
+        </div>
+        <div class="md-extra-stats">
+          <strong>${fmtNum(v.view_count)}</strong>
+          ${currentLang === 'ko' ? '조회수' : 'views'}
+        </div>
+      </div>`;
+  }).join('');
+  list.innerHTML = items;
+}
 function loadPaymentsTab(){ window.__paymentsLoaded = true; /* Step 4 */ }
 function loadInquiryTab(){ window.__inquiryLoaded = true; /* Step 5 */ }
 function loadAnalyticsTab(){ window.__analyticsLoaded = true; /* Step 6 */ }

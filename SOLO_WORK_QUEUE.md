@@ -3,7 +3,7 @@
 > ⚠️ **이 파일은 자동 생성됩니다.** 수동 편집하지 마세요.
 > 단일 진실 소스: `tasks.json` (v2.0)
 > **데드라인**: 2026-05-03
-> **갱신**: 2026-05-15
+> **갱신**: 2026-05-18
 > **목적**: 대표님 외근/자리비움 시 Claude 자율 처리 가능 작업
 
 ## 작업 분류 체계
@@ -29,7 +29,23 @@
 
 ---
 
-### B. 🟡 SEMI — [신규 매니저 가입 시 누적 매출 표시] D-035 3구간 임계값 분기 노출
+### B. 🟢 AUTO — [자동] 작업 229건 중 1건에 출처가 없어요 (자동 동기화 봇 멈춤 위험)
+
+**ID**: `BL-AUTO-TASKS-SCHEMA-1MISSING`  
+**카테고리**: infrastructure  
+**예상 시간**: 1시간  
+
+**메모**: 점검 봇 자동 등록 (2026-05-17T08:02:43.135Z)
+
+check_name: tasks_schema
+status: red
+detail: 작업 229건 중 1건에 출처가 없어요 (자동 동기화 봇 멈춤 위험)
+
+진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 green으로 박으면 자동 done.
+
+---
+
+### C. 🟡 SEMI — [신규 매니저 가입 시 누적 매출 표시] D-035 3구간 임계값 분기 노출
 
 **ID**: `BL-SIGNUP-ENRICHMENT`  
 **카테고리**: feature  
@@ -39,7 +55,7 @@
 
 ---
 
-### C. 🟡 SEMI — [가입자/사용자 관리 도구] admin 화면에서 직접 삭제·권한 조작·재인증 가능하게
+### D. 🟡 SEMI — [가입자/사용자 관리 도구] admin 화면에서 직접 삭제·권한 조작·재인증 가능하게
 
 **ID**: `BL-ADMIN-USER-MANAGEMENT`  
 **카테고리**: admin  
@@ -154,7 +170,23 @@ detail: 관리자 페이지 1개가 원본과 살짝 달라요 (대표님이 일
 
 ---
 
-### I. 🟡 SEMI — OS 설치 시 PAT/시크릿 자동 박기 흐름 — install_os.sh 보강
+### I. 🟢 AUTO — [자동] 관리자 페이지 2개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요)
+
+**ID**: `BL-AUTO-ADMIN-BASELINE-2FILES`  
+**카테고리**: infrastructure  
+**예상 시간**: 1시간  
+
+**메모**: 점검 봇 자동 등록 (2026-05-15T16:30:05.675Z)
+
+check_name: admin_baseline
+status: yellow
+detail: 관리자 페이지 2개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요)
+
+진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 green으로 박으면 자동 done.
+
+---
+
+### J. 🟡 SEMI — OS 설치 시 PAT/시크릿 자동 박기 흐름 — install_os.sh 보강
 
 **ID**: `BL-OS-INSTALL-PAT-FLOW`  
 **카테고리**: infra  
@@ -166,7 +198,7 @@ detail: 관리자 페이지 1개가 원본과 살짝 달라요 (대표님이 일
 
 ---
 
-### J. 🟡 SEMI — [호텔 상세 페이지 + 커뮤니케이션 이력] 매니저/호텔 분리 + 1:1 문의·메일·메모 타임라인
+### K. 🟡 SEMI — [호텔 상세 페이지 + 커뮤니케이션 이력] 매니저/호텔 분리 + 1:1 문의·메일·메모 타임라인
 
 **ID**: `BL-HOTEL-DETAIL-PAGE`  
 **카테고리**: feature  
@@ -176,7 +208,7 @@ detail: 관리자 페이지 1개가 원본과 살짝 달라요 (대표님이 일
 
 ---
 
-### K. 🟡 SEMI — [매출 차트 토글] 일/주/월/분기/년 보기 + 전월비/전년비 — booking-analytics 보강
+### L. 🟡 SEMI — [매출 차트 토글] 일/주/월/분기/년 보기 + 전월비/전년비 — booking-analytics 보강
 
 **ID**: `BL-REVENUE-DASHBOARD`  
 **카테고리**: analytics  
@@ -186,7 +218,7 @@ detail: 관리자 페이지 1개가 원본과 살짝 달라요 (대표님이 일
 
 ---
 
-### L. 🟡 SEMI — [재계약 관리 탭] D-30 임박 호텔 + 저성과 호텔(매출 $200 미만) 자동 추출
+### M. 🟡 SEMI — [재계약 관리 탭] D-30 임박 호텔 + 저성과 호텔(매출 $200 미만) 자동 추출
 
 **ID**: `BL-RENEWAL-WATCH`  
 **카테고리**: feature  
@@ -196,7 +228,7 @@ detail: 관리자 페이지 1개가 원본과 살짝 달라요 (대표님이 일
 
 ---
 
-### M. 🟡 SEMI — [환불 관리 탭] PayPal Refund API 연동 + 환불 이력 영구 보관
+### N. 🟡 SEMI — [환불 관리 탭] PayPal Refund API 연동 + 환불 이력 영구 보관
 
 **ID**: `BL-REFUND-FLOW`  
 **카테고리**: feature  
@@ -206,7 +238,7 @@ detail: 관리자 페이지 1개가 원본과 살짝 달라요 (대표님이 일
 
 ---
 
-### N. 🟡 SEMI — [가입 시 국가 선택 필수] 동남아 7개국 상단 노출
+### O. 🟡 SEMI — [가입 시 국가 선택 필수] 동남아 7개국 상단 노출
 
 **ID**: `BL-SIGNUP-COUNTRY-FIELD`  
 **카테고리**: feature  
@@ -216,7 +248,7 @@ detail: 관리자 페이지 1개가 원본과 살짝 달라요 (대표님이 일
 
 ---
 
-### O. 🟡 SEMI — [자동 메일 12개 영어 default] 한국 매니저만 한국어 분기
+### P. 🟡 SEMI — [자동 메일 12개 영어 default] 한국 매니저만 한국어 분기
 
 **ID**: `BL-EMAIL-LOCALE-ROUTING`  
 **카테고리**: feature  
@@ -226,7 +258,7 @@ detail: 관리자 페이지 1개가 원본과 살짝 달라요 (대표님이 일
 
 ---
 
-### P. 🟡 SEMI — [가입자 화면 정리] Members 페이지 실제 고객 보이게 + 미인증 좀비 자동 청소
+### Q. 🟡 SEMI — [가입자 화면 정리] Members 페이지 실제 고객 보이게 + 미인증 좀비 자동 청소
 
 **ID**: `BL-MEMBERS-DATA-SOURCE`  
 **카테고리**: admin  
@@ -236,7 +268,7 @@ detail: 관리자 페이지 1개가 원본과 살짝 달라요 (대표님이 일
 
 ---
 
-### Q. 🟡 SEMI — [시스템 매뉴얼 자동 생성] 시스템 완성도 안에 다음 클로드를 위한 시스템 매뉴얼 자동 박기
+### R. 🟡 SEMI — [시스템 매뉴얼 자동 생성] 시스템 완성도 안에 다음 클로드를 위한 시스템 매뉴얼 자동 박기
 
 **ID**: `BL-SYSTEM-MANUAL-AUTOGEN`  
 **카테고리**: infra  

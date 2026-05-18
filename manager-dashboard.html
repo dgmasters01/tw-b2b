@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hotel Manager Dashboard — gohotelwinners</title>
+<link rel="stylesheet" href="shared.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="shared.js"></script>
+<style>
+/* =====================================================================
+   manager-dashboard.html — BL-MGR-DASHBOARD-V1 stage 3
+   ===================================================================== */
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);font-family:var(--sans);color:var(--ink);min-height:100vh}
+
+/* ---- Shell & Topbar ---- */
+.md-shell{max-width:1320px;margin:0 auto;padding:0 24px;position:relative;z-index:2}
+.md-topbar{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid var(--line);background:rgba(10,10,15,.78);backdrop-filter:saturate(180%) blur(24px);margin:0 -24px;padding-left:24px;padding-right:24px;position:sticky;top:0;z-index:50}
+.md-logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink)}
+.md-logo-icon{width:34px;height:34px;background:var(--aurora);color:#fff;border-radius:9px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;letter-spacing:-.04em}
+.md-logo-text{font-family:var(--display);font-size:18px;font-weight:700;letter-spacing:-.02em}
+.md-logo-sub{font-size:11.5px;color:var(--ink-3);font-family:var(--mono);margin-left:6px;padding-left:8px;border-left:1px solid var(--line-2)}
+.md-nav-right{display:flex;gap:14px;align-items:center}
+.md-lang{display:inline-flex;gap:2px;background:var(--glass);border:1px solid var(--line-2);border-radius:99px;padding:3px}
+.md-lang button{background:transparent;border:none;padding:5px 12px;border-radius:17px;cursor:pointer;font-size:12px;font-weight:500;color:var(--ink-3);font-family:var(--sans);transition:var(--transition)}
+.md-lang button.active{background:var(--aurora);color:#fff;font-weight:600}
+.md-bell{background:var(--glass);border:1px solid var(--line-2);width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink-2);position:relative}
+.md-bell-dot{position:absolute;top:6px;right:7px;width:8px;height:8px;border-radius:50%;background:var(--danger);border:2px solid var(--bg)}
+.md-user{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink-2);padding:5px 10px;background:var(--glass);border:1px solid var(--line-2);border-radius:99px}
+.md-user-avatar{width:24px;height:24px;border-radius:50%;background:var(--aurora);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700}
+.md-menu-btn{background:var(--glass);border:1px solid var(--line-2);width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink-2);font-size:18px;line-height:1}
+
+/* ---- Tabs ---- */
+.md-tabs{display:flex;gap:4px;padding:14px 0 0;border-bottom:1px solid var(--line);overflow-x:auto;-webkit-overflow-scrolling:touch}
+.md-tab{display:inline-flex;align-items:center;gap:7px;padding:11px 18px;border:none;background:transparent;color:var(--ink-3);font-size:14px;font-weight:600;cursor:pointer;font-family:var(--sans);border-bottom:2px solid transparent;margin-bottom:-1px;transition:var(--transition);white-space:nowrap}
+.md-tab:hover{color:var(--ink-2)}
+.md-tab.active{color:var(--ink);border-bottom-color:var(--aurora-3)}
+.md-tab-icon{font-size:15px}
+
+/* ---- Main ---- */
+.md-main{padding:28px 0 80px}
+.md-tab-panel{display:none}
+.md-tab-panel.active{display:block;animation:fadeIn .25s ease-out}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+/* ---- Cards & Sections ---- */
+.md-card{background:var(--glass);border:1px solid var(--line-2);border-radius:var(--r-lg);padding:24px;margin-bottom:16px;backdrop-filter:blur(24px) saturate(140%);box-shadow:var(--sh-2);position:relative;overflow:hidden}
+.md-card-title{font-family:var(--display);font-size:17px;font-weight:700;margin:0 0 4px;letter-spacing:-.015em}
+.md-card-sub{font-size:12.5px;color:var(--ink-3);margin:0 0 18px}
+
+/* ---- Hotel Card (탭 1 상단) ---- */
+.md-hotel-card{display:flex;gap:20px;align-items:flex-start;padding:20px;background:var(--glass);border:1px solid var(--line-2);border-radius:var(--r-lg);margin-bottom:16px;backdrop-filter:blur(24px)}
+.md-hotel-img{width:160px;height:115px;border-radius:10px;background:var(--bg-3);background-size:cover;background-position:center;flex-shrink:0;border:1px solid var(--line-2)}
+.md-hotel-meta{flex:1}
+.md-hotel-name{font-family:var(--display);font-size:22px;font-weight:700;margin:0 0 6px;letter-spacing:-.02em;color:var(--ink)}
+.md-hotel-row{font-size:13px;color:var(--ink-3);margin-bottom:4px}
+.md-hotel-row strong{color:var(--ink-2);font-weight:600}
+.md-hotel-link{font-size:12.5px;color:var(--aurora-3);text-decoration:none;font-weight:600;margin-top:8px;display:inline-block;font-family:var(--mono)}
+.md-hotel-link:hover{text-decoration:underline}
+.md-hotel-status{padding:5px 12px;border-radius:20px;font-size:11.5px;font-weight:600;background:rgba(16,185,129,.18);color:#10B981;border:1px solid rgba(16,185,129,.32);font-family:var(--mono);letter-spacing:.02em;flex-shrink:0}
+
+/* ---- Progress Pipeline ---- */
+.md-pipeline{display:flex;gap:0;margin:14px 0 6px;position:relative}
+.md-pipe-step{flex:1;text-align:center;position:relative;padding-top:30px}
+.md-pipe-step::before{content:'';position:absolute;top:8px;left:50%;width:100%;height:3px;background:var(--line);transform:translateX(-50%);z-index:0}
+.md-pipe-step:first-child::before{display:none}
+.md-pipe-step.done::before{background:var(--success)}
+.md-pipe-step.active::before{background:linear-gradient(90deg,var(--success) 50%,var(--aurora-3) 50%)}
+.md-pipe-dot{position:absolute;top:0;left:50%;width:20px;height:20px;border-radius:50%;background:var(--bg-3);border:2px solid var(--line);transform:translateX(-50%);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--ink-4);z-index:1}
+.md-pipe-step.done .md-pipe-dot{background:var(--success);border-color:var(--success);color:#fff}
+.md-pipe-step.active .md-pipe-dot{background:var(--aurora);border-color:var(--aurora-3);color:#fff;box-shadow:0 0 0 4px rgba(124,58,237,.18)}
+.md-pipe-label{font-size:11.5px;color:var(--ink-3);font-weight:600;margin-bottom:2px;letter-spacing:-.005em}
+.md-pipe-step.done .md-pipe-label,.md-pipe-step.active .md-pipe-label{color:var(--ink-2)}
+.md-pipe-date{font-size:10.5px;color:var(--ink-4);font-family:var(--mono)}
+
+/* ---- Guarantee Banner ---- */
+.md-guarantee{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:rgba(124,58,237,.10);border:1px solid rgba(124,58,237,.28);border-radius:10px;margin-top:12px;font-size:12.5px}
+.md-guarantee-left{display:flex;align-items:center;gap:10px;color:var(--ink-2)}
+.md-guarantee-right a{color:var(--aurora-3);text-decoration:none;font-weight:600;font-size:12px}
+
+/* ---- KPI Grid (탭 1 운영 현황) ---- */
+.md-section-head{display:flex;justify-content:space-between;align-items:baseline;margin:24px 0 14px}
+.md-section-title{font-family:var(--display);font-size:18px;font-weight:700;letter-spacing:-.015em;color:var(--ink)}
+.md-section-period{font-size:12.5px;color:var(--ink-3);font-family:var(--mono)}
+.md-kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.md-kpi{background:var(--glass);border:1px solid var(--line-2);border-radius:var(--r);padding:18px;backdrop-filter:blur(12px);transition:var(--transition);position:relative}
+.md-kpi:hover{border-color:var(--line-3);transform:translateY(-1px)}
+.md-kpi-label{font-size:11px;color:var(--ink-4);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;font-family:var(--mono)}
+.md-kpi-value{font-size:30px;font-weight:700;color:var(--ink);font-family:var(--mono);letter-spacing:-.02em;line-height:1}
+.md-kpi-unit{font-size:14px;color:var(--ink-3);margin-left:4px;font-weight:500}
+.md-kpi-note{font-size:11.5px;color:var(--ink-3);margin-top:8px;line-height:1.4}
+.md-kpi-trend{font-size:11.5px;margin-top:5px;font-weight:600;font-family:var(--mono)}
+.md-kpi-trend.up{color:var(--success)}
+.md-kpi-trend.down{color:var(--danger)}
+.md-kpi-trend.warn{color:var(--warn)}
+
+/* ---- Channel Hierarchy (탭 1) ---- */
+.md-channels{display:grid;grid-template-columns:1fr;gap:14px}
+.md-channel-block{padding:18px;background:var(--glass);border:1px solid var(--line-2);border-radius:var(--r-lg);backdrop-filter:blur(12px)}
+.md-channel-block.korea{border-left:3px solid var(--aurora-1)}
+.md-channel-block.global{border-left:3px solid var(--aurora-3)}
+.md-channel-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
+.md-channel-title{font-family:var(--display);font-size:15px;font-weight:700;color:var(--ink);margin:0}
+.md-channel-rank{font-size:11px;color:var(--ink-4);font-family:var(--mono);letter-spacing:.06em}
+.md-channel-sub{font-size:12.5px;color:var(--ink-3);margin:0 0 14px}
+.md-channel-list{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.md-channel-item{padding:12px;background:var(--glass-2);border:1px solid var(--line);border-radius:10px;transition:var(--transition)}
+.md-channel-item:hover{border-color:var(--line-3);background:var(--glass-3)}
+.md-channel-icon{font-size:18px;margin-bottom:6px}
+.md-channel-name{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:3px;letter-spacing:-.01em}
+.md-channel-meta{font-size:11px;color:var(--ink-4);font-family:var(--mono);margin-bottom:6px}
+.md-channel-badge{display:inline-block;padding:2px 8px;border-radius:99px;font-size:10px;font-weight:600;background:rgba(16,185,129,.18);color:var(--success);font-family:var(--mono)}
+
+/* ---- Activity Timeline (탭 1) ---- */
+.md-activity{margin-top:6px}
+.md-activity-item{display:flex;gap:14px;padding:12px 0;border-bottom:1px solid var(--line)}
+.md-activity-item:last-child{border-bottom:none}
+.md-activity-icon{width:32px;height:32px;border-radius:8px;background:var(--glass-2);border:1px solid var(--line-2);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.md-activity-body{flex:1}
+.md-activity-title{font-size:13.5px;font-weight:600;color:var(--ink);margin-bottom:3px}
+.md-activity-desc{font-size:12px;color:var(--ink-3);line-height:1.5}
+.md-activity-time{font-size:11px;color:var(--ink-4);font-family:var(--mono);white-space:nowrap;flex-shrink:0}
+
+/* ---- Empty State ---- */
+.md-empty{text-align:center;padding:48px 20px;color:var(--ink-3)}
+.md-empty-icon{font-size:32px;opacity:.4;margin-bottom:10px}
+.md-empty-msg{font-size:13.5px}
+.md-empty-sub{font-size:12px;color:var(--ink-4);margin-top:6px}
+
+/* ---- Loading ---- */
+.md-skeleton{background:linear-gradient(90deg,var(--glass) 25%,var(--glass-3) 50%,var(--glass) 75%);background-size:200% 100%;animation:skel 1.4s ease-in-out infinite;border-radius:6px;height:14px;width:60%;margin:6px 0}
+@keyframes skel{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+/* ---- Mobile ---- */
+@media (max-width: 900px){
+  .md-shell{padding:0 16px}
+  .md-kpi-grid{grid-template-columns:repeat(2,1fr)}
+  .md-channel-list{grid-template-columns:repeat(2,1fr)}
+  .md-hotel-card{flex-direction:column}
+  .md-hotel-img{width:100%;height:140px}
+  .md-logo-sub{display:none}
+}
+</style>
+</head>
+<body>
+
+<div class="md-shell">
+
+  <!-- ==================== TOPBAR ==================== -->
+  <header class="md-topbar">
+    <a href="/" class="md-logo">
+      <div class="md-logo-icon">G</div>
+      <div class="md-logo-text">gohotelwinners</div>
+      <div class="md-logo-sub" data-en="Manager Dashboard" data-ko="매니저 대시보드">Manager Dashboard</div>
+    </a>
+    <nav class="md-nav-right">
+      <div class="md-lang">
+        <button id="lang-en" class="active" onclick="setLang('en')">EN</button>
+        <button id="lang-ko" onclick="setLang('ko')">한</button>
+      </div>
+      <button class="md-bell" aria-label="Notifications" id="bellBtn">
+        🔔<span class="md-bell-dot" id="bellDot" style="display:none"></span>
+      </button>
+      <div class="md-user">
+        <div class="md-user-avatar" id="userInitial">·</div>
+        <span id="userName" data-en="Loading..." data-ko="불러오는 중...">Loading...</span>
+      </div>
+      <button class="md-menu-btn" aria-label="Menu" onclick="window.location.href='/settings.html'">⋯</button>
+    </nav>
+  </header>
+
+  <!-- ==================== TABS ==================== -->
+  <nav class="md-tabs" id="mdTabs">
+    <button class="md-tab active" data-tab="home" onclick="switchTab('home')">
+      <span class="md-tab-icon">🏠</span><span data-en="Home" data-ko="홈">Home</span>
+    </button>
+    <button class="md-tab" data-tab="videos" onclick="switchTab('videos')">
+      <span class="md-tab-icon">🎬</span><span data-en="Videos" data-ko="영상">Videos</span>
+    </button>
+    <button class="md-tab" data-tab="payments" onclick="switchTab('payments')">
+      <span class="md-tab-icon">📝</span><span data-en="Payments" data-ko="결제">Payments</span>
+    </button>
+    <button class="md-tab" data-tab="inquiry" onclick="switchTab('inquiry')">
+      <span class="md-tab-icon">💬</span><span data-en="Support" data-ko="문의">Support</span>
+    </button>
+    <button class="md-tab" data-tab="analytics" onclick="switchTab('analytics')">
+      <span class="md-tab-icon">📊</span><span data-en="Analytics" data-ko="고객 분석">Analytics</span>
+    </button>
+  </nav>
+
+  <!-- ==================== MAIN ==================== -->
+  <main class="md-main">
+
+    <!-- ============ TAB 1 : HOME ============ -->
+    <section class="md-tab-panel active" id="tab-home">
+
+      <!-- Hotel Card -->
+      <div class="md-hotel-card">
+        <div class="md-hotel-img" id="hotelImg" style="background-image:linear-gradient(135deg,rgba(124,58,237,.4),rgba(6,182,212,.3))"></div>
+        <div class="md-hotel-meta">
+          <h2 class="md-hotel-name" id="hotelName">—</h2>
+          <div class="md-hotel-row" id="hotelLocation">
+            <span class="md-skeleton" style="display:inline-block;width:280px"></span>
+          </div>
+          <div class="md-hotel-row" id="hotelManager">
+            <span class="md-skeleton" style="display:inline-block;width:340px"></span>
+          </div>
+          <a href="#" class="md-hotel-link" onclick="openInfoChangeRequest();return false;"
+             data-en="Request hotel info change →"
+             data-ko="호텔 정보 변경 신청 →">Request hotel info change →</a>
+        </div>
+        <div class="md-hotel-status" id="hotelStatusBadge"
+             data-en="Active"
+             data-ko="운영 중">Active</div>
+      </div>
+
+      <!-- Progress Pipeline -->
+      <div class="md-card">
+        <h3 class="md-card-title" data-en="Progress" data-ko="진행 상태">Progress</h3>
+        <p class="md-card-sub" data-en="Payment → Registration → Production → Live → 6-month run"
+           data-ko="결제 → 등록 → 제작 → 노출 → 6개월 운영">Payment → Registration → Production → Live → 6-month run</p>
+
+        <div class="md-pipeline" id="pipelineSteps">
+          <div class="md-pipe-step done">
+            <div class="md-pipe-dot">✓</div>
+            <div class="md-pipe-label" data-en="Paid" data-ko="결제 완료">Paid</div>
+            <div class="md-pipe-date" id="step-paid">—</div>
+          </div>
+          <div class="md-pipe-step done">
+            <div class="md-pipe-dot">✓</div>
+            <div class="md-pipe-label" data-en="Registered" data-ko="정보 등록">Registered</div>
+            <div class="md-pipe-date" id="step-registered">—</div>
+          </div>
+          <div class="md-pipe-step done">
+            <div class="md-pipe-dot">✓</div>
+            <div class="md-pipe-label" data-en="Produced" data-ko="영상 제작">Produced</div>
+            <div class="md-pipe-date" id="step-produced">—</div>
+          </div>
+          <div class="md-pipe-step active">
+            <div class="md-pipe-dot">●</div>
+            <div class="md-pipe-label" data-en="Multi-language live" data-ko="언어 노출 진행">Multi-language live</div>
+            <div class="md-pipe-date" id="step-live">—</div>
+          </div>
+          <div class="md-pipe-step">
+            <div class="md-pipe-dot">5</div>
+            <div class="md-pipe-label" data-en="6-month run" data-ko="6개월 운영">6-month run</div>
+            <div class="md-pipe-date" id="step-end">—</div>
+          </div>
+        </div>
+
+        <div class="md-guarantee">
+          <div class="md-guarantee-left">
+            📅 <span id="guaranteeText"
+                    data-en="6-month booking guarantee · 100% refund if zero bookings"
+                    data-ko="6개월 보장 기한 · 0건 시 100% 환불 보장">6-month booking guarantee · 100% refund if zero bookings</div>
+          <div class="md-guarantee-right"><a href="#" data-en="Policy details →" data-ko="정책 자세히 →">Policy details →</a></div>
+        </div>
+      </div>
+
+      <!-- KPI Grid (이번 계약 기간 운영 현황) -->
+      <div class="md-section-head">
+        <h3 class="md-section-title" data-en="Operations this contract period"
+            data-ko="이번 계약 기간 운영 현황">Operations this contract period</h3>
+        <span class="md-section-period" id="periodLabel">—</span>
+      </div>
+
+      <div class="md-kpi-grid">
+        <div class="md-kpi">
+          <div class="md-kpi-label" data-en="Bookings" data-ko="예약 발생">Bookings</div>
+          <div><span class="md-kpi-value" id="kpi-bookings">—</span>
+               <span class="md-kpi-unit" data-en="" data-ko="건"></span></div>
+          <div class="md-kpi-note" id="kpi-bookings-note"
+               data-en="No-show + Cancellations counted separately"
+               data-ko="노쇼 포함 · 취소 별도">No-show + Cancellations counted separately</div>
+          <div class="md-kpi-trend up" id="kpi-bookings-trend">—</div>
+        </div>
+
+        <div class="md-kpi">
+          <div class="md-kpi-label" data-en="Hotel Revenue (USD)" data-ko="호텔 매출 (USD)">Hotel Revenue (USD)</div>
+          <div><span class="md-kpi-value" id="kpi-revenue">—</span></div>
+          <div class="md-kpi-note"
+               data-en="Checkout completed + No-show"
+               data-ko="체크아웃 완료 + 노쇼 기준">Checkout completed + No-show</div>
+          <div class="md-kpi-trend up" id="kpi-revenue-trend">—</div>
+        </div>
+
+        <div class="md-kpi">
+          <div class="md-kpi-label" data-en="Video Views" data-ko="영상 노출 (조회수)">Video Views</div>
+          <div><span class="md-kpi-value" id="kpi-views">—</span></div>
+          <div class="md-kpi-note"
+               data-en="Main video · 8-channel cumulative"
+               data-ko="본편 1편 · 8채널 누적">Main video · 8-channel cumulative</div>
+          <div class="md-kpi-trend up" id="kpi-views-trend">—</div>
+        </div>
+
+        <div class="md-kpi">
+          <div class="md-kpi-label" data-en="Open Inquiries" data-ko="미답변 문의">Open Inquiries</div>
+          <div><span class="md-kpi-value" id="kpi-inquiries">—</span>
+               <span class="md-kpi-unit" data-en="" data-ko="건"></span></div>
+          <div class="md-kpi-note"
+               data-en="Avg. reply within 4 hours"
+               data-ko="평균 답변 시간 4시간 이내">Avg. reply within 4 hours</div>
+          <div class="md-kpi-trend warn" id="kpi-inquiries-trend"
+               data-en="⚠ Awaiting reply"
+               data-ko="⚠ 답변 대기 중">⚠ Awaiting reply</div>
+        </div>
+      </div>
+
+      <!-- Channel Hierarchy v3 -->
+      <div class="md-section-head">
+        <h3 class="md-section-title"
+            data-en="Currently broadcasting channels"
+            data-ko="현재 노출 중인 채널">Currently broadcasting channels</h3>
+        <span class="md-section-period"
+              data-en="Korea 4 (Main) + Global 4 (Expansion) — All 8 active"
+              data-ko="한국 4채널 (메인 진입) + 해외 4채널 (글로벌 확장) — 8채널 모두 운영 중">Korea 4 (Main) + Global 4 (Expansion) — All 8 active</span>
+      </div>
+
+      <div class="md-channels">
+        <!-- 🥇 Korea 4 channels (Main) -->
+        <div class="md-channel-block korea">
+          <div class="md-channel-head">
+            <h4 class="md-channel-title"
+                data-en="🥇 Korea 4 Channels — Main Entry"
+                data-ko="🥇 한국 4채널 — 메인 진입">🥇 Korea 4 Channels — Main Entry</h4>
+            <span class="md-channel-rank" data-en="KR LANG" data-ko="한국어">KR LANG</span>
+          </div>
+          <p class="md-channel-sub"
+             data-en="Korean travelers book your hotel"
+             data-ko="한국의 관광객이 당신 호텔을 예약합니다">Korean travelers book your hotel</p>
+          <div class="md-channel-list">
+            <div class="md-channel-item">
+              <div class="md-channel-icon">📺</div>
+              <div class="md-channel-name">호텔이야 한국</div>
+              <div class="md-channel-meta" data-en="Korean · KR" data-ko="한국어 · KR">Korean · KR</div>
+              <span class="md-channel-badge" data-en="LIVE" data-ko="노출중">LIVE</span>
+            </div>
+            <div class="md-channel-item">
+              <div class="md-channel-icon">📺</div>
+              <div class="md-channel-name">호텔이곳</div>
+              <div class="md-channel-meta" data-en="Korean · KR" data-ko="한국어 · KR">Korean · KR</div>
+              <span class="md-channel-badge" data-en="LIVE" data-ko="노출중">LIVE</span>
+            </div>
+            <div class="md-channel-item">
+              <div class="md-channel-icon">📺</div>
+              <div class="md-channel-name">호텔닷컴</div>
+              <div class="md-channel-meta" data-en="Korean · KR" data-ko="한국어 · KR">Korean · KR</div>
+              <span class="md-channel-badge" data-en="LIVE" data-ko="노출중">LIVE</span>
+            </div>
+            <div class="md-channel-item">
+              <div class="md-channel-icon">📺</div>
+              <div class="md-channel-name">여행능력자들</div>
+              <div class="md-channel-meta" data-en="Korean · KR" data-ko="한국어 · KR">Korean · KR</div>
+              <span class="md-channel-badge" data-en="LIVE" data-ko="노출중">LIVE</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 🥈 Global 4 channels (Expansion) -->
+        <div class="md-channel-block global">
+          <div class="md-channel-head">
+            <h4 class="md-channel-title"
+                data-en="🥈 Global 4 Channels — Worldwide Expansion"
+                data-ko="🥈 해외 4채널 — 글로벌 확장">🥈 Global 4 Channels — Worldwide Expansion</h4>
+            <span class="md-channel-rank" data-en="4 LANGS" data-ko="4개 언어">4 LANGS</span>
+          </div>
+          <p class="md-channel-sub"
+             data-en="Japanese, Taiwanese, Vietnamese, and English-speaking travelers also discover your hotel"
+             data-ko="일본, 대만, 베트남, 영어권 관광객에게도 당신의 호텔을 소개합니다">Japanese, Taiwanese, Vietnamese, and English-speaking travelers also discover your hotel</p>
+          <div class="md-channel-list">
+            <div class="md-channel-item">
+              <div class="md-channel-icon">🌐</div>
+              <div class="md-channel-name">Koreahotelguide</div>
+              <div class="md-channel-meta" data-en="English · US·GB·AU·IN" data-ko="English · US·GB·AU·IN">English · US·GB·AU·IN</div>
+              <span class="md-channel-badge" data-en="LIVE" data-ko="노출중">LIVE</span>
+            </div>
+            <div class="md-channel-item">
+              <div class="md-channel-icon">🌐</div>
+              <div class="md-channel-name">호텔이야 일본</div>
+              <div class="md-channel-meta" data-en="日本語 · JP" data-ko="日本語 · JP">日本語 · JP</div>
+              <span class="md-channel-badge" data-en="LIVE" data-ko="노출중">LIVE</span>
+            </div>
+            <div class="md-channel-item">
+              <div class="md-channel-icon">🌐</div>
+              <div class="md-channel-name">世界就是家</div>
+              <div class="md-channel-meta" data-en="繁體中文 · 🇹🇼 Taiwan" data-ko="繁體中文 · 🇹🇼 대만">繁體中文 · 🇹🇼 Taiwan</div>
+              <span class="md-channel-badge" data-en="LIVE" data-ko="노출중">LIVE</span>
+            </div>
+            <div class="md-channel-item">
+              <div class="md-channel-icon">🌐</div>
+              <div class="md-channel-name">Korea Hotel 베트남어</div>
+              <div class="md-channel-meta" data-en="Tiếng Việt · VN" data-ko="Tiếng Việt · VN">Tiếng Việt · VN</div>
+              <span class="md-channel-badge" data-en="LIVE" data-ko="노출중">LIVE</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Activity -->
+      <div class="md-section-head">
+        <h3 class="md-section-title" data-en="Recent activity" data-ko="최근 활동">Recent activity</h3>
+        <span class="md-section-period" data-en="Last 7 days" data-ko="최근 7일">Last 7 days</span>
+      </div>
+
+      <div class="md-card">
+        <div class="md-activity" id="activityList">
+          <div class="md-empty">
+            <div class="md-empty-icon">📭</div>
+            <div class="md-empty-msg" data-en="Loading recent activity..." data-ko="활동을 불러오는 중...">Loading recent activity...</div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ============ TAB 2 : VIDEOS (placeholder, Step 3) ============ -->
+    <section class="md-tab-panel" id="tab-videos">
+      <div class="md-card">
+        <h3 class="md-card-title" data-en="Videos" data-ko="영상">Videos</h3>
+        <p class="md-card-sub"
+           data-en="Main video + Korea 4 / Global 4 channel exposure"
+           data-ko="본편 영상 + 한국 4 / 해외 4 채널 노출">Main video + Korea 4 / Global 4 channel exposure</p>
+        <div class="md-empty">
+          <div class="md-empty-icon">🎬</div>
+          <div class="md-empty-msg" data-en="Loading..." data-ko="불러오는 중...">Loading...</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ TAB 3 : PAYMENTS (placeholder, Step 4) ============ -->
+    <section class="md-tab-panel" id="tab-payments">
+      <div class="md-card">
+        <h3 class="md-card-title" data-en="Payments" data-ko="결제">Payments</h3>
+        <p class="md-card-sub"
+           data-en="Payment history · Invoice · Receipt · Contract"
+           data-ko="결제 내역 · 인보이스 · 영수증 · 계약서">Payment history · Invoice · Receipt · Contract</p>
+        <div class="md-empty">
+          <div class="md-empty-icon">📝</div>
+          <div class="md-empty-msg" data-en="Loading..." data-ko="불러오는 중...">Loading...</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ TAB 4 : SUPPORT (placeholder, Step 5) ============ -->
+    <section class="md-tab-panel" id="tab-inquiry">
+      <div class="md-card">
+        <h3 class="md-card-title"
+            data-en="gohotelwinners Customer Success"
+            data-ko="gohotelwinners Customer Success">gohotelwinners Customer Success</h3>
+        <p class="md-card-sub"
+           data-en="Avg. reply within 4 hours · Korean, English"
+           data-ko="평균 4시간 이내 답변 · 한국어, English">Avg. reply within 4 hours · Korean, English</p>
+        <div class="md-empty">
+          <div class="md-empty-icon">💬</div>
+          <div class="md-empty-msg" data-en="Loading..." data-ko="불러오는 중...">Loading...</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ TAB 5 : ANALYTICS (placeholder, Step 6) ============ -->
+    <section class="md-tab-panel" id="tab-analytics">
+      <div class="md-card">
+        <h3 class="md-card-title" data-en="Customer Analytics" data-ko="고객 분석">Customer Analytics</h3>
+        <p class="md-card-sub"
+           data-en="Booking data flowing through 8 channels and 6 languages"
+           data-ko="8개 채널·6개 언어를 통해 들어온 예약 데이터입니다">Booking data flowing through 8 channels and 6 languages</p>
+        <div class="md-empty">
+          <div class="md-empty-icon">📊</div>
+          <div class="md-empty-msg" data-en="Loading..." data-ko="불러오는 중...">Loading...</div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+// =====================================================================
+// manager-dashboard.html — BL-MGR-DASHBOARD-V1 stage 3
+// =====================================================================
+
+// ---- Supabase Client (shared.js에서 init된 window.TW.sb 활용) ----
+const supabase = window.TW && window.TW.sb ? window.TW.sb : null;
+if (!supabase) {
+  console.error('[manager-dashboard] Supabase client not initialized via shared.js');
+}
+
+// ---- State ----
+let currentUser = null;
+let currentHotel = null;
+let currentLang = localStorage.getItem('md_lang') || 'en';
+
+// ---- i18n ----
+function setLang(lang){
+  currentLang = lang;
+  localStorage.setItem('md_lang', lang);
+  document.documentElement.lang = lang;
+  document.getElementById('lang-en').classList.toggle('active', lang === 'en');
+  document.getElementById('lang-ko').classList.toggle('active', lang === 'ko');
+  document.querySelectorAll('[data-en],[data-ko]').forEach(el => {
+    const txt = el.getAttribute('data-' + lang);
+    if (txt !== null) el.textContent = txt;
+  });
+}
+
+// ---- Tabs ----
+function switchTab(name){
+  document.querySelectorAll('.md-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
+  document.querySelectorAll('.md-tab-panel').forEach(p => p.classList.toggle('active', p.id === 'tab-' + name));
+  // Lazy-load tabs (Step 3~6에서 채움)
+  if (name === 'videos' && !window.__videosLoaded)  loadVideosTab();
+  if (name === 'payments' && !window.__paymentsLoaded) loadPaymentsTab();
+  if (name === 'inquiry' && !window.__inquiryLoaded) loadInquiryTab();
+  if (name === 'analytics' && !window.__analyticsLoaded) loadAnalyticsTab();
+}
+
+// ---- Format helpers ----
+function fmtMoney(n){ return '$' + Number(n || 0).toLocaleString('en-US', {maximumFractionDigits: 0}); }
+function fmtNum(n){ return Number(n || 0).toLocaleString('en-US'); }
+function fmtDate(d){
+  if (!d) return '—';
+  const dt = new Date(d);
+  if (isNaN(dt)) return '—';
+  return currentLang === 'ko'
+    ? `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`
+    : dt.toLocaleDateString('en-US', {year:'numeric', month:'short', day:'numeric'});
+}
+function fmtShortDate(d){
+  if (!d) return '—';
+  const dt = new Date(d);
+  if (isNaN(dt)) return '—';
+  return currentLang === 'ko'
+    ? `${dt.getMonth()+1}월 ${dt.getDate()}일`
+    : dt.toLocaleDateString('en-US', {month:'short', day:'numeric'});
+}
+function daysDiff(from, to){
+  return Math.floor((new Date(to) - new Date(from)) / (1000*60*60*24));
+}
+
+// ---- Auth + Initial Load ----
+async function init(){
+  // Lang init
+  setLang(currentLang);
+
+  // Auth check
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) {
+    window.location.href = '/login.html?redirect=/manager-dashboard.html';
+    return;
+  }
+  currentUser = session.user;
+
+  // Top user
+  const initial = (currentUser.email || '·').charAt(0).toUpperCase();
+  document.getElementById('userInitial').textContent = initial;
+  document.getElementById('userName').textContent = currentUser.email || '';
+
+  // Fetch user's hotel
+  const { data: hotels, error: hErr } = await supabase
+    .from('v_manager_hotels')
+    .select('*')
+    .eq('manager_user_id', currentUser.id)
+    .limit(1);
+
+  if (hErr) { console.error('hotels fetch error', hErr); }
+  if (!hotels || hotels.length === 0) {
+    renderNoHotel();
+    return;
+  }
+  currentHotel = hotels[0];
+  renderHotelCard(currentHotel);
+  renderPipeline(currentHotel);
+  await loadKPIs(currentHotel.hotel_id);
+  await loadActivity(currentHotel.hotel_id);
+}
+
+// ---- Render: Hotel Card ----
+function renderHotelCard(h){
+  document.getElementById('hotelName').textContent = h.hotel_name || '—';
+  if (h.image_url) {
+    document.getElementById('hotelImg').style.backgroundImage = `url('${h.image_url}')`;
+  }
+  const loc = [h.address || h.city, h.country].filter(Boolean).join(', ');
+  const star = h.star_rating ? `⭐ ${h.star_rating}` : '';
+  const ptype = h.property_type || (currentLang === 'ko' ? '호텔' : 'Hotel');
+  document.getElementById('hotelLocation').innerHTML =
+    `<strong>${loc}</strong> · ${star} · ${ptype}`;
+
+  const mgr = h.contact_name || currentUser.email;
+  const mgrEmail = h.contact_email || currentUser.email;
+  const regDate = fmtDate(h.hotel_created_at);
+  document.getElementById('hotelManager').innerHTML = currentLang === 'ko'
+    ? `매니저: <strong>${mgr}</strong> · ${mgrEmail} · 등록일 ${regDate}`
+    : `Manager: <strong>${mgr}</strong> · ${mgrEmail} · Registered ${regDate}`;
+
+  // Status badge
+  const badge = document.getElementById('hotelStatusBadge');
+  const st = (h.hotel_status || '').toLowerCase();
+  if (st === 'campaign_live' || st === 'live' || h.published_at) {
+    badge.textContent = currentLang === 'ko' ? '운영 중' : 'Active';
+    badge.style.background = 'rgba(16,185,129,.18)';
+    badge.style.color = '#10B981';
+    badge.style.borderColor = 'rgba(16,185,129,.32)';
+  } else if (st === 'paid' || h.paid_at) {
+    badge.textContent = currentLang === 'ko' ? '준비 중' : 'Preparing';
+    badge.style.background = 'rgba(245,158,11,.18)';
+    badge.style.color = 'var(--warn)';
+    badge.style.borderColor = 'rgba(245,158,11,.32)';
+  } else {
+    badge.textContent = currentLang === 'ko' ? '대기' : 'Pending';
+    badge.style.background = 'var(--glass-2)';
+    badge.style.color = 'var(--ink-3)';
+    badge.style.borderColor = 'var(--line-2)';
+  }
+}
+
+// ---- Render: Pipeline + Period ----
+function renderPipeline(h){
+  document.getElementById('step-paid').textContent      = fmtShortDate(h.paid_at);
+  document.getElementById('step-registered').textContent = fmtShortDate(h.approved_at || h.hotel_created_at);
+  document.getElementById('step-produced').textContent  = fmtShortDate(h.published_at);
+  document.getElementById('step-live').textContent      = currentLang === 'ko' ? '진행 중' : 'in progress';
+
+  // 6-month end
+  if (h.paid_at) {
+    const end = new Date(h.paid_at);
+    end.setMonth(end.getMonth() + 6);
+    document.getElementById('step-end').textContent = currentLang === 'ko'
+      ? `${end.getFullYear()}-${String(end.getMonth()+1).padStart(2,'0')}-${String(end.getDate()).padStart(2,'0')}까지`
+      : `until ${fmtShortDate(end)}`;
+    // Period
+    const startTxt = fmtShortDate(h.paid_at);
+    const endTxt = fmtShortDate(end);
+    const dDay = Math.max(0, daysDiff(new Date(), end));
+    document.getElementById('periodLabel').textContent = `${startTxt} → ${endTxt} (D-${dDay})`;
+  }
+}
+
+// ---- Load: KPIs ----
+async function loadKPIs(hotelId){
+  const { data: stats } = await supabase
+    .from('v_manager_booking_stats')
+    .select('*')
+    .eq('hotel_id', hotelId)
+    .maybeSingle();
+
+  const { data: videoSum } = await supabase
+    .from('v_manager_video_summary')
+    .select('*')
+    .eq('hotel_id', hotelId)
+    .maybeSingle();
+
+  // KPI 1: Bookings (총 예약, 노쇼 포함, 취소 별도)
+  document.getElementById('kpi-bookings').textContent = fmtNum(stats?.total_bookings);
+  const noshow = stats?.noshow_count || 0;
+  const cancelled = stats?.cancelled_count || 0;
+  document.getElementById('kpi-bookings-note').textContent = currentLang === 'ko'
+    ? `노쇼 ${noshow}건 포함 · 취소 ${cancelled}건 별도`
+    : `Includes ${noshow} no-show · ${cancelled} cancellations separate`;
+
+  // KPI 2: Revenue
+  document.getElementById('kpi-revenue').textContent = fmtMoney(stats?.confirmed_revenue_usd);
+
+  // KPI 3: Views
+  document.getElementById('kpi-views').textContent = fmtNum(videoSum?.total_views);
+  document.getElementById('kpi-views-trend').textContent = '—';
+
+  // KPI 4: Inquiries (TBD — inquiries 테이블 없음, V1.1로)
+  document.getElementById('kpi-inquiries').textContent = '0';
+  document.getElementById('kpi-inquiries-trend').textContent = currentLang === 'ko' ? '✓ 모두 답변 완료' : '✓ All replied';
+  document.getElementById('kpi-inquiries-trend').classList.remove('warn');
+  document.getElementById('kpi-inquiries-trend').classList.add('up');
+
+  // Empty state for 0 bookings
+  if (!stats || stats.total_bookings === 0) {
+    document.getElementById('kpi-bookings-trend').textContent = currentLang === 'ko' ? '아직 데이터 없음' : 'No data yet';
+    document.getElementById('kpi-revenue-trend').textContent = currentLang === 'ko' ? '아직 데이터 없음' : 'No data yet';
+    document.getElementById('kpi-bookings-trend').classList.remove('up');
+    document.getElementById('kpi-revenue-trend').classList.remove('up');
+  } else {
+    document.getElementById('kpi-bookings-trend').textContent = '—';
+    document.getElementById('kpi-revenue-trend').textContent = '—';
+  }
+}
+
+// ---- Load: Activity (최근 7일) ----
+async function loadActivity(hotelId){
+  const sevenDaysAgo = new Date();
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+  const { data: recentBookings } = await supabase
+    .from('v_manager_recent_bookings')
+    .select('*')
+    .eq('hotel_id', hotelId)
+    .gte('booked_date', sevenDaysAgo.toISOString().split('T')[0])
+    .order('booked_date', { ascending: false })
+    .limit(10);
+
+  const list = document.getElementById('activityList');
+  if (!recentBookings || recentBookings.length === 0) {
+    list.innerHTML = `
+      <div class="md-empty">
+        <div class="md-empty-icon">📭</div>
+        <div class="md-empty-msg">${currentLang === 'ko' ? '최근 7일 활동 없음' : 'No activity in the last 7 days'}</div>
+        <div class="md-empty-sub">${currentLang === 'ko' ? '곧 첫 예약이 들어올 거예요' : 'Your first booking is coming'}</div>
+      </div>`;
+    return;
+  }
+
+  const countryFlag = { KR:'🇰🇷', JP:'🇯🇵', US:'🇺🇸', TW:'🇹🇼', OTHER:'🌍' };
+  const items = recentBookings.map(b => {
+    const ago = relativeTime(b.booked_date);
+    const flag = countryFlag[b.guest_country] || '🌍';
+    const title = currentLang === 'ko'
+      ? `새 예약 발생 — ${flag} ${b.guest_country} 게스트`
+      : `New booking — ${flag} ${b.guest_country} guest`;
+    const desc = currentLang === 'ko'
+      ? `체크인 ${fmtShortDate(b.checkin_date)} · ${b.nights}박 · ${fmtMoney(b.booking_amount_usd)}`
+      : `Check-in ${fmtShortDate(b.checkin_date)} · ${b.nights} nights · ${fmtMoney(b.booking_amount_usd)}`;
+    return `
+      <div class="md-activity-item">
+        <div class="md-activity-icon">📩</div>
+        <div class="md-activity-body">
+          <div class="md-activity-title">${title}</div>
+          <div class="md-activity-desc">${desc}</div>
+        </div>
+        <div class="md-activity-time">${ago}</div>
+      </div>`;
+  }).join('');
+  list.innerHTML = items;
+}
+
+function relativeTime(d){
+  if (!d) return '—';
+  const diff = (Date.now() - new Date(d).getTime()) / 1000;
+  const ko = currentLang === 'ko';
+  if (diff < 3600) return ko ? `${Math.floor(diff/60)}분 전` : `${Math.floor(diff/60)}m ago`;
+  if (diff < 86400) return ko ? `${Math.floor(diff/3600)}시간 전` : `${Math.floor(diff/3600)}h ago`;
+  if (diff < 86400*2) return ko ? '어제' : 'yesterday';
+  return ko ? `${Math.floor(diff/86400)}일 전` : `${Math.floor(diff/86400)}d ago`;
+}
+
+// ---- No hotel state ----
+function renderNoHotel(){
+  document.getElementById('hotelName').textContent = currentLang === 'ko' ? '호텔 등록이 필요해요' : 'Hotel registration required';
+  document.getElementById('hotelLocation').textContent = currentLang === 'ko'
+    ? '결제는 완료되었지만 호텔 정보가 아직 등록되지 않았습니다.'
+    : 'Payment completed, but hotel info is not yet registered.';
+  document.getElementById('hotelManager').innerHTML = `<a href="/signup.html" class="md-hotel-link">${currentLang === 'ko' ? '호텔 정보 등록하기 →' : 'Register hotel info →'}</a>`;
+}
+
+// ---- Stubs for Step 3~6 ----
+function openInfoChangeRequest(){
+  switchTab('inquiry');
+  // Step 5에서 폼 자동 채움 처리
+}
+function loadVideosTab(){ window.__videosLoaded = true; /* Step 3 */ }
+function loadPaymentsTab(){ window.__paymentsLoaded = true; /* Step 4 */ }
+function loadInquiryTab(){ window.__inquiryLoaded = true; /* Step 5 */ }
+function loadAnalyticsTab(){ window.__analyticsLoaded = true; /* Step 6 */ }
+
+// ---- Boot ----
+document.addEventListener('DOMContentLoaded', init);
+</script>
+
+</body>
+</html>

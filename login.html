@@ -112,12 +112,17 @@
       }
       T.toast(T.lang === 'ko' ? '로그인 성공!' : 'Login successful!');
       localStorage.setItem('tw-session-email', r.data.user.email);
-      // 관리자 vs 매니저 라우팅 (DB 조회)
+      // 관리자 vs 매니저 vs 일반 라우팅 (BL-MGR-LOGIN-ROUTING)
       var adminCheck = await T.checkAdmin(r.data.user);
       if (adminCheck.is_admin) {
         window.location.href = 'admin.html';
       } else {
-        window.location.href = 'dashboard.html';
+        var mgrCheck = await T.checkManager(r.data.user);
+        if (mgrCheck.is_manager) {
+          window.location.href = 'manager-dashboard.html';
+        } else {
+          window.location.href = 'dashboard.html';
+        }
       }
     } catch (e) {
       btn.disabled = false;
@@ -135,7 +140,12 @@
         if (ac.is_admin) {
           window.location.href = 'admin.html';
         } else {
-          window.location.href = 'dashboard.html';
+          var mc = await T.checkManager(r.data.session.user);
+          if (mc.is_manager) {
+            window.location.href = 'manager-dashboard.html';
+          } else {
+            window.location.href = 'dashboard.html';
+          }
         }
       }
     }).catch(function(){});

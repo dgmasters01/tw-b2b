@@ -10,6 +10,46 @@
 
 ---
 
+## 🆕 2026-05-18 — 매니저 대시보드 V1 라이브 출시 (BL-MGR-DASHBOARD-V1)
+
+### D-040: 매니저 전용 대시보드 5탭을 독립 페이지로 운영
+
+**언제**: 2026-05-18
+**누가**: 이지형 대표
+**상태**: ✅ 출시 완료
+
+**무엇을:**
+- `manager-dashboard.html` (1947줄, 106KB) — 매니저 전용 5탭 대시보드 V1 라이브 출시.
+- 5탭 구성: 🏠 홈 / 🎬 영상 / 📝 결제 / 💬 문의 / 📊 고객 분석.
+- 데이터 레이어: Supabase VIEW 7종 (`v_manager_*`) — 매니저별 본인 호텔만 격리.
+- 인증 가드: `auth.getUser` → 매니저 아니면 `/login.html` 리다이렉트.
+
+**왜:**
+- 호텔 매니저는 본인 호텔의 영상 노출·예약·매출·고객 분석을 한 화면에서 보고 다음 액션(연장 결제/문의)을 결정해야 함.
+- 기존 admin.html은 운영 전용이라 매니저 노출 시 권한 누수 위험 → 매니저 화면 완전 분리.
+- D-039의 admin-status.html(개발) vs admin.html(운영) 분리 원칙의 매니저 버전 확장.
+
+**핵심 메시징 (3축):**
+- 조회수 / 영상 수 / 실예약·매출 — 구독자 수 절대 사용 안 함.
+- 6개월 보장 배너 상단 고정 (0건 시 100% 환불 정책 노출).
+
+**라이브 검증 결과 (stage 4):**
+- 정적 코드 검증 21/21 통과 (인증 가드 / VIEW 7종 / i18n 142+142 / CSV BOM / 모바일 @media / 0건 안전성).
+- Supabase VIEW 7종 라이브 작동 확인 (호텔 2건 매핑, 운영 데이터 0건도 깨지지 않음).
+- 라이브 HTTP 200, 결함 0건.
+
+**V1.1 분리 BL (별도 관리):**
+- BL-DOC-PDF-GEN: 인보이스/영수증/계약서 PDF 생성 (현재 alert stub).
+- BL-INQUIRY-SCHEMA: inquiries 테이블 + 새 문의 작성/상세 UI.
+- BL-AGODA-CLICK-TRACK: 채널별 Agoda 클릭 추적 → 퍼널 채움.
+- BL-MGR-DASHBOARD-V1.1: ADR + 시즌 + 채널 조회수.
+- BL-MGR-DEMO-DATA: 매니저 더미 데이터 박기.
+
+**라이브 URL**: https://gohotelwinners.com/manager-dashboard.html
+**Release commit**: 13def26 (stage 4 검증 chat-log) → stage 5 진입.
+
+---
+
 ## 🆕 2026-05-15 — 시스템 완성도 vs admin.html 역할 분리 헌법화
 
 

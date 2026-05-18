@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-17T19:49:03.745Z",
+  "updated_at": "2026-05-18T01:59:23+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -12,16 +12,16 @@
     "SOLO_WORK_QUEUE.md"
   ],
   "stats": {
-    "total": 230,
+    "total": 231,
     "done": 167,
     "in_progress": 3,
     "paused": 0,
-    "pending": 43,
+    "pending": 44,
     "blocked": 10,
     "autonomous_ready": 41,
     "todo": 0,
     "cancelled": 1,
-    "updated_at": "2026-05-17T19:49:03.745Z"
+    "updated_at": "2026-05-18T01:59:23+00:00"
   },
   "tasks": [
     {
@@ -16096,7 +16096,7 @@
         "sql/v_manager_dashboard.sql",
         "_os/playbook/manager-dashboard-spec.md"
       ],
-      "updated_at": "2026-05-17T16:01:12+00:00",
+      "updated_at": "2026-05-18T01:59:23+00:00",
       "history": [
         {
           "at": "2026-05-17T00:54:39+00:00",
@@ -16153,17 +16153,26 @@
           "by": "auto-detect-bot",
           "commit": "311320a",
           "note": "[BL-MGR-DASHBOARD-V1] stages 필드 박음 — 5단계 + 단계별 status"
+        },
+        {
+          "at": "2026-05-18T01:59:23+00:00",
+          "event": "관련 commit 추가 (status 유지)",
+          "by": "claude",
+          "commit": "b651a26",
+          "note": "[BL-MGR-DASHBOARD-V1] stage 2 (와이어프레임) 완료 — 정정 13개 + 결정 3개 반영, 5탭 v2 SVG 박제 + 정책 문서 5개 v2 [step:done:2]"
         }
       ],
       "design_artifacts": [
         {
           "type": "summary",
           "path": "docs/design/BL-MGR-DASHBOARD-V1/decisions-summary.md",
+          "version": "v2",
           "status": "approved"
         },
         {
           "type": "copy",
           "path": "docs/design/BL-MGR-DASHBOARD-V1/copy-hierarchy.md",
+          "version": "v2",
           "status": "approved"
         },
         {
@@ -16172,8 +16181,21 @@
           "status": "approved"
         },
         {
+          "type": "policy",
+          "path": "docs/design/BL-MGR-DASHBOARD-V1/policy-extra-exposure.md",
+          "version": "v1",
+          "status": "approved"
+        },
+        {
+          "type": "policy",
+          "path": "docs/design/BL-MGR-DASHBOARD-V1/policy-contract.md",
+          "version": "v1",
+          "status": "approved"
+        },
+        {
           "type": "channel",
           "path": "docs/design/BL-MGR-DASHBOARD-V1/channel-hierarchy.md",
+          "version": "v3",
           "status": "approved"
         },
         {
@@ -16182,6 +16204,31 @@
           "count": 9,
           "status": "approved",
           "note": "대표님 첨부 9장 PNG"
+        },
+        {
+          "type": "wireframe",
+          "path": "docs/design/BL-MGR-DASHBOARD-V1/wireframes/tab-1-home-v2.svg",
+          "status": "approved"
+        },
+        {
+          "type": "wireframe",
+          "path": "docs/design/BL-MGR-DASHBOARD-V1/wireframes/tab-2-video-v2.svg",
+          "status": "approved"
+        },
+        {
+          "type": "wireframe",
+          "path": "docs/design/BL-MGR-DASHBOARD-V1/wireframes/tab-3-payment-v2.svg",
+          "status": "approved"
+        },
+        {
+          "type": "wireframe",
+          "path": "docs/design/BL-MGR-DASHBOARD-V1/wireframes/tab-4-inquiry-v2.svg",
+          "status": "approved"
+        },
+        {
+          "type": "wireframe",
+          "path": "docs/design/BL-MGR-DASHBOARD-V1/wireframes/tab-5-analytics-v2.svg",
+          "status": "approved"
         }
       ],
       "next_action": "새 채팅에서 4탭+1탭 와이어프레임 박기 (탭당 별도 응답)",
@@ -16197,8 +16244,9 @@
         {
           "n": 2,
           "name": "와이어프레임 (4탭+1탭)",
-          "status": "pending",
-          "note": "다음 새 채팅에서"
+          "status": "done",
+          "note": "5탭 v2 SVG 박제 완료 + 정책 문서 v2 (c409da5, b651a26)",
+          "completed_at": "2026-05-18"
         },
         {
           "n": 3,
@@ -16217,8 +16265,64 @@
           "status": "pending"
         }
       ],
-      "current_stage": 1,
-      "next_stage_action": "새 채팅에서 와이어프레임 단계 시작 (인계서 박혀 있음)"
+      "current_stage": 3,
+      "next_stage_action": "새 채팅에서 시스템 완성도 (manager-dashboard.html 박기) 시작"
+    },
+    {
+      "id": "BL-MGR-DASHBOARD-V1.1",
+      "title": "[매니저 대시보드 V1.1] 고객 분석 고급 지표 추가 (ADR + 인기 요일·시즌 + 채널별 조회수 추이)",
+      "status": "pending",
+      "priority": "medium",
+      "category": "feature",
+      "created_at": "2026-05-18",
+      "owner": "claude",
+      "parent": "BL-MGR-DASHBOARD-V1",
+      "north_star": "매니저가 호텔 운영 인사이트(객단가·시즌·채널 기여)를 분석할 수 있게 한다",
+      "single_decision": "V1 출시 후 고객 분석 탭에 3가지 고급 지표 박기 — ADR, 인기 요일·시즌, 채널별 조회수 추이",
+      "duplication_check": "V1은 KPI 4종(예약/매출/박야/노쇼) + 국가별 + 월별 추이까지. V1.1은 객단가·시즌·채널 조회수만 추가.",
+      "decisions_locked": [
+        "ADR(평균 객단가) 계산식: SUM(booking_amount_usd) ÷ SUM(nights) (확정 매출 기준)",
+        "인기 요일·시즌: 체크인 요일·월별 패턴 차트",
+        "채널별 조회수 추이: 8개 채널 영상 누적 시청 + 국가별 노출 기여도",
+        "전월 증감 비교 (모든 KPI에 % 표시)",
+        "V1 출시 + 라이브 검증 완료 후 시작 (현재는 pending)"
+      ],
+      "steps": [
+        "V1 라이브 검증 완료 대기",
+        "YouTube Data API 연동 (채널별 조회수)",
+        "Supabase VIEW: v_manager_adr (ADR 계산)",
+        "Supabase VIEW: v_manager_weekday_season (요일·시즌)",
+        "고객 분석 탭에 3개 차트 박기",
+        "전월 증감 비교 KPI 4종에 추가",
+        "라이브 검증 + 인계서"
+      ],
+      "autonomous": {
+        "can_run_alone": false,
+        "estimated_hours": 12,
+        "requires_decisions_first": [
+          "BL-MGR-DASHBOARD-V1 stage 4 (라이브 검증) 완료"
+        ]
+      },
+      "design_artifacts": [
+        {
+          "type": "reference",
+          "path": "docs/design/BL-MGR-DASHBOARD-V1/decisions-summary.md",
+          "note": "V1.1 예고 섹션 참조"
+        }
+      ],
+      "progress": {
+        "percent": 0,
+        "steps": []
+      },
+      "updated_at": "2026-05-18T01:59:23+00:00",
+      "history": [
+        {
+          "at": "2026-05-18T01:59:23+00:00",
+          "by": "claude",
+          "action": "created",
+          "detail": "V1 정정 #13으로 분리 — ADR + 인기 요일·시즌 + 채널별 조회수 추이를 V1.1로 미룸. V1 stage 2 완료 시점에 등록."
+        }
+      ]
     },
     {
       "id": "BL-AUTO-TASKS-SCHEMA-1MISSING",

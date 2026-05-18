@@ -201,7 +201,46 @@
   };
 
   // 캐시 클리어 (로그아웃 시)
-  window.TW.clearAdminCache = function () { _adminCache = {}; };
+  window.TW.clearAdminCache = function () { _adminCache = {}; _managerCache = {}; };
+
+  // ---------- Manager check (BL-MGR-LOGIN-ROUTING) ----------
+  // 매니저 판정: hotels.user_id에 매핑된 호텔이 1건 이상 있으면 매니저
+  // v_manager_hotels VIEW로 격리 (RLS: 본인 호텔만 노출)
+  var _managerCache = {};
+  var MANAGER_CACHE_TTL = 5 * 60 * 1000; // 5분
+
+  // 동기 체크 (캐시 사용) - 빠른 라우팅용
+  window.TW.isManager = function (user) {
+    if (!user || !user.id) return false;
+    var c = _managerCache[user.id];
+    if (c && c.expires > Date.now()) return c.is_manager;
+    return false;
+  };
+
+  // 비동기 체크 (v_manager_hotels VIEW 조회)
+  window.TW.checkManager = async function (user) {
+    if (!user || !user.id) return { is_manager: false, hotel_count: 0 };
+    var c = _managerCache[user.id];
+    if (c && c.expires > Date.now()) {
+      return { is_manager: c.is_manager, hotel_count: c.hotel_count };
+    }
+    if (!sb) return { is_manager: false, hotel_count: 0 };
+    try {
+      // v_manager_hotels VIEW로 매니저 호텔 카운트 (RLS로 본인 호텔만 노출)
+      var r = await sb.from('v_manager_hotels').select('id', { count: 'exact', head: true });
+      var cnt = r.count || 0;
+      var isMgr = cnt > 0;
+      _managerCache[user.id] = {
+        is_manager: isMgr,
+        hotel_count: cnt,
+        expires: Date.now() + MANAGER_CACHE_TTL
+      };
+      return { is_manager: isMgr, hotel_count: cnt };
+    } catch (e) {
+      console.error('checkManager error:', e);
+      return { is_manager: false, hotel_count: 0 };
+    }
+  };
 
   // ---------- Cache layer (Phase 3 Step 5) ----------
   // 60s TTL + cross-tab BroadcastChannel + localStorage fallback (Safari < 15.4)

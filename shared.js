@@ -227,7 +227,7 @@
     if (!sb) return { is_manager: false, hotel_count: 0 };
     try {
       // v_manager_hotels VIEW로 매니저 호텔 카운트 (RLS로 본인 호텔만 노출)
-      var r = await sb.from('v_manager_hotels').select('id', { count: 'exact', head: true });
+      var r = await sb.from('v_manager_hotels').select('hotel_id', { count: 'exact', head: true });
       var cnt = r.count || 0;
       var isMgr = cnt > 0;
       _managerCache[user.id] = {

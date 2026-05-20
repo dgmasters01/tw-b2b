@@ -155,8 +155,50 @@ body{margin:0;background:var(--bg);font-family:var(--sans);color:var(--ink);min-
       return;
     }
 
-    loadDashboard();
+    // ────────────────────────────────────────────────────────────────
+    // BL-USER-STAGE-GATING (D-044): 결제 단계별 강력 차단 게이트
+    // - 호텔 0건         → hotel-info.html (호텔 등록 유도)
+    // - 호텔 있음·미결제  → sales.html      (결제 유도)
+    // - 결제 완료(paid+) → dashboard 정상 노출
+    // dashboard 화면 0.1초도 노출 금지 → 호텔 fetch 직후 즉시 redirect.
+    // 결제 완료 그룹: paid / producing / published
+    // 결제 전 그룹:   pending / review / approved / rejected
+    // ────────────────────────────────────────────────────────────────
+    stageGateRedirect();
   });
+
+  function stageGateRedirect(){
+    T.db.getMyHotels({ noCache: true }).then(function(r){
+      if (r.error){
+        // fetch 실패 — 안전하게 hotel-info로 (미등록 가정)
+        // 실패 시 dashboard에 잠깐이라도 머무르면 노출 위반
+        window.location.replace('hotel-info.html');
+        return;
+      }
+      var hotels = r.data || [];
+
+      // ① 호텔 0건 → hotel-info.html (등록 페이지로 즉시 이동)
+      if (hotels.length === 0){
+        window.location.replace('hotel-info.html');
+        return;
+      }
+
+      // ② 결제 전 그룹 → sales.html (결제 유도 페이지로 즉시 이동)
+      var status = (hotels[0].status || 'pending');
+      var PAID_GROUP = ['paid', 'producing', 'published'];
+      if (PAID_GROUP.indexOf(status) === -1){
+        window.location.replace('sales.html');
+        return;
+      }
+
+      // ③ 결제 완료 → dashboard 정상 렌더 (myHotel 재사용 — 중복 fetch 방지)
+      myHotel = hotels[0];
+      renderDashboard();
+    }).catch(function(err){
+      console.error('[stageGateRedirect]', err);
+      window.location.replace('hotel-info.html');
+    });
+  }
 
   function renderImpersonateBanner(imp) {
     // 페이지 상단에 임포저네이트 모드 알림 박기
@@ -240,10 +282,17 @@ body{margin:0;background:var(--bg);font-family:var(--sans);color:var(--ink);min-
       }
 
       var hotels = r.data || [];
-      
+
+      // BL-USER-STAGE-GATING (D-044): 재로드 시에도 게이트 재검사
+      // 결제 취소·환불·status 변경 등으로 paid 그룹 이탈 시 즉시 redirect
       if (hotels.length === 0){
-        // 호텔 미등록 → 등록 유도
-        renderNoHotel();
+        window.location.replace('hotel-info.html');
+        return;
+      }
+      var _status = (hotels[0].status || 'pending');
+      var _PAID = ['paid', 'producing', 'published'];
+      if (_PAID.indexOf(_status) === -1){
+        window.location.replace('sales.html');
         return;
       }
 

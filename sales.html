@@ -431,6 +431,13 @@
     var hotel = hotelResp.data;
     var status = hotel ? (hotel.status || 'pending') : null;
 
+    // BL-USER-STAGE-GATING (D-044): 호텔 미등록자는 sales 노출 금지
+    // → 호텔 등록 페이지로 즉시 이동 (가입만 한 상태는 1단계로)
+    if (!hotel) {
+      window.location.replace('hotel-info.html');
+      return;
+    }
+
     // 결제 완료 그룹은 marketing.html 로
     if (status === 'paid' || status === 'producing' || status === 'published') {
       window.location.href = 'marketing.html';

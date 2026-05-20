@@ -10,7 +10,48 @@
 
 ---
 
-## 🆕 2026-05-21 — 초대 메일 카피 사업가 정렬 (BL-ADMIN-USER-MANAGEMENT step5-4 검증 중 발견)
+## 🆕 2026-05-21 — 결제 단계별 강력 차단 게이트 (BL-USER-STAGE-GATING)
+
+### D-044: dashboard.html은 결제 완료자만 진입 가능 — 미결제자는 시스템 미리보기 불가
+
+**언제**: 2026-05-21
+**누가**: 이지형 대표 (결제 안 한 사람이 dashboard 들여다보는 결함 진단)
+**상태**: ✅ 박힘
+
+**무엇을:**
+- 사용자 단계 3개 정의:
+  - **① 가입만 함 (호텔 0건)** → `hotel-info.html`로 즉시 redirect
+  - **② 호텔 등록·미결제** (`status` ∈ `{pending, review, approved, rejected}`) → `sales.html`로 즉시 redirect
+  - **③ 결제 완료** (`status` ∈ `{paid, producing, published}`) → `dashboard.html` 정상 노출
+- 강력 차단 방식: `window.location.replace()` 사용 — dashboard 화면 0.1초도 노출 금지, 뒤로가기로도 다시 못 들어옴.
+- 게이트 박힌 위치:
+  - `dashboard.html` 진입 직후 (`stageGateRedirect()` 신설, admin 분기 다음)
+  - `dashboard.html` `loadDashboard()` 재호출 시에도 게이트 재검사 (결제 취소·환불 시 자동 redirect)
+  - `sales.html` 진입 시 호텔 0건이면 hotel-info.html로 redirect (단계 ① 보호)
+
+**왜:**
+- 결제 안 한 사람이 `gohotelwinners.com/dashboard.html` 직접 URL 입력 시 결제 단계 표시·PayPal 버튼이 dashboard 안에 노출됨 → 시스템 미리보기 후 이탈 위험.
+- 사업 본질: **결제 = 입장권**. 미결제자는 "이 안에 뭐가 있는지" 보면 안 됨. sales.html에서 가치 어필 후 결제 → dashboard 진입이 정상 흐름.
+- 헌법 부칙 6 (UX 통일): 각 단계마다 보이는 화면이 명확히 분리되어야 함.
+- `window.location.href` 대신 `replace()`: 브라우저 히스토리 오염 방지 → 뒤로가기로 dashboard 재진입 차단.
+
+**박힌 파일:**
+- `dashboard.html` (stageGateRedirect 함수 신설 + loadDashboard 가드 추가)
+- `sales.html` (호텔 0건 가드 추가)
+
+**연관:**
+- 상위 결정: D-039 (사업 본질 = 마케팅 노출 서비스, 영상 납품 아님)
+- 직접 부모: BL-USER-STAGE-GATING (이번 작업)
+- 영향 범위: dashboard.html 진입 흐름 전체
+
+**추후 정렬 후보:**
+- `marketing.html`, `settings.html`, `booking-analytics.html` 등 결제 완료자 전용 페이지에도 동일 게이트 적용 (별도 BL).
+- 환불 처리 시 `hotels.status`를 `pending`으로 자동 되돌리는 트리거 검증 (D-044 게이트 작동 전제).
+- `renderNoHotel()` 함수 dead code 제거 (게이트로 도달 불가).
+
+---
+
+
 
 ### D-043: 초대 메일 정체성을 GOHOTELWINNERS 호텔 서비스로 통일
 

@@ -16498,6 +16498,37 @@
         }
       ],
       "notes": "점검 봇 자동 등록 (2026-05-17T08:02:43.135Z)\n\ncheck_name: tasks_schema\nstatus: red\ndetail: 작업 229건 중 1건에 출처가 없어요 (자동 동기화 봇 멈춤 위험)\n\n진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 green으로 박으면 자동 done.\n\n[자동 해소 2026-05-18T12:04:24.964Z] 점검 봇 green 전환"
+    },
+    {
+      "id": "BL-MGR-LOGIN-ROUTING",
+      "title": "[매니저 로그인 라우팅] 매니저 계정 로그인 시 manager-dashboard.html로 자동 도착",
+      "status": "done",
+      "priority": "high",
+      "created_at": "2026-05-20T11:56:04.362622+00:00",
+      "done_at": "2026-05-20T11:56:04.362622+00:00",
+      "progress": {
+        "steps": [
+          {
+            "n": 1,
+            "label": "shared.js TW.checkManager 함수 신설 (v_manager_hotels VIEW + 5분 캐시)",
+            "title": "checkManager 신설",
+            "status": "done",
+            "done": true,
+            "at": "2026-05-20T11:56:04.362622+00:00",
+            "commit": "e7ead83"
+          },
+          {
+            "n": 2,
+            "label": "login.html 매니저 분기 추가 (Sign In + 자동 redirect 양쪽)",
+            "title": "login.html 분기",
+            "status": "done",
+            "done": true,
+            "at": "2026-05-20T11:56:04.362622+00:00",
+            "commit": "5709897"
+          }
+        ]
+      },
+      "context": "매니저 계정으로 로그인하면 dashboard.html로 가버리는 버그 수정. 라우팅 우선순위: admin → manager → general. v_manager_hotels VIEW로 RLS 격리. Lotte Hotel Seattle / The Westin Tokyo 매니저 매핑 라이브 확인됨."
     }
   ]
 }

@@ -946,8 +946,8 @@ body{margin:0;background:var(--bg);font-family:var(--sans);color:var(--ink);min-
 // =====================================================================
 
 // ---- Supabase Client (shared.js에서 init된 window.TW.sb 활용) ----
-const supabase = window.TW && window.TW.sb ? window.TW.sb : null;
-if (!supabase) {
+const sb = window.TW && window.TW.sb ? window.TW.sb : null;
+if (!sb) {
   console.error('[manager-dashboard] Supabase client not initialized via shared.js');
 }
 
@@ -1033,7 +1033,7 @@ async function init(){
   setLang(currentLang);
 
   // Auth check
-  const { data: { session } } = await supabase.auth.getSession();
+  const { data: { session } } = await sb.auth.getSession();
   if (!session) {
     window.location.href = '/login.html?redirect=/manager-dashboard.html';
     return;
@@ -1046,7 +1046,7 @@ async function init(){
   document.getElementById('userName').textContent = currentUser.email || '';
 
   // Fetch user's hotel
-  const { data: hotels, error: hErr } = await supabase
+  const { data: hotels, error: hErr } = await sb
     .from('v_manager_hotels')
     .select('*')
     .eq('manager_user_id', currentUser.id)
@@ -1128,13 +1128,13 @@ function renderPipeline(h){
 
 // ---- Load: KPIs ----
 async function loadKPIs(hotelId){
-  const { data: stats } = await supabase
+  const { data: stats } = await sb
     .from('v_manager_booking_stats')
     .select('*')
     .eq('hotel_id', hotelId)
     .maybeSingle();
 
-  const { data: videoSum } = await supabase
+  const { data: videoSum } = await sb
     .from('v_manager_video_summary')
     .select('*')
     .eq('hotel_id', hotelId)
@@ -1178,7 +1178,7 @@ async function loadActivity(hotelId){
   const sevenDaysAgo = new Date();
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
-  const { data: recentBookings } = await supabase
+  const { data: recentBookings } = await sb
     .from('v_manager_recent_bookings')
     .select('*')
     .eq('hotel_id', hotelId)
@@ -1263,7 +1263,7 @@ async function loadVideosTab(){
   if (!currentHotel) return;
 
   // Fetch all videos for this hotel
-  const { data: videos, error } = await supabase
+  const { data: videos, error } = await sb
     .from('videos')
     .select('*')
     .eq('hotel_id', currentHotel.hotel_id)
@@ -1401,7 +1401,7 @@ async function loadPaymentsTab(){
   if (!currentHotel) return;
 
   // 결제 카드 fetch
-  const { data: payments, error: pErr } = await supabase
+  const { data: payments, error: pErr } = await sb
     .from('v_manager_payments')
     .select('*')
     .eq('hotel_id', currentHotel.hotel_id)
@@ -1411,7 +1411,7 @@ async function loadPaymentsTab(){
   renderPaymentCards(payments || []);
 
   // 예약 명세 fetch (5건 우선)
-  const { data: bookings, count, error: bErr } = await supabase
+  const { data: bookings, count, error: bErr } = await sb
     .from('v_manager_recent_bookings')
     .select('*', { count: 'exact' })
     .eq('hotel_id', currentHotel.hotel_id)
@@ -1523,7 +1523,7 @@ function updateBookingSummary(){
 
 async function loadMoreBookings(){
   const start = window.__bookingsLoaded.length;
-  const { data: more, error } = await supabase
+  const { data: more, error } = await sb
     .from('v_manager_recent_bookings')
     .select('*')
     .eq('hotel_id', currentHotel.hotel_id)
@@ -1731,7 +1731,7 @@ async function loadAnalyticsTab(){
   if (!currentHotel) return;
 
   // 1. KPI stats
-  const { data: stats } = await supabase
+  const { data: stats } = await sb
     .from('v_manager_booking_stats')
     .select('*')
     .eq('hotel_id', currentHotel.hotel_id)
@@ -1740,7 +1740,7 @@ async function loadAnalyticsTab(){
   renderAnalyticsKPI(stats);
 
   // 2. Country distribution (4개국만, OTHER 제외)
-  const { data: countries } = await supabase
+  const { data: countries } = await sb
     .from('v_manager_country_distribution')
     .select('*')
     .eq('hotel_id', currentHotel.hotel_id);
@@ -1748,7 +1748,7 @@ async function loadAnalyticsTab(){
   renderAnalyticsCountries(countries || [], stats);
 
   // 3. Monthly trend (최근 6개월)
-  const { data: trend } = await supabase
+  const { data: trend } = await sb
     .from('v_manager_monthly_trend')
     .select('*')
     .eq('hotel_id', currentHotel.hotel_id)
@@ -1894,7 +1894,7 @@ function renderAnalyticsFunnel(stats){
   const rev = Number(stats?.confirmed_revenue_usd || 0);
 
   // 영상 노출 (video_summary 재fetch — 가벼우니 별도 query)
-  supabase.from('v_manager_video_summary').select('total_views').eq('hotel_id', currentHotel.hotel_id)
+  sb.from('v_manager_video_summary').select('total_views').eq('hotel_id', currentHotel.hotel_id)
     .maybeSingle().then(({ data }) => {
       const views = Number(data?.total_views || 0);
       document.getElementById('anaExposure').textContent = views ? fmtNum(views) : '—';

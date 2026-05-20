@@ -10,6 +10,45 @@
 
 ---
 
+## 🆕 2026-05-21 — 초대 메일 카피 사업가 정렬 (BL-ADMIN-USER-MANAGEMENT step5-4 검증 중 발견)
+
+### D-043: 초대 메일 정체성을 GOHOTELWINNERS 호텔 서비스로 통일
+
+**언제**: 2026-05-21
+**누가**: 이지형 대표 (실 메일 수신 검증 중 발견)
+**상태**: ✅ 박힘
+
+**무엇을:**
+- 발신자명: `여행능력자들` / `TravelWinners` → **`GOHOTELWINNERS`** (대문자 통일)
+- 제목:
+  - 옛: `[여행능력자들] staff 권한 초대 — dgmasters01@gmail.com님이 보내셨습니다`
+  - 새: `[GOHOTELWINNERS] STAFF 권한으로 초대되셨습니다` (한국어) / `[GOHOTELWINNERS] You're invited as STAFF` (영어)
+- 본문 H2: `여행능력자들 관리자 초대` → `GOHOTELWINNERS 호텔 서비스 초대`
+- 본문 안내: `XXX님이 회원님을 staff 권한으로 초대하셨습니다` → `GOHOTELWINNERS 호텔 서비스에 STAFF 권한으로 초대되셨습니다`
+- 인사: `안녕하세요, displayName님` → `안녕하세요` (이름 잘못 박힐 위험 제거)
+- 푸터: `— GOHOTELWINNERS 팀 / 문의: info@gohotelwinners.com` 추가
+- `role` 표시는 모두 대문자(`roleUpper`)로
+
+**왜:**
+- 옛 메일이 "개인(dgmasters01)이 부른 것"처럼 보임 → 받는 사람(호텔 매니저 채용 직원)이 회사 공식 메일로 인식 못 함, 스팸 의심 가능.
+- 이 admin은 **gohotelwinners(B2B 호텔영업 브랜드)** 사이트 — 발신자도 그 정체성과 일치해야 정석.
+- `여행능력자들`은 B2C 모브랜드 — admin 직원 채용 메일에는 안 맞음.
+- "어드민 콘솔"은 개발 언어 — 사업가 언어 `호텔 서비스`로 정렬.
+- `inviterEmail`(dgmasters01) 같은 개인 이메일을 받는 사람 메일에 박는 건 추적 정보 노출. 누가 보냈는지는 `role_change_log`에 영구 기록되므로 사용자 메일에 박을 필요 없음.
+
+**박힌 파일:**
+- `api/_lib/admin-auth-handlers.js` (buildInviteEmail 함수)
+
+**연관:**
+- 상위 결정: D-015 (BL-ADMIN-AUTH-V2)
+- 직접 부모: D-041 (UI 정렬) / D-042 (재발송 정책)
+- 작업 BL: BL-ADMIN-USER-MANAGEMENT step 5-4 (검증 중 발견 → 한 사이클로 처리)
+
+**추후 정렬 후보 (지금은 박지 않음):**
+- 다른 시스템 메일(가입 완료, 비밀번호 리셋, 호텔 등록 알림 등)도 같은 GOHOTELWINNERS 정체성으로 통일 → 별도 BL.
+
+---
+
 ## 🆕 2026-05-21 — 재발송 시 옛 초대장 자동 무효 (BL-ADMIN-USER-MANAGEMENT step5-3)
 
 ### D-042: A 정책 — 한 사람당 활성 초대 링크 1개 보장

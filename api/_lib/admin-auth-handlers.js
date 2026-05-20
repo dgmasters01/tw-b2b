@@ -225,24 +225,30 @@ async function handleUsersList(req, res) {
 
 // ───────────────────────────────────────────────────────────────
 // 2) invite (POST) — 초대 메일 발송
+// D-043 (2026-05-21): 메일 카피 사업가 정렬
+//   - 발신자 = GOHOTELWINNERS (대문자, B2B 호텔 서비스 브랜드)
+//   - "어드민 콘솔" 등 개발 언어 → "호텔 서비스 STAFF 권한" 사업가 언어
+//   - inviterEmail (dgmasters01 등) 메일 본문/제목에서 완전 제거
+//   - 누가 보냈는지는 role_change_log에만 영구 기록 (사용자 메일엔 노출 X)
 // ───────────────────────────────────────────────────────────────
 
 function buildInviteEmail({ to, role, token, inviterEmail, displayName, lang }) {
   const inviteUrl = `${SITE_URL}/admin-accept-invite.html?token=${token}&email=${encodeURIComponent(to)}`;
   const isKo = lang === 'ko';
+  const roleUpper = (role || '').toUpperCase();
 
-  const fromName = isKo
-    ? '여행능력자들 <noreply@gohotelwinners.com>'
-    : 'TravelWinners <noreply@gohotelwinners.com>';
+  // D-043: 발신자 = GOHOTELWINNERS (한국어/영어 동일)
+  const fromName = 'GOHOTELWINNERS <noreply@gohotelwinners.com>';
 
-  const koSubject = `[여행능력자들] ${role} 권한 초대 — ${inviterEmail}님이 보내셨습니다`;
-  const enSubject = `[TravelWinners] You're invited as ${role} by ${inviterEmail}`;
+  // D-043: 제목에 inviterEmail 박지 않음
+  const koSubject = `[GOHOTELWINNERS] ${roleUpper} 권한으로 초대되셨습니다`;
+  const enSubject = `[GOHOTELWINNERS] You're invited as ${roleUpper}`;
 
   const koHtml = `
     <div style="font-family:-apple-system,BlinkMacSystemFont,Pretendard,Arial,sans-serif;max-width:560px;margin:0 auto;padding:32px 20px;color:#222">
-      <h2 style="margin:0 0 16px;color:#6366f1">여행능력자들 관리자 초대</h2>
-      <p>안녕하세요${displayName ? ', ' + displayName + '님' : ''}.</p>
-      <p><strong>${inviterEmail}</strong>님이 회원님을 <strong>${role}</strong> 권한으로 초대하셨습니다.</p>
+      <h2 style="margin:0 0 16px;color:#6366f1">GOHOTELWINNERS 호텔 서비스 초대</h2>
+      <p>안녕하세요.</p>
+      <p><strong>GOHOTELWINNERS 호텔 서비스</strong>에 <strong>${roleUpper}</strong> 권한으로 초대되셨습니다.</p>
       <p style="margin:24px 0">
         <a href="${inviteUrl}" style="background:#6366f1;color:#fff;padding:12px 24px;border-radius:6px;text-decoration:none;display:inline-block">초대 수락하고 가입하기</a>
       </p>
@@ -250,14 +256,15 @@ function buildInviteEmail({ to, role, token, inviterEmail, displayName, lang }) 
         <span style="word-break:break-all">${inviteUrl}</span>
       </p>
       <hr style="border:none;border-top:1px solid #eee;margin:24px 0">
-      <p style="font-size:12px;color:#999">이 링크는 7일 후 만료됩니다. 초대를 받지 않으셨다면 이 메일을 무시하시면 됩니다.</p>
+      <p style="font-size:12px;color:#999">이 링크는 7일 후 만료됩니다. 초대를 받으신 적 없으시면 이 메일을 무시하시면 됩니다.</p>
+      <p style="font-size:12px;color:#999;margin-top:8px">— GOHOTELWINNERS 팀<br>문의: info@gohotelwinners.com</p>
     </div>`;
 
   const enHtml = `
     <div style="font-family:-apple-system,BlinkMacSystemFont,Arial,sans-serif;max-width:560px;margin:0 auto;padding:32px 20px;color:#222">
-      <h2 style="margin:0 0 16px;color:#6366f1">TravelWinners Admin Invitation</h2>
-      <p>Hello${displayName ? ', ' + displayName : ''}.</p>
-      <p><strong>${inviterEmail}</strong> has invited you to join as <strong>${role}</strong>.</p>
+      <h2 style="margin:0 0 16px;color:#6366f1">GOHOTELWINNERS Hotel Service Invitation</h2>
+      <p>Hello.</p>
+      <p>You've been invited to join <strong>GOHOTELWINNERS hotel service</strong> as <strong>${roleUpper}</strong>.</p>
       <p style="margin:24px 0">
         <a href="${inviteUrl}" style="background:#6366f1;color:#fff;padding:12px 24px;border-radius:6px;text-decoration:none;display:inline-block">Accept invitation</a>
       </p>
@@ -266,6 +273,7 @@ function buildInviteEmail({ to, role, token, inviterEmail, displayName, lang }) 
       </p>
       <hr style="border:none;border-top:1px solid #eee;margin:24px 0">
       <p style="font-size:12px;color:#999">This invitation expires in 7 days. If you weren't expecting this, you can safely ignore this email.</p>
+      <p style="font-size:12px;color:#999;margin-top:8px">— GOHOTELWINNERS Team<br>Contact: info@gohotelwinners.com</p>
     </div>`;
 
   return {

@@ -103,17 +103,38 @@ if (!hotel) {
 
 ## 🚀 다음 행동
 
-**단계 5**: push 후 라이브 검증
+**단계 5**: ✅ **완료** (2026-05-21 자동 검증 통과)
 
-1. push → Vercel deploy 완료 대기
-2. 테스트 매니저 계정 3개로 라이브 검증:
-   - 호텔 0건 계정 → `gohotelwinners.com/dashboard.html` 입력 시 hotel-info.html로 점프 확인
-   - pending 호텔 계정 → 동일 → sales.html로 점프 확인
-   - paid 호텔 계정 → 동일 → dashboard 정상 노출 확인
-3. 모두 통과 시 `[step:done:5]` 박음 → BL-USER-STAGE-GATING 100% 종료
+### 검증 방식: Playwright 헤드리스 자동 검증 (B안)
+
+- **임시 계정 3개 자동 생성**: Supabase Admin API로 `t_a_*` / `t_b_*` / `t_c_*` 박음
+- **hotels.status 세 상태로 박음**: 0건 / pending / paid
+- **Playwright로 각 계정 로그인 → dashboard.html 직접 진입 → redirect 결과 검증**
+- **검증 후 임시 계정·호텔 자동 삭제** (auth.users + hotels DELETE)
+- 검증 스크립트 영구 보존: `_screenshots/2026-05-21-bl-user-stage-gating/verify_gating.js`
+
+### 결과: 3/3 PASS ✅
+
+| 케이스 | status | dashboard.html 진입 시 | 결과 |
+|---|---|---|---|
+| A_zero_hotel | (호텔 0건) | → hotel-info.html (호텔 등록 모달) | ✅ PASS |
+| B_pending | pending | → sales.html (Activate your listing) | ✅ PASS |
+| C_paid | paid | dashboard 정상 노출 (Paid 배지 + 진행 단계바) | ✅ PASS |
+
+### 스크린샷 3장 (`_screenshots/2026-05-21-bl-user-stage-gating/`)
+
+- `gating_A_zero_hotel.png` — hotel-info.html "Before you begin" 모달 정상 노출
+- `gating_B_pending.png` — sales.html "Activate your listing" + TEST_HOTEL_72580d48 + Pending 배지
+- `gating_C_paid.png` — Dashboard + Paid 배지 + Pay 단계 진행바 + "Payment Received" 메시지
+
+### 부수 발견 (별도 BL 후보)
+
+- sales.html이 라이트 배경으로 보임 (Aurora Trendy 다크 적용 안 됨) — CLAUDE.md 5장에 "남은 페이지: sales / marketing / hotel-info / booking-analytics / admin" 명시됨 → BL-SALES-AURORA-MIGRATION 별도 진행 필요. 게이트 BL과 무관.
+- nav 흐름 분석에서 B/C 케이스가 `login.html → manager-dashboard.html → dashboard.html` 거쳐감 — 이중 redirect 발생. 동작상 문제 없으나 최적화 여지 (manager-dashboard.html → dashboard.html 직접 점프 가능). 별도 BL 후보.
 
 ## 📝 commit/push 후 자동 추적
 
 - chat-log slug: `2026-05-21-bl-user-stage-gating-steps-1-to-4`
 - index.json byTask 매핑: 이 파일 commit 시 chat-log-indexer-bot가 자동 갱신
-- tasks.json `progress.steps` 1~4 done 마킹 + commit 태그 `[step:done:1][step:done:2][step:done:3][step:done:4]` → auto-detect-bot이 자동 갱신
+- tasks.json `progress.steps` 1~5 done 마킹 + commit 태그 `[step:done:5]` → auto-detect-bot이 자동 갱신
+- BL-USER-STAGE-GATING **100% 종료**

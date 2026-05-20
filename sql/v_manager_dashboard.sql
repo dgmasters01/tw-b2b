@@ -205,13 +205,35 @@ ORDER BY b.booked_at DESC;
 -- =============================================================================
 -- 권한 (RLS는 별도 정책으로 — 매니저는 본인 hotels만 SELECT)
 -- =============================================================================
-GRANT SELECT ON v_manager_hotels             TO authenticated, anon;
-GRANT SELECT ON v_manager_video_summary      TO authenticated, anon;
-GRANT SELECT ON v_manager_booking_stats      TO authenticated, anon;
-GRANT SELECT ON v_manager_payments           TO authenticated, anon;
-GRANT SELECT ON v_manager_country_distribution TO authenticated, anon;
-GRANT SELECT ON v_manager_monthly_trend      TO authenticated, anon;
-GRANT SELECT ON v_manager_recent_bookings    TO authenticated, anon;
+GRANT SELECT ON v_manager_hotels             TO authenticated;
+GRANT SELECT ON v_manager_video_summary      TO authenticated;
+GRANT SELECT ON v_manager_booking_stats      TO authenticated;
+GRANT SELECT ON v_manager_payments           TO authenticated;
+GRANT SELECT ON v_manager_country_distribution TO authenticated;
+GRANT SELECT ON v_manager_monthly_trend      TO authenticated;
+GRANT SELECT ON v_manager_recent_bookings    TO authenticated;
+
+-- =============================================================================
+-- BL-MGR-HOTELS-RLS (2026-05-20): VIEW security_invoker + anon REVOKE
+-- =============================================================================
+-- 사유: VIEW 기본은 정의자 권한 → RLS 우회. security_invoker로 호출자 권한 강제
+-- 전제: bookings_self/agoda/videos/payments 테이블에 매니저용 RLS 정책 박혀있음
+ALTER VIEW v_manager_hotels                SET (security_invoker = true);
+ALTER VIEW v_manager_video_summary         SET (security_invoker = true);
+ALTER VIEW v_manager_booking_stats         SET (security_invoker = true);
+ALTER VIEW v_manager_payments              SET (security_invoker = true);
+ALTER VIEW v_manager_country_distribution  SET (security_invoker = true);
+ALTER VIEW v_manager_monthly_trend         SET (security_invoker = true);
+ALTER VIEW v_manager_recent_bookings       SET (security_invoker = true);
+
+-- anon 권한 회수 (긴급 출혈 차단 — 로그인 안 한 사용자 차단)
+REVOKE ALL ON v_manager_hotels                FROM anon;
+REVOKE ALL ON v_manager_video_summary         FROM anon;
+REVOKE ALL ON v_manager_booking_stats         FROM anon;
+REVOKE ALL ON v_manager_payments              FROM anon;
+REVOKE ALL ON v_manager_country_distribution  FROM anon;
+REVOKE ALL ON v_manager_monthly_trend         FROM anon;
+REVOKE ALL ON v_manager_recent_bookings       FROM anon;
 
 -- =============================================================================
 -- 검증 쿼리 (Supabase SQL Editor 붙여넣기 금지 — 자동 실행)

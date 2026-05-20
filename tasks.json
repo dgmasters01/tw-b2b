@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-20T17:54:57+00:00",
+  "updated_at": "2026-05-20T18:08:29+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -13,8 +13,8 @@
   ],
   "stats": {
     "total": 236,
-    "done": 173,
-    "in_progress": 1,
+    "done": 174,
+    "in_progress": 0,
     "paused": 0,
     "pending": 45,
     "blocked": 10,
@@ -15616,7 +15616,7 @@
       "category": "feature",
       "priority": "P0",
       "size": "large",
-      "status": "in_progress",
+      "status": "done",
       "autoOK": true,
       "requireApproval": false,
       "createdAt": "2026-05-15T06:10:11.838843+00:00",
@@ -15631,7 +15631,7 @@
       },
       "notes": "단계: ①가입만 함 → 호텔등록 유도 화면 ②호텔등록·미결제 → sales.html 결제유도 ③결제완료 → dashboard.html. dashboard.html 진입 시 hotels.status 확인 후 자동 redirect. BL-SALES-PAGE-BUILD가 먼저 박혀야 함.",
       "progress": {
-        "percent": 80,
+        "percent": 100,
         "steps": [
           {
             "n": 1,
@@ -15670,15 +15670,16 @@
             "label": "각 단계 테스트 매니저로 라이브 검증 + commit + chat-log",
             "title": "라이브 검증",
             "status": "pending",
-            "done": false
+            "done": true,
+            "at": "2026-05-20T18:08:29+00:00"
           }
         ],
-        "completed_count": 4,
+        "completed_count": 5,
         "total_count": 5,
-        "updated_at": "2026-05-20T17:54:57+00:00"
+        "updated_at": "2026-05-20T18:08:29+00:00"
       },
       "started_at": "2026-05-15T06:10:23+00:00",
-      "updated_at": "2026-05-20T17:54:57+00:00",
+      "updated_at": "2026-05-20T18:08:29+00:00",
       "history": [
         {
           "at": "2026-05-15T06:10:23+00:00",
@@ -15707,9 +15708,17 @@
           "by": "auto-detect-bot",
           "commit": "d0e4a74",
           "note": "feat(BL-USER-STAGE-GATING): 결제 단계별 강력 차단 게이트 박음 [step:done:1][step:done:2][step:done:3][step:done:4] [변경사유: 결제 안 한 사람이 d"
+        },
+        {
+          "at": "2026-05-20T18:08:29+00:00",
+          "event": "관련 commit 추가 (status 유지) + 단계 5, 100% 도달 → status 자동 전환 (in_progress → done) 완료 (auto-detected)",
+          "by": "auto-detect-bot",
+          "commit": "8da3f7e",
+          "note": "test(BL-USER-STAGE-GATING): 단계 5 라이브 자동 검증 3/3 PASS [step:done:5] [변경사유: Playwright + Supabase Admin API로 임시 계정 3개(t_a/t"
         }
       ],
-      "source": "chat:2026-05-15 영업 깔때기 페이지 구축 (sales.html + 단계별 라우팅)"
+      "source": "chat:2026-05-15 영업 깔때기 페이지 구축 (sales.html + 단계별 라우팅)",
+      "completed_at": "2026-05-20T18:08:29+00:00"
     },
     {
       "id": "BL-SALES-PAGE-BUILD",

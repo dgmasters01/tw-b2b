@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-20T13:29:24+00:00",
+  "updated_at": "2026-05-20T13:30:04+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -16667,23 +16667,25 @@
       "status": "in_progress",
       "priority": "p0",
       "created_at": "2026-05-20T13:28:39.875554Z",
-      "updated_at": "2026-05-20T13:29:24+00:00",
+      "updated_at": "2026-05-20T13:30:04+00:00",
       "progress": {
-        "percent": 0,
+        "percent": 33,
         "steps": [
           {
             "n": 1,
             "label": "shared.js L230: select('id') → select('hotel_id')로 수정 (v_manager_hotels VIEW alias 일치)",
             "title": "컬럼명 1줄 수정",
             "status": "pending",
-            "done": false
+            "done": true,
+            "at": "2026-05-20T13:30:04+00:00"
           },
           {
             "n": 2,
             "label": "자체 검증 — JS 문법 / 변경 라인 / 다른 호출처 영향 없음 재확인",
             "title": "Self-QA",
             "status": "pending",
-            "done": false
+            "done": true,
+            "at": "2026-05-20T13:30:04+00:00"
           },
           {
             "n": 3,
@@ -16713,7 +16715,10 @@
             "status": "pending",
             "done": false
           }
-        ]
+        ],
+        "completed_count": 2,
+        "total_count": 6,
+        "updated_at": "2026-05-20T13:30:04+00:00"
       },
       "context": {
         "지금 무슨 상황이냐면": "결제까지 끝낸 매니저(예: joylife8760@naver.com / The Westin Tokyo / paid)가 로그인 시 manager-dashboard.html이 아니라 dashboard.html(일반 호텔 화면)로 도착하는 버그. checkManager가 v_manager_hotels VIEW를 .select('id', ...)로 호출하는데 VIEW는 'id' 컬럼을 노출하지 않고 'hotel_id'로 alias함. 400 Bad Request → catch 안 가고 r.count=null → 0건 처리 → 매니저 아님 판정.",
@@ -16734,6 +16739,13 @@
           "by": "auto-detect-bot",
           "commit": "6a5c897",
           "note": "[BL-MGR-CHECK-COLUMN-FIX][step:start:0] tasks.json — P0 핫픽스 BL 신규 등록 (checkManager 컬럼명 오류 복구)"
+        },
+        {
+          "at": "2026-05-20T13:30:04+00:00",
+          "event": "진행 중 commit 추가 + 단계 1, 단계 2 완료 (auto-detected)",
+          "by": "auto-detect-bot",
+          "commit": "3beffde",
+          "note": "[BL-MGR-CHECK-COLUMN-FIX][step:done:1][step:done:2] shared.js L230 — checkManager의 v_manager_hotels.select('id') → ('hot"
         }
       ]
     }

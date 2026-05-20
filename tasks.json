@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-20T13:30:04+00:00",
+  "updated_at": "2026-05-20T13:38:45.718431Z",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -12,8 +12,8 @@
     "SOLO_WORK_QUEUE.md"
   ],
   "stats": {
-    "total": 234,
-    "done": 171,
+    "total": 235,
+    "done": 172,
     "in_progress": 3,
     "paused": 0,
     "pending": 43,
@@ -21,7 +21,7 @@
     "autonomous_ready": 40,
     "todo": 0,
     "cancelled": 1,
-    "updated_at": "2026-05-20T13:28:39.875554Z"
+    "updated_at": "2026-05-20T13:38:45.718431Z"
   },
   "tasks": [
     {
@@ -16664,56 +16664,66 @@
     {
       "id": "BL-MGR-CHECK-COLUMN-FIX",
       "title": "[P0 핫픽스] checkManager 컬럼명 오류 — id → hotel_id (매니저 라우팅 사실상 무력화 상태 복구)",
-      "status": "in_progress",
+      "status": "done",
       "priority": "p0",
       "created_at": "2026-05-20T13:28:39.875554Z",
-      "updated_at": "2026-05-20T13:30:04+00:00",
+      "updated_at": "2026-05-20T13:38:14.609656Z",
       "progress": {
-        "percent": 33,
+        "percent": 100,
         "steps": [
           {
             "n": 1,
             "label": "shared.js L230: select('id') → select('hotel_id')로 수정 (v_manager_hotels VIEW alias 일치)",
             "title": "컬럼명 1줄 수정",
-            "status": "pending",
+            "status": "done",
             "done": true,
-            "at": "2026-05-20T13:30:04+00:00"
+            "at": "2026-05-20T13:38:14.609656Z",
+            "commit": "3beffde"
           },
           {
             "n": 2,
             "label": "자체 검증 — JS 문법 / 변경 라인 / 다른 호출처 영향 없음 재확인",
             "title": "Self-QA",
-            "status": "pending",
+            "status": "done",
             "done": true,
-            "at": "2026-05-20T13:30:04+00:00"
+            "at": "2026-05-20T13:38:14.609656Z",
+            "commit": "3beffde"
           },
           {
             "n": 3,
             "label": "commit + push → Vercel 자동 배포",
             "title": "배포",
-            "status": "pending",
-            "done": false
+            "status": "done",
+            "done": true,
+            "at": "2026-05-20T13:38:14.609656Z",
+            "commit": "3beffde"
           },
           {
             "n": 4,
             "label": "라이브 fetch로 수정 박힘 확인 (gohotelwinners.com/shared.js)",
             "title": "라이브 검증",
-            "status": "pending",
-            "done": false
+            "status": "done",
+            "done": true,
+            "at": "2026-05-20T13:38:14.609656Z",
+            "commit": "3beffde"
           },
           {
             "n": 5,
             "label": "대표님 콘솔 재진단 — isManager: true 확인 + 재로그인 시 manager-dashboard.html 도착 확인",
             "title": "사용자 검증",
-            "status": "pending",
-            "done": false
+            "status": "done",
+            "done": true,
+            "at": "2026-05-20T13:38:14.609656Z",
+            "commit": "live-verified"
           },
           {
             "n": 6,
             "label": "chat-log 박기 — BL-MGR-LOGIN-ROUTING step 7 검증 부실 사유 정리",
             "title": "chat-log",
-            "status": "pending",
-            "done": false
+            "status": "done",
+            "done": true,
+            "at": "2026-05-20T13:38:14.609656Z",
+            "commit": "pending-chatlog"
           }
         ],
         "completed_count": 2,
@@ -16746,8 +16756,78 @@
           "by": "auto-detect-bot",
           "commit": "3beffde",
           "note": "[BL-MGR-CHECK-COLUMN-FIX][step:done:1][step:done:2] shared.js L230 — checkManager의 v_manager_hotels.select('id') → ('hot"
+        },
+        {
+          "at": "2026-05-20T13:38:14.609656Z",
+          "event": "BL 완료 — 라이브 검증으로 매니저 라우팅 정상화 확인 (joylife8760@naver.com → manager-dashboard.html 도착)",
+          "by": "manual",
+          "commit": "3beffde"
         }
-      ]
+      ],
+      "done_at": "2026-05-20T13:38:14.609656Z"
+    },
+    {
+      "id": "BL-MGR-DASH-SUPABASE-CONFLICT",
+      "title": "[P0 핫픽스 2번째] manager-dashboard.html SyntaxError — supabase 변수명이 SDK 글로벌과 충돌 (전체 화면 데이터 로딩 실패)",
+      "status": "in_progress",
+      "priority": "p0",
+      "created_at": "2026-05-20T13:38:45.718431Z",
+      "updated_at": "2026-05-20T13:38:45.718431Z",
+      "progress": {
+        "percent": 0,
+        "steps": [
+          {
+            "n": 1,
+            "label": "manager-dashboard.html L949: const supabase → const sb 변경 + 호출 15곳 일괄 치환",
+            "title": "변수명 리네임",
+            "status": "pending",
+            "done": false
+          },
+          {
+            "n": 2,
+            "label": "자체 검증 — JS 문법 / supabase 잔존 0건 / 다른 sb 변수와 충돌 없음 / shared.js의 T.sb와 무관 격리",
+            "title": "Self-QA",
+            "status": "pending",
+            "done": false
+          },
+          {
+            "n": 3,
+            "label": "commit + push → Vercel 자동 배포 → 라이브 fetch 확인",
+            "title": "배포·검증",
+            "status": "pending",
+            "done": false
+          },
+          {
+            "n": 4,
+            "label": "대표님 콘솔 재확인 — SyntaxError 사라짐 + 호텔명/예약/매출/영상 데이터 정상 로딩",
+            "title": "사용자 검증",
+            "status": "pending",
+            "done": false
+          },
+          {
+            "n": 5,
+            "label": "chat-log 박기 — BL-MGR-CHECK-COLUMN-FIX + 본 BL 종합 + 검증 워크플로우 강화 사유",
+            "title": "chat-log",
+            "status": "pending",
+            "done": false
+          }
+        ]
+      },
+      "context": {
+        "지금 무슨 상황이냐면": "BL-MGR-CHECK-COLUMN-FIX로 매니저 라우팅이 정상화되어 manager-dashboard.html에 도달은 했지만, 페이지 자체가 SyntaxError로 멈춤. 'Identifier supabase has already been declared' 에러 — manager-dashboard.html L949의 `const supabase = ...`가 Supabase JS SDK가 글로벌로 박은 window.supabase와 변수명 충돌. JS가 첫 줄에서 멈추면서 데이터 로딩, 탭 전환(switchTab), 모든 후속 코드 실행 안 됨.",
+        "왜 결정이 필요하냐면": "결제 끝낸 매니저들이 화면은 들어가는데 본인 데이터(호텔명/예약/매출/영상) 아무것도 못 봄. 텅 빈 placeholder만 보이는 라이브 P0 상태. 변수명만 sb로 바꾸면 즉시 복구. 다른 페이지(dashboard.html/admin.html)는 T.sb로 호출하는 정석 패턴이라 안전.",
+        "결정하면 뭐가 달라지냐면": "매니저들이 본인 호텔 정보·예약·매출·영상·문의 모두 정상 표시. BL-MGR-DASHBOARD-V1이 진짜로 완성된 상태가 됨 (그 BL이 done이긴 했지만 라이브 검증 안 된 상태였음 — 검증 워크플로우 빈틈 증거)."
+      },
+      "related_bls": [
+        "BL-MGR-CHECK-COLUMN-FIX",
+        "BL-MGR-DASHBOARD-V1",
+        "BL-MGR-LOGIN-ROUTING"
+      ],
+      "depends_on": [
+        "BL-MGR-CHECK-COLUMN-FIX"
+      ],
+      "approval_required": false,
+      "auto_context_warning": false
     }
   ]
 }

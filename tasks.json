@@ -16539,6 +16539,67 @@
           "note": "[BL-MGR-LOGIN-ROUTING][step:done:3] register to tasks.json (retrospective)"
         }
       ]
+    },
+    {
+      "id": "BL-MGR-HOTELS-RLS",
+      "title": "[매니저 데이터 RLS 격리] 매니저 VIEW 7개 + 하부 테이블 RLS 완벽 차단",
+      "status": "in_progress",
+      "priority": "critical",
+      "created_at": "2026-05-20T12:14:23.363448+00:00",
+      "context": "BL-MGR-LOGIN-ROUTING 작업 중 발견: v_manager_hotels 등 7개 VIEW가 reloptions=null (RLS 우회 상태) + anon 권한 부여됨. 매니저 데이터 외부 노출 가능 결함. PG 17.6이므로 security_invoker=true 사용. 하부 테이블(videos/bookings_unified/payments/channels) RLS 정책 부재 또는 검증 필요. 매니저 2명(롯데 시애틀, 웨스틴 도쿄) 데이터 보호 + 향후 50명+ 확장 대비.",
+      "progress": {
+        "steps": [
+          {
+            "n": 1,
+            "label": "tasks.json BL 등록 + 진단 결과 기록",
+            "title": "BL 등록",
+            "status": "pending",
+            "done": false
+          },
+          {
+            "n": 2,
+            "label": "VIEW 7개 anon 권한 회수 (긴급 출혈 차단)",
+            "title": "anon REVOKE",
+            "status": "pending",
+            "done": false
+          },
+          {
+            "n": 3,
+            "label": "videos 테이블 매니저 RLS 정책 신설",
+            "title": "videos RLS",
+            "status": "pending",
+            "done": false
+          },
+          {
+            "n": 4,
+            "label": "bookings_unified 매니저 RLS 정책 신설",
+            "title": "bookings_unified RLS",
+            "status": "pending",
+            "done": false
+          },
+          {
+            "n": 5,
+            "label": "payments 매니저 RLS 정책 검증/신설",
+            "title": "payments RLS",
+            "status": "pending",
+            "done": false
+          },
+          {
+            "n": 6,
+            "label": "VIEW 7개 security_invoker=true 박기",
+            "title": "VIEW security_invoker",
+            "status": "pending",
+            "done": false
+          },
+          {
+            "n": 7,
+            "label": "라이브 검증 (매니저 본인 데이터 + 차단 동시 확인)",
+            "title": "라이브 검증",
+            "status": "pending",
+            "done": false
+          }
+        ]
+      }
     }
   ]
 }

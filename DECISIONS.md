@@ -10,6 +10,39 @@
 
 ---
 
+## 🆕 2026-05-21 — 재발송 시 옛 초대장 자동 무효 (BL-ADMIN-USER-MANAGEMENT step5-3)
+
+### D-042: A 정책 — 한 사람당 활성 초대 링크 1개 보장
+
+**언제**: 2026-05-21
+**누가**: 이지형 대표
+**상태**: ✅ 박힘 (commit `bbf4d86` + `6291e3a`)
+
+**무엇을:**
+- 같은 이메일로 `?action=auth-invite` 재호출 시:
+  - 옛 동작: 미수락 pending 있으면 409 차단 ("Pending invitation already exists")
+  - 새 동작: 옛 pending 자동 `cancelled_at` 박고 새 토큰 발급 + 새 메일 발송
+- 응답에 `resend_of: [cancelled_id...]` 박음 (재발송 추적)
+- `role_change_log.action` = `'reinvited'` (첫 발송 `'invited'`와 구분)
+- 단계 5-4의 Resend 버튼이 이 정책에 의존 (별도 API 없이 그냥 `invite` 재호출)
+
+**왜:**
+- 직원이 "초대 메일 못 받았어요" 할 때 admin이 다시 보낼 수 있어야 함.
+- B안(둘 다 유효): 같은 이메일이 `admin_invitations`에 N줄 누적 → "초대 대기" 섹션 지저분.
+- A안(옛 cancel + 새 발급): Slack/Notion/Linear 표준 패턴. 한 사람당 활성 링크 1개 → 깔끔.
+- 추적성: cancelled 이력은 `admin_invitations.cancelled_at` + `role_change_log` 양쪽에 영구 기록.
+
+**연관:**
+- 상위 결정: D-015 (BL-ADMIN-AUTH-V2)
+- 직접 부모: D-041 (UI 정렬)
+- 박힌 파일: `api/_lib/admin-auth-handlers.js` (handleInvite 함수)
+- 작업 BL: BL-ADMIN-USER-MANAGEMENT step 5-3
+
+**추후 보완 후보 (지금은 박지 않음):**
+- 30~60초 쿨다운 (스팸 방지) — 직원 20명+ 단계 진입 시 신설.
+
+---
+
 ## 🆕 2026-05-20 — D-015와 admin.html UI 불일치 해소 (BL-ADMIN-USER-MANAGEMENT step5)
 
 ### D-041: Team 탭 UI를 D-015(초대 전용) 결정대로 정렬 + ⋯ 메뉴 박기

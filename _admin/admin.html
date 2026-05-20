@@ -728,10 +728,19 @@ body{margin:0;background:var(--bg,#0A0A0F);font-family:var(--sans,'Inter','Noto 
           <h3>Team Members (Admins)</h3>
           <button class="ad-btn ad-btn-primary" id="btn-add-admin">+ Add Team Member</button>
         </div>
-        <p style="color:#666;font-size:13px;margin:0 0 14px;">Admins can access this dashboard and manage hotels. Only Super Admins can add/remove team members.</p>
+        <p style="color:#666;font-size:13px;margin:0 0 14px;">Internal team accounts. Owner and admin can invite new members. Owner role is SQL-only (D-015 protection).</p>
         <div id="admins-area">
           <div class="ad-loading"><div class="ad-loader"></div><span>Loading team...</span></div>
         </div>
+      </div>
+
+      <!-- 5-4: 초대 대기 섹션 -->
+      <div class="ad-card" id="admins-pending-card" style="margin-top:18px;display:none;">
+        <div class="ad-card-h">
+          <h3>Pending invitations <span id="admins-pending-count" style="font-size:13px;color:#888;font-weight:400;"></span></h3>
+        </div>
+        <p style="color:#666;font-size:13px;margin:0 0 14px;">Invitations sent but not yet accepted. Resend overwrites the previous link (D-042: one active link per person).</p>
+        <div id="admins-pending-area"></div>
       </div>
     </div>
 
@@ -2593,11 +2602,117 @@ body{margin:0;background:var(--bg,#0A0A0F);font-family:var(--sans,'Inter','Noto 
     }
   }
 
-  // 5-4 placeholder: 초대 대기 섹션 (단계 5-4에서 본격 구현)
+  // 5-4: 초대 대기 섹션 본격 구현
   function renderPendingInvitations(invitations){
+    var card = document.getElementById('admins-pending-card');
     var area = document.getElementById('admins-pending-area');
-    if (!area) return;  // 단계 5-4에서 DOM 추가됨
-    // (5-4에서 구현)
+    var countEl = document.getElementById('admins-pending-count');
+    if (!card || !area) return;
+    invitations = invitations || [];
+    if (invitations.length === 0) {
+      card.style.display = 'none';
+      return;
+    }
+    card.style.display = '';
+    countEl.textContent = '(' + invitations.length + ')';
+
+    var canManage = (currentAdminRole === 'owner' || currentAdminRole === 'admin');
+    var html = '<div class="ad-table-wrap"><table class="ad-table">';
+    html += '<thead><tr><th>Email</th><th>Name</th><th>Role</th><th>Invited</th><th>Expires</th><th></th></tr></thead><tbody>';
+    invitations.forEach(function(inv){
+      var roleColor = inv.role === 'admin' ? '#534AB7' : (inv.role === 'staff' ? '#0a7c3a' : '#888');
+      var invitedAt = inv.invited_at ? new Date(inv.invited_at).toISOString().substring(0,10) : '—';
+      var expiresAt = new Date(inv.expires_at);
+      var daysLeft = Math.ceil((expiresAt - Date.now()) / (1000*60*60*24));
+      var expiresColor = daysLeft <= 1 ? '#c93030' : (daysLeft <= 3 ? '#d97706' : '#666');
+      var expiresLabel = daysLeft <= 0 ? 'expired' : (daysLeft + ' day' + (daysLeft === 1 ? '' : 's') + ' left');
+      var actions = '';
+      if (canManage) {
+        actions =
+          '<button class="ad-btn pinv-resend" data-email="' + inv.email + '" data-role="' + inv.role + '" data-name="' + (inv.display_name || '').replace(/"/g, '&quot;') + '" style="margin-right:6px;padding:5px 10px;font-size:12px;background:rgba(99,102,241,.15);border:1px solid rgba(99,102,241,.4);color:#a5b4fc;">📧 Resend</button>' +
+          '<button class="ad-btn pinv-cancel" data-id="' + inv.id + '" data-email="' + inv.email + '" style="padding:5px 10px;font-size:12px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.35);color:#fca5a5;">✕ Cancel</button>';
+      }
+      html += '<tr>';
+      html += '<td><strong>' + inv.email + '</strong></td>';
+      html += '<td>' + (inv.display_name || '—') + '</td>';
+      html += '<td><span style="color:' + roleColor + ';font-weight:600;font-size:12px;">' + inv.role + '</span></td>';
+      html += '<td>' + invitedAt + '</td>';
+      html += '<td><span style="color:' + expiresColor + ';font-size:12px;">' + expiresLabel + '</span></td>';
+      html += '<td style="text-align:right;">' + actions + '</td>';
+      html += '</tr>';
+    });
+    html += '</tbody></table></div>';
+    area.innerHTML = html;
+
+    // Bind Resend buttons → invite 호출 (A 정책: 자동 cancel + 새 발송)
+    document.querySelectorAll('.pinv-resend').forEach(function(btn){
+      btn.addEventListener('click', async function(){
+        var email = btn.getAttribute('data-email');
+        var role = btn.getAttribute('data-role');
+        var name = btn.getAttribute('data-name');
+        if (!confirm('Resend invitation to ' + email + '?\n\nThe previous link will be invalidated immediately.\nA new email will be sent.')) return;
+        btn.disabled = true;
+        btn.textContent = '⏳ Sending...';
+        try {
+          var sess = await T.sb.auth.getSession();
+          var token = sess.data.session && sess.data.session.access_token;
+          var resp = await fetch('/api/admin?action=auth-invite', {
+            method: 'POST',
+            headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: email, role: role, display_name: name || null })
+          });
+          var body = await resp.json();
+          if (!resp.ok) {
+            alert('❌ Failed: ' + (body.error || resp.status));
+            btn.disabled = false;
+            btn.textContent = '📧 Resend';
+            return;
+          }
+          var resendNote = (body.resend_of && body.resend_of.length > 0)
+            ? '\n\nPrevious ' + body.resend_of.length + ' invitation(s) invalidated.'
+            : '';
+          alert('✅ Invitation resent to ' + email + resendNote);
+          loadAdmins();
+        } catch(e) {
+          alert('❌ Error: ' + e.message);
+          btn.disabled = false;
+          btn.textContent = '📧 Resend';
+        }
+      });
+    });
+
+    // Bind Cancel buttons → cancel-invite 호출
+    document.querySelectorAll('.pinv-cancel').forEach(function(btn){
+      btn.addEventListener('click', async function(){
+        var id = btn.getAttribute('data-id');
+        var email = btn.getAttribute('data-email');
+        if (!confirm('Cancel invitation to ' + email + '?\n\nThe link will stop working immediately.\nYou can send a new invitation later.')) return;
+        btn.disabled = true;
+        btn.textContent = '⏳';
+        try {
+          var sess = await T.sb.auth.getSession();
+          var token = sess.data.session && sess.data.session.access_token;
+          var resp = await fetch('/api/admin?action=auth-cancel-invite', {
+            method: 'POST',
+            headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ invitation_id: id })
+          });
+          var body = await resp.json();
+          if (!resp.ok) {
+            alert('❌ Failed: ' + (body.error || resp.status));
+            btn.disabled = false;
+            btn.textContent = '✕ Cancel';
+            return;
+          }
+          alert('✅ Invitation cancelled for ' + email);
+          loadAdmins();
+        } catch(e) {
+          alert('❌ Error: ' + e.message);
+          btn.disabled = false;
+          btn.textContent = '✕ Cancel';
+        }
+      });
+    });
   }
 
   function renderAdmins(admins){

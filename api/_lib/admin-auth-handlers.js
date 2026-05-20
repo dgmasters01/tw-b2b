@@ -116,10 +116,14 @@ export default async function adminAuthHandler(req, res) {
         if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
         return await handleChangeRole(req, res);
 
+      case 'cancel-invite':
+        if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+        return await handleCancelInvite(req, res);
+
       default:
         return res.status(400).json({
           error: 'Invalid or missing action',
-          supported: ['users-list', 'invite', 'accept-invite', 'change-role']
+          supported: ['users-list', 'invite', 'accept-invite', 'change-role', 'cancel-invite']
         });
     }
   } catch (e) {
@@ -385,6 +389,55 @@ async function handleInvite(req, res) {
       warning: 'Invitation saved but Resend error: ' + e.message
     });
   }
+}
+
+// ───────────────────────────────────────────────────────────────
+// 2b) cancel-invite (POST) — 5-4: 박힌 초대 강제 취소
+// ───────────────────────────────────────────────────────────────
+
+async function handleCancelInvite(req, res) {
+  const result = await requireCaller(req, res, ['owner', 'admin']);
+  if (!result) return;
+  const { caller } = result;
+
+  const { invitation_id } = req.body || {};
+  if (!invitation_id) return res.status(400).json({ error: 'invitation_id required' });
+
+  const sb = getServiceClient();
+  if (!sb) return res.status(500).json({ error: 'Service role key not configured' });
+
+  // 대상 조회 (취소 가능 여부 검증)
+  const { data: inv, error: getErr } = await sb
+    .from('admin_invitations')
+    .select('id, email, role, accepted_at, cancelled_at')
+    .eq('id', invitation_id)
+    .maybeSingle();
+  if (getErr) return res.status(500).json({ error: getErr.message });
+  if (!inv) return res.status(404).json({ error: 'Invitation not found' });
+  if (inv.accepted_at) return res.status(409).json({ error: 'Already accepted — use change-role to revoke instead' });
+  if (inv.cancelled_at) return res.status(409).json({ error: 'Already cancelled' });
+
+  // 취소 처리
+  const nowIso = new Date().toISOString();
+  const { error: updErr } = await sb
+    .from('admin_invitations')
+    .update({ cancelled_at: nowIso })
+    .eq('id', invitation_id);
+  if (updErr) return res.status(500).json({ error: 'Cancel failed: ' + updErr.message });
+
+  // 활동 이력
+  await sb.from('role_change_log').insert({
+    target_user_id: '00000000-0000-0000-0000-000000000000',
+    target_email: inv.email,
+    action: 'invite_cancelled',
+    after_role: inv.role,
+    after_active: false,
+    performed_by: caller.id,
+    performed_by_email: caller.email,
+    metadata: { invitation_id: inv.id }
+  });
+
+  return res.status(200).json({ ok: true, cancelled_id: inv.id, email: inv.email });
 }
 
 // ───────────────────────────────────────────────────────────────

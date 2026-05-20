@@ -14711,18 +14711,63 @@
             "label": "Team(Admins) 탭 + Add Team Member 흐름 + ⋯ 메뉴",
             "title": "Team 탭 ⋯ 메뉴",
             "status": "pending",
-            "done": false
+            "done": false,
+            "sub_steps": [
+              {
+                "n": "5-1",
+                "label": "tasks.json sub-steps + D-041 + chat-log Week2.5 박기 (인계서 준비)",
+                "status": "pending",
+                "done": false
+              },
+              {
+                "n": "5-2",
+                "label": "_admin/admin.html renderAdmins() 재작성 — Remove 단일 → ⋯ 메뉴 (활성/비활성/권한변경/제거/이력)",
+                "status": "pending",
+                "done": false
+              },
+              {
+                "n": "5-3",
+                "label": "_admin/admin.html Add Team Member 모달 — 직접 insert 폐기 → ?action=auth-invite 호출",
+                "status": "pending",
+                "done": false
+              },
+              {
+                "n": "5-4",
+                "label": "_admin/admin.html Team 탭에 '초대 대기' 섹션 신설 (admin_invitations.status='pending' + 재발송/취소)",
+                "status": "pending",
+                "done": false
+              },
+              {
+                "n": "5-5",
+                "label": "am-modal (admin 작업 모달) 박기 — um-modal/hm-modal 동일 디자인 패턴",
+                "status": "pending",
+                "done": false
+              },
+              {
+                "n": "5-6",
+                "label": "라이브 검증(Vercel + 실제 초대 메일 발송 테스트) + chat-log Week3 + tasks.json done",
+                "status": "pending",
+                "done": false
+              }
+            ],
+            "discovery": {
+              "at": "2026-05-20T16:19:21.562832+00:00",
+              "by": "claude",
+              "finding": "D-015(2026-05-05 BL-ADMIN-AUTH-V2)가 admin을 초대 전용으로 결정했는데 admin.html UI는 line 2645에서 admins 테이블 직접 insert 중. 2주 동안 그림 불일치 방치. 단계 5에서 UI 정렬 + ⋯ 메뉴 둘 다 박음.",
+              "decision": "D-041",
+              "chat_log": "_chat-logs/2026-05-20-bl-admin-user-management-week2-5-d015-discovery.md"
+            }
           }
         ]
       },
-      "notes": "단계 1·2·3 완료 (API 3종 + Members 탭). Hotels·Team 탭 ⋯ 메뉴는 다음 채팅. 분량 정직 끊기.",
+      "notes": "단계 1~4 완료. 단계 5 시작 전 D-015 불일치 발견(D-041 박음). sub_steps 6개로 분할. 5-1은 인계서 준비(이 채팅), 5-2~5-6은 새 채팅에서. 분량 정직 끊기.",
       "biz_context_v2": {
         "지금_무슨_상황이냐면": "admin 화면에서 잘못 가입한 사람 삭제 버튼 0개. 권한 변경 UI 0개. 새 직원 admin 추가하는 Team 페이지 버튼은 있는데 admin_invitations 테이블 비어있음 — 실제 작동 안 함. 결함 발견해도 대표님이 SQL 손대야 처리 가능.",
         "왜_결정이_필요하냐면": "BL-SECURITY-SIGNUP-TRIGGER 끝나도 앞으로 또 잘못 가입한 사람 생길 수 있음. 실제 영업 직원 채용 시 admin 추가도 필요. SQL 수동 작업은 헌법 1조(대표님은 결정만) 위반.",
         "결정하면_뭐가_달라지냐면": "admin 화면 한 곳에서 모든 사용자 관리. 누가 언제 무엇을 했는지 자동 기록. 영업 직원 채용·퇴사 흐름 정상 작동."
       },
       "created_at": "2026-05-13T09:01:35.824392Z",
-      "updated_at": "2026-05-15T15:56:00+00:00",
+      "updated_at": "2026-05-20T16:19:21.562832+00:00",
       "source": "chat:2026-05-13 보안 진단",
       "target_pages": [
         "/admin.html#tab-hotels",
@@ -14780,6 +14825,12 @@
           "by": "auto-detect-bot",
           "commit": "d9a123b",
           "note": "fix(BL-ADMIN-USER-MANAGEMENT): 호텔 ⋯ 모달 CSS 클래스 정정 — 라이브 .ad-modal.show 룰 없어서 보이지 않던 사고 [변경사유: 사용자 보고 — 버튼 보이는데 클릭해도 모달 안"
+        },
+        {
+          "at": "2026-05-20T16:19:21.562832+00:00",
+          "event": "단계 5 sub_steps 6개 박음 + D-041 발견 (D-015↔admin.html UI 불일치)",
+          "by": "claude",
+          "note": "라이브 fetch 결과 D-015 결정과 admin.html line 2645 불일치 2주 방치 발견. 단계 5에서 UI 정렬(B 흐름으로) + ⋯ 메뉴 통합 박음. 5-1 인계서 준비는 이번 채팅, 5-2~5-6은 새 채팅."
         }
       ]
     },

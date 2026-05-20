@@ -10,6 +10,46 @@
 
 ---
 
+## 🆕 2026-05-20 — D-015와 admin.html UI 불일치 해소 (BL-ADMIN-USER-MANAGEMENT step5)
+
+### D-041: Team 탭 UI를 D-015(초대 전용) 결정대로 정렬 + ⋯ 메뉴 박기
+
+**언제**: 2026-05-20
+**누가**: 이지형 대표
+**상태**: 🟡 결정 박힘, 작업은 새 채팅에서 (BL-ADMIN-USER-MANAGEMENT step5-2~5-6)
+
+**무엇을:**
+- `_admin/admin.html` Team(Admins) 탭 UI를 D-015 결정대로 재작성.
+- Add Team Member 모달이 `admins` 테이블에 직접 insert하던 흐름 폐기 → `/api/admin?action=auth-invite` 호출 (실제 초대 메일 발송).
+- Team 행에 ⋯ 메뉴 박기: 활성/비활성 토글, 권한 변경(admin↔staff↔readonly), 제거, 이력 보기 (role_change_log 기반).
+- "초대 대기" 섹션 신설: `admin_invitations.status='pending'` 표시 + 재발송/취소.
+- `am-modal` (admin 작업 모달) 박기 — Members 탭 `um-modal` / Hotels 탭 `hm-modal`과 동일 디자인 패턴.
+
+**왜:**
+- D-015(2026-05-05 BL-ADMIN-AUTH-V2)가 "admin은 초대 전용(owner 발송)"으로 결정 박음. SQL/API/수락 페이지까지 다 박혀있음.
+- 그런데 `_admin/admin.html` Team 탭만 D-015 결정 무시하고 `T.sb.from('admins').insert()` 직접 박는 흐름으로 작동 중 (line 2645).
+- 2주 동안 그림 불일치 방치. 인계서 `biz_context_v2`의 "admin_invitations 비어있음 — 실제 작동 안 함"이 바로 이 상태.
+- 정석 = D-015 결정 따르기. 우회·임시 흐름 박기 금지 (헌법 부칙 3 + 12조).
+
+**왜 2주 동안 안 잡혔나:**
+- Team 탭이 실사용 0건 (직원 0명 단계). 누구도 "초대 메일 안 오네?" 발견 못 함.
+- 헌법 12조 "그림 일치" 강제 봇이 결정→UI 일치 검사 안 함.
+- BL-ADMIN-USER-MANAGEMENT step5 시작 시점에 사람(Claude+대표님)이 라이브 fetch로 발견.
+
+**예방책 후보 (별도 BL):**
+- `BL-DECISION-UI-SYNC-BOT` — 새 결정 박힐 때 영향 페이지 목록 박고, 그 페이지가 실제로 결정 따르는지 라이브 검증.
+
+**박힐 파일 (step 5-2~5-6):**
+- `_admin/admin.html` — renderAdmins() / Add Team Member 모달 / 초대 대기 섹션 / am-modal
+- 신규 API는 없음 — 이미 박힌 `?action=auth-invite / auth-accept-invite / auth-change-role / auth-users-list` 호출만.
+
+**연관:**
+- 상위 결정: D-015 (BL-ADMIN-AUTH-V2 권한 정책 본체)
+- 발생 chat-log: `_chat-logs/2026-05-20-bl-admin-user-management-week2-5-d015-discovery.md`
+- 작업 BL: BL-ADMIN-USER-MANAGEMENT step 5-2 ~ 5-6 (새 채팅에서 진행)
+
+---
+
 ## 🆕 2026-05-18 — 매니저 대시보드 V1 라이브 출시 (BL-MGR-DASHBOARD-V1)
 
 ### D-040: 매니저 전용 대시보드 5탭을 독립 페이지로 운영

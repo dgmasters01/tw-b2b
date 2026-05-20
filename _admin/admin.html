@@ -1168,7 +1168,7 @@ body{margin:0;background:var(--bg,#0A0A0F);font-family:var(--sans,'Inter','Noto 
 
   // 인증 게이트는 middleware.js (Edge Routing Middleware)가 처리.
   // BL-ADMIN-AUTH-PERF (D-021) — A-2 정석.
-  // role 정보(super_admin/admin/support)는 UI 분기에 필요해서 별도 조회.
+  // role 정보(owner/admin/staff/readonly D-015)는 UI 분기에 필요해서 별도 조회.
   T.sb.auth.getSession().then(async function(r){
     if (!r.data.session) {
       // middleware가 이미 차단했어야 하는 케이스 — 안전망
@@ -1188,8 +1188,8 @@ body{margin:0;background:var(--bg,#0A0A0F);font-family:var(--sans,'Inter','Noto 
     currentAdminRole = role;
     var roleEl = document.getElementById('admin-role');
     if (roleEl) roleEl.textContent = role;
-    // Super admin이 아니면 "Add Team Member" 버튼 숨김
-    if (role !== 'super_admin') {
+    // D-015: owner와 admin만 팀원 초대 가능 (옛 super_admin 단일 조건 폐기)
+    if (role !== 'owner' && role !== 'admin') {
       var addBtn = document.getElementById('btn-add-admin');
       if (addBtn) addBtn.style.display = 'none';
     }
@@ -3359,7 +3359,7 @@ body{margin:0;background:var(--bg,#0A0A0F);font-family:var(--sans,'Inter','Noto 
   function openBselfModal(rec){
     var isEdit = !!rec;
     $('bself-modal-title').textContent = isEdit ? ('Edit Booking — ' + (rec.booking_code || '')) : 'New Self-Sourced Booking';
-    $('btn-bself-delete').style.display = (isEdit && currentAdminRole === 'super_admin') ? 'inline-block' : 'none';
+    $('btn-bself-delete').style.display = (isEdit && (currentAdminRole === 'owner' || currentAdminRole === 'admin')) ? 'inline-block' : 'none';
     $('bself-id').value = isEdit ? rec.id : '';
 
     function setVal(id, v){ var el = $(id); if (el) el.value = (v == null ? '' : v); }

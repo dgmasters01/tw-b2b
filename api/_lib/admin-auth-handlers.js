@@ -294,17 +294,26 @@ async function handleInvite(req, res) {
     return res.status(409).json({ error: `User already exists as ${existing.role}` });
   }
 
-  // 미수락 초대 확인
-  const { data: pendingInv } = await sb
+  // 미수락 초대 확인 → D-042 (2026-05-21): A 정책
+  //   기존: pending 있으면 409 반환 (재발송 차단)
+  //   변경: pending 자동 cancel + 새 토큰 발급 (한 사람당 활성 링크 1개 보장)
+  //   같은 email 여러 줄이 admin_invitations 누적 안 됨. 옛 링크는 즉시 무효.
+  const nowIso = new Date().toISOString();
+  const { data: previousPending } = await sb
     .from('admin_invitations')
-    .select('id, expires_at')
+    .select('id')
     .eq('email', email)
     .is('accepted_at', null)
     .is('cancelled_at', null)
-    .gte('expires_at', new Date().toISOString())
-    .maybeSingle();
-  if (pendingInv) {
-    return res.status(409).json({ error: 'Pending invitation already exists', invitation_id: pendingInv.id });
+    .gte('expires_at', nowIso);
+  let resendOf = null;
+  if (previousPending && previousPending.length > 0) {
+    const cancelIds = previousPending.map(p => p.id);
+    await sb
+      .from('admin_invitations')
+      .update({ cancelled_at: nowIso })
+      .in('id', cancelIds);
+    resendOf = cancelIds;
   }
 
   // 초대 박기
@@ -328,12 +337,14 @@ async function handleInvite(req, res) {
   await sb.from('role_change_log').insert({
     target_user_id: '00000000-0000-0000-0000-000000000000',
     target_email: email,
-    action: 'invited',
+    action: resendOf ? 'reinvited' : 'invited',
     after_role: role,
     after_active: false,
     performed_by: caller.id,
     performed_by_email: caller.email,
-    metadata: { invitation_id: invitation.id }
+    metadata: resendOf
+      ? { invitation_id: invitation.id, resend_of: resendOf }
+      : { invitation_id: invitation.id }
   });
 
   // 메일 발송
@@ -341,6 +352,7 @@ async function handleInvite(req, res) {
     return res.status(200).json({
       ok: true,
       invitation_id: invitation.id,
+      resend_of: resendOf,
       warning: 'Invitation created but email NOT sent (RESEND_API_KEY missing)',
       preview_url: `${SITE_URL}/admin-accept-invite.html?token=${inviteToken}&email=${encodeURIComponent(email)}`
     });
@@ -360,16 +372,16 @@ async function handleInvite(req, res) {
     const result = await r.json();
     if (!r.ok) {
       return res.status(200).json({
-        ok: true, invitation_id: invitation.id,
+        ok: true, invitation_id: invitation.id, resend_of: resendOf,
         warning: 'Invitation saved but Resend failed: ' + (result.message || r.statusText)
       });
     }
     return res.status(200).json({
-      ok: true, invitation_id: invitation.id, email_id: result.id, sent_to: email
+      ok: true, invitation_id: invitation.id, resend_of: resendOf, email_id: result.id, sent_to: email
     });
   } catch (e) {
     return res.status(200).json({
-      ok: true, invitation_id: invitation.id,
+      ok: true, invitation_id: invitation.id, resend_of: resendOf,
       warning: 'Invitation saved but Resend error: ' + e.message
     });
   }

@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-20T12:38:54.481Z",
+  "updated_at": "2026-05-20T13:28:39.875554Z",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -13,15 +13,15 @@
   ],
   "stats": {
     "total": 234,
-    "done": 170,
-    "in_progress": 2,
+    "done": 171,
+    "in_progress": 3,
     "paused": 0,
-    "pending": 45,
+    "pending": 43,
     "blocked": 10,
-    "autonomous_ready": 42,
+    "autonomous_ready": 40,
     "todo": 0,
     "cancelled": 1,
-    "updated_at": "2026-05-20T12:38:54.481Z"
+    "updated_at": "2026-05-20T13:28:39.875554Z"
   },
   "tasks": [
     {
@@ -13336,14 +13336,14 @@
       "title": "[자동] 자동 일꾼 1명이 멈췄어요: sync-bot",
       "category": "infrastructure",
       "priority": "P0",
-      "status": "pending",
+      "status": "done",
       "claude_can_auto": true,
       "approval_required": false,
       "owner": "claude",
       "size": "small",
       "source": "auto_from_bots",
       "created_at": "2026-05-11T20:24:23.985Z",
-      "updated_at": "2026-05-20T12:38:54.481Z",
+      "updated_at": "2026-05-17T19:49:03.745Z",
       "deadline": null,
       "order": null,
       "blocker": null,
@@ -13386,15 +13386,9 @@
           "by": "auto-task-bot",
           "action": "auto_resolved",
           "detail": "점검 봇 bots이 green으로 전환됨"
-        },
-        {
-          "at": "2026-05-20T12:38:54.481Z",
-          "by": "auto-task-bot",
-          "action": "reopened",
-          "detail": "점검 봇 재발견: 자동 일꾼 1명이 멈췄어요: sync-bot"
         }
       ],
-      "notes": "점검 봇 자동 등록 (2026-05-11T20:24:23.985Z)\n\ncheck_name: bots\nstatus: red\ndetail: 자동 일꾼 1명이 멈췄어요: sync-bot\n\n진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 green으로 박으면 자동 done.\n\n[자동 해소 2026-05-12T01:40:42.008Z] 점검 봇 green 전환\n\n[재개 2026-05-17T11:46:55.698Z] 자동 일꾼 1명이 멈췄어요: sync-bot\n\n[자동 해소 2026-05-17T19:49:03.745Z] 점검 봇 green 전환\n\n[재개 2026-05-20T12:38:54.481Z] 자동 일꾼 1명이 멈췄어요: sync-bot"
+      "notes": "점검 봇 자동 등록 (2026-05-11T20:24:23.985Z)\n\ncheck_name: bots\nstatus: red\ndetail: 자동 일꾼 1명이 멈췄어요: sync-bot\n\n진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 green으로 박으면 자동 done.\n\n[자동 해소 2026-05-12T01:40:42.008Z] 점검 봇 green 전환\n\n[재개 2026-05-17T11:46:55.698Z] 자동 일꾼 1명이 멈췄어요: sync-bot\n\n[자동 해소 2026-05-17T19:49:03.745Z] 점검 봇 green 전환"
     },
     {
       "id": "BL-ADMIN-ACTIVITY-MOVE",
@@ -16668,40 +16662,71 @@
       "done_at": "2026-05-20T12:23:31.392447+00:00"
     },
     {
-      "id": "BL-AUTO-TASKS-SCHEMA-2MISSING",
-      "title": "[자동] 작업 233건 중 2건에 출처가 없어요 (자동 동기화 봇 멈춤 위험)",
-      "category": "infrastructure",
-      "priority": "P0",
-      "status": "pending",
-      "claude_can_auto": true,
-      "approval_required": false,
-      "owner": "claude",
-      "size": "small",
-      "source": "auto_from_tasks_schema",
-      "created_at": "2026-05-20T12:38:54.481Z",
-      "updated_at": "2026-05-20T12:38:54.481Z",
-      "deadline": null,
-      "order": null,
-      "blocker": null,
-      "autonomous": {
-        "can_run_alone": true,
-        "estimated_hours": 1,
-        "requires_decisions_first": []
-      },
-      "decision_ref": "D-024",
+      "id": "BL-MGR-CHECK-COLUMN-FIX",
+      "title": "[P0 핫픽스] checkManager 컬럼명 오류 — id → hotel_id (매니저 라우팅 사실상 무력화 상태 복구)",
+      "status": "in_progress",
+      "priority": "p0",
+      "created_at": "2026-05-20T13:28:39.875554Z",
+      "updated_at": "2026-05-20T13:28:39.875554Z",
       "progress": {
         "percent": 0,
-        "steps": []
+        "steps": [
+          {
+            "n": 1,
+            "label": "shared.js L230: select('id') → select('hotel_id')로 수정 (v_manager_hotels VIEW alias 일치)",
+            "title": "컬럼명 1줄 수정",
+            "status": "pending",
+            "done": false
+          },
+          {
+            "n": 2,
+            "label": "자체 검증 — JS 문법 / 변경 라인 / 다른 호출처 영향 없음 재확인",
+            "title": "Self-QA",
+            "status": "pending",
+            "done": false
+          },
+          {
+            "n": 3,
+            "label": "commit + push → Vercel 자동 배포",
+            "title": "배포",
+            "status": "pending",
+            "done": false
+          },
+          {
+            "n": 4,
+            "label": "라이브 fetch로 수정 박힘 확인 (gohotelwinners.com/shared.js)",
+            "title": "라이브 검증",
+            "status": "pending",
+            "done": false
+          },
+          {
+            "n": 5,
+            "label": "대표님 콘솔 재진단 — isManager: true 확인 + 재로그인 시 manager-dashboard.html 도착 확인",
+            "title": "사용자 검증",
+            "status": "pending",
+            "done": false
+          },
+          {
+            "n": 6,
+            "label": "chat-log 박기 — BL-MGR-LOGIN-ROUTING step 7 검증 부실 사유 정리",
+            "title": "chat-log",
+            "status": "pending",
+            "done": false
+          }
+        ]
       },
-      "history": [
-        {
-          "at": "2026-05-20T12:38:54.481Z",
-          "by": "auto-task-bot",
-          "action": "created",
-          "detail": "점검 봇 발견 (tasks_schema=red): 작업 233건 중 2건에 출처가 없어요 (자동 동기화 봇 멈춤 위험)"
-        }
+      "context": {
+        "지금 무슨 상황이냐면": "결제까지 끝낸 매니저(예: joylife8760@naver.com / The Westin Tokyo / paid)가 로그인 시 manager-dashboard.html이 아니라 dashboard.html(일반 호텔 화면)로 도착하는 버그. checkManager가 v_manager_hotels VIEW를 .select('id', ...)로 호출하는데 VIEW는 'id' 컬럼을 노출하지 않고 'hotel_id'로 alias함. 400 Bad Request → catch 안 가고 r.count=null → 0건 처리 → 매니저 아님 판정.",
+        "왜 결정이 필요하냐면": "BL-MGR-LOGIN-ROUTING이 done으로 박혔지만 라이브에선 작동 안 함. 라이브 매니저들이 본인 전용 화면을 못 보는 P0 영향. 1줄 수정으로 복구 가능.",
+        "결정하면 뭐가 달라지냐면": "수정 후 모든 결제 완료 매니저가 manager-dashboard.html로 정상 도착. BL-MANAGER-DASHBOARD 다듬기 작업도 정상 시작 가능. 추가로 BL-MGR-LOGIN-ROUTING 검증 step 부실 사유를 chat-log로 박아서 향후 검증 워크플로우 강화."
+      },
+      "related_bls": [
+        "BL-MGR-LOGIN-ROUTING",
+        "BL-MGR-HOTELS-RLS"
       ],
-      "notes": "점검 봇 자동 등록 (2026-05-20T12:38:54.481Z)\n\ncheck_name: tasks_schema\nstatus: red\ndetail: 작업 233건 중 2건에 출처가 없어요 (자동 동기화 봇 멈춤 위험)\n\n진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 green으로 박으면 자동 done."
+      "depends_on": [],
+      "approval_required": false,
+      "auto_context_warning": false
     }
   ]
 }

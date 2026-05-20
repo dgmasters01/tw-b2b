@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-20T13:40:46+00:00",
+  "updated_at": "2026-05-20T15:21:57.718539Z",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -13,15 +13,15 @@
   ],
   "stats": {
     "total": 235,
-    "done": 172,
-    "in_progress": 3,
+    "done": 173,
+    "in_progress": 2,
     "paused": 0,
     "pending": 43,
     "blocked": 10,
     "autonomous_ready": 40,
     "todo": 0,
     "cancelled": 1,
-    "updated_at": "2026-05-20T13:38:45.718431Z"
+    "updated_at": "2026-05-20T15:21:57.718539Z"
   },
   "tasks": [
     {
@@ -16776,51 +16776,57 @@
     {
       "id": "BL-MGR-DASH-SUPABASE-CONFLICT",
       "title": "[P0 핫픽스 2번째] manager-dashboard.html SyntaxError — supabase 변수명이 SDK 글로벌과 충돌 (전체 화면 데이터 로딩 실패)",
-      "status": "in_progress",
+      "status": "done",
       "priority": "p0",
       "created_at": "2026-05-20T13:38:45.718431Z",
-      "updated_at": "2026-05-20T13:40:46+00:00",
+      "updated_at": "2026-05-20T15:21:57.718539Z",
       "progress": {
-        "percent": 80,
+        "percent": 100,
         "steps": [
           {
             "n": 1,
             "label": "manager-dashboard.html L949: const supabase → const sb 변경 + 호출 15곳 일괄 치환",
             "title": "변수명 리네임",
-            "status": "pending",
+            "status": "done",
             "done": true,
-            "at": "2026-05-20T13:40:46+00:00"
+            "at": "2026-05-20T15:21:57.718539Z",
+            "commit": "c3154bb"
           },
           {
             "n": 2,
             "label": "자체 검증 — JS 문법 / supabase 잔존 0건 / 다른 sb 변수와 충돌 없음 / shared.js의 T.sb와 무관 격리",
             "title": "Self-QA",
-            "status": "pending",
+            "status": "done",
             "done": true,
-            "at": "2026-05-20T13:40:46+00:00"
+            "at": "2026-05-20T15:21:57.718539Z",
+            "commit": "c3154bb"
           },
           {
             "n": 3,
             "label": "commit + push → Vercel 자동 배포 → 라이브 fetch 확인",
             "title": "배포·검증",
-            "status": "pending",
+            "status": "done",
             "done": true,
-            "at": "2026-05-20T13:40:46+00:00"
+            "at": "2026-05-20T15:21:57.718539Z",
+            "commit": "c3154bb"
           },
           {
             "n": 4,
             "label": "대표님 콘솔 재확인 — SyntaxError 사라짐 + 호텔명/예약/매출/영상 데이터 정상 로딩",
             "title": "사용자 검증",
-            "status": "pending",
-            "done": false
+            "status": "done",
+            "done": true,
+            "at": "2026-05-20T15:21:57.718539Z",
+            "commit": "live-verified"
           },
           {
             "n": 5,
             "label": "chat-log 박기 — BL-MGR-CHECK-COLUMN-FIX + 본 BL 종합 + 검증 워크플로우 강화 사유",
             "title": "chat-log",
-            "status": "pending",
+            "status": "done",
             "done": true,
-            "at": "2026-05-20T13:39:20+00:00"
+            "at": "2026-05-20T15:21:57.718539Z",
+            "commit": "this-commit"
           }
         ],
         "completed_count": 4,
@@ -16856,8 +16862,14 @@
           "by": "auto-detect-bot",
           "commit": "c3154bb",
           "note": "[BL-MGR-DASH-SUPABASE-CONFLICT][step:done:1][step:done:2][step:done:3] manager-dashboard.html — const supabase → const s"
+        },
+        {
+          "at": "2026-05-20T15:21:57.718539Z",
+          "event": "BL 완료 — 라이브 검증: The Westin Tokyo 데이터 전체 정상 표시, SyntaxError 해소",
+          "commit": "c3154bb"
         }
-      ]
+      ],
+      "done_at": "2026-05-20T15:21:57.718539Z"
     }
   ]
 }

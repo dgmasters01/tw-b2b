@@ -17048,6 +17048,112 @@
         }
       ],
       "notes": "점검 봇 자동 등록 (2026-05-20T16:16:47.608Z)\n\ncheck_name: tasks_schema\nstatus: red\ndetail: 작업 235건 중 4건에 출처가 없어요 (자동 동기화 봇 멈춤 위험)\n\n진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 green으로 박으면 자동 done."
+    },
+    {
+      "id": "BL-MGR-DASH-SIGNOUT",
+      "category": "ux",
+      "priority": "P0",
+      "size": "small",
+      "status": "done",
+      "title": "manager-dashboard.html Sign out 버튼 박기",
+      "memo": "헤더 우측에 ⚙️ Settings + Sign out 박음. window.TW.logout 호출, fallback으로 sb.auth.signOut → /login.html replace. 매니저가 로그아웃 못 하는 기본 UX 결함 차단.",
+      "progress": {
+        "steps": [
+          {
+            "step": "1. 헤더 grep + 패턴 분석",
+            "done": true
+          },
+          {
+            "step": "2. ⋯ 버튼 → ⚙️ Settings + Sign out 버튼 분리",
+            "done": true
+          },
+          {
+            "step": "3. Sign out 이벤트 리스너 박기 (window.TW.logout)",
+            "done": true
+          },
+          {
+            "step": "4. JS 문법 검증 + 라이브 푸시",
+            "done": true
+          }
+        ]
+      },
+      "decisions": [
+        "D-045"
+      ],
+      "created_at": "2026-05-21",
+      "completed_at": "2026-05-21"
+    },
+    {
+      "id": "BL-ADMIN-MEMBERS-KPI-FIX",
+      "category": "bugfix",
+      "priority": "P0",
+      "size": "medium",
+      "status": "pending",
+      "title": "admin.html Members KPI 카드 잘못된 숫자 수정 (v_hotel_manager_full 뷰 버그)",
+      "memo": "현상: PAID=0인데 실제 hotels.status='paid' 2건 / SIGNUP ONLY=3인데 실제 0 / 표에서 호텔 등록자도 '— no hotel'로 표시. 원인: v_hotel_manager_full 뷰가 payment_status=null로 반환 + lifecycle_stage 전부 signup_only. 뷰 SQL 정의가 hotels.status와 payments 테이블을 제대로 join 못함. 영향: admin이 매출 0으로 오해 → 잘못된 사업 판단. 진단 결과: vjsludfjsphwnumuoqaj Supabase Management API로 뷰 SQL 재정의 필요. payment_status는 hotels.status='paid' OR payments 테이블 존재 기준으로. lifecycle_stage는 hotel_id 유무 + status 기반으로 재계산.",
+      "progress": {
+        "steps": [
+          {
+            "step": "1. v_hotel_manager_full 현재 SQL 정의 fetch",
+            "done": false
+          },
+          {
+            "step": "2. 뷰가 어떤 admin 페이지에서 쓰이는지 영향 범위 파악",
+            "done": false
+          },
+          {
+            "step": "3. 새 뷰 SQL 박음 (payment_status / lifecycle_stage 정의 수정)",
+            "done": false
+          },
+          {
+            "step": "4. Supabase Management API로 뷰 교체",
+            "done": false
+          },
+          {
+            "step": "5. admin.html Members 화면 라이브 검증 (PAID=2, SIGNUP ONLY=0 나오는지)",
+            "done": false
+          }
+        ]
+      },
+      "decisions": [],
+      "depends_on": [],
+      "created_at": "2026-05-21"
+    },
+    {
+      "id": "BL-COMMON-HEADER-UNIFY",
+      "category": "ux",
+      "priority": "P1",
+      "size": "large",
+      "status": "pending",
+      "title": "전 매니저 페이지 공통 헤더 컴포넌트 통일 (Sign out/Settings/언어전환 누락 일괄 해결)",
+      "memo": "전수 점검 결과: manager-dashboard에 로그아웃 누락(BL-MGR-DASH-SIGNOUT으로 핫픽스 완료) + 설정 진입 누락 6개 페이지(dashboard/marketing/hotel-info/sales/booking-analytics/manager-dashboard) + 언어 전환 누락 5개 페이지. 페이지마다 헤더 개별 박은 결과 일관성 깨짐. 정석: shared.js에 renderCommonHeader() 함수 박고 모든 매니저 페이지가 호출. 단계별 점진 전환.",
+      "progress": {
+        "steps": [
+          {
+            "step": "1. 현재 8개 페이지 헤더 구조 전수 비교 (BEFORE 캡처)",
+            "done": false
+          },
+          {
+            "step": "2. 공통 헤더 디자인 확정 (대표님 시안 승인)",
+            "done": false
+          },
+          {
+            "step": "3. shared.js에 renderCommonHeader() 함수 박음",
+            "done": false
+          },
+          {
+            "step": "4. dashboard/marketing/hotel-info/sales 4개 적용 + 검증",
+            "done": false
+          },
+          {
+            "step": "5. 나머지 4개 적용 + 라이브 검증",
+            "done": false
+          }
+        ]
+      },
+      "decisions": [],
+      "depends_on": [],
+      "created_at": "2026-05-21"
     }
   ]
 }

@@ -312,7 +312,8 @@ body{margin:0;background:var(--bg);font-family:var(--sans);color:var(--ink);min-
         <div class="md-user-avatar" id="userInitial">·</div>
         <span id="userName" data-en="Loading..." data-ko="불러오는 중...">Loading...</span>
       </div>
-      <button class="md-menu-btn" aria-label="Menu" onclick="window.location.href='/settings.html'">⋯</button>
+      <button class="md-menu-btn" aria-label="Settings" title="Settings" onclick="window.location.href='/settings.html'">⚙️</button>
+      <button class="md-menu-btn" id="md-signout-btn" aria-label="Sign out" data-en="Sign out" data-ko="로그아웃" title="Sign out" style="padding:6px 12px;font-size:13px">Sign out</button>
     </nav>
   </header>
 
@@ -1044,6 +1045,20 @@ async function init(){
   const initial = (currentUser.email || '·').charAt(0).toUpperCase();
   document.getElementById('userInitial').textContent = initial;
   document.getElementById('userName').textContent = currentUser.email || '';
+
+  // BL-MGR-DASH-SIGNOUT (D-045): Sign out 버튼 이벤트
+  // 매니저 페이지에서 로그아웃 진입점 누락 결함 차단 — 모든 페이지 기본 UX 통일
+  const signoutBtn = document.getElementById('md-signout-btn');
+  if (signoutBtn) {
+    signoutBtn.addEventListener('click', function(){
+      if (window.TW && typeof window.TW.logout === 'function') {
+        window.TW.logout();
+      } else {
+        // fallback: shared.js 미로딩 시 직접 처리
+        sb.auth.signOut().then(function(){ window.location.replace('/login.html'); });
+      }
+    });
+  }
 
   // Fetch user's hotel
   const { data: hotels, error: hErr } = await sb

@@ -10,7 +10,43 @@
 
 ---
 
-## 🆕 2026-05-21 — 결제 단계별 강력 차단 게이트 (BL-USER-STAGE-GATING)
+## 🆕 2026-05-21 — 매니저 페이지 기본 UX 결함 차단 + 공통 헤더 통일 의무 박음
+
+### D-045: manager-dashboard.html Sign out 누락 핫픽스 + 전 매니저 페이지 공통 헤더 통일 의무
+
+**언제**: 2026-05-21
+**누가**: 이지형 대표 (manager-dashboard에 로그아웃 없는 것 발견 → "지금 없는 거 다시 파악해야 할 것 같은데" 지시)
+**상태**: ✅ 박힘 (핫픽스만 / 통일은 BL-COMMON-HEADER-UNIFY로 별도 진행)
+
+**무엇을:**
+- **즉시 핫픽스**: manager-dashboard.html 헤더 우측에 `⚙️ Settings` 아이콘 + `Sign out` 텍스트 버튼 박음. `window.TW.logout` 호출 (shared.js 공용 헬퍼), fallback으로 `sb.auth.signOut → /login.html replace`.
+- **전수 점검 결과** (8개 핵심 페이지 grep):
+  - 로그아웃 누락: manager-dashboard.html (핫픽스 완료)
+  - 설정 진입 누락: 6개 페이지 (dashboard / marketing / hotel-info / sales / booking-analytics / manager-dashboard)
+  - 언어 전환 누락: 5개 페이지 (dashboard / marketing / sales / booking-analytics / settings)
+- **통일 의무 박음**: 페이지마다 헤더 개별 박은 결과 일관성 깨짐 → shared.js에 `renderCommonHeader()` 박고 모든 매니저 페이지가 호출하도록 점진 전환 (BL-COMMON-HEADER-UNIFY 등록)
+
+**왜:**
+- 사업 본질: 매니저가 로그아웃 못 한다 = "이 사이트 못 빠져나가나" 불신. 기본 UX는 한 페이지라도 빠지면 안 됨.
+- 발견 경로: 검증용 임시 계정 작업 후 대표님이 라이브 화면 점검하다가 발견. 이런 류의 누락은 자체 점검 없이는 계속 새어나옴 → 전수 점검 의무화.
+- 즉시 핫픽스 vs 통일 분리: manager-dashboard 1개는 P0 즉시 처리 / 나머지 통일은 영향 범위 크고 디자인 결정 필요 → 별도 BL.
+
+**박힌 파일:**
+- `manager-dashboard.html` (Sign out 버튼 + 이벤트 리스너 + Settings 아이콘 박음)
+
+**연관:**
+- BL-MGR-DASH-SIGNOUT (이번 핫픽스, status=done)
+- BL-ADMIN-MEMBERS-KPI-FIX (P0 신규 — v_hotel_manager_full 뷰 버그, payment_status null 반환)
+- BL-COMMON-HEADER-UNIFY (P1 신규 — 8개 페이지 공통 헤더 통일)
+- 상위 결정: D-044 (게이트 박은 후속 점검에서 발견)
+
+**추후 정렬 후보:**
+- BL-COMMON-HEADER-UNIFY 단계 1(BEFORE 캡처) → 단계 2(디자인 시안) 대표님 결정 의무
+- 매니저 진입 가능한 모든 페이지 일괄 점검 (위 8개 외 추가 누락 가능)
+
+---
+
+
 
 ### D-044: dashboard.html은 결제 완료자만 진입 가능 — 미결제자는 시스템 미리보기 불가
 

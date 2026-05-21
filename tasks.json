@@ -17157,18 +17157,20 @@
             "artifact": "shared.js (TW.renderCommonHeader) + shared.css (.tw-header BEM)"
           },
           {
-            "step": "4. 7개 매니저 페이지 마이그레이션 (dashboard/marketing/hotel-info/sales/booking-analytics/manager-dashboard/settings)",
-            "done": false
+            "step": "4. 6개 매니저 페이지 마이그레이션 (dashboard/marketing/hotel-info/sales/booking-analytics/settings) — manager-dashboard는 알림 종 기능 보존 위해 후속 BL 분리",
+            "done": true,
+            "at": "2026-05-21T14:39:02.245089+00:00",
+            "artifact": "6개 페이지 마이그레이션 (dashboard/marketing/hotel-info/sales/booking-analytics/settings). manager-dashboard는 알림 종 보존 위해 후속 BL로 분리"
           },
           {
             "step": "5. Playwright 라이브 검증 (paid 계정 생성 → 7개 페이지 진입 → 헤더 동작 전수 확인)",
             "done": false
           }
         ],
-        "completed_count": 3,
+        "completed_count": 4,
         "total_count": 5,
-        "percent": 60,
-        "updated_at": "2026-05-21T14:32:05.844023+00:00"
+        "percent": 80,
+        "updated_at": "2026-05-21T14:39:02.245089+00:00"
       },
       "decisions": [],
       "depends_on": [],
@@ -17181,7 +17183,7 @@
         "detected_by_commit": "24496a6",
         "message": "in_progress 진입했으나 progress.steps 비어있음. tasks.json에서 progress.steps 박은 후 다음 commit에 [step:done:N] 태그."
       },
-      "updated_at": "2026-05-21T14:32:05.844023+00:00",
+      "updated_at": "2026-05-21T14:39:02.245089+00:00",
       "history": [
         {
           "at": "2026-05-21T01:51:45+00:00",
@@ -17203,6 +17205,13 @@
           "by": "auto-detect-bot",
           "commit": "29fe16e",
           "note": "docs(BL-COMMON-HEADER-UNIFY): chat-log + 인계서 박음 (Step 3·4·5 새 채팅 전환)"
+        },
+        {
+          "at": "2026-05-21T14:39:02.245089+00:00",
+          "event": "Step 4 완료 — 6개 페이지 마이그레이션. manager-dashboard는 알림 종 기능 보존 위해 후속 BL-MGR-DASH-HEADER-UNIFY로 분리.",
+          "by": "claude",
+          "commit": "TBD",
+          "note": "7개 → 6개로 축소. 영향 범위: 약 130라인 절감 (manager-dashboard 25라인 제외)"
         }
       ],
       "design_artifacts": [

@@ -384,17 +384,8 @@
 </div>
 <div class="aurora-grid" aria-hidden="true"></div>
 
-<div class="sl-topbar">
-  <a href="sales.html" class="sl-logo">
-    <div class="sl-logo-icon">TW</div>
-    <div class="sl-logo-text">TravelWinners</div>
-  </a>
-  <div class="sl-nav-right">
-    <span class="sl-user" id="user-email">—</span>
-    <a href="settings.html" class="sl-btn-out">⚙ Settings</a>
-    <button class="sl-btn-out" id="btn-logout">Sign out</button>
-  </div>
-</div>
+<!-- BL-COMMON-HEADER-UNIFY -->
+<header id="tw-common-header"></header>
 
 <div class="sl-shell">
   <div class="sl-main" id="sl-main">
@@ -414,7 +405,12 @@
   // - 호텔 미등록 → signup-flow 또는 hotel-info.html 로
   T.requireAuth(async function(user){
     currentUser = user;
-    $('user-email').textContent = user.email;
+    // BL-COMMON-HEADER-UNIFY
+    if (typeof T.renderCommonHeader === 'function') {
+      T.renderCommonHeader({ activeTab: 'sales' });
+    }
+    var ue = $('user-email');
+    if (ue) ue.textContent = user.email;
 
     var ac = await T.checkAdmin(user);
     if (ac.is_admin) {
@@ -447,7 +443,9 @@
     renderSales(hotel, status);
   });
 
-  $('btn-logout').addEventListener('click', T.logout);
+  // BL-COMMON-HEADER-UNIFY: fallback
+  var legacyLogoutBtn = $('btn-logout');
+  if (legacyLogoutBtn) legacyLogoutBtn.addEventListener('click', T.logout);
 
   // ---- Channel data (8 channels — memory rule 32) ----
   var CHANNELS = [

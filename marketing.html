@@ -251,17 +251,8 @@
 </div>
 <div class="aurora-grid" aria-hidden="true"></div>
 
-<div class="mk-topbar">
-  <a href="marketing.html" class="mk-logo">
-    <div class="mk-logo-icon">TW</div>
-    <div class="mk-logo-text">TravelWinners</div>
-  </a>
-  <div class="mk-nav-right">
-    <span class="mk-user" id="user-email">—</span>
-    <a href="settings.html" class="mk-btn-out">⚙ Settings</a>
-    <button class="mk-btn-out" id="btn-logout">Sign out</button>
-  </div>
-</div>
+<!-- BL-COMMON-HEADER-UNIFY -->
+<header id="tw-common-header"></header>
 
 <div class="mk-shell">
   <div class="mk-main" id="mk-main">
@@ -278,7 +269,12 @@
 
   T.requireAuth(async function(user){
     currentUser = user;
-    $('user-email').textContent = user.email;
+    // BL-COMMON-HEADER-UNIFY
+    if (typeof T.renderCommonHeader === 'function') {
+      T.renderCommonHeader({ activeTab: 'marketing' });
+    }
+    var ue = $('user-email');
+    if (ue) ue.textContent = user.email;
 
     var ac = await T.checkAdmin(user);
     if (ac.is_admin) {
@@ -308,7 +304,9 @@
     loadBookings(hotel);
   });
 
-  $('btn-logout').addEventListener('click', T.logout);
+  // BL-COMMON-HEADER-UNIFY: fallback (공통 헤더가 #tw-signout-btn 박음)
+  var legacyLogoutBtn = $('btn-logout');
+  if (legacyLogoutBtn) legacyLogoutBtn.addEventListener('click', T.logout);
 
   async function loadBookings(hotel) {
     try {

@@ -239,22 +239,8 @@
 </div>
 <div class="aurora-grid" aria-hidden="true"></div>
 
-<!-- Sticky glass topbar (v2 standard) -->
-<div class="hi-topbar">
-  <a href="dashboard.html" class="hi-logo">
-    <div class="hi-logo-icon">TW</div>
-    <div class="hi-logo-text">TravelWinners</div>
-  </a>
-  <div class="hi-nav-right">
-    <span class="hi-user" id="user-email">—</span>
-    <div class="hi-lang">
-      <button class="active" id="lang-en">EN</button>
-      <button id="lang-ko">한국어</button>
-    </div>
-    <a href="settings.html" class="hi-btn-out">⚙ Settings</a>
-    <button class="hi-btn-out" id="btn-logout">Sign out</button>
-  </div>
-</div>
+<!-- BL-COMMON-HEADER-UNIFY -->
+<header id="tw-common-header"></header>
 
 <div class="hi-shell">
   <div class="hi-card">
@@ -521,6 +507,10 @@
 
   T.requireAuth(async function(user){
     currentUser = user;
+    // BL-COMMON-HEADER-UNIFY: 공통 헤더 렌더
+    if (typeof T.renderCommonHeader === 'function') {
+      T.renderCommonHeader({ activeTab: 'hotel-info' });
+    }
     // v2 Aurora topbar: user email 표시
     var ueEl = $('user-email');
     if (ueEl && user && user.email) ueEl.textContent = user.email;

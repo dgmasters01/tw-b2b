@@ -90,21 +90,8 @@ body{margin:0;background:var(--bg);font-family:var(--sans);color:var(--ink);min-
 <div class="aurora-grid"></div>
 
 <div class="dh-shell">
-  <div class="dh-topbar">
-    <a href="dashboard.html" class="dh-logo">
-      <div class="dh-logo-icon">TW</div>
-      <div class="dh-logo-text">TravelWinners</div>
-    </a>
-    <div class="dh-nav-right">
-      <div class="dh-lang">
-        <button class="active" id="lang-en">EN</button>
-        <button id="lang-ko">한국어</button>
-      </div>
-      <span class="dh-user" id="user-email">—</span>
-      <a href="settings.html" class="dh-logout" style="text-decoration:none" data-en="⚙️ Settings" data-ko="⚙️ 설정">⚙️ Settings</a>
-      <button class="dh-logout" id="btn-logout" data-en="Sign out" data-ko="로그아웃">Sign out</button>
-    </div>
-  </div>
+  <!-- BL-COMMON-HEADER-UNIFY: 기존 dh-topbar 헤더 → 공통 헤더 컨테이너로 교체 -->
+  <header id="tw-common-header"></header>
 
   <div class="dh-main" id="dh-main">
     <div class="dh-loading"><div class="dh-loader"></div><div data-en="Loading dashboard..." data-ko="대시보드 불러오는 중...">Loading dashboard...</div></div>
@@ -133,7 +120,12 @@ body{margin:0;background:var(--bg);font-family:var(--sans);color:var(--ink);min-
 
   T.requireAuth(async function(user){
     currentUser = user;
-    $('user-email').textContent = user.email;
+    // BL-COMMON-HEADER-UNIFY: 공통 헤더 렌더 (Sign out 핸들러는 함수가 직접 바인딩)
+    if (typeof T.renderCommonHeader === 'function') {
+      T.renderCommonHeader({ activeTab: 'dashboard' });
+    }
+    var ue = $('user-email');
+    if (ue) ue.textContent = user.email;
 
     var ac = await T.checkAdmin(user);
 
@@ -251,7 +243,9 @@ body{margin:0;background:var(--bg);font-family:var(--sans);color:var(--ink);min-
       });
   }
 
-  $('btn-logout').addEventListener('click', T.logout);
+  // BL-COMMON-HEADER-UNIFY: 기존 btn-logout 안전 참조 (공통 헤더가 #tw-signout-btn에 핸들러 박음. 이건 fallback)
+  var legacyLogoutBtn = $('btn-logout');
+  if (legacyLogoutBtn) legacyLogoutBtn.addEventListener('click', T.logout);
 
   // [Phase 3 Step 5] Auto-reload dashboard when:
   //   1) tab regains visibility (e.g. user came back from hotel-info edit)

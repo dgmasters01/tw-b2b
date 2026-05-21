@@ -211,17 +211,8 @@ tr.ck:hover{background:rgba(139,92,246,.08)}
 <div class="aurora-grid" aria-hidden="true"></div>
 
 <!-- Sticky glass topbar (v2 standard — admin embed 시 .ba-embed로 숨김) -->
-<div class="ba-topbar" id="ba-topbar">
-  <a href="dashboard.html" class="ba-logo">
-    <div class="ba-logo-icon">TW</div>
-    <div class="ba-logo-text">TravelWinners</div>
-  </a>
-  <div class="ba-nav-right">
-    <span class="ba-user" id="ba-user-email">—</span>
-    <a href="settings.html" class="ba-btn-out">⚙ Settings</a>
-    <button class="ba-btn-out" id="ba-btn-logout">Sign out</button>
-  </div>
-</div>
+<!-- BL-COMMON-HEADER-UNIFY (ba-topbar 클래스 유지: admin embed 시 .ba-embed로 숨김 룰 호환) -->
+<header id="tw-common-header" class="ba-topbar"></header>
 
 <div class="W">
 <div class="H"><div><h1>TW Booking Analytics</h1></div><div class="m">아고다 2계정 합산<br><span class="u">데이터: 2026.04.15</span></div></div>
@@ -568,7 +559,11 @@ function _BKA_standaloneBoot(){
   }
 
   T.requireAuth(async function(user){
-    // topbar user-email 표시
+    // BL-COMMON-HEADER-UNIFY
+    if (typeof T.renderCommonHeader === 'function') {
+      T.renderCommonHeader({ activeTab: 'analytics' });
+    }
+    // topbar user-email 표시 (legacy ba-user-email span도 호환)
     var ueEl = document.getElementById('ba-user-email');
     if (ueEl && user && user.email) ueEl.textContent = user.email;
     // logout 버튼 바인딩

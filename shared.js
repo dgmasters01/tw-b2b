@@ -134,6 +134,120 @@
     }
   };
 
+  // ---------- Common Header (BL-COMMON-HEADER-UNIFY) ----------
+  // 모든 매니저 페이지가 동일한 헤더를 박기 위한 단일 진입점.
+  // 사용: <header id="tw-common-header"></header> + TW.renderCommonHeader({ activeTab: 'dashboard' })
+  // 디자인 명세: docs/design/BL-COMMON-HEADER-UNIFY/design-spec.md
+  window.TW.renderCommonHeader = function (opts) {
+    opts = opts || {};
+    var mountId = opts.mountId || 'tw-common-header';
+    var activeTab = opts.activeTab || '';
+    var showTabs = opts.showTabs !== false;
+    var mount = document.getElementById(mountId);
+    if (!mount) {
+      console.warn('[TW.renderCommonHeader] mount 컨테이너 없음:', mountId);
+      return;
+    }
+
+    // 1. activeTab 기반 페이지 타이틀 자동 매핑
+    var titleMap = {
+      'dashboard':         { en: 'Dashboard',         ko: '대시보드' },
+      'marketing':         { en: 'Marketing',         ko: '마케팅' },
+      'hotel-info':        { en: 'Hotel Info',        ko: '호텔 정보' },
+      'sales':             { en: 'Sales',             ko: '영업' },
+      'analytics':         { en: 'Analytics',         ko: '분석' },
+      'manager-dashboard': { en: 'Manager Dashboard', ko: '매니저 대시보드' },
+      'settings':          { en: 'Settings',          ko: '설정' }
+    };
+    var pTitle   = opts.pageTitle   || (titleMap[activeTab] && titleMap[activeTab].en) || '';
+    var pTitleKo = opts.pageTitleKo || (titleMap[activeTab] && titleMap[activeTab].ko) || '';
+
+    // 2. 탭 정의 (data-tab → href + 라벨)
+    var tabs = [
+      { key: 'dashboard',  href: '/dashboard.html',         en: 'Home',       ko: '홈' },
+      { key: 'marketing',  href: '/marketing.html',         en: 'Marketing',  ko: '마케팅' },
+      { key: 'hotel-info', href: '/hotel-info.html',        en: 'Hotel Info', ko: '호텔 정보' },
+      { key: 'sales',      href: '/sales.html',             en: 'Sales',      ko: '영업' },
+      { key: 'analytics',  href: '/booking-analytics.html', en: 'Analytics',  ko: '분석' }
+    ];
+
+    // 3. HTML 빌드
+    var navHtml = '';
+    if (showTabs) {
+      navHtml = '<nav class="tw-header__nav">' +
+        tabs.map(function (t) {
+          var act = (t.key === activeTab) ? ' tw-header__tab--active' : '';
+          return '<a href="' + t.href + '" class="tw-header__tab' + act +
+                 '" data-tab="' + t.key + '" data-en="' + t.en + '" data-ko="' + t.ko + '">' +
+                 t.en + '</a>';
+        }).join('') +
+      '</nav>';
+    }
+
+    var html =
+      '<div class="tw-header">' +
+        '<a href="/dashboard.html" class="tw-header__logo">' +
+          '<div class="tw-header__logo-icon">G</div>' +
+          '<div class="tw-header__logo-text">GOHOTELWINNERS</div>' +
+          '<div class="tw-header__logo-sub" data-en="' + pTitle + '" data-ko="' + pTitleKo + '">' + pTitle + '</div>' +
+        '</a>' +
+        navHtml +
+        '<div class="tw-header__right">' +
+          '<div class="tw-header__lang">' +
+            '<button type="button" class="tw-header__lang-btn" data-lang="en">EN</button>' +
+            '<button type="button" class="tw-header__lang-btn" data-lang="ko">한</button>' +
+          '</div>' +
+          '<div class="tw-header__user">' +
+            '<div class="tw-header__user-avatar" id="tw-user-initial">·</div>' +
+            '<span class="tw-header__user-name" id="tw-user-name">Loading...</span>' +
+          '</div>' +
+          '<a href="/settings.html" class="tw-header__settings" aria-label="Settings" title="Settings" data-en="⚙️ Settings" data-ko="⚙️ 설정">⚙️ Settings</a>' +
+          '<button type="button" class="tw-header__signout" id="tw-signout-btn" data-en="Sign out" data-ko="로그아웃">Sign out</button>' +
+        '</div>' +
+      '</div>';
+
+    mount.innerHTML = html;
+
+    // 4. 언어 토글 핸들러
+    var langBtns = mount.querySelectorAll('.tw-header__lang-btn');
+    var curLang = window.TW.lang || 'en';
+    langBtns.forEach(function (b) {
+      if (b.getAttribute('data-lang') === curLang) b.classList.add('tw-header__lang-btn--active');
+      b.addEventListener('click', function () {
+        var lang = b.getAttribute('data-lang');
+        if (typeof window.TW.switchLang === 'function') window.TW.switchLang(lang);
+        langBtns.forEach(function (x) { x.classList.remove('tw-header__lang-btn--active'); });
+        b.classList.add('tw-header__lang-btn--active');
+      });
+    });
+
+    // 5. Sign out 핸들러
+    var signoutBtn = document.getElementById('tw-signout-btn');
+    if (signoutBtn) {
+      signoutBtn.addEventListener('click', function () {
+        if (typeof window.TW.logout === 'function') {
+          window.TW.logout();
+        } else if (sb && sb.auth) {
+          sb.auth.signOut().then(function () { window.location.replace('/login.html?logout=1'); });
+        }
+      });
+    }
+
+    // 6. 사용자 정보 박기 — Supabase 세션에서 직접 조회 (TW.user 비의존)
+    var initEl = document.getElementById('tw-user-initial');
+    var nameEl = document.getElementById('tw-user-name');
+    if (sb && sb.auth && typeof sb.auth.getUser === 'function') {
+      sb.auth.getUser().then(function (r) {
+        var email = (r && r.data && r.data.user && r.data.user.email) || '';
+        if (initEl) initEl.textContent = (email.charAt(0) || '·').toUpperCase();
+        if (nameEl) nameEl.textContent = email.split('@')[0] || 'User';
+      }).catch(function () { /* silent */ });
+    }
+
+    // 7. 현재 언어 즉시 적용 (data-en/data-ko 반영)
+    if (typeof window.TW.switchLang === 'function') window.TW.switchLang(curLang);
+  };
+
   // ---------- Admin check (DB 기반) ----------
   // 캐시: user.id → {is_admin, role, expires}
   var _adminCache = {};

@@ -1312,3 +1312,110 @@ main, header, footer, section, .shell, .form-panel, .brand-panel,
 }
 
 /* ============================================================ */
+
+/* ============================================================ */
+/* === tw-header (공통 매니저 헤더, BL-COMMON-HEADER-UNIFY) === */
+/* 사용: <header id="tw-common-header"></header> + TW.renderCommonHeader({activeTab}) */
+.tw-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 24px; border-bottom: 1px solid var(--line-2);
+  background: var(--bg-1); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  position: sticky; top: 0; z-index: 100;
+}
+
+.tw-header__logo {
+  display: flex; align-items: center; gap: 10px;
+  text-decoration: none; color: inherit;
+}
+.tw-header__logo-icon {
+  width: 28px; height: 28px; border-radius: 7px;
+  background: var(--aurora);
+  color: #fff; font-weight: 700; font-size: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--display);
+}
+.tw-header__logo-text {
+  font-weight: 700; color: var(--ink);
+  font-family: var(--display); font-size: 14px; letter-spacing: 0.3px;
+}
+.tw-header__logo-sub {
+  font-size: 11px; color: var(--ink-3); margin-left: 6px;
+  padding-left: 10px; border-left: 1px solid var(--line-2);
+}
+
+.tw-header__nav { display: flex; gap: 4px; }
+.tw-header__tab {
+  padding: 8px 14px; border-radius: 8px;
+  color: var(--ink-2); text-decoration: none;
+  font-weight: 500; font-size: 13px;
+  transition: var(--transition);
+  white-space: nowrap;
+}
+.tw-header__tab:hover { color: var(--ink); background: var(--glass); }
+.tw-header__tab--active {
+  background: var(--aurora); color: #fff !important;
+  box-shadow: 0 2px 8px rgba(124,58,237,0.25);
+}
+.tw-header__tab--active:hover { color: #fff; }
+
+.tw-header__right { display: flex; align-items: center; gap: 10px; }
+
+.tw-header__lang {
+  display: flex; gap: 2px;
+  background: var(--bg-2); border-radius: 8px;
+  padding: 2px; border: 1px solid var(--line-2);
+}
+.tw-header__lang-btn {
+  background: transparent; border: none;
+  color: var(--ink-3);
+  padding: 5px 10px; border-radius: 6px;
+  cursor: pointer; font-size: 12px; font-weight: 500;
+  transition: var(--transition);
+}
+.tw-header__lang-btn:hover { color: var(--ink-2); }
+.tw-header__lang-btn--active {
+  background: var(--glass-2); color: var(--ink);
+}
+
+.tw-header__user { display: flex; align-items: center; gap: 8px; }
+.tw-header__user-avatar {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: var(--aurora);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-weight: 700; font-size: 12px;
+}
+.tw-header__user-name {
+  color: var(--ink-2); font-size: 13px;
+  max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+.tw-header__settings, .tw-header__signout {
+  padding: 7px 14px; border-radius: 8px;
+  background: var(--glass); color: var(--ink-2) !important;
+  border: 1px solid var(--line-2);
+  text-decoration: none;
+  font-size: 13px; font-weight: 500;
+  cursor: pointer; transition: var(--transition);
+  display: inline-flex; align-items: center; gap: 4px;
+  font-family: inherit; line-height: 1.2;
+}
+.tw-header__settings:hover, .tw-header__signout:hover {
+  background: var(--glass-2); color: var(--ink) !important;
+  border-color: var(--line-3);
+}
+
+/* 모바일 (768px 이하) */
+@media (max-width: 768px) {
+  .tw-header {
+    flex-wrap: wrap; padding: 10px 14px; gap: 10px;
+  }
+  .tw-header__logo-sub { display: none; }
+  .tw-header__nav {
+    order: 3; width: 100%;
+    overflow-x: auto; -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .tw-header__nav::-webkit-scrollbar { display: none; }
+  .tw-header__user-name { display: none; }
+  .tw-header__settings, .tw-header__signout { padding: 6px 10px; font-size: 12px; }
+}

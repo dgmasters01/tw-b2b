@@ -1,7 +1,7 @@
 {
   "overall": "red",
-  "summary": "[yellow] admin_baseline: 관리자 페이지 2개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요) / [red] tasks_schema: 작업 243건 중 9건에 출처가 없어요 (자동 동기화 봇 멈춤 위험)",
-  "checked_at": "2026-05-21T14:39:48.060Z",
+  "summary": "[yellow] admin_baseline: 관리자 페이지 2개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요) / [red] tasks_schema: 작업 245건 중 11건에 출처가 없어요 (자동 동기화 봇 멈춤 위험) / [red] bots: 자동 일꾼 1명이 멈췄어요: sync-bot",
+  "checked_at": "2026-05-21T14:45:07.242Z",
   "checks": [
     {
       "name": "admin_baseline",
@@ -23,7 +23,7 @@
     {
       "name": "tasks_schema",
       "status": "red",
-      "detail": "작업 243건 중 9건에 출처가 없어요 (자동 동기화 봇 멈춤 위험)",
+      "detail": "작업 245건 중 11건에 출처가 없어요 (자동 동기화 봇 멈춤 위험)",
       "missing_source": [
         "BL-MGR-LOGIN-ROUTING",
         "BL-MGR-HOTELS-RLS",
@@ -33,18 +33,22 @@
         "BL-COMMON-HEADER-UNIFY",
         "BL-ADMIN-MEMBERS-KPI-FIX",
         "BL-OPS-TESTDATA-CLEANUP",
-        "BL-PAYMENTS-STATUS-AUDIT"
+        "BL-PAYMENTS-STATUS-AUDIT",
+        "BL-MGR-DASH-HEADER-UNIFY",
+        "BL-COMMON-HEADER-CSS-CLEANUP"
       ]
     },
     {
       "name": "bots",
-      "status": "green",
-      "detail": "자동 일꾼들(봇) 전부 살아있어요",
-      "dead_bots": [],
+      "status": "red",
+      "detail": "자동 일꾼 1명이 멈췄어요: sync-bot",
+      "dead_bots": [
+        "sync-bot"
+      ],
       "bot_status": {
-        "sync-bot": "unknown",
+        "sync-bot": "failure",
         "auto-detect-bot": "unknown",
-        "scan-bot": "unknown",
+        "scan-bot": "success",
         "chat-log-bot": "unknown",
         "autoheal-bot": "unknown"
       }
@@ -52,9 +56,9 @@
     {
       "name": "vercel_sync",
       "status": "green",
-      "detail": "라이브 사이트가 GitHub와 같은 버전이에요 (48a36c2)",
-      "live_sha": "48a36c2",
-      "vercel_sha": "48a36c2",
+      "detail": "라이브 사이트가 GitHub와 같은 버전이에요 (445a127)",
+      "live_sha": "445a127",
+      "vercel_sha": "445a127",
       "project": "tw-b2b"
     },
     {

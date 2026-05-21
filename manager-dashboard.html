@@ -30,6 +30,8 @@ body{margin:0;background:var(--bg);font-family:var(--sans);color:var(--ink);min-
 .md-user{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink-2);padding:5px 10px;background:var(--glass);border:1px solid var(--line-2);border-radius:99px}
 .md-user-avatar{width:24px;height:24px;border-radius:50%;background:var(--aurora);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700}
 .md-menu-btn{background:var(--glass);border:1px solid var(--line-2);width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink-2);font-size:18px;line-height:1}
+.md-signout-btn{background:var(--glass);border:1px solid var(--line-2);height:34px;padding:0 14px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink-2);font-size:13px;font-weight:500;white-space:nowrap;transition:all .15s ease}
+.md-signout-btn:hover{background:rgba(220,60,60,.15);border-color:rgba(220,60,60,.4);color:#ff8a8a}
 
 /* ---- Tabs ---- */
 .md-tabs{display:flex;gap:4px;padding:14px 0 0;border-bottom:1px solid var(--line);overflow-x:auto;-webkit-overflow-scrolling:touch}
@@ -313,7 +315,7 @@ body{margin:0;background:var(--bg);font-family:var(--sans);color:var(--ink);min-
         <span id="userName" data-en="Loading..." data-ko="불러오는 중...">Loading...</span>
       </div>
       <button class="md-menu-btn" aria-label="Settings" title="Settings" onclick="window.location.href='/settings.html'">⚙️</button>
-      <button class="md-menu-btn" id="md-signout-btn" aria-label="Sign out" data-en="Sign out" data-ko="로그아웃" title="Sign out" style="padding:6px 12px;font-size:13px">Sign out</button>
+      <button id="md-signout-btn" class="md-signout-btn" aria-label="Sign out" data-en="Sign out" data-ko="로그아웃" title="Sign out">Sign out</button>
     </nav>
   </header>
 

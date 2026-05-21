@@ -10,7 +10,48 @@
 
 ---
 
-## 🆕 2026-05-21 — 매니저 페이지 기본 UX 결함 차단 + 공통 헤더 통일 의무 박음
+## 🆕 2026-05-21 — v_hotel_manager_full 뷰 결제 판정 기준 확정 (BL-ADMIN-MEMBERS-KPI-FIX)
+
+### D-046: 결제 판정 기준 = `payments.status='succeeded'` + `COALESCE(paid_at, created_at)` 폴백
+
+**언제**: 2026-05-21
+**누가**: 이지형 대표 (admin Members KPI 거짓 표시 발견 → 라이브 DB 진단 후 결정)
+**상태**: ✅ 박힘 (뷰 라이브 적용 + KPI 정상화 검증 완료)
+
+**무엇을**:
+1. `v_hotel_manager_full` 뷰 LATERAL JOIN의 결제 status 기준: `'completed'` → `'succeeded'`
+2. `payment_paid_at`·`guarantee_expires_at`·`days_since_payment`·`guarantee_days_left`: `p.paid_at` → `COALESCE(p.paid_at, p.created_at)`
+3. `lifecycle_stage`·`guarantee_status` 판정 기준: `p.paid_at IS NULL` → `p.id IS NULL` (결제 row 존재 여부)
+4. `hotels.status='paid'`는 결제 판정에서 **제외** (테스트 호텔도 paid로 박혀 거짓 양성 위험)
+
+**왜**:
+- PayPal 통합 코드가 박는 실제 값이 `'succeeded'`임 (라이브 DB 확인 결과). 뷰가 `'completed'` 찾고 있어 매니저 전원 `payment_status=null` 반환 → KPI 6개 카드 거짓 (PAID=0, SIGNUP ONLY=3 등).
+- `payments.paid_at` NULL 케이스 1건 존재 (joylife8760). PayPal webhook이 시각 누락한 경우. created_at 폴백으로 6개월 보장 D-day 정상 계산 가능.
+- 테스트 결제도 운영 진입 전까지는 진짜 결제와 동일 카운트. 운영 진입 시점에 테스트 계정 일괄 삭제 예정 (별도 BL-OPS-TESTDATA-CLEANUP).
+
+**연쇄 자동 반영 (뷰 1개 수정으로 4곳 일괄)**:
+- `_admin/admin.html` Members 탭 KPI 6개 카드
+- `admin-manager-hub.html` 매니저 1명 허브 페이지
+- `api/admin.js` (line 775) 매니저 상세 조회
+- `api/cron/manager-campaign.js` 자동 캠페인 발송 워크플로
+
+**라이브 검증 결과 (Before → After)**:
+| KPI | Before (거짓) | After (진실) |
+|---|---|---|
+| TOTAL | 2 | 4 |
+| PAID | 0 | **2** |
+| SIGNUP ONLY | 3 | **2** |
+| HOTEL REGISTERED | 2 | **3** |
+
+**후속 BL 등록 예정**:
+- `BL-OPS-TESTDATA-CLEANUP` (P2, small) — 운영 진입 직전 테스트 계정 일괄 삭제
+- `BL-PAYMENTS-STATUS-AUDIT` (P1, medium) — 코드 전체 `'completed'` 가정 사용처 grep 점검
+
+**근거 chat-log**: `_chat-logs/2026-05-21-bl-admin-members-kpi-fix.md`
+
+---
+
+
 
 ### D-045: manager-dashboard.html Sign out 누락 핫픽스 + 전 매니저 페이지 공통 헤더 통일 의무
 

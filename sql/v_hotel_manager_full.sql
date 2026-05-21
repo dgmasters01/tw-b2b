@@ -4,6 +4,13 @@
 -- 목적: 매니저 1명에 대한 모든 정보를 1줄로 — 허브 페이지 단일 진실원
 -- 출처: auth.users + hotels + payments + bookings + videos + admin_notes
 -- 사용처: _admin/admin-manager-hub.html, members 탭, 다른 페이지의 매니저 필터 칩
+--
+-- 변경 이력:
+--   2026-05-13: 초기 박음 (BL-MANAGER-HUB-VIEW)
+--   2026-05-21: BL-ADMIN-MEMBERS-KPI-FIX (D-046)
+--               - payments.status 'completed' → 'succeeded' (PayPal 실제 값)
+--               - paid_at NULL이면 created_at으로 폴백 (테스트 결제 호환)
+--               - lifecycle_stage/guarantee_status 판정 기준 p.paid_at → p.id로 변경
 -- ════════════════════════════════════════════════════════════════════════════
 
 CREATE OR REPLACE VIEW public.v_hotel_manager_full AS
@@ -44,20 +51,21 @@ SELECT
   h.published_at                                                AS hotel_published_at,
 
   -- 결제 (최신 1건 기준)
+  -- BL-ADMIN-MEMBERS-KPI-FIX (2026-05-21): paid_at NULL이면 created_at으로 폴백 (D-046)
   p.id                                                          AS payment_id,
   p.amount                                                      AS payment_amount,
   p.currency                                                    AS payment_currency,
   p.status                                                      AS payment_status,
-  p.paid_at                                                     AS payment_paid_at,
+  COALESCE(p.paid_at, p.created_at)                             AS payment_paid_at,
   p.refunded_at                                                 AS payment_refunded_at,
   p.method                                                      AS payment_method,
-  -- 6개월 보장 만료일 + D-day
-  (p.paid_at + INTERVAL '180 days')                             AS guarantee_expires_at,
-  CASE WHEN p.paid_at IS NULL THEN NULL
-       ELSE EXTRACT(DAY FROM (p.paid_at + INTERVAL '180 days') - now())::int
+  -- 6개월 보장 만료일 + D-day (paid_at NULL이면 created_at 기준)
+  (COALESCE(p.paid_at, p.created_at) + INTERVAL '180 days')     AS guarantee_expires_at,
+  CASE WHEN p.id IS NULL THEN NULL
+       ELSE EXTRACT(DAY FROM (COALESCE(p.paid_at, p.created_at) + INTERVAL '180 days') - now())::int
   END                                                           AS guarantee_days_left,
-  CASE WHEN p.paid_at IS NULL THEN NULL
-       ELSE EXTRACT(DAY FROM now() - p.paid_at)::int
+  CASE WHEN p.id IS NULL THEN NULL
+       ELSE EXTRACT(DAY FROM now() - COALESCE(p.paid_at, p.created_at))::int
   END                                                           AS days_since_payment,
 
   -- 예약 집계
@@ -78,24 +86,25 @@ SELECT
   an.last_note_at,
 
   -- 매니저 단계 (자동 캠페인 계산용)
+  -- BL-ADMIN-MEMBERS-KPI-FIX: p.id 기준으로 결제 존재 판정 (paid_at NULL 케이스 대응)
   CASE
-    WHEN p.paid_at IS NULL                                        THEN 'signup_only'
-    WHEN p.paid_at IS NOT NULL AND h.published_at IS NULL         THEN 'paid_pending_hotel'
+    WHEN p.id IS NULL                                             THEN 'signup_only'
+    WHEN p.id IS NOT NULL AND h.published_at IS NULL              THEN 'paid_pending_hotel'
     WHEN p.refunded_at IS NOT NULL                                THEN 'refunded'
-    WHEN now() > (p.paid_at + INTERVAL '180 days')                THEN 'guarantee_expired'
-    WHEN now() > (p.paid_at + INTERVAL '170 days')                THEN 'final_decision_window'
-    WHEN now() > (p.paid_at + INTERVAL '150 days')                THEN 'rebill_window'
-    WHEN now() > (p.paid_at + INTERVAL '30 days')                 THEN 'active_monitoring'
-    WHEN now() > (p.paid_at + INTERVAL '7 days')                  THEN 'early_sales'
+    WHEN now() > (COALESCE(p.paid_at, p.created_at) + INTERVAL '180 days') THEN 'guarantee_expired'
+    WHEN now() > (COALESCE(p.paid_at, p.created_at) + INTERVAL '170 days') THEN 'final_decision_window'
+    WHEN now() > (COALESCE(p.paid_at, p.created_at) + INTERVAL '150 days') THEN 'rebill_window'
+    WHEN now() > (COALESCE(p.paid_at, p.created_at) + INTERVAL '30 days')  THEN 'active_monitoring'
+    WHEN now() > (COALESCE(p.paid_at, p.created_at) + INTERVAL '7 days')   THEN 'early_sales'
     ELSE                                                                'welcome'
   END                                                           AS lifecycle_stage,
 
   -- 보장 상태 (안전·주의·위험)
   CASE
-    WHEN p.paid_at IS NULL                                          THEN 'no_payment'
+    WHEN p.id IS NULL                                               THEN 'no_payment'
     WHEN COALESCE(bk.booking_count,0) >= 5                          THEN 'safe'
     WHEN COALESCE(bk.booking_count,0) >= 1                          THEN 'moderate'
-    WHEN now() > (p.paid_at + INTERVAL '120 days')                  THEN 'risk_refund'
+    WHEN now() > (COALESCE(p.paid_at, p.created_at) + INTERVAL '120 days') THEN 'risk_refund'
     ELSE                                                                 'pending'
   END                                                           AS guarantee_status
 
@@ -103,9 +112,11 @@ FROM auth.users u
 LEFT JOIN public.hotels h
   ON h.user_id = u.id
 LEFT JOIN LATERAL (
+  -- BL-ADMIN-MEMBERS-KPI-FIX (2026-05-21): 실제 payments.status는 'succeeded' (PayPal 표준)
+  -- 'completed' = 잘못된 약속어, 'succeeded' = 진실. D-046.
   SELECT * FROM public.payments
-   WHERE payments.user_id = u.id AND payments.status = 'completed'
-   ORDER BY paid_at DESC NULLS LAST
+   WHERE payments.user_id = u.id AND payments.status = 'succeeded'
+   ORDER BY COALESCE(paid_at, created_at) DESC
    LIMIT 1
 ) p ON true
 LEFT JOIN LATERAL (

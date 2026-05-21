@@ -17129,68 +17129,6 @@
       "updated_at": "2026-05-21T01:58:20+00:00"
     },
     {
-      "id": "BL-ADMIN-MEMBERS-KPI-FIX",
-      "category": "bugfix",
-      "priority": "P0",
-      "size": "medium",
-      "status": "in_progress",
-      "title": "admin.html Members KPI 카드 잘못된 숫자 수정 (v_hotel_manager_full 뷰 버그)",
-      "memo": "현상: PAID=0인데 실제 hotels.status='paid' 2건 / SIGNUP ONLY=3인데 실제 0 / 표에서 호텔 등록자도 '— no hotel'로 표시. 원인: v_hotel_manager_full 뷰가 payment_status=null로 반환 + lifecycle_stage 전부 signup_only. 뷰 SQL 정의가 hotels.status와 payments 테이블을 제대로 join 못함. 영향: admin이 매출 0으로 오해 → 잘못된 사업 판단. 진단 결과: vjsludfjsphwnumuoqaj Supabase Management API로 뷰 SQL 재정의 필요. payment_status는 hotels.status='paid' OR payments 테이블 존재 기준으로. lifecycle_stage는 hotel_id 유무 + status 기반으로 재계산.",
-      "progress": {
-        "steps": [
-          {
-            "step": "1. v_hotel_manager_full 현재 SQL 정의 fetch",
-            "done": true,
-            "at": "2026-05-21T01:51:45+00:00"
-          },
-          {
-            "step": "2. 뷰가 어떤 admin 페이지에서 쓰이는지 영향 범위 파악",
-            "done": true,
-            "at": "2026-05-21T01:51:45+00:00"
-          },
-          {
-            "step": "3. 새 뷰 SQL 박음 (payment_status / lifecycle_stage 정의 수정)",
-            "done": true,
-            "at": "2026-05-21T01:51:45+00:00"
-          },
-          {
-            "step": "4. Supabase Management API로 뷰 교체",
-            "done": true,
-            "at": "2026-05-21T01:51:45+00:00"
-          },
-          {
-            "step": "5. admin.html Members 화면 라이브 검증 (PAID=2, SIGNUP ONLY=0 나오는지)",
-            "done": false
-          }
-        ],
-        "completed_count": 4,
-        "total_count": 5,
-        "percent": 80,
-        "updated_at": "2026-05-21T01:51:45+00:00"
-      },
-      "decisions": [],
-      "depends_on": [],
-      "created_at": "2026-05-21",
-      "started_at": "2026-05-21T01:51:45+00:00",
-      "progress_warning": {
-        "code": "MISSING_PROGRESS_STEPS",
-        "rule": "부칙 7 — 모든 작업은 progress.steps 박은 후 시작",
-        "detected_at": "2026-05-21T01:51:45+00:00",
-        "detected_by_commit": "24496a6",
-        "message": "in_progress 진입했으나 progress.steps 비어있음. tasks.json에서 progress.steps 박은 후 다음 commit에 [step:done:N] 태그."
-      },
-      "updated_at": "2026-05-21T01:51:45+00:00",
-      "history": [
-        {
-          "at": "2026-05-21T01:51:45+00:00",
-          "event": "진행 중 진입 (auto-detected) ⚠️ 부칙 7 위반 — progress.steps 미박힘 + 단계 1, 단계 2, 단계 3, 단계 4 완료 (auto-detected)",
-          "by": "auto-detect-bot",
-          "commit": "24496a6",
-          "note": "fix(BL-MGR-DASH-SIGNOUT): manager-dashboard.html Sign out 박음 + 후속 BL 2건 등록 [step:done:1][step:done:2][step:done:3][step:"
-        }
-      ]
-    },
-    {
       "id": "BL-COMMON-HEADER-UNIFY",
       "category": "ux",
       "priority": "P1",
@@ -17287,6 +17225,180 @@
         }
       ],
       "notes": "점검 봇 자동 등록 (2026-05-21T02:52:52.647Z)\n\ncheck_name: tasks_schema\nstatus: red\ndetail: 작업 239건 중 7건에 출처가 없어요 (자동 동기화 봇 멈춤 위험)\n\n진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 green으로 박으면 자동 done."
+    },
+    {
+      "id": "BL-ADMIN-MEMBERS-KPI-FIX",
+      "category": "bugfix",
+      "priority": "P0",
+      "size": "medium",
+      "status": "done",
+      "title": "admin.html Members KPI 카드 잘못된 숫자 수정 (v_hotel_manager_full 뷰 버그)",
+      "memo": "현상: PAID=0인데 실제 hotels.status='paid' 2건 / SIGNUP ONLY=3인데 실제 0 / 표에서 호텔 등록자도 '— no hotel'로 표시. 원인: v_hotel_manager_full 뷰가 payment_status=null로 반환 + lifecycle_stage 전부 signup_only. 뷰 SQL 정의가 hotels.status와 payments 테이블을 제대로 join 못함. 영향: admin이 매출 0으로 오해 → 잘못된 사업 판단. 진단 결과: vjsludfjsphwnumuoqaj Supabase Management API로 뷰 SQL 재정의 필요. payment_status는 hotels.status='paid' OR payments 테이블 존재 기준으로. lifecycle_stage는 hotel_id 유무 + status 기반으로 재계산.",
+      "progress": {
+        "steps": [
+          {
+            "step": "1. v_hotel_manager_full 현재 SQL 정의 fetch",
+            "done": true,
+            "at": "2026-05-21T06:37:17.692254+00:00"
+          },
+          {
+            "step": "2. 뷰가 어떤 admin 페이지에서 쓰이는지 영향 범위 파악 (4곳 확인)",
+            "done": true,
+            "at": "2026-05-21T06:37:17.692254+00:00"
+          },
+          {
+            "step": "3. 새 뷰 SQL 박음 (status 'completed'→'succeeded' + paid_at NULL 폴백)",
+            "done": true,
+            "at": "2026-05-21T06:37:17.692254+00:00"
+          },
+          {
+            "step": "4. Supabase Management API로 뷰 교체 (라이브 적용 완료)",
+            "done": true,
+            "at": "2026-05-21T06:37:17.692254+00:00"
+          },
+          {
+            "step": "5. admin.html Members 화면 라이브 검증 (PAID=2, SIGNUP ONLY=2, HOTEL REG=3 확인)",
+            "done": true,
+            "at": "2026-05-21T06:37:17.692254+00:00"
+          }
+        ],
+        "completed_count": 5,
+        "total_count": 5,
+        "percent": 100,
+        "updated_at": "2026-05-21T06:37:17.692254+00:00"
+      },
+      "decisions": [
+        "D-046"
+      ],
+      "depends_on": [],
+      "created_at": "2026-05-21",
+      "started_at": "2026-05-21T01:51:45+00:00",
+      "updated_at": "2026-05-21T06:37:17.692254+00:00",
+      "history": [
+        {
+          "at": "2026-05-21T01:51:45+00:00",
+          "event": "진행 중 진입 (auto-detected) ⚠️ 부칙 7 위반 — progress.steps 미박힘 + 단계 1, 단계 2, 단계 3, 단계 4 완료 (auto-detected)",
+          "by": "auto-detect-bot",
+          "commit": "24496a6",
+          "note": "fix(BL-MGR-DASH-SIGNOUT): manager-dashboard.html Sign out 박음 + 후속 BL 2건 등록 [step:done:1][step:done:2][step:done:3][step:"
+        },
+        {
+          "at": "2026-05-21T06:37:17.692254+00:00",
+          "event": "done 완료 — 라이브 검증 PASS (PAID 0→2, SIGNUP ONLY 3→2, HOTEL REG 2→3). D-046 박음.",
+          "by": "claude",
+          "commit": "TBD",
+          "note": "v_hotel_manager_full 뷰 SQL 3개 수정 + Management API 라이브 적용 + chat-log 박음"
+        }
+      ],
+      "completed_at": "2026-05-21T06:37:17.692254+00:00"
+    },
+    {
+      "id": "BL-OPS-TESTDATA-CLEANUP",
+      "category": "ops",
+      "priority": "P2",
+      "size": "small",
+      "status": "pending",
+      "title": "운영 진입 직전 테스트 계정·결제·호텔 일괄 삭제",
+      "memo": "현재 매니저 4명 중 2명이 테스트 계정 (t_signout_1779328608210@test.travelwinners.tw + dgmasters01@gmail.com 검토). hotels 3건 중 1건이 테스트 (TEST_SIGNOUT_b22260ab). payments 2건 모두 페이팔 테스트 결제 (현재는 매출로 카운트). 대표님 명시: '운영 오픈하면 테스트계정을 다 삭제할거니깐'. 운영 진입 시점에 실행. auth.users DELETE → CASCADE로 hotels/payments 정리되는지 RLS·FK 사전 검증 필요. SQL 박기 전 대표님께 삭제 대상 목록 1번 확인 받기.",
+      "progress": {
+        "steps": [
+          {
+            "step": "1. 삭제 대상 후보 list-up (auth.users + hotels + payments + bookings + videos + admin_notes 6테이블 전수)",
+            "done": false
+          },
+          {
+            "step": "2. CASCADE 동작 사전 검증 (staging 환경 또는 transaction rollback)",
+            "done": false
+          },
+          {
+            "step": "3. 대표님께 삭제 대상 목록 보고 + 1차 확인",
+            "done": false
+          },
+          {
+            "step": "4. 일괄 삭제 SQL 박음 (transaction 안에서)",
+            "done": false
+          },
+          {
+            "step": "5. KPI 라이브 검증 (TOTAL=0 또는 운영 매니저만 남는지)",
+            "done": false
+          }
+        ],
+        "completed_count": 0,
+        "total_count": 5,
+        "percent": 0,
+        "updated_at": "2026-05-21T06:38:28.264322+00:00"
+      },
+      "decisions": [
+        "D-046"
+      ],
+      "depends_on": [],
+      "approval_required": true,
+      "requires_decisions_first": true,
+      "decision_context": {
+        "지금 무슨 상황이냐면": "어드민 화면에 매니저 4명·호텔 3건·결제 2건이 보이는데, 이 중 테스트 데이터가 섞여있어요. 개발 중에는 그대로 둬도 되지만, 진짜 호텔 매니저를 받기 시작하면 화면이 지저분해집니다.",
+        "왜 결정이 필요하냐면": "삭제는 되돌릴 수 없어요. 어떤 계정을 남기고 어떤 계정을 지울지(예: dgmasters01@gmail.com는 어드민 본인 — 남길지 분리할지) 대표님이 직접 확인하셔야 합니다.",
+        "결정하면 뭐가 달라지냐면": "운영 진입 직후 어드민 화면이 깨끗해집니다. 새 매니저 가입 시 KPI 1부터 시작. 사업 판단 정확해짐."
+      },
+      "created_at": "2026-05-21",
+      "updated_at": "2026-05-21T06:38:28.264322+00:00",
+      "history": [
+        {
+          "at": "2026-05-21T06:38:28.264322+00:00",
+          "event": "신규 등록 (BL-ADMIN-MEMBERS-KPI-FIX 진행 중 대표님 명시 '운영 오픈하면 테스트계정 다 삭제할거니깐')",
+          "by": "claude"
+        }
+      ]
+    },
+    {
+      "id": "BL-PAYMENTS-STATUS-AUDIT",
+      "category": "audit",
+      "priority": "P1",
+      "size": "medium",
+      "status": "pending",
+      "title": "코드 전체 payments.status='completed' 가정 사용처 grep 점검",
+      "memo": "BL-ADMIN-MEMBERS-KPI-FIX에서 v_hotel_manager_full 뷰가 'completed'로 박혀있어 매출 0으로 거짓 표시된 버그 발견. 실제 PayPal 통합 코드는 'succeeded'를 박음. 같은 가정이 다른 코드(api/, _admin/, sql/, supabase/functions/)에 있을 가능성. 전수 grep으로 'completed' 사용처 list-up → 결제 관련 코드만 추출 → 'succeeded'로 일괄 교체 + chat-log 박음.",
+      "progress": {
+        "steps": [
+          {
+            "step": "1. 전수 grep ('completed' 결제 관련 사용처 list-up)",
+            "done": false
+          },
+          {
+            "step": "2. 진짜 버그(교체 대상) vs 다른 의미(예: booking.status='completed')로 분류",
+            "done": false
+          },
+          {
+            "step": "3. 교체 대상 일괄 수정 + commit",
+            "done": false
+          },
+          {
+            "step": "4. 라이브 검증 (영향 받은 API/페이지 전수 확인)",
+            "done": false
+          },
+          {
+            "step": "5. payment_status enum 강제 박을지 별도 BL 검토",
+            "done": false
+          }
+        ],
+        "completed_count": 0,
+        "total_count": 5,
+        "percent": 0,
+        "updated_at": "2026-05-21T06:38:28.264322+00:00"
+      },
+      "decisions": [
+        "D-046"
+      ],
+      "depends_on": [],
+      "approval_required": false,
+      "created_at": "2026-05-21",
+      "updated_at": "2026-05-21T06:38:28.264322+00:00",
+      "history": [
+        {
+          "at": "2026-05-21T06:38:28.264322+00:00",
+          "event": "신규 등록 (BL-ADMIN-MEMBERS-KPI-FIX 후속 — 같은 버그 다른 곳에 있을 가능성 차단)",
+          "by": "claude"
+        }
+      ]
     }
   ]
 }

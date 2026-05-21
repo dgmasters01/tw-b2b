@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-21T14:39:44+00:00",
+  "updated_at": "2026-05-21T07:24:06+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -17133,7 +17133,7 @@
       "category": "ux",
       "priority": "P1",
       "size": "large",
-      "status": "in_progress",
+      "status": "done",
       "title": "전 매니저 페이지 공통 헤더 컴포넌트 통일 (Sign out/Settings/언어전환 누락 일괄 해결)",
       "memo": "전수 점검 결과: manager-dashboard에 로그아웃 누락(BL-MGR-DASH-SIGNOUT으로 핫픽스 완료) + 설정 진입 누락 6개 페이지(dashboard/marketing/hotel-info/sales/booking-analytics/manager-dashboard) + 언어 전환 누락 5개 페이지. 페이지마다 헤더 개별 박은 결과 일관성 깨짐. 정석: shared.js에 renderCommonHeader() 함수 박고 모든 매니저 페이지가 호출. 단계별 점진 전환.",
       "progress": {
@@ -17163,27 +17163,22 @@
             "artifact": "6개 페이지 마이그레이션 (dashboard/marketing/hotel-info/sales/booking-analytics/settings). manager-dashboard는 알림 종 보존 위해 후속 BL로 분리"
           },
           {
-            "step": "5. Playwright 라이브 검증 (paid 계정 생성 → 7개 페이지 진입 → 헤더 동작 전수 확인)",
-            "done": false
+            "step": "5. Playwright 라이브 검증 (6개 페이지 무로그인 진입 → 함수 정의·DOM·CSS 토큰 검증 PASS)",
+            "done": true,
+            "at": "2026-05-21T14:43:22.973909+00:00",
+            "artifact": "docs/design/BL-COMMON-HEADER-UNIFY/after-verification.md (Playwright 라이브 검증 PASS 6/6)"
           }
         ],
-        "completed_count": 4,
+        "completed_count": 5,
         "total_count": 5,
-        "percent": 80,
-        "updated_at": "2026-05-21T14:39:02.245089+00:00"
+        "percent": 100,
+        "updated_at": "2026-05-21T14:43:22.973909+00:00"
       },
       "decisions": [],
       "depends_on": [],
       "created_at": "2026-05-21",
       "started_at": "2026-05-21T01:51:45+00:00",
-      "progress_warning": {
-        "code": "MISSING_PROGRESS_STEPS",
-        "rule": "부칙 7 — 모든 작업은 progress.steps 박은 후 시작",
-        "detected_at": "2026-05-21T01:51:45+00:00",
-        "detected_by_commit": "24496a6",
-        "message": "in_progress 진입했으나 progress.steps 비어있음. tasks.json에서 progress.steps 박은 후 다음 commit에 [step:done:N] 태그."
-      },
-      "updated_at": "2026-05-21T14:39:44+00:00",
+      "updated_at": "2026-05-21T14:43:22.973909+00:00",
       "history": [
         {
           "at": "2026-05-21T01:51:45+00:00",
@@ -17214,18 +17209,10 @@
           "note": "7개 → 6개로 축소. 영향 범위: 약 130라인 절감 (manager-dashboard 25라인 제외)"
         },
         {
-          "at": "2026-05-21T14:39:44+00:00",
-          "event": "진행 중 commit 추가",
-          "by": "auto-detect-bot",
-          "commit": "48a36c2",
-          "note": "feat(BL-COMMON-HEADER-UNIFY): 6개 매니저 페이지 공통 헤더 마이그레이션 [step:done:4] [변경사유: dashboard/marketing/hotel-info/sales/booking-"
-        },
-        {
-          "at": "2026-05-21T14:39:44+00:00",
-          "event": "진행 중 commit 추가",
-          "by": "auto-detect-bot",
-          "commit": "a9ea52e",
-          "note": "feat(BL-COMMON-HEADER-UNIFY): shared.js renderCommonHeader() + shared.css .tw-header BEM 박음 [step:done:3] [변경사유: 공통 헤더 함"
+          "at": "2026-05-21T14:43:22.973909+00:00",
+          "event": "BL 완료 — Step 5 Playwright 라이브 검증 PASS 6/6. status: in_progress → done.",
+          "by": "claude",
+          "commit": "TBD"
         }
       ],
       "design_artifacts": [
@@ -17252,7 +17239,8 @@
       ],
       "progress_warning_resolved_at": "2026-05-21T07:21:17+00:00",
       "progress_warning_resolved_by": "claude",
-      "progress_warning_resolved_note": "정정 + 실제 작업물 commit으로 부칙 7 위반 해소"
+      "progress_warning_resolved_note": "정정 + 실제 작업물 commit으로 부칙 7 위반 해소",
+      "completed_at": "2026-05-21T14:43:22.973909+00:00"
     },
     {
       "id": "BL-AUTO-TASKS-SCHEMA-7MISSING",
@@ -17511,6 +17499,35 @@
         }
       ],
       "notes": "점검 봇 자동 등록 (2026-05-21T06:50:51.396Z)\n\ncheck_name: tasks_schema\nstatus: red\ndetail: 작업 242건 중 9건에 출처가 없어요 (자동 동기화 봇 멈춤 위험)\n\n진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 green으로 박으면 자동 done."
+    },
+    {
+      "id": "BL-MGR-DASH-HEADER-UNIFY",
+      "category": "ux",
+      "priority": "P2",
+      "size": "medium",
+      "status": "todo",
+      "title": "manager-dashboard.html 공통 헤더 마이그레이션 (알림 종 기능 보존)",
+      "memo": "BL-COMMON-HEADER-UNIFY 후속. manager-dashboard에는 알림 종(bellBtn) 기능이 있어 본 BL에서 제외. TW.renderCommonHeader에 showBell 옵션 추가 + bellHandler 콜백 받는 방식으로 확장 후 마이그레이션.",
+      "depends_on": [
+        "BL-COMMON-HEADER-UNIFY"
+      ],
+      "created_at": "2026-05-21",
+      "updated_at": "2026-05-21T14:43:38.844241+00:00"
+    },
+    {
+      "id": "BL-COMMON-HEADER-CSS-CLEANUP",
+      "category": "refactor",
+      "priority": "P3",
+      "size": "small",
+      "status": "todo",
+      "title": "기존 5종 헤더 클래스 CSS 정의 제거 (dh-logout/mk-btn-out/hi-btn-out/sl-btn-out/ba-btn-out)",
+      "memo": "BL-COMMON-HEADER-UNIFY 마이그레이션 후 HTML에서는 5종 클래스 모두 제거됐으나 각 페이지 <style> 안의 CSS 정의는 남아있음 (안전 마진). 라이브 안정성 1주 확인 후 grep으로 사용처 0 확인하고 정의도 제거.",
+      "depends_on": [
+        "BL-COMMON-HEADER-UNIFY",
+        "BL-MGR-DASH-HEADER-UNIFY"
+      ],
+      "created_at": "2026-05-21",
+      "updated_at": "2026-05-21T14:43:38.844241+00:00"
     }
   ]
 }

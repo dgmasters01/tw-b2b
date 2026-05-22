@@ -92,8 +92,21 @@ export const PAGES = [
 
   // ─── 매니저 페이지 (로그인 필요, manager role) ──────────────────────────
   {
+    path: '/manager-dashboard.html',
+    name: '매니저 본진 (결제 완료 후 홈)',
+    purpose: '결제 완료 매니저가 들어와 자기 호텔 상태 + 영상 진행 + 결제 내역 + 예약 분석 모두 보는 진짜 본진',
+    audience: 'manager',
+    flow: 'stage4',
+    flowOrder: 4,
+    flowLabel: '영상 제작·진행',
+    capture: true,
+    status: 'live',
+    visibleWhen: '결제 완료(status: paid/producing/published) 매니저 로그인 후',
+    notes: '1964줄. 알림 종 / Videos / Payments / Analytics 탭 / KPI 카드 / Funnel 차트 모두 박힘. 진짜 매니저 본진.',
+  },
+  {
     path: '/dashboard.html',
-    name: '매니저 대시보드',
+    name: '매니저 대시보드 (중복 — 정리 예정)',
     purpose: '진행 단계 + 호텔 정보 + 결제 상태 + 결제 박스(임시)',
     audience: 'manager',
     flow: 'stage4',
@@ -101,8 +114,8 @@ export const PAGES = [
     flowLabel: '영상 제작·진행',
     capture: true,
     status: 'needs-refactor',
-    visibleWhen: '매니저 로그인 후',
-    notes: '결제 박스 분리 필요 → sales.html(결제 전) + marketing.html(결제 후)로 이전 예정',
+    visibleWhen: '매니저 로그인 후 (현재 stageGateRedirect가 여기로 보냄 — 변경 필요)',
+    notes: '⚠️ manager-dashboard.html과 중복. dashboard 폐기 + stageGateRedirect 목적지 변경 BL 필요. 결제 박스도 sales.html(결제 전) + marketing.html(결제 후)로 분리 예정.',
   },
   {
     path: '/hotel-info.html',

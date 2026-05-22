@@ -17577,6 +17577,172 @@
         }
       ],
       "notes": "점검 봇 자동 등록 (2026-05-21T16:37:27.895Z)\n\ncheck_name: tasks_schema\nstatus: red\ndetail: 작업 245건 중 11건에 출처가 없어요 (자동 동기화 봇 멈춤 위험)\n\n진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 green으로 박으면 자동 done."
+    },
+    {
+      "id": "BL-FLOW-1-AGODA-AUTO-APPROVE",
+      "category": "feature",
+      "priority": "P0",
+      "size": "small",
+      "status": "todo",
+      "title": "1단계 — Agoda 매칭 성공 시 자동 approved + 결제 페이지로",
+      "memo": "[지금 무슨 상황이냐면] 매니저가 호텔 등록하면 status='pending'이 박혀서 대표님 수동 승인 대기. Agoda 매칭이 자동으로 호텔 진위 체크하는데도 매니저는 2-3일 기다림. 이 사이 매니저 열정 식음.\n\n[왜 결정이 필요하냐면] 대표님 A안 확정 (2026-05-22 채팅): Agoda 매칭 성공 = 자동 approved. 매칭 실패 케이스만 manual_pending으로 대표님 수동 검토.\n\n[결정하면 뭐가 달라지냐면] 정상 호텔 95%는 등록 직후 결제 페이지로 바로 감. 매니저 열정 살아있을 때 결제 누름. 매출 즉시 회복.",
+      "progress": {
+        "steps": [
+          {
+            "step": "1. hotel-info.html line 1149 status: 'pending' → 매칭 성공 분기 추가 (Agoda 매칭 OK면 'approved' 박기)",
+            "done": false
+          },
+          {
+            "step": "2. 같은 호텔 중복 결제 방지 — 다른 매니저가 이미 결제한 호텔이면 duplicate_hotel 차단",
+            "done": false
+          },
+          {
+            "step": "3. hotel-info '확인 완료' 버튼 클릭 후 자동 sales.html 이동 라우팅 박기",
+            "done": false
+          },
+          {
+            "step": "4. Playwright로 가짜 매니저 시뮬레이션: 등록 → approved 자동 박힘 → sales.html 도착 확인",
+            "done": false
+          },
+          {
+            "step": "5. tasks.json done 마킹 + commit + push + chat-log 박음",
+            "done": false
+          }
+        ],
+        "completed_count": 0,
+        "total_count": 5,
+        "percent": 0,
+        "updated_at": "2026-05-22T08:47:02.429056+00:00"
+      },
+      "depends_on": [],
+      "target_pages": [
+        "/hotel-info.html",
+        "/sales.html"
+      ],
+      "autonomy_ready": true,
+      "approval_required": false,
+      "context": "BUSINESS_FLOW.md Stage 1D + service-flow.md Stage 2 + 2026-05-22 채팅 대표님 A안 확정. 결제 API(api/paypal.js)는 이미 approved → paid 자동 전환되도록 박혀있음. 1번 변경하면 자동 통과.",
+      "created_at": "2026-05-22",
+      "updated_at": "2026-05-22T08:47:02.429056+00:00",
+      "history": [
+        {
+          "at": "2026-05-22T08:47:02.429056+00:00",
+          "event": "BL 등록 — 1단계 가입~결제 흐름 박기",
+          "by": "claude"
+        }
+      ]
+    },
+    {
+      "id": "BL-FLOW-2-SALES-COPY-5TIER",
+      "category": "feature",
+      "priority": "P0",
+      "size": "medium",
+      "status": "todo",
+      "title": "1단계 — sales.html 5단 카피 박기 (결제 유도 페이지 본문)",
+      "memo": "[지금 무슨 상황이냐면] sales.html에 결제 박스만 있고 매니저가 왜 $200 내야 하는지 설득할 본문이 없음. 카피·문구·숫자는 copy-hierarchy.md에 5단으로 다 정의돼 있는데 안 박힘.\n\n[왜 결정이 필요하냐면] 결제 유도 페이지가 빈약하면 결제 전환율 낮음. 대표님 강조: 매출 직결.\n\n[결정하면 뭐가 달라지냐면] 매니저가 '왜 결제해야 하는지' 5단계로 설득됨 → 결제 전환율 상승.",
+      "progress": {
+        "steps": [
+          {
+            "step": "1. copy-hierarchy.md 5단 카피 fetch (메인 약속·숫자 증거·규모·작동·보장)",
+            "done": false
+          },
+          {
+            "step": "2. sales.html approved 분기에 5단 카피 박음 (디자인은 임시, 나중에 일괄 통일)",
+            "done": false
+          },
+          {
+            "step": "3. '가입 완료!' 축하 헤더 추가 (status=approved 진입 시)",
+            "done": false
+          },
+          {
+            "step": "4. 라이브 캡처 후 대표님 확인",
+            "done": false
+          },
+          {
+            "step": "5. commit + push + chat-log",
+            "done": false
+          }
+        ],
+        "completed_count": 0,
+        "total_count": 5,
+        "percent": 0,
+        "updated_at": "2026-05-22T08:47:02.429056+00:00"
+      },
+      "depends_on": [
+        "BL-FLOW-1-AGODA-AUTO-APPROVE"
+      ],
+      "target_pages": [
+        "/sales.html"
+      ],
+      "autonomy_ready": true,
+      "approval_required": false,
+      "context": "docs/design/BL-MGR-DASHBOARD-V1/copy-hierarchy.md (5단 카피 100% 정의됨). 디자인은 임시 박고 나중에 shared.css로 일괄 통일.",
+      "created_at": "2026-05-22",
+      "updated_at": "2026-05-22T08:47:02.429056+00:00",
+      "history": [
+        {
+          "at": "2026-05-22T08:47:02.429056+00:00",
+          "event": "BL 등록 — sales.html 5단 카피 박기",
+          "by": "claude"
+        }
+      ]
+    },
+    {
+      "id": "BL-FLOW-3-DASHBOARD-ROUTING-FIX",
+      "category": "refactor",
+      "priority": "P0",
+      "size": "medium",
+      "status": "todo",
+      "title": "2단계 — dashboard.html 폐기 + 결제 후 manager-dashboard로 보내기",
+      "memo": "[지금 무슨 상황이냐면] 결제 완료 매니저가 라우팅 3곳 충돌 (sales→marketing / dashboard→자기/ 진짜본진 manager-dashboard 누락). 결제하고도 빈약한 dashboard.html에 떨어짐.\n\n[왜 결정이 필요하냐면] 결제 후 매니저가 '내가 산 게 뭐지?' 헷갈리면 첫 인상 망침. 진짜 본진(manager-dashboard 1964줄, 5탭, 알림 종)으로 보내야 함.\n\n[결정하면 뭐가 달라지냐면] 매니저가 결제 직후 진짜 매니저 페이지로 들어가서 영상 진행·결제 영수증·예약 분석 다 봄.",
+      "progress": {
+        "steps": [
+          {
+            "step": "1. dashboard.html stageGateRedirect 결제 완료 분기 → window.location.replace('manager-dashboard.html') 박음",
+            "done": false
+          },
+          {
+            "step": "2. sales.html paid 매니저 분기 → marketing.html 대신 manager-dashboard.html로 변경",
+            "done": false
+          },
+          {
+            "step": "3. dashboard.html 자체 폐기 — manager-dashboard로 301 리다이렉트 (vercel.json)",
+            "done": false
+          },
+          {
+            "step": "4. pages-meta.mjs에서 dashboard.html status: needs-refactor → retired",
+            "done": false
+          },
+          {
+            "step": "5. Playwright로 결제 후 흐름 검증 + commit + push + chat-log",
+            "done": false
+          }
+        ],
+        "completed_count": 0,
+        "total_count": 5,
+        "percent": 0,
+        "updated_at": "2026-05-22T08:47:02.429056+00:00"
+      },
+      "depends_on": [
+        "BL-FLOW-2-SALES-COPY-5TIER"
+      ],
+      "target_pages": [
+        "/dashboard.html",
+        "/sales.html",
+        "/manager-dashboard.html"
+      ],
+      "autonomy_ready": true,
+      "approval_required": false,
+      "context": "manager-dashboard.html이 진짜 본진(5탭 다 박힘). dashboard.html은 620줄 빈약본 — 폐기 결정 (2026-05-22 채팅). 라우팅 3곳만 바꾸면 됨.",
+      "created_at": "2026-05-22",
+      "updated_at": "2026-05-22T08:47:02.429056+00:00",
+      "history": [
+        {
+          "at": "2026-05-22T08:47:02.429056+00:00",
+          "event": "BL 등록 — 결제 후 라우팅 manager-dashboard로 단일화",
+          "by": "claude"
+        }
+      ]
     }
   ]
 }

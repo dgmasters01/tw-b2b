@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-05-22T07:57:19.001Z",
+  "generatedAt": "2026-05-22T08:16:47.399Z",
   "totalAvgScore": 74,
   "counts": {
     "🟢 완성": 0,
-    "🔵 본격": 13,
+    "🔵 본격": 14,
     "🟡 부분": 5,
     "🟠 골격": 0,
     "🔴 미작성": 0
@@ -413,6 +413,22 @@
     },
     {
       "rank": 8,
+      "path": "/manager-dashboard.html",
+      "name": "매니저 본진 (결제 완료 후 홈)",
+      "score": 72,
+      "badge": {
+        "label": "🔵 본격",
+        "color": "#2563eb"
+      },
+      "weakest": {
+        "dimension": "content",
+        "hint": "TODO/준비중 22건, 빈 태그 10건"
+      },
+      "lastTaskId": "BL-MANAGER-DASH-001",
+      "lastUpdated": "2026-05-06"
+    },
+    {
+      "rank": 9,
       "path": "/forgot-password.html",
       "name": "비밀번호 찾기",
       "score": 74,
@@ -428,7 +444,7 @@
       "lastUpdated": "2026-05-01"
     },
     {
-      "rank": 9,
+      "rank": 10,
       "path": "/settings.html",
       "name": "계정 설정",
       "score": 76,
@@ -442,22 +458,6 @@
       },
       "lastTaskId": "CHG-16",
       "lastUpdated": "2026-05-01"
-    },
-    {
-      "rank": 10,
-      "path": "/admin-status.html",
-      "name": "시스템 완성도 (System Status)",
-      "score": 76,
-      "badge": {
-        "label": "🔵 본격",
-        "color": "#2563eb"
-      },
-      "weakest": {
-        "dimension": "content",
-        "hint": "TODO/준비중 17건, 빈 태그 22건"
-      },
-      "lastTaskId": "BL-CLIPBOARD-FIX",
-      "lastUpdated": "2026-05-07"
     }
   ],
   "pages": [
@@ -784,8 +784,62 @@
       }
     },
     {
+      "path": "/manager-dashboard.html",
+      "name": "매니저 본진 (결제 완료 후 홈)",
+      "audience": "manager",
+      "declaredStatus": "live",
+      "purpose": "결제 완료 매니저가 들어와 자기 호텔 상태 + 영상 진행 + 결제 내역 + 예약 분석 모두 보는 진짜 본진",
+      "fileExists": true,
+      "fileSize": 107941,
+      "dimensions": {
+        "structure": {
+          "score": 100,
+          "hint": "대형 페이지",
+          "size": 107941
+        },
+        "design": {
+          "score": 90,
+          "hint": "shared.css ✓, Aurora 토큰 ✓, 인라인 스타일 비대"
+        },
+        "function": {
+          "score": 80,
+          "hint": "함수 60 · fetch 1 · 핸들러 2 · 탭 5",
+          "funcs": 60,
+          "fetches": 1,
+          "handlers": 2,
+          "tabs": 5
+        },
+        "content": {
+          "score": 0,
+          "hint": "TODO/준비중 22건, 빈 태그 10건",
+          "todos": 22
+        },
+        "recency": {
+          "score": 100,
+          "hint": "1일 전",
+          "lastDate": "2026-05-21T01:56:01.000Z",
+          "daysAgo": 1
+        }
+      },
+      "totalScore": 72,
+      "badge": {
+        "label": "🔵 본격",
+        "color": "#2563eb"
+      },
+      "weakest": {
+        "dimension": "content",
+        "hint": "TODO/준비중 22건, 빈 태그 10건"
+      },
+      "lastTask": {
+        "lastTaskId": "BL-MANAGER-DASH-001",
+        "lastTaskTitle": "[매니저 대시보드 신규 제작] 한 화면 7영역 (5초 파악)",
+        "lastUpdated": "2026-05-06",
+        "taskCount": 3
+      }
+    },
+    {
       "path": "/dashboard.html",
-      "name": "매니저 대시보드",
+      "name": "매니저 대시보드 (중복 — 정리 예정)",
       "audience": "manager",
       "declaredStatus": "needs-refactor",
       "purpose": "진행 단계 + 호텔 정보 + 결제 상태 + 결제 박스(임시)",

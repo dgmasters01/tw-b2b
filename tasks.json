@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-23T02:37:58.875Z",
+  "updated_at": "2026-05-23T05:34:28.344356+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -13,15 +13,19 @@
   ],
   "stats": {
     "total": 252,
-    "done": 179,
+    "done": 180,
     "in_progress": 0,
     "paused": 0,
-    "pending": 54,
+    "pending": 53,
     "blocked": 10,
     "autonomous_ready": 45,
     "todo": 2,
     "cancelled": 1,
-    "updated_at": "2026-05-23T02:37:58.875Z"
+    "updated_at": "2026-05-23T02:37:58.875Z",
+    "rejected": 0,
+    "on_hold": 0,
+    "obsoleted": 5,
+    "absorbed": 1
   },
   "tasks": [
     {
@@ -17659,36 +17663,36 @@
       "category": "feature",
       "priority": "P0",
       "size": "small",
-      "status": "pending",
+      "status": "done",
       "title": "1단계 — Agoda 매칭 성공 시 자동 approved + 결제 페이지로",
       "memo": "[지금 무슨 상황이냐면] 매니저가 호텔 등록하면 status='pending'이 박혀서 대표님 수동 승인 대기. Agoda 매칭이 자동으로 호텔 진위 체크하는데도 매니저는 2-3일 기다림. 이 사이 매니저 열정 식음.\n\n[왜 결정이 필요하냐면] 대표님 A안 확정 (2026-05-22 채팅): Agoda 매칭 성공 = 자동 approved. 매칭 실패 케이스만 manual_pending으로 대표님 수동 검토.\n\n[결정하면 뭐가 달라지냐면] 정상 호텔 95%는 등록 직후 결제 페이지로 바로 감. 매니저 열정 살아있을 때 결제 누름. 매출 즉시 회복.",
       "progress": {
         "steps": [
           {
             "step": "1. hotel-info.html line 1149 status: 'pending' → 매칭 성공 분기 추가 (Agoda 매칭 OK면 'approved' 박기)",
-            "done": false
+            "done": true
           },
           {
             "step": "2. 같은 호텔 중복 결제 방지 — 다른 매니저가 이미 결제한 호텔이면 duplicate_hotel 차단",
-            "done": false
+            "done": true
           },
           {
             "step": "3. hotel-info '확인 완료' 버튼 클릭 후 자동 sales.html 이동 라우팅 박기",
-            "done": false
+            "done": true
           },
           {
             "step": "4. Playwright로 가짜 매니저 시뮬레이션: 등록 → approved 자동 박힘 → sales.html 도착 확인",
-            "done": false
+            "done": true
           },
           {
             "step": "5. tasks.json done 마킹 + commit + push + chat-log 박음",
-            "done": false
+            "done": true
           }
         ],
-        "completed_count": 0,
+        "completed_count": 5,
         "total_count": 5,
-        "percent": 0,
-        "updated_at": "2026-05-22T08:47:02.429056+00:00"
+        "percent": 100,
+        "updated_at": "2026-05-23T05:34:28.344356+00:00"
       },
       "depends_on": [],
       "target_pages": [
@@ -17699,7 +17703,7 @@
       "approval_required": false,
       "context": "BUSINESS_FLOW.md Stage 1D + service-flow.md Stage 2 + 2026-05-22 채팅 대표님 A안 확정. 결제 API(api/paypal.js)는 이미 approved → paid 자동 전환되도록 박혀있음. 1번 변경하면 자동 통과.",
       "created_at": "2026-05-22",
-      "updated_at": "2026-05-23T01:45:56.970115+00:00",
+      "updated_at": "2026-05-23T05:34:28.344356+00:00",
       "history": [
         {
           "at": "2026-05-22T08:47:02.429056+00:00",
@@ -17710,9 +17714,14 @@
           "at": "2026-05-23T01:45:56.970115+00:00",
           "event": "status: todo → pending + order: 0 (다음 추천 박스 노출용)",
           "by": "claude"
+        },
+        {
+          "at": "2026-05-23T05:34:28.344356+00:00",
+          "event": "BL 완료 — Agoda 자동 approved + 중복 차단 + RPC 함수 + 5단계 commit",
+          "by": "claude"
         }
       ],
-      "order": 0
+      "order": null
     },
     {
       "id": "BL-FLOW-2-SALES-COPY-5TIER",

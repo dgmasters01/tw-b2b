@@ -499,6 +499,22 @@
       var q = sb.from('bookings').select('*').order('booking_date', { ascending: false });
       if (hotelId) q = q.eq('hotel_id', hotelId);
       return q;
+    },
+    // [BL-FLOW-1-AGODA-AUTO-APPROVE 2026-05-23]
+    // 호텔 등록 전 중복 점검 — 다른 매니저가 paid/approved/campaign_live/producing/published 상태로
+    // 이미 등록한 호텔이면 차단. SECURITY DEFINER RPC로 RLS 우회.
+    // 반환: { data: { duplicate: false } } 또는
+    //       { data: { duplicate: true, blocking_status: 'paid', existing_hotel_name: '...' } }
+    checkHotelDuplicate: function (agodaHotelId, googlePlaceId) {
+      if (!sb) return Promise.resolve({ data: { duplicate: false }, error: 'no-sb' });
+      var params = {
+        p_agoda_hotel_id: (agodaHotelId != null && agodaHotelId !== '') ? agodaHotelId : null,
+        p_google_place_id: (googlePlaceId != null && googlePlaceId !== '') ? googlePlaceId : null
+      };
+      return sb.rpc('check_hotel_duplicate', params).then(function (r) {
+        if (r.error) return { data: { duplicate: false }, error: r.error };
+        return { data: r.data || { duplicate: false }, error: null };
+      });
     }
   };
 

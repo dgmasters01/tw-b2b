@@ -1114,6 +1114,12 @@
       matchStatus = fetched._matched ? 'auto_matched' : 'manual_pending';
     }
 
+    // [BL-FLOW-1-AGODA-AUTO-APPROVE 2026-05-23]
+    // 대표님 A안 (2026-05-22 채팅 확정): Agoda 매칭 성공 = 자동 approved.
+    // → 정상 호텔 95%는 등록 직후 dashboard.html → sales.html로 자동 이동 (D-044 stageGateRedirect 활용)
+    // 매칭 실패 케이스만 manual_pending으로 대표님 수동 검토 (status='pending' 유지)
+    var initialStatus = (matchStatus === 'auto_matched') ? 'approved' : 'pending';
+
     var hotelData = {
       hotel_name: name,
       hotel_name_local: nameLocal || null,
@@ -1146,16 +1152,39 @@
       contact_email: contactEmail,
       contact_phone: managerPhone,
       whatsapp: managerPhone,
-      status: 'pending'
+      status: initialStatus
     };
 
     // [Phase 3 Step 5] Edit mode: don't overwrite status (manager can't change status)
+    // [BL-FLOW-1-AGODA-AUTO-APPROVE Step 2 2026-05-23]
+    // 새 등록(create) 케이스에만 중복 점검. Edit 모드는 이미 자기 호텔이므로 skip.
     var savePromise;
     if (isEditMode && editingHotel) {
       delete hotelData.status; // preserve existing status (admin-controlled)
       savePromise = T.db.updateHotel(editingHotel.id, hotelData);
     } else {
-      savePromise = T.db.createHotel(hotelData);
+      // 중복 호텔 점검: 다른 매니저가 paid/approved/campaign_live/producing/published 상태로
+      // 이미 등록한 호텔이면 차단 + 매니저에게 안내.
+      savePromise = T.db.checkHotelDuplicate(hotelData.agoda_hotel_id, hotelData.google_place_id)
+        .then(function(dupR){
+          if (dupR && dupR.data && dupR.data.duplicate === true){
+            // 중복 호텔 발견 — 차단 + 매니저에게 모달 안내
+            var existingName = dupR.data.existing_hotel_name || hotelData.hotel_name;
+            var blockingStatus = dupR.data.blocking_status || 'registered';
+            var msg = (T.lang === 'ko')
+              ? '"' + existingName + '"은(는) 이미 다른 매니저가 등록·결제한 호텔입니다.\n\n같은 호텔은 한 매니저만 등록할 수 있습니다.\n다른 호텔로 다시 시도해 주세요.\n\n문의: dgmasters01@gmail.com'
+              : '"' + existingName + '" is already registered and paid for by another manager.\n\nOnly one manager can register each hotel.\nPlease try a different hotel.\n\nContact: dgmasters01@gmail.com';
+            // alert 1회 + 토스트 백업 (모바일에서 alert 차단 시 대비)
+            try { alert(msg); } catch(_) {}
+            T.toast((T.lang === 'ko' ? '⚠️ 이미 등록된 호텔입니다: ' : '⚠️ Hotel already registered: ') + existingName, true);
+            btn.disabled = false;
+            btn.innerHTML = T.lang === 'ko' ? '저장 후 계속' : 'Save & Continue';
+            // 등록 차단 — Promise resolve로 다음 then 진입하되 r.error 박아서 차단
+            return { error: { code: 'duplicate_hotel', message: 'duplicate', _handled: true } };
+          }
+          // 중복 없음 → 정상 createHotel 진행
+          return T.db.createHotel(hotelData);
+        });
     }
 
     savePromise.then(function(r){
@@ -1163,6 +1192,10 @@
       btn.innerHTML = T.lang === 'ko' ? '저장 후 계속' : 'Save & Continue';
 
       if (r.error){
+        // [BL-FLOW-1-AGODA-AUTO-APPROVE] 중복 호텔 차단 케이스는 이미 모달 안내 박았음 → 추가 토스트 skip
+        if (r.error._handled === true){
+          return;
+        }
         console.error('Save error:', r.error);
         T.toast((T.lang === 'ko' ? '저장 실패: ' : 'Save failed: ') + (r.error.message || 'Unknown'), true);
         return;

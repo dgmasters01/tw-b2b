@@ -155,6 +155,11 @@ body{margin:0;background:var(--bg);font-family:var(--sans);color:var(--ink);min-
     // dashboard 화면 0.1초도 노출 금지 → 호텔 fetch 직후 즉시 redirect.
     // 결제 완료 그룹: paid / producing / published
     // 결제 전 그룹:   pending / review / approved / rejected
+    //
+    // [BL-FLOW-1-AGODA-AUTO-APPROVE 2026-05-23 연계]
+    // hotel-info.html에서 Agoda 매칭 성공 시 status='approved' 자동 박힘 →
+    // 이 라우팅이 approved를 sales.html로 즉시 보내서 매니저는 결제 페이지로 직행.
+    // 매니저 열정 식기 전 결제 누름 = 매출 즉시 회복.
     // ────────────────────────────────────────────────────────────────
     stageGateRedirect();
   });

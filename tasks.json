@@ -15028,7 +15028,7 @@
       "category": "admin",
       "priority": "P1",
       "size": "medium",
-      "status": "in_progress",
+      "status": "done",
       "owner": "claude",
       "claude_can_auto": true,
       "approval_required": false,
@@ -15037,8 +15037,33 @@
       "blocker": null,
       "depends_on": [],
       "progress": {
-        "percent": 0,
-        "steps": []
+        "percent": 100,
+        "steps": [
+          {
+            "n": 1,
+            "label": "list-users 화이트리스트 전환 (hotels 보유자만)",
+            "status": "done",
+            "commit": "b321ba5"
+          },
+          {
+            "n": 2,
+            "label": "좀비 청소 Python 스크립트 (DRY_RUN + audit_log)",
+            "status": "done",
+            "commit": "9d27d94"
+          },
+          {
+            "n": 3,
+            "label": "GitHub Actions cron 워크플로 (KST 03:30)",
+            "status": "done",
+            "commit": "c30a696"
+          },
+          {
+            "n": 4,
+            "label": "tasks.json done + chat-log 박기",
+            "status": "done",
+            "commit": "TBD"
+          }
+        ]
       },
       "notes": "Members 페이지 list-users API가 admin 제외 필터 적용 중 → 호텔 매니저(고객)가 admins에 박혀있으면 안 보이는 악순환. BL-SECURITY-SIGNUP-TRIGGER 끝나면 자연 해결되지만 데이터 소스 자체 재정의 필요. 가입 후 7일간 이메일 인증 안 받은 좀비 사용자 자동 삭제 봇 신설. 현재 좀비 1명 (1hogitravel@gmai.com — BL-SECURITY-SIGNUP-TRIGGER에서 처리).",
       "biz_context_v2": {
@@ -15047,7 +15072,7 @@
         "결정하면_뭐가_달라지냐면": "Members 페이지에 진짜 호텔 매니저 고객만 보임. 미인증자는 7일 후 자동 청소. 통계 정확."
       },
       "created_at": "2026-05-13T09:01:35.824392Z",
-      "updated_at": "2026-05-23T16:48:21+00:00",
+      "updated_at": "2026-05-24T01:48:41+09:00",
       "source": "chat:2026-05-13 보안 진단",
       "target_pages": [
         "/admin.html#tab-members",
@@ -15074,6 +15099,12 @@
           "by": "auto-detect-bot",
           "commit": "c30a696",
           "note": "feat(BL-MEMBERS-DATA-SOURCE): 좀비 청소봇 GitHub Actions 워크플로 (매일 KST 03:30 cron, schedule은 DRY_RUN 강제) [step:done:3] [변경사유: "
+        },
+        {
+          "at": "2026-05-24T01:48:41+09:00",
+          "event": "done",
+          "by": "claude",
+          "note": "데이터 소스 블랙리스트→화이트리스트 + 좀비 청소봇 신설 (3-commit, KST 03:30 schedule)"
         }
       ],
       "started_at": "2026-05-23T16:47:53+00:00",

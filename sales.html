@@ -269,6 +269,51 @@
   font-size:13.5px;color:#34D9A4;font-weight:600;text-align:center;
 }
 
+/* [BL-SIGNUP-ENRICHMENT 2026-05-23] D-035 임계값 분기 — 본인 호텔 누적 매출 박스 */
+.sl-revenue-strong{
+  margin:24px 0 14px;padding:22px 24px;
+  background:linear-gradient(135deg,rgba(56,189,248,.12),rgba(167,139,250,.12));
+  border:1.5px solid rgba(56,189,248,.4);
+  border-radius:var(--r);
+  box-shadow:0 8px 24px rgba(56,189,248,.15);
+}
+.sl-revenue-strong .sl-rev-tier{
+  font-size:13px;color:#7DD3FC;letter-spacing:.02em;
+  font-weight:700;margin-bottom:8px;text-transform:uppercase;
+}
+.sl-revenue-strong .sl-rev-headline{
+  font-size:22px;color:var(--ink-1);font-weight:700;line-height:1.4;
+  margin-bottom:10px;
+}
+.sl-revenue-strong .sl-rev-headline em{
+  font-style:normal;color:#38BDF8;font-weight:800;
+}
+.sl-revenue-strong .sl-rev-meta{
+  font-size:13.5px;color:var(--ink-2);line-height:1.6;
+}
+.sl-revenue-soft{
+  margin:24px 0 14px;padding:18px 22px;
+  background:rgba(167,139,250,.06);
+  border:1px solid rgba(167,139,250,.25);
+  border-radius:var(--r);
+}
+.sl-revenue-soft .sl-rev-tier{
+  font-size:12px;color:#A78BFA;letter-spacing:.02em;
+  font-weight:600;margin-bottom:6px;text-transform:uppercase;
+}
+.sl-revenue-soft .sl-rev-headline{
+  font-size:17px;color:var(--ink-1);font-weight:600;line-height:1.5;
+}
+.sl-revenue-soft .sl-rev-headline em{
+  font-style:normal;color:#A78BFA;font-weight:700;
+}
+.sl-revenue-loading{
+  margin:24px 0 14px;padding:14px 18px;
+  background:rgba(255,255,255,.02);border:1px dashed rgba(255,255,255,.1);
+  border-radius:var(--r);
+  font-size:13px;color:var(--ink-3);text-align:center;
+}
+
 /* ---------- Buttons ---------- */
 .sl-btn{
   display:inline-flex;align-items:center;justify-content:center;
@@ -725,6 +770,8 @@
         }
       };
       var ap = apL[apLang];
+      // [BL-SIGNUP-ENRICHMENT 2026-05-23] D-035 임계값 분기 본인 호텔 매출 박스 (placeholder, 비동기 채움)
+      html += '<div id="sl-hotel-revenue-box"></div>';
       html += '<div class="sl-tier-head">' + ap.tierHead + '</div>';
       html += '<div class="sl-pay-card">';
       html += '  <div class="sl-pay-glow"></div>';
@@ -751,9 +798,93 @@
     // PayPal Buttons 통합 (status === 'approved' 일 때만 렌더링)
     if (status === 'approved') {
       initPayPalButtons(hotel);
+      // [BL-SIGNUP-ENRICHMENT 2026-05-23] D-035 임계값 분기 본인 호텔 매출 비동기 fetch
+      fetchHotelRevenue(hotel.id);
     }
   }
 
+  // ─────────────────────────────────────────────
+  // [BL-SIGNUP-ENRICHMENT 2026-05-23] D-035 본인 호텔 누적 매출 임계값 분기
+  // $1,000+ 강력 / $200~999 부드러움 / <$200 숨김
+  // ─────────────────────────────────────────────
+  function fetchHotelRevenue(hotelId) {
+    if (!hotelId) return;
+    var box = document.getElementById('sl-hotel-revenue-box');
+    if (!box) return;
+    var lang = (T.lang === 'ko') ? 'ko' : 'en';
+    // 로딩 표시
+    box.innerHTML = '<div class="sl-revenue-loading">' +
+      (lang === 'ko' ? '본인 호텔 매출 데이터 확인 중…' : 'Loading your hotel revenue…') +
+      '</div>';
+    // hotel-bookings API 호출 (Bearer 토큰 자동 첨부)
+    T.sb.auth.getSession().then(function(sessRes){
+      var token = sessRes && sessRes.data && sessRes.data.session && sessRes.data.session.access_token;
+      if (!token) { box.innerHTML = ''; return; }
+      return fetch('/api/hotel-bookings?hotelId=' + encodeURIComponent(hotelId), {
+        headers: { 'Authorization': 'Bearer ' + token }
+      }).then(function(r){ return r.json(); });
+    }).then(function(data){
+      if (!data || !data.ok || !data.headline) { box.innerHTML = ''; return; }
+      var amount = Number(data.headline.total_amount_usd) || 0;
+      var count = Number(data.headline.booking_count) || 0;
+      renderHotelRevenue(box, amount, count);
+    }).catch(function(err){
+      console.warn('[BL-SIGNUP-ENRICHMENT] revenue fetch failed:', err);
+      if (box) box.innerHTML = '';
+    });
+  }
+
+  function renderHotelRevenue(box, amount, count) {
+    // D-035 3구간 임계값 분기 (누적 매출 USD 기준)
+    var lang = (T.lang === 'ko') ? 'ko' : 'en';
+    var formatted = '$' + amount.toLocaleString('en-US', { maximumFractionDigits: 0 });
+
+    if (amount >= 1000) {
+      // 강력 — 정확한 매출액 + 건수 (D-035)
+      var L_strong = {
+        ko: {
+          tier: '🎯 본전 회수 완료',
+          headline: '당신 호텔은 우리 채널을 통해 이미 <em>' + formatted + '</em> 매출 발생',
+          meta: '예약 ' + count + '건 누적 발생 · $200 결제는 이미 본전 회수한 상태에서 시작합니다.'
+        },
+        en: {
+          tier: '🎯 ROI already covered',
+          headline: 'Your hotel has earned <em>' + formatted + '</em> through our channels',
+          meta: count + ' bookings confirmed · Your $200 payment is already covered by past revenue.'
+        }
+      };
+      var s = L_strong[lang];
+      box.innerHTML =
+        '<div class="sl-revenue-strong">' +
+        '  <div class="sl-rev-tier">' + s.tier + '</div>' +
+        '  <div class="sl-rev-headline">' + s.headline + '</div>' +
+        '  <div class="sl-rev-meta">' + s.meta + '</div>' +
+        '</div>';
+    } else if (amount >= 200) {
+      // 부드러움 — 건수만 + 확장 메시지 (D-035)
+      var L_soft = {
+        ko: {
+          tier: '✨ 관심 채널 확인',
+          headline: '이미 우리 채널에서 <em>' + count + '건 예약</em>이 발생했습니다',
+          meta: ''
+        },
+        en: {
+          tier: '✨ Channel interest detected',
+          headline: 'Our channels have already generated <em>' + count + ' bookings</em> for your hotel',
+          meta: ''
+        }
+      };
+      var sf = L_soft[lang];
+      box.innerHTML =
+        '<div class="sl-revenue-soft">' +
+        '  <div class="sl-rev-tier">' + sf.tier + '</div>' +
+        '  <div class="sl-rev-headline">' + sf.headline + '</div>' +
+        '</div>';
+    } else {
+      // 숨김 — 메모리 규칙: 기존 메시지 사용 (매니저 부정 인식 방지)
+      box.innerHTML = '';
+    }
+  }
   // ─────────────────────────────────────────────
   // PayPal SDK 통합 (Phase B) — 로직 100% 보존
   // ─────────────────────────────────────────────

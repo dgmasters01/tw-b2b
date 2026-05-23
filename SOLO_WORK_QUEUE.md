@@ -102,55 +102,7 @@
 
 ---
 
-### G. 🟢 AUTO — [자동] 관리자 페이지 7개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요)
-
-**ID**: `BL-AUTO-ADMIN-BASELINE-7FILES`  
-**카테고리**: infrastructure  
-**예상 시간**: 1시간  
-
-**메모**: 점검 봇 자동 등록 (2026-05-11T03:56:28.755Z)
-
-check_name: admin_baseline
-status: yellow
-detail: 관리자 페이지 7개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요)
-
-진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 green으로 박으면 자동 done.
-
----
-
-### H. 🟢 AUTO — [자동] 관리자 페이지 1개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요)
-
-**ID**: `BL-AUTO-ADMIN-BASELINE-1FILES`  
-**카테고리**: infrastructure  
-**예상 시간**: 1시간  
-
-**메모**: 점검 봇 자동 등록 (2026-05-15T10:02:38.806Z)
-
-check_name: admin_baseline
-status: yellow
-detail: 관리자 페이지 1개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요)
-
-진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 green으로 박으면 자동 done.
-
----
-
-### I. 🟢 AUTO — [자동] 관리자 페이지 2개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요)
-
-**ID**: `BL-AUTO-ADMIN-BASELINE-2FILES`  
-**카테고리**: infrastructure  
-**예상 시간**: 1시간  
-
-**메모**: 점검 봇 자동 등록 (2026-05-15T16:30:05.675Z)
-
-check_name: admin_baseline
-status: yellow
-detail: 관리자 페이지 2개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요)
-
-진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 green으로 박으면 자동 done.
-
----
-
-### J. 🟡 SEMI — OS 설치 시 PAT/시크릿 자동 박기 흐름 — install_os.sh 보강
+### G. 🟡 SEMI — OS 설치 시 PAT/시크릿 자동 박기 흐름 — install_os.sh 보강
 
 **ID**: `BL-OS-INSTALL-PAT-FLOW`  
 **카테고리**: infra  
@@ -162,7 +114,7 @@ detail: 관리자 페이지 2개가 원본과 살짝 달라요 (대표님이 일
 
 ---
 
-### K. 🟡 SEMI — [호텔 상세 페이지 + 커뮤니케이션 이력] 매니저/호텔 분리 + 1:1 문의·메일·메모 타임라인
+### H. 🟡 SEMI — [호텔 상세 페이지 + 커뮤니케이션 이력] 매니저/호텔 분리 + 1:1 문의·메일·메모 타임라인
 
 **ID**: `BL-HOTEL-DETAIL-PAGE`  
 **카테고리**: feature  
@@ -172,7 +124,7 @@ detail: 관리자 페이지 2개가 원본과 살짝 달라요 (대표님이 일
 
 ---
 
-### L. 🟡 SEMI — [매출 차트 토글] 일/주/월/분기/년 보기 + 전월비/전년비 — booking-analytics 보강
+### I. 🟡 SEMI — [매출 차트 토글] 일/주/월/분기/년 보기 + 전월비/전년비 — booking-analytics 보강
 
 **ID**: `BL-REVENUE-DASHBOARD`  
 **카테고리**: analytics  
@@ -182,7 +134,7 @@ detail: 관리자 페이지 2개가 원본과 살짝 달라요 (대표님이 일
 
 ---
 
-### M. 🟡 SEMI — [재계약 관리 탭] D-30 임박 호텔 + 저성과 호텔(매출 $200 미만) 자동 추출
+### J. 🟡 SEMI — [재계약 관리 탭] D-30 임박 호텔 + 저성과 호텔(매출 $200 미만) 자동 추출
 
 **ID**: `BL-RENEWAL-WATCH`  
 **카테고리**: feature  
@@ -192,7 +144,7 @@ detail: 관리자 페이지 2개가 원본과 살짝 달라요 (대표님이 일
 
 ---
 
-### N. 🟡 SEMI — [환불 관리 탭] PayPal Refund API 연동 + 환불 이력 영구 보관
+### K. 🟡 SEMI — [환불 관리 탭] PayPal Refund API 연동 + 환불 이력 영구 보관
 
 **ID**: `BL-REFUND-FLOW`  
 **카테고리**: feature  
@@ -202,7 +154,7 @@ detail: 관리자 페이지 2개가 원본과 살짝 달라요 (대표님이 일
 
 ---
 
-### O. 🟡 SEMI — [가입 시 국가 선택 필수] 동남아 7개국 상단 노출
+### L. 🟡 SEMI — [가입 시 국가 선택 필수] 동남아 7개국 상단 노출
 
 **ID**: `BL-SIGNUP-COUNTRY-FIELD`  
 **카테고리**: feature  
@@ -212,7 +164,7 @@ detail: 관리자 페이지 2개가 원본과 살짝 달라요 (대표님이 일
 
 ---
 
-### P. 🟡 SEMI — [자동 메일 12개 영어 default] 한국 매니저만 한국어 분기
+### M. 🟡 SEMI — [자동 메일 12개 영어 default] 한국 매니저만 한국어 분기
 
 **ID**: `BL-EMAIL-LOCALE-ROUTING`  
 **카테고리**: feature  
@@ -222,17 +174,7 @@ detail: 관리자 페이지 2개가 원본과 살짝 달라요 (대표님이 일
 
 ---
 
-### Q. 🟡 SEMI — [가입자 화면 정리] Members 페이지 실제 고객 보이게 + 미인증 좀비 자동 청소
-
-**ID**: `BL-MEMBERS-DATA-SOURCE`  
-**카테고리**: admin  
-**예상 시간**: 미정시간  
-
-**메모**: Members 페이지 list-users API가 admin 제외 필터 적용 중 → 호텔 매니저(고객)가 admins에 박혀있으면 안 보이는 악순환. BL-SECURITY-SIGNUP-TRIGGER 끝나면 자연 해결되지만 데이터 소스 자체 재정의 필요. 가입 후 7일간 이메일 인증 안 받은 좀비 사용자 자동 삭제 봇 신설. 현재 좀비 1명 (1hogitravel@gmai.com — BL-SECURITY-SIGNUP-TRIGGER에서 처리).
-
----
-
-### R. 🟡 SEMI — [시스템 매뉴얼 자동 생성] 시스템 완성도 안에 다음 클로드를 위한 시스템 매뉴얼 자동 박기
+### N. 🟡 SEMI — [시스템 매뉴얼 자동 생성] 시스템 완성도 안에 다음 클로드를 위한 시스템 매뉴얼 자동 박기
 
 **ID**: `BL-SYSTEM-MANUAL-AUTOGEN`  
 **카테고리**: infra  

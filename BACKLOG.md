@@ -219,24 +219,6 @@
 
 ---
 
-## 🟢 P1 — [자동] 관리자 페이지 7개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요)
-
-**요약**: 점검 봇 자동 등록 (2026-05-11T03:56:28.755Z)
-
-check_name: admin_baseline
-status: yellow
-detail: 관리자 페이지 7개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요)
-
-진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 gr
-
-- **자율성**: 🟢 AUTO
-- **예상 시간**: 1시간
-- **카테고리**: infrastructure
-- **상태**: pending
-- **ID**: `BL-AUTO-ADMIN-BASELINE-7FILES` (출처: auto_from_admin_baseline)
-
----
-
 ## 🟡 P1 — [호텔 상세 페이지 + 커뮤니케이션 이력] 매니저/호텔 분리 + 1:1 문의·메일·메모 타임라인
 
 **요약**: 통찰 ⑥+⑨ 합본. admin Hotels 탭 행 = 호텔 카드 / 호텔명 클릭 → 단일 호텔 상세 슬라이드 패널. '📨 커뮤니케이션 이력' 영역 신설 — 1:1 문의/메일 송수신/내부 메모/status 변경 이력 시간순.
@@ -322,18 +304,6 @@ detail: 관리자 페이지 7개가 원본과 살짝 달라요 (대표님이 일
 
 ---
 
-## 🟡 P1 — [가입자 화면 정리] Members 페이지 실제 고객 보이게 + 미인증 좀비 자동 청소
-
-**요약**: Members 페이지 list-users API가 admin 제외 필터 적용 중 → 호텔 매니저(고객)가 admins에 박혀있으면 안 보이는 악순환. BL-SECURITY-SIGNUP-TRIGGER 끝나면 자연 해결되지만 데이터 소스 자체 재정의 필요. 가입 후 7일간 이메일 인증 안 받은 좀비 사용자 자동 삭제 봇 신설. 현재 좀비 1명 (1hogitra
-
-- **자율성**: 🟡 SEMI
-- **예상 시간**: 미정시간
-- **카테고리**: admin
-- **상태**: pending
-- **ID**: `BL-MEMBERS-DATA-SOURCE` (출처: chat:2026-05-13 보안 진단)
-
----
-
 ## 🟡 P1 — [운영 모드 진입 정리] 테스트 데이터 삭제 + 토큰 일괄 폐기 + 하드코딩 환경변수화
 
 **요약**: 헌법 부칙 11 메모리 사이클 — 운영 진입 시점에 일괄 정리. 1) 테스트 호텔 매니저 leejifilm/joylife8760 + Lotte Hotel Seattle/The Westin Tokyo 삭제. 2) handle_new_user 트리거 owner 이메일 dgmasters01@gmail.com 하드코딩 → OWNER_EMAILS 환경변수화. 3) 
@@ -355,42 +325,6 @@ detail: 관리자 페이지 7개가 원본과 살짝 달라요 (대표님이 일
 - **카테고리**: infra
 - **상태**: pending
 - **ID**: `BL-SYSTEM-MANUAL-AUTOGEN` (출처: chat:2026-05-15 시스템 완성도 vs admin.html 역할 분리)
-
----
-
-## 🟢 P1 — [자동] 관리자 페이지 1개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요)
-
-**요약**: 점검 봇 자동 등록 (2026-05-15T10:02:38.806Z)
-
-check_name: admin_baseline
-status: yellow
-detail: 관리자 페이지 1개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요)
-
-진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 gr
-
-- **자율성**: 🟢 AUTO
-- **예상 시간**: 1시간
-- **카테고리**: infrastructure
-- **상태**: pending
-- **ID**: `BL-AUTO-ADMIN-BASELINE-1FILES` (출처: auto_from_admin_baseline)
-
----
-
-## 🟢 P1 — [자동] 관리자 페이지 2개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요)
-
-**요약**: 점검 봇 자동 등록 (2026-05-15T16:30:05.675Z)
-
-check_name: admin_baseline
-status: yellow
-detail: 관리자 페이지 2개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요)
-
-진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 gr
-
-- **자율성**: 🟢 AUTO
-- **예상 시간**: 1시간
-- **카테고리**: infrastructure
-- **상태**: pending
-- **ID**: `BL-AUTO-ADMIN-BASELINE-2FILES` (출처: auto_from_admin_baseline)
 
 ---
 

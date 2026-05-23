@@ -7550,9 +7550,7 @@
       "size": "medium",
       "parent_task": "BL-CHAT-LOG-SYSTEM",
       "blocker": null,
-      "depends_on": [
-        "BL-CHAT-LOG-SYSTEM"
-      ],
+      "depends_on": [],
       "created_at": "2026-05-06T03:00:00Z",
       "started_at": "2026-05-06T03:30:00Z",
       "started_by": "CLAUDE",
@@ -7580,9 +7578,16 @@
           "at": "2026-05-12T00:15:56.084Z",
           "event": "mail_sent — Resend id: 3216ffa5-e5bf-47ec-9f7c-483e0417a339 (bundle 135)",
           "by": "ops-mail-bot"
+        },
+        {
+          "at": "2026-05-23T15:29:04.732795+09:00",
+          "event": "stale blocked_by/depends_on 자동 청소",
+          "by": "claude",
+          "note": "차단원 모두 done/obsoleted 상태라 의존성 해제"
         }
       ],
-      "source": "BL-COMMAND-CENTER — 인간 탭 재작성"
+      "source": "BL-COMMAND-CENTER — 인간 탭 재작성",
+      "updated_at": "2026-05-23T15:29:04.732795+09:00"
     },
     {
       "id": "BL-DECISION-MODAL-V2",
@@ -7593,9 +7598,7 @@
       "status": "done",
       "claude_can_auto": true,
       "approval_required": false,
-      "depends_on": [
-        "BL-STATUS-INTERACTIVE"
-      ],
+      "depends_on": [],
       "started_by": null,
       "autonomous": {
         "estimated_hours": 3,
@@ -7612,8 +7615,15 @@
           "at": "2026-05-12T00:15:56.084Z",
           "event": "mail_sent — Resend id: 3216ffa5-e5bf-47ec-9f7c-483e0417a339 (bundle 135)",
           "by": "ops-mail-bot"
+        },
+        {
+          "at": "2026-05-23T15:29:04.732795+09:00",
+          "event": "stale blocked_by/depends_on 자동 청소",
+          "by": "claude",
+          "note": "차단원 모두 done/obsoleted 상태라 의존성 해제"
         }
-      ]
+      ],
+      "updated_at": "2026-05-23T15:29:04.732795+09:00"
     },
     {
       "id": "BL-LIVE-STATUS-PANEL",
@@ -14094,20 +14104,26 @@
       "estimated_hours": 5,
       "order": 4,
       "blocker": null,
-      "depends_on": [
-        "BL-RENAME-GOHOTEL"
-      ],
+      "depends_on": [],
       "progress": {
         "percent": 0,
         "steps": []
       },
       "notes": "통찰 ⑥+⑨ 합본. admin Hotels 탭 행 = 호텔 카드 / 호텔명 클릭 → 단일 호텔 상세 슬라이드 패널. '📨 커뮤니케이션 이력' 영역 신설 — 1:1 문의/메일 송수신/내부 메모/status 변경 이력 시간순.",
       "created_at": "2026-05-12T17:04:42.051339Z",
-      "updated_at": "2026-05-12T17:04:42.051339Z",
+      "updated_at": "2026-05-23T15:29:04.732795+09:00",
       "source": "autoheal:feature-2026-05-13",
       "target_pages": [
         "/marketing.html",
         "/admin.html"
+      ],
+      "history": [
+        {
+          "at": "2026-05-23T15:29:04.732795+09:00",
+          "event": "stale blocked_by/depends_on 자동 청소",
+          "by": "claude",
+          "note": "차단원 모두 done/obsoleted 상태라 의존성 해제"
+        }
       ]
     },
     {
@@ -14152,19 +14168,25 @@
       "estimated_hours": 5,
       "order": 6,
       "blocker": null,
-      "depends_on": [
-        "BL-PAST-VIDEO-RECON"
-      ],
+      "depends_on": [],
       "progress": {
         "percent": 0,
         "steps": []
       },
       "notes": "admin Sales 영역 → '💎 재계약 관리' 탭 신설. 3개 필터: 예약 0건 / 매출 $200 미만(이벤트 송출 후보) / D-30 임박. 통찰 ② 박힘.",
       "created_at": "2026-05-12T17:04:42.051339Z",
-      "updated_at": "2026-05-12T17:04:42.051339Z",
+      "updated_at": "2026-05-23T15:29:04.732795+09:00",
       "source": "autoheal:feature-2026-05-13",
       "target_pages": [
         "/admin.html"
+      ],
+      "history": [
+        {
+          "at": "2026-05-23T15:29:04.732795+09:00",
+          "event": "stale blocked_by/depends_on 자동 청소",
+          "by": "claude",
+          "note": "차단원 모두 done/obsoleted 상태라 의존성 해제"
+        }
       ]
     },
     {
@@ -14209,18 +14231,14 @@
       "estimated_hours": 5,
       "order": 8,
       "blocker": null,
-      "depends_on": [
-        "BL-PAST-VIDEO-RECON",
-        "BL-AGODA-TOS-CHECK",
-        "BL-SECURITY-SIGNUP-TRIGGER"
-      ],
+      "depends_on": [],
       "progress": {
         "percent": 0,
         "steps": []
       },
       "notes": "signup.html 호텔 입력 직후 백그라운드 매칭 → verify-email 또는 sales.html에서 표시. $1,000+ 강력 / $200~999 부드러움 / <$200 숨김.",
       "created_at": "2026-05-12T17:04:42.051339Z",
-      "updated_at": "2026-05-23T02:00:00+00:00",
+      "updated_at": "2026-05-23T15:29:04.732795+09:00",
       "source": "decision:D-035",
       "target_pages": [
         "/signup.html",
@@ -14264,6 +14282,12 @@
           "by": "auto-detect-bot",
           "commit": "fca17a7",
           "note": "chore(tasks): in_progress 거짓 복귀 [status:keep] [변경사유: auto-detect-bot이 직전 commit subject 보고 BL-SIGNUP-ENRICHMENT + BL-AUT"
+        },
+        {
+          "at": "2026-05-23T15:29:04.732795+09:00",
+          "event": "stale blocked_by/depends_on 자동 청소",
+          "by": "claude",
+          "note": "차단원 모두 done/obsoleted 상태라 의존성 해제"
         }
       ]
     },
@@ -14752,9 +14776,7 @@
       "estimated_hours": 3,
       "order": 2,
       "blocker": null,
-      "depends_on": [
-        "BL-SECURITY-SIGNUP-TRIGGER"
-      ],
+      "depends_on": [],
       "progress": {
         "percent": 100,
         "completed_count": 5,
@@ -14859,7 +14881,7 @@
         "결정하면_뭐가_달라지냐면": "admin 화면 한 곳에서 모든 사용자 관리. 누가 언제 무엇을 했는지 자동 기록. 영업 직원 채용·퇴사 흐름 정상 작동."
       },
       "created_at": "2026-05-13T09:01:35.824392Z",
-      "updated_at": "2026-05-20T17:45:23+00:00",
+      "updated_at": "2026-05-23T15:29:04.732795+09:00",
       "source": "chat:2026-05-13 보안 진단",
       "target_pages": [
         "/admin.html#tab-hotels",
@@ -14976,6 +14998,12 @@
           "at": "2026-05-21T01:51:44.694Z",
           "event": "mail_sent — Resend id: e4078e8c-3d0e-4a11-a5dc-6d8bce299621 (bundle 3)",
           "by": "ops-mail-bot"
+        },
+        {
+          "at": "2026-05-23T15:29:04.732795+09:00",
+          "event": "stale blocked_by/depends_on 자동 청소",
+          "by": "claude",
+          "note": "차단원 모두 done/obsoleted 상태라 의존성 해제"
         }
       ],
       "done_at": "2026-05-20T17:43:06.049525+00:00"
@@ -14993,9 +15021,7 @@
       "estimated_hours": 2,
       "order": 3,
       "blocker": null,
-      "depends_on": [
-        "BL-SECURITY-SIGNUP-TRIGGER"
-      ],
+      "depends_on": [],
       "progress": {
         "percent": 0,
         "steps": []
@@ -15007,12 +15033,20 @@
         "결정하면_뭐가_달라지냐면": "Members 페이지에 진짜 호텔 매니저 고객만 보임. 미인증자는 7일 후 자동 청소. 통계 정확."
       },
       "created_at": "2026-05-13T09:01:35.824392Z",
-      "updated_at": "2026-05-13T09:01:35.824392Z",
+      "updated_at": "2026-05-23T15:29:04.732795+09:00",
       "source": "chat:2026-05-13 보안 진단",
       "target_pages": [
         "/admin.html#tab-members",
         "/api/admin?action=list-users",
         ".github/workflows (zombie cleanup bot)"
+      ],
+      "history": [
+        {
+          "at": "2026-05-23T15:29:04.732795+09:00",
+          "event": "stale blocked_by/depends_on 자동 청소",
+          "by": "claude",
+          "note": "차단원 모두 done/obsoleted 상태라 의존성 해제"
+        }
       ]
     },
     {
@@ -15028,9 +15062,7 @@
       "estimated_hours": 1,
       "order": 4,
       "blocker": null,
-      "depends_on": [
-        "BL-ADMIN-USER-MANAGEMENT"
-      ],
+      "depends_on": [],
       "progress": {
         "percent": 0,
         "steps": []
@@ -15042,10 +15074,18 @@
         "결정하면_뭐가_달라지냐면": "사이드바 보면 누가 누구인지 즉시 인지. 영한 토글이 admin 전체에 100% 작동."
       },
       "created_at": "2026-05-13T09:01:35.824392Z",
-      "updated_at": "2026-05-13T09:01:35.824392Z",
+      "updated_at": "2026-05-23T15:29:04.732795+09:00",
       "source": "chat:2026-05-13 보안 진단",
       "target_pages": [
         "/admin.html"
+      ],
+      "history": [
+        {
+          "at": "2026-05-23T15:29:04.732795+09:00",
+          "event": "stale blocked_by/depends_on 자동 청소",
+          "by": "claude",
+          "note": "차단원 모두 done/obsoleted 상태라 의존성 해제"
+        }
       ]
     },
     {
@@ -15062,8 +15102,6 @@
       "order": 5,
       "blocker": null,
       "depends_on": [
-        "BL-SECURITY-SIGNUP-TRIGGER",
-        "BL-ADMIN-USER-MANAGEMENT",
         "BL-MEMBERS-DATA-SOURCE",
         "BL-ADMIN-LABEL-CLEANUP"
       ],
@@ -15078,10 +15116,18 @@
         "결정하면_뭐가_달라지냐면": "라이브 오픈 가능한 상태. 토큰 노출 0건. 테스트 데이터 0건. 대표님 이메일 변경에도 owner 권한 유지."
       },
       "created_at": "2026-05-13T09:01:35.824392Z",
-      "updated_at": "2026-05-13T09:01:35.824392Z",
+      "updated_at": "2026-05-23T15:29:04.732795+09:00",
       "source": "chat:2026-05-13 보안 진단",
       "target_pages": [
         "hotels 테이블 + auth.users + DB 트리거 + 환경변수 + 모든 토큰"
+      ],
+      "history": [
+        {
+          "at": "2026-05-23T15:29:04.732795+09:00",
+          "event": "stale blocked_by/depends_on 자동 청소",
+          "by": "claude",
+          "note": "차단원 모두 done/obsoleted 상태라 의존성 해제"
+        }
       ]
     },
     {
@@ -15097,9 +15143,7 @@
       "estimated_hours": 0.5,
       "order": 2,
       "blocker": null,
-      "depends_on": [
-        "BL-SECURITY-SIGNUP-TRIGGER"
-      ],
+      "depends_on": [],
       "progress": {
         "percent": 100,
         "steps": [
@@ -15130,7 +15174,7 @@
         "결정하면_뭐가_달라지냐면": "v2 SQL 재실행해도 admins 자동 박기는 동작하지 않는다. 보안 패치가 영구 보호된다."
       },
       "created_at": "2026-05-13T14:05:16.023790+00:00",
-      "updated_at": "2026-05-14T01:04:22+00:00",
+      "updated_at": "2026-05-23T15:29:04.732795+09:00",
       "source": "chat:2026-05-13 BL-SECURITY-SIGNUP-TRIGGER 진단 중 발견",
       "target_pages": [
         "sql/bl-admin-auth-v2.sql + sql/bl-admin-auth-v2-rls-hotfix.sql"
@@ -15162,6 +15206,12 @@
           "by": "auto-detect-bot",
           "commit": "ed72603",
           "note": "docs(BL-ADMIN-AUTH-V2-BACKFILL-DISARM): chat-log 박음 — 두 v2 SQL 시한폭탄 영구 무력화 [변경사유: 부칙 15 chat-log 의무]"
+        },
+        {
+          "at": "2026-05-23T15:29:04.732795+09:00",
+          "event": "stale blocked_by/depends_on 자동 청소",
+          "by": "claude",
+          "note": "차단원 모두 done/obsoleted 상태라 의존성 해제"
         }
       ],
       "completed_at": "2026-05-14T01:03:16.457826+00:00"
@@ -15366,9 +15416,7 @@
       "estimated_hours": 12,
       "order": 2,
       "blocker": null,
-      "depends_on": [
-        "BL-MANAGER-HUB-VIEW"
-      ],
+      "depends_on": [],
       "progress": {
         "percent": 100,
         "steps": [
@@ -15421,7 +15469,7 @@
         "결정하면_뭐가_달라지냐면": "가입자 1번 클릭 → 좌측 매니저 화면 + 우측 관리 패널 한눈에. 다른 페이지 연동의 허브."
       },
       "created_at": "2026-05-13T15:55:50.030158+00:00",
-      "updated_at": "2026-05-13T16:24:53.713869+00:00",
+      "updated_at": "2026-05-23T15:29:04.732795+09:00",
       "source": "chat:2026-05-13 매니저 허브 페이지 설계",
       "target_pages": [
         "_admin/admin.html (members 탭)",
@@ -15446,6 +15494,12 @@
           "at": "2026-05-13T16:25:21.390Z",
           "event": "mail_sent — Resend id: 43e0a6f1-6dc4-4065-ae65-eac48628b6ec (bundle 2)",
           "by": "ops-mail-bot"
+        },
+        {
+          "at": "2026-05-23T15:29:04.732795+09:00",
+          "event": "stale blocked_by/depends_on 자동 청소",
+          "by": "claude",
+          "note": "차단원 모두 done/obsoleted 상태라 의존성 해제"
         }
       ],
       "completed_at": "2026-05-13T16:24:53.713869+00:00"
@@ -15463,9 +15517,7 @@
       "estimated_hours": 8,
       "order": 3,
       "blocker": null,
-      "depends_on": [
-        "BL-MANAGER-HUB-PAGE"
-      ],
+      "depends_on": [],
       "progress": {
         "percent": 100,
         "steps": [
@@ -15496,7 +15548,7 @@
         "결정하면_뭐가_달라지냐면": "좌측 = 매니저가 자기 페이지에서 보는 그대로. 호텔 정보·예약·매출·영상 8채널 실제 데이터."
       },
       "created_at": "2026-05-13T15:55:50.030158+00:00",
-      "updated_at": "2026-05-13T16:43:51+00:00",
+      "updated_at": "2026-05-23T15:29:04.732795+09:00",
       "source": "chat:2026-05-13 매니저 허브 페이지 설계",
       "target_pages": [
         "_admin/admin.html (members 탭)",
@@ -15522,6 +15574,12 @@
           "at": "2026-05-14T01:03:26.035Z",
           "event": "mail_sent — Resend id: c92ff2e3-000e-4c90-9bbf-c239a3f8e697 (bundle 2)",
           "by": "ops-mail-bot"
+        },
+        {
+          "at": "2026-05-23T15:29:04.732795+09:00",
+          "event": "stale blocked_by/depends_on 자동 청소",
+          "by": "claude",
+          "note": "차단원 모두 done/obsoleted 상태라 의존성 해제"
         }
       ]
     },
@@ -15538,9 +15596,7 @@
       "estimated_hours": 10,
       "order": 4,
       "blocker": null,
-      "depends_on": [
-        "BL-MANAGER-HUB-PAGE"
-      ],
+      "depends_on": [],
       "progress": {
         "percent": 100,
         "steps": [
@@ -15577,7 +15633,7 @@
         "결정하면_뭐가_달라지냐면": "버튼 클릭 → 매니저 정보 자동 치환된 템플릿 미리보기 → 발송. Resend로 자동 메일."
       },
       "created_at": "2026-05-13T15:55:50.030158+00:00",
-      "updated_at": "2026-05-13T16:24:53.713869+00:00",
+      "updated_at": "2026-05-23T15:29:04.732795+09:00",
       "source": "chat:2026-05-13 매니저 허브 페이지 설계",
       "target_pages": [
         "_admin/admin.html (members 탭)",
@@ -15603,6 +15659,12 @@
           "at": "2026-05-13T16:25:21.390Z",
           "event": "mail_sent — Resend id: 43e0a6f1-6dc4-4065-ae65-eac48628b6ec (bundle 2)",
           "by": "ops-mail-bot"
+        },
+        {
+          "at": "2026-05-23T15:29:04.732795+09:00",
+          "event": "stale blocked_by/depends_on 자동 청소",
+          "by": "claude",
+          "note": "차단원 모두 done/obsoleted 상태라 의존성 해제"
         }
       ],
       "completed_at": "2026-05-13T16:24:53.713869+00:00"
@@ -15620,10 +15682,7 @@
       "estimated_hours": 16,
       "order": 5,
       "blocker": null,
-      "depends_on": [
-        "BL-MANAGER-HUB-VIEW",
-        "BL-MANAGER-MANUAL-PUSH"
-      ],
+      "depends_on": [],
       "progress": {
         "percent": 100,
         "steps": [
@@ -15674,7 +15733,7 @@
         "결정하면_뭐가_달라지냐면": "매일 새벽 cron이 모든 매니저 D-N 계산 → 해당 단계 자동 메일. 대표님 손 0번. 재결제 매출 자동 발생."
       },
       "created_at": "2026-05-13T15:55:50.030158+00:00",
-      "updated_at": "2026-05-15T03:06:07+00:00",
+      "updated_at": "2026-05-23T15:29:04.732795+09:00",
       "source": "chat:2026-05-13 매니저 허브 페이지 설계",
       "target_pages": [
         "_admin/admin.html (members 탭)",
@@ -15700,6 +15759,12 @@
           "at": "2026-05-15T03:05:58.482Z",
           "event": "mail_sent — Resend id: df9cff9f-e006-4bc3-bf62-39cfa5499198 (bundle 1)",
           "by": "ops-mail-bot"
+        },
+        {
+          "at": "2026-05-23T15:29:04.732795+09:00",
+          "event": "stale blocked_by/depends_on 자동 청소",
+          "by": "claude",
+          "note": "차단원 모두 done/obsoleted 상태라 의존성 해제"
         }
       ],
       "completed_at": "2026-05-15T03:04:43.143601+00:00"
@@ -15715,9 +15780,7 @@
       "requireApproval": false,
       "createdAt": "2026-05-15T06:10:11.838843+00:00",
       "updatedAt": "2026-05-15T07:34:19.609867+00:00",
-      "depends_on": [
-        "BL-SALES-PAGE-BUILD"
-      ],
+      "depends_on": [],
       "biz_context_v2": {
         "지금_무슨_상황이냐면": "지금 dashboard.html이 가입한 모든 사람에게 시스템 전체를 보여줌. 결제 안 한 사람도 매니저 시스템(예약·분석·CS 등) 다 볼 수 있어서 결제할 이유가 약해짐.",
         "왜_결정이_필요하냐면": "영업 깔때기가 새는 핵심 결함. 결제 안 한 사람은 결제 유도 페이지(sales.html)만 봐야 하고, 결제 완료자만 시스템 전체 접근 가능하게 막아야 함.",
@@ -15773,7 +15836,7 @@
         "updated_at": "2026-05-20T18:08:29+00:00"
       },
       "started_at": "2026-05-15T06:10:23+00:00",
-      "updated_at": "2026-05-20T18:08:29+00:00",
+      "updated_at": "2026-05-23T15:29:04.732795+09:00",
       "history": [
         {
           "at": "2026-05-15T06:10:23+00:00",
@@ -15814,6 +15877,12 @@
           "at": "2026-05-21T01:51:44.694Z",
           "event": "mail_sent — Resend id: e4078e8c-3d0e-4a11-a5dc-6d8bce299621 (bundle 3)",
           "by": "ops-mail-bot"
+        },
+        {
+          "at": "2026-05-23T15:29:04.732795+09:00",
+          "event": "stale blocked_by/depends_on 자동 청소",
+          "by": "claude",
+          "note": "차단원 모두 done/obsoleted 상태라 의존성 해제"
         }
       ],
       "source": "chat:2026-05-15 영업 깔때기 페이지 구축 (sales.html + 단계별 라우팅)",
@@ -16062,9 +16131,7 @@
       "source": "chat:2026-05-15 시스템 완성도 vs admin.html 역할 분리",
       "createdAt": "2026-05-15T08:11:38.134962+00:00",
       "updatedAt": "2026-05-15T08:22:43.903340+00:00",
-      "depends_on": [
-        "BL-PAGE-ROLES-SPLIT"
-      ],
+      "depends_on": [],
       "biz_context_v2": {
         "지금_무슨_상황이냐면": "admin.html 라이브가 146줄짜리 로그인 페이지. 사업 KPI(매출/매니저/예약/영상) 화면 0개. Supabase 6개 테이블에 데이터는 있으나 대표님이 볼 수 있는 화면이 없음.",
         "왜_결정이_필요하냐면": "사업이 굴러갈 때 매니저 승인·결제·환불·매출 분석을 매일 봐야 함. userPreferences '올해 많은 돈을 버는게 목표' 직결. 화면 없으면 영업 깔때기 전환율도 측정 불가.",
@@ -16125,7 +16192,7 @@
           }
         ]
       },
-      "updated_at": "2026-05-15T08:11:51+00:00",
+      "updated_at": "2026-05-23T15:29:04.732795+09:00",
       "history": [
         {
           "at": "2026-05-15T08:11:51+00:00",
@@ -16133,6 +16200,12 @@
           "by": "auto-detect-bot",
           "commit": "10959b6",
           "note": "feat(BL-NEW): 신규 BL 3건 등록 — BL-PAGE-ROLES-SPLIT + BL-ADMIN-OPERATIONS-DASHBOARD + BL-SYSTEM-MANUAL-AUTOGEN [변경사유: 대표님 헌법"
+        },
+        {
+          "at": "2026-05-23T15:29:04.732795+09:00",
+          "event": "stale blocked_by/depends_on 자동 청소",
+          "by": "claude",
+          "note": "차단원 모두 done/obsoleted 상태라 의존성 해제"
         }
       ],
       "order": 2,
@@ -17039,7 +17112,7 @@
       "status": "done",
       "priority": "p0",
       "created_at": "2026-05-20T13:38:45.718431Z",
-      "updated_at": "2026-05-23T15:26:52.210791+09:00",
+      "updated_at": "2026-05-23T15:29:04.732795+09:00",
       "progress": {
         "percent": 100,
         "steps": [
@@ -17103,9 +17176,7 @@
         "BL-MGR-DASHBOARD-V1",
         "BL-MGR-LOGIN-ROUTING"
       ],
-      "depends_on": [
-        "BL-MGR-CHECK-COLUMN-FIX"
-      ],
+      "depends_on": [],
       "approval_required": false,
       "auto_context_warning": false,
       "history": [
@@ -17138,6 +17209,12 @@
           "event": "source 필드 자동 보강 (BL-AUTO-TASKS-SCHEMA 해소)",
           "by": "claude",
           "note": "source=auto-detect-bot:commit:790afa3 (history[0].by + BL 패턴 추론)"
+        },
+        {
+          "at": "2026-05-23T15:29:04.732795+09:00",
+          "event": "stale blocked_by/depends_on 자동 청소",
+          "by": "claude",
+          "note": "차단원 모두 done/obsoleted 상태라 의존성 해제"
         }
       ],
       "done_at": "2026-05-20T15:21:57.718539Z",
@@ -17739,11 +17816,9 @@
       "status": "todo",
       "title": "manager-dashboard.html 공통 헤더 마이그레이션 (알림 종 기능 보존)",
       "memo": "BL-COMMON-HEADER-UNIFY 후속. manager-dashboard에는 알림 종(bellBtn) 기능이 있어 본 BL에서 제외. TW.renderCommonHeader에 showBell 옵션 추가 + bellHandler 콜백 받는 방식으로 확장 후 마이그레이션.",
-      "depends_on": [
-        "BL-COMMON-HEADER-UNIFY"
-      ],
+      "depends_on": [],
       "created_at": "2026-05-21",
-      "updated_at": "2026-05-23T15:26:52.210791+09:00",
+      "updated_at": "2026-05-23T15:29:04.732795+09:00",
       "source": "manual",
       "source_anchor": "",
       "history": [
@@ -17752,6 +17827,12 @@
           "event": "source 필드 자동 보강 (BL-AUTO-TASKS-SCHEMA 해소)",
           "by": "claude",
           "note": "source=manual (history[0].by + BL 패턴 추론)"
+        },
+        {
+          "at": "2026-05-23T15:29:04.732795+09:00",
+          "event": "stale blocked_by/depends_on 자동 청소",
+          "by": "claude",
+          "note": "차단원 모두 done/obsoleted 상태라 의존성 해제"
         }
       ]
     },
@@ -17764,11 +17845,10 @@
       "title": "기존 5종 헤더 클래스 CSS 정의 제거 (dh-logout/mk-btn-out/hi-btn-out/sl-btn-out/ba-btn-out)",
       "memo": "BL-COMMON-HEADER-UNIFY 마이그레이션 후 HTML에서는 5종 클래스 모두 제거됐으나 각 페이지 <style> 안의 CSS 정의는 남아있음 (안전 마진). 라이브 안정성 1주 확인 후 grep으로 사용처 0 확인하고 정의도 제거.",
       "depends_on": [
-        "BL-COMMON-HEADER-UNIFY",
         "BL-MGR-DASH-HEADER-UNIFY"
       ],
       "created_at": "2026-05-21",
-      "updated_at": "2026-05-23T15:26:52.210791+09:00",
+      "updated_at": "2026-05-23T15:29:04.732795+09:00",
       "source": "manual",
       "source_anchor": "",
       "history": [
@@ -17777,6 +17857,12 @@
           "event": "source 필드 자동 보강 (BL-AUTO-TASKS-SCHEMA 해소)",
           "by": "claude",
           "note": "source=manual (history[0].by + BL 패턴 추론)"
+        },
+        {
+          "at": "2026-05-23T15:29:04.732795+09:00",
+          "event": "stale blocked_by/depends_on 자동 청소",
+          "by": "claude",
+          "note": "차단원 모두 done/obsoleted 상태라 의존성 해제"
         }
       ]
     },
@@ -17952,9 +18038,7 @@
         "percent": 100,
         "updated_at": "2026-05-23T14:53:48.636668+09:00"
       },
-      "depends_on": [
-        "BL-FLOW-1-AGODA-AUTO-APPROVE"
-      ],
+      "depends_on": [],
       "target_pages": [
         "/sales.html"
       ],
@@ -17962,7 +18046,7 @@
       "approval_required": false,
       "context": "docs/design/BL-MGR-DASHBOARD-V1/copy-hierarchy.md (5단 카피 100% 정의됨). 디자인은 임시 박고 나중에 shared.css로 일괄 통일.",
       "created_at": "2026-05-22",
-      "updated_at": "2026-05-23T15:26:52.210791+09:00",
+      "updated_at": "2026-05-23T15:29:04.732795+09:00",
       "history": [
         {
           "at": "2026-05-22T08:47:02.429056+00:00",
@@ -17991,6 +18075,12 @@
           "at": "2026-05-23T06:28:08.439Z",
           "event": "mail_sent — Resend id: 501440e6-8668-4f00-a453-738fcec23bc1 (bundle 10)",
           "by": "ops-mail-bot"
+        },
+        {
+          "at": "2026-05-23T15:29:04.732795+09:00",
+          "event": "stale blocked_by/depends_on 자동 청소",
+          "by": "claude",
+          "note": "차단원 모두 done/obsoleted 상태라 의존성 해제"
         }
       ],
       "order": 1,
@@ -18039,9 +18129,7 @@
         "percent": 100,
         "updated_at": "2026-05-23T15:18:24.365542+09:00"
       },
-      "depends_on": [
-        "BL-FLOW-2-SALES-COPY-5TIER"
-      ],
+      "depends_on": [],
       "target_pages": [
         "/dashboard.html",
         "/sales.html",
@@ -18051,7 +18139,7 @@
       "approval_required": false,
       "context": "manager-dashboard.html이 진짜 본진(5탭 다 박힘). dashboard.html은 620줄 빈약본 — 폐기 결정 (2026-05-22 채팅). 라우팅 3곳만 바꾸면 됨.",
       "created_at": "2026-05-22",
-      "updated_at": "2026-05-23T15:26:52.210791+09:00",
+      "updated_at": "2026-05-23T15:29:04.732795+09:00",
       "history": [
         {
           "at": "2026-05-22T08:47:02.429056+00:00",
@@ -18087,6 +18175,12 @@
           "at": "2026-05-23T06:28:08.439Z",
           "event": "mail_sent — Resend id: 501440e6-8668-4f00-a453-738fcec23bc1 (bundle 10)",
           "by": "ops-mail-bot"
+        },
+        {
+          "at": "2026-05-23T15:29:04.732795+09:00",
+          "event": "stale blocked_by/depends_on 자동 청소",
+          "by": "claude",
+          "note": "차단원 모두 done/obsoleted 상태라 의존성 해제"
         }
       ],
       "order": 2,

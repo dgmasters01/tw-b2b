@@ -127,12 +127,25 @@ async function handleListUsers(req, res, serviceKey, _admin) {
   const adminEmails = {};
   (allAdmins || []).forEach(a => { if (a && a.email) adminEmails[a.email.toLowerCase()] = a.role; });
 
-  // 관리자 제외한 매니저만
+  // [BL-MEMBERS-DATA-SOURCE 2026-05-23] 데이터 소스 재정의 — 블랙리스트 → 화이트리스트
+  // 기존: admins 테이블에 있는 이메일은 무조건 제외 (호텔 매니저가 admins에 잘못 박히면 사라지는 악순환)
+  // 변경: 호텔 매니저 = "hotels 테이블에 등록된 user_id 보유자" 화이트리스트.
+  //       admins 여부는 별도 is_team_member 플래그로만 표시 (필터링 X).
+  // 추가: 좀비 분류 — 가입 후 7일 경과 + 이메일 미인증 + 호텔 0건 = 자동 청소 대상.
+  const ZOMBIE_CUTOFF_DAYS = 7;
+  const now = Date.now();
+  const zombieCutoffMs = ZOMBIE_CUTOFF_DAYS * 24 * 60 * 60 * 1000;
+
   // [기능추가 2026-04-30] user_metadata에서 name/phone/full_name 추출 → admin Hotels 패널 enrich 용
   const members = users
-    .filter(u => !adminEmails[(u.email || '').toLowerCase()])
     .map(u => {
       const meta = u.user_metadata || {};
+      const emailLower = (u.email || '').toLowerCase();
+      const isTeamMember = !!adminEmails[emailLower];
+      const userHotels = hotelsByUser[u.id] || [];
+      const ageMs = u.created_at ? (now - new Date(u.created_at).getTime()) : 0;
+      const isVerified = !!u.email_confirmed_at;
+      const isZombie = !isTeamMember && !isVerified && userHotels.length === 0 && ageMs > zombieCutoffMs;
       return {
         id: u.id,
         email: u.email,
@@ -141,17 +154,35 @@ async function handleListUsers(req, res, serviceKey, _admin) {
         created_at: u.created_at,
         last_sign_in_at: u.last_sign_in_at,
         email_confirmed_at: u.email_confirmed_at,
-        is_verified: !!u.email_confirmed_at,
+        is_verified: isVerified,
         is_banned: u.banned_until && new Date(u.banned_until) > new Date(),
-        hotels: hotelsByUser[u.id] || []
+        is_team_member: isTeamMember, // 신규 — 팀(admins) 소속 표시용. 필터링 X.
+        team_role: isTeamMember ? adminEmails[emailLower] : null,
+        is_zombie: isZombie, // 신규 — 7일+ 미인증 + 호텔 0건. 좀비 청소봇 타겟.
+        hotels: userHotels
       };
     })
+    // 화이트리스트 — 호텔 1건 이상 등록한 진짜 호텔 매니저만 Members 화면에 표시
+    // (팀 멤버 admins는 admin.html 'admins' 탭에서 따로 봄)
+    .filter(m => !m.is_team_member && m.hotels.length > 0)
     .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+  // 좀비 통계는 별도 — 전체 users 기준으로 카운트 (Members 목록에는 안 들어감)
+  const zombieCount = users.filter(u => {
+    const emailLower = (u.email || '').toLowerCase();
+    if (adminEmails[emailLower]) return false;
+    if (u.email_confirmed_at) return false;
+    if ((hotelsByUser[u.id] || []).length > 0) return false;
+    const ageMs = u.created_at ? (now - new Date(u.created_at).getTime()) : 0;
+    return ageMs > zombieCutoffMs;
+  }).length;
 
   return res.status(200).json({
     success: true,
     members,
-    total: members.length
+    total: members.length,
+    zombie_count: zombieCount, // BL-MEMBERS-DATA-SOURCE — 좀비 청소봇 모니터링용
+    data_source: 'whitelist:hotels' // 데이터 소스 정의 명시 (블랙리스트 방식과 구분)
   });
 }
 

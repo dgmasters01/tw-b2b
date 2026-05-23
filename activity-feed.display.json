@@ -1,12 +1,84 @@
 {
-  "generatedAt": "2026-05-23T01:49:34.699Z",
-  "totalCount": 779,
+  "generatedAt": "2026-05-23T01:53:23.967Z",
+  "totalCount": 780,
   "byRole": {
     "CEO": 69,
     "Staff": 0,
-    "Bot": 710
+    "Bot": 711
   },
   "items": [
+    {
+      "at": "2026-05-23T01:53:07Z",
+      "by": "👤 이지형 (CEO 결정 → Claude 실행)",
+      "role": "CEO",
+      "source": "git commit",
+      "action": "fix(BL-STATUS-RECOMMEND-AUTO-REFRESH): 첫 폴링 시 변경 감지 통과 — 화면 자동 갱신 작동 [step:done:1][step:done:2][step:done:3][step:done:4][step:done:5] [변경사유: line 8304 lastTasksHash !== null 조건 제거. 페이지 로드 시 첫 렌더 data와 폴링 fetch data가 다르면 영원히 갱신 안 되던 버그. 이제 첫 폴링부터 렌더 → 5초 안에 BL 우선순위 자동 반영]",
+      "target_type": "commit",
+      "target_id": "84b0d96",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-23T01:53:00.156210+00:00",
+      "by": "🤖 claude",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "",
+      "note": "",
+      "target_type": "task",
+      "target_id": "BL-STATUS-RECOMMEND-AUTO-REFRESH",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-23T01:49:38Z",
+      "by": "🤖 health-bot",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "[health-bot] _health.json 갱신 (overall=red)",
+      "target_type": "commit",
+      "target_id": "f03457d",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-23T01:49:36Z",
+      "by": "🤖 scan-bot",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "[scan-bot] chat-log index 자동 갱신 [변경사유: chat-log 파일 또는 tasks.json 변경 → byCommit/byTask 매핑 재구축]",
+      "target_type": "commit",
+      "target_id": "1b11a82",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-23T01:49:35Z",
+      "by": "🤖 activity-bot",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "[activity-bot] activity-feed 3-Layer 자동 갱신 (총 779건)",
+      "target_type": "commit",
+      "target_id": "867e46e",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-23T01:49:31Z",
+      "by": "🤖 auto-detect-bot",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "[auto-detect-bot] commit message → 작업 status 자동 갱신",
+      "target_type": "commit",
+      "target_id": "c66ccf3",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-23T01:49:31+00:00",
+      "by": "🤖 auto-detect-bot",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "",
+      "note": "fix(BL-STATUS-RECOMMEND-AUTO-REFRESH): admin-status 다음 추천 박스 5초 자동 갱신 안 됨 버그 BL 등록 [변경사유: 화면 우상단 '⟳ 5초마다 자동 갱신' 배지 박혔지만 ",
+      "target_type": "task",
+      "target_id": "BL-SIGNUP-ENRICHMENT",
+      "project": "TW B2B"
+    },
     {
       "at": "2026-05-23T01:49:20Z",
       "by": "👤 이지형 (CEO 결정 → Claude 실행)",
@@ -15,17 +87,6 @@
       "action": "fix(BL-STATUS-RECOMMEND-AUTO-REFRESH): admin-status 다음 추천 박스 5초 자동 갱신 안 됨 버그 BL 등록 [변경사유: 화면 우상단 '⟳ 5초마다 자동 갱신' 배지 박혔지만 실제로는 _health.json + 직원 큐만 폴링. renderRecommendation은 페이지 로드 1회만. 대표님이 BL-FLOW-1을 1순위로 박았는데 화면이 BL-SIGNUP-ENRICHMENT 표시 — F5 눌러야 갱신됨]",
       "target_type": "commit",
       "target_id": "eb7c4f9",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-23T01:49:10.203418+00:00",
-      "by": "🤖 claude",
-      "role": "Bot",
-      "source": "tasks.json history",
-      "action": "",
-      "note": "",
-      "target_type": "task",
-      "target_id": "BL-STATUS-RECOMMEND-AUTO-REFRESH",
       "project": "TW B2B"
     },
     {
@@ -449,67 +510,6 @@
       "action": "[auto-task-bot] BL 1건 등록 / 1건 해소 [변경사유: 점검 봇 발견 자동 등록]",
       "target_type": "commit",
       "target_id": "53f8258",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-22T11:16:10Z",
-      "by": "🤖 scan-bot",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "[scan-bot] chat-log index 자동 갱신 [변경사유: chat-log 파일 또는 tasks.json 변경 → byCommit/byTask 매핑 재구축]",
-      "target_type": "commit",
-      "target_id": "5899a2e",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-22T10:50:49Z",
-      "by": "🤖 scan-bot",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "[scan-bot] pages-status 3-Layer 자동 갱신 (20페이지, 평균 74점) [변경사유: HTML 변경 → 완성도 재측정]",
-      "target_type": "commit",
-      "target_id": "6c9b5f4",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-22T08:52:40Z",
-      "by": "🤖 activity-bot",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "[activity-bot] activity-feed 3-Layer 자동 갱신 (총 774건)",
-      "target_type": "commit",
-      "target_id": "23219a6",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-22T08:47:32Z",
-      "by": "🤖 activity-bot",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "[activity-bot] activity-feed 3-Layer 자동 갱신 (총 774건)",
-      "target_type": "commit",
-      "target_id": "c8f4a15",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-22T08:47:30Z",
-      "by": "🤖 health-bot",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "[health-bot] _health.json 갱신 (overall=red)",
-      "target_type": "commit",
-      "target_id": "b602d4a",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-22T08:47:28.072Z",
-      "by": "🤖 ops-mail-bot",
-      "role": "Bot",
-      "source": "tasks.json history",
-      "action": "",
-      "note": "",
-      "target_type": "task",
-      "target_id": "BL-COMMON-HEADER-UNIFY",
       "project": "TW B2B"
     }
   ]

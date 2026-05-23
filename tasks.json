@@ -17831,7 +17831,7 @@
       "category": "fix",
       "priority": "P1",
       "size": "small",
-      "status": "in_progress",
+      "status": "done",
       "order": 5,
       "title": "admin-status '다음 추천' 박스 5초 자동 갱신 안 됨 — 버그 픽스",
       "memo": "[지금 무슨 상황이냐면] admin-status 화면 우상단에 '⟳ 5초마다 자동 갱신' 배지 박혔지만 실제로는 _health.json(빨간 배너) + renderStaffQueue(직원 큐)만 5초 폴링. 맨 위 '🎯 지금 뭐부터?' / '🎯 다음 추천' 박스의 renderRecommendation 함수는 페이지 로드 시 1회만 호출. tasks.json 바뀌어도 화면 안 바뀜.\n\n[왜 결정이 필요하냐면] 대표님이 BL 새로 박거나 우선순위 바뀐 후 항상 F5 또는 [다시 측정] 눌러야 화면 반영. 대표님 화면(2026-05-23): tasks.json엔 BL-FLOW-1이 1순위인데 화면은 BL-SIGNUP-ENRICHMENT 표시.\n\n[결정하면 뭐가 달라지냐면] 5초마다 자동 반영 → 봇/auto-task-bot이 새 BL 박으면 즉시 보임. 매번 새로고침 안 해도 됨.",
@@ -17839,29 +17839,34 @@
         "steps": [
           {
             "step": "1. renderRecommendation 함수를 5초 폴링 사이클에 박음 (line 8456 또는 9025에 합치기)",
-            "done": false
+            "done": true,
+            "at": "2026-05-23T01:53:00.156210+00:00"
           },
           {
             "step": "2. STATE.tasks 갱신 시 renderRecommendation 호출 추가",
-            "done": false
+            "done": true,
+            "at": "2026-05-23T01:53:00.156210+00:00"
           },
           {
             "step": "3. tasksHash 변경 감지 시에만 호출 (불필요한 렌더 방지)",
-            "done": false
+            "done": true,
+            "at": "2026-05-23T01:53:00.156210+00:00"
           },
           {
             "step": "4. 라이브 검증 — tasks.json 변경 후 화면 5초 안에 바뀌는지",
-            "done": false
+            "done": true,
+            "at": "2026-05-23T01:53:00.156210+00:00"
           },
           {
             "step": "5. commit + push + chat-log",
-            "done": false
+            "done": true,
+            "at": "2026-05-23T01:53:00.156210+00:00"
           }
         ],
-        "completed_count": 0,
+        "completed_count": 5,
         "total_count": 5,
-        "percent": 0,
-        "updated_at": "2026-05-23T01:49:10.203418+00:00"
+        "percent": 100,
+        "updated_at": "2026-05-23T01:53:00.156210+00:00"
       },
       "depends_on": [],
       "target_pages": [
@@ -17884,6 +17889,11 @@
           "by": "auto-detect-bot",
           "commit": "eb7c4f9",
           "note": "fix(BL-STATUS-RECOMMEND-AUTO-REFRESH): admin-status 다음 추천 박스 5초 자동 갱신 안 됨 버그 BL 등록 [변경사유: 화면 우상단 '⟳ 5초마다 자동 갱신' 배지 박혔지만 "
+        },
+        {
+          "at": "2026-05-23T01:53:00.156210+00:00",
+          "event": "완료 — line 8304 lastTasksHash !== null 조건 제거",
+          "by": "claude"
         }
       ],
       "started_at": "2026-05-23T01:49:31+00:00",
@@ -17893,7 +17903,8 @@
         "detected_at": "2026-05-23T01:49:31+00:00",
         "detected_by_commit": "eb7c4f9",
         "message": "in_progress 진입했으나 progress.steps 비어있음. tasks.json에서 progress.steps 박은 후 다음 commit에 [step:done:N] 태그."
-      }
+      },
+      "completed_at": "2026-05-23T01:53:00.156210+00:00"
     }
   ]
 }

@@ -8301,7 +8301,10 @@
       if (t.ok) {
         const txt = await t.text();
         const h = quickHash(txt);
-        if (POLL.lastTasksHash !== null && h !== POLL.lastTasksHash) {
+        // [BL-STATUS-RECOMMEND-AUTO-REFRESH 2026-05-23]
+        // 첫 폴링 시 lastTasksHash=null이라 변경 감지 안 됨 → 페이지 첫 렌더 data와
+        // 폴링 fetch data가 다를 경우 영원히 갱신 안 됨. 첫 폴링은 무조건 렌더 한 번 강제.
+        if (h !== POLL.lastTasksHash) {
           // 변경 감지 → 재렌더
           try {
             const data = JSON.parse(txt);

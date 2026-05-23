@@ -257,6 +257,18 @@
   color:var(--ink-2);
 }
 
+/* [BL-FLOW-2-SALES-COPY-5TIER 2026-05-23] 5단 카피 위계 헤더 + 보장 박스 */
+.sl-tier-head{
+  font-size:13px;color:var(--ink-3);letter-spacing:.02em;
+  font-weight:600;margin:24px 0 10px;
+}
+.sl-pay-guarantee{
+  margin-top:14px;padding:12px 16px;
+  background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.25);
+  border-radius:var(--r);
+  font-size:13.5px;color:#34D9A4;font-weight:600;text-align:center;
+}
+
 /* ---------- Buttons ---------- */
 .sl-btn{
   display:inline-flex;align-items:center;justify-content:center;
@@ -441,6 +453,21 @@
     }
 
     renderSales(hotel, status);
+
+    // [BL-FLOW-2-SALES-COPY-5TIER 2026-05-23] 부칙 19 — 언어 토글 시 sales 본문 자동 재렌더링
+    // shared.js switchLang은 data-en/data-ko 속성만 갱신 → sales의 동적 함수 분기는 미반영
+    // → 언어 버튼 클릭 직후 setTimeout으로 다시 렌더 (switchLang이 lang 값 갱신한 후 실행되도록)
+    var hookRerender = function(){
+      setTimeout(function(){
+        if (window.__salesState && window.__salesState.hotel) {
+          renderSales(window.__salesState.hotel, window.__salesState.status);
+        }
+      }, 0);
+    };
+    var enBtn = document.getElementById('lang-en');
+    var koBtn = document.getElementById('lang-ko');
+    if (enBtn) enBtn.addEventListener('click', hookRerender);
+    if (koBtn) koBtn.addEventListener('click', hookRerender);
   });
 
   // BL-COMMON-HEADER-UNIFY: fallback
@@ -460,23 +487,43 @@
   ];
 
   function renderTrust() {
-    // 3축: Views / Videos / Bookings (memory rule 32 — 구독자 수 어필 금지)
+    // [BL-FLOW-2-SALES-COPY-5TIER 2026-05-23]
+    // 2단 — Proof: "3,774건 예약 발생 · $854K 호텔 매출 발생"
+    // 3단 — Scale: "9백만+ 영상 누적 조회"
+    // 메모리 규칙: 구독자 수 어필 금지 / "7년 운영" 표기 금지
+    var lang = (T.lang === 'ko') ? 'ko' : 'en';
+    var L = {
+      ko: {
+        bookingsNum: '3,774', bookingsLbl: '예약 발생',     bookingsSub: '제휴 데이터로 검증된 실예약',
+        revenueNum:  '$854K', revenueLbl:  '호텔 매출 발생', revenueSub:  '제휴 데이터로 검증된 매출',
+        viewsNum:    '9M+',   viewsLbl:    '누적 조회',     viewsSub:    '8개 채널 합산 영상 노출',
+        proofHead:   '🥈 숫자가 말합니다'
+      },
+      en: {
+        bookingsNum: '3,774', bookingsLbl: 'Bookings',      bookingsSub: 'Verified affiliate-confirmed reservations',
+        revenueNum:  '$854K', revenueLbl:  'Hotel revenue', revenueSub:  'Affiliate-tracked revenue generated',
+        viewsNum:    '9M+',   viewsLbl:    'Total views',  viewsSub:    'Cumulative impressions across 8 channels',
+        proofHead:   '🥈 The numbers speak'
+      }
+    };
+    var c = L[lang];
     return ''
+      + '<div class="sl-tier-head">' + c.proofHead + '</div>'
       + '<div class="sl-trust">'
       +   '<div class="sl-trust-cell">'
-      +     '<div class="sl-trust-num">9M+</div>'
-      +     '<div class="sl-trust-lbl">Total Views</div>'
-      +     '<div class="sl-trust-sub">Cumulative impressions across channels</div>'
+      +     '<div class="sl-trust-num">' + c.bookingsNum + '</div>'
+      +     '<div class="sl-trust-lbl">' + c.bookingsLbl + '</div>'
+      +     '<div class="sl-trust-sub">' + c.bookingsSub + '</div>'
       +   '</div>'
       +   '<div class="sl-trust-cell">'
-      +     '<div class="sl-trust-num">3,774</div>'
-      +     '<div class="sl-trust-lbl">Videos Produced</div>'
-      +     '<div class="sl-trust-sub">Hotel reviews shipped to date</div>'
+      +     '<div class="sl-trust-num">' + c.revenueNum + '</div>'
+      +     '<div class="sl-trust-lbl">' + c.revenueLbl + '</div>'
+      +     '<div class="sl-trust-sub">' + c.revenueSub + '</div>'
       +   '</div>'
       +   '<div class="sl-trust-cell">'
-      +     '<div class="sl-trust-num">$854K</div>'
-      +     '<div class="sl-trust-lbl">Bookings Generated</div>'
-      +     '<div class="sl-trust-sub">Verified affiliate revenue</div>'
+      +     '<div class="sl-trust-num">' + c.viewsNum + '</div>'
+      +     '<div class="sl-trust-lbl">' + c.viewsLbl + '</div>'
+      +     '<div class="sl-trust-sub">' + c.viewsSub + '</div>'
       +   '</div>'
       + '</div>';
   }
@@ -489,9 +536,14 @@
             +  '<span>' + c.name + '</span>'
             +  '<span class="sl-chip-lang">' + c.lang + '</span></span>';
     }
+    // [BL-FLOW-2-SALES-COPY-5TIER 2026-05-23] 3단 Scale 카피 (8개 채널·6개 언어)
+    var lang = (T.lang === 'ko') ? 'ko' : 'en';
+    var title = (lang === 'ko')
+      ? '당신의 호텔이 <em>8개 채널</em>·<em>6개 언어</em>로 동시 노출됩니다'
+      : 'Your hotel goes live across <em>8 channels</em> in <em>6 languages</em>';
     return ''
       + '<div class="sl-channels-wrap">'
-      +   '<div class="sl-channels-title">Your hotel goes live across <em>8 channels</em> in <em>6 languages</em></div>'
+      +   '<div class="sl-channels-title">' + title + '</div>'
       +   '<div class="sl-channels">' + chips + '</div>'
       + '</div>';
   }
@@ -579,8 +631,20 @@
 
   function renderSales(hotel, status) {
     var html = '';
-    html += '<h1 class="sl-h1">Activate your <em>listing</em></h1>';
-    html += '<p class="sl-sub">One $200 payment puts your hotel on 8 YouTube channels covering 6 languages — backed by a 6-month booking guarantee or full refund.</p>';
+    // [BL-FLOW-2-SALES-COPY-5TIER 2026-05-23] 5단 카피 (copy-hierarchy.md v2)
+    // 1단 — Hero (메인 약속): "예약 방문하게 합니다"
+    // 4단 — How (작동 원리): "8개 채널·6개 언어로 동시 노출"
+    var lang = (T.lang === 'ko') ? 'ko' : 'en';
+    // 언어 토글 재렌더링용 전역 상태 보관 (BL-FLOW-2 부칙 19 — 전체 갱신)
+    window.__salesState = { hotel: hotel, status: status };
+    var heroCopy = (lang === 'ko')
+      ? '우리의 콘텐츠는 당신의 호텔을 <em>예약 방문</em>하게 합니다.'
+      : 'Our content brings <em>real bookings</em> and guests to your hotel.';
+    var howCopy = (lang === 'ko')
+      ? '당신의 호텔을 8개 채널·6개 언어로 동시 노출합니다. 한국 메인 + 해외 글로벌 확장.'
+      : 'We expose your hotel across 8 channels and 6 languages. Korea-led, global reach.';
+    html += '<h1 class="sl-h1">' + heroCopy + '</h1>';
+    html += '<p class="sl-sub">' + howCopy + '</p>';
 
     if (!hotel) {
       // 호텔 미등록
@@ -637,14 +701,40 @@
       html += '<p>Our team is reviewing your hotel. You will be notified by email once approved — typically within 2–3 business days.</p>';
       html += '</div>';
     } else if (status === 'approved') {
+      // [BL-FLOW-2-SALES-COPY-5TIER 2026-05-23]
+      // Step 3 축하 헤더 + 5단 Guarantee 박스 다국어
+      var apLang = (T.lang === 'ko') ? 'ko' : 'en';
+      var apL = {
+        ko: {
+          tierHead:    '🎉 가입 완료! 결제하면 즉시 영상 제작 시작합니다',
+          payTitle:    '결제 — 즉시 8개 채널·6개 언어 게시',
+          payTag:      '$200 일회성 결제 후 호텔 영상을 8개 채널·6개 언어로 동시 게시합니다.',
+          payMeta1:    '일회성 결제',
+          payMeta2:    '6개월 예약 보장',
+          payMeta3:    '0건이면 100% 환불',
+          guarantee:   '🎯 6개월 0건이면 100% 환불 — 위탁 영업입니다'
+        },
+        en: {
+          tierHead:    "🎉 You're approved! Pay now to start production",
+          payTitle:    'Approved — ready to publish',
+          payTag:      'Complete the one-time $200 payment to launch your hotel video across 8 channels in 6 languages.',
+          payMeta1:    'One-time payment',
+          payMeta2:    '6-month booking guarantee',
+          payMeta3:    '100% refund if zero bookings',
+          guarantee:   '🎯 6-month booking guarantee — 100% refund if zero bookings'
+        }
+      };
+      var ap = apL[apLang];
+      html += '<div class="sl-tier-head">' + ap.tierHead + '</div>';
       html += '<div class="sl-pay-card">';
       html += '  <div class="sl-pay-glow"></div>';
-      html += '  <h3>Approved — ready to publish</h3>';
-      html += '  <p class="sl-pay-tag">Complete the one-time payment to launch your video across all 8 channels in 6 languages.</p>';
+      html += '  <h3>' + ap.payTitle + '</h3>';
+      html += '  <p class="sl-pay-tag">' + ap.payTag + '</p>';
       html += '  <div class="sl-pay-amount">$200</div>';
-      html += '  <div class="sl-pay-meta"><span>One-time payment</span><span>6-month booking guarantee</span><span>100% refund if zero bookings</span></div>';
+      html += '  <div class="sl-pay-meta"><span>' + ap.payMeta1 + '</span><span>' + ap.payMeta2 + '</span><span>' + ap.payMeta3 + '</span></div>';
       html += '  <div id="paypal-button-container"></div>';
       html += '  <div id="pay-status"></div>';
+      html += '  <div class="sl-pay-guarantee">' + ap.guarantee + '</div>';
       html += '</div>';
     } else if (status === 'rejected') {
       html += '<div class="sl-card danger">';

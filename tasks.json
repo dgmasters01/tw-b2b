@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-23T06:28:08.439Z",
+  "updated_at": "2026-05-23T08:03:38+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -14,8 +14,8 @@
   "stats": {
     "total": 252,
     "done": 188,
-    "in_progress": 0,
-    "pending": 45,
+    "in_progress": 1,
+    "pending": 44,
     "blocked": 10,
     "autonomous_ready": 38,
     "todo": 2,
@@ -14223,7 +14223,7 @@
       "category": "feature",
       "priority": "P0",
       "size": "medium",
-      "status": "pending",
+      "status": "in_progress",
       "owner": "claude",
       "claude_can_auto": true,
       "approval_required": false,
@@ -14238,7 +14238,7 @@
       },
       "notes": "signup.html 호텔 입력 직후 백그라운드 매칭 → verify-email 또는 sales.html에서 표시. $1,000+ 강력 / $200~999 부드러움 / <$200 숨김.",
       "created_at": "2026-05-12T17:04:42.051339Z",
-      "updated_at": "2026-05-23T15:29:04.732795+09:00",
+      "updated_at": "2026-05-23T08:03:38+00:00",
       "source": "decision:D-035",
       "target_pages": [
         "/signup.html",
@@ -14247,8 +14247,8 @@
       "progress_warning": {
         "code": "MISSING_PROGRESS_STEPS",
         "rule": "부칙 7 — 모든 작업은 progress.steps 박은 후 시작",
-        "detected_at": "2026-05-23T01:56:48+00:00",
-        "detected_by_commit": "1945787",
+        "detected_at": "2026-05-23T08:03:38+00:00",
+        "detected_by_commit": "cb11a77",
         "message": "in_progress 진입했으나 progress.steps 비어있음. tasks.json에서 progress.steps 박은 후 다음 commit에 [step:done:N] 태그."
       },
       "history": [
@@ -14288,8 +14288,16 @@
           "event": "stale blocked_by/depends_on 자동 청소",
           "by": "claude",
           "note": "차단원 모두 done/obsoleted 상태라 의존성 해제"
+        },
+        {
+          "at": "2026-05-23T08:03:38+00:00",
+          "event": "진행 중 진입 (auto-detected) ⚠️ 부칙 7 위반 — progress.steps 미박힘",
+          "by": "auto-detect-bot",
+          "commit": "cb11a77",
+          "note": "feat(BL-SIGNUP-ENRICHMENT): sales.html에 D-035 임계값 분기 본인 호텔 매출 박스 박음 [step:done:1][step:done:2][step:done:3][step:done:4]"
         }
-      ]
+      ],
+      "started_at": "2026-05-23T08:03:38+00:00"
     },
     {
       "id": "BL-SIGNUP-COUNTRY-FIELD",

@@ -17954,6 +17954,60 @@
         "message": "in_progress 진입했으나 progress.steps 비어있음. tasks.json에서 progress.steps 박은 후 다음 commit에 [step:done:N] 태그."
       },
       "completed_at": "2026-05-23T01:53:00.156210+00:00"
+    },
+    {
+      "id": "BL-FULL-REFRESH-UNIFY",
+      "category": "fix",
+      "priority": "P0",
+      "size": "small",
+      "status": "pending",
+      "order": -1,
+      "title": "전체 갱신 통일 — admin-status 시스템 완성도 모든 영역 5초 자동 반영",
+      "memo": "[지금 무슨 상황이냐면] admin-status 5초 폴링이 13개 render 함수만 호출. 15개 함수(카테고리별 진행률 카드·페이지 블록·활동 이력·페이지 맵 등) 빠짐. 작업 끝나도 화면 부분만 바뀌고 카테고리 카드는 안 바뀜.\n\n[왜 결정이 필요하냐면] 대표님 원칙: '전체가 서로 연계되어서 모두가 갱신되어야 됨. 부분 갱신은 의미 없음. 활동 이력도 갱신 안 되고 이렇게 어렵게 만들어 놓으면 의미 없음. 전체가 하나로 안 돌아가면 안 됨.'\n\n[결정하면 뭐가 달라지냐면] 작업 끝낼 때마다 시스템 완성도 전체가 5초 안에 자동 반영. 비즈니스 문서·갤러리·카테고리·활동·진행률 모두 하나로 돌아감.",
+      "progress": {
+        "steps": [
+          {
+            "step": "1. OPERATIONS_CHARTER.md에 부칙 19 신설 (전체 갱신 원칙) + 디테일 매뉴얼 _os/playbook/full-refresh-unify.md",
+            "done": false
+          },
+          {
+            "step": "2. _admin/admin-status.html line 8322~8340 pollTick에 빠진 15개 render 함수 호출 추가",
+            "done": false
+          },
+          {
+            "step": "3. activity-feed.json 폴링도 renderActivity + 영향받는 함수 함께 호출 통일",
+            "done": false
+          },
+          {
+            "step": "4. Playwright로 라이브 검증 — tasks.json 변경 시 5초 안에 카테고리 카드·활동 이력 자동 갱신 확인",
+            "done": false
+          },
+          {
+            "step": "5. commit + push + chat-log + done 마킹",
+            "done": false
+          }
+        ],
+        "completed_count": 0,
+        "total_count": 5,
+        "percent": 0,
+        "updated_at": "2026-05-23T02:06:42.464964+00:00"
+      },
+      "depends_on": [],
+      "target_pages": [
+        "/admin-status.html"
+      ],
+      "autonomy_ready": true,
+      "approval_required": false,
+      "context": "대표님 원칙(헌법급): 전체 갱신 통일. 라이브 admin-status.html line 8322~8340 pollTick에 13개만 호출되고 15개 빠짐. renderAll/renderCard/renderCategoryTasksBlock/renderActivity 등 추가 필요. 작업 후 BL-FLOW-1 매출 흐름 시작.",
+      "created_at": "2026-05-23",
+      "updated_at": "2026-05-23T02:06:42.464964+00:00",
+      "history": [
+        {
+          "at": "2026-05-23T02:06:42.464964+00:00",
+          "event": "BL 등록 — 대표님 전체 갱신 통일 원칙. order=-1로 BL-FLOW-1 앞에 박음",
+          "by": "claude"
+        }
+      ]
     }
   ]
 }

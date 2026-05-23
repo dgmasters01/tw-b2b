@@ -8338,6 +8338,12 @@
             try { renderCeoWait(data); } catch (e) { console.warn('[poll] renderCeoWait 실패', e); }
             try { renderFlowGuide(data); } catch (e) { console.warn('[poll] renderFlowGuide 실패', e); }  // ★ BL-FLOW-GUIDE-HEADER
             // renderAdminActivity 호출 제거 — admin.html로 이전 (BL-ADMIN-ACTIVITY-MOVE 2026-05-12)
+            // ★ BL-FULL-REFRESH-UNIFY (2026-05-23, 부칙 19 전체 갱신 원칙):
+            //   tasks.json 변경 시 카테고리 카드 펼침 상세(renderCard → renderCardDetail
+            //   → renderCategoryTasksBlock/renderCategoryPagesBlock)가 자동 갱신되지 않던 결함 fix.
+            //   renderAll = renderAvg + renderSidebarMenus + renderTopUrgent + renderFooter 통합 재렌더.
+            //   renderSidebarMenus 안에서 펼침 카드까지 자동 재렌더되므로 별도 카드 호출 불필요.
+            try { renderAll(); } catch (e) { console.warn('[poll] renderAll(tasks) 실패', e); }
             showPollToast('🔄 tasks.json 갱신됨');
           } catch (_) {}
         }
@@ -8384,6 +8390,10 @@
             }
             // renderAll 재호출 — Avg/SidebarMenus/TopUrgent/Footer 4개 영역 일괄 갱신
             renderAll();
+            // ★ BL-FULL-REFRESH-UNIFY (2026-05-23, 부칙 19 전체 갱신 원칙):
+            //   pages-status 변경 시 페이지 맵 카드(점수·진행률 바·Phase 배지)도 동시 재렌더.
+            //   pages-status.json은 renderPageMap이 별도 fetch하므로 5초마다 폴링 시점에 함께 새로고침.
+            try { renderPageMap(); } catch (e) { console.warn('[poll] renderPageMap 실패', e); }
             showPollToast('🔄 페이지 상태 갱신됨');
           } catch (_) {}
         }

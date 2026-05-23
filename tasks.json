@@ -17808,6 +17808,60 @@
         }
       ],
       "notes": "점검 봇 자동 등록 (2026-05-22T11:17:01.083Z)\n\ncheck_name: tasks_schema\nstatus: red\ndetail: 작업 249건 중 14건에 출처가 없어요 (자동 동기화 봇 멈춤 위험)\n\n진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 green으로 박으면 자동 done."
+    },
+    {
+      "id": "BL-STATUS-RECOMMEND-AUTO-REFRESH",
+      "category": "fix",
+      "priority": "P1",
+      "size": "small",
+      "status": "pending",
+      "order": 5,
+      "title": "admin-status '다음 추천' 박스 5초 자동 갱신 안 됨 — 버그 픽스",
+      "memo": "[지금 무슨 상황이냐면] admin-status 화면 우상단에 '⟳ 5초마다 자동 갱신' 배지 박혔지만 실제로는 _health.json(빨간 배너) + renderStaffQueue(직원 큐)만 5초 폴링. 맨 위 '🎯 지금 뭐부터?' / '🎯 다음 추천' 박스의 renderRecommendation 함수는 페이지 로드 시 1회만 호출. tasks.json 바뀌어도 화면 안 바뀜.\n\n[왜 결정이 필요하냐면] 대표님이 BL 새로 박거나 우선순위 바뀐 후 항상 F5 또는 [다시 측정] 눌러야 화면 반영. 대표님 화면(2026-05-23): tasks.json엔 BL-FLOW-1이 1순위인데 화면은 BL-SIGNUP-ENRICHMENT 표시.\n\n[결정하면 뭐가 달라지냐면] 5초마다 자동 반영 → 봇/auto-task-bot이 새 BL 박으면 즉시 보임. 매번 새로고침 안 해도 됨.",
+      "progress": {
+        "steps": [
+          {
+            "step": "1. renderRecommendation 함수를 5초 폴링 사이클에 박음 (line 8456 또는 9025에 합치기)",
+            "done": false
+          },
+          {
+            "step": "2. STATE.tasks 갱신 시 renderRecommendation 호출 추가",
+            "done": false
+          },
+          {
+            "step": "3. tasksHash 변경 감지 시에만 호출 (불필요한 렌더 방지)",
+            "done": false
+          },
+          {
+            "step": "4. 라이브 검증 — tasks.json 변경 후 화면 5초 안에 바뀌는지",
+            "done": false
+          },
+          {
+            "step": "5. commit + push + chat-log",
+            "done": false
+          }
+        ],
+        "completed_count": 0,
+        "total_count": 5,
+        "percent": 0,
+        "updated_at": "2026-05-23T01:49:10.203418+00:00"
+      },
+      "depends_on": [],
+      "target_pages": [
+        "/admin-status.html"
+      ],
+      "autonomy_ready": true,
+      "approval_required": false,
+      "context": "admin-status.html line 4734 renderRecommendation 함수가 페이지 로드 1회만 호출됨. line 9025 polling 사이클에 추가하면 됨. 영향: 모든 작업 큐·결정 큐 자동 반영.",
+      "created_at": "2026-05-23",
+      "updated_at": "2026-05-23T01:49:10.203418+00:00",
+      "history": [
+        {
+          "at": "2026-05-23T01:49:10.203418+00:00",
+          "event": "BL 등록 — 다음 추천 박스 자동 갱신 안 됨 버그",
+          "by": "claude"
+        }
+      ]
     }
   ]
 }

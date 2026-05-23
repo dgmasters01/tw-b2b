@@ -1,7 +1,7 @@
 {
-  "overall": "yellow",
-  "summary": "[yellow] admin_baseline: 관리자 페이지 2개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요)",
-  "checked_at": "2026-05-23T06:29:44.291Z",
+  "overall": "red",
+  "summary": "[yellow] admin_baseline: 관리자 페이지 2개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요) / [red] bots: 자동 일꾼 1명이 멈췄어요: chat-log-bot",
+  "checked_at": "2026-05-23T06:39:04.460Z",
   "checks": [
     {
       "name": "admin_baseline",
@@ -28,23 +28,25 @@
     },
     {
       "name": "bots",
-      "status": "green",
-      "detail": "자동 일꾼들(봇) 전부 살아있어요",
-      "dead_bots": [],
+      "status": "red",
+      "detail": "자동 일꾼 1명이 멈췄어요: chat-log-bot",
+      "dead_bots": [
+        "chat-log-bot"
+      ],
       "bot_status": {
-        "sync-bot": "unknown",
-        "auto-detect-bot": "unknown",
+        "sync-bot": "success",
+        "auto-detect-bot": "success",
         "scan-bot": "success",
-        "chat-log-bot": "unknown",
+        "chat-log-bot": "failure",
         "autoheal-bot": "unknown"
       }
     },
     {
       "name": "vercel_sync",
       "status": "green",
-      "detail": "라이브 사이트가 GitHub와 같은 버전이에요 (29295ad)",
-      "live_sha": "29295ad",
-      "vercel_sha": "29295ad",
+      "detail": "라이브 사이트가 GitHub와 같은 버전이에요 (c5dc46e)",
+      "live_sha": "c5dc46e",
+      "vercel_sha": "c5dc46e",
       "project": "tw-b2b"
     },
     {

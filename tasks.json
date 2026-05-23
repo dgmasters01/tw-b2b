@@ -14186,7 +14186,7 @@
       "category": "feature",
       "priority": "P0",
       "size": "medium",
-      "status": "in_progress",
+      "status": "pending",
       "owner": "claude",
       "claude_can_auto": true,
       "approval_required": false,
@@ -14205,13 +14205,12 @@
       },
       "notes": "signup.html 호텔 입력 직후 백그라운드 매칭 → verify-email 또는 sales.html에서 표시. $1,000+ 강력 / $200~999 부드러움 / <$200 숨김.",
       "created_at": "2026-05-12T17:04:42.051339Z",
-      "updated_at": "2026-05-23T01:49:31+00:00",
+      "updated_at": "2026-05-23T01:56:28.849193+00:00",
       "source": "decision:D-035",
       "target_pages": [
         "/signup.html",
         "/sales.html"
       ],
-      "started_at": "2026-05-23T01:49:31+00:00",
       "progress_warning": {
         "code": "MISSING_PROGRESS_STEPS",
         "rule": "부칙 7 — 모든 작업은 progress.steps 박은 후 시작",
@@ -14226,6 +14225,11 @@
           "by": "auto-detect-bot",
           "commit": "eb7c4f9",
           "note": "fix(BL-STATUS-RECOMMEND-AUTO-REFRESH): admin-status 다음 추천 박스 5초 자동 갱신 안 됨 버그 BL 등록 [변경사유: 화면 우상단 '⟳ 5초마다 자동 갱신' 배지 박혔지만 "
+        },
+        {
+          "at": "2026-05-23T01:56:28.849193+00:00",
+          "event": "실수 클릭으로 in_progress 박혔다가 진행 안 됨 → pending 복귀 (BL-FLOW-1 1순위 보호)",
+          "by": "claude"
         }
       ]
     },
@@ -17070,9 +17074,9 @@
       "size": "small",
       "source": "auto_from_tasks_schema",
       "created_at": "2026-05-20T16:16:47.608Z",
-      "updated_at": "2026-05-20T16:16:47.608Z",
+      "updated_at": "2026-05-23T01:56:28.849193+00:00",
       "deadline": null,
-      "order": null,
+      "order": 10,
       "blocker": null,
       "autonomous": {
         "can_run_alone": true,

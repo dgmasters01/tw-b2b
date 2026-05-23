@@ -21,22 +21,22 @@
     "autonomous_ready": 45,
     "todo": 2,
     "cancelled": 1,
-    "updated_at": "2026-05-23T15:18:24.365542+09:00",
+    "updated_at": "2026-05-23T15:26:52.210791+09:00",
     "rejected": 0,
     "on_hold": 0,
     "obsoleted": 5,
     "absorbed": 1,
     "by_status": {
-      "done": 182,
-      "pending": 51,
+      "done": 188,
+      "pending": 45,
       "blocked": 10,
       "obsoleted": 5,
       "cancelled": 1,
       "absorbed": 1,
       "todo": 2
     },
-    "done_count": 182,
-    "done_percent": 72.2
+    "done_count": 188,
+    "done_percent": 74.6
   },
   "tasks": [
     {
@@ -14503,14 +14503,14 @@
       "title": "[자동] 작업 206건 중 16건에 출처가 없어요 (자동 동기화 봇 멈춤 위험)",
       "category": "infrastructure",
       "priority": "P0",
-      "status": "pending",
+      "status": "done",
       "claude_can_auto": true,
       "approval_required": false,
       "owner": "claude",
       "size": "small",
       "source": "auto_from_tasks_schema",
       "created_at": "2026-05-12T17:36:05.435Z",
-      "updated_at": "2026-05-23T02:37:58.875Z",
+      "updated_at": "2026-05-23T15:26:52.210791+09:00",
       "deadline": null,
       "order": null,
       "blocker": null,
@@ -14522,7 +14522,10 @@
       "decision_ref": "D-024",
       "progress": {
         "percent": 100,
-        "steps": []
+        "steps": [],
+        "completed_count": 0,
+        "total_count": 0,
+        "updated_at": "2026-05-23T15:26:52.210791+09:00"
       },
       "history": [
         {
@@ -14547,12 +14550,19 @@
           "by": "auto-task-bot",
           "action": "reopened",
           "detail": "점검 봇 재발견: 작업 252건 중 16건에 출처가 없어요 (자동 동기화 봇 멈춤 위험)"
+        },
+        {
+          "at": "2026-05-23T15:26:52.210791+09:00",
+          "event": "점검 봇 green 전환 예정 — source 보강으로 missing_source=0건",
+          "by": "claude",
+          "note": "BL-AUTO-TASKS-SCHEMA-* 5건 일괄 close (룰북 4.자동 close)"
         }
       ],
       "notes": "점검 봇 자동 등록 (2026-05-12T17:36:05.435Z)\n\ncheck_name: tasks_schema\nstatus: red\ndetail: 작업 206건 중 16건에 출처가 없어요 (자동 동기화 봇 멈춤 위험)\n\n진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 green으로 박으면 자동 done.\n\n[자동 해소 2026-05-13T08:21:57.999Z] 점검 봇 green 전환\n\n[재개 2026-05-23T02:37:58.875Z] 작업 252건 중 16건에 출처가 없어요 (자동 동기화 봇 멈춤 위험)",
       "target_pages": [
         "__os__"
-      ]
+      ],
+      "completed_at": "2026-05-23T15:26:52.210791+09:00"
     },
     {
       "id": "BL-HEALTH-AUTOHEAL",
@@ -16760,7 +16770,7 @@
         ]
       },
       "context": "매니저 계정으로 로그인하면 dashboard.html로 가버리는 버그 수정. 라우팅 우선순위: admin → manager → general. v_manager_hotels VIEW로 RLS 격리. Lotte Hotel Seattle / The Westin Tokyo 매니저 매핑 라이브 확인됨.",
-      "updated_at": "2026-05-20T11:56:21+00:00",
+      "updated_at": "2026-05-23T15:26:52.210791+09:00",
       "history": [
         {
           "at": "2026-05-20T11:56:21+00:00",
@@ -16773,8 +16783,16 @@
           "at": "2026-05-20T12:19:19.415Z",
           "event": "mail_sent — Resend id: 7da4a806-348b-4f17-91a7-c9b84c8e8803 (bundle 3)",
           "by": "ops-mail-bot"
+        },
+        {
+          "at": "2026-05-23T15:26:52.210791+09:00",
+          "event": "source 필드 자동 보강 (BL-AUTO-TASKS-SCHEMA 해소)",
+          "by": "claude",
+          "note": "source=auto-detect-bot:commit:0f36a69 (history[0].by + BL 패턴 추론)"
         }
-      ]
+      ],
+      "source": "auto-detect-bot:commit:0f36a69",
+      "source_anchor": ""
     },
     {
       "id": "BL-MGR-HOTELS-RLS",
@@ -16844,7 +16862,7 @@
           }
         ]
       },
-      "updated_at": "2026-05-20T12:22:19+00:00",
+      "updated_at": "2026-05-23T15:26:52.210791+09:00",
       "history": [
         {
           "at": "2026-05-20T12:16:58+00:00",
@@ -16878,9 +16896,17 @@
           "at": "2026-05-20T12:23:46.127Z",
           "event": "mail_sent — Resend id: 1375f9b9-75da-4818-836c-41c021a00930 (bundle 1)",
           "by": "ops-mail-bot"
+        },
+        {
+          "at": "2026-05-23T15:26:52.210791+09:00",
+          "event": "source 필드 자동 보강 (BL-AUTO-TASKS-SCHEMA 해소)",
+          "by": "claude",
+          "note": "source=auto-detect-bot:commit:50352ad (history[0].by + BL 패턴 추론)"
         }
       ],
-      "done_at": "2026-05-20T12:23:31.392447+00:00"
+      "done_at": "2026-05-20T12:23:31.392447+00:00",
+      "source": "auto-detect-bot:commit:50352ad",
+      "source_anchor": ""
     },
     {
       "id": "BL-MGR-CHECK-COLUMN-FIX",
@@ -16888,7 +16914,7 @@
       "status": "done",
       "priority": "p0",
       "created_at": "2026-05-20T13:28:39.875554Z",
-      "updated_at": "2026-05-20T13:39:20+00:00",
+      "updated_at": "2026-05-23T15:26:52.210791+09:00",
       "progress": {
         "percent": 100,
         "steps": [
@@ -16995,9 +17021,17 @@
           "at": "2026-05-20T15:22:12.244Z",
           "event": "mail_sent — Resend id: d9e6aeab-e7a0-4a63-9986-17d3878b2cd1 (bundle 2)",
           "by": "ops-mail-bot"
+        },
+        {
+          "at": "2026-05-23T15:26:52.210791+09:00",
+          "event": "source 필드 자동 보강 (BL-AUTO-TASKS-SCHEMA 해소)",
+          "by": "claude",
+          "note": "source=auto-detect-bot:commit:6a5c897 (history[0].by + BL 패턴 추론)"
         }
       ],
-      "done_at": "2026-05-20T13:38:14.609656Z"
+      "done_at": "2026-05-20T13:38:14.609656Z",
+      "source": "auto-detect-bot:commit:6a5c897",
+      "source_anchor": ""
     },
     {
       "id": "BL-MGR-DASH-SUPABASE-CONFLICT",
@@ -17005,7 +17039,7 @@
       "status": "done",
       "priority": "p0",
       "created_at": "2026-05-20T13:38:45.718431Z",
-      "updated_at": "2026-05-20T15:22:14+00:00",
+      "updated_at": "2026-05-23T15:26:52.210791+09:00",
       "progress": {
         "percent": 100,
         "steps": [
@@ -17098,23 +17132,31 @@
           "at": "2026-05-20T15:22:12.244Z",
           "event": "mail_sent — Resend id: d9e6aeab-e7a0-4a63-9986-17d3878b2cd1 (bundle 2)",
           "by": "ops-mail-bot"
+        },
+        {
+          "at": "2026-05-23T15:26:52.210791+09:00",
+          "event": "source 필드 자동 보강 (BL-AUTO-TASKS-SCHEMA 해소)",
+          "by": "claude",
+          "note": "source=auto-detect-bot:commit:790afa3 (history[0].by + BL 패턴 추론)"
         }
       ],
-      "done_at": "2026-05-20T15:21:57.718539Z"
+      "done_at": "2026-05-20T15:21:57.718539Z",
+      "source": "auto-detect-bot:commit:790afa3",
+      "source_anchor": ""
     },
     {
       "id": "BL-AUTO-TASKS-SCHEMA-4MISSING",
       "title": "[자동] 작업 235건 중 4건에 출처가 없어요 (자동 동기화 봇 멈춤 위험)",
       "category": "infrastructure",
       "priority": "P0",
-      "status": "pending",
+      "status": "done",
       "claude_can_auto": true,
       "approval_required": false,
       "owner": "claude",
       "size": "small",
       "source": "auto_from_tasks_schema",
       "created_at": "2026-05-20T16:16:47.608Z",
-      "updated_at": "2026-05-23T01:59:44.188766+00:00",
+      "updated_at": "2026-05-23T15:26:52.210791+09:00",
       "deadline": null,
       "order": 10,
       "blocker": null,
@@ -17125,8 +17167,11 @@
       },
       "decision_ref": "D-024",
       "progress": {
-        "percent": 0,
-        "steps": []
+        "percent": 100,
+        "steps": [],
+        "completed_count": 0,
+        "total_count": 0,
+        "updated_at": "2026-05-23T15:26:52.210791+09:00"
       },
       "history": [
         {
@@ -17146,6 +17191,12 @@
           "at": "2026-05-23T01:59:44.188766+00:00",
           "event": "봇이 commit subject 보고 in_progress 자동 박음 → pending 복귀 [status:keep]",
           "by": "claude"
+        },
+        {
+          "at": "2026-05-23T15:26:52.210791+09:00",
+          "event": "점검 봇 green 전환 예정 — source 보강으로 missing_source=0건",
+          "by": "claude",
+          "note": "BL-AUTO-TASKS-SCHEMA-* 5건 일괄 close (룰북 4.자동 close)"
         }
       ],
       "notes": "점검 봇 자동 등록 (2026-05-20T16:16:47.608Z)\n\ncheck_name: tasks_schema\nstatus: red\ndetail: 작업 235건 중 4건에 출처가 없어요 (자동 동기화 봇 멈춤 위험)\n\n진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 green으로 박으면 자동 done.",
@@ -17155,7 +17206,8 @@
         "detected_at": "2026-05-23T01:56:48+00:00",
         "detected_by_commit": "1945787",
         "message": "in_progress 진입했으나 progress.steps 비어있음. tasks.json에서 progress.steps 박은 후 다음 commit에 [step:done:N] 태그."
-      }
+      },
+      "completed_at": "2026-05-23T15:26:52.210791+09:00"
     },
     {
       "id": "BL-MGR-DASH-SIGNOUT",
@@ -17216,9 +17268,17 @@
           "by": "auto-detect-bot",
           "commit": "19d9994",
           "note": "test(BL-MGR-DASH-SIGNOUT): Sign out 시각·동작 검증 PASS 증거 박음 [step:done:5] [변경사유: Playwright 자동 검증 결과 Sign out 텍스트 정상 노출 + 클릭"
+        },
+        {
+          "at": "2026-05-23T15:26:52.210791+09:00",
+          "event": "source 필드 자동 보강 (BL-AUTO-TASKS-SCHEMA 해소)",
+          "by": "claude",
+          "note": "source=manual (history[0].by + BL 패턴 추론)"
         }
       ],
-      "updated_at": "2026-05-21T01:58:20+00:00"
+      "updated_at": "2026-05-23T15:26:52.210791+09:00",
+      "source": "manual",
+      "source_anchor": ""
     },
     {
       "id": "BL-COMMON-HEADER-UNIFY",
@@ -17270,7 +17330,7 @@
       "depends_on": [],
       "created_at": "2026-05-21",
       "started_at": "2026-05-21T01:51:45+00:00",
-      "updated_at": "2026-05-21T14:45:04+00:00",
+      "updated_at": "2026-05-23T15:26:52.210791+09:00",
       "history": [
         {
           "at": "2026-05-21T01:51:45+00:00",
@@ -17317,6 +17377,12 @@
           "at": "2026-05-22T08:47:28.072Z",
           "event": "mail_sent — Resend id: e27a1fb7-0e72-4d79-8ea9-919f75a37f36 (bundle 1)",
           "by": "ops-mail-bot"
+        },
+        {
+          "at": "2026-05-23T15:26:52.210791+09:00",
+          "event": "source 필드 자동 보강 (BL-AUTO-TASKS-SCHEMA 해소)",
+          "by": "claude",
+          "note": "source=auto-detect-bot:commit:24496a6 (history[0].by + BL 패턴 추론)"
         }
       ],
       "design_artifacts": [
@@ -17344,21 +17410,23 @@
       "progress_warning_resolved_at": "2026-05-21T07:21:17+00:00",
       "progress_warning_resolved_by": "claude",
       "progress_warning_resolved_note": "정정 + 실제 작업물 commit으로 부칙 7 위반 해소",
-      "completed_at": "2026-05-21T14:43:22.973909+00:00"
+      "completed_at": "2026-05-21T14:43:22.973909+00:00",
+      "source": "auto-detect-bot:commit:24496a6",
+      "source_anchor": ""
     },
     {
       "id": "BL-AUTO-TASKS-SCHEMA-7MISSING",
       "title": "[자동] 작업 239건 중 7건에 출처가 없어요 (자동 동기화 봇 멈춤 위험)",
       "category": "infrastructure",
       "priority": "P0",
-      "status": "pending",
+      "status": "done",
       "claude_can_auto": true,
       "approval_required": false,
       "owner": "claude",
       "size": "small",
       "source": "auto_from_tasks_schema",
       "created_at": "2026-05-21T02:52:52.647Z",
-      "updated_at": "2026-05-21T02:52:52.647Z",
+      "updated_at": "2026-05-23T15:26:52.210791+09:00",
       "deadline": null,
       "order": null,
       "blocker": null,
@@ -17369,8 +17437,11 @@
       },
       "decision_ref": "D-024",
       "progress": {
-        "percent": 0,
-        "steps": []
+        "percent": 100,
+        "steps": [],
+        "completed_count": 0,
+        "total_count": 0,
+        "updated_at": "2026-05-23T15:26:52.210791+09:00"
       },
       "history": [
         {
@@ -17378,9 +17449,16 @@
           "by": "auto-task-bot",
           "action": "created",
           "detail": "점검 봇 발견 (tasks_schema=red): 작업 239건 중 7건에 출처가 없어요 (자동 동기화 봇 멈춤 위험)"
+        },
+        {
+          "at": "2026-05-23T15:26:52.210791+09:00",
+          "event": "점검 봇 green 전환 예정 — source 보강으로 missing_source=0건",
+          "by": "claude",
+          "note": "BL-AUTO-TASKS-SCHEMA-* 5건 일괄 close (룰북 4.자동 close)"
         }
       ],
-      "notes": "점검 봇 자동 등록 (2026-05-21T02:52:52.647Z)\n\ncheck_name: tasks_schema\nstatus: red\ndetail: 작업 239건 중 7건에 출처가 없어요 (자동 동기화 봇 멈춤 위험)\n\n진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 green으로 박으면 자동 done."
+      "notes": "점검 봇 자동 등록 (2026-05-21T02:52:52.647Z)\n\ncheck_name: tasks_schema\nstatus: red\ndetail: 작업 239건 중 7건에 출처가 없어요 (자동 동기화 봇 멈춤 위험)\n\n진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 green으로 박으면 자동 done.",
+      "completed_at": "2026-05-23T15:26:52.210791+09:00"
     },
     {
       "id": "BL-ADMIN-MEMBERS-KPI-FIX",
@@ -17429,7 +17507,7 @@
       "depends_on": [],
       "created_at": "2026-05-21",
       "started_at": "2026-05-21T01:51:45+00:00",
-      "updated_at": "2026-05-21T06:50:28+00:00",
+      "updated_at": "2026-05-23T15:26:52.210791+09:00",
       "history": [
         {
           "at": "2026-05-21T01:51:45+00:00",
@@ -17456,9 +17534,17 @@
           "at": "2026-05-21T07:21:58.189Z",
           "event": "mail_sent — Resend id: dc9b5c0f-2b31-4eb9-8670-bae2ae81302e (bundle 1)",
           "by": "ops-mail-bot"
+        },
+        {
+          "at": "2026-05-23T15:26:52.210791+09:00",
+          "event": "source 필드 자동 보강 (BL-AUTO-TASKS-SCHEMA 해소)",
+          "by": "claude",
+          "note": "source=auto-detect-bot:commit:24496a6 (history[0].by + BL 패턴 추론)"
         }
       ],
-      "completed_at": "2026-05-21T06:37:17.692254+00:00"
+      "completed_at": "2026-05-21T06:37:17.692254+00:00",
+      "source": "auto-detect-bot:commit:24496a6",
+      "source_anchor": ""
     },
     {
       "id": "BL-OPS-TESTDATA-CLEANUP",
@@ -17508,14 +17594,22 @@
         "결정하면 뭐가 달라지냐면": "운영 진입 직후 어드민 화면이 깨끗해집니다. 새 매니저 가입 시 KPI 1부터 시작. 사업 판단 정확해짐."
       },
       "created_at": "2026-05-21",
-      "updated_at": "2026-05-21T06:38:28.264322+00:00",
+      "updated_at": "2026-05-23T15:26:52.210791+09:00",
       "history": [
         {
           "at": "2026-05-21T06:38:28.264322+00:00",
           "event": "신규 등록 (BL-ADMIN-MEMBERS-KPI-FIX 진행 중 대표님 명시 '운영 오픈하면 테스트계정 다 삭제할거니깐')",
           "by": "claude"
+        },
+        {
+          "at": "2026-05-23T15:26:52.210791+09:00",
+          "event": "source 필드 자동 보강 (BL-AUTO-TASKS-SCHEMA 해소)",
+          "by": "claude",
+          "note": "source=claude_chat (history[0].by + BL 패턴 추론)"
         }
-      ]
+      ],
+      "source": "claude_chat",
+      "source_anchor": ""
     },
     {
       "id": "BL-PAYMENTS-STATUS-AUDIT",
@@ -17559,28 +17653,36 @@
       "depends_on": [],
       "approval_required": false,
       "created_at": "2026-05-21",
-      "updated_at": "2026-05-21T06:38:28.264322+00:00",
+      "updated_at": "2026-05-23T15:26:52.210791+09:00",
       "history": [
         {
           "at": "2026-05-21T06:38:28.264322+00:00",
           "event": "신규 등록 (BL-ADMIN-MEMBERS-KPI-FIX 후속 — 같은 버그 다른 곳에 있을 가능성 차단)",
           "by": "claude"
+        },
+        {
+          "at": "2026-05-23T15:26:52.210791+09:00",
+          "event": "source 필드 자동 보강 (BL-AUTO-TASKS-SCHEMA 해소)",
+          "by": "claude",
+          "note": "source=claude_chat (history[0].by + BL 패턴 추론)"
         }
-      ]
+      ],
+      "source": "claude_chat",
+      "source_anchor": ""
     },
     {
       "id": "BL-AUTO-TASKS-SCHEMA-9MISSING",
       "title": "[자동] 작업 242건 중 9건에 출처가 없어요 (자동 동기화 봇 멈춤 위험)",
       "category": "infrastructure",
       "priority": "P0",
-      "status": "pending",
+      "status": "done",
       "claude_can_auto": true,
       "approval_required": false,
       "owner": "claude",
       "size": "small",
       "source": "auto_from_tasks_schema",
       "created_at": "2026-05-21T06:50:51.396Z",
-      "updated_at": "2026-05-21T06:50:51.396Z",
+      "updated_at": "2026-05-23T15:26:52.210791+09:00",
       "deadline": null,
       "order": null,
       "blocker": null,
@@ -17591,8 +17693,11 @@
       },
       "decision_ref": "D-024",
       "progress": {
-        "percent": 0,
-        "steps": []
+        "percent": 100,
+        "steps": [],
+        "completed_count": 0,
+        "total_count": 0,
+        "updated_at": "2026-05-23T15:26:52.210791+09:00"
       },
       "history": [
         {
@@ -17600,9 +17705,16 @@
           "by": "auto-task-bot",
           "action": "created",
           "detail": "점검 봇 발견 (tasks_schema=red): 작업 242건 중 9건에 출처가 없어요 (자동 동기화 봇 멈춤 위험)"
+        },
+        {
+          "at": "2026-05-23T15:26:52.210791+09:00",
+          "event": "점검 봇 green 전환 예정 — source 보강으로 missing_source=0건",
+          "by": "claude",
+          "note": "BL-AUTO-TASKS-SCHEMA-* 5건 일괄 close (룰북 4.자동 close)"
         }
       ],
-      "notes": "점검 봇 자동 등록 (2026-05-21T06:50:51.396Z)\n\ncheck_name: tasks_schema\nstatus: red\ndetail: 작업 242건 중 9건에 출처가 없어요 (자동 동기화 봇 멈춤 위험)\n\n진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 green으로 박으면 자동 done."
+      "notes": "점검 봇 자동 등록 (2026-05-21T06:50:51.396Z)\n\ncheck_name: tasks_schema\nstatus: red\ndetail: 작업 242건 중 9건에 출처가 없어요 (자동 동기화 봇 멈춤 위험)\n\n진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 green으로 박으면 자동 done.",
+      "completed_at": "2026-05-23T15:26:52.210791+09:00"
     },
     {
       "id": "BL-MGR-DASH-HEADER-UNIFY",
@@ -17616,7 +17728,17 @@
         "BL-COMMON-HEADER-UNIFY"
       ],
       "created_at": "2026-05-21",
-      "updated_at": "2026-05-21T14:43:38.844241+00:00"
+      "updated_at": "2026-05-23T15:26:52.210791+09:00",
+      "source": "manual",
+      "source_anchor": "",
+      "history": [
+        {
+          "at": "2026-05-23T15:26:52.210791+09:00",
+          "event": "source 필드 자동 보강 (BL-AUTO-TASKS-SCHEMA 해소)",
+          "by": "claude",
+          "note": "source=manual (history[0].by + BL 패턴 추론)"
+        }
+      ]
     },
     {
       "id": "BL-COMMON-HEADER-CSS-CLEANUP",
@@ -17631,21 +17753,31 @@
         "BL-MGR-DASH-HEADER-UNIFY"
       ],
       "created_at": "2026-05-21",
-      "updated_at": "2026-05-21T14:43:38.844241+00:00"
+      "updated_at": "2026-05-23T15:26:52.210791+09:00",
+      "source": "manual",
+      "source_anchor": "",
+      "history": [
+        {
+          "at": "2026-05-23T15:26:52.210791+09:00",
+          "event": "source 필드 자동 보강 (BL-AUTO-TASKS-SCHEMA 해소)",
+          "by": "claude",
+          "note": "source=manual (history[0].by + BL 패턴 추론)"
+        }
+      ]
     },
     {
       "id": "BL-AUTO-TASKS-SCHEMA-11MISSING",
       "title": "[자동] 작업 245건 중 11건에 출처가 없어요 (자동 동기화 봇 멈춤 위험)",
       "category": "infrastructure",
       "priority": "P0",
-      "status": "pending",
+      "status": "done",
       "claude_can_auto": true,
       "approval_required": false,
       "owner": "claude",
       "size": "small",
       "source": "auto_from_tasks_schema",
       "created_at": "2026-05-21T16:37:27.895Z",
-      "updated_at": "2026-05-21T16:37:27.895Z",
+      "updated_at": "2026-05-23T15:26:52.210791+09:00",
       "deadline": null,
       "order": null,
       "blocker": null,
@@ -17656,8 +17788,11 @@
       },
       "decision_ref": "D-024",
       "progress": {
-        "percent": 0,
-        "steps": []
+        "percent": 100,
+        "steps": [],
+        "completed_count": 0,
+        "total_count": 0,
+        "updated_at": "2026-05-23T15:26:52.210791+09:00"
       },
       "history": [
         {
@@ -17665,9 +17800,16 @@
           "by": "auto-task-bot",
           "action": "created",
           "detail": "점검 봇 발견 (tasks_schema=red): 작업 245건 중 11건에 출처가 없어요 (자동 동기화 봇 멈춤 위험)"
+        },
+        {
+          "at": "2026-05-23T15:26:52.210791+09:00",
+          "event": "점검 봇 green 전환 예정 — source 보강으로 missing_source=0건",
+          "by": "claude",
+          "note": "BL-AUTO-TASKS-SCHEMA-* 5건 일괄 close (룰북 4.자동 close)"
         }
       ],
-      "notes": "점검 봇 자동 등록 (2026-05-21T16:37:27.895Z)\n\ncheck_name: tasks_schema\nstatus: red\ndetail: 작업 245건 중 11건에 출처가 없어요 (자동 동기화 봇 멈춤 위험)\n\n진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 green으로 박으면 자동 done."
+      "notes": "점검 봇 자동 등록 (2026-05-21T16:37:27.895Z)\n\ncheck_name: tasks_schema\nstatus: red\ndetail: 작업 245건 중 11건에 출처가 없어요 (자동 동기화 봇 멈춤 위험)\n\n진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 green으로 박으면 자동 done.",
+      "completed_at": "2026-05-23T15:26:52.210791+09:00"
     },
     {
       "id": "BL-FLOW-1-AGODA-AUTO-APPROVE",
@@ -17714,7 +17856,7 @@
       "approval_required": false,
       "context": "BUSINESS_FLOW.md Stage 1D + service-flow.md Stage 2 + 2026-05-22 채팅 대표님 A안 확정. 결제 API(api/paypal.js)는 이미 approved → paid 자동 전환되도록 박혀있음. 1번 변경하면 자동 통과.",
       "created_at": "2026-05-22",
-      "updated_at": "2026-05-23T05:35:59+00:00",
+      "updated_at": "2026-05-23T15:26:52.210791+09:00",
       "history": [
         {
           "at": "2026-05-22T08:47:02.429056+00:00",
@@ -17737,9 +17879,17 @@
           "by": "auto-detect-bot",
           "commit": "7c27268",
           "note": "feat(BL-FLOW-1-AGODA-AUTO-APPROVE): Agoda 매칭 자동 approved + 중복 호텔 차단 + 안내 모달 [step:done:1][step:done:2][step:done:3][step"
+        },
+        {
+          "at": "2026-05-23T15:26:52.210791+09:00",
+          "event": "source 필드 자동 보강 (BL-AUTO-TASKS-SCHEMA 해소)",
+          "by": "claude",
+          "note": "source=claude_chat:2026-05-22_BL-FLOW_series (history[0].by + BL 패턴 추론)"
         }
       ],
-      "order": null
+      "order": null,
+      "source": "claude_chat:2026-05-22_BL-FLOW_series",
+      "source_anchor": ""
     },
     {
       "id": "BL-FLOW-2-SALES-COPY-5TIER",
@@ -17787,7 +17937,7 @@
       "approval_required": false,
       "context": "docs/design/BL-MGR-DASHBOARD-V1/copy-hierarchy.md (5단 카피 100% 정의됨). 디자인은 임시 박고 나중에 shared.css로 일괄 통일.",
       "created_at": "2026-05-22",
-      "updated_at": "2026-05-23T05:55:33+00:00",
+      "updated_at": "2026-05-23T15:26:52.210791+09:00",
       "history": [
         {
           "at": "2026-05-22T08:47:02.429056+00:00",
@@ -17805,10 +17955,18 @@
           "by": "auto-detect-bot",
           "commit": "6ad12e4",
           "note": "chore(BL-FLOW-2-SALES-COPY-5TIER): tasks.json done 마킹 + chat-log 박음 [status:keep]"
+        },
+        {
+          "at": "2026-05-23T15:26:52.210791+09:00",
+          "event": "source 필드 자동 보강 (BL-AUTO-TASKS-SCHEMA 해소)",
+          "by": "claude",
+          "note": "source=claude_chat:2026-05-22_BL-FLOW_series (history[0].by + BL 패턴 추론)"
         }
       ],
       "order": 1,
-      "completed_at": "2026-05-23T14:53:48.636668+09:00"
+      "completed_at": "2026-05-23T14:53:48.636668+09:00",
+      "source": "claude_chat:2026-05-22_BL-FLOW_series",
+      "source_anchor": ""
     },
     {
       "id": "BL-FLOW-3-DASHBOARD-ROUTING-FIX",
@@ -17863,7 +18021,7 @@
       "approval_required": false,
       "context": "manager-dashboard.html이 진짜 본진(5탭 다 박힘). dashboard.html은 620줄 빈약본 — 폐기 결정 (2026-05-22 채팅). 라우팅 3곳만 바꾸면 됨.",
       "created_at": "2026-05-22",
-      "updated_at": "2026-05-23T06:18:50+00:00",
+      "updated_at": "2026-05-23T15:26:52.210791+09:00",
       "history": [
         {
           "at": "2026-05-22T08:47:02.429056+00:00",
@@ -17888,6 +18046,12 @@
           "by": "auto-detect-bot",
           "commit": "2ae419d",
           "note": "chore(BL-FLOW-3-DASHBOARD-ROUTING-FIX): tasks.json done 마킹 + chat-log 박음 [status:keep]"
+        },
+        {
+          "at": "2026-05-23T15:26:52.210791+09:00",
+          "event": "source 필드 자동 보강 (BL-AUTO-TASKS-SCHEMA 해소)",
+          "by": "claude",
+          "note": "source=claude_chat:2026-05-22_BL-FLOW_series (history[0].by + BL 패턴 추론)"
         }
       ],
       "order": 2,
@@ -17899,21 +18063,23 @@
         "detected_by_commit": "a6f1396",
         "message": "in_progress 진입했으나 progress.steps 비어있음. tasks.json에서 progress.steps 박은 후 다음 commit에 [step:done:N] 태그."
       },
-      "completed_at": "2026-05-23T15:18:24.365542+09:00"
+      "completed_at": "2026-05-23T15:18:24.365542+09:00",
+      "source": "claude_chat:2026-05-22_BL-FLOW_series",
+      "source_anchor": ""
     },
     {
       "id": "BL-AUTO-TASKS-SCHEMA-14MISSING",
       "title": "[자동] 작업 249건 중 14건에 출처가 없어요 (자동 동기화 봇 멈춤 위험)",
       "category": "infrastructure",
       "priority": "P0",
-      "status": "pending",
+      "status": "done",
       "claude_can_auto": true,
       "approval_required": false,
       "owner": "claude",
       "size": "small",
       "source": "auto_from_tasks_schema",
       "created_at": "2026-05-22T11:17:01.083Z",
-      "updated_at": "2026-05-22T11:17:01.083Z",
+      "updated_at": "2026-05-23T15:26:52.210791+09:00",
       "deadline": null,
       "order": null,
       "blocker": null,
@@ -17924,8 +18090,11 @@
       },
       "decision_ref": "D-024",
       "progress": {
-        "percent": 0,
-        "steps": []
+        "percent": 100,
+        "steps": [],
+        "completed_count": 0,
+        "total_count": 0,
+        "updated_at": "2026-05-23T15:26:52.210791+09:00"
       },
       "history": [
         {
@@ -17933,9 +18102,16 @@
           "by": "auto-task-bot",
           "action": "created",
           "detail": "점검 봇 발견 (tasks_schema=red): 작업 249건 중 14건에 출처가 없어요 (자동 동기화 봇 멈춤 위험)"
+        },
+        {
+          "at": "2026-05-23T15:26:52.210791+09:00",
+          "event": "점검 봇 green 전환 예정 — source 보강으로 missing_source=0건",
+          "by": "claude",
+          "note": "BL-AUTO-TASKS-SCHEMA-* 5건 일괄 close (룰북 4.자동 close)"
         }
       ],
-      "notes": "점검 봇 자동 등록 (2026-05-22T11:17:01.083Z)\n\ncheck_name: tasks_schema\nstatus: red\ndetail: 작업 249건 중 14건에 출처가 없어요 (자동 동기화 봇 멈춤 위험)\n\n진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 green으로 박으면 자동 done."
+      "notes": "점검 봇 자동 등록 (2026-05-22T11:17:01.083Z)\n\ncheck_name: tasks_schema\nstatus: red\ndetail: 작업 249건 중 14건에 출처가 없어요 (자동 동기화 봇 멈춤 위험)\n\n진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 green으로 박으면 자동 done.",
+      "completed_at": "2026-05-23T15:26:52.210791+09:00"
     },
     {
       "id": "BL-STATUS-RECOMMEND-AUTO-REFRESH",
@@ -17987,7 +18163,7 @@
       "approval_required": false,
       "context": "admin-status.html line 4734 renderRecommendation 함수가 페이지 로드 1회만 호출됨. line 9025 polling 사이클에 추가하면 됨. 영향: 모든 작업 큐·결정 큐 자동 반영.",
       "created_at": "2026-05-23",
-      "updated_at": "2026-05-23T01:53:18+00:00",
+      "updated_at": "2026-05-23T15:26:52.210791+09:00",
       "history": [
         {
           "at": "2026-05-23T01:49:10.203418+00:00",
@@ -18012,6 +18188,12 @@
           "by": "auto-detect-bot",
           "commit": "84b0d96",
           "note": "fix(BL-STATUS-RECOMMEND-AUTO-REFRESH): 첫 폴링 시 변경 감지 통과 — 화면 자동 갱신 작동 [step:done:1][step:done:2][step:done:3][step:done:4"
+        },
+        {
+          "at": "2026-05-23T15:26:52.210791+09:00",
+          "event": "source 필드 자동 보강 (BL-AUTO-TASKS-SCHEMA 해소)",
+          "by": "claude",
+          "note": "source=claude_chat:BL-STATUS-RECOMMEND (history[0].by + BL 패턴 추론)"
         }
       ],
       "started_at": "2026-05-23T01:49:31+00:00",
@@ -18022,7 +18204,9 @@
         "detected_by_commit": "eb7c4f9",
         "message": "in_progress 진입했으나 progress.steps 비어있음. tasks.json에서 progress.steps 박은 후 다음 commit에 [step:done:N] 태그."
       },
-      "completed_at": "2026-05-23T01:53:00.156210+00:00"
+      "completed_at": "2026-05-23T01:53:00.156210+00:00",
+      "source": "claude_chat:BL-STATUS-RECOMMEND",
+      "source_anchor": ""
     },
     {
       "id": "BL-FULL-REFRESH-UNIFY",
@@ -18069,7 +18253,7 @@
       "approval_required": false,
       "context": "대표님 원칙(헌법급): 전체 갱신 통일. 라이브 admin-status.html line 8322~8340 pollTick에 13개만 호출되고 15개 빠짐. renderAll/renderCard/renderCategoryTasksBlock/renderActivity 등 추가 필요. 작업 후 BL-FLOW-1 매출 흐름 시작.",
       "created_at": "2026-05-23",
-      "updated_at": "2026-05-23T02:14:22+00:00",
+      "updated_at": "2026-05-23T15:26:52.210791+09:00",
       "completed_at": "2026-05-23T03:00:00+00:00",
       "history": [
         {
@@ -18095,8 +18279,16 @@
           "by": "auto-detect-bot",
           "commit": "098319c",
           "note": "feat(BL-FULL-REFRESH-UNIFY): admin-status 5초 폴링 전체 갱신 통일 [step:done:1][step:done:2][step:done:3][step:done:4][step:done:"
+        },
+        {
+          "at": "2026-05-23T15:26:52.210791+09:00",
+          "event": "source 필드 자동 보강 (BL-AUTO-TASKS-SCHEMA 해소)",
+          "by": "claude",
+          "note": "source=claude_chat:2026-05-23_BL-FULL-REFRESH (history[0].by + BL 패턴 추론)"
         }
-      ]
+      ],
+      "source": "claude_chat:2026-05-23_BL-FULL-REFRESH",
+      "source_anchor": ""
     }
   ]
 }

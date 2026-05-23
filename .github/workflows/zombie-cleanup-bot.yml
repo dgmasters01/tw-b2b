@@ -1,0 +1,88 @@
+# TW B2B — 미인증 좀비 가입자 자동 청소봇
+#
+# 작업: BL-MEMBERS-DATA-SOURCE
+#
+# 헌법 부합:
+#   ② 무인 실행: 매일 KST 03:30 자동 실행
+#   ④ 전수 추적: admin_audit_log에 삭제 전 before_state 박음
+#   ⑤ 무인 검증: schedule trigger 시 DRY_RUN=true 기본 (안전),
+#                workflow_dispatch에서만 dry_run=false 선택 가능
+#   ⑨ 가역성: audit_log before_state로 복원 가능
+#
+# 트리거:
+#   1. cron — 매일 KST 03:30 = UTC 18:30 (전날)
+#   2. workflow_dispatch — 수동 실행 (디버그/즉시 실행용, dry_run 선택)
+#
+# 좀비 정의 (3조건 AND):
+#   - 이메일 미인증 (email_confirmed_at IS NULL)
+#   - 가입 7일 경과
+#   - hotels 등록 0건
+#   + admins 이메일은 절대 제외 (팀 멤버 보호)
+
+name: Zombie User Cleanup Bot
+
+on:
+  schedule:
+    # KST 03:30 = UTC 18:30 (전날). cron은 UTC.
+    - cron: '30 18 * * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'DRY_RUN 모드 (true=후보만 출력, false=실제 삭제)'
+        required: true
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+        default: 'true'
+      cutoff_days:
+        description: '좀비 판정 기준 일수 (기본 7)'
+        required: false
+        type: string
+        default: '7'
+
+# 동시 실행 방지
+concurrency:
+  group: zombie-cleanup-bot
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  cleanup:
+    name: Cleanup Unverified Zombie Users
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Determine DRY_RUN mode
+        id: mode
+        run: |
+          # schedule 트리거 = 항상 DRY_RUN (안전 기본)
+          # workflow_dispatch = 입력값 사용
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            echo "dry_run=true" >> $GITHUB_OUTPUT
+            echo "cutoff_days=7" >> $GITHUB_OUTPUT
+            echo "📅 schedule 트리거 — DRY_RUN=true 강제 (보고만)"
+          else
+            echo "dry_run=${{ inputs.dry_run }}" >> $GITHUB_OUTPUT
+            echo "cutoff_days=${{ inputs.cutoff_days }}" >> $GITHUB_OUTPUT
+            echo "🖐️ 수동 실행 — DRY_RUN=${{ inputs.dry_run }}, CUTOFF=${{ inputs.cutoff_days }}일"
+          fi
+
+      - name: Run zombie cleanup script
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          DRY_RUN: ${{ steps.mode.outputs.dry_run }}
+          ZOMBIE_CUTOFF_DAYS: ${{ steps.mode.outputs.cutoff_days }}
+        run: |
+          python3 scripts/cleanup-zombie-users.py

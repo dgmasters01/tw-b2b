@@ -5,7 +5,7 @@
 > 
 > 단일 진실 소스: `tasks.json` (v2.0)
 
-**마지막 업데이트**: 2026-05-18
+**마지막 업데이트**: 2026-05-23
 
 > 💡 **새 채팅 시작 시**: 다음 5개 문서를 먼저 보면 즉시 컨텍스트 파악 가능.
 > 
@@ -44,30 +44,6 @@
 
 ---
 
-## ⚡ P0 — [가입자/사용자 관리 도구] admin 화면에서 직접 삭제·권한 조작·재인증 가능하게
-
-**요약**: 단계 1·2·3 완료 (API 3종 + Members 탭). Hotels·Team 탭 ⋯ 메뉴는 다음 채팅. 분량 정직 끊기.
-
-- **자율성**: 🟡 SEMI
-- **예상 시간**: 미정시간
-- **카테고리**: admin
-- **상태**: in_progress
-- **ID**: `BL-ADMIN-USER-MANAGEMENT` (출처: chat:2026-05-13 보안 진단)
-
----
-
-## ⚡ P0 — [가입자 단계별 차등 화면] 결제 안 한 사람한테 시스템 노출 차단
-
-**요약**: 단계: ①가입만 함 → 호텔등록 유도 화면 ②호텔등록·미결제 → sales.html 결제유도 ③결제완료 → dashboard.html. dashboard.html 진입 시 hotels.status 확인 후 자동 redirect. BL-SALES-PAGE-BUILD가 먼저 박혀야 함.
-
-- **자율성**: 🟡 SEMI
-- **예상 시간**: 미정시간
-- **카테고리**: feature
-- **상태**: in_progress
-- **ID**: `BL-USER-STAGE-GATING` (출처: chat:2026-05-15 영업 깔때기 페이지 구축 (sales.html + 단계별 라우팅))
-
----
-
 ## 🟡 P0 — [운영 대시보드 본격 구축] admin.html을 서비스 운영의 단일 진입점으로
 
 **요약**: 디자인 큰 방향은 대표님 승인 필요. 클로드 추천 5박스 구조: ①사업 KPI(매출·매니저·영상·예약) ②매니저 관리(승인·거절·환불) ③영업 깔때기 분석(가입→심사→승인→결제→게시) ④채널별 성과 ⑤예약 분석. Aurora v2 디자인. 데이터: hotels/payments/videos/bookings/hotel_status_history/admin_no
@@ -77,24 +53,6 @@
 - **카테고리**: feature
 - **상태**: pending
 - **ID**: `BL-ADMIN-OPERATIONS-DASHBOARD` (출처: chat:2026-05-15 시스템 완성도 vs admin.html 역할 분리)
-
----
-
-## 🟢 P0 — [자동] 작업 229건 중 1건에 출처가 없어요 (자동 동기화 봇 멈춤 위험)
-
-**요약**: 점검 봇 자동 등록 (2026-05-17T08:02:43.135Z)
-
-check_name: tasks_schema
-status: red
-detail: 작업 229건 중 1건에 출처가 없어요 (자동 동기화 봇 멈춤 위험)
-
-진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 green으로 박으면 자동
-
-- **자율성**: 🟢 AUTO
-- **예상 시간**: 1시간
-- **카테고리**: infrastructure
-- **상태**: pending
-- **ID**: `BL-AUTO-TASKS-SCHEMA-1MISSING` (출처: auto_from_tasks_schema)
 
 ---
 
@@ -448,6 +406,16 @@ detail: 관리자 페이지 2개가 원본과 살짝 달라요 (대표님이 일
 
 ---
 
+## 🟡 P1 — 코드 전체 payments.status='completed' 가정 사용처 grep 점검
+
+- **자율성**: 🟡 SEMI
+- **예상 시간**: 미정시간
+- **카테고리**: audit
+- **상태**: pending
+- **ID**: `BL-PAYMENTS-STATUS-AUDIT` (출처: claude_chat)
+
+---
+
 ## 🟢 P2 — [DECISIONS_INDEX.md 자동 동기화] sync_engine 보강
 
 **요약**: DECISIONS.md 변경 감지 → DECISIONS_INDEX.md 자동 갱신. ID 고정 불변 규칙.
@@ -664,6 +632,16 @@ detail: 관리자 페이지 2개가 원본과 살짝 달라요 (대표님이 일
 - **카테고리**: ui
 - **상태**: pending
 - **ID**: `BL-ADMIN-LABEL-CLEANUP` (출처: chat:2026-05-13 보안 진단)
+
+---
+
+## 🟡 P2 — 운영 진입 직전 테스트 계정·결제·호텔 일괄 삭제
+
+- **자율성**: 🟡 SEMI
+- **예상 시간**: 미정시간
+- **카테고리**: ops
+- **상태**: pending
+- **ID**: `BL-OPS-TESTDATA-CLEANUP` (출처: claude_chat)
 
 ---
 

@@ -411,8 +411,8 @@
   var $ = T.$;
   var currentUser = null;
 
-  // status별 redirect 라우팅 정책
-  // - 결제 후 (paid / producing / published) → marketing.html
+  // [BL-FLOW-3-DASHBOARD-ROUTING-FIX 2026-05-23] status별 redirect 라우팅 정책
+  // - 결제 후 (paid / producing / published) → manager-dashboard.html (진짜 본진)
   // - 결제 전 (pending / review / approved / rejected) → 본 페이지 유지
   // - 호텔 미등록 → signup-flow 또는 hotel-info.html 로
   T.requireAuth(async function(user){
@@ -446,9 +446,9 @@
       return;
     }
 
-    // 결제 완료 그룹은 marketing.html 로
+    // [BL-FLOW-3 2026-05-23] 결제 완료 그룹은 manager-dashboard.html (진짜 본진)로
     if (status === 'paid' || status === 'producing' || status === 'published') {
-      window.location.href = 'marketing.html';
+      window.location.href = 'manager-dashboard.html';
       return;
     }
 
@@ -840,8 +840,8 @@
             return;
           }
           setPayStatus('✓ Payment successful! Redirecting to your dashboard…', '#34D9A4');
-          // 1.5초 후 marketing.html로 이동 (status가 paid로 전환됐으므로)
-          setTimeout(function(){ window.location.href = 'marketing.html'; }, 1500);
+          // [BL-FLOW-3 2026-05-23] 1.5초 후 manager-dashboard.html(진짜 본진)로 이동
+          setTimeout(function(){ window.location.href = 'manager-dashboard.html'; }, 1500);
         },
 
         onCancel: function() {

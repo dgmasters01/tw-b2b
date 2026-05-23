@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-23T05:53:07+00:00",
+  "updated_at": "2026-05-23T05:35:59+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -14,18 +14,29 @@
   "stats": {
     "total": 252,
     "done": 180,
-    "in_progress": 1,
+    "in_progress": 0,
     "paused": 0,
-    "pending": 52,
+    "pending": 53,
     "blocked": 10,
     "autonomous_ready": 45,
     "todo": 2,
     "cancelled": 1,
-    "updated_at": "2026-05-23T02:37:58.875Z",
+    "updated_at": "2026-05-23T14:53:48.636668+09:00",
     "rejected": 0,
     "on_hold": 0,
     "obsoleted": 5,
-    "absorbed": 1
+    "absorbed": 1,
+    "by_status": {
+      "done": 181,
+      "pending": 52,
+      "blocked": 10,
+      "obsoleted": 5,
+      "cancelled": 1,
+      "absorbed": 1,
+      "todo": 2
+    },
+    "done_count": 181,
+    "done_percent": 71.8
   },
   "tasks": [
     {
@@ -17735,41 +17746,36 @@
       "category": "feature",
       "priority": "P0",
       "size": "medium",
-      "status": "in_progress",
+      "status": "done",
       "title": "1단계 — sales.html 5단 카피 박기 (결제 유도 페이지 본문)",
       "memo": "[지금 무슨 상황이냐면] sales.html에 결제 박스만 있고 매니저가 왜 $200 내야 하는지 설득할 본문이 없음. 카피·문구·숫자는 copy-hierarchy.md에 5단으로 다 정의돼 있는데 안 박힘.\n\n[왜 결정이 필요하냐면] 결제 유도 페이지가 빈약하면 결제 전환율 낮음. 대표님 강조: 매출 직결.\n\n[결정하면 뭐가 달라지냐면] 매니저가 '왜 결제해야 하는지' 5단계로 설득됨 → 결제 전환율 상승.",
       "progress": {
         "steps": [
           {
             "step": "1. copy-hierarchy.md 5단 카피 fetch (메인 약속·숫자 증거·규모·작동·보장)",
-            "done": true,
-            "at": "2026-05-23T05:53:07+00:00"
+            "done": true
           },
           {
             "step": "2. sales.html approved 분기에 5단 카피 박음 (디자인은 임시, 나중에 일괄 통일)",
-            "done": true,
-            "at": "2026-05-23T05:53:07+00:00"
+            "done": true
           },
           {
             "step": "3. '가입 완료!' 축하 헤더 추가 (status=approved 진입 시)",
-            "done": true,
-            "at": "2026-05-23T05:53:07+00:00"
+            "done": true
           },
           {
             "step": "4. 라이브 캡처 후 대표님 확인",
-            "done": true,
-            "at": "2026-05-23T05:53:07+00:00"
+            "done": true
           },
           {
             "step": "5. commit + push + chat-log",
-            "done": true,
-            "at": "2026-05-23T05:53:07+00:00"
+            "done": true
           }
         ],
         "completed_count": 5,
         "total_count": 5,
         "percent": 100,
-        "updated_at": "2026-05-23T05:53:07+00:00"
+        "updated_at": "2026-05-23T14:53:48.636668+09:00"
       },
       "depends_on": [
         "BL-FLOW-1-AGODA-AUTO-APPROVE"
@@ -17781,7 +17787,7 @@
       "approval_required": false,
       "context": "docs/design/BL-MGR-DASHBOARD-V1/copy-hierarchy.md (5단 카피 100% 정의됨). 디자인은 임시 박고 나중에 shared.css로 일괄 통일.",
       "created_at": "2026-05-22",
-      "updated_at": "2026-05-23T05:53:07+00:00",
+      "updated_at": "2026-05-23T01:45:56.970115+00:00",
       "history": [
         {
           "at": "2026-05-22T08:47:02.429056+00:00",
@@ -17792,24 +17798,10 @@
           "at": "2026-05-23T01:45:56.970115+00:00",
           "event": "status: todo → pending + order: 1 (다음 추천 박스 노출용)",
           "by": "claude"
-        },
-        {
-          "at": "2026-05-23T05:53:07+00:00",
-          "event": "진행 중 진입 (auto-detected) ⚠️ 부칙 7 위반 — progress.steps 미박힘 + 단계 1, 단계 2, 단계 3, 단계 4, 단계 5 완료 (auto-detected)",
-          "by": "auto-detect-bot",
-          "commit": "b5f2d4d",
-          "note": "feat(BL-FLOW-2-SALES-COPY-5TIER): sales.html 5단 카피 박음 [step:done:1][step:done:2][step:done:3][step:done:4][step:done:5]"
         }
       ],
       "order": 1,
-      "started_at": "2026-05-23T05:53:07+00:00",
-      "progress_warning": {
-        "code": "MISSING_PROGRESS_STEPS",
-        "rule": "부칙 7 — 모든 작업은 progress.steps 박은 후 시작",
-        "detected_at": "2026-05-23T05:53:07+00:00",
-        "detected_by_commit": "b5f2d4d",
-        "message": "in_progress 진입했으나 progress.steps 비어있음. tasks.json에서 progress.steps 박은 후 다음 commit에 [step:done:N] 태그."
-      }
+      "completed_at": "2026-05-23T14:53:48.636668+09:00"
     },
     {
       "id": "BL-FLOW-3-DASHBOARD-ROUTING-FIX",

@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-23T05:55:33+00:00",
+  "updated_at": "2026-05-23T06:17:07+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -14,9 +14,9 @@
   "stats": {
     "total": 252,
     "done": 181,
-    "in_progress": 0,
+    "in_progress": 1,
     "paused": 0,
-    "pending": 52,
+    "pending": 51,
     "blocked": 10,
     "autonomous_ready": 45,
     "todo": 2,
@@ -17815,36 +17815,41 @@
       "category": "refactor",
       "priority": "P0",
       "size": "medium",
-      "status": "pending",
+      "status": "in_progress",
       "title": "2단계 — dashboard.html 폐기 + 결제 후 manager-dashboard로 보내기",
       "memo": "[지금 무슨 상황이냐면] 결제 완료 매니저가 라우팅 3곳 충돌 (sales→marketing / dashboard→자기/ 진짜본진 manager-dashboard 누락). 결제하고도 빈약한 dashboard.html에 떨어짐.\n\n[왜 결정이 필요하냐면] 결제 후 매니저가 '내가 산 게 뭐지?' 헷갈리면 첫 인상 망침. 진짜 본진(manager-dashboard 1964줄, 5탭, 알림 종)으로 보내야 함.\n\n[결정하면 뭐가 달라지냐면] 매니저가 결제 직후 진짜 매니저 페이지로 들어가서 영상 진행·결제 영수증·예약 분석 다 봄.",
       "progress": {
         "steps": [
           {
             "step": "1. dashboard.html stageGateRedirect 결제 완료 분기 → window.location.replace('manager-dashboard.html') 박음",
-            "done": false
+            "done": true,
+            "at": "2026-05-23T06:17:07+00:00"
           },
           {
             "step": "2. sales.html paid 매니저 분기 → marketing.html 대신 manager-dashboard.html로 변경",
-            "done": false
+            "done": true,
+            "at": "2026-05-23T06:17:07+00:00"
           },
           {
             "step": "3. dashboard.html 자체 폐기 — manager-dashboard로 301 리다이렉트 (vercel.json)",
-            "done": false
+            "done": true,
+            "at": "2026-05-23T06:17:07+00:00"
           },
           {
             "step": "4. pages-meta.mjs에서 dashboard.html status: needs-refactor → retired",
-            "done": false
+            "done": true,
+            "at": "2026-05-23T06:17:07+00:00"
           },
           {
             "step": "5. Playwright로 결제 후 흐름 검증 + commit + push + chat-log",
-            "done": false
+            "done": true,
+            "at": "2026-05-23T06:17:07+00:00"
           }
         ],
-        "completed_count": 0,
+        "completed_count": 5,
         "total_count": 5,
-        "percent": 0,
-        "updated_at": "2026-05-22T08:47:02.429056+00:00"
+        "percent": 100,
+        "updated_at": "2026-05-23T06:17:07+00:00"
       },
       "depends_on": [
         "BL-FLOW-2-SALES-COPY-5TIER"
@@ -17858,7 +17863,7 @@
       "approval_required": false,
       "context": "manager-dashboard.html이 진짜 본진(5탭 다 박힘). dashboard.html은 620줄 빈약본 — 폐기 결정 (2026-05-22 채팅). 라우팅 3곳만 바꾸면 됨.",
       "created_at": "2026-05-22",
-      "updated_at": "2026-05-23T01:45:56.970115+00:00",
+      "updated_at": "2026-05-23T06:17:07+00:00",
       "history": [
         {
           "at": "2026-05-22T08:47:02.429056+00:00",
@@ -17869,9 +17874,24 @@
           "at": "2026-05-23T01:45:56.970115+00:00",
           "event": "status: todo → pending + order: 2 (다음 추천 박스 노출용)",
           "by": "claude"
+        },
+        {
+          "at": "2026-05-23T06:17:07+00:00",
+          "event": "진행 중 진입 (auto-detected) ⚠️ 부칙 7 위반 — progress.steps 미박힘 + 단계 1, 단계 2, 단계 3, 단계 4, 단계 5 완료 (auto-detected)",
+          "by": "auto-detect-bot",
+          "commit": "a6f1396",
+          "note": "feat(BL-FLOW-3-DASHBOARD-ROUTING-FIX): dashboard.html 폐기 + 결제 후 manager-dashboard로 통합 [step:done:1][step:done:2][step:do"
         }
       ],
-      "order": 2
+      "order": 2,
+      "started_at": "2026-05-23T06:17:07+00:00",
+      "progress_warning": {
+        "code": "MISSING_PROGRESS_STEPS",
+        "rule": "부칙 7 — 모든 작업은 progress.steps 박은 후 시작",
+        "detected_at": "2026-05-23T06:17:07+00:00",
+        "detected_by_commit": "a6f1396",
+        "message": "in_progress 진입했으나 progress.steps 비어있음. tasks.json에서 progress.steps 박은 후 다음 commit에 [step:done:N] 태그."
+      }
     },
     {
       "id": "BL-AUTO-TASKS-SCHEMA-14MISSING",

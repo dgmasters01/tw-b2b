@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-24T06:12:57+00:00",
+  "updated_at": "2026-05-24T07:13:14+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -14,8 +14,8 @@
   "stats": {
     "total": 254,
     "done": 194,
-    "in_progress": 1,
-    "pending": 38,
+    "in_progress": 2,
+    "pending": 37,
     "blocked": 11,
     "autonomous_ready": 31,
     "todo": 2,
@@ -3561,7 +3561,7 @@
       "id": "BL-INVOICE-003",
       "title": "[결제 정보 마스터 관리] admin-settings 회사 정보·계좌·도장·서명 수정 가능",
       "category": "infra",
-      "status": "pending",
+      "status": "in_progress",
       "priority": "P1",
       "size": "small",
       "parent_task": null,
@@ -3606,7 +3606,9 @@
             "n": 1,
             "label": "Supabase 스키마 — company_info / payment_accounts + action_logs 헬퍼 (3 SQL)",
             "status": "done",
-            "title": "Supabase 스키마 신설"
+            "title": "Supabase 스키마 신설",
+            "done": true,
+            "at": "2026-05-24T07:13:14+00:00"
           },
           {
             "n": 2,
@@ -3644,7 +3646,10 @@
             "status": "pending",
             "title": "라이브 검증 + commit + push"
           }
-        ]
+        ],
+        "completed_count": 1,
+        "total_count": 7,
+        "updated_at": "2026-05-24T07:13:14+00:00"
       },
       "history": [
         {
@@ -3658,9 +3663,16 @@
           "event": "step 1 done — SQL 3개 신설 (company_info / payment_accounts / audit-helper)",
           "by": "Claude (자율 진행)",
           "note": "기존 action_logs 활용으로 audit_log 신설 회피, is_owner() 활용. 실제 저장소 구조(_admin/, sql/)에 맞춰 files_changed 정정."
+        },
+        {
+          "at": "2026-05-24T07:13:14+00:00",
+          "event": "진행 중 진입 (auto-detected) + 단계 1 완료 (auto-detected)",
+          "by": "auto-detect-bot",
+          "commit": "3a276e6",
+          "note": "feat(BL-INVOICE-003): Supabase 스키마 신설 (company_info / payment_accounts / audit-helper) [step:done:1]"
         }
       ],
-      "updated_at": "2026-05-24T07:30:00+00:00",
+      "updated_at": "2026-05-24T07:13:14+00:00",
       "started_at": "2026-05-24T07:00:00+00:00"
     },
     {

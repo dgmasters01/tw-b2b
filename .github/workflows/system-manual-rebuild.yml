@@ -58,8 +58,18 @@ jobs:
           if [[ -n $(git status --porcelain _os/service-map.md) ]]; then
             git add _os/service-map.md
             git commit -m "[system-manual-bot] _os/service-map.md 자동 재생성 [변경사유: 5개 데이터 소스 중 하나 변경 감지]"
-            git push
-            echo "✅ service-map.md 갱신 완료"
+            # Race condition 방어: 다른 봇이 그 사이에 push했을 수 있음 (헌법 부칙 8)
+            for i in 1 2 3; do
+              git pull --rebase origin main || true
+              if git push origin main; then
+                echo "✅ service-map.md 갱신 완료 (시도 $i)"
+                exit 0
+              fi
+              echo "⚠️ push 충돌 — 재시도 ($i/3)"
+              sleep 3
+            done
+            echo "❌ 3회 시도 실패"
+            exit 1
           else
             echo "변경사항 없음 — skip"
           fi

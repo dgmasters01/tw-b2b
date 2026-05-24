@@ -131,3 +131,29 @@ $ curl -X POST .../api/admin?action=invoice-update-payment-accounts
 ```
 
 SQL 자가 검증은 `sql/bl-invoice-003-rls-verify.sql` 실행 결과로 일괄 점검.
+
+---
+
+## [블록 6 — 사후 보강 2026-05-24 17:30] 단계 1 SQL 자동 실행 + 영문 정정
+
+**문제 발견**: 단계 1 commit (3a276e6)에 SQL 파일이 박혔으나, 실제 Supabase DB에는 실행 안 됐던 것 사후 확인. 라이브 검증 시 RLS 자가 검증 SQL의 1~3·5섹션이 빈 결과 반환.
+
+**자동 실행** (Management API Token, 헌법 11조 워크플로):
+1. `sql/bl-invoice-003-company-info.sql` → 정책 3개 박힘
+2. `sql/bl-invoice-003-payment-accounts.sql` → 정책 3개 박힘 (PayPal 기본값 자동 박힘)
+3. `sql/bl-invoice-003-audit-helper.sql` → RPC 1개 + action_logs 정책 2개 박힘
+4. `sql/bl-invoice-003-storage-bucket.sql` → 버킷 + 정책 1개 박힘 (이미 박혔으나 idempotent 재실행)
+
+**추가 정정**:
+- 대표님 영문 표기: `Lee Ji-hyung` (오류) → `lee ji hyeong` (올바름)
+- 법인 영문: `TravelWinners Co., Ltd.` (기본값) → `TravelWinners Inc.` (실제 사용)
+- company_info.id=1 row 직접 UPDATE로 즉시 반영
+
+**최종 검증**: 9섹션 모두 ✓
+- company_info / payment_accounts / action_logs 정책 박힘
+- invoice-assets 버킷 + RLS 박힘
+- log_invoice_settings_change RPC 박힘
+- is_owner / is_admin 헬퍼 박힘
+- singleton row 데이터 박힘 (PayPal 기본값 자동 박힘)
+
+**도장·서명 정책 결정 (대표님 결정)**: 🅐 정석 — 옛날 이미지 별도 보존 안 함. PDF 자체에 영구 박힘으로 이력 충분. 추가 코드 변경 없음.

@@ -356,6 +356,43 @@
 
 ---
 
+### 결정 D-048: BL-INVOICE-SYSTEM-DOCS — 인보이스 시스템 사업 정책 단일 진실원 문서화 + 3개 BL 분담 확정 ⭐ 2026-05-24
+
+**확정 시각**: 2026-05-24T05:55:53+00:00
+
+**근거**: D-047(BL-INVOICE-001 핑퐁 15라운드 합의) 후속 — 합의 내용을 코드·문서·작업 전반에서 단일 진실원으로 참조 가능하게 영구 기록.
+
+**확정 사항**:
+
+1. **단일 진실원 문서 신설**: `_os/playbook/invoice-system.md` (헌법 부칙 6 — 사람용 사업 정책 + AI용 YAML 이중 형식). 인보이스 시스템 관련 모든 정책(발행 주체·국가별 분기·환율·세금·번호 규칙·권한·알림·보관 등)은 이 문서가 단일 진실원. 코드·UI·정책 충돌 시 이 문서가 기준.
+
+2. **3개 BL 분담 및 의존성 확정**:
+
+| 순서 | BL | 역할 | 의존성 |
+|---|---|---|---|
+| 1 | **BL-INVOICE-003** | 결제 정보 마스터 관리 (admin-settings 회사 정보·계좌·도장·서명 수정 가능) | 없음 (선결) |
+| 2 | **BL-INVOICE-001** | 인보이스/영수증 PDF 자동 생성 엔진 (국가별 분기, 환율 snapshot, 번호 채번, 1년+ 보관) | BL-INVOICE-003 |
+| 3 | **BL-INVOICE-002** | 한국 업체 수동 입금 정리 운영 화면 (admin-invoices, 텔레그램 4단계 알림) | BL-INVOICE-001 |
+
+3. **부칙 7 위반 해소**: BL-INVOICE-001의 progress.steps 12단계 박힘 (in_progress 도중 progress.steps 미박힘 경고 해소).
+
+**왜 헌법에 안 박나**:
+- 부칙 14: 새 운영 룰은 헌법이 아닌 `_os/playbook/`에 박는다 (200줄 강제 준수).
+- 인보이스 시스템 정책은 사업 영역 룰 → playbook 위치.
+
+**박는 곳**:
+- `_os/playbook/invoice-system.md` (신설, 약 380줄)
+- `tasks.json` (BL-INVOICE-001 보강 + BL-INVOICE-002 신설 + BL-INVOICE-003 신설)
+- `DECISIONS.md` (이 문서, D-048)
+- `DECISIONS_INDEX.md` (AI용 인덱스 갱신)
+
+**관련 문서**:
+- 핑퐁 원본: `_decisions/pingpong/BL-INVOICE-001.json` (15라운드)
+- 결정 본체: `DECISIONS.md` D-047
+- 정책 단일 진실원: `_os/playbook/invoice-system.md`
+
+---
+
 ### 결정 D-039: BL-PAGE-ROLES-SPLIT — 시스템 완성도 vs admin.html 역할 명확화 ⭐ 페이지 책임 분리 ⭐ 클로드 헷갈림 차단
 
 **확정 시각**: 2026-05-15T08:50:00.000000+00:00

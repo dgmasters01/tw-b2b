@@ -50,6 +50,8 @@
 | D-036 | BL-CHATLOG-BIZ-FORMAT — C안 + 검증 봇 (헌법 손 안 댐, 워닝만) | infra | 2026-05-12 | 확정 | BL-CHATLOG-BIZ-FORMAT |
 | D-037 | BL-URGENT-CARD-FLOW — A안 통합 모달 (인계서/결정/핑퐁 분리 X) | infra | 2026-05-13 | 확정 | BL-URGENT-CARD-FLOW |
 | D-038 | BL-AGODA-TOS-CHECK — Agoda 약관 검토 완료, D-035 그대로 진행 (4중 안전 구조) | policy | 2026-05-13 | 확정 | BL-AGODA-TOS-CHECK done, BL-SIGNUP-ENRICHMENT 설계 기준 |
+| D-047 | BL-INVOICE-001 핑퐁 15라운드 합의 — 인보이스 번호 국가별 분리(INV-KR/INT) + 발행 권한 super_admin 1인 + 도장·서명 admin 업로드 구조 | feature | 2026-05-24 | 확정 | BL-INVOICE-001, BL-INVOICE-002, BL-INVOICE-003, `_os/playbook/invoice-system.md` |
+| D-048 | BL-INVOICE-SYSTEM-DOCS — 인보이스 시스템 사업 정책 단일 진실원 문서화(`_os/playbook/invoice-system.md`) + 3개 BL 분담 확정(003 선결 → 001 → 002) + BL-INVOICE-001 progress 12단계 박힘(부칙 7 해소) | policy | 2026-05-24 | 확정 | `_os/playbook/invoice-system.md`, BL-INVOICE-001/002/003, `tasks.json` |
 
 ---
 
@@ -77,6 +79,8 @@
 | D-018 | 2026-05-08 신규 (최상단) | Vercel Pro 결제 활성화 — 호스팅 인프라 안정화 + 헌법 위반(상업 사용) 해소 |
 | D-021 | 2026-05-09 신규 (최상단) | BL-ADMIN-AUTH-PERF Edge Middleware 정석 — A-1 비정석 옵션 자가 반성 포함 |
 | D-028 | 2026-05-12 신규 (Pending 섹션 직전) | 갤러리 완성도 + BEFORE/AFTER 이력 — 대표님 매니저 체험 중 발견 |
+| D-047 | 2026-05-24 (DECISIONS.md L288~355) | BL-INVOICE-001 핑퐁 15라운드 합의 본체 — 핑퐁 원본은 `_decisions/pingpong/BL-INVOICE-001.json` |
+| D-048 | 2026-05-24 (DECISIONS.md D-047 박스 직후) | 인보이스 시스템 단일 진실원 문서화 + 3개 BL 분담 확정 — 단일 진실원은 `_os/playbook/invoice-system.md` |
 
 ---
 
@@ -90,3 +94,5 @@
 | 2026-05-04 | D-013 등록 (admin-hub.html 폐기 + D-010 카테고리 0 이관 개정) |
 | 2026-05-04 | D-014 등록 (chat-logs 시스템 — 사람용+AI용 이중 형식 강제 + 인증 게이트) |
 | 2026-05-12 | D-028 등록 (갤러리 완성도 + BEFORE/AFTER 자동 이력 — 대표님 매니저 체험 중 발견) |
+| 2026-05-24 | D-047 등록 (BL-INVOICE-001 핑퐁 15라운드 합의 본체 — 인덱스 누락분 소급 등록) |
+| 2026-05-24 | D-048 등록 (인보이스 시스템 단일 진실원 `_os/playbook/invoice-system.md` 신설 + 3개 BL 분담 확정) |

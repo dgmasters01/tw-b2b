@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-24T02:13:52+00:00",
+  "updated_at": "2026-05-24T05:55:53+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -12,7 +12,7 @@
     "SOLO_WORK_QUEUE.md"
   ],
   "stats": {
-    "total": 252,
+    "total": 254,
     "done": 194,
     "in_progress": 1,
     "pending": 38,
@@ -20,7 +20,17 @@
     "autonomous_ready": 32,
     "todo": 2,
     "cancelled": 0,
-    "updated_at": "2026-05-24T02:13:37.901Z"
+    "updated_at": "2026-05-24T05:55:53+00:00",
+    "by_status": {
+      "done": 194,
+      "pending": 40,
+      "in_progress": 1,
+      "blocked": 10,
+      "obsoleted": 5,
+      "cancelled": 1,
+      "absorbed": 1,
+      "todo": 2
+    }
   },
   "tasks": [
     {
@@ -3378,6 +3388,107 @@
       ]
     },
     {
+      "id": "BL-INVOICE-003",
+      "title": "[결제 정보 마스터 관리] admin-settings 회사 정보·계좌·도장·서명 수정 가능",
+      "category": "infra",
+      "status": "pending",
+      "priority": "P1",
+      "size": "small",
+      "parent_task": null,
+      "blocker": null,
+      "depends_on": [],
+      "created_at": "2026-05-24T05:55:53+00:00",
+      "completed_at": null,
+      "claude_can_auto": true,
+      "autonomous": {
+        "can_run_alone": true,
+        "estimated_hours": 3,
+        "requires_decisions_first": []
+      },
+      "phase": "Charter-v2",
+      "tag": "회계세무-필수",
+      "owner": "Claude",
+      "approval_required": false,
+      "order": 14,
+      "decision_ref": "D-047",
+      "source": "BL-INVOICE-001 핑퐁 라운드 6·15 + _os/playbook/invoice-system.md 4.BL-INVOICE-003",
+      "source_anchor": "_os/playbook/invoice-system.md#bl-invoice-003",
+      "notes": "인보이스 시스템의 모든 동적 정보(회사 정보·결제 계좌·도장·서명 이미지)를 코드 하드코딩 없이 admin에서 수정 가능하게. BL-INVOICE-001/002의 선결 의존성. audit_log로 변경 이력 자동 기록. super_admin RLS 정책으로 시스템 단 권한 차단.",
+      "decision_context": "[지금 무슨 상황이냐면]\n인보이스 PDF에 박힐 회사 정보(사업자등록번호·주소·대표자명), 한국 KRW 계좌번호, 해외 USD 계좌(SWIFT/IBAN), PayPal 이메일, 직인 이미지, 대표님 서명 이미지 — 이걸 코드에 박아두면 바꿀 때마다 개발 들어가야 합니다.\n\n[왜 결정이 필요하냐면]\nBL-INVOICE-001(PDF 발행)이 만들어지기 전에 이 정보를 어디서 읽을지 정해야 PDF에 동적으로 박을 수 있습니다. 그래서 BL-INVOICE-003이 다른 두 개의 선결 의존성.\n\n[결정하면 뭐가 달라지냐면]\n대표님이 admin-settings에서 KRW 계좌 변경 → 즉시 차기 인보이스부터 자동 반영. 도장 이미지 준비되면 그때 업로드만 누르면 다음 인보이스부터 PDF에 자동 박힘. 변경 이력도 audit_log에 자동 저장.",
+      "decision_options": [],
+      "decision_recommendation": "",
+      "ceo_decision": "",
+      "ceo_decision_at": "",
+      "files_changed": [
+        "admin-settings.html",
+        "api/settings/company-info.js",
+        "api/settings/payment-accounts.js",
+        "api/settings/upload-stamp.js",
+        "supabase/migrations/company_info_schema.sql",
+        "supabase/migrations/payment_accounts_schema.sql"
+      ],
+      "target_pages": [
+        "/admin-settings.html"
+      ],
+      "progress": {
+        "percent": 0,
+        "steps": [
+          {
+            "n": 1,
+            "label": "Supabase 스키마 — company_info / payment_accounts / audit_log",
+            "status": "pending",
+            "title": "Supabase 스키마 신설"
+          },
+          {
+            "n": 2,
+            "label": "admin-settings.html '회사 정보 관리' 탭 신설",
+            "status": "pending",
+            "title": "회사 정보 관리 탭"
+          },
+          {
+            "n": 3,
+            "label": "admin-settings.html '결제 정보 관리' 탭 신설 (KRW/USD/PayPal 3종)",
+            "status": "pending",
+            "title": "결제 정보 관리 탭"
+          },
+          {
+            "n": 4,
+            "label": "도장·서명 이미지 업로드 영역 (Supabase Storage)",
+            "status": "pending",
+            "title": "도장·서명 업로드"
+          },
+          {
+            "n": 5,
+            "label": "audit_log 변경 이력 자동 기록 (누가/언제/이전값→새값)",
+            "status": "pending",
+            "title": "audit_log 자동 기록"
+          },
+          {
+            "n": 6,
+            "label": "super_admin RLS 정책 (스리랑카 직원 read-only)",
+            "status": "pending",
+            "title": "super_admin RLS"
+          },
+          {
+            "n": 7,
+            "label": "라이브 검증 + commit + push",
+            "status": "pending",
+            "title": "라이브 검증 + commit + push"
+          }
+        ]
+      },
+      "history": [
+        {
+          "at": "2026-05-24T05:55:53+00:00",
+          "event": "신설 (BL-INVOICE-001/002의 선결 의존성)",
+          "by": "Claude (자율 진행)",
+          "note": "결제 정보·도장·서명 동적 관리 인프라. _os/playbook/invoice-system.md 단일 진실원 참조."
+        }
+      ],
+      "updated_at": "2026-05-24T05:55:53+00:00",
+      "started_at": null
+    },
+    {
       "id": "BL-INVOICE-001",
       "title": "[인보이스/영수증 PDF 자동 생성·다운로드] 영구 보관 (1년+)",
       "category": "feature",
@@ -3396,13 +3507,97 @@
           "D-009"
         ]
       },
-      "progress": null,
+      "progress": {
+        "percent": 5,
+        "steps": [
+          {
+            "n": 1,
+            "label": "사업 정책 단일 진실원 작성 (_os/playbook/invoice-system.md)",
+            "status": "done",
+            "done": true,
+            "at": "2026-05-24T05:55:53+00:00",
+            "title": "사업 정책 단일 진실원 작성 (_os/playbook/invoice-system.md)"
+          },
+          {
+            "n": 2,
+            "label": "Supabase 스키마 신설 — invoices / credit_notes / invoice_sequences / fx_snapshots",
+            "status": "pending",
+            "title": "Supabase 스키마 신설 — invoices / credit_notes / invoice_sequences / fx_snapshots"
+          },
+          {
+            "n": 3,
+            "label": "한국수출입은행 환율 API 연동 + snapshot 로직",
+            "status": "pending",
+            "title": "한국수출입은행 환율 API 연동 + snapshot 로직"
+          },
+          {
+            "n": 4,
+            "label": "인보이스 번호 채번 함수 (INV-KR / INV-INT / CN-KR / CN-INT 4트랙)",
+            "status": "pending",
+            "title": "인보이스 번호 채번 함수 (INV-KR / INV-INT / CN-KR / CN-INT 4트랙)"
+          },
+          {
+            "n": 5,
+            "label": "PDF 생성 엔진 (api/invoice/[payment_id].js) — 국가별 자동 분기",
+            "status": "pending",
+            "title": "PDF 생성 엔진 (api/invoice/[payment_id].js) — 국가별 자동 분기"
+          },
+          {
+            "n": 6,
+            "label": "세금 자동 분기 (한국 VAT 10% / 해외 영세율)",
+            "status": "pending",
+            "title": "세금 자동 분기 (한국 VAT 10% / 해외 영세율)"
+          },
+          {
+            "n": 7,
+            "label": "PayPal webhook → Receipt 자동 전환",
+            "status": "pending",
+            "title": "PayPal webhook → Receipt 자동 전환"
+          },
+          {
+            "n": 8,
+            "label": "입금 기한 자동 만료 cron (매시 정각)",
+            "status": "pending",
+            "title": "입금 기한 자동 만료 cron (매시 정각)"
+          },
+          {
+            "n": 9,
+            "label": "이중 발행 방지 차단 모달 (sales.html)",
+            "status": "pending",
+            "title": "이중 발행 방지 차단 모달 (sales.html)"
+          },
+          {
+            "n": 10,
+            "label": "manager dashboard '서류' 탭 — 1클릭 다운로드",
+            "status": "pending",
+            "title": "manager dashboard '서류' 탭 — 1클릭 다운로드"
+          },
+          {
+            "n": 11,
+            "label": "Supabase Storage 저장 + 1년+ 보관 정책 적용",
+            "status": "pending",
+            "title": "Supabase Storage 저장 + 1년+ 보관 정책 적용"
+          },
+          {
+            "n": 12,
+            "label": "라이브 검증 + commit + push",
+            "status": "pending",
+            "title": "라이브 검증 + commit + push"
+          }
+        ]
+      },
       "tag": "회계세무-필수",
       "phase": "Charter-v2",
       "commit": null,
       "files_changed": [
         "api/invoice/[payment_id].js",
-        "manager-dashboard.html"
+        "api/invoice/credit-note/[invoice_id].js",
+        "api/cron/expire-invoices.js",
+        "api/webhook/paypal.js",
+        "manager-dashboard.html",
+        "sales.html",
+        "_os/playbook/invoice-system.md",
+        "supabase/migrations/invoices_schema.sql"
       ],
       "history": [
         {
@@ -3614,11 +3809,17 @@
           "by": "auto-detect-bot",
           "commit": "db61961",
           "note": "feat(BL-INVOICE-001): 결정 확정 D-047 — pending → in_progress"
+        },
+        {
+          "at": "2026-05-24T05:55:53+00:00",
+          "event": "progress.steps 박힘 (부칙 7) + 단일 진실원 _os/playbook/invoice-system.md 신설 (D-048) + depends_on BL-INVOICE-003 박힘",
+          "by": "Claude (자율 진행)",
+          "note": "BL-INVOICE-001 정책 그림 맞춤 완료, 본격 개발 진입 준비 완료"
         }
       ],
       "source": "BUSINESS.md 15-A 통찰 7 + JOURNEY.md D단계",
       "source_anchor": "## D. 별도 탭 — 서류",
-      "notes": "결제 직후 자동 발송 + 매니저 대시보드 별도 탭에서 1클릭 다운로드. PDF 3종: 인보이스/영수증/6개월리포트.",
+      "notes": "결제 직후 자동 발송 + 매니저 대시보드 별도 탭에서 1클릭 다운로드. PDF 3종: 인보이스/영수증/6개월리포트.\n\n[2026-05-24] 사업 정책 단일 진실원: _os/playbook/invoice-system.md (D-048). 핑퐁 15라운드 합의 완료, D-047 결정 확정.",
       "owner": "Claude",
       "approval_required": false,
       "decision_context": "[지금 무슨 상황이냐면]\n호텔 매니저가 우리한테 결제할 때(B2B 마케팅 SaaS 비용 같은), 결제 끝나면 인보이스/영수증 PDF가 자동으로 만들어져야 해요. 매니저가 회사 회계처리 할 때 그 PDF를 쓰니까. 1년 이상 영구 보관도 되어야 합니다 — 매니저가 작년 영수증 다시 다운받을 일이 자주 있어요.\n\n[왜 결정이 필요하냐면]\n대표님이 D-009로 만들기로 결정하셨어요. 지금 결정해야 할 건 (1) PDF를 어디에 보관할지 (2) 발행자 회사명을 한국법인(여행능력자들)으로 할지 베트남 법인으로 할지 (3) 양식을 한국어/영어 어떻게 할지입니다.\n\n[결정하면 뭐가 달라지냐면]\n한국 매니저한테는 한국 법인 명의 + 한국어 영수증이 회계에 맞고, 베트남/스리랑카 매니저한테는 베트남 법인 + 영문이 맞아요. 어느 쪽으로 통일할지 / 자동 분기할지에 따라 매니저 회계 처리가 달라집니다.",
@@ -3641,21 +3842,134 @@
       "recommendation": "🤖 클로드 추천: A안 — '글로벌 정복' 대표님 비전에 맞고, 매니저 회계 처리 편의가 재계약률에 직결. 자동 분기 한 번 박으면 영구.",
       "target_pages": [
         "/sales.html",
-        "/marketing.html",
-        "/settings.html"
+        "/manager-dashboard.html",
+        "/admin-settings.html"
       ],
       "pingpong_turn": "done",
       "pingpong_rounds": 15,
-      "updated_at": "2026-05-24T02:13:52+00:00",
+      "updated_at": "2026-05-24T05:55:53+00:00",
       "decision_summary": "3가지 모두 확정합니다. ①인보이스 번호 규칙은 정석으로 INV-KR-2026-0001(한국, KRW) / INV-INT-2026-0001(해외, USD) 국가별 분리 + 연도별 리셋 방식으로 박고, Credit Note(전체 취소 시 발행)는 CN-KR-2026-0001 / CN-INT-2026-0001로 동일 체계 유지 — 세무 신고 시 한국분/해외분 구분이 자동으로 되어 관리가 깔끔합니다 ②발행 권한은 대표님(role: super_admin) 1인 단독 발행, 스리랑카 직원은 admin-invoices 페이지 \"조회 권한(read-only)\"만 부여 — 영수증·인보이스 발행 버튼은 super_admin 권한에서만 활성화되도록 RLS 정책으로 시스템 단 차단 ③도장·서명 이미지는 admin-settings.html \"회사 정보 관리\" 탭에 업로드 영역을 미리 만들어 두고, 대표님이 이미지 파일 준비되면 그때 업로드만 누르면 즉시 차기 인보이스부터 PDF 우측 하단에 자동 박히는 구조 — 업로드 전엔 텍스트로 \"(주)여행능력자들 / 대표 이지형\" 서명란만 표시되고 이미지 업로드 후엔 이미지로 교체됩니다. 이제 BL-INVOICE-001 ~ 003 모든 사업 정책 그림이 맞춰졌고, 다음 단계로 _os/playbook에 invoice-system.md 정책 문서 작성 + tasks.json에 3개 백로그 박는 작업으로 넘어가면 됩니다.",
       "started_at": "2026-05-24T02:13:37.901Z",
-      "progress_warning": {
-        "code": "MISSING_PROGRESS_STEPS",
-        "rule": "부칙 7 — 모든 작업은 progress.steps 박은 후 시작",
-        "detected_at": "2026-05-24T02:13:52+00:00",
-        "detected_by_commit": "db61961",
-        "message": "in_progress 도중 progress.steps 미박힘 감지."
-      }
+      "depends_on": [
+        "BL-INVOICE-003"
+      ],
+      "decision_ref": "D-047"
+    },
+    {
+      "id": "BL-INVOICE-002",
+      "title": "[한국 업체 수동 입금 정리 시스템] admin-invoices 페이지 + 텔레그램 4단계 알림",
+      "category": "feature",
+      "status": "pending",
+      "priority": "P1",
+      "size": "medium",
+      "parent_task": null,
+      "blocker": null,
+      "depends_on": [
+        "BL-INVOICE-001"
+      ],
+      "created_at": "2026-05-24T05:55:53+00:00",
+      "completed_at": null,
+      "claude_can_auto": true,
+      "autonomous": {
+        "can_run_alone": true,
+        "estimated_hours": 6,
+        "requires_decisions_first": []
+      },
+      "phase": "Charter-v2",
+      "tag": "회계세무-필수",
+      "owner": "Claude",
+      "approval_required": false,
+      "order": 16,
+      "decision_ref": "D-047",
+      "source": "BL-INVOICE-001 핑퐁 라운드 4·5·10·11 + _os/playbook/invoice-system.md 4.BL-INVOICE-002",
+      "source_anchor": "_os/playbook/invoice-system.md#bl-invoice-002",
+      "notes": "한국 매니저는 PayPal 결제 불가(법적), KRW 국내 송금 전용 트랙. 대표님이 통장 보고 수동으로 '입금 확인' 버튼 눌러 Receipt 전환하는 운영 화면. 미수금 추적·기한 임박 알림·세무 신고 CSV 내보내기 포함. 입금 기한 = 발행일 +2영업일(주말 자동 제외), 경과 시 자동 Void.",
+      "decision_context": "[지금 무슨 상황이냐면]\n한국 매니저는 법적으로 PayPal 결제가 불가능해서 원화 계좌로 송금해야 됩니다. 매니저가 송금하면 대표님이 통장 보고 '들어왔네' 확인하고, 시스템에 '입금 확인' 눌러야 영수증이 자동으로 나가는 구조가 필요해요.\n\n[왜 결정이 필요하냐면]\nBL-INVOICE-001(인보이스 PDF 발행 엔진)만으로는 한국 입금 정리가 안 됩니다. 별도 운영 화면(admin-invoices)이 있어야 대표님이 모바일에서도 빠르게 입금 확인 처리하고, 기한 임박 알림을 텔레그램으로 받으면서 놓치지 않게 됩니다.\n\n[결정하면 뭐가 달라지냐면]\n한국 매니저가 인보이스 발행 → 텔레그램 🔔 알림 즉시 도착 → 대표님 은행 앱 확인 후 admin-invoices에서 '입금 확인' 한 번 누르면 → Receipt PDF 자동 생성 + 영수증 종류(세금계산서/현금영수증) 발행 안내까지 끝납니다. 기한 6시간 전 🚨 알림, 경과 시 자동 취소 ❌ 알림까지 모두 자동.",
+      "decision_options": [],
+      "decision_recommendation": "",
+      "ceo_decision": "",
+      "ceo_decision_at": "",
+      "files_changed": [
+        "admin-invoices.html",
+        "api/invoice/confirm-deposit.js",
+        "api/invoice/void.js",
+        "api/cron/invoice-reminders.js",
+        "api/telegram/invoice-alert.js",
+        "manager-dashboard.html"
+      ],
+      "target_pages": [
+        "/admin-invoices.html",
+        "/admin.html"
+      ],
+      "progress": {
+        "percent": 0,
+        "steps": [
+          {
+            "n": 1,
+            "label": "admin-invoices.html 신규 페이지 (Pending / Paid / Overdue / Voided 4탭)",
+            "status": "pending",
+            "title": "admin-invoices.html 신규 페이지"
+          },
+          {
+            "n": 2,
+            "label": "입금 확인 모달 (입금일·실제 입금액·메모 입력) + Receipt 자동 생성 트리거",
+            "status": "pending",
+            "title": "입금 확인 모달 + Receipt 자동 생성"
+          },
+          {
+            "n": 3,
+            "label": "영수증 종류별 발행 처리 (세금계산서/현금영수증 사업자/현금영수증 개인) — Phase 1 수동 + 체크박스",
+            "status": "pending",
+            "title": "영수증 종류별 발행 처리 (Phase 1)"
+          },
+          {
+            "n": 4,
+            "label": "대시보드 상단 '한국 미수금 현황' 위젯",
+            "status": "pending",
+            "title": "한국 미수금 위젯"
+          },
+          {
+            "n": 5,
+            "label": "경과 일수별 자동 컬러 배지 (7/14/30일 노랑→주황→빨강)",
+            "status": "pending",
+            "title": "경과 일수 컬러 배지"
+          },
+          {
+            "n": 6,
+            "label": "Telegram 봇 4단계 자동 알림 (발행/24h/임박/만료)",
+            "status": "pending",
+            "title": "Telegram 4단계 알림"
+          },
+          {
+            "n": 7,
+            "label": "영수증 발행 누락 알림 (입금 +24h)",
+            "status": "pending",
+            "title": "영수증 누락 알림"
+          },
+          {
+            "n": 8,
+            "label": "CSV 내보내기 (세무 신고용)",
+            "status": "pending",
+            "title": "CSV 세무 신고용"
+          },
+          {
+            "n": 9,
+            "label": "라이브 검증 + commit + push",
+            "status": "pending",
+            "title": "라이브 검증 + commit + push"
+          }
+        ]
+      },
+      "history": [
+        {
+          "at": "2026-05-24T05:55:53+00:00",
+          "event": "신설 (BL-INVOICE-001 핑퐁 합의 분리)",
+          "by": "Claude (자율 진행)",
+          "note": "한국 업체 수동 입금 정리 운영 화면 분리. _os/playbook/invoice-system.md 단일 진실원 참조."
+        }
+      ],
+      "updated_at": "2026-05-24T05:55:53+00:00",
+      "started_at": null
     },
     {
       "id": "BL-JOURNEY-DOC",

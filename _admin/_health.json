@@ -1,13 +1,19 @@
 {
-  "overall": "green",
-  "summary": "모든 검진 항목 정상",
-  "checked_at": "2026-05-24T07:13:20.662Z",
+  "overall": "yellow",
+  "summary": "[yellow] admin_baseline: 관리자 페이지 1개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요)",
+  "checked_at": "2026-05-24T07:23:17.608Z",
   "checks": [
     {
       "name": "admin_baseline",
-      "status": "green",
-      "detail": "관리자 페이지 8개 모두 원본 그대로예요",
-      "changed_files": []
+      "status": "yellow",
+      "detail": "관리자 페이지 1개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요)",
+      "changed_files": [
+        {
+          "file": "admin-permissions.html",
+          "reason": "modified",
+          "current_sha": "353cd5c9041b"
+        }
+      ]
     },
     {
       "name": "tasks_schema",
@@ -21,19 +27,19 @@
       "detail": "자동 일꾼들(봇) 전부 살아있어요",
       "dead_bots": [],
       "bot_status": {
-        "sync-bot": "unknown",
-        "auto-detect-bot": "success",
-        "scan-bot": "success",
-        "chat-log-bot": "unknown",
+        "sync-bot": "success",
+        "auto-detect-bot": "unknown",
+        "scan-bot": "unknown",
+        "chat-log-bot": "success",
         "autoheal-bot": "unknown"
       }
     },
     {
       "name": "vercel_sync",
       "status": "green",
-      "detail": "라이브 사이트가 GitHub와 같은 버전이에요 (3a276e6)",
-      "live_sha": "3a276e6",
-      "vercel_sha": "3a276e6",
+      "detail": "라이브 사이트가 GitHub와 같은 버전이에요 (985fbfc)",
+      "live_sha": "985fbfc",
+      "vercel_sha": "985fbfc",
       "project": "tw-b2b"
     },
     {

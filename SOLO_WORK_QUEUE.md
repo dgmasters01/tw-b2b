@@ -204,7 +204,12 @@
 **카테고리**: infrastructure  
 **예상 시간**: 2시간  
 
-**메모**: DECISIONS.md 변경 감지 → DECISIONS_INDEX.md 자동 갱신. ID 고정 불변 규칙.
+**메모**: [완료 요약]
+DECISIONS_INDEX.md v1 수동 작성 완료 (5/3). sync_engine 자동화는 별도 작업.
+
+---
+
+DECISIONS.md 변경 감지 → DECISIONS_INDEX.md 자동 갱신. ID 고정 불변 규칙.
 
 ---
 

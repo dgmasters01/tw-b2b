@@ -245,7 +245,12 @@
 
 **Commit**: `60908ae`
 
-**요약**: 6단계 sub-task: ①admin-business에서 BACKLOG 제거 + JOURNEY/DECISIONS_INDEX 추가, ②admin-tasks에 ECHO_LOG/SOLO_WORK_QUEUE 추가, ③admin-hub 통계 제거 4카드 단순화, ④/js/stats.js 단일 모듈 신설, ⑤헌법 부칙 5 매핑 표 자가 검증 스크립트, ⑥commit + push + 라이브 검증.
+**요약**: [완료 요약]
+✅ 6단계 모두 완료. commit 60908ae push 성공. Vercel 자동 배포 후 라이브 5개 페이지 200 OK + 컨텐츠 14/14 검증 통과. 자가 검증 스크립트 27/27 PASS.
+
+---
+
+6단계 sub-task: ①admin-business에서 BACKLOG 제거 + JOURNEY/DECISIONS_INDEX 추가, ②admin-tasks에 ECHO_LOG/SOLO_WORK_QUEUE 추가, ③admin-hub 통계 제거 4카드 단순화, ④/js/stats.js 단일 모듈 신설, ⑤헌법 부칙 5
 
 ---
 
@@ -259,7 +264,12 @@
 
 **Commit**: `d9faa7e+60908ae`
 
-**요약**: 1단계: 골격(이번 채팅). 2단계: 자동 동기화 강화. 3단계: Aurora 디자인 통일. [2026-05-03 09:30 보강] D-010 결정에 따라 BL-CATEGORY-REMAP이 본 작업의 후속 정리를 담당.
+**요약**: [완료 요약]
+1단계(d9faa7e): admin-hub.html + admin-service-ops.html 신설 골격 완료. 후속 정리(60908ae, BL-CATEGORY-REMAP): 발견된 3대 결함(Hub-Tasks 통계 중복 / BACKLOG 두 카테고리 중복 / 5개 파일 매핑 누락) 모두 해소 + 자가 검증 27/27 PASS. 헌법 부칙 5 본체 + D-010 매핑 코드 정착. 4 카테고리 통합 진입점 ✅ 운영 가능.
+
+---
+
+1단계: 골격(이번 채팅). 2단계: 자동 동기화 강화. 3단계: Aurora 디자인 
 
 ---
 
@@ -292,7 +302,12 @@
 ### 변경 파일
 - `JOURNEY.md`
 
-**요약**: 8단계 매니저 여정 (A 결제전 → B 결제직후 → C 대시보드 → D 서류 → E 6개월 종료).
+**요약**: [완료 요약]
+v1 완료 (5/3, 137줄, commit 8759235). 매니저 실제 피드백 받은 후 별건 BL-JOURNEY-DOC-V2로 활성화 예정.
+
+---
+
+8단계 매니저 여정 (A 결제전 → B 결제직후 → C 대시보드 → D 서류 → E 6개월 종료).
 
 ---
 

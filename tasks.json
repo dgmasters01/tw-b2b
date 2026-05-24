@@ -16315,7 +16315,7 @@
       "category": "infra",
       "priority": "P1",
       "size": "medium",
-      "status": "in_progress",
+      "status": "done",
       "autoOK": true,
       "requireApproval": false,
       "source": "chat:2026-05-15 시스템 완성도 vs admin.html 역할 분리",
@@ -16328,20 +16328,20 @@
       },
       "notes": "service-map.md 확장 + 자동 갱신 봇 (signup-trigger 패턴 따라 GitHub Actions push 시 자동 재생성). 매뉴얼 형식: 사람 + AI 둘 다 읽기 좋게 (헌법 원칙 6).",
       "progress": {
-        "percent": 60,
+        "percent": 100,
         "steps": [
           {
             "n": 1,
             "label": "매뉴얼 5섹션 그림 결정 (대표님 확인)",
             "title": "그림 결정",
-            "status": "pending",
-            "done": false
+            "status": "done",
+            "done": true
           },
           {
             "n": 2,
             "label": "_os/service-map.md 5섹션 확장",
             "title": "매뉴얼 박기",
-            "status": "pending",
+            "status": "done",
             "done": true,
             "at": "2026-05-24T00:56:39+00:00"
           },
@@ -16349,7 +16349,7 @@
             "n": 3,
             "label": "자동 갱신 봇 신설 (.github/workflows/system-manual-rebuild.yml)",
             "title": "자동 갱신 봇",
-            "status": "pending",
+            "status": "done",
             "done": true,
             "at": "2026-05-24T00:56:39+00:00"
           },
@@ -16357,7 +16357,7 @@
             "n": 4,
             "label": "시스템 완성도 페이지에서 매뉴얼 1클릭 열기 박기",
             "title": "진입점",
-            "status": "pending",
+            "status": "done",
             "done": true,
             "at": "2026-05-24T00:56:39+00:00"
           },
@@ -16365,15 +16365,15 @@
             "n": 5,
             "label": "라이브 검증 + commit + chat-log",
             "title": "검증",
-            "status": "pending",
-            "done": false
+            "status": "done",
+            "done": true
           }
         ],
         "completed_count": 3,
         "total_count": 5,
         "updated_at": "2026-05-24T00:56:39+00:00"
       },
-      "updated_at": "2026-05-24T00:56:39+00:00",
+      "updated_at": "2026-05-24T00:57:00Z",
       "history": [
         {
           "at": "2026-05-15T08:11:51+00:00",
@@ -16409,6 +16409,12 @@
           "by": "auto-detect-bot",
           "commit": "54254d5",
           "note": "feat(BL-SYSTEM-MANUAL-AUTOGEN): 시스템 매뉴얼 빌더 신설 (5섹션 자동 추출) [step:done:2] [변경사유: 새 채팅 클로드용 단일 진실 지도 — pages-meta/workflows"
+        },
+        {
+          "at": "2026-05-24T00:57:00Z",
+          "event": "done",
+          "by": "claude",
+          "note": "5단계 모두 완료 — service-map.md + rebuild 봇 + admin-status 진입점 라이브 검증 통과"
         }
       ],
       "order": 3,

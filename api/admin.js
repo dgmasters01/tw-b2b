@@ -1742,6 +1742,626 @@ async function handleInvoiceUpdateCompanyInfo(req, res, serviceKey, admin) {
 }
 
 
+// =============================================================
+// BL-INVOICE-003 단계 3 — payment_accounts 결제 계좌 핸들러
+// =============================================================
+// 3행 singleton (id=1 krw / id=2 usd / id=3 paypal)
+// SELECT: admin + 매니저(인보이스 PDF용), UPDATE: owner only
+// =============================================================
+
+const PAYMENT_ACCOUNTS_PUBLIC_FIELDS = [
+  'id', 'type',
+  'krw_bank_name', 'krw_account_no', 'krw_account_holder', 'krw_business_no',
+  'usd_bank_name', 'usd_bank_address', 'usd_swift_code', 'usd_iban',
+  'usd_account_no', 'usd_recipient_name', 'usd_recipient_address',
+  'paypal_email', 'paypal_merchant_id',
+  'is_active', 'notes',
+  'updated_at', 'updated_by_email'
+];
+
+// 타입별 업데이트 허용 필드 (잘못된 타입에 잘못된 필드 박지 못하게)
+const PAYMENT_TYPE_FIELDS = {
+  krw: ['krw_bank_name', 'krw_account_no', 'krw_account_holder', 'krw_business_no', 'is_active', 'notes'],
+  usd: ['usd_bank_name', 'usd_bank_address', 'usd_swift_code', 'usd_iban',
+        'usd_account_no', 'usd_recipient_name', 'usd_recipient_address', 'is_active', 'notes'],
+  paypal: ['paypal_email', 'paypal_merchant_id', 'is_active', 'notes']
+};
+
+async function handleInvoiceGetPaymentAccounts(req, res, serviceKey, admin) {
+  if (req.method !== 'GET' && req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  const selectFields = PAYMENT_ACCOUNTS_PUBLIC_FIELDS.join(',');
+  const url = SUPABASE_URL + '/rest/v1/payment_accounts?select=' + encodeURIComponent(selectFields) + '&order=id.asc';
+  const r = await fetch(url, {
+    headers: {
+      'Authorization': 'Bearer ' + serviceKey,
+      'apikey': serviceKey,
+      'Accept': 'application/json'
+    }
+  });
+  if (!r.ok) {
+    const text = await r.text();
+    return res.status(500).json({ error: 'fetch_payment_accounts_failed', detail: text });
+  }
+  const rows = await r.json();
+  if (!Array.isArray(rows) || rows.length === 0) {
+    return res.status(404).json({
+      error: 'payment_accounts_not_found',
+      hint: 'sql/bl-invoice-003-payment-accounts.sql 실행 필요 (3행 singleton 박혀야 함)'
+    });
+  }
+
+  // 타입별로 묶어서 반환 (UI 편의)
+  const byType = {};
+  for (const row of rows) {
+    byType[row.type] = {
+      ...row,
+      updated_at_label: fmtUpdatedAtLabel(row.updated_at)
+    };
+  }
+
+  return res.status(200).json({
+    success: true,
+    accounts: rows,
+    by_type: byType,
+    expected_types: ['krw', 'usd', 'paypal']
+  });
+}
+
+async function handleInvoiceUpdatePaymentAccounts(req, res, serviceKey, admin) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed', hint: 'POST only' });
+  }
+  if (admin.role !== 'owner') {
+    return res.status(403).json({
+      error: 'owner_only',
+      hint: '결제 계좌 수정은 owner 권한만 가능합니다.',
+      current_role: admin.role
+    });
+  }
+
+  const body = req.body || {};
+  const type = String(body.type || '').toLowerCase();
+  const changes = body.changes || {};
+
+  if (!['krw', 'usd', 'paypal'].includes(type)) {
+    return res.status(400).json({
+      error: 'invalid_type',
+      received: type,
+      allowed: ['krw', 'usd', 'paypal']
+    });
+  }
+  if (typeof changes !== 'object' || Array.isArray(changes) || Object.keys(changes).length === 0) {
+    return res.status(400).json({ error: 'missing_changes', hint: 'body.changes 객체 필수' });
+  }
+
+  // 화이트리스트 — 해당 type에 허용된 필드만
+  const allowed = PAYMENT_TYPE_FIELDS[type];
+  const unknownFields = Object.keys(changes).filter(k => !allowed.includes(k));
+  if (unknownFields.length > 0) {
+    return res.status(400).json({
+      error: 'unknown_fields_for_type',
+      type,
+      received: unknownFields,
+      allowed
+    });
+  }
+
+  // 타입별 검증
+  if (type === 'paypal' && changes.paypal_email !== undefined && changes.paypal_email !== '') {
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(changes.paypal_email))) {
+      return res.status(400).json({ error: 'invalid_paypal_email_format' });
+    }
+  }
+  if (type === 'krw' && changes.krw_business_no !== undefined && changes.krw_business_no !== '') {
+    const digits = String(changes.krw_business_no).replace(/-/g, '');
+    if (!/^\d{10}$/.test(digits)) {
+      return res.status(400).json({
+        error: 'invalid_krw_business_no',
+        hint: '사업자등록번호는 10자리 숫자 (하이픈 허용)'
+      });
+    }
+  }
+  if (type === 'usd' && changes.usd_swift_code !== undefined && changes.usd_swift_code !== '') {
+    // SWIFT/BIC: 8 또는 11자리 영숫자
+    if (!/^[A-Z0-9]{8}([A-Z0-9]{3})?$/.test(String(changes.usd_swift_code).toUpperCase())) {
+      return res.status(400).json({
+        error: 'invalid_swift_code',
+        hint: 'SWIFT/BIC는 8 또는 11자리 영숫자'
+      });
+    }
+  }
+
+  // BEFORE state
+  const selectForBefore = ['id', 'type', ...Object.keys(changes)].join(',');
+  const beforeResp = await fetch(
+    SUPABASE_URL + '/rest/v1/payment_accounts?type=eq.' + encodeURIComponent(type) + '&select=' + encodeURIComponent(selectForBefore),
+    { headers: { 'Authorization': 'Bearer ' + serviceKey, 'apikey': serviceKey } }
+  );
+  if (!beforeResp.ok) {
+    const text = await beforeResp.text();
+    return res.status(500).json({ error: 'fetch_before_failed', detail: text });
+  }
+  const beforeRows = await beforeResp.json();
+  const beforeRow = Array.isArray(beforeRows) && beforeRows.length > 0 ? beforeRows[0] : null;
+  if (!beforeRow) {
+    return res.status(404).json({ error: 'payment_account_row_not_found', type });
+  }
+
+  const actualChanges = {};
+  for (const [k, v] of Object.entries(changes)) {
+    const before = beforeRow[k] != null ? String(beforeRow[k]) : '';
+    const after = v != null ? String(v) : '';
+    if (before !== after) {
+      actualChanges[k] = v;
+    }
+  }
+  if (Object.keys(actualChanges).length === 0) {
+    return res.status(200).json({
+      success: true,
+      no_changes: true,
+      message: '변경된 내용이 없습니다.',
+      type,
+      account: beforeRow
+    });
+  }
+
+  // SWIFT 정규화
+  if (actualChanges.usd_swift_code) {
+    actualChanges.usd_swift_code = String(actualChanges.usd_swift_code).toUpperCase();
+  }
+
+  // UPDATE
+  const updatePayload = {
+    ...actualChanges,
+    updated_by: admin.userId || null,
+    updated_by_email: admin.email
+    // updated_at은 트리거가 자동
+  };
+  const updateResp = await fetch(
+    SUPABASE_URL + '/rest/v1/payment_accounts?type=eq.' + encodeURIComponent(type),
+    {
+      method: 'PATCH',
+      headers: {
+        'Authorization': 'Bearer ' + serviceKey,
+        'apikey': serviceKey,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=representation'
+      },
+      body: JSON.stringify(updatePayload)
+    }
+  );
+  if (!updateResp.ok) {
+    const text = await updateResp.text();
+    return res.status(500).json({ error: 'update_failed', detail: text });
+  }
+  const updatedRows = await updateResp.json();
+  const updatedRow = Array.isArray(updatedRows) && updatedRows.length > 0 ? updatedRows[0] : null;
+
+  // Audit log
+  const beforeJson = {};
+  const afterJson = {};
+  for (const k of Object.keys(actualChanges)) {
+    beforeJson[k] = beforeRow[k];
+    afterJson[k] = actualChanges[k];
+  }
+  try {
+    await fetch(
+      SUPABASE_URL + '/rest/v1/rpc/log_invoice_settings_change',
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + serviceKey,
+          'apikey': serviceKey,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          p_action: 'invoice-settings.payment-accounts.update',
+          p_target_id: null,
+          p_target_label: 'payment_accounts:' + type,
+          p_performed_by: admin.userId || null,
+          p_performed_email: admin.email,
+          p_before: beforeJson,
+          p_after: afterJson,
+          p_metadata: {
+            type,
+            changed_fields: Object.keys(actualChanges),
+            field_count: Object.keys(actualChanges).length,
+            user_agent: (req.headers['user-agent'] || '').slice(0, 200)
+          }
+        })
+      }
+    );
+  } catch (auditErr) {
+    console.warn('[invoice-update-payment-accounts] audit log 예외:', auditErr.message);
+  }
+
+  return res.status(200).json({
+    success: true,
+    type,
+    account: updatedRow,
+    updated_at_label: fmtUpdatedAtLabel(updatedRow ? updatedRow.updated_at : new Date().toISOString()),
+    changed_fields: Object.keys(actualChanges),
+    changed_count: Object.keys(actualChanges).length
+  });
+}
+
+
+// =============================================================
+// BL-INVOICE-003 단계 4 — 도장·서명 이미지 업로드 핸들러
+// =============================================================
+// 버킷: 'invoice-assets' (private, owner upload, admin read)
+// asset_kind: 'stamp' | 'signature'
+// 클라이언트는 base64 data URL로 전송 (Vercel 함수에서 multipart 받기 복잡 회피)
+// 업로드 후 company_info.stamp_storage_path / signature_storage_path 자동 갱신
+// =============================================================
+
+const INVOICE_ASSET_BUCKET = 'invoice-assets';
+const INVOICE_ASSET_MAX_BYTES = 2 * 1024 * 1024;  // 2MB
+const INVOICE_ASSET_ALLOWED_MIME = ['image/png', 'image/jpeg', 'image/webp'];
+
+async function handleInvoiceUploadAsset(req, res, serviceKey, admin) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed', hint: 'POST only' });
+  }
+  if (admin.role !== 'owner') {
+    return res.status(403).json({
+      error: 'owner_only',
+      hint: '도장·서명 업로드는 owner 권한만 가능합니다.',
+      current_role: admin.role
+    });
+  }
+
+  const body = req.body || {};
+  const assetKind = String(body.asset_kind || '').toLowerCase();   // 'stamp' | 'signature'
+  const dataUrl = body.data_url || '';                              // 'data:image/png;base64,...'
+  const action = String(body.action_type || 'upload').toLowerCase();// 'upload' | 'delete'
+
+  if (!['stamp', 'signature'].includes(assetKind)) {
+    return res.status(400).json({
+      error: 'invalid_asset_kind',
+      received: assetKind,
+      allowed: ['stamp', 'signature']
+    });
+  }
+  if (!['upload', 'delete'].includes(action)) {
+    return res.status(400).json({ error: 'invalid_action_type', allowed: ['upload', 'delete'] });
+  }
+
+  const pathColumn = assetKind === 'stamp' ? 'stamp_storage_path' : 'signature_storage_path';
+
+  // 현재 company_info의 path 확인 (delete 시 기존 파일 삭제용)
+  const ciResp = await fetch(
+    SUPABASE_URL + '/rest/v1/company_info?id=eq.1&select=' + pathColumn,
+    { headers: { 'Authorization': 'Bearer ' + serviceKey, 'apikey': serviceKey } }
+  );
+  if (!ciResp.ok) {
+    const text = await ciResp.text();
+    return res.status(500).json({ error: 'fetch_company_info_failed', detail: text });
+  }
+  const ciRows = await ciResp.json();
+  const currentPath = (ciRows[0] || {})[pathColumn] || null;
+
+  // ──────────────── DELETE 경로 ────────────────
+  if (action === 'delete') {
+    if (!currentPath) {
+      return res.status(200).json({
+        success: true,
+        no_op: true,
+        message: '삭제할 ' + assetKind + ' 이미지가 없습니다.',
+        asset_kind: assetKind
+      });
+    }
+    // Storage object 삭제
+    const delResp = await fetch(
+      SUPABASE_URL + '/storage/v1/object/' + INVOICE_ASSET_BUCKET + '/' + currentPath,
+      {
+        method: 'DELETE',
+        headers: { 'Authorization': 'Bearer ' + serviceKey, 'apikey': serviceKey }
+      }
+    );
+    // Storage delete 실패해도 company_info path는 비움 (orphan path 방지)
+
+    const patchResp = await fetch(
+      SUPABASE_URL + '/rest/v1/company_info?id=eq.1',
+      {
+        method: 'PATCH',
+        headers: {
+          'Authorization': 'Bearer ' + serviceKey,
+          'apikey': serviceKey,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=representation'
+        },
+        body: JSON.stringify({
+          [pathColumn]: null,
+          updated_at: new Date().toISOString(),
+          updated_by: admin.userId || null,
+          updated_by_email: admin.email
+        })
+      }
+    );
+    if (!patchResp.ok) {
+      const text = await patchResp.text();
+      return res.status(500).json({ error: 'company_info_update_failed', detail: text });
+    }
+
+    // Audit log
+    try {
+      await fetch(
+        SUPABASE_URL + '/rest/v1/rpc/log_invoice_settings_change',
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': 'Bearer ' + serviceKey,
+            'apikey': serviceKey,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            p_action: 'invoice-settings.' + assetKind + '.delete',
+            p_target_id: null,
+            p_target_label: 'company_info.' + pathColumn,
+            p_performed_by: admin.userId || null,
+            p_performed_email: admin.email,
+            p_before: { [pathColumn]: currentPath },
+            p_after: { [pathColumn]: null },
+            p_metadata: {
+              asset_kind: assetKind,
+              storage_delete_ok: delResp.ok,
+              user_agent: (req.headers['user-agent'] || '').slice(0, 200)
+            }
+          })
+        }
+      );
+    } catch (auditErr) {
+      console.warn('[invoice-upload-asset DELETE] audit 예외:', auditErr.message);
+    }
+
+    return res.status(200).json({
+      success: true,
+      deleted: true,
+      asset_kind: assetKind,
+      previous_path: currentPath,
+      storage_delete_status: delResp.status
+    });
+  }
+
+  // ──────────────── UPLOAD 경로 ────────────────
+  if (!dataUrl || typeof dataUrl !== 'string') {
+    return res.status(400).json({ error: 'missing_data_url', hint: 'body.data_url (data:image/png;base64,...) 필수' });
+  }
+  // data URL parse
+  const m = dataUrl.match(/^data:([a-zA-Z0-9+\/]+);base64,(.+)$/);
+  if (!m) {
+    return res.status(400).json({ error: 'invalid_data_url_format', hint: 'data:image/png;base64,xxx 형식만 허용' });
+  }
+  const mime = m[1].toLowerCase();
+  const b64 = m[2];
+
+  if (!INVOICE_ASSET_ALLOWED_MIME.includes(mime)) {
+    return res.status(400).json({
+      error: 'unsupported_mime_type',
+      received: mime,
+      allowed: INVOICE_ASSET_ALLOWED_MIME
+    });
+  }
+
+  let buffer;
+  try {
+    buffer = Buffer.from(b64, 'base64');
+  } catch (e) {
+    return res.status(400).json({ error: 'invalid_base64', detail: e.message });
+  }
+  if (buffer.length === 0) {
+    return res.status(400).json({ error: 'empty_file' });
+  }
+  if (buffer.length > INVOICE_ASSET_MAX_BYTES) {
+    return res.status(400).json({
+      error: 'file_too_large',
+      max_bytes: INVOICE_ASSET_MAX_BYTES,
+      received_bytes: buffer.length,
+      hint: '2MB 이하 이미지만 허용'
+    });
+  }
+
+  // 파일명 — assetKind/timestamp.확장자 (캐시 무효화 + 이력 추적용)
+  const ext = mime === 'image/png' ? 'png' : (mime === 'image/jpeg' ? 'jpg' : 'webp');
+  const ts = new Date().toISOString().replace(/[:.]/g, '-');
+  const storagePath = assetKind + '/' + assetKind + '-' + ts + '.' + ext;
+
+  // Supabase Storage upload (POST → /storage/v1/object/{bucket}/{path})
+  const uploadResp = await fetch(
+    SUPABASE_URL + '/storage/v1/object/' + INVOICE_ASSET_BUCKET + '/' + storagePath,
+    {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer ' + serviceKey,
+        'apikey': serviceKey,
+        'Content-Type': mime,
+        'x-upsert': 'true',
+        'cache-control': 'max-age=3600'
+      },
+      body: buffer
+    }
+  );
+
+  if (!uploadResp.ok) {
+    const text = await uploadResp.text();
+    // 버킷 부재 시 가독성 있는 에러
+    if (uploadResp.status === 404 || /bucket/i.test(text)) {
+      return res.status(500).json({
+        error: 'storage_bucket_missing',
+        bucket: INVOICE_ASSET_BUCKET,
+        hint: 'sql/bl-invoice-003-storage-bucket.sql 실행으로 버킷 신설 필요',
+        detail: text
+      });
+    }
+    return res.status(500).json({ error: 'storage_upload_failed', status: uploadResp.status, detail: text });
+  }
+
+  // company_info path 갱신
+  const patchResp = await fetch(
+    SUPABASE_URL + '/rest/v1/company_info?id=eq.1',
+    {
+      method: 'PATCH',
+      headers: {
+        'Authorization': 'Bearer ' + serviceKey,
+        'apikey': serviceKey,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=representation'
+      },
+      body: JSON.stringify({
+        [pathColumn]: storagePath,
+        updated_at: new Date().toISOString(),
+        updated_by: admin.userId || null,
+        updated_by_email: admin.email
+      })
+    }
+  );
+  if (!patchResp.ok) {
+    const text = await patchResp.text();
+    return res.status(500).json({ error: 'company_info_update_failed', detail: text });
+  }
+
+  // 기존 파일이 있으면 삭제 (orphan 방지) — 실패해도 응답에 영향 없음
+  if (currentPath && currentPath !== storagePath) {
+    try {
+      await fetch(
+        SUPABASE_URL + '/storage/v1/object/' + INVOICE_ASSET_BUCKET + '/' + currentPath,
+        {
+          method: 'DELETE',
+          headers: { 'Authorization': 'Bearer ' + serviceKey, 'apikey': serviceKey }
+        }
+      );
+    } catch (_) { /* ignore */ }
+  }
+
+  // Audit log
+  try {
+    await fetch(
+      SUPABASE_URL + '/rest/v1/rpc/log_invoice_settings_change',
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + serviceKey,
+          'apikey': serviceKey,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          p_action: 'invoice-settings.' + assetKind + '.upload',
+          p_target_id: null,
+          p_target_label: 'company_info.' + pathColumn,
+          p_performed_by: admin.userId || null,
+          p_performed_email: admin.email,
+          p_before: { [pathColumn]: currentPath },
+          p_after: { [pathColumn]: storagePath },
+          p_metadata: {
+            asset_kind: assetKind,
+            mime,
+            size_bytes: buffer.length,
+            replaced_previous: !!currentPath,
+            user_agent: (req.headers['user-agent'] || '').slice(0, 200)
+          }
+        })
+      }
+    );
+  } catch (auditErr) {
+    console.warn('[invoice-upload-asset UPLOAD] audit 예외:', auditErr.message);
+  }
+
+  // 서명된 URL 생성 (1시간 만료) — UI 미리보기용
+  let signedUrl = null;
+  try {
+    const signResp = await fetch(
+      SUPABASE_URL + '/storage/v1/object/sign/' + INVOICE_ASSET_BUCKET + '/' + storagePath,
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + serviceKey,
+          'apikey': serviceKey,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ expiresIn: 3600 })
+      }
+    );
+    if (signResp.ok) {
+      const signed = await signResp.json();
+      // signed.signedURL 형식: "/object/sign/invoice-assets/stamp/xxx.png?token=..."
+      signedUrl = SUPABASE_URL + '/storage/v1' + signed.signedURL;
+    }
+  } catch (_) { /* ignore — preview는 부가 기능 */ }
+
+  return res.status(200).json({
+    success: true,
+    asset_kind: assetKind,
+    storage_path: storagePath,
+    bucket: INVOICE_ASSET_BUCKET,
+    mime,
+    size_bytes: buffer.length,
+    signed_url: signedUrl,
+    signed_url_expires_in: 3600,
+    replaced_previous: !!currentPath
+  });
+}
+
+// 이미지 서명 URL만 발급 (UI 미리보기용 — 매 페이지 로드 시 갱신)
+async function handleInvoiceGetAssetUrl(req, res, serviceKey, admin) {
+  if (req.method !== 'GET' && req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+  // admin 전부 허용 (UI에 표시는 owner 외에도 일관)
+  const url = new URL(req.url || '/', 'http://x');
+  const assetKind = String(url.searchParams.get('asset_kind') || '').toLowerCase();
+  if (!['stamp', 'signature'].includes(assetKind)) {
+    return res.status(400).json({
+      error: 'invalid_asset_kind',
+      received: assetKind,
+      allowed: ['stamp', 'signature']
+    });
+  }
+  const pathColumn = assetKind === 'stamp' ? 'stamp_storage_path' : 'signature_storage_path';
+  const ciResp = await fetch(
+    SUPABASE_URL + '/rest/v1/company_info?id=eq.1&select=' + pathColumn,
+    { headers: { 'Authorization': 'Bearer ' + serviceKey, 'apikey': serviceKey } }
+  );
+  if (!ciResp.ok) {
+    return res.status(500).json({ error: 'fetch_company_info_failed' });
+  }
+  const ciRows = await ciResp.json();
+  const storagePath = (ciRows[0] || {})[pathColumn] || null;
+  if (!storagePath) {
+    return res.status(200).json({ success: true, asset_kind: assetKind, has_asset: false });
+  }
+
+  const signResp = await fetch(
+    SUPABASE_URL + '/storage/v1/object/sign/' + INVOICE_ASSET_BUCKET + '/' + storagePath,
+    {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer ' + serviceKey,
+        'apikey': serviceKey,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ expiresIn: 3600 })
+    }
+  );
+  if (!signResp.ok) {
+    const text = await signResp.text();
+    return res.status(500).json({ error: 'sign_url_failed', detail: text });
+  }
+  const signed = await signResp.json();
+  return res.status(200).json({
+    success: true,
+    asset_kind: assetKind,
+    has_asset: true,
+    storage_path: storagePath,
+    signed_url: SUPABASE_URL + '/storage/v1' + signed.signedURL,
+    signed_url_expires_in: 3600
+  });
+}
+
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -1773,7 +2393,7 @@ export default async function handler(req, res) {
   }
 
   // 화이트리스트 검증을 인증보다 먼저 수행 → 디버깅 시 라우팅 문제와 인증 문제를 명확히 분리
-  const ALLOWED_ACTIONS = ['booking-upload', 'list-users', 'send-invite', 'update-match', 'start-task', 'past-video-revenue', 'manager-push', 'delete-user', 'change-role', 're-verify', 'update-hotel-status', 'refund-hotel', 'invoice-get-company-info', 'invoice-update-company-info'];
+  const ALLOWED_ACTIONS = ['booking-upload', 'list-users', 'send-invite', 'update-match', 'start-task', 'past-video-revenue', 'manager-push', 'delete-user', 'change-role', 're-verify', 'update-hotel-status', 'refund-hotel', 'invoice-get-company-info', 'invoice-update-company-info', 'invoice-get-payment-accounts', 'invoice-update-payment-accounts', 'invoice-upload-asset', 'invoice-get-asset-url'];
   if (!action) {
     return res.status(400).json({
       error: 'missing_action',
@@ -1852,6 +2472,18 @@ export default async function handler(req, res) {
         return actionResult;
       case 'invoice-update-company-info':
         actionResult = await handleInvoiceUpdateCompanyInfo(req, res, serviceKey, adminCheck);
+        return actionResult;
+      case 'invoice-get-payment-accounts':
+        actionResult = await handleInvoiceGetPaymentAccounts(req, res, serviceKey, adminCheck);
+        return actionResult;
+      case 'invoice-update-payment-accounts':
+        actionResult = await handleInvoiceUpdatePaymentAccounts(req, res, serviceKey, adminCheck);
+        return actionResult;
+      case 'invoice-upload-asset':
+        actionResult = await handleInvoiceUploadAsset(req, res, serviceKey, adminCheck);
+        return actionResult;
+      case 'invoice-get-asset-url':
+        actionResult = await handleInvoiceGetAssetUrl(req, res, serviceKey, adminCheck);
         return actionResult;
       default:
         // unreachable: 위에서 화이트리스트로 이미 차단됨

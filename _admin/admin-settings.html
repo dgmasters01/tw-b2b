@@ -90,9 +90,43 @@
   .empty { text-align:center; color:var(--muted); padding:50px 20px; font-size:13px; }
   .meta-line { font-size:11px; color:var(--muted); margin-top:6px; }
 
+  /* ─── 결제 계좌 카드 (단계 3) ─── */
+  .pay-card { background:rgba(0,0,0,0.18); border:0.5px solid var(--border); border-radius:8px;
+              padding:16px 18px; margin-bottom:14px; }
+  .pay-card-head { display:flex; align-items:center; justify-content:space-between;
+                   margin-bottom:14px; padding-bottom:10px;
+                   border-bottom:0.5px solid rgba(255,255,255,0.06); }
+  .pay-card-head .title { font-size:14px; font-weight:600; display:flex; align-items:center; gap:8px; }
+  .pay-card-head .type-pill { background:rgba(167,139,250,0.12); color:var(--accent);
+                              padding:2px 8px; border-radius:10px; font-size:10px; font-weight:600;
+                              letter-spacing:0.04em; text-transform:uppercase; }
+  .pay-card-head .pay-meta { font-size:11px; color:var(--muted); }
+  .pay-card .form-grid { gap:12px 16px; }
+  .pay-card .actions { margin-top:14px; padding-top:14px; }
+
+  /* ─── 도장·서명 업로드 (단계 4) ─── */
+  .seal-card { background:rgba(0,0,0,0.18); border:0.5px solid var(--border); border-radius:8px;
+               padding:18px 20px; margin-bottom:14px;
+               display:grid; grid-template-columns:200px 1fr; gap:20px; align-items:center; }
+  .seal-preview { width:200px; height:200px; border:0.5px dashed var(--border); border-radius:8px;
+                  background:rgba(255,255,255,0.92);
+                  display:flex; align-items:center; justify-content:center;
+                  overflow:hidden; position:relative; }
+  .seal-preview img { max-width:90%; max-height:90%; object-fit:contain; }
+  .seal-preview .empty-mark { color:#888; font-size:12px; text-align:center; padding:14px; }
+  .seal-info .seal-title { font-size:14px; font-weight:600; margin:0 0 4px; }
+  .seal-info .seal-hint { font-size:12px; color:var(--muted); margin:0 0 12px; line-height:1.5; }
+  .seal-info .seal-meta { font-size:11px; color:var(--muted); margin-top:8px; }
+  .seal-info .file-input-wrap { display:inline-block; position:relative; }
+  .seal-info input[type=file] { position:absolute; left:0; top:0; width:100%; height:100%;
+                                opacity:0; cursor:pointer; }
+  .seal-info .seal-actions { display:flex; gap:8px; margin-top:10px; flex-wrap:wrap; }
+
   @media (max-width: 640px) {
     .form-grid { grid-template-columns:1fr; }
     .container { padding:16px; }
+    .seal-card { grid-template-columns:1fr; }
+    .seal-preview { width:100%; max-width:280px; margin:0 auto; }
   }
 </style>
 <!-- ★ BL-ADMIN-LIGHTMODE: admin 공통 스킨 + 토글 자동 주입 -->
@@ -113,8 +147,8 @@
 
   <div class="tabs">
     <div class="tab active" data-tab="company">🏢 회사 정보</div>
-    <div class="tab disabled" data-tab="payment" title="단계 3에서 활성화">💳 결제 계좌 <span style="font-size:10px;opacity:0.6">(곧 추가)</span></div>
-    <div class="tab disabled" data-tab="seal" title="단계 4에서 활성화">🖋 도장·서명 <span style="font-size:10px;opacity:0.6">(곧 추가)</span></div>
+    <div class="tab" data-tab="payment">💳 결제 계좌</div>
+    <div class="tab" data-tab="seal">🖋 도장·서명</div>
   </div>
 
   <div id="tab-company">
@@ -126,6 +160,34 @@
       </p>
 
       <div id="form-container">
+        <div class="empty">로딩 중...</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="tab-payment" style="display:none">
+    <div class="panel">
+      <h2>💳 결제 계좌 <span class="badge" id="badge-payment-status">로딩...</span></h2>
+      <p class="panel-desc">
+        인보이스에 박힐 3종 결제 정보. KRW(한국 매니저), USD(해외 매니저), PayPal(해외 매니저).
+        타입별로 따로 저장합니다.
+      </p>
+
+      <div id="payment-sections">
+        <div class="empty">로딩 중...</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="tab-seal" style="display:none">
+    <div class="panel">
+      <h2>🖋 도장·서명 이미지 <span class="badge" id="badge-seal-status">로딩...</span></h2>
+      <p class="panel-desc">
+        인보이스 PDF 우하단에 박힐 도장·서명 이미지. PNG/JPG/WEBP (배경 투명 PNG 권장).
+        업로드한 다음 발행되는 인보이스부터 자동 반영됩니다.
+      </p>
+
+      <div id="seal-sections">
         <div class="empty">로딩 중...</div>
       </div>
     </div>
@@ -423,6 +485,427 @@ async function saveCompanyInfo() {
     $('btn-save').textContent = '저장';
   }
 }
+
+// ════════════════════════════════════════════════════════════════════════════
+// 단계 3 — 결제 계좌 (payment_accounts)
+// ════════════════════════════════════════════════════════════════════════════
+
+let PAY_DATA = null;   // { krw, usd, paypal }
+
+const PAY_DEFS = {
+  krw: {
+    title: '🇰🇷 KRW · 한국 국내 계좌',
+    target: '한국 매니저 (국내 송금)',
+    fields: [
+      { key:'krw_bank_name',      label:'은행명',         type:'text', placeholder:'예: 신한은행' },
+      { key:'krw_account_no',     label:'계좌번호',       type:'text', placeholder:'000-0000-000000' },
+      { key:'krw_account_holder', label:'예금주',         type:'text', placeholder:'주식회사 여행능력자들' },
+      { key:'krw_business_no',    label:'사업자등록번호', type:'text', placeholder:'000-00-00000',
+        hint:'10자리 (하이픈 허용)' }
+    ]
+  },
+  usd: {
+    title: '🌍 USD · 해외 외화 계좌',
+    target: '해외 매니저 (SWIFT 송금)',
+    fields: [
+      { key:'usd_bank_name',         label:'Bank Name',         type:'text', placeholder:'영문 은행명' },
+      { key:'usd_bank_address',      label:'Bank Address',      type:'text', placeholder:'영문 은행 주소' },
+      { key:'usd_swift_code',        label:'SWIFT / BIC',       type:'text', placeholder:'8 또는 11자리' },
+      { key:'usd_iban',              label:'IBAN (선택)',       type:'text', placeholder:'KR... (해당 시)' },
+      { key:'usd_account_no',        label:'Account Number',    type:'text', placeholder:'외화 계좌번호' },
+      { key:'usd_recipient_name',    label:'Recipient Name',    type:'text', placeholder:'영문 수취인명' },
+      { key:'usd_recipient_address', label:'Recipient Address', type:'text', full:true, placeholder:'영문 수취인 주소' }
+    ]
+  },
+  paypal: {
+    title: '💸 PayPal',
+    target: '해외 매니저 (PayPal 결제)',
+    fields: [
+      { key:'paypal_email',       label:'PayPal 이메일',  type:'email', placeholder:'travelwinners@naver.com' },
+      { key:'paypal_merchant_id', label:'Merchant ID',    type:'text',  placeholder:'HAY86YMQP9T5C', hint:'참고용 (PayPal 대시보드에서 확인)' }
+    ]
+  }
+};
+
+async function loadPaymentAccounts() {
+  try {
+    const r = await api('/api/admin?action=invoice-get-payment-accounts');
+    PAY_DATA = r.by_type || {};
+    renderPaymentSections();
+    $('badge-payment-status').textContent = '저장됨';
+    $('badge-payment-status').style.color = 'var(--ok)';
+  } catch (e) {
+    $('payment-sections').innerHTML = `<div class="empty">불러오기 실패: ${e.message}</div>`;
+    $('badge-payment-status').textContent = '오류';
+    $('badge-payment-status').style.color = 'var(--err)';
+  }
+}
+
+function renderPaymentSections() {
+  const html = ['krw','usd','paypal'].map(type => renderPayCard(type)).join('');
+  $('payment-sections').innerHTML = html;
+  ['krw','usd','paypal'].forEach(type => bindPayCard(type));
+}
+
+function renderPayCard(type) {
+  const def = PAY_DEFS[type];
+  const row = (PAY_DATA && PAY_DATA[type]) || {};
+  return `
+    <div class="pay-card" data-type="${type}">
+      <div class="pay-card-head">
+        <div class="title">
+          <span>${def.title}</span>
+          <span class="type-pill">${type}</span>
+        </div>
+        <div class="pay-meta">
+          마지막 수정: <strong id="pay-updated-${type}">${row.updated_at_label || '—'}</strong>
+          ${row.updated_by_email ? ` · ${row.updated_by_email}` : ''}
+        </div>
+      </div>
+
+      <div style="font-size:11px;color:var(--muted);margin:-6px 0 14px">대상: ${def.target}</div>
+
+      <div class="form-grid">
+        ${def.fields.map(f => {
+          const val = row[f.key] != null ? row[f.key] : '';
+          const escVal = String(val).replace(/"/g,'&quot;').replace(/</g,'&lt;');
+          const input = `<input type="${f.type}" id="pf-${type}-${f.key}" value="${escVal}" placeholder="${f.placeholder||''}">`;
+          return `
+            <div class="form-row ${f.full ? 'full' : ''}">
+              <label for="pf-${type}-${f.key}">${f.label}</label>
+              ${input}
+              ${f.hint ? `<div class="hint">${f.hint}</div>` : ''}
+              <div class="field-meta" id="pm-${type}-${f.key}"></div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+
+      <div class="actions">
+        <button class="btn ghost" data-pay-reset="${type}">되돌리기</button>
+        <button class="btn" data-pay-save="${type}">저장</button>
+      </div>
+    </div>
+  `;
+}
+
+function bindPayCard(type) {
+  const def = PAY_DEFS[type];
+  const row = (PAY_DATA && PAY_DATA[type]) || {};
+
+  def.fields.forEach(f => {
+    const el = document.getElementById(`pf-${type}-${f.key}`);
+    if (!el) return;
+    el.addEventListener('input', () => {
+      const orig = row[f.key] != null ? String(row[f.key]) : '';
+      const meta = document.getElementById(`pm-${type}-${f.key}`);
+      if (el.value !== orig) {
+        meta.textContent = '✎ 변경됨';
+        meta.classList.add('changed');
+      } else {
+        meta.textContent = '';
+        meta.classList.remove('changed');
+      }
+    });
+  });
+
+  const resetBtn = document.querySelector(`[data-pay-reset="${type}"]`);
+  const saveBtn = document.querySelector(`[data-pay-save="${type}"]`);
+
+  if (resetBtn) {
+    resetBtn.addEventListener('click', () => {
+      def.fields.forEach(f => {
+        const el = document.getElementById(`pf-${type}-${f.key}`);
+        if (el) el.value = row[f.key] != null ? row[f.key] : '';
+        const meta = document.getElementById(`pm-${type}-${f.key}`);
+        if (meta) { meta.textContent = ''; meta.classList.remove('changed'); }
+      });
+      toast(`${type.toUpperCase()} 원래 값으로 되돌렸습니다.`);
+    });
+  }
+  if (saveBtn) {
+    saveBtn.addEventListener('click', () => savePaymentAccount(type));
+  }
+}
+
+async function savePaymentAccount(type) {
+  const def = PAY_DEFS[type];
+  const row = (PAY_DATA && PAY_DATA[type]) || {};
+  const changed = {};
+
+  for (const f of def.fields) {
+    const el = document.getElementById(`pf-${type}-${f.key}`);
+    if (!el) continue;
+    const orig = row[f.key] != null ? String(row[f.key]) : '';
+    if (el.value !== orig) changed[f.key] = el.value;
+  }
+
+  if (Object.keys(changed).length === 0) {
+    toast('변경된 내용이 없습니다.');
+    return;
+  }
+
+  // 타입별 클라이언트 검증
+  if (type === 'paypal' && changed.paypal_email !== undefined && changed.paypal_email &&
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(changed.paypal_email)) {
+    toast('PayPal 이메일 형식이 올바르지 않습니다.', 'err');
+    return;
+  }
+  if (type === 'krw' && changed.krw_business_no !== undefined && changed.krw_business_no) {
+    const digits = String(changed.krw_business_no).replace(/-/g, '');
+    if (!/^\d{10}$/.test(digits)) {
+      toast('사업자등록번호는 10자리 숫자여야 합니다.', 'err');
+      return;
+    }
+  }
+  if (type === 'usd' && changed.usd_swift_code !== undefined && changed.usd_swift_code) {
+    const swift = changed.usd_swift_code.toUpperCase();
+    if (!/^[A-Z0-9]{8}([A-Z0-9]{3})?$/.test(swift)) {
+      toast('SWIFT/BIC는 8 또는 11자리 영숫자여야 합니다.', 'err');
+      return;
+    }
+  }
+
+  const summary = Object.keys(changed).map(k => {
+    const f = def.fields.find(x => x.key === k);
+    return `· ${f ? f.label : k}: "${row[k] || ''}" → "${changed[k]}"`;
+  }).join('\n');
+
+  if (!confirm(`${def.title} — 다음 ${Object.keys(changed).length}개 항목 저장:\n\n${summary}`)) return;
+
+  const saveBtn = document.querySelector(`[data-pay-save="${type}"]`);
+  if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = '저장 중...'; }
+
+  try {
+    const r = await api('/api/admin?action=invoice-update-payment-accounts', {
+      method:'POST',
+      body: JSON.stringify({ type, changes: changed })
+    });
+
+    // 최신값 갱신
+    if (r.account) {
+      PAY_DATA[type] = { ...r.account, updated_at_label: r.updated_at_label };
+    }
+    // 메타 표시 갱신
+    const updEl = document.getElementById(`pay-updated-${type}`);
+    if (updEl) updEl.textContent = r.updated_at_label || '방금';
+
+    // 필드 마크 초기화 (재로드 없이)
+    def.fields.forEach(f => {
+      const meta = document.getElementById(`pm-${type}-${f.key}`);
+      if (meta) { meta.textContent = ''; meta.classList.remove('changed'); }
+      // 정규화된 값 반영 (예: SWIFT 대문자화)
+      const el = document.getElementById(`pf-${type}-${f.key}`);
+      if (el && r.account && r.account[f.key] != null) {
+        el.value = r.account[f.key];
+      }
+    });
+
+    toast(`✓ ${def.title} ${Object.keys(changed).length}개 항목 저장 완료.`);
+  } catch (e) {
+    toast('저장 실패: ' + e.message, 'err');
+  } finally {
+    if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = '저장'; }
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// 단계 4 — 도장·서명 이미지 (Supabase Storage)
+// ════════════════════════════════════════════════════════════════════════════
+
+const SEAL_KINDS = [
+  {
+    kind: 'stamp',
+    title: '🔴 회사 직인',
+    hint: '인보이스 우하단에 박힐 회사 인장. 배경 투명 PNG 권장 (300×300px 이상). 미업로드 시 텍스트로 표시.'
+  },
+  {
+    kind: 'signature',
+    title: '✍️ 대표 서명',
+    hint: '인보이스 우하단에 박힐 대표님 친필 서명. 배경 투명 PNG 권장. 미업로드 시 "(대표 이지형)" 텍스트로 표시.'
+  }
+];
+
+const SEAL_STATE = { stamp: { url:null, path:null }, signature: { url:null, path:null } };
+
+async function loadSealImages() {
+  $('seal-sections').innerHTML = SEAL_KINDS.map(s => renderSealCard(s.kind, s.title, s.hint)).join('');
+  SEAL_KINDS.forEach(s => bindSealCard(s.kind));
+
+  // 각 종류별로 signed URL 비동기 로드
+  for (const s of SEAL_KINDS) {
+    try {
+      const r = await api(`/api/admin?action=invoice-get-asset-url&asset_kind=${s.kind}`);
+      if (r.has_asset) {
+        SEAL_STATE[s.kind] = { url: r.signed_url, path: r.storage_path };
+        applySealPreview(s.kind);
+      } else {
+        SEAL_STATE[s.kind] = { url: null, path: null };
+      }
+    } catch (e) {
+      console.warn('[seal] ' + s.kind + ' 로드 실패:', e.message);
+    }
+  }
+  $('badge-seal-status').textContent = '준비됨';
+  $('badge-seal-status').style.color = 'var(--ok)';
+}
+
+function renderSealCard(kind, title, hint) {
+  return `
+    <div class="seal-card" data-kind="${kind}">
+      <div class="seal-preview" id="seal-preview-${kind}">
+        <div class="empty-mark">미업로드<br>(텍스트로 표시됨)</div>
+      </div>
+      <div class="seal-info">
+        <h3 class="seal-title">${title}</h3>
+        <p class="seal-hint">${hint}</p>
+        <div class="seal-meta" id="seal-meta-${kind}">아직 업로드된 이미지가 없습니다.</div>
+        <div class="seal-actions">
+          <button class="btn file-input-wrap" data-seal-pick="${kind}">
+            파일 선택...
+            <input type="file" accept="image/png,image/jpeg,image/webp" id="seal-file-${kind}">
+          </button>
+          <button class="btn ghost" data-seal-delete="${kind}" style="display:none">삭제</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function applySealPreview(kind) {
+  const preview = document.getElementById('seal-preview-' + kind);
+  const meta = document.getElementById('seal-meta-' + kind);
+  const delBtn = document.querySelector(`[data-seal-delete="${kind}"]`);
+  if (!preview) return;
+
+  const st = SEAL_STATE[kind];
+  if (st && st.url) {
+    preview.innerHTML = `<img src="${st.url}" alt="${kind}" onerror="this.parentElement.innerHTML='<div class=empty-mark>이미지 로드 실패<br>(새로고침 후 재시도)</div>'">`;
+    if (meta) meta.textContent = `path: ${st.path}`;
+    if (delBtn) delBtn.style.display = '';
+  } else {
+    preview.innerHTML = `<div class="empty-mark">미업로드<br>(텍스트로 표시됨)</div>`;
+    if (meta) meta.textContent = '아직 업로드된 이미지가 없습니다.';
+    if (delBtn) delBtn.style.display = 'none';
+  }
+}
+
+function bindSealCard(kind) {
+  const fileEl = document.getElementById('seal-file-' + kind);
+  if (fileEl) {
+    fileEl.addEventListener('change', async (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      await uploadSealFile(kind, file);
+      fileEl.value = '';  // 같은 파일 재선택 가능하게
+    });
+  }
+  const delBtn = document.querySelector(`[data-seal-delete="${kind}"]`);
+  if (delBtn) {
+    delBtn.addEventListener('click', () => deleteSeal(kind));
+  }
+}
+
+function fileToDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(file);
+  });
+}
+
+async function uploadSealFile(kind, file) {
+  const MAX = 2 * 1024 * 1024;
+  if (file.size > MAX) {
+    toast(`파일이 2MB를 초과합니다 (${(file.size/1024/1024).toFixed(2)} MB).`, 'err');
+    return;
+  }
+  const allowedMime = ['image/png', 'image/jpeg', 'image/webp'];
+  if (!allowedMime.includes(file.type)) {
+    toast(`지원하지 않는 형식입니다 (${file.type || '알 수 없음'}). PNG/JPG/WEBP만 허용.`, 'err');
+    return;
+  }
+
+  if (!confirm(`${kind === 'stamp' ? '도장' : '서명'} 이미지를 업로드합니다.\n파일: ${file.name}\n크기: ${(file.size/1024).toFixed(1)} KB\n\n계속하시겠습니까?`)) return;
+
+  const pickBtn = document.querySelector(`[data-seal-pick="${kind}"]`);
+  if (pickBtn) { pickBtn.disabled = true; pickBtn.style.opacity = '0.5'; }
+  toast(`업로드 중... (${(file.size/1024).toFixed(0)} KB)`);
+
+  try {
+    const dataUrl = await fileToDataUrl(file);
+    const r = await api('/api/admin?action=invoice-upload-asset', {
+      method:'POST',
+      body: JSON.stringify({
+        asset_kind: kind,
+        data_url: dataUrl,
+        action_type: 'upload'
+      })
+    });
+    SEAL_STATE[kind] = { url: r.signed_url, path: r.storage_path };
+    applySealPreview(kind);
+    toast(`✓ ${kind === 'stamp' ? '도장' : '서명'} 업로드 완료. 다음 인보이스부터 자동 반영됩니다.`);
+  } catch (e) {
+    toast('업로드 실패: ' + e.message, 'err');
+  } finally {
+    if (pickBtn) { pickBtn.disabled = false; pickBtn.style.opacity = ''; }
+  }
+}
+
+async function deleteSeal(kind) {
+  if (!confirm(`${kind === 'stamp' ? '도장' : '서명'} 이미지를 삭제합니다.\n삭제하면 다음 인보이스부터 다시 텍스트로 표시됩니다.\n\n계속하시겠습니까?`)) return;
+
+  const delBtn = document.querySelector(`[data-seal-delete="${kind}"]`);
+  if (delBtn) { delBtn.disabled = true; delBtn.textContent = '삭제 중...'; }
+
+  try {
+    await api('/api/admin?action=invoice-upload-asset', {
+      method:'POST',
+      body: JSON.stringify({
+        asset_kind: kind,
+        action_type: 'delete'
+      })
+    });
+    SEAL_STATE[kind] = { url: null, path: null };
+    applySealPreview(kind);
+    toast(`✓ ${kind === 'stamp' ? '도장' : '서명'} 이미지 삭제 완료.`);
+  } catch (e) {
+    toast('삭제 실패: ' + e.message, 'err');
+  } finally {
+    if (delBtn) { delBtn.disabled = false; delBtn.textContent = '삭제'; }
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// 탭 전환 (lazy load — 클릭 시 데이터 가져옴)
+// ════════════════════════════════════════════════════════════════════════════
+const TAB_LOADED = { company:false, payment:false, seal:false };
+
+function activateTab(name) {
+  ['company','payment','seal'].forEach(n => {
+    const div = document.getElementById('tab-' + n);
+    const tab = document.querySelector(`.tab[data-tab="${n}"]`);
+    if (div) div.style.display = (n === name) ? '' : 'none';
+    if (tab) tab.classList.toggle('active', n === name);
+  });
+
+  // lazy load
+  if (name === 'payment' && !TAB_LOADED.payment) {
+    TAB_LOADED.payment = true;
+    loadPaymentAccounts();
+  }
+  if (name === 'seal' && !TAB_LOADED.seal) {
+    TAB_LOADED.seal = true;
+    loadSealImages();
+  }
+}
+
+document.addEventListener('click', e => {
+  const tab = e.target.closest('.tab[data-tab]');
+  if (!tab || tab.classList.contains('disabled')) return;
+  activateTab(tab.dataset.tab);
+});
 
 init();
 </script>

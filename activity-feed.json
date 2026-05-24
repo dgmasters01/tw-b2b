@@ -1,12 +1,63 @@
 {
-  "generatedAt": "2026-05-24T06:29:08.865Z",
-  "totalCount": 807,
+  "generatedAt": "2026-05-24T07:13:21.730Z",
+  "totalCount": 808,
   "byRole": {
-    "CEO": 81,
+    "CEO": 80,
     "Staff": 0,
-    "Bot": 726
+    "Bot": 728
   },
   "items": [
+    {
+      "at": "2026-05-24T07:30:00+00:00",
+      "by": "🤖 Claude (자율 진행)",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "",
+      "note": "기존 action_logs 활용으로 audit_log 신설 회피, is_owner() 활용. 실제 저장소 구조(_admin/, sql/)에 맞춰 files_changed 정정.",
+      "target_type": "task",
+      "target_id": "BL-INVOICE-003",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-24T07:13:01Z",
+      "by": "👤 이지형 (CEO 결정 → Claude 실행)",
+      "role": "CEO",
+      "source": "git commit",
+      "action": "feat(BL-INVOICE-003): Supabase 스키마 신설 (company_info / payment_accounts / audit-helper) [step:done:1]",
+      "target_type": "commit",
+      "target_id": "3a276e6",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-24T06:29:11Z",
+      "by": "🤖 scan-bot",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "[scan-bot] chat-log index 자동 갱신 [변경사유: chat-log 파일 또는 tasks.json 변경 → byCommit/byTask 매핑 재구축]",
+      "target_type": "commit",
+      "target_id": "b2f8c2c",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-24T06:29:09Z",
+      "by": "🤖 activity-bot",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "[activity-bot] activity-feed 3-Layer 자동 갱신 (총 807건)",
+      "target_type": "commit",
+      "target_id": "9c10351",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-24T06:29:06Z",
+      "by": "🤖 health-bot",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "[health-bot] _health.json 갱신 (overall=yellow)",
+      "target_type": "commit",
+      "target_id": "55641fc",
+      "project": "TW B2B"
+    },
     {
       "at": "2026-05-24T06:28:51Z",
       "by": "👤 이지형 (CEO 결정 → Claude 실행)",
@@ -1892,26 +1943,6 @@
       "project": "TW B2B"
     },
     {
-      "at": "2026-05-24T01:36:56Z",
-      "by": "🤖 sync-bot",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "[sync-bot] tasks.json → MD/Gallery 자동 동기화",
-      "target_type": "commit",
-      "target_id": "0f2154f",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-24T01:36:54Z",
-      "by": "🤖 auto-detect-bot",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "[auto-detect-bot] commit message → 작업 status 자동 갱신",
-      "target_type": "commit",
-      "target_id": "7a43d56",
-      "project": "TW B2B"
-    },
-    {
       "at": "2026-05-24T01:36:54+00:00",
       "by": "🤖 auto-detect-bot",
       "role": "Bot",
@@ -1920,26 +1951,6 @@
       "note": "pingpong(BL-INVOICE-001): turn → claude",
       "target_type": "task",
       "target_id": "BL-INVOICE-001",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-24T10:36:44+09:00",
-      "by": "👤 이지형 (CEO)",
-      "role": "CEO",
-      "source": "git commit",
-      "action": "pingpong(BL-INVOICE-001): turn → claude",
-      "target_type": "commit",
-      "target_id": "b5a2dbd",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-24T10:36:43+09:00",
-      "by": "👤 이지형 (CEO)",
-      "role": "CEO",
-      "source": "git commit",
-      "action": "pingpong(BL-INVOICE-001): round 4 ceo",
-      "target_type": "commit",
-      "target_id": "4647d46",
       "project": "TW B2B"
     },
     {
@@ -3406,13 +3417,21 @@
       "project": "TW B2B"
     },
     {
-      "at": "2026-05-09T00:00:00Z",
+      "at": "2026-05-04T00:00:00Z",
       "by": "👤 이지형 (CEO)",
       "role": "CEO",
-      "source": "DECISIONS.md",
-      "action": "D-023: BL-ACTIVITY-FEED-CLEANUP — 봇 commit 클릭 시 사람용 탭 빈 메시지 정석 fix  2026-05-09",
-      "target_type": "decision",
-      "target_id": "D-023",
+      "source": "ECHO_LOG.md",
+      "action": "[DECISION] BL-HUB-RETIRE 완료 ⭐⭐⭐ — admin-hub 폐기, 사이드바 = 라우팅 / admin-status = 통합 진입점",
+      "target_type": "echo",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-04T00:00:00Z",
+      "by": "👤 이지형 (CEO)",
+      "role": "CEO",
+      "source": "ECHO_LOG.md",
+      "action": "[DECISION] BL-CHAT-LOG-SYSTEM Phase 1 — chat-logs 인프라 + 백필 4개 (D-014)",
+      "target_type": "echo",
       "project": "TW B2B"
     },
     {
@@ -3520,24 +3539,6 @@
       "role": "CEO",
       "source": "ECHO_LOG.md",
       "action": "[DECISION] BL-PAGE-DEDUP 완료 ⭐⭐⭐ — \"하나에서 전체 관리\" 헌법 지시 충족",
-      "target_type": "echo",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-04T00:00:00Z",
-      "by": "👤 이지형 (CEO)",
-      "role": "CEO",
-      "source": "ECHO_LOG.md",
-      "action": "[DECISION] BL-HUB-RETIRE 완료 ⭐⭐⭐ — admin-hub 폐기, 사이드바 = 라우팅 / admin-status = 통합 진입점",
-      "target_type": "echo",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-05-04T00:00:00Z",
-      "by": "👤 이지형 (CEO)",
-      "role": "CEO",
-      "source": "ECHO_LOG.md",
-      "action": "[DECISION] BL-CHAT-LOG-SYSTEM Phase 1 — chat-logs 인프라 + 백필 4개 (D-014)",
       "target_type": "echo",
       "project": "TW B2B"
     },
@@ -7217,6 +7218,16 @@
       "action": "D-021: BL-ADMIN-AUTH-PERF — Edge Middleware 단일 게이트 (A-2 정석)  2026-05-09",
       "target_type": "decision",
       "target_id": "D-021",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-05-09T00:00:00Z",
+      "by": "👤 이지형 (CEO)",
+      "role": "CEO",
+      "source": "DECISIONS.md",
+      "action": "D-023: BL-ACTIVITY-FEED-CLEANUP — 봇 commit 클릭 시 사람용 탭 빈 메시지 정석 fix  2026-05-09",
+      "target_type": "decision",
+      "target_id": "D-023",
       "project": "TW B2B"
     },
     {

@@ -1430,6 +1430,7 @@
       <button id="btn-i18n" title="언어 토글 — 다음 주 i18n 일괄 적용 예정">🌐 EN/KO</button>
       <button id="btn-skin-toggle" title="Admin Skin — 다크/라이트 토글 (BL-OS-PHASE-3)">🌓 다크/라이트</button>
       <button id="btn-rescan" title="다시 측정 — 수동 트리거">🔄 다시 측정</button>
+      <button id="btn-system-manual" title="시스템 매뉴얼 — 새 채팅 클로드용 전체 지도 (BL-SYSTEM-MANUAL-AUTOGEN)" onclick="openSystemManual()" style="background:linear-gradient(135deg,#0ea5e9,#0284c7);color:#fff;border:none;font-weight:600;">📖 시스템 매뉴얼</button>
       <button id="btn-quick-task" title="빠른 작업 입력 — 한 줄 적으면 자동으로 BL 생성 (BL-DECISION-MODAL-PINGPONG step11)" style="background:linear-gradient(135deg,#a855f7,#7c3aed);color:#fff;border:none;font-weight:600;">✏️ 새 작업 박기</button>
       <a href="/admin.html" style="text-decoration:none;"><button>← Admin</button></a>
     </div>
@@ -9169,6 +9170,99 @@ ${task.title}
 
 <!-- 🔗 BL-3WAY-LINK-CARDS (2026-05-11): 연동 하이라이트 해제 배너 -->
 <div class="link-clear-banner" id="link-clear-banner" title="연동 하이라이트 해제">🔗 연동 보는 중 — 클릭 = 해제</div>
+
+<!-- ═══ 📖 BL-SYSTEM-MANUAL-AUTOGEN: 시스템 매뉴얼 모달 ═══ -->
+<div id="system-manual-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:99999;overflow:auto;padding:20px;" onclick="if(event.target===this)closeSystemManual()">
+  <div style="max-width:1000px;margin:20px auto;background:#0f172a;border:1px solid rgba(99,102,241,0.4);border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,0.5);">
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 24px;border-bottom:1px solid rgba(148,163,184,0.2);position:sticky;top:0;background:#0f172a;border-radius:12px 12px 0 0;z-index:10;">
+      <h2 style="margin:0;font-size:18px;color:#e2e8f0;">📖 TW B2B 시스템 매뉴얼 <small style="font-size:11px;color:#94a3b8;font-weight:400;">(새 채팅 클로드용 단일 진실 지도)</small></h2>
+      <div style="display:flex;gap:8px;">
+        <a id="manual-github-link" href="https://github.com/dgmasters01/tw-b2b/blob/main/_os/service-map.md" target="_blank" style="background:#1e293b;color:#94a3b8;padding:6px 12px;border-radius:6px;text-decoration:none;font-size:12px;border:1px solid rgba(148,163,184,0.2);">🔗 GitHub 원본</a>
+        <a id="manual-raw-link" href="https://raw.githubusercontent.com/dgmasters01/tw-b2b/main/_os/service-map.md" target="_blank" style="background:#1e293b;color:#94a3b8;padding:6px 12px;border-radius:6px;text-decoration:none;font-size:12px;border:1px solid rgba(148,163,184,0.2);" title="새 채팅 클로드한테 이 URL 한 줄 주면 됨">📋 raw URL</a>
+        <button onclick="closeSystemManual()" style="background:#ef4444;color:#fff;border:none;padding:6px 14px;border-radius:6px;cursor:pointer;font-weight:600;">✕ 닫기</button>
+      </div>
+    </div>
+    <div id="manual-content" style="padding:24px;color:#cbd5e1;font-size:13px;line-height:1.6;max-height:calc(100vh - 120px);overflow-y:auto;">
+      <div style="text-align:center;padding:40px;color:#94a3b8;">📖 매뉴얼 로딩 중…</div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // BL-SYSTEM-MANUAL-AUTOGEN: 시스템 매뉴얼 1클릭 열기
+  async function openSystemManual() {
+    const modal = document.getElementById('system-manual-modal');
+    const content = document.getElementById('manual-content');
+    modal.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+    
+    try {
+      const res = await fetch('https://raw.githubusercontent.com/dgmasters01/tw-b2b/main/_os/service-map.md?t=' + Date.now());
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const md = await res.text();
+      
+      // 간단 마크다운 → HTML 변환 (헤더, 표, 코드블록만)
+      let html = md
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/```yaml([\s\S]*?)```/g, '<pre style="background:#020617;border:1px solid rgba(99,102,241,0.3);border-radius:6px;padding:12px;overflow-x:auto;color:#a78bfa;font-size:11px;">$1</pre>')
+        .replace(/```([\s\S]*?)```/g, '<pre style="background:#020617;border:1px solid rgba(148,163,184,0.2);border-radius:6px;padding:12px;overflow-x:auto;color:#94a3b8;font-size:11px;">$1</pre>')
+        .replace(/^### (.+)$/gm, '<h3 style="color:#a78bfa;margin-top:20px;font-size:15px;">$1</h3>')
+        .replace(/^## (.+)$/gm, '<h2 style="color:#60a5fa;margin-top:24px;padding-top:16px;border-top:1px solid rgba(148,163,184,0.15);font-size:17px;">$1</h2>')
+        .replace(/^# (.+)$/gm, '<h1 style="color:#e2e8f0;font-size:20px;">$1</h1>')
+        .replace(/`([^`\n]+)`/g, '<code style="background:#1e293b;padding:2px 6px;border-radius:3px;color:#fbbf24;font-size:12px;">$1</code>')
+        .replace(/\*\*([^*\n]+)\*\*/g, '<strong style="color:#f1f5f9;">$1</strong>')
+        .replace(/^> (.+)$/gm, '<blockquote style="border-left:3px solid #f59e0b;padding:8px 14px;margin:10px 0;background:rgba(245,158,11,0.05);color:#fbbf24;">$1</blockquote>');
+      
+      // 마크다운 표 변환
+      const lines = html.split('\n');
+      const out = [];
+      let inTable = false;
+      let tableBuf = [];
+      for (const line of lines) {
+        if (/^\|.*\|$/.test(line)) {
+          if (!inTable) { inTable = true; tableBuf = []; }
+          tableBuf.push(line);
+        } else {
+          if (inTable && tableBuf.length >= 2) {
+            // 표 렌더
+            const rows = tableBuf.filter(l => !/^\|[\s\-:|]+\|$/.test(l));
+            let t = '<table style="width:100%;border-collapse:collapse;margin:12px 0;font-size:12px;">';
+            rows.forEach((r, i) => {
+              const cells = r.split('|').slice(1, -1).map(c => c.trim());
+              const tag = i === 0 ? 'th' : 'td';
+              const bg = i === 0 ? 'background:#1e293b;color:#a78bfa;' : 'background:rgba(15,23,42,0.5);color:#cbd5e1;';
+              t += '<tr>' + cells.map(c => `<${tag} style="border:1px solid rgba(148,163,184,0.2);padding:6px 10px;${bg}">${c}</${tag}>`).join('') + '</tr>';
+            });
+            t += '</table>';
+            out.push(t);
+            inTable = false;
+            tableBuf = [];
+          }
+          if (!inTable) out.push(line);
+        }
+      }
+      if (inTable && tableBuf.length) out.push(...tableBuf);
+      html = out.join('\n').replace(/\n\n+/g, '<br><br>').replace(/\n/g, '<br>');
+      
+      content.innerHTML = html;
+    } catch (e) {
+      content.innerHTML = `<div style="color:#ef4444;padding:20px;">매뉴얼 로딩 실패: ${e.message}<br><br>대신 <a href="https://github.com/dgmasters01/tw-b2b/blob/main/_os/service-map.md" target="_blank" style="color:#60a5fa;">GitHub에서 직접 열기</a></div>`;
+    }
+  }
+  
+  function closeSystemManual() {
+    document.getElementById('system-manual-modal').style.display = 'none';
+    document.body.style.overflow = '';
+  }
+  
+  // ESC 키로 닫기
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && document.getElementById('system-manual-modal').style.display === 'block') {
+      closeSystemManual();
+    }
+  });
+</script>
+<!-- ═══ End BL-SYSTEM-MANUAL-AUTOGEN ═══ -->
 
 </body>
 <!-- BL-SCAN-CRON-DEAD-FIX 단계 5 라이브 트리거 검증 (2026-05-11) -->

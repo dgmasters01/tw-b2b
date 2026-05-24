@@ -22,6 +22,7 @@
 // 통합 전 운영 4개 파일은 _backup_20260429/ 폴더에 보존됨.
 
 import adminAuthHandler from './_lib/admin-auth-handlers.js';
+import { getFxRate } from './_lib/fx.js';
 
 const SUPABASE_URL = process.env.SUPABASE_URL || 'https://vjsludfjsphwnumuoqaj.supabase.co';
 const RESEND_ENDPOINT = 'https://api.resend.com/emails';
@@ -2443,6 +2444,43 @@ async function handleInvoiceGetAuditLog(req, res, serviceKey, admin) {
 }
 
 
+// =============================================================
+// BL-INVOICE-001 단계 3 — 환율 조회 (한국수출입은행 + fx_snapshots 캐시)
+// =============================================================
+// 모든 admin SELECT 가능 (인보이스 발행 시 fx hit).
+// owner는 admin-status에서 환율 상태 점검 가능.
+// =============================================================
+async function handleInvoiceGetFxRate(req, res, serviceKey, admin) {
+  if (req.method !== 'GET' && req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  try {
+    const fxResult = await getFxRate(SUPABASE_URL, serviceKey, 'USD');
+
+    return res.status(200).json({
+      success: true,
+      rate: fxResult.rate,
+      base_currency: 'USD',
+      quote_currency: 'KRW',
+      source: fxResult.source,
+      snapshot_date: fxResult.snapshot_date,
+      snapshot_id: fxResult.snapshot_id,
+      is_fallback: fxResult.is_fallback,
+      // 100 USD 기준 표시 문구 (UI 미리보기용)
+      sample_display_note: fxResult.display_note_template(100),
+      // 디버그 정보
+      api_key_present: !!process.env.KOREAEXIM_API_KEY
+    });
+  } catch (e) {
+    return res.status(500).json({
+      error: 'fx_fetch_failed',
+      message: e.message
+    });
+  }
+}
+
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -2474,7 +2512,7 @@ export default async function handler(req, res) {
   }
 
   // 화이트리스트 검증을 인증보다 먼저 수행 → 디버깅 시 라우팅 문제와 인증 문제를 명확히 분리
-  const ALLOWED_ACTIONS = ['booking-upload', 'list-users', 'send-invite', 'update-match', 'start-task', 'past-video-revenue', 'manager-push', 'delete-user', 'change-role', 're-verify', 'update-hotel-status', 'refund-hotel', 'invoice-get-company-info', 'invoice-update-company-info', 'invoice-get-payment-accounts', 'invoice-update-payment-accounts', 'invoice-upload-asset', 'invoice-get-asset-url', 'invoice-get-audit-log'];
+  const ALLOWED_ACTIONS = ['booking-upload', 'list-users', 'send-invite', 'update-match', 'start-task', 'past-video-revenue', 'manager-push', 'delete-user', 'change-role', 're-verify', 'update-hotel-status', 'refund-hotel', 'invoice-get-company-info', 'invoice-update-company-info', 'invoice-get-payment-accounts', 'invoice-update-payment-accounts', 'invoice-upload-asset', 'invoice-get-asset-url', 'invoice-get-audit-log', 'invoice-get-fx-rate'];
   if (!action) {
     return res.status(400).json({
       error: 'missing_action',
@@ -2568,6 +2606,9 @@ export default async function handler(req, res) {
         return actionResult;
       case 'invoice-get-audit-log':
         actionResult = await handleInvoiceGetAuditLog(req, res, serviceKey, adminCheck);
+        return actionResult;
+      case 'invoice-get-fx-rate':
+        actionResult = await handleInvoiceGetFxRate(req, res, serviceKey, adminCheck);
         return actionResult;
       default:
         // unreachable: 위에서 화이트리스트로 이미 차단됨

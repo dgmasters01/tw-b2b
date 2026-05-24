@@ -41,7 +41,15 @@
 | D-019 | admin-status.html 중복 3중 정리 + 작업 지휘소 통합 — ③·⑥·⑦ 제거 | infra | 2026-05-08 | 확정 | BL-DEDUP-CONSOLIDATE (8단계), BL-URGENT-CARD-FLOW 흡수 |
 | D-020 | 헌법 자가 검증에 사전 안전장치 3개(북극성/중복점검/한채팅한결정) — 방향 상실 방지 | policy | 2026-05-08 | 확정 | OPERATIONS_CHARTER.md 11조 자가검증, _os/boot.md 5-A |
 | D-021 | BL-ADMIN-AUTH-PERF — Edge Middleware 단일 게이트 (A-2 정석, Hobby 12 한도 회피) | infra | 2026-05-09 | 확정 | middleware.ts(신규), admin-* 12개 페이지 인증 코드 제거 (2편) |
+| D-022 | BL-ADMIN-LIGHTMODE — 다크/라이트 토큰 한 쌍 + 사이드바 토글 + OS 따라가기 | ux | 2026-05-10 | 확정 | BL-ADMIN-LIGHTMODE, shared.css 토큰 매핑 |
+| D-023 | BL-CLAUDE-DISCIPLINE — 헌법 부칙 16 신설 + 인계서 강제 헤더 + 클로드 4개 의무 | policy | 2026-05-10 | 확정 | OPERATIONS_CHARTER.md 부칙 16, `_os/playbook/claude-discipline.md`, `_os/handoff-header.md` |
+| D-024 | BL-BASELINE-AUTO-TASK — 헬스체크 결과를 tasks.json에 자동 등록 | infra | 2026-05-11 | 확정 | BL-BASELINE-AUTO-TASK, `_os/scripts/auto-task-from-health.mjs` |
+| D-025 | BL-003 분할 — A(Agoda Matching=호텔 가입 승인 게이트, P0) + B(Affiliate 엑셀→예약 검증, P1) | strategy | 2026-05-11 | 확정 | BL-003-A, BL-003-B |
+| D-026 | BL-ADMIN-AUTH — A안 2단계 권한 (CEO/Staff) + 로그 3종(접속/실행/admin-status 최근 활동) | policy | 2026-05-11 | 확정 | BL-ADMIN-AUTH |
+| D-027 | BL-ADMIN-AUTH 진행 확정 — D-026 그대로 박음 (대표님 한 마디 확정 단계) | policy | 2026-05-11 | 확정 | BL-ADMIN-AUTH |
 | D-028 | 갤러리 완성도(흐름·카테고리·빈페이지) + BEFORE/AFTER 자동 이력 보관 봇 복구 | infra | 2026-05-12 | 확정 | BL-GALLERY-FLOW-COMPLETENESS, BL-CAPTURE-BOT-RESTORE |
+| D-029 | BL-015 — A안 확정. Playwright 자동 캡처로 admin-status Page Gallery에 BEFORE/AFTER 슬롯 박음 | infra | 2026-05-12 | 확정 | BL-015, BL-CAPTURE-BOT-RESTORE |
+| D-030 | BL-GALLERY-FLOW-COMPLETENESS — 진행 승인. BL-SERVICE-MAP-OS 선행 후 갤러리 작업 흡수 | infra | 2026-05-12 | 확정 | BL-SERVICE-MAP-OS, BL-GALLERY-FLOW-COMPLETENESS |
 | D-031 | "journey" 단어 폐기 — 서비스명(GoHotel) 접두사로 통일 (Claude 자율 결정) | infra | 2026-05-13 | 확정 | BL-RENAME-GOHOTEL, JOURNEY.md→GOHOTEL_FLOW.md, 13곳 일괄 변경 |
 | D-032 | 동남아 1차 타겟 명시 + 영어 default 메일 + 국가 필드 필수 | strategy | 2026-05-13 | 확정 | BL-SIGNUP-COUNTRY-FIELD, BL-EMAIL-LOCALE-ROUTING, BL-ADMIN-COUNTRY-FILTER |
 | D-033 | 환불·취소 정책 명확화 + 영수증 5년 영구 보관 | policy | 2026-05-13 | 확정 | BL-REFUND-FLOW, BL-RECEIPT-ARCHIVE |
@@ -50,6 +58,7 @@
 | D-036 | BL-CHATLOG-BIZ-FORMAT — C안 + 검증 봇 (헌법 손 안 댐, 워닝만) | infra | 2026-05-12 | 확정 | BL-CHATLOG-BIZ-FORMAT |
 | D-037 | BL-URGENT-CARD-FLOW — A안 통합 모달 (인계서/결정/핑퐁 분리 X) | infra | 2026-05-13 | 확정 | BL-URGENT-CARD-FLOW |
 | D-038 | BL-AGODA-TOS-CHECK — Agoda 약관 검토 완료, D-035 그대로 진행 (4중 안전 구조) | policy | 2026-05-13 | 확정 | BL-AGODA-TOS-CHECK done, BL-SIGNUP-ENRICHMENT 설계 기준 |
+| D-039 | BL-PAGE-ROLES-SPLIT — admin-status(시스템 완성도) vs admin.html(운영 대시보드) 책임 분리 | infra | 2026-05-15 | 확정 | BL-PAGE-ROLES-SPLIT, `_os/playbook/page-roles.md` |
 | D-047 | BL-INVOICE-001 핑퐁 15라운드 합의 — 인보이스 번호 국가별 분리(INV-KR/INT) + 발행 권한 super_admin 1인 + 도장·서명 admin 업로드 구조 | feature | 2026-05-24 | 확정 | BL-INVOICE-001, BL-INVOICE-002, BL-INVOICE-003, `_os/playbook/invoice-system.md` |
 | D-048 | BL-INVOICE-SYSTEM-DOCS — 인보이스 시스템 사업 정책 단일 진실원 문서화(`_os/playbook/invoice-system.md`) + 3개 BL 분담 확정(003 선결 → 001 → 002) + BL-INVOICE-001 progress 12단계 박힘(부칙 7 해소) | policy | 2026-05-24 | 확정 | `_os/playbook/invoice-system.md`, BL-INVOICE-001/002/003, `tasks.json` |
 
@@ -94,5 +103,6 @@
 | 2026-05-04 | D-013 등록 (admin-hub.html 폐기 + D-010 카테고리 0 이관 개정) |
 | 2026-05-04 | D-014 등록 (chat-logs 시스템 — 사람용+AI용 이중 형식 강제 + 인증 게이트) |
 | 2026-05-12 | D-028 등록 (갤러리 완성도 + BEFORE/AFTER 자동 이력 — 대표님 매니저 체험 중 발견) |
+| 2026-05-24 | D-022~D-027 + D-029 + D-030 + D-039 9건 누락분 소급 등록 (자율 진행 중 INDEX-DECISIONS 동기화 검증 후 보강) |
 | 2026-05-24 | D-047 등록 (BL-INVOICE-001 핑퐁 15라운드 합의 본체 — 인덱스 누락분 소급 등록) |
 | 2026-05-24 | D-048 등록 (인보이스 시스템 단일 진실원 `_os/playbook/invoice-system.md` 신설 + 3개 BL 분담 확정) |

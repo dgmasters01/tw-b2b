@@ -15,6 +15,9 @@
 // ════════════════════════════════════════════════════════════════════════════
 
 import { getFxRate } from './_lib/fx.js';
+import React from 'react';
+import { renderToStream } from '@react-pdf/renderer';
+import InvoicePdf from '../components/invoice/InvoicePdf.js';
 
 const SUPABASE_URL = process.env.SUPABASE_URL || 'https://vjsludfjsphwnumuoqaj.supabase.co';
 
@@ -402,10 +405,367 @@ async function handleIssue(req, res, serviceKey, admin) {
 }
 
 // ────────────────────────────────────────────────────────────────────────────
-// 단계 5+ — pdf / get / void / list (placeholder, 다음 단계에서 박힘)
+// 단계 5 — handleGet (인보이스 메타 조회, 라이브 미리보기용)
+// ────────────────────────────────────────────────────────────────────────────
+// 입력: ?id=<invoice_uuid> 또는 ?invoice_number=<INV-XX-YYYY-NNNN>
+// 권한: admin (owner/admin/staff) 전부 + 매니저 본인 (invoices.user_id === auth.uid())
+// 반환: invoice 한 행 + 부가 정보 (company_info, payment_accounts 일부, signed PDF URL)
+// ────────────────────────────────────────────────────────────────────────────
+async function handleGet(req, res, serviceKey, admin) {
+  if (req.method !== 'GET') {
+    return res.status(405).json({ error: 'method_not_allowed', hint: 'GET only' });
+  }
+
+  const id = String(req.query.id || '').trim();
+  const invoiceNumber = String(req.query.invoice_number || '').trim();
+  if (!id && !invoiceNumber) {
+    return res.status(400).json({ error: 'missing_id_or_invoice_number' });
+  }
+
+  // 1) 인보이스 fetch
+  const filter = id
+    ? 'id=eq.' + encodeURIComponent(id)
+    : 'invoice_number=eq.' + encodeURIComponent(invoiceNumber);
+  const invResp = await fetch(
+    SUPABASE_URL + '/rest/v1/invoices?' + filter + '&select=*',
+    { headers: { 'Authorization': 'Bearer ' + serviceKey, 'apikey': serviceKey } }
+  );
+  if (!invResp.ok) {
+    return res.status(500).json({ error: 'fetch_invoice_failed', detail: await invResp.text() });
+  }
+  const invoices = await invResp.json();
+  if (!Array.isArray(invoices) || invoices.length === 0) {
+    return res.status(404).json({ error: 'invoice_not_found' });
+  }
+  const invoice = invoices[0];
+
+  // 2) 권한 분기 — admin 전부 OK / 본인이면 OK
+  const isAdmin = ['owner', 'admin', 'staff'].includes(admin.role);
+  const isOwnerOfInvoice = invoice.user_id && admin.userId && invoice.user_id === admin.userId;
+  if (!isAdmin && !isOwnerOfInvoice) {
+    return res.status(403).json({ error: 'forbidden', hint: '본인 인보이스 또는 관리자만 조회 가능' });
+  }
+
+  // 3) signed PDF URL (1h) — pdf_storage_path 있을 때만
+  let signedPdfUrl = null;
+  if (invoice.pdf_storage_path) {
+    const sigResp = await fetch(
+      SUPABASE_URL + '/storage/v1/object/sign/invoices/' + invoice.pdf_storage_path,
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + serviceKey,
+          'apikey': serviceKey,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ expiresIn: 3600 })
+      }
+    );
+    if (sigResp.ok) {
+      const sig = await sigResp.json();
+      if (sig.signedURL) {
+        signedPdfUrl = SUPABASE_URL + '/storage/v1' + sig.signedURL;
+      }
+    }
+  }
+
+  return res.status(200).json({
+    success: true,
+    invoice,
+    signed_pdf_url: signedPdfUrl,
+    pdf_available: !!signedPdfUrl,
+    next_step: signedPdfUrl
+      ? 'PDF 다운로드 가능'
+      : 'PDF 미발행 상태 — GET /api/invoice?action=pdf&id=' + invoice.id + ' 호출하여 생성'
+  });
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// 단계 5 — handlePdf (PDF 생성 + Storage 저장 + signed URL 반환)
+// ────────────────────────────────────────────────────────────────────────────
+// 입력: ?id=<invoice_uuid> [&regenerate=true] [&lang=ko|en]
+// 권한: admin 전부 + 매니저 본인
+// 동작:
+//   1) invoice + company_info + payment_accounts fetch
+//   2) 도장·서명 storage path → signed URL → base64 data URL (PDF embed용)
+//   3) React PDF stream → Buffer 변환
+//   4) Supabase Storage 'invoices' 버킷에 'YYYY/INV-XX-YYYY-NNNN.pdf' 업로드
+//   5) invoices.pdf_storage_path 갱신
+//   6) signed URL (1h) 반환
+//
+// regenerate=true 가 아니면 기존 PDF가 있을 때 재생성 안 함 (기존 signed URL만 반환).
+// ────────────────────────────────────────────────────────────────────────────
+async function handlePdf(req, res, serviceKey, admin) {
+  if (req.method !== 'GET') {
+    return res.status(405).json({ error: 'method_not_allowed', hint: 'GET only' });
+  }
+
+  const id = String(req.query.id || '').trim();
+  if (!id) {
+    return res.status(400).json({ error: 'missing_id', hint: '?id=<invoice_uuid>' });
+  }
+  const regenerate = String(req.query.regenerate || '').toLowerCase() === 'true';
+  const langHint = String(req.query.lang || '').toLowerCase();
+  const lang = (langHint === 'ko' || langHint === 'en') ? langHint : null;
+
+  // ───────────────────────────────────────────────
+  // 1) invoice fetch + 권한 검사
+  // ───────────────────────────────────────────────
+  const invResp = await fetch(
+    SUPABASE_URL + '/rest/v1/invoices?id=eq.' + encodeURIComponent(id) + '&select=*',
+    { headers: { 'Authorization': 'Bearer ' + serviceKey, 'apikey': serviceKey } }
+  );
+  if (!invResp.ok) {
+    return res.status(500).json({ error: 'fetch_invoice_failed', detail: await invResp.text() });
+  }
+  const invoices = await invResp.json();
+  if (!Array.isArray(invoices) || invoices.length === 0) {
+    return res.status(404).json({ error: 'invoice_not_found', id });
+  }
+  const invoice = invoices[0];
+
+  const isAdmin = ['owner', 'admin', 'staff'].includes(admin.role);
+  const isOwnerOfInvoice = invoice.user_id && admin.userId && invoice.user_id === admin.userId;
+  if (!isAdmin && !isOwnerOfInvoice) {
+    return res.status(403).json({ error: 'forbidden' });
+  }
+
+  // ───────────────────────────────────────────────
+  // 2) 기존 PDF 있으면 (regenerate=false) 그대로 반환
+  // ───────────────────────────────────────────────
+  if (invoice.pdf_storage_path && !regenerate) {
+    const signedUrl = await createSignedUrl(serviceKey, invoice.pdf_storage_path, 3600);
+    if (signedUrl) {
+      return res.status(200).json({
+        success: true,
+        cached: true,
+        invoice_id: invoice.id,
+        invoice_number: invoice.invoice_number,
+        pdf_storage_path: invoice.pdf_storage_path,
+        signed_url: signedUrl,
+        expires_in: 3600,
+        hint: '재생성하려면 &regenerate=true 추가'
+      });
+    }
+    // signed URL 발급 실패 시 → 재생성 fallback (아래로 떨어짐)
+  }
+
+  // ───────────────────────────────────────────────
+  // 3) company_info + payment_accounts fetch
+  // ───────────────────────────────────────────────
+  const ciResp = await fetch(
+    SUPABASE_URL + '/rest/v1/company_info?id=eq.1&select=*',
+    { headers: { 'Authorization': 'Bearer ' + serviceKey, 'apikey': serviceKey } }
+  );
+  if (!ciResp.ok) {
+    return res.status(500).json({ error: 'fetch_company_info_failed', detail: await ciResp.text() });
+  }
+  const cis = await ciResp.json();
+  const companyInfo = (Array.isArray(cis) && cis.length > 0) ? cis[0] : {
+    legal_entity_en: 'TravelWinners Inc.',
+    legal_entity_ko: '주식회사 여행능력자들',
+    ceo_name_en: 'lee ji hyeong',
+    ceo_name_ko: '이지형',
+    business_number: '',
+    address_en: '',
+    address_ko: '',
+    business_type: '서비스',
+    business_item: '여행, 광고',
+    contact_email: 'partners@gohotelwinners.com',
+  };
+
+  const paResp = await fetch(
+    SUPABASE_URL + '/rest/v1/payment_accounts?select=*&is_active=eq.true',
+    { headers: { 'Authorization': 'Bearer ' + serviceKey, 'apikey': serviceKey } }
+  );
+  const paymentAccounts = paResp.ok ? await paResp.json() : [];
+
+  // ───────────────────────────────────────────────
+  // 4) 도장·서명 fetch → data URL 변환
+  //    invoice-assets 버킷에서 signed URL 발급 → fetch → base64
+  // ───────────────────────────────────────────────
+  let stampDataUrl = null;
+  let signatureDataUrl = null;
+  if (companyInfo.stamp_storage_path) {
+    stampDataUrl = await fetchAssetAsDataUrl(serviceKey, 'invoice-assets', companyInfo.stamp_storage_path);
+  }
+  if (companyInfo.signature_storage_path) {
+    signatureDataUrl = await fetchAssetAsDataUrl(serviceKey, 'invoice-assets', companyInfo.signature_storage_path);
+  }
+
+  // ───────────────────────────────────────────────
+  // 5) React PDF stream → Buffer
+  // ───────────────────────────────────────────────
+  let pdfBuffer;
+  try {
+    const element = React.createElement(InvoicePdf, {
+      invoice,
+      companyInfo,
+      paymentAccounts,
+      stampDataUrl,
+      signatureDataUrl,
+      lang,
+    });
+    const stream = await renderToStream(element);
+    pdfBuffer = await streamToBuffer(stream);
+  } catch (e) {
+    console.error('[invoice/pdf] PDF render failed:', e);
+    return res.status(500).json({
+      error: 'pdf_render_failed',
+      message: e.message,
+      stack: process.env.NODE_ENV === 'development' ? e.stack : undefined
+    });
+  }
+
+  if (!pdfBuffer || pdfBuffer.length === 0) {
+    return res.status(500).json({ error: 'pdf_empty' });
+  }
+
+  // ───────────────────────────────────────────────
+  // 6) Supabase Storage 'invoices' 버킷 업로드
+  //    경로: YYYY/INV-XX-YYYY-NNNN.pdf
+  // ───────────────────────────────────────────────
+  const issuedAt = invoice.issued_at ? new Date(invoice.issued_at) : new Date();
+  const year = issuedAt.getUTCFullYear();
+  const storagePath = `${year}/${invoice.invoice_number}.pdf`;
+
+  const uploadResp = await fetch(
+    SUPABASE_URL + '/storage/v1/object/invoices/' + storagePath,
+    {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer ' + serviceKey,
+        'apikey': serviceKey,
+        'Content-Type': 'application/pdf',
+        'x-upsert': 'true'   // 재생성 시 덮어쓰기
+      },
+      body: pdfBuffer
+    }
+  );
+  if (!uploadResp.ok) {
+    const text = await uploadResp.text();
+    return res.status(500).json({
+      error: 'storage_upload_failed',
+      detail: text,
+      hint: 'invoices 버킷이 존재하는지 확인 (sql/bl-invoice-001-storage-bucket.sql 실행)'
+    });
+  }
+
+  // ───────────────────────────────────────────────
+  // 7) invoices.pdf_storage_path 갱신
+  // ───────────────────────────────────────────────
+  try {
+    await fetch(SUPABASE_URL + '/rest/v1/invoices?id=eq.' + encodeURIComponent(invoice.id), {
+      method: 'PATCH',
+      headers: {
+        'Authorization': 'Bearer ' + serviceKey,
+        'apikey': serviceKey,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        pdf_storage_path: storagePath,
+        updated_at: new Date().toISOString()
+      })
+    });
+  } catch (e) {
+    console.warn('[invoice/pdf] pdf_storage_path 갱신 실패 (업로드는 성공):', e.message);
+  }
+
+  // ───────────────────────────────────────────────
+  // 8) signed URL (1h)
+  // ───────────────────────────────────────────────
+  const signedUrl = await createSignedUrl(serviceKey, storagePath, 3600);
+
+  return res.status(200).json({
+    success: true,
+    cached: false,
+    invoice_id: invoice.id,
+    invoice_number: invoice.invoice_number,
+    pdf_storage_path: storagePath,
+    signed_url: signedUrl,
+    expires_in: 3600,
+    bytes: pdfBuffer.length,
+    lang_used: lang || (invoice.bill_to_country === 'KR' ? 'ko' : 'en'),
+    branch: {
+      country: invoice.bill_to_country,
+      currency: invoice.currency,
+      tax_mode: invoice.tax_mode,
+      status: invoice.status,
+      paid_watermark: invoice.status === 'paid'
+    }
+  });
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// 헬퍼 — Storage signed URL 발급
+// ────────────────────────────────────────────────────────────────────────────
+async function createSignedUrl(serviceKey, storagePath, expiresIn) {
+  const resp = await fetch(
+    SUPABASE_URL + '/storage/v1/object/sign/invoices/' + storagePath,
+    {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer ' + serviceKey,
+        'apikey': serviceKey,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ expiresIn })
+    }
+  );
+  if (!resp.ok) {
+    console.warn('[invoice] createSignedUrl failed:', await resp.text());
+    return null;
+  }
+  const data = await resp.json();
+  if (!data.signedURL) return null;
+  return SUPABASE_URL + '/storage/v1' + data.signedURL;
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// 헬퍼 — 도장·서명 자산을 data URL로 fetch
+// ────────────────────────────────────────────────────────────────────────────
+async function fetchAssetAsDataUrl(serviceKey, bucket, path) {
+  try {
+    const resp = await fetch(
+      SUPABASE_URL + '/storage/v1/object/' + bucket + '/' + path,
+      { headers: { 'Authorization': 'Bearer ' + serviceKey, 'apikey': serviceKey } }
+    );
+    if (!resp.ok) {
+      console.warn(`[invoice] fetch asset failed ${bucket}/${path}:`, resp.status);
+      return null;
+    }
+    const arrayBuffer = await resp.arrayBuffer();
+    const base64 = Buffer.from(arrayBuffer).toString('base64');
+    // MIME 추정
+    const ext = path.split('.').pop().toLowerCase();
+    const mime = ext === 'png' ? 'image/png'
+               : ext === 'jpg' || ext === 'jpeg' ? 'image/jpeg'
+               : ext === 'webp' ? 'image/webp'
+               : 'image/png';
+    return `data:${mime};base64,${base64}`;
+  } catch (e) {
+    console.warn('[invoice] fetchAssetAsDataUrl error:', e.message);
+    return null;
+  }
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// 헬퍼 — Node stream → Buffer
+// ────────────────────────────────────────────────────────────────────────────
+async function streamToBuffer(stream) {
+  return new Promise((resolve, reject) => {
+    const chunks = [];
+    stream.on('data', (chunk) => chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk)));
+    stream.on('end', () => resolve(Buffer.concat(chunks)));
+    stream.on('error', (err) => reject(err));
+  });
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// 단계 5 후속 — void / list (placeholder, 다음 단계에서 박힘)
 // ────────────────────────────────────────────────────────────────────────────
 async function handleNotYetImplemented(action) {
-  return { error: 'not_implemented_yet', action, hint: '단계 5+에서 박힘' };
+  return { error: 'not_implemented_yet', action, hint: '다음 단계에서 박힘' };
 }
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -449,7 +809,9 @@ export default async function handler(req, res) {
       case 'issue':
         return await handleIssue(req, res, serviceKey, adminCheck);
       case 'pdf':
+        return await handlePdf(req, res, serviceKey, adminCheck);
       case 'get':
+        return await handleGet(req, res, serviceKey, adminCheck);
       case 'void':
       case 'list':
         return res.status(501).json(await handleNotYetImplemented(action));

@@ -61,7 +61,7 @@
 | Bank Transfer (USD) | 해외 매니저 | 은행명, SWIFT, IBAN, 계좌번호, 수취인명 |
 | PayPal | 해외 매니저 | PayPal 이메일 |
 
-변경 이력은 audit_log에 자동 기록 (누가/언제/이전값→새값).
+변경 이력은 `action_logs` 테이블에 자동 기록 (누가/언제/이전값→새값). target_type='invoice-settings'로 분리 박아 일반 admin 조작 이력과 구분, SELECT는 owner only.
 
 ### 2.6 인보이스 번호 규칙
 
@@ -345,7 +345,7 @@ invoice_system:
 - admin-settings.html "회사 정보 관리" 탭 신설
 - admin-settings.html "결제 정보 관리" 탭 신설
 - 도장·서명 이미지 업로드 영역 (Supabase Storage)
-- audit_log 변경 이력 자동 기록
+- `action_logs` 활용 변경 이력 자동 기록 (target_type='invoice-settings', owner-only SELECT)
 - super_admin RLS 정책
 
 **의존성:** 없음 (이게 가장 먼저)

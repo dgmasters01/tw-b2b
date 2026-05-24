@@ -3590,34 +3590,33 @@
       "ceo_decision": "",
       "ceo_decision_at": "",
       "files_changed": [
-        "admin-settings.html",
-        "api/settings/company-info.js",
-        "api/settings/payment-accounts.js",
-        "api/settings/upload-stamp.js",
-        "supabase/migrations/company_info_schema.sql",
-        "supabase/migrations/payment_accounts_schema.sql"
+        "_admin/admin-settings.html",
+        "api/admin.js",
+        "sql/bl-invoice-003-company-info.sql",
+        "sql/bl-invoice-003-payment-accounts.sql",
+        "sql/bl-invoice-003-audit-helper.sql"
       ],
       "target_pages": [
-        "/admin-settings.html"
+        "/_admin/admin-settings.html"
       ],
       "progress": {
-        "percent": 0,
+        "percent": 14,
         "steps": [
           {
             "n": 1,
-            "label": "Supabase 스키마 — company_info / payment_accounts / audit_log",
-            "status": "pending",
+            "label": "Supabase 스키마 — company_info / payment_accounts + action_logs 헬퍼 (3 SQL)",
+            "status": "done",
             "title": "Supabase 스키마 신설"
           },
           {
             "n": 2,
-            "label": "admin-settings.html '회사 정보 관리' 탭 신설",
+            "label": "_admin/admin-settings.html '회사 정보 관리' 탭 신설",
             "status": "pending",
             "title": "회사 정보 관리 탭"
           },
           {
             "n": 3,
-            "label": "admin-settings.html '결제 정보 관리' 탭 신설 (KRW/USD/PayPal 3종)",
+            "label": "_admin/admin-settings.html '결제 정보 관리' 탭 신설 (KRW/USD/PayPal 3종)",
             "status": "pending",
             "title": "결제 정보 관리 탭"
           },
@@ -3629,15 +3628,15 @@
           },
           {
             "n": 5,
-            "label": "audit_log 변경 이력 자동 기록 (누가/언제/이전값→새값)",
+            "label": "action_logs 변경 이력 자동 기록 API (누가/언제/이전값→새값)",
             "status": "pending",
-            "title": "audit_log 자동 기록"
+            "title": "변경 이력 API 연결"
           },
           {
             "n": 6,
-            "label": "super_admin RLS 정책 (스리랑카 직원 read-only)",
+            "label": "owner-only RLS 정책 검증 (스리랑카 직원 read-only)",
             "status": "pending",
-            "title": "super_admin RLS"
+            "title": "owner-only RLS 검증"
           },
           {
             "n": 7,
@@ -3653,10 +3652,16 @@
           "event": "신설 (BL-INVOICE-001/002의 선결 의존성)",
           "by": "Claude (자율 진행)",
           "note": "결제 정보·도장·서명 동적 관리 인프라. _os/playbook/invoice-system.md 단일 진실원 참조."
+        },
+        {
+          "at": "2026-05-24T07:30:00+00:00",
+          "event": "step 1 done — SQL 3개 신설 (company_info / payment_accounts / audit-helper)",
+          "by": "Claude (자율 진행)",
+          "note": "기존 action_logs 활용으로 audit_log 신설 회피, is_owner() 활용. 실제 저장소 구조(_admin/, sql/)에 맞춰 files_changed 정정."
         }
       ],
-      "updated_at": "2026-05-24T05:55:53+00:00",
-      "started_at": null
+      "updated_at": "2026-05-24T07:30:00+00:00",
+      "started_at": "2026-05-24T07:00:00+00:00"
     },
     {
       "id": "BL-INVOICE-001",

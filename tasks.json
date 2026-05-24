@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-24T02:13:01+00:00",
+  "updated_at": "2026-05-24T02:13:52+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -3607,6 +3607,13 @@
           "by": "auto-detect-bot",
           "commit": "59b135b",
           "note": "pingpong(BL-INVOICE-001): turn → claude"
+        },
+        {
+          "at": "2026-05-24T02:13:52+00:00",
+          "event": "진행 중 commit 추가",
+          "by": "auto-detect-bot",
+          "commit": "db61961",
+          "note": "feat(BL-INVOICE-001): 결정 확정 D-047 — pending → in_progress"
         }
       ],
       "source": "BUSINESS.md 15-A 통찰 7 + JOURNEY.md D단계",
@@ -3639,9 +3646,16 @@
       ],
       "pingpong_turn": "done",
       "pingpong_rounds": 15,
-      "updated_at": "2026-05-24T02:13:01+00:00",
+      "updated_at": "2026-05-24T02:13:52+00:00",
       "decision_summary": "3가지 모두 확정합니다. ①인보이스 번호 규칙은 정석으로 INV-KR-2026-0001(한국, KRW) / INV-INT-2026-0001(해외, USD) 국가별 분리 + 연도별 리셋 방식으로 박고, Credit Note(전체 취소 시 발행)는 CN-KR-2026-0001 / CN-INT-2026-0001로 동일 체계 유지 — 세무 신고 시 한국분/해외분 구분이 자동으로 되어 관리가 깔끔합니다 ②발행 권한은 대표님(role: super_admin) 1인 단독 발행, 스리랑카 직원은 admin-invoices 페이지 \"조회 권한(read-only)\"만 부여 — 영수증·인보이스 발행 버튼은 super_admin 권한에서만 활성화되도록 RLS 정책으로 시스템 단 차단 ③도장·서명 이미지는 admin-settings.html \"회사 정보 관리\" 탭에 업로드 영역을 미리 만들어 두고, 대표님이 이미지 파일 준비되면 그때 업로드만 누르면 즉시 차기 인보이스부터 PDF 우측 하단에 자동 박히는 구조 — 업로드 전엔 텍스트로 \"(주)여행능력자들 / 대표 이지형\" 서명란만 표시되고 이미지 업로드 후엔 이미지로 교체됩니다. 이제 BL-INVOICE-001 ~ 003 모든 사업 정책 그림이 맞춰졌고, 다음 단계로 _os/playbook에 invoice-system.md 정책 문서 작성 + tasks.json에 3개 백로그 박는 작업으로 넘어가면 됩니다.",
-      "started_at": "2026-05-24T02:13:37.901Z"
+      "started_at": "2026-05-24T02:13:37.901Z",
+      "progress_warning": {
+        "code": "MISSING_PROGRESS_STEPS",
+        "rule": "부칙 7 — 모든 작업은 progress.steps 박은 후 시작",
+        "detected_at": "2026-05-24T02:13:52+00:00",
+        "detected_by_commit": "db61961",
+        "message": "in_progress 도중 progress.steps 미박힘 감지."
+      }
     },
     {
       "id": "BL-JOURNEY-DOC",

@@ -43,17 +43,7 @@
 
 ---
 
-### B. 🟢 AUTO — [결제 정보 마스터 관리] admin-settings 회사 정보·계좌·도장·서명 수정 가능
-
-**ID**: `BL-INVOICE-003`  
-**카테고리**: infra  
-**예상 시간**: 3시간  
-
-**메모**: 인보이스 시스템의 모든 동적 정보(회사 정보·결제 계좌·도장·서명 이미지)를 코드 하드코딩 없이 admin에서 수정 가능하게. BL-INVOICE-001/002의 선결 의존성. audit_log로 변경 이력 자동 기록. super_admin RLS 정책으로 시스템 단 권한 차단.
-
----
-
-### C. 🟢 AUTO — [인보이스/영수증 PDF 자동 생성·다운로드] 영구 보관 (1년+)
+### B. 🟢 AUTO — [인보이스/영수증 PDF 자동 생성·다운로드] 영구 보관 (1년+)
 
 **ID**: `BL-INVOICE-001`  
 **카테고리**: feature  
@@ -67,7 +57,7 @@
 
 ---
 
-### D. 🟢 AUTO — [한국 업체 수동 입금 정리 시스템] admin-invoices 페이지 + 텔레그램 4단계 알림
+### C. 🟢 AUTO — [한국 업체 수동 입금 정리 시스템] admin-invoices 페이지 + 텔레그램 4단계 알림
 
 **ID**: `BL-INVOICE-002`  
 **카테고리**: feature  
@@ -77,7 +67,7 @@
 
 ---
 
-### E. 🟢 AUTO — Agoda 예약검증 페이지 — Affiliate 엑셀 업로드 → 호텔별 매출 자동 정리
+### D. 🟢 AUTO — Agoda 예약검증 페이지 — Affiliate 엑셀 업로드 → 호텔별 매출 자동 정리
 
 **ID**: `BL-003-B`  
 **카테고리**: feature  
@@ -87,7 +77,7 @@
 
 ---
 
-### F. 🟢 AUTO — [건강검진 사람 말] 점검 결과를 사업가 언어로 풀어줌
+### E. 🟢 AUTO — [건강검진 사람 말] 점검 결과를 사업가 언어로 풀어줌
 
 **ID**: `BL-BASELINE-HUMAN-LANG`  
 **카테고리**: ux  
@@ -99,7 +89,7 @@
 
 ---
 
-### G. 🟢 AUTO — [결정 → 페이지 → 작업 흐름 시각화] 대표님 판단 도구
+### F. 🟢 AUTO — [결정 → 페이지 → 작업 흐름 시각화] 대표님 판단 도구
 
 **ID**: `BL-DEPENDENCY-GRAPH`  
 **카테고리**: ux  
@@ -111,7 +101,7 @@
 
 ---
 
-### H. 🟢 AUTO — [일일 건강 카드] 위 4개(사람말 + 자동등록 + 지도 + 의존성)를 한 줄로 압축
+### G. 🟢 AUTO — [일일 건강 카드] 위 4개(사람말 + 자동등록 + 지도 + 의존성)를 한 줄로 압축
 
 **ID**: `BL-DAILY-HEALTH-CARD`  
 **카테고리**: ux  
@@ -124,7 +114,7 @@
 
 ---
 
-### I. 🟡 SEMI — OS 설치 시 PAT/시크릿 자동 박기 흐름 — install_os.sh 보강
+### H. 🟡 SEMI — OS 설치 시 PAT/시크릿 자동 박기 흐름 — install_os.sh 보강
 
 **ID**: `BL-OS-INSTALL-PAT-FLOW`  
 **카테고리**: infra  
@@ -136,7 +126,7 @@
 
 ---
 
-### J. 🟡 SEMI — [호텔 상세 페이지 + 커뮤니케이션 이력] 매니저/호텔 분리 + 1:1 문의·메일·메모 타임라인
+### I. 🟡 SEMI — [호텔 상세 페이지 + 커뮤니케이션 이력] 매니저/호텔 분리 + 1:1 문의·메일·메모 타임라인
 
 **ID**: `BL-HOTEL-DETAIL-PAGE`  
 **카테고리**: feature  
@@ -146,7 +136,7 @@
 
 ---
 
-### K. 🟡 SEMI — [매출 차트 토글] 일/주/월/분기/년 보기 + 전월비/전년비 — booking-analytics 보강
+### J. 🟡 SEMI — [매출 차트 토글] 일/주/월/분기/년 보기 + 전월비/전년비 — booking-analytics 보강
 
 **ID**: `BL-REVENUE-DASHBOARD`  
 **카테고리**: analytics  
@@ -156,7 +146,7 @@
 
 ---
 
-### L. 🟡 SEMI — [재계약 관리 탭] D-30 임박 호텔 + 저성과 호텔(매출 $200 미만) 자동 추출
+### K. 🟡 SEMI — [재계약 관리 탭] D-30 임박 호텔 + 저성과 호텔(매출 $200 미만) 자동 추출
 
 **ID**: `BL-RENEWAL-WATCH`  
 **카테고리**: feature  
@@ -166,7 +156,7 @@
 
 ---
 
-### M. 🟡 SEMI — [환불 관리 탭] PayPal Refund API 연동 + 환불 이력 영구 보관
+### L. 🟡 SEMI — [환불 관리 탭] PayPal Refund API 연동 + 환불 이력 영구 보관
 
 **ID**: `BL-REFUND-FLOW`  
 **카테고리**: feature  
@@ -176,7 +166,7 @@
 
 ---
 
-### N. 🟡 SEMI — [가입 시 국가 선택 필수] 동남아 7개국 상단 노출
+### M. 🟡 SEMI — [가입 시 국가 선택 필수] 동남아 7개국 상단 노출
 
 **ID**: `BL-SIGNUP-COUNTRY-FIELD`  
 **카테고리**: feature  
@@ -186,7 +176,7 @@
 
 ---
 
-### O. 🟡 SEMI — [자동 메일 12개 영어 default] 한국 매니저만 한국어 분기
+### N. 🟡 SEMI — [자동 메일 12개 영어 default] 한국 매니저만 한국어 분기
 
 **ID**: `BL-EMAIL-LOCALE-ROUTING`  
 **카테고리**: feature  

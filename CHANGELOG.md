@@ -297,6 +297,19 @@
 
 ---
 
+## 2026-05-24 (Charter-v2) — [회계세무-필수] [결제 정보 마스터 관리] admin-settings 회사 정보·계좌·도장·서명 수정 가능
+
+### 변경 파일
+- `_admin/admin-settings.html`
+- `api/admin.js`
+- `sql/bl-invoice-003-company-info.sql`
+- `sql/bl-invoice-003-payment-accounts.sql`
+- `sql/bl-invoice-003-audit-helper.sql`
+
+**요약**: 인보이스 시스템의 모든 동적 정보(회사 정보·결제 계좌·도장·서명 이미지)를 코드 하드코딩 없이 admin에서 수정 가능하게. BL-INVOICE-001/002의 선결 의존성. audit_log로 변경 이력 자동 기록. super_admin RLS 정책으로 시스템 단 권한 차단.
+
+---
+
 ## 2026-05-04 (Charter-v2) — [헌법부칙5-비즈니스독스] [JOURNEY.md 매니저 여정 정리] 비즈니스 독스 카테고리 강화
 
 ### 변경 파일

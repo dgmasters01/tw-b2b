@@ -475,18 +475,6 @@
 
 ---
 
-## 🟢 P2 — 활동이력 — 봇 commit 클릭 시 사람용 탭 노출 결함 fix
-
-**요약**: 결함: 봇 commit (예: auto-detect-bot, charter-length-bot)은 사람용 narrative가 없는데, 활동이력 모달이 default로 사람용 탭을 띄움 → 사용자에게 빈 모달처럼 보임. 정석: 봇 출처 commit은 AI raw 탭을 default로 (또는 사람용 탭 자동 hide).
-
-- **자율성**: 🟢 AUTO
-- **예상 시간**: 0.5시간
-- **카테고리**: bug
-- **상태**: pending
-- **ID**: `BL-ACTIVITY-MODAL-BOT-FIX` (출처: 대표님 발견 — 자동 봇이 박은 commit (auto-detect-bot 등) 클릭 시 모달이 사람용 설명 탭을 default로 보여주는데, 봇 commit은 사람용 설명이 없어 빈 화면 또는 깨진 표시.)
-
----
-
 ## 🟢 P2 — 작업 시작 시 progress.steps 미박힘 자동 감지·자동 채움 + step:done:N 범위 자동 검증
 
 **요약**: 정석: 헌법 부칙 7(단계 단위 commit) + 시행령 5번(무인 검증) 통합. 봇이 자동 강제. 사람이 매번 박는 게 아님. BL-ADMIN-AUTH-PERF의 progress_warning(MISSING_PROGRESS_STEPS) 트리거가 이미 있으니 그걸 확장.
@@ -625,14 +613,19 @@
 
 ---
 
-## 🟢 P3 — shared.js dead 인증 함수 제거 — checkAdmin / _adminCache / isAdmin / clearAdminCache
+## 🔴 P3 — shared.js dead 인증 함수 제거 — checkAdmin / _adminCache / isAdmin / clearAdminCache
 
-**요약**: BL-ADMIN-AUTH-PERF (D-021, A-2 정석)에서 admin 페이지의 checkAdmin 호출 100% 제거 후, shared.js에 정의만 남은 dead code. 호출처 0개 확인됨 (2026-05-09). middleware.js가 단일 진실원이므로 정석은 제거이지만, 호출처 0으로 안전하므로 별도 BL로 분리 (대표님 결정 2026-
+**요약**: ⚠️ 2026-05-24 자율 진행 중 사실 확인 — 원본 notes(2026-05-09)의 "호출처 0개" 전제가 더이상 유효하지 않음.
 
-- **자율성**: 🟢 AUTO
+【재실측 결과】 (2026-05-24 grep 정밀 검증)
+- checkAdmin 호출처: 10건 (verify-email/dashboard/login/booking-analytics/hotel-info 등 5개 라이
+
+- **자율성**: 🔴 BLOCKED
 - **예상 시간**: 0.5시간
 - **카테고리**: infra
-- **상태**: pending
+- **상태**: blocked
+- **결정 필요**:
+  - BL-SHARED-AUTH-CLEANUP-RESCOPE
 - **ID**: `BL-SHARED-AUTH-CLEANUP` (출처: BL-ADMIN-AUTH-PERF (D-021) 완료 후 분리 — 호출처 0개 dead code. 이번 BL의 본질(admin 페이지 RPC 왕복 제거)에서 분리.)
 
 ---

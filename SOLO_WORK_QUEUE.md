@@ -228,17 +228,7 @@
 
 ---
 
-### D. 🟢 AUTO — 활동이력 — 봇 commit 클릭 시 사람용 탭 노출 결함 fix
-
-**ID**: `BL-ACTIVITY-MODAL-BOT-FIX`  
-**카테고리**: bug  
-**예상 시간**: 0.5시간  
-
-**메모**: 결함: 봇 commit (예: auto-detect-bot, charter-length-bot)은 사람용 narrative가 없는데, 활동이력 모달이 default로 사람용 탭을 띄움 → 사용자에게 빈 모달처럼 보임. 정석: 봇 출처 commit은 AI raw 탭을 default로 (또는 사람용 탭 자동 hide).
-
----
-
-### E. 🟢 AUTO — 작업 시작 시 progress.steps 미박힘 자동 감지·자동 채움 + step:done:N 범위 자동 검증
+### D. 🟢 AUTO — 작업 시작 시 progress.steps 미박힘 자동 감지·자동 채움 + step:done:N 범위 자동 검증
 
 **ID**: `BL-PROGRESS-STEPS-AUTOFILL`  
 **카테고리**: infra  
@@ -248,7 +238,7 @@
 
 ---
 
-### F. 🟡 SEMI — 호텔 스토리 / LTV 추적
+### E. 🟡 SEMI — 호텔 스토리 / LTV 추적
 
 **ID**: `BL-006`  
 **카테고리**: dev  
@@ -258,7 +248,7 @@
 
 ---
 
-### G. 🟡 SEMI — 호텔 검색 UX 이슈
+### F. 🟡 SEMI — 호텔 검색 UX 이슈
 
 **ID**: `BL-008`  
 **카테고리**: ux  
@@ -268,7 +258,7 @@
 
 ---
 
-### H. 🟡 SEMI — Admin Console UI 버그
+### G. 🟡 SEMI — Admin Console UI 버그
 
 **ID**: `BL-009`  
 **카테고리**: bug  
@@ -278,7 +268,7 @@
 
 ---
 
-### I. 🟡 SEMI — Chrome 안전 브라우징 경고
+### H. 🟡 SEMI — Chrome 안전 브라우징 경고
 
 **ID**: `BL-010`  
 **카테고리**: ux  
@@ -288,7 +278,7 @@
 
 ---
 
-### J. 🟡 SEMI — [admin Members 탭 국가별 필터] 동남아 그룹 강조
+### I. 🟡 SEMI — [admin Members 탭 국가별 필터] 동남아 그룹 강조
 
 **ID**: `BL-ADMIN-COUNTRY-FILTER`  
 **카테고리**: feature  
@@ -298,7 +288,7 @@
 
 ---
 
-### K. 🟡 SEMI — [영수증 PDF 5년 영구 보관] Supabase + S3 백업
+### J. 🟡 SEMI — [영수증 PDF 5년 영구 보관] Supabase + S3 백업
 
 **ID**: `BL-RECEIPT-ARCHIVE`  
 **카테고리**: infra  
@@ -308,7 +298,7 @@
 
 ---
 
-### L. 🟡 SEMI — [이벤트 사이트 고객 회원가입 + 마케팅 동의 DB] 고객 자산화
+### K. 🟡 SEMI — [이벤트 사이트 고객 회원가입 + 마케팅 동의 DB] 고객 자산화
 
 **ID**: `BL-EVENT-CUSTOMER-DB`  
 **카테고리**: feature  
@@ -318,7 +308,7 @@
 
 ---
 
-### M. 🟡 SEMI — [이벤트 사이트 호텔 대리 결제] Agoda affiliate 또는 직접 결제
+### L. 🟡 SEMI — [이벤트 사이트 호텔 대리 결제] Agoda affiliate 또는 직접 결제
 
 **ID**: `BL-EVENT-PAYMENT-PROXY`  
 **카테고리**: payment  
@@ -328,7 +318,7 @@
 
 ---
 
-### N. 🟡 SEMI — [이벤트 송출 호텔 알림 + admin 송출 관리 탭]
+### M. 🟡 SEMI — [이벤트 송출 호텔 알림 + admin 송출 관리 탭]
 
 **ID**: `BL-EVENT-HOTEL-NOTIFY`  
 **카테고리**: feature  
@@ -338,7 +328,7 @@
 
 ---
 
-### O. 🟡 SEMI — [화면 라벨 정리] 사이드바 메뉴 사업 본질 맞춤 + 영한 토글 전수 점검
+### N. 🟡 SEMI — [화면 라벨 정리] 사이드바 메뉴 사업 본질 맞춤 + 영한 토글 전수 점검
 
 **ID**: `BL-ADMIN-LABEL-CLEANUP`  
 **카테고리**: ui  
@@ -370,17 +360,7 @@
 
 ---
 
-### C. 🟢 AUTO — shared.js dead 인증 함수 제거 — checkAdmin / _adminCache / isAdmin / clearAdminCache
-
-**ID**: `BL-SHARED-AUTH-CLEANUP`  
-**카테고리**: infra  
-**예상 시간**: 0.5시간  
-
-**메모**: BL-ADMIN-AUTH-PERF (D-021, A-2 정석)에서 admin 페이지의 checkAdmin 호출 100% 제거 후, shared.js에 정의만 남은 dead code. 호출처 0개 확인됨 (2026-05-09). middleware.js가 단일 진실원이므로 정석은 제거이지만, 호출처 0으로 안전하므로 별도 BL로 분리 (대표님 결정 2026-05-09).
-
----
-
-### D. 🟡 SEMI — OS 봇 스크립트 — repo root 동적 산출 (위치 의존성 제거)
+### C. 🟡 SEMI — OS 봇 스크립트 — repo root 동적 산출 (위치 의존성 제거)
 
 **ID**: `BL-OS-REPO-ROOT-DYNAMIC`  
 **카테고리**: infra  
@@ -388,7 +368,7 @@
 
 ---
 
-### E. 🟡 SEMI — 워크플로 dead branch listening 정리 — restructure-os-modularization 통합 후 잔여
+### D. 🟡 SEMI — 워크플로 dead branch listening 정리 — restructure-os-modularization 통합 후 잔여
 
 **ID**: `BL-WORKFLOW-DEAD-BRANCH-CLEANUP`  
 **카테고리**: infra  

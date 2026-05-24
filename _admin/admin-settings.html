@@ -122,11 +122,40 @@
                                 opacity:0; cursor:pointer; }
   .seal-info .seal-actions { display:flex; gap:8px; margin-top:10px; flex-wrap:wrap; }
 
+  /* ─── 변경 이력 (단계 5) ─── */
+  .audit-row { background:rgba(0,0,0,0.18); border:0.5px solid var(--border); border-radius:8px;
+               padding:14px 16px; margin-bottom:10px; }
+  .audit-row .audit-head { display:flex; justify-content:space-between; align-items:flex-start;
+                           gap:12px; margin-bottom:8px; flex-wrap:wrap; }
+  .audit-row .audit-title { font-size:13px; font-weight:600; display:flex; align-items:center; gap:8px; }
+  .audit-row .audit-time { font-size:11px; color:var(--muted); }
+  .audit-row .audit-meta { font-size:11px; color:var(--muted); margin-bottom:8px; }
+  .audit-row .audit-actor { color:var(--accent); }
+  .audit-row .audit-changes { display:grid; grid-template-columns:140px 1fr 1fr; gap:6px 10px;
+                              font-size:11px; padding:8px 10px; background:rgba(0,0,0,0.15);
+                              border-radius:5px; margin-top:6px; }
+  .audit-row .audit-changes .col-header { color:var(--muted); font-weight:500;
+                                          text-transform:uppercase; letter-spacing:0.04em;
+                                          padding-bottom:4px; border-bottom:0.5px solid rgba(255,255,255,0.06); }
+  .audit-row .audit-changes .field-name { color:var(--accent); font-weight:500; }
+  .audit-row .audit-changes .before-val { color:var(--muted); text-decoration:line-through;
+                                          word-break:break-all; opacity:0.75; }
+  .audit-row .audit-changes .after-val { color:var(--text); word-break:break-all; }
+  .audit-row .audit-changes .empty-val { color:var(--muted); font-style:italic; opacity:0.6; }
+  .audit-action-pill { padding:2px 8px; border-radius:10px; font-size:10px; font-weight:600;
+                       letter-spacing:0.04em; text-transform:uppercase; }
+  .audit-action-pill.company { background:rgba(167,139,250,0.15); color:var(--accent); }
+  .audit-action-pill.payment { background:rgba(125,211,252,0.15); color:#7dd3fc; }
+  .audit-action-pill.stamp,
+  .audit-action-pill.signature { background:rgba(252,211,77,0.15); color:#fbbf24; }
+  .audit-action-pill.delete { background:rgba(248,113,113,0.15); color:var(--err); }
+
   @media (max-width: 640px) {
     .form-grid { grid-template-columns:1fr; }
     .container { padding:16px; }
     .seal-card { grid-template-columns:1fr; }
     .seal-preview { width:100%; max-width:280px; margin:0 auto; }
+    .audit-row .audit-changes { grid-template-columns:1fr; }
   }
 </style>
 <!-- ★ BL-ADMIN-LIGHTMODE: admin 공통 스킨 + 토글 자동 주입 -->
@@ -149,6 +178,7 @@
     <div class="tab active" data-tab="company">🏢 회사 정보</div>
     <div class="tab" data-tab="payment">💳 결제 계좌</div>
     <div class="tab" data-tab="seal">🖋 도장·서명</div>
+    <div class="tab" data-tab="audit">📜 변경 이력</div>
   </div>
 
   <div id="tab-company">
@@ -188,6 +218,20 @@
       </p>
 
       <div id="seal-sections">
+        <div class="empty">로딩 중...</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="tab-audit" style="display:none">
+    <div class="panel">
+      <h2>📜 변경 이력 <span class="badge" id="badge-audit-status">로딩...</span></h2>
+      <p class="panel-desc">
+        인보이스 설정의 모든 변경 기록. 누가 언제 어느 필드를 어떻게 바꿨는지 추적할 수 있습니다.
+        스리랑카·외부 직원에게는 보이지 않습니다 (owner 전용).
+      </p>
+
+      <div id="audit-list">
         <div class="empty">로딩 중...</div>
       </div>
     </div>
@@ -878,12 +922,139 @@ async function deleteSeal(kind) {
 }
 
 // ════════════════════════════════════════════════════════════════════════════
+// 단계 5 — 변경 이력 (action_logs invoice-settings)
+// ════════════════════════════════════════════════════════════════════════════
+
+async function loadAuditLog() {
+  try {
+    const r = await api('/api/admin?action=invoice-get-audit-log&limit=50');
+    renderAuditList(r.items || []);
+    $('badge-audit-status').textContent = '최근 ' + (r.count || 0) + '건';
+    $('badge-audit-status').style.color = 'var(--ok)';
+  } catch (e) {
+    $('audit-list').innerHTML = `<div class="empty">불러오기 실패: ${e.message}</div>`;
+    $('badge-audit-status').textContent = '오류';
+    $('badge-audit-status').style.color = 'var(--err)';
+  }
+}
+
+// action 문자열 → 사람 친화 라벨 + pill 클래스
+function audit_actionLabel(action) {
+  // 'invoice-settings.company-info.update' → 'company-info update'
+  const parts = (action || '').split('.');
+  if (parts.length < 2) return { label: action || '—', kind: 'company' };
+  const sub = parts[1] || '';   // company-info / payment-accounts / stamp / signature
+  const verb = parts[2] || '';  // update / upload / delete
+
+  const sub_ko = {
+    'company-info': '회사 정보',
+    'payment-accounts': '결제 계좌',
+    'stamp': '도장',
+    'signature': '서명'
+  }[sub] || sub;
+
+  const verb_ko = {
+    'update': '수정',
+    'upload': '업로드',
+    'delete': '삭제'
+  }[verb] || verb;
+
+  let kind = 'company';
+  if (sub === 'payment-accounts') kind = 'payment';
+  else if (sub === 'stamp') kind = 'stamp';
+  else if (sub === 'signature') kind = 'signature';
+  if (verb === 'delete') kind = 'delete';
+
+  return { label: sub_ko + ' ' + verb_ko, kind };
+}
+
+function audit_escapeHtml(v) {
+  if (v === null || v === undefined || v === '') return '';
+  return String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;')
+                  .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function audit_renderValueCell(v) {
+  if (v === null || v === undefined || v === '') {
+    return `<span class="empty-val">(빈 값)</span>`;
+  }
+  // path/이미지 path인 경우 줄임표
+  const s = String(v);
+  if (s.length > 80) return audit_escapeHtml(s.slice(0, 77)) + '…';
+  return audit_escapeHtml(s);
+}
+
+function renderAuditList(items) {
+  if (!items || items.length === 0) {
+    $('audit-list').innerHTML = `
+      <div class="empty">
+        아직 변경 이력이 없습니다.<br>
+        <span style="font-size:11px;color:var(--muted);margin-top:6px;display:inline-block">
+          회사 정보·결제 계좌·도장·서명을 한 번이라도 수정하면 여기에 자동 박힙니다.
+        </span>
+      </div>`;
+    return;
+  }
+
+  const html = items.map(item => {
+    const meta = audit_actionLabel(item.action);
+    const before = item.before_state || {};
+    const after = item.after_state || {};
+    const fields = item.changed_fields && item.changed_fields.length
+      ? item.changed_fields
+      : Object.keys(after);
+
+    // 도장·서명 업로드/삭제는 path 변화만 표시 (filesize 등 부가 정보 별도)
+    const extraInfo = [];
+    if (item.size_bytes) extraInfo.push((item.size_bytes / 1024).toFixed(1) + ' KB');
+    if (item.mime) extraInfo.push(item.mime);
+    if (item.type) extraInfo.push('타입: ' + item.type.toUpperCase());
+
+    const changesHtml = fields.length > 0
+      ? `
+        <div class="audit-changes">
+          <div class="col-header">필드</div>
+          <div class="col-header">이전</div>
+          <div class="col-header">이후</div>
+          ${fields.map(f => `
+            <div class="field-name">${audit_escapeHtml(f)}</div>
+            <div class="before-val">${audit_renderValueCell(before[f])}</div>
+            <div class="after-val">${audit_renderValueCell(after[f])}</div>
+          `).join('')}
+        </div>
+      `
+      : '';
+
+    return `
+      <div class="audit-row">
+        <div class="audit-head">
+          <div class="audit-title">
+            <span class="audit-action-pill ${meta.kind}">${meta.label}</span>
+            ${item.target_label ? `<span style="font-size:11px;color:var(--muted)">${audit_escapeHtml(item.target_label)}</span>` : ''}
+          </div>
+          <div class="audit-time">${audit_escapeHtml(item.performed_at_label || item.performed_at || '—')}</div>
+        </div>
+        <div class="audit-meta">
+          수정자: <span class="audit-actor">${audit_escapeHtml(item.performed_by_email || '—')}</span>
+          ${item.field_count ? ` · ${item.field_count}개 필드 변경` : ''}
+          ${extraInfo.length ? ' · ' + extraInfo.map(audit_escapeHtml).join(' · ') : ''}
+          ${item.status && item.status !== 'success' ? ` · <span style="color:var(--err)">${audit_escapeHtml(item.status)}</span>` : ''}
+        </div>
+        ${changesHtml}
+      </div>
+    `;
+  }).join('');
+
+  $('audit-list').innerHTML = html;
+}
+
+// ════════════════════════════════════════════════════════════════════════════
 // 탭 전환 (lazy load — 클릭 시 데이터 가져옴)
 // ════════════════════════════════════════════════════════════════════════════
-const TAB_LOADED = { company:false, payment:false, seal:false };
+const TAB_LOADED = { company:false, payment:false, seal:false, audit:false };
 
 function activateTab(name) {
-  ['company','payment','seal'].forEach(n => {
+  ['company','payment','seal','audit'].forEach(n => {
     const div = document.getElementById('tab-' + n);
     const tab = document.querySelector(`.tab[data-tab="${n}"]`);
     if (div) div.style.display = (n === name) ? '' : 'none';
@@ -898,6 +1069,13 @@ function activateTab(name) {
   if (name === 'seal' && !TAB_LOADED.seal) {
     TAB_LOADED.seal = true;
     loadSealImages();
+  }
+  if (name === 'audit' && !TAB_LOADED.audit) {
+    TAB_LOADED.audit = true;
+    loadAuditLog();
+  } else if (name === 'audit' && TAB_LOADED.audit) {
+    // 두 번째부터는 클릭마다 갱신
+    loadAuditLog();
   }
 }
 

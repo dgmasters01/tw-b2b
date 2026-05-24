@@ -2362,6 +2362,87 @@ async function handleInvoiceGetAssetUrl(req, res, serviceKey, admin) {
 }
 
 
+// =============================================================
+// BL-INVOICE-003 단계 5 — invoice-settings 변경 이력 조회
+// =============================================================
+// action_logs에서 target_type='invoice-settings'만 추림.
+// RLS 정책 action_logs_select_invoice_owner가 owner만 조회 가능하게 차단,
+// API에서도 한 번 더 owner 검사 (방어적).
+// =============================================================
+async function handleInvoiceGetAuditLog(req, res, serviceKey, admin) {
+  if (req.method !== 'GET' && req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+  if (admin.role !== 'owner') {
+    return res.status(403).json({
+      error: 'owner_only',
+      hint: '변경 이력은 owner 권한만 조회 가능합니다.',
+      current_role: admin.role
+    });
+  }
+
+  const url = new URL(req.url || '/', 'http://x');
+  const limitParam = parseInt(url.searchParams.get('limit') || '50', 10);
+  const limit = Math.min(Math.max(limitParam, 1), 200);   // 1~200 clamp
+
+  // action_logs 컬럼은 sql/action-logs-table.sql 기준
+  const selectFields = [
+    'id', 'action', 'target_type', 'target_id',
+    'performed_by', 'performed_by_email', 'performed_at',
+    'status', 'before_state', 'after_state', 'metadata'
+  ].join(',');
+
+  const fetchUrl = SUPABASE_URL + '/rest/v1/action_logs'
+    + '?target_type=eq.invoice-settings'
+    + '&select=' + encodeURIComponent(selectFields)
+    + '&order=performed_at.desc'
+    + '&limit=' + limit;
+
+  const r = await fetch(fetchUrl, {
+    headers: {
+      'Authorization': 'Bearer ' + serviceKey,
+      'apikey': serviceKey,
+      'Accept': 'application/json'
+    }
+  });
+  if (!r.ok) {
+    const text = await r.text();
+    return res.status(500).json({ error: 'fetch_audit_log_failed', detail: text });
+  }
+  const rows = await r.json();
+
+  // 클라이언트가 바로 쓸 수 있게 간소화
+  const items = (Array.isArray(rows) ? rows : []).map(row => {
+    const meta = row.metadata || {};
+    return {
+      id: row.id,
+      action: row.action,                                      // 'invoice-settings.company-info.update' 등
+      target_label: meta.target_label || null,                 // 'company_info' / 'payment_accounts:krw'
+      performed_at: row.performed_at,
+      performed_at_label: fmtUpdatedAtLabel(row.performed_at),
+      performed_by_email: row.performed_by_email,
+      status: row.status,
+      changed_fields: meta.changed_fields || [],
+      field_count: meta.field_count || (meta.changed_fields ? meta.changed_fields.length : 0),
+      before_state: row.before_state,
+      after_state: row.after_state,
+      // metadata에서 민감하지 않은 부가 정보만
+      asset_kind: meta.asset_kind || null,
+      size_bytes: meta.size_bytes || null,
+      mime: meta.mime || null,
+      type: meta.type || null                                  // payment-accounts 의 type (krw/usd/paypal)
+    };
+  });
+
+  return res.status(200).json({
+    success: true,
+    items,
+    count: items.length,
+    limit
+  });
+}
+
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -2393,7 +2474,7 @@ export default async function handler(req, res) {
   }
 
   // 화이트리스트 검증을 인증보다 먼저 수행 → 디버깅 시 라우팅 문제와 인증 문제를 명확히 분리
-  const ALLOWED_ACTIONS = ['booking-upload', 'list-users', 'send-invite', 'update-match', 'start-task', 'past-video-revenue', 'manager-push', 'delete-user', 'change-role', 're-verify', 'update-hotel-status', 'refund-hotel', 'invoice-get-company-info', 'invoice-update-company-info', 'invoice-get-payment-accounts', 'invoice-update-payment-accounts', 'invoice-upload-asset', 'invoice-get-asset-url'];
+  const ALLOWED_ACTIONS = ['booking-upload', 'list-users', 'send-invite', 'update-match', 'start-task', 'past-video-revenue', 'manager-push', 'delete-user', 'change-role', 're-verify', 'update-hotel-status', 'refund-hotel', 'invoice-get-company-info', 'invoice-update-company-info', 'invoice-get-payment-accounts', 'invoice-update-payment-accounts', 'invoice-upload-asset', 'invoice-get-asset-url', 'invoice-get-audit-log'];
   if (!action) {
     return res.status(400).json({
       error: 'missing_action',
@@ -2484,6 +2565,9 @@ export default async function handler(req, res) {
         return actionResult;
       case 'invoice-get-asset-url':
         actionResult = await handleInvoiceGetAssetUrl(req, res, serviceKey, adminCheck);
+        return actionResult;
+      case 'invoice-get-audit-log':
+        actionResult = await handleInvoiceGetAuditLog(req, res, serviceKey, adminCheck);
         return actionResult;
       default:
         // unreachable: 위에서 화이트리스트로 이미 차단됨

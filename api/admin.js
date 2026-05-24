@@ -56,7 +56,7 @@ async function requireAdmin(req, serviceKey) {
   if (!Array.isArray(admins) || admins.length === 0 || admins[0].is_active === false) {
     return { ok: false, status: 403, error: 'Admin access required' };
   }
-  return { ok: true, email: myEmail, role: admins[0].role };
+  return { ok: true, email: myEmail, role: admins[0].role, userId: me.id || null };
 }
 
 // =============================================================
@@ -1493,6 +1493,255 @@ async function handleRefundHotel(req, res, serviceKey, admin) {
 }
 
 
+// =============================================================
+// BL-INVOICE-003 — 인보이스 설정 핸들러 (owner only)
+// =============================================================
+// company_info는 singleton (id=1). admin/staff도 SELECT는 가능 (인보이스 PDF용),
+// 단 UPDATE는 owner만 가능. 변경 이력은 log_invoice_settings_change()로 action_logs에 자동 기록.
+// =============================================================
+
+// company_info에서 클라이언트 노출 가능한 필드 화이트리스트
+// (updated_by UUID 같은 내부 필드는 제외, _email/updated_at은 표시용으로 포함)
+const COMPANY_INFO_PUBLIC_FIELDS = [
+  'id',
+  'legal_entity_en', 'legal_entity_ko',
+  'business_number',
+  'ceo_name_en', 'ceo_name_ko',
+  'address_en', 'address_ko',
+  'business_type', 'business_item',
+  'contact_email', 'contact_phone',
+  'stamp_storage_path', 'signature_storage_path',
+  'updated_at', 'updated_by_email'
+];
+
+// UPDATE 허용 필드 화이트리스트 (id/updated_* 등 시스템 필드 제외)
+const COMPANY_INFO_UPDATABLE_FIELDS = [
+  'legal_entity_en', 'legal_entity_ko',
+  'business_number',
+  'ceo_name_en', 'ceo_name_ko',
+  'address_en', 'address_ko',
+  'business_type', 'business_item',
+  'contact_email', 'contact_phone'
+  // stamp_storage_path / signature_storage_path는 단계 4 도장·서명 업로드 핸들러에서 박음
+];
+
+function fmtUpdatedAtLabel(iso) {
+  if (!iso) return null;
+  try {
+    const d = new Date(iso);
+    return d.toLocaleString('ko-KR', {
+      year:'numeric', month:'short', day:'numeric',
+      hour:'2-digit', minute:'2-digit'
+    });
+  } catch { return iso; }
+}
+
+async function handleInvoiceGetCompanyInfo(req, res, serviceKey, admin) {
+  if (req.method !== 'GET' && req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+  // 권한: admin 전부 SELECT 허용 (인보이스 PDF에 박힐 정보. RLS도 같은 정책)
+  // 단, owner가 아닌 경우 클라이언트(admin-settings.html)는 진입 자체 차단됨.
+
+  const selectFields = COMPANY_INFO_PUBLIC_FIELDS.join(',');
+  const url = SUPABASE_URL + '/rest/v1/company_info?id=eq.1&select=' + encodeURIComponent(selectFields);
+  const r = await fetch(url, {
+    headers: {
+      'Authorization': 'Bearer ' + serviceKey,
+      'apikey': serviceKey,
+      'Accept': 'application/json'
+    }
+  });
+  if (!r.ok) {
+    const text = await r.text();
+    return res.status(500).json({ error: 'fetch_company_info_failed', detail: text });
+  }
+  const rows = await r.json();
+  const row = Array.isArray(rows) && rows.length > 0 ? rows[0] : null;
+  if (!row) {
+    return res.status(404).json({
+      error: 'company_info_not_found',
+      hint: 'sql/bl-invoice-003-company-info.sql 실행 필요 (singleton row id=1)'
+    });
+  }
+  return res.status(200).json({
+    success: true,
+    company_info: row,
+    updated_at_label: fmtUpdatedAtLabel(row.updated_at)
+  });
+}
+
+async function handleInvoiceUpdateCompanyInfo(req, res, serviceKey, admin) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed', hint: 'POST only' });
+  }
+  // ★ owner only — SQL RLS가 1차 차단하지만 API에서 명시적으로 한 번 더 박음
+  if (admin.role !== 'owner') {
+    return res.status(403).json({
+      error: 'owner_only',
+      hint: '회사 정보 수정은 owner 권한만 가능합니다.',
+      current_role: admin.role
+    });
+  }
+
+  const body = req.body || {};
+  const changes = body.changes || {};
+  if (typeof changes !== 'object' || Array.isArray(changes) || Object.keys(changes).length === 0) {
+    return res.status(400).json({ error: 'missing_changes', hint: 'body.changes 객체 (필드:값) 필수' });
+  }
+
+  // 화이트리스트 검증
+  const unknownFields = Object.keys(changes).filter(k => !COMPANY_INFO_UPDATABLE_FIELDS.includes(k));
+  if (unknownFields.length > 0) {
+    return res.status(400).json({
+      error: 'unknown_fields',
+      received: unknownFields,
+      allowed: COMPANY_INFO_UPDATABLE_FIELDS
+    });
+  }
+
+  // 사업자등록번호 형식 검증 (10자리, 하이픈 허용)
+  if (changes.business_number !== undefined && changes.business_number !== '') {
+    const digits = String(changes.business_number).replace(/-/g, '');
+    if (!/^\d{10}$/.test(digits)) {
+      return res.status(400).json({
+        error: 'invalid_business_number',
+        hint: '사업자등록번호는 10자리 숫자여야 합니다.'
+      });
+    }
+  }
+  // 이메일 형식 검증
+  if (changes.contact_email !== undefined && changes.contact_email !== '') {
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(changes.contact_email))) {
+      return res.status(400).json({ error: 'invalid_email_format' });
+    }
+  }
+
+  // ───────────────────────────────────────────────
+  // 1) BEFORE state — 변경 이력용 (영향받는 필드만)
+  // ───────────────────────────────────────────────
+  const selectForBefore = ['id', ...Object.keys(changes), 'updated_at', 'updated_by_email'].join(',');
+  const beforeResp = await fetch(
+    SUPABASE_URL + '/rest/v1/company_info?id=eq.1&select=' + encodeURIComponent(selectForBefore),
+    { headers: { 'Authorization': 'Bearer ' + serviceKey, 'apikey': serviceKey } }
+  );
+  if (!beforeResp.ok) {
+    const text = await beforeResp.text();
+    return res.status(500).json({ error: 'fetch_before_failed', detail: text });
+  }
+  const beforeRows = await beforeResp.json();
+  const beforeRow = Array.isArray(beforeRows) && beforeRows.length > 0 ? beforeRows[0] : null;
+  if (!beforeRow) {
+    return res.status(404).json({ error: 'company_info_not_found' });
+  }
+
+  // 실제 변경된 필드만 추림 (값이 같으면 skip)
+  const actualChanges = {};
+  for (const [k, v] of Object.entries(changes)) {
+    const before = beforeRow[k] != null ? String(beforeRow[k]) : '';
+    const after = v != null ? String(v) : '';
+    if (before !== after) {
+      actualChanges[k] = v;
+    }
+  }
+  if (Object.keys(actualChanges).length === 0) {
+    return res.status(200).json({
+      success: true,
+      no_changes: true,
+      message: '변경된 내용이 없습니다.',
+      company_info: beforeRow
+    });
+  }
+
+  // ───────────────────────────────────────────────
+  // 2) UPDATE company_info
+  // ───────────────────────────────────────────────
+  const nowIso = new Date().toISOString();
+  const updatePayload = {
+    ...actualChanges,
+    updated_at: nowIso,
+    updated_by: admin.userId || null,
+    updated_by_email: admin.email
+  };
+
+  const updateResp = await fetch(
+    SUPABASE_URL + '/rest/v1/company_info?id=eq.1',
+    {
+      method: 'PATCH',
+      headers: {
+        'Authorization': 'Bearer ' + serviceKey,
+        'apikey': serviceKey,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=representation'
+      },
+      body: JSON.stringify(updatePayload)
+    }
+  );
+
+  if (!updateResp.ok) {
+    const text = await updateResp.text();
+    return res.status(500).json({ error: 'update_failed', detail: text });
+  }
+  const updatedRows = await updateResp.json();
+  const updatedRow = Array.isArray(updatedRows) && updatedRows.length > 0 ? updatedRows[0] : null;
+
+  // ───────────────────────────────────────────────
+  // 3) 변경 이력 기록 — log_invoice_settings_change() RPC
+  // ───────────────────────────────────────────────
+  // before/after JSONB는 actualChanges 키만 박음 (전체 row 덤프 방지)
+  const beforeJson = {};
+  const afterJson = {};
+  for (const k of Object.keys(actualChanges)) {
+    beforeJson[k] = beforeRow[k];
+    afterJson[k] = actualChanges[k];
+  }
+
+  try {
+    const rpcResp = await fetch(
+      SUPABASE_URL + '/rest/v1/rpc/log_invoice_settings_change',
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + serviceKey,
+          'apikey': serviceKey,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          p_action: 'invoice-settings.company-info.update',
+          p_target_id: null,                                  // company_info는 int=1이므로 null
+          p_target_label: 'company_info',
+          p_performed_by: admin.userId || null,
+          p_performed_email: admin.email,
+          p_before: beforeJson,
+          p_after: afterJson,
+          p_metadata: {
+            changed_fields: Object.keys(actualChanges),
+            field_count: Object.keys(actualChanges).length,
+            user_agent: (req.headers['user-agent'] || '').slice(0, 200)
+          }
+        })
+      }
+    );
+    if (!rpcResp.ok) {
+      const text = await rpcResp.text();
+      // 이력 기록 실패는 응답에 경고만 박고 UPDATE는 성공으로 반환
+      // (이력 부재가 비즈니스 영향을 막진 않음. action_logs.action_logs_select_admin도 fallback 처리)
+      console.warn('[invoice-update-company-info] audit log 기록 실패:', text);
+    }
+  } catch (auditErr) {
+    console.warn('[invoice-update-company-info] audit log 예외:', auditErr.message);
+  }
+
+  return res.status(200).json({
+    success: true,
+    company_info: updatedRow,
+    updated_at_label: fmtUpdatedAtLabel(updatedRow ? updatedRow.updated_at : nowIso),
+    changed_fields: Object.keys(actualChanges),
+    changed_count: Object.keys(actualChanges).length
+  });
+}
+
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -1524,7 +1773,7 @@ export default async function handler(req, res) {
   }
 
   // 화이트리스트 검증을 인증보다 먼저 수행 → 디버깅 시 라우팅 문제와 인증 문제를 명확히 분리
-  const ALLOWED_ACTIONS = ['booking-upload', 'list-users', 'send-invite', 'update-match', 'start-task', 'past-video-revenue', 'manager-push', 'delete-user', 'change-role', 're-verify', 'update-hotel-status', 'refund-hotel'];
+  const ALLOWED_ACTIONS = ['booking-upload', 'list-users', 'send-invite', 'update-match', 'start-task', 'past-video-revenue', 'manager-push', 'delete-user', 'change-role', 're-verify', 'update-hotel-status', 'refund-hotel', 'invoice-get-company-info', 'invoice-update-company-info'];
   if (!action) {
     return res.status(400).json({
       error: 'missing_action',
@@ -1597,6 +1846,12 @@ export default async function handler(req, res) {
         return actionResult;
       case 'refund-hotel':
         actionResult = await handleRefundHotel(req, res, serviceKey, adminCheck);
+        return actionResult;
+      case 'invoice-get-company-info':
+        actionResult = await handleInvoiceGetCompanyInfo(req, res, serviceKey, adminCheck);
+        return actionResult;
+      case 'invoice-update-company-info':
+        actionResult = await handleInvoiceUpdateCompanyInfo(req, res, serviceKey, adminCheck);
         return actionResult;
       default:
         // unreachable: 위에서 화이트리스트로 이미 차단됨

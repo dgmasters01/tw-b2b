@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>인보이스 설정 — TravelWinners B2B Admin</title>
+<link rel="stylesheet" href="/shared.css">
+<style>
+  :root {
+    /* BL-INVOICE-003 — admin-permissions.html 패턴 카피
+       shared.css alias: --bg=직접 사용, 단축 토큰만 매핑 */
+    --panel:    var(--bg-2);
+    --border:   var(--line-2);
+    --text:     var(--ink);
+    --muted:    var(--ink-3);
+    --accent:   var(--aurora-1);
+    --accent2:  var(--accent-purple-soft);
+    --ok:       var(--success);
+    --warn:     var(--warn);
+    --err:      var(--danger);
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; min-height:100vh; background:var(--bg); color:var(--text);
+         font-family:-apple-system, BlinkMacSystemFont, 'Pretendard', sans-serif;
+         background-image: radial-gradient(ellipse at top, rgba(167,139,250,0.1), transparent 70%); }
+  .topbar { padding:14px 24px; border-bottom:0.5px solid var(--border);
+            display:flex; align-items:center; justify-content:space-between;
+            background:rgba(10,10,15,0.7); backdrop-filter:blur(10px); position:sticky; top:0; z-index:10; }
+  .topbar h1 { margin:0; font-size:16px; font-weight:600; }
+  .topbar .tag { font-size:11px; color:var(--muted); margin-left:10px; }
+  .topbar a { color:var(--accent); text-decoration:none; font-size:13px; margin-left:18px; }
+  .topbar a:hover { text-decoration:underline; }
+  .me { display:flex; align-items:center; gap:8px; font-size:12px; color:var(--muted); }
+  .me .role { background:rgba(167,139,250,0.15); color:var(--accent);
+              padding:2px 8px; border-radius:10px; font-size:10px; font-weight:600; }
+
+  .container { max-width:980px; margin:0 auto; padding:24px; }
+
+  .tabs { display:flex; gap:4px; margin-bottom:18px; border-bottom:0.5px solid var(--border); padding-bottom:0; }
+  .tab { padding:10px 16px; cursor:pointer; color:var(--muted); font-size:13px;
+         border-bottom:2px solid transparent; transition:all 0.15s; }
+  .tab.active { color:var(--accent); border-bottom-color:var(--accent); font-weight:500; }
+  .tab.disabled { opacity:0.45; cursor:not-allowed; }
+  .tab.disabled:hover { color:var(--muted); }
+
+  .panel { background:var(--panel); border:0.5px solid var(--border); border-radius:10px;
+           padding:22px 24px; margin-bottom:18px; backdrop-filter:blur(10px); }
+  .panel h2 { margin:0 0 6px; font-size:15px; font-weight:600; display:flex; align-items:center; gap:8px; }
+  .panel h2 .badge { background:rgba(255,255,255,0.05); padding:1px 8px; border-radius:8px;
+                     font-size:10px; color:var(--muted); font-weight:500; }
+  .panel .panel-desc { color:var(--muted); font-size:12px; margin:0 0 18px; line-height:1.5; }
+
+  .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px 18px; }
+  .form-row { display:flex; flex-direction:column; gap:5px; }
+  .form-row.full { grid-column:1 / -1; }
+  .form-row label { font-size:11px; color:var(--muted); font-weight:500;
+                    text-transform:uppercase; letter-spacing:0.04em; }
+  .form-row .hint { font-size:10px; color:var(--muted); margin-top:2px; opacity:0.8; }
+  .form-row input, .form-row textarea {
+    width:100%; background:rgba(0,0,0,0.3); border:0.5px solid var(--border); color:var(--text);
+    padding:10px 12px; border-radius:6px; font-size:13px; font-family:inherit;
+  }
+  .form-row textarea { resize:vertical; min-height:62px; }
+  .form-row input:focus, .form-row textarea:focus {
+    outline:1px solid var(--accent); border-color:var(--accent);
+  }
+  .form-row input:disabled, .form-row textarea:disabled {
+    opacity:0.55; cursor:not-allowed;
+  }
+  .form-row .field-meta { font-size:10px; color:var(--muted); margin-top:3px; }
+  .form-row .field-meta.changed { color:var(--warn); }
+
+  .actions { display:flex; justify-content:flex-end; gap:10px; margin-top:22px;
+             padding-top:18px; border-top:0.5px solid rgba(255,255,255,0.06); }
+  .btn { background:linear-gradient(135deg, var(--accent), var(--accent2)); color:#fff;
+         border:0; padding:10px 18px; border-radius:6px; font-size:13px; font-weight:500; cursor:pointer;
+         font-family:inherit; }
+  .btn:hover { opacity:0.9; }
+  .btn:disabled { opacity:0.5; cursor:not-allowed; }
+  .btn.ghost { background:transparent; border:0.5px solid var(--border); color:var(--text); }
+
+  .toast { position:fixed; bottom:24px; right:24px; max-width:380px;
+           background:var(--panel); border:0.5px solid var(--border); border-radius:8px;
+           padding:12px 16px; font-size:13px; opacity:0; transform:translateY(10px);
+           transition:opacity 0.2s, transform 0.2s; pointer-events:none; z-index:50; }
+  .toast.show { opacity:1; transform:translateY(0); }
+  .toast.ok { border-color:rgba(134,239,172,0.5); color:var(--ok); }
+  .toast.err { border-color:rgba(248,113,113,0.5); color:var(--err); }
+
+  .empty { text-align:center; color:var(--muted); padding:50px 20px; font-size:13px; }
+  .meta-line { font-size:11px; color:var(--muted); margin-top:6px; }
+
+  @media (max-width: 640px) {
+    .form-grid { grid-template-columns:1fr; }
+    .container { padding:16px; }
+  }
+</style>
+<!-- ★ BL-ADMIN-LIGHTMODE: admin 공통 스킨 + 토글 자동 주입 -->
+<link rel="stylesheet" href="/_os/skins/admin-skin.css">
+<script src="/_os/skins/admin-theme-toggle.js" defer></script>
+</head>
+<body>
+<div class="topbar">
+  <div>
+    <h1>⚙️ 인보이스 설정</h1>
+    <span class="tag">BL-INVOICE-003</span>
+    <a href="/admin-status.html">← 통합 진입점</a>
+  </div>
+  <div class="me" id="me-info">로딩 중...</div>
+</div>
+
+<div class="container">
+
+  <div class="tabs">
+    <div class="tab active" data-tab="company">🏢 회사 정보</div>
+    <div class="tab disabled" data-tab="payment" title="단계 3에서 활성화">💳 결제 계좌 <span style="font-size:10px;opacity:0.6">(곧 추가)</span></div>
+    <div class="tab disabled" data-tab="seal" title="단계 4에서 활성화">🖋 도장·서명 <span style="font-size:10px;opacity:0.6">(곧 추가)</span></div>
+  </div>
+
+  <div id="tab-company">
+    <div class="panel">
+      <h2>🏢 회사 정보 <span class="badge" id="badge-status">로딩...</span></h2>
+      <p class="panel-desc">
+        인보이스 PDF에 박힐 회사 정보입니다. owner 권한만 수정 가능.
+        변경 시 변경 이력이 자동 기록됩니다.
+      </p>
+
+      <div id="form-container">
+        <div class="empty">로딩 중...</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+const SUPABASE_URL = 'https://vjsludfjsphwnumuoqaj.supabase.co';
+const SUPABASE_ANON = 'sb_publishable_IluITb52iuwwHf9xgP99MA__KX-sNM6';
+
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON, {
+  auth: { persistSession:true, autoRefreshToken:true, storageKey:'tw-admin-auth' }
+});
+
+// ★ BL-AUTH-COOKIE-SYNC — 토큰 갱신 시 sb-access-token 쿠키 자동 동기화
+sb.auth.onAuthStateChange((event, session) => {
+  try {
+    if ((event === 'TOKEN_REFRESHED' || event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session?.access_token) {
+      const secure = (location.protocol === 'https:') ? '; Secure' : '';
+      document.cookie = 'sb-access-token=' + session.access_token + '; Path=/; Max-Age=2592000; SameSite=Lax' + secure;
+    } else if (event === 'SIGNED_OUT') {
+      document.cookie = 'sb-access-token=; Path=/; Max-Age=0; SameSite=Lax';
+    }
+  } catch (err) { console.warn('[settings] cookie sync 실패:', err); }
+});
+
+const $ = id => document.getElementById(id);
+let CALLER = null;
+let ORIGINAL = null;   // 서버에서 받은 원본 (변경 감지용)
+
+// ──────────────────────────────────────────────────────────────
+// 8필드 정의 — company_info 테이블의 한국 인보이스 표시용 핵심 필드
+// (영문 필드들은 별도 i18n 작업 시 추가)
+// ──────────────────────────────────────────────────────────────
+const FIELDS = [
+  { key:'legal_entity_ko',  label:'법인명',       type:'text',     full:false, placeholder:'주식회사 여행능력자들',
+    hint:'사업자등록증 상의 정식 명칭' },
+  { key:'business_number',  label:'사업자등록번호', type:'text',    full:false, placeholder:'000-00-00000',
+    hint:'10자리 (하이픈 포함)' },
+  { key:'ceo_name_ko',      label:'대표자명',     type:'text',     full:false, placeholder:'이지형',
+    hint:'사업자등록증 상의 대표자' },
+  { key:'business_type',    label:'업태',         type:'text',     full:false, placeholder:'서비스',
+    hint:'사업자등록증 상의 업태' },
+  { key:'business_item',    label:'종목',         type:'text',     full:false, placeholder:'여행, 광고',
+    hint:'사업자등록증 상의 종목 (쉼표 구분)' },
+  { key:'contact_email',    label:'대표 이메일',   type:'email',    full:false, placeholder:'partners@gohotelwinners.com',
+    hint:'인보이스 발신/수신 안내' },
+  { key:'contact_phone',    label:'대표 연락처',   type:'text',     full:false, placeholder:'+82-10-0000-0000',
+    hint:'국제 표기 권장' },
+  { key:'address_ko',       label:'주소',         type:'textarea', full:true,  placeholder:'서울특별시 ...',
+    hint:'사업장 소재지 (도로명 권장)' }
+];
+
+function toast(msg, type='ok') {
+  const t = $('toast');
+  t.className = 'toast ' + type + ' show';
+  t.textContent = msg;
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+function fmtDate(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  return d.toLocaleString('ko-KR', { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
+}
+
+async function getToken() {
+  const { data: { session } } = await sb.auth.getSession();
+  return session?.access_token || null;
+}
+
+async function api(path, opts={}) {
+  const token = await getToken();
+  if (!token) {
+    window.location.href = '/admin-login.html?next=settings';
+    throw new Error('No session');
+  }
+  const r = await fetch(path, {
+    ...opts,
+    headers: {
+      'Content-Type':'application/json',
+      'Authorization':'Bearer ' + token,
+      ...(opts.headers || {})
+    }
+  });
+  const text = await r.text();
+  let data; try { data = JSON.parse(text); } catch { data = { raw:text }; }
+  if (!r.ok) throw new Error(data.error || ('HTTP ' + r.status));
+  return data;
+}
+
+async function init() {
+  // 인증 게이트는 middleware.js가 처리. 여기 도달 = admin 통과.
+  try {
+    const sessInfo = await api('/api/auth/session');
+    CALLER = sessInfo.user;
+    $('me-info').innerHTML = `${CALLER.email} <span class="role">${CALLER.role}</span>`;
+
+    // ★ owner 전용 (BL-INVOICE-003 정책)
+    if (CALLER.role !== 'owner') {
+      document.querySelector('.container').innerHTML = `
+        <div class="panel">
+          <div class="empty">
+            🔒 인보이스 설정은 <strong>owner</strong> 권한만 접근 가능합니다.<br>
+            <span style="color:var(--muted);font-size:12px;margin-top:8px;display:inline-block">
+              현재 권한: ${CALLER.role}
+            </span>
+          </div>
+        </div>
+      `;
+      return;
+    }
+
+    await loadCompanyInfo();
+  } catch (e) {
+    toast('초기화 실패: ' + e.message, 'err');
+    $('form-container').innerHTML = `<div class="empty err">초기화 실패: ${e.message}</div>`;
+  }
+}
+
+async function loadCompanyInfo() {
+  try {
+    const r = await api('/api/admin?action=invoice-get-company-info');
+    ORIGINAL = r.company_info || {};
+    renderForm(ORIGINAL, r.updated_at_label);
+    $('badge-status').textContent = '저장됨';
+    $('badge-status').style.color = 'var(--ok)';
+  } catch (e) {
+    $('form-container').innerHTML = `<div class="empty">불러오기 실패: ${e.message}</div>`;
+    $('badge-status').textContent = '오류';
+    $('badge-status').style.color = 'var(--err)';
+  }
+}
+
+function renderForm(data, updatedAtLabel) {
+  const html = `
+    <div class="form-grid">
+      ${FIELDS.map(f => {
+        const val = data[f.key] != null ? data[f.key] : '';
+        const escVal = String(val).replace(/"/g,'&quot;').replace(/</g,'&lt;');
+        const input = f.type === 'textarea'
+          ? `<textarea id="f-${f.key}" rows="2" placeholder="${f.placeholder||''}">${escVal}</textarea>`
+          : `<input type="${f.type}" id="f-${f.key}" value="${escVal}" placeholder="${f.placeholder||''}">`;
+        return `
+          <div class="form-row ${f.full ? 'full' : ''}">
+            <label for="f-${f.key}">${f.label}</label>
+            ${input}
+            ${f.hint ? `<div class="hint">${f.hint}</div>` : ''}
+            <div class="field-meta" id="m-${f.key}"></div>
+          </div>
+        `;
+      }).join('')}
+    </div>
+
+    <div class="meta-line">
+      마지막 수정: <strong id="meta-updated">${updatedAtLabel || '—'}</strong>
+      ${data.updated_by_email ? ` · ${data.updated_by_email}` : ''}
+    </div>
+
+    <div class="actions">
+      <button class="btn ghost" id="btn-reset">되돌리기</button>
+      <button class="btn" id="btn-save">저장</button>
+    </div>
+  `;
+  $('form-container').innerHTML = html;
+
+  // 변경 감지 (저장 버튼 활성화 + 필드별 변경 마크)
+  FIELDS.forEach(f => {
+    const el = document.getElementById('f-' + f.key);
+    if (!el) return;
+    el.addEventListener('input', () => {
+      const orig = ORIGINAL[f.key] != null ? String(ORIGINAL[f.key]) : '';
+      const meta = document.getElementById('m-' + f.key);
+      if (el.value !== orig) {
+        meta.textContent = '✎ 변경됨';
+        meta.classList.add('changed');
+      } else {
+        meta.textContent = '';
+        meta.classList.remove('changed');
+      }
+      $('badge-status').textContent = hasAnyChange() ? '저장 안 됨' : '저장됨';
+      $('badge-status').style.color = hasAnyChange() ? 'var(--warn)' : 'var(--ok)';
+    });
+  });
+
+  $('btn-reset').addEventListener('click', () => {
+    if (!hasAnyChange()) {
+      toast('변경된 내용이 없습니다.');
+      return;
+    }
+    if (!confirm('변경 내용을 모두 되돌립니다. 계속하시겠습니까?')) return;
+    FIELDS.forEach(f => {
+      const el = document.getElementById('f-' + f.key);
+      if (el) el.value = ORIGINAL[f.key] != null ? ORIGINAL[f.key] : '';
+      const meta = document.getElementById('m-' + f.key);
+      if (meta) { meta.textContent = ''; meta.classList.remove('changed'); }
+    });
+    $('badge-status').textContent = '저장됨';
+    $('badge-status').style.color = 'var(--ok)';
+    toast('원래 값으로 되돌렸습니다.');
+  });
+
+  $('btn-save').addEventListener('click', saveCompanyInfo);
+}
+
+function hasAnyChange() {
+  for (const f of FIELDS) {
+    const el = document.getElementById('f-' + f.key);
+    if (!el) continue;
+    const orig = ORIGINAL[f.key] != null ? String(ORIGINAL[f.key]) : '';
+    if (el.value !== orig) return true;
+  }
+  return false;
+}
+
+function collectChanged() {
+  const changed = {};
+  for (const f of FIELDS) {
+    const el = document.getElementById('f-' + f.key);
+    if (!el) continue;
+    const orig = ORIGINAL[f.key] != null ? String(ORIGINAL[f.key]) : '';
+    if (el.value !== orig) {
+      changed[f.key] = el.value;
+    }
+  }
+  return changed;
+}
+
+// ──────────────────────────────────────────────────────────────
+// 사업자등록번호 형식 검증 (10자리, 하이픈 허용)
+// ──────────────────────────────────────────────────────────────
+function validateBusinessNumber(v) {
+  if (!v) return true; // 빈 값은 허용 (선택 입력)
+  const digits = v.replace(/-/g, '');
+  return /^\d{10}$/.test(digits);
+}
+
+async function saveCompanyInfo() {
+  const changed = collectChanged();
+  if (Object.keys(changed).length === 0) {
+    toast('변경된 내용이 없습니다.');
+    return;
+  }
+
+  // 클라이언트 검증
+  if (changed.business_number !== undefined && !validateBusinessNumber(changed.business_number)) {
+    toast('사업자등록번호는 10자리 숫자여야 합니다 (하이픈 허용).', 'err');
+    return;
+  }
+  if (changed.contact_email !== undefined && changed.contact_email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(changed.contact_email)) {
+    toast('이메일 형식이 올바르지 않습니다.', 'err');
+    return;
+  }
+
+  // 확인 다이얼로그 — 변경 필드 요약
+  const summary = Object.keys(changed).map(k => {
+    const f = FIELDS.find(x => x.key === k);
+    return `· ${f ? f.label : k}: "${ORIGINAL[k] || ''}" → "${changed[k]}"`;
+  }).join('\n');
+
+  if (!confirm(`다음 ${Object.keys(changed).length}개 항목을 저장합니다:\n\n${summary}\n\n계속하시겠습니까?`)) return;
+
+  $('btn-save').disabled = true;
+  $('btn-save').textContent = '저장 중...';
+
+  try {
+    const r = await api('/api/admin?action=invoice-update-company-info', {
+      method:'POST',
+      body: JSON.stringify({ changes: changed })
+    });
+
+    ORIGINAL = r.company_info || ORIGINAL;
+    // 폼 메타 갱신
+    FIELDS.forEach(f => {
+      const meta = document.getElementById('m-' + f.key);
+      if (meta) { meta.textContent = ''; meta.classList.remove('changed'); }
+    });
+    if (r.updated_at_label) {
+      const m = $('meta-updated');
+      if (m) m.textContent = r.updated_at_label;
+    }
+    $('badge-status').textContent = '저장됨';
+    $('badge-status').style.color = 'var(--ok)';
+
+    toast(`✓ ${Object.keys(changed).length}개 항목 저장 완료. 변경 이력에 기록되었습니다.`);
+  } catch (e) {
+    toast('저장 실패: ' + e.message, 'err');
+  } finally {
+    $('btn-save').disabled = false;
+    $('btn-save').textContent = '저장';
+  }
+}
+
+init();
+</script>
+</body>
+</html>

@@ -1,0 +1,65 @@
+# TW B2B — 시스템 매뉴얼 자동 재생성 봇 (BL-SYSTEM-MANUAL-AUTOGEN)
+#
+# 헌법 부합:
+#   ② 무인 실행: 5개 데이터 소스 push 시 즉시 매뉴얼 재생성
+#   ⑥ AI 가독성: 사람용 + AI용 이중 형식 (12대 원칙 6번)
+#   ⑧ 통합 관리: 단일 진실 출처 — _os/service-map.md만 매뉴얼
+#
+# 트리거 (signup-trigger 패턴):
+#   1. push trigger (paths 좁힘): 5개 데이터 소스 중 하나라도 변경 시
+#      - scripts/pages-meta.mjs (페이지 메타)
+#      - .github/workflows/*.yml (봇 추가/변경)
+#      - _os/manifest.json (OS 자산)
+#      - OPERATIONS_CHARTER.md (헌법 부칙)
+#      - _os/boot.md (부팅 절차)
+#      - _os/scripts/build-system-manual.mjs (빌더 자체)
+#   2. workflow_dispatch: 수동 실행
+#   3. [system-manual-bot] self commit은 if 가드로 차단 (무한 루프 방지)
+
+name: System Manual Rebuild
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/pages-meta.mjs'
+      - '.github/workflows/*.yml'
+      - '_os/manifest.json'
+      - 'OPERATIONS_CHARTER.md'
+      - '_os/boot.md'
+      - '_os/scripts/build-system-manual.mjs'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+    # 봇 자기 commit 차단 (무한 루프 방지)
+    if: "!contains(github.event.head_commit.message, '[system-manual-bot]')"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Build system manual
+        run: node _os/scripts/build-system-manual.mjs
+
+      - name: Commit if changed
+        run: |
+          git config user.name "system-manual-bot"
+          git config user.email "bot@gohotelwinners.com"
+          if [[ -n $(git status --porcelain _os/service-map.md) ]]; then
+            git add _os/service-map.md
+            git commit -m "[system-manual-bot] _os/service-map.md 자동 재생성 [변경사유: 5개 데이터 소스 중 하나 변경 감지]"
+            git push
+            echo "✅ service-map.md 갱신 완료"
+          else
+            echo "변경사항 없음 — skip"
+          fi

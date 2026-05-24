@@ -1,7 +1,7 @@
 # 📖 TW B2B 시스템 매뉴얼 (service-map)
 
 > **자동 생성 — 직접 편집 금지** (`.github/workflows/system-manual-rebuild.yml`이 push마다 재생성)
-> **생성 시각:** 2026-05-24T00:59:26.645Z
+> **생성 시각:** 2026-05-24T07:23:16.453Z
 > **포맷 (헌법 12대 원칙 6번 — AI 가독성):** 사람용 표/설명 + AI용 YAML 블록
 
 ---
@@ -28,7 +28,7 @@
 | `/reset-password.html` | 비밀번호 재설정 | ✅ live |
 | `/verify-email.html` | 이메일 인증 | ✅ live |
 
-### ⚙️ 관리자 (8개)
+### ⚙️ 관리자 (9개)
 
 | 페이지 | 역할 | 상태 |
 |---|---|---|
@@ -40,11 +40,12 @@
 | `/admin-tasks.html` | 작업 관리 (Task Management) | ✅ live |
 | `/admin-service-ops.html` | 운영 매뉴얼 (Service Operations) | ✅ live |
 | `/admin-status.html` | 시스템 완성도 (System Status) | ✅ live |
+| `/_admin/admin-settings.html` | 인보이스 설정 (Invoice Settings) | 🟡 partial |
 
 
 ```yaml
 section: map
-pages_total: 20
+pages_total: 21
 groups:
   public:
     - { path: "/index.html", status: "live", name: "메인 랜딩" }
@@ -62,6 +63,7 @@ groups:
     - { path: "/admin-tasks.html", status: "live", name: "작업 관리 (Task Management)" }
     - { path: "/admin-service-ops.html", status: "live", name: "운영 매뉴얼 (Service Operations)" }
     - { path: "/admin-status.html", status: "live", name: "시스템 완성도 (System Status)" }
+    - { path: "/_admin/admin-settings.html", status: "partial", name: "인보이스 설정 (Invoice Settings)" }
 ```
 
 

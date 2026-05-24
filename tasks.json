@@ -2372,7 +2372,10 @@
         "estimated_hours": 0.2,
         "requires_decisions_first": []
       },
-      "progress": "✅ 헌법 12조 위반 4호. 대표님 지적: 박은 fix가 또 화면에 안 보임. 진단: 라이브 코드 100% 정상 시뮬레이션 통과 → 진짜 원인은 이전 박은 meta http-equiv 단독으론 부족 (다음 페이지 로드부터 작동, 현재 캐시 무력). fix: ① vercel.json에 7개 admin 페이지 Cache-Control no-store 헤더 박음 ② api/admin-page.js SSR 응답에 직접 setHeader 박음. 학습: meta 태그 ≠ HTTP 헤더, SSR + CDN 캐시는 별도 헤더 박아야 완전 안전.",
+      "progress": {
+        "percent": 100,
+        "steps": []
+      },
       "files_changed": [
         "vercel.json",
         "api/admin-page.js",
@@ -2380,7 +2383,7 @@
         "_chat-logs/2026-05-05-cache-bust-http-headers.md"
       ],
       "decisions": [],
-      "updated_at": "2026-05-05T19:00:00Z",
+      "updated_at": "2026-05-24T06:27:41+00:00",
       "last_chat_log": "2026-05-05-cache-bust-http-headers",
       "source": "운영 중 발견 — admin 페이지 캐시 stale 이슈",
       "history": [
@@ -2388,8 +2391,15 @@
           "at": "2026-05-12T00:15:56.084Z",
           "event": "mail_sent — Resend id: 3216ffa5-e5bf-47ec-9f7c-483e0417a339 (bundle 135)",
           "by": "ops-mail-bot"
+        },
+        {
+          "at": "2026-05-24T06:27:41+00:00",
+          "event": "schema 정규화 — progress(string) → notes로 이동 + progress dict 박음",
+          "by": "Claude (자율 진행)",
+          "note": "부칙 7 향후 위반 방지. 원본 string은 notes 앞에 [완료 요약]으로 보존."
         }
-      ]
+      ],
+      "notes": "[완료 요약]\n✅ 헌법 12조 위반 4호. 대표님 지적: 박은 fix가 또 화면에 안 보임. 진단: 라이브 코드 100% 정상 시뮬레이션 통과 → 진짜 원인은 이전 박은 meta http-equiv 단독으론 부족 (다음 페이지 로드부터 작동, 현재 캐시 무력). fix: ① vercel.json에 7개 admin 페이지 Cache-Control no-store 헤더 박음 ② api/admin-page.js SSR 응답에 직접 setHeader 박음. 학습: meta 태그 ≠ HTTP 헤더, SSR + CDN 캐시는 별도 헤더 박아야 완전 안전."
     },
     {
       "id": "BL-FRONTMATTER-CLEAN-V2",
@@ -2408,14 +2418,17 @@
         "estimated_hours": 0.3,
         "requires_decisions_first": []
       },
-      "progress": "✅ 헌법 12조 위반 3호. 대표님 지적: 사람용 탭에 raw '---' 여전히 박힘. 진단: 라이브 코드는 정상 (GitHub raw = 로컬, 시뮬레이션 17/17 통과) → 진짜 원인은 브라우저 캐시. fix 3중 안전망: ① Cache-Control no-cache + Pragma + Expires + x-app-version 메타 박음 ② parseFrontmatter 7가지 boundary 가드 (표준/CRLF/BOM/없음/빈string/null/body가 ---로 시작 시 자동 제거) ③ footer에 버전 표시 + Ctrl+Shift+R 안내. 자체 검증 2회 디테일 통과: JS 82423 chars, 7가지 boundary 모두, 실제 17개 chat-log 모두 정상, 코드 흐름 8/8 cross-check, 실제 시뮬레이션에서 제목/Task/HTML 1011 chars 정상 박힘.",
+      "progress": {
+        "percent": 100,
+        "steps": []
+      },
       "files_changed": [
         "_admin/admin-status.html",
         "tasks.json",
         "_chat-logs/2026-05-05-frontmatter-cache-bust.md"
       ],
       "decisions": [],
-      "updated_at": "2026-05-05T18:30:00Z",
+      "updated_at": "2026-05-24T06:27:41+00:00",
       "last_chat_log": "2026-05-05-frontmatter-cache-bust",
       "source": "운영 중 발견 — frontmatter 잔존 정리 후속",
       "history": [
@@ -2423,8 +2436,15 @@
           "at": "2026-05-12T00:15:56.084Z",
           "event": "mail_sent — Resend id: 3216ffa5-e5bf-47ec-9f7c-483e0417a339 (bundle 135)",
           "by": "ops-mail-bot"
+        },
+        {
+          "at": "2026-05-24T06:27:41+00:00",
+          "event": "schema 정규화 — progress(string) → notes로 이동 + progress dict 박음",
+          "by": "Claude (자율 진행)",
+          "note": "부칙 7 향후 위반 방지. 원본 string은 notes 앞에 [완료 요약]으로 보존."
         }
-      ]
+      ],
+      "notes": "[완료 요약]\n✅ 헌법 12조 위반 3호. 대표님 지적: 사람용 탭에 raw '---' 여전히 박힘. 진단: 라이브 코드는 정상 (GitHub raw = 로컬, 시뮬레이션 17/17 통과) → 진짜 원인은 브라우저 캐시. fix 3중 안전망: ① Cache-Control no-cache + Pragma + Expires + x-app-version 메타 박음 ② parseFrontmatter 7가지 boundary 가드 (표준/CRLF/BOM/없음/빈string/null/body가 ---로 시작 시 자동 제거) ③ footer에 버전 표시 + Ctrl+Shift+R 안내. 자체 검증 2회 디테일 통과: JS 82423 chars, 7가지 boundary 모두, 실제 17개 chat-log 모두 정상, 코드 흐름 8/8 cross-check, 실제 시뮬레이션에서 제목/Task/HTML 1011 chars 정상 박힘."
     },
     {
       "id": "BL-CACHE-BUST",
@@ -2443,12 +2463,15 @@
         "estimated_hours": 0.1,
         "requires_decisions_first": []
       },
-      "progress": "✅ 개발 단계 동안 브라우저 캐시 강제 차단. <meta http-equiv> 3개 + x-app-version + footer 안내 박음.",
+      "progress": {
+        "percent": 100,
+        "steps": []
+      },
       "files_changed": [
         "_admin/admin-status.html"
       ],
       "decisions": [],
-      "updated_at": "2026-05-05T18:30:00Z",
+      "updated_at": "2026-05-24T06:27:41+00:00",
       "last_chat_log": "2026-05-05-frontmatter-cache-bust",
       "source": "운영 중 발견 — admin 페이지 캐시 stale 이슈",
       "history": [
@@ -2456,8 +2479,15 @@
           "at": "2026-05-12T00:15:56.084Z",
           "event": "mail_sent — Resend id: 3216ffa5-e5bf-47ec-9f7c-483e0417a339 (bundle 135)",
           "by": "ops-mail-bot"
+        },
+        {
+          "at": "2026-05-24T06:27:41+00:00",
+          "event": "schema 정규화 — progress(string) → notes로 이동 + progress dict 박음",
+          "by": "Claude (자율 진행)",
+          "note": "부칙 7 향후 위반 방지. 원본 string은 notes 앞에 [완료 요약]으로 보존."
         }
-      ]
+      ],
+      "notes": "[완료 요약]\n✅ 개발 단계 동안 브라우저 캐시 강제 차단. <meta http-equiv> 3개 + x-app-version + footer 안내 박음."
     },
     {
       "id": "BL-AUTH-COOKIE-SYNC",
@@ -2476,7 +2506,10 @@
         "estimated_hours": 0.5,
         "requires_decisions_first": []
       },
-      "progress": "✅ 헌법 12조 위반 2호. 대표님 지적: '+4건 더 클릭 → 로그인 화면 → 다시 이 화면'. 원인 3-Layer: ① SSR 인증 게이트가 stale sb-access-token 쿠키 거부 → 401 → admin-login.html redirect ② Supabase JS 토큰 1시간마다 refresh하지만 쿠키는 갱신 안 함 ③ admin-status/admin-tasks/admin-service-ops 3개 페이지에 supabase + shared.js 미로드 → onAuthStateChange 리스너 없음. fix: shared.js에 onAuthStateChange 박음 (TOKEN_REFRESHED/SIGNED_IN/INITIAL_SESSION 시 쿠키 자동 갱신, SIGNED_OUT 시 삭제) + 누락 3개 페이지에 supabase CDN + shared.js v4 박음 + admin-permissions.html은 module 방식이라 직접 onAuthStateChange 박음. 자체 검증 8/8 통과 + boundary 케이스 6개 직접 점검 (신규 로그인/토큰 갱신/새로고침/로그아웃/HTTP localhost/shared.js 로드 실패).",
+      "progress": {
+        "percent": 100,
+        "steps": []
+      },
       "files_changed": [
         "shared.js",
         "_admin/admin-status.html",
@@ -2487,7 +2520,7 @@
         "_chat-logs/2026-05-05-auth-cookie-sync.md"
       ],
       "decisions": [],
-      "updated_at": "2026-05-05T18:00:00Z",
+      "updated_at": "2026-05-24T06:27:41+00:00",
       "last_chat_log": "2026-05-05-auth-cookie-sync",
       "source": "운영 중 발견 — Supabase 세션 쿠키 동기화 결함",
       "history": [
@@ -2495,8 +2528,15 @@
           "at": "2026-05-12T00:15:56.084Z",
           "event": "mail_sent — Resend id: 3216ffa5-e5bf-47ec-9f7c-483e0417a339 (bundle 135)",
           "by": "ops-mail-bot"
+        },
+        {
+          "at": "2026-05-24T06:27:41+00:00",
+          "event": "schema 정규화 — progress(string) → notes로 이동 + progress dict 박음",
+          "by": "Claude (자율 진행)",
+          "note": "부칙 7 향후 위반 방지. 원본 string은 notes 앞에 [완료 요약]으로 보존."
         }
-      ]
+      ],
+      "notes": "[완료 요약]\n✅ 헌법 12조 위반 2호. 대표님 지적: '+4건 더 클릭 → 로그인 화면 → 다시 이 화면'. 원인 3-Layer: ① SSR 인증 게이트가 stale sb-access-token 쿠키 거부 → 401 → admin-login.html redirect ② Supabase JS 토큰 1시간마다 refresh하지만 쿠키는 갱신 안 함 ③ admin-status/admin-tasks/admin-service-ops 3개 페이지에 supabase + shared.js 미로드 → onAuthStateChange 리스너 없음. fix: shared.js에 onAuthStateChange 박음 (TOKEN_REFRESHED/SIGNED_IN/INITIAL_SESSION 시 쿠키 자동 갱신, SIGNED_OUT 시 삭제) + 누락 3개 페이지에 supabase CDN + shared.js v4 박음 + admin-permissions.html은 module 방식이라 직접 onAuthStateChange 박음. 자체 검증 8/8 통과 + boundary 케이스 6개 직접 점검 (신규 로그인/토큰 갱신/새로고침/로그아웃/HTTP localhost/shared.js 로드 실패)."
     },
     {
       "id": "UX-FRONTMATTER-CLEAN",
@@ -2515,7 +2555,10 @@
         "estimated_hours": 0.25,
         "requires_decisions_first": []
       },
-      "progress": "✅ 대표님 2가지 지적 박음. ① 사람용 탭에서 frontmatter (--- slug: ... ---)가 그대로 보임 → parseFrontmatter() + renderFrontmatterBox() 함수 박음. 메타 박스(제목/날짜/Task/Commit/결정)로 예쁘게 표시 + 본문은 깨끗한 마크다운만 렌더. 15/15 chat-log 파싱 OK 시뮬레이션 통과. ② admin-gallery 로딩이 늦은 느낌 → Loading 화면에 progress bar (33%/66%/100%) + 단계 표시 (1/3 권한 확인 / 2/3 권한 검증 / 3/3 데이터 로드) + '평균 1-2초 소요' 안내 박음. 자체 검증: 8/8 박은 fix 코드 박힘 확인.",
+      "progress": {
+        "percent": 100,
+        "steps": []
+      },
       "files_changed": [
         "_admin/admin-status.html",
         "_admin/admin-gallery.html",
@@ -2523,7 +2566,7 @@
         "tasks.json"
       ],
       "decisions": [],
-      "updated_at": "2026-05-05T17:00:00Z",
+      "updated_at": "2026-05-24T06:27:41+00:00",
       "last_chat_log": "2026-05-05-frontmatter-clean",
       "source": "운영 중 발견 — UX frontmatter 노출 결함",
       "history": [
@@ -2531,8 +2574,15 @@
           "at": "2026-05-12T00:15:56.084Z",
           "event": "mail_sent — Resend id: 3216ffa5-e5bf-47ec-9f7c-483e0417a339 (bundle 135)",
           "by": "ops-mail-bot"
+        },
+        {
+          "at": "2026-05-24T06:27:41+00:00",
+          "event": "schema 정규화 — progress(string) → notes로 이동 + progress dict 박음",
+          "by": "Claude (자율 진행)",
+          "note": "부칙 7 향후 위반 방지. 원본 string은 notes 앞에 [완료 요약]으로 보존."
         }
-      ]
+      ],
+      "notes": "[완료 요약]\n✅ 대표님 2가지 지적 박음. ① 사람용 탭에서 frontmatter (--- slug: ... ---)가 그대로 보임 → parseFrontmatter() + renderFrontmatterBox() 함수 박음. 메타 박스(제목/날짜/Task/Commit/결정)로 예쁘게 표시 + 본문은 깨끗한 마크다운만 렌더. 15/15 chat-log 파싱 OK 시뮬레이션 통과. ② admin-gallery 로딩이 늦은 느낌 → Loading 화면에 progress bar (33%/66%/100%) + 단계 표시 (1/3 권한 확인 / 2/3 권한 검증 / 3/3 데이터 로드) + '평균 1-2초 소요' 안내 박음. 자체 검증: 8/8 박은 fix 코드 박힘 확인."
     },
     {
       "id": "BL-ADMIN-AUTH-PERF",
@@ -2550,12 +2600,15 @@
         "estimated_hours": 3,
         "requires_decisions_first": []
       },
-      "progress": "📍 발견: admin-gallery 등 admin-* 페이지 로딩 시 1-2초 지연. 원인: 클라이언트 사이드 직렬 인증 (Supabase JS CDN 로드 → getSession 왕복 → checkAdmin RPC 왕복 → 페이지 데이터 fetch). 박을 fix 후보: ① Vercel Edge Middleware로 SSR 인증 게이트 (admin-* 페이지 전체 1번 처리) ② getSession + checkAdmin 병렬화 (현재 직렬) ③ checkAdmin 결과 sessionStorage 캐시 (10분 TTL). 임시 박음: Loading 화면 progress bar + 단계 표시. 정식 fix는 별도 작업.",
+      "progress": {
+        "percent": 100,
+        "steps": []
+      },
       "memo": "BL-ADMIN-AUTH-V2 후속. 모든 admin-* 페이지에 영향 — 정식 오픈 전 박는 게 좋음.",
       "decisions": [
         "D-021"
       ],
-      "updated_at": "2026-05-09T13:32:08+00:00",
+      "updated_at": "2026-05-24T06:27:41+00:00",
       "order": 13,
       "history": [
         {
@@ -2649,6 +2702,12 @@
           "at": "2026-05-12T00:15:56.084Z",
           "event": "mail_sent — Resend id: 3216ffa5-e5bf-47ec-9f7c-483e0417a339 (bundle 135)",
           "by": "ops-mail-bot"
+        },
+        {
+          "at": "2026-05-24T06:27:41+00:00",
+          "event": "schema 정규화 — progress(string) → notes로 이동 + progress dict 박음",
+          "by": "Claude (자율 진행)",
+          "note": "부칙 7 향후 위반 방지. 원본 string은 notes 앞에 [완료 요약]으로 보존."
         }
       ],
       "source": "운영 중 발견 — admin 인증 성능 이슈",
@@ -2719,7 +2778,8 @@
         "detected_by_commit": "c6f788b",
         "message": "in_progress 도중 progress.steps 미박힘 감지."
       },
-      "completed_at": "2026-05-09T13:29:35.638948+00:00"
+      "completed_at": "2026-05-09T13:29:35.638948+00:00",
+      "notes": "[완료 요약]\n📍 발견: admin-gallery 등 admin-* 페이지 로딩 시 1-2초 지연. 원인: 클라이언트 사이드 직렬 인증 (Supabase JS CDN 로드 → getSession 왕복 → checkAdmin RPC 왕복 → 페이지 데이터 fetch). 박을 fix 후보: ① Vercel Edge Middleware로 SSR 인증 게이트 (admin-* 페이지 전체 1번 처리) ② getSession + checkAdmin 병렬화 (현재 직렬) ③ checkAdmin 결과 sessionStorage 캐시 (10분 TTL). 임시 박음: Loading 화면 progress bar + 단계 표시. 정식 fix는 별도 작업."
     },
     {
       "id": "BL-GALLERY-HOTFIX",
@@ -2738,7 +2798,10 @@
         "estimated_hours": 0.25,
         "requires_decisions_first": []
       },
-      "progress": "✅ 헌법 12조 위반 1호. 대표님 지적: System Status 카드 클릭 → admin-gallery.html 무한 Loading. 원인 3-Layer: ① STATUS_BADGES['retired'] = undefined ② BL-HUB-RETIRE 작업 시 admin-hub.html을 retired로 박았으나 BADGES 매핑 누락 ③ cardHtml에 fallback 가드 없음. fix: pages-meta.mjs에 retired 키 박음 + cardHtml에 || fallback (❓ unknown 표시) 박음. 자체 검증: 19/19 페이지 매핑 OK, 19/19 cardHtml 시뮬레이션 OK, 다른 카드 대상 페이지 라이브 401 확인. 헌법 12조 ⑦번 boundary 케이스 정의 확장 (카드 클릭 → 이동 페이지 동작까지 검증).",
+      "progress": {
+        "percent": 100,
+        "steps": []
+      },
       "files_changed": [
         "scripts/pages-meta.mjs",
         "_admin/admin-gallery.html",
@@ -2746,7 +2809,7 @@
         "tasks.json"
       ],
       "decisions": [],
-      "updated_at": "2026-05-05T16:45:00Z",
+      "updated_at": "2026-05-24T06:27:41+00:00",
       "last_chat_log": "2026-05-05-gallery-hotfix",
       "source": "운영 중 발견 — Page Gallery iframe 로그인 화면 표시 결함",
       "history": [
@@ -2754,8 +2817,15 @@
           "at": "2026-05-12T00:15:56.084Z",
           "event": "mail_sent — Resend id: 3216ffa5-e5bf-47ec-9f7c-483e0417a339 (bundle 135)",
           "by": "ops-mail-bot"
+        },
+        {
+          "at": "2026-05-24T06:27:41+00:00",
+          "event": "schema 정규화 — progress(string) → notes로 이동 + progress dict 박음",
+          "by": "Claude (자율 진행)",
+          "note": "부칙 7 향후 위반 방지. 원본 string은 notes 앞에 [완료 요약]으로 보존."
         }
-      ]
+      ],
+      "notes": "[완료 요약]\n✅ 헌법 12조 위반 1호. 대표님 지적: System Status 카드 클릭 → admin-gallery.html 무한 Loading. 원인 3-Layer: ① STATUS_BADGES['retired'] = undefined ② BL-HUB-RETIRE 작업 시 admin-hub.html을 retired로 박았으나 BADGES 매핑 누락 ③ cardHtml에 fallback 가드 없음. fix: pages-meta.mjs에 retired 키 박음 + cardHtml에 || fallback (❓ unknown 표시) 박음. 자체 검증: 19/19 페이지 매핑 OK, 19/19 cardHtml 시뮬레이션 OK, 다른 카드 대상 페이지 라이브 401 확인. 헌법 12조 ⑦번 boundary 케이스 정의 확장 (카드 클릭 → 이동 페이지 동작까지 검증)."
     },
     {
       "id": "CHARTER-12",
@@ -2775,14 +2845,17 @@
         "estimated_hours": 0.5,
         "requires_decisions_first": []
       },
-      "progress": "✅ 대표님 명시 지시 — '너가 만들었는데 제대로 체크도 안 하고 최종확인자에게 확인하라고 하는 회사가 어디있니?' 헌법 12조 박음 (45줄). 7가지 자체 검증 의무: ① JS 문법 ② JSON ③ Vercel deploy READY ④ 라이브 페이지 fetch ⑤ 데이터 정확성 (수치 증명) ⑥ 시각 변경 자체 검증 (DOM 파싱) ⑦ boundary 케이스 (0건/첫번째/마지막/모바일/반복). 인계 보고 형식 의무화: ✅ 통과 N개 / ⚠️ 한계 / 🎯 검증 요청 (구체적 위치+액션). 위반 시 즉시 사과 + 재검증.",
+      "progress": {
+        "percent": 100,
+        "steps": []
+      },
       "files_changed": [
         "OPERATIONS_CHARTER.md"
       ],
       "decisions": [
         "CHARTER-12"
       ],
-      "updated_at": "2026-05-05T16:00:00Z",
+      "updated_at": "2026-05-24T06:27:41+00:00",
       "last_chat_log": "2026-05-05-status-final-v3-self-qa",
       "source": "OPERATIONS_CHARTER.md 헌법 12조 — 그림 일치 OS",
       "history": [
@@ -2790,8 +2863,15 @@
           "at": "2026-05-12T00:15:56.084Z",
           "event": "mail_sent — Resend id: 3216ffa5-e5bf-47ec-9f7c-483e0417a339 (bundle 135)",
           "by": "ops-mail-bot"
+        },
+        {
+          "at": "2026-05-24T06:27:41+00:00",
+          "event": "schema 정규화 — progress(string) → notes로 이동 + progress dict 박음",
+          "by": "Claude (자율 진행)",
+          "note": "부칙 7 향후 위반 방지. 원본 string은 notes 앞에 [완료 요약]으로 보존."
         }
-      ]
+      ],
+      "notes": "[완료 요약]\n✅ 대표님 명시 지시 — '너가 만들었는데 제대로 체크도 안 하고 최종확인자에게 확인하라고 하는 회사가 어디있니?' 헌법 12조 박음 (45줄). 7가지 자체 검증 의무: ① JS 문법 ② JSON ③ Vercel deploy READY ④ 라이브 페이지 fetch ⑤ 데이터 정확성 (수치 증명) ⑥ 시각 변경 자체 검증 (DOM 파싱) ⑦ boundary 케이스 (0건/첫번째/마지막/모바일/반복). 인계 보고 형식 의무화: ✅ 통과 N개 / ⚠️ 한계 / 🎯 검증 요청 (구체적 위치+액션). 위반 시 즉시 사과 + 재검증."
     },
     {
       "id": "BL-STATUS-FINAL-V3",
@@ -2810,14 +2890,17 @@
         "estimated_hours": 0.5,
         "requires_decisions_first": []
       },
-      "progress": "✅ 대표님 5가지 UX 정확성 지적 박음 (헌법 12조 1차 적용). ① cat-card.warn 빨간 테두리 → 노랑 + hover 일관성. ② 점수 숫자 위에 '완성도' 라벨 + /100 표시 + tooltip. ③ 5차원 점수 0 + 가장 약한 부분 명확화 (파일 없음 노란 안내 박스 + 헤더 부연). ④ done task 행에 ✅ + completed_at 표시 (incomplete는 🕒 + updated_at). 검증: 44건 모두 completed_at 박힘. ⑤ +N건 더 클릭 시 펼침 닫힘 버그 — cat-more-link 클래스 + stopPropagation + admin-tasks.html?category=... 이동. 자체 검증 7/7 통과: JS 79255 chars, 박은 fix 7개 HTML 박힘 확인.",
+      "progress": {
+        "percent": 100,
+        "steps": []
+      },
       "files_changed": [
         "_admin/admin-status.html",
         "_chat-logs/2026-05-05-status-final-v3-self-qa.md",
         "tasks.json"
       ],
       "decisions": [],
-      "updated_at": "2026-05-05T16:00:00Z",
+      "updated_at": "2026-05-24T06:27:41+00:00",
       "last_chat_log": "2026-05-05-status-final-v3-self-qa",
       "source": "BL-STATUS-FINAL-V2 후속",
       "history": [
@@ -2825,8 +2908,15 @@
           "at": "2026-05-12T00:15:56.084Z",
           "event": "mail_sent — Resend id: 3216ffa5-e5bf-47ec-9f7c-483e0417a339 (bundle 135)",
           "by": "ops-mail-bot"
+        },
+        {
+          "at": "2026-05-24T06:27:41+00:00",
+          "event": "schema 정규화 — progress(string) → notes로 이동 + progress dict 박음",
+          "by": "Claude (자율 진행)",
+          "note": "부칙 7 향후 위반 방지. 원본 string은 notes 앞에 [완료 요약]으로 보존."
         }
-      ]
+      ],
+      "notes": "[완료 요약]\n✅ 대표님 5가지 UX 정확성 지적 박음 (헌법 12조 1차 적용). ① cat-card.warn 빨간 테두리 → 노랑 + hover 일관성. ② 점수 숫자 위에 '완성도' 라벨 + /100 표시 + tooltip. ③ 5차원 점수 0 + 가장 약한 부분 명확화 (파일 없음 노란 안내 박스 + 헤더 부연). ④ done task 행에 ✅ + completed_at 표시 (incomplete는 🕒 + updated_at). 검증: 44건 모두 completed_at 박힘. ⑤ +N건 더 클릭 시 펼침 닫힘 버그 — cat-more-link 클래스 + stopPropagation + admin-tasks.html?category=... 이동. 자체 검증 7/7 통과: JS 79255 chars, 박은 fix 7개 HTML 박힘 확인."
     },
     {
       "id": "BL-STATUS-FINAL-V2",
@@ -2845,7 +2935,10 @@
         "estimated_hours": 1,
         "requires_decisions_first": []
       },
-      "progress": "✅ 대표님 4가지 UX 지적 박음. ① KPI 4곳 클릭 시 어디로 갔는지 모름 → 4중 시각 안내 박음 (화살표 마커 fly-down + 임박 박스 펄스 2초 + '👈 여기가 클릭한 KPI 결과입니다' 텍스트 4초 + scrollIntoView block start). ② 활동 이력 chat-log 못 찾음 → build-chat-log-index.mjs 시간 근접성 fallback 박음 (같은 날짜 chat-log 자동 매핑, suffix 시간근접), git log 깊이 500 → 2000, byCommit 18 → 42건. admin-status에 isApprox 플래그 + 노란 안내 박스 표시. ③ 임박 박스 0건 메시지 의미 없음 → 역할별 의미화 (자동/직원/CEO 각각 다른 메시지 + 다음 액션 안내). ④ 시급 페이지 클릭 가능 표시 부족 → 박스 헤더에 큰 안내 박스 박음 + 호버 시 border + transform + ::after 툴팁 (👉 클릭하면 카테고리+진행률 펼침). 76316 chars.",
+      "progress": {
+        "percent": 100,
+        "steps": []
+      },
       "files_changed": [
         "_admin/admin-status.html",
         "scripts/build-chat-log-index.mjs",
@@ -2854,7 +2947,7 @@
         "_chat-logs/2026-05-05-status-final-v2-ux-clarity.md"
       ],
       "decisions": [],
-      "updated_at": "2026-05-05T15:30:00Z",
+      "updated_at": "2026-05-24T06:27:41+00:00",
       "last_chat_log": "2026-05-05-status-final-v2-ux-clarity",
       "source": "BL-STATUS-FINAL 후속",
       "history": [
@@ -2862,8 +2955,15 @@
           "at": "2026-05-12T00:15:56.084Z",
           "event": "mail_sent — Resend id: 3216ffa5-e5bf-47ec-9f7c-483e0417a339 (bundle 135)",
           "by": "ops-mail-bot"
+        },
+        {
+          "at": "2026-05-24T06:27:41+00:00",
+          "event": "schema 정규화 — progress(string) → notes로 이동 + progress dict 박음",
+          "by": "Claude (자율 진행)",
+          "note": "부칙 7 향후 위반 방지. 원본 string은 notes 앞에 [완료 요약]으로 보존."
         }
-      ]
+      ],
+      "notes": "[완료 요약]\n✅ 대표님 4가지 UX 지적 박음. ① KPI 4곳 클릭 시 어디로 갔는지 모름 → 4중 시각 안내 박음 (화살표 마커 fly-down + 임박 박스 펄스 2초 + '👈 여기가 클릭한 KPI 결과입니다' 텍스트 4초 + scrollIntoView block start). ② 활동 이력 chat-log 못 찾음 → build-chat-log-index.mjs 시간 근접성 fallback 박음 (같은 날짜 chat-log 자동 매핑, suffix 시간근접), git log 깊이 500 → 2000, byCommit 18 → 42건. admin-status에 isApprox 플래그 + 노란 안내 박스 표시. ③ 임박 박스 0건 메시지 의미 없음 → 역할별 의미화 (자동/직원/CEO 각각 다른 메시지 + 다음 액션 안내). ④ 시급 페이지 클릭 가능 표시 부족 → 박스 헤더에 큰 안내 박스 박음 + 호버 시 border + transform + ::after 툴팁 (👉 클릭하면 카테고리+진행률 펼침). 76316 chars."
     },
     {
       "id": "BL-STATUS-FINAL",
@@ -2882,7 +2982,10 @@
         "estimated_hours": 2,
         "requires_decisions_first": []
       },
-      "progress": "✅ admin-status 88% → 100% 완성. 대표님 A안 채택 (이 채팅 12% 박고 닫음 → 새 채팅 매니저 대시보드). 박은 12% 3가지: ① 모바일 700px 이하 펼침 레이아웃 고도화 — container/header/cat-card 5차원3열/cat-task-row/urgent-card/progress-row/ceo-wait-item/top-row/auto-queue-card/integ-kpi/poll-status 10개 영역 모바일 최적화. ② 시각 강조 통합 — .stat-card.active-filter (✓ 활성 배지 + box-shadow), .linked-highlight + pulse-highlight 애니메이션 (1.5s 펄스), KPI 같은 카드 다시 클릭 = 토글 해제, 시급 페이지 클릭 시 카테고리 카드 + 진행률 행 양쪽 펼침 + 강조 (3-way drill-down 완성). ③ GitHub Actions chat-log-index.yml 신규 — _chat-logs/**.md 또는 tasks.json push 시 build-chat-log-index.mjs 자동 실행, [scan-bot] self-trigger 방지, fetch-depth 0으로 git log 전체 추출. 신규 chat-log에 frontmatter 박음 (slug/title/date/commits/tasks/decisions). 새 채팅 인계 메시지 chat-log에 박음 (대표님이 매니저 대시보드 새 채팅 열 때 붙여넣기 용).",
+      "progress": {
+        "percent": 100,
+        "steps": []
+      },
       "files_changed": [
         "_admin/admin-status.html",
         ".github/workflows/chat-log-index.yml",
@@ -2892,7 +2995,7 @@
       "decisions": [
         "D-010"
       ],
-      "updated_at": "2026-05-05T14:30:00Z",
+      "updated_at": "2026-05-24T06:27:41+00:00",
       "last_chat_log": "2026-05-05-status-final-100",
       "source": "admin-status 통합 진입점 확정 결정 (사업 진화 결정)",
       "history": [
@@ -2900,8 +3003,15 @@
           "at": "2026-05-12T00:15:56.084Z",
           "event": "mail_sent — Resend id: 3216ffa5-e5bf-47ec-9f7c-483e0417a339 (bundle 135)",
           "by": "ops-mail-bot"
+        },
+        {
+          "at": "2026-05-24T06:27:41+00:00",
+          "event": "schema 정규화 — progress(string) → notes로 이동 + progress dict 박음",
+          "by": "Claude (자율 진행)",
+          "note": "부칙 7 향후 위반 방지. 원본 string은 notes 앞에 [완료 요약]으로 보존."
         }
-      ]
+      ],
+      "notes": "[완료 요약]\n✅ admin-status 88% → 100% 완성. 대표님 A안 채택 (이 채팅 12% 박고 닫음 → 새 채팅 매니저 대시보드). 박은 12% 3가지: ① 모바일 700px 이하 펼침 레이아웃 고도화 — container/header/cat-card 5차원3열/cat-task-row/urgent-card/progress-row/ceo-wait-item/top-row/auto-queue-card/integ-kpi/poll-status 10개 영역 모바일 최적화. ② 시각 강조 통합 — .stat-card.active-filter (✓ 활성 배지 + box-shadow), .linked-highlight + pulse-highlight 애니메이션 (1.5s 펄스), KPI 같은 카드 다시 클릭 = 토글 해제, 시급 페이지 클릭 시 카테고리 카드 + 진행률 행 양쪽 펼침 + 강조 (3-way drill-down 완성). ③ GitHub Actions chat-log-index.yml 신규 — _chat-logs/**.md 또는 tasks.json push 시 build-chat-log-index.mjs 자동 실행, [scan-bot] self-trigger 방지, fetch-depth 0으로 git log 전체 추출. 신규 chat-log에 frontmatter 박음 (slug/title/date/commits/tasks/decisions). 새 채팅 인계 메시지 chat-log에 박음 (대표님이 매니저 대시보드 새 채팅 열 때 붙여넣기 용)."
     },
     {
       "id": "BL-STATUS-DRILL-DOWN-V2",
@@ -2920,7 +3030,10 @@
         "estimated_hours": 1,
         "requires_decisions_first": []
       },
-      "progress": "✅ 대표님 5가지 지적 fix 박음. ① 임박 박스 자동 클릭 시 0건 → 필터 모드일 때 P0+진행중 제약 해제, 미완료 자동 13건 전체 표시. ② Image 2 카테고리 카드 4/0/2 등 정확성 검증 통과 (5개 카드 모두 정확). ③ 임박 박스 기능 명확화 (P0+진행중 박스). ④ Image 4 KPI (D+2/59%/18/10) 모두 정확 검증, 막힘 KPI sub-label '대표님 결정 대기' → 'status=blocked 전체'로 명확화, 결정 대기 박스 하드코딩 4건 → renderCeoWait() 동적 렌더 (status=blocked+blocker 정규식 OR approval_required OR pending+미해소 결정). ⑤ Image 5 카테고리 진행률 클릭 펼침 박음 (STATE.expandedProgressCat + 행 클릭 ▶/▼ + task 15건 인라인). 보너스: 카테고리 중복 통합 (infra→infrastructure, documentation→docs, ops→service-ops 4건 정규화 + CATEGORY_ALIAS 런타임 정규화), CATEGORY_LABEL_KO 14개로 확장 (service-ops/feature/analytics/design-system/permissions 라벨 박음). 11개 카테고리 → 8개로 통합.",
+      "progress": {
+        "percent": 100,
+        "steps": []
+      },
       "files_changed": [
         "_admin/admin-status.html",
         "tasks.json",
@@ -2929,7 +3042,7 @@
       "decisions": [
         "D-010"
       ],
-      "updated_at": "2026-05-05T13:30:00Z",
+      "updated_at": "2026-05-24T06:27:41+00:00",
       "last_chat_log": "2026-05-05-status-drill-down-v2",
       "source": "BL-STATUS-DRILL-DOWN 후속",
       "history": [
@@ -2937,8 +3050,15 @@
           "at": "2026-05-12T00:15:56.084Z",
           "event": "mail_sent — Resend id: 3216ffa5-e5bf-47ec-9f7c-483e0417a339 (bundle 135)",
           "by": "ops-mail-bot"
+        },
+        {
+          "at": "2026-05-24T06:27:41+00:00",
+          "event": "schema 정규화 — progress(string) → notes로 이동 + progress dict 박음",
+          "by": "Claude (자율 진행)",
+          "note": "부칙 7 향후 위반 방지. 원본 string은 notes 앞에 [완료 요약]으로 보존."
         }
-      ]
+      ],
+      "notes": "[완료 요약]\n✅ 대표님 5가지 지적 fix 박음. ① 임박 박스 자동 클릭 시 0건 → 필터 모드일 때 P0+진행중 제약 해제, 미완료 자동 13건 전체 표시. ② Image 2 카테고리 카드 4/0/2 등 정확성 검증 통과 (5개 카드 모두 정확). ③ 임박 박스 기능 명확화 (P0+진행중 박스). ④ Image 4 KPI (D+2/59%/18/10) 모두 정확 검증, 막힘 KPI sub-label '대표님 결정 대기' → 'status=blocked 전체'로 명확화, 결정 대기 박스 하드코딩 4건 → renderCeoWait() 동적 렌더 (status=blocked+blocker 정규식 OR approval_required OR pending+미해소 결정). ⑤ Image 5 카테고리 진행률 클릭 펼침 박음 (STATE.expandedProgressCat + 행 클릭 ▶/▼ + task 15건 인라인). 보너스: 카테고리 중복 통합 (infra→infrastructure, documentation→docs, ops→service-ops 4건 정규화 + CATEGORY_ALIAS 런타임 정규화), CATEGORY_LABEL_KO 14개로 확장 (service-ops/feature/analytics/design-system/permissions 라벨 박음). 11개 카테고리 → 8개로 통합."
     },
     {
       "id": "BL-STATUS-DRILL-DOWN",
@@ -2957,7 +3077,10 @@
         "estimated_hours": 1,
         "requires_decisions_first": []
       },
-      "progress": "✅ 대표님 4가지 지적 fix 박음. ① 카테고리 카드 매핑 정확화 — D-010 MENU_KEY_TO_CATEGORIES 매핑 표 박음, tasksByMenuKey()로 tasks.json 직접 카운트, STATE.tasksData 캐시. ② KPI 4카드 동적 계산 + 클릭 필터 — taskRole(t) 5분류(auto/staff/ceo/blocked/done), data-role-filter 속성, STATE.urgentFilter 갱신, 임박 박스 필터 표시바 + 해제 버튼 + 부드러운 스크롤. ③ 카테고리 카드 펼침 = task 리스트 + 페이지 점수 — renderCategoryTasksBlock + renderCategoryPagesBlock, 행 클릭 → admin-tasks.html?id=... 이동. ④ 시급 페이지 drill-down — pageToMenuKey() 역매핑, row 클릭 → 카테고리 카드 펼침 + 스크롤. ⑤ 보너스: chat-log 인덱스 자동 매핑 — build-chat-log-index.mjs에 git log 자동 추출 박음, byCommit 4 → 16건 (4배 증가).",
+      "progress": {
+        "percent": 100,
+        "steps": []
+      },
       "files_changed": [
         "_admin/admin-status.html",
         "scripts/build-chat-log-index.mjs",
@@ -2969,7 +3092,7 @@
       "decisions": [
         "D-010"
       ],
-      "updated_at": "2026-05-05T12:30:00Z",
+      "updated_at": "2026-05-24T06:27:41+00:00",
       "last_chat_log": "2026-05-05-status-drill-down",
       "source": "admin-status drill-down UI 결정",
       "history": [
@@ -2977,8 +3100,15 @@
           "at": "2026-05-12T00:15:56.084Z",
           "event": "mail_sent — Resend id: 3216ffa5-e5bf-47ec-9f7c-483e0417a339 (bundle 135)",
           "by": "ops-mail-bot"
+        },
+        {
+          "at": "2026-05-24T06:27:41+00:00",
+          "event": "schema 정규화 — progress(string) → notes로 이동 + progress dict 박음",
+          "by": "Claude (자율 진행)",
+          "note": "부칙 7 향후 위반 방지. 원본 string은 notes 앞에 [완료 요약]으로 보존."
         }
-      ]
+      ],
+      "notes": "[완료 요약]\n✅ 대표님 4가지 지적 fix 박음. ① 카테고리 카드 매핑 정확화 — D-010 MENU_KEY_TO_CATEGORIES 매핑 표 박음, tasksByMenuKey()로 tasks.json 직접 카운트, STATE.tasksData 캐시. ② KPI 4카드 동적 계산 + 클릭 필터 — taskRole(t) 5분류(auto/staff/ceo/blocked/done), data-role-filter 속성, STATE.urgentFilter 갱신, 임박 박스 필터 표시바 + 해제 버튼 + 부드러운 스크롤. ③ 카테고리 카드 펼침 = task 리스트 + 페이지 점수 — renderCategoryTasksBlock + renderCategoryPagesBlock, 행 클릭 → admin-tasks.html?id=... 이동. ④ 시급 페이지 drill-down — pageToMenuKey() 역매핑, row 클릭 → 카테고리 카드 펼침 + 스크롤. ⑤ 보너스: chat-log 인덱스 자동 매핑 — build-chat-log-index.mjs에 git log 자동 추출 박음, byCommit 4 → 16건 (4배 증가)."
     },
     {
       "id": "BL-ADMIN-STATUS-LOOP-FIX",
@@ -2997,12 +3127,15 @@
         "estimated_hours": 0.5,
         "requires_decisions_first": []
       },
-      "progress": "✅ admin-status.html '자율 작업 큐 + 활동 이력 + 다음 추천 박스' 무한루프 진단 + fix 완료. 원인: MutationObserver(document.body, {subtree:true}) 콜백 안에서 pollPause/Resume → updatePollStatus → POLL.statusEl.textContent/classList 변경 → MutationObserver 재발화 무한 반복. setInterval(pollTick, 5000)이 매 틱마다 .poll-toast 생성하여 루프 강화. 3중 fix 박음: ① MutationObserver 콜백에 SELF_DOM_CLASSES (poll-status/poll-toast/auto-queue-toast/activity-expand-wrap) 자기 변경 즉시 무시 ② 300ms debounce로 다중 mutation 묶음 처리 ③ lastHasModal 비교로 상태 실제 변화 시에만 pollPause/Resume 호출. pollPause/Resume도 이미 같은 reason이면 DOM 손대지 않도록 가드. JS 문법 검증 통과 (54180 chars).",
+      "progress": {
+        "percent": 100,
+        "steps": []
+      },
       "files_changed": [
         "_admin/admin-status.html"
       ],
       "decisions": [],
-      "updated_at": "2026-05-05T11:30:00Z",
+      "updated_at": "2026-05-24T06:27:41+00:00",
       "last_chat_log": "2026-05-05-admin-status-loop-fix",
       "source": "운영 중 발견 — admin-status 무한 루프 결함",
       "history": [
@@ -3010,8 +3143,15 @@
           "at": "2026-05-12T00:15:56.084Z",
           "event": "mail_sent — Resend id: 3216ffa5-e5bf-47ec-9f7c-483e0417a339 (bundle 135)",
           "by": "ops-mail-bot"
+        },
+        {
+          "at": "2026-05-24T06:27:41+00:00",
+          "event": "schema 정규화 — progress(string) → notes로 이동 + progress dict 박음",
+          "by": "Claude (자율 진행)",
+          "note": "부칙 7 향후 위반 방지. 원본 string은 notes 앞에 [완료 요약]으로 보존."
         }
-      ]
+      ],
+      "notes": "[완료 요약]\n✅ admin-status.html '자율 작업 큐 + 활동 이력 + 다음 추천 박스' 무한루프 진단 + fix 완료. 원인: MutationObserver(document.body, {subtree:true}) 콜백 안에서 pollPause/Resume → updatePollStatus → POLL.statusEl.textContent/classList 변경 → MutationObserver 재발화 무한 반복. setInterval(pollTick, 5000)이 매 틱마다 .poll-toast 생성하여 루프 강화. 3중 fix 박음: ① MutationObserver 콜백에 SELF_DOM_CLASSES (poll-status/poll-toast/auto-queue-toast/activity-expand-wrap) 자기 변경 즉시 무시 ② 300ms debounce로 다중 mutation 묶음 처리 ③ lastHasModal 비교로 상태 실제 변화 시에만 pollPause/Resume 호출. pollPause/Resume도 이미 같은 reason이면 DOM 손대지 않도록 가드. JS 문법 검증 통과 (54180 chars)."
     },
     {
       "id": "BL-ADMIN-AUTH-V2",
@@ -3032,7 +3172,10 @@
           "D-015"
         ]
       },
-      "progress": "✅ 임시 비번 시스템(ADMIN_ACCESS_KEY 쿠키) 폐기. Supabase Auth 5단계 권한 정식 박힘. DB 9섹션 SQL 라이브 적용 8/8 PASS. API 5개 신규 + admin-page.js 재작성. 사용자 화면 3개 (admin-login / admin-accept-invite / admin-permissions). admin-status에 Card 6 권한 관리 통합 진입점 추가. Owner 삼중 보호: handle_new_user 트리거 + protect_owner_account 트리거 + RLS. D-015 + chat-log 2026-05-05-admin-auth-v2 박힘. [D-016] Vercel Hobby 12 함수 한도 회피를 위해 5개 신규 함수를 라우터 패턴으로 통합 — admin/* 4개 → _lib/admin-auth-handlers.js 모듈 추출 후 api/admin.js의 auth-* prefix로 흡수, auth/session 1개 → api/auth.js 라우터화. vercel.json rewrites로 클라이언트 URL 호환 유지(코드 변경 0). 함수 갯수 15→12 ✅. 정식 오픈 직전 Pro 전환 시점까지 라우터 패턴 유지. [HOTFIX 2026-05-05] RLS 무한 재귀 (42P17) Supabase Management API로 라이브 fix 후 sql/bl-admin-auth-v2-rls-hotfix.sql로 영구 박음 — is_admin()/is_owner() SECURITY DEFINER 처리 + admins 자기 참조 정책 제거 + auth.users 신규 가입 시 admins 자동 동기화 트리거 + Owner 이메일 자동 owner 승격. admin.html Owner 인식 + Hotels/Members/Team 메뉴 라이브 검증 통과.",
+      "progress": {
+        "percent": 100,
+        "steps": []
+      },
       "files_changed": [
         "sql/bl-admin-auth-v2.sql",
         "sql/bl-admin-auth-v2-rls-hotfix.sql",
@@ -3053,7 +3196,7 @@
       "decisions": [
         "D-015"
       ],
-      "updated_at": "2026-05-05T11:00:00Z",
+      "updated_at": "2026-05-24T06:27:41+00:00",
       "last_chat_log": "2026-05-05-admin-status-loop-fix",
       "source": "BL-ADMIN-AUTH 후속 — 인증 시스템 V2",
       "history": [
@@ -3061,8 +3204,15 @@
           "at": "2026-05-12T00:15:56.084Z",
           "event": "mail_sent — Resend id: 3216ffa5-e5bf-47ec-9f7c-483e0417a339 (bundle 135)",
           "by": "ops-mail-bot"
+        },
+        {
+          "at": "2026-05-24T06:27:41+00:00",
+          "event": "schema 정규화 — progress(string) → notes로 이동 + progress dict 박음",
+          "by": "Claude (자율 진행)",
+          "note": "부칙 7 향후 위반 방지. 원본 string은 notes 앞에 [완료 요약]으로 보존."
         }
-      ]
+      ],
+      "notes": "[완료 요약]\n✅ 임시 비번 시스템(ADMIN_ACCESS_KEY 쿠키) 폐기. Supabase Auth 5단계 권한 정식 박힘. DB 9섹션 SQL 라이브 적용 8/8 PASS. API 5개 신규 + admin-page.js 재작성. 사용자 화면 3개 (admin-login / admin-accept-invite / admin-permissions). admin-status에 Card 6 권한 관리 통합 진입점 추가. Owner 삼중 보호: handle_new_user 트리거 + protect_owner_account 트리거 + RLS. D-015 + chat-log 2026-05-05-admin-auth-v2 박힘. [D-016] Vercel Hobby 12 함수 한도 회피를 위해 5개 신규 함수를 라우터 패턴으로 통합 — admin/* 4개 → _lib/admin-auth-handlers.js 모듈 추출 후 api/admin.js의 auth-* prefix로 흡수, auth/session 1개 → api/auth.js 라우터화. vercel.json rewrites로 클라이언트 URL 호환 유지(코드 변경 0). 함수 갯수 15→12 ✅. 정식 오픈 직전 Pro 전환 시점까지 라우터 패턴 유지. [HOTFIX 2026-05-05] RLS 무한 재귀 (42P17) Supabase Management API로 라이브 fix 후 sql/bl-admin-auth-v2-rls-hotfix.sql로 영구 박음 — is_admin()/is_owner() SECURITY DEFINER 처리 + admins 자기 참조 정책 제거 + auth.users 신규 가입 시 admins 자동 동기화 트리거 + Owner 이메일 자동 owner 승격. admin.html Owner 인식 + Hotels/Members/Team 메뉴 라이브 검증 통과."
     },
     {
       "id": "BL-CATEGORY-REMAP",
@@ -3083,7 +3233,10 @@
           "D-010"
         ]
       },
-      "progress": "✅ 6단계 모두 완료. commit 60908ae push 성공. Vercel 자동 배포 후 라이브 5개 페이지 200 OK + 컨텐츠 14/14 검증 통과. 자가 검증 스크립트 27/27 PASS.",
+      "progress": {
+        "percent": 100,
+        "steps": []
+      },
       "tag": "헌법부칙5-실제반영",
       "phase": "Charter-v2",
       "commit": "60908ae",
@@ -3117,11 +3270,17 @@
           "at": "2026-05-12T00:15:56.084Z",
           "event": "mail_sent — Resend id: 3216ffa5-e5bf-47ec-9f7c-483e0417a339 (bundle 135)",
           "by": "ops-mail-bot"
+        },
+        {
+          "at": "2026-05-24T06:27:41+00:00",
+          "event": "schema 정규화 — progress(string) → notes로 이동 + progress dict 박음",
+          "by": "Claude (자율 진행)",
+          "note": "부칙 7 향후 위반 방지. 원본 string은 notes 앞에 [완료 요약]으로 보존."
         }
       ],
       "source": "D-010 + 대표님 통찰 2건 (Hub-Tasks 중복 / BACKLOG 두 카테고리 중복)",
       "source_anchor": "ECHO_LOG.md 2026-05-03 후반부",
-      "notes": "6단계 sub-task: ①admin-business에서 BACKLOG 제거 + JOURNEY/DECISIONS_INDEX 추가, ②admin-tasks에 ECHO_LOG/SOLO_WORK_QUEUE 추가, ③admin-hub 통계 제거 4카드 단순화, ④/js/stats.js 단일 모듈 신설, ⑤헌법 부칙 5 매핑 표 자가 검증 스크립트, ⑥commit + push + 라이브 검증.",
+      "notes": "[완료 요약]\n✅ 6단계 모두 완료. commit 60908ae push 성공. Vercel 자동 배포 후 라이브 5개 페이지 200 OK + 컨텐츠 14/14 검증 통과. 자가 검증 스크립트 27/27 PASS.\n\n---\n\n6단계 sub-task: ①admin-business에서 BACKLOG 제거 + JOURNEY/DECISIONS_INDEX 추가, ②admin-tasks에 ECHO_LOG/SOLO_WORK_QUEUE 추가, ③admin-hub 통계 제거 4카드 단순화, ④/js/stats.js 단일 모듈 신설, ⑤헌법 부칙 5 매핑 표 자가 검증 스크립트, ⑥commit + push + 라이브 검증.",
       "owner": "Claude",
       "approval_required": false,
       "subtasks": [
@@ -3155,7 +3314,8 @@
           "title": "commit + push + 라이브 검증 (Vercel 90초 후 5개 페이지 모두 200 OK)",
           "status": "done"
         }
-      ]
+      ],
+      "updated_at": "2026-05-24T06:27:41+00:00"
     },
     {
       "id": "BL-CENTRAL-HUB",
@@ -3176,7 +3336,10 @@
           "D-004"
         ]
       },
-      "progress": "1단계(d9faa7e): admin-hub.html + admin-service-ops.html 신설 골격 완료. 후속 정리(60908ae, BL-CATEGORY-REMAP): 발견된 3대 결함(Hub-Tasks 통계 중복 / BACKLOG 두 카테고리 중복 / 5개 파일 매핑 누락) 모두 해소 + 자가 검증 27/27 PASS. 헌법 부칙 5 본체 + D-010 매핑 코드 정착. 4 카테고리 통합 진입점 ✅ 운영 가능.",
+      "progress": {
+        "percent": 100,
+        "steps": []
+      },
       "tag": "헌법부칙5-본체",
       "phase": "Charter-v2",
       "commit": "d9faa7e+60908ae",
@@ -3203,13 +3366,20 @@
           "at": "2026-05-12T00:15:56.084Z",
           "event": "mail_sent — Resend id: 3216ffa5-e5bf-47ec-9f7c-483e0417a339 (bundle 135)",
           "by": "ops-mail-bot"
+        },
+        {
+          "at": "2026-05-24T06:27:41+00:00",
+          "event": "schema 정규화 — progress(string) → notes로 이동 + progress dict 박음",
+          "by": "Claude (자율 진행)",
+          "note": "부칙 7 향후 위반 방지. 원본 string은 notes 앞에 [완료 요약]으로 보존."
         }
       ],
       "source": "헌법 부칙 5 + 대표님 지시 (2026-05-03 '근본부터')",
       "source_anchor": "## 부칙 5",
-      "notes": "1단계: 골격(이번 채팅). 2단계: 자동 동기화 강화. 3단계: Aurora 디자인 통일. [2026-05-03 09:30 보강] D-010 결정에 따라 BL-CATEGORY-REMAP이 본 작업의 후속 정리를 담당.",
+      "notes": "[완료 요약]\n1단계(d9faa7e): admin-hub.html + admin-service-ops.html 신설 골격 완료. 후속 정리(60908ae, BL-CATEGORY-REMAP): 발견된 3대 결함(Hub-Tasks 통계 중복 / BACKLOG 두 카테고리 중복 / 5개 파일 매핑 누락) 모두 해소 + 자가 검증 27/27 PASS. 헌법 부칙 5 본체 + D-010 매핑 코드 정착. 4 카테고리 통합 진입점 ✅ 운영 가능.\n\n---\n\n1단계: 골격(이번 채팅). 2단계: 자동 동기화 강화. 3단계: Aurora 디자인 통일. [2026-05-03 09:30 보강] D-010 결정에 따라 BL-CATEGORY-REMAP이 본 작업의 후속 정리를 담당.",
       "owner": "Claude",
-      "approval_required": false
+      "approval_required": false,
+      "updated_at": "2026-05-24T06:27:41+00:00"
     },
     {
       "id": "BL-AURORA-MIGRATION",
@@ -4004,7 +4174,10 @@
           "D-004"
         ]
       },
-      "progress": "v1 완료 (5/3, 137줄, commit 8759235). 매니저 실제 피드백 받은 후 별건 BL-JOURNEY-DOC-V2로 활성화 예정.",
+      "progress": {
+        "percent": 100,
+        "steps": []
+      },
       "tag": "헌법부칙5-비즈니스독스",
       "phase": "Charter-v2",
       "commit": null,
@@ -4016,14 +4189,20 @@
           "at": "2026-05-12T00:15:56.084Z",
           "event": "mail_sent — Resend id: 3216ffa5-e5bf-47ec-9f7c-483e0417a339 (bundle 135)",
           "by": "ops-mail-bot"
+        },
+        {
+          "at": "2026-05-24T06:27:41+00:00",
+          "event": "schema 정규화 — progress(string) → notes로 이동 + progress dict 박음",
+          "by": "Claude (자율 진행)",
+          "note": "부칙 7 향후 위반 방지. 원본 string은 notes 앞에 [완료 요약]으로 보존."
         }
       ],
       "source": "헌법 부칙 5",
       "source_anchor": "## 부칙 5",
-      "notes": "8단계 매니저 여정 (A 결제전 → B 결제직후 → C 대시보드 → D 서류 → E 6개월 종료).",
+      "notes": "[완료 요약]\nv1 완료 (5/3, 137줄, commit 8759235). 매니저 실제 피드백 받은 후 별건 BL-JOURNEY-DOC-V2로 활성화 예정.\n\n---\n\n8단계 매니저 여정 (A 결제전 → B 결제직후 → C 대시보드 → D 서류 → E 6개월 종료).",
       "owner": "이지형 대표님 + Claude",
       "approval_required": false,
-      "updated_at": "2026-05-04T15:45:19Z"
+      "updated_at": "2026-05-24T06:27:41+00:00"
     },
     {
       "id": "BL-DECISIONS-INDEX",
@@ -4042,7 +4221,10 @@
         "estimated_hours": 2,
         "requires_decisions_first": []
       },
-      "progress": "DECISIONS_INDEX.md v1 수동 작성 완료 (5/3). sync_engine 자동화는 별도 작업.",
+      "progress": {
+        "percent": 0,
+        "steps": []
+      },
       "tag": "헌법6조-AI가독성",
       "phase": "Charter-v2",
       "commit": null,
@@ -4050,16 +4232,24 @@
         "scripts/sync_engine.py",
         "DECISIONS_INDEX.md"
       ],
-      "history": [],
+      "history": [
+        {
+          "at": "2026-05-24T06:27:41+00:00",
+          "event": "schema 정규화 — progress(string) → notes로 이동 + progress dict 박음",
+          "by": "Claude (자율 진행)",
+          "note": "부칙 7 향후 위반 방지. 원본 string은 notes 앞에 [완료 요약]으로 보존."
+        }
+      ],
       "source": "헌법 6조 보강 (이중 형식 의무)",
       "source_anchor": "## 원칙 6. AI 가독성",
-      "notes": "DECISIONS.md 변경 감지 → DECISIONS_INDEX.md 자동 갱신. ID 고정 불변 규칙.",
+      "notes": "[완료 요약]\nDECISIONS_INDEX.md v1 수동 작성 완료 (5/3). sync_engine 자동화는 별도 작업.\n\n---\n\nDECISIONS.md 변경 감지 → DECISIONS_INDEX.md 자동 갱신. ID 고정 불변 규칙.",
       "owner": "Claude",
       "approval_required": false,
       "order": 19,
       "target_pages": [
         "__os__"
-      ]
+      ],
+      "updated_at": "2026-05-24T06:27:41+00:00"
     },
     {
       "id": "PHASE-3A-2",
@@ -7661,7 +7851,10 @@
       "created_at": "2026-05-04T01:00:00Z",
       "completed_at": "2026-05-04T06:53:49Z",
       "commit": "e8160f3",
-      "progress": "✅ Phase 3-A/3-B/3-C 모두 완료. admin-status.html 신설 (42KB) + 3-Layer 분리 (pages-status + activity-feed 각 summary/display/full) + 활동 이력 통합 (5출처 189건) + ▶ 예약 A+B 동작 + admin.html 사이드바 #6 교체. 자가 검증 27/27 PASS, 라이브 200 OK.",
+      "progress": {
+        "percent": 100,
+        "steps": []
+      },
       "history": [
         {
           "at": "2026-05-04T01:00:00Z",
@@ -7687,9 +7880,17 @@
           "at": "2026-05-12T00:15:56.084Z",
           "event": "mail_sent — Resend id: 3216ffa5-e5bf-47ec-9f7c-483e0417a339 (bundle 135)",
           "by": "ops-mail-bot"
+        },
+        {
+          "at": "2026-05-24T06:27:41+00:00",
+          "event": "schema 정규화 — progress(string) → notes로 이동 + progress dict 박음",
+          "by": "Claude (자율 진행)",
+          "note": "부칙 7 향후 위반 방지. 원본 string은 notes 앞에 [완료 요약]으로 보존."
         }
       ],
-      "source": "admin-status 통합 대시보드 결정"
+      "source": "admin-status 통합 대시보드 결정",
+      "notes": "[완료 요약]\n✅ Phase 3-A/3-B/3-C 모두 완료. admin-status.html 신설 (42KB) + 3-Layer 분리 (pages-status + activity-feed 각 summary/display/full) + 활동 이력 통합 (5출처 189건) + ▶ 예약 A+B 동작 + admin.html 사이드바 #6 교체. 자가 검증 27/27 PASS, 라이브 200 OK.",
+      "updated_at": "2026-05-24T06:27:41+00:00"
     },
     {
       "id": "BL-PAGE-DEDUP",
@@ -7702,7 +7903,7 @@
       "blocker": null,
       "created_at": "2026-05-04T07:37:17Z",
       "completed_at": "2026-05-04T07:37:17Z",
-      "updated_at": "2026-05-04T07:37:17Z",
+      "updated_at": "2026-05-24T06:27:41+00:00",
       "claude_can_auto": true,
       "owner": "autonomous",
       "approval_required": false,
@@ -7711,8 +7912,11 @@
         "estimated_hours": 1,
         "requires_decisions_first": []
       },
-      "progress": "✅ A/B/C/D 모두 완료. (A) admin-status에 임박 작업+카테고리 진행률+KPI 4종 통합 흡수, tasks.json 직접 fetch, 카드 클릭 → /admin-tasks.html?id=<ID> 모달 자동 오픈. (B) admin-tasks 대시보드 탭 통째 제거 + 상단 통합 CTA 바 + ?id= 쿼리 진입 시 openModal 자동 호출. (C) admin-hub P0 배너/헌법 빠른 참조/최근 활동 통째 제거 → 4 카테고리 카드 + admin-status CTA + 푸터 헌법 링크 1줄. 모든 자가검증 PASS (콘솔 에러 0건, 모달 진입 OK).",
-      "notes": "헌법 1조: 시스템이 모든 실행. 헌법 6조: 사람용+AI용 이중 형식 유지. D-010 단일 진실 매핑 유지 (admin-tasks가 Category 2 단일 진실). _backup_20260504/ 백업 완료. live: gohotelwinners.com/admin-status.html, admin-hub.html, admin-tasks.html — Vercel 배포 후 확인.",
+      "progress": {
+        "percent": 100,
+        "steps": []
+      },
+      "notes": "[완료 요약]\n✅ A/B/C/D 모두 완료. (A) admin-status에 임박 작업+카테고리 진행률+KPI 4종 통합 흡수, tasks.json 직접 fetch, 카드 클릭 → /admin-tasks.html?id=<ID> 모달 자동 오픈. (B) admin-tasks 대시보드 탭 통째 제거 + 상단 통합 CTA 바 + ?id= 쿼리 진입 시 openModal 자동 호출. (C) admin-hub P0 배너/헌법 빠른 참조/최근 활동 통째 제거 → 4 카테고리 카드 + admin-status CTA + 푸터 헌법 링크 1줄. 모든 자가검증 PASS (콘솔 에러 0건, 모달 진입 OK).\n\n---\n\n헌법 1조: 시스템이 모든 실행. 헌법 6조: 사람용+AI용 이중 형식 유지. D-010 단일 진실 매핑 유지 (admin-tasks가 Category 2 단일 진실). _backup_20260504/ 백업 완료. live: gohotelwinners.com/admin-status.html, admin-hub.html, admin-tasks.html — Vercel 배포 후 확인.",
       "links": [],
       "source": "페이지 중복 제거 결정 (대표님 의사결정)",
       "history": [
@@ -7720,6 +7924,12 @@
           "at": "2026-05-12T00:15:56.084Z",
           "event": "mail_sent — Resend id: 3216ffa5-e5bf-47ec-9f7c-483e0417a339 (bundle 135)",
           "by": "ops-mail-bot"
+        },
+        {
+          "at": "2026-05-24T06:27:41+00:00",
+          "event": "schema 정규화 — progress(string) → notes로 이동 + progress dict 박음",
+          "by": "Claude (자율 진행)",
+          "note": "부칙 7 향후 위반 방지. 원본 string은 notes 앞에 [완료 요약]으로 보존."
         }
       ]
     },
@@ -7734,7 +7944,7 @@
       "blocker": null,
       "created_at": "2026-05-04T09:14:09Z",
       "completed_at": "2026-05-04T09:14:09Z",
-      "updated_at": "2026-05-04T09:14:09Z",
+      "updated_at": "2026-05-24T06:27:41+00:00",
       "claude_can_auto": true,
       "owner": "autonomous",
       "approval_required": false,
@@ -7745,8 +7955,11 @@
           "D-013"
         ]
       },
-      "progress": "✅ 완료. (1) admin.html 사이드바 Tools 6→5. (2) vercel.json 301 리다이렉트 (admin-hub.html + /admin-hub). (3) admin-hub.html 폐기 안내 페이지 + meta refresh + JS replace 3중 안전망. (4) 헌법 부칙 5 / D-010 매핑 표 카테고리 0 admin-status로 이관. (5) DECISIONS.md D-012 + D-013 + DECISIONS_INDEX 동기화. (6) admin-status.html 5 카테고리 카드 재정렬, '허브로'→'Admin'. (7) admin-service-ops.html 'Back to Hub'→'Back to Admin'. (8) scripts/scan-pages-status.mjs sidebarMenus 5개 + categoryStats central-hub 제거 + retired 페이지 평균/카운트 제외. (9) scripts/charter-mapping-check.mjs Check 4 재정의 + Check 4-V 신설 (vercel redirect 검증). (10) scripts/pages-meta.mjs admin-hub status retired. (11) js/stats.js 주석 정정 (Category 0 admin-hub→admin-status). (12) pages-status.{json,display,summary} retired 마킹 + 평균 75→77 재계산.",
-      "notes": "헌법 7조 (5초 안에 파악) 충족 — 클릭 단계 3→1 단순화. _backup_20260504/ 백업. live: gohotelwinners.com/admin-hub.html → 301 → admin-status.html.",
+      "progress": {
+        "percent": 100,
+        "steps": []
+      },
+      "notes": "[완료 요약]\n✅ 완료. (1) admin.html 사이드바 Tools 6→5. (2) vercel.json 301 리다이렉트 (admin-hub.html + /admin-hub). (3) admin-hub.html 폐기 안내 페이지 + meta refresh + JS replace 3중 안전망. (4) 헌법 부칙 5 / D-010 매핑 표 카테고리 0 admin-status로 이관. (5) DECISIONS.md D-012 + D-013 + DECISIONS_INDEX 동기화. (6) admin-status.html 5 카테고리 카드 재정렬, '허브로'→'Admin'. (7) admin-service-ops.html 'Back to Hub'→'Back to Admin'. (8) scripts/scan-pages-status.mjs sidebarMenus 5개 + categoryStats central-hub 제거 + retired 페이지 평균/카운트 제외. (9) scripts/charter-mapping-check.mjs Check 4 재정의 + Check 4-V 신설 (vercel redirect 검증). (10) scripts/pages-meta.mjs admin-hub status retired. (11) js/stats.js 주석 정정 (Category 0 admin-hub→admin-status). (12) pages-status.{json,display,summary} retired 마킹 + 평균 75→77 재계산.\n\n---\n\n헌법 7조 (5초 안에 파악) 충족 — 클릭 단계 3→1 단순화. _backup_20260504/ 백업. live: gohotelwinners.com/admin-hub.html → 301 → admin-status.html.",
       "links": [],
       "source": "admin-hub 폐기 결정 (대표님 의사결정 — admin-status 단일 진입점 확정)",
       "history": [
@@ -7754,6 +7967,12 @@
           "at": "2026-05-12T00:15:56.084Z",
           "event": "mail_sent — Resend id: 3216ffa5-e5bf-47ec-9f7c-483e0417a339 (bundle 135)",
           "by": "ops-mail-bot"
+        },
+        {
+          "at": "2026-05-24T06:27:41+00:00",
+          "event": "schema 정규화 — progress(string) → notes로 이동 + progress dict 박음",
+          "by": "Claude (자율 진행)",
+          "note": "부칙 7 향후 위반 방지. 원본 string은 notes 앞에 [완료 요약]으로 보존."
         }
       ]
     },
@@ -7767,7 +7986,7 @@
       "parent_task": null,
       "blocker": null,
       "created_at": "2026-05-04T15:45:19Z",
-      "updated_at": "2026-05-04T16:24:54Z",
+      "updated_at": "2026-05-24T06:27:41+00:00",
       "claude_can_auto": true,
       "owner": "autonomous",
       "approval_required": false,
@@ -7778,8 +7997,11 @@
           "D-014"
         ]
       },
-      "progress": "✅ Phase 1 완료 (commits bfce03e + 90bdc52 + b720d3a). 라이브 검증: /chat-logs/...md 직접 401, Referer 정상 200, /_chat-logs 우회 차단. ⏸ Phase 2 (활동 이력 펼침 패널 탭 3개)는 BL-REAL-SYSTEM 통합 작업으로 흡수됨. BL-REAL-SYSTEM Phase α에서 활동 펼침 + chat-log 인덱스 매핑 완성.",
-      "notes": "헌법 6조 사람용+AI용 이중 형식 충족. D-010 단일 진실 + 인증 게이트 (vercel rewrites + /api/chat-log).",
+      "progress": {
+        "percent": 100,
+        "steps": []
+      },
+      "notes": "[완료 요약]\n✅ Phase 1 완료 (commits bfce03e + 90bdc52 + b720d3a). 라이브 검증: /chat-logs/...md 직접 401, Referer 정상 200, /_chat-logs 우회 차단. ⏸ Phase 2 (활동 이력 펼침 패널 탭 3개)는 BL-REAL-SYSTEM 통합 작업으로 흡수됨. BL-REAL-SYSTEM Phase α에서 활동 펼침 + chat-log 인덱스 매핑 완성.\n\n---\n\n헌법 6조 사람용+AI용 이중 형식 충족. D-010 단일 진실 + 인증 게이트 (vercel rewrites + /api/chat-log).",
       "links": [],
       "last_commit": "b720d3a",
       "last_chat_log": "2026-05-04-chat-log-system",
@@ -7794,6 +8016,12 @@
           "at": "2026-05-12T00:15:56.084Z",
           "event": "mail_sent — Resend id: 3216ffa5-e5bf-47ec-9f7c-483e0417a339 (bundle 135)",
           "by": "ops-mail-bot"
+        },
+        {
+          "at": "2026-05-24T06:27:41+00:00",
+          "event": "schema 정규화 — progress(string) → notes로 이동 + progress dict 박음",
+          "by": "Claude (자율 진행)",
+          "note": "부칙 7 향후 위반 방지. 원본 string은 notes 앞에 [완료 요약]으로 보존."
         }
       ],
       "source": "채팅 로그 시스템 구축 결정"
@@ -7808,7 +8036,7 @@
       "parent_task": "BL-CHAT-LOG-SYSTEM",
       "blocker": null,
       "created_at": "2026-05-04T16:13:23Z",
-      "updated_at": "2026-05-04T16:24:54Z",
+      "updated_at": "2026-05-24T06:27:41+00:00",
       "claude_can_auto": true,
       "owner": "autonomous",
       "approval_required": false,
@@ -7817,8 +8045,11 @@
         "estimated_hours": 4,
         "requires_decisions_first": []
       },
-      "progress": "✅ Phase α 완료 — 4가지 거짓말 통합 해결: ①admin-* 인증 게이트 (api/admin-page.js + vercel.json rewrites) ②실시간 폴링 5초 (visibilitychange + 입력중 + 모달 일시정지 + 변경 감지 시 toast) ③풀 컨텍스트 인계 buildHandoffMessage 50+줄 (자율 큐 카드 + '진행 중' 박스 동일 함수) ④활동 이력 펼침 패널 탭 3개 (📖 사람용 chat-log / 🤖 AI용 ECHO_LOG·DECISIONS / 🔧 코드 변경 GitHub commit + localStorage 5분 캐시). 라이브 검증은 Vercel deploy 후 진행.\n\n[2026-05-06 좀비 정리] 코드 작업은 2026-05-04 78fbcc4(Phase α 통합) + 1.1/1.2/1.3 후속 fix로 완료. last_commit=1f2387a. chat-log frontmatter commits:[] 비어있어서 작업 지휘소가 in_progress로 표시되던 거짓 상태를 done으로 수정. 라이브에서 admin-status.html의 폴링/풀컨텍스트/활동이력펼침이 5/5/6일 후속 작업들로 정상 작동 중인 것이 실질 검증.",
-      "notes": "Phase α (이번 작업): ①admin-* 인증 게이트 (chat-logs 방식 확장) ②실시간 폴링 5초 ③자율 큐 카드 풀 컨텍스트 인계 ④활동 이력 펼침 패널 탭 3개. Phase β (별건): Supabase Realtime 정석.",
+      "progress": {
+        "percent": 100,
+        "steps": []
+      },
+      "notes": "[완료 요약]\n✅ Phase α 완료 — 4가지 거짓말 통합 해결: ①admin-* 인증 게이트 (api/admin-page.js + vercel.json rewrites) ②실시간 폴링 5초 (visibilitychange + 입력중 + 모달 일시정지 + 변경 감지 시 toast) ③풀 컨텍스트 인계 buildHandoffMessage 50+줄 (자율 큐 카드 + '진행 중' 박스 동일 함수) ④활동 이력 펼침 패널 탭 3개 (📖 사람용 chat-log / 🤖 AI용 ECHO_LOG·DECISIONS / 🔧 코드 변경 GitHub commit + localStorage 5분 캐시). 라이브 검증은 Vercel deploy 후 진행.\n\n[2026-05-06 좀비 정리] 코드 작업은 2026-05-04 78fbcc4(Phase α 통합) + 1.1/1.2/1.3 후속 fix로 완료. last_commit=1f2387a. chat-log frontmatter commits:[] 비어있어서 작업 지휘소가 in_progress로 표시되던 거짓 상태를 done으로 수정. 라이브에서 admin-status.html의 폴링/풀컨텍스트/활동이력펼침이 5/5/6일 후속 작업들로 정상 작동 중인 것이 실질 검증.\n\n---\n\nPhase α (이번 작업): ①admin-* 인증 게이트 (chat-logs 방식 확장) ②실시간 폴링 5초 ③자율 큐 카드 풀 컨텍스트 인계 ④활동 이력 펼침 패널 탭 3개. Phase β (별건): Supabase Realtime 정석.",
       "last_commit": "1f2387a",
       "last_chat_log": "2026-05-04-real-system-phase-a",
       "links": [],
@@ -7838,6 +8069,12 @@
           "at": "2026-05-12T00:15:56.084Z",
           "event": "mail_sent — Resend id: 3216ffa5-e5bf-47ec-9f7c-483e0417a339 (bundle 135)",
           "by": "ops-mail-bot"
+        },
+        {
+          "at": "2026-05-24T06:27:41+00:00",
+          "event": "schema 정규화 — progress(string) → notes로 이동 + progress dict 박음",
+          "by": "Claude (자율 진행)",
+          "note": "부칙 7 향후 위반 방지. 원본 string은 notes 앞에 [완료 요약]으로 보존."
         }
       ]
     },
@@ -8055,7 +8292,10 @@
         "estimated_hours": 7.5,
         "requires_decisions_first": []
       },
-      "progress": "✅ Phase A+B+C 완료. CCF 프레임워크 골격 12파일 + admin-status.html에 작업 지휘소 적용 + 다른 프로젝트 한 줄 이식 검증 통과. 자체 검증 7항목 모두 통과.",
+      "progress": {
+        "percent": 100,
+        "steps": []
+      },
       "history": [
         {
           "at": "2026-05-05T21:11:23Z",
@@ -8072,9 +8312,17 @@
           "at": "2026-05-12T00:15:56.084Z",
           "event": "mail_sent — Resend id: 3216ffa5-e5bf-47ec-9f7c-483e0417a339 (bundle 135)",
           "by": "ops-mail-bot"
+        },
+        {
+          "at": "2026-05-24T06:27:41+00:00",
+          "event": "schema 정규화 — progress(string) → notes로 이동 + progress dict 박음",
+          "by": "Claude (자율 진행)",
+          "note": "부칙 7 향후 위반 방지. 원본 string은 notes 앞에 [완료 요약]으로 보존."
         }
       ],
-      "source": "Command Center 7원칙 도입 결정 (헌법 12조 후속)"
+      "source": "Command Center 7원칙 도입 결정 (헌법 12조 후속)",
+      "notes": "[완료 요약]\n✅ Phase A+B+C 완료. CCF 프레임워크 골격 12파일 + admin-status.html에 작업 지휘소 적용 + 다른 프로젝트 한 줄 이식 검증 통과. 자체 검증 7항목 모두 통과.",
+      "updated_at": "2026-05-24T06:27:41+00:00"
     },
     {
       "id": "BL-HUMAN-TAB-REWRITE",
@@ -8096,7 +8344,10 @@
         "estimated_hours": 1.5,
         "requires_decisions_first": []
       },
-      "progress": "✅ 완료 (commit 1de9b9d). CLAUDE.md 11조 신설 + loadHumanTab 재작성 + 19개 기존 chat-log 일괄 보강 + auto_migrated 플래그. 자체 검증 7항목 통과.",
+      "progress": {
+        "percent": 100,
+        "steps": []
+      },
       "history": [
         {
           "at": "2026-05-06T04:30:00Z",
@@ -8119,10 +8370,17 @@
           "event": "stale blocked_by/depends_on 자동 청소",
           "by": "claude",
           "note": "차단원 모두 done/obsoleted 상태라 의존성 해제"
+        },
+        {
+          "at": "2026-05-24T06:27:41+00:00",
+          "event": "schema 정규화 — progress(string) → notes로 이동 + progress dict 박음",
+          "by": "Claude (자율 진행)",
+          "note": "부칙 7 향후 위반 방지. 원본 string은 notes 앞에 [완료 요약]으로 보존."
         }
       ],
       "source": "BL-COMMAND-CENTER — 인간 탭 재작성",
-      "updated_at": "2026-05-23T15:29:04.732795+09:00"
+      "updated_at": "2026-05-24T06:27:41+00:00",
+      "notes": "[완료 요약]\n✅ 완료 (commit 1de9b9d). CLAUDE.md 11조 신설 + loadHumanTab 재작성 + 19개 기존 chat-log 일괄 보강 + auto_migrated 플래그. 자체 검증 7항목 통과."
     },
     {
       "id": "BL-DECISION-MODAL-V2",
@@ -8140,8 +8398,11 @@
         "requires_decisions_first": []
       },
       "last_chat_log": "2026-05-06-bl-status-interactive",
-      "progress": "Phase A에서 만든 결정 입력 모달을 풀 사양으로 강화. 현재 모달은 '결정 사유가 명시되지 않았습니다'만 표시되어 대표님이 무엇을 결정해야 하는지 알 수 없음. V2에서 결정 맥락(작업 내용/옵션/트레이드오프)을 좌측에 표시하고, 우측에 입력란을 두어 좌측 보면서 우측에 답할 수 있도록 함. 저장 시 tasks.json 자동 갱신 + approval_required:false + 자율 큐 자동 이관.\n\n[2026-05-06 split] Phase A 완료, Phase B/C는 별도 작업(BL-DECISION-MODAL-V2-PHASE-B/-C)으로 분리. 부모 작업 done 처리.",
-      "notes": "## V2 풀 사양\n\n### 1. UI - 좌우 분할 모달 (모바일은 위아래)\n- 좌측: 결정 맥락 패널\n  - 작업 ID / 카테고리 / 우선순위 / 사이즈 / 예상 시간 (헤더)\n  - 작업 제목\n  - 무엇을 결정해야 하는가 (decision_context 필드)\n  - 옵션 목록 (decision_options 필드)\n  - 권장 안 (decision_recommendation 필드)\n  - 트레이드오프 (각 옵션의 장단점)\n- 우측: 입력 패널\n  - textarea (대표님이 결정 적기)\n  - [💾 결정 저장 + 자율 큐 이관] 버튼\n  - 보조: [📋 클립보드만 복사] 버튼 (V1 호환)\n\n### 2. tasks.json 신설 필드\n- decision_context: '이 작업은 무엇을 결정해야 하는가' (사업적 맥락 / 사용자 영향)\n- decision_options: ['A안: ...', 'B안: ...', 'C안: ...'] 배열\n- decision_recommendation: '권장: A안 — 이유...'\n- ceo_decision: 대표님이 입력한 결정 사항 (저장 시 채워짐)\n- ceo_decision_at: ISO 시각 (저장 시 채워짐)\n\n### 3. 저장 동작 (자동)\n- POST /api/tasks/save-decision endpoint 신설 (또는 GitHub Contents API 직접 사용)\n- task.ceo_decision = 입력값\n- task.ceo_decision_at = new Date().toISOString()\n- task.approval_required = false (막힘 해제)\n- commit + push\n- 5초 폴링으로 자율 큐에 자동 등장\n\n### 4. 모달 마지막 안내\n저장 완료 → '✅ 결정 저장됨. 자율 큐에서 [작업명] 카드 클릭 → 새 채팅에 Cmd+V 하시면 작업이 시작됩니다.' + [지금 자율 큐에서 보기] 버튼 (스크롤 이동)\n\n### 5. decision_context 비어있는 작업 처리\n- 모달 좌측에 '이 작업은 결정 맥락이 정리되지 않았습니다' 안내\n- [📤 Claude에게 결정 사항 정리 요청] 버튼\n  → 클립보드에 '[결정 맥락 정리 요청 — {id}] tasks.json의 decision_context / decision_options / decision_recommendation 채워줘' 포맷 복사\n  → 대표님이 새 채팅에 붙여넣기 → Claude가 채워서 commit\n  → 5초 후 자동 갱신, 모달 다시 열면 풀 맥락 표시됨\n\n### 6. 직전 채팅(BL-STATUS-INTERACTIVE) 좌표 메모\n- 모달 함수: openCeoDecisionModal (admin-status.html line ~2069)\n- 모달 CSS: .ceo-decision-* (admin-status.html line ~872 근처)\n- 결정 대기 카드 클릭 핸들러: line 2055\n- pollTick: line 3322 (V2 저장 후 STATE.data 동기화 함께 호출)\n\n### 7. 백엔드 API (선택)\n- 옵션 A: GitHub Contents API 직접 호출 (현재 admin-status.html이 하는 방식)\n- 옵션 B: /api/tasks/save-decision Vercel function 신설 (인증 + 검증 강화)\n- 권장: 옵션 B (보안 + 향후 확장)\n\n### 8. 자체 검증 의무 (헌법 12조)\n- JS 문법 / JSON 검증 / Vercel READY / 라이브 fetch / 데이터 정확성 (decision 저장 후 다시 fetch해서 값 확인) / 시각 변경 trace / boundary (decision_context 빈 작업 / 한글 입력 / 매우 긴 입력 / 저장 실패 폴백)\n\n### 9. Phase 분할 권장\n- Phase A (small, ~1h): tasks.json 5개 신설 필드 + 1~2개 작업에 샘플 채우기 + UI는 일단 좌측 패널만 표시\n- Phase B (medium, ~1h): 좌우 분할 UI 풀 구현 + 모바일 반응형\n- Phase C (medium, ~1h): 저장 동작 자동화 (GitHub Contents API 또는 /api 신설) + 폴링 갱신 + 안내 화면\n\n### 10. 대표님 검증 요청\n- 결정 대기 카드 클릭 → 모달 좌측에 결정 맥락 보이는지\n- 우측 입력란에 적고 [결정 저장] → 5초 후 자율 큐에 자동 이동하는지\n- decision_context 빈 작업 → '정리 요청' 버튼 정상 동작하는지",
+      "progress": {
+        "percent": 100,
+        "steps": []
+      },
+      "notes": "[완료 요약]\nPhase A에서 만든 결정 입력 모달을 풀 사양으로 강화. 현재 모달은 '결정 사유가 명시되지 않았습니다'만 표시되어 대표님이 무엇을 결정해야 하는지 알 수 없음. V2에서 결정 맥락(작업 내용/옵션/트레이드오프)을 좌측에 표시하고, 우측에 입력란을 두어 좌측 보면서 우측에 답할 수 있도록 함. 저장 시 tasks.json 자동 갱신 + approval_required:false + 자율 큐 자동 이관.\n\n[2026-05-06 split] Phase A 완료, Phase B/C는 별도 작업(BL-DECISION-MODAL-V2-PHASE-B/-C)으로 분리. 부모 작업 done 처리.\n\n---\n\n## V2 풀 사양\n\n### 1. UI - 좌우 분할 모달 (모바일은 위아래)\n- 좌측: 결정 맥락 패널\n  - 작업 ID / 카테고리 / 우선순위 / 사이즈 / 예상 시간 (헤더)\n  - 작업 제목\n  - 무엇을 결정해야 하는가 (decision_context 필드)\n  - 옵션 목록 (decision_options 필드)\n  - 권장 안 (decision_recommendation 필드)\n  - 트레이드오프 (각 옵션의 장단점)\n- 우측: 입력 패널\n  - textarea (대표님이 결정 적기)\n  - [💾 결정 저장 + 자율 큐 이관] 버튼\n  - 보조: [📋 클립보드만 복사] 버튼 (V1 호환)\n\n### 2. tasks.json 신설 필드\n- decision_context: '이 작업은 무엇을 결정해야 하는가' (사업적 맥락 / 사용자 영향)\n- decision_options: ['A안: ...', 'B안: ...', 'C안: ...'] 배열\n- decision_recommendation: '권장: A안 — 이유...'\n- ceo_decision: 대표님이 입력한 결정 사항 (저장 시 채워짐)\n- ceo_decision_at: ISO 시각 (저장 시 채워짐)\n\n### 3. 저장 동작 (자동)\n- POST /api/tasks/save-decision endpoint 신설 (또는 GitHub Contents API 직접 사용)\n- task.ceo_decision = 입력값\n- task.ceo_decision_at = new Date().toISOString()\n- task.approval_required = false (막힘 해제)\n- commit + push\n- 5초 폴링으로 자율 큐에 자동 등장\n\n### 4. 모달 마지막 안내\n저장 완료 → '✅ 결정 저장됨. 자율 큐에서 [작업명] 카드 클릭 → 새 채팅에 Cmd+V 하시면 작업이 시작됩니다.' + [지금 자율 큐에서 보기] 버튼 (스크롤 이동)\n\n### 5. decision_context 비어있는 작업 처리\n- 모달 좌측에 '이 작업은 결정 맥락이 정리되지 않았습니다' 안내\n- [📤 Claude에게 결정 사항 정리 요청] 버튼\n  → 클립보드에 '[결정 맥락 정리 요청 — {id}] tasks.json의 decision_context / decision_options / decision_recommendation 채워줘' 포맷 복사\n  → 대표님이 새 채팅에 붙여넣기 → Claude가 채워서 commit\n  → 5초 후 자동 갱신, 모달 다시 열면 풀 맥락 표시됨\n\n### 6. 직전 채팅(BL-STATUS-INTERACTIVE) 좌표 메모\n- 모달 함수: openCeoDecisionModal (admin-status.html line ~2069)\n- 모달 CSS: .ceo-decision-* (admin-status.html line ~872 근처)\n- 결정 대기 카드 클릭 핸들러: line 2055\n- pollTick: line 3322 (V2 저장 후 STATE.data 동기화 함께 호출)\n\n### 7. 백엔드 API (선택)\n- 옵션 A: GitHub Contents API 직접 호출 (현재 admin-status.html이 하는 방식)\n- 옵션 B: /api/tasks/save-decision Vercel function 신설 (인증 + 검증 강화)\n- 권장: 옵션 B (보안 + 향후 확장)\n\n### 8. 자체 검증 의무 (헌법 12조)\n- JS 문법 / JSON 검증 / Vercel READY / 라이브 fetch / 데이터 정확성 (decision 저장 후 다시 fetch해서 값 확인) / 시각 변경 trace / boundary (decision_context 빈 작업 / 한글 입력 / 매우 긴 입력 / 저장 실패 폴백)\n\n### 9. Phase 분할 권장\n- Phase A (small, ~1h): tasks.json 5개 신설 필드 + 1~2개 작업에 샘플 채우기 + UI는 일단 좌측 패널만 표시\n- Phase B (medium, ~1h): 좌우 분할 UI 풀 구현 + 모바일 반응형\n- Phase C (medium, ~1h): 저장 동작 자동화 (GitHub Contents API 또는 /api 신설) + 폴링 갱신 + 안내 화면\n\n### 10. 대표님 검증 요청\n- 결정 대기 카드 클릭 → 모달 좌측에 결정 맥락 보이는지\n- 우측 입력란에 적고 [결정 저장] → 5초 후 자율 큐에 자동 이동하는지\n- decision_context 빈 작업 → '정리 요청' 버튼 정상 동작하는지",
       "source": "결정 모달 V2 — 그림 맞추기 OS 도입 결정",
       "created_at": "2026-05-10T09:00:00.000Z",
       "source_recovered": true,
@@ -8156,9 +8417,15 @@
           "event": "stale blocked_by/depends_on 자동 청소",
           "by": "claude",
           "note": "차단원 모두 done/obsoleted 상태라 의존성 해제"
+        },
+        {
+          "at": "2026-05-24T06:27:41+00:00",
+          "event": "schema 정규화 — progress(string) → notes로 이동 + progress dict 박음",
+          "by": "Claude (자율 진행)",
+          "note": "부칙 7 향후 위반 방지. 원본 string은 notes 앞에 [완료 요약]으로 보존."
         }
       ],
-      "updated_at": "2026-05-23T15:29:04.732795+09:00"
+      "updated_at": "2026-05-24T06:27:41+00:00"
     },
     {
       "id": "BL-LIVE-STATUS-PANEL",
@@ -8180,14 +8447,17 @@
       "decision_recommendation": "진행 (그림 일치 완료, 시스템 완성도 골격 작업)",
       "ceo_decision": "",
       "ceo_decision_at": "",
-      "progress": "[2026-05-06 채팅에서 그림 일치 완료]\n\n핵심 동작:\n1. 카드 클릭 → 클립보드 복사 → '📋 복사됨 (실행 대기)' 표시\n2. 첫 commit 감지 시 → tasks.json에 in_progress_at 박음 → '다음 추천' 영역 위에 누적 카드 추가 (시작 순서대로 ①②③)\n3. commit 갱신 시 진행률 바 자동 업데이트\n4. 끝남 자동 감지 (status=done + 운영 알림 + chat-log 3개 조건)\n5. 모두 끝났을 때 '💤 진행 중 작업 없음 / 새 작업 시작 가능'\n6. 활동 이력에 진행 중 시작/갱신/끝 모두 자동 박힘\n7. 동시 표시 (차단 X), 시작 순서대로 누적",
+      "progress": {
+        "percent": 100,
+        "steps": []
+      },
       "grim_ilchi_completed": true,
       "grim_ilchi_completed_at": "2026-05-06",
       "grim_ilchi_chat_log": "_chat-logs/2026-05-06-bl-decision-modal-v2-grim-ilchi-os.md",
       "order": 1,
       "claude_can_auto": true,
       "started_at": "2026-05-06T13:53:58+00:00",
-      "updated_at": "2026-05-06T14:17:15+00:00",
+      "updated_at": "2026-05-24T06:27:41+00:00",
       "history": [
         {
           "at": "2026-05-06T13:53:58+00:00",
@@ -8207,12 +8477,19 @@
           "at": "2026-05-12T00:15:56.084Z",
           "event": "mail_sent — Resend id: 3216ffa5-e5bf-47ec-9f7c-483e0417a339 (bundle 135)",
           "by": "ops-mail-bot"
+        },
+        {
+          "at": "2026-05-24T06:27:41+00:00",
+          "event": "schema 정규화 — progress(string) → notes로 이동 + progress dict 박음",
+          "by": "Claude (자율 진행)",
+          "note": "부칙 7 향후 위반 방지. 원본 string은 notes 앞에 [완료 요약]으로 보존."
         }
       ],
       "completed_at": "2026-05-06T14:17:15+00:00",
       "source": "라이브 상태 패널 도입 결정",
       "created_at": "2026-05-10T09:00:00.000Z",
-      "source_recovered": true
+      "source_recovered": true,
+      "notes": "[완료 요약]\n[2026-05-06 채팅에서 그림 일치 완료]\n\n핵심 동작:\n1. 카드 클릭 → 클립보드 복사 → '📋 복사됨 (실행 대기)' 표시\n2. 첫 commit 감지 시 → tasks.json에 in_progress_at 박음 → '다음 추천' 영역 위에 누적 카드 추가 (시작 순서대로 ①②③)\n3. commit 갱신 시 진행률 바 자동 업데이트\n4. 끝남 자동 감지 (status=done + 운영 알림 + chat-log 3개 조건)\n5. 모두 끝났을 때 '💤 진행 중 작업 없음 / 새 작업 시작 가능'\n6. 활동 이력에 진행 중 시작/갱신/끝 모두 자동 박힘\n7. 동시 표시 (차단 X), 시작 순서대로 누적"
     },
     {
       "id": "BL-LIVE-STATUS-AUTO-DETECT",

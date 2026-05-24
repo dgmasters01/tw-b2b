@@ -20,13 +20,13 @@
     "autonomous_ready": 33,
     "todo": 2,
     "cancelled": 0,
-    "updated_at": "2026-05-24T05:55:53+00:00",
+    "updated_at": "2026-05-24T06:24:09+00:00",
     "by_status": {
       "done": 194,
-      "pending": 40,
+      "pending": 38,
       "in_progress": 1,
-      "blocked": 10,
-      "obsoleted": 5,
+      "blocked": 11,
+      "obsoleted": 6,
       "cancelled": 1,
       "absorbed": 1,
       "todo": 2
@@ -11159,7 +11159,7 @@
       "category": "bug",
       "priority": "P2",
       "size": "small",
-      "status": "pending",
+      "status": "obsoleted",
       "claude_can_auto": true,
       "approval_required": false,
       "owner": "autonomous",
@@ -11170,8 +11170,8 @@
       },
       "blocker": null,
       "created_at": "2026-05-09T08:02:33.170969+00:00",
-      "updated_at": "2026-05-09T08:02:33.170969+00:00",
-      "completed_at": null,
+      "updated_at": "2026-05-24T06:24:09+00:00",
+      "completed_at": "2026-05-24T06:24:09+00:00",
       "source": "대표님 발견 — 자동 봇이 박은 commit (auto-detect-bot 등) 클릭 시 모달이 사람용 설명 탭을 default로 보여주는데, 봇 commit은 사람용 설명이 없어 빈 화면 또는 깨진 표시.",
       "order": 60,
       "progress": {
@@ -11179,29 +11179,42 @@
           {
             "id": "step1",
             "label": "admin-status 활동이력 모달 코드 위치 추적 + 결함 재현",
-            "status": "pending",
-            "title": "admin-status 활동이력 모달 코드 위치 추적 + 결함 재현"
+            "status": "done",
+            "title": "admin-status 활동이력 모달 코드 위치 추적 + 결함 재현",
+            "done": true,
+            "at": "2026-05-24T06:24:09+00:00"
           },
           {
             "id": "step2",
             "label": "봇 commit 판별 로직 (by 필드 'auto-detect-bot' 등) + 사람용 탭 자동 비활성화",
-            "status": "pending",
-            "title": "봇 commit 판별 로직 (by 필드 'auto-detect-bot' 등) + 사람용 탭 자동 비활성화"
+            "status": "done",
+            "title": "봇 commit 판별 로직 (by 필드 'auto-detect-bot' 등) + 사람용 탭 자동 비활성화",
+            "done": true,
+            "at": "2026-05-24T06:24:09+00:00"
           },
           {
             "id": "step3",
             "label": "AI용 raw 탭을 default로 전환 + 라이브 검증",
-            "status": "pending",
-            "title": "AI용 raw 탭을 default로 전환 + 라이브 검증"
+            "status": "done",
+            "title": "AI용 raw 탭을 default로 전환 + 라이브 검증",
+            "done": true,
+            "at": "2026-05-24T06:24:09+00:00"
           }
-        ]
+        ],
+        "percent": 100
       },
-      "notes": "결함: 봇 commit (예: auto-detect-bot, charter-length-bot)은 사람용 narrative가 없는데, 활동이력 모달이 default로 사람용 탭을 띄움 → 사용자에게 빈 모달처럼 보임. 정석: 봇 출처 commit은 AI raw 탭을 default로 (또는 사람용 탭 자동 hide).",
+      "notes": "✅ 2026-05-24 자율 진행 중 사실 확인 — 이 BL이 정의한 결함이 이미 다른 BL로 해결됨.\n\n【검증 결과】 _admin/admin-status.html L7280~L7390 직접 확인\n- toggleActivityExpand 함수: 봇/사람 구분 없이 default 탭 = 'human'\n- loadHumanTab 함수: 봇 commit 감지 시 (detectBotCommit) 사람용 탭에 다음 카드 노출\n  · 🎯 무엇 카드 (필수)\n  · 📍 왜 카드 (필수)\n  · \"🔧 봇 자동 작업이라 사람의 의사결정 기록은 없습니다. 기술 디테일은 코드 변경 탭에서 commit diff로 확인하세요.\" 안내\n\n→ \"사용자에게 빈 모달처럼 보임\"은 더 이상 발생하지 않음.\n\n【해결한 BL】 BL-HUMAN-TAB-ALWAYS-SHOW (2026-05-10) step 7\n- 코드 주석: \"★ BL-HUMAN-TAB-ALWAYS-SHOW step7 (2026-05-10): 사람용 탭 = 모든 활동의 정체를 항상 노출. 봇이든 사람이든 디폴트 탭 = 'human'. (이전 D-023의 봇→code 자동 전환 분기 제거)\"\n\n【조치】 status obsoleted, progress 100% 박음. 별도 추적 불필요.",
       "history": [
         {
           "at": "2026-05-09T08:02:33.170969+00:00",
           "event": "BL 신설 (BL-ADMIN-AUTH-PERF 작업 중 대표님 지시로 백로그 등록)",
           "by": "Claude"
+        },
+        {
+          "at": "2026-05-24T06:24:09+00:00",
+          "event": "obsoleted — BL-HUMAN-TAB-ALWAYS-SHOW (2026-05-10) step 7로 이미 해결됨",
+          "by": "Claude (자율 진행)",
+          "note": "_admin/admin-status.html 라이브 코드 검증 완료. 봇 commit도 사람용 탭이 default + identity 카드 + 안내 박혀있음."
         }
       ],
       "target_pages": [
@@ -11275,18 +11288,20 @@
       "category": "infra",
       "priority": "P3",
       "size": "small",
-      "status": "pending",
-      "claude_can_auto": true,
-      "approval_required": false,
+      "status": "blocked",
+      "claude_can_auto": false,
+      "approval_required": true,
       "owner": "autonomous",
       "autonomous": {
-        "can_run_alone": true,
+        "can_run_alone": false,
         "estimated_hours": 0.5,
-        "requires_decisions_first": []
+        "requires_decisions_first": [
+          "BL-SHARED-AUTH-CLEANUP-RESCOPE"
+        ]
       },
       "blocker": null,
       "created_at": "2026-05-09T08:02:33.170969+00:00",
-      "updated_at": "2026-05-09T08:02:33.170969+00:00",
+      "updated_at": "2026-05-24T06:24:09+00:00",
       "completed_at": null,
       "source": "BL-ADMIN-AUTH-PERF (D-021) 완료 후 분리 — 호출처 0개 dead code. 이번 BL의 본질(admin 페이지 RPC 왕복 제거)에서 분리.",
       "order": 62,
@@ -11312,12 +11327,18 @@
           }
         ]
       },
-      "notes": "BL-ADMIN-AUTH-PERF (D-021, A-2 정석)에서 admin 페이지의 checkAdmin 호출 100% 제거 후, shared.js에 정의만 남은 dead code. 호출처 0개 확인됨 (2026-05-09). middleware.js가 단일 진실원이므로 정석은 제거이지만, 호출처 0으로 안전하므로 별도 BL로 분리 (대표님 결정 2026-05-09).",
+      "notes": "⚠️ 2026-05-24 자율 진행 중 사실 확인 — 원본 notes(2026-05-09)의 \"호출처 0개\" 전제가 더이상 유효하지 않음.\n\n【재실측 결과】 (2026-05-24 grep 정밀 검증)\n- checkAdmin 호출처: 10건 (verify-email/dashboard/login/booking-analytics/hotel-info 등 5개 라이브 페이지)\n- clearAdminCache 호출처: 0건 (dead 확인)\n- T.isAdmin 호출처: 1건 (확인 필요)\n- _adminCache 사용처: shared.js 내부 (checkAdmin이 살아있으므로 함께 살아있음)\n\n【결론】 BL 원래 범위(shared.js L139~183 4개 함수 일괄 제거)대로 진행 시 5개 라이브 페이지 깨짐.\n- middleware.js는 admin 전용 single-source 인증이지만 일반 페이지(dashboard, verify-email 등)는 여전히 shared.js의 checkAdmin 활용 중.\n- BL-ADMIN-AUTH-PERF는 admin 페이지만 중복 인증 제거. 일반 페이지는 별도 인증 체계 (정상).\n\n【대표님 결정 필요】 다음 3가지 중 선택:\n- A안 — clearAdminCache만 제거(0건 호출, 안전). checkAdmin은 그대로 유지. → 결과: 거의 효과 없음 (1개 함수만 제거)\n- B안 — BL 전체 폐기 처리(obsoleted). dead code 아니라는 사실 확정. → 결과: 시스템 깔끔, 작업 추적에서 사라짐\n- C안 — 별도 BL로 확장: 일반 페이지 인증도 middleware로 통합 (대공사). → 결과: 전체 인증 단일화, 큰 작업",
       "history": [
         {
           "at": "2026-05-09T08:02:33.170969+00:00",
           "event": "BL 신설 (BL-ADMIN-AUTH-PERF 작업 중 분리 결정)",
           "by": "Claude"
+        },
+        {
+          "at": "2026-05-24T06:24:09+00:00",
+          "event": "사실 확인 → blocked 전환",
+          "by": "Claude (자율 진행)",
+          "note": "원본 notes 전제(호출처 0개)가 2026-05-09 후 무효화됨. checkAdmin 10건 활발 호출 확인. 대표님 A/B/C 결정 필요로 박음."
         }
       ],
       "target_pages": [

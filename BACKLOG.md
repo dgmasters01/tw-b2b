@@ -5,7 +5,7 @@
 > 
 > 단일 진실 소스: `tasks.json` (v2.0)
 
-**마지막 업데이트**: 2026-05-24
+**마지막 업데이트**: 2026-05-25
 
 > 💡 **새 채팅 시작 시**: 다음 5개 문서를 먼저 보면 즉시 컨텍스트 파악 가능.
 > 
@@ -327,6 +327,24 @@
 - **카테고리**: ops
 - **상태**: pending
 - **ID**: `BL-PRELAUNCH-CLEANUP` (출처: chat:2026-05-13 보안 진단)
+
+---
+
+## 🟢 P1 — [자동] 관리자 페이지 2개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요)
+
+**요약**: 점검 봇 자동 등록 (2026-05-15T16:30:05.675Z)
+
+check_name: admin_baseline
+status: yellow
+detail: 관리자 페이지 2개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요)
+
+진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 gr
+
+- **자율성**: 🟢 AUTO
+- **예상 시간**: 1시간
+- **카테고리**: infrastructure
+- **상태**: pending
+- **ID**: `BL-AUTO-ADMIN-BASELINE-2FILES` (출처: auto_from_admin_baseline)
 
 ---
 

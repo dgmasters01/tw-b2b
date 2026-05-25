@@ -3,7 +3,7 @@
 > ⚠️ **이 파일은 자동 생성됩니다.** 수동 편집하지 마세요.
 > 단일 진실 소스: `tasks.json` (v2.0)
 > **데드라인**: 2026-05-03
-> **갱신**: 2026-05-24
+> **갱신**: 2026-05-25
 > **목적**: 대표님 외근/자리비움 시 Claude 자율 처리 가능 작업
 
 ## 작업 분류 체계
@@ -114,7 +114,27 @@
 
 ---
 
-### H. 🟡 SEMI — OS 설치 시 PAT/시크릿 자동 박기 흐름 — install_os.sh 보강
+### H. 🟢 AUTO — [자동] 관리자 페이지 2개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요)
+
+**ID**: `BL-AUTO-ADMIN-BASELINE-2FILES`  
+**카테고리**: infrastructure  
+**예상 시간**: 1시간  
+
+**메모**: 점검 봇 자동 등록 (2026-05-15T16:30:05.675Z)
+
+check_name: admin_baseline
+status: yellow
+detail: 관리자 페이지 2개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요)
+
+진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 green으로 박으면 자동 done.
+
+[자동 해소 2026-05-23T16:39:50.763Z] 점검 봇 green 전환
+
+[재개 2026-05-24T17:07:54.074Z] 관리
+
+---
+
+### I. 🟡 SEMI — OS 설치 시 PAT/시크릿 자동 박기 흐름 — install_os.sh 보강
 
 **ID**: `BL-OS-INSTALL-PAT-FLOW`  
 **카테고리**: infra  
@@ -126,7 +146,7 @@
 
 ---
 
-### I. 🟡 SEMI — [호텔 상세 페이지 + 커뮤니케이션 이력] 매니저/호텔 분리 + 1:1 문의·메일·메모 타임라인
+### J. 🟡 SEMI — [호텔 상세 페이지 + 커뮤니케이션 이력] 매니저/호텔 분리 + 1:1 문의·메일·메모 타임라인
 
 **ID**: `BL-HOTEL-DETAIL-PAGE`  
 **카테고리**: feature  
@@ -136,7 +156,7 @@
 
 ---
 
-### J. 🟡 SEMI — [매출 차트 토글] 일/주/월/분기/년 보기 + 전월비/전년비 — booking-analytics 보강
+### K. 🟡 SEMI — [매출 차트 토글] 일/주/월/분기/년 보기 + 전월비/전년비 — booking-analytics 보강
 
 **ID**: `BL-REVENUE-DASHBOARD`  
 **카테고리**: analytics  
@@ -146,7 +166,7 @@
 
 ---
 
-### K. 🟡 SEMI — [재계약 관리 탭] D-30 임박 호텔 + 저성과 호텔(매출 $200 미만) 자동 추출
+### L. 🟡 SEMI — [재계약 관리 탭] D-30 임박 호텔 + 저성과 호텔(매출 $200 미만) 자동 추출
 
 **ID**: `BL-RENEWAL-WATCH`  
 **카테고리**: feature  
@@ -156,7 +176,7 @@
 
 ---
 
-### L. 🟡 SEMI — [환불 관리 탭] PayPal Refund API 연동 + 환불 이력 영구 보관
+### M. 🟡 SEMI — [환불 관리 탭] PayPal Refund API 연동 + 환불 이력 영구 보관
 
 **ID**: `BL-REFUND-FLOW`  
 **카테고리**: feature  
@@ -166,7 +186,7 @@
 
 ---
 
-### M. 🟡 SEMI — [가입 시 국가 선택 필수] 동남아 7개국 상단 노출
+### N. 🟡 SEMI — [가입 시 국가 선택 필수] 동남아 7개국 상단 노출
 
 **ID**: `BL-SIGNUP-COUNTRY-FIELD`  
 **카테고리**: feature  
@@ -176,7 +196,7 @@
 
 ---
 
-### N. 🟡 SEMI — [자동 메일 12개 영어 default] 한국 매니저만 한국어 분기
+### O. 🟡 SEMI — [자동 메일 12개 영어 default] 한국 매니저만 한국어 분기
 
 **ID**: `BL-EMAIL-LOCALE-ROUTING`  
 **카테고리**: feature  

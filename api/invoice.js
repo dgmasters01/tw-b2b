@@ -1,6 +1,6 @@
 // /api/invoice.js
 // ════════════════════════════════════════════════════════════════════════════
-// 인보이스 라우터 (BL-INVOICE-001 단계 4~9)
+// 인보이스 라우터 (BL-INVOICE-001 단계 4~10)
 // ════════════════════════════════════════════════════════════════════════════
 // action 분기 (admin.js와 동일 패턴 — 통합 라우터로 Vercel 함수 절약):
 //
@@ -10,11 +10,12 @@
 //   GET  ?action=list&...     → 인보이스 리스트 (admin only, 페이지네이션) — 단계 6
 //   POST ?action=void         → 인보이스 취소 + CN 자동 발행 (owner only)  — 단계 6
 //   GET  ?action=my-pending   → 매니저 본인 pending 인보이스 조회           — 단계 9
+//   GET  ?action=my-list      → 매니저 본인 인보이스 전체 리스트 (status 필터) — 단계 10
 //
 // 인증:
 //   - owner-only 액션 (issue, void): requireAdmin → admin.role === 'owner'
 //   - admin-only 액션 (list): owner/admin/staff
-//   - 매니저 본인 액션 (pdf, get, my-pending): requireAuthed → user_id 매칭
+//   - 매니저 본인 액션 (pdf, get, my-pending, my-list): requireAuthed → user_id 매칭
 // ════════════════════════════════════════════════════════════════════════════
 
 import { getFxRate } from './_lib/fx.js';
@@ -24,7 +25,7 @@ import InvoicePdf from '../components/invoice/InvoicePdf.js';
 
 const SUPABASE_URL = process.env.SUPABASE_URL || 'https://vjsludfjsphwnumuoqaj.supabase.co';
 
-const ALLOWED_ACTIONS = ['issue', 'pdf', 'get', 'void', 'list', 'my-pending'];
+const ALLOWED_ACTIONS = ['issue', 'pdf', 'get', 'void', 'list', 'my-pending', 'my-list'];
 
 // ────────────────────────────────────────────────────────────────────────────
 // 인증 헬퍼 (admin.js의 requireAdmin과 동일 로직 — 통합 라우터 분리로 인한 복제)
@@ -1149,6 +1150,97 @@ async function handleMyPending(req, res, serviceKey, authed) {
 }
 
 // ────────────────────────────────────────────────────────────────────────────
+// 단계 10 — handleMyList (매니저 본인 인보이스 전체 리스트, status 필터)
+// ────────────────────────────────────────────────────────────────────────────
+// 입력 (GET):
+//   ?status=all|pending|paid|void|expired   (default: all)
+//   ?hotel_id=UUID                           (선택)
+//   ?limit=20 (1~100, default 20)
+//   ?offset=0
+// 권한: 매니저 본인 (requireAuthed)
+// 반환:
+//   200 OK { ok, items: [...], total, limit, offset, has_more }
+//
+// 용도: manager-dashboard '서류' 탭 — 본인 인보이스/영수증/CN 전체 목록 + 1클릭 PDF.
+// ────────────────────────────────────────────────────────────────────────────
+async function handleMyList(req, res, serviceKey, authed) {
+  if (req.method !== 'GET') {
+    return res.status(405).json({ error: 'method_not_allowed', hint: 'GET only' });
+  }
+
+  // 파라미터 정규화
+  const VALID_STATUS = ['pending', 'paid', 'void', 'expired'];
+  const status = String(req.query.status || 'all').trim().toLowerCase();
+  const hotelId = String(req.query.hotel_id || '').trim();
+  let limit = parseInt(req.query.limit, 10);
+  if (!Number.isFinite(limit) || limit <= 0) limit = 20;
+  if (limit > 100) limit = 100;
+  let offset = parseInt(req.query.offset, 10);
+  if (!Number.isFinite(offset) || offset < 0) offset = 0;
+
+  const filters = ['user_id=eq.' + encodeURIComponent(authed.userId)];
+  if (status !== 'all' && VALID_STATUS.includes(status)) {
+    filters.push('status=eq.' + encodeURIComponent(status));
+  }
+  if (hotelId) {
+    filters.push('hotel_id=eq.' + encodeURIComponent(hotelId));
+  }
+  filters.push('select=id,invoice_number,track,document_type,status,currency,amount_total,amount_subtotal,amount_tax,tax_mode,payment_method,issued_at,due_at,paid_at,voided_at,hotel_id,bill_to_name,bill_to_country,pdf_storage_path');
+  filters.push('order=issued_at.desc');
+
+  const url = SUPABASE_URL + '/rest/v1/invoices?' + filters.join('&');
+  const resp = await fetch(url, {
+    headers: {
+      'Authorization': 'Bearer ' + serviceKey,
+      'apikey': serviceKey,
+      'Range-Unit': 'items',
+      'Range': offset + '-' + (offset + limit - 1),
+      'Prefer': 'count=exact'
+    }
+  });
+  if (!resp.ok) {
+    return res.status(500).json({ error: 'fetch_failed', detail: await resp.text() });
+  }
+  const items = await resp.json();
+  const arr = Array.isArray(items) ? items : [];
+
+  // total 추출
+  let total = null;
+  const cr = resp.headers.get('content-range') || '';
+  const m = cr.match(/\/(\d+|\*)$/);
+  if (m && m[1] !== '*') total = parseInt(m[1], 10);
+
+  // hotel_name 한 번에 채우기
+  if (arr.length > 0) {
+    const hotelIds = [...new Set(arr.map(i => i.hotel_id).filter(Boolean))];
+    if (hotelIds.length > 0) {
+      const hResp = await fetch(
+        SUPABASE_URL + '/rest/v1/hotels?id=in.(' + hotelIds.map(encodeURIComponent).join(',') + ')&select=id,hotel_name,country',
+        { headers: { 'Authorization': 'Bearer ' + serviceKey, 'apikey': serviceKey } }
+      );
+      const hotels = await hResp.json();
+      const hmap = {};
+      (Array.isArray(hotels) ? hotels : []).forEach(h => { hmap[h.id] = h; });
+      arr.forEach(it => {
+        const h = hmap[it.hotel_id];
+        if (h) { it.hotel_name = h.hotel_name; }
+      });
+    }
+  }
+
+  const hasMore = total !== null ? (offset + arr.length) < total : arr.length === limit;
+  return res.status(200).json({
+    ok: true,
+    items: arr,
+    total,
+    limit,
+    offset,
+    has_more: hasMore,
+    filter: { status, hotel_id: hotelId || null }
+  });
+}
+
+// ────────────────────────────────────────────────────────────────────────────
 // main router
 // ────────────────────────────────────────────────────────────────────────────
 export default async function handler(req, res) {
@@ -1178,16 +1270,40 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'server_misconfigured', hint: 'SUPABASE_SERVICE_ROLE_KEY missing' });
   }
 
-  // ─ my-pending은 매니저 본인 인증 (admin 아님)
-  if (action === 'my-pending') {
+  // ─ 매니저 본인 액션 (my-pending, my-list)은 admin 인증 우회
+  if (action === 'my-pending' || action === 'my-list') {
     const authed = await requireAuthed(req, serviceKey);
     if (!authed.ok) {
       return res.status(authed.status || 401).json({ error: authed.error });
     }
     try {
-      return await handleMyPending(req, res, serviceKey, authed);
+      if (action === 'my-pending') return await handleMyPending(req, res, serviceKey, authed);
+      if (action === 'my-list')    return await handleMyList(req, res, serviceKey, authed);
     } catch (e) {
-      console.error('[invoice/my-pending] handler error:', e);
+      console.error('[invoice/' + action + '] handler error:', e);
+      return res.status(500).json({ error: 'internal_error', message: e.message });
+    }
+  }
+
+  // ─ pdf/get은 admin 또는 매니저 본인 (단계 5 정책 정합성 — 단계 10 정정)
+  //   admin이면 admin 객체 그대로, 아니면 매니저 본인 객체로 fallback
+  //   handlePdf/handleGet 내부에서 invoice.user_id === caller.userId 비교로 본인 검사
+  if (action === 'pdf' || action === 'get') {
+    let caller = await requireAdmin(req, serviceKey);
+    if (!caller.ok) {
+      // admin 아니면 매니저 본인 인증 시도
+      const authed = await requireAuthed(req, serviceKey);
+      if (!authed.ok) {
+        return res.status(authed.status || 401).json({ error: authed.error });
+      }
+      // 매니저는 admin role 없음 — isAdmin=false로 동작
+      caller = { ok: true, email: authed.email, userId: authed.userId, role: null };
+    }
+    try {
+      if (action === 'pdf') return await handlePdf(req, res, serviceKey, caller);
+      if (action === 'get') return await handleGet(req, res, serviceKey, caller);
+    } catch (e) {
+      console.error('[invoice/' + action + '] handler error:', e);
       return res.status(500).json({ error: 'internal_error', message: e.message });
     }
   }

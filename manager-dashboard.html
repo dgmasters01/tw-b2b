@@ -195,6 +195,49 @@ body{margin:0;background:var(--bg);font-family:var(--sans);color:var(--ink);min-
 .md-pay-meta-value{font-size:14px;font-weight:600;color:var(--ink);font-family:var(--mono)}
 .md-pay-meta-sub{font-size:11px;color:var(--ink-3);margin-top:2px}
 
+/* ---- Tab 4: Documents (BL-INVOICE-001 단계 10) ---- */
+.md-doc-filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid var(--line-2)}
+.md-doc-pill{padding:6px 14px;font-size:12px;font-weight:600;color:var(--ink-3);background:var(--glass);
+  border:1px solid var(--line-2);border-radius:14px;cursor:pointer;transition:var(--transition);font-family:inherit}
+.md-doc-pill:hover{color:var(--ink-2);background:var(--glass-2)}
+.md-doc-pill.active{background:rgba(124,58,237,.16);color:#B89BF5;border-color:rgba(124,58,237,.40)}
+.md-doc-empty{padding:60px 20px;text-align:center;color:var(--ink-3);font-size:13.5px}
+.md-doc-empty .icon{font-size:36px;opacity:0.55;margin-bottom:12px}
+.md-doc-loading{padding:48px 20px;text-align:center;color:var(--ink-3);font-size:13px}
+.md-doc-card{display:flex;align-items:center;gap:16px;padding:16px 18px;background:var(--glass);
+  border:1px solid var(--line-2);border-radius:var(--r-lg);margin-bottom:10px;transition:var(--transition)}
+.md-doc-card:hover{background:var(--glass-2);border-color:var(--line-3)}
+.md-doc-icon{width:42px;height:42px;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  background:rgba(124,58,237,.10);border-radius:10px;font-size:20px}
+.md-doc-body{flex:1;min-width:0}
+.md-doc-no{font-family:var(--mono);font-size:13px;color:#B89BF5;font-weight:600;margin-bottom:3px}
+.md-doc-meta{font-size:12px;color:var(--ink-3);display:flex;flex-wrap:wrap;gap:4px 12px}
+.md-doc-meta strong{color:var(--ink-2);font-weight:600}
+.md-doc-amount{font-family:var(--mono);font-size:14px;font-weight:700;color:var(--ink);text-align:right;
+  white-space:nowrap;margin-right:4px}
+.md-doc-status{display:inline-block;padding:2px 9px;border-radius:10px;font-size:10.5px;font-weight:700;
+  letter-spacing:.02em;font-family:var(--mono);text-transform:uppercase}
+.md-doc-status.pending{background:rgba(245,158,11,.18);color:#FCD34D}
+.md-doc-status.paid{background:rgba(16,185,129,.18);color:#6EE7B7}
+.md-doc-status.void{background:rgba(239,68,68,.18);color:#FCA5A5}
+.md-doc-status.expired{background:rgba(160,160,176,.18);color:#A0A0B0}
+.md-doc-btn{flex-shrink:0;padding:8px 14px;font-size:12px;font-weight:600;color:#fff;cursor:pointer;
+  background:linear-gradient(135deg,var(--aurora-1,#7C3AED),var(--aurora-2,#06B6D4));
+  border:0;border-radius:8px;font-family:inherit;transition:opacity .15s;white-space:nowrap}
+.md-doc-btn:hover{opacity:.92}
+.md-doc-btn:disabled{opacity:.5;cursor:not-allowed}
+.md-doc-pager{display:flex;justify-content:space-between;align-items:center;margin-top:14px;font-size:12px;color:var(--ink-3)}
+.md-doc-pager-btns{display:flex;gap:6px}
+.md-doc-pager-btn{padding:5px 12px;font-size:11.5px;background:var(--glass);border:1px solid var(--line-2);
+  color:var(--ink-2);border-radius:6px;cursor:pointer;font-family:inherit}
+.md-doc-pager-btn:hover:not(:disabled){background:var(--glass-2);color:var(--ink)}
+.md-doc-pager-btn:disabled{opacity:.4;cursor:not-allowed}
+@media (max-width:640px){
+  .md-doc-card{flex-wrap:wrap}
+  .md-doc-amount{order:3;flex:1;text-align:left;margin-right:0;margin-top:4px}
+  .md-doc-btn{order:4;width:100%;margin-top:4px}
+}
+
 /* ---- Tab 4: Inquiry ---- */
 .md-cs-card{display:flex;gap:14px;align-items:center;padding:18px 20px;
   background:var(--glass);border:1px solid var(--line-2);border-radius:var(--r-lg);margin-bottom:16px}
@@ -329,6 +372,9 @@ body{margin:0;background:var(--bg);font-family:var(--sans);color:var(--ink);min-
     </button>
     <button class="md-tab" data-tab="payments" onclick="switchTab('payments')">
       <span class="md-tab-icon">📝</span><span data-en="Payments" data-ko="결제">Payments</span>
+    </button>
+    <button class="md-tab" data-tab="documents" onclick="switchTab('documents')">
+      <span class="md-tab-icon">📄</span><span data-en="Documents" data-ko="서류">Documents</span>
     </button>
     <button class="md-tab" data-tab="inquiry" onclick="switchTab('inquiry')">
       <span class="md-tab-icon">💬</span><span data-en="Support" data-ko="문의">Support</span>
@@ -694,6 +740,41 @@ body{margin:0;background:var(--bg);font-family:var(--sans);color:var(--ink);min-
 
     </section>
 
+    <!-- ============ TAB 4 : DOCUMENTS (BL-INVOICE-001 단계 10) ============ -->
+    <section class="md-tab-panel" id="tab-documents">
+      <div class="md-card" style="padding:20px 22px;margin-bottom:14px">
+        <h2 style="margin:0 0 6px;font-size:16px;font-weight:600;display:flex;align-items:center;gap:8px">
+          📄 <span data-en="Invoices &amp; Receipts" data-ko="인보이스·영수증">Invoices &amp; Receipts</span>
+        </h2>
+        <p style="margin:0;color:var(--ink-3);font-size:12.5px;line-height:1.5">
+          <span data-en="Tap any document to download the PDF. Invoices for your hotel are listed here for the entire year."
+                data-ko="문서를 누르면 PDF 다운로드. 본인 호텔의 인보이스·영수증·취소증명서가 모두 보입니다.">
+            Tap any document to download the PDF. Invoices for your hotel are listed here for the entire year.
+          </span>
+        </p>
+      </div>
+
+      <div class="md-doc-filters" id="doc-filters">
+        <button class="md-doc-pill active" data-status="all" data-en="All" data-ko="전체">All</button>
+        <button class="md-doc-pill" data-status="pending" data-en="Pending" data-ko="입금 대기">Pending</button>
+        <button class="md-doc-pill" data-status="paid" data-en="Paid" data-ko="결제 완료">Paid</button>
+        <button class="md-doc-pill" data-status="void" data-en="Cancelled" data-ko="취소됨">Cancelled</button>
+        <button class="md-doc-pill" data-status="expired" data-en="Expired" data-ko="기한 만료">Expired</button>
+      </div>
+
+      <div id="doc-list">
+        <div class="md-doc-loading" data-en="Loading documents…" data-ko="문서 불러오는 중…">Loading documents…</div>
+      </div>
+
+      <div class="md-doc-pager" id="doc-pager" style="display:none">
+        <div class="md-doc-pager-info" id="doc-pager-info">—</div>
+        <div class="md-doc-pager-btns">
+          <button class="md-doc-pager-btn" id="doc-prev" data-en="← Prev" data-ko="← 이전">← Prev</button>
+          <button class="md-doc-pager-btn" id="doc-next" data-en="Next →" data-ko="다음 →">Next →</button>
+        </div>
+      </div>
+    </section>
+
     <!-- ============ TAB 4 : SUPPORT (Step 5) ============ -->
     <section class="md-tab-panel" id="tab-inquiry">
 
@@ -1003,6 +1084,7 @@ function switchTab(name){
   // Lazy-load tabs (Step 3~6에서 채움)
   if (name === 'videos' && !window.__videosLoaded)  loadVideosTab();
   if (name === 'payments' && !window.__paymentsLoaded) loadPaymentsTab();
+  if (name === 'documents' && !window.__documentsLoaded) loadDocumentsTab();
   if (name === 'inquiry' && !window.__inquiryLoaded) loadInquiryTab();
   if (name === 'analytics' && !window.__analyticsLoaded) loadAnalyticsTab();
 }
@@ -1587,6 +1669,181 @@ function downloadDoc(type, paymentId){
 
 function escapeHtml(s){ return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function escapeAttr(s){ return String(s ?? '').replace(/"/g, '&quot;'); }
+
+// =====================================================================
+// TAB 4: Documents (BL-INVOICE-001 단계 10 — 본인 인보이스/영수증 1클릭 다운로드)
+// =====================================================================
+const DOC_STATE = {
+  status: 'all',
+  limit: 10,
+  offset: 0,
+  total: null,
+  hasMore: false,
+  items: []
+};
+
+function loadDocumentsTab(){
+  window.__documentsLoaded = true;
+  // pill 필터 핸들러
+  document.querySelectorAll('#doc-filters .md-doc-pill').forEach(p => {
+    p.addEventListener('click', () => {
+      document.querySelectorAll('#doc-filters .md-doc-pill').forEach(x => x.classList.remove('active'));
+      p.classList.add('active');
+      DOC_STATE.status = p.dataset.status;
+      DOC_STATE.offset = 0;
+      fetchDocuments();
+    });
+  });
+  // pager 핸들러
+  document.getElementById('doc-prev').addEventListener('click', () => {
+    if (DOC_STATE.offset <= 0) return;
+    DOC_STATE.offset = Math.max(0, DOC_STATE.offset - DOC_STATE.limit);
+    fetchDocuments();
+  });
+  document.getElementById('doc-next').addEventListener('click', () => {
+    if (!DOC_STATE.hasMore) return;
+    DOC_STATE.offset = DOC_STATE.offset + DOC_STATE.limit;
+    fetchDocuments();
+  });
+
+  fetchDocuments();
+}
+
+async function fetchDocuments(){
+  const listEl = document.getElementById('doc-list');
+  const pagerEl = document.getElementById('doc-pager');
+  const isKo = currentLang === 'ko';
+  listEl.innerHTML = '<div class="md-doc-loading">' + (isKo ? '문서 불러오는 중…' : 'Loading documents…') + '</div>';
+  pagerEl.style.display = 'none';
+
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    const token = session && session.access_token;
+    if (!token) {
+      listEl.innerHTML = '<div class="md-doc-empty"><div class="icon">🔒</div>' + (isKo ? '로그인이 필요합니다.' : 'Login required.') + '</div>';
+      return;
+    }
+    const params = new URLSearchParams({
+      action: 'my-list',
+      status: DOC_STATE.status,
+      limit: String(DOC_STATE.limit),
+      offset: String(DOC_STATE.offset)
+    });
+    const resp = await fetch('/api/invoice?' + params.toString(), {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    const data = await resp.json().catch(() => ({}));
+    if (!resp.ok || !data.ok) {
+      const errMsg = data.error || ('HTTP ' + resp.status);
+      listEl.innerHTML = '<div class="md-doc-empty"><div class="icon">⚠️</div>' + (isKo ? '문서 조회 실패: ' : 'Failed to load: ') + escapeHtml(errMsg) + '</div>';
+      return;
+    }
+    DOC_STATE.items = data.items || [];
+    DOC_STATE.total = data.total;
+    DOC_STATE.hasMore = !!data.has_more;
+    renderDocuments();
+  } catch (e) {
+    listEl.innerHTML = '<div class="md-doc-empty"><div class="icon">⚠️</div>' + escapeHtml(e.message) + '</div>';
+  }
+}
+
+function renderDocuments(){
+  const listEl = document.getElementById('doc-list');
+  const pagerEl = document.getElementById('doc-pager');
+  const pagerInfo = document.getElementById('doc-pager-info');
+  const isKo = currentLang === 'ko';
+
+  if (!DOC_STATE.items.length){
+    const emptyMsg = isKo
+      ? (DOC_STATE.status === 'all' ? '아직 발행된 문서가 없습니다.' : '해당 상태의 문서가 없습니다.')
+      : (DOC_STATE.status === 'all' ? 'No documents issued yet.' : 'No documents in this status.');
+    listEl.innerHTML = '<div class="md-doc-empty"><div class="icon">📭</div>' + emptyMsg + '</div>';
+    pagerEl.style.display = 'none';
+    return;
+  }
+
+  let html = '';
+  DOC_STATE.items.forEach(inv => {
+    const icon = inv.status === 'paid' ? '✅' : (inv.status === 'pending' ? '⏰' : (inv.status === 'void' ? '❌' : '🕒'));
+    const statusLabel = ({pending:'pending', paid:'paid', void:'void', expired:'expired'})[inv.status] || inv.status;
+    const amount = fmtDocAmount(inv.amount_total, inv.currency);
+    const issuedLabel = inv.issued_at ? fmtDocDate(inv.issued_at, isKo) : '—';
+    const dueLabel = (inv.status === 'pending' && inv.due_at) ? fmtDocDate(inv.due_at, isKo) : null;
+    const hotelLabel = inv.hotel_name || '—';
+    const trackBadge = inv.track === 'INV-KR' ? '🇰🇷 KR' : '🌐 INT';
+
+    html += '<div class="md-doc-card">';
+    html += '  <div class="md-doc-icon">' + icon + '</div>';
+    html += '  <div class="md-doc-body">';
+    html += '    <div class="md-doc-no">' + escapeHtml(inv.invoice_number) + ' · <span style="opacity:.7">' + trackBadge + '</span></div>';
+    html += '    <div class="md-doc-meta">';
+    html += '      <span><strong>' + (isKo ? '호텔' : 'Hotel') + ':</strong> ' + escapeHtml(hotelLabel) + '</span>';
+    html += '      <span><strong>' + (isKo ? '발행' : 'Issued') + ':</strong> ' + issuedLabel + '</span>';
+    if (dueLabel) {
+      html += '      <span style="color:#FCD34D"><strong>' + (isKo ? '입금 기한' : 'Due') + ':</strong> ' + dueLabel + '</span>';
+    }
+    html += '    </div>';
+    html += '  </div>';
+    html += '  <div class="md-doc-amount">' + amount + '<div style="margin-top:4px"><span class="md-doc-status ' + inv.status + '">' + statusLabel + '</span></div></div>';
+    html += '  <button class="md-doc-btn" data-inv-id="' + escapeAttr(inv.id) + '">⬇ ' + (isKo ? 'PDF' : 'PDF') + '</button>';
+    html += '</div>';
+  });
+  listEl.innerHTML = html;
+
+  // 다운로드 버튼 핸들러
+  listEl.querySelectorAll('button[data-inv-id]').forEach(btn => {
+    btn.addEventListener('click', () => downloadDocument(btn.getAttribute('data-inv-id'), btn));
+  });
+
+  // pager
+  const from = DOC_STATE.offset + 1;
+  const to = DOC_STATE.offset + DOC_STATE.items.length;
+  const total = DOC_STATE.total !== null ? DOC_STATE.total : '?';
+  pagerInfo.textContent = from + '–' + to + ' / ' + total;
+  document.getElementById('doc-prev').disabled = DOC_STATE.offset <= 0;
+  document.getElementById('doc-next').disabled = !DOC_STATE.hasMore;
+  pagerEl.style.display = (DOC_STATE.total !== null && DOC_STATE.total > DOC_STATE.limit) ? 'flex' : 'none';
+}
+
+async function downloadDocument(invoiceId, btn){
+  const isKo = currentLang === 'ko';
+  const original = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = isKo ? '불러오는 중…' : 'Loading…';
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    const token = session && session.access_token;
+    if (!token) throw new Error(isKo ? '로그인이 필요합니다.' : 'Login required.');
+    const resp = await fetch('/api/invoice?action=pdf&id=' + encodeURIComponent(invoiceId), {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    const data = await resp.json().catch(() => ({}));
+    if (!resp.ok || !data.signed_url) {
+      throw new Error(data.error || ('HTTP ' + resp.status));
+    }
+    // 새 창에서 PDF 표시 (다운로드 + 미리보기 둘 다 가능)
+    window.open(data.signed_url, '_blank', 'noopener');
+  } catch (e) {
+    alert((isKo ? '오류: ' : 'Error: ') + e.message);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = original;
+  }
+}
+
+function fmtDocAmount(n, cur){
+  const v = parseFloat(n);
+  if (!isFinite(v)) return String(n);
+  if (cur === 'KRW') return '₩' + v.toLocaleString('en-US', {maximumFractionDigits: 0});
+  if (cur === 'USD') return '$' + v.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+  return v.toLocaleString() + ' ' + (cur || '');
+}
+function fmtDocDate(iso, isKo){
+  try {
+    const d = new Date(iso);
+    return d.toLocaleString(isKo ? 'ko-KR' : 'en-US', {month:'short', day:'2-digit', hour:'2-digit', minute:'2-digit'});
+  } catch (e) { return iso; }
+}
 
 // =====================================================================
 // TAB 4: Inquiry  (inquiries 테이블 — BL-INQUIRY-SCHEMA에서 신설 예정)

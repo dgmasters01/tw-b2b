@@ -29,28 +29,6 @@
 
 ---
 
-### B. 🟢 AUTO — [자동] 자동 일꾼 1명이 멈췄어요: sync-bot
-
-**ID**: `BL-AUTO-BOTS-SYNC-BOT`  
-**카테고리**: infrastructure  
-**예상 시간**: 1시간  
-
-**메모**: 점검 봇 자동 등록 (2026-05-11T20:24:23.985Z)
-
-check_name: bots
-status: red
-detail: 자동 일꾼 1명이 멈췄어요: sync-bot
-
-진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 green으로 박으면 자동 done.
-
-[자동 해소 2026-05-12T01:40:42.008Z] 점검 봇 green 전환
-
-[재개 2026-05-17T11:46:55.698Z] 자동 일꾼 1명이 멈췄어요: sync-bot
-
-[자동 해소 202
-
----
-
 ## 🟡 P1 — 데드라인 이전에 있으면 좋음
 
 ### A. 🟢 AUTO — [YouTube 더보기 단축 URL 클릭 카운트] 호텔별 진성 관심 측정 시스템

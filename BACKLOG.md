@@ -32,26 +32,6 @@
 
 ---
 
-## 🟢 P0 — [자동] 자동 일꾼 1명이 멈췄어요: sync-bot
-
-**요약**: 점검 봇 자동 등록 (2026-05-11T20:24:23.985Z)
-
-check_name: bots
-status: red
-detail: 자동 일꾼 1명이 멈췄어요: sync-bot
-
-진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 green으로 박으면 자동 done.
-
-[자동 해소 2026-05
-
-- **자율성**: 🟢 AUTO
-- **예상 시간**: 1시간
-- **카테고리**: infrastructure
-- **상태**: pending
-- **ID**: `BL-AUTO-BOTS-SYNC-BOT` (출처: auto_from_bots)
-
----
-
 ## 🟡 P0 — [운영 대시보드 본격 구축] admin.html을 서비스 운영의 단일 진입점으로
 
 **요약**: 디자인 큰 방향은 대표님 승인 필요. 클로드 추천 5박스 구조: ①사업 KPI(매출·매니저·영상·예약) ②매니저 관리(승인·거절·환불) ③영업 깔때기 분석(가입→심사→승인→결제→게시) ④채널별 성과 ⑤예약 분석. Aurora v2 디자인. 데이터: hotels/payments/videos/bookings/hotel_status_history/admin_no

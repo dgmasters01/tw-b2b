@@ -1,17 +1,19 @@
 // /api/invoice.js
 // ════════════════════════════════════════════════════════════════════════════
-// 인보이스 라우터 (BL-INVOICE-001 단계 4~)
+// 인보이스 라우터 (BL-INVOICE-001 단계 4~6)
 // ════════════════════════════════════════════════════════════════════════════
 // action 분기 (admin.js와 동일 패턴 — 통합 라우터로 Vercel 함수 절약):
 //
-//   POST ?action=issue        → 인보이스 발행 (owner only) — 단계 4
-//   GET  ?action=pdf&id=xxx   → PDF 다운로드 (owner + 본인) — 단계 5
-//   GET  ?action=get&id=xxx   → 인보이스 메타 조회 (owner + 본인) — 단계 5
-//   POST ?action=void         → 인보이스 취소 (owner only) — 단계 5 후속
+//   POST ?action=issue        → 인보이스 발행 (owner only)             — 단계 4
+//   GET  ?action=pdf&id=xxx   → PDF 생성/다운로드 (admin + 본인)        — 단계 5
+//   GET  ?action=get&id=xxx   → 인보이스 메타 조회 (admin + 본인)        — 단계 5
+//   GET  ?action=list&...     → 인보이스 리스트 (admin only, 페이지네이션) — 단계 6
+//   POST ?action=void         → 인보이스 취소 + CN 자동 발행 (owner only)  — 단계 6
 //
 // 인증:
-//   - owner-only 액션: requireAdmin → admin.role === 'owner'
-//   - 매니저 본인 액션: requireAuthed → invoices.user_id === auth.uid()
+//   - owner-only 액션 (issue, void): requireAdmin → admin.role === 'owner'
+//   - admin-only 액션 (list): owner/admin/staff
+//   - 매니저 본인 액션 (pdf, get): requireAuthed → invoices.user_id === auth.uid()
 // ════════════════════════════════════════════════════════════════════════════
 
 import { getFxRate } from './_lib/fx.js';
@@ -762,10 +764,298 @@ async function streamToBuffer(stream) {
 }
 
 // ────────────────────────────────────────────────────────────────────────────
-// 단계 5 후속 — void / list (placeholder, 다음 단계에서 박힘)
+// 단계 6 — handleList (인보이스 리스트 페이지네이션, admin 전용)
 // ────────────────────────────────────────────────────────────────────────────
-async function handleNotYetImplemented(action) {
-  return { error: 'not_implemented_yet', action, hint: '다음 단계에서 박힘' };
+// 입력 (GET):
+//   ?status=pending|paid|void|expired|all (default: all)
+//   ?track=INV-KR|INV-INT|all              (default: all)
+//   ?q=<text>                              (invoice_number / bill_to_name / bill_to_email substring)
+//   ?limit=20  (1~100, default 20)
+//   ?offset=0
+//   ?order=issued_at.desc | issued_at.asc | amount_total.desc | amount_total.asc (default issued_at.desc)
+// 권한: admin (owner/admin/staff) — 매니저 본인 리스트는 별도 BL에서 박음
+// 반환: { items: [...], total, limit, offset, has_more, next_offset }
+// ────────────────────────────────────────────────────────────────────────────
+async function handleList(req, res, serviceKey, admin) {
+  if (req.method !== 'GET') {
+    return res.status(405).json({ error: 'method_not_allowed', hint: 'GET only' });
+  }
+  if (!['owner', 'admin', 'staff'].includes(admin.role)) {
+    return res.status(403).json({ error: 'admin_only', current_role: admin.role });
+  }
+
+  // ─ 파라미터 정규화
+  const status = String(req.query.status || 'all').trim().toLowerCase();
+  const track = String(req.query.track || 'all').trim();
+  const q = String(req.query.q || '').trim();
+  let limit = parseInt(req.query.limit, 10);
+  if (!Number.isFinite(limit) || limit <= 0) limit = 20;
+  if (limit > 100) limit = 100;
+  let offset = parseInt(req.query.offset, 10);
+  if (!Number.isFinite(offset) || offset < 0) offset = 0;
+
+  const VALID_STATUS = ['pending', 'paid', 'void', 'expired'];
+  const VALID_TRACK = ['INV-KR', 'INV-INT'];
+  const VALID_ORDER = ['issued_at.desc', 'issued_at.asc', 'amount_total.desc', 'amount_total.asc'];
+  const order = VALID_ORDER.includes(req.query.order) ? req.query.order : 'issued_at.desc';
+
+  // ─ Supabase PostgREST query 조립
+  const filters = [];
+  if (status !== 'all' && VALID_STATUS.includes(status)) {
+    filters.push('status=eq.' + encodeURIComponent(status));
+  }
+  if (track !== 'all' && VALID_TRACK.includes(track)) {
+    filters.push('track=eq.' + encodeURIComponent(track));
+  }
+  if (q) {
+    // invoice_number ILIKE  OR  bill_to_name ILIKE  OR  bill_to_email ILIKE
+    const esc = q.replace(/[%_]/g, '\\$&');
+    filters.push('or=(invoice_number.ilike.*' + encodeURIComponent(esc)
+              + '*,bill_to_name.ilike.*' + encodeURIComponent(esc)
+              + '*,bill_to_email.ilike.*' + encodeURIComponent(esc) + '*)');
+  }
+
+  const selectCols = [
+    'id', 'invoice_number', 'track', 'document_type', 'status',
+    'payment_id', 'hotel_id', 'user_id',
+    'bill_to_country', 'bill_to_name', 'bill_to_email',
+    'currency', 'amount_total', 'tax_mode',
+    'payment_method', 'issued_at', 'due_at', 'paid_at', 'voided_at',
+    'pdf_storage_path', 'issued_by_email'
+  ].join(',');
+  filters.push('select=' + selectCols);
+  filters.push('order=' + order);
+
+  const url = SUPABASE_URL + '/rest/v1/invoices?' + filters.join('&');
+
+  const listResp = await fetch(url, {
+    headers: {
+      'Authorization': 'Bearer ' + serviceKey,
+      'apikey': serviceKey,
+      'Range-Unit': 'items',
+      'Range': offset + '-' + (offset + limit - 1),
+      'Prefer': 'count=exact'
+    }
+  });
+
+  if (!listResp.ok) {
+    return res.status(500).json({
+      error: 'fetch_list_failed',
+      detail: await listResp.text()
+    });
+  }
+
+  const items = await listResp.json();
+
+  // Content-Range 헤더로 total 추출 (예: "0-19/137")
+  let total = null;
+  const contentRange = listResp.headers.get('content-range') || '';
+  const m = contentRange.match(/\/(\d+|\*)$/);
+  if (m && m[1] !== '*') total = parseInt(m[1], 10);
+
+  const hasMore = total !== null
+    ? (offset + items.length) < total
+    : items.length === limit;
+
+  return res.status(200).json({
+    success: true,
+    items: Array.isArray(items) ? items : [],
+    total,
+    limit,
+    offset,
+    has_more: hasMore,
+    next_offset: hasMore ? offset + items.length : null,
+    filter: { status, track, q, order }
+  });
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// 단계 6 — handleVoid (인보이스 취소 + Credit Note 자동 발행)
+// ────────────────────────────────────────────────────────────────────────────
+// 입력 (POST):
+//   { invoice_id: UUID, reason: TEXT(required, >=5자), reason_category?: TEXT }
+//   reason_category: 'duplicate' | 'customer_request' | 'cancellation' | 'other'  (default 'other')
+//
+// 권한: owner only (정책 2.11)
+//
+// 동작 (정책 2.9 — 부분 환불 없음, 전체 취소만):
+//   1) invoice fetch & 검증 (이미 void이면 409)
+//   2) credit note 채번 (CN-KR / CN-INT)
+//   3) credit_notes INSERT (전액 환불, 양수 저장)
+//   4) invoices SET status='void', voided_at=now, void_reason=reason
+//   5) payments.invoice_number 정리 (선택 — invoice는 남기되 status void 표시는 invoices에)
+//   6) (옵션) credit note PDF 생성은 별도 BL — 여기선 메타만 박음
+// ────────────────────────────────────────────────────────────────────────────
+async function handleVoid(req, res, serviceKey, admin) {
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'method_not_allowed', hint: 'POST only' });
+  }
+  if (admin.role !== 'owner') {
+    return res.status(403).json({
+      error: 'owner_only',
+      hint: '인보이스 취소는 owner 권한만 가능 (정책 2.11)',
+      current_role: admin.role
+    });
+  }
+
+  const body = req.body || {};
+  const invoiceId = String(body.invoice_id || '').trim();
+  const reason = String(body.reason || '').trim();
+  const reasonCategory = ['duplicate', 'customer_request', 'cancellation', 'other']
+    .includes(body.reason_category) ? body.reason_category : 'other';
+
+  if (!invoiceId) {
+    return res.status(400).json({ error: 'missing_invoice_id' });
+  }
+  if (!reason || reason.length < 5) {
+    return res.status(400).json({
+      error: 'reason_too_short',
+      hint: '환불 사유는 5자 이상 입력 필수 (정책 2.9)'
+    });
+  }
+
+  // 1) invoice fetch
+  const invResp = await fetch(
+    SUPABASE_URL + '/rest/v1/invoices?id=eq.' + encodeURIComponent(invoiceId) + '&select=*',
+    { headers: { 'Authorization': 'Bearer ' + serviceKey, 'apikey': serviceKey } }
+  );
+  if (!invResp.ok) {
+    return res.status(500).json({ error: 'fetch_invoice_failed', detail: await invResp.text() });
+  }
+  const invoices = await invResp.json();
+  if (!Array.isArray(invoices) || invoices.length === 0) {
+    return res.status(404).json({ error: 'invoice_not_found', invoice_id: invoiceId });
+  }
+  const invoice = invoices[0];
+
+  if (invoice.status === 'void') {
+    return res.status(409).json({
+      error: 'already_voided',
+      hint: '이미 취소된 인보이스입니다',
+      invoice_number: invoice.invoice_number,
+      voided_at: invoice.voided_at
+    });
+  }
+
+  // 2) credit note 채번
+  const cnTrack = invoice.track === 'INV-KR' ? 'CN-KR' : 'CN-INT';
+  const numResp = await fetch(SUPABASE_URL + '/rest/v1/rpc/next_invoice_number', {
+    method: 'POST',
+    headers: {
+      'Authorization': 'Bearer ' + serviceKey,
+      'apikey': serviceKey,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ p_track: cnTrack })
+  });
+  if (!numResp.ok) {
+    return res.status(500).json({
+      error: 'cn_channum_failed',
+      detail: await numResp.text()
+    });
+  }
+  const cnNumber = await numResp.json();
+  if (!cnNumber || typeof cnNumber !== 'string') {
+    return res.status(500).json({ error: 'cn_channum_invalid', got: cnNumber });
+  }
+
+  // 3) credit_notes INSERT (전액 환불, 항상 양수)
+  const cnPayload = {
+    cn_number: cnNumber,
+    track: cnTrack,
+    original_invoice_id: invoice.id,
+    original_invoice_number: invoice.invoice_number,
+    payment_id: invoice.payment_id,
+    user_id: invoice.user_id,
+    currency: invoice.currency,
+    amount_subtotal: Math.abs(parseFloat(invoice.amount_subtotal || 0)),
+    amount_tax: Math.abs(parseFloat(invoice.amount_tax || 0)),
+    amount_total: Math.abs(parseFloat(invoice.amount_total || 0)),
+    reason,
+    reason_category: reasonCategory,
+    issued_at: new Date().toISOString(),
+    issued_by: admin.userId || null,
+    issued_by_email: admin.email,
+    metadata: {
+      voided_by_action: 'invoice_void',
+      voided_at_iso: new Date().toISOString(),
+      api_version: '1.0'
+    }
+  };
+
+  const cnInsertResp = await fetch(SUPABASE_URL + '/rest/v1/credit_notes', {
+    method: 'POST',
+    headers: {
+      'Authorization': 'Bearer ' + serviceKey,
+      'apikey': serviceKey,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=representation'
+    },
+    body: JSON.stringify(cnPayload)
+  });
+  if (!cnInsertResp.ok) {
+    const text = await cnInsertResp.text();
+    return res.status(500).json({
+      error: 'cn_insert_failed',
+      detail: text,
+      hint: 'credit_notes 테이블 스키마 확인 (bl-invoice-001-schema.sql)'
+    });
+  }
+  const cnRows = await cnInsertResp.json();
+  const creditNote = Array.isArray(cnRows) ? cnRows[0] : cnRows;
+
+  // 4) invoices.status='void' 갱신
+  const nowIso = new Date().toISOString();
+  const updResp = await fetch(
+    SUPABASE_URL + '/rest/v1/invoices?id=eq.' + encodeURIComponent(invoiceId),
+    {
+      method: 'PATCH',
+      headers: {
+        'Authorization': 'Bearer ' + serviceKey,
+        'apikey': serviceKey,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=representation'
+      },
+      body: JSON.stringify({
+        status: 'void',
+        voided_at: nowIso,
+        void_reason: reason,
+        updated_at: nowIso
+      })
+    }
+  );
+  if (!updResp.ok) {
+    // CN은 박혔는데 invoice 상태 안 바뀜 — 운영자가 수동 처리 필요
+    return res.status(500).json({
+      error: 'invoice_void_update_failed',
+      detail: await updResp.text(),
+      cn_created: creditNote,
+      hint: 'Credit Note는 발행되었으나 invoice status 갱신 실패 — 수동 PATCH 필요'
+    });
+  }
+  const updRows = await updResp.json();
+  const voidedInvoice = Array.isArray(updRows) ? updRows[0] : updRows;
+
+  return res.status(200).json({
+    success: true,
+    invoice: {
+      id: voidedInvoice.id,
+      invoice_number: voidedInvoice.invoice_number,
+      status: voidedInvoice.status,
+      voided_at: voidedInvoice.voided_at,
+      void_reason: voidedInvoice.void_reason
+    },
+    credit_note: {
+      id: creditNote.id,
+      cn_number: creditNote.cn_number,
+      track: creditNote.track,
+      amount_total: creditNote.amount_total,
+      currency: creditNote.currency,
+      reason: creditNote.reason,
+      reason_category: creditNote.reason_category
+    },
+    next_step: 'Credit Note PDF 생성은 별도 BL — 메타만 박힘 (admin-invoices에서 확인 가능)'
+  });
 }
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -812,9 +1102,10 @@ export default async function handler(req, res) {
         return await handlePdf(req, res, serviceKey, adminCheck);
       case 'get':
         return await handleGet(req, res, serviceKey, adminCheck);
-      case 'void':
       case 'list':
-        return res.status(501).json(await handleNotYetImplemented(action));
+        return await handleList(req, res, serviceKey, adminCheck);
+      case 'void':
+        return await handleVoid(req, res, serviceKey, adminCheck);
       default:
         return res.status(400).json({ error: 'unhandled_action', action });
     }

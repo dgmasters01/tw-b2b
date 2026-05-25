@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Invoices — TravelWinners B2B Admin</title>
+<link rel="stylesheet" href="/shared.css">
+<style>
+  /* ============================================================
+     BL-INVOICE-001 단계 6 — admin-invoices.html
+     Aurora glass tone · EN default · KO toggle
+     ============================================================ */
+  :root {
+    --panel:    var(--bg-2);
+    --border:   var(--line-2);
+    --text:     var(--ink);
+    --muted:    var(--ink-3);
+    --accent:   var(--aurora-1);
+    --accent2:  var(--aurora-2);
+    --ok:       var(--success);
+    --warn:     var(--warn);
+    --err:      var(--danger);
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; min-height:100vh; background:var(--bg); color:var(--text);
+         font-family: var(--sans);
+         background-image: radial-gradient(ellipse at top, rgba(124,58,237,0.10), transparent 70%),
+                           radial-gradient(ellipse at bottom right, rgba(6,182,212,0.06), transparent 60%); }
+
+  /* ── topbar ── */
+  .topbar { padding:14px 24px; border-bottom:0.5px solid var(--border);
+            display:flex; align-items:center; justify-content:space-between;
+            background:rgba(10,10,15,0.7); backdrop-filter:blur(10px); position:sticky; top:0; z-index:50; }
+  .topbar h1 { margin:0; font-size:16px; font-weight:600; display:flex; align-items:center; gap:8px; }
+  .topbar .tag { font-size:11px; color:var(--muted); margin-left:10px; }
+  .topbar a.back { color:var(--accent); text-decoration:none; font-size:13px; margin-left:18px; }
+  .topbar a.back:hover { text-decoration:underline; }
+  .topbar-right { display:flex; align-items:center; gap:12px; }
+  .lang-toggle { display:flex; gap:0; background:rgba(255,255,255,0.04); border:0.5px solid var(--border);
+                 border-radius:6px; padding:2px; }
+  .lang-toggle button { background:transparent; border:0; color:var(--muted); padding:4px 10px;
+                        font-size:11px; cursor:pointer; border-radius:4px; font-family:inherit;
+                        transition:all 0.15s; }
+  .lang-toggle button.active { background:rgba(124,58,237,0.20); color:var(--accent); font-weight:600; }
+  .me { display:flex; align-items:center; gap:8px; font-size:12px; color:var(--muted); }
+  .me .role { background:rgba(124,58,237,0.15); color:var(--accent);
+              padding:2px 8px; border-radius:10px; font-size:10px; font-weight:600; }
+
+  /* ── container ── */
+  .container { max-width:1320px; margin:0 auto; padding:24px; }
+
+  /* ── tabs ── */
+  .tabs { display:flex; gap:4px; margin-bottom:18px; border-bottom:0.5px solid var(--border); }
+  .tab { padding:10px 16px; cursor:pointer; color:var(--muted); font-size:13px;
+         border-bottom:2px solid transparent; transition:all 0.15s; }
+  .tab.active { color:var(--accent); border-bottom-color:var(--accent); font-weight:500; }
+  .tab .count { background:rgba(255,255,255,0.05); padding:1px 7px; border-radius:8px;
+                font-size:10px; margin-left:6px; color:var(--muted); }
+
+  /* ── panel ── */
+  .panel { background:var(--panel); border:0.5px solid var(--border); border-radius:12px;
+           padding:20px 22px; margin-bottom:18px; backdrop-filter:blur(10px); }
+  .panel h2 { margin:0 0 6px; font-size:15px; font-weight:600; display:flex; align-items:center; gap:8px; }
+  .panel-desc { color:var(--muted); font-size:12px; margin:0 0 16px; line-height:1.5; }
+
+  /* ── filters ── */
+  .filter-row { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-bottom:16px; }
+  .filter-row select, .filter-row input {
+    background:rgba(0,0,0,0.3); border:0.5px solid var(--border); color:var(--text);
+    padding:7px 10px; border-radius:6px; font-size:12px; font-family:inherit;
+  }
+  .filter-row input { min-width:220px; }
+  .filter-row select:focus, .filter-row input:focus {
+    outline:1px solid var(--accent); border-color:var(--accent);
+  }
+  .filter-row .pill {
+    background:rgba(255,255,255,0.04); padding:5px 11px; border-radius:14px;
+    font-size:11px; color:var(--muted); border:0.5px solid var(--border);
+    cursor:pointer; transition:all 0.15s;
+  }
+  .filter-row .pill.active { background:rgba(124,58,237,0.20); color:var(--accent);
+                             border-color:var(--accent); font-weight:600; }
+  .filter-row .pill:hover { color:var(--text); }
+
+  /* ── table ── */
+  .table-wrap { overflow-x:auto; border-radius:8px; border:0.5px solid var(--border); }
+  table { width:100%; border-collapse:collapse; font-size:12.5px; }
+  thead { background:rgba(255,255,255,0.03); }
+  th { text-align:left; padding:10px 12px; font-size:11px; font-weight:600; color:var(--muted);
+       text-transform:uppercase; letter-spacing:0.04em; border-bottom:0.5px solid var(--border); }
+  td { padding:11px 12px; border-bottom:0.5px solid rgba(255,255,255,0.04); }
+  tbody tr { transition:background 0.12s; }
+  tbody tr:hover { background:rgba(124,58,237,0.05); }
+  tbody tr.clickable { cursor:pointer; }
+  td.num { text-align:right; font-variant-numeric:tabular-nums; font-family:var(--mono); }
+  td.mono { font-family:var(--mono); font-size:11.5px; }
+
+  /* ── badges ── */
+  .badge { display:inline-block; padding:2px 8px; border-radius:10px; font-size:10px;
+           font-weight:600; letter-spacing:0.02em; }
+  .badge-pending  { background:rgba(245,158,11,0.18); color:#FCD34D; }
+  .badge-paid     { background:rgba(16,185,129,0.18); color:#6EE7B7; }
+  .badge-void     { background:rgba(239,68,68,0.18); color:#FCA5A5; }
+  .badge-expired  { background:rgba(160,160,176,0.18); color:#A0A0B0; }
+  .badge-track    { background:rgba(124,58,237,0.18); color:#C4B5FD;
+                    font-family:var(--mono); }
+  .badge-method   { background:rgba(6,182,212,0.15); color:#67E8F9;
+                    font-family:var(--mono); font-size:9.5px; }
+  .badge-country  { background:rgba(255,255,255,0.06); color:var(--ink-2);
+                    font-family:var(--mono); font-size:9.5px; }
+
+  /* ── buttons ── */
+  .btn { background:linear-gradient(135deg, var(--accent), var(--accent2)); color:#fff;
+         border:0; padding:7px 14px; border-radius:6px; font-size:12px; font-weight:500; cursor:pointer;
+         font-family:inherit; transition:opacity 0.15s; }
+  .btn:hover { opacity:0.9; }
+  .btn:disabled { opacity:0.45; cursor:not-allowed; }
+  .btn.ghost { background:transparent; border:0.5px solid var(--border); color:var(--text); }
+  .btn.ghost:hover { background:rgba(255,255,255,0.04); }
+  .btn.danger { background:linear-gradient(135deg, #DC2626, #EF4444); }
+  .btn.tiny { padding:4px 10px; font-size:11px; }
+
+  /* ── pagination ── */
+  .pager { display:flex; align-items:center; justify-content:space-between; margin-top:16px; gap:14px; }
+  .pager .info { font-size:11.5px; color:var(--muted); }
+  .pager-btns { display:flex; gap:6px; }
+
+  /* ── empty / loading ── */
+  .empty { padding:60px 20px; text-align:center; color:var(--muted); font-size:13px; }
+  .empty .icon { font-size:32px; opacity:0.5; margin-bottom:10px; }
+
+  /* ── detail drawer / modal ── */
+  .modal-backdrop { position:fixed; inset:0; background:rgba(0,0,0,0.65); backdrop-filter:blur(4px);
+                    z-index:90; display:none; align-items:center; justify-content:center; padding:20px; }
+  .modal-backdrop.show { display:flex; }
+  .modal { background:var(--bg-2); border:0.5px solid var(--border); border-radius:14px;
+           max-width:880px; width:100%; max-height:92vh; overflow:hidden; display:flex; flex-direction:column;
+           box-shadow:0 24px 60px -12px rgba(0,0,0,0.6); }
+  .modal.wide { max-width:1100px; }
+  .modal-head { padding:18px 22px; border-bottom:0.5px solid var(--border);
+                display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
+  .modal-head h3 { margin:0; font-size:15px; font-weight:600; display:flex; align-items:center; gap:10px; }
+  .modal-head .close { background:transparent; border:0; color:var(--muted); cursor:pointer;
+                       font-size:22px; line-height:1; padding:0 6px; }
+  .modal-head .close:hover { color:var(--text); }
+  .modal-body { padding:20px 22px; overflow-y:auto; flex:1; }
+  .modal-foot { padding:14px 22px; border-top:0.5px solid var(--border);
+                display:flex; justify-content:flex-end; gap:8px; flex-shrink:0;
+                background:rgba(0,0,0,0.2); }
+
+  /* ── invoice detail kv ── */
+  .kv-grid { display:grid; grid-template-columns:130px 1fr; gap:10px 16px; font-size:12.5px;
+             margin-bottom:18px; }
+  .kv-grid dt { color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:0.03em;
+                padding-top:1px; }
+  .kv-grid dd { margin:0; color:var(--text); font-family:var(--mono); font-size:12px; word-break:break-all; }
+  .kv-grid dd.amount { font-size:14px; font-weight:600; color:var(--ok); }
+
+  .iframe-wrap { width:100%; height:480px; border-radius:8px; overflow:hidden;
+                 border:0.5px solid var(--border); background:#fff; }
+  .iframe-wrap iframe { width:100%; height:100%; border:0; display:block; }
+  .iframe-loading { display:flex; align-items:center; justify-content:center;
+                    height:100%; color:#777; font-size:13px; }
+
+  /* ── void modal ── */
+  .void-form { display:flex; flex-direction:column; gap:14px; }
+  .void-form label { display:block; font-size:11px; color:var(--muted); margin-bottom:6px;
+                     text-transform:uppercase; letter-spacing:0.03em; font-weight:500; }
+  .void-form select, .void-form textarea {
+    width:100%; background:rgba(0,0,0,0.3); border:0.5px solid var(--border); color:var(--text);
+    padding:9px 11px; border-radius:6px; font-size:13px; font-family:inherit;
+  }
+  .void-form textarea { resize:vertical; min-height:80px; }
+  .void-form select:focus, .void-form textarea:focus {
+    outline:1px solid var(--err); border-color:var(--err);
+  }
+  .void-warning {
+    background:rgba(239,68,68,0.08); border:0.5px solid rgba(239,68,68,0.30); border-radius:8px;
+    padding:12px 14px; font-size:12px; color:#FCA5A5; line-height:1.55;
+  }
+  .void-warning b { color:#FECACA; }
+
+  /* ── toast ── */
+  .toast { position:fixed; bottom:24px; right:24px; padding:13px 18px; border-radius:8px;
+           background:var(--bg-3); border:0.5px solid var(--border); color:var(--text);
+           font-size:13px; z-index:200; opacity:0; transform:translateY(8px);
+           transition:all 0.25s; pointer-events:none; box-shadow:var(--sh-2); }
+  .toast.show { opacity:1; transform:translateY(0); }
+  .toast.ok { border-color:rgba(16,185,129,0.4); }
+  .toast.err { border-color:rgba(239,68,68,0.4); }
+  .toast.warn { border-color:rgba(245,158,11,0.4); }
+</style>
+<!-- ★ admin lightmode (다른 admin 페이지 공통 스킨) -->
+<link rel="stylesheet" href="/_os/skins/admin-skin.css">
+<script src="/_os/skins/admin-theme-toggle.js" defer></script>
+</head>
+<body>
+
+<div class="topbar">
+  <div>
+    <h1>🧾 <span data-i18n="title">Invoices</span></h1>
+    <span class="tag">BL-INVOICE-001 step 6</span>
+    <a class="back" href="/admin-status.html" data-i18n="back">← Admin Home</a>
+  </div>
+  <div class="topbar-right">
+    <div class="lang-toggle" role="tablist" aria-label="Language">
+      <button id="lang-en" class="active" aria-pressed="true">EN</button>
+      <button id="lang-ko" aria-pressed="false">한</button>
+    </div>
+    <div class="me" id="me-info" data-i18n="loading">Loading...</div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- ─── Tabs ─── -->
+  <div class="tabs">
+    <div class="tab active" data-tab="invoices">
+      <span data-i18n="tab.invoices">Issued invoices</span><span class="count" id="cnt-invoices">—</span>
+    </div>
+    <div class="tab" data-tab="payments">
+      <span data-i18n="tab.payments">Payments (unbilled)</span><span class="count" id="cnt-payments">—</span>
+    </div>
+  </div>
+
+  <!-- ─── TAB: Invoices ─── -->
+  <div id="tab-invoices">
+    <div class="panel">
+      <h2><span data-i18n="invoices.h">📋 Issued invoices</span></h2>
+      <p class="panel-desc" data-i18n="invoices.desc">
+        All invoices issued, with PDF preview and void (refund) action. Owner only for issuing/voiding.
+      </p>
+
+      <!-- filters -->
+      <div class="filter-row">
+        <span class="pill active" data-status="all" data-i18n="status.all">All</span>
+        <span class="pill" data-status="pending" data-i18n="status.pending">Pending</span>
+        <span class="pill" data-status="paid" data-i18n="status.paid">Paid</span>
+        <span class="pill" data-status="void" data-i18n="status.void">Void</span>
+        <span class="pill" data-status="expired" data-i18n="status.expired">Expired</span>
+
+        <span style="width:14px"></span>
+
+        <select id="filter-track">
+          <option value="all" data-i18n="track.all">All tracks</option>
+          <option value="INV-KR">INV-KR (Korea)</option>
+          <option value="INV-INT">INV-INT (Overseas)</option>
+        </select>
+
+        <input id="filter-q" type="text" placeholder="Search invoice # / name / email"
+               data-i18n-ph="search.placeholder">
+        <button class="btn ghost tiny" id="btn-search" data-i18n="search.go">Search</button>
+        <button class="btn ghost tiny" id="btn-clear" data-i18n="search.clear">Clear</button>
+
+        <span style="margin-left:auto"></span>
+        <button class="btn ghost tiny" id="btn-refresh" title="Refresh">↻ <span data-i18n="refresh">Refresh</span></button>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th data-i18n="col.invoice_no">Invoice #</th>
+              <th data-i18n="col.track">Track</th>
+              <th data-i18n="col.bill_to">Bill To</th>
+              <th data-i18n="col.country">Country</th>
+              <th data-i18n="col.amount" style="text-align:right">Amount</th>
+              <th data-i18n="col.method">Method</th>
+              <th data-i18n="col.status">Status</th>
+              <th data-i18n="col.issued">Issued</th>
+              <th data-i18n="col.due">Due</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="inv-tbody">
+            <tr><td colspan="10"><div class="empty" data-i18n="loading">Loading…</div></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="pager">
+        <div class="info" id="inv-pager-info">—</div>
+        <div class="pager-btns">
+          <button class="btn ghost tiny" id="inv-prev">← <span data-i18n="prev">Prev</span></button>
+          <button class="btn ghost tiny" id="inv-next"><span data-i18n="next">Next</span> →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── TAB: Payments (unbilled) ─── -->
+  <div id="tab-payments" style="display:none">
+    <div class="panel">
+      <h2><span data-i18n="payments.h">💳 Payments without an invoice</span></h2>
+      <p class="panel-desc" data-i18n="payments.desc">
+        Completed/pending payments that have not been issued an invoice yet. Click <b>Issue invoice</b> to generate one.
+      </p>
+
+      <div class="filter-row">
+        <select id="pay-status-filter">
+          <option value="all" data-i18n="paystatus.all">All payment statuses</option>
+          <option value="pending" data-i18n="paystatus.pending">Pending</option>
+          <option value="completed" data-i18n="paystatus.completed">Completed</option>
+          <option value="paid" data-i18n="paystatus.paid">Paid</option>
+        </select>
+        <span style="margin-left:auto"></span>
+        <button class="btn ghost tiny" id="btn-pay-refresh">↻ <span data-i18n="refresh">Refresh</span></button>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th data-i18n="col.payment_id">Payment ID</th>
+              <th data-i18n="col.hotel">Hotel</th>
+              <th data-i18n="col.amount" style="text-align:right">Amount</th>
+              <th data-i18n="col.method">Method</th>
+              <th data-i18n="col.status">Status</th>
+              <th data-i18n="col.created">Created</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="pay-tbody">
+            <tr><td colspan="7"><div class="empty" data-i18n="loading">Loading…</div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ─── Detail modal ─── -->
+<div class="modal-backdrop" id="modal-detail">
+  <div class="modal wide">
+    <div class="modal-head">
+      <h3>
+        <span data-i18n="detail.h">Invoice detail</span>
+        <span id="detail-no" class="badge badge-track" style="margin-left:4px">—</span>
+        <span id="detail-status" class="badge">—</span>
+      </h3>
+      <button class="close" data-close-modal="modal-detail">×</button>
+    </div>
+    <div class="modal-body">
+      <dl class="kv-grid" id="detail-kv">
+        <!-- populated -->
+      </dl>
+      <div class="iframe-wrap">
+        <div class="iframe-loading" id="iframe-loading" data-i18n="detail.loading_pdf">
+          Generating PDF preview…
+        </div>
+        <iframe id="detail-iframe" style="display:none"></iframe>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn ghost" id="btn-detail-download" disabled>
+        ⬇ <span data-i18n="detail.download">Download PDF</span>
+      </button>
+      <button class="btn danger" id="btn-detail-void">
+        <span data-i18n="detail.void">Void / Refund…</span>
+      </button>
+      <button class="btn ghost" data-close-modal="modal-detail" data-i18n="close">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Void modal ─── -->
+<div class="modal-backdrop" id="modal-void">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>❌ <span data-i18n="void.h">Void invoice & issue Credit Note</span></h3>
+      <button class="close" data-close-modal="modal-void">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="void-warning" data-i18n="void.warning">
+        <b>This action cannot be undone.</b> A Credit Note (CN-KR / CN-INT) will be auto-issued for the full amount.
+        Partial refunds are not supported (policy 2.9 — full cancellation only).
+      </div>
+      <div style="height:14px"></div>
+      <form class="void-form" id="void-form" onsubmit="return false">
+        <div>
+          <label data-i18n="void.target">Target invoice</label>
+          <div id="void-target" class="mono" style="padding:8px 11px; background:rgba(0,0,0,0.3);
+                                                    border:0.5px solid var(--border); border-radius:6px;
+                                                    font-family:var(--mono); font-size:12px;">—</div>
+        </div>
+        <div>
+          <label for="void-category" data-i18n="void.category">Reason category</label>
+          <select id="void-category">
+            <option value="customer_request" data-i18n="void.cat.customer">Customer request</option>
+            <option value="duplicate" data-i18n="void.cat.duplicate">Duplicate invoice</option>
+            <option value="cancellation" data-i18n="void.cat.cancellation">Service cancellation</option>
+            <option value="other" data-i18n="void.cat.other">Other</option>
+          </select>
+        </div>
+        <div>
+          <label for="void-reason" data-i18n="void.reason">Reason (min. 5 characters)</label>
+          <textarea id="void-reason" placeholder="Describe why this invoice is being voided…"
+                    data-i18n-ph="void.reason.placeholder"></textarea>
+        </div>
+      </form>
+    </div>
+    <div class="modal-foot">
+      <button class="btn ghost" data-close-modal="modal-void" data-i18n="cancel">Cancel</button>
+      <button class="btn danger" id="btn-void-confirm" data-i18n="void.confirm">
+        Confirm Void & Issue CN
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+const SUPABASE_URL = 'https://vjsludfjsphwnumuoqaj.supabase.co';
+const SUPABASE_ANON = 'sb_publishable_IluITb52iuwwHf9xgP99MA__KX-sNM6';
+
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON, {
+  auth: { persistSession:true, autoRefreshToken:true, storageKey:'tw-admin-auth' }
+});
+
+// ★ BL-AUTH-COOKIE-SYNC
+sb.auth.onAuthStateChange((event, session) => {
+  try {
+    if ((event === 'TOKEN_REFRESHED' || event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session?.access_token) {
+      const secure = (location.protocol === 'https:') ? '; Secure' : '';
+      document.cookie = 'sb-access-token=' + session.access_token + '; Path=/; Max-Age=2592000; SameSite=Lax' + secure;
+    } else if (event === 'SIGNED_OUT') {
+      document.cookie = 'sb-access-token=; Path=/; Max-Age=0; SameSite=Lax';
+    }
+  } catch (err) { console.warn('[invoices] cookie sync 실패:', err); }
+});
+
+const $ = id => document.getElementById(id);
+
+// ──────────────────────────────────────────────────────────────
+// i18n
+// ──────────────────────────────────────────────────────────────
+const I18N = {
+  en: {
+    'title': 'Invoices',
+    'back': '← Admin Home',
+    'loading': 'Loading…',
+    'tab.invoices': 'Issued invoices',
+    'tab.payments': 'Payments (unbilled)',
+    'invoices.h': '📋 Issued invoices',
+    'invoices.desc': 'All invoices issued, with PDF preview and void (refund) action. Owner only for issuing/voiding.',
+    'payments.h': '💳 Payments without an invoice',
+    'payments.desc': 'Completed/pending payments that have not been issued an invoice yet. Click Issue invoice to generate one.',
+    'status.all':'All', 'status.pending':'Pending', 'status.paid':'Paid', 'status.void':'Void', 'status.expired':'Expired',
+    'track.all':'All tracks',
+    'search.placeholder':'Search invoice # / name / email',
+    'search.go':'Search', 'search.clear':'Clear', 'refresh':'Refresh',
+    'col.invoice_no':'Invoice #', 'col.track':'Track', 'col.bill_to':'Bill To',
+    'col.country':'Country', 'col.amount':'Amount', 'col.method':'Method',
+    'col.status':'Status', 'col.issued':'Issued', 'col.due':'Due',
+    'col.payment_id':'Payment ID', 'col.hotel':'Hotel', 'col.created':'Created',
+    'paystatus.all':'All payment statuses', 'paystatus.pending':'Pending',
+    'paystatus.completed':'Completed', 'paystatus.paid':'Paid',
+    'prev':'Prev', 'next':'Next', 'close':'Close', 'cancel':'Cancel',
+    'btn.preview':'Preview', 'btn.issue':'Issue invoice',
+    'detail.h':'Invoice detail',
+    'detail.loading_pdf':'Generating PDF preview…',
+    'detail.download':'Download PDF', 'detail.void':'Void / Refund…',
+    'void.h':'Void invoice & issue Credit Note',
+    'void.warning':'This action cannot be undone. A Credit Note (CN-KR / CN-INT) will be auto-issued for the full amount. Partial refunds are not supported (policy 2.9 — full cancellation only).',
+    'void.target':'Target invoice',
+    'void.category':'Reason category',
+    'void.cat.customer':'Customer request',
+    'void.cat.duplicate':'Duplicate invoice',
+    'void.cat.cancellation':'Service cancellation',
+    'void.cat.other':'Other',
+    'void.reason':'Reason (min. 5 characters)',
+    'void.reason.placeholder':'Describe why this invoice is being voided…',
+    'void.confirm':'Confirm Void & Issue CN',
+    'toast.issued':'Invoice issued',
+    'toast.voided':'Invoice voided & CN issued',
+    'toast.copied':'Copied',
+    'toast.err':'Error: ',
+    'empty.none':'No invoices match the filter.',
+    'empty.payments':'No unbilled payments.',
+  },
+  ko: {
+    'title': '인보이스',
+    'back': '← 통합 진입점',
+    'loading': '로딩 중…',
+    'tab.invoices': '발행된 인보이스',
+    'tab.payments': '결제 (미발행)',
+    'invoices.h': '📋 발행된 인보이스',
+    'invoices.desc': '발행된 모든 인보이스 — PDF 미리보기 및 취소(환불) 액션. 발행/취소는 owner 권한만.',
+    'payments.h': '💳 인보이스 미발행 결제',
+    'payments.desc': '아직 인보이스가 발행되지 않은 결제 목록. "인보이스 발행" 버튼으로 생성하세요.',
+    'status.all':'전체', 'status.pending':'대기', 'status.paid':'완료', 'status.void':'취소', 'status.expired':'만료',
+    'track.all':'전체 트랙',
+    'search.placeholder':'인보이스 번호 / 이름 / 이메일 검색',
+    'search.go':'검색', 'search.clear':'초기화', 'refresh':'새로고침',
+    'col.invoice_no':'인보이스 번호', 'col.track':'트랙', 'col.bill_to':'청구처',
+    'col.country':'국가', 'col.amount':'금액', 'col.method':'결제수단',
+    'col.status':'상태', 'col.issued':'발행일', 'col.due':'기한',
+    'col.payment_id':'결제 ID', 'col.hotel':'호텔', 'col.created':'생성일',
+    'paystatus.all':'전체 결제 상태', 'paystatus.pending':'대기',
+    'paystatus.completed':'완료', 'paystatus.paid':'입금완료',
+    'prev':'이전', 'next':'다음', 'close':'닫기', 'cancel':'취소',
+    'btn.preview':'미리보기', 'btn.issue':'인보이스 발행',
+    'detail.h':'인보이스 상세',
+    'detail.loading_pdf':'PDF 미리보기 생성 중…',
+    'detail.download':'PDF 다운로드', 'detail.void':'취소 / 환불…',
+    'void.h':'인보이스 취소 + Credit Note 자동 발행',
+    'void.warning':'이 작업은 되돌릴 수 없습니다. 전액에 대해 Credit Note(CN-KR / CN-INT)가 자동 발행됩니다. 부분 환불은 지원되지 않습니다 (정책 2.9 — 전체 취소만).',
+    'void.target':'대상 인보이스',
+    'void.category':'환불 사유 분류',
+    'void.cat.customer':'고객 요청',
+    'void.cat.duplicate':'중복 발행',
+    'void.cat.cancellation':'서비스 취소',
+    'void.cat.other':'기타',
+    'void.reason':'사유 (5자 이상)',
+    'void.reason.placeholder':'이 인보이스를 취소하는 사유를 설명해주세요…',
+    'void.confirm':'취소 + CN 발행 확정',
+    'toast.issued':'인보이스 발행 완료',
+    'toast.voided':'인보이스 취소 + CN 발행 완료',
+    'toast.copied':'복사됨',
+    'toast.err':'오류: ',
+    'empty.none':'필터에 해당하는 인보이스가 없습니다.',
+    'empty.payments':'미발행 결제가 없습니다.',
+  }
+};
+let LANG = (localStorage.getItem('tw-admin-lang') === 'ko') ? 'ko' : 'en';
+function t(key) { return (I18N[LANG] && I18N[LANG][key]) || I18N.en[key] || key; }
+function applyI18n() {
+  document.documentElement.lang = (LANG === 'ko') ? 'ko' : 'en';
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    el.textContent = t(el.getAttribute('data-i18n'));
+  });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+    el.setAttribute('placeholder', t(el.getAttribute('data-i18n-ph')));
+  });
+  $('lang-en').classList.toggle('active', LANG === 'en');
+  $('lang-ko').classList.toggle('active', LANG === 'ko');
+  $('lang-en').setAttribute('aria-pressed', LANG === 'en');
+  $('lang-ko').setAttribute('aria-pressed', LANG === 'ko');
+}
+$('lang-en').onclick = () => { LANG = 'en'; localStorage.setItem('tw-admin-lang','en'); applyI18n(); render(); renderPayments(); };
+$('lang-ko').onclick = () => { LANG = 'ko'; localStorage.setItem('tw-admin-lang','ko'); applyI18n(); render(); renderPayments(); };
+
+// ──────────────────────────────────────────────────────────────
+// Toast
+// ──────────────────────────────────────────────────────────────
+function toast(msg, type='ok') {
+  const el = $('toast');
+  el.className = 'toast ' + type + ' show';
+  el.textContent = msg;
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => el.classList.remove('show'), 3800);
+}
+
+// ──────────────────────────────────────────────────────────────
+// Auth
+// ──────────────────────────────────────────────────────────────
+let CALLER = null;
+async function getToken() {
+  const { data: { session } } = await sb.auth.getSession();
+  return session?.access_token || null;
+}
+async function loadMe() {
+  const { data: { user } } = await sb.auth.getUser();
+  if (!user) {
+    $('me-info').innerHTML = '<span style="color:var(--err)">Not signed in — <a href="/admin.html" style="color:var(--accent)">go to admin</a></span>';
+    return false;
+  }
+  // admin role 확인 (admin-status 동일 로직 단순 버전)
+  const { data: rows } = await sb.from('admins').select('email,role,is_active').eq('email', user.email).limit(1);
+  const me = (rows && rows[0]) || null;
+  if (!me || !me.is_active) {
+    $('me-info').innerHTML = '<span style="color:var(--err)">Not an active admin</span>';
+    return false;
+  }
+  CALLER = { email: me.email, role: me.role };
+  $('me-info').innerHTML = me.email + ' <span class="role">' + me.role + '</span>';
+  return true;
+}
+
+// ──────────────────────────────────────────────────────────────
+// API helpers
+// ──────────────────────────────────────────────────────────────
+async function api(action, params = {}, body = null) {
+  const tok = await getToken();
+  if (!tok) { toast(t('toast.err') + 'no session', 'err'); return null; }
+  const qs = new URLSearchParams({ action, ...params }).toString();
+  const opts = {
+    method: body ? 'POST' : 'GET',
+    headers: { 'Authorization': 'Bearer ' + tok }
+  };
+  if (body) {
+    opts.headers['Content-Type'] = 'application/json';
+    opts.body = JSON.stringify(body);
+  }
+  const resp = await fetch('/api/invoice?' + qs, opts);
+  let data;
+  try { data = await resp.json(); } catch { data = { error: 'invalid_json' }; }
+  if (!resp.ok) {
+    const msg = data?.error || ('HTTP ' + resp.status);
+    return { ok: false, status: resp.status, error: msg, hint: data?.hint, raw: data };
+  }
+  return { ok: true, data };
+}
+
+// ──────────────────────────────────────────────────────────────
+// Formatters
+// ──────────────────────────────────────────────────────────────
+function fmtAmount(n, cur) {
+  if (n === null || n === undefined) return '—';
+  const v = parseFloat(n);
+  const opts = { maximumFractionDigits: cur === 'KRW' ? 0 : 2, minimumFractionDigits: cur === 'KRW' ? 0 : 2 };
+  const formatted = new Intl.NumberFormat(LANG === 'ko' ? 'ko-KR' : 'en-US', opts).format(v);
+  return (cur === 'USD' ? '$' : '') + formatted + (cur === 'KRW' ? ' ₩' : (cur === 'USD' ? '' : ' ' + (cur || '')));
+}
+function fmtDate(iso, withTime = false) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  const optsBase = { year:'2-digit', month:'short', day:'2-digit' };
+  const opts = withTime ? { ...optsBase, hour:'2-digit', minute:'2-digit' } : optsBase;
+  return d.toLocaleString(LANG === 'ko' ? 'ko-KR' : 'en-US', opts);
+}
+function escHtml(s) {
+  return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function badgeStatus(s) {
+  const cls = ({pending:'badge-pending', paid:'badge-paid', void:'badge-void', expired:'badge-expired'})[s] || 'badge-expired';
+  return '<span class="badge ' + cls + '">' + escHtml(s) + '</span>';
+}
+
+// ──────────────────────────────────────────────────────────────
+// Tab switching
+// ──────────────────────────────────────────────────────────────
+document.querySelectorAll('.tab').forEach(el => {
+  el.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+    el.classList.add('active');
+    const tab = el.getAttribute('data-tab');
+    $('tab-invoices').style.display = (tab === 'invoices') ? '' : 'none';
+    $('tab-payments').style.display = (tab === 'payments') ? '' : 'none';
+    if (tab === 'payments' && !PAY_LOADED) loadPayments();
+  });
+});
+
+// ──────────────────────────────────────────────────────────────
+// Invoices list — state + render
+// ──────────────────────────────────────────────────────────────
+const STATE = {
+  status: 'all', track: 'all', q: '',
+  limit: 20, offset: 0,
+  total: null, hasMore: false,
+  items: []
+};
+
+// Filter pills
+document.querySelectorAll('.pill[data-status]').forEach(p => {
+  p.addEventListener('click', () => {
+    document.querySelectorAll('.pill[data-status]').forEach(x => x.classList.remove('active'));
+    p.classList.add('active');
+    STATE.status = p.getAttribute('data-status');
+    STATE.offset = 0;
+    loadInvoices();
+  });
+});
+$('filter-track').addEventListener('change', e => {
+  STATE.track = e.target.value; STATE.offset = 0; loadInvoices();
+});
+$('btn-search').addEventListener('click', () => {
+  STATE.q = $('filter-q').value.trim(); STATE.offset = 0; loadInvoices();
+});
+$('filter-q').addEventListener('keydown', e => {
+  if (e.key === 'Enter') { STATE.q = e.target.value.trim(); STATE.offset = 0; loadInvoices(); }
+});
+$('btn-clear').addEventListener('click', () => {
+  $('filter-q').value = ''; STATE.q = '';
+  $('filter-track').value = 'all'; STATE.track = 'all';
+  document.querySelectorAll('.pill[data-status]').forEach(x => x.classList.toggle('active', x.getAttribute('data-status') === 'all'));
+  STATE.status = 'all'; STATE.offset = 0;
+  loadInvoices();
+});
+$('btn-refresh').addEventListener('click', loadInvoices);
+$('inv-prev').addEventListener('click', () => {
+  if (STATE.offset <= 0) return;
+  STATE.offset = Math.max(0, STATE.offset - STATE.limit);
+  loadInvoices();
+});
+$('inv-next').addEventListener('click', () => {
+  if (!STATE.hasMore) return;
+  STATE.offset = STATE.offset + STATE.limit;
+  loadInvoices();
+});
+
+async function loadInvoices() {
+  $('inv-tbody').innerHTML = '<tr><td colspan="10"><div class="empty">' + t('loading') + '</div></td></tr>';
+  const r = await api('list', {
+    status: STATE.status,
+    track: STATE.track,
+    q: STATE.q,
+    limit: STATE.limit,
+    offset: STATE.offset
+  });
+  if (!r || !r.ok) {
+    $('inv-tbody').innerHTML = '<tr><td colspan="10"><div class="empty" style="color:var(--err)">'
+      + escHtml(r?.error || 'failed') + (r?.hint ? '<br><small>' + escHtml(r.hint) + '</small>' : '')
+      + '</div></td></tr>';
+    return;
+  }
+  STATE.items = r.data.items || [];
+  STATE.total = r.data.total;
+  STATE.hasMore = !!r.data.has_more;
+  $('cnt-invoices').textContent = (STATE.total !== null) ? STATE.total : STATE.items.length;
+  render();
+}
+
+function render() {
+  if (!STATE.items.length) {
+    $('inv-tbody').innerHTML = '<tr><td colspan="10"><div class="empty"><div class="icon">📭</div>'
+      + t('empty.none') + '</div></td></tr>';
+    $('inv-pager-info').textContent = '0';
+    return;
+  }
+  const rows = STATE.items.map(inv => {
+    const billTo = inv.bill_to_name || inv.bill_to_email || '—';
+    return '<tr class="clickable" data-inv-id="' + escHtml(inv.id) + '">'
+      + '<td class="mono">' + escHtml(inv.invoice_number) + '</td>'
+      + '<td><span class="badge badge-track">' + escHtml(inv.track) + '</span></td>'
+      + '<td>' + escHtml(billTo) + (inv.bill_to_email && inv.bill_to_email !== billTo
+            ? '<br><small style="color:var(--muted)">' + escHtml(inv.bill_to_email) + '</small>' : '') + '</td>'
+      + '<td><span class="badge badge-country">' + escHtml(inv.bill_to_country) + '</span></td>'
+      + '<td class="num">' + fmtAmount(inv.amount_total, inv.currency) + '</td>'
+      + '<td><span class="badge badge-method">' + escHtml(inv.payment_method || '—') + '</span></td>'
+      + '<td>' + badgeStatus(inv.status) + '</td>'
+      + '<td>' + fmtDate(inv.issued_at) + '</td>'
+      + '<td>' + fmtDate(inv.due_at) + '</td>'
+      + '<td><button class="btn ghost tiny" data-action="open" data-id="' + escHtml(inv.id) + '">'
+            + t('btn.preview') + ' →</button></td>'
+      + '</tr>';
+  }).join('');
+  $('inv-tbody').innerHTML = rows;
+
+  // pager info
+  const from = STATE.offset + 1;
+  const to = STATE.offset + STATE.items.length;
+  const total = STATE.total !== null ? STATE.total : '?';
+  $('inv-pager-info').textContent = from + '–' + to + ' / ' + total;
+  $('inv-prev').disabled = STATE.offset <= 0;
+  $('inv-next').disabled = !STATE.hasMore;
+
+  // row click → open detail
+  $('inv-tbody').querySelectorAll('tr.clickable').forEach(tr => {
+    tr.addEventListener('click', e => {
+      const btn = e.target.closest('button[data-action="open"]');
+      const id = btn?.getAttribute('data-id') || tr.getAttribute('data-inv-id');
+      if (id) openDetail(id);
+    });
+  });
+}
+
+// ──────────────────────────────────────────────────────────────
+// Payments tab — unbilled
+// ──────────────────────────────────────────────────────────────
+let PAY_LOADED = false;
+let PAY_STATUS_FILTER = 'all';
+
+$('pay-status-filter').addEventListener('change', e => {
+  PAY_STATUS_FILTER = e.target.value;
+  loadPayments();
+});
+$('btn-pay-refresh').addEventListener('click', loadPayments);
+
+async function loadPayments() {
+  $('pay-tbody').innerHTML = '<tr><td colspan="7"><div class="empty">' + t('loading') + '</div></td></tr>';
+  // payments with no invoice_number — Supabase REST 직접 호출 (서비스 키 없이도 admin RLS 통과)
+  let query = sb.from('payments')
+    .select('id,hotel_id,amount,currency,status,method,invoice_number,created_at')
+    .is('invoice_number', null)
+    .order('created_at', { ascending:false })
+    .limit(50);
+  if (PAY_STATUS_FILTER !== 'all') query = query.eq('status', PAY_STATUS_FILTER);
+  const { data, error } = await query;
+  if (error) {
+    $('pay-tbody').innerHTML = '<tr><td colspan="7"><div class="empty" style="color:var(--err)">'
+      + escHtml(error.message) + '</div></td></tr>';
+    return;
+  }
+  PAY_LOADED = true;
+  PAY_ITEMS = data || [];
+  // hotel 이름 lookup (배치)
+  const hotelIds = [...new Set(PAY_ITEMS.map(p => p.hotel_id).filter(Boolean))];
+  if (hotelIds.length) {
+    const { data: hotels } = await sb.from('hotels').select('id,hotel_name,country').in('id', hotelIds);
+    HOTEL_MAP = {};
+    (hotels || []).forEach(h => { HOTEL_MAP[h.id] = h; });
+  }
+  $('cnt-payments').textContent = PAY_ITEMS.length;
+  renderPayments();
+}
+
+let PAY_ITEMS = [];
+let HOTEL_MAP = {};
+
+function renderPayments() {
+  if (!PAY_ITEMS.length) {
+    $('pay-tbody').innerHTML = '<tr><td colspan="7"><div class="empty"><div class="icon">✅</div>'
+      + t('empty.payments') + '</div></td></tr>';
+    return;
+  }
+  const rows = PAY_ITEMS.map(p => {
+    const h = HOTEL_MAP[p.hotel_id];
+    const hotelName = h ? (h.hotel_name + (h.country ? ' · ' + h.country : '')) : '—';
+    return '<tr>'
+      + '<td class="mono">' + escHtml(p.id.slice(0, 8)) + '…</td>'
+      + '<td>' + escHtml(hotelName) + '</td>'
+      + '<td class="num">' + fmtAmount(p.amount, p.currency) + '</td>'
+      + '<td><span class="badge badge-method">' + escHtml(p.method || '—') + '</span></td>'
+      + '<td>' + badgeStatus(p.status) + '</td>'
+      + '<td>' + fmtDate(p.created_at) + '</td>'
+      + '<td><button class="btn tiny" data-issue-pay="' + escHtml(p.id) + '">'
+            + t('btn.issue') + ' →</button></td>'
+      + '</tr>';
+  }).join('');
+  $('pay-tbody').innerHTML = rows;
+
+  $('pay-tbody').querySelectorAll('button[data-issue-pay]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const pid = btn.getAttribute('data-issue-pay');
+      if (!confirm((LANG === 'ko' ? '이 결제에 인보이스 발행?\nID: ' : 'Issue invoice for payment?\nID: ') + pid)) return;
+      btn.disabled = true; btn.textContent = '...';
+      const r = await api('issue', {}, { payment_id: pid });
+      if (!r || !r.ok) {
+        toast(t('toast.err') + (r?.error || 'failed') + (r?.hint ? ' — ' + r.hint : ''), 'err');
+        btn.disabled = false; btn.textContent = t('btn.issue') + ' →';
+        return;
+      }
+      toast(t('toast.issued') + ' — ' + (r.data?.invoice?.invoice_number || ''), 'ok');
+      // refresh both lists
+      await loadPayments();
+      // switch to invoices tab and reload
+      document.querySelector('.tab[data-tab="invoices"]').click();
+      STATE.offset = 0; STATE.status = 'all';
+      document.querySelectorAll('.pill[data-status]').forEach(x => x.classList.toggle('active', x.getAttribute('data-status') === 'all'));
+      await loadInvoices();
+      // optional: open the new invoice
+      if (r.data?.invoice?.id) openDetail(r.data.invoice.id);
+    });
+  });
+}
+
+// ──────────────────────────────────────────────────────────────
+// Detail modal
+// ──────────────────────────────────────────────────────────────
+let CURRENT_INVOICE = null;
+
+document.querySelectorAll('[data-close-modal]').forEach(el => {
+  el.addEventListener('click', () => {
+    const id = el.getAttribute('data-close-modal');
+    $(id).classList.remove('show');
+  });
+});
+document.querySelectorAll('.modal-backdrop').forEach(bd => {
+  bd.addEventListener('click', e => { if (e.target === bd) bd.classList.remove('show'); });
+});
+
+async function openDetail(invoiceId) {
+  $('modal-detail').classList.add('show');
+  $('detail-kv').innerHTML = '<dt>' + t('loading') + '</dt><dd>—</dd>';
+  $('detail-iframe').style.display = 'none';
+  $('iframe-loading').style.display = 'flex';
+  $('iframe-loading').textContent = t('detail.loading_pdf');
+  $('btn-detail-download').disabled = true;
+  $('btn-detail-void').disabled = true;
+
+  // 1) meta fetch
+  const metaR = await api('get', { id: invoiceId });
+  if (!metaR || !metaR.ok) {
+    $('detail-kv').innerHTML = '<dt>Error</dt><dd style="color:var(--err)">' + escHtml(metaR?.error || 'failed') + '</dd>';
+    $('iframe-loading').textContent = '—';
+    return;
+  }
+  const inv = metaR.data.invoice;
+  CURRENT_INVOICE = inv;
+  $('detail-no').textContent = inv.invoice_number;
+  $('detail-status').className = 'badge ' + ({pending:'badge-pending', paid:'badge-paid', void:'badge-void', expired:'badge-expired'})[inv.status];
+  $('detail-status').textContent = inv.status;
+
+  // kv
+  const kv = [
+    ['Track', '<span class="badge badge-track">' + escHtml(inv.track) + '</span>'],
+    ['Status', badgeStatus(inv.status)],
+    ['Document', escHtml(inv.document_type)],
+    ['Bill to', escHtml(inv.bill_to_name || '—') + (inv.bill_to_email ? '<br><small style="color:var(--muted)">' + escHtml(inv.bill_to_email) + '</small>' : '')],
+    ['Country', '<span class="badge badge-country">' + escHtml(inv.bill_to_country) + '</span>'],
+    ['Method', '<span class="badge badge-method">' + escHtml(inv.payment_method || '—') + '</span>'],
+    ['Amount', '<span class="amount">' + fmtAmount(inv.amount_total, inv.currency) + '</span>'],
+    ['Tax mode', escHtml(inv.tax_mode) + (inv.tax_label ? ' · ' + escHtml(inv.tax_label) : '')],
+    ['Issued at', fmtDate(inv.issued_at, true)],
+    ['Due at', fmtDate(inv.due_at, true)],
+  ];
+  if (inv.paid_at) kv.push(['Paid at', fmtDate(inv.paid_at, true)]);
+  if (inv.voided_at) kv.push(['Voided at', fmtDate(inv.voided_at, true) + (inv.void_reason ? '<br><small style="color:var(--muted)">' + escHtml(inv.void_reason) + '</small>' : '')]);
+  if (inv.fx_display_note) kv.push(['FX', escHtml(inv.fx_display_note)]);
+  $('detail-kv').innerHTML = kv.map(([k, v]) => '<dt>' + k + '</dt><dd>' + v + '</dd>').join('');
+
+  // void 버튼 — 이미 void/expired는 비활성, 그 외 활성 (owner only는 서버에서 차단)
+  $('btn-detail-void').disabled = ['void', 'expired'].includes(inv.status);
+
+  // 2) PDF — get에서 이미 signed_pdf_url 반환된 경우 사용
+  let pdfUrl = metaR.data.signed_pdf_url;
+  if (!pdfUrl) {
+    // 미발행 PDF — pdf 액션으로 생성
+    const pdfR = await api('pdf', { id: invoiceId });
+    if (pdfR && pdfR.ok && pdfR.data.signed_url) {
+      pdfUrl = pdfR.data.signed_url;
+    } else {
+      $('iframe-loading').textContent = (pdfR?.error || 'PDF render failed') + (pdfR?.hint ? ' — ' + pdfR.hint : '');
+      return;
+    }
+  }
+
+  // iframe load
+  const ifr = $('detail-iframe');
+  ifr.src = pdfUrl + '#toolbar=1&navpanes=0';
+  ifr.onload = () => {
+    $('iframe-loading').style.display = 'none';
+    ifr.style.display = 'block';
+  };
+  // download button
+  $('btn-detail-download').disabled = false;
+  $('btn-detail-download').onclick = () => {
+    const a = document.createElement('a');
+    a.href = pdfUrl;
+    a.download = (inv.invoice_number || 'invoice') + '.pdf';
+    a.rel = 'noopener';
+    document.body.appendChild(a); a.click(); a.remove();
+  };
+}
+
+// ──────────────────────────────────────────────────────────────
+// Void modal
+// ──────────────────────────────────────────────────────────────
+$('btn-detail-void').addEventListener('click', () => {
+  if (!CURRENT_INVOICE) return;
+  $('void-target').textContent = CURRENT_INVOICE.invoice_number + '  ·  '
+    + fmtAmount(CURRENT_INVOICE.amount_total, CURRENT_INVOICE.currency)
+    + '  ·  ' + (CURRENT_INVOICE.bill_to_name || CURRENT_INVOICE.bill_to_email || '—');
+  $('void-reason').value = '';
+  $('void-category').value = 'customer_request';
+  $('modal-void').classList.add('show');
+});
+
+$('btn-void-confirm').addEventListener('click', async () => {
+  if (!CURRENT_INVOICE) return;
+  const reason = $('void-reason').value.trim();
+  const cat = $('void-category').value;
+  if (reason.length < 5) {
+    toast(t('toast.err') + 'reason ≥ 5 chars', 'warn');
+    $('void-reason').focus();
+    return;
+  }
+  const btn = $('btn-void-confirm');
+  btn.disabled = true; btn.textContent = '...';
+  const r = await api('void', {}, { invoice_id: CURRENT_INVOICE.id, reason, reason_category: cat });
+  btn.disabled = false; btn.textContent = t('void.confirm');
+  if (!r || !r.ok) {
+    toast(t('toast.err') + (r?.error || 'failed') + (r?.hint ? ' — ' + r.hint : ''), 'err');
+    return;
+  }
+  toast(t('toast.voided') + ' — CN ' + (r.data?.credit_note?.cn_number || ''), 'ok');
+  $('modal-void').classList.remove('show');
+  $('modal-detail').classList.remove('show');
+  CURRENT_INVOICE = null;
+  await loadInvoices();
+});
+
+// ──────────────────────────────────────────────────────────────
+// Boot
+// ──────────────────────────────────────────────────────────────
+applyI18n();
+(async () => {
+  const ok = await loadMe();
+  if (!ok) return;
+  await loadInvoices();
+})();
+</script>
+
+</body>
+</html>

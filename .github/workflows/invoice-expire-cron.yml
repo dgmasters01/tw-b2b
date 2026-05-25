@@ -1,0 +1,70 @@
+# TW B2B — 인보이스 입금 기한 자동 만료 cron (BL-INVOICE-001 단계 8)
+#
+# 헌법 부합:
+#   ② 무인 실행: 매시 정각 자동 호출 (대표님 PC 의무 없음)
+#   정책 2.8: 기한 경과 시 cron이 자동 expired 전환
+#   정책 2.13: 한국 인보이스 4단계 텔레그램 알림 (대표님 1차 채널)
+#
+# 작동:
+#   1. cron 트리거 (매시 정각 UTC)
+#   2. /api/cron/invoice-expire POST 호출 (x-cron-token 인증)
+#   3. API가 4단계 처리:
+#      ① 24h 미입금 알림  ② 6h 임박 알림  ③ 기한 경과 → expired 전환  ④ 영수증 누락 알림
+#   4. metadata.telegram_log[] 멱등 보장 (같은 단계 중복 발송 차단)
+
+name: Invoice Expire Cron
+
+on:
+  schedule:
+    - cron: '0 * * * *'  # 매시 정각 UTC
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'dry_run 모드 (DB 전환·알림 안 함, 후보만 카운트)'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  expire-invoices:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call invoice-expire cron endpoint
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
+        run: |
+          if [ -z "$CRON_SECRET" ]; then
+            echo "❌ CRON_SECRET not configured in repository secrets"
+            exit 1
+          fi
+
+          URL="https://gohotelwinners.com/api/cron/invoice-expire"
+          if [ "$DRY_RUN" = "true" ]; then
+            URL="$URL?dry_run=1"
+          fi
+
+          echo "→ POST $URL"
+          RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "$URL" \
+            -H "x-cron-token: $CRON_SECRET" \
+            -H "Content-Type: application/json")
+
+          HTTP_CODE=$(echo "$RESPONSE" | tail -1)
+          BODY=$(echo "$RESPONSE" | sed '$d')
+
+          echo "HTTP $HTTP_CODE"
+          echo "$BODY" | head -80
+
+          if [ "$HTTP_CODE" != "200" ]; then
+            echo "❌ Cron call failed"
+            exit 1
+          fi
+
+          # 요약 출력
+          EXPIRED=$(echo "$BODY" | grep -o '"stage_expired_count":[0-9]*' | head -1 | grep -o '[0-9]*$')
+          SENT_24H=$(echo "$BODY" | grep -o '"stage_24h_sent":[0-9]*' | head -1 | grep -o '[0-9]*$')
+          SENT_6H=$(echo "$BODY" | grep -o '"stage_6h_sent":[0-9]*' | head -1 | grep -o '[0-9]*$')
+          SENT_RECEIPT=$(echo "$BODY" | grep -o '"stage_receipt_overdue_sent":[0-9]*' | head -1 | grep -o '[0-9]*$')
+          echo "✅ expired: ${EXPIRED:-0} / 24h: ${SENT_24H:-0} / 6h: ${SENT_6H:-0} / receipt: ${SENT_RECEIPT:-0}"

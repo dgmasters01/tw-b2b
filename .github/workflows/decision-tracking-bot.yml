@@ -1,0 +1,43 @@
+name: Decision Tracking Bot
+
+# BL-DECISION-TRACKING 톱니 2 보완 — chat-log에서 합의 자동 추출
+#
+# 트리거: _chat-logs/*.md push to main
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '_chat-logs/**.md'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2  # 직전 commit과 비교 위해
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run decision-tracking-bot
+        id: extract
+        run: node scripts/decision-tracking-bot.js
+
+      - name: Commit if appended
+        if: steps.extract.outputs.appended > 0
+        run: |
+          git config user.email "decision-tracking-bot@tw-b2b"
+          git config user.name "decision-tracking-bot"
+          git add _decisions/business-agreements.json
+          git commit -m "[decision-tracking-bot] chat-log에서 합의 ${{ steps.extract.outputs.appended }}개 자동 추출 박음 [변경사유: 클로드 수동 박음 보완]"
+          git push origin main

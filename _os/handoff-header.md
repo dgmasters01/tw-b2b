@@ -44,12 +44,21 @@
 【의무 6】 단계 1개 = commit 1개 (헌법 부칙 7):
   commit subject에 [step:done:N] 태그 박음 → 봇 자동 progress 갱신
 
+【의무 7】 작업 시작 전 미구현 사업 합의 점검 (헌법 부칙 20):
+  ✅ _decisions/business-agreements.json 라이브 fetch
+  ✅ status: "not_implemented" 또는 "partial" 항목 확인
+  ✅ 이번 작업과 관련된 미구현 합의가 있으면 먼저 박을 것 (또는 대표님께 우선순위 확인)
+  ✅ 채팅 마무리 시 이번 채팅에서 새로 합의된 사업·서비스 결정을 _decisions/business-agreements.md/.json에 자동 박음 (의무)
+  ❌ 합의된 사업 정책이 코드에 박혔는지 확인 안 한 채 BL done 보고 절대 금지 (2026-05-25 사고 재발 방지)
+  단일 진실원: _os/playbook/decision-tracking.md (5톱니 사이클 디테일)
+
 【위반 시】
   대표님 "헌법 확인" 한 마디 → 즉시 작업 중단 + 자가 진단 + 정정 보고
 
 【디테일 매뉴얼】
   _os/playbook/claude-discipline.md (이 헤더의 디테일 단일 진실원)
-  OPERATIONS_CHARTER.md 부칙 16 (헌법 본문)
+  _os/playbook/decision-tracking.md (부칙 20 디테일)
+  OPERATIONS_CHARTER.md 부칙 16 + 부칙 20 (헌법 본문)
 
 ──────── 위 헤더는 모든 인계서 자동 prepend (BL-CLAUDE-DISCIPLINE, D-023) ────────
 ──────── 아래는 작업 컨텍스트 ────────

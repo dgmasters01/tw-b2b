@@ -2,14 +2,19 @@
   "version": "1.0",
   "schema": {
     "id": "AGR-YYYY-NNNN (연도별 순번)",
-    "status_values": ["not_implemented", "partial", "done", "deferred"]
+    "status_values": [
+      "not_implemented",
+      "partial",
+      "done",
+      "deferred"
+    ]
   },
-  "updated_at": "2026-05-25T08:00:00Z",
+  "updated_at": "2026-05-25T15:11:34+00:00",
   "stats": {
     "total": 15,
-    "done": 9,
+    "done": 8,
     "partial": 3,
-    "not_implemented": 3,
+    "not_implemented": 4,
     "deferred": 0
   },
   "agreements": [
@@ -19,7 +24,10 @@
       "chat_ref": "BL-INVOICE-001 핑퐁 라운드 1",
       "agreement": "인보이스 발행 주체는 한국법인 여행능력자들 단일, 베트남법인 완전 배제",
       "expected_location": {
-        "files": ["api/invoice.js", "_os/playbook/invoice-system.md"],
+        "files": [
+          "api/invoice.js",
+          "_os/playbook/invoice-system.md"
+        ],
         "code_pattern": "여행능력자들|TravelWinners"
       },
       "related_bl": "BL-INVOICE-001",
@@ -34,7 +42,9 @@
       "chat_ref": "BL-INVOICE-001 핑퐁 라운드 1",
       "agreement": "한국 호텔은 KO/EN 토글, 그 외 전세계는 EN 단일",
       "expected_location": {
-        "files": ["api/invoice.js"],
+        "files": [
+          "api/invoice.js"
+        ],
         "code_pattern": "lang|locale|ko|en"
       },
       "related_bl": "BL-INVOICE-001",
@@ -48,8 +58,13 @@
       "chat_ref": "BL-INVOICE-001 핑퐁 라운드 3",
       "agreement": "한국 매니저 결제 시 PayPal 옵션 숨기고 KRW 국내 송금 UI 단일 노출 (payment_accounts에서 계좌 정보 읽어서 송금 카드 렌더)",
       "expected_location": {
-        "files": ["sales.html"],
-        "code_pattern": "hotel\\.country.*KR|bank_transfer_krw|isKorea"
+        "files": [
+          "sales.html"
+        ],
+        "code_patterns_all": [
+          "hotel\\.country.*['\"]KR['\"]",
+          "(initBankTransferKRW|renderKoreaPaymentCard|KRW.*송금)"
+        ]
       },
       "related_bl": "BL-INVOICE-001",
       "status": "not_implemented",
@@ -63,7 +78,10 @@
       "chat_ref": "BL-INVOICE-001 핑퐁 라운드 4",
       "agreement": "PayPal은 webhook 자동, KRW는 대표님 수동 입금 확인 후 admin 버튼으로 Paid 전환 (하이브리드)",
       "expected_location": {
-        "files": ["api/paypal.js", "_admin/admin-invoices.html"],
+        "files": [
+          "api/paypal.js",
+          "_admin/admin-invoices.html"
+        ],
         "code_pattern": "webhook|capture|입금 확인"
       },
       "related_bl": "BL-INVOICE-001",
@@ -78,8 +96,13 @@
       "chat_ref": "BL-INVOICE-001 핑퐁 라운드 5",
       "agreement": "admin-invoices.html에 Pending/Paid/Overdue 탭 + 입금 확인 버튼 + 미수금 위젯 + 자동 컬러 배지(7/14/30일) + CSV 내보내기",
       "expected_location": {
-        "files": ["_admin/admin-invoices.html"],
-        "code_pattern": "입금 확인|markAsPaid|미수금|overdue"
+        "files": [
+          "_admin/admin-invoices.html"
+        ],
+        "code_patterns_all": [
+          "(markAsPaid|입금 확인)",
+          "(미수금|overdue|미수)"
+        ]
       },
       "related_bl": "BL-INVOICE-002",
       "status": "not_implemented",
@@ -93,7 +116,9 @@
       "chat_ref": "BL-INVOICE-001 핑퐁 라운드 6",
       "agreement": "계좌·도장·서명 admin에서 수정 가능 (payment_accounts 테이블 + admin-settings.html)",
       "expected_location": {
-        "files": ["_admin/admin-settings.html"],
+        "files": [
+          "_admin/admin-settings.html"
+        ],
         "code_pattern": "payment_accounts|company_info|회사 정보|결제 정보"
       },
       "related_bl": "BL-INVOICE-003",
@@ -107,13 +132,16 @@
       "chat_ref": "BL-INVOICE-001 핑퐁 라운드 7",
       "agreement": "한국 매니저는 KRW 단일 통화, USD→KRW 환산은 발행 시점 환율 스냅샷 고정",
       "expected_location": {
-        "files": ["api/invoice.js", "api/_lib/fx-snapshot.js"],
+        "files": [
+          "api/invoice.js",
+          "api/_lib/fx-snapshot.js"
+        ],
         "code_pattern": "fx_snapshots|환율|exchange_rate"
       },
       "related_bl": "BL-INVOICE-001",
-      "status": "done",
-      "verified_at": "2026-05-25T07:00:00Z",
-      "verified_commit": "0aeee15"
+      "status": "partial",
+      "verified_at": null,
+      "verified_commit": null
     },
     {
       "id": "AGR-2026-0008",
@@ -121,7 +149,9 @@
       "chat_ref": "BL-INVOICE-001 핑퐁 라운드 8",
       "agreement": "한국=VAT 10% 포함, 해외=영세율 0% (Zero-rated export of services)",
       "expected_location": {
-        "files": ["api/invoice.js"],
+        "files": [
+          "api/invoice.js"
+        ],
         "code_pattern": "vat|zero_rated|영세율"
       },
       "related_bl": "BL-INVOICE-001",
@@ -135,7 +165,9 @@
       "chat_ref": "BL-INVOICE-001 핑퐁 라운드 9",
       "agreement": "발행 시점 환율 고정으로 고객 송금 시점 환율 변동과 무관",
       "expected_location": {
-        "files": ["api/invoice.js"],
+        "files": [
+          "api/invoice.js"
+        ],
         "code_pattern": "fx_snapshot|snapshot"
       },
       "related_bl": "BL-INVOICE-001",
@@ -149,7 +181,10 @@
       "chat_ref": "BL-INVOICE-001 핑퐁 라운드 10",
       "agreement": "입금 기한 발행일+2영업일, 자동 만료 cron, 이중 발행 시도 차단 모달",
       "expected_location": {
-        "files": ["api/cron/invoice-expire.js", "sales.html"],
+        "files": [
+          "api/cron/invoice-expire.js",
+          "sales.html"
+        ],
         "code_pattern": "expire|차단|모달|pending"
       },
       "related_bl": "BL-INVOICE-001",
@@ -163,7 +198,10 @@
       "chat_ref": "BL-INVOICE-001 핑퐁 라운드 11",
       "agreement": "KRW Pending 발생 시 텔레그램 알림 4단계 (🔔 즉시 / ⏰ 24h / 🚨 6h 전 / ❌ 만료)",
       "expected_location": {
-        "files": ["api/cron/invoice-expire.js", "api/_lib/telegram.js"],
+        "files": [
+          "api/cron/invoice-expire.js",
+          "api/_lib/telegram.js"
+        ],
         "code_pattern": "sendTelegram|🔔|⏰|🚨"
       },
       "related_bl": "BL-INVOICE-001",
@@ -178,8 +216,14 @@
       "chat_ref": "BL-INVOICE-001 핑퐁 라운드 13~14",
       "agreement": "한국 결제 영수증 종류 라디오 3종 (세금계산서/현금영수증 사업자/현금영수증 개인), 세금계산서 기본값. admin-invoices에 영수증 발행 버튼 + 24h 미발행 시 텔레그램 ⚠️",
       "expected_location": {
-        "files": ["sales.html", "_admin/admin-invoices.html"],
-        "code_pattern": "세금계산서|현금영수증|receipt_type|tax_invoice"
+        "files": [
+          "sales.html",
+          "_admin/admin-invoices.html"
+        ],
+        "code_patterns_all": [
+          "(세금계산서|tax_invoice|receipt_type)",
+          "(현금영수증|cash_receipt)"
+        ]
       },
       "related_bl": "BL-INVOICE-001",
       "status": "not_implemented",
@@ -192,11 +236,16 @@
       "chat_ref": "BL-INVOICE-001 핑퐁 라운드 14",
       "agreement": "B2B 타겟 명시 — 사업자 고객 대상 서비스 안내 문구",
       "expected_location": {
-        "files": ["sales.html"],
-        "code_pattern": "B2B|business|사업자"
+        "files": [
+          "sales.html"
+        ],
+        "code_patterns_all": [
+          "사업자 고객 대상",
+          "(세금계산서|tax_invoice)"
+        ]
       },
       "related_bl": "BL-INVOICE-001",
-      "status": "partial",
+      "status": "not_implemented",
       "verified_at": "2026-05-25T07:00:00Z",
       "verified_commit": "0aeee15",
       "note": "전체 사이트 B2B 톤은 박혔으나 영수증 라디오 옆 명시 문구는 AGR-2026-0013 종속"
@@ -207,13 +256,16 @@
       "chat_ref": "BL-INVOICE-001 핑퐁 라운드 15",
       "agreement": "인보이스 번호 4트랙(INV-KR/INV-INT/CN-KR/CN-INT 연도별 리셋) + 발행 권한 super_admin 단독 + 도장·서명 추후 업로드",
       "expected_location": {
-        "files": ["api/_lib/invoice-numbering.js", "_admin/admin-settings.html"],
+        "files": [
+          "api/_lib/invoice-numbering.js",
+          "_admin/admin-settings.html"
+        ],
         "code_pattern": "INV-KR|INV-INT|super_admin|stamp|signature"
       },
       "related_bl": "BL-INVOICE-001",
-      "status": "done",
-      "verified_at": "2026-05-25T07:00:00Z",
-      "verified_commit": "0aeee15"
+      "status": "partial",
+      "verified_at": null,
+      "verified_commit": null
     },
     {
       "id": "AGR-2026-0016",
@@ -234,10 +286,10 @@
         "code_pattern": "business-agreements|decision-tracking|verification-gap"
       },
       "related_bl": "BL-DECISION-TRACKING",
-      "status": "partial",
-      "verified_at": null,
-      "verified_commit": null,
-      "note": "1편(헌법·정책문서·초기 데이터) 박힘 / 2편(봇·admin 배지·인계서 헤더) 미박힘"
+      "status": "done",
+      "verified_at": "2026-05-25T15:11:34+00:00",
+      "verified_commit": "pending-commit",
+      "note": "1편(헌법·문서·초기 데이터) + 2편(봇 2개·admin 배지·인계서 헤더 통합) 모두 박힘. BL-DECISION-TRACKING 100%."
     }
   ]
 }

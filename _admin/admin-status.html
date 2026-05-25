@@ -1426,6 +1426,14 @@
       </div>
     </div>
     <div class="header-actions">
+      <!-- ═══ ★ BL-DECISION-TRACKING 톱니 4 — 미구현 사업 합의 배지 (부칙 20) ═══ -->
+      <a href="https://github.com/dgmasters01/tw-b2b/blob/main/_decisions/business-agreements.md" 
+         target="_blank" 
+         id="agreement-badge" 
+         title="채팅에서 합의됐지만 코드 미반영 사업 합의 (부칙 20)"
+         style="display:none;background:linear-gradient(135deg,#dc2626,#991b1b);color:#fff;text-decoration:none;padding:6px 12px;border-radius:8px;font-size:12px;font-weight:600;border:1px solid #fca5a5;">
+        📋 <span id="agreement-badge-count">0</span>건 미구현
+      </a>
       <span class="role-tag" id="role-tag">현재: 👤 CEO</span>
       <button id="btn-i18n" title="언어 토글 — 다음 주 i18n 일괄 적용 예정">🌐 EN/KO</button>
       <button id="btn-skin-toggle" title="Admin Skin — 다크/라이트 토글 (BL-OS-PHASE-3)">🌓 다크/라이트</button>
@@ -9199,6 +9207,55 @@ ${task.title}
 })();
 </script>
 <!-- ═══ End OS 사이드바 자동 렌더 ═══ -->
+
+<!-- ═══ ★ BL-DECISION-TRACKING 톱니 4 — 미구현 사업 합의 배지 폴링 (부칙 20) ═══ -->
+<script>
+(function() {
+  'use strict';
+  const AGREEMENTS_URL = 'https://raw.githubusercontent.com/dgmasters01/tw-b2b/main/_decisions/business-agreements.json';
+  const POLL_MS = 30000;  // 30초 (사업 합의는 자주 안 바뀜)
+
+  async function refreshAgreementBadge() {
+    try {
+      const resp = await fetch(AGREEMENTS_URL + '?t=' + Date.now(), { cache: 'no-store' });
+      if (!resp.ok) return;
+      const data = await resp.json();
+      const stats = data.stats || {};
+      const notImpl = stats.not_implemented || 0;
+      const partial = stats.partial || 0;
+      const pending = notImpl + partial;
+
+      const badge = document.getElementById('agreement-badge');
+      const count = document.getElementById('agreement-badge-count');
+      if (!badge || !count) return;
+
+      if (pending === 0) {
+        badge.style.display = 'none';
+      } else {
+        badge.style.display = 'inline-block';
+        count.textContent = pending;
+        // 색상 강도: 미구현 많을수록 진한 빨강
+        if (notImpl >= 5) {
+          badge.style.background = 'linear-gradient(135deg,#7f1d1d,#450a0a)';
+        } else if (notImpl >= 1) {
+          badge.style.background = 'linear-gradient(135deg,#dc2626,#991b1b)';
+        } else {
+          // partial만 있을 때
+          badge.style.background = 'linear-gradient(135deg,#f59e0b,#d97706)';
+        }
+        badge.title = `미구현 ${notImpl}건 + 부분 ${partial}건 — 부칙 20 (클릭 시 상세)`;
+      }
+    } catch (e) {
+      console.warn('[agreement-badge] fetch 실패:', e);
+    }
+  }
+
+  refreshAgreementBadge();
+  setInterval(refreshAgreementBadge, POLL_MS);
+  console.log('[agreement-badge] BL-DECISION-TRACKING 톱니 4 — 30초 polling 가동');
+})();
+</script>
+<!-- ═══ End 미구현 사업 합의 배지 ═══ -->
 
 <!-- 🔗 BL-3WAY-LINK-CARDS (2026-05-11): 연동 하이라이트 해제 배너 -->
 <div class="link-clear-banner" id="link-clear-banner" title="연동 하이라이트 해제">🔗 연동 보는 중 — 클릭 = 해제</div>

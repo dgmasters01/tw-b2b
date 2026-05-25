@@ -1,0 +1,82 @@
+name: Verification Gap Bot
+
+# BL-DECISION-TRACKING 톱니 4 — 사업 합의 코드 박힘 자동 검증
+#
+# 트리거:
+#   - push to main (코드 변경 시 즉시 재검증)
+#   - 매일 KST 03:00 (UTC 18:00 전날) — 백그라운드 점검
+#   - workflow_dispatch (수동)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'sales.html'
+      - '_admin/**'
+      - 'api/**'
+      - '_decisions/business-agreements.json'
+      - '_os/playbook/**'
+      - 'scripts/verification-gap-bot.js'
+  schedule:
+    - cron: '0 18 * * *'  # UTC 18:00 = KST 03:00
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run verification-gap-bot
+        id: verify
+        run: node scripts/verification-gap-bot.js
+
+      - name: Commit if changed
+        run: |
+          git config user.email "verification-gap-bot@tw-b2b"
+          git config user.name "verification-gap-bot"
+          if git diff --quiet _decisions/business-agreements.json; then
+            echo "변경 없음 — commit skip"
+          else
+            git add _decisions/business-agreements.json
+            git commit -m "[verification-gap-bot] business-agreements.json status 자동 갱신 (done=${{ steps.verify.outputs.done }} / partial=${{ steps.verify.outputs.partial }} / not_implemented=${{ steps.verify.outputs.not_implemented }}) [변경사유: 사업 합의 코드 박힘 자동 검증]"
+            git push origin main
+          fi
+
+      - name: Notify ops (not_implemented 7일 이상 누적 시)
+        if: steps.verify.outputs.not_implemented > 0
+        env:
+          OPS_TOKEN: ${{ secrets.CLAUDE_OPS_TOKEN }}
+        run: |
+          if [ -z "$OPS_TOKEN" ]; then
+            echo "CLAUDE_OPS_TOKEN 없음 — silent skip"
+            exit 0
+          fi
+          curl -s -X POST 'https://gohotelwinners.com/api/email/ops/notify-claude-work' \
+            -H "x-ops-token: $OPS_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"step\": \"verification-gap-bot 점검 — 미구현 ${{ steps.verify.outputs.not_implemented }}건 / 부분 ${{ steps.verify.outputs.partial }}건\",
+              \"summary\": \"부칙 20 톱니 4 자동 검증 결과. 미구현 사업 합의가 누적되어 있으면 다음 채팅 인계서 헤더에 강제 표시됩니다.\",
+              \"checklist\": [
+                \"business-agreements.json 라이브 확인\",
+                \"done: ${{ steps.verify.outputs.done }}\",
+                \"partial: ${{ steps.verify.outputs.partial }}\",
+                \"not_implemented: ${{ steps.verify.outputs.not_implemented }}\",
+                \"total: ${{ steps.verify.outputs.total }}\"
+              ],
+              \"vercel_url\": \"https://github.com/dgmasters01/tw-b2b/blob/main/_decisions/business-agreements.md\",
+              \"blockers\": [],
+              \"commit_hash\": \"${{ github.sha }}\"
+            }" -w "\nHTTP %{http_code}\n" || echo "알림 실패 (silent)"

@@ -1,7 +1,7 @@
 # 📖 TW B2B 시스템 매뉴얼 (service-map)
 
 > **자동 생성 — 직접 편집 금지** (`.github/workflows/system-manual-rebuild.yml`이 push마다 재생성)
-> **생성 시각:** 2026-05-25T07:20:52.106Z
+> **생성 시각:** 2026-05-25T08:14:52.877Z
 > **포맷 (헌법 12대 원칙 6번 — AI 가독성):** 사람용 표/설명 + AI용 YAML 블록
 
 ---
@@ -180,7 +180,7 @@ refresh_rule: "부칙 19 — 부분 갱신 금지, renderAll() 일괄 호출 의
 ## 🚦 섹션 4 — 자동화 게이트 (헌법 부칙)
 
 
-**헌법 부칙 19개가 자동 게이트로 작동 중:**
+**헌법 부칙 20개가 자동 게이트로 작동 중:**
 
 | # | 게이트 | 위반 시 |
 |---|---|---|
@@ -193,7 +193,7 @@ refresh_rule: "부칙 19 — 부분 갱신 금지, renderAll() 일괄 호출 의
 | 부칙 18 | 질문·선택지 사업가 언어 강제 + 갤러리 우선 점검 (BL-CLAUDE-PLAIN-LANG, 2026-05- | CI 실패 또는 "헌법 확인" 정지 |
 | 부칙 19 | 전체 갱신 원칙 (BL-FULL-REFRESH-UNIFY, 2026-05-23 신설) | CI 실패 또는 "헌법 확인" 정지 |
 
-_전체 19개 부칙은 `OPERATIONS_CHARTER.md` 참조._
+_전체 20개 부칙은 `OPERATIONS_CHARTER.md` 참조._
 
 
 ```yaml
@@ -218,6 +218,7 @@ gates:
   - { n: 17, title: "신규 BL 컨텍스트 + 신규 페이지 보고 의무 (BL-DECISION-CTX-MASS-FILL, 2026-05-12 신설)" }
   - { n: 18, title: "질문·선택지 사업가 언어 강제 + 갤러리 우선 점검 (BL-CLAUDE-PLAIN-LANG, 2026-05-21 신설)" }
   - { n: 19, title: "전체 갱신 원칙 (BL-FULL-REFRESH-UNIFY, 2026-05-23 신설)" }
+  - { n: 20, title: "사업 합의 추적 게이트 (BL-DECISION-TRACKING, 2026-05-25 신설)" }
 ```
 
 

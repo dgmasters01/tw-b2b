@@ -234,6 +234,12 @@
 
 ---
 
+## 2026-05-25 (Charter-v2) — [헌법-인프라] [사업 합의 추적 게이트] 톱니바퀴 5단계 자동 검증 시스템 (부칙 20)
+
+**요약**: 사업 합의 → 정책 문서 → 백로그 → 코드 → 검증 → 다음 채팅 인계까지 한 사이클이 자동으로 도는 톱니바퀴 시스템. 라운드 3 합의 빠뜨림 사고 재발 차단.
+
+---
+
 ## 2026-05-03 (Charter-v2) — [헌법부칙5-실제반영] [카테고리 리매핑] 헌법 부칙 5 D-010 매핑 표를 코드에 반영 (6단계)
 
 ### 변경 파일
@@ -307,6 +313,38 @@
 - `sql/bl-invoice-003-audit-helper.sql`
 
 **요약**: 인보이스 시스템의 모든 동적 정보(회사 정보·결제 계좌·도장·서명 이미지)를 코드 하드코딩 없이 admin에서 수정 가능하게. BL-INVOICE-001/002의 선결 의존성. audit_log로 변경 이력 자동 기록. super_admin RLS 정책으로 시스템 단 권한 차단.
+
+---
+
+## 2026-05-03 (Charter-v2) — [회계세무-필수] [인보이스/영수증 PDF 자동 생성·다운로드] 영구 보관 (1년+)
+
+### 변경 파일
+- `api/invoice/[payment_id].js`
+- `api/invoice/credit-note/[invoice_id].js`
+- `api/cron/expire-invoices.js`
+- `api/webhook/paypal.js`
+- `manager-dashboard.html`
+- `sales.html`
+- `_os/playbook/invoice-system.md`
+- `supabase/migrations/invoices_schema.sql`
+
+**요약**: 결제 직후 자동 발송 + 매니저 대시보드 별도 탭에서 1클릭 다운로드. PDF 3종: 인보이스/영수증/6개월리포트.
+
+[2026-05-24] 사업 정책 단일 진실원: _os/playbook/invoice-system.md (D-048). 핑퐁 15라운드 합의 완료, D-047 결정 확정.
+
+---
+
+## 2026-05-25 (Charter-v2) — [회계세무-필수] [한국 업체 수동 입금 정리 시스템] admin-invoices 페이지 + 텔레그램 4단계 알림
+
+### 변경 파일
+- `admin-invoices.html`
+- `api/invoice/confirm-deposit.js`
+- `api/invoice/void.js`
+- `api/cron/invoice-reminders.js`
+- `api/telegram/invoice-alert.js`
+- `manager-dashboard.html`
+
+**요약**: 한국 매니저는 PayPal 결제 불가(법적), KRW 국내 송금 전용 트랙. 대표님이 통장 보고 수동으로 '입금 확인' 버튼 눌러 Receipt 전환하는 운영 화면. 미수금 추적·기한 임박 알림·세무 신고 CSV 내보내기 포함. 입금 기한 = 발행일 +2영업일(주말 자동 제외), 경과 시 자동 Void.
 
 ---
 

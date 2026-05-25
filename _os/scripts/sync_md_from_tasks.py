@@ -107,7 +107,9 @@ def render_backlog(data):
         lines.append("## ✅ DONE (자동 정리됨)")
         lines.append("")
         for t in done[-10:]:  # 최근 10개만
-            lines.append(f"- [{t['id']}] {t['title']} ({t.get('completed_at', '?')[:10]})")
+            # [HOTFIX 2026-05-25 BL-AUTO-BOTS-SYNC-BOT] None 안전 처리
+            _comp = t.get('completed_at') or '?'
+            lines.append(f"- [{t['id']}] {t['title']} ({_comp[:10]})")
         lines.append("")
 
     return '\n'.join(lines) + '\n'
@@ -134,7 +136,12 @@ def render_changelog(data):
     lines.append("")
 
     for t in done_tasks:
-        date = t.get('completed_at', '')[:10] or t.get('created_at', '')[:10]
+        # [HOTFIX 2026-05-25 BL-AUTO-BOTS-SYNC-BOT] sync-bot 5번째 재발 근본 원인 정정
+        # 원인: .get('completed_at', '') 가 key 존재 + 값 None 일 때 None 반환 → None[:10] TypeError
+        # 정석: None 안전 처리 (or '' 로 fallback 후 슬라이스)
+        completed = t.get('completed_at') or ''
+        created = t.get('created_at') or ''
+        date = completed[:10] or created[:10] or '0000-00-00'
         phase = t.get('phase', '')
         tag = t.get('tag', '')
         title = t.get('title', '')
@@ -229,7 +236,9 @@ def render_solo_queue(data):
 
             done_mark = ''
             if t['status'] == 'done':
-                done_mark = f" ✅ **[DONE {t.get('completed_at', '?')[:10]}]**"
+                # [HOTFIX 2026-05-25 BL-AUTO-BOTS-SYNC-BOT] None 안전
+                _comp = t.get('completed_at') or '?'
+                done_mark = f" ✅ **[DONE {_comp[:10]}]**"
 
             lines.append(f"### {label}. {marker}{done_mark} {autonomy_word} — {t['title']}")
             lines.append("")

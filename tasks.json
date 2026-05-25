@@ -15,11 +15,11 @@
     "total": 255,
     "done": 196,
     "in_progress": 0,
-    "paused": 0,
     "pending": 38,
     "blocked": 11,
-    "autonomous_ready": 34,
+    "autonomous_ready": 31,
     "todo": 2,
+    "paused": 0,
     "cancelled": 1,
     "updated_at": "2026-05-25T10:55:25.015Z"
   },
@@ -14501,7 +14501,7 @@
       "title": "[자동] 자동 일꾼 1명이 멈췄어요: sync-bot",
       "category": "infrastructure",
       "priority": "P0",
-      "status": "pending",
+      "status": "done",
       "claude_can_auto": true,
       "approval_required": false,
       "owner": "claude",
@@ -14583,7 +14583,9 @@
           "detail": "점검 봇 재발견: 자동 일꾼 1명이 멈췄어요: sync-bot"
         }
       ],
-      "notes": "점검 봇 자동 등록 (2026-05-11T20:24:23.985Z)\n\ncheck_name: bots\nstatus: red\ndetail: 자동 일꾼 1명이 멈췄어요: sync-bot\n\n진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 green으로 박으면 자동 done.\n\n[자동 해소 2026-05-12T01:40:42.008Z] 점검 봇 green 전환\n\n[재개 2026-05-17T11:46:55.698Z] 자동 일꾼 1명이 멈췄어요: sync-bot\n\n[자동 해소 2026-05-17T19:49:03.745Z] 점검 봇 green 전환\n\n[재개 2026-05-20T16:16:47.608Z] 자동 일꾼 1명이 멈췄어요: sync-bot\n\n[자동 해소 2026-05-21T02:52:52.647Z] 점검 봇 green 전환\n\n[재개 2026-05-22T04:37:17.210Z] 자동 일꾼 1명이 멈췄어요: sync-bot\n\n[자동 해소 2026-05-22T11:17:01.083Z] 점검 봇 green 전환\n\n[재개 2026-05-25T10:55:25.015Z] 자동 일꾼 1명이 멈췄어요: sync-bot"
+      "notes": "점검 봇 자동 등록 (2026-05-11T20:24:23.985Z)\n\ncheck_name: bots\nstatus: red\ndetail: 자동 일꾼 1명이 멈췄어요: sync-bot\n\n진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 green으로 박으면 자동 done.\n\n[자동 해소 2026-05-12T01:40:42.008Z] 점검 봇 green 전환\n\n[재개 2026-05-17T11:46:55.698Z] 자동 일꾼 1명이 멈췄어요: sync-bot\n\n[자동 해소 2026-05-17T19:49:03.745Z] 점검 봇 green 전환\n\n[재개 2026-05-20T16:16:47.608Z] 자동 일꾼 1명이 멈췄어요: sync-bot\n\n[자동 해소 2026-05-21T02:52:52.647Z] 점검 봇 green 전환\n\n[재개 2026-05-22T04:37:17.210Z] 자동 일꾼 1명이 멈췄어요: sync-bot\n\n[자동 해소 2026-05-22T11:17:01.083Z] 점검 봇 green 전환\n\n[재개 2026-05-25T10:55:25.015Z] 자동 일꾼 1명이 멈췄어요: sync-bot",
+      "completed_at": "2026-05-25T17:48:39+00:00",
+      "decision_context": "\n\n[근본 원인 fix 2026-05-25 17:30] sync_engine.py + sync_md_from_tasks.py 4건 .get(key, default)[:N] NoneType 슬라이싱 버그. None 안전 처리 정정. 로컬 sync_engine --apply 라이브 검증 통과."
     },
     {
       "id": "BL-ADMIN-ACTIVITY-MOVE",

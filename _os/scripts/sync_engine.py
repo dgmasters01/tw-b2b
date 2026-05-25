@@ -164,8 +164,10 @@ def render_decisions_section(data: dict[str, Any]) -> str:
             history = t.get("history") or []
             if history:
                 last = history[-1]
+                # [HOTFIX 2026-05-25 BL-AUTO-BOTS-SYNC-BOT] None 안전
+                _at = last.get('at') or '?'
                 lines.append(
-                    f"- **최근 변경**: {last.get('at', '?')[:10]} — "
+                    f"- **최근 변경**: {_at[:10]} — "
                     f"`{last.get('event', '?')}` by {last.get('by', '?')}"
                 )
 

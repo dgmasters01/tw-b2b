@@ -32,6 +32,26 @@
 
 ---
 
+## 🟢 P0 — [자동] 자동 일꾼 1명이 멈췄어요: sync-bot
+
+**요약**: 점검 봇 자동 등록 (2026-05-11T20:24:23.985Z)
+
+check_name: bots
+status: red
+detail: 자동 일꾼 1명이 멈췄어요: sync-bot
+
+진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 green으로 박으면 자동 done.
+
+[자동 해소 2026-05
+
+- **자율성**: 🟢 AUTO
+- **예상 시간**: 1시간
+- **카테고리**: infrastructure
+- **상태**: pending
+- **ID**: `BL-AUTO-BOTS-SYNC-BOT` (출처: auto_from_bots)
+
+---
+
 ## 🟡 P0 — [운영 대시보드 본격 구축] admin.html을 서비스 운영의 단일 진입점으로
 
 **요약**: 디자인 큰 방향은 대표님 승인 필요. 클로드 추천 5박스 구조: ①사업 KPI(매출·매니저·영상·예약) ②매니저 관리(승인·거절·환불) ③영업 깔때기 분석(가입→심사→승인→결제→게시) ④채널별 성과 ⑤예약 분석. Aurora v2 디자인. 데이터: hotels/payments/videos/bookings/hotel_status_history/admin_no
@@ -55,34 +75,6 @@
 - **결정 필요**:
   - D-006
 - **ID**: `BL-TRACK-001` (출처: BUSINESS.md 15-A 통찰 6)
-
----
-
-## ⚡ P1 — [인보이스/영수증 PDF 자동 생성·다운로드] 영구 보관 (1년+)
-
-**요약**: 결제 직후 자동 발송 + 매니저 대시보드 별도 탭에서 1클릭 다운로드. PDF 3종: 인보이스/영수증/6개월리포트.
-
-[2026-05-24] 사업 정책 단일 진실원: _os/playbook/invoice-system.md (D-048). 핑퐁 15라운드 합의 완료, D-047 결정 확정.
-
-- **자율성**: 🟢 AUTO
-- **예상 시간**: 5시간
-- **카테고리**: feature
-- **상태**: in_progress
-- **결정 필요**:
-  - D-009
-- **ID**: `BL-INVOICE-001` (출처: BUSINESS.md 15-A 통찰 7 + JOURNEY.md D단계)
-
----
-
-## 🟢 P1 — [한국 업체 수동 입금 정리 시스템] admin-invoices 페이지 + 텔레그램 4단계 알림
-
-**요약**: 한국 매니저는 PayPal 결제 불가(법적), KRW 국내 송금 전용 트랙. 대표님이 통장 보고 수동으로 '입금 확인' 버튼 눌러 Receipt 전환하는 운영 화면. 미수금 추적·기한 임박 알림·세무 신고 CSV 내보내기 포함. 입금 기한 = 발행일 +2영업일(주말 자동 제외), 경과 시 자동 Void.
-
-- **자율성**: 🟢 AUTO
-- **예상 시간**: 6시간
-- **카테고리**: feature
-- **상태**: pending
-- **ID**: `BL-INVOICE-002` (출처: BL-INVOICE-001 핑퐁 라운드 4·5·10·11 + _os/playbook/invoice-system.md 4.BL-INVOICE-002)
 
 ---
 

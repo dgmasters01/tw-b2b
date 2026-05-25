@@ -25,7 +25,7 @@ import InvoicePdf from '../components/invoice/InvoicePdf.js';
 
 const SUPABASE_URL = process.env.SUPABASE_URL || 'https://vjsludfjsphwnumuoqaj.supabase.co';
 
-const ALLOWED_ACTIONS = ['issue', 'pdf', 'get', 'void', 'list', 'my-pending', 'my-list'];
+const ALLOWED_ACTIONS = ['issue', 'pdf', 'get', 'void', 'list', 'my-pending', 'my-list', 'mark-paid', 'mark-receipt-issued', 'export-csv'];
 
 // ────────────────────────────────────────────────────────────────────────────
 // 인증 헬퍼 (admin.js의 requireAdmin과 동일 로직 — 통합 라우터 분리로 인한 복제)

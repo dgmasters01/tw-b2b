@@ -3,8 +3,8 @@
 // action 파라미터로 4개 sub-handler 분기:
 //   GET  ?action=config        → 프론트에 client_id/env 노출
 //   POST ?action=create-order  → Order 생성 (매니저 인증 + 호텔 소유권 + 가격 서버 고정)
-//   POST ?action=capture-order → Order capture + payments INSERT
-//   POST ?action=webhook       → PayPal Webhook (서명 검증 + 환불/리버설 처리)
+//   POST ?action=capture-order → Order capture + payments INSERT + invoice 자동 발행/paid (단계 7)
+//   POST ?action=webhook       → PayPal Webhook (서명 검증 + COMPLETED→paid·REFUNDED→void+CN 단계 7)
 
 import {
   createOrder,
@@ -137,6 +137,371 @@ async function transitionHotelToPaid(hotelId) {
   );
   const data = await resp.json().catch(() => ({}));
   return { ok: resp.ok, status: resp.status, data, updated_count: Array.isArray(data) ? data.length : 0 };
+}
+
+// =============================================================
+// BL-INVOICE-001 단계 7 — PayPal → Invoice 자동 연동 헬퍼
+// =============================================================
+// PayPal은 자동 결제 흐름이므로 "발행 즉시 paid" 단일 트랜잭션.
+// 한국 매니저는 별도 admin-invoices에서 수동 발행이라 이 헬퍼는 호출 안 함
+// (PayPal capture는 해외 매니저 USD 결제에서만 실행되므로 분기 불필요).
+//
+// 3개 헬퍼:
+//   1) issueAndMarkPaidForCapture(paymentId, captureId)
+//      → invoice 발행 (없으면) + status='paid' + paid_at=now (PAID 워터마크 자동)
+//      → 멱등 처리 (이미 invoice 있으면 status만 paid로 갱신)
+//   2) markInvoicePaidByCapture(captureId)
+//      → webhook 중복 호출용 (capture_id로 payment_id 역추적)
+//   3) voidInvoiceByCapture(captureId, reason)
+//      → REFUNDED webhook용 (CN 자동 채번·INSERT + invoice void)
+// =============================================================
+
+const INV_BUSINESS_DAYS_DEFAULT = 2;
+
+function addBusinessDaysIso(baseDate, days) {
+  const d = new Date(baseDate);
+  let added = 0;
+  while (added < days) {
+    d.setUTCDate(d.getUTCDate() + 1);
+    const dow = d.getUTCDay();
+    if (dow !== 0 && dow !== 6) added++;
+  }
+  d.setUTCHours(14, 59, 59, 0); // KST 23:59:59
+  return d.toISOString();
+}
+
+async function rpcNextInvoiceNumber(serviceKey, track) {
+  const resp = await fetch(SUPABASE_URL + '/rest/v1/rpc/next_invoice_number', {
+    method: 'POST',
+    headers: {
+      'Authorization': 'Bearer ' + serviceKey,
+      'apikey': serviceKey,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ p_track: track }),
+  });
+  if (!resp.ok) throw new Error('channum_failed:' + (await resp.text()));
+  const num = await resp.json();
+  if (!num || typeof num !== 'string') throw new Error('channum_invalid_response');
+  return num;
+}
+
+/**
+ * PayPal capture 성공 시 호출 — invoice 발행 + 즉시 paid 마크.
+ * 멱등 보장: 이미 invoice가 있으면 status만 paid로 갱신.
+ *
+ * @param {string} paymentId  - payments.id (UUID)
+ * @param {string} captureId  - PayPal capture id (멱등 키 보조용)
+ * @returns {object} { ok, invoice_id, invoice_number, action: 'created'|'updated'|'already_paid', already_existed }
+ */
+async function issueAndMarkPaidForCapture(paymentId, captureId) {
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!serviceKey) throw new Error('SUPABASE_SERVICE_ROLE_KEY not configured');
+  if (!paymentId) return { ok: false, reason: 'no_payment_id' };
+
+  // 1) payment fetch
+  const payResp = await fetch(
+    SUPABASE_URL + '/rest/v1/payments?id=eq.' + encodeURIComponent(paymentId)
+      + '&select=id,hotel_id,user_id,amount,currency,status,method,invoice_number',
+    { headers: { 'Authorization': 'Bearer ' + serviceKey, 'apikey': serviceKey } }
+  );
+  if (!payResp.ok) return { ok: false, reason: 'fetch_payment_failed', detail: await payResp.text() };
+  const payments = await payResp.json();
+  if (!Array.isArray(payments) || payments.length === 0) {
+    return { ok: false, reason: 'payment_not_found', payment_id: paymentId };
+  }
+  const payment = payments[0];
+
+  // 2) 이미 invoice가 있는지 확인 (멱등)
+  const dupResp = await fetch(
+    SUPABASE_URL + '/rest/v1/invoices?payment_id=eq.' + encodeURIComponent(paymentId)
+      + '&select=id,invoice_number,status,track',
+    { headers: { 'Authorization': 'Bearer ' + serviceKey, 'apikey': serviceKey } }
+  );
+  const existing = await dupResp.json();
+  if (Array.isArray(existing) && existing.length > 0) {
+    const ex = existing[0];
+    if (ex.status === 'paid') {
+      return { ok: true, invoice_id: ex.id, invoice_number: ex.invoice_number, action: 'already_paid', already_existed: true };
+    }
+    if (ex.status === 'void') {
+      // void된 인보이스에 PayPal 결제가 다시 들어왔다 = 정상이 아님 → ops 알림은 호출자에서
+      return { ok: false, reason: 'invoice_voided', invoice_id: ex.id, invoice_number: ex.invoice_number };
+    }
+    // pending/expired → paid로 갱신
+    const nowIso = new Date().toISOString();
+    const updResp = await fetch(
+      SUPABASE_URL + '/rest/v1/invoices?id=eq.' + encodeURIComponent(ex.id),
+      {
+        method: 'PATCH',
+        headers: {
+          'Authorization': 'Bearer ' + serviceKey,
+          'apikey': serviceKey,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=representation',
+        },
+        body: JSON.stringify({
+          status: 'paid',
+          paid_at: nowIso,
+          updated_at: nowIso,
+        }),
+      }
+    );
+    if (!updResp.ok) return { ok: false, reason: 'invoice_update_failed', detail: await updResp.text() };
+    return { ok: true, invoice_id: ex.id, invoice_number: ex.invoice_number, action: 'updated', already_existed: true };
+  }
+
+  // 3) invoice 신규 발행 — PayPal은 해외 매니저 전용 → INV-INT / USD / zero_rated / paypal
+  // hotel 조회 (bill_to 정보용)
+  const hotelResp = await fetch(
+    SUPABASE_URL + '/rest/v1/hotels?id=eq.' + encodeURIComponent(payment.hotel_id)
+      + '&select=id,hotel_name,country,contact_name,contact_email,address,user_id',
+    { headers: { 'Authorization': 'Bearer ' + serviceKey, 'apikey': serviceKey } }
+  );
+  const hotels = await hotelResp.json();
+  if (!Array.isArray(hotels) || hotels.length === 0) {
+    return { ok: false, reason: 'hotel_not_found', hotel_id: payment.hotel_id };
+  }
+  const hotel = hotels[0];
+
+  // PayPal은 해외 매니저 전용이 정석이지만, 안전을 위해 국가 정규화로 분기
+  const isKorea = ['kr', 'korea', 'south korea', '한국', '대한민국', 'republic of korea']
+    .includes(String(hotel.country || '').trim().toLowerCase());
+  if (isKorea) {
+    // 한국 매니저에게 PayPal 결제가 들어온 = 정책 위반 (sales 페이지에서 차단되어야 했음)
+    return { ok: false, reason: 'paypal_for_kr_blocked', hotel_id: hotel.id, hotel_country: hotel.country };
+  }
+
+  const track = 'INV-INT';
+  const currency = 'USD';
+  const taxMode = 'zero_rated';
+  const taxLabel = 'Zero-rated export of services';
+  const amountTotal = parseFloat(payment.amount);
+  if (!Number.isFinite(amountTotal) || amountTotal <= 0) {
+    return { ok: false, reason: 'invalid_amount', amount: payment.amount };
+  }
+
+  // 채번
+  let invoiceNumber;
+  try {
+    invoiceNumber = await rpcNextInvoiceNumber(serviceKey, track);
+  } catch (e) {
+    return { ok: false, reason: 'channum_failed', detail: e.message };
+  }
+
+  // 기한 (paid 상태로 즉시 발행이지만 due_at NOT NULL이라 박음)
+  const nowIso = new Date().toISOString();
+  const dueAt = addBusinessDaysIso(new Date(), INV_BUSINESS_DAYS_DEFAULT);
+
+  const insertPayload = {
+    invoice_number: invoiceNumber,
+    track,
+    document_type: 'invoice',  // status='paid' + paid_stamp=true는 PDF 단에서 처리
+    payment_id: paymentId,
+    hotel_id: hotel.id,
+    user_id: payment.user_id || hotel.user_id,
+    bill_to_country: 'NON_KR',
+    bill_to_name: hotel.contact_name || hotel.hotel_name || '—',
+    bill_to_email: hotel.contact_email || null,
+    bill_to_address: hotel.address || null,
+    currency,
+    amount_subtotal: amountTotal,
+    amount_tax: 0,
+    amount_total: amountTotal,
+    tax_mode: taxMode,
+    tax_label: taxLabel,
+    status: 'paid',
+    payment_method: 'paypal',
+    issued_at: nowIso,
+    due_at: dueAt,
+    paid_at: nowIso,
+    issued_by: null,            // 시스템 자동 발행
+    issued_by_email: 'system@paypal-webhook',
+    metadata: {
+      hotel_name: hotel.hotel_name,
+      hotel_country_raw: hotel.country,
+      auto_issued_by: 'paypal_capture',
+      paypal_capture_id: captureId || null,
+      api_version: '1.0',
+    },
+  };
+
+  const insertResp = await fetch(SUPABASE_URL + '/rest/v1/invoices', {
+    method: 'POST',
+    headers: {
+      'Authorization': 'Bearer ' + serviceKey,
+      'apikey': serviceKey,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=representation',
+    },
+    body: JSON.stringify(insertPayload),
+  });
+  if (!insertResp.ok) {
+    return { ok: false, reason: 'insert_failed', detail: await insertResp.text() };
+  }
+  const inserted = await insertResp.json();
+  const invoice = Array.isArray(inserted) ? inserted[0] : inserted;
+
+  // payments.invoice_number 동기화 (best effort)
+  try {
+    await fetch(SUPABASE_URL + '/rest/v1/payments?id=eq.' + encodeURIComponent(paymentId), {
+      method: 'PATCH',
+      headers: {
+        'Authorization': 'Bearer ' + serviceKey,
+        'apikey': serviceKey,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        invoice_number: invoiceNumber,
+        paid_at: nowIso,
+        updated_at: nowIso,
+      }),
+    });
+  } catch (e) {
+    console.warn('[paypal/invoice] payments.invoice_number sync 실패 (invoice는 발행됨):', e.message);
+  }
+
+  return { ok: true, invoice_id: invoice.id, invoice_number: invoice.invoice_number, action: 'created', already_existed: false };
+}
+
+/**
+ * webhook 중복 호출용 — capture_id로 payment를 찾고 invoice paid 마크.
+ * capture-order에서 이미 호출했으면 멱등 처리.
+ */
+async function markInvoicePaidByCapture(captureId) {
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!serviceKey) throw new Error('SUPABASE_SERVICE_ROLE_KEY not configured');
+  if (!captureId) return { ok: false, reason: 'no_capture_id' };
+
+  const payResp = await fetch(
+    SUPABASE_URL + '/rest/v1/payments?paypal_capture_id=eq.' + encodeURIComponent(captureId)
+      + '&select=id',
+    { headers: { 'Authorization': 'Bearer ' + serviceKey, 'apikey': serviceKey } }
+  );
+  const rows = await payResp.json();
+  if (!Array.isArray(rows) || rows.length === 0) {
+    return { ok: false, reason: 'payment_not_found_by_capture', capture_id: captureId };
+  }
+  return await issueAndMarkPaidForCapture(rows[0].id, captureId);
+}
+
+/**
+ * REFUNDED webhook용 — invoice void + Credit Note 자동 발행.
+ */
+async function voidInvoiceByCapture(captureId, reason) {
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!serviceKey) throw new Error('SUPABASE_SERVICE_ROLE_KEY not configured');
+  if (!captureId) return { ok: false, reason: 'no_capture_id' };
+
+  // 1) payment → invoice 역추적
+  const payResp = await fetch(
+    SUPABASE_URL + '/rest/v1/payments?paypal_capture_id=eq.' + encodeURIComponent(captureId)
+      + '&select=id,user_id,amount,currency',
+    { headers: { 'Authorization': 'Bearer ' + serviceKey, 'apikey': serviceKey } }
+  );
+  const payRows = await payResp.json();
+  if (!Array.isArray(payRows) || payRows.length === 0) {
+    return { ok: false, reason: 'payment_not_found_by_capture', capture_id: captureId };
+  }
+  const paymentId = payRows[0].id;
+
+  const invResp = await fetch(
+    SUPABASE_URL + '/rest/v1/invoices?payment_id=eq.' + encodeURIComponent(paymentId) + '&select=*',
+    { headers: { 'Authorization': 'Bearer ' + serviceKey, 'apikey': serviceKey } }
+  );
+  const invRows = await invResp.json();
+  if (!Array.isArray(invRows) || invRows.length === 0) {
+    return { ok: false, reason: 'invoice_not_found_for_payment', payment_id: paymentId };
+  }
+  const invoice = invRows[0];
+  if (invoice.status === 'void') {
+    return { ok: true, action: 'already_voided', invoice_id: invoice.id, invoice_number: invoice.invoice_number };
+  }
+
+  // 2) CN 채번
+  const cnTrack = invoice.track === 'INV-KR' ? 'CN-KR' : 'CN-INT';
+  let cnNumber;
+  try {
+    cnNumber = await rpcNextInvoiceNumber(serviceKey, cnTrack);
+  } catch (e) {
+    return { ok: false, reason: 'cn_channum_failed', detail: e.message };
+  }
+
+  // 3) CN INSERT
+  const nowIso = new Date().toISOString();
+  const cnPayload = {
+    cn_number: cnNumber,
+    track: cnTrack,
+    original_invoice_id: invoice.id,
+    original_invoice_number: invoice.invoice_number,
+    payment_id: invoice.payment_id,
+    user_id: invoice.user_id,
+    currency: invoice.currency,
+    amount_subtotal: Math.abs(parseFloat(invoice.amount_subtotal || 0)),
+    amount_tax: Math.abs(parseFloat(invoice.amount_tax || 0)),
+    amount_total: Math.abs(parseFloat(invoice.amount_total || 0)),
+    reason: reason || 'PayPal automatic refund (PAYMENT.CAPTURE.REFUNDED)',
+    reason_category: 'customer_request',
+    issued_at: nowIso,
+    issued_by: null,
+    issued_by_email: 'system@paypal-webhook',
+    metadata: {
+      auto_voided_by: 'paypal_refund_webhook',
+      paypal_capture_id: captureId,
+      api_version: '1.0',
+    },
+  };
+  const cnInsertResp = await fetch(SUPABASE_URL + '/rest/v1/credit_notes', {
+    method: 'POST',
+    headers: {
+      'Authorization': 'Bearer ' + serviceKey,
+      'apikey': serviceKey,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=representation',
+    },
+    body: JSON.stringify(cnPayload),
+  });
+  if (!cnInsertResp.ok) {
+    return { ok: false, reason: 'cn_insert_failed', detail: await cnInsertResp.text() };
+  }
+  const cnInserted = await cnInsertResp.json();
+  const creditNote = Array.isArray(cnInserted) ? cnInserted[0] : cnInserted;
+
+  // 4) invoice status='void'
+  const updResp = await fetch(
+    SUPABASE_URL + '/rest/v1/invoices?id=eq.' + encodeURIComponent(invoice.id),
+    {
+      method: 'PATCH',
+      headers: {
+        'Authorization': 'Bearer ' + serviceKey,
+        'apikey': serviceKey,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        status: 'void',
+        voided_at: nowIso,
+        void_reason: reason || 'PayPal automatic refund',
+        updated_at: nowIso,
+      }),
+    }
+  );
+  if (!updResp.ok) {
+    return {
+      ok: false,
+      reason: 'invoice_void_update_failed',
+      detail: await updResp.text(),
+      cn_created: { id: creditNote.id, cn_number: creditNote.cn_number },
+    };
+  }
+
+  return {
+    ok: true,
+    action: 'voided',
+    invoice_id: invoice.id,
+    invoice_number: invoice.invoice_number,
+    cn_id: creditNote.id,
+    cn_number: creditNote.cn_number,
+  };
 }
 
 async function readRawBody(req) {
@@ -292,6 +657,50 @@ async function handleCaptureOrder(req, res) {
     }).catch(() => {});
   }
 
+  // BL-INVOICE-001 단계 7 — payments INSERT 성공 시 invoice 자동 발행 + 즉시 paid 마크
+  // (PayPal은 해외 매니저 USD 자동 결제이므로 pending 단계 없이 바로 Receipt 상태)
+  let invoiceAuto = { ok: false, reason: 'not_attempted' };
+  // payments 행의 id 추출 — insertPayment는 Prefer return=representation으로 row 배열을 돌려줌
+  let paymentRowId = null;
+  if (insertResult.ok && Array.isArray(insertResult.data) && insertResult.data.length > 0) {
+    paymentRowId = insertResult.data[0].id;
+  } else if (insertResult.status === 409) {
+    // 중복 INSERT (이미 같은 capture_id) → capture_id로 역추적
+    try {
+      const sk = process.env.SUPABASE_SERVICE_ROLE_KEY;
+      const r = await fetch(
+        SUPABASE_URL + '/rest/v1/payments?paypal_capture_id=eq.' + encodeURIComponent(captureId) + '&select=id',
+        { headers: { 'Authorization': 'Bearer ' + sk, 'apikey': sk } }
+      );
+      const rows = await r.json();
+      if (Array.isArray(rows) && rows[0]) paymentRowId = rows[0].id;
+    } catch (e) {
+      console.warn('[paypal/invoice] capture_id 역추적 실패:', e.message);
+    }
+  }
+
+  if (paymentRowId) {
+    try {
+      invoiceAuto = await issueAndMarkPaidForCapture(paymentRowId, captureId);
+    } catch (e) {
+      invoiceAuto = { ok: false, reason: 'invoice_throw', detail: e.message };
+    }
+    if (!invoiceAuto.ok) {
+      // 결제는 OK인데 invoice만 실패 — 운영자가 admin-invoices에서 수동 발행 가능하므로 차단 아닌 ops 알림
+      sendOpsEmail({
+        subject: '[TW B2B] ⚠️ PayPal 결제 OK / 인보이스 자동 발행 실패 — 수동 발행 필요',
+        html: '<h2>결제 성공 / Invoice 자동 발행 실패</h2>'
+          + '<p><strong>payment_id:</strong> <code>' + paymentRowId + '</code></p>'
+          + '<p><strong>capture_id:</strong> <code>' + (captureId || '-') + '</code></p>'
+          + '<p><strong>hotel_id:</strong> ' + hotelId + '</p>'
+          + '<p><strong>사유:</strong> <code>' + (invoiceAuto.reason || 'unknown') + '</code></p>'
+          + '<p><strong>detail:</strong> <pre>' + JSON.stringify(invoiceAuto, null, 2) + '</pre></p>'
+          + '<p>admin-invoices.html 결제 탭에서 "Issue invoice" 버튼으로 수동 발행 가능합니다.</p>',
+        text: 'PayPal 결제 OK / 인보이스 자동 발행 실패: ' + (invoiceAuto.reason || 'unknown'),
+      }).catch(() => {});
+    }
+  }
+
   // 결제 성공 → hotels.status를 'paid'로 자동 전환
   // (approved 상태인 경우만, 멱등 처리)
   let hotelTransition = { ok: false, updated_count: 0 };
@@ -329,8 +738,9 @@ async function handleCaptureOrder(req, res) {
         + '<tr><td style="padding:6px 12px"><strong>capture_id</strong></td><td style="padding:6px 12px"><code>' + (captureId || '-') + '</code></td></tr>'
         + '<tr><td style="padding:6px 12px"><strong>환경</strong></td><td style="padding:6px 12px">' + getPayPalEnv() + '</td></tr>'
         + '<tr><td style="padding:6px 12px"><strong>status 전환</strong></td><td style="padding:6px 12px">' + (hotelTransition.updated_count > 0 ? '✅ approved → paid' : '⚠️ 변경 없음 (수동 확인)') + '</td></tr>'
+        + '<tr><td style="padding:6px 12px"><strong>인보이스 자동 발행</strong></td><td style="padding:6px 12px">' + (invoiceAuto.ok ? ('✅ ' + invoiceAuto.invoice_number + ' (' + invoiceAuto.action + ')') : ('⚠️ 실패: ' + (invoiceAuto.reason || 'unknown'))) + '</td></tr>'
         + '</tbody></table>',
-      text: 'PayPal 결제 완료: ' + (hotel.hotel_name || hotelId) + ' / $' + amountValue + ' / order=' + orderId,
+      text: 'PayPal 결제 완료: ' + (hotel.hotel_name || hotelId) + ' / $' + amountValue + ' / order=' + orderId + ' / invoice=' + (invoiceAuto.invoice_number || 'failed'),
     }).catch(() => {});
   }
 
@@ -343,6 +753,12 @@ async function handleCaptureOrder(req, res) {
     currency: currencyCode,
     already_captured: alreadyCaptured,
     hotel_status_updated: hotelTransition.updated_count > 0,
+    invoice: invoiceAuto.ok ? {
+      id: invoiceAuto.invoice_id,
+      invoice_number: invoiceAuto.invoice_number,
+      action: invoiceAuto.action,
+    } : null,
+    invoice_error: invoiceAuto.ok ? null : (invoiceAuto.reason || 'unknown'),
   });
 }
 
@@ -380,6 +796,15 @@ async function handleWebhook(req, res, rawBody) {
           status: 'succeeded',
           metadata: { ...resource, webhook_event: eventType },
         });
+        // BL-INVOICE-001 단계 7 — invoice 자동 paid 마크 (capture-order에서 이미 했어도 멱등)
+        try {
+          const inv = await markInvoicePaidByCapture(captureId);
+          if (!inv.ok && inv.reason !== 'payment_not_found_by_capture') {
+            console.warn('[webhook/COMPLETED] invoice paid mark failed:', inv);
+          }
+        } catch (e) {
+          console.error('[webhook/COMPLETED] invoice paid mark threw:', e);
+        }
         break;
       }
       case 'PAYMENT.CAPTURE.DENIED': {
@@ -404,11 +829,24 @@ async function handleWebhook(req, res, rawBody) {
           status: 'refunded',
           metadata: { ...resource, webhook_event: eventType, refunded_at: new Date().toISOString() },
         });
+        // BL-INVOICE-001 단계 7 — invoice void + CN 자동 발행
+        let voidResult = { ok: false, reason: 'not_attempted' };
+        try {
+          voidResult = await voidInvoiceByCapture(
+            captureId,
+            'PayPal automatic refund (PAYMENT.CAPTURE.REFUNDED webhook)'
+          );
+        } catch (e) {
+          voidResult = { ok: false, reason: 'void_throw', detail: e.message };
+        }
         sendOpsEmail({
           subject: '[TW B2B] 🔁 PayPal 환불 발생 (REFUNDED) — 수동 검토 필요',
           html: '<h2>PayPal 환불 처리</h2>'
             + '<p><strong>capture_id:</strong> <code>' + captureId + '</code></p>'
             + '<p><strong>금액:</strong> ' + (resource.amount && resource.amount.value) + ' ' + (resource.amount && resource.amount.currency_code) + '</p>'
+            + '<p><strong>인보이스 자동 void:</strong> ' + (voidResult.ok
+                ? ('✅ ' + voidResult.invoice_number + ' → CN ' + voidResult.cn_number)
+                : ('⚠️ 실패: ' + (voidResult.reason || 'unknown'))) + '</p>'
             + '<p style="color:#b91c1c"><strong>주의:</strong> hotels.status 자동 변경 안 함. admin.html에서 hotel 상태 수동 검토 후 처리하세요.</p>',
         }).catch(() => {});
         break;

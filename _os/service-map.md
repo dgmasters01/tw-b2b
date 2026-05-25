@@ -1,7 +1,7 @@
 # 📖 TW B2B 시스템 매뉴얼 (service-map)
 
 > **자동 생성 — 직접 편집 금지** (`.github/workflows/system-manual-rebuild.yml`이 push마다 재생성)
-> **생성 시각:** 2026-05-25T05:35:59.537Z
+> **생성 시각:** 2026-05-25T07:20:52.106Z
 > **포맷 (헌법 12대 원칙 6번 — AI 가독성):** 사람용 표/설명 + AI용 YAML 블록
 
 ---
@@ -72,7 +72,7 @@ groups:
 ## 🤖 섹션 2 — 봇 카탈로그
 
 
-총 **18개** 봇이 자동 실행 중.
+총 **19개** 봇이 자동 실행 중.
 
 | 봇 | 트리거 | 하는 일 |
 |---|---|---|
@@ -86,6 +86,7 @@ groups:
 | `health-autoheal-on-push.yml` | push/수동 | Health 자가 치유 워크플로 (BL-HEALTH-AUTOHEAL) |
 | `health-check-admin.yml` | push/cron/수동 | Phase 0 Health Check Bot |
 | `invoice-expire-cron.yml` | cron/수동 | 인보이스 입금 기한 자동 만료 cron (BL-INVOICE-001 단계 8) |
+| `invoice-retention-cron.yml` | cron/수동 | 인보이스 보관 상태 감시 cron (BL-INVOICE-001 단계 11) |
 | `manager-campaign-cron.yml` | cron/수동 | 매니저 자동 캠페인 cron (BL-MANAGER-AUTO-CAMPAIGN) |
 | `ops-mail-on-task-done.yml` | push/수동 | 작업 완료 시 ops 메일 자동 발송 봇 |
 | `page-status-scan.yml` | push/cron/수동 | 페이지 완성도 자동 스캔 워크플로 |
@@ -98,7 +99,7 @@ groups:
 
 ```yaml
 section: bots
-bots_total: 18
+bots_total: 19
 bots:
   - { file: "auto-detect-task-status.yml", trigger: ["push", "수동"], role: "commit message 자동 감지 → tasks.json status 자동 갱신" }
   - { file: "auto-task-from-health.yml", trigger: ["push", "cron", "수동"], role: "자동 작업 등록 봇 (auto-task-from-health)" }
@@ -110,6 +111,7 @@ bots:
   - { file: "health-autoheal-on-push.yml", trigger: ["push", "수동"], role: "Health 자가 치유 워크플로 (BL-HEALTH-AUTOHEAL)" }
   - { file: "health-check-admin.yml", trigger: ["push", "cron", "수동"], role: "Phase 0 Health Check Bot" }
   - { file: "invoice-expire-cron.yml", trigger: ["cron", "수동"], role: "인보이스 입금 기한 자동 만료 cron (BL-INVOICE-001 단계 8)" }
+  - { file: "invoice-retention-cron.yml", trigger: ["cron", "수동"], role: "인보이스 보관 상태 감시 cron (BL-INVOICE-001 단계 11)" }
   - { file: "manager-campaign-cron.yml", trigger: ["cron", "수동"], role: "매니저 자동 캠페인 cron (BL-MANAGER-AUTO-CAMPAIGN)" }
   - { file: "ops-mail-on-task-done.yml", trigger: ["push", "수동"], role: "작업 완료 시 ops 메일 자동 발송 봇" }
   - { file: "page-status-scan.yml", trigger: ["push", "cron", "수동"], role: "페이지 완성도 자동 스캔 워크플로" }

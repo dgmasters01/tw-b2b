@@ -1,7 +1,7 @@
 # 📖 TW B2B 시스템 매뉴얼 (service-map)
 
 > **자동 생성 — 직접 편집 금지** (`.github/workflows/system-manual-rebuild.yml`이 push마다 재생성)
-> **생성 시각:** 2026-05-25T08:14:52.877Z
+> **생성 시각:** 2026-05-25T15:13:39.665Z
 > **포맷 (헌법 12대 원칙 6번 — AI 가독성):** 사람용 표/설명 + AI용 YAML 블록
 
 ---
@@ -72,7 +72,7 @@ groups:
 ## 🤖 섹션 2 — 봇 카탈로그
 
 
-총 **19개** 봇이 자동 실행 중.
+총 **21개** 봇이 자동 실행 중.
 
 | 봇 | 트리거 | 하는 일 |
 |---|---|---|
@@ -83,6 +83,7 @@ groups:
 | `charter-length-bot.yml` | push/수동/PR | Charter Length Bot — 헌법 길이 자동 감시 |
 | `chat-log-index.yml` | push/cron/수동 | chat-log 인덱스 자동 갱신 워크플로 |
 | `chatlog-format-check.yml` | push/cron/수동 | chat-log 5블록 표준 검증 워크플로 (D-036) |
+| `decision-tracking-bot.yml` | push/수동 | ? |
 | `health-autoheal-on-push.yml` | push/수동 | Health 자가 치유 워크플로 (BL-HEALTH-AUTOHEAL) |
 | `health-check-admin.yml` | push/cron/수동 | Phase 0 Health Check Bot |
 | `invoice-expire-cron.yml` | cron/수동 | 인보이스 입금 기한 자동 만료 cron (BL-INVOICE-001 단계 8) |
@@ -94,12 +95,13 @@ groups:
 | `sync.yml` | push/수동 | tasks.json 자동 동기화 워크플로 (Phase 3-A-2) |
 | `system-manual-rebuild.yml` | push/수동 | 시스템 매뉴얼 자동 재생성 봇 (BL-SYSTEM-MANUAL-AUTOGEN) |
 | `token-expiry-cron.yml` | push/cron/수동 | 토큰 만료 자동 체크 cron (SQ-H, D-017) |
+| `verification-gap-bot.yml` | push/cron/수동 | ? |
 | `zombie-cleanup-bot.yml` | cron/수동 | 미인증 좀비 가입자 자동 청소봇 |
 
 
 ```yaml
 section: bots
-bots_total: 19
+bots_total: 21
 bots:
   - { file: "auto-detect-task-status.yml", trigger: ["push", "수동"], role: "commit message 자동 감지 → tasks.json status 자동 갱신" }
   - { file: "auto-task-from-health.yml", trigger: ["push", "cron", "수동"], role: "자동 작업 등록 봇 (auto-task-from-health)" }
@@ -108,6 +110,7 @@ bots:
   - { file: "charter-length-bot.yml", trigger: ["push", "수동", "PR"], role: "Charter Length Bot — 헌법 길이 자동 감시" }
   - { file: "chat-log-index.yml", trigger: ["push", "cron", "수동"], role: "chat-log 인덱스 자동 갱신 워크플로" }
   - { file: "chatlog-format-check.yml", trigger: ["push", "cron", "수동"], role: "chat-log 5블록 표준 검증 워크플로 (D-036)" }
+  - { file: "decision-tracking-bot.yml", trigger: ["push", "수동"], role: "?" }
   - { file: "health-autoheal-on-push.yml", trigger: ["push", "수동"], role: "Health 자가 치유 워크플로 (BL-HEALTH-AUTOHEAL)" }
   - { file: "health-check-admin.yml", trigger: ["push", "cron", "수동"], role: "Phase 0 Health Check Bot" }
   - { file: "invoice-expire-cron.yml", trigger: ["cron", "수동"], role: "인보이스 입금 기한 자동 만료 cron (BL-INVOICE-001 단계 8)" }
@@ -119,6 +122,7 @@ bots:
   - { file: "sync.yml", trigger: ["push", "수동"], role: "tasks.json 자동 동기화 워크플로 (Phase 3-A-2)" }
   - { file: "system-manual-rebuild.yml", trigger: ["push", "수동"], role: "시스템 매뉴얼 자동 재생성 봇 (BL-SYSTEM-MANUAL-AUTOGEN)" }
   - { file: "token-expiry-cron.yml", trigger: ["push", "cron", "수동"], role: "토큰 만료 자동 체크 cron (SQ-H, D-017)" }
+  - { file: "verification-gap-bot.yml", trigger: ["push", "cron", "수동"], role: "?" }
   - { file: "zombie-cleanup-bot.yml", trigger: ["cron", "수동"], role: "미인증 좀비 가입자 자동 청소봇" }
 ```
 

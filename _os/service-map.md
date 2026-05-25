@@ -1,7 +1,7 @@
 # 📖 TW B2B 시스템 매뉴얼 (service-map)
 
 > **자동 생성 — 직접 편집 금지** (`.github/workflows/system-manual-rebuild.yml`이 push마다 재생성)
-> **생성 시각:** 2026-05-25T15:14:58.864Z
+> **생성 시각:** 2026-05-25T17:09:15.218Z
 > **포맷 (헌법 12대 원칙 6번 — AI 가독성):** 사람용 표/설명 + AI용 YAML 블록
 
 ---
@@ -72,7 +72,7 @@ groups:
 ## 🤖 섹션 2 — 봇 카탈로그
 
 
-총 **21개** 봇이 자동 실행 중.
+총 **22개** 봇이 자동 실행 중.
 
 | 봇 | 트리거 | 하는 일 |
 |---|---|---|
@@ -91,6 +91,7 @@ groups:
 | `manager-campaign-cron.yml` | cron/수동 | 매니저 자동 캠페인 cron (BL-MANAGER-AUTO-CAMPAIGN) |
 | `ops-mail-on-task-done.yml` | push/수동 | 작업 완료 시 ops 메일 자동 발송 봇 |
 | `page-status-scan.yml` | push/cron/수동 | 페이지 완성도 자동 스캔 워크플로 |
+| `receipt-overdue-cron.yml` | cron/수동 | ? |
 | `step-self-verify.yml` | push/수동 | step 자가 검증 봇 (Step Self-Verify Bot) |
 | `sync.yml` | push/수동 | tasks.json 자동 동기화 워크플로 (Phase 3-A-2) |
 | `system-manual-rebuild.yml` | push/수동 | 시스템 매뉴얼 자동 재생성 봇 (BL-SYSTEM-MANUAL-AUTOGEN) |
@@ -101,7 +102,7 @@ groups:
 
 ```yaml
 section: bots
-bots_total: 21
+bots_total: 22
 bots:
   - { file: "auto-detect-task-status.yml", trigger: ["push", "수동"], role: "commit message 자동 감지 → tasks.json status 자동 갱신" }
   - { file: "auto-task-from-health.yml", trigger: ["push", "cron", "수동"], role: "자동 작업 등록 봇 (auto-task-from-health)" }
@@ -118,6 +119,7 @@ bots:
   - { file: "manager-campaign-cron.yml", trigger: ["cron", "수동"], role: "매니저 자동 캠페인 cron (BL-MANAGER-AUTO-CAMPAIGN)" }
   - { file: "ops-mail-on-task-done.yml", trigger: ["push", "수동"], role: "작업 완료 시 ops 메일 자동 발송 봇" }
   - { file: "page-status-scan.yml", trigger: ["push", "cron", "수동"], role: "페이지 완성도 자동 스캔 워크플로" }
+  - { file: "receipt-overdue-cron.yml", trigger: ["cron", "수동"], role: "?" }
   - { file: "step-self-verify.yml", trigger: ["push", "수동"], role: "step 자가 검증 봇 (Step Self-Verify Bot)" }
   - { file: "sync.yml", trigger: ["push", "수동"], role: "tasks.json 자동 동기화 워크플로 (Phase 3-A-2)" }
   - { file: "system-manual-rebuild.yml", trigger: ["push", "수동"], role: "시스템 매뉴얼 자동 재생성 봇 (BL-SYSTEM-MANUAL-AUTOGEN)" }

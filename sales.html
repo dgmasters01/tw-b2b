@@ -252,6 +252,50 @@
   background:rgba(255,255,255,.96);
   border-radius:10px;padding:16px;min-height:55px;
 }
+/* [AGR-2026-0003 2026-05-25] 라운드 3 — 한국 매니저 KRW 송금 카드 */
+.sl-krw-card{
+  background:linear-gradient(135deg,rgba(99,102,241,.08),rgba(167,139,250,.08));
+  border:1px solid rgba(167,139,250,.3);
+  border-radius:12px;padding:20px;margin-top:8px;
+}
+.sl-krw-head{
+  display:flex;align-items:center;gap:10px;
+  font-size:14px;font-weight:700;color:var(--aurora-2);
+  margin-bottom:14px;letter-spacing:-.01em;
+}
+.sl-krw-head::before{content:'🇰🇷';font-size:20px;}
+.sl-krw-row{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:10px 0;border-bottom:1px dashed rgba(167,139,250,.15);
+  font-size:13.5px;
+}
+.sl-krw-row:last-of-type{border-bottom:none;}
+.sl-krw-label{color:var(--ink-3);font-weight:500;}
+.sl-krw-value{color:var(--ink-1);font-weight:600;font-family:'JetBrains Mono',monospace;letter-spacing:-.02em;}
+.sl-krw-amount{font-size:22px;font-weight:800;color:var(--aurora-1);}
+.sl-krw-deadline{
+  margin-top:14px;padding:10px 14px;
+  background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);
+  border-radius:8px;font-size:12.5px;color:#fbbf24;font-weight:600;text-align:center;
+}
+.sl-krw-issue-btn{
+  width:100%;margin-top:14px;padding:14px;
+  background:linear-gradient(135deg,#6366f1,#a855f7);color:#fff;
+  border:none;border-radius:10px;
+  font-size:15px;font-weight:700;cursor:pointer;
+  transition:all 0.2s ease;
+  box-shadow:0 4px 14px rgba(99,102,241,.35);
+}
+.sl-krw-issue-btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(99,102,241,.5);}
+.sl-krw-issue-btn:disabled{opacity:0.6;cursor:wait;transform:none;}
+.sl-krw-note{
+  margin-top:12px;font-size:12px;color:var(--ink-3);line-height:1.5;text-align:center;
+}
+.sl-krw-warning{
+  padding:14px 16px;background:rgba(245,158,11,.08);
+  border:1px solid rgba(245,158,11,.3);border-radius:10px;
+  font-size:13px;color:#fbbf24;line-height:1.6;
+}
 #pay-status{
   margin-top:14px;font-size:13px;min-height:18px;
   color:var(--ink-2);
@@ -1006,7 +1050,7 @@
       var token = sess && sess.data && sess.data.session ? sess.data.session.access_token : '';
       if (!token) {
         // 인증 없음 — 그냥 정상 흐름 (이론상 도달 불가)
-        initPayPalButtons(hotel);
+        routeByCountry(hotel);
         return;
       }
       var resp = await fetch('/api/invoice?action=my-pending&hotel_id=' + encodeURIComponent(hotel.id), {
@@ -1015,19 +1059,175 @@
       var data = await resp.json().catch(function(){ return {}; });
       if (!resp.ok) {
         // API 실패 시 차단 흐름 막지 않음 — 정상 흐름 진행 + console 경고
-        console.warn('[my-pending] check failed, proceeding to PayPal:', data);
-        initPayPalButtons(hotel);
+        console.warn('[my-pending] check failed, proceeding to checkout:', data);
+        routeByCountry(hotel);
         return;
       }
       if (data.has_pending && Array.isArray(data.pending) && data.pending.length > 0) {
         showDoubleIssueModal(data.pending, hotel);
         return;
       }
-      // pending 없음 — 정상 PayPal 흐름
-      initPayPalButtons(hotel);
+      // pending 없음 — 한국/해외 분기
+      routeByCountry(hotel);
     } catch (e) {
-      console.warn('[my-pending] threw, proceeding to PayPal:', e);
+      console.warn('[my-pending] threw, proceeding to checkout:', e);
+      routeByCountry(hotel);
+    }
+  }
+
+  // [AGR-2026-0003 2026-05-25] 라운드 3 — 한국 매니저 KRW 송금 분기 (헌법 부칙 20)
+  // hotel.country 가 'KR' 이면 PayPal 숨기고 KRW 송금 카드 표시
+  // 그 외 모든 국가는 PayPal 정상 흐름
+  function routeByCountry(hotel) {
+    var country = (hotel && hotel.country ? String(hotel.country).trim().toUpperCase() : '');
+    var isKorea = (country === 'KR' || country === 'KOREA' || country === 'SOUTH KOREA' || country === '대한민국' || country === '한국');
+    if (isKorea) {
+      renderKoreaPaymentCard(hotel);
+    } else {
       initPayPalButtons(hotel);
+    }
+  }
+
+  // 한국 매니저용 KRW 송금 카드 — payment_accounts에서 라이브 fetch + INV-KR 발행 버튼
+  async function renderKoreaPaymentCard(hotel) {
+    var container = document.getElementById('paypal-button-container');
+    if (!container) return;
+    var isKo = (T.lang === 'ko');
+
+    // 1) payment_accounts 라이브 fetch (is_active=true 첫 행)
+    var acct = null;
+    try {
+      // RLS 정책: 매니저도 결제 정보 SELECT 가능 (단일 진실원 invoice-system.md)
+      var sbResp = await T.sb
+        .from('payment_accounts')
+        .select('krw_bank_name,krw_account_no,krw_account_holder,krw_business_no')
+        .eq('is_active', true)
+        .limit(1)
+        .maybeSingle();
+      if (sbResp && !sbResp.error && sbResp.data) {
+        acct = sbResp.data;
+      }
+    } catch (e) {
+      console.warn('[krw-card] payment_accounts fetch failed:', e);
+    }
+
+    // 2) 계좌 정보 없음 또는 미박힘 → 안내 카드만
+    var hasKrwAccount = acct && acct.krw_bank_name && acct.krw_account_no;
+    if (!hasKrwAccount) {
+      container.style.background = 'transparent';
+      container.style.padding = '0';
+      container.innerHTML = ''
+        + '<div class="sl-krw-card">'
+        + '  <div class="sl-krw-head">' + (isKo ? '한국 매니저 KRW 송금 결제' : 'Korea Manager KRW Bank Transfer') + '</div>'
+        + '  <div class="sl-krw-warning">'
+        + (isKo
+            ? '⏳ 한국 매니저 결제 시스템 준비 중입니다.<br>정식 오픈 후 KRW 송금 계좌 안내가 자동으로 표시됩니다.<br>문의: <a href="mailto:partners@gohotelwinners.com" style="color:#fbbf24;text-decoration:underline;">partners@gohotelwinners.com</a>'
+            : '⏳ Korea manager payment system is being set up.<br>KRW bank transfer details will appear here automatically after launch.<br>Contact: <a href="mailto:partners@gohotelwinners.com" style="color:#fbbf24;text-decoration:underline;">partners@gohotelwinners.com</a>'
+          )
+        + '  </div>'
+        + '</div>';
+      return;
+    }
+
+    // 3) 계좌 정보 있음 → 송금 카드 + INV-KR 발행 버튼
+    container.style.background = 'transparent';
+    container.style.padding = '0';
+
+    // 환율은 클라이언트 표시 안 함 (인보이스 발행 시점 서버 snapshot 사용 — 라운드 9)
+    var krwAmount = '발행 시점 환율 적용';
+    container.innerHTML = ''
+      + '<div class="sl-krw-card">'
+      + '  <div class="sl-krw-head">' + (isKo ? '한국 매니저 KRW 송금 결제' : 'Korea Manager KRW Bank Transfer') + '</div>'
+      + '  <div class="sl-krw-row">'
+      + '    <span class="sl-krw-label">' + (isKo ? '결제 금액' : 'Amount') + '</span>'
+      + '    <span class="sl-krw-amount">$200 USD</span>'
+      + '  </div>'
+      + '  <div class="sl-krw-row">'
+      + '    <span class="sl-krw-label">' + (isKo ? '원화 환산' : 'KRW Equivalent') + '</span>'
+      + '    <span class="sl-krw-value" style="font-size:12px;color:var(--ink-3);">' + (isKo ? '인보이스 발행 시점 환율 고정' : 'Locked at issue time') + '</span>'
+      + '  </div>'
+      + '  <div class="sl-krw-row">'
+      + '    <span class="sl-krw-label">' + (isKo ? '입금 기한' : 'Payment Due') + '</span>'
+      + '    <span class="sl-krw-value">' + (isKo ? '발행 후 48시간' : 'Within 48 hours') + '</span>'
+      + '  </div>'
+      + '  <div class="sl-krw-deadline">'
+      + (isKo ? '⏰ 입금 기한 경과 시 자동 취소됩니다. 환율 변동 방지를 위해 빠른 송금 부탁드립니다.' : '⏰ Auto-cancelled if payment deadline passes. Please remit promptly.')
+      + '  </div>'
+      + '  <button class="sl-krw-issue-btn" id="sl-krw-issue-btn">'
+      + (isKo ? '📄 인보이스 발행하기 (송금 계좌 안내 받기)' : '📄 Issue Invoice (Get Bank Account Details)')
+      + '  </button>'
+      + '  <div class="sl-krw-note">'
+      + (isKo
+          ? '버튼 클릭 시 인보이스가 발행되고 송금 계좌가 표시됩니다. 입금 확인 후 영상 제작이 시작됩니다.'
+          : 'Clicking the button issues an invoice and shows bank account details. Video production starts after payment is confirmed.'
+        )
+      + '  </div>'
+      + '</div>';
+
+    // INV-KR 발행 버튼 핸들러
+    var btn = document.getElementById('sl-krw-issue-btn');
+    if (btn) {
+      btn.addEventListener('click', function() {
+        handleKrwInvoiceIssue(hotel, btn);
+      });
+    }
+  }
+
+  async function handleKrwInvoiceIssue(hotel, btn) {
+    var isKo = (T.lang === 'ko');
+    btn.disabled = true;
+    var originalText = btn.textContent;
+    btn.textContent = isKo ? '⏳ 인보이스 발행 중...' : '⏳ Issuing invoice...';
+    var statusEl = document.getElementById('pay-status');
+
+    try {
+      var sess = await T.sb.auth.getSession();
+      var token = sess && sess.data && sess.data.session ? sess.data.session.access_token : '';
+      if (!token) {
+        throw new Error('Authentication required');
+      }
+      var resp = await fetch('/api/invoice?action=issue', {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + token,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          hotel_id: hotel.id,
+          payment_method: 'bank_transfer_krw',
+          amount_usd: 200,
+        }),
+      });
+      var data = await resp.json().catch(function(){ return {}; });
+      if (!resp.ok) {
+        throw new Error(data.error || data.message || ('HTTP ' + resp.status));
+      }
+      // 발행 성공 — 인보이스 정보 + 송금 계좌 표시
+      btn.style.display = 'none';
+      if (statusEl) {
+        statusEl.innerHTML = ''
+          + '<div style="margin-top:16px;padding:18px;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.3);border-radius:10px;color:#34D9A4;">'
+          + '<div style="font-weight:700;font-size:15px;margin-bottom:8px;">✅ ' + (isKo ? '인보이스 발행 완료' : 'Invoice issued') + '</div>'
+          + '<div style="font-size:13px;color:var(--ink-2);">'
+          + (isKo
+              ? '인보이스 번호 <strong style="color:var(--aurora-1);">' + (data.invoice_number || '발행 중') + '</strong>가 발행되었습니다.<br>매니저 대시보드의 <strong>📄 Documents</strong> 탭에서 PDF 다운로드 + 송금 계좌 정보를 확인하세요.'
+              : 'Invoice <strong style="color:var(--aurora-1);">' + (data.invoice_number || 'issued') + '</strong> created.<br>Check the <strong>📄 Documents</strong> tab in Manager Dashboard for PDF + bank account details.'
+            )
+          + '</div>'
+          + '<a href="/manager-dashboard.html" style="display:inline-block;margin-top:14px;padding:10px 18px;background:var(--aurora-1);color:#fff;text-decoration:none;border-radius:8px;font-weight:600;">'
+          + (isKo ? '→ Manager Dashboard로 이동' : '→ Go to Manager Dashboard')
+          + '</a>'
+          + '</div>';
+      }
+    } catch (e) {
+      console.error('[krw-issue] failed:', e);
+      btn.disabled = false;
+      btn.textContent = originalText;
+      if (statusEl) {
+        statusEl.innerHTML = '<div style="margin-top:12px;color:#ef4444;font-size:13px;">'
+          + (isKo ? '⚠️ 인보이스 발행 실패: ' : '⚠️ Issue failed: ') + (e.message || 'unknown')
+          + '</div>';
+      }
     }
   }
 

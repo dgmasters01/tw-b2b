@@ -428,6 +428,115 @@
   .sl-gallery{grid-template-columns:1fr;gap:12px}
   .sl-gallery-title{font-size:16px}
 }
+
+/* ========================================================================
+   BL-INVOICE-001 단계 9 — 이중 발행 차단 모달 (정책 2.8)
+   ======================================================================== */
+.sl-modal-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(6px);
+  z-index: 1000;
+  display: none;
+  align-items: center; justify-content: center;
+  padding: 24px;
+}
+.sl-modal-backdrop.show { display: flex; }
+.sl-modal {
+  background: var(--bg-2);
+  border: 0.5px solid var(--line-2);
+  border-radius: 16px;
+  max-width: 540px; width: 100%;
+  max-height: 90vh; overflow-y: auto;
+  box-shadow: 0 32px 80px -16px rgba(0, 0, 0, 0.7);
+  animation: sl-modal-in 0.22s cubic-bezier(.2,.8,.2,1);
+}
+@keyframes sl-modal-in {
+  from { opacity: 0; transform: translateY(12px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.sl-modal-head {
+  padding: 22px 26px 14px;
+  border-bottom: 0.5px solid var(--line-2);
+}
+.sl-modal-head h3 {
+  margin: 0 0 6px;
+  font-size: 17px; font-weight: 600;
+  display: flex; align-items: center; gap: 10px;
+}
+.sl-modal-head .sl-modal-sub {
+  color: var(--ink-3);
+  font-size: 12.5px;
+  line-height: 1.55;
+  margin: 0;
+}
+.sl-modal-body { padding: 18px 26px; }
+.sl-modal-invoice-card {
+  background: rgba(124, 58, 237, 0.08);
+  border: 0.5px solid rgba(124, 58, 237, 0.30);
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+}
+.sl-modal-invoice-card + .sl-modal-invoice-card { margin-top: 10px; }
+.sl-modal-invoice-no {
+  font-family: var(--mono, 'SF Mono', Consolas, monospace);
+  font-size: 13px;
+  color: var(--aurora-1, #B89BF5);
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+.sl-modal-invoice-meta {
+  display: flex; flex-wrap: wrap; gap: 6px 14px;
+  font-size: 12px; color: var(--ink-2);
+}
+.sl-modal-invoice-meta strong { color: var(--ink); font-weight: 600; }
+.sl-modal-invoice-amount {
+  font-size: 18px; font-weight: 700;
+  color: var(--ink);
+  margin-top: 6px;
+}
+.sl-modal-invoice-due {
+  font-size: 11.5px;
+  color: #FCD34D;
+  margin-top: 4px;
+}
+.sl-modal-foot {
+  padding: 14px 26px 20px;
+  display: flex; gap: 10px;
+  flex-wrap: wrap;
+  border-top: 0.5px solid var(--line-2);
+}
+.sl-modal-btn {
+  flex: 1; min-width: 140px;
+  padding: 11px 16px;
+  border-radius: 8px;
+  font-size: 13px; font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: opacity 0.15s, background 0.15s;
+  border: 0;
+  text-align: center;
+}
+.sl-modal-btn.primary {
+  background: linear-gradient(135deg, var(--aurora-1, #7C3AED), var(--aurora-2, #06B6D4));
+  color: #fff;
+}
+.sl-modal-btn.primary:hover { opacity: 0.92; }
+.sl-modal-btn.ghost {
+  background: transparent;
+  border: 0.5px solid var(--line-2);
+  color: var(--ink-2);
+}
+.sl-modal-btn.ghost:hover {
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--ink);
+}
+.sl-modal-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+@media (max-width: 540px) {
+  .sl-modal-foot { flex-direction: column; }
+  .sl-modal-btn { width: 100%; }
+}
 </style>
 </head>
 <body>
@@ -797,7 +906,8 @@
 
     // PayPal Buttons 통합 (status === 'approved' 일 때만 렌더링)
     if (status === 'approved') {
-      initPayPalButtons(hotel);
+      // [BL-INVOICE-001 단계 9] 정책 2.8 — pending 인보이스 있는지 먼저 체크
+      checkPendingThenInitPayPal(hotel);
       // [BL-SIGNUP-ENRICHMENT 2026-05-23] D-035 임계값 분기 본인 호텔 매출 비동기 fetch
       fetchHotelRevenue(hotel.id);
     }
@@ -885,6 +995,147 @@
       box.innerHTML = '';
     }
   }
+  // ─────────────────────────────────────────────
+  // BL-INVOICE-001 단계 9 — 이중 발행 차단 모달 (정책 2.8)
+  // ─────────────────────────────────────────────
+
+  // pending 체크 후 분기: 있으면 모달, 없으면 정상 PayPal 진입
+  async function checkPendingThenInitPayPal(hotel) {
+    try {
+      var sess = await T.sb.auth.getSession();
+      var token = sess && sess.data && sess.data.session ? sess.data.session.access_token : '';
+      if (!token) {
+        // 인증 없음 — 그냥 정상 흐름 (이론상 도달 불가)
+        initPayPalButtons(hotel);
+        return;
+      }
+      var resp = await fetch('/api/invoice?action=my-pending&hotel_id=' + encodeURIComponent(hotel.id), {
+        headers: { 'Authorization': 'Bearer ' + token },
+      });
+      var data = await resp.json().catch(function(){ return {}; });
+      if (!resp.ok) {
+        // API 실패 시 차단 흐름 막지 않음 — 정상 흐름 진행 + console 경고
+        console.warn('[my-pending] check failed, proceeding to PayPal:', data);
+        initPayPalButtons(hotel);
+        return;
+      }
+      if (data.has_pending && Array.isArray(data.pending) && data.pending.length > 0) {
+        showDoubleIssueModal(data.pending, hotel);
+        return;
+      }
+      // pending 없음 — 정상 PayPal 흐름
+      initPayPalButtons(hotel);
+    } catch (e) {
+      console.warn('[my-pending] threw, proceeding to PayPal:', e);
+      initPayPalButtons(hotel);
+    }
+  }
+
+  // 차단 모달 표시 + 기존 인보이스 카드 렌더 + 버튼 핸들러 박음
+  function showDoubleIssueModal(pendingList, hotel) {
+    var modal = document.getElementById('sl-double-issue-modal');
+    var body = document.getElementById('sl-modal-invoices');
+    if (!modal || !body) return;
+    var isKo = (T.lang === 'ko');
+
+    // 카드 렌더 (1번째 = 가장 최근, 보통 1건이지만 다건 대비)
+    var html = '';
+    pendingList.forEach(function(inv) {
+      var amount = fmtModalAmount(inv.amount_total, inv.currency);
+      var dueLabel = inv.due_at ? fmtModalDate(inv.due_at, isKo) : '—';
+      html += '<div class="sl-modal-invoice-card">';
+      html += '  <div class="sl-modal-invoice-no">' + escHtmlSafe(inv.invoice_number) + '</div>';
+      html += '  <div class="sl-modal-invoice-amount">' + amount + '</div>';
+      html += '  <div class="sl-modal-invoice-meta">';
+      html += '    <span><strong>' + (isKo ? '호텔' : 'Hotel') + ':</strong> ' + escHtmlSafe(inv.hotel_name || hotel.hotel_name || '—') + '</span>';
+      html += '    <span><strong>' + (isKo ? '결제수단' : 'Method') + ':</strong> ' + escHtmlSafe(inv.payment_method || (inv.track === 'INV-KR' ? 'bank_transfer_krw' : 'paypal')) + '</span>';
+      html += '  </div>';
+      html += '  <div class="sl-modal-invoice-due">⏰ ' + (isKo ? '입금 기한' : 'Payment due') + ': ' + dueLabel + '</div>';
+      html += '</div>';
+    });
+    body.innerHTML = html;
+
+    // i18n 텍스트 적용 (data-en / data-ko)
+    modal.querySelectorAll('[data-en]').forEach(function(el) {
+      el.textContent = isKo ? (el.getAttribute('data-ko') || el.getAttribute('data-en')) : el.getAttribute('data-en');
+    });
+
+    // 첫 번째 pending — primary 버튼이 가리키는 대상
+    var first = pendingList[0];
+
+    // [기존 인보이스 보기] — admin/매니저 본인 PDF 다운로드 흐름
+    var viewBtn = document.getElementById('sl-modal-view-invoice');
+    viewBtn.onclick = async function() {
+      viewBtn.disabled = true;
+      viewBtn.textContent = isKo ? '불러오는 중…' : 'Loading…';
+      try {
+        var sess = await T.sb.auth.getSession();
+        var token = sess && sess.data && sess.data.session ? sess.data.session.access_token : '';
+        var resp = await fetch('/api/invoice?action=pdf&id=' + encodeURIComponent(first.id), {
+          headers: { 'Authorization': 'Bearer ' + token },
+        });
+        var data = await resp.json().catch(function(){ return {}; });
+        if (resp.ok && data.signed_url) {
+          window.open(data.signed_url, '_blank', 'noopener');
+        } else {
+          alert((isKo ? '인보이스 PDF를 불러오지 못했습니다.' : 'Could not load invoice PDF.') + '\n' + (data.error || ''));
+        }
+      } catch (e) {
+        alert((isKo ? '오류: ' : 'Error: ') + e.message);
+      } finally {
+        viewBtn.disabled = false;
+        viewBtn.textContent = isKo ? '기존 인보이스 보기' : 'View existing invoice';
+      }
+    };
+
+    // [취소 요청] — mailto로 운영팀에 취소 요청 메일 자동 작성
+    var cancelBtn = document.getElementById('sl-modal-cancel-request');
+    cancelBtn.onclick = function() {
+      var subject = encodeURIComponent('[Invoice cancellation request] ' + first.invoice_number);
+      var bodyText = isKo
+        ? ('안녕하세요,\n\n다음 인보이스의 취소를 요청합니다.\n\n인보이스 번호: ' + first.invoice_number
+            + '\n호텔: ' + (first.hotel_name || hotel.hotel_name || '')
+            + '\n금액: ' + fmtModalAmount(first.amount_total, first.currency)
+            + '\n사유: (여기에 적어주세요)\n\n감사합니다.')
+        : ('Hello,\n\nI would like to request cancellation of the following invoice.\n\nInvoice number: ' + first.invoice_number
+            + '\nHotel: ' + (first.hotel_name || hotel.hotel_name || '')
+            + '\nAmount: ' + fmtModalAmount(first.amount_total, first.currency)
+            + '\nReason: (please describe here)\n\nThank you.');
+      var href = 'mailto:partners@gohotelwinners.com?subject=' + subject + '&body=' + encodeURIComponent(bodyText);
+      window.location.href = href;
+    };
+
+    // 배경 클릭 시 닫기 (단, 닫아도 PayPal 진입 안 함 — 사용자가 결제 시도 다시 해야 함)
+    modal.onclick = function(e) {
+      if (e.target === modal) {
+        modal.classList.remove('show');
+      }
+    };
+
+    modal.classList.add('show');
+  }
+
+  // 간이 포맷 헬퍼
+  function fmtModalAmount(n, cur) {
+    var v = parseFloat(n);
+    if (!isFinite(v)) return String(n);
+    if (cur === 'KRW') return '₩' + v.toLocaleString('en-US', { maximumFractionDigits: 0 });
+    if (cur === 'USD') return '$' + v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    return v.toLocaleString() + ' ' + (cur || '');
+  }
+  function fmtModalDate(iso, isKo) {
+    try {
+      var d = new Date(iso);
+      var locale = isKo ? 'ko-KR' : 'en-US';
+      return d.toLocaleString(locale, { month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+    } catch (e) { return iso; }
+  }
+  function escHtmlSafe(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function(c) {
+      return ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' })[c];
+    });
+  }
+
   // ─────────────────────────────────────────────
   // PayPal SDK 통합 (Phase B) — 로직 100% 보존
   // ─────────────────────────────────────────────
@@ -994,5 +1245,25 @@
   }
 })();
 </script>
+
+<!-- BL-INVOICE-001 단계 9 — 이중 발행 차단 모달 (정책 2.8) -->
+<div class="sl-modal-backdrop" id="sl-double-issue-modal" role="dialog" aria-modal="true" aria-labelledby="sl-modal-title">
+  <div class="sl-modal">
+    <div class="sl-modal-head">
+      <h3 id="sl-modal-title">⚠️ <span data-en="Unpaid invoice found" data-ko="미결제 인보이스가 있습니다">Unpaid invoice found</span></h3>
+      <p class="sl-modal-sub" data-en="You already have a pending invoice for this hotel. Please complete payment using the existing invoice, or request cancellation before issuing a new one. This prevents duplicate billing." data-ko="이미 발행된 미결제 인보이스가 있습니다. 기존 인보이스로 송금하시거나 취소 요청 후 새로 발행하세요. 이중 결제 방지를 위한 안내입니다.">
+        You already have a pending invoice for this hotel. Please complete payment using the existing invoice, or request cancellation before issuing a new one. This prevents duplicate billing.
+      </p>
+    </div>
+    <div class="sl-modal-body" id="sl-modal-invoices">
+      <!-- pending invoice cards rendered here -->
+    </div>
+    <div class="sl-modal-foot">
+      <button class="sl-modal-btn ghost" id="sl-modal-cancel-request" data-en="Request cancellation" data-ko="취소 요청">Request cancellation</button>
+      <button class="sl-modal-btn primary" id="sl-modal-view-invoice" data-en="View existing invoice" data-ko="기존 인보이스 보기">View existing invoice</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>

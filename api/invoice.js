@@ -1,19 +1,20 @@
 // /api/invoice.js
 // ════════════════════════════════════════════════════════════════════════════
-// 인보이스 라우터 (BL-INVOICE-001 단계 4~6)
+// 인보이스 라우터 (BL-INVOICE-001 단계 4~9)
 // ════════════════════════════════════════════════════════════════════════════
 // action 분기 (admin.js와 동일 패턴 — 통합 라우터로 Vercel 함수 절약):
 //
-//   POST ?action=issue        → 인보이스 발행 (owner only)             — 단계 4
-//   GET  ?action=pdf&id=xxx   → PDF 생성/다운로드 (admin + 본인)        — 단계 5
-//   GET  ?action=get&id=xxx   → 인보이스 메타 조회 (admin + 본인)        — 단계 5
+//   POST ?action=issue        → 인보이스 발행 (owner only)               — 단계 4
+//   GET  ?action=pdf&id=xxx   → PDF 생성/다운로드 (admin + 본인)          — 단계 5
+//   GET  ?action=get&id=xxx   → 인보이스 메타 조회 (admin + 본인)         — 단계 5
 //   GET  ?action=list&...     → 인보이스 리스트 (admin only, 페이지네이션) — 단계 6
 //   POST ?action=void         → 인보이스 취소 + CN 자동 발행 (owner only)  — 단계 6
+//   GET  ?action=my-pending   → 매니저 본인 pending 인보이스 조회           — 단계 9
 //
 // 인증:
 //   - owner-only 액션 (issue, void): requireAdmin → admin.role === 'owner'
 //   - admin-only 액션 (list): owner/admin/staff
-//   - 매니저 본인 액션 (pdf, get): requireAuthed → invoices.user_id === auth.uid()
+//   - 매니저 본인 액션 (pdf, get, my-pending): requireAuthed → user_id 매칭
 // ════════════════════════════════════════════════════════════════════════════
 
 import { getFxRate } from './_lib/fx.js';
@@ -23,7 +24,7 @@ import InvoicePdf from '../components/invoice/InvoicePdf.js';
 
 const SUPABASE_URL = process.env.SUPABASE_URL || 'https://vjsludfjsphwnumuoqaj.supabase.co';
 
-const ALLOWED_ACTIONS = ['issue', 'pdf', 'get', 'void', 'list'];
+const ALLOWED_ACTIONS = ['issue', 'pdf', 'get', 'void', 'list', 'my-pending'];
 
 // ────────────────────────────────────────────────────────────────────────────
 // 인증 헬퍼 (admin.js의 requireAdmin과 동일 로직 — 통합 라우터 분리로 인한 복제)
@@ -52,6 +53,24 @@ async function requireAdmin(req, serviceKey) {
   if (!admins[0].is_active) return { ok: false, status: 403, error: 'inactive' };
 
   return { ok: true, email: myEmail, role: admins[0].role, userId: me.id || null };
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// 매니저 본인 인증 헬퍼 (admin 아님 — 단계 9 my-pending용)
+// ────────────────────────────────────────────────────────────────────────────
+async function requireAuthed(req, serviceKey) {
+  const auth = req.headers.authorization || req.headers.Authorization || '';
+  const callerToken = auth.startsWith('Bearer ') ? auth.slice(7) : null;
+  if (!callerToken) return { ok: false, status: 401, error: 'missing_bearer' };
+
+  const meResp = await fetch(SUPABASE_URL + '/auth/v1/user', {
+    headers: { 'Authorization': 'Bearer ' + callerToken, 'apikey': serviceKey }
+  });
+  if (!meResp.ok) return { ok: false, status: 401, error: 'invalid_token' };
+  const me = await meResp.json();
+  if (!me.id || !me.email) return { ok: false, status: 401, error: 'no_user' };
+
+  return { ok: true, email: me.email, userId: me.id };
 }
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -1059,6 +1078,77 @@ async function handleVoid(req, res, serviceKey, admin) {
 }
 
 // ────────────────────────────────────────────────────────────────────────────
+// 단계 9 — handleMyPending (매니저 본인 pending 인보이스 조회)
+// ────────────────────────────────────────────────────────────────────────────
+// 입력 (GET):
+//   ?hotel_id=UUID  (선택 — 박으면 해당 호텔만, 비우면 user의 전체 pending)
+// 권한: 매니저 본인 (requireAuthed)
+// 반환:
+//   200 OK {
+//     has_pending: true|false,
+//     count: N,
+//     pending: [{ id, invoice_number, track, currency, amount_total, issued_at, due_at, hotel_id, hotel_name }, ...]
+//   }
+//
+// 용도: sales.html 결제 버튼 클릭 시 이중 발행 차단 (정책 2.8 마지막 단락).
+// 차단 모달에서 [기존 인보이스 보기] [취소 요청] 버튼 노출.
+// ────────────────────────────────────────────────────────────────────────────
+async function handleMyPending(req, res, serviceKey, authed) {
+  if (req.method !== 'GET') {
+    return res.status(405).json({ error: 'method_not_allowed', hint: 'GET only' });
+  }
+
+  const hotelId = String(req.query.hotel_id || '').trim();
+  const filters = ['user_id=eq.' + encodeURIComponent(authed.userId)];
+  filters.push('status=eq.pending');
+  if (hotelId) {
+    filters.push('hotel_id=eq.' + encodeURIComponent(hotelId));
+  }
+  filters.push('select=id,invoice_number,track,currency,amount_total,issued_at,due_at,hotel_id,bill_to_name,payment_method,pdf_storage_path');
+  filters.push('order=issued_at.desc');
+  filters.push('limit=10');
+
+  const resp = await fetch(
+    SUPABASE_URL + '/rest/v1/invoices?' + filters.join('&'),
+    { headers: { 'Authorization': 'Bearer ' + serviceKey, 'apikey': serviceKey } }
+  );
+  if (!resp.ok) {
+    return res.status(500).json({ error: 'fetch_failed', detail: await resp.text() });
+  }
+  const rows = await resp.json();
+  const items = Array.isArray(rows) ? rows : [];
+
+  // hotel_name 한번에 채우기 (1~10개 정도라 N+1 무시 가능)
+  if (items.length > 0) {
+    const hotelIds = [...new Set(items.map(i => i.hotel_id).filter(Boolean))];
+    if (hotelIds.length > 0) {
+      const hotelResp = await fetch(
+        SUPABASE_URL + '/rest/v1/hotels?id=in.(' + hotelIds.map(encodeURIComponent).join(',') + ')&select=id,hotel_name,country',
+        { headers: { 'Authorization': 'Bearer ' + serviceKey, 'apikey': serviceKey } }
+      );
+      const hotels = await hotelResp.json();
+      const hmap = {};
+      (Array.isArray(hotels) ? hotels : []).forEach(h => { hmap[h.id] = h; });
+      items.forEach(it => {
+        const h = hmap[it.hotel_id];
+        if (h) {
+          it.hotel_name = h.hotel_name;
+          it.hotel_country = h.country;
+        }
+      });
+    }
+  }
+
+  return res.status(200).json({
+    ok: true,
+    has_pending: items.length > 0,
+    count: items.length,
+    pending: items,
+    user_email: authed.email
+  });
+}
+
+// ────────────────────────────────────────────────────────────────────────────
 // main router
 // ────────────────────────────────────────────────────────────────────────────
 export default async function handler(req, res) {
@@ -1088,7 +1178,21 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'server_misconfigured', hint: 'SUPABASE_SERVICE_ROLE_KEY missing' });
   }
 
-  // 인증 — 모든 액션에 적용 (단계 5에서 매니저 본인 액션은 별도 검사)
+  // ─ my-pending은 매니저 본인 인증 (admin 아님)
+  if (action === 'my-pending') {
+    const authed = await requireAuthed(req, serviceKey);
+    if (!authed.ok) {
+      return res.status(authed.status || 401).json({ error: authed.error });
+    }
+    try {
+      return await handleMyPending(req, res, serviceKey, authed);
+    } catch (e) {
+      console.error('[invoice/my-pending] handler error:', e);
+      return res.status(500).json({ error: 'internal_error', message: e.message });
+    }
+  }
+
+  // 인증 — admin 액션 (issue, pdf, get, list, void)
   const adminCheck = await requireAdmin(req, serviceKey);
   if (!adminCheck.ok) {
     return res.status(adminCheck.status || 401).json({ error: adminCheck.error });

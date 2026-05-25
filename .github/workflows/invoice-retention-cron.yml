@@ -1,0 +1,70 @@
+# TW B2B — 인보이스 보관 상태 감시 cron (BL-INVOICE-001 단계 11)
+#
+# 헌법 부합:
+#   ② 무인 실행: 매일 KST 09:00 자동 (대표님 PC 의무 없음)
+#   정책 2.14: 인보이스/영수증 PDF 5년 영구 보관
+#   ④ 전수 추적: 보관 임박/만료 발견 시 텔레그램 알림 + 영구 로그
+#
+# 작동:
+#   1. cron 트리거 (매일 UTC 00:00 = KST 09:00)
+#   2. /api/cron/invoice-retention POST 호출 (x-cron-token 인증)
+#   3. API가 v_invoice_retention_status 뷰 조회 → state별 카운트
+#   4. expired/imminent 있을 때만 텔레그램 알림 (대표님 결정 대기)
+#   5. 자동 삭제 박지 않음 — 별도 BL(BL-INVOICE-ARCHIVE-DELETE) 갈무리
+
+name: Invoice Retention Cron
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # 매일 UTC 00:00 = KST 09:00
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'dry_run 모드 (텔레그램 알림 안 보냄, 카운트만)'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  check-retention:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call invoice-retention cron endpoint
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
+        run: |
+          if [ -z "$CRON_SECRET" ]; then
+            echo "❌ CRON_SECRET not configured in repository secrets"
+            exit 1
+          fi
+
+          URL="https://gohotelwinners.com/api/cron/invoice-retention"
+          if [ "$DRY_RUN" = "true" ]; then
+            URL="$URL?dry_run=1"
+          fi
+
+          echo "→ POST $URL"
+          RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "$URL" \
+            -H "x-cron-token: $CRON_SECRET" \
+            -H "Content-Type: application/json")
+
+          HTTP_CODE=$(echo "$RESPONSE" | tail -1)
+          BODY=$(echo "$RESPONSE" | sed '$d')
+
+          echo "HTTP $HTTP_CODE"
+          echo "$BODY" | head -50
+
+          if [ "$HTTP_CODE" != "200" ]; then
+            echo "❌ Cron call failed"
+            exit 1
+          fi
+
+          # 요약 출력
+          EXPIRED=$(echo "$BODY" | grep -oE '"expired":[0-9]+' | head -1 | grep -oE '[0-9]+$')
+          IMMINENT=$(echo "$BODY" | grep -oE '"imminent":[0-9]+' | head -1 | grep -oE '[0-9]+$')
+          TOTAL=$(echo "$BODY" | grep -oE '"total":[0-9]+' | head -1 | grep -oE '[0-9]+$')
+          ALERT=$(echo "$BODY" | grep -oE '"alert_sent":(true|false)' | head -1 | sed 's/.*://')
+          echo "✅ total: ${TOTAL:-0} / expired: ${EXPIRED:-0} / imminent: ${IMMINENT:-0} / alert: ${ALERT:-false}"

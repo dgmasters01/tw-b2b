@@ -1078,6 +1078,266 @@ async function handleVoid(req, res, serviceKey, admin) {
   });
 }
 
+// ════════════════════════════════════════════════════════════════════════════
+// BL-INVOICE-002 단계 2 — handleMarkPaid (한국 KRW 매니저 입금 확인 → status='paid')
+// ════════════════════════════════════════════════════════════════════════════
+// 입력 (POST):
+//   body: {
+//     invoice_id: UUID (필수),
+//     paid_at: ISO string (선택, 기본 now),
+//     amount_received_krw: integer (선택, 입금 실제액 메모),
+//     memo: string (선택, 대표님 메모)
+//   }
+// 권한: super_admin (대표님) 단독 (정책 4.BL-INVOICE-002)
+// 동작:
+//   1) invoice 조회 (status=pending + payment_method=bank_transfer_krw 만 허용)
+//   2) status='paid' + paid_at=now + invoice.metadata.payment_confirmation 박음
+//   3) telegram_log에 입금 확인 박음 → 후속 알림 자동 정지
+// 반환:
+//   200 OK { ok, invoice_id, status, paid_at }
+//   400  { error: 'invalid_invoice_state', detail }
+//   404  { error: 'invoice_not_found' }
+// ────────────────────────────────────────────────────────────────────────────
+async function handleMarkPaid(req, res, serviceKey, admin) {
+  // super_admin (owner) 단독 (정책: 발행 권한과 동일)
+  if (!admin || (admin.role !== 'super_admin' && admin.role !== 'owner')) {
+    return res.status(403).json({ error: 'forbidden', detail: 'owner only' });
+  }
+  const body = req.body || {};
+  const invoiceId = body.invoice_id;
+  if (!invoiceId) {
+    return res.status(400).json({ error: 'invoice_id_required' });
+  }
+
+  // 1) invoice 조회
+  const invResp = await fetch(SUPABASE_URL + '/rest/v1/invoices?id=eq.' + invoiceId + '&select=*', {
+    headers: { 'Authorization': 'Bearer ' + serviceKey, 'apikey': serviceKey },
+  });
+  if (!invResp.ok) return res.status(500).json({ error: 'invoice_fetch_failed' });
+  const rows = await invResp.json();
+  if (!Array.isArray(rows) || rows.length === 0) {
+    return res.status(404).json({ error: 'invoice_not_found' });
+  }
+  const invoice = rows[0];
+
+  // 2) 상태 검증 — pending + KRW 만 허용
+  if (invoice.status !== 'pending') {
+    return res.status(400).json({
+      error: 'invalid_invoice_state',
+      detail: 'status must be pending (current: ' + invoice.status + ')',
+    });
+  }
+  if (invoice.payment_method !== 'bank_transfer_krw') {
+    return res.status(400).json({
+      error: 'invalid_payment_method',
+      detail: 'only bank_transfer_krw can be marked paid manually (PayPal is auto via webhook)',
+    });
+  }
+
+  // 3) 갱신 — status='paid' + paid_at + metadata 박음
+  const paidAt = body.paid_at || new Date().toISOString();
+  const newMeta = Object.assign({}, invoice.metadata || {}, {
+    payment_confirmation: {
+      confirmed_at: paidAt,
+      confirmed_by_email: admin.email || '(unknown)',
+      amount_received_krw: body.amount_received_krw || null,
+      memo: body.memo || null,
+    },
+  });
+  // telegram_log에 입금 확인 박음 (후속 알림 cron이 보고 자동 skip)
+  const tgLog = Array.isArray(newMeta.telegram_log) ? newMeta.telegram_log : [];
+  tgLog.push({
+    stage: 'payment_confirmed',
+    at: paidAt,
+    by: admin.email || '(unknown)',
+  });
+  newMeta.telegram_log = tgLog;
+
+  const updResp = await fetch(SUPABASE_URL + '/rest/v1/invoices?id=eq.' + invoiceId, {
+    method: 'PATCH',
+    headers: {
+      'Authorization': 'Bearer ' + serviceKey,
+      'apikey': serviceKey,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=representation',
+    },
+    body: JSON.stringify({
+      status: 'paid',
+      paid_at: paidAt,
+      metadata: newMeta,
+    }),
+  });
+  if (!updResp.ok) {
+    const err = await updResp.text();
+    return res.status(500).json({ error: 'update_failed', detail: err });
+  }
+  const updated = await updResp.json();
+
+  return res.status(200).json({
+    ok: true,
+    invoice_id: invoiceId,
+    invoice_number: invoice.invoice_number,
+    status: 'paid',
+    paid_at: paidAt,
+    amount_received_krw: body.amount_received_krw || null,
+    next_step: '영수증 발행: kr_receipt_type=' + (invoice.kr_receipt_type || 'tax_invoice') + ' 처리 후 mark-receipt-issued 호출',
+  });
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// BL-INVOICE-002 단계 3 — handleMarkReceiptIssued (영수증 발행 완료 체크)
+// ════════════════════════════════════════════════════════════════════════════
+// 입력 (POST):
+//   body: {
+//     invoice_id: UUID (필수),
+//     issued_at: ISO string (선택, 기본 now),
+//     issuance_reference: string (선택 — 홈택스 승인번호·국세청 발급번호 등)
+//   }
+// 권한: super_admin (owner) 단독
+// 동작:
+//   1) invoice 조회 (status='paid' 필수)
+//   2) kr_receipt_issued=true + kr_receipt_issued_at + metadata.receipt_issuance 박음
+// 반환:
+//   200 OK { ok, invoice_id, kr_receipt_type, issued_at, issuance_reference }
+// ────────────────────────────────────────────────────────────────────────────
+async function handleMarkReceiptIssued(req, res, serviceKey, admin) {
+  if (!admin || (admin.role !== 'super_admin' && admin.role !== 'owner')) {
+    return res.status(403).json({ error: 'forbidden', detail: 'owner only' });
+  }
+  const body = req.body || {};
+  const invoiceId = body.invoice_id;
+  if (!invoiceId) return res.status(400).json({ error: 'invoice_id_required' });
+
+  // 1) invoice 조회
+  const invResp = await fetch(SUPABASE_URL + '/rest/v1/invoices?id=eq.' + invoiceId + '&select=*', {
+    headers: { 'Authorization': 'Bearer ' + serviceKey, 'apikey': serviceKey },
+  });
+  if (!invResp.ok) return res.status(500).json({ error: 'invoice_fetch_failed' });
+  const rows = await invResp.json();
+  if (!Array.isArray(rows) || rows.length === 0) {
+    return res.status(404).json({ error: 'invoice_not_found' });
+  }
+  const invoice = rows[0];
+
+  // 2) 검증 — paid + 한국 인보이스만
+  if (invoice.status !== 'paid') {
+    return res.status(400).json({
+      error: 'invalid_invoice_state',
+      detail: 'status must be paid (current: ' + invoice.status + ')',
+    });
+  }
+  if (invoice.track !== 'INV-KR') {
+    return res.status(400).json({
+      error: 'not_korea_invoice',
+      detail: 'receipt issuance applies only to INV-KR (Korean tax invoices)',
+    });
+  }
+  if (invoice.kr_receipt_issued) {
+    return res.status(400).json({
+      error: 'already_issued',
+      detail: 'kr_receipt_issued is already true',
+    });
+  }
+
+  // 3) 갱신
+  const issuedAt = body.issued_at || new Date().toISOString();
+  const newMeta = Object.assign({}, invoice.metadata || {}, {
+    receipt_issuance: {
+      issued_at: issuedAt,
+      issued_by_email: admin.email || '(unknown)',
+      issuance_reference: body.issuance_reference || null,
+      receipt_type: invoice.kr_receipt_type,
+    },
+  });
+
+  const updResp = await fetch(SUPABASE_URL + '/rest/v1/invoices?id=eq.' + invoiceId, {
+    method: 'PATCH',
+    headers: {
+      'Authorization': 'Bearer ' + serviceKey,
+      'apikey': serviceKey,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=representation',
+    },
+    body: JSON.stringify({
+      kr_receipt_issued: true,
+      kr_receipt_issued_at: issuedAt,
+      metadata: newMeta,
+    }),
+  });
+  if (!updResp.ok) {
+    const err = await updResp.text();
+    return res.status(500).json({ error: 'update_failed', detail: err });
+  }
+
+  return res.status(200).json({
+    ok: true,
+    invoice_id: invoiceId,
+    invoice_number: invoice.invoice_number,
+    kr_receipt_type: invoice.kr_receipt_type,
+    kr_receipt_issued: true,
+    kr_receipt_issued_at: issuedAt,
+    issuance_reference: body.issuance_reference || null,
+  });
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// BL-INVOICE-002 단계 8 — handleExportCsv (한국 인보이스 세무 신고용 CSV)
+// ════════════════════════════════════════════════════════════════════════════
+// 입력 (GET):
+//   ?year=2026 (선택, 기본 현재 연도)
+//   ?status=paid (선택, 기본 paid)
+// 권한: super_admin (owner) 단독
+// 반환: CSV 텍스트 (Content-Type: text/csv)
+// ────────────────────────────────────────────────────────────────────────────
+async function handleExportCsv(req, res, serviceKey, admin) {
+  if (!admin || (admin.role !== 'super_admin' && admin.role !== 'owner')) {
+    return res.status(403).json({ error: 'forbidden', detail: 'owner only' });
+  }
+  const url = new URL(req.url || '/', 'http://x');
+  const year = parseInt(url.searchParams.get('year'), 10) || new Date().getFullYear();
+  const statusFilter = url.searchParams.get('status') || 'paid';
+  const fromIso = year + '-01-01T00:00:00Z';
+  const toIso = (year + 1) + '-01-01T00:00:00Z';
+
+  const q = 'invoices?track=eq.INV-KR&status=eq.' + statusFilter
+    + '&issued_at=gte.' + fromIso
+    + '&issued_at=lt.' + toIso
+    + '&select=invoice_number,issued_at,paid_at,bill_to_name,bill_to_business_no,amount_subtotal,amount_tax,amount_total,currency,fx_rate,kr_receipt_type,kr_receipt_issued,kr_receipt_issued_at'
+    + '&order=invoice_number.asc';
+
+  const resp = await fetch(SUPABASE_URL + '/rest/v1/' + q, {
+    headers: { 'Authorization': 'Bearer ' + serviceKey, 'apikey': serviceKey },
+  });
+  if (!resp.ok) return res.status(500).json({ error: 'query_failed' });
+  const rows = await resp.json();
+
+  // BOM + 헤더 + 행
+  const headers = ['인보이스번호','발행일','입금일','상호','사업자번호','공급가액','부가세','합계','통화','환율','영수증종류','영수증발행여부','영수증발행일'];
+  const lines = ['\uFEFF' + headers.join(',')];
+  rows.forEach(r => {
+    const fields = [
+      r.invoice_number,
+      r.issued_at ? r.issued_at.slice(0,10) : '',
+      r.paid_at ? r.paid_at.slice(0,10) : '',
+      (r.bill_to_name || '').replace(/,/g,'·'),
+      r.bill_to_business_no || '',
+      r.amount_subtotal || 0,
+      r.amount_tax || 0,
+      r.amount_total || 0,
+      r.currency || '',
+      r.fx_rate || '',
+      r.kr_receipt_type || '',
+      r.kr_receipt_issued ? 'Y' : 'N',
+      r.kr_receipt_issued_at ? r.kr_receipt_issued_at.slice(0,10) : '',
+    ].map(v => '"' + String(v).replace(/"/g, '""') + '"');
+    lines.push(fields.join(','));
+  });
+
+  res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+  res.setHeader('Content-Disposition', 'attachment; filename="invoice-kr-' + year + '-' + statusFilter + '.csv"');
+  return res.status(200).send(lines.join('\n'));
+}
+
 // ────────────────────────────────────────────────────────────────────────────
 // 단계 9 — handleMyPending (매니저 본인 pending 인보이스 조회)
 // ────────────────────────────────────────────────────────────────────────────
@@ -1326,6 +1586,12 @@ export default async function handler(req, res) {
         return await handleList(req, res, serviceKey, adminCheck);
       case 'void':
         return await handleVoid(req, res, serviceKey, adminCheck);
+      case 'mark-paid':
+        return await handleMarkPaid(req, res, serviceKey, adminCheck);
+      case 'mark-receipt-issued':
+        return await handleMarkReceiptIssued(req, res, serviceKey, adminCheck);
+      case 'export-csv':
+        return await handleExportCsv(req, res, serviceKey, adminCheck);
       default:
         return res.status(400).json({ error: 'unhandled_action', action });
     }

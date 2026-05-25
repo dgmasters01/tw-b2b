@@ -70,6 +70,91 @@
     padding:7px 10px; border-radius:6px; font-size:12px; font-family:inherit;
   }
   .filter-row input { min-width:220px; }
+
+  /* BL-INVOICE-002 단계 4·5 — 한국 미수금 위젯 + 컬러 배지 + 액션 버튼 */
+  .kr-overdue-widget {
+    margin: 0 0 18px; padding: 16px 20px;
+    background: linear-gradient(135deg, rgba(99,102,241,.06), rgba(168,85,247,.04));
+    border: 1px solid rgba(167,139,250,.25); border-radius: 12px;
+  }
+  .kr-overdue-head {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 14px; font-weight: 700; color: var(--accent);
+    margin-bottom: 14px; letter-spacing: -.01em;
+  }
+  .kr-overdue-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  @media (max-width: 720px) { .kr-overdue-grid { grid-template-columns: repeat(2, 1fr); } }
+  .kr-stat {
+    background: rgba(0,0,0,.18); border-radius: 10px; padding: 12px 14px;
+    border: 1px solid rgba(167,139,250,.12);
+  }
+  .kr-stat-label { font-size: 11px; color: var(--muted); font-weight: 600; letter-spacing: .03em; text-transform: uppercase; }
+  .kr-stat-value { font-size: 20px; font-weight: 700; color: var(--text); margin-top: 4px; font-family: 'JetBrains Mono', monospace; }
+  .kr-stat-value.danger { color: #f87171; }
+  .kr-stat-value.warn { color: #fbbf24; }
+  .kr-stat-value.ok { color: #34d399; }
+
+  .age-badge { display: inline-block; padding: 2px 7px; border-radius: 6px; font-size: 11px; font-weight: 700; }
+  .age-fresh { background: rgba(52,211,153,.15); color: #34d399; border: 1px solid rgba(52,211,153,.3); }
+  .age-warn { background: rgba(250,204,21,.15); color: #facc15; border: 1px solid rgba(250,204,21,.35); }
+  .age-orange { background: rgba(251,146,60,.18); color: #fb923c; border: 1px solid rgba(251,146,60,.4); }
+  .age-danger { background: rgba(248,113,113,.18); color: #f87171; border: 1px solid rgba(248,113,113,.45); }
+
+  .btn-action-paid {
+    padding: 5px 10px; border-radius: 7px;
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #fff; border: none; font-size: 11.5px; font-weight: 700; cursor: pointer;
+  }
+  .btn-action-receipt {
+    padding: 5px 10px; border-radius: 7px;
+    background: linear-gradient(135deg, #6366f1, #a855f7);
+    color: #fff; border: none; font-size: 11.5px; font-weight: 700; cursor: pointer;
+  }
+  .receipt-issued-tag {
+    display: inline-block; padding: 2px 7px; border-radius: 6px;
+    background: rgba(52,211,153,.15); color: #34d399;
+    font-size: 11px; font-weight: 700; border: 1px solid rgba(52,211,153,.3);
+  }
+
+  .bl002-modal-bg {
+    position: fixed; inset: 0; background: rgba(0,0,0,.78);
+    z-index: 99999; display: none; align-items: center; justify-content: center; padding: 20px;
+  }
+  .bl002-modal-bg.open { display: flex; }
+  .bl002-modal {
+    max-width: 480px; width: 100%; background: #0f172a;
+    border: 1px solid rgba(99,102,241,.35); border-radius: 14px;
+    padding: 24px; box-shadow: 0 20px 60px rgba(0,0,0,.55);
+  }
+  .bl002-modal h3 { margin: 0 0 8px; font-size: 16px; color: var(--accent); }
+  .bl002-modal .sub { font-size: 12px; color: var(--muted); margin-bottom: 18px; }
+  .bl002-field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
+  .bl002-field label { font-size: 12px; font-weight: 600; color: var(--muted); }
+  .bl002-field input {
+    padding: 9px 12px; border-radius: 8px;
+    background: rgba(255,255,255,.04);
+    border: 1px solid var(--border);
+    color: var(--text); font-size: 13.5px; outline: none;
+  }
+  .bl002-field input:focus { border-color: var(--accent); }
+  .bl002-actions { display: flex; gap: 10px; margin-top: 18px; justify-content: flex-end; }
+  .bl002-btn-cancel {
+    padding: 9px 16px; background: transparent;
+    border: 1px solid var(--border); color: var(--muted);
+    border-radius: 8px; cursor: pointer; font-size: 13px;
+  }
+  .bl002-btn-confirm {
+    padding: 9px 18px; background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border: none; color: #fff; border-radius: 8px; cursor: pointer; font-size: 13.5px; font-weight: 700;
+  }
+  .bl002-btn-confirm:disabled { opacity: .55; cursor: wait; }
+  .bl002-error {
+    margin-top: 10px; padding: 10px 12px;
+    background: rgba(248,113,113,.1);
+    border: 1px solid rgba(248,113,113,.35);
+    border-radius: 8px; color: #f87171; font-size: 12.5px; display: none;
+  }
+  .bl002-error.show { display: block; }
   .filter-row select:focus, .filter-row input:focus {
     outline:1px solid var(--accent); border-color:var(--accent);
   }
@@ -230,6 +315,32 @@
       <p class="panel-desc" data-i18n="invoices.desc">
         All invoices issued, with PDF preview and void (refund) action. Owner only for issuing/voiding.
       </p>
+
+      <!-- BL-INVOICE-002 단계 4 — 한국 미수금 현황 위젯 -->
+      <div id="kr-overdue-widget" class="kr-overdue-widget" style="display:none">
+        <div class="kr-overdue-head">
+          🇰🇷 <span data-i18n="kr_overdue.title">한국 미수금 현황</span>
+          <button class="btn ghost tiny" id="btn-csv-export" style="margin-left:auto" title="세무 신고용 CSV (paid 전체)">📥 CSV</button>
+        </div>
+        <div class="kr-overdue-grid">
+          <div class="kr-stat">
+            <div class="kr-stat-label" data-i18n="kr_overdue.pending_count">미수금 건수</div>
+            <div class="kr-stat-value" id="kr-stat-pending-count">—</div>
+          </div>
+          <div class="kr-stat">
+            <div class="kr-stat-label" data-i18n="kr_overdue.pending_total">미수금 총액 (KRW)</div>
+            <div class="kr-stat-value" id="kr-stat-pending-total">—</div>
+          </div>
+          <div class="kr-stat">
+            <div class="kr-stat-label" data-i18n="kr_overdue.imminent">기한 임박 (24h)</div>
+            <div class="kr-stat-value" id="kr-stat-imminent">—</div>
+          </div>
+          <div class="kr-stat">
+            <div class="kr-stat-label" data-i18n="kr_overdue.receipt_missing">영수증 미발행</div>
+            <div class="kr-stat-value" id="kr-stat-receipt-missing">—</div>
+          </div>
+        </div>
+      </div>
 
       <!-- filters -->
       <div class="filter-row">
@@ -724,6 +835,10 @@ function render() {
   }
   const rows = STATE.items.map(inv => {
     const billTo = inv.bill_to_name || inv.bill_to_email || '—';
+    // BL-INVOICE-002 단계 5 — 경과 일수 컬러 배지 (pending KR만 의미 있음)
+    const ageBadge = renderAgeBadge(inv);
+    // BL-INVOICE-002 단계 2·3 — 액션 버튼 (입금 확인 + 영수증 발행)
+    const actions = renderBl002Actions(inv);
     return '<tr class="clickable" data-inv-id="' + escHtml(inv.id) + '">'
       + '<td class="mono">' + escHtml(inv.invoice_number) + '</td>'
       + '<td><span class="badge badge-track">' + escHtml(inv.track) + '</span></td>'
@@ -732,14 +847,20 @@ function render() {
       + '<td><span class="badge badge-country">' + escHtml(inv.bill_to_country) + '</span></td>'
       + '<td class="num">' + fmtAmount(inv.amount_total, inv.currency) + '</td>'
       + '<td><span class="badge badge-method">' + escHtml(inv.payment_method || '—') + '</span></td>'
-      + '<td>' + badgeStatus(inv.status) + '</td>'
+      + '<td>' + badgeStatus(inv.status) + (ageBadge ? ' ' + ageBadge : '') + '</td>'
       + '<td>' + fmtDate(inv.issued_at) + '</td>'
       + '<td>' + fmtDate(inv.due_at) + '</td>'
-      + '<td><button class="btn ghost tiny" data-action="open" data-id="' + escHtml(inv.id) + '">'
-            + t('btn.preview') + ' →</button></td>'
+      + '<td>'
+      + actions
+      + ' <button class="btn ghost tiny" data-action="open" data-id="' + escHtml(inv.id) + '">'
+            + t('btn.preview') + ' →</button>'
+      + '</td>'
       + '</tr>';
   }).join('');
   $('inv-tbody').innerHTML = rows;
+
+  // BL-INVOICE-002 단계 4 — 미수금 위젯 갱신
+  refreshKrOverdueWidget();
 
   // pager info
   const from = STATE.offset + 1;
@@ -749,9 +870,24 @@ function render() {
   $('inv-prev').disabled = STATE.offset <= 0;
   $('inv-next').disabled = !STATE.hasMore;
 
-  // row click → open detail
+  // row click → open detail (BL-INVOICE-002 액션 버튼은 별도 처리)
   $('inv-tbody').querySelectorAll('tr.clickable').forEach(tr => {
     tr.addEventListener('click', e => {
+      // BL-INVOICE-002: mark-paid 버튼
+      const paidBtn = e.target.closest('button[data-bl002="mark-paid"]');
+      if (paidBtn) {
+        e.stopPropagation();
+        openMarkPaidModal(paidBtn.getAttribute('data-id'), paidBtn.getAttribute('data-invno'));
+        return;
+      }
+      // BL-INVOICE-002: mark-receipt-issued 버튼
+      const rcptBtn = e.target.closest('button[data-bl002="mark-receipt"]');
+      if (rcptBtn) {
+        e.stopPropagation();
+        openMarkReceiptModal(rcptBtn.getAttribute('data-id'), rcptBtn.getAttribute('data-invno'), rcptBtn.getAttribute('data-type'));
+        return;
+      }
+      // 기존: preview 버튼
       const btn = e.target.closest('button[data-action="open"]');
       const id = btn?.getAttribute('data-id') || tr.getAttribute('data-inv-id');
       if (id) openDetail(id);
@@ -975,6 +1111,245 @@ $('btn-void-confirm').addEventListener('click', async () => {
   await loadInvoices();
 });
 
+// ════════════════════════════════════════════════════════════════════════════
+// BL-INVOICE-002 단계 2·3·4·5·8 — 입금 확인 / 영수증 발행 / 위젯 / 컬러 배지 / CSV
+// ════════════════════════════════════════════════════════════════════════════
+
+// 경과 일수 컬러 배지 (단계 5) — KR pending만 의미 있음
+function renderAgeBadge(inv) {
+  if (inv.track !== 'INV-KR' || inv.status !== 'pending') return '';
+  const issued = inv.issued_at ? new Date(inv.issued_at).getTime() : 0;
+  if (!issued) return '';
+  const days = Math.floor((Date.now() - issued) / (24 * 60 * 60 * 1000));
+  let cls = 'age-fresh', label = days + 'd';
+  if (days >= 30) cls = 'age-danger';
+  else if (days >= 14) cls = 'age-orange';
+  else if (days >= 7) cls = 'age-warn';
+  return '<span class="age-badge ' + cls + '">' + label + '</span>';
+}
+
+// 액션 버튼 (단계 2·3)
+function renderBl002Actions(inv) {
+  let html = '';
+  // 입금 확인 버튼 — pending + KRW + KR 만
+  if (inv.status === 'pending' && inv.payment_method === 'bank_transfer_krw' && inv.track === 'INV-KR') {
+    html += '<button class="btn-action-paid" data-bl002="mark-paid" data-id="' + escHtml(inv.id) + '" data-invno="' + escHtml(inv.invoice_number) + '">💰 ' + t('action.mark_paid') + '</button> ';
+  }
+  // 영수증 발행 버튼 — paid + KR + 미발행
+  if (inv.status === 'paid' && inv.track === 'INV-KR') {
+    if (inv.kr_receipt_issued) {
+      const typeLabel = receiptTypeLabel(inv.kr_receipt_type);
+      html += '<span class="receipt-issued-tag" title="' + escHtml(inv.kr_receipt_issued_at || '') + '">🧾 ' + typeLabel + ' ' + t('receipt.issued') + '</span> ';
+    } else {
+      html += '<button class="btn-action-receipt" data-bl002="mark-receipt" data-id="' + escHtml(inv.id) + '" data-invno="' + escHtml(inv.invoice_number) + '" data-type="' + escHtml(inv.kr_receipt_type || 'tax_invoice') + '">🧾 ' + t('action.mark_receipt') + '</button> ';
+    }
+  }
+  return html;
+}
+
+function receiptTypeLabel(type) {
+  const map = {
+    tax_invoice: '세금계산서',
+    cash_receipt_business: '현금영수증(사업자)',
+    cash_receipt_personal: '현금영수증(개인)',
+  };
+  return map[type] || type || '—';
+}
+
+// 미수금 위젯 갱신 (단계 4)
+function refreshKrOverdueWidget() {
+  const items = STATE.items || [];
+  const krPending = items.filter(i => i.track === 'INV-KR' && i.status === 'pending');
+  const krPaidNoReceipt = items.filter(i => i.track === 'INV-KR' && i.status === 'paid' && !i.kr_receipt_issued);
+  const widget = $('kr-overdue-widget');
+  if (!widget) return;
+  if (krPending.length === 0 && krPaidNoReceipt.length === 0) {
+    widget.style.display = 'none';
+    return;
+  }
+  widget.style.display = 'block';
+
+  // 건수
+  $('kr-stat-pending-count').textContent = krPending.length;
+  $('kr-stat-pending-count').className = 'kr-stat-value' + (krPending.length > 0 ? ' warn' : '');
+
+  // 총액 (USD 200 × 환율 평균 표기 — KRW 표기는 fx_rate 컬럼 사용)
+  const totalUsd = krPending.reduce((s, i) => s + (parseFloat(i.amount_total_usd) || 0), 0);
+  $('kr-stat-pending-total').textContent = '$' + totalUsd.toFixed(0) + ' USD';
+
+  // 기한 임박 (24h)
+  const now = Date.now();
+  const imminent = krPending.filter(i => {
+    if (!i.due_at) return false;
+    const due = new Date(i.due_at).getTime();
+    return due - now < 24 * 60 * 60 * 1000 && due - now > 0;
+  });
+  $('kr-stat-imminent').textContent = imminent.length;
+  $('kr-stat-imminent').className = 'kr-stat-value' + (imminent.length > 0 ? ' danger' : '');
+
+  // 영수증 미발행
+  $('kr-stat-receipt-missing').textContent = krPaidNoReceipt.length;
+  $('kr-stat-receipt-missing').className = 'kr-stat-value' + (krPaidNoReceipt.length > 0 ? ' warn' : '');
+}
+
+// 입금 확인 모달 (단계 2)
+function openMarkPaidModal(invoiceId, invoiceNo) {
+  const html = ''
+    + '<div class="bl002-modal-bg" id="bl002-modal-paid">'
+    + '  <div class="bl002-modal">'
+    + '    <h3>💰 입금 확인 — ' + escHtml(invoiceNo) + '</h3>'
+    + '    <div class="sub">은행 입금 확인 후 status를 paid로 전환합니다. 텔레그램 후속 알림이 자동으로 정지됩니다.</div>'
+    + '    <div class="bl002-field"><label>입금 시각</label><input type="datetime-local" id="bl002-paid-at" value="' + nowLocalForInput() + '"></div>'
+    + '    <div class="bl002-field"><label>실제 입금액 (KRW, 선택)</label><input type="number" id="bl002-amount-krw" placeholder="예: 276000"></div>'
+    + '    <div class="bl002-field"><label>메모 (선택)</label><input type="text" id="bl002-memo" placeholder="예: 김민수 / 12:34 입금"></div>'
+    + '    <div class="bl002-error" id="bl002-paid-error"></div>'
+    + '    <div class="bl002-actions">'
+    + '      <button class="bl002-btn-cancel" onclick="closeBl002Modal()">취소</button>'
+    + '      <button class="bl002-btn-confirm" id="bl002-paid-confirm">입금 확인 처리</button>'
+    + '    </div>'
+    + '  </div>'
+    + '</div>';
+  document.body.insertAdjacentHTML('beforeend', html);
+  setTimeout(() => $('bl002-modal-paid').classList.add('open'), 10);
+  $('bl002-paid-confirm').addEventListener('click', async () => {
+    const paidAtLocal = $('bl002-paid-at').value;
+    const amountKrw = $('bl002-amount-krw').value ? parseInt($('bl002-amount-krw').value, 10) : null;
+    const memo = $('bl002-memo').value || null;
+    const errEl = $('bl002-paid-error');
+    errEl.classList.remove('show');
+    if (!paidAtLocal) {
+      errEl.textContent = '입금 시각이 필수입니다.';
+      errEl.classList.add('show');
+      return;
+    }
+    const btn = $('bl002-paid-confirm');
+    btn.disabled = true; btn.textContent = '처리 중...';
+    const paidAtIso = new Date(paidAtLocal).toISOString();
+    const r = await api('mark-paid', {}, { invoice_id: invoiceId, paid_at: paidAtIso, amount_received_krw: amountKrw, memo });
+    btn.disabled = false; btn.textContent = '입금 확인 처리';
+    if (!r || !r.ok) {
+      errEl.textContent = '실패: ' + (r?.error || r?.detail || 'unknown');
+      errEl.classList.add('show');
+      return;
+    }
+    closeBl002Modal();
+    toast('✅ ' + invoiceNo + ' status: paid 처리 완료', 'ok');
+    await loadInvoices();
+  });
+}
+
+// 영수증 발행 완료 체크 모달 (단계 3)
+function openMarkReceiptModal(invoiceId, invoiceNo, receiptType) {
+  const typeLabel = receiptTypeLabel(receiptType);
+  const html = ''
+    + '<div class="bl002-modal-bg" id="bl002-modal-receipt">'
+    + '  <div class="bl002-modal">'
+    + '    <h3>🧾 영수증 발행 완료 체크 — ' + escHtml(invoiceNo) + '</h3>'
+    + '    <div class="sub">영수증 종류: <strong>' + escHtml(typeLabel) + '</strong><br>홈택스·국세청에서 발행 완료 후 체크하세요.</div>'
+    + '    <div class="bl002-field"><label>발행 시각</label><input type="datetime-local" id="bl002-rcpt-at" value="' + nowLocalForInput() + '"></div>'
+    + '    <div class="bl002-field"><label>발급 참조번호 (선택, 홈택스 승인번호 등)</label><input type="text" id="bl002-rcpt-ref" placeholder="예: 12345678901234567890"></div>'
+    + '    <div class="bl002-error" id="bl002-rcpt-error"></div>'
+    + '    <div class="bl002-actions">'
+    + '      <button class="bl002-btn-cancel" onclick="closeBl002Modal()">취소</button>'
+    + '      <button class="bl002-btn-confirm" id="bl002-rcpt-confirm">발행 완료 체크</button>'
+    + '    </div>'
+    + '  </div>'
+    + '</div>';
+  document.body.insertAdjacentHTML('beforeend', html);
+  setTimeout(() => $('bl002-modal-receipt').classList.add('open'), 10);
+  $('bl002-rcpt-confirm').addEventListener('click', async () => {
+    const issuedAtLocal = $('bl002-rcpt-at').value;
+    const ref = $('bl002-rcpt-ref').value || null;
+    const errEl = $('bl002-rcpt-error');
+    errEl.classList.remove('show');
+    if (!issuedAtLocal) {
+      errEl.textContent = '발행 시각이 필수입니다.';
+      errEl.classList.add('show');
+      return;
+    }
+    const btn = $('bl002-rcpt-confirm');
+    btn.disabled = true; btn.textContent = '처리 중...';
+    const issuedAtIso = new Date(issuedAtLocal).toISOString();
+    const r = await api('mark-receipt-issued', {}, { invoice_id: invoiceId, issued_at: issuedAtIso, issuance_reference: ref });
+    btn.disabled = false; btn.textContent = '발행 완료 체크';
+    if (!r || !r.ok) {
+      errEl.textContent = '실패: ' + (r?.error || r?.detail || 'unknown');
+      errEl.classList.add('show');
+      return;
+    }
+    closeBl002Modal();
+    toast('✅ ' + invoiceNo + ' 영수증 발행 완료 박힘', 'ok');
+    await loadInvoices();
+  });
+}
+
+function closeBl002Modal() {
+  document.querySelectorAll('.bl002-modal-bg').forEach(m => m.remove());
+}
+
+function nowLocalForInput() {
+  const d = new Date();
+  const pad = n => String(n).padStart(2, '0');
+  return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate())
+    + 'T' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+}
+
+// CSV 내보내기 (단계 8)
+async function exportCsv() {
+  const year = new Date().getFullYear();
+  const url = '/api/invoice?action=export-csv&year=' + year + '&status=paid';
+  try {
+    const sess = await sb.auth.getSession();
+    const token = sess?.data?.session?.access_token;
+    const resp = await fetch(url, { headers: token ? { 'Authorization': 'Bearer ' + token } : {} });
+    if (!resp.ok) {
+      const err = await resp.text();
+      toast('CSV 실패: ' + err.slice(0, 100), 'err');
+      return;
+    }
+    const blob = await resp.blob();
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'invoice-kr-' + year + '-paid.csv';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast('✅ CSV 다운로드 시작', 'ok');
+  } catch (e) {
+    toast('CSV 실패: ' + e.message, 'err');
+  }
+}
+
+// i18n 추가 키 (BL-INVOICE-002)
+if (typeof I18N !== 'undefined') {
+  Object.assign(I18N.en || {}, {
+    'action.mark_paid': 'Mark Paid',
+    'action.mark_receipt': 'Issue Receipt',
+    'receipt.issued': 'issued',
+    'kr_overdue.title': 'Korea Outstanding',
+    'kr_overdue.pending_count': 'Pending Count',
+    'kr_overdue.pending_total': 'Pending Total',
+    'kr_overdue.imminent': 'Imminent (24h)',
+    'kr_overdue.receipt_missing': 'Receipt Missing',
+  });
+  Object.assign(I18N.ko || {}, {
+    'action.mark_paid': '입금 확인',
+    'action.mark_receipt': '영수증 발행',
+    'receipt.issued': '발행됨',
+    'kr_overdue.title': '한국 미수금 현황',
+    'kr_overdue.pending_count': '미수금 건수',
+    'kr_overdue.pending_total': '미수금 총액 (USD)',
+    'kr_overdue.imminent': '기한 임박 (24h)',
+    'kr_overdue.receipt_missing': '영수증 미발행',
+  });
+}
+
+// CSV 버튼 등록 (DOM 로드 후)
+document.addEventListener('DOMContentLoaded', () => {
+  const csvBtn = document.getElementById('btn-csv-export');
+  if (csvBtn) csvBtn.addEventListener('click', exportCsv);
+});
+
 // ──────────────────────────────────────────────────────────────
 // Boot
 // ──────────────────────────────────────────────────────────────
@@ -982,6 +1357,9 @@ applyI18n();
 (async () => {
   const ok = await loadMe();
   if (!ok) return;
+  // BL-INVOICE-002 — CSV 버튼 박음 (DOMContentLoaded 이미 지났을 수도 있어 boot 시점에 박음)
+  const csvBtn = document.getElementById('btn-csv-export');
+  if (csvBtn) csvBtn.addEventListener('click', exportCsv);
   await loadInvoices();
 })();
 </script>

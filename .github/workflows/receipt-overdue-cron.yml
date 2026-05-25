@@ -1,0 +1,48 @@
+name: Receipt Overdue Cron
+
+# BL-INVOICE-002 단계 6/7 — 영수증 발행 누락 알림 (한국 인보이스)
+#
+# 정책: 라운드 13~14
+#   한국 인보이스 paid + kr_receipt_issued=false 인 건이
+#   paid_at + 24h 경과 시 텔레그램 ⚠️ 알림 (멱등)
+
+on:
+  schedule:
+    - cron: '0 * * * *'  # 매시 정각 (UTC = KST -9h)
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'dry_run 모드 (텔레그램 안 보냄)'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  check-receipt-overdue:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call receipt-overdue endpoint
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
+        run: |
+          if [ -z "$CRON_SECRET" ]; then
+            echo "❌ CRON_SECRET not configured"
+            exit 1
+          fi
+          URL="https://gohotelwinners.com/api/cron/receipt-overdue"
+          if [ "$DRY_RUN" = "true" ]; then URL="$URL?dry_run=1"; fi
+
+          RESPONSE=$(curl -s -w "\n%{http_code}" -X POST "$URL" \
+            -H "x-cron-token: $CRON_SECRET" \
+            -H "Content-Type: application/json")
+          HTTP_CODE=$(echo "$RESPONSE" | tail -1)
+          BODY=$(echo "$RESPONSE" | sed '$d')
+          echo "HTTP $HTTP_CODE"
+          echo "$BODY" | head -50
+          if [ "$HTTP_CODE" != "200" ]; then echo "❌ failed"; exit 1; fi
+          CANDIDATES=$(echo "$BODY" | grep -oE '"candidates":[0-9]+' | head -1 | grep -oE '[0-9]+$')
+          NOTIFIED=$(echo "$BODY" | grep -oE '"notified":[0-9]+' | head -1 | grep -oE '[0-9]+$')
+          echo "✅ candidates: ${CANDIDATES:-0} / notified: ${NOTIFIED:-0}"

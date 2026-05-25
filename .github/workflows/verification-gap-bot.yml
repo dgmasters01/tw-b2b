@@ -51,7 +51,18 @@ jobs:
           else
             git add _decisions/business-agreements.json
             git commit -m "[verification-gap-bot] business-agreements.json status 자동 갱신 (done=${{ steps.verify.outputs.done }} / partial=${{ steps.verify.outputs.partial }} / not_implemented=${{ steps.verify.outputs.not_implemented }}) [변경사유: 사업 합의 코드 박힘 자동 검증]"
-            git push origin main
+            # 다른 봇과 race 대비 — rebase + retry 3회
+            for i in 1 2 3; do
+              git pull --rebase origin main || true
+              if git push origin main; then
+                echo "push 성공 (시도 $i)"
+                exit 0
+              fi
+              echo "push 실패 (시도 $i) — 5초 대기 후 재시도"
+              sleep 5
+            done
+            echo "push 3회 실패 — 다음 트리거에서 재처리"
+            exit 0
           fi
 
       - name: Notify ops (not_implemented 7일 이상 누적 시)

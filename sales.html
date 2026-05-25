@@ -296,6 +296,73 @@
   border:1px solid rgba(245,158,11,.3);border-radius:10px;
   font-size:13px;color:#fbbf24;line-height:1.6;
 }
+/* [AGR-2026-0013 + AGR-2026-0014 2026-05-25] 한국 영수증 종류 라디오 + B2B 안내 */
+.sl-receipt-section{
+  margin-top:18px;padding-top:18px;
+  border-top:1px dashed rgba(167,139,250,.2);
+}
+.sl-receipt-title{
+  font-size:13px;font-weight:700;color:var(--aurora-2);
+  margin-bottom:6px;letter-spacing:-.01em;
+  display:flex;align-items:center;gap:8px;
+}
+.sl-receipt-title::before{content:'🧾';font-size:16px;}
+.sl-receipt-b2b{
+  font-size:11.5px;color:var(--ink-3);
+  margin-bottom:14px;font-style:italic;line-height:1.5;
+}
+.sl-receipt-options{
+  display:flex;flex-direction:column;gap:8px;
+}
+.sl-receipt-option{
+  display:flex;align-items:flex-start;gap:10px;
+  padding:11px 14px;border-radius:8px;
+  background:rgba(255,255,255,.02);
+  border:1px solid rgba(167,139,250,.15);
+  cursor:pointer;transition:all 0.15s ease;
+}
+.sl-receipt-option:hover{background:rgba(167,139,250,.06);border-color:rgba(167,139,250,.3);}
+.sl-receipt-option input[type="radio"]{
+  margin:3px 0 0 0;accent-color:var(--aurora-1);
+  width:16px;height:16px;flex-shrink:0;
+}
+.sl-receipt-option-body{flex:1;}
+.sl-receipt-option-label{
+  font-size:13.5px;font-weight:600;color:var(--ink-1);
+}
+.sl-receipt-option-hint{
+  font-size:11.5px;color:var(--ink-3);margin-top:3px;line-height:1.45;
+}
+.sl-receipt-option-default{
+  display:inline-block;margin-left:6px;padding:1px 7px;
+  background:linear-gradient(135deg,#6366f1,#a855f7);
+  color:#fff;font-size:10px;font-weight:700;border-radius:4px;vertical-align:1px;
+}
+.sl-receipt-option.selected{
+  background:rgba(99,102,241,.08);border-color:rgba(99,102,241,.4);
+}
+.sl-receipt-fields{
+  margin-top:12px;padding:14px;
+  background:rgba(0,0,0,.15);border-radius:8px;
+  display:flex;flex-direction:column;gap:10px;
+}
+.sl-receipt-field{
+  display:flex;flex-direction:column;gap:4px;
+}
+.sl-receipt-field label{
+  font-size:11.5px;font-weight:600;color:var(--ink-3);
+  letter-spacing:.02em;
+}
+.sl-receipt-field label .required{color:#ef4444;margin-left:3px;}
+.sl-receipt-field input{
+  padding:9px 12px;border-radius:7px;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(167,139,250,.2);
+  color:var(--ink-1);font-size:13px;
+  outline:none;transition:border-color 0.15s ease;
+}
+.sl-receipt-field input:focus{border-color:var(--aurora-1);background:rgba(255,255,255,.07);}
+.sl-receipt-field input.invalid{border-color:#ef4444;}
 #pay-status{
   margin-top:14px;font-size:13px;min-height:18px;
   color:var(--ink-2);
@@ -1129,7 +1196,7 @@
       return;
     }
 
-    // 3) 계좌 정보 있음 → 송금 카드 + INV-KR 발행 버튼
+    // 3) 계좌 정보 있음 → 송금 카드 + 영수증 라디오 + INV-KR 발행 버튼
     container.style.background = 'transparent';
     container.style.padding = '0';
 
@@ -1153,6 +1220,64 @@
       + '  <div class="sl-krw-deadline">'
       + (isKo ? '⏰ 입금 기한 경과 시 자동 취소됩니다. 환율 변동 방지를 위해 빠른 송금 부탁드립니다.' : '⏰ Auto-cancelled if payment deadline passes. Please remit promptly.')
       + '  </div>'
+
+      // [AGR-2026-0013 + AGR-2026-0014 라운드 13~14] 영수증 종류 라디오 + B2B 안내
+      + '  <div class="sl-receipt-section">'
+      + '    <div class="sl-receipt-title">' + (isKo ? '영수증 종류 선택' : 'Receipt Type') + '</div>'
+      + '    <div class="sl-receipt-b2b">'
+      + (isKo
+          ? '사업자 고객 대상 서비스 — 전자세금계산서 발행이 표준입니다.'
+          : 'B2B service for businesses — electronic tax invoice is the standard.'
+        )
+      + '    </div>'
+      + '    <div class="sl-receipt-options" id="sl-receipt-options">'
+      + '      <label class="sl-receipt-option selected" data-type="tax_invoice">'
+      + '        <input type="radio" name="receipt_type" value="tax_invoice" checked>'
+      + '        <div class="sl-receipt-option-body">'
+      + '          <div class="sl-receipt-option-label">'
+      + (isKo ? '세금계산서 (사업자)' : 'Tax Invoice (Business)')
+      + '            <span class="sl-receipt-option-default">' + (isKo ? '기본' : 'DEFAULT') + '</span>'
+      + '          </div>'
+      + '          <div class="sl-receipt-option-hint">'
+      + (isKo
+          ? '사업자등록번호 보유 업체용. 입금 확인 후 전자세금계산서 발행.'
+          : 'For businesses with registration number. Electronic tax invoice issued after payment.'
+        )
+      + '          </div>'
+      + '        </div>'
+      + '      </label>'
+      + '      <label class="sl-receipt-option" data-type="cash_receipt_business">'
+      + '        <input type="radio" name="receipt_type" value="cash_receipt_business">'
+      + '        <div class="sl-receipt-option-body">'
+      + '          <div class="sl-receipt-option-label">'
+      + (isKo ? '현금영수증 (사업자 지출증빙)' : 'Cash Receipt (Business)')
+      + '          </div>'
+      + '          <div class="sl-receipt-option-hint">'
+      + (isKo
+          ? '사업자등록번호로 지출증빙용 현금영수증 발행.'
+          : 'Business expense receipt using registration number.'
+        )
+      + '          </div>'
+      + '        </div>'
+      + '      </label>'
+      + '      <label class="sl-receipt-option" data-type="cash_receipt_personal">'
+      + '        <input type="radio" name="receipt_type" value="cash_receipt_personal">'
+      + '        <div class="sl-receipt-option-body">'
+      + '          <div class="sl-receipt-option-label">'
+      + (isKo ? '현금영수증 (개인 소득공제)' : 'Cash Receipt (Personal)')
+      + '          </div>'
+      + '          <div class="sl-receipt-option-hint">'
+      + (isKo
+          ? '개인 결제 시 휴대폰번호로 소득공제용 발행.'
+          : 'For personal payment — income deduction with mobile number.'
+        )
+      + '          </div>'
+      + '        </div>'
+      + '      </label>'
+      + '    </div>'
+      + '    <div id="sl-receipt-fields"></div>'  // 동적 폼 영역
+      + '  </div>'
+
       + '  <button class="sl-krw-issue-btn" id="sl-krw-issue-btn">'
       + (isKo ? '📄 인보이스 발행하기 (송금 계좌 안내 받기)' : '📄 Issue Invoice (Get Bank Account Details)')
       + '  </button>'
@@ -1164,6 +1289,22 @@
       + '  </div>'
       + '</div>';
 
+    // 영수증 종류 변경 시 동적 폼 렌더 + selected 클래스 갱신
+    var receiptOptions = container.querySelectorAll('input[name="receipt_type"]');
+    receiptOptions.forEach(function(input) {
+      input.addEventListener('change', function() {
+        // selected 클래스 갱신
+        container.querySelectorAll('.sl-receipt-option').forEach(function(opt) {
+          opt.classList.remove('selected');
+        });
+        var parent = input.closest('.sl-receipt-option');
+        if (parent) parent.classList.add('selected');
+        // 동적 폼 렌더
+        renderReceiptFields(input.value, isKo);
+      });
+    });
+    renderReceiptFields('tax_invoice', isKo);  // 기본값 폼
+
     // INV-KR 발행 버튼 핸들러
     var btn = document.getElementById('sl-krw-issue-btn');
     if (btn) {
@@ -1173,12 +1314,101 @@
     }
   }
 
+  // 영수증 종류별 동적 폼 렌더 (라운드 13~14)
+  function renderReceiptFields(type, isKo) {
+    var box = document.getElementById('sl-receipt-fields');
+    if (!box) return;
+    var html = '';
+    if (type === 'tax_invoice') {
+      html += '<div class="sl-receipt-fields">';
+      html += '  <div class="sl-receipt-field"><label>' + (isKo ? '사업자등록번호' : 'Business Registration No.') + '<span class="required">*</span></label>';
+      html += '    <input type="text" id="rf-business-no" placeholder="123-45-67890" maxlength="12"></div>';
+      html += '  <div class="sl-receipt-field"><label>' + (isKo ? '상호 (회사명)' : 'Company Name') + '<span class="required">*</span></label>';
+      html += '    <input type="text" id="rf-company-name" placeholder="' + (isKo ? '예: (주)호텔코리아' : 'e.g., Hotel Korea Inc.') + '"></div>';
+      html += '  <div class="sl-receipt-field"><label>' + (isKo ? '대표자명' : 'CEO Name') + '<span class="required">*</span></label>';
+      html += '    <input type="text" id="rf-ceo-name" placeholder="' + (isKo ? '예: 홍길동' : 'e.g., John Doe') + '"></div>';
+      html += '  <div class="sl-receipt-field"><label>' + (isKo ? '업태' : 'Business Type') + '</label>';
+      html += '    <input type="text" id="rf-biz-type" placeholder="' + (isKo ? '예: 숙박업' : 'e.g., Hospitality') + '"></div>';
+      html += '  <div class="sl-receipt-field"><label>' + (isKo ? '종목' : 'Business Item') + '</label>';
+      html += '    <input type="text" id="rf-biz-item" placeholder="' + (isKo ? '예: 호텔' : 'e.g., Hotel') + '"></div>';
+      html += '  <div class="sl-receipt-field"><label>' + (isKo ? '세금계산서 수신 이메일' : 'Tax Invoice Email') + '<span class="required">*</span></label>';
+      html += '    <input type="email" id="rf-tax-email" placeholder="accounting@example.com"></div>';
+      html += '</div>';
+    } else if (type === 'cash_receipt_business') {
+      html += '<div class="sl-receipt-fields">';
+      html += '  <div class="sl-receipt-field"><label>' + (isKo ? '사업자등록번호' : 'Business Registration No.') + '<span class="required">*</span></label>';
+      html += '    <input type="text" id="rf-business-no" placeholder="123-45-67890" maxlength="12"></div>';
+      html += '</div>';
+    } else if (type === 'cash_receipt_personal') {
+      html += '<div class="sl-receipt-fields">';
+      html += '  <div class="sl-receipt-field"><label>' + (isKo ? '휴대폰번호' : 'Mobile Number') + '<span class="required">*</span></label>';
+      html += '    <input type="tel" id="rf-phone" placeholder="010-1234-5678" maxlength="13"></div>';
+      html += '</div>';
+    }
+    box.innerHTML = html;
+  }
+
   async function handleKrwInvoiceIssue(hotel, btn) {
     var isKo = (T.lang === 'ko');
+    var statusEl = document.getElementById('pay-status');
+
+    // [AGR-2026-0013 라운드 13~14] 영수증 종류 + 필수 필드 검증
+    var receiptInput = document.querySelector('input[name="receipt_type"]:checked');
+    var receiptType = receiptInput ? receiptInput.value : 'tax_invoice';
+    var receiptMeta = {};
+    var validationErrors = [];
+
+    function getVal(id) { var el = document.getElementById(id); return el ? el.value.trim() : ''; }
+    function markInvalid(id) {
+      var el = document.getElementById(id);
+      if (el) el.classList.add('invalid');
+    }
+    function clearInvalid() {
+      document.querySelectorAll('.sl-receipt-field input.invalid').forEach(function(el){ el.classList.remove('invalid'); });
+    }
+    clearInvalid();
+
+    if (receiptType === 'tax_invoice') {
+      var businessNo = getVal('rf-business-no');
+      var companyName = getVal('rf-company-name');
+      var ceoName = getVal('rf-ceo-name');
+      var taxEmail = getVal('rf-tax-email');
+      if (!businessNo) { validationErrors.push(isKo ? '사업자등록번호' : 'Business Registration No.'); markInvalid('rf-business-no'); }
+      if (!companyName) { validationErrors.push(isKo ? '상호' : 'Company Name'); markInvalid('rf-company-name'); }
+      if (!ceoName) { validationErrors.push(isKo ? '대표자명' : 'CEO Name'); markInvalid('rf-ceo-name'); }
+      if (!taxEmail || taxEmail.indexOf('@') < 0) { validationErrors.push(isKo ? '세금계산서 수신 이메일' : 'Tax Invoice Email'); markInvalid('rf-tax-email'); }
+      receiptMeta = {
+        business_number: businessNo,
+        company_name: companyName,
+        ceo_name: ceoName,
+        business_type: getVal('rf-biz-type'),
+        business_item: getVal('rf-biz-item'),
+        tax_invoice_email: taxEmail,
+      };
+    } else if (receiptType === 'cash_receipt_business') {
+      var bizNo2 = getVal('rf-business-no');
+      if (!bizNo2) { validationErrors.push(isKo ? '사업자등록번호' : 'Business Registration No.'); markInvalid('rf-business-no'); }
+      receiptMeta = { business_number: bizNo2 };
+    } else if (receiptType === 'cash_receipt_personal') {
+      var phone = getVal('rf-phone');
+      var phoneDigits = phone.replace(/[^0-9]/g, '');
+      if (phoneDigits.length < 10 || phoneDigits.length > 11) { validationErrors.push(isKo ? '휴대폰번호' : 'Mobile Number'); markInvalid('rf-phone'); }
+      receiptMeta = { phone: phoneDigits };
+    }
+
+    if (validationErrors.length > 0) {
+      if (statusEl) {
+        statusEl.innerHTML = '<div style="margin-top:12px;padding:10px 14px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:8px;color:#ef4444;font-size:13px;">'
+          + (isKo ? '⚠️ 필수 항목 누락: ' : '⚠️ Required fields missing: ') + validationErrors.join(', ')
+          + '</div>';
+      }
+      return;
+    }
+
     btn.disabled = true;
     var originalText = btn.textContent;
     btn.textContent = isKo ? '⏳ 인보이스 발행 중...' : '⏳ Issuing invoice...';
-    var statusEl = document.getElementById('pay-status');
+    if (statusEl) statusEl.innerHTML = '';
 
     try {
       var sess = await T.sb.auth.getSession();
@@ -1196,6 +1426,10 @@
           hotel_id: hotel.id,
           payment_method: 'bank_transfer_krw',
           amount_usd: 200,
+          // [AGR-2026-0013] 영수증 종류 + 메타 박음 (handleIssue가 kr_receipt_type / kr_receipt_meta 받음)
+          kr_receipt_type: receiptType,
+          kr_receipt_meta: receiptMeta,
+          bill_to_business_no: receiptMeta.business_number || null,
         }),
       });
       var data = await resp.json().catch(function(){ return {}; });
@@ -1204,14 +1438,22 @@
       }
       // 발행 성공 — 인보이스 정보 + 송금 계좌 표시
       btn.style.display = 'none';
+      // 영수증 섹션도 숨김 (이미 발행됨)
+      var receiptSection = document.querySelector('.sl-receipt-section');
+      if (receiptSection) receiptSection.style.display = 'none';
+      var receiptTypeLabel = {
+        'tax_invoice': isKo ? '전자세금계산서' : 'Tax Invoice',
+        'cash_receipt_business': isKo ? '현금영수증(사업자)' : 'Cash Receipt (Business)',
+        'cash_receipt_personal': isKo ? '현금영수증(개인)' : 'Cash Receipt (Personal)',
+      }[receiptType];
       if (statusEl) {
         statusEl.innerHTML = ''
           + '<div style="margin-top:16px;padding:18px;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.3);border-radius:10px;color:#34D9A4;">'
           + '<div style="font-weight:700;font-size:15px;margin-bottom:8px;">✅ ' + (isKo ? '인보이스 발행 완료' : 'Invoice issued') + '</div>'
           + '<div style="font-size:13px;color:var(--ink-2);">'
           + (isKo
-              ? '인보이스 번호 <strong style="color:var(--aurora-1);">' + (data.invoice_number || '발행 중') + '</strong>가 발행되었습니다.<br>매니저 대시보드의 <strong>📄 Documents</strong> 탭에서 PDF 다운로드 + 송금 계좌 정보를 확인하세요.'
-              : 'Invoice <strong style="color:var(--aurora-1);">' + (data.invoice_number || 'issued') + '</strong> created.<br>Check the <strong>📄 Documents</strong> tab in Manager Dashboard for PDF + bank account details.'
+              ? '인보이스 번호 <strong style="color:var(--aurora-1);">' + (data.invoice_number || '발행 중') + '</strong>가 발행되었습니다.<br>발행 예정 영수증: <strong>' + receiptTypeLabel + '</strong><br>매니저 대시보드의 <strong>📄 Documents</strong> 탭에서 PDF 다운로드 + 송금 계좌 정보를 확인하세요.'
+              : 'Invoice <strong style="color:var(--aurora-1);">' + (data.invoice_number || 'issued') + '</strong> created.<br>Receipt type: <strong>' + receiptTypeLabel + '</strong><br>Check the <strong>📄 Documents</strong> tab in Manager Dashboard for PDF + bank account details.'
             )
           + '</div>'
           + '<a href="/manager-dashboard.html" style="display:inline-block;margin-top:14px;padding:10px 18px;background:var(--aurora-1);color:#fff;text-decoration:none;border-radius:8px;font-weight:600;">'

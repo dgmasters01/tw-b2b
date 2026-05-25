@@ -42,6 +42,7 @@
 - **부칙 17 — 신규 BL 컨텍스트 + 신규 페이지 보고 의무 (BL-DECISION-CTX-MASS-FILL, 2026-05-12 신설):** 결정 대기 박스에 들어갈 신규 BL(approval_required=true OR requires_decisions_first 있음)은 사업가 V2 컨텍스트 3블록(`[지금 무슨 상황이냐면]/[왜 결정이 필요하냐면]/[결정하면 뭐가 달라지냐면]`) 필수. auto-task-bot이 기본 템플릿 자동 박고 `auto_context_warning=true` 마커. 클로드는 작업 시작 전 사업가 언어로 보강 의무. 신규 페이지 생성 시 즉시 대표님께 "어디/무엇/어떻게" 4줄 보고. 디테일: `_os/playbook/bl-context-and-page-report.md`.
 - **부칙 18 — 질문·선택지 사업가 언어 강제 + 갤러리 우선 점검 (BL-CLAUDE-PLAIN-LANG, 2026-05-21 신설):** ⓐ 대표님께 묻는 모든 질문·선택지는 **초등학생도 알아듣는 일상어**로만. 금지 단어: "마이그레이션·라우팅·리팩토링·단일화·통합·흡수·핫픽스·롤백·아키텍처·인스턴스·정석" 등. 대신 "옮기기·갈아끼우기·합치기·없애기·되돌리기·고치기"로. 각 선택지 끝 `→ 결과: ~` 한 줄로 사업가 결과 표시. ⓑ 새 그림 그리기 전 **반드시 admin-gallery 점검** — `_admin/admin-gallery.html` + `scripts/pages-meta.mjs`의 PAGES 배열을 라이브 fetch해서 "이미 만든 페이지가 있는지" 확인. 갤러리에 박힌 status(live/planned/needs-refactor/retired/partial/new) 그대로 신뢰. 위반 사례(2026-05-21): manager-dashboard.html 존재를 갤러리 안 보고 dashboard.html 따로 만들어 중복 발생. 위반 시 "헌법 확인" 한 마디로 정정. 디테일: `_os/playbook/claude-plain-lang-and-gallery.md`.
 - **부칙 19 — 전체 갱신 원칙 (BL-FULL-REFRESH-UNIFY, 2026-05-23 신설):** 대표님 원칙 "전체가 서로 연계되어서 모두가 갱신되어야 됨. 부분 갱신만 하는 건 의미 없음. 비즈니스 독스 뿐만 아니라 모든 것들이 하나로 돌아가야 됨". 화면·시스템·문서·봇·작업 추적은 전체가 서로 연계되어 하나로 돌아야 함, **부분 갱신 금지**. 강제 규칙: ⓐ tasks.json 변경 시 → 카테고리 카드·펼침 상세·작업/페이지 블록·푸터 일괄 재렌더(`renderAll()` 호출 의무). ⓑ activity-feed 변경 시 → 활동 이력 즉시 반영(`renderActivity()` 호출). ⓒ pages-status 변경 시 → 페이지 맵·완성도 평균·카테고리 카드 일괄 재렌더(`renderAll()` + `renderPageMap()`). ⓓ 비즈니스 문서 변경 시 → 갤러리·페이지 카드 동시 반영. ⓔ 새 render 함수 신설 시 → 폴링 루프 호출 등록 의무(미등록 = 데드 코드). 위반 사례(2026-05-23): admin-status 5초 폴링이 13개 함수만 호출 → 15개 함수 빠짐 → 카테고리 카드 펼침 상태에서 작업 박아도 안 바뀜 → 대표님이 직접 새로고침 강제됨. 자가 검증 질문(제안 전 통과 의무): "이 변경이 건드리는 데이터 파일의 폴링 블록에서 영향받는 render 함수가 전부 호출되는가?" 디테일: `_os/playbook/full-refresh-unify.md`.
+- **부칙 20 — 사업 합의 추적 게이트 (BL-DECISION-TRACKING, 2026-05-25 신설):** 대표님 원칙 "a-z까지 톱니바퀴처럼 맞혀지면서 돌아가야 됨. 합의한 것에 대해서 빠뜨림 없이 되어야 개발이 정상". 채팅에서 합의한 사업·서비스 정책은 코드 박힘이 자동 검증되기 전까지 미완료로 간주. 5톱니 사이클: ⓐ 채팅 마무리 시 클로드가 `_decisions/business-agreements.md`에 합의 추출 자동 박음 ⓑ 합의별로 예상 구현 위치(BL ID·파일 경로) 명시 ⓒ `verification-gap-bot`이 매 commit·매일 코드 grep으로 미반영 항목 탐지 → `business-agreements.json`의 `status: not_implemented/partial/done` 자동 갱신 ⓓ admin-status.html 상단 "📋 미구현 사업 합의 N건" 상시 표시 + 텔레그램 ⚠️ 알림 ⓔ 새 채팅 인계서 헤더에 미반영 항목 강제 표시 → 새 클로드 즉시 인지. 위반 사례(2026-05-25): 라운드 3 "한국 매니저 KRW 송금 분기" 합의 → invoice-system.md에 박힘 → tasks.json에 BL-INVOICE-001 신설 → 단계 12개 done 보고 → **sales.html 코드에 박혔는지 검증 안 함** → 대표님 sandbox 테스트 중 발견. 검증 게이트 부재로 사업 합의 → 코드 갭이 누적되는 사고. 디테일: `_os/playbook/decision-tracking.md`. 단일 진실원: `_decisions/business-agreements.md` (사람용) + `_decisions/business-agreements.json` (봇용).
 
 ---
 
@@ -165,7 +166,7 @@
  철학 — 각 프로젝트 완전 독립
  원칙 — 틀은 강제, 내용은 자유
 
-[부칙] 1~17 (디테일은 _os/playbook/)
+[부칙] 1~20 (디테일은 _os/playbook/)
 [적용] 통합: 호텔이야+8채널+TW B2B / 별개: CEYLON
 
 [안전장치] "헌법 확인" 한 마디 → 즉시 정지·재정렬

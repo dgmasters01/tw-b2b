@@ -25,6 +25,80 @@
   },
   "tasks": [
     {
+      "id": "BL-DECISION-TRACKING",
+      "title": "[사업 합의 추적 게이트] 톱니바퀴 5단계 자동 검증 시스템 (부칙 20)",
+      "category": "infra",
+      "status": "in_progress",
+      "priority": "P0",
+      "size": "medium",
+      "parent_task": null,
+      "blocker": null,
+      "depends_on": [],
+      "created_at": "2026-05-25T08:13:06+00:00",
+      "completed_at": null,
+      "claude_can_auto": true,
+      "autonomous": {
+        "can_run_alone": true,
+        "estimated_hours": 3,
+        "requires_decisions_first": []
+      },
+      "phase": "Charter-v2",
+      "tag": "헌법-인프라",
+      "owner": "Claude",
+      "approval_required": false,
+      "order": 1,
+      "decision_ref": null,
+      "source": "2026-05-25 채팅 — 대표님이 직접 진단한 'a-z 톱니바퀴' 원칙",
+      "source_anchor": "OPERATIONS_CHARTER.md 부칙 20 + _os/playbook/decision-tracking.md",
+      "notes": "사업 합의 → 정책 문서 → 백로그 → 코드 → 검증 → 다음 채팅 인계까지 한 사이클이 자동으로 도는 톱니바퀴 시스템. 라운드 3 합의 빠뜨림 사고 재발 차단.",
+      "decision_context": "[지금 무슨 상황이냐면]\n채팅에서 합의된 사업 정책이 정책 문서·tasks.json까지는 자동으로 박히지만, 실제 코드에 박혔는지 자동 검증이 없어서 BL done 보고 후 사고 발견.\n\n[왜 결정이 필요하냐면]\n2026-05-25 사고: 라운드 3 '한국 매니저 KRW 송금 분기' 합의가 sales.html에 박히지 않은 채 BL-INVOICE-001 100% done 보고됨. 대표님이 sandbox 테스트 중 발견.\n\n[결정하면 뭐가 달라지냐면]\n5톱니 사이클 박힘 후: 합의 → 자동 추적 → 코드 grep 자동 검증 → 미반영 시 admin 배지 + 텔레그램 알림 + 새 채팅 인계서 헤더 강제 → 다음 클로드가 즉시 인지. 사고 재발 차단.",
+      "progress": {
+        "percent": 40,
+        "completed_count": 2,
+        "total_count": 5,
+        "updated_at": "2026-05-25T08:13:06+00:00",
+        "steps": [
+          {
+            "n": 1,
+            "title": "헌법 부칙 20 + decision-tracking.md 디테일 + business-agreements 인프라 박기 (1편)",
+            "status": "done",
+            "done": true,
+            "at": "2026-05-25T08:13:06+00:00",
+            "label": "헌법 부칙 20 + decision-tracking.md 디테일 + business-agreements 인프라 박기 (1편)"
+          },
+          {
+            "n": 2,
+            "title": "business-agreements 초기 데이터 (BL-INVOICE-001 핑퐁 15라운드 추출, 1편)",
+            "status": "done",
+            "done": true,
+            "at": "2026-05-25T08:13:06+00:00",
+            "label": "business-agreements 초기 데이터 (BL-INVOICE-001 핑퐁 15라운드 추출, 1편)"
+          },
+          {
+            "n": 3,
+            "title": "verification-gap-bot 박기 (매 commit + 매일 KST 03:00 코드 grep 자동 검증, 2편)",
+            "status": "pending",
+            "done": false,
+            "label": "verification-gap-bot 박기 (매 commit + 매일 KST 03:00 코드 grep 자동 검증, 2편)"
+          },
+          {
+            "n": 4,
+            "title": "decision-tracking-bot 박기 (chat-log push 시 합의 자동 추출 보완, 2편)",
+            "status": "pending",
+            "done": false,
+            "label": "decision-tracking-bot 박기 (chat-log push 시 합의 자동 추출 보완, 2편)"
+          },
+          {
+            "n": 5,
+            "title": "admin-status.html 배지 + 새 채팅 인계서 헤더 통합 + 라이브 검증 (2편)",
+            "status": "pending",
+            "done": false,
+            "label": "admin-status.html 배지 + 새 채팅 인계서 헤더 통합 + 라이브 검증 (2편)"
+          }
+        ]
+      }
+    },
+    {
       "id": "BL-DECISION-CTX-MASS-FILL",
       "title": "결정 대기 15건 사람말 컨텍스트 대량 보강 + 신규 BL 자동 검증 + UI 4종 fix",
       "category": "fix",

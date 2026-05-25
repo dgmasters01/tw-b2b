@@ -82,21 +82,55 @@ function extractAgreementsFromChatLog(relPath) {
     if (dateMatch) date = dateMatch[1].trim();
   }
 
-  // "⑤ 대표님 결정 필요" 또는 "## ④ 다음 행동" 블록 안의 합의 추출
-  const blockRegex = /##\s*[④⑤].*?(?=##|$)/gs;
+  // "⑤ 대표님 결정 필요" 블록만 정확히 추출 (④는 다음 행동 — 합의 아님)
+  const blockRegex = /##\s*⑤[^#]*?(?=##|$)/gs;
   const blocks = content.match(blockRegex) || [];
+
+  // 차단 키워드 (false positive 자주 일으키는 메타 문구)
+  const blockKeywords = [
+    '결정 필요',
+    '결정 영역',
+    '별도 채팅',
+    '톱니바퀴',
+    '시스템 라이브',
+    '자동으로 박',
+    '자율 결정',
+    '없음.',
+    '없음**',
+    '대표님 결정',
+    '추가 결정',
+  ];
+
+  // 허용 키워드 — "합의된" 항목임을 명시하는 단어가 들어있어야 함
+  const allowKeywords = ['합의', '확정', '결정', '박을', '박힘'];
 
   const found = [];
   blocks.forEach(block => {
-    // 명시적 합의 키워드 (bullet 시작)
-    const lineRegex = /^[\s]*[-*]\s*(.+(?:합의|확정|결정|박을|박힘).+)$/gm;
-    const lines = block.match(lineRegex) || [];
-    lines.forEach(line => {
-      const text = line.replace(/^[\s]*[-*]\s*/, '').trim();
-      if (text.length > 20 && text.length < 300) {
-        found.push({ bl, date, text });
-      }
-    });
+    // 불릿 라인 추출 — "- 텍스트" 또는 "* 텍스트"
+    const lineRegex = /^[\s]*[-*]\s+(.+)$/gm;
+    let m;
+    while ((m = lineRegex.exec(block)) !== null) {
+      const text = m[1].trim();
+      
+      // 길이 필터
+      if (text.length < 30 || text.length > 250) continue;
+      
+      // 마크다운 강조·메타 문구 시작 차단
+      if (text.startsWith('*') || text.startsWith('**') || text.startsWith('_')) continue;
+      
+      // 차단 키워드 hit → skip
+      const lower = text.toLowerCase();
+      if (blockKeywords.some(kw => lower.includes(kw.toLowerCase()))) continue;
+      
+      // 허용 키워드 1개 이상 hit 필수
+      const hasAllow = allowKeywords.some(kw => text.includes(kw));
+      if (!hasAllow) continue;
+      
+      // 콜론(:) 시작 = 헤더성 텍스트 차단
+      if (text.startsWith(':')) continue;
+      
+      found.push({ bl, date, text });
+    }
   });
 
   return found;

@@ -61,6 +61,7 @@
 | D-039 | BL-PAGE-ROLES-SPLIT — admin-status(시스템 완성도) vs admin.html(운영 대시보드) 책임 분리 | infra | 2026-05-15 | 확정 | BL-PAGE-ROLES-SPLIT, `_os/playbook/page-roles.md` |
 | D-047 | BL-INVOICE-001 핑퐁 15라운드 합의 — 인보이스 번호 국가별 분리(INV-KR/INT) + 발행 권한 super_admin 1인 + 도장·서명 admin 업로드 구조 | feature | 2026-05-24 | 확정 | BL-INVOICE-001, BL-INVOICE-002, BL-INVOICE-003, `_os/playbook/invoice-system.md` |
 | D-048 | BL-INVOICE-SYSTEM-DOCS — 인보이스 시스템 사업 정책 단일 진실원 문서화(`_os/playbook/invoice-system.md`) + 3개 BL 분담 확정(003 선결 → 001 → 002) + BL-INVOICE-001 progress 12단계 박힘(부칙 7 해소) | policy | 2026-05-24 | 확정 | `_os/playbook/invoice-system.md`, BL-INVOICE-001/002/003, `tasks.json` |
+| D-049 | 채팅 끊김 객관 트리거 4종 도입 — 응답 15회 / 파일 10회 / 단계 완료 / 거대 파일 1500줄+ (판단 개입 0%) | policy | 2026-05-26 | 확정 | 헌법 부칙 16.1, `_os/playbook/claude-discipline.md` §8, CLAUDE.md ⑥번 룰 |
 
 ---
 
@@ -90,6 +91,7 @@
 | D-028 | 2026-05-12 신규 (Pending 섹션 직전) | 갤러리 완성도 + BEFORE/AFTER 이력 — 대표님 매니저 체험 중 발견 |
 | D-047 | 2026-05-24 (DECISIONS.md L288~355) | BL-INVOICE-001 핑퐁 15라운드 합의 본체 — 핑퐁 원본은 `_decisions/pingpong/BL-INVOICE-001.json` |
 | D-048 | 2026-05-24 (DECISIONS.md D-047 박스 직후) | 인보이스 시스템 단일 진실원 문서화 + 3개 BL 분담 확정 — 단일 진실원은 `_os/playbook/invoice-system.md` |
+| D-049 | 2026-05-26 (DECISIONS.md 신규 박스) | 채팅 끊김 객관 트리거 4종 — 추상 규칙 → 객관 카운트 전환, 부칙 16.1 신설 |
 
 ---
 
@@ -106,3 +108,4 @@
 | 2026-05-24 | D-022~D-027 + D-029 + D-030 + D-039 9건 누락분 소급 등록 (자율 진행 중 INDEX-DECISIONS 동기화 검증 후 보강) |
 | 2026-05-24 | D-047 등록 (BL-INVOICE-001 핑퐁 15라운드 합의 본체 — 인덱스 누락분 소급 등록) |
 | 2026-05-24 | D-048 등록 (인보이스 시스템 단일 진실원 `_os/playbook/invoice-system.md` 신설 + 3개 BL 분담 확정) |
+| 2026-05-26 | D-049 등록 (채팅 끊김 객관 트리거 4종 도입 — 부칙 16.1 신설 / CLAUDE.md ⑥ 보강 / discipline.md §8 신설) |

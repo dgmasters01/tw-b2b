@@ -10,7 +10,41 @@
 
 ---
 
-## 🆕 2026-05-21 — v_hotel_manager_full 뷰 결제 판정 기준 확정 (BL-ADMIN-MEMBERS-KPI-FIX)
+## 🆕 2026-05-26 — 채팅 끊김 객관 트리거 4종 도입 (BL-CHAT-CUTOFF-TRIGGERS / 헌법 부칙 16.1 신설)
+
+### D-049: "끊김 위험 감지" 추상 규칙 → 객관 카운트 4종으로 전환
+
+**언제**: 2026-05-26
+**누가**: 이지형 대표 (채팅 끊김 반복 사고 보고 "A로 자꾸 발생하네") → Claude 자체 진단
+**상태**: ✅ 박힘 (헌법 부칙 16.1 / CLAUDE.md ⑥ / `_os/playbook/claude-discipline.md` §8 동시 갱신)
+
+**무엇을**:
+1. **응답 횟수 트리거 (15회)** — Claude 응답 수가 15회를 넘기는 순간 다음 응답 첫 줄에 "🚨 끊김 위험 응답 N회 — commit 박고 새 채팅 권장" 무조건 박음
+2. **파일 수정 횟수 트리거 (10회)** — `str_replace` + `create_file` 누적이 10회를 넘기면 동일 경고
+3. **단계 완료 트리거** — `[step:done:N]` commit 박을 때마다 "끊고/계속" 1줄 질문 (헌법 1조 자율 진행 원칙 예외)
+4. **거대 파일 트리거 (1500줄+)** — 1500줄 넘는 파일 수정 감지 시 그 작업 1개만 한 채팅, 다른 BL 끼우지 말 것
+
+**왜**:
+- 기존 부칙 16 "끊김 위험 감지 시 강제 권유"는 **추상 규칙** — Claude가 매번 "아직 괜찮겠지" 낙관 판단
+- 2026-05-26 채팅 끊김 반복 사고 발생, 대표님 "A로 자꾸 발생하네. 똑같은 상황이" 지적
+- **의지로 막는 규칙은 무조건 깨짐** — 객관 카운트 도입으로 판단 개입 0% 보장
+- 이번 채팅 자체가 BL-CHAT-CUTOFF-TRIGGERS 박는 작업 — 인계서/새 채팅 우회 안 하고 PAT으로 직접 push 적용
+
+**누가 영향받나**:
+- 매 채팅 Claude 행동 — 응답마다 자체 카운트 점검 의무
+- admin-status.html 인계서 헤더 — 추후 트리거 4종 명시 (후속 작업)
+- check-bot — 추후 commit 메시지 검사로 트리거 위반 탐지 자동화 (별도 BL)
+
+**파일 변경**:
+- `OPERATIONS_CHARTER.md` 부칙 16.1 신설
+- `CLAUDE.md` ⑥번 룰 보강
+- `_os/playbook/claude-discipline.md` §8 신설
+- `DECISIONS.md` (이 박스) + `DECISIONS_INDEX.md` D-049 등록
+- `ECHO_LOG.md` 2026-05-26 사고 기록 1줄
+
+---
+
+
 
 ### D-046: 결제 판정 기준 = `payments.status='succeeded'` + `COALESCE(paid_at, created_at)` 폴백
 

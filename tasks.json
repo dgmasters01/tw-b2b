@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-26T02:27:14+00:00",
+  "updated_at": "2026-05-26T04:40:27+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -15261,7 +15261,7 @@
       "blocker": null,
       "depends_on": [],
       "progress": {
-        "percent": 100,
+        "percent": 33,
         "steps": [
           {
             "n": 1,
@@ -15269,7 +15269,8 @@
             "status": "done",
             "done_at": "2026-05-26T02:27:14+00:00",
             "commit": "179c9c0",
-            "note": "테이블 + 2 인덱스 + RLS 2개 (Management API 자동) / API: hotel-detail · hotel-comm-list · hotel-comm-add · hotel-comm-delete / handleUpdateHotelStatus status_change 자동 로깅"
+            "note": "테이블 + 2 인덱스 + RLS 2개 (Management API 자동) / API: hotel-detail · hotel-comm-list · hotel-comm-add · hotel-comm-delete / handleUpdateHotelStatus status_change 자동 로깅",
+            "label": "Phase A — hotel_communications 스키마 + RLS + admin.js 4 action 라우터"
           },
           {
             "n": 2,
@@ -15277,7 +15278,8 @@
             "status": "done",
             "done_at": "2026-05-26T02:27:14+00:00",
             "commit": "179c9c0",
-            "note": "호텔명 클릭 핸들러 + 7개 hc* 함수 / 5타입 배지(메모·보낸/받은메일·상태변경·문의) / EN-KO i18n / 폼-저장-새로고침 사이클"
+            "note": "호텔명 클릭 핸들러 + 7개 hc* 함수 / 5타입 배지(메모·보낸/받은메일·상태변경·문의) / EN-KO i18n / 폼-저장-새로고침 사이클",
+            "label": "Phase B — admin.html openHotelModal 확장 + 커뮤니케이션 타임라인 UI"
           },
           {
             "n": 3,
@@ -15285,13 +15287,19 @@
             "status": "done",
             "done_at": "2026-05-26T04:40:01+00:00",
             "commit": "(this commit)",
-            "note": "라이브 화이트리스트 4개 통과(HTTP 401 정상) / DB end-to-end INSERT-SELECT-DELETE 검증 / ops endpoint 알림 발송(email_id 3880e1f0) / tasks.json progress.steps 사후 등록"
+            "note": "라이브 화이트리스트 4개 통과(HTTP 401 정상) / DB end-to-end INSERT-SELECT-DELETE 검증 / ops endpoint 알림 발송(email_id 3880e1f0) / tasks.json progress.steps 사후 등록",
+            "label": "Phase C — 라이브 검증 + ops 알림 + 메타데이터 정리",
+            "done": true,
+            "at": "2026-05-26T04:40:27+00:00"
           }
-        ]
+        ],
+        "completed_count": 1,
+        "total_count": 3,
+        "updated_at": "2026-05-26T04:40:27+00:00"
       },
       "notes": "통찰 ⑥+⑨ 합본. admin Hotels 탭 행 = 호텔 카드 / 호텔명 클릭 → 단일 호텔 상세 슬라이드 패널. '📨 커뮤니케이션 이력' 영역 신설 — 1:1 문의/메일 송수신/내부 메모/status 변경 이력 시간순.",
       "created_at": "2026-05-12T17:04:42.051339Z",
-      "updated_at": "2026-05-26T04:40:01+00:00",
+      "updated_at": "2026-05-26T04:40:27+00:00",
       "source": "autoheal:feature-2026-05-13",
       "target_pages": [
         "/marketing.html",
@@ -15324,6 +15332,13 @@
           "by": "claude",
           "commit": "(pending)",
           "note": "Phase A·B는 commit 179c9c0 에서 실 작업 완료됨. tasks.json 메타만 누락이었음. progress_warning(MISSING_PROGRESS_STEPS) 해제."
+        },
+        {
+          "at": "2026-05-26T04:40:27+00:00",
+          "event": "done 작업에 commit 추가 (status 유지 — 자동 리오픈 안 함) + 단계 3 완료 (auto-detected)",
+          "by": "auto-detect-bot",
+          "commit": "fe0bab4",
+          "note": "chore(BL-HOTEL-DETAIL-PAGE): tasks.json progress.steps 사후 등록 + done 처리 [step:done:3]"
         }
       ],
       "started_at": "2026-05-26T02:00:42+00:00",

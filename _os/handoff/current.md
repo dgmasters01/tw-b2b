@@ -1,108 +1,78 @@
-# 인계서 — BL-COMMON-HEADER-UNIFY ✅ 완료 / 다음 BL 결정 대기
+# 인계서 — BL-REVENUE-DASHBOARD Step 1 시작
 
-**작성**: 2026-05-26 (인계서 진실 정정)
-**작성자**: claude
-**다음 채팅 Claude가 fetch할 위치**: `_os/handoff/current.md`
-
----
-
-## ⚠️ 이전 인계서 거짓 정정 (5일 묵힘)
-
-직전 `current.md` 버전(2026-05-21자)은 **"40% / Step 3 박을 차례"** 라고 박혀 있었지만 **실제 코드는 Step 5까지 끝난 상태**였다. 누군가 Step 3·4·5를 박고 chat-log·tasks.json·after-verification.md까지 박았지만 **본 인계서 갱신을 빠뜨림** → 다음 채팅 클로드가 거짓 인계서 보고 이미 박힌 작업을 다시 박으려 한 사고 발생.
-
-**진실:**
-- `shared.js` line 141 `window.TW.renderCommonHeader = function(opts){...}` 박혀있음
-- `shared.css` line 1317~끝 `.tw-header__*` BEM 27라인 박혀있음
-- 6개 페이지 마이그레이션 완료 (dashboard / marketing / hotel-info / sales / booking-analytics / settings)
-- Playwright Step 5 검증 PASS (commit `a9ea52e` + `48a36c2`)
-- `chat-logs/2026-05-21-bl-common-header-unify-step3-4-5.md` 박힘
-- `docs/design/BL-COMMON-HEADER-UNIFY/after-verification.md` 박힘
-- tasks.json: `status: done` / `progress: 5/5 (100%)`
+**작성**: 2026-05-26
+**다음 채팅 첫 fetch = 이 파일 1개로 충분.**
 
 ---
 
-## 🚦 채팅 라우팅 권장: ✅ 새 채팅 시작 가능
+## 🚦 다음 채팅 첫 행동 (3줄로 끝)
 
-**사유**: BL-COMMON-HEADER-UNIFY 완전 종료. 다음 BL 진입 단계.
-
----
-
-## 🎯 다음 BL 후보 3개 (대표님 결정 필요)
-
-### 후보 1 — BL-REVENUE-DASHBOARD (P1, analytics)
-> "[매출 차트 토글] 일/주/월/분기/년 보기 + 전월비/전년비 — booking-analytics 보강"
-- **대상 파일**: `booking-analytics.html`
-- **요약**: 5개 토글 + Self-Sourced vs Agoda vs B2B $200 매출 3종 분리
-- **북극성**: 대표님이 한 화면에서 "오늘·이번주·이번달 매출 작년 대비" 5초 안에 본다
-- **출처**: autoheal:analytics-2026-05-13 + 대표님 2026-05-26 채팅에서 직접 시작 지시
-
-### 후보 2 — BL-MGR-DASH-HEADER-UNIFY (P2, ux, 후속)
-> manager-dashboard.html 알림 종(bellBtn) 보존하며 공통 헤더로 마이그레이션
-- **사유**: BL-COMMON-HEADER-UNIFY에서 알림 종 보존 위해 분리됨
-
-### 후보 3 — BL-COMMON-HEADER-CSS-CLEANUP (P3, cleanup, 1주 안정성 확인 후)
-> 기존 5종 헤더 CSS (`.dh-logout` / `.mk-btn-out` / `.hi-btn-out` / `.sl-btn-out` / `.ba-btn-out`) 코드에서 제거
-- **사유**: 1주(2026-05-28 이후) 안정 확인 후 청소
-
-**클로드 추천**: 후보 1 (BL-REVENUE-DASHBOARD) — 대표님 직접 지시 + 사업 매출 가시화가 본질에 가장 가까움.
+1. `_os/boot.md` 1개 fetch (헌법 부팅)
+2. **이 파일은 이미 읽음** → 추가 헌법 fetch 금지 (CHARTER·CLAUDE.md 안 읽음)
+3. 아래 작업 명세 그대로 박기 시작
 
 ---
 
-## 📋 다음 채팅 시작 시 즉시 fetch (Claude 자동)
+## 🎯 이 채팅 한 결정
 
-### 1. 헌법 3종 (의무)
-- `_os/boot.md`
-- `OPERATIONS_CHARTER.md`
-- `CLAUDE.md`
+**`booking-analytics.html` 현재 상태 분석 보고서 박음 = `docs/design/BL-REVENUE-DASHBOARD/before-audit.md` 1개 파일 박기.**
 
-### 2. 본 인계서
-- `_os/handoff/current.md` (이 파일)
-
-### 3. 후보 1 선택 시 추가 fetch
-- `BACKLOG.md` → BL-REVENUE-DASHBOARD 블록
-- `booking-analytics.html` 현재 상태
-- `tasks.json` → 단계 박기 위한 진척 상태 확인
+설계서·차트 코드·페이지 수정은 다음 다음 채팅.
 
 ---
 
-## 🧭 다음 BL 북극성 (후보 1 기준)
+## 📋 Step 1 작업 명세
 
-**대표님이 한 화면에서 "오늘 얼마 벌었나, 작년보다 얼마나 늘었나, 어디서 들어왔나" 5초 안에 본다.**
+### 박을 것 (1개 파일만)
+경로: `docs/design/BL-REVENUE-DASHBOARD/before-audit.md`
 
----
+### 내용 구조
+1. `booking-analytics.html` 현재 라인 수 + 차트 영역 위치
+2. 현재 박혀있는 차트 종류 (있다면) — selector·라이브러리·데이터 소스
+3. 현재 매출 데이터 소스 = Supabase `payments` + `bookings_unified` view
+4. 추가할 것 = 5개 토글(일·주·월·분기·년) + 3채널 분리(Self/Agoda/B2B)
+5. 위험요소 = 페이지 라인수 1500+ 여부, 기존 차트 깨질 위험
 
-## 🎯 한 채팅 한 결정 (다음 채팅)
+### 박기 전 라이브 fetch 3개 (이게 전부)
+- `booking-analytics.html` (라인수 확인 + 차트 섹션 grep)
+- `tasks.json` → BL-REVENUE-DASHBOARD 진척 박을 자리
+- `BACKLOG.md` → BL-REVENUE-DASHBOARD 요약
 
-**BL-REVENUE-DASHBOARD Step 1·2 = booking-analytics.html BEFORE 분석 + design-spec.md 박기.** Step 3·4(실제 차트 박기)는 그 다음 채팅.
-
----
-
-## ⚠️ 절대 금지 (헌법 부칙 16.1 끊김 방지)
-
-- ❌ 한 채팅에서 design-spec 박기 + 실제 차트 박기 동시 진행 (큰 작업 분리)
-- ❌ booking-analytics.html 1500줄+ 가능성 → 박기 전 라인 수 확인 의무 (1500줄+ 시 이 BL 1개만 한 채팅)
-- ❌ 본 인계서처럼 작업 박고 인계서 갱신 빠뜨림 — 매 commit마다 진척 반영
-
----
-
-## 🚨 헌법 학습 (본 사고로 박힌 디테일)
-
-**부칙 19 (전체 갱신 원칙)** 위반 사례 추가됨 — Step 3·4·5 박고 본 인계서를 갱신 안 함. 다음부터:
-- BL의 done 트랜지션 commit 직후 → 본 `current.md`도 같이 갱신
-- `chat-log` + `tasks.json` + `current.md` 3개 한 commit에 묶음
+### commit subject
+`docs(BL-REVENUE-DASHBOARD): before-audit.md 박음 [step:done:1]`
 
 ---
 
-## 📊 BL-COMMON-HEADER-UNIFY 최종 메타
+## 🧭 북극성
 
-- **BL ID**: BL-COMMON-HEADER-UNIFY
-- **상태**: ✅ DONE
-- **진척**: 5 / 5 (100%)
-- **commits**: `a9ea52e` (Step 3) + `48a36c2` (Step 4) + (Step 5 chat-log commit)
-- **검증**: Playwright PASS 6/6 (`after-verification.md`)
-- **후속 BL 2건 등록 완료**: BL-MGR-DASH-HEADER-UNIFY / BL-COMMON-HEADER-CSS-CLEANUP
+**대표님이 한 화면에서 "오늘·이번주·이번달·이번분기·올해 매출이 작년 대비 얼마나 늘었나, 어디서(Self/Agoda/B2B) 들어왔나" 5초 안에 본다.**
 
 ---
 
-**Last updated**: 2026-05-26
-**Maintained by**: 클로드 (under direction of 이지형 대표님)
+## ⚠️ 다음 채팅 절대 금지
+
+- ❌ 헌법 본문(OPERATIONS_CHARTER.md·CLAUDE.md) 풀로 읽기 — boot.md 1개로 끝
+- ❌ design-spec.md / Step 2 박기 — 이 채팅은 Step 1만
+- ❌ `booking-analytics.html` 본문 수정 — 분석 보고서만 박음
+- ❌ tasks.json 진척 100% 박기 — Step 1 done(20%)만
+
+---
+
+## 📊 BL-REVENUE-DASHBOARD 메타
+
+- **ID**: BL-REVENUE-DASHBOARD
+- **카테고리**: analytics / **우선순위**: P1 / **자율성**: 🟡 SEMI
+- **출처**: autoheal:analytics-2026-05-13 + 대표님 2026-05-26 직접 지시
+- **단계 총 5개**: 1.before-audit 2.design-spec 3.차트 코드 박기 4.페이지 적용 5.Playwright 검증
+- **각 단계 = 1 채팅** (끊김 방지 부칙 16.1)
+
+---
+
+## 🔑 직전 BL 상태 (참고만)
+
+- BL-COMMON-HEADER-UNIFY = ✅ 100% done (commit a9ea52e + 48a36c2 + cad4460)
+- 후속 2건 pending: BL-MGR-DASH-HEADER-UNIFY / BL-COMMON-HEADER-CSS-CLEANUP
+
+---
+
+**호칭: 대표님. 언어: 한국어. 사업가 언어 강제(부칙 18).**

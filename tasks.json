@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-25T17:50:05+00:00",
+  "updated_at": "2026-05-26T02:00:42+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -14,8 +14,8 @@
   "stats": {
     "total": 255,
     "done": 197,
-    "in_progress": 0,
-    "pending": 37,
+    "in_progress": 1,
+    "pending": 36,
     "blocked": 11,
     "autonomous_ready": 30,
     "todo": 2,
@@ -15251,7 +15251,7 @@
       "category": "feature",
       "priority": "P1",
       "size": "medium",
-      "status": "pending",
+      "status": "in_progress",
       "owner": "claude",
       "claude_can_auto": true,
       "approval_required": false,
@@ -15266,7 +15266,7 @@
       },
       "notes": "통찰 ⑥+⑨ 합본. admin Hotels 탭 행 = 호텔 카드 / 호텔명 클릭 → 단일 호텔 상세 슬라이드 패널. '📨 커뮤니케이션 이력' 영역 신설 — 1:1 문의/메일 송수신/내부 메모/status 변경 이력 시간순.",
       "created_at": "2026-05-12T17:04:42.051339Z",
-      "updated_at": "2026-05-23T15:29:04.732795+09:00",
+      "updated_at": "2026-05-26T02:00:42+00:00",
       "source": "autoheal:feature-2026-05-13",
       "target_pages": [
         "/marketing.html",
@@ -15278,8 +15278,23 @@
           "event": "stale blocked_by/depends_on 자동 청소",
           "by": "claude",
           "note": "차단원 모두 done/obsoleted 상태라 의존성 해제"
+        },
+        {
+          "at": "2026-05-26T02:00:42+00:00",
+          "event": "진행 중 진입 (auto-detected) ⚠️ 부칙 7 위반 — progress.steps 미박힘",
+          "by": "auto-detect-bot",
+          "commit": "743a490",
+          "note": "docs(BL-HOTEL-DETAIL-PAGE): 새 채팅 인계서 박음 — admin.html 거대 파일 fetch 함정 차단"
         }
-      ]
+      ],
+      "started_at": "2026-05-26T02:00:42+00:00",
+      "progress_warning": {
+        "code": "MISSING_PROGRESS_STEPS",
+        "rule": "부칙 7 — 모든 작업은 progress.steps 박은 후 시작",
+        "detected_at": "2026-05-26T02:00:42+00:00",
+        "detected_by_commit": "743a490",
+        "message": "in_progress 진입했으나 progress.steps 비어있음. tasks.json에서 progress.steps 박은 후 다음 commit에 [step:done:N] 태그."
+      }
     },
     {
       "id": "BL-REVENUE-DASHBOARD",

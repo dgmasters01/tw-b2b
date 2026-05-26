@@ -1402,6 +1402,27 @@ async function handleUpdateHotelStatus(req, res, serviceKey, admin) {
   }
   const after = (await patchResp.json())[0];
 
+  // BL-HOTEL-DETAIL-PAGE — status_change 자동 타임라인 기록 (fire-and-forget, 실패해도 응답 영향 없음)
+  try {
+    await fetch(SUPABASE_URL + '/rest/v1/hotel_communications', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer ' + serviceKey,
+        'apikey': serviceKey,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify({
+        hotel_id,
+        type: 'status_change',
+        subject: before.status + ' → ' + after.status,
+        content: reason || null,
+        created_by_email: admin?.email || null,
+        metadata: { from: before.status, to: after.status }
+      })
+    });
+  } catch (_) { /* communication 로깅 실패는 응답에 영향 없음 */ }
+
   return res.status(200).json({
     success: true,
     hotel_id,
@@ -2512,7 +2533,7 @@ export default async function handler(req, res) {
   }
 
   // 화이트리스트 검증을 인증보다 먼저 수행 → 디버깅 시 라우팅 문제와 인증 문제를 명확히 분리
-  const ALLOWED_ACTIONS = ['booking-upload', 'list-users', 'send-invite', 'update-match', 'start-task', 'past-video-revenue', 'manager-push', 'delete-user', 'change-role', 're-verify', 'update-hotel-status', 'refund-hotel', 'invoice-get-company-info', 'invoice-update-company-info', 'invoice-get-payment-accounts', 'invoice-update-payment-accounts', 'invoice-upload-asset', 'invoice-get-asset-url', 'invoice-get-audit-log', 'invoice-get-fx-rate'];
+  const ALLOWED_ACTIONS = ['booking-upload', 'list-users', 'send-invite', 'update-match', 'start-task', 'past-video-revenue', 'manager-push', 'delete-user', 'change-role', 're-verify', 'update-hotel-status', 'refund-hotel', 'hotel-detail', 'hotel-comm-list', 'hotel-comm-add', 'hotel-comm-delete', 'invoice-get-company-info', 'invoice-update-company-info', 'invoice-get-payment-accounts', 'invoice-update-payment-accounts', 'invoice-upload-asset', 'invoice-get-asset-url', 'invoice-get-audit-log', 'invoice-get-fx-rate'];
   if (!action) {
     return res.status(400).json({
       error: 'missing_action',
@@ -2586,6 +2607,19 @@ export default async function handler(req, res) {
       case 'refund-hotel':
         actionResult = await handleRefundHotel(req, res, serviceKey, adminCheck);
         return actionResult;
+      // BL-HOTEL-DETAIL-PAGE (2026-05-26) — 호텔 상세 + 커뮤니케이션 이력
+      case 'hotel-detail':
+        actionResult = await handleHotelDetail(req, res, serviceKey, adminCheck);
+        return actionResult;
+      case 'hotel-comm-list':
+        actionResult = await handleHotelCommList(req, res, serviceKey, adminCheck);
+        return actionResult;
+      case 'hotel-comm-add':
+        actionResult = await handleHotelCommAdd(req, res, serviceKey, adminCheck);
+        return actionResult;
+      case 'hotel-comm-delete':
+        actionResult = await handleHotelCommDelete(req, res, serviceKey, adminCheck);
+        return actionResult;
       case 'invoice-get-company-info':
         actionResult = await handleInvoiceGetCompanyInfo(req, res, serviceKey, adminCheck);
         return actionResult;
@@ -2620,7 +2654,7 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'internal_error', detail: err.message });
   } finally {
     // ★ logAction은 viewer/list-users 같은 단순 조회는 skip (소음 줄이기)
-    const NON_LOG_ACTIONS = ['list-users', 'past-video-revenue'];
+    const NON_LOG_ACTIONS = ['list-users', 'past-video-revenue', 'hotel-detail', 'hotel-comm-list'];
     if (logAction && !NON_LOG_ACTIONS.includes(action)) {
       try {
         await logAction({
@@ -2807,4 +2841,150 @@ function toDateOrNull(v) {
   const d = new Date(s);
   if (!isNaN(d.getTime())) return d.toISOString().slice(0, 10);
   return null;
+}
+
+// =============================================================
+// BL-HOTEL-DETAIL-PAGE (2026-05-26) — 호텔 상세 + 커뮤니케이션 이력
+// 4개 핸들러:
+//   hotel-detail        GET  ?hotel_id=UUID         → 호텔 기본 정보 + 통계
+//   hotel-comm-list     GET  ?hotel_id=UUID&limit=N → 커뮤니케이션 타임라인
+//   hotel-comm-add      POST {hotel_id,type,...}    → 새 커뮤니케이션 박기 (메모/메일)
+//   hotel-comm-delete   POST {comm_id}              → 커뮤니케이션 삭제 (관리자만)
+// =============================================================
+
+const COMM_TYPE_WHITELIST = ['memo', 'email_out', 'email_in', 'inquiry'];
+// status_change 는 handleUpdateHotelStatus 가 자동으로 박음 — 외부 API로 직접 박는 거 차단
+
+async function handleHotelDetail(req, res, serviceKey, _admin) {
+  if (req.method !== 'GET') return res.status(405).json({ error: 'GET_required' });
+  const hotelId = (req.query?.hotel_id || '').trim();
+  if (!hotelId) return res.status(400).json({ error: 'hotel_id_required' });
+
+  // 호텔 기본 정보 — 모든 컬럼 (admin용)
+  const hotelResp = await fetch(SUPABASE_URL + '/rest/v1/hotels?id=eq.' + encodeURIComponent(hotelId) + '&select=*', {
+    headers: { 'Authorization': 'Bearer ' + serviceKey, 'apikey': serviceKey }
+  });
+  if (!hotelResp.ok) return res.status(500).json({ error: 'hotel_fetch_failed' });
+  const hotels = await hotelResp.json();
+  if (!hotels.length) return res.status(404).json({ error: 'hotel_not_found' });
+  const hotel = hotels[0];
+
+  // 통계 — 커뮤니케이션 카운트 (타입별)
+  const statResp = await fetch(SUPABASE_URL + '/rest/v1/hotel_communications?hotel_id=eq.' + encodeURIComponent(hotelId) + '&select=type', {
+    headers: { 'Authorization': 'Bearer ' + serviceKey, 'apikey': serviceKey }
+  });
+  const comms = statResp.ok ? await statResp.json() : [];
+  const commCounts = comms.reduce((acc, c) => { acc[c.type] = (acc[c.type] || 0) + 1; return acc; }, { total: comms.length });
+
+  return res.status(200).json({
+    success: true,
+    hotel,
+    comm_counts: commCounts
+  });
+}
+
+async function handleHotelCommList(req, res, serviceKey, _admin) {
+  if (req.method !== 'GET') return res.status(405).json({ error: 'GET_required' });
+  const hotelId = (req.query?.hotel_id || '').trim();
+  if (!hotelId) return res.status(400).json({ error: 'hotel_id_required' });
+  const rawLimit = parseInt(req.query?.limit || '100', 10);
+  const limit = Math.min(Math.max(rawLimit || 100, 1), 500);
+
+  const listResp = await fetch(
+    SUPABASE_URL + '/rest/v1/hotel_communications'
+      + '?hotel_id=eq.' + encodeURIComponent(hotelId)
+      + '&select=*'
+      + '&order=created_at.desc'
+      + '&limit=' + limit,
+    { headers: { 'Authorization': 'Bearer ' + serviceKey, 'apikey': serviceKey } }
+  );
+  if (!listResp.ok) {
+    const errBody = await listResp.text();
+    return res.status(500).json({ error: 'list_failed', detail: errBody });
+  }
+  const items = await listResp.json();
+
+  return res.status(200).json({
+    success: true,
+    hotel_id: hotelId,
+    count: items.length,
+    items
+  });
+}
+
+async function handleHotelCommAdd(req, res, serviceKey, admin) {
+  if (req.method !== 'POST') return res.status(405).json({ error: 'POST_required' });
+  const { hotel_id, type, subject, content, direction, metadata } = req.body || {};
+  if (!hotel_id) return res.status(400).json({ error: 'hotel_id_required' });
+  if (!type) return res.status(400).json({ error: 'type_required' });
+  if (!COMM_TYPE_WHITELIST.includes(type)) {
+    return res.status(400).json({ error: 'invalid_type', allowed: COMM_TYPE_WHITELIST });
+  }
+  // memo/inquiry 는 content 필수, email 은 subject 또는 content 둘 중 하나 필수
+  if ((type === 'memo' || type === 'inquiry') && !content) {
+    return res.status(400).json({ error: 'content_required_for_' + type });
+  }
+  if ((type === 'email_out' || type === 'email_in') && !subject && !content) {
+    return res.status(400).json({ error: 'subject_or_content_required_for_email' });
+  }
+  // email 타입은 direction 자동 세팅
+  let dir = direction || null;
+  if (type === 'email_out') dir = 'outbound';
+  if (type === 'email_in') dir = 'inbound';
+
+  // hotel 존재 확인 (FK 의존 + 명시적 검증 — 404 응답을 위함)
+  const hotelChk = await fetch(SUPABASE_URL + '/rest/v1/hotels?id=eq.' + encodeURIComponent(hotel_id) + '&select=id', {
+    headers: { 'Authorization': 'Bearer ' + serviceKey, 'apikey': serviceKey }
+  });
+  const hotelRows = hotelChk.ok ? await hotelChk.json() : [];
+  if (!hotelRows.length) return res.status(404).json({ error: 'hotel_not_found' });
+
+  const insertResp = await fetch(SUPABASE_URL + '/rest/v1/hotel_communications', {
+    method: 'POST',
+    headers: {
+      'Authorization': 'Bearer ' + serviceKey,
+      'apikey': serviceKey,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=representation'
+    },
+    body: JSON.stringify({
+      hotel_id,
+      type,
+      direction: dir,
+      subject: subject || null,
+      content: content || null,
+      metadata: metadata || {},
+      created_by_email: admin?.email || null
+    })
+  });
+  if (!insertResp.ok) {
+    const errBody = await insertResp.text();
+    return res.status(500).json({ error: 'insert_failed', detail: errBody });
+  }
+  const inserted = (await insertResp.json())[0];
+
+  return res.status(200).json({ success: true, item: inserted });
+}
+
+async function handleHotelCommDelete(req, res, serviceKey, _admin) {
+  if (req.method !== 'POST') return res.status(405).json({ error: 'POST_required' });
+  const { comm_id } = req.body || {};
+  if (!comm_id) return res.status(400).json({ error: 'comm_id_required' });
+
+  const delResp = await fetch(SUPABASE_URL + '/rest/v1/hotel_communications?id=eq.' + encodeURIComponent(comm_id), {
+    method: 'DELETE',
+    headers: {
+      'Authorization': 'Bearer ' + serviceKey,
+      'apikey': serviceKey,
+      'Prefer': 'return=representation'
+    }
+  });
+  if (!delResp.ok) {
+    const errBody = await delResp.text();
+    return res.status(500).json({ error: 'delete_failed', detail: errBody });
+  }
+  const deleted = await delResp.json();
+  if (!deleted.length) return res.status(404).json({ error: 'comm_not_found' });
+
+  return res.status(200).json({ success: true, deleted: deleted[0] });
 }

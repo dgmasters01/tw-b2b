@@ -2968,7 +2968,7 @@ body{margin:0;background:var(--bg,#0A0A0F);font-family:var(--sans,'Inter','Noto 
 
     filtered.forEach(function(h){
       html += '<tr>';
-      html += '<td><strong>' + esc(h.hotel_name || 'Unnamed') + '</strong>';
+      html += '<td><strong><a href="#" data-hotel-name-id="' + esc(h.id) + '" style="color:#FAFAFA;text-decoration:none;border-bottom:1px dashed rgba(255,255,255,.2);cursor:pointer">' + esc(h.hotel_name || 'Unnamed') + '</a></strong>';
       if (h.address) html += '<br><span style="color:#888;font-size:11.5px">' + esc(h.address.substring(0, 50)) + (h.address.length > 50 ? '...' : '') + '</span>';
       html += '</td>';
       // [버그수정 2026-04-30] enrichHotelsWithUserMapping에서 채운 _resolvedManager* 우선 사용
@@ -2994,6 +2994,15 @@ body{margin:0;background:var(--bg,#0A0A0F);font-family:var(--sans,'Inter','Noto 
     document.querySelectorAll('[data-hotel-id]').forEach(function(btn){
       btn.addEventListener('click', function(){
         var id = btn.getAttribute('data-hotel-id');
+        openHotelModal(id);
+      });
+    });
+
+    // BL-HOTEL-DETAIL-PAGE — 호텔명 클릭도 모달 열기 (View 버튼과 동일 동작)
+    document.querySelectorAll('[data-hotel-name-id]').forEach(function(a){
+      a.addEventListener('click', function(e){
+        e.preventDefault();
+        var id = a.getAttribute('data-hotel-name-id');
         openHotelModal(id);
       });
     });
@@ -3209,6 +3218,8 @@ body{margin:0;background:var(--bg,#0A0A0F);font-family:var(--sans,'Inter','Noto 
     actionsHtml += '</div>';
 
     var bodyHtml = '<div class="ad-detail-grid">' + rows.join('') + '</div>' + actionsHtml;
+    // BL-HOTEL-DETAIL-PAGE — 커뮤니케이션 이력 섹션 추가
+    bodyHtml += renderCommSectionShell(h.id);
     $('modal-body').innerHTML = bodyHtml;
     $('modal').classList.add('show');
 
@@ -3219,6 +3230,9 @@ body{margin:0;background:var(--bg,#0A0A0F);font-family:var(--sans,'Inter','Noto 
         changeStatus(id, action);
       });
     });
+
+    // BL-HOTEL-DETAIL-PAGE — 커뮤니케이션 초기화 (데이터 fetch + 핸들러 바인딩)
+    initCommSection(h.id);
   }
 
   function changeStatus(hotelId, newStatus){
@@ -3287,6 +3301,229 @@ body{margin:0;background:var(--bg,#0A0A0F);font-family:var(--sans,'Inter','Noto 
       closeModal();
       loadAll();
     });
+  }
+
+  // =====================================================================
+  // BL-HOTEL-DETAIL-PAGE (2026-05-26) — 호텔 커뮤니케이션 이력 섹션
+  //   호텔 상세 모달 안에 타임라인 + 메모/메일 박기 폼
+  //   타입: memo / email_out / email_in / status_change / inquiry
+  // =====================================================================
+
+  function renderCommSectionShell(hotelId){
+    var langKo = (window.TW && window.TW.lang === 'ko');
+    var titleLbl  = langKo ? '📨 커뮤니케이션 이력'      : '📨 Communication History';
+    var memoLbl   = langKo ? '✏️ 메모 박기'              : '✏️ Add Memo';
+    var emailOLbl = langKo ? '✉️ 보낸 메일 기록'          : '✉️ Log Outgoing Email';
+    var emailILbl = langKo ? '📥 받은 메일 기록'          : '📥 Log Incoming Email';
+    var loadingLbl = langKo ? '이력 불러오는 중...'        : 'Loading history...';
+
+    var html = '';
+    html += '<div class="hc-section" style="margin-top:28px;padding-top:20px;border-top:1px solid rgba(255,255,255,.08)">';
+    html +=   '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">';
+    html +=     '<h4 style="font-size:15px;font-weight:600;color:#FAFAFA;margin:0">' + titleLbl + '</h4>';
+    html +=     '<div style="display:flex;gap:6px">';
+    html +=       '<button class="ad-btn ad-btn-secondary" data-hc-action="memo"     data-hc-hotel="' + esc(hotelId) + '" style="font-size:12.5px;padding:5px 10px">' + memoLbl + '</button>';
+    html +=       '<button class="ad-btn ad-btn-secondary" data-hc-action="email_out" data-hc-hotel="' + esc(hotelId) + '" style="font-size:12.5px;padding:5px 10px">' + emailOLbl + '</button>';
+    html +=       '<button class="ad-btn ad-btn-secondary" data-hc-action="email_in"  data-hc-hotel="' + esc(hotelId) + '" style="font-size:12.5px;padding:5px 10px">' + emailILbl + '</button>';
+    html +=     '</div>';
+    html +=   '</div>';
+    // 입력 폼 영역 (메모/메일 박을 때 동적으로 채움)
+    html +=   '<div id="hc-form-' + esc(hotelId) + '" style="display:none;margin-bottom:14px"></div>';
+    // 타임라인 영역
+    html +=   '<div id="hc-timeline-' + esc(hotelId) + '" style="font-size:13px;color:#94a3b8">' + loadingLbl + '</div>';
+    html += '</div>';
+    return html;
+  }
+
+  async function initCommSection(hotelId){
+    // 타임라인 데이터 fetch + 렌더
+    await hcLoadTimeline(hotelId);
+
+    // 액션 버튼 (메모/메일 박기) 핸들러 바인딩
+    document.querySelectorAll('[data-hc-hotel="' + hotelId + '"]').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var action = btn.getAttribute('data-hc-action');
+        hcShowForm(hotelId, action);
+      });
+    });
+  }
+
+  async function hcLoadTimeline(hotelId){
+    var box = document.getElementById('hc-timeline-' + hotelId);
+    if (!box) return;
+    try {
+      var tokenFn = (typeof getAdminToken === 'function') ? getAdminToken : (T && T.auth && T.auth.getToken);
+      var token = tokenFn ? await tokenFn() : null;
+      if (!token){ box.innerHTML = '<div style="color:#ef4444">No admin token</div>'; return; }
+
+      var resp = await fetch('/api/admin?action=hotel-comm-list&hotel_id=' + encodeURIComponent(hotelId) + '&limit=200', {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+      var data = await resp.json();
+      if (!resp.ok || data.error){
+        box.innerHTML = '<div style="color:#ef4444">Failed: ' + esc(data.error || resp.status) + '</div>';
+        return;
+      }
+      box.innerHTML = hcRenderTimeline(data.items || []);
+
+      // 삭제 버튼 바인딩
+      box.querySelectorAll('[data-hc-del]').forEach(function(b){
+        b.addEventListener('click', function(){
+          var cid = b.getAttribute('data-hc-del');
+          hcDelete(hotelId, cid);
+        });
+      });
+    } catch (e){
+      box.innerHTML = '<div style="color:#ef4444">Error: ' + esc(e.message) + '</div>';
+    }
+  }
+
+  function hcRenderTimeline(items){
+    var langKo = (window.TW && window.TW.lang === 'ko');
+    if (!items.length){
+      var emptyLbl = langKo ? '아직 기록된 커뮤니케이션이 없습니다.' : 'No communication recorded yet.';
+      return '<div style="color:#64748b;padding:12px;text-align:center;background:rgba(255,255,255,.02);border-radius:8px">' + emptyLbl + '</div>';
+    }
+    // 타입별 배지 (아이콘 + 색)
+    var TYPE_META = {
+      memo:          { icon: '✏️', color: '#facc15', bg: 'rgba(250,204,21,.10)',  brd: 'rgba(250,204,21,.30)',  label: langKo ? '메모' : 'Memo' },
+      email_out:     { icon: '✉️', color: '#60a5fa', bg: 'rgba(96,165,250,.10)',  brd: 'rgba(96,165,250,.30)',  label: langKo ? '보낸 메일' : 'Email Out' },
+      email_in:      { icon: '📥', color: '#34d399', bg: 'rgba(52,211,153,.10)',  brd: 'rgba(52,211,153,.30)',  label: langKo ? '받은 메일' : 'Email In' },
+      status_change: { icon: '🔄', color: '#c084fc', bg: 'rgba(192,132,252,.10)', brd: 'rgba(192,132,252,.30)', label: langKo ? '상태 변경' : 'Status' },
+      inquiry:       { icon: '💬', color: '#fb7185', bg: 'rgba(251,113,133,.10)', brd: 'rgba(251,113,133,.30)', label: langKo ? '문의' : 'Inquiry' }
+    };
+    var html = '<div style="display:flex;flex-direction:column;gap:8px">';
+    items.forEach(function(it){
+      var meta = TYPE_META[it.type] || { icon: '•', color: '#94a3b8', bg: 'rgba(148,163,184,.10)', brd: 'rgba(148,163,184,.30)', label: it.type };
+      html += '<div style="padding:10px 12px;background:' + meta.bg + ';border:1px solid ' + meta.brd + ';border-radius:8px">';
+      html +=   '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">';
+      html +=     '<div style="display:flex;align-items:center;gap:6px">';
+      html +=       '<span>' + meta.icon + '</span>';
+      html +=       '<span style="font-size:11.5px;color:' + meta.color + ';font-weight:600;text-transform:uppercase;letter-spacing:.4px">' + meta.label + '</span>';
+      html +=       '<span style="font-size:11px;color:#64748b">' + T.fmt.datetime(it.created_at) + '</span>';
+      if (it.created_by_email){
+        html +=     '<span style="font-size:11px;color:#64748b">· ' + esc(it.created_by_email) + '</span>';
+      }
+      html +=     '</div>';
+      // 삭제 버튼 — status_change 빼고 (감사 기록 보존)
+      if (it.type !== 'status_change'){
+        html +=   '<button data-hc-del="' + esc(it.id) + '" title="Delete" style="background:transparent;border:none;color:#64748b;cursor:pointer;font-size:14px;padding:0 4px">🗑</button>';
+      } else {
+        html +=   '<span></span>';
+      }
+      html +=   '</div>';
+      if (it.subject){
+        html += '<div style="font-size:13px;color:#FAFAFA;font-weight:500;margin-bottom:2px">' + esc(it.subject) + '</div>';
+      }
+      if (it.content){
+        html += '<div style="font-size:12.5px;color:#cbd5e1;white-space:pre-wrap">' + esc(it.content) + '</div>';
+      }
+      html += '</div>';
+    });
+    html += '</div>';
+    return html;
+  }
+
+  function hcShowForm(hotelId, type){
+    var langKo = (window.TW && window.TW.lang === 'ko');
+    var box = document.getElementById('hc-form-' + hotelId);
+    if (!box) return;
+    var titleMap = {
+      memo:      langKo ? '✏️ 새 메모'        : '✏️ New Memo',
+      email_out: langKo ? '✉️ 보낸 메일 기록'  : '✉️ Log Outgoing Email',
+      email_in:  langKo ? '📥 받은 메일 기록'  : '📥 Log Incoming Email'
+    };
+    var saveLbl   = langKo ? '저장'     : 'Save';
+    var cancelLbl = langKo ? '취소'     : 'Cancel';
+    var subjPh    = langKo ? '제목 (메일 한 줄 요약)' : 'Subject (one-line summary)';
+    var contPh    = langKo ? (type === 'memo' ? '내용을 박으세요...' : '본문 또는 요약...') : (type === 'memo' ? 'Write your note...' : 'Body or summary...');
+
+    var html = '<div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.10);border-radius:10px;padding:14px">';
+    html +=   '<div style="font-size:13px;font-weight:600;color:#FAFAFA;margin-bottom:10px">' + titleMap[type] + '</div>';
+    if (type !== 'memo'){
+      html += '<input type="text" id="hc-subj-' + hotelId + '" placeholder="' + subjPh + '" style="width:100%;padding:8px 10px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:#FAFAFA;font-size:13px;margin-bottom:8px;box-sizing:border-box">';
+    }
+    html +=   '<textarea id="hc-cont-' + hotelId + '" placeholder="' + contPh + '" rows="4" style="width:100%;padding:8px 10px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.12);border-radius:6px;color:#FAFAFA;font-size:13px;resize:vertical;box-sizing:border-box;font-family:inherit"></textarea>';
+    html +=   '<div style="display:flex;gap:6px;margin-top:10px;justify-content:flex-end">';
+    html +=     '<button class="ad-btn ad-btn-secondary" data-hc-cancel="' + esc(hotelId) + '" style="font-size:12.5px;padding:6px 12px">' + cancelLbl + '</button>';
+    html +=     '<button class="ad-btn ad-btn-primary" data-hc-save="' + esc(hotelId) + '" data-hc-type="' + esc(type) + '" style="font-size:12.5px;padding:6px 12px">' + saveLbl + '</button>';
+    html +=   '</div>';
+    html += '</div>';
+    box.innerHTML = html;
+    box.style.display = 'block';
+
+    box.querySelector('[data-hc-cancel]').addEventListener('click', function(){
+      box.style.display = 'none';
+      box.innerHTML = '';
+    });
+    box.querySelector('[data-hc-save]').addEventListener('click', function(){
+      hcSave(hotelId, type);
+    });
+    // 포커스
+    var first = box.querySelector('input[type="text"]') || box.querySelector('textarea');
+    if (first) first.focus();
+  }
+
+  async function hcSave(hotelId, type){
+    var subjEl = document.getElementById('hc-subj-' + hotelId);
+    var contEl = document.getElementById('hc-cont-' + hotelId);
+    var subject = subjEl ? subjEl.value.trim() : '';
+    var content = contEl ? contEl.value.trim() : '';
+
+    if (type === 'memo' && !content){ T.toast('Memo content required', true); return; }
+    if ((type === 'email_out' || type === 'email_in') && !subject && !content){
+      T.toast('Subject or body required', true); return;
+    }
+
+    try {
+      var tokenFn = (typeof getAdminToken === 'function') ? getAdminToken : (T && T.auth && T.auth.getToken);
+      var token = tokenFn ? await tokenFn() : null;
+      if (!token){ T.toast('No admin token', true); return; }
+
+      var resp = await fetch('/api/admin?action=hotel-comm-add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify({ hotel_id: hotelId, type: type, subject: subject || null, content: content || null })
+      });
+      var data = await resp.json();
+      if (!resp.ok || data.error){
+        T.toast('Failed: ' + (data.error || resp.status), true);
+        return;
+      }
+      T.toast('✅ Saved');
+      // 폼 닫고 타임라인 새로고침
+      var box = document.getElementById('hc-form-' + hotelId);
+      if (box){ box.style.display = 'none'; box.innerHTML = ''; }
+      hcLoadTimeline(hotelId);
+    } catch (e){
+      T.toast('Error: ' + e.message, true);
+    }
+  }
+
+  async function hcDelete(hotelId, commId){
+    var langKo = (window.TW && window.TW.lang === 'ko');
+    var confirmLbl = langKo ? '이 기록을 삭제할까요?' : 'Delete this record?';
+    if (!confirm(confirmLbl)) return;
+    try {
+      var tokenFn = (typeof getAdminToken === 'function') ? getAdminToken : (T && T.auth && T.auth.getToken);
+      var token = tokenFn ? await tokenFn() : null;
+      if (!token){ T.toast('No admin token', true); return; }
+
+      var resp = await fetch('/api/admin?action=hotel-comm-delete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify({ comm_id: commId })
+      });
+      var data = await resp.json();
+      if (!resp.ok || data.error){
+        T.toast('Failed: ' + (data.error || resp.status), true);
+        return;
+      }
+      T.toast('✅ Deleted');
+      hcLoadTimeline(hotelId);
+    } catch (e){
+      T.toast('Error: ' + e.message, true);
+    }
   }
 
   function closeModal(){

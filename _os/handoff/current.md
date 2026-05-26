@@ -1,164 +1,108 @@
-# 인계서 — BL-COMMON-HEADER-UNIFY Step 3·4·5
+# 인계서 — BL-COMMON-HEADER-UNIFY ✅ 완료 / 다음 BL 결정 대기
 
-**작성**: 2026-05-21 (commit e98fa04 이후)
+**작성**: 2026-05-26 (인계서 진실 정정)
 **작성자**: claude
 **다음 채팅 Claude가 fetch할 위치**: `_os/handoff/current.md`
 
 ---
 
-## 🚦 채팅 라우팅 권장: ⚠️ 새 채팅 권장
+## ⚠️ 이전 인계서 거짓 정정 (5일 묵힘)
 
-**사유**: Step 3·4·5 = large 작업 (shared.js 함수 신설 + shared.css BEM 추가 + 7개 페이지 마이그레이션 + Playwright 라이브 검증). 한 채팅 토큰 압박 가능성.
+직전 `current.md` 버전(2026-05-21자)은 **"40% / Step 3 박을 차례"** 라고 박혀 있었지만 **실제 코드는 Step 5까지 끝난 상태**였다. 누군가 Step 3·4·5를 박고 chat-log·tasks.json·after-verification.md까지 박았지만 **본 인계서 갱신을 빠뜨림** → 다음 채팅 클로드가 거짓 인계서 보고 이미 박힌 작업을 다시 박으려 한 사고 발생.
+
+**진실:**
+- `shared.js` line 141 `window.TW.renderCommonHeader = function(opts){...}` 박혀있음
+- `shared.css` line 1317~끝 `.tw-header__*` BEM 27라인 박혀있음
+- 6개 페이지 마이그레이션 완료 (dashboard / marketing / hotel-info / sales / booking-analytics / settings)
+- Playwright Step 5 검증 PASS (commit `a9ea52e` + `48a36c2`)
+- `chat-logs/2026-05-21-bl-common-header-unify-step3-4-5.md` 박힘
+- `docs/design/BL-COMMON-HEADER-UNIFY/after-verification.md` 박힘
+- tasks.json: `status: done` / `progress: 5/5 (100%)`
 
 ---
 
-## 🎯 어디서부터 이어갈지
+## 🚦 채팅 라우팅 권장: ✅ 새 채팅 시작 가능
 
-**현재 진행률**: 40% (2 / 5 단계 완료)
-
-**다음 시작 단계**: ⏳ **Step 3 — shared.js에 renderCommonHeader() 함수 박음 + shared.css에 .tw-header BEM 박음**
+**사유**: BL-COMMON-HEADER-UNIFY 완전 종료. 다음 BL 진입 단계.
 
 ---
 
-## 📋 즉시 fetch (Claude가 자동 실행)
+## 🎯 다음 BL 후보 3개 (대표님 결정 필요)
+
+### 후보 1 — BL-REVENUE-DASHBOARD (P1, analytics)
+> "[매출 차트 토글] 일/주/월/분기/년 보기 + 전월비/전년비 — booking-analytics 보강"
+- **대상 파일**: `booking-analytics.html`
+- **요약**: 5개 토글 + Self-Sourced vs Agoda vs B2B $200 매출 3종 분리
+- **북극성**: 대표님이 한 화면에서 "오늘·이번주·이번달 매출 작년 대비" 5초 안에 본다
+- **출처**: autoheal:analytics-2026-05-13 + 대표님 2026-05-26 채팅에서 직접 시작 지시
+
+### 후보 2 — BL-MGR-DASH-HEADER-UNIFY (P2, ux, 후속)
+> manager-dashboard.html 알림 종(bellBtn) 보존하며 공통 헤더로 마이그레이션
+- **사유**: BL-COMMON-HEADER-UNIFY에서 알림 종 보존 위해 분리됨
+
+### 후보 3 — BL-COMMON-HEADER-CSS-CLEANUP (P3, cleanup, 1주 안정성 확인 후)
+> 기존 5종 헤더 CSS (`.dh-logout` / `.mk-btn-out` / `.hi-btn-out` / `.sl-btn-out` / `.ba-btn-out`) 코드에서 제거
+- **사유**: 1주(2026-05-28 이후) 안정 확인 후 청소
+
+**클로드 추천**: 후보 1 (BL-REVENUE-DASHBOARD) — 대표님 직접 지시 + 사업 매출 가시화가 본질에 가장 가까움.
+
+---
+
+## 📋 다음 채팅 시작 시 즉시 fetch (Claude 자동)
 
 ### 1. 헌법 3종 (의무)
-- `OPERATIONS_CHARTER.md` (176 lines)
-- `CLAUDE.md` (149 lines)
-- `_os/playbook/claude-discipline.md` (231 lines)
+- `_os/boot.md`
+- `OPERATIONS_CHARTER.md`
+- `CLAUDE.md`
 
-### 2. boot.md
-- `_os/boot.md` (129 lines)
+### 2. 본 인계서
+- `_os/handoff/current.md` (이 파일)
 
-### 3. **이 작업 전용 설계 자료** (가장 중요)
-- `docs/design/BL-COMMON-HEADER-UNIFY/before-header-audit.md` — 7개 페이지 현재 상태
-- `docs/design/BL-COMMON-HEADER-UNIFY/design-spec.md` — **함수 시그니처·BEM 클래스·마이그레이션 패턴 박힘**
-
-### 4. 라이브 코드
-- `shared.js` (498 lines) — IIFE 안 `TW = { ... }` 객체에 renderCommonHeader 키 추가
-- `shared.css` — 파일 끝에 `.tw-header__*` BEM 섹션 추가
-- 매니저 페이지 7개 (Step 4에서 마이그레이션)
+### 3. 후보 1 선택 시 추가 fetch
+- `BACKLOG.md` → BL-REVENUE-DASHBOARD 블록
+- `booking-analytics.html` 현재 상태
+- `tasks.json` → 단계 박기 위한 진척 상태 확인
 
 ---
 
-## 🧭 북극성
+## 🧭 다음 BL 북극성 (후보 1 기준)
 
-**매니저가 모든 페이지에서 Sign out·Settings·언어전환을 동일한 방법으로 사용한다.**
+**대표님이 한 화면에서 "오늘 얼마 벌었나, 작년보다 얼마나 늘었나, 어디서 들어왔나" 5초 안에 본다.**
 
 ---
 
 ## 🎯 한 채팅 한 결정 (다음 채팅)
 
-**Step 3·4·5 중 어디까지를 한 채팅에 박을지 — 시작 시 자가 판단.**
-
-권장 분할:
-- **Plan A** (안전): 한 채팅 = Step 3만 (함수 + CSS). Step 4·5는 다음 채팅.
-- **Plan B** (적극): 한 채팅 = Step 3 + Step 4 (1~3개 페이지). 남은 페이지·Step 5는 다음.
-- **Plan C** (한방): Step 3·4·5 한 채팅 — 권장 안 함. 토큰 끊김 시 반토막.
+**BL-REVENUE-DASHBOARD Step 1·2 = booking-analytics.html BEFORE 분석 + design-spec.md 박기.** Step 3·4(실제 차트 박기)는 그 다음 채팅.
 
 ---
 
-## 📍 Step 3 작업 명세 (즉시 시작 가능)
+## ⚠️ 절대 금지 (헌법 부칙 16.1 끊김 방지)
 
-### A. shared.js 박음
-
-위치: 현재 line 470~498 구간 (IIFE 안 TW 객체 마지막)
-
-`statusColor` 키 뒤에 콤마 박고 `renderCommonHeader` 키 추가:
-
-```javascript
-statusColor: function (s) { ... },   // ← 마지막 콤마 박음
-
-renderCommonHeader: function (opts) {
-  // design-spec.md 3번 항목 의사 코드 그대로 박음
-  ...
-}
-```
-
-### B. shared.css 박음
-
-파일 끝에 design-spec.md 4번 항목 BEM CSS 그대로 박음.
-
-### C. 검증 (이번 단계 안에서)
-
-- `node -e "..."` 로 shared.js 문법 통과 확인
-- 빈 HTML 테스트 페이지 만들어 함수 호출 → 헤더 렌더 시각 확인 (로컬, push 전)
-
-### D. commit 메시지
-
-```
-feat(BL-COMMON-HEADER-UNIFY): shared.js renderCommonHeader() + shared.css .tw-header BEM 박음 [step:done:3]
-
-[변경사유]
-design-spec.md 명세 그대로 박음. 페이지별 헤더 클래스 5종(.dh-logout/.mk-btn-out/...)
-파편화 해소 + 매니저가 모든 페이지에서 동일 헤더 사용 가능하도록 인프라 구축.
-```
+- ❌ 한 채팅에서 design-spec 박기 + 실제 차트 박기 동시 진행 (큰 작업 분리)
+- ❌ booking-analytics.html 1500줄+ 가능성 → 박기 전 라인 수 확인 의무 (1500줄+ 시 이 BL 1개만 한 채팅)
+- ❌ 본 인계서처럼 작업 박고 인계서 갱신 빠뜨림 — 매 commit마다 진척 반영
 
 ---
 
-## 📍 Step 4 작업 명세
+## 🚨 헌법 학습 (본 사고로 박힌 디테일)
 
-### 마이그레이션 순서 (영향 적은 것부터)
-1. `settings.html` — 현재 헤더 없음 → 빈 컨테이너만 박음
-2. `marketing.html` — 가장 단순
-3. `sales.html`
-4. `hotel-info.html`
-5. `booking-analytics.html` — id `ba-btn-logout` 케이스
-6. `dashboard.html`
-7. `manager-dashboard.html` — 기존 `.md-topbar` 풀 코드 제거 + `#tw-common-header` 박는 교체
-
-### 각 페이지 3곳 변경
-- HTML: 기존 헤더 블록 → `<header id="tw-common-header"></header>`
-- JS init() 안: `TW.renderCommonHeader({ activeTab: '...' });`
-- 페이지 내 헤더 전용 CSS 블록 → 삭제
-
-### commit 단위
-**옵션 A 권장**: 페이지 1개당 commit 1개 = 7개 commit. subject는 마지막 페이지에 `[step:done:4]`.
-**옵션 B**: 7개 한 commit. subject `[step:done:4]`.
+**부칙 19 (전체 갱신 원칙)** 위반 사례 추가됨 — Step 3·4·5 박고 본 인계서를 갱신 안 함. 다음부터:
+- BL의 done 트랜지션 commit 직후 → 본 `current.md`도 같이 갱신
+- `chat-log` + `tasks.json` + `current.md` 3개 한 commit에 묶음
 
 ---
 
-## 📍 Step 5 작업 명세
-
-- Playwright 임시 paid 계정 생성 → 7개 페이지 진입 → 헤더 동작 전수 검증
-- 패턴: `_screenshots/2026-05-21-bl-mgr-dash-signout/verify_signout.js`
-- 환경변수 필요: `SUPABASE_SERVICE_ROLE_KEY`
-- 캡처 저장: `_screenshots/2026-05-21-bl-common-header-unify/` 폴더
-- commit subject: `[step:done:5]`
-
-### 검증 체크리스트 (design-spec.md 8번)
-- [ ] `#tw-common-header` 컨테이너 7개 페이지 모두 존재
-- [ ] Sign out 클릭 → `/login.html` 이동
-- [ ] Settings 클릭 → `/settings.html` 진입
-- [ ] EN/한 토글 → 페이지 텍스트 즉시 변경
-- [ ] activeTab 강조 정상
-
----
-
-## ⚠️ 절대 금지
-
-- ❌ 기존 페이지별 헤더 클래스(`.dh-logout`, `.mk-btn-out`, `.hi-btn-out`, `.sl-btn-out`, `.ba-btn-out`) **즉시 삭제** — 옵션 B(점진 마이그레이션) 권장. deprecation 주석만 박고 다음 BL에서 제거.
-- ❌ "임시로 inline 박을게요" — 헌법 위반 (Aurora 디자인 토큰 의무)
-- ❌ shared.css에 inline 또는 별도 CSS 추가 — `shared.css` 단일 파일에만 박음 (CLAUDE.md 5번)
-- ❌ design-spec.md 명세에서 자기 마음대로 벗어남 — 명세 자체 수정 필요 시 대표님께 결정 먼저
-
----
-
-## 🚨 헌법 의무 재확인
-
-- 부칙 7: 단계 1개 = commit 1개, subject `[step:done:N]` 태그
-- 부칙 12: 매 응답 첫 줄 `[작업 소요: ...]`
-- 부칙 13: 두 번째 줄 `🚦 ✅/⚠️`
-- 부칙 16: 첫 5줄 강제 양식
-- 헌법 12조: 그림 일치 — 진행 중에도 보고
-- 12대 원칙 12조: 자체 검증 의무 — push 전 본인이 작동 확인
-
----
-
-## 📊 작업 진행 메타
+## 📊 BL-COMMON-HEADER-UNIFY 최종 메타
 
 - **BL ID**: BL-COMMON-HEADER-UNIFY
-- **카테고리**: ux / **우선순위**: P1 / **크기**: large
-- **진척**: 2 / 5 (40%) — 이번 채팅에서 80% 거짓 → 40% 정정 + 1·2단계 실제 박음
-- **이전 commit**: `e98fa04` (Step 1·2 박음)
-- **chat-log**: `_chat-logs/2026-05-21-bl-common-header-unify-step1-2.md`
+- **상태**: ✅ DONE
+- **진척**: 5 / 5 (100%)
+- **commits**: `a9ea52e` (Step 3) + `48a36c2` (Step 4) + (Step 5 chat-log commit)
+- **검증**: Playwright PASS 6/6 (`after-verification.md`)
+- **후속 BL 2건 등록 완료**: BL-MGR-DASH-HEADER-UNIFY / BL-COMMON-HEADER-CSS-CLEANUP
+
+---
+
+**Last updated**: 2026-05-26
+**Maintained by**: 클로드 (under direction of 이지형 대표님)

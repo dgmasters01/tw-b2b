@@ -1,7 +1,7 @@
 # 📖 TW B2B 시스템 매뉴얼 (service-map)
 
 > **자동 생성 — 직접 편집 금지** (`.github/workflows/system-manual-rebuild.yml`이 push마다 재생성)
-> **생성 시각:** 2026-05-25T17:09:15.218Z
+> **생성 시각:** 2026-05-26T04:56:25.220Z
 > **포맷 (헌법 12대 원칙 6번 — AI 가독성):** 사람용 표/설명 + AI용 YAML 블록
 
 ---
@@ -195,7 +195,7 @@ refresh_rule: "부칙 19 — 부분 갱신 금지, renderAll() 일괄 호출 의
 | 부칙 11 | 자동 stats 재계산 의무 | CI 실패 또는 "헌법 확인" 정지 |
 | 부칙 14 | 헌법 길이 200줄 이하 강제 (BL-OS-LIGHTWEIGHT, 2026-05-07 신설) | CI 실패 또는 "헌법 확인" 정지 |
 | 부칙 15 | chat-log 박기 의무 (BL-CHATLOG-AUTO-GATE, 2026-05-08 신설) | CI 실패 또는 "헌법 확인" 정지 |
-| 부칙 16 | 클로드 행동 강제 게이트 (BL-CLAUDE-DISCIPLINE, 2026-05-10 신설) | CI 실패 또는 "헌법 확인" 정지 |
+| 부칙 16 | 클로드 행동 강제 게이트 (BL-CLAUDE-DISCIPLINE, 2026-05-10 신설 / D-049 2 | CI 실패 또는 "헌법 확인" 정지 |
 | 부칙 18 | 질문·선택지 사업가 언어 강제 + 갤러리 우선 점검 (BL-CLAUDE-PLAIN-LANG, 2026-05- | CI 실패 또는 "헌법 확인" 정지 |
 | 부칙 19 | 전체 갱신 원칙 (BL-FULL-REFRESH-UNIFY, 2026-05-23 신설) | CI 실패 또는 "헌법 확인" 정지 |
 
@@ -220,7 +220,7 @@ gates:
   - { n: 13, title: "채팅 라우팅 자율 판단" }
   - { n: 14, title: "헌법 길이 200줄 이하 강제 (BL-OS-LIGHTWEIGHT, 2026-05-07 신설)" }
   - { n: 15, title: "chat-log 박기 의무 (BL-CHATLOG-AUTO-GATE, 2026-05-08 신설)" }
-  - { n: 16, title: "클로드 행동 강제 게이트 (BL-CLAUDE-DISCIPLINE, 2026-05-10 신설)" }
+  - { n: 16, title: "클로드 행동 강제 게이트 (BL-CLAUDE-DISCIPLINE, 2026-05-10 신설 / D-049 2026-05-26 보강)" }
   - { n: 17, title: "신규 BL 컨텍스트 + 신규 페이지 보고 의무 (BL-DECISION-CTX-MASS-FILL, 2026-05-12 신설)" }
   - { n: 18, title: "질문·선택지 사업가 언어 강제 + 갤러리 우선 점검 (BL-CLAUDE-PLAIN-LANG, 2026-05-21 신설)" }
   - { n: 19, title: "전체 갱신 원칙 (BL-FULL-REFRESH-UNIFY, 2026-05-23 신설)" }

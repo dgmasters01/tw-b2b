@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-26T13:47:14+00:00",
+  "updated_at": "2026-05-27T19:00:00Z",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -12,7 +12,7 @@
     "SOLO_WORK_QUEUE.md"
   ],
   "stats": {
-    "total": 257,
+    "total": 260,
     "done": 199,
     "in_progress": 0,
     "paused": 0,
@@ -20089,6 +20089,46 @@
         }
       ],
       "notes": "점검 봇 자동 등록 (2026-05-26T05:45:12.678Z)\n\ncheck_name: admin_baseline\nstatus: yellow\ndetail: 관리자 페이지 3개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요)\n\n진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 green으로 박으면 자동 done."
+    },
+    {
+      "id": "BL-ADMIN-ANALYTICS-STICKY-MENU",
+      "title": "[analytics 메뉴 고정] 8서브탭 메뉴 스크롤시 안 사라지게 (스티키)",
+      "status": "pending",
+      "priority": "P1",
+      "category": "admin-improvements",
+      "created_at": "2026-05-27",
+      "description": "라이브 진단: #tab-analytics .T 클래스에 position:sticky 없어서 스크롤시 메뉴 사라짐. 4속성 CSS 패치(position:sticky / top:0 / z-index:5 / background)로 해결. 정석 5기준 모두 충족. 관련 AGR-2026-0019.",
+      "expected_files": [
+        "_admin/admin.html"
+      ],
+      "estimated_minutes": 10
+    },
+    {
+      "id": "BL-ANALYTICS-HOTEL-INFO-WIRE",
+      "title": "[admin hi-card 호텔필드 8→15개 확장] hotel-info 매니저 입력값 admin에 반영",
+      "status": "pending",
+      "priority": "P1",
+      "category": "admin-improvements",
+      "created_at": "2026-05-27",
+      "description": "hotel-info.html은 32필드 입력받지만 admin analytics hi-card는 8필드만 표시. 갭 24필드 중 운영 핵심 7개 추가: star_rating, property_type, daily_rate, free_wifi, include_breakfast, image_url, whatsapp. 단일진실원 확보. 관련 AGR-2026-0020.",
+      "expected_files": [
+        "_admin/admin.html"
+      ],
+      "estimated_minutes": 30
+    },
+    {
+      "id": "BL-MANAGER-PAGES-BOOKING-WIRE",
+      "title": "[매니저 페이지 예약 연동 보강] dashboard·marketing에 v_manager_recent_bookings 연동",
+      "status": "pending",
+      "priority": "P2",
+      "category": "manager-improvements",
+      "created_at": "2026-05-27",
+      "description": "라이브 진단: manager-dashboard.html은 8개 v_manager_* 뷰로 완전 연동됨. dashboard.html·marketing.html은 hotels만 SELECT *, 예약 데이터 직접 호출 없음. D-007(매니저 대시보드 7영역 중 예약 결과 포함) 완성 위해 보강. 관련 AGR-2026-0022.",
+      "expected_files": [
+        "dashboard.html",
+        "marketing.html"
+      ],
+      "estimated_minutes": 45
     }
   ]
 }

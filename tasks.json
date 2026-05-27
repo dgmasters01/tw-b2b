@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-27T01:57:47+00:00",
+  "updated_at": "2026-05-27T01:59:48+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -14,9 +14,9 @@
   "stats": {
     "total": 261,
     "done": 199,
-    "in_progress": 1,
+    "in_progress": 2,
     "paused": 0,
-    "pending": 40,
+    "pending": 39,
     "blocked": 11,
     "autonomous_ready": 32,
     "todo": 2,
@@ -20149,7 +20149,7 @@
     {
       "id": "BL-ANALYTICS-HOTEL-INFO-WIRE",
       "title": "[admin hi-card 호텔필드 8→15개 확장] hotel-info 매니저 입력값 admin에 반영",
-      "status": "pending",
+      "status": "in_progress",
       "priority": "P1",
       "category": "admin-improvements",
       "created_at": "2026-05-27",
@@ -20157,7 +20157,25 @@
       "expected_files": [
         "_admin/admin.html"
       ],
-      "estimated_minutes": 30
+      "estimated_minutes": 30,
+      "started_at": "2026-05-27T01:59:48+00:00",
+      "progress_warning": {
+        "code": "MISSING_PROGRESS_STEPS",
+        "rule": "부칙 7 — 모든 작업은 progress.steps 박은 후 시작",
+        "detected_at": "2026-05-27T01:59:48+00:00",
+        "detected_by_commit": "7b907ec",
+        "message": "in_progress 진입했으나 progress.steps 비어있음. tasks.json에서 progress.steps 박은 후 다음 commit에 [step:done:N] 태그."
+      },
+      "updated_at": "2026-05-27T01:59:48+00:00",
+      "history": [
+        {
+          "at": "2026-05-27T01:59:48+00:00",
+          "event": "진행 중 진입 (auto-detected) ⚠️ 부칙 7 위반 — progress.steps 미박힘",
+          "by": "auto-detect-bot",
+          "commit": "7b907ec",
+          "note": "feat(BL-ANALYTICS-HOTEL-INFO-WIRE): hi-card 6→15필드 확장"
+        }
+      ]
     },
     {
       "id": "BL-MANAGER-PAGES-BOOKING-WIRE",

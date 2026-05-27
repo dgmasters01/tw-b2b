@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-27T19:08:02.251843+09:00",
+  "updated_at": "2026-05-27T10:08:24+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -14,9 +14,9 @@
   "stats": {
     "total": 262,
     "done": 199,
-    "in_progress": 2,
+    "in_progress": 3,
     "paused": 0,
-    "pending": 40,
+    "pending": 39,
     "blocked": 11,
     "autonomous_ready": 32,
     "todo": 2,
@@ -20232,14 +20232,32 @@
       "title": "[정책 기록 누락 검증 봇] D5 위반 감지 — 결정 박힌 후 2벌 저장 안 됐는지 자동 점검",
       "category": "ops-discipline",
       "priority": "P1",
-      "status": "pending",
+      "status": "in_progress",
       "taskRole": "auto",
       "order": 1,
       "what_visible": "매일 밤 03:00 KST GitHub Actions 실행 → _os/charter/decisions-index.md 최종 갱신 시각 vs 어제 commit log 결정 키워드 grep → 불일치 시 admin-status.html에 빨간 알림 카드",
       "why": "오늘 사고 = D5(결정 2벌 저장) 룰 박혔는데 5채팅 동안 1번도 안 지킴 → 백로그 7건 누적 → 새 채팅마다 헤맴. 의지 의존 룰은 깨짐 → 자동 봇으로 강제",
       "created_at": "2026-05-27T19:08:02.251843+09:00",
       "source": "_business/decisions/2026-05-27-incident-and-new-rules.md#D15",
-      "depends_on": []
+      "depends_on": [],
+      "started_at": "2026-05-27T10:08:24+00:00",
+      "progress_warning": {
+        "code": "MISSING_PROGRESS_STEPS",
+        "rule": "부칙 7 — 모든 작업은 progress.steps 박은 후 시작",
+        "detected_at": "2026-05-27T10:08:24+00:00",
+        "detected_by_commit": "2a5c349",
+        "message": "in_progress 진입했으나 progress.steps 비어있음. tasks.json에서 progress.steps 박은 후 다음 commit에 [step:done:N] 태그."
+      },
+      "updated_at": "2026-05-27T10:08:24+00:00",
+      "history": [
+        {
+          "at": "2026-05-27T10:08:24+00:00",
+          "event": "진행 중 진입 (auto-detected) ⚠️ 부칙 7 위반 — progress.steps 미박힘",
+          "by": "auto-detect-bot",
+          "commit": "2a5c349",
+          "note": "feat(tasks): add BL-DECISIONS-AUDIT-BOT (D15 enforcement bot)"
+        }
+      ]
     }
   ]
 }

@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-27T01:59:48+00:00",
+  "updated_at": "2026-05-27T19:08:02.251843+09:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -12,11 +12,11 @@
     "SOLO_WORK_QUEUE.md"
   ],
   "stats": {
-    "total": 261,
+    "total": 262,
     "done": 199,
     "in_progress": 2,
     "paused": 0,
-    "pending": 39,
+    "pending": 40,
     "blocked": 11,
     "autonomous_ready": 32,
     "todo": 2,
@@ -20226,6 +20226,20 @@
         }
       ],
       "notes": "점검 봇 자동 등록 (2026-05-27T01:51:12.967Z)\n\ncheck_name: tasks_schema\nstatus: red\ndetail: 작업 260건 중 3건에 출처가 없어요 (자동 동기화 봇 멈춤 위험)\n\n진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 green으로 박으면 자동 done."
+    },
+    {
+      "id": "BL-DECISIONS-AUDIT-BOT",
+      "title": "[정책 기록 누락 검증 봇] D5 위반 감지 — 결정 박힌 후 2벌 저장 안 됐는지 자동 점검",
+      "category": "ops-discipline",
+      "priority": "P1",
+      "status": "pending",
+      "taskRole": "auto",
+      "order": 1,
+      "what_visible": "매일 밤 03:00 KST GitHub Actions 실행 → _os/charter/decisions-index.md 최종 갱신 시각 vs 어제 commit log 결정 키워드 grep → 불일치 시 admin-status.html에 빨간 알림 카드",
+      "why": "오늘 사고 = D5(결정 2벌 저장) 룰 박혔는데 5채팅 동안 1번도 안 지킴 → 백로그 7건 누적 → 새 채팅마다 헤맴. 의지 의존 룰은 깨짐 → 자동 봇으로 강제",
+      "created_at": "2026-05-27T19:08:02.251843+09:00",
+      "source": "_business/decisions/2026-05-27-incident-and-new-rules.md#D15",
+      "depends_on": []
     }
   ]
 }

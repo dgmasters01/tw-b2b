@@ -1,7 +1,7 @@
 # 📖 TW B2B 시스템 매뉴얼 (service-map)
 
 > **자동 생성 — 직접 편집 금지** (`.github/workflows/system-manual-rebuild.yml`이 push마다 재생성)
-> **생성 시각:** 2026-05-27T09:21:58.015Z
+> **생성 시각:** 2026-05-27T09:45:01.676Z
 > **포맷 (헌법 12대 원칙 6번 — AI 가독성):** 사람용 표/설명 + AI용 YAML 블록
 
 ---
@@ -186,17 +186,45 @@ refresh_rule: "부칙 19 — 부분 갱신 금지, renderAll() 일괄 호출 의
 ## 🚦 섹션 4 — 자동화 게이트 (헌법 부칙)
 
 
-**헌법 부칙 0개가 자동 게이트로 작동 중:**
+**헌법 부칙 20개가 자동 게이트로 작동 중:**
 
 | # | 게이트 | 위반 시 |
 |---|---|---|
+| 부칙 7 | 단계 단위 commit + step 태그 의무 | CI 실패 또는 "헌법 확인" 정지 |
+| 부칙 8 | 자동 동기화 완성도 | CI 실패 또는 "헌법 확인" 정지 |
+| 부칙 11 | 자동 stats 재계산 의무 | CI 실패 또는 "헌법 확인" 정지 |
+| 부칙 14 | 헌법 길이 200줄 이하 강제 (BL-OS-LIGHTWEIGHT, 2026-05-07 신설) | CI 실패 또는 "헌법 확인" 정지 |
+| 부칙 15 | chat-log 박기 의무 (BL-CHATLOG-AUTO-GATE, 2026-05-08 신설) | CI 실패 또는 "헌법 확인" 정지 |
+| 부칙 16 | 클로드 행동 강제 게이트 (BL-CLAUDE-DISCIPLINE, 2026-05-10 신설 / D-049 2 | CI 실패 또는 "헌법 확인" 정지 |
+| 부칙 18 | 질문·선택지 사업가 언어 강제 + 갤러리 우선 점검 (BL-CLAUDE-PLAIN-LANG, 2026-05- | CI 실패 또는 "헌법 확인" 정지 |
+| 부칙 19 | 전체 갱신 원칙 (BL-FULL-REFRESH-UNIFY, 2026-05-23 신설) | CI 실패 또는 "헌법 확인" 정지 |
 
-_전체 0개 부칙은 `OPERATIONS_CHARTER.md` 참조._
+_전체 20개 부칙은 `OPERATIONS_CHARTER.md` 참조._
 
 
 ```yaml
 section: gates
 gates:
+  - { n: 1, title: "" }
+  - { n: 2, title: "" }
+  - { n: 3, title: "" }
+  - { n: 4, title: "권한 부여 vs 권한 활용" }
+  - { n: 5, title: "4 시스템 카테고리" }
+  - { n: 6, title: "UX/UI 통일 우선, 콘텐츠 디테일 나중" }
+  - { n: 7, title: "단계 단위 commit + step 태그 의무" }
+  - { n: 8, title: "자동 동기화 완성도" }
+  - { n: 9, title: "OS 본체 ↔ 사업 코드 분리" }
+  - { n: 10, title: "위치 의존성 금지" }
+  - { n: 11, title: "자동 stats 재계산 의무" }
+  - { n: 12, title: "작업 소요 선보고" }
+  - { n: 13, title: "채팅 라우팅 자율 판단" }
+  - { n: 14, title: "헌법 길이 200줄 이하 강제 (BL-OS-LIGHTWEIGHT, 2026-05-07 신설)" }
+  - { n: 15, title: "chat-log 박기 의무 (BL-CHATLOG-AUTO-GATE, 2026-05-08 신설)" }
+  - { n: 16, title: "클로드 행동 강제 게이트 (BL-CLAUDE-DISCIPLINE, 2026-05-10 신설 / D-049 2026-05-26 보강)" }
+  - { n: 17, title: "신규 BL 컨텍스트 + 신규 페이지 보고 의무 (BL-DECISION-CTX-MASS-FILL, 2026-05-12 신설)" }
+  - { n: 18, title: "질문·선택지 사업가 언어 강제 + 갤러리 우선 점검 (BL-CLAUDE-PLAIN-LANG, 2026-05-21 신설)" }
+  - { n: 19, title: "전체 갱신 원칙 (BL-FULL-REFRESH-UNIFY, 2026-05-23 신설)" }
+  - { n: 20, title: "사업 합의 추적 게이트 (BL-DECISION-TRACKING, 2026-05-25 신설)" }
 ```
 
 

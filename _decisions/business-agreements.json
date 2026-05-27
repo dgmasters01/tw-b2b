@@ -9,7 +9,7 @@
       "deferred"
     ]
   },
-  "updated_at": "2026-05-26T20:23:25.420Z",
+  "updated_at": "2026-05-27T19:00:00Z",
   "stats": {
     "total": 15,
     "done": 13,
@@ -290,6 +290,100 @@
       "verified_at": "2026-05-25T15:11:34+00:00",
       "verified_commit": "pending-commit",
       "note": "1편(헌법·문서·초기 데이터) + 2편(봇 2개·admin 배지·인계서 헤더 통합) 모두 박힘. BL-DECISION-TRACKING 100%."
+    },
+    {
+      "id": "AGR-2026-0017",
+      "chat_date": "2026-05-27",
+      "chat_ref": "BL-ADMIN-OPS-DASHBOARD 진단 채팅",
+      "agreement": "외부약속(환불 100%)과 내부운영(환불 미발동) 분리 — 대표님이 Agoda 우리 링크로 직접 예약 이벤트 운영하므로 환불 트리거 발동 안 함",
+      "expected_location": {
+        "files": [
+          "_admin/admin.html",
+          "BUSINESS.md"
+        ],
+        "code_pattern": "환불|refund|이벤트 예약"
+      },
+      "related_bl": "BL-ADMIN-OPERATIONS-DASHBOARD",
+      "status": "not_implemented",
+      "discovered_via": "2026-05-27 채팅 대표님 정정"
+    },
+    {
+      "id": "AGR-2026-0018",
+      "chat_date": "2026-05-27",
+      "chat_ref": "BL-ADMIN-OPS-DASHBOARD 진단 채팅",
+      "agreement": "admin dashboard 인박스 카드 정정 — '환불 임박 위기' 카드 무의미 / '이벤트 예약 처리 대기'·'D-30 누적성과 메일 대상'·'D-Day 재계약 권유 대상' 카드 유효",
+      "expected_location": {
+        "files": [
+          "_admin/admin.html",
+          "api/business-inbox.js"
+        ],
+        "code_pattern": "이벤트 예약|D-30|D-Day|재계약"
+      },
+      "related_bl": "BL-ADMIN-OPERATIONS-DASHBOARD",
+      "status": "not_implemented",
+      "discovered_via": "2026-05-27 채팅"
+    },
+    {
+      "id": "AGR-2026-0019",
+      "chat_date": "2026-05-27",
+      "chat_ref": "BL-ADMIN-OPS-DASHBOARD 진단 채팅",
+      "agreement": "admin analytics 8서브탭 메뉴 스크롤시 화면 밖 사라지지 않게 — 최상단 고정 (스티키)",
+      "expected_location": {
+        "files": [
+          "_admin/admin.html"
+        ],
+        "code_pattern": "#tab-analytics .T.*sticky"
+      },
+      "related_bl": "BL-ADMIN-ANALYTICS-STICKY-MENU",
+      "status": "not_implemented",
+      "discovered_via": "2026-05-27 채팅 대표님 지적"
+    },
+    {
+      "id": "AGR-2026-0020",
+      "chat_date": "2026-05-27",
+      "chat_ref": "BL-ADMIN-OPS-DASHBOARD 진단 채팅",
+      "agreement": "admin analytics hi-card에 호텔 필드 8→15개 확장 (star_rating, property_type, daily_rate, free_wifi, include_breakfast, image_url, whatsapp 추가)",
+      "expected_location": {
+        "files": [
+          "_admin/admin.html"
+        ],
+        "code_pattern": "fillHotelInfo.*star_rating|property_type|daily_rate"
+      },
+      "related_bl": "BL-ANALYTICS-HOTEL-INFO-WIRE",
+      "status": "not_implemented",
+      "discovered_via": "2026-05-27 채팅 — hotel-info 32필드 vs admin 8필드 갭"
+    },
+    {
+      "id": "AGR-2026-0021",
+      "chat_date": "2026-05-27",
+      "chat_ref": "BL-ADMIN-OPS-DASHBOARD 진단 채팅",
+      "agreement": "project-status 탭은 admin.html에 그대로 둠 (admin-status.html로 이주 안 함) — 대표님 직접 결정",
+      "expected_location": {
+        "files": [
+          "_admin/admin.html"
+        ],
+        "code_pattern": "tab-project-status"
+      },
+      "related_bl": "BL-ADMIN-OPERATIONS-DASHBOARD",
+      "status": "done",
+      "verified_at": "2026-05-27",
+      "discovered_via": "2026-05-27 채팅 대표님 직접 결정"
+    },
+    {
+      "id": "AGR-2026-0022",
+      "chat_date": "2026-05-27",
+      "chat_ref": "BL-ADMIN-OPS-DASHBOARD 진단 채팅",
+      "agreement": "결제 후 매니저 페이지 = manager-dashboard.html이 본격 페이지 (v_manager_* 8뷰 이미 연동) / dashboard.html·marketing.html은 hotels만 연동되어 예약 데이터 보강 필요 가능",
+      "expected_location": {
+        "files": [
+          "dashboard.html",
+          "marketing.html"
+        ],
+        "code_pattern": "v_manager_recent_bookings|bookings"
+      },
+      "related_bl": "BL-MANAGER-PAGES-BOOKING-WIRE",
+      "status": "not_implemented",
+      "discovered_via": "2026-05-27 채팅 라이브 코드 검증"
     }
   ]
 }

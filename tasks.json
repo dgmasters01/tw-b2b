@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-27T01:51:12.967Z",
+  "updated_at": "2026-05-27T01:57:47+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -14,9 +14,9 @@
   "stats": {
     "total": 261,
     "done": 199,
-    "in_progress": 0,
+    "in_progress": 1,
     "paused": 0,
-    "pending": 41,
+    "pending": 40,
     "blocked": 11,
     "autonomous_ready": 32,
     "todo": 2,
@@ -20118,7 +20118,7 @@
     {
       "id": "BL-ADMIN-ANALYTICS-STICKY-MENU",
       "title": "[analytics 메뉴 고정] 8서브탭 메뉴 스크롤시 안 사라지게 (스티키)",
-      "status": "pending",
+      "status": "in_progress",
       "priority": "P1",
       "category": "admin-improvements",
       "created_at": "2026-05-27",
@@ -20126,7 +20126,25 @@
       "expected_files": [
         "_admin/admin.html"
       ],
-      "estimated_minutes": 10
+      "estimated_minutes": 10,
+      "started_at": "2026-05-27T01:57:47+00:00",
+      "progress_warning": {
+        "code": "MISSING_PROGRESS_STEPS",
+        "rule": "부칙 7 — 모든 작업은 progress.steps 박은 후 시작",
+        "detected_at": "2026-05-27T01:57:47+00:00",
+        "detected_by_commit": "3a671ad",
+        "message": "in_progress 진입했으나 progress.steps 비어있음. tasks.json에서 progress.steps 박은 후 다음 commit에 [step:done:N] 태그."
+      },
+      "updated_at": "2026-05-27T01:57:47+00:00",
+      "history": [
+        {
+          "at": "2026-05-27T01:57:47+00:00",
+          "event": "진행 중 진입 (auto-detected) ⚠️ 부칙 7 위반 — progress.steps 미박힘",
+          "by": "auto-detect-bot",
+          "commit": "3a671ad",
+          "note": "feat(BL-ADMIN-ANALYTICS-STICKY-MENU): 8서브탭 메뉴 스티키 고정 (top:64px)"
+        }
+      ]
     },
     {
       "id": "BL-ANALYTICS-HOTEL-INFO-WIRE",

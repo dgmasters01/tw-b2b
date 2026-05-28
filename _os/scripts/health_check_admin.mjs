@@ -15,6 +15,8 @@
  *   2. tasks.json schema — source 필드 누락 건수 (인계서 결함 #1)
  *   3. GitHub Actions 핵심 봇 상태 — sync-bot / auto-detect-bot / scan-bot
  *      (이 검진 봇은 GH API 호출 안 함. 봇 상태는 워크플로 step에서 수집해서 주입)
+ *   3.5 결정 2벌 저장 누락 (BL-DECISIONS-AUDIT-BOT, D15) — 최근 24h 결정 commit
+ *      이 박혔는데 decisions-index.md/_business/decisions/ 미저장 시 red
  *
  * 출력:
  *   _admin/_health.json — admin-status 페이지가 5초 폴링으로 읽어가는 단일 진실원
@@ -30,6 +32,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
+import { execSync } from 'node:child_process';
 
 const ROOT = process.cwd();
 const BASELINE_DIR = path.join(ROOT, '_os_snapshots/2026-05-07_phase0-baseline');
@@ -118,6 +121,99 @@ function checkBots() {
     result.detail = `자동 일꾼 ${result.dead_bots.length}명이 멈췄어요: ${result.dead_bots.join(', ')}`;
   }
   result.bot_status = botStatus;
+  return result;
+}
+
+// ─── 3.5 결정 2벌 저장 누락 검증 (BL-DECISIONS-AUDIT-BOT, D15) ────
+//   D5 룰 = 결정 박히면 사람용(_business/decisions/) + Claude용
+//   (_os/charter/decisions-index.md) 2벌 저장. 의지 의존 룰이라 5채팅 동안
+//   안 지켜져 백로그 7건 누적된 사고(2026-05-27). 봇으로 강제 감지.
+//
+//   판정: 최근 24시간 commit 중 "결정 신호" 키워드가 박힌 commit이 있는데,
+//         같은 24시간 안에 결정 기록 파일(decisions-index.md OR
+//         _business/decisions/)을 건드린 commit이 하나도 없으면 = D5 위반(red).
+//   git log 사용 — 워크플로 checkout이 fetch-depth:0(full history)라 동작.
+function checkDecisionsSync() {
+  const result = {
+    name: 'decisions_sync',
+    status: 'green',
+    detail: '',
+    missing_source: [], // admin-status 배너가 "누락 ID 예시"로 자동 표출
+  };
+
+  // git 사용 불가 환경(로컬 fs-only 등)에서는 graceful skip
+  let logRaw;
+  try {
+    // 최근 24h commit: <sha7>|<subject> 형식. 본문까지 보려고 %B 대신 subject만(키워드 충분)
+    logRaw = execSync(
+      'git log --since="24 hours ago" --pretty=format:"%h\u0001%s\u0001%b\u0002" --no-merges',
+      { cwd: ROOT, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }
+    );
+  } catch {
+    result.status = 'unknown';
+    result.detail = '결정 기록 점검을 위한 이력 조회 실패 (이력 부족 환경)';
+    return result;
+  }
+
+  const commits = logRaw
+    .split('\u0002')
+    .map((c) => c.trim())
+    .filter(Boolean)
+    .map((c) => {
+      const [sha, subject = '', body = ''] = c.split('\u0001');
+      return { sha: (sha || '').trim(), text: `${subject}\n${body}` };
+    });
+
+  // 봇 자동 commit은 결정 신호 판정에서 제외(노이즈)
+  const BOT_PREFIXES = ['[sync-bot]', '[scan-bot]', '[health-bot]', '[auto-detect-bot]', '[activity-bot]', '[chat-log-bot]'];
+  const isBotCommit = (text) => BOT_PREFIXES.some((p) => text.includes(p));
+
+  // 결정 신호 키워드 — 사업/시스템/마케팅/전략 결정이 박혔다는 신호
+  const DECISION_SIGNALS = [
+    /\bD\d{1,3}\b/,        // D5, D15 등 결정 ID
+    /\[헌법변경\]/,
+    /\bAGR-\d{3,4}\b/,     // 사업 합의 ID
+    /결정/,
+    /\bdecision/i,
+    /정책/,
+    /합의/,
+  ];
+
+  // 결정 기록 파일을 건드렸는지 — 같은 24h 안에 1건이라도 있으면 D5 이행
+  let recordTouched = false;
+  try {
+    const touchedFiles = execSync(
+      'git log --since="24 hours ago" --name-only --pretty=format: --no-merges',
+      { cwd: ROOT, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }
+    );
+    recordTouched =
+      /_os\/charter\/decisions-index\.md/.test(touchedFiles) ||
+      /_business\/decisions\//.test(touchedFiles);
+  } catch {
+    recordTouched = false;
+  }
+
+  // 결정 신호가 박힌 commit 추출(봇 commit 제외)
+  const decisionCommits = commits.filter(
+    (c) => !isBotCommit(c.text) && DECISION_SIGNALS.some((re) => re.test(c.text))
+  );
+
+  if (decisionCommits.length === 0) {
+    result.detail = '최근 24시간 새 결정 없음 — 기록 누락 위험 없어요';
+    return result;
+  }
+
+  if (recordTouched) {
+    result.detail = `최근 24시간 결정 ${decisionCommits.length}건 감지 — 결정 기록도 함께 저장됐어요 (정상)`;
+    return result;
+  }
+
+  // 결정은 박혔는데 기록 파일은 안 건드림 = D5 위반
+  result.status = 'red';
+  result.missing_source = decisionCommits.map((c) => `${c.sha} (결정 기록 2벌 저장 누락)`);
+  result.detail =
+    `결정 ${decisionCommits.length}건이 박혔는데 결정 기록(사람용/검색용 2벌)이 저장 안 됐어요 — ` +
+    `_os/charter/decisions-index.md + _business/decisions/ 둘 다 박아주세요 (D5 룰)`;
   return result;
 }
 
@@ -226,6 +322,7 @@ async function main() {
     checkAdminBaseline(),
     checkTasksSchema(),
     checkBots(),
+    checkDecisionsSync(),       // BL-DECISIONS-AUDIT-BOT — D5 위반(결정 2벌저장 누락) 감지
     await checkVercelSync(),    // BL-VERCEL-DEPLOY-RACE-GUARD 단계 2
     await checkVercelQuota(),   // BL-VERCEL-DEPLOY-RACE-GUARD 단계 4
   ];

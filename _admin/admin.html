@@ -383,12 +383,16 @@ body{margin:0;background:var(--bg,#0A0A0F);font-family:var(--sans,'Inter','Noto 
     <!-- TAB: Dashboard (BL-ADMIN-ACTIVITY-MOVE 2026-05-12: admin-status에서 이전 / BL-ADMIN-ACTIVITY-REMOVE 2026-05-12: 1인 운영 원칙 위반으로 삭제) -->
     <div id="tab-dashboard" class="ad-tab-pane" style="display:none;">
 
-      <!-- Phase 1 Step 7 — 실시간 비즈니스 요약 (TODO) -->
+      <!-- BL-DASHBOARD-INBOX (2026-05-28): 오늘 처리할 일 7카드 인박스.
+           내부운영 기준 — 환불 임박 위기 표현 금지(헌법 TW B2B 외부약속vs내부운영 분리).
+           데이터: bookings_self(inquiry) + hotels.status 라이프사이클 파생. -->
       <div class="ad-card">
-        <div class="ad-card-h"><h3>📊 Dashboard</h3></div>
-        <div class="ad-empty">
-          <p style="font-size:14px;margin:0 0 8px;color:#555;"><strong data-en="Real-time Business Summary" data-ko="실시간 비즈니스 요약">Real-time Business Summary</strong></p>
-          <p style="font-size:13px;color:#888;margin:0;" data-en="Total bookings, revenue, channel performance — to be implemented in Phase 1 Step 7." data-ko="총 예약, 매출, 채널 성과 — Phase 1 Step 7에서 구현 예정.">Total bookings, revenue, channel performance — to be implemented in Phase 1 Step 7.</p>
+        <div class="ad-card-h">
+          <h3 data-en="📥 Today's Inbox" data-ko="📥 오늘 처리할 일">📥 Today's Inbox</h3>
+          <button class="ad-btn ad-btn-secondary" id="btn-inbox-refresh">🔄 <span data-en="Refresh" data-ko="새로고침">Refresh</span></button>
+        </div>
+        <div id="inbox-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;">
+          <div class="ad-empty" style="grid-column:1/-1;" data-en="Loading..." data-ko="불러오는 중...">Loading...</div>
         </div>
       </div>
     </div>
@@ -1262,6 +1266,7 @@ body{margin:0;background:var(--bg,#0A0A0F);font-family:var(--sans,'Inter','Noto 
     }
 
     // Lazy load
+    if (tab === 'dashboard') { try { loadDashboardInbox(); } catch(e){ console.error('[inbox] load failed', e); } }
     if (tab === 'members' && !membersLoaded) loadMembers();
     if (tab === 'admins' && !adminsLoaded) loadAdmins();
     if (tab === 'bookings' && !bookingsInitialized) initBookings();
@@ -1291,6 +1296,96 @@ body{margin:0;background:var(--bg,#0A0A0F);font-family:var(--sans,'Inter','Noto 
       if (tab) setActiveTab(tab);
     });
   });
+
+  // ========= Dashboard Inbox (BL-DASHBOARD-INBOX 2026-05-28) =========
+  // 오늘 처리할 일 7카드. 내부운영 기준 — "환불 임박 위기" 표현 절대 금지.
+  // 데이터: bookings_self(inquiry) + hotels.status 라이프사이클 파생.
+  // status 흐름: pending/review → approved → paid → producing → published
+  var INBOX_DEFS = [
+    { key:'event_pending',  icon:'🎫', en:'Event bookings to process',   ko:'이벤트 예약 처리 대기',   tab:'bookings', color:'#7c3aed' },
+    { key:'d30_mail',       icon:'📈', en:'D-30 performance mail',        ko:'D-30 누적성과 메일 대상', tab:'hotels',   color:'#0ea5e9' },
+    { key:'dday_renew',     icon:'🔁', en:'D-Day re-contract outreach',   ko:'D-Day 재계약 권유 대상',  tab:'hotels',   color:'#16a34a' },
+    { key:'inquiry_pending',icon:'❓', en:'Inquiries awaiting reply',     ko:'처리 대기 문의',          tab:'hotels',   color:'#f59e0b' },
+    { key:'info_change',    icon:'✏️', en:'Hotel info change requests',   ko:'호텔정보 변경 요청',      tab:'hotels',   color:'#3b82f6' },
+    { key:'video_status',   icon:'🎬', en:'Video production in progress', ko:'영상 제작 상태',          tab:'hotels',   color:'#06b6d4' },
+    { key:'unpublished',    icon:'📭', en:'Paid but unpublished',         ko:'미게시',                  tab:'hotels',   color:'#ef4444' }
+  ];
+
+  function inboxCardHtml(def, count){
+    var lang = (window.TW && window.TW.lang === 'ko') ? 'ko' : 'en';
+    var label = (lang === 'ko') ? def.ko : def.en;
+    var dim = (count === 0) ? 'opacity:.5;' : '';
+    return '<div class="inbox-card" data-tab="' + def.tab + '" style="cursor:pointer;border:1px solid #e5e7eb;border-left:4px solid ' + def.color + ';border-radius:10px;padding:14px 16px;background:#fff;transition:box-shadow .15s;' + dim + '"'
+      + ' onmouseover="this.style.boxShadow=\'0 4px 12px rgba(0,0,0,.08)\'" onmouseout="this.style.boxShadow=\'none\'">'
+      + '<div style="font-size:13px;color:#64748b;margin-bottom:6px;display:flex;align-items:center;gap:6px;">'
+      + '<span style="font-size:16px;">' + def.icon + '</span><span>' + label + '</span></div>'
+      + '<div style="font-size:30px;font-weight:700;color:' + (count === 0 ? '#94a3b8' : def.color) + ';line-height:1;">' + count
+      + '<span style="font-size:13px;font-weight:500;color:#94a3b8;margin-left:4px;" data-en="items" data-ko="건">' + (lang === 'ko' ? '건' : 'items') + '</span></div>'
+      + '</div>';
+  }
+
+  function loadDashboardInbox(){
+    var grid = document.getElementById('inbox-grid');
+    if (!grid) return;
+    grid.innerHTML = '<div class="ad-empty" style="grid-column:1/-1;" data-en="Loading..." data-ko="불러오는 중...">Loading...</div>';
+
+    var now = new Date();
+    var DAY = 86400000;
+
+    Promise.all([
+      T.sb.from('hotels').select('id, status, created_at'),
+      T.sb.from('bookings_self').select('id, booking_status')
+    ]).then(function(res){
+      var hotels = (res[0] && res[0].data) ? res[0].data : [];
+      var bookings = (res[1] && res[1].data) ? res[1].data : [];
+
+      function hcount(fn){ return hotels.filter(fn).length; }
+      var counts = {
+        // 1. 이벤트 예약 처리 대기 — bookings_self 문의 단계
+        event_pending:   bookings.filter(function(b){ return b.booking_status === 'inquiry'; }).length,
+        // 2. D-30 누적성과 메일 — 게시 후 30일 이상 경과한 호텔
+        d30_mail:        hcount(function(h){
+                           if (h.status !== 'published' || !h.created_at) return false;
+                           return (now - new Date(h.created_at)) >= 30 * DAY;
+                         }),
+        // 3. D-Day 재계약 — 게시 후 보장기간(6개월≈180일) 만료 임박(D-30 이내)한 호텔
+        dday_renew:      hcount(function(h){
+                           if (h.status !== 'published' || !h.created_at) return false;
+                           var days = (now - new Date(h.created_at)) / DAY;
+                           return days >= 150 && days <= 180;
+                         }),
+        // 4. 처리 대기 문의 — 가입 신청 검토 대기
+        inquiry_pending: hcount(function(h){ return h.status === 'pending' || h.status === 'review'; }),
+        // 5. 호텔정보 변경 요청 — 결제 완료, 제작 전 정보 확정 단계(approved)
+        info_change:     hcount(function(h){ return h.status === 'approved'; }),
+        // 6. 영상 제작 상태 — 제작 진행 중
+        video_status:    hcount(function(h){ return h.status === 'producing'; }),
+        // 7. 미게시 — 결제 완료(paid)했으나 아직 영상 미게시
+        unpublished:     hcount(function(h){ return h.status === 'paid'; })
+      };
+
+      grid.innerHTML = INBOX_DEFS.map(function(def){
+        return inboxCardHtml(def, counts[def.key] || 0);
+      }).join('');
+
+      // 카드 클릭 → 해당 탭 점프
+      grid.querySelectorAll('.inbox-card').forEach(function(card){
+        card.addEventListener('click', function(){
+          var t = card.getAttribute('data-tab');
+          if (t) setActiveTab(t);
+        });
+      });
+    }).catch(function(e){
+      console.error('[inbox] query failed', e);
+      grid.innerHTML = '<div class="ad-empty" style="grid-column:1/-1;color:#ef4444;" data-en="Failed to load inbox." data-ko="인박스를 불러오지 못했습니다.">Failed to load inbox.</div>';
+    });
+  }
+
+  // Refresh 버튼
+  (function(){
+    var rb = document.getElementById('btn-inbox-refresh');
+    if (rb) rb.addEventListener('click', function(){ loadDashboardInbox(); });
+  })();
 
   // ========= Project Status tab (사업 진행도 실시간 대시보드) =========
   var PS_REPO = 'dgmasters01/tw-b2b';
@@ -4654,7 +4749,7 @@ return nav+
 '<div class="C"><h3>\uC608\uC57D \uC0C1\uC138 ('+bks.length+'\uAC74)</h3><div style="overflow-x:auto"><table><thead><tr><th>\uC608\uC57D\uBC88\uD638</th><th>\uC608\uC57D\uC77C</th><th>\uCCB4\uD06C\uC778</th><th>\uCCB4\uD06C\uC544\uC6C3</th><th class="r">\uAE08\uC561</th><th class="r">\uC218\uC218\uB8CC</th><th>\uC0C1\uD0DC</th><th>\uAE30\uAE30</th></tr></thead><tbody>'+
 bks.map(function(b){return'<tr><td style="font-family:monospace;font-size:12px">'+b.i+'</td><td>'+b.d+'</td><td>'+b.cd+'</td><td>'+b.od+'</td><td class="r">'+F(b.a)+'</td><td class="r">'+F(b.c)+'</td><td><span class="bg bv">'+(SM[b.s]||b.s)+'</span></td><td>'+b.dv+'</td></tr>'}).join('')+
 '</tbody></table></div></div>'+
-'<div class="C" id="hi-card"><h3>\uD638\uD154 \uAE30\uBCF8\uC815\uBCF4 <span id="hi-status" style="font-size:10px;color:var(--ht);font-weight:400;margin-left:6px">\uC870\uD68C \uC911...</span></h3><div id="hi-data" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px 20px;padding:12px 14px;background:#faf9f6;border:1px dashed var(--bd);border-radius:8px"><div><div style="font-size:11px;color:var(--ht);margin-bottom:2px">주소</div><div data-fld="address" style="font-size:13px;color:var(--ht);font-style:italic">-</div></div><div><div style="font-size:11px;color:var(--ht);margin-bottom:2px">전화번호</div><div data-fld="phone" style="font-size:13px;color:var(--ht);font-style:italic">-</div></div><div><div style="font-size:11px;color:var(--ht);margin-bottom:2px">이메일</div><div data-fld="contact_email" style="font-size:13px;color:var(--ht);font-style:italic">-</div></div><div><div style="font-size:11px;color:var(--ht);margin-bottom:2px">웹사이트</div><div data-fld="website" style="font-size:13px;color:var(--ht);font-style:italic">-</div></div><div><div style="font-size:11px;color:var(--ht);margin-bottom:2px">성급</div><div data-fld="star_rating" style="font-size:13px;color:var(--ht);font-style:italic">-</div></div><div><div style="font-size:11px;color:var(--ht);margin-bottom:2px">영업 담당자</div><div data-fld="contact_name" style="font-size:13px;color:var(--ht);font-style:italic">-</div></div><div id="hi-note" style="font-size:11px;color:var(--ht);margin-top:8px;font-style:italic">\uD638\uD154 \uB9E4\uB2C8\uC800\uAC00 hotel-info\uC5D0\uC11C \uB4F1\uB85D\uD55C \uC815\uBCF4\uB97C \uC2E4\uC2DC\uAC04\uC73C\uB85C \uD45C\uC2DC\uD569\uB2C8\uB2E4.</div></div>'+
+'<div class="C" id="hi-card"><h3>\uD638\uD154 \uAE30\uBCF8\uC815\uBCF4 <span id="hi-status" style="font-size:10px;color:var(--ht);font-weight:400;margin-left:6px">\uC870\uD68C \uC911...</span></h3><div id="hi-data" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px 20px;padding:12px 14px;background:#faf9f6;border:1px dashed var(--bd);border-radius:8px"><div><div style="font-size:11px;color:var(--ht);margin-bottom:2px">\uC8FC\uC18C</div><div data-fld="address" style="font-size:13px;color:var(--ht);font-style:italic">-</div></div><div><div style="font-size:11px;color:var(--ht);margin-bottom:2px">\uC804\uD654\uBC88\uD638</div><div data-fld="phone" style="font-size:13px;color:var(--ht);font-style:italic">-</div></div><div><div style="font-size:11px;color:var(--ht);margin-bottom:2px">\uC774\uBA54\uC77C</div><div data-fld="contact_email" style="font-size:13px;color:var(--ht);font-style:italic">-</div></div><div><div style="font-size:11px;color:var(--ht);margin-bottom:2px">\uC6F9\uC0AC\uC774\uD2B8</div><div data-fld="website" style="font-size:13px;color:var(--ht);font-style:italic">-</div></div><div><div style="font-size:11px;color:var(--ht);margin-bottom:2px">\uACE0\uAC1D \uD3C9\uC810</div><div data-fld="review_score" style="font-size:13px;color:var(--ht);font-style:italic">-</div></div><div><div style="font-size:11px;color:var(--ht);margin-bottom:2px">\uC601\uC5C5 \uB2F4\uB2F9\uC790</div><div data-fld="contact_name" style="font-size:13px;color:var(--ht);font-style:italic">-</div></div><div><div style="font-size:11px;color:var(--ht);margin-bottom:2px">현지어 호텔명</div><div data-fld="hotel_name_local" style="font-size:13px;color:var(--ht);font-style:italic">-</div></div><div><div style="font-size:11px;color:var(--ht);margin-bottom:2px">유형</div><div data-fld="property_type" style="font-size:13px;color:var(--ht);font-style:italic">-</div></div><div><div style="font-size:11px;color:var(--ht);margin-bottom:2px">성급</div><div data-fld="star_rating" style="font-size:13px;color:var(--ht);font-style:italic">-</div></div><div><div style="font-size:11px;color:var(--ht);margin-bottom:2px">시작 가격</div><div data-fld="daily_rate" style="font-size:13px;color:var(--ht);font-style:italic">-</div></div><div><div style="font-size:11px;color:var(--ht);margin-bottom:2px">리뷰 수</div><div data-fld="review_count" style="font-size:13px;color:var(--ht);font-style:italic">-</div></div><div><div style="font-size:11px;color:var(--ht);margin-bottom:2px">편의시설</div><div data-fld="amenities" style="font-size:13px;color:var(--ht);font-style:italic">-</div></div><div><div style="font-size:11px;color:var(--ht);margin-bottom:2px">아고다 매칭</div><div data-fld="agoda_match_status" style="font-size:13px;color:var(--ht);font-style:italic">-</div></div><div><div style="font-size:11px;color:var(--ht);margin-bottom:2px">아고다 ID</div><div data-fld="agoda_hotel_id" style="font-size:13px;color:var(--ht);font-style:italic">-</div></div><div><div style="font-size:11px;color:var(--ht);margin-bottom:2px">담당 직책</div><div data-fld="manager_position" style="font-size:13px;color:var(--ht);font-style:italic">-</div></div></div></div><div id="hi-note" style="font-size:11px;color:var(--ht);margin-top:8px;font-style:italic">\uD638\uD154 \uB9E4\uB2C8\uC800\uAC00 hotel-info\uC5D0\uC11C \uB4F1\uB85D\uD55C \uC815\uBCF4\uB97C \uC2E4\uC2DC\uAC04\uC73C\uB85C \uD45C\uC2DC\uD569\uB2C8\uB2E4.</div></div>'+
 '<div class="pb"><h4>B2B \uC601\uC5C5 \uD3EC\uC778\uD2B8</h4><p>"\uADC0 \uD638\uD154\uC5D0 '+bks.length+'\uAC74\uC758 \uC2E4\uC81C \uC608\uC57D\uC774 \uBC1C\uC0DD. \uC544\uACE0\uB2E4 \uC2DC\uC2A4\uD15C\uC5D0\uC11C \uC608\uC57D\uBC88\uD638\uB85C \uC9C1\uC811 \uD655\uC778 \uAC00\uB2A5."</p></div>'}
 
 function drillCo(n){DS={co:n};dc();rr()}
@@ -4832,8 +4927,17 @@ function fillHotelInfo(){
         phone:fmt(hit.phone||hit.contact_phone),
         contact_email:fmt(hit.contact_email),
         website:hit.website?'<a href="'+hit.website+'" target="_blank" rel="noopener" style="color:var(--ac)">'+hit.website+'</a>':'-',
+        review_score:hit.review_score!=null?(hit.review_score+(hit.review_count?' ('+hit.review_count+')':'')):'-',
+        contact_name:fmt(hit.contact_name),
+        hotel_name_local:fmt(hit.hotel_name_local),
+        property_type:fmt(hit.property_type),
         star_rating:hit.star_rating!=null?(hit.star_rating+'\uC131\uAE09'):'-',
-        contact_name:fmt(hit.contact_name)
+        daily_rate:hit.daily_rate!=null?('$'+hit.daily_rate+(hit.currency?' '+hit.currency:'')):'-',
+        review_count:hit.review_count!=null?String(hit.review_count):'-',
+        amenities:(function(){var a=[];if(hit.include_breakfast)a.push('\uC870\uC2DD');if(hit.free_wifi)a.push('WiFi');return a.length?a.join(' \u00B7 '):'-';})(),
+        agoda_match_status:fmt(hit.agoda_match_status),
+        agoda_hotel_id:fmt(hit.agoda_hotel_id),
+        manager_position:fmt(hit.manager_position==='Other'?(hit.manager_position_other||'\uAE30\uD0C0'):hit.manager_position)
       };
       Object.keys(fields).forEach(function(k){
         var el=data.querySelector('[data-fld="'+k+'"]');

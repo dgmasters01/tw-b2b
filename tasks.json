@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-28T04:02:39+00:00",
+  "updated_at": "2026-05-28T04:34:09+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -13,8 +13,8 @@
   ],
   "stats": {
     "total": 262,
-    "done": 198,
-    "in_progress": 3,
+    "done": 199,
+    "in_progress": 2,
     "paused": 0,
     "pending": 40,
     "blocked": 11,
@@ -20162,7 +20162,7 @@
     {
       "id": "BL-ANALYTICS-HOTEL-INFO-WIRE",
       "title": "[admin hi-card 호텔필드 8→15개 확장] hotel-info 매니저 입력값 admin에 반영",
-      "status": "in_progress",
+      "status": "done",
       "priority": "P1",
       "category": "admin-improvements",
       "created_at": "2026-05-27",
@@ -20179,7 +20179,7 @@
         "detected_by_commit": "7b907ec",
         "message": "in_progress 진입했으나 progress.steps 비어있음. tasks.json에서 progress.steps 박은 후 다음 commit에 [step:done:N] 태그."
       },
-      "updated_at": "2026-05-28T04:01:26+00:00",
+      "updated_at": "2026-05-28T04:34:09+00:00",
       "history": [
         {
           "at": "2026-05-27T01:59:48+00:00",
@@ -20194,8 +20194,23 @@
           "by": "auto-detect-bot",
           "commit": "035cf27",
           "note": "feat(BL-ANALYTICS-HOTEL-INFO-WIRE): hi-card 6->15 fields restore (post-base64-incident)"
+        },
+        {
+          "at": "2026-05-28T04:34:09+00:00",
+          "event": "완료 (auto-detected)",
+          "by": "auto-detect-bot",
+          "commit": "06c8d23",
+          "note": "[BL-ANALYTICS-HOTEL-INFO-WIRE] 완료 — chat-log 박기 + status 닫기 (실작업 035cf27 완료, 상태 누락 복구) ✅"
         }
-      ]
+      ],
+      "completed_at": "2026-05-28T04:34:09+00:00",
+      "chatlog_warning": {
+        "code": "MISSING_CHATLOG_MAPPING",
+        "rule": "부칙 15 — done 트랜지션 시 _chat-logs/index.json byTask 매핑 의무",
+        "detected_at": "2026-05-28T04:34:09+00:00",
+        "detected_by_commit": "06c8d23",
+        "message": "done 처리됐으나 byTask['BL-ANALYTICS-HOTEL-INFO-WIRE'] 매핑 없음. _chat-logs/{date}-{slug}.md 박고 index.json byTask에 추가."
+      }
     },
     {
       "id": "BL-MANAGER-PAGES-BOOKING-WIRE",

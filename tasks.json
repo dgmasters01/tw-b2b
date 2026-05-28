@@ -15497,7 +15497,7 @@
       "category": "analytics",
       "priority": "P1",
       "size": "medium",
-      "status": "pending",
+      "status": "done",
       "owner": "claude",
       "claude_can_auto": true,
       "approval_required": false,
@@ -15507,17 +15507,45 @@
       "blocker": null,
       "depends_on": [],
       "progress": {
-        "percent": 0,
-        "steps": []
+        "percent": 100,
+        "steps": [
+          {
+            "n": 1,
+            "t": "기간 단위 토글(일/주/월/분기/년) UI + GR 전역상태",
+            "done": true
+          },
+          {
+            "n": 2,
+            "t": "일별 원본(D.dl) → 기간단위 집계 함수 agg()",
+            "done": true
+          },
+          {
+            "n": 3,
+            "t": "매출 추이 차트(c1/c2)를 GR 기준 렌더로 교체",
+            "done": true
+          },
+          {
+            "n": 4,
+            "t": "전기간 대비 증감(전월비/전년비 화살표) KPI 카드",
+            "done": true
+          },
+          {
+            "n": 5,
+            "t": "자체 검증(JS문법/라이브 fetch/시각) + 백업/커밋",
+            "done": true
+          }
+        ]
       },
       "notes": "booking-analytics.html 보강. 5개 토글 [일/주/월/분기/년]. Self-Sourced vs Agoda 채널 vs B2B $200 매출 3종 분리.",
       "created_at": "2026-05-12T17:04:42.051339Z",
-      "updated_at": "2026-05-12T17:04:42.051339Z",
+      "updated_at": "2026-05-28T05:25:34.481769Z",
       "source": "autoheal:analytics-2026-05-13",
       "target_pages": [
         "/booking-analytics.html",
         "/marketing.html"
-      ]
+      ],
+      "completed_at": "2026-05-28T05:27:51.744797+00:00",
+      "commit": "5642719"
     },
     {
       "id": "BL-RENEWAL-WATCH",

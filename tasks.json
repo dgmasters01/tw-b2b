@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-28T04:57:02+00:00",
+  "updated_at": "2026-05-28T04:58:24+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -13,13 +13,13 @@
   ],
   "stats": {
     "total": 262,
-    "done": 200,
-    "in_progress": 1,
+    "done": 199,
+    "in_progress": 2,
+    "paused": 0,
     "pending": 40,
     "blocked": 11,
-    "autonomous_ready": 32,
+    "autonomous_ready": 33,
     "todo": 2,
-    "paused": 0,
     "cancelled": 1,
     "updated_at": "2026-05-27T10:35:56.352Z"
   },
@@ -14616,14 +14616,14 @@
       "title": "[자동] 자동 일꾼 1명이 멈췄어요: sync-bot",
       "category": "infrastructure",
       "priority": "P0",
-      "status": "done",
+      "status": "pending",
       "claude_can_auto": true,
       "approval_required": false,
       "owner": "claude",
       "size": "small",
       "source": "auto_from_bots",
       "created_at": "2026-05-11T20:24:23.985Z",
-      "updated_at": "2026-05-28T04:57:02+00:00",
+      "updated_at": "2026-05-27T10:35:56.352Z",
       "deadline": null,
       "order": null,
       "blocker": null,
@@ -14709,25 +14709,11 @@
           "by": "auto-task-bot",
           "action": "reopened",
           "detail": "점검 봇 재발견: 자동 일꾼 1명이 멈췄어요: sync-bot"
-        },
-        {
-          "at": "2026-05-28T04:57:02+00:00",
-          "event": "완료 (auto-detected)",
-          "by": "auto-detect-bot",
-          "commit": "4443992",
-          "note": "fix(BL-AUTO-BOTS-SYNC-BOT): 출처 없는 작업 3건에 source 박음 → tasks_schema red 해소 + sync-bot 멈춤위험 근본차단. BL-ADMIN-ANALYTICS-STICKY"
         }
       ],
       "notes": "점검 봇 자동 등록 (2026-05-11T20:24:23.985Z)\n\ncheck_name: bots\nstatus: red\ndetail: 자동 일꾼 1명이 멈췄어요: sync-bot\n\n진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 green으로 박으면 자동 done.\n\n[자동 해소 2026-05-12T01:40:42.008Z] 점검 봇 green 전환\n\n[재개 2026-05-17T11:46:55.698Z] 자동 일꾼 1명이 멈췄어요: sync-bot\n\n[자동 해소 2026-05-17T19:49:03.745Z] 점검 봇 green 전환\n\n[재개 2026-05-20T16:16:47.608Z] 자동 일꾼 1명이 멈췄어요: sync-bot\n\n[자동 해소 2026-05-21T02:52:52.647Z] 점검 봇 green 전환\n\n[재개 2026-05-22T04:37:17.210Z] 자동 일꾼 1명이 멈췄어요: sync-bot\n\n[자동 해소 2026-05-22T11:17:01.083Z] 점검 봇 green 전환\n\n[재개 2026-05-25T10:55:25.015Z] 자동 일꾼 1명이 멈췄어요: sync-bot\n\n[재개 2026-05-27T10:35:56.352Z] 자동 일꾼 1명이 멈췄어요: sync-bot",
-      "completed_at": "2026-05-28T04:57:02+00:00",
-      "decision_context": "\n\n[근본 원인 fix 2026-05-25 17:30] sync_engine.py + sync_md_from_tasks.py 4건 .get(key, default)[:N] NoneType 슬라이싱 버그. None 안전 처리 정정. 로컬 sync_engine --apply 라이브 검증 통과.",
-      "chatlog_warning": {
-        "code": "MISSING_CHATLOG_MAPPING",
-        "rule": "부칙 15 — done 트랜지션 시 _chat-logs/index.json byTask 매핑 의무",
-        "detected_at": "2026-05-28T04:57:02+00:00",
-        "detected_by_commit": "4443992",
-        "message": "done 처리됐으나 byTask['BL-AUTO-BOTS-SYNC-BOT'] 매핑 없음. _chat-logs/{date}-{slug}.md 박고 index.json byTask에 추가."
-      }
+      "completed_at": "2026-05-25T17:48:39+00:00",
+      "decision_context": "\n\n[근본 원인 fix 2026-05-25 17:30] sync_engine.py + sync_md_from_tasks.py 4건 .get(key, default)[:N] NoneType 슬라이싱 버그. None 안전 처리 정정. 로컬 sync_engine --apply 라이브 검증 통과."
     },
     {
       "id": "BL-ADMIN-ACTIVITY-MOVE",
@@ -20148,7 +20134,7 @@
       ],
       "estimated_minutes": 10,
       "started_at": "2026-05-27T01:57:47+00:00",
-      "updated_at": "2026-05-28T04:57:02+00:00",
+      "updated_at": "2026-05-28T04:02:39+00:00",
       "history": [
         {
           "at": "2026-05-27T01:57:47+00:00",
@@ -20163,33 +20149,12 @@
           "by": "auto-detect-bot",
           "commit": "dc5fb10",
           "note": "feat(BL-ADMIN-ANALYTICS-STICKY-MENU): tab nav sticky on scroll (restore post-base64)"
-        },
-        {
-          "at": "2026-05-28T04:56:33+00:00",
-          "event": "done + source 보강 (auto-task-bot 출처누락 복구)",
-          "by": "claude",
-          "commit": "dc5fb10",
-          "note": "tasks_schema red(출처 0건) 해소 + B/C 상태 닫기. sync-bot 멈춤위험 근본 해소."
-        },
-        {
-          "at": "2026-05-28T04:57:02+00:00",
-          "event": "완료 commit 추가 (이미 done)",
-          "by": "auto-detect-bot",
-          "commit": "4443992",
-          "note": "fix(BL-AUTO-BOTS-SYNC-BOT): 출처 없는 작업 3건에 source 박음 → tasks_schema red 해소 + sync-bot 멈춤위험 근본차단. BL-ADMIN-ANALYTICS-STICKY"
         }
       ],
       "source": "auto_from_commit",
       "source_anchor": "commit dc5fb10",
-      "completed_at": "2026-05-28T04:56:33+00:00",
-      "commit": "dc5fb10",
-      "chatlog_warning": {
-        "code": "MISSING_CHATLOG_MAPPING",
-        "rule": "부칙 15 — done 트랜지션 시 _chat-logs/index.json byTask 매핑 의무",
-        "detected_at": "2026-05-28T04:57:02+00:00",
-        "detected_by_commit": "4443992",
-        "message": "done 처리됐으나 byTask['BL-ADMIN-ANALYTICS-STICKY-MENU'] 매핑 없음. _chat-logs/{date}-{slug}.md 박고 index.json byTask에 추가."
-      }
+      "completed_at": "2026-05-28T04:58:24+00:00",
+      "commit": "dc5fb10"
     },
     {
       "id": "BL-ANALYTICS-HOTEL-INFO-WIRE",
@@ -20204,7 +20169,7 @@
       ],
       "estimated_minutes": 30,
       "started_at": "2026-05-27T01:59:48+00:00",
-      "updated_at": "2026-05-28T04:57:02+00:00",
+      "updated_at": "2026-05-28T04:34:09+00:00",
       "history": [
         {
           "at": "2026-05-27T01:59:48+00:00",
@@ -20226,33 +20191,12 @@
           "by": "auto-detect-bot",
           "commit": "06c8d23",
           "note": "[BL-ANALYTICS-HOTEL-INFO-WIRE] 완료 — chat-log 박기 + status 닫기 (실작업 035cf27 완료, 상태 누락 복구) ✅"
-        },
-        {
-          "at": "2026-05-28T04:56:33+00:00",
-          "event": "done + source 보강 (auto-task-bot 출처누락 복구)",
-          "by": "claude",
-          "commit": "035cf27",
-          "note": "tasks_schema red(출처 0건) 해소 + B/C 상태 닫기. sync-bot 멈춤위험 근본 해소."
-        },
-        {
-          "at": "2026-05-28T04:57:02+00:00",
-          "event": "완료 commit 추가 (이미 done)",
-          "by": "auto-detect-bot",
-          "commit": "4443992",
-          "note": "fix(BL-AUTO-BOTS-SYNC-BOT): 출처 없는 작업 3건에 source 박음 → tasks_schema red 해소 + sync-bot 멈춤위험 근본차단. BL-ADMIN-ANALYTICS-STICKY"
         }
       ],
       "completed_at": "2026-05-28T04:34:09+00:00",
       "source": "auto_from_commit",
       "source_anchor": "commit 035cf27",
-      "commit": "035cf27",
-      "chatlog_warning": {
-        "code": "MISSING_CHATLOG_MAPPING",
-        "rule": "부칙 15 — done 트랜지션 시 _chat-logs/index.json byTask 매핑 의무",
-        "detected_at": "2026-05-28T04:57:02+00:00",
-        "detected_by_commit": "4443992",
-        "message": "done 처리됐으나 byTask['BL-ANALYTICS-HOTEL-INFO-WIRE'] 매핑 없음. _chat-logs/{date}-{slug}.md 박고 index.json byTask에 추가."
-      }
+      "commit": "035cf27"
     },
     {
       "id": "BL-MANAGER-PAGES-BOOKING-WIRE",
@@ -20268,15 +20212,7 @@
       ],
       "estimated_minutes": 45,
       "source": "auto_from_commit",
-      "source_anchor": "auto-detect-bot 생성 (commit 출처)",
-      "history": [
-        {
-          "at": "2026-05-28T04:56:33+00:00",
-          "event": "source 보강",
-          "by": "claude",
-          "note": "출처 누락 복구 (tasks_schema red 해소)"
-        }
-      ]
+      "source_anchor": "auto-detect-bot 생성"
     },
     {
       "id": "BL-AUTO-TASKS-SCHEMA-3MISSING",

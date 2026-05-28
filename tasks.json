@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-28T05:34:42+00:00",
+  "updated_at": "2026-05-28T05:36:41+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -13,8 +13,8 @@
   ],
   "stats": {
     "total": 262,
-    "done": 202,
-    "in_progress": 1,
+    "done": 203,
+    "in_progress": 0,
     "paused": 0,
     "pending": 38,
     "blocked": 11,
@@ -20313,7 +20313,7 @@
       "title": "[정책 기록 누락 검증 봇] D5 위반 감지 — 결정 박힌 후 2벌 저장 안 됐는지 자동 점검",
       "category": "ops-discipline",
       "priority": "P1",
-      "status": "in_progress",
+      "status": "done",
       "taskRole": "auto",
       "order": 1,
       "what_visible": "매일 밤 03:00 KST GitHub Actions 실행 → _os/charter/decisions-index.md 최종 갱신 시각 vs 어제 commit log 결정 키워드 grep → 불일치 시 admin-status.html에 빨간 알림 카드",
@@ -20329,7 +20329,7 @@
         "detected_by_commit": "2a5c349",
         "message": "in_progress 진입했으나 progress.steps 비어있음. tasks.json에서 progress.steps 박은 후 다음 commit에 [step:done:N] 태그."
       },
-      "updated_at": "2026-05-28T05:34:42+00:00",
+      "updated_at": "2026-05-28T05:36:41+00:00",
       "history": [
         {
           "at": "2026-05-27T10:08:24+00:00",
@@ -20344,8 +20344,23 @@
           "by": "auto-detect-bot",
           "commit": "00db903",
           "note": "feat(health-bot): add checkDecisionsSync — BL-DECISIONS-AUDIT-BOT D5 violation detector [step:done:1]"
+        },
+        {
+          "at": "2026-05-28T05:36:41+00:00",
+          "event": "완료 (auto-detected)",
+          "by": "auto-detect-bot",
+          "commit": "3b3e635",
+          "note": "docs(chat-log): BL-DECISIONS-AUDIT-BOT 완료 — D5 위반 감지 봇 health-bot 통합 [step:done:1] ✅"
         }
-      ]
+      ],
+      "completed_at": "2026-05-28T05:36:41+00:00",
+      "chatlog_warning": {
+        "code": "MISSING_CHATLOG_MAPPING",
+        "rule": "부칙 15 — done 트랜지션 시 _chat-logs/index.json byTask 매핑 의무",
+        "detected_at": "2026-05-28T05:36:41+00:00",
+        "detected_by_commit": "3b3e635",
+        "message": "done 처리됐으나 byTask['BL-DECISIONS-AUDIT-BOT'] 매핑 없음. _chat-logs/{date}-{slug}.md 박고 index.json byTask에 추가."
+      }
     }
   ]
 }

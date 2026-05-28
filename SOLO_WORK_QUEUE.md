@@ -29,29 +29,7 @@
 
 ---
 
-### B. 🟢 AUTO — [자동] 자동 일꾼 1명이 멈췄어요: sync-bot
-
-**ID**: `BL-AUTO-BOTS-SYNC-BOT`  
-**카테고리**: infrastructure  
-**예상 시간**: 1시간  
-
-**메모**: 점검 봇 자동 등록 (2026-05-11T20:24:23.985Z)
-
-check_name: bots
-status: red
-detail: 자동 일꾼 1명이 멈췄어요: sync-bot
-
-진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 green으로 박으면 자동 done.
-
-[자동 해소 2026-05-12T01:40:42.008Z] 점검 봇 green 전환
-
-[재개 2026-05-17T11:46:55.698Z] 자동 일꾼 1명이 멈췄어요: sync-bot
-
-[자동 해소 202
-
----
-
-### C. 🟢 AUTO — [자동] 작업 260건 중 3건에 출처가 없어요 (자동 동기화 봇 멈춤 위험)
+### B. 🟢 AUTO — [자동] 작업 260건 중 3건에 출처가 없어요 (자동 동기화 봇 멈춤 위험)
 
 **ID**: `BL-AUTO-TASKS-SCHEMA-3MISSING`  
 **카테고리**: infrastructure  
@@ -176,17 +154,7 @@ detail: 관리자 페이지 3개가 원본과 살짝 달라요 (대표님이 일
 
 ---
 
-### I. 🟡 SEMI — [매출 차트 토글] 일/주/월/분기/년 보기 + 전월비/전년비 — booking-analytics 보강
-
-**ID**: `BL-REVENUE-DASHBOARD`  
-**카테고리**: analytics  
-**예상 시간**: 미정시간  
-
-**메모**: booking-analytics.html 보강. 5개 토글 [일/주/월/분기/년]. Self-Sourced vs Agoda 채널 vs B2B $200 매출 3종 분리.
-
----
-
-### J. 🟡 SEMI — [재계약 관리 탭] D-30 임박 호텔 + 저성과 호텔(매출 $200 미만) 자동 추출
+### I. 🟡 SEMI — [재계약 관리 탭] D-30 임박 호텔 + 저성과 호텔(매출 $200 미만) 자동 추출
 
 **ID**: `BL-RENEWAL-WATCH`  
 **카테고리**: feature  
@@ -196,7 +164,7 @@ detail: 관리자 페이지 3개가 원본과 살짝 달라요 (대표님이 일
 
 ---
 
-### K. 🟡 SEMI — [환불 관리 탭] PayPal Refund API 연동 + 환불 이력 영구 보관
+### J. 🟡 SEMI — [환불 관리 탭] PayPal Refund API 연동 + 환불 이력 영구 보관
 
 **ID**: `BL-REFUND-FLOW`  
 **카테고리**: feature  
@@ -206,7 +174,7 @@ detail: 관리자 페이지 3개가 원본과 살짝 달라요 (대표님이 일
 
 ---
 
-### L. 🟡 SEMI — [가입 시 국가 선택 필수] 동남아 7개국 상단 노출
+### K. 🟡 SEMI — [가입 시 국가 선택 필수] 동남아 7개국 상단 노출
 
 **ID**: `BL-SIGNUP-COUNTRY-FIELD`  
 **카테고리**: feature  
@@ -216,7 +184,7 @@ detail: 관리자 페이지 3개가 원본과 살짝 달라요 (대표님이 일
 
 ---
 
-### M. 🟡 SEMI — [자동 메일 12개 영어 default] 한국 매니저만 한국어 분기
+### L. 🟡 SEMI — [자동 메일 12개 영어 default] 한국 매니저만 한국어 분기
 
 **ID**: `BL-EMAIL-LOCALE-ROUTING`  
 **카테고리**: feature  

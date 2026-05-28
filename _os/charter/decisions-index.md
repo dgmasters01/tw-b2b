@@ -5,6 +5,14 @@
 
 ---
 
+## 2026-05-28 결정 기록 누락 감지 봇 (1건, D16)
+
+| ID | 결정 | 핵심 룰 | 사람용 문서 |
+|----|------|--------|------------|
+| D16 | 결정 2벌저장 누락 감지 봇 (BL-DECISIONS-AUDIT-BOT) | health_check_admin.mjs에 checkDecisionsSync() 통합 / 최근24h 결정신호 commit(D\\d+·AGR-·결정·정책·합의·[헌법변경]) 있는데 decisions-index.md+_business/decisions/ 미저장 → _health.json decisions_sync=red → admin-status 배너 자동표출 / D5 의지의존 룰을 봇으로 강제(2026-05-27 사고 재발방지) / 신규워크플로 안만듦(PAT workflow스코프 차단) / commit 00db903 | 2026-05-28-bl-decisions-audit-bot.md |
+
+---
+
 ## 2026-05-27 base64 사고 + 새 룰 (7건, D9~D15)
 
 | ID | 결정 | 핵심 룰 | 사람용 문서 |

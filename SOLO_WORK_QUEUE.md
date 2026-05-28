@@ -3,7 +3,7 @@
 > ⚠️ **이 파일은 자동 생성됩니다.** 수동 편집하지 마세요.
 > 단일 진실 소스: `tasks.json` (v2.0)
 > **데드라인**: 2026-05-03
-> **갱신**: 2026-05-26
+> **갱신**: 2026-05-28
 > **목적**: 대표님 외근/자리비움 시 Claude 자율 처리 가능 작업
 
 ## 작업 분류 체계
@@ -26,6 +26,44 @@
 **막힘 사유**: supabase 호텔/예약 인프라 박힌 후 4종 사업 source 연결. 진행률 표시 + 활동이력 결함 4건은 BL-IPB-* / BL-ACT-* 로 분리.  
 
 **메모**: ## 🔴 P0 — 통합 To-Do Inbox (관리자 대시보드 재설계) ⭐⭐⭐ 2026-04-29  **배경** (대표님 핵심 운영 철학): > "한 사람이 처리해야 될 업무는 한 곳에서 우선순위가 표시되어 체크하면 정리할 수 있게 해야 됨. 내가 복잡하게 관리하게 하면 안 됨. 나에게 유리하게 해야 됨."  대표님 1인 운영. 처리 작업이 여러 탭에 흩어져 있으면 누락 발생. 한 곳에 통합 필요.  **작업 항목**: 1. **admin.html Dashboard 탭 = To-Do Inbox** 으로 재설계    - 모든 처리 작
+
+---
+
+### B. 🟢 AUTO — [자동] 자동 일꾼 1명이 멈췄어요: sync-bot
+
+**ID**: `BL-AUTO-BOTS-SYNC-BOT`  
+**카테고리**: infrastructure  
+**예상 시간**: 1시간  
+
+**메모**: 점검 봇 자동 등록 (2026-05-11T20:24:23.985Z)
+
+check_name: bots
+status: red
+detail: 자동 일꾼 1명이 멈췄어요: sync-bot
+
+진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 green으로 박으면 자동 done.
+
+[자동 해소 2026-05-12T01:40:42.008Z] 점검 봇 green 전환
+
+[재개 2026-05-17T11:46:55.698Z] 자동 일꾼 1명이 멈췄어요: sync-bot
+
+[자동 해소 202
+
+---
+
+### C. 🟢 AUTO — [자동] 작업 260건 중 3건에 출처가 없어요 (자동 동기화 봇 멈춤 위험)
+
+**ID**: `BL-AUTO-TASKS-SCHEMA-3MISSING`  
+**카테고리**: infrastructure  
+**예상 시간**: 1시간  
+
+**메모**: 점검 봇 자동 등록 (2026-05-27T01:51:12.967Z)
+
+check_name: tasks_schema
+status: red
+detail: 작업 260건 중 3건에 출처가 없어요 (자동 동기화 봇 멈춤 위험)
+
+진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 green으로 박으면 자동 done.
 
 ---
 
@@ -110,7 +148,23 @@ detail: 관리자 페이지 2개가 원본과 살짝 달라요 (대표님이 일
 
 ---
 
-### G. 🟡 SEMI — OS 설치 시 PAT/시크릿 자동 박기 흐름 — install_os.sh 보강
+### G. 🟢 AUTO — [자동] 관리자 페이지 3개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요)
+
+**ID**: `BL-AUTO-ADMIN-BASELINE-3FILES`  
+**카테고리**: infrastructure  
+**예상 시간**: 1시간  
+
+**메모**: 점검 봇 자동 등록 (2026-05-26T05:45:12.678Z)
+
+check_name: admin_baseline
+status: yellow
+detail: 관리자 페이지 3개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요)
+
+진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 green으로 박으면 자동 done.
+
+---
+
+### H. 🟡 SEMI — OS 설치 시 PAT/시크릿 자동 박기 흐름 — install_os.sh 보강
 
 **ID**: `BL-OS-INSTALL-PAT-FLOW`  
 **카테고리**: infra  
@@ -122,7 +176,7 @@ detail: 관리자 페이지 2개가 원본과 살짝 달라요 (대표님이 일
 
 ---
 
-### H. 🟡 SEMI — [매출 차트 토글] 일/주/월/분기/년 보기 + 전월비/전년비 — booking-analytics 보강
+### I. 🟡 SEMI — [매출 차트 토글] 일/주/월/분기/년 보기 + 전월비/전년비 — booking-analytics 보강
 
 **ID**: `BL-REVENUE-DASHBOARD`  
 **카테고리**: analytics  
@@ -132,7 +186,7 @@ detail: 관리자 페이지 2개가 원본과 살짝 달라요 (대표님이 일
 
 ---
 
-### I. 🟡 SEMI — [재계약 관리 탭] D-30 임박 호텔 + 저성과 호텔(매출 $200 미만) 자동 추출
+### J. 🟡 SEMI — [재계약 관리 탭] D-30 임박 호텔 + 저성과 호텔(매출 $200 미만) 자동 추출
 
 **ID**: `BL-RENEWAL-WATCH`  
 **카테고리**: feature  
@@ -142,7 +196,7 @@ detail: 관리자 페이지 2개가 원본과 살짝 달라요 (대표님이 일
 
 ---
 
-### J. 🟡 SEMI — [환불 관리 탭] PayPal Refund API 연동 + 환불 이력 영구 보관
+### K. 🟡 SEMI — [환불 관리 탭] PayPal Refund API 연동 + 환불 이력 영구 보관
 
 **ID**: `BL-REFUND-FLOW`  
 **카테고리**: feature  
@@ -152,7 +206,7 @@ detail: 관리자 페이지 2개가 원본과 살짝 달라요 (대표님이 일
 
 ---
 
-### K. 🟡 SEMI — [가입 시 국가 선택 필수] 동남아 7개국 상단 노출
+### L. 🟡 SEMI — [가입 시 국가 선택 필수] 동남아 7개국 상단 노출
 
 **ID**: `BL-SIGNUP-COUNTRY-FIELD`  
 **카테고리**: feature  
@@ -162,7 +216,7 @@ detail: 관리자 페이지 2개가 원본과 살짝 달라요 (대표님이 일
 
 ---
 
-### L. 🟡 SEMI — [자동 메일 12개 영어 default] 한국 매니저만 한국어 분기
+### M. 🟡 SEMI — [자동 메일 12개 영어 default] 한국 매니저만 한국어 분기
 
 **ID**: `BL-EMAIL-LOCALE-ROUTING`  
 **카테고리**: feature  

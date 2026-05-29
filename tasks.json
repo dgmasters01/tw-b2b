@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-28T08:44:31+00:00",
+  "updated_at": "2026-05-29T11:55:55.969Z",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -12,16 +12,16 @@
     "SOLO_WORK_QUEUE.md"
   ],
   "stats": {
-    "total": 262,
+    "total": 263,
     "done": 204,
     "in_progress": 1,
     "paused": 0,
-    "pending": 36,
+    "pending": 37,
     "blocked": 11,
-    "autonomous_ready": 30,
+    "autonomous_ready": 31,
     "todo": 2,
     "cancelled": 1,
-    "updated_at": "2026-05-28T08:40:08.843Z"
+    "updated_at": "2026-05-29T11:55:55.969Z"
   },
   "tasks": [
     {
@@ -20382,6 +20382,42 @@
         "detected_by_commit": "3b3e635",
         "message": "done 처리됐으나 byTask['BL-DECISIONS-AUDIT-BOT'] 매핑 없음. _chat-logs/{date}-{slug}.md 박고 index.json byTask에 추가."
       }
+    },
+    {
+      "id": "BL-AUTO-DECISIONS-SYNC-GENERAL",
+      "title": "[자동] 결정 1건이 박혔는데 결정 기록(사람용/검색용 2벌)이 저장 안 됐어요 — _os/charter/decisions-index.md + _business/decisions/ 둘 다 박아주세요 (D5 룰)",
+      "category": "infrastructure",
+      "priority": "P0",
+      "status": "pending",
+      "claude_can_auto": true,
+      "approval_required": false,
+      "owner": "claude",
+      "size": "small",
+      "source": "auto_from_decisions_sync",
+      "created_at": "2026-05-29T11:55:55.969Z",
+      "updated_at": "2026-05-29T11:55:55.969Z",
+      "deadline": null,
+      "order": null,
+      "blocker": null,
+      "autonomous": {
+        "can_run_alone": true,
+        "estimated_hours": 1,
+        "requires_decisions_first": []
+      },
+      "decision_ref": "D-024",
+      "progress": {
+        "percent": 0,
+        "steps": []
+      },
+      "history": [
+        {
+          "at": "2026-05-29T11:55:55.969Z",
+          "by": "auto-task-bot",
+          "action": "created",
+          "detail": "점검 봇 발견 (decisions_sync=red): 결정 1건이 박혔는데 결정 기록(사람용/검색용 2벌)이 저장 안 됐어요 — _os/charter/decisions-index.md + _business/decisions/ 둘 다 박아주세요 (D5 룰)"
+        }
+      ],
+      "notes": "점검 봇 자동 등록 (2026-05-29T11:55:55.969Z)\n\ncheck_name: decisions_sync\nstatus: red\ndetail: 결정 1건이 박혔는데 결정 기록(사람용/검색용 2벌)이 저장 안 됐어요 — _os/charter/decisions-index.md + _business/decisions/ 둘 다 박아주세요 (D5 룰)\n\n진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 green으로 박으면 자동 done."
     }
   ]
 }

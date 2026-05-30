@@ -1,7 +1,7 @@
 {
   "overall": "red",
-  "summary": "[yellow] admin_baseline: 관리자 페이지 3개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요) / [red] decisions_sync: 결정 2건이 박혔는데 결정 기록(사람용/검색용 2벌)이 저장 안 됐어요 — _os/charter/decisions-index.md + _business/decisions/ 둘 다 박아주세요 (D5 룰) / [yellow] vercel_sync: 라이브 사이트가 GitHub 새 버전(071ebbf)을 아직 못 따라잡았어요 (현재 라이브: 183f4a5). 5~10분 후 자동 정상화 예정",
-  "checked_at": "2026-05-30T09:15:15.614Z",
+  "summary": "[yellow] admin_baseline: 관리자 페이지 3개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요) / [red] decisions_sync: 결정 3건이 박혔는데 결정 기록(사람용/검색용 2벌)이 저장 안 됐어요 — _os/charter/decisions-index.md + _business/decisions/ 둘 다 박아주세요 (D5 룰)",
+  "checked_at": "2026-05-30T09:30:34.786Z",
   "checks": [
     {
       "name": "admin_baseline",
@@ -39,7 +39,7 @@
       "bot_status": {
         "sync-bot": "success",
         "auto-detect-bot": "success",
-        "scan-bot": "unknown",
+        "scan-bot": "success",
         "chat-log-bot": "success",
         "autoheal-bot": "unknown"
       }
@@ -47,18 +47,19 @@
     {
       "name": "decisions_sync",
       "status": "red",
-      "detail": "결정 2건이 박혔는데 결정 기록(사람용/검색용 2벌)이 저장 안 됐어요 — _os/charter/decisions-index.md + _business/decisions/ 둘 다 박아주세요 (D5 룰)",
+      "detail": "결정 3건이 박혔는데 결정 기록(사람용/검색용 2벌)이 저장 안 됐어요 — _os/charter/decisions-index.md + _business/decisions/ 둘 다 박아주세요 (D5 룰)",
       "missing_source": [
+        "c5e5cd7 (결정 기록 2벌 저장 누락)",
         "071ebbf (결정 기록 2벌 저장 누락)",
         "a71af50 (결정 기록 2벌 저장 누락)"
       ]
     },
     {
       "name": "vercel_sync",
-      "status": "yellow",
-      "detail": "라이브 사이트가 GitHub 새 버전(071ebbf)을 아직 못 따라잡았어요 (현재 라이브: 183f4a5). 5~10분 후 자동 정상화 예정",
-      "live_sha": "071ebbf",
-      "vercel_sha": "183f4a5",
+      "status": "green",
+      "detail": "라이브 사이트가 GitHub와 같은 버전이에요 (a909dd5)",
+      "live_sha": "a909dd5",
+      "vercel_sha": "a909dd5",
       "project": "tw-b2b"
     },
     {

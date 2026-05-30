@@ -368,9 +368,40 @@
           <input type="text" class="hi-input" id="edit-city" placeholder="">
         </div>
         <div class="hi-field">
-          <label class="hi-label" data-en="Country" data-ko="국가">Country</label>
-          <input type="text" class="hi-input" id="edit-country" placeholder="">
-        </div>
+          <label class="hi-label" data-en="Country *" data-ko="국가 *">Country *</label>
+          <select class="hi-select" id="edit-country" required>
+            <option value="" data-en="Select country..." data-ko="국가 선택...">Select country...</option>
+            <optgroup label="Southeast Asia / 동남아">
+              <option value="Vietnam" data-en="Vietnam" data-ko="베트남">Vietnam</option>
+              <option value="Thailand" data-en="Thailand" data-ko="태국">Thailand</option>
+              <option value="Philippines" data-en="Philippines" data-ko="필리핀">Philippines</option>
+              <option value="Indonesia" data-en="Indonesia" data-ko="인도네시아">Indonesia</option>
+              <option value="Malaysia" data-en="Malaysia" data-ko="말레이시아">Malaysia</option>
+              <option value="Singapore" data-en="Singapore" data-ko="싱가포르">Singapore</option>
+              <option value="Cambodia" data-en="Cambodia" data-ko="캄보디아">Cambodia</option>
+              <option value="Laos" data-en="Laos" data-ko="라오스">Laos</option>
+              <option value="Myanmar" data-en="Myanmar" data-ko="미얀마">Myanmar</option>
+              <option value="Brunei" data-en="Brunei" data-ko="브루나이">Brunei</option>
+            </optgroup>
+            <optgroup label="Asia / 아시아">
+              <option value="South Korea" data-en="South Korea" data-ko="대한민국">South Korea</option>
+              <option value="Japan" data-en="Japan" data-ko="일본">Japan</option>
+              <option value="China" data-en="China" data-ko="중국">China</option>
+              <option value="Taiwan" data-en="Taiwan" data-ko="대만">Taiwan</option>
+              <option value="Hong Kong" data-en="Hong Kong" data-ko="홍콩">Hong Kong</option>
+              <option value="India" data-en="India" data-ko="인도">India</option>
+              <option value="Sri Lanka" data-en="Sri Lanka" data-ko="스리랑카">Sri Lanka</option>
+              <option value="Nepal" data-en="Nepal" data-ko="네팔">Nepal</option>
+              <option value="Maldives" data-en="Maldives" data-ko="몰디브">Maldives</option>
+            </optgroup>
+            <optgroup label="Other / 기타">
+              <option value="United Arab Emirates" data-en="United Arab Emirates" data-ko="아랍에미리트">United Arab Emirates</option>
+              <option value="Australia" data-en="Australia" data-ko="호주">Australia</option>
+              <option value="United States" data-en="United States" data-ko="미국">United States</option>
+              <option value="United Kingdom" data-en="United Kingdom" data-ko="영국">United Kingdom</option>
+              <option value="Other" data-en="Other (not listed)" data-ko="기타 (목록에 없음)">Other (not listed)</option>
+            </optgroup>
+          </select>        </div>
       </div>
 
       <div class="hi-row">
@@ -594,7 +625,7 @@
     if ($('edit-rate')) $('edit-rate').value = h.daily_rate || '';
     if ($('edit-address')) $('edit-address').value = h.address || '';
     if ($('edit-city')) $('edit-city').value = h.city || '';
-    if ($('edit-country')) $('edit-country').value = h.country || '';
+    if ($('edit-country')) setCountrySelect(h.country);
     if ($('edit-latitude')) $('edit-latitude').value = h.latitude || '';
     if ($('edit-longitude')) $('edit-longitude').value = h.longitude || '';
     if ($('edit-phone')) $('edit-phone').value = h.phone || '';
@@ -963,7 +994,7 @@
     // 도시/국가 추출 (주소에서 휴리스틱)
     var cityCountry = parseAddressForCityCountry(m.address || '', res);
     $('edit-city').value = cityCountry.city || '';
-    $('edit-country').value = cityCountry.country || '';
+    setCountrySelect(cityCountry.country);
 
     // 위경도
     $('edit-latitude').value = (m.latitude != null) ? m.latitude : '';
@@ -1035,6 +1066,25 @@
 
   $('btn-back').addEventListener('click', function(){ setStep(1); });
 
+  // 자동채움 국가값을 드롭다운 옵션에 매칭 (정확→data-ko→부분, 실패시 미선택)
+  function setCountrySelect(val){
+    var sel = $('edit-country'); if(!sel) return;
+    var v = (val==null?'':String(val)).trim();
+    if(!v){ sel.value=''; return; }
+    var lv = v.toLowerCase();
+    var opts = sel.options;
+    for(var i=0;i<opts.length;i++){
+      if(opts[i].value && opts[i].value.toLowerCase()===lv){ sel.value=opts[i].value; return; }
+      var ko = opts[i].getAttribute('data-ko');
+      if(ko && ko.toLowerCase()===lv){ sel.value=opts[i].value; return; }
+    }
+    for(var j=0;j<opts.length;j++){
+      var ov = (opts[j].value||'').toLowerCase();
+      if(ov && (lv.indexOf(ov)>=0 || ov.indexOf(lv)>=0)){ sel.value=opts[j].value; return; }
+    }
+    sel.value='';
+  }
+
   $('btn-save').addEventListener('click', function(){
     var name = $('edit-name').value.trim();
     var nameLocal = $('edit-name-local').value.trim();
@@ -1079,6 +1129,11 @@
     var managerPhone = $('edit-manager-phone').value.trim();
     if (!managerPhone){
       T.toast(T.lang === 'ko' ? '전화번호는 필수입니다.' : 'Phone is required.', true);
+      return;
+    }
+    var countryVal = $('edit-country') ? $('edit-country').value : '';
+    if (!countryVal){
+      T.toast(T.lang === 'ko' ? '국가를 선택하세요.' : 'Please select your country.', true);
       return;
     }
 

@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-30T16:29:41+00:00",
+  "updated_at": "2026-05-30T16:37:08+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -15646,7 +15646,7 @@
       },
       "notes": "marketing.html 매니저 본인 신청 → admin '↩️ 환불·취소' 탭 등장 → 대표님 확인 → PayPal Refund API. 영수증 PDF 5년 보관. [완료] refund-request는 admin.js 액션 대신 RLS 직접 insert로 구현(admin.js는 관리자 전용 인증). approve의 payments status='succeeded' 정합 확인(CHECK 제약). PayPal sandbox E2E는 실결제(payments) 발생 후 검증 필요.",
       "created_at": "2026-05-12T17:04:42.051339Z",
-      "updated_at": "2026-05-30T16:29:41+00:00",
+      "updated_at": "2026-05-30T16:37:08+00:00",
       "source": "decision:D-033",
       "target_pages": [
         "/marketing.html",
@@ -15694,6 +15694,13 @@
           "by": "auto-detect-bot",
           "commit": "ad549d8",
           "note": "docs(handoff): BL-REFUND-FLOW step2 완료 기록 + 다음작업 BL-SIGNUP-COUNTRY-FIELD + RENEWAL 정리"
+        },
+        {
+          "at": "2026-05-30T16:37:08+00:00",
+          "event": "done 작업에 commit 추가 (status 유지 — 자동 리오픈 안 함)",
+          "by": "auto-detect-bot",
+          "commit": "ea1e855",
+          "note": "fix(BL-REFUND-FLOW): 환불 탭 'T is not defined' 수정 — rfToken에서 T.sb→window.TW.sb (별도 IIFE 스코프 격리 해소)"
         }
       ]
     },

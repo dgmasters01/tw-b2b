@@ -10,6 +10,38 @@
 
 ---
 
+## 🆕 2026-05-30 — 매니저 시점 보기, 옛 통로 미복원 + 매니저 허브로 단일화 (BL-ADMIN-SIDEBAR-MISSING-ENTRIES)
+
+### D-050: impersonate(매니저 시점) 미복원 — admin-manager-hub.html(상세)로 매니저 화면 진입 단일화
+
+**언제**: 2026-05-30
+**누가**: 이지형 대표님(②③ UX/UI 판단 위임) + Claude(정석 5기준 결정·구현)
+**상태**: ✅ 박힘 (코드 commit 071ebbf, e13be63 / 본 결정 DECISIONS.md + DECISIONS_INDEX.md 동시 등록)
+
+**무엇을**:
+1. admin.html에서 매니저 화면으로 들어가는 입구를 `admin-manager-hub.html`(상세) 한 곳으로 모은다.
+2. 옛 `dashboard.html?impersonate=ID`(매니저 시점으로 보기) 경로는 복원하지 않는다.
+3. 호텔 행 진입 버튼은 「매니저 허브」(`/admin-manager-hub.html?id={user_id}`)로, 가입자 행 라벨은 '상세 →' → '매니저 허브 →'로 통일.
+
+**왜**:
+- 라이브 실측: `/dashboard.html?impersonate=` 접속 시 308 리다이렉트 → `/manager-dashboard.html`로 넘어가고, 그 페이지에 impersonate 코드 0건. BL-FLOW-3 라우팅 개편 과정에서 옛 통로가 단절됨.
+- 끊긴 통로를 되살리는 것보다, 이미 작동하는 `admin-manager-hub.html`로 모으는 쪽이 정석 5기준(단일진실 / 롤백안전 / 유지보수)에 부합.
+- 사이드바에 별도 '매니저 허브' 메뉴를 또 만들지 않은 이유: 가입자(Members) 목록이 이미 허브 입구라 부칙 18ⓑ(갤러리 우선 점검·중복 회피)에 따라 중복을 피함.
+
+**발견 경위**: 2026-05-30 카테고리 전수 점검 중 대표님이 "그런 기능(매니저 시점 보기) 있는지 몰랐다"고 짚음 → admin 사이드바 진입로 누락(부칙 18ⓑ 위반) 확인 → 매니저 시점 옛 경로 추적 중 단절 발견.
+
+**누가 영향받나**:
+- 대표님 — 매니저 화면을 메뉴/버튼으로 진입(주소 직접 입력 불필요).
+- 미래 Claude — 매니저 화면 진입은 `admin-manager-hub.html` 단일 경로로 판단. `dashboard.html` impersonate 복원 시도 금지.
+
+**파일 변경**:
+- `_admin/admin.html` (사이드바 청구서 입구 + 호텔/가입자 행 매니저 허브 버튼·라벨)
+- `DECISIONS.md`(이 박스) + `DECISIONS_INDEX.md` D-050 등록
+
+**후속 작업**: 없음 (BL-ADMIN-SIDEBAR-MISSING-ENTRIES done).
+
+---
+
 ## 🆕 2026-05-26 — 채팅 끊김 객관 트리거 4종 도입 (BL-CHAT-CUTOFF-TRIGGERS / 헌법 부칙 16.1 신설)
 
 ### D-049: "끊김 위험 감지" 추상 규칙 → 객관 카운트 4종으로 전환

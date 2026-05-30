@@ -165,7 +165,7 @@ function checkDecisionsSync() {
     });
 
   // 봇 자동 commit은 결정 신호 판정에서 제외(노이즈)
-  const BOT_PREFIXES = ['[sync-bot]', '[scan-bot]', '[health-bot]', '[auto-detect-bot]', '[activity-bot]', '[chat-log-bot]'];
+  const BOT_PREFIXES = ['[sync-bot]', '[scan-bot]', '[health-bot]', '[auto-detect-bot]', '[activity-bot]', '[chat-log-bot]', '[verification-gap-bot]', '[decision-tracking-bot]', '[auto-task-bot]'];
   const isBotCommit = (text) => BOT_PREFIXES.some((p) => text.includes(p));
 
   // 결정 신호 키워드 — 사업/시스템/마케팅/전략 결정이 박혔다는 신호

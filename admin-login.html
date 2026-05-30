@@ -53,6 +53,11 @@
   <label for="password">비밀번호</label>
   <input type="password" id="password" autocomplete="current-password" required>
 
+  <label style="display:flex;align-items:center;gap:8px;font-size:13px;margin:10px 0 4px;cursor:pointer;user-select:none">
+    <input type="checkbox" id="admin-remember" style="width:15px;height:15px;cursor:pointer">
+    이 기기에서 로그인 유지
+  </label>
+
   <button id="btn-login">로그인</button>
 
   <div class="footer">
@@ -67,8 +72,29 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 const SUPABASE_URL = 'https://vjsludfjsphwnumuoqaj.supabase.co';
 const SUPABASE_ANON = 'sb_publishable_IluITb52iuwwHf9xgP99MA__KX-sNM6';
 
+// BL-LOGIN-PERSIST-OPTIN — 로그인 유지 선택형 저장소 (기본=미영구). 매니저(login.html)와 동일 정책.
+const ADMIN_PERSIST_KEY = 'tw-admin-persist';
+function adminPersist() {
+  try { return localStorage.getItem(ADMIN_PERSIST_KEY) === '1'; } catch (e) { return false; }
+}
+const adminStorage = {
+  getItem: (k) => {
+    try { const v = localStorage.getItem(k); if (v !== null) return v; } catch (e) {}
+    try { return sessionStorage.getItem(k); } catch (e) { return null; }
+  },
+  setItem: (k, v) => {
+    try {
+      if (adminPersist()) { localStorage.setItem(k, v); sessionStorage.removeItem(k); }
+      else { sessionStorage.setItem(k, v); localStorage.removeItem(k); }
+    } catch (e) {}
+  },
+  removeItem: (k) => {
+    try { localStorage.removeItem(k); } catch (e) {}
+    try { sessionStorage.removeItem(k); } catch (e) {}
+  }
+};
 const sb = createClient(SUPABASE_URL, SUPABASE_ANON, {
-  auth: { persistSession: true, autoRefreshToken: true, storageKey: 'tw-admin-auth' }
+  auth: { persistSession: true, autoRefreshToken: true, storageKey: 'tw-admin-auth', storage: adminStorage }
 });
 
 const $ = id => document.getElementById(id);
@@ -87,7 +113,7 @@ const nextPage = params.get('next') || 'status';
 async function checkExistingSession() {
   const { data: { session } } = await sb.auth.getSession();
   if (session && session.access_token) {
-    document.cookie = `sb-access-token=${session.access_token}; Path=/; Max-Age=2592000; SameSite=Lax; Secure`;
+    document.cookie = `sb-access-token=${session.access_token}; Path=/${adminPersist() ? '; Max-Age=2592000' : ''}; SameSite=Lax; Secure`;
     showOk('이미 로그인되어 있습니다. 잠시 후 이동합니다...');
     setTimeout(() => { window.location.href = `/admin-${nextPage}.html`; }, 800);
   }
@@ -105,6 +131,13 @@ async function handleLogin() {
   const btn = $('btn-login');
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner"></span>로그인 중...';
+
+  // BL-LOGIN-PERSIST-OPTIN — 로그인 유지 선택 반영 (signIn 전에 결정)
+  try {
+    const rememberEl = $('admin-remember');
+    if (rememberEl && rememberEl.checked) localStorage.setItem(ADMIN_PERSIST_KEY, '1');
+    else localStorage.removeItem(ADMIN_PERSIST_KEY);
+  } catch (e) {}
 
   try {
     const { data, error } = await sb.auth.signInWithPassword({ email, password });
@@ -142,7 +175,7 @@ async function handleLogin() {
       return;
     }
 
-    document.cookie = `sb-access-token=${data.session.access_token}; Path=/; Max-Age=2592000; SameSite=Lax; Secure`;
+    document.cookie = `sb-access-token=${data.session.access_token}; Path=/${adminPersist() ? '; Max-Age=2592000' : ''}; SameSite=Lax; Secure`;
 
     showOk(`로그인 성공! (${sessionInfo.user.role}) 잠시 후 이동합니다...`);
     setTimeout(() => { window.location.href = `/admin-${nextPage}.html`; }, 600);

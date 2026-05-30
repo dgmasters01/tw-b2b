@@ -29,22 +29,6 @@
 
 ---
 
-### B. 🟢 AUTO — [자동] 결정 1건이 박혔는데 결정 기록(사람용/검색용 2벌)이 저장 안 됐어요 — _os/charter/decisions-index.md + _business/decisions/ 둘 다 박아주세요 (D5 룰)
-
-**ID**: `BL-AUTO-DECISIONS-SYNC-GENERAL`  
-**카테고리**: infrastructure  
-**예상 시간**: 1시간  
-
-**메모**: 점검 봇 자동 등록 (2026-05-29T11:55:55.969Z)
-
-check_name: decisions_sync
-status: red
-detail: 결정 1건이 박혔는데 결정 기록(사람용/검색용 2벌)이 저장 안 됐어요 — _os/charter/decisions-index.md + _business/decisions/ 둘 다 박아주세요 (D5 룰)
-
-진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 green으로 박으면 자동 done.
-
----
-
 ## 🟡 P1 — 데드라인 이전에 있으면 좋음
 
 ### A. 🟢 AUTO — [YouTube 더보기 단축 URL 클릭 카운트] 호텔별 진성 관심 측정 시스템
@@ -154,27 +138,7 @@ detail: 관리자 페이지 3개가 원본과 살짝 달라요 (대표님이 일
 
 ---
 
-### I. 🟡 SEMI — [재계약 관리 탭] D-30 임박 호텔 + 저성과 호텔(매출 $200 미만) 자동 추출
-
-**ID**: `BL-RENEWAL-WATCH`  
-**카테고리**: feature  
-**예상 시간**: 미정시간  
-
-**메모**: admin Sales 영역 → '💎 재계약 관리' 탭 신설. 3개 필터: 예약 0건 / 매출 $200 미만(이벤트 송출 후보) / D-30 임박. 통찰 ② 박힘.
-
----
-
-### J. 🟡 SEMI — [환불 관리 탭] PayPal Refund API 연동 + 환불 이력 영구 보관
-
-**ID**: `BL-REFUND-FLOW`  
-**카테고리**: feature  
-**예상 시간**: 미정시간  
-
-**메모**: marketing.html 매니저 본인 신청 → admin '↩️ 환불·취소' 탭 등장 → 대표님 확인 → PayPal Refund API. 영수증 PDF 5년 보관.
-
----
-
-### K. 🟡 SEMI — [가입 시 국가 선택 필수] 동남아 7개국 상단 노출
+### I. 🟡 SEMI — [가입 시 국가 선택 필수] 동남아 7개국 상단 노출
 
 **ID**: `BL-SIGNUP-COUNTRY-FIELD`  
 **카테고리**: feature  
@@ -184,7 +148,7 @@ detail: 관리자 페이지 3개가 원본과 살짝 달라요 (대표님이 일
 
 ---
 
-### L. 🟡 SEMI — [자동 메일 12개 영어 default] 한국 매니저만 한국어 분기
+### J. 🟡 SEMI — [자동 메일 12개 영어 default] 한국 매니저만 한국어 분기
 
 **ID**: `BL-EMAIL-LOCALE-ROUTING`  
 **카테고리**: feature  

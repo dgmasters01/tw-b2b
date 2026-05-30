@@ -325,6 +325,10 @@ body{margin:0;background:var(--bg,#0A0A0F);font-family:var(--sans,'Inter','Noto 
       <button class="ad-sb-item" data-tab="agoda-matching">
         <span class="ad-sb-icon">🔗</span><span data-en="Agoda Matching" data-ko="아고다 매칭">Agoda Matching</span>
       </button>
+      <!-- BL-RENEWAL-WATCH: D-30 임박 + 저성과(<$200) 호텔 자동 추출 -->
+      <button class="ad-sb-item" data-tab="renewal">
+        <span class="ad-sb-icon">🔁</span><span data-en="Renewals" data-ko="재계약 관리">Renewals</span>
+      </button>
       <button class="ad-sb-item" data-tab="members">
         <span class="ad-sb-icon">👥</span><span data-en="Members" data-ko="가입자">Members</span>
       </button>
@@ -624,6 +628,96 @@ body{margin:0;background:var(--bg,#0A0A0F);font-family:var(--sans,'Inter','Noto 
             <tbody id="vr-tbody"></tbody>
           </table>
           <div id="vr-empty" style="display:none;padding:40px;text-align:center;color:#9ca3af;font-size:13px" data-en="No hotels match your filters." data-ko="필터에 맞는 호텔이 없습니다.">No hotels match your filters.</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- TAB: Renewals (BL-RENEWAL-WATCH) — D-30 임박 + 저성과(<$200) 자동 추출 -->
+    <div id="tab-renewal" class="ad-tab-pane" style="display:none;">
+
+      <!-- 요약 카드 3개 -->
+      <div class="ad-stats" id="rw-stats-area">
+        <div class="ad-stat" style="border-left:3px solid #16a34a">
+          <div class="ad-stat-lbl" data-en="D-30 Renewal Due" data-ko="D-30 재계약 임박">D-30 Renewal Due</div>
+          <div class="ad-stat-val" id="rw-d30-count" style="color:#16a34a">—</div>
+        </div>
+        <div class="ad-stat" style="border-left:3px solid #ef4444">
+          <div class="ad-stat-lbl" data-en="Low Performers (&lt;$200)" data-ko="저성과 (&lt;$200)">Low Performers (&lt;$200)</div>
+          <div class="ad-stat-val" id="rw-low-count" style="color:#ef4444">—</div>
+        </div>
+        <div class="ad-stat" style="border-left:3px solid #4f46e5">
+          <div class="ad-stat-lbl" data-en="Action Needed (total)" data-ko="조치 필요 (합계)">Action Needed (total)</div>
+          <div class="ad-stat-val" id="rw-total-count" style="color:#4f46e5">—</div>
+        </div>
+      </div>
+
+      <!-- 안내 박스 -->
+      <div class="ad-card" style="background:linear-gradient(90deg,rgba(22,163,74,.08),rgba(239,68,68,.05));border-left:3px solid #16a34a;margin-bottom:12px">
+        <div style="padding:12px 16px;font-size:13px;line-height:1.6;color:#374151">
+          <strong style="color:#1f2937"
+            data-en="🔁 Internal-only. Hotels to contact for re-contract, and low performers to review."
+            data-ko="🔁 우리만 보는 영역. 재계약 권유할 호텔과 검토할 저성과 호텔을 자동으로 모았습니다.">
+            🔁 우리만 보는 영역. 재계약 권유할 호텔과 검토할 저성과 호텔을 자동으로 모았습니다.
+          </strong>
+          <br>
+          <span style="color:#6b7280;font-size:12px"
+            data-en="D-30 = published hotels in days 150–180 of the 6-month (180d) guarantee. Low performer = cumulative revenue under $200 (Hide tier)."
+            data-ko="D-30 기준 = 게시 후 150~180일 구간(6개월·180일 보장 만료 30일 전). 저성과 기준 = 누적 매출 $200 미만(Hide 구간).">
+            D-30 기준 = 게시 후 150~180일 구간(6개월·180일 보장 만료 30일 전). 저성과 기준 = 누적 매출 $200 미만(Hide 구간).
+          </span>
+        </div>
+      </div>
+
+      <div style="text-align:right;margin-bottom:8px">
+        <button type="button" id="rw-refresh-btn" style="padding:7px 14px;background:#4f46e5;color:#fff;border:0;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600" data-en="↻ Refresh" data-ko="↻ 새로고침">↻ 새로고침</button>
+        <span id="rw-meta" style="font-size:11px;color:#9ca3af;margin-left:8px"></span>
+      </div>
+
+      <!-- 섹션 1: D-30 재계약 임박 -->
+      <div class="ad-card" style="margin-bottom:16px">
+        <div class="ad-card-h">
+          <h3 data-en="🔁 D-30 Renewal Due (contact for re-contract)" data-ko="🔁 D-30 재계약 임박 (재계약 권유 대상)">🔁 D-30 재계약 임박 (재계약 권유 대상)</h3>
+        </div>
+        <div id="rw-d30-wrap" style="overflow-x:auto">
+          <div id="rw-d30-loading" style="padding:30px;text-align:center;color:#9ca3af;font-size:13px" data-en="Loading..." data-ko="불러오는 중...">불러오는 중...</div>
+          <table id="rw-d30-table" style="display:none;width:100%;border-collapse:collapse;font-size:13px">
+            <thead style="background:#f9fafb;border-bottom:2px solid #e5e7eb">
+              <tr>
+                <th style="text-align:left;padding:10px 12px;font-weight:600;color:#374151">#</th>
+                <th style="text-align:left;padding:10px 12px;font-weight:600;color:#374151" data-en="Hotel" data-ko="호텔">호텔</th>
+                <th style="text-align:left;padding:10px 12px;font-weight:600;color:#374151" data-en="Published" data-ko="게시일">게시일</th>
+                <th style="text-align:right;padding:10px 12px;font-weight:600;color:#374151" data-en="Days Since" data-ko="경과일">경과일</th>
+                <th style="text-align:right;padding:10px 12px;font-weight:600;color:#374151" data-en="D-Day" data-ko="만료까지">만료까지</th>
+                <th style="text-align:left;padding:10px 12px;font-weight:600;color:#374151" data-en="Manager Contact" data-ko="매니저 연락처">매니저 연락처</th>
+              </tr>
+            </thead>
+            <tbody id="rw-d30-tbody"></tbody>
+          </table>
+          <div id="rw-d30-empty" style="display:none;padding:30px;text-align:center;color:#9ca3af;font-size:13px" data-en="No hotels nearing renewal." data-ko="재계약 임박 호텔이 없습니다.">재계약 임박 호텔이 없습니다.</div>
+        </div>
+      </div>
+
+      <!-- 섹션 2: 저성과 호텔 (<$200) -->
+      <div class="ad-card">
+        <div class="ad-card-h">
+          <h3 data-en="📉 Low Performers (&lt;$200 cumulative)" data-ko="📉 저성과 호텔 (누적 매출 $200 미만)">📉 저성과 호텔 (누적 매출 $200 미만)</h3>
+        </div>
+        <div id="rw-low-wrap" style="overflow-x:auto">
+          <div id="rw-low-loading" style="padding:30px;text-align:center;color:#9ca3af;font-size:13px" data-en="Loading..." data-ko="불러오는 중...">불러오는 중...</div>
+          <table id="rw-low-table" style="display:none;width:100%;border-collapse:collapse;font-size:13px">
+            <thead style="background:#f9fafb;border-bottom:2px solid #e5e7eb">
+              <tr>
+                <th style="text-align:left;padding:10px 12px;font-weight:600;color:#374151">#</th>
+                <th style="text-align:left;padding:10px 12px;font-weight:600;color:#374151" data-en="Hotel" data-ko="호텔">호텔</th>
+                <th style="text-align:right;padding:10px 12px;font-weight:600;color:#374151" data-en="Revenue (USD)" data-ko="매출 (USD)">매출 (USD)</th>
+                <th style="text-align:right;padding:10px 12px;font-weight:600;color:#374151" data-en="Bookings" data-ko="예약 건수">예약 건수</th>
+                <th style="text-align:left;padding:10px 12px;font-weight:600;color:#374151" data-en="Status" data-ko="상태">상태</th>
+              </tr>
+            </thead>
+            <tbody id="rw-low-tbody"></tbody>
+          </table>
+          <div id="rw-low-empty" style="display:none;padding:30px;text-align:center;color:#9ca3af;font-size:13px" data-en="No low performers." data-ko="저성과 호텔이 없습니다.">저성과 호텔이 없습니다.</div>
         </div>
       </div>
 
@@ -1238,7 +1332,9 @@ body{margin:0;background:var(--bg,#0A0A0F);font-family:var(--sans,'Inter','Noto 
     'project-status': { title: 'Project Status', sub: 'Live business progress dashboard — KPIs, phases, recent activity.',
                  title_ko: '프로젝트 진행도', sub_ko: 'KPI · Phase · 최근 활동 · 진행 현황 한눈에 보기' },
     'video-revenue': { title: 'Video Asset Revenue', sub: 'Per-hotel cumulative revenue from our YouTube channels. Internal only. D-035 / BL-PAST-VIDEO-RECON.',
-                 title_ko: '영상 자산 성과', sub_ko: '호텔별 우리 채널 누적 매출. 우리만 보는 영역. (D-035 / BL-PAST-VIDEO-RECON)' }
+                 title_ko: '영상 자산 성과', sub_ko: '호텔별 우리 채널 누적 매출. 우리만 보는 영역. (D-035 / BL-PAST-VIDEO-RECON)' },
+    'renewal': { title: 'Renewals', sub: 'Hotels nearing D-30 guarantee expiry + low performers (<$200). Auto-extracted. BL-RENEWAL-WATCH.',
+                 title_ko: '재계약 관리', sub_ko: '보장 만료 D-30 임박 호텔 + 저성과 호텔(매출 $200 미만) 자동 추출. (BL-RENEWAL-WATCH)' }
   };
 
   function setActiveTab(tab){
@@ -1277,6 +1373,7 @@ body{margin:0;background:var(--bg,#0A0A0F);font-family:var(--sans,'Inter','Noto 
     if (tab === 'agoda-matching' && !amLoaded) loadAgodaMatching();
     if (tab === 'project-status') { try { loadProjectStatus(); } catch(e){ console.error('[ps] load failed', e); } }
     if (tab === 'video-revenue') { try { initVideoRevenue(); } catch(e){ console.error('[vr] init failed', e); } }
+    if (tab === 'renewal') { try { initRenewalWatch(); } catch(e){ console.error('[rw] init failed', e); } }
 
     // Phase 3 Step 2: Analytics native mount (iframe 제거)
     // 진입: BKA.mount() — 차트 destroy + 재렌더 + 별점 동기화
@@ -5360,6 +5457,165 @@ function rDayHotels(){
     window.__vr_inited = true;
     vrBindEvents();
     vrFetch();
+  };
+
+})();
+</script>
+
+
+<!-- ============================================
+  BL-RENEWAL-WATCH: Renewals tab
+  - 🔁 D-30 임박: hotels.status='published' & 게시(created_at) 후 150~180일 (6개월·180일 보장 만료 30일 전)
+  - 📉 저성과: GET /api/admin?action=past-video-revenue&tier=hide (누적 매출 <$200)
+  - 진입: setActiveTab('renewal') → initRenewalWatch() (lazy, idempotent)
+============================================ -->
+<script>
+(function(){
+  'use strict';
+
+  var RW_STATE = { inited:false, inflight:false };
+  var RW_DAY = 86400000;
+  var RW_GUARANTEE_DAYS = 180;   // 6개월 보장
+  var RW_DUE_WINDOW = 30;        // D-30: 만료 30일 전부터
+
+  function rwEl(id){ return document.getElementById(id); }
+  function rwFmtMoney(n){ return '$' + (Number(n)||0).toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0}); }
+  function rwFmtDate(s){ if(!s) return '—'; try { return new Date(s).toISOString().slice(0,10); } catch(_){ return s; } }
+  function rwEsc(s){ if(s==null) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+  // 인증 토큰 (video-revenue와 동일 패턴: sb-*-auth-token localStorage)
+  function rwGetAuthToken(){
+    try {
+      for (var i=0;i<localStorage.length;i++){
+        var k = localStorage.key(i);
+        if (k && /^sb-.+-auth-token$/.test(k)){
+          var raw = localStorage.getItem(k);
+          if (!raw) continue;
+          var parsed = JSON.parse(raw);
+          if (parsed && parsed.access_token) return parsed.access_token;
+        }
+      }
+    } catch(_){}
+    return null;
+  }
+
+  // ---- 섹션 1: D-30 임박 (hotels 테이블 직접) ----
+  function rwLoadD30(){
+    var loading = rwEl('rw-d30-loading'), table = rwEl('rw-d30-table'), empty = rwEl('rw-d30-empty'), tbody = rwEl('rw-d30-tbody');
+    if (loading) loading.style.display = 'block';
+    if (table) table.style.display = 'none';
+    if (empty) empty.style.display = 'none';
+
+    return T.db.getAllHotels({ noCache:true }).then(function(r){
+      if (r.error) throw new Error(r.error.message || 'hotels load failed');
+      var hotels = r.data || [];
+      var now = new Date();
+      var due = hotels.map(function(h){
+        if (h.status !== 'published' || !h.created_at) return null;
+        var days = Math.floor((now - new Date(h.created_at)) / RW_DAY);
+        if (days < (RW_GUARANTEE_DAYS - RW_DUE_WINDOW) || days > RW_GUARANTEE_DAYS) return null;
+        return {
+          name: h.hotel_name || h.hotel_name_local || '(이름 없음)',
+          created_at: h.created_at,
+          days: days,
+          remaining: RW_GUARANTEE_DAYS - days,
+          mgrName: h.manager_name || h.contact_name || '',
+          mgrEmail: h.manager_email || h.contact_email || ''
+        };
+      }).filter(Boolean).sort(function(a,b){ return a.remaining - b.remaining; }); // 만료 임박순
+
+      if (loading) loading.style.display = 'none';
+      rwEl('rw-d30-count').textContent = due.length.toLocaleString();
+
+      if (!due.length){ if (empty) empty.style.display='block'; if (tbody) tbody.innerHTML=''; return due.length; }
+      if (empty) empty.style.display = 'none';
+      if (table) table.style.display = 'table';
+
+      tbody.innerHTML = due.map(function(d,i){
+        var contact = d.mgrEmail
+          ? '<div style="font-weight:500;color:#111827">' + rwEsc(d.mgrName||'—') + '</div><div style="font-size:11px;color:#6b7280">' + rwEsc(d.mgrEmail) + '</div>'
+          : '<span style="color:#d1d5db;font-size:11px">연락처 없음</span>';
+        var ddColor = d.remaining <= 7 ? '#ef4444' : d.remaining <= 15 ? '#f59e0b' : '#16a34a';
+        return ''
+          + '<tr style="border-bottom:1px solid #f3f4f6">'
+          + '<td style="padding:10px 12px;color:#9ca3af;font-size:11px">' + (i+1) + '</td>'
+          + '<td style="padding:10px 12px;font-weight:600;color:#111827">' + rwEsc(d.name) + '</td>'
+          + '<td style="padding:10px 12px;color:#6b7280;font-size:12px">' + rwFmtDate(d.created_at) + '</td>'
+          + '<td style="padding:10px 12px;text-align:right;color:#374151">' + d.days + '일</td>'
+          + '<td style="padding:10px 12px;text-align:right;font-weight:700;color:' + ddColor + '">D-' + d.remaining + '</td>'
+          + '<td style="padding:10px 12px">' + contact + '</td>'
+          + '</tr>';
+      }).join('');
+      return due.length;
+    }).catch(function(e){
+      if (loading) loading.innerHTML = '❌ ' + rwEsc(e.message || String(e));
+      rwEl('rw-d30-count').textContent = '!';
+      return 0;
+    });
+  }
+
+  // ---- 섹션 2: 저성과 (<$200) — past-video-revenue tier=hide ----
+  function rwLoadLow(){
+    var loading = rwEl('rw-low-loading'), table = rwEl('rw-low-table'), empty = rwEl('rw-low-empty'), tbody = rwEl('rw-low-tbody');
+    if (loading) loading.style.display = 'block';
+    if (table) table.style.display = 'none';
+    if (empty) empty.style.display = 'none';
+
+    var token = rwGetAuthToken();
+    if (!token){ if (loading) loading.innerHTML = '⚠️ 인증 토큰 없음. 다시 로그인해 주세요.'; rwEl('rw-low-count').textContent='!'; return Promise.resolve(0); }
+
+    return fetch('/api/admin?action=past-video-revenue&tier=hide', { method:'GET', headers:{ 'Authorization':'Bearer ' + token } })
+      .then(function(resp){ if(!resp.ok) return resp.text().then(function(t){ throw new Error('('+resp.status+') '+t.slice(0,160)); }); return resp.json(); })
+      .then(function(data){
+        var rows = Array.isArray(data.rows) ? data.rows : [];
+        if (loading) loading.style.display = 'none';
+        rwEl('rw-low-count').textContent = rows.length.toLocaleString();
+
+        if (!rows.length){ if (empty) empty.style.display='block'; if (tbody) tbody.innerHTML=''; return 0; }
+        if (empty) empty.style.display = 'none';
+        if (table) table.style.display = 'table';
+
+        tbody.innerHTML = rows.map(function(r,i){
+          var status = r.hotel_status
+            ? '<span style="background:#eef2ff;color:#4f46e5;padding:2px 6px;border-radius:3px;font-size:10px">' + rwEsc(r.hotel_status) + '</span>'
+            : '<span style="color:#d1d5db;font-size:11px">—</span>';
+          return ''
+            + '<tr style="border-bottom:1px solid #f3f4f6">'
+            + '<td style="padding:10px 12px;color:#9ca3af;font-size:11px">' + (i+1) + '</td>'
+            + '<td style="padding:10px 12px"><div style="font-weight:600;color:#111827">' + rwEsc(r.hotel_name||'—') + '</div>'
+            +   '<div style="font-size:11px;color:#9ca3af">' + rwEsc(r.address||'') + '</div></td>'
+            + '<td style="padding:10px 12px;text-align:right;color:#ef4444;font-weight:600">' + rwFmtMoney(r.total_revenue_usd) + '</td>'
+            + '<td style="padding:10px 12px;text-align:right;color:#374151">' + (Number(r.total_bookings)||0).toLocaleString() + '</td>'
+            + '<td style="padding:10px 12px">' + status + '</td>'
+            + '</tr>';
+        }).join('');
+        return rows.length;
+      }).catch(function(e){
+        if (loading) loading.innerHTML = '❌ ' + rwEsc(e.message || String(e));
+        rwEl('rw-low-count').textContent = '!';
+        return 0;
+      });
+  }
+
+  function rwLoadAll(){
+    if (RW_STATE.inflight) return;
+    RW_STATE.inflight = true;
+    var meta = rwEl('rw-meta');
+    if (meta) meta.textContent = '';
+    Promise.all([ rwLoadD30(), rwLoadLow() ]).then(function(counts){
+      var d30 = counts[0]||0, low = counts[1]||0;
+      var tot = rwEl('rw-total-count'); if (tot) tot.textContent = (d30 + low).toLocaleString();
+      if (meta) meta.textContent = new Date().toISOString().slice(0,19).replace('T',' ');
+    }).finally(function(){ RW_STATE.inflight = false; });
+  }
+
+  // 외부 진입점 (setActiveTab에서 호출)
+  window.initRenewalWatch = function(){
+    if (RW_STATE.inited){ rwLoadAll(); return; }
+    RW_STATE.inited = true;
+    var rb = rwEl('rw-refresh-btn');
+    if (rb) rb.addEventListener('click', function(){ rwLoadAll(); });
+    rwLoadAll();
   };
 
 })();

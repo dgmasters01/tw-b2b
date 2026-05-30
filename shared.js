@@ -7,9 +7,34 @@
   var SURL = 'https://vjsludfjsphwnumuoqaj.supabase.co';
   var SKEY = 'sb_publishable_IluITb52iuwwHf9xgP99MA__KX-sNM6';
 
+  // ★ BL-LOGIN-PERSIST-OPTIN — 로그인 유지 선택형 저장소 (기본=미영구)
+  // 'tw-auth-persist'==='1' → localStorage(영구) / 아니면 sessionStorage(브라우저 닫으면 로그아웃)
+  var TW_PERSIST_KEY = 'tw-auth-persist';
+  function twAuthPersist() {
+    try { return localStorage.getItem(TW_PERSIST_KEY) === '1'; } catch (e) { return false; }
+  }
+  var twAuthStorage = {
+    getItem: function (k) {
+      try { var v = localStorage.getItem(k); if (v !== null) return v; } catch (e) {}
+      try { return sessionStorage.getItem(k); } catch (e) { return null; }
+    },
+    setItem: function (k, v) {
+      try {
+        if (twAuthPersist()) { localStorage.setItem(k, v); sessionStorage.removeItem(k); }
+        else { sessionStorage.setItem(k, v); localStorage.removeItem(k); }
+      } catch (e) {}
+    },
+    removeItem: function (k) {
+      try { localStorage.removeItem(k); } catch (e) {}
+      try { sessionStorage.removeItem(k); } catch (e) {}
+    }
+  };
+
   var sb = null;
   try {
-    sb = window.supabase.createClient(SURL, SKEY);
+    sb = window.supabase.createClient(SURL, SKEY, {
+      auth: { storage: twAuthStorage, persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+    });
   } catch (e) {
     console.warn('Supabase init:', e);
   }
@@ -27,7 +52,8 @@
         if ((event === 'TOKEN_REFRESHED' || event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session && session.access_token) {
           // Secure는 HTTPS에서만 동작 — localhost 개발 시 위해 location.protocol 확인
           var secure = (location.protocol === 'https:') ? '; Secure' : '';
-          document.cookie = 'sb-access-token=' + session.access_token + '; Path=/; Max-Age=2592000; SameSite=Lax' + secure;
+          var maxAge = twAuthPersist() ? '; Max-Age=2592000' : ''; // 미영구면 세션 쿠키(브라우저 닫으면 만료)
+          document.cookie = 'sb-access-token=' + session.access_token + '; Path=/' + maxAge + '; SameSite=Lax' + secure;
         } else if (event === 'SIGNED_OUT') {
           document.cookie = 'sb-access-token=; Path=/; Max-Age=0; SameSite=Lax';
         }
@@ -41,7 +67,8 @@
         var s = r && r.data && r.data.session;
         if (s && s.access_token) {
           var secure = (location.protocol === 'https:') ? '; Secure' : '';
-          document.cookie = 'sb-access-token=' + s.access_token + '; Path=/; Max-Age=2592000; SameSite=Lax' + secure;
+          var maxAge = twAuthPersist() ? '; Max-Age=2592000' : '';
+          document.cookie = 'sb-access-token=' + s.access_token + '; Path=/' + maxAge + '; SameSite=Lax' + secure;
         }
       } catch (err) { /* silent */ }
     });

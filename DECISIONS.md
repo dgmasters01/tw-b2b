@@ -10,6 +10,38 @@
 
 ---
 
+## 🆕 2026-05-30 — 로그인 유지 옵트인 (BL-LOGIN-PERSIST-OPTIN / 보안)
+
+### D-051: 자동 로그인 기본값을 '미영구(브라우저 닫으면 로그아웃)'로 전환 + '로그인 유지' 체크박스 옵트인
+
+**언제**: 2026-05-30
+**누가**: 이지형 대표님("무조건 자동로그인 문제 아니냐" 직접 지적) + Claude(정석 5기준 구현)
+**상태**: ✅ 박힘 (commit 3f31e1a shared.js / 17cfa80 login.html / 06592db admin-login.html, 운영 라이브 검증 완료)
+
+**무엇을**:
+1. 로그인 세션 기본 정책을 '영구(30일 자동로그인)' → '미영구(브라우저 닫으면 로그아웃)'로 전환.
+2. login.html(매니저) + admin-login.html(대표님) 비밀번호 칸 아래 「이 기기에서 로그인 유지」 체크박스 추가. 기본 미체크.
+3. 체크 시 → Supabase 세션을 localStorage + `sb-access-token` 쿠키 Max-Age 30일(영구). 미체크 시 → sessionStorage + 세션 쿠키(브라우저 닫으면 소멸).
+
+**왜**:
+- Supabase v2 기본값이 영구 저장이라 노트북 껐다 켜도 자동 로그인 → 공용·분실 기기 보안 위험.
+- 일반 SaaS 표준은 '로그인 유지'를 사용자가 명시 선택. 기본은 안전(미영구)이 정석.
+- admin-login.html은 자체 클라이언트(storageKey `tw-admin-auth`)라 shared.js 변경 영향 밖 → 매니저만 고치면 권한 최상위 대표님이 여전히 30일 영구로 남아 보안 구멍이 더 큰 쪽이 안 막힘 → 동일 어댑터·체크박스 별도 적용(부칙19 전체 갱신, biz_context "대표님도 매니저도 동일 정책").
+
+**발견 경위**: 2026-05-30 카테고리 전수 점검 중 대표님이 shared.js의 무조건 영구 세션을 직접 짚음.
+
+**누가 영향받나**:
+- 대표님·매니저 — 이 배포 후 기존 로그인 세션은 다음 토큰 갱신 시 미영구로 자동 이동. 브라우저 닫아도 유지하려면 재로그인하며 '로그인 유지' 체크 필요.
+- 미래 Claude — 인증 저장소 라우팅은 shared.js `twAuthStorage` / admin-login `adminStorage` 어댑터 단일 패턴. 새 로그인 진입점 추가 시 동일 패턴·플래그(`tw-auth-persist`/`tw-admin-persist`) 적용.
+
+**파일 변경**:
+- `shared.js`(어댑터+쿠키 조건부), `login.html`(체크박스+플래그), `admin-login.html`(어댑터+체크박스+쿠키 조건부)
+- `DECISIONS.md`(이 박스) + `DECISIONS_INDEX.md` D-051 등록
+
+**후속 작업**: 없음 (BL-LOGIN-PERSIST-OPTIN done).
+
+---
+
 ## 🆕 2026-05-30 — 매니저 시점 보기, 옛 통로 미복원 + 매니저 허브로 단일화 (BL-ADMIN-SIDEBAR-MISSING-ENTRIES)
 
 ### D-050: impersonate(매니저 시점) 미복원 — admin-manager-hub.html(상세)로 매니저 화면 진입 단일화

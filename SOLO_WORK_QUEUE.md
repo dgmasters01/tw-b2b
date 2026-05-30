@@ -3,7 +3,7 @@
 > ⚠️ **이 파일은 자동 생성됩니다.** 수동 편집하지 마세요.
 > 단일 진실 소스: `tasks.json` (v2.0)
 > **데드라인**: 2026-05-03
-> **갱신**: 2026-05-28
+> **갱신**: 2026-05-30
 > **목적**: 대표님 외근/자리비움 시 Claude 자율 처리 가능 작업
 
 ## 작업 분류 체계
@@ -29,17 +29,17 @@
 
 ---
 
-### B. 🟢 AUTO — [자동] 작업 260건 중 3건에 출처가 없어요 (자동 동기화 봇 멈춤 위험)
+### B. 🟢 AUTO — [자동] 결정 1건이 박혔는데 결정 기록(사람용/검색용 2벌)이 저장 안 됐어요 — _os/charter/decisions-index.md + _business/decisions/ 둘 다 박아주세요 (D5 룰)
 
-**ID**: `BL-AUTO-TASKS-SCHEMA-3MISSING`  
+**ID**: `BL-AUTO-DECISIONS-SYNC-GENERAL`  
 **카테고리**: infrastructure  
 **예상 시간**: 1시간  
 
-**메모**: 점검 봇 자동 등록 (2026-05-27T01:51:12.967Z)
+**메모**: 점검 봇 자동 등록 (2026-05-29T11:55:55.969Z)
 
-check_name: tasks_schema
+check_name: decisions_sync
 status: red
-detail: 작업 260건 중 3건에 출처가 없어요 (자동 동기화 봇 멈춤 위험)
+detail: 결정 1건이 박혔는데 결정 기록(사람용/검색용 2벌)이 저장 안 됐어요 — _os/charter/decisions-index.md + _business/decisions/ 둘 다 박아주세요 (D5 룰)
 
 진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 green으로 박으면 자동 done.
 

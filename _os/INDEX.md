@@ -1,15 +1,14 @@
 # `_os/` — TW OS 진입 인덱스 (Single Source of Truth)
 
-> 새 채팅 시작 시 Claude가 가장 먼저 fetch하는 파일. 헌법 부칙 16조 — 메모리 의존 금지, 상태는 GitHub 실시간 조회.
+> 전체 지도 — 깊이 필요할 때 본다. **새 채팅 첫 fetch는 `_os/boot.md` 1개**(출발선 경량화, BL-CONTEXT-STARTUP-DIET). 헌법 부칙 16 — 메모리 의존 금지, 상태는 GitHub 실시간 조회.
 
 ## 0. 새 채팅 진입 순서 (필수, 헌법 자가 검증 진입)
 
-1. **이 파일** (`_os/INDEX.md`) fetch — 전체 지도
-2. `/OPERATIONS_CHARTER.md` fetch — 헌법 11대 원칙
-3. `/CLAUDE.md` fetch — 프로젝트 컨텍스트
-4. 헌법 자가 검증 모드 진입 → 응답 시작
+1. **`_os/boot.md` 1개만** fetch — 이거 1개로 룰 90% 복원 (출발선 경량화).
+2. 작업 종류 확인 → boot.md §4 표 따라 필요 시 1~2개만 추가 fetch (깊이 필요 시 `/OPERATIONS_CHARTER.md`, `/CLAUDE.md`, 이 INDEX).
+3. 헌법 자가 검증 모드 진입 → 응답 시작.
 
-→ 결과: 메모리 7줄(M1~M5) + 위 3개 파일 = 모든 룰 복원 완료
+→ 결과: 슬림 메모리 3줄(MS1~MS3) + boot.md 1개 = 모든 룰 복원. 나머지는 on-demand fetch.
 
 ## 1. 시급 작업 1개
 
@@ -31,6 +30,7 @@
 | 전체 작업 큐 (257건) | [`/tasks.json`](../tasks.json) |
 | OS 본체 자산 카탈로그 | [`./manifest.json`](./manifest.json) |
 | 페이지 역할 (sales/admin/dashboard) | [`./playbook/page-roles.md`](./playbook/page-roles.md) |
+| 작업별 커넥터 ON/OFF 정책 | [`./playbook/connector-policy.md`](./playbook/connector-policy.md) |
 | 채팅 간 컨텍스트 인계 | [`./handoff/`](./handoff/) |
 | 진행 중 작업 (work-in-progress) | [`./work-in-progress/`](./work-in-progress/) |
 
@@ -45,15 +45,14 @@
 | 운영 룰 풀버전 | [`./memory-archive/2026-05-27-operations-rules.md`](./memory-archive/2026-05-27-operations-rules.md) | 3, 20, 22, 25 |
 | Command Center 시스템 | [`./memory-archive/2026-05-27-command-center.md`](./memory-archive/2026-05-27-command-center.md) | 26, 27 |
 | M5에 흡수된 원문 | [`./memory-archive/2026-05-27-redundant-merged-into-m5.md`](./memory-archive/2026-05-27-redundant-merged-into-m5.md) | 11, 14, 17, 19, 21, 24 |
+| **재비대 9줄 전문 (2026-05-30)** | [`./memory-archive/2026-05-30-memory-rebloat.md`](./memory-archive/2026-05-30-memory-rebloat.md) | 압축 직전 9줄 전문 + 슬림 3줄 |
 
-**현재 메모리 7줄 매핑:**
-- M1: 대표님 핵심 정보 (한국어, 호칭, 8채널, 진행 사업)
-- M2: 새 채팅 진입 순서 + 헌법 자가 검증
-- M2-B: 분량/끊김 룰 (줄 수 카운트, 끊김 트리거 4종)
-- M2-C: 초등학생 검증 + 자율 진행 + admin-status 언어 룰
-- M3: 자동화 창구 2개 (ops 메일 + GitHub commit)
-- M4: 파일 위치 원칙 (대표님 로컬 X, GitHub fetch 강제)
-- M5: 운영 헌법 5축 (정석 5기준 / 사업·시스템 / 번복금지 / admin-status / 2벌저장)
+**현재 메모리 3줄 매핑 (2026-05-30 재압축, BL-CONTEXT-STARTUP-DIET):**
+- MS1: 대표님 핵심 (한국어, 호칭, 사업 한 줄, 8채널) — 인사·톤 즉시용
+- MS2: 부팅 트리거 (새 채팅 첫 행동 = boot.md 1개 fetch → 90% 복원, "헌법 확인"=정지·재독)
+- MS3: commit 창구 (github-commit endpoint + ops-token + 메일알림 — 자동저장 부트스트랩)
+
+→ 상세 룰(끊김 트리거·초등학생 언어·정석 5기준·외부약속/내부운영·인계메모법 등)은 메모리에 안 둠. boot.md → 부칙 16/18 + playbook + BUSINESS.md + 2026-05-30 아카이브에서 fetch.
 
 ## 4. 봇 상태 (GitHub Actions)
 
@@ -75,4 +74,4 @@
 
 **갱신 규칙**: 링크와 진입점만 관리. 동적 상태(작업/봇 결과)는 박지 않음 — 봇 산출물(tasks.json, _health.json) 참조.
 
-**최근 갱신**: 2026-05-27 — 메모리 아카이브 5개 추가, 새 채팅 진입 순서 명문화 (시스템 재설계 3단계)
+**최근 갱신**: 2026-05-30 — BL-CONTEXT-STARTUP-DIET: 진입 순서 boot.md 1개로 경량화, 메모리 9→3줄 재압축, 2026-05-30 아카이브 추가

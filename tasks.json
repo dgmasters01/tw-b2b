@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-30T16:05:45+00:00",
+  "updated_at": "2026-05-30T16:25:21+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -14,9 +14,9 @@
   "stats": {
     "total": 271,
     "done": 207,
-    "in_progress": 1,
+    "in_progress": 2,
     "paused": 0,
-    "pending": 42,
+    "pending": 41,
     "blocked": 11,
     "autonomous_ready": 30,
     "todo": 2,
@@ -15619,7 +15619,7 @@
       "category": "feature",
       "priority": "P1",
       "size": "medium",
-      "status": "pending",
+      "status": "in_progress",
       "owner": "claude",
       "claude_can_auto": true,
       "approval_required": false,
@@ -15634,7 +15634,7 @@
       },
       "notes": "marketing.html 매니저 본인 신청 → admin '↩️ 환불·취소' 탭 등장 → 대표님 확인 → PayPal Refund API. 영수증 PDF 5년 보관.",
       "created_at": "2026-05-12T17:04:42.051339Z",
-      "updated_at": "2026-05-30T16:05:45+00:00",
+      "updated_at": "2026-05-30T16:25:21+00:00",
       "source": "decision:D-033",
       "target_pages": [
         "/marketing.html",
@@ -15661,8 +15661,23 @@
           "by": "auto-detect-bot",
           "commit": "aeacade",
           "note": "BL-REFUND-FLOW: refund_requests table LIVE + db-query SQL channel 영구화 → handoff"
+        },
+        {
+          "at": "2026-05-30T16:25:21+00:00",
+          "event": "진행 중 진입 (auto-detected) ⚠️ 부칙 7 위반 — progress.steps 미박힘",
+          "by": "auto-detect-bot",
+          "commit": "1ad4266",
+          "note": "feat(BL-REFUND-FLOW step2): admin '환불·취소' 탭 신설(목록/요약/승인·환불/거절 UI + pending 배지)"
         }
-      ]
+      ],
+      "started_at": "2026-05-30T16:25:21+00:00",
+      "progress_warning": {
+        "code": "MISSING_PROGRESS_STEPS",
+        "rule": "부칙 7 — 모든 작업은 progress.steps 박은 후 시작",
+        "detected_at": "2026-05-30T16:25:21+00:00",
+        "detected_by_commit": "1ad4266",
+        "message": "in_progress 진입했으나 progress.steps 비어있음. tasks.json에서 progress.steps 박은 후 다음 commit에 [step:done:N] 태그."
+      }
     },
     {
       "id": "BL-SIGNUP-ENRICHMENT",

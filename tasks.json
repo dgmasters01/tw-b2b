@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-30T10:26:28+00:00",
+  "updated_at": "2026-05-30T10:42:37+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -14,9 +14,9 @@
   "stats": {
     "total": 271,
     "done": 206,
-    "in_progress": 0,
+    "in_progress": 1,
     "paused": 0,
-    "pending": 44,
+    "pending": 43,
     "blocked": 11,
     "autonomous_ready": 30,
     "todo": 2,
@@ -20411,14 +20411,14 @@
       "title": "[자동] 결정 1건이 박혔는데 결정 기록(사람용/검색용 2벌)이 저장 안 됐어요 — _os/charter/decisions-index.md + _business/decisions/ 둘 다 박아주세요 (D5 룰)",
       "category": "infrastructure",
       "priority": "P0",
-      "status": "pending",
+      "status": "in_progress",
       "claude_can_auto": true,
       "approval_required": false,
       "owner": "claude",
       "size": "small",
       "source": "auto_from_decisions_sync",
       "created_at": "2026-05-29T11:55:55.969Z",
-      "updated_at": "2026-05-29T11:55:55.969Z",
+      "updated_at": "2026-05-30T10:42:37+00:00",
       "deadline": null,
       "order": null,
       "blocker": null,
@@ -20438,9 +20438,24 @@
           "by": "auto-task-bot",
           "action": "created",
           "detail": "점검 봇 발견 (decisions_sync=red): 결정 1건이 박혔는데 결정 기록(사람용/검색용 2벌)이 저장 안 됐어요 — _os/charter/decisions-index.md + _business/decisions/ 둘 다 박아주세요 (D5 룰)"
+        },
+        {
+          "at": "2026-05-30T10:42:37+00:00",
+          "event": "진행 중 진입 (auto-detected) ⚠️ 부칙 7 위반 — progress.steps 미박힘",
+          "by": "auto-detect-bot",
+          "commit": "1a2ce7f",
+          "note": "docs(handoff): 다음 1순위 BL-AUTO-DECISIONS-SYNC-GENERAL (renderNextAction 자동 선정) — 직전 2개 BL 종결 후"
         }
       ],
-      "notes": "점검 봇 자동 등록 (2026-05-29T11:55:55.969Z)\n\ncheck_name: decisions_sync\nstatus: red\ndetail: 결정 1건이 박혔는데 결정 기록(사람용/검색용 2벌)이 저장 안 됐어요 — _os/charter/decisions-index.md + _business/decisions/ 둘 다 박아주세요 (D5 룰)\n\n진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 green으로 박으면 자동 done."
+      "notes": "점검 봇 자동 등록 (2026-05-29T11:55:55.969Z)\n\ncheck_name: decisions_sync\nstatus: red\ndetail: 결정 1건이 박혔는데 결정 기록(사람용/검색용 2벌)이 저장 안 됐어요 — _os/charter/decisions-index.md + _business/decisions/ 둘 다 박아주세요 (D5 룰)\n\n진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 green으로 박으면 자동 done.",
+      "started_at": "2026-05-30T10:42:37+00:00",
+      "progress_warning": {
+        "code": "MISSING_PROGRESS_STEPS",
+        "rule": "부칙 7 — 모든 작업은 progress.steps 박은 후 시작",
+        "detected_at": "2026-05-30T10:42:37+00:00",
+        "detected_by_commit": "1a2ce7f",
+        "message": "in_progress 진입했으나 progress.steps 비어있음. tasks.json에서 progress.steps 박은 후 다음 commit에 [step:done:N] 태그."
+      }
     },
     {
       "id": "BL-ADMIN-SIDEBAR-MISSING-ENTRIES",

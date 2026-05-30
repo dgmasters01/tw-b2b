@@ -23,6 +23,8 @@
 
 import adminAuthHandler from './_lib/admin-auth-handlers.js';
 import { getFxRate } from './_lib/fx.js';
+import { refundCapture } from './_lib/paypal-client.js';
+import { sendSystemEmail } from './_lib/email-sender.js';
 
 const SUPABASE_URL = process.env.SUPABASE_URL || 'https://vjsludfjsphwnumuoqaj.supabase.co';
 const RESEND_ENDPOINT = 'https://api.resend.com/emails';
@@ -1516,6 +1518,199 @@ async function handleRefundHotel(req, res, serviceKey, admin) {
 
 
 // =============================================================
+// [BL-REFUND-FLOW step2] 매니저 환불 신청 처리 (refund_requests 기반)
+//   흐름: marketing.html 매니저 본인 신청(pending) → 아래 3개 액션으로 대표님이 확인
+//   refund-list    : 신청 목록 조회 (status별 카운트 포함)
+//   refund-approve : 승인 → PayPal Refund API 호출 → status=refunded + 이력 기록
+//   refund-reject  : 거절 → status=rejected + 사유 기록
+//   ※ handleRefundHotel(위)는 호텔 행에서 직접 status 마킹용(별개). 이건 신청-승인 흐름.
+// =============================================================
+async function handleRefundList(req, res, serviceKey, _admin) {
+  if (req.method !== 'GET' && req.method !== 'POST') return res.status(405).json({ error: 'method_not_allowed' });
+  const url = SUPABASE_URL + '/rest/v1/refund_requests?select=*,hotels(hotel_name,city,country)&order=created_at.desc';
+  const resp = await fetch(url, { headers: { 'Authorization': 'Bearer ' + serviceKey, 'apikey': serviceKey } });
+  if (!resp.ok) {
+    const t = await resp.text().catch(() => '');
+    return res.status(500).json({ error: 'refund_list_failed', detail: t.slice(0, 300) });
+  }
+  const rows = await resp.json();
+  const counts = { pending: 0, approved: 0, rejected: 0, refunded: 0, failed: 0 };
+  rows.forEach(function (r) { if (counts[r.status] != null) counts[r.status]++; });
+  return res.status(200).json({ success: true, requests: rows, counts });
+}
+
+async function handleRefundApprove(req, res, serviceKey, admin) {
+  if (req.method !== 'POST') return res.status(405).json({ error: 'POST_required' });
+  const { id, decision_note } = req.body || {};
+  if (!id) return res.status(400).json({ error: 'id_required' });
+
+  // 1) 신청 조회 + pending 확인
+  const rResp = await fetch(SUPABASE_URL + '/rest/v1/refund_requests?id=eq.' + encodeURIComponent(id) + '&select=*', {
+    headers: { 'Authorization': 'Bearer ' + serviceKey, 'apikey': serviceKey }
+  });
+  if (!rResp.ok) return res.status(500).json({ error: 'refund_fetch_failed' });
+  const reqs = await rResp.json();
+  if (!reqs.length) return res.status(404).json({ error: 'refund_request_not_found' });
+  const rr = reqs[0];
+  if (rr.status !== 'pending') {
+    return res.status(400).json({ error: 'not_pending', current_status: rr.status, hint: 'only pending can be approved' });
+  }
+
+  // 2) PayPal capture_id 확보 (신청에 없으면 payments에서 역추적)
+  let captureId = rr.paypal_capture_id;
+  let paymentRow = null;
+  if (rr.hotel_id) {
+    const pResp = await fetch(SUPABASE_URL + '/rest/v1/payments?hotel_id=eq.' + encodeURIComponent(rr.hotel_id) + '&status=eq.succeeded&order=created_at.desc&limit=1', {
+      headers: { 'Authorization': 'Bearer ' + serviceKey, 'apikey': serviceKey }
+    });
+    const pays = pResp.ok ? await pResp.json() : [];
+    paymentRow = pays[0] || null;
+    if (!captureId && paymentRow) captureId = paymentRow.paypal_capture_id;
+  }
+  if (!captureId) {
+    return res.status(400).json({ error: 'no_capture_id', hint: 'PayPal capture id를 찾을 수 없습니다. Supabase payments에서 paypal_capture_id 확인 후 수동 환불하세요.' });
+  }
+
+  const nowIso = new Date().toISOString();
+
+  // 3) PayPal Refund API 호출
+  let refundResult = null;
+  try {
+    refundResult = await refundCapture(captureId, {
+      amount: rr.amount != null ? rr.amount : undefined,
+      currency: rr.currency || 'USD',
+      note: (rr.reason || 'TravelWinners refund').slice(0, 120),
+      requestId: 'tw-b2b-refund-rr-' + id,
+    });
+  } catch (e) {
+    await fetch(SUPABASE_URL + '/rest/v1/refund_requests?id=eq.' + encodeURIComponent(id), {
+      method: 'PATCH',
+      headers: { 'Authorization': 'Bearer ' + serviceKey, 'apikey': serviceKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        status: 'failed',
+        decided_by: admin.email,
+        decided_at: nowIso,
+        decision_note: decision_note || null,
+        paypal_raw: e.paypalRaw || { error: String(e.message || e) }
+      })
+    }).catch(() => {});
+    return res.status(502).json({ error: 'paypal_refund_failed', paypal_error: e.paypalErrorCode || null, message: String(e.message || e) });
+  }
+
+  // 4) 성공 → refund_requests 갱신
+  await fetch(SUPABASE_URL + '/rest/v1/refund_requests?id=eq.' + encodeURIComponent(id), {
+    method: 'PATCH',
+    headers: { 'Authorization': 'Bearer ' + serviceKey, 'apikey': serviceKey, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      status: 'refunded',
+      paypal_refund_id: refundResult.id || null,
+      paypal_capture_id: captureId,
+      paypal_raw: refundResult,
+      decided_by: admin.email,
+      decided_at: nowIso,
+      decision_note: decision_note || null
+    })
+  }).catch(() => {});
+
+  // 5) 부수효과: hotels.status=refunded + payments 음수 행 (회계 일관성)
+  if (rr.hotel_id) {
+    await fetch(SUPABASE_URL + '/rest/v1/hotels?id=eq.' + encodeURIComponent(rr.hotel_id), {
+      method: 'PATCH',
+      headers: { 'Authorization': 'Bearer ' + serviceKey, 'apikey': serviceKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'refunded', updated_at: nowIso })
+    }).catch(() => {});
+
+    const amt = rr.amount != null ? rr.amount : (paymentRow ? paymentRow.amount : 200);
+    await fetch(SUPABASE_URL + '/rest/v1/payments', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + serviceKey, 'apikey': serviceKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        hotel_id: rr.hotel_id,
+        amount: -Math.abs(amt),
+        currency: rr.currency || 'USD',
+        status: 'refunded',
+        payment_method: 'paypal_refund',
+        paypal_capture_id: captureId,
+        notes: 'PayPal refund (request ' + id + ') approved by ' + admin.email + (decision_note ? ' — ' + decision_note : '')
+      })
+    }).catch(() => {});
+  }
+
+  return res.status(200).json({
+    success: true,
+    id,
+    status: 'refunded',
+    paypal_refund_id: refundResult.id || null,
+    paypal_status: refundResult.status || null
+  });
+}
+
+async function handleRefundReject(req, res, serviceKey, admin) {
+  if (req.method !== 'POST') return res.status(405).json({ error: 'POST_required' });
+  const { id, decision_note } = req.body || {};
+  if (!id) return res.status(400).json({ error: 'id_required' });
+  if (!decision_note || decision_note.length < 3) {
+    return res.status(400).json({ error: 'decision_note_required', hint: '거절 사유 최소 3자' });
+  }
+
+  const rResp = await fetch(SUPABASE_URL + '/rest/v1/refund_requests?id=eq.' + encodeURIComponent(id) + '&select=status,manager_email,amount,currency,hotels(hotel_name)', {
+    headers: { 'Authorization': 'Bearer ' + serviceKey, 'apikey': serviceKey }
+  });
+  const reqs = rResp.ok ? await rResp.json() : [];
+  if (!reqs.length) return res.status(404).json({ error: 'refund_request_not_found' });
+  const rr = reqs[0];
+  if (rr.status !== 'pending') return res.status(400).json({ error: 'not_pending', current_status: rr.status });
+
+  const patchResp = await fetch(SUPABASE_URL + '/rest/v1/refund_requests?id=eq.' + encodeURIComponent(id), {
+    method: 'PATCH',
+    headers: { 'Authorization': 'Bearer ' + serviceKey, 'apikey': serviceKey, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      status: 'rejected',
+      decided_by: admin.email,
+      decided_at: new Date().toISOString(),
+      decision_note: decision_note
+    })
+  });
+  if (!patchResp.ok) return res.status(500).json({ error: 'reject_patch_failed' });
+
+  // 매니저 거절 통보 메일 (부수효과 — 실패해도 거절 처리는 성공으로 응답)
+  let emailResult = { ok: false, skipped: true };
+  if (rr.manager_email) {
+    const hotelName = (rr.hotels && rr.hotels.hotel_name) ? rr.hotels.hotel_name : '귀하의 호텔';
+    try {
+      emailResult = await sendSystemEmail({
+        to: rr.manager_email,
+        subject: '[TravelWinners] 환불 요청 처리 결과 안내',
+        replyTo: 'support@gohotelwinners.com',
+        html: '<div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;color:#1a1a1a">'
+          + '<h2 style="color:#0E1410">환불 요청 처리 결과</h2>'
+          + '<p>안녕하세요. 요청하신 환불 건이 검토되었으며, 아래와 같이 안내드립니다.</p>'
+          + '<table style="width:100%;border-collapse:collapse;margin:16px 0">'
+          + '<tr><td style="padding:8px;background:#f5f5f5;width:120px">대상 호텔</td><td style="padding:8px">' + escapeHtmlEmail(hotelName) + '</td></tr>'
+          + '<tr><td style="padding:8px;background:#f5f5f5">처리 결과</td><td style="padding:8px;color:#c0392b;font-weight:bold">반려(거절)</td></tr>'
+          + '<tr><td style="padding:8px;background:#f5f5f5">사유</td><td style="padding:8px">' + escapeHtmlEmail(decision_note) + '</td></tr>'
+          + '</table>'
+          + '<p>문의 사항이 있으시면 본 메일에 회신해 주시기 바랍니다.</p>'
+          + '<p style="color:#888;font-size:13px;margin-top:24px">TravelWinners Inc. · gohotelwinners.com</p>'
+          + '</div>'
+      });
+    } catch (e) {
+      emailResult = { ok: false, error: e.message || String(e) };
+    }
+  }
+
+  return res.status(200).json({ success: true, id, status: 'rejected', email_sent: emailResult.ok });
+}
+
+// 메일 본문용 HTML 이스케이프 (간단판)
+function escapeHtmlEmail(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+
+// =============================================================
 // BL-INVOICE-003 — 인보이스 설정 핸들러 (owner only)
 // =============================================================
 // company_info는 singleton (id=1). admin/staff도 SELECT는 가능 (인보이스 PDF용),
@@ -2533,7 +2728,7 @@ export default async function handler(req, res) {
   }
 
   // 화이트리스트 검증을 인증보다 먼저 수행 → 디버깅 시 라우팅 문제와 인증 문제를 명확히 분리
-  const ALLOWED_ACTIONS = ['booking-upload', 'list-users', 'send-invite', 'update-match', 'start-task', 'past-video-revenue', 'manager-push', 'delete-user', 'change-role', 're-verify', 'update-hotel-status', 'refund-hotel', 'hotel-detail', 'hotel-comm-list', 'hotel-comm-add', 'hotel-comm-delete', 'invoice-get-company-info', 'invoice-update-company-info', 'invoice-get-payment-accounts', 'invoice-update-payment-accounts', 'invoice-upload-asset', 'invoice-get-asset-url', 'invoice-get-audit-log', 'invoice-get-fx-rate'];
+  const ALLOWED_ACTIONS = ['booking-upload', 'list-users', 'send-invite', 'update-match', 'start-task', 'past-video-revenue', 'manager-push', 'delete-user', 'change-role', 're-verify', 'update-hotel-status', 'refund-hotel', 'refund-list', 'refund-approve', 'refund-reject', 'hotel-detail', 'hotel-comm-list', 'hotel-comm-add', 'hotel-comm-delete', 'invoice-get-company-info', 'invoice-update-company-info', 'invoice-get-payment-accounts', 'invoice-update-payment-accounts', 'invoice-upload-asset', 'invoice-get-asset-url', 'invoice-get-audit-log', 'invoice-get-fx-rate'];
   if (!action) {
     return res.status(400).json({
       error: 'missing_action',
@@ -2606,6 +2801,16 @@ export default async function handler(req, res) {
         return actionResult;
       case 'refund-hotel':
         actionResult = await handleRefundHotel(req, res, serviceKey, adminCheck);
+        return actionResult;
+      // BL-REFUND-FLOW step2 — 매니저 환불 신청 목록/승인/거절
+      case 'refund-list':
+        actionResult = await handleRefundList(req, res, serviceKey, adminCheck);
+        return actionResult;
+      case 'refund-approve':
+        actionResult = await handleRefundApprove(req, res, serviceKey, adminCheck);
+        return actionResult;
+      case 'refund-reject':
+        actionResult = await handleRefundReject(req, res, serviceKey, adminCheck);
         return actionResult;
       // BL-HOTEL-DETAIL-PAGE (2026-05-26) — 호텔 상세 + 커뮤니케이션 이력
       case 'hotel-detail':

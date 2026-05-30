@@ -31,6 +31,7 @@
 | OS 본체 자산 카탈로그 | [`./manifest.json`](./manifest.json) |
 | 페이지 역할 (sales/admin/dashboard) | [`./playbook/page-roles.md`](./playbook/page-roles.md) |
 | 작업별 커넥터 ON/OFF 정책 | [`./playbook/connector-policy.md`](./playbook/connector-policy.md) |
+| 거대 파일 안전 읽기(admin.html 등) | [`./playbook/large-file-read.md`](./playbook/large-file-read.md) |
 | 채팅 간 컨텍스트 인계 | [`./handoff/`](./handoff/) |
 | 진행 중 작업 (work-in-progress) | [`./work-in-progress/`](./work-in-progress/) |
 

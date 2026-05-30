@@ -2645,7 +2645,7 @@ body{margin:0;background:var(--bg,#0A0A0F);font-family:var(--sans,'Inter','Noto 
       html += '<td>' + lastLogin + '</td>';
       // BL-ADMIN-USER-MANAGEMENT (2026-05-15): 상세 + ⋯ 작업 메뉴
       html += '<td style="text-align:right;white-space:nowrap" onclick="event.stopPropagation()">';
-      html += '<a class="ad-btn ad-btn-primary" href="' + hubUrl + '" style="text-decoration:none;font-size:11.5px;padding:4px 10px;margin-right:4px">상세 →</a>';
+      html += '<a class="ad-btn ad-btn-primary" href="' + hubUrl + '" style="text-decoration:none;font-size:11.5px;padding:4px 10px;margin-right:4px">매니저 허브 →</a>';
       html += '<button class="ad-btn ad-um-menu" data-user-id="' + m.id + '" data-user-email="' + m.email + '" style="font-size:13px;padding:4px 10px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);color:#cbd5e1;border-radius:5px;cursor:pointer">⋯</button>';
       html += '</td>';
       html += '</tr>';
@@ -3081,6 +3081,8 @@ body{margin:0;background:var(--bg,#0A0A0F);font-family:var(--sans,'Inter','Noto 
       html += '<td>' + T.fmt.date(h.created_at) + '</td>';
       // [BL-ADMIN-USER-MANAGEMENT step4 2026-05-15] Actions = View + ⋯ 빠른 작업 메뉴
       html += '<td style="white-space:nowrap">';
+      // BL-ADMIN-SIDEBAR-MISSING-ENTRIES (2026-05-30): 매니저 화면 진입로. impersonate(매니저 시점)는 BL-FLOW-3 라우팅 개편으로 단절 → 작동하는 admin-manager-hub.html(상세)로 통일. user_id 있는 호텔만 노출.
+      if (h.user_id) html += '<a class="ad-btn ad-btn-secondary" href="/admin-manager-hub.html?id=' + encodeURIComponent(h.user_id) + '" style="margin-right:4px;text-decoration:none" title="이 호텔 매니저의 허브(상세) 열기">매니저 허브</a>';
       html += '<button class="ad-btn ad-btn-primary" data-hotel-id="' + esc(h.id) + '" style="margin-right:4px">View</button>';
       html += '<button class="ad-btn ad-hm-menu" data-hotel-menu-id="' + esc(h.id) + '" data-hotel-status="' + esc(h.status || '') + '" data-hotel-name="' + esc(h.hotel_name || '') + '" data-manager-email="' + esc(h._resolvedManagerEmail || '') + '" data-manager-name="' + esc(h._resolvedManagerName || '') + '" style="font-size:13px;padding:4px 10px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);color:#cbd5e1;border-radius:5px;cursor:pointer">⋯</button>';
       html += '</td>';

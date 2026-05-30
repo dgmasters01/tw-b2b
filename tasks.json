@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-30T16:51:44.651Z",
+  "updated_at": "2026-05-30T16:53:27+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -14,8 +14,8 @@
   "stats": {
     "total": 271,
     "done": 210,
-    "in_progress": 0,
-    "pending": 40,
+    "in_progress": 1,
+    "pending": 39,
     "blocked": 11,
     "autonomous_ready": 26,
     "todo": 2,
@@ -15841,7 +15841,7 @@
       },
       "notes": "베트남/태국/필리핀/인도네시아/말레이시아/싱가포르 상단 + 기타 국가.",
       "created_at": "2026-05-12T17:04:42.051339Z",
-      "updated_at": "2026-05-30T16:51:44+00:00",
+      "updated_at": "2026-05-30T16:53:27+00:00",
       "source": "decision:D-032+chat-log:2026-05-13-sq-g-auto-status-email",
       "target_pages": [
         "/signup.html"
@@ -15873,6 +15873,13 @@
           "at": "2026-05-30T16:51:44.651Z",
           "event": "mail_sent — Resend id: 5d0504f1-7f4d-498f-98b4-3fa9c6bfba48 (bundle 11)",
           "by": "ops-mail-bot"
+        },
+        {
+          "at": "2026-05-30T16:53:27+00:00",
+          "event": "done 작업에 commit 추가 (status 유지 — 자동 리오픈 안 함)",
+          "by": "auto-detect-bot",
+          "commit": "f926a16",
+          "note": "docs(handoff): BL-SIGNUP-COUNTRY-FIELD 완료 + 다음작업 BL-EMAIL-LOCALE-ROUTING + 환불 버그픽스 기록"
         }
       ]
     },
@@ -15882,7 +15889,7 @@
       "category": "feature",
       "priority": "P1",
       "size": "medium",
-      "status": "pending",
+      "status": "in_progress",
       "owner": "claude",
       "claude_can_auto": true,
       "approval_required": false,
@@ -15899,10 +15906,27 @@
       },
       "notes": "Resend SMTP locale 분기. 12개 메일 템플릿 영어 + 한국어 2벌.",
       "created_at": "2026-05-12T17:04:42.051339Z",
-      "updated_at": "2026-05-12T17:04:42.051339Z",
+      "updated_at": "2026-05-30T16:53:27+00:00",
       "source": "decision:D-032+chat-log:2026-05-13-sq-g-auto-status-email",
       "target_pages": [
         "__email__"
+      ],
+      "started_at": "2026-05-30T16:53:27+00:00",
+      "progress_warning": {
+        "code": "MISSING_PROGRESS_STEPS",
+        "rule": "부칙 7 — 모든 작업은 progress.steps 박은 후 시작",
+        "detected_at": "2026-05-30T16:53:27+00:00",
+        "detected_by_commit": "f926a16",
+        "message": "in_progress 진입했으나 progress.steps 비어있음. tasks.json에서 progress.steps 박은 후 다음 commit에 [step:done:N] 태그."
+      },
+      "history": [
+        {
+          "at": "2026-05-30T16:53:27+00:00",
+          "event": "진행 중 진입 (auto-detected) ⚠️ 부칙 7 위반 — progress.steps 미박힘",
+          "by": "auto-detect-bot",
+          "commit": "f926a16",
+          "note": "docs(handoff): BL-SIGNUP-COUNTRY-FIELD 완료 + 다음작업 BL-EMAIL-LOCALE-ROUTING + 환불 버그픽스 기록"
+        }
       ]
     },
     {

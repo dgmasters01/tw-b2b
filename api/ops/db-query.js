@@ -145,3 +145,4 @@ export default async function handler(req, res) {
     });
   }
 }
+// deploy-touch: SUPABASE_ACCESS_TOKEN 적용 배포 2026-05-30T15:52:50Z

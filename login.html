@@ -48,6 +48,10 @@
         <button class="pw-toggle" id="toggle-login-pw" type="button">SHOW</button>
       </div>
     </div>
+    <div style="display:flex;align-items:center;gap:8px;margin:2px 0 14px">
+      <input type="checkbox" id="login-remember" style="width:15px;height:15px;cursor:pointer">
+      <label for="login-remember" style="font-size:13px;color:var(--ink-3);cursor:pointer;user-select:none" data-en="Keep me signed in on this device" data-ko="이 기기에서 로그인 유지">Keep me signed in on this device</label>
+    </div>
     <button class="btn-primary" id="btn-login" data-en="Sign In" data-ko="로그인">Sign In</button>
     <div style="text-align:center;margin-top:14px">
       <a href="forgot-password.html" id="link-forgot" style="font-size:13px;color:var(--ink-3);text-decoration:none" data-en="Forgot password?" data-ko="비밀번호를 잊으셨나요?">Forgot password?</a>
@@ -94,6 +98,12 @@
     btn.innerHTML = '<span class="spinner"></span>' + (T.lang === 'ko' ? '로그인 중...' : 'Signing in...');
     btn.disabled = true;
     if (!T.sb) { T.toast('Supabase connection error.', true); btn.disabled = false; btn.textContent = T.lang === 'ko' ? '로그인' : 'Sign In'; return; }
+    // BL-LOGIN-PERSIST-OPTIN — 로그인 유지 선택 반영 (signIn 전에 저장소/쿠키 영속 여부 결정)
+    try {
+      var rememberEl = $('login-remember');
+      if (rememberEl && rememberEl.checked) localStorage.setItem('tw-auth-persist', '1');
+      else localStorage.removeItem('tw-auth-persist');
+    } catch (e) {}
     try {
       var r = await T.sb.auth.signInWithPassword({ email: em, password: pw });
       btn.disabled = false;

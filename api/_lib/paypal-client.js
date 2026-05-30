@@ -259,6 +259,59 @@ export async function verifyWebhookSignature(headers, rawBody) {
   return data.verification_status === 'SUCCESS';
 }
 
+/**
+ * Capture 환불 (PayPal Refund API)
+ * POST /v2/payments/captures/{capture_id}/refund
+ * - amount 미지정 = 전액 환불, 지정 = 부분 환불
+ * - PayPal-Request-Id 멱등 키로 동일 capture 중복 환불 차단
+ *
+ * @param {string} captureId - PayPal capture id (payments.paypal_capture_id)
+ * @param {object} [opts]
+ * @param {string|number} [opts.amount]   - 환불 금액(예 '200.00'). 미지정=전액
+ * @param {string}        [opts.currency] - 통화 (기본 'USD')
+ * @param {string}        [opts.note]     - 결제자에게 보일 사유 (note_to_payer, 255자 제한)
+ * @param {string}        [opts.requestId]- 멱등 키. 미지정 시 capture 기반 자동 생성
+ * @returns {Promise<object>} PayPal refund 응답 { id, status: 'COMPLETED'|'PENDING', ... }
+ */
+export async function refundCapture(captureId, opts = {}) {
+  if (!captureId) throw new Error('captureId is required');
+  const token = await getAccessToken();
+  const baseUrl = getPayPalBaseUrl();
+
+  const body = {};
+  if (opts.amount !== undefined && opts.amount !== null && opts.amount !== '') {
+    body.amount = { value: String(opts.amount), currency_code: opts.currency || 'USD' };
+  }
+  if (opts.note) {
+    body.note_to_payer = String(opts.note).slice(0, 255);
+  }
+
+  // 멱등 키: 동일 capture 재호출 시 PayPal이 기존 환불 결과를 그대로 반환 → 이중 환불 방지
+  const requestId = opts.requestId || ('tw-b2b-refund-' + captureId);
+
+  const resp = await fetch(baseUrl + '/v2/payments/captures/' + encodeURIComponent(captureId) + '/refund', {
+    method: 'POST',
+    headers: {
+      'Authorization': 'Bearer ' + token,
+      'Content-Type': 'application/json',
+      'PayPal-Request-Id': requestId,
+    },
+    body: JSON.stringify(body),
+  });
+
+  const data = await resp.json().catch(() => ({}));
+  if (!resp.ok) {
+    // 대표 에러: CAPTURE_FULLY_REFUNDED(이미 전액 환불), CAPTURE_NOT_REFUNDABLE(환불 기간 초과 등)
+    const errName = (data.details && data.details[0] && data.details[0].issue) || data.name || '';
+    const err = new Error('PayPal refundCapture failed: ' + (data.message || data.name || resp.status));
+    err.paypalErrorCode = errName;
+    err.paypalStatus = resp.status;
+    err.paypalRaw = data;
+    throw err;
+  }
+  return data;
+}
+
 export const PAYPAL_CONSTANTS = {
   PAYPAL_LIVE_BASE,
   PAYPAL_SANDBOX_BASE,

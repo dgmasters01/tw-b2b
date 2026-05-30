@@ -329,6 +329,11 @@ body{margin:0;background:var(--bg,#0A0A0F);font-family:var(--sans,'Inter','Noto 
       <button class="ad-sb-item" data-tab="renewal">
         <span class="ad-sb-icon">🔁</span><span data-en="Renewals" data-ko="재계약 관리">Renewals</span>
       </button>
+      <!-- BL-REFUND-FLOW step2: 매니저 환불 신청 확인·승인 -->
+      <button class="ad-sb-item" data-tab="refunds">
+        <span class="ad-sb-icon">↩️</span><span data-en="Refunds" data-ko="환불·취소">Refunds</span>
+        <span id="refund-pending-badge" style="display:none;margin-left:auto;background:#ef4444;color:#fff;font-size:10px;font-weight:700;min-width:18px;height:18px;line-height:18px;text-align:center;border-radius:9px;padding:0 5px"></span>
+      </button>
       <button class="ad-sb-item" data-tab="members">
         <span class="ad-sb-icon">👥</span><span data-en="Members" data-ko="가입자">Members</span>
       </button>
@@ -997,6 +1002,27 @@ body{margin:0;background:var(--bg,#0A0A0F);font-family:var(--sans,'Inter','Noto 
 
     </div>
 
+    <!-- ============================================
+      BL-REFUND-FLOW step2 — 환불·취소 신청 관리 탭
+      매니저 본인 신청(pending) → 대표님 확인 → 승인 시 PayPal Refund API 자동 호출
+    ============================================ -->
+    <div id="tab-refunds" class="ad-tab-pane" style="display:none;">
+      <div id="rf-summary" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px"></div>
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:14px;flex-wrap:wrap">
+        <select id="rf-filter" style="padding:8px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;background:#fff;color:#222">
+          <option value="pending" data-en="Pending only" data-ko="대기중만">Pending only</option>
+          <option value="all" data-en="All requests" data-ko="전체">All requests</option>
+          <option value="refunded" data-en="Refunded" data-ko="환불완료">Refunded</option>
+          <option value="rejected" data-en="Rejected" data-ko="거절됨">Rejected</option>
+          <option value="failed" data-en="Failed" data-ko="실패">Failed</option>
+        </select>
+        <button id="rf-refresh" style="padding:8px 14px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;background:#fff;color:#444;cursor:pointer" data-en="Refresh" data-ko="새로고침">Refresh</button>
+      </div>
+      <div id="rf-body">
+        <div class="ad-loading"><div class="ad-loader"></div><span data-en="Loading refund requests..." data-ko="환불 신청 불러오는 중...">Loading refund requests...</span></div>
+      </div>
+    </div>
+
     </div><!-- /ad-main -->
   </div><!-- /ad-content -->
 </div><!-- /ad-shell -->
@@ -1334,7 +1360,9 @@ body{margin:0;background:var(--bg,#0A0A0F);font-family:var(--sans,'Inter','Noto 
     'video-revenue': { title: 'Video Asset Revenue', sub: 'Per-hotel cumulative revenue from our YouTube channels. Internal only. D-035 / BL-PAST-VIDEO-RECON.',
                  title_ko: '영상 자산 성과', sub_ko: '호텔별 우리 채널 누적 매출. 우리만 보는 영역. (D-035 / BL-PAST-VIDEO-RECON)' },
     'renewal': { title: 'Renewals', sub: 'Hotels nearing D-30 guarantee expiry + low performers (<$200). Auto-extracted. BL-RENEWAL-WATCH.',
-                 title_ko: '재계약 관리', sub_ko: '보장 만료 D-30 임박 호텔 + 저성과 호텔(매출 $200 미만) 자동 추출. (BL-RENEWAL-WATCH)' }
+                 title_ko: '재계약 관리', sub_ko: '보장 만료 D-30 임박 호텔 + 저성과 호텔(매출 $200 미만) 자동 추출. (BL-RENEWAL-WATCH)' },
+    'refunds': { title: 'Refunds & Cancellations', sub: 'Manager-submitted refund requests. Approve to trigger PayPal Refund API. BL-REFUND-FLOW.',
+                 title_ko: '환불·취소', sub_ko: '매니저가 직접 신청한 환불 요청. 승인하면 PayPal 환불이 자동 실행됩니다. (BL-REFUND-FLOW)' }
   };
 
   function setActiveTab(tab){
@@ -1374,6 +1402,7 @@ body{margin:0;background:var(--bg,#0A0A0F);font-family:var(--sans,'Inter','Noto 
     if (tab === 'project-status') { try { loadProjectStatus(); } catch(e){ console.error('[ps] load failed', e); } }
     if (tab === 'video-revenue') { try { initVideoRevenue(); } catch(e){ console.error('[vr] init failed', e); } }
     if (tab === 'renewal') { try { initRenewalWatch(); } catch(e){ console.error('[rw] init failed', e); } }
+    if (tab === 'refunds') { try { window.initRefundsTab && window.initRefundsTab(); } catch(e){ console.error('[rf] init failed', e); } }
 
     // Phase 3 Step 2: Analytics native mount (iframe 제거)
     // 진입: BKA.mount() — 차트 destroy + 재렌더 + 별점 동기화
@@ -5618,6 +5647,178 @@ function rDayHotels(){
     rwLoadAll();
   };
 
+})();
+</script>
+
+
+<!-- ============================================
+  BL-REFUND-FLOW step2 — 환불·취소 탭 (admin)
+  - refund-list / refund-approve / refund-reject 호출
+  - 진입: setActiveTab('refunds') → window.initRefundsTab() (lazy, idempotent)
+  - 승인 시 PayPal Refund API 실행 (api/admin.js handleRefundApprove)
+============================================ -->
+<script>
+(function(){
+  var RF = { inited:false, loading:false };
+  var _rows = [];
+
+  function rfEl(id){ return document.getElementById(id); }
+
+  async function rfToken(){
+    var s = await T.sb.auth.getSession();
+    return (s && s.data && s.data.session && s.data.session.access_token) || '';
+  }
+
+  function rfEsc(str){
+    return String(str == null ? '' : str).replace(/[&<>"']/g, function(c){
+      return { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c];
+    });
+  }
+
+  function rfMoney(n, cur){
+    if (n == null) return '<span style="color:#888">전액</span>';
+    return (cur || 'USD') + ' ' + Number(n).toLocaleString('en-US', { maximumFractionDigits:2 });
+  }
+
+  function rfStatusBadge(s){
+    var map = {
+      pending:  ['#fef3c7','#92400e','대기'],
+      approved: ['#dbeafe','#1e40af','승인'],
+      refunded: ['#dcfce7','#15803d','환불완료'],
+      rejected: ['#f3f4f6','#6b7280','거절'],
+      failed:   ['#fee2e2','#b91c1c','실패']
+    };
+    var m = map[s] || ['#f3f4f6','#6b7280', s];
+    return '<span style="display:inline-block;padding:2px 9px;border-radius:10px;font-size:11px;font-weight:700;background:'+m[0]+';color:'+m[1]+'">'+m[2]+'</span>';
+  }
+
+  function rfRenderSummary(counts){
+    var defs = [['pending','대기중','#f59e0b'],['refunded','환불완료','#22c55e'],['rejected','거절','#9ca3af'],['failed','실패','#ef4444']];
+    var html = '';
+    defs.forEach(function(d){
+      var n = counts[d[0]] || 0;
+      html += '<div style="background:#fff;border:1px solid #eee;border-left:4px solid '+d[2]+';border-radius:10px;padding:12px 18px;min-width:108px">'
+        + '<div style="font-size:11px;color:#888;font-weight:600">'+d[1]+'</div>'
+        + '<div style="font-size:26px;font-weight:700;color:#222;line-height:1.1">'+n+'</div></div>';
+    });
+    var sum = rfEl('rf-summary'); if (sum) sum.innerHTML = html;
+    var badge = rfEl('refund-pending-badge');
+    if (badge){
+      var p = counts.pending || 0;
+      if (p > 0){ badge.textContent = p; badge.style.display = 'inline-block'; }
+      else badge.style.display = 'none';
+    }
+  }
+
+  function rfRenderTable(rows, filter){
+    var list = (filter && filter !== 'all') ? rows.filter(function(r){ return r.status === filter; }) : rows;
+    if (!list.length){
+      return '<div style="text-align:center;padding:48px;color:#999">신청 내역이 없습니다.</div>';
+    }
+    var html = '<div class="ad-table-wrap"><table class="ad-table"><thead><tr>'
+      + '<th>신청일</th><th>호텔</th><th>신청자</th><th>금액</th><th>사유</th><th>상태</th><th>처리</th></tr></thead><tbody>';
+    list.forEach(function(r){
+      var hotel = r.hotels ? (r.hotels.hotel_name || '—') : '—';
+      var when = r.created_at ? r.created_at.slice(0,10) : '—';
+      var act;
+      if (r.status === 'pending'){
+        act = '<button data-rf-approve="'+r.id+'" style="padding:5px 11px;border:0;border-radius:7px;background:#22c55e;color:#fff;font-size:12px;font-weight:600;cursor:pointer;margin-right:5px">승인·환불</button>'
+            + '<button data-rf-reject="'+r.id+'" style="padding:5px 11px;border:1px solid #e5e7eb;border-radius:7px;background:#fff;color:#b91c1c;font-size:12px;font-weight:600;cursor:pointer">거절</button>';
+      } else {
+        act = '<span style="font-size:11px;color:#999">'+(r.decided_by ? rfEsc(r.decided_by) : '—')+'</span>';
+      }
+      html += '<tr>'
+        + '<td style="white-space:nowrap;color:#666;font-size:12px">'+when+'</td>'
+        + '<td>'+rfEsc(hotel)+'</td>'
+        + '<td style="font-size:12px">'+rfEsc(r.manager_email)+'</td>'
+        + '<td style="white-space:nowrap">'+rfMoney(r.amount, r.currency)+'</td>'
+        + '<td style="max-width:240px;font-size:12px;color:#555">'+rfEsc(r.reason || '')+(r.decision_note ? '<br><span style="color:#999">메모: '+rfEsc(r.decision_note)+'</span>' : '')+'</td>'
+        + '<td>'+rfStatusBadge(r.status)+'</td>'
+        + '<td style="white-space:nowrap">'+act+'</td></tr>';
+    });
+    return html + '</tbody></table></div>';
+  }
+
+  function rfBindRowActions(){
+    document.querySelectorAll('[data-rf-approve]').forEach(function(b){
+      b.addEventListener('click', function(){ rfApprove(b.getAttribute('data-rf-approve')); });
+    });
+    document.querySelectorAll('[data-rf-reject]').forEach(function(b){
+      b.addEventListener('click', function(){ rfReject(b.getAttribute('data-rf-reject')); });
+    });
+  }
+
+  async function rfLoad(){
+    if (RF.loading) return;
+    RF.loading = true;
+    var body = rfEl('rf-body');
+    try {
+      var token = await rfToken();
+      var resp = await fetch('/api/admin?action=refund-list', { headers: { 'Authorization': 'Bearer ' + token } });
+      var data = await resp.json();
+      if (!resp.ok) throw new Error(data.error || 'load_failed');
+      _rows = data.requests || [];
+      rfRenderSummary(data.counts || {});
+      var filter = rfEl('rf-filter') ? rfEl('rf-filter').value : 'pending';
+      if (body) body.innerHTML = rfRenderTable(_rows, filter);
+      rfBindRowActions();
+    } catch(e){
+      if (body) body.innerHTML = '<div style="padding:24px;color:#b91c1c">불러오기 실패: '+rfEsc(String(e.message||e))+'</div>';
+    } finally {
+      RF.loading = false;
+    }
+  }
+
+  async function rfApprove(id){
+    if (!confirm('이 환불 신청을 승인합니다.\n승인하면 PayPal로 실제 환불이 즉시 실행됩니다. 계속할까요?')) return;
+    var note = prompt('승인 메모(선택, 비워도 됨):', '');
+    try {
+      var token = await rfToken();
+      var resp = await fetch('/api/admin?action=refund-approve', {
+        method:'POST',
+        headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer '+token },
+        body: JSON.stringify({ id: id, decision_note: note || '' })
+      });
+      var data = await resp.json();
+      if (!resp.ok){
+        alert('환불 실패: ' + (data.message || data.error || '') + (data.hint ? '\n' + data.hint : ''));
+      } else {
+        alert('환불 완료 (PayPal refund id: ' + (data.paypal_refund_id || '-') + ')');
+      }
+    } catch(e){ alert('오류: ' + String(e.message||e)); }
+    rfLoad();
+  }
+
+  async function rfReject(id){
+    var note = prompt('거절 사유를 입력하세요 (최소 3자):', '');
+    if (note == null) return;
+    if (note.trim().length < 3){ alert('거절 사유는 최소 3자입니다.'); return; }
+    try {
+      var token = await rfToken();
+      var resp = await fetch('/api/admin?action=refund-reject', {
+        method:'POST',
+        headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer '+token },
+        body: JSON.stringify({ id: id, decision_note: note.trim() })
+      });
+      var data = await resp.json();
+      if (!resp.ok) alert('거절 실패: ' + (data.error || ''));
+    } catch(e){ alert('오류: ' + String(e.message||e)); }
+    rfLoad();
+  }
+
+  window.initRefundsTab = function(){
+    if (RF.inited){ rfLoad(); return; }
+    RF.inited = true;
+    var f = rfEl('rf-filter');
+    if (f) f.addEventListener('change', function(){
+      var body = rfEl('rf-body');
+      if (body) body.innerHTML = rfRenderTable(_rows, f.value);
+      rfBindRowActions();
+    });
+    var rb = rfEl('rf-refresh');
+    if (rb) rb.addEventListener('click', function(){ rfLoad(); });
+    rfLoad();
+  };
 })();
 </script>
 

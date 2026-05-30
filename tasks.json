@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-05-30T16:51:08+00:00",
+  "updated_at": "2026-05-30T16:37:08+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -15807,7 +15807,7 @@
       "category": "feature",
       "priority": "P1",
       "size": "small",
-      "status": "in_progress",
+      "status": "done",
       "owner": "claude",
       "claude_can_auto": true,
       "approval_required": false,
@@ -15817,12 +15817,16 @@
       "blocker": null,
       "depends_on": [],
       "progress": {
-        "percent": 0,
-        "steps": []
+        "percent": 100,
+        "steps": [
+          "hotel-info.html: 국가 자유입력 텍스트 → 정규화 드롭다운(동남아 10국 상단 + 아시아 + 기타, 영문 value)",
+          "필수화(required + 저장 검증) + Agoda 자동채움값 매칭 헬퍼(setCountrySelect)",
+          "target은 D-032상 signup.html이나 실제 국가 입력은 hotel-info.html(2단계 가입의 호텔정보 단계)이라 거기 구현"
+        ]
       },
       "notes": "베트남/태국/필리핀/인도네시아/말레이시아/싱가포르 상단 + 기타 국가.",
       "created_at": "2026-05-12T17:04:42.051339Z",
-      "updated_at": "2026-05-30T16:51:08+00:00",
+      "updated_at": "2026-05-30T17:55:00+00:00",
       "source": "decision:D-032+chat-log:2026-05-13-sq-g-auto-status-email",
       "target_pages": [
         "/signup.html"
@@ -15844,11 +15848,11 @@
           "note": "docs(handoff): BL-REFUND-FLOW step2 완료 기록 + 다음작업 BL-SIGNUP-COUNTRY-FIELD + RENEWAL 정리"
         },
         {
-          "at": "2026-05-30T16:51:08+00:00",
-          "event": "진행 중 commit 추가",
-          "by": "auto-detect-bot",
+          "at": "2026-05-30T17:55:00+00:00",
+          "event": "완료 → done",
+          "by": "claude",
           "commit": "5d9934e",
-          "note": "feat(BL-SIGNUP-COUNTRY-FIELD): 국가 자유입력→정규화 드롭다운(동남아 상단+필수) + 자동채움 매칭 + 저장검증 (D-032)"
+          "note": "국가 드롭다운 정규화. 후속 BL-EMAIL-LOCALE-ROUTING(국가 기반 메일 언어 분기)의 데이터 기반 확보."
         }
       ]
     },

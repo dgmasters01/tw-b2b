@@ -335,9 +335,11 @@
   }
 
   function renderMarketing(hotel, data) {
+    var isKo = (window.TW.lang === 'ko');
+    window.__mkLast = { hotel: hotel, data: data };
     var html = '';
     html += '<h1 class="mk-h1">' + (hotel.hotel_name || 'Your hotel') + '</h1>';
-    html += '<p class="mk-sub">Booking <em style="font-style:normal;color:var(--ink-2)">analytics</em> &amp; channel performance';
+    html += '<p class="mk-sub">' + (isKo ? '예약 <em style="font-style:normal;color:var(--ink-2)">분석</em> · 채널 성과' : 'Booking <em style="font-style:normal;color:var(--ink-2)">analytics</em> &amp; channel performance');
     if (hotel.city || hotel.country) {
       html += ' · ' + (hotel.city || '') + (hotel.country ? ', ' + hotel.country : '');
     }
@@ -346,18 +348,18 @@
     // ----- HEADLINE (4 KPIs) -----
     var h = data.headline || {};
     html += '<div class="mk-headline">';
-    html += statCard('Bookings', String(h.booking_count || 0), '', false, true);
-    html += statCard('Estimated revenue', '$' + fmtMoney(h.total_amount_usd || 0), 'across all bookings', false, true);
-    html += statCard('Total nights', String(h.total_nights || 0), 'guest nights booked');
-    html += statCard('ROI', (h.roi_multiple || 0) + 'x', 'on $' + (h.subscription_usd || 200) + ' fee', true);
+    html += statCard(isKo?'예약 수':'Bookings', String(h.booking_count || 0), '', false, true);
+    html += statCard(isKo?'예상 매출':'Estimated revenue', '$' + fmtMoney(h.total_amount_usd || 0), isKo?'전체 예약 기준':'across all bookings', false, true);
+    html += statCard(isKo?'총 숙박일':'Total nights', String(h.total_nights || 0), isKo?'예약된 투숙 박 수':'guest nights booked');
+    html += statCard('ROI', (h.roi_multiple || 0) + 'x', (isKo?'':'on $') + (isKo?'$':'') + (h.subscription_usd || 200) + (isKo?' 수수료 대비':' fee'), true);
     html += '</div>';
 
     // ----- 채널별 전환 분석 -----
     html += '<div class="mk-card">';
-    html += '<h2 class="mk-h2">Channel performance</h2>';
+    html += '<h2 class="mk-h2">' + (isKo?'채널 성과':'Channel performance') + '</h2>';
     var stats = data.channel_stats || [];
     if (stats.length === 0) {
-      html += '<div class="mk-empty"><div class="mk-empty-icon">📊</div>No channel data yet — bookings will appear here once your video starts converting.</div>';
+      html += '<div class="mk-empty"><div class="mk-empty-icon">📊</div>' + (isKo?'아직 채널 데이터가 없습니다 — 영상이 전환을 일으키기 시작하면 여기에 예약이 표시됩니다.':'No channel data yet — bookings will appear here once your video starts converting.') + '</div>';
     } else {
       var maxCount = stats.reduce(function(m, s){ return Math.max(m, s.booking_count); }, 1);
       html += '<div class="mk-channel-grid">';
@@ -371,22 +373,22 @@
         html += '    <span class="mk-channel-tag ' + langClass + '">' + (s.channel_language || '—') + '</span>';
         html += '  </div>';
         html += '  <div class="mk-ch-count">' + s.booking_count + '</div>';
-        html += '  <div class="mk-ch-count-sub">bookings</div>';
+        html += '  <div class="mk-ch-count-sub">' + (isKo?'예약':'bookings') + '</div>';
         html += '  <div class="mk-ch-amount">$' + fmtMoney(s.gross_amount_usd) + '</div>';
         html += '  <div class="mk-ch-bar"><div class="mk-ch-bar-fill" style="width:' + pct + '%"></div></div>';
         html += '</div>';
       }
       html += '</div>';
     }
-    html += '<p class="mk-foot-note">Bookings are tracked through Agoda Affiliate. Channels with no bookings yet may still be driving views — check <a class="mk-link" href="https://partners.agoda.com" target="_blank" rel="noopener">Agoda Partner Hub</a> for raw analytics.</p>';
+    html += '<p class="mk-foot-note">' + (isKo?'예약은 아고다 제휴를 통해 집계됩니다. 아직 예약이 없는 채널도 조회수를 만들고 있을 수 있습니다 — 상세 분석은 ':'Bookings are tracked through Agoda Affiliate. Channels with no bookings yet may still be driving views — check ') + '<a class="mk-link" href="https://partners.agoda.com" target="_blank" rel="noopener">Agoda Partner Hub</a>' + (isKo?' 에서 확인하세요.':' for raw analytics.') + '</p>';
     html += '</div>';
 
     // ----- 예약 목록 -----
     html += '<div class="mk-card">';
-    html += '<h2 class="mk-h2">Recent bookings</h2>';
+    html += '<h2 class="mk-h2">' + (isKo?'최근 예약':'Recent bookings') + '</h2>';
     var bookings = data.bookings || [];
     if (bookings.length === 0) {
-      html += '<div class="mk-empty"><div class="mk-empty-icon">🌙</div>No completed bookings yet. Once guests check out, their bookings will appear here.</div>';
+      html += '<div class="mk-empty"><div class="mk-empty-icon">🌙</div>' + (isKo?'아직 완료된 예약이 없습니다. 투숙객이 체크아웃하면 예약이 여기에 표시됩니다.':'No completed bookings yet. Once guests check out, their bookings will appear here.') + '</div>';
     } else {
       html += '<div class="mk-booking-list">';
       for (var j = 0; j < bookings.length; j++) {
@@ -397,14 +399,14 @@
         html += '    <div class="mk-bk-id">#' + (b.booking_id_masked || '—') + '</div>';
         html += '    <div class="mk-bk-meta">';
         html += '      <span class="mk-bk-meta-item">📅 ' + (b.checkin_date || '?') + ' → ' + (b.checkout_date || '?') + '</span>';
-        html += '      <span class="mk-bk-meta-item">🌙 ' + (b.nights || 0) + ' nights</span>';
+        html += '      <span class="mk-bk-meta-item">🌙 ' + (b.nights || 0) + (isKo?'박':' nights') + '</span>';
         if (b.customer_country) html += '      <span class="mk-bk-meta-item">🌍 ' + b.customer_country + '</span>';
         html += '      <span class="mk-channel-tag ' + langClass2 + '">' + (b.channel_name || 'Other') + '</span>';
         html += '    </div>';
         html += '  </div>';
         html += '  <div>';
         html += '    <div class="mk-bk-amount">$' + fmtMoney(b.booking_amount_usd) + '</div>';
-        if (b.commission_usd) html += '    <div class="mk-bk-amount-sub">Comm. $' + fmtMoney(b.commission_usd) + '</div>';
+        if (b.commission_usd) html += '    <div class="mk-bk-amount-sub">' + (isKo?'수수료 $':'Comm. $') + fmtMoney(b.commission_usd) + '</div>';
         html += '  </div>';
         html += '</div>';
       }
@@ -413,10 +415,10 @@
 
     // ── 환불·취소 요청 (BL-REFUND-FLOW · D-033 매니저 본인 신청) ──
     window.__twRefundCtx = { hotelId: hotel.id, hotelName: hotel.hotel_name || '' };
-    html += '<h2 class="mk-h2" style="margin-top:48px">Refund / Cancellation</h2>';
+    html += '<h2 class="mk-h2" style="margin-top:48px">' + (isKo?'환불·취소':'Refund / Cancellation') + '</h2>';
     html += '<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(201,168,76,0.2);border-radius:12px;padding:24px;margin-bottom:24px">';
-    html += '  <p style="color:#9aa;margin:0 0 16px;font-size:14px;line-height:1.6">You can request a refund or cancellation for your marketing campaign. Requests are reviewed by our team, and the result will be sent to your registered email.</p>';
-    html += '  <button onclick="twRefundRequest()" style="background:#C9A84C;color:#0E1410;border:none;padding:12px 24px;border-radius:8px;font-weight:600;cursor:pointer;font-size:14px">↩️ Request Refund / Cancellation</button>';
+    html += '  <p style="color:#9aa;margin:0 0 16px;font-size:14px;line-height:1.6">' + (isKo?'결제하신 마케팅 캠페인에 대한 환불·취소를 요청하실 수 있습니다. 관리자 검토 후 결과를 등록하신 이메일로 안내드립니다.':'You can request a refund or cancellation for your marketing campaign. Requests are reviewed by our team, and the result will be sent to your registered email.') + '</p>';
+    html += '  <button onclick="twRefundRequest()" style="background:#C9A84C;color:#0E1410;border:none;padding:12px 24px;border-radius:8px;font-weight:600;cursor:pointer;font-size:14px">↩️ ' + (isKo?'환불·취소 요청하기':'Request Refund / Cancellation') + '</button>';
     html += '  <div id="mk-refund-msg" style="margin-top:14px;font-size:14px;line-height:1.5"></div>';
     html += '</div>';
 
@@ -492,6 +494,18 @@
       say('#c0392b', 'An error occurred while submitting your request: ' + (e.message || String(e)));
     }
   };
+
+  // 헤더 EN/한국어 버튼 클릭 시 이 화면도 즉시 다시 그림
+  if (window.TW && typeof window.TW.switchLang === 'function' && !window.TW.__mkWrapped) {
+    var _origSwitchLang = window.TW.switchLang;
+    window.TW.switchLang = function (l) {
+      _origSwitchLang.call(window.TW, l);
+      if (window.__mkLast) {
+        try { renderMarketing(window.__mkLast.hotel, window.__mkLast.data); } catch (e) {}
+      }
+    };
+    window.TW.__mkWrapped = true;
+  }
 })();
 </script>
 </body>

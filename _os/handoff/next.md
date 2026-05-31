@@ -5,27 +5,36 @@
 ## 첫 행동
 `_os/boot.md` **1개**만 fetch → 헌법 자가검증.
 
-## 영구 인프라 (외워둘 것)
-- **파일 저장**: `POST gohotelwinners.com/api/ops/github-commit`, header `x-ops-token=sV1IWuvgBYcn94lQZXBjFLjgdsh3lrBK`, body `{path, content, message}` (plain text, base64 금지). 30/h.
-- **DB 실행**: `POST gohotelwinners.com/api/ops/db-query`, 동일 header, body `{query}` → DDL/SQL 즉시 실행. DDL 성공 시 `rows:[]` 정상. 60/h. 검증은 information_schema로.
-- **메일 알림**: `POST gohotelwinners.com/api/email/ops/notify-claude-work`, 동일 header, body `{step, summary}` (둘 다 필수). 50/day.
+## 🟣 비즈니스 정책 (중요 — "정책 체크" 트리거)
+- 대표님이 **"정책 체크"** 라고 하면 → `_os/business-policy/` 문서들을 꺼내 함께 재검토한다.
+- 현재 문서: `_os/business-policy/refund-and-cancellation.md` (환불·취소 정책, 2026-05-31 합의).
+- 새 비즈니스 정책 합의가 나오면 이 폴더에 문서로 적립한다. 새 대화 넘어가기 전 정책은 반드시 여기 저장.
 
-## 🔴 1순위 작업: BL-EMAIL-LOCALE-ROUTING (P1 · order 10)
-제목: [자동 메일 12개 영어 default] 한국 매니저만 한국어 분기.
-- 지금 자동 메일(가입확인/인증/Agoda안내 등 약 12종)이 전부 영어로만 나감. 이제 **국가 데이터가 정규화됐으니**(아래 직전 처리) 그걸 기준으로 한국어 분기.
-- 메일 발송 모듈: `api/_lib/email-sender.js`(sendSystemEmail). 발송 호출처들을 찾아 수신자 locale 결정 → 한국 매니저(`hotels.country='South Korea'`)면 한국어 본문, 그 외 영어.
-- 먼저 probe: 자동 메일 발송처(api/ 내 sendSystemEmail 호출처, webhook, signup 트리거) grep. 본문이 하드코딩 영어인지 템플릿인지 확인 후 ko/en 분기 설계.
+## 영구 인프라
+- **파일 저장**: `POST gohotelwinners.com/api/ops/github-commit`, header `x-ops-token=sV1IWuvgBYcn94lQZXBjFLjgdsh3lrBK`, body `{path,content,message}` (plain text). 30/h. ⚠️ python urllib가 SSL "certificate not yet valid"로 막히면 **curl --data-binary @file** 로 우회(컨테이너 시계 문제).
+- **DB 실행**: `POST .../api/ops/db-query`, body `{query}`. DDL 즉시 실행. 60/h.
+- **메일 알림**: `POST .../api/email/ops/notify-claude-work`, body `{step,summary}` (둘 다 필수). 50/day.
 
-## 🟢 직전 처리 메모 (2026-05-30)
-- **BL-SIGNUP-COUNTRY-FIELD 완료**(done) commit `5d9934e`. 국가 입력을 **자유 텍스트 → 정규화 드롭다운**으로 교체.
-  - **위치 판단**: D-032 target은 signup.html이나, signup.html은 계정생성만 하고 **실제 국가 입력은 hotel-info.html**(2단계 가입의 호텔정보 단계)이라 거기 구현. `<select id="edit-country" required>` 동남아 10국 상단 + 아시아 + 기타. **value는 영문 표준명으로 정규화**(DB hotels.country=text에 영문 저장) → 메일 로케일 분기의 기반.
-  - Agoda 자동채움값 매칭 `setCountrySelect()` 헬퍼(정확→data-ko→부분, 실패시 미선택). 저장 시 country 필수 검증 추가. 라이브 배포 확인 완료.
-- **BL-REFUND-FLOW 완료**(done, 100%). step2: api/admin.js `89184f5`, _admin/admin.html `1ad4266`, marketing.html `69f1862`. **버그픽스 `ea1e855`**: 환불 탭 별도 IIFE에서 `T` 미접근("T is not defined") → rfToken `window.TW.sb`로 수정. 라이브 화면 검증 완료.
-  - ⚠️ 미검증: PayPal sandbox 실환불 E2E는 payments 0건 → 실결제 후. handleRefundHotel(별개 BL) status='completed' 버그(CHECK엔 'succeeded') 발견 — approve가 대체하므로 영향 적음.
-- **BL-RENEWAL-WATCH** in_progress→done 정리 완료.
+## 🔴 대기 작업
+### A. BL-REFUND-FLOW 정책 반영 (신규 — 위 정책문서 기반 구현)
+환불 정책이 확정됐으나 코드 미반영. 구현 TODO:
+- admin 호텔 관리에 **노출일(캠페인 시작일) 수기 입력 칸** 신설 (DB 컬럼 필요 여부 확인).
+- 매니저 환불 버튼 **조건부 노출**: ①결제+24h이내 & 노출일미입력 → 보임(수수료공제 취소) ②노출일입력/노출후 → 숨김+1:1문의 안내 ③첫노출일+6개월 & 제휴링크 아고다예약 0건 → 30일간 재노출(100% 환불).
+- 24h 취소 시 **PayPal 수수료 공제** 계산(환불액=결제액−수수료).
+- **약관 문구** 5개 반영(정책문서 참조).
+- 0건 판정 = 제휴링크 아고다 예약 기준.
+
+### B. BL-EMAIL-LOCALE-ROUTING (P1 · order 10)
+자동 메일 약 12종이 전부 영어. 가입 국가(`hotels.country`, 정규화됨)가 South Korea면 한국어, 그 외 영어로 분기. 발송 모듈 `api/_lib/email-sender.js`(sendSystemEmail). 호출처 grep → locale 분기 설계.
+
+## 🟢 직전 처리 (2026-05-31)
+- **i18n 점검 완료**: 고객·매니저 페이지 중 진짜 한글/영어 혼용은 **marketing.html 하나뿐**(나머지 sales/dashboard 등은 이미 분기 정상 — 첫 점검은 줄단위라 오탐多). 
+- **marketing.html 토글화 완료** commit `62ed0df`: 환불카드 한글고정 수정 → 전 텍스트 isKo 분기 + `window.TW.switchLang` 래핑으로 헤더 EN/한국어 버튼 클릭 시 재렌더. (`window.__mkLast`에 마지막 hotel/data 저장 후 재호출 방식)
+- **환불 정책 문서화** commit `21f4fba`: `_os/business-policy/refund-and-cancellation.md`.
+- (이전) BL-REFUND-FLOW step2+버그픽스(ea1e855), BL-SIGNUP-COUNTRY-FIELD(5d9934e, 국가 드롭다운 정규화), BL-RENEWAL-WATCH done.
 
 ## ⚠️ 거대 파일 가드
-`_admin/admin.html`(약 6,690줄) 통째 read/cat/`curl|head`/`grep -i 내용출력` 금지 → **약 4,798번째 줄 = 1MB 데이터(절대 출력 금지)**. 줄번호만 grep→sed. 상세 `_os/playbook/large-file-read.md`.
+`_admin/admin.html`(약 6,690줄) 통째 read/cat 금지 → 약 4,798번째 줄 = 1MB 데이터(절대 출력 금지). 줄번호 grep→sed만.
 
 ## 환경
-repo dgmasters01/tw-b2b(main). raw=curl 무인증(검증은 commit SHA 직지정). jq 없음→python3. PayPal: _lib/paypal-client.js, Merchant HAY86YMQP9T5C. 메일: _lib/email-sender.js. 가입 흐름: signup.html(계정) → hotel-info.html(호텔정보, 국가 select 있음) → verify-email.html.
+repo dgmasters01/tw-b2b(main). raw=curl 무인증(검증은 commit SHA 직지정). jq 없음→python3. PayPal: _lib/paypal-client.js, Merchant HAY86YMQP9T5C. 메일: _lib/email-sender.js. 가입: signup.html(계정)→hotel-info.html(호텔정보·국가select)→verify-email.html. marketing.html=결제완료 매니저 대시보드(영어 고정이었으나 토글화 완료).

@@ -3310,13 +3310,14 @@ body{margin:0;background:var(--bg,#0A0A0F);font-family:var(--sans,'Inter','Noto 
     html += '</div>';
 
     // ── 노출 시작일 (BL-REFUND-FLOW 정책 기준점) ──
+    var expKo = !!(window.TW && window.TW.lang === 'ko');
     html += '<div style="margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,.1)">'
-          + '<div style="font-size:12.5px;color:#94a3b8;margin-bottom:8px">📅 노출 시작일 <span style="color:#64748b">(환불 정책 기준 · 입력하면 24시간 취소 종료)</span></div>'
+          + '<div style="font-size:12.5px;color:#94a3b8;margin-bottom:8px">📅 ' + (expKo ? '노출 시작일' : 'Exposure start date') + ' <span style="color:#64748b">(' + (expKo ? '환불 정책 기준 · 입력하면 24시간 취소 종료' : 'refund policy basis · closes the 24h cancellation window') + ')</span></div>'
           + '<div style="display:flex;gap:8px">'
           + '<input type="date" id="hqm-exposure-date" style="flex:1;padding:9px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:6px;color:#E5E5EE;font-size:13px">'
-          + '<button id="hqm-exposure-save" style="padding:9px 16px;background:#C9A84C;color:#0E1410;border:none;border-radius:6px;font-weight:600;cursor:pointer;font-size:13px;white-space:nowrap">저장</button>'
+          + '<button id="hqm-exposure-save" style="padding:9px 16px;background:#C9A84C;color:#0E1410;border:none;border-radius:6px;font-weight:600;cursor:pointer;font-size:13px;white-space:nowrap">' + (expKo ? '저장' : 'Save') + '</button>'
           + '</div>'
-          + '<div id="hqm-exposure-msg" style="font-size:12px;margin-top:6px;color:#9aa">현재 설정 불러오는 중…</div>'
+          + '<div id="hqm-exposure-msg" style="font-size:12px;margin-top:6px;color:#9aa">' + (expKo ? '현재 설정 불러오는 중…' : 'Loading current setting…') + '</div>'
           + '</div>';
 
     document.getElementById('hqm-body').innerHTML = html;
@@ -3335,13 +3336,13 @@ body{margin:0;background:var(--bg,#0A0A0F);font-family:var(--sans,'Inter','Noto 
           var r = await fetch('/api/admin?action=hotel-detail&hotel_id=' + encodeURIComponent(h.id), { headers: { 'Authorization': 'Bearer ' + token } });
           var d = await r.json();
           var pub = d && d.hotel && d.hotel.published_at;
-          if (pub){ dateEl.value = String(pub).slice(0, 10); msgEl.textContent = '현재 노출 시작일: ' + String(pub).slice(0, 10); }
-          else { msgEl.textContent = '아직 노출 시작일이 설정되지 않았습니다.'; }
+          if (pub){ dateEl.value = String(pub).slice(0, 10); msgEl.textContent = (expKo ? '현재 노출 시작일: ' : 'Current exposure date: ') + String(pub).slice(0, 10); }
+          else { msgEl.textContent = expKo ? '아직 노출 시작일이 설정되지 않았습니다.' : 'No exposure date set yet.'; }
         } catch (e){ msgEl.textContent = ''; }
       })();
       saveEl.addEventListener('click', function(){
         var v = dateEl.value;
-        msgEl.style.color = '#9aa'; msgEl.textContent = '저장 중…';
+        msgEl.style.color = '#9aa'; msgEl.textContent = expKo ? '저장 중…' : 'Saving…';
         hqmCallApi('set-exposure-date', { hotel_id: h.id, exposure_date: v || null });
       });
     })();

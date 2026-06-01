@@ -108,14 +108,30 @@ function showOk(text) {
 }
 
 const params = new URLSearchParams(window.location.search);
-const nextPage = params.get('next') || 'status';
+const rawNext = params.get('next') || 'status';
+
+// BL-FIX-MANAGER-HUB-AUTH (2026-06-02): next 두 형태 모두 처리.
+//  - 짧은 admin 슬러그('status','tasks') → /admin-{슬러그}.html (기존 동작 보존)
+//  - 전체 경로('/admin-manager-hub.html?id=...') → 그대로 사용 (매니저 허브 등)
+//  기존엔 슬러그만 가정해 /admin-/admin-manager-hub.html?...html 식 깨진 404 발생했음.
+//  보안: 내부 절대경로(/ 시작, // 아님)만 허용 — open redirect 차단.
+function resolveNextUrl(n) {
+  if (!n) return '/admin-status.html';
+  if (n.charAt(0) === '/' || n.indexOf('.html') !== -1 || n.indexOf('?') !== -1) {
+    var path = n.charAt(0) === '/' ? n : '/' + n;
+    if (path.indexOf('//') === 0 || /^\/+https?:/i.test(path)) return '/admin-status.html';
+    return path;
+  }
+  return '/admin-' + n.replace(/[^a-z0-9-]/gi, '') + '.html';
+}
+const nextUrl = resolveNextUrl(rawNext);
 
 async function checkExistingSession() {
   const { data: { session } } = await sb.auth.getSession();
   if (session && session.access_token) {
     document.cookie = `sb-access-token=${session.access_token}; Path=/${adminPersist() ? '; Max-Age=2592000' : ''}; SameSite=Lax; Secure`;
     showOk('이미 로그인되어 있습니다. 잠시 후 이동합니다...');
-    setTimeout(() => { window.location.href = `/admin-${nextPage}.html`; }, 800);
+    setTimeout(() => { window.location.href = nextUrl; }, 800);
   }
 }
 checkExistingSession();
@@ -178,7 +194,7 @@ async function handleLogin() {
     document.cookie = `sb-access-token=${data.session.access_token}; Path=/${adminPersist() ? '; Max-Age=2592000' : ''}; SameSite=Lax; Secure`;
 
     showOk(`로그인 성공! (${sessionInfo.user.role}) 잠시 후 이동합니다...`);
-    setTimeout(() => { window.location.href = `/admin-${nextPage}.html`; }, 600);
+    setTimeout(() => { window.location.href = nextUrl; }, 600);
   } catch (e) {
     showErr('Error: ' + e.message);
     btn.disabled = false;

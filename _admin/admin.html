@@ -5712,29 +5712,29 @@ function rDayHotels(){
   }
 
   function rfMoney(n, cur){
-    if (n == null) return '<span style="color:#888">전액</span>';
+    if (n == null) return '<span style="color:#888" data-en="Full amount" data-ko="전액">전액</span>';
     return (cur || 'USD') + ' ' + Number(n).toLocaleString('en-US', { maximumFractionDigits:2 });
   }
 
   function rfStatusBadge(s){
     var map = {
-      pending:  ['#fef3c7','#92400e','대기'],
-      approved: ['#dbeafe','#1e40af','승인'],
-      refunded: ['#dcfce7','#15803d','환불완료'],
-      rejected: ['#f3f4f6','#6b7280','거절'],
-      failed:   ['#fee2e2','#b91c1c','실패']
+      pending:  ['#fef3c7','#92400e','대기','Pending'],
+      approved: ['#dbeafe','#1e40af','승인','Approved'],
+      refunded: ['#dcfce7','#15803d','환불완료','Refunded'],
+      rejected: ['#f3f4f6','#6b7280','거절','Rejected'],
+      failed:   ['#fee2e2','#b91c1c','실패','Failed']
     };
-    var m = map[s] || ['#f3f4f6','#6b7280', s];
-    return '<span style="display:inline-block;padding:2px 9px;border-radius:10px;font-size:11px;font-weight:700;background:'+m[0]+';color:'+m[1]+'">'+m[2]+'</span>';
+    var m = map[s] || ['#f3f4f6','#6b7280', s, s];
+    return '<span style="display:inline-block;padding:2px 9px;border-radius:10px;font-size:11px;font-weight:700;background:'+m[0]+';color:'+m[1]+'" data-en="'+m[3]+'" data-ko="'+m[2]+'">'+m[2]+'</span>';
   }
 
   function rfRenderSummary(counts){
-    var defs = [['pending','대기중','#f59e0b'],['refunded','환불완료','#22c55e'],['rejected','거절','#9ca3af'],['failed','실패','#ef4444']];
+    var defs = [['pending','대기중','Pending','#f59e0b'],['refunded','환불완료','Refunded','#22c55e'],['rejected','거절','Rejected','#9ca3af'],['failed','실패','Failed','#ef4444']];
     var html = '';
     defs.forEach(function(d){
       var n = counts[d[0]] || 0;
-      html += '<div style="background:#fff;border:1px solid #eee;border-left:4px solid '+d[2]+';border-radius:10px;padding:12px 18px;min-width:108px">'
-        + '<div style="font-size:11px;color:#888;font-weight:600">'+d[1]+'</div>'
+      html += '<div style="background:#fff;border:1px solid #eee;border-left:4px solid '+d[3]+';border-radius:10px;padding:12px 18px;min-width:108px">'
+        + '<div style="font-size:11px;color:#888;font-weight:600" data-en="'+d[2]+'" data-ko="'+d[1]+'">'+d[1]+'</div>'
         + '<div style="font-size:26px;font-weight:700;color:#222;line-height:1.1">'+n+'</div></div>';
     });
     var sum = rfEl('rf-summary'); if (sum) sum.innerHTML = html;
@@ -5749,17 +5749,17 @@ function rDayHotels(){
   function rfRenderTable(rows, filter){
     var list = (filter && filter !== 'all') ? rows.filter(function(r){ return r.status === filter; }) : rows;
     if (!list.length){
-      return '<div style="text-align:center;padding:48px;color:#999">신청 내역이 없습니다.</div>';
+      return '<div style="text-align:center;padding:48px;color:#999" data-en="No requests yet." data-ko="신청 내역이 없습니다.">신청 내역이 없습니다.</div>';
     }
     var html = '<div class="ad-table-wrap"><table class="ad-table"><thead><tr>'
-      + '<th>신청일</th><th>호텔</th><th>신청자</th><th>금액</th><th>사유</th><th>상태</th><th>처리</th></tr></thead><tbody>';
+      + '<th data-en="Date" data-ko="신청일">신청일</th><th data-en="Hotel" data-ko="호텔">호텔</th><th data-en="Requester" data-ko="신청자">신청자</th><th data-en="Amount" data-ko="금액">금액</th><th data-en="Reason" data-ko="사유">사유</th><th data-en="Status" data-ko="상태">상태</th><th data-en="Action" data-ko="처리">처리</th></tr></thead><tbody>';
     list.forEach(function(r){
       var hotel = r.hotels ? (r.hotels.hotel_name || '—') : '—';
       var when = r.created_at ? r.created_at.slice(0,10) : '—';
       var act;
       if (r.status === 'pending'){
-        act = '<button data-rf-approve="'+r.id+'" style="padding:5px 11px;border:0;border-radius:7px;background:#22c55e;color:#fff;font-size:12px;font-weight:600;cursor:pointer;margin-right:5px">승인·환불</button>'
-            + '<button data-rf-reject="'+r.id+'" style="padding:5px 11px;border:1px solid #e5e7eb;border-radius:7px;background:#fff;color:#b91c1c;font-size:12px;font-weight:600;cursor:pointer">거절</button>';
+        act = '<button data-rf-approve="'+r.id+'" style="padding:5px 11px;border:0;border-radius:7px;background:#22c55e;color:#fff;font-size:12px;font-weight:600;cursor:pointer;margin-right:5px" data-en="Approve &amp; Refund" data-ko="승인·환불">승인·환불</button>'
+            + '<button data-rf-reject="'+r.id+'" style="padding:5px 11px;border:1px solid #e5e7eb;border-radius:7px;background:#fff;color:#b91c1c;font-size:12px;font-weight:600;cursor:pointer" data-en="Reject" data-ko="거절">거절</button>';
       } else {
         act = '<span style="font-size:11px;color:#999">'+(r.decided_by ? rfEsc(r.decided_by) : '—')+'</span>';
       }
@@ -5768,7 +5768,7 @@ function rDayHotels(){
         + '<td>'+rfEsc(hotel)+'</td>'
         + '<td style="font-size:12px">'+rfEsc(r.manager_email)+'</td>'
         + '<td style="white-space:nowrap">'+rfMoney(r.amount, r.currency)+'</td>'
-        + '<td style="max-width:240px;font-size:12px;color:#555">'+rfEsc(r.reason || '')+(r.decision_note ? '<br><span style="color:#999">메모: '+rfEsc(r.decision_note)+'</span>' : '')+'</td>'
+        + '<td style="max-width:240px;font-size:12px;color:#555">'+rfEsc(r.reason || '')+(r.decision_note ? '<br><span style="color:#999"><span data-en="Note: " data-ko="메모: ">메모: </span>'+rfEsc(r.decision_note)+'</span>' : '')+'</td>'
         + '<td>'+rfStatusBadge(r.status)+'</td>'
         + '<td style="white-space:nowrap">'+act+'</td></tr>';
     });
@@ -5798,16 +5798,18 @@ function rDayHotels(){
       var filter = rfEl('rf-filter') ? rfEl('rf-filter').value : 'pending';
       if (body) body.innerHTML = rfRenderTable(_rows, filter);
       rfBindRowActions();
+      if (window.TW_applyLang) window.TW_applyLang();
     } catch(e){
-      if (body) body.innerHTML = '<div style="padding:24px;color:#b91c1c">불러오기 실패: '+rfEsc(String(e.message||e))+'</div>';
+      if (body) body.innerHTML = '<div style="padding:24px;color:#b91c1c">'+((window.TW&&window.TW.lang==='ko')?'불러오기 실패: ':'Load failed: ')+rfEsc(String(e.message||e))+'</div>';
     } finally {
       RF.loading = false;
     }
   }
 
   async function rfApprove(id){
-    if (!confirm('이 환불 신청을 승인합니다.\n승인하면 PayPal로 실제 환불이 즉시 실행됩니다. 계속할까요?')) return;
-    var note = prompt('승인 메모(선택, 비워도 됨):', '');
+    var _ak=(window.TW&&window.TW.lang==='ko');
+    if (!confirm(_ak?'이 환불 신청을 승인합니다.\n승인하면 PayPal로 실제 환불이 즉시 실행됩니다. 계속할까요?':'Approve this refund request?\nApproving will immediately issue a real PayPal refund. Continue?')) return;
+    var note = prompt(_ak?'승인 메모(선택, 비워도 됨):':'Approval note (optional):', '');
     try {
       var token = await rfToken();
       var resp = await fetch('/api/admin?action=refund-approve', {
@@ -5817,18 +5819,19 @@ function rDayHotels(){
       });
       var data = await resp.json();
       if (!resp.ok){
-        alert('환불 실패: ' + (data.message || data.error || '') + (data.hint ? '\n' + data.hint : ''));
+        alert((_ak?'환불 실패: ':'Refund failed: ') + (data.message || data.error || '') + (data.hint ? '\n' + data.hint : ''));
       } else {
-        alert('환불 완료 (PayPal refund id: ' + (data.paypal_refund_id || '-') + ')');
+        alert((_ak?'환불 완료 (PayPal refund id: ':'Refund done (PayPal refund id: ') + (data.paypal_refund_id || '-') + ')');
       }
-    } catch(e){ alert('오류: ' + String(e.message||e)); }
+    } catch(e){ alert((_ak?'오류: ':'Error: ') + String(e.message||e)); }
     rfLoad();
   }
 
   async function rfReject(id){
-    var note = prompt('거절 사유를 입력하세요 (최소 3자):', '');
+    var _rk=(window.TW&&window.TW.lang==='ko');
+    var note = prompt(_rk?'거절 사유를 입력하세요 (최소 3자):':'Enter rejection reason (min 3 chars):', '');
     if (note == null) return;
-    if (note.trim().length < 3){ alert('거절 사유는 최소 3자입니다.'); return; }
+    if (note.trim().length < 3){ alert(_rk?'거절 사유는 최소 3자입니다.':'Reason must be at least 3 characters.'); return; }
     try {
       var token = await rfToken();
       var resp = await fetch('/api/admin?action=refund-reject', {
@@ -5837,8 +5840,8 @@ function rDayHotels(){
         body: JSON.stringify({ id: id, decision_note: note.trim() })
       });
       var data = await resp.json();
-      if (!resp.ok) alert('거절 실패: ' + (data.error || ''));
-    } catch(e){ alert('오류: ' + String(e.message||e)); }
+      if (!resp.ok) alert((_rk?'거절 실패: ':'Reject failed: ') + (data.error || ''));
+    } catch(e){ alert((_rk?'오류: ':'Error: ') + String(e.message||e)); }
     rfLoad();
   }
 

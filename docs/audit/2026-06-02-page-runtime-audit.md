@@ -23,13 +23,16 @@
 
 ## 2. 발견 결과
 
-### 🔴 P0 — 매니저 허브 로그인 루프 (수정 완료)
+### 🔴 P0 — 매니저 허브 진입 실패 (수정 완료, 원인 2층)
 
-- **증상:** admin → 호텔 파트너 → "매니저 허브" → 로그인 → **빈 화면 / 무한 리다이렉트**
-- **근본 원인:** `admin-manager-hub.html`이 자체 Supabase 클라이언트를 만들면서 **로그인 세션 서랍(storageKey)을 지정 안 함**(기본값 사용). admin 로그인은 `tw-admin-auth` 서랍에 세션을 저장하는데, 허브는 다른 서랍을 봐서 세션을 못 찾음 → 계속 로그인으로 튕김.
-- **맥락:** D-050에서 매니저 화면 진입을 이 페이지로 "통일"했으나, **인증 서랍을 안 맞춘 채 멈춘** 상태였음(전형적 "만들다 만 것").
-- **수정:** admin-login.html과 동일하게 `storageKey:'tw-admin-auth'` + adminStorage 하이브리드(D-051 로그인 유지 정책) 적용. 검증된 코드 1:1 복제.
-- **상태:** ✅ 코드 수정·라이브 반영. **단, 실제 로그인 후 정상 표시는 대표님이 브라우저에서 1회 확인 필요**(인증된 세션 클릭은 사람만 가능).
+- **증상:** admin → 호텔 파트너 → "매니저 허브" → 로그인 → **404 NOT_FOUND** (`/admin-/admin-manager-hub.html?...html`) 또는 빈 화면.
+- **1차 원인 (404, 핵심):** `admin-login.html`이 로그인 후 `/admin-${next}.html`로 주소를 조립함. 짧은 슬러그(`status`)만 가정한 코드인데, 매니저 허브는 `next`에 **전체 경로**(`/admin-manager-hub.html?id=...`)를 넘김 → `/admin-/admin-manager-hub.html?....html`이라는 깨진 주소 생성 → 404. (대표님이 클릭으로 발견)
+- **2차 원인 (빈 화면):** `admin-manager-hub.html`이 자체 Supabase 클라이언트의 세션 서랍(storageKey)을 안 맞춰(기본값) admin 세션을 못 읽음.
+- **맥락:** D-050에서 진입을 이 페이지로 "통일"했으나, 로그인 리다이렉트 규약·세션 서랍 둘 다 안 맞춘 채 멈춤 — 전형적 "만들다 만 것".
+- **수정:**
+  - `admin-login.html` — `resolveNextUrl()` 추가: 슬러그/전체경로 모두 처리 + open-redirect 방어. (commit a929b25)
+  - `admin-manager-hub.html` — `storageKey:'tw-admin-auth'` + adminStorage 적용. (commit 0fc96ac)
+- **상태:** ✅ 코드 수정·라이브 반영. **대표님 브라우저 재현 확인 1회 필요.**
 
 ### 🟡 정적 미완성 페이지 (목록화 — 후속 정리 대상)
 

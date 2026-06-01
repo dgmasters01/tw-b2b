@@ -1586,7 +1586,7 @@ body{margin:0;background:var(--bg,#0A0A0F);font-family:var(--sans,'Inter','Noto 
 
   function psCopyText(text, btnEl){
     var ok = function(){
-      psShowToast('복사 완료');
+      psShowToast((window.TW&&window.TW.lang==='ko')?'복사 완료':'Copied');
       if (btnEl){
         var origHtml = btnEl.innerHTML;
         btnEl.innerHTML = '✓ Copied';
@@ -1599,7 +1599,7 @@ body{margin:0;background:var(--bg,#0A0A0F);font-family:var(--sans,'Inter','Noto 
     };
     var fail = function(err){
       console.warn('[ps] copy failed', err);
-      psShowToast('복사 실패 — 직접 선택해 주세요', true);
+      psShowToast((window.TW&&window.TW.lang==='ko')?'복사 실패 — 직접 선택해 주세요':'Copy failed — please select manually', true);
     };
     // 1순위: navigator.clipboard (HTTPS 또는 localhost에서만 작동)
     if (navigator.clipboard && navigator.clipboard.writeText){
@@ -1656,7 +1656,7 @@ body{margin:0;background:var(--bg,#0A0A0F);font-family:var(--sans,'Inter','Noto 
   // Copy All — 캐시된 BLOCKED 전체를 한 번에 복사
   window.psCopyAllBlocked = function(){
     if (!PS_BLOCKED_CACHE || PS_BLOCKED_CACHE.length === 0){
-      psShowToast('데이터 로딩 중입니다. 잠시 후 다시 시도해 주세요.', true);
+      psShowToast((window.TW&&window.TW.lang==='ko')?'데이터 로딩 중입니다. 잠시 후 다시 시도해 주세요.':'Data is still loading. Please try again shortly.', true);
       return;
     }
     var lines = ['🚧 결정 필요 항목 (BLOCKED) — 총 ' + PS_BLOCKED_CACHE.length + '건', ''];
@@ -1672,7 +1672,7 @@ body{margin:0;background:var(--bg,#0A0A0F);font-family:var(--sans,'Inter','Noto 
   // Copy All — 캐시된 Up Next 전체를 한 번에 복사
   window.psCopyAllUpNext = function(){
     if (!PS_UPNEXT_CACHE || PS_UPNEXT_CACHE.length === 0){
-      psShowToast('데이터 로딩 중입니다. 잠시 후 다시 시도해 주세요.', true);
+      psShowToast((window.TW&&window.TW.lang==='ko')?'데이터 로딩 중입니다. 잠시 후 다시 시도해 주세요.':'Data is still loading. Please try again shortly.', true);
       return;
     }
     var lines = ['⏭️ 다음 작업 큐 (Up Next) — 총 ' + PS_UPNEXT_CACHE.length + '건', ''];
@@ -1855,7 +1855,7 @@ body{margin:0;background:var(--bg,#0A0A0F);font-family:var(--sans,'Inter','Noto 
             '<div class="ps-timeline-tag">' + icon + '</div>'+
             '<div class="ps-timeline-msg">' + chipHtml + psEsc(msgClean) + '</div>'+
             '<a class="ps-timeline-link" href="' + psEsc(url) + '" target="_blank" rel="noopener">' + psEsc(sha) + ' ↗</a>'+
-            '<button class="ps-copy-btn ps-timeline-copy" data-copy="' + psEsc(date + '  ' + sha + '  ' + msgClean) + '" onclick="return psCopyFromBtn(this, event)" title="이 줄 전체 복사">📋</button>'+
+            '<button class="ps-copy-btn ps-timeline-copy" data-copy="' + psEsc(date + '  ' + sha + '  ' + msgClean) + '" onclick="return psCopyFromBtn(this, event)" title="'+((window.TW&&window.TW.lang==='ko')?'이 줄 전체 복사':'Copy whole line')+'">📋</button>'+
           '</div>';
         });
         html += '</div>';
@@ -1863,7 +1863,7 @@ body{margin:0;background:var(--bg,#0A0A0F);font-family:var(--sans,'Inter','Noto 
       })
       .catch(function(e){
         console.warn('[ps] commits fetch failed', e);
-        area.innerHTML = '<div class="ps-empty">⚠️ GitHub API 호출 실패. Rate limit 초과 가능성. 잠시 후 다시 시도해 주세요.</div>';
+        area.innerHTML = '<div class="ps-empty">'+((window.TW&&window.TW.lang==='ko')?'⚠️ GitHub API 호출 실패. Rate limit 초과 가능성. 잠시 후 다시 시도해 주세요.':'⚠️ GitHub API call failed. Possible rate limit. Please try again later.')+'</div>';
       });
   }
 
@@ -1909,7 +1909,7 @@ body{margin:0;background:var(--bg,#0A0A0F);font-family:var(--sans,'Inter','Noto 
       }
 
       if (blockers.length === 0){
-        area.innerHTML = '<div class="ps-empty">✅ 현재 결정 대기 중인 BLOCKED 항목이 없습니다.</div>';
+        area.innerHTML = '<div class="ps-empty">'+((window.TW&&window.TW.lang==='ko')?'✅ 현재 결정 대기 중인 BLOCKED 항목이 없습니다.':'✅ No BLOCKED items awaiting decision.')+'</div>';
         return;
       }
       var html = '<div class="ps-blocked-list">';
@@ -1922,7 +1922,7 @@ body{margin:0;background:var(--bg,#0A0A0F);font-family:var(--sans,'Inter','Noto 
         var hoursText = b.hours ? (b.hoursPending ? '결정 후 ' + b.hours : b.hours) : '미정';
         var copyText = '🔴 ' + b.title + '\n분류: ' + autonomyText + ' · 예상 ' + hoursText + '\n위치: ' + b.source + ' L' + b.line + '\nURL: ' + fileUrl;
         html += '<div class="ps-blocked-item" onclick="if(event.target.closest(\'.ps-copy-btn\'))return;window.open(\'' + fileUrl + '\',\'_blank\')">'+
-          '<button class="ps-copy-btn" data-copy="' + psEsc(copyText) + '" onclick="return psCopyFromBtn(this, event)" title="제목 + 위치 복사">📋 Copy</button>'+
+          '<button class="ps-copy-btn" data-copy="' + psEsc(copyText) + '" onclick="return psCopyFromBtn(this, event)" title="'+((window.TW&&window.TW.lang==='ko')?'제목 + 위치 복사':'Copy title + location')+'">📋 Copy</button>'+
           '<div class="ps-blocked-title">🔴 ' + psEsc(b.title) + '</div>'+
           '<div class="ps-blocked-meta">' + psEsc(b.source) + ' · L' + b.line + (b.note ? ' · ' + psEsc(b.note) : '') + '</div>'+
           '<div class="ps-auto-row">' + badges + '</div>'+
@@ -1933,7 +1933,7 @@ body{margin:0;background:var(--bg,#0A0A0F);font-family:var(--sans,'Inter','Noto 
     })
     .catch(function(e){
       console.warn('[ps] blocked fetch failed', e);
-      area.innerHTML = '<div class="ps-empty">⚠️ 데이터 가져오기 실패. 잠시 후 다시 시도해 주세요.</div>';
+      area.innerHTML = '<div class="ps-empty">'+((window.TW&&window.TW.lang==='ko')?'⚠️ 데이터 가져오기 실패. 잠시 후 다시 시도해 주세요.':'⚠️ Failed to load data. Please try again later.')+'</div>';
     });
   }
 
@@ -2082,7 +2082,7 @@ body{margin:0;background:var(--bg,#0A0A0F);font-family:var(--sans,'Inter','Noto 
         PS_UPNEXT_CACHE = items;
 
         if (items.length === 0){
-          area.innerHTML = '<div class="ps-empty">🎉 자율 진행 가능한 큐가 비었습니다.</div>';
+          area.innerHTML = '<div class="ps-empty">'+((window.TW&&window.TW.lang==='ko')?'🎉 자율 진행 가능한 큐가 비었습니다.':'🎉 The autonomous queue is empty.')+'</div>';
           return;
         }
         var html = '<div class="ps-upnext-list">';
@@ -2091,7 +2091,7 @@ body{margin:0;background:var(--bg,#0A0A0F);font-family:var(--sans,'Inter','Noto 
           var badges = psBadgeHtml('auto', it.hours, false);
           var copyText = (idx+1) + '. 🟢 ' + it.title + (it.hours ? ' (예상 ' + it.hours + ')' : '') + '\n분류: 🟢 자율 진행 (대표님 없이 Claude가 즉시 진행 가능)\n[' + it.letter + '] · SOLO_WORK_QUEUE.md L' + it.line + '\nURL: ' + fileUrl;
           html += '<div class="ps-upnext-item">'+
-            '<button class="ps-copy-btn" data-copy="' + psEsc(copyText) + '" onclick="return psCopyFromBtn(this, event)" title="작업 항목 복사">📋 Copy</button>'+
+            '<button class="ps-copy-btn" data-copy="' + psEsc(copyText) + '" onclick="return psCopyFromBtn(this, event)" title="'+((window.TW&&window.TW.lang==='ko')?'작업 항목 복사':'Copy task item')+'">📋 Copy</button>'+
             '<div class="ps-upnext-title"><span class="ps-upnext-num">' + (idx+1) + '</span>🟢 ' + psEsc(it.title) + '</div>'+
             '<div class="ps-upnext-meta">[' + psEsc(it.letter) + '] · ' +
               '<a href="' + fileUrl + '" target="_blank" rel="noopener" style="color:#15803d;">SOLO_WORK_QUEUE.md L' + it.line + ' ↗</a>' +
@@ -2104,7 +2104,7 @@ body{margin:0;background:var(--bg,#0A0A0F);font-family:var(--sans,'Inter','Noto 
       })
       .catch(function(e){
         console.warn('[ps] upnext fetch failed', e);
-        area.innerHTML = '<div class="ps-empty">⚠️ 큐 데이터 가져오기 실패.</div>';
+        area.innerHTML = '<div class="ps-empty">'+((window.TW&&window.TW.lang==='ko')?'⚠️ 큐 데이터 가져오기 실패.':'⚠️ Failed to load queue data.')+'</div>';
       });
   }
 

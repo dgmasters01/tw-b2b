@@ -27,6 +27,7 @@
 // Last updated: 2026-05-13
 
 import { sendSystemEmail } from '../_lib/email-sender.js';
+import { resolveLocale } from '../_lib/email-locale.js';
 
 const SUPABASE_URL = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
 
@@ -188,6 +189,134 @@ function buildEmailEN(status, hotel_name, manager_name) {
   }
 }
 
+// 한국어 템플릿 — buildEmailEN 6종 미러링 (D-032: 한국 매니저 전용)
+// 톤: 전문가 + 따뜻함 + 명확함 (사업가 언어, 군더더기 제거)
+function buildEmailKO(status, hotel_name, manager_name) {
+  const hn = escapeHtml(hotel_name || '귀하의 호텔');
+  const mn = escapeHtml(manager_name || '매니저');
+
+  const COMMON_FOOTER = `
+    <div style="margin-top:30px;padding-top:15px;border-top:1px solid #e5e7eb;font-size:12px;color:#9ca3af;">
+      <div>TravelWinners B2B · gohotelwinners.com</div>
+      <div>8개 채널 누적 900만+ 조회 · 6개 언어 · 6개월 예약 보장</div>
+    </div>
+  `;
+
+  switch (status) {
+    case 'registered':
+      return {
+        subject: `[TW B2B] 등록 접수 완료 — ${hotel_name}`,
+        html: `
+          <div style="font-family:system-ui,sans-serif;max-width:600px;color:#1f2937;">
+            <h2 style="color:#16a34a;">✓ 등록이 접수되었습니다</h2>
+            <p>${mn}님, 안녕하세요.</p>
+            <p><strong>${hn}</strong>의 등록 신청을 정상적으로 접수했습니다.</p>
+            <p>영업일 기준 1~2일 내로 검토를 마친 뒤 결과를 메일로 보내드립니다. 지금 따로 하실 일은 없습니다.</p>
+            <p>기다리시는 동안, 호텔이 노출될 채널을 미리 보실 수 있습니다: <a href="https://gohotelwinners.com/sales.html">8개 채널 보기</a> (누적 900만+ 조회, 6개 언어).</p>
+            <p>곧 다시 연락드리겠습니다.<br>TravelWinners 팀 드림</p>
+            ${COMMON_FOOTER}
+          </div>
+        `,
+      };
+    case 'approved':
+      return {
+        subject: `[TW B2B] ${hotel_name} 승인 완료 — 다음 단계: 결제`,
+        html: `
+          <div style="font-family:system-ui,sans-serif;max-width:600px;color:#1f2937;">
+            <h2 style="color:#16a34a;">🎉 호텔이 승인되었습니다</h2>
+            <p>${mn}님, 안녕하세요.</p>
+            <p>좋은 소식입니다 — <strong>${hn}</strong>이(가) 승인되었습니다. 이제 영상 콘텐츠 제작을 시작할 준비가 되었습니다.</p>
+            <p><strong>다음 단계:</strong> 1회성 $200 결제를 완료하시면 6개월 예약 보장이 시작됩니다. 6개월간 예약이 0건이면 전액 환불해 드립니다.</p>
+            <p style="margin:24px 0;">
+              <a href="https://gohotelwinners.com/checkout.html" style="background:#16a34a;color:#fff;padding:12px 24px;text-decoration:none;border-radius:6px;font-weight:600;">→ 결제하러 가기</a>
+            </p>
+            <p>궁금하신 점은 이 메일에 회신해 주세요.</p>
+            <p>감사합니다.<br>TravelWinners 팀 드림</p>
+            ${COMMON_FOOTER}
+          </div>
+        `,
+      };
+    case 'rejected':
+      return {
+        subject: `[TW B2B] ${hotel_name} — 검토 결과 안내`,
+        html: `
+          <div style="font-family:system-ui,sans-serif;max-width:600px;color:#1f2937;">
+            <h2 style="color:#dc2626;">검토 결과 안내</h2>
+            <p>${mn}님, 안녕하세요.</p>
+            <p><strong>${hn}</strong> 등록 신청해 주셔서 감사합니다. 검토 결과, 현재로서는 진행이 어렵다는 판단입니다.</p>
+            <p>주로 (a) 호텔이 제휴 OTA에 등재되어 있지 않거나, (b) 위치가 현재 집중 지역 밖이거나, (c) 소유권 확인이 어려운 경우에 해당합니다.</p>
+            <p>구체적인 사유가 궁금하시거나, 보완 후 재신청을 원하시면 이 메일에 회신해 주세요.</p>
+            <p>감사합니다.<br>TravelWinners 팀 드림</p>
+            ${COMMON_FOOTER}
+          </div>
+        `,
+      };
+    case 'paid':
+      return {
+        subject: `[TW B2B] 결제가 확인되었습니다 — ${hotel_name}`,
+        html: `
+          <div style="font-family:system-ui,sans-serif;max-width:600px;color:#1f2937;">
+            <h2 style="color:#16a34a;">✓ 결제가 확인되었습니다</h2>
+            <p>${mn}님, 안녕하세요.</p>
+            <p><strong>${hn}</strong>의 결제가 확인되었습니다. 지금부터 6개월 예약 보장이 시작됩니다.</p>
+            <p><strong>이후 진행 순서:</strong></p>
+            <ul>
+              <li>영업일 기준 5~7일 내 영상 제작을 시작합니다</li>
+              <li>8개 채널·6개 언어로 콘텐츠가 노출됩니다</li>
+              <li>대시보드에서 언제든 성과를 확인하실 수 있습니다</li>
+            </ul>
+            <p style="margin:24px 0;">
+              <a href="https://gohotelwinners.com/dashboard.html" style="background:#16a34a;color:#fff;padding:12px 24px;text-decoration:none;border-radius:6px;font-weight:600;">→ 대시보드 보기</a>
+            </p>
+            <p>인보이스는 대시보드의 설정 → 결제 내역에서 확인하실 수 있습니다.</p>
+            <p>감사합니다.<br>TravelWinners 팀 드림</p>
+            ${COMMON_FOOTER}
+          </div>
+        `,
+      };
+    case 'producing':
+      return {
+        subject: `[TW B2B] 영상 제작을 시작했습니다 — ${hotel_name}`,
+        html: `
+          <div style="font-family:system-ui,sans-serif;max-width:600px;color:#1f2937;">
+            <h2 style="color:#3b82f6;">🎬 제작이 시작되었습니다</h2>
+            <p>${mn}님, 안녕하세요.</p>
+            <p><strong>${hn}</strong>의 영상 콘텐츠 제작을 시작했습니다.</p>
+            <p>예상 일정: 첫 영상 노출까지 <strong>3~5일</strong>입니다. 게시되는 즉시 다시 메일로 알려드립니다.</p>
+            <p>그동안 제작 스타일이 궁금하시면 채널을 둘러보세요: <a href="https://gohotelwinners.com/sales.html">8개 채널 보기</a>.</p>
+            <p>감사합니다.<br>TravelWinners 팀 드림</p>
+            ${COMMON_FOOTER}
+          </div>
+        `,
+      };
+    case 'published':
+      return {
+        subject: `[TW B2B] 영상이 게시되었습니다 — ${hotel_name}`,
+        html: `
+          <div style="font-family:system-ui,sans-serif;max-width:600px;color:#1f2937;">
+            <h2 style="color:#16a34a;">🎉 영상이 공개되었습니다</h2>
+            <p>${mn}님, 안녕하세요.</p>
+            <p><strong>${hn}</strong>의 영상 콘텐츠가 채널 전반에 게시되었습니다.</p>
+            <p>예약은 보통 7~14일 내에 발생하기 시작합니다. 대시보드에서 실시간으로 모두 확인하세요:</p>
+            <p style="margin:24px 0;">
+              <a href="https://gohotelwinners.com/dashboard.html" style="background:#16a34a;color:#fff;padding:12px 24px;text-decoration:none;border-radius:6px;font-weight:600;">→ 실시간 성과 보기</a>
+            </p>
+            <p>감사합니다.<br>TravelWinners 팀 드림</p>
+            ${COMMON_FOOTER}
+          </div>
+        `,
+      };
+    default:
+      return null;
+  }
+}
+
+// 언어 디스패처 — locale에 따라 영어/한국어 템플릿 선택 (영어가 default)
+function buildEmail(locale, status, hotel_name, manager_name) {
+  if (locale === 'ko') return buildEmailKO(status, hotel_name, manager_name);
+  return buildEmailEN(status, hotel_name, manager_name);
+}
+
 export default async function handler(req, res) {
   // CORS preflight
   if (req.method === 'OPTIONS') {
@@ -229,9 +358,9 @@ export default async function handler(req, res) {
     });
   }
 
-  // 템플릿 빌드 (영어 default, i18n 일괄 작업 시점까지)
-  // language 파라미터는 미래 한국어 분기 위한 placeholder (BL-EMAIL-LOCALE-ROUTING)
-  const template = buildEmailEN(new_status, hotel_name, manager_name);
+  // 언어 결정 — D-032: 영어 default, 한국 매니저만 한국어 (정책은 _lib/email-locale.js)
+  const locale = resolveLocale({ language });
+  const template = buildEmail(locale, new_status, hotel_name, manager_name);
   if (!template) {
     return res.status(400).json({
       ok: false,

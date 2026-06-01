@@ -1,7 +1,7 @@
 {
-  "overall": "red",
-  "summary": "[yellow] admin_baseline: 관리자 페이지 3개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요) / [red] decisions_sync: 결정 3건이 박혔는데 결정 기록(사람용/검색용 2벌)이 저장 안 됐어요 — _os/charter/decisions-index.md + _business/decisions/ 둘 다 박아주세요 (D5 룰)",
-  "checked_at": "2026-06-01T14:41:28.200Z",
+  "overall": "yellow",
+  "summary": "[yellow] admin_baseline: 관리자 페이지 3개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요)",
+  "checked_at": "2026-06-01T19:01:41.282Z",
   "checks": [
     {
       "name": "admin_baseline",
@@ -39,27 +39,23 @@
       "bot_status": {
         "sync-bot": "success",
         "auto-detect-bot": "success",
-        "scan-bot": "unknown",
+        "scan-bot": "success",
         "chat-log-bot": "success",
         "autoheal-bot": "unknown"
       }
     },
     {
       "name": "decisions_sync",
-      "status": "red",
-      "detail": "결정 3건이 박혔는데 결정 기록(사람용/검색용 2벌)이 저장 안 됐어요 — _os/charter/decisions-index.md + _business/decisions/ 둘 다 박아주세요 (D5 룰)",
-      "missing_source": [
-        "9dc2b632 (결정 기록 2벌 저장 누락)",
-        "960a8d33 (결정 기록 2벌 저장 누락)",
-        "37dca20b (결정 기록 2벌 저장 누락)"
-      ]
+      "status": "green",
+      "detail": "최근 24시간 결정 7건 감지 — 결정 기록도 함께 저장됐어요 (정상)",
+      "missing_source": []
     },
     {
       "name": "vercel_sync",
       "status": "green",
-      "detail": "라이브 사이트가 GitHub와 같은 버전이에요 (b899222)",
-      "live_sha": "b899222",
-      "vercel_sha": "b899222",
+      "detail": "라이브 사이트가 GitHub와 같은 버전이에요 (c8c59ea)",
+      "live_sha": "c8c59ea",
+      "vercel_sha": "c8c59ea",
       "project": "tw-b2b"
     },
     {

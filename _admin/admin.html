@@ -6288,7 +6288,7 @@ function rDayHotels(){
 <div id="um-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;align-items:center;justify-content:center;backdrop-filter:blur(8px);">
   <div style="background:#1a1a2e;border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:24px;width:95%;max-width:480px;color:#e5e5ee;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-      <h3 id="um-modal-title" style="margin:0;font-size:17px;">사용자 작업</h3>
+      <h3 id="um-modal-title" style="margin:0;font-size:17px;" data-en="User actions" data-ko="사용자 작업">사용자 작업</h3>
       <button onclick="window.__umCloseMenu()" style="background:transparent;border:0;color:#888;font-size:22px;cursor:pointer">×</button>
     </div>
     <div id="um-modal-email" style="font-size:13px;color:#a5b4fc;margin-bottom:18px;font-family:ui-monospace,monospace;background:rgba(99,102,241,.08);padding:8px 12px;border-radius:6px;"></div>
@@ -6296,13 +6296,13 @@ function rDayHotels(){
     <div id="um-modal-body">
       <!-- 작업 선택 화면 (기본) -->
       <div id="um-actions" style="display:flex;flex-direction:column;gap:8px;">
-        <button class="um-action-btn" data-action="change-role" style="text-align:left;padding:14px 16px;background:rgba(99,102,241,.08);border:1px solid rgba(99,102,241,.3);border-radius:8px;color:#a5b4fc;cursor:pointer;font-size:14px;">
+        <button class="um-action-btn" data-action="change-role" data-ko="🔑 <strong>권한 주기/빼앗기</strong> — 최고관리자 / 일반관리자 / 조회전용 / 가입자 권한 변경 또는 비활성화" data-en="🔑 <strong>Grant/Revoke role</strong> — change to Owner / Admin / Read-only / Member, or deactivate" style="text-align:left;padding:14px 16px;background:rgba(99,102,241,.08);border:1px solid rgba(99,102,241,.3);border-radius:8px;color:#a5b4fc;cursor:pointer;font-size:14px;">
           🔑 <strong>권한 주기/빼앗기</strong> — 최고관리자 / 일반관리자 / 조회전용 / 가입자 권한 변경 또는 비활성화
         </button>
-        <button class="um-action-btn" data-action="re-verify" style="text-align:left;padding:14px 16px;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.3);border-radius:8px;color:#86efac;cursor:pointer;font-size:14px;">
+        <button class="um-action-btn" data-action="re-verify" data-ko="📧 <strong>재인증 요청</strong> — 매직 링크 메일 발송 (이메일 재인증)" data-en="📧 <strong>Re-verify</strong> — send magic link email (re-verify email)" style="text-align:left;padding:14px 16px;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.3);border-radius:8px;color:#86efac;cursor:pointer;font-size:14px;">
           📧 <strong>재인증 요청</strong> — 매직 링크 메일 발송 (이메일 재인증)
         </button>
-        <button class="um-action-btn" data-action="delete-user" style="text-align:left;padding:14px 16px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.35);border-radius:8px;color:#fca5a5;cursor:pointer;font-size:14px;">
+        <button class="um-action-btn" data-action="delete-user" data-ko="🗑️ <strong>사용자 삭제</strong> — 이 사람을 시스템에서 완전히 삭제 (되돌릴 수 없음)" data-en="🗑️ <strong>Delete user</strong> — permanently remove this person from the system (irreversible)" style="text-align:left;padding:14px 16px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.35);border-radius:8px;color:#fca5a5;cursor:pointer;font-size:14px;">
           🗑️ <strong>사용자 삭제</strong> — 이 사람을 시스템에서 완전히 삭제 (되돌릴 수 없음)
         </button>
       </div>
@@ -6315,6 +6315,7 @@ function rDayHotels(){
 
 <script>
 (function(){
+  var umKo = function(){ return !!(window.TW && window.TW.lang === 'ko'); };
   var modal = document.getElementById('um-modal');
   var titleEl = document.getElementById('um-modal-title');
   var emailEl = document.getElementById('um-modal-email');
@@ -6326,7 +6327,7 @@ function rDayHotels(){
   window.__umOpenMenu = function(userId, userEmail){
     currentUserId = userId;
     currentUserEmail = userEmail;
-    titleEl.textContent = '사용자 작업';
+    titleEl.textContent = umKo() ? '사용자 작업' : 'User actions';
     emailEl.textContent = userEmail + '\n' + userId;
     actionsEl.style.display = 'flex';
     detailEl.style.display = 'none';
@@ -6353,27 +6354,27 @@ function rDayHotels(){
   function renderDetail(action){
     if (action === 'change-role') {
       detailEl.innerHTML =
-        '<button onclick="window.__umBack()" style="background:transparent;border:0;color:#888;font-size:13px;cursor:pointer;margin-bottom:12px;">← 뒤로</button>' +
-        '<div style="margin-bottom:14px;font-weight:600;color:#a5b4fc;">🔑 권한 변경</div>' +
-        '<div style="font-size:13px;color:#888;margin-bottom:14px;">' + currentUserEmail + ' 권한을 변경합니다.</div>' +
-        '<label style="display:block;margin-bottom:8px;font-size:13px;color:#bbb">새 권한 (Role):</label>' +
+        '<button onclick="window.__umBack()" style="background:transparent;border:0;color:#888;font-size:13px;cursor:pointer;margin-bottom:12px;">'+(umKo()?'← 뒤로':'← Back')+'</button>' +
+        '<div style="margin-bottom:14px;font-weight:600;color:#a5b4fc;">'+(umKo()?'🔑 권한 변경':'🔑 Change role')+'</div>' +
+        (umKo()?('<div style="font-size:13px;color:#888;margin-bottom:14px;">'+currentUserEmail+' 권한을 변경합니다.</div>'):('<div style="font-size:13px;color:#888;margin-bottom:14px;">Change the role for '+currentUserEmail+'.</div>')) +
+        '<label style="display:block;margin-bottom:8px;font-size:13px;color:#bbb">'+(umKo()?'새 권한 (Role):':'New role:')+'</label>' +
         '<select id="um-new-role" style="width:100%;padding:10px;background:#0f0f1a;border:1px solid rgba(255,255,255,.14);border-radius:6px;color:#e5e5ee;margin-bottom:14px;font-size:14px">' +
-          '<option value="">(변경 안 함)</option>' +
-          '<option value="admin">최고관리자 (admin) — 모든 권한</option>' +
-          '<option value="staff">일반관리자 (staff) — 대부분 관리 가능</option>' +
-          '<option value="readonly">조회 전용 (readonly) — 보기만 가능</option>' +
-          '<option value="manager">가입자 (manager) — 호텔 매니저 기본</option>' +
+          '<option value="">'+(umKo()?'(변경 안 함)':'(no change)')+'</option>' +
+          '<option value="admin">'+(umKo()?'최고관리자 (admin) — 모든 권한':'Owner (admin) — full access')+'</option>' +
+          '<option value="staff">'+(umKo()?'일반관리자 (staff) — 대부분 관리 가능':'Admin (staff) — most management')+'</option>' +
+          '<option value="readonly">'+(umKo()?'조회 전용 (readonly) — 보기만 가능':'Read-only — view only')+'</option>' +
+          '<option value="manager">'+(umKo()?'가입자 (manager) — 호텔 매니저 기본':'Member (manager) — hotel manager default')+'</option>' +
         '</select>' +
         '<label style="display:flex;align-items:center;gap:8px;margin-bottom:14px;cursor:pointer;font-size:13px;color:#bbb;">' +
-          '<input type="checkbox" id="um-is-active-toggle"> 활성 상태 변경' +
+          '<input type="checkbox" id="um-is-active-toggle"> '+(umKo()?'활성 상태 변경':'Change active status')+'' +
         '</label>' +
         '<select id="um-is-active" style="width:100%;padding:10px;background:#0f0f1a;border:1px solid rgba(255,255,255,.14);border-radius:6px;color:#e5e5ee;margin-bottom:14px;font-size:14px;display:none">' +
-          '<option value="true">true — 활성화 (권한 복원)</option>' +
-          '<option value="false">false — 비활성화 (권한 박탈)</option>' +
+          '<option value="true">'+(umKo()?'true — 활성화 (권한 복원)':'true — activate (restore access)')+'</option>' +
+          '<option value="false">'+(umKo()?'false — 비활성화 (권한 박탈)':'false — deactivate (revoke access)')+'</option>' +
         '</select>' +
-        '<label style="display:block;margin-bottom:6px;font-size:13px;color:#bbb">사유 (감사 기록용):</label>' +
-        '<textarea id="um-reason" rows="2" style="width:100%;padding:10px;background:#0f0f1a;border:1px solid rgba(255,255,255,.14);border-radius:6px;color:#e5e5ee;font-size:13px;font-family:inherit;resize:vertical" placeholder="예: 부적절한 행동, 직책 변경 등"></textarea>' +
-        '<button onclick="window.__umSubmitChangeRole()" style="margin-top:16px;width:100%;padding:12px;background:linear-gradient(135deg,#7C3AED,#EC4899);color:#fff;border:0;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer">권한 변경 실행</button>';
+        '<label style="display:block;margin-bottom:6px;font-size:13px;color:#bbb">'+(umKo()?'사유 (감사 기록용):':'Reason (for audit log):')+'</label>' +
+        '<textarea id="um-reason" rows="2" style="width:100%;padding:10px;background:#0f0f1a;border:1px solid rgba(255,255,255,.14);border-radius:6px;color:#e5e5ee;font-size:13px;font-family:inherit;resize:vertical" placeholder="'+(umKo()?'예: 부적절한 행동, 직책 변경 등':'e.g. inappropriate behavior, role change')+'"></textarea>' +
+        '<button onclick="window.__umSubmitChangeRole()" style="margin-top:16px;width:100%;padding:12px;background:linear-gradient(135deg,#7C3AED,#EC4899);color:#fff;border:0;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer">'+(umKo()?'권한 변경 실행':'Apply role change')+'</button>';
       // toggle handler
       var toggle = document.getElementById('um-is-active-toggle');
       var selectEl = document.getElementById('um-is-active');
@@ -6382,26 +6383,26 @@ function rDayHotels(){
       });
     } else if (action === 're-verify') {
       detailEl.innerHTML =
-        '<button onclick="window.__umBack()" style="background:transparent;border:0;color:#888;font-size:13px;cursor:pointer;margin-bottom:12px;">← 뒤로</button>' +
-        '<div style="margin-bottom:14px;font-weight:600;color:#86efac;">📧 재인증 메일 발송</div>' +
-        '<div style="font-size:13px;color:#bbb;margin-bottom:14px;line-height:1.6">' + currentUserEmail + ' 으로 매직 링크를 발송합니다. 사용자가 메일의 링크를 클릭하면 자동 로그인 + 이메일 재인증이 완료됩니다.</div>' +
-        '<label style="display:block;margin-bottom:6px;font-size:13px;color:#bbb">사유 (감사 기록용, 선택):</label>' +
-        '<textarea id="um-reason" rows="2" style="width:100%;padding:10px;background:#0f0f1a;border:1px solid rgba(255,255,255,.14);border-radius:6px;color:#e5e5ee;font-size:13px;font-family:inherit;resize:vertical" placeholder="예: 인증 메일 못 받음, 이메일 변경 의심 등"></textarea>' +
-        '<button onclick="window.__umSubmitReVerify()" style="margin-top:16px;width:100%;padding:12px;background:linear-gradient(135deg,#16a34a,#15803d);color:#fff;border:0;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer">매직 링크 발송</button>';
+        '<button onclick="window.__umBack()" style="background:transparent;border:0;color:#888;font-size:13px;cursor:pointer;margin-bottom:12px;">'+(umKo()?'← 뒤로':'← Back')+'</button>' +
+        '<div style="margin-bottom:14px;font-weight:600;color:#86efac;">'+(umKo()?'📧 재인증 메일 발송':'📧 Send re-verification email')+'</div>' +
+        (umKo()?('<div style="font-size:13px;color:#bbb;margin-bottom:14px;line-height:1.6">'+currentUserEmail+' 으로 매직 링크를 발송합니다. 사용자가 메일의 링크를 클릭하면 자동 로그인 + 이메일 재인증이 완료됩니다.</div>'):('<div style="font-size:13px;color:#bbb;margin-bottom:14px;line-height:1.6">A magic link will be sent to '+currentUserEmail+'. When the user clicks it, they are auto-logged-in and their email is re-verified.</div>')) +
+        '<label style="display:block;margin-bottom:6px;font-size:13px;color:#bbb">'+(umKo()?'사유 (감사 기록용, 선택):':'Reason (for audit log, optional):')+'</label>' +
+        '<textarea id="um-reason" rows="2" style="width:100%;padding:10px;background:#0f0f1a;border:1px solid rgba(255,255,255,.14);border-radius:6px;color:#e5e5ee;font-size:13px;font-family:inherit;resize:vertical" placeholder="'+(umKo()?'예: 인증 메일 못 받음, 이메일 변경 의심 등':'e.g. did not receive verification email')+'"></textarea>' +
+        '<button onclick="window.__umSubmitReVerify()" style="margin-top:16px;width:100%;padding:12px;background:linear-gradient(135deg,#16a34a,#15803d);color:#fff;border:0;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer">'+(umKo()?'매직 링크 발송':'Send magic link')+'</button>';
     } else if (action === 'delete-user') {
       detailEl.innerHTML =
-        '<button onclick="window.__umBack()" style="background:transparent;border:0;color:#888;font-size:13px;cursor:pointer;margin-bottom:12px;">← 뒤로</button>' +
-        '<div style="margin-bottom:14px;font-weight:600;color:#fca5a5;">🗑️ 사용자 완전 삭제</div>' +
+        '<button onclick="window.__umBack()" style="background:transparent;border:0;color:#888;font-size:13px;cursor:pointer;margin-bottom:12px;">'+(umKo()?'← 뒤로':'← Back')+'</button>' +
+        '<div style="margin-bottom:14px;font-weight:600;color:#fca5a5;">'+(umKo()?'🗑️ 사용자 완전 삭제':'🗑️ Permanently delete user')+'</div>' +
         '<div style="padding:12px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:6px;font-size:13px;color:#fca5a5;line-height:1.6;margin-bottom:14px;">' +
-          '⚠️ <strong>되돌릴 수 없는 작업입니다.</strong><br>' +
-          '<code style="color:#fca5a5">' + currentUserEmail + '</code> 의 로그인 계정·권한·등록 호텔 정보가 모두 삭제됩니다. 과거 결제·예약 기록은 보존되지만 사용자 연결은 끊어집니다.' +
+          (umKo()?'⚠️ <strong>되돌릴 수 없는 작업입니다.</strong><br>':'⚠️ <strong>This action cannot be undone.</strong><br>') +
+          (umKo()?('<code style="color:#fca5a5">'+currentUserEmail+'</code> 의 로그인 계정·권한·등록 호텔 정보가 모두 삭제됩니다. 과거 결제·예약 기록은 보존되지만 사용자 연결은 끊어집니다.'):('The login account, role and registered hotel info for <code style="color:#fca5a5">'+currentUserEmail+'</code> will all be deleted. Past payment/booking records are kept but the user link is removed.')) +
         '</div>' +
-        '<label style="display:block;margin-bottom:6px;font-size:13px;color:#bbb">사유 (필수):</label>' +
-        '<textarea id="um-reason" rows="2" required style="width:100%;padding:10px;background:#0f0f1a;border:1px solid rgba(255,255,255,.14);border-radius:6px;color:#e5e5ee;font-size:13px;font-family:inherit;resize:vertical" placeholder="예: 사용자 직접 요청, 부정 행위 적발 등"></textarea>' +
+        '<label style="display:block;margin-bottom:6px;font-size:13px;color:#bbb">'+(umKo()?'사유 (필수):':'Reason (required):')+'</label>' +
+        '<textarea id="um-reason" rows="2" required style="width:100%;padding:10px;background:#0f0f1a;border:1px solid rgba(255,255,255,.14);border-radius:6px;color:#e5e5ee;font-size:13px;font-family:inherit;resize:vertical" placeholder="'+(umKo()?'예: 사용자 직접 요청, 부정 행위 적발 등':'e.g. user request, fraud detected')+'"></textarea>' +
         '<label style="display:flex;align-items:center;gap:8px;margin-top:12px;font-size:13px;color:#bbb;cursor:pointer">' +
-          '<input type="checkbox" id="um-confirm-delete"> ' + currentUserEmail + ' 을 완전 삭제할 것을 확인합니다.' +
+          (umKo()?('<input type="checkbox" id="um-confirm-delete"> '+currentUserEmail+' 을 완전 삭제할 것을 확인합니다.'):('<input type="checkbox" id="um-confirm-delete"> I confirm permanent deletion of '+currentUserEmail+'.')) +
         '</label>' +
-        '<button onclick="window.__umSubmitDelete()" style="margin-top:16px;width:100%;padding:12px;background:linear-gradient(135deg,#dc2626,#991b1b);color:#fff;border:0;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer">사용자 완전 삭제</button>';
+        '<button onclick="window.__umSubmitDelete()" style="margin-top:16px;width:100%;padding:12px;background:linear-gradient(135deg,#dc2626,#991b1b);color:#fff;border:0;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer">'+(umKo()?'사용자 완전 삭제':'Permanently delete user')+'</button>';
     }
   }
 
@@ -6414,7 +6415,7 @@ function rDayHotels(){
   async function callAPI(action, payload){
     var sess = await window.TW.sb.auth.getSession();
     var token = sess.data.session && sess.data.session.access_token;
-    if (!token) { alert('로그인 만료 — 다시 로그인하세요'); return null; }
+    if (!token) { alert(umKo()?'로그인 만료 — 다시 로그인하세요':'Session expired — please log in again'); return null; }
     var resp = await fetch('/api/admin?action=' + action, {
       method: 'POST',
       headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
@@ -6428,19 +6429,19 @@ function rDayHotels(){
     var toggle = document.getElementById('um-is-active-toggle').checked;
     var isActive = toggle ? (document.getElementById('um-is-active').value === 'true') : null;
     var reason = document.getElementById('um-reason').value.trim();
-    if (!role && !toggle) { alert('새 권한 또는 활성 상태 중 하나는 선택하세요'); return; }
+    if (!role && !toggle) { alert(umKo()?'새 권한 또는 활성 상태 중 하나는 선택하세요':'Select a new role or active-status change'); return; }
     var payload = { user_id: currentUserId, reason: reason };
     if (role) payload.new_role = role;
     if (toggle) payload.is_active = isActive;
     var r = await callAPI('change-role', payload);
     if (!r) return;
     if (r.ok) {
-      alert('✅ 권한 변경 완료\n변경 전: ' + (r.body.before ? r.body.before.role + '/active=' + r.body.before.is_active : '?') +
-            '\n변경 후: ' + (r.body.after ? r.body.after.role + '/active=' + r.body.after.is_active : '?'));
+      alert((umKo()?'✅ 권한 변경 완료\n변경 전: ':'✅ Role changed\nBefore: ') + (r.body.before ? r.body.before.role + '/active=' + r.body.before.is_active : '?') +
+            (umKo()?'\n변경 후: ':'\nAfter: ') + (r.body.after ? r.body.after.role + '/active=' + r.body.after.is_active : '?'));
       window.__umCloseMenu();
       if (typeof loadMembers === 'function') loadMembers();
     } else {
-      alert('❌ 실패: ' + (r.body.error || r.status));
+      alert((umKo()?'❌ 실패: ':'❌ Failed: ') + (r.body.error || r.status));
     }
   };
 
@@ -6449,24 +6450,24 @@ function rDayHotels(){
     var r = await callAPI('re-verify', { user_id: currentUserId, reason: reason });
     if (!r) return;
     if (r.ok) {
-      alert('✅ 매직 링크 발송 완료\n수신자: ' + r.body.email + '\n사용자가 메일 링크 클릭 시 자동 로그인됩니다.');
+      alert((umKo()?'✅ 매직 링크 발송 완료\n수신자: ':'✅ Magic link sent\nTo: ') + r.body.email + (umKo()?'\n사용자가 메일 링크 클릭 시 자동 로그인됩니다.':'\nThe user is auto-logged-in when they click the link.'));
       window.__umCloseMenu();
     } else {
-      alert('❌ 실패: ' + (r.body.error || r.status));
+      alert((umKo()?'❌ 실패: ':'❌ Failed: ') + (r.body.error || r.status));
     }
   };
 
   window.__umSubmitDelete = async function(){
     var confirmCb = document.getElementById('um-confirm-delete').checked;
     var reason = document.getElementById('um-reason').value.trim();
-    if (!confirmCb) { alert('확인 체크박스를 체크하세요'); return; }
-    if (!reason) { alert('삭제 사유는 필수입니다'); return; }
-    if (!confirm('정말 ' + currentUserEmail + ' 을 완전 삭제하시겠습니까?\n\n되돌릴 수 없습니다.')) return;
+    if (!confirmCb) { alert(umKo()?'확인 체크박스를 체크하세요':'Please check the confirmation box'); return; }
+    if (!reason) { alert(umKo()?'삭제 사유는 필수입니다':'Deletion reason is required'); return; }
+    if (!confirm((umKo()?('정말 '+currentUserEmail+' 을 완전 삭제하시겠습니까?\n\n되돌릴 수 없습니다.'):('Permanently delete '+currentUserEmail+'?\n\nThis cannot be undone.')))) return;
     var r = await callAPI('delete-user', { user_id: currentUserId, reason: reason });
     if (!r) return;
     if (r.ok) {
-      alert('✅ 사용자 삭제 완료\n삭제 이메일: ' + r.body.deleted_email +
-            '\n영향 호텔 수: ' + r.body.affected_hotels);
+      alert((umKo()?'✅ 사용자 삭제 완료\n삭제 이메일: ':'✅ User deleted\nDeleted email: ') + r.body.deleted_email +
+            (umKo()?'\n영향 호텔 수: ':'\nAffected hotels: ') + r.body.affected_hotels);
       window.__umCloseMenu();
       if (typeof loadMembers === 'function') loadMembers();
     } else {
@@ -6523,6 +6524,7 @@ function rDayHotels(){
 
 <script>
 (function(){
+  var umKo = function(){ return !!(window.TW && window.TW.lang === 'ko'); };
   var modal = document.getElementById('am-action-modal');
   var titleEl = document.getElementById('am-modal-title');
   var emailEl = document.getElementById('am-modal-email');
@@ -6558,7 +6560,7 @@ function rDayHotels(){
   });
 
   function backBtn(){
-    return '<button onclick="window.__amBack()" style="background:transparent;border:0;color:#888;font-size:13px;cursor:pointer;margin-bottom:12px;">← 뒤로</button>';
+    return '<button onclick="window.__amBack()" style="background:transparent;border:0;color:#888;font-size:13px;cursor:pointer;margin-bottom:12px;">'+(umKo()?'← 뒤로':'← Back')+'</button>';
   }
   function reasonBox(required){
     var req = required ? 'required' : '';
@@ -6584,16 +6586,16 @@ function rDayHotels(){
     } else if (action === 'change-role') {
       detailEl.innerHTML =
         backBtn() +
-        '<div style="margin-bottom:14px;font-weight:600;color:#a5b4fc;">🔑 권한 변경</div>' +
+        '<div style="margin-bottom:14px;font-weight:600;color:#a5b4fc;">'+(umKo()?'🔑 권한 변경':'🔑 Change role')+'</div>' +
         '<div style="font-size:13px;color:#bbb;margin-bottom:14px;line-height:1.6">현재 권한: <strong style="color:#a5b4fc">' + current.role + '</strong></div>' +
-        '<label style="display:block;margin-bottom:8px;font-size:13px;color:#bbb">새 권한 (Role):</label>' +
+        '<label style="display:block;margin-bottom:8px;font-size:13px;color:#bbb">'+(umKo()?'새 권한 (Role):':'New role:')+'</label>' +
         '<select id="am-new-role" style="width:100%;padding:10px;background:#0f0f1a;border:1px solid rgba(255,255,255,.14);border-radius:6px;color:#e5e5ee;margin-bottom:14px;font-size:14px">' +
           '<option value="admin"' + (current.role === 'admin' ? ' selected' : '') + '>admin — 모든 admin 기능</option>' +
           '<option value="staff"' + (current.role === 'staff' ? ' selected' : '') + '>staff — 대부분 관리 가능</option>' +
           '<option value="readonly"' + (current.role === 'readonly' ? ' selected' : '') + '>readonly — 보기만 가능</option>' +
         '</select>' +
         reasonBox(false) +
-        '<button onclick="window.__amSubmitChangeRole()" style="margin-top:16px;width:100%;padding:12px;background:linear-gradient(135deg,#7C3AED,#EC4899);color:#fff;border:0;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer">권한 변경 실행</button>';
+        '<button onclick="window.__amSubmitChangeRole()" style="margin-top:16px;width:100%;padding:12px;background:linear-gradient(135deg,#7C3AED,#EC4899);color:#fff;border:0;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer">'+(umKo()?'권한 변경 실행':'Apply role change')+'</button>';
     } else if (action === 'history') {
       var rows = (__adminsCache.recent_log || []).filter(function(l){
         return l.target_user_id === current.id || l.target_email === current.email;
@@ -6645,7 +6647,7 @@ function rDayHotels(){
   async function callAuthAPI(action, payload){
     var sess = await T.sb.auth.getSession();
     var token = sess.data.session && sess.data.session.access_token;
-    if (!token) { alert('로그인 만료 — 다시 로그인하세요'); return null; }
+    if (!token) { alert(umKo()?'로그인 만료 — 다시 로그인하세요':'Session expired — please log in again'); return null; }
     var resp = await fetch('/api/admin?action=auth-' + action, {
       method: 'POST',
       headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
@@ -6668,7 +6670,7 @@ function rDayHotels(){
       window.__amCloseMenu();
       loadAdmins();
     } else {
-      alert('❌ 실패: ' + (r.body.error || r.status));
+      alert((umKo()?'❌ 실패: ':'❌ Failed: ') + (r.body.error || r.status));
     }
   };
 
@@ -6688,14 +6690,14 @@ function rDayHotels(){
       window.__amCloseMenu();
       loadAdmins();
     } else {
-      alert('❌ 실패: ' + (r.body.error || r.status));
+      alert((umKo()?'❌ 실패: ':'❌ Failed: ') + (r.body.error || r.status));
     }
   };
 
   window.__amSubmitRemove = async function(){
     var confirmCb = document.getElementById('am-confirm-remove').checked;
     var reason = (document.getElementById('am-reason').value || '').trim();
-    if (!confirmCb) { alert('확인 체크박스를 체크하세요'); return; }
+    if (!confirmCb) { alert(umKo()?'확인 체크박스를 체크하세요':'Please check the confirmation box'); return; }
     if (!reason) { alert('제거 사유는 필수입니다'); return; }
     if (!confirm('정말 ' + current.email + ' 의 admin 권한을 박탈하시겠습니까?')) return;
     // 제거 = backend action='revoke' (is_active=false + revoked_at + 모든 세션 종료)
@@ -6710,7 +6712,7 @@ function rDayHotels(){
       window.__amCloseMenu();
       loadAdmins();
     } else {
-      alert('❌ 실패: ' + (r.body.error || r.status));
+      alert((umKo()?'❌ 실패: ':'❌ Failed: ') + (r.body.error || r.status));
     }
   };
 

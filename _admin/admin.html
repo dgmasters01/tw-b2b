@@ -3309,22 +3309,23 @@ body{margin:0;background:var(--bg,#0A0A0F);font-family:var(--sans,'Inter','Noto 
     }
     html += '</div>';
 
-    // ── 노출 시작일 (BL-REFUND-FLOW 정책 기준점) ──
-    var expKo = !!(window.TW && window.TW.lang === 'ko');
+    // ── 노출 시작일 (BL-REFUND-FLOW 정책 기준점) — data 속성으로 applyLang 자동 전환 ──
     html += '<div style="margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,.1)">'
-          + '<div style="font-size:12.5px;color:#94a3b8;margin-bottom:8px">📅 ' + (expKo ? '노출 시작일' : 'Exposure start date') + ' <span style="color:#64748b">(' + (expKo ? '환불 정책 기준 · 입력하면 24시간 취소 종료' : 'refund policy basis · closes the 24h cancellation window') + ')</span></div>'
+          + '<div style="font-size:12.5px;color:#94a3b8;margin-bottom:8px"><span data-en="📅 Exposure start date" data-ko="📅 노출 시작일">📅 노출 시작일</span> <span style="color:#64748b" data-en="(refund policy basis · closes the 24h cancellation window)" data-ko="(환불 정책 기준 · 입력하면 24시간 취소 종료)">(환불 정책 기준 · 입력하면 24시간 취소 종료)</span></div>'
           + '<div style="display:flex;gap:8px">'
           + '<input type="date" id="hqm-exposure-date" style="flex:1;padding:9px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:6px;color:#E5E5EE;font-size:13px">'
-          + '<button id="hqm-exposure-save" style="padding:9px 16px;background:#C9A84C;color:#0E1410;border:none;border-radius:6px;font-weight:600;cursor:pointer;font-size:13px;white-space:nowrap">' + (expKo ? '저장' : 'Save') + '</button>'
+          + '<button id="hqm-exposure-save" style="padding:9px 16px;background:#C9A84C;color:#0E1410;border:none;border-radius:6px;font-weight:600;cursor:pointer;font-size:13px;white-space:nowrap" data-en="Save" data-ko="저장">저장</button>'
           + '</div>'
-          + '<div id="hqm-exposure-msg" style="font-size:12px;margin-top:6px;color:#9aa">' + (expKo ? '현재 설정 불러오는 중…' : 'Loading current setting…') + '</div>'
+          + '<div id="hqm-exposure-msg" style="font-size:12px;margin-top:6px;color:#9aa" data-en="Loading current setting…" data-ko="현재 설정 불러오는 중…">현재 설정 불러오는 중…</div>'
           + '</div>';
 
     document.getElementById('hqm-body').innerHTML = html;
     modal.style.display = 'flex';
+    if (window.TW_applyLang) window.TW_applyLang();  // 모달 생성 직후 현재 언어 적용
 
     // 노출 시작일 — 현재값 조회 + 저장
     (function(){
+      var expKo = !!(window.TW && window.TW.lang === 'ko');
       var dateEl = document.getElementById('hqm-exposure-date');
       var msgEl = document.getElementById('hqm-exposure-msg');
       var saveEl = document.getElementById('hqm-exposure-save');

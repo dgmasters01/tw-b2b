@@ -64,6 +64,7 @@
 | D-049 | 채팅 끊김 객관 트리거 4종 도입 — 응답 15회 / 파일 10회 / 단계 완료 / 거대 파일 1500줄+ (판단 개입 0%) | policy | 2026-05-26 | 확정 | 헌법 부칙 16.1, `_os/playbook/claude-discipline.md` §8, CLAUDE.md ⑥번 룰 |
 | D-050 | impersonate(매니저 시점) 미복원 — admin-manager-hub.html(상세)로 매니저 화면 진입 단일화 (옛 dashboard.html?impersonate 경로 BL-FLOW-3로 단절) | infra | 2026-05-30 | 확정 | BL-ADMIN-SIDEBAR-MISSING-ENTRIES done, `_admin/admin.html`, `admin-manager-hub.html` |
 | D-051 | 자동 로그인 기본값 '미영구(닫으면 로그아웃)'로 전환 + '로그인 유지' 체크박스 옵트인 (login.html+admin-login.html+shared.js 동일) | security | 2026-05-30 | 확정 | BL-LOGIN-PERSIST-OPTIN done, `shared.js`, `login.html`, `admin-login.html` |
+| D-052 | B2B 자동메일 영어 메인 유지 + 한국어 보류(보험), 해제 트리거=한국 인바운드 추천 채널 비중 상승 | strategy | 2026-06-02 | 확정 | BL-EMAIL-LOCALE-ROUTING(자동판별 보류), 후속 BL-EMAIL-MANAGER-LOCALE-AUTO, 채널전략 |
 
 ---
 
@@ -96,6 +97,7 @@
 | D-049 | 2026-05-26 (DECISIONS.md 신규 박스) | 채팅 끊김 객관 트리거 4종 — 추상 규칙 → 객관 카운트 전환, 부칙 16.1 신설 |
 | D-050 | 2026-05-30 (DECISIONS.md 최상단 신규 박스) | impersonate 미복원 — admin-manager-hub.html 단일화 / 매니저 화면 진입 통로 정리 |
 | D-051 | 2026-05-30 (DECISIONS.md 최상단 신규 박스) | 로그인 유지 옵트인 — 기본 미영구 전환 + 체크박스(매니저·관리자 동일) |
+| D-052 | 2026-06-02 (DECISIONS.md 최상단 신규 박스) | B2B 메일 영어 메인 + 한국어 보험, 트리거=한국 인바운드 채널↑ |
 
 ---
 
@@ -115,3 +117,4 @@
 | 2026-05-26 | D-049 등록 (채팅 끊김 객관 트리거 4종 도입 — 부칙 16.1 신설 / CLAUDE.md ⑥ 보강 / discipline.md §8 신설) |
 | 2026-05-30 | D-050 등록 (impersonate 미복원 — admin-manager-hub.html 단일화 / BL-ADMIN-SIDEBAR-MISSING-ENTRIES done) |
 | 2026-05-30 | D-051 등록 (로그인 유지 옵트인 — 자동로그인 기본 미영구 전환 / BL-LOGIN-PERSIST-OPTIN done) |
+| 2026-06-02 | D-052 등록 (B2B 자동메일 언어 전략 — 영어 메인+한국어 보류 / 트리거=한국 인바운드 채널 비중 상승) |

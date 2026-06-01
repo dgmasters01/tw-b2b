@@ -482,7 +482,7 @@ body{margin:0;background:var(--bg,#0A0A0F);font-family:var(--sans,'Inter','Noto 
               <select id="bagoda-channel">
                 <option value="">— Select channel —</option>
               </select>
-              <div id="bagoda-channel-hint" style="font-size:11.5px;color:#888;margin-top:4px;display:none;">Auto-cid 모드에서는 채널이 자동 결정됩니다 (선택 무시)</div>
+              <div id="bagoda-channel-hint" style="font-size:11.5px;color:#888;margin-top:4px;display:none;" data-ko="Auto-cid 모드에서는 채널이 자동 결정됩니다 (선택 무시)" data-en="In Auto-cid mode the channel is set automatically (selection ignored)">Auto-cid 모드에서는 채널이 자동 결정됩니다 (선택 무시)</div>
             </div>
             <div>
               <label>Mode</label>
@@ -495,7 +495,7 @@ body{margin:0;background:var(--bg,#0A0A0F);font-family:var(--sans,'Inter','Noto 
             <div id="bagoda-cid-col-wrap" style="display:none;">
               <label>CID column name override</label>
               <input type="text" id="bagoda-cid-col" placeholder="cid (default)" style="padding:7px 12px;border:1px solid #e0e0e0;border-radius:6px;font-family:inherit;font-size:13px;width:100%;">
-              <div style="font-size:11.5px;color:#888;margin-top:4px;">실제 엑셀의 CID 컬럼명이 다를 때만 입력 (예: <code>Affiliate ID</code>). 비워두면 자동 감지.</div>
+              <div style="font-size:11.5px;color:#888;margin-top:4px;" data-ko="실제 엑셀의 CID 컬럼명이 다를 때만 입력 (예: <code>Affiliate ID</code>). 비워두면 자동 감지." data-en="Enter only if your Excel CID column name differs (e.g. <code>Affiliate ID</code>). Leave blank to auto-detect.">실제 엑셀의 CID 컬럼명이 다를 때만 입력 (예: <code>Affiliate ID</code>). 비워두면 자동 감지.</div>
             </div>
           </div>
 
@@ -2750,7 +2750,7 @@ body{margin:0;background:var(--bg,#0A0A0F);font-family:var(--sans,'Inter','Noto 
       return;
     }
     var html = '<div class="ad-table-wrap"><table class="ad-table">';
-    html += '<thead><tr><th>Email</th><th>Status</th><th>Hotel</th><th>Joined</th><th>Last Login</th><th style="text-align:right;width:180px">작업</th></tr></thead><tbody>';
+    html += '<thead><tr><th>'+((window.TW&&window.TW.lang==='ko')?'이메일':'Email')+'</th><th>'+((window.TW&&window.TW.lang==='ko')?'상태':'Status')+'</th><th>'+((window.TW&&window.TW.lang==='ko')?'호텔':'Hotel')+'</th><th>'+((window.TW&&window.TW.lang==='ko')?'가입일':'Joined')+'</th><th>'+((window.TW&&window.TW.lang==='ko')?'최근 로그인':'Last Login')+'</th><th style="text-align:right;width:180px">'+((window.TW&&window.TW.lang==='ko')?'작업':'Action')+'</th></tr></thead><tbody>';
     filtered.forEach(function(m){
       var statusBadge = m.is_verified ? 
         '<span class="ad-status" style="background:#0a7c3a;">Verified</span>' : 
@@ -2771,7 +2771,7 @@ body{margin:0;background:var(--bg,#0A0A0F);font-family:var(--sans,'Inter','Noto 
       html += '<td>' + lastLogin + '</td>';
       // BL-ADMIN-USER-MANAGEMENT (2026-05-15): 상세 + ⋯ 작업 메뉴
       html += '<td style="text-align:right;white-space:nowrap" onclick="event.stopPropagation()">';
-      html += '<a class="ad-btn ad-btn-primary" href="' + hubUrl + '" style="text-decoration:none;font-size:11.5px;padding:4px 10px;margin-right:4px">매니저 허브 →</a>';
+      html += '<a class="ad-btn ad-btn-primary" href="' + hubUrl + '" style="text-decoration:none;font-size:11.5px;padding:4px 10px;margin-right:4px">'+((window.TW&&window.TW.lang==='ko')?'매니저 허브 →':'Manager hub →')+'</a>';
       html += '<button class="ad-btn ad-um-menu" data-user-id="' + m.id + '" data-user-email="' + m.email + '" style="font-size:13px;padding:4px 10px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);color:#cbd5e1;border-radius:5px;cursor:pointer">⋯</button>';
       html += '</td>';
       html += '</tr>';
@@ -3208,7 +3208,7 @@ body{margin:0;background:var(--bg,#0A0A0F);font-family:var(--sans,'Inter','Noto 
       // [BL-ADMIN-USER-MANAGEMENT step4 2026-05-15] Actions = View + ⋯ 빠른 작업 메뉴
       html += '<td style="white-space:nowrap">';
       // BL-ADMIN-SIDEBAR-MISSING-ENTRIES (2026-05-30): 매니저 화면 진입로. impersonate(매니저 시점)는 BL-FLOW-3 라우팅 개편으로 단절 → 작동하는 admin-manager-hub.html(상세)로 통일. user_id 있는 호텔만 노출.
-      if (h.user_id) html += '<a class="ad-btn ad-btn-secondary" href="/admin-manager-hub.html?id=' + encodeURIComponent(h.user_id) + '" style="margin-right:4px;text-decoration:none" title="이 호텔 매니저의 허브(상세) 열기">매니저 허브</a>';
+      if (h.user_id) html += '<a class="ad-btn ad-btn-secondary" href="/admin-manager-hub.html?id=' + encodeURIComponent(h.user_id) + '" style="margin-right:4px;text-decoration:none" title="'+((window.TW&&window.TW.lang==='ko')?'이 호텔 매니저의 허브(상세) 열기':'Open this hotel manager\'s hub (detail)')+'">'+((window.TW&&window.TW.lang==='ko')?'매니저 허브':'Manager hub')+'</a>';
       html += '<button class="ad-btn ad-btn-primary" data-hotel-id="' + esc(h.id) + '" style="margin-right:4px">View</button>';
       html += '<button class="ad-btn ad-hm-menu" data-hotel-menu-id="' + esc(h.id) + '" data-hotel-status="' + esc(h.status || '') + '" data-hotel-name="' + esc(h.hotel_name || '') + '" data-manager-email="' + esc(h._resolvedManagerEmail || '') + '" data-manager-name="' + esc(h._resolvedManagerName || '') + '" style="font-size:13px;padding:4px 10px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);color:#cbd5e1;border-radius:5px;cursor:pointer">⋯</button>';
       html += '</td>';
@@ -4572,7 +4572,7 @@ body{margin:0;background:var(--bg,#0A0A0F);font-family:var(--sans,'Inter','Noto 
       unknownKeys.forEach(function(c){
         html += '<div class="bk-result-row"><span class="bk-result-tag skp">UNK</span><span><code>' + esc(c) + '</code> — ' + unknownCids[c] + ' rows skipped</span></div>';
       });
-      html += '<div class="bk-result-row" style="font-size:11.5px;color:#888;margin-top:6px;">→ Supabase Studio에서 <code>channel_cid_map</code> 테이블에 위 CID들을 채널 코드와 함께 등록하면 다음 업로드부터 매핑됩니다.</div>';
+      html += '<div class="bk-result-row" style="font-size:11.5px;color:#888;margin-top:6px;">'+((window.TW&&window.TW.lang==='ko')?'→ Supabase Studio에서 <code>channel_cid_map</code> 테이블에 위 CID들을 채널 코드와 함께 등록하면 다음 업로드부터 매핑됩니다.':'→ In Supabase Studio, register the CIDs above with channel codes in the <code>channel_cid_map</code> table to map them on the next upload.')+'</div>';
     }
     aggregated.errors.slice(0, 20).forEach(function(e){
       html += '<div class="bk-result-row"><span class="bk-result-tag err">ERR</span><span>chunk@' + (e.chunk_start || 0) + ': ' + esc(String(e.error || e).slice(0, 200)) + '</span></div>';
@@ -5369,7 +5369,7 @@ function rDayHotels(){
     try {
       var token = vrGetAuthToken();
       if (!token) {
-        if (loading) loading.innerHTML = '⚠️ 인증 토큰 없음. 다시 로그인해 주세요.';
+        if (loading) loading.innerHTML = ((window.TW&&window.TW.lang==='ko')?'⚠️ 인증 토큰 없음. 다시 로그인해 주세요.':'⚠️ No auth token. Please log in again.');
         return;
       }
       var params = new URLSearchParams();
@@ -5386,7 +5386,7 @@ function rDayHotels(){
       });
       if (!resp.ok) {
         var t = await resp.text();
-        if (loading) loading.innerHTML = '❌ 데이터 로드 실패 (' + resp.status + ')<br><span style="font-size:11px;color:#9ca3af">' + vrEscape(t.slice(0,200)) + '</span>';
+        if (loading) loading.innerHTML = ((window.TW&&window.TW.lang==='ko')?'❌ 데이터 로드 실패 (':'❌ Failed to load data (') + resp.status + ')<br><span style="font-size:11px;color:#9ca3af">' + vrEscape(t.slice(0,200)) + '</span>';
         return;
       }
       var data = await resp.json();
@@ -5581,7 +5581,7 @@ function rDayHotels(){
         var days = Math.floor((now - new Date(h.created_at)) / RW_DAY);
         if (days < (RW_GUARANTEE_DAYS - RW_DUE_WINDOW) || days > RW_GUARANTEE_DAYS) return null;
         return {
-          name: h.hotel_name || h.hotel_name_local || '(이름 없음)',
+          name: h.hotel_name || h.hotel_name_local || ((window.TW&&window.TW.lang==='ko')?'(이름 없음)':'(No name)'),
           created_at: h.created_at,
           days: days,
           remaining: RW_GUARANTEE_DAYS - days,
@@ -5600,14 +5600,14 @@ function rDayHotels(){
       tbody.innerHTML = due.map(function(d,i){
         var contact = d.mgrEmail
           ? '<div style="font-weight:500;color:#111827">' + rwEsc(d.mgrName||'—') + '</div><div style="font-size:11px;color:#6b7280">' + rwEsc(d.mgrEmail) + '</div>'
-          : '<span style="color:#d1d5db;font-size:11px">연락처 없음</span>';
+          : '<span style="color:#d1d5db;font-size:11px">'+((window.TW&&window.TW.lang==='ko')?'연락처 없음':'No contact')+'</span>';
         var ddColor = d.remaining <= 7 ? '#ef4444' : d.remaining <= 15 ? '#f59e0b' : '#16a34a';
         return ''
           + '<tr style="border-bottom:1px solid #f3f4f6">'
           + '<td style="padding:10px 12px;color:#9ca3af;font-size:11px">' + (i+1) + '</td>'
           + '<td style="padding:10px 12px;font-weight:600;color:#111827">' + rwEsc(d.name) + '</td>'
           + '<td style="padding:10px 12px;color:#6b7280;font-size:12px">' + rwFmtDate(d.created_at) + '</td>'
-          + '<td style="padding:10px 12px;text-align:right;color:#374151">' + d.days + '일</td>'
+          + '<td style="padding:10px 12px;text-align:right;color:#374151">' + d.days + ((window.TW&&window.TW.lang==='ko')?'일':' d')+'</td>'
           + '<td style="padding:10px 12px;text-align:right;font-weight:700;color:' + ddColor + '">D-' + d.remaining + '</td>'
           + '<td style="padding:10px 12px">' + contact + '</td>'
           + '</tr>';
@@ -5628,7 +5628,7 @@ function rDayHotels(){
     if (empty) empty.style.display = 'none';
 
     var token = rwGetAuthToken();
-    if (!token){ if (loading) loading.innerHTML = '⚠️ 인증 토큰 없음. 다시 로그인해 주세요.'; rwEl('rw-low-count').textContent='!'; return Promise.resolve(0); }
+    if (!token){ if (loading) loading.innerHTML = ((window.TW&&window.TW.lang==='ko')?'⚠️ 인증 토큰 없음. 다시 로그인해 주세요.':'⚠️ No auth token. Please log in again.'); rwEl('rw-low-count').textContent='!'; return Promise.resolve(0); }
 
     return fetch('/api/admin?action=past-video-revenue&tier=hide', { method:'GET', headers:{ 'Authorization':'Bearer ' + token } })
       .then(function(resp){ if(!resp.ok) return resp.text().then(function(t){ throw new Error('('+resp.status+') '+t.slice(0,160)); }); return resp.json(); })

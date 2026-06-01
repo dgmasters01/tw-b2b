@@ -6494,7 +6494,7 @@ function rDayHotels(){
 <div id="am-action-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;align-items:center;justify-content:center;backdrop-filter:blur(8px);">
   <div style="background:#1a1a2e;border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:24px;width:95%;max-width:520px;color:#e5e5ee;max-height:90vh;overflow-y:auto;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-      <h3 id="am-modal-title" style="margin:0;font-size:17px;">직원 작업</h3>
+      <h3 id="am-modal-title" style="margin:0;font-size:17px;" data-en="Staff actions" data-ko="직원 작업">직원 작업</h3>
       <button onclick="window.__amCloseMenu()" style="background:transparent;border:0;color:#888;font-size:22px;cursor:pointer">×</button>
     </div>
     <div id="am-modal-email" style="font-size:13px;color:#a5b4fc;margin-bottom:18px;font-family:ui-monospace,monospace;background:rgba(99,102,241,.08);padding:8px 12px;border-radius:6px;"></div>
@@ -6503,16 +6503,16 @@ function rDayHotels(){
       <!-- 작업 선택 화면 (기본) -->
       <div id="am-actions" style="display:flex;flex-direction:column;gap:8px;">
         <button class="am-action-btn" data-action="toggle-active" style="text-align:left;padding:14px 16px;background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.3);border-radius:8px;color:#fcd34d;cursor:pointer;font-size:14px;">
-          ⚡ <strong id="am-toggle-label">활성/비활성 토글</strong> — 권한 일시 정지 또는 복원
+          <span data-ko="⚡ <strong id='am-toggle-label'>활성/비활성 토글</strong> — 권한 일시 정지 또는 복원" data-en="⚡ <strong id='am-toggle-label'>Activate/Deactivate</strong> — temporarily suspend or restore access">⚡ <strong id="am-toggle-label">활성/비활성 토글</strong> — 권한 일시 정지 또는 복원</span>
         </button>
         <button class="am-action-btn" data-action="change-role" style="text-align:left;padding:14px 16px;background:rgba(99,102,241,.08);border:1px solid rgba(99,102,241,.3);border-radius:8px;color:#a5b4fc;cursor:pointer;font-size:14px;">
-          🔑 <strong>권한 변경</strong> — admin / staff / readonly 사이 변경
+          <span data-ko="🔑 <strong>권한 변경</strong> — admin / staff / readonly 사이 변경" data-en="🔑 <strong>Change role</strong> — switch between admin / staff / readonly">🔑 <strong>권한 변경</strong> — admin / staff / readonly 사이 변경</span>
         </button>
         <button class="am-action-btn" data-action="history" style="text-align:left;padding:14px 16px;background:rgba(148,163,184,.08);border:1px solid rgba(148,163,184,.3);border-radius:8px;color:#cbd5e1;cursor:pointer;font-size:14px;">
-          📜 <strong>이력 보기</strong> — 이 직원에게 박힌 권한 변경 기록
+          <span data-ko="📜 <strong>이력 보기</strong> — 이 직원에게 박힌 권한 변경 기록" data-en="📜 <strong>View history</strong> — role-change records for this staff">📜 <strong>이력 보기</strong> — 이 직원에게 박힌 권한 변경 기록</span>
         </button>
         <button class="am-action-btn" data-action="remove" style="text-align:left;padding:14px 16px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.35);border-radius:8px;color:#fca5a5;cursor:pointer;font-size:14px;">
-          🗑️ <strong>제거</strong> — 권한 박탈 + revoked_at 박음 (행은 보존, 감사용)
+          <span data-ko="🗑️ <strong>제거</strong> — 권한 박탈 + revoked_at 박음 (행은 보존, 감사용)" data-en="🗑️ <strong>Remove</strong> — revoke access + set revoked_at (row kept for audit)">🗑️ <strong>제거</strong> — 권한 박탈 + revoked_at 박음 (행은 보존, 감사용)</span>
         </button>
       </div>
 
@@ -6535,9 +6535,9 @@ function rDayHotels(){
 
   window.__amOpenMenu = function(target){
     current = target;
-    titleEl.textContent = '직원 작업 — ' + (target.display_name || target.role);
+    titleEl.textContent = (umKo()?'직원 작업 — ':'Staff actions — ') + (target.display_name || target.role);
     emailEl.textContent = target.email + '\n' + target.id;
-    toggleLabel.textContent = target.is_active ? '비활성화 (Deactivate)' : '활성화 (Activate)';
+    toggleLabel.textContent = target.is_active ? (umKo()?'비활성화 (Deactivate)':'Deactivate') : (umKo()?'활성화 (Activate)':'Activate');
     actionsEl.style.display = 'flex';
     detailEl.style.display = 'none';
     detailEl.innerHTML = '';
@@ -6564,35 +6564,35 @@ function rDayHotels(){
   }
   function reasonBox(required){
     var req = required ? 'required' : '';
-    var label = required ? '사유 (필수, 감사 기록용):' : '사유 (선택, 감사 기록용):';
+    var label = required ? (umKo()?'사유 (필수, 감사 기록용):':'Reason (required, for audit log):') : (umKo()?'사유 (선택, 감사 기록용):':'Reason (optional, for audit log):');
     return '<label style="display:block;margin-bottom:6px;font-size:13px;color:#bbb">' + label + '</label>' +
-      '<textarea id="am-reason" rows="2" ' + req + ' style="width:100%;padding:10px;background:#0f0f1a;border:1px solid rgba(255,255,255,.14);border-radius:6px;color:#e5e5ee;font-size:13px;font-family:inherit;resize:vertical" placeholder="예: 권한 재조정, 인사 변경 등"></textarea>';
+      '<textarea id="am-reason" rows="2" ' + req + ' style="width:100%;padding:10px;background:#0f0f1a;border:1px solid rgba(255,255,255,.14);border-radius:6px;color:#e5e5ee;font-size:13px;font-family:inherit;resize:vertical" placeholder="'+(umKo()?'예: 권한 재조정, 인사 변경 등':'e.g. role adjustment, personnel change')+'"></textarea>';
   }
 
   function renderDetail(action){
     if (action === 'toggle-active') {
       var nextState = !current.is_active;
-      var verb = nextState ? '활성화' : '비활성화';
+      var verb = nextState ? (umKo()?'활성화':'Activate') : (umKo()?'비활성화':'Deactivate');
       var verbColor = nextState ? '#86efac' : '#fcd34d';
       detailEl.innerHTML =
         backBtn() +
         '<div style="margin-bottom:14px;font-weight:600;color:' + verbColor + ';">⚡ ' + verb + '</div>' +
         '<div style="font-size:13px;color:#bbb;margin-bottom:14px;line-height:1.6">' +
-          current.email + ' 을 <strong style="color:' + verbColor + '">' + verb + '</strong>합니다. ' +
-          (nextState ? '권한이 복원됩니다.' : '로그인은 가능하지만 admin 기능이 모두 잠깁니다.') +
+          (umKo()?(current.email + ' 을 <strong style="color:' + verbColor + '">' + verb + '</strong>합니다. '):('<strong style="color:' + verbColor + '">' + verb + '</strong> ' + current.email + '. ')) +
+          (nextState ? (umKo()?'권한이 복원됩니다.':'Access will be restored.') : (umKo()?'로그인은 가능하지만 admin 기능이 모두 잠깁니다.':'Login still works but all admin features are locked.')) +
         '</div>' +
         reasonBox(false) +
-        '<button onclick="window.__amSubmitToggle(' + (nextState ? 'true' : 'false') + ')" style="margin-top:16px;width:100%;padding:12px;background:linear-gradient(135deg,' + (nextState ? '#16a34a,#15803d' : '#d97706,#92400e') + ');color:#fff;border:0;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer">' + verb + ' 실행</button>';
+        '<button onclick="window.__amSubmitToggle(' + (nextState ? 'true' : 'false') + ')" style="margin-top:16px;width:100%;padding:12px;background:linear-gradient(135deg,' + (nextState ? '#16a34a,#15803d' : '#d97706,#92400e') + ');color:#fff;border:0;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer">' + verb + (umKo()?' 실행':' — apply') + '</button>';
     } else if (action === 'change-role') {
       detailEl.innerHTML =
         backBtn() +
         '<div style="margin-bottom:14px;font-weight:600;color:#a5b4fc;">'+(umKo()?'🔑 권한 변경':'🔑 Change role')+'</div>' +
-        '<div style="font-size:13px;color:#bbb;margin-bottom:14px;line-height:1.6">현재 권한: <strong style="color:#a5b4fc">' + current.role + '</strong></div>' +
+        '<div style="font-size:13px;color:#bbb;margin-bottom:14px;line-height:1.6">'+(umKo()?'현재 권한: ':'Current role: ')+'<strong style="color:#a5b4fc">' + current.role + '</strong></div>' +
         '<label style="display:block;margin-bottom:8px;font-size:13px;color:#bbb">'+(umKo()?'새 권한 (Role):':'New role:')+'</label>' +
         '<select id="am-new-role" style="width:100%;padding:10px;background:#0f0f1a;border:1px solid rgba(255,255,255,.14);border-radius:6px;color:#e5e5ee;margin-bottom:14px;font-size:14px">' +
-          '<option value="admin"' + (current.role === 'admin' ? ' selected' : '') + '>admin — 모든 admin 기능</option>' +
-          '<option value="staff"' + (current.role === 'staff' ? ' selected' : '') + '>staff — 대부분 관리 가능</option>' +
-          '<option value="readonly"' + (current.role === 'readonly' ? ' selected' : '') + '>readonly — 보기만 가능</option>' +
+          '<option value="admin"' + (current.role === 'admin' ? ' selected' : '') + '>'+(umKo()?'admin — 모든 admin 기능':'admin — all admin features')+'</option>' +
+          '<option value="staff"' + (current.role === 'staff' ? ' selected' : '') + '>'+(umKo()?'staff — 대부분 관리 가능':'staff — most management')+'</option>' +
+          '<option value="readonly"' + (current.role === 'readonly' ? ' selected' : '') + '>'+(umKo()?'readonly — 보기만 가능':'readonly — view only')+'</option>' +
         '</select>' +
         reasonBox(false) +
         '<button onclick="window.__amSubmitChangeRole()" style="margin-top:16px;width:100%;padding:12px;background:linear-gradient(135deg,#7C3AED,#EC4899);color:#fff;border:0;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer">'+(umKo()?'권한 변경 실행':'Apply role change')+'</button>';
@@ -6602,14 +6602,14 @@ function rDayHotels(){
       });
       var inner = '';
       if (rows.length === 0) {
-        inner = '<div style="padding:20px;text-align:center;color:#888;font-size:13px;">이력 없음</div>';
+        inner = '<div style="padding:20px;text-align:center;color:#888;font-size:13px;">'+(umKo()?'이력 없음':'No history')+'</div>';
       } else {
         inner = '<div style="max-height:340px;overflow-y:auto;border:1px solid rgba(255,255,255,.08);border-radius:8px;">';
         rows.forEach(function(l){
           var at = new Date(l.performed_at).toISOString().replace('T', ' ').substring(0,16);
           var change = '';
-          if (l.before_role !== l.after_role) change += '권한: ' + l.before_role + ' → ' + l.after_role + ' ';
-          if (l.before_active !== l.after_active) change += '활성: ' + l.before_active + ' → ' + l.after_active;
+          if (l.before_role !== l.after_role) change += (umKo()?'권한: ':'role: ') + l.before_role + ' → ' + l.after_role + ' ';
+          if (l.before_active !== l.after_active) change += (umKo()?'활성: ':'active: ') + l.before_active + ' → ' + l.after_active;
           inner += '<div style="padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.06);font-size:12px;">' +
             '<div style="color:#bbb;margin-bottom:4px;">' + at + ' · <strong>' + l.action + '</strong></div>' +
             '<div style="color:#a5b4fc;">' + change + '</div>' +
@@ -6620,21 +6620,21 @@ function rDayHotels(){
       }
       detailEl.innerHTML =
         backBtn() +
-        '<div style="margin-bottom:14px;font-weight:600;color:#cbd5e1;">📜 권한 변경 이력 (최근 50건 중 이 직원 분)</div>' +
+        '<div style="margin-bottom:14px;font-weight:600;color:#cbd5e1;">'+(umKo()?'📜 권한 변경 이력 (최근 50건 중 이 직원 분)':'📜 Role-change history (this staff, of recent 50)')+'</div>' +
         inner;
     } else if (action === 'remove') {
       detailEl.innerHTML =
         backBtn() +
-        '<div style="margin-bottom:14px;font-weight:600;color:#fca5a5;">🗑️ 직원 제거</div>' +
+        '<div style="margin-bottom:14px;font-weight:600;color:#fca5a5;">'+(umKo()?'🗑️ 직원 제거':'🗑️ Remove staff')+'</div>' +
         '<div style="padding:12px;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:6px;font-size:13px;color:#fca5a5;line-height:1.6;margin-bottom:14px;">' +
-          '⚠️ <strong>이 직원의 admin 권한이 박탈됩니다.</strong><br>' +
-          '<code style="color:#fca5a5">' + current.email + '</code> 행은 <code>revoked_at</code> 타임스탬프와 함께 보존됩니다(감사용). 다시 활성화하려면 새로 초대장 보내야 합니다.' +
+          (umKo()?'⚠️ <strong>이 직원의 admin 권한이 박탈됩니다.</strong><br>':'⚠️ <strong>This staff\'s admin access will be revoked.</strong><br>') +
+          (umKo()?('<code style="color:#fca5a5">' + current.email + '</code> 행은 <code>revoked_at</code> 타임스탬프와 함께 보존됩니다(감사용). 다시 활성화하려면 새로 초대장 보내야 합니다.'):('The <code style="color:#fca5a5">' + current.email + '</code> row is kept with a <code>revoked_at</code> timestamp (for audit). To re-activate, send a new invite.')) +
         '</div>' +
         reasonBox(true) +
         '<label style="display:flex;align-items:center;gap:8px;margin-top:12px;font-size:13px;color:#bbb;cursor:pointer">' +
-          '<input type="checkbox" id="am-confirm-remove"> ' + current.email + ' 의 admin 권한을 박탈할 것을 확인합니다.' +
+          (umKo()?('<input type="checkbox" id="am-confirm-remove"> ' + current.email + ' 의 admin 권한을 박탈할 것을 확인합니다.'):('<input type="checkbox" id="am-confirm-remove"> I confirm revoking admin access for ' + current.email + '.')) +
         '</label>' +
-        '<button onclick="window.__amSubmitRemove()" style="margin-top:16px;width:100%;padding:12px;background:linear-gradient(135deg,#dc2626,#991b1b);color:#fff;border:0;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer">권한 박탈 실행</button>';
+        '<button onclick="window.__amSubmitRemove()" style="margin-top:16px;width:100%;padding:12px;background:linear-gradient(135deg,#dc2626,#991b1b);color:#fff;border:0;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer">'+(umKo()?'권한 박탈 실행':'Revoke access')+'</button>';
     }
   }
 
@@ -6666,7 +6666,7 @@ function rDayHotels(){
     });
     if (!r) return;
     if (r.ok) {
-      alert('✅ ' + (nextActive ? '활성화' : '비활성화') + ' 완료');
+      alert((umKo()?'✅ ':'✅ ') + (nextActive ? (umKo()?'활성화':'Activate') : (umKo()?'비활성화':'Deactivate')) + (umKo()?' 완료':' done'));
       window.__amCloseMenu();
       loadAdmins();
     } else {
@@ -6677,7 +6677,7 @@ function rDayHotels(){
   window.__amSubmitChangeRole = async function(){
     var role = document.getElementById('am-new-role').value;
     var reason = (document.getElementById('am-reason').value || '').trim();
-    if (role === current.role) { alert('현재 권한과 동일합니다'); return; }
+    if (role === current.role) { alert(umKo()?'현재 권한과 동일합니다':'Same as current role'); return; }
     var r = await callAuthAPI('change-role', {
       target_id: current.id,
       action: 'change_role',
@@ -6686,7 +6686,7 @@ function rDayHotels(){
     });
     if (!r) return;
     if (r.ok) {
-      alert('✅ 권한 변경 완료\n' + current.role + ' → ' + role);
+      alert((umKo()?'✅ 권한 변경 완료\n':'✅ Role changed\n') + current.role + ' → ' + role);
       window.__amCloseMenu();
       loadAdmins();
     } else {
@@ -6698,8 +6698,8 @@ function rDayHotels(){
     var confirmCb = document.getElementById('am-confirm-remove').checked;
     var reason = (document.getElementById('am-reason').value || '').trim();
     if (!confirmCb) { alert(umKo()?'확인 체크박스를 체크하세요':'Please check the confirmation box'); return; }
-    if (!reason) { alert('제거 사유는 필수입니다'); return; }
-    if (!confirm('정말 ' + current.email + ' 의 admin 권한을 박탈하시겠습니까?')) return;
+    if (!reason) { alert(umKo()?'제거 사유는 필수입니다':'Removal reason is required'); return; }
+    if (!confirm((umKo()?('정말 ' + current.email + ' 의 admin 권한을 박탈하시겠습니까?'):('Revoke admin access for ' + current.email + '?')))) return;
     // 제거 = backend action='revoke' (is_active=false + revoked_at + 모든 세션 종료)
     var r = await callAuthAPI('change-role', {
       target_id: current.id,
@@ -6708,7 +6708,7 @@ function rDayHotels(){
     });
     if (!r) return;
     if (r.ok) {
-      alert('✅ 권한 박탈 완료\n모든 세션이 종료되었습니다.');
+      alert(umKo()?'✅ 권한 박탈 완료\n모든 세션이 종료되었습니다.':'✅ Access revoked\nAll sessions terminated.');
       window.__amCloseMenu();
       loadAdmins();
     } else {

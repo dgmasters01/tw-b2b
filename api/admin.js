@@ -1437,6 +1437,81 @@ async function handleUpdateHotelStatus(req, res, serviceKey, admin) {
 }
 
 // =============================================================
+// [BL-REFUND-FLOW 정책] handleSetExposureDate
+//   노출 시작일(캠페인 시작일)을 hotels.published_at 에 저장.
+//   이 날짜가 환불 정책 판정의 기준점: 24h 취소 닫힘 + 6개월 0건 보장 기산점.
+//   exposure_date 가 빈 값/null 이면 노출일 해제(입력 실수 정정용).
+// =============================================================
+async function handleSetExposureDate(req, res, serviceKey, admin) {
+  if (req.method !== 'POST') return res.status(405).json({ error: 'POST_required' });
+  const { hotel_id, exposure_date } = req.body || {};
+  if (!hotel_id) return res.status(400).json({ error: 'hotel_id_required' });
+
+  let val = null;
+  if (exposure_date) {
+    const d = new Date(exposure_date);
+    if (isNaN(d.getTime())) return res.status(400).json({ error: 'invalid_date' });
+    val = d.toISOString();
+  }
+
+  // before state
+  const beforeResp = await fetch(SUPABASE_URL + '/rest/v1/hotels?id=eq.' + encodeURIComponent(hotel_id) + '&select=id,hotel_name,published_at', {
+    headers: { 'Authorization': 'Bearer ' + serviceKey, 'apikey': serviceKey }
+  });
+  if (!beforeResp.ok) return res.status(500).json({ error: 'hotel_fetch_failed' });
+  const beforeRows = await beforeResp.json();
+  if (!beforeRows.length) return res.status(404).json({ error: 'hotel_not_found' });
+  const before = beforeRows[0];
+
+  // PATCH published_at
+  const patchResp = await fetch(SUPABASE_URL + '/rest/v1/hotels?id=eq.' + encodeURIComponent(hotel_id), {
+    method: 'PATCH',
+    headers: {
+      'Authorization': 'Bearer ' + serviceKey,
+      'apikey': serviceKey,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=representation'
+    },
+    body: JSON.stringify({ published_at: val, updated_at: new Date().toISOString() })
+  });
+  if (!patchResp.ok) {
+    const errBody = await patchResp.text();
+    return res.status(500).json({ error: 'patch_failed', detail: errBody });
+  }
+  const after = (await patchResp.json())[0];
+
+  // 타임라인 기록 (fire-and-forget)
+  try {
+    const beforeDate = before.published_at ? String(before.published_at).slice(0, 10) : '없음';
+    const afterDate = val ? val.slice(0, 10) : '해제';
+    await fetch(SUPABASE_URL + '/rest/v1/hotel_communications', {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer ' + serviceKey,
+        'apikey': serviceKey,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify({
+        hotel_id,
+        type: 'status_change',
+        subject: '노출 시작일: ' + beforeDate + ' → ' + afterDate,
+        content: null,
+        created_by_email: admin?.email || null,
+        metadata: { field: 'published_at', from: before.published_at, to: val }
+      })
+    });
+  } catch (_) { /* 로깅 실패는 응답에 영향 없음 */ }
+
+  return res.status(200).json({
+    success: true,
+    hotel_id,
+    hotel_name: before.hotel_name,
+    published_at: after.published_at
+  });
+}
+
+// =============================================================
 // [BL-ADMIN-USER-MANAGEMENT step4] handleRefundHotel
 //   환불 처리 — status=paid 일 때만 가능
 //   1) hotels.status=refunded 변경
@@ -2728,7 +2803,7 @@ export default async function handler(req, res) {
   }
 
   // 화이트리스트 검증을 인증보다 먼저 수행 → 디버깅 시 라우팅 문제와 인증 문제를 명확히 분리
-  const ALLOWED_ACTIONS = ['booking-upload', 'list-users', 'send-invite', 'update-match', 'start-task', 'past-video-revenue', 'manager-push', 'delete-user', 'change-role', 're-verify', 'update-hotel-status', 'refund-hotel', 'refund-list', 'refund-approve', 'refund-reject', 'hotel-detail', 'hotel-comm-list', 'hotel-comm-add', 'hotel-comm-delete', 'invoice-get-company-info', 'invoice-update-company-info', 'invoice-get-payment-accounts', 'invoice-update-payment-accounts', 'invoice-upload-asset', 'invoice-get-asset-url', 'invoice-get-audit-log', 'invoice-get-fx-rate'];
+  const ALLOWED_ACTIONS = ['booking-upload', 'list-users', 'send-invite', 'update-match', 'start-task', 'past-video-revenue', 'manager-push', 'delete-user', 'change-role', 're-verify', 'update-hotel-status', 'set-exposure-date', 'refund-hotel', 'refund-list', 'refund-approve', 'refund-reject', 'hotel-detail', 'hotel-comm-list', 'hotel-comm-add', 'hotel-comm-delete', 'invoice-get-company-info', 'invoice-update-company-info', 'invoice-get-payment-accounts', 'invoice-update-payment-accounts', 'invoice-upload-asset', 'invoice-get-asset-url', 'invoice-get-audit-log', 'invoice-get-fx-rate'];
   if (!action) {
     return res.status(400).json({
       error: 'missing_action',
@@ -2798,6 +2873,9 @@ export default async function handler(req, res) {
         return actionResult;
       case 'update-hotel-status':
         actionResult = await handleUpdateHotelStatus(req, res, serviceKey, adminCheck);
+        return actionResult;
+      case 'set-exposure-date':
+        actionResult = await handleSetExposureDate(req, res, serviceKey, adminCheck);
         return actionResult;
       case 'refund-hotel':
         actionResult = await handleRefundHotel(req, res, serviceKey, adminCheck);

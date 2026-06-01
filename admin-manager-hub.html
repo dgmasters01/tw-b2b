@@ -312,7 +312,33 @@ body {
 
   const SUPA_URL = 'https://vjsludfjsphwnumuoqaj.supabase.co';
   const SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZqc2x1ZGZqc3Bod251bXVvcWFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NTc5OTAsImV4cCI6MjA5MjAzMzk5MH0.hVLhCc9AazdNNJsia_d87vq5C0IcgFgMCqWR1rh3L_8';
-  const sb = supabase.createClient(SUPA_URL, SUPA_ANON);
+
+  // BL-FIX-MANAGER-HUB-AUTH (2026-06-02): admin-login.html과 동일한 인증 서랍(storageKey:'tw-admin-auth') 공유.
+  // 기존엔 storageKey 미지정(기본 서랍)이라 admin 로그인 세션을 못 읽어 → 로그인 후 빈 화면/리다이렉트 루프 발생.
+  // D-051 로그인 유지 옵트인 정책(adminStorage 하이브리드)까지 동일 적용.
+  const ADMIN_PERSIST_KEY = 'tw-admin-persist';
+  function adminPersist() {
+    try { return localStorage.getItem(ADMIN_PERSIST_KEY) === '1'; } catch (e) { return false; }
+  }
+  const adminStorage = {
+    getItem: (k) => {
+      try { const v = localStorage.getItem(k); if (v !== null) return v; } catch (e) {}
+      try { return sessionStorage.getItem(k); } catch (e) { return null; }
+    },
+    setItem: (k, v) => {
+      try {
+        if (adminPersist()) { localStorage.setItem(k, v); sessionStorage.removeItem(k); }
+        else { sessionStorage.setItem(k, v); localStorage.removeItem(k); }
+      } catch (e) {}
+    },
+    removeItem: (k) => {
+      try { localStorage.removeItem(k); } catch (e) {}
+      try { sessionStorage.removeItem(k); } catch (e) {}
+    }
+  };
+  const sb = supabase.createClient(SUPA_URL, SUPA_ANON, {
+    auth: { persistSession: true, autoRefreshToken: true, storageKey: 'tw-admin-auth', storage: adminStorage }
+  });
 
   const params = new URLSearchParams(location.search);
   const managerId = params.get('id');

@@ -64,7 +64,9 @@
 | D-049 | 채팅 끊김 객관 트리거 4종 도입 — 응답 15회 / 파일 10회 / 단계 완료 / 거대 파일 1500줄+ (판단 개입 0%) | policy | 2026-05-26 | 확정 | 헌법 부칙 16.1, `_os/playbook/claude-discipline.md` §8, CLAUDE.md ⑥번 룰 |
 | D-050 | impersonate(매니저 시점) 미복원 — admin-manager-hub.html(상세)로 매니저 화면 진입 단일화 (옛 dashboard.html?impersonate 경로 BL-FLOW-3로 단절) | infra | 2026-05-30 | 확정 | BL-ADMIN-SIDEBAR-MISSING-ENTRIES done, `_admin/admin.html`, `admin-manager-hub.html` |
 | D-051 | 자동 로그인 기본값 '미영구(닫으면 로그아웃)'로 전환 + '로그인 유지' 체크박스 옵트인 (login.html+admin-login.html+shared.js 동일) | security | 2026-05-30 | 확정 | BL-LOGIN-PERSIST-OPTIN done, `shared.js`, `login.html`, `admin-login.html` |
-| D-052 | B2B 자동메일 영어 메인 유지 + 한국어 보류(보험), 해제 트리거=한국 인바운드 추천 채널 비중 상승 | strategy | 2026-06-02 | 확정 | BL-EMAIL-LOCALE-ROUTING(자동판별 보류), 후속 BL-EMAIL-MANAGER-LOCALE-AUTO, 채널전략 |\n| D-053 | admin 호텔 상세 = 매니저 분석 형태 미러링(별도 페이지) + 수수료 2버전(매니저 숨김/admin 표시) + 기간 4구분(마케팅전/기간/후/전체, 전체=분석 동기화) + 회차(campaign_log) + 마케팅전 예약 매칭(대표님 확정) + 매니저 이름·연락처 가입폼 추가 | feature | 2026-06-02 | 확정 | BL-ADMIN-HOTEL-DETAIL(신규), signup.html, admin-manager-hub.html, dashboard.html, _business/decisions/2026-06-02-admin-hotel-detail-d053.md |
+| D-052 | B2B 자동메일 영어 메인 유지 + 한국어 보류(보험), 해제 트리거=한국 인바운드 추천 채널 비중 상승 | strategy | 2026-06-02 | 확정 | BL-EMAIL-LOCALE-ROUTING(자동판별 보류), 후속 BL-EMAIL-MANAGER-LOCALE-AUTO, 채널전략 |
+| D-053 | admin 호텔 상세 = 매니저 분석 형태 미러링(별도 페이지) + 수수료 2버전(매니저 숨김/admin 표시) + 기간 4구분(마케팅전/기간/후/전체, 전체=분석 동기화) + 회차(campaign_log) + 마케팅전 예약 매칭(대표님 확정) + 매니저 이름·연락처 가입폼 추가 | feature | 2026-06-02 | 확정 | BL-ADMIN-HOTEL-DETAIL(신규), signup.html, admin-manager-hub.html, dashboard.html, _business/decisions/2026-06-02-admin-hotel-detail-d053.md |
+| D-054 | 2026-06-02 (DECISIONS.md 신규 박스) | admin 호텔상세(D-053) 실행세부 — 과거예약 복구적재 확정 + 매니저페이지 통계·예약형태 탭UX(클로드 위임) / 회차 시작일 산출은 확정대기 |
 
 ---
 
@@ -97,7 +99,8 @@
 | D-049 | 2026-05-26 (DECISIONS.md 신규 박스) | 채팅 끊김 객관 트리거 4종 — 추상 규칙 → 객관 카운트 전환, 부칙 16.1 신설 |
 | D-050 | 2026-05-30 (DECISIONS.md 최상단 신규 박스) | impersonate 미복원 — admin-manager-hub.html 단일화 / 매니저 화면 진입 통로 정리 |
 | D-051 | 2026-05-30 (DECISIONS.md 최상단 신규 박스) | 로그인 유지 옵트인 — 기본 미영구 전환 + 체크박스(매니저·관리자 동일) |
-| D-052 | 2026-06-02 (DECISIONS.md 최상단 신규 박스) | B2B 메일 영어 메인 + 한국어 보험, 트리거=한국 인바운드 채널↑ |\n| D-053 | 2026-06-02 (상세=_business/decisions/2026-06-02-admin-hotel-detail-d053.md) | admin 호텔 상세 미러링 + 수수료 2버전 + 기간 4구분 + 마케팅전 예약 매칭 (DECISIONS.md 박스 후속 동기화) |
+| D-052 | 2026-06-02 (DECISIONS.md 최상단 신규 박스) | B2B 메일 영어 메인 + 한국어 보험, 트리거=한국 인바운드 채널↑ |
+| D-053 | 2026-06-02 (상세=_business/decisions/2026-06-02-admin-hotel-detail-d053.md) | admin 호텔 상세 미러링 + 수수료 2버전 + 기간 4구분 + 마케팅전 예약 매칭 (DECISIONS.md 박스 후속 동기화) |
 
 ---
 
@@ -117,4 +120,6 @@
 | 2026-05-26 | D-049 등록 (채팅 끊김 객관 트리거 4종 도입 — 부칙 16.1 신설 / CLAUDE.md ⑥ 보강 / discipline.md §8 신설) |
 | 2026-05-30 | D-050 등록 (impersonate 미복원 — admin-manager-hub.html 단일화 / BL-ADMIN-SIDEBAR-MISSING-ENTRIES done) |
 | 2026-05-30 | D-051 등록 (로그인 유지 옵트인 — 자동로그인 기본 미영구 전환 / BL-LOGIN-PERSIST-OPTIN done) |
-| 2026-06-02 | D-052 등록 (B2B 자동메일 언어 전략 — 영어 메인+한국어 보류 / 트리거=한국 인바운드 채널 비중 상승) |\n| 2026-06-02 | D-053 등록 (admin 호텔 상세 페이지 설계 — 매니저 분석 미러링 + 수수료 2버전 + 기간 4구분 + 마케팅전 예약 매칭 + 매니저 연락처 / BL-ADMIN-HOTEL-DETAIL 신규) |
+| 2026-06-02 | D-052 등록 (B2B 자동메일 언어 전략 — 영어 메인+한국어 보류 / 트리거=한국 인바운드 채널 비중 상승) |
+| 2026-06-02 | D-053 등록 (admin 호텔 상세 페이지 설계 — 매니저 분석 미러링 + 수수료 2버전 + 기간 4구분 + 마케팅전 예약 매칭 + 매니저 연락처 / BL-ADMIN-HOTEL-DETAIL 신규) |
+| 2026-06-02 | D-054 등록 (admin 호텔상세 실행세부 — 과거예약 복구적재 + 매니저페이지 통계·예약 탭UX 위임결정 / 회차 시작일 산출은 대표님 확정대기) |

@@ -19,14 +19,14 @@
 
 ---
 
-## 🟡 P0 — [admin-status 연계 표시] 최근 결정(DECISIONS) ↔ 영향 작업(tasks) ↔ 완성도(stats) 한 줄 연결 — 새 채팅에서도 '무엇이 정책이고 무슨 순서로 어디까지'를 1초 파악
+## ⚡ P0 — [admin-status 연계 표시] 최근 결정(DECISIONS) ↔ 영향 작업(tasks) ↔ 완성도(stats) 한 줄 연결 — 새 채팅에서도 '무엇이 정책이고 무슨 순서로 어디까지'를 1초 파악
 
 **요약**: 대표님 요청(2026-06-02). D-054 후속. UI는 Claude 위임. admin-status.html 블록 신설 + tasks.json order 중복·공백 핵심작업 재부여.
 
 - **자율성**: 🟡 SEMI
 - **예상 시간**: 미정시간
 - **카테고리**: feature
-- **상태**: pending
+- **상태**: in_progress
 - **ID**: `BL-STATUS-DECISION-WORK-LINK` (출처: 대표님 요청)
 
 ---

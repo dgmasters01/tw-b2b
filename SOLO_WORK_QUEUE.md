@@ -29,16 +29,6 @@
 
 ---
 
-### B. 🟡 SEMI — [admin-status 연계 표시] 최근 결정(DECISIONS) ↔ 영향 작업(tasks) ↔ 완성도(stats) 한 줄 연결 — 새 채팅에서도 '무엇이 정책이고 무슨 순서로 어디까지'를 1초 파악
-
-**ID**: `BL-STATUS-DECISION-WORK-LINK`  
-**카테고리**: feature  
-**예상 시간**: 미정시간  
-
-**메모**: 대표님 요청(2026-06-02). D-054 후속. UI는 Claude 위임. admin-status.html 블록 신설 + tasks.json order 중복·공백 핵심작업 재부여.
-
----
-
 ## 🟡 P1 — 데드라인 이전에 있으면 좋음
 
 ### A. 🟢 AUTO — [YouTube 더보기 단축 URL 클릭 카운트] 호텔별 진성 관심 측정 시스템

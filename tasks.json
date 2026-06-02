@@ -30,7 +30,7 @@
       "category": "feature",
       "priority": "P0",
       "size": "M",
-      "status": "in_progress",
+      "status": "done",
       "owner": "claude",
       "claude_can_auto": true,
       "approval_required": false,
@@ -39,10 +39,44 @@
       "order": 2,
       "blocker": null,
       "depends_on": [],
-      "progress": 0,
+      "progress": {
+        "percent": 100,
+        "steps": [
+          {
+            "n": 1,
+            "label": "데이터 연결 검증",
+            "title": "DECISIONS_INDEX 메인표 파싱 + tasks.json decision_ref 결합 로직 검증 (46결정·41연결 확인)",
+            "status": "done",
+            "done": true,
+            "at": "2026-06-02T15:48:05+00:00",
+            "done_at": "2026-06-02T15:48:05+00:00",
+            "commit": "9586004"
+          },
+          {
+            "n": 2,
+            "label": "화면 블록 신설",
+            "title": "admin-status.html에 정책→작업→완성도 섹션 HTML+CSS+JS 삽입 (페이지지도 아래)",
+            "status": "done",
+            "done": true,
+            "at": "2026-06-02T15:48:05+00:00",
+            "done_at": "2026-06-02T15:48:05+00:00",
+            "commit": "9586004"
+          },
+          {
+            "n": 3,
+            "label": "라이브 검증",
+            "title": "커밋·배포 후 라이브 렌더 직접 확인 (블록 정상, 콘솔 에러 0)",
+            "status": "done",
+            "done": true,
+            "at": "2026-06-02T15:48:05+00:00",
+            "done_at": "2026-06-02T15:48:05+00:00",
+            "commit": "9586004"
+          }
+        ]
+      },
       "notes": "대표님 요청(2026-06-02). D-054 후속. UI는 Claude 위임. admin-status.html 블록 신설 + tasks.json order 중복·공백 핵심작업 재부여.",
       "created_at": "2026-06-02",
-      "updated_at": "2026-06-02T15:35:54+00:00",
+      "updated_at": "2026-06-02T15:48:05+00:00",
       "source": "대표님 요청",
       "target_pages": [
         "admin-status.html"
@@ -77,7 +111,8 @@
         "detected_at": "2026-06-02T08:53:29+00:00",
         "detected_by_commit": "9586004",
         "message": "in_progress 진입했으나 progress.steps 비어있음. tasks.json에서 progress.steps 박은 후 다음 commit에 [step:done:N] 태그."
-      }
+      },
+      "completed_at": "2026-06-02T15:48:05+00:00"
     },
     {
       "id": "BL-ADMIN-HOTEL-DETAIL",

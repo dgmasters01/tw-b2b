@@ -1,20 +1,27 @@
 // /api/hotel-bookings.js
-// Phase 4 Step 3: 매니저용 예약 조회 API
+// Phase 4 Step 3: 예약 조회 API (매니저 + 관리자 공용)
 //
 // 인증: Bearer 토큰 (Supabase Auth)
-// 권한: 매니저는 본인 호텔의 completed 예약만 (RLS + view 가 강제)
-//       관리자는 모든 예약 조회 가능
+// 권한 분기 (BL-ADMIN-HOTEL-DETAIL):
+//   - 매니저: v_manager_bookings / v_manager_channel_stats
+//             → 본인 호텔 completed 만, 제휴 수수료(commission) 비노출, booking_id 마스킹
+//   - 관리자: v_admin_bookings  / v_admin_channel_stats
+//             → 모든 호텔, 제휴 수수료(commission) 포함, booking_id 원문
+//   admin 판정 = rpc/is_admin (사용자 토큰 컨텍스트, auth.uid() 기준). 실패/false 시 매니저로 안전 폴백.
 //
 // GET 파라미터:
-//   - hotelId        : 특정 호텔만 (없으면 본인 소유 전체)
+//   - hotelId        : 특정 호텔만 (없으면 본인/권한 범위 전체)
 //   - from, to       : 체크인 날짜 범위 (YYYY-MM-DD)
 //   - limit (default 100, max 500)
 //
 // 응답:
 //   {
-//     headline: { booking_count, total_amount_usd, total_nights, total_commission_usd },
-//     channel_stats: [ {channel_code, channel_name, language, booking_count, gross_amount_usd, ...} ],
-//     bookings: [ {id, booking_id_masked, hotel_name, checkin, checkout, nights, ...} ],
+//     ok, is_admin,
+//     user: { id, email },
+//     filters: {...},
+//     headline: { booking_count, total_amount_usd, total_nights, total_commission_usd, subscription_usd, roi_multiple },
+//     channel_stats: [ {channel_code, channel_name, booking_count, gross_amount_usd, total_commission_usd, ...} ],
+//     bookings: [ {id, booking_id|booking_id_masked, hotel_name, checkin_date, ...} ],
 //   }
 
 export default async function handler(req, res) {
@@ -37,7 +44,6 @@ export default async function handler(req, res) {
     if (!token) return res.status(401).json({ error: 'Missing Authorization header' });
 
     // 사용자 토큰을 그대로 PostgREST 에 전달 → RLS 가 자동 적용
-    // (즉 매니저는 본인 호텔만, completed 만 보임)
     const userHeaders = {
       Authorization: `Bearer ${token}`,
       apikey: anonKey,
@@ -51,12 +57,33 @@ export default async function handler(req, res) {
     if (!meResp.ok) return res.status(401).json({ error: 'Invalid session' });
     const me = await meResp.json();
 
+    // ---------- 0) admin 판정 (rpc/is_admin, 사용자 토큰 컨텍스트) ----------
+    // 실패하거나 명시적 true 가 아니면 매니저로 안전 폴백 (수수료 비노출 기본값).
+    let isAdmin = false;
+    try {
+      const adminResp = await fetch(`${supabaseUrl}/rest/v1/rpc/is_admin`, {
+        method: 'POST',
+        headers: userHeaders,
+        body: '{}',
+      });
+      if (adminResp.ok) {
+        const v = await adminResp.json();
+        isAdmin = (v === true);
+      }
+    } catch (_) {
+      isAdmin = false;
+    }
+
+    // 권한별 뷰 선택
+    const bookingsView = isAdmin ? 'v_admin_bookings' : 'v_manager_bookings';
+    const statsView    = isAdmin ? 'v_admin_channel_stats' : 'v_manager_channel_stats';
+
     // 쿼리 파라미터
     const { hotelId, from, to, limit } = req.query || {};
     const lim = Math.min(parseInt(limit, 10) || 100, 500);
 
-    // ---------- 1) bookings 목록 조회 (v_manager_bookings 사용) ----------
-    let bookingsUrl = `${supabaseUrl}/rest/v1/v_manager_bookings?select=*&order=checkin_date.desc&limit=${lim}`;
+    // ---------- 1) bookings 목록 조회 ----------
+    let bookingsUrl = `${supabaseUrl}/rest/v1/${bookingsView}?select=*&order=checkin_date.desc&limit=${lim}`;
     if (hotelId) bookingsUrl += `&hotel_id=eq.${encodeURIComponent(hotelId)}`;
     if (from)    bookingsUrl += `&checkin_date=gte.${encodeURIComponent(from)}`;
     if (to)      bookingsUrl += `&checkin_date=lte.${encodeURIComponent(to)}`;
@@ -68,8 +95,8 @@ export default async function handler(req, res) {
     }
     const bookings = await bookingsResp.json();
 
-    // ---------- 2) 채널별 집계 (v_manager_channel_stats 사용) ----------
-    let statsUrl = `${supabaseUrl}/rest/v1/v_manager_channel_stats?select=*`;
+    // ---------- 2) 채널별 집계 ----------
+    let statsUrl = `${supabaseUrl}/rest/v1/${statsView}?select=*`;
     if (hotelId) statsUrl += `&hotel_id=eq.${encodeURIComponent(hotelId)}`;
     const statsResp = await fetch(statsUrl, { headers: userHeaders });
     const channelStatsRaw = statsResp.ok ? await statsResp.json() : [];
@@ -83,7 +110,7 @@ export default async function handler(req, res) {
         acc.booking_count += 1;
         acc.total_amount_usd += Number(b.booking_amount_usd) || 0;
         acc.total_nights += Number(b.nights) || 0;
-        acc.total_commission_usd += Number(b.commission_usd) || 0;
+        acc.total_commission_usd += Number(b.commission_usd) || 0; // 매니저 뷰엔 컬럼 없음 → 0
         return acc;
       },
       { booking_count: 0, total_amount_usd: 0, total_nights: 0, total_commission_usd: 0 }
@@ -97,6 +124,7 @@ export default async function handler(req, res) {
 
     return res.status(200).json({
       ok: true,
+      is_admin: isAdmin,
       user: { id: me.id, email: me.email },
       filters: { hotelId: hotelId || null, from: from || null, to: to || null, limit: lim },
       headline,
@@ -126,7 +154,7 @@ function aggregateByChannel(rows) {
     cur.booking_count += Number(r.booking_count) || 0;
     cur.total_nights += Number(r.total_nights) || 0;
     cur.gross_amount_usd += Number(r.gross_amount_usd) || 0;
-    cur.total_commission_usd += Number(r.total_commission_usd) || 0;
+    cur.total_commission_usd += Number(r.total_commission_usd) || 0; // 매니저 뷰엔 컬럼 없음 → 0
     m.set(key, cur);
   }
   return Array.from(m.values()).sort((a, b) => b.booking_count - a.booking_count);

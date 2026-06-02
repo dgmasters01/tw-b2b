@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-06-01T21:53:38.624Z",
+  "updated_at": "2026-06-02T01:53:43.200790+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -12,18 +12,90 @@
     "SOLO_WORK_QUEUE.md"
   ],
   "stats": {
-    "total": 271,
+    "total": 272,
     "done": 210,
-    "in_progress": 1,
+    "in_progress": 2,
     "paused": 0,
     "pending": 39,
     "blocked": 11,
     "autonomous_ready": 27,
     "todo": 2,
     "cancelled": 1,
-    "updated_at": "2026-06-01T21:53:38.624Z"
+    "updated_at": "2026-06-02T01:53:43.200790+00:00"
   },
   "tasks": [
+    {
+      "id": "BL-ADMIN-HOTEL-DETAIL",
+      "title": "[관리자 호텔 상세 분석] 매니저 분석 미러링 + 수수료 노출 + 탭(개요·채널·패턴·예약상세)",
+      "category": "feature",
+      "priority": "P1",
+      "size": "medium",
+      "status": "in_progress",
+      "owner": "claude",
+      "claude_can_auto": true,
+      "approval_required": false,
+      "decision_ref": null,
+      "estimated_hours": 5,
+      "order": 1,
+      "blocker": null,
+      "depends_on": [],
+      "progress": {
+        "percent": 25,
+        "steps": [
+          {
+            "n": 1,
+            "title": "API admin 분기 + admin 상세 분석 페이지 본구현(미러링·수수료·4탭) + 호텔목록 진입버튼",
+            "status": "done",
+            "done_at": "2026-06-02T01:53:43.200790+00:00",
+            "commit": "(this commit)",
+            "label": "Phase 1 — API 분기 + admin-hotel-detail.html + 진입버튼",
+            "done": true,
+            "at": "2026-06-02T01:53:43.200790+00:00",
+            "note": "api/hotel-bookings.js: rpc/is_admin 판정 → v_admin_bookings/v_admin_channel_stats 분기(수수료 포함, 비admin 폴백). admin-hotel-detail.html 신설(개요/채널별/패턴/예약상세 4탭, tw-admin-auth 서랍, v_hotel_manager_full 헤더에 담당 매니저·연락처). _admin/admin.html 호텔목록에 '분석' 버튼."
+          },
+          {
+            "n": 2,
+            "title": "회차(campaign_log) + 기간 4구분(마케팅전/기간/후/전체) 예약 자동분류",
+            "status": "pending",
+            "label": "Phase 2 — 회차·기간 4구분"
+          },
+          {
+            "n": 3,
+            "title": "'마케팅 전 예약' 과거데이터 호텔명+도시+국가 매칭 → admin 연결",
+            "status": "pending",
+            "label": "Phase 3 — 마케팅 전 예약 매칭"
+          },
+          {
+            "n": 4,
+            "title": "담당 매니저 이름·연락처 — signup.html 신규 수집 필드 추가",
+            "status": "pending",
+            "label": "Phase 4 — 매니저 연락처 수집 필드"
+          }
+        ],
+        "completed_count": 1,
+        "total_count": 4,
+        "updated_at": "2026-06-02T01:53:43.200790+00:00"
+      },
+      "notes": "인계서(2026-06-02) 다음작업. Phase1(본구현) 완료, Phase2~4 잔여. v_admin_* 뷰는 직전 채팅에서 신설됨(수수료 포함). 비admin은 매니저뷰로 폴백되어 수수료 비노출 유지.",
+      "created_at": "2026-06-02T01:53:43.200790+00:00",
+      "updated_at": "2026-06-02T01:53:43.200790+00:00",
+      "source": "handoff:2026-06-02",
+      "target_pages": [
+        "/admin-hotel-detail.html",
+        "/admin",
+        "/api/hotel-bookings"
+      ],
+      "history": [
+        {
+          "at": "2026-06-02T01:53:43.200790+00:00",
+          "event": "신설 + Phase1 본구현 완료(step:done:1)",
+          "by": "claude",
+          "commit": "(this commit)",
+          "note": "API admin 분기 + admin-hotel-detail.html + 진입버튼. 상태 in_progress 유지(Phase2~4 잔여)."
+        }
+      ],
+      "started_at": "2026-06-02T01:53:43.200790+00:00"
+    },
     {
       "id": "BL-CHAT-CUTOFF-TRIGGERS",
       "title": "채팅 끊김 객관 트리거 4종 도입 — 응답 15회/파일 10회/단계 완료/거대 파일 1500줄+ (D-049)",

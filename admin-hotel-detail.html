@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>호텔 상세 분석 — TravelWinners Admin</title>
+<link rel="stylesheet" href="shared.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="shared.js"></script>
+<style>
+/* ===== admin-hotel-detail.html — BL-ADMIN-HOTEL-DETAIL ===== */
+/* marketing.html(매니저 분석) 미러링 + 관리자 전용 수수료(commission) 노출 */
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg,#0A0A0F);color:var(--ink,#FAFAFA);
+  font-family:var(--sans,'Inter','Noto Sans KR',sans-serif);min-height:100vh}
+
+.ahd-topbar{position:sticky;top:0;z-index:900;display:flex;align-items:center;gap:14px;
+  padding:0 28px;height:62px;background:rgba(10,10,15,.72);
+  backdrop-filter:blur(16px) saturate(140%);-webkit-backdrop-filter:blur(16px) saturate(140%);
+  border-bottom:1px solid var(--line-2,rgba(255,255,255,.12))}
+.ahd-back{display:inline-flex;align-items:center;gap:6px;text-decoration:none;
+  background:var(--glass-2,rgba(255,255,255,.08));color:var(--ink,#FAFAFA);
+  border:1px solid var(--line-2,rgba(255,255,255,.14));padding:7px 13px;border-radius:8px;
+  font-size:13px;cursor:pointer;transition:.15s}
+.ahd-back:hover{background:rgba(255,255,255,.14)}
+.ahd-topttl{font-family:var(--display);font-weight:700;font-size:15px;color:var(--ink-2,#cbd5e1)}
+.ahd-spacer{flex:1}
+.ahd-lang{display:flex;gap:4px}
+.ahd-lang button{background:var(--glass,rgba(255,255,255,.05));border:1px solid var(--line-2,rgba(255,255,255,.14));
+  color:var(--ink-3,#9aa);padding:6px 12px;border-radius:7px;font-size:12px;cursor:pointer}
+.ahd-lang button.on{background:var(--aurora,#C9A84C);color:#0E1410;border-color:transparent;font-weight:700}
+
+.ahd-shell{max-width:1280px;margin:0 auto;padding:0 28px 80px;position:relative;z-index:2}
+.ahd-head{padding:40px 0 8px}
+.ahd-h1{font-family:var(--display);font-size:34px;font-weight:800;letter-spacing:-.02em;margin:0 0 8px;line-height:1.08}
+.ahd-sub{color:var(--ink-3,#9aa);font-size:14px;margin:0 0 4px}
+.ahd-mgr{display:flex;flex-wrap:wrap;gap:8px 18px;margin:14px 0 0;font-size:13px;color:var(--ink-3,#9aa)}
+.ahd-mgr b{color:var(--ink-2,#cbd5e1);font-weight:600}
+.ahd-warn{background:rgba(224,169,60,.12);border:1px solid rgba(224,169,60,.35);color:#e0a93c;
+  border-radius:10px;padding:12px 16px;margin:16px 0;font-size:13px;line-height:1.5}
+
+/* tabs */
+.ahd-tabs{display:flex;gap:4px;margin:26px 0 22px;border-bottom:1px solid var(--line-2,rgba(255,255,255,.12));overflow-x:auto}
+.ahd-tab{background:none;border:none;color:var(--ink-3,#9aa);padding:12px 18px;font-size:14px;
+  cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;font-family:var(--sans)}
+.ahd-tab.on{color:var(--ink,#FAFAFA);border-bottom-color:var(--aurora,#C9A84C);font-weight:700}
+.ahd-panel{display:none}
+.ahd-panel.on{display:block}
+
+.ahd-card{background:var(--glass,rgba(255,255,255,.05));border:1px solid var(--line-2,rgba(255,255,255,.12));
+  border-radius:16px;padding:26px 30px;margin-bottom:16px;backdrop-filter:blur(18px)}
+.ahd-h2{font-family:var(--display);font-size:19px;font-weight:700;margin:0 0 16px}
+
+/* KPI */
+.ahd-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.ahd-stat{background:var(--glass,rgba(255,255,255,.05));border:1px solid var(--line-2,rgba(255,255,255,.12));
+  border-radius:16px;padding:22px 24px;position:relative;overflow:hidden}
+.ahd-stat::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,rgba(201,168,76,.7),transparent);opacity:.5}
+.ahd-stat-l{font-size:11px;color:var(--ink-3,#9aa);text-transform:uppercase;letter-spacing:.06em;font-weight:700;margin-bottom:10px}
+.ahd-stat-v{font-family:var(--display);font-size:32px;font-weight:800;letter-spacing:-.02em;line-height:1}
+.ahd-stat-v.gold{background:linear-gradient(135deg,#E8C766,#C9A84C);-webkit-background-clip:text;background-clip:text;color:transparent}
+.ahd-stat-v.green{background:linear-gradient(135deg,#34D9A4,#10B981);-webkit-background-clip:text;background-clip:text;color:transparent}
+.ahd-stat-s{font-size:12px;color:var(--ink-4,#71717a);margin-top:7px}
+
+/* channel */
+.ahd-ch-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
+.ahd-ch{background:rgba(255,255,255,.03);border:1px solid var(--line-2,rgba(255,255,255,.1));border-radius:14px;padding:18px 20px}
+.ahd-ch-name{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:14px;font-weight:600;margin-bottom:10px}
+.ahd-ch-tag{font-size:10px;padding:2px 8px;border-radius:20px;background:rgba(255,255,255,.08);color:var(--ink-3,#9aa)}
+.ahd-ch-big{font-family:var(--display);font-size:26px;font-weight:800}
+.ahd-ch-row{display:flex;justify-content:space-between;font-size:13px;color:var(--ink-3,#9aa);margin-top:8px}
+.ahd-ch-row .com{color:#E8C766;font-weight:600}
+.ahd-bar{height:6px;border-radius:6px;background:rgba(255,255,255,.08);margin-top:12px;overflow:hidden}
+.ahd-bar>i{display:block;height:100%;background:linear-gradient(90deg,#C9A84C,#E8C766);border-radius:6px}
+
+/* pattern */
+.ahd-pat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.ahd-prow{display:flex;align-items:center;gap:12px;margin:9px 0;font-size:13px}
+.ahd-prow .lbl{width:88px;color:var(--ink-3,#9aa);flex-shrink:0}
+.ahd-prow .track{flex:1;height:18px;background:rgba(255,255,255,.06);border-radius:6px;overflow:hidden}
+.ahd-prow .track>i{display:block;height:100%;background:linear-gradient(90deg,#6366f1,#8b5cf6);border-radius:6px}
+.ahd-prow .num{width:42px;text-align:right;color:var(--ink-2,#cbd5e1);font-variant-numeric:tabular-nums}
+
+/* table */
+.ahd-table{width:100%;border-collapse:collapse;font-size:13px}
+.ahd-table th{text-align:left;padding:11px 12px;color:var(--ink-3,#9aa);font-weight:600;font-size:11px;
+  text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid var(--line-2,rgba(255,255,255,.12));white-space:nowrap}
+.ahd-table td{padding:11px 12px;border-bottom:1px solid rgba(255,255,255,.06);color:var(--ink-2,#cbd5e1);white-space:nowrap}
+.ahd-table td.com{color:#E8C766;font-weight:600}
+.ahd-table tr:hover td{background:rgba(255,255,255,.03)}
+.ahd-pill{font-size:11px;padding:2px 9px;border-radius:20px;background:rgba(255,255,255,.08);color:var(--ink-3,#9aa)}
+.ahd-pill.done{background:rgba(52,217,164,.15);color:#34D9A4}
+.ahd-pill.cancel{background:rgba(239,68,68,.15);color:#f87171}
+
+.ahd-empty{text-align:center;padding:50px 20px;color:var(--ink-3,#9aa);font-size:14px}
+.ahd-empty .ic{font-size:34px;display:block;margin-bottom:12px;opacity:.6}
+.ahd-loading{display:flex;flex-direction:column;align-items:center;gap:16px;padding:90px 20px;color:var(--ink-3,#9aa)}
+.ahd-loader{width:28px;height:28px;border:2px solid rgba(255,255,255,.14);border-top-color:#C9A84C;border-radius:50%;animation:ahdspin .8s linear infinite}
+@keyframes ahdspin{to{transform:rotate(360deg)}}
+@media(max-width:760px){.ahd-kpis{grid-template-columns:repeat(2,1fr)}.ahd-h1{font-size:26px}}
+</style>
+</head>
+<body>
+<div class="ahd-topbar">
+  <a class="ahd-back" href="/admin">← <span id="ahd-back-tx">관리자 콘솔</span></a>
+  <span class="ahd-topttl" id="ahd-topttl">호텔 상세 분석</span>
+  <span class="ahd-spacer"></span>
+  <div class="ahd-lang">
+    <button id="ahd-ko" class="on" onclick="ahdSetLang('ko')">한국어</button>
+    <button id="ahd-en" onclick="ahdSetLang('en')">EN</button>
+  </div>
+</div>
+
+<div class="ahd-shell">
+  <div id="ahd-main">
+    <div class="ahd-loading"><div class="ahd-loader"></div><div id="ahd-loading-tx">불러오는 중…</div></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  'use strict';
+  const SUPA_URL = 'https://vjsludfjsphwnumuoqaj.supabase.co';
+  const SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZqc2x1ZGZqc3Bod251bXVvcWFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NTc5OTAsImV4cCI6MjA5MjAzMzk5MH0.hVLhCc9AazdNNJsia_d87vq5C0IcgFgMCqWR1rh3L_8';
+
+  // admin-login.html 과 동일한 인증 서랍(storageKey:'tw-admin-auth') 공유 (admin-manager-hub.html 패턴)
+  const ADMIN_PERSIST_KEY = 'tw-admin-persist';
+  function adminPersist(){ try{ return localStorage.getItem(ADMIN_PERSIST_KEY)==='1'; }catch(e){ return false; } }
+  const adminStorage = {
+    getItem:(k)=>{ try{ const v=localStorage.getItem(k); if(v!==null) return v; }catch(e){} try{ return sessionStorage.getItem(k); }catch(e){ return null; } },
+    setItem:(k,v)=>{ try{ if(adminPersist()){ localStorage.setItem(k,v); sessionStorage.removeItem(k);} else { sessionStorage.setItem(k,v); localStorage.removeItem(k);} }catch(e){} },
+    removeItem:(k)=>{ try{ localStorage.removeItem(k);}catch(e){} try{ sessionStorage.removeItem(k);}catch(e){} }
+  };
+  const sb = supabase.createClient(SUPA_URL, SUPA_ANON, {
+    auth:{ persistSession:true, autoRefreshToken:true, storageKey:'tw-admin-auth', storage:adminStorage }
+  });
+
+  const params = new URLSearchParams(location.search);
+  const hotelId = params.get('hotelId') || params.get('id');
+
+  let LANG = (window.TW && window.TW.lang) ? window.TW.lang : 'ko';
+  let STATE = { meta:null, data:null, error:null, activeTab:'overview' };
+
+  const $ = (id)=>document.getElementById(id);
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,(c)=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+  function money(n){ return '$' + (Number(n)||0).toLocaleString('en-US',{maximumFractionDigits:0}); }
+  function isKo(){ return LANG==='ko'; }
+
+  const T = {
+    back:        {ko:'관리자 콘솔', en:'Admin console'},
+    topttl:      {ko:'호텔 상세 분석', en:'Hotel detail analytics'},
+    loading:     {ko:'불러오는 중…', en:'Loading…'},
+    tabOverview: {ko:'개요', en:'Overview'},
+    tabChannel:  {ko:'채널별', en:'By channel'},
+    tabPattern:  {ko:'패턴', en:'Pattern'},
+    tabBookings: {ko:'예약 상세', en:'Bookings'},
+    kBookings:   {ko:'예약 수', en:'Bookings'},
+    kRevenue:    {ko:'총 거래액(GMV)', en:'Gross bookings (GMV)'},
+    kCommission: {ko:'우리 수수료 수익', en:'Our commission'},
+    kRoi:        {ko:'ROI', en:'ROI'},
+    kRevSub:     {ko:'전체 예약 합계', en:'across all bookings'},
+    kComSub:     {ko:'아고다 제휴 수수료', en:'Agoda affiliate commission'},
+    kRoiSub:     {ko:'$200 결제 대비', en:'on $200 fee'},
+    nights:      {ko:'총 숙박일', en:'Total nights'},
+    nightsSub:   {ko:'예약된 투숙 박 수', en:'guest nights booked'},
+    chTitle:     {ko:'채널 성과 (수수료 포함)', en:'Channel performance (with commission)'},
+    chBookings:  {ko:'예약', en:'bookings'},
+    chCom:       {ko:'수수료', en:'commission'},
+    chEmpty:     {ko:'아직 채널 데이터가 없습니다. 영상이 전환을 일으키면 여기에 표시됩니다.', en:'No channel data yet — bookings appear here once a video converts.'},
+    patDow:      {ko:'체크인 요일', en:'Check-in weekday'},
+    patDevice:   {ko:'기기 유형', en:'Device type'},
+    patCountry:  {ko:'고객 국가 Top', en:'Top guest countries'},
+    patEmpty:    {ko:'패턴을 계산할 예약이 아직 없습니다.', en:'Not enough bookings to compute patterns yet.'},
+    bkEmpty:     {ko:'아직 완료된 예약이 없습니다.', en:'No completed bookings yet.'},
+    thId:        {ko:'예약번호', en:'Booking ID'},
+    thStay:      {ko:'투숙', en:'Stay'},
+    thNights:    {ko:'박', en:'Nights'},
+    thCountry:   {ko:'국가', en:'Country'},
+    thChannel:   {ko:'채널', en:'Channel'},
+    thAmount:    {ko:'금액', en:'Amount'},
+    thCom:       {ko:'수수료', en:'Commission'},
+    thStatus:    {ko:'상태', en:'Status'},
+    mgr:         {ko:'담당 매니저', en:'Manager'},
+    contact:     {ko:'연락처', en:'Contact'},
+    notAdminWarn:{ko:'⚠️ 이 세션은 관리자로 인식되지 않아 수수료가 표시되지 않을 수 있습니다. 관리자 계정으로 로그인했는지 확인하세요.',
+                  en:'⚠️ This session was not recognized as admin, so commission may be hidden. Make sure you are logged in as an admin.'},
+    noHotel:     {ko:'호텔 식별자(hotelId)가 없습니다.', en:'Missing hotelId parameter.'},
+    loadErr:     {ko:'데이터를 불러오지 못했습니다: ', en:'Failed to load data: '},
+    statusDone:  {ko:'완료', en:'Completed'},
+    statusCancel:{ko:'취소', en:'Cancelled'},
+  };
+  const tr = (k)=> (T[k] ? (isKo()?T[k].ko:T[k].en) : k);
+
+  window.ahdSetLang = function(l){
+    LANG = l;
+    $('ahd-ko').classList.toggle('on', l==='ko');
+    $('ahd-en').classList.toggle('on', l==='en');
+    if(window.TW) try{ window.TW.lang=l; }catch(e){}
+    paintStaticLabels();
+    render();
+  };
+
+  function paintStaticLabels(){
+    $('ahd-back-tx').textContent = tr('back');
+    $('ahd-topttl').textContent = tr('topttl');
+    document.documentElement.lang = LANG;
+  }
+
+  async function boot(){
+    paintStaticLabels();
+    if(!hotelId){ STATE.error = tr('noHotel'); return render(); }
+
+    const { data:sess } = await sb.auth.getSession();
+    if(!sess || !sess.session){
+      location.href = '/admin-login.html?next=' + encodeURIComponent(location.pathname + location.search);
+      return;
+    }
+    const token = sess.session.access_token;
+
+    try{
+      // 1) 호텔 + 담당 매니저 메타 (v_hotel_manager_full, hotel_id 기준)
+      const metaResp = await sb.from('v_hotel_manager_full').select(
+        'hotel_id,hotel_name,hotel_name_local,hotel_city,hotel_country,manager_email,manager_position,hotel_contact_name,hotel_contact_phone,hotel_whatsapp,lifecycle_stage'
+      ).eq('hotel_id', hotelId).limit(1).maybeSingle();
+      STATE.meta = metaResp.data || null;
+
+      // 2) 예약 분석 (API admin 분기 → v_admin_* 사용, 수수료 포함)
+      const resp = await fetch('/api/hotel-bookings?hotelId=' + encodeURIComponent(hotelId), {
+        headers:{ Authorization:'Bearer ' + token }
+      });
+      const data = await resp.json();
+      if(!resp.ok){ STATE.error = tr('loadErr') + (data.error || resp.status); return render(); }
+      STATE.data = data;
+    }catch(err){
+      STATE.error = tr('loadErr') + String(err.message || err);
+    }
+    render();
+  }
+
+  function render(){
+    const root = $('ahd-main');
+    if(STATE.error){
+      root.innerHTML = '<div class="ahd-head"><div class="ahd-card"><div class="ahd-empty"><span class="ic">⚠️</span>'+esc(STATE.error)+'</div></div></div>';
+      return;
+    }
+    if(!STATE.data){
+      root.innerHTML = '<div class="ahd-loading"><div class="ahd-loader"></div><div>'+tr('loading')+'</div></div>';
+      return;
+    }
+    const d = STATE.data, meta = STATE.meta || {};
+    const hotelName = (meta.hotel_name) || (d.bookings && d.bookings[0] && d.bookings[0].hotel_name) || 'Hotel';
+    const city = meta.hotel_city || (d.bookings && d.bookings[0] && d.bookings[0].hotel_city) || '';
+    const country = meta.hotel_country || (d.bookings && d.bookings[0] && d.bookings[0].hotel_country) || '';
+
+    let html = '<div class="ahd-head">';
+    html += '<h1 class="ahd-h1">'+esc(hotelName)+'</h1>';
+    let sub = (isKo()?'관리자 분석 · 채널 성과 · 수수료':'Admin analytics · channels · commission');
+    if(city || country) sub += ' · ' + esc([city,country].filter(Boolean).join(', '));
+    html += '<p class="ahd-sub">'+sub+'</p>';
+
+    // 담당 매니저 정보 (④ 헤더 표시 — 기존 데이터 활용)
+    const contactName = meta.hotel_contact_name || '';
+    const phone = meta.hotel_contact_phone || meta.hotel_whatsapp || '';
+    if(meta.manager_email || contactName || phone){
+      html += '<div class="ahd-mgr">';
+      if(meta.manager_email) html += '<span>'+tr('mgr')+': <b>'+esc(meta.manager_email)+'</b></span>';
+      if(contactName) html += '<span>'+(isKo()?'담당자':'Contact name')+': <b>'+esc(contactName)+'</b></span>';
+      if(phone) html += '<span>'+tr('contact')+': <b>'+esc(phone)+'</b></span>';
+      if(meta.lifecycle_stage) html += '<span>'+(isKo()?'단계':'Stage')+': <b>'+esc(meta.lifecycle_stage)+'</b></span>';
+      html += '</div>';
+    }
+    if(d.is_admin === false){ html += '<div class="ahd-warn">'+tr('notAdminWarn')+'</div>'; }
+    html += '</div>';
+
+    // tabs
+    const tabs = [['overview',tr('tabOverview')],['channel',tr('tabChannel')],['pattern',tr('tabPattern')],['bookings',tr('tabBookings')]];
+    html += '<div class="ahd-tabs">';
+    tabs.forEach(function(t){
+      html += '<button class="ahd-tab'+(STATE.activeTab===t[0]?' on':'')+'" data-tab="'+t[0]+'">'+t[1]+'</button>';
+    });
+    html += '</div>';
+
+    html += '<div class="ahd-panel'+(STATE.activeTab==='overview'?' on':'')+'" data-panel="overview">'+renderOverview(d)+'</div>';
+    html += '<div class="ahd-panel'+(STATE.activeTab==='channel'?' on':'')+'" data-panel="channel">'+renderChannel(d)+'</div>';
+    html += '<div class="ahd-panel'+(STATE.activeTab==='pattern'?' on':'')+'" data-panel="pattern">'+renderPattern(d)+'</div>';
+    html += '<div class="ahd-panel'+(STATE.activeTab==='bookings'?' on':'')+'" data-panel="bookings">'+renderBookings(d)+'</div>';
+
+    root.innerHTML = html;
+    root.querySelectorAll('.ahd-tab').forEach(function(btn){
+      btn.addEventListener('click', function(){ STATE.activeTab = btn.getAttribute('data-tab'); render(); });
+    });
+  }
+
+  function statCard(label, value, sub, cls){
+    return '<div class="ahd-stat"><div class="ahd-stat-l">'+label+'</div>'
+      + '<div class="ahd-stat-v'+(cls?(' '+cls):'')+'">'+value+'</div>'
+      + (sub?'<div class="ahd-stat-s">'+sub+'</div>':'') + '</div>';
+  }
+
+  function renderOverview(d){
+    const h = d.headline || {};
+    let html = '<div class="ahd-kpis">';
+    html += statCard(tr('kBookings'), String(h.booking_count||0), '');
+    html += statCard(tr('kRevenue'), money(h.total_amount_usd||0), tr('kRevSub'));
+    html += statCard(tr('kCommission'), money(h.total_commission_usd||0), tr('kComSub'), 'gold');
+    html += statCard(tr('kRoi'), (h.roi_multiple||0)+'x', tr('kRoiSub'), 'green');
+    html += '</div>';
+    html += '<div class="ahd-card" style="margin-top:16px"><div class="ahd-kpis" style="grid-template-columns:repeat(2,1fr)">';
+    html += statCard(tr('nights'), String(h.total_nights||0), tr('nightsSub'));
+    const adr = (h.total_nights>0) ? (h.total_amount_usd/h.total_nights) : 0;
+    html += statCard('ADR', money(adr), isKo()?'1박 평균 단가':'avg daily rate');
+    html += '</div></div>';
+    return html;
+  }
+
+  function renderChannel(d){
+    const stats = d.channel_stats || [];
+    let html = '<div class="ahd-card"><h2 class="ahd-h2">'+tr('chTitle')+'</h2>';
+    if(!stats.length){ return html + '<div class="ahd-empty"><span class="ic">📊</span>'+tr('chEmpty')+'</div></div>'; }
+    const maxC = stats.reduce(function(m,s){ return Math.max(m, Number(s.booking_count)||0); }, 1);
+    html += '<div class="ahd-ch-grid">';
+    stats.forEach(function(s){
+      const pct = Math.round(((Number(s.booking_count)||0)/maxC)*100);
+      html += '<div class="ahd-ch">';
+      html += '<div class="ahd-ch-name"><span>'+esc(s.channel_name||'Unknown')+'</span><span class="ahd-ch-tag">'+esc(s.channel_language||'—')+'</span></div>';
+      html += '<div class="ahd-ch-big">'+(Number(s.booking_count)||0)+'</div>';
+      html += '<div class="ahd-ch-row"><span>'+tr('chBookings')+'</span><span>'+money(s.gross_amount_usd)+'</span></div>';
+      html += '<div class="ahd-ch-row"><span class="com">'+tr('chCom')+'</span><span class="com">'+money(s.total_commission_usd)+'</span></div>';
+      html += '<div class="ahd-bar"><i style="width:'+pct+'%"></i></div>';
+      html += '</div>';
+    });
+    html += '</div></div>';
+    return html;
+  }
+
+  function patBlock(title, entries){
+    // entries: [ [label, count], ... ] 정렬됨
+    const max = entries.reduce(function(m,e){ return Math.max(m, e[1]); }, 1);
+    let html = '<div class="ahd-card"><h2 class="ahd-h2">'+title+'</h2>';
+    entries.forEach(function(e){
+      const pct = Math.round((e[1]/max)*100);
+      html += '<div class="ahd-prow"><span class="lbl">'+esc(e[0])+'</span><span class="track"><i style="width:'+pct+'%"></i></span><span class="num">'+e[1]+'</span></div>';
+    });
+    html += '</div>';
+    return html;
+  }
+
+  function renderPattern(d){
+    const bk = d.bookings || [];
+    if(!bk.length){ return '<div class="ahd-card"><div class="ahd-empty"><span class="ic">🗓️</span>'+tr('patEmpty')+'</div></div>'; }
+    const dowKo = ['일','월','화','수','목','금','토'];
+    const dowEn = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    const dows = isKo()?dowKo:dowEn;
+    const dowCount = [0,0,0,0,0,0,0];
+    const dev = {}; const ctry = {};
+    bk.forEach(function(b){
+      if(b.checkin_date){ const dt=new Date(b.checkin_date+'T00:00:00'); if(!isNaN(dt)) dowCount[dt.getDay()]++; }
+      const dv = b.device_type || (isKo()?'미상':'unknown'); dev[dv]=(dev[dv]||0)+1;
+      const c = b.customer_country || (isKo()?'미상':'unknown'); ctry[c]=(ctry[c]||0)+1;
+    });
+    const dowEntries = dows.map(function(name,i){ return [name, dowCount[i]]; });
+    const devEntries = Object.keys(dev).map(function(k){ return [k, dev[k]]; }).sort(function(a,b){ return b[1]-a[1]; });
+    const ctryEntries = Object.keys(ctry).map(function(k){ return [k, ctry[k]]; }).sort(function(a,b){ return b[1]-a[1]; }).slice(0,8);
+    let html = '<div class="ahd-pat-grid">';
+    html += patBlock(tr('patDow'), dowEntries);
+    html += patBlock(tr('patDevice'), devEntries);
+    html += patBlock(tr('patCountry'), ctryEntries);
+    html += '</div>';
+    return html;
+  }
+
+  function renderBookings(d){
+    const bk = d.bookings || [];
+    let html = '<div class="ahd-card">';
+    if(!bk.length){ return html + '<div class="ahd-empty"><span class="ic">🌙</span>'+tr('bkEmpty')+'</div></div>'; }
+    html += '<div style="overflow-x:auto"><table class="ahd-table"><thead><tr>';
+    [tr('thId'),tr('thStay'),tr('thNights'),tr('thCountry'),tr('thChannel'),tr('thAmount'),tr('thCom'),tr('thStatus')].forEach(function(th){ html+='<th>'+th+'</th>'; });
+    html += '</tr></thead><tbody>';
+    bk.forEach(function(b){
+      const bid = b.booking_id || b.booking_id_masked || '—';
+      const cancelled = !!b.is_cancelled;
+      const pill = cancelled ? '<span class="ahd-pill cancel">'+tr('statusCancel')+'</span>'
+                             : '<span class="ahd-pill done">'+tr('statusDone')+'</span>';
+      html += '<tr>';
+      html += '<td>#'+esc(bid)+'</td>';
+      html += '<td>'+esc(b.checkin_date||'?')+' → '+esc(b.checkout_date||'?')+'</td>';
+      html += '<td>'+(Number(b.nights)||0)+'</td>';
+      html += '<td>'+esc(b.customer_country||'—')+'</td>';
+      html += '<td><span class="ahd-pill">'+esc(b.channel_name||'Other')+'</span></td>';
+      html += '<td>'+money(b.booking_amount_usd)+'</td>';
+      html += '<td class="com">'+money(b.commission_usd)+'</td>';
+      html += '<td>'+pill+'</td>';
+      html += '</tr>';
+    });
+    html += '</tbody></table></div></div>';
+    return html;
+  }
+
+  boot();
+})();
+</script>
+</body>
+</html>

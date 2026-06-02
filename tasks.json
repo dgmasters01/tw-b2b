@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-06-02T08:42:33+00:00",
+  "updated_at": "2026-06-02T08:53:29+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -14,8 +14,8 @@
   "stats": {
     "total": 273,
     "done": 210,
-    "in_progress": 2,
-    "pending": 40,
+    "in_progress": 3,
+    "pending": 39,
     "blocked": 11,
     "autonomous_ready": 26,
     "todo": 2,
@@ -30,7 +30,7 @@
       "category": "feature",
       "priority": "P0",
       "size": "M",
-      "status": "pending",
+      "status": "in_progress",
       "owner": "claude",
       "claude_can_auto": true,
       "approval_required": false,
@@ -42,7 +42,7 @@
       "progress": 0,
       "notes": "대표님 요청(2026-06-02). D-054 후속. UI는 Claude 위임. admin-status.html 블록 신설 + tasks.json order 중복·공백 핵심작업 재부여.",
       "created_at": "2026-06-02",
-      "updated_at": "2026-06-02T08:42:33+00:00",
+      "updated_at": "2026-06-02T08:53:29+00:00",
       "source": "대표님 요청",
       "target_pages": [
         "admin-status.html"
@@ -54,9 +54,23 @@
           "by": "auto-detect-bot",
           "commit": "15f81d9",
           "note": "task(BL-STATUS-DECISION-WORK-LINK): admin-status 정책↔작업↔완성도 연계표시 P0 등록 — 원본포맷 보존 삽입 [대표님 요청 2026-06-02]"
+        },
+        {
+          "at": "2026-06-02T08:53:29+00:00",
+          "event": "진행 중 진입 (auto-detected) ⚠️ 부칙 7 위반 — progress.steps 미박힘",
+          "by": "auto-detect-bot",
+          "commit": "9586004",
+          "note": "feat(admin-status): 정책→작업→완성도 연결 블록 신설 (BL-STATUS-DECISION-WORK-LINK, D-054 후속) — DECISIONS_INDEX 메인표 파싱 + tasks.json de"
         }
       ],
-      "started_at": null
+      "started_at": null,
+      "progress_warning": {
+        "code": "MISSING_PROGRESS_STEPS",
+        "rule": "부칙 7 — 모든 작업은 progress.steps 박은 후 시작",
+        "detected_at": "2026-06-02T08:53:29+00:00",
+        "detected_by_commit": "9586004",
+        "message": "in_progress 진입했으나 progress.steps 비어있음. tasks.json에서 progress.steps 박은 후 다음 commit에 [step:done:N] 태그."
+      }
     },
     {
       "id": "BL-ADMIN-HOTEL-DETAIL",

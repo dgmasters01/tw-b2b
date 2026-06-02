@@ -34,7 +34,7 @@
 
 ## 다음 작업 (2026-06-02 D-054 확정 후)
 
-### ⭐ 우선 — admin-status 연계 표시 (대표님 요청: "정책 → 작업 → 완성도가 한 화면에 보이게")
+### ⭐ 우선 — admin-status 연계 표시  ⟦tasks.json 등록완료: BL-STATUS-DECISION-WORK-LINK (P0)⟧ (대표님 요청: "정책 → 작업 → 완성도가 한 화면에 보이게")
 - admin-status.html에 블록 신설: 최근 결정(DECISIONS_INDEX 상위 N개) ↔ 영향 작업(tasks.json) ↔ 완성도(stats)를 한 줄로 연결.
 - 목적: 새 채팅에서도 "무엇이 정책이고 / 무슨 순서로 / 어디까지 됐는지"를 대표님이 눈으로 1초 파악(합의 증발 방지의 가시화).
 - 부수: tasks.json `order` 필드가 중복·공백 다수 → 핵심 작업만 순서 재부여.

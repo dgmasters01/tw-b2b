@@ -36,7 +36,7 @@
       "approval_required": false,
       "decision_ref": "D-054",
       "estimated_hours": 3,
-      "order": 1,
+      "order": 2,
       "blocker": null,
       "depends_on": [],
       "progress": 0,
@@ -84,7 +84,7 @@
       "approval_required": false,
       "decision_ref": null,
       "estimated_hours": 5,
-      "order": 1,
+      "order": 3,
       "blocker": null,
       "depends_on": [],
       "progress": {
@@ -3886,7 +3886,7 @@
       "ceo_decision_at": "",
       "copy_rewritten_at": "2026-05-06T15:54:09.000Z",
       "copy_rewritten_by": "BL-MODAL-COPY-REWRITE",
-      "order": 14,
+      "order": 11,
       "target_pages": [
         "/marketing.html"
       ]
@@ -4793,7 +4793,7 @@
       "notes": "[완료 요약]\nDECISIONS_INDEX.md v1 수동 작성 완료 (5/3). sync_engine 자동화는 별도 작업.\n\n---\n\nDECISIONS.md 변경 감지 → DECISIONS_INDEX.md 자동 갱신. ID 고정 불변 규칙.",
       "owner": "Claude",
       "approval_required": false,
-      "order": 19,
+      "order": 20,
       "target_pages": [
         "__os__"
       ],
@@ -7152,7 +7152,8 @@
       ],
       "target_pages": [
         "/admin.html"
-      ]
+      ],
+      "order": 6
     },
     {
       "id": "BL-004",
@@ -7298,7 +7299,8 @@
       "target_pages": [
         "/admin.html",
         "/marketing.html"
-      ]
+      ],
+      "order": 33
     },
     {
       "id": "BL-007",
@@ -7383,7 +7385,8 @@
       "approval_required": false,
       "target_pages": [
         "/hotel-info.html"
-      ]
+      ],
+      "order": 34
     },
     {
       "id": "BL-009",
@@ -7421,7 +7424,8 @@
       "approval_required": false,
       "target_pages": [
         "/admin.html"
-      ]
+      ],
+      "order": 35
     },
     {
       "id": "BL-010",
@@ -7459,7 +7463,8 @@
       "approval_required": false,
       "target_pages": [
         "/index.html"
-      ]
+      ],
+      "order": 36
     },
     {
       "id": "BL-011",
@@ -7495,7 +7500,7 @@
       "notes": "## 🟢 P3 — Chrome 확장 프로그램 간섭 (사용자 환경)  **현상**: `subtitle.js` 확장 프로그램(자막/번역)이 페이지 JS에 간섭. 콘솔 에러 `Extension context invalidated`.  **영향**: 사이트 동작에는 영향 없음. 디버깅 시 노이즈만 증가.  **해결**: 대표님 환경에서 확장 프로그램 비활성화. 코드 수정 불필요.  ---",
       "owner": "autonomous",
       "approval_required": false,
-      "order": 21,
+      "order": 44,
       "target_pages": [
         "__user-env__"
       ]
@@ -8320,7 +8325,7 @@
       "notes": "### J. 🟢 AUTO — README.md 업데이트 **작업 내용**: 현재 어떤 시스템들이 라이브에 있는지, 각 페이지 목적, 환경변수 목록 등을 한 페이지에 정리.  **예상 시간**: 30분 **가치**: 새 채팅에서 컨텍스트 파악 시간 단축  ---  ## 🚫 데드라인 후 (5/3 이후)  - 호텔 검색 UX 이슈 (BACKLOG P2 Issue #1, #2) - 호텔 스토리 / LTV 추적 (BACKLOG P2) - Phase 3 D단계 (회원 탈퇴 / 이메일 변경) - i18n 한국어 일괄 적용  ---  ## 자율 작업 진행 시 Claude 의무  1. **시작 시**: 이 큐의 최상단 🟢 AUTO 작업부터 진행 2. **각 작업 완료 시**:    - 자동 검증 (JS 문법 + 페이지 표시",
       "owner": "autonomous",
       "approval_required": false,
-      "order": 20,
+      "order": 37,
       "target_pages": [
         "__docs__"
       ]
@@ -10052,7 +10057,7 @@
       "decision_recommendation": "A안 권장. 한 줄 fix.",
       "ceo_decision": "A안 — Claude 자율",
       "ceo_decision_at": "2026-05-06T20:02:50+00:00",
-      "order": 25,
+      "order": 31,
       "claude_can_auto": true,
       "progress": {
         "steps": [
@@ -10113,7 +10118,7 @@
       "decision_recommendation": "B안 권장. 탭 진입/이탈 이벤트 활용. ECHO_LOG/DECISIONS는 트래픽 부담 있으므로 폴링 간격 더 길게 (예: 30초).",
       "ceo_decision": "B안 — Claude 자율",
       "ceo_decision_at": "2026-05-06T20:02:50+00:00",
-      "order": 26,
+      "order": 40,
       "claude_can_auto": true,
       "progress": {
         "steps": [
@@ -10912,7 +10917,7 @@
       "source": "BL-OS-PHASE-2 단계 2 진행 중 발견 — scripts/ → _os/scripts/ 이동 시 7개 스크립트의 parent.parent / __dirname 패턴이 위치 의존적이라 모두 수정 필요",
       "created_at": "2026-05-07T06:14:33+00:00",
       "deadline": "2026-05-15",
-      "order": 80,
+      "order": 41,
       "blocker": null,
       "autonomous": {
         "estimated_hours": 1,
@@ -10979,7 +10984,7 @@
       "source": "BL-OS-PHASE-5 단계 8~9 후속 정석 인프라 청소 중 발견 (2026-05-08)",
       "created_at": "2026-05-07T17:24:53+00:00",
       "deadline": null,
-      "order": 99,
+      "order": 42,
       "blocker": null,
       "autonomous": {
         "estimated_hours": 0.2,
@@ -11800,7 +11805,7 @@
       "updated_at": "2026-05-13T02:09:50+00:00",
       "completed_at": null,
       "source": "대표님 진단 (2026-05-08) — OS 설치 시 PAT 거부됨, 설치 자체가 안 됨",
-      "order": 22,
+      "order": 19,
       "progress": {
         "steps": [
           {
@@ -12066,7 +12071,7 @@
       "updated_at": "2026-05-09T08:02:33.170969+00:00",
       "completed_at": null,
       "source": "대표님 진단 — BL-ADMIN-AUTH-PERF 시작 시 progress_steps 미박힘 채로 진행됐고 직전 채팅 끝에서야 강제 채움. 부칙 7 (단계=commit) 완전 자동화 미흡.",
-      "order": 61,
+      "order": 32,
       "progress": {
         "steps": [
           {
@@ -13744,7 +13749,8 @@
       "updated_at": "2026-05-11T02:38:01.191240Z",
       "target_pages": [
         "/admin-status.html"
-      ]
+      ],
+      "order": 14
     },
     {
       "id": "BL-BASELINE-AUTO-TASK",
@@ -14080,7 +14086,8 @@
       "target_pages": [
         "/admin-status.html",
         "/admin-gallery.html"
-      ]
+      ],
+      "order": 15
     },
     {
       "id": "BL-DAILY-HEALTH-CARD",
@@ -14114,7 +14121,8 @@
       "updated_at": "2026-05-11T02:38:01.191240Z",
       "target_pages": [
         "/admin-status.html"
-      ]
+      ],
+      "order": 16
     },
     {
       "id": "BL-AUTO-ADMIN-BASELINE-7FILES",
@@ -16032,7 +16040,7 @@
       "approval_required": false,
       "decision_ref": "D-032",
       "estimated_hours": 4,
-      "order": 10,
+      "order": 1,
       "blocker": null,
       "depends_on": [
         "BL-SIGNUP-COUNTRY-FIELD"
@@ -16092,7 +16100,7 @@
       "approval_required": false,
       "decision_ref": "D-032",
       "estimated_hours": 2,
-      "order": 11,
+      "order": 25,
       "blocker": null,
       "depends_on": [
         "BL-SIGNUP-COUNTRY-FIELD"
@@ -16121,7 +16129,7 @@
       "approval_required": false,
       "decision_ref": "D-033",
       "estimated_hours": 3,
-      "order": 12,
+      "order": 29,
       "blocker": null,
       "depends_on": [
         "BL-REFUND-FLOW"
@@ -16178,7 +16186,7 @@
       "approval_required": false,
       "decision_ref": "D-034",
       "estimated_hours": 8,
-      "order": 14,
+      "order": 26,
       "blocker": null,
       "depends_on": [
         "BL-EVENT-SITE-FOUNDATION"
@@ -16207,7 +16215,7 @@
       "approval_required": false,
       "decision_ref": "D-034",
       "estimated_hours": 6,
-      "order": 15,
+      "order": 27,
       "blocker": null,
       "depends_on": [
         "BL-EVENT-SITE-FOUNDATION"
@@ -16236,7 +16244,7 @@
       "approval_required": false,
       "decision_ref": "D-034",
       "estimated_hours": 3,
-      "order": 16,
+      "order": 28,
       "blocker": null,
       "depends_on": [
         "BL-EVENT-SITE-FOUNDATION",
@@ -16881,7 +16889,7 @@
       "claude_can_auto": true,
       "approval_required": false,
       "estimated_hours": 1,
-      "order": 4,
+      "order": 8,
       "blocker": null,
       "depends_on": [],
       "progress": {
@@ -16920,7 +16928,7 @@
       "claude_can_auto": false,
       "approval_required": true,
       "estimated_hours": 2,
-      "order": 5,
+      "order": 10,
       "blocker": null,
       "depends_on": [
         "BL-MEMBERS-DATA-SOURCE",
@@ -18114,7 +18122,7 @@
           "note": "[2026-05-30 카테고리 점검] BL 8건 박기 + BL-ADMIN-OPERATIONS-DASHBOARD 보류 마킹"
         }
       ],
-      "order": 2,
+      "order": 38,
       "claude_can_auto": false,
       "approval_required": true,
       "started_at": "2026-05-28T08:44:31+00:00"
@@ -18312,7 +18320,7 @@
       "created_at": "2026-05-15T16:30:05.675Z",
       "updated_at": "2026-05-24T17:07:54.074Z",
       "deadline": null,
-      "order": null,
+      "order": 17,
       "blocker": null,
       "autonomous": {
         "can_run_alone": true,
@@ -18766,7 +18774,8 @@
           "detail": "V1 정정 #13으로 분리 — ADR + 인기 요일·시즌 + 채널별 조회수 추이를 V1.1로 미룸. V1 stage 2 완료 시점에 등록."
         }
       ],
-      "source": "대표님 직접 보고 (2026-05-17) — V1 출시 후 ADR 지표 + 시즌 분석 + 채널별 조회수 분포 추가 필요"
+      "source": "대표님 직접 보고 (2026-05-17) — V1 출시 후 ADR 지표 + 시즌 분석 + 채널별 조회수 분포 추가 필요",
+      "order": 12
     },
     {
       "id": "BL-AUTO-TASKS-SCHEMA-1MISSING",
@@ -19733,7 +19742,8 @@
         }
       ],
       "source": "claude_chat",
-      "source_anchor": ""
+      "source_anchor": "",
+      "order": 9
     },
     {
       "id": "BL-PAYMENTS-STATUS-AUDIT",
@@ -19792,7 +19802,8 @@
         }
       ],
       "source": "claude_chat",
-      "source_anchor": ""
+      "source_anchor": "",
+      "order": 7
     },
     {
       "id": "BL-AUTO-TASKS-SCHEMA-9MISSING",
@@ -19871,7 +19882,8 @@
           "by": "claude",
           "note": "차단원 모두 done/obsoleted 상태라 의존성 해제"
         }
-      ]
+      ],
+      "order": 30
     },
     {
       "id": "BL-COMMON-HEADER-CSS-CLEANUP",
@@ -19901,7 +19913,8 @@
           "by": "claude",
           "note": "차단원 모두 done/obsoleted 상태라 의존성 해제"
         }
-      ]
+      ],
+      "order": 39
     },
     {
       "id": "BL-AUTO-TASKS-SCHEMA-11MISSING",
@@ -20485,7 +20498,7 @@
       "created_at": "2026-05-26T05:45:12.678Z",
       "updated_at": "2026-05-26T05:45:12.678Z",
       "deadline": null,
-      "order": null,
+      "order": 18,
       "blocker": null,
       "autonomous": {
         "can_run_alone": true,
@@ -20608,7 +20621,8 @@
       ],
       "estimated_minutes": 45,
       "source": "auto_from_commit",
-      "source_anchor": "auto-detect-bot 생성"
+      "source_anchor": "auto-detect-bot 생성",
+      "order": 22
     },
     {
       "id": "BL-AUTO-TASKS-SCHEMA-3MISSING",
@@ -21115,7 +21129,8 @@
           "event": "박힘 (chat 2026-05-30 카테고리 점검 라운드)",
           "by": "claude"
         }
-      ]
+      ],
+      "order": 4
     },
     {
       "id": "BL-RENEWAL-CONSOLE",
@@ -21191,7 +21206,8 @@
           "event": "박힘 (chat 2026-05-30 카테고리 점검 라운드)",
           "by": "claude"
         }
-      ]
+      ],
+      "order": 5
     },
     {
       "id": "BL-VIDEO-PUBLISH-INPUT-MODAL",
@@ -21267,7 +21283,8 @@
           "event": "박힘 (chat 2026-05-30 카테고리 점검 라운드)",
           "by": "claude"
         }
-      ]
+      ],
+      "order": 24
     },
     {
       "id": "BL-SALES-COPY-PENDING-REJECTED",
@@ -21329,7 +21346,8 @@
           "event": "박힘 (chat 2026-05-30 카테고리 점검 라운드)",
           "by": "claude"
         }
-      ]
+      ],
+      "order": 23
     },
     {
       "id": "BL-INBOX-INLINE-ACTIONS",
@@ -21398,7 +21416,8 @@
           "event": "박힘 (chat 2026-05-30 카테고리 점검 라운드)",
           "by": "claude"
         }
-      ]
+      ],
+      "order": 21
     },
     {
       "id": "BL-ADMIN-CATEGORY-AUDIT-CHATLOG",
@@ -21453,7 +21472,8 @@
           "event": "박힘 (chat 2026-05-30 카테고리 점검 라운드)",
           "by": "claude"
         }
-      ]
+      ],
+      "order": 43
     }
   ]
 }

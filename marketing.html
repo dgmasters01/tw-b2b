@@ -406,7 +406,7 @@
         html += '  </div>';
         html += '  <div>';
         html += '    <div class="mk-bk-amount">$' + fmtMoney(b.booking_amount_usd) + '</div>';
-        if (b.commission_usd) html += '    <div class="mk-bk-amount-sub">' + (isKo?'수수료 $':'Comm. $') + fmtMoney(b.commission_usd) + '</div>';
+        // [수수료 비노출] 매니저 화면엔 우리 제휴 수수료(commission)를 표시하지 않음 — 서버 v_manager_bookings 에서도 제거됨 (D-053)
         html += '  </div>';
         html += '</div>';
       }

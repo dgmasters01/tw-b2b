@@ -1,50 +1,50 @@
-# 인계서 — BL-ADMIN-HOTEL-DETAIL Phase 1 완료 · Phase 2~4 차례
+# 인계서 — BL-ADMIN-HOTEL-DETAIL Phase 1·4 완료 (50%) · Phase 2·3 차례
 
-**작성**: 2026-06-02 (Phase 1 본구현 완료)
+**작성**: 2026-06-02 (Phase 1 본구현 + Phase 4 기수집 확인 완료)
 **다음 채팅 첫 fetch = boot.md 1개 → 이 파일.**
 
 ---
 
 ## 🚦 다음 채팅 첫 행동
-1. `_os/boot.md` 1개 fetch → 2. 이 파일 → 3. 아래 "다음 작업"(BL-ADMIN-HOTEL-DETAIL Phase 2) → 4. tasks.json 라이브 재확인
+1. `_os/boot.md` 1개 fetch → 2. 이 파일 → 3. 아래 "다음 작업"(우선 Phase 2 = 대표님 결정 필요) → 4. tasks.json 라이브 재확인
 
 ---
 
-## ✅ 직전 채팅(2026-06-02)에서 완료 — BL-ADMIN-HOTEL-DETAIL Phase 1
+## ✅ 완료 (BL-ADMIN-HOTEL-DETAIL, 진행률 50%)
 
-본질 결정 1개 = "관리자 호텔 상세 분석 페이지 본구현(매니저 분석 미러링 + 수수료 노출)".
+### Phase 1 — 관리자 호텔 상세 분석 페이지 본구현
+- `api/hotel-bookings.js`: `rpc/is_admin` 판정 → 관리자 `v_admin_bookings`/`v_admin_channel_stats`(수수료 포함), 비admin 매니저뷰 폴백(수수료 비노출). 응답에 `is_admin` 플래그.
+- `admin-hotel-detail.html`(루트 신설): `tw-admin-auth` 서랍, `?hotelId=`, 탭4(개요·채널별·패턴·예약상세), 헤더에 담당 매니저(이메일·이름·연락처·단계), ko/en.
+- `_admin/admin.html` 호텔목록에 '분석' 버튼 → `/admin-hotel-detail.html?hotelId=`.
+- 검증: Edge Middleware `admin-*` 자동 게이트(비인증 302) + API is_admin 분기 = 수수료 이중 방어. API 토큰없음 401 정상.
 
-### 1) API admin 분기 — `api/hotel-bookings.js`
-- `rpc/is_admin`(사용자 토큰 컨텍스트) 판정 추가. true → `v_admin_bookings`/`v_admin_channel_stats`(수수료 포함, booking_id 원문). false/실패 → `v_manager_*` 매니저뷰 폴백(수수료 비노출, 안전 기본값).
-- 응답에 `is_admin` 플래그 추가. 라이브 토큰없음 = HTTP 401 정상 확인.
+### Phase 4 — 담당 매니저 이름·연락처 (이미 충족 확인)
+- 인계서의 "signup.html 추가"는 부정확. 실제 수집 위치 = **`hotel-info.html`** — `contact_name`·`manager_position`·`contact_phone`/`whatsapp`를 필수값으로 저장 중(updateHotel). 표시는 Phase1 헤더에서 완료. → **추가 작업 없음.**
 
-### 2) 신규 페이지 — `admin-hotel-detail.html` (repo 루트)
-- `tw-admin-auth` 인증 서랍(admin-manager-hub.html 패턴) 공유. `?hotelId=` 진입.
-- 탭 4개: **개요**(예약수·GMV·우리 수수료 수익·ROI + 총숙박일·ADR) / **채널별**(채널별 예약·매출·수수료 바) / **패턴**(체크인 요일·기기·고객국가 Top — 현재 데이터로 산출) / **예약상세**(booking_id·투숙·박·국가·채널·금액·수수료·상태 테이블).
-- 헤더에 **담당 매니저 정보**(`v_hotel_manager_full`: manager_email·담당자명·연락처/whatsapp·lifecycle_stage) 표시 → ④의 "표시" 부분은 기존 데이터로 선구현됨.
-- ko/en 토글. 비admin 세션 감지 시 수수료 미표시 경고 배너.
-
-### 3) 진입로 — `_admin/admin.html` 호텔 목록
-- 각 호텔 행에 **'분석'** 버튼 추가 → `/admin-hotel-detail.html?hotelId={id}`.
-
-### 검증 통과
-- v_admin_* 뷰 컬럼 확인(commission 포함). is_admin RPC = authenticated EXECUTE 보유, anon 호출 시 false.
-- Edge Middleware(`middleware.js`)가 `admin-*` 매칭 → 새 페이지도 자동 게이트(비인증 302 /login.html, admin-manager-hub와 동일). **페이지 게이트 + API is_admin 분기 = 수수료 이중 방어.**
+### 확정 결정
+- 「마케팅전」 라벨 확정 (대표님 2026-06-02). ③ 화면 라벨로 사용.
 
 ---
 
-## 다음 작업 — BL-ADMIN-HOTEL-DETAIL Phase 2~4
+## ⛔ 점검에서 드러난 전제 (Phase 2·3의 핵심)
+- **예약 데이터 현재 0건**: `bookings_agoda`=0, `v_admin_bookings`=0. → admin-hotel-detail 화면은 지금 모든 호텔 빈 화면(틀 정상, 데이터 없음). 운영 진입 정리로 비운 것으로 추정(대표님 미확정).
+- **회차 테이블 부재**: `campaign_log` 없음. 있는 `manager_campaign_log`는 "매니저 메일 발송 로그"(stage/sent_at/resend_id…)라 회차(캠페인 기간)와 무관.
 
-② **회차(campaign_log) + 기간 4구분** — 각 회차 6개월 기준으로 예약을 마케팅전/기간/후/전체로 자동분류. → '개요'·'예약상세' 탭에 기간 필터 추가. (campaign_log 테이블 스키마 먼저 db-query로 실확인)
-③ **"마케팅 전 예약" 매칭** — 과거 데이터 호텔명+도시+국가 매칭 → admin 연결. 명칭 = 「마케팅 전 예약」(클로드 추천, 미확정).
-④ **담당 매니저 연락처 신규 수집** — `signup.html`에 담당자 이름·연락처 입력 필드 추가(현재 헤더 표시는 기존 hotel_contact_* 활용 중). DB 컬럼 존재(hotel_contact_name/phone/whatsapp) → signup 폼에서 채우도록.
+---
 
-## ❓ 여전히 미정
-1. "마케팅 전 예약" 명칭 확정 (클로드 추천=「마케팅 전 예약」).
-2. campaign_log 실제 스키마(회차 시작일·호텔 매핑 방식) — db-query로 직접 확인 필요.
+## 다음 작업 — Phase 2·3 (둘 다 데이터/결정 대기)
+
+② **회차 + 기간 4구분(마케팅전/기간/후/전체)** — 🔴 새 테이블 신설 필요.
+   - **대표님 결정 필요(②의 본질 결정)**: 회차 시작일을 (a) 호텔 `published_at`(송출 시작)으로 자동 산출할지, (b) 회차마다 수동 입력할지.
+   - 결정 후: `hotel_campaigns`(가칭) 테이블 = hotel_id·round_no·started_at·ended_at(6개월). 예약을 `booked_at` 기준 4구분 → admin-hotel-detail '개요/예약상세'에 기간 토글.
+③ **「마케팅전」 예약 매칭** — 🟡 로직 작성은 가능하나 예약 0건이라 검증 불가 → ②(회차 시작일) 확정 + 예약 데이터 충전 후 진행. 과거 예약을 호텔명+도시+국가로 매칭해 회차 시작일 이전 = 「마케팅전」 분류.
+
+## ❓ 미정
+1. 예약 데이터 0건이 의도된 빈 상태인지 (Phase2·3 전제).
+2. ② 회차 시작일 방식: 송출일 자동 vs 수동 입력.
 
 ## 다음 채팅 금지
-- 헌법 풀 fetch / admin.html(6.7천줄) 통째 인라인 출력 / 매니저 화면·응답 수수료 노출 / 메모리만 믿고 작업대상 확정
+- 헌법 풀 fetch / admin.html(6.7천줄) 통째 인라인 / 매니저 화면 수수료 노출 / 메모리만 믿고 작업대상 확정 / signup.html에 매니저 연락처 추가(이미 hotel-info.html에 있음 — 중복 금지)
 
 ---
 **호칭: 대표님. 언어: 한국어. 사업가 언어 강제(부칙18).**

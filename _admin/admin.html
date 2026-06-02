@@ -3210,6 +3210,8 @@ body{margin:0;background:var(--bg,#0A0A0F);font-family:var(--sans,'Inter','Noto 
       // BL-ADMIN-SIDEBAR-MISSING-ENTRIES (2026-05-30): 매니저 화면 진입로. impersonate(매니저 시점)는 BL-FLOW-3 라우팅 개편으로 단절 → 작동하는 admin-manager-hub.html(상세)로 통일. user_id 있는 호텔만 노출.
       if (h.user_id) html += '<a class="ad-btn ad-btn-secondary" href="/admin-manager-hub.html?id=' + encodeURIComponent(h.user_id) + '" style="margin-right:4px;text-decoration:none" title="'+((window.TW&&window.TW.lang==='ko')?'이 호텔 매니저의 허브(상세) 열기':'Open this hotel manager\'s hub (detail)')+'">'+((window.TW&&window.TW.lang==='ko')?'매니저 허브':'Manager hub')+'</a>';
       html += '<button class="ad-btn ad-btn-primary" data-hotel-id="' + esc(h.id) + '" style="margin-right:4px">View</button>';
+      // BL-ADMIN-HOTEL-DETAIL (2026-06-02): 매니저 분석 미러링 상세 분석 페이지(수수료 포함, 탭형) 진입.
+      html += '<a class="ad-btn ad-btn-secondary" href="/admin-hotel-detail.html?hotelId=' + encodeURIComponent(h.id) + '" style="margin-right:4px;text-decoration:none" title="'+((window.TW&&window.TW.lang==='ko')?'이 호텔의 예약·채널·수수료 상세 분석 열기':'Open booking / channel / commission analytics for this hotel')+'">'+((window.TW&&window.TW.lang==='ko')?'분석':'Analytics')+'</a>';
       html += '<button class="ad-btn ad-hm-menu" data-hotel-menu-id="' + esc(h.id) + '" data-hotel-status="' + esc(h.status || '') + '" data-hotel-name="' + esc(h.hotel_name || '') + '" data-manager-email="' + esc(h._resolvedManagerEmail || '') + '" data-manager-name="' + esc(h._resolvedManagerName || '') + '" style="font-size:13px;padding:4px 10px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);color:#cbd5e1;border-radius:5px;cursor:pointer">⋯</button>';
       html += '</td>';
       html += '</tr>';

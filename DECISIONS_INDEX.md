@@ -66,7 +66,7 @@
 | D-051 | 자동 로그인 기본값 '미영구(닫으면 로그아웃)'로 전환 + '로그인 유지' 체크박스 옵트인 (login.html+admin-login.html+shared.js 동일) | security | 2026-05-30 | 확정 | BL-LOGIN-PERSIST-OPTIN done, `shared.js`, `login.html`, `admin-login.html` |
 | D-052 | B2B 자동메일 영어 메인 유지 + 한국어 보류(보험), 해제 트리거=한국 인바운드 추천 채널 비중 상승 | strategy | 2026-06-02 | 확정 | BL-EMAIL-LOCALE-ROUTING(자동판별 보류), 후속 BL-EMAIL-MANAGER-LOCALE-AUTO, 채널전략 |
 | D-053 | admin 호텔 상세 = 매니저 분석 형태 미러링(별도 페이지) + 수수료 2버전(매니저 숨김/admin 표시) + 기간 4구분(마케팅전/기간/후/전체, 전체=분석 동기화) + 회차(campaign_log) + 마케팅전 예약 매칭(대표님 확정) + 매니저 이름·연락처 가입폼 추가 | feature | 2026-06-02 | 확정 | BL-ADMIN-HOTEL-DETAIL(신규), signup.html, admin-manager-hub.html, dashboard.html, _business/decisions/2026-06-02-admin-hotel-detail-d053.md |
-| D-054 | 2026-06-02 (DECISIONS.md 신규 박스) | admin 호텔상세(D-053) 실행세부 — 과거예약 복구적재 확정 + 매니저페이지 통계·예약형태 탭UX(클로드 위임) / 회차 시작일 산출은 확정대기 |
+| D-054 | 2026-06-02 (DECISIONS.md 신규 박스) | admin 호텔상세(D-053) 실행세부 — 과거예약 복구적재 확정 + 매니저페이지 통계·예약형태 탭UX(클로드 위임) + 회차 시작일=송출일 자동(클로드 위임확정) |
 
 ---
 

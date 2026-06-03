@@ -319,6 +319,26 @@ body{margin:0;background:var(--bg);font-family:var(--sans);color:var(--ink);min-
 .md-v11-tag{display:inline-block;padding:3px 8px;background:rgba(124,58,237,.18);color:var(--aurora-2);
   font-size:10.5px;font-weight:600;border-radius:99px;font-family:var(--mono);letter-spacing:.04em}
 
+/* ---- BL-MGR-DASHBOARD-V1.1: 기간 토글 + 6인사이트 ---- */
+.md-period{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:14px 0 4px}
+.md-perbtn{background:rgba(255,255,255,.05);border:1px solid var(--line-2);color:var(--ink-2);padding:7px 14px;
+  border-radius:999px;font-size:12.5px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:var(--sans)}
+.md-perbtn.on{background:var(--aurora);border-color:var(--aurora);color:#0A1628}
+.md-perbtn.off{opacity:.4;cursor:not-allowed}
+.md-perwin{margin-left:6px;font-size:11.5px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.md-perwin.warn{color:#E8C766;font-variant-numeric:normal}
+.md-insight-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:14px}
+.md-insight-card{padding:16px 18px;background:var(--glass);border:1px solid var(--line-2);border-radius:12px}
+.md-insight-label{font-size:12px;color:var(--ink-3);margin-bottom:6px;font-weight:600}
+.md-insight-value{font-size:24px;font-weight:800;color:var(--ink);font-family:var(--display);line-height:1.1}
+.md-insight-sub{font-size:11.5px;color:var(--ink-2);margin-top:5px;line-height:1.5}
+.md-bars{display:flex;flex-direction:column;gap:8px;margin-top:14px}
+.md-bar-row{display:flex;align-items:center;gap:10px}
+.md-bar-name{flex:0 0 120px;font-size:12.5px;color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.md-bar-track{flex:1;height:18px;background:rgba(255,255,255,.06);border-radius:6px;overflow:hidden}
+.md-bar-fill{height:100%;background:linear-gradient(90deg,var(--aurora),var(--aurora-2));border-radius:6px;min-width:2px}
+.md-bar-val{flex:0 0 auto;font-size:12px;color:var(--ink-3);font-variant-numeric:tabular-nums;min-width:70px;text-align:right}
+
 /* ---- Mobile ---- */
 @media (max-width: 900px){
   .md-shell{padding:0 16px}
@@ -331,6 +351,8 @@ body{margin:0;background:var(--bg);font-family:var(--sans);color:var(--ink);min-
   .md-funnel{flex-direction:column}
   .md-funnel-arrow{transform:rotate(90deg);justify-content:center;padding:4px 0}
   .md-trend-chart{height:120px}
+  .md-insight-grid{grid-template-columns:repeat(2,1fr)}
+  .md-bar-name{flex-basis:88px}
 }
 </style>
 </head>
@@ -897,6 +919,9 @@ body{margin:0;background:var(--bg);font-family:var(--sans);color:var(--ink);min-
         <button class="md-video-btn" onclick="exportAnalytics('csv')" style="margin-left:auto">⬇ CSV</button>
       </div>
 
+      <!-- 기간 토글 (BL-MGR-DASHBOARD-V1.1 · 관리자 D-054 미러링) -->
+      <div class="md-period" id="anaPeriodBar"></div>
+
       <!-- KPI 4 cards -->
       <div class="md-kpi-grid" id="analyticsKpiGrid">
         <div class="md-kpi-card">
@@ -988,34 +1013,70 @@ body{margin:0;background:var(--bg);font-family:var(--sans);color:var(--ink);min-
         </div>
       </div>
 
-      <!-- V1.1 roadmap -->
+      <!-- ===== 6 Customer Insights (BL-MGR-DASHBOARD-V1.1) ===== -->
       <div class="md-section-head" style="margin-top:24px">
-        <h3 class="md-section-title" data-en="Coming in V1.1" data-ko="곧 추가될 분석">Coming in V1.1</h3>
+        <h3 class="md-section-title" data-en="Customer Insights" data-ko="고객 인사이트 6종">Customer Insights</h3>
+        <span class="md-section-period" id="anaInsightPeriod"
+              data-en="ADR · stay · weekday · lead time · room · party — selected period"
+              data-ko="객단가·체류·요일·리드타임·객실·인원 · 선택 기간 기준">6 insights · selected period</span>
+      </div>
+
+      <!-- 핵심 지표 3종 (ADR · 평균 박수 · 리드타임) -->
+      <div class="md-insight-grid">
+        <div class="md-insight-card">
+          <div class="md-insight-label" data-en="Avg Daily Rate (ADR)" data-ko="평균 객단가 (ADR)">Avg Daily Rate (ADR)</div>
+          <div class="md-insight-value" id="anaAdr">—</div>
+          <div class="md-insight-sub" data-en="confirmed revenue ÷ nights" data-ko="확정 매출 ÷ 박야">confirmed revenue ÷ nights</div>
+        </div>
+        <div class="md-insight-card">
+          <div class="md-insight-label" data-en="Avg Stay Length" data-ko="평균 체류 박수">Avg Stay Length</div>
+          <div class="md-insight-value" id="anaAvgNights">—</div>
+          <div class="md-insight-sub" data-en="nights per booking" data-ko="예약 1건당 평균 박수">nights per booking</div>
+        </div>
+        <div class="md-insight-card">
+          <div class="md-insight-label" data-en="Avg Lead Time" data-ko="평균 예약 리드타임">Avg Lead Time</div>
+          <div class="md-insight-value" id="anaLeadTime">—</div>
+          <div class="md-insight-sub" data-en="book date → check-in" data-ko="예약일 → 체크인 간격">book date → check-in</div>
+        </div>
+      </div>
+
+      <!-- 체크인 요일 (평일/주말) -->
+      <div class="md-section-head" style="margin-top:20px">
+        <h3 class="md-section-title" data-en="Check-in by Weekday" data-ko="체크인 요일 분포">Check-in by Weekday</h3>
+        <span class="md-section-period" id="anaWeekdaySub"
+              data-en="weekday vs weekend — pricing reference" data-ko="평일·주말 비율 · 요금 정책 참고">weekday vs weekend</span>
+      </div>
+      <div class="md-card"><div class="md-bars" id="anaWeekdayBars">
+        <div class="md-empty" style="padding:18px"><div class="md-empty-msg" data-en="Loading..." data-ko="불러오는 중...">Loading...</div></div>
+      </div></div>
+
+      <!-- 객실 타입 (뷰 컬럼 자동감지 — 없으면 숨김) -->
+      <div class="md-section-head" style="margin-top:20px" id="anaRoomHead" hidden>
+        <h3 class="md-section-title" data-en="Room Type Mix" data-ko="객실 타입 분포">Room Type Mix</h3>
+        <span class="md-section-period" data-en="popular room types — operations focus" data-ko="인기 객실 타입 · 운영 강화 참고">popular room types</span>
+      </div>
+      <div class="md-card" id="anaRoomCard" hidden><div class="md-bars" id="anaRoomBars"></div></div>
+
+      <!-- 인원 구성 (뷰 컬럼 자동감지 — 없으면 숨김) -->
+      <div class="md-section-head" style="margin-top:20px" id="anaPartyHead" hidden>
+        <h3 class="md-section-title" data-en="Party Size Mix" data-ko="인원 구성 분포">Party Size Mix</h3>
+        <span class="md-section-period" data-en="guests per booking — room layout" data-ko="예약당 투숙 인원 · 객실 배치 참고">guests per booking</span>
+      </div>
+      <div class="md-card" id="anaPartyCard" hidden><div class="md-bars" id="anaPartyBars"></div></div>
+
+      <!-- 남은 로드맵 (YouTube Data API 필요) -->
+      <div class="md-section-head" style="margin-top:24px">
+        <h3 class="md-section-title" data-en="Coming Next" data-ko="곧 추가될 분석">Coming Next</h3>
         <span class="md-section-period"
-              data-en="BL-MGR-DASHBOARD-V1.1 roadmap"
-              data-ko="BL-MGR-DASHBOARD-V1.1 로드맵">BL-MGR-DASHBOARD-V1.1 roadmap</span>
+              data-en="needs YouTube Data API" data-ko="YouTube 데이터 API 연동 필요">needs YouTube Data API</span>
       </div>
       <div class="md-v11-list">
-        <div class="md-v11-item">
-          <div class="md-v11-title">📊 <span data-en="Average Daily Rate (ADR)" data-ko="평균 객단가 (ADR)">Average Daily Rate (ADR)</span></div>
-          <div class="md-v11-desc"
-               data-en="SUM(revenue USD) ÷ SUM(nights) — country comparison"
-               data-ko="SUM(매출 USD) ÷ SUM(박야) · 확정 매출 기준 · 국가별 비교">SUM(revenue) ÷ SUM(nights) — country comparison</div>
-          <span class="md-v11-tag" data-en="V1.1 planned" data-ko="V1.1 예정">V1.1 planned</span>
-        </div>
-        <div class="md-v11-item">
-          <div class="md-v11-title">📅 <span data-en="Day/Season Patterns" data-ko="인기 요일·시즌 분석">Day/Season Patterns</span></div>
-          <div class="md-v11-desc"
-               data-en="Check-in day-of-week and monthly seasonality — season pricing reference"
-               data-ko="체크인 요일·월별 패턴 · 시즌 가격·프로모션 기획 참고">Check-in day-of-week and monthly seasonality</div>
-          <span class="md-v11-tag" data-en="V1.1 planned" data-ko="V1.1 예정">V1.1 planned</span>
-        </div>
         <div class="md-v11-item">
           <div class="md-v11-title">📺 <span data-en="Channel View Trend" data-ko="채널별 조회 수 추이">Channel View Trend</span></div>
           <div class="md-v11-desc"
                data-en="8-channel cumulative views with country attribution"
                data-ko="8개 채널 영상 누적 시청 · 국가별 노출 기여도 시각화">8-channel cumulative views with country attribution</div>
-          <span class="md-v11-tag" data-en="V1.1 planned" data-ko="V1.1 예정">V1.1 planned</span>
+          <span class="md-v11-tag" data-en="planned" data-ko="예정">planned</span>
         </div>
       </div>
 
@@ -1070,10 +1131,8 @@ function setLang(lang){
     renderInquiryList();
   }
   if (window.__analyticsLoaded && window.__anaStats) {
-    renderAnalyticsKPI(window.__anaStats);
-    renderAnalyticsCountries(window.__anaCountries || [], window.__anaStats);
-    renderAnalyticsTrend(window.__anaTrend || []);
-    renderAnalyticsFunnel(window.__anaStats);
+    renderPeriodBar();
+    renderAnalytics();
   }
 }
 
@@ -2003,35 +2062,229 @@ const COUNTRY_META = {
 async function loadAnalyticsTab(){
   window.__analyticsLoaded = true;
   if (!currentHotel) return;
+  window.__anaPeriod = window.__anaPeriod || 'all';
 
-  // 1. KPI stats
+  // 1. 집계 뷰 3종 (전체 기간 기준 — D-053: 전체=서버 분석 소스 그대로)
   const { data: stats } = await sb
-    .from('v_manager_booking_stats')
-    .select('*')
-    .eq('hotel_id', currentHotel.hotel_id)
-    .maybeSingle();
+    .from('v_manager_booking_stats').select('*')
+    .eq('hotel_id', currentHotel.hotel_id).maybeSingle();
   window.__anaStats = stats || {};
-  renderAnalyticsKPI(stats);
 
-  // 2. Country distribution (4개국만, OTHER 제외)
   const { data: countries } = await sb
-    .from('v_manager_country_distribution')
-    .select('*')
+    .from('v_manager_country_distribution').select('*')
     .eq('hotel_id', currentHotel.hotel_id);
   window.__anaCountries = countries || [];
-  renderAnalyticsCountries(countries || [], stats);
 
-  // 3. Monthly trend (최근 6개월)
   const { data: trend } = await sb
-    .from('v_manager_monthly_trend')
-    .select('*')
-    .eq('hotel_id', currentHotel.hotel_id)
-    .order('month_start');
+    .from('v_manager_monthly_trend').select('*')
+    .eq('hotel_id', currentHotel.hotel_id).order('month_start');
   window.__anaTrend = trend || [];
-  renderAnalyticsTrend(trend || []);
 
-  // 4. Funnel — booking 데이터 + KPI 재사용
-  renderAnalyticsFunnel(stats);
+  // 2. 예약 원본 + 캠페인 기간 (관리자와 동일 API — 기간 필터/6인사이트용, 자동 미러링)
+  window.__anaBookings = [];
+  window.__anaCampaign = { has_campaign: false };
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    const token = session && session.access_token;
+    if (token) {
+      const resp = await fetch('/api/hotel-bookings?hotelId=' + encodeURIComponent(currentHotel.hotel_id) + '&limit=500', {
+        headers: { Authorization: 'Bearer ' + token }
+      });
+      if (resp.ok) {
+        const j = await resp.json();
+        window.__anaBookings = Array.isArray(j.bookings) ? j.bookings : [];
+        window.__anaCampaign = j.campaign || { has_campaign: false };
+      }
+    }
+  } catch (e) { console.error('[analytics] raw bookings fetch', e); }
+
+  renderPeriodBar();
+  renderAnalytics();
+}
+
+// ===== BL-MGR-DASHBOARD-V1.1: 기간 토글 (관리자 D-054 미러링) + 6인사이트 =====
+const ANA_PERIODS = [['all','전체','All'],['before','마케팅 전','Before'],['during','마케팅 기간','During'],['after','마케팅 후','After']];
+function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m])); }
+
+function renderPeriodBar(){
+  const bar = document.getElementById('anaPeriodBar');
+  if (!bar) return;
+  const camp = window.__anaCampaign || {};
+  const cur = window.__anaPeriod || 'all';
+  const ko = currentLang === 'ko';
+  let html = '';
+  ANA_PERIODS.forEach(p => {
+    const off = (p[0] !== 'all') && !camp.has_campaign;
+    const on = cur === p[0];
+    html += '<button class="md-perbtn'+(on?' on':'')+(off?' off':'')+'" data-period="'+p[0]+'"'+(off?' disabled':'')+'>'+(ko?p[1]:p[2])+'</button>';
+  });
+  if (camp.has_campaign) {
+    html += '<span class="md-perwin">'+ esc(camp.published_at||'') +' ~ '+ esc(camp.guarantee_end_at||'') +'</span>';
+  } else {
+    html += '<span class="md-perwin warn">'+ (ko?'송출일 미설정 — 기간 구분 불가':'No publish date — period split off') +'</span>';
+  }
+  bar.innerHTML = html;
+  bar.querySelectorAll('.md-perbtn').forEach(btn => {
+    if (btn.disabled) return;
+    btn.addEventListener('click', () => {
+      window.__anaPeriod = btn.getAttribute('data-period');
+      renderPeriodBar(); renderAnalytics();
+    });
+  });
+}
+
+function anaFilteredBookings(){
+  const all = window.__anaBookings || [];
+  const p = window.__anaPeriod || 'all';
+  if (p === 'all' || !(window.__anaCampaign||{}).has_campaign) return all;
+  return all.filter(b => b.period === p);
+}
+
+// raw → 집계뷰 형태 어댑터 (기간 선택 시 재집계)
+function statsFromBookings(bk){
+  let n=0, rev=0, nights=0, noshow=0, cancelled=0;
+  bk.forEach(b=>{
+    const st=String(b.status||'').toLowerCase();
+    if(st.includes('cancel')){ cancelled++; return; }
+    n++; rev+=Number(b.booking_amount_usd)||0; nights+=Number(b.nights)||0;
+    if(st.includes('noshow')||st.includes('no_show')||st.includes('no-show')) noshow++;
+  });
+  return { total_bookings:n, confirmed_revenue_usd:rev, total_nights:nights,
+           noshow_count:noshow, noshow_revenue_usd:0, cancelled_count:cancelled };
+}
+function countriesFromBookings(bk){
+  const m={};
+  bk.forEach(b=>{
+    if(String(b.status||'').toLowerCase().includes('cancel'))return;
+    const c=(b.customer_country||b.guest_country||'OTHER');
+    if(!m[c]) m[c]={ country_code:c, booking_count:0, revenue_usd:0 };
+    m[c].booking_count++; m[c].revenue_usd+=Number(b.booking_amount_usd)||0;
+  });
+  return Object.values(m);
+}
+function trendFromBookings(bk){
+  const m={};
+  bk.forEach(b=>{
+    if(String(b.status||'').toLowerCase().includes('cancel'))return;
+    const d=String(b.booked_date||b.checkin_date||'').slice(0,7); if(!d)return;
+    if(!m[d]) m[d]={ month_label:d, month_start:d+'-01', bookings:0, revenue_usd:0 };
+    m[d].bookings++; m[d].revenue_usd+=Number(b.booking_amount_usd)||0;
+  });
+  return Object.values(m).sort((a,b)=>a.month_start<b.month_start?-1:1);
+}
+
+// 전체 재렌더 — period 보고 소스 분기 (전체=뷰 / 기간=raw 재집계)
+function renderAnalytics(){
+  const p = window.__anaPeriod || 'all';
+  const useView = (p === 'all') || !(window.__anaCampaign||{}).has_campaign;
+  if (useView) {
+    renderAnalyticsKPI(window.__anaStats);
+    renderAnalyticsCountries(window.__anaCountries || [], window.__anaStats);
+    renderAnalyticsTrend(window.__anaTrend || []);
+    renderAnalyticsFunnel(window.__anaStats);
+  } else {
+    const bk = anaFilteredBookings();
+    const st = statsFromBookings(bk);
+    renderAnalyticsKPI(st);
+    renderAnalyticsCountries(countriesFromBookings(bk), st);
+    renderAnalyticsTrend(trendFromBookings(bk));
+    renderAnalyticsFunnel(st);
+  }
+  renderInsights(anaFilteredBookings());
+}
+
+// ---- 6인사이트 ----
+function anaBarRows(entries, total){
+  const max = Math.max(1, ...entries.map(e=>e[1]));
+  return entries.map(e=>{
+    const pct=(e[1]/max)*100;
+    const share = total? Math.round((e[1]/total)*100)+'%' : '0%';
+    return '<div class="md-bar-row"><div class="md-bar-name">'+esc(e[0])+'</div>'
+      +'<div class="md-bar-track"><div class="md-bar-fill" style="width:'+Math.max(2,pct)+'%"></div></div>'
+      +'<div class="md-bar-val">'+fmtNum(e[1])+(currentLang==='ko'?'건':'')+' · '+share+'</div></div>';
+  }).join('');
+}
+function anaEmptyBars(){ const ko=currentLang==='ko';
+  return '<div class="md-empty" style="padding:18px"><div class="md-empty-msg">'+(ko?'이 기간 데이터가 없습니다':'No data for this period')+'</div></div>'; }
+
+function renderInsights(bk){
+  const ko = currentLang === 'ko';
+  const valid = bk.filter(b=>!String(b.status||'').toLowerCase().includes('cancel'));
+  const n = valid.length;
+  const setText=(id,v)=>{ const el=document.getElementById(id); if(el) el.textContent=v; };
+
+  const totNights = valid.reduce((s,b)=>s+(Number(b.nights)||0),0);
+  const totRev = valid.reduce((s,b)=>s+(Number(b.booking_amount_usd)||0),0);
+  setText('anaAdr', totNights ? fmtMoney(totRev/totNights) : '—');
+  setText('anaAvgNights', n ? (totNights/n).toFixed(1)+(ko?'박':'') : '—');
+
+  let leadSum=0, leadCnt=0;
+  valid.forEach(b=>{
+    if(b.booked_date && b.checkin_date){
+      const d=(new Date(b.checkin_date)-new Date(b.booked_date))/86400000;
+      if(isFinite(d)&&d>=0){ leadSum+=d; leadCnt++; }
+    }
+  });
+  setText('anaLeadTime', leadCnt ? Math.round(leadSum/leadCnt)+(ko?'일':'d') : '—');
+
+  renderWeekdayBars(valid);
+  renderRoomBars(valid);
+  renderPartyBars(valid);
+
+  const lbl=document.getElementById('anaInsightPeriod');
+  if(lbl){
+    const pm={all:ko?'전체 기간':'All period',before:ko?'마케팅 전':'Before',during:ko?'마케팅 기간':'During',after:ko?'마케팅 후':'After'};
+    lbl.textContent=(pm[window.__anaPeriod||'all'])+' · '+(ko?fmtNum(n)+'건 기준':fmtNum(n)+' bookings');
+  }
+}
+
+function renderWeekdayBars(valid){
+  const el=document.getElementById('anaWeekdayBars'); if(!el) return;
+  const ko=currentLang==='ko';
+  const names=ko?['일','월','화','수','목','금','토']:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const cnt=[0,0,0,0,0,0,0]; let wknd=0, wkdy=0;
+  valid.forEach(b=>{
+    if(!b.checkin_date)return;
+    const d=new Date(b.checkin_date).getDay(); if(isNaN(d))return;
+    cnt[d]++; (d===0||d===6)?wknd++:wkdy++;
+  });
+  const total=wknd+wkdy;
+  const sub=document.getElementById('anaWeekdaySub');
+  if(!total){ el.innerHTML=anaEmptyBars(); if(sub) sub.textContent=ko?'데이터 없음':'No data'; return; }
+  const order=[1,2,3,4,5,6,0];
+  el.innerHTML=anaBarRows(order.map(i=>[names[i],cnt[i]]), total);
+  if(sub) sub.textContent=ko
+    ? `평일 ${fmtNum(wkdy)}건 · 주말 ${fmtNum(wknd)}건 (주말 ${Math.round(wknd/total*100)}%)`
+    : `Weekday ${fmtNum(wkdy)} · Weekend ${fmtNum(wknd)} (${Math.round(wknd/total*100)}% weekend)`;
+}
+
+function renderRoomBars(valid){
+  const head=document.getElementById('anaRoomHead'), card=document.getElementById('anaRoomCard'), el=document.getElementById('anaRoomBars');
+  const has = valid.some(b=>b.room_type!=null && b.room_type!=='');
+  if(!has){ if(head)head.hidden=true; if(card)card.hidden=true; return; }
+  if(head)head.hidden=false; if(card)card.hidden=false;
+  const m={}; let total=0;
+  valid.forEach(b=>{ const r=b.room_type; if(r==null||r==='')return; m[r]=(m[r]||0)+1; total++; });
+  const entries=Object.entries(m).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  el.innerHTML = total ? anaBarRows(entries,total) : anaEmptyBars();
+}
+
+function renderPartyBars(valid){
+  const head=document.getElementById('anaPartyHead'), card=document.getElementById('anaPartyCard'), el=document.getElementById('anaPartyBars');
+  const has = valid.some(b=>b.num_adults!=null || b.num_children!=null);
+  if(!has){ if(head)head.hidden=true; if(card)card.hidden=true; return; }
+  if(head)head.hidden=false; if(card)card.hidden=false;
+  const ko=currentLang==='ko';
+  const m={}; let total=0;
+  valid.forEach(b=>{
+    const sum=(Number(b.num_adults)||0)+(Number(b.num_children)||0);
+    if(sum<=0)return;
+    let key = sum>=4 ? (ko?'4인+':'4+ guests') : (ko?sum+'인':sum+(sum===1?' guest':' guests'));
+    m[key]=(m[key]||0)+1; total++;
+  });
+  const orderK = ko?['1인','2인','3인','4인+']:['1 guest','2 guests','3 guests','4+ guests'];
+  const entries = orderK.filter(k=>m[k]).map(k=>[k,m[k]]);
+  el.innerHTML = total ? anaBarRows(entries,total) : anaEmptyBars();
 }
 
 function renderAnalyticsKPI(s){
@@ -2188,27 +2441,47 @@ function renderAnalyticsFunnel(stats){
 
 function exportAnalytics(format){
   if (format !== 'csv') return;
-  const countries = (window.__anaCountries || []).filter(c => ['KR','JP','US','TW'].includes(c.country_code));
-  const trend = window.__anaTrend || [];
-  if (!countries.length && !trend.length) {
+  const useView = (window.__anaPeriod||'all')==='all' || !(window.__anaCampaign||{}).has_campaign;
+  const countries = useView
+    ? (window.__anaCountries || []).filter(c => ['KR','JP','US','TW'].includes(c.country_code))
+    : countriesFromBookings(anaFilteredBookings());
+  const trend = useView ? (window.__anaTrend || []) : trendFromBookings(anaFilteredBookings());
+  const bk = anaFilteredBookings().filter(b=>!String(b.status||'').toLowerCase().includes('cancel'));
+  if (!countries.length && !trend.length && !bk.length) {
     alert(currentLang === 'ko' ? '내보낼 데이터가 없습니다' : 'No data to export');
     return;
   }
   const csvEsc = v => { const s = String(v ?? ''); return /[",\n]/.test(s) ? `"${s.replace(/"/g,'""')}"` : s; };
+  const pm={all:'All',before:'Before-marketing',during:'During-marketing',after:'After-marketing'};
   const lines = [];
+  lines.push('# Period: ' + (pm[window.__anaPeriod||'all']));
+  lines.push('');
   lines.push('# Country Distribution');
   lines.push(['country_code','bookings','revenue_usd'].join(','));
   countries.forEach(c => lines.push([c.country_code, c.booking_count, c.revenue_usd].map(csvEsc).join(',')));
   lines.push('');
-  lines.push('# Monthly Trend (last 6 months)');
+  lines.push('# Monthly Trend');
   lines.push(['month','bookings','revenue_usd'].join(','));
   trend.forEach(m => lines.push([m.month_label, m.bookings, m.revenue_usd].map(csvEsc).join(',')));
+  // 6인사이트 요약
+  if (bk.length){
+    const totN=bk.reduce((s,b)=>s+(Number(b.nights)||0),0);
+    const totR=bk.reduce((s,b)=>s+(Number(b.booking_amount_usd)||0),0);
+    let leadSum=0,leadCnt=0;
+    bk.forEach(b=>{ if(b.booked_date&&b.checkin_date){ const d=(new Date(b.checkin_date)-new Date(b.booked_date))/86400000; if(isFinite(d)&&d>=0){leadSum+=d;leadCnt++;} } });
+    lines.push('');
+    lines.push('# Customer Insights');
+    lines.push(['metric','value'].join(','));
+    lines.push(['adr_usd', totN?(totR/totN).toFixed(2):''].join(','));
+    lines.push(['avg_nights', bk.length?(totN/bk.length).toFixed(2):''].join(','));
+    lines.push(['avg_lead_days', leadCnt?Math.round(leadSum/leadCnt):''].join(','));
+  }
   const csv = lines.join('\n');
   const blob = new Blob(["\ufeff" + csv], {type:'text/csv;charset=utf-8'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `analytics_${currentHotel.hotel_id}_${new Date().toISOString().slice(0,10)}.csv`;
+  a.download = `analytics_${currentHotel.hotel_id}_${(window.__anaPeriod||'all')}_${new Date().toISOString().slice(0,10)}.csv`;
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }

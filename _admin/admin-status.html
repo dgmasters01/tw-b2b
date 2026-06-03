@@ -3378,7 +3378,7 @@
           <span style="font-size:12px;">${roleIcon}</span>
           <span class="urgent-pill ${(t.priority||'P2').toLowerCase()}" style="font-size:9px;">${priLab}</span>
           <span class="urgent-pill ${statCls}" style="font-size:9px;">${statLab}</span>
-          <span style="flex:1;color:var(--text);">${escapeHtml(t.title || '')}</span>
+          <span style="flex:1;color:var(--text);">${escapeHtml(plLabel(t.id, t.title))}</span>
           <span style="color:var(--text-muted);font-size:10px;">${escapeHtml(t.id)}</span>
           <span style="color:var(--text-muted);font-size:10px;" title="${timeLabel} 시각">${timeIcon} ${timeVal}</span>
         </div>
@@ -4635,7 +4635,7 @@
             <span style="font-size:12px;">${icon}</span>
             <span class="urgent-pill ${(t.priority||'P2').toLowerCase()}" style="font-size:9px;">${priLab}</span>
             <span class="urgent-pill ${t.status || 'pending'}" style="font-size:9px;">${statLab}</span>
-            <span style="flex:1;color:var(--text);">${escapeHtml(t.title || '')}</span>
+            <span style="flex:1;color:var(--text);">${escapeHtml(plLabel(t.id, t.title))}</span>
             <span style="color:var(--text-muted);font-size:10px;">${escapeHtml(t.id)}</span>
             <span style="color:var(--text-muted);font-size:10px;" title="${timeLabel}">${timeIcon} ${timeVal}</span>
           </div>
@@ -5495,7 +5495,7 @@
           </div>
           <button type="button" class="ceo-decision-close" data-close="1" aria-label="닫기">✕</button>
         </div>
-        <div class="ceo-decision-title">${escapeHtml(task.title || '')}</div>
+        <div class="ceo-decision-title">${escapeHtml(plLabel(task.id, task.title))}</div>
 
         <!-- [BL-DECISION-MODAL-V2-PHASE-B 단계 3] 좌우 분할 grid -->
         <div class="ceo-decision-grid">
@@ -9160,7 +9160,7 @@
           <div style="display:flex;align-items:center;gap:8px;padding:6px 8px;background:rgba(15,23,42,0.4);border-radius:5px;border:1px solid rgba(99,102,241,0.15);">
             <span class="pri-pill ${priCls}" style="font-size:10px;padding:1px 6px;border-radius:3px;">${priLab}</span>
             ${statusBadge}
-            <span style="font-size:11px;flex:1;color:var(--text-1);">${escapeHtml(t.id)} — ${escapeHtml((t.title || '').slice(0, 60))}</span>
+            <span style="font-size:11px;flex:1;color:var(--text-1);">${escapeHtml(plLabel(t.id, t.title))}</span>
             ${startBtn}
           </div>
         `;

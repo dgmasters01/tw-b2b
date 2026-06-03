@@ -95,6 +95,37 @@ export default async function handler(req, res) {
     }
     const bookings = await bookingsResp.json();
 
+    // ---------- 1.5) 캠페인 기간 산출 + 예약 기간 분류 (BL-ADMIN-HOTEL-DETAIL Phase 2) ----------
+    //   송출일 = hotels.published_at(캠페인 시작) / 보장기간 = +6개월.
+    //   각 예약을 booked_date 기준 before(마케팅 전)/during(마케팅 기간)/after(마케팅 후)로 분류.
+    let campaign = { published_at: null, guarantee_end_at: null, guarantee_months: 6, has_campaign: false };
+    if (hotelId) {
+      try {
+        const hResp = await fetch(
+          `${supabaseUrl}/rest/v1/hotels?id=eq.${encodeURIComponent(hotelId)}&select=published_at`,
+          { headers: userHeaders }
+        );
+        if (hResp.ok) {
+          const hrows = await hResp.json();
+          const pub = hrows && hrows[0] && hrows[0].published_at;
+          if (pub) {
+            const start = new Date(pub);
+            const end = new Date(start);
+            end.setMonth(end.getMonth() + 6);
+            campaign = {
+              published_at: toDateStr(start),
+              guarantee_end_at: toDateStr(end),
+              guarantee_months: 6,
+              has_campaign: true,
+            };
+          }
+        }
+      } catch (_) { /* 송출일 조회 실패 시 has_campaign=false 유지 */ }
+    }
+    for (const b of bookings) {
+      b.period = classifyPeriod(b.booked_date, campaign);
+    }
+
     // ---------- 2) 채널별 집계 ----------
     let statsUrl = `${supabaseUrl}/rest/v1/${statsView}?select=*`;
     if (hotelId) statsUrl += `&hotel_id=eq.${encodeURIComponent(hotelId)}`;
@@ -127,6 +158,7 @@ export default async function handler(req, res) {
       is_admin: isAdmin,
       user: { id: me.id, email: me.email },
       filters: { hotelId: hotelId || null, from: from || null, to: to || null, limit: lim },
+      campaign,
       headline,
       channel_stats: channelStats,
       bookings,
@@ -135,6 +167,19 @@ export default async function handler(req, res) {
     console.error('hotel-bookings error:', err);
     return res.status(500).json({ error: 'Internal error', detail: String(err.message || err) });
   }
+}
+
+function toDateStr(d) {
+  try { return d.toISOString().slice(0, 10); } catch (_) { return null; }
+}
+
+// booked_date(예약일) 기준 기간 분류. 모두 YYYY-MM-DD 문자열 비교(사전순=날짜순).
+function classifyPeriod(bookedDate, campaign) {
+  if (!campaign || !campaign.has_campaign || !bookedDate) return null;
+  const bd = String(bookedDate).slice(0, 10);
+  if (bd < campaign.published_at) return 'before';
+  if (bd <= campaign.guarantee_end_at) return 'during';
+  return 'after';
 }
 
 function aggregateByChannel(rows) {

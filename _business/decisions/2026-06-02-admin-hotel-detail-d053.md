@@ -38,3 +38,21 @@
 ## 영향
 
 BL-ADMIN-HOTEL-DETAIL(신규), signup.html, admin-manager-hub.html, dashboard.html, booking-analytics.html, campaign_log, hotel-bookings API
+
+---
+
+## 후속 동기화 — D-054 (2026-06-02): 실행 세부 확정
+
+**짝:** DECISIONS_INDEX.md D-054 / DECISIONS.md 2026-06-02 박스
+**상태:** 확정 (회차 시작일 산출도 대표님 기술 위임 → Claude 확정)
+
+D-053(설계) 확정과 같은 날, 실행 세부 3가지가 확정됐다.
+
+1. **과거 예약 복구 적재** — booking-analytics.html 정적 스냅샷(약 3,774건)을 정규화 테이블 `bookings_agoda`로 적재(복구). admin-hotel-detail · admin-manager-hub 동시 가동. 소실이 아니라 보존본에서 복구하는 것.
+2. **매니저 페이지 통계·예약 형태 = 탭 방식** — 한 화면 안에서 탭으로 전환, 모바일은 1열 유지. (UX는 대표님 위임 → Claude 결정.)
+3. **회차 시작일 = 송출일(`published_at`) 자동 산출** — 필요 시 수동 수정 허용. (대표님 기술 위임 → Claude 확정 2026-06-02.) 회차 테이블 코드 진행 가능.
+
+## 왜 (D-054)
+
+- 과거 실적을 채워야 가입 호텔에게 "우리를 통해 진짜 예약이 들어왔다"를 증명할 수 있다 — 6개월 보장·0건 100% 환불 상품의 핵심 근거.
+- 매니저 통화 중 1초 파악을 위해 통계·예약을 흩지 않고 탭으로 묶는다.

@@ -1385,6 +1385,41 @@
   .pl-more-btn:hover { background: rgba(99,102,241,0.12); }
   .pl-note { font-size: 10.5px; color: var(--text-muted); }
 
+  /* 3구역(🔴 결정할것 / 🟡 만드는중 / 🟢 다됨) */
+  .pl-group { margin-bottom: 14px; }
+  .pl-group:last-child { margin-bottom: 0; }
+  .pl-group-head {
+    font-size: 12.5px; font-weight: 700; margin-bottom: 8px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .pl-group-head .pl-gcount {
+    font-size: 11px; font-weight: 600; padding: 1px 8px; border-radius: 10px;
+  }
+  .pl-group.red   .pl-group-head { color: #fca5a5; }
+  .pl-group.red   .pl-gcount { background: rgba(220,38,38,0.18); color: #fca5a5; border: 1px solid rgba(220,38,38,0.4); }
+  .pl-group.yellow .pl-group-head { color: #fcd34d; }
+  .pl-group.yellow .pl-gcount { background: rgba(202,138,4,0.18); color: #fcd34d; border: 1px solid rgba(202,138,4,0.4); }
+  .pl-group.green  .pl-group-head { color: #86efac; }
+  .pl-group.green  .pl-gcount { background: rgba(22,163,74,0.18); color: #86efac; border: 1px solid rgba(22,163,74,0.4); }
+  .pl-group-hint { font-size: 10.5px; font-weight: 400; color: var(--text-muted); }
+
+  .pl-prio {
+    font-size: 9.5px; font-weight: 700; padding: 1px 6px; border-radius: 4px; white-space: nowrap; flex-shrink: 0;
+  }
+  .pl-prio.P0 { background: rgba(220,38,38,0.2); color: #fca5a5; }
+  .pl-prio.P1 { background: rgba(234,88,12,0.18); color: #fdba74; }
+  .pl-prio.P2, .pl-prio.P3, .pl-prio.PX { background: rgba(99,102,241,0.15); color: #c7d2fe; }
+  .pl-state-txt { font-size: 11px; white-space: nowrap; flex-shrink: 0; min-width: 64px; text-align: right; }
+  .pl-state-txt.done { color: #86efac; }
+  .pl-state-txt.mid  { color: #fcd34d; }
+  .pl-state-txt.zero { color: #94a3b8; }
+  .pl-decide-btn {
+    font-size: 10px; font-weight: 600; padding: 2px 9px; border-radius: 5px;
+    background: rgba(220,38,38,0.16); border: 1px solid rgba(220,38,38,0.45); color: #fca5a5;
+    white-space: nowrap; flex-shrink: 0;
+  }
+  .pl-reason { font-size: 10.5px; color: var(--text-muted); padding: 2px 0 2px 24px; }
+
   @media (max-width: 640px) {
     .pl-cat { display: none; }
     .pl-bar-wrap { width: 56px; }
@@ -1690,7 +1725,7 @@
   <section class="policy-link" id="policy-link-card">
     <div class="pl-head">
       <span class="pill pl-pill">🔗 정책 → 작업 → 완성도</span>
-      <span class="pl-subtitle">최근 결정이 무슨 작업을 낳았고 어디까지 됐는지 — 한 줄로</span>
+      <span class="pl-subtitle">내가 정할 것 → 만드는 중 → 다 된 것, 한눈에</span>
       <span class="pl-sync" id="pl-sync" title="DECISIONS_INDEX.md 자동 동기화">⟳</span>
     </div>
     <div class="pl-list" id="pl-list">
@@ -4104,84 +4139,184 @@
     return { matched, done, total: matched.length };
   }
 
+  // 기술 제목 → 대표님이 알아듣는 쉬운 한국어로 다듬기
+  function plPlainify(text) {
+    if (!text) return '';
+    let s = String(text).trim();
+    // 맨 앞 코드 토큰 제거 (BL-XXX: / D-12 — / SQ-J:)
+    s = s.replace(/^(BL-[A-Z0-9\-]+|D-\d+|SQ-[A-Z0-9]+)\s*[:：—\-]?\s*/i, '');
+    // [핵심] 부연 → "핵심 — 부연"
+    const m = s.match(/^\[([^\]]+)\]\s*(.*)$/);
+    if (m) { const head = m[1].trim(), rest = m[2].trim(); s = rest ? `${head} — ${rest}` : head; }
+    // 남은 코드 토큰 제거
+    s = s.replace(/\b(BL-[A-Z0-9\-]+|D-\d+)\b/g, '');
+    // 기호 다듬기
+    s = s.replace(/\s*=\s*/g, ' = ').replace(/\s*→\s*/g, ' → ').replace(/\s{2,}/g, ' ');
+    s = s.replace(/^[—\-:：·\s]+/, '').trim();
+    return s || String(text);
+  }
+  // 자주 보이는 항목은 사람이 쓴 쉬운 문장으로 덮어쓰기 (id 기준)
+  const PL_PLAIN = {
+    // 결정(decision id)
+    'D-053': '관리자도 호텔별 상세 분석 화면을 볼 수 있게 만들기',
+    'D-052': '자동 발송 메일은 영어를 기본으로 (한국어는 보류)',
+    'D-051': '로그인은 창 닫으면 자동 로그아웃 (원하면 "유지" 선택)',
+    'D-050': '관리자가 매니저 화면으로 들여다보던 기능은 복원 안 함',
+    'D-049': '긴 작업 중 채팅 끊김을 자동으로 감지하는 규칙 만들기',
+    'D-048': '세금계산서(인보이스) 시스템 정책을 문서로 확정',
+    'D-047': '세금계산서 번호를 나라별로 다르게 매기는 규칙 정하기',
+    'D-039': '"시스템 완성도" 화면과 "운영" 화면의 역할 나누기',
+    // 작업(task id)
+    'BL-003-B': 'Agoda 예약 내역을 올려서 호텔별 매출 자동 정리하기',
+    'BL-TRACK-001': '유튜브 더보기 링크를 누른 사람 수를 세서 진짜 관심 호텔 알아내기',
+    'BL-MGR-DASHBOARD-V1.1': '매니저 대시보드에 고객 분석 고급 지표 더하기',
+    'BL-OS-INSTALL-PAT-FLOW': '시스템 설치할 때 비밀키를 자동으로 넣는 흐름 만들기',
+    'BL-SYNC-INPROGRESS-COMMITS': '"진행 중" 표시가 자동으로 갱신되도록 고치기',
+    'BL-SYNC-CHAT-LOGS-TAB': '채팅 기록 탭이 자동으로 갱신되도록 고치기',
+    'BL-002': '관리자 대시보드를 "할 일 모아보는 화면"으로 새로 만들기',
+    'BL-CAPTURE-BOT-RESTORE': '호텔 영상 BEFORE/AFTER 자동 캡처 봇 되살리기 + 기록 보기',
+    'BL-004': '매니저가 자기 정보를 어디까지 바꿀 수 있는지 단계별로 정하기',
+    'BL-005': '호텔 담당자가 바뀔 때 인수인계하는 기능 만들기',
+    'BL-007': '자동 알림 메일을 보내는 기능 채우기',
+    'SQ-D': '영업(sales) 페이지 디자인 새로 만들기',
+    'SQ-E': '마케팅(marketing) 페이지 디자인 새로 만들기',
+    'SQ-F': '관리자 메인(admin) 페이지 디자인 새로 만들기',
+    'BL-EVENT-SITE-FOUNDATION': '이벤트 사이트를 별도 브랜드로 새로 만들기 (도메인+디자인+호텔 송출)',
+    'BL-PRELAUNCH-CLEANUP': '정식 오픈 전 정리 — 테스트 데이터 삭제·비밀키 교체',
+    'BL-006': '호텔별 누적 매출(고객 평생가치)을 추적하는 방법 정하기',
+    'BL-012': 'PayPal 결제 검증이 끝난 뒤 다음 단계 진행',
+    'BL-013': '테스트가 끝나면 실제 결제로 전환',
+    'BL-014': '보안 — 개발용 비밀키 폐기',
+    'BL-OPS-TESTDATA-CLEANUP': '오픈 직전 테스트 계정·결제·호텔 데이터 모두 지우기',
+    'BL-SHARED-AUTH-CLEANUP': '안 쓰는 옛 로그인 코드 정리하기',
+    'BL-ADMIN-OPERATIONS-DASHBOARD': '운영 대시보드를 서비스 운영의 중심 화면으로 만들기',
+  };
+  function plLabel(id, fallback) { return PL_PLAIN[id] || plPlainify(fallback); }
+
+  // 사람 말 상태
+  function plStateWord(status) {
+    if (status === 'done') return { txt: '✅ 끝남', cls: 'done' };
+    if (status === 'in_progress') return { txt: '🔄 하는 중', cls: 'mid' };
+    if (status === 'blocked') return { txt: '🚧 막힘', cls: 'zero' };
+    return { txt: '⬜ 아직', cls: 'zero' };
+  }
+
+  // 🔴 대표님이 결정해야 풀리는 작업 (막힘 OR 승인필요 OR 선행결정 필요)
+  function plDecisionNeeded(tasks) {
+    return tasks.filter(t => {
+      if (['done', 'cancelled', 'obsoleted'].includes(t.status)) return false;
+      if (t.status === 'blocked') return true;
+      if (t.approval_required === true) return true;
+      const decs = (t.autonomous && t.autonomous.requires_decisions_first) || [];
+      return Array.isArray(decs) && decs.length > 0;
+    }).sort((a, b) => (a.priority || 'P9').localeCompare(b.priority || 'P9'));
+  }
+
   function renderPolicyLink() {
     const listEl = document.getElementById('pl-list');
     if (!listEl) return;
-    const decs = STATE.decisionsIndex;
     const data = STATE.tasksData;
-    if (!decs) { return; }
+    const decs = STATE.decisionsIndex || [];
     if (!data || !Array.isArray(data.tasks)) {
-      listEl.innerHTML = '<div class="pl-empty">작업 데이터 대기 중…</div>';
+      listEl.innerHTML = '<div class="pl-empty">불러오는 중…</div>';
       return;
     }
     const tasks = data.tasks;
-    const shown = STATE.plExpanded ? decs : decs.slice(0, PL_RECENT_N);
+    const esc = s => (s || '').replace(/[<>&]/g, c => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;' }[c]));
 
-    listEl.innerHTML = shown.map(dec => {
+    // 🔴 결정 필요
+    const red = plDecisionNeeded(tasks);
+    // 🟡/🟢 결정별 완성도 (연결작업 있는 결정만)
+    const decCalc = decs.map(dec => {
       const { matched, done, total } = plMatchTasks(dec, tasks);
-      const pct = total ? Math.round(done / total * 100) : 0;
-      let cls = 'none', barCls = 'zero', progTxt = '연결작업 미지정';
-      if (total > 0) {
-        progTxt = `${done}/${total} · ${pct}%`;
-        if (pct >= 100) { cls = 'done'; barCls = 'done'; }
-        else if (pct > 0) { cls = 'mid'; barCls = 'mid'; }
-        else { cls = 'zero'; barCls = 'zero'; }
-      }
-      const open = STATE.plOpenRows[dec.id] ? ' open' : '';
-      const detailOpen = STATE.plOpenRows[dec.id] ? ' open' : '';
-      const esc = s => (s || '').replace(/[<>&]/g, c => ({ '<':'&lt;','>':'&gt;','&':'&amp;' }[c]));
-      const taskRows = total
-        ? matched.map(t => {
-            const st = t.status === 'done' ? '✅' : (t.status === 'in_progress' ? '🔄' : (t.status === 'blocked' ? '🚧' : '⬜'));
-            const tcls = t.status === 'done' ? ' done' : '';
-            return `<div class="pl-task${tcls}"><span class="pl-task-st">${st}</span>` +
-                   `<span class="pl-task-id">${esc(t.id)}</span>` +
-                   `<span class="pl-task-title">${esc(t.title || '')}</span></div>`;
-          }).join('')
-        : '<div class="pl-detail-empty">이 결정에 tasks.json·인덱스로 연결된 작업이 아직 없습니다.</div>';
-      const barHtml = total
-        ? `<div class="pl-bar-wrap"><div class="pl-bar ${barCls}" style="width:${pct}%"></div></div>`
-        : '<div class="pl-bar-wrap"></div>';
-      return `
-        <div class="pl-row ${cls}${open}" data-did="${dec.id}">
-          <span class="pl-arrow">▸</span>
-          <span class="pl-did">${esc(dec.id)}</span>
-          <span class="pl-summary" title="${esc(dec.summary)}">${plStatusIcon(dec.status)} ${esc(dec.summary)}</span>
-          <span class="pl-cat">${esc(dec.cat)}</span>
-          ${barHtml}
-          <span class="pl-prog">${progTxt}</span>
-        </div>
-        <div class="pl-detail${detailOpen}" data-detail="${dec.id}">${taskRows}</div>`;
-    }).join('');
+      return { dec, matched, done, total, pct: total ? Math.round(done / total * 100) : 0 };
+    }).filter(x => x.total > 0);
+    const yellow = decCalc.filter(x => x.pct < 100);
+    const green = decCalc.filter(x => x.pct >= 100);
 
-    // 행 클릭 = 영향작업 펼침/접힘
-    listEl.querySelectorAll('.pl-row').forEach(row => {
+    // 🔴 행 (클릭 시 이유 펼침)
+    const redHtml = red.map(t => {
+      const prio = t.priority || 'PX';
+      const key = 'red:' + t.id;
+      const open = STATE.plOpenRows[key] ? ' open' : '';
+      let reason = '결정 정책이 정해져야 시작할 수 있어요.';
+      if (t.status === 'blocked') reason = '다른 것에 막혀 있어요 — 어떻게 풀지 정해주세요.';
+      else if (t.approval_required) reason = '대표님 승인이 있어야 진행돼요.';
+      return `
+        <div class="pl-row none${open}" data-key="${key}">
+          <span class="pl-arrow">▸</span>
+          <span class="pl-prio ${prio}">${esc(prio)}</span>
+          <span class="pl-summary" title="${esc(t.title)}">${esc(plLabel(t.id, t.title))}</span>
+          <span class="pl-decide-btn">결정 필요</span>
+        </div>
+        <div class="pl-detail${open}" data-detail="${key}"><div class="pl-reason">왜? ${esc(reason)} <span style="opacity:.6">(${esc(t.id)})</span></div></div>`;
+    }).join('') || '<div class="pl-empty">지금 대표님이 결정할 것은 없어요 👍</div>';
+
+    // 🟡 행 (클릭 시 작업 펼침)
+    const midRow = (x) => {
+      const { dec, matched, done, total, pct } = x;
+      const key = 'mid:' + dec.id;
+      const open = STATE.plOpenRows[key] ? ' open' : '';
+      const tasksHtml = matched.map(t => {
+        const w = plStateWord(t.status);
+        return `<div class="pl-task"><span class="pl-state-txt ${w.cls}" style="min-width:58px;text-align:left">${w.txt}</span><span class="pl-task-title">${esc(plLabel(t.id, t.title))}</span></div>`;
+      }).join('');
+      return `
+        <div class="pl-row mid${open}" data-key="${key}">
+          <span class="pl-arrow">▸</span>
+          <span class="pl-summary" title="${esc(dec.summary)}">${esc(plLabel(dec.id, dec.summary))}</span>
+          <span class="pl-bar-wrap"><div class="pl-bar mid" style="width:${pct}%"></div></span>
+          <span class="pl-state-txt mid">${done}/${total} 완료</span>
+        </div>
+        <div class="pl-detail${open}" data-detail="${key}">${tasksHtml}</div>`;
+    };
+    const yellowHtml = yellow.map(midRow).join('') || '<div class="pl-empty">만드는 중인 게 없어요.</div>';
+
+    // 🟢 행 (기본 접힘, 더보기로 표시)
+    const greenRow = (x) => {
+      const { dec, total } = x;
+      return `<div class="pl-row done" style="cursor:default">
+          <span class="pl-summary" title="${esc(dec.summary)}">${esc(plLabel(dec.id, dec.summary))}</span>
+          <span class="pl-state-txt done">✅ 다 됨</span>
+        </div>`;
+    };
+    const greenBody = STATE.plExpanded ? green.map(greenRow).join('') : '';
+
+    listEl.innerHTML = `
+      <div class="pl-group red">
+        <div class="pl-group-head">🔴 대표님이 먼저 결정할 것 <span class="pl-gcount">${red.length}</span> <span class="pl-group-hint">— 여기만 챙기면 돼요</span></div>
+        <div class="pl-group-body">${redHtml}</div>
+      </div>
+      <div class="pl-group yellow">
+        <div class="pl-group-head">🟡 결정했고 아직 만드는 중 <span class="pl-gcount">${yellow.length}</span></div>
+        <div class="pl-group-body">${yellowHtml}</div>
+      </div>
+      <div class="pl-group green">
+        <div class="pl-group-head">🟢 결정하고 다 만든 것 <span class="pl-gcount">${green.length}</span></div>
+        <div class="pl-group-body">${greenBody}</div>
+      </div>`;
+
+    // 행 클릭 = 펼침/접힘
+    listEl.querySelectorAll('.pl-row[data-key]').forEach(row => {
       row.addEventListener('click', () => {
-        const did = row.dataset.did;
-        STATE.plOpenRows[did] = !STATE.plOpenRows[did];
+        const key = row.dataset.key;
+        STATE.plOpenRows[key] = !STATE.plOpenRows[key];
         row.classList.toggle('open');
-        const detail = listEl.querySelector(`.pl-detail[data-detail="${did}"]`);
+        const detail = listEl.querySelector(`.pl-detail[data-detail="${key}"]`);
         if (detail) detail.classList.toggle('open');
       });
     });
 
-    // 더보기 버튼 + 안내
+    // 더보기 = 🟢 완료 목록 펼치기/접기
     const moreBtn = document.getElementById('pl-more-btn');
     const noteEl = document.getElementById('pl-note');
     if (moreBtn) {
-      if (decs.length > PL_RECENT_N) {
+      if (green.length > 0) {
         moreBtn.style.display = '';
-        moreBtn.textContent = STATE.plExpanded
-          ? '최근 결정만 보기 ▴'
-          : `전체 결정 펼치기 (${decs.length}개) ▾`;
-      } else {
-        moreBtn.style.display = 'none';
-      }
+        moreBtn.textContent = STATE.plExpanded ? '완료된 것 접기 ▴' : `완료된 것 ${green.length}개 보기 ▾`;
+      } else { moreBtn.style.display = 'none'; }
     }
-    if (noteEl) {
-      const linked = decs.filter(d => plMatchTasks(d, tasks).total > 0).length;
-      noteEl.textContent = `결정 ${decs.length}개 중 ${linked}개가 작업과 연결됨 · 인덱스 누락 결정(D-040~046)은 인덱스 동기화 후 표시`;
-    }
+    if (noteEl) noteEl.textContent = `🔴 결정할 것 ${red.length} · 🟡 만드는 중 ${yellow.length} · 🟢 완료 ${green.length}`;
   }
 
   // 더보기 토글 (1회 바인딩)

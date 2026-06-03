@@ -4203,13 +4203,14 @@
 
   // 🔴 대표님이 결정해야 풀리는 작업 (막힘 OR 승인필요 OR 선행결정 필요)
   function plDecisionNeeded(tasks) {
+    const RANK = { P0: 0, P1: 1, P2: 2, P3: 3 };
     return tasks.filter(t => {
       if (['done', 'cancelled', 'obsoleted'].includes(t.status)) return false;
       if (t.status === 'blocked') return true;
       if (t.approval_required === true) return true;
       const decs = (t.autonomous && t.autonomous.requires_decisions_first) || [];
       return Array.isArray(decs) && decs.length > 0;
-    }).sort((a, b) => (a.priority || 'P9').localeCompare(b.priority || 'P9'));
+    }).sort((a, b) => (RANK[a.priority] ?? 8) - (RANK[b.priority] ?? 8));
   }
 
   function renderPolicyLink() {

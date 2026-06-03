@@ -1,7 +1,7 @@
 {
   "overall": "red",
-  "summary": "[yellow] admin_baseline: 관리자 페이지 3개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요) / [red] decisions_sync: 결정 10건이 박혔는데 결정 기록(사람용/검색용 2벌)이 저장 안 됐어요 — _os/charter/decisions-index.md + _business/decisions/ 둘 다 박아주세요 (D5 룰)",
-  "checked_at": "2026-06-03T05:14:21.685Z",
+  "summary": "[yellow] admin_baseline: 관리자 페이지 3개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요) / [red] decisions_sync: 결정 9건이 박혔는데 결정 기록(사람용/검색용 2벌)이 저장 안 됐어요 — _os/charter/decisions-index.md + _business/decisions/ 둘 다 박아주세요 (D5 룰) / [yellow] vercel_sync: 라이브 사이트가 GitHub 새 버전(eb05f78)을 아직 못 따라잡았어요 (현재 라이브: 751dd67). 5~10분 후 자동 정상화 예정",
+  "checked_at": "2026-06-03T05:53:22.697Z",
   "checks": [
     {
       "name": "admin_baseline",
@@ -16,7 +16,7 @@
         {
           "file": "admin-status.html",
           "reason": "modified",
-          "current_sha": "5ce163bdc08e"
+          "current_sha": "545653057d48"
         },
         {
           "file": "admin.html",
@@ -38,8 +38,8 @@
       "dead_bots": [],
       "bot_status": {
         "sync-bot": "success",
-        "auto-detect-bot": "success",
-        "scan-bot": "success",
+        "auto-detect-bot": "unknown",
+        "scan-bot": "unknown",
         "chat-log-bot": "success",
         "autoheal-bot": "unknown"
       }
@@ -47,8 +47,9 @@
     {
       "name": "decisions_sync",
       "status": "red",
-      "detail": "결정 10건이 박혔는데 결정 기록(사람용/검색용 2벌)이 저장 안 됐어요 — _os/charter/decisions-index.md + _business/decisions/ 둘 다 박아주세요 (D5 룰)",
+      "detail": "결정 9건이 박혔는데 결정 기록(사람용/검색용 2벌)이 저장 안 됐어요 — _os/charter/decisions-index.md + _business/decisions/ 둘 다 박아주세요 (D5 룰)",
       "missing_source": [
+        "eb05f785 (결정 기록 2벌 저장 누락)",
         "ad23daae (결정 기록 2벌 저장 누락)",
         "c9745c5e (결정 기록 2벌 저장 누락)",
         "6940ae9b (결정 기록 2벌 저장 누락)",
@@ -56,17 +57,15 @@
         "19bd25ac (결정 기록 2벌 저장 누락)",
         "9586004e (결정 기록 2벌 저장 누락)",
         "15f81d96 (결정 기록 2벌 저장 누락)",
-        "53ee8fab (결정 기록 2벌 저장 누락)",
-        "d5630c90 (결정 기록 2벌 저장 누락)",
-        "5df72356 (결정 기록 2벌 저장 누락)"
+        "53ee8fab (결정 기록 2벌 저장 누락)"
       ]
     },
     {
       "name": "vercel_sync",
-      "status": "green",
-      "detail": "라이브 사이트가 GitHub와 같은 버전이에요 (9a788d1)",
-      "live_sha": "9a788d1",
-      "vercel_sha": "9a788d1",
+      "status": "yellow",
+      "detail": "라이브 사이트가 GitHub 새 버전(eb05f78)을 아직 못 따라잡았어요 (현재 라이브: 751dd67). 5~10분 후 자동 정상화 예정",
+      "live_sha": "eb05f78",
+      "vercel_sha": "751dd67",
       "project": "tw-b2b"
     },
     {

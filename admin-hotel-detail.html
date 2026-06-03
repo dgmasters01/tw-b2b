@@ -44,6 +44,12 @@ body{margin:0;background:var(--bg,#0A0A0F);color:var(--ink,#FAFAFA);
 .ahd-tab{background:none;border:none;color:var(--ink-3,#9aa);padding:12px 18px;font-size:14px;
   cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;font-family:var(--sans)}
 .ahd-tab.on{color:var(--ink,#FAFAFA);border-bottom-color:var(--aurora,#C9A84C);font-weight:700}
+.ahd-period{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:18px 0 2px}
+.ahd-perbtn{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);color:var(--ink-2,#cbd5e1);padding:7px 14px;border-radius:999px;font-size:12.5px;font-weight:600;cursor:pointer;white-space:nowrap}
+.ahd-perbtn.on{background:var(--aurora,#C9A84C);border-color:var(--aurora,#C9A84C);color:#0A1628}
+.ahd-perbtn.off{opacity:.4;cursor:not-allowed}
+.ahd-perwin{margin-left:6px;font-size:11.5px;color:var(--ink-3,#9aa);font-variant-numeric:tabular-nums}
+.ahd-perwin.warn{color:#E8C766;font-variant-numeric:normal}
 .ahd-panel{display:none}
 .ahd-panel.on{display:block}
 
@@ -140,7 +146,7 @@ body{margin:0;background:var(--bg,#0A0A0F);color:var(--ink,#FAFAFA);
   const hotelId = params.get('hotelId') || params.get('id');
 
   let LANG = (window.TW && window.TW.lang) ? window.TW.lang : 'ko';
-  let STATE = { meta:null, data:null, error:null, activeTab:'overview' };
+  let STATE = { meta:null, data:null, error:null, activeTab:'overview', period:'all' };
 
   const $ = (id)=>document.getElementById(id);
   function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,(c)=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
@@ -189,6 +195,12 @@ body{margin:0;background:var(--bg,#0A0A0F);color:var(--ink,#FAFAFA);
     loadErr:     {ko:'데이터를 불러오지 못했습니다: ', en:'Failed to load data: '},
     statusDone:  {ko:'완료', en:'Completed'},
     statusCancel:{ko:'취소', en:'Cancelled'},
+    perAll:      {ko:'전체', en:'All'},
+    perBefore:   {ko:'마케팅 전', en:'Before'},
+    perDuring:   {ko:'마케팅 기간', en:'During (guarantee)'},
+    perAfter:    {ko:'마케팅 후', en:'After'},
+    perWindow:   {ko:'보장기간', en:'Guarantee window'},
+    perNoCamp:   {ko:'송출일(노출 시작일)이 설정되지 않아 기간 구분을 할 수 없습니다. 관리자 콘솔에서 송출일을 입력하면 마케팅 전/기간/후가 자동 분류됩니다.', en:'No publish date set — period split unavailable. Set it in the admin console to auto-classify.'},
   };
   const tr = (k)=> (T[k] ? (isKo()?T[k].ko:T[k].en) : k);
 
@@ -226,7 +238,7 @@ body{margin:0;background:var(--bg,#0A0A0F);color:var(--ink,#FAFAFA);
       STATE.meta = metaResp.data || null;
 
       // 2) 예약 분석 (API admin 분기 → v_admin_* 사용, 수수료 포함)
-      const resp = await fetch('/api/hotel-bookings?hotelId=' + encodeURIComponent(hotelId), {
+      const resp = await fetch('/api/hotel-bookings?hotelId=' + encodeURIComponent(hotelId) + '&limit=500', {
         headers:{ Authorization:'Bearer ' + token }
       });
       const data = await resp.json();
@@ -273,6 +285,21 @@ body{margin:0;background:var(--bg,#0A0A0F);color:var(--ink,#FAFAFA);
     if(d.is_admin === false){ html += '<div class="ahd-warn">'+tr('notAdminWarn')+'</div>'; }
     html += '</div>';
 
+    // period bar (BL-ADMIN-HOTEL-DETAIL Phase 2 — 기간 4구분)
+    const camp = d.campaign || { has_campaign:false };
+    const fd = filteredData(d);
+    html += '<div class="ahd-period">';
+    [['all',tr('perAll')],['before',tr('perBefore')],['during',tr('perDuring')],['after',tr('perAfter')]].forEach(function(p){
+      const off = (!camp.has_campaign && p[0] !== 'all');
+      html += '<button class="ahd-perbtn'+(STATE.period===p[0]?' on':'')+(off?' off':'')+'" data-period="'+p[0]+'"'+(off?' disabled':'')+'>'+p[1]+'</button>';
+    });
+    if(camp.has_campaign){
+      html += '<span class="ahd-perwin">'+tr('perWindow')+': '+esc(camp.published_at)+' → '+esc(camp.guarantee_end_at)+'</span>';
+    } else {
+      html += '<span class="ahd-perwin warn">'+tr('perNoCamp')+'</span>';
+    }
+    html += '</div>';
+
     // tabs
     const tabs = [['overview',tr('tabOverview')],['channel',tr('tabChannel')],['pattern',tr('tabPattern')],['bookings',tr('tabBookings')]];
     html += '<div class="ahd-tabs">';
@@ -281,15 +308,43 @@ body{margin:0;background:var(--bg,#0A0A0F);color:var(--ink,#FAFAFA);
     });
     html += '</div>';
 
-    html += '<div class="ahd-panel'+(STATE.activeTab==='overview'?' on':'')+'" data-panel="overview">'+renderOverview(d)+'</div>';
-    html += '<div class="ahd-panel'+(STATE.activeTab==='channel'?' on':'')+'" data-panel="channel">'+renderChannel(d)+'</div>';
-    html += '<div class="ahd-panel'+(STATE.activeTab==='pattern'?' on':'')+'" data-panel="pattern">'+renderPattern(d)+'</div>';
-    html += '<div class="ahd-panel'+(STATE.activeTab==='bookings'?' on':'')+'" data-panel="bookings">'+renderBookings(d)+'</div>';
+    html += '<div class="ahd-panel'+(STATE.activeTab==='overview'?' on':'')+'" data-panel="overview">'+renderOverview(fd)+'</div>';
+    html += '<div class="ahd-panel'+(STATE.activeTab==='channel'?' on':'')+'" data-panel="channel">'+renderChannel(fd)+'</div>';
+    html += '<div class="ahd-panel'+(STATE.activeTab==='pattern'?' on':'')+'" data-panel="pattern">'+renderPattern(fd)+'</div>';
+    html += '<div class="ahd-panel'+(STATE.activeTab==='bookings'?' on':'')+'" data-panel="bookings">'+renderBookings(fd)+'</div>';
 
     root.innerHTML = html;
     root.querySelectorAll('.ahd-tab').forEach(function(btn){
       btn.addEventListener('click', function(){ STATE.activeTab = btn.getAttribute('data-tab'); render(); });
     });
+    root.querySelectorAll('.ahd-perbtn').forEach(function(btn){
+      if(btn.disabled) return;
+      btn.addEventListener('click', function(){ STATE.period = btn.getAttribute('data-period'); render(); });
+    });
+  }
+
+  // 기간 필터 (BL-ADMIN-HOTEL-DETAIL Phase 2)
+  function filteredData(d){
+    const camp = d.campaign || { has_campaign:false };
+    if(STATE.period === 'all' || !camp.has_campaign) return d; // 전체=서버 분석 소스 그대로 (D-053)
+    const fb = (d.bookings||[]).filter(function(b){ return b.period === STATE.period; });
+    return Object.assign({}, d, { bookings: fb, headline: computeHeadline(fb), channel_stats: computeChannels(fb, d.channel_stats||[]) });
+  }
+  function computeHeadline(fb){
+    var h = { booking_count:0, total_amount_usd:0, total_nights:0, total_commission_usd:0, subscription_usd:200 };
+    fb.forEach(function(b){ h.booking_count++; h.total_amount_usd+=Number(b.booking_amount_usd)||0; h.total_nights+=Number(b.nights)||0; h.total_commission_usd+=Number(b.commission_usd)||0; });
+    h.roi_multiple = h.total_amount_usd>0 ? +(h.total_amount_usd/200).toFixed(2) : 0;
+    return h;
+  }
+  function computeChannels(fb, viewStats){
+    var lang={}; (viewStats||[]).forEach(function(s){ lang[s.channel_name||s.channel_code]=s; });
+    var m={};
+    fb.forEach(function(b){
+      var key=b.channel_name||b.channel_code||(isKo()?'기타 채널':'Other');
+      var cur=m[key]||{ channel_name:key, channel_language:(lang[key]&&lang[key].channel_language)||'—', booking_count:0, gross_amount_usd:0, total_commission_usd:0 };
+      cur.booking_count++; cur.gross_amount_usd+=Number(b.booking_amount_usd)||0; cur.total_commission_usd+=Number(b.commission_usd)||0; m[key]=cur;
+    });
+    return Object.keys(m).map(function(k){return m[k];}).sort(function(a,b){return b.booking_count-a.booking_count;});
   }
 
   function statCard(label, value, sub, cls){

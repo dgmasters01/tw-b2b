@@ -1,0 +1,135 @@
+<!DOCTYPE html>\n<html lang="ko">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1.0">\n<title>GOHOTELWINNERS — 시작하기</title>\n<link rel="stylesheet" href="shared.css">\n<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>\n<script src="shared.js"></script>\n<style>
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);background-image:radial-gradient(1100px 700px at 85% -10%, rgba(124,58,237,.18), transparent),radial-gradient(900px 600px at -5% 8%, rgba(6,182,212,.13), transparent),radial-gradient(700px 500px at 50% 105%, rgba(236,72,153,.10), transparent)}
+.sl-wrap{max-width:860px;margin:0 auto;padding:22px 24px 56px}
+.sl-header{display:flex;align-items:center;justify-content:space-between;padding:6px 0 8px}
+.sl-logo{font-family:var(--display);font-weight:800;font-size:17px}
+.sl-logo-mark{background:var(--aurora);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sl-user{display:flex;align-items:center;gap:14px}.sl-lang{font-size:13px;color:var(--ink-3);cursor:pointer}
+.sl-avatar{width:34px;height:34px;border-radius:50%;background:var(--glass-2);border:1px solid var(--line-2);display:flex;align-items:center;justify-content:center;font-weight:600;font-size:14px}
+.sl-hero{text-align:center;padding:32px 0 30px}
+.sl-badge{display:inline-block;background:rgba(124,58,237,.18);color:#C9C2F7;border:1px solid rgba(124,58,237,.4);padding:5px 13px;border-radius:99px;font-size:12px;font-weight:600;margin-bottom:20px;font-family:var(--mono)}
+.sl-hero h1{font-family:var(--display);font-size:38px;font-weight:800;margin:0 0 18px;line-height:1.25}
+.sl-grad{background:var(--aurora);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sl-hero p{font-size:16px;color:var(--ink-3);line-height:1.7;margin:0;max-width:640px;margin:0 auto}.sl-hero b{color:var(--ink)}
+.sl-proof{display:flex;align-items:center;justify-content:center;gap:10px;background:var(--glass);border:1px solid var(--line-2);border-radius:var(--r-lg);padding:24px;margin-bottom:6px}
+.sl-proof-item{flex:1;text-align:center}
+.sl-proof-num{font-family:var(--display);font-size:32px;font-weight:800;background:var(--aurora);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sl-proof-lbl{font-size:12.5px;color:var(--ink-3);margin-top:4px}
+.sl-proof-div{width:1px;height:46px;background:var(--line-2)}
+.sl-proof-note{text-align:center;font-size:11.5px;color:var(--ink-4);margin-bottom:40px}
+.sl-h2{font-family:var(--display);font-size:20px;font-weight:700;text-align:center;margin:0 0 22px}
+.sl-how{display:flex;align-items:stretch;justify-content:center;gap:8px;margin-bottom:44px}
+.sl-how-card{flex:1;background:var(--glass);border:1px solid var(--line-2);border-radius:var(--r-lg);padding:22px 18px;text-align:center;position:relative}
+.sl-how-n{position:absolute;top:12px;left:14px;width:22px;height:22px;border-radius:50%;background:var(--aurora);color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.sl-how-ic{font-size:30px;margin-bottom:10px}.sl-how-t{font-size:15px;font-weight:700;margin-bottom:8px}.sl-how-d{font-size:12.5px;color:var(--ink-3);line-height:1.6}
+.sl-how-arrow{display:flex;align-items:center;color:var(--ink-4);font-size:20px}
+.sl-channels{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:44px}
+.sl-ch-group{background:var(--glass);border:1px solid var(--line-2);border-radius:var(--r-lg);padding:20px}
+.sl-ch-head{font-size:15px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.sl-ch-tag{font-size:10.5px;font-weight:600;padding:2px 8px;border-radius:99px;font-family:var(--mono)}
+.sl-ch-tag.main{background:rgba(124,58,237,.2);color:#C9C2F7}.sl-ch-tag.glob{background:rgba(6,182,212,.18);color:#67E8F9}
+.sl-ch-list{font-size:13px;color:var(--ink-3);line-height:1.7}
+.sl-price{background:linear-gradient(135deg, rgba(124,58,237,.2), rgba(6,182,212,.13));border:1px solid var(--line-3);border-radius:var(--r-lg);padding:28px 30px;margin-bottom:20px}
+.sl-price-top{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:22px;flex-wrap:wrap}
+.sl-price-num{font-family:var(--display);font-size:40px;font-weight:800}.sl-price-unit{font-size:18px;color:var(--ink-3);font-weight:600}
+.sl-price-sub{font-size:13.5px;color:var(--ink-2);margin-top:4px}
+.sl-guarantee{text-align:right;font-size:13px;color:var(--ink-2);line-height:1.5}.sl-guarantee b{color:#34D399;font-size:15px}
+.sl-cta{width:100%;background:var(--aurora);color:#fff;border:none;border-radius:12px;padding:17px;font-size:17px;font-weight:700;font-family:var(--sans);cursor:pointer}
+.sl-cta.locked{filter:grayscale(.3) opacity(.85)}
+.sl-cta-note{text-align:center;font-size:12.5px;color:var(--ink-3);margin-top:12px}
+.sl-help{text-align:center;font-size:13px;color:var(--ink-3)}.sl-help a{color:#C9C2F7;text-decoration:none;font-weight:600}
+@media (max-width:720px){.sl-hero h1{font-size:28px}.sl-how{flex-direction:column}.sl-how-arrow{transform:rotate(90deg);justify-content:center}.sl-channels{grid-template-columns:1fr}.sl-price-top{flex-direction:column;align-items:flex-start}.sl-guarantee{text-align:left}}
+</style>\n</head>\n<body>\n<div class="sl-wrap">
+  <header class="sl-header">
+    <div class="sl-logo"><span class="sl-logo-mark">GO</span>HOTELWINNERS</div>
+    <div class="sl-user"><span class="sl-lang" id="slLang">한국어</span><div class="sl-avatar" id="slAvatar">·</div></div>
+  </header>
+
+  <section class="sl-hero">
+    <div class="sl-badge" data-ko="정보 입력 완료 · 마지막 단계" data-en="Info complete · final step">정보 입력 완료 · 마지막 단계</div>
+    <h1 data-ko-html="영상 한 편이<br><span class='sl-grad'>전 세계 예약</span>을 만듭니다" data-en-html="One video drives<br><span class='sl-grad'>bookings worldwide</span>">영상 한 편이<br><span class="sl-grad">전 세계 예약</span>을 만듭니다</h1>
+    <p data-ko-html="한국·일본·대만·베트남·영어권 여행자가 <b id='slHotelName'>당신의 호텔</b>을 발견하고 예약합니다.<br>영상은 한 번 올리면 <b>6개월간 계속</b> 노출됩니다.">한국·일본·대만·베트남·영어권 여행자가 <b id="slHotelName">당신의 호텔</b>을 발견하고 예약합니다.<br>영상은 한 번 올리면 <b>6개월간 계속</b> 노출됩니다.</p>
+  </section>
+
+  <section class="sl-proof">
+    <div class="sl-proof-item"><div class="sl-proof-num">9M+</div><div class="sl-proof-lbl" data-ko="누적 영상 조회" data-en="Total views">누적 영상 조회</div></div>
+    <div class="sl-proof-div"></div>
+    <div class="sl-proof-item"><div class="sl-proof-num">3,774</div><div class="sl-proof-lbl" data-ko="발생 예약 건수" data-en="Bookings driven">발생 예약 건수</div></div>
+    <div class="sl-proof-div"></div>
+    <div class="sl-proof-item"><div class="sl-proof-num">$854K</div><div class="sl-proof-lbl" data-ko="누적 예약 매출" data-en="Booking revenue">누적 예약 매출</div></div>
+  </section>
+  <div class="sl-proof-note" data-ko="※ 예시 수치 — 실제 누적 성과로 추후 연결" data-en="* Sample figures — to be linked to live totals">※ 예시 수치 — 실제 누적 성과로 추후 연결</div>
+
+  <h2 class="sl-h2" data-ko="어떻게 예약이 만들어지나요?" data-en="How bookings happen">어떻게 예약이 만들어지나요?</h2>
+  <section class="sl-how">
+    <div class="sl-how-card"><div class="sl-how-n">1</div><div class="sl-how-ic">🎬</div><div class="sl-how-t" data-ko="영상 제작" data-en="We film">영상 제작</div><div class="sl-how-d" data-ko-html="우리 제작팀이 당신 호텔의<br>매력을 담은 영상을 만듭니다" data-en-html="Our team produces<br>your hotel's video">우리 제작팀이 당신 호텔의<br>매력을 담은 영상을 만듭니다</div></div>
+    <div class="sl-how-arrow">→</div>
+    <div class="sl-how-card"><div class="sl-how-n">2</div><div class="sl-how-ic">📡</div><div class="sl-how-t" data-ko="8채널 송출" data-en="8 channels">8채널 송출</div><div class="sl-how-d" data-ko-html="6개 언어 채널에 게시<br>한 번 올리면 계속 노출" data-en-html="6 languages, always on">6개 언어 채널에 게시<br>한 번 올리면 계속 노출</div></div>
+    <div class="sl-how-arrow">→</div>
+    <div class="sl-how-card"><div class="sl-how-n">3</div><div class="sl-how-ic">🏨</div><div class="sl-how-t" data-ko="예약 발생" data-en="Bookings">예약 발생</div><div class="sl-how-d" data-ko-html="아고다 링크로 직접 예약<br>100% 우리 채널 경유 추적" data-en-html="Via Agoda · 100% tracked">아고다 링크로 직접 예약<br>100% 우리 채널 경유 추적</div></div>
+  </section>
+
+  <h2 class="sl-h2" data-ko="6개 언어 · 8개 채널이 당신 호텔을 알립니다" data-en="6 languages · 8 channels">6개 언어 · 8개 채널이 당신 호텔을 알립니다</h2>
+  <section class="sl-channels">
+    <div class="sl-ch-group"><div class="sl-ch-head">🇰🇷 <span data-ko="한국 4채널" data-en="Korea 4ch">한국 4채널</span> <span class="sl-ch-tag main" data-ko="메인 시장" data-en="Main">메인 시장</span></div><div class="sl-ch-list" data-ko="한국어 여행 채널 4개 · 한국 관광객이 당신 호텔을 예약합니다" data-en="4 Korean travel channels">한국어 여행 채널 4개 · 한국 관광객이 당신 호텔을 예약합니다</div></div>
+    <div class="sl-ch-group"><div class="sl-ch-head">🌏 <span data-ko="해외 4채널" data-en="Global 4ch">해외 4채널</span> <span class="sl-ch-tag glob" data-ko="글로벌 확장" data-en="Global">글로벌 확장</span></div><div class="sl-ch-list">🇯🇵 <span data-ko="일본" data-en="Japan">일본</span> · 🇹🇼 <span data-ko="대만" data-en="Taiwan">대만</span> · 🇻🇳 <span data-ko="베트남" data-en="Vietnam">베트남</span> · 🇺🇸 <span data-ko="영어권" data-en="English">영어권</span></div></div>
+  </section>
+
+  <section class="sl-price">
+    <div class="sl-price-top">
+      <div><div class="sl-price-num">$200<span class="sl-price-unit" data-ko=" · 한 번" data-en=" · once"> · 한 번</span></div><div class="sl-price-sub" data-ko="6개월 노출 보장 · 추가 비용 없음" data-en="6-month guarantee · no extra cost">6개월 노출 보장 · 추가 비용 없음</div></div>
+      <div class="sl-guarantee" data-ko-html="🛡️ 예약 0건이면<br><b>100% 환불</b>" data-en-html="🛡️ 0 bookings →<br><b>100% refund</b>">🛡️ 예약 0건이면<br><b>100% 환불</b></div>
+    </div>
+    <button class="sl-cta" id="slPayBtn" data-ko="결제하고 시작하기 →" data-en="Pay & start →">결제하고 시작하기 →</button>
+    <div class="sl-cta-note" id="slPayNote" data-ko="🔒 호텔 승인 후 결제가 진행됩니다 · 승인까지 보통 1~2 영업일" data-en="🔒 Payment opens after approval · usually 1-2 business days">🔒 호텔 승인 후 결제가 진행됩니다 · 승인까지 보통 1~2 영업일</div>
+  </section>
+
+  <div class="sl-help"><span data-ko="궁금한 점이 있으신가요?" data-en="Questions?">궁금한 점이 있으신가요?</span> <a href="/manager-dashboard.html" data-ko="문의하기 →" data-en="Contact →">문의하기 →</a></div>
+</div>\n<script>
+let slLang = localStorage.getItem('md_lang') || 'ko';
+function slApplyLang(){
+  document.querySelectorAll('[data-ko]').forEach(function(el){ el.textContent = slLang==='ko'?el.getAttribute('data-ko'):el.getAttribute('data-en'); });
+  document.querySelectorAll('[data-ko-html]').forEach(function(el){ el.innerHTML = slLang==='ko'?el.getAttribute('data-ko-html'):el.getAttribute('data-en-html'); });
+  var l=document.getElementById('slLang'); if(l) l.textContent = slLang==='ko'?'한국어':'English';
+}
+document.getElementById('slLang').addEventListener('click', function(){ slLang = slLang==='ko'?'en':'ko'; localStorage.setItem('md_lang', slLang); slApplyLang(); });
+
+function slPayLocked(){ alert(slLang==='ko' ? '승인이 완료되면 결제하실 수 있습니다. 보통 1~2 영업일 내 승인됩니다.' : 'Payment opens once your hotel is approved (usually 1-2 business days).'); }
+function slPayOpen(){ alert(slLang==='ko' ? '결제를 진행합니다. (결제 연동은 추후 연결)' : 'Proceeding to payment. (Gateway to be connected)'); }
+
+async function slInit(){
+  slApplyLang();
+  var sb = window.TW && window.TW.sb;
+  var btn = document.getElementById('slPayBtn');
+  var note = document.getElementById('slPayNote');
+  if(!sb){ btn.onclick = slPayLocked; return; }
+  try{
+    var sess = await sb.auth.getSession();
+    var session = sess && sess.data && sess.data.session;
+    if(!session){ window.location.href = '/login.html?redirect=/manager-appeal.html'; return; }
+    var av = document.getElementById('slAvatar');
+    if(av && session.user && session.user.email) av.textContent = session.user.email.charAt(0).toUpperCase();
+
+    var res = await sb.from('v_manager_hotels').select('*').maybeSingle();
+    var hotel = res && res.data;
+    if(hotel){
+      var nm = document.getElementById('slHotelName');
+      if(nm && hotel.hotel_name) nm.textContent = hotel.hotel_name;
+      if(hotel.paid_at){ window.location.replace('/manager-dashboard.html'); return; }
+      var st = (hotel.hotel_status || '').toLowerCase();
+      var approved = !!hotel.approved_at || st === 'approved';
+      if(approved){
+        btn.onclick = slPayOpen;
+        note.setAttribute('data-ko','✓ 승인 완료 — 지금 결제하실 수 있습니다');
+        note.setAttribute('data-en','✓ Approved — you can pay now');
+        slApplyLang();
+        return;
+      }
+    }
+    btn.classList.add('locked');
+    btn.onclick = slPayLocked;
+  }catch(e){ btn.onclick = slPayLocked; }
+}
+slInit();
+</script>\n</body>\n</html>

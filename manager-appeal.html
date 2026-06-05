@@ -1,4 +1,13 @@
-<!DOCTYPE html>\n<html lang="ko">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1.0">\n<title>GOHOTELWINNERS — 시작하기</title>\n<link rel="stylesheet" href="shared.css">\n<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>\n<script src="shared.js"></script>\n<style>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GOHOTELWINNERS — 시작하기</title>
+<link rel="stylesheet" href="shared.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="shared.js"></script>
+<style>
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);background-image:radial-gradient(1100px 700px at 85% -10%, rgba(124,58,237,.18), transparent),radial-gradient(900px 600px at -5% 8%, rgba(6,182,212,.13), transparent),radial-gradient(700px 500px at 50% 105%, rgba(236,72,153,.10), transparent)}
 .sl-wrap{max-width:860px;margin:0 auto;padding:22px 24px 56px}
@@ -40,7 +49,10 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);back
 .sl-cta-note{text-align:center;font-size:12.5px;color:var(--ink-3);margin-top:12px}
 .sl-help{text-align:center;font-size:13px;color:var(--ink-3)}.sl-help a{color:#C9C2F7;text-decoration:none;font-weight:600}
 @media (max-width:720px){.sl-hero h1{font-size:28px}.sl-how{flex-direction:column}.sl-how-arrow{transform:rotate(90deg);justify-content:center}.sl-channels{grid-template-columns:1fr}.sl-price-top{flex-direction:column;align-items:flex-start}.sl-guarantee{text-align:left}}
-</style>\n</head>\n<body>\n<div class="sl-wrap">
+</style>
+</head>
+<body>
+<div class="sl-wrap">
   <header class="sl-header">
     <div class="sl-logo"><span class="sl-logo-mark">GO</span>HOTELWINNERS</div>
     <div class="sl-user"><span class="sl-lang" id="slLang">한국어</span><div class="sl-avatar" id="slAvatar">·</div></div>
@@ -86,7 +98,8 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);back
   </section>
 
   <div class="sl-help"><span data-ko="궁금한 점이 있으신가요?" data-en="Questions?">궁금한 점이 있으신가요?</span> <a href="/manager-dashboard.html" data-ko="문의하기 →" data-en="Contact →">문의하기 →</a></div>
-</div>\n<script>
+</div>
+<script>
 let slLang = localStorage.getItem('md_lang') || 'ko';
 function slApplyLang(){
   document.querySelectorAll('[data-ko]').forEach(function(el){ el.textContent = slLang==='ko'?el.getAttribute('data-ko'):el.getAttribute('data-en'); });
@@ -132,4 +145,6 @@ async function slInit(){
   }catch(e){ btn.onclick = slPayLocked; }
 }
 slInit();
-</script>\n</body>\n</html>
+</script>
+</body>
+</html>

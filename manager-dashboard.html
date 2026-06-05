@@ -1216,6 +1216,13 @@ async function init(){
     return;
   }
   currentHotel = hotels[0];
+
+  // BL-MGR-PAYGATE: 미결제(승인/결제 전)면 대시보드 대신 매력 어필·결제 유도 페이지로
+  if (!currentHotel.paid_at) {
+    window.location.replace('/manager-appeal.html');
+    return;
+  }
+
   renderHotelCard(currentHotel);
   renderPipeline(currentHotel);
   await loadKPIs(currentHotel.hotel_id);

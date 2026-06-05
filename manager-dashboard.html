@@ -8,6 +8,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="shared.js"></script>
 <style>
+body{visibility:hidden}
 /* =====================================================================
    manager-dashboard.html — BL-MGR-DASHBOARD-V1 stage 3
    ===================================================================== */
@@ -1212,6 +1213,7 @@ async function init(){
 
   if (hErr) { console.error('hotels fetch error', hErr); }
   if (!hotels || hotels.length === 0) {
+    document.body.style.visibility = 'visible';
     renderNoHotel();
     return;
   }
@@ -1223,6 +1225,7 @@ async function init(){
     return;
   }
 
+  document.body.style.visibility = 'visible';
   renderHotelCard(currentHotel);
   renderPipeline(currentHotel);
   await loadKPIs(currentHotel.hotel_id);
@@ -2494,7 +2497,11 @@ function exportAnalytics(format){
 }
 
 // ---- Boot ----
-document.addEventListener('DOMContentLoaded', init);
+document.addEventListener('DOMContentLoaded', function(){
+  // 안전장치: init 중 오류로 화면이 숨겨진 채 멈추는 것 방지
+  init().catch(function(e){ console.error('init failed', e); document.body.style.visibility = 'visible'; });
+  setTimeout(function(){ document.body.style.visibility = 'visible'; }, 4000);
+});
 </script>
 
 </body>

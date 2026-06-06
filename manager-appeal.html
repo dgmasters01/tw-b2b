@@ -48,6 +48,13 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);back
 .sl-cta.locked{filter:grayscale(.3) opacity(.85)}
 .sl-cta-note{text-align:center;font-size:12.5px;color:var(--ink-3);margin-top:12px}
 .sl-help{text-align:center;font-size:13px;color:var(--ink-3)}.sl-help a{color:#C9C2F7;text-decoration:none;font-weight:600}
+.sl-modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.62);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:1000;padding:20px}
+.sl-modal-ov[hidden]{display:none}
+.sl-modal{background:var(--bg-2);border:1px solid var(--line-2);border-radius:var(--r-lg);padding:30px 28px;max-width:400px;width:100%;text-align:center;box-shadow:0 24px 70px rgba(0,0,0,.55)}
+.sl-modal-ic{font-size:38px;margin-bottom:14px}
+.sl-modal-title{font-family:var(--display);font-size:19px;font-weight:700;margin-bottom:10px}
+.sl-modal-msg{font-size:14px;color:var(--ink-3);line-height:1.7;margin-bottom:24px}
+.sl-modal-btn{background:var(--aurora);color:#fff;border:none;border-radius:10px;padding:12px 40px;font-size:15px;font-weight:700;cursor:pointer;font-family:var(--sans)}
 @media (max-width:720px){.sl-hero h1{font-size:28px}.sl-how{flex-direction:column}.sl-how-arrow{transform:rotate(90deg);justify-content:center}.sl-channels{grid-template-columns:1fr}.sl-price-top{flex-direction:column;align-items:flex-start}.sl-guarantee{text-align:left}}
 </style>
 </head>
@@ -99,6 +106,14 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);back
 
   <div class="sl-help"><span data-ko="궁금한 점이 있으신가요?" data-en="Questions?">궁금한 점이 있으신가요?</span> <a href="/manager-dashboard.html" data-ko="문의하기 →" data-en="Contact →">문의하기 →</a></div>
 </div>
+<div class="sl-modal-ov" id="slModal" hidden onclick="if(event.target===this)slCloseModal()">
+  <div class="sl-modal">
+    <div class="sl-modal-ic" id="slModalIc">🔒</div>
+    <div class="sl-modal-title" id="slModalTitle"></div>
+    <div class="sl-modal-msg" id="slModalMsg"></div>
+    <button class="sl-modal-btn" id="slModalBtn" onclick="slCloseModal()">확인</button>
+  </div>
+</div>
 <script>
 let slLang = localStorage.getItem('md_lang') || 'ko';
 function slApplyLang(){
@@ -108,8 +123,16 @@ function slApplyLang(){
 }
 document.getElementById('slLang').addEventListener('click', function(){ slLang = slLang==='ko'?'en':'ko'; localStorage.setItem('md_lang', slLang); slApplyLang(); });
 
-function slPayLocked(){ alert(slLang==='ko' ? '승인이 완료되면 결제하실 수 있습니다. 보통 1~2 영업일 내 승인됩니다.' : 'Payment opens once your hotel is approved (usually 1-2 business days).'); }
-function slPayOpen(){ alert(slLang==='ko' ? '결제를 진행합니다. (결제 연동은 추후 연결)' : 'Proceeding to payment. (Gateway to be connected)'); }
+function slShowModal(ic, titleKo, titleEn, msgKo, msgEn){
+  document.getElementById('slModalIc').textContent = ic;
+  document.getElementById('slModalTitle').textContent = slLang==='ko'?titleKo:titleEn;
+  document.getElementById('slModalMsg').textContent = slLang==='ko'?msgKo:msgEn;
+  document.getElementById('slModalBtn').textContent = slLang==='ko'?'확인':'OK';
+  document.getElementById('slModal').hidden = false;
+}
+function slCloseModal(){ document.getElementById('slModal').hidden = true; }
+function slPayLocked(){ slShowModal('🔒','승인 후 결제 가능','Payment after approval','호텔 승인이 완료되면 결제하실 수 있습니다. 보통 1~2 영업일 안에 승인되며, 완료되면 메일로 알려드립니다.','Payment opens once your hotel is approved — usually within 1-2 business days. We will email you when it is ready.'); }
+function slPayOpen(){ slShowModal('💳','결제 진행','Proceed to payment','결제 페이지로 이동합니다. (결제 연동은 추후 연결됩니다)','Proceeding to checkout. (Payment gateway to be connected)'); }
 
 async function slInit(){
   slApplyLang();

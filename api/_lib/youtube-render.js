@@ -107,7 +107,12 @@ function buildHashtags(rule, map, warnings) {
 
 /* ─────────────── 키워드 ─────────────── */
 
-function buildKeywords(m, rule, map, extras, warnings) {
+/**
+ * 슬롯 템플릿만으로 만든 기반 키워드. (300~335자)
+ * 실측 확장은 youtube-keywords.js 가 이 결과를 받아서 한다.
+ */
+export function buildSlotItems(m, rule, extras = {}, warnings = []) {
+  const map = tokenMap(m, extras);
   const hotelNames = [1, 2, 3].map((r) => m.hotels.find((h) => h.rank === r)?.nameKo).filter(Boolean);
   const map2 = { ...map, '[호텔명1]': hotelNames[0], '[호텔명2]': hotelNames[1], '[호텔명3]': hotelNames[2] };
 
@@ -122,9 +127,12 @@ function buildKeywords(m, rule, map, extras, warnings) {
     if (!items.includes(v)) items.push(v);
   }
   for (const extra of extras.keywords || []) if (!items.includes(extra)) items.push(extra);
-
   if (dropped.length) warnings.push(`키워드 ${dropped.length}개를 못 만들어 뺐습니다: ${dropped.join(' / ')}`);
+  return items;
+}
 
+function buildKeywords(m, rule, map, extras, warnings) {
+  const items = buildSlotItems(m, rule, extras, warnings);
   const text = items.join(', ');
   const len = [...text].length;
   const [lo, hi] = rule.keywordLen;
@@ -353,8 +361,10 @@ const BODY = { 여행능력자들: bodyTW, 호텔이야: bodyHY, 호텔이곳: b
 /**
  * @param {object} manuscript parseManuscript() 결과 (+ links, extras)
  * @param {object} rule       loadRules() 의 채널 규칙
+ * @param {object} [opts]     opts.keywords = youtube-keywords.js 의 실측 결과.
+ *                            주면 슬롯 계산 대신 그걸 쓴다. 안 주면 예전대로 슬롯만.
  */
-export function render(manuscript, rule) {
+export function render(manuscript, rule, opts = {}) {
   const warnings = [...manuscript.warnings];
   const extras = manuscript.extras || {};
   const m = { ...manuscript, extras };
@@ -381,7 +391,8 @@ export function render(manuscript, rule) {
   const { titles, recommended } = buildTitles(m, rule, map, warnings);
   const filename = buildFilename(rule, map, warnings);
   const hashtags = buildHashtags(rule, map, warnings);
-  const kw = buildKeywords(m, rule, map, extras, warnings);
+  const kw = opts.keywords || buildKeywords(m, rule, map, extras, warnings);
+  if (opts.keywords?.warnings) warnings.push(...opts.keywords.warnings);
   const description = BODY[rule.channel](m, hashtags, warnings);
 
   const hid = (r) => (/[?&]hid=(\d+)/.exec(m.links?.[`top${r}`] || '') || [])[1] || null;
@@ -398,6 +409,9 @@ export function render(manuscript, rule) {
     hashtags,
     keywords: kw.keywords,
     keywordLength: kw.keywordLength,
+    // 왜 이 어형을 넣고 저 어형을 뺐는지. 실측 근거 (키워드-실측.md §6)
+    keywordEvidence: kw.evidence || null,
+    keywordMeasuredDay: kw.measuredDay || null,
     // publications 장부에 그대로 넣을 수 있는 한 줄
     publicationRow: {
       channel_code: { 여행능력자들: 'TW', 호텔이야: 'HT', 호텔이곳: 'HG' }[rule.channel],

@@ -58,7 +58,7 @@ export function _resetKwRulesCache() { _kwRuleCache = null; }
 /* ═════════════ 2. 실측 장부 읽기 ═════════════ */
 
 /** 따옴표 없는 단순 CSV. 장부는 우리가 쓴다. */
-function parseCsv(text) {
+export function parseCsv(text) {
   const lines = text.replace(/^\uFEFF/, '').split(/\r?\n/).filter((l) => l.trim());
   if (!lines.length) return [];
   const head = lines[0].split(',').map((s) => s.trim());
@@ -69,6 +69,8 @@ function parseCsv(text) {
     return o;
   });
 }
+
+export const CSV_COLUMNS = ['키워드', '자동완성순위', '경쟁영상수', '기회점수', '살아있나', '측정일'];
 
 const num = (v) => {
   const n = Number(v);
@@ -96,6 +98,7 @@ export async function loadMeasured(root, city) {
       score: num(r['기회점수']) ?? 0,
       alive: r['살아있나'] === '○',
       variant: r['자동완성순위'] === '변형',
+      joined: r['자동완성순위'] === '붙여쓰기',
       day: r['측정일'] || null,
     });
   }
@@ -105,7 +108,7 @@ export async function loadMeasured(root, city) {
 /* ═════════════ 3. 허용 토큰 ═════════════ */
 
 /** 원고에서 나온 토큰 ∪ 문서가 정한 일반 토큰. 이 밖의 어절이 있으면 버린다. */
-function allowedTokens(m, kwRules) {
+export function allowedTokens(m, kwRules) {
   const t = new Set(kwRules.generalTokens);
   for (const v of [m.country, m.city, m.station, ...(m.regions || [])]) {
     if (v) t.add(v);
@@ -114,8 +117,8 @@ function allowedTokens(m, kwRules) {
   return t;
 }
 
-const tokensOf = (kw) => kw.split(/\s+/).filter(Boolean);
-const tokensAllowed = (kw, allow) => tokensOf(kw).every((tk) => allow.has(tk));
+export const tokensOf = (kw) => kw.split(/\s+/).filter(Boolean);
+export const tokensAllowed = (kw, allow) => tokensOf(kw).every((tk) => allow.has(tk));
 
 /* ═════════════ 4. 측정 (장부 우선, 라이브는 대비책) ═════════════ */
 
@@ -245,7 +248,7 @@ export async function buildMeasuredKeywords({ m, rule, slotItems, root, live = f
   const kwRules = await loadKwRules(root);
   const book = await loadMeasured(root, m.city);
   if (!book.size && !live) {
-    warnings.push(`실측 장부 _content/youtube/keywords/${m.city}.csv 가 없습니다. 슬롯 키워드만으로 냈습니다. live:true 로 부르거나 kwtool.py 로 장부를 만들어주세요.`);
+    warnings.push(`실측 장부 _content/youtube/keywords/${m.city}.csv 가 없습니다. 슬롯 키워드만으로 냈습니다. POST /api/youtube-book 으로 ${m.city} 장부를 만든 뒤 다시 넣어주세요. (키워드-실측.md §7-1)`);
   }
   const { measure, seedSuggest } = makeMeter(book, live);
   const allow = allowedTokens(m, kwRules);

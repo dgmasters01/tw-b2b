@@ -48,6 +48,14 @@ function fill(tpl, map) {
 
 const squeeze = (s) => s.replace(/[ \t]{2,}/g, ' ').replace(/ ,/g, ',').trim();
 
+/** 받침이 있으면 '을', 없으면 '를'. (…객실 관리를 / …환경을) */
+function objectParticle(word) {
+  const last = word.trim().slice(-1);
+  const code = last.charCodeAt(0);
+  if (code < 0xac00 || code > 0xd7a3) return '을';
+  return (code - 0xac00) % 28 === 0 ? '를' : '을';
+}
+
 /* ─────────────── 제목 ─────────────── */
 
 function buildTitles(m, rule, map, warnings) {
@@ -218,12 +226,13 @@ function bodyTW(m, tags, warnings) {
   const L = [];
   L.push(`${m.city} ${m.region} ${m.priceBand} 가성비 ${m.star}성급 호텔 TOP3 추천합니다.`);
   L.push('');
-  L.push(`${c[0]}, ${c[1]}, ${c[2]}을 기준으로 ${m.region} ${m.star}성급 호텔을 비교해 선정했어요. (가격은 ${md(m.dateRange)} ${np.pax ?? NEEDS}인 기준)`);
+  L.push(`${c[0]}, ${c[1]}, ${c[2]}${objectParticle(c[2])} 기준으로 ${m.region} ${m.star}성급 호텔을 비교해 선정했어요. (가격은 ${md(m.dateRange)} ${np.pax ?? NEEDS}인 기준)`);
   L.push('');
   L.push('━━━━━━━━━━━━━━━');
+  const MEDAL = { 1: '🥇', 2: '🥈', 3: '🥉' }; // 여행능력자들.md §3 블록3
   for (const r of [1, 2, 3]) {
     const h = byRank(m, r);
-    L.push(`🥇 TOP${r}. ${h.nameKo || NEEDS}`);
+    L.push(`${MEDAL[r]} TOP${r}. ${h.nameKo || NEEDS}`);
     L.push(`👉 예약: ${link(m, r)}`);
     L.push('');
   }
@@ -239,10 +248,13 @@ function bodyTW(m, tags, warnings) {
   L.push('🔗 전체 호텔 예약 링크: www.여행능력자들.shop');
   L.push('');
   const r = m.regions;
-  const spots = [r[0], r[1] || NEEDS, r[2] || NEEDS, m.station, m.city];
+  const ex = m.extras || {};
+  const r2 = r[1] || ex.region2 || NEEDS;
+  const r3 = r[2] || ex.region3 || NEEDS;
+  const spots = [r[0], r2, r3, m.station, m.city];
   L.push(`이 영상은 ${spots.join(', ')} 주변 여행을 준비하는 분들을 위한`);
   L.push(`가성비 숙소 가이드입니다. ${m.city} ${m.star}성급 호텔, ${m.station} 근처 숙소,`);
-  L.push(`${r[1] || NEEDS} 도보권 가성비 호텔을 한 번에 비교하세요.`);
+  L.push(`${r2} 도보권 가성비 호텔을 한 번에 비교하세요.`);
   L.push('');
   L.push(tags.join(' '));
   return L.join('\n');
@@ -255,7 +267,7 @@ function bodyHY(m, tags, warnings) {
   const np = nightsPax(m);
   const L = [];
   L.push(`${m.city} 호텔 중에서도 ${m.region} 가성비 호텔을 찾는 분들을 위해, ${m.priceBand} ${m.star}성급 숙소만 정리했습니다.`);
-  L.push(`${m.station} 도보권, ${c[1]}, ${c[2]}을 기준으로 검증한 ${m.city} 숙소 TOP3입니다.`);
+  L.push(`${m.station} 도보권, ${c[1]}, ${c[2]}${objectParticle(c[2])} 기준으로 검증한 ${m.city} 숙소 TOP3입니다.`);
   L.push('');
   L.push('🏷️ 아래의 최저가 예약 링크입니다.');
   L.push('');

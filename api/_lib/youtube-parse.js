@@ -234,10 +234,17 @@ export function parseManuscript(filename, text) {
   const names = hotels.map((h) => h.nameKo);
   if (new Set(names).size !== names.length) warnings.push('TOP1·TOP2·TOP3 에 같은 호텔이 있습니다.');
 
-  // 가격 오름차순 (호텔이야.md §6-2): 탑원 < 탑투 < 탑쓰리
-  const p = Object.fromEntries(hotels.map((h) => [h.rank, h.price]));
-  if (p[1] && p[2] && p[3] && !(p[1] < p[2] && p[2] < p[3])) {
-    warnings.push(`가격이 오름차순이 아닙니다 (TOP1 ${p[1]} / TOP2 ${p[2]} / TOP3 ${p[3]}).`);
+  // 가격 (호텔이야.md §6-2, 2026-07-10 정정)
+  //   순위는 가격순이 아니다. 위치·평점·만족도 종합이다.
+  //   원고의 가격은 제작 시점 조회값이므로 순위와 어긋나도 정상이다.
+  //   자릿수가 튀는 것(10배 이상)만 오타로 본다.
+  const prices = hotels.map((h) => h.price).filter(Boolean);
+  if (prices.length >= 2) {
+    const hi = Math.max(...prices);
+    const lo = Math.min(...prices);
+    if (hi / lo >= 10) {
+      warnings.push(`가격 자릿수가 의심스럽습니다 (최저 ${lo.toLocaleString('en-US')}원 / 최고 ${hi.toLocaleString('en-US')}원). 0 이 빠졌는지 확인해 주세요.`);
+    }
   }
 
   const chapters = parseChapters(text);

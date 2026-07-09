@@ -33,7 +33,8 @@
 import { docxToText } from './_lib/docx-text.js';
 import { parseManuscript } from './_lib/youtube-parse.js';
 import { loadRules, detectChannel } from './_lib/youtube-rules.js';
-import { render } from './_lib/youtube-render.js';
+import { render, buildSlotItems } from './_lib/youtube-render.js';
+import { buildMeasuredKeywords } from './_lib/youtube-keywords.js';
 
 const ALLOWED_REFERRER_HOSTS = ['gohotelwinners.com', 'www.gohotelwinners.com', 'tw-b2b.vercel.app'];
 
@@ -122,7 +123,21 @@ export default async function handler(req, res) {
     m.extras = extras || {};
     m.sourceFilename = filename;
 
-    const out = render(m, rule);
+    // 키워드는 실측이 필요하다. 슬롯만으로는 300~335자에서 멈춘다.
+    // 평소엔 _content/youtube/keywords/[도시].csv 를 읽고, live:true 면 유튜브에 직접 묻는다.
+    let keywords = null;
+    try {
+      const slotItems = buildSlotItems(m, rule, m.extras, []);
+      keywords = await buildMeasuredKeywords({
+        m, rule, slotItems,
+        root: loaded.root,
+        live: body.live === true || process.env.YT_LIVE_MEASURE === '1',
+      });
+    } catch (e) {
+      notes.push(`키워드 실측을 건너뛰고 슬롯만으로 만들었습니다: ${String(e.message || e)}`);
+    }
+
+    const out = render(m, rule, keywords ? { keywords } : {});
     out.warnings = [...notes, ...out.warnings];
     return res.status(200).json({ ok: true, ...out });
   } catch (e) {

@@ -194,7 +194,7 @@ async function vetHotels(m, book, live, evidence, warnings) {
       자동완성순위: rec?.rank ?? null, 경쟁영상수: rec?.comp ?? null,
     });
 
-    // 축약형
+    // 축약형 · 도시 접두형
     const htok = new Set([...tokensOf(h), ...place]);
     const variants = [];
     if (sug) {
@@ -202,6 +202,16 @@ async function vetHotels(m, book, live, evidence, warnings) {
     } else {
       for (const [k, v] of book) if (v.variant && tokensOf(k).every((t) => htok.has(t))) variants.push(k);
     }
+
+    // 문서 §5-4: 자동완성이 '[도시] + 호텔명' 을 따로 준다면 그쪽이 더 안전하다.
+    const cityPrefixed = variants.find((v) => v === `${m.city} ${h}`);
+    if (cityPrefixed) {
+      kept[kept.indexOf(h)] = cityPrefixed;
+      const ev = evidence.find((e) => e.키워드 === h && e.구분 === '호텔명');
+      if (ev) { ev.키워드 = cityPrefixed; ev.사유 = `동명 호텔과 섞여 도시 접두형으로 교체 (원형 경쟁 ${rec?.comp ?? '?'})`; }
+      warnings.push(`호텔명 "${h}" 은 같은 이름의 다른 호텔과 섞입니다. 자동완성이 주는 "${cityPrefixed}" 로 바꿔 넣었습니다.`);
+    }
+
     for (const v of variants) {
       if (kept.includes(v)) continue;
       kept.push(v);

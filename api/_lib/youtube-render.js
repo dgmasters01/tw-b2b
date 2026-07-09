@@ -254,7 +254,8 @@ function bodyTW(m, tags, warnings) {
   const spots = [r[0], r2, r3, m.station, m.city];
   L.push(`이 영상은 ${spots.join(', ')} 주변 여행을 준비하는 분들을 위한`);
   L.push(`가성비 숙소 가이드입니다. ${m.city} ${m.star}성급 호텔, ${m.station} 근처 숙소,`);
-  L.push(`${r2} 도보권 가성비 호텔을 한 번에 비교하세요.`);
+  // 여행능력자들.md §3 블록7: 호텔은 [지역1] 에 있다. [지역2] 도보권이 아니다.
+  L.push(`${r[0]} 도보권 가성비 호텔을 한 번에 비교하세요.`);
   L.push('');
   L.push(tags.join(' '));
   return L.join('\n');

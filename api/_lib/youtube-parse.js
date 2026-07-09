@@ -118,9 +118,15 @@ function parseLongform(text) {
     const alt = [...text.matchAll(re2)];
     if (alt.length > hits.length) hits = alt;
   }
-  // '·' 로 구분된 진짜 섹션 헤딩을 우선한다 (':' 는 문서 맨 앞 요약줄에도 쓰인다)
-  const sectional = hits.filter((h) => /[·,]/.test(h[0]));
-  const use = sectional.length >= 3 ? sectional : hits;
+  // 구분자에 우선순위를 둔다. 원고마다 진짜 섹션 헤딩의 구분자가 다르다.
+  //   '·' : 호텔이곳 원고 — "탑쓰리 · 페어필드 …"  (같은 원고에 "탑쓰리, 페어필드" 나레이션 줄이 또 있다)
+  //   ',' : 호텔이야 원고 — "탑쓰리, [KOKO 호텔 …]"
+  //   ':' : 문서 맨 앞 한 줄 요약 (가짜다. 마지막 수단)
+  // 3개를 채우는 첫 구분자를 쓴다. 섞으면 나레이션 줄이 섹션으로 둔갑한다.
+  const byMark = (re) => hits.filter((h) => re.test(h[0]));
+  let use = byMark(/·/);
+  if (use.length < 3) use = byMark(/,/);
+  if (use.length < 3) use = hits;
   const seen = new Set();
   for (let i = 0; i < use.length; i++) {
     const h = use[i];

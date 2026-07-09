@@ -107,11 +107,19 @@ function parseLongform(text) {
   const hotels = [];
   // '#' 헤딩이 살아 있든 없든 (docx 스타일이 제각각) 둘 다 잡는다.
   const re = /^\s*#{0,4}\s*(탑원|탑투|탑쓰리)\s*[·:]\s*(.+)$/gm;
-  const hits = [...text.matchAll(re)];
+  let hits = [...text.matchAll(re)];
+
+  // 서식 변종: "### 탑쓰리" 가 단독 줄이고, 호텔명이 바로 다음 헤딩인 원고도 있다.
+  //   ### 탑쓰리
+  //   ### KOKO 호텔 하카타 스테이션 (KOKO HOTEL Hakata Station) 하카타에키마에
+  if (hits.length < 3) {
+    const re2 = /^\s*#{0,4}\s*(탑원|탑투|탑쓰리)\s*$\n+\s*#{0,4}\s*(.+)$/gm;
+    const alt = [...text.matchAll(re2)];
+    if (alt.length > hits.length) hits = alt;
+  }
   // '·' 로 구분된 진짜 섹션 헤딩을 우선한다 (':' 는 문서 맨 앞 요약줄에도 쓰인다)
   const sectional = hits.filter((h) => /[·]/.test(h[0]));
   const use = sectional.length >= 3 ? sectional : hits;
-
   const seen = new Set();
   for (let i = 0; i < use.length; i++) {
     const h = use[i];
@@ -123,12 +131,16 @@ function parseLongform(text) {
     const body = text.slice(start, end);
 
     const raw = clean(h[2]).replace(/\s*\|.*$/, '');
-    const nm = /^(.*?)\s*\(([^)]+)\)\s*$/.exec(raw);
+    // "이름 (English) 꼬리" — 괄호 뒤 꼬리(역명 등)는 버린다
+    const nm = /^(.*?)\s*\(([^)]+)\)\s*(.*)$/.exec(raw);
     const nameKo = nm ? nm[1].trim() : raw;
     const nameEn = nm ? nm[2].trim() : null;
 
     const walkM = /도보\s*(\d+)\s*분/.exec(body);
-    const airportM = /([가-힣]{2,6})\s?공항(?!\s*[→=])/.exec(body);
+    // '지하철 공항선' · '공항역' 은 공항 이름이 아니다
+    const airportM = /(?!지하철)([가-힣]{2,6})\s?공항(?![선역])(?!\s*[→=])/.exec(
+      body.replace(/지하철\s*공항선/g, ' '),
+    );
     const airMinM = /총\s*소요시간\s*약\s*([\d]+(?:\s*[~\-]\s*\d+)?)\s*분/.exec(body);
     const spotsM = /주변\s*스팟[^\n]*\n+([^\n]+)/.exec(body);
     const perksM = /장점\s*3개\)?[\s\S]{0,40}?자막\s*\n+([^\n]+)/.exec(body);

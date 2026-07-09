@@ -106,7 +106,8 @@ function moneyIn(text) {
 function parseLongform(text) {
   const hotels = [];
   // '#' 헤딩이 살아 있든 없든 (docx 스타일이 제각각) 둘 다 잡는다.
-  const re = /^\s*#{0,4}\s*(탑원|탑투|탑쓰리)\s*[·:]\s*(.+)$/gm;
+  // 실물 원고 서식: "탑쓰리, [KOKO 호텔 하카타 스테이션 (KOKO HOTEL Hakata Station)]"
+  const re = /^\s*#{0,4}\s*(탑원|탑투|탑쓰리)\s*[·:,]\s*(.+)$/gm;
   let hits = [...text.matchAll(re)];
 
   // 서식 변종: "### 탑쓰리" 가 단독 줄이고, 호텔명이 바로 다음 헤딩인 원고도 있다.
@@ -118,7 +119,7 @@ function parseLongform(text) {
     if (alt.length > hits.length) hits = alt;
   }
   // '·' 로 구분된 진짜 섹션 헤딩을 우선한다 (':' 는 문서 맨 앞 요약줄에도 쓰인다)
-  const sectional = hits.filter((h) => /[·]/.test(h[0]));
+  const sectional = hits.filter((h) => /[·,]/.test(h[0]));
   const use = sectional.length >= 3 ? sectional : hits;
   const seen = new Set();
   for (let i = 0; i < use.length; i++) {
@@ -130,20 +131,34 @@ function parseLongform(text) {
     const end = i + 1 < use.length ? use[i + 1].index : text.length;
     const body = text.slice(start, end);
 
-    const raw = clean(h[2]).replace(/\s*\|.*$/, '');
+    const raw = clean(h[2]).replace(/\s*\|.*$/, '').replace(/^\[\s*/, '').replace(/\s*\]\s*$/, '');
     // "이름 (English) 꼬리" — 괄호 뒤 꼬리(역명 등)는 버린다
     const nm = /^(.*?)\s*\(([^)]+)\)\s*(.*)$/.exec(raw);
     const nameKo = nm ? nm[1].trim() : raw;
     const nameEn = nm ? nm[2].trim() : null;
 
     const walkM = /도보\s*(\d+)\s*분/.exec(body);
+    // 평점: "[평점: 4.1/5 | 가격: 1박 약 82,000원]"
+    const ratingM = /평점\s*[:：]\s*([\d.]+)\s*\/\s*5/.exec(body);
+    // 주변 스팟: 첫 줄 "하카타역 도보 4분, 캐널시티 하카타 도보 9분, 스미요시 신사 도보 8분!"
+    const spotsLineM = /^\s*[^\n]*도보\s*\d+\s*분\s*,[^\n]*$/m.exec(body);
+    // 시설·서비스 한 줄: "세련된 카페 겸 라운지, 편리한 짐 보관 서비스를 제공합니다."
+    const perksLineM = /^([^\n]+?)를?\s*제공합니다\.?\s*$/m.exec(body);
     // '지하철 공항선' · '공항역' 은 공항 이름이 아니다
     const airportM = /(?!지하철)([가-힣]{2,6})\s?공항(?![선역])(?!\s*[→=])/.exec(
       body.replace(/지하철\s*공항선/g, ' '),
     );
-    const airMinM = /총\s*소요시간\s*약\s*([\d]+(?:\s*[~\-]\s*\d+)?)\s*분/.exec(body);
+    // "총 소요시간 약 14분" · "총 소요시간은 약 14분 정도입니다"
+    const airMinM = /총\s*소요시간\S*\s*약\s*([\d]+(?:\s*[~\-]\s*\d+)?)\s*분/.exec(body);
     const spotsM = /주변\s*스팟[^\n]*\n+([^\n]+)/.exec(body);
     const perksM = /장점\s*3개\)?[\s\S]{0,40}?자막\s*\n+([^\n]+)/.exec(body);
+
+    const spotsFromLine = spotsLineM
+      ? clean(spotsLineM[0]).replace(/[!！]\s*$/, '').split(/\s*,\s*/).filter(Boolean)
+      : [];
+    const perksFromLine = perksLineM
+      ? clean(perksLineM[1]).split(/\s*,\s*/).map((x) => x.trim()).filter(Boolean)
+      : [];
 
     hotels.push({
       rank,
@@ -153,8 +168,9 @@ function parseLongform(text) {
       walkMin: walkM ? +walkM[1] : null,
       airport: airportM ? airportM[0].replace(/\s/g, '') : null,
       airportMin: airMinM ? airMinM[1].replace(/\s/g, '') : null,
-      spots: spotsM ? clean(spotsM[1]).split(/\s*[·|]\s*/).filter(Boolean) : [],
-      perks: perksM ? clean(perksM[1]).split(/\s*\|\s*/).filter(Boolean) : [],
+      rating: ratingM ? ratingM[1] : null,
+      spots: spotsM ? clean(spotsM[1]).split(/\s*[·|]\s*/).filter(Boolean) : spotsFromLine,
+      perks: perksM ? clean(perksM[1]).split(/\s*\|\s*/).filter(Boolean) : perksFromLine,
     });
   }
   return hotels.sort((a, b) => a.rank - b.rank);

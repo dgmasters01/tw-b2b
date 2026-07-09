@@ -38,12 +38,16 @@ export async function loadKwRules(root) {
   // §4 "1.5배 이상 벌어지면"
   const th = /\*\*([\d.]+)배 이상 벌어지면/.exec(md);
 
+  // §4 붙여쓰기형 최소 경쟁 ("경쟁이 500 미만이면 넣지 않는다")
+  const minC = /\*\*경쟁이 (\d+) 미만이면 넣지 않는다\.\*\*/.exec(md);
+
   // §7 갱신 주기
   const stale = /갱신 주기 \*\*(\d+)일\*\*/.exec(md);
 
   _kwRuleCache = {
     generalTokens: general,
     pairThreshold: th ? Number(th[1]) : 1.5,
+    joinedMinComp: minC ? Number(minC[1]) : 500,
     staleDays: stale ? Number(stale[1]) : 90,
   };
   return _kwRuleCache;
@@ -319,6 +323,15 @@ export async function buildMeasuredKeywords({ m, rule, slotItems, root, live = f
     if (a && b) { ratio = a / b; split = ratio > kwRules.pairThreshold || ratio < 1 / kwRules.pairThreshold; }
     else if (live) { const p = await pair(k, 'ko', 'kr', kwRules.pairThreshold); split = p.split; ratio = p.ratio; }
     else pairUnknown.push(k);
+
+    if (split === true && (book.get(joined)?.comp ?? 0) < kwRules.joinedMinComp) {
+      evidence.push({
+        키워드: joined, 구분: '페어(붙여쓰기)', 채택: false,
+        사유: `갈렸지만 경쟁 ${book.get(joined)?.comp ?? 0} < ${kwRules.joinedMinComp} — 아무도 안 치는 어형`,
+        자동완성순위: null, 경쟁영상수: book.get(joined)?.comp ?? null,
+      });
+      continue;
+    }
 
     if (split === true && len(joinKw([...items, joined, ...hotels])) <= hi) {
       items.push(joined);

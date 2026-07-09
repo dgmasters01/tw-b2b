@@ -262,11 +262,11 @@ function bodyHY(m, tags, warnings) {
   for (const r of [1, 2, 3]) {
     const h = byRank(m, r);
     L.push(`▶ ${r}위 · ${h.nameKo || NEEDS}${h.nameEn ? ` (${h.nameEn})` : ''}`);
-    L.push(`   ${m.station} 도보 ${h.walkMin ?? NEEDS}분 · 1박 약 ${won(h.price)} · 평점 ${NEEDS} · ${m.airport || NEEDS} 약 ${h.airportMin ?? NEEDS}분`);
+    L.push(`   ${m.station} 도보 ${h.walkMin ?? NEEDS}분 · 1박 약 ${won(h.price)} · 평점 ${h.rating ?? NEEDS} · ${m.airport || NEEDS} 약 ${h.airportMin ?? NEEDS}분`);
     L.push(`   🔗 최저가 확인: ${link(m, r)}`);
     L.push('');
   }
-  warnings.push('평점은 원고에 없습니다. 호텔이야 본문에는 평점이 필요합니다.');
+  if (m.hotels.some((h) => !h.rating)) warnings.push('평점이 없는 호텔이 있습니다. 호텔이야 본문에는 평점이 필요합니다.');
   L.push('─────────────────');
   L.push(`※ 조사 기준: ${mdFull(m.dateRange)}(${np.nights ?? NEEDS}박·${np.pax ?? NEEDS}인) 아고다 기준`);
   L.push('');

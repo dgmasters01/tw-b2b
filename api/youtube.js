@@ -114,28 +114,44 @@ export default async function handler(req, res) {
     return res.status(400).json({ ok: false, error: 'docx 를 열지 못했습니다.', detail: String(e.message || e) });
   }
 
-  // 2) 채널 판별 — cid 가 있으면 cid 가 우선, 없으면 원고 본문에서 채널명을 찾는다
+  // 2) 채널 판별
+  //    ① 인자로 준 cid  ② 원고 아고다 링크의 cid  ③ 원고 본문의 채널명
+  //    아고다 링크가 원고에 있으면 그게 가장 확실하다. 수수료가 그 cid 로 잡히기 때문이다.
+  const found = links || findAgodaLinks(plain);
+  const linkCids = [...new Set(
+    Object.values(found).map((u) => (String(u).match(/[?&]cid=(\d+)/) || [])[1]).filter(Boolean),
+  )];
+
   let rule = null;
   const notes = [];
-  if (cid) {
-    rule = byCid[String(cid)];
-    if (!rule) return res.status(400).json({ ok: false, error: `모르는 cid 입니다: ${cid}`, known: Object.keys(byCid) });
+  const useCid = cid || linkCids[0];
+
+  if (linkCids.length > 1) {
+    return res.status(400).json({ ok: false, error: `원고 링크들의 cid 가 서로 다릅니다: ${linkCids.join(', ')}. 수수료가 갈립니다.` });
+  }
+  if (cid && linkCids[0] && String(cid) !== linkCids[0]) {
+    return res.status(400).json({ ok: false, error: `넣어주신 cid(${cid}) 와 원고 링크의 cid(${linkCids[0]}) 가 다릅니다.` });
+  }
+
+  if (useCid) {
+    rule = byCid[String(useCid)];
+    if (!rule) return res.status(400).json({ ok: false, error: `모르는 cid 입니다: ${useCid}`, known: Object.keys(byCid) });
+    if (!cid) notes.push(`원고 아고다 링크의 cid(${useCid}) 로 채널을 정했습니다: ${rule.channel}`);
     const guessed = detectChannel(plain);
     if (guessed && guessed !== rule.channel) {
       notes.push(`cid 로는 ${rule.channel} 인데 원고 본문에는 ${guessed} 이 적혀 있습니다. 원고를 확인해 주세요.`);
     }
   } else {
     const guessed = detectChannel(plain);
-    if (!guessed) return res.status(400).json({ ok: false, error: 'cid 를 넣어주세요. 원고 본문에서도 채널명을 못 찾았습니다.' });
+    if (!guessed) return res.status(400).json({ ok: false, error: '채널을 알 수 없습니다. 원고에 아고다 파트너 링크(cid 포함)를 넣거나, cid 를 직접 넣어주세요.' });
     rule = rules[guessed];
-    notes.push(`cid 를 안 주셔서 원고 본문의 '${guessed}' 로 채널을 정했습니다 (cid=${rule.cid}).`);
+    notes.push(`원고에 아고다 링크가 없어 본문의 '${guessed}' 로 채널을 정했습니다 (cid=${rule.cid}).`);
   }
 
   // 3) 원고 파싱 → 4) 산출
   try {
     const m = parseManuscript(filename, plain);
-    // 링크를 안 주면 원고에서 찾는다. 워드 하이퍼링크는 docx-text.js 가 [하이퍼링크] 로 붙여둔다.
-    m.links = links || findAgodaLinks(plain);
+    m.links = found;
     m.extras = extras || {};
     m.sourceFilename = filename;
 

@@ -57,7 +57,7 @@
       <h1 class="st-title">스튜디오</h1>
       <div class="st-sub" id="st-who">불러오는 중…</div>
     </div>
-    <button class="st-copy" onclick="sb.auth.signOut().then(function(){ location.href='/admin-login.html'; })">로그아웃</button>
+    <button class="st-copy" id="st-logout">로그아웃</button>
   </div>
 
   <div class="st-tabs" id="st-tabs"></div>
@@ -69,18 +69,14 @@
 <script src="shared.js"></script>
 <script>
 (function () {
-  var sb = null, rows = [], channels = {}, tab = null;
+  // 인증은 middleware.js 가 이미 끝냈다 (is_editor). 여기엔 인증 코드가 없다.
+  // 데이터는 /api/publications 로만 오간다. 쿠키(sb-access-token)가 신분증이다.
+  var rows = [], channels = {}, tab = null;
 
   function esc(s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
       return { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c];
     });
-  }
-
-  /** 유튜브 URL 에서 영상 ID 만 뽑는다. 못 뽑으면 null. */
-  function videoId(url) {
-    var m = String(url || '').match(/(?:youtu\.be\/|v=|\/shorts\/|\/embed\/)([A-Za-z0-9_-]{11})/);
-    return m ? m[1] : null;
   }
 
   function copy(btn, text) {
@@ -91,17 +87,14 @@
     });
   }
 
-  function rowHtml(k, shown, full, id) {
-    return '<div class="st-row">' +
-      '<div class="st-k">' + esc(k) + '</div>' +
+  function rowHtml(k, shown, id) {
+    return '<div class="st-row"><div class="st-k">' + esc(k) + '</div>' +
       '<div class="st-v">' + esc(shown) + '</div>' +
-      (full ? '<button class="st-copy" data-copy="' + id + '">복사</button>' : '') +
-      '</div>';
+      '<button class="st-copy" data-copy="' + id + '">복사</button></div>';
   }
 
   function cardHtml(p) {
-    var payload = {};
-    var id = p.id;
+    var payload = {}, id = p.id;
     var place = [p.city, p.region].filter(Boolean).join(' ');
     var head = place + (p.star ? ' · ' + p.star + '성급' : '') + (p.price_band ? ' · ' + p.price_band : '');
 
@@ -109,14 +102,14 @@
     h += '<div class="st-card-head"><div class="st-h">' + esc(head) + '</div>' +
          '<span class="st-badge ' + p.status + '">' + (p.status === 'published' ? '발행됨' : '대기') + '</span></div>';
 
-    if (p.filename_base) { payload['fn' + id] = p.filename_base; h += rowHtml('파일명', p.filename_base, 1, 'fn' + id); }
-    if (p.title)         { payload['ti' + id] = p.title;         h += rowHtml('제목', p.title, 1, 'ti' + id); }
-    if (p.description)   { payload['de' + id] = p.description;   h += rowHtml('설명란', '아고다 링크 포함 · ' + p.description.split('\n').length + '줄', 1, 'de' + id); }
-    if (p.keywords)      { payload['kw' + id] = p.keywords;      h += rowHtml('키워드', (p.keyword_length || p.keywords.length) + '자', 1, 'kw' + id); }
-    if (p.hashtags && p.hashtags.length) { payload['ha' + id] = p.hashtags.join(' '); h += rowHtml('해시태그', p.hashtags.length + '개', 1, 'ha' + id); }
+    if (p.filename_base) { payload['fn' + id] = p.filename_base; h += rowHtml('파일명', p.filename_base, 'fn' + id); }
+    if (p.title)         { payload['ti' + id] = p.title;         h += rowHtml('제목', p.title, 'ti' + id); }
+    if (p.description)   { payload['de' + id] = p.description;   h += rowHtml('설명란', '아고다 링크 포함 · ' + p.description.split('\n').length + '줄', 'de' + id); }
+    if (p.keywords)      { payload['kw' + id] = p.keywords;      h += rowHtml('키워드', (p.keyword_length || p.keywords.length) + '자', 'kw' + id); }
+    if (p.hashtags && p.hashtags.length) { payload['ha' + id] = p.hashtags.join(' '); h += rowHtml('해시태그', p.hashtags.length + '개', 'ha' + id); }
     if (p.chapters && p.chapters.length) {
-      var ch = p.chapters.map(function (c) { return c.time + ' ' + c.label; }).join('\n');
-      payload['ch' + id] = ch; h += rowHtml('챕터', p.chapters.length + '줄', 1, 'ch' + id);
+      payload['ch' + id] = p.chapters.map(function (c) { return c.time + ' ' + c.label; }).join('\n');
+      h += rowHtml('챕터', p.chapters.length + '줄', 'ch' + id);
     }
 
     if (p.warnings && p.warnings.length) {
@@ -127,13 +120,11 @@
     if (p.status === 'published') {
       h += '<div class="st-done">발행 완료 · <a href="' + esc(p.youtube_url) + '" target="_blank" rel="noopener">' + esc(p.youtube_url) + '</a></div>';
     } else {
-      h += '<div class="st-pub">' +
-           '<input type="text" placeholder="youtube.com/watch?v=…" data-url="' + id + '" />' +
+      h += '<div class="st-pub"><input type="text" placeholder="youtube.com/watch?v=…" data-url="' + id + '" />' +
            '<button data-publish="' + id + '">발행 완료</button></div>' +
            '<div class="st-msg" data-msg="' + id + '"></div>';
     }
-    h += '</div>';
-    return { html: h, payload: payload };
+    return { html: h + '</div>', payload: payload };
   }
 
   function render() {
@@ -145,52 +136,36 @@
     mine.forEach(function (p) { var c = cardHtml(p); html += c.html; Object.assign(store, c.payload); });
     list.innerHTML = html;
 
-    list.querySelectorAll('[data-copy]').forEach(function (b) {
-      b.onclick = function () { copy(b, store[b.dataset.copy]); };
-    });
-    list.querySelectorAll('[data-publish]').forEach(function (b) {
-      b.onclick = function () { publish(b.dataset.publish); };
-    });
+    list.querySelectorAll('[data-copy]').forEach(function (b) { b.onclick = function () { copy(b, store[b.dataset.copy]); }; });
+    list.querySelectorAll('[data-publish]').forEach(function (b) { b.onclick = function () { publish(b.dataset.publish); }; });
   }
 
   function publish(id) {
     var input = document.querySelector('[data-url="' + id + '"]');
     var msg = document.querySelector('[data-msg="' + id + '"]');
     var btn = document.querySelector('[data-publish="' + id + '"]');
-    var url = (input.value || '').trim();
-    msg.className = 'st-msg';
+    msg.className = 'st-msg'; msg.textContent = '확인 중…'; btn.disabled = true;
 
-    var vid = videoId(url);
-    if (!vid) { msg.className = 'st-msg err'; msg.textContent = '유튜브 주소가 아닙니다. watch?v= 또는 youtu.be 주소를 넣어주세요.'; return; }
-
-    btn.disabled = true; msg.textContent = '확인 중…';
-    sb.from('publications').select('id').eq('youtube_video_id', vid).neq('id', id)
-      .then(function (dup) {
-        if (dup.data && dup.data.length) { throw new Error('이 영상은 이미 다른 원고에 등록돼 있습니다.'); }
-        return sb.from('publications').update({
-          youtube_url: url, youtube_video_id: vid,
-          status: 'published', published_at: new Date().toISOString()
-        }).eq('id', id).select().single();
-      })
-      .then(function (r) {
-        if (r.error) throw r.error;
+    fetch('/api/publications', {
+      method: 'PATCH', credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: id, youtube_url: (input.value || '').trim() })
+    }).then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+      .then(function (x) {
+        if (!x.ok || !x.j.ok) throw new Error(x.j.error || '발행하지 못했습니다.');
         msg.className = 'st-msg ok'; msg.textContent = '발행됐습니다.';
-        var i = rows.findIndex(function (x) { return x.id === id; });
-        if (i >= 0) { rows[i] = Object.assign(rows[i], r.data); }
-        setTimeout(render, 700);
+        var i = rows.findIndex(function (r) { return r.id === id; });
+        if (i >= 0) rows[i] = x.j.row;
+        setTimeout(function () { drawTabs(); render(); }, 700);
       })
-      .catch(function (e) {
-        btn.disabled = false;
-        msg.className = 'st-msg err';
-        msg.textContent = e.message || '발행하지 못했습니다.';
-      });
+      .catch(function (e) { btn.disabled = false; msg.className = 'st-msg err'; msg.textContent = e.message; });
   }
 
   function drawTabs() {
     var codes = [];
     rows.forEach(function (r) { if (codes.indexOf(r.channel_code) < 0) codes.push(r.channel_code); });
     if (!codes.length) codes = ['TW', 'HT', 'HG'];
-    if (!tab) tab = codes[0];
+    if (!tab || codes.indexOf(tab) < 0) tab = codes[0];
     document.getElementById('st-tabs').innerHTML = codes.map(function (c) {
       var n = rows.filter(function (r) { return r.channel_code === c && r.status === 'draft'; }).length;
       return '<button class="st-tab' + (c === tab ? ' on' : '') + '" data-tab="' + c + '">' +
@@ -201,33 +176,26 @@
     });
   }
 
-  var LOGIN = '/admin-login.html?next=' + encodeURIComponent('/studio.html');
+  var CH = { TW: '여행능력자들', HT: '호텔이야', HG: '호텔이곳' };
+  channels = CH;
 
-  // shared.js 의 requireAuth 는 매니저용 login.html 로 보낸다.
-  // 에디터는 admins 계정이므로 admin-login.html 로 보내야 한다. 게이트를 직접 건다.
-  sb = window.TW.sb;
-  if (!sb) { document.getElementById('st-list').innerHTML = '<div class="st-empty">연결에 실패했습니다.</div>'; return; }
-
-  sb.auth.getSession().then(function (s) {
-    var user = s.data && s.data.session && s.data.session.user;
-    if (!user) { window.location.replace(LOGIN); return; }
-
-    return sb.rpc('is_editor', { uid: user.id }).then(function (r) {
-      if (r.error || r.data !== true) { window.location.replace(LOGIN + '&denied=1'); return; }
-      document.getElementById('st-who').textContent = user.email;
-
-      return sb.from('channels').select('code, name').then(function (c) {
-        (c.data || []).forEach(function (x) { channels[x.code] = x.name; });
-        return sb.from('publications').select('*').order('created_at', { ascending: false });
-      }).then(function (r2) {
-        if (r2.error) throw r2.error;
-        rows = r2.data || [];
-        drawTabs(); render();
-      });
+  fetch('/api/publications', { credentials: 'same-origin' })
+    .then(function (r) { return r.json(); })
+    .then(function (j) {
+      if (!j.ok) throw new Error(j.error || '불러오지 못했습니다.');
+      rows = j.rows || [];
+      document.getElementById('st-who').textContent = '원고 ' + rows.length + '건';
+      drawTabs(); render();
+    })
+    .catch(function (e) {
+      document.getElementById('st-list').innerHTML = '<div class="st-empty">' + esc(e.message) + '</div>';
     });
-  }).catch(function () {
-    document.getElementById('st-list').innerHTML = '<div class="st-empty">권한을 확인하지 못했습니다.</div>';
-  });
+
+  document.getElementById('st-logout').onclick = function () {
+    if (window.TW && window.TW.sb) { window.TW.sb.auth.signOut(); }
+    document.cookie = 'sb-access-token=; Max-Age=0; path=/';
+    location.href = '/admin-login.html';
+  };
 })();
 </script>
 </body>

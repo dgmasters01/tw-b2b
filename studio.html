@@ -57,7 +57,7 @@
       <h1 class="st-title">스튜디오</h1>
       <div class="st-sub" id="st-who">불러오는 중…</div>
     </div>
-    <button class="st-copy" onclick="window.TW.logout()">로그아웃</button>
+    <button class="st-copy" onclick="sb.auth.signOut().then(function(){ location.href='/admin-login.html'; })">로그아웃</button>
   </div>
 
   <div class="st-tabs" id="st-tabs"></div>
@@ -201,12 +201,19 @@
     });
   }
 
-  window.TW.requireAuth(function (user) {
-    sb = window.TW.sb || window.TW.supabase;
-    if (!sb) { document.getElementById('st-list').innerHTML = '<div class="st-empty">연결에 실패했습니다.</div>'; return; }
+  var LOGIN = '/admin-login.html?next=' + encodeURIComponent('/studio.html');
 
-    sb.rpc('is_editor', { uid: user.id }).then(function (r) {
-      if (r.error || r.data !== true) { window.location.replace('/login.html'); return; }
+  // shared.js 의 requireAuth 는 매니저용 login.html 로 보낸다.
+  // 에디터는 admins 계정이므로 admin-login.html 로 보내야 한다. 게이트를 직접 건다.
+  sb = window.TW.sb;
+  if (!sb) { document.getElementById('st-list').innerHTML = '<div class="st-empty">연결에 실패했습니다.</div>'; return; }
+
+  sb.auth.getSession().then(function (s) {
+    var user = s.data && s.data.session && s.data.session.user;
+    if (!user) { window.location.replace(LOGIN); return; }
+
+    return sb.rpc('is_editor', { uid: user.id }).then(function (r) {
+      if (r.error || r.data !== true) { window.location.replace(LOGIN + '&denied=1'); return; }
       document.getElementById('st-who').textContent = user.email;
 
       return sb.from('channels').select('code, name').then(function (c) {
@@ -217,9 +224,9 @@
         rows = r2.data || [];
         drawTabs(); render();
       });
-    }).catch(function () {
-      document.getElementById('st-list').innerHTML = '<div class="st-empty">권한을 확인하지 못했습니다.</div>';
     });
+  }).catch(function () {
+    document.getElementById('st-list').innerHTML = '<div class="st-empty">권한을 확인하지 못했습니다.</div>';
   });
 })();
 </script>

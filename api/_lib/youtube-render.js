@@ -440,6 +440,17 @@ export function render(manuscript, rule, opts = {}) {
       hid_top2: hid(2),
       hid_top3: hid(3),
       source_filename: m.sourceFilename || null,
+      // studio.html 이 복사 버튼으로 내보낼 것들. 만들어놓고 버리지 않는다.
+      description,
+      keywords: kw.keywords,
+      keyword_length: kw.keywordLength,
+      hashtags,
+      filename_base: filename.base,
+      chapters: m.chapters?.length ? m.chapters : null,
+      narration: narration(m, rule.channel),
+      hotel_names: m.hotels.map((h) => h.nameKo).filter(Boolean),
+      date_range: m.dateRange ? md(m.dateRange) : null,
+      pax: m.pax ?? null,
     },
     warnings: [...new Set(warnings)],
   };

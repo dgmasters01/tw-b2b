@@ -359,6 +359,24 @@
   };
 
   // 비동기 체크 (v_manager_hotels VIEW 조회)
+  // ★ BL-EDITOR-ROLE-SPLIT — 콘텐츠 담당(editor) 판별. is_admin 과 별개다.
+  // owner/admin 도 true 가 나온다. 라우팅은 admin 을 먼저 보므로 충돌하지 않는다.
+  var _editorCache = {};
+  window.TW.checkEditor = async function (user) {
+    if (!user || !user.id) return { is_editor: false };
+    var c = _editorCache[user.id];
+    if (c && c.expires > Date.now()) return { is_editor: c.is_editor };
+    if (!sb) return { is_editor: false };
+    try {
+      var r = await sb.rpc('is_editor');
+      var ok = !!(r.data === true);
+      _editorCache[user.id] = { is_editor: ok, expires: Date.now() + 60000 };
+      return { is_editor: ok };
+    } catch (e) {
+      return { is_editor: false };
+    }
+  };
+
   window.TW.checkManager = async function (user) {
     if (!user || !user.id) return { is_manager: false, hotel_count: 0 };
     var c = _managerCache[user.id];

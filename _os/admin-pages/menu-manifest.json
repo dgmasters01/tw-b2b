@@ -4,7 +4,6 @@
   "description": "OS 사이드바 4영역 단일 진실원 — DOCS / TOOLS / OS-CORE / SYSTEM. OS는 영역 + 필수 메뉴를 강제하며, TOOLS 영역만 각 프로젝트 자율 (business-context/tools-manifest.json 참조).",
   "principle": "OS 핵심 원칙 — 틀은 강제, 내용은 자유 (OPERATIONS_CHARTER.md 참조)",
   "rendering_rule": "사이드바는 이 manifest + business-context/tools-manifest.json을 합쳐 영역별 구분선 + 라벨 자동 박음. 영역 manifest 미박힘 = 사이드바 표시 안 됨.",
-
   "areas": [
     {
       "id": "main",
@@ -30,6 +29,14 @@
           "path": "/admin.html",
           "role": "사람이 시스템을 운영하는 화면 — 호텔 승인/매칭/예약/사용자 활동 (BL-ADMIN-ACTIVITY-MOVE 2026-05-12)",
           "required": true
+        },
+        {
+          "id": "content-studio",
+          "label": "콘텐츠 스튜디오",
+          "icon": "🎬",
+          "path": "/studio.html",
+          "role": "유튜브 업로드 패키지 확인·발행 (BL-VIDEO-PUBLISH-INPUT-MODAL). 접근: is_editor = owner|admin|editor",
+          "required": false
         }
       ]
     },
@@ -91,9 +98,27 @@
       "required": false,
       "description": "각 프로젝트가 자유롭게 채움 — business-context/tools-manifest.json이 정의. OS는 영역만 강제, 메뉴 내용은 강제 안 함.",
       "examples": {
-        "gohotelwinners": ["호텔 관리", "예약 관리", "매니저 관리", "Agoda 매칭", "예약 분석"],
-        "ceylon-journey": ["패키지", "일정", "비자", "가이드", "예약"],
-        "hotel-iya": ["영상 제작", "호텔 DB", "채널 관리", "시나리오", "광고주"]
+        "gohotelwinners": [
+          "호텔 관리",
+          "예약 관리",
+          "매니저 관리",
+          "Agoda 매칭",
+          "예약 분석"
+        ],
+        "ceylon-journey": [
+          "패키지",
+          "일정",
+          "비자",
+          "가이드",
+          "예약"
+        ],
+        "hotel-iya": [
+          "영상 제작",
+          "호텔 DB",
+          "채널 관리",
+          "시나리오",
+          "광고주"
+        ]
       },
       "source": "business-context/tools-manifest.json",
       "fallback_message": "TOOLS 메뉴 미정의 — business-context/tools-manifest.json 등록 필요"
@@ -161,19 +186,16 @@
       ]
     }
   ],
-
   "auto_sync": {
     "principle": "부칙 8 — 자동 동기화 완성도 (5초 내)",
     "rule": "menu-manifest.json 또는 business-context/tools-manifest.json 변경 시 사이드바는 5초 내 자동 갱신",
     "implementation": "사이드바 렌더 함수가 두 manifest를 polling (5초 간격) → 영역 + 메뉴 자동 재구성"
   },
-
   "enforcement": {
     "missing_required_menu": "DOCS 5개 / OS-CORE 1개 / SYSTEM 4개 중 하나라도 누락 = 헌법 위반 신호 → admin-status에서 ⚠️ 배지로 표시",
     "missing_tools_manifest": "business-context/tools-manifest.json 미존재 = TOOLS 영역 빈 영역 + 안내 메시지 표시 (강제 아님)",
     "wrong_area_assignment": "메뉴를 잘못된 영역에 배치 시 admin-status에서 자체 보고 (각 메뉴의 area 속성으로 검증)"
   },
-
   "compatibility": {
     "with_existing_admin_pages_manifest": "_os/admin-pages/manifest.json (Phase 2 신설)은 OS 본체 vs 사업 분류용. menu-manifest.json은 사이드바 영역 분리용. 두 manifest는 서로 보완.",
     "page_overlap_handling": "한 페이지가 여러 manifest에 등장해도 OK — admin-status.html은 menu-manifest 기준 main + system 영역, admin-pages-manifest 기준 OS 페이지로 분류됨."

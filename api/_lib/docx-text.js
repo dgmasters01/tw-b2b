@@ -43,9 +43,10 @@ function unzip(buf) {
     const dataStart = lho + 30 + lNameLen + lExtraLen;
     const raw = buf.subarray(dataStart, dataStart + compSize);
 
-    if (name === 'word/document.xml') {
+    if (name === 'word/document.xml' || name === 'word/_rels/document.xml.rels') {
       out[name] = method === 0 ? Buffer.from(raw) : inflateRawSync(raw);
-      break; // 필요한 건 이거 하나뿐
+      // 본문과 하이퍼링크 목록 둘 다 필요하다. 하나만 찾고 멈추면 링크를 놓친다.
+      if (out['word/document.xml'] && out['word/_rels/document.xml.rels']) break;
     }
     p += 46 + nameLen + extraLen + cmtLen;
   }
@@ -98,7 +99,17 @@ export function docxToText(input) {
       ? Buffer.from(input.replace(/^data:[^,]+,/, ''), 'base64')
       : Buffer.from(input);
   const files = unzip(buf);
-  return xmlToText(files['word/document.xml'].toString('utf8'));
+  const text = xmlToText(files['word/document.xml'].toString('utf8'));
+
+  // 워드의 하이퍼링크는 본문이 아니라 word/_rels/document.xml.rels 에 따로 산다.
+  // 본문만 읽으면 링크를 통째로 놓친다. 뒤에 붙여서 같이 넘긴다.
+  const rels = files['word/_rels/document.xml.rels'];
+  if (!rels) return text;
+  const urls = [...rels.toString('utf8').matchAll(/Target="(https?:\/\/[^"]+)"/g)]
+    .map((m) => m[1].replace(/&amp;/g, '&'))
+    .filter((u, i, a) => a.indexOf(u) === i);
+  if (!urls.length) return text;
+  return `${text}\n\n[하이퍼링크]\n${urls.join('\n')}`;
 }
 
 export default docxToText;

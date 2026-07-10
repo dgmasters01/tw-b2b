@@ -53,15 +53,17 @@ async function authorized(req) {
 
   const token = accessToken(req);
   if (!token || !SUPABASE_URL || !SUPABASE_ANON) return { ok: false };
+  const H = { Authorization: `Bearer ${token}`, apikey: SUPABASE_ANON, 'Content-Type': 'application/json' };
 
   try {
-    const r = await fetch(`${SUPABASE_URL}/rest/v1/rpc/is_editor`, {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${token}`, apikey: SUPABASE_ANON, 'Content-Type': 'application/json' },
-      body: '{}',
-    });
-    if (!r.ok) return { ok: false };
-    return (await r.json()) === true ? { ok: true, via: 'session' } : { ok: false };
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/rpc/is_editor`, { method: 'POST', headers: H, body: '{}' });
+    if (!r.ok || (await r.json()) !== true) return { ok: false };
+
+    // 누가 했는지 남기려면 신원을 알아야 한다. 화면이 보내는 이름은 믿지 않는다.
+    const u = await fetch(`${SUPABASE_URL}/auth/v1/user`, { headers: H });
+    if (!u.ok) return { ok: false };
+    const user = await u.json();
+    return { ok: true, via: 'session', userId: user.id, email: user.email };
   } catch {
     return { ok: false };
   }
@@ -106,16 +108,44 @@ export default async function handler(req, res) {
     if (req.query?.status) qb = qb.eq('status', req.query.status);
     const { data, error } = await qb;
     if (error) return res.status(500).json({ ok: false, error: error.message });
-    return res.status(200).json({ ok: true, rows: data, count: data.length });
+    return res.status(200).json({ ok: true, rows: data, count: data.length, me: auth.email || null });
   }
 
-  // 발행 — studio.html 이 유튜브 주소를 넣을 때
+  // studio.html 이 부른다. 세 가지 행동.
+  //   claim   — "제가 맡습니다"        (다른 에디터가 중복 작업하지 않게)
+  //   unclaim — "안 하겠습니다"
+  //   publish — 유튜브 주소를 넣고 발행
   if (req.method === 'PATCH') {
     let b;
     try { b = await readBody(req); } catch { return res.status(400).json({ ok: false, error: 'JSON 본문을 읽지 못했습니다.' }); }
-    const { id, youtube_url } = b;
-    if (!id || !youtube_url) return res.status(400).json({ ok: false, error: 'id 와 youtube_url 이 필요합니다.' });
+    const { id, action = 'publish', youtube_url } = b;
+    if (!id) return res.status(400).json({ ok: false, error: 'id 가 필요합니다.' });
 
+    const me = auth.userId || null;
+    const myMail = auth.email || 'ops-token';
+
+    if (action === 'claim' || action === 'unclaim') {
+      const claim = action === 'claim';
+      const { data: cur } = await sb.from('publications').select('claimed_by, claimed_by_email, status').eq('id', id).maybeSingle();
+      if (!cur) return res.status(404).json({ ok: false, error: '없는 원고입니다.' });
+      if (cur.status === 'published') return res.status(409).json({ ok: false, error: '이미 발행된 원고입니다.' });
+      if (claim && cur.claimed_by && cur.claimed_by !== me) {
+        return res.status(409).json({ ok: false, error: `${cur.claimed_by_email} 님이 이미 맡고 있습니다.` });
+      }
+      if (!claim && cur.claimed_by && cur.claimed_by !== me) {
+        return res.status(403).json({ ok: false, error: '맡은 사람만 놓을 수 있습니다.' });
+      }
+      const { data, error } = await sb.from('publications').update({
+        claimed_by: claim ? me : null,
+        claimed_by_email: claim ? myMail : null,
+        claimed_at: claim ? new Date().toISOString() : null,
+        updated_at: new Date().toISOString(),
+      }).eq('id', id).select().single();
+      if (error) return res.status(500).json({ ok: false, error: error.message });
+      return res.status(200).json({ ok: true, row: data });
+    }
+
+    if (!youtube_url) return res.status(400).json({ ok: false, error: 'youtube_url 이 필요합니다.' });
     const m = String(youtube_url).match(/(?:youtu\.be\/|v=|\/shorts\/|\/embed\/)([A-Za-z0-9_-]{11})/);
     if (!m) return res.status(400).json({ ok: false, error: '유튜브 주소가 아닙니다.' });
     const vid = m[1];
@@ -126,6 +156,7 @@ export default async function handler(req, res) {
     const { data, error } = await sb.from('publications').update({
       youtube_url, youtube_video_id: vid, status: 'published',
       published_at: new Date().toISOString(), updated_at: new Date().toISOString(),
+      published_by: me, published_by_email: myMail,
     }).eq('id', id).eq('status', 'draft').select().maybeSingle();
 
     if (error) return res.status(500).json({ ok: false, error: error.message });

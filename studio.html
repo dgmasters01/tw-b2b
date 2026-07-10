@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex, nofollow" />
+<title>Studio — GoHotelWinners</title>
+<!--
+  studio.html — BL-VIDEO-PUBLISH-INPUT-MODAL
+  에디터 전용. admin OS 사이드바 없음. manager-dashboard.html 과 같은 독립 셸.
+  접근: is_editor(auth.uid()) = owner | admin | editor
+  RLS 가 publications 만 열어준다. bookings / payments / hotels 는 정책 자체가 없다.
+-->
+<link rel="stylesheet" href="shared.css" />
+<style>
+  :root { --st-gap: 14px; }
+  body { margin:0; }
+  .st-wrap { max-width: 880px; margin: 0 auto; padding: 20px 16px 60px; }
+  .st-head { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:18px; }
+  .st-title { font-size:19px; font-weight:500; margin:0; }
+  .st-sub { font-size:12px; opacity:.65; margin-top:2px; }
+  .st-tabs { display:flex; gap:6px; margin-bottom:16px; flex-wrap:wrap; }
+  .st-tab { font-size:13px; padding:6px 13px; border-radius:8px; border:1px solid transparent; cursor:pointer; opacity:.65; background:none; }
+  .st-tab.on { opacity:1; border-color:currentColor; }
+  .st-card { border:1px solid rgba(128,128,128,.25); border-radius:12px; padding:15px 17px; margin-bottom:var(--st-gap); }
+  .st-card-head { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:12px; }
+  .st-h { font-size:15px; font-weight:500; }
+  .st-badge { font-size:11px; padding:3px 9px; border-radius:8px; border:1px solid rgba(128,128,128,.35); }
+  .st-badge.draft { color:#BA7517; border-color:#EF9F27; }
+  .st-badge.published { color:#1D9E75; border-color:#5DCAA5; }
+  .st-row { display:flex; align-items:flex-start; gap:10px; padding:7px 0; border-top:1px solid rgba(128,128,128,.14); font-size:13px; }
+  .st-row:first-of-type { border-top:0; }
+  .st-k { width:82px; flex:none; opacity:.6; }
+  .st-v { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; opacity:.85; }
+  .st-copy { flex:none; font-size:11px; padding:3px 10px; border-radius:7px; border:1px solid rgba(128,128,128,.35); background:none; cursor:pointer; }
+  .st-copy:hover { border-color:currentColor; }
+  .st-copy.ok { color:#1D9E75; border-color:#5DCAA5; }
+  .st-warn { margin-top:11px; padding:9px 11px; border-radius:8px; border:1px solid #EF9F27; font-size:12px; line-height:1.55; }
+  .st-warn b { font-weight:500; }
+  .st-pub { margin-top:12px; display:flex; gap:8px; align-items:center; }
+  .st-pub input { flex:1; font-size:13px; padding:8px 10px; border-radius:8px; border:1px solid rgba(128,128,128,.35); background:transparent; color:inherit; }
+  .st-pub button { font-size:13px; padding:8px 15px; border-radius:8px; border:1px solid currentColor; background:none; cursor:pointer; white-space:nowrap; }
+  .st-pub button:disabled { opacity:.4; cursor:default; }
+  .st-done { font-size:12px; opacity:.7; margin-top:8px; }
+  .st-empty { text-align:center; padding:44px 0; opacity:.55; font-size:14px; }
+  .st-msg { font-size:12px; margin-top:8px; min-height:16px; }
+  .st-msg.err { color:#E24B4A; }
+  .st-msg.ok { color:#1D9E75; }
+  .st-long { white-space:pre-wrap; word-break:break-word; }
+</style>
+</head>
+<body>
+<div class="st-wrap">
+
+  <div class="st-head">
+    <div>
+      <h1 class="st-title">스튜디오</h1>
+      <div class="st-sub" id="st-who">불러오는 중…</div>
+    </div>
+    <button class="st-copy" onclick="window.TW.logout()">로그아웃</button>
+  </div>
+
+  <div class="st-tabs" id="st-tabs"></div>
+  <div id="st-list"><div class="st-empty">불러오는 중…</div></div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="shared.js"></script>
+<script>
+(function () {
+  var sb = null, rows = [], channels = {}, tab = null;
+
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c];
+    });
+  }
+
+  /** 유튜브 URL 에서 영상 ID 만 뽑는다. 못 뽑으면 null. */
+  function videoId(url) {
+    var m = String(url || '').match(/(?:youtu\.be\/|v=|\/shorts\/|\/embed\/)([A-Za-z0-9_-]{11})/);
+    return m ? m[1] : null;
+  }
+
+  function copy(btn, text) {
+    navigator.clipboard.writeText(text).then(function () {
+      var old = btn.textContent;
+      btn.textContent = '복사됨'; btn.classList.add('ok');
+      setTimeout(function () { btn.textContent = old; btn.classList.remove('ok'); }, 1400);
+    });
+  }
+
+  function rowHtml(k, shown, full, id) {
+    return '<div class="st-row">' +
+      '<div class="st-k">' + esc(k) + '</div>' +
+      '<div class="st-v">' + esc(shown) + '</div>' +
+      (full ? '<button class="st-copy" data-copy="' + id + '">복사</button>' : '') +
+      '</div>';
+  }
+
+  function cardHtml(p) {
+    var payload = {};
+    var id = p.id;
+    var place = [p.city, p.region].filter(Boolean).join(' ');
+    var head = place + (p.star ? ' · ' + p.star + '성급' : '') + (p.price_band ? ' · ' + p.price_band : '');
+
+    var h = '<div class="st-card" data-id="' + id + '">';
+    h += '<div class="st-card-head"><div class="st-h">' + esc(head) + '</div>' +
+         '<span class="st-badge ' + p.status + '">' + (p.status === 'published' ? '발행됨' : '대기') + '</span></div>';
+
+    if (p.filename_base) { payload['fn' + id] = p.filename_base; h += rowHtml('파일명', p.filename_base, 1, 'fn' + id); }
+    if (p.title)         { payload['ti' + id] = p.title;         h += rowHtml('제목', p.title, 1, 'ti' + id); }
+    if (p.description)   { payload['de' + id] = p.description;   h += rowHtml('설명란', '아고다 링크 포함 · ' + p.description.split('\n').length + '줄', 1, 'de' + id); }
+    if (p.keywords)      { payload['kw' + id] = p.keywords;      h += rowHtml('키워드', (p.keyword_length || p.keywords.length) + '자', 1, 'kw' + id); }
+    if (p.hashtags && p.hashtags.length) { payload['ha' + id] = p.hashtags.join(' '); h += rowHtml('해시태그', p.hashtags.length + '개', 1, 'ha' + id); }
+    if (p.chapters && p.chapters.length) {
+      var ch = p.chapters.map(function (c) { return c.time + ' ' + c.label; }).join('\n');
+      payload['ch' + id] = ch; h += rowHtml('챕터', p.chapters.length + '줄', 1, 'ch' + id);
+    }
+
+    if (p.warnings && p.warnings.length) {
+      h += '<div class="st-warn"><b>확인 ' + p.warnings.length + '건</b><br>' +
+           p.warnings.map(function (w) { return '· ' + esc(w); }).join('<br>') + '</div>';
+    }
+
+    if (p.status === 'published') {
+      h += '<div class="st-done">발행 완료 · <a href="' + esc(p.youtube_url) + '" target="_blank" rel="noopener">' + esc(p.youtube_url) + '</a></div>';
+    } else {
+      h += '<div class="st-pub">' +
+           '<input type="text" placeholder="youtube.com/watch?v=…" data-url="' + id + '" />' +
+           '<button data-publish="' + id + '">발행 완료</button></div>' +
+           '<div class="st-msg" data-msg="' + id + '"></div>';
+    }
+    h += '</div>';
+    return { html: h, payload: payload };
+  }
+
+  function render() {
+    var list = document.getElementById('st-list');
+    var mine = rows.filter(function (r) { return r.channel_code === tab; });
+    if (!mine.length) { list.innerHTML = '<div class="st-empty">이 채널에 원고가 없습니다</div>'; return; }
+
+    var html = '', store = {};
+    mine.forEach(function (p) { var c = cardHtml(p); html += c.html; Object.assign(store, c.payload); });
+    list.innerHTML = html;
+
+    list.querySelectorAll('[data-copy]').forEach(function (b) {
+      b.onclick = function () { copy(b, store[b.dataset.copy]); };
+    });
+    list.querySelectorAll('[data-publish]').forEach(function (b) {
+      b.onclick = function () { publish(b.dataset.publish); };
+    });
+  }
+
+  function publish(id) {
+    var input = document.querySelector('[data-url="' + id + '"]');
+    var msg = document.querySelector('[data-msg="' + id + '"]');
+    var btn = document.querySelector('[data-publish="' + id + '"]');
+    var url = (input.value || '').trim();
+    msg.className = 'st-msg';
+
+    var vid = videoId(url);
+    if (!vid) { msg.className = 'st-msg err'; msg.textContent = '유튜브 주소가 아닙니다. watch?v= 또는 youtu.be 주소를 넣어주세요.'; return; }
+
+    btn.disabled = true; msg.textContent = '확인 중…';
+    sb.from('publications').select('id').eq('youtube_video_id', vid).neq('id', id)
+      .then(function (dup) {
+        if (dup.data && dup.data.length) { throw new Error('이 영상은 이미 다른 원고에 등록돼 있습니다.'); }
+        return sb.from('publications').update({
+          youtube_url: url, youtube_video_id: vid,
+          status: 'published', published_at: new Date().toISOString()
+        }).eq('id', id).select().single();
+      })
+      .then(function (r) {
+        if (r.error) throw r.error;
+        msg.className = 'st-msg ok'; msg.textContent = '발행됐습니다.';
+        var i = rows.findIndex(function (x) { return x.id === id; });
+        if (i >= 0) { rows[i] = Object.assign(rows[i], r.data); }
+        setTimeout(render, 700);
+      })
+      .catch(function (e) {
+        btn.disabled = false;
+        msg.className = 'st-msg err';
+        msg.textContent = e.message || '발행하지 못했습니다.';
+      });
+  }
+
+  function drawTabs() {
+    var codes = [];
+    rows.forEach(function (r) { if (codes.indexOf(r.channel_code) < 0) codes.push(r.channel_code); });
+    if (!codes.length) codes = ['TW', 'HT', 'HG'];
+    if (!tab) tab = codes[0];
+    document.getElementById('st-tabs').innerHTML = codes.map(function (c) {
+      var n = rows.filter(function (r) { return r.channel_code === c && r.status === 'draft'; }).length;
+      return '<button class="st-tab' + (c === tab ? ' on' : '') + '" data-tab="' + c + '">' +
+             esc(channels[c] || c) + (n ? ' · ' + n : '') + '</button>';
+    }).join('');
+    document.querySelectorAll('[data-tab]').forEach(function (b) {
+      b.onclick = function () { tab = b.dataset.tab; drawTabs(); render(); };
+    });
+  }
+
+  window.TW.requireAuth(function (user) {
+    sb = window.TW.sb || window.TW.supabase;
+    if (!sb) { document.getElementById('st-list').innerHTML = '<div class="st-empty">연결에 실패했습니다.</div>'; return; }
+
+    sb.rpc('is_editor', { uid: user.id }).then(function (r) {
+      if (r.error || r.data !== true) { window.location.replace('/login.html'); return; }
+      document.getElementById('st-who').textContent = user.email;
+
+      return sb.from('channels').select('code, name').then(function (c) {
+        (c.data || []).forEach(function (x) { channels[x.code] = x.name; });
+        return sb.from('publications').select('*').order('created_at', { ascending: false });
+      }).then(function (r2) {
+        if (r2.error) throw r2.error;
+        rows = r2.data || [];
+        drawTabs(); render();
+      });
+    }).catch(function () {
+      document.getElementById('st-list').innerHTML = '<div class="st-empty">권한을 확인하지 못했습니다.</div>';
+    });
+  });
+})();
+</script>
+</body>
+</html>

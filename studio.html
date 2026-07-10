@@ -57,7 +57,10 @@
       <h1 class="st-title">스튜디오</h1>
       <div class="st-sub" id="st-who">불러오는 중…</div>
     </div>
-    <button class="st-copy" id="st-logout">로그아웃</button>
+    <div style="display:flex; gap:8px; align-items:center">
+      <a class="st-copy" id="st-admin" href="/admin.html" style="text-decoration:none; display:none">관리자</a>
+      <button class="st-copy" id="st-logout">로그아웃</button>
+    </div>
   </div>
 
   <div class="st-tabs" id="st-tabs"></div>
@@ -217,6 +220,8 @@
       rows = j.rows || [];
       ME = j.me || null;
       document.getElementById('st-who').textContent = (ME || '') + ' · 원고 ' + rows.length + '건';
+      // 관리자·대표님만 admin 버튼이 보인다. editor 는 눌러도 튕기므로 아예 감춘다.
+      if (j.is_admin) { document.getElementById('st-admin').style.display = ''; }
       drawTabs(); render();
     })
     .catch(function (e) {

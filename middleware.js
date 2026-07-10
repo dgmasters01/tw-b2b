@@ -138,13 +138,19 @@ const checkIsEditor = (t) => checkRpc(t, 'is_editor');
 // ──────────────────────────────────────────────────────────────────────────
 // 유틸 — 리디렉트 응답 빌더
 // ──────────────────────────────────────────────────────────────────────────
+/**
+ * 세션이 없으면 그 페이지에 맞는 로그인으로 보낸다.
+ * 세션은 있는데 권한이 모자라면 login.html 로 보낸다 — 거기서 역할을 보고 제 자리로 보내준다.
+ * (권한 없는 사람을 같은 로그인으로 되돌리면 무한 왕복이 난다)
+ */
 function redirectToLogin(req, reason) {
   const reqUrl = new URL(req.url);
-  // studio 는 admins 계정으로 들어온다. 매니저용 login.html 로 보내면 무한 왕복이 난다.
-  const page = reqUrl.pathname.startsWith('/studio') ? '/admin-login.html' : '/login.html';
+  const noSession = reason === 'no_session' || reason === 'invalid_session';
+  const page = (noSession && reqUrl.pathname.startsWith('/studio')) ? '/admin-login.html' : '/login.html';
   const loginUrl = new URL(page, reqUrl.origin);
   loginUrl.searchParams.set('reason', reason);
-  loginUrl.searchParams.set('next', reqUrl.pathname + reqUrl.search);
+  // 권한이 모자라 튕긴 것이면 next 를 붙이지 않는다. 붙이면 그 페이지로 또 가려 한다.
+  if (noSession) loginUrl.searchParams.set('next', reqUrl.pathname + reqUrl.search);
   return new Response(null, {
     status: 302,
     headers: {

@@ -29,8 +29,9 @@ const SUPABASE_SR = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const RESEND_KEY = process.env.RESEND_API_KEY;
 const SITE_URL = process.env.SITE_URL || 'https://gohotelwinners.com';
 
-const ALL_ROLES = ['owner', 'admin', 'staff', 'readonly', 'manager'];
-const INVITE_ROLES = ['admin', 'staff', 'readonly'];
+const ALL_ROLES = ['owner', 'admin', 'staff', 'readonly', 'manager', 'editor'];
+// editor = 콘텐츠 업로드 전담 (studio.html 만). is_admin() 을 통과하지 못한다. BL-EDITOR-ROLE-SPLIT
+const INVITE_ROLES = ['admin', 'staff', 'readonly', 'editor'];
 const CHANGE_ACTIONS = ['change_role', 'revoke', 'restore'];
 
 // ───────────────────────────────────────────────────────────────

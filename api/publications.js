@@ -25,16 +25,45 @@ import { createClient } from '@supabase/supabase-js';
 
 export const config = { maxDuration: 60 };
 
-const ALLOWED_REFERRER_HOSTS = ['gohotelwinners.com', 'www.gohotelwinners.com', 'tw-b2b.vercel.app'];
+const SUPABASE_URL = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
+const SUPABASE_ANON = process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_PUBLISHABLE_KEY;
 
-function authorized(req) {
+/** 브라우저는 쿠키(sb-access-token)를 들고 온다. middleware.js 와 같은 쿠키다. */
+function accessToken(req) {
+  const auth = req.headers['authorization'] || '';
+  if (auth.startsWith('Bearer ')) return auth.slice(7);
+  const raw = req.headers['cookie'] || '';
+  for (const part of raw.split(';')) {
+    const i = part.indexOf('=');
+    if (i < 0) continue;
+    if (part.slice(0, i).trim() === 'sb-access-token') return decodeURIComponent(part.slice(i + 1).trim());
+  }
+  return null;
+}
+
+/**
+ * 두 갈래로 연다.
+ *   ① x-ops-token  — Claude / 스크립트
+ *   ② 로그인 세션  — studio.html 의 에디터 (is_editor RPC 로 확인)
+ * 에디터 판정은 DB 가 한다. 화면 말을 믿지 않는다.
+ */
+async function authorized(req) {
   const expected = process.env.CLAUDE_OPS_TOKEN;
-  if (expected && (req.headers['x-ops-token'] || '') === expected) return true;
-  const ref = req.headers['referer'] || '';
+  if (expected && (req.headers['x-ops-token'] || '') === expected) return { ok: true, via: 'ops-token' };
+
+  const token = accessToken(req);
+  if (!token || !SUPABASE_URL || !SUPABASE_ANON) return { ok: false };
+
   try {
-    return !!ref && ALLOWED_REFERRER_HOSTS.includes(new URL(ref).host);
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/rpc/is_editor`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}`, apikey: SUPABASE_ANON, 'Content-Type': 'application/json' },
+      body: '{}',
+    });
+    if (!r.ok) return { ok: false };
+    return (await r.json()) === true ? { ok: true, via: 'session' } : { ok: false };
   } catch {
-    return false;
+    return { ok: false };
   }
 }
 
@@ -61,7 +90,8 @@ function toRow(pkg) {
 }
 
 export default async function handler(req, res) {
-  if (!authorized(req)) return res.status(401).json({ ok: false, error: 'Invalid or missing x-ops-token' });
+  const auth = await authorized(req);
+  if (!auth.ok) return res.status(401).json({ ok: false, error: '권한이 없습니다. 로그인했는지 확인해 주세요.' });
 
   let sb;
   try {
@@ -79,8 +109,32 @@ export default async function handler(req, res) {
     return res.status(200).json({ ok: true, rows: data, count: data.length });
   }
 
+  // 발행 — studio.html 이 유튜브 주소를 넣을 때
+  if (req.method === 'PATCH') {
+    let b;
+    try { b = await readBody(req); } catch { return res.status(400).json({ ok: false, error: 'JSON 본문을 읽지 못했습니다.' }); }
+    const { id, youtube_url } = b;
+    if (!id || !youtube_url) return res.status(400).json({ ok: false, error: 'id 와 youtube_url 이 필요합니다.' });
+
+    const m = String(youtube_url).match(/(?:youtu\.be\/|v=|\/shorts\/|\/embed\/)([A-Za-z0-9_-]{11})/);
+    if (!m) return res.status(400).json({ ok: false, error: '유튜브 주소가 아닙니다.' });
+    const vid = m[1];
+
+    const { data: dup } = await sb.from('publications').select('id').eq('youtube_video_id', vid).neq('id', id);
+    if (dup && dup.length) return res.status(409).json({ ok: false, error: '이 영상은 이미 다른 원고에 등록돼 있습니다.' });
+
+    const { data, error } = await sb.from('publications').update({
+      youtube_url, youtube_video_id: vid, status: 'published',
+      published_at: new Date().toISOString(), updated_at: new Date().toISOString(),
+    }).eq('id', id).eq('status', 'draft').select().maybeSingle();
+
+    if (error) return res.status(500).json({ ok: false, error: error.message });
+    if (!data) return res.status(409).json({ ok: false, error: '이미 발행됐거나 없는 원고입니다.' });
+    return res.status(200).json({ ok: true, row: data });
+  }
+
   if (req.method !== 'POST') {
-    res.setHeader('Allow', 'GET, POST');
+    res.setHeader('Allow', 'GET, POST, PATCH');
     return res.status(405).json({ ok: false, error: 'Method not allowed' });
   }
 

@@ -4783,7 +4783,7 @@ body{margin:0;background:var(--bg,#0A0A0F);font-family:var(--sans,'Inter','Noto 
       var r = await T.sb.from('bookings_agoda').select('booking_amount_usd, commission_usd, channel_code, is_cancelled');
       if (r.error) throw r.error;
       var rows = r.data || [];
-      var total = rows.length;
+      var total = rows.filter(function(b){ return !b.is_cancelled; }).length;
       var volume = 0, commission = 0;
       var channelSet = {};
       rows.forEach(function(b){

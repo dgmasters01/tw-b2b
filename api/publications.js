@@ -153,6 +153,36 @@ export default async function handler(req, res) {
       return res.status(200).json({ ok: true, row: data });
     }
 
+    // 아고다 파트너 링크 3개 붙여넣기 → 원고 다시 만들어 장부 갱신
+    if (action === 'links') {
+      const { links_text } = b;
+      if (!links_text) return res.status(400).json({ ok: false, error: '링크를 붙여넣어 주세요.' });
+
+      const found = String(links_text).match(/https?:\/\/[^\s\]<>"']*partnersearch[^\s\]<>"']*/g) || [];
+      const hids = found.map((u) => (u.match(/[?&]hid=(\d+)/) || [])[1]).filter(Boolean);
+      const cids = [...new Set(found.map((u) => (u.match(/[?&]cid=(\d+)/) || [])[1]).filter(Boolean))];
+      if (hids.length < 3) return res.status(400).json({ ok: false, error: `아고다 파트너 링크 3개가 필요합니다. ${hids.length}개만 찾았습니다.` });
+
+      const { data: cur } = await sb.from('publications').select('*').eq('id', id).maybeSingle();
+      if (!cur) return res.status(404).json({ ok: false, error: '없는 원고입니다.' });
+      if (cur.status === 'published') return res.status(409).json({ ok: false, error: '이미 발행된 원고입니다.' });
+
+      const warn = [];
+      if (cids.length > 1) warn.push(`링크 3개의 cid 가 서로 다릅니다: ${cids.join(', ')}`);
+      const { data: map } = await sb.from('channel_cid_map').select('channel_code').eq('cid', cids[0]).maybeSingle();
+      if (!map) warn.push(`cid ${cids[0]} 를 모릅니다. 수수료가 안 잡힙니다.`);
+      else if (map.channel_code !== cur.channel_code) {
+        return res.status(400).json({ ok: false, error: `cid ${cids[0]} 는 ${map.channel_code} 채널 것입니다. 이 원고는 ${cur.channel_code} 입니다.` });
+      }
+
+      const { data, error } = await sb.from('publications').update({
+        hid_top1: hids[0], hid_top2: hids[1], hid_top3: hids[2],
+        agoda_links: found.slice(0, 3), updated_at: new Date().toISOString(),
+      }).eq('id', id).select().single();
+      if (error) return res.status(500).json({ ok: false, error: error.message });
+      return res.status(200).json({ ok: true, row: data, warnings: warn, note: '설명란을 다시 만들려면 원고를 다시 넣어주세요.' });
+    }
+
     if (!youtube_url) return res.status(400).json({ ok: false, error: 'youtube_url 이 필요합니다.' });
     const m = String(youtube_url).match(/(?:youtu\.be\/|v=|\/shorts\/|\/embed\/)([A-Za-z0-9_-]{11})/);
     if (!m) return res.status(400).json({ ok: false, error: '유튜브 주소가 아닙니다.' });
@@ -187,6 +217,14 @@ export default async function handler(req, res) {
   // 패키지를 직접 받거나, 원고를 받아 /api/youtube 로 만든다
   let pkg = body.package;
   if (!pkg) {
+    // 같은 원고를 다시 넣을 때, 전에 붙여둔 아고다 링크를 이어서 쓴다.
+    if (!body.links && body.filename) {
+      const { data: prev } = await sb.from('publications')
+        .select('agoda_links').eq('source_filename', body.filename).maybeSingle();
+      if (prev?.agoda_links?.length === 3) {
+        body.links = { top1: prev.agoda_links[0], top2: prev.agoda_links[1], top3: prev.agoda_links[2] };
+      }
+    }
     const base = process.env.OPS_BASE_URL || 'https://gohotelwinners.com';
     const r = await fetch(`${base}/api/youtube`, {
       method: 'POST',

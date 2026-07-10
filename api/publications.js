@@ -63,7 +63,15 @@ async function authorized(req) {
     const u = await fetch(`${SUPABASE_URL}/auth/v1/user`, { headers: H });
     if (!u.ok) return { ok: false };
     const user = await u.json();
-    return { ok: true, via: 'session', userId: user.id, email: user.email };
+
+    // 관리자면 studio 에서 admin 으로 가는 버튼을 보여준다. editor 에게는 안 보인다.
+    let isAdmin = false;
+    try {
+      const a = await fetch(`${SUPABASE_URL}/rest/v1/rpc/is_admin`, { method: 'POST', headers: H, body: '{}' });
+      isAdmin = a.ok && (await a.json()) === true;
+    } catch { /* 못 물어보면 안 보여준다 */ }
+
+    return { ok: true, via: 'session', userId: user.id, email: user.email, isAdmin };
   } catch {
     return { ok: false };
   }
@@ -108,7 +116,7 @@ export default async function handler(req, res) {
     if (req.query?.status) qb = qb.eq('status', req.query.status);
     const { data, error } = await qb;
     if (error) return res.status(500).json({ ok: false, error: error.message });
-    return res.status(200).json({ ok: true, rows: data, count: data.length, me: auth.email || null });
+    return res.status(200).json({ ok: true, rows: data, count: data.length, me: auth.email || null, is_admin: !!auth.isAdmin });
   }
 
   // studio.html 이 부른다. 세 가지 행동.

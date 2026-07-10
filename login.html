@@ -127,11 +127,18 @@
       if (adminCheck.is_admin) {
         window.location.href = 'admin.html';
       } else {
-        var mgrCheck = await T.checkManager(r.data.user);
-        if (mgrCheck.is_manager) {
-          window.location.href = 'manager-dashboard.html';
+        // BL-EDITOR-ROLE-SPLIT — 콘텐츠 담당은 스튜디오가 자기 자리다.
+        // admin 을 먼저 보므로 owner/admin 은 여기 안 걸린다.
+        var edCheck = await T.checkEditor(r.data.user);
+        if (edCheck.is_editor) {
+          window.location.href = 'studio.html';
         } else {
-          window.location.href = 'dashboard.html';
+          var mgrCheck = await T.checkManager(r.data.user);
+          if (mgrCheck.is_manager) {
+            window.location.href = 'manager-dashboard.html';
+          } else {
+            window.location.href = 'dashboard.html';
+          }
         }
       }
     } catch (e) {
@@ -150,11 +157,16 @@
         if (ac.is_admin) {
           window.location.href = 'admin.html';
         } else {
-          var mc = await T.checkManager(r.data.session.user);
-          if (mc.is_manager) {
-            window.location.href = 'manager-dashboard.html';
+          var ec = await T.checkEditor(r.data.session.user);
+          if (ec.is_editor) {
+            window.location.href = 'studio.html';
           } else {
-            window.location.href = 'dashboard.html';
+            var mc = await T.checkManager(r.data.session.user);
+            if (mc.is_manager) {
+              window.location.href = 'manager-dashboard.html';
+            } else {
+              window.location.href = 'dashboard.html';
+            }
           }
         }
       }

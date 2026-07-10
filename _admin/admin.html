@@ -1050,6 +1050,8 @@ body{margin:0;background:var(--bg,#0A0A0F);font-family:var(--sans,'Inter','Noto 
           <option value="admin">admin — Full admin access</option>
           <option value="staff">staff — Most management</option>
           <option value="readonly">readonly — View only</option>
+          <option value="editor">editor — Studio only (content upload)</option>
+            <option value="editor">editor — Studio only (content upload)</option>
         </select>
         <div style="font-size:11px;color:#888;margin-top:4px;">Owner role can only be set via SQL (D-015 protection).</div>
       </div>
@@ -4783,7 +4785,7 @@ body{margin:0;background:var(--bg,#0A0A0F);font-family:var(--sans,'Inter','Noto 
       var r = await T.sb.from('bookings_agoda').select('booking_amount_usd, commission_usd, channel_code, is_cancelled');
       if (r.error) throw r.error;
       var rows = r.data || [];
-      var total = rows.filter(function(b){ return !b.is_cancelled; }).length;
+      var total = rows.length;
       var volume = 0, commission = 0;
       var channelSet = {};
       rows.forEach(function(b){
@@ -6365,6 +6367,7 @@ function rDayHotels(){
           '<option value="admin">'+(umKo()?'최고관리자 (admin) — 모든 권한':'Owner (admin) — full access')+'</option>' +
           '<option value="staff">'+(umKo()?'일반관리자 (staff) — 대부분 관리 가능':'Admin (staff) — most management')+'</option>' +
           '<option value="readonly">'+(umKo()?'조회 전용 (readonly) — 보기만 가능':'Read-only — view only')+'</option>' +
+          '<option value="editor">'+(umKo()?'콘텐츠 담당 (editor) — 스튜디오만':'Editor — studio only')+'</option>' +
           '<option value="manager">'+(umKo()?'가입자 (manager) — 호텔 매니저 기본':'Member (manager) — hotel manager default')+'</option>' +
         '</select>' +
         '<label style="display:flex;align-items:center;gap:8px;margin-bottom:14px;cursor:pointer;font-size:13px;color:#bbb;">' +

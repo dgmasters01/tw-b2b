@@ -58,6 +58,21 @@ async function readBody(req) {
   return raw ? JSON.parse(raw) : {};
 }
 
+/**
+ * 원고에서 아고다 파트너 링크(hid 가 있는 것)를 찾는다.
+ * slug 링크(agoda.com/ko-kr/호텔이름/...)는 hid 가 없어 쓸 수 없다. 건너뛴다.
+ * 순서는 원고에 나온 순서 = TOP1 → TOP2 → TOP3 (여행능력자들.md §3 블록3).
+ */
+function findAgodaLinks(text) {
+  const all = String(text).match(/https?:\/\/[^\s"'<>\]]*agoda[^\s"'<>\]]*/gi) || [];
+  const withHid = all
+    .map((u) => u.replace(/&amp;/g, '&'))
+    .filter((u) => /[?&]hid=\d+/.test(u))
+    .filter((u, i, a) => a.indexOf(u) === i);
+  if (withHid.length < 3) return {};
+  return { top1: withHid[0], top2: withHid[1], top3: withHid[2] };
+}
+
 export default async function handler(req, res) {
   if (!authorized(req)) return res.status(401).json({ ok: false, error: 'Invalid or missing x-ops-token' });
 
@@ -119,7 +134,8 @@ export default async function handler(req, res) {
   // 3) 원고 파싱 → 4) 산출
   try {
     const m = parseManuscript(filename, plain);
-    m.links = links || {};
+    // 링크를 안 주면 원고에서 찾는다. 워드 하이퍼링크는 docx-text.js 가 [하이퍼링크] 로 붙여둔다.
+    m.links = links || findAgodaLinks(plain);
     m.extras = extras || {};
     m.sourceFilename = filename;
 

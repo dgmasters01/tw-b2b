@@ -126,12 +126,30 @@ function resolveNextUrl(n) {
 }
 const nextUrl = resolveNextUrl(rawNext);
 
+// BL-EDITOR-ROLE-SPLIT — 역할마다 자기 자리가 다르다.
+// next 를 명시하지 않은 로그인(기본값 'status')이면 역할을 보고 보낸다.
+// editor 는 admin-status.html 에 못 들어간다. 보내면 튕긴다.
+const HOME_BY_ROLE = { owner: '/admin-status.html', admin: '/admin-status.html', staff: '/admin-status.html', readonly: '/admin-status.html', editor: '/studio.html' };
+function homeFor(role) {
+  const explicit = params.get('next');
+  if (explicit) return nextUrl;              // 원래 가려던 곳이 있으면 그리로
+  return HOME_BY_ROLE[role] || '/admin-status.html';
+}
+
 async function checkExistingSession() {
   const { data: { session } } = await sb.auth.getSession();
   if (session && session.access_token) {
     document.cookie = `sb-access-token=${session.access_token}; Path=/${adminPersist() ? '; Max-Age=2592000' : ''}; SameSite=Lax; Secure`;
+    // 역할을 모른 채 보내면 editor 가 admin-status 로 가서 튕긴다. 물어보고 보낸다.
+    let dest = nextUrl;
+    if (!params.get('next')) {
+      try {
+        const { data: me } = await sb.from('admins').select('role').eq('id', session.user.id).maybeSingle();
+        dest = homeFor(me && me.role);
+      } catch (e) { /* 못 물어보면 기본값 */ }
+    }
     showOk('이미 로그인되어 있습니다. 잠시 후 이동합니다...');
-    setTimeout(() => { window.location.href = nextUrl; }, 800);
+    setTimeout(() => { window.location.href = dest; }, 800);
   }
 }
 checkExistingSession();
@@ -193,8 +211,9 @@ async function handleLogin() {
 
     document.cookie = `sb-access-token=${data.session.access_token}; Path=/${adminPersist() ? '; Max-Age=2592000' : ''}; SameSite=Lax; Secure`;
 
+    const dest = homeFor(sessionInfo.user.role);
     showOk(`로그인 성공! (${sessionInfo.user.role}) 잠시 후 이동합니다...`);
-    setTimeout(() => { window.location.href = nextUrl; }, 600);
+    setTimeout(() => { window.location.href = dest; }, 600);
   } catch (e) {
     showErr('Error: ' + e.message);
     btn.disabled = false;

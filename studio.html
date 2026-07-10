@@ -71,7 +71,7 @@
 (function () {
   // 인증은 middleware.js 가 이미 끝냈다 (is_editor). 여기엔 인증 코드가 없다.
   // 데이터는 /api/publications 로만 오간다. 쿠키(sb-access-token)가 신분증이다.
-  var rows = [], channels = {}, tab = null;
+  var rows = [], channels = {}, tab = null, ME = null;
 
   function esc(s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
@@ -118,11 +118,22 @@
     }
 
     if (p.status === 'published') {
-      h += '<div class="st-done">발행 완료 · <a href="' + esc(p.youtube_url) + '" target="_blank" rel="noopener">' + esc(p.youtube_url) + '</a></div>';
+      h += '<div class="st-done">발행 · ' + esc(p.published_by_email || '?') +
+           (p.published_at ? ' · ' + p.published_at.slice(0, 10) : '') + '<br>' +
+           '<a href="' + esc(p.youtube_url) + '" target="_blank" rel="noopener">' + esc(p.youtube_url) + '</a></div>';
     } else {
-      h += '<div class="st-pub"><input type="text" placeholder="youtube.com/watch?v=…" data-url="' + id + '" />' +
-           '<button data-publish="' + id + '">발행 완료</button></div>' +
-           '<div class="st-msg" data-msg="' + id + '"></div>';
+      var mine = p.claimed_by_email === ME;
+      if (p.claimed_by_email && !mine) {
+        h += '<div class="st-done">' + esc(p.claimed_by_email) + ' 님이 맡고 있습니다</div>';
+      } else if (mine) {
+        h += '<div class="st-pub"><input type="text" placeholder="youtube.com/watch?v=…" data-url="' + id + '" />' +
+             '<button data-publish="' + id + '">발행 완료</button>' +
+             '<button data-unclaim="' + id + '">놓기</button></div>' +
+             '<div class="st-msg" data-msg="' + id + '"></div>';
+      } else {
+        h += '<div class="st-pub"><button data-claim="' + id + '">내가 맡기</button></div>' +
+             '<div class="st-msg" data-msg="' + id + '"></div>';
+      }
     }
     return { html: h + '</div>', payload: payload };
   }
@@ -138,6 +149,26 @@
 
     list.querySelectorAll('[data-copy]').forEach(function (b) { b.onclick = function () { copy(b, store[b.dataset.copy]); }; });
     list.querySelectorAll('[data-publish]').forEach(function (b) { b.onclick = function () { publish(b.dataset.publish); }; });
+    list.querySelectorAll('[data-claim]').forEach(function (b) { b.onclick = function () { act(b.dataset.claim, 'claim', b); }; });
+    list.querySelectorAll('[data-unclaim]').forEach(function (b) { b.onclick = function () { act(b.dataset.unclaim, 'unclaim', b); }; });
+  }
+
+  /** 맡기 / 놓기 */
+  function act(id, action, btn) {
+    var msg = document.querySelector('[data-msg="' + id + '"]');
+    btn.disabled = true; msg.className = 'st-msg'; msg.textContent = '…';
+    fetch('/api/publications', {
+      method: 'PATCH', credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: id, action: action })
+    }).then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+      .then(function (x) {
+        if (!x.ok || !x.j.ok) throw new Error(x.j.error || '실패했습니다.');
+        var i = rows.findIndex(function (r) { return r.id === id; });
+        if (i >= 0) rows[i] = x.j.row;
+        render();
+      })
+      .catch(function (e) { btn.disabled = false; msg.className = 'st-msg err'; msg.textContent = e.message; });
   }
 
   function publish(id) {
@@ -184,7 +215,8 @@
     .then(function (j) {
       if (!j.ok) throw new Error(j.error || '불러오지 못했습니다.');
       rows = j.rows || [];
-      document.getElementById('st-who').textContent = '원고 ' + rows.length + '건';
+      ME = j.me || null;
+      document.getElementById('st-who').textContent = (ME || '') + ' · 원고 ' + rows.length + '건';
       drawTabs(); render();
     })
     .catch(function (e) {

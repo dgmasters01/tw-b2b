@@ -111,10 +111,10 @@ async function verifyUser(accessToken) {
 // ──────────────────────────────────────────────────────────────────────────
 // 유틸 — is_admin RPC 호출 (RLS SECURITY DEFINER, shared.js와 동일 RPC)
 // ──────────────────────────────────────────────────────────────────────────
-async function checkIsAdmin(accessToken) {
+async function checkRpc(accessToken, fn) {
   if (!accessToken || !SUPABASE_ANON_KEY) return false;
   try {
-    const resp = await fetch(`${SUPABASE_URL}/rest/v1/rpc/is_admin`, {
+    const resp = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${fn}`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -131,12 +131,18 @@ async function checkIsAdmin(accessToken) {
   }
 }
 
+const checkIsAdmin = (t) => checkRpc(t, 'is_admin');
+// studio.html 은 콘텐츠 담당(editor)도 들어간다. is_admin 은 그대로 둔다. BL-EDITOR-ROLE-SPLIT
+const checkIsEditor = (t) => checkRpc(t, 'is_editor');
+
 // ──────────────────────────────────────────────────────────────────────────
 // 유틸 — 리디렉트 응답 빌더
 // ──────────────────────────────────────────────────────────────────────────
 function redirectToLogin(req, reason) {
   const reqUrl = new URL(req.url);
-  const loginUrl = new URL('/login.html', reqUrl.origin);
+  // studio 는 admins 계정으로 들어온다. 매니저용 login.html 로 보내면 무한 왕복이 난다.
+  const page = reqUrl.pathname.startsWith('/studio') ? '/admin-login.html' : '/login.html';
+  const loginUrl = new URL(page, reqUrl.origin);
   loginUrl.searchParams.set('reason', reason);
   loginUrl.searchParams.set('next', reqUrl.pathname + reqUrl.search);
   return new Response(null, {
@@ -176,10 +182,11 @@ export default async function middleware(req) {
     return redirectToLogin(req, 'invalid_session');
   }
 
-  // Step 3: is_admin RPC
-  const isAdmin = await checkIsAdmin(token);
-  if (!isAdmin) {
-    return redirectToLogin(req, 'not_admin');
+  // Step 3: 페이지에 맞는 권한 검사
+  const isStudio = pathname === '/studio.html' || pathname === '/studio';
+  const pass = isStudio ? await checkIsEditor(token) : await checkIsAdmin(token);
+  if (!pass) {
+    return redirectToLogin(req, isStudio ? 'not_editor' : 'not_admin');
   }
 
   // Step 4: 검증 통과 — undefined 반환 시 Vercel이 원본 admin HTML 서빙
@@ -205,5 +212,7 @@ export const config = {
     '/admin-:path*',
     '/admin',
     '/_admin/:path*',
+    '/studio.html',
+    '/studio',
   ],
 };

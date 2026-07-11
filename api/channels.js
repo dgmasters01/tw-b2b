@@ -116,7 +116,7 @@ export default async function handler(req, res) {
     // 2) CID 매핑 (채널별로 묶는다 — CID 는 아고다 예약↔채널 연결 키)
     const { data: cids, error: cidErr } = await sb
       .from('channel_cid_map')
-      .select('cid, channel_code, cid_label, is_active, notes')
+      .select('cid, channel_code, cid_label, is_active')
       .order('channel_code', { ascending: true })
       .order('cid', { ascending: true });
     if (cidErr) throw cidErr;
@@ -124,7 +124,7 @@ export default async function handler(req, res) {
     const byChannel = {};
     for (const c of cids || []) {
       (byChannel[c.channel_code] = byChannel[c.channel_code] || []).push({
-        cid: c.cid, cid_label: c.cid_label, is_active: c.is_active, notes: c.notes,
+        cid: c.cid, cid_label: c.cid_label, is_active: c.is_active,
       });
     }
 

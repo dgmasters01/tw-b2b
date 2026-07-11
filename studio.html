@@ -54,6 +54,40 @@
   .st-hint { font-size:12px; opacity:.55; margin-top:9px; line-height:1.55; }
   .st-pub textarea { flex:1; font-size:12px; padding:8px 10px; border-radius:8px; border:1px solid rgba(128,128,128,.35); background:transparent; color:inherit; font-family:inherit; resize:vertical; }
   .st-steps { font-size:12px; opacity:.6; line-height:1.7; margin:0 0 14px; }
+
+  /* ── 6메뉴 셸 (D-060 · 올리기·성과표·호텔·키워드·전략·채널) ── */
+  .st-menu { display:flex; gap:4px; margin:0 0 20px; flex-wrap:wrap; border-bottom:1px solid rgba(128,128,128,.2); padding-bottom:0; }
+  .st-menu button { font-size:14px; padding:9px 14px; border:none; border-bottom:2px solid transparent; background:none; color:inherit; cursor:pointer; opacity:.55; margin-bottom:-1px; }
+  .st-menu button:hover { opacity:.85; }
+  .st-menu button.on { opacity:1; border-bottom-color:#4edea3; font-weight:500; }
+  .st-view { display:none; }
+  .st-view.on { display:block; }
+  .st-soon { text-align:center; padding:60px 20px; opacity:.5; font-size:15px; line-height:1.7; }
+  .st-soon b { display:block; font-size:17px; opacity:.8; margin-bottom:8px; }
+
+  /* ── 채널 메뉴 (D-064) ── */
+  .st-ch-head { display:flex; align-items:baseline; justify-content:space-between; gap:10px; margin-bottom:6px; }
+  .st-ch-note { font-size:12px; opacity:.55; margin-bottom:16px; line-height:1.6; }
+  .st-ch-card { border:1px solid rgba(128,128,128,.25); border-radius:12px; padding:15px 17px; margin-bottom:12px; }
+  .st-ch-card.off { opacity:.5; }
+  .st-ch-top { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:10px; }
+  .st-ch-code { font-size:12px; font-weight:600; padding:2px 8px; border-radius:6px; border:1px solid rgba(128,128,128,.4); letter-spacing:.5px; }
+  .st-ch-name { font-size:16px; font-weight:500; }
+  .st-ch-en { font-size:12px; opacity:.55; }
+  .st-ch-chip { font-size:11px; padding:2px 8px; border-radius:7px; border:1px solid rgba(128,128,128,.3); opacity:.8; }
+  .st-ch-chip.active { color:#1D9E75; border-color:#5DCAA5; }
+  .st-ch-chip.inactive { color:#BA7517; border-color:#EF9F27; }
+  .st-ch-chip.api { color:#4edea3; border-color:#4edea3; }
+  .st-ch-meta { display:flex; gap:16px; flex-wrap:wrap; font-size:13px; opacity:.75; margin-bottom:10px; }
+  .st-ch-meta span b { font-weight:500; opacity:.6; margin-right:4px; }
+  .st-cid-wrap { border-top:1px solid rgba(128,128,128,.14); padding-top:10px; }
+  .st-cid-label { font-size:12px; opacity:.55; margin-bottom:6px; }
+  .st-cid-list { display:flex; gap:6px; flex-wrap:wrap; }
+  .st-cid { font-size:12px; padding:3px 9px; border-radius:7px; border:1px solid rgba(128,128,128,.3); font-family:ui-monospace,monospace; }
+  .st-cid.new { border-color:#5DCAA5; color:#1D9E75; }
+  .st-cid.off { opacity:.45; text-decoration:line-through; }
+  .st-cid-none { font-size:12px; opacity:.45; }
+  .st-cid-tag { font-size:10px; opacity:.6; margin-left:4px; }
 </style>
 </head>
 <body>
@@ -70,21 +104,52 @@
     </div>
   </div>
 
-  <div class="st-card" id="st-upload">
-    <div class="st-card-head">
-      <div class="st-h">원고 넣기</div>
-      <div style="font-size:12px; opacity:.55">docx · 여러 개 한 번에</div>
-    </div>
-    <div class="st-uprow">
-      <input type="file" id="st-file" accept=".docx" multiple />
-      <button id="st-go">패키지 만들기</button>
-    </div>
-    <div class="st-hint">원고 파일명에 도시·지역·성급·가격대가 들어 있어야 합니다. 아고다 링크는 원고 본문에서 읽습니다.</div>
-    <div class="st-msg" id="st-upmsg"></div>
-  </div>
+  <nav class="st-menu" id="st-menu">
+    <button data-view="upload" class="on">올리기</button>
+    <button data-view="perf">성과표</button>
+    <button data-view="hotel">호텔</button>
+    <button data-view="keyword">키워드</button>
+    <button data-view="strategy">전략</button>
+    <button data-view="channels">채널</button>
+  </nav>
 
-  <div class="st-tabs" id="st-tabs"></div>
-  <div id="st-list"><div class="st-empty">불러오는 중…</div></div>
+  <!-- ── 올리기 (기존 기능 그대로) ─────────────────────────── -->
+  <section class="st-view on" id="view-upload">
+    <div class="st-card" id="st-upload">
+      <div class="st-card-head">
+        <div class="st-h">원고 넣기</div>
+        <div style="font-size:12px; opacity:.55">docx · 여러 개 한 번에</div>
+      </div>
+      <div class="st-uprow">
+        <input type="file" id="st-file" accept=".docx" multiple />
+        <button id="st-go">패키지 만들기</button>
+      </div>
+      <div class="st-hint">원고 파일명에 도시·지역·성급·가격대가 들어 있어야 합니다. 아고다 링크는 원고 본문에서 읽습니다.</div>
+      <div class="st-msg" id="st-upmsg"></div>
+    </div>
+
+    <div class="st-tabs" id="st-tabs"></div>
+    <div id="st-list"><div class="st-empty">불러오는 중…</div></div>
+  </section>
+
+  <!-- ── 채널 (D-064 · 채널 자산·CID 마스터) ──────────────── -->
+  <section class="st-view" id="view-channels">
+    <div class="st-ch-head">
+      <div class="st-h">채널</div>
+      <div style="font-size:12px; opacity:.55" id="st-ch-count"></div>
+    </div>
+    <div class="st-ch-note">
+      콘텐츠를 올리는 채널 자산과 아고다 CID를 한곳에서 봅니다. 올리기·성과표·호텔이 이 채널 위에서 돕니다.<br>
+      <span id="st-ch-perm"></span>
+    </div>
+    <div id="st-ch-list"><div class="st-empty">불러오는 중…</div></div>
+  </section>
+
+  <!-- ── 준비 중 4메뉴 ─────────────────────────────────────── -->
+  <section class="st-view" id="view-perf"><div class="st-soon"><b>성과표</b>전 채널·영상·호텔 성과 종합 조망 — 준비 중</div></section>
+  <section class="st-view" id="view-hotel"><div class="st-soon"><b>호텔</b>호텔별 전략 분석 대시보드 — 준비 중</div></section>
+  <section class="st-view" id="view-keyword"><div class="st-soon"><b>키워드</b>다음에 뭘 만들지 뽑아주는 분석·추천 엔진 — 준비 중</div></section>
+  <section class="st-view" id="view-strategy"><div class="st-soon"><b>전략</b>만들 콘텐츠 기획 큐 + 방향 판 — 준비 중</div></section>
 
 </div>
 
@@ -364,6 +429,90 @@
         .then(function () { next(i + 1); });
     })(0);
   };
+
+  /* ── 6메뉴 전환 (D-060) ──────────────────────────────────── */
+  var chLoaded = false;
+  function switchView(v) {
+    document.querySelectorAll('#st-menu button').forEach(function (b) {
+      b.classList.toggle('on', b.dataset.view === v);
+    });
+    document.querySelectorAll('.st-view').forEach(function (s) {
+      s.classList.toggle('on', s.id === 'view-' + v);
+    });
+    if (v === 'channels' && !chLoaded) { chLoaded = true; loadChannels(); }
+  }
+  document.querySelectorAll('#st-menu button').forEach(function (b) {
+    b.onclick = function () { switchView(b.dataset.view); };
+  });
+
+  /* ── 채널 메뉴 (D-064) ───────────────────────────────────── */
+  // 언어 코드를 사람 말로. D-065 보강: 언어=언어+시장(번체/간체·유튜브 접근성 구분).
+  var LANG = {
+    'ko': '한국어', 'en': '영어', 'ja': '일본어', 'vi': '베트남어',
+    'zh-tw': '중국어(대만·번체)', 'zh-hk': '중국어(홍콩·번체)', 'zh-cn': '중국어(본토·간체)'
+  };
+  function langLabel(code) {
+    var l = LANG[code] || code || '—';
+    if (code === 'zh-cn') l += ' · 유튜브 밖';
+    return l;
+  }
+
+  function channelCard(ch) {
+    var off = ch.is_active ? '' : ' off';
+    var h = '<div class="st-ch-card' + off + '">';
+    h += '<div class="st-ch-top">' +
+         '<span class="st-ch-code">' + esc(ch.code) + '</span>' +
+         '<span class="st-ch-name">' + esc(ch.name) + '</span>' +
+         (ch.name_en ? '<span class="st-ch-en">' + esc(ch.name_en) + '</span>' : '') +
+         (ch.is_active
+            ? '<span class="st-ch-chip active">운영중</span>'
+            : '<span class="st-ch-chip inactive">비활성</span>') +
+         (ch.has_agoda_api ? '<span class="st-ch-chip api">아고다 API</span>' : '') +
+         '</div>';
+
+    h += '<div class="st-ch-meta">' +
+         '<span><b>언어</b>' + esc(langLabel(ch.language)) + '</span>' +
+         '<span><b>플랫폼</b>' + esc(ch.platform || '—') + '</span>' +
+         '<span><b>순서</b>' + esc(ch.display_order == null ? '—' : ch.display_order) + '</span>' +
+         (ch.agoda_site_id ? '<span><b>사이트ID</b>' + esc(ch.agoda_site_id) + '</span>' : '') +
+         '</div>';
+
+    h += '<div class="st-cid-wrap"><div class="st-cid-label">아고다 CID · 예약↔채널 연결 키</div>';
+    if (ch.cids && ch.cids.length) {
+      h += '<div class="st-cid-list">' + ch.cids.map(function (c) {
+        var cls = 'st-cid' + (String(c.cid_label).toLowerCase() === 'new' ? ' new' : '') + (c.is_active ? '' : ' off');
+        return '<span class="' + cls + '">' + esc(c.cid) +
+               (c.cid_label ? '<span class="st-cid-tag">' + esc(c.cid_label) + '</span>' : '') + '</span>';
+      }).join('') + '</div>';
+    } else {
+      h += '<div class="st-cid-none">등록된 CID 없음</div>';
+    }
+    h += '</div>';
+
+    return h + '</div>';
+  }
+
+  function loadChannels() {
+    var list = document.getElementById('st-ch-list');
+    fetch('/api/channels', { credentials: 'same-origin' })
+      .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+      .then(function (x) {
+        if (!x.ok || !x.j.ok) throw new Error(x.j.error || '불러오지 못했습니다.');
+        var chs = x.j.channels || [];
+        document.getElementById('st-ch-count').textContent =
+          chs.length + '개 채널 · CID ' + chs.reduce(function (n, c) { return n + (c.cids ? c.cids.length : 0); }, 0) + '개';
+        document.getElementById('st-ch-perm').textContent = x.j.is_admin
+          ? '채널 등록·CID 편집·규격 저장 권한이 있습니다 (편집 화면은 준비 중).'
+          : '조회 전용입니다. 등록·편집은 관리자만 할 수 있습니다.';
+        list.innerHTML = chs.length
+          ? chs.map(channelCard).join('')
+          : '<div class="st-empty">등록된 채널이 없습니다.</div>';
+      })
+      .catch(function (e) {
+        list.innerHTML = '<div class="st-empty">' + esc(e.message) + '</div>';
+        chLoaded = false; // 실패하면 다시 진입 시 재시도
+      });
+  }
 
   document.getElementById('st-logout').onclick = function () {
     if (window.TW && window.TW.sb) { window.TW.sb.auth.signOut(); }

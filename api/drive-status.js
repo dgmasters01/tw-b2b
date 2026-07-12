@@ -108,6 +108,19 @@ export default async function handler(req, res) {
     { channel: 'HG', name: '호텔이곳', subs: ['대기', '완료', '확인필요'] },
   ];
 
+  // 확인필요 목록(D-060) — 드라이브 워처가 문제 원고를 옮기며 기록한 사유.
+  let review = [];
+  try {
+    const skey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    const surl = process.env.SUPABASE_URL || 'https://vjsludfjsphwnumuoqaj.supabase.co';
+    if (skey) {
+      const rr = await fetch(surl + '/rest/v1/drive_review?select=filename,channel_code,reason,updated_at&order=updated_at.desc', {
+        headers: { Authorization: 'Bearer ' + skey, apikey: skey },
+      });
+      if (rr.ok) review = await rr.json();
+    }
+  } catch { /* 목록 못 읽어도 무해 */ }
+
   res.setHeader('Cache-Control', 'private, no-store, max-age=0');
   return res.status(200).json({
     ok: true,
@@ -115,6 +128,7 @@ export default async function handler(req, res) {
     connected,
     steps,
     folders,
+    review,
     check_hours: CHECK_HOURS,
     next_check: nextCheck(),
     note: connected

@@ -55,6 +55,22 @@
   .st-pub textarea { flex:1; font-size:12px; padding:8px 10px; border-radius:8px; border:1px solid rgba(128,128,128,.35); background:transparent; color:inherit; font-family:inherit; resize:vertical; }
   .st-steps { font-size:12px; opacity:.6; line-height:1.7; margin:0 0 14px; }
 
+  /* ── 올리기 · 구글 드라이브 자동 읽기 (D-060 설계 §2) ── */
+  .st-badge.neutral { color:#8A8794; border-color:rgba(128,128,128,.35); }
+  .st-dr-next { display:flex; align-items:center; gap:6px; font-size:14px; margin-bottom:14px; padding:10px 13px; border-radius:9px; background:rgba(78,222,163,.08); border:1px solid rgba(78,222,163,.3); line-height:1.5; }
+  .st-dr-next b { color:#1D9E75; font-size:16px; }
+  .st-dr-steps { display:flex; flex-direction:column; gap:9px; margin-bottom:14px; }
+  .st-dr-step { display:flex; gap:9px; align-items:flex-start; font-size:13px; }
+  .st-dr-mark { flex:none; width:20px; text-align:center; font-size:14px; }
+  .st-dr-step .t { font-weight:500; }
+  .st-dr-step .h { opacity:.55; font-size:12px; margin-top:1px; display:block; }
+  .st-dr-who { flex:none; font-size:10px; padding:1px 7px; border-radius:6px; border:1px solid rgba(128,128,128,.3); opacity:.7; margin-left:auto; align-self:center; }
+  .st-dr-folders { border-top:1px solid rgba(128,128,128,.14); padding-top:12px; }
+  .st-dr-flabel { font-size:12px; opacity:.55; margin-bottom:8px; }
+  .st-dr-ftree { font-family:ui-monospace,monospace; font-size:12px; line-height:1.8; opacity:.85; }
+  .st-dr-ftree .ch { color:#1D9E75; }
+  .st-src { font-size:11px; opacity:.55; margin:-4px 0 8px; }
+
   /* ── 6메뉴 셸 (D-060 · 올리기·성과표·호텔·키워드·전략·채널) ── */
   .st-menu { display:flex; gap:4px; margin:0 0 20px; flex-wrap:wrap; border-bottom:1px solid rgba(128,128,128,.2); padding-bottom:0; }
   .st-menu button { font-size:14px; padding:9px 14px; border:none; border-bottom:2px solid transparent; background:none; color:inherit; cursor:pointer; opacity:.55; margin-bottom:-1px; }
@@ -179,6 +195,18 @@
       <div class="st-msg" id="st-upmsg"></div>
     </div>
 
+    <!-- ── 구글 드라이브 자동 읽기 (D-060 설계 §2 · 화면·개발까지) ── -->
+    <div class="st-card" id="st-drive">
+      <div class="st-card-head">
+        <div class="st-h">구글 드라이브 자동 읽기</div>
+        <span class="st-badge neutral" id="dr-badge">불러오는 중…</span>
+      </div>
+      <div class="st-dr-next" id="dr-next">불러오는 중…</div>
+      <div id="dr-steps"></div>
+      <div id="dr-folders"></div>
+      <div class="st-hint" id="dr-note"></div>
+    </div>
+
     <div class="st-tabs" id="st-tabs"></div>
     <div id="st-list"><div class="st-empty">불러오는 중…</div></div>
   </section>
@@ -278,6 +306,12 @@
     var h = '<div class="st-card" data-id="' + id + '">';
     h += '<div class="st-card-head"><div class="st-h">' + esc(head) + '</div>' +
          '<span class="st-badge ' + p.status + '">' + (p.status === 'published' ? '발행됨' : '대기') + '</span></div>';
+
+    // 출처(설계 §3): 자동(드라이브) / 수동(+올린 사람). 드라이브 워처 붙기 전엔 대부분 수동.
+    var srcLabel = p.source === 'drive'
+      ? '자동 · 드라이브'
+      : '수동' + (p.uploaded_by_email ? ' · ' + p.uploaded_by_email + ' 올림' : '');
+    h += '<div class="st-src">출처 · ' + esc(srcLabel) + '</div>';
 
     if (p.filename_base) { payload['fn' + id] = p.filename_base; h += rowHtml('파일명', p.filename_base, 'fn' + id); }
     if (p.title)         { payload['ti' + id] = p.title;         h += rowHtml('제목', p.title, 'ti' + id); }
@@ -441,6 +475,58 @@
       });
   }
   load();
+
+  /* ── 구글 드라이브 자동 읽기 상태 (D-060 설계 §2) ────────────────
+   * 연결 여부·다음 확인 시각·연결 0단계·폴더 안내를 화면에 보여준다.
+   * 실제 자동 읽기(BL-YT-DRIVE-WATCH)는 대표님이 폴더+키 넣으면 켜짐. 지금은 화면만. */
+  function pad2(n) { return String(n).padStart(2, '0'); }
+  function loadDrive() {
+    var badge = document.getElementById('dr-badge');
+    var next = document.getElementById('dr-next');
+    var steps = document.getElementById('dr-steps');
+    var folders = document.getElementById('dr-folders');
+    var note = document.getElementById('dr-note');
+    fetch('/api/drive-status', { credentials: 'same-origin' })
+      .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+      .then(function (x) {
+        if (!x.ok || !x.j.ok) throw new Error(x.j.error || '불러오지 못했습니다.');
+        var d = x.j;
+        badge.className = 'st-badge ' + (d.connected ? 'published' : 'neutral');
+        badge.textContent = d.connected ? '연결됨' : '연결 전';
+
+        var hrs = (d.check_hours || []).map(function (h) { return pad2(h) + '시'; }).join('·');
+        next.innerHTML = '⏰ 다음 확인 <b>' + esc((d.next_check || {}).label || '—') + '</b>' +
+          '<span style="opacity:.65"> · 하루 4번(' + esc(hrs) + ') 자동으로 봅니다</span>';
+
+        steps.className = 'st-dr-steps';
+        steps.innerHTML = (d.steps || []).map(function (s) {
+          return '<div class="st-dr-step">' +
+            '<span class="st-dr-mark">' + (s.done ? '✅' : '⬜') + '</span>' +
+            '<span><span class="t">' + s.n + '. ' + esc(s.title) + '</span>' +
+            '<span class="h">' + esc(s.hint) + '</span></span>' +
+            '<span class="st-dr-who">' + (s.by === 'owner' ? '대표님' : '자동') + '</span>' +
+          '</div>';
+        }).join('');
+
+        folders.className = 'st-dr-folders';
+        folders.innerHTML =
+          '<div class="st-dr-flabel">드라이브 폴더 구조 — 채널마다 3개(대기 · 완료 · 확인필요)</div>' +
+          '<div class="st-dr-ftree">📁 유튜브 업로드 자동화<br>' +
+          (d.folders || []).map(function (f) {
+            return '&nbsp;&nbsp;├ <span class="ch">' + esc(f.name) + ' (' + esc(f.channel) + ')</span> : ' +
+                   (f.subs || []).map(esc).join(' · ');
+          }).join('<br>') +
+          '</div>';
+
+        note.textContent = d.note || '';
+      })
+      .catch(function (e) {
+        badge.className = 'st-badge neutral'; badge.textContent = '—';
+        next.textContent = '';
+        note.textContent = e.message;
+      });
+  }
+  loadDrive();
 
   /* ── 원고 넣기 ────────────────────────────────────────────────
      docx 는 3~4MB 다. 통째로 보내면 서버가 못 받는다 (4.5MB 한도).

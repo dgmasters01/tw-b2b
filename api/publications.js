@@ -49,7 +49,7 @@ function accessToken(req) {
  */
 async function authorized(req) {
   const expected = process.env.CLAUDE_OPS_TOKEN;
-  if (expected && (req.headers['x-ops-token'] || '') === expected) return { ok: true, via: 'ops-token' };
+  if (expected && (req.headers['x-ops-token'] || '') === expected) return { ok: true, via: 'ops-token', isAdmin: true };
 
   const token = accessToken(req);
   if (!token || !SUPABASE_URL || !SUPABASE_ANON) return { ok: false };

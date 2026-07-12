@@ -71,6 +71,37 @@
   .st-dr-ftree .ch { color:#1D9E75; }
   .st-src { font-size:11px; opacity:.55; margin:-4px 0 8px; }
 
+  /* ── 올리기 리스트 재구조 (설계 §3·§4) ── */
+  .st-up-controls { display:flex; flex-direction:column; gap:10px; margin:18px 0 12px; }
+  .st-seg { display:inline-flex; gap:2px; background:rgba(128,128,128,.12); border-radius:9px; padding:3px; align-self:flex-start; }
+  .st-seg button { font-size:13px; padding:6px 15px; border:none; border-radius:7px; background:none; color:inherit; cursor:pointer; opacity:.6; }
+  .st-seg button.on { opacity:1; background:rgba(255,255,255,.08); font-weight:500; }
+  .st-filters { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  .st-filters select { font-size:12px; padding:6px 10px; border-radius:8px; border:1px solid rgba(128,128,128,.3); background:transparent; color:inherit; }
+  .st-filters select option { color:#111; }
+  .st-up-count { font-size:12px; opacity:.55; margin-left:auto; }
+  .st-lrow { border:1px solid rgba(128,128,128,.22); border-radius:11px; margin-bottom:8px; overflow:hidden; }
+  .st-lhead { display:flex; align-items:center; gap:10px; padding:11px 13px; cursor:pointer; }
+  .st-lhead:hover { background:rgba(128,128,128,.05); }
+  .st-lchev { flex:none; font-size:11px; opacity:.4; width:12px; text-align:center; transition:transform .15s; }
+  .st-lrow.open .st-lchev { transform:rotate(90deg); }
+  .st-lmain { flex:1; min-width:0; }
+  .st-ltitle { font-size:14px; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .st-lsub { font-size:11px; opacity:.6; margin-top:3px; display:flex; gap:7px; flex-wrap:wrap; align-items:center; }
+  .st-chbadge { font-size:10px; font-weight:600; padding:1px 7px; border-radius:6px; border:1px solid rgba(128,128,128,.35); opacity:.9; }
+  .st-lstate { flex:none; display:flex; gap:6px; align-items:center; }
+  .st-sbadge { font-size:11px; padding:3px 10px; border-radius:8px; border:1px solid rgba(128,128,128,.35); white-space:nowrap; }
+  .st-sbadge.draft { color:#BA7517; border-color:#EF9F27; }
+  .st-sbadge.claimed { color:#4A90D9; border-color:#4A90D9; }
+  .st-sbadge.published { color:#1D9E75; border-color:#5DCAA5; }
+  .st-sbadge.stale { color:#E24B4A; border-color:#E24B4A; }
+  .st-dupflag { font-size:10px; padding:1px 7px; border-radius:6px; border:1px solid #E24B4A; color:#E24B4A; }
+  .st-lbody { padding:2px 13px 13px; border-top:1px solid rgba(128,128,128,.14); display:none; }
+  .st-lrow.open .st-lbody { display:block; }
+  .st-copyn { flex:none; width:18px; text-align:center; font-weight:600; opacity:.4; }
+  .st-lockmsg { font-size:12px; opacity:.6; padding:10px 0 2px; }
+  .st-del-owner { font-size:11px; padding:4px 11px; border-radius:7px; border:1px solid rgba(226,75,74,.5); color:#E24B4A; background:none; cursor:pointer; margin-top:8px; }
+
   /* ── 6메뉴 셸 (D-060 · 올리기·성과표·호텔·키워드·전략·채널) ── */
   .st-menu { display:flex; gap:4px; margin:0 0 20px; flex-wrap:wrap; border-bottom:1px solid rgba(128,128,128,.2); padding-bottom:0; }
   .st-menu button { font-size:14px; padding:9px 14px; border:none; border-bottom:2px solid transparent; background:none; color:inherit; cursor:pointer; opacity:.55; margin-bottom:-1px; }
@@ -230,7 +261,20 @@
       <div class="st-hint" id="dr-note"></div>
     </div>
 
-    <div class="st-tabs" id="st-tabs"></div>
+    <!-- ── 올리기 목록 컨트롤 (설계 §3: 보기 3종 + 필터) ── -->
+    <div class="st-up-controls">
+      <div class="st-seg" id="st-seg">
+        <button data-vm="all" class="on">전체</button>
+        <button data-vm="mine">내 작업</button>
+        <button data-vm="unassigned">미지정</button>
+      </div>
+      <div class="st-filters">
+        <select id="f-ch"><option value="">채널 전체</option></select>
+        <select id="f-assignee" style="display:none"><option value="">담당자 전체</option></select>
+        <select id="f-lang"><option value="">언어 전체</option></select>
+        <span class="st-up-count" id="st-up-count"></span>
+      </div>
+    </div>
     <div id="st-list"><div class="st-empty">불러오는 중…</div></div>
   </section>
 
@@ -317,6 +361,17 @@
   // 인증은 middleware.js 가 이미 끝냈다 (is_editor). 여기엔 인증 코드가 없다.
   // 데이터는 /api/publications 로만 오간다. 쿠키(sb-access-token)가 신분증이다.
   var rows = [], channels = {}, tab = null, ME = null;
+  var channelsMap = {};        // code -> {name, language}
+  var ME_ADMIN = false;
+  var upView = 'all';          // all | mine | unassigned (설계 §3 보기 3종)
+  var upF = { ch: '', assignee: '', lang: '' };
+  var upOpen = {};             // id -> 펼침 여부
+
+  function daysSince(iso) {
+    if (!iso) return 0;
+    return Math.floor((Date.now() - new Date(iso).getTime()) / 86400000);
+  }
+  function shortMail(e) { return e ? String(e).split('@')[0] : ''; }
 
   function esc(s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
@@ -338,36 +393,69 @@
       '<button class="st-copy" data-copy="' + id + '">복사</button></div>';
   }
 
-  function cardHtml(p) {
-    var payload = {}, id = p.id;
-    var place = [p.city, p.region].filter(Boolean).join(' ');
-    var head = place + (p.star ? ' · ' + p.star + '성급' : '') + (p.price_band ? ' · ' + p.price_band : '');
+  // 언어 라벨 (아래 채널 섹션 LANG 재사용; 없으면 코드 그대로)
+  function upLang(code) {
+    try { return langLabel(code); } catch (e) { return code || ''; }
+  }
+  function chName(code) { return (channelsMap[code] && channelsMap[code].name) || channels[code] || code; }
+  function chLangOf(code) { return channelsMap[code] && channelsMap[code].language; }
 
-    var h = '<div class="st-card" data-id="' + id + '">';
-    h += '<div class="st-card-head"><div class="st-h">' + esc(head) + '</div>' +
-         '<span class="st-badge ' + p.status + '">' + (p.status === 'published' ? '발행됨' : '대기') + '</span></div>';
+  // 상태(설계 §3: 대기·맡음·발행됨 + 며칠째·방치)
+  function statusInfo(p) {
+    if (p.status === 'published') return { cls: 'published', label: '발행됨' };
+    if (p.claimed_by_email) {
+      var d = daysSince(p.claimed_at);
+      var stale = d >= 3;
+      return {
+        cls: stale ? 'stale' : 'claimed',
+        label: '맡음 · ' + shortMail(p.claimed_by_email) + (d ? ' · ' + d + '일째' : '') + (stale ? ' · 방치' : '')
+      };
+    }
+    return { cls: 'draft', label: '대기' };
+  }
 
-    // 출처(설계 §3): 자동(드라이브) / 수동(+올린 사람). 드라이브 워처 붙기 전엔 대부분 수동.
-    var srcLabel = p.source === 'drive'
+  function srcLabel(p) {
+    return p.source === 'drive'
       ? '자동 · 드라이브'
-      : '수동' + (p.uploaded_by_email ? ' · ' + p.uploaded_by_email + ' 올림' : '');
-    h += '<div class="st-src">출처 · ' + esc(srcLabel) + '</div>';
+      : '수동' + (p.uploaded_by_email ? ' · ' + shortMail(p.uploaded_by_email) + ' 올림' : '');
+  }
 
-    if (p.filename_base) { payload['fn' + id] = p.filename_base; h += rowHtml('파일명', p.filename_base, 'fn' + id); }
-    if (p.title)         { payload['ti' + id] = p.title;         h += rowHtml('제목', p.title, 'ti' + id); }
-    if (p.description)   { payload['de' + id] = p.description;   h += rowHtml('설명란', '아고다 링크 포함 · ' + p.description.split('\n').length + '줄', 'de' + id); }
-    if (p.keywords)      { payload['kw' + id] = p.keywords;      h += rowHtml('키워드', (p.keyword_length || p.keywords.length) + '자', 'kw' + id); }
-    if (p.hashtags && p.hashtags.length) { payload['ha' + id] = p.hashtags.join(' '); h += rowHtml('해시태그', p.hashtags.length + '개', 'ha' + id); }
-    if (p.chapters && p.chapters.length) {
-      payload['ch' + id] = p.chapters.map(function (c) { return c.time + ' ' + c.label; }).join('\n');
-      h += rowHtml('챕터', p.chapters.length + '줄', 'ch' + id);
-    }
+  // 컴팩트 행 (접힘). 클릭하면 펼쳐진다.
+  function rowCompact(p) {
+    var place = [p.city, p.region].filter(Boolean).join(' ');
+    var title = place ? (place + (p.star ? ' · ' + p.star + '성급' : '') + (p.price_band ? ' · ' + p.price_band : '')) : (p.title || '(제목 없음)');
+    var st = statusInfo(p);
+    var lang = chLangOf(p.channel_code);
+    var open = !!upOpen[p.id];
 
-    if (p.warnings && p.warnings.length) {
-      h += '<div class="st-warn"><b>확인 ' + p.warnings.length + '건</b><br>' +
-           p.warnings.map(function (w) { return '· ' + esc(w); }).join('<br>') + '</div>';
-    }
+    var sub = '<span class="st-chbadge">' + esc(chName(p.channel_code)) + '</span>';
+    if (lang) sub += '<span>' + esc(upLang(lang)) + '</span>';
+    sub += '<span>출처 · ' + esc(srcLabel(p)) + '</span>';
+    if (p.is_duplicate) sub += '<span class="st-dupflag">중복</span>';
 
+    return '<div class="st-lrow' + (open ? ' open' : '') + '" data-lrow="' + p.id + '">' +
+      '<div class="st-lhead" data-toggle="' + p.id + '">' +
+        '<span class="st-lchev">▶</span>' +
+        '<div class="st-lmain"><div class="st-ltitle">' + esc(title) + '</div>' +
+          '<div class="st-lsub">' + sub + '</div></div>' +
+        '<div class="st-lstate"><span class="st-sbadge ' + st.cls + '">' + esc(st.label) + '</span></div>' +
+      '</div>' +
+      '<div class="st-lbody">' + (open ? expandedBody(p).html : '') + '</div>' +
+    '</div>';
+  }
+
+  // 번호 붙은 복사 한 줄 (설계 §4: ①제목 ②설명란 ③태그 ④파일명)
+  function copyRow(n, k, shown, id) {
+    return '<div class="st-row"><span class="st-copyn">' + n + '</span><div class="st-k">' + esc(k) + '</div>' +
+      '<div class="st-v">' + esc(shown) + '</div>' +
+      '<button class="st-copy" data-copy="' + id + '">복사</button></div>';
+  }
+
+  // 펼친 본문 = 발행 카드 (설계 §4). 맡기 전엔 복사 잠김.
+  function expandedBody(p) {
+    var payload = {}, id = p.id, h = '';
+
+    // 아고다 링크 없음 → 링크 붙여넣기 (맡기와 무관하게 항상 필요)
     var noLink = !p.hid_top1 || !p.hid_top2 || !p.hid_top3;
     if (noLink && p.status !== 'published') {
       h += '<div class="st-warn" style="border-color:#E24B4A"><b>아고다 링크가 없습니다</b><br>' +
@@ -376,47 +464,138 @@
            '<textarea data-links="' + id + '" rows="3" placeholder="TOP1/2/3 파트너 링크를 그대로 붙여넣기"></textarea>' +
            '<button data-savelinks="' + id + '">링크 넣기</button></div>' +
            '<div class="st-msg" data-msg="' + id + '"></div>';
-      return { html: h + '</div>', payload: payload };
+      return { html: h, payload: payload };
+    }
+
+    var mine = p.claimed_by_email === ME;
+    var claimedByOther = p.claimed_by_email && !mine;
+    var showCopies = mine || p.status === 'published';  // 맡아야(또는 발행돼야) 복사 열림
+
+    if (showCopies) {
+      // 복사 4개 + 번호 (챕터·해시태그·링크는 설명란 안에 이미 포함 → 따로 복사 안 함)
+      if (p.title)       { payload['ti' + id] = p.title;         h += copyRow('①', '제목', p.title, 'ti' + id); }
+      if (p.description) { payload['de' + id] = p.description;   h += copyRow('②', '설명란', '아고다 링크·챕터·해시태그 포함 · ' + p.description.split('\n').length + '줄', 'de' + id); }
+      if (p.keywords)    { payload['kw' + id] = p.keywords;      var kl = p.keyword_length || p.keywords.length; h += copyRow('③', '태그', kl + ' / 500자' + (kl > 500 ? ' · 초과!' : ''), 'kw' + id); }
+      if (p.filename_base) { payload['fn' + id] = p.filename_base; h += copyRow('④', '파일명', p.filename_base, 'fn' + id); }
+    }
+
+    if (p.warnings && p.warnings.length) {
+      h += '<div class="st-warn"><b>확인 ' + p.warnings.length + '건</b><br>' +
+           p.warnings.map(function (w) { return '· ' + esc(w); }).join('<br>') + '</div>';
     }
 
     if (p.status === 'published') {
-      h += '<div class="st-done">발행 · ' + esc(p.published_by_email || '?') +
+      h += '<div class="st-done" data-doneview="' + id + '">발행 · ' + esc(p.published_by_email || '?') +
            (p.published_at ? ' · ' + p.published_at.slice(0, 10) : '') + '<br>' +
-           '<a href="' + esc(p.youtube_url) + '" target="_blank" rel="noopener">' + esc(p.youtube_url) + '</a></div>';
+           '<a href="' + esc(p.youtube_url) + '" target="_blank" rel="noopener">' + esc(p.youtube_url) + '</a> ' +
+           '<button class="st-copy" data-editurl="' + id + '" style="margin-left:6px">주소 수정</button></div>' +
+           '<div class="st-pub" data-editbox="' + id + '" style="display:none">' +
+             '<input type="text" value="' + esc(p.youtube_url || '') + '" data-url="' + id + '" />' +
+             '<button data-publish="' + id + '">저장</button></div>' +
+           '<div class="st-msg" data-msg="' + id + '"></div>';
+    } else if (claimedByOther) {
+      h += '<div class="st-lockmsg">🔒 ' + esc(p.claimed_by_email) + ' 님이 맡고 있습니다. (맡은 사람만 복사·발행할 수 있습니다)</div>';
+    } else if (mine) {
+      h += '<div class="st-pub"><input type="text" placeholder="youtube.com/watch?v=…" data-url="' + id + '" />' +
+           '<button data-publish="' + id + '">발행 완료</button>' +
+           '<button data-unclaim="' + id + '">놓기</button></div>' +
+           '<div class="st-msg" data-msg="' + id + '"></div>';
     } else {
-      var mine = p.claimed_by_email === ME;
-      if (p.claimed_by_email && !mine) {
-        h += '<div class="st-done">' + esc(p.claimed_by_email) + ' 님이 맡고 있습니다</div>';
-      } else if (mine) {
-        h += '<div class="st-pub"><input type="text" placeholder="youtube.com/watch?v=…" data-url="' + id + '" />' +
-             '<button data-publish="' + id + '">발행 완료</button>' +
-             '<button data-unclaim="' + id + '">놓기</button></div>' +
-             '<div class="st-msg" data-msg="' + id + '"></div>';
-      } else {
-        h += '<div class="st-pub"><button data-claim="' + id + '">내가 맡기</button></div>' +
-             '<div class="st-msg" data-msg="' + id + '"></div>';
-      }
+      h += '<div class="st-lockmsg">아직 아무도 안 맡았습니다. 맡아야 복사·발행이 열립니다.</div>' +
+           '<div class="st-pub"><button data-claim="' + id + '">내가 맡기</button></div>' +
+           '<div class="st-msg" data-msg="' + id + '"></div>';
     }
-    return { html: h + '</div>', payload: payload };
+
+    // 중복 삭제 = 대표님 전용 (설계 §5)
+    if (p.is_duplicate && ME_ADMIN) {
+      h += '<button class="st-del-owner" data-deldup="' + id + '">중복 삭제 (대표님 전용)</button>';
+    }
+
+    return { html: h, payload: payload };
+  }
+
+  function passFilter(p) {
+    if (upView === 'mine' && p.claimed_by_email !== ME) return false;
+    if (upView === 'unassigned' && !(p.status === 'draft' && !p.claimed_by_email)) return false;
+    if (upF.ch && p.channel_code !== upF.ch) return false;
+    if (upF.assignee && p.claimed_by_email !== upF.assignee) return false;
+    if (upF.lang && chLangOf(p.channel_code) !== upF.lang) return false;
+    return true;
   }
 
   function render() {
     var list = document.getElementById('st-list');
-    var mine = rows.filter(function (r) { return r.channel_code === tab; });
-    if (!mine.length) {
-      list.innerHTML = '<div class="st-empty">이 채널에 원고가 없습니다.<br>위에서 docx 를 넣으면 여기 나타납니다.</div>';
+    var shown = rows.filter(passFilter);
+    var cnt = document.getElementById('st-up-count');
+    if (cnt) cnt.textContent = shown.length + ' / ' + rows.length + '건';
+    if (!shown.length) {
+      list.innerHTML = '<div class="st-empty">조건에 맞는 원고가 없습니다.<br>위에서 docx 를 넣거나 필터를 바꿔보세요.</div>';
       return;
     }
-
     var html = '', store = {};
-    mine.forEach(function (p) { var c = cardHtml(p); html += c.html; Object.assign(store, c.payload); });
+    shown.forEach(function (p) {
+      html += rowCompact(p);
+      if (upOpen[p.id]) Object.assign(store, expandedBody(p).payload);
+    });
     list.innerHTML = html;
 
-    list.querySelectorAll('[data-copy]').forEach(function (b) { b.onclick = function () { copy(b, store[b.dataset.copy]); }; });
+    list.querySelectorAll('[data-toggle]').forEach(function (el) {
+      el.onclick = function () { var id = el.dataset.toggle; upOpen[id] = !upOpen[id]; render(); };
+    });
+    list.querySelectorAll('[data-copy]').forEach(function (b) { b.onclick = function (e) { e.stopPropagation(); copy(b, store[b.dataset.copy]); }; });
     list.querySelectorAll('[data-publish]').forEach(function (b) { b.onclick = function () { publish(b.dataset.publish); }; });
     list.querySelectorAll('[data-claim]').forEach(function (b) { b.onclick = function () { act(b.dataset.claim, 'claim', b); }; });
     list.querySelectorAll('[data-unclaim]').forEach(function (b) { b.onclick = function () { act(b.dataset.unclaim, 'unclaim', b); }; });
     list.querySelectorAll('[data-savelinks]').forEach(function (b) { b.onclick = function () { saveLinks(b.dataset.savelinks, b); }; });
+    list.querySelectorAll('[data-editurl]').forEach(function (b) {
+      b.onclick = function (e) { e.stopPropagation(); var box = list.querySelector('[data-editbox="' + b.dataset.editurl + '"]'); if (box) box.style.display = box.style.display === 'none' ? 'flex' : 'none'; };
+    });
+    list.querySelectorAll('[data-deldup]').forEach(function (b) { b.onclick = function () { deleteDup(b.dataset.deldup, b); }; });
+  }
+
+  // 필터 드롭다운 채우기 (채널/언어/담당자)
+  function drawFilters() {
+    var chs = [];
+    rows.forEach(function (r) { if (r.channel_code && chs.indexOf(r.channel_code) < 0) chs.push(r.channel_code); });
+    var fch = document.getElementById('f-ch');
+    if (fch) fch.innerHTML = '<option value="">채널 전체</option>' + chs.map(function (c) {
+      return '<option value="' + esc(c) + '"' + (upF.ch === c ? ' selected' : '') + '>' + esc(chName(c)) + '</option>';
+    }).join('');
+
+    var langs = [];
+    chs.forEach(function (c) { var l = chLangOf(c); if (l && langs.indexOf(l) < 0) langs.push(l); });
+    var flang = document.getElementById('f-lang');
+    if (flang) flang.innerHTML = '<option value="">언어 전체</option>' + langs.map(function (l) {
+      return '<option value="' + esc(l) + '"' + (upF.lang === l ? ' selected' : '') + '>' + esc(upLang(l)) + '</option>';
+    }).join('');
+
+    var fas = document.getElementById('f-assignee');
+    if (fas) {
+      if (ME_ADMIN) {
+        var people = [];
+        rows.forEach(function (r) { if (r.claimed_by_email && people.indexOf(r.claimed_by_email) < 0) people.push(r.claimed_by_email); });
+        fas.style.display = people.length ? '' : 'none';
+        fas.innerHTML = '<option value="">담당자 전체</option>' + people.map(function (e) {
+          return '<option value="' + esc(e) + '"' + (upF.assignee === e ? ' selected' : '') + '>' + esc(shortMail(e)) + '</option>';
+        }).join('');
+      } else { fas.style.display = 'none'; }
+    }
+  }
+
+  // 중복 삭제 (대표님 전용) — Phase 3에서 백엔드 붙기 전까지 안전 처리
+  function deleteDup(id, btn) {
+    if (!confirm('이 중복 원고를 삭제할까요? (되돌릴 수 없습니다)')) return;
+    btn.disabled = true;
+    fetch('/api/publications', {
+      method: 'DELETE', credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: id })
+    }).then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+      .then(function (x) {
+        if (!x.ok || !x.j.ok) throw new Error(x.j.error || '삭제하지 못했습니다.');
+        rows = rows.filter(function (r) { return r.id !== id; });
+        render();
+      })
+      .catch(function (e) { btn.disabled = false; alert(e.message); });
   }
 
   /** 아고다 파트너 링크 3개 붙여넣기 */
@@ -474,47 +653,57 @@
         msg.className = 'st-msg ok'; msg.textContent = '발행됐습니다.';
         var i = rows.findIndex(function (r) { return r.id === id; });
         if (i >= 0) rows[i] = x.j.row;
-        setTimeout(function () { drawTabs(); render(); }, 700);
+        setTimeout(function () { drawFilters(); render(); }, 700);
       })
       .catch(function (e) { btn.disabled = false; msg.className = 'st-msg err'; msg.textContent = e.message; });
-  }
-
-  function drawTabs() {
-    var codes = [];
-    rows.forEach(function (r) { if (codes.indexOf(r.channel_code) < 0) codes.push(r.channel_code); });
-    if (!codes.length) codes = ['TW', 'HT', 'HG'];
-    if (!tab || codes.indexOf(tab) < 0) tab = codes[0];
-    document.getElementById('st-tabs').innerHTML = codes.map(function (c) {
-      var n = rows.filter(function (r) { return r.channel_code === c && r.status === 'draft'; }).length;
-      return '<button class="st-tab' + (c === tab ? ' on' : '') + '" data-tab="' + c + '">' +
-             esc(channels[c] || c) + (n ? ' · ' + n : '') + '</button>';
-    }).join('');
-    document.querySelectorAll('[data-tab]').forEach(function (b) {
-      b.onclick = function () { tab = b.dataset.tab; drawTabs(); render(); };
-    });
   }
 
   var CH = { TW: '여행능력자들', HT: '호텔이야', HG: '호텔이곳' };
   channels = CH;
 
-  function load() {
-    return fetch('/api/publications', { credentials: 'same-origin' })
+  // 채널 이름·언어 (뱃지·언어필터용). 실패해도 기본 CH로 동작.
+  function loadChannelsMeta() {
+    return fetch('/api/channels', { credentials: 'same-origin' })
       .then(function (r) { return r.json(); })
       .then(function (j) {
-        if (!j.ok) throw new Error(j.error || '불러오지 못했습니다.');
-        rows = j.rows || [];
-        ME = j.me || null;
-        var wait = rows.filter(function (r) { return r.status === 'draft'; }).length;
-        document.getElementById('st-who').textContent = (ME || '') + ' · 대기 ' + wait + ' · 발행 ' + (rows.length - wait);
-        // 관리자·대표님만 admin 버튼이 보인다. editor 는 눌러도 튕기므로 아예 감춘다.
-        if (j.is_admin) { document.getElementById('st-admin').style.display = ''; }
-        drawTabs(); render();
+        (j.channels || []).forEach(function (c) { channelsMap[c.code] = { name: c.name, language: c.language }; });
       })
-      .catch(function (e) {
-        document.getElementById('st-list').innerHTML = '<div class="st-empty">' + esc(e.message) + '</div>';
-      });
+      .catch(function () { /* 무해: 기본 CH 사용 */ });
+  }
+
+  function load() {
+    return Promise.all([
+      fetch('/api/publications', { credentials: 'same-origin' }).then(function (r) { return r.json(); }),
+      loadChannelsMeta()
+    ]).then(function (res) {
+      var j = res[0];
+      if (!j.ok) throw new Error(j.error || '불러오지 못했습니다.');
+      rows = j.rows || [];
+      ME = j.me || null;
+      ME_ADMIN = !!j.is_admin;
+      var wait = rows.filter(function (r) { return r.status === 'draft'; }).length;
+      document.getElementById('st-who').textContent = (ME || '') + ' · 대기 ' + wait + ' · 발행 ' + (rows.length - wait);
+      if (j.is_admin) { document.getElementById('st-admin').style.display = ''; }
+      drawFilters(); render();
+    }).catch(function (e) {
+      document.getElementById('st-list').innerHTML = '<div class="st-empty">' + esc(e.message) + '</div>';
+    });
   }
   load();
+
+  // 보기 3종 + 필터 이벤트 (정적 요소 · 1회 바인딩)
+  (function () {
+    document.querySelectorAll('#st-seg button').forEach(function (b) {
+      b.onclick = function () {
+        upView = b.dataset.vm;
+        document.querySelectorAll('#st-seg button').forEach(function (x) { x.classList.toggle('on', x === b); });
+        render();
+      };
+    });
+    var fch = document.getElementById('f-ch'); if (fch) fch.onchange = function () { upF.ch = fch.value; render(); };
+    var fas = document.getElementById('f-assignee'); if (fas) fas.onchange = function () { upF.assignee = fas.value; render(); };
+    var flang = document.getElementById('f-lang'); if (flang) flang.onchange = function () { upF.lang = flang.value; render(); };
+  })();
 
   /* ── 구글 드라이브 자동 읽기 상태 (D-060 설계 §2) ────────────────
    * 연결 여부·다음 확인 시각·연결 0단계·폴더 안내를 화면에 보여준다.

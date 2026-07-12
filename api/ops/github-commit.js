@@ -59,6 +59,7 @@ export default async function handler(req, res) {
   const body = req.body || {};
   const { path, content, message } = body;
   const branch = body.branch || 'main';
+  const encoding = body.encoding === 'base64' ? 'base64' : 'utf-8';  // base64=바이너리(이미지 등), 기본 utf-8=텍스트
 
   if (!path || typeof path !== 'string') {
     return res.status(400).json({ error: 'path is required (string)' });
@@ -118,7 +119,8 @@ export default async function handler(req, res) {
     }
 
     // 6. commit 실행 (PUT — create 또는 update)
-    const contentBase64 = Buffer.from(content, 'utf-8').toString('base64');
+    // encoding=base64 이면 이미 base64(바이너리) → 그대로 사용, 아니면 UTF-8 텍스트를 base64 변환
+    const contentBase64 = encoding === 'base64' ? content : Buffer.from(content, 'utf-8').toString('base64');
     const putUrl = `${GITHUB_API}/repos/${REPO_OWNER}/${REPO_NAME}/contents/${encodeURIComponent(path).replace(/%2F/g, '/')}`;
 
     const putPayload = {

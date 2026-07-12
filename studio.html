@@ -88,6 +88,21 @@
   .st-cid.off { opacity:.45; text-decoration:line-through; }
   .st-cid-none { font-size:12px; opacity:.45; }
   .st-cid-tag { font-size:10px; opacity:.6; margin-left:4px; }
+  .st-ch-edit-btn { flex:none; font-size:11px; padding:3px 10px; border-radius:7px; border:1px solid rgba(128,128,128,.35); background:none; color:inherit; cursor:pointer; margin-left:auto; }
+  .st-ch-edit-btn:hover { border-color:currentColor; }
+  .st-ch-form { margin-top:12px; border-top:1px solid rgba(128,128,128,.14); padding-top:12px; display:none; }
+  .st-ch-form.open { display:block; }
+  .st-ch-frow { display:flex; gap:8px; align-items:center; margin-bottom:8px; flex-wrap:wrap; }
+  .st-ch-frow label { font-size:12px; opacity:.6; width:70px; flex:none; }
+  .st-ch-form input[type=text], .st-ch-form input[type=number] { flex:1; min-width:120px; font-size:13px; padding:7px 9px; border-radius:7px; border:1px solid rgba(128,128,128,.35); background:transparent; color:inherit; }
+  .st-ch-form input[type=number] { max-width:90px; }
+  .st-ch-form .st-ch-actions { display:flex; gap:8px; margin-top:4px; align-items:center; }
+  .st-ch-form button { font-size:13px; padding:7px 15px; border-radius:8px; border:1px solid currentColor; background:none; color:inherit; cursor:pointer; }
+  .st-ch-form button.ghost { border-color:rgba(128,128,128,.35); }
+  .st-ch-form button:disabled { opacity:.4; cursor:default; }
+  .st-ch-toggle { display:flex; gap:6px; align-items:center; font-size:13px; }
+  .st-ch-fmsg { font-size:12px; margin-top:6px; min-height:15px; }
+  .st-ch-fmsg.err { color:#E24B4A; } .st-ch-fmsg.ok { color:#1D9E75; }
 </style>
 </head>
 <body>
@@ -457,9 +472,10 @@
     return l;
   }
 
+  var chIsAdmin = false;
   function channelCard(ch) {
     var off = ch.is_active ? '' : ' off';
-    var h = '<div class="st-ch-card' + off + '">';
+    var h = '<div class="st-ch-card' + off + '" data-ch="' + esc(ch.code) + '">';
     h += '<div class="st-ch-top">' +
          '<span class="st-ch-code">' + esc(ch.code) + '</span>' +
          '<span class="st-ch-name">' + esc(ch.name) + '</span>' +
@@ -468,6 +484,7 @@
             ? '<span class="st-ch-chip active">운영중</span>'
             : '<span class="st-ch-chip inactive">비활성</span>') +
          (ch.has_agoda_api ? '<span class="st-ch-chip api">아고다 API</span>' : '') +
+         (chIsAdmin ? '<button class="st-ch-edit-btn" data-edit="' + esc(ch.code) + '">수정</button>' : '') +
          '</div>';
 
     h += '<div class="st-ch-meta">' +
@@ -489,7 +506,44 @@
     }
     h += '</div>';
 
+    // 관리자 편집 폼 (숨김). 이름·영문명·순서·운영중만. code(연결 열쇠)는 못 바꿈.
+    if (chIsAdmin) {
+      h += '<div class="st-ch-form" data-form="' + esc(ch.code) + '">' +
+           '<div class="st-ch-frow"><label>이름</label><input type="text" data-f="name" value="' + esc(ch.name) + '"></div>' +
+           '<div class="st-ch-frow"><label>영문명</label><input type="text" data-f="name_en" value="' + esc(ch.name_en || '') + '"></div>' +
+           '<div class="st-ch-frow"><label>표시 순서</label><input type="number" data-f="display_order" value="' + esc(ch.display_order == null ? '' : ch.display_order) + '">' +
+           '<span class="st-ch-toggle"><input type="checkbox" data-f="is_active"' + (ch.is_active ? ' checked' : '') + '> 운영중</span></div>' +
+           '<div class="st-ch-actions"><button data-save="' + esc(ch.code) + '">저장</button>' +
+           '<button class="ghost" data-cancel="' + esc(ch.code) + '">취소</button></div>' +
+           '<div class="st-ch-fmsg" data-fmsg="' + esc(ch.code) + '"></div>' +
+           '</div>';
+    }
+
     return h + '</div>';
+  }
+
+  function saveChannel(code, btn) {
+    var form = document.querySelector('[data-form="' + code + '"]');
+    var msg = form.querySelector('[data-fmsg="' + code + '"]');
+    var body = { code: code };
+    form.querySelectorAll('[data-f]').forEach(function (el) {
+      var k = el.dataset.f;
+      if (el.type === 'checkbox') body[k] = el.checked;
+      else if (el.type === 'number') body[k] = el.value === '' ? null : Number(el.value);
+      else body[k] = el.value;
+    });
+    btn.disabled = true; msg.className = 'st-ch-fmsg'; msg.textContent = '저장 중…';
+    fetch('/api/channels', {
+      method: 'PATCH', credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    }).then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+      .then(function (x) {
+        if (!x.ok || !x.j.ok) throw new Error(x.j.error || '저장하지 못했습니다.');
+        msg.className = 'st-ch-fmsg ok'; msg.textContent = '저장됐습니다.';
+        setTimeout(loadChannels, 600); // 순서·이름 반영 위해 전체 다시 그림
+      })
+      .catch(function (e) { btn.disabled = false; msg.className = 'st-ch-fmsg err'; msg.textContent = e.message; });
   }
 
   function loadChannels() {
@@ -499,14 +553,32 @@
       .then(function (x) {
         if (!x.ok || !x.j.ok) throw new Error(x.j.error || '불러오지 못했습니다.');
         var chs = x.j.channels || [];
+        chIsAdmin = !!x.j.is_admin;
         document.getElementById('st-ch-count').textContent =
           chs.length + '개 채널 · CID ' + chs.reduce(function (n, c) { return n + (c.cids ? c.cids.length : 0); }, 0) + '개';
-        document.getElementById('st-ch-perm').textContent = x.j.is_admin
-          ? '채널 등록·CID 편집·규격 저장 권한이 있습니다 (편집 화면은 준비 중).'
+        document.getElementById('st-ch-perm').textContent = chIsAdmin
+          ? '각 채널의 [수정]으로 이름·순서·운영여부를 바꿀 수 있습니다. (CID·규격 편집, 새 채널 등록은 준비 중)'
           : '조회 전용입니다. 등록·편집은 관리자만 할 수 있습니다.';
         list.innerHTML = chs.length
           ? chs.map(channelCard).join('')
           : '<div class="st-empty">등록된 채널이 없습니다.</div>';
+
+        // 편집 이벤트 바인딩 (관리자만 버튼이 그려짐)
+        list.querySelectorAll('[data-edit]').forEach(function (b) {
+          b.onclick = function () {
+            var f = document.querySelector('[data-form="' + b.dataset.edit + '"]');
+            if (f) f.classList.toggle('open');
+          };
+        });
+        list.querySelectorAll('[data-save]').forEach(function (b) {
+          b.onclick = function () { saveChannel(b.dataset.save, b); };
+        });
+        list.querySelectorAll('[data-cancel]').forEach(function (b) {
+          b.onclick = function () {
+            var f = document.querySelector('[data-form="' + b.dataset.cancel + '"]');
+            if (f) f.classList.remove('open');
+          };
+        });
       })
       .catch(function (e) {
         list.innerHTML = '<div class="st-empty">' + esc(e.message) + '</div>';

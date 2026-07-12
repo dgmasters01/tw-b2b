@@ -81,6 +81,18 @@ export async function moveFile(token, fileId, addParentId, removeParentId) {
   return j;
 }
 
+/** 파일을 휴지통으로 (30일 복구 가능). 확인필요 [지우기]에서 쓴다. */
+export async function trashFile(token, fileId) {
+  const r = await fetch(DRIVE + '/files/' + fileId + '?fields=id,trashed', {
+    method: 'PATCH',
+    headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ trashed: true }),
+  });
+  const j = await r.json();
+  if (!r.ok) throw new Error('휴지통 이동 실패: ' + JSON.stringify(j).slice(0, 200));
+  return j;
+}
+
 /** 이름에서 채널 코드 뽑기: "여행능력자들 (TW)" → "TW". 없으면 null. */
 export function codeFromName(name) {
   const m = String(name || '').match(/\(([A-Za-z0-9_-]{2,20})\)\s*$/);

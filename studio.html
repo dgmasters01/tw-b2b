@@ -103,6 +103,24 @@
   .st-ch-toggle { display:flex; gap:6px; align-items:center; font-size:13px; }
   .st-ch-fmsg { font-size:12px; margin-top:6px; min-height:15px; }
   .st-ch-fmsg.err { color:#E24B4A; } .st-ch-fmsg.ok { color:#1D9E75; }
+
+  /* ── 단계5: CID 추가/폐기 · 새 채널 등록 (D-064) ── */
+  .st-cid-act { margin-left:6px; font-size:10px; cursor:pointer; opacity:.5; border:none; background:none; color:inherit; padding:0 2px; text-decoration:none; font-family:inherit; }
+  .st-cid-act:hover { opacity:1; }
+  .st-cid-add { margin-top:9px; }
+  .st-cid-add-btn { font-size:11px; padding:3px 10px; border-radius:7px; border:1px dashed rgba(128,128,128,.4); background:none; color:inherit; cursor:pointer; }
+  .st-cid-add-btn:hover { border-color:#5DCAA5; color:#1D9E75; }
+  .st-cid-addform { display:none; margin-top:9px; gap:6px; align-items:center; flex-wrap:wrap; }
+  .st-cid-addform.open { display:flex; }
+  .st-cid-addform input { font-size:12px; padding:5px 8px; border-radius:6px; border:1px solid rgba(128,128,128,.35); background:transparent; color:inherit; font-family:ui-monospace,monospace; }
+  .st-cid-addform input.cid { width:110px; } .st-cid-addform input.lab { width:78px; }
+  .st-cid-addform button { font-size:12px; padding:5px 12px; border-radius:7px; border:1px solid currentColor; background:none; color:inherit; cursor:pointer; }
+  .st-newch-btn { flex:none; font-size:12px; padding:5px 13px; border-radius:8px; border:1px solid #4edea3; color:#1D9E75; background:none; cursor:pointer; }
+  .st-newch-btn:hover { background:rgba(78,222,163,.08); }
+  .st-newch { border:1px dashed rgba(78,222,163,.55); border-radius:12px; padding:16px 18px; margin-bottom:14px; display:none; }
+  .st-newch.open { display:block; }
+  .st-newch h4 { margin:0 0 12px; font-size:14px; font-weight:600; }
+  .st-newch input[type=text], .st-newch input[type=number] { flex:1; min-width:130px; font-size:13px; padding:7px 9px; border-radius:7px; border:1px solid rgba(128,128,128,.35); background:transparent; color:inherit; }
 </style>
 </head>
 <body>
@@ -151,12 +169,30 @@
   <section class="st-view" id="view-channels">
     <div class="st-ch-head">
       <div class="st-h">채널</div>
-      <div style="font-size:12px; opacity:.55" id="st-ch-count"></div>
+      <div style="display:flex; gap:10px; align-items:center">
+        <div style="font-size:12px; opacity:.55" id="st-ch-count"></div>
+        <button class="st-newch-btn" id="st-newch-btn" style="display:none">＋ 새 채널</button>
+      </div>
     </div>
     <div class="st-ch-note">
       콘텐츠를 올리는 채널 자산과 아고다 CID를 한곳에서 봅니다. 올리기·성과표·호텔이 이 채널 위에서 돕니다.<br>
       <span id="st-ch-perm"></span>
     </div>
+
+    <!-- 새 채널 등록 (관리자만 · 기본 레지스트리. 규격 .md 자동생성은 뒤 단계) -->
+    <div class="st-newch" id="st-newch">
+      <h4>새 채널 등록</h4>
+      <div class="st-ch-frow"><label>코드</label><input type="text" id="nc-code" placeholder="예: TW · HG (영문·숫자·-_ 2~20자, 나중에 못 바꿈)"></div>
+      <div class="st-ch-frow"><label>이름</label><input type="text" id="nc-name" placeholder="예: 여행능력자들"></div>
+      <div class="st-ch-frow"><label>영문명</label><input type="text" id="nc-name_en" placeholder="예: TRAVELWINNERS (선택)"></div>
+      <div class="st-ch-frow"><label>언어</label><input type="text" id="nc-language" placeholder="ko · ja · zh-tw · zh-cn · vi · en"></div>
+      <div class="st-ch-frow"><label>플랫폼</label><input type="text" id="nc-platform" placeholder="youtube (비우면 youtube)"></div>
+      <div class="st-ch-frow"><label>표시 순서</label><input type="number" id="nc-order" placeholder="숫자(작을수록 위에)"></div>
+      <div class="st-ch-frow"><label>첫 CID</label><input type="text" id="nc-cid" placeholder="아고다 CID (선택)"><input type="text" id="nc-cidlabel" placeholder="라벨: main" style="flex:none; max-width:120px"></div>
+      <div class="st-ch-actions"><button id="nc-save">등록</button><button class="ghost" id="nc-cancel">취소</button></div>
+      <div class="st-ch-fmsg" id="nc-msg"></div>
+    </div>
+
     <div id="st-ch-list"><div class="st-empty">불러오는 중…</div></div>
   </section>
 
@@ -499,10 +535,25 @@
       h += '<div class="st-cid-list">' + ch.cids.map(function (c) {
         var cls = 'st-cid' + (String(c.cid_label).toLowerCase() === 'new' ? ' new' : '') + (c.is_active ? '' : ' off');
         return '<span class="' + cls + '">' + esc(c.cid) +
-               (c.cid_label ? '<span class="st-cid-tag">' + esc(c.cid_label) + '</span>' : '') + '</span>';
+               (c.cid_label ? '<span class="st-cid-tag">' + esc(c.cid_label) + '</span>' : '') +
+               (chIsAdmin
+                  ? '<button class="st-cid-act" data-cidact="' + (c.is_active ? 'retire_cid' : 'restore_cid') + '"' +
+                    ' data-ch="' + esc(ch.code) + '" data-cid="' + esc(c.cid) + '">' + (c.is_active ? '폐기' : '복구') + '</button>'
+                  : '') + '</span>';
       }).join('') + '</div>';
     } else {
       h += '<div class="st-cid-none">등록된 CID 없음</div>';
+    }
+    // 관리자만: CID 추가 미니폼 (폐기는 위 칩에서 바로).
+    if (chIsAdmin) {
+      h += '<div class="st-cid-add">' +
+           '<button class="st-cid-add-btn" data-cidaddbtn="' + esc(ch.code) + '">＋ CID 추가</button>' +
+           '<div class="st-cid-addform" data-cidaddform="' + esc(ch.code) + '">' +
+             '<input class="cid" type="text" data-nc="cid" placeholder="CID 숫자">' +
+             '<input class="lab" type="text" data-nc="label" placeholder="new">' +
+             '<button data-cidadd="' + esc(ch.code) + '">추가</button>' +
+             '<span class="st-ch-fmsg" data-cidmsg="' + esc(ch.code) + '" style="margin:0"></span>' +
+           '</div></div>';
     }
     h += '</div>';
 
@@ -546,6 +597,60 @@
       .catch(function (e) { btn.disabled = false; msg.className = 'st-ch-fmsg err'; msg.textContent = e.message; });
   }
 
+  // 채널 창구 POST 공통 (성공 시 j 반환, 실패 시 throw)
+  function postChannels(body) {
+    return fetch('/api/channels', {
+      method: 'POST', credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    }).then(function (r) { return r.json().then(function (j) { if (!r.ok || !j.ok) throw new Error(j.error || '처리하지 못했습니다.'); return j; }); });
+  }
+
+  // 새 채널 등록 (관리자)
+  function createChannel(btn) {
+    var msg = document.getElementById('nc-msg');
+    var g = function (id) { var el = document.getElementById(id); return el ? el.value.trim() : ''; };
+    var body = {
+      action: 'create_channel',
+      code: g('nc-code'), name: g('nc-name'), name_en: g('nc-name_en'),
+      language: g('nc-language'), platform: g('nc-platform'),
+      display_order: g('nc-order') === '' ? null : Number(g('nc-order')),
+      cid: g('nc-cid'), cid_label: g('nc-cidlabel')
+    };
+    if (!body.code || !body.name || !body.language) {
+      msg.className = 'st-ch-fmsg err'; msg.textContent = '코드·이름·언어는 꼭 넣어야 합니다.'; return;
+    }
+    btn.disabled = true; msg.className = 'st-ch-fmsg'; msg.textContent = '등록 중…';
+    postChannels(body).then(function () {
+      msg.className = 'st-ch-fmsg ok'; msg.textContent = '등록됐습니다.';
+      ['nc-code','nc-name','nc-name_en','nc-language','nc-platform','nc-order','nc-cid','nc-cidlabel']
+        .forEach(function (id) { var el = document.getElementById(id); if (el) el.value = ''; });
+      setTimeout(function () { document.getElementById('st-newch').classList.remove('open'); loadChannels(); }, 700);
+    }).catch(function (e) { btn.disabled = false; msg.className = 'st-ch-fmsg err'; msg.textContent = e.message; });
+  }
+
+  // CID 추가 (관리자) — data-cidaddform 안의 입력을 읽는다
+  function addCid(code, btn) {
+    var form = document.querySelector('[data-cidaddform="' + code + '"]');
+    var msg = document.querySelector('[data-cidmsg="' + code + '"]');
+    var cid = form.querySelector('[data-nc="cid"]').value.trim();
+    var label = form.querySelector('[data-nc="label"]').value.trim();
+    if (!cid) { msg.className = 'st-ch-fmsg err'; msg.textContent = 'CID를 넣어주세요.'; return; }
+    btn.disabled = true; msg.className = 'st-ch-fmsg'; msg.textContent = '추가 중…';
+    postChannels({ action: 'add_cid', channel_code: code, cid: cid, cid_label: label }).then(function () {
+      setTimeout(loadChannels, 500);
+    }).catch(function (e) { btn.disabled = false; msg.className = 'st-ch-fmsg err'; msg.textContent = e.message; });
+  }
+
+  // CID 폐기/복구 (관리자) — 하드삭제 안 함, is_active 만 바뀜
+  function cidAction(code, cid, action, btn) {
+    if (action === 'retire_cid' && !confirm('CID ' + cid + ' 을(를) 폐기할까요?\n(예약 집계는 남고, 표시만 꺼집니다. 나중에 복구 가능)')) return;
+    btn.disabled = true; btn.textContent = '…';
+    postChannels({ action: action, channel_code: code, cid: cid })
+      .then(function () { loadChannels(); })
+      .catch(function (e) { btn.disabled = false; alert(e.message); loadChannels(); });
+  }
+
   function loadChannels() {
     var list = document.getElementById('st-ch-list');
     fetch('/api/channels', { credentials: 'same-origin' })
@@ -557,8 +662,9 @@
         document.getElementById('st-ch-count').textContent =
           chs.length + '개 채널 · CID ' + chs.reduce(function (n, c) { return n + (c.cids ? c.cids.length : 0); }, 0) + '개';
         document.getElementById('st-ch-perm').textContent = chIsAdmin
-          ? '각 채널의 [수정]으로 이름·순서·운영여부를 바꿀 수 있습니다. (CID·규격 편집, 새 채널 등록은 준비 중)'
+          ? '[＋ 새 채널]로 채널을 등록하고, 각 채널에서 CID를 추가·폐기하거나 [수정](이름·순서·운영여부)할 수 있습니다.'
           : '조회 전용입니다. 등록·편집은 관리자만 할 수 있습니다.';
+        document.getElementById('st-newch-btn').style.display = chIsAdmin ? '' : 'none';
         list.innerHTML = chs.length
           ? chs.map(channelCard).join('')
           : '<div class="st-empty">등록된 채널이 없습니다.</div>';
@@ -579,12 +685,36 @@
             if (f) f.classList.remove('open');
           };
         });
+        // 단계5: CID 추가폼 토글 · 추가 · 폐기/복구
+        list.querySelectorAll('[data-cidaddbtn]').forEach(function (b) {
+          b.onclick = function () {
+            var f = list.querySelector('[data-cidaddform="' + b.dataset.cidaddbtn + '"]');
+            if (f) f.classList.toggle('open');
+          };
+        });
+        list.querySelectorAll('[data-cidadd]').forEach(function (b) {
+          b.onclick = function () { addCid(b.dataset.cidadd, b); };
+        });
+        list.querySelectorAll('[data-cidact]').forEach(function (b) {
+          b.onclick = function () { cidAction(b.dataset.ch, b.dataset.cid, b.dataset.cidact, b); };
+        });
       })
       .catch(function (e) {
         list.innerHTML = '<div class="st-empty">' + esc(e.message) + '</div>';
         chLoaded = false; // 실패하면 다시 진입 시 재시도
       });
   }
+
+  // 새 채널 등록 패널 토글·버튼 (정적 요소 · 1회 바인딩)
+  (function () {
+    var openBtn = document.getElementById('st-newch-btn');
+    var panel = document.getElementById('st-newch');
+    var save = document.getElementById('nc-save');
+    var cancel = document.getElementById('nc-cancel');
+    if (openBtn) openBtn.onclick = function () { panel.classList.toggle('open'); };
+    if (cancel) cancel.onclick = function () { panel.classList.remove('open'); };
+    if (save) save.onclick = function () { createChannel(save); };
+  })();
 
   document.getElementById('st-logout').onclick = function () {
     if (window.TW && window.TW.sb) { window.TW.sb.auth.signOut(); }

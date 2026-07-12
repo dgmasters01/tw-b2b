@@ -19,8 +19,8 @@
 1. ✅ 폴더 생성·최상위 ID 확보
 2. ✅ 서비스 계정 생성 → 이메일·JSON 키 확보
 3. ✅ 로봇을 최상위 폴더에 **편집자**로 공유
-4. ⬜ **Vercel env 등록(대표님 직접)**: `GOOGLE_DRIVE_SA_KEY`(JSON 전체) + `DRIVE_WATCH_FOLDERS`(폴더 ID)
-5. ⬜ 자동 읽기+이동 배치 + cron(06·11·16·21시 KST) 제작 → drive-status connected:true 자동 전환
+4. ✅ **Vercel env 등록 완료(대표님)**: `GOOGLE_DRIVE_SA_KEY` + `DRIVE_WATCH_FOLDERS` 저장·재배포. drive-status connected:true 확인(2026-07-12). 올리기 화면 뱃지 '연결됨' 라이브 검증.
+5. ⬜ **(남은 유일 작업·Claude 몫)** 자동 읽기+이동 배치 + cron(06·11·16·21시 KST) 제작 → drive-status connected:true 자동 전환
 
 ## Vercel env 형식 (4단계)
 - `DRIVE_WATCH_FOLDERS` = `{"root":"1wHwrtRIAtU-KRturNlgf-07B9jccdXBw"}` (하위는 이름으로 탐색)

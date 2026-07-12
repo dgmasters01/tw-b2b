@@ -196,6 +196,63 @@ export default async function handler(req, res) {
         return res.status(200).json({ ok: true, channel: ch, cid: firstCid });
       }
 
+      // ── ①-b 규격 .md 업로드로 새 채널 등록 (D-064 정정) ──────────
+      // 코드(예약 연결 열쇠·불변)만 사람이 확인 입력, 이름·언어·아고다 CID 는 규격 md §0 에서 자동으로 읽는다.
+      // dry_run=true 이면 실제 등록 없이 파싱 결과만 돌려준다(미리보기). 파싱 규칙은 이 서버 한 곳이 진실이다.
+      if (action === 'register_from_md') {
+        const code = String(body.code || '').trim();
+        const md   = String(body.md || '');
+        const dryRun = !!body.dry_run;
+        if (!code) return res.status(400).json({ ok: false, error: '채널 코드(2~20자 영문·숫자)가 필요합니다.' });
+        if (!/^[A-Za-z0-9_-]{2,20}$/.test(code))
+          return res.status(400).json({ ok: false, error: '채널 코드는 영문·숫자·-_ 2~20자만 됩니다.' });
+        if (!md.trim()) return res.status(400).json({ ok: false, error: '규격 .md 파일 내용이 비어 있습니다.' });
+
+        // 규격 md §0 채널 정보 파싱
+        const parseChannelMd = (t) => {
+          let name = null, language = null, cid = null;
+          let m = t.match(/적용\s*채널\s*[:：]\s*([^\(（\n]+?)\s*[\(（]/);      // "적용 채널: 호텔이야 (...)"
+          if (m) name = m[1].trim();
+          if (!name) { m = t.match(/^#\s*([^·|\n]+?)\s*[·|]/m); if (m) name = m[1].trim(); }  // "# 호텔이야 · ..."
+          const langMap = { '한국어':'ko','일본어':'ja','日本語':'ja','중국어(번체)':'zh-tw','번체':'zh-tw','중국어(간체)':'zh-cn','간체':'zh-cn','베트남어':'vi','영어':'en','english':'en' };
+          const normLang = (v) => { v = String(v || '').trim(); return langMap[v] || langMap[v.toLowerCase()] || (/^[a-z]{2}(-[a-z]{2})?$/i.test(v) ? v.toLowerCase() : (v || null)); };
+          m = t.match(/\|\s*언어\s*\|\s*([^\|\n]+?)\s*\|/);                    // ① 표 "| 언어 | 한국어 |"
+          if (m) language = normLang(m[1]);
+          if (!language) {                                                     // ② "적용 채널: X (한국어 · …)" 괄호 안
+            m = t.match(/적용\s*채널\s*[:：]\s*[^\(（\n]+[\(（]\s*([^·・|)）\n]+)/);
+            if (m) language = normLang(m[1]);
+          }
+          m = t.match(/cid\s*=\s*(\d{3,})/i);                                 // "아고다 cid=1932026"
+          if (m) cid = m[1];
+          return { name, language, cid };
+        };
+        const parsed = parseChannelMd(md);
+        const miss = [];
+        if (!parsed.name)     miss.push('채널 이름');
+        if (!parsed.language) miss.push('언어');
+        if (!parsed.cid)      miss.push('아고다 cid');
+        if (miss.length)
+          return res.status(400).json({ ok: false, error: '규격 md 에서 읽지 못한 항목: ' + miss.join(', ') + ' (§0 채널 정보 표를 확인하세요).', parsed });
+
+        if (dryRun) return res.status(200).json({ ok: true, dry_run: true, parsed: { code, ...parsed } });
+
+        // 이미 있는 코드면 막는다(예약·CID 연결 열쇠라 덮어쓰기 위험).
+        const { data: dup } = await sb.from('channels').select('code').eq('code', code).maybeSingle();
+        if (dup) return res.status(409).json({ ok: false, error: '이미 있는 채널 코드입니다: ' + code });
+
+        const row = {
+          code, name: parsed.name, name_en: null, language: parsed.language,
+          platform: 'youtube', has_agoda_api: true, agoda_site_id: null,
+          is_active: true, display_order: 999,
+        };
+        const { data: ch, error: chErr } = await sb.from('channels').insert(row).select().single();
+        if (chErr) throw chErr;
+        const { data: cd, error: cErr } = await sb.from('channel_cid_map')
+          .insert({ channel_code: code, cid: parsed.cid, cid_label: 'main', is_active: true }).select().single();
+        if (cErr) throw cErr;
+        return res.status(200).json({ ok: true, channel: ch, cid: cd, parsed: { code, ...parsed } });
+      }
+
       // ── ②③④ CID 추가/폐기/복구 (공통: 어느 채널·어느 CID) ──────────
       if (action === 'add_cid' || action === 'retire_cid' || action === 'restore_cid') {
         const channel_code = String(body.channel_code || body.code || '').trim();

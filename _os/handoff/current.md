@@ -9,7 +9,7 @@
 채널 메뉴(단계1~5, D-064)는 라이브 완료. 그 뒤 확정된 4단계 순서:
 1. **단계5 채널등록·CID편집** — ✅ 완료·라이브(api/channels.js·studio.html, register_from_md/add_cid/retire/restore)
 2. **분석 페이지 스크롤 버그** — ✅ **완료·라이브 검증**(이 세션)
-3. **채널명 단일화** — ⬜ 다음 착수
+3. **채널명 단일화** — ✅ **완료·라이브**(이번 세션, dd487b4)
 4. **호텔 상세 유료계약 카드+소개콘텐츠** — ⬜ **보류(데이터 선결)**
 
 ## ✅ 단계2 완료 내용 (이 세션)
@@ -17,11 +17,16 @@
 - **원인**: ① 인라인 분석의 `#tab-analytics .T` 에 sticky 누락(단독 booking-analytics.html엔 있음) ② body `overflow-x:hidden` 이 sticky를 깸(overflow-y가 자동 auto로 강제됨).
 - **수정(_admin/admin.html, 커밋 d9aaebb)**: ① `#tab-analytics .T` 에 `position:sticky;top:60px;z-index:40`+글래스 배경 추가 ② body `overflow-x:hidden→clip`(가로넘침 방지 유지, overflow-y는 자동 visible) ③ 모바일(@media 900) `#tab-analytics .T{top:0}`.
 - **검증(라이브 배포본)**: 스크롤 0/700/1400 전부 탭 top:60 고정·클릭 정상, 스크롤 상태서 실제 탭 전환 성공. 가로 스크롤바 없음.
+- **[후속·이번 세션] 검은 바 보완(커밋 29b053b)**: `#tab-analytics .T` sticky 배경이 다크 글래스`rgba(10,10,15,.85)`라 밝은 테마에서 글자 안 보임+카드와 안 어울림 → `rgba(248,247,244,.92)` 밝은 글래스로 교체. 스크롤 고정·blur 유지.
 - **주의**: admin.html 은 리포 루트에 없음. **실소스=`_admin/admin.html`**, api/admin-page.js 가 인증 게이트 걸어 서빙. 커밋 경로는 `_admin/admin.html`.
 
-## ⬜ 단계3 (다음 착수) — 채널명 단일화
-- **목표**: 분석 페이지·성과표가 채널명을 **channels 테이블에서 실시간**으로 읽게. 지금 분석 페이지엔 하드코딩 채널 라벨이 있어 채널명 바꿔도 자동 반영 안 됨.
-- **주의**: "성과표"(D-063)는 아직 미구현 → 이번엔 **분석 페이지(booking-analytics/_admin) 하드코딩 라벨 부분만** 단일화 가능.
+## ✅ 단계3 완료 (이번 세션) — 채널명 단일화
+- **구현(_admin/admin.html, 커밋 dd487b4)**: 분석 진입 시(`_BKA_init`) `GET /api/channels`(쿠키 세션) 1회 조회 → code→name 맵 생성 → baked `D.ch[].ch` 라벨을 현재 channels.name 으로 치환(`_applyChannelNames`), 재렌더. `_BKA_mount` 재진입 시 캐시맵 재적용. 시장 접미사(괄호 "(대만)" 등) 보존. 조회 실패 시 baked 라벨 유지(무해).
+- **브리지 맵**: `_CH_ALIAS` = 굳어진 baked 라벨→code 1:1 (TW/HT/JP/ZH/KT/VN). 7/7 커버 검증.
+- **실측 변화**: 대만 `World Hotel (대만)`→`世界就是家 (대만)`, 베트남 `Korea Hotel (베트남)`→`reviewkhachsan (베트남)`. 나머지 5개는 이미 일치.
+- **대표님 결정**: 표기는 **channels.name 기본명 그대로**(世界就是家 등). name_en 전환은 `_loadChannelNames` 의 `m[c.code]=c.name` 한 줄만 `c.name_en` 로 바꾸면 됨.
+- **미적용**: 단독 `booking-analytics.html`(anon 페이지)엔 동일 모듈 미주입 — anon 이라 `/api/channels` 401 → baked 유지되므로 실익 낮음. 필요 시 후속.
+- **성과표(D-063)** 는 여전히 미구현 → 성과표 채널명 단일화는 그 구현 시 함께.
 
 ## ⛔ 단계4 (보류) — 데이터 선결 필요 (이 세션 실측)
 - **실측**: hotels 3곳(데모)·유료 0·인보이스 0·아고다ID 연결 0 / publications 2건. → 유료계약 카드=항상 "무료", 소개콘텐츠=항상 "없음"(빈 껍데기).

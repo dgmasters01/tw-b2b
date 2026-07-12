@@ -114,7 +114,7 @@ export default async function handler(req, res) {
     const skey = process.env.SUPABASE_SERVICE_ROLE_KEY;
     const surl = process.env.SUPABASE_URL || 'https://vjsludfjsphwnumuoqaj.supabase.co';
     if (skey) {
-      const rr = await fetch(surl + '/rest/v1/drive_review?select=filename,channel_code,reason,updated_at&order=updated_at.desc', {
+      const rr = await fetch(surl + '/rest/v1/drive_review?select=file_id,filename,channel_code,reason,updated_at&order=updated_at.desc', {
         headers: { Authorization: 'Bearer ' + skey, apikey: skey },
       });
       if (rr.ok) review = await rr.json();

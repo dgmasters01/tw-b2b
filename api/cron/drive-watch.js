@@ -13,6 +13,7 @@
 // env: GOOGLE_DRIVE_SA_KEY(JSON) · DRIVE_WATCH_FOLDERS({"root":"..."}) · OPS_BASE_URL
 
 import { getDriveToken, resolveFolders, listChildren, downloadBase64, moveFile } from '../_lib/drive.js';
+import { docxToText } from '../_lib/docx-text.js';
 
 export const config = { maxDuration: 60 };
 
@@ -60,23 +61,28 @@ async function reviewReconcile(channelCode, keepIds) {
 }
 
 // publications 로 등록 시도 → 판정. 반환 { verdict:'ok'|'review', reason }
+// docx 는 3~4MB 라 통째로(base64) 보내면 4.5MB 한도 초과 → 서버에서 글자만 뽑아 text 로 보낸다(수동 업로드와 동일).
 async function register(base, filename, docxBase64) {
+  let text;
+  try { text = docxToText(docxBase64); }
+  catch (e) { return { verdict: 'review', reason: '원고 읽기 실패(' + String(e.message || e).slice(0, 60) + ')' }; }
+
   const r = await fetch(base + '/api/publications', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'x-ops-token': process.env.CLAUDE_OPS_TOKEN || '' },
-    body: JSON.stringify({ filename, docxBase64, source: 'drive' }),
+    body: JSON.stringify({ filename, text, source: 'drive' }),
   });
   let j = {};
   try { j = await r.json(); } catch { /* noop */ }
 
   if (r.status === 409 && j.duplicate) return { verdict: 'review', reason: '이미 등록된 원고' };
   if (r.status === 409) return { verdict: 'review', reason: j.error || '이미 처리됨' };
-  if (!r.ok || !j.ok) return { verdict: 'review', reason: (j.error || '등록 실패').slice(0, 120) };
+  if (!r.ok || !j.ok) return { verdict: 'review', reason: (j.error || j.detail || ('등록 실패 HTTP ' + r.status)).slice(0, 140) };
 
   // 등록은 됐지만 막는 경고(아고다 링크 없음·cid 불일치)면 확인필요로 뺀다.
   const warns = j.warnings || [];
   const blocking = warns.find((w) => /아고다 링크|hid|cid/.test(w));
-  if (blocking) return { verdict: 'review', reason: blocking.slice(0, 120), id: j.id };
+  if (blocking) return { verdict: 'review', reason: blocking.slice(0, 140), id: j.id };
   return { verdict: 'ok', reason: '정상 등록', id: j.id };
 }
 

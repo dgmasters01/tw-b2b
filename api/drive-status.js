@@ -96,7 +96,7 @@ export default async function handler(req, res) {
     { n: 1, title: '드라이브에 폴더 만들기', by: 'owner', done: hasFolders,
       hint: '채널마다 대기·완료·확인필요 폴더 3개를 대표님 구글 드라이브에 만듭니다.' },
     { n: 2, title: '서비스 계정 키 등록', by: 'owner', done: hasKey,
-      hint: '읽기 전용 서비스 계정 키를 넣습니다. 서버는 파일을 만들지 않고 읽기만 합니다(A안).' },
+      hint: '서비스 계정 키를 넣습니다. 로봇이 대기 폴더를 읽고, 처리 뒤 완료·확인필요로 자동 정리합니다(편집자).' },
     { n: 3, title: '연결 확인', by: 'system', done: connected,
       hint: connected ? '연결됐습니다.' : '위 1·2가 끝나면 자동으로 켜집니다.' },
   ];

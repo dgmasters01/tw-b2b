@@ -194,6 +194,19 @@ export const PAGES = [
     visibleWhen: 'admin > Tools > Business Docs',
     notes: 'BUSINESS / DECISIONS / FLOW / BACKLOG 문서 시각적 뷰어. _admin/admin-business.html 17KB.',
   },
+  {
+    path: '/studio.html',
+    name: '스튜디오 (콘텐츠 6메뉴)',
+    purpose: '에디터용 콘텐츠 작업 허브 — 올리기·성과표·호텔·키워드·전략·채널. 수수료 비노출.',
+    audience: 'editor',
+    flow: 'admin-tools',
+    flowOrder: 90,
+    flowLabel: '콘텐츠 작업',
+    capture: true,
+    status: 'live',
+    visibleWhen: 'is_editor(owner|admin|editor) 로그인 후 /studio.html',
+    notes: 'BL-STUDIO-MENU-6TAB (D-060). 올리기=원고 파싱·드라이브 자동읽기·발행 / 성과표·호텔·키워드=예약 데이터 분석 / 전략=콘텐츠 기획 큐 / 채널=채널·CID 마스터. 리스트 재구조(컴팩트+펼침·보기3종·필터·상태3종·중복방지) 2026-07-12.',
+  },
 
   // ─── BACKLOG: 만들 예정인 페이지 ─────────────────────────────────────────
   {

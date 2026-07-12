@@ -1,41 +1,34 @@
-# 인계서 — 스튜디오 채널 메뉴 (BL-STUDIO-MENU-6TAB) — 단계 5부터 이어가기
+# 인계서 — 스튜디오 후속 4단계 (단계5 완료 → 2·3·4)
 
-**작성**: 2026-07-12 (채널 메뉴 조회·정리·편집 완료 세션 종료)
-**이전 인계서**: `_os/handoff/archive/2026-07-03-main-redesign.md`(메인 재설계 — 별개 작업, 보류)
-**다음 채팅 첫 fetch = boot.md 1개 → 이 파일.**
+**작성**: 2026-07-12 (분석 탭 스크롤 버그 수정 완료 세션)
+**다음 채팅 첫 fetch = boot.md → 이 파일.**
 
 ---
 
-## 🚦 다음 채팅 첫 행동
-1. `_os/boot.md` fetch (라이브)
-2. 이 파일 (인계서)
-3. **결정 문서 fetch**: `_business/decisions/2026-07-11-studio-channel-menu.md` (D-064, 구현 로그·안전원칙 포함) + `_os/charter/decisions-index.md` D-064
-4. **라이브 상태 확인**: `/api/channels`(ops-token) 로 현재 채널 8개 확인, `studio.html` 라이브
-5. **첫 과제 = 단계 5** (아래)
+## 🚦 배경: 지난 대화에서 확정한 "후속 4단계"
+채널 메뉴(단계1~5, D-064)는 라이브 완료. 그 뒤 확정된 4단계 순서:
+1. **단계5 채널등록·CID편집** — ✅ 완료·라이브(api/channels.js·studio.html, register_from_md/add_cid/retire/restore)
+2. **분석 페이지 스크롤 버그** — ✅ **완료·라이브 검증**(이 세션)
+3. **채널명 단일화** — ⬜ 다음 착수
+4. **호텔 상세 유료계약 카드+소개콘텐츠** — ⬜ **보류(데이터 선결)**
 
-## 📊 진행 상황 (BL-STUDIO-MENU-6TAB · 4/11 = 36%)
-- ✅ 1 6메뉴 셸(상단 탭) + 올리기 기존기능 보존
-- ✅ 2 채널 조회 (api/channels.js GET + studio 채널 카드)
-- ✅ 3 채널 데이터 정리 (호텔닷컴 삭제·2025 매출순 정렬·이름 실명화)
-- ✅ 4 채널 편집 (api PATCH + studio [수정] UI, admin 전용·code 변경금지)
-- ⬜ **5 CID 편집 + 새 채널 등록 ← 다음 착수**
-- ⬜ 6 youtube-rules.js DB 개조 (⚠️ 라이브 원고생성 파이프라인 위험작업 — 신중히)
-- ⬜ 7 올리기 완성(D-060) / 8 성과표(D-063) / 9 호텔(D-062) / 10 키워드(D-065) / 11 전략(D-066)
+## ✅ 단계2 완료 내용 (이 세션)
+- **증상**: 관리자 콘솔(admin.html) → 📈분석 화면에서 스크롤 내리면 상단 탭 줄(전체현황·채널별…)이 화면 밖으로 사라져 못 누름.
+- **원인**: ① 인라인 분석의 `#tab-analytics .T` 에 sticky 누락(단독 booking-analytics.html엔 있음) ② body `overflow-x:hidden` 이 sticky를 깸(overflow-y가 자동 auto로 강제됨).
+- **수정(_admin/admin.html, 커밋 d9aaebb)**: ① `#tab-analytics .T` 에 `position:sticky;top:60px;z-index:40`+글래스 배경 추가 ② body `overflow-x:hidden→clip`(가로넘침 방지 유지, overflow-y는 자동 visible) ③ 모바일(@media 900) `#tab-analytics .T{top:0}`.
+- **검증(라이브 배포본)**: 스크롤 0/700/1400 전부 탭 top:60 고정·클릭 정상, 스크롤 상태서 실제 탭 전환 성공. 가로 스크롤바 없음.
+- **주의**: admin.html 은 리포 루트에 없음. **실소스=`_admin/admin.html`**, api/admin-page.js 가 인증 게이트 걸어 서빙. 커밋 경로는 `_admin/admin.html`.
 
-## 🎯 단계 5 상세 (CID 편집 + 새 채널 등록)
-- **CID 편집**: `channel_cid_map` 에 CID 추가/폐기(is_active)·라벨(old/new). api/channels.js 에 CID용 POST/PATCH/DELETE 추가(admin 전용, 두겹방어). studio 채널 카드 CID 영역에 편집 UI.
-- **새 채널 등록**: `channels` INSERT (code·name·language·display_order). api POST. studio 에 [새 채널] 버튼(admin). code 는 새로 부여(예약 연결 열쇠, 기존과 중복 금지).
-- 권한: owner/admin 만 (D-064). 에디터 조회만.
+## ⬜ 단계3 (다음 착수) — 채널명 단일화
+- **목표**: 분석 페이지·성과표가 채널명을 **channels 테이블에서 실시간**으로 읽게. 지금 분석 페이지엔 하드코딩 채널 라벨이 있어 채널명 바꿔도 자동 반영 안 됨.
+- **주의**: "성과표"(D-063)는 아직 미구현 → 이번엔 **분석 페이지(booking-analytics/_admin) 하드코딩 라벨 부분만** 단일화 가능.
 
-## 🔑 인프라 (변하지 않는 사실)
-- **DB 실행 창구**: `POST gohotelwinners.com/api/ops/db-query`, header `x-ops-token`, body `{query}`. SQL 직접 실행(멱등 권장). 한도 60/h.
-- **파일 저장 창구**: `POST /api/ops/github-commit`, `{path,content,message}`(plain text).
-- **채널 API**: `api/channels.js` — GET(조회, is_editor+)·PATCH(수정, admin). CID·POST 는 단계5서 추가.
-- **현재 채널 8개**(매출순): 1.호텔이야(HT) 2.여행능력자들(TW) 3.ホテルだ(JP) 4.世界就是家(ZH) 5.Koreahotelguide(KT) 6.reviewkhachsan(VN) 7.호텔이곳(HG) + legacy(비활성).
-- **CID 확정값**: TW 1913282·1919025 / HT 1932026 / HG 1946819 (외 old/new 다수).
-- **KT(Koreahotelguide)**: 대표님이 향후 타겟 확장 시 이름 변경 예정(code=KT 유지→데이터 그대로).
+## ⛔ 단계4 (보류) — 데이터 선결 필요 (이 세션 실측)
+- **실측**: hotels 3곳(데모)·유료 0·인보이스 0·아고다ID 연결 0 / publications 2건. → 유료계약 카드=항상 "무료", 소개콘텐츠=항상 "없음"(빈 껍데기).
+- **구조 원인**: admin-hotel-detail.html=매니저 등록 B2B 호텔(3곳)용 / 스튜디오 호텔메뉴(D-062, 미구현)=아고다 2,082호텔 분석용. 두 호텔이 다른 테이블. publications.hid_top1/2/3=아고다 호텔번호인데 hotels.agoda_hotel_id 0곳 채워짐.
+- **선결**: 스튜디오 호텔메뉴 구현 + 아고다↔hotels 매칭(agoda_hotel_id 채우기). 이후 단계4 착수해야 실데이터 표시.
+- **데이터 있음(확인)**: hotels.paid_at, invoices(번호·결제·상태), publications(hid_top1/2/3·title·youtube_url·channel_code·published_at). 조회수만 미연동(D-059, "—").
 
-## ⚠️ 주의
-- **핵심 원칙**: channels 의 열쇠는 `code`. 예약·CID·발행 전부 channel_code 연결. 이름 바꿔도 code 유지하면 데이터 안 꼬임(증명 완료).
-- 단계 6(youtube-rules.js)은 규격 문서(`_content/youtube/*.md`)가 3채널만 존재하는 선결과제 있음. 신중히.
-- **작업 전 사전 체크(트리거0)**: 새 창에서도 응답15·파일수정10 근접 시 무리 말고 마무리·인계 후 새 창.
+## 🔑 인프라
+- 커밋: `POST gohotelwinners.com/api/ops/github-commit` x-ops-token `{path,content,message}` (plain text). 30/h.
+- DB: `POST /api/ops/db-query` x-ops-token `{query}`. 60/h. (읽기 검증용)

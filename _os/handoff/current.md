@@ -35,7 +35,7 @@
 - **데이터 있음(확인)**: hotels.paid_at, invoices(번호·결제·상태), publications(hid_top1/2/3·title·youtube_url·channel_code·published_at). 조회수만 미연동(D-059, "—").
 
 ## 🟢 스튜디오 6메뉴 진행 (BL-STUDIO-MENU-6TAB · studio.html)
-- **올리기** ✅ 구현(docx→원고 파싱·publications·설명란/링크)
+- **올리기** 🟡 **부분완성** — 수동 docx 업로드는 ✅ 라이브(원고 파싱·publications·설명란/링크). **BUT 설계(`_business/decisions/2026-07-11-studio-upload-menu-full.md`)에 확정된 "구글 드라이브 입력 방식" UI가 studio.html에 미적용** ⬜ (코드 전체에 드라이브 화면 문구 0개 확인). 드라이브 화면(연결 0단계·대기/완료/확인필요 폴더·"다음 확인 16:00"·출처 자동/수동)은 제작 가능(내 몫). 실제 자동읽기(BL-YT-DRIVE-WATCH)만 대표님 폴더+서비스계정키 필요(마지막 단계). ※지난 세션에 '올리기 완성'으로 잘못 보고했던 것 정정.
 - **채널** ✅ 구현·라이브(D-064: 채널/CID 마스터, 새 채널 .md 등록, 수정)
 - **호텔** ✅ **완료·라이브(이번 세션)** — D-062: `api/content-hotels`(신규, v_content_hotel_stats 조회·에디터 세션·수수료 없음) + studio.html view-hotel 실구현. 호텔별 노출·최고순위(TOP1/2/3)·확정/취소·확정률·예약기간 카드. 라이브 검증: 실호텔 6곳(호텔 라 포레스타 HT TOP1 확정3/취소2 등). 커밋 api=87d683f, studio=c092e80.
 - **성과표** ✅ **완료·라이브(이번 세션)** — D-060: `api/content-performance`(신규, v_channel_stats 수수료·거래액 제외 + publications 영상수 + v_content_hotel_exposure 영상별 호텔) + studio.html view-perf(요약카드 4 + 채널별 + 영상별). 라이브 검증: 채널 7·영상 2·노출호텔 6·확정예약 3,756. 채널명 단일화 자동(뷰가 channels 조인). 커밋 api=8747863, studio=8e8583c. ※조회수·클릭 칸은 발행 영상 0개라 "—"(아래).

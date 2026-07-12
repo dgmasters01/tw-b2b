@@ -69,3 +69,17 @@
 
 ## 🔴 세션 주의
 장시간 세션 시 studio 로그인 토큰 만료 → 재로그인 필요(코드 문제 아님). API는 ops-token으로 검증됨.
+
+---
+
+## ✅ #1 드라이브 자동 읽기 워처(BL-YT-DRIVE-WATCH) — 제작 완료·연결 검증 (실파일 최종 테스트만 남음)
+- **api/_lib/drive.js**: 서비스계정 JWT(RS256·node crypto)→토큰, 폴더 탐색, 다운로드, 이동(부모 교체·삭제 안 함). 새 의존성 0.
+- **api/cron/drive-watch.js**: 대기 폴더 원고 → 다운로드 → `/api/publications`(docxBase64·source=drive)로 등록 → 판정: 정상=완료 이동 / 문제(파싱실패·아고다링크없음·cid불일치·중복)=확인필요 이동+사유(drive_review). dry_run=1(읽기만) 지원.
+- **확인필요 목록**: drive_review 테이블 + 워처 기록/정리(폴더서 빠지면 자동 제거) + drive-status가 반환 + 올리기 드라이브 카드에 목록 표시(D-060).
+- **cron**: **vercel.json** 등록(`0 2,7,12,21 * * *` UTC = 06·11·16·21 KST). ※GitHub workflow yml은 ops PAT에 workflow 권한 없어 커밋 실패 → Vercel cron으로 대체(더 깔끔). 워처가 Vercel cron(Authorization Bearer)·GitHub(x-cron-token)·ops-token 다 수용.
+- **라이브 검증(dry-run)**: 서비스계정 접근·폴더 트리 해석 성공 — TW·HG·HT 각 대기/완료/확인필요 3폴더 전부 인식. (아까 브라우저로 못 본 하위 폴더 이름까지 정확 확인)
+- **⬜ 남은 것**: 실제 docx 한 개를 대기 폴더에 넣고 워처 non-dry 실행 → 등록+이동 최종 검증. (Claude가 드라이브에 업로드 못 하므로 대표님이 파일 1개 투입 필요)
+- 커밋: drive.js 22c66ea / drive-watch.js 97737762 / drive-status.js e858329 / studio.html 3a18002 / vercel.json fe2439f. 신규 테이블 drive_review.
+
+## 📋 다음: 나머지 5메뉴 확정문서 대조 수정 (대표님 지시)
+성과표(D-063)·호텔(D-062)·키워드(D-065)·전략(D-066 방향판)·채널(D-064)을 **각 확정문서 전문 읽고→현재 코드 대조→안 맞는 것 목록→수정**. 기억 금지, 문서 기준. (전략 칸반은 D-066 반영 완료, 방향판 남음)

@@ -101,6 +101,16 @@
   .st-copyn { flex:none; width:18px; text-align:center; font-weight:600; opacity:.4; }
   .st-lockmsg { font-size:12px; opacity:.6; padding:10px 0 2px; }
   .st-del-owner { font-size:11px; padding:4px 11px; border-radius:7px; border:1px solid rgba(226,75,74,.5); color:#E24B4A; background:none; cursor:pointer; margin-top:8px; }
+  /* 중복 경고 모달 (설계 §5) */
+  .st-modal { position:fixed; inset:0; background:rgba(0,0,0,.55); display:none; align-items:center; justify-content:center; z-index:200; }
+  .st-modal.open { display:flex; }
+  .st-modal-box { background:#1b1b22; border:1px solid rgba(128,128,128,.3); border-radius:14px; padding:20px 22px; max-width:440px; width:90%; box-shadow:0 10px 40px rgba(0,0,0,.4); }
+  .st-modal-h { font-size:15px; font-weight:600; margin-bottom:10px; color:#EF9F27; }
+  .st-modal-p { font-size:13px; opacity:.85; line-height:1.7; margin-bottom:18px; }
+  .st-modal-acts { display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
+  .st-modal-acts button { font-size:13px; padding:8px 14px; border-radius:8px; border:1px solid rgba(128,128,128,.4); background:none; color:#eee; cursor:pointer; }
+  .st-modal-acts button.primary { border-color:#4edea3; color:#4edea3; }
+  .st-modal-acts button.danger { border-color:#E24B4A; color:#E24B4A; }
 
   /* ── 6메뉴 셸 (D-060 · 올리기·성과표·호텔·키워드·전략·채널) ── */
   .st-menu { display:flex; gap:4px; margin:0 0 20px; flex-wrap:wrap; border-bottom:1px solid rgba(128,128,128,.2); padding-bottom:0; }
@@ -351,6 +361,19 @@
     <div class="st-sg-board" id="st-sg-board"><div class="st-empty">불러오는 중…</div></div>
   </section>
 
+</div>
+
+<!-- 중복 경고 모달 (설계 §5) -->
+<div class="st-modal" id="st-dupmodal">
+  <div class="st-modal-box">
+    <div class="st-modal-h">이미 등록된 원고입니다</div>
+    <div class="st-modal-p" id="dup-msg"></div>
+    <div class="st-modal-acts">
+      <button id="dup-cancel">취소</button>
+      <button class="primary" id="dup-overwrite">다시 읽기(덮어쓰기)</button>
+      <button class="danger" id="dup-add">그래도 추가(중복)</button>
+    </div>
+  </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -818,20 +841,62 @@
       readFile(f).then(function (buf) {
         var text;
         try { text = docxToText(buf); } catch (e) { throw new Error(f.name + ': ' + e.message); }
-        return fetch('/api/publications', {
-          method: 'POST', credentials: 'same-origin',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ filename: f.name, text: text })
-        });
-      }).then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
-        .then(function (x) {
-          if (!x.ok || !x.j.ok) throw new Error(f.name + ': ' + (x.j.error || '실패'));
-          done += 1;
-        })
+        return postOnce(f.name, text, null);
+      }).then(function (res) {
+        if (res && res.done) done += 1;   // skipped(취소)는 집계 안 함
+      })
         .catch(function (e) { fails.push(e.message.slice(0, 60)); })
         .then(function () { next(i + 1); });
     })(0);
   };
+
+  /* 원고 1건 POST — 수동 중복이면 모달로 [취소/다시읽기/그래도추가] 물어보고 재시도 (설계 §5) */
+  function postOnce(filename, text, force) {
+    var body = { filename: filename, text: text };
+    if (force) body.force = force;
+    return fetch('/api/publications', {
+      method: 'POST', credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    }).then(function (r) { return r.json().then(function (j) { return { status: r.status, ok: r.ok, j: j }; }); })
+      .then(function (x) {
+        if (x.status === 409 && x.j && x.j.duplicate) {
+          return dupModal(x.j.existing, filename).then(function (choice) {
+            if (choice === 'cancel') return { skipped: true };
+            return postOnce(filename, text, choice);
+          });
+        }
+        if (!x.ok || !x.j.ok) throw new Error(filename + ': ' + (x.j.error || '실패'));
+        return { done: true };
+      });
+  }
+
+  /* 중복 경고 모달 (Promise → 'cancel' | 'overwrite' | 'duplicate') */
+  var _dupResolve = null;
+  function dupModal(existing, filename) {
+    return new Promise(function (resolve) {
+      _dupResolve = resolve;
+      var who = existing.uploaded_by_email
+        ? (shortMail(existing.uploaded_by_email) + ' 올림')
+        : (existing.source === 'drive' ? '드라이브' : '수동');
+      document.getElementById('dup-msg').innerHTML =
+        '<b>' + esc(filename) + '</b> 는 이미 등록돼 있습니다.<br>' +
+        '기존: ' + esc(existing.place || '(정보 없음)') + ' · ' + esc(who) + '<br><br>' +
+        '· <b>다시 읽기</b> = 기존 원고를 새로 읽어 덮어씁니다.<br>' +
+        '· <b>그래도 추가</b> = 중복으로 하나 더 만듭니다(목록에 “중복” 딱지).';
+      document.getElementById('st-dupmodal').classList.add('open');
+    });
+  }
+  function _dupClose(choice) {
+    document.getElementById('st-dupmodal').classList.remove('open');
+    if (_dupResolve) { _dupResolve(choice); _dupResolve = null; }
+  }
+  (function () {
+    var c = document.getElementById('dup-cancel'), o = document.getElementById('dup-overwrite'), a = document.getElementById('dup-add');
+    if (c) c.onclick = function () { _dupClose('cancel'); };
+    if (o) o.onclick = function () { _dupClose('overwrite'); };
+    if (a) a.onclick = function () { _dupClose('duplicate'); };
+  })();
 
   /* ── 6메뉴 전환 (D-060) ──────────────────────────────────── */
   var chLoaded = false;

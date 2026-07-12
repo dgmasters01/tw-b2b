@@ -89,6 +89,9 @@
   .st-pf-card .l { font-size:11px; opacity:.6; margin-top:4px; }
   .st-pf-block { margin-top:22px; }
   .st-pf-h { font-size:13px; font-weight:500; opacity:.75; margin-bottom:10px; }
+  /* ── 키워드 (D-060) ── */
+  .st-kw-rank { display:inline-block; min-width:22px; text-align:center; font-weight:600; opacity:.5; margin-right:9px; }
+  .st-ch-chip.new { color:#1D9E75; border-color:#5DCAA5; font-weight:600; }
   .st-ch-meta { display:flex; gap:16px; flex-wrap:wrap; font-size:13px; opacity:.75; margin-bottom:10px; }
   .st-ch-meta span b { font-weight:500; opacity:.6; margin-right:4px; }
   .st-cid-wrap { border-top:1px solid rgba(128,128,128,.14); padding-top:10px; }
@@ -226,7 +229,14 @@
     <div class="st-hint">우리 영상에 노출한 호텔별 성과입니다. 노출 횟수·최고 순위(TOP1/2/3)·확정/취소 예약을 봅니다. 수수료·거래액은 여기 안 보입니다.</div>
     <div id="st-ht-list"><div class="st-empty">불러오는 중…</div></div>
   </section>
-  <section class="st-view" id="view-keyword"><div class="st-soon"><b>키워드</b>다음에 뭘 만들지 뽑아주는 분석·추천 엔진 — 준비 중</div></section>
+  <section class="st-view" id="view-keyword">
+    <div class="st-head">
+      <div><div class="st-h">키워드</div><div class="st-sub" id="st-kw-sub">불러오는 중…</div></div>
+    </div>
+    <div class="st-hint">실제 예약 데이터로 "다음에 만들면 좋을 것"을 뽑았습니다. 예약은 많은데 아직 우리 영상이 없는 도시·호텔이 위로 옵니다.</div>
+    <div class="st-pf-block"><div class="st-pf-h">🎬 도시 추천 (도시 TOP3 영상 후보)</div><div id="st-kw-cities"><div class="st-empty">불러오는 중…</div></div></div>
+    <div class="st-pf-block"><div class="st-pf-h">🏨 호텔 추천 (아직 영상에 안 나온 예약 많은 호텔)</div><div id="st-kw-hotels"><div class="st-empty">불러오는 중…</div></div></div>
+  </section>
   <section class="st-view" id="view-strategy"><div class="st-soon"><b>전략</b>만들 콘텐츠 기획 큐 + 방향 판 — 준비 중</div></section>
 
 </div>
@@ -512,6 +522,7 @@
   var chLoaded = false;
   var htLoaded = false;
   var perfLoaded = false;
+  var kwLoaded = false;
   function switchView(v) {
     document.querySelectorAll('#st-menu button').forEach(function (b) {
       b.classList.toggle('on', b.dataset.view === v);
@@ -522,10 +533,61 @@
     if (v === 'channels' && !chLoaded) { chLoaded = true; loadChannels(); }
     if (v === 'hotel' && !htLoaded) { htLoaded = true; loadHotels(); }
     if (v === 'perf' && !perfLoaded) { perfLoaded = true; loadPerf(); }
+    if (v === 'keyword' && !kwLoaded) { kwLoaded = true; loadKeywords(); }
   }
   document.querySelectorAll('#st-menu button').forEach(function (b) {
     b.onclick = function () { switchView(b.dataset.view); };
   });
+
+  /* ── 키워드 (D-060 · 다음에 만들 것 추천) ────────────────────
+   * 예약 많은데 영상 없는 도시·호텔을 예약 데이터로 추천. 수수료 안 봄(건수 기준). */
+  function kwCityRow(c, i) {
+    var none = c.covered_hotels === 0;
+    var badge = none
+      ? '<span class="st-ch-chip new">🆕 영상 없음</span>'
+      : '<span class="st-ch-chip">노출 ' + c.covered_hotels + '곳</span>';
+    return '<div class="st-ch-card">' +
+      '<div class="st-ch-name"><span class="st-kw-rank">' + (i + 1) + '</span>' +
+        esc(c.city || '—') + ' <span style="opacity:.5;font-size:13px">' + esc(c.country || '') + '</span></div>' +
+      '<div class="st-ht-chips">' +
+        '<span class="st-ch-chip active">확정예약 ' + (c.bookings_done || 0) + '건</span>' +
+        '<span class="st-ch-chip">호텔 ' + (c.hotels_count || 0) + '곳</span>' +
+        badge +
+      '</div>' +
+    '</div>';
+  }
+  function kwHotelRow(h, i) {
+    var star = h.star ? (h.star + '성') : '';
+    return '<div class="st-ch-card">' +
+      '<div class="st-ch-name"><span class="st-kw-rank">' + (i + 1) + '</span>' + esc(h.hotel_name || ('호텔 ' + h.hid)) + '</div>' +
+      '<div class="st-ht-sub">' + esc(h.city || '') + (h.country ? ' · ' + esc(h.country) : '') + (star ? ' · ' + star : '') + '</div>' +
+      '<div class="st-ht-chips"><span class="st-ch-chip active">확정예약 ' + (h.bookings_done || 0) + '건</span>' +
+        '<span class="st-ch-chip new">영상 없음</span></div>' +
+    '</div>';
+  }
+  function loadKeywords() {
+    var cList = document.getElementById('st-kw-cities');
+    var hList = document.getElementById('st-kw-hotels');
+    fetch('/api/content-keywords', { credentials: 'same-origin' })
+      .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+      .then(function (x) {
+        if (!x.ok || !x.j.ok) throw new Error(x.j.error || '불러오지 못했습니다.');
+        var cities = x.j.cities || [], hotels = x.j.hotels || [];
+        var newCities = cities.filter(function (c) { return c.covered_hotels === 0; }).length;
+        document.getElementById('st-kw-sub').textContent =
+          '도시 ' + cities.length + '곳 · 호텔 ' + hotels.length + '곳 추천 (영상 없는 도시 ' + newCities + '곳)';
+        cList.innerHTML = cities.length
+          ? cities.map(kwCityRow).join('')
+          : '<div class="st-empty">추천할 도시가 없습니다.</div>';
+        hList.innerHTML = hotels.length
+          ? hotels.map(kwHotelRow).join('')
+          : '<div class="st-empty">추천할 호텔이 없습니다.</div>';
+      })
+      .catch(function (e) {
+        cList.innerHTML = '<div class="st-empty">' + esc(e.message) + '</div>';
+        hList.innerHTML = '';
+      });
+  }
 
   /* ── 성과표 (D-060 · 전 채널·영상·호텔 종합) ──────────────────
    * 수수료·거래액 안 봄. 조회수·클릭은 발행 영상 생기면 채워짐(현재 —). */

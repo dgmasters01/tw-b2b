@@ -153,6 +153,17 @@ export default async function handler(req, res) {
       ? +(headline.total_amount_usd / SUBSCRIPTION_USD).toFixed(2)
       : 0;
 
+    // ---------- 4) 예약 데이터 기준일 (자동): 가장 최근 적재된 예약행의 created_at ----------
+    //  이름만 바꾸고 예약 데이터를 새로 넣지 않으면 이 값은 그대로다 (날짜 2종 분리 원칙 · 착시 방지).
+    let data_asof = null;
+    try {
+      const asofResp = await fetch(
+        `${supabaseUrl}/rest/v1/bookings_agoda?select=created_at&order=created_at.desc.nullslast&limit=1`,
+        { headers: userHeaders }
+      );
+      if (asofResp.ok) { const a = await asofResp.json(); if (a && a[0] && a[0].created_at) data_asof = String(a[0].created_at).slice(0, 10); }
+    } catch (_) { /* 조회 실패 시 null — 화면은 기존 표기로 폴백 */ }
+
     return res.status(200).json({
       ok: true,
       is_admin: isAdmin,
@@ -161,6 +172,7 @@ export default async function handler(req, res) {
       campaign,
       headline,
       channel_stats: channelStats,
+      data_asof,
       bookings,
     });
   } catch (err) {

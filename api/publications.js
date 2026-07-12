@@ -202,8 +202,23 @@ export default async function handler(req, res) {
     return res.status(200).json({ ok: true, row: data });
   }
 
+  // 중복 삭제 = 대표님(owner/admin) 전용 (설계 §5). editor 는 못 지운다.
+  if (req.method === 'DELETE') {
+    if (!auth.isAdmin) return res.status(403).json({ ok: false, error: '삭제는 대표님만 할 수 있습니다.' });
+    let dbody = {};
+    try { dbody = await readBody(req); } catch { /* 쿼리로도 받는다 */ }
+    const id = dbody.id || req.query?.id;
+    if (!id) return res.status(400).json({ ok: false, error: 'id 가 필요합니다.' });
+    // 안전장치: 발행된 원고는 삭제 금지(유튜브에 이미 올라감).
+    const { data: cur } = await sb.from('publications').select('status').eq('id', id).maybeSingle();
+    if (cur?.status === 'published') return res.status(409).json({ ok: false, error: '발행된 원고는 삭제할 수 없습니다.' });
+    const { error } = await sb.from('publications').delete().eq('id', id);
+    if (error) return res.status(500).json({ ok: false, error: error.message });
+    return res.status(200).json({ ok: true, deleted: id });
+  }
+
   if (req.method !== 'POST') {
-    res.setHeader('Allow', 'GET, POST, PATCH');
+    res.setHeader('Allow', 'GET, POST, PATCH, DELETE');
     return res.status(405).json({ ok: false, error: 'Method not allowed' });
   }
 
@@ -246,7 +261,10 @@ export default async function handler(req, res) {
 
   // 이미 발행된 줄은 건드리지 않는다. 유튜브에 이미 올라갔다.
   const { data: exist } = await sb.from('publications')
-    .select('id, status').eq('source_filename', row.source_filename).maybeSingle();
+    .select('id, status, city, region, source, uploaded_by_email, created_at')
+    .eq('source_filename', row.source_filename)
+    .eq('is_duplicate', false)   // 원본 1건만 비교 대상. 이미 만든 중복끼리는 또 안 막는다.
+    .maybeSingle();
 
   if (exist?.status === 'published') {
     return res.status(409).json({
@@ -255,22 +273,37 @@ export default async function handler(req, res) {
     });
   }
 
+  // 수동 중복 방지 (설계 §5): 같은 파일명이 이미 있으면 조용히 덮어쓰지 않고 화면에 물어본다.
+  // force 없음 → 경고만 돌려줌 / force='overwrite' → 다시 읽어 덮어씀 / force='duplicate' → 중복으로 새로 추가.
+  const force = body && body.force;
+  if (exist && force !== 'overwrite' && force !== 'duplicate') {
+    return res.status(409).json({
+      ok: false, duplicate: true,
+      error: '이미 등록된 원고입니다.',
+      existing: {
+        id: exist.id,
+        place: [exist.city, exist.region].filter(Boolean).join(' '),
+        source: exist.source, uploaded_by_email: exist.uploaded_by_email,
+        created_at: exist.created_at,
+      },
+    });
+  }
+
   let action; let saved;
-  if (exist) {
+  if (exist && force === 'overwrite') {
+    // 다시 읽기(덮어쓰기): 원본을 새 파싱으로 갱신. 출처/올린이는 원본 유지(안 건드림).
     const { data, error } = await sb.from('publications').update(row).eq('id', exist.id).select().single();
     if (error) return res.status(500).json({ ok: false, error: error.message });
     action = 'updated'; saved = data;
   } else {
+    // 신규 또는 [그래도 추가](중복 생성). 중복이면 is_duplicate=true 로 남겨 화면에 딱지+대표님 삭제.
     row.created_by = 'api/publications';
-    // 출처 구분(D-060 올리기 설계 §3): 드라이브 자동 적재(source='drive')와
-    // 화면 수동 업로드(source='manual')를 나눠 목록에 딱지로 보여준다.
-    // 지금은 수동 경로만 실작동. 드라이브 워처(BL-YT-DRIVE-WATCH)가 붙으면 source='drive' 로 넣는다.
     row.source = (body && body.source === 'drive') ? 'drive' : 'manual';
-    // 올린 사람: 화면이 보내는 이름은 안 믿고 세션에서 확인한 이메일만 남긴다.
     row.uploaded_by_email = auth.email || null;
+    row.is_duplicate = (exist && force === 'duplicate') ? true : false;
     const { data, error } = await sb.from('publications').insert(row).select().single();
     if (error) return res.status(500).json({ ok: false, error: error.message });
-    action = 'created'; saved = data;
+    action = row.is_duplicate ? 'duplicated' : 'created'; saved = data;
   }
 
   const warnings = [...(pkg.warnings || [])];

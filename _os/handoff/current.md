@@ -38,10 +38,16 @@
 - **올리기** ✅ 구현(docx→원고 파싱·publications·설명란/링크)
 - **채널** ✅ 구현·라이브(D-064: 채널/CID 마스터, 새 채널 .md 등록, 수정)
 - **호텔** ✅ **완료·라이브(이번 세션)** — D-062: `api/content-hotels`(신규, v_content_hotel_stats 조회·에디터 세션·수수료 없음) + studio.html view-hotel 실구현. 호텔별 노출·최고순위(TOP1/2/3)·확정/취소·확정률·예약기간 카드. 라이브 검증: 실호텔 6곳(호텔 라 포레스타 HT TOP1 확정3/취소2 등). 커밋 api=87d683f, studio=c092e80.
-- **성과표** ⬜ 다음 우선(전 채널·영상·호텔 종합 조망). 데이터: bookings_agoda 7,169 / publications 2 / channels 8. ※조회수(BL-YT-VIEWS-COLLECT)·클릭(BL-TRACK-001, link_clicks 없음)은 pending → 그 두 칸은 당분간 빈칸.
-- **키워드** ⬜ (다음 만들 것 추천 엔진 — 데이터 얕음: publications 2건)
-- **전략** ⬜ (콘텐츠 기획 큐 — 신규 데이터 모델 필요)
+- **성과표** ✅ **완료·라이브(이번 세션)** — D-060: `api/content-performance`(신규, v_channel_stats 수수료·거래액 제외 + publications 영상수 + v_content_hotel_exposure 영상별 호텔) + studio.html view-perf(요약카드 4 + 채널별 + 영상별). 라이브 검증: 채널 7·영상 2·노출호텔 6·확정예약 3,756. 채널명 단일화 자동(뷰가 channels 조인). 커밋 api=8747863, studio=8e8583c. ※조회수·클릭 칸은 발행 영상 0개라 "—"(아래).
+- **키워드** ⬜ 다음(다음 만들 것 추천 — 데이터 얕음: publications 2건)
 - **우선순위 근거**: 백엔드 뷰가 이미 done(v_content_hotel_stats)이라 호텔이 최소공수·최대가치 → 1위로 완료. 다음은 성과표(데이터 있음), 그다음 키워드/전략(선행 데이터 필요).
+
+## 📌 조회수/클릭 파이프라인 실측 (이번 세션 · 대표님 몫 아님)
+- **YOUTUBE_API_KEY**: 대표님이 이미 세팅 완료(확인). → 조회수 관련 대표님 요청 없음.
+- **현재 수집 대상 0개**: videos 테이블 0행, publications의 youtube_video_id 0개(=발행된 영상 0). → 조회수 수집기(BL-YT-VIEWS-COLLECT)를 지금 만들어도 가져올 게 없음. "앞으로 올릴 영상부터" 원칙. **영상 발행이 시작되면 수집기 붙이기.**
+- **저장처는 이미 존재**: videos 테이블에 view_count·like_count·click_count·last_stats_update 컬럼 있음. cron 없음(vercel.json). 수집기+주1회 cron 만들면 됨(키·저장처 준비완료라 순수 제작만 남음).
+- **클릭(BL-TRACK-001)**: link_clicks 테이블 없음 + gohotel.win 단축URL infra 미구축. 발행+클릭추적 착수 시 함께.
+- **db-query 능력**: `/api/ops/db-query`는 DDL/DML 실행 허용(파괴적 DROP만 차단) → 스키마·데이터 작업 Claude 직접 가능.
 
 ## 🔑 인프라
 - 커밋: `POST gohotelwinners.com/api/ops/github-commit` x-ops-token `{path,content,message}` (plain text). 30/h.

@@ -87,21 +87,64 @@ function admin() {
   return createClient(url, key, { auth: { persistSession: false } });
 }
 
+async function readBody(req) {
+  if (req.body && typeof req.body === 'object') return req.body;
+  const chunks = [];
+  for await (const c of req) chunks.push(c);
+  const raw = Buffer.concat(chunks).toString('utf8');
+  return raw ? JSON.parse(raw) : {};
+}
+
+// 화면이 고칠 수 있는 채널 기본 정보. code(예약·CID 연결 열쇠)는 절대 못 바꾼다.
+const EDITABLE = ['name', 'name_en', 'language', 'is_active', 'display_order'];
+
 export default async function handler(req, res) {
   const who = await authorized(req);
   if (!who.ok) return res.status(401).json({ ok: false, error: '로그인이 필요합니다.' });
-
-  if (req.method !== 'GET') {
-    // 등록·CID 편집·규격 저장은 후속(D-064 권한: owner/admin 전용, 두 겹 방어).
-    res.setHeader('Allow', 'GET');
-    return res.status(405).json({ ok: false, error: 'Method not allowed' });
-  }
 
   let sb;
   try {
     sb = admin();
   } catch (e) {
     return res.status(500).json({ ok: false, error: '서버 설정 오류', detail: String(e.message || e) });
+  }
+
+  // ── 채널 기본 정보 수정 (이름·순서·활성·언어) ──────────────────
+  // 권한: owner/admin 만 (D-064). 두 겹 방어 = UI 버튼 미표시(에디터) + 여기 서버 게이트.
+  if (req.method === 'PATCH') {
+    if (!who.isAdmin) return res.status(403).json({ ok: false, error: '채널 수정은 관리자만 할 수 있습니다.' });
+
+    let body;
+    try { body = await readBody(req); }
+    catch { return res.status(400).json({ ok: false, error: 'JSON 본문을 읽지 못했습니다.' }); }
+
+    const code = String(body.code || '').trim();
+    if (!code) return res.status(400).json({ ok: false, error: 'code(어느 채널인지)가 필요합니다.' });
+
+    // 화이트리스트 필드만. code 는 예약·CID 연결 열쇠라 변경 금지(데이터 안 꼬이게).
+    const patch = {};
+    for (const k of EDITABLE) {
+      if (body[k] === undefined) continue;
+      if (k === 'is_active') patch[k] = !!body[k];
+      else if (k === 'display_order') patch[k] = Number(body[k]);
+      else patch[k] = body[k] == null ? null : String(body[k]).trim();
+    }
+    if (!Object.keys(patch).length) return res.status(400).json({ ok: false, error: '바꿀 내용이 없습니다.' });
+    if ('name' in patch && !patch.name) return res.status(400).json({ ok: false, error: '채널 이름은 비울 수 없습니다.' });
+
+    try {
+      const { data, error } = await sb.from('channels').update(patch).eq('code', code).select().single();
+      if (error) throw error;
+      return res.status(200).json({ ok: true, channel: data });
+    } catch (e) {
+      return res.status(500).json({ ok: false, error: '채널을 수정하지 못했습니다.', detail: String(e.message || e) });
+    }
+  }
+
+  if (req.method !== 'GET') {
+    // 채널 신규 등록·CID 편집·규격 저장은 후속 단계.
+    res.setHeader('Allow', 'GET, PATCH');
+    return res.status(405).json({ ok: false, error: 'Method not allowed' });
   }
 
   try {

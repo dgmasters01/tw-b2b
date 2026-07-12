@@ -39,7 +39,8 @@
 - **채널** ✅ 구현·라이브(D-064: 채널/CID 마스터, 새 채널 .md 등록, 수정)
 - **호텔** ✅ **완료·라이브(이번 세션)** — D-062: `api/content-hotels`(신규, v_content_hotel_stats 조회·에디터 세션·수수료 없음) + studio.html view-hotel 실구현. 호텔별 노출·최고순위(TOP1/2/3)·확정/취소·확정률·예약기간 카드. 라이브 검증: 실호텔 6곳(호텔 라 포레스타 HT TOP1 확정3/취소2 등). 커밋 api=87d683f, studio=c092e80.
 - **성과표** ✅ **완료·라이브(이번 세션)** — D-060: `api/content-performance`(신규, v_channel_stats 수수료·거래액 제외 + publications 영상수 + v_content_hotel_exposure 영상별 호텔) + studio.html view-perf(요약카드 4 + 채널별 + 영상별). 라이브 검증: 채널 7·영상 2·노출호텔 6·확정예약 3,756. 채널명 단일화 자동(뷰가 channels 조인). 커밋 api=8747863, studio=8e8583c. ※조회수·클릭 칸은 발행 영상 0개라 "—"(아래).
-- **키워드** ⬜ 다음(다음 만들 것 추천 — 데이터 얕음: publications 2건)
+- **키워드** ✅ **완료·라이브(이번 세션)** — D-060: 뷰 2개 신설(v_content_keyword_cities·v_content_keyword_hotels: bookings_agoda↔publications TOP1/2/3 대조) + `api/content-keywords`(신규) + studio.html view-keyword. "예약 많은데 영상 없는 도시·호텔" 추천. 라이브: 도시 25·호텔 30(오사카 583건·타이베이 349건 등 노출0). 커밋 api=b0e588b, studio=70a0b48.
+- **전략** ⬜ **마지막 1개** — 콘텐츠 기획 큐. 신규 데이터 모델 필요(content_queue 테이블: 아이디어→기획→제작→완료 + 담당/메모). v1 제안: 키워드 추천에서 '이거 만들자' → 큐 적재 → 상태 진행. **쓰기(CRUD) 포함이라 별도 집중 작업**으로 다음 진행.
 - **우선순위 근거**: 백엔드 뷰가 이미 done(v_content_hotel_stats)이라 호텔이 최소공수·최대가치 → 1위로 완료. 다음은 성과표(데이터 있음), 그다음 키워드/전략(선행 데이터 필요).
 
 ## 📌 조회수/클릭 파이프라인 실측 (이번 세션 · 대표님 몫 아님)

@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-07-11T06:35:01.370Z",
+  "updated_at": "2026-07-12T00:43:11.578135Z",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -21,7 +21,7 @@
     "autonomous_ready": 33,
     "todo": 2,
     "cancelled": 1,
-    "updated_at": "2026-07-11T06:35:01.370Z"
+    "updated_at": "2026-07-12T00:43:11.578135Z"
   },
   "tasks": [
     {
@@ -22250,12 +22250,23 @@
       "progress": null,
       "tag": "스튜디오-재설계",
       "phase": "Charter-v2",
-      "commit": null,
-      "files_changed": [],
-      "history": [],
+      "commit": "2e52806",
+      "files_changed": [
+        "api/channels.js",
+        "studio.html"
+      ],
+      "history": [
+        {
+          "at": "2026-07-12T00:43:11.578135+00:00",
+          "event": "채널 메뉴 1층(레지스트리+CID 조회) 라이브 (status 유지)",
+          "by": "클로드",
+          "commit": "2e52806",
+          "note": "feat(studio): 6메뉴 셸+채널 메뉴 구현, 올리기 기능 보존 (D-060/D-064) — api/channels.js 신설, 라이브 검증 통과"
+        }
+      ],
       "source": "chat:2026-07-10 스튜디오 목적 7개 정의",
       "source_anchor": null,
-      "notes": "대표님이 스튜디오 목적 7개 정의 → 상단 탭 6개로 확정(사이드바 아닌 상단탭=휴대폰 대응). 메뉴명 확정: 올리기 / 성과표 / 호텔 / 키워드 / 전략 / 채널. 채널 필터는 메뉴 아래 공통. 원칙(부칙: 초등학생도 한눈에, 최대 원클릭). 앞으로 올릴 영상부터 조회수·클릭 집계(과거 영상 배제 — 링크 순서 TOP1/2/3 모름). 진행: [올리기] 목업 확정 중 — 목록형 표(원고|채널|상태|누가·언제|확인), 펼치면 복사버튼 4개(제목·설명란[해시태그·챕터 포함]·태그·파일명), 해시태그/챕터는 따로보기로 접음. 호텔 TOP1/2/3 표시(누르면 호텔 메뉴로). 상태 라벨: 올릴것/맡음/링크없음/올림. 남은 목업: 성과표(조회수·클릭 빈칸), 호텔(v_content_hotel_stats 사용), 키워드, 전략(취소 데이터), 채널(규칙문서 생성 UI).",
+      "notes": "대표님이 스튜디오 목적 7개 정의 → 상단 탭 6개로 확정(사이드바 아닌 상단탭=휴대폰 대응). 메뉴명 확정: 올리기 / 성과표 / 호텔 / 키워드 / 전략 / 채널. 채널 필터는 메뉴 아래 공통. 원칙(부칙: 초등학생도 한눈에, 최대 원클릭). 앞으로 올릴 영상부터 조회수·클릭 집계(과거 영상 배제 — 링크 순서 TOP1/2/3 모름). 진행: [올리기] 목업 확정 중 — 목록형 표(원고|채널|상태|누가·언제|확인), 펼치면 복사버튼 4개(제목·설명란[해시태그·챕터 포함]·태그·파일명), 해시태그/챕터는 따로보기로 접음. 호텔 TOP1/2/3 표시(누르면 호텔 메뉴로). 상태 라벨: 올릴것/맡음/링크없음/올림. 남은 목업: 성과표(조회수·클릭 빈칸), 호텔(v_content_hotel_stats 사용), 키워드, 전략(취소 데이터), 채널(규칙문서 생성 UI).\n\n[구현 착수(2026-07-12)] 6메뉴 셸(상단 탭) + 채널 메뉴 1층(레지스트리+CID 조회) 라이브. api/channels.js 신설(is_editor 이상 조회·service_role·is_admin 플래그) + studio.html 6메뉴 개편, 기존 올리기 기능 보존. 라이브 검증: /api/channels 401 게이트 정상 + ops-token 9채널·CID 정상 반환. 발견(대표님 확인): 실DB 채널 9개, display_order 뒤죽박죽(여행능력자들 100·legacy 99), 채널명 시장 혼재, channel_cid_map.notes 컬럼 없음. 후속: youtube-rules.js DB개조(라이브 파이프라인 위험격리)·채널/CID/규격 편집 화면·순서·채널명 정리(대표님 결정 후). 상세: _business/decisions/2026-07-11-studio-channel-menu.md 구현 로그.",
       "owner": "Claude",
       "approval_required": true,
       "decision_context": "",

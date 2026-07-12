@@ -121,6 +121,10 @@
   .st-newch.open { display:block; }
   .st-newch h4 { margin:0 0 12px; font-size:14px; font-weight:600; }
   .st-newch input[type=text], .st-newch input[type=number] { flex:1; min-width:130px; font-size:13px; padding:7px 9px; border-radius:7px; border:1px solid rgba(128,128,128,.35); background:transparent; color:inherit; }
+  .st-newch input[type=file] { flex:1; min-width:180px; font-size:13px; color:inherit; }
+  .nc-preview { margin:10px 0; padding:10px 13px; border-radius:9px; background:rgba(78,222,163,.06); border:1px solid rgba(78,222,163,.35); }
+  .nc-pv-row { display:flex; gap:12px; font-size:13px; padding:3px 0; }
+  .nc-pv-row span { width:82px; color:#8A8794; flex:none; } .nc-pv-row b { font-weight:600; }
 </style>
 </head>
 <body>
@@ -181,16 +185,14 @@
 
     <!-- 새 채널 등록 (관리자만 · 기본 레지스트리. 규격 .md 자동생성은 뒤 단계) -->
     <div class="st-newch" id="st-newch">
-      <h4>새 채널 등록</h4>
+      <h4>새 채널 등록 (규격 .md 업로드)</h4>
       <div class="st-ch-frow"><label>코드</label><input type="text" id="nc-code" placeholder="예: TW · HG (영문·숫자·-_ 2~20자, 나중에 못 바꿈)"></div>
-      <div class="st-ch-frow"><label>이름</label><input type="text" id="nc-name" placeholder="예: 여행능력자들"></div>
-      <div class="st-ch-frow"><label>영문명</label><input type="text" id="nc-name_en" placeholder="예: TRAVELWINNERS (선택)"></div>
-      <div class="st-ch-frow"><label>언어</label><input type="text" id="nc-language" placeholder="ko · ja · zh-tw · zh-cn · vi · en"></div>
-      <div class="st-ch-frow"><label>플랫폼</label><input type="text" id="nc-platform" placeholder="youtube (비우면 youtube)"></div>
-      <div class="st-ch-frow"><label>표시 순서</label><input type="number" id="nc-order" placeholder="숫자(작을수록 위에)"></div>
-      <div class="st-ch-frow"><label>첫 CID</label><input type="text" id="nc-cid" placeholder="아고다 CID (선택)"><input type="text" id="nc-cidlabel" placeholder="라벨: main" style="flex:none; max-width:120px"></div>
-      <div class="st-ch-actions"><button id="nc-save">등록</button><button class="ghost" id="nc-cancel">취소</button></div>
+      <div class="st-ch-frow"><label>규격 md</label><input type="file" id="nc-mdfile" accept=".md,.markdown,text/markdown,text/plain"></div>
+      <div class="st-ch-actions"><button class="ghost" id="nc-read">파일 읽기</button></div>
+      <div class="nc-preview" id="nc-preview" style="display:none"></div>
+      <div class="st-ch-actions"><button id="nc-save" disabled>등록</button><button class="ghost" id="nc-cancel">취소</button></div>
       <div class="st-ch-fmsg" id="nc-msg"></div>
+      <div class="st-hint">규격 .md 파일의 §0 채널 정보에서 이름·언어·아고다 CID 를 자동으로 읽습니다. 코드만 확인 입력하세요.</div>
     </div>
 
     <div id="st-ch-list"><div class="st-empty">불러오는 중…</div></div>
@@ -606,25 +608,52 @@
     }).then(function (r) { return r.json().then(function (j) { if (!r.ok || !j.ok) throw new Error(j.error || '처리하지 못했습니다.'); return j; }); });
   }
 
-  // 새 채널 등록 (관리자)
-  function createChannel(btn) {
+  // 새 채널 등록 (관리자) — 규격 .md 업로드 방식
+  // 코드(불변·예약 열쇠)만 사람이 확인 입력, 이름·언어·CID 는 md §0 에서 서버가 자동으로 읽는다.
+  var ncMdText = '';  // [파일 읽기]로 읽어둔 규격 md 텍스트
+  function ncEsc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]; }); }
+
+  // [파일 읽기] → dry_run 으로 서버 파싱만 받아 미리보기 (파싱 규칙은 서버 한 곳이 진실)
+  function readMd() {
+    var code = (document.getElementById('nc-code').value || '').trim();
+    var f = document.getElementById('nc-mdfile').files[0];
     var msg = document.getElementById('nc-msg');
-    var g = function (id) { var el = document.getElementById(id); return el ? el.value.trim() : ''; };
-    var body = {
-      action: 'create_channel',
-      code: g('nc-code'), name: g('nc-name'), name_en: g('nc-name_en'),
-      language: g('nc-language'), platform: g('nc-platform'),
-      display_order: g('nc-order') === '' ? null : Number(g('nc-order')),
-      cid: g('nc-cid'), cid_label: g('nc-cidlabel')
+    var pv = document.getElementById('nc-preview');
+    var save = document.getElementById('nc-save');
+    save.disabled = true; pv.style.display = 'none'; ncMdText = '';
+    if (!code) { msg.className = 'st-ch-fmsg err'; msg.textContent = '먼저 코드를 넣어주세요.'; return; }
+    if (!f) { msg.className = 'st-ch-fmsg err'; msg.textContent = '규격 .md 파일을 선택하세요.'; return; }
+    var reader = new FileReader();
+    reader.onload = function () {
+      ncMdText = reader.result || '';
+      msg.className = 'st-ch-fmsg'; msg.textContent = '읽는 중…';
+      postChannels({ action: 'register_from_md', code: code, md: ncMdText, dry_run: true }).then(function (j) {
+        var p = j.parsed || {};
+        pv.innerHTML =
+          '<div class="nc-pv-row"><span>코드</span><b>' + ncEsc(p.code) + '</b></div>' +
+          '<div class="nc-pv-row"><span>이름</span><b>' + ncEsc(p.name) + '</b></div>' +
+          '<div class="nc-pv-row"><span>언어</span><b>' + ncEsc(p.language) + '</b></div>' +
+          '<div class="nc-pv-row"><span>아고다 CID</span><b>' + ncEsc(p.cid) + '</b></div>';
+        pv.style.display = 'block'; save.disabled = false;
+        msg.className = 'st-ch-fmsg ok'; msg.textContent = '읽었습니다. 확인 후 등록하세요.';
+      }).catch(function (e) { msg.className = 'st-ch-fmsg err'; msg.textContent = e.message; });
     };
-    if (!body.code || !body.name || !body.language) {
-      msg.className = 'st-ch-fmsg err'; msg.textContent = '코드·이름·언어는 꼭 넣어야 합니다.'; return;
-    }
+    reader.onerror = function () { msg.className = 'st-ch-fmsg err'; msg.textContent = '파일을 읽지 못했습니다.'; };
+    reader.readAsText(f, 'utf-8');
+  }
+
+  // [등록] → 실제 채널·CID 등록
+  function createChannel(btn) {
+    var code = (document.getElementById('nc-code').value || '').trim();
+    var msg = document.getElementById('nc-msg');
+    if (!code || !ncMdText) { msg.className = 'st-ch-fmsg err'; msg.textContent = '코드 입력 후 [파일 읽기]를 먼저 하세요.'; return; }
     btn.disabled = true; msg.className = 'st-ch-fmsg'; msg.textContent = '등록 중…';
-    postChannels(body).then(function () {
+    postChannels({ action: 'register_from_md', code: code, md: ncMdText }).then(function () {
       msg.className = 'st-ch-fmsg ok'; msg.textContent = '등록됐습니다.';
-      ['nc-code','nc-name','nc-name_en','nc-language','nc-platform','nc-order','nc-cid','nc-cidlabel']
-        .forEach(function (id) { var el = document.getElementById(id); if (el) el.value = ''; });
+      document.getElementById('nc-code').value = '';
+      document.getElementById('nc-mdfile').value = '';
+      document.getElementById('nc-preview').style.display = 'none';
+      ncMdText = '';
       setTimeout(function () { document.getElementById('st-newch').classList.remove('open'); loadChannels(); }, 700);
     }).catch(function (e) { btn.disabled = false; msg.className = 'st-ch-fmsg err'; msg.textContent = e.message; });
   }
@@ -711,8 +740,10 @@
     var panel = document.getElementById('st-newch');
     var save = document.getElementById('nc-save');
     var cancel = document.getElementById('nc-cancel');
+    var readBtn = document.getElementById('nc-read');
     if (openBtn) openBtn.onclick = function () { panel.classList.toggle('open'); };
     if (cancel) cancel.onclick = function () { panel.classList.remove('open'); };
+    if (readBtn) readBtn.onclick = function () { readMd(); };
     if (save) save.onclick = function () { createChannel(save); };
   })();
 

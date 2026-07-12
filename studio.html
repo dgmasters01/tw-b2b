@@ -82,6 +82,13 @@
   .st-ht-sub { font-size:12px; opacity:.6; margin-top:3px; }
   .st-ht-chips { display:flex; flex-wrap:wrap; gap:6px; margin-top:11px; align-items:center; }
   .st-ht-period { font-size:11px; opacity:.5; margin-top:9px; }
+  /* ── 성과표 (D-060) ── */
+  .st-pf-cards { display:flex; flex-wrap:wrap; gap:10px; margin:14px 0 4px; }
+  .st-pf-card { flex:1 1 120px; border:1px solid rgba(128,128,128,.25); border-radius:12px; padding:13px 15px; }
+  .st-pf-card .n { font-size:22px; font-weight:600; line-height:1.1; }
+  .st-pf-card .l { font-size:11px; opacity:.6; margin-top:4px; }
+  .st-pf-block { margin-top:22px; }
+  .st-pf-h { font-size:13px; font-weight:500; opacity:.75; margin-bottom:10px; }
   .st-ch-meta { display:flex; gap:16px; flex-wrap:wrap; font-size:13px; opacity:.75; margin-bottom:10px; }
   .st-ch-meta span b { font-weight:500; opacity:.6; margin-right:4px; }
   .st-cid-wrap { border-top:1px solid rgba(128,128,128,.14); padding-top:10px; }
@@ -203,7 +210,15 @@
   </section>
 
   <!-- ── 준비 중 4메뉴 ─────────────────────────────────────── -->
-  <section class="st-view" id="view-perf"><div class="st-soon"><b>성과표</b>전 채널·영상·호텔 성과 종합 조망 — 준비 중</div></section>
+  <section class="st-view" id="view-perf">
+    <div class="st-head">
+      <div><div class="st-h">성과표</div><div class="st-sub" id="st-pf-sub">불러오는 중…</div></div>
+    </div>
+    <div class="st-pf-cards" id="st-pf-cards"></div>
+    <div class="st-hint">채널·영상·호텔 성과를 한눈에. 스튜디오는 수수료·거래액을 보지 않습니다. 조회수·클릭은 영상이 발행되면 채워집니다.</div>
+    <div class="st-pf-block"><div class="st-pf-h">채널별</div><div id="st-pf-channels"><div class="st-empty">불러오는 중…</div></div></div>
+    <div class="st-pf-block"><div class="st-pf-h">영상별</div><div id="st-pf-videos"><div class="st-empty">불러오는 중…</div></div></div>
+  </section>
   <section class="st-view" id="view-hotel">
     <div class="st-head">
       <div><div class="st-h">호텔</div><div class="st-sub" id="st-ht-count">불러오는 중…</div></div>
@@ -496,6 +511,7 @@
   /* ── 6메뉴 전환 (D-060) ──────────────────────────────────── */
   var chLoaded = false;
   var htLoaded = false;
+  var perfLoaded = false;
   function switchView(v) {
     document.querySelectorAll('#st-menu button').forEach(function (b) {
       b.classList.toggle('on', b.dataset.view === v);
@@ -505,10 +521,72 @@
     });
     if (v === 'channels' && !chLoaded) { chLoaded = true; loadChannels(); }
     if (v === 'hotel' && !htLoaded) { htLoaded = true; loadHotels(); }
+    if (v === 'perf' && !perfLoaded) { perfLoaded = true; loadPerf(); }
   }
   document.querySelectorAll('#st-menu button').forEach(function (b) {
     b.onclick = function () { switchView(b.dataset.view); };
   });
+
+  /* ── 성과표 (D-060 · 전 채널·영상·호텔 종합) ──────────────────
+   * 수수료·거래액 안 봄. 조회수·클릭은 발행 영상 생기면 채워짐(현재 —). */
+  function pfCard(n, l) {
+    return '<div class="st-pf-card"><div class="n">' + n + '</div><div class="l">' + l + '</div></div>';
+  }
+  function pfRate(done, canc) { var t = done + canc; return t ? Math.round(done / t * 100) + '%' : '—'; }
+  function pfChannelRow(c) {
+    var off = c.is_active === false ? ' <span class="st-ch-chip inactive">비활성</span>' : '';
+    return '<div class="st-ch-card">' +
+      '<div class="st-ch-name">' + esc(c.name || c.code) + off + '</div>' +
+      '<div class="st-ht-chips">' +
+        '<span class="st-ch-chip">영상 ' + (c.videos || 0) + '개</span>' +
+        '<span class="st-ch-chip active">확정 ' + (c.bookings_done || 0) + '건</span>' +
+        '<span class="st-ch-chip inactive">취소 ' + (c.bookings_cancelled || 0) + '건</span>' +
+        '<span class="st-ch-chip">$100+ ' + (c.bookings_100plus || 0) + '건</span>' +
+        '<span class="st-ch-chip">확정률 ' + pfRate(c.bookings_done || 0, c.bookings_cancelled || 0) + '</span>' +
+        '<span class="st-ch-chip">조회수 —</span>' +
+      '</div>' +
+    '</div>';
+  }
+  function pfVideoRow(v, chName) {
+    var stLabel = v.published ? '발행됨' : (v.status === 'draft' ? '준비' : (v.status || '준비'));
+    var hotels = (v.hotels || []).map(function (h) {
+      return 'TOP' + (h.rank || '?') + ' ' + esc(h.name || h.hid);
+    }).join(' · ') || '노출 호텔 없음';
+    var cn = chName[v.channel_code] || v.channel_code || '—';
+    return '<div class="st-ch-card">' +
+      '<div class="st-ch-name">' + esc(v.title || '(제목 없음)') + '</div>' +
+      '<div class="st-ht-sub">' + esc(cn) + ' · ' + esc(stLabel) + '</div>' +
+      '<div class="st-ht-chips">' +
+        '<span class="st-ch-chip">' + hotels + '</span>' +
+        '<span class="st-ch-chip">조회수 —</span>' +
+      '</div>' +
+    '</div>';
+  }
+  function loadPerf() {
+    var chList = document.getElementById('st-pf-channels');
+    var vidList = document.getElementById('st-pf-videos');
+    fetch('/api/content-performance', { credentials: 'same-origin' })
+      .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+      .then(function (x) {
+        if (!x.ok || !x.j.ok) throw new Error(x.j.error || '불러오지 못했습니다.');
+        var s = x.j.summary || {}, chs = x.j.channels || [], vids = x.j.videos || [];
+        document.getElementById('st-pf-sub').textContent =
+          (s.channels || 0) + '개 채널 · 영상 ' + (s.videos || 0) + '개 · 노출 호텔 ' + (s.hotels || 0) + '곳';
+        document.getElementById('st-pf-cards').innerHTML =
+          pfCard(s.channels || 0, '채널') + pfCard(s.videos || 0, '영상(원고)') +
+          pfCard(s.hotels || 0, '노출 호텔') + pfCard(s.bookings_done || 0, '확정예약');
+        var chName = {};
+        chs.forEach(function (c) { chName[c.code] = c.name; });
+        chList.innerHTML = chs.length ? chs.map(pfChannelRow).join('') : '<div class="st-empty">채널이 없습니다.</div>';
+        vidList.innerHTML = vids.length
+          ? vids.map(function (v) { return pfVideoRow(v, chName); }).join('')
+          : '<div class="st-empty">아직 올린 영상(원고)이 없습니다.</div>';
+      })
+      .catch(function (e) {
+        chList.innerHTML = '<div class="st-empty">' + esc(e.message) + '</div>';
+        vidList.innerHTML = '';
+      });
+  }
 
   /* ── 호텔 메뉴 (D-062 · BL-CONTENT-HOTEL-VIEWS) ──────────────
    * v_content_hotel_stats 를 읽어 호텔별 노출·순위·확정/취소 예약을 카드로.

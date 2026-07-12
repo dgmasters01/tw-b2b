@@ -87,6 +87,11 @@
 - VN: "Korea Hotel 베트남어" → **Ở đâu đây? - Review Khách sạn ngay đây** (@reviewkhachsan, 구독 140·영상 239, reviewkhachsan.shop).
 - JP 는 앞서 ホテルだ 반영 완료. 남은 확인 대상: HT(호텔이야 한국)·KT(Koreahotelguide) 실채널명 — 대표님 캡처 대기.
 
+**최종 정리 (2026-07-12, 대표님 지시)** — 시장 표기 없이 채널명만(일본 ホテルだ 원칙 통일):
+- HT: "호텔이야 한국" → **호텔이야** ("한국" 제거, name_en=HOTEL-IYA). 일본 채널이 시장표기 없이 ホテルだ 쓰듯 한국도 동일 원칙.
+- VN: 실채널명 "Ở đâu đây? - Review Khách sạn ngay đây"가 너무 길어 → 영문 핸들 **reviewkhachsan** 으로(name_en 동일). 시장은 language=vi 가 담당.
+- 최종 목록: 1.호텔이야 2.여행능력자들 3.ホテルだ 4.世界就是家 5.Koreahotelguide 6.reviewkhachsan 7.호텔이곳. KT(Koreahotelguide)만 대표님이 향후 타겟 확장 시 변경 예정(그때 이름만 UPDATE, code=KT 유지→데이터 그대로).
+
 **★ 채널 이름 변경 안전 원칙 (code ≠ name — 데이터 안 꼬이는 이유)**
 대표님 질문: "영어 채널(Koreahotelguide)을 나중에 타겟 넓혀 다른 나라도 소개하면 이름을 바꿀 텐데, 데이터가 꼬이지 않나?"
 - 답: **안 꼬인다.** channels 의 진짜 열쇠는 `code`(TW·HT·KT·JP·ZH·VN·HG)다. 예약(bookings)·CID(channel_cid_map)·발행(publications)은 전부 **channel_code 로 연결**되고, `name`은 화면 표시용일 뿐이다(02-channels.sql: "CH 코드 기반으로 모든 예약 데이터를 채널 단위 분류").
@@ -99,7 +104,7 @@
 ### ⚠️ 구현 중 발견 — 대표님 확인 필요 (2026-07-12 갱신)
 1. ~~채널 9개~~ → **8개로 정리**(TC 삭제 완료). 운영 7 + legacy(과거 누적·비활성) 1.
 2. ~~표시 순서 뒤죽박죽~~ → **해결(2026-07-12)**: 2025년 매출순 정렬(HT>TW>JP>ZH>KT>VN>HG, legacy 맨 뒤). 대표님 결정.
-3. ~~채널명 시장 혼재~~ → **대부분 해결(2026-07-12)**: JP=ホテルだ·ZH=世界就是家·VN=Ở đâu đây? 실채널명 반영. HT(호텔이야 한국)·KT(Koreahotelguide) 실채널명만 대표님 캡처 대기.
+3. ~~채널명 시장 혼재~~ → **해결(2026-07-12)**: HT=호텔이야·JP=ホテルだ·ZH=世界就是家·VN=reviewkhachsan 정리 완료(시장표기 제거, language 필드가 담당). KT=Koreahotelguide 는 향후 타겟 확장 시 대표님이 이름 변경 예정.
 4. ~~channel_cid_map.notes 컬럼 없음~~ → API 에서 제외 처리 완료(메모 기능 필요 시 컬럼 추가 후속).
 
 ### 후속 (다음 채팅 격리)

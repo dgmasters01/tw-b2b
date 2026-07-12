@@ -1,55 +1,51 @@
-# 인계서 — 스튜디오 후속 4단계 (단계5 완료 → 2·3·4)
+# 인계서 — 스튜디오 6메뉴 완료 (올리기 드라이브 UI + 전략 큐)
 
-**작성**: 2026-07-12 (분석 탭 스크롤 버그 수정 완료 세션)
+**작성**: 2026-07-12 (올리기 드라이브 UI · 전략 콘텐츠 기획 큐 세션)
 **다음 채팅 첫 fetch = boot.md → 이 파일.**
 
 ---
 
-## 🚦 배경: 지난 대화에서 확정한 "후속 4단계"
-채널 메뉴(단계1~5, D-064)는 라이브 완료. 그 뒤 확정된 4단계 순서:
-1. **단계5 채널등록·CID편집** — ✅ 완료·라이브(api/channels.js·studio.html, register_from_md/add_cid/retire/restore)
-2. **분석 페이지 스크롤 버그** — ✅ **완료·라이브 검증**(이 세션)
-3. **채널명 단일화** — ✅ **완료·라이브**(이번 세션, dd487b4)
-4. **호텔 상세 유료계약 카드+소개콘텐츠** — ⬜ **보류(데이터 선결)**
+## 🚦 이번 세션 결과 = 스튜디오 6메뉴 전부 라이브 완료
+남아 있던 2개(올리기 드라이브 입력 UI · 전략 메뉴)를 마무리했다. **studio.html 6메뉴(올리기·성과표·호텔·키워드·전략·채널) 모두 실구현·라이브.**
 
-## ✅ 단계2 완료 내용 (이 세션)
-- **증상**: 관리자 콘솔(admin.html) → 📈분석 화면에서 스크롤 내리면 상단 탭 줄(전체현황·채널별…)이 화면 밖으로 사라져 못 누름.
-- **원인**: ① 인라인 분석의 `#tab-analytics .T` 에 sticky 누락(단독 booking-analytics.html엔 있음) ② body `overflow-x:hidden` 이 sticky를 깸(overflow-y가 자동 auto로 강제됨).
-- **수정(_admin/admin.html, 커밋 d9aaebb)**: ① `#tab-analytics .T` 에 `position:sticky;top:60px;z-index:40`+글래스 배경 추가 ② body `overflow-x:hidden→clip`(가로넘침 방지 유지, overflow-y는 자동 visible) ③ 모바일(@media 900) `#tab-analytics .T{top:0}`.
-- **검증(라이브 배포본)**: 스크롤 0/700/1400 전부 탭 top:60 고정·클릭 정상, 스크롤 상태서 실제 탭 전환 성공. 가로 스크롤바 없음.
-- **[후속·이번 세션] 검은 바 보완(커밋 29b053b)**: `#tab-analytics .T` sticky 배경이 다크 글래스`rgba(10,10,15,.85)`라 밝은 테마에서 글자 안 보임+카드와 안 어울림 → `rgba(248,247,244,.92)` 밝은 글래스로 교체. 스크롤 고정·blur 유지.
-- **주의**: admin.html 은 리포 루트에 없음. **실소스=`_admin/admin.html`**, api/admin-page.js 가 인증 게이트 걸어 서빙. 커밋 경로는 `_admin/admin.html`.
+---
 
-## ✅ 단계3 완료 (이번 세션) — 채널명 단일화
-- **구현(_admin/admin.html, 커밋 dd487b4)**: 분석 진입 시(`_BKA_init`) `GET /api/channels`(쿠키 세션) 1회 조회 → code→name 맵 생성 → baked `D.ch[].ch` 라벨을 현재 channels.name 으로 치환(`_applyChannelNames`), 재렌더. `_BKA_mount` 재진입 시 캐시맵 재적용. 시장 접미사(괄호 "(대만)" 등) 보존. 조회 실패 시 baked 라벨 유지(무해).
-- **브리지 맵**: `_CH_ALIAS` = 굳어진 baked 라벨→code 1:1 (TW/HT/JP/ZH/KT/VN). 7/7 커버 검증.
-- **실측 변화**: 대만 `World Hotel (대만)`→`世界就是家 (대만)`, 베트남 `Korea Hotel (베트남)`→`reviewkhachsan (베트남)`. 나머지 5개는 이미 일치.
-- **대표님 결정**: 표기는 **channels.name 기본명 그대로**(世界就是家 등). name_en 전환은 `_loadChannelNames` 의 `m[c.code]=c.name` 한 줄만 `c.name_en` 로 바꾸면 됨.
-- **미적용**: 단독 `booking-analytics.html`(anon 페이지)엔 동일 모듈 미주입 — anon 이라 `/api/channels` 401 → baked 유지되므로 실익 낮음. 필요 시 후속.
-- **성과표(D-063)** 는 여전히 미구현 → 성과표 채널명 단일화는 그 구현 시 함께.
+## ✅ 작업1 완료 — 올리기 "구글 드라이브 자동 읽기" 화면 (D-060 설계 §2·§3)
+- **범위**: 화면·개발까지. 실제 자동 읽기 배치(BL-YT-DRIVE-WATCH)는 대표님이 폴더+서비스계정 키 넣는 마지막 단계라 **미착수**(의도).
+- **신규 창구 `api/drive-status.js`(커밋 bf12e9f)**: 드라이브 연결 상태를 **정직하게** 보고. env `GOOGLE_DRIVE_SA_KEY`(또는 DRIVE_SA_KEY) + `DRIVE_WATCH_FOLDERS`(또는 DRIVE_FOLDERS) 둘 다 있어야 `connected:true`. 지금은 둘 다 없어 **connected:false**(정상). 대표님이 나중에 넣으면 화면이 자동으로 "연결됨"으로 바뀜.
+  - 다음 확인 시각 서버 산출: KST 06·11·16·21시 중 다음 시각(`next_check.label` 예 "16:00"·`iso`). 라이브 검증 시 KST 19시대→"21:00" 정확.
+  - 연결 0단계 3스텝(①폴더 만들기 ②서비스계정 키 등록 ③연결 확인)·채널3 대기/완료/확인필요 폴더 안내 포함.
+- **올리기 화면(studio.html, 커밋 d2a3d74)**: 원고 넣기 카드 아래 "구글 드라이브 자동 읽기" 카드 신설 — 연결 뱃지(연결됨 초록/연결 전 회색)·⏰다음 확인 시각·3스텝 체크리스트(✅/⬜·대표님/자동 딱지)·폴더 트리 안내. `loadDrive()`가 페이지 로드 시 1회 호출.
+- **출처 자동/수동 구분(§3)**: publications에 컬럼 2개 추가(`source` text default 'manual', `uploaded_by_email` text). `api/publications.js`(커밋 9abe7bb) POST INSERT 시 `source`(drive/manual)·`uploaded_by_email`(세션 이메일) 기록. 원고 카드에 "출처 · 수동 · ○○ 올림" / "출처 · 자동 · 드라이브" 딱지. 드라이브 워처 붙으면 source='drive'로 넣도록 body.source 이미 수용.
+- **라이브 검증**: `GET /api/drive-status`(ops-token) → ok/connected:false/steps3/folders3/next_check "21:00" 정상. studio.html 배포 완료·문법 통과.
+- **남은 대표님 몫(후속 BL-YT-DRIVE-WATCH)**: ①드라이브에 채널3×폴더3 만들기 ②읽기전용 서비스계정 키를 env(GOOGLE_DRIVE_SA_KEY)+폴더맵(DRIVE_WATCH_FOLDERS)에 등록 → 그 뒤 자동 읽기 배치(cron 06·11·16·21시) 제작하면 끝. 화면은 그날 손 안 대도 자동으로 켜짐.
 
-## ⛔ 단계4 (보류) — 데이터 선결 필요 (이 세션 실측)
-- **실측**: hotels 3곳(데모)·유료 0·인보이스 0·아고다ID 연결 0 / publications 2건. → 유료계약 카드=항상 "무료", 소개콘텐츠=항상 "없음"(빈 껍데기).
-- **구조 원인**: admin-hotel-detail.html=매니저 등록 B2B 호텔(3곳)용 / 스튜디오 호텔메뉴(D-062, 미구현)=아고다 2,082호텔 분석용. 두 호텔이 다른 테이블. publications.hid_top1/2/3=아고다 호텔번호인데 hotels.agoda_hotel_id 0곳 채워짐.
-- **선결**: 스튜디오 호텔메뉴 구현 + 아고다↔hotels 매칭(agoda_hotel_id 채우기). 이후 단계4 착수해야 실데이터 표시.
-- **데이터 있음(확인)**: hotels.paid_at, invoices(번호·결제·상태), publications(hid_top1/2/3·title·youtube_url·channel_code·published_at). 조회수만 미연동(D-059, "—").
+## ✅ 작업2 완료 — 전략 "콘텐츠 기획 큐" (D-060 6메뉴 마지막)
+- **신규 테이블 `content_queue`(RLS on·정책없음=API 서비스롤만)**: id·stage(idea/plan/making/done·CHECK)·kind(city/hotel/free)·title·city·country·hid·hotel_name·channel_code·bookings_done·note·assignee_email·created_by_email·sort_order·created_at·updated_at.
+- **신규 창구 `api/content-queue.js`(커밋 fe21711)**: GET(목록)·POST(아이디어로 담기)·PATCH(단계이동·메모·담당·제목)·DELETE(**대표님 전용**, is_admin). editor 세션에서 이메일 확인해 created_by/assignee 남김. 수수료 안 봄 — 지표는 확정예약 건수뿐.
+- **전략 화면(studio.html, 커밋 bc2c0c6)**: 준비중 자리를 4열 칸반 보드로 교체(아이디어 회색·기획 파랑·제작중 주황·완료 초록). 카드=제목+맥락칩(도시/호텔/확정예약 건수/채널)+메모+담당. 원클릭 단계이동(← / 다음→), 메모(prompt), 맡기/놓기(assignee=나), 삭제(대표님만 🗑). [＋아이디어 추가] 직접 담기 폼.
+- **키워드 → 큐 연결**: 키워드 메뉴 도시·호텔 카드마다 [＋이거 만들자] 버튼 → content_queue에 아이디어로 적재(도시=제목"○○ 호텔 TOP3", 호텔=호텔명). 담기면 "✓ 전략 큐에 담김".
+- **라이브 검증(ops-token, production)**: POST 생성(idea)→GET 목록1→PATCH idea→plan→잘못된 stage 거부→DELETE→목록0. 전 과정 정상. 테이블 현재 0건(검증 데이터 정리 완료).
 
-## 🟢 스튜디오 6메뉴 진행 (BL-STUDIO-MENU-6TAB · studio.html)
-- **올리기** 🟡 **부분완성** — 수동 docx 업로드는 ✅ 라이브(원고 파싱·publications·설명란/링크). **BUT 설계(`_business/decisions/2026-07-11-studio-upload-menu-full.md`)에 확정된 "구글 드라이브 입력 방식" UI가 studio.html에 미적용** ⬜ (코드 전체에 드라이브 화면 문구 0개 확인). 드라이브 화면(연결 0단계·대기/완료/확인필요 폴더·"다음 확인 16:00"·출처 자동/수동)은 제작 가능(내 몫). 실제 자동읽기(BL-YT-DRIVE-WATCH)만 대표님 폴더+서비스계정키 필요(마지막 단계). ※지난 세션에 '올리기 완성'으로 잘못 보고했던 것 정정.
-- **채널** ✅ 구현·라이브(D-064: 채널/CID 마스터, 새 채널 .md 등록, 수정)
-- **호텔** ✅ **완료·라이브(이번 세션)** — D-062: `api/content-hotels`(신규, v_content_hotel_stats 조회·에디터 세션·수수료 없음) + studio.html view-hotel 실구현. 호텔별 노출·최고순위(TOP1/2/3)·확정/취소·확정률·예약기간 카드. 라이브 검증: 실호텔 6곳(호텔 라 포레스타 HT TOP1 확정3/취소2 등). 커밋 api=87d683f, studio=c092e80.
-- **성과표** ✅ **완료·라이브(이번 세션)** — D-060: `api/content-performance`(신규, v_channel_stats 수수료·거래액 제외 + publications 영상수 + v_content_hotel_exposure 영상별 호텔) + studio.html view-perf(요약카드 4 + 채널별 + 영상별). 라이브 검증: 채널 7·영상 2·노출호텔 6·확정예약 3,756. 채널명 단일화 자동(뷰가 channels 조인). 커밋 api=8747863, studio=8e8583c. ※조회수·클릭 칸은 발행 영상 0개라 "—"(아래).
-- **키워드** ✅ **완료·라이브(이번 세션)** — D-060: 뷰 2개 신설(v_content_keyword_cities·v_content_keyword_hotels: bookings_agoda↔publications TOP1/2/3 대조) + `api/content-keywords`(신규) + studio.html view-keyword. "예약 많은데 영상 없는 도시·호텔" 추천. 라이브: 도시 25·호텔 30(오사카 583건·타이베이 349건 등 노출0). 커밋 api=b0e588b, studio=70a0b48.
-- **전략** ⬜ **마지막 1개** — 콘텐츠 기획 큐. 신규 데이터 모델 필요(content_queue 테이블: 아이디어→기획→제작→완료 + 담당/메모). v1 제안: 키워드 추천에서 '이거 만들자' → 큐 적재 → 상태 진행. **쓰기(CRUD) 포함이라 별도 집중 작업**으로 다음 진행.
-- **우선순위 근거**: 백엔드 뷰가 이미 done(v_content_hotel_stats)이라 호텔이 최소공수·최대가치 → 1위로 완료. 다음은 성과표(데이터 있음), 그다음 키워드/전략(선행 데이터 필요).
+## 🖥️ 남은 검증(선택) — 브라우저 육안
+API·배포·문법은 검증 완료. 에디터 로그인 화면(연결됨/큐 카드 실렌더)의 육안 확인은 대표님 로그인 세션 필요. 연결된 브라우저(Browser 1)로 훑을 수 있음 — 필요 시 다음 세션에서.
 
-## 📌 조회수/클릭 파이프라인 실측 (이번 세션 · 대표님 몫 아님)
-- **YOUTUBE_API_KEY**: 대표님이 이미 세팅 완료(확인). → 조회수 관련 대표님 요청 없음.
-- **현재 수집 대상 0개**: videos 테이블 0행, publications의 youtube_video_id 0개(=발행된 영상 0). → 조회수 수집기(BL-YT-VIEWS-COLLECT)를 지금 만들어도 가져올 게 없음. "앞으로 올릴 영상부터" 원칙. **영상 발행이 시작되면 수집기 붙이기.**
-- **저장처는 이미 존재**: videos 테이블에 view_count·like_count·click_count·last_stats_update 컬럼 있음. cron 없음(vercel.json). 수집기+주1회 cron 만들면 됨(키·저장처 준비완료라 순수 제작만 남음).
-- **클릭(BL-TRACK-001)**: link_clicks 테이블 없음 + gohotel.win 단축URL infra 미구축. 발행+클릭추적 착수 시 함께.
-- **db-query 능력**: `/api/ops/db-query`는 DDL/DML 실행 허용(파괴적 DROP만 차단) → 스키마·데이터 작업 Claude 직접 가능.
+## 🟢 스튜디오 6메뉴 최종 상태 (BL-STUDIO-MENU-6TAB · studio.html)
+- **올리기** ✅ 원고 파싱·publications·발행 + **드라이브 자동읽기 UI(이번 세션)** + 출처 딱지
+- **성과표** ✅ D-060 (v_channel_stats·영상수·영상별 호텔, 수수료 제외)
+- **호텔** ✅ D-062 (v_content_hotel_stats, 노출·순위·확정/취소)
+- **키워드** ✅ D-060 (예약 많은데 영상 없는 도시·호텔 추천) + **[이거 만들자]→전략 큐(이번 세션)**
+- **전략** ✅ **완료(이번 세션)** — 콘텐츠 기획 큐 4단계
+- **채널** ✅ D-064 (채널/CID 마스터·.md 등록·수정)
+→ **6/6 라이브. 스튜디오 수수료 비노출 원칙 전 메뉴 유지.**
+
+## 📌 후속 후보 (대표님 방향 결정 필요·자동 착수 금지)
+- **BL-YT-DRIVE-WATCH**: 드라이브 자동 읽기 실배치(위 작업1 남은 대표님 몫 + cron). 폴더·키 준비되면 착수.
+- **조회수/클릭(D-059)**: 발행 영상 생기면 수집기(BL-YT-VIEWS-COLLECT)+cron. 저장처(videos 테이블 컬럼) 준비됨.
+- **성과표 채널명 단일화(D-063)**: 성과표는 뷰가 channels 조인이라 이미 자동. 단독 booking-analytics.html(anon)만 미적용(실익 낮음).
+- **호텔 상세 유료계약 카드(단계4·D-062 후속)**: 아고다↔hotels 매칭(agoda_hotel_id) 선결 필요. 데이터 선결 보류 유지.
 
 ## 🔑 인프라
 - 커밋: `POST gohotelwinners.com/api/ops/github-commit` x-ops-token `{path,content,message}` (plain text). 30/h.
-- DB: `POST /api/ops/db-query` x-ops-token `{query}`. 60/h. (읽기 검증용)
+- DB: `POST /api/ops/db-query` x-ops-token `{query}`. 60/h. DDL/DML 허용(파괴적 DROP만 차단).
+- 새 테이블 `content_queue` / 새 API `api/content-queue.js`·`api/drive-status.js` / publications 신컬럼 `source`·`uploaded_by_email`.

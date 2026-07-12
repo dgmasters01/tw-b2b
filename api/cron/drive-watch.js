@@ -60,12 +60,13 @@ async function reviewReconcile(channelCode, keepIds) {
   }).catch(() => {});
 }
 
-// publications 로 등록 시도 → 판정. 반환 { verdict:'ok'|'review', reason }
-// docx 는 3~4MB 라 통째로(base64) 보내면 4.5MB 한도 초과 → 서버에서 글자만 뽑아 text 로 보낸다(수동 업로드와 동일).
+// publications 로 등록 시도 → 판정. 반환 { verdict:'ok'|'review', reason(카테고리), id }
+// docx 는 3~4MB 라 통째로 보내면 4.5MB 한도 초과 → 서버에서 글자만 뽑아 text 로 보낸다(수동과 동일).
+// 확정본(§2) 확인필요 원인 카테고리: 원고 형식 / 파트너 링크 없음 / cid 불일치 / 중복.
 async function register(base, filename, docxBase64) {
   let text;
   try { text = docxToText(docxBase64); }
-  catch (e) { return { verdict: 'review', reason: '원고 읽기 실패(' + String(e.message || e).slice(0, 60) + ')' }; }
+  catch (e) { return { verdict: 'review', reason: '원고 형식 오류(읽지 못함)' }; }
 
   const r = await fetch(base + '/api/publications', {
     method: 'POST',
@@ -75,15 +76,32 @@ async function register(base, filename, docxBase64) {
   let j = {};
   try { j = await r.json(); } catch { /* noop */ }
 
-  if (r.status === 409 && j.duplicate) return { verdict: 'review', reason: '이미 등록된 원고' };
-  if (r.status === 409) return { verdict: 'review', reason: j.error || '이미 처리됨' };
-  if (!r.ok || !j.ok) return { verdict: 'review', reason: (j.error || j.detail || ('등록 실패 HTTP ' + r.status)).slice(0, 140) };
+  if (r.status === 409) return { verdict: 'review', reason: '중복 (이미 등록·발행된 원고)' };
+  if (!r.ok || !j.ok) {
+    var msg = String(j.error || '').toLowerCase();
+    if (/파일명|형식|source_filename|channel/.test(String(j.error || ''))) return { verdict: 'review', reason: '파일명 형식 오류' };
+    return { verdict: 'review', reason: '원고 형식 오류' };
+  }
 
-  // 등록은 됐지만 막는 경고(아고다 링크 없음·cid 불일치)면 확인필요로 뺀다.
+  // 등록됐지만 막는 문제(아고다 링크 없음·cid 불일치)면 확인필요 — 메인 리스트엔 안 남긴다.
   const warns = j.warnings || [];
-  const blocking = warns.find((w) => /아고다 링크|hid|cid/.test(w));
-  if (blocking) return { verdict: 'review', reason: blocking.slice(0, 140), id: j.id };
+  const noLink = warns.find((w) => /아고다 링크|hid/.test(w));
+  const cidBad = warns.find((w) => /cid/.test(w));
+  if (noLink) return { verdict: 'review', reason: '아고다 파트너 링크 없음', id: j.id };
+  if (cidBad) return { verdict: 'review', reason: 'cid 불일치', id: j.id };
   return { verdict: 'ok', reason: '정상 등록', id: j.id };
+}
+
+// 메인 리스트에 남으면 안 되는 문제 원고의 등록을 취소(삭제). 발행된 건 안 지움.
+async function unregister(base, id) {
+  if (!id) return;
+  try {
+    await fetch(base + '/api/publications', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json', 'x-ops-token': process.env.CLAUDE_OPS_TOKEN || '' },
+      body: JSON.stringify({ id }),
+    });
+  } catch { /* 무해 */ }
 }
 
 export default async function handler(req, res) {
@@ -126,7 +144,7 @@ export default async function handler(req, res) {
       try { b64 = await downloadBase64(token, file.id); }
       catch (e) { reason = '다운로드 실패'; }
       if (b64) {
-        try { const r = await register(base, file.name, b64); verdict = r.verdict; reason = r.reason; }
+        try { const r = await register(base, file.name, b64); verdict = r.verdict; reason = r.reason; if (verdict === 'review' && r.id) await unregister(base, r.id); }
         catch (e) { verdict = 'review'; reason = String(e.message || e).slice(0, 120); }
       }
       const target = verdict === 'ok' ? f.done : f.review;

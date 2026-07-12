@@ -40,3 +40,32 @@
 ## 🔑 인프라
 - 커밋 `POST /api/ops/github-commit` x-ops-token `{path,content,message}` 30/h. DB `POST /api/ops/db-query` 60/h(DDL 허용).
 - publications 신컬럼: source·uploaded_by_email·is_duplicate. 신규 테이블 content_queue. 신규 API drive-status·content-queue. publications DELETE(admin).
+
+---
+
+## ⚠️ 정정 (2026-07-12 후반) — 전략 메뉴 확정본(D-066) 대조·수정, 방향 판 미착수
+**대표님 지적**: 전략 메뉴가 확정본과 다름("아이디어" 없었음·단계 틀림·내용 확인 안 하고 기억으로 만듦). 정확한 지적. D-066 전문 재정독 후 수정.
+
+### 내가 틀렸던 것 → 수정 완료 (API 검증)
+- 단계 **아이디어/기획/제작중/완료 → 기획대기(planning)/원고작성(writing)/발행예정(scheduled)/발행완료(published)** 로 정정.
+- **"직접 아이디어 추가" 폐기**(D-066: 입구는 데이터 기반 전략/키워드만). 프론트 추가폼·버튼 제거, 백엔드 source 없으면 거부.
+- **고유코드 TW-XXXX**(채널별 연번, content_queue.code UNIQUE) 신설 — 검증 HG-0001→HG-0002.
+- **카드 필드 확정본대로**: 주제·코드·나라·도시·성급·타겟·목표월·우선순위·기획자(planner)·원고담당(writer)·출처(strategy/keyword/manuscript). content_queue 컬럼 추가(code·star·target·target_month·priority·planner_email·source).
+- **두 역할**: 기획자=만든 사람 자동 / 원고담당=배정. **담당 권한 분기**: 에디터=[내가 맡기]만 / 관리자=[담당 지정]도. **미지정=노랑** 강조.
+- **출처 배지**·[분석 다시보기](키워드 점프)·우선순위 변경 추가. 키워드 버튼 "이걸로 만들기"(source=keyword·기획자 자동).
+- 커밋: content-queue.js f8395d6 / studio.html d415e0e. 스키마 개조(4상태 CHECK·신컬럼) DB 반영.
+
+### ⬜ 아직 안 만든 것 (D-066 남은 층)
+- **방향 판(위층)**: 타겟(언어)별·키워드 3달앞 자동 제안·[확정/보류/확정취소]·단위 나라+성급·**1년 뷰**(가까운 3~4달 크게+연간 미리보기). = 칸반 위에 얹히는 별도 큰 층. 키워드 자동제안 엔진에 의존 → 다음 focused 작업.
+- **원고-코드 매칭 자동 흐름**(드라이브 완료+코드→발행예정 자동): 드라이브 워처(BL-YT-DRIVE-WATCH)와 함께.
+- **카드 상세 모달**([키워드 분석 다시보기]는 현재 키워드 메뉴 점프로 임시)·화면넘침 필터/정렬 UI(현재 우선순위 정렬만).
+
+### 올리기 보강
+- 컴팩트 행에 **등록일(created_at)** 표시 추가(대표님 "언제 만들어졌는지" 지적). 채널은 이미 드롭다운 필터라 가로 확장 문제 해결됨(D-060: 가로 나열 금지).
+
+## ⬜ 남은 큰 작업 2개
+1. **드라이브 자동 배치(BL-YT-DRIVE-WATCH)** — 연결 완료, 배치 제작만.
+2. **전략 방향 판(위층)** — D-066 남은 층.
+
+## 🔴 세션 주의
+장시간 세션 시 studio 로그인 토큰 만료 → 재로그인 필요(코드 문제 아님). API는 ops-token으로 검증됨.

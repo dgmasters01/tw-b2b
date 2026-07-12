@@ -36,6 +36,27 @@ function rootId() {
   try { const o = JSON.parse(raw); return o.root || o.ROOT; } catch { return raw; }
 }
 
+// ── Supabase (서비스롤 REST) — 확인필요 목록 기록/정리 ──
+const SB_URL = process.env.SUPABASE_URL || 'https://vjsludfjsphwnumuoqaj.supabase.co';
+function sbKey() { return process.env.SUPABASE_SERVICE_ROLE_KEY; }
+async function reviewUpsert(fileId, filename, channelCode, reason) {
+  const key = sbKey(); if (!key) return;
+  await fetch(SB_URL + '/rest/v1/drive_review?on_conflict=file_id', {
+    method: 'POST',
+    headers: { Authorization: 'Bearer ' + key, apikey: key, 'Content-Type': 'application/json', Prefer: 'resolution=merge-duplicates' },
+    body: JSON.stringify({ file_id: fileId, filename, channel_code: channelCode, reason, updated_at: new Date().toISOString() }),
+  }).catch(() => {});
+}
+// 확인필요 폴더에서 사라진(=고쳐서 옮긴) 건 목록에서 제거. keepIds=현재 확인필요 폴더의 file_id 배열.
+async function reviewReconcile(channelCode, keepIds) {
+  const key = sbKey(); if (!key) return;
+  const inList = keepIds.length ? '&file_id=not.in.(' + keepIds.map((x) => '"' + x + '"').join(',') + ')' : '';
+  await fetch(SB_URL + '/rest/v1/drive_review?channel_code=eq.' + encodeURIComponent(channelCode) + inList, {
+    method: 'DELETE',
+    headers: { Authorization: 'Bearer ' + key, apikey: key },
+  }).catch(() => {});
+}
+
 // publications 로 등록 시도 → 판정. 반환 { verdict:'ok'|'review', reason }
 async function register(base, filename, docxBase64) {
   const r = await fetch(base + '/api/publications', {
@@ -103,8 +124,16 @@ export default async function handler(req, res) {
       const target = verdict === 'ok' ? f.done : f.review;
       let moved = false;
       if (target) { try { await moveFile(token, file.id, target, f.wait); moved = true; } catch (e) { reason += ' / 이동실패'; } }
-      if (verdict === 'ok') chReport.moved_done++; else chReport.moved_review++;
+      if (verdict === 'ok') chReport.moved_done++; else { chReport.moved_review++; await reviewUpsert(file.id, file.name, code, reason); }
       chReport.files.push({ name: file.name, action: verdict, reason, moved });
+    }
+
+    // 확인필요 목록 정리: 폴더에 실제로 남아있는 것만 목록에 유지(고쳐서 뺀 건 자동 제거).
+    if (!dryRun && f.review) {
+      try {
+        const cur = await listChildren(token, f.review, { onlyFiles: true });
+        await reviewReconcile(code, cur.map((x) => x.id));
+      } catch (e) { /* 정리는 실패해도 무해 */ }
     }
     report.channels.push(chReport);
   }

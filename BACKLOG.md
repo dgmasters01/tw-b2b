@@ -5,7 +5,7 @@
 > 
 > 단일 진실 소스: `tasks.json` (v2.0)
 
-**마지막 업데이트**: 2026-07-11
+**마지막 업데이트**: 2026-07-12
 
 > 💡 **새 채팅 시작 시**: 다음 5개 문서를 먼저 보면 즉시 컨텍스트 파악 가능.
 > 
@@ -29,24 +29,6 @@
 - **상태**: blocked
 - **막힘 사유**: supabase 호텔/예약 인프라 박힌 후 4종 사업 source 연결. 진행률 표시 + 활동이력 결함 4건은 BL-IPB-* / BL-ACT-* 로 분리.
 - **ID**: `BL-002` (출처: BACKLOG.md)
-
----
-
-## 🟢 P0 — [자동] 결정 1건이 박혔는데 결정 기록(사람용/검색용 2벌)이 저장 안 됐어요 — _os/charter/decisions-index.md + _business/decisions/ 둘 다 박아주세요 (D5 룰)
-
-**요약**: 점검 봇 자동 등록 (2026-05-29T11:55:55.969Z)
-
-check_name: decisions_sync
-status: red
-detail: 결정 1건이 박혔는데 결정 기록(사람용/검색용 2벌)이 저장 안 됐어요 — _os/charter/decisions-index.md + _business/decisions/ 둘 다 박아주세요 (D5 룰)
-
-
-
-- **자율성**: 🟢 AUTO
-- **예상 시간**: 1시간
-- **카테고리**: infrastructure
-- **상태**: pending
-- **ID**: `BL-AUTO-DECISIONS-SYNC-GENERAL` (출처: auto_from_decisions_sync)
 
 ---
 

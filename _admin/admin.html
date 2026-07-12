@@ -5162,15 +5162,55 @@ function syncStarRatings(){
   rr=function(){_rr_phase2();setTimeout(fillHotelInfo,0);setTimeout(syncStarRatings,0);};
 })();
 
+/* ===== [단계3] 채널명 단일화 — channels 테이블 실시간 반영 =====
+ * 분석 라벨(D.ch[].ch)은 과거 하드코딩값이라 채널명을 바꿔도 반영이 안 됐다.
+ * channels 테이블(code→name)을 조회해 현재 채널명으로 치환한다.
+ * 시장/플랫폼 접미사(괄호)는 그대로 보존한다. 조회 실패 시 기존 라벨 유지(무해).
+ * _CH_ALIAS = 이미 굳어진 baked 라벨 → 채널 code 1:1 브리지. */
+var _CH_ALIAS = {
+  '\uC5EC\uD589\uB2A5\uB825\uC790\uB4E4 (\uC720\uD29C\uBE0C)':'TW',
+  '\uC5EC\uD589\uB2A5\uB825\uC790\uB4E4 (\uC0AC\uC774\uD2B8)':'TW',
+  '\uD638\uD154\uC774\uC57C (\uD55C\uAD6D)':'HT',
+  '\u30DB\u30C6\u30EB\u3060 (\uC77C\uBCF8)':'JP',
+  'World Hotel (\uB300\uB9CC)':'ZH',
+  'Koreahotelguide (\uC601\uC5B4\uAD8C)':'KT',
+  'Korea Hotel (\uBCA0\uD2B8\uB0A8)':'VN'
+};
+var _CH_MAP=null, _CH_DONE=false, _CH_APPLIED=false;
+function _chSuffix(label){ var m=String(label).match(/\s*(\([^)]*\))\s*$/); return m?(' '+m[1]):''; }
+function _applyChannelNames(){
+  if(!_CH_MAP || _CH_APPLIED || typeof D==='undefined' || !D.ch) return;
+  D.ch.forEach(function(c){
+    var code=_CH_ALIAS[c.ch];
+    if(code && _CH_MAP[code]) c.ch=_CH_MAP[code]+_chSuffix(c.ch);
+  });
+  _CH_APPLIED=true;
+}
+function _loadChannelNames(){
+  if(_CH_DONE) return;
+  _CH_DONE=true;
+  fetch('/api/channels',{credentials:'same-origin'})
+    .then(function(r){ return r.ok?r.json():null; })
+    .then(function(j){
+      if(!j||!j.ok||!Array.isArray(j.channels)) return;
+      var m={}; j.channels.forEach(function(c){ if(c&&c.code) m[c.code]=c.name; });
+      _CH_MAP=m; _applyChannelNames();
+      try{ dc(); rr(); }catch(e){}
+    })
+    .catch(function(){ /* 실패 시 baked 라벨 유지 */ });
+}
+
 /* ===== 외부 API 노출 ===== */
 function _BKA_init(){
   if (_BKA_init._done) return;
   _BKA_init._done = true;
+  try { _loadChannelNames(); } catch(e){ console.error('[BKA] channel names load failed', e); }
 }
 function _BKA_mount(){
   // 탭 진입 시: 탭 UI 갱신 + URL 로드 + 차트 destroy + 재렌더
   try { iT(); } catch(e){ console.error('[BKA] iT failed', e); }
   try { loadURL(); } catch(e){ console.error('[BKA] loadURL failed', e); }
+  try { _applyChannelNames(); } catch(e){}
   try { dc(); } catch(e){ console.error('[BKA] dc failed', e); }
   try { rr(); } catch(e){ console.error('[BKA] rr failed', e); }
   // 200ms 후 별점 동기화 (호텔 캐시 도착 후)

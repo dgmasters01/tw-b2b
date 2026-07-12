@@ -21,6 +21,8 @@ function authOk(req) {
   const ops = process.env.CLAUDE_OPS_TOKEN;
   const h = req.headers;
   if (cron && (h['x-cron-token'] || '') === cron) return true;
+  // Vercel Cron 은 Authorization: Bearer <CRON_SECRET> 로 호출한다.
+  if (cron && (h['authorization'] || '') === 'Bearer ' + cron) return true;
   if (ops && (h['x-ops-token'] || '') === ops) return true;
   return false;
 }

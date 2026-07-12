@@ -42,12 +42,12 @@ function rootId() {
 // ── Supabase (서비스롤 REST) — 확인필요 목록 기록/정리 ──
 const SB_URL = process.env.SUPABASE_URL || 'https://vjsludfjsphwnumuoqaj.supabase.co';
 function sbKey() { return process.env.SUPABASE_SERVICE_ROLE_KEY; }
-async function reviewUpsert(fileId, filename, channelCode, reason) {
+async function reviewUpsert(fileId, filename, channelCode, reason, detail) {
   const key = sbKey(); if (!key) return;
   await fetch(SB_URL + '/rest/v1/drive_review?on_conflict=file_id', {
     method: 'POST',
     headers: { Authorization: 'Bearer ' + key, apikey: key, 'Content-Type': 'application/json', Prefer: 'resolution=merge-duplicates' },
-    body: JSON.stringify({ file_id: fileId, filename, channel_code: channelCode, reason, updated_at: new Date().toISOString() }),
+    body: JSON.stringify({ file_id: fileId, filename, channel_code: channelCode, reason, detail: detail || [], updated_at: new Date().toISOString() }),
   }).catch(() => {});
 }
 // 확인필요 폴더에서 사라진(=고쳐서 옮긴) 건 목록에서 제거. keepIds=현재 확인필요 폴더의 file_id 배열.
@@ -66,7 +66,7 @@ async function reviewReconcile(channelCode, keepIds) {
 async function register(base, filename, docxBase64) {
   let text;
   try { text = docxToText(docxBase64); }
-  catch (e) { return { verdict: 'review', reason: '원고 형식 오류(읽지 못함)' }; }
+  catch (e) { return { verdict: 'review', reason: '원고 형식 오류', detail: ['원고 파일을 열지 못했습니다. docx 파일이 맞는지, 손상되지 않았는지 확인해 주세요.'] }; }
 
   const r = await fetch(base + '/api/publications', {
     method: 'POST',
@@ -76,20 +76,22 @@ async function register(base, filename, docxBase64) {
   let j = {};
   try { j = await r.json(); } catch { /* noop */ }
 
-  if (r.status === 409) return { verdict: 'review', reason: '중복 (이미 등록·발행된 원고)' };
+  if (r.status === 409) return { verdict: 'review', reason: '중복', detail: ['이미 등록·발행된 원고입니다. 대기 폴더에서 이 파일을 지워 주세요.'] };
   if (!r.ok || !j.ok) {
-    var msg = String(j.error || '').toLowerCase();
-    if (/파일명|형식|source_filename|channel/.test(String(j.error || ''))) return { verdict: 'review', reason: '파일명 형식 오류' };
-    return { verdict: 'review', reason: '원고 형식 오류' };
+    const err = String(j.error || '알 수 없는 오류');
+    if (/파일명|형식|source_filename|channel/.test(err))
+      return { verdict: 'review', reason: '파일명 형식', detail: ['파일명에서 도시·지역·성급·가격대를 읽지 못했습니다.', '파일명 예: "002 오사카 우메다 3성급 10만원미만 호텔.docx"', '자세히: ' + err] };
+    return { verdict: 'review', reason: '원고 형식', detail: ['원고 본문을 규격대로 읽지 못했습니다.', '자세히: ' + err] };
   }
 
   // 등록됐지만 막는 문제(아고다 링크 없음·cid 불일치)면 확인필요 — 메인 리스트엔 안 남긴다.
-  const warns = j.warnings || [];
+  // warns = 원고 처리 세부(정상 원고의 "확인 N건"과 같은 내용). 확인필요로 보낼 때도 그대로 담아 세부로 보여준다.
+  const warns = (j.warnings || []).map(String);
   const noLink = warns.find((w) => /아고다 링크|hid/.test(w));
   const cidBad = warns.find((w) => /cid/.test(w));
-  if (noLink) return { verdict: 'review', reason: '아고다 파트너 링크 없음', id: j.id };
-  if (cidBad) return { verdict: 'review', reason: 'cid 불일치', id: j.id };
-  return { verdict: 'ok', reason: '정상 등록', id: j.id };
+  if (noLink) return { verdict: 'review', reason: '파트너 링크 없음', detail: ['아고다 파트너 링크(hid) 3개가 원고에 없어 발행할 수 없습니다.'].concat(warns), id: j.id };
+  if (cidBad) return { verdict: 'review', reason: 'cid 불일치', detail: ['원고의 cid가 폴더 채널과 맞지 않습니다.'].concat(warns), id: j.id };
+  return { verdict: 'ok', reason: '정상 등록', detail: warns, id: j.id };
 }
 
 // 메인 리스트에 남으면 안 되는 문제 원고의 등록을 취소(삭제). 발행된 건 안 지움.
@@ -140,17 +142,17 @@ export default async function handler(req, res) {
       if (dryRun) { chReport.files.push({ name: file.name, action: 'dry_run(등록/이동 안 함)' }); continue; }
 
       // 실제 처리: 다운로드 → 등록 → 판정 → 이동
-      let verdict = 'review', reason = '', b64;
+      let verdict = 'review', reason = '', detail = [], b64;
       try { b64 = await downloadBase64(token, file.id); }
-      catch (e) { reason = '다운로드 실패'; }
+      catch (e) { reason = '다운로드 실패'; detail = ['드라이브에서 원고를 내려받지 못했습니다. 잠시 후 다시 시도됩니다.']; }
       if (b64) {
-        try { const r = await register(base, file.name, b64); verdict = r.verdict; reason = r.reason; if (verdict === 'review' && r.id) await unregister(base, r.id); }
-        catch (e) { verdict = 'review'; reason = String(e.message || e).slice(0, 120); }
+        try { const r = await register(base, file.name, b64); verdict = r.verdict; reason = r.reason; detail = r.detail || []; if (verdict === 'review' && r.id) await unregister(base, r.id); }
+        catch (e) { verdict = 'review'; reason = '처리 오류'; detail = [String(e.message || e).slice(0, 200)]; }
       }
       const target = verdict === 'ok' ? f.done : f.review;
       let moved = false;
       if (target) { try { await moveFile(token, file.id, target, f.wait); moved = true; } catch (e) { reason += ' / 이동실패'; } }
-      if (verdict === 'ok') chReport.moved_done++; else { chReport.moved_review++; await reviewUpsert(file.id, file.name, code, reason); }
+      if (verdict === 'ok') chReport.moved_done++; else { chReport.moved_review++; await reviewUpsert(file.id, file.name, code, reason, detail); }
       chReport.files.push({ name: file.name, action: verdict, reason, moved });
     }
 

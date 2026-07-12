@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-07-12T05:12:35+00:00",
+  "updated_at": "2026-07-12T11:05:08+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -14,8 +14,8 @@
   "stats": {
     "total": 287,
     "done": 220,
-    "in_progress": 3,
-    "pending": 43,
+    "in_progress": 4,
+    "pending": 42,
     "blocked": 11,
     "autonomous_ready": 27,
     "todo": 2,
@@ -22204,7 +22204,7 @@
       "id": "BL-YT-DRIVE-WATCH",
       "title": "[드라이브 폴더 자동 처리] 대기 폴더에 원고를 넣으면 30분마다 자동 패키지 생성",
       "category": "infra",
-      "status": "pending",
+      "status": "in_progress",
       "priority": "P3",
       "size": "medium",
       "parent_task": "BL-YT-DOCX-INGEST",
@@ -22232,6 +22232,13 @@
           "by": "auto-detect-bot",
           "commit": "4112de3",
           "note": "BL-YT-DOCX-INGEST done (브라우저 docx 파싱) + BL-YT-DRIVE-WATCH 신규(P3, 서비스계정 대기)"
+        },
+        {
+          "at": "2026-07-12T11:05:08+00:00",
+          "event": "진행 중 진입 (auto-detected) ⚠️ 부칙 7 위반 — progress.steps 미박힘",
+          "by": "auto-detect-bot",
+          "commit": "c2db9ab",
+          "note": "docs(drive): 자동읽기 최상위 폴더 ID 등록·구조 확인 (BL-YT-DRIVE-WATCH 1단계)"
         }
       ],
       "source": "chat:2026-07-10",
@@ -22248,7 +22255,15 @@
       "target_pages": [
         "/studio.html"
       ],
-      "updated_at": "2026-07-10T08:11:14+00:00"
+      "updated_at": "2026-07-12T11:05:08+00:00",
+      "started_at": "2026-07-12T11:05:08+00:00",
+      "progress_warning": {
+        "code": "MISSING_PROGRESS_STEPS",
+        "rule": "부칙 7 — 모든 작업은 progress.steps 박은 후 시작",
+        "detected_at": "2026-07-12T11:05:08+00:00",
+        "detected_by_commit": "c2db9ab",
+        "message": "in_progress 진입했으나 progress.steps 비어있음. tasks.json에서 progress.steps 박은 후 다음 commit에 [step:done:N] 태그."
+      }
     },
     {
       "id": "BL-STUDIO-MENU-6TAB",

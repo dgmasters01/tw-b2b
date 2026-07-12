@@ -78,6 +78,10 @@
   .st-ch-chip.active { color:#1D9E75; border-color:#5DCAA5; }
   .st-ch-chip.inactive { color:#BA7517; border-color:#EF9F27; }
   .st-ch-chip.api { color:#4edea3; border-color:#4edea3; }
+  /* ── 호텔 메뉴 (D-062) ── */
+  .st-ht-sub { font-size:12px; opacity:.6; margin-top:3px; }
+  .st-ht-chips { display:flex; flex-wrap:wrap; gap:6px; margin-top:11px; align-items:center; }
+  .st-ht-period { font-size:11px; opacity:.5; margin-top:9px; }
   .st-ch-meta { display:flex; gap:16px; flex-wrap:wrap; font-size:13px; opacity:.75; margin-bottom:10px; }
   .st-ch-meta span b { font-weight:500; opacity:.6; margin-right:4px; }
   .st-cid-wrap { border-top:1px solid rgba(128,128,128,.14); padding-top:10px; }
@@ -200,7 +204,13 @@
 
   <!-- ── 준비 중 4메뉴 ─────────────────────────────────────── -->
   <section class="st-view" id="view-perf"><div class="st-soon"><b>성과표</b>전 채널·영상·호텔 성과 종합 조망 — 준비 중</div></section>
-  <section class="st-view" id="view-hotel"><div class="st-soon"><b>호텔</b>호텔별 전략 분석 대시보드 — 준비 중</div></section>
+  <section class="st-view" id="view-hotel">
+    <div class="st-head">
+      <div><div class="st-h">호텔</div><div class="st-sub" id="st-ht-count">불러오는 중…</div></div>
+    </div>
+    <div class="st-hint">우리 영상에 노출한 호텔별 성과입니다. 노출 횟수·최고 순위(TOP1/2/3)·확정/취소 예약을 봅니다. 수수료·거래액은 여기 안 보입니다.</div>
+    <div id="st-ht-list"><div class="st-empty">불러오는 중…</div></div>
+  </section>
   <section class="st-view" id="view-keyword"><div class="st-soon"><b>키워드</b>다음에 뭘 만들지 뽑아주는 분석·추천 엔진 — 준비 중</div></section>
   <section class="st-view" id="view-strategy"><div class="st-soon"><b>전략</b>만들 콘텐츠 기획 큐 + 방향 판 — 준비 중</div></section>
 
@@ -485,6 +495,7 @@
 
   /* ── 6메뉴 전환 (D-060) ──────────────────────────────────── */
   var chLoaded = false;
+  var htLoaded = false;
   function switchView(v) {
     document.querySelectorAll('#st-menu button').forEach(function (b) {
       b.classList.toggle('on', b.dataset.view === v);
@@ -493,10 +504,60 @@
       s.classList.toggle('on', s.id === 'view-' + v);
     });
     if (v === 'channels' && !chLoaded) { chLoaded = true; loadChannels(); }
+    if (v === 'hotel' && !htLoaded) { htLoaded = true; loadHotels(); }
   }
   document.querySelectorAll('#st-menu button').forEach(function (b) {
     b.onclick = function () { switchView(b.dataset.view); };
   });
+
+  /* ── 호텔 메뉴 (D-062 · BL-CONTENT-HOTEL-VIEWS) ──────────────
+   * v_content_hotel_stats 를 읽어 호텔별 노출·순위·확정/취소 예약을 카드로.
+   * 수수료·거래액은 뷰에 없어 표시 불가(스튜디오는 수수료 안 봄). */
+  function htRank(r) { return r ? ('TOP' + r) : '순위—'; }
+  function htPeriod(h) {
+    if (!h.first_booking) return '예약 기간 —';
+    var a = h.first_booking, b = h.last_booking;
+    return '예약 ' + a + (b && b !== a ? ' ~ ' + b : '');
+  }
+  function hotelRow(h) {
+    var done = h.bookings_done || 0, canc = h.bookings_cancelled || 0, tot = done + canc;
+    var rate = tot ? Math.round(done / tot * 100) + '%' : '—';
+    var chs = (h.channels || []).join(', ') || '—';
+    var name = h.name_in_script || h.name_in_agoda || ('호텔 ' + h.hid);
+    var agoda = h.name_in_agoda && h.name_in_agoda !== name ? h.name_in_agoda : '';
+    var city = h.agoda_city ? (agoda ? ' · ' : '') + h.agoda_city : '';
+    var subLine = (agoda || city) ? '<div class="st-ht-sub">' + esc(agoda) + esc(city) + '</div>' : '';
+    return '<div class="st-ch-card">' +
+      '<div class="st-ch-name">' + esc(name) + '</div>' + subLine +
+      '<div class="st-ht-chips">' +
+        '<span class="st-ch-chip">채널 ' + esc(chs) + '</span>' +
+        '<span class="st-ch-chip">' + htRank(h.best_rank) + '</span>' +
+        '<span class="st-ch-chip">노출 ' + (h.exposure_count || 0) + '회</span>' +
+        '<span class="st-ch-chip active">확정 ' + done + '건</span>' +
+        '<span class="st-ch-chip inactive">취소 ' + canc + '건</span>' +
+        '<span class="st-ch-chip">확정률 ' + rate + '</span>' +
+      '</div>' +
+      '<div class="st-ht-period">' + esc(htPeriod(h)) + '</div>' +
+    '</div>';
+  }
+  function loadHotels() {
+    var list = document.getElementById('st-ht-list');
+    fetch('/api/content-hotels', { credentials: 'same-origin' })
+      .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+      .then(function (x) {
+        if (!x.ok || !x.j.ok) throw new Error(x.j.error || '불러오지 못했습니다.');
+        var hs = x.j.hotels || [];
+        var doneSum = hs.reduce(function (n, h) { return n + (h.bookings_done || 0); }, 0);
+        document.getElementById('st-ht-count').textContent =
+          hs.length + '개 호텔 · 확정예약 ' + doneSum + '건';
+        list.innerHTML = hs.length
+          ? hs.map(hotelRow).join('')
+          : '<div class="st-empty">아직 노출된 호텔이 없습니다.<br>올리기에서 원고를 넣어 TOP1/2/3 호텔이 잡히면 여기 나타납니다.</div>';
+      })
+      .catch(function (e) {
+        list.innerHTML = '<div class="st-empty">' + esc(e.message) + '</div>';
+      });
+  }
 
   /* ── 채널 메뉴 (D-064) ───────────────────────────────────── */
   // 언어 코드를 사람 말로. D-065 보강: 언어=언어+시장(번체/간체·유튜브 접근성 구분).

@@ -262,6 +262,12 @@ export default async function handler(req, res) {
     action = 'updated'; saved = data;
   } else {
     row.created_by = 'api/publications';
+    // 출처 구분(D-060 올리기 설계 §3): 드라이브 자동 적재(source='drive')와
+    // 화면 수동 업로드(source='manual')를 나눠 목록에 딱지로 보여준다.
+    // 지금은 수동 경로만 실작동. 드라이브 워처(BL-YT-DRIVE-WATCH)가 붙으면 source='drive' 로 넣는다.
+    row.source = (body && body.source === 'drive') ? 'drive' : 'manual';
+    // 올린 사람: 화면이 보내는 이름은 안 믿고 세션에서 확인한 이메일만 남긴다.
+    row.uploaded_by_email = auth.email || null;
     const { data, error } = await sb.from('publications').insert(row).select().single();
     if (error) return res.status(500).json({ ok: false, error: error.message });
     action = 'created'; saved = data;

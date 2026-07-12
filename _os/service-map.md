@@ -1,7 +1,7 @@
 # 📖 TW B2B 시스템 매뉴얼 (service-map)
 
 > **자동 생성 — 직접 편집 금지** (`.github/workflows/system-manual-rebuild.yml`이 push마다 재생성)
-> **생성 시각:** 2026-05-27T09:45:01.676Z
+> **생성 시각:** 2026-07-12T12:34:48.296Z
 > **포맷 (헌법 12대 원칙 6번 — AI 가독성):** 사람용 표/설명 + AI용 YAML 블록
 
 ---
@@ -45,7 +45,7 @@
 
 ```yaml
 section: map
-pages_total: 21
+pages_total: 22
 groups:
   public:
     - { path: "/index.html", status: "live", name: "메인 랜딩" }

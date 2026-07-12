@@ -141,9 +141,111 @@ export default async function handler(req, res) {
     }
   }
 
+  // ── 새 채널 등록 · CID 추가/폐기/복구 (D-064 단계5) ──────────────
+  // 권한: owner/admin 만. 두 겹 방어 = UI 버튼 미표시(에디터) + 여기 서버 게이트.
+  // action 으로 갈래를 나눈다: create_channel / add_cid / retire_cid / restore_cid
+  // CID 는 절대 하드삭제하지 않는다(헌법 9 가역성) — 폐기 = is_active=false.
+  if (req.method === 'POST') {
+    if (!who.isAdmin) return res.status(403).json({ ok: false, error: '채널·CID 등록은 관리자만 할 수 있습니다.' });
+
+    let body;
+    try { body = await readBody(req); }
+    catch { return res.status(400).json({ ok: false, error: 'JSON 본문을 읽지 못했습니다.' }); }
+
+    const action = String(body.action || '').trim();
+
+    try {
+      // ── ① 새 채널 등록 ─────────────────────────────────────────
+      if (action === 'create_channel') {
+        const code = String(body.code || '').trim();
+        const name = String(body.name || '').trim();
+        const language = String(body.language || '').trim();
+        if (!code)     return res.status(400).json({ ok: false, error: '채널 코드(2~20자 영문·숫자)가 필요합니다.' });
+        if (!/^[A-Za-z0-9_-]{2,20}$/.test(code))
+          return res.status(400).json({ ok: false, error: '채널 코드는 영문·숫자·-_ 2~20자만 됩니다.' });
+        if (!name)     return res.status(400).json({ ok: false, error: '채널 이름이 필요합니다.' });
+        if (!language) return res.status(400).json({ ok: false, error: '언어(ko·ja·zh-tw 등)가 필요합니다.' });
+
+        // 이미 있는 코드면 막는다(예약·CID 연결 열쇠라 덮어쓰기 위험).
+        const { data: dup } = await sb.from('channels').select('code').eq('code', code).maybeSingle();
+        if (dup) return res.status(409).json({ ok: false, error: '이미 있는 채널 코드입니다: ' + code });
+
+        const row = {
+          code,
+          name,
+          name_en: body.name_en ? String(body.name_en).trim() : null,
+          language,
+          platform: body.platform ? String(body.platform).trim() : 'youtube',
+          has_agoda_api: !!body.has_agoda_api,
+          agoda_site_id: body.agoda_site_id ? String(body.agoda_site_id).trim() : null,
+          is_active: body.is_active === undefined ? true : !!body.is_active,
+          display_order: body.display_order == null || body.display_order === '' ? 999 : Number(body.display_order),
+        };
+        const { data: ch, error: chErr } = await sb.from('channels').insert(row).select().single();
+        if (chErr) throw chErr;
+
+        // 첫 CID 를 같이 받으면 매핑도 만든다(선택).
+        let firstCid = null;
+        const cid0 = body.cid ? String(body.cid).trim() : '';
+        if (cid0) {
+          const cidRow = { channel_code: code, cid: cid0, cid_label: body.cid_label ? String(body.cid_label).trim() : 'main', is_active: true };
+          const { data: cd, error: cErr } = await sb.from('channel_cid_map').insert(cidRow).select().single();
+          if (cErr) throw cErr;
+          firstCid = cd;
+        }
+        return res.status(200).json({ ok: true, channel: ch, cid: firstCid });
+      }
+
+      // ── ②③④ CID 추가/폐기/복구 (공통: 어느 채널·어느 CID) ──────────
+      if (action === 'add_cid' || action === 'retire_cid' || action === 'restore_cid') {
+        const channel_code = String(body.channel_code || body.code || '').trim();
+        const cid = String(body.cid || '').trim();
+        if (!channel_code) return res.status(400).json({ ok: false, error: '어느 채널인지(channel_code)가 필요합니다.' });
+        if (!cid)          return res.status(400).json({ ok: false, error: 'CID 값이 필요합니다.' });
+
+        // 채널이 실제로 있는지 먼저 확인(오타로 유령 매핑 방지).
+        const { data: exists } = await sb.from('channels').select('code').eq('code', channel_code).maybeSingle();
+        if (!exists) return res.status(404).json({ ok: false, error: '그런 채널이 없습니다: ' + channel_code });
+
+        // 이 채널에 이 CID 가 이미 있나?
+        const { data: cur } = await sb
+          .from('channel_cid_map')
+          .select('cid, channel_code, cid_label, is_active')
+          .eq('channel_code', channel_code).eq('cid', cid).maybeSingle();
+
+        if (action === 'add_cid') {
+          const cid_label = body.cid_label ? String(body.cid_label).trim() : 'new';
+          if (cur) {
+            // 이미 있으면: 꺼져 있으면 다시 켜고 라벨 갱신, 켜져 있으면 알림.
+            if (cur.is_active) return res.status(409).json({ ok: false, error: '이미 등록·운영 중인 CID 입니다.' });
+            const { data, error } = await sb.from('channel_cid_map')
+              .update({ is_active: true, cid_label }).eq('channel_code', channel_code).eq('cid', cid).select().single();
+            if (error) throw error;
+            return res.status(200).json({ ok: true, cid: data, revived: true });
+          }
+          const { data, error } = await sb.from('channel_cid_map')
+            .insert({ channel_code, cid, cid_label, is_active: true }).select().single();
+          if (error) throw error;
+          return res.status(200).json({ ok: true, cid: data });
+        }
+
+        // 폐기·복구 = is_active 만 바꾼다(하드삭제 금지 — 과거 예약 집계 보존).
+        if (!cur) return res.status(404).json({ ok: false, error: '그 채널에 그 CID 가 없습니다.' });
+        const nextActive = action === 'restore_cid';
+        const { data, error } = await sb.from('channel_cid_map')
+          .update({ is_active: nextActive }).eq('channel_code', channel_code).eq('cid', cid).select().single();
+        if (error) throw error;
+        return res.status(200).json({ ok: true, cid: data });
+      }
+
+      return res.status(400).json({ ok: false, error: '알 수 없는 요청입니다(action).' });
+    } catch (e) {
+      return res.status(500).json({ ok: false, error: '처리하지 못했습니다.', detail: String(e.message || e) });
+    }
+  }
+
   if (req.method !== 'GET') {
-    // 채널 신규 등록·CID 편집·규격 저장은 후속 단계.
-    res.setHeader('Allow', 'GET, PATCH');
+    res.setHeader('Allow', 'GET, POST, PATCH');
     return res.status(405).json({ ok: false, error: 'Method not allowed' });
   }
 

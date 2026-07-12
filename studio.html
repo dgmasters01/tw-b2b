@@ -166,7 +166,15 @@
   .st-sg-dot { width:9px; height:9px; border-radius:50%; flex:none; }
   .st-sg-count { margin-left:auto; font-size:12px; opacity:.5; font-weight:400; }
   .st-sg-card { border:1px solid rgba(128,128,128,.25); border-radius:10px; padding:10px 11px; margin-bottom:9px; }
-  .st-sg-title { font-size:13px; font-weight:500; line-height:1.4; margin-bottom:8px; }
+  .st-sg-card.unassigned { border-color:#EF9F27; background:rgba(239,159,39,.05); }
+  .st-sg-cardhead { display:flex; align-items:flex-start; gap:8px; }
+  .st-sg-title { font-size:13px; font-weight:500; line-height:1.4; margin-bottom:8px; flex:1; }
+  .st-sg-prio { flex:none; font-size:10px; padding:1px 7px; border-radius:6px; border:1px solid rgba(128,128,128,.35); opacity:.8; }
+  .st-sg-prio.p1, .st-sg-prio.p2 { color:#E24B4A; border-color:#E24B4A; opacity:1; }
+  .st-sg-code { font-family:ui-monospace,monospace; font-size:11px; opacity:.6; margin-bottom:8px; }
+  .st-sg-roles { display:flex; gap:8px; flex-wrap:wrap; margin:8px 0; }
+  .st-sg-role { font-size:11px; padding:2px 8px; border-radius:6px; border:1px solid rgba(128,128,128,.3); opacity:.75; }
+  .st-sg-role.none { color:#BA7517; border-color:#EF9F27; opacity:1; }
   .st-sg-chips { display:flex; flex-wrap:wrap; gap:5px; margin-bottom:8px; }
   .st-sg-note { font-size:12px; opacity:.6; line-height:1.5; margin:6px 0; white-space:pre-wrap; word-break:break-word; }
   .st-sg-assignee { font-size:11px; opacity:.6; margin-bottom:8px; }
@@ -345,18 +353,8 @@
   <section class="st-view" id="view-strategy">
     <div class="st-head">
       <div><div class="st-h">전략 · 콘텐츠 기획 큐</div><div class="st-sub" id="st-sg-sub">불러오는 중…</div></div>
-      <button class="st-newch-btn" id="sg-add-btn">＋ 아이디어 추가</button>
     </div>
-    <div class="st-hint">만들 콘텐츠를 <b>아이디어 → 기획 → 제작중 → 완료</b> 순서로 옮기며 관리합니다. 키워드 메뉴의 추천을 [이거 만들자]로 여기 담을 수 있습니다.</div>
-
-    <!-- 빠른 추가 폼 (숨김) -->
-    <div class="st-newch" id="sg-addform">
-      <h4>새 아이디어 담기</h4>
-      <div class="st-ch-frow"><label>만들 것</label><input type="text" id="sg-title" placeholder="예: 오사카 4성급 호텔 TOP3"></div>
-      <div class="st-ch-frow"><label>메모</label><input type="text" id="sg-note" placeholder="선택 · 왜 만드는지 · 참고"></div>
-      <div class="st-ch-actions"><button id="sg-save">담기</button><button class="ghost" id="sg-cancel">취소</button></div>
-      <div class="st-ch-fmsg" id="sg-msg"></div>
-    </div>
+    <div class="st-hint">정한 콘텐츠를 <b>기획 대기 → 원고 작성 → 발행 예정 → 발행 완료</b>로 옮기며 진행을 한눈에 봅니다. 카드는 <b>키워드</b>(또는 전략 방향)의 [이걸로 만들기]로만 담깁니다 — 데이터 없이 손으로 만들지 않습니다. 카드마다 <b>고유코드(TW-XXXX)</b>가 붙어, 담당이 어디서 원고를 쓰든 코드로 매칭됩니다.</div>
 
     <div class="st-sg-board" id="st-sg-board"><div class="st-empty">불러오는 중…</div></div>
   </section>
@@ -454,6 +452,7 @@
     var sub = '<span class="st-chbadge">' + esc(chName(p.channel_code)) + '</span>';
     if (lang) sub += '<span>' + esc(upLang(lang)) + '</span>';
     sub += '<span>출처 · ' + esc(srcLabel(p)) + '</span>';
+    if (p.created_at) sub += '<span>등록 ' + esc(p.created_at.slice(0, 10)) + '</span>';
     if (p.is_duplicate) sub += '<span class="st-dupflag">중복</span>';
 
     return '<div class="st-lrow' + (open ? ' open' : '') + '" data-lrow="' + p.id + '">' +
@@ -936,7 +935,7 @@
         '<span class="st-ch-chip active">확정예약 ' + (c.bookings_done || 0) + '건</span>' +
         '<span class="st-ch-chip">호텔 ' + (c.hotels_count || 0) + '곳</span>' +
         badge +
-        '<button class="st-kw-add" data-kwt="city" data-idx="' + i + '">＋ 이거 만들자</button>' +
+        '<button class="st-kw-add" data-kwt="city" data-idx="' + i + '">＋ 이걸로 만들기</button>' +
       '</div>' +
     '</div>';
   }
@@ -947,22 +946,22 @@
       '<div class="st-ht-sub">' + esc(h.city || '') + (h.country ? ' · ' + esc(h.country) : '') + (star ? ' · ' + star : '') + '</div>' +
       '<div class="st-ht-chips"><span class="st-ch-chip active">확정예약 ' + (h.bookings_done || 0) + '건</span>' +
         '<span class="st-ch-chip new">영상 없음</span>' +
-        '<button class="st-kw-add" data-kwt="hotel" data-idx="' + i + '">＋ 이거 만들자</button>' +
+        '<button class="st-kw-add" data-kwt="hotel" data-idx="' + i + '">＋ 이걸로 만들기</button>' +
       '</div>' +
     '</div>';
   }
-  // [이거 만들자] → 전략 큐(content_queue)에 아이디어로 담는다. 수수료 안 봄(건수만).
+  // [이걸로 만들기] → 전략 큐(content_queue)에 기획대기 카드로. 출처=키워드, 기획자=나 자동 (D-066).
   function addFromKeyword(kwt, idx, btn) {
     var body;
     if (kwt === 'city') {
       var c = kwCities[idx]; if (!c) return;
-      body = { kind: 'city', title: (c.city || '도시') + ' 호텔 TOP3',
-               city: c.city, country: c.country, bookings_done: c.bookings_done || 0 };
+      body = { source: 'keyword', subject: (c.city || '도시') + ' 호텔 TOP3',
+               country: c.country, city: c.city, bookings_done: c.bookings_done || 0 };
     } else {
       var h = kwHotels[idx]; if (!h) return;
-      body = { kind: 'hotel', title: h.hotel_name || ('호텔 ' + h.hid),
+      body = { source: 'keyword', subject: h.hotel_name || ('호텔 ' + h.hid),
                hid: h.hid, hotel_name: h.hotel_name, city: h.city, country: h.country,
-               bookings_done: h.bookings_done || 0 };
+               star: h.star || null, bookings_done: h.bookings_done || 0 };
     }
     btn.disabled = true; var old = btn.textContent; btn.textContent = '담는 중…';
     fetch('/api/content-queue', {
@@ -971,7 +970,7 @@
     }).then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
       .then(function (x) {
         if (!x.ok || !x.j.ok) throw new Error(x.j.error || '담지 못했습니다.');
-        btn.textContent = '✓ 전략 큐에 담김';
+        btn.textContent = '✓ 전략 큐에 담김 (' + esc((x.j.item && x.j.item.code) || '') + ')';
         sgLoaded = false; // 다음에 전략 열 때 새로 그림
       })
       .catch(function (e) { btn.disabled = false; btn.textContent = old; alert(e.message); });
@@ -1005,54 +1004,62 @@
       });
   }
 
-  /* ── 전략 · 콘텐츠 기획 큐 (D-060 · 6메뉴 마지막) ─────────────────
-   * 만들 것을 아이디어 → 기획 → 제작중 → 완료로 옮기며 관리. 삭제는 대표님만. */
+  /* ── 전략 · 콘텐츠 기획 큐 (D-066 확정본) ─────────────────────────
+   * 4상태 칸반: 기획대기→원고작성→발행예정→발행완료.
+   * 카드: 주제·고유코드(TW-XXXX)·나라·도시·성급·타겟·목표월·우선순위·기획자·원고담당·출처.
+   * 입구=데이터 기반(전략/키워드)만. 직접 추가 폐기. 삭제=대표님만. */
   var SG_STAGES = [
-    { key: 'idea',   label: '아이디어', color: '#8A8794' },
-    { key: 'plan',   label: '기획',     color: '#4A90D9' },
-    { key: 'making', label: '제작중',   color: '#EF9F27' },
-    { key: 'done',   label: '완료',     color: '#1D9E75' }
+    { key: 'planning',  label: '기획 대기', color: '#8A8794' },
+    { key: 'writing',   label: '원고 작성', color: '#4A90D9' },
+    { key: 'scheduled', label: '발행 예정', color: '#EF9F27' },
+    { key: 'published', label: '발행 완료', color: '#1D9E75' }
   ];
+  var SG_SOURCE = { strategy: '전략', keyword: '키워드', manuscript: '원고유입' };
   var sgItems = [], sgMe = null, sgIsAdmin = false;
 
-  function sgKindChip(it) {
-    if (it.kind === 'city') return '<span class="st-ch-chip">🎬 도시</span>';
-    if (it.kind === 'hotel') return '<span class="st-ch-chip">🏨 호텔</span>';
-    return '<span class="st-ch-chip">💡 직접</span>';
-  }
   function sgCard(it) {
-    var place = [it.city, it.country].filter(Boolean).join(' · ');
-    var chips = sgKindChip(it);
+    var chips = '<span class="st-ch-chip new">' + esc(SG_SOURCE[it.source] || it.source || '—') + '</span>';
+    var place = [it.country, it.city].filter(Boolean).join(' · ');
     if (place) chips += '<span class="st-ch-chip">' + esc(place) + '</span>';
+    if (it.star) chips += '<span class="st-ch-chip">' + it.star + '성급</span>';
+    if (it.target) chips += '<span class="st-ch-chip">타겟 ' + esc(it.target) + '</span>';
+    if (it.target_month) chips += '<span class="st-ch-chip">목표 ' + esc(it.target_month) + '</span>';
     if (it.bookings_done) chips += '<span class="st-ch-chip active">확정예약 ' + it.bookings_done + '건</span>';
-    if (it.channel_code) chips += '<span class="st-ch-chip">' + esc(it.channel_code) + '</span>';
 
     var si = SG_STAGES.findIndex(function (s) { return s.key === it.stage; });
     var acts = '';
     if (si > 0) acts += '<button class="st-sg-btn" data-sgmove="' + it.id + '" data-dir="-1">←</button>';
     if (si < SG_STAGES.length - 1)
-      acts += '<button class="st-sg-btn go" data-sgmove="' + it.id + '" data-dir="1">' +
-              esc(SG_STAGES[si + 1].label) + ' →</button>';
+      acts += '<button class="st-sg-btn go" data-sgmove="' + it.id + '" data-dir="1">' + esc(SG_STAGES[si + 1].label) + ' →</button>';
+    acts += '<button class="st-sg-btn" data-sgprio="' + it.id + '">우선순위</button>';
     acts += '<button class="st-sg-btn" data-sgnote="' + it.id + '">메모</button>';
     var mine = it.assignee_email && it.assignee_email === sgMe;
-    acts += '<button class="st-sg-btn" data-sgassign="' + it.id + '">' + (mine ? '놓기' : '맡기') + '</button>';
+    acts += '<button class="st-sg-btn" data-sgclaim="' + it.id + '">' + (mine ? '놓기' : '내가 맡기') + '</button>';
+    if (sgIsAdmin) acts += '<button class="st-sg-btn" data-sgassign="' + it.id + '">담당 지정</button>';
+    acts += '<button class="st-sg-btn" data-sgkw="' + it.id + '">분석 다시보기</button>';
     if (sgIsAdmin) acts += '<button class="st-sg-btn del" data-sgdel="' + it.id + '">🗑</button>';
 
-    var assignee = it.assignee_email
-      ? '<div class="st-sg-assignee">🙋 ' + esc(it.assignee_email) + (mine ? ' (나)' : '') + '</div>' : '';
+    // 기획자 + 원고담당(미지정=노랑 강조)
+    var planner = '<span class="st-sg-role">기획 ' + esc(shortMail(it.planner_email) || '—') + '</span>';
+    var writer = it.assignee_email
+      ? '<span class="st-sg-role">원고 ' + esc(shortMail(it.assignee_email)) + (mine ? '(나)' : '') + '</span>'
+      : '<span class="st-sg-role none">원고 담당 없음</span>';
     var note = it.note ? '<div class="st-sg-note">' + esc(it.note) + '</div>' : '';
+    var prio = '<span class="st-sg-prio p' + (it.priority || 3) + '">우선 ' + (it.priority || 3) + '</span>';
 
-    return '<div class="st-sg-card" data-sgid="' + it.id + '">' +
-      '<div class="st-sg-title">' + esc(it.title) + '</div>' +
+    return '<div class="st-sg-card' + (it.assignee_email ? '' : ' unassigned') + '" data-sgid="' + it.id + '">' +
+      '<div class="st-sg-cardhead"><div class="st-sg-title">' + esc(it.title) + '</div>' + prio + '</div>' +
+      '<div class="st-sg-code">' + esc(it.code || '(코드 없음)') + '</div>' +
       '<div class="st-sg-chips">' + chips + '</div>' +
-      note + assignee +
+      note +
+      '<div class="st-sg-roles">' + planner + writer + '</div>' +
       '<div class="st-sg-acts">' + acts + '</div>' +
     '</div>';
   }
   function renderStrategy() {
     var board = document.getElementById('st-sg-board');
     document.getElementById('st-sg-sub').textContent =
-      '전체 ' + sgItems.length + '개 · ' + SG_STAGES.map(function (s) {
+      '전체 ' + sgItems.length + '장 · ' + SG_STAGES.map(function (s) {
         return s.label + ' ' + sgItems.filter(function (it) { return it.stage === s.key; }).length;
       }).join(' · ');
     board.innerHTML = SG_STAGES.map(function (s) {
@@ -1064,18 +1071,13 @@
       '</div>';
     }).join('');
 
-    board.querySelectorAll('[data-sgmove]').forEach(function (b) {
-      b.onclick = function () { sgMove(b.dataset.sgmove, +b.dataset.dir); };
-    });
-    board.querySelectorAll('[data-sgnote]').forEach(function (b) {
-      b.onclick = function () { sgEditNote(b.dataset.sgnote); };
-    });
-    board.querySelectorAll('[data-sgassign]').forEach(function (b) {
-      b.onclick = function () { sgAssign(b.dataset.sgassign); };
-    });
-    board.querySelectorAll('[data-sgdel]').forEach(function (b) {
-      b.onclick = function () { sgDelete(b.dataset.sgdel); };
-    });
+    board.querySelectorAll('[data-sgmove]').forEach(function (b) { b.onclick = function () { sgMove(b.dataset.sgmove, +b.dataset.dir); }; });
+    board.querySelectorAll('[data-sgprio]').forEach(function (b) { b.onclick = function () { sgSetPrio(b.dataset.sgprio); }; });
+    board.querySelectorAll('[data-sgnote]').forEach(function (b) { b.onclick = function () { sgEditNote(b.dataset.sgnote); }; });
+    board.querySelectorAll('[data-sgclaim]').forEach(function (b) { b.onclick = function () { sgClaim(b.dataset.sgclaim); }; });
+    board.querySelectorAll('[data-sgassign]').forEach(function (b) { b.onclick = function () { sgAssignTo(b.dataset.sgassign); }; });
+    board.querySelectorAll('[data-sgkw]').forEach(function (b) { b.onclick = function () { switchView('keyword'); }; });
+    board.querySelectorAll('[data-sgdel]').forEach(function (b) { b.onclick = function () { sgDelete(b.dataset.sgdel); }; });
   }
   function sgPatch(id, patch) {
     return fetch('/api/content-queue', {
@@ -1093,23 +1095,33 @@
     var it = sgItems.find(function (x) { return x.id === id; }); if (!it) return;
     var si = SG_STAGES.findIndex(function (s) { return s.key === it.stage; });
     var ni = si + dir; if (ni < 0 || ni >= SG_STAGES.length) return;
-    sgPatch(id, { stage: SG_STAGES[ni].key }).then(function (j) { sgReplace(j.item); })
-      .catch(function (e) { alert(e.message); });
+    sgPatch(id, { stage: SG_STAGES[ni].key }).then(function (j) { sgReplace(j.item); }).catch(function (e) { alert(e.message); });
+  }
+  function sgSetPrio(id) {
+    var it = sgItems.find(function (x) { return x.id === id; }); if (!it) return;
+    var v = prompt('우선순위 (1=가장 급함 ~ 5=여유)', it.priority || 3);
+    if (v === null) return;
+    sgPatch(id, { priority: v }).then(function (j) { sgReplace(j.item); }).catch(function (e) { alert(e.message); });
   }
   function sgEditNote(id) {
     var it = sgItems.find(function (x) { return x.id === id; }); if (!it) return;
-    var v = prompt('메모 (비우면 지웁니다)', it.note || '');
+    var v = prompt('넣을 키워드·근거 메모 (비우면 지웁니다)', it.note || '');
     if (v === null) return;
     sgPatch(id, { note: v }).then(function (j) { sgReplace(j.item); }).catch(function (e) { alert(e.message); });
   }
-  function sgAssign(id) {
+  function sgClaim(id) {
     var it = sgItems.find(function (x) { return x.id === id; }); if (!it) return;
     var mine = it.assignee_email && it.assignee_email === sgMe;
-    sgPatch(id, { assignee_email: mine ? '' : 'me' }).then(function (j) { sgReplace(j.item); })
-      .catch(function (e) { alert(e.message); });
+    sgPatch(id, { writer: mine ? '' : 'me' }).then(function (j) { sgReplace(j.item); }).catch(function (e) { alert(e.message); });
+  }
+  function sgAssignTo(id) {
+    var it = sgItems.find(function (x) { return x.id === id; }); if (!it) return;
+    var v = prompt('원고 담당자 이메일 (비우면 담당 해제)', it.assignee_email || '');
+    if (v === null) return;
+    sgPatch(id, { writer: v.trim() }).then(function (j) { sgReplace(j.item); }).catch(function (e) { alert(e.message); });
   }
   function sgDelete(id) {
-    if (!confirm('이 항목을 삭제할까요? (되돌릴 수 없습니다)')) return;
+    if (!confirm('이 카드를 삭제할까요? (되돌릴 수 없습니다)')) return;
     fetch('/api/content-queue', {
       method: 'DELETE', credentials: 'same-origin',
       headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: id })
@@ -1134,36 +1146,6 @@
         sgLoaded = false;
       });
   }
-  // 전략 · 직접 아이디어 추가 폼 (정적 요소 · 1회 바인딩)
-  (function () {
-    var openBtn = document.getElementById('sg-add-btn');
-    var panel = document.getElementById('sg-addform');
-    var save = document.getElementById('sg-save');
-    var cancel = document.getElementById('sg-cancel');
-    if (openBtn) openBtn.onclick = function () { panel.classList.toggle('open'); };
-    if (cancel) cancel.onclick = function () { panel.classList.remove('open'); };
-    if (save) save.onclick = function () {
-      var title = (document.getElementById('sg-title').value || '').trim();
-      var note = (document.getElementById('sg-note').value || '').trim();
-      var msg = document.getElementById('sg-msg');
-      if (!title) { msg.className = 'st-ch-fmsg err'; msg.textContent = '만들 것을 넣어주세요.'; return; }
-      save.disabled = true; msg.className = 'st-ch-fmsg'; msg.textContent = '담는 중…';
-      fetch('/api/content-queue', {
-        method: 'POST', credentials: 'same-origin',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ kind: 'free', title: title, note: note })
-      }).then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
-        .then(function (x) {
-          if (!x.ok || !x.j.ok) throw new Error(x.j.error || '담지 못했습니다.');
-          save.disabled = false; msg.className = 'st-ch-fmsg ok'; msg.textContent = '담았습니다.';
-          document.getElementById('sg-title').value = '';
-          document.getElementById('sg-note').value = '';
-          sgItems.unshift(x.j.item); renderStrategy();
-          setTimeout(function () { panel.classList.remove('open'); msg.textContent = ''; }, 800);
-        })
-        .catch(function (e) { save.disabled = false; msg.className = 'st-ch-fmsg err'; msg.textContent = e.message; });
-    };
-  })();
 
   /* ── 성과표 (D-060 · 전 채널·영상·호텔 종합) ──────────────────
    * 수수료·거래액 안 봄. 조회수·클릭은 발행 영상 생기면 채워짐(현재 —). */

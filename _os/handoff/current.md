@@ -34,6 +34,15 @@
 - **선결**: 스튜디오 호텔메뉴 구현 + 아고다↔hotels 매칭(agoda_hotel_id 채우기). 이후 단계4 착수해야 실데이터 표시.
 - **데이터 있음(확인)**: hotels.paid_at, invoices(번호·결제·상태), publications(hid_top1/2/3·title·youtube_url·channel_code·published_at). 조회수만 미연동(D-059, "—").
 
+## 🟢 스튜디오 6메뉴 진행 (BL-STUDIO-MENU-6TAB · studio.html)
+- **올리기** ✅ 구현(docx→원고 파싱·publications·설명란/링크)
+- **채널** ✅ 구현·라이브(D-064: 채널/CID 마스터, 새 채널 .md 등록, 수정)
+- **호텔** ✅ **완료·라이브(이번 세션)** — D-062: `api/content-hotels`(신규, v_content_hotel_stats 조회·에디터 세션·수수료 없음) + studio.html view-hotel 실구현. 호텔별 노출·최고순위(TOP1/2/3)·확정/취소·확정률·예약기간 카드. 라이브 검증: 실호텔 6곳(호텔 라 포레스타 HT TOP1 확정3/취소2 등). 커밋 api=87d683f, studio=c092e80.
+- **성과표** ⬜ 다음 우선(전 채널·영상·호텔 종합 조망). 데이터: bookings_agoda 7,169 / publications 2 / channels 8. ※조회수(BL-YT-VIEWS-COLLECT)·클릭(BL-TRACK-001, link_clicks 없음)은 pending → 그 두 칸은 당분간 빈칸.
+- **키워드** ⬜ (다음 만들 것 추천 엔진 — 데이터 얕음: publications 2건)
+- **전략** ⬜ (콘텐츠 기획 큐 — 신규 데이터 모델 필요)
+- **우선순위 근거**: 백엔드 뷰가 이미 done(v_content_hotel_stats)이라 호텔이 최소공수·최대가치 → 1위로 완료. 다음은 성과표(데이터 있음), 그다음 키워드/전략(선행 데이터 필요).
+
 ## 🔑 인프라
 - 커밋: `POST gohotelwinners.com/api/ops/github-commit` x-ops-token `{path,content,message}` (plain text). 30/h.
 - DB: `POST /api/ops/db-query` x-ops-token `{query}`. 60/h. (읽기 검증용)

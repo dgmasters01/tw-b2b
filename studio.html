@@ -387,6 +387,9 @@
   .st-pf-goal { background:rgba(78,222,163,.08); border:1px solid rgba(78,222,163,.25); border-radius:10px; padding:11px 14px; font-size:12.5px; line-height:1.6; margin:10px 0 16px; }
   .st-pf-asof { margin:0 0 14px; }
   .st-pf-asof-badge { display:inline-block; font-size:11.5px; padding:5px 11px; border-radius:8px; background:rgba(239,159,39,.12); border:1px solid rgba(239,159,39,.32); color:#EF9F27; }
+  .st-pf-custom { display:flex; gap:6px; align-items:center; margin-top:8px; width:100%; font-size:12px; }
+  .st-pf-custom input[type=date] { background:rgba(128,128,128,.12); border:1px solid rgba(128,128,128,.3); border-radius:7px; padding:4px 8px; color:inherit; font-size:12px; color-scheme:dark; }
+  .st-pf-custom button { background:#4edea3; color:#051424; border:none; border-radius:7px; padding:5px 13px; cursor:pointer; font-weight:500; font-size:12px; }
   .st-pf-periods { display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin-bottom:14px; }
   .st-pf-per, .st-pf-cmp { font-size:12px; padding:5px 12px; border-radius:18px; border:1px solid rgba(128,128,128,.3); background:none; color:inherit; cursor:pointer; opacity:.7; }
   .st-pf-per.on { background:#4edea3; color:#051424; border-color:#4edea3; opacity:1; font-weight:500; }
@@ -1611,9 +1614,9 @@
   var PF_PERIODS = [
     { k:'today', l:'오늘' }, { k:'yesterday', l:'어제' }, { k:'last7', l:'최근 7일' },
     { k:'last30', l:'최근 30일' }, { k:'month', l:'이번 달' }, { k:'last90', l:'최근 3개월' },
-    { k:'all', l:'전체' }
+    { k:'all', l:'전체' }, { k:'custom', l:'기간 지정' }
   ];
-  var pfState = { period:'all', compare:false, lens:'channel' };
+  var pfState = { period:'all', compare:false, lens:'channel', from:null, to:null };
   var pfLast = null;
 
   function pfMoney(n){ if(n==null) return '—'; if(n>=1000) return '$'+Math.round(n/1000)+'K'; return '$'+n; }
@@ -1637,9 +1640,17 @@
     var h = PF_PERIODS.map(function(p){ return '<button class="st-pf-per'+(p.k===pfState.period?' on':'')+'" data-per="'+p.k+'">'+p.l+'</button>'; }).join('');
     h += '<span style="width:1px;height:18px;background:rgba(128,128,128,.3);margin:0 4px"></span>';
     h += '<button class="st-pf-cmp'+(pfState.compare?' on':'')+'" id="st-pf-cmpbtn">↔ 이전 기간과 비교</button>';
+    if(pfState.period==='custom'){
+      h += '<div class="st-pf-custom"><input type="date" id="pf-from" value="'+(pfState.from||'')+'"> ~ <input type="date" id="pf-to" value="'+(pfState.to||'')+'"><button id="pf-apply">적용</button></div>';
+    }
     el.innerHTML=h;
-    el.querySelectorAll('.st-pf-per').forEach(function(b){ b.onclick=function(){ pfState.period=b.dataset.per; loadPerf(); }; });
+    el.querySelectorAll('.st-pf-per').forEach(function(b){ b.onclick=function(){
+      var k=b.dataset.per;
+      if(k==='custom'){ pfState.period='custom'; if(!pfState.to){ var t=new Date(); pfState.to=t.toISOString().slice(0,10); pfState.from=new Date(t.getTime()-30*86400000).toISOString().slice(0,10); } pfRenderPeriods(); return; }
+      pfState.period=k; loadPerf();
+    }; });
     var cb=document.getElementById('st-pf-cmpbtn'); cb.onclick=function(){ pfState.compare=!pfState.compare; loadPerf(); };
+    var ap=document.getElementById('pf-apply'); if(ap){ ap.onclick=function(){ var f=document.getElementById('pf-from').value, t=document.getElementById('pf-to').value; if(f&&t){ pfState.from=f; pfState.to=t; loadPerf(); } else { alert('시작일과 끝일을 모두 골라주세요.'); } }; }
   }
   function pfRenderLens(){
     var el=document.getElementById('st-pf-lens');
@@ -1703,7 +1714,9 @@
     pfRenderPeriods(); pfRenderLens();
     var box=document.getElementById('st-pf-table');
     box.innerHTML='<div class="st-empty">불러오는 중…</div>';
-    var qs='?period='+encodeURIComponent(pfState.period)+(pfState.compare?'&compare=1':'');
+    var qs='?period='+encodeURIComponent(pfState.period);
+    if(pfState.period==='custom' && pfState.from && pfState.to){ qs+='&from='+pfState.from+'&to='+pfState.to; }
+    if(pfState.compare){ qs+='&compare=1'; }
     fetch('/api/content-performance'+qs, { credentials:'same-origin' })
       .then(function(r){ return r.json().then(function(j){ return {ok:r.ok,j:j}; }); })
       .then(function(x){

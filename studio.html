@@ -374,6 +374,17 @@
   .st-ch-chip.inactive { color:#BA7517; border-color:#EF9F27; }
   .st-ch-chip.api { color:#4edea3; border-color:#4edea3; }
   /* ── 호텔 메뉴 (D-062) ── */
+  .st-ht-review-btn{padding:6px 14px;border:0.5px solid rgba(255,255,255,.2);border-radius:8px;background:transparent;color:inherit;cursor:pointer;font-size:13px}
+  .st-ht-review-btn.has{border-color:#e2b04a;color:#e2b04a;font-weight:600}
+  .st-rv-item{border:0.5px solid rgba(255,255,255,.14);border-radius:10px;padding:12px 14px;margin-bottom:10px}
+  .st-rv-code{font-family:ui-monospace,monospace;color:#4edea3;font-weight:600;margin-right:6px}
+  .st-rv-name{font-weight:600}
+  .st-rv-meta{font-size:12px;opacity:.7;margin-top:4px}
+  .st-rv-reason{font-size:12px;color:#e2b04a;margin-top:4px}
+  .st-rv-act{margin-top:10px}
+  .st-rv-ok{padding:6px 16px;border:0.5px solid #4edea3;border-radius:8px;background:transparent;color:#4edea3;cursor:pointer;font-size:13px;font-weight:600}
+  .st-rv-ok:disabled{opacity:.5;cursor:default}
+  .st-rv-note{font-size:12px;opacity:.6}
   .st-ht-sub { font-size:12px; opacity:.6; margin-top:3px; }
   .st-ht-chips { display:flex; flex-wrap:wrap; gap:6px; margin-top:11px; align-items:center; }
   .st-ht-period { font-size:11px; opacity:.5; margin-top:9px; }
@@ -614,8 +625,9 @@
     <div class="st-pf-trend" id="st-pf-trend"></div>
   </section>
   <section class="st-view" id="view-hotel">
-    <div class="st-head">
+    <div class="st-head" style="display:flex;align-items:center;gap:12px">
       <div><div class="st-h">호텔</div></div>
+      <button id="ht-review-btn" class="st-ht-review-btn" style="margin-left:auto" hidden>확인함 <span id="ht-review-n">0</span></button>
     </div>
     <div id="st-ht-status" class="st-ht-status"></div>
     <div class="st-ht-filters">
@@ -637,6 +649,16 @@
         <button class="st-hmodal-close" id="st-hmodal-close" aria-label="닫기">✕</button>
       </div>
       <div class="st-hmodal-body" id="st-hmodal-body"><div class="st-empty">불러오는 중…</div></div>
+    </div>
+  </div>
+  <div id="st-review-modal" class="st-hmodal" hidden>
+    <div class="st-hmodal-back"></div>
+    <div class="st-hmodal-panel">
+      <div class="st-hmodal-head">
+        <div class="st-hmodal-title">확인함 · 자동 묶음이 애매한 호텔</div>
+        <button class="st-hmodal-close" id="st-review-close" aria-label="닫기">✕</button>
+      </div>
+      <div class="st-hmodal-body" id="st-review-body"><div class="st-empty">불러오는 중…</div></div>
     </div>
   </div>
   <section class="st-view" id="view-keyword">
@@ -1372,7 +1394,7 @@
       s.classList.toggle('on', s.id === 'view-' + v);
     });
     if (v === 'channels' && !chLoaded) { chLoaded = true; loadChannels(); }
-    if (v === 'hotel' && !htLoaded) { htLoaded = true; loadHotels(); }
+    if (v === 'hotel' && !htLoaded) { htLoaded = true; loadHotels(); loadReviewCount(); }
     if (v === 'perf' && !perfLoaded) { perfLoaded = true; loadPerf(); }
     if (v === 'keyword' && !kwLoaded) { kwLoaded = true; loadKeywords(); }
     if (v === 'strategy' && !sgLoaded) { sgLoaded = true; loadStrategy(); }
@@ -1380,6 +1402,14 @@
   document.querySelectorAll('#st-menu button').forEach(function (b) {
     b.onclick = function () { switchView(b.dataset.view); };
   });
+  (function () {
+    var rb = document.getElementById('ht-review-btn');
+    if (rb) rb.onclick = openReview;
+    var rc = document.getElementById('st-review-close');
+    if (rc) rc.onclick = function () { document.getElementById('st-review-modal').hidden = true; };
+    var rm = document.getElementById('st-review-modal');
+    if (rm) { var bk = rm.querySelector('.st-hmodal-back'); if (bk) bk.onclick = function () { rm.hidden = true; }; }
+  })();
 
   /* ── 키워드 (D-060 · 다음에 만들 것 추천) ────────────────────
    * 예약 많은데 영상 없는 도시·호텔을 예약 데이터로 추천. 수수료 안 봄(건수 기준). */
@@ -2113,6 +2143,66 @@
         renderHotelList();
       })
       .catch(function (e) { list.innerHTML = '<div class="st-empty">' + esc(e.message) + '</div>'; });
+  }
+  var reviewIsAdmin = false;
+  function loadReviewCount() {
+    fetch('/api/hotel-review', { credentials: 'same-origin' })
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        if (!j || !j.ok) return;
+        reviewIsAdmin = !!j.is_admin;
+        var btn = document.getElementById('ht-review-btn');
+        var n = document.getElementById('ht-review-n');
+        if (n) n.textContent = j.count;
+        if (btn) { btn.hidden = false; btn.classList.toggle('has', j.count > 0); }
+      })
+      .catch(function () {});
+  }
+  function openReview() {
+    var modal = document.getElementById('st-review-modal');
+    var body = document.getElementById('st-review-body');
+    if (!modal || !body) return;
+    modal.hidden = false;
+    body.innerHTML = '<div class="st-empty">불러오는 중…</div>';
+    fetch('/api/hotel-review', { credentials: 'same-origin' })
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        if (!j.ok) throw new Error(j.error || '불러오지 못했습니다.');
+        reviewIsAdmin = !!j.is_admin;
+        if (!j.hotels || !j.hotels.length) { body.innerHTML = '<div class="st-empty">확인할 호텔이 없습니다. 모두 정리됐습니다.</div>'; return; }
+        body.innerHTML =
+          '<div class="st-hint">시스템이 "이건 잘못 묶였을 수도 있다"고 표시한 호텔입니다. 맞으면 [맞음·확정]을 누르세요. 아무 것도 안 눌러도 시스템은 그대로 돕니다.</div>' +
+          j.hotels.map(function (h) {
+            var star = h.star_rating ? ('★' + h.star_rating) : '';
+            var meta = [h.country, h.city, star].filter(Boolean).join(' · ');
+            var act = reviewIsAdmin
+              ? '<button class="st-rv-ok" data-code="' + esc(h.hotel_code) + '">맞음 · 확정</button>'
+              : '<span class="st-rv-note">확정은 대표님만 할 수 있습니다</span>';
+            return '<div class="st-rv-item">' +
+              '<div class="st-rv-main"><span class="st-rv-code">' + esc(h.hotel_code) + '</span> <span class="st-rv-name">' + esc(h.hotel_name || '') + '</span></div>' +
+              '<div class="st-rv-meta">' + esc(meta) + ' · 예약 ' + (h.booking_count || 0) + '건 · 아고다ID ' + (h.agoda_count || 0) + '개</div>' +
+              '<div class="st-rv-reason">' + esc(h.reason || '') + '</div>' +
+              '<div class="st-rv-act">' + act + '</div>' +
+            '</div>';
+          }).join('');
+        body.querySelectorAll('.st-rv-ok').forEach(function (b) { b.onclick = function () { confirmReview(b.dataset.code, b); }; });
+      })
+      .catch(function (e) { body.innerHTML = '<div class="st-empty">' + esc(e.message) + '</div>'; });
+  }
+  function confirmReview(code, btn) {
+    btn.disabled = true; btn.textContent = '확정 중…';
+    fetch('/api/hotel-review', { method: 'POST', credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ hotel_code: code, action: 'confirm' }) })
+      .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+      .then(function (x) {
+        if (!x.ok || !x.j.ok) throw new Error(x.j.error || '확정하지 못했습니다.');
+        var item = btn.closest('.st-rv-item'); if (item) item.remove();
+        loadReviewCount();
+        var body = document.getElementById('st-review-body');
+        if (body && !body.querySelector('.st-rv-item')) body.innerHTML = '<div class="st-empty">확인할 호텔이 없습니다. 모두 정리됐습니다.</div>';
+      })
+      .catch(function (e) { btn.disabled = false; btn.textContent = '맞음 · 확정'; alert(e.message); });
   }
   function renderHotelStatus() {
     var box = document.getElementById('st-ht-status');

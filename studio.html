@@ -125,6 +125,35 @@
   .st-assign-lbl { font-size:11px; color:#8a93a0; }
   .st-assign-sel { font-size:12px; padding:5px 10px; border-radius:8px; border:1px solid rgba(128,128,128,.35); background:#1b1f27; color:#e8ebf0; max-width:220px; }
   .st-assign-sel option { background:#1b1f27; color:#e8ebf0; }
+  .st-ht-click { cursor:pointer; }
+  .st-ht-click:hover { border-color:rgba(128,140,160,.5); }
+  .st-ht-open { color:#4A90D9; }
+  .st-ht-detail { margin-top:12px; }
+  .st-htd { border:1px solid rgba(128,128,128,.3); border-radius:14px; padding:16px; background:rgba(128,140,160,.04); }
+  .st-htd-title { font-size:15px; font-weight:600; margin-bottom:12px; }
+  .st-htd-hid { font-size:12px; color:#8a93a0; font-weight:400; }
+  .st-htd-sec { padding:12px 0; border-top:1px solid rgba(128,128,128,.16); }
+  .st-htd-sec:first-of-type { border-top:none; }
+  .st-htd-h { font-size:13px; font-weight:600; margin-bottom:8px; }
+  .st-htd-exp { display:flex; gap:10px; align-items:center; padding:5px 0; font-size:12.5px; flex-wrap:wrap; }
+  .st-htd-date { color:#8a93a0; min-width:82px; }
+  .st-htd-ch { color:#8a93a0; }
+  .st-htd-etitle { flex:1; min-width:120px; }
+  .st-htd-rank { color:#4A90D9; font-weight:600; }
+  .st-htd-kpis { display:grid; grid-template-columns:repeat(5,1fr); gap:8px; }
+  .st-htd-kpi { background:rgba(128,140,160,.07); border-radius:8px; padding:8px; text-align:center; }
+  .st-htd-kpi .n { font-size:19px; font-weight:600; }
+  .st-htd-kpi .l { font-size:11px; color:#8a93a0; }
+  .st-htd-money { margin-top:8px; font-size:13px; }
+  .st-htd-comm { color:#E0A83C; }
+  .st-lt-row { display:flex; align-items:center; gap:10px; padding:4px 0; font-size:12.5px; }
+  .st-lt-lbl { min-width:96px; color:#c4ccd6; }
+  .st-lt-bar { flex:1; height:9px; background:rgba(128,128,128,.18); border-radius:5px; overflow:hidden; }
+  .st-lt-fill { height:100%; border-radius:5px; }
+  .st-lt-val { min-width:82px; text-align:right; color:#c4ccd6; }
+  .st-htd-bk { display:flex; justify-content:space-between; gap:10px; padding:7px 0; font-size:12px; border-top:1px solid rgba(128,128,128,.1); flex-wrap:wrap; }
+  .st-htd-bk-l { color:#c4ccd6; flex:1; min-width:200px; }
+  .st-htd-bk-r { white-space:nowrap; font-weight:600; }
   .st-lbody { padding:2px 13px 13px; border-top:1px solid rgba(128,128,128,.14); display:none; }
   .st-lrow.open .st-lbody { display:block; }
   .st-copyn { flex:none; width:18px; text-align:center; font-weight:600; opacity:.4; }
@@ -375,6 +404,7 @@
     </div>
     <div class="st-hint">우리 영상에 노출한 호텔별 성과입니다. 노출 횟수·최고 순위(TOP1/2/3)·확정/취소 예약을 봅니다. 수수료·거래액은 여기 안 보입니다.</div>
     <div id="st-ht-list"><div class="st-empty">불러오는 중…</div></div>
+    <div id="st-ht-detail" class="st-ht-detail"></div>
   </section>
   <section class="st-view" id="view-keyword">
     <div class="st-head">
@@ -1423,7 +1453,7 @@
     var agoda = h.name_in_agoda && h.name_in_agoda !== name ? h.name_in_agoda : '';
     var city = h.agoda_city ? (agoda ? ' · ' : '') + h.agoda_city : '';
     var subLine = (agoda || city) ? '<div class="st-ht-sub">' + esc(agoda) + esc(city) + '</div>' : '';
-    return '<div class="st-ch-card">' +
+    return '<div class="st-ch-card st-ht-click" data-hopen="' + esc(h.hid) + '">' +
       '<div class="st-ch-name">' + esc(name) + '</div>' + subLine +
       '<div class="st-ht-chips">' +
         '<span class="st-ch-chip">채널 ' + esc(chs) + '</span>' +
@@ -1433,8 +1463,83 @@
         '<span class="st-ch-chip inactive">취소 ' + canc + '건</span>' +
         '<span class="st-ch-chip">확정률 ' + rate + '</span>' +
       '</div>' +
-      '<div class="st-ht-period">' + esc(htPeriod(h)) + '</div>' +
+      '<div class="st-ht-period">' + esc(htPeriod(h)) + ' · <span class="st-ht-open">눌러서 상세 ▾</span></div>' +
     '</div>';
+  }
+
+  // 호텔 상세 (D-062: ①노출이력 ④예약·방문·취소·노쇼 ⑤리드타임 + 개별예약, 수수료=owner)
+  var htDetailOpen = null;
+  function loadHotelDetail(hid, name) {
+    var box = document.getElementById('st-ht-detail');
+    if (htDetailOpen === hid) { box.innerHTML = ''; htDetailOpen = null; return; }
+    htDetailOpen = hid;
+    box.innerHTML = '<div class="st-empty">상세 불러오는 중…</div>';
+    box.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    fetch('/api/content-hotels?hid=' + encodeURIComponent(hid), { credentials: 'same-origin' })
+      .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+      .then(function (x) {
+        if (!x.ok || !x.j.ok) throw new Error(x.j.error || '불러오지 못했습니다.');
+        box.innerHTML = hotelDetailHtml(x.j.detail, x.j.is_admin, hid, name);
+      })
+      .catch(function (e) { box.innerHTML = '<div class="st-empty">' + esc(e.message) + '</div>'; });
+  }
+  function htBar(rate) {
+    var w = rate == null ? 0 : rate;
+    var col = rate == null ? '#555' : (rate >= 70 ? '#3FB984' : (rate >= 50 ? '#E0A83C' : '#E24B4A'));
+    return '<div class="st-lt-bar"><div class="st-lt-fill" style="width:' + w + '%;background:' + col + '"></div></div>';
+  }
+  function hotelDetailHtml(d, isAdmin, hid, name) {
+    var h = '<div class="st-htd">';
+    h += '<div class="st-htd-title">' + esc(name || ('호텔 ' + hid)) + ' <span class="st-htd-hid">hid ' + esc(hid) + '</span></div>';
+
+    // ① 노출 이력
+    h += '<div class="st-htd-sec"><div class="st-htd-h">① 노출 이력 · ' + d.exposures.length + '회</div>';
+    if (d.exposures.length) {
+      h += d.exposures.map(function (e) {
+        return '<div class="st-htd-exp"><span class="st-htd-date">' + esc((e.published_at || '').slice(0, 10) || '—') + '</span>' +
+          '<span class="st-htd-ch">' + esc(e.channel_code || '') + '</span>' +
+          '<span class="st-htd-etitle">' + esc(e.title) + '</span>' +
+          '<span class="st-htd-rank">TOP' + e.rank + '</span></div>';
+      }).join('');
+    } else { h += '<div class="st-hint">아직 노출 이력이 없습니다.</div>'; }
+    h += '</div>';
+
+    // ④ 예약·방문·취소·노쇼 + 확정률
+    h += '<div class="st-htd-sec"><div class="st-htd-h">④ 예약 · 방문 · 취소 · 노쇼</div><div class="st-htd-kpis">' +
+      '<div class="st-htd-kpi"><div class="n">' + d.total + '</div><div class="l">예약</div></div>' +
+      '<div class="st-htd-kpi"><div class="n" style="color:#3FB984">' + d.done + '</div><div class="l">방문</div></div>' +
+      '<div class="st-htd-kpi"><div class="n" style="color:#E24B4A">' + d.cancelled + '</div><div class="l">취소</div></div>' +
+      '<div class="st-htd-kpi"><div class="n">' + d.noshow + '</div><div class="l">노쇼</div></div>' +
+      '<div class="st-htd-kpi"><div class="n" style="color:#4A90D9">' + (d.confirmRate == null ? '—' : d.confirmRate + '%') + '</div><div class="l">확정률</div></div>' +
+      '</div>';
+    h += '<div class="st-htd-money">예약금액 <b>$' + (d.amount || 0).toLocaleString() + '</b>' +
+      (isAdmin && d.commission != null ? ' · <span class="st-htd-comm">수수료 $' + d.commission.toLocaleString() + ' (대표님만)</span>' : '') + '</div></div>';
+
+    // ⑤ 리드타임별 확정률 (3구간)
+    h += '<div class="st-htd-sec"><div class="st-htd-h">⑤ 취소·확정률 전략 (리드타임별)</div>';
+    h += d.leadtime.map(function (b) {
+      return '<div class="st-lt-row"><span class="st-lt-lbl">' + esc(b.label) + '</span>' + htBar(b.rate) +
+        '<span class="st-lt-val">' + (b.count ? (b.rate + '% · ' + b.count + '건') : '—') + '</span></div>';
+    }).join('');
+    h += '<div class="st-hint">확정률 낮은 구간이 많으면 TOP3에 넣을 때 취소 유출 주의. (실투숙 기준)</div></div>';
+
+    // 개별 예약 (매니저 형태) — 상위 몇 건
+    h += '<div class="st-htd-sec"><div class="st-htd-h">개별 예약 · 최근 ' + Math.min(d.bookings.length, 8) + '건 / 총 ' + d.total + '</div>';
+    h += d.bookings.slice(0, 8).map(function (b) {
+      var stCol = b.status === '취소' ? '#E24B4A' : (b.status === '방문' ? '#3FB984' : '#8a93a0');
+      return '<div class="st-htd-bk"><div class="st-htd-bk-l">' +
+        '<b>' + esc((b.booked_at || '').slice(0, 10)) + ' 예약</b> · ' +
+        esc((b.checkin || '').slice(5)) + '~' + esc((b.checkout || '').slice(5)) + '·' + (b.nights || '?') + '박 · ' +
+        '성인' + (b.adults || 0) + (b.children ? '·아동' + b.children : '') + ' · ' + esc(b.room_type || '') + ' · ' + esc(b.customer_country || '') +
+        '</div><div class="st-htd-bk-r" style="color:' + stCol + '">' + esc(b.status) + ' · $' + (b.amount || 0).toLocaleString() +
+        (isAdmin && b.commission != null ? ' <span class="st-htd-comm">(수수료 $' + b.commission.toLocaleString() + ')</span>' : '') +
+        '</div></div>';
+    }).join('') || '<div class="st-hint">예약이 없습니다.</div>';
+    h += '</div>';
+
+    h += '<div class="st-hint" style="margin-top:6px">② 성과 드릴다운(조회수·클릭 채널별→영상별)은 조회수 연동 후 채워집니다 — 다음 조각.</div>';
+    h += '</div>';
+    return h;
   }
   function loadHotels() {
     var list = document.getElementById('st-ht-list');
@@ -1449,6 +1554,14 @@
         list.innerHTML = hs.length
           ? hs.map(hotelRow).join('')
           : '<div class="st-empty">아직 노출된 호텔이 없습니다.<br>올리기에서 원고를 넣어 TOP1/2/3 호텔이 잡히면 여기 나타납니다.</div>';
+        list.querySelectorAll('[data-hopen]').forEach(function (c) {
+          c.onclick = function () {
+            var hid = c.dataset.hopen;
+            var hh = hs.find(function (z) { return String(z.hid) === String(hid); });
+            var nm = hh ? (hh.name_in_script || hh.name_in_agoda || ('호텔 ' + hh.hid)) : '';
+            loadHotelDetail(hid, nm);
+          };
+        });
       })
       .catch(function (e) {
         list.innerHTML = '<div class="st-empty">' + esc(e.message) + '</div>';

@@ -151,6 +151,19 @@
   .st-hs-click:hover { outline:1px solid rgba(128,140,160,.45); }
   .st-hs-card.sel { outline:2px solid #4A90D9; }
   .st-hs-expand:not(:empty) { margin:8px 0 4px; padding-top:2px; }
+  .st-ht-resultbar { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin:6px 0 10px; padding:9px 12px; background:rgba(128,140,160,.08); border-radius:8px; }
+  .st-rb-cnt { font-size:12px; color:var(--text-secondary,#c4ccd6); }
+  .st-rb-hi { color:#4A90D9; }
+  .st-rb-sp { flex:1; }
+  .st-rb-sel { background:rgba(20,26,34,.6); color:inherit; border:0.5px solid rgba(128,128,128,.35); border-radius:7px; font-size:11.5px; padding:4px 8px; }
+  .st-rb-sel option { background:#141a22; color:#e6ebf1; }
+  .st-rb-clear { font-size:11px; color:#4A90D9; border:0.5px solid rgba(74,144,217,.5); border-radius:20px; padding:3px 11px; cursor:pointer; }
+  .st-ht-pager { display:flex; justify-content:center; gap:5px; align-items:center; margin:14px 0 4px; flex-wrap:wrap; }
+  .st-pg { min-width:30px; text-align:center; font-size:12.5px; padding:5px 9px; border:0.5px solid rgba(128,128,128,.35); border-radius:7px; cursor:pointer; }
+  .st-pg:hover { border-color:rgba(128,140,160,.6); }
+  .st-pg.cur { background:var(--bg-accent,rgba(74,144,217,.16)); border-color:#4A90D9; color:#4A90D9; }
+  .st-pg.dis { opacity:.4; cursor:default; }
+  .st-pg-dot { color:#8a93a0; padding:0 2px; }
   .st-ht-search { flex:1; min-width:180px; font-size:13px; padding:8px 12px; border-radius:10px; border:1px solid rgba(128,128,128,.35); background:#1b1f27; color:#e8ebf0; }
   .st-ht-sel { font-size:13px; padding:8px 12px; border-radius:10px; border:1px solid rgba(128,128,128,.35); background:#1b1f27; color:#e8ebf0; }
   .st-ht-sel option { background:#1b1f27; color:#e8ebf0; }
@@ -450,7 +463,9 @@
       <select id="ht-f-type" class="st-ht-sel"><option value="">유형 전체</option><option value="호텔">호텔</option><option value="리조트">리조트</option></select>
       <input type="text" id="ht-search" class="st-ht-search" placeholder="호텔명·hid 검색…">
     </div>
+    <div id="st-ht-resultbar" class="st-ht-resultbar"></div>
     <div id="st-ht-list"><div class="st-empty">불러오는 중…</div></div>
+    <div id="st-ht-pager" class="st-ht-pager"></div>
   </section>
   <section class="st-view" id="view-keyword">
     <div class="st-head">
@@ -1654,45 +1669,38 @@
     var avg = rates.length ? Math.round(rates.reduce(function (a, b) { return a + b; }, 0) / rates.length) : null;
     var soon = '<span class="st-hs-soon">연동 후</span>';
     function card(cls, label, val, sub, key) {
-      var kc = key ? ' st-hs-click" data-hsf="' + key + '"' : '"';
+      var sel = (hsCardKey && hsCardKey === key) ? ' sel' : '';
+      var kc = key ? (' st-hs-click' + sel + '" data-hsf="' + key + '"') : '"';
       return '<div class="st-hs-card ' + cls + kc + '><div class="st-hs-l">' + label + '</div><div class="st-hs-n">' + val + '</div>' + (sub ? '<div class="st-hs-s">' + sub + '</div>' : '') + '</div>';
     }
     var h = '';
     h += '<div class="st-hs-ttl">축 1 · 재사용 시점 <span>— 자동 (마지막 노출 +6개월)</span></div><div class="st-hs-row">';
     h += card('ok', '지금 쓸 수 있음', soon) + card('warn', '곧 풀림 (30일)', soon) + card('', '아직 못 씀', soon) + card('', '노출 안 함', noExpo, noExpo ? 'noexpo' : '');
-    h += '</div><div class="st-hs-expand"></div>';
+    h += '</div>';
     h += '<div class="st-hs-ttl">축 2 · 작업 상태 <span>— 큐·발행 연동 후</span></div><div class="st-hs-row">';
     h += card('', '안 건드림', soon) + card('acc', '큐에 넣음', soon) + card('', '발행됨', soon) + card('danger', '놓친 것', soon, '피크 지남·되살리기');
-    h += '</div><div class="st-hs-expand"></div>';
-    h += '<div class="st-hs-ttl">좋은 호텔 · 커버리지 <span>— 카드를 누르면 아래에 해당 호텔이 펼쳐집니다</span></div><div class="st-hs-row six">';
-    h += card('', '평균 확정률', avg == null ? '—' : avg + '%') + card('', '높음 ≥85', high, '', high ? 'high' : '') + card('', '낮음 <50', low, '', low ? 'low' : '') + card('', '전체', total, '', 'all') + card('', '나라·도시', Object.keys(countries).length + '·' + Object.keys(cities).length) + card('', '호텔·리조트', (total - resort) + '·' + resort);
-    h += '</div><div class="st-hs-expand"></div>';
+    h += '</div>';
+    h += '<div class="st-hs-ttl">좋은 호텔 · 커버리지 <span>— 카드를 누르면 아래 목록이 그 조건으로 걸러집니다</span></div><div class="st-hs-row six">';
+    h += card('', '전체', total, '', 'all') + card('', '나라·도시', Object.keys(countries).length + '·' + Object.keys(cities).length) + card('', '호텔·리조트', (total - resort) + '·' + resort) + card('', '평균 확정률', avg == null ? '—' : avg + '%') + card('', '높음 ≥85', high, '', high ? 'high' : '') + card('', '낮음 <50', low, '', low ? 'low' : '');
+    h += '</div>';
     box.innerHTML = h;
-    box.querySelectorAll('[data-hsf]').forEach(function (c) { c.onclick = function () { toggleStatusExpand(c); }; });
+    box.querySelectorAll('[data-hsf]').forEach(function (c) { c.onclick = function () { setCardFilter(c.dataset.hsf); }; });
   }
-  function hsFilter(key) {
-    return htAll.filter(function (h) {
-      var t = (h.bookings_done || 0) + (h.bookings_cancelled || 0);
-      var rate = t ? Math.round((h.bookings_done || 0) / t * 100) : null;
-      if (key === 'noexpo') return !h.exposure_count;
-      if (key === 'high') return rate != null && rate >= 85;
-      if (key === 'low') return rate != null && rate < 50;
-      if (key === 'all') return true;
-      return false;
-    });
+  var hsCardKey = null;
+  function setCardFilter(key) {
+    if (key === 'all' || hsCardKey === key) hsCardKey = null; else hsCardKey = key;
+    htPage = 1;
+    renderHotelStatus();
+    renderHotelList();
   }
-  var hsOpenKey = null;
-  function toggleStatusExpand(card) {
-    var key = card.dataset.hsf;
-    var row = card.closest('.st-hs-row');
-    var exp = row.nextElementSibling;
-    document.querySelectorAll('.st-hs-expand').forEach(function (e) { if (e !== exp) e.innerHTML = ''; });
-    document.querySelectorAll('.st-hs-card.sel').forEach(function (c) { if (c !== card) c.classList.remove('sel'); });
-    if (hsOpenKey === key) { exp.innerHTML = ''; card.classList.remove('sel'); hsOpenKey = null; return; }
-    hsOpenKey = key; card.classList.add('sel');
-    var hs = hsFilter(key);
-    exp.innerHTML = hs.length ? hs.map(hotelRow).join('') : '<div class="st-empty">해당 호텔이 없습니다.</div>';
-    bindHotelDetailClicks(exp);
+  function hsCardMatch(h) {
+    if (!hsCardKey) return true;
+    var t = (h.bookings_done || 0) + (h.bookings_cancelled || 0);
+    var rate = t ? Math.round((h.bookings_done || 0) / t * 100) : null;
+    if (hsCardKey === 'noexpo') return !h.exposure_count;
+    if (hsCardKey === 'high') return rate != null && rate >= 85;
+    if (hsCardKey === 'low') return rate != null && rate < 50;
+    return true;
   }
   function bindHotelDetailClicks(scope) {
     scope.querySelectorAll('[data-hopen]').forEach(function (c) {
@@ -1714,9 +1722,10 @@
     cSel.innerHTML = '<option value="">나라 전체</option>' + countries.map(function (c) { return '<option value="' + esc(c) + '">' + esc(c) + '</option>'; }).join('');
     citySel.innerHTML = '<option value="">도시 전체</option>' + cities.map(function (c) { return '<option value="' + esc(c) + '">' + esc(c) + '</option>'; }).join('');
     sSel.innerHTML = '<option value="">성급 전체</option>' + stars.map(function (s) { return '<option value="' + s + '">' + s + '성급</option>'; }).join('');
-    [cSel, citySel, sSel].forEach(function (el) { el.onchange = renderHotelList; });
-    var tSel = document.getElementById('ht-f-type'); if (tSel) tSel.onchange = renderHotelList;
-    var q = document.getElementById('ht-search'); if (q) q.oninput = renderHotelList;
+    function onFilter() { htPage = 1; renderHotelList(); }
+    [cSel, citySel, sSel].forEach(function (el) { el.onchange = onFilter; });
+    var tSel = document.getElementById('ht-f-type'); if (tSel) tSel.onchange = onFilter;
+    var q = document.getElementById('ht-search'); if (q) q.oninput = onFilter;
   }
   function renderHotelList() {
     var list = document.getElementById('st-ht-list');
@@ -1730,16 +1739,77 @@
       if (fcity && h.city !== fcity) return false;
       if (fs && String(h.star) !== String(fs)) return false;
       if (ftype && h.htype !== ftype) return false;
+      if (!hsCardMatch(h)) return false;
       if (q) {
         var hay = ((h.name_in_script || '') + ' ' + (h.name_in_agoda || '') + ' ' + (h.hid || '')).toLowerCase();
         if (hay.indexOf(q) < 0) return false;
       }
       return true;
     });
-    list.innerHTML = hs.length
-      ? hs.map(hotelRow).join('')
+    htSort(hs);
+    var totalN = htAll.length, resultN = hs.length;
+    var pages = Math.max(1, Math.ceil(resultN / htPageSize));
+    if (htPage > pages) htPage = pages;
+    var from = (htPage - 1) * htPageSize, to = Math.min(from + htPageSize, resultN);
+    var pageRows = hs.slice(from, to);
+    renderHotelResultBar(totalN, resultN, from, to);
+    list.innerHTML = pageRows.length
+      ? pageRows.map(hotelRow).join('')
       : '<div class="st-empty">조건에 맞는 호텔이 없습니다.</div>';
     bindHotelDetailClicks(list);
+    renderHotelPager(pages);
+  }
+  var htSortKey = 'recommend', htPage = 1, htPageSize = 50;
+  function htRate(h) { var t = (h.bookings_done || 0) + (h.bookings_cancelled || 0); return t ? (h.bookings_done || 0) / t : -1; }
+  function htSort(hs) {
+    hs.sort(function (a, b) {
+      if (htSortKey === 'confirm') return htRate(b) - htRate(a);
+      if (htSortKey === 'exposure') return (b.exposure_count || 0) - (a.exposure_count || 0);
+      // 추천순(임시): 노출 많고 + 확정률 높은 순 (수요×전략 연동 후 정식 반영)
+      return ((b.exposure_count || 0) * 2 + htRate(b)) - ((a.exposure_count || 0) * 2 + htRate(a));
+    });
+  }
+  function renderHotelResultBar(totalN, resultN, from, to) {
+    var bar = document.getElementById('st-ht-resultbar');
+    if (!bar) return;
+    var filtered = !!(hsCardKey || document.getElementById('ht-f-country').value || document.getElementById('ht-f-city').value || document.getElementById('ht-f-star').value || document.getElementById('ht-f-type').value || (document.getElementById('ht-search').value || '').trim());
+    var sortLbl = { recommend: '추천순', confirm: '확정률순', exposure: '노출순' };
+    var opts = Object.keys(sortLbl).map(function (k) { return '<option value="' + k + '"' + (htSortKey === k ? ' selected' : '') + '>' + sortLbl[k] + '</option>'; }).join('');
+    var szOpts = [25, 50, 100].map(function (n) { return '<option value="' + n + '"' + (htPageSize === n ? ' selected' : '') + '>' + n + '개씩</option>'; }).join('');
+    var cnt = filtered
+      ? '전체 <b>' + totalN.toLocaleString() + '</b> → 결과 <b class="st-rb-hi">' + resultN.toLocaleString() + '</b>개' + (resultN ? ' · ' + (from + 1) + '–' + to + ' 표시' : '')
+      : '전체 <b>' + totalN.toLocaleString() + '</b>개' + (resultN ? ' · ' + (from + 1) + '–' + to + ' 표시' : '');
+    bar.innerHTML = '<span class="st-rb-cnt">' + cnt + '</span><span class="st-rb-sp"></span>' +
+      '<select id="ht-sort" class="st-rb-sel">' + opts + '</select>' +
+      '<select id="ht-size" class="st-rb-sel">' + szOpts + '</select>' +
+      (filtered ? '<span id="ht-clear" class="st-rb-clear">전체 보기 ✕</span>' : '');
+    document.getElementById('ht-sort').onchange = function () { htSortKey = this.value; htPage = 1; renderHotelList(); };
+    document.getElementById('ht-size').onchange = function () { htPageSize = parseInt(this.value, 10); htPage = 1; renderHotelList(); };
+    var clr = document.getElementById('ht-clear');
+    if (clr) clr.onclick = function () {
+      hsCardKey = null; htPage = 1;
+      ['ht-f-country', 'ht-f-city', 'ht-f-star', 'ht-f-type'].forEach(function (id) { document.getElementById(id).value = ''; });
+      document.getElementById('ht-search').value = '';
+      renderHotelStatus(); renderHotelList();
+    };
+  }
+  function renderHotelPager(pages) {
+    var pg = document.getElementById('st-ht-pager');
+    if (!pg) return;
+    if (pages <= 1) { pg.innerHTML = ''; return; }
+    var cur = htPage, out = [];
+    function btn(p, lbl, on, cls) { return '<span class="st-pg' + (on ? ' cur' : '') + (cls ? ' ' + cls : '') + '" data-pg="' + p + '">' + (lbl || p) + '</span>'; }
+    out.push(btn(Math.max(1, cur - 1), '‹', false, cur === 1 ? 'dis' : ''));
+    var nums = [];
+    for (var p = 1; p <= pages; p++) { if (p === 1 || p === pages || (p >= cur - 1 && p <= cur + 1)) nums.push(p); }
+    var last = 0;
+    nums.forEach(function (p) { if (p - last > 1) out.push('<span class="st-pg-dot">…</span>'); out.push(btn(p, null, p === cur)); last = p; });
+    out.push(btn(Math.min(pages, cur + 1), '›', false, cur === pages ? 'dis' : ''));
+    pg.innerHTML = out.join('');
+    pg.querySelectorAll('.st-pg[data-pg]').forEach(function (b) {
+      if (b.classList.contains('dis')) return;
+      b.onclick = function () { htPage = parseInt(this.dataset.pg, 10); renderHotelList(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+    });
   }
 
   /* ── 채널 메뉴 (D-064) ───────────────────────────────────── */

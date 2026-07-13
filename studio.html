@@ -1496,7 +1496,7 @@
     h += '<div class="st-htd-sec"><div class="st-htd-h">① 노출 이력 · ' + d.exposures.length + '회</div>';
     if (d.exposures.length) {
       h += d.exposures.map(function (e) {
-        return '<div class="st-htd-exp"><span class="st-htd-date">' + esc((e.published_at || '').slice(0, 10) || '—') + '</span>' +
+        return '<div class="st-htd-exp"><span class="st-htd-date">' + esc((e.published_at || '').slice(0, 10) || '미발행(대기)') + '</span>' +
           '<span class="st-htd-ch">' + esc(e.channel_code || '') + '</span>' +
           '<span class="st-htd-etitle">' + esc(e.title) + '</span>' +
           '<span class="st-htd-rank">TOP' + e.rank + '</span></div>';

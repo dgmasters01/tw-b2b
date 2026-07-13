@@ -221,6 +221,22 @@
   .st-flow-n.muted { color:#8a93a0; font-size:13px; }
   .st-flow-l { font-size:10px; color:#8a93a0; }
   .st-flow-a { color:#8a93a0; font-size:13px; }
+  .st-perf-money { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:8px; }
+  .st-pm { background:rgba(128,140,160,.1); border-radius:8px; padding:9px 11px; }
+  .st-pm.good { background:rgba(93,202,165,.14); }
+  .st-pm.warn { background:rgba(239,159,39,.14); border:1px dashed rgba(239,159,39,.5); }
+  .st-pm .l { font-size:10.5px; color:#8a93a0; }
+  .st-pm.good .l { color:#3FB984; } .st-pm.warn .l { color:#E0A83C; }
+  .st-pm .n { font-size:17px; font-weight:500; margin-top:1px; }
+  .st-pm.good .n { color:#3FB984; } .st-pm.warn .n { color:#E0A83C; } .st-pm .n.acc { color:#4A90D9; }
+  .st-funnel { display:grid; grid-template-columns:1fr auto 1fr auto 1fr auto 1fr; gap:5px; align-items:stretch; }
+  .st-fn { background:rgba(128,140,160,.1); border-radius:8px; padding:10px 6px; text-align:center; }
+  .st-fn.done { background:rgba(93,202,165,.16); }
+  .st-fn .v { font-size:17px; font-weight:500; }
+  .st-fn .v.muted { font-size:13px; color:#8a93a0; }
+  .st-fn.done .v { color:#3FB984; }
+  .st-fn .k { font-size:10px; color:#8a93a0; margin-top:2px; }
+  .st-fa { display:flex; align-items:center; justify-content:center; color:#8a93a0; }
   .st-lbody { padding:2px 13px 13px; border-top:1px solid rgba(128,128,128,.14); display:none; }
   .st-lrow.open .st-lbody { display:block; }
   .st-copyn { flex:none; width:18px; text-align:center; font-weight:600; opacity:.4; }
@@ -1617,20 +1633,25 @@
     var strong = d.leadtime.filter(function (b) { return b.count; }).sort(function (a, b) { return (b.rate || 0) - (a.rate || 0); })[0];
     var strongTxt = strong ? (strong.label.split('(')[0].trim() + ' 강함') : '—';
     h += '<div class="st-htd-sec"><div class="st-htd-h">성과 종합 — 얼마나 봐서 얼마나 예약됐나</div>';
-    h += '<div class="st-flow">' +
-      '<div class="st-flow-c"><div class="st-flow-n muted">연동 후</div><div class="st-flow-l">조회</div></div>' +
-      '<div class="st-flow-a">›</div>' +
-      '<div class="st-flow-c"><div class="st-flow-n muted">연동 후</div><div class="st-flow-l">클릭</div></div>' +
-      '<div class="st-flow-a">›</div>' +
-      '<div class="st-flow-c"><div class="st-flow-n">' + d.total + '</div><div class="st-flow-l">예약</div></div>' +
-      '<div class="st-flow-a">›</div>' +
-      '<div class="st-flow-c"><div class="st-flow-n" style="color:#3FB984">' + d.done + '</div><div class="st-flow-l">확정</div></div>' +
+    h += '<div class="st-perf-money">' +
+      '<div class="st-pm good"><div class="l">예약금액</div><div class="n">$' + (d.amount || 0).toLocaleString() + '</div></div>' +
+      (isAdmin && d.commission != null ? '<div class="st-pm warn"><div class="l">🔒 수수료 · 대표님만</div><div class="n">$' + d.commission.toLocaleString() + '</div></div>' : '') +
+      '<div class="st-pm"><div class="l">확정률</div><div class="n acc">' + (d.confirmRate == null ? '—' : d.confirmRate + '%') + '</div></div>' +
+      '</div>';
+    h += '<div class="st-funnel">' +
+      '<div class="st-fn"><div class="v muted">연동 후</div><div class="k">조회</div></div>' +
+      '<div class="st-fa">›</div>' +
+      '<div class="st-fn"><div class="v muted">연동 후</div><div class="k">클릭</div></div>' +
+      '<div class="st-fa">›</div>' +
+      '<div class="st-fn"><div class="v">' + d.total + '</div><div class="k">예약</div></div>' +
+      '<div class="st-fa">›</div>' +
+      '<div class="st-fn done"><div class="v">' + d.done + '</div><div class="k">확정</div></div>' +
       '</div>';
     h += '<div class="st-htd-kpis" style="grid-template-columns:repeat(2,1fr);margin-top:8px">' +
       '<div class="st-htd-kpi"><div class="n">' + (expN ? (expN + '회 · TOP' + bestRank) : '—') + '</div><div class="l">노출</div></div>' +
       '<div class="st-htd-kpi"><div class="n">' + strongTxt + '</div><div class="l">리드타임 확정</div></div>' +
       '</div>';
-    h += '<div class="st-hint" style="margin-top:6px">조회·클릭은 유튜브 연동·추적 링크 후 채워짐(지금 "연동 후"). 예약금액·확정률은 실데이터.</div></div>';
+    h += '<div class="st-hint" style="margin-top:6px">조회·클릭은 유튜브 연동·추적 링크 후 채워짐(지금 "연동 후"). 예약·확정·금액·확정률은 실데이터. 수수료는 대표님만.</div></div>';
 
     // ⑤ 리드타임별 확정률 (3구간)
     h += '<div class="st-htd-sec"><div class="st-htd-h">⑤ 취소·확정률 전략 (리드타임별)</div>';

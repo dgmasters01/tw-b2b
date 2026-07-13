@@ -1644,6 +1644,7 @@
     ltRows.forEach(function (r) { r.onclick = function () { show(r.getAttribute('data-ltb')); }; });
     if (allBtn) allBtn.onclick = function () { show('all'); };
   }
+  function htBar(rate) {
     var w = rate == null ? 0 : rate;
     var col = rate == null ? '#555' : (rate >= 70 ? '#3FB984' : (rate >= 50 ? '#E0A83C' : '#E24B4A'));
     return '<div class="st-lt-bar"><div class="st-lt-fill" style="width:' + w + '%;background:' + col + '"></div></div>';

@@ -88,7 +88,7 @@ export default async function handler(req, res) {
     try {
       const { data: bks, error: be } = await sb
         .from('bookings_agoda')
-        .select('booked_at,checkin_date,checkout_date,nights,num_adults,num_children,num_rooms,room_type,customer_country,booking_amount_usd,commission_usd,booking_status,is_completed,is_cancelled,channel_code')
+        .select('reservation_no,booked_at,checkin_date,checkout_date,nights,num_rooms,customer_country,booking_amount_usd,commission_usd,booking_status,is_completed,is_cancelled,device_type,channel_code')
         .eq('hotel_id_agoda', hid)
         .order('booked_at', { ascending: false });
       if (be) throw be;
@@ -116,15 +116,23 @@ export default async function handler(req, res) {
         count: x.n, done: x.d, rate: x.n ? Math.round((x.d / x.n) * 100) : null,
       }));
 
-      const bookings = rows.slice(0, 50).map((r) => ({
-        booked_at: r.booked_at, checkin: r.checkin_date, checkout: r.checkout_date,
-        nights: r.nights, adults: r.num_adults, children: r.num_children, rooms: r.num_rooms,
-        room_type: r.room_type, customer_country: r.customer_country,
-        amount: Math.round(Number(r.booking_amount_usd) || 0),
-        commission: who.isAdmin ? Math.round(Number(r.commission_usd) || 0) : null,
-        status: r.is_cancelled ? '취소' : (r.is_completed ? '방문' : '예정'),
-        channel_code: r.channel_code,
-      }));
+      const bookings = rows.slice(0, 50).map((r) => {
+        var st = r.is_cancelled
+          ? ((r.booking_status || '').toLowerCase().indexOf('customer') >= 0 ? '고객취소' : '기타취소')
+          : (r.is_completed ? '방문' : '예정');
+        return {
+          reservation_no: r.reservation_no,
+          booked_at: r.booked_at, checkin: r.checkin_date, checkout: r.checkout_date,
+          nights: r.nights, rooms: r.num_rooms,
+          customer_country: r.customer_country,
+          device: r.device_type || null,
+          amount: r.is_cancelled ? null : Math.round(Number(r.booking_amount_usd) || 0),
+          commission: (who.isAdmin && !r.is_cancelled) ? Math.round(Number(r.commission_usd) || 0) : null,
+          status: st,
+          cancelled: !!r.is_cancelled,
+          channel_code: r.channel_code,
+        };
+      });
 
       const { data: pubs } = await sb
         .from('publications')

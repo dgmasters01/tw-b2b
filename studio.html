@@ -466,7 +466,12 @@
         label: '맡음 · ' + shortMail(p.claimed_by_email) + (d ? ' · ' + d + '일째' : '') + (stale ? ' · 방치' : '')
       };
     }
-    return { cls: 'draft', label: '대기' };
+    var du = daysSince(p.created_at);
+    var staleU = du >= 3;
+    return {
+      cls: staleU ? 'stale' : 'draft',
+      label: '대기' + (du ? ' · ' + du + '일째' : '') + (staleU ? ' · 방치' : '')
+    };
   }
 
   function srcLabel(p) {

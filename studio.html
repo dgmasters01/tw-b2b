@@ -385,6 +385,8 @@
   .st-pf-block { margin-top:22px; }
   .st-pf-h { font-size:13px; font-weight:500; opacity:.75; margin-bottom:10px; }
   .st-pf-goal { background:rgba(78,222,163,.08); border:1px solid rgba(78,222,163,.25); border-radius:10px; padding:11px 14px; font-size:12.5px; line-height:1.6; margin:10px 0 16px; }
+  .st-pf-asof { margin:0 0 14px; }
+  .st-pf-asof-badge { display:inline-block; font-size:11.5px; padding:5px 11px; border-radius:8px; background:rgba(239,159,39,.12); border:1px solid rgba(239,159,39,.32); color:#EF9F27; }
   .st-pf-periods { display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin-bottom:14px; }
   .st-pf-per, .st-pf-cmp { font-size:12px; padding:5px 12px; border-radius:18px; border:1px solid rgba(128,128,128,.3); background:none; color:inherit; cursor:pointer; opacity:.7; }
   .st-pf-per.on { background:#4edea3; color:#051424; border-color:#4edea3; opacity:1; font-weight:500; }
@@ -601,6 +603,7 @@
     </div>
     <div class="st-pf-goal">📊 일·주·월 성과를 채널별로 <b>5초에</b> 보고 → 잘되는 건 <b>더 밀고</b>, 새는 건 눌러서 <b>고치러</b>. 숫자만 보는 판이 아니라 다음 행동으로 잇는 판입니다.</div>
     <div class="st-pf-periods" id="st-pf-periods"></div>
+    <div class="st-pf-asof" id="st-pf-asof"></div>
     <div class="st-pf-cards" id="st-pf-cards"></div>
     <div class="st-hint">예약금액은 손님이 호텔에 낸 돈(호텔 매출)입니다 — 우리 수익이 아니라 실적입니다. 우리 수익인 수수료는 대표님만 봅니다. 조회수·클릭은 영상이 발행되면 채워집니다.</div>
     <div class="st-pf-lens" id="st-pf-lens"></div>
@@ -1655,7 +1658,15 @@
     }
     head.textContent='채널별 순위 — 위=밀 것 / 아래·빨강=고칠 것';
     var chs=d.channels||[];
-    if(!chs.length){ box.innerHTML='<div class="st-empty">이 기간에 예약이 없습니다.</div>'; return; }
+    if(!chs.length){
+      var msg='이 기간에 예약이 없습니다.';
+      if(pfState.period!=='all' && d.data_asof && d.data_asof.last_booking){
+        msg='이 기간엔 예약이 없습니다. 예약 데이터는 <b>'+d.data_asof.last_booking+'</b>까지라 최근 기간은 비어 있어요. <a href="#" id="pf-goall" style="color:#4edea3;text-decoration:underline">전체로 보기</a>';
+      }
+      box.innerHTML='<div class="st-empty">'+msg+'</div>';
+      var g=document.getElementById('pf-goall'); if(g){ g.onclick=function(e){ e.preventDefault(); pfState.period='all'; loadPerf(); }; }
+      return;
+    }
     var showComm = ('commission_usd' in chs[0]);
     box.innerHTML = chs.map(function(c){
       var bad = (c.cancel_rate!=null && c.cancel_rate>=55);
@@ -1684,6 +1695,12 @@
       '<div class="st-pf-bars">'+bars+'</div><div class="st-pf-blabels">'+labels+'</div>'+
       '<div style="font-size:10px;opacity:.5;margin-top:8px">기간을 바꾸면 여기도 그 기간으로 · 막대=예약 건수</div>';
   }
+  function pfRenderAsof(d){
+    var el=document.getElementById('st-pf-asof'); if(!el) return;
+    var a=(d && d.data_asof)||{};
+    if(!a.last_booking){ el.innerHTML=''; return; }
+    el.innerHTML='<span class="st-pf-asof-badge">🕐 예약 데이터: <b>'+a.last_booking+'</b>까지 반영'+(a.last_upload?' · 마지막 아고다 업로드 '+a.last_upload:'')+'</span>';
+  }
   function loadPerf(){
     pfRenderPeriods(); pfRenderLens();
     var box=document.getElementById('st-pf-table');
@@ -1707,7 +1724,7 @@
           pfCardHtml('클릭', '<span style="opacity:.4">—</span>', '') +
           (showComm ? pfCardHtml('🔒 수수료 (대표님만)', pfMoney(s.commission_usd), '', true) : '');
         document.getElementById('st-pf-cards').innerHTML=cards;
-        pfRenderTable(d); pfRenderTrend(d);
+        pfRenderAsof(d); pfRenderTable(d); pfRenderTrend(d);
       })
       .catch(function(e){ box.innerHTML='<div class="st-empty">'+esc(e.message)+'</div>'; });
   }

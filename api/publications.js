@@ -153,6 +153,31 @@ export default async function handler(req, res) {
       return res.status(200).json({ ok: true, row: data });
     }
 
+    // 담당자 지정·재배정 = 대표님(owner)+관리자(admin) 전용 (설계 §8).
+    //   미지정 원고 배정 + 이미 맡은 것 뺏어서 재배정. assignee_email='' 이면 미지정으로 되돌림.
+    if (action === 'assign') {
+      if (!auth.isAdmin) return res.status(403).json({ ok: false, error: '담당자 지정·재배정은 대표님·관리자만 할 수 있습니다.' });
+      const { data: cur } = await sb.from('publications').select('status').eq('id', id).maybeSingle();
+      if (!cur) return res.status(404).json({ ok: false, error: '없는 원고입니다.' });
+      if (cur.status === 'published') return res.status(409).json({ ok: false, error: '이미 발행된 원고입니다.' });
+      const email = (b.assignee_email || '').trim().toLowerCase();
+      let patch;
+      if (!email) {
+        patch = { claimed_by: null, claimed_by_email: null, claimed_at: null, updated_at: new Date().toISOString() };
+      } else {
+        let uid = null;
+        try {
+          const { data: list } = await sb.auth.admin.listUsers();
+          const found = ((list && list.users) || []).find(function (u) { return (u.email || '').toLowerCase() === email; });
+          uid = found ? found.id : null;
+        } catch (e) { /* 조회 실패 시 이메일만 저장 (화면·필터는 이메일 기준) */ }
+        patch = { claimed_by: uid, claimed_by_email: email, claimed_at: new Date().toISOString(), updated_at: new Date().toISOString() };
+      }
+      const { data, error } = await sb.from('publications').update(patch).eq('id', id).select().single();
+      if (error) return res.status(500).json({ ok: false, error: error.message });
+      return res.status(200).json({ ok: true, row: data });
+    }
+
     // 아고다 파트너 링크 3개 붙여넣기 → 원고 다시 만들어 장부 갱신
     if (action === 'links') {
       const { links_text } = b;

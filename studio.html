@@ -384,6 +384,32 @@
   .st-pf-card .l { font-size:11px; opacity:.6; margin-top:4px; }
   .st-pf-block { margin-top:22px; }
   .st-pf-h { font-size:13px; font-weight:500; opacity:.75; margin-bottom:10px; }
+  .st-pf-goal { background:rgba(78,222,163,.08); border:1px solid rgba(78,222,163,.25); border-radius:10px; padding:11px 14px; font-size:12.5px; line-height:1.6; margin:10px 0 16px; }
+  .st-pf-periods { display:flex; flex-wrap:wrap; gap:6px; align-items:center; margin-bottom:14px; }
+  .st-pf-per, .st-pf-cmp { font-size:12px; padding:5px 12px; border-radius:18px; border:1px solid rgba(128,128,128,.3); background:none; color:inherit; cursor:pointer; opacity:.7; }
+  .st-pf-per.on { background:#4edea3; color:#051424; border-color:#4edea3; opacity:1; font-weight:500; }
+  .st-pf-cmp.on { background:rgba(78,222,163,.15); border-color:rgba(78,222,163,.4); color:#4edea3; opacity:1; }
+  .st-pf-delta { font-size:10px; margin-top:3px; }
+  .st-pf-delta.up { color:#4edea3; } .st-pf-delta.down { color:#E24B4A; }
+  .st-pf-lens { display:flex; gap:4px; background:rgba(128,128,128,.12); padding:4px; border-radius:10px; margin-bottom:16px; width:fit-content; }
+  .st-pf-lensbtn { font-size:13px; padding:6px 14px; border-radius:7px; border:none; background:none; color:inherit; cursor:pointer; opacity:.55; }
+  .st-pf-lensbtn.on { background:rgba(255,255,255,.1); opacity:1; font-weight:500; }
+  .st-pf-row { display:flex; align-items:center; gap:10px; padding:11px 13px; border:1px solid rgba(128,128,128,.18); border-radius:9px; margin-bottom:7px; font-size:13px; flex-wrap:wrap; }
+  .st-pf-row .rk { font-weight:600; width:26px; opacity:.7; }
+  .st-pf-row .nm { flex:1; font-weight:500; min-width:120px; }
+  .st-pf-row .mt { opacity:.8; font-size:12px; white-space:nowrap; }
+  .st-pf-row.good { background:rgba(78,222,163,.07); border-color:rgba(78,222,163,.25); }
+  .st-pf-row.bad { background:rgba(226,75,74,.07); border-color:rgba(226,75,74,.25); }
+  .st-pf-badge { font-size:10px; border-radius:5px; padding:1px 7px; margin-left:6px; white-space:nowrap; }
+  .st-pf-badge.g { background:rgba(78,222,163,.15); color:#4edea3; }
+  .st-pf-badge.b { background:rgba(226,75,74,.15); color:#E24B4A; }
+  .st-pf-fix { color:#E24B4A; font-size:11px; white-space:nowrap; }
+  .st-pf-comm { color:#4edea3; }
+  .st-pf-trend { margin-top:24px; background:rgba(128,128,128,.06); border-radius:10px; padding:14px 16px; }
+  .st-pf-bars { display:flex; align-items:flex-end; gap:4px; height:90px; margin:12px 0 4px; }
+  .st-pf-bars .bar { flex:1; background:#4edea3; border-radius:2px 2px 0 0; min-height:2px; opacity:.85; }
+  .st-pf-blabels { display:flex; gap:4px; }
+  .st-pf-blabels span { flex:1; font-size:8.5px; opacity:.5; text-align:center; }
   /* ── 키워드 (D-060) ── */
   .st-kw-rank { display:inline-block; min-width:22px; text-align:center; font-weight:600; opacity:.5; margin-right:9px; }
   .st-ch-chip.new { color:#1D9E75; border-color:#5DCAA5; font-weight:600; }
@@ -573,10 +599,13 @@
     <div class="st-head">
       <div><div class="st-h">성과표</div><div class="st-sub" id="st-pf-sub">불러오는 중…</div></div>
     </div>
+    <div class="st-pf-goal">📊 일·주·월 성과를 채널별로 <b>5초에</b> 보고 → 잘되는 건 <b>더 밀고</b>, 새는 건 눌러서 <b>고치러</b>. 숫자만 보는 판이 아니라 다음 행동으로 잇는 판입니다.</div>
+    <div class="st-pf-periods" id="st-pf-periods"></div>
     <div class="st-pf-cards" id="st-pf-cards"></div>
-    <div class="st-hint">채널·영상·호텔 성과를 한눈에. 스튜디오는 수수료·거래액을 보지 않습니다. 조회수·클릭은 영상이 발행되면 채워집니다.</div>
-    <div class="st-pf-block"><div class="st-pf-h">채널별</div><div id="st-pf-channels"><div class="st-empty">불러오는 중…</div></div></div>
-    <div class="st-pf-block"><div class="st-pf-h">영상별</div><div id="st-pf-videos"><div class="st-empty">불러오는 중…</div></div></div>
+    <div class="st-hint">예약금액은 손님이 호텔에 낸 돈(호텔 매출)입니다 — 우리 수익이 아니라 실적입니다. 우리 수익인 수수료는 대표님만 봅니다. 조회수·클릭은 영상이 발행되면 채워집니다.</div>
+    <div class="st-pf-lens" id="st-pf-lens"></div>
+    <div class="st-pf-block"><div class="st-pf-h" id="st-pf-tablehead">채널별 순위</div><div id="st-pf-table"><div class="st-empty">불러오는 중…</div></div></div>
+    <div class="st-pf-trend" id="st-pf-trend"></div>
   </section>
   <section class="st-view" id="view-hotel">
     <div class="st-head">
@@ -1573,65 +1602,114 @@
       });
   }
 
-  /* ── 성과표 (D-060 · 전 채널·영상·호텔 종합) ──────────────────
-   * 수수료·거래액 안 봄. 조회수·클릭은 발행 영상 생기면 채워짐(현재 —). */
-  function pfCard(n, l) {
-    return '<div class="st-pf-card"><div class="n">' + n + '</div><div class="l">' + l + '</div></div>';
+  /* -- 성과표 (D-063 최종 UX / 2026-07-13) --------------------
+   * 예약금액=호텔매출(전원공개), 수수료=우리수익(owner만, 서버가 안주면 안뜸).
+   * 기간이 화면 전체 지배 + 이전기간 비교. 채널별 실데이터, 영상별.호텔별=연동후. */
+  var PF_PERIODS = [
+    { k:'today', l:'오늘' }, { k:'yesterday', l:'어제' }, { k:'last7', l:'최근 7일' },
+    { k:'last30', l:'최근 30일' }, { k:'month', l:'이번 달' }, { k:'last90', l:'최근 3개월' },
+    { k:'all', l:'전체' }
+  ];
+  var pfState = { period:'all', compare:false, lens:'channel' };
+  var pfLast = null;
+
+  function pfMoney(n){ if(n==null) return '—'; if(n>=1000) return '$'+Math.round(n/1000)+'K'; return '$'+n; }
+  function pfDelta(cur, prev, isPct){
+    if(prev==null || cur==null) return '';
+    if(isPct){ var d=Math.round((cur-prev)*10)/10; if(d===0) return ''; return (d>0?'▲':'▼')+Math.abs(d)+'%p'; }
+    if(!prev) return '';
+    var p=Math.round((cur-prev)/prev*100); if(p===0) return ''; return (p>0?'▲':'▼')+Math.abs(p)+'%';
   }
-  function pfRate(done, canc) { var t = done + canc; return t ? Math.round(done / t * 100) + '%' : '—'; }
-  function pfChannelRow(c) {
-    var off = c.is_active === false ? ' <span class="st-ch-chip inactive">비활성</span>' : '';
-    return '<div class="st-ch-card">' +
-      '<div class="st-ch-name">' + esc(c.name || c.code) + off + '</div>' +
-      '<div class="st-ht-chips">' +
-        '<span class="st-ch-chip">영상 ' + (c.videos || 0) + '개</span>' +
-        '<span class="st-ch-chip active">확정 ' + (c.bookings_done || 0) + '건</span>' +
-        '<span class="st-ch-chip inactive">취소 ' + (c.bookings_cancelled || 0) + '건</span>' +
-        '<span class="st-ch-chip">$100+ ' + (c.bookings_100plus || 0) + '건</span>' +
-        '<span class="st-ch-chip">확정률 ' + pfRate(c.bookings_done || 0, c.bookings_cancelled || 0) + '</span>' +
-        '<span class="st-ch-chip">조회수 —</span>' +
-      '</div>' +
-    '</div>';
+  function pfDeltaEl(cur, prev, isPct, goodUp){
+    var t=pfDelta(cur,prev,isPct); if(!t) return '';
+    var up=t.charAt(0)==='▲'; var good = goodUp ? up : !up;
+    return '<div class="st-pf-delta '+(good?'up':'down')+'">'+t+' vs 이전</div>';
   }
-  function pfVideoRow(v, chName) {
-    var stLabel = v.published ? '발행됨' : (v.status === 'draft' ? '준비' : (v.status || '준비'));
-    var hotels = (v.hotels || []).map(function (h) {
-      return 'TOP' + (h.rank || '?') + ' ' + esc(h.name || h.hid);
-    }).join(' · ') || '노출 호텔 없음';
-    var cn = chName[v.channel_code] || v.channel_code || '—';
-    return '<div class="st-ch-card">' +
-      '<div class="st-ch-name">' + esc(v.title || '(제목 없음)') + '</div>' +
-      '<div class="st-ht-sub">' + esc(cn) + ' · ' + esc(stLabel) + '</div>' +
-      '<div class="st-ht-chips">' +
-        '<span class="st-ch-chip">' + hotels + '</span>' +
-        '<span class="st-ch-chip">조회수 —</span>' +
-      '</div>' +
-    '</div>';
+  function pfCardHtml(label, val, deltaHtml, accent){
+    return '<div class="st-pf-card"'+(accent?' style="border-color:rgba(78,222,163,.35);background:rgba(78,222,163,.06)"':'')+'>' +
+      '<div class="l">'+label+'</div><div class="n">'+val+'</div>'+(deltaHtml||'')+'</div>';
   }
-  function loadPerf() {
-    var chList = document.getElementById('st-pf-channels');
-    var vidList = document.getElementById('st-pf-videos');
-    fetch('/api/content-performance', { credentials: 'same-origin' })
-      .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
-      .then(function (x) {
-        if (!x.ok || !x.j.ok) throw new Error(x.j.error || '불러오지 못했습니다.');
-        var s = x.j.summary || {}, chs = x.j.channels || [], vids = x.j.videos || [];
-        document.getElementById('st-pf-sub').textContent =
-          (s.channels || 0) + '개 채널 · 영상 ' + (s.videos || 0) + '개 · 노출 호텔 ' + (s.hotels || 0) + '곳';
-        document.getElementById('st-pf-cards').innerHTML =
-          pfCard(s.channels || 0, '채널') + pfCard(s.videos || 0, '영상(원고)') +
-          pfCard(s.hotels || 0, '노출 호텔') + pfCard(s.bookings_done || 0, '확정예약');
-        var chName = {};
-        chs.forEach(function (c) { chName[c.code] = c.name; });
-        chList.innerHTML = chs.length ? chs.map(pfChannelRow).join('') : '<div class="st-empty">채널이 없습니다.</div>';
-        vidList.innerHTML = vids.length
-          ? vids.map(function (v) { return pfVideoRow(v, chName); }).join('')
-          : '<div class="st-empty">아직 올린 영상(원고)이 없습니다.</div>';
+  function pfRenderPeriods(){
+    var el=document.getElementById('st-pf-periods');
+    var h = PF_PERIODS.map(function(p){ return '<button class="st-pf-per'+(p.k===pfState.period?' on':'')+'" data-per="'+p.k+'">'+p.l+'</button>'; }).join('');
+    h += '<span style="width:1px;height:18px;background:rgba(128,128,128,.3);margin:0 4px"></span>';
+    h += '<button class="st-pf-cmp'+(pfState.compare?' on':'')+'" id="st-pf-cmpbtn">↔ 이전 기간과 비교</button>';
+    el.innerHTML=h;
+    el.querySelectorAll('.st-pf-per').forEach(function(b){ b.onclick=function(){ pfState.period=b.dataset.per; loadPerf(); }; });
+    var cb=document.getElementById('st-pf-cmpbtn'); cb.onclick=function(){ pfState.compare=!pfState.compare; loadPerf(); };
+  }
+  function pfRenderLens(){
+    var el=document.getElementById('st-pf-lens');
+    var lenses=[{k:'channel',l:'채널별'},{k:'video',l:'영상별'},{k:'hotel',l:'호텔별'}];
+    el.innerHTML=lenses.map(function(x){ return '<button class="st-pf-lensbtn'+(x.k===pfState.lens?' on':'')+'" data-lens="'+x.k+'">'+x.l+'</button>'; }).join('');
+    el.querySelectorAll('.st-pf-lensbtn').forEach(function(b){ b.onclick=function(){ pfState.lens=b.dataset.lens; pfRenderLens(); pfRenderTable(pfLast); }; });
+  }
+  function pfRenderTable(d){
+    var box=document.getElementById('st-pf-table');
+    var head=document.getElementById('st-pf-tablehead');
+    if(!d){ return; }
+    if(pfState.lens!=='channel'){
+      head.textContent = pfState.lens==='video' ? '영상별' : '호텔별';
+      box.innerHTML='<div class="st-empty">영상별·호텔별은 예약이 어느 영상·호텔에서 왔는지 연결(추적링크·hid)된 뒤 채워집니다. 지금은 채널별로 보세요.</div>';
+      return;
+    }
+    head.textContent='채널별 순위 — 위=밀 것 / 아래·빨강=고칠 것';
+    var chs=d.channels||[];
+    if(!chs.length){ box.innerHTML='<div class="st-empty">이 기간에 예약이 없습니다.</div>'; return; }
+    var showComm = ('commission_usd' in chs[0]);
+    box.innerHTML = chs.map(function(c){
+      var bad = (c.cancel_rate!=null && c.cancel_rate>=55);
+      var good = (c.rank===1);
+      var cls = bad ? ' bad' : (good ? ' good' : '');
+      var badge = good ? '<span class="st-pf-badge g">잘됨 · 더 밀기</span>' : (bad ? '<span class="st-pf-badge b">취소 '+c.cancel_rate+'% · 새는 중</span>' : '');
+      var right = bad
+        ? '<span class="st-pf-fix">취소 '+c.cancelled+' · 호텔⑤로 고치러 →</span>'
+        : '<span class="mt">확정률 '+(c.confirm_rate!=null?c.confirm_rate+'%':'—')+'</span><span class="mt">'+pfMoney(c.amount_usd)+'</span>'+(showComm?'<span class="mt st-pf-comm">수수료 '+pfMoney(c.commission_usd)+'</span>':'');
+      return '<div class="st-pf-row'+cls+'">'+
+        '<span class="rk">#'+c.rank+'</span>'+
+        '<span class="nm">'+esc(c.name)+badge+'</span>'+
+        '<span class="mt">예약 '+c.bookings+'</span>'+
+        right+'</div>';
+    }).join('');
+  }
+  function pfRenderTrend(d){
+    var el=document.getElementById('st-pf-trend');
+    var t=d.trend||[];
+    if(!t.length){ el.innerHTML='<div class="st-pf-h">월별 추세</div><div class="st-empty">이 기간엔 추세로 그릴 예약이 없습니다.</div>'; return; }
+    var max=Math.max.apply(null, t.map(function(x){return x.bookings;}))||1;
+    var daily = (t[0].key||'').length===10;
+    var bars=t.map(function(x){ var h=Math.round(x.bookings/max*100); return '<div class="bar" style="height:'+h+'%" title="'+x.key+' 예약 '+x.bookings+'"></div>'; }).join('');
+    var labels=t.map(function(x){ var lb = daily ? x.key.slice(8) : (x.key.slice(5)+'월'); return '<span>'+lb+'</span>'; }).join('');
+    el.innerHTML='<div class="st-pf-h" style="margin-bottom:2px">월별 추세 <span style="font-weight:400;opacity:.6;font-size:11px">— 어느 '+(daily?'날':'달')+'이 강했나 (순위표는 어느 채널이 강했나)</span></div>'+
+      '<div class="st-pf-bars">'+bars+'</div><div class="st-pf-blabels">'+labels+'</div>'+
+      '<div style="font-size:10px;opacity:.5;margin-top:8px">기간을 바꾸면 여기도 그 기간으로 · 막대=예약 건수</div>';
+  }
+  function loadPerf(){
+    pfRenderPeriods(); pfRenderLens();
+    var box=document.getElementById('st-pf-table');
+    box.innerHTML='<div class="st-empty">불러오는 중…</div>';
+    var qs='?period='+encodeURIComponent(pfState.period)+(pfState.compare?'&compare=1':'');
+    fetch('/api/content-performance'+qs, { credentials:'same-origin' })
+      .then(function(r){ return r.json().then(function(j){ return {ok:r.ok,j:j}; }); })
+      .then(function(x){
+        if(!x.ok||!x.j.ok) throw new Error(x.j.error||'불러오지 못했습니다.');
+        var d=x.j; pfLast=d;
+        var s=d.summary||{}, c=d.compare||null;
+        document.getElementById('st-pf-sub').textContent='채널 '+((d.channels||[]).length)+'개 · 영상 '+(d.video_count||0)+'개 · 이 기간 예약 '+(s.bookings||0)+'건';
+        var showComm = ('commission_usd' in s);
+        var cards =
+          pfCardHtml('예약', (s.bookings||0).toLocaleString(), c?pfDeltaEl(s.bookings,c.bookings,false,true):'') +
+          pfCardHtml('확정률', s.confirm_rate!=null?s.confirm_rate+'%':'—', c?pfDeltaEl(s.confirm_rate,c.confirm_rate,true,true):'') +
+          pfCardHtml('취소율', s.cancel_rate!=null?s.cancel_rate+'%':'—', c?pfDeltaEl(s.cancel_rate,c.cancel_rate,true,false):'') +
+          pfCardHtml('예약금액 (호텔이 받은 돈)', pfMoney(s.amount_usd), c?pfDeltaEl(s.amount_usd,c.amount_usd,false,true):'') +
+          pfCardHtml('영상 수', (d.video_count||0), '') +
+          pfCardHtml('조회수', '<span style="opacity:.4">—</span>', '') +
+          pfCardHtml('클릭', '<span style="opacity:.4">—</span>', '') +
+          (showComm ? pfCardHtml('🔒 수수료 (대표님만)', pfMoney(s.commission_usd), '', true) : '');
+        document.getElementById('st-pf-cards').innerHTML=cards;
+        pfRenderTable(d); pfRenderTrend(d);
       })
-      .catch(function (e) {
-        chList.innerHTML = '<div class="st-empty">' + esc(e.message) + '</div>';
-        vidList.innerHTML = '';
-      });
+      .catch(function(e){ box.innerHTML='<div class="st-empty">'+esc(e.message)+'</div>'; });
   }
 
   /* ── 호텔 메뉴 (D-062 · BL-CONTENT-HOTEL-VIEWS) ──────────────

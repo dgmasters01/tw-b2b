@@ -214,6 +214,18 @@
   .st-lt-val { min-width:82px; text-align:right; color:#c4ccd6; }
   .st-htd-bk { display:flex; justify-content:space-between; gap:10px; padding:7px 0; font-size:12px; border-top:1px solid rgba(128,128,128,.1); flex-wrap:wrap; }
   .st-htd-substat { font-size:11.5px; color:#c4ccd6; margin-top:7px; }
+  .st-lt-hint2 { font-size:10.5px; color:#8a93a0; font-weight:400; margin-left:6px; }
+  .st-lt-row { display:grid; grid-template-columns:104px 1fr 84px 14px; gap:8px; align-items:center; padding:5px 6px; border-radius:7px; }
+  .st-lt-row.clk { cursor:pointer; }
+  .st-lt-row.clk:hover { background:rgba(128,140,160,.08); }
+  .st-lt-row.on { background:rgba(74,144,217,.12); }
+  .st-lt-caret { color:#8a93a0; text-align:right; font-size:12px; }
+  .st-lt-row.on .st-lt-caret { color:#4A90D9; }
+  .st-lt-tools { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-top:8px; }
+  .st-lt-all { font-size:11px; color:#4A90D9; border:0.5px solid rgba(74,144,217,.5); border-radius:20px; padding:3px 11px; cursor:pointer; white-space:nowrap; }
+  .st-lt-all.on { background:rgba(74,144,217,.14); }
+  .st-bk-panel { margin-top:10px; }
+  .st-bk-cap { font-size:11.5px; font-weight:500; color:#c4ccd6; margin-bottom:5px; }
   .st-bk-tbl { border:0.5px solid rgba(128,128,128,.25); border-radius:9px; overflow:hidden; margin-top:4px; }
   .st-bk-h, .st-bk-r { display:grid; grid-template-columns:1.3fr .9fr .9fr .9fr .5fr 1fr .6fr .9fr .8fr; gap:5px; padding:7px 10px; align-items:center; }
   .st-bk-h.adm, .st-bk-r.adm { grid-template-columns:1.3fr .9fr .9fr .9fr .5fr 1fr .6fr .9fr .8fr .8fr; }
@@ -1548,6 +1560,8 @@
   }
   var CHMAP = { HT: '호텔이야', HG: '호텔이곳', TW: '여행능력자들', JP: 'ホテルだ', ZH: '世界就是家', KT: 'Koreahotelguide', VN: 'reviewkhachsan', legacy: '과거 누적' };
   function chName(c) { return CHMAP[c] || c; }
+  var COUNTRY_KO = { 'South Korea': '대한민국', 'Korea': '대한민국', 'Taiwan': '대만', 'Japan': '일본', 'China': '중국', 'Hong Kong': '홍콩', 'Macau': '마카오', 'United States': '미국', 'USA': '미국', 'Thailand': '태국', 'Vietnam': '베트남', 'Singapore': '싱가포르', 'Malaysia': '말레이시아', 'Sri Lanka': '스리랑카', 'Philippines': '필리핀', 'Indonesia': '인도네시아', 'Australia': '호주', 'United Kingdom': '영국', 'Germany': '독일', 'France': '프랑스', 'Canada': '캐나다', 'India': '인도', 'Cambodia': '캄보디아', 'Laos': '라오스', 'Myanmar': '미얀마' };
+  function coKo(c) { return c ? (COUNTRY_KO[c] || c) : ''; }
   function hotelRow(h) {
     var done = h.bookings_done || 0, canc = h.bookings_cancelled || 0, tot = done + canc;
     var rateN = tot ? Math.round(done / tot * 100) : null;
@@ -1558,7 +1572,7 @@
     var chArr = (h.channels || []).map(chName);
     var chLbl = chArr.length ? esc(chArr[0]) + (chArr.length > 1 ? ' <span class="st-ht-dim">외 ' + (chArr.length - 1) + '</span>' : '') : '—';
     var geo = [];
-    if (h.country || h.city) geo.push('<span class="st-ht-geo">' + esc([h.country, h.city].filter(Boolean).join(' · ')) + '</span>');
+    if (h.country || h.city) geo.push('<span class="st-ht-geo">' + esc([coKo(h.country), h.city].filter(Boolean).join(' · ')) + '</span>');
     if (h.star) geo.push('<span class="st-ht-tag">' + h.star + '성급</span>');
     if (h.htype) geo.push('<span class="st-ht-tag' + (h.htype === '리조트' ? ' resort' : '') + '">' + esc(h.htype) + '</span>');
     var geoLine = geo.length ? '<div class="st-ht-geoline">' + geo.join('') + '</div>' : '';
@@ -1602,11 +1616,34 @@
       .then(function (x) {
         if (!x.ok || !x.j.ok) throw new Error(x.j.error || '불러오지 못했습니다.');
         box.innerHTML = hotelDetailHtml(x.j.detail, x.j.is_admin, hid, name);
+        bindLeadtimeExpand(box);
         item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       })
       .catch(function (e) { box.innerHTML = '<div class="st-empty">' + esc(e.message) + '</div>'; });
   }
-  function htBar(rate) {
+  function bindLeadtimeExpand(box) {
+    var panel = box.querySelector('.st-bk-panel');
+    if (!panel) return;
+    var cap = panel.querySelector('.st-bk-cap');
+    var rows = Array.prototype.slice.call(panel.querySelectorAll('.st-bk-r'));
+    var ltRows = Array.prototype.slice.call(box.querySelectorAll('.st-lt-row.clk'));
+    var allBtn = box.querySelector('.st-lt-all');
+    var LABELS = ['임박(0~7일)', '근접(8~30일)', '먼(31일+)'];
+    function show(sel) {
+      panel.hidden = false;
+      var n = 0;
+      rows.forEach(function (r) {
+        var vis = (sel === 'all') || (r.getAttribute('data-ltb') === sel);
+        r.style.display = vis ? '' : 'none';
+        if (vis) n++;
+      });
+      if (cap) cap.textContent = (sel === 'all' ? '전체 예약' : LABELS[+sel] + ' 예약') + ' · ' + n + '건';
+      ltRows.forEach(function (r) { r.classList.toggle('on', r.getAttribute('data-ltb') === sel); });
+      if (allBtn) allBtn.classList.toggle('on', sel === 'all');
+    }
+    ltRows.forEach(function (r) { r.onclick = function () { show(r.getAttribute('data-ltb')); }; });
+    if (allBtn) allBtn.onclick = function () { show('all'); };
+  }
     var w = rate == null ? 0 : rate;
     var col = rate == null ? '#555' : (rate >= 70 ? '#3FB984' : (rate >= 50 ? '#E0A83C' : '#E24B4A'));
     return '<div class="st-lt-bar"><div class="st-lt-fill" style="width:' + w + '%;background:' + col + '"></div></div>';
@@ -1655,38 +1692,42 @@
     h += '<div class="st-htd-substat">방문 <b style="color:#3FB984">' + d.done + '</b> · 취소 <b style="color:#E24B4A">' + d.cancelled + '</b> · 노쇼 <b>' + (d.noshow || 0) + '</b></div>';
     h += '<div class="st-hint" style="margin-top:6px">조회·클릭은 유튜브 연동·추적 링크 후 채워짐(지금 "연동 후"). 예약·확정·금액·확정률은 실데이터. 수수료는 대표님만.</div></div>';
 
-    // 예약·취소 타이밍 전략 (리드타임 3구간)
-    h += '<div class="st-htd-sec"><div class="st-htd-h">예약·취소 타이밍 (리드타임별)</div>';
-    h += d.leadtime.map(function (b) {
-      return '<div class="st-lt-row"><span class="st-lt-lbl">' + esc(b.label) + '</span>' + htBar(b.rate) +
-        '<span class="st-lt-val">' + (b.count ? (b.rate + '% · ' + b.count + '건') : '—') + '</span></div>';
+    // 예약·취소 타이밍 (리드타임) — 구간 클릭 시 그 구간 예약 펼침
+    h += '<div class="st-htd-sec"><div class="st-htd-h">예약·취소 타이밍 (리드타임별) <span class="st-lt-hint2">구간을 누르면 그 예약이 아래에 나옵니다</span></div>';
+    h += d.leadtime.map(function (b, i) {
+      var clk = b.count > 0;
+      return '<div class="st-lt-row' + (clk ? ' clk' : '') + '"' + (clk ? ' data-ltb="' + i + '"' : '') + '>' +
+        '<span class="st-lt-lbl">' + esc(b.label) + '</span>' + htBar(b.rate) +
+        '<span class="st-lt-val">' + (b.count ? (b.rate + '% · ' + b.count + '건') : '—') + '</span>' +
+        '<span class="st-lt-caret">' + (clk ? '›' : '') + '</span></div>';
     }).join('');
-    h += '<div class="st-hint">체크인 며칠 전 예약이 잘 깨지나(리드타임=예약↔체크인). 확정률 낮은 구간이 많으면 TOP3 넣을 때 취소 유출 주의. 진짜 취소일(타이밍)은 아고다 취소일 데이터 들어오면 승격.</div></div>';
+    h += '<div class="st-lt-tools"><span class="st-lt-all" data-ltb="all">전체 ' + d.total + '건 보기</span>' +
+      '<span class="st-hint" style="margin:0">체크인 며칠 전 예약이 잘 깨지나. 진짜 취소일(타이밍)은 아고다 취소일 들어오면 승격.</span></div>';
 
-    // 개별 예약 = 매니저 컬럼 (예약번호·예약일·체크인·체크아웃·박·국가·기기·금액·상태 +수수료 admin)
-    h += '<div class="st-htd-sec"><div class="st-htd-h">개별 예약 · 최근 ' + Math.min(d.bookings.length, 12) + '건 / 총 ' + d.total + '</div>';
-    var adm = isAdmin ? '<span class="c-comm">수수료</span>' : '';
+    // 예약 테이블 (숨김; 구간/전체 클릭 시 표시·필터)
     var admCls = isAdmin ? ' adm' : '';
-    h += '<div class="st-bk-tbl"><div class="st-bk-h' + admCls + '">' +
-      '<span>예약번호</span><span>예약일</span><span>체크인</span><span>체크아웃</span><span class="c-c">박</span><span>국가</span><span class="c-c">기기</span><span class="c-r">금액</span><span class="c-r">상태</span>' + adm + '</div>';
-    h += d.bookings.slice(0, 12).map(function (b) {
+    var adm = isAdmin ? '<span class="c-comm">수수료</span>' : '';
+    var bkHead = '<div class="st-bk-h' + admCls + '"><span>예약번호</span><span>예약일</span><span>체크인</span><span>체크아웃</span><span class="c-c">박</span><span>국가</span><span class="c-c">기기</span><span class="c-r">금액</span><span class="c-r">상태</span>' + adm + '</div>';
+    var bkRows = d.bookings.slice(0, 50).map(function (b) {
+      var days = (b.checkin && b.booked_at) ? Math.floor((new Date(b.checkin) - new Date(b.booked_at)) / 86400000) : -1;
+      var ltb = days < 0 ? -1 : (days <= 7 ? 0 : (days <= 30 ? 1 : 2));
       var stCol = b.cancelled ? '#E24B4A' : (b.status === '방문' ? '#3FB984' : '#8a93a0');
       var dev = b.device ? (/mob|phone|안드|iphone|ios/i.test(b.device) ? '📱' : (/tab/i.test(b.device) ? '📲' : '💻')) : '—';
-      return '<div class="st-bk-r' + admCls + '">' +
+      return '<div class="st-bk-r' + admCls + '" data-ltb="' + ltb + '">' +
         '<span class="dim">' + esc(b.reservation_no || '—') + '</span>' +
         '<span class="dim">' + esc((b.booked_at || '').slice(0, 10)) + '</span>' +
         '<span>' + esc((b.checkin || '').slice(0, 10)) + '</span>' +
         '<span>' + esc((b.checkout || '').slice(0, 10)) + '</span>' +
         '<span class="c-c">' + (b.nights || '—') + '</span>' +
-        '<span>' + esc(b.customer_country || '—') + '</span>' +
+        '<span>' + esc(coKo(b.customer_country) || '—') + '</span>' +
         '<span class="c-c">' + dev + '</span>' +
         '<span class="c-r">' + (b.amount == null ? '<span class="dim">—</span>' : '$' + b.amount.toLocaleString()) + '</span>' +
         '<span class="c-r" style="color:' + stCol + '">' + esc(b.status) + '</span>' +
         (isAdmin ? '<span class="c-r c-comm">' + (b.commission == null ? '—' : '$' + b.commission.toLocaleString()) + '</span>' : '') +
         '</div>';
     }).join('') || '<div class="st-hint">예약이 없습니다.</div>';
-    h += '</div>';
-    h += '<div class="st-hint" style="margin-top:6px">매니저 페이지와 같은 컬럼. 취소건은 금액·국가·기기 없음(아고다가 취소 시 세부 미제공) → "—". 수수료는 대표님만.</div>';
+    h += '<div class="st-bk-panel" hidden><div class="st-bk-cap"></div><div class="st-bk-tbl">' + bkHead + bkRows + '</div>' +
+      '<div class="st-hint" style="margin-top:6px">매니저 페이지와 같은 컬럼. 취소건은 금액·국가·기기 없음(아고다 미제공) → "—". 수수료는 대표님만.</div></div>';
     h += '</div>';
 
     h += '<div class="st-hint" style="margin-top:6px">② 성과 드릴다운(조회수·클릭 채널별→영상별)은 조회수 연동 후 채워집니다 — 다음 조각.</div>';

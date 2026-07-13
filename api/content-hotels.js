@@ -128,12 +128,12 @@ export default async function handler(req, res) {
 
       const { data: pubs } = await sb
         .from('publications')
-        .select('published_at,channel_code,subject,title,hid_top1,hid_top2,hid_top3')
+        .select('published_at,channel_code,title,hid_top1,hid_top2,hid_top3')
         .or(`hid_top1.eq.${hid},hid_top2.eq.${hid},hid_top3.eq.${hid}`)
         .order('published_at', { ascending: false });
       const exposures = (pubs || []).map((p) => ({
         published_at: p.published_at, channel_code: p.channel_code,
-        title: p.subject || p.title || '(제목 없음)',
+        title: p.title || '(제목 없음)',
         rank: p.hid_top1 === hid ? 1 : (p.hid_top2 === hid ? 2 : 3),
       }));
 

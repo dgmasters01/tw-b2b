@@ -137,10 +137,12 @@
   .st-ht-geo { font-size:12px; color:#8a93a0; }
   .st-ht-tag { font-size:11px; padding:1px 8px; border-radius:8px; border:1px solid rgba(128,140,160,.4); color:#c4ccd6; }
   .st-ht-tag.resort { border-color:#4A90D9; color:#79b4ef; }
-  .st-ht-item { margin-bottom:10px; }
-  .st-ht-item .st-ch-card { margin-bottom:0; }
-  .st-ht-inline:not(:empty) { margin:8px 0 4px 12px; border-left:2px solid rgba(74,144,217,.5); padding-left:12px; }
-  .st-htd { border:1px solid rgba(128,128,128,.3); border-radius:14px; padding:16px; background:rgba(128,140,160,.04); }
+  .st-ht-item { margin-bottom:10px; border:1px solid rgba(128,128,128,.28); border-radius:14px; overflow:hidden; }
+  .st-ht-item:hover { border-color:rgba(128,140,160,.5); }
+  .st-ht-item.open { border-color:rgba(74,144,217,.55); background:rgba(74,144,217,.04); }
+  .st-ht-item .st-ch-card { margin:0; border:none; border-radius:0; background:transparent; }
+  .st-ht-inline:not(:empty) { border-top:1px solid rgba(128,128,128,.16); }
+  .st-htd { border:none; background:transparent; padding:6px 14px 14px; }
   .st-htd-title { font-size:15px; font-weight:600; margin-bottom:12px; }
   .st-htd-hid { font-size:12px; color:#8a93a0; font-weight:400; }
   .st-htd-sec { padding:12px 0; border-top:1px solid rgba(128,128,128,.16); }
@@ -415,11 +417,11 @@
     </div>
     <div class="st-hint">우리 영상에 노출한 호텔별 성과입니다. 노출 횟수·최고 순위(TOP1/2/3)·확정/취소 예약을 봅니다. 수수료·거래액은 여기 안 보입니다.</div>
     <div class="st-ht-filters">
-      <input type="text" id="ht-search" class="st-ht-search" placeholder="호텔명·hid 검색…">
       <select id="ht-f-country" class="st-ht-sel"><option value="">나라 전체</option></select>
       <select id="ht-f-city" class="st-ht-sel"><option value="">도시 전체</option></select>
       <select id="ht-f-star" class="st-ht-sel"><option value="">성급 전체</option></select>
       <select id="ht-f-type" class="st-ht-sel"><option value="">유형 전체</option><option value="호텔">호텔</option><option value="리조트">리조트</option></select>
+      <input type="text" id="ht-search" class="st-ht-search" placeholder="호텔명·hid 검색…">
     </div>
     <div id="st-ht-list"><div class="st-empty">불러오는 중…</div></div>
   </section>
@@ -1497,20 +1499,22 @@
   function loadHotelDetail(hid, name) {
     var box = document.getElementById('htin-' + hid);
     if (!box) return;
+    var item = box.closest('.st-ht-item');
     // 아코디언: 이미 열린 것 닫기
     if (htDetailOpen && htDetailOpen !== hid) {
       var prev = document.getElementById('htin-' + htDetailOpen);
-      if (prev) prev.innerHTML = '';
+      if (prev) { prev.innerHTML = ''; var pi = prev.closest('.st-ht-item'); if (pi) pi.classList.remove('open'); }
     }
-    if (htDetailOpen === hid) { box.innerHTML = ''; htDetailOpen = null; return; }
+    if (htDetailOpen === hid) { box.innerHTML = ''; if (item) item.classList.remove('open'); htDetailOpen = null; return; }
     htDetailOpen = hid;
+    if (item) item.classList.add('open');
     box.innerHTML = '<div class="st-empty">상세 불러오는 중…</div>';
     fetch('/api/content-hotels?hid=' + encodeURIComponent(hid), { credentials: 'same-origin' })
       .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
       .then(function (x) {
         if (!x.ok || !x.j.ok) throw new Error(x.j.error || '불러오지 못했습니다.');
         box.innerHTML = hotelDetailHtml(x.j.detail, x.j.is_admin, hid, name);
-        box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        if (item) item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       })
       .catch(function (e) { box.innerHTML = '<div class="st-empty">' + esc(e.message) + '</div>'; });
   }
@@ -1521,7 +1525,6 @@
   }
   function hotelDetailHtml(d, isAdmin, hid, name) {
     var h = '<div class="st-htd">';
-    h += '<div class="st-htd-title">' + esc(name || ('호텔 ' + hid)) + ' <span class="st-htd-hid">hid ' + esc(hid) + '</span></div>';
 
     // ① 노출 이력
     h += '<div class="st-htd-sec"><div class="st-htd-h">① 노출 이력 · ' + d.exposures.length + '회</div>';

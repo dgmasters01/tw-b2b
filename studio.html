@@ -121,6 +121,9 @@
   .st-sbadge.published { color:#1D9E75; border-color:#5DCAA5; }
   .st-sbadge.stale { color:#E24B4A; border-color:#E24B4A; }
   .st-dupflag { font-size:10px; padding:1px 7px; border-radius:6px; border:1px solid #E24B4A; color:#E24B4A; }
+  .st-assign { display:flex; align-items:center; gap:8px; margin-top:10px; flex-wrap:wrap; }
+  .st-assign-lbl { font-size:11px; color:#8a93a0; }
+  .st-assign-sel { font-size:12px; padding:5px 10px; border-radius:8px; border:1px solid rgba(128,128,128,.35); background:transparent; color:inherit; max-width:220px; }
   .st-lbody { padding:2px 13px 13px; border-top:1px solid rgba(128,128,128,.14); display:none; }
   .st-lrow.open .st-lbody { display:block; }
   .st-copyn { flex:none; width:18px; text-align:center; font-weight:600; opacity:.4; }
@@ -480,6 +483,27 @@
       : '수동' + (p.uploaded_by_email ? ' · ' + shortMail(p.uploaded_by_email) + ' 올림' : '');
   }
 
+  // 담당자 지정·재배정 (owner+admin 전용, 설계 §8) — 아는 담당자 목록에서 골라 배정
+  function assignPeople() {
+    var ppl = [];
+    rows.forEach(function (r) { if (r.claimed_by_email && ppl.indexOf(r.claimed_by_email) < 0) ppl.push(r.claimed_by_email); });
+    return ppl;
+  }
+  function assignControl(p) {
+    if (!ME_ADMIN || p.status === 'published') return '';
+    var cur = p.claimed_by_email || '';
+    var ppl = assignPeople();
+    if (cur && ppl.indexOf(cur) < 0) ppl.unshift(cur);
+    var label = cur ? '재배정' : '담당자 지정';
+    var opts = '<option value="">— ' + label + ' —</option>' +
+      '<option value="__none__">미지정으로</option>' +
+      ppl.map(function (e) {
+        return '<option value="' + esc(e) + '"' + (cur === e ? ' selected' : '') + '>' + esc(shortMail(e)) + ' 에게</option>';
+      }).join('');
+    return '<div class="st-assign"><span class="st-assign-lbl">' + label + ' (대표님·관리자)</span>' +
+      '<select class="st-assign-sel" data-assign="' + p.id + '">' + opts + '</select></div>';
+  }
+
   // 컴팩트 행 (접힘). 클릭하면 펼쳐진다.
   function rowCompact(p) {
     var place = [p.city, p.region].filter(Boolean).join(' ');
@@ -566,6 +590,9 @@
            '<div class="st-pub"><button data-claim="' + id + '">내가 맡기</button></div>' +
            '<div class="st-msg" data-msg="' + id + '"></div>';
     }
+
+    // 담당자 지정·재배정 = owner+admin (설계 §8)
+    h += assignControl(p);
 
     // 중복 삭제 = 대표님 전용 (설계 §5)
     if (p.is_duplicate && ME_ADMIN) {
@@ -710,6 +737,7 @@
     list.querySelectorAll('[data-copy]').forEach(function (b) { b.onclick = function (e) { e.stopPropagation(); copy(b, store[b.dataset.copy]); }; });
     list.querySelectorAll('[data-publish]').forEach(function (b) { b.onclick = function () { publish(b.dataset.publish); }; });
     list.querySelectorAll('[data-claim]').forEach(function (b) { b.onclick = function () { act(b.dataset.claim, 'claim', b); }; });
+    list.querySelectorAll('[data-assign]').forEach(function (s) { s.onchange = function () { assignTo(s.dataset.assign, s.value, s); }; });
     list.querySelectorAll('[data-unclaim]').forEach(function (b) { b.onclick = function () { act(b.dataset.unclaim, 'unclaim', b); }; });
     list.querySelectorAll('[data-savelinks]').forEach(function (b) { b.onclick = function () { saveLinks(b.dataset.savelinks, b); }; });
     list.querySelectorAll('[data-editurl]').forEach(function (b) {
@@ -800,6 +828,25 @@
         render();
       })
       .catch(function (e) { btn.disabled = false; msg.className = 'st-msg err'; msg.textContent = e.message; });
+  }
+
+  /** 담당자 지정·재배정 (owner+admin) */
+  function assignTo(id, value, sel) {
+    if (!value) return;                       // 플레이스홀더
+    var email = value === '__none__' ? '' : value;
+    sel.disabled = true;
+    fetch('/api/publications', {
+      method: 'PATCH', credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: id, action: 'assign', assignee_email: email })
+    }).then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+      .then(function (x) {
+        if (!x.ok || !x.j.ok) throw new Error(x.j.error || '실패했습니다.');
+        var i = rows.findIndex(function (r) { return r.id === id; });
+        if (i >= 0) rows[i] = x.j.row;
+        render();
+      })
+      .catch(function (e) { sel.disabled = false; alert(e.message); });
   }
 
   function publish(id) {

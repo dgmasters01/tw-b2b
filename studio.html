@@ -1656,7 +1656,7 @@
       box.innerHTML='<div class="st-empty">영상별·호텔별은 예약이 어느 영상·호텔에서 왔는지 연결(추적링크·hid)된 뒤 채워집니다. 지금은 채널별로 보세요.</div>';
       return;
     }
-    head.textContent='채널별 순위 — 위=밀 것 / 아래·빨강=고칠 것';
+    head.textContent='채널별 순위';
     var chs=d.channels||[];
     if(!chs.length){
       var msg='이 기간에 예약이 없습니다.';
@@ -1669,18 +1669,16 @@
     }
     var showComm = ('commission_usd' in chs[0]);
     box.innerHTML = chs.map(function(c){
-      var bad = (c.cancel_rate!=null && c.cancel_rate>=55);
-      var good = (c.rank===1);
-      var cls = bad ? ' bad' : (good ? ' good' : '');
-      var badge = good ? '<span class="st-pf-badge g">잘됨 · 더 밀기</span>' : (bad ? '<span class="st-pf-badge b">취소 '+c.cancel_rate+'% · 새는 중</span>' : '');
-      var right = bad
-        ? '<span class="st-pf-fix">취소 '+c.cancelled+' · 호텔⑤로 고치러 →</span>'
-        : '<span class="mt">확정률 '+(c.confirm_rate!=null?c.confirm_rate+'%':'—')+'</span><span class="mt">'+pfMoney(c.amount_usd)+'</span>'+(showComm?'<span class="mt st-pf-comm">수수료 '+pfMoney(c.commission_usd)+'</span>':'');
-      return '<div class="st-pf-row'+cls+'">'+
-        '<span class="rk">#'+c.rank+'</span>'+
-        '<span class="nm">'+esc(c.name)+badge+'</span>'+
+      var cxr = (c.cancel_rate!=null ? ' ('+c.cancel_rate+'%)' : '');
+      return '<div class="st-pf-row" data-ch="'+c.code+'">'+
+        '<span class="rk">'+c.rank+'</span>'+
+        '<span class="nm">'+esc(c.name)+'</span>'+
         '<span class="mt">예약 '+c.bookings+'</span>'+
-        right+'</div>';
+        '<span class="mt">취소 '+c.cancelled+cxr+'</span>'+
+        '<span class="mt">확정률 '+(c.confirm_rate!=null?c.confirm_rate+'%':'—')+'</span>'+
+        '<span class="mt">'+pfMoney(c.amount_usd)+'</span>'+
+        (showComm?'<span class="mt st-pf-comm">수수료 '+pfMoney(c.commission_usd)+'</span>':'')+
+      '</div>';
     }).join('');
   }
   function pfRenderTrend(d){

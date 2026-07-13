@@ -175,6 +175,20 @@
   .st-ht-item:hover { border-color:rgba(128,140,160,.5); }
   .st-ht-item.open { border-color:rgba(128,140,160,.55); background:rgba(128,140,160,.06); }
   .st-ht-item .st-ch-card { margin:0; border:none; border-radius:0; background:transparent; }
+  .st-ht-head { display:flex; align-items:baseline; gap:8px; flex-wrap:wrap; }
+  .st-ht-recent { margin-left:auto; font-size:11px; padding:2px 9px; border-radius:20px; background:rgba(93,202,165,.14); color:#3FB984; white-space:nowrap; }
+  .st-ht-en { font-size:11px; color:#8a93a0; margin-top:2px; }
+  .st-ht-perf { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-top:9px; }
+  .st-ht-grp { display:flex; gap:6px; align-items:center; padding:4px 10px; background:rgba(128,140,160,.09); border-radius:8px; font-size:11.5px; }
+  .st-ht-dim { color:#8a93a0; }
+  .st-ht-top { color:#4A90D9; font-weight:500; }
+  .st-ht-done { color:#3FB984; }
+  .st-ht-arrow { color:#8a93a0; font-size:12px; }
+  .st-ht-rate { padding:4px 11px; border-radius:8px; font-size:12px; font-weight:500; }
+  .st-ht-rate.good { background:rgba(93,202,165,.16); color:#3FB984; }
+  .st-ht-rate.mid { background:rgba(224,168,60,.16); color:#E0A83C; }
+  .st-ht-rate.bad { background:rgba(226,75,74,.14); color:#E24B4A; }
+  .st-ht-rate.na { background:rgba(128,140,160,.12); color:#8a93a0; }
   .st-ht-inline:not(:empty) { border-top:1px solid rgba(128,128,128,.16); }
   .st-htd { border:none; background:transparent; padding:6px 14px 14px; }
   .st-htd-title { font-size:15px; font-weight:600; margin-bottom:12px; }
@@ -1506,31 +1520,36 @@
     var a = h.first_booking, b = h.last_booking;
     return '예약 ' + a + (b && b !== a ? ' ~ ' + b : '');
   }
+  var CHMAP = { HT: '호텔이야', HG: '호텔이곳', TW: '여행능력자들', JP: 'ホテルだ', ZH: '世界就是家', KT: 'Koreahotelguide', VN: 'reviewkhachsan', legacy: '과거 누적' };
+  function chName(c) { return CHMAP[c] || c; }
   function hotelRow(h) {
     var done = h.bookings_done || 0, canc = h.bookings_cancelled || 0, tot = done + canc;
-    var rate = tot ? Math.round(done / tot * 100) + '%' : '—';
-    var chs = (h.channels || []).join(', ') || '—';
+    var rateN = tot ? Math.round(done / tot * 100) : null;
+    var rateCls = rateN == null ? 'na' : (rateN >= 85 ? 'good' : (rateN >= 50 ? 'mid' : 'bad'));
     var name = h.name_in_script || h.name_in_agoda || ('호텔 ' + h.hid);
-    var agoda = h.name_in_agoda && h.name_in_agoda !== name ? h.name_in_agoda : '';
-    var city = h.agoda_city ? (agoda ? ' · ' : '') + h.agoda_city : '';
-    var subLine = (agoda || city) ? '<div class="st-ht-sub">' + esc(agoda) + esc(city) + '</div>' : '';
+    var en = h.name_in_agoda && h.name_in_agoda !== name ? h.name_in_agoda : '';
+    // 채널 이름 (대표 1 + 외 N)
+    var chArr = (h.channels || []).map(chName);
+    var chLbl = chArr.length ? esc(chArr[0]) + (chArr.length > 1 ? ' <span class="st-ht-dim">외 ' + (chArr.length - 1) + '</span>' : '') : '—';
     var geo = [];
     if (h.country || h.city) geo.push('<span class="st-ht-geo">' + esc([h.country, h.city].filter(Boolean).join(' · ')) + '</span>');
     if (h.star) geo.push('<span class="st-ht-tag">' + h.star + '성급</span>');
     if (h.htype) geo.push('<span class="st-ht-tag' + (h.htype === '리조트' ? ' resort' : '') + '">' + esc(h.htype) + '</span>');
     var geoLine = geo.length ? '<div class="st-ht-geoline">' + geo.join('') + '</div>' : '';
+    var enLine = en ? '<div class="st-ht-en">' + esc(en) + '</div>' : '';
+    var recent = h.last_exposure ? '<span class="st-ht-recent"><i class="ti ti-clock" style="font-size:11px"></i> 최근 소개 ' + esc(String(h.last_exposure).slice(0, 7)) + '</span>' : '';
+    var perf =
+      '<div class="st-ht-perf">' +
+        '<div class="st-ht-grp"><span class="st-ht-dim">소개</span> ' + chLbl + ' <span class="st-ht-dim">·</span> <span class="st-ht-top">' + htRank(h.best_rank) + '</span> <span class="st-ht-dim">·</span> ' + (h.exposure_count || 0) + '회</div>' +
+        '<span class="st-ht-arrow">→</span>' +
+        '<div class="st-ht-grp"><span class="st-ht-dim">결과</span> 예약 <b>' + tot + '</b> <span class="st-ht-dim">·</span> <span class="st-ht-done">확정 ' + done + '</span> <span class="st-ht-dim">취소 ' + canc + '</span></div>' +
+        '<span class="st-ht-rate ' + rateCls + '">확정률 ' + (rateN == null ? '—' : rateN + '%') + '</span>' +
+      '</div>';
     return '<div class="st-ht-item">' +
       '<div class="st-ch-card st-ht-click" data-hopen="' + esc(h.hid) + '">' +
-        '<div class="st-ch-name">' + esc(name) + '</div>' + geoLine + subLine +
-        '<div class="st-ht-chips">' +
-          '<span class="st-ch-chip">채널 ' + esc(chs) + '</span>' +
-          '<span class="st-ch-chip">' + htRank(h.best_rank) + '</span>' +
-          '<span class="st-ch-chip">노출 ' + (h.exposure_count || 0) + '회</span>' +
-          '<span class="st-ch-chip active">확정 ' + done + '건</span>' +
-          '<span class="st-ch-chip inactive">취소 ' + canc + '건</span>' +
-          '<span class="st-ch-chip">확정률 ' + rate + '</span>' +
-        '</div>' +
-        '<div class="st-ht-period">' + esc(htPeriod(h)) + ' · <span class="st-ht-open">눌러서 상세 ▾</span></div>' +
+        '<div class="st-ht-head"><div class="st-ch-name">' + esc(name) + '</div>' + recent + '</div>' + geoLine + enLine +
+        perf +
+        '<div class="st-ht-period"><span class="st-ht-open">눌러서 상세 ▾</span></div>' +
       '</div>' +
       '<div class="st-ht-inline" id="htin-' + esc(h.hid) + '"></div>' +
     '</div>';

@@ -129,7 +129,24 @@
   .st-ht-click:hover { border-color:rgba(128,140,160,.5); }
   .st-ht-open { color:#4A90D9; }
   .st-ht-detail { margin-top:12px; }
-  .st-ht-filters { display:flex; gap:8px; flex-wrap:wrap; margin:10px 0 12px; }
+  .st-ht-status { margin:10px 0 14px; }
+  .st-hs-ttl { font-size:12px; font-weight:500; color:var(--text-secondary,#8a93a0); margin:10px 0 6px; }
+  .st-hs-ttl span { font-weight:400; color:#8a93a0; font-size:10.5px; }
+  .st-hs-row { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
+  .st-hs-row.six { grid-template-columns:repeat(6,1fr); }
+  .st-hs-card { background:rgba(128,140,160,.08); border-radius:10px; padding:9px 11px; }
+  .st-hs-card.ok { background:var(--bg-success,rgba(93,202,165,.14)); }
+  .st-hs-card.warn { background:var(--bg-warning,rgba(239,159,39,.14)); }
+  .st-hs-card.acc { background:var(--bg-accent,rgba(74,144,217,.14)); }
+  .st-hs-card.danger { background:rgba(226,75,74,.1); border:0.5px dashed #E24B4A; }
+  .st-hs-l { font-size:10.5px; color:var(--text-secondary,#8a93a0); }
+  .st-hs-card.ok .st-hs-l { color:#3FB984; } .st-hs-card.warn .st-hs-l { color:#E0A83C; }
+  .st-hs-card.acc .st-hs-l { color:#4A90D9; } .st-hs-card.danger .st-hs-l { color:#E24B4A; }
+  .st-hs-n { font-size:21px; font-weight:500; margin-top:1px; }
+  .st-hs-card.ok .st-hs-n { color:#3FB984; } .st-hs-card.warn .st-hs-n { color:#E0A83C; }
+  .st-hs-card.acc .st-hs-n { color:#4A90D9; } .st-hs-card.danger .st-hs-n { color:#E24B4A; }
+  .st-hs-s { font-size:9.5px; color:#8a93a0; }
+  .st-hs-soon { font-size:14px; color:#8a93a0; }
   .st-ht-search { flex:1; min-width:180px; font-size:13px; padding:8px 12px; border-radius:10px; border:1px solid rgba(128,128,128,.35); background:#1b1f27; color:#e8ebf0; }
   .st-ht-sel { font-size:13px; padding:8px 12px; border-radius:10px; border:1px solid rgba(128,128,128,.35); background:#1b1f27; color:#e8ebf0; }
   .st-ht-sel option { background:#1b1f27; color:#e8ebf0; }
@@ -422,6 +439,7 @@
       <div><div class="st-h">호텔</div><div class="st-sub" id="st-ht-count">불러오는 중…</div></div>
     </div>
     <div class="st-hint">우리 영상에 노출한 호텔별 성과입니다. 노출 횟수·최고 순위(TOP1/2/3)·확정/취소 예약을 봅니다. 수수료·거래액은 여기 안 보입니다.</div>
+    <div id="st-ht-status" class="st-ht-status"></div>
     <div class="st-ht-filters">
       <select id="ht-f-country" class="st-ht-sel"><option value="">나라 전체</option></select>
       <select id="ht-f-city" class="st-ht-sel"><option value="">도시 전체</option></select>
@@ -1610,10 +1628,41 @@
       .then(function (x) {
         if (!x.ok || !x.j.ok) throw new Error(x.j.error || '불러오지 못했습니다.');
         htAll = x.j.hotels || [];
+        renderHotelStatus();
         populateHotelFilters();
         renderHotelList();
       })
       .catch(function (e) { list.innerHTML = '<div class="st-empty">' + esc(e.message) + '</div>'; });
+  }
+  function renderHotelStatus() {
+    var box = document.getElementById('st-ht-status');
+    if (!box) return;
+    var all = htAll, total = all.length;
+    var countries = {}, cities = {}, resort = 0, noExpo = 0, rates = [], high = 0, low = 0;
+    all.forEach(function (h) {
+      if (h.country) countries[h.country] = 1;
+      if (h.city) cities[h.city] = 1;
+      if (h.htype === '리조트') resort++;
+      if (!h.exposure_count) noExpo++;
+      var t = (h.bookings_done || 0) + (h.bookings_cancelled || 0);
+      if (t) { var r = Math.round((h.bookings_done || 0) / t * 100); rates.push(r); if (r >= 85) high++; if (r < 50) low++; }
+    });
+    var avg = rates.length ? Math.round(rates.reduce(function (a, b) { return a + b; }, 0) / rates.length) : null;
+    var soon = '<span class="st-hs-soon">연동 후</span>';
+    function card(cls, label, val, sub) {
+      return '<div class="st-hs-card ' + cls + '"><div class="st-hs-l">' + label + '</div><div class="st-hs-n">' + val + '</div>' + (sub ? '<div class="st-hs-s">' + sub + '</div>' : '') + '</div>';
+    }
+    var h = '';
+    h += '<div class="st-hs-ttl">축 1 · 재사용 시점 <span>— 자동 (마지막 노출 +6개월)</span></div><div class="st-hs-row">';
+    h += card('ok', '지금 쓸 수 있음', soon) + card('warn', '곧 풀림 (30일)', soon) + card('', '아직 못 씀', soon) + card('', '노출 안 함', noExpo);
+    h += '</div>';
+    h += '<div class="st-hs-ttl">축 2 · 작업 상태 <span>— 큐·발행 연동 후</span></div><div class="st-hs-row">';
+    h += card('', '안 건드림', soon) + card('acc', '큐에 넣음', soon) + card('', '발행됨', soon) + card('danger', '놓친 것', soon, '피크 지남·되살리기');
+    h += '</div>';
+    h += '<div class="st-hs-ttl">좋은 호텔 · 커버리지</div><div class="st-hs-row six">';
+    h += card('', '평균 확정률', avg == null ? '—' : avg + '%') + card('', '높음 ≥85', high) + card('', '낮음 <50', low) + card('', '전체', total) + card('', '나라·도시', Object.keys(countries).length + '·' + Object.keys(cities).length) + card('', '호텔·리조트', (total - resort) + '·' + resort);
+    h += '</div>';
+    box.innerHTML = h;
   }
   function htUniq(arr) { return arr.filter(function (v, i) { return v && arr.indexOf(v) === i; }); }
   function populateHotelFilters() {

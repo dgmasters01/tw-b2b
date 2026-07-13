@@ -181,6 +181,20 @@ export default async function handler(req, res) {
       const s = ((ptype || '') + ' ' + (name || '')).toLowerCase();
       return /resort|리조트|빌라|villa|beach|비치/.test(s) ? '리조트' : '호텔';
     }
+    // 최근 소개 날짜 = 발행된 노출(publications.published_at)의 hid별 최댓값
+    const lastExpo = {};
+    if (hids.length) {
+      const { data: pubs } = await sb
+        .from('publications')
+        .select('published_at,hid_top1,hid_top2,hid_top3')
+        .not('published_at', 'is', null);
+      (pubs || []).forEach((p) => {
+        [p.hid_top1, p.hid_top2, p.hid_top3].forEach((hid) => {
+          if (!hid) return; const k = String(hid);
+          if (!lastExpo[k] || p.published_at > lastExpo[k]) lastExpo[k] = p.published_at;
+        });
+      });
+    }
     const hotels = (data || []).map((h) => {
       const m = master[String(h.hid)] || {}; const g = geo[String(h.hid)] || {};
       const name = h.name_in_script || h.name_in_agoda || '';
@@ -190,6 +204,7 @@ export default async function handler(req, res) {
         city: m.city || g.city || h.agoda_city || null,
         star: m.star || g.star || null,
         htype: hotelType(m.ptype, name),
+        last_exposure: lastExpo[String(h.hid)] || null,
       };
     });
 

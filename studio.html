@@ -530,7 +530,6 @@
       <div><div class="st-h">호텔</div></div>
     </div>
     <div id="st-ht-status" class="st-ht-status"></div>
-    <div id="st-hs-picker" class="st-hs-picker" hidden></div>
     <div class="st-ht-filters">
       <select id="ht-f-country" class="st-ht-sel"><option value="">나라 전체</option></select>
       <select id="ht-f-city" class="st-ht-sel"><option value="">도시 전체</option></select>
@@ -1865,57 +1864,10 @@
     h += card('', '안 건드림', soon) + card('acc', '큐에 넣음', soon) + card('', '발행됨', soon) + card('danger', '놓친 것', soon, '피크 지남·되살리기');
     h += '</div>';
     h += '<div class="st-hs-ttl">좋은 호텔 · 커버리지 <span>— 카드를 누르면 아래 목록이 그 조건으로 걸러집니다</span></div><div class="st-hs-row six">';
-    h += card('', '전체', total, '', 'all') + card('st-hs-geo', '나라·도시', Object.keys(countries).length + '·' + Object.keys(cities).length) + card('st-hs-type', '호텔·리조트', (total - resort) + '·' + resort) + card('', '평균 확정률', avg == null ? '—' : avg + '%') + card('', '높음 ≥85', high, '', high ? 'high' : '') + card('', '낮음 <50', low, '', low ? 'low' : '');
+    h += card('', '전체', total, '', 'all') + card('', '나라·도시', Object.keys(countries).length + '·' + Object.keys(cities).length) + card('', '호텔·리조트', (total - resort) + '·' + resort) + card('', '평균 확정률', avg == null ? '—' : avg + '%') + card('', '높음 ≥85', high, '', high ? 'high' : '') + card('', '낮음 <50', low, '', low ? 'low' : '');
     h += '</div>';
     box.innerHTML = h;
     box.querySelectorAll('[data-hsf]').forEach(function (c) { c.onclick = function () { setCardFilter(c.dataset.hsf); }; });
-    var geoCard = box.querySelector('.st-hs-geo'); if (geoCard) geoCard.onclick = function () { openDistPicker('country'); };
-    var typeCard = box.querySelector('.st-hs-type'); if (typeCard) typeCard.onclick = function () { openDistPicker('htype'); };
-  }
-  var distOpen = null;
-  function openDistPicker(kind) {
-    var pk = document.getElementById('st-hs-picker');
-    if (!pk) return;
-    if (distOpen === kind) { pk.hidden = true; pk.innerHTML = ''; distOpen = null; return; }
-    distOpen = kind;
-    renderDistPicker(kind, '');
-    pk.hidden = false;
-  }
-  function distCounts(kind) {
-    var m = {};
-    htAll.forEach(function (h) {
-      var k = kind === 'country' ? (h.country || '') : (h.htype || '');
-      if (!k) return; m[k] = (m[k] || 0) + 1;
-    });
-    return Object.keys(m).map(function (k) { return { key: k, n: m[k] }; }).sort(function (a, b) { return b.n - a.n; });
-  }
-  function renderDistPicker(kind, q, showAll) {
-    var pk = document.getElementById('st-hs-picker');
-    var title = kind === 'country' ? '나라별' : '유형별';
-    var all = distCounts(kind);
-    if (q) { var ql = q.toLowerCase(); all = all.filter(function (x) { return (coKo(x.key) + ' ' + x.key).toLowerCase().indexOf(ql) >= 0; }); }
-    var shown = showAll ? all : all.slice(0, 8);
-    var chips = shown.map(function (x) {
-      var label = kind === 'country' ? coKo(x.key) : x.key;
-      return '<span class="st-dist-chip" data-k="' + esc(x.key) + '">' + esc(label) + ' <b>' + x.n + '</b></span>';
-    }).join('') || '<span class="st-hint">없음</span>';
-    var more = (!showAll && all.length > 8) ? '<span class="st-dist-more">+ ' + (all.length - 8) + '개 더 보기 ▾</span>' : '';
-    var search = kind === 'country' ? '<input class="st-dist-q" placeholder="나라 검색… (일본·Japan)" value="' + esc(q || '') + '">' : '';
-    pk.innerHTML = '<div class="st-dist-head">' + title + ' 분포 <span class="st-dist-close">✕</span></div>' + search +
-      '<div class="st-dist-chips">' + chips + '</div>' + more;
-    var qi = pk.querySelector('.st-dist-q');
-    if (qi) qi.oninput = function () { renderDistPicker(kind, this.value); var q2 = pk.querySelector('.st-dist-q'); if (q2) { q2.focus(); q2.setSelectionRange(q2.value.length, q2.value.length); } };
-    var mo = pk.querySelector('.st-dist-more'); if (mo) mo.onclick = function () { renderDistPicker(kind, q, true); };
-    pk.querySelector('.st-dist-close').onclick = function () { pk.hidden = true; pk.innerHTML = ''; distOpen = null; };
-    pk.querySelectorAll('.st-dist-chip').forEach(function (c) {
-      c.onclick = function () {
-        var val = c.dataset.k;
-        if (kind === 'country') document.getElementById('ht-f-country').value = val;
-        else document.getElementById('ht-f-type').value = val;
-        pk.hidden = true; pk.innerHTML = ''; distOpen = null;
-        htPage = 1; renderHotelList();
-      };
-    });
   }
   var hsCardKey = null;
   function setCardFilter(key) {

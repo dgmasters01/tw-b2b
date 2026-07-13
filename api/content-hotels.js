@@ -82,6 +82,71 @@ export default async function handler(req, res) {
     return res.status(500).json({ ok: false, error: '서버 설정 오류', detail: String(e.message || e) });
   }
 
+  // ── 호텔 상세 (hid 지정 시) — D-062 ①노출이력 ④예약·방문·취소·노쇼 ⑤리드타임 + 개별예약 ──
+  const hid = (req.query && req.query.hid ? String(req.query.hid) : '').trim();
+  if (hid) {
+    try {
+      const { data: bks, error: be } = await sb
+        .from('bookings_agoda')
+        .select('booked_at,checkin_date,checkout_date,nights,num_adults,num_children,num_rooms,room_type,customer_country,booking_amount_usd,commission_usd,booking_status,is_completed,is_cancelled,channel_code')
+        .eq('hotel_id_agoda', hid)
+        .order('booked_at', { ascending: false });
+      if (be) throw be;
+      const rows = bks || [];
+      const total = rows.length;
+      const done = rows.filter((r) => r.is_completed).length;
+      const cancelled = rows.filter((r) => r.is_cancelled).length;
+      const noshow = 0; // 아고다 원천에 노쇼 상태 없음 (D-062)
+      const amount = Math.round(rows.reduce((s, r) => s + (Number(r.booking_amount_usd) || 0), 0));
+      const commission = who.isAdmin ? Math.round(rows.reduce((s, r) => s + (Number(r.commission_usd) || 0), 0)) : null;
+      const confirmRate = total ? Math.round((done / total) * 100) : null;
+
+      // 리드타임 3구간 (임박 0~7 / 근접 8~30 / 먼 31+)
+      const lt = [{ n: 0, d: 0 }, { n: 0, d: 0 }, { n: 0, d: 0 }];
+      rows.forEach((r) => {
+        if (!r.checkin_date || !r.booked_at) return;
+        const days = Math.floor((new Date(r.checkin_date) - new Date(r.booked_at)) / 86400000);
+        if (days < 0) return;
+        const b = days <= 7 ? 0 : (days <= 30 ? 1 : 2);
+        lt[b].n++;
+        if (r.is_completed) lt[b].d++;
+      });
+      const leadtime = lt.map((x, i) => ({
+        label: ['임박(0~7일)', '근접(8~30일)', '먼(31일+)'][i],
+        count: x.n, done: x.d, rate: x.n ? Math.round((x.d / x.n) * 100) : null,
+      }));
+
+      const bookings = rows.slice(0, 50).map((r) => ({
+        booked_at: r.booked_at, checkin: r.checkin_date, checkout: r.checkout_date,
+        nights: r.nights, adults: r.num_adults, children: r.num_children, rooms: r.num_rooms,
+        room_type: r.room_type, customer_country: r.customer_country,
+        amount: Math.round(Number(r.booking_amount_usd) || 0),
+        commission: who.isAdmin ? Math.round(Number(r.commission_usd) || 0) : null,
+        status: r.is_cancelled ? '취소' : (r.is_completed ? '방문' : '예정'),
+        channel_code: r.channel_code,
+      }));
+
+      const { data: pubs } = await sb
+        .from('publications')
+        .select('published_at,channel_code,subject,title,hid_top1,hid_top2,hid_top3')
+        .or(`hid_top1.eq.${hid},hid_top2.eq.${hid},hid_top3.eq.${hid}`)
+        .order('published_at', { ascending: false });
+      const exposures = (pubs || []).map((p) => ({
+        published_at: p.published_at, channel_code: p.channel_code,
+        title: p.subject || p.title || '(제목 없음)',
+        rank: p.hid_top1 === hid ? 1 : (p.hid_top2 === hid ? 2 : 3),
+      }));
+
+      res.setHeader('Cache-Control', 'private, no-store, max-age=0');
+      return res.status(200).json({
+        ok: true, is_admin: !!who.isAdmin, hid,
+        detail: { total, done, cancelled, noshow, amount, commission, confirmRate, leadtime, bookings, exposures },
+      });
+    } catch (e) {
+      return res.status(500).json({ ok: false, error: '호텔 상세를 불러오지 못했습니다.', detail: String(e.message || e) });
+    }
+  }
+
   try {
     // 노출 많은 순 → 확정예약 많은 순. (수수료·거래액 칼럼은 뷰에 없음)
     const { data, error } = await sb

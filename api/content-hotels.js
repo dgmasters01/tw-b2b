@@ -156,10 +156,18 @@ export default async function handler(req, res) {
       .order('bookings_done', { ascending: false });
     if (error) throw error;
 
-    // 나라·도시·성급 붙이기 (뷰엔 없음 → 예약 데이터에서 hid 별로 가져와 병합)
+    // 나라·도시·성급·유형 붙이기 (뷰엔 없음 → 호텔 마스터 우선, 없으면 예약 데이터에서 보완)
     const hids = (data || []).map((h) => String(h.hid)).filter(Boolean);
-    const geo = {};
+    const master = {}; const geo = {};
     if (hids.length) {
+      const { data: hm } = await sb
+        .from('hotels')
+        .select('agoda_hotel_id,country,city,star_rating,property_type')
+        .in('agoda_hotel_id', hids);
+      (hm || []).forEach((r) => {
+        const k = String(r.agoda_hotel_id);
+        if (!master[k]) master[k] = { country: r.country || null, city: r.city || null, star: r.star_rating || null, ptype: r.property_type || null };
+      });
       const { data: bg } = await sb
         .from('bookings_agoda')
         .select('hotel_id_agoda,hotel_country,hotel_city,hotel_star')
@@ -169,9 +177,20 @@ export default async function handler(req, res) {
         if (!geo[k]) geo[k] = { country: r.hotel_country || null, city: r.hotel_city || null, star: r.hotel_star || null };
       });
     }
+    function hotelType(ptype, name) {
+      const s = ((ptype || '') + ' ' + (name || '')).toLowerCase();
+      return /resort|리조트|빌라|villa|beach|비치/.test(s) ? '리조트' : '호텔';
+    }
     const hotels = (data || []).map((h) => {
-      const g = geo[String(h.hid)] || {};
-      return { ...h, country: g.country || null, city: g.city || h.agoda_city || null, star: g.star || null };
+      const m = master[String(h.hid)] || {}; const g = geo[String(h.hid)] || {};
+      const name = h.name_in_script || h.name_in_agoda || '';
+      return {
+        ...h,
+        country: m.country || g.country || null,
+        city: m.city || g.city || h.agoda_city || null,
+        star: m.star || g.star || null,
+        htype: hotelType(m.ptype, name),
+      };
     });
 
     res.setHeader('Cache-Control', 'private, no-store, max-age=0');

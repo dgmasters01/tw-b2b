@@ -223,7 +223,36 @@
   .st-lt-fill { height:100%; border-radius:5px; }
   .st-lt-val { min-width:82px; text-align:right; color:#c4ccd6; }
   .st-htd-bk { display:flex; justify-content:space-between; gap:10px; padding:7px 0; font-size:12px; border-top:1px solid rgba(128,128,128,.1); flex-wrap:wrap; }
-  .st-htd-substat { font-size:11.5px; color:#c4ccd6; margin-top:7px; }
+  .st-htd-exp.clk { cursor:pointer; }
+  .st-htd-exp.clk:hover { background:rgba(128,140,160,.06); }
+  .st-htd-exp.on { background:rgba(74,144,217,.08); }
+  .st-exp-caret { color:#8a93a0; margin-left:6px; }
+  .st-htd-exp.on .st-exp-caret { color:#4A90D9; transform:rotate(90deg); display:inline-block; }
+  .st-exp-body { display:none; padding:2px 4px 12px; }
+  .st-exp-body.open { display:block; }
+  .st-exp-tags { display:flex; gap:8px; flex-wrap:wrap; align-items:center; font-size:11px; margin:8px 0 10px; }
+  .st-exp-stat { padding:2px 9px; border-radius:20px; font-weight:500; }
+  .st-exp-stat.live { background:rgba(93,202,165,.16); color:#3FB984; }
+  .st-exp-stat.wait { background:rgba(224,168,60,.16); color:#E0A83C; }
+  .st-exp-dim { color:#8a93a0; }
+  .st-exp-lbl { font-size:10.5px; color:#c4ccd6; font-weight:500; margin-bottom:5px; }
+  .st-exp-tops { display:flex; flex-direction:column; gap:4px; margin-bottom:10px; }
+  .st-exp-top { display:flex; gap:8px; align-items:center; font-size:11.5px; padding:6px 10px; border-radius:7px; background:rgba(128,140,160,.08); }
+  .st-exp-top.self { background:rgba(74,144,217,.12); outline:0.5px solid rgba(74,144,217,.4); }
+  .st-exp-top:not(.self) { cursor:pointer; }
+  .st-exp-top:not(.self):hover { background:rgba(74,144,217,.1); }
+  .st-exp-top .r { color:#8a93a0; font-weight:500; min-width:34px; }
+  .st-exp-top.self .r { color:#4A90D9; }
+  .st-exp-top .n { flex:1; }
+  .st-exp-top .me { font-size:10px; color:#8a93a0; }
+  .st-exp-top .go { font-size:10px; color:#4A90D9; }
+  .st-exp-btns { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px; }
+  .st-exp-btn { font-size:11px; padding:5px 12px; border-radius:8px; }
+  .st-exp-btn.yt { background:rgba(226,75,74,.14); color:#E24B4A; text-decoration:none; }
+  .st-exp-btn.dim { background:rgba(128,140,160,.1); color:#8a93a0; }
+  .st-exp-soon { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; border:0.5px dashed rgba(224,168,60,.4); border-radius:8px; padding:9px 11px; background:rgba(224,168,60,.04); }
+  .st-exp-soon .l { font-size:9.5px; color:#8a93a0; text-align:center; }
+  .st-exp-soon .v { font-size:12px; color:#8a93a0; text-align:center; }
   .st-paid-free { display:inline-block; font-size:11.5px; padding:4px 12px; border-radius:20px; background:rgba(128,140,160,.14); color:#8a93a0; }
   .st-paid-card { border:1px solid rgba(124,58,237,.4); background:linear-gradient(135deg,rgba(124,58,237,.1),rgba(6,182,212,.07)); }
   .st-paid-head { display:flex; align-items:center; gap:8px; margin-bottom:11px; }
@@ -1655,6 +1684,7 @@
         box.innerHTML = hotelDetailHtml(x.j.detail, x.j.is_admin, hid, name);
         bindLeadtimeExpand(box);
         bindFunnelDrill(box, x.j.detail, x.j.is_admin);
+        bindExposureExpand(box);
         item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       })
       .catch(function (e) { box.innerHTML = '<div class="st-empty">' + esc(e.message) + '</div>'; });
@@ -1708,6 +1738,35 @@
       '<span class="c-r" style="color:' + stCol + '">' + esc(b.status) + '</span>' +
       (isAdmin ? '<span class="c-r c-comm">' + (b.commission == null ? '—' : '$' + b.commission.toLocaleString()) + '</span>' : '') +
       '</div>';
+  }
+  function bindExposureExpand(box) {
+    box.querySelectorAll('.st-htd-exp.clk').forEach(function (row) {
+      var body = row.nextElementSibling;
+      if (!body || !body.classList.contains('st-exp-body')) return;
+      row.onclick = function (ev) {
+        if (ev.target.closest('[data-goto]') || ev.target.closest('a')) return;
+        var open = body.classList.toggle('open');
+        row.classList.toggle('on', open);
+      };
+    });
+    box.querySelectorAll('.st-exp-top[data-goto]').forEach(function (t) {
+      t.onclick = function (ev) {
+        ev.stopPropagation();
+        var toHid = t.getAttribute('data-goto');
+        gotoHotel(toHid);
+      };
+    });
+  }
+  function gotoHotel(toHid) {
+    // 목록에서 해당 호텔 찾아 상세 열기 (없으면 검색으로 노출 후)
+    var target = null;
+    (htAll || []).forEach(function (h) { if (String(h.hid) === String(toHid)) target = h; });
+    if (!target) { alert('그 호텔은 현재 목록 조건에 없어 열 수 없습니다. 필터를 초기화한 뒤 다시 시도해 주세요.'); return; }
+    var q = document.getElementById('ht-search'); if (q) q.value = String(toHid);
+    document.getElementById('ht-f-country').value = ''; document.getElementById('ht-f-city').value = '';
+    document.getElementById('ht-f-star').value = ''; var tS = document.getElementById('ht-f-type'); if (tS) tS.value = '';
+    htPage = 1; renderHotelList();
+    setTimeout(function () { loadHotelDetail(String(toHid), target.name, null); }, 60);
   }
   function bindFunnelDrill(box, d, isAdmin) {
     var fns = Array.prototype.slice.call(box.querySelectorAll('.st-fn[data-fn]'));
@@ -1785,14 +1844,33 @@
     // 유료 계약 카드 (매니저 결제 미러링, 단 인보이스·영수증·계약서 버튼 제외)
     h += paidContractHtml(d.contract, isAdmin);
 
-    // ① 노출 이력
-    h += '<div class="st-htd-sec"><div class="st-htd-h">① 노출 이력 · ' + d.exposures.length + '회</div>';
+    // ① 노출 이력 (줄 클릭 → 세부 펼침)
+    h += '<div class="st-htd-sec"><div class="st-htd-h">① 노출 이력 · ' + d.exposures.length + '회 <span class="st-lt-hint2">줄을 누르면 그 영상 세부</span></div>';
     if (d.exposures.length) {
-      h += d.exposures.map(function (e) {
-        return '<div class="st-htd-exp"><span class="st-htd-date">' + esc((e.published_at || '').slice(0, 10) || '미발행(대기)') + '</span>' +
+      h += d.exposures.map(function (e, i) {
+        var stTxt = (e.published_at) ? esc(e.published_at.slice(0, 10)) : '미발행(대기)';
+        var concept = [e.city, e.star ? (e.star + '성급') : '', e.price_band].filter(Boolean).join(' · ');
+        // 같이 나간 호텔 TOP1/2/3
+        var tops = (e.tops || []).map(function (t) {
+          var isThis = String(t.hid) === String(hid);
+          var nm = t.name ? esc(t.name) : ('hid ' + esc(t.hid));
+          if (isThis) return '<div class="st-exp-top self"><span class="r">TOP' + t.rank + '</span><span class="n">' + nm + '</span><span class="me">← 지금 이 호텔</span></div>';
+          return '<div class="st-exp-top" data-goto="' + esc(t.hid) + '"><span class="r">TOP' + t.rank + '</span><span class="n">' + nm + '</span><span class="go">이 호텔 보기 ›</span></div>';
+        }).join('');
+        var yt = e.youtube_url
+          ? '<a href="' + esc(e.youtube_url) + '" target="_blank" rel="noopener" class="st-exp-btn yt">▶ 유튜브 영상</a>'
+          : '<span class="st-exp-btn dim">▶ 유튜브 — 발행 후 링크</span>';
+        var body = '<div class="st-exp-body">' +
+          '<div class="st-exp-tags"><span class="st-exp-stat ' + (e.published_at ? 'live' : 'wait') + '">' + (e.published_at ? '발행' : '대기 · 미발행') + '</span>' +
+            '<span class="st-exp-dim">채널 ' + esc(chName(e.channel_code)) + '</span>' + (concept ? '<span class="st-exp-dim">· ' + esc(concept) + '</span>' : '') + '</div>' +
+          (tops ? '<div class="st-exp-lbl">이 영상에 같이 나간 호텔 (TOP3 묶음)</div><div class="st-exp-tops">' + tops + '</div>' : '') +
+          '<div class="st-exp-btns">' + yt + '</div>' +
+          '<div class="st-exp-soon"><div><div class="l">이 영상 조회</div><div class="v">연동 후</div></div><div><div class="l">이 영상 클릭</div><div class="v">연동 후</div></div><div><div class="l">이 영상 예약</div><div class="v">추적링크 후</div></div></div>' +
+          '</div>';
+        return '<div class="st-htd-exp clk" data-exp="' + i + '"><span class="st-htd-date">' + stTxt + '</span>' +
           '<span class="st-htd-ch">' + esc(e.channel_code || '') + '</span>' +
           '<span class="st-htd-etitle">' + esc(e.title) + '</span>' +
-          '<span class="st-htd-rank">TOP' + e.rank + '</span></div>';
+          '<span class="st-htd-rank">TOP' + e.rank + '</span><span class="st-exp-caret">›</span></div>' + body;
       }).join('');
     } else { h += '<div class="st-hint">아직 노출 이력이 없습니다.</div>'; }
     h += '</div>';

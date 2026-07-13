@@ -105,7 +105,7 @@ function previousRange(fromISO, toISO) {
 
 // bookings_agoda 필요 컬럼만 기간 필터로 끌어오기 (range 페이징).
 async function fetchBookings(sb, fromISO, toISO) {
-  const cols = 'channel_code,booking_amount_usd,commission_usd,is_cancelled,is_completed,booked_at';
+  const cols = 'channel_code,booking_amount_usd,commission_usd,is_cancelled,is_completed,booked_at,hotel_id';
   const size = 1000;
   let all = [], page = 0;
   while (page < 25) {
@@ -173,6 +173,43 @@ function byChannel(rows, nameMap, withComm) {
   });
   arr.sort((a, b) => (b.bookings - a.bookings) || (b.amount_usd - a.amount_usd));
   arr.forEach((c, i) => { c.rank = i + 1; });
+  return arr;
+}
+
+// 예약 배열 → 호텔별 집계 (예약 건수 내림차순). 이름·유형·성급은 hotels 마스터에서.
+function byHotel(rows, hotelMeta, withComm) {
+  const TYPE = { hotel: '호텔', resort: '리조트', apartment: '아파트', villa: '빌라', hostel: '호스텔', ryokan: '료칸', guesthouse: '게스트하우스', other: '기타' };
+  const m = {};
+  for (const r of rows) {
+    const hid = r.hotel_id;
+    if (!hid) continue;
+    const h = m[hid] || (m[hid] = { hotel_id: hid, total: 0, done: 0, canc: 0, amount: 0, comm: 0 });
+    h.total++;
+    if (r.is_completed) h.done++;
+    if (r.is_cancelled) { h.canc++; continue; }
+    h.amount += Number(r.booking_amount_usd) || 0;
+    h.comm += Number(r.commission_usd) || 0;
+  }
+  const arr = Object.values(m).map((h) => {
+    const meta = hotelMeta[h.hotel_id] || {};
+    const o = {
+      name: meta.name || '(이름 없음)',
+      type: meta.type ? (TYPE[meta.type] || meta.type) : null,
+      star: meta.star || null,
+      country: meta.country || null,
+      city: meta.city || null,
+      bookings: h.total,
+      completed: h.done,
+      cancelled: h.canc,
+      confirm_rate: rate(h.done, h.canc),
+      cancel_rate: h.total ? Math.round((h.canc / h.total) * 1000) / 10 : null,
+      amount_usd: Math.round(h.amount),
+    };
+    if (withComm) o.commission_usd = Math.round(h.comm);
+    return o;
+  });
+  arr.sort((a, b) => (b.bookings - a.bookings) || (b.amount_usd - a.amount_usd));
+  arr.forEach((h, i) => { h.rank = i + 1; });
   return arr;
 }
 
@@ -249,6 +286,16 @@ export default async function handler(req, res) {
     const channels = byChannel(bookings, nameMap, withComm);
     const tr = trend(bookings, from, to);
 
+    // 호텔별: 기간 예약을 hotel_id(우리 마스터)로 묶고 이름·유형·성급 조인
+    const hotelIds = [...new Set((bookings || []).map(r => r.hotel_id).filter(Boolean))];
+    const hotelMeta = {};
+    for (let i = 0; i < hotelIds.length; i += 500) {
+      const chunk = hotelIds.slice(i, i + 500);
+      const { data: hm } = await sb.from('hotels').select('id,hotel_name,property_type,star_rating,country,city').in('id', chunk);
+      (hm || []).forEach((r) => { hotelMeta[r.id] = { name: r.hotel_name, type: r.property_type, star: r.star_rating, country: r.country, city: r.city }; });
+    }
+    const hotels = byHotel(bookings, hotelMeta, withComm);
+
     // 비교 (프리셋·custom 등 from 있을 때만)
     let compare = null;
     if (wantCompare) {
@@ -279,6 +326,8 @@ export default async function handler(req, res) {
       summary,
       compare,
       channels,
+      hotels,
+      hotel_count: hotels.length,
       trend: tr,
       videos,
       video_count: videos.length,

@@ -129,6 +129,13 @@
   .st-ht-click:hover { border-color:rgba(128,140,160,.5); }
   .st-ht-open { color:#4A90D9; }
   .st-ht-detail { margin-top:12px; }
+  .st-ht-filters { display:flex; gap:8px; flex-wrap:wrap; margin:10px 0 12px; }
+  .st-ht-search { flex:1; min-width:180px; font-size:13px; padding:8px 12px; border-radius:10px; border:1px solid rgba(128,128,128,.35); background:#1b1f27; color:#e8ebf0; }
+  .st-ht-sel { font-size:13px; padding:8px 12px; border-radius:10px; border:1px solid rgba(128,128,128,.35); background:#1b1f27; color:#e8ebf0; }
+  .st-ht-sel option { background:#1b1f27; color:#e8ebf0; }
+  .st-ht-geoline { display:flex; gap:6px; align-items:center; margin:2px 0 4px; flex-wrap:wrap; }
+  .st-ht-geo { font-size:12px; color:#8a93a0; }
+  .st-ht-tag { font-size:11px; padding:1px 8px; border-radius:8px; border:1px solid rgba(128,140,160,.4); color:#c4ccd6; }
   .st-htd { border:1px solid rgba(128,128,128,.3); border-radius:14px; padding:16px; background:rgba(128,140,160,.04); }
   .st-htd-title { font-size:15px; font-weight:600; margin-bottom:12px; }
   .st-htd-hid { font-size:12px; color:#8a93a0; font-weight:400; }
@@ -403,6 +410,12 @@
       <div><div class="st-h">호텔</div><div class="st-sub" id="st-ht-count">불러오는 중…</div></div>
     </div>
     <div class="st-hint">우리 영상에 노출한 호텔별 성과입니다. 노출 횟수·최고 순위(TOP1/2/3)·확정/취소 예약을 봅니다. 수수료·거래액은 여기 안 보입니다.</div>
+    <div class="st-ht-filters">
+      <input type="text" id="ht-search" class="st-ht-search" placeholder="호텔명·hid 검색…">
+      <select id="ht-f-country" class="st-ht-sel"><option value="">나라 전체</option></select>
+      <select id="ht-f-city" class="st-ht-sel"><option value="">도시 전체</option></select>
+      <select id="ht-f-star" class="st-ht-sel"><option value="">성급 전체</option></select>
+    </div>
     <div id="st-ht-list"><div class="st-empty">불러오는 중…</div></div>
     <div id="st-ht-detail" class="st-ht-detail"></div>
   </section>
@@ -1453,8 +1466,12 @@
     var agoda = h.name_in_agoda && h.name_in_agoda !== name ? h.name_in_agoda : '';
     var city = h.agoda_city ? (agoda ? ' · ' : '') + h.agoda_city : '';
     var subLine = (agoda || city) ? '<div class="st-ht-sub">' + esc(agoda) + esc(city) + '</div>' : '';
+    var geo = [];
+    if (h.country || h.city) geo.push('<span class="st-ht-geo">' + esc([h.country, h.city].filter(Boolean).join(' · ')) + '</span>');
+    if (h.star) geo.push('<span class="st-ht-tag">' + h.star + '성급</span>');
+    var geoLine = geo.length ? '<div class="st-ht-geoline">' + geo.join('') + '</div>' : '';
     return '<div class="st-ch-card st-ht-click" data-hopen="' + esc(h.hid) + '">' +
-      '<div class="st-ch-name">' + esc(name) + '</div>' + subLine +
+      '<div class="st-ch-name">' + esc(name) + '</div>' + geoLine + subLine +
       '<div class="st-ht-chips">' +
         '<span class="st-ch-chip">채널 ' + esc(chs) + '</span>' +
         '<span class="st-ch-chip">' + htRank(h.best_rank) + '</span>' +
@@ -1541,31 +1558,61 @@
     h += '</div>';
     return h;
   }
+  var htAll = [];
   function loadHotels() {
     var list = document.getElementById('st-ht-list');
     fetch('/api/content-hotels', { credentials: 'same-origin' })
       .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
       .then(function (x) {
         if (!x.ok || !x.j.ok) throw new Error(x.j.error || '불러오지 못했습니다.');
-        var hs = x.j.hotels || [];
-        var doneSum = hs.reduce(function (n, h) { return n + (h.bookings_done || 0); }, 0);
-        document.getElementById('st-ht-count').textContent =
-          hs.length + '개 호텔 · 확정예약 ' + doneSum + '건';
-        list.innerHTML = hs.length
-          ? hs.map(hotelRow).join('')
-          : '<div class="st-empty">아직 노출된 호텔이 없습니다.<br>올리기에서 원고를 넣어 TOP1/2/3 호텔이 잡히면 여기 나타납니다.</div>';
-        list.querySelectorAll('[data-hopen]').forEach(function (c) {
-          c.onclick = function () {
-            var hid = c.dataset.hopen;
-            var hh = hs.find(function (z) { return String(z.hid) === String(hid); });
-            var nm = hh ? (hh.name_in_script || hh.name_in_agoda || ('호텔 ' + hh.hid)) : '';
-            loadHotelDetail(hid, nm);
-          };
-        });
+        htAll = x.j.hotels || [];
+        populateHotelFilters();
+        renderHotelList();
       })
-      .catch(function (e) {
-        list.innerHTML = '<div class="st-empty">' + esc(e.message) + '</div>';
-      });
+      .catch(function (e) { list.innerHTML = '<div class="st-empty">' + esc(e.message) + '</div>'; });
+  }
+  function htUniq(arr) { return arr.filter(function (v, i) { return v && arr.indexOf(v) === i; }); }
+  function populateHotelFilters() {
+    var cSel = document.getElementById('ht-f-country'), citySel = document.getElementById('ht-f-city'), sSel = document.getElementById('ht-f-star');
+    if (!cSel) return;
+    var countries = htUniq(htAll.map(function (h) { return h.country; })).sort();
+    var cities = htUniq(htAll.map(function (h) { return h.city; })).sort();
+    var stars = htUniq(htAll.map(function (h) { return h.star; })).sort(function (a, b) { return a - b; });
+    cSel.innerHTML = '<option value="">나라 전체</option>' + countries.map(function (c) { return '<option value="' + esc(c) + '">' + esc(c) + '</option>'; }).join('');
+    citySel.innerHTML = '<option value="">도시 전체</option>' + cities.map(function (c) { return '<option value="' + esc(c) + '">' + esc(c) + '</option>'; }).join('');
+    sSel.innerHTML = '<option value="">성급 전체</option>' + stars.map(function (s) { return '<option value="' + s + '">' + s + '성급</option>'; }).join('');
+    [cSel, citySel, sSel].forEach(function (el) { el.onchange = renderHotelList; });
+    var q = document.getElementById('ht-search'); if (q) q.oninput = renderHotelList;
+  }
+  function renderHotelList() {
+    var list = document.getElementById('st-ht-list');
+    var q = (document.getElementById('ht-search').value || '').trim().toLowerCase();
+    var fc = document.getElementById('ht-f-country').value;
+    var fcity = document.getElementById('ht-f-city').value;
+    var fs = document.getElementById('ht-f-star').value;
+    var hs = htAll.filter(function (h) {
+      if (fc && h.country !== fc) return false;
+      if (fcity && h.city !== fcity) return false;
+      if (fs && String(h.star) !== String(fs)) return false;
+      if (q) {
+        var hay = ((h.name_in_script || '') + ' ' + (h.name_in_agoda || '') + ' ' + (h.hid || '')).toLowerCase();
+        if (hay.indexOf(q) < 0) return false;
+      }
+      return true;
+    });
+    var doneSum = hs.reduce(function (n, h) { return n + (h.bookings_done || 0); }, 0);
+    document.getElementById('st-ht-count').textContent = hs.length + '개 호텔 · 확정예약 ' + doneSum + '건';
+    list.innerHTML = hs.length
+      ? hs.map(hotelRow).join('')
+      : '<div class="st-empty">조건에 맞는 호텔이 없습니다.</div>';
+    list.querySelectorAll('[data-hopen]').forEach(function (c) {
+      c.onclick = function () {
+        var hid = c.dataset.hopen;
+        var hh = htAll.find(function (z) { return String(z.hid) === String(hid); });
+        var nm = hh ? (hh.name_in_script || hh.name_in_agoda || ('호텔 ' + hh.hid)) : '';
+        loadHotelDetail(hid, nm);
+      };
+    });
   }
 
   /* ── 채널 메뉴 (D-064) ───────────────────────────────────── */

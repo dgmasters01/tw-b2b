@@ -147,14 +147,27 @@ export default async function handler(req, res) {
 
       const { data: pubs } = await sb
         .from('publications')
-        .select('published_at,channel_code,title,hid_top1,hid_top2,hid_top3')
+        .select('published_at,channel_code,title,hid_top1,hid_top2,hid_top3,status,youtube_url,city,star,price_band,hotel_names')
         .or(`hid_top1.eq.${hid},hid_top2.eq.${hid},hid_top3.eq.${hid}`)
         .order('published_at', { ascending: false });
-      const exposures = (pubs || []).map((p) => ({
-        published_at: p.published_at, channel_code: p.channel_code,
-        title: p.title || '(제목 없음)',
-        rank: p.hid_top1 === hid ? 1 : (p.hid_top2 === hid ? 2 : 3),
-      }));
+      const exposures = (pubs || []).map((p) => {
+        var names = Array.isArray(p.hotel_names) ? p.hotel_names : [];
+        // TOP1/2/3 각각 hid + 이름(있으면) 매핑 — hotel_names 순서는 top1,top2,top3 가정
+        var tops = [
+          { rank: 1, hid: p.hid_top1, name: names[0] || null },
+          { rank: 2, hid: p.hid_top2, name: names[1] || null },
+          { rank: 3, hid: p.hid_top3, name: names[2] || null },
+        ].filter((t) => t.hid);
+        return {
+          published_at: p.published_at, channel_code: p.channel_code,
+          title: p.title || '(제목 없음)',
+          rank: p.hid_top1 === hid ? 1 : (p.hid_top2 === hid ? 2 : 3),
+          status: p.status || 'draft',
+          youtube_url: p.youtube_url || null,
+          city: p.city || null, star: p.star || null, price_band: p.price_band || null,
+          tops: tops,
+        };
+      });
 
       // 유료 계약 (아고다 hid → hotels.agoda_hotel_id → hotels.id → v_manager_payments.hotel_id)
       let contract = { paid: false, payments: [] };

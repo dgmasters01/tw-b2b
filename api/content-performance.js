@@ -223,16 +223,24 @@ export default async function handler(req, res) {
   try {
     const { from, to } = periodRange(period, fromQ, toQ);
 
-    // 채널 이름 매핑 + 영상(원고) + 노출호텔 + 기간 예약 병렬
-    const [chRes, pubRes, expRes, bookings] = await Promise.all([
+    // 채널 이름 매핑 + 영상(원고) + 노출호텔 + 기간 예약 + 데이터 기준일 병렬
+    const [chRes, pubRes, expRes, bookings, asofBk, asofUp] = await Promise.all([
       sb.from('v_channel_stats').select('channel_code, channel_name, is_active'),
       sb.from('publications')
         .select('id, channel_code, status, published_at, title, youtube_video_id')
         .order('published_at', { ascending: false, nullsFirst: false }),
       sb.from('v_content_hotel_exposure').select('publication_id, rank, name_in_script, hid'),
       fetchBookings(sb, from, to),
+      // 예약 데이터 기준일: 마지막 예약일(=데이터가 커버하는 끝) + 마지막 업로드일
+      sb.from('bookings_agoda').select('booked_at').not('booked_at', 'is', null).order('booked_at', { ascending: false }).limit(1),
+      sb.from('bookings_agoda').select('created_at').order('created_at', { ascending: false }).limit(1),
     ]);
     for (const r of [chRes, pubRes, expRes]) if (r.error) throw r.error;
+
+    const dataAsof = {
+      last_booking: (asofBk && asofBk.data && asofBk.data[0] && asofBk.data[0].booked_at) ? String(asofBk.data[0].booked_at).slice(0, 10) : null,
+      last_upload: (asofUp && asofUp.data && asofUp.data[0] && asofUp.data[0].created_at) ? String(asofUp.data[0].created_at).slice(0, 10) : null,
+    };
 
     const nameMap = {};
     for (const c of (chRes.data || [])) nameMap[c.channel_code] = c.channel_name;
@@ -267,6 +275,7 @@ export default async function handler(req, res) {
       ok: true,
       is_admin: withComm,
       period: { key: period, from, to },
+      data_asof: dataAsof,
       summary,
       compare,
       channels,

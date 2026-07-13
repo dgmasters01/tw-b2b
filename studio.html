@@ -223,7 +223,16 @@
   .st-lt-fill { height:100%; border-radius:5px; }
   .st-lt-val { min-width:82px; text-align:right; color:#c4ccd6; }
   .st-htd-bk { display:flex; justify-content:space-between; gap:10px; padding:7px 0; font-size:12px; border-top:1px solid rgba(128,128,128,.1); flex-wrap:wrap; }
-  .st-htd-exp.clk { cursor:pointer; }
+  .st-hmodal { position:fixed; inset:0; z-index:1000; display:flex; align-items:flex-start; justify-content:center; padding:40px 16px; }
+  .st-hmodal[hidden] { display:none; }
+  .st-hmodal-back { position:absolute; inset:0; background:rgba(3,8,15,.68); backdrop-filter:blur(2px); }
+  .st-hmodal-panel { position:relative; width:100%; max-width:760px; max-height:calc(100vh - 80px); display:flex; flex-direction:column; background:#0c1420; border:1px solid rgba(74,144,217,.35); border-radius:14px; box-shadow:0 20px 60px rgba(0,0,0,.55); overflow:hidden; }
+  .st-hmodal-head { display:flex; align-items:center; gap:10px; padding:13px 16px; border-bottom:0.5px solid rgba(128,128,128,.2); flex-shrink:0; }
+  .st-hmodal-title { font-size:14px; font-weight:600; flex:1; }
+  .st-hmodal-close { font-size:15px; color:#8a93a0; background:none; border:none; cursor:pointer; padding:4px 8px; border-radius:6px; }
+  .st-hmodal-close:hover { background:rgba(128,140,160,.15); color:#e6ebf2; }
+  .st-hmodal-body { padding:14px 16px; overflow-y:auto; }
+  @media (max-width:640px){ .st-hmodal { padding:16px 8px; } }
   .st-htd-exp.clk:hover { background:rgba(128,140,160,.06); }
   .st-htd-exp.on { background:rgba(74,144,217,.08); }
   .st-exp-caret { color:#8a93a0; margin-left:6px; }
@@ -585,6 +594,16 @@
     <div id="st-ht-list"><div class="st-empty">불러오는 중…</div></div>
     <div id="st-ht-pager" class="st-ht-pager"></div>
   </section>
+  <div id="st-hotel-modal" class="st-hmodal" hidden>
+    <div class="st-hmodal-back"></div>
+    <div class="st-hmodal-panel">
+      <div class="st-hmodal-head">
+        <div class="st-hmodal-title" id="st-hmodal-title">호텔</div>
+        <button class="st-hmodal-close" id="st-hmodal-close" aria-label="닫기">✕</button>
+      </div>
+      <div class="st-hmodal-body" id="st-hmodal-body"><div class="st-empty">불러오는 중…</div></div>
+    </div>
+  </div>
   <section class="st-view" id="view-keyword">
     <div class="st-head">
       <div><div class="st-h">키워드</div><div class="st-sub" id="st-kw-sub">불러오는 중…</div></div>
@@ -1758,16 +1777,44 @@
     });
   }
   function gotoHotel(toHid) {
-    // 목록에서 해당 호텔 찾아 상세 열기 (없으면 검색으로 노출 후)
-    var target = null;
-    (htAll || []).forEach(function (h) { if (String(h.hid) === String(toHid)) target = h; });
-    if (!target) { alert('그 호텔은 현재 목록 조건에 없어 열 수 없습니다. 필터를 초기화한 뒤 다시 시도해 주세요.'); return; }
-    var q = document.getElementById('ht-search'); if (q) q.value = String(toHid);
-    document.getElementById('ht-f-country').value = ''; document.getElementById('ht-f-city').value = '';
-    document.getElementById('ht-f-star').value = ''; var tS = document.getElementById('ht-f-type'); if (tS) tS.value = '';
-    htPage = 1; renderHotelList();
-    setTimeout(function () { loadHotelDetail(String(toHid), target.name, null); }, 60);
+    // 같은 상세를 팝업(오버레이)으로 — 보던 화면 유지, 닫으면 원래대로
+    var modal = document.getElementById('st-hotel-modal');
+    var body = document.getElementById('st-hmodal-body');
+    var titleEl = document.getElementById('st-hmodal-title');
+    if (!modal || !body) return;
+    var nm = '';
+    (htAll || []).forEach(function (h) { if (String(h.hid) === String(toHid)) nm = h.name || ''; });
+    titleEl.textContent = nm || ('hid ' + toHid);
+    body.innerHTML = '<div class="st-empty">상세 불러오는 중…</div>';
+    modal.hidden = false;
+    document.body.style.overflow = 'hidden';
+    fetch('/api/content-hotels?hid=' + encodeURIComponent(toHid), { credentials: 'same-origin' })
+      .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+      .then(function (x) {
+        if (!x.ok || !x.j.ok) throw new Error(x.j.error || '불러오지 못했습니다.');
+        body.innerHTML = hotelDetailHtml(x.j.detail, x.j.is_admin, String(toHid), nm);
+        bindLeadtimeExpand(body);
+        bindFunnelDrill(body, x.j.detail, x.j.is_admin);
+        bindExposureExpand(body);
+        body.scrollTop = 0;
+      })
+      .catch(function (e) { body.innerHTML = '<div class="st-empty">' + esc(e.message) + '</div>'; });
   }
+  function closeHotelModal() {
+    var modal = document.getElementById('st-hotel-modal');
+    if (!modal || modal.hidden) return;
+    modal.hidden = true;
+    document.getElementById('st-hmodal-body').innerHTML = '';
+    document.body.style.overflow = '';
+  }
+  function bindHotelModal() {
+    var m = document.getElementById('st-hotel-modal');
+    if (!m) { setTimeout(bindHotelModal, 100); return; }
+    m.querySelector('.st-hmodal-back').onclick = closeHotelModal;
+    document.getElementById('st-hmodal-close').onclick = closeHotelModal;
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeHotelModal(); });
+  }
+  bindHotelModal();
   function bindFunnelDrill(box, d, isAdmin) {
     var fns = Array.prototype.slice.call(box.querySelectorAll('.st-fn[data-fn]'));
     var panel = box.querySelector('.st-funnel-panel');

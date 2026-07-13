@@ -156,10 +156,33 @@ export default async function handler(req, res) {
         rank: p.hid_top1 === hid ? 1 : (p.hid_top2 === hid ? 2 : 3),
       }));
 
+      // 유료 계약 (아고다 hid → hotels.agoda_hotel_id → hotels.id → v_manager_payments.hotel_id)
+      let contract = { paid: false, payments: [] };
+      try {
+        const { data: hm } = await sb.from('hotels').select('id').eq('agoda_hotel_id', hid).limit(1);
+        const hotelId = hm && hm[0] ? hm[0].id : null;
+        if (hotelId) {
+          const { data: pays } = await sb.from('v_manager_payments')
+            .select('payment_order,payment_status,amount,currency,paid_at,guarantee_end_at,refunded_at,refund_amount')
+            .eq('hotel_id', hotelId).order('payment_order', { ascending: true });
+          const list = (pays || []).map((p) => {
+            const done = ['paid', 'completed', 'succeeded', 'captured'].includes((p.payment_status || '').toLowerCase());
+            const ended = !!p.refunded_at || (p.guarantee_end_at && new Date(p.guarantee_end_at) < new Date());
+            return {
+              order: p.payment_order, active: done && !ended, ended: ended,
+              amount: Math.round(Number(p.amount) || 0), currency: p.currency || 'USD',
+              paid_at: p.paid_at, guarantee_end_at: p.guarantee_end_at,
+              refunded_at: p.refunded_at || null, refund_amount: p.refund_amount || null,
+            };
+          });
+          contract = { paid: list.some((x) => x.active || x.ended), payments: list };
+        }
+      } catch (e) { /* 계약 없음 → 무료로 표시 */ }
+
       res.setHeader('Cache-Control', 'private, no-store, max-age=0');
       return res.status(200).json({
         ok: true, is_admin: !!who.isAdmin, hid,
-        detail: { total, done, cancelled, noshow, amount, commission, confirmRate, leadtime, byChannel, bookings, exposures },
+        detail: { total, done, cancelled, noshow, amount, commission, confirmRate, leadtime, byChannel, bookings, exposures, contract },
       });
     } catch (e) {
       return res.status(500).json({ ok: false, error: '호텔 상세를 불러오지 못했습니다.', detail: String(e.message || e) });

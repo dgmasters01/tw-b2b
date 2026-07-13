@@ -1707,7 +1707,7 @@
 
     // 예약 테이블 (숨김; 구간/전체 클릭 시 표시·필터)
     var admCls = isAdmin ? ' adm' : '';
-    var adm = isAdmin ? '<span class="c-comm">수수료</span>' : '';
+    var adm = isAdmin ? '<span class="c-r c-comm">수수료</span>' : '';
     var bkHead = '<div class="st-bk-h' + admCls + '"><span>예약번호</span><span>예약일</span><span>체크인</span><span>체크아웃</span><span class="c-c">박</span><span>국가</span><span class="c-c">기기</span><span class="c-r">금액</span><span class="c-r">상태</span>' + adm + '</div>';
     var bkRows = d.bookings.slice(0, 50).map(function (b) {
       var days = (b.checkin && b.booked_at) ? Math.floor((new Date(b.checkin) - new Date(b.booked_at)) / 86400000) : -1;

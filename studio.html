@@ -224,6 +224,21 @@
   .st-lt-val { min-width:82px; text-align:right; color:#c4ccd6; }
   .st-htd-bk { display:flex; justify-content:space-between; gap:10px; padding:7px 0; font-size:12px; border-top:1px solid rgba(128,128,128,.1); flex-wrap:wrap; }
   .st-htd-substat { font-size:11.5px; color:#c4ccd6; margin-top:7px; }
+  .st-paid-free { display:inline-block; font-size:11.5px; padding:4px 12px; border-radius:20px; background:rgba(128,140,160,.14); color:#8a93a0; }
+  .st-paid-card { border:1px solid rgba(124,58,237,.4); background:linear-gradient(135deg,rgba(124,58,237,.1),rgba(6,182,212,.07)); }
+  .st-paid-head { display:flex; align-items:center; gap:8px; margin-bottom:11px; }
+  .st-paid-rank { font-size:14px; font-weight:600; }
+  .st-paid-badge { font-size:11px; font-weight:600; padding:3px 10px; border-radius:99px; }
+  .st-paid-badge.active { background:rgba(93,202,165,.2); color:#3FB984; }
+  .st-paid-meta { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+  .st-paid-meta .l { font-size:10px; color:#8a93a0; text-transform:uppercase; }
+  .st-paid-meta .v { font-size:14px; font-weight:600; }
+  .st-paid-meta .s { font-size:10.5px; color:#c4ccd6; margin-top:1px; }
+  .st-paid-meta .s.warn { color:#E0A83C; }
+  .st-paid-guar { margin-top:11px; padding:8px 11px; border-radius:8px; background:rgba(93,202,165,.08); font-size:11px; color:#c4ccd6; }
+  .st-paid-erow { display:grid; grid-template-columns:60px 1fr 1fr 60px; gap:6px; padding:8px 11px; font-size:11px; align-items:center; border-top:0.5px solid rgba(128,128,128,.1); }
+  .st-paid-erow .c-r { text-align:right; } .st-paid-erow .dim { color:#8a93a0; }
+  .st-paid-eh { font-size:9.5px; color:#8a93a0; border-top:none; border-bottom:0.5px solid rgba(128,128,128,.2); }
   .st-lt-hint2 { font-size:10.5px; color:#8a93a0; font-weight:400; margin-left:6px; }
   .st-lt-row { display:grid; grid-template-columns:104px 1fr 84px 14px; gap:8px; align-items:center; padding:5px 6px; border-radius:7px; }
   .st-lt-row.clk { cursor:pointer; }
@@ -1644,7 +1659,36 @@
       })
       .catch(function (e) { box.innerHTML = '<div class="st-empty">' + esc(e.message) + '</div>'; });
   }
-  function bkDev(b) { return b.device ? (/mob|phone|안드|iphone|ios/i.test(b.device) ? '📱' : (/tab/i.test(b.device) ? '📲' : '💻')) : '—'; }
+  function fmtD(s) { return s ? String(s).slice(0, 10) : '—'; }
+  function paidContractHtml(c, isAdmin) {
+    if (!c || !c.paid || !c.payments || !c.payments.length) {
+      return '<div class="st-htd-sec"><span class="st-paid-free">소개만 · 유료 계약 없음</span></div>';
+    }
+    var active = c.payments.filter(function (p) { return p.active; });
+    var ended = c.payments.filter(function (p) { return p.ended; });
+    var h = '';
+    active.forEach(function (p) {
+      var dday = p.guarantee_end_at ? ('D-' + Math.max(0, Math.ceil((new Date(p.guarantee_end_at) - new Date()) / 86400000))) : '자동 시작';
+      h += '<div class="st-htd-sec st-paid-card">' +
+        '<div class="st-paid-head"><span class="st-paid-rank">' + p.order + '차 계약</span><span class="st-paid-badge active">운영 중</span></div>' +
+        '<div class="st-paid-meta">' +
+          '<div><div class="l">선결제일</div><div class="v">' + fmtD(p.paid_at) + '</div><div class="s">$' + p.amount.toLocaleString() + ' · ' + p.currency + '</div></div>' +
+          '<div><div class="l">노출 시작</div><div class="v">' + fmtD(p.paid_at) + '</div><div class="s">실제 게시일</div></div>' +
+          '<div><div class="l">보장 기한</div><div class="v">' + fmtD(p.guarantee_end_at) + '</div><div class="s warn">' + dday + '</div></div>' +
+        '</div>' +
+        '<div class="st-paid-guar">🛡 6개월 보장 기한 내 예약 0건 시 100% 환불 (계약서 4조)</div>' +
+      '</div>';
+    });
+    if (ended.length) {
+      h += '<div class="st-htd-sec"><div class="st-htd-h">종료된 계약 · ' + ended.length + '건</div>' +
+        '<div class="st-bk-tbl"><div class="st-paid-erow st-paid-eh"><span>회차</span><span>선결제일</span><span>보장 만료</span><span class="c-r">상태</span></div>' +
+        ended.map(function (p) {
+          var st = p.refunded_at ? '환불' : '만료';
+          return '<div class="st-paid-erow"><span>' + p.order + '차</span><span class="dim">' + fmtD(p.paid_at) + '</span><span class="dim">' + fmtD(p.guarantee_end_at) + '</span><span class="c-r">' + st + '</span></div>';
+        }).join('') + '</div></div>';
+    }
+    return h;
+  }
   function bkHeadHtml(isAdmin) {
     var admCls = isAdmin ? ' adm' : '', adm = isAdmin ? '<span class="c-r c-comm">수수료</span>' : '';
     return '<div class="st-bk-h' + admCls + '"><span>예약번호</span><span>예약일</span><span>체크인</span><span>체크아웃</span><span class="c-c">박</span><span>국가</span><span class="c-c">기기</span><span class="c-r">금액</span><span class="c-r">상태</span>' + adm + '</div>';
@@ -1737,6 +1781,9 @@
   }
   function hotelDetailHtml(d, isAdmin, hid, name) {
     var h = '<div class="st-htd">';
+
+    // 유료 계약 카드 (매니저 결제 미러링, 단 인보이스·영수증·계약서 버튼 제외)
+    h += paidContractHtml(d.contract, isAdmin);
 
     // ① 노출 이력
     h += '<div class="st-htd-sec"><div class="st-htd-h">① 노출 이력 · ' + d.exposures.length + '회</div>';

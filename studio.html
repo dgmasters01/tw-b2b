@@ -139,7 +139,7 @@
   .st-ht-tag.resort { border-color:#4A90D9; color:#79b4ef; }
   .st-ht-item { margin-bottom:10px; border:1px solid rgba(128,128,128,.28); border-radius:14px; overflow:hidden; }
   .st-ht-item:hover { border-color:rgba(128,140,160,.5); }
-  .st-ht-item.open { border-color:rgba(74,144,217,.55); background:rgba(74,144,217,.04); }
+  .st-ht-item.open { border-color:rgba(128,140,160,.55); background:rgba(128,140,160,.06); }
   .st-ht-item .st-ch-card { margin:0; border:none; border-radius:0; background:transparent; }
   .st-ht-inline:not(:empty) { border-top:1px solid rgba(128,128,128,.16); }
   .st-htd { border:none; background:transparent; padding:6px 14px 14px; }
@@ -167,6 +167,12 @@
   .st-htd-bk { display:flex; justify-content:space-between; gap:10px; padding:7px 0; font-size:12px; border-top:1px solid rgba(128,128,128,.1); flex-wrap:wrap; }
   .st-htd-bk-l { color:#c4ccd6; flex:1; min-width:200px; }
   .st-htd-bk-r { white-space:nowrap; font-weight:600; }
+  .st-flow { display:flex; align-items:center; gap:8px; flex-wrap:wrap; background:var(--surface-1,rgba(128,140,160,.07)); border-radius:8px; padding:10px 12px; }
+  .st-flow-c { text-align:center; min-width:44px; }
+  .st-flow-n { font-size:15px; font-weight:500; }
+  .st-flow-n.muted { color:#8a93a0; font-size:13px; }
+  .st-flow-l { font-size:10px; color:#8a93a0; }
+  .st-flow-a { color:#8a93a0; font-size:13px; }
   .st-lbody { padding:2px 13px 13px; border-top:1px solid rgba(128,128,128,.14); display:none; }
   .st-lrow.open .st-lbody { display:block; }
   .st-copyn { flex:none; width:18px; text-align:center; font-weight:600; opacity:.4; }
@@ -1548,6 +1554,27 @@
       '</div>';
     h += '<div class="st-htd-money">예약금액 <b>$' + (d.amount || 0).toLocaleString() + '</b>' +
       (isAdmin && d.commission != null ? ' · <span class="st-htd-comm">수수료 $' + d.commission.toLocaleString() + ' (대표님만)</span>' : '') + '</div></div>';
+
+    // 성과 종합 — 전환 흐름 + 노출·리드타임 요약 (대표님 지적 반영)
+    var expN = d.exposures.length;
+    var bestRank = d.exposures.reduce(function (m, e) { return (m == null || e.rank < m) ? e.rank : m; }, null);
+    var strong = d.leadtime.filter(function (b) { return b.count; }).sort(function (a, b) { return (b.rate || 0) - (a.rate || 0); })[0];
+    var strongTxt = strong ? (strong.label.split('(')[0].trim() + ' 강함') : '—';
+    h += '<div class="st-htd-sec"><div class="st-htd-h">성과 종합 — 얼마나 봐서 얼마나 예약됐나</div>';
+    h += '<div class="st-flow">' +
+      '<div class="st-flow-c"><div class="st-flow-n muted">연동 후</div><div class="st-flow-l">조회</div></div>' +
+      '<div class="st-flow-a">›</div>' +
+      '<div class="st-flow-c"><div class="st-flow-n muted">연동 후</div><div class="st-flow-l">클릭</div></div>' +
+      '<div class="st-flow-a">›</div>' +
+      '<div class="st-flow-c"><div class="st-flow-n">' + d.total + '</div><div class="st-flow-l">예약</div></div>' +
+      '<div class="st-flow-a">›</div>' +
+      '<div class="st-flow-c"><div class="st-flow-n" style="color:#3FB984">' + d.done + '</div><div class="st-flow-l">확정</div></div>' +
+      '</div>';
+    h += '<div class="st-htd-kpis" style="grid-template-columns:repeat(2,1fr);margin-top:8px">' +
+      '<div class="st-htd-kpi"><div class="n">' + (expN ? (expN + '회 · TOP' + bestRank) : '—') + '</div><div class="l">노출</div></div>' +
+      '<div class="st-htd-kpi"><div class="n">' + strongTxt + '</div><div class="l">리드타임 확정</div></div>' +
+      '</div>';
+    h += '<div class="st-hint" style="margin-top:6px">조회·클릭은 유튜브 연동·추적 링크 후 채워짐(지금 "연동 후"). 예약금액·확정률은 실데이터.</div></div>';
 
     // ⑤ 리드타임별 확정률 (3구간)
     h += '<div class="st-htd-sec"><div class="st-htd-h">⑤ 취소·확정률 전략 (리드타임별)</div>';

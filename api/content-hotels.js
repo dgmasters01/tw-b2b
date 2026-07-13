@@ -155,8 +155,27 @@ export default async function handler(req, res) {
       .order('exposure_count', { ascending: false })
       .order('bookings_done', { ascending: false });
     if (error) throw error;
+
+    // 나라·도시·성급 붙이기 (뷰엔 없음 → 예약 데이터에서 hid 별로 가져와 병합)
+    const hids = (data || []).map((h) => String(h.hid)).filter(Boolean);
+    const geo = {};
+    if (hids.length) {
+      const { data: bg } = await sb
+        .from('bookings_agoda')
+        .select('hotel_id_agoda,hotel_country,hotel_city,hotel_star')
+        .in('hotel_id_agoda', hids);
+      (bg || []).forEach((r) => {
+        const k = String(r.hotel_id_agoda);
+        if (!geo[k]) geo[k] = { country: r.hotel_country || null, city: r.hotel_city || null, star: r.hotel_star || null };
+      });
+    }
+    const hotels = (data || []).map((h) => {
+      const g = geo[String(h.hid)] || {};
+      return { ...h, country: g.country || null, city: g.city || h.agoda_city || null, star: g.star || null };
+    });
+
     res.setHeader('Cache-Control', 'private, no-store, max-age=0');
-    return res.status(200).json({ ok: true, is_admin: !!who.isAdmin, hotels: data || [] });
+    return res.status(200).json({ ok: true, is_admin: !!who.isAdmin, hotels });
   } catch (e) {
     return res.status(500).json({ ok: false, error: '호텔 성과를 불러오지 못했습니다.', detail: String(e.message || e) });
   }

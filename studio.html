@@ -259,6 +259,18 @@
   .st-fn.done .v { color:#3FB984; }
   .st-fn .k { font-size:10px; color:#8a93a0; margin-top:2px; }
   .st-fa { display:flex; align-items:center; justify-content:center; color:#8a93a0; }
+  .st-fn.clk { cursor:pointer; }
+  .st-fn.clk:hover { outline:1px solid rgba(74,144,217,.4); }
+  .st-fn.on { outline:2px solid #4A90D9; }
+  .st-funnel-panel { margin-top:8px; border:1px solid rgba(74,144,217,.4); border-radius:10px; padding:11px; background:rgba(74,144,217,.05); }
+  .st-fd-soon { font-size:11.5px; color:#E0A83C; }
+  .st-fd-cap { font-size:11px; color:#4A90D9; margin-bottom:6px; }
+  .st-fd-dim { color:#8a93a0; }
+  .st-fd-ch { display:flex; justify-content:space-between; font-size:11.5px; padding:7px 9px; background:rgba(128,140,160,.08); border-radius:7px; margin-bottom:3px; cursor:pointer; }
+  .st-fd-ch:hover { background:rgba(74,144,217,.1); }
+  .st-fd-ch.on { background:rgba(74,144,217,.14); outline:0.5px solid rgba(74,144,217,.5); }
+  .st-fd-books { margin-top:8px; }
+  .st-fd-cap2 { font-size:10.5px; color:#4A90D9; margin-bottom:4px; }
   .st-lbody { padding:2px 13px 13px; border-top:1px solid rgba(128,128,128,.14); display:none; }
   .st-lrow.open .st-lbody { display:block; }
   .st-copyn { flex:none; width:18px; text-align:center; font-weight:600; opacity:.4; }
@@ -1617,9 +1629,73 @@
         if (!x.ok || !x.j.ok) throw new Error(x.j.error || '불러오지 못했습니다.');
         box.innerHTML = hotelDetailHtml(x.j.detail, x.j.is_admin, hid, name);
         bindLeadtimeExpand(box);
+        bindFunnelDrill(box, x.j.detail, x.j.is_admin);
         item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       })
       .catch(function (e) { box.innerHTML = '<div class="st-empty">' + esc(e.message) + '</div>'; });
+  }
+  function bkDev(b) { return b.device ? (/mob|phone|안드|iphone|ios/i.test(b.device) ? '📱' : (/tab/i.test(b.device) ? '📲' : '💻')) : '—'; }
+  function bkHeadHtml(isAdmin) {
+    var admCls = isAdmin ? ' adm' : '', adm = isAdmin ? '<span class="c-r c-comm">수수료</span>' : '';
+    return '<div class="st-bk-h' + admCls + '"><span>예약번호</span><span>예약일</span><span>체크인</span><span>체크아웃</span><span class="c-c">박</span><span>국가</span><span class="c-c">기기</span><span class="c-r">금액</span><span class="c-r">상태</span>' + adm + '</div>';
+  }
+  function bkRowHtml(b, isAdmin) {
+    var admCls = isAdmin ? ' adm' : '';
+    var stCol = b.cancelled ? '#E24B4A' : (b.status === '방문' ? '#3FB984' : '#8a93a0');
+    return '<div class="st-bk-r' + admCls + '">' +
+      '<span class="dim">' + esc(b.reservation_no || '—') + '</span>' +
+      '<span class="dim">' + esc((b.booked_at || '').slice(0, 10)) + '</span>' +
+      '<span>' + esc((b.checkin || '').slice(0, 10)) + '</span>' +
+      '<span>' + esc((b.checkout || '').slice(0, 10)) + '</span>' +
+      '<span class="c-c">' + (b.nights || '—') + '</span>' +
+      '<span>' + esc(coKo(b.customer_country) || '—') + '</span>' +
+      '<span class="c-c">' + bkDev(b) + '</span>' +
+      '<span class="c-r">' + (b.amount == null ? '<span class="dim">—</span>' : '$' + b.amount.toLocaleString()) + '</span>' +
+      '<span class="c-r" style="color:' + stCol + '">' + esc(b.status) + '</span>' +
+      (isAdmin ? '<span class="c-r c-comm">' + (b.commission == null ? '—' : '$' + b.commission.toLocaleString()) + '</span>' : '') +
+      '</div>';
+  }
+  function bindFunnelDrill(box, d, isAdmin) {
+    var fns = Array.prototype.slice.call(box.querySelectorAll('.st-fn[data-fn]'));
+    var panel = box.querySelector('.st-funnel-panel');
+    if (!panel) return;
+    function close() { panel.hidden = true; panel.innerHTML = ''; fns.forEach(function (f) { f.classList.remove('on'); }); }
+    function channelList(kind) {
+      var chs = d.byChannel || [];
+      if (!chs.length) return '<div class="st-hint">예약이 없습니다.</div>';
+      var rows = chs.map(function (c) {
+        var val = kind === 'confirm' ? ('확정 ' + c.done + '건') : ('예약 ' + c.total + ' · 확정 ' + c.done);
+        return '<div class="st-fd-ch" data-ch="' + esc(c.code) + '"><span>' + esc(chName(c.code)) + ' ›</span><span>' + val + '</span></div>';
+      }).join('');
+      return '<div class="st-fd-cap">채널별 ' + (kind === 'confirm' ? '확정' : '예약') + ' <span class="st-fd-dim">— 채널을 누르면 개별 예약</span></div>' + rows + '<div class="st-fd-books"></div>';
+    }
+    function showBooks(container, code, kind) {
+      var list = (d.bookings || []).filter(function (b) { return String(b.channel_code) === String(code) && (kind !== 'confirm' || b.status === '방문'); });
+      container.innerHTML = list.length
+        ? '<div class="st-fd-cap2">' + esc(chName(code)) + ' 개별 예약 · ' + list.length + '건</div><div class="st-bk-tbl">' + bkHeadHtml(isAdmin) + list.map(function (b) { return bkRowHtml(b, isAdmin); }).join('') + '</div>'
+        : '<div class="st-hint">이 채널 예약이 없습니다(상위 50건 내).</div>';
+    }
+    fns.forEach(function (f) {
+      f.onclick = function () {
+        var kind = f.getAttribute('data-fn');
+        if (f.classList.contains('on')) { close(); return; }
+        fns.forEach(function (x) { x.classList.remove('on'); }); f.classList.add('on');
+        panel.hidden = false;
+        if (kind === 'views' || kind === 'clicks') {
+          panel.innerHTML = '<div class="st-fd-soon">유튜브 ' + (kind === 'views' ? '조회수' : '클릭') + '는 연동 후 채널별→영상별로 여기 나옵니다.</div>';
+          return;
+        }
+        panel.innerHTML = channelList(kind);
+        var booksBox = panel.querySelector('.st-fd-books');
+        panel.querySelectorAll('.st-fd-ch').forEach(function (ch) {
+          ch.onclick = function () {
+            panel.querySelectorAll('.st-fd-ch').forEach(function (x) { x.classList.remove('on'); });
+            ch.classList.add('on');
+            showBooks(booksBox, ch.getAttribute('data-ch'), kind);
+          };
+        });
+      };
+    });
   }
   function bindLeadtimeExpand(box) {
     var panel = box.querySelector('.st-bk-panel');
@@ -1678,14 +1754,15 @@
       '<div class="st-pm"><div class="l">확정률</div><div class="n acc">' + (d.confirmRate == null ? '—' : d.confirmRate + '%') + '</div></div>' +
       '</div>';
     h += '<div class="st-funnel">' +
-      '<div class="st-fn"><div class="v muted">연동 후</div><div class="k">조회</div></div>' +
+      '<div class="st-fn clk" data-fn="views"><div class="v muted">연동 후</div><div class="k">조회 ▾</div></div>' +
       '<div class="st-fa">›</div>' +
-      '<div class="st-fn"><div class="v muted">연동 후</div><div class="k">클릭</div></div>' +
+      '<div class="st-fn clk" data-fn="clicks"><div class="v muted">연동 후</div><div class="k">클릭 ▾</div></div>' +
       '<div class="st-fa">›</div>' +
-      '<div class="st-fn"><div class="v">' + d.total + '</div><div class="k">예약</div></div>' +
+      '<div class="st-fn clk" data-fn="book"><div class="v">' + d.total + '</div><div class="k">예약 ▾</div></div>' +
       '<div class="st-fa">›</div>' +
-      '<div class="st-fn done"><div class="v">' + d.done + '</div><div class="k">확정</div></div>' +
+      '<div class="st-fn done clk" data-fn="confirm"><div class="v">' + d.done + '</div><div class="k">확정 ▾</div></div>' +
       '</div>';
+    h += '<div class="st-funnel-panel" hidden></div>';
     h += '<div class="st-htd-kpis" style="grid-template-columns:repeat(2,1fr);margin-top:8px">' +
       '<div class="st-htd-kpi"><div class="n">' + (expN ? (expN + '회 · TOP' + bestRank) : '—') + '</div><div class="l">노출</div></div>' +
       '<div class="st-htd-kpi"><div class="n">' + strongTxt + '</div><div class="l">리드타임 확정</div></div>' +

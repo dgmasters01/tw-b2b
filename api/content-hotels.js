@@ -101,6 +101,17 @@ export default async function handler(req, res) {
       const commission = who.isAdmin ? Math.round(rows.reduce((s, r) => s + (Number(r.commission_usd) || 0), 0)) : null;
       const confirmRate = total ? Math.round((done / total) * 100) : null;
 
+      // 채널별 예약 집계 (드릴다운 1단계)
+      const byCh = {};
+      rows.forEach((r) => {
+        const c = r.channel_code || '기타';
+        if (!byCh[c]) byCh[c] = { code: c, total: 0, done: 0, cancelled: 0 };
+        byCh[c].total++;
+        if (r.is_completed) byCh[c].done++;
+        if (r.is_cancelled) byCh[c].cancelled++;
+      });
+      const byChannel = Object.keys(byCh).map((k) => byCh[k]).sort((a, b) => b.total - a.total);
+
       // 리드타임 3구간 (임박 0~7 / 근접 8~30 / 먼 31+)
       const lt = [{ n: 0, d: 0 }, { n: 0, d: 0 }, { n: 0, d: 0 }];
       rows.forEach((r) => {
@@ -148,7 +159,7 @@ export default async function handler(req, res) {
       res.setHeader('Cache-Control', 'private, no-store, max-age=0');
       return res.status(200).json({
         ok: true, is_admin: !!who.isAdmin, hid,
-        detail: { total, done, cancelled, noshow, amount, commission, confirmRate, leadtime, bookings, exposures },
+        detail: { total, done, cancelled, noshow, amount, commission, confirmRate, leadtime, byChannel, bookings, exposures },
       });
     } catch (e) {
       return res.status(500).json({ ok: false, error: '호텔 상세를 불러오지 못했습니다.', detail: String(e.message || e) });

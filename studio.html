@@ -1717,7 +1717,7 @@
     if(per.to) qs+='&to='+encodeURIComponent(per.to);
     fetch('/api/hotel-perf-detail?'+qs,{credentials:'same-origin'})
       .then(function(r){return r.json();})
-      .then(function(j){ if(!j.ok) throw new Error(j.error||'불러오지 못했습니다.'); det.innerHTML=renderHotelDetail(j); det.dataset.loaded='1'; })
+      .then(function(j){ if(!j.ok) throw new Error(j.error||'불러오지 못했습니다.'); det.innerHTML=renderHotelDetail(j); det.dataset.loaded='1'; var b=det.querySelector('.st-pf-detbtn'); if(b) b.onclick=function(){ switchView('hotel'); }; })
       .catch(function(e){ det.innerHTML='<div class="st-empty" style="padding:14px">'+esc(e.message)+'</div>'; });
   }
   function renderHotelDetail(j){
@@ -1742,7 +1742,7 @@
       '<div class="st-pf-detlbl">이 기간 어느 채널에서 왔나</div>'+bars+
       '<div class="st-pf-detlbl" style="margin-top:14px">최근 예약</div>'+
       '<div style="font-size:13px;line-height:1.9">'+(recent||'<div style="opacity:.5">예약 없음</div>')+'</div>'+
-      '<div style="margin-top:14px"><span class="st-pf-detbtn" onclick="switchView(\'hotel\')">호텔 전체 세부 보기 →</span></div>'+
+      '<div style="margin-top:14px"><span class="st-pf-detbtn">호텔 전체 세부 보기 →</span></div>'+
     '</div>';
   }
   function pfRenderTable(d){

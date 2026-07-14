@@ -437,6 +437,9 @@
   .st-pf-barfill { height:100%; background:#4edea3; border-radius:4px; }
   .st-pf-barfill.other { background:rgba(128,128,128,.5); }
   .st-pf-detbtn { display:inline-block; font-size:13px; border:0.5px solid rgba(128,128,128,.3); border-radius:8px; padding:6px 14px; cursor:pointer; opacity:.85; }
+  .st-pf-sort { font-size:11px; font-weight:400; margin-left:8px; }
+  .st-pf-sort button { font-size:11px; background:transparent; border:0.5px solid rgba(128,128,128,.3); color:inherit; border-radius:6px; padding:2px 9px; margin-left:3px; cursor:pointer; opacity:.55; }
+  .st-pf-sort button.on { opacity:1; border-color:#4edea3; color:#4edea3; }
   .st-pf-trend { margin-top:24px; background:rgba(128,128,128,.06); border-radius:10px; padding:14px 16px; }
   .st-pf-bars { display:flex; align-items:flex-end; gap:4px; height:90px; margin:12px 0 4px; }
   .st-pf-bars .bar { flex:1; background:#4edea3; border-radius:2px 2px 0 0; min-height:2px; opacity:.85; }
@@ -1662,7 +1665,7 @@
     { k:'last30', l:'최근 30일' }, { k:'month', l:'이번 달' }, { k:'last90', l:'최근 3개월' },
     { k:'all', l:'전체' }, { k:'custom', l:'기간 지정' }
   ];
-  var pfState = { period:'all', compare:false, lens:'channel', from:null, to:null };
+  var pfState = { period:'all', compare:false, lens:'channel', from:null, to:null, hsort:null, csort:null };
   var pfLast = null;
   var pfHotelLimit = 30;
 
@@ -1795,6 +1798,24 @@
       (exposed?'<div style="margin-top:14px"><span class="st-pf-detbtn">호텔 전체 세부 보기 →</span></div>':'')+
     '</div>';
   }
+  function sortPerf(arr, key){
+    var a=arr.slice();
+    a.sort(function(x,y){
+      var xc=x.commission_usd||0, yc=y.commission_usd||0;
+      if(key==='bookings') return (y.bookings-x.bookings)||(yc-xc);
+      if(key==='amount') return (y.amount_usd-x.amount_usd)||(yc-xc);
+      return (yc-xc)||(y.amount_usd-x.amount_usd);
+    });
+    a.forEach(function(o,i){o.rank=i+1;});
+    return a;
+  }
+  function sortBtnsHtml(cur, isAdmin){
+    var b='<span class="st-pf-sort">';
+    if(isAdmin) b+='<button data-s="commission" class="'+(cur==='commission'?'on':'')+'">수익순</button>';
+    b+='<button data-s="amount" class="'+(cur==='amount'?'on':'')+'">예약금순</button>';
+    b+='<button data-s="bookings" class="'+(cur==='bookings'?'on':'')+'">건수순</button>';
+    return b+'</span>';
+  }
   function pfRenderTable(d){
     var box=document.getElementById('st-pf-table');
     var head=document.getElementById('st-pf-tablehead');
@@ -1805,9 +1826,9 @@
       return;
     }
     if(pfState.lens==='hotel'){
-      head.innerHTML='호텔별 순위 <span style="font-weight:400;opacity:.6;font-size:11px">— 예약 많은 호텔 (예약 데이터 기준)</span>';
       var hts=d.hotels||[];
       if(!hts.length){
+        head.innerHTML='호텔별 순위';
         var hmsg='이 기간에 예약이 없습니다.';
         if(pfState.period!=='all' && d.data_asof && d.data_asof.last_booking){
           hmsg='이 기간엔 예약이 없습니다. 예약 데이터는 <b>'+d.data_asof.last_booking+'</b>까지라 최근 기간은 비어 있어요. <a href="#" id="pf-goall2" style="color:#4edea3;text-decoration:underline">전체로 보기</a>';
@@ -1816,8 +1837,11 @@
         var g2=document.getElementById('pf-goall2'); if(g2){ g2.onclick=function(e){ e.preventDefault(); pfState.period='all'; loadPerf(); }; }
         return;
       }
+      var isAdmH=!!d.is_admin;
+      if(!pfState.hsort) pfState.hsort=isAdmH?'commission':'amount';
+      head.innerHTML='호텔별 순위 '+sortBtnsHtml(pfState.hsort, isAdmH);
       var showCommH = ('commission_usd' in hts[0]);
-      var topH = hts.slice(0, pfHotelLimit);
+      var topH = sortPerf(hts, pfState.hsort).slice(0, pfHotelLimit);
       box.innerHTML = topH.map(function(h){
         var cxr = (h.cancel_rate!=null ? ' ('+h.cancel_rate+'%)' : '');
         var meta = [h.country, h.city, h.type, (h.star?'★'+h.star:'')].filter(Boolean).join(' · ');
@@ -1835,12 +1859,13 @@
         '</div>';
       }).join('') + (hts.length>topH.length ? '<div id="pf-hmore" style="text-align:center;padding:10px;cursor:pointer;color:#4edea3;font-size:13px">+ 더 보기 ('+(hts.length-topH.length)+'개 더)</div>' : '');
       box.querySelectorAll('.st-pf-hwrap').forEach(function(w){ var row=w.querySelector('.st-pf-hrow'); row.style.cursor='pointer'; row.onclick=function(){ toggleHotelDetail(w); }; });
+      head.querySelectorAll('.st-pf-sort button').forEach(function(b){ b.onclick=function(){ pfState.hsort=b.dataset.s; pfHotelLimit=30; pfRenderTable(pfLast); }; });
       var mb=document.getElementById('pf-hmore'); if(mb){ mb.onclick=function(){ pfHotelLimit+=50; pfRenderTable(pfLast); }; }
       return;
     }
-    head.textContent='채널별 순위';
     var chs=d.channels||[];
     if(!chs.length){
+      head.textContent='채널별 순위';
       var msg='이 기간에 예약이 없습니다.';
       if(pfState.period!=='all' && d.data_asof && d.data_asof.last_booking){
         msg='이 기간엔 예약이 없습니다. 예약 데이터는 <b>'+d.data_asof.last_booking+'</b>까지라 최근 기간은 비어 있어요. <a href="#" id="pf-goall" style="color:#4edea3;text-decoration:underline">전체로 보기</a>';
@@ -1849,8 +1874,11 @@
       var g=document.getElementById('pf-goall'); if(g){ g.onclick=function(e){ e.preventDefault(); pfState.period='all'; loadPerf(); }; }
       return;
     }
+    var isAdmC=!!d.is_admin;
+    if(!pfState.csort) pfState.csort=isAdmC?'commission':'amount';
+    head.innerHTML='채널별 순위 '+sortBtnsHtml(pfState.csort, isAdmC);
     var showComm = ('commission_usd' in chs[0]);
-    box.innerHTML = chs.map(function(c){
+    box.innerHTML = sortPerf(chs, pfState.csort).map(function(c){
       var cxr = (c.cancel_rate!=null ? ' ('+c.cancel_rate+'%)' : '');
       return '<div class="st-pf-cwrap" data-ch="'+esc(c.code)+'">'+
         '<div class="st-pf-row">'+
@@ -1866,6 +1894,7 @@
       '</div>';
     }).join('');
     box.querySelectorAll('.st-pf-cwrap').forEach(function(w){ var row=w.querySelector('.st-pf-row'); row.style.cursor='pointer'; row.onclick=function(){ toggleChannelDetail(w); }; });
+    head.querySelectorAll('.st-pf-sort button').forEach(function(b){ b.onclick=function(){ pfState.csort=b.dataset.s; pfRenderTable(pfLast); }; });
   }
   function pfRenderTrend(d){
     var el=document.getElementById('st-pf-trend');

@@ -1705,6 +1705,14 @@
     el.innerHTML=lenses.map(function(x){ return '<button class="st-pf-lensbtn'+(x.k===pfState.lens?' on':'')+'" data-lens="'+x.k+'">'+x.l+'</button>'; }).join('');
     el.querySelectorAll('.st-pf-lensbtn').forEach(function(b){ b.onclick=function(){ pfState.lens=b.dataset.lens; pfHotelLimit=30; pfRenderLens(); pfRenderTable(pfLast); }; });
   }
+  function goHotelInMenu(name){
+    switchView('hotel');
+    setTimeout(function(){
+      var s=document.getElementById('ht-search');
+      if(s){ s.value=name||''; s.dispatchEvent(new Event('input')); }
+      var vh=document.getElementById('view-hotel'); if(vh){ vh.scrollIntoView({behavior:'smooth', block:'start'}); }
+    }, 120);
+  }
   function toggleHotelDetail(w){
     var det=w.querySelector('.st-pf-hdetail'), caret=w.querySelector('.hcaret');
     if(!det.hidden){ det.hidden=true; if(caret)caret.textContent='▾'; return; }
@@ -1717,10 +1725,10 @@
     if(per.to) qs+='&to='+encodeURIComponent(per.to);
     fetch('/api/hotel-perf-detail?'+qs,{credentials:'same-origin'})
       .then(function(r){return r.json();})
-      .then(function(j){ if(!j.ok) throw new Error(j.error||'불러오지 못했습니다.'); det.innerHTML=renderHotelDetail(j); det.dataset.loaded='1'; var b=det.querySelector('.st-pf-detbtn'); if(b) b.onclick=function(){ switchView('hotel'); }; })
+      .then(function(j){ if(!j.ok) throw new Error(j.error||'불러오지 못했습니다.'); var exposed=w.dataset.exposed==='1'; var nm=w.dataset.name||''; det.innerHTML=renderHotelDetail(j, exposed); det.dataset.loaded='1'; var b=det.querySelector('.st-pf-detbtn'); if(b) b.onclick=function(){ goHotelInMenu(nm); }; })
       .catch(function(e){ det.innerHTML='<div class="st-empty" style="padding:14px">'+esc(e.message)+'</div>'; });
   }
-  function renderHotelDetail(j){
+  function renderHotelDetail(j, exposed){
     var showComm=j.is_admin;
     var bars=(j.channels||[]).map(function(c){
       var comm=(showComm&&('commission' in c))?' · <span style="color:#4edea3">$'+c.commission+'</span>':'';
@@ -1742,7 +1750,7 @@
       '<div class="st-pf-detlbl">이 기간 어느 채널에서 왔나</div>'+bars+
       '<div class="st-pf-detlbl" style="margin-top:14px">최근 예약</div>'+
       '<div style="font-size:13px;line-height:1.9">'+(recent||'<div style="opacity:.5">예약 없음</div>')+'</div>'+
-      '<div style="margin-top:14px"><span class="st-pf-detbtn">호텔 전체 세부 보기 →</span></div>'+
+      (exposed?'<div style="margin-top:14px"><span class="st-pf-detbtn">호텔 전체 세부 보기 →</span></div>':'')+
     '</div>';
   }
   function pfRenderTable(d){
@@ -1773,7 +1781,7 @@
         var meta = [h.country, h.city, h.type, (h.star?'★'+h.star:'')].filter(Boolean).join(' · ');
         var badge = h.exposed ? '<span class="st-pf-hbadge on">소개함</span>' : '<span class="st-pf-hbadge">미소개</span>';
         var comm = showCommH ? ' · <span class="st-pf-comm">수수료 '+pfMoney(h.commission_usd)+'</span>' : '';
-        return '<div class="st-pf-hwrap" data-hid="'+esc(h.hotel_id||'')+'">'+
+        return '<div class="st-pf-hwrap" data-hid="'+esc(h.hotel_id||'')+'" data-exposed="'+(h.exposed?'1':'')+'" data-name="'+esc(h.name||'')+'">'+
           '<div class="st-pf-hrow">'+
           '<span class="rk">'+h.rank+'</span>'+
           '<div class="hmain"><div class="hname">'+esc(h.name)+' '+badge+' <span class="hcaret">▾</span></div>'+

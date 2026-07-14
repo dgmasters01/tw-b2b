@@ -1705,6 +1705,48 @@
     el.innerHTML=lenses.map(function(x){ return '<button class="st-pf-lensbtn'+(x.k===pfState.lens?' on':'')+'" data-lens="'+x.k+'">'+x.l+'</button>'; }).join('');
     el.querySelectorAll('.st-pf-lensbtn').forEach(function(b){ b.onclick=function(){ pfState.lens=b.dataset.lens; pfHotelLimit=30; pfRenderLens(); pfRenderTable(pfLast); }; });
   }
+  function toggleChannelDetail(w){
+    var det=w.querySelector('.st-pf-hdetail'), caret=w.querySelector('.hcaret');
+    if(!det.hidden){ det.hidden=true; if(caret)caret.textContent='▾'; return; }
+    det.hidden=false; if(caret)caret.textContent='▴';
+    if(det.dataset.loaded) return;
+    det.innerHTML='<div class="st-empty" style="padding:14px">불러오는 중…</div>';
+    var per=(pfLast&&pfLast.period)||{};
+    var qs='channel_code='+encodeURIComponent(w.dataset.ch);
+    if(per.from) qs+='&from='+encodeURIComponent(per.from);
+    if(per.to) qs+='&to='+encodeURIComponent(per.to);
+    fetch('/api/channel-perf-detail?'+qs,{credentials:'same-origin'})
+      .then(function(r){return r.json();})
+      .then(function(j){ if(!j.ok) throw new Error(j.error||'불러오지 못했습니다.'); det.innerHTML=renderChannelDetail(j); det.dataset.loaded='1'; })
+      .catch(function(e){ det.innerHTML='<div class="st-empty" style="padding:14px">'+esc(e.message)+'</div>'; });
+  }
+  function renderChannelDetail(j){
+    var showComm=j.is_admin;
+    function hrow(name, meta, right, dim){
+      return '<div style="display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:0.5px solid rgba(128,128,128,.15);font-size:13px'+(dim?';opacity:.6':'')+'"><span style="min-width:0">'+name+(meta?' <span style="font-size:12px;opacity:.55">· '+meta+'</span>':'')+'</span><span style="white-space:nowrap">'+right+'</span></div>';
+    }
+    var hotels=(j.hotels||[]).map(function(h){
+      var meta=[h.country,h.city,(h.type||''),(h.star?'★'+h.star:'')].filter(Boolean).join(' · ');
+      var comm=(showComm&&('commission' in h))?' · <span style="color:#4edea3">$'+h.commission+'</span>':'';
+      return hrow(esc(h.name), esc(meta), '예약 '+h.bookings+comm, false);
+    }).join('');
+    if(j.other){
+      var oc=(showComm&&('commission' in j.other))?' · <span style="color:#4edea3">$'+j.other.commission+'</span>':'';
+      hotels+=hrow('그 외 '+j.other.count+'개 호텔','', '예약 '+j.other.bookings+oc, true);
+    }
+    if(!hotels) hotels='<div style="font-size:13px;opacity:.5">이 기간 호텔 데이터가 없습니다.</div>';
+    var recent=(j.recent||[]).map(function(r){
+      var meta=[r.country,r.city,(r.star?'★'+r.star:'')].filter(Boolean).join(' · ');
+      var st=r.status==='확정'?'<span style="color:#4edea3">확정</span>':'<span style="opacity:.5">'+esc(r.status)+'</span>';
+      var comm=(showComm&&('commission_usd' in r))?' · <span style="'+(r.commission_usd>0?'color:#4edea3':'opacity:.45')+'">수수료 $'+r.commission_usd+'</span>':'';
+      return hrow(esc(r.date)+' · '+esc(r.hotel_name), esc(meta), st+' · $'+r.amount_usd+comm, false);
+    }).join('');
+    return '<div style="padding:4px 4px 2px">'+
+      '<div class="st-pf-detlbl">이 채널이 판 호텔 <span style="opacity:.6">(예약 많은 순)</span></div>'+hotels+
+      '<div class="st-pf-detlbl" style="margin-top:14px">최근 예약</div>'+
+      '<div>'+(recent||'<div style="opacity:.5;font-size:13px">예약 없음</div>')+'</div>'+
+    '</div>';
+  }
   function goHotelInMenu(name){
     switchView('hotel');
     setTimeout(function(){
@@ -1810,16 +1852,20 @@
     var showComm = ('commission_usd' in chs[0]);
     box.innerHTML = chs.map(function(c){
       var cxr = (c.cancel_rate!=null ? ' ('+c.cancel_rate+'%)' : '');
-      return '<div class="st-pf-row" data-ch="'+c.code+'">'+
+      return '<div class="st-pf-cwrap" data-ch="'+esc(c.code)+'">'+
+        '<div class="st-pf-row">'+
         '<span class="rk">'+c.rank+'</span>'+
-        '<span class="nm">'+esc(c.name)+'</span>'+
+        '<span class="nm">'+esc(c.name)+' <span class="hcaret">▾</span></span>'+
         '<span class="mt">예약 '+c.bookings+'</span>'+
         '<span class="mt">취소 '+c.cancelled+cxr+'</span>'+
         '<span class="mt">확정률 '+(c.confirm_rate!=null?c.confirm_rate+'%':'—')+'</span>'+
         '<span class="mt">'+pfMoney(c.amount_usd)+'</span>'+
         (showComm?'<span class="mt st-pf-comm">수수료 '+pfMoney(c.commission_usd)+'</span>':'')+
+        '</div>'+
+        '<div class="st-pf-hdetail" hidden></div>'+
       '</div>';
     }).join('');
+    box.querySelectorAll('.st-pf-cwrap').forEach(function(w){ var row=w.querySelector('.st-pf-row'); row.style.cursor='pointer'; row.onclick=function(){ toggleChannelDetail(w); }; });
   }
   function pfRenderTrend(d){
     var el=document.getElementById('st-pf-trend');

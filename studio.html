@@ -421,6 +421,15 @@
   .st-pf-badge.b { background:rgba(226,75,74,.15); color:#E24B4A; }
   .st-pf-fix { color:#E24B4A; font-size:11px; white-space:nowrap; }
   .st-pf-comm { color:#4edea3; }
+  .st-pf-hrow { display:flex; align-items:center; gap:14px; padding:12px 13px; border:1px solid rgba(128,128,128,.18); border-radius:9px; margin-bottom:7px; }
+  .st-pf-hrow .rk { font-size:15px; font-weight:700; opacity:.5; min-width:22px; text-align:center; }
+  .st-pf-hrow .hmain { flex:1; min-width:0; }
+  .st-pf-hrow .hname { font-size:14px; font-weight:600; }
+  .st-pf-hrow .hmeta { font-size:12px; opacity:.6; margin-top:3px; }
+  .st-pf-hrow .hstat { text-align:right; font-size:12px; line-height:1.7; white-space:nowrap; }
+  .st-pf-hrow .hstat .sub { opacity:.8; }
+  .st-pf-hbadge { font-size:11px; font-weight:400; padding:1px 7px; border-radius:6px; border:0.5px solid rgba(128,128,128,.3); opacity:.5; margin-left:4px; }
+  .st-pf-hbadge.on { color:#4edea3; border-color:rgba(78,222,163,.4); opacity:1; }
   .st-pf-trend { margin-top:24px; background:rgba(128,128,128,.06); border-radius:10px; padding:14px 16px; }
   .st-pf-bars { display:flex; align-items:flex-end; gap:4px; height:90px; margin:12px 0 4px; }
   .st-pf-bars .bar { flex:1; background:#4edea3; border-radius:2px 2px 0 0; min-height:2px; opacity:.85; }
@@ -1714,15 +1723,15 @@
       var topH = hts.slice(0, pfHotelLimit);
       box.innerHTML = topH.map(function(h){
         var cxr = (h.cancel_rate!=null ? ' ('+h.cancel_rate+'%)' : '');
-        var sub = [h.type, (h.star?'★'+h.star:''), h.city].filter(Boolean).join(' · ');
-        return '<div class="st-pf-row">'+
+        var meta = [h.country, h.city, h.type, (h.star?'★'+h.star:'')].filter(Boolean).join(' · ');
+        var badge = h.exposed ? '<span class="st-pf-hbadge on">소개함</span>' : '<span class="st-pf-hbadge">미소개</span>';
+        var comm = showCommH ? ' · <span class="st-pf-comm">수수료 '+pfMoney(h.commission_usd)+'</span>' : '';
+        return '<div class="st-pf-hrow">'+
           '<span class="rk">'+h.rank+'</span>'+
-          '<span class="nm">'+esc(h.name)+(sub?' <span style="font-weight:400;opacity:.55;font-size:11px">'+esc(sub)+'</span>':'')+'</span>'+
-          '<span class="mt">예약 '+h.bookings+'</span>'+
-          '<span class="mt">취소 '+h.cancelled+cxr+'</span>'+
-          '<span class="mt">확정률 '+(h.confirm_rate!=null?h.confirm_rate+'%':'—')+'</span>'+
-          '<span class="mt">'+pfMoney(h.amount_usd)+'</span>'+
-          (showCommH?'<span class="mt st-pf-comm">수수료 '+pfMoney(h.commission_usd)+'</span>':'')+
+          '<div class="hmain"><div class="hname">'+esc(h.name)+' '+badge+'</div>'+
+          '<div class="hmeta">'+esc(meta)+'</div></div>'+
+          '<div class="hstat"><div>예약 '+h.bookings+' · 취소 '+h.cancelled+cxr+' · 확정률 '+(h.confirm_rate!=null?h.confirm_rate+'%':'—')+'</div>'+
+          '<div class="sub">'+pfMoney(h.amount_usd)+comm+'</div></div>'+
         '</div>';
       }).join('') + (hts.length>topH.length ? '<div id="pf-hmore" style="text-align:center;padding:10px;cursor:pointer;color:#4edea3;font-size:13px">+ 더 보기 ('+(hts.length-topH.length)+'개 더)</div>' : '');
       var mb=document.getElementById('pf-hmore'); if(mb){ mb.onclick=function(){ pfHotelLimit+=50; pfRenderTable(pfLast); }; }

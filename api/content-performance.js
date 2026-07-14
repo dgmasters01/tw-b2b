@@ -212,6 +212,7 @@ function byHotel(rows, hotelMeta, exposedHids, hidKoName, withComm) {
       if (exposedHids.has(k)) { exposed = true; if (!koName && hidKoName[k]) koName = hidKoName[k]; }
     }
     const o = {
+      hotel_id: h.hotel_id,
       name: koName || meta.name || '(이름 없음)',            // 한글명(원고) 우선, 없으면 영문
       name_en: (koName && meta.name && koName !== meta.name) ? meta.name : null,
       type: meta.type ? (TYPE[meta.type] || meta.type) : null,

@@ -430,6 +430,13 @@
   .st-pf-hrow .hstat .sub { opacity:.8; }
   .st-pf-hbadge { font-size:11px; font-weight:400; padding:1px 7px; border-radius:6px; border:0.5px solid rgba(128,128,128,.3); opacity:.5; margin-left:4px; }
   .st-pf-hbadge.on { color:#4edea3; border-color:rgba(78,222,163,.4); opacity:1; }
+  .hcaret { font-size:10px; opacity:.5; margin-left:2px; }
+  .st-pf-hdetail { background:rgba(128,128,128,.06); border:1px solid rgba(128,128,128,.18); border-top:none; border-radius:0 0 9px 9px; margin:-8px 0 7px; padding:12px 16px; }
+  .st-pf-detlbl { font-size:12px; opacity:.5; margin-bottom:8px; }
+  .st-pf-bar { height:7px; background:rgba(128,128,128,.15); border-radius:4px; overflow:hidden; }
+  .st-pf-barfill { height:100%; background:#4edea3; border-radius:4px; }
+  .st-pf-barfill.other { background:rgba(128,128,128,.5); }
+  .st-pf-detbtn { display:inline-block; font-size:13px; border:0.5px solid rgba(128,128,128,.3); border-radius:8px; padding:6px 14px; cursor:pointer; opacity:.85; }
   .st-pf-trend { margin-top:24px; background:rgba(128,128,128,.06); border-radius:10px; padding:14px 16px; }
   .st-pf-bars { display:flex; align-items:flex-end; gap:4px; height:90px; margin:12px 0 4px; }
   .st-pf-bars .bar { flex:1; background:#4edea3; border-radius:2px 2px 0 0; min-height:2px; opacity:.85; }
@@ -1698,6 +1705,46 @@
     el.innerHTML=lenses.map(function(x){ return '<button class="st-pf-lensbtn'+(x.k===pfState.lens?' on':'')+'" data-lens="'+x.k+'">'+x.l+'</button>'; }).join('');
     el.querySelectorAll('.st-pf-lensbtn').forEach(function(b){ b.onclick=function(){ pfState.lens=b.dataset.lens; pfHotelLimit=30; pfRenderLens(); pfRenderTable(pfLast); }; });
   }
+  function toggleHotelDetail(w){
+    var det=w.querySelector('.st-pf-hdetail'), caret=w.querySelector('.hcaret');
+    if(!det.hidden){ det.hidden=true; if(caret)caret.textContent='▾'; return; }
+    det.hidden=false; if(caret)caret.textContent='▴';
+    if(det.dataset.loaded) return;
+    det.innerHTML='<div class="st-empty" style="padding:14px">불러오는 중…</div>';
+    var per=(pfLast&&pfLast.period)||{};
+    var qs='hotel_id='+encodeURIComponent(w.dataset.hid);
+    if(per.from) qs+='&from='+encodeURIComponent(per.from);
+    if(per.to) qs+='&to='+encodeURIComponent(per.to);
+    fetch('/api/hotel-perf-detail?'+qs,{credentials:'same-origin'})
+      .then(function(r){return r.json();})
+      .then(function(j){ if(!j.ok) throw new Error(j.error||'불러오지 못했습니다.'); det.innerHTML=renderHotelDetail(j); det.dataset.loaded='1'; })
+      .catch(function(e){ det.innerHTML='<div class="st-empty" style="padding:14px">'+esc(e.message)+'</div>'; });
+  }
+  function renderHotelDetail(j){
+    var showComm=j.is_admin;
+    var bars=(j.channels||[]).map(function(c){
+      var comm=(showComm&&('commission' in c))?' · <span style="color:#4edea3">$'+c.commission+'</span>':'';
+      return '<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><span>'+esc(c.name)+'</span><span style="opacity:.75">'+c.bookings+comm+'</span></div>'+
+        '<div class="st-pf-bar"><div class="st-pf-barfill" style="width:'+c.ratio+'%"></div></div></div>';
+    }).join('');
+    if(j.other){
+      var oc=(showComm&&('commission' in j.other))?' · <span style="color:#4edea3">$'+j.other.commission+'</span>':'';
+      bars+='<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><span style="opacity:.6">그 외 '+j.other.count+'개 채널</span><span style="opacity:.6">'+j.other.bookings+oc+'</span></div>'+
+        '<div class="st-pf-bar"><div class="st-pf-barfill other" style="width:'+j.other.ratio+'%"></div></div></div>';
+    }
+    if(!bars) bars='<div style="font-size:13px;opacity:.5">이 기간 채널 데이터가 없습니다.</div>';
+    var recent=(j.recent||[]).map(function(r){
+      var st=r.status==='확정'?'<span style="color:#4edea3">확정</span>':'<span style="opacity:.5">'+esc(r.status)+'</span>';
+      var comm=(showComm&&('commission_usd' in r))?' · <span style="'+(r.commission_usd>0?'color:#4edea3':'opacity:.45')+'">수수료 $'+r.commission_usd+'</span>':'';
+      return '<div style="display:flex;justify-content:space-between;border-bottom:0.5px solid rgba(128,128,128,.15);padding:3px 0"><span>'+esc(r.date)+' · '+esc(r.channel)+'</span><span>'+st+' · $'+r.amount_usd+comm+'</span></div>';
+    }).join('');
+    return '<div style="padding:4px 4px 2px">'+
+      '<div class="st-pf-detlbl">이 기간 어느 채널에서 왔나</div>'+bars+
+      '<div class="st-pf-detlbl" style="margin-top:14px">최근 예약</div>'+
+      '<div style="font-size:13px;line-height:1.9">'+(recent||'<div style="opacity:.5">예약 없음</div>')+'</div>'+
+      '<div style="margin-top:14px"><span class="st-pf-detbtn" onclick="switchView(\'hotel\')">호텔 전체 세부 보기 →</span></div>'+
+    '</div>';
+  }
   function pfRenderTable(d){
     var box=document.getElementById('st-pf-table');
     var head=document.getElementById('st-pf-tablehead');
@@ -1726,14 +1773,18 @@
         var meta = [h.country, h.city, h.type, (h.star?'★'+h.star:'')].filter(Boolean).join(' · ');
         var badge = h.exposed ? '<span class="st-pf-hbadge on">소개함</span>' : '<span class="st-pf-hbadge">미소개</span>';
         var comm = showCommH ? ' · <span class="st-pf-comm">수수료 '+pfMoney(h.commission_usd)+'</span>' : '';
-        return '<div class="st-pf-hrow">'+
+        return '<div class="st-pf-hwrap" data-hid="'+esc(h.hotel_id||'')+'">'+
+          '<div class="st-pf-hrow">'+
           '<span class="rk">'+h.rank+'</span>'+
-          '<div class="hmain"><div class="hname">'+esc(h.name)+' '+badge+'</div>'+
+          '<div class="hmain"><div class="hname">'+esc(h.name)+' '+badge+' <span class="hcaret">▾</span></div>'+
           '<div class="hmeta">'+esc(meta)+'</div></div>'+
           '<div class="hstat"><div>예약 '+h.bookings+' · 취소 '+h.cancelled+cxr+' · 확정률 '+(h.confirm_rate!=null?h.confirm_rate+'%':'—')+'</div>'+
           '<div class="sub">'+pfMoney(h.amount_usd)+comm+'</div></div>'+
+          '</div>'+
+          '<div class="st-pf-hdetail" hidden></div>'+
         '</div>';
       }).join('') + (hts.length>topH.length ? '<div id="pf-hmore" style="text-align:center;padding:10px;cursor:pointer;color:#4edea3;font-size:13px">+ 더 보기 ('+(hts.length-topH.length)+'개 더)</div>' : '');
+      box.querySelectorAll('.st-pf-hwrap').forEach(function(w){ var row=w.querySelector('.st-pf-hrow'); row.style.cursor='pointer'; row.onclick=function(){ toggleHotelDetail(w); }; });
       var mb=document.getElementById('pf-hmore'); if(mb){ mb.onclick=function(){ pfHotelLimit+=50; pfRenderTable(pfLast); }; }
       return;
     }

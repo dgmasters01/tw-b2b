@@ -118,27 +118,23 @@ export default async function handler(req, res) {
   for (const r of (rows || [])) {
     const hid = r.hotel_id;
     if (!hid) continue;
-    const h = m[hid] || (m[hid] = { hotel_id: hid, bookings: 0, comm: 0 });
+    const h = m[hid] || (m[hid] = { hotel_id: hid, bookings: 0, done: 0, amount: 0, comm: 0 });
     h.bookings++;
-    if (!r.is_cancelled) h.comm += Number(r.commission_usd) || 0;
+    if (r.is_completed) h.done++;
+    if (!r.is_cancelled) { h.amount += Number(r.booking_amount_usd) || 0; h.comm += Number(r.commission_usd) || 0; }
   }
-  let arr = Object.values(m).map((h) => {
+  const arr = Object.values(m).map((h) => {
     const mt = meta[h.hotel_id] || {};
-    return { name: mt.name || '(이름 없음)', country: mt.country || null, city: mt.city || null, type: mt.type || null, star: mt.star || null, bookings: h.bookings, commission: Math.round(h.comm) };
+    const o = { name: mt.name || '(이름 없음)', country: mt.country || null, city: mt.city || null, type: mt.type || null, star: mt.star || null, bookings: h.bookings, completed: h.done, amount_usd: Math.round(h.amount) };
+    if (withComm) o.commission_usd = Math.round(h.comm);
+    return o;
   });
-  arr.sort((a, b) => (b.bookings - a.bookings) || (b.commission - a.commission));
+  arr.sort((a, b) => ((b.commission_usd || 0) - (a.commission_usd || 0)) || (b.amount_usd - a.amount_usd));
 
-  const top = arr.slice(0, 5);
-  const rest = arr.slice(5);
-  let other = null;
-  if (rest.length) {
-    other = { count: rest.length, bookings: rest.reduce((s, c) => s + c.bookings, 0), commission: rest.reduce((s, c) => s + c.commission, 0) };
-  }
-
-  // 최근 예약 8건
+  // 최근 예약 40건 (프론트에서 페이지)
   const recent = (rows || []).slice()
     .sort((a, b) => String(b.booked_at || '').localeCompare(String(a.booked_at || '')))
-    .slice(0, 8)
+    .slice(0, 40)
     .map((r) => {
       const mt = meta[r.hotel_id] || {};
       const o = {
@@ -154,10 +150,5 @@ export default async function handler(req, res) {
       return o;
     });
 
-  if (!withComm) {
-    top.forEach((h) => { delete h.commission; });
-    if (other) delete other.commission;
-  }
-
-  return res.status(200).json({ ok: true, is_admin: who.isAdmin, total_bookings: (rows || []).length, hotels: top, other, recent });
+  return res.status(200).json({ ok: true, is_admin: who.isAdmin, total_bookings: (rows || []).length, hotels: arr, recent });
 }

@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>키워드 메뉴 프리뷰 — gohotelwinners 스튜디오</title>
+<style>
+  :root{
+    --bg:#051424; --card:#0b2236; --card2:#102a42; --line:#1c3a56;
+    --txt:#e6eef6; --sub:#9db4c9; --muted:#6a85a0;
+    --em:#4edea3; --emd:#0f3f31; --amber:#efb04a; --amberd:#3a2a12;
+    --red:#e57373; --redd:#3a1c1c; --blue:#5aa9e6; --blued:#12314c;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Malgun Gothic",sans-serif;line-height:1.55;padding:22px 18px 60px;max-width:760px;margin:0 auto;}
+  .pvbar{background:var(--amberd);color:var(--amber);font-size:12px;padding:7px 12px;border-radius:8px;margin-bottom:18px;text-align:center;}
+  .title{display:flex;align-items:baseline;gap:10px;margin-bottom:3px;}
+  .title h1{font-size:21px;font-weight:600;} .title .s{font-size:13px;color:var(--muted);}
+  .bc{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);margin:6px 0 14px;}
+  .bc a{color:var(--sub);cursor:pointer;text-decoration:none;} .bc a:hover{color:var(--txt);} .bc b{color:var(--txt);}
+
+  .target{position:relative;margin:14px 0 12px;}
+  .target .head{display:flex;align-items:center;gap:10px;background:var(--card);border:0.5px solid #2a5a80;border-radius:10px;padding:9px 13px;cursor:pointer;}
+  .target .ico{width:30px;height:30px;border-radius:8px;background:var(--blued);color:var(--blue);display:flex;align-items:center;justify-content:center;font-size:15px;}
+  .target .lab{font-size:11px;color:var(--muted);} .target .name{font-size:14px;font-weight:600;} .target .chev{margin-left:auto;color:var(--muted);font-size:16px;}
+  .dd{display:none;background:var(--card);border:0.5px solid var(--line);border-radius:12px;padding:12px;margin-top:8px;}
+  .dd.open{display:block;}
+  .search{display:flex;align-items:center;gap:8px;background:var(--card2);border-radius:8px;padding:8px 10px;margin-bottom:12px;font-size:13px;color:var(--muted);}
+  .ddgrp{font-size:11px;color:var(--muted);margin:10px 0 5px;}
+  .ddi{display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:8px;cursor:pointer;font-size:13px;}
+  .ddi:hover{background:var(--card2);}
+  .ddi.sel{background:var(--blued);color:var(--blue);font-weight:600;}
+  .ddi .tag{margin-left:auto;font-size:10px;padding:1px 7px;border-radius:20px;}
+  .tag-on{background:var(--emd);color:var(--em);} .tag-ex{background:var(--card2);color:var(--muted);}
+  .ddnew{border-top:0.5px solid var(--line);padding-top:10px;margin-top:6px;color:var(--blue);font-size:13px;cursor:pointer;}
+
+  .banner{background:var(--blued);border-radius:11px;padding:12px 14px;margin-bottom:12px;color:#bcd8ee;font-size:13px;} .banner b{color:#eaf4fc;}
+  .flow{display:flex;align-items:center;gap:10px;font-size:12px;margin-bottom:14px;}
+  .chip{padding:6px 12px;border-radius:8px;background:var(--card2);color:var(--sub);} .chip b{color:var(--txt);} .chip.tgt{background:var(--blued);color:var(--blue);}
+  .arrow{color:var(--muted);font-size:15px;}
+  .mlab{font-size:11px;color:var(--muted);margin-bottom:6px;}
+  .mstrip{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:8px;}
+  .m{font-size:12px;padding:5px 11px;border-radius:20px;background:var(--card2);color:var(--muted);cursor:pointer;}
+  .m.dim{opacity:.5;} .m.red{background:var(--redd);color:var(--red);} .m.now{background:var(--blued);color:var(--blue);font-weight:600;} .m.free{background:var(--emd);color:var(--em);}
+  .legend{display:flex;flex-wrap:wrap;gap:14px;font-size:11px;color:var(--muted);margin-bottom:8px;}
+  .dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:5px;vertical-align:1px;}
+  .misc{font-size:12px;color:var(--muted);margin-bottom:22px;}
+
+  h2{font-size:15px;font-weight:600;margin:22px 0 3px;} .note{font-size:12px;color:var(--muted);margin-bottom:11px;}
+  .list{border:0.5px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:22px;}
+  .row{display:flex;align-items:center;gap:11px;padding:13px 15px;border-bottom:0.5px solid var(--line);background:var(--card);cursor:pointer;}
+  .row:last-child{border-bottom:none;} .row:hover{background:var(--card2);} .row .main{flex:1;}
+  .row .n{display:flex;align-items:center;gap:8px;} .row .nm{font-size:15px;font-weight:600;} .row .why{font-size:12px;color:var(--sub);margin-top:3px;}
+  .sig{font-size:11px;padding:2px 9px;border-radius:20px;font-weight:600;}
+  .sig.focus{background:var(--emd);color:var(--em);} .sig.watch{background:var(--amberd);color:var(--amber);} .sig.norm{background:var(--card2);color:var(--muted);}
+  .pill{font-size:12px;padding:3px 9px;border-radius:20px;} .pill.unt{background:var(--amberd);color:var(--amber);} .pill.rec{background:var(--card2);color:var(--sub);}
+  .lead{font-size:11px;padding:2px 8px;border-radius:20px;} .lead.early{background:var(--amberd);color:var(--amber);} .lead.norm{background:var(--card2);color:var(--muted);} .lead.soon{background:var(--emd);color:var(--em);}
+  .chev2{color:var(--muted);font-size:16px;}
+  .prep{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-bottom:10px;}
+  .pc{background:var(--card2);border-radius:12px;padding:14px;} .pc .hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;} .pc .mo{font-size:13px;font-weight:600;}
+  .st{font-size:11px;padding:2px 8px;border-radius:20px;} .st.late{background:var(--redd);color:var(--red);} .st.now{background:var(--amberd);color:var(--amber);} .st.free{background:var(--emd);color:var(--em);}
+  .pc .pl{font-size:14px;} .pc .sub{font-size:12px;color:var(--muted);margin-top:4px;}
+
+  /* 도시 상세 */
+  .aicard{background:var(--blued);border-radius:12px;padding:12px 14px;margin-bottom:12px;font-size:13px;color:#bcd8ee;} .aicard b{color:#eaf4fc;}
+  .stars{display:flex;gap:6px;margin-bottom:16px;} .starp{font-size:12px;padding:4px 12px;border-radius:20px;background:var(--card2);color:var(--muted);cursor:pointer;} .starp.on{background:var(--blued);color:var(--blue);font-weight:600;}
+  .block{background:var(--card);border:0.5px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px;} .block .bh{font-size:14px;font-weight:600;margin-bottom:10px;}
+  .patcard{background:var(--card2);border-radius:10px;padding:12px;margin-bottom:12px;} .patstats{display:flex;gap:10px;margin:8px 0;} .pstat{flex:1;background:var(--card);border-radius:8px;padding:9px;text-align:center;} .pstat .v{font-size:16px;font-weight:600;} .pstat .l{font-size:10px;color:var(--muted);}
+  .recbox{background:var(--blued);border-radius:8px;padding:9px 11px;font-size:12px;color:#bcd8ee;}
+  .recobj{background:var(--card2);border-radius:8px;padding:11px;}
+  .kw{border-bottom:0.5px solid var(--line);} .kw:last-child{border-bottom:none;}
+  .kwhead{display:flex;gap:8px;align-items:center;padding:11px 2px;cursor:pointer;} .kwhead .knm{font-size:13px;flex:1;} .kwhead .knm small{color:var(--muted);font-size:11px;display:block;margin-top:2px;}
+  .kdot{width:8px;height:8px;border-radius:50%;} .kscore{font-size:13px;font-weight:600;width:38px;text-align:right;}
+  .kexp{display:none;padding:2px 2px 12px;} .kexp.open{display:block;}
+  .trendbox{background:var(--card2);border-radius:8px;padding:12px;margin-bottom:8px;} .trendhead{display:flex;align-items:center;gap:8px;margin-bottom:8px;cursor:pointer;} .trendhead .tt{font-size:12px;font-weight:600;}
+  .chartwrap{display:none;} .chartwrap.open{display:block;}
+  .toggles{display:flex;gap:6px;margin-top:6px;} .tg{font-size:11px;padding:3px 10px;border-radius:20px;background:var(--card);color:var(--muted);} .tg.on{background:var(--blued);color:var(--blue);font-weight:600;}
+  .twocol{display:flex;gap:10px;margin:8px 0;} .col{flex:1;background:var(--card2);border-radius:8px;padding:10px;} .col .cl{font-size:11px;color:var(--muted);} .col .cv{font-size:13px;} .col .cn{font-size:11px;color:var(--em);}
+  .btn{font-size:12px;padding:5px 12px;border-radius:20px;border:0.5px solid var(--blue);color:var(--blue);background:none;cursor:pointer;}
+  .btnfill{background:var(--blued);}
+  /* 큐 */
+  .kb{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;} .kcol .kct{font-size:12px;font-weight:600;margin-bottom:8px;display:flex;justify-content:space-between;} .kcol .kct span{color:var(--muted);}
+  .kcard{background:var(--card2);border-radius:8px;padding:9px;margin-bottom:6px;} .kcard.new{background:var(--blued);} .kcard .kid{font-size:10px;color:var(--muted);} .kcard.new .kid{color:var(--blue);} .kcard .ktt{font-size:11px;margin-top:3px;line-height:1.4;} .kcard .kmt{font-size:10px;color:var(--muted);margin-top:5px;}
+  .screen{display:none;} .screen.on{display:block;}
+  .foot{color:var(--muted);font-size:11px;margin-top:28px;text-align:center;}
+</style>
+</head>
+<body>
+
+<div class="pvbar">⚙️ 설계 확인용 프리뷰 · 데이터는 샘플입니다 · 클릭해서 화면 넘겨보세요</div>
+
+<div class="title"><h1>키워드</h1><span class="s">다음에 뭘 만들지, 데이터로</span></div>
+<div class="bc" id="bc"></div>
+
+<!-- ===== 화면1: 국가 개요(메인) ===== -->
+<div class="screen on" id="s-main">
+  <div class="target">
+    <div class="head" onclick="toggleDD()">
+      <div class="ico">👤</div>
+      <div><div class="lab">타겟 (언어 + 시장)</div><div class="name">한국어 · 여행능력자들</div></div>
+      <div class="chev">⌄</div>
+    </div>
+    <div class="dd" id="dd">
+      <div class="search">🔍 타겟 검색 (채널·언어·시장)</div>
+      <div class="ddgrp">자주 쓰는</div>
+      <div class="ddi sel">한국어 · 여행능력자들 <span style="margin-left:auto;">✓</span></div>
+      <div class="ddi">한국어 · 호텔이야</div>
+      <div class="ddgrp">한국어</div>
+      <div class="ddi">호텔이곳 <span class="tag tag-on">운영 중</span></div>
+      <div class="ddgrp">일본어 · 중국어 · 영어 · 베트남어</div>
+      <div class="ddi">일본어 · ホテルだ <span class="tag tag-on">운영 중</span></div>
+      <div class="ddi">중국어 번체 · 世界就是家 <span class="tag tag-on">운영 중</span></div>
+      <div class="ddi">태국어 · 방콕 시장 <span class="tag tag-ex">탐색용</span></div>
+      <div class="ddnew">＋ 새 타겟 (탐색용으로 조사 먼저)</div>
+    </div>
+  </div>
+
+  <div class="banner">지금 만들면 <b>3달 뒤에 노출</b>됩니다. 이번 달이 아니라 <b>노출 겨냥 월</b> 기준으로 보여줘요.</div>
+  <div class="flow"><span class="chip">착수 <b>7월</b> (지금)</span><span class="arrow">→</span><span class="chip tgt">노출 <b>10월</b> 겨냥</span></div>
+
+  <div class="mlab">노출 겨냥 월 · 현재(7월)부터 6개월</div>
+  <div class="mstrip">
+    <span class="m dim">7월</span><span class="m dim">8월</span><span class="m red">9월</span>
+    <span class="m now">10월 · 지금 착수</span><span class="m free">11월</span><span class="m free">12월</span>
+    <span class="m">📅 연·월 지정</span><span class="m">↺ 지난달 복기</span>
+  </div>
+  <div class="legend">
+    <span><span class="dot" style="background:var(--muted);opacity:.5;"></span>착수 지남</span>
+    <span><span class="dot" style="background:var(--red);"></span>곧 늦음</span>
+    <span><span class="dot" style="background:var(--blue);"></span>지금 착수 딱</span>
+    <span><span class="dot" style="background:var(--em);"></span>여유</span>
+  </div>
+  <div class="misc">착수 기준은 우리 예약 데이터로 잡았습니다 — 여행 3달 안에 92% 예약하기 때문입니다.</div>
+
+  <h2>10월 겨냥 — 지금 착수할 나라</h2>
+  <div class="note">초록 "집중"부터. 나라를 누르면 도시로.</div>
+  <div class="list">
+    <div class="row" onclick="go('city','일본')"><div class="main"><div class="n"><span class="nm">일본</span><span class="sig focus">집중</span></div><div class="why">오사카 단풍철 — 10월 노출에 딱</div></div><span class="pill unt">미개척 12곳</span><span class="pill rec">추천 8편</span><span class="chev2">›</span></div>
+    <div class="row" onclick="go('city','베트남')"><div class="main"><div class="n"><span class="nm">베트남</span><span class="sig watch">주목</span></div><div class="why">다낭 건기 시작 — 10~11월 오름</div></div><span class="pill unt">미개척 9곳</span><span class="pill rec">추천 5편</span><span class="chev2">›</span></div>
+    <div class="row" onclick="go('city','태국')"><div class="main"><div class="n"><span class="nm">태국</span><span class="sig norm">보통</span></div><div class="why">수요 평이 · 급하지 않음</div></div><span class="pill unt">미개척 6곳</span><span class="pill rec">추천 4편</span><span class="chev2">›</span></div>
+  </div>
+
+  <h2>선행 준비 — 3달 미리 겨냥</h2>
+  <div class="note">여러 나라를 가로질러, 피크 4개월 앞까지. 착수 = 겨냥 − 3달.</div>
+  <div class="prep">
+    <div class="pc"><div class="hd"><span class="mo">9월 겨냥</span><span class="st late">늦음</span></div><div class="pl">베트남 · 다낭</div><div class="sub">착수 기한 지남 — 서둘러야</div></div>
+    <div class="pc"><div class="hd"><span class="mo">10월 겨냥</span><span class="st now">지금 착수</span></div><div class="pl">일본 · 오사카 (단풍)</div><div class="sub">지금 만들면 딱 맞음</div></div>
+    <div class="pc"><div class="hd"><span class="mo">11월 겨냥</span><span class="st free">여유</span></div><div class="pl">일본 · 도쿄</div><div class="sub">아직 시간 있음</div></div>
+  </div>
+</div>
+
+<!-- ===== 화면2: 도시 개요 ===== -->
+<div class="screen" id="s-city">
+  <h2 id="cityTitle">일본 · 도시 개요</h2>
+  <div class="note">도시별 수요·미개척·추천 + 예약 성향·착수 권장. 도시를 누르면 상세로.</div>
+  <div class="list" id="cityList"></div>
+</div>
+
+<!-- ===== 화면3: 도시 상세 ===== -->
+<div class="screen" id="s-detail">
+  <div class="aicard">💡 <b id="dcAi">오사카는 가을 단풍 수요가 오르는데 난바권 미개척이 커서 지금 만들 만합니다.</b> 3·4성 가성비 각도가 유리합니다.</div>
+
+  <div class="patcard">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span style="font-size:13px;font-weight:600;">이 도시 예약 패턴</span><span class="lead norm" id="dcTag">보통</span></div>
+    <div class="patstats">
+      <div class="pstat"><div class="v" id="dcMed">22일</div><div class="l">예약 중앙값</div></div>
+      <div class="pstat"><div class="v" id="dcPct">95%</div><div class="l">3달 안 예약</div></div>
+      <div class="pstat"><div class="v" id="dcCnt">583건</div><div class="l">확정 예약</div></div>
+    </div>
+    <div class="recbox" id="dcRec">착수 권장 · 여행 3달 전 (예약 대부분 커버)</div>
+  </div>
+
+  <div class="stars"><span class="starp on">전체 성급</span><span class="starp">3성</span><span class="starp">4성</span><span class="starp">5성</span></div>
+
+  <div class="block">
+    <div class="bh">① 콘텐츠 추천</div>
+    <div class="recobj">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;"><span style="font-size:12px;color:var(--muted);">1위</span><span style="font-size:14px;font-weight:600;">오사카 난바 가성비 호텔 TOP3</span><button class="btn btnfill" style="margin-left:auto;" onclick="alert('전략 큐 「기획 대기」에 담김 — 10월 발행 목표 (프리뷰)')">＋ 이걸로 만들기</button></div>
+      <div style="font-size:12px;color:var(--sub);">근거: 난바 숙소 수요 상승 + 우리 영상 없음 · 넣을 키워드 12개(482자)</div>
+    </div>
+  </div>
+
+  <div class="block">
+    <div class="bh">② 키워드 순위 · 분석 <small style="color:var(--muted);font-weight:400;">· 누르면 추이·근거 펼침</small></div>
+    <div id="kwlist"></div>
+    <div style="display:flex;gap:12px;margin-top:8px;font-size:12px;"><span style="color:var(--blue);cursor:pointer;">상위 30 더보기 ▾</span><span style="color:var(--muted);cursor:pointer;">죽은 키워드 8개 · 왜 뺐나 ▾</span></div>
+  </div>
+
+  <div class="block">
+    <div class="bh">③ 자동 채택 태그란 <small style="color:var(--em);font-weight:400;float:right;">482 / 500자</small></div>
+    <div style="background:var(--card2);border-radius:8px;padding:10px;font-size:12px;color:var(--sub);line-height:1.6;">오사카호텔, 오사카 난바 호텔, 난바역 근처 호텔, 도톤보리 숙소 가성비, 신사이바시 숙소, 히요리 호텔 난바 …</div>
+    <div style="display:flex;gap:8px;margin-top:8px;"><button class="btn">복사</button><button class="btn">§4에 저장</button></div>
+  </div>
+
+  <div class="block">
+    <div class="bh">④ 미개척 기회 <small style="color:var(--muted);font-weight:400;">· 누르면 노출량</small></div>
+    <div style="font-size:13px;color:var(--txt);padding:6px 0;">신사이바시 숙소 <span style="color:var(--em);float:right;">월 노출 25,942 · 큰 기회</span></div>
+    <div style="font-size:13px;color:var(--txt);padding:6px 0;border-top:0.5px solid var(--line);">난바역 호텔 추천 <span style="color:var(--muted);float:right;">▾</span></div>
+  </div>
+
+  <div class="block">
+    <div class="bh">⑤ 그 도시 수요 트렌드 <small style="color:var(--muted);font-weight:400;">· 여러 해 겹침</small></div>
+    <div style="font-size:12px;color:var(--muted);">봄·가을 피크 반복 (2024·2025·2026 겹쳐 표시)</div>
+  </div>
+</div>
+
+<!-- ===== 화면4: 전략 큐 ===== -->
+<div class="screen" id="s-queue">
+  <h2>전략 큐 — 만들 콘텐츠 기획</h2>
+  <div class="note">키워드 [이걸로 만들기]로만 담김 · 카드마다 고유코드 · 발행 완료 → 성과표 회수</div>
+  <div class="kb">
+    <div class="kcol"><div class="kct">기획 대기 <span>2</span></div>
+      <div class="kcard new"><div class="kid">TW-0042 · 방금</div><div class="ktt">오사카 난바 가성비 호텔 TOP3</div><div class="kmt">오사카 · 3성 · 10월</div></div>
+      <div class="kcard"><div class="kid">TW-0041</div><div class="ktt">다낭 미케비치 호텔</div><div class="kmt">다낭 · 4성 · 9월</div></div>
+    </div>
+    <div class="kcol"><div class="kct">원고 작성 <span>1</span></div><div class="kcard"><div class="kid">TW-0039</div><div class="ktt">도쿄 신주쿠 숙소</div><div class="kmt">도쿄 · 산자야</div></div></div>
+    <div class="kcol"><div class="kct">발행 예정 <span>1</span></div><div class="kcard"><div class="kid">TW-0035</div><div class="ktt">후쿠오카 하카타 호텔</div><div class="kmt">8월 예정</div></div></div>
+    <div class="kcol"><div class="kct">발행 완료 <span>1</span></div><div class="kcard" style="opacity:.7;"><div class="kid">TW-0028</div><div class="ktt">오사카 우메다 호텔</div><div class="kmt" style="color:var(--em);">✓ 회수</div></div></div>
+  </div>
+</div>
+
+<div class="foot">키워드 메뉴 프리뷰 · gohotelwinners 스튜디오 · 2026-07-14 설계 확인용 (샘플 데이터)</div>
+
+<script>
+var DATA = {
+  '일본': {cities:[
+    {city:'오사카', why:'수요 높음 · 추이 ↑', unt:'미개척 4곳', rec:'추천 3편', lead:'norm', leadtxt:'보통 (중앙값 22일)', recd:'착수 권장 · 3달 전', med:'22일', pct:'95%', cnt:'583건', ai:'오사카는 가을 단풍 수요가 오르는데 난바권 미개척이 커서 지금 만들 만합니다.'},
+    {city:'도쿄', why:'수요 높음 · 추이 →', unt:'미개척 3곳', rec:'추천 2편', lead:'norm', leadtxt:'보통 (중앙값 20일)', recd:'착수 권장 · 3달 전', med:'20일', pct:'96%', cnt:'192건', ai:'도쿄는 수요가 꾸준합니다. 신주쿠·시부야권 가성비 각도가 무난합니다.'},
+    {city:'후쿠오카', why:'수요 보통 · 추이 ↑', unt:'미개척 3곳', rec:'추천 2편', lead:'norm', leadtxt:'보통 (중앙값 18일)', recd:'착수 권장 · 3달 전', med:'18일', pct:'96%', cnt:'307건', ai:'후쿠오카는 하카타역권 수요가 오르는 중입니다.'}
+  ]},
+  '베트남': {cities:[
+    {city:'다낭', why:'수요 오름 · 건기', unt:'미개척 3곳', rec:'추천 2편', lead:'norm', leadtxt:'보통 (중앙값 18일)', recd:'착수 권장 · 3달 전', med:'18일', pct:'94%', cnt:'140건', ai:'다낭은 건기 시작으로 10~11월 수요가 오릅니다. 미케비치권이 큽니다.'},
+    {city:'호치민', why:'수요 보통', unt:'미개척 4곳', rec:'추천 1편', lead:'soon', leadtxt:'임박 예약 (중앙값 12일)', recd:'착수 권장 · 3달 전 (여유)', med:'12일', pct:'96%', cnt:'161건', ai:'호치민은 임박 예약이 많아 3달 전 발행이면 여유롭습니다.'},
+    {city:'하노이', why:'수요 보통', unt:'미개척 2곳', rec:'추천 1편', lead:'norm', leadtxt:'보통 (중앙값 18일)', recd:'착수 권장 · 3달 전', med:'18일', pct:'97%', cnt:'125건', ai:'하노이 구시가권 수요가 안정적입니다.'}
+  ]},
+  '태국': {cities:[
+    {city:'치앙마이', why:'수요 보통 · 일찍 예약', unt:'미개척 4곳', rec:'추천 2편', lead:'early', leadtxt:'더 일찍 예약 (중앙값 25일)', recd:'착수 권장 · 4달 전 (한 달 앞서)', med:'25일', pct:'88%', cnt:'142건', ai:'치앙마이는 사람들이 일찍 예약해서, 3달로는 12%를 놓칩니다. 한 달 더 앞당기세요.'},
+    {city:'방콕', why:'수요 높음 · 임박 예약', unt:'미개척 5곳', rec:'추천 3편', lead:'soon', leadtxt:'임박 예약 (중앙값 14일)', recd:'착수 권장 · 3달 전 (여유)', med:'14일', pct:'92%', cnt:'273건', ai:'방콕은 임박 예약이 많아 3달 전이면 여유롭습니다. 수쿰빗권 미개척이 큽니다.'},
+    {city:'파타야', why:'수요 보통 · 임박 예약', unt:'미개척 3곳', rec:'추천 1편', lead:'soon', leadtxt:'임박 예약 (중앙값 15일)', recd:'착수 권장 · 3달 전', med:'15일', pct:'93%', cnt:'82건', ai:'파타야는 임박 예약 경향입니다.'}
+  ]}
+};
+var KWS = [
+  {nm:'히요리 호텔 오사카 난바 스테이션', sub:'수요 1위 · 경쟁 626개', score:'3.58', sig:'var(--em)', trend:'2.9 → 3.2 → 3.58', badge:'뜨는 중', dseries:[2.9,3.2,3.58], demand:'자동완성 1위 · 가장 많이 찾음', comp:'영상 626개 · 낮음·유리', reason:'호텔명 — 자동완성에 자기 이름 있어 통과'},
+  {nm:'난바역 근처 호텔', sub:'수요 3위 · 경쟁 4,114개', score:'2.21', sig:'var(--amber)', trend:'2.18 → 2.20 → 2.21', badge:'유지', dseries:[2.18,2.20,2.21], demand:'자동완성 3위', comp:'영상 4,114개 · 보통', reason:'역명 — 난바역 토큰 포함'},
+  {nm:'도톤보리 숙소 가성비', sub:'수요 2위 · 경쟁 12,330개', score:'2.20', sig:'var(--amber)', trend:'2.4 → 2.3 → 2.20', badge:'식는 중', dseries:[2.4,2.3,2.20], demand:'자동완성 2위', comp:'영상 12,330개 · 보통', reason:'지역 — 도톤보리 토큰 포함'}
+];
+var curCountry='일본';
+
+function bcRender(level, extra){
+  var h='<a onclick="go(\'main\')">이번 달 개요</a>';
+  if(level==='city'){h+=' › <b>'+extra+'</b>';}
+  if(level==='detail'){h+=' › <a onclick="go(\'city\',\''+curCountry+'\')">'+curCountry+'</a> › <b>'+extra+'</b>';}
+  if(level==='queue'){h+=' › <b>전략 큐</b>';}
+  document.getElementById('bc').innerHTML=h;
+}
+function show(id){document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('on');});document.getElementById(id).classList.add('on');window.scrollTo(0,0);}
+
+function go(where, arg){
+  if(where==='main'){show('s-main');document.getElementById('bc').innerHTML='';return;}
+  if(where==='city'){curCountry=arg;renderCity(arg);show('s-city');bcRender('city',arg);return;}
+  if(where==='detail'){renderDetail(arg);show('s-detail');bcRender('detail',arg);return;}
+  if(where==='queue'){show('s-queue');bcRender('queue');return;}
+}
+function renderCity(country){
+  document.getElementById('cityTitle').textContent=country+' · 도시 개요';
+  var d=DATA[country].cities, h='';
+  d.forEach(function(c){
+    h+='<div class="row" onclick="go(\'detail\',\''+c.city+'\')"><div class="main"><div class="nm">'+c.city+'</div><div class="why">'+c.why+'</div></div>'+
+       '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;"><span class="lead '+c.lead+'">'+c.leadtxt+'</span><span style="font-size:11px;color:var(--sub);">'+c.recd+'</span></div>'+
+       '<span class="pill unt">'+c.unt+'</span><span class="chev2">›</span></div>';
+  });
+  document.getElementById('cityList').innerHTML=h;
+}
+function renderDetail(city){
+  var c=null;(DATA[curCountry].cities).forEach(function(x){if(x.city===city)c=x;});
+  if(!c)return;
+  document.getElementById('dcAi').textContent=c.ai;
+  document.getElementById('dcTag').textContent=c.lead==='early'?'더 일찍 예약':(c.lead==='soon'?'임박 예약':'보통');
+  document.getElementById('dcTag').className='lead '+c.lead;
+  document.getElementById('dcMed').textContent=c.med;
+  document.getElementById('dcPct').textContent=c.pct;
+  document.getElementById('dcCnt').textContent=c.cnt;
+  document.getElementById('dcRec').textContent=c.recd.replace('착수 권장 · ','착수 권장 · 여행 ')+ '';
+  renderKws();
+}
+function renderKws(){
+  var h='';
+  KWS.forEach(function(k,i){
+    h+='<div class="kw"><div class="kwhead" onclick="toggleKw('+i+')">'+
+       '<span class="kdot" style="background:'+k.sig+'"></span>'+
+       '<span class="knm">'+k.nm+'<small>'+k.sub+'</small></span>'+
+       '<span class="kscore" style="color:'+k.sig+'">'+k.score+'</span>'+
+       '<span style="color:var(--muted);font-size:15px;" id="kchev'+i+'">▾</span></div>'+
+       '<div class="kexp" id="kexp'+i+'">'+
+         '<div class="trendbox"><div class="trendhead" onclick="toggleTrend('+i+')"><span class="tt">월별 추이</span>'+
+           '<span class="lead soon" style="background:var(--emd);color:var(--em);">'+k.badge+'</span>'+
+           '<span style="margin-left:auto;font-size:11px;color:var(--muted);" id="tchev'+i+'">크게 보기 ▾</span></div>'+
+           '<div style="font-size:11px;color:var(--muted);">기회점수 '+k.trend+' (5·6·7월)</div>'+
+           '<div class="chartwrap" id="chart'+i+'">'+miniChart(k.dseries)+
+             '<div class="toggles"><span class="tg on">기회점수</span><span class="tg">수요 순위</span><span class="tg">경쟁 수</span></div></div>'+
+         '</div>'+
+         '<div class="twocol"><div class="col"><div class="cl">수요</div><div class="cv">'+k.demand.split(' · ')[0]+'</div><div class="cn">'+(k.demand.split(' · ')[1]||'')+'</div></div>'+
+           '<div class="col"><div class="cl">경쟁</div><div class="cv">'+k.comp.split(' · ')[0]+'</div><div class="cn">'+(k.comp.split(' · ')[1]||'')+'</div></div></div>'+
+         '<div class="recobj" style="background:var(--card2);"><div style="font-size:12px;font-weight:600;margin-bottom:4px;">묶음 근거</div><div style="font-size:12px;color:var(--sub);">'+k.reason+'</div></div>'+
+       '</div></div>';
+  });
+  document.getElementById('kwlist').innerHTML=h;
+}
+function miniChart(s){
+  var max=4,min=1,W=560,H=150,pad=30;
+  var pts=s.map(function(v,i){var x=pad+ (i*(W-pad-20)/(s.length-1)); var y=H-20-((v-min)/(max-min))*(H-40); return [x,y];});
+  var poly=pts.map(function(p){return p[0].toFixed(0)+','+p[1].toFixed(0);}).join(' ');
+  var g='';[1,2,3,4].forEach(function(v){var y=H-20-((v-min)/(max-min))*(H-40);g+='<line x1="'+pad+'" y1="'+y+'" x2="'+W+'" y2="'+y+'" stroke="var(--line)" stroke-width="0.5"/><text x="'+(pad-8)+'" y="'+(y+4)+'" text-anchor="end" font-size="10" fill="var(--muted)">'+v+'</text>';});
+  var dots=pts.map(function(p,i){return '<circle cx="'+p[0].toFixed(0)+'" cy="'+p[1].toFixed(0)+'" r="4" fill="var(--em)"/><text x="'+p[0].toFixed(0)+'" y="'+(p[1]-10).toFixed(0)+'" text-anchor="middle" font-size="11" fill="var(--txt)" font-weight="600">'+s[i]+'</text>';}).join('');
+  var labs=['5월','6월','7월'].map(function(l,i){return '<text x="'+pts[i][0].toFixed(0)+'" y="'+(H)+'" text-anchor="middle" font-size="10" fill="var(--sub)">'+l+'</text>';}).join('');
+  return '<svg width="100%" viewBox="0 0 '+W+' '+(H+8)+'" style="margin-top:8px;">'+g+'<polyline fill="none" stroke="var(--em)" stroke-width="2.5" points="'+poly+'"/>'+dots+labs+'</svg>';
+}
+var openKw=-1;
+function toggleKw(i){var e=document.getElementById('kexp'+i);var c=document.getElementById('kchev'+i);var was=e.classList.contains('open');document.querySelectorAll('.kexp').forEach(function(x){x.classList.remove('open');});document.querySelectorAll('[id^=kchev]').forEach(function(x){x.textContent='▾';});if(!was){e.classList.add('open');c.textContent='▴';}}
+function toggleTrend(i){var w=document.getElementById('chart'+i);var t=document.getElementById('tchev'+i);var o=w.classList.toggle('open');t.textContent=o?'작게 접기 ▴':'크게 보기 ▾';}
+function toggleDD(){document.getElementById('dd').classList.toggle('open');}
+</script>
+</body>
+</html>

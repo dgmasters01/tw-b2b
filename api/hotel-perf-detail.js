@@ -92,28 +92,35 @@ export default async function handler(req, res) {
   const m = {};
   for (const r of (rows || [])) {
     const code = r.channel_code || '—';
-    const c = m[code] || (m[code] = { code, bookings: 0, comm: 0 });
+    const c = m[code] || (m[code] = { code, bookings: 0, done: 0, amount: 0, comm: 0 });
     c.bookings++;
-    if (!r.is_cancelled) c.comm += Number(r.commission_usd) || 0;
+    if (r.is_completed) c.done++;
+    if (!r.is_cancelled) { c.amount += Number(r.booking_amount_usd) || 0; c.comm += Number(r.commission_usd) || 0; }
   }
-  let chArr = Object.values(m).map((c) => ({ name: nameMap[c.code] || c.code, bookings: c.bookings, commission: Math.round(c.comm) }));
-  chArr.sort((a, b) => (b.bookings - a.bookings) || (b.commission - a.commission));
-  const maxBk = chArr.length ? Math.max(1, chArr[0].bookings) : 1;
-  chArr.forEach((c) => { c.ratio = Math.round((c.bookings / maxBk) * 100); });
+  let chArr = Object.values(m).map((c) => {
+    const o = { name: nameMap[c.code] || c.code, bookings: c.bookings, completed: c.done, amount_usd: Math.round(c.amount) };
+    if (withComm) o.commission_usd = Math.round(c.comm);
+    return o;
+  });
+  chArr.sort((a, b) => ((b.commission_usd || 0) - (a.commission_usd || 0)) || (b.amount_usd - a.amount_usd));
+  const maxAmt = chArr.length ? Math.max(1, chArr[0].amount_usd) : 1;
+  chArr.forEach((c) => { c.ratio = Math.round((c.amount_usd / maxAmt) * 100); });
 
   const top = chArr.slice(0, 5);
   const rest = chArr.slice(5);
   let other = null;
   if (rest.length) {
     const ob = rest.reduce((s, c) => s + c.bookings, 0);
-    const oc = rest.reduce((s, c) => s + c.commission, 0);
-    other = { count: rest.length, bookings: ob, commission: oc, ratio: Math.round((ob / maxBk) * 100) };
+    const od = rest.reduce((s, c) => s + (c.completed || 0), 0);
+    const oa = rest.reduce((s, c) => s + c.amount_usd, 0);
+    other = { count: rest.length, bookings: ob, completed: od, amount_usd: oa, ratio: Math.round((oa / maxAmt) * 100) };
+    if (withComm) other.commission_usd = rest.reduce((s, c) => s + (c.commission_usd || 0), 0);
   }
 
-  // 최근 예약 (날짜 내림차순 8건)
+  // 최근 예약 (날짜 내림차순 40건 — 프론트에서 페이지)
   const recent = (rows || []).slice()
     .sort((a, b) => String(b.booked_at || '').localeCompare(String(a.booked_at || '')))
-    .slice(0, 8)
+    .slice(0, 40)
     .map((r) => {
       const o = {
         date: String(r.booked_at || '').slice(0, 10),
@@ -124,12 +131,6 @@ export default async function handler(req, res) {
       if (withComm) o.commission_usd = r.is_cancelled ? 0 : Math.round(Number(r.commission_usd) || 0);
       return o;
     });
-
-  // 수수료 게이트: admin 아니면 채널·그외에서 제거
-  if (!withComm) {
-    top.forEach((c) => { delete c.commission; });
-    if (other) delete other.commission;
-  }
 
   return res.status(200).json({
     ok: true,

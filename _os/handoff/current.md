@@ -1,38 +1,42 @@
-# 인계서 — BL-HOTEL-MASTER 뿌리+확인함 완료 (다음=검증로봇/성과표 호텔연결)
+# 인계서 — 호텔 마스터 전 과정 완료 (다음=기획 출처 태그)
 
-**작성**: 2026-07-13
+**작성**: 2026-07-14
 **다음 채팅 첫 fetch = boot.md → 이 파일.**
 
 ---
 
-## ✅ 완료 — 호텔 마스터 뿌리 + 확인함 (전부 라이브)
+## ✅ 완료 — BL-HOTEL-MASTER 전 과정 (라이브)
+결정문서: `_business/decisions/2026-07-13-hotel-master-direction.md`, `-schema-applied.md`, `2026-07-13-hotel-type-policy.md`.
 
-결정문서 `_business/decisions/2026-07-13-hotel-master-direction.md`. 상세 `…-schema-applied.md`.
+### 1~2단계 스키마+통합
+- hotels 확장 6칸: hotel_code(고유번호 H-00001, UNIQUE·화면엔 **표시 안 함**, 시스템 식별용)·agoda_hotel_ids(jsonb 다:1)·merge_status·operating_status·former_names·booking_count.
+- 자동 통합: 이름+도시 정규화 → 마스터 3,182개(H-00001~H-03182). 아고다ID 3,903→3,182. 예약 7,169건 전부 bookings_agoda.hotel_id 연결(누락0). 성급=mode.
+- status에 catalog·archived 추가. 자동마스터 status=catalog. v_manager_hotels에 user_id IS NOT NULL 격리.
 
-### 1·2단계 — 스키마 + 자동 통합
-- hotels 확장 6칸: hotel_code(H-00001 UNIQUE)·agoda_hotel_ids(jsonb 다:1)·merge_status·operating_status·former_names·booking_count.
-- 번호 = 뜻 없는 고유 연번. 나라/도시/성급/유형은 칸+화면배지(번호에 안 넣음).
-- status에 catalog 추가. 자동 마스터=status catalog. v_manager_hotels에 user_id IS NOT NULL 격리(매니저 화면 오염 방지).
-- 자동 통합: 이름+도시 정규화 그룹 → **마스터 3,182개(H-00001~H-03182)**. 아고다ID 3,903→3,182. 예약 7,169건 전부 hotel_id 연결(누락0). 성급=mode 보정.
+### 3단계 자동확정+확인함
+- 오병합 신호(나라/도시섞임·이름≤4자) 없는 것 자동 confirmed(3,182개). 애매만 ambiguous(현재 0). 대표님 검수 최소화.
+- 확인함: api/hotel-review.js (GET 목록 is_editor↑ / POST confirm admin전용). studio 호텔메뉴 상단 [확인함 N] 버튼→모달. **주 용도=검증로봇이 갈라진 같은 호텔 찾으면 "합칠까?" 뜨는 곳** (지금 비어있는 게 정상).
 
-### 3단계 — 자동 확정 + 확인함 (사람 검수 최소화)
-- **대표님이 3,000개를 검수하지 않는다.** 시스템이 신뢰도 판정: 오병합 신호(나라/도시 섞임·이름≤4자) 없는 것 = merge_status **confirmed 자동**(3,181개). 의심만 **ambiguous**(현재 1개: H-02862 SuYi).
-- 오병합 실측: 나라섞임 0·도시섞임 0·짧은이름 1. 큰 호텔(예약≥10)은 89개뿐, 나머지는 예약1~2건 롱테일.
-- **확인함**(BL-HOTEL-MASTER):
-  - API `api/hotel-review.js` — GET 목록(is_editor↑)·POST {hotel_code,action:'confirm'}(admin전용, ambiguous→confirmed). content-hotels.js 인증패턴 복제. 라이브 GET 검증됨.
-  - UI: studio.html 호텔 메뉴 상단 [확인함 N] 버튼 → 모달에 의심 호텔 목록(코드·이름·메타·사유) → [맞음·확정]. reviewIsAdmin이면 버튼, 아니면 "대표님만". **기존 6메뉴 무변경, JS 문법 통과.**
-  - 대표님 동선: 스튜디오 로그인 → 호텔 메뉴 → [확인함] → SuYi에 [맞음·확정] → 확인함 비워짐. 안 눌러도 시스템 정상.
-- 커밋: hotel-review.js 0845d83 / studio.html e5422822.
+### 유형 정책
+- property_type 7종(호텔·리조트·아파트·빌라·호스텔·료칸·게하) 이름추정으로 채움. "Suites"는 호텔로(아파트 제외).
+- **영업(gohotelwinners 가입)=호텔·리조트만**. 명단·예약은 전 유형 유지(안 뺌). 호텔+리조트 2,898개.
+- content-hotels.js: 유형·성급 매칭을 agoda_hotel_ids(배열)로 + 유형 7종 한글 표시. studio 호텔메뉴 유형필터 옵션 확장.
 
-## 📋 다음
-1. **검증 로봇(과소병합 탐지)**: 정규화가 못 잡은 미묘한 이름차이(ZONK/ZONK HOTEL, 리브랜딩)를 마스터끼리 유사도 비교로 찾아 확인함에 ambiguous 추가. + 확인함 **합치기(merge) 액션**(from→into: agoda_hotel_ids 합치고 예약 재연결, from archived). 지금 확인함은 confirm만.
-2. **성과표 호텔별 렌즈 연결**(D-063→D-062): content-hotels(현재 hid=아고다ID 기준)를 hotel_code 마스터 위에서 돌게 → 호텔별 성과.
-3. **매니저용(나중)**: 가입 호텔 agoda_hotel_id 채워 예약 매칭. 같은 명단·번호라 결합작업 없음.
+### 성과표 호텔별 (D-063 채널탭은 무변경)
+- content-performance.js: byHotel 집계 추가(예약을 hotel_id로 묶음). 응답에 hotels[].
+- 표시: 2단 레이아웃(이름+나라·도시·유형·성급 / 우측 예약·확정률·예약금·수수료). **나라 38개 한글화**(COUNTRY_KO). 호텔명 소개한 것은 원고 한글명 우선, 없으면 영문. **수수료 admin(대표님)만**(withComm 게이트).
+- **소개함/미소개 배지**: 마스터 agoda_hotel_ids가 v_content_hotel_exposure hid에 있으면 소개함. 검증서 상위 예약호텔 다수가 "미소개"=콘텐츠 기회.
+- 영상별 탭은 추적링크 전이라 안내 유지.
+
+## 📋 다음 — 기획 출처 태그 (AI추천 vs 직접기획) — 대표님과 방향·디자인 확정됨
+**목적**: 내(AI) 추천 기획 콘텐츠 vs 대표님 직접 기획 콘텐츠, 어느 쪽이 예약·수익 잘 나오는지 데이터 비교.
+**판정 방식**: 스튜디오 호텔·키워드·전략 메뉴의 [이걸로 만들기]로 전략 큐 진입 = 출처 'ai_추천'(어느 메뉴서 왔는지도 기록: hotel/keyword/strategy). 대표님이 전략에서 직접 입력 = '직접'. 자동 판정(대표님이 매번 안 고름).
+**한계(정직히 전달됨)**: 과거 콘텐츠는 출처 기록 없어 소급 불가. **지금부터 쌓아야** 비교 가능(몇 달 후 유의미).
+**표시(대표님 확정)**: 성과표 호텔별/영상별에 배지. **소개함·미소개=회색(색 없음), AI추천/직접만 살짝 색**(알록달록 금지). 상단에 "AI추천 N편·예약·확정률 vs 직접 M편" 비교 요약 2칸.
+**구현 착수점**: 전략 큐 구조 + [이걸로 만들기] 버튼들(호텔 D-062·키워드 D-065·전략 D-066) 흐름을 **먼저 코드로 확인** → 출처 컬럼(strategy/publications에 plan_source, plan_source_menu) 심기 → 발행 시 승계 → 성과표 집계·배지·비교요약. 콘텐츠 제작 흐름 전체를 건드리므로 뿌리부터 정독 후 진행.
 
 ## ⚠️ 알아둘 것
-- property_type(호텔/리조트)은 예약데이터에 없어 자동 마스터 NULL. 성급도 예약기준이라 부정확 가능 → 확정/검증 단계 교정.
-- studio.html은 로그인 게이트라 curl 검증 불가 → raw GitHub SHA로 대체. API는 ops-token으로 검증.
-- 매니저 가입 hotels 3행=개발 테스트용 임시(user_id 있음), 자동 마스터와 분리됨.
-
----
-(이전 이력은 git 히스토리·decisions 문서 참조)
+- 고유번호(hotel_code)는 화면에 절대 강조 안 함(대표님 지침). 이름 중심.
+- studio.html 로그인 게이트라 curl 검증 불가 → raw GitHub SHA. API는 ops-token 검증.
+- 도시는 영문 유지(나라만 한글). 성급 없음=아고다 무성급 숙소.
+- 커밋 이력: 확인함 hotel-review.js, content-hotels/performance, studio 다수(git 참조).

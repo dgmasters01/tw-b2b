@@ -40,3 +40,17 @@
 - studio.html 로그인 게이트라 curl 검증 불가 → raw GitHub SHA. API는 ops-token 검증.
 - 도시는 영문 유지(나라만 한글). 성급 없음=아고다 무성급 숙소.
 - 커밋 이력: 확인함 hotel-review.js, content-hotels/performance, studio 다수(git 참조).
+
+
+---
+
+## ➕ 추가 완료 (2026-07-14) — 성과표 호텔별 클릭 세부 (B안 막대)
+- API: **api/hotel-perf-detail.js** 신설. hotel_id+기간(from/to) → 채널별 분해(상위5개+그외 1줄 = 개수 무관 높이 고정) + 최근예약 8건. 수수료 admin전용 게이트. 채널명 v_channel_stats.
+- content-performance.js: byHotel 응답에 hotel_id 추가(세부 조회용). period {key,from,to} 그대로 넘김.
+- studio.html: 호텔별 행 클릭→아래 펼침(st-pf-hwrap/hdetail). 채널 **막대 비율(B안 확정)** + 최근예약(날짜·채널·확정취소·금액·수수료). "호텔 전체 세부 보기"=switchView(hotel) 이동만(그 호텔 자동선택은 미구현, 다음).
+- 대표님 지침 반영: "콘텐츠 만들기" 버튼 제거(성과는 보는 곳), 수수료 표시(admin만), **채널 늘어나도 안 깨지게 상위N+그외 요약으로 높이 고정**.
+- 검증: 1위 Red Roof Inn 오사카(83건)=여행능력자들 81(막대100%)·호텔이야 2. 정상.
+- 커밋: hotel-perf-detail 33c872dd, content-performance 5135b527, studio 87ede0fce.
+
+## 🎨 기획출처 배지 색 규칙 확정(다음 작업 시 적용)
+소개함·미소개=회색(색 없음). AI추천/직접기획만 살짝 색(AI 파랑, 직접 노랑 계열). 알록달록 금지.

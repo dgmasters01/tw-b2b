@@ -1720,35 +1720,52 @@
     if(per.to) qs+='&to='+encodeURIComponent(per.to);
     fetch('/api/channel-perf-detail?'+qs,{credentials:'same-origin'})
       .then(function(r){return r.json();})
-      .then(function(j){ if(!j.ok) throw new Error(j.error||'불러오지 못했습니다.'); det.innerHTML=renderChannelDetail(j); det.dataset.loaded='1'; })
+      .then(function(j){ if(!j.ok) throw new Error(j.error||'불러오지 못했습니다.'); renderChannelDetail(det, j); det.dataset.loaded='1'; })
       .catch(function(e){ det.innerHTML='<div class="st-empty" style="padding:14px">'+esc(e.message)+'</div>'; });
   }
-  function renderChannelDetail(j){
-    var showComm=j.is_admin;
-    function hrow(name, meta, right, dim){
-      return '<div style="display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:0.5px solid rgba(128,128,128,.15);font-size:13px'+(dim?';opacity:.6':'')+'"><span style="min-width:0">'+name+(meta?' <span style="font-size:12px;opacity:.55">· '+meta+'</span>':'')+'</span><span style="white-space:nowrap">'+right+'</span></div>';
+  function pageNav(kind, cur, pages){
+    return '<div style="display:flex;justify-content:center;align-items:center;gap:16px;margin-top:10px;padding-top:8px;border-top:0.5px solid rgba(128,128,128,.15)">'+
+      '<span data-nav="'+kind+'" data-dir="-1" style="font-size:15px;cursor:pointer;'+(cur<=0?'opacity:.25;pointer-events:none':'color:#4edea3')+'">◀</span>'+
+      '<span style="font-size:12px;opacity:.7">'+(cur+1)+' / '+pages+'</span>'+
+      '<span data-nav="'+kind+'" data-dir="1" style="font-size:15px;cursor:pointer;'+(cur>=pages-1?'opacity:.25;pointer-events:none':'color:#4edea3')+'">▶</span>'+
+    '</div>';
+  }
+  function renderChannelDetail(det, j){
+    det._cd = { data:j, sort:(j.is_admin?'commission':'amount'), hp:0, rp:0 };
+    drawChannelDetail(det);
+  }
+  function drawChannelDetail(det){
+    var s=det._cd, j=s.data, showComm=j.is_admin, PAGE=5, RPAGE=8;
+    function hrow(name, meta, right){
+      return '<div style="display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:0.5px solid rgba(128,128,128,.15);font-size:13px"><span style="min-width:0">'+name+(meta?' <span style="font-size:12px;opacity:.55">· '+meta+'</span>':'')+'</span><span style="white-space:nowrap">'+right+'</span></div>';
     }
-    var hotels=(j.hotels||[]).map(function(h){
+    var arr=sortPerf(j.hotels||[], s.sort);
+    var hpages=Math.max(1, Math.ceil(arr.length/PAGE));
+    if(s.hp>=hpages) s.hp=hpages-1; if(s.hp<0) s.hp=0;
+    var hHtml=arr.slice(s.hp*PAGE, s.hp*PAGE+PAGE).map(function(h){
       var meta=[h.country,h.city,(h.type||''),(h.star?'★'+h.star:'')].filter(Boolean).join(' · ');
-      var comm=(showComm&&('commission' in h))?' · <span style="color:#4edea3">$'+h.commission+'</span>':'';
-      return hrow(esc(h.name), esc(meta), '예약 '+h.bookings+comm, false);
-    }).join('');
-    if(j.other){
-      var oc=(showComm&&('commission' in j.other))?' · <span style="color:#4edea3">$'+j.other.commission+'</span>':'';
-      hotels+=hrow('그 외 '+j.other.count+'개 호텔','', '예약 '+j.other.bookings+oc, true);
-    }
-    if(!hotels) hotels='<div style="font-size:13px;opacity:.5">이 기간 호텔 데이터가 없습니다.</div>';
-    var recent=(j.recent||[]).map(function(r){
+      var comm=(showComm&&('commission_usd' in h))?' · <span style="color:#4edea3">$'+h.commission_usd+'</span>':'';
+      return hrow(esc(h.name), esc(meta), '확정 '+(h.completed||0)+' · $'+(h.amount_usd||0)+comm);
+    }).join('') || '<div style="font-size:13px;opacity:.5;padding:8px 0">호텔 데이터가 없습니다.</div>';
+    var hnav = arr.length>PAGE ? pageNav('h', s.hp, hpages) : '';
+
+    var rec=j.recent||[];
+    var rpages=Math.max(1, Math.ceil(rec.length/RPAGE));
+    if(s.rp>=rpages) s.rp=rpages-1; if(s.rp<0) s.rp=0;
+    var rHtml=rec.slice(s.rp*RPAGE, s.rp*RPAGE+RPAGE).map(function(r){
       var meta=[r.country,r.city,(r.star?'★'+r.star:'')].filter(Boolean).join(' · ');
       var st=r.status==='확정'?'<span style="color:#4edea3">확정</span>':'<span style="opacity:.5">'+esc(r.status)+'</span>';
       var comm=(showComm&&('commission_usd' in r))?' · <span style="'+(r.commission_usd>0?'color:#4edea3':'opacity:.45')+'">수수료 $'+r.commission_usd+'</span>':'';
-      return hrow(esc(r.date)+' · '+esc(r.hotel_name), esc(meta), st+' · $'+r.amount_usd+comm, false);
-    }).join('');
-    return '<div style="padding:4px 4px 2px">'+
-      '<div class="st-pf-detlbl">이 채널이 판 호텔 <span style="opacity:.6">(예약 많은 순)</span></div>'+hotels+
-      '<div class="st-pf-detlbl" style="margin-top:14px">최근 예약</div>'+
-      '<div>'+(recent||'<div style="opacity:.5;font-size:13px">예약 없음</div>')+'</div>'+
+      return hrow(esc(r.date)+' · '+esc(r.hotel_name), esc(meta), st+' · $'+r.amount_usd+comm);
+    }).join('') || '<div style="font-size:13px;opacity:.5;padding:8px 0">예약 없음</div>';
+    var rnav = rec.length>RPAGE ? pageNav('r', s.rp, rpages) : '';
+
+    det.innerHTML='<div style="padding:4px 4px 2px">'+
+      '<div class="st-pf-detlbl" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px"><span>이 채널이 판 호텔 <span style="opacity:.6">('+arr.length+'개)</span></span>'+sortBtnsHtml(s.sort, showComm)+'</div>'+hHtml+hnav+
+      '<div class="st-pf-detlbl" style="margin-top:14px">최근 예약</div>'+rHtml+rnav+
     '</div>';
+    det.querySelectorAll('.st-pf-sort button').forEach(function(b){ b.onclick=function(e){ e.stopPropagation(); s.sort=b.dataset.s; s.hp=0; drawChannelDetail(det); }; });
+    det.querySelectorAll('[data-nav]').forEach(function(b){ b.onclick=function(e){ e.stopPropagation(); var dir=parseInt(b.dataset.dir,10); if(b.dataset.nav==='h') s.hp+=dir; else s.rp+=dir; drawChannelDetail(det); }; });
   }
   function goHotelInMenu(name){
     switchView('hotel');
@@ -1770,33 +1787,42 @@
     if(per.to) qs+='&to='+encodeURIComponent(per.to);
     fetch('/api/hotel-perf-detail?'+qs,{credentials:'same-origin'})
       .then(function(r){return r.json();})
-      .then(function(j){ if(!j.ok) throw new Error(j.error||'불러오지 못했습니다.'); var exposed=w.dataset.exposed==='1'; var nm=w.dataset.name||''; det.innerHTML=renderHotelDetail(j, exposed); det.dataset.loaded='1'; var b=det.querySelector('.st-pf-detbtn'); if(b) b.onclick=function(){ goHotelInMenu(nm); }; })
+      .then(function(j){ if(!j.ok) throw new Error(j.error||'불러오지 못했습니다.'); var exposed=w.dataset.exposed==='1'; var nm=w.dataset.name||''; renderHotelDetail(det, j, exposed, nm); det.dataset.loaded='1'; })
       .catch(function(e){ det.innerHTML='<div class="st-empty" style="padding:14px">'+esc(e.message)+'</div>'; });
   }
-  function renderHotelDetail(j, exposed){
-    var showComm=j.is_admin;
+  function renderHotelDetail(det, j, exposed, name){
+    det._hd = { data:j, exposed:exposed, name:name, rp:0 };
+    drawHotelDetail(det);
+  }
+  function drawHotelDetail(det){
+    var s=det._hd, j=s.data, showComm=j.is_admin, RPAGE=8;
     var bars=(j.channels||[]).map(function(c){
-      var comm=(showComm&&('commission' in c))?' · <span style="color:#4edea3">$'+c.commission+'</span>':'';
-      return '<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><span>'+esc(c.name)+'</span><span style="opacity:.75">'+c.bookings+comm+'</span></div>'+
+      var comm=(showComm&&('commission_usd' in c))?' · <span style="color:#4edea3">$'+c.commission_usd+'</span>':'';
+      return '<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><span>'+esc(c.name)+'</span><span style="opacity:.75">확정 '+(c.completed||0)+' · $'+(c.amount_usd||0)+comm+'</span></div>'+
         '<div class="st-pf-bar"><div class="st-pf-barfill" style="width:'+c.ratio+'%"></div></div></div>';
     }).join('');
     if(j.other){
-      var oc=(showComm&&('commission' in j.other))?' · <span style="color:#4edea3">$'+j.other.commission+'</span>':'';
-      bars+='<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><span style="opacity:.6">그 외 '+j.other.count+'개 채널</span><span style="opacity:.6">'+j.other.bookings+oc+'</span></div>'+
+      var oc=(showComm&&('commission_usd' in j.other))?' · <span style="color:#4edea3">$'+j.other.commission_usd+'</span>':'';
+      bars+='<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><span style="opacity:.6">그 외 '+j.other.count+'개 채널</span><span style="opacity:.6">확정 '+(j.other.completed||0)+' · $'+(j.other.amount_usd||0)+oc+'</span></div>'+
         '<div class="st-pf-bar"><div class="st-pf-barfill other" style="width:'+j.other.ratio+'%"></div></div></div>';
     }
     if(!bars) bars='<div style="font-size:13px;opacity:.5">이 기간 채널 데이터가 없습니다.</div>';
-    var recent=(j.recent||[]).map(function(r){
+    var rec=j.recent||[];
+    var rpages=Math.max(1, Math.ceil(rec.length/RPAGE));
+    if(s.rp>=rpages) s.rp=rpages-1; if(s.rp<0) s.rp=0;
+    var recent=rec.slice(s.rp*RPAGE, s.rp*RPAGE+RPAGE).map(function(r){
       var st=r.status==='확정'?'<span style="color:#4edea3">확정</span>':'<span style="opacity:.5">'+esc(r.status)+'</span>';
       var comm=(showComm&&('commission_usd' in r))?' · <span style="'+(r.commission_usd>0?'color:#4edea3':'opacity:.45')+'">수수료 $'+r.commission_usd+'</span>':'';
-      return '<div style="display:flex;justify-content:space-between;border-bottom:0.5px solid rgba(128,128,128,.15);padding:3px 0"><span>'+esc(r.date)+' · '+esc(r.channel)+'</span><span>'+st+' · $'+r.amount_usd+comm+'</span></div>';
-    }).join('');
-    return '<div style="padding:4px 4px 2px">'+
+      return '<div style="display:flex;justify-content:space-between;border-bottom:0.5px solid rgba(128,128,128,.15);padding:3px 0;font-size:13px"><span>'+esc(r.date)+' · '+esc(r.channel)+'</span><span>'+st+' · $'+r.amount_usd+comm+'</span></div>';
+    }).join('') || '<div style="opacity:.5;font-size:13px">예약 없음</div>';
+    var rnav = rec.length>RPAGE ? pageNav('r', s.rp, rpages) : '';
+    det.innerHTML='<div style="padding:4px 4px 2px">'+
       '<div class="st-pf-detlbl">이 기간 어느 채널에서 왔나</div>'+bars+
-      '<div class="st-pf-detlbl" style="margin-top:14px">최근 예약</div>'+
-      '<div style="font-size:13px;line-height:1.9">'+(recent||'<div style="opacity:.5">예약 없음</div>')+'</div>'+
-      (exposed?'<div style="margin-top:14px"><span class="st-pf-detbtn">호텔 전체 세부 보기 →</span></div>':'')+
+      '<div class="st-pf-detlbl" style="margin-top:14px">최근 예약</div>'+recent+rnav+
+      (s.exposed?'<div style="margin-top:14px"><span class="st-pf-detbtn">호텔 전체 세부 보기 →</span></div>':'')+
     '</div>';
+    det.querySelectorAll('[data-nav]').forEach(function(b){ b.onclick=function(e){ e.stopPropagation(); s.rp+=parseInt(b.dataset.dir,10); drawHotelDetail(det); }; });
+    var bt=det.querySelector('.st-pf-detbtn'); if(bt) bt.onclick=function(e){ e.stopPropagation(); goHotelInMenu(s.name); };
   }
   function sortPerf(arr, key){
     var a=arr.slice();

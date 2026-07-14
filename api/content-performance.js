@@ -176,8 +176,21 @@ function byChannel(rows, nameMap, withComm) {
   return arr;
 }
 
+// 나라 영문 → 한글 (성과표·호텔별 표시용)
+const COUNTRY_KO = {
+  'Australia': '호주', 'Austria': '오스트리아', 'Belgium': '벨기에', 'Cambodia': '캄보디아', 'Canada': '캐나다',
+  'China': '중국', 'Comoros': '코모로', 'Croatia': '크로아티아', 'Czech Republic': '체코', 'France': '프랑스',
+  'Germany': '독일', 'Guam': '괌', 'Hong Kong SAR, China': '홍콩', 'Hungary': '헝가리', 'Indonesia': '인도네시아',
+  'Italy': '이탈리아', 'Japan': '일본', 'Laos': '라오스', 'Macau SAR, China': '마카오', 'Malaysia': '말레이시아',
+  'Maldives': '몰디브', 'Mongolia': '몽골', 'Myanmar': '미얀마', 'Netherlands': '네덜란드', 'New Zealand': '뉴질랜드',
+  'Northern Mariana Islands': '북마리아나제도', 'Philippines': '필리핀', 'Portugal': '포르투갈', 'Singapore': '싱가포르',
+  'South Korea': '한국', 'Spain': '스페인', 'Sri Lanka': '스리랑카', 'Switzerland': '스위스', 'Taiwan': '대만',
+  'Thailand': '태국', 'Türkiye': '튀르키예', 'United Kingdom': '영국', 'Vietnam': '베트남',
+};
+
 // 예약 배열 → 호텔별 집계 (예약 건수 내림차순). 이름·유형·성급은 hotels 마스터에서.
-function byHotel(rows, hotelMeta, withComm) {
+// 소개한 호텔(영상 원고 노출)은 한글명 우선 + '소개함' 표시.
+function byHotel(rows, hotelMeta, exposedHids, hidKoName, withComm) {
   const TYPE = { hotel: '호텔', resort: '리조트', apartment: '아파트', villa: '빌라', hostel: '호스텔', ryokan: '료칸', guesthouse: '게스트하우스', other: '기타' };
   const m = {};
   for (const r of rows) {
@@ -192,12 +205,20 @@ function byHotel(rows, hotelMeta, withComm) {
   }
   const arr = Object.values(m).map((h) => {
     const meta = hotelMeta[h.hotel_id] || {};
+    const ids = meta.agoda_ids || [];
+    let exposed = false, koName = null;
+    for (const aid of ids) {
+      const k = String(aid);
+      if (exposedHids.has(k)) { exposed = true; if (!koName && hidKoName[k]) koName = hidKoName[k]; }
+    }
     const o = {
-      name: meta.name || '(이름 없음)',
+      name: koName || meta.name || '(이름 없음)',            // 한글명(원고) 우선, 없으면 영문
+      name_en: (koName && meta.name && koName !== meta.name) ? meta.name : null,
       type: meta.type ? (TYPE[meta.type] || meta.type) : null,
       star: meta.star || null,
-      country: meta.country || null,
+      country: meta.country ? (COUNTRY_KO[meta.country] || meta.country) : null,
       city: meta.city || null,
+      exposed: exposed,
       bookings: h.total,
       completed: h.done,
       cancelled: h.canc,
@@ -286,15 +307,23 @@ export default async function handler(req, res) {
     const channels = byChannel(bookings, nameMap, withComm);
     const tr = trend(bookings, from, to);
 
-    // 호텔별: 기간 예약을 hotel_id(우리 마스터)로 묶고 이름·유형·성급 조인
+    // 호텔별: 기간 예약을 hotel_id(우리 마스터)로 묶고 이름·유형·성급·나라 조인
     const hotelIds = [...new Set((bookings || []).map(r => r.hotel_id).filter(Boolean))];
     const hotelMeta = {};
     for (let i = 0; i < hotelIds.length; i += 500) {
       const chunk = hotelIds.slice(i, i + 500);
-      const { data: hm } = await sb.from('hotels').select('id,hotel_name,property_type,star_rating,country,city').in('id', chunk);
-      (hm || []).forEach((r) => { hotelMeta[r.id] = { name: r.hotel_name, type: r.property_type, star: r.star_rating, country: r.country, city: r.city }; });
+      const { data: hm } = await sb.from('hotels').select('id,hotel_name,property_type,star_rating,country,city,agoda_hotel_ids').in('id', chunk);
+      (hm || []).forEach((r) => { hotelMeta[r.id] = { name: r.hotel_name, type: r.property_type, star: r.star_rating, country: r.country, city: r.city, agoda_ids: Array.isArray(r.agoda_hotel_ids) ? r.agoda_hotel_ids : [] }; });
     }
-    const hotels = byHotel(bookings, hotelMeta, withComm);
+    // 소개함 판정 + 한글명: 노출(v_content_hotel_exposure)의 hid·원고 이름 재활용
+    const exposedHids = new Set();
+    const hidKoName = {};
+    for (const e of (expRes.data || [])) {
+      const k = String(e.hid);
+      exposedHids.add(k);
+      if (e.name_in_script && !hidKoName[k]) hidKoName[k] = e.name_in_script;
+    }
+    const hotels = byHotel(bookings, hotelMeta, exposedHids, hidKoName, withComm);
 
     // 비교 (프리셋·custom 등 from 있을 때만)
     let compare = null;

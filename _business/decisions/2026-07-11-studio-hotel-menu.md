@@ -77,3 +77,10 @@
 - 리드타임·확정률 = `bookings_agoda`(booked_at·checkin_date·booking_status·is_cancelled·noshow_count)
 - 취소일 = **현재 스키마에 없음.** 진짜 취소 타이밍 분석은 아고다 파일 업로드 후 취소일 유무 확인 필요
 - 예약 세부 컴포넌트 = 매니저(D-061)·admin(D-053)과 동일, 수수료 플래그만 다름
+
+## 취소일 최종 결론 (2026-07-12 · 대표님 원본 파일 확인 완료)
+- 대표님이 아고다 원본 리포트(`BookingReceivedReport_All_BookingDate_2025-01-01_2025-12-31.xlsx`, 1,541건) 업로드 → 직접 확인.
+- **아고다 원본에 취소일 칸이 아예 없음.** 날짜 칸 = 예약 날짜·체크인 날짜·체크아웃 날짜·결제 날짜(월) 4개뿐. 취소는 `예약 상태`(Departed / Cancelled By Customer / Cancelled, Other)로만 표기.
+- ⇒ **"체크인 D-며칠 전 취소" 진짜 취소 타이밍 = 영구 불가**(우리 설계 문제 아님 · 아고다 미제공). `cancelled_date` 컬럼 추가 계획 **폐기**. ⑤-2 승격 조건 종료.
+- **가능한 것(⑤ 대부분 유효)**: 취소 여부·취소 사유(고객취소/기타)·예약일→체크인 리드타임별 확정률·도시/성급/채널/접속국별 취소율.
+- 2025 파일 실측: 총 1,541 = Departed 818 / Cancelled By Customer 718 / Cancelled, Other 4 → **취소율 47%**.

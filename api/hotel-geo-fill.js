@@ -13,6 +13,11 @@
 
 import { runGeoFill } from './_lib/hotel-geo.js';
 
+// ⚠️ 이 수동 입구는 maxDuration 30초(vercel.json functions "api/*.js").
+//    실측 2026-07-15: 45건 = 36초 → 30초를 넘긴다. 그래서 수동은 30건까지만 받는다.
+//    많이 돌릴 땐 크론 입구(api/cron/hotel-geo-fill.js, maxDuration 60)를 쓸 것.
+const MANUAL_MAX = 30;
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-ops-token');
@@ -26,6 +31,7 @@ export default async function handler(req, res) {
   }
 
   const { city = null, limit = 10, dry_run = false } = req.body || {};
-  const { status, body } = await runGeoFill({ city, limit, dry_run });
+  const safeLimit = Math.min(parseInt(limit) || 10, MANUAL_MAX);
+  const { status, body } = await runGeoFill({ city, limit: safeLimit, dry_run });
   return res.status(status).json(body);
 }

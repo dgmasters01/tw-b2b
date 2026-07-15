@@ -19,6 +19,10 @@
 // 규칙 문서: _os/playbook/handoff-truth.md
 
 const RAW = 'https://raw.githubusercontent.com/dgmasters01/tw-b2b/main/';
+// ⚠️ raw.githubusercontent 는 CDN 캐시(~5분)라 **읽기에 쓰면 안 된다**.
+//    5분 전 내용을 읽고 되쓰면 방금 들어온 커밋을 덮는다(2026-07-15 시험 중 실제 발생).
+//    읽기는 항상 GitHub Contents API(캐시 없음).
+const GH_API = 'https://api.github.com/repos/dgmasters01/tw-b2b/contents/';
 const HANDOFF = '_os/handoff/current.md';
 const MARK_S = '<!-- verify:start -->';
 const MARK_E = '<!-- verify:end -->';
@@ -33,9 +37,22 @@ function authOk(req) {
   return false;
 }
 
+function ghHeaders(accept) {
+  const h = { Accept: accept, 'User-Agent': 'tw-b2b-handoff-verify' };
+  if (process.env.GITHUB_PAT) h.Authorization = 'Bearer ' + process.env.GITHUB_PAT;
+  return h;
+}
+
+// 파일 내용 (캐시 없음). 없으면 null.
 async function raw(path) {
-  const r = await fetch(RAW + path + '?t=' + Date.now());
+  const r = await fetch(GH_API + path + '?ref=main', { headers: ghHeaders('application/vnd.github.raw') });
   return r.ok ? await r.text() : null;
+}
+
+// 존재만 확인 (캐시 없음).
+async function exists(path) {
+  const r = await fetch(GH_API + path + '?ref=main', { headers: ghHeaders('application/vnd.github+json') });
+  return r.status === 200;
 }
 
 export default async function handler(req, res) {
@@ -58,8 +75,7 @@ export default async function handler(req, res) {
   const paths = [...new Set([...handoff.matchAll(re)].map((m) => m[1]))];
   for (const p of paths) {
     checked.paths++;
-    const r = await fetch(RAW + p, { method: 'HEAD' });
-    if (!r.ok) errors.push(`인계서가 가리키는 \`${p}\` 가 **없습니다**(${r.status}). 경로가 틀렸거나 아직 안 만든 것입니다.`);
+    if (!(await exists(p))) errors.push(`인계서가 가리키는 \`${p}\` 가 **없습니다**. 경로가 틀렸거나 아직 안 만든 것입니다.`);
   }
 
   // ── 1-B) 인계서가 언급한 **API 경로**가 진짜 있나 (오늘의 덫: `/api/cron/hotel-geo-fill` 는 없었다)
@@ -71,8 +87,7 @@ export default async function handler(req, res) {
     const clean = a.replace(/^\//, '');
     let found = false;
     for (const cand of [`${clean}.js`, `${clean}/index.js`]) {
-      const r = await fetch(RAW + cand, { method: 'HEAD' });
-      if (r.ok) { found = true; break; }
+      if (await exists(cand)) { found = true; break; }
     }
     if (!found && (vercelRewrites || []).some((w) => w.source === a)) found = true;   // rewrite 로 사는 경로
     if (!found) errors.push(`인계서가 가리키는 API \`${a}\` 가 **없습니다**. 이 주소로 크론을 걸면 조용히 전부 실패합니다.`);

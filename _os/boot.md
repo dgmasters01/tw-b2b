@@ -52,6 +52,7 @@
 
 | 작업 종류 | 추가로 읽을 파일 |
 |---|---|
+| **사업·서비스 방향 판단 · 화면/메뉴 설계 시 (의무)** | **`BUSINESS.md` 해당 절** + 해당 `D-###` 확정문서 — 여기에 답이 있는데 안 읽어서 추측으로 만든 사고 2026-07-15 |
 | 헌법 자가 검증 깊이 필요 시 | `OPERATIONS_CHARTER.md` |
 | 새 의사결정 박을 때 | `DECISIONS.md` / `DECISIONS_INDEX.md` |
 | 사이드바·메뉴 작업 | `_os/admin-pages/menu-manifest.json` + `business-context/tools-manifest.json` |

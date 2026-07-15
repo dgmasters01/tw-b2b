@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>키워드 메뉴 프리뷰 — gohotelwinners 스튜디오</title>
+<title>키워드 메뉴 프리뷰 v3 — 실측 기반</title>
 <style>
   :root{
     --bg:#051424; --card:#0b2236; --card2:#102a42; --line:#1c3a56;
@@ -12,438 +12,407 @@
     --red:#e57373; --redd:#3a1c1c; --blue:#5aa9e6; --blued:#12314c;
   }
   *{box-sizing:border-box;margin:0;padding:0;}
-  body{background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Malgun Gothic",sans-serif;line-height:1.55;padding:22px 18px 70px;max-width:760px;margin:0 auto;}
-  .pvbar{background:var(--amberd);color:var(--amber);font-size:12px;padding:7px 12px;border-radius:8px;margin-bottom:16px;text-align:center;}
+  body{background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Malgun Gothic",sans-serif;line-height:1.55;padding:20px 16px 70px;max-width:780px;margin:0 auto;}
+  .pv{background:var(--amberd);color:var(--amber);font-size:12px;padding:7px 12px;border-radius:8px;margin-bottom:14px;text-align:center;}
   .title{display:flex;align-items:baseline;gap:10px;}
   .title h1{font-size:21px;font-weight:600;} .title .s{font-size:13px;color:var(--muted);}
   .qbtn{margin-left:auto;font-size:12px;padding:5px 11px;border-radius:20px;background:var(--card2);color:var(--sub);cursor:pointer;}
   .qbtn:hover{background:var(--blued);color:var(--blue);}
-  .bc{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);margin:8px 0 14px;min-height:18px;}
-  .bc a{color:var(--sub);cursor:pointer;} .bc a:hover{color:var(--txt);} .bc b{color:var(--txt);}
-  .target{margin:14px 0 12px;}
-  .target .head{display:flex;align-items:center;gap:10px;background:var(--card);border:0.5px solid #2a5a80;border-radius:10px;padding:9px 13px;cursor:pointer;}
-  .target .ico{width:30px;height:30px;border-radius:8px;background:var(--blued);color:var(--blue);display:flex;align-items:center;justify-content:center;font-size:15px;}
-  .target .lab{font-size:11px;color:var(--muted);} .target .name{font-size:14px;font-weight:600;} .target .chev{margin-left:auto;color:var(--muted);font-size:16px;}
-  .dd{display:none;background:var(--card);border:0.5px solid var(--line);border-radius:12px;padding:12px;margin-top:8px;}
-  .dd.open{display:block;}
-  .search{display:flex;align-items:center;gap:8px;background:var(--card2);border-radius:8px;padding:8px 10px;margin-bottom:10px;}
-  .search input{background:none;border:none;outline:none;color:var(--txt);font-size:13px;flex:1;font-family:inherit;}
-  .search input::placeholder{color:var(--muted);}
-  .ddgrp{font-size:11px;color:var(--muted);margin:10px 0 5px;}
-  .ddi{display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:8px;cursor:pointer;font-size:13px;}
-  .ddi:hover{background:var(--card2);}
+  .bc{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);margin:8px 0 12px;min-height:18px;}
+  .bc a{color:var(--sub);cursor:pointer;} .bc b{color:var(--txt);}
+
+  .srch{display:flex;align-items:center;gap:8px;background:var(--card);border:0.5px solid var(--line);border-radius:10px;padding:9px 12px;margin-bottom:10px;}
+  .srch input{background:none;border:none;outline:none;color:var(--txt);font-size:13px;flex:1;font-family:inherit;}
+  .srch input::placeholder{color:var(--muted);}
+  .srchres{background:var(--card);border:0.5px solid var(--line);border-radius:10px;padding:8px;margin-bottom:10px;display:none;}
+  .srchres.on{display:block;}
+  .sri{display:flex;align-items:center;gap:8px;padding:8px;border-radius:8px;cursor:pointer;font-size:13px;}
+  .sri:hover{background:var(--card2);}
+  .sri .tag{margin-left:auto;font-size:10px;padding:1px 7px;border-radius:20px;}
+
+  .target{margin-bottom:10px;}
+  .target .head{display:flex;align-items:center;gap:10px;background:var(--card);border:0.5px solid #2a5a80;border-radius:10px;padding:9px 12px;cursor:pointer;}
+  .target .ico{width:28px;height:28px;border-radius:8px;background:var(--blued);color:var(--blue);display:flex;align-items:center;justify-content:center;font-size:14px;}
+  .target .lab{font-size:11px;color:var(--muted);} .target .name{font-size:14px;font-weight:600;} .target .chev{margin-left:auto;color:var(--muted);}
+  .dd{display:none;background:var(--card);border:0.5px solid var(--line);border-radius:10px;padding:10px;margin-top:6px;} .dd.on{display:block;}
+  .ddg{font-size:11px;color:var(--muted);margin:8px 0 4px;}
+  .ddi{display:flex;align-items:center;gap:8px;padding:7px;border-radius:8px;cursor:pointer;font-size:13px;} .ddi:hover{background:var(--card2);}
   .ddi.sel{background:var(--blued);color:var(--blue);font-weight:600;}
-  .ddi .tag{margin-left:auto;font-size:10px;padding:1px 7px;border-radius:20px;}
-  .tag-on{background:var(--emd);color:var(--em);} .tag-ex{background:var(--card2);color:var(--muted);}
-  .ddnew{border-top:0.5px solid var(--line);padding-top:10px;margin-top:6px;color:var(--blue);font-size:13px;cursor:pointer;}
-  .banner{background:var(--blued);border-radius:11px;padding:12px 14px;margin-bottom:12px;color:#bcd8ee;font-size:13px;} .banner b{color:#eaf4fc;}
-  .flow{display:flex;align-items:center;gap:10px;font-size:12px;margin-bottom:14px;}
-  .chip{padding:6px 12px;border-radius:8px;background:var(--card2);color:var(--sub);} .chip b{color:var(--txt);} .chip.tgt{background:var(--blued);color:var(--blue);}
-  .arrow{color:var(--muted);font-size:15px;}
-  .mlab{font-size:11px;color:var(--muted);margin-bottom:6px;}
-  .mstrip{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:8px;}
-  .m{font-size:12px;padding:5px 11px;border-radius:20px;background:var(--card2);color:var(--muted);cursor:pointer;}
-  .m:hover{filter:brightness(1.35);}
+  .tag-on{background:var(--emd);color:var(--em);} .tag-ex{background:var(--card2);color:var(--muted);} .tag-un{background:var(--amberd);color:var(--amber);}
+
+  .banner{background:var(--blued);border-radius:10px;padding:11px 13px;margin-bottom:10px;color:#bcd8ee;font-size:13px;} .banner b{color:#eaf4fc;}
+  .flow{display:flex;align-items:center;gap:9px;font-size:12px;margin-bottom:12px;}
+  .chip{padding:5px 11px;border-radius:8px;background:var(--card2);color:var(--sub);} .chip b{color:var(--txt);} .chip.t{background:var(--blued);color:var(--blue);}
+  .mlab{font-size:11px;color:var(--muted);margin-bottom:5px;}
+  .mstrip{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:7px;}
+  .m{font-size:12px;padding:5px 10px;border-radius:20px;background:var(--card2);color:var(--muted);cursor:pointer;}
   .m.dim{opacity:.5;} .m.red{background:var(--redd);color:var(--red);} .m.now{background:var(--blued);color:var(--blue);font-weight:600;} .m.free{background:var(--emd);color:var(--em);}
-  .legend{display:flex;flex-wrap:wrap;gap:14px;font-size:11px;color:var(--muted);margin-bottom:8px;}
-  .dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:5px;vertical-align:1px;}
-  .misc{font-size:12px;color:var(--muted);margin-bottom:20px;}
-  h2{font-size:15px;font-weight:600;margin:22px 0 3px;} .note{font-size:12px;color:var(--muted);margin-bottom:11px;}
-  .list{border:0.5px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:22px;}
-  .row{display:flex;align-items:center;gap:11px;padding:13px 15px;border-bottom:0.5px solid var(--line);background:var(--card);cursor:pointer;}
+  .leg{display:flex;flex-wrap:wrap;gap:12px;font-size:11px;color:var(--muted);margin-bottom:6px;}
+  .dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:4px;vertical-align:1px;}
+  .misc{font-size:11px;color:var(--muted);margin-bottom:16px;}
+
+  h2{font-size:15px;font-weight:600;margin:18px 0 3px;} .note{font-size:12px;color:var(--muted);margin-bottom:10px;}
+  .list{border:0.5px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:18px;}
+  .row{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:0.5px solid var(--line);background:var(--card);cursor:pointer;}
   .row:last-child{border-bottom:none;} .row:hover{background:var(--card2);} .row .main{flex:1;}
-  .row .n{display:flex;align-items:center;gap:8px;} .row .nm{font-size:15px;font-weight:600;} .row .why{font-size:12px;color:var(--sub);margin-top:3px;}
-  .sig{font-size:11px;padding:2px 9px;border-radius:20px;font-weight:600;}
-  .sig.focus{background:var(--emd);color:var(--em);} .sig.watch{background:var(--amberd);color:var(--amber);} .sig.norm{background:var(--card2);color:var(--muted);}
-  .pill{font-size:12px;padding:3px 9px;border-radius:20px;} .pill.unt{background:var(--amberd);color:var(--amber);} .pill.rec{background:var(--card2);color:var(--sub);}
-  .lead{font-size:11px;padding:2px 8px;border-radius:20px;} .lead.early{background:var(--amberd);color:var(--amber);} .lead.norm{background:var(--card2);color:var(--muted);} .lead.soon{background:var(--emd);color:var(--em);}
-  .chev2{color:var(--muted);font-size:16px;}
-  .prep{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-bottom:10px;}
-  .pc{background:var(--card2);border-radius:12px;padding:14px;cursor:pointer;} .pc:hover{filter:brightness(1.2);}
-  .pc .hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;} .pc .mo{font-size:13px;font-weight:600;}
-  .st{font-size:11px;padding:2px 8px;border-radius:20px;} .st.late{background:var(--redd);color:var(--red);} .st.now{background:var(--amberd);color:var(--amber);} .st.free{background:var(--emd);color:var(--em);}
-  .pc .pl{font-size:14px;} .pc .sub{font-size:12px;color:var(--muted);margin-top:4px;}
-  .aicard{background:var(--blued);border-radius:12px;padding:12px 14px;margin-bottom:12px;font-size:13px;color:#bcd8ee;} .aicard b{color:#eaf4fc;}
-  .patcard{background:var(--card);border:0.5px solid var(--line);border-radius:12px;padding:13px;margin-bottom:12px;}
-  .patstats{display:flex;gap:10px;margin:8px 0;} .pstat{flex:1;background:var(--card2);border-radius:8px;padding:9px;text-align:center;} .pstat .v{font-size:16px;font-weight:600;} .pstat .l{font-size:10px;color:var(--muted);}
-  .recbox{background:var(--blued);border-radius:8px;padding:9px 11px;font-size:12px;color:#bcd8ee;}
-  .stars{display:flex;gap:6px;margin-bottom:14px;} .starp{font-size:12px;padding:4px 12px;border-radius:20px;background:var(--card2);color:var(--muted);cursor:pointer;} .starp.on{background:var(--blued);color:var(--blue);font-weight:600;}
-  .block{background:var(--card);border:0.5px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px;} .block .bh{font-size:14px;font-weight:600;margin-bottom:10px;}
-  .recobj{background:var(--card2);border-radius:8px;padding:11px;margin-bottom:8px;}
-  .kw{border-bottom:0.5px solid var(--line);} .kw:last-child{border-bottom:none;}
-  .kwhead{display:flex;gap:8px;align-items:center;padding:11px 2px;cursor:pointer;} .kwhead:hover{background:var(--card2);border-radius:6px;}
+  .row .n{display:flex;align-items:center;gap:7px;flex-wrap:wrap;} .row .nm{font-size:15px;font-weight:600;} .row .why{font-size:12px;color:var(--sub);margin-top:3px;}
+  .sig{font-size:11px;padding:2px 8px;border-radius:20px;font-weight:600;}
+  .s-go{background:var(--emd);color:var(--em);} .s-late{background:var(--redd);color:var(--red);} .s-wait{background:var(--card2);color:var(--muted);} .s-unk{background:var(--amberd);color:var(--amber);}
+  .pill{font-size:11px;padding:3px 8px;border-radius:20px;background:var(--card2);color:var(--sub);}
+  .why-b{font-size:11px;padding:3px 9px;border-radius:20px;background:var(--blued);color:var(--blue);cursor:pointer;}
+  .chev2{color:var(--muted);}
+
+  .ev{display:none;background:var(--card2);border-radius:10px;padding:12px;margin:-8px 0 14px;} .ev.on{display:block;}
+  .evb{background:var(--card);border-radius:8px;padding:10px;margin-bottom:8px;}
+  .evt{font-size:12px;font-weight:600;margin-bottom:5px;}
+  .evs{font-size:11px;color:var(--muted);}
+  .src{font-size:10px;color:var(--muted);margin-top:6px;}
+
+  .unk{background:var(--amberd);border-radius:8px;padding:10px;font-size:12px;color:var(--amber);}
+  .blk{background:var(--card);border:0.5px solid var(--line);border-radius:12px;padding:13px;margin-bottom:10px;}
+  .bh{font-size:14px;font-weight:600;margin-bottom:9px;}
+  .kw{display:flex;gap:8px;align-items:center;padding:10px 2px;border-bottom:0.5px solid var(--line);}
+  .kw:last-child{border-bottom:none;}
   .knm{font-size:13px;flex:1;} .knm small{color:var(--muted);font-size:11px;display:block;margin-top:2px;}
-  .kdot{width:8px;height:8px;border-radius:50%;flex-shrink:0;} .kscore{font-size:13px;font-weight:600;width:38px;text-align:right;}
-  .kbars{width:104px;flex-shrink:0;} .kbrow{display:flex;align-items:center;gap:4px;margin-bottom:3px;} .kbl{font-size:9px;color:var(--muted);width:20px;} .kbw{flex:1;height:5px;border-radius:3px;background:var(--card2);overflow:hidden;} .kbf{height:100%;display:block;}
-  .kexp{display:none;padding:2px 2px 12px;} .kexp.open{display:block;}
-  .trendbox{background:var(--card2);border-radius:8px;padding:12px;margin-bottom:8px;} .trendhead{display:flex;align-items:center;gap:8px;margin-bottom:6px;cursor:pointer;} .tt{font-size:12px;font-weight:600;}
-  .chartwrap{display:none;} .chartwrap.open{display:block;}
-  .toggles{display:flex;gap:6px;margin-top:6px;} .tg{font-size:11px;padding:3px 10px;border-radius:20px;background:var(--card);color:var(--muted);cursor:pointer;} .tg.on{background:var(--blued);color:var(--blue);font-weight:600;}
-  .twocol{display:flex;gap:10px;margin:8px 0;} .col{flex:1;background:var(--card2);border-radius:8px;padding:10px;} .cl{font-size:11px;color:var(--muted);} .cv{font-size:13px;} .cn{font-size:11px;color:var(--em);}
-  .btn{font-size:12px;padding:5px 12px;border-radius:20px;border:0.5px solid var(--blue);color:var(--blue);background:none;cursor:pointer;font-family:inherit;}
-  .btnfill{background:var(--blued);} .btn.plain{border-color:var(--line);color:var(--sub);}
-  .more{font-size:12px;color:var(--blue);cursor:pointer;} .more.gray{color:var(--muted);}
-  .hidden{display:none;}
-  .untrow{display:flex;justify-content:space-between;align-items:center;font-size:13px;padding:9px 0;border-bottom:0.5px solid var(--line);cursor:pointer;}
-  .untexp{display:none;background:var(--blued);border-radius:8px;padding:10px;margin:6px 0;} .untexp.open{display:block;}
-  .kb{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;} .kct{font-size:12px;font-weight:600;margin-bottom:8px;display:flex;justify-content:space-between;} .kct span{color:var(--muted);}
-  .kcard{background:var(--card2);border-radius:8px;padding:9px;margin-bottom:6px;} .kcard.new{background:var(--blued);} .kid{font-size:10px;color:var(--muted);} .kcard.new .kid{color:var(--blue);} .ktt{font-size:11px;margin-top:3px;line-height:1.4;} .kmt{font-size:10px;color:var(--muted);margin-top:5px;}
+  .kbar{width:90px;height:6px;border-radius:3px;background:var(--card2);overflow:hidden;flex-shrink:0;}
+  .kbf{height:100%;display:block;}
+  .kval{font-size:13px;font-weight:600;width:42px;text-align:right;}
+  .btn{font-size:12px;padding:6px 13px;border-radius:20px;border:0.5px solid var(--blue);background:var(--blued);color:var(--blue);cursor:pointer;font-family:inherit;font-weight:600;}
+  .kb{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;}
+  .kct{font-size:12px;font-weight:600;margin-bottom:7px;display:flex;justify-content:space-between;} .kct span{color:var(--muted);}
+  .kcard{background:var(--card2);border-radius:8px;padding:8px;margin-bottom:5px;} .kcard.new{background:var(--blued);}
+  .kid{font-size:10px;color:var(--muted);} .kcard.new .kid{color:var(--blue);}
+  .ktt{font-size:11px;margin-top:3px;line-height:1.4;} .kmt{font-size:10px;color:var(--muted);margin-top:4px;}
   .screen{display:none;} .screen.on{display:block;}
-  .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:var(--blued);color:#dbeeff;border:0.5px solid var(--blue);padding:10px 16px;border-radius:24px;font-size:13px;opacity:0;transition:opacity .25s;pointer-events:none;z-index:9;}
+  .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--blued);color:#dbeeff;border:0.5px solid var(--blue);padding:9px 15px;border-radius:22px;font-size:13px;opacity:0;transition:opacity .25s;pointer-events:none;z-index:9;}
   .toast.on{opacity:1;}
-  .foot{color:var(--muted);font-size:11px;margin-top:28px;text-align:center;}
+  .foot{color:var(--muted);font-size:11px;margin-top:24px;text-align:center;}
 </style>
 </head>
 <body>
 
-<div class="pvbar">⚙️ 설계 확인용 프리뷰 · 데이터는 샘플 · 모든 버튼 눌러보세요</div>
+<div class="pv">⚙️ 설계 확인용 · <b>모든 숫자 실측</b> (구글 트렌드·우리 예약·구글 플레이스) · 안 잰 건 "모름"으로 표시</div>
 
-<div class="title"><h1>키워드</h1><span class="s">다음에 뭘 만들지, 데이터로</span><span class="qbtn" onclick="go('queue')">전략 큐 <b id="qcount">4</b> ›</span></div>
+<div class="title"><h1>키워드</h1><span class="s">다음에 뭘 만들지, 데이터로</span><span class="qbtn" onclick="go('queue')">전략 큐 <b id="qc">4</b> ›</span></div>
 <div class="bc" id="bc"></div>
 
+<!-- 메인 -->
 <div class="screen on" id="s-main">
+  <div class="srch">🔍 <input id="sq" placeholder="나라·도시·지역 검색 (조사 안 된 곳도 찾아짐)" oninput="doSearch()"></div>
+  <div class="srchres" id="sr"></div>
+
   <div class="target">
-    <div class="head" onclick="toggleDD()">
+    <div class="head" onclick="tg()">
       <div class="ico">👤</div>
-      <div><div class="lab">타겟 (언어 + 시장)</div><div class="name" id="tgName">한국어 · 여행능력자들</div></div>
-      <div class="chev" id="tgChev">⌄</div>
+      <div><div class="lab">타겟 (언어 + 시장)</div><div class="name" id="tn">한국어 · 여행능력자들</div></div>
+      <div class="chev" id="tc">⌄</div>
     </div>
     <div class="dd" id="dd">
-      <div class="search">🔍 <input id="tgSearch" placeholder="타겟 검색 (채널·언어·시장)" oninput="filterTg()"></div>
-      <div id="tgList"></div>
-      <div class="ddnew" onclick="toast('새 타겟은 탐색용으로 조사부터 — owner·admin만 (프리뷰)')">＋ 새 타겟 (탐색용으로 조사 먼저)</div>
+      <div class="ddg">자주 쓰는</div>
+      <div class="ddi sel">한국어 · 여행능력자들 <span style="margin-left:auto;">✓</span></div>
+      <div class="ddi" onclick="pick('한국어 · 호텔이야')">한국어 · 호텔이야 <span class="tag tag-on">운영 중</span></div>
+      <div class="ddg">일본어 · 중국어 · 영어 · 베트남어</div>
+      <div class="ddi" onclick="pick('일본어 · ホテルだ')">일본어 · ホテルだ <span class="tag tag-on">운영 중</span></div>
+      <div class="ddi" onclick="pick('중국어 번체 · 世界就是家')">중국어 번체 · 世界就是家 <span class="tag tag-on">운영 중</span></div>
+      <div class="ddi" onclick="pick('태국어 · 방콕 시장')">태국어 · 방콕 시장 <span class="tag tag-ex">탐색용</span></div>
     </div>
   </div>
 
-  <div class="banner">지금 만들면 <b>3달 뒤에 노출</b>됩니다. 이번 달이 아니라 <b>노출 겨냥 월</b> 기준으로 보여줘요.</div>
-  <div class="flow"><span class="chip">착수 <b>7월</b> (지금)</span><span class="arrow">→</span><span class="chip tgt">노출 <b id="flowM">10월</b> 겨냥</span></div>
+  <div class="banner">지금 만들면 <b>3달 뒤 노출</b>. 근거 = 우리 예약 실측 <b>3,766건</b>, 여행 3달 안에 <b>92%</b> 예약.</div>
+  <div class="flow"><span class="chip">착수 <b>7월</b></span><span style="color:var(--muted);">→</span><span class="chip t">노출 <b id="fm">10월</b> 겨냥</span></div>
 
-  <div class="mlab">노출 겨냥 월 · 현재(7월)부터 6개월</div>
-  <div class="mstrip" id="mstrip"></div>
-  <div class="legend">
+  <div class="mlab">노출 겨냥 월 · 현재부터 6개월</div>
+  <div class="mstrip" id="ms"></div>
+  <div class="leg">
     <span><span class="dot" style="background:var(--muted);opacity:.5;"></span>착수 지남</span>
     <span><span class="dot" style="background:var(--red);"></span>곧 늦음</span>
-    <span><span class="dot" style="background:var(--blue);"></span>지금 착수 딱</span>
+    <span><span class="dot" style="background:var(--blue);"></span>지금 착수</span>
     <span><span class="dot" style="background:var(--em);"></span>여유</span>
   </div>
-  <div class="misc" id="freshness">착수 기준은 예약 데이터로 — 여행 3달 안에 92% 예약. · 이 타겟 마지막 조사 3일 전 (2026-07-10)</div>
+  <div class="misc">📅 연·월 지정 · ↺ 지난달 복기 &nbsp;|&nbsp; 마지막 조사 3일 전 (2026-07-10)</div>
 
-  <h2 id="ctyH">10월 겨냥 — 지금 착수할 나라</h2>
-  <div class="note">초록 "집중"부터. 나라를 누르면 도시로.</div>
-  <div class="list" id="ctyList"></div>
-
-  <h2>선행 준비 — 3달 미리 겨냥</h2>
-  <div class="note">착수 = 겨냥 − 3달 (도시별 예약 패턴 자동 반영). 카드를 누르면 그 도시로.</div>
-  <div class="prep" id="prep"></div>
+  <h2 id="ch">10월 겨냥 — 지금 착수할 나라</h2>
+  <div class="note">계절 게이트 먼저 — 검색 피크 − 3달이 착수 월. 놓친 계절은 1년을 기다립니다.</div>
+  <div class="list" id="cl"></div>
 </div>
 
+<!-- 도시 -->
 <div class="screen" id="s-city">
-  <h2 id="cityTitle"></h2>
-  <div class="note">도시별 수요·미개척 + 예약 성향·착수 권장. 도시를 누르면 상세로.</div>
-  <div class="list" id="cityList"></div>
+  <h2 id="cyt"></h2>
+  <div class="note">도시별 계절 타이밍 · 인기도 · 예약 성향</div>
+  <div class="list" id="cyl"></div>
 </div>
 
+<!-- 지역 -->
+<div class="screen" id="s-dist">
+  <h2 id="dt"></h2>
+  <div class="note">지역은 재봐서 <b style="color:var(--sub);">살아있는 것만</b> 축으로 씁니다 — 목록을 미리 만들지 않습니다.</div>
+  <div id="dl"></div>
+</div>
+
+<!-- 지역 상세 -->
 <div class="screen" id="s-detail">
-  <div class="aicard">💡 <b id="dcAi"></b></div>
-  <div class="patcard">
-    <div style="display:flex;align-items:center;gap:8px;"><span style="font-size:13px;font-weight:600;">이 도시 예약 패턴</span><span class="lead norm" id="dcTag"></span></div>
-    <div class="patstats">
-      <div class="pstat"><div class="v" id="dcMed"></div><div class="l">예약 중앙값</div></div>
-      <div class="pstat"><div class="v" id="dcPct"></div><div class="l">3달 안 예약</div></div>
-      <div class="pstat"><div class="v" id="dcCnt"></div><div class="l">확정 예약</div></div>
-    </div>
-    <div class="recbox" id="dcRec"></div>
-  </div>
-
-  <div class="stars" id="stars"></div>
-
-  <div class="block"><div class="bh">① 콘텐츠 추천</div><div id="recList"></div></div>
-
-  <div class="block">
-    <div class="bh">② 키워드 순위 · 분석 <small style="color:var(--muted);font-weight:400;">· 누르면 추이·근거 펼침</small></div>
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:8px;">
-      <div style="background:var(--card2);border-radius:8px;padding:9px;text-align:center;"><div style="font-size:17px;font-weight:600;">42</div><div style="font-size:10px;color:var(--muted);">살아있는</div></div>
-      <div style="background:var(--card2);border-radius:8px;padding:9px;text-align:center;"><div style="font-size:17px;font-weight:600;color:var(--muted);">8</div><div style="font-size:10px;color:var(--muted);">죽은</div></div>
-      <div style="background:var(--card2);border-radius:8px;padding:9px;text-align:center;"><div style="font-size:17px;font-weight:600;color:var(--em);">11</div><div style="font-size:10px;color:var(--muted);">이길 만함</div></div>
-      <div style="background:var(--card2);border-radius:8px;padding:9px;text-align:center;"><div style="font-size:17px;font-weight:600;">482</div><div style="font-size:10px;color:var(--muted);">채택자수/500</div></div>
-    </div>
-    <div style="font-size:11px;color:var(--muted);margin-bottom:4px;">수요=자동완성 순위 · 경쟁=영상 수(적을수록 유리) · 기회점수=수요÷log10(경쟁)</div>
-    <div id="kwlist"></div>
-    <div style="display:flex;gap:14px;margin-top:8px;">
-      <span class="more" id="moreBtn" onclick="toggleMore()">상위 30 더보기 ▾</span>
-      <span class="more gray" onclick="toggleDead()">죽은 키워드 8개 · 왜 뺐나 ▾</span>
-    </div>
-    <div class="hidden" id="deadBox" style="background:var(--card2);border-radius:8px;padding:11px;margin-top:8px;font-size:12px;color:var(--sub);line-height:1.8;">
-      · <b style="color:var(--txt);">오사카 코로나 호텔</b> — 자동완성에서 사라짐 (철 지난 검색어)<br>
-      · <b style="color:var(--txt);">호텔 몬테레이 오사카</b> — 남의 호텔명 (넣으면 트래픽이 샘)<br>
-      · <b style="color:var(--txt);">오사카 민박</b> — 호텔 아님 (우리 상품과 안 맞음)
-    </div>
-  </div>
-
-  <div class="block">
-    <div class="bh">③ 자동 채택 태그란 <small style="color:var(--em);font-weight:400;float:right;">482 / 500자</small></div>
-    <div style="background:var(--card2);border-radius:8px;padding:10px;font-size:12px;color:var(--sub);line-height:1.6;" id="tagBox">오사카호텔, 오사카 난바 호텔, 난바역 근처 호텔, 도톤보리 숙소 가성비, 신사이바시 숙소, 히요리 호텔 난바, 오사카 가성비 호텔 …</div>
-    <div style="display:flex;gap:8px;margin-top:8px;align-items:center;">
-      <button class="btn plain" onclick="copyTag()">복사</button>
-      <button class="btn plain" onclick="toast('채널 §4 태그란에 저장됨 (프리뷰)')">§4에 저장</button>
-      <span style="font-size:11px;color:var(--muted);margin-left:auto;">손질하면 저장됨 · 매달 새 추천은 참고용</span>
-    </div>
-  </div>
-
-  <div class="block">
-    <div class="bh">④ 미개척 기회 <small style="color:var(--muted);font-weight:400;">· 누르면 노출량 펼침</small></div>
-    <div id="untList"></div>
-  </div>
-
-  <div class="block">
-    <div class="bh">⑤ 그 도시 수요 트렌드 <small style="color:var(--muted);font-weight:400;float:right;">2024·2025·2026 겹침</small></div>
-    <div id="trendChart"></div>
-    <div style="display:flex;gap:14px;font-size:11px;color:var(--muted);margin-top:6px;">
-      <span><span class="dot" style="background:#2f6b58;"></span>2024</span>
-      <span><span class="dot" style="background:#3f9e7d;"></span>2025</span>
-      <span><span class="dot" style="background:#4edea3;"></span>2026</span>
-    </div>
-  </div>
+  <div id="dd2"></div>
 </div>
 
+<!-- 큐 -->
 <div class="screen" id="s-queue">
-  <h2>전략 큐 — 만들 콘텐츠 기획</h2>
-  <div class="note">키워드 [이걸로 만들기]로만 담김 · 카드마다 고유코드 · 발행 완료 → 성과표 회수</div>
+  <h2>전략 큐</h2>
+  <div class="note">[이걸로 만들기]로만 담김 · 근거가 카드에 함께 담김</div>
   <div class="kb" id="kb"></div>
 </div>
 
-<div class="toast" id="toast"></div>
-<div class="foot">키워드 메뉴 프리뷰 · gohotelwinners 스튜디오 · 2026-07-14 설계 확인용 (샘플 데이터)</div>
+<div class="toast" id="ts"></div>
+<div class="foot">키워드 프리뷰 v3 · D-065 전면개정(2026-07-14) 반영 · 실측 기반</div>
 
 <script>
-var TARGETS=[
- {n:'한국어 · 여행능력자들',g:'자주 쓰는',st:'on'},
- {n:'한국어 · 호텔이야',g:'자주 쓰는',st:'on'},
- {n:'한국어 · 호텔이곳',g:'한국어',st:'on'},
- {n:'일본어 · ホテルだ',g:'일본어·중국어·영어·베트남어',st:'on'},
- {n:'중국어 번체 · 世界就是家',g:'일본어·중국어·영어·베트남어',st:'on'},
- {n:'영어 · Hotel Winners',g:'일본어·중국어·영어·베트남어',st:'on'},
- {n:'베트남어 · Khách sạn',g:'일본어·중국어·영어·베트남어',st:'on'},
- {n:'태국어 · 방콕 시장',g:'탐색용',st:'ex'}
-];
-var MONTHS=[{m:'7월',cls:'dim',s:'착수 지남'},{m:'8월',cls:'dim',s:'착수 지남'},{m:'9월',cls:'red',s:'곧 늦음'},{m:'10월',cls:'now',s:'지금 착수'},{m:'11월',cls:'free',s:'여유'},{m:'12월',cls:'free',s:'여유'}];
-var DATA={
- '일본':{sig:'focus',why:'오사카 단풍철 — 10월 노출에 딱',unt:'미개척 12곳',rec:'추천 8편',cities:[
-   {city:'오사카',why:'수요 높음 · 추이 ↑',unt:'미개척 4곳',lead:'norm',leadtxt:'보통 (중앙값 22일)',recd:'착수 권장 · 여행 3달 전',med:'22일',pct:'95%',cnt:'583건',ai:'오사카는 가을 단풍 수요가 오르는데 <b>난바권이 미개척</b>이라 지금 만들 만합니다. 3·4성 가성비 각도가 유리합니다.'},
-   {city:'도쿄',why:'수요 높음 · 추이 →',unt:'미개척 3곳',lead:'norm',leadtxt:'보통 (중앙값 20일)',recd:'착수 권장 · 여행 3달 전',med:'20일',pct:'96%',cnt:'192건',ai:'도쿄는 수요가 꾸준합니다. <b>신주쿠·시부야권 가성비</b> 각도가 무난합니다.'},
-   {city:'후쿠오카',why:'수요 보통 · 추이 ↑',unt:'미개척 3곳',lead:'norm',leadtxt:'보통 (중앙값 18일)',recd:'착수 권장 · 여행 3달 전',med:'18일',pct:'96%',cnt:'307건',ai:'후쿠오카는 <b>하카타역권</b> 수요가 오르는 중입니다.'}]},
- '베트남':{sig:'watch',why:'다낭 건기 시작 — 10~11월 오름',unt:'미개척 9곳',rec:'추천 5편',cities:[
-   {city:'다낭',why:'수요 오름 · 건기',unt:'미개척 3곳',lead:'norm',leadtxt:'보통 (중앙값 18일)',recd:'착수 권장 · 여행 3달 전',med:'18일',pct:'94%',cnt:'140건',ai:'다낭은 건기 시작으로 10~11월 수요가 오릅니다. <b>미케비치권</b>이 큽니다.'},
-   {city:'호치민',why:'수요 보통',unt:'미개척 4곳',lead:'soon',leadtxt:'임박 예약 (중앙값 12일)',recd:'착수 권장 · 여행 3달 전 (여유)',med:'12일',pct:'96%',cnt:'161건',ai:'호치민은 <b>임박 예약</b>이 많아 3달 전 발행이면 여유롭습니다.'},
-   {city:'하노이',why:'수요 보통',unt:'미개척 2곳',lead:'norm',leadtxt:'보통 (중앙값 18일)',recd:'착수 권장 · 여행 3달 전',med:'18일',pct:'97%',cnt:'125건',ai:'하노이 <b>구시가권</b> 수요가 안정적입니다.'}]},
- '태국':{sig:'norm',why:'수요 평이 · 급하지 않음',unt:'미개척 6곳',rec:'추천 4편',cities:[
-   {city:'치앙마이',why:'수요 보통 · 일찍 예약',unt:'미개척 4곳',lead:'early',leadtxt:'더 일찍 예약 (중앙값 25일)',recd:'착수 권장 · 여행 4달 전 (한 달 앞서)',med:'25일',pct:'88%',cnt:'142건',ai:'치앙마이는 사람들이 <b>일찍 예약</b>해서 3달로는 12%를 놓칩니다. 한 달 더 앞당기세요.'},
-   {city:'방콕',why:'수요 높음 · 임박 예약',unt:'미개척 5곳',lead:'soon',leadtxt:'임박 예약 (중앙값 14일)',recd:'착수 권장 · 여행 3달 전 (여유)',med:'14일',pct:'92%',cnt:'273건',ai:'방콕은 임박 예약이 많아 3달 전이면 여유롭습니다. <b>수쿰빗권 미개척</b>이 큽니다.'},
-   {city:'파타야',why:'수요 보통 · 임박 예약',unt:'미개척 3곳',lead:'soon',leadtxt:'임박 예약 (중앙값 15일)',recd:'착수 권장 · 여행 3달 전',med:'15일',pct:'93%',cnt:'82건',ai:'파타야는 <b>임박 예약</b> 경향입니다.'}]}
+/* ═══ 실측 데이터만. 지어낸 값 없음. ═══ */
+// 구글 트렌드 유튜브 검색, 2024·2025 평균 (2026-07-14 직접 조회)
+var SEASON = {
+  '오사카': [56.8,47.5,38.5,36.0,41.9,41.3,44.0,36.9,45.0,50.4,58.0,55.0],
+  '다낭':   [34.1,37.7,44.0,43.2,46.9,48.4,46.8,51.8,48.8,39.6,40.9,40.9],
+  '치앙마이':[38.5,33.2,34.9,19.5,21.6,19.4,37.0,59.5,25.9,17.8,25.3,10.2]
 };
-var PREP=[{m:'9월 겨냥',st:'late',t:'늦음',pl:'베트남 · 다낭',s:'착수 기한 지남 — 서둘러야',c:'베트남',ct:'다낭'},
-          {m:'10월 겨냥',st:'now',t:'지금 착수',pl:'일본 · 오사카 (단풍)',s:'지금 만들면 딱 맞음',c:'일본',ct:'오사카'},
-          {m:'11월 겨냥',st:'free',t:'여유',pl:'일본 · 도쿄',s:'아직 시간 있음',c:'일본',ct:'도쿄'}];
-var RECS=[{r:'1위',t:'오사카 난바 가성비 호텔 TOP3',w:'난바 숙소 검색은 많은데 우리 영상이 없어요. 가을 단풍철이라 지금 만들면 딱.',k:'난바역 근처 호텔 · 도톤보리 숙소 가성비 · 신사이바시 숙소 …(482자)',sig:'지금 만들기 좋음'},
-          {r:'2위',t:'오사카 우메다 4성 호텔',w:'우메다권 수요는 큰데 경쟁이 붙는 중. 4성 각도면 승산 있음.',k:'우메다 호텔 추천 · 오사카역 근처 숙소 …(410자)',sig:'해볼 만함'}];
-var KWS_BASE=[
- {nm:'히요리 호텔 오사카 난바 스테이션',sub:'수요 1위 · 경쟁 626개',score:'3.58',sig:'#4edea3',dw:100,cw:6,trend:'2.9 → 3.2 → 3.58',badge:'뜨는 중',s:[2.9,3.2,3.58],dm:'자동완성 1위',dmn:'가장 많이 찾음',cp:'영상 626개',cpn:'낮음 · 유리',rtok:'호텔명',rw:'자동완성에 자기 이름이 있어 통과 · 축약형도 함께 채택'},
- {nm:'난바역 근처 호텔',sub:'수요 3위 · 경쟁 4,114개',score:'2.21',sig:'#efb04a',dw:60,cw:22,trend:'2.18 → 2.20 → 2.21',badge:'유지',s:[2.18,2.20,2.21],dm:'자동완성 3위',dmn:'많이 찾음',cp:'영상 4,114개',cpn:'보통',rtok:'역명',rw:'난바역 토큰이 있어 통과'},
- {nm:'도톤보리 숙소 가성비',sub:'수요 2위 · 경쟁 12,330개',score:'2.20',sig:'#efb04a',dw:80,cw:38,trend:'2.4 → 2.3 → 2.20',badge:'식는 중',s:[2.4,2.3,2.20],dm:'자동완성 2위',dmn:'많이 찾음',cp:'영상 12,330개',cpn:'보통',rtok:'지역',rw:'도톤보리 토큰이 있어 통과'}];
-var KWS_MORE=[
- {nm:'신사이바시 숙소',sub:'수요 1위 · 경쟁 91,495개',score:'2.02',sig:'#6a85a0',dw:100,cw:95,trend:'2.05 → 2.03 → 2.02',badge:'유지',s:[2.05,2.03,2.02],dm:'자동완성 1위',dmn:'가장 많이 찾음',cp:'영상 91,495개',cpn:'높음 · 불리',rtok:'지역',rw:'신사이바시 토큰이 있어 통과'},
- {nm:'오사카 호텔 (대표어)',sub:'수요 1위 · 경쟁 226만개',score:'1.28',sig:'#6a85a0',dw:100,cw:100,trend:'1.30 → 1.29 → 1.28',badge:'유지',s:[1.30,1.29,1.28],dm:'자동완성 1위',dmn:'가장 많이 찾음',cp:'영상 226만개',cpn:'매우 높음',rtok:'도시',rw:'대표어 — 못 이겨도 태그 비용 0이라 채택'}];
-var UNT=[{k:'신사이바시 숙소',v:'월 노출 25,942',w:'이 키워드 하나로도 큰 수요 — 콘텐츠 기회 큼'},
-         {k:'난바역 호텔 추천',v:'월 노출 18,300',w:'경쟁 있지만 우리 영상 없음'},
-         {k:'도톤보리 숙소',v:'월 노출 14,120',w:'가성비 각도로 파고들 여지'}];
-var QUEUE={'기획 대기':[{id:'TW-0041',t:'다낭 미케비치 호텔',m:'다낭 · 4성 · 9월'}],
+// 인기도 1~6월 평균 (2024→2025→2026)
+var POP = {
+  '오사카':[45.6,41.7,48.0], '도쿄':[62.8,61.4,64.6], '후쿠오카':[31.7,29.8,34.8],
+  '다낭':[40.2,44.6,44.6], '나트랑':[50.3,63.4,72.2], '방콕':[67.4,50.2,31.7],
+  '타이베이':[16.7,30.5,17.1], '세부':[46.8,13.8,12.7]
+};
+// 키워드 검색 실측 (평균, 데이터 있는 주/133)
+var KW = {
+  '오사카 호텔':[46.2,133], '난바 호텔':[42.5,111], '우메다 호텔':[5.7,11],
+  '신사이바시 호텔':[7.2,13], '난바역 근처 호텔':[0,0], '히요리 호텔':[0.9,3],
+  '오사카 가성비 호텔':[1.5,4], '호텔 몬테레이 오사카':[0,0]
+};
+// 예약 리드타임 실측
+var LEAD = {'오사카':[22,95,583],'도쿄':[20,96,192],'후쿠오카':[18,96,307],
+            '다낭':[18,94,140],'호치민':[12,96,161],'방콕':[14,92,273],'치앙마이':[25,88,142]};
+// DB 실측 (구글 플레이스 채운 것)
+var FILLED = {'난바':{hotels:5,bookings:247,star:4.0}};
+
+var COUNTRY = {
+ '일본':{cities:['오사카','도쿄','후쿠오카']},
+ '베트남':{cities:['다낭','호치민','나트랑']},
+ '태국':{cities:['방콕','치앙마이']}
+};
+var MONTHS=['7월','8월','9월','10월','11월','12월'];
+var MCLS=['dim','dim','red','now','free','free'];
+var MSTATE=['착수 지남','착수 지남','곧 늦음','지금 착수','여유','여유'];
+var curM=3, curC='일본', curCity='오사카', curD='난바', seq=41;
+var QUEUE={'기획 대기':[{id:'TW-0041',t:'다낭 미케비치 호텔',m:'다낭 · 9월'}],
            '원고 작성':[{id:'TW-0039',t:'도쿄 신주쿠 숙소',m:'도쿄 · 산자야'}],
            '발행 예정':[{id:'TW-0035',t:'후쿠오카 하카타 호텔',m:'8월 예정'}],
-           '발행 완료':[{id:'TW-0028',t:'오사카 우메다 호텔',m:'✓ 성과표 회수'}]};
-var curCountry='일본',curCity='오사카',curMonth=3,curStar=0,seq=41,showMore=false;
-var STARS=['전체 성급','3성','4성','5성'];
+           '발행 완료':[{id:'TW-0028',t:'오사카 우메다 호텔',m:'✓ 회수'}]};
 
-function renderTargets(f){
-  f=(f||'').trim().toLowerCase();
-  var groups={},order=[],cur=document.getElementById('tgName').textContent;
-  TARGETS.forEach(function(t){
-    if(f && t.n.toLowerCase().indexOf(f)<0) return;
-    if(!groups[t.g]){groups[t.g]=[];order.push(t.g);}
-    groups[t.g].push(t);
-  });
+// 계절 게이트: 겨냥월(1~12)에 피크인가 → 그 3달 전이 착수
+function peakMonths(city){
+  var s=SEASON[city]; if(!s) return null;
+  var mx=Math.max.apply(null,s), th=mx*0.9;
+  var r=[]; for(var i=0;i<12;i++) if(s[i]>=th) r.push(i+1);
+  return r;
+}
+function gate(city, targetMonth){
+  var p=peakMonths(city);
+  if(!p) return {sig:'unk', txt:'계절 미조사', why:'이 도시는 아직 트렌드를 안 쟀습니다'};
+  // 겨냥월이 피크에 가까우면 지금 착수 OK
+  var near=p.some(function(m){ var d=Math.abs(m-targetMonth); return Math.min(d,12-d)<=1; });
+  var pk=p.map(function(m){return m+'월';}).join('·');
+  if(near) return {sig:'go', txt:'지금 착수', why:'검색 피크 '+pk+' → 3달 전 발행이 맞고, 지금이 그 시점'};
+  // 피크가 이미 지났나
+  var passed=p.every(function(m){ return m<targetMonth; });
+  if(passed) return {sig:'late', txt:'올해는 늦음', why:'피크 '+pk+' 이미 지남 → 내년 대상'};
+  return {sig:'wait', txt:'아직 이름', why:'피크 '+pk+' → '+(p[0]-3<1?p[0]+9:p[0]-3)+'월 착수'};
+}
+function popTxt(city){
+  var p=POP[city]; if(!p) return null;
+  var ch=Math.round((p[2]-p[1])/p[1]*100);
+  return {ch:ch, txt:(ch>8?'오름 +':(ch<-8?'내림 ':'유지 '))+(ch>8?ch+'%':(ch<-8?ch+'%':'')), base:p};
+}
+
+function render(){
   var h='';
-  if(!order.length) h='<div style="font-size:12px;color:var(--muted);padding:8px;">검색 결과 없음</div>';
-  order.forEach(function(g){
-    h+='<div class="ddgrp">'+g+'</div>';
-    groups[g].forEach(function(t){
-      var sel=(t.n===cur);
-      h+='<div class="ddi'+(sel?' sel':'')+'" onclick="pickTg(\''+t.n.replace(/'/g,"\\'")+'\')">'+t.n+
-         (sel?'<span style="margin-left:auto;">✓</span>':(t.st==='ex'?'<span class="tag tag-ex">탐색용</span>':'<span class="tag tag-on">운영 중</span>'))+'</div>';
+  MONTHS.forEach(function(m,i){
+    h+='<span class="m '+(i===curM?'now':MCLS[i])+'" onclick="pm('+i+')">'+m+(i===curM?' · 지금 착수':'')+'</span>';
+  });
+  document.getElementById('ms').innerHTML=h;
+  document.getElementById('fm').textContent=MONTHS[curM];
+  var tm=parseInt(MONTHS[curM]);
+  document.getElementById('ch').textContent=MONTHS[curM]+' 겨냥 — 지금 착수할 나라';
+
+  h='';
+  Object.keys(COUNTRY).forEach(function(c){
+    var best=null, bs=null;
+    COUNTRY[c].cities.forEach(function(ct){
+      var g=gate(ct,tm);
+      var rank={go:0,wait:1,unk:2,late:3}[g.sig];
+      if(bs===null||rank<bs){bs=rank; best={city:ct,g:g};}
     });
+    var lab={go:'집중',wait:'대기',unk:'모름',late:'늦음'}[best.g.sig];
+    var cls={go:'s-go',wait:'s-wait',unk:'s-unk',late:'s-late'}[best.g.sig];
+    h+='<div class="row" onclick="go(\'city\',\''+c+'\')"><div class="main"><div class="n"><span class="nm">'+c+'</span>'+
+       '<span class="sig '+cls+'">'+lab+'</span></div><div class="why">'+best.city+' — '+best.g.why+'</div></div>'+
+       '<span class="chev2">›</span></div>';
   });
-  document.getElementById('tgList').innerHTML=h;
+  document.getElementById('cl').innerHTML=h;
 }
-function filterTg(){renderTargets(document.getElementById('tgSearch').value);}
-function pickTg(n){
-  document.getElementById('tgName').textContent=n;
-  toggleDD();
-  var ex=(n.indexOf('방콕 시장')>=0);
-  document.getElementById('freshness').innerHTML='착수 기준은 예약 데이터로 — 여행 3달 안에 92% 예약. · 이 타겟 마지막 조사 '+(ex?'<span style="color:#efb04a;">아직 없음 — 조사 필요 (탐색용)</span>':'3일 전 (2026-07-10)');
-  toast(n+' 타겟으로 전환 (프리뷰)');
-}
-function renderMonths(){
-  var h='';
-  MONTHS.forEach(function(x,i){h+='<span class="m '+(i===curMonth?'now':x.cls)+'" onclick="pickMonth('+i+')">'+x.m+(i===curMonth?' · 지금 착수':'')+'</span>';});
-  h+='<span class="m" onclick="toast(\'연·월 지정 — 과거·미래 아무 달 (프리뷰)\')">📅 연·월 지정</span>';
-  h+='<span class="m" onclick="toast(\'지난 달 복기 — 이미 만든 것 성과 확인 (프리뷰)\')">↺ 지난달 복기</span>';
-  document.getElementById('mstrip').innerHTML=h;
-  document.getElementById('flowM').textContent=MONTHS[curMonth].m;
-  document.getElementById('ctyH').textContent=MONTHS[curMonth].m+' 겨냥 — 지금 착수할 나라';
-}
-function pickMonth(i){curMonth=i;renderMonths();toast(MONTHS[i].m+' 겨냥으로 전환 — '+MONTHS[i].s);}
-function renderCountries(){
-  var h='';
-  Object.keys(DATA).forEach(function(c){
-    var d=DATA[c],lab={focus:'집중',watch:'주목',norm:'보통'}[d.sig];
-    h+='<div class="row" onclick="go(\'city\',\''+c+'\')"><div class="main"><div class="n"><span class="nm">'+c+'</span><span class="sig '+d.sig+'">'+lab+'</span></div><div class="why">'+d.why+'</div></div><span class="pill unt">'+d.unt+'</span><span class="pill rec">'+d.rec+'</span><span class="chev2">›</span></div>';
+function pm(i){curM=i;render();toast(MONTHS[i]+' 겨냥 — '+MSTATE[i]);}
+
+function renderCity(c){
+  curC=c;
+  document.getElementById('cyt').textContent=c+' · 도시';
+  var tm=parseInt(MONTHS[curM]), h='';
+  COUNTRY[c].cities.forEach(function(ct){
+    var g=gate(ct,tm), p=popTxt(ct), l=LEAD[ct];
+    var cls={go:'s-go',wait:'s-wait',unk:'s-unk',late:'s-late'}[g.sig];
+    var sub=[];
+    if(p) sub.push('인기도 '+p.txt);
+    if(l) sub.push('예약 '+l[2]+'건 · 중앙값 '+l[0]+'일');
+    h+='<div class="row" onclick="go(\'dist\',\''+ct+'\')"><div class="main"><div class="n"><span class="nm">'+ct+'</span>'+
+       '<span class="sig '+cls+'">'+g.txt+'</span></div><div class="why">'+g.why+'</div>'+
+       (sub.length?'<div class="why" style="color:var(--muted);margin-top:2px;">'+sub.join(' · ')+'</div>':'')+
+       '</div><span class="why-b" onclick="event.stopPropagation();ev(\''+ct+'\')">왜?</span><span class="chev2">›</span></div>';
   });
-  document.getElementById('ctyList').innerHTML=h;
+  document.getElementById('cyl').innerHTML=h+'<div id="evbox"></div>';
 }
-function renderPrep(){
+function ev(city){
+  var g=gate(city,parseInt(MONTHS[curM])), p=popTxt(city), l=LEAD[city], s=SEASON[city];
+  var h='<div class="ev on"><div class="evb"><div class="evt">① 계절 — 언제 검색이 몰리나</div>';
+  if(s){
+    var mx=Math.max.apply(null,s), pts=s.map(function(v,i){return (20+i*46)+','+(60-(v/mx)*44);}).join(' ');
+    h+='<svg width="100%" viewBox="0 0 580 72"><polyline fill="none" stroke="#5aa9e6" stroke-width="2" points="'+pts+'"/>'+
+        '<text x="20" y="70" font-size="9" fill="#6a85a0">1월</text><text x="295" y="70" font-size="9" fill="#6a85a0">7월</text><text x="530" y="70" font-size="9" fill="#6a85a0">12월</text></svg>';
+    h+='<div class="evs">'+g.why+'</div>';
+  } else h+='<div class="evs" style="color:var(--amber);">아직 안 쟀습니다 — 조사 필요</div>';
+  h+='</div>';
+  if(p) h+='<div class="evb"><div class="evt">② 인기도 (2024→2025→2026)</div><div class="evs">'+p.base.join(' → ')+' · <b style="color:'+(p.ch>8?'#4edea3':(p.ch<-8?'#e57373':'#9db4c9'))+'">'+p.txt+'</b>'+(p.ch<-8&&p.base[0]<p.base[1]?' (2024 대비로는 원위치 — 반짝이었음)':'')+'</div></div>';
+  if(l) h+='<div class="evb"><div class="evt">③ 전환 (검증 배지 · 순위엔 미사용)</div><div class="evs">확정 예약 '+l[2]+'건 · 리드타임 중앙값 '+l[0]+'일 · 3달 내 '+l[1]+'%</div></div>';
+  h+='<div class="src">출처: 구글 트렌드 유튜브 검색(2024-01~2026-07) · bookings_agoda 확정 예약 · 조사 2026-07-10</div></div>';
+  document.getElementById('evbox').innerHTML=h;
+  document.getElementById('evbox').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function renderDist(city){
+  curCity=city;
+  document.getElementById('dt').textContent=city+' · 지역';
   var h='';
-  PREP.forEach(function(p){
-    h+='<div class="pc" onclick="go(\'detail\',\''+p.ct+'\',\''+p.c+'\')"><div class="hd"><span class="mo">'+p.m+'</span><span class="st '+p.st+'">'+p.t+'</span></div><div class="pl">'+p.pl+'</div><div class="sub">'+p.s+'</div></div>';
-  });
-  document.getElementById('prep').innerHTML=h;
+  if(city==='오사카'){
+    var rows=[['난바','난바 호텔'],['우메다','우메다 호텔'],['신사이바시','신사이바시 호텔']];
+    h+='<div class="list">';
+    rows.forEach(function(r){
+      var k=KW[r[1]], alive=k[0]>=10;
+      var f=FILLED[r[0]];
+      h+='<div class="row" '+(alive?'onclick="go(\'detail\',\''+r[0]+'\')"':'')+' style="'+(alive?'':'cursor:default;opacity:.75;')+'">'+
+         '<div class="main"><div class="n"><span class="nm">'+r[0]+'</span>'+
+         (alive?'<span class="sig s-go">살아있음</span>':'<span class="sig s-unk">측정 한계 아래</span>')+'</div>'+
+         '<div class="why">검색 '+k[0]+' · 데이터 있는 주 '+k[1]+'/133'+(alive?'':' — 검색이 없는 게 아니라 <b>우리가 못 잼</b>')+'</div>'+
+         (f?'<div class="why" style="color:var(--muted);margin-top:2px;">호텔 '+f.hotels+'개 · 예약 '+f.bookings+'건 (좌표 판정 완료)</div>':'')+
+         '</div>'+(alive?'<span class="chev2">›</span>':'')+'</div>';
+    });
+    h+='</div>';
+    h+='<div class="unk">⚠️ 오사카 3대 번화가인 <b>우메다도 5.7</b>입니다 — 난바(42.5)의 1/8. 계층이 아니라 <b>이름값</b>이 갈랐습니다. 그래서 지역을 미리 만들지 않고 <b>재봐서 살아있는 것만</b> 축으로 씁니다.</div>';
+  } else {
+    h+='<div class="unk">이 도시는 <b>지역을 아직 안 쟀습니다.</b><br>모른다고 비워두지 않고, 모른다고 표시합니다.<br><br><span class="btn" onclick="toast(\'조사 시작 — 트렌드+자동완성 (owner·admin만)\')">＋ 지금 조사하기</span></div>';
+  }
+  document.getElementById('dl').innerHTML=h;
 }
-function renderCity(country){
-  document.getElementById('cityTitle').textContent=country+' · 도시 개요';
+
+function renderDetail(d){
+  curD=d;
+  var f=FILLED[d], k=KW[d+' 호텔'], s=SEASON['오사카'], g=gate('오사카',parseInt(MONTHS[curM]));
+  var h='<div class="banner">💡 <b>'+d+' — '+g.txt+'</b><br>'+g.why+'. 검색 '+k[0]+'로 크고, '+(f?f.hotels+'개 호텔에 예약 '+f.bookings+'건이 실제로 붙었습니다.':'')+'</div>';
+
+  h+='<div class="blk"><div class="bh">왜 이 추천인가 — 실측 근거</div>';
+  h+='<div class="evb"><div class="evt">계절</div><div class="evs">오사카 검색 피크 11~1월(58.0/56.8) → 3달 전 = 8~10월 발행 → 지금 착수 딱</div></div>';
+  h+='<div class="evb"><div class="evt">수요</div><div class="evs">"'+d+' 호텔" '+k[0]+' · 133주 중 '+k[1]+'주 측정 — 꾸준히 큼</div></div>';
+  h+='<div class="evb"><div class="evt">인기도</div><div class="evs">오사카 45.6 → 41.7 → 48.0 · <b style="color:#4edea3;">2026년 +15% 오름</b> (반짝 아님)</div></div>';
+  h+='<div class="evb"><div class="evt">확장 여지</div><div class="evs">'+(f?f.hotels+'개 호텔 좌표 판정 완료 · 예약 '+f.bookings+'건':'')+'<br><span style="color:var(--amber);">⚠️ 어느 호텔이 이미 영상에 나왔는지는 DB에 없음 — 노출 이력 입력 대기</span></div></div>';
+  h+='<div class="src">모든 숫자 실측 · 구글 트렌드 + bookings_agoda + 구글 플레이스 · 2026-07-14</div></div>';
+
+  h+='<div class="blk"><div class="bh">키워드 — 수요 = 트렌드 실측 <small style="color:var(--muted);font-weight:400;">(자동완성 순위 폐기)</small></div>';
+  [['오사카 호텔','도시 대표어'],['난바 호텔','지역'],['우메다 호텔','지역'],['히요리 호텔','호텔명'],['난바역 근처 호텔','역']].forEach(function(r){
+    var v=KW[r[0]], alive=v[0]>=10;
+    var col=alive?'#4edea3':(v[0]>0?'#6a85a0':'#e57373');
+    h+='<div class="kw"><span class="knm">'+r[0]+'<small>'+r[1]+' · 데이터 '+v[1]+'/133주</small></span>'+
+       '<span class="kbar"><span class="kbf" style="width:'+Math.min(v[0]*2,100)+'%;background:'+col+'"></span></span>'+
+       '<span class="kval" style="color:'+col+'">'+(v[0]>0?v[0]:'—')+'</span></div>';
+  });
+  h+='<div class="unk" style="margin-top:8px;">🚨 <b>기회점수 공식이 거꾸로였습니다.</b> 히요리 호텔이 3.58로 1위(초록)였는데 실제 검색은 <b>0.9</b>, 오사카 호텔이 1.28로 꼴찌였는데 실제는 <b>46.2</b>. 자동완성 순위는 "그 글자를 친 사람 중에서의 순위"라 수요가 아닙니다. <b>트렌드 실측으로 교체했습니다.</b></div></div>';
+
+  h+='<div class="blk"><div class="bh">호텔 후보 <small style="color:var(--muted);font-weight:400;">— 축이 아니라 출력</small></div>'+
+     '<div class="evs" style="margin-bottom:8px;">'+d+' 검색자는 <b style="color:var(--sub);">아직 호텔을 못 정한 사람</b>입니다. 우리가 여러 호텔을 골라 보여줍니다.</div>';
+  [['Red Roof Inn & Suites Osaka Namba',83],['APA Hotel Namba-Eki Higashi',47],['Sotetsu Grand Fresa Osaka Namba',46]].forEach(function(x,i){
+    h+='<div class="kw"><span class="knm">'+(i+1)+'. '+x[0]+'<small>예약 '+x[1]+'건 · 좌표 판정 '+d+'</small></span></div>';
+  });
+  h+='<div style="margin-top:10px;"><button class="btn" onclick="add(\''+d+' 가성비 호텔 TOP3\')">＋ 이걸로 만들기</button>'+
+     '<span style="font-size:11px;color:var(--muted);margin-left:9px;">→ '+MONTHS[curM]+' 발행 목표 + 근거 함께 담김</span></div></div>';
+
+  document.getElementById('dd2').innerHTML=h;
+}
+
+function doSearch(){
+  var q=document.getElementById('sq').value.trim();
+  var box=document.getElementById('sr');
+  if(!q){box.classList.remove('on');return;}
+  var pool=[];
+  Object.keys(COUNTRY).forEach(function(c){ pool.push([c,'나라',true]);
+    COUNTRY[c].cities.forEach(function(ct){ pool.push([ct,'도시',!!SEASON[ct]]); }); });
+  ['난바','우메다','신사이바시','신주쿠','시부야'].forEach(function(d){ pool.push([d,'지역',!!FILLED[d]]); });
+  var hit=pool.filter(function(p){return p[0].indexOf(q)>=0;});
   var h='';
-  DATA[country].cities.forEach(function(c){
-    h+='<div class="row" onclick="go(\'detail\',\''+c.city+'\')"><div class="main"><div class="nm">'+c.city+'</div><div class="why">'+c.why+'</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;"><span class="lead '+c.lead+'">'+c.leadtxt+'</span><span style="font-size:11px;color:var(--sub);">'+c.recd+'</span></div><span class="pill unt">'+c.unt+'</span><span class="chev2">›</span></div>';
-  });
-  document.getElementById('cityList').innerHTML=h;
+  if(!hit.length){
+    h='<div class="sri" style="cursor:default;"><span style="color:var(--muted);">"'+q+'" 조사 기록 없음</span>'+
+      '<span class="btn" style="margin-left:auto;" onclick="toast(\''+q+'\' 조사 시작 — 없으면 그때 만들어 저장)">＋ 조사하기</span></div>';
+  } else {
+    hit.slice(0,5).forEach(function(p){
+      h+='<div class="sri" onclick="toast(\''+p[0]+'\'+\' 로 이동 (프리뷰)\')"><b>'+p[0]+'</b> <span style="color:var(--muted);font-size:11px;">'+p[1]+'</span>'+
+         (p[2]?'<span class="tag tag-on">조사됨</span>':'<span class="tag tag-un">미조사 · 조사하기</span>')+'</div>';
+    });
+  }
+  box.innerHTML=h; box.classList.add('on');
 }
-function renderDetail(city){
-  var c=null;DATA[curCountry].cities.forEach(function(x){if(x.city===city)c=x;});
-  if(!c)return;curCity=city;
-  document.getElementById('dcAi').innerHTML=c.ai;
-  var tag=document.getElementById('dcTag');
-  tag.textContent=c.lead==='early'?'더 일찍 예약':(c.lead==='soon'?'임박 예약':'보통');
-  tag.className='lead '+c.lead;
-  document.getElementById('dcMed').textContent=c.med;
-  document.getElementById('dcPct').textContent=c.pct;
-  document.getElementById('dcCnt').textContent=c.cnt;
-  document.getElementById('dcRec').innerHTML=c.recd+(c.lead==='early'?' — 3달로는 12%를 놓칩니다':'');
-  renderStars();renderRecs();renderKws();renderUnt();renderTrend();
-}
-function renderStars(){var h='';STARS.forEach(function(s,i){h+='<span class="starp'+(i===curStar?' on':'')+'" onclick="pickStar('+i+')">'+s+'</span>';});document.getElementById('stars').innerHTML=h;}
-function pickStar(i){curStar=i;renderStars();toast(STARS[i]+' 기준으로 추천·키워드 필터 (프리뷰)');}
-function renderRecs(){
-  var h='';
-  RECS.forEach(function(r){
-    h+='<div class="recobj"><div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;"><span style="font-size:12px;color:var(--muted);">'+r.r+'</span><span style="font-size:14px;font-weight:600;">'+r.t+'</span><span class="sig focus" style="margin-left:auto;">'+r.sig+'</span></div><div style="font-size:12px;color:var(--sub);margin-bottom:6px;">💡 '+r.w+'</div><div style="font-size:12px;color:var(--muted);margin-bottom:8px;">넣을 키워드: '+r.k+'</div><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;"><button class="btn btnfill" onclick="addQueue(\''+r.t.replace(/'/g,"\\'")+'\')">＋ 이걸로 만들기</button><span style="font-size:11px;color:var(--muted);">→ 누르면 <b style="color:var(--sub);">'+MONTHS[curMonth].m+' 발행 목표</b>로 기획 대기에 담겨요</span></div></div>';
-  });
-  document.getElementById('recList').innerHTML=h;
-}
-function kwList(){return showMore?KWS_BASE.concat(KWS_MORE):KWS_BASE;}
-function renderKws(){
-  var h='';
-  kwList().forEach(function(k,i){
-    var bcls=k.badge==='뜨는 중'?'soon':(k.badge==='식는 중'?'early':'norm');
-    h+='<div class="kw"><div class="kwhead" onclick="toggleKw('+i+')">'+
-       '<span class="kdot" style="background:'+k.sig+'"></span>'+
-       '<span class="knm">'+k.nm+'<small>'+k.sub+'</small></span>'+
-       '<span class="kbars"><span class="kbrow"><span class="kbl">수요</span><span class="kbw"><span class="kbf" style="width:'+k.dw+'%;background:'+k.sig+'"></span></span></span><span class="kbrow"><span class="kbl">경쟁</span><span class="kbw"><span class="kbf" style="width:'+k.cw+'%;background:#6a85a0"></span></span></span></span>'+
-       '<span class="kscore" style="color:'+k.sig+'">'+k.score+'</span>'+
-       '<span style="color:var(--muted);font-size:14px;" id="kchev'+i+'">▾</span></div>'+
-       '<div class="kexp" id="kexp'+i+'">'+
-         '<div class="trendbox"><div class="trendhead" onclick="toggleTrend(event,'+i+')"><span class="tt">월별 추이</span><span class="lead '+bcls+'">'+k.badge+'</span><span style="margin-left:auto;font-size:11px;color:var(--muted);" id="tchev'+i+'">크게 보기 ▾</span></div>'+
-           '<div style="font-size:11px;color:var(--muted);">기회점수 '+k.trend+' (5·6·7월)</div>'+
-           '<div class="chartwrap" id="chart'+i+'">'+lineChart(k.s)+'<div class="toggles"><span class="tg on" onclick="tgSw(event,this)">기회점수</span><span class="tg" onclick="tgSw(event,this)">수요 순위</span><span class="tg" onclick="tgSw(event,this)">경쟁 수</span></div></div></div>'+
-         '<div class="twocol"><div class="col"><div class="cl">수요</div><div class="cv">'+k.dm+'</div><div class="cn">'+k.dmn+'</div></div><div class="col"><div class="cl">경쟁</div><div class="cv">'+k.cp+'</div><div class="cn" style="color:'+(k.cpn.indexOf('유리')>=0?'#4edea3':'#6a85a0')+'">'+k.cpn+'</div></div></div>'+
-         '<div class="recobj" style="margin-bottom:0;"><div style="font-size:12px;font-weight:600;margin-bottom:5px;">묶음 근거</div><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;"><span style="font-size:11px;padding:2px 8px;border-radius:20px;background:var(--card);color:var(--sub);border:0.5px solid var(--line);">'+k.rtok+'</span><span style="font-size:12px;color:var(--sub);">'+k.rw+'</span></div></div>'+
-       '</div></div>';
-  });
-  document.getElementById('kwlist').innerHTML=h;
-}
-function toggleMore(){showMore=!showMore;document.getElementById('moreBtn').textContent=showMore?'접기 ▴':'상위 30 더보기 ▾';renderKws();}
-function toggleDead(){document.getElementById('deadBox').classList.toggle('hidden');}
-function renderUnt(){
-  var h='';
-  UNT.forEach(function(u,i){
-    h+='<div class="untrow" onclick="toggleUnt('+i+')"><span>'+u.k+'</span><span style="color:var(--muted);font-size:14px;" id="uchev'+i+'">▾</span></div><div class="untexp" id="uexp'+i+'"><div style="display:flex;justify-content:space-between;font-size:13px;color:#bcd8ee;"><b>'+u.k+'</b><span>'+u.v+'</span></div><div style="font-size:12px;color:#9fbfd8;margin-top:4px;">'+u.w+'</div></div>';
-  });
-  document.getElementById('untList').innerHTML=h;
-}
-function toggleUnt(i){var e=document.getElementById('uexp'+i),c=document.getElementById('uchev'+i);var o=e.classList.toggle('open');c.textContent=o?'▴':'▾';}
-function renderTrend(){
-  var y24=[38,44,58,50,42,36,40,48,62,72,58,46],y25=[42,50,64,54,45,38,43,52,68,80,64,50],y26=[46,55,70,58,48,41,47,58,75,88,0,0];
-  var W=600,H=175,pad=34,max=95;
-  function pts(a){var r=[];for(var i=0;i<12;i++){if(a[i]===0)continue;var x=pad+i*((W-pad-14)/11);var y=H-26-(a[i]/max)*(H-56);r.push(x.toFixed(0)+','+y.toFixed(0));}return r.join(' ');}
-  var g='';[0,25,50,75].forEach(function(v){var y=H-26-(v/max)*(H-56);g+='<line x1="'+pad+'" y1="'+y+'" x2="'+W+'" y2="'+y+'" stroke="#1c3a56" stroke-width="0.5"/>';});
-  var labs='';['1월','4월','7월','10월','12월'].forEach(function(l,k){var idx=[0,3,6,9,11][k];var x=pad+idx*((W-pad-14)/11);labs+='<text x="'+x.toFixed(0)+'" y="'+(H-6)+'" text-anchor="middle" font-size="10" fill="#9db4c9">'+l+'</text>';});
-  var peak=pad+9*((W-pad-14)/11);
-  document.getElementById('trendChart').innerHTML='<svg width="100%" viewBox="0 0 '+W+' '+H+'">'+g+'<line x1="'+peak.toFixed(0)+'" y1="18" x2="'+peak.toFixed(0)+'" y2="'+(H-26)+'" stroke="#5aa9e6" stroke-width="0.5" stroke-dasharray="3,3"/><text x="'+peak.toFixed(0)+'" y="14" text-anchor="middle" font-size="10" fill="#5aa9e6">가을 피크</text><polyline fill="none" stroke="#2f6b58" stroke-width="1.5" points="'+pts(y24)+'"/><polyline fill="none" stroke="#3f9e7d" stroke-width="1.5" points="'+pts(y25)+'"/><polyline fill="none" stroke="#4edea3" stroke-width="2.5" points="'+pts(y26)+'"/>'+labs+'</svg>';
-}
-function lineChart(s){
-  var max=4,min=1,W=560,H=150,pad=30;
-  var pts=s.map(function(v,i){var x=pad+(i*(W-pad-20)/(s.length-1));var y=H-20-((v-min)/(max-min))*(H-40);return [x,y];});
-  var poly=pts.map(function(p){return p[0].toFixed(0)+','+p[1].toFixed(0);}).join(' ');
-  var g='';[1,2,3,4].forEach(function(v){var y=H-20-((v-min)/(max-min))*(H-40);g+='<line x1="'+pad+'" y1="'+y+'" x2="'+W+'" y2="'+y+'" stroke="#1c3a56" stroke-width="0.5"/><text x="'+(pad-8)+'" y="'+(y+4)+'" text-anchor="end" font-size="10" fill="#6a85a0">'+v+'</text>';});
-  var dots=pts.map(function(p,i){return '<circle cx="'+p[0].toFixed(0)+'" cy="'+p[1].toFixed(0)+'" r="4" fill="#4edea3"/><text x="'+p[0].toFixed(0)+'" y="'+(p[1]-10).toFixed(0)+'" text-anchor="middle" font-size="11" fill="#e6eef6" font-weight="600">'+s[i]+'</text>';}).join('');
-  var labs=['5월','6월','7월'].map(function(l,i){return '<text x="'+pts[i][0].toFixed(0)+'" y="'+H+'" text-anchor="middle" font-size="10" fill="#9db4c9">'+l+'</text>';}).join('');
-  return '<svg width="100%" viewBox="0 0 '+W+' '+(H+8)+'" style="margin-top:8px;">'+g+'<polyline fill="none" stroke="#4edea3" stroke-width="2.5" points="'+poly+'"/>'+dots+labs+'</svg>';
-}
-function renderQueue(){
+
+function renderQ(){
   var h='',n=0;
-  Object.keys(QUEUE).forEach(function(col){
-    n+=QUEUE[col].length;
-    h+='<div><div class="kct">'+col+' <span>'+QUEUE[col].length+'</span></div>';
-    QUEUE[col].forEach(function(c){
-      h+='<div class="kcard'+(c.isNew?' new':'')+'"><div class="kid">'+c.id+(c.isNew?' · 방금':'')+'</div><div class="ktt">'+c.t+'</div><div class="kmt"'+(c.m.indexOf('✓')===0?' style="color:#4edea3;"':'')+'>'+c.m+'</div></div>';
+  Object.keys(QUEUE).forEach(function(c){
+    n+=QUEUE[c].length;
+    h+='<div><div class="kct">'+c+' <span>'+QUEUE[c].length+'</span></div>';
+    QUEUE[c].forEach(function(x){
+      h+='<div class="kcard'+(x.isNew?' new':'')+'"><div class="kid">'+x.id+(x.isNew?' · 방금':'')+'</div><div class="ktt">'+x.t+'</div><div class="kmt">'+x.m+'</div></div>';
     });
     h+='</div>';
   });
   document.getElementById('kb').innerHTML=h;
-  document.getElementById('qcount').textContent=n;
+  document.getElementById('qc').textContent=n;
 }
-function addQueue(title){
+function add(t){
   seq++;
   QUEUE['기획 대기'].forEach(function(c){c.isNew=false;});
-  QUEUE['기획 대기'].unshift({id:'TW-00'+seq,t:title,m:curCity+' · '+STARS[curStar]+' · '+MONTHS[curMonth].m,isNew:true});
-  renderQueue();
-  toast('TW-00'+seq+' 기획 대기에 담김 — '+MONTHS[curMonth].m+' 발행 목표');
-  setTimeout(function(){go('queue');},800);
+  QUEUE['기획 대기'].unshift({id:'TW-00'+seq,t:t,m:curD+' · '+MONTHS[curM]+' · 근거 첨부',isNew:true});
+  renderQ(); toast('TW-00'+seq+' 담김 — 근거 4종 함께 저장');
+  setTimeout(function(){go('queue');},700);
 }
-function bcRender(level,extra){
-  var h='<a onclick="go(\'main\')">이번 달 개요</a>';
-  if(level==='city') h+=' › <b>'+extra+'</b>';
-  if(level==='detail') h+=' › <a onclick="go(\'city\',\''+curCountry+'\')">'+curCountry+'</a> › <b>'+extra+'</b>';
-  if(level==='queue') h+=' › <b>전략 큐</b>';
+function bcr(l,e){
+  var h='<a onclick="go(\'main\')">이번 달</a>';
+  if(l==='city') h+=' › <b>'+e+'</b>';
+  if(l==='dist') h+=' › <a onclick="go(\'city\',\''+curC+'\')">'+curC+'</a> › <b>'+e+'</b>';
+  if(l==='detail') h+=' › <a onclick="go(\'city\',\''+curC+'\')">'+curC+'</a> › <a onclick="go(\'dist\',\''+curCity+'\')">'+curCity+'</a> › <b>'+e+'</b>';
+  if(l==='queue') h+=' › <b>전략 큐</b>';
   document.getElementById('bc').innerHTML=h;
 }
 function show(id){document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('on');});document.getElementById(id).classList.add('on');window.scrollTo(0,0);}
-function go(where,arg,country){
-  if(where==='main'){show('s-main');document.getElementById('bc').innerHTML='';return;}
-  if(where==='city'){curCountry=arg;renderCity(arg);show('s-city');bcRender('city',arg);return;}
-  if(where==='detail'){if(country)curCountry=country;renderCity(curCountry);renderDetail(arg);show('s-detail');bcRender('detail',arg);return;}
-  if(where==='queue'){renderQueue();show('s-queue');bcRender('queue');return;}
+function go(w,a){
+  if(w==='main'){show('s-main');document.getElementById('bc').innerHTML='';return;}
+  if(w==='city'){renderCity(a);show('s-city');bcr('city',a);return;}
+  if(w==='dist'){renderDist(a);show('s-dist');bcr('dist',a);return;}
+  if(w==='detail'){renderDetail(a);show('s-detail');bcr('detail',a);return;}
+  if(w==='queue'){renderQ();show('s-queue');bcr('queue');return;}
 }
-function toggleKw(i){
-  var e=document.getElementById('kexp'+i),was=e.classList.contains('open');
-  document.querySelectorAll('.kexp').forEach(function(x){x.classList.remove('open');});
-  var chevs=document.querySelectorAll('[id^=kchev]');
-  for(var j=0;j<chevs.length;j++){chevs[j].textContent='▾';}
-  if(!was){e.classList.add('open');document.getElementById('kchev'+i).textContent='▴';}
-}
-function toggleTrend(e,i){e.stopPropagation();var w=document.getElementById('chart'+i),t=document.getElementById('tchev'+i);var o=w.classList.toggle('open');t.textContent=o?'작게 접기 ▴':'크게 보기 ▾';}
-function tgSw(e,el){e.stopPropagation();var p=el.parentNode;p.querySelectorAll('.tg').forEach(function(x){x.classList.remove('on');});el.classList.add('on');toast(el.textContent+' 그래프로 전환 (프리뷰)');}
-function toggleDD(){var d=document.getElementById('dd');d.classList.toggle('open');document.getElementById('tgChev').textContent=d.classList.contains('open')?'⌃':'⌄';}
-function copyTag(){var t=document.getElementById('tagBox').textContent;if(navigator.clipboard)navigator.clipboard.writeText(t);toast('태그 복사됨 (482자)');}
-var tmo;
-function toast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('on');clearTimeout(tmo);tmo=setTimeout(function(){t.classList.remove('on');},2200);}
-renderTargets();renderMonths();renderCountries();renderPrep();renderQueue();
+function tg(){var d=document.getElementById('dd');d.classList.toggle('on');document.getElementById('tc').textContent=d.classList.contains('on')?'⌃':'⌄';}
+function pick(n){document.getElementById('tn').textContent=n;tg();toast(n+' 전환'+(n.indexOf('방콕')>=0?' — 탐색용, 조사 기록 없음':''));}
+var tm2;
+function toast(m){var t=document.getElementById('ts');t.textContent=m;t.classList.add('on');clearTimeout(tm2);tm2=setTimeout(function(){t.classList.remove('on');},2300);}
+render(); renderQ();
 </script>
 </body>
 </html>

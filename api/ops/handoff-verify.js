@@ -49,6 +49,10 @@ export default async function handler(req, res) {
   const handoff = await raw(HANDOFF);
   if (!handoff) return res.status(500).json({ ok: false, error: '인계서를 못 읽었습니다.' });
 
+  let vercel = null;
+  try { vercel = JSON.parse(await raw('vercel.json')); } catch (e) { errors.push('vercel.json 을 못 읽었습니다.'); }
+  const vercelRewrites = vercel?.rewrites || [];
+
   // ── 1) 인계서가 언급한 파일 경로가 진짜 있나
   const re = /(?:^|[\s`(*])((?:_os|_business|_content|api|\.github)\/[A-Za-z0-9._/-]+\.(?:js|mjs|md|json|html|yml|py))/g;
   const paths = [...new Set([...handoff.matchAll(re)].map((m) => m[1]))];
@@ -58,9 +62,23 @@ export default async function handler(req, res) {
     if (!r.ok) errors.push(`인계서가 가리키는 \`${p}\` 가 **없습니다**(${r.status}). 경로가 틀렸거나 아직 안 만든 것입니다.`);
   }
 
+  // ── 1-B) 인계서가 언급한 **API 경로**가 진짜 있나 (오늘의 덫: `/api/cron/hotel-geo-fill` 는 없었다)
+  const apiRe = /[`'"( ](\/api\/[A-Za-z0-9/_-]+)/g;
+  const apis = [...new Set([...handoff.matchAll(apiRe)].map((m) => m[1].replace(/[.,)]$/, '')))];
+  for (const a of apis) {
+    if (/\.[a-z]{2,4}$/.test(a)) continue;              // 파일 경로는 위에서 이미 봄
+    checked.paths++;
+    const clean = a.replace(/^\//, '');
+    let found = false;
+    for (const cand of [`${clean}.js`, `${clean}/index.js`]) {
+      const r = await fetch(RAW + cand, { method: 'HEAD' });
+      if (r.ok) { found = true; break; }
+    }
+    if (!found && (vercelRewrites || []).some((w) => w.source === a)) found = true;   // rewrite 로 사는 경로
+    if (!found) errors.push(`인계서가 가리키는 API \`${a}\` 가 **없습니다**. 이 주소로 크론을 걸면 조용히 전부 실패합니다.`);
+  }
+
   // ── 2~4) vercel.json crons 가 진짜로 돌 수 있나
-  let vercel = null;
-  try { vercel = JSON.parse(await raw('vercel.json')); } catch (e) { errors.push('vercel.json 을 못 읽었습니다.'); }
   for (const c of (vercel?.crons || [])) {
     checked.crons++;
     const clean = String(c.path).split('?')[0].replace(/^\//, '');

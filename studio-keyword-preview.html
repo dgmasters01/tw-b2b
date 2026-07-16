@@ -35,6 +35,16 @@
  .dt{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:4px;}
  .mi{font-size:10px;color:var(--muted);margin-bottom:14px;}
  h2{font-size:14px;font-weight:600;margin:16px 0 2px;} .nt{font-size:11px;color:var(--muted);margin-bottom:8px;}
+ /* 조작판 = 닫힌 상자 (여기서 고른다) */
+ .ctrl{background:#07192a;border:1px solid #17334d;border-radius:13px;padding:11px 11px 9px;margin-bottom:4px;}
+ .ctrl-h{display:flex;align-items:center;gap:6px;font-size:9.5px;letter-spacing:.09em;color:var(--muted);margin-bottom:8px;}
+ .ctrl-h:before{content:"";width:3px;height:10px;background:var(--bl);border-radius:2px;}
+ /* 결과 = 열린 흐름 (여기서 본다) */
+ .res{margin-top:20px;padding-top:2px;}
+ .res>h2:first-child{margin-top:0;}
+ .res h2{display:flex;align-items:center;gap:8px;font-size:15px;}
+ .res h2:before{content:"";width:3px;height:15px;background:var(--em);border-radius:2px;flex:none;}
+ .res .nt{margin-left:11px;}
  .ls{border:0.5px solid var(--line);border-radius:10px;overflow:hidden;margin-bottom:10px;}
  .rw{display:flex;align-items:center;gap:9px;padding:11px 12px;border-bottom:0.5px solid var(--line);background:var(--card);cursor:pointer;}
  .rw:last-child{border-bottom:none;} .rw:hover{background:var(--card2);} .rw .mn{flex:1;}
@@ -89,6 +99,8 @@
 
 <!-- ① 메인 -->
 <div class="sc on" id="s1">
+  <div class="ctrl">
+  <div class="ctrl-h">겨냥 설정 — 어디를 · 누구에게 · 언제</div>
   <div class="srch"><span>🔍</span><input id="sq" placeholder="나라·도시·지역 검색 — 조사 안 된 곳도" oninput="sch()"><span class="no">1-1</span></div>
   <div class="sr" id="srb"></div>
 
@@ -121,8 +133,10 @@
     <span><span class="dt" style="background:var(--bl);"></span>지금 착수</span>
     <span><span class="dt" style="background:var(--em);"></span>여유</span>
   </div>
-  <div class="mi">🕐 마지막 조사 3일 전 (2026-07-10) <span class="no">1-7</span></div>
+  <div class="mi" style="margin-bottom:2px;">🕐 마지막 조사 3일 전 (2026-07-10) <span class="no">1-7</span></div>
+  </div><!-- /ctrl -->
 
+  <div class="res">
   <h2 id="ch">10월 겨냥 — 지금 착수할 나라 <span class="no">1-8</span></h2>
   <div class="nt">계절 게이트 먼저 — 놓친 계절은 1년을 기다립니다</div>
   <div class="ls" id="cl"></div>
@@ -146,6 +160,7 @@
   </div>
 </div>
 
+  </div><!-- /res -->
 <!-- ② 도시 -->
 <div class="sc" id="s2">
   <h2 id="c2t"></h2>

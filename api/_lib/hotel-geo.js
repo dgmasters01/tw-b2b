@@ -280,6 +280,50 @@ export async function runGeoFill(opts = {}) {
   }
 }
 
+/** 진행 상황 한 묶음 (메일 보고용) — BL-HOTEL-GEO-MAIL 2026-07-16 */
+export async function geoStats() {
+  const SB_URL = process.env.SUPABASE_URL || 'https://vjsludfjsphwnumuoqaj.supabase.co';
+  const SB_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!SB_KEY) return null;
+  const H = { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}`, Prefer: 'count=exact', Range: '0-0' };
+
+  const countOf = async (filter) => {
+    const r = await fetch(`${SB_URL}/rest/v1/hotels?select=id${filter ? '&' + filter : ''}`, { headers: H });
+    const n = parseInt(((r.headers.get('content-range') || '').split('/')[1] || '').trim());
+    return Number.isFinite(n) ? n : null;
+  };
+
+  const [total, filled, remaining, manualCheck, notFound, withAddress] = await Promise.all([
+    countOf(''),
+    countOf('latitude=not.is.null'),
+    countOf('latitude=is.null&or=(geo_status.is.null,geo_status.eq.pending)'),
+    countOf('geo_status=eq.manual_check'),
+    countOf('geo_status=eq.not_found'),
+    countOf('address=not.is.null'),
+  ]);
+
+  let used = null;
+  try {
+    const ym = new Date().toISOString().slice(0, 7);
+    const r = await fetch(
+      `${SB_URL}/rest/v1/api_usage_monthly?api_name=eq.${API_NAME}&year_month=eq.${ym}&select=call_count`,
+      { headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}` } }
+    );
+    const rows = await r.json();
+    used = rows[0] ? rows[0].call_count : 0;
+  } catch (e) { /* 보고용일 뿐 */ }
+
+  const daysLeft = remaining != null ? Math.ceil(remaining / (CRON_BATCH * 3)) : null;
+  let eta = null;
+  if (daysLeft != null) {
+    const d = new Date(Date.now() + daysLeft * 86400000);
+    eta = d.toISOString().slice(0, 10);
+  }
+  return { total, filled, remaining, manual_check: manualCheck, not_found: notFound,
+           with_address: withAddress, monthly_used: used, monthly_cap: MONTHLY_CAP,
+           days_left: daysLeft, eta };
+}
+
 /** 남은 대상 수 (보고용) */
 export async function countRemaining() {
   const SB_URL = process.env.SUPABASE_URL || 'https://vjsludfjsphwnumuoqaj.supabase.co';

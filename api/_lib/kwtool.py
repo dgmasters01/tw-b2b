@@ -3,10 +3,32 @@
 #
 # 하는 일 두 가지
 #   ① 유튜브 자동완성 API 호출 → 수요를 안다
-#   ② 유튜브 검색결과 HTML 읽기 → 경쟁(영상 수)을 안다
-# 둘 다 유튜브가 공개해둔 것이라 무료. 외부 라이브러리 없이 표준 모듈만 쓴다.
+#   ② 유튜브 Data API v3 search.list → 경쟁(영상 수)을 안다  ← 2026-07-16 교체 (D-065 ㊺)
 #
-# 규격 근거: _content/youtube/여행능력자들.md §7 (키워드 리서치 방법)
+# 규격 근거: _content/youtube/여행능력자들.md §7 · D-065 ㊺(잣대) · D-065 ㊶-6(잣대 도장)
+#
+# ── 🔑 경쟁 잣대 (㊺ · 2026-07-16 대표님 확정) ──────────────
+#   경쟁 = search.list + publishedAfter = 오늘 − 365일
+#   · 3년 아님 1년. 계절은 1년에 한 바퀴 — 3년 창은 같은 11월을 세 뭉치로 담아 경쟁을 부풀린다.
+#   · 달력("올해")이 아니라 이동 창이라 1월 함정이 없다.
+#     (웹 검색 필터는 달력뿐 → 1월 3일에 재면 "올해"=3일치 → 전 키워드 가짜 초록불)
+#   · 옛 방식(검색결과 HTML estimatedResults 긁기)은 🔴 폐기. 같은 키워드가 2.8배까지 어긋났다.
+#
+# ── 🏷️ 잣대 도장 (㊶-6) — 이 도구가 내는 모든 경쟁값에 같이 붙는다 ──
+#   comp_method='api_search_list' · comp_window_days=365 · measured_at
+#   도장 없이 저장하면 축적이 통째로 쓰레기가 된다:
+#   옛 226만 → 새 8만을 "경쟁이 27분의 1로 줄었다"고 읽게 된다. 준 건 경쟁이 아니라 자다.
+#
+# ── 🔓 열쇠 ────────────────────────────────────────────────
+#   env  YOUTUBE_API_KEY  또는  GOOGLE_PLACES_API_KEY   (= TW B2B Places Key · 프로젝트 1hogi)
+#   열쇠가 없는 곳(로컬)에서는 창구를 거친다:
+#   env  KWTOOL_OPS_BASE=https://gohotelwinners.com  +  CLAUDE_OPS_TOKEN=...
+#        → POST /api/ops/yt-probe?mode=count  (열쇠는 서버에만 있고 밖으로 안 나온다)
+#
+# ── 💰 돈 ──────────────────────────────────────────────────
+#   Data API v3 = 무료. 하루 10,000 units · search.list = 100/회.
+#   넘으면 403 quotaExceeded — 막힐 뿐 청구되지 않는다.
+#   오사카 68개 = 6,800 = 하루의 68% → 하루 1도시.
 #
 # ── 쓰는 법 ────────────────────────────────────────────────
 #   python3 kwtool.py suggest  "오사카 호텔"
@@ -15,22 +37,25 @@
 #   python3 kwtool.py analyze  "오사카 호텔" "난바 호텔" --csv 오사카.csv
 #   python3 kwtool.py analyze  --file 키워드목록.txt --csv 결과.csv
 #   python3 kwtool.py pair     "오사카 가성비 호텔"      # 띄어쓰기/붙여쓰기 대조
+#   (--window-days 365 로 창을 바꿀 수 있다. 되돌리기 5초 = 헌법 9조)
 #
 # ── 검증된 사실 (문서 §7) ──────────────────────────────────
 #   · 자동완성은 띄어쓰기를 구분한다
 #   · 경쟁 영상 수는 띄어쓰기를 정규화한다 (±20% 노이즈)
-#   · 3어절 이상부터 붙여쓰기가 실제로 갈린다
-#     예) 오사카 가성비 호텔 151,394  vs  오사카가성비호텔 14,554
+#   · 3어절 이상부터 붙여쓰기가 실제로 갈린다 — ❌ 어절 수로 미리 거르지 말 것(㊲, 실측 기각)
 #   · 자동완성에 없는 어형은 죽은 키워드다. 버린다.
+#   · ⚠️ totalResults 는 1,000,000 에서 멈춘다. 1년 창이면 8만~16만이라 안 걸린다.
 
 import argparse
 import csv
+import datetime as _dt
 import json
 import math
+import os
 import random
-import re
 import sys
 import time
+import urllib.error
 import urllib.parse
 import urllib.request
 
@@ -38,7 +63,11 @@ UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
       "(KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36")
 
 SUGGEST_URL = "https://suggestqueries.google.com/complete/search"
-SEARCH_URL = "https://www.youtube.com/results"
+YT_SEARCH_API = "https://www.googleapis.com/youtube/v3/search"
+
+# 🏷️ 잣대 도장 (D-065 ㊶-6). 재는 법이 바뀌면 이 값도 같이 바뀌어야 한다.
+COMP_METHOD = "api_search_list"
+COMP_WINDOW_DAYS = 365          # ㊺ — 3년 아님 1년. 창 길이는 날짜 한 줄이다.
 
 # 한글 자모 — 자동완성을 넓게 훑을 때 붙인다
 JAMO = list("ㄱㄴㄷㄹㅁㅂㅅㅇㅈㅊㅋㅌㅍㅎ")
@@ -79,16 +108,101 @@ def suggest(q, hl="ko", gl="kr"):
 
 
 # ─────────────────────────── ② 경쟁 ───────────────────────────
+# 🔴 2026-07-16 교체 (㊺). 옛 방식 = 유튜브 검색결과 HTML 의 estimatedResults 긁기.
+#    날짜 조건이 한 줄도 없어서 10년 전 영상까지 경쟁으로 셌다. 폐기했다.
+#    옛 값(2026-07-15 이전 CSV·DB)은 고치지 않는다 — 옛 잣대의 진실이다(㊶-6-3).
 
-_EST_RE = re.compile(r'"estimatedResults"\s*:\s*"(\d+)"')
+
+def _api_key():
+    """열쇠. 없으면 None (그때는 창구를 거친다)."""
+    return os.environ.get("YOUTUBE_API_KEY") or os.environ.get("GOOGLE_PLACES_API_KEY")
 
 
-def competition(q, hl="ko", gl="kr"):
-    """검색결과 HTML의 estimatedResults. 경쟁 영상 수의 대리 지표."""
-    params = urllib.parse.urlencode({"search_query": q, "hl": hl, "gl": gl})
-    html = _get(f"{SEARCH_URL}?{params}").decode("utf-8", "replace")
-    m = _EST_RE.search(html)
-    return int(m.group(1)) if m else None
+def _window_from(window_days=COMP_WINDOW_DAYS):
+    """publishedAfter 값. 달력이 아니라 '오늘에서 뒤로 N일' 이동 창."""
+    t = _dt.datetime.now(_dt.timezone.utc) - _dt.timedelta(days=window_days)
+    return t.strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def _stamp(count, window_days, error=None):
+    """값 하나에 잣대 도장을 찍어 돌려준다 (㊶-6)."""
+    return {
+        "count": count,
+        "comp_method": COMP_METHOD,
+        "comp_window_days": window_days,
+        "measured_at": _dt.datetime.now(_dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "error": error,
+    }
+
+
+def _comp_direct(q, key, window_days, region="KR", lang="ko"):
+    params = urllib.parse.urlencode({
+        "part": "id", "type": "video", "maxResults": "1",
+        "q": q, "key": key, "regionCode": region, "relevanceLanguage": lang,
+        "publishedAfter": _window_from(window_days),
+    })
+    try:
+        raw = _get(f"{YT_SEARCH_API}?{params}")
+        data = json.loads(raw.decode("utf-8", "replace"))
+    except urllib.error.HTTPError as e:
+        try:
+            j = json.loads(e.read().decode("utf-8", "replace"))
+            reason = j["error"]["errors"][0].get("reason") or j["error"].get("message")
+        except Exception:
+            reason = f"http_{e.code}"
+        return _stamp(None, window_days, error=reason)
+    except Exception as e:
+        return _stamp(None, window_days, error=str(e)[:120])
+    return _stamp(data.get("pageInfo", {}).get("totalResults"), window_days)
+
+
+def _comp_via_ops(qs, window_days, region="KR", lang="ko"):
+    """열쇠가 없는 곳에서. 창구(yt-probe?mode=count)가 서버에서 대신 잰다."""
+    base = os.environ.get("KWTOOL_OPS_BASE", "https://gohotelwinners.com").rstrip("/")
+    token = os.environ.get("CLAUDE_OPS_TOKEN")
+    if not token:
+        raise SystemExit("열쇠도 창구 토큰도 없습니다. "
+                         "YOUTUBE_API_KEY / GOOGLE_PLACES_API_KEY 또는 CLAUDE_OPS_TOKEN 을 주세요.")
+    body = json.dumps({"q": qs, "window_days": window_days,
+                       "region": region, "lang": lang}).encode("utf-8")
+    req = urllib.request.Request(
+        f"{base}/api/ops/yt-probe?mode=count", data=body,
+        headers={"Content-Type": "application/json", "x-ops-token": token, "User-Agent": UA})
+    with urllib.request.urlopen(req, timeout=120) as r:
+        j = json.loads(r.read().decode("utf-8", "replace"))
+    out = {}
+    for row in j.get("results", []):
+        out[row["q"]] = _stamp(row.get("competition"), j.get("comp_window_days", window_days),
+                               error=row.get("skip_reason"))
+    return out
+
+
+def competition_many(qs, window_days=COMP_WINDOW_DAYS, region="KR", lang="ko", verbose=False):
+    """
+    여러 키워드의 경쟁을 한꺼번에. {키워드: 도장찍힌 값} 을 돌려준다.
+    비용: 키워드 1개 = 100 units. 하루 10,000 = 100개.
+    """
+    key = _api_key()
+    if not key:
+        return _comp_via_ops(list(qs), window_days, region, lang)
+    out = {}
+    for i, q in enumerate(qs, 1):
+        out[q] = _comp_direct(q, key, window_days, region, lang)
+        if verbose:
+            c = out[q]["count"]
+            print(f"  [{i}/{len(qs)}] {q:<28} → {c if c is not None else out[q]['error']}",
+                  file=sys.stderr)
+        if out[q]["error"] and "quota" in str(out[q]["error"]).lower():
+            # 할당량 끝. 남은 건 더 두드려도 무의미하다 (막힐 뿐 청구는 없다)
+            for rest in list(qs)[i:]:
+                out[rest] = _stamp(None, window_days, error="quotaExceeded")
+            break
+    return out
+
+
+def competition(q, window_days=COMP_WINDOW_DAYS, region="KR", lang="ko"):
+    """경쟁 영상 수 (최근 1년 창). 숫자만. 못 재면 None."""
+    return competition_many([q], window_days, region, lang)[q]["count"]
 
 
 # ─────────────────────────── ③ 수집 ───────────────────────────
@@ -137,8 +251,23 @@ def opportunity(rank, comp):
     return round(demand / math.log10(max(comp, 10)), 2)
 
 
-def analyze(keywords, hl="ko", gl="kr", csv_path=None, verbose=True):
-    """키워드마다 자동완성 순위 · 경쟁 영상 수 · 기회점수를 계산한다."""
+def analyze(keywords, hl="ko", gl="kr", csv_path=None, verbose=True,
+            window_days=COMP_WINDOW_DAYS):
+    """
+    키워드마다 자동완성 순위 · 경쟁 영상 수 · 기회점수를 계산한다.
+    경쟁값에는 잣대 도장(방법·창·잰날)을 같이 적는다 — 도장 없는 숫자는 축적이 안 된다(㊶-6).
+    ⚠️ 여기 '기회점수' 는 자동완성 순위를 수요 대리로 쓴 옛 공식이다. 화면의 진짜 기회점수는
+       구글 트렌드 수요 ÷ log10(경쟁) 이다(D-065 ①). 수요를 안 쟀으면 '기회'가 아니라 '모름'(⑧).
+    """
+    keywords = list(keywords)
+
+    # 경쟁 먼저 한 번에 (창구를 거치는 경우 왕복 1회로 끝난다)
+    if verbose:
+        print(f"경쟁 측정 — {len(keywords)}개 × 100 units = {len(keywords)*100} "
+              f"(하루 10,000) · 창 최근 {window_days}일", file=sys.stderr)
+    comps = competition_many(keywords, window_days,
+                             region=gl.upper(), lang=hl, verbose=verbose)
+
     rows = []
     for i, kw in enumerate(keywords, 1):
         # 씨앗은 '마지막 어절을 뺀 앞부분'이다.
@@ -157,8 +286,8 @@ def analyze(keywords, hl="ko", gl="kr", csv_path=None, verbose=True):
                 rank = sug.index(kw) + 1
                 break
 
-        comp = competition(kw, hl, gl)
-        polite_sleep()
+        st = comps.get(kw) or _stamp(None, window_days, error="not_measured")
+        comp = st["count"]
 
         row = {
             "키워드": kw,
@@ -166,6 +295,10 @@ def analyze(keywords, hl="ko", gl="kr", csv_path=None, verbose=True):
             "경쟁영상수": comp if comp is not None else "조회실패",
             "기회점수": opportunity(rank, comp),
             "살아있나": "○" if rank else "✗ 죽은키워드",
+            "측정일": st["measured_at"][:10],
+            # 🏷️ 잣대 도장 — 이게 없으면 내년에 옛 값과 몰래 이어붙게 된다(㊶-6)
+            "경쟁잣대": st["comp_method"],
+            "경쟁창일수": st["comp_window_days"],
         }
         rows.append(row)
         if verbose:
@@ -185,28 +318,31 @@ def analyze(keywords, hl="ko", gl="kr", csv_path=None, verbose=True):
     return rows
 
 
-def pair(kw, hl="ko", gl="kr"):
+def pair(kw, hl="ko", gl="kr", window_days=COMP_WINDOW_DAYS, quiet=False):
     """
-    띄어쓰기 ↔ 붙여쓰기 대조.
-    3어절 이상이면 실제로 경쟁이 갈린다 (문서 §7 실측).
+    띄어쓰기 ↔ 붙여쓰기 대조 (㊲ 1단계 = 싼 것 먼저).
+    🔴 반드시 같은 창으로 잰 값끼리 비교할 것. 잣대가 섞이면 배수가 거짓이 된다(㊶-6).
+    ⚠️ 여기서 나오는 건 '갈리나 안 갈리나'까지다. 갈린 쌍의 **판정**은 트렌드 수요를 잰 뒤
+       기회점수 = 수요 ÷ log10(경쟁) 으로만 한다. 경쟁 단독 판정 금지(INC-006 · 날조 8번째).
     """
-    spaced = kw
-    joined = kw.replace(" ", "")
-    out = []
-    for v in (spaced, joined):
-        c = competition(v, hl, gl)
-        polite_sleep()
-        out.append((v, c))
-    a, b = out
-    print(f"  {a[0]:<24} 경쟁 {a[1]:,}" if a[1] else f"  {a[0]} 조회실패")
-    print(f"  {b[0]:<24} 경쟁 {b[1]:,}" if b[1] else f"  {b[0]} 조회실패")
-    if a[1] and b[1]:
-        ratio = a[1] / b[1] if b[1] else 0
-        if ratio > 1.5 or ratio < 0.67:
-            print(f"  → 갈립니다 ({ratio:.1f}배). 둘 다 키워드란에 넣으세요.")
-        else:
-            print("  → 유튜브가 같게 취급합니다. 하나만 넣어도 됩니다.")
-    return out
+    spaced, joined = kw, kw.replace(" ", "")
+    st = competition_many([spaced, joined], window_days, region=gl.upper(), lang=hl)
+    a, b = st[spaced]["count"], st[joined]["count"]
+    ratio = (a / b) if (a and b) else None
+    split = bool(ratio and (ratio > 1.5 or ratio < 0.67))
+
+    if not quiet:
+        print(f"  잣대: {COMP_METHOD} · 최근 {window_days}일")
+        print(f"  {spaced:<24} 경쟁 {a:,}" if a else f"  {spaced} 조회실패")
+        print(f"  {joined:<24} 경쟁 {b:,}" if b else f"  {joined} 조회실패")
+        if ratio:
+            print(f"  → 갈립니다 ({ratio:.2f}배). 둘 다 키워드란에 넣으세요. "
+                  f"(단, 수요 재기 전엔 '기회'라 부르지 말 것)" if split
+                  else f"  → 유튜브가 같게 취급합니다 ({ratio:.2f}배). 하나만 넣어도 됩니다.")
+
+    return {"spaced": spaced, "joined": joined, "comp_spaced": a, "comp_joined": b,
+            "ratio": round(ratio, 2) if ratio else None, "split": split,
+            "comp_method": COMP_METHOD, "comp_window_days": window_days}
 
 
 # ─────────────────────────── CLI ───────────────────────────
@@ -236,6 +372,9 @@ def main():
     for sp in (s1, s2, s3, s4, s5):
         sp.add_argument("--hl", default="ko")
         sp.add_argument("--gl", default="kr")
+    # 창 길이는 날짜 한 줄이다 — 3년·5년으로 되돌리기 5초 (헌법 9조)
+    for sp in (s2, s4, s5):
+        sp.add_argument("--window-days", dest="window_days", type=int, default=COMP_WINDOW_DAYS)
 
     a = p.parse_args()
 
@@ -244,8 +383,12 @@ def main():
             print(f"{i:>2}. {s}")
 
     elif a.cmd == "comp":
-        c = competition(a.query, a.hl, a.gl)
-        print(f"{a.query} → {c:,}" if c is not None else "조회 실패")
+        st = competition_many([a.query], a.window_days, region=a.gl.upper(), lang=a.hl)[a.query]
+        if st["count"] is None:
+            print(f"조회 실패 — {st['error']}")
+        else:
+            print(f"{a.query} → {st['count']:,}   "
+                  f"[{st['comp_method']} · 최근 {st['comp_window_days']}일 · {st['measured_at'][:10]}]")
 
     elif a.cmd == "harvest":
         for i, s in enumerate(harvest(a.seed, a.depth, a.hl, a.gl), 1):
@@ -258,10 +401,10 @@ def main():
                 kws += [l.strip() for l in f if l.strip()]
         if not kws:
             sys.exit("키워드가 없습니다. 인자로 주거나 --file 을 쓰세요.")
-        analyze(kws, a.hl, a.gl, a.csv_path)
+        analyze(kws, a.hl, a.gl, a.csv_path, window_days=a.window_days)
 
     elif a.cmd == "pair":
-        pair(a.query, a.hl, a.gl)
+        pair(a.query, a.hl, a.gl, a.window_days)
 
 
 if __name__ == "__main__":

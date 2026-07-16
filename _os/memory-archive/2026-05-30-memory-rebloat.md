@@ -15,7 +15,7 @@
 
 ### 2. [자동화 endpoint, 2026-05-26]
 영문 성명 lee ji hyeong / 법인 영문명 TravelWinners Inc.
-공통 헤더 x-ops-token=sV1IWuvgBYcn94lQZXBjFLjgdsh3lrBK.
+공통 헤더 x-ops-token=<CLAUDE_OPS_TOKEN — Vercel 환경변수에서 읽는다. 평문 금지(2026-07-16 공개레포 노출 사고)>.
 - ① 메일 알림: POST gohotelwinners.com/api/email/ops/notify-claude-work body{step,summary,checklist[],commit_hash,task_id}
 - ② GitHub commit 자동(BL-OS-INDEX-STEP1): POST /api/ops/github-commit body{path,content,message,branch?} 30/h. content=plain text(base64 금지 D12).
 Claude 모든 채팅 자동 push, 수동 commit 불필요. Vercel env GITHUB_PAT 만료 2026-07-26.
@@ -54,6 +54,6 @@ Claude 모든 채팅 자동 push, 수동 commit 불필요. Vercel env GITHUB_PAT
 
 - **MS1 [대표님]** 이지형 대표님 · 한국어 전용 · 호칭 "대표님". 1인기업 여행능력자들(B2C)/gohotelwinners(B2B $200·6개월보장) + 스리랑카 패키지 + 8 유튜브 채널. 재택.
 - **MS2 [부팅]** 새 채팅 첫 행동 = bash curl 로 `https://raw.githubusercontent.com/dgmasters01/tw-b2b/main/_os/boot.md` 1개 fetch → 그 1개로 룰 90% 복원, 4번 표 따라 필요 시 추가 fetch. 막히면 INDEX.md. "헌법 확인"=즉시 정지·재독.
-- **MS3 [commit 창구]** 자동 영구저장: POST gohotelwinners.com/api/ops/github-commit, header x-ops-token=sV1IWuvgBYcn94lQZXBjFLjgdsh3lrBK, body{path,content,message} (plain text). 메일알림 /api/email/ops/notify-claude-work. GITHUB_PAT 만료 2026-07-26.
+- **MS3 [commit 창구]** 자동 영구저장: POST gohotelwinners.com/api/ops/github-commit, header x-ops-token=<CLAUDE_OPS_TOKEN — Vercel 환경변수에서 읽는다. 평문 금지(2026-07-16 공개레포 노출 사고)>, body{path,content,message} (plain text). 메일알림 /api/email/ops/notify-claude-work. GITHUB_PAT 만료 2026-07-26.
 
 상세 룰 전부 = boot.md → (부칙 16/18, playbook, BUSINESS.md, 이 아카이브). 메모리는 "누구/어디서 시작/저장창구" 3개만 진다.

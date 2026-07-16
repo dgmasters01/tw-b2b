@@ -42,7 +42,8 @@
 # ── 검증된 사실 (문서 §7) ──────────────────────────────────
 #   · 자동완성은 띄어쓰기를 구분한다
 #   · 경쟁 영상 수는 띄어쓰기를 정규화한다 (±20% 노이즈)
-#   · 3어절 이상부터 붙여쓰기가 실제로 갈린다 — ❌ 어절 수로 미리 거르지 말 것(㊲, 실측 기각)
+#   · 붙여쓰기 짝은 **자동완성으로** 가른다(㊻). ❌ 경쟁 1.5배로 가르지 말 것 — 노이즈에 잠긴다
+#   · ❌ 어절 수로 미리 거르지 말 것(㊲, 실측 기각)
 #   · 자동완성에 없는 어형은 죽은 키워드다. 버린다.
 #   · ⚠️ totalResults 는 1,000,000 에서 멈춘다. 1년 창이면 8만~16만이라 안 걸린다.
 
@@ -320,28 +321,61 @@ def analyze(keywords, hl="ko", gl="kr", csv_path=None, verbose=True,
 
 def pair(kw, hl="ko", gl="kr", window_days=COMP_WINDOW_DAYS, quiet=False):
     """
-    띄어쓰기 ↔ 붙여쓰기 대조 (㊲ 1단계 = 싼 것 먼저).
-    🔴 반드시 같은 창으로 잰 값끼리 비교할 것. 잣대가 섞이면 배수가 거짓이 된다(㊶-6).
-    ⚠️ 여기서 나오는 건 '갈리나 안 갈리나'까지다. 갈린 쌍의 **판정**은 트렌드 수요를 잰 뒤
+    띄어쓰기 ↔ 붙여쓰기 대조 — 1단계 = **자동완성** (D-065 ㊻ 확정, 2026-07-16).
+
+    🔴 옛 규칙(㊲: 경쟁 1.5배로 가르기 · 붙여쓰기 경쟁 500 미만이면 죽음)은 **폐기**했다.
+       경쟁값이 같은 검색어를 20분 뒤 재면 7~22배 튄다(㊻ 실측). 판정선 1.5배가 노이즈에 잠겨 있었다.
+       자동완성은 오사카 12쌍 2회 측정에서 **순위 숫자까지 12/12 재현**됐다. 그래서 자동완성으로 가른다.
+       덤: 자동완성은 할당량 밖 = 공짜.
+
+    답 3가지
+      둘 다 살아있음   → 둘 다 진짜 검색어. 둘 다 넣는다.
+      한쪽만 살아있음  → 없는 쪽은 죽은 어형. 버린다. (§7 "자동완성에 없는 어형은 죽은 키워드다")
+      둘 다 없음       → 둘 다 버린다.
+
+    ⚠️ 여기까지가 1단계다. **판정**은 살아남은 쌍의 트렌드 수요를 잰 뒤
        기회점수 = 수요 ÷ log10(경쟁) 으로만 한다. 경쟁 단독 판정 금지(INC-006 · 날조 8번째).
+       경쟁은 참고로만 같이 찍어준다 — 자릿수만 믿을 것.
     """
     spaced, joined = kw, kw.replace(" ", "")
-    st = competition_many([spaced, joined], window_days, region=gl.upper(), lang=hl)
-    a, b = st[spaced]["count"], st[joined]["count"]
-    ratio = (a / b) if (a and b) else None
-    split = bool(ratio and (ratio > 1.5 or ratio < 0.67))
+    if spaced == joined:
+        if not quiet:
+            print("  어절이 하나라 짝이 없습니다.")
+        return {"spaced": spaced, "joined": joined, "verdict": "no_pair"}
+
+    def _rank(k):
+        toks = k.split()
+        seeds = ([" ".join(toks[:-1])] if len(toks) > 1 else []) + [k]
+        for s in seeds:
+            sug = suggest(s, hl, gl)
+            polite_sleep()
+            if k in sug:
+                return sug.index(k) + 1
+        return None
+
+    rs, rj = _rank(spaced), _rank(joined)
+    if rs and rj:
+        verdict, advice = "both_alive", "둘 다 진짜 검색어입니다. 둘 다 넣으세요. (수요는 트렌드로 각각 잽니다)"
+    elif rs or rj:
+        dead = joined if rs else spaced
+        verdict, advice = "one_dead", f"'{dead}' 는 자동완성에 없습니다 = 죽은 어형. 버리세요."
+    else:
+        verdict, advice = "both_dead", "둘 다 자동완성에 없습니다. 둘 다 버리세요."
+
+    comps = competition_many([spaced, joined], window_days, region=gl.upper(), lang=hl)
+    cs, cj = comps[spaced]["count"], comps[joined]["count"]
 
     if not quiet:
-        print(f"  잣대: {COMP_METHOD} · 최근 {window_days}일")
-        print(f"  {spaced:<24} 경쟁 {a:,}" if a else f"  {spaced} 조회실패")
-        print(f"  {joined:<24} 경쟁 {b:,}" if b else f"  {joined} 조회실패")
-        if ratio:
-            print(f"  → 갈립니다 ({ratio:.2f}배). 둘 다 키워드란에 넣으세요. "
-                  f"(단, 수요 재기 전엔 '기회'라 부르지 말 것)" if split
-                  else f"  → 유튜브가 같게 취급합니다 ({ratio:.2f}배). 하나만 넣어도 됩니다.")
+        print(f"  1단계 잣대: 자동완성 (㊻ · 재현 12/12 · 공짜)")
+        print(f"  {spaced:<24} 자동완성 {('%d위' % rs) if rs else '없음':<6} | 경쟁 {cs:,}" if cs else
+              f"  {spaced:<24} 자동완성 {('%d위' % rs) if rs else '없음'}")
+        print(f"  {joined:<24} 자동완성 {('%d위' % rj) if rj else '없음':<6} | 경쟁 {cj:,}" if cj else
+              f"  {joined:<24} 자동완성 {('%d위' % rj) if rj else '없음'}")
+        print(f"  → {advice}")
+        print(f"  (경쟁은 참고. 자릿수만 믿으세요 — 같은 값이 20분 뒤 7~22배 튑니다. ㊻)")
 
-    return {"spaced": spaced, "joined": joined, "comp_spaced": a, "comp_joined": b,
-            "ratio": round(ratio, 2) if ratio else None, "split": split,
+    return {"spaced": spaced, "joined": joined, "rank_spaced": rs, "rank_joined": rj,
+            "verdict": verdict, "comp_spaced": cs, "comp_joined": cj,
             "comp_method": COMP_METHOD, "comp_window_days": window_days}
 
 

@@ -375,7 +375,7 @@ function downloadDoc(type, paymentId){
 5. ops 알림 POST:
    ```
    POST https://gohotelwinners.com/api/email/ops/notify-claude-work
-   Header: x-ops-token: sV1IWuvgBYcn94lQZXBjFLjgdsh3lrBK
+   Header: x-ops-token: <CLAUDE_OPS_TOKEN — Vercel 환경변수에서 읽는다. 평문 금지(2026-07-16 공개레포 노출 사고)>
    Body: {step:"stage-3-complete", summary, checklist[], vercel_url, blockers, commit_hash}
    ```
 6. stage 4 인계서 박기 (라이브 검증 단계로 넘기는 것)

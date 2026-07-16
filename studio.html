@@ -3330,12 +3330,10 @@ function travelBlock(){
             (⑩ 상대지수라는 사실은 D-065 가 갖는다. 화면은 대표님이 쓰는 데 필요한 것만 말한다) */
        '<small style="color:var(--muted);">세로 = <b>유튜브 검색량</b> · 가로 = <b>월별</b></small></div>';
   }
-  /* 🔴 대표님: "키워드를 가지고 어떻게 무엇을 만들 거야."
-     차트는 **할지·언제만** 정한다. 무엇을 만드는지는 아래로 이어진다 — 화면이 그 길을 말해야 한다. */
-  h+='<div class="nt" style="border-top:0.5px solid var(--line);margin-top:8px;padding-top:7px;">'+
-     '<b>여기까지가 「할지 · 언제」입니다.</b> 「뭘 만들지」는 아래로 이어집니다<br>'+
-     '<span style="color:var(--muted);">아래 <b>숙박 검색어</b>(제목·태그에 넣을 말) → <b>지역</b>을 누르면 <b>만들 영상 추천</b> → <b>[이걸로 만들기]</b> → 전략 메뉴</span></div>'+
-     '<div class="nt" style="margin-top:6px;">이 도시의 여행 검색어 — <b>수요 순</b></div>';
+  /* 🔴 2026-07-17 대표님: 「할지·언제 → 뭘 만들지」 길 안내 **삭제.**
+     대표님이 *"키워드로 뭘 만드나"* 라고 물으신 건 **답을 달라**는 것이었지
+     **화면에 설명문을 붙이라**는 게 아니었다. 흐름은 화면 **구조**가 말해야 한다 — 글로 때우지 않는다. */
+  h+='<div class="nt" style="margin-top:6px;">이 도시의 여행 검색어 — <b>수요 순</b></div>';
   tv.forEach(function(r){
     var d=r.demand===null?null:Number(r.demand), s=r.series||{}, mo={};
     Object.keys(s).forEach(function(ym){ var y=ym.slice(0,4), m=+ym.slice(5,7);

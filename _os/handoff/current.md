@@ -1,4 +1,4 @@
-# 인계서 — DB 백업 + ops 토큰 교체 완료. 다음 = 키워드(D-065) 구현
+# 인계서 — D-065 구현 0·1단계 완료(morph_rule·city_alias 라이브). 다음 = 2단계 스냅샷 표
 
 <!-- verify:start -->
 > 🟢 **인계서 자동 검사 통과** (검사: 2026-07-15 22:00 UTC · 경로 13개 · 크론 3개 실존·인증·메서드 확인)
@@ -6,6 +6,37 @@
 
 **작성**: 2026-07-14
 **다음 채팅 첫 fetch = boot.md → 이 파일 → D-065.**
+
+---
+
+## ✅ 2026-07-16 (3번째 채팅) 완료 — D-065 구현 **0·1단계** (표 2개 라이브)
+
+**순서 표의 0·1번이 끝났다. 다음은 2번(스냅샷 표 `trend`·`keyword`·`snapshot` — 여전히 0개).**
+
+| | 표 | 행 | 상태 |
+|---|---|---|---|
+| 0 | **`morph_rule`** (9칸) | **1** = `ko` 시드만 | ✅ 라이브. `ja`·`en`·`vi`·`zh-tw` **비어 있음(의도)** — 1단 정찰이 채운다 |
+| 1 | **`city_alias`** (7칸) | **0** | ✅ 라이브. **0이 정상** — 지연 생성(㉚). 조사 시작 화면 입력이 곧 데이터 |
+
+- 표 생성 전 **수동 백업 1회 실행**: 커밋 `9fafc1b8` · 표 30 · 21,501행 · 86초
+- 두 표 모두 **컬럼마다 주석(`COMMENT`)** 을 박았다 → 다음 클로드가 문서 없이 표만 봐도 뜻을 안다. `\d+` 또는 `col_description()` 으로 읽힘
+
+### 실제 구조 (문서 ㉚·㊳ 대비 **차이 2곳** — 아래가 실물)
+```
+morph_rule (id, target_code, market, axis, variants, expand_charset, probe_raw, source, updated_at)
+           UNIQUE(target_code, market, axis)   ← 한 언어에 축이 여럿이면 행이 여럿
+city_alias (id, target_code, country, city_key, label, source, updated_at)
+           UNIQUE(target_code, city_key)
+```
+1. **`city_alias.country` 를 더 넣었다** (문서엔 없던 칸). 이유: 나라 화면이 **수동 추가 도시**(영문 없어 `hotels`와 못 잇는 도시)를 나열하려면 나라로 거를 칸이 있어야 한다. `city_key` 문자열을 쪼개 쓰는 건 못난 짓.
+2. 🔴 **`city_key` = `agoda_city_id` 우선 → 지금은 불가능.** **2026-07-16 실측: `hotels.agoda_city_id` 3,185건 전부 null (0건).** ㉚이 1순위로 정한 열쇠가 **재료가 없다.**
+   → 규칙: `cc:<country>|<city>`(소문자, `hotels` 영문과 연결) / `new:<country>|<label>`(영문 아직 없음) / `agoda:<id>`(나중에 id가 생기면). 셋 다 한 칸에 접두어로 구분.
+
+### `ko` 시드 1행의 근거 (추측 0)
+- `axis` = `spacing` · `variants` = `{op:spacing, generate:[as_is, join_all], keep_if_ratio_gte:1.5, drop_if_joined_competition_lt:500}`
+- `expand_charset` = 자모 **14자** — `api/_lib/kwtool.py` 의 `JAMO` 실측 복사 (코드에 박힌 걸 표로 옮김)
+- `probe_raw` = **null**. ko는 정찰이 아니라 **경쟁 전수 실측**(㊲ 오사카 12쌍 → 5쌍 갈림)에서 나왔으므로 긁은 원본이 없다. 없는 걸 채우지 않았다.
+- `source` 칸에 위 근거를 문장으로 박음 → 나중에 "왜 1.5배야?" 에 표가 스스로 답한다
 
 ---
 

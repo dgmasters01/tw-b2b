@@ -1,35 +1,44 @@
 // /api/ops/yt-probe.js
-// 유튜브 데이터 API 정찰 — "열쇠가 있나" + "publishedAfter(기간 고정 창)가 진짜 재지나" 두 가지를 한 번에 확인.
+// 유튜브 데이터 API 창구 — 정찰(whoami·비교) + 경쟁 전수 측정(count).
 // 인증: x-ops-token 헤더 = process.env.CLAUDE_OPS_TOKEN (github-commit / db-query 와 동일)
 //
-// 왜 만들었나 (D-065 · 2026-07-16 대표님 지적):
+// 왜 있나 (D-065 ㊺ · 2026-07-16 대표님 지적):
 //   경쟁(유튜브 영상 수)을 "전체 기간"으로 재고 있었다. 유튜브는 오래된 영상을 잘 추천하지 않으므로
 //   실제 경쟁 상대는 최근 영상이다. 그런데 유튜브 웹 검색 필터는 달력(올해/이번달)뿐이라 매년 1월에 무너진다.
-//   달력이 아닌 "오늘부터 뒤로 N년" 고정 창을 주는 것은 Data API 의 publishedAfter 하나뿐 → 되는지 재본다.
+//   달력이 아닌 "오늘부터 뒤로 N일" 고정 창을 주는 것은 Data API 의 publishedAfter 하나뿐 → 이걸 쓴다.
 //
-// 읽기 전용. DB 도 파일도 안 건드린다. 재보고 숫자만 돌려준다.
+// DB 도 파일도 안 건드린다. 재보고 숫자만 돌려준다. (담는 건 부르는 쪽 책임)
 //
-// Query:
-//   ?q=오사카 호텔&years=3      (q 는 콤마로 여러 개, 기본 3개 / years 기본 3)
+// 3가지 모드
+//   GET  ?mode=whoami                     열쇠들이 유튜브에 열리나 + 어느 구글 프로젝트 것인가
+//   GET  ?q=오사카 호텔&years=1            전체 기간 vs N년 창 비교 (정찰 · 200 units/개)
+//   POST ?mode=count  {q:[...], window_days:365, region, lang}
+//                                         ㊺ 잣대로 경쟁 전수 측정 (100 units/개 · 최대 100개)
 //
-// Returns:
-//   { ok:true, key:'present', results:[ {q, all, within, ratio, window_from} ], quota_units_used }
-//   { ok:false, reason:'no_key' }   ← 열쇠가 Vercel 환경변수에 없음 (이것 자체가 답)
+// 할당량: search.list = 100 units/호출. 무료 10,000/일. 넘으면 403 quotaExceeded — 막힐 뿐 청구 없음.
+//   오사카 68개 = 6,800 = 하루의 68% → 하루 1도시.
 //
-// 할당량: search.list = 100 units/호출. 키워드 1개당 2회(전체·기간) = 200. 기본 3개 = 600 units.
-//         무료 한도 10,000/일 → 6%. 정찰용이라 자주 안 부른다.
+// 🔴 이 레포는 ESM(package.json: type=module). module.exports 금지 — export default 로 쓸 것.
 
 const API = 'https://www.googleapis.com/youtube/v3/search';
 
-async function count(key, q, publishedAfter) {
+// ㊺ 잣대 도장 — 재는 방법이 바뀌면 이 두 값도 같이 바뀌어야 한다 (㊶-6)
+const COMP_METHOD = 'api_search_list';
+const DEFAULT_WINDOW_DAYS = 365;
+
+function windowFrom(days) {
+  return new Date(Date.now() - days * 24 * 3600 * 1000).toISOString().replace(/\.\d+Z$/, 'Z');
+}
+
+async function count(key, q, publishedAfter, region = 'KR', lang = 'ko') {
   const p = new URLSearchParams({
     part: 'id', type: 'video', maxResults: '1',
-    q, key, regionCode: 'KR', relevanceLanguage: 'ko',
+    q, key, regionCode: region, relevanceLanguage: lang,
   });
   if (publishedAfter) p.set('publishedAfter', publishedAfter);
   const r = await fetch(`${API}?${p}`, { headers: { 'User-Agent': 'tw-b2b-yt-probe' } });
   const j = await r.json().catch(() => ({}));
-  if (!r.ok) return { error: j?.error?.message || `http_${r.status}` };
+  if (!r.ok) return { error: j?.error?.errors?.[0]?.reason || j?.error?.message || `http_${r.status}` };
   return { total: j?.pageInfo?.totalResults ?? null };
 }
 
@@ -63,9 +72,53 @@ export default async function handler(req, res) {
   const key = process.env.YOUTUBE_API_KEY || process.env.GOOGLE_PLACES_API_KEY;
   if (!key) return res.status(200).json({ ok: false, reason: 'no_key', note: 'YOUTUBE_API_KEY · GOOGLE_PLACES_API_KEY 둘 다 없음' });
 
+  // ── mode=count : ㊺ 잣대로 경쟁 전수 측정. 잣대 도장을 값과 같이 돌려준다(㊶-6) ──
+  if (req.query.mode === 'count') {
+    const body = (req.body && typeof req.body === 'object') ? req.body : {};
+    const raw = Array.isArray(body.q) ? body.q : String(body.q || req.query.q || '').split(',');
+    const qs = raw.map(s => String(s).trim()).filter(Boolean).slice(0, 100);
+    if (!qs.length) return res.status(400).json({ ok: false, error: 'q_required' });
+
+    const days = Math.min(Math.max(parseInt(body.window_days ?? req.query.window_days ?? DEFAULT_WINDOW_DAYS, 10) || DEFAULT_WINDOW_DAYS, 1), 3650);
+    const region = String(body.region || req.query.region || 'KR');
+    const lang = String(body.lang || req.query.lang || 'ko');
+    const from = windowFrom(days);
+
+    const results = [];
+    let used = 0, blocked = null;
+    for (const q of qs) {
+      if (blocked) { results.push({ q, competition: null, skip_reason: blocked }); continue; }
+      const r = await count(key, q, from, region, lang);
+      used += 100;
+      if (r.error) {
+        // 할당량이 끝났으면 남은 것은 더 두드리지 않는다 (막힐 뿐 청구는 없지만 무의미)
+        if (String(r.error).includes('quota')) blocked = r.error;
+        results.push({ q, competition: null, skip_reason: r.error });
+      } else {
+        results.push({
+          q,
+          competition: r.total,
+          comp_method: COMP_METHOD,
+          comp_window_days: days,
+          measured_at: new Date().toISOString(),
+        });
+      }
+    }
+    return res.status(200).json({
+      ok: true, mode: 'count',
+      comp_method: COMP_METHOD, comp_window_days: days, window_from: from, region, lang,
+      asked: qs.length,
+      measured: results.filter(r => r.competition !== null && r.competition !== undefined).length,
+      quota_units_used: used,
+      blocked,
+      results,
+    });
+  }
+
+  // ── 기본 : 전체 기간 vs N년 창 비교 (정찰) ──
   const qs = String(req.query.q || '오사카 호텔,오사카 숙소,난바 호텔').split(',').map(s => s.trim()).filter(Boolean).slice(0, 5);
   const years = Math.min(Math.max(parseInt(req.query.years || '1', 10) || 1, 1), 10);
-  const from = new Date(Date.now() - years * 365 * 24 * 3600 * 1000).toISOString().replace(/\.\d+Z$/, 'Z');
+  const from = windowFrom(years * 365);
 
   const results = [];
   for (const q of qs) {

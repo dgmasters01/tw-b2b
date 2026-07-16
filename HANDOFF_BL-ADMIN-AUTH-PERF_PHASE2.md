@@ -135,7 +135,7 @@ git push origin main  # 1편 5개 commit + 2편 step6, 7 commit이 push되면서
 **ops 메일 발송:**
 ```bash
 curl -X POST https://gohotelwinners.com/api/email/ops/notify-claude-work \
-  -H "Authorization: Bearer sV1IWuvgBYcn94lQZXBjFLjgdsh3lrBK" \
+  -H "Authorization: Bearer <CLAUDE_OPS_TOKEN — Vercel 환경변수에서 읽는다. 평문 금지(2026-07-16 공개레포 노출 사고)>" \
   -H "Content-Type: application/json" \
   -d '{
     "title": "BL-ADMIN-AUTH-PERF 완료 — admin 페이지 로딩 즉시화",
@@ -179,7 +179,7 @@ for t in d['tasks']:
 | Vercel 프로젝트 | `tw-b2b` (`prj_KPfzLZaDSaEv6mBdyp3bIpDlPAjY`) |
 | Supabase Ref | `vjsludfjsphwnumuoqaj` |
 | ops 메일 endpoint | `gohotelwinners.com/api/email/ops/notify-claude-work` |
-| ops 토큰 | `sV1IWuvgBYcn94lQZXBjFLjgdsh3lrBK` |
+| ops 토큰 | `<CLAUDE_OPS_TOKEN — Vercel 환경변수에서 읽는다. 평문 금지(2026-07-16 공개레포 노출 사고)>` |
 | Vercel API Token | (메모리에서 가져옴 — `recent_updates` 항목 "Vercel 운영 원칙 + 토큰" 참조, 충전 상태 확인 후 사용) |
 
 ---

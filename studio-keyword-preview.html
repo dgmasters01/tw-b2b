@@ -193,8 +193,10 @@
   <div class="kbn" id="kb"></div>
 </div>
 
+<div class="sc" id="s6"><div id="d6"></div></div>
+
 <div class="ts" id="tsb"></div>
-<div class="ft">키워드 프리뷰 v4 · D-065 개정 ①~⑭ 반영 · 점검표 33요소 · 2026-07-14</div>
+<div class="ft">키워드 프리뷰 v12 · D-065 개정 ①~㉜ 반영 · 조사 시작 화면(㉘㉙) 추가 · 2026-07-16</div>
 
 <script>
 /* ══ 실측 데이터만 (2026-07-14 직접 조회) ══ */
@@ -290,7 +292,7 @@ function rc(c){cc=c;document.getElementById('c2t').innerHTML=c+' · 도시 <span
      '<span class="pil" style="background:'+(hasS?'var(--emd)':'var(--amd)')+';color:'+(hasS?'var(--em)':'var(--am)')+';">🗓️ 언제 '+(hasS?'있음':'없음')+'</span>'+
      '<span class="pil" style="background:'+(hasK?'var(--emd)':'var(--amd)')+';color:'+(hasK?'var(--em)':'var(--am)')+';">🎯 뭘 '+(hasK?'있음':'없음')+'</span>'+
      (p?'<span class="pil">인기도 '+p.t+'</span>':'')+(l?'<span class="pil">예약 '+l[2]+'건 · '+l[0]+'일</span>':'')+
-     (!hasS||!hasK?'<span class="pil" style="background:var(--bld);color:var(--bl);cursor:pointer;" onclick="event.stopPropagation();ts(\'없는 것만 조사 — owner·admin\')">＋ 조사하기</span>':'')+
+     (!hasS||!hasK?'<span class="pil" style="background:var(--bld);color:var(--bl);cursor:pointer;" onclick="event.stopPropagation();go(\'r\',\'필리핀\')">＋ 조사하기</span>':'')+
      '</div></div><span class="wb" onclick="event.stopPropagation();ev2(\''+x+'\')">왜?</span><span style="color:var(--muted);">›</span></div>';});
  document.getElementById('c2l').innerHTML=h;document.getElementById('ev2').innerHTML='';}
 
@@ -412,11 +414,13 @@ function cp(){var t=document.getElementById('tgb').textContent;if(navigator.clip
 function sch(){var q=document.getElementById('sq').value.trim(),b=document.getElementById('srb');
  if(!q){b.classList.remove('on');return;}
  var pool=[];Object.keys(CT).forEach(function(c){pool.push([c,'나라',true]);CT[c].forEach(function(x){pool.push([x,'도시',!!SE[x]]);});});
+ Object.keys(UNC).forEach(function(c){pool.push([c,'나라 · 미조사',false,'r']);UNC[c].cities.forEach(function(x){pool.push([x[0],'도시 · 미조사',false,'r',c]);});});
  ['난바','우메다','신사이바시','도톤보리'].forEach(function(d){pool.push([d,'지역',d==='난바']);});
  var hit=pool.filter(function(p){return p[0].indexOf(q)>=0;});
  var h='';
  if(!hit.length)h='<div class="sri" style="cursor:default;"><span style="color:var(--muted);">"'+q+'" 조사 기록 없음</span><span class="btn" style="margin-left:auto;" onclick="ts(\''+q+' 조사 시작 — 없으면 그때 만들어 저장\')">＋ 조사하기</span></div>';
- else hit.slice(0,5).forEach(function(p){h+='<div class="sri" onclick="ts(\''+p[0]+' 로 이동\')"><b>'+p[0]+'</b> <span style="color:var(--muted);font-size:10px;">'+p[1]+'</span>'+(p[2]?'<span class="tag t-on">조사됨</span>':'<span class="tag t-un">미조사 · 조사하기</span>')+'</div>';});
+ else hit.slice(0,5).forEach(function(p){var act=p[3]==='r'?'go(\'r\',\''+(p[4]||p[0])+'\')':'ts(\''+p[0]+' 로 이동\')';
+  h+='<div class="sri" onclick="'+act+'"><b>'+p[0]+'</b> <span style="color:var(--muted);font-size:10px;">'+p[1]+'</span>'+(p[2]?'<span class="tag t-on">조사됨</span>':'<span class="tag t-un">미조사 · 눌러서 조사</span>')+'</div>';});
  b.innerHTML=h;b.classList.add('on');}
 
 function rq(){var h='',n=0;Object.keys(Q).forEach(function(c){n+=Q[c].length;
@@ -440,11 +444,55 @@ function go(w,a,b){
  if(w==='c'){rc(a);sh('s2');bc('c',a);return;}
  if(w==='d'){if(b)cc=b;rdd(a);sh('s3');bc('d',a);return;}
  if(w==='x'){rx(a);sh('s4');bc('x',a);return;}
- if(w==='q'){rq();sh('s5');bc('q');return;}}
+ if(w==='q'){rq();sh('s5');bc('q');return;}
+ if(w==='r'){rrs(a);sh('s6');document.getElementById('bc').innerHTML='<a onclick="go(\'m\')">홈</a> › <span>한국어 · 한국</span> › <b>'+a+'</b> › <b>조사 시작</b>';return;}}
 function dd(){var d=document.getElementById('ddb');d.classList.toggle('on');document.getElementById('tc').textContent=d.classList.contains('on')?'⌃':'⌄';}
 function pk(n){document.getElementById('tn').textContent=n;dd();ts(n+' 전환');}
 var tmo;function ts(m){var t=document.getElementById('tsb');t.textContent=m;t.classList.add('on');clearTimeout(tmo);tmo=setTimeout(function(){t.classList.remove('on');},2200);}
 rd();rq();
+
+/* ══ D-065 ㉘㉙㉚㉜ — 조사 시작 화면 (2026-07-16) ══
+   실측: DB 조회 2026-07-16. 확정 예약(is_cancelled=false) 기준. */
+var UNC={'필리핀':{bk:162,rank:5,cities:[['세부','Cebu',82,126],['마닐라','Manila',19,19],['보홀','Bohol',12,7],
+  ['앙헬레스 / 클락','Angeles / Clark',7,6],['보라카이','Boracay Island',3,2],['라푸라푸','Lapu-Lapu City',1,2]]}};
+/* ㉚ 한국어 도시명은 DB에 없다(hotels = city 영문뿐). city_alias 지연 생성 — 입력이 곧 데이터.
+   프리뷰라 아래는 이미 넣어둔 셈 치고 보여준다. 실제 구현은 빈 칸이면 그 자리에서 5초 입력. */
+var RSEL={}, RNEW=[], RC='';
+function rrs(c){RC=c;if(!RSEL[c])RSEL[c]={0:1,1:1};
+ var u=UNC[c];var h='';
+ h+='<div class="cd" style="margin-bottom:9px;"><div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">'+
+    '<span style="font-size:16px;font-weight:600;">'+c+'</span><span class="tag t-un">아직 안 쟀습니다</span></div>'+
+    '<div style="font-size:11.5px;color:var(--sub);">우리 데이터엔 이미 있습니다 — 확정 예약 <b>'+u.bk+'건</b> · 도시 '+u.cities.length+'곳 · 나라 중 <b>'+u.rank+'위</b></div>'+
+    '<div style="font-size:11px;color:var(--muted);margin-top:3px;">없는 것은 검색 수요(구글 트렌드)뿐입니다. 그래서 "지금 착수 / 대기" 판정을 못 합니다. <span class="wb" onclick="ts(\'근거: DB 실측 2026-07-16 · bookings_unified · hotels\')">왜?</span></div></div>';
+ h+='<div class="ml">한국어 · 한국 타겟으로 조사할 도시를 고르세요 <span class="no">2-1</span></div>';
+ h+='<div class="cd" style="padding:6px 8px;margin-bottom:9px;">';
+ u.cities.forEach(function(x,i){var on=!!RSEL[c][i];
+  h+='<div onclick="rtg('+i+')" style="display:flex;align-items:center;gap:9px;padding:8px 6px;border-bottom:0.5px solid var(--card2);cursor:pointer;'+(on?'':'color:var(--sub);')+'">'+
+     '<span style="font-size:14px;color:'+(on?'var(--bl)':'var(--muted)')+';">'+(on?'☑':'☐')+'</span>'+
+     '<span style="flex:1;">'+x[0]+' <span style="font-size:10px;color:var(--muted);">'+x[1]+'</span></span>'+
+     '<span style="font-size:11px;color:var(--sub);">호텔 '+x[2]+' · 확정 '+x[3]+'</span>'+
+     '<span style="font-size:11px;color:var(--muted);min-width:36px;text-align:right;">약 4분</span></div>';});
+ RNEW.forEach(function(n,j){h+='<div style="display:flex;align-items:center;gap:9px;padding:8px 6px;border-bottom:0.5px solid var(--card2);">'+
+     '<span style="font-size:14px;color:var(--bl);">☑</span><span style="flex:1;">'+n+' <span class="tag t-un">새로 넣음</span></span>'+
+     '<span style="font-size:11px;color:var(--am);">우리 데이터에 없음</span>'+
+     '<span style="font-size:11px;color:var(--muted);min-width:36px;text-align:right;">약 4분</span></div>';});
+ h+='<div onclick="rnf()" style="display:flex;align-items:center;gap:8px;padding:9px 6px;color:var(--bl);cursor:pointer;font-size:12px;">＋ 도시 이름 직접 넣기 — 목록에 없는 곳 (예: 팔라완)</div>';
+ h+='<div id="rnb" style="display:none;padding:4px 6px 9px;">'+
+    '<div class="srch" style="margin-bottom:6px;"><span>📍</span><input id="rni" placeholder="한국어로 도시 이름 (지금 타겟 언어)" onkeydown="if(event.key===\'Enter\')rna()"></div>'+
+    '<div style="font-size:11px;color:var(--muted);margin-bottom:6px;">나라는 <b style="color:var(--sub);">'+c+'</b>으로 자동 · 검색어 40개는 이름 + 접미어(호텔·숙소·리조트·추천)로 만들고, 지역어는 자동완성으로 캡니다. "가성비"는 안 넣습니다(실측 0.17).<br>영문 표기는 <b style="color:var(--sub);">받지 않습니다</b> — 나중에 예약이 붙으면 아고다가 줍니다 (D-065 ㉚·㉛).</div>'+
+    '<span class="btn" onclick="rna()">이 도시 넣기</span></div>';
+ h+='</div>';
+ var n=Object.keys(RSEL[c]).filter(function(k){return RSEL[c][k];}).length+RNEW.length;
+ h+='<div class="ban" style="margin-bottom:9px;">고른 것 <b>'+n+'곳</b> × 한국어 1개 타겟 = 구글 트렌드 <b>'+(n*10)+'회</b> · 약 <b>'+(n*4)+'분</b>'+
+    '<div style="color:var(--sub);font-size:11px;margin-top:2px;">도시 1곳 = 키워드 40개 = 트렌드 10회 (앵커 묶음 ⑪ · 429 방지 간격 20초). 타겟은 지금 보는 1개만 — 일본어는 일본어 화면에서 따로.</div></div>';
+ h+='<div style="display:flex;align-items:center;gap:9px;"><span class="btn" style="background:var(--emd);color:var(--em);" onclick="ts(\''+c+' '+n+'곳 조사 시작 — 프리뷰라 실제 호출은 안 합니다\')">조사 시작 · 약 '+(n*4)+'분</span>'+
+    '<span style="font-size:11px;color:var(--muted);">owner · admin만 · 끝나면 알림 · 다음 달부터 자동 조사 합류</span></div>';
+ h+='<div class="er" style="margin-top:9px;">앵커("세부 호텔")가 측정 한계 아래면 20초 지점에서 저절로 멈추고 <b>"측정 한계 아래 — 없는 게 아니라 우리가 못 잼"</b>으로 표시, 저장하지 않습니다 (⑧). [미리 재보기]는 폐기 — 본 조사가 같은 일을 합니다.</div>';
+ document.getElementById('d6').innerHTML=h;}
+function rtg(i){RSEL[RC][i]=!RSEL[RC][i];rrs(RC);}
+function rnf(){var b=document.getElementById('rnb');b.style.display=b.style.display==='none'?'block':'none';if(b.style.display==='block')document.getElementById('rni').focus();}
+function rna(){var v=document.getElementById('rni').value.trim();if(!v)return;RNEW.push(v);rrs(RC);ts('"'+v+'" 넣음 — 이 글자가 곧 한국어 이름표입니다 (city_alias 저장 · 비용 0)');}
+
 </script>
 </body>
 </html>

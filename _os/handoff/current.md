@@ -39,6 +39,50 @@
 
 ---
 
+## 🔴🔴 2026-07-16 최우선 — DB 백업 0개 + 레포가 공개다 (키워드보다 먼저)
+
+**다음 채팅은 키워드 말고 이것부터. 그물 없이 DB 표를 만들면 안 된다.**
+
+### 실측 (2026-07-16 · 대표님 Supabase 대시보드 스크린샷 + DB 조회)
+| 항목 | 상태 |
+|---|---|
+| Supabase 요금제 | **FREE** — 자동 백업 대상 아님(Pro 이상만) |
+| `LAST BACKUP` | 🔴 **No backups** — 한 개도 없음 |
+| `LAST MIGRATION` | 🔴 **No migrations** — 표 설계도도 어디에도 없음 |
+| 잃을 것 | 예약 **7,316행** · 호텔 **3,185행** = 사업 전부 |
+| `api/ops/db-query` | **쓰기 나감.** 막힌 건 `drop database`뿐. `DELETE FROM` 그대로 실행됨 |
+| 손으로 만든 백업 | 3개(`bookings_agoda_backup_20260715` 등) = 조각·수동 |
+
+### 🚨 사고 직전에 걸린 것 — 레포가 public이다
+- `raw.githubusercontent.com`을 **토큰 없이** 읽을 수 있다 = **공개 레포**.
+- 여기에 DB 백업을 넣으면: `hotels`에 **contact_name · contact_email · contact_phone · address**(호텔 사장님 연락처 3,185개)가 **전 세계 공개**. `bookings_agoda`는 손님 이름·이메일은 없으나 **실적 전체($869K)가 경쟁사에 노출**.
+- 클로드가 "GitHub에 넣으면 됩니다"라고 먼저 말했고, 대표님이 **"비용 더 나가는 거 아니냐"**고 되물어서 재보다가 걸렸다. **재보지 않았으면 그대로 사고였다.**
+- → **백업은 반드시 비공개(private) 레포로.** GitHub 무료 계정도 private 무제한.
+
+### 용량 걱정 = 실측으로 해소됨 (추측 금지 사례)
+30일치를 실제 git에 커밋해 측정: 첫날 1.2MB → 31일 후 **1.2MB**(하루 증가 0.00MB). **1년 약 2MB.**
+이유 = git 델타 압축(바뀐 줄만 저장). "1년 1.4GB"는 압축을 모르는 계산이었다.
+
+### 확정 방향 (대표님 승인 · 비용 0원)
+- ❌ Supabase Pro($25/월) 안 씀 — 연 44만원. 호텔 2곳 계약분.
+- ✅ **비공개 레포 + 매일 백업 봇.** 데이터(CSV) + **표 설계도(CREATE TABLE)** 둘 다.
+- ✅ 헌법 9조 "이중 백업" = Supabase(원본) + GitHub 비공개(사본).
+
+### 🔨 다음 채팅 순서 (이 순서 지킬 것)
+```
+① 공개 레포에 민감정보 있는지 훑기 (문서에 호텔 연락처·실적 박혀 있을 수 있음) — 아직 안 봄
+② 대표님이 비공개 레포 생성 (클로드는 레포 생성 권한 없음)
+③ PAT가 새 레포에 접근되는지 확인 (fine-grained면 권한 추가 필요)
+④ 백업 봇 = Vercel 크론 (api/cron/db-backup.js) · 매일 1회 · CSV + 스키마
+⑤ 첫 백업 성공 확인 후에야 → city_alias 표 + 월별 스냅샷 DB (키워드 작업 재개)
+```
+
+### DB 작업 규칙 (오늘 emergency.md 0-B에 신설)
+```
+안전        : CREATE TABLE · CREATE INDEX · SELECT
+백업 먼저   : UPDATE · DELETE · ALTER · DROP TABLE
+```
+
 ## 🆕 2026-07-16 — 창구에 `delete` 생김 (다음 클로드는 이제 파일을 지울 수 있다)
 
 `POST /api/ops/github-commit` body에 **`{path, delete:true, message}`** → 파일 삭제. `content` 불필요.

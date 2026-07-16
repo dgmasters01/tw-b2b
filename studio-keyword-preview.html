@@ -470,18 +470,18 @@ function rk(){
   /* 1층 */
   var h1='<div class="st4"><div class="st"><div class="v">'+c.found+'</div><div class="l">찾은 검색어</div></div>'+
     '<div class="st"><div class="v" style="color:var(--em);">'+c.alive+'</div><div class="l">살아있는 것</div></div>'+
-    '<div class="st"><div class="v">'+c.pairs+'</div><div class="l">붙여쓰기 짝</div></div>'+
+    '<div class="st"><div class="v">'+c.stay+'</div><div class="l">숙박 축</div></div>'+
     '<div class="st"><div class="v" style="color:var(--muted);">'+c.dead+'</div><div class="l">버린 것</div></div></div>'+
     '<div class="nt">'+(sn.ym||'')+' 조사 · 수요 잰 것 <b>'+c.measured+'</b> · 측정 한계 아래 <b>'+c.below_floor+'</b>'+
     (sn.window_from?' · 창 '+sn.window_from+' ~ '+sn.window_to:'')+' · 앵커 <b>'+(sn.anchor_text||'')+' '+(sn.anchor_value||'')+'</b>'+
     ' <span class="no">4-5</span></div>'+
-    '<div class="nt" style="color:var(--muted);">숫자 뜻: 유튜브에서 이 말을 얼마나 찾나 — <b>사람 수가 아니라 눈금</b>입니다. 앵커(대표어)를 기준으로 이 도시 안에서만 비교합니다.</div>';
+    '<div class="nt" style="color:var(--muted);">숫자 뜻: 유튜브에서 이 말을 얼마나 찾나 — <b>사람 수가 아니라 눈금</b>입니다. 앵커(대표어)를 기준으로 이 도시 안에서만 비교합니다.<br>축: <b>숙박</b> '+c.stay+'개 = 뭘 만드나(순위 무대) · <b>여행</b> '+c.travel+'개 = 언제 착수하나(배경)</div>';
   document.getElementById('kv1').innerHTML=h1;
 
   /* 2층 — 검색량 순 */
   var rows=SV.rows||[], L=svMore?rows:rows.slice(0,8);
   var max=0; rows.forEach(function(r){var d=svNum(r.demand); if(d&&d>max) max=d;});
-  var h='<div style="font-size:11px;font-weight:600;margin:8px 0 4px;">대표 검색어 상위 '+rows.length+' <small style="color:var(--muted);font-weight:400;">— 검색량 순</small></div>';
+  var h='<div style="font-size:11px;font-weight:600;margin:8px 0 4px;">숙박 축 — 뭘 만드나 <small style="color:var(--muted);font-weight:400;">— 검색량 순 · 상위 '+rows.length+' · 기회점수는 이 축만</small></div>';
   L.forEach(function(r,i){
     h+='<div class="kw">'+svRow(r,max,i)+'<div class="kx" id="kx'+i+'">';
     if(r.joined){
@@ -501,6 +501,22 @@ function rk(){
     h+='</div></div>';
   });
   if(rows.length>8) h+='<div style="display:flex;gap:12px;margin-top:7px;"><span class="mr" onclick="svM()">'+(svMore?'접기 ▴':'상위 '+rows.length+' 더보기 ▾')+' <span class="no">4-9</span></span></div>';
+
+  /* 여행 축 — ㊿ (2026-07-17 대표님). 순위에 안 섞는다. 버리지도 않는다.
+     "언제 착수하나"를 정하는 배경이고, 태그란(⑬)에는 그대로 들어간다. */
+  var tv=SV.travel||[];
+  h+='<div style="background:var(--card2);border-radius:8px;padding:10px;margin-top:10px;">'+
+     '<div style="font-size:11px;font-weight:600;">여행 축 — 언제 착수하나 <small style="color:var(--muted);font-weight:400;">· 순위·기회점수에 안 섞습니다 <span class="no">4-12</span></small></div>'+
+     '<div style="font-size:10px;color:var(--muted);margin:2px 0 6px;">이 도시를 언제 겨냥할지 정하는 배경입니다. 태그란에는 그대로 들어갑니다.</div>';
+  if(!tv.length){ h+='<div class="wn">여행 축 검색어가 아직 없습니다 — 씨앗을 따로 뿌려야 합니다.</div>'; }
+  tv.forEach(function(r){
+    var d=svNum(r.demand), base=(rows[0]&&svNum(rows[0].demand))||0;
+    h+='<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-top:0.5px solid var(--line);">'+
+       '<span style="flex:1;font-size:11px;">'+r.text+'</span>'+
+       '<span style="font-size:10px;color:var(--muted);">'+(d&&base?'숙박 대표어의 '+(d/base).toFixed(1)+'배':'—')+'</span>'+
+       '<span style="font-size:12px;width:52px;text-align:right;">'+(d===null?'—':d)+'</span></div>';
+  });
+  h+='</div>';
   document.getElementById('kv2').innerHTML=h;
 
   /* 3층 */

@@ -50,6 +50,7 @@
 import argparse
 import csv
 import datetime as _dt
+import http.cookiejar
 import json
 import math
 import os
@@ -379,6 +380,275 @@ def pair(kw, hl="ko", gl="kr", window_days=COMP_WINDOW_DAYS, quiet=False):
             "comp_method": COMP_METHOD, "comp_window_days": window_days}
 
 
+# ─────────────────────────── ⑤ 수요 (구글 트렌드) ───────────────────────────
+# 🆕 2026-07-17 신설. 규격은 D-065 ⑩(기술 제약) + ⑪(앵커 기법)에 이미 있던 것을 그대로 옮긴 것이다.
+#    새로 정한 것 없음. 2026-07-14 앵커 실측 9개는 커밋 안 된 임시 코드였다 → 재현 불가였다(㊽).
+#    이제 여기 있다. 재현된다.
+#
+# ── 흐름 (⑩) ────────────────────────────────────────────────
+#   /trends/api/explore  → 응답 widgets 에서 id=="TIMESERIES" 의 token+request 를 꺼낸다
+#   /trends/api/widgetdata/multiline?req=<그 request>&token=<그 token>  → 주간 시계열
+#   · pytrends 는 막힘 → 직접 호출로 우회
+#   · 두 응답 모두 앞에 )]}' 쓰레기가 붙어 온다 → 첫 '{' 부터 자른다
+#
+# ── 덫 (밟은 것만 적는다) ───────────────────────────────────
+#   · time="today 24-m" = 🔴 400 에러. **날짜 범위 "2024-01-01 <오늘>"** 을 쓴다 (⑩)
+#   · 🔴 429 가 상시로 뜬다 (2026-07-17 실측: 첫 4회 연속 429 → 5번째 성공).
+#     막힌 게 아니라 튕기는 것이다. **재시도 + 15~25초 간격이 필수**(⑪). 지수 백오프 아님 — 그냥 기다린다.
+#   · 쿠키(NID) 를 먼저 받아둔다. 없으면 429 확률이 더 높다.
+#   · 트렌드는 **유튜브 할당량과 지갑이 다르다**(㊽). 유튜브 10,000점을 다 써도 트렌드는 잰다.
+#
+# ── 앵커 (⑪) ───────────────────────────────────────────────
+#   트렌드는 한 번에 5개까지 + **묶음마다 잣대가 다시 매겨진다**. 그냥 나눠 재면 서로 비교 불가.
+#   → 모든 묶음에 같은 앵커를 넣는다. 묶음당 = **앵커1 + 신규4**.
+#     보정배율 = 1묶음 앵커값 ÷ 이 묶음 앵커값. 모든 값에 곱한다.
+#   실측 검증(2026-07-14): 묶음1 오사카호텔=46.23 / 묶음2 =46.23 → 배율 1.000
+#
+# ── 🏷️ 잣대 도장 (㊶-6) ─────────────────────────────────────
+#   demand_source='gtrends_youtube' · window_from/to · measured_at 를 값과 같이 낸다.
+#   도장 없이 저장 금지. 창이 3일만 달라도 앵커가 46.2→45.6 으로 움직인다(2026-07-17 실측).
+#
+# ── ⑧ 없음 vs 모름 ─────────────────────────────────────────
+#   시계열이 전부 0 = "검색이 없다"가 아니라 **"측정 바닥 아래라 우리가 못 잰다"**.
+#   → measured=False · skip_reason='below_floor' · demand=None. 0.0 을 막대에 얹지 않는다.
+
+TRENDS_EXPLORE = "https://trends.google.com/trends/api/explore"
+TRENDS_MULTILINE = "https://trends.google.com/trends/api/widgetdata/multiline"
+
+DEMAND_SOURCE = "gtrends_youtube"       # 🏷️ 도장 (㊶-6)
+TREND_PROPERTY = "youtube"              # 웹 검색 아님. 유튜브 안에서의 수요다
+TREND_FROM = "2024-01-01"               # ㊶-3 기준선. 고정 시작점 — 옮기면 옛 값과 못 잇는다
+TREND_BATCH_NEW = 4                     # 묶음당 신규 4 (+앵커1 = 5 = 트렌드 상한)
+TREND_GAP = (15, 25)                    # ⑪ 429 방지 간격(초)
+
+_TRENDS_OPENER = None
+
+
+def _trends_opener(hl="ko"):
+    """쿠키(NID)를 쥔 채로 두드린다. 한 번 만들어 계속 쓴다."""
+    global _TRENDS_OPENER
+    if _TRENDS_OPENER is not None:
+        return _TRENDS_OPENER
+    cj = http.cookiejar.CookieJar()
+    op = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(cj))
+    op.addheaders = [("User-Agent", UA),
+                     ("Accept-Language", f"{hl}-KR,{hl};q=0.9"),
+                     ("Referer", "https://trends.google.com/trends/explore")]
+    try:
+        op.open("https://trends.google.com/trends/explore?geo=KR&hl=ko", timeout=20).read()
+    except Exception:
+        pass        # 씨앗 페이지가 429여도 NID 는 대개 붙는다. 실패해도 계속 간다.
+    _TRENDS_OPENER = op
+    return op
+
+
+def trend_sleep():
+    """429 는 여기서 막는다. 서두르면 전부 튕긴다 (⑪)."""
+    time.sleep(random.uniform(*TREND_GAP))
+
+
+def _trends_get(url, tries=8, hl="ko", verbose=False):
+    """429/5xx = 재시도. 다른 에러는 그대로 올린다."""
+    op = _trends_opener(hl)
+    last = None
+    for i in range(tries):
+        try:
+            return op.open(url, timeout=30).read().decode("utf-8", "replace")
+        except urllib.error.HTTPError as e:
+            last = e
+            if e.code in (429, 500, 502, 503):
+                if verbose:
+                    print(f"    {e.code} — {i+1}/{tries} 재시도", file=sys.stderr)
+                trend_sleep()
+                continue
+            raise
+        except Exception as e:
+            last = e
+            trend_sleep()
+    raise RuntimeError(f"구글 트렌드 응답 없음 ({tries}회 시도): {last}")
+
+
+def _trends_json(raw):
+    """응답 앞에 붙은 )]}' 쓰레기를 잘라낸다."""
+    i = raw.find("{")
+    if i < 0:
+        raise ValueError("트렌드 응답이 JSON 이 아님")
+    return json.loads(raw[i:])
+
+
+def _today_kst():
+    """창의 끝은 대표님이 계신 날짜다. tz=-540 로 부르면서 창만 UTC 로 자르면 하루가 어긋난다."""
+    return (_dt.datetime.now(_dt.timezone.utc) + _dt.timedelta(hours=9)).date().isoformat()
+
+
+def _timeframe(date_from=TREND_FROM, date_to=None):
+    """⑩ — "today 24-m" 은 400. 날짜 범위만 쓴다."""
+    return f"{date_from} {date_to or _today_kst()}"
+
+
+def trend_batch(keywords, geo="KR", date_from=TREND_FROM, date_to=None,
+                hl="ko", verbose=False):
+    """
+    묶음 하나(최대 5개)를 잰다. → {키워드: {"mean": 평균, "series": {"2024-01": 값, ...}}}
+    ⚠️ 이 값들은 **이 묶음 안에서만** 비교 가능하다(⑩ 독립 정규화). 앵커로 이어붙일 것.
+    """
+    if len(keywords) > 5:
+        raise ValueError("트렌드는 한 번에 5개까지다 (⑪)")
+    tf = _timeframe(date_from, date_to)
+    req = {"comparisonItem": [{"keyword": k, "geo": geo, "time": tf} for k in keywords],
+           "category": 0, "property": TREND_PROPERTY}
+    p = urllib.parse.urlencode({"hl": hl, "tz": "-540",
+                                "req": json.dumps(req, ensure_ascii=False)})
+    data = _trends_json(_trends_get(f"{TRENDS_EXPLORE}?{p}&tz=-540", hl=hl, verbose=verbose))
+
+    w = next((x for x in data.get("widgets", []) if x.get("id") == "TIMESERIES"), None)
+    if not w:
+        raise RuntimeError("TIMESERIES 위젯이 없다 — 키워드가 전부 데이터 없음일 수 있다")
+
+    time.sleep(random.uniform(2, 4))
+    p2 = urllib.parse.urlencode({"hl": hl, "tz": "-540",
+                                 "req": json.dumps(w["request"], ensure_ascii=False),
+                                 "token": w["token"]})
+    d2 = _trends_json(_trends_get(f"{TRENDS_MULTILINE}?{p2}", hl=hl, verbose=verbose))
+
+    tl = d2.get("default", {}).get("timelineData", [])
+    if not tl:
+        raise RuntimeError("시계열이 비었다")
+
+    out = {}
+    for i, kw in enumerate(keywords):
+        vals, months = [], {}
+        for pt in tl:
+            v = pt["value"][i] if i < len(pt.get("value", [])) else 0
+            vals.append(v)
+            # time = 그 주 시작의 유닉스 초. 주를 그 달에 담는다 (㊵ series = 월별)
+            ym = _dt.datetime.fromtimestamp(int(pt["time"]), _dt.timezone.utc).strftime("%Y-%m")
+            months.setdefault(ym, []).append(v)
+        out[kw] = {
+            "mean": sum(vals) / len(vals) if vals else 0.0,
+            "points": len(vals),
+            "series_raw": {m: sum(v) / len(v) for m, v in months.items()},
+        }
+    return out
+
+
+def _load_partial(path):
+    """이어하기용. 이미 잰 것은 다시 재지 않는다."""
+    if not path or not os.path.exists(path):
+        return []
+    try:
+        with open(path, encoding="utf-8") as f:
+            got = json.load(f)
+        return got if isinstance(got, list) else []
+    except Exception:
+        return []
+
+
+def _save_partial(path, rows):
+    if not path:
+        return
+    tmp = path + ".tmp"
+    with open(tmp, "w", encoding="utf-8") as f:
+        json.dump(rows, f, ensure_ascii=False, indent=1)
+    os.replace(tmp, path)      # 쓰다 죽어도 반쪽 파일이 안 남는다
+
+
+def trend(keywords, anchor=None, geo="KR", date_from=TREND_FROM, date_to=None,
+          hl="ko", verbose=True, json_path=None):
+    """
+    키워드 전체의 수요를 **하나의 잣대로** 잰다 (⑪ 앵커 기법).
+
+    돌려주는 행 (그대로 `trend` 표에 들어간다 — ㊵·㊶-6):
+      keyword · demand · series · batch_no · calib_ratio
+      measured · skip_reason · demand_source · window_from · window_to · measured_at
+
+    🔴 json_path 를 주면 **묶음마다 즉시 저장**하고, 이미 있는 키워드는 건너뛴다(이어하기).
+       2026-07-17 실측: 58개 = 8분 넘게 걸린다 → 13/15 에서 프로세스가 끊겨 전부 날아갔다.
+       15회 중 14회를 성공해도 파일이 없으면 0이다. 그래서 재는 즉시 적는다.
+    """
+    kws = list(dict.fromkeys(keywords))          # 중복 제거, 순서 보존
+    if not kws:
+        return []
+    anchor = anchor or kws[0]
+    if anchor not in kws:
+        kws.insert(0, anchor)
+    rest = [k for k in kws if k != anchor]
+
+    batches = [[anchor] + rest[i:i + TREND_BATCH_NEW]
+               for i in range(0, len(rest), TREND_BATCH_NEW)] or [[anchor]]
+    win_from, win_to = date_from, (date_to or _today_kst())
+    now = _dt.datetime.now(_dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+    if verbose:
+        print(f"수요 측정 — 키워드 {len(kws)}개 · 앵커 '{anchor}' · 묶음 {len(batches)}회 "
+              f"· 창 {win_from} ~ {win_to} · 예상 {len(batches)*20//60+1}분", file=sys.stderr)
+
+    rows = _load_partial(json_path)
+    seen = {r["keyword"] for r in rows}
+    # 앵커의 1묶음 값 = 모든 묶음의 잣대. 이어할 땐 파일에서 되찾는다.
+    ref = next((r["demand"] for r in rows if r["keyword"] == anchor and r.get("demand")), None)
+    if rows and verbose:
+        print(f"  이어하기 — 이미 잰 것 {len(rows)}개 · 잣대(앵커) {ref}", file=sys.stderr)
+
+    for bno, batch in enumerate(batches, 1):
+        if all(k in seen for k in batch):
+            continue                       # 이 묶음은 이미 다 쟀다
+        if seen:
+            trend_sleep()
+        got = trend_batch(batch, geo, date_from, date_to, hl, verbose)
+        a = got[anchor]["mean"]
+        if ref is None:
+            ref = a
+            if ref <= 0:
+                raise RuntimeError(f"앵커 '{anchor}' 가 측정 바닥 아래다 — 이 조사는 잣대가 없다 "
+                                   f"(㊵ snapshot.status='aborted')")
+        ratio = round(ref / a, 4) if a > 0 else None
+        if verbose:
+            print(f"  [{bno}/{len(batches)}] 앵커 {a:.2f} · 배율 {ratio} · "
+                  f"{' / '.join(batch[1:]) or '(앵커만)'}", file=sys.stderr)
+
+        for kw in batch:
+            if kw in seen:
+                continue
+            if kw == anchor and bno > 1:
+                continue
+            seen.add(kw)
+            g = got[kw]
+            floor = g["mean"] <= 0
+            scaled = None if (floor or ratio is None) else round(g["mean"] * ratio, 2)
+            rows.append({
+                "keyword": kw,
+                "measured": not floor and ratio is not None,
+                "demand": scaled,
+                "series": (None if floor else
+                           {m: round(v * ratio, 2) for m, v in g["series_raw"].items()}),
+                "batch_no": bno,
+                "calib_ratio": ratio,
+                # ⑧ — 0 은 "없음"이 아니라 "못 잼"이다
+                "skip_reason": "below_floor" if floor else None,
+                "demand_source": DEMAND_SOURCE,       # 🏷️ 도장
+                "demand_geo": geo,
+                "window_from": win_from,
+                "window_to": win_to,
+                "measured_at": now,
+                "points": g["points"],
+            })
+        _save_partial(json_path, rows)      # 🔴 묶음마다 즉시. 끊겨도 여기까지는 남는다
+    rows.sort(key=lambda r: (r["demand"] is None, -(r["demand"] or 0)))
+    _save_partial(json_path, rows)
+    return rows
+
+
+def opportunity_from_demand(demand, comp):
+    """
+    화면의 진짜 기회점수 (D-065 ① · ㊶-6-1) = 수요 ÷ log10(경쟁).
+    🔴 수요를 안 쟀으면 None. 경쟁만 보고 초록불 켜는 짓 금지 (INC-006 · 날조 8번째).
+    """
+    if demand is None or not comp or comp <= 0:
+        return None
+    return round(demand / math.log10(max(comp, 10)), 2)
+
+
 # ─────────────────────────── CLI ───────────────────────────
 
 def main():
@@ -403,7 +673,17 @@ def main():
     s5 = sub.add_parser("pair", help="띄어쓰기/붙여쓰기 경쟁 대조")
     s5.add_argument("query")
 
-    for sp in (s1, s2, s3, s4, s5):
+    s6 = sub.add_parser("trend", help="수요(구글 트렌드) 앵커 측정 → JSON")
+    s6.add_argument("keywords", nargs="*")
+    s6.add_argument("--file", help="키워드 목록 텍스트 파일 (한 줄에 하나)")
+    s6.add_argument("--anchor", help="앵커 키워드 (기본: 첫 번째)")
+    s6.add_argument("--geo", default="KR", help="시장 (⑩ 타겟축)")
+    s6.add_argument("--from", dest="date_from", default=TREND_FROM)
+    s6.add_argument("--to", dest="date_to", help="기본 = 오늘")
+    s6.add_argument("--json", dest="json_path",
+                    help="결과 JSON (묶음마다 즉시 저장 · 있으면 이어서 잰다)")
+
+    for sp in (s1, s2, s3, s4, s5, s6):
         sp.add_argument("--hl", default="ko")
         sp.add_argument("--gl", default="kr")
     # 창 길이는 날짜 한 줄이다 — 3년·5년으로 되돌리기 5초 (헌법 9조)
@@ -439,6 +719,21 @@ def main():
 
     elif a.cmd == "pair":
         pair(a.query, a.hl, a.gl, a.window_days)
+
+    elif a.cmd == "trend":
+        kws = list(a.keywords)
+        if a.file:
+            with open(a.file, encoding="utf-8") as f:
+                kws += [l.strip() for l in f if l.strip()]
+        if not kws:
+            sys.exit("키워드가 없습니다. 인자로 주거나 --file 을 쓰세요.")
+        rows = trend(kws, a.anchor, a.geo, a.date_from, a.date_to, a.hl,
+                     json_path=a.json_path)
+        for r in rows:
+            d = f"{r['demand']:.2f}" if r["demand"] is not None else "못 잼(바닥)"
+            print(f"{r['keyword']:<28} 수요 {d:>10}  [묶음 {r['batch_no']} · 배율 {r['calib_ratio']}]")
+        if a.json_path:
+            print(f"\n저장 완료 → {a.json_path} ({len(rows)}개)", file=sys.stderr)
 
 
 if __name__ == "__main__":

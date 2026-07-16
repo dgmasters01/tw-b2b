@@ -1,4 +1,4 @@
-# 인계서 — DB 백업 완료. 다음 = ops 토큰 교체 → 키워드(D-065) 구현
+# 인계서 — DB 백업 + ops 토큰 교체 완료. 다음 = 키워드(D-065) 구현
 
 <!-- verify:start -->
 > 🟢 **인계서 자동 검사 통과** (검사: 2026-07-15 22:00 UTC · 경로 13개 · 크론 3개 실존·인증·메서드 확인)
@@ -65,15 +65,36 @@
 - 환경변수 이름은 **`CLAUDE_OPS_TOKEN`** (`OPS_TOKEN` 아님).
 - `main` raw는 CDN 캐시라 **새 커밋이 없는 것처럼 보인다**(이 인계서 블록이 실제로 안 보였음). **커밋 SHA로 읽을 것** — 철칙 그대로 재현됨.
 
-### 🔴 아직 안 끝난 것 — 다음 채팅 여기부터
-1. **`CLAUDE_OPS_TOKEN` 교체 (최우선)** — 공개 레포에 평문 **13개 파일** + 커밋 이력 **7,209개**에 박혀 있고 **지금도 살아있음**(`SELECT 1` 실증). 이 열쇠로 `api/ops/db-query` **쓰기가 나간다**(막힌 건 `drop database`뿐 → `DELETE FROM` 실행됨). 게다가 db-query는 **`SUPABASE_ACCESS_TOKEN`(계정 전체 권한)** 으로 SQL을 던진다 = 사정거리가 프로젝트 하나가 아니라 Supabase 계정 전체.
-   - **파일만 지워선 못 없앤다**(이력에 남음). **교체만이 답.**
-   - 대표님 준비된 새 값: `NlFujfmD0sPjLIxLM1yXiKnpSpklxsAb` (아직 미적용)
-   - 할 일: Vercel `CLAUDE_OPS_TOKEN` 교체 → Redeploy → GitHub Actions 시크릿 `CLAUDE_OPS_TOKEN` 교체 → 클로드가 13곳 청소 + `step-self-verify.yml`의 fallback 평문 제거(`secrets.CLAUDE_OPS_TOKEN` 하나로 통일)
-2. **`tw-b2b-claude` PAT 8/25 만료** — 40일 뒤 창구가 통째로 멈춘다. 갱신 필요.
-3. **안 쓰는 열쇠 정리** — classic: `tw-personal-os`(만료일 없음·미사용) · `ceylon-deploy`(만료) · `tw-b2b automation 2026`(8/1 만료) / fine-grained: `tw-tracker-init-20260501` · `ceylon-deploy-0501` · `tw-b2b-step5` (전부 만료)
-4. **손으로 만든 조각 백업 3개 정리** — `bookings_agoda_backup_20260715` · `bookings_agoda_bak_20260710` · `_admins_backup_20260513_security_patch`. 이제 매일 자동 백업이 있으니 불필요(2.9MB). 지우기 전에 백업 창고에 들어간 것 확인할 것.
-5. **첫 자동 실행 확인** — 2026-07-17 KST 04시 이후 창고에 새 커밋 있는지.
+### ✅ 2026-07-16 완료 — ops 토큰 교체 (같은 날 저녁)
+
+**옛 토큰 `sV1IWuvg...` 는 죽었다.** 실증: 옛 토큰으로 `db-query` → **401**. 새 토큰으로 창구 3개 전부 200.
+- Vercel `CLAUDE_OPS_TOKEN` 교체 + Redeploy (대표님)
+- GitHub Actions 시크릿 **2개 신설**(둘 다 없었다): `CLAUDE_OPS_TOKEN`(verification-gap-bot용) · `OPS_TOKEN`(step-self-verify용)
+- 문서 **10곳** 평문 제거 (커밋 `91911d07`·`db674429`·`b547a80d`·`0efcb0b2`·`66546bf5`·`ad86123f`·`06a22b2b`·`92eecb66`·`29af18c4`·`db70d1aa`)
+
+### 🚨 클로드가 못 하는 것 — 워크플로 파일 (새로 발견, 중요)
+`GITHUB_PAT`(= fine-grained `tw-b2b-claude`)에 **`Workflows` 권한이 없다.** `.github/workflows/*` 수정 시도 →
+`403 refusing to allow a Personal Access Token to create or update workflow ... without workflows permission`.
+→ **워크플로는 대표님이 손으로 고치거나, PAT에 권한을 추가해야 한다.** (권한 추가는 신중히 — 창구 토큰이 새면 악성 워크플로 이식 경로가 열린다)
+
+### 🩹 남은 죽은 글자 1곳 (급하지 않음)
+`.github/workflows/step-self-verify.yml:151` = `${{ secrets.OPS_TOKEN || '<옛 평문> }}`.
+**시크릿 `OPS_TOKEN` 을 만들어서 평문 쪽은 영영 안 읽힌다**(YAML 안 고치고 우회). 옛 토큰은 이미 무효 = **힘 없는 글자.**
+나중에 여유될 때 `${{ secrets.CLAUDE_OPS_TOKEN }}` 로 통일하고 fallback 삭제 → 그때 시크릿 `OPS_TOKEN` 도 제거.
+
+### ⚠️ 클로드 날조 7번째 (2026-07-16)
+*"verification-gap-bot이 `secrets.CLAUDE_OPS_TOKEN` 으로 오늘 04:50 성공했으니 그 시크릿은 실존한다"* → **거짓.**
+그 봇은 **34줄 `secrets.GITHUB_TOKEN` + 57줄 `git push`** 로 커밋한다. `CLAUDE_OPS_TOKEN` 은 71줄 이메일 알림에만 쓰고 `curl -s` 라 조용히 실패한다.
+**"커밋이 됐다"가 "시크릿이 있다"를 증명하지 않는데 그렇게 우겼다.** 대표님 스크린샷이 아니었으면 워크플로를 고쳐 봇을 죽일 뻔했다.
+→ 교훈: **부수 효과를 근거로 존재를 단정하지 말 것.** 확인 경로(설정 화면·실행 로그)를 직접 볼 것.
+
+### 🔴 다음 채팅 여기부터
+1. **키워드 재개** — `city_alias` 표 생성 → 월별 스냅샷 DB (trend·keyword·snapshot 테이블 **여전히 0개**). D-065 ㉘~㉜ + 점검표 읽고 시작.
+2. **`tw-b2b-claude` PAT 8/25 만료** — 40일 뒤 창구가 통째로 멈춘다. 갱신 필요(값이 바뀌니 Vercel `GITHUB_PAT` 도 교체).
+3. **없는 시크릿 조사** — 워크플로가 부르는데 GitHub에 없는 것: `SUPABASE_URL` · `SUPABASE_SERVICE_KEY` · `TW_ADMIN_EMAIL/PASSWORD` · `TW_MANAGER_EMAIL/PASSWORD`. 해당 워크플로가 조용히 반쯤 죽어 있을 수 있다. **추측 금지 — Actions 실행 로그를 직접 열 것.**
+4. **안 쓰는 열쇠 정리** — classic: `tw-personal-os`(만료일 없음·미사용) · `ceylon-deploy`(만료) · `tw-b2b automation 2026`(8/1 만료) / fine-grained: `tw-tracker-init-20260501` · `ceylon-deploy-0501` · `tw-b2b-step5`(전부 만료)
+5. **손으로 만든 조각 백업 3개 정리** — `bookings_agoda_backup_20260715` · `bookings_agoda_bak_20260710` · `_admins_backup_20260513_security_patch` (2.9MB). 이제 매일 자동 백업이 있으니 불필요. 지우기 전 백업 창고에 들어간 것 확인.
+6. **첫 자동 백업 확인** — 2026-07-17 KST 04시 이후 `tw-b2b-backup` 에 새 커밋 있는지.
 
 ### ① 공개 레포 훑기 결과 (완료)
 - 🟢 **호텔 사장님 연락처 실값 0건.** `contact_email`·`contact_phone`은 칸 이름으로만 등장.

@@ -60,6 +60,12 @@
  .g-go{background:var(--emd);color:var(--em);} .g-lt{background:var(--rdd);color:var(--rd);} .g-wt{background:var(--card2);color:var(--muted);} .g-un{background:var(--amd);color:var(--am);}
  .pil{font-size:10px;padding:2px 7px;border-radius:20px;background:var(--card2);color:var(--sub);}
  .wb{font-size:10px;padding:3px 8px;border-radius:20px;background:var(--bld);color:var(--bl);cursor:pointer;}
+ /* D-065 ㉞ 나라 카드 A형태 — 도시 칩 */
+ .cps{display:flex;flex-wrap:wrap;gap:5px;margin-top:5px;}
+ .cp{font-size:10.5px;padding:3px 8px;border-radius:20px;background:var(--card2);color:var(--sub);cursor:pointer;display:inline-flex;align-items:center;gap:5px;border:0.5px solid var(--line);}
+ .cp:hover{border-color:#3d7fb5;color:var(--txt);}
+ .cp .cd{width:6px;height:6px;border-radius:50%;flex:none;}
+ .cp-x{color:var(--muted);border-style:dashed;}
  .ev{display:none;background:var(--card2);border-radius:9px;padding:11px;margin:-6px 0 10px;} .ev.on{display:block;}
  .evb{background:var(--card);border-radius:8px;padding:10px;margin-bottom:7px;}
  .evt{font-size:11px;font-weight:600;margin-bottom:4px;}
@@ -217,6 +223,9 @@ var KW=[['오사카 호텔',46.2,'도시 대표어',133],['오사카 숙소',39.
 var DIST=[['난바',10.8,111,5,247],['우메다',0.6,11,0,0],['신사이바시',0.8,13,0,0],['덴노지',0.0,0,0,0]];
 var LEAD={'오사카':[22,95,583],'도쿄':[20,96,192],'후쿠오카':[18,96,307],'다낭':[18,94,140],'방콕':[14,92,273],'치앙마이':[25,88,142]};
 var CT={'일본':['오사카','도쿄','후쿠오카'],'베트남':['다낭','호치민','나트랑'],'태국':['방콕','치앙마이']};
+// 나라별 확정예약 도시 총수 — DB 실측(2026-07-16). "외 N곳" 계산용. 추측 아님.
+// 전체 도시 135곳 → 메인에 도시만 쭉 나열 불가(C안 기각). D-065 ㉞
+var CTN={'일본':30,'베트남':13,'태국':8};
 // 오늘부터 12개월 자동 생성 — 매달 창이 한 칸씩 밀린다. 사람이 손대지 않는다. (D-065 ㉗)
 // 프리뷰라 날짜 고정. 실제 구현은 new Date().
 var TODAY=new Date(2026,6,15);
@@ -260,11 +269,21 @@ function rd(){var h='',yrs=[];MOS.forEach(function(o){if(yrs.indexOf(o.y)<0)yrs.
   h+='</div>';});
  document.getElementById('ms').innerHTML=h;document.getElementById('fm').textContent=curLbl();
  var tm=curTM();document.getElementById('ch').innerHTML=curLbl()+' 겨냥 — 지금 착수할 나라 <span class="no">1-8</span>';
- h='';Object.keys(CT).forEach(function(c){var b=null,bs=9;
-  CT[c].forEach(function(x){var g=gate(x,tm),r={go:0,wt:1,un:2,lt:3}[g.s];if(r<bs){bs=r;b={c:x,g:g};}});
-  var lb={go:'집중',wt:'대기',un:'모름',lt:'늦음'}[b.g.s],cl={go:'g-go',wt:'g-wt',un:'g-un',lt:'g-lt'}[b.g.s];
-  h+='<div class="rw" onclick="go(\'c\',\''+c+'\')"><div class="mn"><div class="n"><span class="nm">'+c+'</span><span class="sg '+cl+'">'+lb+'</span></div>'+
-     '<div class="wh">'+b.c+' — '+b.g.w+'</div></div><span class="wb" onclick="event.stopPropagation();ev1(\''+b.c+'\')">왜? <span style="opacity:.7;">1-9</span></span><span style="color:var(--muted);">›</span></div>';});
+ // D-065 ㉞ — 나라 카드 A형태. 도시 칩 상위 3개 + "외 N곳". 감추지 않는다.
+ // (구: 가장 급한 도시 1개만 → 대표님 "도쿄는 어디?" 2026-07-15)
+ var RK={go:0,wt:1,un:2,lt:3},LB={go:'집중',wt:'대기',un:'모름',lt:'늦음'},
+     CL={go:'g-go',wt:'g-wt',un:'g-un',lt:'g-lt'},CD={go:'var(--em)',wt:'var(--muted)',un:'var(--am)',lt:'var(--rd)'};
+ h='';Object.keys(CT).forEach(function(c){
+  var lst=CT[c].map(function(x){return {c:x,g:gate(x,tm)};}).sort(function(a,b){return RK[a.g.s]-RK[b.g.s];});
+  var b=lst[0];
+  var cps=lst.slice(0,3).map(function(o){
+    return '<span class="cp" onclick="event.stopPropagation();go(\'d\',\''+o.c+'\',\''+c+'\')" title="'+o.g.t+' — '+o.g.w+'">'
+          +'<span class="cd" style="background:'+CD[o.g.s]+';"></span>'+o.c+' '+LB[o.g.s]+'</span>';}).join('');
+  var rest=(CTN[c]||lst.length)-Math.min(3,lst.length);
+  if(rest>0)cps+='<span class="cp cp-x" onclick="event.stopPropagation();go(\'c\',\''+c+'\')" title="이 나라 도시 전체 보기">외 '+rest+'곳</span>';
+  h+='<div class="rw" onclick="go(\'c\',\''+c+'\')"><div class="mn"><div class="n"><span class="nm">'+c+'</span><span class="sg '+CL[b.g.s]+'">'+LB[b.g.s]+'</span></div>'
+    +'<div class="cps">'+cps+'</div></div>'
+    +'<span class="wb" onclick="event.stopPropagation();ev1(\''+b.c+'\')">왜? <span style="opacity:.7;">1-9</span></span><span style="color:var(--muted);">›</span></div>';});
  document.getElementById('cl').innerHTML=h;}
 function pm(i){cm=i;XM=null;YMO=false;ymr();rd();ts(MO[i]+' 겨냥 — '+MS[i]);}
 

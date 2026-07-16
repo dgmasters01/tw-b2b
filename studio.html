@@ -458,6 +458,29 @@
   .st-cid.off { opacity:.45; text-decoration:line-through; }
   .st-cid-none { font-size:12px; opacity:.45; }
 
+  /* ── 키워드 조사 3층 (D-065 ㊼-4 · ㊿ 축 분리 · 2026-07-17) ── */
+  .st-sv-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:10px; }
+  .st-sv-st { border:1px solid rgba(128,128,128,.18); border-radius:10px; padding:10px 12px; }
+  .st-sv-v { font-size:20px; font-weight:500; }
+  .st-sv-l { font-size:12px; opacity:.6; margin-top:2px; }
+  .st-sv-note { font-size:12px; opacity:.6; line-height:1.7; margin-bottom:12px; }
+  .st-sv-row { display:flex; align-items:center; gap:10px; padding:9px 2px; border-bottom:1px solid rgba(128,128,128,.14); cursor:pointer; }
+  .st-sv-row.sub { cursor:default; border-bottom:none; padding:4px 2px; }
+  .st-sv-n { flex:1; min-width:0; font-size:14px; }
+  .st-sv-n small { display:block; font-size:11px; opacity:.55; margin-top:2px; }
+  .st-sv-bar { width:150px; height:6px; border-radius:20px; background:rgba(128,128,128,.16); flex:none; }
+  .st-sv-fill { height:6px; border-radius:20px; background:#1D9E75; }
+  .st-sv-v2 { width:54px; text-align:right; font-size:14px; flex:none; }
+  .st-sv-tag { font-size:11px; padding:1px 7px; border-radius:20px; border:1px solid rgba(128,128,128,.3); margin-left:5px; white-space:nowrap; }
+  .st-sv-tag.pair { color:#185FA5; border-color:#85B7EB; }
+  .st-sv-tag.orphan { color:#854F0B; border-color:#EF9F27; }
+  .st-sv-tag.anchor { color:#0F6E56; border-color:#5DCAA5; }
+  .st-sv-x { display:none; padding:8px 10px; margin:0 0 8px; border-radius:10px; background:rgba(128,128,128,.06); }
+  .st-sv-x.on { display:block; }
+  .st-sv-travel { border:1px solid rgba(128,128,128,.18); border-radius:10px; padding:11px 12px; margin-top:14px; background:rgba(128,128,128,.035); }
+  .st-sv-lock { border-top:1px solid rgba(128,128,128,.14); margin-top:14px; padding-top:11px; opacity:.7; font-size:13px; }
+  .st-sv-more { font-size:13px; opacity:.7; cursor:pointer; padding:9px 2px; display:inline-block; }
+
   /* ── 전략 · 콘텐츠 기획 큐 (D-060 · 6메뉴 마지막) ── */
   .st-sg-board { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-top:16px; }
   .st-sg-col { border:1px solid rgba(128,128,128,.2); border-radius:12px; padding:10px; background:rgba(128,128,128,.035); min-height:120px; }
@@ -685,6 +708,10 @@
       <div><div class="st-h">키워드</div><div class="st-sub" id="st-kw-sub">불러오는 중…</div></div>
     </div>
     <div class="st-hint">실제 예약 데이터로 "다음에 만들면 좋을 것"을 뽑았습니다. 예약은 많은데 아직 우리 영상이 없는 도시·호텔이 위로 옵니다.</div>
+    <div class="st-pf-block">
+      <div class="st-pf-h">🔍 키워드 조사 — 오사카 (한국어 · 한국)</div>
+      <div id="st-sv"><div class="st-empty">불러오는 중…</div></div>
+    </div>
     <div class="st-pf-block"><div class="st-pf-h">🎬 도시 추천 (도시 TOP3 영상 후보)</div><div id="st-kw-cities"><div class="st-empty">불러오는 중…</div></div></div>
     <div class="st-pf-block"><div class="st-pf-h">🏨 호텔 추천 (아직 영상에 안 나온 예약 많은 호텔)</div><div id="st-kw-hotels"><div class="st-empty">불러오는 중…</div></div></div>
   </section>
@@ -1485,7 +1512,115 @@
       })
       .catch(function (e) { btn.disabled = false; btn.textContent = old; alert(e.message); });
   }
+  /* ── 키워드 조사 3층 (D-065 ㊼-4 · ㊿) ────────────────────────
+     프리뷰(studio-keyword-preview.html)와 **같은 창구**를 읽는다.
+     🔴 숫자는 하나도 안 박는다 — 창구가 keyword·trend 표를 세어서 준다.
+     🔴 구글·유튜브를 안 부른다. 창고만 읽는다(⑪). */
+  var SV = null, svMore = false;
+
+  function svKst(t) {
+    if (!t) return '—';
+    var d = new Date(t);
+    if (isNaN(d)) return String(t).slice(0, 10);
+    return new Date(d.getTime() + 9 * 3600 * 1000).toISOString().slice(0, 10);
+  }
+  function svNum(v) { return (v === null || v === undefined) ? null : Number(v); }
+
+  function svRow(r, max, i, sub) {
+    var d = svNum(r.demand);
+    var col = d === null ? 'rgba(128,128,128,.6)' : (d >= 30 ? '#1D9E75' : (d >= 5 ? '#378ADD' : '#5DCAA5'));
+    var w = (d === null || !max) ? 0 : Math.max(1.5, d / max * 100);
+    var tag = '';
+    if (!sub) {
+      if (r.is_anchor) tag += '<span class="st-sv-tag anchor">자(앵커)</span>';
+      if (r.joined) tag += '<span class="st-sv-tag pair">짝 있음</span>';
+      else if (r.orphan_pair) tag += '<span class="st-sv-tag orphan">붙여쓰기 · 짝 없음</span>';
+    }
+    var why = d === null
+      ? '측정 한계 아래 — 없는 게 아니라 <b>우리가 못 잼</b>'
+      : '경쟁 ' + (r.competition || 0).toLocaleString() + ' · 기회 ' + (r.opportunity === null ? '—' : r.opportunity);
+    return '<div class="st-sv-row' + (sub ? ' sub' : '') + '"' + (sub ? '' : ' data-sv="' + i + '"') + '>' +
+      '<div class="st-sv-n">' + (sub ? '<span style="opacity:.5;font-size:11px;">' + sub + '</span> ' : '') + esc(r.text) + tag +
+      '<small>' + why + '</small></div>' +
+      '<div class="st-sv-bar"><div class="st-sv-fill" style="width:' + w.toFixed(1) + '%;background:' + col + '"></div></div>' +
+      '<div class="st-sv-v2" style="color:' + col + '">' + (d === null ? '—' : d) + '</div></div>';
+  }
+
+  function svToggle(i) { var e = document.getElementById('st-sv-x' + i); if (e) e.classList.toggle('on'); }
+  function svM() { svMore = !svMore; svDraw(); }
+
+  function svDraw() {
+    var box = document.getElementById('st-sv');
+    if (!SV) return;
+    var c = SV.counts, sn = SV.snapshot || {}, rows = SV.rows || [], tv = SV.travel || [];
+    var max = 0; rows.forEach(function (r) { var d = svNum(r.demand); if (d && d > max) max = d; });
+
+    var h = '<div class="st-sv-stats">' +
+      '<div class="st-sv-st"><div class="st-sv-v">' + c.found + '</div><div class="st-sv-l">찾은 검색어</div></div>' +
+      '<div class="st-sv-st"><div class="st-sv-v" style="color:#1D9E75;">' + c.alive + '</div><div class="st-sv-l">살아있는 것</div></div>' +
+      '<div class="st-sv-st"><div class="st-sv-v">' + c.stay + '</div><div class="st-sv-l">숙박 축</div></div>' +
+      '<div class="st-sv-st"><div class="st-sv-v" style="opacity:.5;">' + c.dead + '</div><div class="st-sv-l">버린 것</div></div></div>' +
+      '<div class="st-sv-note">' + (sn.ym || '') + ' 조사 · 수요 잰 것 <b>' + c.measured + '</b> · 측정 한계 아래 <b>' + c.below_floor + '</b>' +
+      (sn.window_from ? ' · 창 ' + sn.window_from + ' ~ ' + sn.window_to : '') + ' · 자(앵커) <b>' + esc(sn.anchor_text || '') + ' ' + (sn.anchor_value || '') + '</b><br>' +
+      '숫자 뜻: 유튜브에서 이 말을 얼마나 찾나 — <b>사람 수가 아니라 눈금</b>입니다. 자를 기준으로 이 도시 안에서만 비교합니다.<br>' +
+      '축: <b>숙박 ' + c.stay + '</b> = 뭘 만드나(순위 무대) · <b>여행 ' + c.travel + '</b> = 언제 착수하나(배경)</div>';
+
+    h += '<div class="st-pf-h">숙박 축 — 뭘 만드나 · 검색량 순 · 상위 ' + rows.length + ' · 기회점수는 이 축만</div>';
+    var L = svMore ? rows : rows.slice(0, 8);
+    L.forEach(function (r, i) {
+      h += svRow(r, max, i);
+      h += '<div class="st-sv-x" id="st-sv-x' + i + '">';
+      if (r.joined) {
+        h += '<div style="font-size:12px;font-weight:500;margin-bottom:4px;">띄어쓰기 짝 — 둘 다 진짜 검색어입니다</div>' +
+             svRow(r, max, i, '띄어') + svRow(r.joined, max, i, '붙여') +
+             '<div style="font-size:11px;opacity:.55;margin-top:4px;">자동완성에 둘 다 살아 있어 <b>둘 다 넣습니다</b>. 수요는 각각 쟀습니다.</div>';
+      }
+      if (r.orphan_pair) h += '<div style="font-size:12px;color:#854F0B;margin-bottom:6px;">붙여쓰기인데 <b>띄어쓰기 짝이 표에 없습니다.</b> 짝을 채워야 두 줄로 보입니다.</div>';
+      h += '<div style="font-size:11px;opacity:.55;margin-top:4px;">잰 날 ' + svKst(r.measured_at) + ' · 묶음 ' + (r.batch_no || '-') +
+           ' · 잣대 ' + (r.demand_source || '—') + ' · 경쟁 창 최근 ' + (r.comp_window_days || 365) + '일(자릿수만 신뢰)</div></div>';
+    });
+    if (rows.length > 8) h += '<span class="st-sv-more" data-sv-more="1">' + (svMore ? '접기 ▴' : '상위 ' + rows.length + ' 더보기 ▾') + '</span>';
+
+    h += '<div class="st-sv-travel"><div style="font-size:13px;font-weight:500;">여행 축 — 언제 착수하나</div>' +
+         '<div style="font-size:12px;opacity:.6;margin:2px 0 6px;">순위·기회점수에 안 섞습니다. 이 도시를 언제 겨냥할지 정하는 배경이고, 태그란에는 그대로 들어갑니다.</div>';
+    if (!tv.length) h += '<div style="font-size:12px;color:#854F0B;">여행 축 검색어가 아직 없습니다 — 씨앗을 따로 뿌려야 합니다.</div>';
+    tv.forEach(function (r) {
+      var d = svNum(r.demand), base = (rows[0] && svNum(rows[0].demand)) || 0;
+      h += '<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-top:1px solid rgba(128,128,128,.14);">' +
+           '<span style="flex:1;font-size:13px;">' + esc(r.text) + '</span>' +
+           '<span style="font-size:11px;opacity:.55;">' + (d && base ? '숙박 대표어의 ' + (d / base).toFixed(1) + '배' : '—') + '</span>' +
+           '<span style="font-size:13px;width:54px;text-align:right;">' + (d === null ? '—' : d) + '</span></div>';
+    });
+    h += '</div>';
+
+    var l3 = SV.layer3 || {};
+    h += '<div class="st-sv-lock">' + (l3.locked
+      ? '🔒 <b>새로 생긴 · 사라진 검색어</b><br><span style="font-size:12px;opacity:.7;">' + esc(l3.reason || '') + ' → <b>' + (l3.next_ym || '') + ' 두 번째 조사부터 켜집니다.</b></span>'
+      : '<b>새로 생긴 · 사라진 검색어</b> <span style="font-size:12px;opacity:.7;">— ' + esc(l3.compared_to || '') + ' 대비</span>') + '</div>';
+
+    box.innerHTML = h;
+
+    // 스튜디오는 인라인 onclick 을 안 쓴다 — 그린 뒤 JS 로 붙인다.
+    box.querySelectorAll('[data-sv]').forEach(function (el) {
+      el.onclick = function () { svToggle(el.dataset.sv); };
+    });
+    var mb = box.querySelector('[data-sv-more]');
+    if (mb) mb.onclick = svM;
+  }
+
+  function loadSurvey() {
+    var box = document.getElementById('st-sv');
+    fetch('/api/content-keywords?view=survey&city=' + encodeURIComponent('cc:japan|osaka'), { credentials: 'same-origin' })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (!d.ok) { box.innerHTML = '<div class="st-empty">' + esc(d.error || '조사를 불러오지 못했습니다.') + '</div>'; return; }
+        SV = d; svDraw();
+      })
+      .catch(function (e) { box.innerHTML = '<div class="st-empty">조사를 불러오지 못했습니다 — ' + esc(String(e.message || e)) + '</div>'; });
+  }
+
   function loadKeywords() {
+    loadSurvey();
     var cList = document.getElementById('st-kw-cities');
     var hList = document.getElementById('st-kw-hotels');
     fetch('/api/content-keywords', { credentials: 'same-origin' })

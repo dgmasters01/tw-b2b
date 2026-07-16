@@ -841,7 +841,7 @@
   </div>
   <section class="st-view" id="view-keyword">
     <div class="st-head">
-      <div><div class="st-h">키워드</div><div class="st-sub" id="st-kw-sub">불러오는 중…</div></div>
+      <div><div class="st-h">키워드</div><div class="st-sub" id="st-kw-sub">한국어 · 한국 · 나라 → 도시 → 지역 → 지역 상세</div></div>
     </div>
     <div class="st-hint">D-065 확정본. 나라 → 도시 → 지역 → 지역 상세로 파고듭니다. 조사한 도시는 진짜 숫자, 아직 안 이은 칸은 <b>목업</b> 배지가 붙습니다.</div>
     <div id="kw-app"><div class="tt" style="justify-content:flex-end;"><span class="qb" onclick="go('q')">전략 큐 <b id="qc">4</b> ›</span></div>
@@ -913,10 +913,17 @@
   </div>
 </div>
 
-  <!-- 🔴 2026-07-17 이사하며 뺌: 여기 있던 </div> 2개는 **아무것도 안 닫고 있었다.**
-       .res 와 #s1 은 위에서 이미 닫혔다. 프리뷰(제 페이지)에서는 그 2개가 <body> 를 닫으려다
-       브라우저에 무시돼서 우연히 살아 있었을 뿐이다. #kw-app 상자 안에 넣자 상자를 닫아버려
-       나머지 화면 5개(도시·지역·지역상세·큐)가 통째로 밖으로 샜다. -->
+</div>
+  <!-- 🔴 2026-07-17 — 여기서 두 번 틀렸다. 기록해 둔다.
+       프리뷰 본문은 <div> 62 · </div> 64 로 짝이 안 맞아 보였다. 그래서 2개를 다 지웠다.
+       🔴 그런데 그중 1개는 **앞 클로드가 주석 안에 적어둔 </div> 라는 '글자'** 였다
+          (인계서: "여기 있던 </div> 는 .ctrl 이 아니라 #s1 을 닫고 있었다").
+          주석은 브라우저가 안 읽는다. 세는 사람만 속았다.
+       → 진짜 떠도는 닫힘은 **1개**였다. 2개를 지우니 **#s1 이 안 닫혀서
+          도시·지역·상세·큐 화면이 전부 #s1 **안에** 들어갔다.**
+          메인(#s1)이 꺼지는 순간 그 안이 통째로 꺼진다 = 대표님이 본 흰 화면.
+       ⚠️ jsdom 은 부모의 display:none 을 자식 계산에 반영하지 않는다 — 그래서 검사를 통과했다.
+          **다음부터 화면 검사는 "부모가 누구냐(parentElement)"를 같이 본다.** -->
 <!-- ② 도시 -->
 <div class="sc" id="s2">
   <h2 id="c2t"></h2>
@@ -946,7 +953,7 @@
 
 <div class="ts" id="tsb"></div></div>
     <div class="st-pf-block" style="margin-top:30px;border-top:1px solid rgba(128,128,128,.18);padding-top:18px;">
-      <div class="st-pf-h">📒 실제 예약 데이터 (옛 화면 · D-060) — 위 ①·④에 흡수되면 지웁니다</div>
+      <div class="st-pf-h" id="st-kw-rec-h">📒 실제 예약 데이터 (옛 화면 · D-060)</div>
     </div>
     <div class="st-pf-block"><div class="st-pf-h">🎬 도시 추천 (도시 TOP3 영상 후보)</div><div id="st-kw-cities"><div class="st-empty">불러오는 중…</div></div></div>
     <div class="st-pf-block"><div class="st-pf-h">🏨 호텔 추천 (아직 영상에 안 나온 예약 많은 호텔)</div><div id="st-kw-hotels"><div class="st-empty">불러오는 중…</div></div></div>
@@ -1749,6 +1756,8 @@
       .catch(function (e) { btn.disabled = false; btn.textContent = old; alert(e.message); });
   }
   function loadKeywords() {
+    // 확정본 화면 켜기 (프리뷰는 제 페이지라 로드되며 저절로 켜졌다. 스튜디오는 탭을 열 때 켠다)
+    if (window.kwBoot) window.kwBoot();
     var cList = document.getElementById('st-kw-cities');
     var hList = document.getElementById('st-kw-hotels');
     fetch('/api/content-keywords', { credentials: 'same-origin' })
@@ -1757,8 +1766,10 @@
         if (!x.ok || !x.j.ok) throw new Error(x.j.error || '불러오지 못했습니다.');
         kwCities = x.j.cities || []; kwHotels = x.j.hotels || [];
         var newCities = kwCities.filter(function (c) { return c.covered_hotels === 0; }).length;
-        document.getElementById('st-kw-sub').textContent =
-          '도시 ' + kwCities.length + '곳 · 호텔 ' + kwHotels.length + '곳 추천 (영상 없는 도시 ' + newCities + '곳)';
+        // 부제는 확정본이 쓴다. 추천 숫자는 제 블록 제목에 적는다 (두 코드가 같은 칸을 덮어쓰던 것 정정)
+        var rh = document.getElementById('st-kw-rec-h');
+        if (rh) rh.textContent = '📒 실제 예약 데이터 (옛 화면 · D-060) — 도시 ' + kwCities.length + '곳 · 호텔 ' +
+          kwHotels.length + '곳 추천 (영상 없는 도시 ' + newCities + '곳)';
         cList.innerHTML = kwCities.length
           ? kwCities.map(kwCityRow).join('')
           : '<div class="st-empty">추천할 도시가 없습니다.</div>';
@@ -3462,7 +3473,12 @@ function vw(w,a,b){
 /* 🔴 이사하며 끊음 — 프리뷰는 제 페이지라 주소를 밀어넣어도 됐지만,
    스튜디오 안에서는 탭 이동(뒤로가기)과 부딪힌다. 화면 안 이동은 주소를 안 건드린다. */
 function go(w,a,b){vw(w,a,b);}
-/* popstate·replaceState 는 이사하며 뺐다 — 주소는 스튜디오 탭이 소유 */
+/* popstate 는 이사하며 뺐다 — 주소는 스튜디오 탭이 소유한다.
+   🔴 그런데 프리뷰의 **시작 스위치가 그 옆의 `history.replaceState({w:'m'},'')` 였다.**
+      주소를 건드린다고 그 줄을 지웠더니 **화면을 켜는 신호까지 같이 꺼졌다.**
+      → 주소는 안 건드리고 **화면만 켠다.** 스튜디오는 탭을 열 때마다 켠다(kwBoot). */
+function kwBoot(){ try { vw('m'); } catch (e) { console.error('키워드 화면 시작 실패', e); } }
+window.kwBoot = kwBoot;
 
 function dd(){var d=document.getElementById('ddb');d.classList.toggle('on');document.getElementById('tc').textContent=d.classList.contains('on')?'⌃':'⌄';}
 function pk(n){document.getElementById('tn').textContent=n;dd();ts(n+' 전환');}

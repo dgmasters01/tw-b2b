@@ -13,6 +13,13 @@
 //   GET /api/content-keywords
 //     신분증: 쿠키 sb-access-token 또는 x-ops-token / 권한: is_editor 이상
 //     나오는 것: { ok, is_admin, cities[], hotels[] }
+//
+//   GET /api/content-keywords?view=survey&city=cc:japan|osaka[&target=ko&market=KR&ym=2026-07]
+//     🆕 2026-07-17 — 키워드 조사 3층 화면(D-065 ㊼-4)의 재료.
+//     나오는 것: { ok, snapshot, counts, rows[], layer3 }
+//     🔴 숫자는 전부 여기서 **세어서** 나간다. 화면에 박지 않는다.
+//        (인계서 사고: 화면에 '살아있는 42·죽은 8' 이 박혀 있었고 진짜는 58·10 이었다)
+//     🔴 구글/유튜브를 부르지 않는다. DB만 읽는다 (⑪ — 화면에서 실시간 호출 = 429로 화면이 죽는다)
 
 import { createClient } from '@supabase/supabase-js';
 
@@ -62,6 +69,95 @@ function admin() {
   return createClient(url, key, { auth: { persistSession: false } });
 }
 
+/**
+ * 키워드 조사 3층 화면 (D-065 ㊼-4).
+ *
+ * 1층  찾은 검색어 N / 살아있는 것 N / 붙여쓰기 짝 N쌍 / 버린 것 N   ← 전부 keyword 표를 센 값
+ * 2층  대표 검색어 상위 30 (검색량 순) · 짝 있는 행은 펼치면 띄어·붙여 두 줄
+ * 3층  새로 생긴·사라진 검색어 → 조사가 2회 이상 쌓여야 켜진다
+ *
+ * 붙여쓰기(kind='joined') 는 2층에 따로 안 세운다 — 띄어쓰기 짝 안으로 접어 넣는다.
+ * 단 **짝(띄어쓰기 행)이 표에 없는 붙여쓰기는 제 줄로 세운다.** 접을 데가 없는데 숨기면
+ * ㊼-2 가 살려낸 것(=붙여쓰기가 1위인 검색어)을 그대로 다시 놓친다.
+ */
+async function survey(sb, req, res, who) {
+  const cityKey = String(req.query.city || 'cc:japan|osaka');
+  const target = String(req.query.target || 'ko');
+  const market = String(req.query.market || 'KR');
+
+  const snapRes = await sb.from('snapshot').select('*')
+    .eq('target_code', target).eq('market', market).eq('city_key', cityKey)
+    .order('ym', { ascending: false });
+  if (snapRes.error) throw snapRes.error;
+  const snaps = snapRes.data || [];
+  const ym = String(req.query.ym || (snaps[0] && snaps[0].ym) || '');
+  const snap = snaps.find((s) => s.ym === ym) || null;
+
+  const kwRes = await sb.from('keyword')
+    .select('id, text, kind, alive, alive_source, morph_axis, is_anchor')
+    .eq('target_code', target).eq('market', market).eq('city_key', cityKey);
+  if (kwRes.error) throw kwRes.error;
+  const kws = kwRes.data || [];
+
+  let trends = [];
+  if (snap) {
+    const tRes = await sb.from('trend')
+      .select('keyword_id, measured, demand, competition, opportunity, skip_reason, batch_no, calib_ratio, comp_method, comp_window_days, demand_source, measured_at, series')
+      .eq('snapshot_id', snap.id);
+    if (tRes.error) throw tRes.error;
+    trends = tRes.data || [];
+  }
+  const tByKw = new Map(trends.map((t) => [t.keyword_id, t]));
+  const merge = (k) => ({ ...k, ...(tByKw.get(k.id) || { measured: false, demand: null }) });
+
+  const alive = kws.filter((k) => k.alive);
+  const joinedAlive = alive.filter((k) => k.kind === 'joined');
+  const spacedByFlat = new Map(alive.filter((k) => k.kind !== 'joined')
+    .map((k) => [k.text.replace(/\s+/g, ''), k]));
+
+  // 1층 — 센다. 박지 않는다.
+  const counts = {
+    found: kws.length,
+    alive: alive.length,
+    dead: kws.length - alive.length,
+    pairs: joinedAlive.length,
+    pairs_orphan: joinedAlive.filter((j) => !spacedByFlat.has(j.text)).length,
+    measured: trends.filter((t) => t.measured).length,
+    below_floor: trends.filter((t) => t.skip_reason === 'below_floor').length,
+  };
+
+  // 2층 — 대표 검색어 (붙여쓰기는 짝 안으로) · 검색량 순 · 상위 30
+  const joinedByFlat = new Map(joinedAlive.map((j) => [j.text, j]));
+  const base = alive.filter((k) => k.kind !== 'joined' || !spacedByFlat.has(k.text));
+  const rows = base.map((k) => {
+    const r = merge(k);
+    const j = k.kind === 'joined' ? null : joinedByFlat.get(k.text.replace(/\s+/g, ''));
+    return {
+      ...r,
+      orphan_pair: k.kind === 'joined',      // 띄어쓰기 짝이 표에 없는 붙여쓰기
+      joined: j ? merge(j) : null,
+    };
+  }).sort((a, b) => (a.demand === null) - (b.demand === null) || (b.demand - a.demand));
+
+  // 3층 — 조사가 2회 이상 쌓여야 "새로 생긴 / 사라진" 을 말할 수 있다
+  const nextYm = (() => {
+    if (!ym) return null;
+    const [y, m] = ym.split('-').map(Number);
+    return m === 12 ? `${y + 1}-01` : `${y}-${String(m + 1).padStart(2, '0')}`;
+  })();
+  const layer3 = snaps.length >= 2
+    ? { locked: false, compared_to: snaps[1].ym }
+    : { locked: true, reason: '조사가 아직 1번뿐입니다. 두 번째 조사가 있어야 새로 생긴·사라진 검색어를 압니다.', next_ym: nextYm };
+
+  res.setHeader('Cache-Control', 'private, no-store, max-age=0');
+  return res.status(200).json({
+    ok: true, is_admin: !!who.isAdmin, view: 'survey',
+    target, market, city_key: cityKey, ym,
+    snapshot: snap, months: snaps.map((s) => s.ym),
+    counts, rows: rows.slice(0, 30), rows_total: rows.length, layer3,
+  });
+}
+
 export default async function handler(req, res) {
   const who = await authorized(req);
   if (!who.ok) return res.status(401).json({ ok: false, error: '로그인이 필요합니다.' });
@@ -75,6 +171,14 @@ export default async function handler(req, res) {
     sb = admin();
   } catch (e) {
     return res.status(500).json({ ok: false, error: '서버 설정 오류', detail: String(e.message || e) });
+  }
+
+  if (String(req.query.view || '') === 'survey') {
+    try {
+      return await survey(sb, req, res, who);
+    } catch (e) {
+      return res.status(500).json({ ok: false, error: '키워드 조사를 불러오지 못했습니다.', detail: String(e.message || e) });
+    }
   }
 
   try {

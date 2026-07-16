@@ -791,7 +791,7 @@ history.replaceState({w:'m'})    ← 첫 진입 = 메인
 | | 무엇 | 지금 | 왜 이 순서 |
 |---|---|---|---|
 | 1 | `city_alias` 표 | ✅ **완료**(2026-07-16 ㊴) | ㉚: 없으면 봇이 `"팔라완 호텔"` 검색어를 못 만든다 = 첫 줄에서 멈춤 |
-| 2 | 스냅샷 표 `trend`·`keyword`·`snapshot` | **0개** | 조사 결과를 담을 그릇 |
+| 2 | 스냅샷 표 `trend`·`keyword`·`snapshot` | ✅ **완료**(2026-07-16 ㊵) | 조사 결과를 담을 그릇 |
 | 3 | 조사 봇 (`kwtool.py` + 매달 1일 크론) | 없음 | ⑨. **붙여쓰기 트렌드를 처음부터 설계에 포함** — 나중에 덧붙이지 않는다 |
 | 4 | 페어 화면 (위 표시 규칙) | 없음 | 3이 데이터를 채운 뒤 |
 
@@ -887,7 +887,7 @@ morph_rule (target_code, market, axis, variants, expand_charset, probe_raw, sour
 |---|---|---|
 | 0 | `morph_rule` 표 + `ko` 시드 | ✅ **완료** (2026-07-16 · 1행=ko · ㊴) |
 | 1 | `city_alias` 표 (㉚) | ✅ **표 완료** (2026-07-16 · 0행=정상, 지연 생성 · ㊴) |
-| 2 | 스냅샷 표 `trend`·`keyword`·`snapshot` | 0개 |
+| 2 | 스냅샷 표 `trend`·`keyword`·`snapshot` | ✅ **완료** (2026-07-16 · 3개 · ㊵) |
 | 3 | **언어 정찰** (1단) — `kwtool.py` 에 `probe` 명령 신설 | 없음 |
 | 4 | 조사 봇 (2단, 매달 1일) — `harvest`·`pair` 를 `morph_rule` 기반으로 일반화 | 없음 |
 | 5 | 페어 화면 (㊲ 표시 규칙) | 없음 |
@@ -936,3 +936,45 @@ city_alias (id, target_code, country, city_key, label, source, updated_at)
 
 ### 다음 (순서 2번)
 스냅샷 표 `trend`·`keyword`·`snapshot` — **여전히 0개.** 조사 결과를 담을 그릇.
+
+
+---
+
+## ㊵ 구현 — 스냅샷 표 3개(`keyword`·`snapshot`·`trend`) 생성 완료 (2026-07-16) · 순서 2번 끝
+
+**조사 결과를 담을 그릇.** 문서가 이름만 정해두고 칸은 안 정했던 표들 = 클로드가 설계(기술 판단). 근거는 전부 D-065 안에 있음.
+
+```
+keyword  (id, target_code, market, country, city_key, text, kind, morph_axis, is_anchor,
+          source, created_at, last_seen_at)          UNIQUE(target_code, market, text)
+snapshot (id, target_code, market, country, city_key, ym, status, anchor_text, anchor_value,
+          calib_ratio, keyword_count, trend_calls, window_from, window_to, trigger, note,
+          started_at, finished_at)                   UNIQUE(target_code, market, city_key, ym)
+trend    (id, snapshot_id, keyword_id, measured, demand, competition, opportunity, series,
+          batch_no, calib_ratio, skip_reason, measured_at)  UNIQUE(snapshot_id, keyword_id)
+```
+- 세 표 모두 **칸마다 `COMMENT`**. 인덱스 3개(`keyword_city_idx`·`snapshot_ym_idx`·`trend_keyword_idx`).
+- `snapshot` ↔ `trend` 는 `ON DELETE CASCADE` — 조사 하나를 지우면 그 안 측정값도 같이 간다(헌법 9조 가역성).
+
+### 왜 이렇게 쪼갰나 (근거)
+| 표 | 담는 것 | 근거 |
+|---|---|---|
+| `keyword` | **말** 자체 (시간과 무관) | 같은 검색어가 매달 다시 나온다. 말과 측정값을 섞으면 매달 같은 글자를 40번 복사하게 된다 |
+| `snapshot` | **조사 1회** = 타겟×도시×달 1점 | ⑨ **월 1점 원칙** — `UNIQUE(target,market,city,ym)` 가 재조사=덮어쓰기를 **DB가 강제**한다. 사람 기억에 안 맡김 |
+| `trend` | 그 조사에서 **키워드 하나의 결과** | ⑪ 화면은 이 표만 읽는다 = 구글/유튜브 호출 0 |
+
+### 날조 방지가 **칸으로** 박혀 있다
+- **`trend.measured`(boolean)** — 수요를 실제로 쟀나. `false` = **"모름"이지 "없음"이 아님**(⑧). 화면 "안 쟀음" 배지의 근거.
+- **`trend.opportunity` 는 `measured=false` 면 `null`** — 경쟁만 보고 기회점수를 얹는 짓(INC-006 날조8)이 **구조적으로 막힌다.** 0.0 을 막대에 얹지 않는다.
+- **`trend.skip_reason`** — `below_floor`(측정 한계 아래 ㉘) / `not_split`(1.5배 안 갈려 트렌드 생략 ㊲) / `dead`(붙여쓰기 경쟁 500 미만). **왜 안 쟀는지가 남는다.**
+- **`snapshot.calib_ratio`** — 앵커 보정배율(⑪ 실측 1.000). 1에서 크게 벗어나면 그 조사는 의심.
+- **`snapshot.status='aborted'`** — 앵커가 측정 한계 아래라 20초에 멈춘 조사. 저장은 하되 화면 결과로 안 쓴다.
+
+### `trend.series` (jsonb) = ⑤ 계절 그래프의 재료
+`{"2024-01": 12.3, "2024-02": 15.1, …}` — 키워드 하나의 월별 수요 시계열. 여러 해(2024·2025·2026)를 겹쳐 그리는 데 쓴다. 표를 4개로 늘리지 않고 한 칸에 담는다(화면은 1행만 읽으면 됨).
+
+### 파급 — ㉝ [연·월 지정] 팝오버가 저절로 살아난다
+㉝의 `SNAP={}`(과거 전부 회색)은 **이 표가 없어서**였다. 이제 `snapshot` 에 행이 쌓이면 **그 달이 저절로 켜진다.** 화면 코드는 안 고친다.
+
+### 다음 (순서 3번)
+**언어 정찰** — `kwtool.py` 에 `probe` 명령 신설. `ja`·`en`·`vi`·`zh-tw` 의 어형 축을 자동완성을 긁어 **유니코드로 세서** 알아낸다(㊳ 1단). 결과는 `morph_rule` 에 자동 저장.

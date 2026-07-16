@@ -145,7 +145,6 @@
 
   <div class="ml">노출 월 · <b style="color:var(--sub);font-weight:400;">오늘부터 12개월 (매달 자동으로 밀림) — 달을 눌러 바꾸세요</b> <span class="no">1-5</span></div>
   <div class="ms" id="ms"></div>
-  <div id="ymp"></div>
   <div class="lg">
     <span><span class="dt" style="background:var(--muted);opacity:.5;"></span>착수 지남</span>
     <span><span class="dt" style="background:var(--rd);"></span>곧 늦음</span>
@@ -225,7 +224,7 @@
 <div class="sc" id="s6"><div id="d6"></div></div>
 
 <div class="ts" id="tsb"></div>
-<div class="ft">키워드 프리뷰 v13 · D-065 개정 ①~㉜ 반영 · 조사 시작 화면(㉘㉙) + 연·월 지정 팝오버(㉝) · 2026-07-16</div>
+<div class="ft">키워드 프리뷰 v14 · D-065 개정 ①~54 반영 · 축 분리(㊿) · 화면 말 정리(54) · [연·월 지정] 제거(54-0G) · 2026-07-17</div>
 
 <script>
 /* ══ 실측 데이터만 (2026-07-14 직접 조회) ══ */
@@ -260,7 +259,7 @@ function mst(d){return d<=1?'dim':d===2?'rd':d===3?'nw':'fr';}
 function mstL(d){return d<=1?'착수 지남':d===2?'곧 늦음':d===3?'지금 착수':'여유';}
 var MO=MOS.map(function(o){return o.m+'월';}), MC=MOS.map(function(o){return mst(o.d);}), MS=MOS.map(function(o){return mstL(o.d);});
 var XM=null;
-/* D-065 ㉝ — 연·월 지정. 스냅샷 실측 2026-07-16: trend/keyword/snapshot 테이블 0개 → 과거는 고를 게 없다. */
+/* 조사 기록(SNAP) — 창구에서 받는다. [연·월 지정] 은 뺐지만(54-0G) 지난 달 회색 판정에 여전히 쓴다. */
 var SNAP={}, SNAP_FROM='2026-08';
 /* 🔴 2026-07-17 — SNAP 이 `{}` 로 **코드에 박혀 있었다.** 인계서는 "조사가 쌓이면 저절로 켜진다" 고
    적었지만 **영원히 안 켜진다**(박힌 값이라 조사와 무관). 창구에서 받아온다. */
@@ -305,14 +304,6 @@ function rd(){var h='',yrs=[];MOS.forEach(function(o){if(yrs.indexOf(o.y)<0)yrs.
    var on=(i===cm&&!XM);
    h+='<span class="m '+MC[i]+(on?' sel':'')+'" onclick="pm('+i+')" title="'+MS[i]+' — 눌러서 이 달 노출">'
      +'<span class="dt" style="background:'+DOT[MC[i]]+';"></span>'+o.m+'월'+(on?' ✓':'')+'</span>';});
-  /* D-065 ㉝ — 12개월 밖으로 나가는 문. 쓸모 2가지: ① 지난 달 복기 ② 12개월보다 먼 미래.
-     🔴 조사가 1번뿐이면 과거가 전부 회색 = 눌러도 줄 게 없다 → **잠근다**(3층 잠금과 같은 방식).
-        두 번째 조사가 쌓이면 저절로 열린다(SNAP 이 창구에서 온다). */
-  if(yi===yrs.length-1){
-    h+= (Object.keys(SNAP).length>=2)
-      ? '<span class="m cal'+(XM?' sel':'')+'" onclick="ymt()" title="12개월 밖의 달 — 지난 달 복기·먼 미래">📅 '+(XM?curLbl()+' ✓':'연·월 지정')+'</span><span class="no">1-6</span>'
-      : '<span class="m cal" style="opacity:.45;cursor:not-allowed;" title="조사가 아직 1번뿐입니다 — 두 번째 조사부터 열립니다">🔒 연·월 지정 · '+SNAP_FROM+' 조사부터</span><span class="no">1-6</span>';
-  }
   h+='</div>';});
  document.getElementById('ms').innerHTML=h;document.getElementById('fm').textContent=curLbl();
  var tm=curTM();document.getElementById('ch').innerHTML=curLbl()+' 노출 — 나라 순위 <span class="no">1-8</span>';
@@ -332,7 +323,7 @@ function rd(){var h='',yrs=[];MOS.forEach(function(o){if(yrs.indexOf(o.y)<0)yrs.
     +'<div class="cps">'+cps+'</div></div>'
     +'<span class="wb" onclick="event.stopPropagation();ev1(\''+b.c+'\')">왜? <span style="opacity:.7;">1-9</span></span><span style="color:var(--muted);">›</span></div>';});
  document.getElementById('cl').innerHTML=h;}
-function pm(i){cm=i;XM=null;YMO=false;ymr();rd();ts(MO[i]+' 노출 — '+MS[i]);}
+function pm(i){cm=i;rd();ts(MO[i]+' 노출 — '+MS[i]);}   /* [연·월 지정] 제거로 XM·YMO·ymr 불필요 */
 
 function evHTML(c){var g=gate(c,curTM()),p=pop(c),l=LEAD[c];
  var h='<div class="ev on"><div class="evb"><div class="evt">① 계절 — 2024·2025·2026 겹침 (구글 트렌드 유튜브 검색)</div>';
@@ -674,45 +665,12 @@ function rnf(){var b=document.getElementById('rnb');b.style.display=b.style.disp
 function rna(){var v=document.getElementById('rni').value.trim();if(!v)return;RNEW.push(v);rrs(RC);ts('"'+v+'" 넣음 — 이 글자가 곧 한국어 이름표입니다 (city_alias 저장 · 비용 0)');}
 
 
-/* ══ D-065 ㉝ — 연·월 지정 팝오버 (2026-07-16 대표님 승인) ══
-   월 스트립과 같은 언어: 점 색=상태(㉖), 파란 채움=선택.
-   과거는 스냅샷 있는 달만. 지금 0개 → 전부 회색. 8월 첫 조사 → 9월부터 저절로 켜진다. */
-var YMY=TODAY.getFullYear(), YMO=false;
-function ymt(){YMO=!YMO;ymr();}
-function ymy(d){YMY+=d;ymr();}
-function ympick(y,m){
- var d=dmo(y,m);
- if(d<0&&!SNAP[y+'-'+('0'+m).slice(-2)]){ts(y+'년 '+m+'월 — 조사 기록이 없습니다. 첫 조사 '+SNAP_FROM);return;}
- var hit=-1;MOS.forEach(function(o,i){if(o.y===y&&o.m===m)hit=i;});
- if(hit>=0){XM=null;cm=hit;}else{XM={y:y,m:m,d:d};}
- YMO=false;rd();ymr();ts(y+'년 '+m+'월 노출'+(d<0?' · 복기 모드':''));}
-function ymr(){var e=document.getElementById('ymp');if(!e)return;
- if(!YMO){e.innerHTML='';return;}
- var h='<div style="background:var(--card);border:0.5px solid #2a5a80;border-radius:12px;padding:12px;max-width:330px;margin:6px 0 4px;">';
- h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;">'+
-    '<span style="color:var(--bl);cursor:pointer;padding:0 10px;font-size:16px;" onclick="ymy(-1)">‹</span>'+
-    '<b style="font-size:14px;">'+YMY+'</b>'+
-    '<span style="color:var(--bl);cursor:pointer;padding:0 10px;font-size:16px;" onclick="ymy(1)">›</span></div>';
- h+='<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;margin-bottom:9px;">';
- var dead=0;
- for(var m=1;m<=12;m++){
-  var d=dmo(YMY,m), past=d<0, has=!!SNAP[YMY+'-'+('0'+m).slice(-2)];
-  var sel=XM?(XM.y===YMY&&XM.m===m):(MOS[cm].y===YMY&&MOS[cm].m===m);
-  if(past&&!has){dead++;
-   h+='<span style="text-align:center;padding:8px 0;border-radius:8px;background:var(--card);border:1px solid var(--card2);color:#3d5064;font-size:12px;cursor:not-allowed;" title="조사 기록 없음">'+m+'월</span>';
-  }else{
-   var st=past?'nw':mst(d);
-   h+='<span onclick="ympick('+YMY+','+m+')" style="text-align:center;padding:8px 0;border-radius:8px;cursor:pointer;font-size:12px;background:'+(sel?'var(--bld)':'var(--card)')+';border:1px solid '+(sel?'#3d7fb5':'var(--line)')+';color:'+(sel?'#d6ecfd':'var(--sub)')+';'+(sel?'font-weight:700;':'')+'" title="'+(past?'복기 — 조사 기록 있음':mstL(d))+'">'+
-      '<span style="display:inline-block;width:5px;height:5px;border-radius:50%;background:'+DOT[st]+';margin-right:4px;vertical-align:1px;"></span>'+m+'월</span>';}}
- h+='</div>';
- if(dead)h+='<div class="wn" style="font-size:11px;padding:8px 10px;margin:0 0 8px;">지난 달 '+dead+'칸은 <b>못 누릅니다</b> — 조사 기록이 없습니다. 첫 조사 <b>'+SNAP_FROM+'</b> → <b>그다음 달부터</b> 복기됩니다. (스냅샷이 쌓이면 회색이 저절로 켜집니다)</div>';
- h+='<div class="lg" style="border-top:0.5px solid var(--card2);padding-top:8px;margin:0;font-size:10.5px;">'+
-    '<span><span class="dt" style="background:var(--muted);"></span>착수 지남</span>'+
-    '<span><span class="dt" style="background:var(--rd);"></span>곧 늦음</span>'+
-    '<span><span class="dt" style="background:var(--bl);"></span>지금 착수</span>'+
-    '<span><span class="dt" style="background:var(--em);"></span>여유</span></div>';
- h+='<div style="font-size:10.5px;color:var(--muted);margin-top:7px;">‹ › 로 해를 넘기면 2027·2028도 · 미래는 계절 곡선이 있어 아무 달이나 판정됩니다</div>';
- h+='</div>';e.innerHTML=h;}
+/* [연·월 지정] 팝오버는 2026-07-17 **뺐다** (D-065 54-0G · 대표님 판단).
+   ㉝은 2026-07-16 확정이었지만, 쓸 데가 없다는 게 실측으로 드러났다:
+   ① 수요·계절은 **이번 달 조사 한 번에 2024-01부터 통째로** 들어 있다(㊶-3) → 과거로 갈 이유 없음
+   ② 과거에만 있는 것(경쟁 추세·새 검색어)은 **월별 추이 그래프**와 **3층**이 자동으로 한다
+   ③ 먼 미래? 리드타임 3달인데 스트립이 12개월 = 4배 여유
+   되살릴 땐 git 에서 꺼낸다(헌법 9조 가역성). 죽은 코드로 남기지 않는다. */
 
 </script>
 </body>

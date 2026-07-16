@@ -199,7 +199,7 @@
 <!-- ② 도시 -->
 <div class="sc" id="s2">
   <h2 id="c2t"></h2>
-  <div class="nt">🗓️ 언제 만들지(계절) · 🎯 뭘 만들지(키워드) — 둘 다 있어야 추천이 나옵니다</div>
+  <div class="nt"><b>계절</b>은 언제 만들지, <b>키워드</b>는 뭘 만들지 알려줍니다 — 둘 다 있어야 추천이 나옵니다</div>
   <div class="ls" id="c2l"></div>
   <div id="ev2"></div>
 </div>
@@ -261,6 +261,7 @@ var MO=MOS.map(function(o){return o.m+'월';}), MC=MOS.map(function(o){return ms
 var XM=null;
 /* 조사 기록(SNAP) — 창구에서 받는다. [연·월 지정] 은 뺐지만(54-0G) 지난 달 회색 판정에 여전히 쓴다. */
 var SNAP={}, SNAP_FROM='2026-08';
+var SNAP_CITY={};   /* 키워드 조사가 끝난 도시 — 창구가 알려준다. 박지 않는다 */
 /* 🔴 2026-07-17 — SNAP 이 `{}` 로 **코드에 박혀 있었다.** 인계서는 "조사가 쌓이면 저절로 켜진다" 고
    적었지만 **영원히 안 켜진다**(박힌 값이라 조사와 무관). 창구에서 받아온다. */
 function loadSnap(){
@@ -270,6 +271,7 @@ function loadSnap(){
     .then(function(d){
       if(!d || !d.ok || !d.months) return;
       d.months.forEach(function(m){ SNAP[m]=true; });
+      if(d.city_key){ SNAP_CITY['오사카']=true; }   /* TODO 도시축 붙으면 창구가 도시 목록을 준다 */
       /* 잠금이 풀리는 때 = **다음 조사**(두 번째 점이 찍히는 달). 창구가 이미 계산해서 준다.
          🔴 마지막 조사 월(2026-07)을 쓰면 "이미 지난 달부터 열림" 이라는 거짓말이 된다. */
       SNAP_FROM = (d.layer3 && d.layer3.next_ym) || SNAP_FROM;
@@ -282,14 +284,18 @@ function dmo(y,m){return (y-TODAY.getFullYear())*12+(m-1-TODAY.getMonth());}
 var cm=3,cc='일본',cy='오사카',cd='난바',cs=0,more=false;
 var STAR=['전체 성급','3성','4성','5성'];
 function pk2(c){var s=SE[c];if(!s)return null;var mx=Math.max.apply(null,s),r=[];for(var i=0;i<12;i++)if(s[i]>=mx*0.9)r.push(i+1);return r;}
-function gate(c,tm){var p=pk2(c);if(!p)return{s:'un',t:'계절 미조사',w:'키워드 조사가 안 된 도시'};
+function gate(c,tm){var p=pk2(c);
+ if(!p)return{s:'un',t:'조사 전',w:'키워드 조사가 안 된 도시'};
  var ps=p.map(function(m){return m+'월';}).join('·');
+ /* 눈금 숫자(58.0)는 뜻이 없다 → **가장 한산한 달 대비 몇 배**로 말한다 (D-065 54-1) */
+ var se=SE[c], mx=Math.max.apply(null,se), mn=Math.min.apply(null,se);
+ var lowM=se.indexOf(mn)+1, x=(mx/mn).toFixed(1);
  var near=p.some(function(m){var d=Math.abs(m-tm);return Math.min(d,12-d)<=1;});
- if(near)return{s:'go',t:'지금 착수',w:'피크 '+ps+'(최고 '+Math.max.apply(null,SE[c]).toFixed(1)+') → 발행하면 피크 내내 수확'};
- if(p.every(function(m){return m<tm;}))return{s:'lt',t:'올해는 늦음',w:'피크 '+ps+' 이미 지남 → 내년 대상'};
- return{s:'wt',t:'아직 이름',w:'피크 '+ps+' → '+((p[0]-3<1)?p[0]+9:p[0]-3)+'월 착수'};}
+ if(near)return{s:'go',t:'지금 착수',w:ps+'에 가장 몰립니다 — 가장 한산한 '+lowM+'월보다 '+x+'배'};
+ if(p.every(function(m){return m<tm;}))return{s:'lt',t:'올해는 늦음',w:ps+' 피크가 이미 지났습니다 — 내년 대상'};
+ return{s:'wt',t:'대기',w:ps+'에 가장 몰립니다 — 착수는 '+((p[0]-3+12-1)%12+1)+'월부터'};}
 function pop(c){var p=POP[c];if(!p)return null;var ch=Math.round((p[2]-p[1])/p[1]*100);
- return{ch:ch,t:(ch>8?'오름 +'+ch+'%':(ch<-8?'내림 '+ch+'%':'유지')),b:p};}
+ return{ch:ch,t:(ch>8?'+'+ch+'%':(ch<-8?ch+'%':'그대로')),b:p};}
 function line(s,w,h,col,sw){var mx=60,mn=15;var pts=s.map(function(v,i){return (10+i*((w-20)/(s.length-1))).toFixed(0)+','+(h-8-((v-mn)/(mx-mn))*(h-18)).toFixed(0);}).join(' ');
  return '<polyline fill="none" stroke="'+col+'" stroke-width="'+(sw||2)+'" points="'+pts+'"/>';}
 
@@ -345,19 +351,24 @@ function ev2(c){document.getElementById('ev2').innerHTML=evHTML(c);}
 
 function rc(c){cc=c;document.getElementById('c2t').innerHTML=c+' · 도시 <span class="no">2-1~2-5</span>';
  var tm=curTM(),h='';
- CT[c].forEach(function(x){var g=gate(x,tm),p=pop(x),l=LEAD[x];
+ CT[c].forEach(function(x){var g=gate(x,tm),l=LEAD[x];
   var cl={go:'g-go',wt:'g-wt',un:'g-un',lt:'g-lt'}[g.s];
-  var hasS=!!SE[x], hasK=(x==='오사카'||x==='도쿄'||x==='후쿠오카');
+  /* 재료 2가지 — 조사 2단(D-065)과 1:1 이다.
+     계절 = 가벼운 조사(도시 대표어 1개 · 0원) → "언제 만들지"
+     키워드 = 깊은 조사(검색어 전부 + 경쟁) → "뭘 만들지"
+     🔴 옛 코드는 hasK 를 (x==='오사카'||x==='도쿄'||x==='후쿠오카') 로 **박아뒀다** = 거짓 초록불.
+        진짜로 키워드 조사가 된 도시는 **오사카 하나**다. 조사한 도시만 초록이다. */
+  var hasS=!!SE[x], hasK=!!SNAP_CITY[x];
+  var p=hasS?pop(x):null;                      /* 조사 안 한 도시의 인기도는 **없는 값**이다. 안 보여준다 */
   h+='<div class="rw" onclick="go(\'d\',\''+x+'\')"><div class="mn"><div class="n"><span class="nm">'+x+'</span><span class="sg '+cl+'">'+g.t+'</span></div>'+
      '<div class="wh">'+g.w+'</div>'+
      '<div style="display:flex;gap:5px;margin-top:4px;flex-wrap:wrap;">'+
-     '<span class="pil" style="background:'+(hasS?'var(--emd)':'var(--amd)')+';color:'+(hasS?'var(--em)':'var(--am)')+';">🗓️ 언제 '+(hasS?'있음':'없음')+'</span>'+
-     '<span class="pil" style="background:'+(hasK?'var(--emd)':'var(--amd)')+';color:'+(hasK?'var(--em)':'var(--am)')+';">🎯 뭘 '+(hasK?'있음':'없음')+'</span>'+
-     (p?'<span class="pil">인기도 '+p.t+'</span>':'')+(l?'<span class="pil">예약 '+l[2]+'건 · '+l[0]+'일</span>':'')+
+     '<span class="pil" style="background:'+(hasS?'var(--emd)':'var(--amd)')+';color:'+(hasS?'var(--em)':'var(--am)')+';">계절 '+(hasS?'있음':'없음')+'</span>'+
+     '<span class="pil" style="background:'+(hasK?'var(--emd)':'var(--amd)')+';color:'+(hasK?'var(--em)':'var(--am)')+';">키워드 '+(hasK?'있음':'없음')+'</span>'+
+     (p?'<span class="pil">작년보다 '+p.t+'</span>':'')+(l?'<span class="pil">확정예약 '+l[2]+'건</span>':'')+
      (!hasS||!hasK?'<span class="pil" style="background:var(--bld);color:var(--bl);cursor:pointer;" onclick="event.stopPropagation();go(\'r\',\'필리핀\')">＋ 조사하기</span>':'')+
      '</div></div><span class="wb" onclick="event.stopPropagation();ev2(\''+x+'\')">왜?</span><span style="color:var(--muted);">›</span></div>';});
  document.getElementById('c2l').innerHTML=h;document.getElementById('ev2').innerHTML='';}
-
 function rdd(c){cy=c;document.getElementById('d3t').innerHTML=c+' · 키워드 구조 <span class="no">3-1~3-5</span>';
  if(c!=='오사카'){document.getElementById('d3l').innerHTML='<div class="wn">이 도시는 <b>키워드 조사가 안 된 도시</b> 모른다고 비워두거나 지어내지 않고, 모른다고 표시합니다.<br><br><span class="btn" onclick="ts(\'조사 시작 — 자동완성+트렌드 앵커 묶음\')">＋ 지금 조사하기</span></div>';return;}
  var h='<div class="bk"><div class="bh">🎯 오사카 키워드 전체 <span class="no" style="margin-left:auto;">앵커 기법 · 트렌드 2회</span></div>';

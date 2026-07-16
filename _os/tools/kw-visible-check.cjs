@@ -56,13 +56,16 @@ setTimeout(() => {
   if (!tab) { console.log('🔴 키워드 탭이 없습니다'); process.exit(1); }
   tab.click();
   setTimeout(() => {
-    console.log('① 화면 6개가 #kw-app 의 형제인가 (겹치면 메인이 꺼질 때 통째로 꺼진다)');
-    ['s1', 's2', 's3', 's4', 's5', 's6'].forEach((id) => {
-      const e = D.getElementById(id);
-      const p = e ? e.parentElement.id : '없음';
+    // 화면 조각은 늘기도 줄기도 한다(s5 전략 큐는 2026-07-17 제거 — 큐는 전략 메뉴 소유).
+    // 그래서 **개수를 박지 않는다.** 있는 것들이 전부 #kw-app 의 **형제**인지만 본다.
+    const secs = [...D.querySelectorAll('#kw-app .sc, .sc')];
+    console.log(`① 화면 조각 ${secs.length}개가 #kw-app 의 형제인가 (겹치면 메인이 꺼질 때 통째로 꺼진다)`);
+    if (!secs.length) { fail++; console.log('   🔴 화면 조각이 하나도 없다 — 이식이 깨졌다'); }
+    secs.forEach((e) => {
+      const p = e.parentElement.id;
       const ok = p === 'kw-app';
       if (!ok) fail++;
-      console.log(`   ${id} 부모 → ${p} ${ok ? '✅' : '🔴 겹침'}`);
+      console.log(`   ${e.id || '(id없음)'} 부모 → ${p || '없음'} ${ok ? '✅' : '🔴 겹침'}`);
     });
 
     console.log('② 4단계가 진짜 보이는가 (조상까지 훑음)');

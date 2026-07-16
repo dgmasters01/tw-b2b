@@ -22,7 +22,7 @@ impersonate(매니저 시점)는 옛 `dashboard.html`에만 잔존하나 BL-FLOW
 
 ## 환경
 - repo `dgmasters01/tw-b2b`(main), raw fetch 무인증
-- commit 창구: POST `gohotelwinners.com/api/ops/github-commit`, header `x-ops-token=sV1IWuvgBYcn94lQZXBjFLjgdsh3lrBK`, body {path,content,message,branch?}
+- commit 창구: POST `gohotelwinners.com/api/ops/github-commit`, header `x-ops-token=<CLAUDE_OPS_TOKEN — Vercel 환경변수에서 읽는다. 평문 금지(2026-07-16 공개레포 노출 사고)>`, body {path,content,message,branch?}
 - jq 없음 → python3
 
 ## 마무리 후 다음 1순위

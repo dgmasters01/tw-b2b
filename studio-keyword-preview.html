@@ -211,7 +211,7 @@ function line(s,w,h,col,sw){var mx=60,mn=15;var pts=s.map(function(v,i){return (
  return '<polyline fill="none" stroke="'+col+'" stroke-width="'+(sw||2)+'" points="'+pts+'"/>';}
 
 function rd(){var h='';MO.forEach(function(m,i){h+='<span class="m '+(i===cm?'nw':MC[i])+'" onclick="pm('+i+')">'+m+(i===cm?' · 지금 착수':'')+'</span>';});
- h+='<span class="m" onclick="ts(\'연·월 지정 — 과거·미래 아무 달\')">📅 연·월 지정</span><span class="m" onclick="ts(\'지난달 복기 — 성과 확인\')">↺ 지난달 복기</span><span class="no">1-6</span>';
+ h+='<span class="m" onclick="ts(\'연·월 지정 — 과거·미래 아무 달\')">📅 연·월 지정</span><span class="no">1-6</span>';
  document.getElementById('ms').innerHTML=h;document.getElementById('fm').textContent=MO[cm];
  var tm=parseInt(MO[cm]);document.getElementById('ch').innerHTML=MO[cm]+' 겨냥 — 지금 착수할 나라 <span class="no">1-8</span>';
  h='';Object.keys(CT).forEach(function(c){var b=null,bs=9;

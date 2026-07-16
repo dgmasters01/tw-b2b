@@ -1,372 +1,376 @@
 {
-    "buildCommand": "",
-    "outputDirectory": ".",
-    "framework": null,
-    "functions": {
-        "api/admin-page.js": {
-            "maxDuration": 30,
-            "includeFiles": "_admin/**"
-        },
-        "api/chat-log.js": {
-            "maxDuration": 30,
-            "includeFiles": "_chat-logs/**"
-        },
-        "api/*.js": {
-            "maxDuration": 30
-        },
-        "api/email/**/*.js": {
-            "maxDuration": 30
-        }
+  "buildCommand": "",
+  "outputDirectory": ".",
+  "framework": null,
+  "functions": {
+    "api/admin-page.js": {
+      "maxDuration": 30,
+      "includeFiles": "_admin/**"
     },
-    "redirects": [
+    "api/chat-log.js": {
+      "maxDuration": 30,
+      "includeFiles": "_chat-logs/**"
+    },
+    "api/*.js": {
+      "maxDuration": 30
+    },
+    "api/email/**/*.js": {
+      "maxDuration": 30
+    }
+  },
+  "redirects": [
+    {
+      "source": "/dashboard.html",
+      "destination": "/manager-dashboard.html",
+      "permanent": true
+    },
+    {
+      "source": "/dashboard",
+      "destination": "/manager-dashboard.html",
+      "permanent": true
+    },
+    {
+      "source": "/admin-hub.html",
+      "destination": "/admin-status.html",
+      "permanent": true
+    },
+    {
+      "source": "/admin-hub",
+      "destination": "/admin-status.html",
+      "permanent": true
+    },
+    {
+      "source": "/_chat-logs/:path*",
+      "destination": "/chat-logs/:path*",
+      "permanent": false
+    },
+    {
+      "source": "/_admin/:path(.+\\.html)",
+      "destination": "/:path*",
+      "permanent": false
+    },
+    {
+      "source": "/admin",
+      "destination": "/admin.html",
+      "permanent": false
+    },
+    {
+      "source": "/admin-status",
+      "destination": "/admin-status.html",
+      "permanent": false
+    },
+    {
+      "source": "/admin-tasks",
+      "destination": "/admin-tasks.html",
+      "permanent": false
+    },
+    {
+      "source": "/admin-business",
+      "destination": "/admin-business.html",
+      "permanent": false
+    },
+    {
+      "source": "/admin-service-ops",
+      "destination": "/admin-service-ops.html",
+      "permanent": false
+    },
+    {
+      "source": "/admin-gallery",
+      "destination": "/admin-gallery.html",
+      "permanent": false
+    },
+    {
+      "source": "/admin-permissions",
+      "destination": "/admin-permissions.html",
+      "permanent": false
+    },
+    {
+      "source": "/admin-business-charter",
+      "destination": "/admin-business-charter.html",
+      "permanent": false
+    },
+    {
+      "source": "/admin-decisions",
+      "destination": "/admin-decisions.html",
+      "permanent": false
+    },
+    {
+      "source": "/admin-decisions-index",
+      "destination": "/admin-decisions-index.html",
+      "permanent": false
+    },
+    {
+      "source": "/admin-gohotel-manager-stages",
+      "destination": "/admin-gohotel-manager-stages.html",
+      "permanent": false
+    },
+    {
+      "source": "/admin-gohotel-overview",
+      "destination": "/admin-gohotel-overview.html",
+      "permanent": false
+    },
+    {
+      "source": "/admin-manager-journey",
+      "destination": "/admin-gohotel-manager-stages.html",
+      "permanent": true
+    },
+    {
+      "source": "/admin-manager-journey.html",
+      "destination": "/admin-gohotel-manager-stages.html",
+      "permanent": true
+    },
+    {
+      "source": "/admin-user-journey",
+      "destination": "/admin-gohotel-overview.html",
+      "permanent": true
+    },
+    {
+      "source": "/admin-user-journey.html",
+      "destination": "/admin-gohotel-overview.html",
+      "permanent": true
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/api/admin/users-list",
+      "destination": "/api/admin?action=auth-users-list"
+    },
+    {
+      "source": "/api/admin/invite",
+      "destination": "/api/admin?action=auth-invite"
+    },
+    {
+      "source": "/api/admin/accept-invite",
+      "destination": "/api/admin?action=auth-accept-invite"
+    },
+    {
+      "source": "/api/admin/change-role",
+      "destination": "/api/admin?action=auth-change-role"
+    },
+    {
+      "source": "/api/auth/session",
+      "destination": "/api/auth?action=session"
+    },
+    {
+      "source": "/chat-logs/index.json",
+      "destination": "/api/chat-log?slug=index"
+    },
+    {
+      "source": "/chat-logs/:slug.md",
+      "destination": "/api/chat-log?slug=:slug"
+    },
+    {
+      "source": "/admin-status.html",
+      "destination": "/api/admin-page?page=status"
+    },
+    {
+      "source": "/admin-tasks.html",
+      "destination": "/api/admin-page?page=tasks"
+    },
+    {
+      "source": "/admin-business.html",
+      "destination": "/api/admin-page?page=business"
+    },
+    {
+      "source": "/admin-service-ops.html",
+      "destination": "/api/admin-page?page=service-ops"
+    },
+    {
+      "source": "/admin-gallery.html",
+      "destination": "/api/admin-page?page=gallery"
+    },
+    {
+      "source": "/admin.html",
+      "destination": "/api/admin-page?page=admin"
+    },
+    {
+      "source": "/admin-hub.html",
+      "destination": "/api/admin-page?page=hub"
+    },
+    {
+      "source": "/admin-permissions.html",
+      "destination": "/api/admin-page?page=permissions"
+    },
+    {
+      "source": "/admin-business-charter.html",
+      "destination": "/api/admin-page?page=business-charter"
+    },
+    {
+      "source": "/admin-decisions.html",
+      "destination": "/api/admin-page?page=decisions"
+    },
+    {
+      "source": "/admin-decisions-index.html",
+      "destination": "/api/admin-page?page=decisions-index"
+    },
+    {
+      "source": "/admin-gohotel-manager-stages.html",
+      "destination": "/api/admin-page?page=gohotel-manager-stages"
+    },
+    {
+      "source": "/admin-gohotel-overview.html",
+      "destination": "/api/admin-page?page=gohotel-overview"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/_admin/_health.json",
+      "headers": [
         {
-            "source": "/dashboard.html",
-            "destination": "/manager-dashboard.html",
-            "permanent": true
+          "key": "Cache-Control",
+          "value": "no-store, no-cache, must-revalidate, max-age=0"
         },
         {
-            "source": "/dashboard",
-            "destination": "/manager-dashboard.html",
-            "permanent": true
+          "key": "Pragma",
+          "value": "no-cache"
         },
         {
-            "source": "/admin-hub.html",
-            "destination": "/admin-status.html",
-            "permanent": true
+          "key": "Expires",
+          "value": "0"
         },
         {
-            "source": "/admin-hub",
-            "destination": "/admin-status.html",
-            "permanent": true
+          "key": "CDN-Cache-Control",
+          "value": "no-store"
         },
         {
-            "source": "/_chat-logs/:path*",
-            "destination": "/chat-logs/:path*",
-            "permanent": false
-        },
-        {
-            "source": "/_admin/:path(.+\\.html)",
-            "destination": "/:path*",
-            "permanent": false
-        },
-        {
-            "source": "/admin",
-            "destination": "/admin.html",
-            "permanent": false
-        },
-        {
-            "source": "/admin-status",
-            "destination": "/admin-status.html",
-            "permanent": false
-        },
-        {
-            "source": "/admin-tasks",
-            "destination": "/admin-tasks.html",
-            "permanent": false
-        },
-        {
-            "source": "/admin-business",
-            "destination": "/admin-business.html",
-            "permanent": false
-        },
-        {
-            "source": "/admin-service-ops",
-            "destination": "/admin-service-ops.html",
-            "permanent": false
-        },
-        {
-            "source": "/admin-gallery",
-            "destination": "/admin-gallery.html",
-            "permanent": false
-        },
-        {
-            "source": "/admin-permissions",
-            "destination": "/admin-permissions.html",
-            "permanent": false
-        },
-        {
-            "source": "/admin-business-charter",
-            "destination": "/admin-business-charter.html",
-            "permanent": false
-        },
-        {
-            "source": "/admin-decisions",
-            "destination": "/admin-decisions.html",
-            "permanent": false
-        },
-        {
-            "source": "/admin-decisions-index",
-            "destination": "/admin-decisions-index.html",
-            "permanent": false
-        },
-        {
-            "source": "/admin-gohotel-manager-stages",
-            "destination": "/admin-gohotel-manager-stages.html",
-            "permanent": false
-        },
-        {
-            "source": "/admin-gohotel-overview",
-            "destination": "/admin-gohotel-overview.html",
-            "permanent": false
-        },
-        {
-            "source": "/admin-manager-journey",
-            "destination": "/admin-gohotel-manager-stages.html",
-            "permanent": true
-        },
-        {
-            "source": "/admin-manager-journey.html",
-            "destination": "/admin-gohotel-manager-stages.html",
-            "permanent": true
-        },
-        {
-            "source": "/admin-user-journey",
-            "destination": "/admin-gohotel-overview.html",
-            "permanent": true
-        },
-        {
-            "source": "/admin-user-journey.html",
-            "destination": "/admin-gohotel-overview.html",
-            "permanent": true
+          "key": "Vercel-CDN-Cache-Control",
+          "value": "no-store"
         }
-    ],
-    "rewrites": [
+      ]
+    },
+    {
+      "source": "/admin-status.html",
+      "headers": [
         {
-            "source": "/api/admin/users-list",
-            "destination": "/api/admin?action=auth-users-list"
+          "key": "Cache-Control",
+          "value": "no-store, no-cache, must-revalidate, max-age=0"
         },
         {
-            "source": "/api/admin/invite",
-            "destination": "/api/admin?action=auth-invite"
+          "key": "Pragma",
+          "value": "no-cache"
         },
         {
-            "source": "/api/admin/accept-invite",
-            "destination": "/api/admin?action=auth-accept-invite"
-        },
-        {
-            "source": "/api/admin/change-role",
-            "destination": "/api/admin?action=auth-change-role"
-        },
-        {
-            "source": "/api/auth/session",
-            "destination": "/api/auth?action=session"
-        },
-        {
-            "source": "/chat-logs/index.json",
-            "destination": "/api/chat-log?slug=index"
-        },
-        {
-            "source": "/chat-logs/:slug.md",
-            "destination": "/api/chat-log?slug=:slug"
-        },
-        {
-            "source": "/admin-status.html",
-            "destination": "/api/admin-page?page=status"
-        },
-        {
-            "source": "/admin-tasks.html",
-            "destination": "/api/admin-page?page=tasks"
-        },
-        {
-            "source": "/admin-business.html",
-            "destination": "/api/admin-page?page=business"
-        },
-        {
-            "source": "/admin-service-ops.html",
-            "destination": "/api/admin-page?page=service-ops"
-        },
-        {
-            "source": "/admin-gallery.html",
-            "destination": "/api/admin-page?page=gallery"
-        },
-        {
-            "source": "/admin.html",
-            "destination": "/api/admin-page?page=admin"
-        },
-        {
-            "source": "/admin-hub.html",
-            "destination": "/api/admin-page?page=hub"
-        },
-        {
-            "source": "/admin-permissions.html",
-            "destination": "/api/admin-page?page=permissions"
-        },
-        {
-            "source": "/admin-business-charter.html",
-            "destination": "/api/admin-page?page=business-charter"
-        },
-        {
-            "source": "/admin-decisions.html",
-            "destination": "/api/admin-page?page=decisions"
-        },
-        {
-            "source": "/admin-decisions-index.html",
-            "destination": "/api/admin-page?page=decisions-index"
-        },
-        {
-            "source": "/admin-gohotel-manager-stages.html",
-            "destination": "/api/admin-page?page=gohotel-manager-stages"
-        },
-        {
-            "source": "/admin-gohotel-overview.html",
-            "destination": "/api/admin-page?page=gohotel-overview"
+          "key": "Expires",
+          "value": "0"
         }
-    ],
-    "headers": [
+      ]
+    },
+    {
+      "source": "/admin-tasks.html",
+      "headers": [
         {
-            "source": "/_admin/_health.json",
-            "headers": [
-                {
-                    "key": "Cache-Control",
-                    "value": "no-store, no-cache, must-revalidate, max-age=0"
-                },
-                {
-                    "key": "Pragma",
-                    "value": "no-cache"
-                },
-                {
-                    "key": "Expires",
-                    "value": "0"
-                },
-                {
-                    "key": "CDN-Cache-Control",
-                    "value": "no-store"
-                },
-                {
-                    "key": "Vercel-CDN-Cache-Control",
-                    "value": "no-store"
-                }
-            ]
-        },
-        {
-            "source": "/admin-status.html",
-            "headers": [
-                {
-                    "key": "Cache-Control",
-                    "value": "no-store, no-cache, must-revalidate, max-age=0"
-                },
-                {
-                    "key": "Pragma",
-                    "value": "no-cache"
-                },
-                {
-                    "key": "Expires",
-                    "value": "0"
-                }
-            ]
-        },
-        {
-            "source": "/admin-tasks.html",
-            "headers": [
-                {
-                    "key": "Cache-Control",
-                    "value": "no-store, no-cache, must-revalidate, max-age=0"
-                }
-            ]
-        },
-        {
-            "source": "/admin-business.html",
-            "headers": [
-                {
-                    "key": "Cache-Control",
-                    "value": "no-store, no-cache, must-revalidate, max-age=0"
-                }
-            ]
-        },
-        {
-            "source": "/admin-service-ops.html",
-            "headers": [
-                {
-                    "key": "Cache-Control",
-                    "value": "no-store, no-cache, must-revalidate, max-age=0"
-                }
-            ]
-        },
-        {
-            "source": "/admin-gallery.html",
-            "headers": [
-                {
-                    "key": "Cache-Control",
-                    "value": "no-store, no-cache, must-revalidate, max-age=0"
-                }
-            ]
-        },
-        {
-            "source": "/admin-permissions.html",
-            "headers": [
-                {
-                    "key": "Cache-Control",
-                    "value": "no-store, no-cache, must-revalidate, max-age=0"
-                }
-            ]
-        },
-        {
-            "source": "/admin.html",
-            "headers": [
-                {
-                    "key": "Cache-Control",
-                    "value": "no-store, no-cache, must-revalidate, max-age=0"
-                }
-            ]
-        },
-        {
-            "source": "/admin-business-charter.html",
-            "headers": [
-                {
-                    "key": "Cache-Control",
-                    "value": "no-store, no-cache, must-revalidate, max-age=0"
-                }
-            ]
-        },
-        {
-            "source": "/admin-decisions.html",
-            "headers": [
-                {
-                    "key": "Cache-Control",
-                    "value": "no-store, no-cache, must-revalidate, max-age=0"
-                }
-            ]
-        },
-        {
-            "source": "/admin-decisions-index.html",
-            "headers": [
-                {
-                    "key": "Cache-Control",
-                    "value": "no-store, no-cache, must-revalidate, max-age=0"
-                }
-            ]
-        },
-        {
-            "source": "/admin-gohotel-manager-stages.html",
-            "headers": [
-                {
-                    "key": "Cache-Control",
-                    "value": "no-store, no-cache, must-revalidate, max-age=0"
-                }
-            ]
-        },
-        {
-            "source": "/admin-gohotel-overview.html",
-            "headers": [
-                {
-                    "key": "Cache-Control",
-                    "value": "no-store, no-cache, must-revalidate, max-age=0"
-                }
-            ]
+          "key": "Cache-Control",
+          "value": "no-store, no-cache, must-revalidate, max-age=0"
         }
-    ],
-    "crons": [
+      ]
+    },
+    {
+      "source": "/admin-business.html",
+      "headers": [
         {
-            "path": "/api/cron/drive-watch",
-            "schedule": "0 2,7,12,21 * * *"
-        },
-        {
-            "path": "/api/cron/hotel-geo-fill",
-            "schedule": "0 8,12,16 * * *"
-        },
-        {
-            "path": "/api/ops/handoff-verify",
-            "schedule": "0 22 * * *"
+          "key": "Cache-Control",
+          "value": "no-store, no-cache, must-revalidate, max-age=0"
         }
-    ]
+      ]
+    },
+    {
+      "source": "/admin-service-ops.html",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store, no-cache, must-revalidate, max-age=0"
+        }
+      ]
+    },
+    {
+      "source": "/admin-gallery.html",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store, no-cache, must-revalidate, max-age=0"
+        }
+      ]
+    },
+    {
+      "source": "/admin-permissions.html",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store, no-cache, must-revalidate, max-age=0"
+        }
+      ]
+    },
+    {
+      "source": "/admin.html",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store, no-cache, must-revalidate, max-age=0"
+        }
+      ]
+    },
+    {
+      "source": "/admin-business-charter.html",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store, no-cache, must-revalidate, max-age=0"
+        }
+      ]
+    },
+    {
+      "source": "/admin-decisions.html",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store, no-cache, must-revalidate, max-age=0"
+        }
+      ]
+    },
+    {
+      "source": "/admin-decisions-index.html",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store, no-cache, must-revalidate, max-age=0"
+        }
+      ]
+    },
+    {
+      "source": "/admin-gohotel-manager-stages.html",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store, no-cache, must-revalidate, max-age=0"
+        }
+      ]
+    },
+    {
+      "source": "/admin-gohotel-overview.html",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store, no-cache, must-revalidate, max-age=0"
+        }
+      ]
+    }
+  ],
+  "crons": [
+    {
+      "path": "/api/cron/drive-watch",
+      "schedule": "0 2,7,12,21 * * *"
+    },
+    {
+      "path": "/api/cron/hotel-geo-fill",
+      "schedule": "0 8,12,16 * * *"
+    },
+    {
+      "path": "/api/ops/handoff-verify",
+      "schedule": "0 22 * * *"
+    },
+    {
+      "path": "/api/cron/db-backup",
+      "schedule": "0 19 * * *"
+    }
+  ]
 }

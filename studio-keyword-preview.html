@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>키워드 메뉴 프리뷰 v4 — 확정본</title>
+<title>키워드 메뉴 프리뷰 v11 — 확정본</title>
 <style>
  :root{--bg:#051424;--card:#0b2236;--card2:#102a42;--line:#1c3a56;--txt:#e6eef6;--sub:#9db4c9;--muted:#6a85a0;
   --em:#4edea3;--emd:#0f3f31;--am:#efb04a;--amd:#3a2a12;--rd:#e57373;--rdd:#3a1c1c;--bl:#5aa9e6;--bld:#12314c;}
@@ -28,7 +28,9 @@
  .flw{display:flex;align-items:center;gap:8px;font-size:11px;margin-bottom:10px;}
  .chp{padding:5px 10px;border-radius:7px;background:var(--card2);color:var(--sub);} .chp b{color:var(--txt);} .chp.t{background:var(--bld);color:var(--bl);font-weight:600;}
  .ml{font-size:10px;color:var(--muted);margin-bottom:4px;}
- .ms{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px;}
+ .ms{margin-bottom:6px;}
+ .myr{display:flex;flex-wrap:wrap;align-items:center;gap:4px;margin-bottom:5px;}
+ .yl{font-size:10px;color:var(--muted);min-width:31px;letter-spacing:.03em;}
  .m{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;padding:6px 11px;border-radius:9px;background:var(--card);border:1px solid var(--line);color:var(--sub);cursor:pointer;transition:background .12s,border-color .12s,transform .12s;user-select:none;}
  .m:hover{background:var(--card2);border-color:#2a5a80;transform:translateY(-1px);}
  .m:active{transform:translateY(0);}
@@ -130,7 +132,7 @@
   <div class="ban">지금 만들면 <b>3달 뒤 노출</b>. 근거 = 우리 예약 <b>3,828건</b> 실측, 여행 3달 안에 <b>92%</b> 예약. <span class="no" style="float:right;">1-3</span></div>
   <div class="flw"><span class="chp">착수 <b>7월</b></span><span style="color:var(--muted);">→</span><span class="chp t">노출 <b id="fm">10월</b> 겨냥</span><span class="no">1-4</span></div>
 
-  <div class="ml">노출 겨냥 월 · 현재부터 6개월 — <b style="color:var(--sub);font-weight:400;">달을 눌러 바꾸세요</b> <span class="no">1-5</span></div>
+  <div class="ml">노출 겨냥 월 · <b style="color:var(--sub);font-weight:400;">오늘부터 12개월 (매달 자동으로 밀림) — 달을 눌러 바꾸세요</b> <span class="no">1-5</span></div>
   <div class="ms" id="ms"></div>
   <div class="lg">
     <span><span class="dt" style="background:var(--muted);opacity:.5;"></span>착수 지남</span>
@@ -212,7 +214,14 @@ var KW=[['오사카 호텔',46.2,'도시 대표어',133],['오사카 숙소',39.
 var DIST=[['난바',10.8,111,5,247],['우메다',0.6,11,0,0],['신사이바시',0.8,13,0,0],['덴노지',0.0,0,0,0]];
 var LEAD={'오사카':[22,95,583],'도쿄':[20,96,192],'후쿠오카':[18,96,307],'다낭':[18,94,140],'방콕':[14,92,273],'치앙마이':[25,88,142]};
 var CT={'일본':['오사카','도쿄','후쿠오카'],'베트남':['다낭','호치민','나트랑'],'태국':['방콕','치앙마이']};
-var MO=['7월','8월','9월','10월','11월','12월'], MC=['dim','dim','rd','nw','fr','fr'], MS=['착수 지남','착수 지남','곧 늦음','지금 착수','여유','여유'];
+// 오늘부터 12개월 자동 생성 — 매달 창이 한 칸씩 밀린다. 사람이 손대지 않는다. (D-065 ㉗)
+// 프리뷰라 날짜 고정. 실제 구현은 new Date().
+var TODAY=new Date(2026,6,15);
+var MOS=[];for(var _k=0;_k<12;_k++){var _d=new Date(TODAY.getFullYear(),TODAY.getMonth()+_k,1);MOS.push({y:_d.getFullYear(),m:_d.getMonth()+1,d:_k});}
+// 상태 = 착수(겨냥−3달) 기준. 오늘 기준으로 매달 자동 재계산.
+function mst(d){return d<=1?'dim':d===2?'rd':d===3?'nw':'fr';}
+function mstL(d){return d<=1?'착수 지남':d===2?'곧 늦음':d===3?'지금 착수':'여유';}
+var MO=MOS.map(function(o){return o.m+'월';}), MC=MOS.map(function(o){return mst(o.d);}), MS=MOS.map(function(o){return mstL(o.d);});
 var cm=3,cc='일본',cy='오사카',cd='난바',sq=41,cs=0,more=false;
 var STAR=['전체 성급','3성','4성','5성'];
 var Q={'기획 대기':[{id:'TW-0041',t:'다낭 미케비치 호텔',m:'다낭 · 9월'}],'원고 작성':[{id:'TW-0039',t:'도쿄 신주쿠 숙소',m:'도쿄 · 산자야'}],
@@ -231,10 +240,14 @@ function line(s,w,h,col,sw){var mx=60,mn=15;var pts=s.map(function(v,i){return (
  return '<polyline fill="none" stroke="'+col+'" stroke-width="'+(sw||2)+'" points="'+pts+'"/>';}
 
 var DOT={dim:'var(--muted)',rd:'var(--rd)',nw:'var(--bl)',fr:'var(--em)'};
-function rd(){var h='';MO.forEach(function(m,i){
- h+='<span class="m '+MC[i]+(i===cm?' sel':'')+'" onclick="pm('+i+')" title="'+MS[i]+' — 눌러서 이 달 겨냥">'
-   +'<span class="dt" style="background:'+DOT[MC[i]]+';"></span>'+m+(i===cm?' ✓':'')+'</span>';});
- h+='<span class="m cal" onclick="ts(\'연·월 지정 — 과거·미래 아무 달\')">📅 연·월 지정</span><span class="no">1-6</span>';
+function rd(){var h='',yrs=[];MOS.forEach(function(o){if(yrs.indexOf(o.y)<0)yrs.push(o.y);});
+ yrs.forEach(function(y,yi){
+  h+='<div class="myr"><span class="yl">'+y+'</span>';
+  MOS.forEach(function(o,i){ if(o.y!==y)return;
+   h+='<span class="m '+MC[i]+(i===cm?' sel':'')+'" onclick="pm('+i+')" title="'+MS[i]+' — 눌러서 이 달 겨냥">'
+     +'<span class="dt" style="background:'+DOT[MC[i]]+';"></span>'+o.m+'월'+(i===cm?' ✓':'')+'</span>';});
+  if(yi===yrs.length-1)h+='<span class="m cal" onclick="ts(\'연·월 지정 — 12개월 밖의 달(과거 복기·먼 미래)\')">📅 연·월 지정</span><span class="no">1-6</span>';
+  h+='</div>';});
  document.getElementById('ms').innerHTML=h;document.getElementById('fm').textContent=MO[cm];
  var tm=parseInt(MO[cm]);document.getElementById('ch').innerHTML=MO[cm]+' 겨냥 — 지금 착수할 나라 <span class="no">1-8</span>';
  h='';Object.keys(CT).forEach(function(c){var b=null,bs=9;

@@ -105,13 +105,8 @@
       <div class="ddi" onclick="pk('중국어 번체 · 대만·홍콩')">중국어 번체 · 대만·홍콩 <span style="color:var(--muted);font-size:11px;margin-left:6px;">채널 1</span> <span class="tag t-on">운영 중</span></div>
       <div class="ddi" onclick="pk('베트남어 · 베트남')">베트남어 · 베트남 <span style="color:var(--muted);font-size:11px;margin-left:6px;">채널 1</span> <span class="tag t-on">운영 중</span></div>
       <div class="ddi" onclick="pk('영어 · 전세계')">영어 · 전세계 <span style="color:var(--muted);font-size:11px;margin-left:6px;">채널 1</span> <span class="tag t-on">운영 중</span></div>
-      <div class="ddg">💡 추천 — 채널 없는데 예약이 나는 시장 <span style="color:var(--bl);cursor:pointer;font-weight:400;" onclick="event.stopPropagation();ts('근거: 손님 나라 실측 7,316건. 태국 사람이 태국어 채널 없이도 65건 예약했습니다. ⚠️ 우리 영상을 본 사람만 잡힙니다 — 안 판 시장은 0으로 보입니다.')">[왜?]</span></div>
-      <div class="ddi" onclick="pk('태국어 · 태국')">태국어 · 태국 <span style="color:var(--muted);font-size:11px;margin-left:6px;">예약 65건</span> <span class="tag t-rc">추천</span></div>
-      <div class="ddi" onclick="pk('말레이어 · 말레이시아')">말레이어 · 말레이시아 <span style="color:var(--muted);font-size:11px;margin-left:6px;">예약 25건</span> <span class="tag t-rc">추천</span></div>
-      <div class="ddi" onclick="pk('인도네시아어 · 인도네시아')">인도네시아어 · 인도네시아 <span style="color:var(--muted);font-size:11px;margin-left:6px;">예약 11건</span> <span class="tag t-rc">추천</span></div>
-      <div class="ddg">조사 중 — 대표님이 넣은 것</div>
-      <div class="ddi" style="color:var(--muted);">아직 없음</div>
-      <div style="border-top:0.5px solid var(--line);padding-top:8px;margin-top:5px;color:var(--bl);font-size:12px;cursor:pointer;" onclick="ts('언어·시장을 직접 넣습니다. 채널 없이 조사만 하는 정찰 타겟 (owner·admin)')">＋ 새 타겟 직접 넣기</div>
+      <div style="border-top:0.5px solid var(--line);padding-top:8px;margin-top:5px;color:var(--muted);font-size:11px;">타겟은 <b style="color:var(--bl);">채널 메뉴</b>에서 채널을 등록하면 여기에 자동으로 생깁니다.</div>
+    </div>
     </div>
   </div>
 
@@ -411,7 +406,7 @@ function go(w,a,b){
  if(w==='x'){rx(a);sh('s4');bc('x',a);return;}
  if(w==='q'){rq();sh('s5');bc('q');return;}}
 function dd(){var d=document.getElementById('ddb');d.classList.toggle('on');document.getElementById('tc').textContent=d.classList.contains('on')?'⌃':'⌄';}
-function pk(n){document.getElementById('tn').textContent=n;dd();var rc=(n.indexOf('태국어')>=0||n.indexOf('말레이')>=0||n.indexOf('인도네시아')>=0);ts(n+' 전환'+(rc?' — 채널 없는 탐색용. 조사만 하고, 좋으면 채널로 승격합니다.':''));}
+function pk(n){document.getElementById('tn').textContent=n;dd();ts(n+' 전환');}
 var tmo;function ts(m){var t=document.getElementById('tsb');t.textContent=m;t.classList.add('on');clearTimeout(tmo);tmo=setTimeout(function(){t.classList.remove('on');},2200);}
 rd();rq();
 </script>

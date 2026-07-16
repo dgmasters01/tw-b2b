@@ -3117,12 +3117,6 @@ var SE26={'오사카':[65.5,50.0,47.0,45.5,34.2,45.8,54.5]};
    → 같은 달끼리만 비교한다. 값은 ㊾ 실측(trend.series). 창구에 이으면 저절로 갱신된다. */
 var POP={'오사카':[40.8,48.2]};   /* [작년 같은 기간, 올해 같은 기간] — 2025·2026년 1~7월 */
 // 앵커 기법 실측 — 같은 잣대
-var KW=[['오사카 호텔',46.2,'도시 대표어',133],['오사카 숙소',39.1,'도시 대표어 · 놓치고 있었음',133],
-        ['오사카 숙소 추천',16.7,'변형',120],['난바 호텔',10.8,'지역',111],['오사카 호텔 추천',7.6,'변형',95],
-        ['오사카 료칸',3.1,'숙박 유형',40],['난바 숙소',1.3,'지역+숙소',12],['도톤보리 호텔',0.3,'지역',5],
-        ['오사카 가성비 호텔',0.17,'조건어 — 아무도 안 찾음',4]];
-var PAIR={'오사카 호텔 추천':{j:'오사카호텔추천',a:273754,b:934807,r:'3.41배',s:'g'},
-          '오사카 숙소 추천':{j:'오사카숙소추천',a:192282,b:307201,r:'1.60배',s:'g'}};
 /* PAIRX(하드코딩 짝 표) 제거 2026-07-17 — 3층 화면은 DB(?view=survey)에서 짝을 받는다. 죽은 가짜 숫자를 남겨두면 다음 클로드가 그걸 근거로 쓴다. */
 var DIST=[['난바',10.8,111,5,247],['우메다',0.6,11,0,0],['신사이바시',0.8,13,0,0],['덴노지',0.0,0,0,0]];
 var LEAD={'오사카':[22,95,583],'도쿄':[20,96,192],'후쿠오카':[18,96,307],'다낭':[18,94,140],'방콕':[14,92,273],'치앙마이':[25,88,142]};
@@ -3141,7 +3135,11 @@ var MO=MOS.map(function(o){return o.m+'월';}), MC=MOS.map(function(o){return ms
 var XM=null;
 /* 조사 기록(SNAP) — 창구에서 받는다. [연·월 지정] 은 뺐지만(54-0G) 지난 달 회색 판정에 여전히 쓴다. */
 var SNAP={}, SNAP_FROM='2026-08';
-var SNAP_CITY={};   /* 키워드 조사가 끝난 도시 — 창구가 알려준다. 박지 않는다 */
+/* KW·PAIR(하드코딩 검색어 9개·짝표)는 2026-07-17 지웠다 — 창구(?view=survey)가 상위 30을 준다.
+   죽은 가짜 숫자를 남기면 다음 클로드가 그걸 근거로 쓴다(㊼-5 · PAIRX 와 같은 사고). */
+var SNAP_CITY={};
+var SV=null, D3MORE=false;
+function d3more(){D3MORE=!D3MORE;rdd(cy);}        /* 창구(?view=survey) 응답 — 키워드 목록·짝·도장이 다 들어 있다 */   /* 키워드 조사가 끝난 도시 — 창구가 알려준다. 박지 않는다 */
 /* 🔴 2026-07-17 — SNAP 이 `{}` 로 **코드에 박혀 있었다.** 인계서는 "조사가 쌓이면 저절로 켜진다" 고
    적었지만 **영원히 안 켜진다**(박힌 값이라 조사와 무관). 창구에서 받아온다. */
 function loadSnap(){
@@ -3150,12 +3148,14 @@ function loadSnap(){
     .then(function(r){return r.json();})
     .then(function(d){
       if(!d || !d.ok || !d.months) return;
+      SV = d;                                   /* 조사 결과 전부 보관 — 화면들이 여기서 꺼내 쓴다 */
       d.months.forEach(function(m){ SNAP[m]=true; });
       if(d.city_key){ SNAP_CITY['오사카']=true; }   /* TODO 도시축 붙으면 창구가 도시 목록을 준다 */
       /* 잠금이 풀리는 때 = **다음 조사**(두 번째 점이 찍히는 달). 창구가 이미 계산해서 준다.
          🔴 마지막 조사 월(2026-07)을 쓰면 "이미 지난 달부터 열림" 이라는 거짓말이 된다. */
       SNAP_FROM = (d.layer3 && d.layer3.next_ym) || SNAP_FROM;
       rd();
+      if(cy==='오사카' && document.getElementById('d3l')) rdd('오사카');   /* 조사 결과가 오면 다시 그린다 */
     }).catch(function(){});
 }
 function curTM(){return XM?XM.m:parseInt(MO[cm]);}
@@ -3251,19 +3251,31 @@ function rc(c){cc=c;document.getElementById('c2t').innerHTML=c+' · 도시 <span
  document.getElementById('c2l').innerHTML=h;document.getElementById('ev2').innerHTML='';}
 function rdd(c){cy=c;document.getElementById('d3t').innerHTML=c+' · 키워드 구조 <span class="no">3-1~3-5</span>';
  if(c!=='오사카'){document.getElementById('d3l').innerHTML='<div class="wn">이 도시는 <b>키워드 조사가 안 된 도시</b> 모른다고 비워두거나 지어내지 않고, 모른다고 표시합니다.<br><br><span class="btn" onclick="ts(\'조사 시작 — 자동완성+트렌드 앵커 묶음\')">＋ 지금 조사하기</span></div>';return;}
- var h='<div class="bk"><div class="bh">🎯 오사카 키워드 전체 <span class="no" style="margin-left:auto;">앵커 기법 · 트렌드 2회</span></div>';
- KW.forEach(function(k){var alive=k[1]>=5,mid=k[1]>=30;
+ /* D-065 ⑬·㊼-4 확정: **재기는 살아있는 것 전부 / 보기만 상위 30 / 태그엔 전부.**
+    🔴 옛 코드는 `KW` 배열 9개가 **박혀 있었다** — 인계서가 "[상위 30 더보기]가 5→9만 됨(거짓말)" 이라 적은 그것.
+    이제 창구(?view=survey)가 준 **숙박 축 상위 30**을 그린다. 숫자를 박지 않는다. */
+ var h='<div class="bk"><div class="bh">🎯 오사카 키워드 <span class="no" style="margin-left:auto;">앵커 기법 · 같은 잣대</span></div>';
+ var rows=(SV&&SV.rows)||[];
+ if(!rows.length){ h+='<div class="nt">조사 결과를 불러오는 중…</div>'; }
+ var mx=0; rows.forEach(function(r){var d=r.demand===null?0:Number(r.demand); if(d>mx)mx=d;});
+ var lim=D3MORE?rows.length:8;
+ rows.slice(0,lim).forEach(function(r){
+  var d=r.demand===null?null:Number(r.demand), mid=d>=30, alive=d>=5;
   var col=mid?'#4edea3':(alive?'#5aa9e6':'#6a85a0');
-  h+='<div style="display:flex;align-items:center;gap:8px;padding:6px 0;'+(k[0]==='오사카 숙소'?'background:var(--amd);border-radius:6px;padding-left:5px;padding-right:5px;':'')+(k[1]<1?'opacity:.6;':'')+'">'+
-     '<span style="font-size:11px;width:112px;color:'+(k[0]==='오사카 숙소'?'var(--am)':'var(--txt)')+';font-weight:'+(k[1]>=30?'600':'400')+';">'+k[0]+'</span>'+
-     '<span style="flex:1;height:'+(mid?11:8)+'px;border-radius:5px;background:var(--card2);overflow:hidden;"><span style="width:'+(k[1]/46.2*100).toFixed(1)+'%;height:100%;background:'+(k[0]==='오사카 숙소'?'#efb04a':col)+';display:block;"></span></span>'+
-     '<span style="font-size:11px;font-weight:600;width:36px;text-align:right;color:'+(k[0]==='오사카 가성비 호텔'?'#e57373':col)+';">'+k[1]+'</span></div>'+
-     '<div style="font-size:9px;color:var(--muted);margin:-4px 0 3px 112px;">'+k[2]+' · '+k[3]+'/133주</div>';
-  if(PAIR[k[0]]){var q=PAIR[k[0]];
+  var w=(d===null||!mx)?0:Math.min(100,Math.max(1.5,d/mx*100));
+  h+='<div style="display:flex;align-items:center;gap:8px;padding:6px 0;'+(d===null?'opacity:.6;':'')+'">'+
+     '<span style="font-size:11px;width:120px;font-weight:'+(mid?'600':'400')+';">'+r.text+'</span>'+
+     '<span style="flex:1;height:'+(mid?11:8)+'px;border-radius:5px;background:var(--card2);overflow:hidden;"><span style="width:'+w.toFixed(1)+'%;height:100%;background:'+col+';display:block;"></span></span>'+
+     '<span style="font-size:11px;font-weight:600;width:40px;text-align:right;color:'+col+';">'+(d===null?'—':d)+'</span></div>'+
+     '<div style="font-size:9px;color:var(--muted);margin:-4px 0 3px 120px;">'+
+       (d===null?'측정 한계 아래 — 없는 게 아니라 못 잽니다':'경쟁 '+(r.competition||0).toLocaleString()+' · 기회 '+(r.opportunity===null?'—':r.opportunity))+'</div>';
+  if(r.joined){var jd=r.joined.demand===null?null:Number(r.joined.demand);
    h+='<div style="display:flex;align-items:center;gap:8px;padding:4px 0 4px 12px;border-left:2px solid var(--line);margin:0 0 5px 6px;">'+
-      '<span style="font-size:11px;width:100px;color:var(--sub);">'+q.j+'</span>'+
-      '<span style="flex:1;font-size:10px;color:var(--muted);">붙여쓰기 · 경쟁 '+q.b.toLocaleString()+' ↔ '+q.a.toLocaleString()+' · <b style="color:var(--bl);">'+q.r+' 갈림</b> · 수요 조사 전</span>'+
-      '<span style="font-size:10px;padding:2px 8px;border-radius:20px;background:var(--emd);color:var(--em);white-space:nowrap;">태그에 들어감</span></div>';}});
+      '<span style="font-size:11px;width:108px;color:var(--sub);">'+r.joined.text+'</span>'+
+      '<span style="flex:1;font-size:10px;color:var(--muted);">붙여쓰기 · 수요 '+(jd===null?'못 잼':jd)+' · 경쟁 '+(r.joined.competition||0).toLocaleString()+'</span>'+
+      '<span style="font-size:10px;padding:2px 8px;border-radius:20px;background:var(--emd);color:var(--em);white-space:nowrap;">태그에 들어감</span></div>';}
+ });
+ if(rows.length>8) h+='<div class="mr" style="margin-top:6px;" onclick="d3more()">'+(D3MORE?'접기 ▴':'상위 '+rows.length+' 더보기 ▾')+'</div>';
  h+='</div>';
  h+='<div class="nt" style="margin-top:2px;">띄어쓰기 짝 = 오사카 12쌍 전수 측정 → <b>5쌍이 갈림</b>. 위 목록에 있는 2쌍만 붙여쓰기 줄로 보입니다. 나머지 3쌍(난바 호텔 추천 · 신사이바시 숙소 추천 · 오사카 호텔 가성비)은 지역 화면 ②에서. <span class="no">4-7</span></div>';
  h+='<div class="wn">🔍 <b>"숙소"를 놓치고 있었습니다.</b> "오사카 숙소"(39.1) = "오사카 호텔"(46.2)의 <b>85%</b>. 채널·제목·태그가 전부 "호텔"뿐 — <b>둘 다 넣어야 합니다.</b></div>';

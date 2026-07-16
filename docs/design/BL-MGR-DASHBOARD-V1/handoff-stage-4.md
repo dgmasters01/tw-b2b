@@ -126,7 +126,7 @@ BL-MGR-DASHBOARD-V1
 4. ops 알림 POST:
    ```
    POST https://gohotelwinners.com/api/email/ops/notify-claude-work
-   Header: x-ops-token: sV1IWuvgBYcn94lQZXBjFLjgdsh3lrBK
+   Header: x-ops-token: <CLAUDE_OPS_TOKEN — Vercel 환경변수에서 읽는다. 평문 금지(2026-07-16 공개레포 노출 사고)>
    Body: {
      step: "BL-MGR-DASHBOARD-V1 V1 출시 완료",
      summary: "매니저 대시보드 5탭 라이브 출시",

@@ -173,7 +173,7 @@
       <div style="font-size:12px;">베트남 · 다낭</div>
       <div style="font-size:10.5px;color:var(--muted);margin-top:3px;line-height:1.5;">
         9월에 내보내려면 <b>6월에 시작</b>했어야 합니다.<br>지금 시작하면 10월에 나옵니다 — <b>다낭 9월은 내년에.</b></div>
-      <div style="font-size:10px;color:var(--am);margin-top:5px;">⚠️ 다낭은 <b>키워드 조사가 안 된 도시</b>입니다 — 이 판단은 확인 전입니다</div>
+      <div style="font-size:10px;color:var(--am);margin-top:5px;">⚠️ <b>키워드 조사가 안 된 도시</b></div>
     </div>
 
     <div style="background:var(--card2);border-radius:9px;padding:10px;cursor:pointer;" onclick="go('d','오사카','일본')">
@@ -271,7 +271,7 @@ var Q={'기획 대기':[{id:'',t:'다낭 미케비치 호텔',m:'다낭 · 9월'
        '발행 예정':[{id:'R-00119',t:'후쿠오카 하카타 호텔',m:'8월 예정'}],'발행 완료':[{id:'R-00112',t:'오사카 우메다 호텔',m:'✓ 회수'}]};
 
 function pk2(c){var s=SE[c];if(!s)return null;var mx=Math.max.apply(null,s),r=[];for(var i=0;i<12;i++)if(s[i]>=mx*0.9)r.push(i+1);return r;}
-function gate(c,tm){var p=pk2(c);if(!p)return{s:'un',t:'계절 미조사',w:'키워드 조사가 안 된 도시입니다'};
+function gate(c,tm){var p=pk2(c);if(!p)return{s:'un',t:'계절 미조사',w:'키워드 조사가 안 된 도시'};
  var ps=p.map(function(m){return m+'월';}).join('·');
  var near=p.some(function(m){var d=Math.abs(m-tm);return Math.min(d,12-d)<=1;});
  if(near)return{s:'go',t:'지금 착수',w:'피크 '+ps+'(최고 '+Math.max.apply(null,SE[c]).toFixed(1)+') → 발행하면 피크 내내 수확'};
@@ -321,7 +321,7 @@ function evHTML(c){var g=gate(c,curTM()),p=pop(c),l=LEAD[c];
    '<text x="10" y="78" style="font-size:8px;fill:#6a85a0;">1月</text><text x="280" y="78" style="font-size:8px;fill:#6a85a0;">7月</text><text x="530" y="78" style="font-size:8px;fill:#6a85a0;">12月</text></svg>'+
    '<div style="display:flex;gap:9px;font-size:9px;color:var(--muted);margin:3px 0 5px;"><span>■2024</span><span style="color:#3f9e7d;">■2025</span><span style="color:#4edea3;">■2026</span></div>';}
  else if(SE[c]){h+='<svg width="100%" viewBox="0 0 560 60">'+line(SE[c],560,56,'#4edea3',2)+'</svg>';}
- else h+='<div class="evs" style="color:var(--am);">키워드 조사가 안 됐습니다 — [조사하기]</div>';
+ else h+='<div class="evs" style="color:var(--am);">키워드 조사가 안 된 도시 — [조사하기]</div>';
  if(SE[c])h+='<div class="evs">'+g.w+'</div>';
  h+='</div>';
  if(p)h+='<div class="evb"><div class="evt">② 인기도 (2024→2025→2026)</div><div class="evs">'+p.b.join(' → ')+' · <b style="color:'+(p.ch>8?'#4edea3':(p.ch<-8?'#e57373':'#9db4c9'))+'">'+p.t+'</b>'+(p.ch<-8&&p.b[0]<p.b[1]?' <span style="color:var(--muted);">(2024 대비 원위치 — 반짝이었음)</span>':'')+'</div></div>';
@@ -349,7 +349,7 @@ function rc(c){cc=c;document.getElementById('c2t').innerHTML=c+' · 도시 <span
  document.getElementById('c2l').innerHTML=h;document.getElementById('ev2').innerHTML='';}
 
 function rdd(c){cy=c;document.getElementById('d3t').innerHTML=c+' · 키워드 구조 <span class="no">3-1~3-5</span>';
- if(c!=='오사카'){document.getElementById('d3l').innerHTML='<div class="wn">이 도시는 <b>키워드 조사가 안 됐습니다.</b> 모른다고 비워두거나 지어내지 않고, 모른다고 표시합니다.<br><br><span class="btn" onclick="ts(\'조사 시작 — 자동완성+트렌드 앵커 묶음\')">＋ 지금 조사하기</span></div>';return;}
+ if(c!=='오사카'){document.getElementById('d3l').innerHTML='<div class="wn">이 도시는 <b>키워드 조사가 안 된 도시</b> 모른다고 비워두거나 지어내지 않고, 모른다고 표시합니다.<br><br><span class="btn" onclick="ts(\'조사 시작 — 자동완성+트렌드 앵커 묶음\')">＋ 지금 조사하기</span></div>';return;}
  var h='<div class="bk"><div class="bh">🎯 오사카 키워드 전체 <span class="no" style="margin-left:auto;">앵커 기법 · 트렌드 2회</span></div>';
  KW.forEach(function(k){var alive=k[1]>=5,mid=k[1]>=30;
   var col=mid?'#4edea3':(alive?'#5aa9e6':'#6a85a0');
@@ -618,7 +618,7 @@ var RSEL={}, RNEW=[], RC='';
 function rrs(c){RC=c;if(!RSEL[c])RSEL[c]={0:1,1:1};
  var u=UNC[c];var h='';
  h+='<div class="cd" style="margin-bottom:9px;"><div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">'+
-    '<span style="font-size:16px;font-weight:600;">'+c+'</span><span class="tag t-un">키워드 조사가 안 됐습니다</span></div>'+
+    '<span style="font-size:16px;font-weight:600;">'+c+'</span><span class="tag t-un">키워드 조사가 안 된 도시</span></div>'+
     '<div style="font-size:11.5px;color:var(--sub);">우리 데이터엔 이미 있습니다 — 확정 예약 <b>'+u.bk+'건</b> · 도시 '+u.cities.length+'곳 · 나라 중 <b>'+u.rank+'위</b></div>'+
     '<div style="font-size:11px;color:var(--muted);margin-top:3px;">없는 것은 검색 수요(구글 트렌드)뿐입니다. 그래서 "지금 착수 / 대기" 판정을 못 합니다. <span class="wb" onclick="ts(\'근거: DB 실측 2026-07-16 · bookings_unified · hotels\')">왜?</span></div></div>';
  h+='<div class="ml">한국어 · 한국 타겟으로 조사할 도시를 고르세요 <span class="no">2-1</span></div>';

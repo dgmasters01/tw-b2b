@@ -373,12 +373,68 @@ function rc(c){cc=c;document.getElementById('c2t').innerHTML=c+' · 도시 <span
      (!hasS||!hasK?'<span class="pil" style="background:var(--bld);color:var(--bl);cursor:pointer;" onclick="event.stopPropagation();go(\'r\',\'필리핀\')">＋ 조사하기</span>':'')+
      '</div></div><span class="wb" onclick="event.stopPropagation();ev2(\''+x+'\')">왜?</span><span style="color:var(--muted);">›</span></div>';});
  document.getElementById('c2l').innerHTML=h;document.getElementById('ev2').innerHTML='';}
+/* D-065 ⑤ 그 도시 수요 트렌드 + ㊿ 여행 축 — 2026-07-17 대표님.
+   여행 축(오사카 여행·자유여행)은 **이 도시를 할지/언제 할지** 정하는 기준이다.
+   그래서 자리는 **도시 화면 맨 위**다. 지역(난바) 밑에 있던 건 자리가 틀렸다.
+   순위·기회점수에는 안 섞는다(㊿). 값은 ㊾ 실측(trend.series) — 박지 않는다. */
+function svgSeason(series, col){
+  var mo={}, yrs={};
+  Object.keys(series||{}).forEach(function(ym){
+    var y=ym.slice(0,4), m=+ym.slice(5,7);
+    (mo[y]=mo[y]||{})[m]=(mo[y][m]||[]).concat(series[ym]); yrs[y]=1;
+  });
+  /* 🔴 해 하나에 3달도 안 되면 곡선이 아니다 — 그리지 않는다.
+     실측: 2023 은 1주치뿐인데 범례에 이름이 떴다 = 있지도 않은 해를 있다고 말하는 것. */
+  var ys=Object.keys(yrs).filter(function(y){ return Object.keys(mo[y]).length>=3; }).sort(), all=[];
+  var byYear=ys.map(function(y){
+    var a=[]; for(var m=1;m<=12;m++){ var v=mo[y][m]; a.push(v?v.reduce(function(p,c){return p+c;},0)/v.length:null); }
+    a.forEach(function(v){ if(v!=null) all.push(v); }); return {y:y,a:a};
+  });
+  if(!all.length) return '';
+  var mx=Math.max.apply(null,all), mn=Math.min.apply(null,all), W=560, H=88;
+  var cols={'2024':'#2f6b58','2025':'#3f9e7d','2026':col||'#4edea3'};
+  var g='';
+  byYear.forEach(function(o){
+    var pts=[];
+    o.a.forEach(function(v,i){ if(v==null) return;
+      pts.push((14+i*((W-28)/11)).toFixed(0)+','+(H-10-((v-mn)/(mx-mn||1))*(H-22)).toFixed(0)); });
+    if(pts.length>1) g+='<polyline fill="none" stroke="'+(cols[o.y]||'#5aa9e6')+'" stroke-width="'+(o.y==='2026'?2.5:1.5)+'" points="'+pts.join(' ')+'"/>';
+  });
+  var lb=''; for(var m=1;m<=12;m++) lb+='<text x="'+(14+(m-1)*((W-28)/11))+'" y="'+(H-1)+'" fill="#6a85a0" font-size="8" text-anchor="middle">'+m+'</text>';
+  return '<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:88px;">'+g+lb+'</svg>'+
+    '<div class="lg" style="margin-top:2px;">'+ys.map(function(y){return '<span><span class="dt" style="background:'+(cols[y]||'#5aa9e6')+';"></span>'+y+'</span>';}).join('')+'</div>';
+}
+
+function travelBlock(){
+  var tv=(SV&&SV.travel)||[];
+  var h='<div class="bk"><div class="bh">그 도시 수요 트렌드 <span class="no" style="margin-left:auto;">3-6</span></div>'+
+        '<div class="nt">여행 검색어는 <b>이 도시를 언제 할지</b> 정합니다 — 아래 순위·기회점수에는 <b>안 섞습니다</b>.</div>';
+  if(!tv.length){ return h+'<div class="wn">여행 검색어가 아직 없습니다 — 씨앗을 따로 뿌려야 합니다.</div></div>'; }
+  var top=tv[0];
+  h+=svgSeason(top.series);
+  tv.forEach(function(r){
+    var d=r.demand===null?null:Number(r.demand), s=r.series||{}, mo={};
+    Object.keys(s).forEach(function(ym){ var y=ym.slice(0,4), m=+ym.slice(5,7);
+      if(y==='2024'||y==='2025') (mo[m]=mo[m]||[]).push(s[ym]); });
+    var avg={}; Object.keys(mo).forEach(function(m){ avg[m]=mo[m].reduce(function(p,c){return p+c;},0)/mo[m].length; });
+    var ks=Object.keys(avg), hi=ks.length?ks.reduce(function(a,b){return avg[a]>avg[b]?a:b;}):null;
+    var lo=ks.length?ks.reduce(function(a,b){return avg[a]<avg[b]?a:b;}):null;
+    h+='<div style="display:flex;align-items:baseline;gap:8px;padding:5px 0;border-top:0.5px solid var(--line);">'+
+       '<span style="font-size:12px;width:120px;">'+r.text+'</span>'+
+       '<span style="flex:1;font-size:10.5px;color:var(--muted);">'+
+         (hi?hi+'월에 가장 몰립니다 — 가장 한산한 '+lo+'월보다 '+(avg[hi]/avg[lo]).toFixed(1)+'배':'—')+'</span>'+
+       '<span style="font-size:12px;font-weight:600;">'+(d===null?'—':d)+'</span></div>';
+  });
+  return h+'</div>';
+}
+
 function rdd(c){cy=c;document.getElementById('d3t').innerHTML=c+' · 키워드 구조 <span class="no">3-1~3-5</span>';
  if(c!=='오사카'){document.getElementById('d3l').innerHTML='<div class="wn">이 도시는 <b>키워드 조사가 안 된 도시</b> 모른다고 비워두거나 지어내지 않고, 모른다고 표시합니다.<br><br><span class="btn" onclick="ts(\'조사 시작 — 자동완성+트렌드 앵커 묶음\')">＋ 지금 조사하기</span></div>';return;}
  /* D-065 ⑬·㊼-4 확정: **재기는 살아있는 것 전부 / 보기만 상위 30 / 태그엔 전부.**
     🔴 옛 코드는 `KW` 배열 9개가 **박혀 있었다** — 인계서가 "[상위 30 더보기]가 5→9만 됨(거짓말)" 이라 적은 그것.
     이제 창구(?view=survey)가 준 **숙박 축 상위 30**을 그린다. 숫자를 박지 않는다. */
- var h='<div class="bk"><div class="bh">🎯 오사카 키워드 <span class="no" style="margin-left:auto;">앵커 기법 · 같은 잣대</span></div>';
+ var h=travelBlock();
+ h+='<div class="bk"><div class="bh">숙박 검색어 <span class="no" style="margin-left:auto;">앵커 기법 · 같은 잣대</span></div>';
  var rows=(SV&&SV.rows)||[];
  if(!rows.length){ h+='<div class="nt">조사 결과를 불러오는 중…</div>'; }
  var mx=0; rows.forEach(function(r){var d=r.demand===null?0:Number(r.demand); if(d>mx)mx=d;});
@@ -553,21 +609,8 @@ function rk(){
   });
   if(rows.length>8) h+='<div style="display:flex;gap:12px;margin-top:7px;"><span class="mr" onclick="svM()">'+(svMore?'접기 ▴':'상위 '+rows.length+' 더보기 ▾')+' <span class="no">4-9</span></span></div>';
 
-  /* 여행 축 — ㊿ (2026-07-17 대표님). 순위에 안 섞는다. 버리지도 않는다.
-     "언제 착수하나"를 정하는 배경이고, 태그란(⑬)에는 그대로 들어간다. */
-  var tv=SV.travel||[];
-  h+='<div style="background:var(--card2);border-radius:8px;padding:10px;margin-top:10px;">'+
-     '<div style="font-size:11px;font-weight:600;">여행 축 — 언제 착수하나 <small style="color:var(--muted);font-weight:400;">· 순위·기회점수에 안 섞습니다 <span class="no">4-12</span></small></div>'+
-     '<div style="font-size:10px;color:var(--muted);margin:2px 0 6px;">이 도시를 언제 노출할지 정하는 배경입니다. 태그란에는 그대로 들어갑니다.</div>';
-  if(!tv.length){ h+='<div class="wn">여행 축 검색어가 아직 없습니다 — 씨앗을 따로 뿌려야 합니다.</div>'; }
-  tv.forEach(function(r){
-    var d=svNum(r.demand), base=(rows[0]&&svNum(rows[0].demand))||0;
-    h+='<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-top:0.5px solid var(--line);">'+
-       '<span style="flex:1;font-size:11px;">'+r.text+'</span>'+
-       '<span style="font-size:10px;color:var(--muted);">'+(d&&base?'숙박 대표어의 '+(d/base).toFixed(1)+'배':'—')+'</span>'+
-       '<span style="font-size:12px;width:52px;text-align:right;">'+(d===null?'—':d)+'</span></div>';
-  });
-  h+='</div>';
+  /* 여행 축은 **도시 화면 맨 위**로 옮겼다 (2026-07-17 · D-065 ⑤·㊿).
+     지역(난바) 밑에서 '오사카 여행'을 말할 이유가 없다 — 여행 축은 도시를 고르는 기준이다. */
   document.getElementById('kv2').innerHTML=h;
 
   /* 3층 */

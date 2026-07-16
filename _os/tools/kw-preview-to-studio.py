@@ -97,25 +97,34 @@ def scope_css(css):
     return "\n".join(out)
 
 
+PREV_A = "<!-- ⟦본문 시작⟧"
+PREV_B = "<!-- ⟦본문 끝⟧ -->"
+
+
 def extract():
+    """🔴 본문은 **표식**으로 잡는다. 마크업 모양(`<div class="tt">` 같은 것)을 시작점으로 삼으면
+       그 div 를 지우는 순간 도구가 통째로 깨진다 — 2026-07-17 실제로 그랬다."""
     p = PREV.read_text()
     i, j = p.find("<style>"), p.find("</style>")
+    if i < 0 or j < 0:
+        sys.exit("🔴 프리뷰에 <style> 이 없습니다")
     css = p[i + 7:j]
-    a = p.find('<div class="tt">')
-    b = p.find('<div class="ts" id="tsb"></div>')
-    body = p[a:b] + '<div class="ts" id="tsb"></div>'
+
+    a, b = p.find(PREV_A), p.find(PREV_B)
+    if a < 0 or b < 0:
+        sys.exit(f"🔴 프리뷰에 본문 표식이 없습니다: {PREV_A} … {PREV_B}\n"
+                 "   프리뷰 마크업 맨 앞뒤에 표식을 박으세요. 모양으로 잡으면 또 깨집니다.")
+    a = p.find("-->", a) + 3
+    body = p[a:b]
+
     c = p.find("<script>", b)
     js = p[c + 8:p.rfind("</script>")]
     return css, body, js
 
 
 def transform(css, body, js):
-    # B. 제목 벗기기 — 스튜디오가 이미 "키워드" 제목을 갖는다. 전략 큐 칩만 살린다.
-    body = re.sub(r'<div class="tt"><h1>키워드</h1>.*?</div>',
-                  '<div class="tt" style="justify-content:flex-end;">'
-                  '<span class="qb" onclick="go(\'q\')">전략 큐 <b id="qc">4</b> ›</span></div>',
-                  body, count=1, flags=re.S)
-    # 목업 딱지 — 스튜디오는 진짜 화면이다
+    # B. 제목·목업 딱지 벗기기 — 스튜디오가 제목을 갖는다. 스튜디오는 진짜 화면이라 목업 딱지가 없다.
+    #    (제목줄 `.tt` 와 전략 큐 칩은 2026-07-17 프리뷰에서 아예 제거됨 — 큐는 전략 메뉴 소유)
     body = re.sub(r'<div class="pv">.*?</div>', "", body, count=1, flags=re.S)
 
     # C. 색·폭

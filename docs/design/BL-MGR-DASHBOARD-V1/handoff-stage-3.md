@@ -161,7 +161,7 @@ BL-MGR-DASHBOARD-V1
 ### Step 5: 작업 완료 알림 POST
 ```
 POST https://gohotelwinners.com/api/email/ops/notify-claude-work
-Header: x-ops-token: sV1IWuvgBYcn94lQZXBjFLjgdsh3lrBK
+Header: x-ops-token: <CLAUDE_OPS_TOKEN — Vercel 환경변수에서 읽는다. 평문 금지(2026-07-16 공개레포 노출 사고)>
 Body: {step, summary, checklist[], vercel_url, blockers, commit_hash}
 ```
 

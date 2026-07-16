@@ -33,7 +33,7 @@ async function count(key, q, publishedAfter) {
   return { total: j?.pageInfo?.totalResults ?? null };
 }
 
-module.exports = async (req, res) => {
+export default async function handler(req, res) {
   if ((req.headers['x-ops-token'] || '') !== process.env.CLAUDE_OPS_TOKEN) {
     return res.status(401).json({ ok: false, error: 'unauthorized' });
   }
@@ -59,4 +59,4 @@ module.exports = async (req, res) => {
     ok: true, key: 'present', years, window_from: from,
     results, quota_units_used: qs.length * 200,
   });
-};
+}

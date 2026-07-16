@@ -16,7 +16,7 @@
 //
 //   GET /api/content-keywords?view=survey&city=cc:japan|osaka[&target=ko&market=KR&ym=2026-07]
 //     🆕 2026-07-17 — 키워드 조사 3층 화면(D-065 ㊼-4)의 재료.
-//     나오는 것: { ok, snapshot, counts, rows[], layer3 }
+//     나오는 것: { ok, snapshot, counts, rows[](숙박 축 · 순위 무대), travel[](여행 축 · 배경), layer3 }
 //     🔴 숫자는 전부 여기서 **세어서** 나간다. 화면에 박지 않는다.
 //        (인계서 사고: 화면에 '살아있는 42·죽은 8' 이 박혀 있었고 진짜는 58·10 이었다)
 //     🔴 구글/유튜브를 부르지 않는다. DB만 읽는다 (⑪ — 화면에서 실시간 호출 = 429로 화면이 죽는다)
@@ -94,7 +94,7 @@ async function survey(sb, req, res, who) {
   const snap = snaps.find((s) => s.ym === ym) || null;
 
   const kwRes = await sb.from('keyword')
-    .select('id, text, kind, alive, alive_source, morph_axis, is_anchor')
+    .select('id, text, kind, alive, alive_source, morph_axis, is_anchor, axis')
     .eq('target_code', target).eq('market', market).eq('city_key', cityKey);
   if (kwRes.error) throw kwRes.error;
   const kws = kwRes.data || [];
@@ -124,12 +124,14 @@ async function survey(sb, req, res, who) {
     pairs_orphan: joinedAlive.filter((j) => !spacedByFlat.has(j.text)).length,
     measured: trends.filter((t) => t.measured).length,
     below_floor: trends.filter((t) => t.skip_reason === 'below_floor').length,
+    stay: alive.filter((k) => k.axis !== 'travel').length,
+    travel: alive.filter((k) => k.axis === 'travel').length,
   };
 
   // 2층 — 대표 검색어 (붙여쓰기는 짝 안으로) · 검색량 순 · 상위 30
   const joinedByFlat = new Map(joinedAlive.map((j) => [j.text, j]));
   const base = alive.filter((k) => k.kind !== 'joined' || !spacedByFlat.has(k.text));
-  const rows = base.map((k) => {
+  const build = (k) => {
     const r = merge(k);
     const j = k.kind === 'joined' ? null : joinedByFlat.get(k.text.replace(/\s+/g, ''));
     return {
@@ -137,7 +139,14 @@ async function survey(sb, req, res, who) {
       orphan_pair: k.kind === 'joined',      // 띄어쓰기 짝이 표에 없는 붙여쓰기
       joined: j ? merge(j) : null,
     };
-  }).sort((a, b) => (a.demand === null) - (b.demand === null) || (b.demand - a.demand));
+  };
+  const byDemand = (a, b) => (a.demand === null) - (b.demand === null) || (b.demand - a.demand);
+
+  // 🔑 ㊿ 축 분리 (2026-07-17 대표님) — 순위·기회점수 무대는 **숙박 축만**.
+  //    여행 축(오사카 여행 등)은 "언제 착수하나"를 정하는 배경이라 순위에 안 섞는다.
+  //    버리는 게 아니다 — 아래 travel 로 따로 나가고, 태그란(⑬)에는 그대로 들어간다.
+  const rows = base.filter((k) => k.axis !== 'travel').map(build).sort(byDemand);
+  const travel = base.filter((k) => k.axis === 'travel').map(build).sort(byDemand);
 
   // 3층 — 조사가 2회 이상 쌓여야 "새로 생긴 / 사라진" 을 말할 수 있다
   const nextYm = (() => {
@@ -154,7 +163,7 @@ async function survey(sb, req, res, who) {
     ok: true, is_admin: !!who.isAdmin, view: 'survey',
     target, market, city_key: cityKey, ym,
     snapshot: snap, months: snaps.map((s) => s.ym),
-    counts, rows: rows.slice(0, 30), rows_total: rows.length, layer3,
+    counts, rows: rows.slice(0, 30), rows_total: rows.length, travel, layer3,
   });
 }
 

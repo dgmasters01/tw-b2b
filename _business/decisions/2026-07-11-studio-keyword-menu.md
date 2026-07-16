@@ -790,7 +790,7 @@ history.replaceState({w:'m'})    ← 첫 진입 = 메인
 ### 순서 — 조사 봇은 세 번째
 | | 무엇 | 지금 | 왜 이 순서 |
 |---|---|---|---|
-| 1 | `city_alias` 표 | **0개** | ㉚: 없으면 봇이 `"팔라완 호텔"` 검색어를 못 만든다 = 첫 줄에서 멈춤 |
+| 1 | `city_alias` 표 | ✅ **완료**(2026-07-16 ㊴) | ㉚: 없으면 봇이 `"팔라완 호텔"` 검색어를 못 만든다 = 첫 줄에서 멈춤 |
 | 2 | 스냅샷 표 `trend`·`keyword`·`snapshot` | **0개** | 조사 결과를 담을 그릇 |
 | 3 | 조사 봇 (`kwtool.py` + 매달 1일 크론) | 없음 | ⑨. **붙여쓰기 트렌드를 처음부터 설계에 포함** — 나중에 덧붙이지 않는다 |
 | 4 | 페어 화면 (위 표시 규칙) | 없음 | 3이 데이터를 채운 뒤 |
@@ -885,10 +885,54 @@ morph_rule (target_code, market, axis, variants, expand_charset, probe_raw, sour
 ### 순서 (㊲ 갱신 — 정찰이 1번 앞에 붙는다)
 | | 무엇 | 지금 |
 |---|---|---|
-| 0 | `morph_rule` 표 + `ko` 시드 | 없음 |
-| 1 | `city_alias` 표 (㉚) | 0개 |
+| 0 | `morph_rule` 표 + `ko` 시드 | ✅ **완료** (2026-07-16 · 1행=ko · ㊴) |
+| 1 | `city_alias` 표 (㉚) | ✅ **표 완료** (2026-07-16 · 0행=정상, 지연 생성 · ㊴) |
 | 2 | 스냅샷 표 `trend`·`keyword`·`snapshot` | 0개 |
 | 3 | **언어 정찰** (1단) — `kwtool.py` 에 `probe` 명령 신설 | 없음 |
 | 4 | 조사 봇 (2단, 매달 1일) — `harvest`·`pair` 를 `morph_rule` 기반으로 일반화 | 없음 |
 | 5 | 페어 화면 (㊲ 표시 규칙) | 없음 |
 | 6 | ① 콘텐츠 추천 + [이걸로 만들기] = **출구** | 없음 |
+
+
+---
+
+## ㊴ 구현 — `morph_rule` · `city_alias` 표 생성 완료 (2026-07-16) · 실측 정정 1건
+
+**설계(㉚·㊳) → 실물.** DB 라이브. 표 생성 전 수동 백업 1회(백업 커밋 `9fafc1b8` · 표 30 · 21,501행 · 86초).
+
+### 실물 구조
+```
+morph_rule (id, target_code, market, axis, variants, expand_charset, probe_raw, source, updated_at)
+           UNIQUE(target_code, market, axis)     ← 한 언어에 축이 여럿이면 행이 여럿
+city_alias (id, target_code, country, city_key, label, source, updated_at)
+           UNIQUE(target_code, city_key)
+```
+- 두 표 모두 **칸마다 `COMMENT`** 를 박았다. 문서 없이 표만 봐도 뜻이 나온다(`col_description()`). 헌법 6조(AI 가독성).
+- **`ja`·`en`·`vi`·`zh-tw` 는 비웠다.** `morph_rule` = **1행(ko)**. 추측으로 채우면 썩은 자산(㊳). 1단 정찰이 채운다.
+- **`city_alias` = 0행이 정상.** 지연 생성(㉚) — 조사 시작 화면 입력이 곧 데이터.
+
+### 🔴 실측 정정 — `city_key = agoda_city_id 우선` 은 지금 불가능
+**2026-07-16 실측: `hotels.agoda_city_id` 3,185건 전부 `null` (비어있는 칸 0건 = 값 0건).** ㉚이 1순위로 정한 열쇠에 **재료가 통째로 없다.**
+→ 확정 규칙 (한 칸에 접두어로 구분):
+
+| 접두어 | 언제 | 예 |
+|---|---|---|
+| `cc:` | 목록에서 고른 도시 (`hotels` 영문과 연결됨) | `cc:philippines\|cebu` (소문자) |
+| `new:` | 직접 넣은 도시 (영문 아직 없음 — ㉚ "영문 매칭은 미룬다") | `new:philippines\|팔라완` |
+| `agoda:` | 나중에 `agoda_city_id` 가 채워지면 | `agoda:16901` |
+
+- **`country` 칸을 문서에 없던 것으로 하나 더 넣었다.** 이유: 나라 화면이 **직접 넣은 도시**(영문이 없어 `hotels`와 못 잇는 도시)를 나열하려면 나라로 거를 칸이 필요하다. `city_key` 문자열을 쪼개 쓰는 건 못난 짓 = 나중에 버그.
+- `hotels` 실측: 나라＋도시(영문) 조합 **171개** = `cc:` 로 이을 수 있는 도시의 상한.
+
+### `ko` 시드 1행 — 근거 (추측 0)
+| 칸 | 값 | 근거 |
+|---|---|---|
+| `target_code`·`market` | `ko` · `KR` | `channels.language` 실측(ko/ja/en/vi/zh-tw 5종). `gl = lower(market)` |
+| `axis` | `spacing` | ㊲ 오사카 12쌍 전수 → 5쌍이 1.5배 이상 갈림 |
+| `variants` | `{op:spacing, generate:[as_is, join_all], keep_if_ratio_gte:1.5, drop_if_joined_competition_lt:500}` | ㊳ "축=띄어쓰기 · 1.5배 · 붙여쓰기 경쟁 500 미만 제외" |
+| `expand_charset` | 자모 **14자** `ㄱㄴㄷㄹㅁㅂㅅㅇㅈㅊㅋㅌㅍㅎ` | `api/_lib/kwtool.py` 의 `JAMO` 를 그대로 옮김 — **코드에 박힌 걸 표로 뺐다**(㊳) |
+| `probe_raw` | **null** | ko는 정찰이 아니라 **경쟁 전수 실측**에서 나왔다. 긁은 원본이 없으므로 없는 걸 채우지 않았다 |
+| `source` | 위 근거를 문장으로 | "왜 1.5배야?" 에 **표가 스스로 답한다** |
+
+### 다음 (순서 2번)
+스냅샷 표 `trend`·`keyword`·`snapshot` — **여전히 0개.** 조사 결과를 담을 그릇.

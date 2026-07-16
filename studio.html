@@ -458,28 +458,157 @@
   .st-cid.off { opacity:.45; text-decoration:line-through; }
   .st-cid-none { font-size:12px; opacity:.45; }
 
-  /* ── 키워드 조사 3층 (D-065 ㊼-4 · ㊿ 축 분리 · 2026-07-17) ── */
-  .st-sv-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:10px; }
-  .st-sv-st { border:1px solid rgba(128,128,128,.18); border-radius:10px; padding:10px 12px; }
-  .st-sv-v { font-size:20px; font-weight:500; }
-  .st-sv-l { font-size:12px; opacity:.6; margin-top:2px; }
-  .st-sv-note { font-size:12px; opacity:.6; line-height:1.7; margin-bottom:12px; }
-  .st-sv-row { display:flex; align-items:center; gap:10px; padding:9px 2px; border-bottom:1px solid rgba(128,128,128,.14); cursor:pointer; }
-  .st-sv-row.sub { cursor:default; border-bottom:none; padding:4px 2px; }
-  .st-sv-n { flex:1; min-width:0; font-size:14px; }
-  .st-sv-n small { display:block; font-size:11px; opacity:.55; margin-top:2px; }
-  .st-sv-bar { width:150px; height:6px; border-radius:20px; background:rgba(128,128,128,.16); flex:none; }
-  .st-sv-fill { height:6px; border-radius:20px; background:#1D9E75; }
-  .st-sv-v2 { width:54px; text-align:right; font-size:14px; flex:none; }
-  .st-sv-tag { font-size:11px; padding:1px 7px; border-radius:20px; border:1px solid rgba(128,128,128,.3); margin-left:5px; white-space:nowrap; }
-  .st-sv-tag.pair { color:#185FA5; border-color:#85B7EB; }
-  .st-sv-tag.orphan { color:#854F0B; border-color:#EF9F27; }
-  .st-sv-tag.anchor { color:#0F6E56; border-color:#5DCAA5; }
-  .st-sv-x { display:none; padding:8px 10px; margin:0 0 8px; border-radius:10px; background:rgba(128,128,128,.06); }
-  .st-sv-x.on { display:block; }
-  .st-sv-travel { border:1px solid rgba(128,128,128,.18); border-radius:10px; padding:11px 12px; margin-top:14px; background:rgba(128,128,128,.035); }
-  .st-sv-lock { border-top:1px solid rgba(128,128,128,.14); margin-top:14px; padding-top:11px; opacity:.7; font-size:13px; }
-  .st-sv-more { font-size:13px; opacity:.7; cursor:pointer; padding:9px 2px; display:inline-block; }
+  /* ── 키워드 메뉴 확정본 (D-065 · studio-keyword-preview.html 에서 이사 2026-07-17) ──
+     #kw-app 안에만 갇혀 있다. 스튜디오 나머지 화면에 안 샌다. ── */
+  #kw-app{display:block;}
+#kw-app{--bg:#051424;--card:#0b2236;--card2:#102a42;--line:#1c3a56;--txt:#e6eef6;--sub:#9db4c9;--muted:#6a85a0;
+  --em:#4edea3;--emd:#0f3f31;--am:#efb04a;--amd:#3a2a12;--rd:#e57373;--rdd:#3a1c1c;--bl:#5aa9e6;--bld:#12314c;}
+#kw-app{box-sizing:border-box;margin:0;padding:0;}
+#kw-app{background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Malgun Gothic",sans-serif;line-height:1.55;padding:18px 14px 70px;max-width:800px;margin:0 auto;font-size:14px;}
+#kw-app .pv{background:var(--amd);color:var(--am);font-size:11px;padding:6px 11px;border-radius:8px;margin-bottom:12px;text-align:center;}
+#kw-app .tt{display:flex;align-items:baseline;gap:9px;}
+#kw-app .tt h1{font-size:19px;font-weight:600;}
+#kw-app .tt .s{font-size:12px;color:var(--muted);}
+#kw-app .qb{margin-left:auto;font-size:11px;padding:4px 10px;border-radius:20px;background:var(--card2);color:var(--sub);cursor:pointer;}
+#kw-app /* C안 — 빵부스러기 = 유일한 출구인데 11px였다. 손가락으로 누를 수 있게 알약으로. (대표님 2026-07-16) */
+ .bc{display:flex;align-items:center;gap:4px;flex-wrap:wrap;font-size:12.5px;color:var(--muted);margin:7px 0 11px;min-height:32px;}
+#kw-app .bc:empty{min-height:0;margin:0;}
+#kw-app .bc a{color:var(--sub);cursor:pointer;background:var(--card2);border:0.5px solid var(--line);border-radius:20px;padding:8px 13px;line-height:1;}
+#kw-app .bc a:hover{border-color:#3d7fb5;color:var(--txt);}
+#kw-app .bc b{color:var(--txt);padding:8px 3px;line-height:1;}
+#kw-app .bc span{padding:8px 3px;line-height:1;}
+#kw-app .no{font-size:9px;padding:1px 6px;border-radius:20px;background:var(--card2);color:var(--muted);}
+#kw-app .srch{display:flex;align-items:center;gap:7px;background:var(--card);border:0.5px solid var(--line);border-radius:9px;padding:8px 11px;margin-bottom:7px;}
+#kw-app .srch input{background:none;border:none;outline:none;color:var(--txt);font-size:12px;flex:1;font-family:inherit;}
+#kw-app .srch input::placeholder{color:var(--muted);}
+#kw-app .sr{background:var(--card);border:0.5px solid var(--line);border-radius:9px;padding:7px;margin-bottom:7px;display:none;}
+#kw-app .sr.on{display:block;}
+#kw-app .sri{display:flex;align-items:center;gap:7px;padding:7px;border-radius:7px;cursor:pointer;font-size:12px;}
+#kw-app .sri:hover{background:var(--card2);}
+#kw-app .tg{margin-bottom:8px;}
+#kw-app .tgh{display:flex;align-items:center;gap:9px;background:var(--card);border:0.5px solid #2a5a80;border-radius:9px;padding:8px 11px;cursor:pointer;}
+#kw-app .tgi{width:26px;height:26px;border-radius:7px;background:var(--bld);color:var(--bl);display:flex;align-items:center;justify-content:center;font-size:13px;}
+#kw-app .dd{display:none;background:var(--card);border:0.5px solid var(--line);border-radius:9px;padding:9px;margin-top:5px;}
+#kw-app .dd.on{display:block;}
+#kw-app .ddg{font-size:10px;color:var(--muted);margin:7px 0 3px;}
+#kw-app .ddi{display:flex;align-items:center;gap:7px;padding:6px;border-radius:7px;cursor:pointer;font-size:12px;}
+#kw-app .ddi:hover{background:var(--card2);}
+#kw-app .ddi.sel{background:var(--bld);color:var(--bl);font-weight:600;}
+#kw-app .tag{margin-left:auto;font-size:9px;padding:1px 6px;border-radius:20px;}
+#kw-app .t-on{background:var(--emd);color:var(--em);}
+#kw-app .t-ex{background:var(--card2);color:var(--muted);}
+#kw-app .t-un{background:var(--amd);color:var(--am);}
+#kw-app .t-rc{background:var(--bld,rgba(96,165,250,.16));color:var(--bl);}
+#kw-app .ban{background:var(--bld);border-radius:9px;padding:10px 12px;margin-bottom:8px;color:#bcd8ee;font-size:12px;}
+#kw-app .ban b{color:#eaf4fc;}
+#kw-app .flw{display:flex;align-items:center;gap:8px;font-size:11px;margin-bottom:10px;}
+#kw-app .chp{padding:5px 10px;border-radius:7px;background:var(--card2);color:var(--sub);}
+#kw-app .chp b{color:var(--txt);}
+#kw-app .chp.t{background:var(--bld);color:var(--bl);font-weight:600;}
+#kw-app .ml{font-size:10px;color:var(--muted);margin-bottom:4px;}
+#kw-app .ms{margin-bottom:6px;}
+#kw-app .myr{display:flex;flex-wrap:wrap;align-items:center;gap:4px;margin-bottom:5px;}
+#kw-app .yl{font-size:10px;color:var(--muted);min-width:31px;letter-spacing:.03em;}
+#kw-app .m{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;padding:6px 11px;border-radius:9px;background:var(--card);border:1px solid var(--line);color:var(--sub);cursor:pointer;transition:background .12s,border-color .12s,transform .12s;user-select:none;}
+#kw-app .m:hover{background:var(--card2);border-color:#2a5a80;transform:translateY(-1px);}
+#kw-app .m:active{transform:translateY(0);}
+#kw-app .m .dt{width:6px;height:6px;margin:0;flex:none;}
+#kw-app .m.dim{color:var(--muted);}
+#kw-app .m.sel{background:var(--bld);border-color:#3d7fb5;color:#d6ecfd;font-weight:700;box-shadow:0 0 0 1px #3d7fb5 inset;}
+#kw-app .m.cal{border-style:dashed;color:var(--bl);}
+#kw-app .lg{display:flex;flex-wrap:wrap;gap:11px;font-size:10px;color:var(--muted);margin-bottom:5px;}
+#kw-app .dt{width:7px;height:7px;border-radius:50%;display:inline-block;margin-right:4px;}
+#kw-app .mi{font-size:10px;color:var(--muted);margin-bottom:14px;}
+#kw-app h2{font-size:14px;font-weight:600;margin:16px 0 2px;}
+#kw-app .nt{font-size:11px;color:var(--muted);margin-bottom:8px;}
+#kw-app /* 조작판 = 닫힌 상자 (여기서 고른다) */
+ .ctrl{background:#07192a;border:1px solid #17334d;border-radius:13px;padding:11px 11px 9px;margin-bottom:4px;}
+#kw-app .ctrl-h{display:flex;align-items:center;gap:6px;font-size:9.5px;letter-spacing:.09em;color:var(--muted);margin-bottom:8px;}
+#kw-app .ctrl-h:before{content:"";width:3px;height:10px;background:var(--bl);border-radius:2px;}
+#kw-app /* 결과 = 열린 흐름 (여기서 본다) */
+ .res{margin-top:20px;padding-top:2px;}
+#kw-app .res>h2:first-child{margin-top:0;}
+#kw-app .res h2{display:flex;align-items:center;gap:8px;font-size:15px;}
+#kw-app .res h2:before{content:"";width:3px;height:15px;background:var(--em);border-radius:2px;flex:none;}
+#kw-app .res .nt{margin-left:11px;}
+#kw-app .ls{border:0.5px solid var(--line);border-radius:10px;overflow:hidden;margin-bottom:10px;}
+#kw-app .rw{display:flex;align-items:center;gap:9px;padding:11px 12px;border-bottom:0.5px solid var(--line);background:var(--card);cursor:pointer;}
+#kw-app .rw:last-child{border-bottom:none;}
+#kw-app .rw:hover{background:var(--card2);}
+#kw-app .rw .mn{flex:1;}
+#kw-app .n{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+#kw-app .nm{font-size:14px;font-weight:600;}
+#kw-app .wh{font-size:11px;color:var(--sub);margin-top:2px;}
+#kw-app .sg{font-size:10px;padding:2px 8px;border-radius:20px;font-weight:600;}
+#kw-app .g-go{background:var(--emd);color:var(--em);}
+#kw-app .g-lt{background:var(--rdd);color:var(--rd);}
+#kw-app .g-wt{background:var(--card2);color:var(--muted);}
+#kw-app .g-un{background:var(--amd);color:var(--am);}
+#kw-app .pil{font-size:10px;padding:2px 7px;border-radius:20px;background:var(--card2);color:var(--sub);}
+#kw-app .wb{font-size:10px;padding:3px 8px;border-radius:20px;background:var(--bld);color:var(--bl);cursor:pointer;}
+#kw-app /* D-065 ㉞ 나라 카드 A형태 — 도시 칩 */
+ .cps{display:flex;flex-wrap:wrap;gap:5px;margin-top:5px;}
+#kw-app .cp{font-size:10.5px;padding:3px 8px;border-radius:20px;background:var(--card2);color:var(--sub);cursor:pointer;display:inline-flex;align-items:center;gap:5px;border:0.5px solid var(--line);}
+#kw-app .cp:hover{border-color:#3d7fb5;color:var(--txt);}
+#kw-app .cp .cd{width:6px;height:6px;border-radius:50%;flex:none;}
+#kw-app .cp-x{color:var(--muted);border-style:dashed;}
+#kw-app .ev{display:none;background:var(--card2);border-radius:9px;padding:11px;margin:-6px 0 10px;}
+#kw-app .ev.on{display:block;}
+#kw-app .evb{background:var(--card);border-radius:8px;padding:10px;margin-bottom:7px;}
+#kw-app .evt{font-size:11px;font-weight:600;margin-bottom:4px;}
+#kw-app .evs{font-size:11px;color:var(--sub);line-height:1.6;}
+#kw-app .src{font-size:9px;color:var(--muted);margin-top:5px;}
+#kw-app .wn{background:var(--amd);border-radius:8px;padding:9px 10px;font-size:11px;color:var(--am);line-height:1.6;}
+#kw-app .er{background:var(--rdd);border-radius:8px;padding:9px 10px;font-size:11px;color:var(--rd);line-height:1.6;}
+#kw-app .ok{background:var(--emd);border-radius:8px;padding:9px 10px;font-size:11px;color:var(--em);line-height:1.6;}
+#kw-app .bk{background:var(--card);border:0.5px solid var(--line);border-radius:10px;padding:12px;margin-bottom:9px;}
+#kw-app .bh{font-size:13px;font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+#kw-app .st4{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-bottom:7px;}
+#kw-app .st{background:var(--card2);border-radius:7px;padding:7px;text-align:center;}
+#kw-app .st .v{font-size:15px;font-weight:600;}
+#kw-app .st .l{font-size:9px;color:var(--muted);}
+#kw-app .kw{border-bottom:0.5px solid var(--line);}
+#kw-app .kw:last-child{border-bottom:none;}
+#kw-app .kh{display:flex;gap:7px;align-items:center;padding:9px 2px;cursor:pointer;}
+#kw-app .kh:hover{background:var(--card2);border-radius:6px;}
+#kw-app .kn{font-size:12px;flex:1;}
+#kw-app .kn small{color:var(--muted);font-size:10px;display:block;margin-top:1px;}
+#kw-app .kb2{width:80px;height:5px;border-radius:3px;background:var(--card2);overflow:hidden;flex-shrink:0;}
+#kw-app .kf{height:100%;display:block;}
+#kw-app .kv{font-size:12px;font-weight:600;width:38px;text-align:right;}
+#kw-app .kx{display:none;padding:2px 2px 10px;}
+#kw-app .kx.on{display:block;}
+#kw-app .tb{background:var(--card2);border-radius:8px;padding:10px;margin-bottom:7px;}
+#kw-app .th{display:flex;align-items:center;gap:7px;margin-bottom:5px;cursor:pointer;}
+#kw-app .th .t{font-size:11px;font-weight:600;}
+#kw-app .cw{display:none;}
+#kw-app .cw.on{display:block;}
+#kw-app .tgl{display:flex;gap:5px;margin-top:5px;}
+#kw-app .tg2{font-size:10px;padding:2px 9px;border-radius:20px;background:var(--card);color:var(--muted);cursor:pointer;}
+#kw-app .tg2.on{background:var(--bld);color:var(--bl);font-weight:600;}
+#kw-app .btn{font-size:12px;padding:6px 13px;border-radius:20px;border:0.5px solid var(--bl);background:var(--bld);color:var(--bl);cursor:pointer;font-family:inherit;font-weight:600;}
+#kw-app .bt2{border-color:var(--line);color:var(--sub);background:none;font-weight:400;}
+#kw-app .mr{font-size:11px;color:var(--bl);cursor:pointer;}
+#kw-app .mr.gy{color:var(--muted);}
+#kw-app .hd{display:none;}
+#kw-app .str{display:flex;gap:5px;margin-bottom:11px;}
+#kw-app .sp{font-size:11px;padding:4px 11px;border-radius:20px;background:var(--card2);color:var(--muted);cursor:pointer;}
+#kw-app .sp.on{background:var(--bld);color:var(--bl);font-weight:600;}
+#kw-app .kbn{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;}
+#kw-app .kct{font-size:11px;font-weight:600;margin-bottom:6px;display:flex;justify-content:space-between;}
+#kw-app .kct span{color:var(--muted);}
+#kw-app .kc{background:var(--card2);border-radius:7px;padding:8px;margin-bottom:5px;}
+#kw-app .kc.nw{background:var(--bld);}
+#kw-app .kid{font-size:9px;color:var(--muted);}
+#kw-app .kc.nw .kid{color:var(--bl);}
+#kw-app .ktt{font-size:11px;margin-top:2px;line-height:1.4;}
+#kw-app .kmt{font-size:9px;color:var(--muted);margin-top:4px;}
+#kw-app .sc{display:none;}
+#kw-app .sc.on{display:block;}
+#kw-app .ts{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--bld);color:#dbeeff;border:0.5px solid var(--bl);padding:8px 14px;border-radius:20px;font-size:12px;opacity:0;transition:opacity .25s;pointer-events:none;z-index:9;}
+#kw-app .ts.on{opacity:1;}
+#kw-app .ft{color:var(--muted);font-size:10px;margin-top:22px;text-align:center;}
+  /* (옛 st-sv-* 스타일은 이사하며 지움 — 확정본 화면이 제 스타일을 들고 왔다) */
 
   /* ── 전략 · 콘텐츠 기획 큐 (D-060 · 6메뉴 마지막) ── */
   .st-sg-board { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-top:16px; }
@@ -707,10 +836,110 @@
     <div class="st-head">
       <div><div class="st-h">키워드</div><div class="st-sub" id="st-kw-sub">불러오는 중…</div></div>
     </div>
-    <div class="st-hint">실제 예약 데이터로 "다음에 만들면 좋을 것"을 뽑았습니다. 예약은 많은데 아직 우리 영상이 없는 도시·호텔이 위로 옵니다.</div>
-    <div class="st-pf-block">
-      <div class="st-pf-h">🔍 키워드 조사 — 오사카 (한국어 · 한국)</div>
-      <div id="st-sv"><div class="st-empty">불러오는 중…</div></div>
+    <div class="st-hint">D-065 확정본. 나라 → 도시 → 지역 → 지역 상세로 파고듭니다. 조사한 도시는 진짜 숫자, 아직 안 이은 칸은 <b>목업</b> 배지가 붙습니다.</div>
+    <div id="kw-app"><div class="tt"><h1>키워드</h1><span class="s">다음에 뭘 만들지, 데이터로</span><span class="qb" onclick="go('q')">전략 큐 <b id="qc">4</b> ›</span></div>
+<div class="bc" id="bc"></div>
+
+<!-- ① 메인 -->
+<div class="sc on" id="s1">
+  <div class="ctrl">
+  <div class="ctrl-h">겨냥 설정 — 어디를 · 누구에게 · 언제</div>
+  <div class="srch"><span>🔍</span><input id="sq" placeholder="나라·도시·지역 검색 — 조사 안 된 곳도" oninput="sch()"><span class="no">1-1</span></div>
+  <div class="sr" id="srb"></div>
+
+  <div class="tg">
+    <div class="tgh" onclick="dd()"><div class="tgi">👤</div>
+      <div><div style="font-size:10px;color:var(--muted);">타겟 (언어 + 시장)</div><div style="font-size:13px;font-weight:600;" id="tn">한국어 · 한국</div></div>
+      <span class="no" style="margin-left:auto;">1-2</span><span style="color:var(--muted);" id="tc">⌄</span></div>
+    <div class="dd" id="ddb">
+      <div class="srch" style="margin-bottom:7px;"><span>🔍</span><input placeholder="타겟 검색 (언어·시장)"></div>
+      <div class="ddg">자주 쓰는</div>
+      <div class="ddi sel">한국어 · 한국 <span style="color:var(--muted);font-size:11px;margin-left:6px;">채널 3</span> <span style="margin-left:auto;">✓</span></div>
+      <div class="ddi" onclick="pk('일본어 · 일본')">일본어 · 일본 <span style="color:var(--muted);font-size:11px;margin-left:6px;">채널 1</span> <span class="tag t-on">운영 중</span></div>
+      <div class="ddg">다른 언어</div>
+      <div class="ddi" onclick="pk('중국어 번체 · 대만·홍콩')">중국어 번체 · 대만·홍콩 <span style="color:var(--muted);font-size:11px;margin-left:6px;">채널 1</span> <span class="tag t-on">운영 중</span></div>
+      <div class="ddi" onclick="pk('베트남어 · 베트남')">베트남어 · 베트남 <span style="color:var(--muted);font-size:11px;margin-left:6px;">채널 1</span> <span class="tag t-on">운영 중</span></div>
+      <div class="ddi" onclick="pk('영어 · 전세계')">영어 · 전세계 <span style="color:var(--muted);font-size:11px;margin-left:6px;">채널 1</span> <span class="tag t-on">운영 중</span></div>
+      <div style="border-top:0.5px solid var(--line);padding-top:8px;margin-top:5px;color:var(--muted);font-size:11px;">타겟은 <b style="color:var(--bl);">채널 메뉴</b>에서 채널을 등록하면 여기에 자동으로 생깁니다.</div>
+    </div>
+    </div>
+  </div>
+
+  <div class="ban">지금 만들면 <b>3달 뒤 노출</b>. 근거 = 우리 예약 <b>3,828건</b> 실측, 여행 3달 안에 <b>92%</b> 예약. <span class="no" style="float:right;">1-3</span></div>
+  <div class="flw"><span class="chp">착수 <b>7월</b></span><span style="color:var(--muted);">→</span><span class="chp t">노출 <b id="fm">10월</b> 겨냥</span><span class="no">1-4</span></div>
+
+  <div class="ml">노출 겨냥 월 · <b style="color:var(--sub);font-weight:400;">오늘부터 12개월 (매달 자동으로 밀림) — 달을 눌러 바꾸세요</b> <span class="no">1-5</span></div>
+  <div class="ms" id="ms"></div>
+  <div id="ymp"></div>
+  <div class="lg">
+    <span><span class="dt" style="background:var(--muted);opacity:.5;"></span>착수 지남</span>
+    <span><span class="dt" style="background:var(--rd);"></span>곧 늦음</span>
+    <span><span class="dt" style="background:var(--bl);"></span>지금 착수</span>
+    <span><span class="dt" style="background:var(--em);"></span>여유</span>
+  </div>
+  <div class="mi" style="margin-bottom:2px;">🕐 마지막 조사 3일 전 (2026-07-10) <span class="no">1-7</span></div>
+  <!-- ⚠️ 여기 있던 </div> 는 .ctrl 이 아니라 #s1 을 닫고 있었다 (.ctrl 은 위 .tg 닫힘 직후 이미 닫힘).
+       그 탓에 .res(나라 카드·선행 준비)가 #s1 밖으로 새어나가 **모든 화면에 따라붙었다.**
+       증상: 메인에서 일본 클릭 → 도시 목록(s2)이 떠도 베트남·태국 카드가 그대로 남음 (대표님 2026-07-16 발견). -->
+
+  <div class="res">
+  <h2 id="ch">10월 겨냥 — 지금 착수할 나라 <span class="no">1-8</span></h2>
+  <div class="nt">계절 게이트 먼저 — 놓친 계절은 1년을 기다립니다</div>
+  <div class="ls" id="cl"></div>
+  <div id="ev1"></div>
+
+  <h2>선행 준비 — 3달 미리 겨냥 <span class="no">1-10</span></h2>
+  <div class="nt">여러 나라 가로질러 · 착수 = 겨냥 − 3달 (도시별 예약 패턴 반영)</div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+    <div style="background:var(--card2);border-radius:9px;padding:10px;cursor:pointer;" onclick="go('d','다낭','베트남')">
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:11px;font-weight:600;">9월 겨냥</span><span class="sg g-lt">늦음</span></div>
+      <div style="font-size:12px;">베트남 · 다낭</div><div style="font-size:10px;color:var(--muted);margin-top:2px;">피크 6~9월 · 기한 지남</div>
+    </div>
+    <div style="background:var(--card2);border-radius:9px;padding:10px;cursor:pointer;" onclick="go('d','오사카','일본')">
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:11px;font-weight:600;">10월 겨냥</span><span class="sg" style="background:var(--bld);color:var(--bl);">지금 착수</span></div>
+      <div style="font-size:12px;">일본 · 오사카</div><div style="font-size:10px;color:var(--muted);margin-top:2px;">상승 진입 50.4</div>
+    </div>
+    <div style="background:var(--card2);border-radius:9px;padding:10px;cursor:pointer;" onclick="go('d','오사카','일본')">
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:11px;font-weight:600;">11월 겨냥</span><span class="sg g-go">여유</span></div>
+      <div style="font-size:12px;">일본 · 오사카 (피크)</div><div style="font-size:10px;color:var(--muted);margin-top:2px;">58.0 최고 · 8월 착수</div>
+    </div>
+  </div>
+</div>
+
+  <!-- 🔴 2026-07-17 이사하며 뺌: 여기 있던 </div> 2개는 **아무것도 안 닫고 있었다.**
+       .res 와 #s1 은 위에서 이미 닫혔다. 프리뷰(제 페이지)에서는 그 2개가 <body> 를 닫으려다
+       브라우저에 무시돼서 우연히 살아 있었을 뿐이다. #kw-app 상자 안에 넣자 상자를 닫아버려
+       나머지 화면 5개(도시·지역·지역상세·큐)가 통째로 밖으로 샜다. -->
+<!-- ② 도시 -->
+<div class="sc" id="s2">
+  <h2 id="c2t"></h2>
+  <div class="nt">🗓️ 언제 만들지(계절) · 🎯 뭘 만들지(키워드) — 둘 다 있어야 추천이 나옵니다</div>
+  <div class="ls" id="c2l"></div>
+  <div id="ev2"></div>
+</div>
+
+<!-- ③ 지역 -->
+<div class="sc" id="s3">
+  <h2 id="d3t"></h2>
+  <div class="nt">트렌드 1회 묶음 조회 · <b>앵커 기법</b>으로 같은 잣대 <span class="no">3-1 3-2</span></div>
+  <div id="d3l"></div>
+</div>
+
+<!-- ④ 지역 상세 -->
+<div class="sc" id="s4"><div id="d4"></div></div>
+
+<!-- ⑤ 큐 -->
+<div class="sc" id="s5">
+  <h2>전략 큐 <span class="no">5-1~5-4</span></h2>
+  <div class="nt">[이걸로 만들기]로만 담김 · 근거가 카드에 함께</div>
+  <div class="kbn" id="kb"></div>
+</div>
+
+<div class="sc" id="s6"><div id="d6"></div></div>
+
+<div class="ts" id="tsb"></div></div>
+    <div class="st-pf-block" style="margin-top:30px;border-top:1px solid rgba(128,128,128,.18);padding-top:18px;">
+      <div class="st-pf-h">📒 실제 예약 데이터 (옛 화면 · D-060) — 위 ①·④에 흡수되면 지웁니다</div>
     </div>
     <div class="st-pf-block"><div class="st-pf-h">🎬 도시 추천 (도시 TOP3 영상 후보)</div><div id="st-kw-cities"><div class="st-empty">불러오는 중…</div></div></div>
     <div class="st-pf-block"><div class="st-pf-h">🏨 호텔 추천 (아직 영상에 안 나온 예약 많은 호텔)</div><div id="st-kw-hotels"><div class="st-empty">불러오는 중…</div></div></div>
@@ -1512,115 +1741,7 @@
       })
       .catch(function (e) { btn.disabled = false; btn.textContent = old; alert(e.message); });
   }
-  /* ── 키워드 조사 3층 (D-065 ㊼-4 · ㊿) ────────────────────────
-     프리뷰(studio-keyword-preview.html)와 **같은 창구**를 읽는다.
-     🔴 숫자는 하나도 안 박는다 — 창구가 keyword·trend 표를 세어서 준다.
-     🔴 구글·유튜브를 안 부른다. 창고만 읽는다(⑪). */
-  var SV = null, svMore = false;
-
-  function svKst(t) {
-    if (!t) return '—';
-    var d = new Date(t);
-    if (isNaN(d)) return String(t).slice(0, 10);
-    return new Date(d.getTime() + 9 * 3600 * 1000).toISOString().slice(0, 10);
-  }
-  function svNum(v) { return (v === null || v === undefined) ? null : Number(v); }
-
-  function svRow(r, max, i, sub) {
-    var d = svNum(r.demand);
-    var col = d === null ? 'rgba(128,128,128,.6)' : (d >= 30 ? '#1D9E75' : (d >= 5 ? '#378ADD' : '#5DCAA5'));
-    var w = (d === null || !max) ? 0 : Math.max(1.5, d / max * 100);
-    var tag = '';
-    if (!sub) {
-      if (r.is_anchor) tag += '<span class="st-sv-tag anchor">자(앵커)</span>';
-      if (r.joined) tag += '<span class="st-sv-tag pair">짝 있음</span>';
-      else if (r.orphan_pair) tag += '<span class="st-sv-tag orphan">붙여쓰기 · 짝 없음</span>';
-    }
-    var why = d === null
-      ? '측정 한계 아래 — 없는 게 아니라 <b>우리가 못 잼</b>'
-      : '경쟁 ' + (r.competition || 0).toLocaleString() + ' · 기회 ' + (r.opportunity === null ? '—' : r.opportunity);
-    return '<div class="st-sv-row' + (sub ? ' sub' : '') + '"' + (sub ? '' : ' data-sv="' + i + '"') + '>' +
-      '<div class="st-sv-n">' + (sub ? '<span style="opacity:.5;font-size:11px;">' + sub + '</span> ' : '') + esc(r.text) + tag +
-      '<small>' + why + '</small></div>' +
-      '<div class="st-sv-bar"><div class="st-sv-fill" style="width:' + w.toFixed(1) + '%;background:' + col + '"></div></div>' +
-      '<div class="st-sv-v2" style="color:' + col + '">' + (d === null ? '—' : d) + '</div></div>';
-  }
-
-  function svToggle(i) { var e = document.getElementById('st-sv-x' + i); if (e) e.classList.toggle('on'); }
-  function svM() { svMore = !svMore; svDraw(); }
-
-  function svDraw() {
-    var box = document.getElementById('st-sv');
-    if (!SV) return;
-    var c = SV.counts, sn = SV.snapshot || {}, rows = SV.rows || [], tv = SV.travel || [];
-    var max = 0; rows.forEach(function (r) { var d = svNum(r.demand); if (d && d > max) max = d; });
-
-    var h = '<div class="st-sv-stats">' +
-      '<div class="st-sv-st"><div class="st-sv-v">' + c.found + '</div><div class="st-sv-l">찾은 검색어</div></div>' +
-      '<div class="st-sv-st"><div class="st-sv-v" style="color:#1D9E75;">' + c.alive + '</div><div class="st-sv-l">살아있는 것</div></div>' +
-      '<div class="st-sv-st"><div class="st-sv-v">' + c.stay + '</div><div class="st-sv-l">숙박 축</div></div>' +
-      '<div class="st-sv-st"><div class="st-sv-v" style="opacity:.5;">' + c.dead + '</div><div class="st-sv-l">버린 것</div></div></div>' +
-      '<div class="st-sv-note">' + (sn.ym || '') + ' 조사 · 수요 잰 것 <b>' + c.measured + '</b> · 측정 한계 아래 <b>' + c.below_floor + '</b>' +
-      (sn.window_from ? ' · 창 ' + sn.window_from + ' ~ ' + sn.window_to : '') + ' · 자(앵커) <b>' + esc(sn.anchor_text || '') + ' ' + (sn.anchor_value || '') + '</b><br>' +
-      '숫자 뜻: 유튜브에서 이 말을 얼마나 찾나 — <b>사람 수가 아니라 눈금</b>입니다. 자를 기준으로 이 도시 안에서만 비교합니다.<br>' +
-      '축: <b>숙박 ' + c.stay + '</b> = 뭘 만드나(순위 무대) · <b>여행 ' + c.travel + '</b> = 언제 착수하나(배경)</div>';
-
-    h += '<div class="st-pf-h">숙박 축 — 뭘 만드나 · 검색량 순 · 상위 ' + rows.length + ' · 기회점수는 이 축만</div>';
-    var L = svMore ? rows : rows.slice(0, 8);
-    L.forEach(function (r, i) {
-      h += svRow(r, max, i);
-      h += '<div class="st-sv-x" id="st-sv-x' + i + '">';
-      if (r.joined) {
-        h += '<div style="font-size:12px;font-weight:500;margin-bottom:4px;">띄어쓰기 짝 — 둘 다 진짜 검색어입니다</div>' +
-             svRow(r, max, i, '띄어') + svRow(r.joined, max, i, '붙여') +
-             '<div style="font-size:11px;opacity:.55;margin-top:4px;">자동완성에 둘 다 살아 있어 <b>둘 다 넣습니다</b>. 수요는 각각 쟀습니다.</div>';
-      }
-      if (r.orphan_pair) h += '<div style="font-size:12px;color:#854F0B;margin-bottom:6px;">붙여쓰기인데 <b>띄어쓰기 짝이 표에 없습니다.</b> 짝을 채워야 두 줄로 보입니다.</div>';
-      h += '<div style="font-size:11px;opacity:.55;margin-top:4px;">잰 날 ' + svKst(r.measured_at) + ' · 묶음 ' + (r.batch_no || '-') +
-           ' · 잣대 ' + (r.demand_source || '—') + ' · 경쟁 창 최근 ' + (r.comp_window_days || 365) + '일(자릿수만 신뢰)</div></div>';
-    });
-    if (rows.length > 8) h += '<span class="st-sv-more" data-sv-more="1">' + (svMore ? '접기 ▴' : '상위 ' + rows.length + ' 더보기 ▾') + '</span>';
-
-    h += '<div class="st-sv-travel"><div style="font-size:13px;font-weight:500;">여행 축 — 언제 착수하나</div>' +
-         '<div style="font-size:12px;opacity:.6;margin:2px 0 6px;">순위·기회점수에 안 섞습니다. 이 도시를 언제 겨냥할지 정하는 배경이고, 태그란에는 그대로 들어갑니다.</div>';
-    if (!tv.length) h += '<div style="font-size:12px;color:#854F0B;">여행 축 검색어가 아직 없습니다 — 씨앗을 따로 뿌려야 합니다.</div>';
-    tv.forEach(function (r) {
-      var d = svNum(r.demand), base = (rows[0] && svNum(rows[0].demand)) || 0;
-      h += '<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-top:1px solid rgba(128,128,128,.14);">' +
-           '<span style="flex:1;font-size:13px;">' + esc(r.text) + '</span>' +
-           '<span style="font-size:11px;opacity:.55;">' + (d && base ? '숙박 대표어의 ' + (d / base).toFixed(1) + '배' : '—') + '</span>' +
-           '<span style="font-size:13px;width:54px;text-align:right;">' + (d === null ? '—' : d) + '</span></div>';
-    });
-    h += '</div>';
-
-    var l3 = SV.layer3 || {};
-    h += '<div class="st-sv-lock">' + (l3.locked
-      ? '🔒 <b>새로 생긴 · 사라진 검색어</b><br><span style="font-size:12px;opacity:.7;">' + esc(l3.reason || '') + ' → <b>' + (l3.next_ym || '') + ' 두 번째 조사부터 켜집니다.</b></span>'
-      : '<b>새로 생긴 · 사라진 검색어</b> <span style="font-size:12px;opacity:.7;">— ' + esc(l3.compared_to || '') + ' 대비</span>') + '</div>';
-
-    box.innerHTML = h;
-
-    // 스튜디오는 인라인 onclick 을 안 쓴다 — 그린 뒤 JS 로 붙인다.
-    box.querySelectorAll('[data-sv]').forEach(function (el) {
-      el.onclick = function () { svToggle(el.dataset.sv); };
-    });
-    var mb = box.querySelector('[data-sv-more]');
-    if (mb) mb.onclick = svM;
-  }
-
-  function loadSurvey() {
-    var box = document.getElementById('st-sv');
-    fetch('/api/content-keywords?view=survey&city=' + encodeURIComponent('cc:japan|osaka'), { credentials: 'same-origin' })
-      .then(function (r) { return r.json(); })
-      .then(function (d) {
-        if (!d.ok) { box.innerHTML = '<div class="st-empty">' + esc(d.error || '조사를 불러오지 못했습니다.') + '</div>'; return; }
-        SV = d; svDraw();
-      })
-      .catch(function (e) { box.innerHTML = '<div class="st-empty">조사를 불러오지 못했습니다 — ' + esc(String(e.message || e)) + '</div>'; });
-  }
-
   function loadKeywords() {
-    loadSurvey();
     var cList = document.getElementById('st-kw-cities');
     var hList = document.getElementById('st-kw-hotels');
     fetch('/api/content-keywords', { credentials: 'same-origin' })
@@ -2953,6 +3074,478 @@
     location.href = '/admin-login.html';
   };
 })();
+</script>
+<script>
+/* ── 키워드 메뉴 확정본 스크립트 (프리뷰에서 이사 · 2026-07-17)
+   전역이다. 스튜디오 본체는 즉시실행 함수 안이라 서로 안 부딪힌다(id·함수 충돌 0 확인).
+   조사 3층(ks/rk)만 창구를 읽고, 나머지 칸은 아직 목업 숫자다. ── */
+
+/* ══ 실측 데이터만 (2026-07-14 직접 조회) ══ */
+var SE={'오사카':[56.8,47.5,38.5,36.0,41.9,41.3,44.0,36.9,45.0,50.4,58.0,55.0],
+        '난바':[50.6,28.8,26.3,20.6,31.1,35.3,41.8,34.6,53.3,50.9,66.3,51.9],
+        '다낭':[34.1,37.7,44.0,43.2,46.9,48.4,46.8,51.8,48.8,39.6,40.9,40.9]};
+var SE24={'오사카':[56.0,52.8,37.2,36.2,45.2,46.0,47.2,33.2,48.2,49.8,60.5,49.8]};
+var SE25={'오사카':[57.5,42.2,39.8,35.8,38.5,36.6,40.8,40.6,41.8,51.0,55.4,60.2]};
+var SE26={'오사카':[65.5,50.0,47.0,45.5,34.2,45.8,54.5]};
+var POP={'오사카':[45.6,41.7,48.0],'도쿄':[62.8,61.4,64.6],'후쿠오카':[31.7,29.8,34.8],
+         '다낭':[40.2,44.6,44.6],'나트랑':[50.3,63.4,72.2],'방콕':[67.4,50.2,31.7],'치앙마이':[38.5,33.2,34.9]};
+// 앵커 기법 실측 — 같은 잣대
+var KW=[['오사카 호텔',46.2,'도시 대표어',133],['오사카 숙소',39.1,'도시 대표어 · 놓치고 있었음',133],
+        ['오사카 숙소 추천',16.7,'변형',120],['난바 호텔',10.8,'지역',111],['오사카 호텔 추천',7.6,'변형',95],
+        ['오사카 료칸',3.1,'숙박 유형',40],['난바 숙소',1.3,'지역+숙소',12],['도톤보리 호텔',0.3,'지역',5],
+        ['오사카 가성비 호텔',0.17,'조건어 — 아무도 안 찾음',4]];
+var PAIR={'오사카 호텔 추천':{j:'오사카호텔추천',a:273754,b:934807,r:'3.41배',s:'g'},
+          '오사카 숙소 추천':{j:'오사카숙소추천',a:192282,b:307201,r:'1.60배',s:'g'}};
+/* PAIRX(하드코딩 짝 표) 제거 2026-07-17 — 3층 화면은 DB(?view=survey)에서 짝을 받는다. 죽은 가짜 숫자를 남겨두면 다음 클로드가 그걸 근거로 쓴다. */
+var DIST=[['난바',10.8,111,5,247],['우메다',0.6,11,0,0],['신사이바시',0.8,13,0,0],['덴노지',0.0,0,0,0]];
+var LEAD={'오사카':[22,95,583],'도쿄':[20,96,192],'후쿠오카':[18,96,307],'다낭':[18,94,140],'방콕':[14,92,273],'치앙마이':[25,88,142]};
+var CT={'일본':['오사카','도쿄','후쿠오카'],'베트남':['다낭','호치민','나트랑'],'태국':['방콕','치앙마이']};
+// 나라별 확정예약 도시 총수 — DB 실측(2026-07-16). "외 N곳" 계산용. 추측 아님.
+// 전체 도시 135곳 → 메인에 도시만 쭉 나열 불가(C안 기각). D-065 ㉞
+var CTN={'일본':30,'베트남':13,'태국':8};
+// 오늘부터 12개월 자동 생성 — 매달 창이 한 칸씩 밀린다. 사람이 손대지 않는다. (D-065 ㉗)
+// 프리뷰라 날짜 고정. 실제 구현은 new Date().
+var TODAY=new Date(2026,6,15);
+var MOS=[];for(var _k=0;_k<12;_k++){var _d=new Date(TODAY.getFullYear(),TODAY.getMonth()+_k,1);MOS.push({y:_d.getFullYear(),m:_d.getMonth()+1,d:_k});}
+// 상태 = 착수(겨냥−3달) 기준. 오늘 기준으로 매달 자동 재계산.
+function mst(d){return d<=1?'dim':d===2?'rd':d===3?'nw':'fr';}
+function mstL(d){return d<=1?'착수 지남':d===2?'곧 늦음':d===3?'지금 착수':'여유';}
+var MO=MOS.map(function(o){return o.m+'월';}), MC=MOS.map(function(o){return mst(o.d);}), MS=MOS.map(function(o){return mstL(o.d);});
+var XM=null;
+/* D-065 ㉝ — 연·월 지정. 스냅샷 실측 2026-07-16: trend/keyword/snapshot 테이블 0개 → 과거는 고를 게 없다. */
+var SNAP={}, SNAP_FROM='2026-08';
+function curTM(){return XM?XM.m:parseInt(MO[cm]);}
+function curLbl(){return XM?(XM.y+'년 '+XM.m+'월'):MO[cm];}
+function dmo(y,m){return (y-TODAY.getFullYear())*12+(m-1-TODAY.getMonth());}
+var cm=3,cc='일본',cy='오사카',cd='난바',sq=41,cs=0,more=false;
+var STAR=['전체 성급','3성','4성','5성'];
+var Q={'기획 대기':[{id:'',t:'다낭 미케비치 호텔',m:'다낭 · 9월'}],'원고 작성':[{id:'R-00122',t:'도쿄 신주쿠 숙소',m:'도쿄 · 산자야'}],
+       '발행 예정':[{id:'R-00119',t:'후쿠오카 하카타 호텔',m:'8월 예정'}],'발행 완료':[{id:'R-00112',t:'오사카 우메다 호텔',m:'✓ 회수'}]};
+
+function pk2(c){var s=SE[c];if(!s)return null;var mx=Math.max.apply(null,s),r=[];for(var i=0;i<12;i++)if(s[i]>=mx*0.9)r.push(i+1);return r;}
+function gate(c,tm){var p=pk2(c);if(!p)return{s:'un',t:'계절 미조사',w:'트렌드를 아직 안 쟀습니다'};
+ var ps=p.map(function(m){return m+'월';}).join('·');
+ var near=p.some(function(m){var d=Math.abs(m-tm);return Math.min(d,12-d)<=1;});
+ if(near)return{s:'go',t:'지금 착수',w:'피크 '+ps+'(최고 '+Math.max.apply(null,SE[c]).toFixed(1)+') → 발행하면 피크 내내 수확'};
+ if(p.every(function(m){return m<tm;}))return{s:'lt',t:'올해는 늦음',w:'피크 '+ps+' 이미 지남 → 내년 대상'};
+ return{s:'wt',t:'아직 이름',w:'피크 '+ps+' → '+((p[0]-3<1)?p[0]+9:p[0]-3)+'월 착수'};}
+function pop(c){var p=POP[c];if(!p)return null;var ch=Math.round((p[2]-p[1])/p[1]*100);
+ return{ch:ch,t:(ch>8?'오름 +'+ch+'%':(ch<-8?'내림 '+ch+'%':'유지')),b:p};}
+function line(s,w,h,col,sw){var mx=60,mn=15;var pts=s.map(function(v,i){return (10+i*((w-20)/(s.length-1))).toFixed(0)+','+(h-8-((v-mn)/(mx-mn))*(h-18)).toFixed(0);}).join(' ');
+ return '<polyline fill="none" stroke="'+col+'" stroke-width="'+(sw||2)+'" points="'+pts+'"/>';}
+
+var DOT={dim:'var(--muted)',rd:'var(--rd)',nw:'var(--bl)',fr:'var(--em)'};
+function rd(){var h='',yrs=[];MOS.forEach(function(o){if(yrs.indexOf(o.y)<0)yrs.push(o.y);});
+ yrs.forEach(function(y,yi){
+  h+='<div class="myr"><span class="yl">'+y+'</span>';
+  MOS.forEach(function(o,i){ if(o.y!==y)return;
+   var on=(i===cm&&!XM);
+   h+='<span class="m '+MC[i]+(on?' sel':'')+'" onclick="pm('+i+')" title="'+MS[i]+' — 눌러서 이 달 겨냥">'
+     +'<span class="dt" style="background:'+DOT[MC[i]]+';"></span>'+o.m+'월'+(on?' ✓':'')+'</span>';});
+  if(yi===yrs.length-1)h+='<span class="m cal'+(XM?' sel':'')+'" onclick="ymt()" title="12개월 밖의 달 — 과거 복기·먼 미래">📅 '+(XM?curLbl()+' ✓':'연·월 지정')+'</span><span class="no">1-6</span>';
+  h+='</div>';});
+ document.getElementById('ms').innerHTML=h;document.getElementById('fm').textContent=curLbl();
+ var tm=curTM();document.getElementById('ch').innerHTML=curLbl()+' 겨냥 — 지금 착수할 나라 <span class="no">1-8</span>';
+ // D-065 ㉞ — 나라 카드 A형태. 도시 칩 상위 3개 + "외 N곳". 감추지 않는다.
+ // (구: 가장 급한 도시 1개만 → 대표님 "도쿄는 어디?" 2026-07-15)
+ var RK={go:0,wt:1,un:2,lt:3},LB={go:'집중',wt:'대기',un:'모름',lt:'늦음'},
+     CL={go:'g-go',wt:'g-wt',un:'g-un',lt:'g-lt'},CD={go:'var(--em)',wt:'var(--muted)',un:'var(--am)',lt:'var(--rd)'};
+ h='';Object.keys(CT).forEach(function(c){
+  var lst=CT[c].map(function(x){return {c:x,g:gate(x,tm)};}).sort(function(a,b){return RK[a.g.s]-RK[b.g.s];});
+  var b=lst[0];
+  var cps=lst.slice(0,3).map(function(o){
+    return '<span class="cp" onclick="event.stopPropagation();go(\'d\',\''+o.c+'\',\''+c+'\')" title="'+o.g.t+' — '+o.g.w+'">'
+          +'<span class="cd" style="background:'+CD[o.g.s]+';"></span>'+o.c+' '+LB[o.g.s]+'</span>';}).join('');
+  var rest=(CTN[c]||lst.length)-Math.min(3,lst.length);
+  if(rest>0)cps+='<span class="cp cp-x" onclick="event.stopPropagation();go(\'c\',\''+c+'\')" title="이 나라 도시 전체 보기">외 '+rest+'곳</span>';
+  h+='<div class="rw" onclick="go(\'c\',\''+c+'\')"><div class="mn"><div class="n"><span class="nm">'+c+'</span><span class="sg '+CL[b.g.s]+'">'+LB[b.g.s]+'</span></div>'
+    +'<div class="cps">'+cps+'</div></div>'
+    +'<span class="wb" onclick="event.stopPropagation();ev1(\''+b.c+'\')">왜? <span style="opacity:.7;">1-9</span></span><span style="color:var(--muted);">›</span></div>';});
+ document.getElementById('cl').innerHTML=h;}
+function pm(i){cm=i;XM=null;YMO=false;ymr();rd();ts(MO[i]+' 겨냥 — '+MS[i]);}
+
+function evHTML(c){var g=gate(c,curTM()),p=pop(c),l=LEAD[c];
+ var h='<div class="ev on"><div class="evb"><div class="evt">① 계절 — 2024·2025·2026 겹침 (구글 트렌드 유튜브 검색)</div>';
+ if(SE24[c]){h+='<svg width="100%" viewBox="0 0 560 80">'+
+   '<rect x="420" y="6" width="125" height="58" rx="4" fill="#0f3f31" opacity="0.5"/>'+
+   '<text x="482" y="16" text-anchor="middle" style="font-size:9px;fill:#4edea3;">피크 11~1월 · 3년 반복</text>'+
+   line(SE24[c],560,72,'#2f6b58',1.5)+line(SE25[c],560,72,'#3f9e7d',1.5)+line(SE26[c],560,72,'#4edea3',2.5)+
+   '<text x="10" y="78" style="font-size:8px;fill:#6a85a0;">1月</text><text x="280" y="78" style="font-size:8px;fill:#6a85a0;">7月</text><text x="530" y="78" style="font-size:8px;fill:#6a85a0;">12月</text></svg>'+
+   '<div style="display:flex;gap:9px;font-size:9px;color:var(--muted);margin:3px 0 5px;"><span>■2024</span><span style="color:#3f9e7d;">■2025</span><span style="color:#4edea3;">■2026</span></div>';}
+ else if(SE[c]){h+='<svg width="100%" viewBox="0 0 560 60">'+line(SE[c],560,56,'#4edea3',2)+'</svg>';}
+ else h+='<div class="evs" style="color:var(--am);">아직 안 쟀습니다 — [조사하기]</div>';
+ if(SE[c])h+='<div class="evs">'+g.w+'</div>';
+ h+='</div>';
+ if(p)h+='<div class="evb"><div class="evt">② 인기도 (2024→2025→2026)</div><div class="evs">'+p.b.join(' → ')+' · <b style="color:'+(p.ch>8?'#4edea3':(p.ch<-8?'#e57373':'#9db4c9'))+'">'+p.t+'</b>'+(p.ch<-8&&p.b[0]<p.b[1]?' <span style="color:var(--muted);">(2024 대비 원위치 — 반짝이었음)</span>':'')+'</div></div>';
+ h+='<div class="evb"><div class="evt">③ 확장 여지</div><div class="evs">'+(c==='오사카'?'검증 호텔 <b style="color:var(--txt);">255개</b> · TOP3면 85편 여지':'미측정')+
+    '<br><span style="color:var(--am);">⚠️ 어느 호텔을 이미 다뤘는지는 DB에 없음 — 노출 이력 대기</span></div></div>';
+ if(l)h+='<div class="evb"><div class="evt">④ 전환 <span style="color:var(--muted);font-weight:400;">(검증 배지 · 순위엔 미사용)</span></div><div class="evs">확정 예약 '+l[2]+'건 · 리드타임 '+l[0]+'일 · 3달내 '+l[1]+'%</div></div>';
+ h+='<div class="src">구글 트렌드 유튜브 검색(2024-01~2026-07) · bookings_agoda · 조사 2026-07-10</div></div>';
+ return h;}
+function ev1(c){document.getElementById('ev1').innerHTML=evHTML(c);}
+function ev2(c){document.getElementById('ev2').innerHTML=evHTML(c);}
+
+function rc(c){cc=c;document.getElementById('c2t').innerHTML=c+' · 도시 <span class="no">2-1~2-5</span>';
+ var tm=curTM(),h='';
+ CT[c].forEach(function(x){var g=gate(x,tm),p=pop(x),l=LEAD[x];
+  var cl={go:'g-go',wt:'g-wt',un:'g-un',lt:'g-lt'}[g.s];
+  var hasS=!!SE[x], hasK=(x==='오사카'||x==='도쿄'||x==='후쿠오카');
+  h+='<div class="rw" onclick="go(\'d\',\''+x+'\')"><div class="mn"><div class="n"><span class="nm">'+x+'</span><span class="sg '+cl+'">'+g.t+'</span></div>'+
+     '<div class="wh">'+g.w+'</div>'+
+     '<div style="display:flex;gap:5px;margin-top:4px;flex-wrap:wrap;">'+
+     '<span class="pil" style="background:'+(hasS?'var(--emd)':'var(--amd)')+';color:'+(hasS?'var(--em)':'var(--am)')+';">🗓️ 언제 '+(hasS?'있음':'없음')+'</span>'+
+     '<span class="pil" style="background:'+(hasK?'var(--emd)':'var(--amd)')+';color:'+(hasK?'var(--em)':'var(--am)')+';">🎯 뭘 '+(hasK?'있음':'없음')+'</span>'+
+     (p?'<span class="pil">인기도 '+p.t+'</span>':'')+(l?'<span class="pil">예약 '+l[2]+'건 · '+l[0]+'일</span>':'')+
+     (!hasS||!hasK?'<span class="pil" style="background:var(--bld);color:var(--bl);cursor:pointer;" onclick="event.stopPropagation();go(\'r\',\'필리핀\')">＋ 조사하기</span>':'')+
+     '</div></div><span class="wb" onclick="event.stopPropagation();ev2(\''+x+'\')">왜?</span><span style="color:var(--muted);">›</span></div>';});
+ document.getElementById('c2l').innerHTML=h;document.getElementById('ev2').innerHTML='';}
+
+function rdd(c){cy=c;document.getElementById('d3t').innerHTML=c+' · 키워드 구조 <span class="no">3-1~3-5</span>';
+ if(c!=='오사카'){document.getElementById('d3l').innerHTML='<div class="wn">이 도시는 <b>아직 안 쟀습니다.</b> 모른다고 비워두거나 지어내지 않고, 모른다고 표시합니다.<br><br><span class="btn" onclick="ts(\'조사 시작 — 자동완성+트렌드 앵커 묶음\')">＋ 지금 조사하기</span></div>';return;}
+ var h='<div class="bk"><div class="bh">🎯 오사카 키워드 전체 <span class="no" style="margin-left:auto;">앵커 기법 · 트렌드 2회</span></div>';
+ KW.forEach(function(k){var alive=k[1]>=5,mid=k[1]>=30;
+  var col=mid?'#4edea3':(alive?'#5aa9e6':'#6a85a0');
+  h+='<div style="display:flex;align-items:center;gap:8px;padding:6px 0;'+(k[0]==='오사카 숙소'?'background:var(--amd);border-radius:6px;padding-left:5px;padding-right:5px;':'')+(k[1]<1?'opacity:.6;':'')+'">'+
+     '<span style="font-size:11px;width:112px;color:'+(k[0]==='오사카 숙소'?'var(--am)':'var(--txt)')+';font-weight:'+(k[1]>=30?'600':'400')+';">'+k[0]+'</span>'+
+     '<span style="flex:1;height:'+(mid?11:8)+'px;border-radius:5px;background:var(--card2);overflow:hidden;"><span style="width:'+(k[1]/46.2*100).toFixed(1)+'%;height:100%;background:'+(k[0]==='오사카 숙소'?'#efb04a':col)+';display:block;"></span></span>'+
+     '<span style="font-size:11px;font-weight:600;width:36px;text-align:right;color:'+(k[0]==='오사카 가성비 호텔'?'#e57373':col)+';">'+k[1]+'</span></div>'+
+     '<div style="font-size:9px;color:var(--muted);margin:-4px 0 3px 112px;">'+k[2]+' · '+k[3]+'/133주</div>';
+  if(PAIR[k[0]]){var q=PAIR[k[0]];
+   h+='<div style="display:flex;align-items:center;gap:8px;padding:4px 0 4px 12px;border-left:2px solid var(--line);margin:0 0 5px 6px;">'+
+      '<span style="font-size:11px;width:100px;color:var(--sub);">'+q.j+'</span>'+
+      '<span style="flex:1;font-size:10px;color:var(--muted);">붙여쓰기 · 경쟁 '+q.b.toLocaleString()+' ↔ '+q.a.toLocaleString()+' · <b style="color:var(--bl);">'+q.r+' 갈림</b> · 수요 안 쟀음</span>'+
+      '<span style="font-size:10px;padding:2px 8px;border-radius:20px;background:var(--emd);color:var(--em);white-space:nowrap;">태그에 들어감</span></div>';}});
+ h+='</div>';
+ h+='<div class="nt" style="margin-top:2px;">띄어쓰기 짝 = 오사카 12쌍 전수 측정 → <b>5쌍이 갈림</b>. 위 목록에 있는 2쌍만 붙여쓰기 줄로 보입니다. 나머지 3쌍(난바 호텔 추천 · 신사이바시 숙소 추천 · 오사카 호텔 가성비)은 지역 화면 ②에서. <span class="no">4-7</span></div>';
+ h+='<div class="wn">🔍 <b>"숙소"를 놓치고 있었습니다.</b> "오사카 숙소"(39.1) = "오사카 호텔"(46.2)의 <b>85%</b>. 채널·제목·태그가 전부 "호텔"뿐 — <b>둘 다 넣어야 합니다.</b></div>';
+ h+='<div class="er" style="margin-top:6px;">🚨 <b>"오사카 가성비 호텔" = 0.17</b> — 아무도 안 찾습니다. 가성비는 우리가 쓰는 말이지 검색어가 아닙니다. (Claude가 이걸 1순위로 추천했었음 — 정정)</div>';
+ h+='<h2 style="margin-top:14px;">지역 <span class="no">3-2</span></h2><div class="nt">같은 잣대로 재야 진짜 크기 — 따로 재면 커 보입니다</div><div class="ls">';
+ DIST.forEach(function(d){var alive=d[1]>=5;
+  h+='<div class="rw" '+(alive?'onclick="go(\'x\',\''+d[0]+'\')"':'style="cursor:default;opacity:.7;"')+'>'+
+     '<div class="mn"><div class="n"><span class="nm">'+d[0]+'</span>'+
+     (alive?'<span class="sg g-go">살아있음</span>':'<span class="sg g-un">측정 한계 아래</span>')+'</div>'+
+     '<div class="wh">검색 '+d[1]+' · '+d[2]+'/133주'+(alive?' · 대표어의 1/4':' — 없는 게 아니라 <b>우리가 못 잼</b>')+'</div>'+
+     (d[3]?'<div class="wh" style="color:var(--muted);">호텔 '+d[3]+'개 · 예약 '+d[4]+'건 (좌표 판정) <span class="no">3-3</span></div>':'')+
+     '</div>'+(alive?'<span style="color:var(--muted);">›</span>':'')+'</div>';});
+ h+='</div><div class="wn" style="margin-top:6px;">⚠️ 우메다도 오사카 3대 번화가인데 <b>0.6</b> — 난바(10.8)의 1/18. 계층이 아니라 <b>이름값</b>이 갈랐습니다. 그래서 지역은 <b>재봐서 살아있는 것만</b> 축으로. <span class="no">3-5</span></div>';
+ document.getElementById('d3l').innerHTML=h;}
+
+function rx(d){cd=d;
+ var h='<div class="ban">💡 <b>'+d+' — 지금 착수</b><br>난바 피크 <b>11월(66.3)</b> · 오사카 도시(11~1월)보다 <b>뾰족함</b>(진폭 3.2배). 10월 발행하면 11월 피크 정면.<br>제목엔 <b>호텔(46.2)과 숙소(39.1)를 둘 다</b> — 근거: ⑭ 지역 계절 · ⑫ 숙소 발견 · 리드타임 3달(예약 3,766건 · 3달내 92%) <span class="no">4-0</span></div>';
+ h+='<div class="bk"><div style="display:flex;align-items:center;gap:6px;"><span style="font-size:12px;font-weight:600;">이 도시 예약 패턴</span><span class="sg g-wt">보통</span><span class="no" style="margin-left:auto;">4-1</span></div>'+
+    '<div style="display:flex;gap:6px;margin:7px 0;">'+
+    '<div class="st"><div class="v">22일</div><div class="l">예약 중앙값</div></div>'+
+    '<div class="st"><div class="v">95%</div><div class="l">3달 안 예약</div></div>'+
+    '<div class="st"><div class="v">583건</div><div class="l">확정 예약</div></div></div>'+
+    '<div style="background:var(--bld);border-radius:7px;padding:8px 10px;font-size:11px;color:#bcd8ee;">착수 권장 · 여행 3달 전 (예약 대부분 커버)</div></div>';
+ h+='<div class="str">'+STAR.map(function(s,i){return '<span class="sp'+(i===cs?' on':'')+'" onclick="ps('+i+')">'+s+'</span>';}).join('')+'<span class="no" style="align-self:center;">4-2 아고다 성급</span></div>';
+
+ h+='<div class="bk"><div class="bh">① 콘텐츠 추천 <span class="no">4-3</span></div>'+
+    '<div style="background:var(--card2);border-radius:8px;padding:10px;">'+
+    '<div style="display:flex;align-items:center;gap:7px;margin-bottom:5px;"><span style="font-size:10px;color:var(--muted);">1위</span>'+
+    '<span style="font-size:13px;font-weight:600;">오사카 숙소 추천 — 난바 호텔 TOP3</span><span class="sg g-go" style="margin-left:auto;">지금 만들기 좋음</span></div>'+
+    '<div class="evs">💡 대표어 <b style="color:var(--txt);">호텔 46.2 + 숙소 39.1</b>을 둘 다 잡고, 난바(10.8)를 갈래로. 난바 피크 11월이라 10월 발행이 정면.</div>'+
+    '<div style="font-size:10px;color:var(--muted);margin:6px 0;">넣을 키워드: 오사카 호텔 · 오사카 숙소 · 오사카 숙소 추천 · 난바 호텔 … (482자)</div>'+
+    '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;"><button class="btn" onclick="add()">＋ 이걸로 만들기</button>'+
+    '<span style="font-size:10px;color:var(--muted);">→ '+curLbl()+' 발행 목표 + 근거 4종 함께 담김</span></div></div></div>';
+
+ h+='<div class="bk" id="kvw"><div class="bh">키워드 조사 <span style="font-size:10px;color:var(--muted);font-weight:400;">— DB만 읽습니다. 볼 때 구글·유튜브 호출 0</span><span class="no" style="margin-left:auto;">4-4</span></div>'+
+    '<div id="kv1"><div style="font-size:11px;color:var(--muted);padding:8px 0;">조사 불러오는 중…</div></div>'+
+    '<div id="kv2"></div><div id="kv3"></div></div>';
+
+ h+='<div class="bk"><div class="bh">③ 자동 채택 태그란 <span style="font-size:10px;color:var(--em);font-weight:400;margin-left:auto;">482 / 500자</span><span class="no">4-10</span></div>'+
+    '<div style="background:var(--card2);border-radius:7px;padding:9px;font-size:11px;color:var(--sub);line-height:1.6;" id="tgb">오사카호텔, 오사카 숙소, 오사카 숙소 추천, 난바 호텔, 오사카 호텔 추천, 오사카 료칸, 난바 숙소, 우메다 호텔, 신사이바시 호텔, 도톤보리 호텔 …</div>'+
+    '<div style="display:flex;gap:6px;margin-top:6px;align-items:center;"><button class="btn bt2" onclick="cp()">복사</button><button class="btn bt2" onclick="ts(\'채널 §4 태그란에 저장됨\')">§4에 저장</button>'+
+    '<span style="font-size:10px;color:var(--muted);margin-left:auto;">손질하면 저장됨 · 측정 안 된 것도 넣음(비용 0)</span></div></div>';
+
+ h+='<div class="bk"><div class="bh">④ 확장 여지 <span style="font-size:10px;color:var(--muted);font-weight:400;">— 미개척에서 재설계</span><span class="no" style="margin-left:auto;">4-11 🔴</span></div>'+
+    '<div class="ok" style="margin-bottom:6px;"><b>1순위 · 검증됨 + 남은 호텔 → "더 캐기"</b><br>오사카 = 예약 붙는 검증 호텔 <b>255개</b> · TOP3면 <b>85편</b> 여지 · 이미 되는 게 증명됨 = 가장 안전</div>'+
+    '<div class="wn" style="margin-bottom:6px;"><b>2순위 · 미개척</b> — 수요는 큰데 될지 모름 (도박)</div>'+
+    '<div style="background:var(--card2);border-radius:7px;padding:8px;font-size:11px;color:var(--muted);">3순위 · 영상 있는데 예약 안 붙음 — 각도 바꾸거나 접기</div>'+
+    '<div class="wn" style="margin-top:6px;">⚠️ <b>지금은 이 판정 불가</b> — hotels에 영상 노출 컬럼이 없습니다. 대표님 노출 이력(날짜·채널·TOP3) 대기. <span class="no">4-12</span></div></div>';
+
+ h+='<div class="bk"><div class="bh">⑤ 난바 수요 트렌드 <span style="font-size:10px;color:var(--muted);font-weight:400;">— 도시와 겹쳐 비교</span><span class="no" style="margin-left:auto;">4-13</span></div>'+
+    '<svg width="100%" viewBox="0 0 560 90">'+line(SE['오사카'],560,84,'#5aa9e6',2)+line(SE['난바'],560,84,'#4edea3',3)+
+    '<text x="10" y="88" style="font-size:8px;fill:#6a85a0;">1월</text><text x="280" y="88" style="font-size:8px;fill:#6a85a0;">7월</text><text x="530" y="88" style="font-size:8px;fill:#6a85a0;">12월</text></svg>'+
+    '<div style="display:flex;gap:11px;font-size:9px;color:var(--muted);margin:3px 0 6px;"><span style="color:#5aa9e6;">■ 오사카 (도시)</span><span style="color:#4edea3;">■ 난바 (지역)</span></div>'+
+    '<div class="wn"><b>지역 계절 ≠ 도시 계절</b> — 난바는 11월 단일 피크(66.3), 4월 바닥 20.6으로 <b>진폭 3.2배</b>. 오사카는 겨울 내내 완만(1.6배). <b>난바는 11월 한 달을 놓치면 큰 손해</b>입니다.</div></div>';
+
+ h+='<div class="bk"><div class="bh">호텔 후보 <span style="font-size:10px;color:var(--muted);font-weight:400;">— 축이 아니라 출력</span><span class="no" style="margin-left:auto;">4-14 🆕</span></div>'+
+    '<div class="evs" style="margin-bottom:7px;">난바 검색자는 <b style="color:var(--sub);">아직 호텔을 못 정한 사람</b>. 우리가 여러 호텔을 골라 보여줍니다.</div>';
+ [['Red Roof Inn & Suites Osaka Namba',83,'4.0성','지금가능',''],['APA Hotel Namba-Eki Higashi',47,'4.0성','아직못씀','9/2 풀림'],['Sotetsu Grand Fresa Osaka Namba',46,'4.0성','지금가능',''],['Richmond Hotel Namba Daikokucho',40,'4.0성','지금가능',''],['Hotel IL Cuore Namba',31,'4.0성','노출없음','']].forEach(function(x,i){
+  var RS={'지금가능':'background:var(--emd);color:var(--em)','아직못씀':'background:var(--amd);color:var(--am)','노출없음':'background:var(--card2);color:var(--muted)'};
+  h+='<div style="display:flex;align-items:center;gap:7px;padding:6px 0;border-bottom:0.5px solid var(--line);">'+
+     '<span style="font-size:11px;color:var(--muted);width:16px;">'+(i+1)+'</span>'+
+     '<span style="font-size:12px;flex:1;'+(x[3]==='노출없음'?'color:var(--sub);':'')+'">'+x[0]+'<small style="display:block;color:var(--muted);font-size:9px;">좌표 판정 난바 · '+x[2]+' · 예약 '+x[1]+'건</small></span>'+
+     '<span style="font-size:10px;padding:2px 8px;border-radius:20px;white-space:nowrap;'+RS[x[3]]+'">'+x[3]+(x[4]?' · '+x[4]:'')+'</span></div>';});
+ h+='<div style="font-size:10px;color:var(--muted);margin-top:6px;">재사용 상태 = 마지막 노출 + 183일 (D-062). 오사카 실측: 지금가능 250 · 아직못씀 2 · 노출없음 3</div>'+
+    '<div style="font-size:10px;color:var(--muted);margin-top:3px;">TOP3 = 예약순 상위 3개 · 성급 필터로 각도 조정 가능</div></div>';
+ document.getElementById('d4').innerHTML=h;ks();}
+
+/* ─────────── 키워드 조사 3층 (D-065 ㊼-4 확정본) ───────────
+   1층  찾은 검색어 / 살아있는 것 / 붙여쓰기 짝 / 버린 것
+   2층  대표 검색어 상위 30 (검색량 순) · 짝 있는 행은 펼치면 띄어·붙여 두 줄
+   3층  새로 생긴·사라진 검색어 → 조사 2회부터 켜짐
+
+   🔴 숫자를 코드에 박지 않는다. 전부 /api/content-keywords?view=survey 가
+      keyword·trend 표를 **세어서** 준 값이다.
+      (사고 기록: 여기 '살아있는 42 · 죽은 8' 이 박혀 있었고 진짜는 58 · 10 이었다) */
+var SV=null, svMore=false;
+
+function svCity(){ return 'cc:japan|osaka'; }   /* TODO 도시 축이 붙으면 여기서 갈아끼운다 */
+
+function ks(){
+  var u='/api/content-keywords?view=survey&city='+encodeURIComponent(svCity());
+  fetch(u,{credentials:'same-origin'}).then(function(r){return r.json();}).then(function(d){
+    if(!d.ok){ document.getElementById('kv1').innerHTML='<div class="wn">'+(d.error||'조사를 불러오지 못했습니다')+'</div>'; return; }
+    SV=d; rk();
+  }).catch(function(e){
+    var el=document.getElementById('kv1'); if(el) el.innerHTML='<div class="wn">조사를 불러오지 못했습니다 — '+e+'</div>';
+  });
+}
+
+function svNum(v){ return v===null||v===undefined ? null : Number(v); }
+
+/* 잰 날은 대표님 날짜(한국)로 보여준다. DB는 UTC 라 그냥 자르면 하루 어긋난다. */
+function svKst(t){ if(!t) return '—';
+  var d=new Date(t); if(isNaN(d)) return String(t).slice(0,10);
+  return new Date(d.getTime()+9*3600*1000).toISOString().slice(0,10); }
+
+/* 한 줄 = 검색어 하나. 수요·경쟁·기회를 같은 잣대로 */
+function svRow(r, max, idx, sub){
+  var d=svNum(r.demand), floor=(r.skip_reason==='below_floor');
+  var col = d===null ? '#6a85a0' : (d>=30?'#4edea3':(d>=5?'#5aa9e6':'#6a85a0'));
+  var w = (d===null||!max) ? 0 : Math.max(1.5, d/max*100);
+  var badge='';
+  if(!sub){
+    if(r.joined) badge='<span style="font-size:9px;padding:1px 6px;border-radius:20px;background:var(--bld);color:var(--bl);white-space:nowrap;">짝 있음</span>';
+    else if(r.orphan_pair) badge='<span style="font-size:9px;padding:1px 6px;border-radius:20px;background:var(--amd);color:var(--am);white-space:nowrap;">붙여쓰기 · 짝 없음</span>';
+  }
+  return '<div class="kh" '+(sub?'style="cursor:default;padding-left:4px;"':'onclick="tk('+idx+')"')+'>'+
+    '<span class="kn">'+(sub?'<small style="color:var(--muted);">'+sub+'</small> ':'')+r.text+' '+badge+
+    '<small>'+(d===null?'측정 한계 아래 — 없는 게 아니라 <b>우리가 못 잼</b>':'경쟁 '+(r.competition||0).toLocaleString()+' · 기회 '+(r.opportunity===null?'—':r.opportunity))+'</small></span>'+
+    '<span class="kb2"><span class="kf" style="width:'+w.toFixed(1)+'%;background:'+col+'"></span></span>'+
+    '<span class="kv" style="color:'+col+'">'+(d===null?'—':d)+'</span>'+
+    (sub?'':'<span style="color:var(--muted);font-size:13px;" id="kc'+idx+'">▾</span>')+'</div>';
+}
+
+function rk(){
+  if(!SV) return;
+  var c=SV.counts, sn=SV.snapshot||{};
+
+  /* 1층 */
+  var h1='<div class="st4"><div class="st"><div class="v">'+c.found+'</div><div class="l">찾은 검색어</div></div>'+
+    '<div class="st"><div class="v" style="color:var(--em);">'+c.alive+'</div><div class="l">살아있는 것</div></div>'+
+    '<div class="st"><div class="v">'+c.stay+'</div><div class="l">숙박 축</div></div>'+
+    '<div class="st"><div class="v" style="color:var(--muted);">'+c.dead+'</div><div class="l">버린 것</div></div></div>'+
+    '<div class="nt">'+(sn.ym||'')+' 조사 · 수요 잰 것 <b>'+c.measured+'</b> · 측정 한계 아래 <b>'+c.below_floor+'</b>'+
+    (sn.window_from?' · 창 '+sn.window_from+' ~ '+sn.window_to:'')+' · 앵커 <b>'+(sn.anchor_text||'')+' '+(sn.anchor_value||'')+'</b>'+
+    ' <span class="no">4-5</span></div>'+
+    '<div class="nt" style="color:var(--muted);">숫자 뜻: 유튜브에서 이 말을 얼마나 찾나 — <b>사람 수가 아니라 눈금</b>입니다. 앵커(대표어)를 기준으로 이 도시 안에서만 비교합니다.<br>축: <b>숙박</b> '+c.stay+'개 = 뭘 만드나(순위 무대) · <b>여행</b> '+c.travel+'개 = 언제 착수하나(배경)</div>';
+  document.getElementById('kv1').innerHTML=h1;
+
+  /* 2층 — 검색량 순 */
+  var rows=SV.rows||[], L=svMore?rows:rows.slice(0,8);
+  var max=0; rows.forEach(function(r){var d=svNum(r.demand); if(d&&d>max) max=d;});
+  var h='<div style="font-size:11px;font-weight:600;margin:8px 0 4px;">숙박 축 — 뭘 만드나 <small style="color:var(--muted);font-weight:400;">— 검색량 순 · 상위 '+rows.length+' · 기회점수는 이 축만</small></div>';
+  L.forEach(function(r,i){
+    h+='<div class="kw">'+svRow(r,max,i)+'<div class="kx" id="kx'+i+'">';
+    if(r.joined){
+      h+='<div style="background:var(--card2);border-radius:7px;padding:8px;margin-bottom:6px;">'+
+         '<div style="font-size:11px;font-weight:600;margin-bottom:4px;">띄어쓰기 짝 — 둘 다 진짜 검색어입니다 <span class="no">4-7</span></div>'+
+         svRow(r,max,i,'띄어')+svRow(r.joined,max,i,'붙여')+
+         '<div style="font-size:10px;color:var(--muted);margin-top:4px;">자동완성에 둘 다 살아 있어 <b>둘 다 넣습니다</b>(㊻). 수요는 각각 쟀습니다.</div></div>';
+    }
+    if(r.orphan_pair){
+      h+='<div class="wn" style="margin-bottom:6px;">붙여쓰기인데 <b>띄어쓰기 짝이 검색어 표에 없습니다.</b> 짝을 채워야 두 줄로 보입니다.</div>';
+    }
+    h+='<div style="display:flex;gap:7px;margin:6px 0;">'+
+       '<div style="flex:1;background:var(--card2);border-radius:7px;padding:8px;"><div style="font-size:10px;color:var(--muted);">수요 (트렌드)</div><div style="font-size:12px;">'+(r.demand===null?'못 잼':r.demand)+'</div><div style="font-size:10px;color:var(--muted);">'+(r.demand_source||'—')+'</div></div>'+
+       '<div style="flex:1;background:var(--card2);border-radius:7px;padding:8px;"><div style="font-size:10px;color:var(--muted);">경쟁</div><div style="font-size:12px;">'+(r.competition||0).toLocaleString()+'</div><div style="font-size:10px;color:var(--muted);">최근 '+(r.comp_window_days||365)+'일 · 자릿수만 신뢰</div></div>'+
+       '<div style="flex:1;background:var(--card2);border-radius:7px;padding:8px;"><div style="font-size:10px;color:var(--muted);">기회점수</div><div style="font-size:12px;">'+(r.opportunity===null?'—':r.opportunity)+'</div><div style="font-size:10px;color:var(--muted);">'+(r.opportunity===null?'수요를 못 재서 없음':'수요 ÷ log10(경쟁)')+'</div></div></div>';
+    h+='<div style="font-size:10px;color:var(--muted);">잰 날 '+svKst(r.measured_at)+' · 묶음 '+(r.batch_no||'-')+' · 보정배율 '+(r.calib_ratio||'-')+'</div>';
+    h+='</div></div>';
+  });
+  if(rows.length>8) h+='<div style="display:flex;gap:12px;margin-top:7px;"><span class="mr" onclick="svM()">'+(svMore?'접기 ▴':'상위 '+rows.length+' 더보기 ▾')+' <span class="no">4-9</span></span></div>';
+
+  /* 여행 축 — ㊿ (2026-07-17 대표님). 순위에 안 섞는다. 버리지도 않는다.
+     "언제 착수하나"를 정하는 배경이고, 태그란(⑬)에는 그대로 들어간다. */
+  var tv=SV.travel||[];
+  h+='<div style="background:var(--card2);border-radius:8px;padding:10px;margin-top:10px;">'+
+     '<div style="font-size:11px;font-weight:600;">여행 축 — 언제 착수하나 <small style="color:var(--muted);font-weight:400;">· 순위·기회점수에 안 섞습니다 <span class="no">4-12</span></small></div>'+
+     '<div style="font-size:10px;color:var(--muted);margin:2px 0 6px;">이 도시를 언제 겨냥할지 정하는 배경입니다. 태그란에는 그대로 들어갑니다.</div>';
+  if(!tv.length){ h+='<div class="wn">여행 축 검색어가 아직 없습니다 — 씨앗을 따로 뿌려야 합니다.</div>'; }
+  tv.forEach(function(r){
+    var d=svNum(r.demand), base=(rows[0]&&svNum(rows[0].demand))||0;
+    h+='<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-top:0.5px solid var(--line);">'+
+       '<span style="flex:1;font-size:11px;">'+r.text+'</span>'+
+       '<span style="font-size:10px;color:var(--muted);">'+(d&&base?'숙박 대표어의 '+(d/base).toFixed(1)+'배':'—')+'</span>'+
+       '<span style="font-size:12px;width:52px;text-align:right;">'+(d===null?'—':d)+'</span></div>';
+  });
+  h+='</div>';
+  document.getElementById('kv2').innerHTML=h;
+
+  /* 3층 */
+  var l3=SV.layer3||{}, h3='';
+  if(l3.locked){
+    h3='<div style="border-top:0.5px solid var(--line);margin-top:10px;padding-top:9px;opacity:.72;">'+
+       '<div style="font-size:11px;font-weight:600;">🔒 새로 생긴 · 사라진 검색어</div>'+
+       '<div style="font-size:10px;color:var(--muted);margin-top:3px;">'+(l3.reason||'')+' → <b>'+(l3.next_ym||'')+' 두 번째 조사부터 켜집니다.</b></div></div>';
+  }else{
+    h3='<div style="border-top:0.5px solid var(--line);margin-top:10px;padding-top:9px;">'+
+       '<div style="font-size:11px;font-weight:600;">새로 생긴 · 사라진 검색어 <small style="color:var(--muted);font-weight:400;">— '+l3.compared_to+' 대비</small></div></div>';
+  }
+  document.getElementById('kv3').innerHTML=h3;
+}
+
+function svM(){ svMore=!svMore; rk(); }
+function tk(i){var e=document.getElementById('kx'+i),w=e.classList.contains('on');
+ document.querySelectorAll('.kx').forEach(function(x){x.classList.remove('on');});
+ var c=document.querySelectorAll('[id^=kc]');for(var j=0;j<c.length;j++)c[j].textContent='▾';
+ if(!w){e.classList.add('on');document.getElementById('kc'+i).textContent='▴';}}
+function tt(e,i){e.stopPropagation();var w=document.getElementById('cw'+i),t=document.getElementById('tc'+i);
+ var o=w.classList.toggle('on');t.textContent=o?'작게 접기 ▴':'크게 보기 ▾';}
+function ps(i){cs=i;rx(cd);ts(STAR[i]+' 기준 필터');}
+function cp(){var t=document.getElementById('tgb').textContent;if(navigator.clipboard)navigator.clipboard.writeText(t);ts('태그 복사됨 (482자)');}
+
+function sch(){var q=document.getElementById('sq').value.trim(),b=document.getElementById('srb');
+ if(!q){b.classList.remove('on');return;}
+ var pool=[];Object.keys(CT).forEach(function(c){pool.push([c,'나라',true]);CT[c].forEach(function(x){pool.push([x,'도시',!!SE[x]]);});});
+ Object.keys(UNC).forEach(function(c){pool.push([c,'나라 · 미조사',false,'r']);UNC[c].cities.forEach(function(x){pool.push([x[0],'도시 · 미조사',false,'r',c]);});});
+ ['난바','우메다','신사이바시','도톤보리'].forEach(function(d){pool.push([d,'지역',d==='난바']);});
+ var hit=pool.filter(function(p){return p[0].indexOf(q)>=0;});
+ var h='';
+ if(!hit.length)h='<div class="sri" style="cursor:default;"><span style="color:var(--muted);">"'+q+'" 조사 기록 없음</span><span class="btn" style="margin-left:auto;" onclick="ts(\''+q+' 조사 시작 — 없으면 그때 만들어 저장\')">＋ 조사하기</span></div>';
+ else hit.slice(0,5).forEach(function(p){var act=p[3]==='r'?'go(\'r\',\''+(p[4]||p[0])+'\')':'ts(\''+p[0]+' 로 이동\')';
+  h+='<div class="sri" onclick="'+act+'"><b>'+p[0]+'</b> <span style="color:var(--muted);font-size:10px;">'+p[1]+'</span>'+(p[2]?'<span class="tag t-on">조사됨</span>':'<span class="tag t-un">미조사 · 눌러서 조사</span>')+'</div>';});
+ b.innerHTML=h;b.classList.add('on');}
+
+function rq(){var h='',n=0;Object.keys(Q).forEach(function(c){n+=Q[c].length;
+ h+='<div><div class="kct">'+c+' <span>'+Q[c].length+'</span></div>';
+ Q[c].forEach(function(x,i){h+='<div class="kc'+(x.nw?' nw':'')+'"><div class="kid" style="display:flex;align-items:center;gap:6px;">'+
+   (x.id?'<span style="color:var(--em);">'+x.id+'</span>'+(x.nw?'<span style="color:var(--muted);">· 방금 발급</span>':'')
+        :'<span style="font-size:10px;padding:2px 8px;border-radius:20px;background:var(--card2);color:var(--muted);">코드 없음 · 아직 후보</span>'+
+         '<button class="btn bt2" style="margin-left:auto;font-size:10px;padding:2px 9px;" onclick="fx('+i+')">확정</button>')+
+   '</div><div class="ktt">'+x.t+'</div><div class="kmt">'+x.m+'</div></div>';});
+ h+='</div>';});
+ document.getElementById('kb').innerHTML=h;document.getElementById('qc').textContent=n;}
+function add(){Q['기획 대기'].forEach(function(c){c.nw=false;});
+ Q['기획 대기'].unshift({id:'',t:'오사카 숙소 추천 — 난바 호텔 TOP3',m:cd+' · '+STAR[cs]+' · '+curLbl()+' · 근거 첨부',nw:true});
+ rq();ts('기획 대기에 담겼습니다 — 코드는 [확정] 때 납니다');setTimeout(function(){go('q');},700);}
+function fx(i){var c=Q['기획 대기'][i];if(!c||c.id)return;sq++;c.id='R-001'+sq;c.nw=true;
+ Q['기획 대기'].splice(i,1);Q['원고 작성'].unshift(c);
+ rq();ts(c.id+' 발급 — 에디터가 채널별 원고에 이 한 줄을 넣습니다');}
+
+function bc(l,e){var h='<a onclick="go(\'m\')">이번 달</a>';
+ if(l==='c')h+=' › <b>'+e+'</b>';
+ if(l==='d')h+=' › <a onclick="go(\'c\',\''+cc+'\')">'+cc+'</a> › <b>'+e+'</b>';
+ if(l==='x')h+=' › <a onclick="go(\'c\',\''+cc+'\')">'+cc+'</a> › <a onclick="go(\'d\',\''+cy+'\')">'+cy+'</a> › <b>'+e+'</b>';
+ if(l==='q')h+=' › <b>전략 큐</b>';
+ document.getElementById('bc').innerHTML=h;}
+function sh(id){document.querySelectorAll('.sc').forEach(function(s){s.classList.remove('on');});document.getElementById(id).classList.add('on');window.scrollTo(0,0);}
+function vw(w,a,b){
+ if(w==='m'){sh('s1');document.getElementById('bc').innerHTML='';return;}
+ if(w==='c'){rc(a);sh('s2');bc('c',a);return;}
+ if(w==='d'){if(b)cc=b;rdd(a);sh('s3');bc('d',a);return;}
+ if(w==='x'){rx(a);sh('s4');bc('x',a);return;}
+ if(w==='q'){rq();sh('s5');bc('q');return;}
+ if(w==='r'){rrs(a);sh('s6');document.getElementById('bc').innerHTML='<a onclick="go(\'m\')">홈</a> › <span>한국어 · 한국</span> › <b>'+a+'</b> › <b>조사 시작</b>';return;}}
+// A안 — 폰 뒤로가기 지원. 지금까지 폰 뒤로 버튼을 누르면 **앱을 통째로 나갔다**(대표님 2026-07-16).
+// 헌법 원칙 3 "핸드폰 한 대로 모든 작업". vw()=그리기 / go()=그리기+이력쌓기 로 분리.
+/* 🔴 이사하며 끊음 — 프리뷰는 제 페이지라 주소를 밀어넣어도 됐지만,
+   스튜디오 안에서는 탭 이동(뒤로가기)과 부딪힌다. 화면 안 이동은 주소를 안 건드린다. */
+function go(w,a,b){vw(w,a,b);}
+/* popstate·replaceState 는 이사하며 뺐다 — 주소는 스튜디오 탭이 소유 */
+
+function dd(){var d=document.getElementById('ddb');d.classList.toggle('on');document.getElementById('tc').textContent=d.classList.contains('on')?'⌃':'⌄';}
+function pk(n){document.getElementById('tn').textContent=n;dd();ts(n+' 전환');}
+var tmo;function ts(m){var t=document.getElementById('tsb');t.textContent=m;t.classList.add('on');clearTimeout(tmo);tmo=setTimeout(function(){t.classList.remove('on');},2200);}
+rd();rq();
+
+/* ══ D-065 ㉘㉙㉚㉜ — 조사 시작 화면 (2026-07-16) ══
+   실측: DB 조회 2026-07-16. 확정 예약(is_cancelled=false) 기준. */
+var UNC={'필리핀':{bk:162,rank:5,cities:[['세부','Cebu',82,126],['마닐라','Manila',19,19],['보홀','Bohol',12,7],
+  ['앙헬레스 / 클락','Angeles / Clark',7,6],['보라카이','Boracay Island',3,2],['라푸라푸','Lapu-Lapu City',1,2]]}};
+/* ㉚ 한국어 도시명은 DB에 없다(hotels = city 영문뿐). city_alias 지연 생성 — 입력이 곧 데이터.
+   프리뷰라 아래는 이미 넣어둔 셈 치고 보여준다. 실제 구현은 빈 칸이면 그 자리에서 5초 입력. */
+var RSEL={}, RNEW=[], RC='';
+function rrs(c){RC=c;if(!RSEL[c])RSEL[c]={0:1,1:1};
+ var u=UNC[c];var h='';
+ h+='<div class="cd" style="margin-bottom:9px;"><div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">'+
+    '<span style="font-size:16px;font-weight:600;">'+c+'</span><span class="tag t-un">아직 안 쟀습니다</span></div>'+
+    '<div style="font-size:11.5px;color:var(--sub);">우리 데이터엔 이미 있습니다 — 확정 예약 <b>'+u.bk+'건</b> · 도시 '+u.cities.length+'곳 · 나라 중 <b>'+u.rank+'위</b></div>'+
+    '<div style="font-size:11px;color:var(--muted);margin-top:3px;">없는 것은 검색 수요(구글 트렌드)뿐입니다. 그래서 "지금 착수 / 대기" 판정을 못 합니다. <span class="wb" onclick="ts(\'근거: DB 실측 2026-07-16 · bookings_unified · hotels\')">왜?</span></div></div>';
+ h+='<div class="ml">한국어 · 한국 타겟으로 조사할 도시를 고르세요 <span class="no">2-1</span></div>';
+ h+='<div class="cd" style="padding:6px 8px;margin-bottom:9px;">';
+ u.cities.forEach(function(x,i){var on=!!RSEL[c][i];
+  h+='<div onclick="rtg('+i+')" style="display:flex;align-items:center;gap:9px;padding:8px 6px;border-bottom:0.5px solid var(--card2);cursor:pointer;'+(on?'':'color:var(--sub);')+'">'+
+     '<span style="font-size:14px;color:'+(on?'var(--bl)':'var(--muted)')+';">'+(on?'☑':'☐')+'</span>'+
+     '<span style="flex:1;">'+x[0]+' <span style="font-size:10px;color:var(--muted);">'+x[1]+'</span></span>'+
+     '<span style="font-size:11px;color:var(--sub);">호텔 '+x[2]+' · 확정 '+x[3]+'</span>'+
+     '<span style="font-size:11px;color:var(--muted);min-width:36px;text-align:right;">약 4분</span></div>';});
+ RNEW.forEach(function(n,j){h+='<div style="display:flex;align-items:center;gap:9px;padding:8px 6px;border-bottom:0.5px solid var(--card2);">'+
+     '<span style="font-size:14px;color:var(--bl);">☑</span><span style="flex:1;">'+n+' <span class="tag t-un">새로 넣음</span></span>'+
+     '<span style="font-size:11px;color:var(--am);">우리 데이터에 없음</span>'+
+     '<span style="font-size:11px;color:var(--muted);min-width:36px;text-align:right;">약 4분</span></div>';});
+ h+='<div onclick="rnf()" style="display:flex;align-items:center;gap:8px;padding:9px 6px;color:var(--bl);cursor:pointer;font-size:12px;">＋ 도시 이름 직접 넣기 — 목록에 없는 곳 (예: 팔라완)</div>';
+ h+='<div id="rnb" style="display:none;padding:4px 6px 9px;">'+
+    '<div class="srch" style="margin-bottom:6px;"><span>📍</span><input id="rni" placeholder="한국어로 도시 이름 (지금 타겟 언어)" onkeydown="if(event.key===\'Enter\')rna()"></div>'+
+    '<div style="font-size:11px;color:var(--muted);margin-bottom:6px;">나라는 <b style="color:var(--sub);">'+c+'</b>으로 자동 · 검색어 40개는 이름 + 접미어(호텔·숙소·리조트·추천)로 만들고, 지역어는 자동완성으로 캡니다. "가성비"는 안 넣습니다(실측 0.17).<br>영문 표기는 <b style="color:var(--sub);">받지 않습니다</b> — 나중에 예약이 붙으면 아고다가 줍니다 (D-065 ㉚·㉛).</div>'+
+    '<span class="btn" onclick="rna()">이 도시 넣기</span></div>';
+ h+='</div>';
+ var n=Object.keys(RSEL[c]).filter(function(k){return RSEL[c][k];}).length+RNEW.length;
+ h+='<div class="ban" style="margin-bottom:9px;">고른 것 <b>'+n+'곳</b> × 한국어 1개 타겟 = 구글 트렌드 <b>'+(n*10)+'회</b> · 약 <b>'+(n*4)+'분</b>'+
+    '<div style="color:var(--sub);font-size:11px;margin-top:2px;">도시 1곳 = 키워드 40개 = 트렌드 10회 (앵커 묶음 ⑪ · 429 방지 간격 20초). 타겟은 지금 보는 1개만 — 일본어는 일본어 화면에서 따로.</div></div>';
+ h+='<div style="display:flex;align-items:center;gap:9px;"><span class="btn" style="background:var(--emd);color:var(--em);" onclick="ts(\''+c+' '+n+'곳 조사 시작 — 프리뷰라 실제 호출은 안 합니다\')">조사 시작 · 약 '+(n*4)+'분</span>'+
+    '<span style="font-size:11px;color:var(--muted);">owner · admin만 · 끝나면 알림 · 다음 달부터 자동 조사 합류</span></div>';
+ h+='<div class="er" style="margin-top:9px;">앵커("세부 호텔")가 측정 한계 아래면 20초 지점에서 저절로 멈추고 <b>"측정 한계 아래 — 없는 게 아니라 우리가 못 잼"</b>으로 표시, 저장하지 않습니다 (⑧). [미리 재보기]는 폐기 — 본 조사가 같은 일을 합니다.</div>';
+ document.getElementById('d6').innerHTML=h;}
+function rtg(i){RSEL[RC][i]=!RSEL[RC][i];rrs(RC);}
+function rnf(){var b=document.getElementById('rnb');b.style.display=b.style.display==='none'?'block':'none';if(b.style.display==='block')document.getElementById('rni').focus();}
+function rna(){var v=document.getElementById('rni').value.trim();if(!v)return;RNEW.push(v);rrs(RC);ts('"'+v+'" 넣음 — 이 글자가 곧 한국어 이름표입니다 (city_alias 저장 · 비용 0)');}
+
+
+/* ══ D-065 ㉝ — 연·월 지정 팝오버 (2026-07-16 대표님 승인) ══
+   월 스트립과 같은 언어: 점 색=상태(㉖), 파란 채움=선택.
+   과거는 스냅샷 있는 달만. 지금 0개 → 전부 회색. 8월 첫 조사 → 9월부터 저절로 켜진다. */
+var YMY=TODAY.getFullYear(), YMO=false;
+function ymt(){YMO=!YMO;ymr();}
+function ymy(d){YMY+=d;ymr();}
+function ympick(y,m){
+ var d=dmo(y,m);
+ if(d<0&&!SNAP[y+'-'+('0'+m).slice(-2)]){ts(y+'년 '+m+'월 — 조사 기록이 없습니다. 첫 조사 '+SNAP_FROM);return;}
+ var hit=-1;MOS.forEach(function(o,i){if(o.y===y&&o.m===m)hit=i;});
+ if(hit>=0){XM=null;cm=hit;}else{XM={y:y,m:m,d:d};}
+ YMO=false;rd();ymr();ts(y+'년 '+m+'월 겨냥'+(d<0?' · 복기 모드':''));}
+function ymr(){var e=document.getElementById('ymp');if(!e)return;
+ if(!YMO){e.innerHTML='';return;}
+ var h='<div style="background:var(--card);border:0.5px solid #2a5a80;border-radius:12px;padding:12px;max-width:330px;margin:6px 0 4px;">';
+ h+='<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;">'+
+    '<span style="color:var(--bl);cursor:pointer;padding:0 10px;font-size:16px;" onclick="ymy(-1)">‹</span>'+
+    '<b style="font-size:14px;">'+YMY+'</b>'+
+    '<span style="color:var(--bl);cursor:pointer;padding:0 10px;font-size:16px;" onclick="ymy(1)">›</span></div>';
+ h+='<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;margin-bottom:9px;">';
+ var dead=0;
+ for(var m=1;m<=12;m++){
+  var d=dmo(YMY,m), past=d<0, has=!!SNAP[YMY+'-'+('0'+m).slice(-2)];
+  var sel=XM?(XM.y===YMY&&XM.m===m):(MOS[cm].y===YMY&&MOS[cm].m===m);
+  if(past&&!has){dead++;
+   h+='<span style="text-align:center;padding:8px 0;border-radius:8px;background:var(--card);border:1px solid var(--card2);color:#3d5064;font-size:12px;cursor:not-allowed;" title="조사 기록 없음">'+m+'월</span>';
+  }else{
+   var st=past?'nw':mst(d);
+   h+='<span onclick="ympick('+YMY+','+m+')" style="text-align:center;padding:8px 0;border-radius:8px;cursor:pointer;font-size:12px;background:'+(sel?'var(--bld)':'var(--card)')+';border:1px solid '+(sel?'#3d7fb5':'var(--line)')+';color:'+(sel?'#d6ecfd':'var(--sub)')+';'+(sel?'font-weight:700;':'')+'" title="'+(past?'복기 — 조사 기록 있음':mstL(d))+'">'+
+      '<span style="display:inline-block;width:5px;height:5px;border-radius:50%;background:'+DOT[st]+';margin-right:4px;vertical-align:1px;"></span>'+m+'월</span>';}}
+ h+='</div>';
+ if(dead)h+='<div class="wn" style="font-size:11px;padding:8px 10px;margin:0 0 8px;">지난 달 '+dead+'칸은 <b>못 누릅니다</b> — 조사 기록이 없습니다. 첫 조사 <b>'+SNAP_FROM+'</b> → <b>그다음 달부터</b> 복기됩니다. (스냅샷이 쌓이면 회색이 저절로 켜집니다)</div>';
+ h+='<div class="lg" style="border-top:0.5px solid var(--card2);padding-top:8px;margin:0;font-size:10.5px;">'+
+    '<span><span class="dt" style="background:var(--muted);"></span>착수 지남</span>'+
+    '<span><span class="dt" style="background:var(--rd);"></span>곧 늦음</span>'+
+    '<span><span class="dt" style="background:var(--bl);"></span>지금 착수</span>'+
+    '<span><span class="dt" style="background:var(--em);"></span>여유</span></div>';
+ h+='<div style="font-size:10.5px;color:var(--muted);margin-top:7px;">‹ › 로 해를 넘기면 2027·2028도 · 미래는 계절 곡선이 있어 아무 달이나 판정됩니다</div>';
+ h+='</div>';e.innerHTML=h;}
+
+
 </script>
 </body>
 </html>

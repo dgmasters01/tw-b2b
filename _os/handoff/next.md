@@ -10,7 +10,7 @@
 - `refund-and-cancellation.md` (환불정책 확정), `open-questions.md` (미결: 영상/채널 관리 체계 등).
 
 ## 영구 인프라
-- 파일 저장: `POST gohotelwinners.com/api/ops/github-commit` (x-ops-token=sV1IWuvgBYcn94lQZXBjFLjgdsh3lrBK), body `{path,content,message}`. 30/h. ⚠️ python SSL "not yet valid" → **curl --data-binary @file** 우회.
+- 파일 저장: `POST gohotelwinners.com/api/ops/github-commit` (x-ops-token=<CLAUDE_OPS_TOKEN — Vercel 환경변수에서 읽는다. 평문 금지(2026-07-16 공개레포 노출 사고)>), body `{path,content,message}`. 30/h. ⚠️ python SSL "not yet valid" → **curl --data-binary @file** 우회.
 - DB: `POST .../api/ops/db-query` body `{query}`. 60/h. 메일: `POST .../api/email/ops/notify-claude-work` body `{step,summary}`. 50/day.
 
 ## 📋 i18n 작업 규칙 (필수)

@@ -7,13 +7,14 @@
 // Body:
 //   {
 //     path: string,          // 파일 경로 (예: "_os/INDEX.md")
-//     content: string,       // 파일 내용 (UTF-8 평문, 함수 내에서 base64 변환)
+//     content: string,       // 파일 내용 (UTF-8 평문, 함수 내에서 base64 변환) · delete:true면 불필요
+//     delete: boolean,       // true = 파일 삭제 (있는 파일만 · 없으면 404)
 //     message: string,       // commit message
 //     branch?: string,       // 기본 "main"
 //   }
 //
 // Returns:
-//   { ok: true, commit_sha, file_url, html_url, action: 'created' | 'updated' }
+//   { ok: true, commit_sha, file_url, html_url, action: 'created' | 'updated' | 'deleted' }
 //
 // 보안:
 //   - CLAUDE_OPS_TOKEN: Claude → endpoint 호출 인증
@@ -58,13 +59,14 @@ export default async function handler(req, res) {
   // 3. body 검증
   const body = req.body || {};
   const { path, content, message } = body;
+  const isDelete = body.delete === true;   // 삭제 모드 (헌법 9조 가역성 — 만든 건 지울 수 있어야 한다)
   const branch = body.branch || 'main';
   const encoding = body.encoding === 'base64' ? 'base64' : 'utf-8';  // base64=바이너리(이미지 등), 기본 utf-8=텍스트
 
   if (!path || typeof path !== 'string') {
     return res.status(400).json({ error: 'path is required (string)' });
   }
-  if (typeof content !== 'string') {
+  if (!isDelete && typeof content !== 'string') {
     return res.status(400).json({ error: 'content is required (string)' });
   }
   if (!message || typeof message !== 'string') {
@@ -115,6 +117,44 @@ export default async function handler(req, res) {
         error: 'github_read_failed',
         status: headResp.status,
         detail: errText.slice(0, 500),
+      });
+    }
+
+    // 5-B. 삭제 모드 (DELETE) — 있는 파일만. 없으면 404 그대로 알린다(조용히 성공 처리 금지)
+    if (isDelete) {
+      if (!existingSha) {
+        return res.status(404).json({ ok: false, error: 'file_not_found', path, branch });
+      }
+      const delResp = await fetch(
+        `${GITHUB_API}/repos/${REPO_OWNER}/${REPO_NAME}/contents/${encodeURIComponent(path).replace(/%2F/g, '/')}`,
+        {
+          method: 'DELETE',
+          headers: { ...ghHeaders, 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            message,
+            sha: existingSha,
+            branch,
+            committer: { name: 'Claude (TW OS)', email: 'claude-ops@gohotelwinners.com' },
+          }),
+        }
+      );
+      if (!delResp.ok) {
+        const errText = await delResp.text();
+        return res.status(502).json({ ok: false, error: 'github_delete_failed', status: delResp.status, detail: errText.slice(0, 500) });
+      }
+      const delResult = await delResp.json();
+      RATE_STATE.count += 1;
+      return res.status(200).json({
+        ok: true,
+        action: 'deleted',
+        commit_sha: delResult.commit?.sha || null,
+        path,
+        branch,
+        quota: {
+          used: RATE_STATE.count,
+          limit: RATE_LIMIT,
+          window_reset_at: new Date(RATE_STATE.window_start + RATE_WINDOW_MS).toISOString(),
+        },
       });
     }
 

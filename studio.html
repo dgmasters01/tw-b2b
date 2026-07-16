@@ -3299,10 +3299,14 @@ function samePeriod(series){
 
 function travelBlock(){
   var tv=(SV&&SV.travel)||[];
-  var h='<div class="bk"><div class="bh">그 도시 수요 트렌드 <span class="no" style="margin-left:auto;">3-6</span></div>'+
-        '<div class="nt">이 도시를 <b>할지·언제 할지</b> 정하는 자리입니다 — 아래 숙박 순위에는 <b>안 섞습니다</b>.</div>';
+  var h='<div class="bk"><div class="bh">그 도시 수요 트렌드 <span class="no" style="margin-left:auto;">3-6</span></div>';
   if(!tv.length){ return h+'<div class="wn">여행 검색어가 아직 없습니다 — 씨앗을 따로 뿌려야 합니다.</div></div>'; }
   var top=tv[0];
+  /* 🔴 차트가 **자기가 뭔지** 말해야 한다. 대표님: "이 그래픽의 의미를 모르겠어."
+     ① 무슨 검색어인지 ② 세로가 뭔지 ③ 선을 어떻게 읽는지 ④ 그래서 무슨 판단인지 */
+  h+='<div class="nt"><b>"'+top.text+'"</b> 를 유튜브에서 찾는 정도 · 월별 · 해마다 겹쳐 봅니다<br>'+
+     '<span style="color:var(--muted);">세로 = 얼마나 많이 찾나 (<b>사람 수가 아니라 눈금</b>) · 가로 = 1~12월 · '+
+     '<b style="color:var(--em);">진한 초록(2026)</b>이 <b>위</b>면 뜨는 도시, 겹치면 늘 비슷한 도시</span></div>';
   h+=svgSeason(top.series);
   /* 🔑 대표님이 이 차트로 알고 싶은 것 = **뜨는 도시냐, 늘 그런 도시냐** */
   var sp=samePeriod(top.series);
@@ -3313,7 +3317,12 @@ function travelBlock(){
        '"'+top.text+'" 을 찾는 사람이 <b>작년 같은 기간보다 '+(sp.ch>0?'+':'')+sp.ch+'%</b>'+
        (up?' 늘었습니다':(dn?' 줄었습니다':''))+'. <small style="color:var(--muted);">(2025·2026년 1~'+sp.upto+'월끼리 비교)</small></div>';
   }
-  h+='<div class="nt" style="margin-top:6px;">이 도시의 여행 검색어 — <b>수요 순</b></div>';
+  /* 🔴 대표님: "키워드를 가지고 어떻게 무엇을 만들 거야."
+     차트는 **할지·언제만** 정한다. 무엇을 만드는지는 아래로 이어진다 — 화면이 그 길을 말해야 한다. */
+  h+='<div class="nt" style="border-top:0.5px solid var(--line);margin-top:8px;padding-top:7px;">'+
+     '<b>여기까지가 「할지 · 언제」입니다.</b> 「뭘 만들지」는 아래로 이어집니다<br>'+
+     '<span style="color:var(--muted);">아래 <b>숙박 검색어</b>(제목·태그에 넣을 말) → <b>지역</b>을 누르면 <b>만들 영상 추천</b> → <b>[이걸로 만들기]</b> → 전략 메뉴</span></div>'+
+     '<div class="nt" style="margin-top:6px;">이 도시의 여행 검색어 — <b>수요 순</b></div>';
   tv.forEach(function(r){
     var d=r.demand===null?null:Number(r.demand), s=r.series||{}, mo={};
     Object.keys(s).forEach(function(ym){ var y=ym.slice(0,4), m=+ym.slice(5,7);

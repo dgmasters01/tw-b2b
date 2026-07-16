@@ -392,17 +392,27 @@ function svgSeason(series, col){
   });
   if(!all.length) return '';
   var mx=Math.max.apply(null,all), mn=Math.min.apply(null,all), W=560, H=88;
-  var cols={'2024':'#2f6b58','2025':'#3f9e7d','2026':col||'#4edea3'};
+  /* 🔴 셋 다 초록 계열이라 **올해가 안 보였다**(2026-07-17 대표님).
+     지금 중요한 건 **올해**다 → 지난 해는 **회색**, 올해만 **초록·굵게·점**. */
+  var thisY=String(new Date().getFullYear());
   var g='';
   byYear.forEach(function(o){
-    var pts=[];
+    var now=(o.y===thisY), c=now?(col||'#4edea3'):(o.y===String(+thisY-1)?'#5f7183':'#3d4a57');
+    var pts=[], dots='';
     o.a.forEach(function(v,i){ if(v==null) return;
-      pts.push((14+i*((W-28)/11)).toFixed(0)+','+(H-10-((v-mn)/(mx-mn||1))*(H-22)).toFixed(0)); });
-    if(pts.length>1) g+='<polyline fill="none" stroke="'+(cols[o.y]||'#5aa9e6')+'" stroke-width="'+(o.y==='2026'?2.5:1.5)+'" points="'+pts.join(' ')+'"/>';
+      var x=(14+i*((W-28)/11)).toFixed(0), y=(H-10-((v-mn)/(mx-mn||1))*(H-22)).toFixed(0);
+      pts.push(x+','+y);
+      if(now) dots+='<circle cx="'+x+'" cy="'+y+'" r="2.2" fill="'+c+'"/>';
+    });
+    if(pts.length>1) g+='<polyline fill="none" stroke="'+c+'" stroke-width="'+(now?3:1.4)+'" '+
+      'stroke-linejoin="round" stroke-linecap="round" points="'+pts.join(' ')+'"/>'+dots;
   });
   var lb=''; for(var m=1;m<=12;m++) lb+='<text x="'+(14+(m-1)*((W-28)/11))+'" y="'+(H-1)+'" fill="#6a85a0" font-size="8" text-anchor="middle">'+m+'</text>';
   return '<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:88px;">'+g+lb+'</svg>'+
-    '<div class="lg" style="margin-top:2px;">'+ys.map(function(y){return '<span><span class="dt" style="background:'+(cols[y]||'#5aa9e6')+';"></span>'+y+'</span>';}).join('')+'</div>';
+    '<div class="lg" style="margin-top:2px;">'+ys.map(function(y){
+      var now=(y===thisY), c=now?(col||'#4edea3'):(y===String(+thisY-1)?'#5f7183':'#3d4a57');
+      return '<span style="'+(now?'color:var(--em);font-weight:600;':'')+'"><span class="dt" style="background:'+c+';"></span>'+y+(now?' (올해)':'')+'</span>';
+    }).join('')+'</div>';
 }
 
 /* 같은 달끼리만 비교한다 (D-065 54-0J) — 올해는 아직 반년치라 해 평균끼리 비교하면 틀린다 */
@@ -423,23 +433,23 @@ function samePeriod(series){
 
 function travelBlock(){
   var tv=(SV&&SV.travel)||[];
-  var h='<div class="bk"><div class="bh">그 도시 수요 트렌드 <span class="no" style="margin-left:auto;">3-6</span></div>';
+  var h='<div class="bk"><div class="bh">수요 트렌드 <span class="no" style="margin-left:auto;">3-6</span></div>';
   if(!tv.length){ return h+'<div class="wn">여행 검색어가 아직 없습니다 — 씨앗을 따로 뿌려야 합니다.</div></div>'; }
   var top=tv[0];
-  /* 🔴 차트가 **자기가 뭔지** 말해야 한다. 대표님: "이 그래픽의 의미를 모르겠어."
-     ① 무슨 검색어인지 ② 세로가 뭔지 ③ 선을 어떻게 읽는지 ④ 그래서 무슨 판단인지 */
-  h+='<div class="nt"><b>"'+top.text+'"</b> 를 유튜브에서 찾는 정도 · 월별 · 해마다 겹쳐 봅니다<br>'+
-     '<span style="color:var(--muted);">세로 = 얼마나 많이 찾나 (<b>사람 수가 아니라 눈금</b>) · 가로 = 1~12월 · '+
-     '<b style="color:var(--em);">진한 초록(2026)</b>이 <b>위</b>면 뜨는 도시, 겹치면 늘 비슷한 도시</span></div>';
+  /* 차트 위에 설명을 길게 붙이지 않는다 — **아래 요약 박스 한 곳**에서만 말한다 (2026-07-17 대표님) */
   h+=svgSeason(top.series);
   /* 🔑 대표님이 이 차트로 알고 싶은 것 = **뜨는 도시냐, 늘 그런 도시냐** */
   var sp=samePeriod(top.series);
   if(sp){
     var up=sp.ch>=8, dn=sp.ch<=-8;
-    h+='<div class="'+(up?'ok':(dn?'er':'nt'))+'" style="margin:6px 0 2px;">'+
-       (up?'📈 <b>뜨는 도시입니다.</b> ':(dn?'📉 <b>식는 도시입니다.</b> ':'➡️ <b>늘 비슷한 도시입니다.</b> '))+
-       '"'+top.text+'" 을 찾는 사람이 <b>작년 같은 기간보다 '+(sp.ch>0?'+':'')+sp.ch+'%</b>'+
-       (up?' 늘었습니다':(dn?' 줄었습니다':''))+'. <small style="color:var(--muted);">(2025·2026년 1~'+sp.upto+'월끼리 비교)</small></div>';
+    /* 요약은 **여기 한 곳**. 차트 위·아래로 흩지 않는다.
+       "📈 뜨는 도시입니다" 같은 꾸밈말은 뺐다 — 숫자가 이미 그 말을 한다 (2026-07-17 대표님) */
+    h+='<div class="'+(up?'ok':(dn?'er':'nt'))+'" style="margin:6px 0 2px;line-height:1.65;">'+
+       '<b>"'+top.text+'"</b> 를 찾는 사람이 <b>작년 같은 기간보다 '+(sp.ch>0?'+':'')+sp.ch+'%</b>'+
+       (up?' 늘었습니다':(dn?' 줄었습니다':' — 늘 비슷합니다'))+
+       ' <small style="color:var(--muted);">(2025·2026년 1~'+sp.upto+'월끼리)</small><br>'+
+       '<small style="color:var(--muted);">세로 = 유튜브에서 얼마나 많이 찾나 (<b>사람 수가 아니라 눈금</b>) · 가로 = 1~12월 · '+
+       '<b style="color:var(--em);">밝은 초록 = 2026</b>, 회색 = 지난 해</small></div>';
   }
   /* 🔴 대표님: "키워드를 가지고 어떻게 무엇을 만들 거야."
      차트는 **할지·언제만** 정한다. 무엇을 만드는지는 아래로 이어진다 — 화면이 그 길을 말해야 한다. */

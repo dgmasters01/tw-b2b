@@ -1,4 +1,4 @@
-# 인계서 — 키워드 메뉴(D-065) 설계 확정, 다음=구현
+# 인계서 — DB 백업 완료. 다음 = ops 토큰 교체 → 키워드(D-065) 구현
 
 <!-- verify:start -->
 > 🟢 **인계서 자동 검사 통과** (검사: 2026-07-15 22:00 UTC · 경로 13개 · 크론 3개 실존·인증·메서드 확인)
@@ -39,49 +39,56 @@
 
 ---
 
-## 🔴🔴 2026-07-16 최우선 — DB 백업 0개 + 레포가 공개다 (키워드보다 먼저)
+## ✅ 2026-07-16 완료 — DB 백업 그물 쳐짐 (BL-DB-BACKUP · 라이브)
 
-**다음 채팅은 키워드 말고 이것부터. 그물 없이 DB 표를 만들면 안 된다.**
+**어제까지: 백업 0개. 지금: 매일 자동.** 인계서 ①~⑤ 전부 소화. 키워드 재개 가능.
 
-### 실측 (2026-07-16 · 대표님 Supabase 대시보드 스크린샷 + DB 조회)
-| 항목 | 상태 |
+### 무엇이 생겼나
+| | 값 |
 |---|---|
-| Supabase 요금제 | **FREE** — 자동 백업 대상 아님(Pro 이상만) |
-| `LAST BACKUP` | 🔴 **No backups** — 한 개도 없음 |
-| `LAST MIGRATION` | 🔴 **No migrations** — 표 설계도도 어디에도 없음 |
-| 잃을 것 | 예약 **7,316행** · 호텔 **3,185행** = 사업 전부 |
-| `api/ops/db-query` | **쓰기 나감.** 막힌 건 `drop database`뿐. `DELETE FROM` 그대로 실행됨 |
-| 손으로 만든 백업 | 3개(`bookings_agoda_backup_20260715` 등) = 조각·수동 |
+| 창고 | **`dgmasters01/tw-b2b-backup`** (🔒 private — 밖에서 raw 404 실측 확인) |
+| 첫 백업 | 커밋 `373f6aa9` · 표 **30개** · **21,500행** · 84초 |
+| 크론 | `vercel.json` → `/api/cron/db-backup` · `0 19 * * *` = **KST 04시** (커밋 `cd45cd26`) |
+| 코드 | `api/_lib/db-backup.js`(로직 `0566112e`) + `api/cron/db-backup.js`(입구 `a2cc4510`) |
+| 담는 것 | `data/<표>.csv` 30개 + `schema/tables.sql`(CREATE TABLE+인덱스) + `_manifest.json` |
+| 대조 검증 | `bookings_agoda` 7,316 · `hotels` 3,185 = DB 실제와 일치 ✅ |
 
-### 🚨 사고 직전에 걸린 것 — 레포가 public이다
-- `raw.githubusercontent.com`을 **토큰 없이** 읽을 수 있다 = **공개 레포**.
-- 여기에 DB 백업을 넣으면: `hotels`에 **contact_name · contact_email · contact_phone · address**(호텔 사장님 연락처 3,185개)가 **전 세계 공개**. `bookings_agoda`는 손님 이름·이메일은 없으나 **실적 전체($869K)가 경쟁사에 노출**.
-- 클로드가 "GitHub에 넣으면 됩니다"라고 먼저 말했고, 대표님이 **"비용 더 나가는 거 아니냐"**고 되물어서 재보다가 걸렸다. **재보지 않았으면 그대로 사고였다.**
-- → **백업은 반드시 비공개(private) 레포로.** GitHub 무료 계정도 private 무제한.
+### 설계 결정 (건드리기 전에 읽을 것)
+- **같은 경로 덮어쓰기**(날짜 폴더 아님). git 델타 압축이 바뀐 줄만 저장 → 1년 약 2MB. 날짜 폴더로 바꾸면 이 이점이 통째로 사라진다. 되돌리기는 git 이력으로.
+- **`assertPrivate()` = 창고가 public이면 봇이 스스로 거부.** `hotels`에 호텔 사장님 연락처 3,185개가 들어간다. 사람 기억에 안 맡긴다. **이 가드 절대 제거 금지.**
+- **`?dry_run=1`** = 안 쓰고 "창고 닿는지/private인지/무엇을 담을지"만 보고. 인계서 ③이 이걸로 대체됨.
+- PAT는 **`GITHUB_PAT` 재사용**(새 PAT 안 만듦). 코드는 `BACKUP_PAT || GITHUB_PAT` 순.
+- 크론 시간 UTC 19시 = 다른 크론 3개(KST 11·16·21·6 / 17·21·1 / 7)와 안 겹침.
 
-### 용량 걱정 = 실측으로 해소됨 (추측 금지 사례)
-30일치를 실제 git에 커밋해 측정: 첫날 1.2MB → 31일 후 **1.2MB**(하루 증가 0.00MB). **1년 약 2MB.**
-이유 = git 델타 압축(바뀐 줄만 저장). "1년 1.4GB"는 압축을 모르는 계산이었다.
+### 덫이었던 것 (다음 클로드가 또 밟지 말 것)
+- **`GITHUB_PAT` = fine-grained `tw-b2b-claude`** (classic 아님). `Only select repositories`로 `tw-b2b` **하나만** 묶여 있어서 새 창고에 404. → 대표님이 `tw-b2b-backup` 추가해서 해결(권한 `Contents: Read and write`는 원래 맞았음).
+- 환경변수 이름은 **`CLAUDE_OPS_TOKEN`** (`OPS_TOKEN` 아님).
+- `main` raw는 CDN 캐시라 **새 커밋이 없는 것처럼 보인다**(이 인계서 블록이 실제로 안 보였음). **커밋 SHA로 읽을 것** — 철칙 그대로 재현됨.
 
-### 확정 방향 (대표님 승인 · 비용 0원)
-- ❌ Supabase Pro($25/월) 안 씀 — 연 44만원. 호텔 2곳 계약분.
-- ✅ **비공개 레포 + 매일 백업 봇.** 데이터(CSV) + **표 설계도(CREATE TABLE)** 둘 다.
-- ✅ 헌법 9조 "이중 백업" = Supabase(원본) + GitHub 비공개(사본).
+### 🔴 아직 안 끝난 것 — 다음 채팅 여기부터
+1. **`CLAUDE_OPS_TOKEN` 교체 (최우선)** — 공개 레포에 평문 **13개 파일** + 커밋 이력 **7,209개**에 박혀 있고 **지금도 살아있음**(`SELECT 1` 실증). 이 열쇠로 `api/ops/db-query` **쓰기가 나간다**(막힌 건 `drop database`뿐 → `DELETE FROM` 실행됨). 게다가 db-query는 **`SUPABASE_ACCESS_TOKEN`(계정 전체 권한)** 으로 SQL을 던진다 = 사정거리가 프로젝트 하나가 아니라 Supabase 계정 전체.
+   - **파일만 지워선 못 없앤다**(이력에 남음). **교체만이 답.**
+   - 대표님 준비된 새 값: `NlFujfmD0sPjLIxLM1yXiKnpSpklxsAb` (아직 미적용)
+   - 할 일: Vercel `CLAUDE_OPS_TOKEN` 교체 → Redeploy → GitHub Actions 시크릿 `CLAUDE_OPS_TOKEN` 교체 → 클로드가 13곳 청소 + `step-self-verify.yml`의 fallback 평문 제거(`secrets.CLAUDE_OPS_TOKEN` 하나로 통일)
+2. **`tw-b2b-claude` PAT 8/25 만료** — 40일 뒤 창구가 통째로 멈춘다. 갱신 필요.
+3. **안 쓰는 열쇠 정리** — classic: `tw-personal-os`(만료일 없음·미사용) · `ceylon-deploy`(만료) · `tw-b2b automation 2026`(8/1 만료) / fine-grained: `tw-tracker-init-20260501` · `ceylon-deploy-0501` · `tw-b2b-step5` (전부 만료)
+4. **손으로 만든 조각 백업 3개 정리** — `bookings_agoda_backup_20260715` · `bookings_agoda_bak_20260710` · `_admins_backup_20260513_security_patch`. 이제 매일 자동 백업이 있으니 불필요(2.9MB). 지우기 전에 백업 창고에 들어간 것 확인할 것.
+5. **첫 자동 실행 확인** — 2026-07-17 KST 04시 이후 창고에 새 커밋 있는지.
 
-### 🔨 다음 채팅 순서 (이 순서 지킬 것)
-```
-① 공개 레포에 민감정보 있는지 훑기 (문서에 호텔 연락처·실적 박혀 있을 수 있음) — 아직 안 봄
-② 대표님이 비공개 레포 생성 (클로드는 레포 생성 권한 없음)
-③ PAT가 새 레포에 접근되는지 확인 (fine-grained면 권한 추가 필요)
-④ 백업 봇 = Vercel 크론 (api/cron/db-backup.js) · 매일 1회 · CSV + 스키마
-⑤ 첫 백업 성공 확인 후에야 → city_alias 표 + 월별 스냅샷 DB (키워드 작업 재개)
-```
+### ① 공개 레포 훑기 결과 (완료)
+- 🟢 **호텔 사장님 연락처 실값 0건.** `contact_email`·`contact_phone`은 칸 이름으로만 등장.
+- 🟢 예약/호텔 데이터 덤프(CSV) 없음. Supabase service_role 키·구글 키·PayPal 시크릿 평문 없음(전부 `process.env`).
+- 🔴 **ops 토큰 평문 13곳** (위 1번).
+- 🟡 대표님 개인 메일 평문(`dgmasters01@gmail.com` 62회 등). 피해는 스팸 수준.
+- 🟢 전화번호는 전부 예시값.
 
-### DB 작업 규칙 (오늘 emergency.md 0-B에 신설)
+### DB 작업 규칙 (emergency.md 0-B)
 ```
 안전        : CREATE TABLE · CREATE INDEX · SELECT
 백업 먼저   : UPDATE · DELETE · ALTER · DROP TABLE
 ```
+→ 이제 "백업 먼저"가 **실제로 존재한다.** 매일 KST 04시. 큰 작업 전엔 수동 1회 더 돌릴 것:
+`curl "https://gohotelwinners.com/api/cron/db-backup" -H "x-ops-token: <토큰>"` (84초)
 
 ## 🆕 2026-07-16 — 창구에 `delete` 생김 (다음 클로드는 이제 파일을 지울 수 있다)
 

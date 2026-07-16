@@ -3281,13 +3281,39 @@ function svgSeason(series, col){
     '<div class="lg" style="margin-top:2px;">'+ys.map(function(y){return '<span><span class="dt" style="background:'+(cols[y]||'#5aa9e6')+';"></span>'+y+'</span>';}).join('')+'</div>';
 }
 
+/* 같은 달끼리만 비교한다 (D-065 54-0J) — 올해는 아직 반년치라 해 평균끼리 비교하면 틀린다 */
+function samePeriod(series){
+  var last=Object.keys(series||{}).sort().pop(); if(!last) return null;
+  var y=+last.slice(0,4), upto=+last.slice(5,7), a={}, b={};
+  Object.keys(series).forEach(function(ym){
+    var yy=+ym.slice(0,4), m=+ym.slice(5,7); if(m>upto) return;
+    if(yy===y) (b[m]=b[m]||[]).push(series[ym]);
+    if(yy===y-1) (a[m]=a[m]||[]).push(series[ym]);
+  });
+  var avg=function(o){var v=[];Object.keys(o).forEach(function(m){o[m].forEach(function(x){v.push(x);});});
+    return v.length?v.reduce(function(p,c){return p+c;},0)/v.length:null;};
+  var pa=avg(a), pb=avg(b);
+  if(pa==null||pb==null||!pa) return null;
+  return {ch:Math.round((pb-pa)/pa*100), upto:upto, y:y};
+}
+
 function travelBlock(){
   var tv=(SV&&SV.travel)||[];
   var h='<div class="bk"><div class="bh">그 도시 수요 트렌드 <span class="no" style="margin-left:auto;">3-6</span></div>'+
-        '<div class="nt">여행 검색어는 <b>이 도시를 언제 할지</b> 정합니다 — 아래 순위·기회점수에는 <b>안 섞습니다</b>.</div>';
+        '<div class="nt">이 도시를 <b>할지·언제 할지</b> 정하는 자리입니다 — 아래 숙박 순위에는 <b>안 섞습니다</b>.</div>';
   if(!tv.length){ return h+'<div class="wn">여행 검색어가 아직 없습니다 — 씨앗을 따로 뿌려야 합니다.</div></div>'; }
   var top=tv[0];
   h+=svgSeason(top.series);
+  /* 🔑 대표님이 이 차트로 알고 싶은 것 = **뜨는 도시냐, 늘 그런 도시냐** */
+  var sp=samePeriod(top.series);
+  if(sp){
+    var up=sp.ch>=8, dn=sp.ch<=-8;
+    h+='<div class="'+(up?'ok':(dn?'er':'nt'))+'" style="margin:6px 0 2px;">'+
+       (up?'📈 <b>뜨는 도시입니다.</b> ':(dn?'📉 <b>식는 도시입니다.</b> ':'➡️ <b>늘 비슷한 도시입니다.</b> '))+
+       '"'+top.text+'" 을 찾는 사람이 <b>작년 같은 기간보다 '+(sp.ch>0?'+':'')+sp.ch+'%</b>'+
+       (up?' 늘었습니다':(dn?' 줄었습니다':''))+'. <small style="color:var(--muted);">(2025·2026년 1~'+sp.upto+'월끼리 비교)</small></div>';
+  }
+  h+='<div class="nt" style="margin-top:6px;">이 도시의 여행 검색어 — <b>수요 순</b></div>';
   tv.forEach(function(r){
     var d=r.demand===null?null:Number(r.demand), s=r.series||{}, mo={};
     Object.keys(s).forEach(function(ym){ var y=ym.slice(0,4), m=+ym.slice(5,7);
@@ -3295,10 +3321,15 @@ function travelBlock(){
     var avg={}; Object.keys(mo).forEach(function(m){ avg[m]=mo[m].reduce(function(p,c){return p+c;},0)/mo[m].length; });
     var ks=Object.keys(avg), hi=ks.length?ks.reduce(function(a,b){return avg[a]>avg[b]?a:b;}):null;
     var lo=ks.length?ks.reduce(function(a,b){return avg[a]<avg[b]?a:b;}):null;
+    /* 🔴 가장 한산한 달이 0 이면 나눌 수 없다 → 'Infinity배' 라는 헛소리가 나온다(실측).
+       0 = 없는 게 아니라 **측정 바닥 아래**다(⑧). 그럴 땐 배수를 말하지 않는다. */
+    var say='—';
+    if(hi){ say = (lo && avg[lo]>0 && isFinite(avg[hi]/avg[lo]))
+      ? hi+'월에 가장 몰립니다 — 가장 한산한 '+lo+'월보다 '+(avg[hi]/avg[lo]).toFixed(1)+'배'
+      : hi+'월에 가장 몰립니다 — 나머지 달은 측정 바닥 아래'; }
     h+='<div style="display:flex;align-items:baseline;gap:8px;padding:5px 0;border-top:0.5px solid var(--line);">'+
        '<span style="font-size:12px;width:120px;">'+r.text+'</span>'+
-       '<span style="flex:1;font-size:10.5px;color:var(--muted);">'+
-         (hi?hi+'월에 가장 몰립니다 — 가장 한산한 '+lo+'월보다 '+(avg[hi]/avg[lo]).toFixed(1)+'배':'—')+'</span>'+
+       '<span style="flex:1;font-size:10.5px;color:var(--muted);">'+say+'</span>'+
        '<span style="font-size:12px;font-weight:600;">'+(d===null?'—':d)+'</span></div>';
   });
   return h+'</div>';

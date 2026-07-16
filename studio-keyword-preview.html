@@ -11,7 +11,6 @@
  body{background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Malgun Gothic",sans-serif;line-height:1.55;padding:18px 14px 70px;max-width:800px;margin:0 auto;font-size:14px;}
  .pv{background:var(--amd);color:var(--am);font-size:11px;padding:6px 11px;border-radius:8px;margin-bottom:12px;text-align:center;}
  .tt{display:flex;align-items:baseline;gap:9px;} .tt h1{font-size:19px;font-weight:600;} .tt .s{font-size:12px;color:var(--muted);}
- .qb{margin-left:auto;font-size:11px;padding:4px 10px;border-radius:20px;background:var(--card2);color:var(--sub);cursor:pointer;}
  /* C안 — 빵부스러기 = 유일한 출구인데 11px였다. 손가락으로 누를 수 있게 알약으로. (대표님 2026-07-16) */
  .bc{display:flex;align-items:center;gap:4px;flex-wrap:wrap;font-size:12.5px;color:var(--muted);margin:7px 0 11px;min-height:32px;}
  .bc:empty{min-height:0;margin:0;}
@@ -110,9 +109,10 @@
 </head>
 <body>
 
+<!-- ⟦본문 시작⟧ 여기부터 ⟦본문 끝⟧ 까지가 스튜디오로 이식된다 (_os/tools/kw-preview-to-studio.py).
+     🔴 표식으로 잡는다 — 예전엔 `<div class="tt">` 를 시작점으로 삼았다가, 그 div 를 지우자 도구가 통째로 깨졌다. -->
 <div class="pv">⚙️ 확정본 v4 · <b>모든 숫자 실측</b> · 점검표 33요소 반영 · 안 잰 건 "모름"</div>
 
-<div class="tt"><h1>키워드</h1><span class="s">다음에 뭘 만들지, 데이터로</span><span class="qb" onclick="go('q')">전략 큐 <b id="qc">4</b> ›</span></div>
 <div class="bc" id="bc"></div>
 
 <!-- ① 메인 -->
@@ -215,15 +215,15 @@
 <div class="sc" id="s4"><div id="d4"></div></div>
 
 <!-- ⑤ 큐 -->
-<div class="sc" id="s5">
-  <h2>전략 큐 <span class="no">5-1~5-4</span></h2>
-  <div class="nt">[이걸로 만들기]로만 담김 · 근거가 카드에 함께</div>
-  <div class="kbn" id="kb"></div>
-</div>
+<!-- 전략 큐 화면은 2026-07-17 뺐다 (D-065 54-0H · 대표님).
+     D-065 원문: "전략 기획 큐 미리보기 (**전략 메뉴 소유** · 여기선 출구로 미리봄)".
+     프리뷰는 한 채짜리 목업이라 큐를 "미리" 보여줘야 했지만, 스튜디오엔 **전략 탭이 실재한다.**
+     키워드가 가진 건 **출구([이걸로 만들기]) 하나**다. 큐는 전략이 갖는다. -->
 
 <div class="sc" id="s6"><div id="d6"></div></div>
 
 <div class="ts" id="tsb"></div>
+<!-- ⟦본문 끝⟧ -->
 <div class="ft">키워드 프리뷰 v14 · D-065 개정 ①~54 반영 · 축 분리(㊿) · 화면 말 정리(54) · [연·월 지정] 제거(54-0G) · 2026-07-17</div>
 
 <script>
@@ -279,11 +279,8 @@ function loadSnap(){
 function curTM(){return XM?XM.m:parseInt(MO[cm]);}
 function curLbl(){return XM?(XM.y+'년 '+XM.m+'월'):MO[cm];}
 function dmo(y,m){return (y-TODAY.getFullYear())*12+(m-1-TODAY.getMonth());}
-var cm=3,cc='일본',cy='오사카',cd='난바',sq=41,cs=0,more=false;
+var cm=3,cc='일본',cy='오사카',cd='난바',cs=0,more=false;
 var STAR=['전체 성급','3성','4성','5성'];
-var Q={'기획 대기':[{id:'',t:'다낭 미케비치 호텔',m:'다낭 · 9월'}],'원고 작성':[{id:'R-00122',t:'도쿄 신주쿠 숙소',m:'도쿄 · 산자야'}],
-       '발행 예정':[{id:'R-00119',t:'후쿠오카 하카타 호텔',m:'8월 예정'}],'발행 완료':[{id:'R-00112',t:'오사카 우메다 호텔',m:'✓ 회수'}]};
-
 function pk2(c){var s=SE[c];if(!s)return null;var mx=Math.max.apply(null,s),r=[];for(var i=0;i<12;i++)if(s[i]>=mx*0.9)r.push(i+1);return r;}
 function gate(c,tm){var p=pk2(c);if(!p)return{s:'un',t:'계절 미조사',w:'키워드 조사가 안 된 도시'};
  var ps=p.map(function(m){return m+'월';}).join('·');
@@ -581,27 +578,17 @@ function sch(){var q=document.getElementById('sq').value.trim(),b=document.getEl
   h+='<div class="sri" onclick="'+act+'"><b>'+p[0]+'</b> <span style="color:var(--muted);font-size:10px;">'+p[1]+'</span>'+(p[2]?'<span class="tag t-on">조사됨</span>':'<span class="tag t-un">미조사 · 눌러서 조사</span>')+'</div>';});
  b.innerHTML=h;b.classList.add('on');}
 
-function rq(){var h='',n=0;Object.keys(Q).forEach(function(c){n+=Q[c].length;
- h+='<div><div class="kct">'+c+' <span>'+Q[c].length+'</span></div>';
- Q[c].forEach(function(x,i){h+='<div class="kc'+(x.nw?' nw':'')+'"><div class="kid" style="display:flex;align-items:center;gap:6px;">'+
-   (x.id?'<span style="color:var(--em);">'+x.id+'</span>'+(x.nw?'<span style="color:var(--muted);">· 방금 발급</span>':'')
-        :'<span style="font-size:10px;padding:2px 8px;border-radius:20px;background:var(--card2);color:var(--muted);">코드 없음 · 아직 후보</span>'+
-         '<button class="btn bt2" style="margin-left:auto;font-size:10px;padding:2px 9px;" onclick="fx('+i+')">확정</button>')+
-   '</div><div class="ktt">'+x.t+'</div><div class="kmt">'+x.m+'</div></div>';});
- h+='</div>';});
- document.getElementById('kb').innerHTML=h;document.getElementById('qc').textContent=n;}
-function add(){Q['기획 대기'].forEach(function(c){c.nw=false;});
- Q['기획 대기'].unshift({id:'',t:'오사카 숙소 추천 — 난바 호텔 TOP3',m:cd+' · '+STAR[cs]+' · '+curLbl()+' · 근거 첨부',nw:true});
- rq();ts('기획 대기에 담겼습니다 — 코드는 [확정] 때 납니다');setTimeout(function(){go('q');},700);}
-function fx(i){var c=Q['기획 대기'][i];if(!c||c.id)return;sq++;c.id='R-001'+sq;c.nw=true;
- Q['기획 대기'].splice(i,1);Q['원고 작성'].unshift(c);
- rq();ts(c.id+' 발급 — 에디터가 채널별 원고에 이 한 줄을 넣습니다');}
-
+function add(){
+ /* 출구 — 여기서 정한 것을 **전략 메뉴**로 넘긴다 (D-065 §출구·연동).
+    큐는 전략이 갖는다. 키워드는 넘기기만 한다(54-0H). */
+ var tab=document.querySelector('[data-view="strategy"]');
+ if(tab){ ts('전략 메뉴 · 기획 대기로 넘겼습니다'); setTimeout(function(){tab.click();},700); }
+ else   { ts('전략 메뉴 · 기획 대기로 넘겼습니다 (프리뷰라 여기서 끝)'); }
+}
 function bc(l,e){var h='<a onclick="go(\'m\')">이번 달</a>';
  if(l==='c')h+=' › <b>'+e+'</b>';
  if(l==='d')h+=' › <a onclick="go(\'c\',\''+cc+'\')">'+cc+'</a> › <b>'+e+'</b>';
  if(l==='x')h+=' › <a onclick="go(\'c\',\''+cc+'\')">'+cc+'</a> › <a onclick="go(\'d\',\''+cy+'\')">'+cy+'</a> › <b>'+e+'</b>';
- if(l==='q')h+=' › <b>전략 큐</b>';
  document.getElementById('bc').innerHTML=h;}
 function sh(id){document.querySelectorAll('.sc').forEach(function(s){s.classList.remove('on');});document.getElementById(id).classList.add('on');window.scrollTo(0,0);}
 function vw(w,a,b){
@@ -609,7 +596,6 @@ function vw(w,a,b){
  if(w==='c'){rc(a);sh('s2');bc('c',a);return;}
  if(w==='d'){if(b)cc=b;rdd(a);sh('s3');bc('d',a);return;}
  if(w==='x'){rx(a);sh('s4');bc('x',a);return;}
- if(w==='q'){rq();sh('s5');bc('q');return;}
  if(w==='r'){rrs(a);sh('s6');document.getElementById('bc').innerHTML='<a onclick="go(\'m\')">홈</a> › <span>한국어 · 한국</span> › <b>'+a+'</b> › <b>조사 시작</b>';return;}}
 // A안 — 폰 뒤로가기 지원. 지금까지 폰 뒤로 버튼을 누르면 **앱을 통째로 나갔다**(대표님 2026-07-16).
 // 헌법 원칙 3 "핸드폰 한 대로 모든 작업". vw()=그리기 / go()=그리기+이력쌓기 로 분리.
@@ -620,7 +606,7 @@ loadSnap();
 function dd(){var d=document.getElementById('ddb');d.classList.toggle('on');document.getElementById('tc').textContent=d.classList.contains('on')?'⌃':'⌄';}
 function pk(n){document.getElementById('tn').textContent=n;dd();ts(n+' 전환');}
 var tmo;function ts(m){var t=document.getElementById('tsb');t.textContent=m;t.classList.add('on');clearTimeout(tmo);tmo=setTimeout(function(){t.classList.remove('on');},2200);}
-rd();rq();
+rd();
 
 /* ══ D-065 ㉘㉙㉚㉜ — 조사 시작 화면 (2026-07-16) ══
    실측: DB 조회 2026-07-16. 확정 예약(is_cancelled=false) 기준. */

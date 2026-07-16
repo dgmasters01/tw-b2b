@@ -458,20 +458,18 @@
   .st-cid.off { opacity:.45; text-decoration:line-through; }
   .st-cid-none { font-size:12px; opacity:.45; }
 
-  /* ── 키워드 메뉴 확정본 (D-065 · studio-keyword-preview.html 에서 이사 2026-07-17) ──
-     #kw-app 안에만 갇혀 있다. 스튜디오 나머지 화면에 안 샌다. ── */
-  #kw-app{display:block;}
-/* 🔴 2026-07-17 대표님: "스튜디오의 전체적인 색이나 폭 형태에 맞게 맞혀야 된다."
-   확정본(v4 · 점검표 33요소)의 **구조와 내용은 한 글자도 안 건드린다.**
-   바꾸는 건 **껍데기뿐** — 프리뷰의 남색 배경(#051424)·제 폭(800px)·제 글꼴을 스튜디오 것으로 갈아끼운다.
-   프리뷰는 제 페이지라 배경을 칠해야 했지만, 스튜디오 안에서는 **스튜디오가 배경을 갖는다.** */
+  /* ⟦확정본 CSS 시작⟧ — 손으로 고치지 마세요. 원본은 studio-keyword-preview.html (대표님 작업장) 입니다.
+     여기를 고쳐도 다음 이식(python3 _os/tools/kw-preview-to-studio.py --write) 때 덮어씁니다. */
 #kw-app{--bg:transparent;--card:rgba(128,140,160,.06);--card2:rgba(128,140,160,.11);--line:rgba(128,128,128,.22);
   --txt:inherit;--sub:#c4ccd6;--muted:#7b8794;
   --em:#3ecf8e;--emd:rgba(62,207,142,.13);--am:#EF9F27;--amd:rgba(239,159,39,.13);
   --rd:#e5484d;--rdd:rgba(229,72,77,.13);--bl:#4A90D9;--bld:rgba(74,144,217,.16);}
-#kw-app{box-sizing:border-box;margin:0;padding:0;}
-#kw-app{background:transparent;color:inherit;font-family:inherit;line-height:1.55;padding:0;max-width:none;margin:0;font-size:14px;}
+#kw-app{box-sizing:border-box;margin:0;padding:0;background:transparent;color:inherit;font-family:inherit;
+  line-height:1.55;max-width:none;font-size:14px;}
 #kw-app *{box-sizing:border-box;}
+
+#kw-app{box-sizing:border-box;margin:0;padding:0;}
+
 #kw-app .pv{background:var(--amd);color:var(--am);font-size:11px;padding:6px 11px;border-radius:8px;margin-bottom:12px;text-align:center;}
 #kw-app .tt{display:flex;align-items:baseline;gap:9px;}
 #kw-app .tt h1{font-size:19px;font-weight:600;}
@@ -615,6 +613,7 @@
 #kw-app .ts{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--bld);color:#dbeeff;border:0.5px solid var(--bl);padding:8px 14px;border-radius:20px;font-size:12px;opacity:0;transition:opacity .25s;pointer-events:none;z-index:9;}
 #kw-app .ts.on{opacity:1;}
 #kw-app .ft{color:var(--muted);font-size:10px;margin-top:22px;text-align:center;}
+/* ⟦확정본 CSS 끝⟧ */
   /* (옛 st-sv-* 스타일은 이사하며 지움 — 확정본 화면이 제 스타일을 들고 왔다) */
 
   /* ── 전략 · 콘텐츠 기획 큐 (D-060 · 6메뉴 마지막) ── */
@@ -844,7 +843,8 @@
       <div><div class="st-h">키워드</div><div class="st-sub" id="st-kw-sub">한국어 · 한국 · 나라 → 도시 → 지역 → 지역 상세</div></div>
     </div>
     <div class="st-hint">D-065 확정본. 나라 → 도시 → 지역 → 지역 상세로 파고듭니다. 조사한 도시는 진짜 숫자, 아직 안 이은 칸은 <b>목업</b> 배지가 붙습니다.</div>
-    <div id="kw-app"><div class="tt" style="justify-content:flex-end;"><span class="qb" onclick="go('q')">전략 큐 <b id="qc">4</b> ›</span></div>
+    <!-- ⟦확정본 HTML 시작⟧ -->
+<div id="kw-app"><div class="tt" style="justify-content:flex-end;"><span class="qb" onclick="go('q')">전략 큐 <b id="qc">4</b> ›</span></div>
 <div class="bc" id="bc"></div>
 
 <!-- ① 메인 -->
@@ -885,9 +885,9 @@
     <span><span class="dt" style="background:var(--em);"></span>여유</span>
   </div>
   <div class="mi" style="margin-bottom:2px;">🕐 마지막 조사 3일 전 (2026-07-10) <span class="no">1-7</span></div>
-  <!-- ⚠️ 여기 있던 </div> 는 .ctrl 이 아니라 #s1 을 닫고 있었다 (.ctrl 은 위 .tg 닫힘 직후 이미 닫힘).
-       그 탓에 .res(나라 카드·선행 준비)가 #s1 밖으로 새어나가 **모든 화면에 따라붙었다.**
-       증상: 메인에서 일본 클릭 → 도시 목록(s2)이 떠도 베트남·태국 카드가 그대로 남음 (대표님 2026-07-16 발견). -->
+  <!-- ⚠️ 이 자리에 닫는 태그가 하나 더 있었다. .ctrl 이 아니라 s1 을 닫고 있었다. 2026-07-16 뺐다.
+     🔴 다음 클로드에게: 주석 안에 닫는 태그를 '글자'로 적지 말 것. 태그를 세는 도구가 그걸 진짜로 센다.
+     2026-07-17 실제로 속아서 진짜 닫힘을 하나 더 지웠고, 스튜디오가 흰 화면이 됐다. -->
 
   <div class="res">
   <h2 id="ch">10월 겨냥 — 지금 착수할 나라 <span class="no">1-8</span></h2>
@@ -913,17 +913,8 @@
   </div>
 </div>
 
-</div>
-  <!-- 🔴 2026-07-17 — 여기서 두 번 틀렸다. 기록해 둔다.
-       프리뷰 본문은 <div> 62 · </div> 64 로 짝이 안 맞아 보였다. 그래서 2개를 다 지웠다.
-       🔴 그런데 그중 1개는 **앞 클로드가 주석 안에 적어둔 </div> 라는 '글자'** 였다
-          (인계서: "여기 있던 </div> 는 .ctrl 이 아니라 #s1 을 닫고 있었다").
-          주석은 브라우저가 안 읽는다. 세는 사람만 속았다.
-       → 진짜 떠도는 닫힘은 **1개**였다. 2개를 지우니 **#s1 이 안 닫혀서
-          도시·지역·상세·큐 화면이 전부 #s1 **안에** 들어갔다.**
-          메인(#s1)이 꺼지는 순간 그 안이 통째로 꺼진다 = 대표님이 본 흰 화면.
-       ⚠️ jsdom 은 부모의 display:none 을 자식 계산에 반영하지 않는다 — 그래서 검사를 통과했다.
-          **다음부터 화면 검사는 "부모가 누구냐(parentElement)"를 같이 본다.** -->
+  </div><!-- /res -->
+<!-- 떠돌던 닫는 태그 1개 제거 2026-07-17 (s1 은 위에서 이미 닫힘) --><!-- /s1 — .ctrl + .res 를 함께 감싼다 -->
 <!-- ② 도시 -->
 <div class="sc" id="s2">
   <h2 id="c2t"></h2>
@@ -952,6 +943,7 @@
 <div class="sc" id="s6"><div id="d6"></div></div>
 
 <div class="ts" id="tsb"></div></div>
+<!-- ⟦확정본 HTML 끝⟧ -->
     <div class="st-pf-block" style="margin-top:30px;border-top:1px solid rgba(128,128,128,.18);padding-top:18px;">
       <div class="st-pf-h" id="st-kw-rec-h">📒 실제 예약 데이터 (옛 화면 · D-060)</div>
     </div>
@@ -3094,9 +3086,8 @@
 })();
 </script>
 <script>
-/* ── 키워드 메뉴 확정본 스크립트 (프리뷰에서 이사 · 2026-07-17)
-   전역이다. 스튜디오 본체는 즉시실행 함수 안이라 서로 안 부딪힌다(id·함수 충돌 0 확인).
-   조사 3층(ks/rk)만 창구를 읽고, 나머지 칸은 아직 목업 숫자다. ── */
+/* ⟦확정본 JS 시작⟧ — 손으로 고치지 마세요. 원본은 studio-keyword-preview.html (대표님 작업장) 입니다.
+     여기를 고쳐도 다음 이식(python3 _os/tools/kw-preview-to-studio.py --write) 때 덮어씁니다. */
 
 /* ══ 실측 데이터만 (2026-07-14 직접 조회) ══ */
 var SE={'오사카':[56.8,47.5,38.5,36.0,41.9,41.3,44.0,36.9,45.0,50.4,58.0,55.0],
@@ -3470,16 +3461,9 @@ function vw(w,a,b){
  if(w==='r'){rrs(a);sh('s6');document.getElementById('bc').innerHTML='<a onclick="go(\'m\')">홈</a> › <span>한국어 · 한국</span> › <b>'+a+'</b> › <b>조사 시작</b>';return;}}
 // A안 — 폰 뒤로가기 지원. 지금까지 폰 뒤로 버튼을 누르면 **앱을 통째로 나갔다**(대표님 2026-07-16).
 // 헌법 원칙 3 "핸드폰 한 대로 모든 작업". vw()=그리기 / go()=그리기+이력쌓기 로 분리.
-/* 🔴 이사하며 끊음 — 프리뷰는 제 페이지라 주소를 밀어넣어도 됐지만,
-   스튜디오 안에서는 탭 이동(뒤로가기)과 부딪힌다. 화면 안 이동은 주소를 안 건드린다. */
-function go(w,a,b){vw(w,a,b);}
-/* popstate 는 이사하며 뺐다 — 주소는 스튜디오 탭이 소유한다.
-   🔴 그런데 프리뷰의 **시작 스위치가 그 옆의 `history.replaceState({w:'m'},'')` 였다.**
-      주소를 건드린다고 그 줄을 지웠더니 **화면을 켜는 신호까지 같이 꺼졌다.**
-      → 주소는 안 건드리고 **화면만 켠다.** 스튜디오는 탭을 열 때마다 켠다(kwBoot). */
-function kwBoot(){ try { vw('m'); } catch (e) { console.error('키워드 화면 시작 실패', e); } }
-window.kwBoot = kwBoot;
-
+function go(w,a,b){vw(w,a,b);}   /* 주소는 스튜디오 탭이 소유한다 */
+function kwBoot(){try{vw('m');}catch(e){console.error('키워드 화면 시작 실패',e);}}
+window.kwBoot=kwBoot;   /* 프리뷰는 로드되며 저절로 켜졌다. 스튜디오는 탭을 열 때 켠다 */
 function dd(){var d=document.getElementById('ddb');d.classList.toggle('on');document.getElementById('tc').textContent=d.classList.contains('on')?'⌃':'⌄';}
 function pk(n){document.getElementById('tn').textContent=n;dd();ts(n+' 전환');}
 var tmo;function ts(m){var t=document.getElementById('tsb');t.textContent=m;t.classList.add('on');clearTimeout(tmo);tmo=setTimeout(function(){t.classList.remove('on');},2200);}
@@ -3569,6 +3553,7 @@ function ymr(){var e=document.getElementById('ymp');if(!e)return;
  h+='</div>';e.innerHTML=h;}
 
 
+/* ⟦확정본 JS 끝⟧ */
 </script>
 </body>
 </html>

@@ -371,9 +371,30 @@ async function survey(sb, req, res, who) {
     names: closedHotels.map((r) => `${r.hotel_name}${r.operating_status === 'temp_closed' ? ' (임시휴업)' : ''}`),
   } : null;
 
+  // ── 지역 세부 재료 (D-065 65 · 대표님 2026-07-17) — **뷰가 세어서 준다. 화면은 그리기만.**
+  //   ① 성급 분포 — 이 지역에 뭐가 있나 / 우리가 뭘 아나 / 뭐가 팔리나
+  //      🚨 실측(난바): 3성이 964곳(58%)인데 예약은 4성에서 62% 난다. **미개척 1,569곳 중 1,373곳이 3성·무성급이다.**
+  //      「미개척 1,569곳」만 말하면 대표님이 3성 964곳을 쫓게 된다.
+  //   ② 12개월 흐름 — **여행(체크인) 월**. 🔴 검색 피크와 다르다: 난바 검색 11월 · 예약 12월(리드타임 27일)
+  //   ③ 예약 패턴 — 리드타임·숙박일수. 🔴 옛 4-1 은 **오사카 도시 값(22일)을 난바 자리**에 쓰고 있었다
+  const [starRes, monRes, patRes] = await Promise.all([
+    sb.from('v_district_star').select('district, star, agoda_total, ours, bookings').eq('city', 'Osaka'),
+    sb.from('v_district_month').select('district, month, star, bookings').eq('city', 'Osaka'),
+    sb.from('v_district_pattern').select('*').eq('city', 'Osaka'),
+  ]);
+  const dstat = {};
+  const touch = (d) => (dstat[d] = dstat[d] || { stars: [], months: [], pattern: null });
+  (starRes.data || []).forEach((r) => {
+    if (!r.agoda_total && !r.ours) return;          // 없는 성급 줄을 만들지 않는다
+    touch(r.district).stars.push({ star: Number(r.star), agoda_total: r.agoda_total, ours: r.ours, bookings: r.bookings });
+  });
+  (monRes.data || []).forEach((r) => touch(r.district).months.push({ month: r.month, star: Number(r.star), bookings: r.bookings }));
+  (patRes.data || []).forEach((r) => { touch(r.district).pattern = r; });
+
   res.setHeader('Cache-Control', 'private, no-store, max-age=0');
   return res.status(200).json({
     ok: true, is_admin: !!who.isAdmin, view: 'survey',
+    district_stats: dstat,
     target, market, city_key: cityKey, ym,
     snapshot: snap, months: snaps.map((s) => s.ym),
     counts, rows: rows.slice(0, 30), rows_total: rows.length, travel, districts,

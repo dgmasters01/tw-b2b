@@ -379,8 +379,11 @@ async function survey(sb, req, res, who) {
     counts, rows: rows.slice(0, 30), rows_total: rows.length, travel, districts,
     city_radius: { r90, hotels_with_geo: pts.length },   // 이 도시에서 손님이 자는 반경
     // 🔑 도시 분모 — 아고다가 이 도시에서 파는 숙소 전체
+    // 🔑 도시 재고 한 줄의 재료 — 화면은 `stk()` 한 함수로만 그린다(형태 통일 · 대표님 2026-07-17)
     city_inventory: { agoda_total: inv.length, ours: (dRes.data || []).length,
-      share: inv.length ? Math.round((dRes.data || []).length / inv.length * 1000) / 10 : null },
+      share: inv.length ? Math.round((dRes.data || []).length / inv.length * 1000) / 10 : null,
+      bookings: (dRes.data || []).reduce((s2, r) => s2 + (r.booking_count || 0), 0),
+      published: (dRes.data || []).filter((r) => r.published_at).length },
     unmapped: unmappedClean,                             // 미개척 후보 = **만들 것** (오매칭은 뺐다)
     unmapped_total: {
       hotels: unmappedClean.reduce((s2, c) => s2 + c.hotels, 0),

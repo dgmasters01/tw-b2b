@@ -16,7 +16,7 @@
 //
 //   GET /api/content-keywords?view=survey&city=cc:japan|osaka[&target=ko&market=KR&ym=2026-07]
 //     🆕 2026-07-17 — 키워드 조사 3층 화면(D-065 ㊼-4)의 재료.
-//     나오는 것: { ok, snapshot, counts, rows[](숙박 축 · 순위 무대), travel[](여행 축 · 배경), layer3 }
+//     나오는 것: { ok, snapshot, counts, rows[](숙박 축), travel[](여행 축), districts[](지역 축), layer3 }
 //     🔴 숫자는 전부 여기서 **세어서** 나간다. 화면에 박지 않는다.
 //        (인계서 사고: 화면에 '살아있는 42·죽은 8' 이 박혀 있었고 진짜는 58·10 이었다)
 //     🔴 구글/유튜브를 부르지 않는다. DB만 읽는다 (⑪ — 화면에서 실시간 호출 = 429로 화면이 죽는다)
@@ -94,7 +94,7 @@ async function survey(sb, req, res, who) {
   const snap = snaps.find((s) => s.ym === ym) || null;
 
   const kwRes = await sb.from('keyword')
-    .select('id, text, kind, alive, alive_source, morph_axis, is_anchor, axis')
+    .select('id, text, kind, alive, alive_source, morph_axis, is_anchor, axis, district')
     .eq('target_code', target).eq('market', market).eq('city_key', cityKey);
   if (kwRes.error) throw kwRes.error;
   const kws = kwRes.data || [];
@@ -158,12 +158,38 @@ async function survey(sb, req, res, who) {
     ? { locked: false, compared_to: snaps[1].ym }
     : { locked: true, reason: '조사가 아직 1번뿐입니다. 두 번째 조사가 있어야 새로 생긴·사라진 검색어를 압니다.', next_ym: nextYm };
 
+  // 🔑 지역 축 (D-065 3-2 · ㊹ "재봐서 살아있는 것만") — 지역 **대표어 1개**로 지역 크기를 잰다.
+  //    "난바 호텔" 이 난바를 대표한다. 그게 살아있으면 지역이 살아있는 것이다.
+  //    🔴 옛 화면은 `DIST=[['난바',10.8,…]]` 로 **박아뒀다.** 실측과 거의 같았지만(10.84) **박힌 값은 안 늘어난다.**
+  const DISTRICTS = ['난바', '우메다', '신사이바시', '덴노지', '도톤보리'];
+  const anchorDemand = (() => {
+    const a = alive.find((k) => k.is_anchor);
+    const t = a && tByKw.get(a.id);
+    return t && t.demand ? Number(t.demand) : null;
+  })();
+  const districts = DISTRICTS.map((name) => {
+    const head = alive.find((k) => k.text === `${name} 호텔`);
+    const t = head && tByKw.get(head.id);
+    const d = t && t.demand !== null && t.demand !== undefined ? Number(t.demand) : null;
+    const hasSeries = t && t.series ? Object.keys(t.series).length : 0;
+    return {
+      name,
+      head: head ? head.text : `${name} 호텔`,
+      surveyed: !!head,                       // 대표어가 검색어 표에 있나
+      demand: d,
+      measured: !!(t && t.measured),
+      skip_reason: t ? t.skip_reason : null,
+      months: hasSeries,
+      vs_city: (d && anchorDemand) ? Math.round(anchorDemand / d) : null,   // 도시 대표어의 1/N
+    };
+  }).sort((a, b) => (a.demand === null) - (b.demand === null) || (b.demand - a.demand));
+
   res.setHeader('Cache-Control', 'private, no-store, max-age=0');
   return res.status(200).json({
     ok: true, is_admin: !!who.isAdmin, view: 'survey',
     target, market, city_key: cityKey, ym,
     snapshot: snap, months: snaps.map((s) => s.ym),
-    counts, rows: rows.slice(0, 30), rows_total: rows.length, travel, layer3,
+    counts, rows: rows.slice(0, 30), rows_total: rows.length, travel, districts, layer3,
   });
 }
 

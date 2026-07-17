@@ -225,6 +225,23 @@ async function survey(sb, req, res, who) {
     const t = a && tByKw.get(a.id);
     return t && t.demand ? Number(t.demand) : null;
   })();
+  // 🔑 **분모** — 아고다 재고(D-065 63 · 2026-07-17 대표님이 파트너센터 「숙소 데이터 파일」을 찾음)
+  //    우리 `hotels` 표는 **「예약이 붙은 호텔」만**이라 분모가 없었다.
+  //    실측: 아고다 오사카 **12,328곳** · 우리 장부 **255곳** = **2.1%**. 우리는 오사카의 2%만 보고 있었다.
+  //    파일에 좌표가 100% 있어 **구글 Places 없이** 지역 반경으로 센다.
+  const invRes = await sb.from('agoda_inventory')
+    .select('latitude, longitude')
+    .eq('city_id', 9590);
+  const inv = (invRes.error ? [] : (invRes.data || []))
+    .filter((r) => r.latitude).map((r) => [Number(r.latitude), Number(r.longitude)]);
+  const kmAt = (la1, lo1, la2, lo2) => {
+    const R = 6371, d = Math.PI / 180;
+    return R * Math.acos(Math.min(1,
+      Math.cos(la1 * d) * Math.cos(la2 * d) * Math.cos((lo2 - lo1) * d) + Math.sin(la1 * d) * Math.sin(la2 * d)));
+  };
+  // 지역 반경 800m 안의 아고다 재고를 센다. **목록을 적지 않는다. 센다**(54-0V)
+  const invNear = (la, lo, r = 0.8) => (la === null ? null : inv.filter(([a, b]) => kmAt(la, lo, a, b) <= r).length);
+
   const districts = DISTRICTS.map((name) => {
     const hs = hotelsByD.get(name) || [];
     const head = alive.find((k) => k.text === `${name} 호텔`);
@@ -233,8 +250,14 @@ async function survey(sb, req, res, who) {
     const bookings = hs.reduce((s2, r) => s2 + (r.booking_count || 0), 0);
     const geo = hs.filter((r) => r.latitude);
     const dist = geo.length ? geo.reduce((s2, r) => s2 + km(Number(r.latitude), Number(r.longitude)), 0) / geo.length : null;
+    const cLa = geo.length ? geo.reduce((s2, r) => s2 + Number(r.latitude), 0) / geo.length : null;
+    const cLo = geo.length ? geo.reduce((s2, r) => s2 + Number(r.longitude), 0) / geo.length : null;
+    const total = invNear(cLa, cLo);          // 이 지역에 아고다가 파는 숙소 전체
     return {
       name,
+      agoda_total: total,                     // 분모
+      share: total ? Math.round(hs.length / total * 1000) / 10 : null,   // 우리가 아는 비율 %
+      undiscovered: total === null ? null : Math.max(0, total - hs.length),
       head: head ? head.text : `${name} 호텔`,
       hotels: hs.length,                                   // 우리 장부에 그 지역 호텔이 몇 곳 (좌표 판정)
       published: hs.filter((r) => r.published_at).length,  // 그중 영상으로 소개한 곳
@@ -346,6 +369,9 @@ async function survey(sb, req, res, who) {
     snapshot: snap, months: snaps.map((s) => s.ym),
     counts, rows: rows.slice(0, 30), rows_total: rows.length, travel, districts,
     city_radius: { r90, hotels_with_geo: pts.length },   // 이 도시에서 손님이 자는 반경
+    // 🔑 도시 분모 — 아고다가 이 도시에서 파는 숙소 전체
+    city_inventory: { agoda_total: inv.length, ours: (dRes.data || []).length,
+      share: inv.length ? Math.round((dRes.data || []).length / inv.length * 1000) / 10 : null },
     unmapped: unmappedClean,                             // 미개척 후보 = **만들 것** (오매칭은 뺐다)
     unmapped_total: {
       hotels: unmappedClean.reduce((s2, c) => s2 + c.hotels, 0),

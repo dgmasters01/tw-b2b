@@ -170,7 +170,7 @@ async function survey(sb, req, res, who) {
   //    (오사카 50곳 · 예약 146건 · 2026-07-17 대표님이 잡음). 그게 바로 **미개척 후보**다.
   //    전부 가져와서, 이름 없는 것은 **좌표로 묶어** 따로 보여준다.
   const dRes = await sb.from('hotels')
-    .select('hotel_name, district, booking_count, published_at, latitude, longitude, star_rating, property_type, geo_status, address')
+    .select('hotel_name, district, booking_count, published_at, latitude, longitude, star_rating, property_type, geo_status, address, operating_status')
     .eq('city', 'Osaka');
   if (dRes.error) throw dRes.error;
   const hotelsByD = new Map();
@@ -315,6 +315,15 @@ async function survey(sb, req, res, who) {
   const unmappedClean = unmapped.filter((c) => !c.wrong_city && c.ward !== '(주소 없음)');
   const noGeo = noName.filter((r) => !r.latitude);
 
+  // 🔴 폐업 호텔 — **콘텐츠로 만들면 예약이 0**이다. 만들 것에서 뺀다 (2026-07-17 대표님이 구글에서 찾음)
+  //    `ibis Styles Osaka Namba` · `Agora Place Osaka Namba` 둘 다 폐업인데 우리 장부는 `active` 였다.
+  const closedHotels = (dRes.data || []).filter((r) => r.operating_status && r.operating_status !== 'active');
+  const closed = closedHotels.length ? {
+    hotels: closedHotels.length,
+    bookings: closedHotels.reduce((s2, r) => s2 + (r.booking_count || 0), 0),
+    names: closedHotels.map((r) => `${r.hotel_name}${r.operating_status === 'temp_closed' ? ' (임시휴업)' : ''}`),
+  } : null;
+
   res.setHeader('Cache-Control', 'private, no-store, max-age=0');
   return res.status(200).json({
     ok: true, is_admin: !!who.isAdmin, view: 'survey',
@@ -327,6 +336,7 @@ async function survey(sb, req, res, who) {
       hotels: unmappedClean.reduce((s2, c) => s2 + c.hotels, 0),
       bookings: unmappedClean.reduce((s2, c) => s2 + c.bookings, 0),
     },
+    closed,                                              // 폐업 = 만들면 안 되는 곳
     // 주소를 못 찾은 곳 = **고칠 것**. 어디인지 모르니 개척할 수 없다
     no_address: noAddr.length ? {
       hotels: noAddr.reduce((s2, c) => s2 + c.hotels, 0),

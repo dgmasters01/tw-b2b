@@ -299,6 +299,12 @@ async function survey(sb, req, res, who) {
       sample_addr: (hs.find((r) => r.address) || {}).address || null,
     };
   }).sort((a, b) => b.bookings - a.bookings);
+  // 🔴 2026-07-17 대표님: *"이거는 여기 넣으면 안 되는 거 아니야? 오사카 근교 이런 곳 아니야?"*
+  //    맞다. 하코네는 오사카에서 **327km**(서울↔부산과 같다) — **도쿄 근교**(84km)다. 근교가 아니다.
+  //    그리고 이건 **개척할 곳이 아니라 고칠 것**이다. 미개척 목록은 "만들 것"이고 오매칭은 "데이터 오류"다.
+  //    섞으면 화면이 **없는 지역을 개척하라**고 말한다. → 목록에서 빼고 **경고로 따로** 낸다.
+  const wrongCity = unmapped.filter((c) => c.wrong_city);
+  const unmappedClean = unmapped.filter((c) => !c.wrong_city);
   const noGeo = noName.filter((r) => !r.latitude);
 
   res.setHeader('Cache-Control', 'private, no-store, max-age=0');
@@ -308,12 +314,20 @@ async function survey(sb, req, res, who) {
     snapshot: snap, months: snaps.map((s) => s.ym),
     counts, rows: rows.slice(0, 30), rows_total: rows.length, travel, districts,
     city_radius: { r90, hotels_with_geo: pts.length },   // 이 도시에서 손님이 자는 반경
-    unmapped,                                            // 지역 이름이 아직 없는 덩어리 = 미개척 후보
+    unmapped: unmappedClean,                             // 미개척 후보 = **만들 것** (오매칭은 뺐다)
     unmapped_total: {
-      hotels: noName.length,
-      bookings: noName.reduce((s2, r) => s2 + (r.booking_count || 0), 0),
+      hotels: noName.length - wrongCity.reduce((s2, c) => s2 + c.hotels, 0),
+      bookings: noName.reduce((s2, r) => s2 + (r.booking_count || 0), 0)
+                - wrongCity.reduce((s2, c) => s2 + c.bookings, 0),
       no_geo: noGeo.length,                              // 좌표조차 없는 곳
     },
+    // 오매칭 = **고칠 것**. 미개척과 섞지 않는다
+    wrong_city: wrongCity.length ? {
+      hotels: wrongCity.reduce((s2, c) => s2 + c.hotels, 0),
+      bookings: wrongCity.reduce((s2, c) => s2 + c.bookings, 0),
+      sample_addr: (wrongCity[0] || {}).sample_addr || null,
+      top_hotel: (wrongCity[0] || {}).top_hotel || null,
+    } : null,
     layer3,
   });
 }

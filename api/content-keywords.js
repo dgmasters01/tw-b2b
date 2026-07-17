@@ -167,35 +167,61 @@ async function survey(sb, req, res, who) {
   //    → `덴노지`·`도톤보리` 는 **장부에 호텔이 한 곳도 없다** — 클로드가 지어낸 것이다.
   //    → `요도야바시`(호텔 8곳)는 **장부에 있는데 화면에서 빠져 있었다.**
   const dRes = await sb.from('hotels')
-    .select('district')
+    .select('district, booking_count, published_at, latitude, longitude, star_rating, property_type')
     .eq('city', 'Osaka')
     .not('district', 'is', null);
   if (dRes.error) throw dRes.error;
-  const dCount = new Map();
-  (dRes.data || []).forEach((r) => dCount.set(r.district, (dCount.get(r.district) || 0) + 1));
-  const DISTRICTS = [...dCount.keys()];
+  const hotelsByD = new Map();
+  (dRes.data || []).forEach((r) => {
+    if (!hotelsByD.has(r.district)) hotelsByD.set(r.district, []);
+    hotelsByD.get(r.district).push(r);
+  });
+  const DISTRICTS = [...hotelsByD.keys()];
+
+  // 도시 중심 = 우리 호텔 좌표의 평균. 중심가/외곽은 **좌표로 잰다**(D-065 "호텔 지역 판정 = 좌표").
+  const pts = (dRes.data || []).filter((r) => r.latitude && r.longitude);
+  const cLat = pts.length ? pts.reduce((s2, r) => s2 + Number(r.latitude), 0) / pts.length : null;
+  const cLng = pts.length ? pts.reduce((s2, r) => s2 + Number(r.longitude), 0) / pts.length : null;
+  const km = (la, lo) => {
+    if (!cLat || !la) return null;
+    const R = 6371, d2r = Math.PI / 180;
+    return R * Math.acos(Math.min(1,
+      Math.cos(cLat * d2r) * Math.cos(la * d2r) * Math.cos((lo - cLng) * d2r) +
+      Math.sin(cLat * d2r) * Math.sin(la * d2r)));
+  };
   const anchorDemand = (() => {
     const a = alive.find((k) => k.is_anchor);
     const t = a && tByKw.get(a.id);
     return t && t.demand ? Number(t.demand) : null;
   })();
   const districts = DISTRICTS.map((name) => {
+    const hs = hotelsByD.get(name) || [];
     const head = alive.find((k) => k.text === `${name} 호텔`);
     const t = head && tByKw.get(head.id);
     const d = t && t.demand !== null && t.demand !== undefined ? Number(t.demand) : null;
-    const hasSeries = t && t.series ? Object.keys(t.series).length : 0;
+    const bookings = hs.reduce((s2, r) => s2 + (r.booking_count || 0), 0);
+    const geo = hs.filter((r) => r.latitude);
+    const dist = geo.length ? geo.reduce((s2, r) => s2 + km(Number(r.latitude), Number(r.longitude)), 0) / geo.length : null;
     return {
       name,
       head: head ? head.text : `${name} 호텔`,
-      hotels: dCount.get(name) || 0,          // 우리 장부에 그 지역 호텔이 몇 곳 (좌표 판정)
-      surveyed: !!head,                       // 대표어가 검색어 표에 있나
+      hotels: hs.length,                                   // 우리 장부에 그 지역 호텔이 몇 곳 (좌표 판정)
+      published: hs.filter((r) => r.published_at).length,  // 그중 영상으로 소개한 곳
+      bookings,                                            // 🔑 손님이 실제로 잔 곳 = 이게 순서 기준
+      km: dist === null ? null : Math.round(dist * 10) / 10,
+      // 중심가/가까움/외곽 — 도시 중심(우리 호텔 좌표 평균)에서의 거리
+      zone: dist === null ? null : (dist <= 3 ? '중심가' : (dist <= 7 ? '가까움' : '외곽')),
+      surveyed: !!head,                                    // 대표어가 검색어 표에 있나
       demand: d,
       measured: !!(t && t.measured),
       skip_reason: t ? t.skip_reason : null,
-      months: hasSeries,
-      vs_city: (d && anchorDemand) ? Math.round(anchorDemand / d) : null,   // 도시 대표어의 1/N
+      vs_city: (d && anchorDemand) ? Math.round(anchorDemand / d) : null,
     };
-  }).sort((a, b) => (a.demand === null) - (b.demand === null) || (b.demand - a.demand));
+    // 🔑 순서 = **예약순**(2026-07-17 대표님). 검색량순이 아니다.
+    //    "여행객은 중심가에 묵는데 콘텐츠 만드는 사람은 중심가를 잘 모른다" —
+    //    검색량은 **만드는 사람이 아는 이름**이고, 예약은 **손님이 실제로 자는 곳**이다.
+    //    실측: 신사이바시 예약 131건인데 검색량 0.39 라 검색량순에선 우메다(50건)보다 아래였다.
+  }).sort((a, b) => b.bookings - a.bookings || (b.hotels - a.hotels));
 
   res.setHeader('Cache-Control', 'private, no-store, max-age=0');
   return res.status(200).json({

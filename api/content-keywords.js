@@ -254,33 +254,40 @@ async function survey(sb, req, res, who) {
   }).sort((a, b) => b.bookings - a.bookings || (b.hotels - a.hotels));
 
   // ── 미개척 후보 = **지역 이름이 아직 없는 호텔** (2026-07-17 대표님)
-  //    지역 판정이 「사람이 그린 원 5개」라 그 밖은 전부 이름이 없다. 버리지 않고 **좌표로 묶어** 보여준다.
-  //    이름은 없어도 "중심에서 1.2km · 호텔 8곳 · 예약 31건" 이면 콘텐츠 후보로 충분하다.
+  //    지역 판정이 「사람이 그린 원 5개」라 그 밖은 전부 이름이 없다. 버리지 않는다.
+  //
+  // 🔑 대표님: *"이름이 없는 곳, **구글 주소로 정리해 보면 되는 거 아니야?**"* — 맞다.
+  //    클로드는 **호텔 이름**을 보느라 **주소를 안 봤다.** 주소에 구·동네가 이미 다 있다:
+  //      "2-chōme-4-19 **Daikoku**, **Naniwa Ward**, Osaka, 556-0014, Japan"
+  //    → 구(Ward) = 그 호텔이 실제로 있는 지역. 사람이 안 그린다. 구글이 준다. 전 세계 공통.
   const noName = (dRes.data || []).filter((r) => !r.district);
-  const clusters = [];
-  noName.filter((r) => r.latitude && r.longitude).forEach((r) => {
-    const la = Number(r.latitude), lo = Number(r.longitude);
-    // 1km 격자로 묶는다. 사람이 원을 안 그린다.
-    const key = `${Math.round(la / 0.009)}|${Math.round(lo / 0.011)}`;
-    let c = clusters.find((x) => x.key === key);
-    if (!c) { c = { key, hotels: [], la: 0, lo: 0 }; clusters.push(c); }
-    c.hotels.push(r);
+  const wardOf = (a) => (a && (a.match(/([A-Za-z]+) Ward/) || [])[1]) || null;
+  const townOf = (a) => (a && (a.match(/(?:ch(?:ō|o)me-[\d-]+ |^[\d-]+ )([A-Za-zōūā-]+),/) || [])[1]) || null;
+
+  const byWard = new Map();
+  noName.forEach((r) => {
+    const w = wardOf(r.address);
+    const key = w || '(주소 없음)';
+    if (!byWard.has(key)) byWard.set(key, []);
+    byWard.get(key).push(r);
   });
-  const unmapped = clusters.map((c) => {
-    const la = c.hotels.reduce((s2, r) => s2 + Number(r.latitude), 0) / c.hotels.length;
-    const lo = c.hotels.reduce((s2, r) => s2 + Number(r.longitude), 0) / c.hotels.length;
-    const d = km(la, lo);
-    const top = [...c.hotels].sort((a, b) => (b.booking_count || 0) - (a.booking_count || 0))[0];
+  const unmapped = [...byWard.entries()].map(([ward, hs]) => {
+    const geo = hs.filter((r) => r.latitude);
+    const d = geo.length ? geo.reduce((s2, r) => s2 + km(Number(r.latitude), Number(r.longitude)), 0) / geo.length : null;
+    const towns = [...new Set(hs.map((r) => townOf(r.address)).filter(Boolean))];
+    const top = [...hs].sort((a, b) => (b.booking_count || 0) - (a.booking_count || 0))[0];
     return {
-      hotels: c.hotels.length,
-      bookings: c.hotels.reduce((s2, r) => s2 + (r.booking_count || 0), 0),
-      published: c.hotels.filter((r) => r.published_at).length,
+      ward,                                          // 구 — 구글 주소에서 온다
+      towns: towns.slice(0, 4),                      // 동네 — 이름 후보
+      hotels: hs.length,
+      bookings: hs.reduce((s2, r) => s2 + (r.booking_count || 0), 0),
+      published: hs.filter((r) => r.published_at).length,
       km: d === null ? null : Math.round(d * 10) / 10,
       zone: zoneOf(d),
-      top_hotel: top ? top.hotel_name : null,      // 이름 후보 — 호텔이 스스로 역 이름을 단다
+      top_hotel: top ? top.hotel_name : null,
+      no_geo: hs.filter((r) => !r.latitude).length,
     };
-  }).filter((c) => c.bookings > 0 || c.hotels >= 2)
-    .sort((a, b) => b.bookings - a.bookings);
+  }).sort((a, b) => b.bookings - a.bookings);
   const noGeo = noName.filter((r) => !r.latitude);
 
   res.setHeader('Cache-Control', 'private, no-store, max-age=0');

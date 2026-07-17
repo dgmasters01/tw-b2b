@@ -788,7 +788,8 @@ function ser12(series){
   return a;
 }
 function pkOf(a){ if(!a) return null; var mx=-1,k=null; a.forEach(function(v,i){ if(v!==null&&v>mx){mx=v;k=i+1;} }); return k; }
-var SR=null, TR3=null, KWMORE=false, HRSTAR=null, HRMORE=false, HFSTAR=null, HFMORE={};
+var SR=null, TR3=null, KWMORE=false, HRSTAR=null, HRMORE=false, HFSTAR=null, HFMORE={}, CXOPEN=null, PFP=null, PT3=null;
+function cxmore(st){ CXOPEN=(CXOPEN===st?null:st); rx(cd); }
 function hfpick(k){ HFSTAR=k; HFMORE={}; rx(cd); }
 function hfmore(k){ HFMORE[k]=!HFMORE[k]; rx(cd); }
 function hrpick(k){ HRSTAR=k; HRMORE=false; rx(cd); }
@@ -842,6 +843,29 @@ function drawKw3(){
                 y:{ticks:{color:'#7b8794',font:{size:10}},grid:{color:'rgba(128,128,128,.22)'},border:{display:false}}}}});
   });
 }
+/* 펼쳐 보기 — 호텔별 확정·취소·금액 **순위로** (대표님 2026-07-17).
+   🔴 취소만 있는 호텔도 여기 나온다 — *"예약했다가 취소했구나. 이것도 정보"*.
+   🔴 배지 두 개는 **재료가 오면 저절로 뜬다**: 6개월 안(노출 이력 필요 · 지금 0건) · 유료 계약(지금 0곳).
+      가짜로 채우지 않는다. */
+function cxDetail(list, PT){
+  var all=list.slice().sort(function(a,b){return b.revenue-a.revenue;});
+  var o='<div style="margin-top:7px;border-top:1px solid var(--line);padding-top:6px;">'+
+        '<div style="display:grid;grid-template-columns:14px 1fr 52px 46px 62px;gap:5px;font-size:9.5px;color:var(--muted);padding:2px 0;">'+
+        '<div></div><div>호텔</div><div style="text-align:right;">확정</div><div style="text-align:right;">취소</div><div style="text-align:right;">금액</div></div>';
+  all.forEach(function(x,i){
+    o+='<div style="display:grid;grid-template-columns:14px 1fr 52px 46px 62px;gap:5px;align-items:center;font-size:11px;padding:3px 0;">'+
+       '<span style="color:var(--muted);font-size:10px;">'+(i+1)+'</span>'+
+       '<div>'+x.name+
+         (PT[x.ptype]?' <span class="pil" style="background:var(--bld);color:var(--bl);">'+PT[x.ptype]+'</span>':'')+
+         (x.paid?' <span class="pil" style="background:var(--emd);color:var(--em);">유료 계약</span>':'')+
+         (x.cooldown?' <span class="pil" style="background:var(--amd);color:var(--am);">6개월 안 — 못 씀</span>':'')+
+       '</div>'+
+       '<span style="text-align:right;color:var(--em);">'+x.bookings+'건</span>'+
+       '<span style="text-align:right;color:'+(x.cancelled?'var(--am)':'var(--muted)')+';">'+(x.cancelled||0)+'</span>'+
+       '<span style="text-align:right;color:var(--sub);">$'+x.revenue.toLocaleString()+'</span></div>';
+  });
+  return o+'</div>';
+}
 function rx(d){cd=d;
 /* ── 지역 세부 = **기본 자료를 보는 곳** (대표님 2026-07-17). 여기에 [이걸로 만들기] 안 붙인다.
     기본 = ① 이 동네가 뭔가 ② 뭘 만드나(성급). 나머지는 **접는다** — 안 펼쳐도 결론이 접힌 줄에 있다.
@@ -853,6 +877,16 @@ function rx(d){cd=d;
  /* 3선 트렌드 재료 — 전부 창구가 준 시계열(`trend.series`). 박지 않는다.
     ① 여행(오사카 여행) = 여행 축 1위 · ② 도시(오사카 호텔) = 앵커 · ③ 지역(난바 호텔) = 이 지역 대표어 */
  var dRow=((SV&&SV.districts)||[]).filter(function(x){return x.name===d;})[0];
+ /* 설명 한 줄 재료 — 예약 피크·숙박 각도. **접힘보다 위에서 쓰므로 여기서 먼저 센다**
+    (전에 지난 지역 값이 붙던 사고를 안 만든다) */
+ (function(){
+   var mo=(DS&&DS.months)||[], p=(DS&&DS.pattern)||null, t={};
+   mo.forEach(function(m){ t[m.month]=(t[m.month]||0)+m.bookings; });
+   var k=Object.keys(t).sort(function(a,b){return t[b]-t[a];});
+   PFP = k.length?{m:+k[0],v:t[k[0]],all:t}:null;
+   if(p){ var nb=[['1박',+p.n1],['2박',+p.n2],['3박',+p.n3],['4박',+p.n4],['5박+',+p.n5]].sort(function(a,b){return b[1]-a[1];});
+     PT3 = nb[0][0]+'·'+nb[1][0]+' '+Math.round(nb[0][1]+nb[1][1])+'%'; } else PT3=null;
+ })();
  var tv=((SV&&SV.travel)||[])[0]||null;
  var sTv=ser12(tv&&tv.series), sCity=ser12(SV&&SV.city_series), sD=ser12(dRow&&dRow.series);
  TR3=null;
@@ -1042,14 +1076,52 @@ function rx(d){cd=d;
       검색 트렌드 = 난바 11월 피크 (언제 **찾나**) / 예약 12개월 = 난바 12월 피크 (언제 **자나**)
     옛 코드는 SE={오사카·난바·다낭} 3개를 박아뒀다 → 이제 창구(districts[].series · city_series). */
 
- h+='<div class="bk"><div class="bh">① 콘텐츠 추천 <span class="no">4-3</span></div>'+
-    '<div style="background:var(--card2);border-radius:8px;padding:10px;">'+
-    '<div style="display:flex;align-items:center;gap:7px;margin-bottom:5px;"><span style="font-size:10px;color:var(--muted);">1위</span>'+
-    '<span style="font-size:13px;font-weight:600;">오사카 숙소 추천 — 난바 호텔 TOP3</span><span class="sg g-go" style="margin-left:auto;">지금 만들기 좋음</span></div>'+
-    '<div class="evs">💡 대표어 <b style="color:var(--txt);">호텔 46.2 + 숙소 39.1</b>을 둘 다 잡고, 난바(10.8)를 갈래로. 난바 피크 11월이라 10월 발행이 정면.</div>'+
-    '<div style="font-size:10px;color:var(--muted);margin:6px 0;">넣을 키워드: 오사카 호텔 · 오사카 숙소 · 오사카 숙소 추천 · 난바 호텔 … (482자)</div>'+
-    '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;"><button class="btn" onclick="add()">＋ 이걸로 만들기</button>'+
-    '<span style="font-size:10px;color:var(--muted);">→ '+curLbl()+' 발행 목표 + 근거 4종 함께 담김</span></div></div></div>';
+ /* ── 4-3 콘텐츠 추천 = **성급별** (대표님 2026-07-17 확정).
+    *"난바 호텔 top3 하나를 추천하면 안 되고. 우리가 3성급·4성급·5성급 이렇게 소개하니깐."*
+    🔴 옛 코드는 *"오사카 숙소 추천 — 난바 호텔 TOP3"* 한 줄이 **통째로 박혀** 있었다 — 덴노지를 눌러도 같았다.
+    🔴 제목에 **"4성급"을 넣지 않는다** — 실측: `오사카 4성급 호텔 추천` = **0.08**(거의 안 찾음).
+       사람은 `난바 호텔`(10.84)로 찾는다. **성급은 묶는 기준이지 검색어가 아니다.**
+    🔴 리조트는 **축이 아니라 배지**다 — 실측: 난바 리조트 **2곳**(오사카 전체 6곳). 축으로 세우면 2곳짜리 칩이 생긴다.
+       바다·온천 도시에선 축이 될 수도 있다. **그 도시 숫자가 정한다. 박지 않는다.**(54-0X)
+    🔴 [이걸로 만들기] 없음 — 여기는 **기본 자료 보는 곳**(대표님 66). */
+ if(HRALL.length){
+   var PT={resort:'리조트',ryokan:'료칸',apartment:'아파트',hostel:'호스텔',guesthouse:'게하',villa:'빌라'};
+   var stN3=function(v){ return v>0?(String(v).replace('.0','')+'성'):'무성급'; };
+   var byS={};
+   HRALL.filter(function(x){return x.bucket==='revenue';}).forEach(function(x){
+     (byS[x.star]=byS[x.star]||{rev:0,bk:0,list:[]}); byS[x.star].rev+=x.revenue; byS[x.star].bk+=x.bookings; byS[x.star].list.push(x);
+   });
+   var ordS=Object.keys(byS).map(Number).sort(function(a,b){return byS[b].rev-byS[a].rev;});
+   if(ordS.length){
+     h+='<div class="bk"><div class="bh">① 콘텐츠 추천 <span style="font-size:10px;color:var(--muted);font-weight:400;">— 성급별 · 매출 순</span><span class="no" style="margin-left:auto;">4-3</span></div>';
+     ordS.forEach(function(st,idx){
+       var g3=byS[st], per=g3.bk?Math.round(g3.rev/g3.bk):0;
+       var top3=g3.list.slice(0,3);
+       var head3=(dRow&&dRow.head)||(d+' 호텔');
+       /* 설명 한 줄 — 대표님 2026-07-17. **재는 값으로 만든다. 문장을 짓지 않는다.** */
+       var line='이 지역 매출 '+(idx+1)+'등 · 확정 '+g3.bk+'건 · 건당 $'+per
+                +(PFP&&PFP.m?' · '+(((PFP.m-3)+11)%12+1)+'월 발행 → '+PFP.m+'월 피크':'')
+                +(PT3?' · '+PT3:'');
+       h+='<div style="background:var(--card2);border-radius:8px;padding:10px 11px;margin-bottom:7px;'+(idx===0?'border:1px solid var(--em);':'')+'">'+
+          '<div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:4px;">'+
+          '<span style="font-size:13px;font-weight:600;">'+head3+' TOP3 — '+stN3(st)+'</span>'+
+          '<span style="font-size:10px;color:var(--sub);margin-left:auto;">$'+g3.rev.toLocaleString()+'</span></div>'+
+          '<div style="font-size:11px;color:var(--muted);margin-bottom:6px;">'+line+'</div>'+
+          '<div style="font-size:11.5px;line-height:1.9;">'+top3.map(function(x,k){
+            return '<span style="color:var(--muted);">'+(k+1)+'</span> '+x.name+
+              (PT[x.ptype]?' <span class="pil" style="background:var(--bld);color:var(--bl);">'+PT[x.ptype]+'</span>':'')+
+              (x.paid?' <span class="pil" style="background:var(--emd);color:var(--em);">유료 계약</span>':'')+
+              (x.cooldown?' <span class="pil" style="background:var(--amd);color:var(--am);">6개월 안 — 못 씀</span>':'');
+          }).join('<br>')+'</div>'+
+          '<div onclick="cxmore('+st+')" style="font-size:10.5px;color:var(--bl);cursor:pointer;padding:5px 0 0;">'+
+          (CXOPEN===st?'접기 ▴':'펼쳐 보기 ▾ — 호텔별 확정·취소·금액')+'</div>'+
+          (CXOPEN===st?cxDetail(g3.list,PT):'')+
+          '</div>';
+     });
+     h+='<div style="font-size:10px;color:var(--muted);margin-top:4px;">제목에 성급을 안 넣습니다 — 실측 `오사카 4성급 호텔 추천` 0.08. 사람은 「'+((dRow&&dRow.head)||(d+' 호텔'))+'」로 찾습니다</div></div>';
+   }
+ }
+
  /* ── 4-14 호텔 목록 = **장부**다 (대표님 2026-07-17 확정).
     *"취소되어서 매출이 없다고 하더라도 표시는 되어야 됨. 그 호텔을 눌렀을 때
       **우리한테 예약했다가 취소했구나.** 이것도 정보니깐."*
@@ -1251,7 +1323,7 @@ function vw(w,a,b){
  if(w==='m'){sh('s1');document.getElementById('bc').innerHTML='';return;}
  if(w==='c'){rc(a);sh('s2');bc('c',a);return;}
  if(w==='d'){if(b)cc=b;rdd(a);sh('s3');bc('d',a);return;}
- if(w==='x'){KWMORE=false;HRSTAR=null;HRMORE=false;HFSTAR=null;HFMORE={};rx(a);sh('s4');bc('x',a);return;}   /* 다른 지역으로 가면 「더 보기」는 접힌 채로 시작 */
+ if(w==='x'){KWMORE=false;HRSTAR=null;HRMORE=false;HFSTAR=null;HFMORE={};CXOPEN=null;rx(a);sh('s4');bc('x',a);return;}   /* 다른 지역으로 가면 「더 보기」는 접힌 채로 시작 */
  if(w==='r'){rrs(a);sh('s6');document.getElementById('bc').innerHTML='<a onclick="go(\'m\')">홈</a> › <span>한국어 · 한국</span> › <b>'+a+'</b> › <b>조사 시작</b>';return;}}
 // A안 — 폰 뒤로가기 지원. 지금까지 폰 뒤로 버튼을 누르면 **앱을 통째로 나갔다**(대표님 2026-07-16).
 // 헌법 원칙 3 "핸드폰 한 대로 모든 작업". vw()=그리기 / go()=그리기+이력쌓기 로 분리.

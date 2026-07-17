@@ -170,7 +170,7 @@ async function survey(sb, req, res, who) {
   //    (오사카 50곳 · 예약 146건 · 2026-07-17 대표님이 잡음). 그게 바로 **미개척 후보**다.
   //    전부 가져와서, 이름 없는 것은 **좌표로 묶어** 따로 보여준다.
   const dRes = await sb.from('hotels')
-    .select('hotel_name, district, booking_count, published_at, latitude, longitude, star_rating, property_type, geo_status')
+    .select('hotel_name, district, booking_count, published_at, latitude, longitude, star_rating, property_type, geo_status, address')
     .eq('city', 'Osaka');
   if (dRes.error) throw dRes.error;
   const hotelsByD = new Map();

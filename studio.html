@@ -3637,14 +3637,6 @@ function drawPattern(PT,MO,MOUT,pk){
     var pct={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return c.parsed.y+'%';}}}},
       scales:{x:{ticks:{color:TICK,font:{size:10}},grid:{display:false}},
               y:{beginAtZero:true,ticks:{color:TICK,font:{size:10},callback:function(v){return v+'%';}},grid:{color:GRID},border:{display:false}}}};
-    var ct=g('ctrend');
-    if(ct&&SR&&SR.d){ kill('trend'); CH.trend=new Chart(ct,{type:'line',
-      data:{labels:['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'],datasets:[
-        {label:'도시',data:SR.c||[],borderColor:'#5aa9e6',borderWidth:2,pointRadius:2,tension:.3,fill:false,spanGaps:true},
-        {label:'지역',data:SR.d,borderColor:'#4edea3',borderWidth:3,pointRadius:3,tension:.3,fill:false,spanGaps:true}]},
-      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
-        scales:{x:{ticks:{color:TICK,font:{size:10}},grid:{display:false}},
-                y:{ticks:{color:TICK,font:{size:10}},grid:{color:GRID},border:{display:false}}}}}); }
     var c2=g('clead');
     if(c2){ kill('lead'); CH.lead=new Chart(c2,{type:'bar',data:{labels:['0-7일','8-30일','31-90일','90일+'],
       datasets:[{data:[PT.lead_d7,PT.lead_d30,PT.lead_d90,PT.lead_over],backgroundColor:['#7b8794','#2a78d6','#2a78d6','#7b8794'],borderRadius:4,barThickness:38}]},options:pct}); }
@@ -3664,7 +3656,7 @@ function ser12(series){
   return a;
 }
 function pkOf(a){ if(!a) return null; var mx=-1,k=null; a.forEach(function(v,i){ if(v!==null&&v>mx){mx=v;k=i+1;} }); return k; }
-var SR=null;
+var SR=null, TR3=null;
 function rxPattern(PT,MO,pk){
   var nb=[['1박',+PT.n1],['2박',+PT.n2],['3박',+PT.n3],['4박',+PT.n4],['5박+',+PT.n5]];
   var top2=nb.slice().sort(function(a,b){return b[1]-a[1];}).slice(0,2);
@@ -3675,16 +3667,9 @@ function rxPattern(PT,MO,pk){
      '<span style="color:#EF9F27;">▬ 체크아웃</span></div>'+
      '<div style="position:relative;width:100%;height:170px;"><canvas id="cflow"></canvas></div>'+
      (pk?'<div style="font-size:10.5px;color:var(--am);margin-top:5px;">예약 피크 <b>'+pk.m+'월</b> ('+pk.v+'건) → 착수는 3달 전 <b>'+(((pk.m-3)+11)%12+1)+'월</b> · 막대 = 잔 달 · 선 = 나온 달</div>':'');
-  /* ⑤ 수요 트렌드 — 12개월 흐름(언제 자나) **바로 다음**(언제 찾나). 한 달 차이가 여기서 보인다 */
-  if(SR&&SR.d){
-    o+='<div style="font-size:11px;color:var(--sub);margin:13px 0 4px;">①-2 언제 찾나 — 검색 트렌드 · 도시와 겹쳐</div>'+
-       '<div style="display:flex;gap:11px;margin-bottom:4px;font-size:9.5px;color:var(--muted);">'+
-       '<span style="color:#5aa9e6;">■ '+(SR.cityName||'도시')+'</span><span style="color:#4edea3;">■ '+cd+' (지역)</span></div>'+
-       '<div style="position:relative;width:100%;height:135px;"><canvas id="ctrend"></canvas></div>'+
-       '<div style="font-size:10.5px;color:var(--am);margin-top:5px;">검색 피크 <b>'+SR.dPk+'월</b>'+
-       (SR.cPk&&SR.cPk!==SR.dPk?' · 도시는 '+SR.cPk+'월':'')+
-       (pk&&pk.m!==SR.dPk?' — 예약 피크는 <b>'+pk.m+'월</b>. 찾고 나서 '+(((pk.m-SR.dPk)+12)%12)+'달 뒤에 잡니다':'')+'</div>';
-  }
+  /* 🔴 검색 트렌드는 **검색어 블록(4-4)** 으로 옮겼다 (2026-07-17 대표님).
+     트렌드는 「검색」 이야기라 검색어와 같은 자리에 있어야 한다. 접힘 바로 다음이 4-4 라 자리도 이어진다.
+     그리고 **같은 선을 두 곳에 두 번 그리지 않는다** — 4-4 에서 3선(여행·도시·지역)으로 그린다. */
   o+='<div style="font-size:11px;color:var(--sub);margin:13px 0 4px;">② 며칠 전에 만드나 — 예약 시점</div>'+
      '<div style="position:relative;width:100%;height:135px;"><canvas id="clead"></canvas></div>'+
      '<div style="font-size:10.5px;color:var(--em);margin-top:5px;">10명 중 '+Math.round((PT.lead_d7+PT.lead_d30+PT.lead_d90)/10)+'명이 3달 안에 예약 · 중앙값 <b>'+PT.lead_median+'일 전</b> · '+PT.bookings+'건</div>';
@@ -3692,6 +3677,23 @@ function rxPattern(PT,MO,pk){
      '<div style="position:relative;width:100%;height:135px;"><canvas id="cnight"></canvas></div>'+
      '<div style="font-size:10.5px;color:var(--bl);margin-top:5px;"><b>'+top2[0][0]+'·'+top2[1][0]+' '+Math.round(top2[0][1]+top2[1][1])+'%</b> · 평균 '+PT.nights_avg+'박'+(PT.amt3?' · 3박 평균 $'+PT.amt3:'')+'</div>';
   return o;
+}
+/* 4-4 의 3선 그래프 — 접힘 밖이라 rx() 가 끝나면 바로 그린다 */
+function drawKw3(){
+  if(!TR3) return;
+  needChart(function(){
+    var e=document.getElementById('ckw3'); if(!e||!e.getContext) return;
+    if(CH.kw3){ CH.kw3.destroy(); CH.kw3=null; }
+    var ds=[];
+    if(TR3.tv)   ds.push({label:'여행',data:TR3.tv,borderColor:'#EF9F27',borderWidth:2,pointRadius:2,tension:.3,fill:false,spanGaps:true});
+    if(TR3.city) ds.push({label:'도시',data:TR3.city,borderColor:'#5aa9e6',borderWidth:2,pointRadius:2,tension:.3,fill:false,spanGaps:true});
+    if(TR3.d)    ds.push({label:'지역',data:TR3.d,borderColor:'#4edea3',borderWidth:3,pointRadius:3,tension:.3,fill:false,spanGaps:true});
+    CH.kw3=new Chart(e.getContext('2d'),{type:'line',
+      data:{labels:['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'],datasets:ds},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+        scales:{x:{ticks:{color:'#7b8794',font:{size:10}},grid:{display:false}},
+                y:{ticks:{color:'#7b8794',font:{size:10}},grid:{color:'rgba(128,128,128,.22)'},border:{display:false}}}}});
+  });
 }
 function rx(d){cd=d;
 /* ── 지역 세부 = **기본 자료를 보는 곳** (대표님 2026-07-17). 여기에 [이걸로 만들기] 안 붙인다.
@@ -3701,10 +3703,27 @@ function rx(d){cd=d;
     🔴 숫자를 박지 않는다. 전부 SV.district_stats. */
  var DS=(SV&&SV.district_stats&&SV.district_stats[d])||null;
  var ST=(DS&&DS.stars)||[], PT=(DS&&DS.pattern)||null, MO=(DS&&DS.months)||[], MOUT=(DS&&DS.months_out)||[];
- /* ⑤ 수요 트렌드 재료 — 창구가 준 시계열. 박지 않는다 */
+ /* 3선 트렌드 재료 — 전부 창구가 준 시계열(`trend.series`). 박지 않는다.
+    ① 여행(오사카 여행) = 여행 축 1위 · ② 도시(오사카 호텔) = 앵커 · ③ 지역(난바 호텔) = 이 지역 대표어 */
  var dRow=((SV&&SV.districts)||[]).filter(function(x){return x.name===d;})[0];
- var sd=ser12(dRow&&dRow.series), sc=ser12(SV&&SV.city_series);
- SR = sd ? { d:sd, c:sc, dPk:pkOf(sd), cPk:pkOf(sc), cityName:(SV&&SV.city_anchor_text)||cy } : null;
+ var tv=((SV&&SV.travel)||[])[0]||null;
+ var sTv=ser12(tv&&tv.series), sCity=ser12(SV&&SV.city_series), sD=ser12(dRow&&dRow.series);
+ TR3=null;
+ if(sD||sCity||sTv){
+   var lg='';
+   if(sTv)   lg+='<span style="color:#EF9F27;">■ '+tv.text+' (여행)</span>';
+   if(sCity) lg+='<span style="color:#5aa9e6;">■ '+((SV&&SV.city_anchor_text)||cy)+' (도시)</span>';
+   if(sD)    lg+='<span style="color:#4edea3;">■ '+(dRow.head||d)+' (지역)</span>';
+   var pTv=pkOf(sTv), pC=pkOf(sCity), pD=pkOf(sD);
+   var nt=[];
+   if(pTv) nt.push('여행 '+pTv+'월');
+   if(pC)  nt.push('도시 '+pC+'월');
+   if(pD)  nt.push('지역 '+pD+'월');
+   TR3={ n:1, legend:lg, tv:sTv, city:sCity, d:sD,
+         /* 🔴 여기에 예약 피크를 붙이려다 뺐다 — 그 값은 아래 접힘에서 계산돼서 **지난 번 지역 값**이 붙는다.
+            (첫 렌더엔 아예 없다.) 틀린 숫자를 보여주느니 안 보여준다. 예약 피크는 접힘이 말한다. */
+         note:'검색 피크 — '+nt.join(' · ') };
+ }
  var stName=function(v){ return v>0?(String(v).replace('.0','')+'성'):'무성급'; };
  var big=ST.slice().sort(function(a,b){return b.bookings-a.bookings;})[0];   /* 예약이 제일 많이 나는 성급 = 팔리는 것 */
  var most=ST.slice().sort(function(a,b){return b.agoda_total-a.agoda_total;})[0];  /* 제일 많이 있는 성급 = 동네 성격 */
@@ -3785,6 +3804,15 @@ function rx(d){cd=d;
    h+='<div class="st4" style="margin-bottom:6px;"><div class="st"><div class="v">'+KW.length+'</div><div class="l">'+d+' 검색어</div></div>'+
       '<div class="st"><div class="v" style="color:var(--em);">'+kmea+'</div><div class="l">검색량 조사됨</div></div>'+
       '<div class="st"><div class="v" style="color:var(--muted);">'+(KW.length-kmea)+'</div><div class="l">아직 안 됨</div></div></div>';
+   /* 🔑 3선 그래프 (2026-07-17 대표님) — **오사카 여행 · 오사카 호텔 · 난바 호텔**을 1~12월로 겹친다.
+      왜 셋인가: 손님은 **여행을 먼저 찾고 → 호텔을 찾고 → 지역을 찾는다.** 세 선이 겹치면 그 순서가 보인다.
+      축은 다르다(㊿): 여행 축 = 언제 착수하나(배경) · 숙박 축 = 뭘 만드나(순위 무대). 순위엔 안 섞는다. */
+   if(TR3&&TR3.n){
+     h+='<div style="display:flex;gap:10px;flex-wrap:wrap;margin:8px 0 4px;font-size:9.5px;color:var(--muted);">'+
+        TR3.legend+'</div>'+
+        '<div style="position:relative;width:100%;height:140px;"><canvas id="ckw3"></canvas></div>'+
+        '<div style="font-size:10.5px;color:var(--am);margin:5px 0 8px;">'+TR3.note+'</div>';
+   }
    KW.slice(0,12).forEach(function(k){
      h+='<div style="display:flex;align-items:center;gap:7px;padding:4px 0;border-top:1px solid var(--line);">'+
         '<span style="font-size:11.5px;flex:1;">'+k.text+'</span>'+
@@ -3795,6 +3823,18 @@ function rx(d){cd=d;
         '</div>';
    });
    if(KW.length>12) h+='<div style="font-size:10px;color:var(--muted);margin-top:5px;">외 '+(KW.length-12)+'개 — 도시 화면에서 전부 봅니다</div>';
+   /* 🔑 3층 — **새로 생긴 · 사라진 검색어** (D-065 1241줄 · 대표님 2026-07-17).
+      🔴 잠긴 것도 **보여야 한다.** 안 보이면 대표님이 *"이거 하기로 했는데?"* 를 매번 물으시게 된다 — 실제로 물으셨다.
+      창구(layer3)가 조사 횟수로 판정한다. 조사가 2번 쌓이면 **코드를 안 고쳐도 저절로 켜진다**. */
+   var L3=(SV&&SV.layer3)||null;
+   if(L3){
+     h+='<div style="display:flex;align-items:center;gap:7px;padding:6px 0;border-top:1px solid var(--line);font-size:11px;">'+
+        '<span style="flex:1;">새로 생긴 · 사라진 검색어</span>'+
+        (L3.locked
+          ? '<span style="font-size:10.5px;color:var(--am);">🔒 '+(L3.next_ym||'')+' 두 번째 조사부터</span>'
+          : '<span style="font-size:10.5px;color:var(--em);">'+(L3.compared_to||'')+' 조사와 비교</span>')+
+        '</div>';
+   }
    h+='<div style="font-size:10px;color:var(--muted);margin-top:6px;">검색량 = 유튜브에서 이 말을 얼마나 찾나 · 오사카 안에서만 비교합니다</div></div>';
  }
  /* 🔴 4-10 「③ 자동 채택 태그란」 삭제 (2026-07-17 대표님) — **여기가 아니다.**
@@ -3830,7 +3870,8 @@ function rx(d){cd=d;
      '<span style="font-size:10px;padding:2px 8px;border-radius:20px;white-space:nowrap;'+RS[x[3]]+'">'+x[3]+(x[4]?' · '+x[4]:'')+'</span></div>';});
  h+='<div style="font-size:10px;color:var(--muted);margin-top:6px;">재사용 상태 = 마지막 노출 + 183일 (D-062). 오사카 실측: 지금가능 250 · 아직못씀 2 · 노출없음 3</div>'+
     '<div style="font-size:10px;color:var(--muted);margin-top:3px;">TOP3 = 예약순 상위 3개 · 성급 필터로 각도 조정 가능</div></div>';
- document.getElementById('d4').innerHTML=h;ks();}
+ document.getElementById('d4').innerHTML=h;
+ drawKw3();   /* 4-4 3선 그래프 — 화면을 그린 뒤에 캔버스가 생긴다 */ks();}
 
 /* ─────────── 키워드 조사 3층 (D-065 ㊼-4 확정본) ───────────
    1층  찾은 검색어 / 살아있는 것 / 붙여쓰기 짝 / 버린 것

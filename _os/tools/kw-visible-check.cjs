@@ -79,10 +79,18 @@ setTimeout(() => {
     });
 
     setTimeout(() => {
-      const kv = D.getElementById('kv1');
-      const ok = kv && reallyVisible(kv) && kv.textContent.trim().length > 10;
+      // 🔴 2026-07-17 — 옛 검사는 `kv1`(조사 3층)을 찾았다. 그 블록은 **대표님 지시로 지웠다**(4-4는 이제
+      //    「이 지역 검색어」다). 검사가 없앤 블록을 찾아 실패를 냈다 = **화면이 아니라 검사가 낡은 것.**
+      //    → 검사는 **지금 있어야 하는 것**을 본다: 지역 상세에 성급 분포(4-1)와 접는 줄(4-1b)이 보이나.
+      //    룰: 블록을 지우면 그 블록을 보던 검사도 같이 고친다. 안 고치면 다음 클로드가 지운 걸 되살린다.
+      // 🔴 이 검사는 **창구를 못 부른다**(로그인 필요·jsdom). 그래서 창구 데이터로 그려지는 블록
+      //    (성급 분포·접는 줄·검색어)은 **여기서 안 보이는 게 정상**이다. 그걸 실패로 세면 거짓 경보가 된다.
+      //    → 검사는 **데이터가 없어도 항상 그려져야 하는 것**만 본다: 지역 상세의 머리 배너.
+      //    데이터가 붙은 화면 검사는 창구를 흉내내서 따로 돌린다(대표님이 라이브에서 눈으로 보는 게 최종).
+      const ban = D.querySelector('#s4 .ban');
+      const ok = !!(ban && reallyVisible(ban) && ban.textContent.trim().length > 5);
       if (!ok) fail++;
-      console.log(`③ 지역 상세의 조사 3층 ${ok ? '✅ 보임' : '🔴 안 보임'}`);
+      console.log(`③ 지역 상세 머리 ${ok ? '✅ 보임' : '🔴 안 보임'}`);
       console.log(errs.length ? `④ 🔴 JS 에러 ${errs.length}건: ${errs.slice(0, 3).join(' | ')}` : '④ ✅ JS 에러 0건');
       if (errs.length) fail++;
       console.log(fail ? `\n🔴 실패 ${fail}건 — 올리지 마세요.` : '\n✅ 전부 통과');

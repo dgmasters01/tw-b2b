@@ -94,7 +94,7 @@ async function survey(sb, req, res, who) {
   const snap = snaps.find((s) => s.ym === ym) || null;
 
   const kwRes = await sb.from('keyword')
-    .select('id, text, kind, alive, alive_source, morph_axis, is_anchor, axis, district')
+    .select('id, text, kind, alive, alive_source, morph_axis, is_anchor, axis')
     .eq('target_code', target).eq('market', market).eq('city_key', cityKey);
   if (kwRes.error) throw kwRes.error;
   const kws = kwRes.data || [];

@@ -26,8 +26,17 @@ const SB_URL = process.env.SUPABASE_URL;
 const SB_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const PLACES_URL = 'https://places.googleapis.com/v1/places:searchText';
 
-// ⚠️ Pro 등급 고정 — 이름 하나만 받는다. rating/phone/hours 를 넣으면 Enterprise(무료 5,000→1,000).
-const FIELD_MASK = 'places.displayName,places.formattedAddress';
+// ⚠️ Pro 등급 고정 — `places.types` 도 Pro 다(구글 공식문서 확인 · D-065 59). rating/phone/hours 는 금지.
+const FIELD_MASK = 'places.displayName,places.formattedAddress,places.types';
+
+// 🔴 2026-07-17 실측 — **구글은 「모른다」고 안 하고 「가장 가까운 장소」를 준다.**
+//    `덴노지` → `덴노지 동물원`(zoo) · `요도야바시` → `요도야바시 스카이 테라스`(shopping_mall)
+//    `신사이바시` → `신사이바시스지`(상점가) · `난바` → `Namba`(영어)
+//    → **행정구역인 것만 받는다.** 동물원·가게·건물은 지역 이름이 아니다.
+const PLACE_OK = ['political', 'sublocality', 'sublocality_level_1', 'sublocality_level_2',
+                  'sublocality_level_3', 'locality', 'administrative_area_level_1',
+                  'administrative_area_level_2', 'administrative_area_level_3',
+                  'administrative_area_level_4', 'neighborhood'];
 
 // 타겟 코드 → 구글 languageCode. 새 채널이 생기면 여기 한 줄.
 const LANG = { ko: 'ko', en: 'en', ja: 'ja', zh: 'zh-TW', th: 'th', vi: 'vi' };
@@ -54,6 +63,7 @@ export default async function handler(req, res) {
   }
   const city = String(req.query.city || 'Osaka');
   const target = String(req.query.target || 'ko');
+  const kind = String(req.query.kind || 'ward');   // ward = 구 · town = 동네(町)
   const dryRun = req.query.dry_run === '1';
   const lang = LANG[target];
   if (!lang) return res.status(400).json({ ok: false, error: `모르는 타겟: ${target}. 아는 것: ${Object.keys(LANG).join(',')}` });
@@ -72,44 +82,57 @@ export default async function handler(req, res) {
     //    구글 Text Search 는 **가장 가까운 「장소」**를 준다 — 행정구역 이름이 아니면 엉뚱한 걸 준다.
     //    → **행정구역 이름(`… Ward`)만** 묻는다. 이미 한국어인 지역명은 그대로 쓴다.
     const isTargetLang = (t) => (target === 'ko' ? /[가-힣]/.test(t) : /^[A-Za-z0-9 .'-]+$/.test(t));
+    const ctx = new Map();          // 이름 → 물어볼 때 붙일 맥락(구). 동네만으로 물으면 엉뚱한 걸 준다
     hs.forEach((h) => {
       if (h.country) country = h.country;
-      if (h.district && !isTargetLang(h.district)) names.add(h.district);
       const w = h.address && (h.address.match(/([A-Za-z]+) Ward/) || [])[1];
-      if (w) names.add(`${w} Ward`);
+      if (kind === 'ward') {
+        if (h.district && !isTargetLang(h.district)) names.add(h.district);
+        if (w) { names.add(`${w} Ward`); ctx.set(`${w} Ward`, city); }
+      } else {
+        // 동네 = 주소 첫 부분. **구를 같이 붙여 묻는다** — `Daikoku, Naniwa Ward, Osaka`
+        const t = h.address && (h.address.match(/(?:me-[\d-]+ |^[\d-]+ )([A-Za-zōūā-]+),/) || [])[1];
+        if (t && !isTargetLang(t)) { names.add(t); ctx.set(t, w ? `${w} Ward, ${city}` : city); }
+      }
     });
     const cityKeyBase = `cc:${String(country || '').toLowerCase()}|${city.toLowerCase()}`;
 
     // 이미 있는 것은 안 부른다 — 돈이다
-    const have = await sb(`city_alias?target_code=eq.${target}&city_key=like.${encodeURIComponent(cityKeyBase + '|d:%')}&select=city_key,label`);
+    const pfx = kind === 'town' ? 't' : 'd';
+    const have = await sb(`city_alias?target_code=eq.${target}&city_key=like.${encodeURIComponent(`${cityKeyBase}|${pfx}:%`)}&select=city_key,label`);
     const haveKeys = new Set(have.map((r) => r.city_key));
-    const todo = [...names].filter((n) => !haveKeys.has(`${cityKeyBase}|d:${n}`));
+    const todo = [...names].filter((n) => !haveKeys.has(`${cityKeyBase}|${pfx}:${n}`));
 
     if (dryRun) {
-      return res.status(200).json({ ok: true, dry_run: true, city, target, lang,
+      return res.status(200).json({ ok: true, dry_run: true, city, target, lang, kind,
         would_call: todo.length, targets: todo, already: have.length });
     }
 
     const out = [], rows = [];
     for (const n of todo) {
-      let label = null, addr = null;
+      let label = null, addr = null, types = [], why = null;
       try {
         const r = await fetch(PLACES_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'X-Goog-Api-Key': apiKey, 'X-Goog-FieldMask': FIELD_MASK },
-          body: JSON.stringify({ textQuery: `${n}, ${city}`, maxResultCount: 1, languageCode: lang }),
+          body: JSON.stringify({ textQuery: `${n}, ${ctx.get(n) || city}`, maxResultCount: 1, languageCode: lang }),
         });
         if (r.ok) {
           const d = await r.json();
           const p = (d.places && d.places[0]) || null;
           label = p && p.displayName && p.displayName.text;
           addr = p && p.formattedAddress;
+          types = (p && p.types) || [];
         }
       } catch (e) { /* 못 받으면 안 넣는다. 지어내지 않는다 */ }
-      out.push({ src: n, label: label || null, addr: addr || null });
+
+      // ── 받은 걸 그대로 믿지 않는다. 세 가지를 본다.
+      if (label && !types.some((t) => PLACE_OK.includes(t))) { why = `행정구역이 아님(${types.slice(0, 2).join(',')})`; label = null; }
+      else if (label && !isTargetLang(label)) { why = `${target} 가 아님`; label = null; }
+      out.push({ src: n, label: label || null, addr: addr || null, types: types.slice(0, 3), why });
       if (label) {
         rows.push({
-          target_code: target, country, city_key: `${cityKeyBase}|d:${n}`,
+          target_code: target, country, city_key: `${cityKeyBase}|${kind === 'town' ? 't' : 'd'}:${n}`,
           label, source: `google_places_${lang} 2026-07-17`, updated_at: new Date().toISOString(),
         });
       }
@@ -117,7 +140,7 @@ export default async function handler(req, res) {
     if (rows.length) await sb('city_alias', { method: 'POST', body: JSON.stringify(rows) });
 
     return res.status(200).json({
-      ok: true, city, target, lang, called: todo.length, saved: rows.length,
+      ok: true, city, target, lang, kind, called: todo.length, saved: rows.length,
       // 🔴 못 받은 건 **안 넣는다.** 클로드가 번역해서 채우면 그게 지어내기다(54-0V)
       missed: out.filter((o) => !o.label).map((o) => o.src),
       results: out, quota_note: `구글 Places Pro · 월 ${MONTHLY_CAP} 상한과 같은 지갑`,

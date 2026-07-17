@@ -3765,6 +3765,16 @@ function rx(d){cd=d;
     → 성급은 이제 **성급 분포(4-1)** 가 보여준다. 필터는 **4-14 호텔 후보를 진짜 데이터로 만들 때** 같이 붙인다.
     룰: 눌러도 아무 일 없는 버튼은 화면에 두지 않는다. 대표님 시간을 뺏는다. */
 
+ /* 🔴 순서 = **자료 → 결론 → 실행** (2026-07-17 대표님):
+    ① 이 동네가 뭔가(4-0) → ② 성급 분포(4-1) → ③ 예약 패턴(접힘) → ④ **키워드 조사(4-4)** →
+    ⑤ **콘텐츠 유형 추천(4-3)** → ⑥ **호텔 후보(4-14)**
+    옛 순서는 **추천(4-3)이 검색어(4-4)보다 위**에 있었다 = 근거를 보기 전에 결론부터 나왔다.
+    여기는 기본 자료 보는 곳(66)이라 **자료가 먼저**다. */
+ h+='<div class="bk" id="kvw"><div class="bh">키워드 조사 <span style="font-size:10px;color:var(--muted);font-weight:400;">— DB만 읽습니다. 볼 때 구글·유튜브 호출 0</span><span class="no" style="margin-left:auto;">4-4</span></div>'+
+    '<div id="kv1"><div style="font-size:11px;color:var(--muted);padding:8px 0;">조사 불러오는 중…</div></div>'+
+    '<div id="kv2"></div><div id="kv3"></div></div>';
+
+
  h+='<div class="bk"><div class="bh">① 콘텐츠 추천 <span class="no">4-3</span></div>'+
     '<div style="background:var(--card2);border-radius:8px;padding:10px;">'+
     '<div style="display:flex;align-items:center;gap:7px;margin-bottom:5px;"><span style="font-size:10px;color:var(--muted);">1위</span>'+
@@ -3773,11 +3783,6 @@ function rx(d){cd=d;
     '<div style="font-size:10px;color:var(--muted);margin:6px 0;">넣을 키워드: 오사카 호텔 · 오사카 숙소 · 오사카 숙소 추천 · 난바 호텔 … (482자)</div>'+
     '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;"><button class="btn" onclick="add()">＋ 이걸로 만들기</button>'+
     '<span style="font-size:10px;color:var(--muted);">→ '+curLbl()+' 발행 목표 + 근거 4종 함께 담김</span></div></div></div>';
-
- h+='<div class="bk" id="kvw"><div class="bh">키워드 조사 <span style="font-size:10px;color:var(--muted);font-weight:400;">— DB만 읽습니다. 볼 때 구글·유튜브 호출 0</span><span class="no" style="margin-left:auto;">4-4</span></div>'+
-    '<div id="kv1"><div style="font-size:11px;color:var(--muted);padding:8px 0;">조사 불러오는 중…</div></div>'+
-    '<div id="kv2"></div><div id="kv3"></div></div>';
-
  /* 🔴 4-10 「③ 자동 채택 태그란」 삭제 (2026-07-17 대표님) — **여기가 아니다.**
     이 페이지는 대표님이 정한 대로 **기본 자료 보는 곳**(66). 태그란은 **만들 때 쓰는 것** = 올리기·전략 자리.
     게다가 목업이었다: 482/500자도 박혀 있었고 [복사]는 그 박힌 글자를 복사했다. */

@@ -28,7 +28,17 @@ const SB_URL = process.env.SUPABASE_URL;
 const SB_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 // 도시 번호 — api/agoda-search.js 의 AGODA_CITY_MAP 과 같은 값. 늘리면 둘 다.
-const CITY_ID = { osaka: 14267, tokyo: 14266, kyoto: 14268, fukuoka: 14269, taipei: 9598, 'da nang': 18074, bangkok: 4064 };
+// 🔴 2026-07-17 실측 — **우리 도시 번호 표가 틀렸다.** `api/agoda-search.js` 의 AGODA_CITY_MAP 도 같다.
+//    `singapore: 9395` → 아고다는 **방콕** 호텔을 준다 (Amari Don Muang **Bangkok**)
+//    `bangkok: 4064`   → 아고다는 **싱가포르** 호텔을 준다 (Hotel Boss)
+//    `osaka: 14267`    → **존재하지 않는 번호**(911 No search result)
+//    → 실측으로 찾은 것만 넣는다. **번호를 지어내지 않는다.**
+const CITY_ID = {
+  osaka: 9590,        // ✅ 실측 — CANDEO HOTELS Osaka · Cross Hotel Osaka
+  tokyo: 5085,        // ✅ 실측 — Villa Fontaine Haneda Airport · APA Shinjuku-Kabukicho
+  jeju: 16901,        // ✅ 실측 — Ocean Suites Jeju
+  // ⚠️ 나머지 도시는 **번호를 모른다.** 실측 전엔 안 넣는다(54-0V: 목록은 세는 것이지 적는 게 아니다)
+};
 
 async function sb(path, opts = {}) {
   const r = await fetch(`${SB_URL}/rest/v1/${path}`, {

@@ -895,14 +895,12 @@ function rx(d){cd=d;
     → 성급은 이제 **성급 분포(4-1)** 가 보여준다. 필터는 **4-14 호텔 후보를 진짜 데이터로 만들 때** 같이 붙인다.
     룰: 눌러도 아무 일 없는 버튼은 화면에 두지 않는다. 대표님 시간을 뺏는다. */
 
- h+='<div class="bk"><div class="bh">① 콘텐츠 추천 <span class="no">4-3</span></div>'+
-    '<div style="background:var(--card2);border-radius:8px;padding:10px;">'+
-    '<div style="display:flex;align-items:center;gap:7px;margin-bottom:5px;"><span style="font-size:10px;color:var(--muted);">1위</span>'+
-    '<span style="font-size:13px;font-weight:600;">오사카 숙소 추천 — 난바 호텔 TOP3</span><span class="sg g-go" style="margin-left:auto;">지금 만들기 좋음</span></div>'+
-    '<div class="evs">💡 대표어 <b style="color:var(--txt);">호텔 46.2 + 숙소 39.1</b>을 둘 다 잡고, 난바(10.8)를 갈래로. 난바 피크 11월이라 10월 발행이 정면.</div>'+
-    '<div style="font-size:10px;color:var(--muted);margin:6px 0;">넣을 키워드: 오사카 호텔 · 오사카 숙소 · 오사카 숙소 추천 · 난바 호텔 … (482자)</div>'+
-    '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;"><button class="btn" onclick="add()">＋ 이걸로 만들기</button>'+
-    '<span style="font-size:10px;color:var(--muted);">→ '+curLbl()+' 발행 목표 + 근거 4종 함께 담김</span></div></div></div>';
+ /* 🔴 순서 = **자료 → 결론 → 실행** (2026-07-17 대표님). 이 순서를 **두 번째로** 적용한다.
+    첫 번째(커밋 1cfbcf0d)가 **다음 커밋에 덮여 사라졌다** — 클로드가 커밋 직후 `main` raw 를 읽었는데
+    그건 **CDN 캐시(~5분)** 라 **바꾸기 전 파일**이 왔고, 그 위에 4-4를 고쳐 커밋해서 순서가 되돌아갔다.
+    대표님이 화면을 보고 잡으셨다(*"위치를 바꿔야 되는거 아니야?"*).
+    🔴 **룰(철칙 재확인): 커밋 직후에는 `main` raw 를 읽지 않는다. 반드시 그 커밋 SHA 로 읽는다.**
+       인계서 철칙에 이미 있던 문장이다. 적혀 있는데 또 밟았다. */
 
  /* 4-4 키워드 조사 — **이 지역 검색어만** (2026-07-17 대표님).
     🔴 옛 코드는 `svCity()`(오사카 박힘)가 준 걸 그려서 **난바를 눌러도 오사카 검색어 75개 전부**가 나왔다.
@@ -944,6 +942,14 @@ function rx(d){cd=d;
       검색 트렌드 = 난바 11월 피크 (언제 **찾나**) / 예약 12개월 = 난바 12월 피크 (언제 **자나**)
     옛 코드는 SE={오사카·난바·다낭} 3개를 박아뒀다 → 이제 창구(districts[].series · city_series). */
 
+ h+='<div class="bk"><div class="bh">① 콘텐츠 추천 <span class="no">4-3</span></div>'+
+    '<div style="background:var(--card2);border-radius:8px;padding:10px;">'+
+    '<div style="display:flex;align-items:center;gap:7px;margin-bottom:5px;"><span style="font-size:10px;color:var(--muted);">1위</span>'+
+    '<span style="font-size:13px;font-weight:600;">오사카 숙소 추천 — 난바 호텔 TOP3</span><span class="sg g-go" style="margin-left:auto;">지금 만들기 좋음</span></div>'+
+    '<div class="evs">💡 대표어 <b style="color:var(--txt);">호텔 46.2 + 숙소 39.1</b>을 둘 다 잡고, 난바(10.8)를 갈래로. 난바 피크 11월이라 10월 발행이 정면.</div>'+
+    '<div style="font-size:10px;color:var(--muted);margin:6px 0;">넣을 키워드: 오사카 호텔 · 오사카 숙소 · 오사카 숙소 추천 · 난바 호텔 … (482자)</div>'+
+    '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;"><button class="btn" onclick="add()">＋ 이걸로 만들기</button>'+
+    '<span style="font-size:10px;color:var(--muted);">→ '+curLbl()+' 발행 목표 + 근거 4종 함께 담김</span></div></div></div>';
  h+='<div class="bk"><div class="bh">호텔 후보 <span style="font-size:10px;color:var(--muted);font-weight:400;">— 축이 아니라 출력</span><span class="no" style="margin-left:auto;">4-14 🆕</span></div>'+
     '<div class="evs" style="margin-bottom:7px;">난바 검색자는 <b style="color:var(--sub);">아직 호텔을 못 정한 사람</b>. 우리가 여러 호텔을 골라 보여줍니다.</div>';
  [['Red Roof Inn & Suites Osaka Namba',83,'4.0성','지금가능',''],['APA Hotel Namba-Eki Higashi',47,'4.0성','아직못씀','9/2 풀림'],['Sotetsu Grand Fresa Osaka Namba',46,'4.0성','지금가능',''],['Richmond Hotel Namba Daikokucho',40,'4.0성','지금가능',''],['Hotel IL Cuore Namba',31,'4.0성','노출없음','']].forEach(function(x,i){

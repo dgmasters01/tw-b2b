@@ -3658,7 +3658,9 @@ function ser12(series){
   return a;
 }
 function pkOf(a){ if(!a) return null; var mx=-1,k=null; a.forEach(function(v,i){ if(v!==null&&v>mx){mx=v;k=i+1;} }); return k; }
-var SR=null, TR3=null;
+var SR=null, TR3=null, KWMORE=false;
+/* 검색어 더 보기 — 이 지역 검색어는 이 블록에서 전부 본다 */
+function kwmore(){ KWMORE=!KWMORE; rx(cd); }
 function rxPattern(PT,MO,pk){
   var nb=[['1박',+PT.n1],['2박',+PT.n2],['3박',+PT.n3],['4박',+PT.n4],['5박+',+PT.n5]];
   var top2=nb.slice().sort(function(a,b){return b[1]-a[1];}).slice(0,2);
@@ -3825,7 +3827,8 @@ function rx(d){cd=d;
         '<div style="position:relative;width:100%;height:140px;"><canvas id="ckw3"></canvas></div>'+
         '<div style="font-size:10.5px;color:var(--am);margin:5px 0 8px;">'+TR3.note+'</div>';
    }
-   KW.slice(0,12).forEach(function(k){
+   /* 기본 10개 · 나머지는 펼쳐서 (2026-07-17 대표님). 도시 화면으로 보내지 않는다 — 여기서 다 본다 */
+   (KWMORE?KW:KW.slice(0,10)).forEach(function(k){
      h+='<div style="display:flex;align-items:center;gap:7px;padding:4px 0;border-top:1px solid var(--line);">'+
         '<span style="font-size:11.5px;flex:1;">'+k.text+'</span>'+
         (k.demand!==null
@@ -3834,7 +3837,8 @@ function rx(d){cd=d;
         (k.opportunity!==null?'<span style="font-size:10.5px;color:var(--sub);">기회 '+k.opportunity+'</span>':'')+
         '</div>';
    });
-   if(KW.length>12) h+='<div style="font-size:10px;color:var(--muted);margin-top:5px;">외 '+(KW.length-12)+'개 — 도시 화면에서 전부 봅니다</div>';
+   if(KW.length>10) h+='<div onclick="kwmore()" style="font-size:10.5px;color:var(--bl);cursor:pointer;padding:6px 0;border-top:1px solid var(--line);">'+
+     (KWMORE?'접기 ▴':'외 '+(KW.length-10)+'개 더 보기 ▾')+'</div>';
    /* 🔑 3층 — **새로 생긴 · 사라진 검색어** (D-065 1241줄 · 대표님 2026-07-17).
       🔴 잠긴 것도 **보여야 한다.** 안 보이면 대표님이 *"이거 하기로 했는데?"* 를 매번 물으시게 된다 — 실제로 물으셨다.
       창구(layer3)가 조사 횟수로 판정한다. 조사가 2번 쌓이면 **코드를 안 고쳐도 저절로 켜진다**. */
@@ -4028,7 +4032,7 @@ function vw(w,a,b){
  if(w==='m'){sh('s1');document.getElementById('bc').innerHTML='';return;}
  if(w==='c'){rc(a);sh('s2');bc('c',a);return;}
  if(w==='d'){if(b)cc=b;rdd(a);sh('s3');bc('d',a);return;}
- if(w==='x'){rx(a);sh('s4');bc('x',a);return;}
+ if(w==='x'){KWMORE=false;rx(a);sh('s4');bc('x',a);return;}   /* 다른 지역으로 가면 「더 보기」는 접힌 채로 시작 */
  if(w==='r'){rrs(a);sh('s6');document.getElementById('bc').innerHTML='<a onclick="go(\'m\')">홈</a> › <span>한국어 · 한국</span> › <b>'+a+'</b> › <b>조사 시작</b>';return;}}
 // A안 — 폰 뒤로가기 지원. 지금까지 폰 뒤로 버튼을 누르면 **앱을 통째로 나갔다**(대표님 2026-07-16).
 // 헌법 원칙 3 "핸드폰 한 대로 모든 작업". vw()=그리기 / go()=그리기+이력쌓기 로 분리.

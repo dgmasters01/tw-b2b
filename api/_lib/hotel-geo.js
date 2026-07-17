@@ -224,7 +224,11 @@ export async function runGeoFill(opts = {}) {
           body: JSON.stringify({
             textQuery: `${h.hotel_name}, ${h.city}`,
             maxResultCount: 1,
-            includedType: 'lodging',
+            // 🔴 2026-07-17 — `includedType:'lodging'` 이 **폐업 호텔을 걸러낸다**(가설).
+            //    대표님이 구글에서 `ibis Styles Osaka Namba`·`Agora Place Osaka Namba` 를 직접 찾았는데
+            //    둘 다 **「폐업」** 이었다. 우리 검색은 not_found 였다.
+            //    → 재시도(retry)일 때는 **종류를 안 건다.** 폐업이어도 찾아서 **폐업이라고 알려주는 게** 목적이다.
+            ...(retry ? {} : { includedType: 'lodging' }),
             languageCode: 'en',
           }),
         });

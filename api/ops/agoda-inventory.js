@@ -145,10 +145,12 @@ export default async function handler(req, res) {
 
     return res.status(200).json({
       ok: true, city, cityId, agoda_returned: list.length, saved: rows.length,
-      is_capped: list.length >= 100,
-      note: list.length >= 100
-        ? '🔴 100개는 아고다 상한이다. **총수가 아니다** — 더 있다. 나눠 받는 길을 찾아야 한다.'
-        : '이 도시 재고를 다 받았다(상한 미만).',
+      is_capped: list.length >= 30,
+      // 🔴 30 = 아고다 상한(문서: maxResult 1~30). **30이 오면 총수가 아니다 — 더 있다.**
+      //    "다 받았다"고 말하면 화면이 도시를 작게 말한다(55 의 그 병).
+      note: list.length >= 30
+        ? '🔴 30개는 **아고다 상한**이다. 이 도시 재고는 **더 많다.** 분모로 쓰면 안 된다 — 나눠 받는 길을 찾아야 한다.'
+        : '상한(30) 미만 → 이 도시 재고를 다 받았다.',
     });
   } catch (e) {
     return res.status(500).json({ ok: false, error: String(e.message || e) });

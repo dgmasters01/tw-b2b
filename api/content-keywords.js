@@ -260,6 +260,14 @@ async function survey(sb, req, res, who) {
   //    클로드는 **호텔 이름**을 보느라 **주소를 안 봤다.** 주소에 구·동네가 이미 다 있다:
   //      "2-chōme-4-19 **Daikoku**, **Naniwa Ward**, Osaka, 556-0014, Japan"
   //    → 구(Ward) = 그 호텔이 실제로 있는 지역. 사람이 안 그린다. 구글이 준다. 전 세계 공통.
+  // 지역 이름 사전 — 타겟(언어+시장)마다 다르다 (D-065 60). 없으면 원래 이름 그대로.
+  const aliasRes = await sb.from('city_alias')
+    .select('city_key, label')
+    .eq('target_code', target)
+    .like('city_key', `cc:japan|osaka|d:%`);
+  const alias = new Map((aliasRes.data || []).map((r) => [r.city_key.split('|d:')[1], r.label]));
+  const say = (n) => alias.get(n) || n;
+
   const noName = (dRes.data || []).filter((r) => !r.district);
   const wardOf = (a) => (a && (a.match(/([A-Za-z]+) Ward/) || [])[1]) || null;
   const townOf = (a) => (a && (a.match(/(?:ch(?:ō|o)me-[\d-]+ |^[\d-]+ )([A-Za-zōūā-]+),/) || [])[1]) || null;
@@ -281,12 +289,14 @@ async function survey(sb, req, res, who) {
     byWard.get(key).push(r);
   });
   const unmapped = [...byWard.entries()].map(([ward, hs]) => {
+    const wardLabel = ward.charAt(0) === '(' ? ward : say(ward);
     const geo = hs.filter((r) => r.latitude);
     const d = geo.length ? geo.reduce((s2, r) => s2 + km(Number(r.latitude), Number(r.longitude)), 0) / geo.length : null;
     const towns = [...new Set(hs.map((r) => townOf(r.address)).filter(Boolean))];
     const top = [...hs].sort((a, b) => (b.booking_count || 0) - (a.booking_count || 0))[0];
     return {
-      ward,                                          // 구 — 구글 주소에서 온다
+      ward: wardLabel,                               // 구 — 구글 주소에서 오고, 이름은 타겟 언어(city_alias)
+      ward_src: ward,                                // 원본(영어) — 덮어쓰지 않는다
       towns: towns.slice(0, 4),                      // 동네 — 이름 후보
       hotels: hs.length,
       bookings: hs.reduce((s2, r) => s2 + (r.booking_count || 0), 0),

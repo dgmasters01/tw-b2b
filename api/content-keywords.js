@@ -421,7 +421,12 @@ async function survey(sb, req, res, who) {
     //      ② **확정률 배지**(D-062 ⑤-3): 안정 ≥85 / 보통 70~84 / 주의 50~69 / 경고 <50.
     //         *"주의 = TOP3 넣을 때 취소 유출 감안"* — 실측: 리치몬드 난바 **53%**(21/40). 절반이 날아간다.
     //      ③ 재사용 상태 이름도 D-062 것: **아직못씀 / 지금가능 / 노출없음**. 클로드가 지어내지 않는다.
-    sb.from('v_district_hotel').select('district, star, name, name_is_ko, ptype, confirmed, cancelled, confirm_rate, revenue, bucket, reuse, reuse_from, paid').eq('city', 'Osaka'),
+    //   🔑 `grade` = **성급 내림**(3.5→3 · 4.5→4). 대표님 2026-07-17:
+    //      *"3.5성급이지만 3성급으로 소개함. 소비자 입장에서는 3.5성급이 더 좋지만 3성급이 원래 낫은데
+    //        더 좋은 곳을 3성급으로 소개하니깐 사람들이 예약을 함. 3.5성급을 4성급이라고 소개하면 실망하잖아."*
+    //      → **기대보다 좋게** 만든다. 반올림하면 기대보다 나빠진다. **3.5성 추천 같은 건 없다.**
+    //      화면·창구가 같은 값을 쓰도록 **뷰가 `grade` 를 준다.** 화면에서 floor 하지 않는다.
+    sb.from('v_district_hotel').select('district, star, grade, name, name_is_ko, ptype, confirmed, cancelled, confirm_rate, revenue, bucket, reuse, reuse_from, paid').eq('city', 'Osaka'),
   ]);
   const dstat = {};
   const touch = (d) => (dstat[d] = dstat[d] || { stars: [], months: [], months_out: [], pattern: null, hotels: [] });
@@ -432,7 +437,7 @@ async function survey(sb, req, res, who) {
   (monRes.data || []).forEach((r) => touch(r.district).months.push({ month: r.month, star: Number(r.star), bookings: r.bookings }));
   (outRes.data || []).forEach((r) => touch(r.district).months_out.push({ month: r.month, bookings: r.bookings }));
   (rankRes.data || []).forEach((r) => touch(r.district).hotels.push({
-    star: Number(r.star), name: r.name, name_is_ko: !!r.name_is_ko, ptype: r.ptype,
+    star: Number(r.grade), star_real: Number(r.star), name: r.name, name_is_ko: !!r.name_is_ko, ptype: r.ptype,
     bookings: r.confirmed, cancelled: r.cancelled, confirm_rate: r.confirm_rate,
     revenue: Number(r.revenue), bucket: r.bucket,
     reuse: r.reuse, reuse_from: r.reuse_from, paid: !!r.paid }));

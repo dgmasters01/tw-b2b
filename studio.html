@@ -3772,6 +3772,41 @@ function badgeReuse(x){
   }
   return '';   /* 노출없음 = 기본값. 배지로 도배하지 않는다 */
 }
+/* ＋ 전략으로 — **진짜로 큐에 넣는다** (대표님 2026-07-17: *"전략 메뉴로 넘어가기 위한 선택을 할 수 있는 버튼이 없어"*).
+   🔴 옛 `add()` 는 **안내만 띄우고 전략 탭을 눌렀다.** 넘기는 코드가 0줄이라 지웠었다.
+   🔴 이번엔 창구가 **이미 있었다**: `POST /api/content-queue {source:'keyword', ...}` → 기획대기 카드.
+      창구 설계에 `source=strategy|keyword|manuscript` 가 처음부터 있었다 — 키워드에서 오는 길이 뚫려 있었다.
+   담아 보내는 것 (전부 이 화면이 **이미 재서 아는 값**. 지어내지 않는다):
+      주제 · 나라 · 도시 · 성급(내림) · 목표 발행월(예약 피크 − 3달) · 담을 호텔 3곳 · 근거(검색어·숙박 각도)
+   🔴 실패하면 **실패했다고 말한다.** 옛 코드처럼 안내만 띄우고 안 넣는 짓을 다시 하지 않는다. */
+function toQueue(enc){
+  var o; try{ o=JSON.parse(decodeURIComponent(enc)); }catch(e){ return; }
+  var DS2=(SV&&SV.district_stats&&SV.district_stats[cd])||null;
+  var all=((DS2&&DS2.hotels)||[]).filter(function(x){return x.bucket==='revenue';});
+  var list=(o.k==='star') ? all.filter(function(x){return x.star===o.s && ['hotel','resort'].indexOf(x.ptype)>=0;})
+                          : all.filter(function(x){return x.ptype===o.k;});
+  list=list.sort(function(a,b){return b.revenue-a.revenue;}).slice(0,3);
+  var mon=(PFP&&PFP.m)?(((PFP.m-3)+11)%12+1):null;
+  var y=new Date().getFullYear(), tm=mon?(y+'-'+String(mon).padStart(2,'0')):null;
+  var kw=((dRowG&&dRowG.keywords)||[]).filter(function(k){return k.demand!==null;})
+        .sort(function(a,b){return b.demand-a.demand;}).slice(0,5).map(function(k){return k.text+'('+k.demand+')';});
+  var note=[cd+' · '+(o.k==='star'?o.s+'성':o.k),
+            '담을 호텔: '+list.map(function(x){return x.name+'(확정 '+x.bookings+'건·$'+x.revenue+')';}).join(' / '),
+            '검색어: '+kw.join(' · '),
+            (PT3?'숙박 각도: '+PT3:''),
+            (PFP&&PFP.m?'예약 피크 '+PFP.m+'월 → 착수 '+mon+'월':'')].filter(Boolean).join(' | ');
+  authHeader().then(function(hd){
+    var h2=hd||{}; h2['Content-Type']='application/json';
+    return fetch('/api/content-queue',{method:'POST',credentials:'same-origin',headers:h2,
+      body:JSON.stringify({ source:'keyword', subject:o.t, country:'Japan', city:cy,
+        star:(o.k==='star'?o.s:null), target_month:tm, priority:3,
+        hotel_name:(list[0]?list[0].name:null), note:note })});
+  }).then(function(r){return r.json();}).then(function(d){
+    if(d&&d.ok) ts('전략 기획대기에 넣었습니다 — '+((d.item&&d.item.code)||''));
+    else ts('못 넣었습니다 — '+((d&&d.error)||'창구 오류'));
+  }).catch(function(e){ ts('못 넣었습니다 — '+e); });
+}
+var dRowG=null;
 function rx(d){cd=d;
 /* ── 지역 세부 = **기본 자료를 보는 곳** (대표님 2026-07-17). 여기에 [이걸로 만들기] 안 붙인다.
     기본 = ① 이 동네가 뭔가 ② 뭘 만드나(성급). 나머지는 **접는다** — 안 펼쳐도 결론이 접힌 줄에 있다.
@@ -3782,7 +3817,7 @@ function rx(d){cd=d;
  var ST=(DS&&DS.stars)||[], PT=(DS&&DS.pattern)||null, MO=(DS&&DS.months)||[], MOUT=(DS&&DS.months_out)||[];
  /* 3선 트렌드 재료 — 전부 창구가 준 시계열(`trend.series`). 박지 않는다.
     ① 여행(오사카 여행) = 여행 축 1위 · ② 도시(오사카 호텔) = 앵커 · ③ 지역(난바 호텔) = 이 지역 대표어 */
- var dRow=((SV&&SV.districts)||[]).filter(function(x){return x.name===d;})[0];
+ var dRow=((SV&&SV.districts)||[]).filter(function(x){return x.name===d;})[0]; dRowG=dRow;
  /* 설명 한 줄 재료 — 예약 피크·숙박 각도. **접힘보다 위에서 쓰므로 여기서 먼저 센다**
     (전에 지난 지역 값이 붙던 사고를 안 만든다) */
  (function(){
@@ -4034,9 +4069,13 @@ function rx(d){cd=d;
               ' '+badgePop(x)+' '+badgeReuse(x);
           }).join('<br>')+'</div>'+
           /* 🔴 클릭 영역이 **글자 폭만큼**이라 누르기 어려웠다(대표님 2026-07-17) → 줄 전체·높이 있는 버튼으로 */
-          '<div onclick="cxmore('+st+')" style="font-size:11px;color:var(--bl);cursor:pointer;margin-top:7px;padding:8px 10px;'+
+          '<div style="display:flex;gap:6px;margin-top:7px;">'+
+          '<div onclick="cxmore('+st+')" style="flex:1;font-size:11px;color:var(--bl);cursor:pointer;padding:8px 10px;'+
           'border:1px solid var(--line);border-radius:7px;text-align:center;background:var(--card);">'+
           (CXOPEN===st?'접기 ▴':'펼쳐 보기 ▾ — 호텔별 확정·취소·금액')+'</div>'+
+          '<div onclick="toQueue(\''+encodeURIComponent(JSON.stringify({t:head3+' TOP3 — '+stN3(st),s:st,k:'star'}))+'\')" '+
+          'style="font-size:11px;color:#fff;cursor:pointer;padding:8px 14px;border-radius:7px;text-align:center;'+
+          'background:var(--em);font-weight:600;white-space:nowrap;">＋ 전략으로</div></div>'+
           (CXOPEN===st?cxDetail(g3.list,PT):'')+
           '</div>';
      });
@@ -4063,7 +4102,10 @@ function rx(d){cd=d;
           (PFP&&PFP.m?' · '+(((PFP.m-3)+11)%12+1)+'월 발행 → '+PFP.m+'월 피크':'')+'</div>'+
           '<div style="font-size:11.5px;line-height:1.9;">'+list.slice(0,3).map(function(x,k){
             return '<span style="color:var(--muted);">'+(k+1)+'</span> '+x.name+' <span style="font-size:10px;color:var(--muted);">'+(x.star>0?String(x.star).replace('.0','')+'성':'')+'</span> '+badgePop(x)+' '+badgeReuse(x);
-          }).join('<br>')+'</div></div>';
+          }).join('<br>')+'</div>'+
+          '<div onclick="toQueue(\''+encodeURIComponent(JSON.stringify({t:d+' '+word+' TOP3',s:null,k:pt}))+'\')" '+
+          'style="font-size:11px;color:#fff;cursor:pointer;margin-top:7px;padding:8px 10px;border-radius:7px;'+
+          'text-align:center;background:var(--em);font-weight:600;">＋ 전략으로</div></div>';
      });
      h+='<div style="font-size:10px;color:var(--muted);margin-top:4px;">성급 축 = <b>호텔·리조트만</b> · 아파트·호스텔·게하는 콘텐츠 유형이 달라 뺐습니다(장부엔 있습니다)<br>제목에 성급을 안 넣습니다 — 실측 `오사카 4성급 호텔 추천` 0.08. 사람은 「'+((dRow&&dRow.head)||(d+' 호텔'))+'」로 찾습니다</div></div>';
    }

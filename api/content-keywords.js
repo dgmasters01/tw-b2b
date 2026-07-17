@@ -331,7 +331,8 @@ async function survey(sb, req, res, who) {
     no_address: noAddr.length ? {
       hotels: noAddr.reduce((s2, c) => s2 + c.hotels, 0),
       bookings: noAddr.reduce((s2, c) => s2 + c.bookings, 0),
-      names: noAddr.flatMap((c) => (c.top_hotel ? [c.top_hotel] : [])),
+      // 🔴 덩어리마다 대표 1개만 담으면 3곳 중 1개만 보인다 — 전부 담는다
+      names: noName.filter((r) => !r.address).map((r) => r.hotel_name),
     } : null,
     // 오매칭 = **고칠 것**. 미개척과 섞지 않는다
     wrong_city: wrongCity.length ? {

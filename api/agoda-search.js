@@ -216,7 +216,10 @@ async function fetchAgodaCity(cityId, lat, lng, apiKey) {
         dailyRate: { maximum: 100000, minimum: 1 },
         discountOnly: false,
         language: 'en-us',
-        maxResult: 100,
+        // 🔴 2026-07-17 — 아고다 공식 문서: `maxResult · Integer (**1-30**) · Default 10`.
+        //    **100 을 보내고 있었다** → 규격 검사 실패 → `911 No search result` →
+        //    **매니저 가입 흐름에서 아고다 매칭이 통째로 비어 왔다**(= 링크를 못 만든다). 💰
+        maxResult: 30,
         minimumReviewScore: 0,
         minimumStarRating: 0,
         occupancy: { numberOfAdult: 2, numberOfChildren: 0 }
@@ -233,7 +236,8 @@ async function fetchAgodaCity(cityId, lat, lng, apiKey) {
       headers: {
         'Authorization': apiKey,
         'Content-Type': 'application/json',
-        'Accept': 'application/json'
+        'Accept': 'application/json',
+        'Accept-Encoding': 'gzip,deflate'   // 아고다 문서 요구(필수)
       },
       body: JSON.stringify(body)
     });
@@ -418,94 +422,94 @@ function normalizeAgodaHotel(h) {
 // Agoda city slug → cityId 매핑 (process-hotel.js와 동기화 유지)
 // ============================================================
 const AGODA_CITY_MAP = {
-  // 동남아
-  'singapore': 9395,
-  'bangkok': 4064,
-  'pattaya': 16579,
-  'phuket': 17196,
-  'krabi': 16578,
-  'chiang-mai': 16193,
-  'kuala-lumpur': 13388,
-  'penang': 17104,
-  'langkawi': 17184,
-  'jakarta': 9595,
+  // 🔴 2026-07-17 — **표 전체가 틀려 있었다.** 아고다 「숙소 데이터 파일」의 city_id 로 전부 바로잡음.
+  //    실측: osaka 14267→9590 · tokyo 14266→5085 · kyoto 14268→1784 · fukuoka 14269→16527
+  //    🚨 **bangkok(4064) 과 singapore(9395) 가 서로 뒤바뀌어 있었다.**
+  //    → 틀린 번호 = 아고다가 `911 No search result` → **매니저 가입 흐름의 아고다 매칭이 계속 실패**했다.
+  //    파일이 진짜 번호를 갖고 있다. **손으로 적지 않는다**(D-065 54-0V: 목록은 세는 것).
+  //    갱신: `python3 _os/tools/agoda-cityid-sync.py` (파일 받은 뒤 돌린다)
+  'abu-dhabi': 10182,   // 🔴 was 17175
+  'amsterdam': 13868,   // 🔴 was 17203
+  'auckland': 3750,   // 🔴 was 17250
   'bali': 17193,
-  'denpasar': 17193,
-  'ubud': 17191,
-  'seminyak': 17190,
-  'yogyakarta': 17178,
-  'manila': 9531,
-  'cebu': 17192,
-  'boracay': 18002,
-  'palawan': 17170,
-  'ho-chi-minh-city': 9590,
-  'ho-chi-minh': 9590,
-  'hanoi': 22834,
-  'da-nang': 18074,
-  'nha-trang': 17120,
-  'phu-quoc': 19132,
-  'hoi-an': 18075,
-  // 동아시아
-  'tokyo': 14266,
-  'osaka': 14267,
-  'kyoto': 14268,
-  'fukuoka': 14269,
-  'sapporo': 14270,
-  'okinawa': 17134,
-  'nagoya': 14271,
-  'yokohama': 14272,
-  'seoul': 14179,
-  'busan': 14180,
-  'jeju': 14181,
-  'jeju-island': 14181,
-  'incheon': 14182,
-  'taipei': 9598,
-  'taichung': 17117,
-  'kaohsiung': 17118,
-  'hong-kong': 9540,
-  'macau': 14250,
-  'macao': 14250,
-  // 남아시아
-  'colombo': 17137,
-  'kandy': 17139,
-  'galle': 17140,
-  'bentota': 17141,
-  'negombo': 17142,
-  'mumbai': 9560,
-  'new-delhi': 9561,
-  'delhi': 9561,
-  'goa': 17150,
-  'bengaluru': 17151,
-  'bangalore': 17151,
-  'kathmandu': 17160,
-  'male': 17170,
-  'maldives': 17170,
-  // 중동
-  'dubai': 9395,
-  'abu-dhabi': 17175,
-  'doha': 17177,
-  // 유럽 주요
-  'london': 4084,
-  'paris': 9395,
-  'rome': 17200,
-  'barcelona': 17201,
-  'madrid': 17202,
-  'amsterdam': 17203,
-  'berlin': 17204,
-  // 미주 주요
-  'new-york': 9395,
-  'los-angeles': 17220,
-  'san-francisco': 17221,
-  'las-vegas': 17222,
-  'honolulu': 17223,
-  'hawaii': 17223,
-  'toronto': 17230,
-  'vancouver': 17231,
-  // 오세아니아
-  'sydney': 17240,
-  'melbourne': 17241,
-  'brisbane': 17242,
-  'gold-coast': 17243,
-  'auckland': 17250,
-  'queenstown': 17251
+  'bangalore': 4923,   // 🔴 was 17151
+  'bangkok': 9395,   // 🔴 was 4064
+  'barcelona': 2002,   // 🔴 was 17201
+  'bentota': 14130,   // 🔴 was 17141
+  'berlin': 2366,   // 🔴 was 17204
+  'brisbane': 9466,   // 🔴 was 17242
+  'busan': 17172,   // 🔴 was 14180
+  'cebu': 4001,   // 🔴 was 17192
+  'chiang-mai': 7401,   // 🔴 was 16193
+  'colombo': 7835,   // 🔴 was 17137
+  'da-nang': 16440,   // 🔴 was 18074
+  'doha': 4472,   // 🔴 was 17177
+  'dubai': 2994,   // 🔴 was 9395
+  'fukuoka': 16527,   // 🔴 was 14269
+  'galle': 19768,   // 🔴 was 17140
+  'goa': 11304,   // 🔴 was 17150
+  'gold-coast': 16611,   // 🔴 was 17243
+  'hanoi': 2758,   // 🔴 was 22834
+  'ho-chi-minh-city': 13170,   // 🔴 was 9590
+  'hoi-an': 16552,   // 🔴 was 18075
+  'hong-kong': 16808,   // 🔴 was 9540
+  'incheon': 17234,   // 🔴 was 14182
+  'jakarta': 8691,   // 🔴 was 9595
+  'jeju': 16901,   // 🔴 was 14181
+  'kandy': 11158,   // 🔴 was 17139
+  'kaohsiung': 756,   // 🔴 was 17118
+  'kathmandu': 2487,   // 🔴 was 17160
+  'krabi': 14865,   // 🔴 was 16578
+  'kuala-lumpur': 14524,   // 🔴 was 13388
+  'kyoto': 1784,   // 🔴 was 14268
+  'langkawi': 16928,   // 🔴 was 17184
+  'las-vegas': 724103,   // 🔴 was 17222
+  'london': 233,   // 🔴 was 4084
+  'los-angeles': 19585,   // 🔴 was 17220
+  'macau': 21397,   // 🔴 was 14250
+  'madrid': 5531,   // 🔴 was 17202
+  'male': 176160,   // 🔴 was 17170
+  'manila': 1622,   // 🔴 was 9531
+  'melbourne': 10372,   // 🔴 was 17241
+  'mumbai': 16850,   // 🔴 was 9560
+  'nagoya': 13740,   // 🔴 was 14271
+  'negombo': 10136,   // 🔴 was 17142
+  'new-delhi': 14552,   // 🔴 was 9561
+  'nha-trang': 2679,   // 🔴 was 17120
+  'osaka': 9590,   // 🔴 was 14267
+  'palawan': 16185,   // 🔴 was 17170
+  'paris': 15470,   // 🔴 was 9395
+  'pattaya': 8584,   // 🔴 was 16579
+  'penang': 16087,   // 🔴 was 17104
+  'phuket': 16056,   // 🔴 was 17196
+  'queenstown': 2566,   // 🔴 was 17251
+  'rome': 16594,   // 🔴 was 17200
+  'san-francisco': 103114,   // 🔴 was 17221
+  'sapporo': 3435,   // 🔴 was 14270
+  'seoul': 14690,   // 🔴 was 14179
+  'singapore': 4064,   // 🔴 was 9395
+  'sydney': 14370,   // 🔴 was 17240
+  'taichung': 12080,   // 🔴 was 17117
+  'taipei': 4951,   // 🔴 was 9598
+  'tokyo': 5085,   // 🔴 was 14266
+  'yogyakarta': 14018,   // 🔴 was 17178
+  'yokohama': 4590,   // 🔴 was 14272
+  // ⚠️ 아고다 파일에서 이름을 못 찾은 도시 — 번호를 **지어내지 않는다**. 확인 후 넣을 것:
+  //   'denpasar'
+  //   'ubud'
+  //   'seminyak'
+  //   'boracay'
+  //   'ho-chi-minh'
+  //   'phu-quoc'
+  //   'okinawa'
+  //   'jeju-island'
+  //   'macao'
+  //   'delhi'
+  //   'bengaluru'
+  //   'maldives'
+  //   'new-york'
+  //   'honolulu'
+  //   'hawaii'
+  //   'toronto'
+  //   'vancouver'
 };

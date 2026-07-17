@@ -1009,16 +1009,18 @@ function rx(d){cd=d;
    }).join('')+'</div>';
    var g2=byStar[HRSTAR], mxr=g2.list[0].revenue||1;
    (HRMORE?g2.list:g2.list.slice(0,5)).forEach(function(r,i){
+     /* 🔴 「건」 = **확정 예약**이다(취소 뺌). 대표님 확정 원칙: *"취소를 성과로 안 셈"*.
+        실측 2026-07-17: 난바 590건 중 **257건(44%)이 취소**였다. 취소를 세면 순위가 거짓이 된다. */
      h+='<div style="display:grid;grid-template-columns:14px 1fr 88px;gap:7px;align-items:center;padding:3px 0;">'+
         '<span style="font-size:10px;color:var(--muted);">'+(i+1)+'</span>'+
         '<div><div style="font-size:11.5px;">'+r.name+'</div>'+
         '<div style="height:7px;background:var(--card2);border-radius:2px;overflow:hidden;margin-top:2px;"><div style="width:'+Math.max(1,Math.round(r.revenue/mxr*100))+'%;height:100%;background:var(--bl);border-radius:0 2px 2px 0;"></div></div></div>'+
         '<span style="font-size:11px;color:var(--sub);text-align:right;">$'+r.revenue.toLocaleString()+
-        '<br><span style="font-size:9.5px;color:var(--muted);">'+r.bookings+'건</span></span></div>';
+        '<br><span style="font-size:9.5px;color:var(--muted);">확정 '+r.bookings+'건</span></span></div>';
    });
    if(g2.list.length>5) h+='<div onclick="hrmore()" style="font-size:10.5px;color:var(--bl);cursor:pointer;padding:5px 0;">'+
      (HRMORE?'접기 ▴':'외 '+(g2.list.length-5)+'곳 더 보기 ▾')+'</div>';
-   h+='<div style="font-size:10px;color:var(--muted);margin-top:5px;">칩 순서 = 이 지역 매출 순 · 예약금액 기준 · 호텔명은 아고다 한국어(없으면 원래 이름)</div></div>';
+   h+='<div style="font-size:10px;color:var(--muted);margin-top:5px;">칩 순서 = 이 지역 매출 순 · <b>확정 예약만</b>(취소 뺌) · 호텔명은 아고다 한국어(없으면 원래 이름)</div></div>';
  }
  /* 🔴 4-10 「③ 자동 채택 태그란」 삭제 (2026-07-17 대표님) — **여기가 아니다.**
     이 페이지는 대표님이 정한 대로 **기본 자료 보는 곳**(66). 태그란은 **만들 때 쓰는 것** = 올리기·전략 자리.

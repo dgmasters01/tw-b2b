@@ -3658,7 +3658,9 @@ function ser12(series){
   return a;
 }
 function pkOf(a){ if(!a) return null; var mx=-1,k=null; a.forEach(function(v,i){ if(v!==null&&v>mx){mx=v;k=i+1;} }); return k; }
-var SR=null, TR3=null, KWMORE=false, HRSTAR=null, HRMORE=false;
+var SR=null, TR3=null, KWMORE=false, HRSTAR=null, HRMORE=false, HFSTAR=null, HFMORE={};
+function hfpick(k){ HFSTAR=k; HFMORE={}; rx(cd); }
+function hfmore(k){ HFMORE[k]=!HFMORE[k]; rx(cd); }
 function hrpick(k){ HRSTAR=k; HRMORE=false; rx(cd); }
 function hrmore(){ HRMORE=!HRMORE; rx(cd); }
 /* 검색어 더 보기 — 이 지역 검색어는 이 블록에서 전부 본다 */
@@ -3863,7 +3865,10 @@ function rx(d){cd=d;
        성급이 6개로 늘어도 **칩 하나만** 늘고 화면 길이는 그대로다.
     🔴 **칩 순서 = 그 지역 매출 순.** 박지 않는다 — 실측: 난바 4성 1등 · 신사이바시 5성 1등 ·
        서울 한강은 **5성 → 3성 → 4성**. 난바 순서를 다른 지역에 박으면 거짓말이 된다(54-0X). */
- var HR=(DS&&DS.hotels)||[];
+ /* 🔴 매출 순위는 **돈**이다 → `bucket='revenue'` 만. 취소만 있는 호텔은 4-14(장부)에서 본다.
+    두 블록을 섞으면 대표님이 어느 게 매출인지 매번 구분해야 한다(대표님 2026-07-17). */
+ var HRALL=(DS&&DS.hotels)||[];
+ var HR=HRALL.filter(function(x){return x.bucket==='revenue';});
  if(HR.length){
    var byStar={};
    HR.forEach(function(x){ var k=x.star||0; (byStar[k]=byStar[k]||{rev:0,n:0,list:[]}); byStar[k].rev+=x.revenue; byStar[k].n++; byStar[k].list.push(x); });
@@ -3915,16 +3920,61 @@ function rx(d){cd=d;
     '<div style="font-size:10px;color:var(--muted);margin:6px 0;">넣을 키워드: 오사카 호텔 · 오사카 숙소 · 오사카 숙소 추천 · 난바 호텔 … (482자)</div>'+
     '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;"><button class="btn" onclick="add()">＋ 이걸로 만들기</button>'+
     '<span style="font-size:10px;color:var(--muted);">→ '+curLbl()+' 발행 목표 + 근거 4종 함께 담김</span></div></div></div>';
- h+='<div class="bk"><div class="bh">호텔 후보 <span style="font-size:10px;color:var(--muted);font-weight:400;">— 축이 아니라 출력</span><span class="no" style="margin-left:auto;">4-14 🆕</span></div>'+
-    '<div class="evs" style="margin-bottom:7px;">난바 검색자는 <b style="color:var(--sub);">아직 호텔을 못 정한 사람</b>. 우리가 여러 호텔을 골라 보여줍니다.</div>';
- [['Red Roof Inn & Suites Osaka Namba',83,'4.0성','지금가능',''],['APA Hotel Namba-Eki Higashi',47,'4.0성','아직못씀','9/2 풀림'],['Sotetsu Grand Fresa Osaka Namba',46,'4.0성','지금가능',''],['Richmond Hotel Namba Daikokucho',40,'4.0성','지금가능',''],['Hotel IL Cuore Namba',31,'4.0성','노출없음','']].forEach(function(x,i){
-  var RS={'지금가능':'background:var(--emd);color:var(--em)','아직못씀':'background:var(--amd);color:var(--am)','노출없음':'background:var(--card2);color:var(--muted)'};
-  h+='<div style="display:flex;align-items:center;gap:7px;padding:6px 0;border-bottom:0.5px solid var(--line);">'+
-     '<span style="font-size:11px;color:var(--muted);width:16px;">'+(i+1)+'</span>'+
-     '<span style="font-size:12px;flex:1;'+(x[3]==='노출없음'?'color:var(--sub);':'')+'">'+x[0]+'<small style="display:block;color:var(--muted);font-size:9px;">좌표 판정 난바 · '+x[2]+' · 예약 '+x[1]+'건</small></span>'+
-     '<span style="font-size:10px;padding:2px 8px;border-radius:20px;white-space:nowrap;'+RS[x[3]]+'">'+x[3]+(x[4]?' · '+x[4]:'')+'</span></div>';});
- h+='<div style="font-size:10px;color:var(--muted);margin-top:6px;">재사용 상태 = 마지막 노출 + 183일 (D-062). 오사카 실측: 지금가능 250 · 아직못씀 2 · 노출없음 3</div>'+
-    '<div style="font-size:10px;color:var(--muted);margin-top:3px;">TOP3 = 예약순 상위 3개 · 성급 필터로 각도 조정 가능</div></div>';
+ /* ── 4-14 호텔 목록 = **장부**다 (대표님 2026-07-17 확정).
+    *"취소되어서 매출이 없다고 하더라도 표시는 되어야 됨. 그 호텔을 눌렀을 때
+      **우리한테 예약했다가 취소했구나.** 이것도 정보니깐."*
+    🔴 4-4b(매출 순위)와 **다른 물건**이다. 저긴 돈, 여긴 장부. 섞지 않는다.
+    🔴 네 갈래를 **색과 이름으로 갈라 둔다** — 대표님: *"헷갈리면 안 됨."*
+    실측(난바 108곳): 매출 남 86 · 취소만 21 · 예약 없음 1 · 아직 안 본 곳은 아고다 재고에서.
+    옛 코드는 호텔 이름까지 박은 목업이었다(Red Roof / APA / Sotetsu — 어느 지역을 눌러도 같았다). */
+ if(HRALL.length||ST.length){
+   var bs={revenue:[],cancelled_only:[],no_booking:[]};
+   HRALL.forEach(function(x){ if(HFSTAR===null||x.star===HFSTAR) (bs[x.bucket]||[]).push(x); });
+   var stN2=function(v){ return v>0?(String(v).replace('.0','')+'성'):'무성급'; };
+   var stars2=ST.filter(function(r){return r.ours>0;}).sort(function(a,b){return b.ours-a.ours;});
+   h+='<div class="bk"><div class="bh">호텔 목록 <span style="font-size:10px;color:var(--muted);font-weight:400;">— 우리 장부 · 취소만 있는 곳도 보여줍니다</span><span class="no" style="margin-left:auto;">4-14</span></div>';
+   h+='<div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px;">'+
+      '<span onclick="hfpick(null)" style="font-size:11px;padding:4px 10px;border-radius:20px;cursor:pointer;'+(HFSTAR===null?'background:var(--bld);color:var(--bl);font-weight:600;':'background:var(--card2);color:var(--muted);')+'">전체</span>'+
+      stars2.map(function(r){
+        return '<span onclick="hfpick('+r.star+')" style="font-size:11px;padding:4px 10px;border-radius:20px;cursor:pointer;'+
+          (HFSTAR===r.star?'background:var(--bld);color:var(--bl);font-weight:600;':'background:var(--card2);color:var(--muted);')+
+          '">'+stN2(r.star)+' '+r.ours+'곳</span>';
+      }).join('')+'</div>';
+   var grp=function(key,dot,col,title,note,fmt){
+     var a=bs[key]||[]; if(!a.length) return '';
+     var o='<div style="display:flex;align-items:center;gap:6px;margin:8px 0 4px;">'+
+       '<span style="width:7px;height:7px;border-radius:50%;background:'+col+';"></span>'+
+       '<span style="font-size:11px;color:'+col+';font-weight:600;">'+title+' '+a.length+'곳</span>'+
+       (note?'<span style="font-size:10px;color:var(--muted);">'+note+'</span>':'')+'</div>';
+     (HFMORE[key]?a:a.slice(0,4)).forEach(function(r){
+       o+='<div style="display:flex;align-items:center;gap:7px;padding:3px 0;font-size:11.5px;">'+
+          '<span style="flex:1;">'+r.name+'</span>'+
+          '<span style="font-size:10px;color:var(--muted);">'+stN2(r.star)+'</span>'+
+          '<span style="font-size:10.5px;color:var(--sub);min-width:96px;text-align:right;">'+fmt(r)+'</span></div>';
+     });
+     if(a.length>4) o+='<div onclick="hfmore(\''+key+'\')" style="font-size:10px;color:var(--bl);cursor:pointer;padding:3px 0;">'+
+       (HFMORE[key]?'접기 ▴':'외 '+(a.length-4)+'곳 더 보기 ▾')+'</div>';
+     return o;
+   };
+   h+=grp('revenue','','var(--em)','매출 남','확정 예약으로 돈이 남',function(r){return '확정 '+r.bookings+'건 · $'+r.revenue.toLocaleString();});
+   h+=grp('cancelled_only','','var(--am)','예약 왔다가 취소만','붙긴 붙는다는 증거',function(r){return '예약 '+r.cancelled+'건 · 전부 취소';});
+   h+=grp('no_booking','','var(--muted)','예약 없음','장부에만 있음',function(r){return '—';});
+   /* 아직 안 본 곳 = 아고다 재고 − 우리. 성급별로 센다(4-1과 같은 재료) */
+   var un=ST.filter(function(r){ return (HFSTAR===null||r.star===HFSTAR) && r.agoda_total>r.ours; })
+           .sort(function(a,b){return (b.agoda_total-b.ours)-(a.agoda_total-a.ours);});
+   if(un.length){
+     h+='<div style="display:flex;align-items:center;gap:6px;margin:8px 0 4px;">'+
+        '<span style="width:7px;height:7px;border-radius:50%;background:var(--bl);"></span>'+
+        '<span style="font-size:11px;color:var(--bl);font-weight:600;">아직 안 본 곳</span>'+
+        '<span style="font-size:10px;color:var(--muted);">아고다엔 있는데 우리 장부에 없음</span></div>'+
+        '<div style="display:flex;gap:6px;flex-wrap:wrap;">'+un.map(function(r){
+          return '<span class="pil" style="background:var(--bld);color:var(--bl);">'+stN2(r.star)+' '+(r.agoda_total-r.ours).toLocaleString()+'곳</span>';
+        }).join('')+'</div>';
+   }
+   h+='<div style="font-size:10px;color:var(--muted);margin-top:7px;">매출 순위(위)는 <b>돈</b> · 이 목록은 <b>장부</b>입니다 — 취소만 있는 곳도 우리가 아는 호텔입니다</div></div>';
+ }
+
+
  document.getElementById('d4').innerHTML=h;
  drawKw3();   /* 4-4 3선 그래프 — 화면을 그린 뒤에 캔버스가 생긴다 */ks();}
 
@@ -4071,7 +4121,7 @@ function vw(w,a,b){
  if(w==='m'){sh('s1');document.getElementById('bc').innerHTML='';return;}
  if(w==='c'){rc(a);sh('s2');bc('c',a);return;}
  if(w==='d'){if(b)cc=b;rdd(a);sh('s3');bc('d',a);return;}
- if(w==='x'){KWMORE=false;HRSTAR=null;HRMORE=false;rx(a);sh('s4');bc('x',a);return;}   /* 다른 지역으로 가면 「더 보기」는 접힌 채로 시작 */
+ if(w==='x'){KWMORE=false;HRSTAR=null;HRMORE=false;HFSTAR=null;HFMORE={};rx(a);sh('s4');bc('x',a);return;}   /* 다른 지역으로 가면 「더 보기」는 접힌 채로 시작 */
  if(w==='r'){rrs(a);sh('s6');document.getElementById('bc').innerHTML='<a onclick="go(\'m\')">홈</a> › <span>한국어 · 한국</span> › <b>'+a+'</b> › <b>조사 시작</b>';return;}}
 // A안 — 폰 뒤로가기 지원. 지금까지 폰 뒤로 버튼을 누르면 **앱을 통째로 나갔다**(대표님 2026-07-16).
 // 헌법 원칙 3 "핸드폰 한 대로 모든 작업". vw()=그리기 / go()=그리기+이력쌓기 로 분리.

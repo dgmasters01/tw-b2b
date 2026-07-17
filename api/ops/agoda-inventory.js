@@ -89,7 +89,11 @@ export default async function handler(req, res) {
     if (!r.ok) return res.status(200).json({ ok: false, step: 'agoda', status: r.status, body: raw.slice(0, 400) });
     let d; try { d = JSON.parse(raw); } catch { return res.status(200).json({ ok: false, step: 'parse', body: raw.slice(0, 400) }); }
 
+    // 🔴 0개가 왔다 — 응답을 그대로 보여준다. "결과 없음"과 "우리가 잘못 물음"은 다르다
     const list = d.results || [];
+    if (!list.length && req.query.debug === '1') {
+      return res.status(200).json({ ok: true, debug: true, city, cityId, sent: body, agoda_raw: d });
+    }
     const sample = list.slice(0, 3).map((h) => ({
       id: h.hotelId, name: h.hotelName, star: h.starRating,
       lat: h.latitude, lng: h.longitude, rate: h.dailyRate,

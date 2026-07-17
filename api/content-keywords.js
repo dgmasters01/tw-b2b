@@ -264,10 +264,12 @@ async function survey(sb, req, res, who) {
   const aliasRes = await sb.from('city_alias')
     .select('city_key, label')
     .eq('target_code', target)
-    .like('city_key', `cc:japan|osaka|d:%`);
+    .like('city_key', `cc:japan|osaka|%`);      // d: 구 · t: 동네 — 둘 다
   // 🔴 사전 열쇠는 `Naniwa Ward`(구글 주소 그대로), 여기 이름은 `Naniwa`(구만 뽑은 것) — 어긋난다.
   //    둘 다로 찾는다. 없으면 **원래 이름 그대로**(지어내지 않는다).
-  const alias = new Map((aliasRes.data || []).map((r) => [r.city_key.split('|d:')[1], r.label]));
+  const alias = new Map((aliasRes.data || [])
+    .map((r) => [r.city_key.split('|d:')[1] || r.city_key.split('|t:')[1], r.label])
+    .filter((x) => x[0]));
   const say = (n) => alias.get(n) || alias.get(`${n} Ward`) || n;
 
   const noName = (dRes.data || []).filter((r) => !r.district);
@@ -299,7 +301,8 @@ async function survey(sb, req, res, who) {
     return {
       ward: wardLabel,                               // 구 — 구글 주소에서 오고, 이름은 타겟 언어(city_alias)
       ward_src: ward,                                // 원본(영어) — 덮어쓰지 않는다
-      towns: towns.slice(0, 4),                      // 동네 — 이름 후보
+      towns: towns.slice(0, 4).map(say),             // 동네 — 타겟 언어(city_alias)
+      towns_src: towns.slice(0, 4),                  // 원본(영어) — 안 덮어쓴다
       hotels: hs.length,
       bookings: hs.reduce((s2, r) => s2 + (r.booking_count || 0), 0),
       published: hs.filter((r) => r.published_at).length,

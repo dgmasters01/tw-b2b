@@ -44,7 +44,10 @@ export default async function handler(req, res) {
   const city = q.city || null;
 
   const started = new Date().toISOString();
-  const { status, body } = await runGeoFill({ city, limit, dry_run: dryRun });
+  // 🔴 retry=1 — 한 번 못 찾은 호텔(not_found)을 다시 본다 (2026-07-17 대표님).
+  //    "이런 경우 추후 따로 찾아서 줄 수 있도록 무언가 장치가 필요할 것 같은데."
+  const retry = q.retry === '1' || q.retry === 'true';
+  const { status, body } = await runGeoFill({ city, limit, dry_run: dryRun, retry });
 
   let remaining = null;
   try { remaining = await countRemaining(); } catch (e) { /* 보고용일 뿐 */ }

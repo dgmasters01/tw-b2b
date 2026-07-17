@@ -274,6 +274,8 @@ async function survey(sb, req, res, who) {
       km: dist === null ? null : Math.round(dist * 10) / 10,
       zone: zoneOf(dist),        // 이 도시 반경(r90) 기준. 도시마다 다르다
       surveyed: !!head,                                    // 대표어가 검색어 표에 있나
+      // ⑤ 지역 수요 트렌드 — 이 지역 대표어의 월별 시계열(㊾ trend.series). 🔴 옛 화면은 3개 도시를 코드에 박아뒀다
+      series: (t && t.series) || null,
       demand: d,
       measured: !!(t && t.measured),
       skip_reason: t ? t.skip_reason : null,
@@ -403,6 +405,10 @@ async function survey(sb, req, res, who) {
     snapshot: snap, months: snaps.map((s) => s.ym),
     counts, rows: rows.slice(0, 30), rows_total: rows.length, travel, districts,
     city_radius: { r90, hotels_with_geo: pts.length },   // 이 도시에서 손님이 자는 반경
+    // 도시 대표어 시계열 — 지역 선과 겹쳐 그린다(⑤). 지역 계절 ≠ 도시 계절을 눈으로 본다
+    city_series: (() => { const a = alive.find((k) => k.is_anchor) || alive.find((k) => k.text === (snap && snap.anchor_text));
+      const t2 = a && tByKw.get(a.id); return (t2 && t2.series) || null; })(),
+    city_anchor_text: (snap && snap.anchor_text) || null,
     // 🔑 도시 분모 — 아고다가 이 도시에서 파는 숙소 전체
     // 🔑 도시 재고 한 줄의 재료 — 화면은 `stk()` 한 함수로만 그린다(형태 통일 · 대표님 2026-07-17)
     city_inventory: { agoda_total: inv.length, ours: (dRes.data || []).length,

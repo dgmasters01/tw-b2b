@@ -253,10 +253,11 @@ var POP={'오사카':[40.8,48.2]};   /* [작년 같은 기간, 올해 같은 기
    이제 창구(?view=survey → districts)가 준다. */
 var DIST=[];
 var LEAD={'오사카':[22,95,583],'도쿄':[20,96,192],'후쿠오카':[18,96,307],'다낭':[18,94,140],'방콕':[14,92,273],'치앙마이':[25,88,142]};
-var CT={'일본':['오사카','도쿄','후쿠오카'],'베트남':['다낭','호치민','나트랑'],'태국':['방콕','치앙마이']};
-// 나라별 확정예약 도시 총수 — DB 실측(2026-07-16). "외 N곳" 계산용. 추측 아님.
-// 전체 도시 135곳 → 메인에 도시만 쭉 나열 불가(C안 기각). D-065 ㉞
-var CTN={'일본':30,'베트남':13,'태국':8};
+/* 🔴 2026-07-17 (D-065 64) — 여기 **나라·도시 목록이 박혀 있었다**: 일본=오사카·도쿄·후쿠오카 3곳.
+   실측: 우리가 예약을 받은 일본 도시는 **35곳**이다. 화면은 3곳만 보여주고 **감췄다고 말하지도 않았다**.
+   → 목록은 「세는 것」이지 「적는 것」이 아니다(54-0V). 이제 창구(?view=cities)가 DB에서 세어서 준다.
+   CT[나라]=[도시…](예약순) · CTN[나라]=그 나라 도시 수 · INV[도시]={아고다 전체·우리·비율·미개척} */
+var CT={}, CTN={}, INV={}, CTERR=null;
 // 오늘부터 12개월 자동 생성 — 매달 창이 한 칸씩 밀린다. 사람이 손대지 않는다. (D-065 ㉗)
 // 프리뷰라 날짜 고정. 실제 구현은 new Date().
 var TODAY=new Date(2026,6,15);
@@ -294,6 +295,38 @@ function authHeader(){
   }catch(e){ return Promise.resolve(null); }
 }
 
+/* 나라·도시 목록 + 도시 분모 — DB(?view=cities). 박지 않는다.
+   분모 = 아고다가 그 도시에서 파는 숙소 전체(한국어 파일 기준 · D-065 63·64).
+   🔴 우리 장부(hotels)는 **예약이 붙은 곳만**이라 분모가 아니다 — 그래서 이 숫자가 필요했다. */
+function loadCities(){
+  return authHeader().then(function(hd){
+  return fetch('/api/content-keywords?view=cities&target=ko',{credentials:'same-origin',headers:hd||{}})
+    .then(function(r){return r.json();})
+    .then(function(d){
+      /* 🔴 못 받았으면 **옛 목록으로 되돌리지 않는다.** 지어낸 목록이 화면에 서면 그게 앵커가 된다.
+         못 받았다고 화면이 말한다(2026-07-17 사고: 401을 삼키고 영원히 "불러오는 중"). */
+      if(!d||!d.ok){ CTERR=(d&&d.error)||'도시 목록을 불러오지 못했습니다'; rd(); return; }
+      CTERR=null; CT={}; CTN={}; INV={};
+      d.countries.forEach(function(c){
+        CT[c.country]=c.cities.map(function(x){return x.name;});     /* 예약순 — 창구가 정렬해서 준다 */
+        CTN[c.country]=c.cities.length;
+        c.cities.forEach(function(x){ INV[x.name]=x; });
+      });
+      rd(); if(cc) rc(cc);
+    })
+    .catch(function(e){ CTERR=String(e&&e.message||e); rd(); });
+  });
+}
+/* 「아고다 N곳 중 우리 M곳」 한 줄 — 도시 분모. 없으면 **없다고 말한다** */
+function invLine(x){
+  var v=INV[x]; if(!v||!v.agoda_total) return '';
+  return '<div style="font-size:11.5px;color:var(--sub);margin-top:3px;">'
+    +'아고다 <b>'+v.agoda_total.toLocaleString()+'곳</b> 중 우리가 아는 건 <b>'+v.ours.toLocaleString()+'곳</b>'
+    +' <span style="color:var(--muted);">('+v.share+'%)</span>'
+    +(v.undiscovered?' · <b style="color:var(--am);">아직 안 본 곳 '+v.undiscovered.toLocaleString()+'</b>':'')
+    +(v.has_detail?'':' <span class="pil" style="background:var(--amd);color:var(--am);">도시 개수만 · 지역별은 아직</span>')
+    +'</div>';
+}
 function loadSnap(){
   return authHeader().then(function(hd){
   return fetch('/api/content-keywords?view=survey&city='+encodeURIComponent('cc:japan|osaka'),
@@ -352,7 +385,13 @@ function rd(){var h='',yrs=[];MOS.forEach(function(o){if(yrs.indexOf(o.y)<0)yrs.
  // (구: 가장 급한 도시 1개만 → 대표님 "도쿄는 어디?" 2026-07-15)
  var RK={go:0,wt:1,un:2,lt:3},LB={go:'집중',wt:'대기',un:'모름',lt:'늦음'},
      CL={go:'g-go',wt:'g-wt',un:'g-un',lt:'g-lt'},CD={go:'var(--em)',wt:'var(--muted)',un:'var(--am)',lt:'var(--rd)'};
- h='';Object.keys(CT).forEach(function(c){
+ h='';
+ if(!Object.keys(CT).length){
+   document.getElementById('cl').innerHTML='<div class="rw"><div class="mn"><div class="wh">'
+     +(CTERR?('나라 목록을 불러오지 못했습니다 — '+CTERR):'나라 목록을 불러오는 중…')+'</div></div></div>';
+   return;
+ }
+ Object.keys(CT).forEach(function(c){
   var lst=CT[c].map(function(x){return {c:x,g:gate(x,tm)};}).sort(function(a,b){return RK[a.g.s]-RK[b.g.s];});
   var b=lst[0];
   var cps=lst.slice(0,3).map(function(o){
@@ -389,6 +428,11 @@ function ev2(c){document.getElementById('ev2').innerHTML=evHTML(c);}
 
 function rc(c){cc=c;document.getElementById('c2t').innerHTML=c+' · 도시 <span class="no">2-1~2-5</span>';
  var tm=curTM(),h='';
+ if(!CT[c]||!CT[c].length){
+   document.getElementById('c2l').innerHTML='<div class="rw"><div class="mn"><div class="wh">'
+     +(CTERR?('도시 목록을 불러오지 못했습니다 — '+CTERR):'도시 목록을 불러오는 중…')+'</div></div></div>';
+   document.getElementById('ev2').innerHTML=''; return;
+ }
  CT[c].forEach(function(x){var g=gate(x,tm),l=LEAD[x];
   var cl={go:'g-go',wt:'g-wt',un:'g-un',lt:'g-lt'}[g.s];
   /* 재료 2가지 — 조사 2단(D-065)과 1:1 이다.
@@ -399,7 +443,7 @@ function rc(c){cc=c;document.getElementById('c2t').innerHTML=c+' · 도시 <span
   var hasS=!!SE[x], hasK=!!SNAP_CITY[x];
   var p=hasS?pop(x):null;                      /* 조사 안 한 도시의 인기도는 **없는 값**이다. 안 보여준다 */
   h+='<div class="rw" onclick="go(\'d\',\''+x+'\')"><div class="mn"><div class="n"><span class="nm">'+x+'</span><span class="sg '+cl+'">'+g.t+'</span></div>'+
-     '<div class="wh">'+g.w+'</div>'+
+     '<div class="wh">'+g.w+'</div>'+invLine(x)+
      '<div style="display:flex;gap:5px;margin-top:4px;flex-wrap:wrap;">'+
      '<span class="pil" style="background:'+(hasS?'var(--emd)':'var(--amd)')+';color:'+(hasS?'var(--em)':'var(--am)')+';">계절 '+(hasS?'있음':'없음')+'</span>'+
      '<span class="pil" style="background:'+(hasK?'var(--emd)':'var(--amd)')+';color:'+(hasK?'var(--em)':'var(--am)')+';">키워드 '+(hasK?'있음':'없음')+'</span>'+
@@ -863,7 +907,8 @@ window.addEventListener('popstate',function(e){var s=e.state||{w:'m'};vw(s.w,s.a
 history.replaceState({w:'m'},'');
 /* shared.js 가 쿠키를 박은 뒤에 부른다 — 로그인 열쇠가 준비되기 전에 부르면 401 이 난다.
    실패하면 한 번 더(2초 뒤). 그래도 안 되면 화면이 "로그인이 필요합니다" 라고 말한다. */
-loadSnap().then(function(){ if(SVERR && /로그인/.test(SVERR)) setTimeout(loadSnap, 2000); });
+loadCities();
+loadSnap().then(function(){ if(SVERR && /로그인/.test(SVERR)) { setTimeout(loadSnap, 2000); setTimeout(loadCities, 2000); } });
 function dd(){var d=document.getElementById('ddb');d.classList.toggle('on');document.getElementById('tc').textContent=d.classList.contains('on')?'⌃':'⌄';}
 function pk(n){document.getElementById('tn').textContent=n;dd();ts(n+' 전환');}
 var tmo;function ts(m){var t=document.getElementById('tsb');t.textContent=m;t.classList.add('on');clearTimeout(tmo);tmo=setTimeout(function(){t.classList.remove('on');},2200);}

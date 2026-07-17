@@ -59,6 +59,23 @@ export async function sbQuery(query) {
   try { return JSON.parse(text); } catch { return []; }
 }
 
+// 🔴 2026-07-17 — **백업이 시간 초과로 죽기 직전이었다.** 실측: 표 39개 · 109MB · 300초 넘겨 응답 없음.
+//    어제(21,500행)는 86초였다. 어제 아고다 재고 20만 행이 들어오면서 넘겼다.
+//    병목 둘: ① 2,000행씩 끊어 읽어서 아고다 표 4개에만 **관리 API 100번 이상** ② 46MB blob 업로드.
+//
+// 확정 — **재현 가능한 표는 백업하지 않는다.**
+//    백업의 목적은 **「잃으면 못 되찾는 것」**을 지키는 것이다(헌법 9조 가역성).
+//    아래 표들은 **우리가 만든 게 아니라 아고다 파일의 사본**이고, 받는 법이 레포에 박혀 있다:
+//      `python3 _os/tools/agoda-file-load.py --url <파일> --step all`
+//    → 잃어도 **2분이면 다시 받는다.** 이것 때문에 hotels·bookings 백업까지 죽으면 그게 진짜 사고다.
+//    ⚠️ 여기 표를 더할 땐 **정말 재현되는지** 먼저 확인할 것. 재현법이 없으면 절대 넣지 말 것.
+const REGENERABLE = {
+  agoda_inventory:      'agoda-file-load.py --step inventory (아고다 숙소 데이터 파일)',
+  agoda_inventory_name: 'agoda-file-load.py --step inventory (같은 파일 · 언어별 이름)',
+  agoda_city_name:      'agoda-file-load.py --step cities (같은 파일 · 도시 분모)',
+  agoda_city:           '아고다 도시 목록 (EN 파일)',
+};
+
 export async function listTables() {
   const rows = await sbQuery(`
     SELECT c.relname AS tbl, pg_total_relation_size(c.oid) AS bytes
@@ -206,12 +223,19 @@ export async function runBackup({ dryRun = false } = {}) {
   notes.push(`창고 ${repo} = private ✅ (기본 브랜치 ${branch})`);
   notes.push(process.env.BACKUP_PAT ? 'PAT = BACKUP_PAT' : 'PAT = GITHUB_PAT 재사용');
 
-  const tables = await listTables();
+  const all = await listTables();
+  const tables = all.filter((t) => !REGENERABLE[t.table]);
+  const skipped = all.filter((t) => REGENERABLE[t.table]);
+  if (skipped.length) {
+    notes.push(`재현 가능한 표 ${skipped.length}개는 건너뜀 (${(skipped.reduce((s2, t) => s2 + t.bytes, 0) / 1048576).toFixed(0)}MB): `
+      + skipped.map((t) => t.table).join(', '));
+  }
 
   if (dryRun) {
     return {
       ok: true, dry_run: true, repo, branch, notes,
       tables: tables.length,
+      skipped: skipped.map((t) => ({ table: t.table, mb: +(t.bytes / 1048576).toFixed(1), regenerate: REGENERABLE[t.table] })),
       approx_mb: +(tables.reduce((s, t) => s + t.bytes, 0) / 1048576).toFixed(1),
       would_write: ['schema/tables.sql', ...tables.map(t => `data/${t.table}.csv`), '_manifest.json'],
       elapsed_sec: +((Date.now() - started) / 1000).toFixed(1),
@@ -219,7 +243,9 @@ export async function runBackup({ dryRun = false } = {}) {
   }
 
   const files = [];
-  const manifest = { generated_at: new Date().toISOString(), project_ref: PROJECT_REF, tables: {} };
+  // 🔑 건너뛴 표는 **manifest 에 재현법을 남긴다.** 안 적으면 다음 사람이 "왜 없지?" 를 묻는다
+  const manifest = { generated_at: new Date().toISOString(), project_ref: PROJECT_REF, tables: {},
+    skipped_regenerable: skipped.reduce((m, t) => (m[t.table] = REGENERABLE[t.table], m), {}) };
 
   files.push({ path: 'schema/tables.sql', content: await dumpSchema() });
 

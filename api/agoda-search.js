@@ -136,8 +136,12 @@ async function matchAgoda(googlePlace, agodaKey, googleKey) {
     return result;
   }
 
-  // Google 주소에서 city 추출 → cityId 매핑
-  const cityId = resolveCityIdFromGoogle(googlePlace);
+  // 🔑 2026-07-17 — **좌표로 도시를 찾는다.** 이름으로 찾으면 못 찾는다:
+  //    구글은 방콕을 `Krung Thep Maha Nakhon`(태국 정식명)이라고 준다 → 우리 표엔 `bangkok` 뿐 → 실패.
+  //    아고다 파일이 도시 25,268개의 중심 좌표를 준다(`agoda_city`) → **가장 가까운 도시**를 고른다.
+  //    이름 표(AGODA_CITY_MAP)는 **좌표가 없을 때만** 쓰는 폴백으로 남긴다.
+  let cityId = await resolveCityIdByGeo(googlePlace);
+  if (!cityId) cityId = resolveCityIdFromGoogle(googlePlace);
   if (!cityId) {
     return result;
   }
@@ -169,6 +173,35 @@ async function matchAgoda(googlePlace, agodaKey, googleKey) {
 // ============================================================
 // Google Place에서 city slug 추출 → Agoda cityId
 // ============================================================
+// 🔑 좌표로 도시 찾기 — 이름은 나라마다 다르게 오지만 좌표는 안 그렇다 (2026-07-17)
+//    `agoda_city` = 아고다 「숙소 데이터 파일」에서 계산한 도시 25,268개의 중심 좌표.
+//    150km 안에서 **호텔이 가장 많은** 도시를 고른다(가장 가까운 것이 아니라 — 시골 마을이 잡힌다).
+async function resolveCityIdByGeo(place) {
+  const la = place && place.location && place.location.latitude;
+  const lo = place && place.location && place.location.longitude;
+  if (!la || !lo) return null;
+  const url = process.env.SUPABASE_URL, key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) return null;
+  const d = 1.4;   // 위경도 ±1.4° ≈ 150km 안에서만 본다
+  try {
+    const r = await fetch(
+      `${url}/rest/v1/agoda_city?latitude=gte.${la - d}&latitude=lte.${la + d}` +
+      `&longitude=gte.${lo - d}&longitude=lte.${lo + d}` +
+      `&select=city_id,city,hotels,latitude,longitude&order=hotels.desc&limit=40`,
+      { headers: { apikey: key, Authorization: `Bearer ${key}` } });
+    if (!r.ok) return null;
+    const rows = await r.json();
+    if (!rows.length) return null;
+    const km = (a, b, c, e) => {
+      const R = 6371, p = Math.PI / 180;
+      return R * Math.acos(Math.min(1, Math.cos(a * p) * Math.cos(c * p) * Math.cos((e - b) * p) + Math.sin(a * p) * Math.sin(c * p)));
+    };
+    const near = rows.filter((x) => km(la, lo, x.latitude, x.longitude) <= 60);
+    if (!near.length) return null;
+    return near[0].city_id;   // 60km 안에서 호텔이 가장 많은 도시
+  } catch (e) { return null; }
+}
+
 function resolveCityIdFromGoogle(place) {
   if (!place) return null;
 

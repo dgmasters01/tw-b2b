@@ -759,8 +759,10 @@ function drawPattern(PT,MO,MOUT,pk){
         {type:'line',label:'체크아웃',data:outA,borderColor:'#EF9F27',borderWidth:2,borderDash:[5,4],
          pointRadius:3,pointBackgroundColor:'#EF9F27',tension:.3,fill:false,order:1}
       ]},
-      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},
-        tooltip:{callbacks:{footer:function(it){var s2=0;it.forEach(function(x){if(x.dataset.type!=='line')s2+=x.parsed.y;});return s2?'체크인 합계 '+s2+'건':'';}}}},
+      options:{responsive:true,maintainAspectRatio:false,
+        interaction:{mode:'index',intersect:false},   /* 그 달의 성급 4줄 + 체크아웃을 한 번에 */
+        plugins:{legend:{display:false},
+        tooltip:{mode:'index',intersect:false,callbacks:{footer:function(it){var s2=0;it.forEach(function(x){if(x.dataset.type!=='line')s2+=x.parsed.y;});return s2?'체크인 합계 '+s2+'건':'';}}}},
         scales:{x:{stacked:true,ticks:{color:TICK,font:{size:10},autoSkip:false},grid:{display:false}},
                 y:{stacked:true,beginAtZero:true,ticks:{color:TICK,font:{size:10},callback:function(v){return v+'건';}},grid:{color:GRID},border:{display:false}}}}});
     }
@@ -815,12 +817,21 @@ function drawKw3(){
     var e=document.getElementById('ckw3'); if(!e||!e.getContext) return;
     if(CH.kw3){ CH.kw3.destroy(); CH.kw3=null; }
     var ds=[];
-    if(TR3.tv)   ds.push({label:'여행',data:TR3.tv,borderColor:'#EF9F27',borderWidth:2,pointRadius:2,tension:.3,fill:false,spanGaps:true});
-    if(TR3.city) ds.push({label:'도시',data:TR3.city,borderColor:'#5aa9e6',borderWidth:2,pointRadius:2,tension:.3,fill:false,spanGaps:true});
-    if(TR3.d)    ds.push({label:'지역',data:TR3.d,borderColor:'#4edea3',borderWidth:3,pointRadius:3,tension:.3,fill:false,spanGaps:true});
+    if(TR3.tv)   ds.push({label:'여행',name:TR3.tvName,data:TR3.tv,borderColor:'#EF9F27',borderWidth:2,pointRadius:2,tension:.3,fill:false,spanGaps:true});
+    if(TR3.city) ds.push({label:'도시',name:TR3.cityName,data:TR3.city,borderColor:'#5aa9e6',borderWidth:2,pointRadius:2,tension:.3,fill:false,spanGaps:true});
+    if(TR3.d)    ds.push({label:'지역',name:TR3.dName,data:TR3.d,borderColor:'#4edea3',borderWidth:3,pointRadius:3,tension:.3,fill:false,spanGaps:true});
+    /* 🔑 선 하나만 짚어도 **세 값을 한 번에** (2026-07-17 대표님).
+       왜 필요한가: 여행(408)과 지역(14.8)이 **28배** 차이라 아래 두 선이 바닥에 눌린다.
+       눈으로는 못 읽는다 → **숫자로 읽는다.** `mode:'index'` = 그 달의 세 점을 다 집는다.
+       `intersect:false` = 점을 정확히 안 짚어도 그 달이 잡힌다(손가락으로도 된다). */
     CH.kw3=new Chart(e.getContext('2d'),{type:'line',
       data:{labels:['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'],datasets:ds},
-      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      options:{responsive:true,maintainAspectRatio:false,
+        interaction:{mode:'index',intersect:false},
+        plugins:{legend:{display:false},
+          tooltip:{mode:'index',intersect:false,
+            callbacks:{ title:function(it){ return it[0].label+' 검색량'; },
+                        label:function(c){ return ' '+c.dataset.name+' '+c.parsed.y; } }}},
         scales:{x:{ticks:{color:'#7b8794',font:{size:10}},grid:{display:false}},
                 y:{ticks:{color:'#7b8794',font:{size:10}},grid:{color:'rgba(128,128,128,.22)'},border:{display:false}}}}});
   });
@@ -850,6 +861,7 @@ function rx(d){cd=d;
    if(pC)  nt.push('도시 '+pC+'월');
    if(pD)  nt.push('지역 '+pD+'월');
    TR3={ n:1, legend:lg, tv:sTv, city:sCity, d:sD,
+         tvName:(tv&&tv.text)||'여행', cityName:((SV&&SV.city_anchor_text)||cy), dName:((dRow&&dRow.head)||d),
          /* 🔴 여기에 예약 피크를 붙이려다 뺐다 — 그 값은 아래 접힘에서 계산돼서 **지난 번 지역 값**이 붙는다.
             (첫 렌더엔 아예 없다.) 틀린 숫자를 보여주느니 안 보여준다. 예약 피크는 접힘이 말한다. */
          note:'검색 피크 — '+nt.join(' · ') };

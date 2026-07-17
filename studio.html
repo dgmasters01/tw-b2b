@@ -3658,7 +3658,9 @@ function ser12(series){
   return a;
 }
 function pkOf(a){ if(!a) return null; var mx=-1,k=null; a.forEach(function(v,i){ if(v!==null&&v>mx){mx=v;k=i+1;} }); return k; }
-var SR=null, TR3=null, KWMORE=false;
+var SR=null, TR3=null, KWMORE=false, HRSTAR=null, HRMORE=false;
+function hrpick(k){ HRSTAR=k; HRMORE=false; rx(cd); }
+function hrmore(){ HRMORE=!HRMORE; rx(cd); }
 /* 검색어 더 보기 — 이 지역 검색어는 이 블록에서 전부 본다 */
 function kwmore(){ KWMORE=!KWMORE; rx(cd); }
 function rxPattern(PT,MO,pk){
@@ -3853,6 +3855,41 @@ function rx(d){cd=d;
    }
    h+='<div style="font-size:10px;color:var(--muted);margin-top:6px;">검색량 = 유튜브에서 이 말을 얼마나 찾나 · 오사카 안에서만 비교합니다</div></div>';
  }
+
+ /* ── 4-4b 호텔 매출 순위 (2026-07-17 대표님) — 콘텐츠 추천 **바로 앞**.
+    대표님: *"우리는 수익이 중요하니깐. 알지 매출이다. 순위로 제공을 하면 좋겠네."*
+    🔴 **수수료 없음** — 에디터(직원)도 이 화면을 본다. 창구가 아예 안 보낸다(가리는 것보다 안전).
+    🔴 **성급을 세로로 쌓지 않는다** — 칩으로 갈아끼운다. 4성·5성·3성을 다 쌓으면 21줄, 칩이면 8줄.
+       성급이 6개로 늘어도 **칩 하나만** 늘고 화면 길이는 그대로다.
+    🔴 **칩 순서 = 그 지역 매출 순.** 박지 않는다 — 실측: 난바 4성 1등 · 신사이바시 5성 1등 ·
+       서울 한강은 **5성 → 3성 → 4성**. 난바 순서를 다른 지역에 박으면 거짓말이 된다(54-0X). */
+ var HR=(DS&&DS.hotels)||[];
+ if(HR.length){
+   var byStar={};
+   HR.forEach(function(x){ var k=x.star||0; (byStar[k]=byStar[k]||{rev:0,n:0,list:[]}); byStar[k].rev+=x.revenue; byStar[k].n++; byStar[k].list.push(x); });
+   var ord=Object.keys(byStar).map(Number).sort(function(a,b){return byStar[b].rev-byStar[a].rev;});
+   if(HRSTAR===null||!byStar[HRSTAR]) HRSTAR=ord[0];
+   var stN=function(v){ return v>0?(String(v).replace('.0','')+'성'):'무성급'; };
+   h+='<div class="bk"><div class="bh">호텔 매출 순위 <span style="font-size:10px;color:var(--muted);font-weight:400;">— 우리가 예약을 받아본 호텔</span><span class="no" style="margin-left:auto;">4-4b</span></div>';
+   h+='<div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px;">'+ord.map(function(k){
+     var on=k===HRSTAR;
+     return '<span onclick="hrpick('+k+')" style="font-size:11px;padding:4px 10px;border-radius:20px;cursor:pointer;'+
+       (on?'background:var(--bld);color:var(--bl);font-weight:600;':'background:var(--card2);color:var(--muted);')+
+       '">'+stN(k)+' $'+byStar[k].rev.toLocaleString()+'</span>';
+   }).join('')+'</div>';
+   var g2=byStar[HRSTAR], mxr=g2.list[0].revenue||1;
+   (HRMORE?g2.list:g2.list.slice(0,5)).forEach(function(r,i){
+     h+='<div style="display:grid;grid-template-columns:14px 1fr 88px;gap:7px;align-items:center;padding:3px 0;">'+
+        '<span style="font-size:10px;color:var(--muted);">'+(i+1)+'</span>'+
+        '<div><div style="font-size:11.5px;">'+r.name+'</div>'+
+        '<div style="height:7px;background:var(--card2);border-radius:2px;overflow:hidden;margin-top:2px;"><div style="width:'+Math.max(1,Math.round(r.revenue/mxr*100))+'%;height:100%;background:var(--bl);border-radius:0 2px 2px 0;"></div></div></div>'+
+        '<span style="font-size:11px;color:var(--sub);text-align:right;">$'+r.revenue.toLocaleString()+
+        '<br><span style="font-size:9.5px;color:var(--muted);">'+r.bookings+'건</span></span></div>';
+   });
+   if(g2.list.length>5) h+='<div onclick="hrmore()" style="font-size:10.5px;color:var(--bl);cursor:pointer;padding:5px 0;">'+
+     (HRMORE?'접기 ▴':'외 '+(g2.list.length-5)+'곳 더 보기 ▾')+'</div>';
+   h+='<div style="font-size:10px;color:var(--muted);margin-top:5px;">칩 순서 = 이 지역 매출 순 · 예약금액 기준 · 호텔명은 아고다 한국어(없으면 원래 이름)</div></div>';
+ }
  /* 🔴 4-10 「③ 자동 채택 태그란」 삭제 (2026-07-17 대표님) — **여기가 아니다.**
     이 페이지는 대표님이 정한 대로 **기본 자료 보는 곳**(66). 태그란은 **만들 때 쓰는 것** = 올리기·전략 자리.
     게다가 목업이었다: 482/500자도 박혀 있었고 [복사]는 그 박힌 글자를 복사했다. */
@@ -4032,7 +4069,7 @@ function vw(w,a,b){
  if(w==='m'){sh('s1');document.getElementById('bc').innerHTML='';return;}
  if(w==='c'){rc(a);sh('s2');bc('c',a);return;}
  if(w==='d'){if(b)cc=b;rdd(a);sh('s3');bc('d',a);return;}
- if(w==='x'){KWMORE=false;rx(a);sh('s4');bc('x',a);return;}   /* 다른 지역으로 가면 「더 보기」는 접힌 채로 시작 */
+ if(w==='x'){KWMORE=false;HRSTAR=null;HRMORE=false;rx(a);sh('s4');bc('x',a);return;}   /* 다른 지역으로 가면 「더 보기」는 접힌 채로 시작 */
  if(w==='r'){rrs(a);sh('s6');document.getElementById('bc').innerHTML='<a onclick="go(\'m\')">홈</a> › <span>한국어 · 한국</span> › <b>'+a+'</b> › <b>조사 시작</b>';return;}}
 // A안 — 폰 뒤로가기 지원. 지금까지 폰 뒤로 버튼을 누르면 **앱을 통째로 나갔다**(대표님 2026-07-16).
 // 헌법 원칙 3 "핸드폰 한 대로 모든 작업". vw()=그리기 / go()=그리기+이력쌓기 로 분리.

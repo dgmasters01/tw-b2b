@@ -166,13 +166,16 @@ async function survey(sb, req, res, who) {
   //    → 지역 목록은 **우리 호텔 장부(hotels.district)** 에서 온다. 클로드 머릿속이 아니다.
   //    → `덴노지`·`도톤보리` 는 **장부에 호텔이 한 곳도 없다** — 클로드가 지어낸 것이다.
   //    → `요도야바시`(호텔 8곳)는 **장부에 있는데 화면에서 빠져 있었다.**
+  // 🔴 `.not('district','is',null)` 로 걸러서 **지역 이름이 없는 호텔이 통째로 화면에서 사라졌다**
+  //    (오사카 50곳 · 예약 146건 · 2026-07-17 대표님이 잡음). 그게 바로 **미개척 후보**다.
+  //    전부 가져와서, 이름 없는 것은 **좌표로 묶어** 따로 보여준다.
   const dRes = await sb.from('hotels')
-    .select('district, booking_count, published_at, latitude, longitude, star_rating, property_type')
-    .eq('city', 'Osaka')
-    .not('district', 'is', null);
+    .select('hotel_name, district, booking_count, published_at, latitude, longitude, star_rating, property_type, geo_status')
+    .eq('city', 'Osaka');
   if (dRes.error) throw dRes.error;
   const hotelsByD = new Map();
   (dRes.data || []).forEach((r) => {
+    if (!r.district) return;
     if (!hotelsByD.has(r.district)) hotelsByD.set(r.district, []);
     hotelsByD.get(r.district).push(r);
   });
@@ -187,7 +190,7 @@ async function survey(sb, req, res, who) {
   //    중심 = **예약 가중 평균** (손님이 몰린 곳이 중심이지, 호텔이 많은 곳이 중심이 아니다)
   //    바깥 = 예약 90% 반경의 3배 초과 → "먼 곳"(오매칭 의심). 실측: 오사카 20km 초과 = 0곳,
   //           하코네에 있는 'Osaka Fujiya Hotel'(예약 28건)은 이미 manual_check 로 걸러져 있었다.
-  const pts = (dRes.data || []).filter((r) => r.latitude && r.longitude);
+  const pts = (dRes.data || []).filter((r) => r.latitude && r.longitude && r.district);
   const bw = pts.reduce((s2, r) => s2 + (r.booking_count || 0), 0);
   const cLat = bw ? pts.reduce((s2, r) => s2 + Number(r.latitude) * (r.booking_count || 0), 0) / bw
                   : (pts.length ? pts.reduce((s2, r) => s2 + Number(r.latitude), 0) / pts.length : null);
@@ -250,6 +253,36 @@ async function survey(sb, req, res, who) {
     //    실측: 신사이바시 예약 131건인데 검색량 0.39 라 검색량순에선 우메다(50건)보다 아래였다.
   }).sort((a, b) => b.bookings - a.bookings || (b.hotels - a.hotels));
 
+  // ── 미개척 후보 = **지역 이름이 아직 없는 호텔** (2026-07-17 대표님)
+  //    지역 판정이 「사람이 그린 원 5개」라 그 밖은 전부 이름이 없다. 버리지 않고 **좌표로 묶어** 보여준다.
+  //    이름은 없어도 "중심에서 1.2km · 호텔 8곳 · 예약 31건" 이면 콘텐츠 후보로 충분하다.
+  const noName = (dRes.data || []).filter((r) => !r.district);
+  const clusters = [];
+  noName.filter((r) => r.latitude && r.longitude).forEach((r) => {
+    const la = Number(r.latitude), lo = Number(r.longitude);
+    // 1km 격자로 묶는다. 사람이 원을 안 그린다.
+    const key = `${Math.round(la / 0.009)}|${Math.round(lo / 0.011)}`;
+    let c = clusters.find((x) => x.key === key);
+    if (!c) { c = { key, hotels: [], la: 0, lo: 0 }; clusters.push(c); }
+    c.hotels.push(r);
+  });
+  const unmapped = clusters.map((c) => {
+    const la = c.hotels.reduce((s2, r) => s2 + Number(r.latitude), 0) / c.hotels.length;
+    const lo = c.hotels.reduce((s2, r) => s2 + Number(r.longitude), 0) / c.hotels.length;
+    const d = km(la, lo);
+    const top = [...c.hotels].sort((a, b) => (b.booking_count || 0) - (a.booking_count || 0))[0];
+    return {
+      hotels: c.hotels.length,
+      bookings: c.hotels.reduce((s2, r) => s2 + (r.booking_count || 0), 0),
+      published: c.hotels.filter((r) => r.published_at).length,
+      km: d === null ? null : Math.round(d * 10) / 10,
+      zone: zoneOf(d),
+      top_hotel: top ? top.hotel_name : null,      // 이름 후보 — 호텔이 스스로 역 이름을 단다
+    };
+  }).filter((c) => c.bookings > 0 || c.hotels >= 2)
+    .sort((a, b) => b.bookings - a.bookings);
+  const noGeo = noName.filter((r) => !r.latitude);
+
   res.setHeader('Cache-Control', 'private, no-store, max-age=0');
   return res.status(200).json({
     ok: true, is_admin: !!who.isAdmin, view: 'survey',
@@ -257,6 +290,12 @@ async function survey(sb, req, res, who) {
     snapshot: snap, months: snaps.map((s) => s.ym),
     counts, rows: rows.slice(0, 30), rows_total: rows.length, travel, districts,
     city_radius: { r90, hotels_with_geo: pts.length },   // 이 도시에서 손님이 자는 반경
+    unmapped,                                            // 지역 이름이 아직 없는 덩어리 = 미개척 후보
+    unmapped_total: {
+      hotels: noName.length,
+      bookings: noName.reduce((s2, r) => s2 + (r.booking_count || 0), 0),
+      no_geo: noGeo.length,                              // 좌표조차 없는 곳
+    },
     layer3,
   });
 }

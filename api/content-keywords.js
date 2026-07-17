@@ -265,8 +265,10 @@ async function survey(sb, req, res, who) {
     .select('city_key, label')
     .eq('target_code', target)
     .like('city_key', `cc:japan|osaka|d:%`);
+  // 🔴 사전 열쇠는 `Naniwa Ward`(구글 주소 그대로), 여기 이름은 `Naniwa`(구만 뽑은 것) — 어긋난다.
+  //    둘 다로 찾는다. 없으면 **원래 이름 그대로**(지어내지 않는다).
   const alias = new Map((aliasRes.data || []).map((r) => [r.city_key.split('|d:')[1], r.label]));
-  const say = (n) => alias.get(n) || n;
+  const say = (n) => alias.get(n) || alias.get(`${n} Ward`) || n;
 
   const noName = (dRes.data || []).filter((r) => !r.district);
   const wardOf = (a) => (a && (a.match(/([A-Za-z]+) Ward/) || [])[1]) || null;

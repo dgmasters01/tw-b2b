@@ -303,8 +303,16 @@ async function survey(sb, req, res, who) {
   //    맞다. 하코네는 오사카에서 **327km**(서울↔부산과 같다) — **도쿄 근교**(84km)다. 근교가 아니다.
   //    그리고 이건 **개척할 곳이 아니라 고칠 것**이다. 미개척 목록은 "만들 것"이고 오매칭은 "데이터 오류"다.
   //    섞으면 화면이 **없는 지역을 개척하라**고 말한다. → 목록에서 빼고 **경고로 따로** 낸다.
+  // 🔴 2026-07-17 대표님: *"(주소 없음) 이 부분은 뭐야?"*
+  //    = 구글이 이름으로 **못 찾은 호텔**(geo_status='not_found'). 어디인지 **모른다.**
+  //    실측: `Agora Place Osaka Namba`(7건) · `ibis Styles Osaka Namba`(1건) ·
+  //          `Close to Shin-Imamiya Stn, 2 ppl, perfect…`(1건 — **호텔 이름이 아니라 광고 문구**)
+  //    → **개척할 수 없다. 어디인지 모르니까.** 미개척(만들 것)이 아니라 **고칠 것**이다(57 룰).
+  //       목록 하나에 행동 하나. 대표님이 보고 할 수 있는 게 없으면 그 목록에 있으면 안 된다.
+  const fixLater = unmapped.filter((c) => c.wrong_city || c.ward === '(주소 없음)');
   const wrongCity = unmapped.filter((c) => c.wrong_city);
-  const unmappedClean = unmapped.filter((c) => !c.wrong_city);
+  const noAddr = unmapped.filter((c) => c.ward === '(주소 없음)');
+  const unmappedClean = unmapped.filter((c) => !c.wrong_city && c.ward !== '(주소 없음)');
   const noGeo = noName.filter((r) => !r.latitude);
 
   res.setHeader('Cache-Control', 'private, no-store, max-age=0');
@@ -316,11 +324,15 @@ async function survey(sb, req, res, who) {
     city_radius: { r90, hotels_with_geo: pts.length },   // 이 도시에서 손님이 자는 반경
     unmapped: unmappedClean,                             // 미개척 후보 = **만들 것** (오매칭은 뺐다)
     unmapped_total: {
-      hotels: noName.length - wrongCity.reduce((s2, c) => s2 + c.hotels, 0),
-      bookings: noName.reduce((s2, r) => s2 + (r.booking_count || 0), 0)
-                - wrongCity.reduce((s2, c) => s2 + c.bookings, 0),
-      no_geo: noGeo.length,                              // 좌표조차 없는 곳
+      hotels: unmappedClean.reduce((s2, c) => s2 + c.hotels, 0),
+      bookings: unmappedClean.reduce((s2, c) => s2 + c.bookings, 0),
     },
+    // 주소를 못 찾은 곳 = **고칠 것**. 어디인지 모르니 개척할 수 없다
+    no_address: noAddr.length ? {
+      hotels: noAddr.reduce((s2, c) => s2 + c.hotels, 0),
+      bookings: noAddr.reduce((s2, c) => s2 + c.bookings, 0),
+      names: noAddr.flatMap((c) => (c.top_hotel ? [c.top_hotel] : [])),
+    } : null,
     // 오매칭 = **고칠 것**. 미개척과 섞지 않는다
     wrong_city: wrongCity.length ? {
       hotels: wrongCity.reduce((s2, c) => s2 + c.hotels, 0),

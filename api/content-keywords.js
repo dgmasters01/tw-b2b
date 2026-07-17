@@ -414,7 +414,14 @@ async function survey(sb, req, res, who) {
     //   🔒 `cooldown` = 183일 안에 소개한 곳(D-065 ㊷ · 6개월 재소개 금지) / 💰 `paid` = $200 계약(쿨다운 아님 — 정반대)
     //      🔴 2026-07-17 실측: 둘 다 **재료가 0**이다. `published_at` 0곳 · `paid_at` 0곳.
     //         → 배지는 **조건부**다. 지금은 안 뜬다. **노출 이력 파일이 들어오면 저절로 뜬다.** 가짜로 채우지 않는다.
-    sb.from('v_district_hotel').select('district, star, name, name_is_ko, ptype, confirmed, cancelled, revenue, bucket, cooldown, paid').eq('city', 'Osaka'),
+    //   🔴 2026-07-17 — **D-062(호텔 메뉴)를 안 읽고 만들어서 두 개를 틀렸다.** 대표님이 잡으심.
+    //      ① 열쇠: D-062 = *"노출 이력 = **publications** ↔ hotels(hid), 정확한 published_at"*.
+    //         클로드는 `hotels.published_at` 을 썼다. 지금은 둘 다 0이라 결과가 같지만
+    //         **노출 이력 파일이 들어오면 클로드 열쇠는 안 켜진다.** → `publications.hid_top1/2/3` 로 고침.
+    //      ② **확정률 배지**(D-062 ⑤-3): 안정 ≥85 / 보통 70~84 / 주의 50~69 / 경고 <50.
+    //         *"주의 = TOP3 넣을 때 취소 유출 감안"* — 실측: 리치몬드 난바 **53%**(21/40). 절반이 날아간다.
+    //      ③ 재사용 상태 이름도 D-062 것: **아직못씀 / 지금가능 / 노출없음**. 클로드가 지어내지 않는다.
+    sb.from('v_district_hotel').select('district, star, name, name_is_ko, ptype, confirmed, cancelled, confirm_rate, revenue, bucket, reuse, reuse_from, paid').eq('city', 'Osaka'),
   ]);
   const dstat = {};
   const touch = (d) => (dstat[d] = dstat[d] || { stars: [], months: [], months_out: [], pattern: null, hotels: [] });
@@ -426,8 +433,9 @@ async function survey(sb, req, res, who) {
   (outRes.data || []).forEach((r) => touch(r.district).months_out.push({ month: r.month, bookings: r.bookings }));
   (rankRes.data || []).forEach((r) => touch(r.district).hotels.push({
     star: Number(r.star), name: r.name, name_is_ko: !!r.name_is_ko, ptype: r.ptype,
-    bookings: r.confirmed, cancelled: r.cancelled, revenue: Number(r.revenue), bucket: r.bucket,
-    cooldown: !!r.cooldown, paid: !!r.paid }));
+    bookings: r.confirmed, cancelled: r.cancelled, confirm_rate: r.confirm_rate,
+    revenue: Number(r.revenue), bucket: r.bucket,
+    reuse: r.reuse, reuse_from: r.reuse_from, paid: !!r.paid }));
   Object.values(dstat).forEach((v) => v.hotels.sort((a, b) => b.revenue - a.revenue || b.cancelled - a.cancelled));
   (patRes.data || []).forEach((r) => { touch(r.district).pattern = r; });
 

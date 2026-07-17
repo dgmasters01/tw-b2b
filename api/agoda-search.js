@@ -196,9 +196,16 @@ async function resolveCityIdByGeo(place) {
       const R = 6371, p = Math.PI / 180;
       return R * Math.acos(Math.min(1, Math.cos(a * p) * Math.cos(c * p) * Math.cos((e - b) * p) + Math.sin(a * p) * Math.sin(c * p)));
     };
-    const near = rows.filter((x) => km(la, lo, x.latitude, x.longitude) <= 60);
-    if (!near.length) return null;
-    return near[0].city_id;   // 60km 안에서 호텔이 가장 많은 도시
+    // 🔴 2026-07-17 실측 — "60km 안에서 **호텔이 가장 많은** 도시" 로 했더니 틀렸다:
+    //    싱가포르(650곳)가 **말레이시아 조호바루(6,004곳 · 20km)** 에 먹혔다. **가까운 게 아니라 큰 걸 골랐다.**
+    //    → **거리를 먼저 본다.** 가장 가까운 도시. 다만 아주 가까운 것들(±8km)끼리는 큰 쪽.
+    const scored = rows.map((x) => ({ ...x, d: km(la, lo, x.latitude, x.longitude) }))
+      .filter((x) => x.d <= 60)
+      .sort((a, b) => a.d - b.d);
+    if (!scored.length) return null;
+    const best = scored[0];
+    const tie = scored.filter((x) => x.d <= best.d + 8).sort((a, b) => b.hotels - a.hotels);
+    return tie[0].city_id;
   } catch (e) { return null; }
 }
 

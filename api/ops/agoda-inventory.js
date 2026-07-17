@@ -70,7 +70,11 @@ export default async function handler(req, res) {
           dailyRate: { maximum: 100000, minimum: 1 },
           discountOnly: false,
           language: 'en-us',
-          maxResult: 100,             // 아고다 상한
+          // 🔴 2026-07-17 — 아고다 공식 문서(Affiliate Long Tail Search API v1.0):
+          //    `maxResult · Integer (**1-30**) · Default "10" · Max Result for City Search`
+          //    우리는 **100** 을 보내고 있었다 → 규격 검사 실패 → `911 No search result`.
+          //    ⚠️ `api/agoda-search.js` 도 100 을 보낸다 — **같은 병**이다.
+          maxResult: 30,             // 아고다 상한 = 30
           minimumReviewScore: 0,
           minimumStarRating: 0,
           occupancy: { numberOfAdult: 2, numberOfChildren: 0 },
@@ -82,7 +86,11 @@ export default async function handler(req, res) {
     };
     const r = await fetch(AGODA_ENDPOINT, {
       method: 'POST',
-      headers: { Authorization: apiKey, 'Content-Type': 'application/json' },
+      // 문서 요구: `Accept-Encoding: gzip,deflate` (압축 헤더 필수) · `Authorization: siteid:apikey`
+      headers: {
+        Authorization: apiKey, 'Content-Type': 'application/json',
+        Accept: 'application/json', 'Accept-Encoding': 'gzip,deflate',
+      },
       body: JSON.stringify(body),
     });
     const raw = await r.text();

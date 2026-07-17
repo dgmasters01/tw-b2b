@@ -178,16 +178,44 @@ async function survey(sb, req, res, who) {
   });
   const DISTRICTS = [...hotelsByD.keys()];
 
-  // 도시 중심 = 우리 호텔 좌표의 평균. 중심가/외곽은 **좌표로 잰다**(D-065 "호텔 지역 판정 = 좌표").
+  // ── 도시 중심 · 반경 — **도시마다 데이터로 잰다** (2026-07-17 대표님: *"나라별 상황을 파악하여
+  //    나라·도시 상황에 맞게 판별해서 적용"*). 🔴 한 숫자(예: 20km)를 박으면 그게 또 하드코딩이다.
+  //
+  //    실측 — 예약 90%가 드는 반경: 후쿠오카 1.3km · 오사카 2.9km · 타이베이 3.8km · 도쿄 5.3km · 방콕 5.9km
+  //    → **후쿠오카와 방콕이 4.5배 다르다.** 20km 로 박으면 후쿠오카에서 15배 넓은 그물을 던진다.
+  //
+  //    중심 = **예약 가중 평균** (손님이 몰린 곳이 중심이지, 호텔이 많은 곳이 중심이 아니다)
+  //    바깥 = 예약 90% 반경의 3배 초과 → "먼 곳"(오매칭 의심). 실측: 오사카 20km 초과 = 0곳,
+  //           하코네에 있는 'Osaka Fujiya Hotel'(예약 28건)은 이미 manual_check 로 걸러져 있었다.
   const pts = (dRes.data || []).filter((r) => r.latitude && r.longitude);
-  const cLat = pts.length ? pts.reduce((s2, r) => s2 + Number(r.latitude), 0) / pts.length : null;
-  const cLng = pts.length ? pts.reduce((s2, r) => s2 + Number(r.longitude), 0) / pts.length : null;
+  const bw = pts.reduce((s2, r) => s2 + (r.booking_count || 0), 0);
+  const cLat = bw ? pts.reduce((s2, r) => s2 + Number(r.latitude) * (r.booking_count || 0), 0) / bw
+                  : (pts.length ? pts.reduce((s2, r) => s2 + Number(r.latitude), 0) / pts.length : null);
+  const cLng = bw ? pts.reduce((s2, r) => s2 + Number(r.longitude) * (r.booking_count || 0), 0) / bw
+                  : (pts.length ? pts.reduce((s2, r) => s2 + Number(r.longitude), 0) / pts.length : null);
   const km = (la, lo) => {
     if (!cLat || !la) return null;
     const R = 6371, d2r = Math.PI / 180;
     return R * Math.acos(Math.min(1,
       Math.cos(cLat * d2r) * Math.cos(la * d2r) * Math.cos((lo - cLng) * d2r) +
       Math.sin(cLat * d2r) * Math.sin(la * d2r)));
+  };
+  // 이 도시에서 손님이 실제로 자는 반경 = 예약 90%가 드는 거리
+  const r90 = (() => {
+    const ds = pts.filter((r) => r.booking_count > 0)
+      .map((r) => [km(Number(r.latitude), Number(r.longitude)), r.booking_count])
+      .sort((a, b) => a[0] - b[0]);
+    const tot = ds.reduce((s2, d) => s2 + d[1], 0);
+    let cum = 0;
+    for (const [d, w] of ds) { cum += w; if (cum >= tot * 0.9) return Math.round(d * 10) / 10; }
+    return null;
+  })();
+  // 중심가/가까움 기준도 이 도시 반경에서 나온다. 박지 않는다.
+  const zoneOf = (d) => {
+    if (d === null || !r90) return null;
+    if (d <= r90 * 0.5) return '중심가';
+    if (d <= r90) return '가까움';
+    return d <= r90 * 3 ? '외곽' : '먼 곳';
   };
   const anchorDemand = (() => {
     const a = alive.find((k) => k.is_anchor);
@@ -209,8 +237,7 @@ async function survey(sb, req, res, who) {
       published: hs.filter((r) => r.published_at).length,  // 그중 영상으로 소개한 곳
       bookings,                                            // 🔑 손님이 실제로 잔 곳 = 이게 순서 기준
       km: dist === null ? null : Math.round(dist * 10) / 10,
-      // 중심가/가까움/외곽 — 도시 중심(우리 호텔 좌표 평균)에서의 거리
-      zone: dist === null ? null : (dist <= 3 ? '중심가' : (dist <= 7 ? '가까움' : '외곽')),
+      zone: zoneOf(dist),        // 이 도시 반경(r90) 기준. 도시마다 다르다
       surveyed: !!head,                                    // 대표어가 검색어 표에 있나
       demand: d,
       measured: !!(t && t.measured),
@@ -228,7 +255,9 @@ async function survey(sb, req, res, who) {
     ok: true, is_admin: !!who.isAdmin, view: 'survey',
     target, market, city_key: cityKey, ym,
     snapshot: snap, months: snaps.map((s) => s.ym),
-    counts, rows: rows.slice(0, 30), rows_total: rows.length, travel, districts, layer3,
+    counts, rows: rows.slice(0, 30), rows_total: rows.length, travel, districts,
+    city_radius: { r90, hotels_with_geo: pts.length },   // 이 도시에서 손님이 자는 반경
+    layer3,
   });
 }
 

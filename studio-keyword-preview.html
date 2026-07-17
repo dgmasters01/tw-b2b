@@ -942,6 +942,9 @@ function rx(d){cd=d;
             (첫 렌더엔 아예 없다.) 틀린 숫자를 보여주느니 안 보여준다. 예약 피크는 접힘이 말한다. */
          note:'검색 피크 — '+nt.join(' · ') };
  }
+ /* 🔴 성급 = **내림 등급**이다(창구 `grade`). 3.5성은 3성으로 소개한다 — 대표님 2026-07-17:
+    *"3.5성급을 4성급이라고 소개하면 실망하잖아. 3성급으로 소개하면 더 좋은 곳이라 예약을 함."*
+    → **기대보다 좋게.** 화면에 3.5성·4.5성은 뜨지 않는다. */
  var stName=function(v){ return v>0?(String(v).replace('.0','')+'성'):'무성급'; };
  var big=ST.slice().sort(function(a,b){return b.bookings-a.bookings;})[0];   /* 예약이 제일 많이 나는 성급 = 팔리는 것 */
  var most=ST.slice().sort(function(a,b){return b.agoda_total-a.agoda_total;})[0];  /* 제일 많이 있는 성급 = 동네 성격 */

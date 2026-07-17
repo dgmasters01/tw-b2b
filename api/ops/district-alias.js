@@ -66,9 +66,15 @@ export default async function handler(req, res) {
     const hs = await sb(`hotels?city=eq.${encodeURIComponent(city)}&select=district,address,country&limit=2000`);
     const names = new Set();
     let country = null;
+    // 🔴 2026-07-17 실측 — **이미 그 언어인 이름은 구글에 묻지 않는다.**
+    //    `난바`(한국어)를 한국어로 물었더니 구글이 **`Namba`**(영어)를 줬다.
+    //    `요도야바시` → **`요도야바시 스카이 테라스`**(건물) · `덴노지` → **`덴노지 동물원`**(동물원).
+    //    구글 Text Search 는 **가장 가까운 「장소」**를 준다 — 행정구역 이름이 아니면 엉뚱한 걸 준다.
+    //    → **행정구역 이름(`… Ward`)만** 묻는다. 이미 한국어인 지역명은 그대로 쓴다.
+    const isTargetLang = (t) => (target === 'ko' ? /[가-힣]/.test(t) : /^[A-Za-z0-9 .'-]+$/.test(t));
     hs.forEach((h) => {
       if (h.country) country = h.country;
-      if (h.district) names.add(h.district);                 // 이미 한국어인 것도 넣는다(사전에 남겨야 영어판을 만든다)
+      if (h.district && !isTargetLang(h.district)) names.add(h.district);
       const w = h.address && (h.address.match(/([A-Za-z]+) Ward/) || [])[1];
       if (w) names.add(`${w} Ward`);
     });

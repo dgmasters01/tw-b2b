@@ -377,18 +377,22 @@ async function survey(sb, req, res, who) {
   //      「미개척 1,569곳」만 말하면 대표님이 3성 964곳을 쫓게 된다.
   //   ② 12개월 흐름 — **여행(체크인) 월**. 🔴 검색 피크와 다르다: 난바 검색 11월 · 예약 12월(리드타임 27일)
   //   ③ 예약 패턴 — 리드타임·숙박일수. 🔴 옛 4-1 은 **오사카 도시 값(22일)을 난바 자리**에 쓰고 있었다
-  const [starRes, monRes, patRes] = await Promise.all([
+  //   ④ 체크아웃 월 — 대표님이 두 번 요청하셨다. 겹쳐 그리면 막대에 포개지지만(달 넘김 45/590),
+  //      **보고 판단하시는 건 대표님 몫**이다. 클로드가 답을 안 받고 뺐던 자리(2026-07-17 자진 신고).
+  const [starRes, monRes, patRes, outRes] = await Promise.all([
     sb.from('v_district_star').select('district, star, agoda_total, ours, bookings').eq('city', 'Osaka'),
     sb.from('v_district_month').select('district, month, star, bookings').eq('city', 'Osaka'),
     sb.from('v_district_pattern').select('*').eq('city', 'Osaka'),
+    sb.from('v_district_month_out').select('district, month, bookings').eq('city', 'Osaka'),
   ]);
   const dstat = {};
-  const touch = (d) => (dstat[d] = dstat[d] || { stars: [], months: [], pattern: null });
+  const touch = (d) => (dstat[d] = dstat[d] || { stars: [], months: [], months_out: [], pattern: null });
   (starRes.data || []).forEach((r) => {
     if (!r.agoda_total && !r.ours) return;          // 없는 성급 줄을 만들지 않는다
     touch(r.district).stars.push({ star: Number(r.star), agoda_total: r.agoda_total, ours: r.ours, bookings: r.bookings });
   });
   (monRes.data || []).forEach((r) => touch(r.district).months.push({ month: r.month, star: Number(r.star), bookings: r.bookings }));
+  (outRes.data || []).forEach((r) => touch(r.district).months_out.push({ month: r.month, bookings: r.bookings }));
   (patRes.data || []).forEach((r) => { touch(r.district).pattern = r; });
 
   res.setHeader('Cache-Control', 'private, no-store, max-age=0');

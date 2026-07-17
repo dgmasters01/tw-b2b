@@ -405,6 +405,55 @@ async function survey(sb, req, res, who) {
   });
 }
 
+// ── view=cities — **나라·도시 목록을 DB 가 준다** (2026-07-17 · D-065 64)
+//   🔴 옛 화면은 `CT={'일본':['오사카','도쿄','후쿠오카'],…}` 를 **코드에 박아뒀다.**
+//      실측: 우리가 예약을 받은 일본 도시는 **35곳**이다. 화면은 3곳만 보여주고 **감췄다고 말하지도 않았다**(54-0V).
+//   🔑 분모 = `v_city_inventory` → `agoda_city_name(target_code)` = **그 언어 파일 기준 개수**.
+//      ⚠️ `agoda_city.hotels` 를 쓰면 안 된다 — **EN 기준**이라 오사카가 5,419(진짜 12,328)로 절반이 된다.
+async function cities(sb, req, res, who) {
+  const target = String(req.query.target || 'ko');
+  const rows = [];
+  for (let from = 0; from < 4000; from += 1000) {
+    const p = await sb.from('v_city_inventory')
+      .select('city_id, city, country, agoda_total, ours, bookings, published, geo_ok, has_detail')
+      .eq('target_code', target)
+      .order('bookings', { ascending: false })
+      .range(from, from + 999);
+    if (p.error) throw new Error(p.error.message);
+    (p.data || []).forEach((r) => rows.push(r));
+    if (!p.data || p.data.length < 1000) break;   // 🔴 「받은 게 전부」라고 믿지 않는다(63)
+  }
+  // 🔴 「키워드 조사를 했나」는 여기서 말하지 않는다 — `snapshot.city_key` 는 `cc:japan|osaka` 꼴이고
+  //    이 표의 열쇠는 `city_id` 라 지금 이을 방법이 없다. **모르는 걸 안다고 쓰지 않는다**(54-0V).
+  //    조사 여부는 도시 화면(?view=survey)이 그 도시에 들어갔을 때 말한다.
+  const byCountry = new Map();
+  rows.forEach((r) => {
+    const c = r.country || '기타';
+    if (!byCountry.has(c)) byCountry.set(c, { country: c, bookings: 0, ours: 0, agoda_total: 0, cities: [] });
+    const g = byCountry.get(c);
+    g.bookings += r.bookings || 0; g.ours += r.ours || 0; g.agoda_total += r.agoda_total || 0;
+    g.cities.push({
+      city_id: r.city_id, name: r.city,
+      agoda_total: r.agoda_total,                 // 아고다가 이 도시에서 파는 숙소 전체
+      ours: r.ours,                               // 우리 장부에 있는 곳 = 예약이 붙어본 곳
+      share: r.agoda_total ? Math.round(r.ours / r.agoda_total * 1000) / 10 : null,
+      undiscovered: r.agoda_total ? Math.max(0, r.agoda_total - r.ours) : null,
+      bookings: r.bookings, published: r.published,
+      has_detail: !!r.has_detail,                 // 상세까지 담긴 도시 = **지역 분모까지 가능**
+    });
+  });
+  const list = [...byCountry.values()].sort((a, b) => b.bookings - a.bookings);
+  res.setHeader('Cache-Control', 'private, no-store, max-age=0');
+  return res.status(200).json({
+    ok: true, view: 'cities', target,
+    countries: list,
+    totals: { countries: list.length, cities: rows.length,
+      agoda_total: rows.reduce((s2, r) => s2 + (r.agoda_total || 0), 0),
+      ours: rows.reduce((s2, r) => s2 + (r.ours || 0), 0),
+      detail_cities: rows.filter((r) => r.has_detail).length },
+  });
+}
+
 export default async function handler(req, res) {
   const who = await authorized(req);
   if (!who.ok) return res.status(401).json({ ok: false, error: '로그인이 필요합니다.' });
@@ -418,6 +467,14 @@ export default async function handler(req, res) {
     sb = admin();
   } catch (e) {
     return res.status(500).json({ ok: false, error: '서버 설정 오류', detail: String(e.message || e) });
+  }
+
+  if (String(req.query.view || '') === 'cities') {
+    try {
+      return await cities(sb, req, res, who);
+    } catch (e) {
+      return res.status(500).json({ ok: false, error: '도시 목록을 불러오지 못했습니다.', detail: String(e.message || e) });
+    }
   }
 
   if (String(req.query.view || '') === 'survey') {

@@ -411,7 +411,10 @@ async function survey(sb, req, res, who) {
     //         4-4b 매출 순위 = **돈** → `bucket='revenue'` 만
     //         4-14 호텔 목록 = **장부** → 전부, 갈래로 갈라서
     //      실측(난바 108곳): 매출 86 · 취소만 21 · 예약없음 1
-    sb.from('v_district_hotel').select('district, star, name, name_is_ko, confirmed, cancelled, revenue, bucket').eq('city', 'Osaka'),
+    //   🔒 `cooldown` = 183일 안에 소개한 곳(D-065 ㊷ · 6개월 재소개 금지) / 💰 `paid` = $200 계약(쿨다운 아님 — 정반대)
+    //      🔴 2026-07-17 실측: 둘 다 **재료가 0**이다. `published_at` 0곳 · `paid_at` 0곳.
+    //         → 배지는 **조건부**다. 지금은 안 뜬다. **노출 이력 파일이 들어오면 저절로 뜬다.** 가짜로 채우지 않는다.
+    sb.from('v_district_hotel').select('district, star, name, name_is_ko, ptype, confirmed, cancelled, revenue, bucket, cooldown, paid').eq('city', 'Osaka'),
   ]);
   const dstat = {};
   const touch = (d) => (dstat[d] = dstat[d] || { stars: [], months: [], months_out: [], pattern: null, hotels: [] });
@@ -422,8 +425,9 @@ async function survey(sb, req, res, who) {
   (monRes.data || []).forEach((r) => touch(r.district).months.push({ month: r.month, star: Number(r.star), bookings: r.bookings }));
   (outRes.data || []).forEach((r) => touch(r.district).months_out.push({ month: r.month, bookings: r.bookings }));
   (rankRes.data || []).forEach((r) => touch(r.district).hotels.push({
-    star: Number(r.star), name: r.name, name_is_ko: !!r.name_is_ko,
-    bookings: r.confirmed, cancelled: r.cancelled, revenue: Number(r.revenue), bucket: r.bucket }));
+    star: Number(r.star), name: r.name, name_is_ko: !!r.name_is_ko, ptype: r.ptype,
+    bookings: r.confirmed, cancelled: r.cancelled, revenue: Number(r.revenue), bucket: r.bucket,
+    cooldown: !!r.cooldown, paid: !!r.paid }));
   Object.values(dstat).forEach((v) => v.hotels.sort((a, b) => b.revenue - a.revenue || b.cancelled - a.cancelled));
   (patRes.data || []).forEach((r) => { touch(r.district).pattern = r; });
 

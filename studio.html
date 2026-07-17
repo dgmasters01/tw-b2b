@@ -3993,10 +3993,20 @@ function rx(d){cd=d;
  if(HRALL.length){
    var PT={resort:'리조트',ryokan:'료칸',apartment:'아파트',hostel:'호스텔',guesthouse:'게하',villa:'빌라'};
    var stN3=function(v){ return v>0?(String(v).replace('.0','')+'성'):'무성급'; };
-   /* 🔴 2성 이하는 추천에서 뺀다 (대표님 2026-07-17) — 난바 2성은 2곳·$70. TOP3가 2곳이면 TOP3가 아니다.
-      🔴 장부(4-14)·매출 순위(4-4b)에는 **그대로 남는다** — 그건 사실이고, 여긴 「뭘 만드나」다. */
+   /* 🔴 추천 축 = **호텔·리조트만 · 3성 이상** (대표님 2026-07-17 확정).
+      ① *"아파트, 호스텔, 게하 3성으로 하면 안 되잖아. **이거는 콘텐츠 유형이 다른 건데.**"*
+         → 성급 묶음에서 뺀다. **장부(4-14)·매출 순위(4-4b)에는 그대로 남는다** — 그건 사실이고, 여긴 「뭘 만드나」다.
+      ② *"영업은 호텔, 리조트만 하는 거지"* — D-062 유형 정책과 같다.
+      ③ **료칸은 따로 뺀다**(대표님) — 등급이 있지만(아고다 실측 2~5성) 호텔과 같은 줄에 세우면
+         「난바 호텔 TOP3 — 4성」에 료칸이 껴서 영상이 이상해진다. **「료칸」은 사람이 그 말로 찾는다**
+         (`오사카 료칸` 3.1 — 난바 호텔 10.84의 1/3). **찾는 말이 있으면 축이 된다.**
+      ④ 2성 이하 제외 — 난바 2성은 2곳·$70. TOP3가 2곳이면 TOP3가 아니다.
+      🔴 성급 값 자체가 틀렸었다 — 2026-07-17 실측: 대조 1,190곳 중 **689곳(58%) 불일치**,
+         **664곳을 아고다 파일 값으로 교정**(백업 `hotels_star_backup_20260717`). 5성 호스텔이 그래서 나왔다.
+         아고다 실측: 호스텔은 **최고 3성**이다. 5성 호스텔은 존재할 수 없었다. */
+   var STAY=['hotel','resort'];
    var byS={};
-   HRALL.filter(function(x){return x.bucket==='revenue' && x.star>=3;}).forEach(function(x){
+   HRALL.filter(function(x){return x.bucket==='revenue' && x.star>=3 && STAY.indexOf(x.ptype)>=0;}).forEach(function(x){
      (byS[x.star]=byS[x.star]||{rev:0,bk:0,list:[]}); byS[x.star].rev+=x.revenue; byS[x.star].bk+=x.bookings; byS[x.star].list.push(x);
    });
    var ordS=Object.keys(byS).map(Number).sort(function(a,b){return byS[b].rev-byS[a].rev;});
@@ -4027,7 +4037,32 @@ function rx(d){cd=d;
           (CXOPEN===st?cxDetail(g3.list,PT):'')+
           '</div>';
      });
-     h+='<div style="font-size:10px;color:var(--muted);margin-top:4px;">제목에 성급을 안 넣습니다 — 실측 `오사카 4성급 호텔 추천` 0.08. 사람은 「'+((dRow&&dRow.head)||(d+' 호텔'))+'」로 찾습니다</div></div>';
+     /* 유형 축 — 료칸처럼 **사람이 그 말로 찾는 유형**은 따로 낸다(대표님 2026-07-17).
+        🔴 검색어가 살아있는 유형만 축이 된다. 없으면 안 만든다 — 그 도시가 정한다(54-0X).
+        난바 리조트는 2곳뿐이라 안 뜬다. 다낭·나트랑에선 뜰 수 있다. */
+     var TYPEAX={ryokan:['료칸','ryokan'],resort:['리조트','resort'],villa:['빌라','villa']};
+     Object.keys(TYPEAX).forEach(function(pt){
+       var word=TYPEAX[pt][0];
+       var kw=KW.filter(function(k){ return k.text.indexOf(word)>=0 && k.demand!==null; })
+               .concat(((SV&&SV.rows)||[]).filter(function(k){ return k.text.indexOf(word)>=0 && k.demand!==null; }))
+               .sort(function(a,b){return b.demand-a.demand;})[0];
+       if(!kw) return;                                  /* 그 말로 찾는 사람이 없으면 축이 아니다 */
+       var list=HRALL.filter(function(x){return x.bucket==='revenue' && x.ptype===pt;})
+                     .sort(function(a,b){return b.revenue-a.revenue;});
+       if(list.length<2) return;                        /* 2곳 미만이면 TOP3가 못 된다 */
+       var rev=list.reduce(function(p,c){return p+c.revenue;},0), bk=list.reduce(function(p,c){return p+c.bookings;},0);
+       h+='<div style="background:var(--card2);border-radius:8px;padding:10px 11px;margin-bottom:7px;">'+
+          '<div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:4px;">'+
+          '<span style="font-size:13px;font-weight:600;">'+d+' '+word+' TOP3</span>'+
+          '<span class="pil" style="background:var(--bld);color:var(--bl);">유형 축</span>'+
+          '<span style="font-size:10px;color:var(--sub);margin-left:auto;">$'+rev.toLocaleString()+'</span></div>'+
+          '<div style="font-size:11px;color:var(--muted);margin-bottom:6px;">「'+kw.text+'」로 찾습니다 (검색량 '+kw.demand+') · 확정 '+bk+'건 · '+list.length+'곳'+
+          (PFP&&PFP.m?' · '+(((PFP.m-3)+11)%12+1)+'월 발행 → '+PFP.m+'월 피크':'')+'</div>'+
+          '<div style="font-size:11.5px;line-height:1.9;">'+list.slice(0,3).map(function(x,k){
+            return '<span style="color:var(--muted);">'+(k+1)+'</span> '+x.name+' <span style="font-size:10px;color:var(--muted);">'+(x.star>0?String(x.star).replace('.0','')+'성':'')+'</span> '+badgePop(x)+' '+badgeReuse(x);
+          }).join('<br>')+'</div></div>';
+     });
+     h+='<div style="font-size:10px;color:var(--muted);margin-top:4px;">성급 축 = <b>호텔·리조트만</b> · 아파트·호스텔·게하는 콘텐츠 유형이 달라 뺐습니다(장부엔 있습니다)<br>제목에 성급을 안 넣습니다 — 실측 `오사카 4성급 호텔 추천` 0.08. 사람은 「'+((dRow&&dRow.head)||(d+' 호텔'))+'」로 찾습니다</div></div>';
    }
  }
 

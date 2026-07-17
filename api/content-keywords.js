@@ -229,11 +229,20 @@ async function survey(sb, req, res, who) {
   //    우리 `hotels` 표는 **「예약이 붙은 호텔」만**이라 분모가 없었다.
   //    실측: 아고다 오사카 **12,328곳** · 우리 장부 **255곳** = **2.1%**. 우리는 오사카의 2%만 보고 있었다.
   //    파일에 좌표가 100% 있어 **구글 Places 없이** 지역 반경으로 센다.
-  const invRes = await sb.from('agoda_inventory')
-    .select('latitude, longitude')
-    .eq('city_id', 9590);
-  const inv = (invRes.error ? [] : (invRes.data || []))
-    .filter((r) => r.latitude).map((r) => [Number(r.latitude), Number(r.longitude)]);
+  // 🔴 2026-07-17 — Supabase 는 **기본 1,000행**만 준다. 12,328 을 물었는데 1,000 이 와서
+  //    분모가 **12배 작게** 나왔다(난바 157 vs 진짜 1,677). 화면이 도시를 작게 말했다(55 의 그 병).
+  //    → 1,000씩 끊어서 **다 받는다.** "받은 게 전부"라고 믿지 않는다.
+  const inv = [];
+  for (let from = 0; from < 20000; from += 1000) {
+    const p = await sb.from('agoda_inventory')
+      .select('latitude, longitude')
+      .eq('city_id', 9590)
+      .not('latitude', 'is', null)
+      .range(from, from + 999);
+    if (p.error) break;
+    (p.data || []).forEach((r) => inv.push([Number(r.latitude), Number(r.longitude)]));
+    if (!p.data || p.data.length < 1000) break;
+  }
   const kmAt = (la1, lo1, la2, lo2) => {
     const R = 6371, d = Math.PI / 180;
     return R * Math.acos(Math.min(1,

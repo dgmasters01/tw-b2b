@@ -404,7 +404,14 @@ async function survey(sb, req, res, who) {
     //         안 보내면 샐 수가 없다. 화면에서 가리는 것보다 창구에서 안 담는 게 안전하다.
     //      호텔명 = 아고다 파일의 한국어 이름, **없으면 원래 이름 그대로**(대표님 확정).
     //         🔴 클로드가 번역해서 채우지 않는다 — 그게 지어내기다(61).
-    sb.from('v_district_hotel_rank').select('district, star, name, name_is_ko, bookings, revenue').eq('city', 'Osaka'),
+    //   🔑 갈래(bucket) — 대표님 2026-07-17: *"취소되어서 매출이 없다고 하더라도 표시는 되어야 됨.
+    //      그 호텔을 눌렀을 때 **우리한테 예약했다가 취소했구나**. 이것도 정보니깐."*
+    //      revenue(매출 남) / cancelled_only(예약 왔다가 전부 취소) / no_booking(장부에만)
+    //      🔴 두 블록은 **다른 물건**이다. 섞지 않는다:
+    //         4-4b 매출 순위 = **돈** → `bucket='revenue'` 만
+    //         4-14 호텔 목록 = **장부** → 전부, 갈래로 갈라서
+    //      실측(난바 108곳): 매출 86 · 취소만 21 · 예약없음 1
+    sb.from('v_district_hotel').select('district, star, name, name_is_ko, confirmed, cancelled, revenue, bucket').eq('city', 'Osaka'),
   ]);
   const dstat = {};
   const touch = (d) => (dstat[d] = dstat[d] || { stars: [], months: [], months_out: [], pattern: null, hotels: [] });
@@ -415,8 +422,9 @@ async function survey(sb, req, res, who) {
   (monRes.data || []).forEach((r) => touch(r.district).months.push({ month: r.month, star: Number(r.star), bookings: r.bookings }));
   (outRes.data || []).forEach((r) => touch(r.district).months_out.push({ month: r.month, bookings: r.bookings }));
   (rankRes.data || []).forEach((r) => touch(r.district).hotels.push({
-    star: Number(r.star), name: r.name, name_is_ko: !!r.name_is_ko, bookings: r.bookings, revenue: Number(r.revenue) }));
-  Object.values(dstat).forEach((v) => v.hotels.sort((a, b) => b.revenue - a.revenue));
+    star: Number(r.star), name: r.name, name_is_ko: !!r.name_is_ko,
+    bookings: r.confirmed, cancelled: r.cancelled, revenue: Number(r.revenue), bucket: r.bucket }));
+  Object.values(dstat).forEach((v) => v.hotels.sort((a, b) => b.revenue - a.revenue || b.cancelled - a.cancelled));
   (patRes.data || []).forEach((r) => { touch(r.district).pattern = r; });
 
   res.setHeader('Cache-Control', 'private, no-store, max-age=0');

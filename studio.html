@@ -3637,6 +3637,14 @@ function drawPattern(PT,MO,MOUT,pk){
     var pct={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return c.parsed.y+'%';}}}},
       scales:{x:{ticks:{color:TICK,font:{size:10}},grid:{display:false}},
               y:{beginAtZero:true,ticks:{color:TICK,font:{size:10},callback:function(v){return v+'%';}},grid:{color:GRID},border:{display:false}}}};
+    var ct=g('ctrend');
+    if(ct&&SR&&SR.d){ kill('trend'); CH.trend=new Chart(ct,{type:'line',
+      data:{labels:['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'],datasets:[
+        {label:'도시',data:SR.c||[],borderColor:'#5aa9e6',borderWidth:2,pointRadius:2,tension:.3,fill:false,spanGaps:true},
+        {label:'지역',data:SR.d,borderColor:'#4edea3',borderWidth:3,pointRadius:3,tension:.3,fill:false,spanGaps:true}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+        scales:{x:{ticks:{color:TICK,font:{size:10}},grid:{display:false}},
+                y:{ticks:{color:TICK,font:{size:10}},grid:{color:GRID},border:{display:false}}}}}); }
     var c2=g('clead');
     if(c2){ kill('lead'); CH.lead=new Chart(c2,{type:'bar',data:{labels:['0-7일','8-30일','31-90일','90일+'],
       datasets:[{data:[PT.lead_d7,PT.lead_d30,PT.lead_d90,PT.lead_over],backgroundColor:['#7b8794','#2a78d6','#2a78d6','#7b8794'],borderRadius:4,barThickness:38}]},options:pct}); }
@@ -3645,6 +3653,18 @@ function drawPattern(PT,MO,MOUT,pk){
       datasets:[{data:[+PT.n1,+PT.n2,+PT.n3,+PT.n4,+PT.n5],backgroundColor:['#7b8794','#3ecf8e','#3ecf8e','#7b8794','#7b8794'],borderRadius:4,barThickness:38}]},options:pct}); }
   });
 }
+/* 시계열(`{"2024-01":12.3,…}`)을 **달 12칸 평균**으로 접는다. 해가 여럿이라 달끼리 모아야 계절이 보인다.
+   🔴 3달도 안 되는 해는 곡선이 아니다 — 그리지 않는다(0-M 규칙 계승). */
+function ser12(series){
+  if(!series) return null;
+  var mo={}, n=0;
+  Object.keys(series).forEach(function(ym){ var m=+ym.slice(5,7); (mo[m]=mo[m]||[]).push(series[ym]); n++; });
+  if(n<6) return null;
+  var a=[]; for(var m=1;m<=12;m++){ var v=mo[m]; a.push(v&&v.length?Math.round(v.reduce(function(p,c){return p+c;},0)/v.length*10)/10:null); }
+  return a;
+}
+function pkOf(a){ if(!a) return null; var mx=-1,k=null; a.forEach(function(v,i){ if(v!==null&&v>mx){mx=v;k=i+1;} }); return k; }
+var SR=null;
 function rxPattern(PT,MO,pk){
   var nb=[['1박',+PT.n1],['2박',+PT.n2],['3박',+PT.n3],['4박',+PT.n4],['5박+',+PT.n5]];
   var top2=nb.slice().sort(function(a,b){return b[1]-a[1];}).slice(0,2);
@@ -3655,6 +3675,16 @@ function rxPattern(PT,MO,pk){
      '<span style="color:#EF9F27;">▬ 체크아웃</span></div>'+
      '<div style="position:relative;width:100%;height:170px;"><canvas id="cflow"></canvas></div>'+
      (pk?'<div style="font-size:10.5px;color:var(--am);margin-top:5px;">예약 피크 <b>'+pk.m+'월</b> ('+pk.v+'건) → 착수는 3달 전 <b>'+(((pk.m-3)+11)%12+1)+'월</b> · 막대 = 잔 달 · 선 = 나온 달</div>':'');
+  /* ⑤ 수요 트렌드 — 12개월 흐름(언제 자나) **바로 다음**(언제 찾나). 한 달 차이가 여기서 보인다 */
+  if(SR&&SR.d){
+    o+='<div style="font-size:11px;color:var(--sub);margin:13px 0 4px;">①-2 언제 찾나 — 검색 트렌드 · 도시와 겹쳐</div>'+
+       '<div style="display:flex;gap:11px;margin-bottom:4px;font-size:9.5px;color:var(--muted);">'+
+       '<span style="color:#5aa9e6;">■ '+(SR.cityName||'도시')+'</span><span style="color:#4edea3;">■ '+cd+' (지역)</span></div>'+
+       '<div style="position:relative;width:100%;height:135px;"><canvas id="ctrend"></canvas></div>'+
+       '<div style="font-size:10.5px;color:var(--am);margin-top:5px;">검색 피크 <b>'+SR.dPk+'월</b>'+
+       (SR.cPk&&SR.cPk!==SR.dPk?' · 도시는 '+SR.cPk+'월':'')+
+       (pk&&pk.m!==SR.dPk?' — 예약 피크는 <b>'+pk.m+'월</b>. 찾고 나서 '+(((pk.m-SR.dPk)+12)%12)+'달 뒤에 잡니다':'')+'</div>';
+  }
   o+='<div style="font-size:11px;color:var(--sub);margin:13px 0 4px;">② 며칠 전에 만드나 — 예약 시점</div>'+
      '<div style="position:relative;width:100%;height:135px;"><canvas id="clead"></canvas></div>'+
      '<div style="font-size:10.5px;color:var(--em);margin-top:5px;">10명 중 '+Math.round((PT.lead_d7+PT.lead_d30+PT.lead_d90)/10)+'명이 3달 안에 예약 · 중앙값 <b>'+PT.lead_median+'일 전</b> · '+PT.bookings+'건</div>';
@@ -3671,6 +3701,10 @@ function rx(d){cd=d;
     🔴 숫자를 박지 않는다. 전부 SV.district_stats. */
  var DS=(SV&&SV.district_stats&&SV.district_stats[d])||null;
  var ST=(DS&&DS.stars)||[], PT=(DS&&DS.pattern)||null, MO=(DS&&DS.months)||[], MOUT=(DS&&DS.months_out)||[];
+ /* ⑤ 수요 트렌드 재료 — 창구가 준 시계열. 박지 않는다 */
+ var dRow=((SV&&SV.districts)||[]).filter(function(x){return x.name===d;})[0];
+ var sd=ser12(dRow&&dRow.series), sc=ser12(SV&&SV.city_series);
+ SR = sd ? { d:sd, c:sc, dPk:pkOf(sd), cPk:pkOf(sc), cityName:(SV&&SV.city_anchor_text)||cy } : null;
  var stName=function(v){ return v>0?(String(v).replace('.0','')+'성'):'무성급'; };
  var big=ST.slice().sort(function(a,b){return b.bookings-a.bookings;})[0];   /* 예약이 제일 많이 나는 성급 = 팔리는 것 */
  var most=ST.slice().sort(function(a,b){return b.agoda_total-a.agoda_total;})[0];  /* 제일 많이 있는 성급 = 동네 성격 */
@@ -3744,22 +3778,20 @@ function rx(d){cd=d;
     '<div id="kv1"><div style="font-size:11px;color:var(--muted);padding:8px 0;">조사 불러오는 중…</div></div>'+
     '<div id="kv2"></div><div id="kv3"></div></div>';
 
- h+='<div class="bk"><div class="bh">③ 자동 채택 태그란 <span style="font-size:10px;color:var(--em);font-weight:400;margin-left:auto;">482 / 500자</span><span class="no">4-10</span></div>'+
-    '<div style="background:var(--card2);border-radius:7px;padding:9px;font-size:11px;color:var(--sub);line-height:1.6;" id="tgb">오사카호텔, 오사카 숙소, 오사카 숙소 추천, 난바 호텔, 오사카 호텔 추천, 오사카 료칸, 난바 숙소, 우메다 호텔, 신사이바시 호텔, 도톤보리 호텔 …</div>'+
-    '<div style="display:flex;gap:6px;margin-top:6px;align-items:center;"><button class="btn bt2" onclick="cp()">복사</button><button class="btn bt2" onclick="ts(\'채널 §4 태그란에 저장됨\')">§4에 저장</button>'+
-    '<span style="font-size:10px;color:var(--muted);margin-left:auto;">손질하면 저장됨 · 측정 안 된 것도 넣음(비용 0)</span></div></div>';
+ /* 🔴 4-10 「③ 자동 채택 태그란」 삭제 (2026-07-17 대표님) — **여기가 아니다.**
+    이 페이지는 대표님이 정한 대로 **기본 자료 보는 곳**(66). 태그란은 **만들 때 쓰는 것** = 올리기·전략 자리.
+    게다가 목업이었다: 482/500자도 박혀 있었고 [복사]는 그 박힌 글자를 복사했다. */
 
- h+='<div class="bk"><div class="bh">④ 확장 여지 <span style="font-size:10px;color:var(--muted);font-weight:400;">— 미개척에서 재설계</span><span class="no" style="margin-left:auto;">4-11 🔴</span></div>'+
-    '<div class="ok" style="margin-bottom:6px;"><b>1순위 · 검증됨 + 남은 호텔 → "더 캐기"</b><br>오사카 = 예약 붙는 검증 호텔 <b>255개</b> · TOP3면 <b>85편</b> 여지 · 이미 되는 게 증명됨 = 가장 안전</div>'+
-    '<div class="wn" style="margin-bottom:6px;"><b>2순위 · 미개척</b> — 수요는 큰데 될지 모름 (도박)</div>'+
-    '<div style="background:var(--card2);border-radius:7px;padding:8px;font-size:11px;color:var(--muted);">3순위 · 영상 있는데 예약 안 붙음 — 각도 바꾸거나 접기</div>'+
-    '<div class="wn" style="margin-top:6px;">⚠️ <b>지금은 이 판정 불가</b> — hotels에 영상 노출 컬럼이 없습니다. 대표님 노출 이력(날짜·채널·TOP3) 대기. <span class="no">4-12</span></div></div>';
+ /* 🔴 4-11 「④ 확장 여지」 삭제 (2026-07-17 대표님) — **화면이 스스로 못한다고 말하던 블록.**
+    ① 판정 재료 0건 — 영상 노출 이력이 없다(4-12가 그걸 적어두고 있었다). 대표님 파일 대기 중
+    ② *"오사카 255개·85편"* = **난바 화면에 도시 값** (4-1과 같은 병)
+    ③ **성급 분포(4-1)가 이미 더 정확히 말한다** — 4성 116곳 중 우리 35곳 = 미개척 81곳
+    → 노출 이력이 들어오면 그때 진짜로 만든다. 재료 없이 자리만 잡아두지 않는다. */
 
- h+='<div class="bk"><div class="bh">⑤ 난바 수요 트렌드 <span style="font-size:10px;color:var(--muted);font-weight:400;">— 도시와 겹쳐 비교</span><span class="no" style="margin-left:auto;">4-13</span></div>'+
-    '<svg width="100%" viewBox="0 0 560 90">'+line(SE['오사카'],560,84,'#5aa9e6',2)+line(SE['난바'],560,84,'#4edea3',3)+
-    '<text x="10" y="88" style="font-size:8px;fill:#6a85a0;">1월</text><text x="280" y="88" style="font-size:8px;fill:#6a85a0;">7월</text><text x="530" y="88" style="font-size:8px;fill:#6a85a0;">12월</text></svg>'+
-    '<div style="display:flex;gap:11px;font-size:9px;color:var(--muted);margin:3px 0 6px;"><span style="color:#5aa9e6;">■ 오사카 (도시)</span><span style="color:#4edea3;">■ 난바 (지역)</span></div>'+
-    '<div class="wn"><b>지역 계절 ≠ 도시 계절</b> — 난바는 11월 단일 피크(66.3), 4월 바닥 20.6으로 <b>진폭 3.2배</b>. 오사카는 겨울 내내 완만(1.6배). <b>난바는 11월 한 달을 놓치면 큰 손해</b>입니다.</div></div>';
+ /* 🔴 4-13 「⑤ 수요 트렌드」 는 **접힘 안 · 12개월 흐름 다음**으로 옮겼다 (2026-07-17 대표님).
+    같은 「언제」 질문이라 나란히 있어야 한 달 차이가 보인다:
+      검색 트렌드 = 난바 11월 피크 (언제 **찾나**) / 예약 12개월 = 난바 12월 피크 (언제 **자나**)
+    옛 코드는 SE={오사카·난바·다낭} 3개를 박아뒀다 → 이제 창구(districts[].series · city_series). */
 
  h+='<div class="bk"><div class="bh">호텔 후보 <span style="font-size:10px;color:var(--muted);font-weight:400;">— 축이 아니라 출력</span><span class="no" style="margin-left:auto;">4-14 🆕</span></div>'+
     '<div class="evs" style="margin-bottom:7px;">난바 검색자는 <b style="color:var(--sub);">아직 호텔을 못 정한 사람</b>. 우리가 여러 호텔을 골라 보여줍니다.</div>';

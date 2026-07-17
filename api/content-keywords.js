@@ -264,10 +264,19 @@ async function survey(sb, req, res, who) {
   const wardOf = (a) => (a && (a.match(/([A-Za-z]+) Ward/) || [])[1]) || null;
   const townOf = (a) => (a && (a.match(/(?:ch(?:ō|o)me-[\d-]+ |^[\d-]+ )([A-Za-zōūā-]+),/) || [])[1]) || null;
 
+  // 🔴 주소는 있는데 「구」가 없는 것 = **이 도시가 아닐 수 있다.**
+  //    실측: `Osaka Fujiya Hotel`(예약 28건) 주소 = "256-1 Yumoto, **Hakone, Ashigarashimo District,
+  //    Kanagawa** 250-0392, Japan" → **하코네다. 오사카가 아니다.** 아고다 이름 오매칭.
+  //    → 「이 도시 아님」으로 갈라낸다. 미개척 후보에 섞으면 없는 지역을 개척하러 간다.
+  const cityInAddr = (a) => !!(a && /Osaka/i.test(a));
   const byWard = new Map();
   noName.forEach((r) => {
     const w = wardOf(r.address);
-    const key = w || '(주소 없음)';
+    let key;
+    if (w) key = w;
+    else if (!r.address) key = '(주소 없음)';
+    else if (!cityInAddr(r.address)) key = '(이 도시 아님)';
+    else key = '(구 없음)';
     if (!byWard.has(key)) byWard.set(key, []);
     byWard.get(key).push(r);
   });
@@ -286,6 +295,8 @@ async function survey(sb, req, res, who) {
       zone: zoneOf(d),
       top_hotel: top ? top.hotel_name : null,
       no_geo: hs.filter((r) => !r.latitude).length,
+      wrong_city: ward === '(이 도시 아님)',
+      sample_addr: (hs.find((r) => r.address) || {}).address || null,
     };
   }).sort((a, b) => b.bookings - a.bookings);
   const noGeo = noName.filter((r) => !r.latitude);

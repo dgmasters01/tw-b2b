@@ -52,7 +52,8 @@ export default async function handler(req, res) {
   }
   const city = String(req.query.city || 'Osaka');
   const dryRun = req.query.dry_run === '1';
-  const cityId = CITY_ID[city.toLowerCase()];
+  // 🔬 `?city_id=9395` 로 문서 예제(싱가포르)를 직접 시험할 수 있다 — **우리 번호가 틀린 건지 계정이 문제인지** 가른다
+  const cityId = req.query.city_id ? parseInt(req.query.city_id, 10) : CITY_ID[city.toLowerCase()];
   if (!cityId) return res.status(400).json({ ok: false, error: `도시 번호를 모릅니다: ${city}. 아는 것: ${Object.keys(CITY_ID).join(', ')}` });
 
   const apiKey = process.env.AGODA_API_KEY;

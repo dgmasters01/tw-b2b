@@ -3727,14 +3727,31 @@ function cxDetail(list, PT){
        '<span style="color:var(--muted);font-size:10px;">'+(i+1)+'</span>'+
        '<div>'+x.name+
          (PT[x.ptype]?' <span class="pil" style="background:var(--bld);color:var(--bl);">'+PT[x.ptype]+'</span>':'')+
-         (x.paid?' <span class="pil" style="background:var(--emd);color:var(--em);">유료 계약</span>':'')+
-         (x.cooldown?' <span class="pil" style="background:var(--amd);color:var(--am);">6개월 안 — 못 씀</span>':'')+
+         ' '+badgeCR(x.confirm_rate)+' '+badgeReuse(x)+
        '</div>'+
        '<span style="text-align:right;color:var(--em);">'+x.bookings+'건</span>'+
        '<span style="text-align:right;color:'+(x.cancelled?'var(--am)':'var(--muted)')+';">'+(x.cancelled||0)+'</span>'+
        '<span style="text-align:right;color:var(--sub);">$'+x.revenue.toLocaleString()+'</span></div>';
   });
   return o+'</div>';
+}
+/* 🔑 배지 — **D-062(호텔 메뉴)가 이미 정해둔 이름·구간을 그대로 쓴다.** 클로드가 짓지 않는다.
+   ① 확정률(D-062 ⑤-3): 안정 ≥85 / 보통 70~84 / 주의 50~69 / 경고 <50
+      *"주의 = TOP3 넣을 때 취소 유출 감안 · 경고 = 노출 대비 실투숙 낮음, TOP3 신중"*
+      실측 2026-07-17: 리치몬드 난바 **53%**(21/40) — TOP3에 넣으면 절반이 날아간다. 이걸 안 말하면 안 된다.
+   ② 재사용(D-062): **아직못씀 / 지금가능 / 노출없음**. 6개월 = 마지막 노출 + 183일.
+      🔴 재료(노출 이력)는 **0건**이다 — 대표님이 파일로 주시기로 함. 오면 저절로 켜진다. 가짜로 안 채운다. */
+function badgeCR(r){
+  if(r===null||r===undefined) return '';
+  var t = r>=85?['안정','var(--em)','var(--emd)'] : r>=70?['보통','var(--sub)','var(--card2)']
+        : r>=50?['주의','var(--am)','var(--amd)'] : ['경고','var(--rd)','var(--rdd)'];
+  return '<span class="pil" style="background:'+t[2]+';color:'+t[1]+';">'+t[0]+' '+r+'%</span>';
+}
+function badgeReuse(x){
+  if(x.paid) return '<span class="pil" style="background:var(--emd);color:var(--em);">유료 계약</span>';
+  if(x.reuse==='cooldown') return '<span class="pil" style="background:var(--amd);color:var(--am);">아직못씀'+(x.reuse_from?' · '+x.reuse_from:'')+'</span>';
+  if(x.reuse==='ready')    return '<span class="pil" style="background:var(--emd);color:var(--em);">지금가능</span>';
+  return '';   /* 노출없음 = 기본값. 배지로 도배하지 않는다 */
 }
 function rx(d){cd=d;
 /* ── 지역 세부 = **기본 자료를 보는 곳** (대표님 2026-07-17). 여기에 [이걸로 만들기] 안 붙인다.
@@ -3957,8 +3974,10 @@ function rx(d){cd=d;
  if(HRALL.length){
    var PT={resort:'리조트',ryokan:'료칸',apartment:'아파트',hostel:'호스텔',guesthouse:'게하',villa:'빌라'};
    var stN3=function(v){ return v>0?(String(v).replace('.0','')+'성'):'무성급'; };
+   /* 🔴 2성 이하는 추천에서 뺀다 (대표님 2026-07-17) — 난바 2성은 2곳·$70. TOP3가 2곳이면 TOP3가 아니다.
+      🔴 장부(4-14)·매출 순위(4-4b)에는 **그대로 남는다** — 그건 사실이고, 여긴 「뭘 만드나」다. */
    var byS={};
-   HRALL.filter(function(x){return x.bucket==='revenue';}).forEach(function(x){
+   HRALL.filter(function(x){return x.bucket==='revenue' && x.star>=3;}).forEach(function(x){
      (byS[x.star]=byS[x.star]||{rev:0,bk:0,list:[]}); byS[x.star].rev+=x.revenue; byS[x.star].bk+=x.bookings; byS[x.star].list.push(x);
    });
    var ordS=Object.keys(byS).map(Number).sort(function(a,b){return byS[b].rev-byS[a].rev;});
@@ -3980,8 +3999,7 @@ function rx(d){cd=d;
           '<div style="font-size:11.5px;line-height:1.9;">'+top3.map(function(x,k){
             return '<span style="color:var(--muted);">'+(k+1)+'</span> '+x.name+
               (PT[x.ptype]?' <span class="pil" style="background:var(--bld);color:var(--bl);">'+PT[x.ptype]+'</span>':'')+
-              (x.paid?' <span class="pil" style="background:var(--emd);color:var(--em);">유료 계약</span>':'')+
-              (x.cooldown?' <span class="pil" style="background:var(--amd);color:var(--am);">6개월 안 — 못 씀</span>':'');
+              ' '+badgeCR(x.confirm_rate)+' '+badgeReuse(x);
           }).join('<br>')+'</div>'+
           '<div onclick="cxmore('+st+')" style="font-size:10.5px;color:var(--bl);cursor:pointer;padding:5px 0 0;">'+
           (CXOPEN===st?'접기 ▴':'펼쳐 보기 ▾ — 호텔별 확정·취소·금액')+'</div>'+
@@ -4022,6 +4040,7 @@ function rx(d){cd=d;
        o+='<div style="display:flex;align-items:center;gap:7px;padding:3px 0;font-size:11.5px;">'+
           '<span style="flex:1;">'+r.name+'</span>'+
           '<span style="font-size:10px;color:var(--muted);">'+stN2(r.star)+'</span>'+
+          '<span style="font-size:10px;">'+badgeCR(r.confirm_rate)+badgeReuse(r)+'</span>'+
           '<span style="font-size:10.5px;color:var(--sub);min-width:96px;text-align:right;">'+fmt(r)+'</span></div>';
      });
      if(a.length>4) o+='<div onclick="hfmore(\''+key+'\')" style="font-size:10px;color:var(--bl);cursor:pointer;padding:3px 0;">'+

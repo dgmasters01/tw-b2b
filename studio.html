@@ -3592,49 +3592,74 @@ function pfold(){ PFOPEN=!PFOPEN;
   var b=document.getElementById('pfb'), c=document.getElementById('pfc');
   if(b) b.style.display=PFOPEN?'block':'none';
   if(c) c.textContent=PFOPEN?'접기 ▴':'펼치기 ▾';
+  /* 🔴 접힌 채로 그리면 캔버스 폭이 0이라 그림이 안 나온다. 펼칠 때 그린다 */
+  if(PFOPEN&&PFCTX) drawPattern(PFCTX.PT,PFCTX.MO,PFCTX.MOUT,PFCTX.pk);
+}
+var PFCTX=null;
+/* 🔴 2026-07-17 대표님: *"기존에 보여준 형태랑 그래프 형태가 다른데. 예약및체크아웃그래프도 다르고."*
+   맞다. 클로드가 목업은 **차트 라이브러리**로 그려서 보여드리고, 화면은 **손으로 그린 막대**로 만들었다.
+   축·눈금·값이 다 빠져서 목업보다 초라했다. **보여준 것과 만든 것이 달랐다.**
+   그리고 체크아웃 선은 대표님 답(A/B/C)을 **안 받고 클로드가 뺐다.**
+   → 고침: 목업과 같은 라이브러리(Chart.js)로 그린다 + 체크아웃 선 넣는다. 판단은 대표님이 하신다.
+   룰: 목업으로 보여준 형태와 다르게 만들지 않는다. 다르게 만들 거면 먼저 말한다. */
+function needChart(cb){
+  if(window.Chart) return cb();
+  if(window.__chartLoading){ window.__chartQ.push(cb); return; }
+  window.__chartLoading=true; window.__chartQ=[cb];
+  var sc=document.createElement('script');
+  sc.src='https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js';   /* 스튜디오가 이미 쓰는 jsdelivr */
+  sc.onload=function(){ window.__chartQ.forEach(function(f){ try{f();}catch(e){} }); window.__chartQ=[]; };
+  document.head.appendChild(sc);
+}
+var CH={};
+function drawPattern(PT,MO,MOUT,pk){
+  needChart(function(){
+    var g=function(id){ var e=document.getElementById(id); return e&&e.getContext?e.getContext('2d'):null; };
+    var kill=function(k){ if(CH[k]){ CH[k].destroy(); CH[k]=null; } };
+    var GRID='rgba(128,128,128,.22)', TICK='#7b8794';
+    var M=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+    var pick=function(st){ var a=[]; for(var m=1;m<=12;m++){ a.push(MO.filter(function(x){return x.month===m&&Math.floor(x.star)===st;}).reduce(function(p,c){return p+c.bookings;},0)); } return a; };
+    var outA=[]; for(var m=1;m<=12;m++){ var o=MOUT.filter(function(x){return x.month===m;})[0]; outA.push(o?o.bookings:0); }
+    var c1=g('cflow');
+    if(c1){ kill('flow'); CH.flow=new Chart(c1,{ data:{ labels:M, datasets:[
+        {type:'bar',label:'4성',data:pick(4),backgroundColor:'#008300',stack:'in',order:3},
+        {type:'bar',label:'5성',data:pick(5),backgroundColor:'#2a78d6',stack:'in',order:3},
+        {type:'bar',label:'3성',data:pick(3),backgroundColor:'#d4537e',stack:'in',order:3},
+        {type:'bar',label:'기타',data:pick(0),backgroundColor:'#7b8794',stack:'in',order:3,borderRadius:3},
+        {type:'line',label:'체크아웃',data:outA,borderColor:'#EF9F27',borderWidth:2,borderDash:[5,4],
+         pointRadius:3,pointBackgroundColor:'#EF9F27',tension:.3,fill:false,order:1}
+      ]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},
+        tooltip:{callbacks:{footer:function(it){var s2=0;it.forEach(function(x){if(x.dataset.type!=='line')s2+=x.parsed.y;});return s2?'체크인 합계 '+s2+'건':'';}}}},
+        scales:{x:{stacked:true,ticks:{color:TICK,font:{size:10},autoSkip:false},grid:{display:false}},
+                y:{stacked:true,beginAtZero:true,ticks:{color:TICK,font:{size:10},callback:function(v){return v+'건';}},grid:{color:GRID},border:{display:false}}}}});
+    }
+    var pct={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(c){return c.parsed.y+'%';}}}},
+      scales:{x:{ticks:{color:TICK,font:{size:10}},grid:{display:false}},
+              y:{beginAtZero:true,ticks:{color:TICK,font:{size:10},callback:function(v){return v+'%';}},grid:{color:GRID},border:{display:false}}}};
+    var c2=g('clead');
+    if(c2){ kill('lead'); CH.lead=new Chart(c2,{type:'bar',data:{labels:['0-7일','8-30일','31-90일','90일+'],
+      datasets:[{data:[PT.lead_d7,PT.lead_d30,PT.lead_d90,PT.lead_over],backgroundColor:['#7b8794','#2a78d6','#2a78d6','#7b8794'],borderRadius:4,barThickness:38}]},options:pct}); }
+    var c3=g('cnight');
+    if(c3){ kill('night'); CH.night=new Chart(c3,{type:'bar',data:{labels:['1박','2박','3박','4박','5박+'],
+      datasets:[{data:[+PT.n1,+PT.n2,+PT.n3,+PT.n4,+PT.n5],backgroundColor:['#7b8794','#3ecf8e','#3ecf8e','#7b8794','#7b8794'],borderRadius:4,barThickness:38}]},options:pct}); }
+  });
 }
 function rxPattern(PT,MO,pk){
-  var SC={5:'var(--em)',4:'var(--bl)',3:'#d4537e',0:'var(--muted)'};
-  var col=function(st){ return SC[Math.floor(st)]||'var(--muted)'; };
-  var o='';
-  /* ① 12개월 흐름 — 성급별로 쌓는다. 여행(체크인) 월이다 */
-  if(MO.length&&pk){
-    var mx=Math.max.apply(null,Object.keys(pk.all).map(function(k){return pk.all[k];}));
-    var stars=[5,4,3,0], bars='';
-    for(var m=1;m<=12;m++){
-      var segs='', tot=pk.all[m]||0;
-      stars.forEach(function(st){
-        var v=MO.filter(function(x){return x.month===m&&Math.floor(x.star)===st;}).reduce(function(p,c){return p+c.bookings;},0);
-        if(v) segs+='<div style="height:'+(v/mx*100)+'%;background:'+col(st)+';" title="'+m+'월 '+(st||'무')+'성 '+v+'건"></div>';
-      });
-      bars+='<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;">'+
-            '<div style="width:100%;height:76px;display:flex;flex-direction:column-reverse;justify-content:flex-start;border-radius:2px;overflow:hidden;">'+segs+'</div>'+
-            '<div style="font-size:9px;color:'+(m===pk.m?'var(--em)':'var(--muted)')+';">'+m+'</div></div>';
-    }
-    o+='<div style="font-size:11px;color:var(--sub);margin:9px 0 5px;">① 언제 내보내나 — 12개월 흐름 · 성급별</div>'+
-       '<div style="display:flex;gap:3px;margin-bottom:4px;font-size:9.5px;color:var(--muted);">'+
-       '<span style="color:var(--em);">■ 5성</span><span style="color:var(--bl);">■ 4성</span><span style="color:#d4537e;">■ 3성</span><span>■ 기타</span></div>'+
-       '<div style="display:flex;gap:2px;align-items:flex-end;">'+bars+'</div>'+
-       '<div style="font-size:10.5px;color:var(--am);margin-top:5px;">예약 피크 <b>'+pk.m+'월</b> ('+pk.v+'건) → 착수는 3달 전 <b>'+(((pk.m-3)+11)%12+1)+'월</b> · 손님이 잔 달 기준</div>';
-  }
-  /* ② 며칠 전에 예약하나 */
-  var lb=[['0-7일',PT.lead_d7],['8-30일',PT.lead_d30],['31-90일',PT.lead_d90],['90일+',PT.lead_over]];
-  var lmx=Math.max.apply(null,lb.map(function(x){return x[1];}))||1, lh='';
-  lb.forEach(function(x){ lh+='<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;">'+
-    '<div style="width:100%;height:56px;display:flex;align-items:flex-end;"><div style="width:100%;height:'+(x[1]/lmx*100)+'%;background:var(--bl);border-radius:2px 2px 0 0;"></div></div>'+
-    '<div style="font-size:9.5px;color:var(--muted);">'+x[0]+'</div><div style="font-size:9.5px;color:var(--sub);">'+x[1]+'%</div></div>'; });
-  o+='<div style="font-size:11px;color:var(--sub);margin:12px 0 5px;">② 며칠 전에 만드나 — 예약 시점</div>'+
-     '<div style="display:flex;gap:6px;">'+lh+'</div>'+
-     '<div style="font-size:10.5px;color:var(--em);margin-top:5px;">10명 중 '+Math.round((PT.lead_d7+PT.lead_d30+PT.lead_d90)/10)+'명이 3달 안에 예약 · 중앙값 <b>'+PT.lead_median+'일 전</b> · '+PT.bookings+'건</div>';
-  /* ③ 원고 각도 */
   var nb=[['1박',+PT.n1],['2박',+PT.n2],['3박',+PT.n3],['4박',+PT.n4],['5박+',+PT.n5]];
-  var nmx=Math.max.apply(null,nb.map(function(x){return x[1];}))||1, nh='';
-  nb.forEach(function(x){ nh+='<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;">'+
-    '<div style="width:100%;height:56px;display:flex;align-items:flex-end;"><div style="width:100%;height:'+(x[1]/nmx*100)+'%;background:var(--em);border-radius:2px 2px 0 0;"></div></div>'+
-    '<div style="font-size:9.5px;color:var(--muted);">'+x[0]+'</div><div style="font-size:9.5px;color:var(--sub);">'+x[1]+'%</div></div>'; });
   var top2=nb.slice().sort(function(a,b){return b[1]-a[1];}).slice(0,2);
-  o+='<div style="font-size:11px;color:var(--sub);margin:12px 0 5px;">③ 원고 각도 — 숙박일수</div>'+
-     '<div style="display:flex;gap:6px;">'+nh+'</div>'+
+  var o='';
+  o+='<div style="font-size:11px;color:var(--sub);margin:9px 0 4px;">① 언제 내보내나 — 12개월 흐름 · 성급별</div>'+
+     '<div style="display:flex;gap:11px;flex-wrap:wrap;margin-bottom:5px;font-size:9.5px;color:var(--muted);">'+
+     '<span style="color:#008300;">■ 4성</span><span style="color:#2a78d6;">■ 5성</span><span style="color:#d4537e;">■ 3성</span><span>■ 기타</span>'+
+     '<span style="color:#EF9F27;">▬ 체크아웃</span></div>'+
+     '<div style="position:relative;width:100%;height:170px;"><canvas id="cflow"></canvas></div>'+
+     (pk?'<div style="font-size:10.5px;color:var(--am);margin-top:5px;">예약 피크 <b>'+pk.m+'월</b> ('+pk.v+'건) → 착수는 3달 전 <b>'+(((pk.m-3)+11)%12+1)+'월</b> · 막대 = 잔 달 · 선 = 나온 달</div>':'');
+  o+='<div style="font-size:11px;color:var(--sub);margin:13px 0 4px;">② 며칠 전에 만드나 — 예약 시점</div>'+
+     '<div style="position:relative;width:100%;height:135px;"><canvas id="clead"></canvas></div>'+
+     '<div style="font-size:10.5px;color:var(--em);margin-top:5px;">10명 중 '+Math.round((PT.lead_d7+PT.lead_d30+PT.lead_d90)/10)+'명이 3달 안에 예약 · 중앙값 <b>'+PT.lead_median+'일 전</b> · '+PT.bookings+'건</div>';
+  o+='<div style="font-size:11px;color:var(--sub);margin:13px 0 4px;">③ 원고 각도 — 숙박일수</div>'+
+     '<div style="position:relative;width:100%;height:135px;"><canvas id="cnight"></canvas></div>'+
      '<div style="font-size:10.5px;color:var(--bl);margin-top:5px;"><b>'+top2[0][0]+'·'+top2[1][0]+' '+Math.round(top2[0][1]+top2[1][1])+'%</b> · 평균 '+PT.nights_avg+'박'+(PT.amt3?' · 3박 평균 $'+PT.amt3:'')+'</div>';
   return o;
 }
@@ -3645,7 +3670,7 @@ function rx(d){cd=d;
        난바 진짜 값은 27일·92%·590건. 지금은 창구(v_district_pattern)가 **지역 값**을 준다.
     🔴 숫자를 박지 않는다. 전부 SV.district_stats. */
  var DS=(SV&&SV.district_stats&&SV.district_stats[d])||null;
- var ST=(DS&&DS.stars)||[], PT=(DS&&DS.pattern)||null, MO=(DS&&DS.months)||[];
+ var ST=(DS&&DS.stars)||[], PT=(DS&&DS.pattern)||null, MO=(DS&&DS.months)||[], MOUT=(DS&&DS.months_out)||[];
  var stName=function(v){ return v>0?(String(v).replace('.0','')+'성'):'무성급'; };
  var big=ST.slice().sort(function(a,b){return b.bookings-a.bookings;})[0];   /* 예약이 제일 많이 나는 성급 = 팔리는 것 */
  var most=ST.slice().sort(function(a,b){return b.agoda_total-a.agoda_total;})[0];  /* 제일 많이 있는 성급 = 동네 성격 */
@@ -3697,6 +3722,7 @@ function rx(d){cd=d;
       '<span id="pfc" style="margin-left:auto;font-size:10.5px;color:var(--muted);">펼치기 ▾</span>'+
       '<span class="no">4-1b</span></div>'+
       '<div id="pfb" style="display:none;padding:0 11px 11px;border-top:1px solid var(--line);">'+ rxPattern(PT,MO,pk) +'</div></div>';
+   PFCTX={PT:PT,MO:MO,MOUT:MOUT,pk:pk}; PFOPEN=false;
  }
 
  /* 🔴 4-2 「아고다 성급 필터」 삭제 (2026-07-17 대표님) — **가짜 버튼이었다.**

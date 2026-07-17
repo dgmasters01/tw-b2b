@@ -30,7 +30,16 @@
 const PLACES_URL = 'https://places.googleapis.com/v1/places:searchText';
 
 // ⚠️ Pro 등급 고정. 필드 추가 금지 (위 경고 참조).
-const FIELD_MASK = 'places.id,places.displayName,places.formattedAddress,places.location,places.types';
+//
+// ✅ 2026-07-17 `places.businessStatus` 추가 — **Pro 등급 안이다. 요금 안 오른다.**
+//    근거: 구글 공식 문서 "Text Search (New)" — *"The following fields trigger the **Text Search Pro SKU**:
+//      … places.**businessStatus** … places.formattedAddress, places.location, places.types …"*
+//      Enterprise 로 올리는 건 rating · phone · openingHours · priceLevel 이다(위 경고의 그 목록).
+//    왜 필요한가 (2026-07-17 대표님이 직접 구글 검색해서 잡음):
+//      `ibis Styles Osaka Namba`(예약 1건) · `Agora Place Osaka Namba`(예약 7건) → **둘 다 「폐업」**.
+//      그런데 우리 장부는 3,185곳 **전부 `active`** 라고 알고 있었다 — **한 번도 확인한 적이 없다.**
+//      폐업 호텔로 콘텐츠를 만들면 예약이 **0**이다. 돈을 버리는 게 아니라 시간을 버린다.
+const FIELD_MASK = 'places.id,places.displayName,places.formattedAddress,places.location,places.types,places.businessStatus';
 
 export const API_NAME = 'google_places_text_search';
 export const MONTHLY_CAP = 4500;   // 구글 무료 5,000 대비 여유 500
@@ -108,7 +117,7 @@ function judgeDistrict(cityKey, lat, lng) {
  * @returns {Promise<{status:number, body:object}>}  입구(수동/크론)가 그대로 res 로 내보낸다.
  */
 export async function runGeoFill(opts = {}) {
-  const { city = null, limit = 10, dry_run = false } = opts;
+  const { city = null, limit = 10, dry_run = false, retry = false } = opts;   // retry=1 → not_found 도 다시 본다
 
   const apiKey = process.env.GOOGLE_PLACES_API_KEY;
   if (!apiKey) return { status: 500, body: { ok: false, error: 'GOOGLE_PLACES_API_KEY not configured' } };
@@ -170,7 +179,14 @@ export async function runGeoFill(opts = {}) {
     const take = Math.min(batch, remain);
 
     // ── 대상: 좌표 없는 호텔, 예약 많은 순
-    let q = `hotels?latitude=is.null&or=(geo_status.is.null,geo_status.eq.pending)`
+    // 🔴 2026-07-17 대표님: *"이런 경우 추후 따로 찾아서 줄 수 있도록 무언가 장치가 필요할 것 같은데."*
+    //    옛 대상 = `geo_status 가 비었거나 pending` 뿐 → **한 번 못 찾으면(not_found) 영영 안 본다.**
+    //    실측: 전 세계 not_found 6곳 · manual_check 3곳이 **다시 볼 길이 없이 갇혀 있었다.**
+    //    → `retry=1` 이면 not_found 도 대상에 넣는다. 구글이 못 찾은 게 아니라 **우리 이름이 틀렸을 수도** 있다.
+    const statusFilter = retry
+      ? `or=(geo_status.is.null,geo_status.eq.pending,geo_status.eq.not_found)`
+      : `or=(geo_status.is.null,geo_status.eq.pending)`;
+    let q = `hotels?latitude=is.null&${statusFilter}`
           + `&select=id,hotel_name,city,booking_count&order=booking_count.desc.nullslast&limit=${take}`;
     if (city) q += `&city=ilike.*${encodeURIComponent(city)}*`;
     const targets = await sbGet(q);
@@ -241,7 +257,12 @@ export async function runGeoFill(opts = {}) {
       }
 
       const district = judgeDistrict(cityKey, lat, lng);
-      await sbPatch(`hotels?id=eq.${h.id}`, {
+      // 구글이 알려주는 영업 상태 → 우리 장부에 박는다. 폐업 호텔로 콘텐츠를 만들면 예약이 0이다.
+      const bs = place.businessStatus || null;
+      const opStatus = bs === 'CLOSED_PERMANENTLY' ? 'closed'
+        : (bs === 'CLOSED_TEMPORARILY' ? 'temp_closed'
+        : (bs === 'OPERATIONAL' ? 'active' : null));
+      const patch = {
         latitude: lat, longitude: lng,
         address: place.formattedAddress || null,
         google_place_id: place.id || null,
@@ -249,8 +270,14 @@ export async function runGeoFill(opts = {}) {
         geo_status: 'ok',
         geo_checked_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
-      });
+      };
+      if (opStatus) patch.operating_status = opStatus;   // 구글이 말해줄 때만 바꾼다
+      await sbPatch(`hotels?id=eq.${h.id}`, patch);
       result.ok++;
+      if (opStatus && opStatus !== 'active') {
+        result.closed = (result.closed || 0) + 1;
+        if (result.samples.length < 8) result.samples.push(`🔴 ${h.hotel_name} → ${opStatus === 'closed' ? '폐업' : '임시휴업'}`);
+      }
       if (district) result.districts[district] = (result.districts[district] || 0) + 1;
       if (result.samples.length < 5) result.samples.push(`✅ ${h.hotel_name} → ${district || '기타'}`);
     }

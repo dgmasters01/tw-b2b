@@ -226,6 +226,12 @@
 <!-- ⟦본문 끝⟧ -->
 <div class="ft">키워드 프리뷰 v14 · D-065 개정 ①~54 반영 · 축 분리(㊿) · 화면 말 정리(54) · [연·월 지정] 제거(54-0G) · 2026-07-17</div>
 
+<!-- 🔴 2026-07-17 — 프리뷰가 조사 창구에 401 을 받던 원인.
+     로그인 열쇠(sb-access-token 쿠키)는 **shared.js 가 박는다**(BL-AUTH-COOKIE-SYNC).
+     스튜디오는 shared.js 를 부르는데 **프리뷰는 안 불렀다** → 브라우저에 열쇠가 없어 401.
+     대표님이 로그인을 안 하신 게 아니라, **이 페이지가 열쇠를 꺼낼 줄 몰랐다.** -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="shared.js"></script>
 <script>
 /* ══ 실측 데이터만 (2026-07-14 직접 조회) ══ */
 var SE={'오사카':[56.8,47.5,38.5,36.0,41.9,41.3,44.0,36.9,45.0,50.4,58.0,55.0],
@@ -775,7 +781,9 @@ function vw(w,a,b){
 function go(w,a,b){vw(w,a,b);history.pushState({w:w,a:a,b:b},'');}
 window.addEventListener('popstate',function(e){var s=e.state||{w:'m'};vw(s.w,s.a,s.b);});
 history.replaceState({w:'m'},'');
-loadSnap();
+/* shared.js 가 쿠키를 박은 뒤에 부른다 — 로그인 열쇠가 준비되기 전에 부르면 401 이 난다.
+   실패하면 한 번 더(2초 뒤). 그래도 안 되면 화면이 "로그인이 필요합니다" 라고 말한다. */
+loadSnap().then(function(){ if(SVERR && /로그인/.test(SVERR)) setTimeout(loadSnap, 2000); });
 function dd(){var d=document.getElementById('ddb');d.classList.toggle('on');document.getElementById('tc').textContent=d.classList.contains('on')?'⌃':'⌄';}
 function pk(n){document.getElementById('tn').textContent=n;dd();ts(n+' 전환');}
 var tmo;function ts(m){var t=document.getElementById('tsb');t.textContent=m;t.classList.add('on');clearTimeout(tmo);tmo=setTimeout(function(){t.classList.remove('on');},2200);}

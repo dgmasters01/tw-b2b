@@ -158,10 +158,22 @@ async function survey(sb, req, res, who) {
     ? { locked: false, compared_to: snaps[1].ym }
     : { locked: true, reason: '조사가 아직 1번뿐입니다. 두 번째 조사가 있어야 새로 생긴·사라진 검색어를 압니다.', next_ym: nextYm };
 
-  // 🔑 지역 축 (D-065 3-2 · ㊹ "재봐서 살아있는 것만") — 지역 **대표어 1개**로 지역 크기를 잰다.
-  //    "난바 호텔" 이 난바를 대표한다. 그게 살아있으면 지역이 살아있는 것이다.
-  //    🔴 옛 화면은 `DIST=[['난바',10.8,…]]` 로 **박아뒀다.** 실측과 거의 같았지만(10.84) **박힌 값은 안 늘어난다.**
-  const DISTRICTS = ['난바', '우메다', '신사이바시', '덴노지', '도톤보리'];
+  // 🔑 지역 축 (D-065 3-2) — 지역 **대표어 1개**("난바 호텔")로 지역 크기를 잰다.
+  //
+  // 🔴 지역 목록을 **어디서 가져오나** = D-065 가 이미 정해뒀다. 클로드가 안 읽고 박았다(2026-07-17).
+  //    ① *"**지역 목록 미리 만들지 말 것. 재봐서 살아있는 것만 축으로.**"* (계층이 아니라 이름값이 가른다)
+  //    ② *"**호텔 지역 판정 = 좌표**. 구글 플레이스로 주소·좌표 채움 → `hotels.district`"*
+  //    → 지역 목록은 **우리 호텔 장부(hotels.district)** 에서 온다. 클로드 머릿속이 아니다.
+  //    → `덴노지`·`도톤보리` 는 **장부에 호텔이 한 곳도 없다** — 클로드가 지어낸 것이다.
+  //    → `요도야바시`(호텔 8곳)는 **장부에 있는데 화면에서 빠져 있었다.**
+  const dRes = await sb.from('hotels')
+    .select('district')
+    .eq('city', 'Osaka')
+    .not('district', 'is', null);
+  if (dRes.error) throw dRes.error;
+  const dCount = new Map();
+  (dRes.data || []).forEach((r) => dCount.set(r.district, (dCount.get(r.district) || 0) + 1));
+  const DISTRICTS = [...dCount.keys()];
   const anchorDemand = (() => {
     const a = alive.find((k) => k.is_anchor);
     const t = a && tByKw.get(a.id);
@@ -175,6 +187,7 @@ async function survey(sb, req, res, who) {
     return {
       name,
       head: head ? head.text : `${name} 호텔`,
+      hotels: dCount.get(name) || 0,          // 우리 장부에 그 지역 호텔이 몇 곳 (좌표 판정)
       surveyed: !!head,                       // 대표어가 검색어 표에 있나
       demand: d,
       measured: !!(t && t.measured),

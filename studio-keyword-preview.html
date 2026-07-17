@@ -895,16 +895,6 @@ function rx(d){cd=d;
     → 성급은 이제 **성급 분포(4-1)** 가 보여준다. 필터는 **4-14 호텔 후보를 진짜 데이터로 만들 때** 같이 붙인다.
     룰: 눌러도 아무 일 없는 버튼은 화면에 두지 않는다. 대표님 시간을 뺏는다. */
 
- /* 🔴 순서 = **자료 → 결론 → 실행** (2026-07-17 대표님):
-    ① 이 동네가 뭔가(4-0) → ② 성급 분포(4-1) → ③ 예약 패턴(접힘) → ④ **키워드 조사(4-4)** →
-    ⑤ **콘텐츠 유형 추천(4-3)** → ⑥ **호텔 후보(4-14)**
-    옛 순서는 **추천(4-3)이 검색어(4-4)보다 위**에 있었다 = 근거를 보기 전에 결론부터 나왔다.
-    여기는 기본 자료 보는 곳(66)이라 **자료가 먼저**다. */
- h+='<div class="bk" id="kvw"><div class="bh">키워드 조사 <span style="font-size:10px;color:var(--muted);font-weight:400;">— DB만 읽습니다. 볼 때 구글·유튜브 호출 0</span><span class="no" style="margin-left:auto;">4-4</span></div>'+
-    '<div id="kv1"><div style="font-size:11px;color:var(--muted);padding:8px 0;">조사 불러오는 중…</div></div>'+
-    '<div id="kv2"></div><div id="kv3"></div></div>';
-
-
  h+='<div class="bk"><div class="bh">① 콘텐츠 추천 <span class="no">4-3</span></div>'+
     '<div style="background:var(--card2);border-radius:8px;padding:10px;">'+
     '<div style="display:flex;align-items:center;gap:7px;margin-bottom:5px;"><span style="font-size:10px;color:var(--muted);">1위</span>'+
@@ -913,6 +903,32 @@ function rx(d){cd=d;
     '<div style="font-size:10px;color:var(--muted);margin:6px 0;">넣을 키워드: 오사카 호텔 · 오사카 숙소 · 오사카 숙소 추천 · 난바 호텔 … (482자)</div>'+
     '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;"><button class="btn" onclick="add()">＋ 이걸로 만들기</button>'+
     '<span style="font-size:10px;color:var(--muted);">→ '+curLbl()+' 발행 목표 + 근거 4종 함께 담김</span></div></div></div>';
+
+ /* 4-4 키워드 조사 — **이 지역 검색어만** (2026-07-17 대표님).
+    🔴 옛 코드는 `svCity()`(오사카 박힘)가 준 걸 그려서 **난바를 눌러도 오사카 검색어 75개 전부**가 나왔다.
+       화면 다른 블록은 전부 난바를 말하는데 여기만 도시를 말했다.
+    → 창구가 `districts[].keywords`(그 지역 이름이 든 것만)를 준다. 도시 전체는 **도시 화면**에서 본다. */
+ var KW=(dRow&&dRow.keywords)||[];
+ var kmea=KW.filter(function(k){return k.measured;}).length;
+ h+='<div class="bk"><div class="bh">'+d+' 검색어 <span style="font-size:10px;color:var(--muted);font-weight:400;">— DB만 읽습니다. 볼 때 구글·유튜브 호출 0</span><span class="no" style="margin-left:auto;">4-4</span></div>';
+ if(!KW.length){
+   h+='<div style="font-size:11px;color:var(--muted);padding:6px 0;">'+d+' 이름이 든 검색어가 아직 없습니다 — 다음 조사 때 넣습니다. 도시 전체 검색어는 <b>오사카 화면</b>에 있습니다.</div></div>';
+ } else {
+   h+='<div class="st4" style="margin-bottom:6px;"><div class="st"><div class="v">'+KW.length+'</div><div class="l">'+d+' 검색어</div></div>'+
+      '<div class="st"><div class="v" style="color:var(--em);">'+kmea+'</div><div class="l">검색량 조사됨</div></div>'+
+      '<div class="st"><div class="v" style="color:var(--muted);">'+(KW.length-kmea)+'</div><div class="l">아직 안 됨</div></div></div>';
+   KW.slice(0,12).forEach(function(k){
+     h+='<div style="display:flex;align-items:center;gap:7px;padding:4px 0;border-top:1px solid var(--line);">'+
+        '<span style="font-size:11.5px;flex:1;">'+k.text+'</span>'+
+        (k.demand!==null
+          ? '<span style="font-size:11px;color:var(--em);">검색량 '+k.demand+'</span>'
+          : '<span style="font-size:10.5px;color:var(--muted);">'+(k.skip_reason==='below_floor'?'너무 적어 못 잼':'아직 조사 안 함')+'</span>')+
+        (k.opportunity!==null?'<span style="font-size:10.5px;color:var(--sub);">기회 '+k.opportunity+'</span>':'')+
+        '</div>';
+   });
+   if(KW.length>12) h+='<div style="font-size:10px;color:var(--muted);margin-top:5px;">외 '+(KW.length-12)+'개 — 도시 화면에서 전부 봅니다</div>';
+   h+='<div style="font-size:10px;color:var(--muted);margin-top:6px;">검색량 = 유튜브에서 이 말을 얼마나 찾나 · 오사카 안에서만 비교합니다</div></div>';
+ }
  /* 🔴 4-10 「③ 자동 채택 태그란」 삭제 (2026-07-17 대표님) — **여기가 아니다.**
     이 페이지는 대표님이 정한 대로 **기본 자료 보는 곳**(66). 태그란은 **만들 때 쓰는 것** = 올리기·전략 자리.
     게다가 목업이었다: 482/500자도 박혀 있었고 [복사]는 그 박힌 글자를 복사했다. */
@@ -955,7 +971,7 @@ function svCity(){ return 'cc:japan|osaka'; }   /* TODO 도시 축이 붙으면 
 function ks(){
   var u='/api/content-keywords?view=survey&city='+encodeURIComponent(svCity());
   fetch(u,{credentials:'same-origin'}).then(function(r){return r.json();}).then(function(d){
-    if(!d.ok){ document.getElementById('kv1').innerHTML='<div class="wn">'+(d.error||'조사를 불러오지 못했습니다')+'</div>'; return; }
+    if(!d.ok){ var e1=document.getElementById('kv1'); if(e1) e1.innerHTML='<div class="wn">'+(d.error||'조사를 불러오지 못했습니다')+'</div>'; return; }
     SV=d; rk();
   }).catch(function(e){
     var el=document.getElementById('kv1'); if(el) el.innerHTML='<div class="wn">조사를 불러오지 못했습니다 — '+e+'</div>';
@@ -1000,7 +1016,9 @@ function rk(){
     (sn.window_from?' · 창 '+sn.window_from+' ~ '+sn.window_to:'')+' · 앵커 <b>'+(sn.anchor_text||'')+' '+(sn.anchor_value||'')+'</b>'+
     ' <span class="no">4-5</span></div>'+
     '<div class="nt" style="color:var(--muted);">수요 = <b>유튜브 검색량</b> · 자(앵커) 기준으로 <b>이 도시 안에서만</b> 비교합니다.<br>축: <b>숙박</b> '+c.stay+'개 = 뭘 만드나(순위 무대) · <b>여행</b> '+c.travel+'개 = 언제 착수하나(배경)</div>';
-  document.getElementById('kv1').innerHTML=h1;
+  /* 🔴 4-4 는 이제 지역 검색어를 그린다(2026-07-17). 이 3층은 **도시 화면 몫**이라 자리가 없으면 조용히 넘긴다.
+   자리가 없는데 innerHTML 을 넣으면 null 에러 → 화면 전체가 흰색이 된다. */
+ var e1=document.getElementById('kv1'); if(e1) e1.innerHTML=h1; else return;
 
   /* 2층 — 검색량 순 */
   var rows=SV.rows||[], L=svMore?rows:rows.slice(0,8);
@@ -1028,7 +1046,7 @@ function rk(){
 
   /* 여행 축은 **도시 화면 맨 위**로 옮겼다 (2026-07-17 · D-065 ⑤·㊿).
      지역(난바) 밑에서 '오사카 여행'을 말할 이유가 없다 — 여행 축은 도시를 고르는 기준이다. */
-  document.getElementById('kv2').innerHTML=h;
+  var e2=document.getElementById('kv2'); if(e2) e2.innerHTML=h;
 
   /* 3층 */
   var l3=SV.layer3||{}, h3='';
@@ -1040,7 +1058,7 @@ function rk(){
     h3='<div style="border-top:0.5px solid var(--line);margin-top:10px;padding-top:9px;">'+
        '<div style="font-size:11px;font-weight:600;">새로 생긴 · 사라진 검색어 <small style="color:var(--muted);font-weight:400;">— '+l3.compared_to+' 대비</small></div></div>';
   }
-  document.getElementById('kv3').innerHTML=h3;
+  var e3=document.getElementById('kv3'); if(e3) e3.innerHTML=h3;
 }
 
 function svM(){ svMore=!svMore; rk(); }

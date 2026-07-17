@@ -857,7 +857,7 @@ function cxDetail(list, PT){
        '<span style="color:var(--muted);font-size:10px;">'+(i+1)+'</span>'+
        '<div>'+x.name+
          (PT[x.ptype]?' <span class="pil" style="background:var(--bld);color:var(--bl);">'+PT[x.ptype]+'</span>':'')+
-         ' '+badgeCR(x.confirm_rate)+' '+badgeReuse(x)+
+         ' '+badgePop(x)+' '+badgeReuse(x)+
        '</div>'+
        '<span style="text-align:right;color:var(--em);">'+x.bookings+'건</span>'+
        '<span style="text-align:right;color:'+(x.cancelled?'var(--am)':'var(--muted)')+';">'+(x.cancelled||0)+'</span>'+
@@ -865,22 +865,41 @@ function cxDetail(list, PT){
   });
   return o+'</div>';
 }
-/* 🔑 배지 — **D-062(호텔 메뉴)가 이미 정해둔 이름·구간을 그대로 쓴다.** 클로드가 짓지 않는다.
-   ① 확정률(D-062 ⑤-3): 안정 ≥85 / 보통 70~84 / 주의 50~69 / 경고 <50
-      *"주의 = TOP3 넣을 때 취소 유출 감안 · 경고 = 노출 대비 실투숙 낮음, TOP3 신중"*
-      실측 2026-07-17: 리치몬드 난바 **53%**(21/40) — TOP3에 넣으면 절반이 날아간다. 이걸 안 말하면 안 된다.
-   ② 재사용(D-062): **아직못씀 / 지금가능 / 노출없음**. 6개월 = 마지막 노출 + 183일.
-      🔴 재료(노출 이력)는 **0건**이다 — 대표님이 파일로 주시기로 함. 오면 저절로 켜진다. 가짜로 안 채운다. */
-function badgeCR(r){
-  if(r===null||r===undefined) return '';
-  var t = r>=85?['안정','var(--em)','var(--emd)'] : r>=70?['보통','var(--sub)','var(--card2)']
-        : r>=50?['주의','var(--am)','var(--amd)'] : ['경고','var(--rd)','var(--rdd)'];
-  return '<span class="pil" style="background:'+t[2]+';color:'+t[1]+';">'+t[0]+' '+r+'%</span>';
+/* 🔑 배지 (2026-07-17 대표님이 **다시 잡으심**).
+   🔴 클로드가 D-062 확정률 배지(안정/보통/주의/경고)를 **순위 목록에 그대로 붙였다가 거꾸로 만들었다.**
+      대표님: *"취소가 많다고 주의·경고라고 표현하는 거 아닌 것 같은데. 예약건이 많고, 취소도 많고,
+      실제 투숙 완료도 높은 곳은 **사람들이 선호하는 곳**이라는 거잖아."*
+   실측이 대표님 말을 증명했다:
+      · 확정률 **100%가 33곳** — 전부 **평균 1.4건**짜리(2건 중 2건). 「안정」이라 찍힐 뻔했다
+      · 난바 1등 레드 루프 인 = 확정 **61건**인데 73% → 「보통」
+      · 소테츠 그랜드 = 확정 23 · 취소 24(49%) → 「경고」로 찍힐 뻔. **난바 3등 매출이다**
+   → **D-062 배지는 「호텔 한 곳을 열어볼 때」 쓰는 것**이다. 순위 자리는 **규모가 먼저**다.
+   확정 기준 (숫자를 지어내지 않았다 — 난바 실측에서 나왔다):
+      · **인기** = 확정 **10건 이상**. 취소가 확정보다 많아도 인기다(잡아두고 나중에 정한다)
+      · **주의** = 예약 10건 이상인데 **확정 10건 미만 + 확정률 50% 미만** = 많이 잡는데 안 온다
+      · **배지 없음** = 예약 10건 미만 — **아직 아무 말도 못 한다**(난바 96곳이 여기)
+      난바 실측: 인기 6곳 · 주의 2곳 · 없음 96곳. 예약 10건 넘는 곳이 **11곳뿐**이라 10이 경계다. */
+function badgePop(x){
+  var tot=(x.bookings||0)+(x.cancelled||0);
+  if(tot<10) return '';
+  if(x.bookings>=10) return '<span class="pil" style="background:var(--emd);color:var(--em);">인기</span>';
+  if(x.confirm_rate!==null && x.confirm_rate<50) return '<span class="pil" style="background:var(--amd);color:var(--am);">주의</span>';
+  return '';
 }
+/* 재사용 — D-062 이름(아직못씀/지금가능/노출없음) + **「곧 가능」 신설**(대표님 2026-07-17).
+   왜 신설: 콘텐츠는 **3달 미리** 만든다(리드타임 · 예약 3,766건 실측 3달내 92%).
+   쿨다운이 **3달 안에 풀리는 호텔**은 지금 기획하면 **풀리는 날에 딱 맞춰 발행**된다.
+   「아직못씀」으로만 두면 대표님이 그냥 지나친다.
+   🔴 재료(노출 이력)는 **0건**. 대표님이 파일로 주시기로 함 — 오면 저절로 켜진다. 가짜로 안 채운다. */
 function badgeReuse(x){
-  if(x.paid) return '<span class="pil" style="background:var(--emd);color:var(--em);">유료 계약</span>';
-  if(x.reuse==='cooldown') return '<span class="pil" style="background:var(--amd);color:var(--am);">아직못씀'+(x.reuse_from?' · '+x.reuse_from:'')+'</span>';
-  if(x.reuse==='ready')    return '<span class="pil" style="background:var(--emd);color:var(--em);">지금가능</span>';
+  if(x.paid) return '<span class="pil" style="background:rgba(150,120,220,.22);color:#a99cf0;">유료 계약</span>';
+  if(x.reuse==='ready') return '<span class="pil" style="background:var(--emd);color:var(--em);">지금가능</span>';
+  if(x.reuse==='cooldown'){
+    var d=x.reuse_from?Math.round((new Date(x.reuse_from)-new Date())/86400000):null;
+    var day=x.reuse_from?(+x.reuse_from.slice(5,7))+'/'+(+x.reuse_from.slice(8,10)):'';
+    if(d!==null && d<=90) return '<span class="pil" style="background:var(--bld);color:var(--bl);">곧 가능 · '+day+'</span>';
+    return '<span class="pil" style="background:var(--rdd);color:var(--rd);">아직못씀'+(day?' · '+day:'')+'</span>';
+  }
   return '';   /* 노출없음 = 기본값. 배지로 도배하지 않는다 */
 }
 function rx(d){cd=d;
@@ -971,7 +990,7 @@ function rx(d){cd=d;
       '<div id="pfh" onclick="pfold()" style="display:flex;align-items:center;gap:8px;padding:10px 11px;cursor:pointer;flex-wrap:wrap;">'+
       '<span style="font-size:12px;font-weight:600;">이 지역 예약 패턴</span>'+
       '<span style="font-size:11px;color:var(--sub);">'+(pk?'피크 '+pk.m+'월 · ':'')+PT.lead_median+'일 전 예약 · '+nMax[0]+'</span>'+
-      '<span id="pfc" style="margin-left:auto;font-size:10.5px;color:var(--muted);">펼치기 ▾</span>'+
+      '<span id="pfc" style="margin-left:auto;font-size:11px;color:var(--bl);border:1px solid var(--line);border-radius:6px;padding:4px 9px;">펼치기 ▾</span>'+
       '<span class="no">4-1b</span></div>'+
       '<div id="pfb" style="display:none;padding:0 11px 11px;border-top:1px solid var(--line);">'+ rxPattern(PT,MO,pk) +'</div></div>';
    PFCTX={PT:PT,MO:MO,MOUT:MOUT,pk:pk}; PFOPEN=false;
@@ -1022,7 +1041,7 @@ function rx(d){cd=d;
         (k.opportunity!==null?'<span style="font-size:10.5px;color:var(--sub);">기회 '+k.opportunity+'</span>':'')+
         '</div>';
    });
-   if(KW.length>10) h+='<div onclick="kwmore()" style="font-size:10.5px;color:var(--bl);cursor:pointer;padding:6px 0;border-top:1px solid var(--line);">'+
+   if(KW.length>10) h+='<div onclick="kwmore()" style="font-size:11px;color:var(--bl);cursor:pointer;margin-top:6px;padding:7px 10px;border:1px solid var(--line);border-radius:7px;text-align:center;">'+
      (KWMORE?'접기 ▴':'외 '+(KW.length-10)+'개 더 보기 ▾')+'</div>';
    /* 🔑 3층 — **새로 생긴 · 사라진 검색어** (D-065 1241줄 · 대표님 2026-07-17).
       🔴 잠긴 것도 **보여야 한다.** 안 보이면 대표님이 *"이거 하기로 했는데?"* 를 매번 물으시게 된다 — 실제로 물으셨다.
@@ -1074,7 +1093,7 @@ function rx(d){cd=d;
         '<span style="font-size:11px;color:var(--sub);text-align:right;">$'+r.revenue.toLocaleString()+
         '<br><span style="font-size:9.5px;color:var(--muted);">확정 '+r.bookings+'건</span></span></div>';
    });
-   if(g2.list.length>5) h+='<div onclick="hrmore()" style="font-size:10.5px;color:var(--bl);cursor:pointer;padding:5px 0;">'+
+   if(g2.list.length>5) h+='<div onclick="hrmore()" style="font-size:11px;color:var(--bl);cursor:pointer;margin-top:6px;padding:7px 10px;border:1px solid var(--line);border-radius:7px;text-align:center;">'+
      (HRMORE?'접기 ▴':'외 '+(g2.list.length-5)+'곳 더 보기 ▾')+'</div>';
    h+='<div style="font-size:10px;color:var(--muted);margin-top:5px;">칩 순서 = 이 지역 매출 순 · <b>확정 예약만</b>(취소 뺌) · 호텔명은 아고다 한국어(없으면 원래 이름)</div></div>';
  }
@@ -1129,9 +1148,11 @@ function rx(d){cd=d;
           '<div style="font-size:11.5px;line-height:1.9;">'+top3.map(function(x,k){
             return '<span style="color:var(--muted);">'+(k+1)+'</span> '+x.name+
               (PT[x.ptype]?' <span class="pil" style="background:var(--bld);color:var(--bl);">'+PT[x.ptype]+'</span>':'')+
-              ' '+badgeCR(x.confirm_rate)+' '+badgeReuse(x);
+              ' '+badgePop(x)+' '+badgeReuse(x);
           }).join('<br>')+'</div>'+
-          '<div onclick="cxmore('+st+')" style="font-size:10.5px;color:var(--bl);cursor:pointer;padding:5px 0 0;">'+
+          /* 🔴 클릭 영역이 **글자 폭만큼**이라 누르기 어려웠다(대표님 2026-07-17) → 줄 전체·높이 있는 버튼으로 */
+          '<div onclick="cxmore('+st+')" style="font-size:11px;color:var(--bl);cursor:pointer;margin-top:7px;padding:8px 10px;'+
+          'border:1px solid var(--line);border-radius:7px;text-align:center;background:var(--card);">'+
           (CXOPEN===st?'접기 ▴':'펼쳐 보기 ▾ — 호텔별 확정·취소·금액')+'</div>'+
           (CXOPEN===st?cxDetail(g3.list,PT):'')+
           '</div>';
@@ -1170,10 +1191,10 @@ function rx(d){cd=d;
        o+='<div style="display:flex;align-items:center;gap:7px;padding:3px 0;font-size:11.5px;">'+
           '<span style="flex:1;">'+r.name+'</span>'+
           '<span style="font-size:10px;color:var(--muted);">'+stN2(r.star)+'</span>'+
-          '<span style="font-size:10px;">'+badgeCR(r.confirm_rate)+badgeReuse(r)+'</span>'+
+          '<span style="font-size:10px;">'+badgePop(r)+badgeReuse(r)+'</span>'+
           '<span style="font-size:10.5px;color:var(--sub);min-width:96px;text-align:right;">'+fmt(r)+'</span></div>';
      });
-     if(a.length>4) o+='<div onclick="hfmore(\''+key+'\')" style="font-size:10px;color:var(--bl);cursor:pointer;padding:3px 0;">'+
+     if(a.length>4) o+='<div onclick="hfmore(\''+key+'\')" style="font-size:11px;color:var(--bl);cursor:pointer;margin-top:5px;padding:7px 10px;border:1px solid var(--line);border-radius:7px;text-align:center;">'+
        (HFMORE[key]?'접기 ▴':'외 '+(a.length-4)+'곳 더 보기 ▾')+'</div>';
      return o;
    };

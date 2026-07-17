@@ -393,20 +393,30 @@ async function survey(sb, req, res, who) {
   //   ③ 예약 패턴 — 리드타임·숙박일수. 🔴 옛 4-1 은 **오사카 도시 값(22일)을 난바 자리**에 쓰고 있었다
   //   ④ 체크아웃 월 — 대표님이 두 번 요청하셨다. 겹쳐 그리면 막대에 포개지지만(달 넘김 45/590),
   //      **보고 판단하시는 건 대표님 몫**이다. 클로드가 답을 안 받고 뺐던 자리(2026-07-17 자진 신고).
-  const [starRes, monRes, patRes, outRes] = await Promise.all([
+  const [starRes, monRes, patRes, outRes, rankRes] = await Promise.all([
     sb.from('v_district_star').select('district, star, agoda_total, ours, bookings').eq('city', 'Osaka'),
     sb.from('v_district_month').select('district, month, star, bookings').eq('city', 'Osaka'),
     sb.from('v_district_pattern').select('*').eq('city', 'Osaka'),
     sb.from('v_district_month_out').select('district, month, bookings').eq('city', 'Osaka'),
+    //   ⑤ 호텔 매출 순위 (2026-07-17 대표님) — **수수료는 담지 않는다.**
+    //      대표님: *"에디터는 수수료는 못 보는 거 아니야? 호텔 예약액은 알아야 더 고민할 수 있지 않을까?"*
+    //      → 예약금액(매출) + 예약건수만. 🔴 뷰(`v_district_hotel_rank`)에 **수수료 칸이 아예 없다.**
+    //         안 보내면 샐 수가 없다. 화면에서 가리는 것보다 창구에서 안 담는 게 안전하다.
+    //      호텔명 = 아고다 파일의 한국어 이름, **없으면 원래 이름 그대로**(대표님 확정).
+    //         🔴 클로드가 번역해서 채우지 않는다 — 그게 지어내기다(61).
+    sb.from('v_district_hotel_rank').select('district, star, name, name_is_ko, bookings, revenue').eq('city', 'Osaka'),
   ]);
   const dstat = {};
-  const touch = (d) => (dstat[d] = dstat[d] || { stars: [], months: [], months_out: [], pattern: null });
+  const touch = (d) => (dstat[d] = dstat[d] || { stars: [], months: [], months_out: [], pattern: null, hotels: [] });
   (starRes.data || []).forEach((r) => {
     if (!r.agoda_total && !r.ours) return;          // 없는 성급 줄을 만들지 않는다
     touch(r.district).stars.push({ star: Number(r.star), agoda_total: r.agoda_total, ours: r.ours, bookings: r.bookings });
   });
   (monRes.data || []).forEach((r) => touch(r.district).months.push({ month: r.month, star: Number(r.star), bookings: r.bookings }));
   (outRes.data || []).forEach((r) => touch(r.district).months_out.push({ month: r.month, bookings: r.bookings }));
+  (rankRes.data || []).forEach((r) => touch(r.district).hotels.push({
+    star: Number(r.star), name: r.name, name_is_ko: !!r.name_is_ko, bookings: r.bookings, revenue: Number(r.revenue) }));
+  Object.values(dstat).forEach((v) => v.hotels.sort((a, b) => b.revenue - a.revenue));
   (patRes.data || []).forEach((r) => { touch(r.district).pattern = r; });
 
   res.setHeader('Cache-Control', 'private, no-store, max-age=0');

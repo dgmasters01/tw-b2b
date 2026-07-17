@@ -276,6 +276,18 @@ async function survey(sb, req, res, who) {
       surveyed: !!head,                                    // 대표어가 검색어 표에 있나
       // ⑤ 지역 수요 트렌드 — 이 지역 대표어의 월별 시계열(㊾ trend.series). 🔴 옛 화면은 3개 도시를 코드에 박아뒀다
       series: (t && t.series) || null,
+      // 🔑 이 지역 검색어 — **그 지역 이름이 든 검색어만**. (2026-07-17 대표님)
+      //   🔴 옛 화면 4-4 는 `svCity()` 가 오사카로 박혀 있어 **난바를 눌러도 오사카 검색어 75개 전부**를 그렸다.
+      //      화면 다른 곳은 전부 난바를 말하는데 여기만 도시를 말했다 = 대표님이 어느 게 난바 숫자인지 매번 구분해야 했다.
+      //   판정은 **이름 포함**이다. 지역 목록을 따로 적지 않는다(54-0V — 목록은 세는 것).
+      keywords: alive.filter((k) => k.text.indexOf(name) >= 0).map((k) => {
+        const t2 = tByKw.get(k.id);
+        return { text: k.text, axis: k.axis,
+          demand: t2 && t2.demand !== null && t2.demand !== undefined ? Number(t2.demand) : null,
+          competition: t2 ? t2.competition : null,
+          opportunity: t2 && t2.opportunity !== null && t2.opportunity !== undefined ? Number(t2.opportunity) : null,
+          measured: !!(t2 && t2.measured), skip_reason: t2 ? t2.skip_reason : null };
+      }).sort((a, b) => (b.demand || -1) - (a.demand || -1)),
       demand: d,
       measured: !!(t && t.measured),
       skip_reason: t ? t.skip_reason : null,

@@ -3231,8 +3231,7 @@ function loadSnap(){
 function curTM(){return XM?XM.m:parseInt(MO[cm]);}
 function curLbl(){return XM?(XM.y+'년 '+XM.m+'월'):MO[cm];}
 function dmo(y,m){return (y-TODAY.getFullYear())*12+(m-1-TODAY.getMonth());}
-var cm=3,cc='일본',cy='오사카',cd='난바',cs=0,more=false;
-var STAR=['전체 성급','3성','4성','5성'];
+var cm=3,cc='일본',cy='오사카',cd='난바',more=false;
 function pk2(c){var s=SE[c];if(!s)return null;var mx=Math.max.apply(null,s),r=[];for(var i=0;i<12;i++)if(s[i]>=mx*0.9)r.push(i+1);return r;}
 function gate(c,tm){var p=pk2(c);
  if(!p)return{s:'un',t:'조사 전',w:'키워드 조사가 안 된 도시'};
@@ -3700,7 +3699,11 @@ function rx(d){cd=d;
       '<div id="pfb" style="display:none;padding:0 11px 11px;border-top:1px solid var(--line);">'+ rxPattern(PT,MO,pk) +'</div></div>';
  }
 
- h+='<div class="str">'+STAR.map(function(s,i){return '<span class="sp'+(i===cs?' on':'')+'" onclick="ps('+i+')">'+s+'</span>';}).join('')+'<span class="no" style="align-self:center;">4-2 아고다 성급</span></div>';
+ /* 🔴 4-2 「아고다 성급 필터」 삭제 (2026-07-17 대표님) — **가짜 버튼이었다.**
+    실측: 고른 값(cs)을 쓰는 곳이 3군데뿐 — 만들고, 칩 색 칠하고, 눌러서 바꾸는 것. **거르는 코드 0줄.**
+    「4성」을 눌러도 화면이 하나도 안 바뀌었다. 대표님이 오늘 *"4-2가 어떤거지 기억이 안나"* 라고 물으신 자리.
+    → 성급은 이제 **성급 분포(4-1)** 가 보여준다. 필터는 **4-14 호텔 후보를 진짜 데이터로 만들 때** 같이 붙인다.
+    룰: 눌러도 아무 일 없는 버튼은 화면에 두지 않는다. 대표님 시간을 뺏는다. */
 
  h+='<div class="bk"><div class="bh">① 콘텐츠 추천 <span class="no">4-3</span></div>'+
     '<div style="background:var(--card2);border-radius:8px;padding:10px;">'+
@@ -3854,7 +3857,6 @@ function tk(i){var e=document.getElementById('kx'+i),w=e.classList.contains('on'
  if(!w){e.classList.add('on');document.getElementById('kc'+i).textContent='▴';}}
 function tt(e,i){e.stopPropagation();var w=document.getElementById('cw'+i),t=document.getElementById('tc'+i);
  var o=w.classList.toggle('on');t.textContent=o?'작게 접기 ▴':'크게 보기 ▾';}
-function ps(i){cs=i;rx(cd);ts(STAR[i]+' 기준 필터');}
 function cp(){var t=document.getElementById('tgb').textContent;if(navigator.clipboard)navigator.clipboard.writeText(t);ts('태그 복사됨 (482자)');}
 
 function sch(){var q=document.getElementById('sq').value.trim(),b=document.getElementById('srb');

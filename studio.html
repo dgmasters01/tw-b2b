@@ -616,15 +616,23 @@
   /* (옛 st-sv-* 스타일은 이사하며 지움 — 확정본 화면이 제 스타일을 들고 왔다) */
 
   /* ── 전략 · 콘텐츠 기획 큐 (D-060 · 6메뉴 마지막) ── */
-  .st-sg-board { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-top:16px; }
-  .st-sg-col { border:1px solid rgba(128,128,128,.2); border-radius:12px; padding:10px; background:rgba(128,128,128,.035); min-height:120px; }
-  .st-sg-colhead { display:flex; align-items:center; gap:7px; font-size:13px; font-weight:600; margin-bottom:11px; padding:2px 3px; }
-  .st-sg-dot { width:9px; height:9px; border-radius:50%; flex:none; }
-  .st-sg-count { margin-left:auto; font-size:12px; opacity:.5; font-weight:400; }
+  .st-sg-board { margin-top:14px; }
+  .st-sg-filterbar { display:flex; flex-wrap:wrap; gap:7px; margin-bottom:4px; }
+  .st-sg-fsel { font-size:12px; padding:7px 11px; border-radius:8px; border:1px solid rgba(128,128,128,.3); background:rgba(128,128,128,.06); color:inherit; cursor:pointer; }
+  .st-sg-fsel:focus { outline:none; border-color:#5aa9e6; }
+  .st-sg-fsel.on { color:#5aa9e6; border-color:#5aa9e6; background:rgba(90,169,230,.08); }
+  .st-sg-tabs { display:flex; gap:6px; border-top:1px solid rgba(128,128,128,.15); padding-top:11px; margin:11px 0 4px; }
+  .st-sg-tab { flex:1; display:flex; align-items:center; justify-content:center; gap:6px; font-size:12.5px; padding:9px 4px; border-radius:8px; cursor:pointer; opacity:.5; border:1px solid transparent; }
+  .st-sg-tab.active { opacity:1; background:rgba(128,128,128,.1); border-color:rgba(128,128,128,.25); font-weight:600; }
+  .st-sg-tab .st-sg-dot { width:8px; height:8px; border-radius:50%; flex:none; }
+  .st-sg-list { display:flex; flex-direction:column; gap:9px; margin-top:8px; }
+  .st-sg-bottom { display:flex; align-items:center; gap:10px; margin-top:9px; flex-wrap:wrap; }
+  .st-sg-bottom .st-sg-acts { margin-left:auto; }
+  .st-sg-src { color:#5DCAA5; }
   .st-sg-card { border:1px solid rgba(128,128,128,.25); border-radius:10px; padding:10px 11px; margin-bottom:9px; }
   .st-sg-card.unassigned { border-color:#EF9F27; background:rgba(239,159,39,.05); }
-  .st-sg-cardhead { display:flex; align-items:flex-start; gap:8px; }
-  .st-sg-title { font-size:13px; font-weight:500; line-height:1.4; margin-bottom:8px; flex:1; }
+  .st-sg-cardhead { display:flex; align-items:flex-start; justify-content:space-between; gap:8px; margin-bottom:7px; }
+  .st-sg-title { font-size:14px; font-weight:600; line-height:1.35; margin:0; flex:1; }
   .st-sg-prio { flex:none; font-size:10px; padding:1px 7px; border-radius:6px; border:1px solid rgba(128,128,128,.35); opacity:.8; }
   .st-sg-prio.p1, .st-sg-prio.p2 { color:#E24B4A; border-color:#E24B4A; opacity:1; }
   .st-sg-code { font-family:ui-monospace,monospace; font-size:11px; opacity:.6; margin-bottom:8px; }
@@ -632,9 +640,8 @@
   .st-sg-role { font-size:11px; padding:2px 8px; border-radius:6px; border:1px solid rgba(128,128,128,.3); opacity:.75; }
   .st-sg-role.none { color:#BA7517; border-color:#EF9F27; opacity:1; }
   .st-sg-chips { display:flex; flex-wrap:wrap; gap:5px; margin-bottom:8px; }
-  .st-sg-note { font-size:11.5px; opacity:.55; line-height:1.5; margin:6px 0; word-break:break-word; cursor:pointer;
-    display:-webkit-box; -webkit-line-clamp:2; line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
-  .st-sg-note.open { -webkit-line-clamp:unset; line-clamp:unset; overflow:visible; white-space:pre-wrap; }
+  .st-sg-note { display:none; font-size:11.5px; opacity:.7; line-height:1.6; margin:9px 0 2px; word-break:break-word; white-space:pre-wrap; padding:9px 11px; background:rgba(128,128,128,.06); border-radius:8px; }
+  .st-sg-note.open { display:block; }
   .st-sg-assignee { font-size:11px; opacity:.6; margin-bottom:8px; }
   .st-sg-acts { display:flex; flex-wrap:wrap; gap:5px; align-items:center; }
   .st-sg-more { display:none; flex-wrap:wrap; gap:5px; margin-top:6px; padding-top:6px; border-top:1px solid rgba(128,128,128,.15); }
@@ -945,7 +952,6 @@
     <div class="st-head">
       <div><div class="st-h">전략 · 콘텐츠 기획 큐</div><div class="st-sub" id="st-sg-sub">불러오는 중…</div></div>
     </div>
-    <div class="st-hint">정한 콘텐츠를 <b>기획 대기 → 원고 작성 → 발행 예정 → 발행 완료</b>로 옮기며 진행을 한눈에 봅니다. 카드는 <b>키워드</b>(또는 전략 방향)의 [이걸로 만들기]로만 담깁니다 — 데이터 없이 손으로 만들지 않습니다. 카드마다 <b>고유코드(TW-XXXX)</b>가 붙어, 담당이 어디서 원고를 쓰든 코드로 매칭됩니다.</div>
 
     <div class="st-sg-board" id="st-sg-board"><div class="st-empty">불러오는 중…</div></div>
   </section>
@@ -1658,6 +1664,7 @@
   var perfLoaded = false;
   var kwLoaded = false;
   var sgLoaded = false;
+  var sgTab = 'planning', sgFTarget = '', sgFAssignee = '', sgFMonth = '', sgSort = 'priority';
   function switchView(v) {
     document.querySelectorAll('#st-menu button').forEach(function (b) {
       b.classList.toggle('on', b.dataset.view === v);
@@ -1785,70 +1792,97 @@
   var sgItems = [], sgMe = null, sgIsAdmin = false;
 
   function sgCard(it) {
-    var chips = '<span class="st-ch-chip new">' + esc(SG_SOURCE[it.source] || it.source || '—') + '</span>';
     var place = [it.country, it.city].filter(Boolean).join(' · ');
-    if (place) chips += '<span class="st-ch-chip">' + esc(place) + '</span>';
-    if (it.star) chips += '<span class="st-ch-chip">' + it.star + '성급</span>';
-    if (it.target) chips += '<span class="st-ch-chip">타겟 ' + esc(it.target) + '</span>';
+    var src = SG_SOURCE[it.source] || it.source || '—';
+    var codeline = esc(it.code || '(코드 없음)') + ' · <span class="st-sg-src">' + esc(src) + '</span>' + (place ? ' · ' + esc(place) : '');
+    var chips = '';
+    if (it.star) chips += '<span class="st-ch-chip">' + it.star + '성</span>';
     if (it.target_month) chips += '<span class="st-ch-chip">목표 ' + esc(it.target_month) + '</span>';
+    if (it.target) chips += '<span class="st-ch-chip">타겟 ' + esc(it.target) + '</span>';
     if (it.bookings_done) chips += '<span class="st-ch-chip active">확정예약 ' + it.bookings_done + '건</span>';
 
     var si = SG_STAGES.findIndex(function (s) { return s.key === it.stage; });
     var mine = it.assignee_email && it.assignee_email === sgMe;
-    // 주요 버튼(항상 보임)
     var acts = '';
     if (si < SG_STAGES.length - 1)
       acts += '<button class="st-sg-btn go" data-sgmove="' + it.id + '" data-dir="1">' + esc(SG_STAGES[si + 1].label) + ' →</button>';
     acts += '<button class="st-sg-btn" data-sgkw="' + it.id + '">분석</button>';
     acts += '<button class="st-sg-btn more" data-sgmore="' + it.id + '">⋯</button>';
-    // 더보기 그룹(⋯ 누르면 펼침)
     var more = '';
     if (si > 0) more += '<button class="st-sg-btn" data-sgmove="' + it.id + '" data-dir="-1">← 이전</button>';
     more += '<button class="st-sg-btn" data-sgprio="' + it.id + '">우선순위</button>';
     more += '<button class="st-sg-btn" data-sgnote="' + it.id + '">메모</button>';
     more += '<button class="st-sg-btn" data-sgclaim="' + it.id + '">' + (mine ? '놓기' : '내가 맡기') + '</button>';
     if (sgIsAdmin) more += '<button class="st-sg-btn" data-sgassign="' + it.id + '">담당 지정</button>';
+    if (it.planner_email) more += '<span class="st-sg-role">기획 ' + esc(shortMail(it.planner_email)) + '</span>';
+    if (it.note) more += '<button class="st-sg-btn" data-sgnoteshow="' + it.id + '">근거 보기</button>';
     if (sgIsAdmin) more += '<button class="st-sg-btn del" data-sgdel="' + it.id + '">🗑 삭제</button>';
 
-    // 기획자 + 원고담당(미지정=노랑 강조)
-    var planner = '<span class="st-sg-role">기획 ' + esc(shortMail(it.planner_email) || '—') + '</span>';
     var writer = it.assignee_email
       ? '<span class="st-sg-role">원고 ' + esc(shortMail(it.assignee_email)) + (mine ? '(나)' : '') + '</span>'
-      : '<span class="st-sg-role none">원고 담당 없음</span>';
-    var note = it.note ? '<div class="st-sg-note" data-sgnoteexp="' + it.id + '" title="눌러서 근거 전체 보기">' + esc(it.note) + '</div>' : '';
+      : '<span class="st-sg-role none">⚠ 담당 없음</span>';
     var prio = '<span class="st-sg-prio p' + (it.priority || 3) + '">우선 ' + (it.priority || 3) + '</span>';
+    var note = it.note ? '<div class="st-sg-note" data-sgnoteexp="' + it.id + '" title="눌러서 접기">' + esc(it.note) + '</div>' : '';
 
     return '<div class="st-sg-card' + (it.assignee_email ? '' : ' unassigned') + '" data-sgid="' + it.id + '">' +
       '<div class="st-sg-cardhead"><div class="st-sg-title">' + esc(it.title) + '</div>' + prio + '</div>' +
-      '<div class="st-sg-code">' + esc(it.code || '(코드 없음)') + '</div>' +
+      '<div class="st-sg-code">' + codeline + '</div>' +
       '<div class="st-sg-chips">' + chips + '</div>' +
-      note +
-      '<div class="st-sg-roles">' + planner + writer + '</div>' +
-      '<div class="st-sg-acts">' + acts + '</div>' +
+      '<div class="st-sg-bottom">' + writer + '<div class="st-sg-acts">' + acts + '</div></div>' +
       '<div class="st-sg-more" data-sgmoreid="' + it.id + '">' + more + '</div>' +
+      note +
     '</div>';
   }
+  function sgUniq(arr) { var o = []; arr.forEach(function (x) { if (x && o.indexOf(x) < 0) o.push(x); }); return o; }
   function renderStrategy() {
     var board = document.getElementById('st-sg-board');
-    document.getElementById('st-sg-sub').textContent =
-      '전체 ' + sgItems.length + '장 · ' + SG_STAGES.map(function (s) {
-        return s.label + ' ' + sgItems.filter(function (it) { return it.stage === s.key; }).length;
-      }).join(' · ');
-    board.innerHTML = SG_STAGES.map(function (s) {
-      var col = sgItems.filter(function (it) { return it.stage === s.key; });
-      return '<div class="st-sg-col">' +
-        '<div class="st-sg-colhead"><span class="st-sg-dot" style="background:' + s.color + '"></span>' +
-          s.label + '<span class="st-sg-count">' + col.length + '</span></div>' +
-        (col.length ? col.map(sgCard).join('') : '<div class="st-sg-empty">비어 있음</div>') +
-      '</div>';
-    }).join('');
+    document.getElementById('st-sg-sub').textContent = '정한 콘텐츠를 발행까지 관리 · 필터로 좁혀 봅니다';
+    // 필터
+    var fitems = sgItems.filter(function (it) {
+      if (sgFTarget && it.target !== sgFTarget) return false;
+      if (sgFAssignee && it.assignee_email !== sgFAssignee) return false;
+      if (sgFMonth && it.target_month !== sgFMonth) return false;
+      return true;
+    });
+    // 정렬
+    fitems.sort(function (a, b) {
+      if (sgSort === 'month') return String(a.target_month || 'zzz').localeCompare(String(b.target_month || 'zzz'));
+      return (a.priority || 3) - (b.priority || 3);
+    });
+    // 필터 옵션
+    var targets = sgUniq(sgItems.map(function (it) { return it.target; }));
+    var assignees = sgUniq(sgItems.map(function (it) { return it.assignee_email; }));
+    var months = sgUniq(sgItems.map(function (it) { return it.target_month; })).sort();
+    function sel(key, cur, items, all, fmt) {
+      var h = '<select class="st-sg-fsel' + (cur ? ' on' : '') + '" data-sgf="' + key + '"><option value="">' + all + '</option>';
+      items.forEach(function (v) { h += '<option value="' + esc(v) + '"' + (cur === v ? ' selected' : '') + '>' + esc(fmt ? fmt(v) : v) + '</option>'; });
+      return h + '</select>';
+    }
+    var fbar = '<div class="st-sg-filterbar">' +
+      sel('target', sgFTarget, targets, '타겟 전체') +
+      sel('assignee', sgFAssignee, assignees, '담당 전체', shortMail) +
+      sel('month', sgFMonth, months, '목표월 전체') +
+      '<select class="st-sg-fsel" data-sgf="sort"><option value="priority"' + (sgSort === 'priority' ? ' selected' : '') + '>정렬 우선순위</option><option value="month"' + (sgSort === 'month' ? ' selected' : '') + '>정렬 목표월</option></select>' +
+    '</div>';
+    // 상태 탭
+    var tabs = '<div class="st-sg-tabs">' + SG_STAGES.map(function (s) {
+      var n = fitems.filter(function (it) { return it.stage === s.key; }).length;
+      return '<div class="st-sg-tab' + (s.key === sgTab ? ' active' : '') + '" data-sgtab="' + s.key + '"><span class="st-sg-dot" style="background:' + s.color + '"></span>' + s.label + ' <b>' + n + '</b></div>';
+    }).join('') + '</div>';
+    // 리스트
+    var col = fitems.filter(function (it) { return it.stage === sgTab; });
+    var list = '<div class="st-sg-list">' + (col.length ? col.map(sgCard).join('') : '<div class="st-sg-empty">이 상태에 카드가 없습니다</div>') + '</div>';
+    board.innerHTML = fbar + tabs + list;
 
+    board.querySelectorAll('[data-sgf]').forEach(function (s) { s.onchange = function () { var k = s.dataset.sgf, v = s.value; if (k === 'target') sgFTarget = v; else if (k === 'assignee') sgFAssignee = v; else if (k === 'month') sgFMonth = v; else if (k === 'sort') sgSort = v; renderStrategy(); }; });
+    board.querySelectorAll('[data-sgtab]').forEach(function (t) { t.onclick = function () { sgTab = t.dataset.sgtab; renderStrategy(); }; });
     board.querySelectorAll('[data-sgmove]').forEach(function (b) { b.onclick = function () { sgMove(b.dataset.sgmove, +b.dataset.dir); }; });
     board.querySelectorAll('[data-sgprio]').forEach(function (b) { b.onclick = function () { sgSetPrio(b.dataset.sgprio); }; });
     board.querySelectorAll('[data-sgnote]').forEach(function (b) { b.onclick = function () { sgEditNote(b.dataset.sgnote); }; });
     board.querySelectorAll('[data-sgclaim]').forEach(function (b) { b.onclick = function () { sgClaim(b.dataset.sgclaim); }; });
     board.querySelectorAll('[data-sgassign]').forEach(function (b) { b.onclick = function () { sgAssignTo(b.dataset.sgassign); }; });
     board.querySelectorAll('[data-sgmore]').forEach(function (b) { b.onclick = function () { var m = board.querySelector('[data-sgmoreid="' + b.dataset.sgmore + '"]'); if (m) m.classList.toggle('open'); }; });
+    board.querySelectorAll('[data-sgnoteshow]').forEach(function (b) { b.onclick = function () { var n = board.querySelector('[data-sgnoteexp="' + b.dataset.sgnoteshow + '"]'); if (n) n.classList.toggle('open'); }; });
     board.querySelectorAll('[data-sgnoteexp]').forEach(function (b) { b.onclick = function () { b.classList.toggle('open'); }; });
     board.querySelectorAll('[data-sgkw]').forEach(function (b) { b.onclick = function () { switchView('keyword'); }; });
     board.querySelectorAll('[data-sgdel]').forEach(function (b) { b.onclick = function () { sgDelete(b.dataset.sgdel); }; });

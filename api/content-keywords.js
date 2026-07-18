@@ -550,6 +550,51 @@ async function cities(sb, req, res, who) {
   });
 }
 
+// ── view=targets — **타겟 목록은 채널이 만든다** (D-065 확정 · 2026-07-17 대표님 A안)
+//   *"타겟 = 언어 + 시장. 채널은 축이 아니다. 타겟 목록 = `channels.language` 자동 생성(하드코딩 금지)."*
+//   🔴 대표님 근거: *"한국어는 한국 사람의 타겟인데 키워드 똑같을 거잖아."*
+//      채널로 쪼개면 **같은 조사를 3번**(한국어 채널 3개) 하고 앵커 잣대(⑪)가 깨진다.
+//   🔴 A안(대표님 확정): **조사 안 된 타겟도 보인다.** 일본어 채널(ホテルだ)이 예약 462건을 받는데
+//      조사가 **0건**이다 — 안 보여주면 **모른다는 사실 자체가 화면에서 사라진다.**
+//   🔴 시장(market)은 **채널에 칸이 없다**(D-065 284줄이 이미 지적). 조사가 있는 타겟은 조사에서 읽고,
+//      없으면 **`null` — 「시장 미정」이라고 말한다. 지어내지 않는다.**
+const LANG_NAME = {           // 코드 → 사람 말. **목록이 아니라 표기 번역**이다(목록은 channels 가 만든다)
+  ko: '한국어', ja: '일본어', en: '영어', vi: '베트남어',
+  'zh-tw': '중국어 번체', 'zh-cn': '중국어 간체', th: '태국어', id: '인도네시아어',
+};
+const MARKET_NAME = { KR: '한국', JP: '일본', TW: '대만', VN: '베트남', US: '미국', GLOBAL: '전세계' };
+
+async function targets(sb, req, res) {
+  const [chRes, kwRes, snRes] = await Promise.all([
+    sb.from('channels').select('code, name, language, is_active').eq('is_active', true),
+    sb.from('keyword').select('target_code'),
+    sb.from('snapshot').select('target_code, market, ym'),
+  ]);
+  if (chRes.error) throw new Error(chRes.error.message);
+
+  const kwCount = {};
+  (kwRes.data || []).forEach((r) => { kwCount[r.target_code] = (kwCount[r.target_code] || 0) + 1; });
+  const mk = {};
+  (snRes.data || []).forEach((r) => { if (!mk[r.target_code]) mk[r.target_code] = r.market; });
+
+  const byLang = new Map();
+  (chRes.data || []).forEach((c) => {
+    const l = c.language;
+    if (!byLang.has(l)) byLang.set(l, { code: l, channels: [], keywords: 0, market: null });
+    byLang.get(l).channels.push(c.name);
+  });
+  const list = [...byLang.values()].map((t) => {
+    t.keywords = kwCount[t.code] || 0;
+    t.market = mk[t.code] || null;                       // 조사가 정한다. 없으면 모른다
+    t.label = (LANG_NAME[t.code] || t.code) + ' · ' + (t.market ? (MARKET_NAME[t.market] || t.market) : '시장 미정');
+    t.surveyed = t.keywords > 0;
+    return t;
+  }).sort((a, b) => (b.surveyed - a.surveyed) || (b.channels.length - a.channels.length));
+
+  res.setHeader('Cache-Control', 'private, no-store, max-age=0');
+  return res.status(200).json({ ok: true, view: 'targets', targets: list });
+}
+
 export default async function handler(req, res) {
   const who = await authorized(req);
   if (!who.ok) return res.status(401).json({ ok: false, error: '로그인이 필요합니다.' });
@@ -563,6 +608,11 @@ export default async function handler(req, res) {
     sb = admin();
   } catch (e) {
     return res.status(500).json({ ok: false, error: '서버 설정 오류', detail: String(e.message || e) });
+  }
+
+  if (String(req.query.view || '') === 'targets') {
+    try { return await targets(sb, req, res); }
+    catch (e) { return res.status(500).json({ ok: false, error: '타겟 목록을 불러오지 못했습니다.', detail: String(e.message || e) }); }
   }
 
   if (String(req.query.view || '') === 'cities') {

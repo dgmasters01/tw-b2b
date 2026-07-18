@@ -932,11 +932,41 @@ function toQueue(enc){
         star:(o.k==='star'?o.s:null), target_month:tm, priority:3,
         hotel_name:(list[0]?list[0].name:null), note:note })});
   }).then(function(r){return r.json();}).then(function(d){
-    if(d&&d.ok) ts('전략 기획대기에 넣었습니다 — '+((d.item&&d.item.code)||''));
+    if(d&&d.ok){ ts('전략 기획대기에 넣었습니다 — '+((d.item&&d.item.code)||''));
+      loadSnap().then(function(){ rx(cd); });   /* 🔴 넣었으면 화면이 바로 「전략에 있음」으로 바뀌어야 한다 */
+    }
     else ts('못 넣었습니다 — '+((d&&d.error)||'창구 오류'));
   }).catch(function(e){ ts('못 넣었습니다 — '+e); });
 }
 var dRowG=null;
+/* 🔑 「이미 전략에 넘겼나」 — **창구가 센다**(SV.queued). 화면이 기억하지 않는다.
+   새로고침해도, 다른 사람이 봐도 남는다. 대표님 2026-07-17: *"사용했다고 표시가 되어야 되고, 누가 담당했는지도"*.
+   D-066 확정: **기획자 = [＋ 전략으로] 누른 사람 자동**. 원고 담당은 전략 메뉴 몫(큐는 전략이 갖는다 · D-065 0-H).
+   🔴 **막지 않고 알려준다**(대표님 확정) — 같은 3성이라도 「3박4일」과 「12월 성수기」는 다른 영상이다.
+      다만 **모르고 두 번** 만드는 건 막는다. */
+var STG={planning:'기획대기',writing:'원고작성',scheduled:'발행예정',published:'발행완료'};
+function qBtn(title, st, kind){
+  var q=(SV&&SV.queued&&SV.queued[title])||null;
+  var enc=encodeURIComponent(JSON.stringify({t:title,s:st,k:kind}));
+  if(!q) return '<div onclick="toQueue(\''+enc+'\')" style="font-size:11px;color:#fff;cursor:pointer;'+
+    'padding:8px 14px;border-radius:7px;text-align:center;background:var(--em);font-weight:600;white-space:nowrap;">＋ 전략으로</div>';
+  if(q.stage==='published') return '<div onclick="ts(\''+(q.target_month||'')+' 에 발행한 영상입니다 — 6개월 뒤부터 다시 씁니다\')" '+
+    'style="font-size:11px;color:#a99cf0;cursor:pointer;padding:8px 12px;border-radius:7px;text-align:center;'+
+    'background:rgba(150,120,220,.22);white-space:nowrap;">발행함'+(q.target_month?' · '+q.target_month:'')+'</div>';
+  return '<div onclick="qAsk(\''+enc+'\')" style="font-size:11px;color:var(--bl);cursor:pointer;padding:8px 12px;'+
+    'border-radius:7px;text-align:center;background:var(--bld);white-space:nowrap;">전략에 있음 · '+q.code+' · '+(STG[q.stage]||q.stage)+
+    (q.planner?' · '+String(q.planner).split('@')[0]:'')+(q.count>1?' ('+q.count+'장)':'')+'</div>';
+}
+/* 이미 있는데 또 누르면 — 막지 않고 알려준다 */
+function qAsk(enc){
+  var o; try{ o=JSON.parse(decodeURIComponent(enc)); }catch(e){ return; }
+  var q=(SV&&SV.queued&&SV.queued[o.t])||null; if(!q) return toQueue(enc);
+  QASK={enc:enc,t:o.t,q:q}; rx(cd);
+}
+function qClose(){ QASK=null; rx(cd); }
+function qDup(){ var e=QASK&&QASK.enc; QASK=null; rx(cd); if(e) toQueue(e); }
+function qGo(){ QASK=null; var t=document.querySelector('[data-view="strategy"]'); if(t){ t.click(); ts('전략 메뉴로 이동'); } else ts('전략 메뉴는 스튜디오에서 열립니다'); }
+var QASK=null;
 function rx(d){cd=d;
 /* ── 지역 세부 = **기본 자료를 보는 곳** (대표님 2026-07-17). 여기에 [이걸로 만들기] 안 붙인다.
     기본 = ① 이 동네가 뭔가 ② 뭘 만드나(성급). 나머지는 **접는다** — 안 펼쳐도 결론이 접힌 줄에 있다.
@@ -1203,9 +1233,7 @@ function rx(d){cd=d;
           '<div onclick="cxmore('+st+')" style="flex:1;font-size:11px;color:var(--bl);cursor:pointer;padding:8px 10px;'+
           'border:1px solid var(--line);border-radius:7px;text-align:center;background:var(--card);">'+
           (CXOPEN===st?'접기 ▴':'펼쳐 보기 ▾ — 호텔별 확정·취소·금액')+'</div>'+
-          '<div onclick="toQueue(\''+encodeURIComponent(JSON.stringify({t:head3+' TOP3 — '+stN3(st),s:st,k:'star'}))+'\')" '+
-          'style="font-size:11px;color:#fff;cursor:pointer;padding:8px 14px;border-radius:7px;text-align:center;'+
-          'background:var(--em);font-weight:600;white-space:nowrap;">＋ 전략으로</div></div>'+
+          qBtn(head3+' TOP3 — '+stN3(st), st, 'star')+'</div>'+
           (CXOPEN===st?cxDetail(g3.list,PT):'')+
           '</div>';
      });
@@ -1233,10 +1261,23 @@ function rx(d){cd=d;
           '<div style="font-size:11.5px;line-height:1.9;">'+list.slice(0,3).map(function(x,k){
             return '<span style="color:var(--muted);">'+(k+1)+'</span> '+x.name+' <span style="font-size:10px;color:var(--muted);">'+(x.star>0?String(x.star).replace('.0','')+'성':'')+'</span> '+badgePop(x)+' '+badgeReuse(x);
           }).join('<br>')+'</div>'+
-          '<div onclick="toQueue(\''+encodeURIComponent(JSON.stringify({t:d+' '+word+' TOP3',s:null,k:pt}))+'\')" '+
-          'style="font-size:11px;color:#fff;cursor:pointer;margin-top:7px;padding:8px 10px;border-radius:7px;'+
-          'text-align:center;background:var(--em);font-weight:600;">＋ 전략으로</div></div>';
+          '<div style="display:flex;margin-top:7px;">'+qBtn(d+' '+word+' TOP3', null, pt)+'</div></div>';
      });
+     if(QASK){
+       var q2=QASK.q;
+       h+='<div style="border:1px solid var(--am);background:var(--amd);border-radius:9px;padding:12px 13px;margin:8px 0;">'+
+          '<div style="font-size:12.5px;font-weight:600;color:var(--am);margin-bottom:5px;">이미 전략에 있습니다</div>'+
+          '<div style="font-size:11.5px;color:var(--sub);line-height:1.8;"><b>'+q2.code+' · '+QASK.t+'</b><br>'+
+          (STG[q2.stage]||q2.stage)+(q2.planner?' · 기획자 '+String(q2.planner).split('@')[0]:'')+
+          (q2.target_month?' · 목표 '+q2.target_month:'')+(q2.count>1?' · '+q2.count+'장':'')+'</div>'+
+          '<div style="font-size:11px;color:var(--muted);line-height:1.7;margin-top:8px;padding-top:8px;border-top:1px solid var(--line);">'+
+          '그래도 만들 수 있습니다 — <b>각도가 다르면 다른 영상</b>입니다.<br>같은 성급이라도 「3박4일」과 「12월 성수기」는 다릅니다.</div>'+
+          '<div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;">'+
+          '<div onclick="qGo()" style="font-size:11px;padding:8px 12px;border-radius:7px;background:var(--bld);color:var(--bl);cursor:pointer;">'+q2.code+' 보러가기 →</div>'+
+          '<div onclick="qDup()" style="font-size:11px;padding:8px 12px;border-radius:7px;background:var(--em);color:#fff;font-weight:600;cursor:pointer;">그래도 하나 더 만들기</div>'+
+          '<div onclick="qClose()" style="font-size:11px;padding:8px 12px;border-radius:7px;border:1px solid var(--line);color:var(--muted);cursor:pointer;">그만두기</div>'+
+          '</div></div>';
+     }
      h+='<div style="font-size:10px;color:var(--muted);margin-top:4px;">성급 축 = <b>호텔·리조트만</b> · 아파트·호스텔·게하는 콘텐츠 유형이 달라 뺐습니다(장부엔 있습니다)<br>제목에 성급을 안 넣습니다 — 실측 `오사카 4성급 호텔 추천` 0.08. 사람은 「'+((dRow&&dRow.head)||(d+' 호텔'))+'」로 찾습니다</div></div>';
    }
  }
@@ -1443,7 +1484,7 @@ function vw(w,a,b){
  if(w==='m'){sh('s1');document.getElementById('bc').innerHTML='';return;}
  if(w==='c'){rc(a);sh('s2');bc('c',a);return;}
  if(w==='d'){if(b)cc=b;rdd(a);sh('s3');bc('d',a);return;}
- if(w==='x'){KWMORE=false;HRSTAR=null;HRMORE=false;HFSTAR=null;HFMORE={};CXOPEN=null;rx(a);sh('s4');bc('x',a);return;}   /* 다른 지역으로 가면 「더 보기」는 접힌 채로 시작 */
+ if(w==='x'){KWMORE=false;HRSTAR=null;HRMORE=false;HFSTAR=null;HFMORE={};CXOPEN=null;QASK=null;rx(a);sh('s4');bc('x',a);return;}   /* 다른 지역으로 가면 「더 보기」는 접힌 채로 시작 */
  if(w==='r'){rrs(a);sh('s6');document.getElementById('bc').innerHTML='<a onclick="go(\'m\')">홈</a> › <span>한국어 · 한국</span> › <b>'+a+'</b> › <b>조사 시작</b>';return;}}
 // A안 — 폰 뒤로가기 지원. 지금까지 폰 뒤로 버튼을 누르면 **앱을 통째로 나갔다**(대표님 2026-07-16).
 // 헌법 원칙 3 "핸드폰 한 대로 모든 작업". vw()=그리기 / go()=그리기+이력쌓기 로 분리.

@@ -637,6 +637,9 @@
   .st-sg-note.open { -webkit-line-clamp:unset; line-clamp:unset; overflow:visible; white-space:pre-wrap; }
   .st-sg-assignee { font-size:11px; opacity:.6; margin-bottom:8px; }
   .st-sg-acts { display:flex; flex-wrap:wrap; gap:5px; align-items:center; }
+  .st-sg-more { display:none; flex-wrap:wrap; gap:5px; margin-top:6px; padding-top:6px; border-top:1px solid rgba(128,128,128,.15); }
+  .st-sg-more.open { display:flex; }
+  .st-sg-btn.more { color:#8A8794; font-weight:600; }
   .st-sg-btn { font-size:11px; padding:3px 9px; border-radius:7px; border:1px solid rgba(128,128,128,.35); background:none; color:inherit; cursor:pointer; }
   .st-sg-btn:hover { border-color:currentColor; }
   .st-sg-btn.go { border-color:#5DCAA5; color:#1D9E75; font-weight:500; }
@@ -1791,17 +1794,21 @@
     if (it.bookings_done) chips += '<span class="st-ch-chip active">확정예약 ' + it.bookings_done + '건</span>';
 
     var si = SG_STAGES.findIndex(function (s) { return s.key === it.stage; });
+    var mine = it.assignee_email && it.assignee_email === sgMe;
+    // 주요 버튼(항상 보임)
     var acts = '';
-    if (si > 0) acts += '<button class="st-sg-btn" data-sgmove="' + it.id + '" data-dir="-1">←</button>';
     if (si < SG_STAGES.length - 1)
       acts += '<button class="st-sg-btn go" data-sgmove="' + it.id + '" data-dir="1">' + esc(SG_STAGES[si + 1].label) + ' →</button>';
-    acts += '<button class="st-sg-btn" data-sgprio="' + it.id + '">우선순위</button>';
-    acts += '<button class="st-sg-btn" data-sgnote="' + it.id + '">메모</button>';
-    var mine = it.assignee_email && it.assignee_email === sgMe;
-    acts += '<button class="st-sg-btn" data-sgclaim="' + it.id + '">' + (mine ? '놓기' : '내가 맡기') + '</button>';
-    if (sgIsAdmin) acts += '<button class="st-sg-btn" data-sgassign="' + it.id + '">담당 지정</button>';
-    acts += '<button class="st-sg-btn" data-sgkw="' + it.id + '">분석 다시보기</button>';
-    if (sgIsAdmin) acts += '<button class="st-sg-btn del" data-sgdel="' + it.id + '">🗑</button>';
+    acts += '<button class="st-sg-btn" data-sgkw="' + it.id + '">분석</button>';
+    acts += '<button class="st-sg-btn more" data-sgmore="' + it.id + '">⋯</button>';
+    // 더보기 그룹(⋯ 누르면 펼침)
+    var more = '';
+    if (si > 0) more += '<button class="st-sg-btn" data-sgmove="' + it.id + '" data-dir="-1">← 이전</button>';
+    more += '<button class="st-sg-btn" data-sgprio="' + it.id + '">우선순위</button>';
+    more += '<button class="st-sg-btn" data-sgnote="' + it.id + '">메모</button>';
+    more += '<button class="st-sg-btn" data-sgclaim="' + it.id + '">' + (mine ? '놓기' : '내가 맡기') + '</button>';
+    if (sgIsAdmin) more += '<button class="st-sg-btn" data-sgassign="' + it.id + '">담당 지정</button>';
+    if (sgIsAdmin) more += '<button class="st-sg-btn del" data-sgdel="' + it.id + '">🗑 삭제</button>';
 
     // 기획자 + 원고담당(미지정=노랑 강조)
     var planner = '<span class="st-sg-role">기획 ' + esc(shortMail(it.planner_email) || '—') + '</span>';
@@ -1818,6 +1825,7 @@
       note +
       '<div class="st-sg-roles">' + planner + writer + '</div>' +
       '<div class="st-sg-acts">' + acts + '</div>' +
+      '<div class="st-sg-more" data-sgmoreid="' + it.id + '">' + more + '</div>' +
     '</div>';
   }
   function renderStrategy() {
@@ -1840,6 +1848,7 @@
     board.querySelectorAll('[data-sgnote]').forEach(function (b) { b.onclick = function () { sgEditNote(b.dataset.sgnote); }; });
     board.querySelectorAll('[data-sgclaim]').forEach(function (b) { b.onclick = function () { sgClaim(b.dataset.sgclaim); }; });
     board.querySelectorAll('[data-sgassign]').forEach(function (b) { b.onclick = function () { sgAssignTo(b.dataset.sgassign); }; });
+    board.querySelectorAll('[data-sgmore]').forEach(function (b) { b.onclick = function () { var m = board.querySelector('[data-sgmoreid="' + b.dataset.sgmore + '"]'); if (m) m.classList.toggle('open'); }; });
     board.querySelectorAll('[data-sgnoteexp]').forEach(function (b) { b.onclick = function () { b.classList.toggle('open'); }; });
     board.querySelectorAll('[data-sgkw]').forEach(function (b) { b.onclick = function () { switchView('keyword'); }; });
     board.querySelectorAll('[data-sgdel]').forEach(function (b) { b.onclick = function () { sgDelete(b.dataset.sgdel); }; });

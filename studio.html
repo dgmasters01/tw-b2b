@@ -3172,8 +3172,11 @@ function loadTargets(){
    🔴 조사(SE)가 없는 타겟이면 안 그린다. 없는 걸 있는 척하지 않는다.
    🔴 [조사하기]는 아직 조사 화면(㉘㉙)이 없어 **안내만** — 화면은 다음 순서에서 붙는다. */
 var PREP_MORE=false;
+var RSEL_PICK=null;   /* 관제판에서 [＋조사하기] 누른 도시 = 조사 화면에서 그 도시만 프리체크 */
 function survey(city,country){
-  ts(city+' 조사 시작 — 약 4분 (키워드 40개·트렌드 10회). 조사 화면은 다음 순서에서 붙습니다.');
+  RSEL_PICK=city;
+  if(RSEL[country]) delete RSEL[country];   /* 프리체크 다시 계산되도록 초기화 */
+  go('r',country);                          /* 진입점 통일 — 토스트 대신 s6 조사 화면(㉘㉙) */
 }
 function prepMore(){ PREP_MORE=!PREP_MORE; rprep(); }
 function rprep(){
@@ -4499,11 +4502,15 @@ var UNC={'필리핀':{bk:162,rank:5,cities:[['세부','Cebu',82,126],['마닐라
 /* ㉚ 한국어 도시명은 DB에 없다(hotels = city 영문뿐). city_alias 지연 생성 — 입력이 곧 데이터.
    프리뷰라 아래는 이미 넣어둔 셈 치고 보여준다. 실제 구현은 빈 칸이면 그 자리에서 5초 입력. */
 var RSEL={}, RNEW=[], RC='';
-function rrs(c){RC=c;if(!RSEL[c])RSEL[c]={0:1,1:1};
- var u=UNC[c];var h='';
+function rrs(c){RC=c;
+ var u=UNC[c]||buildUnc(c);                 /* 필리핀=실측(UNC) · 그 외 나라=관제판 CT/INV 로 생성 */
+ if(!RSEL[c]){ RSEL[c]={};
+   u.cities.forEach(function(x,i){ if(RSEL_PICK? x[0]===RSEL_PICK : i<2) RSEL[c][i]=1; });
+   RSEL_PICK=null; }
+ var h='';
  h+='<div class="cd" style="margin-bottom:9px;"><div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">'+
     '<span style="font-size:16px;font-weight:600;">'+c+'</span><span class="tag t-un">키워드 조사가 안 된 도시</span></div>'+
-    '<div style="font-size:11.5px;color:var(--sub);">우리 데이터엔 이미 있습니다 — 확정 예약 <b>'+u.bk+'건</b> · 도시 '+u.cities.length+'곳 · 나라 중 <b>'+u.rank+'위</b></div>'+
+    '<div style="font-size:11.5px;color:var(--sub);">우리 데이터엔 이미 있습니다 — 확정 예약 <b>'+u.bk+'건</b> · 도시 '+u.cities.length+'곳'+(u.rank?' · 나라 중 <b>'+u.rank+'위</b>':'')+'</div>'+
     '<div style="font-size:11px;color:var(--muted);margin-top:3px;">없는 것은 검색 수요(구글 트렌드)뿐입니다. 그래서 "지금 착수 / 대기" 판정을 못 합니다. <span class="wb" onclick="ts(\'근거: DB 실측 2026-07-16 · bookings_unified · hotels\')">왜?</span></div></div>';
  h+='<div class="ml">한국어 · 한국 타겟으로 조사할 도시를 고르세요 <span class="no">2-1</span></div>';
  h+='<div class="cd" style="padding:6px 8px;margin-bottom:9px;">';
@@ -4526,13 +4533,85 @@ function rrs(c){RC=c;if(!RSEL[c])RSEL[c]={0:1,1:1};
  var n=Object.keys(RSEL[c]).filter(function(k){return RSEL[c][k];}).length+RNEW.length;
  h+='<div class="ban" style="margin-bottom:9px;">고른 것 <b>'+n+'곳</b> × 한국어 1개 타겟 = 구글 트렌드 <b>'+(n*10)+'회</b> · 약 <b>'+(n*4)+'분</b>'+
     '<div style="color:var(--sub);font-size:11px;margin-top:2px;">도시 1곳 = 키워드 40개 = 트렌드 10회 (앵커 묶음 ⑪ · 429 방지 간격 20초). 타겟은 지금 보는 1개만 — 일본어는 일본어 화면에서 따로.</div></div>';
- h+='<div style="display:flex;align-items:center;gap:9px;"><span class="btn" style="background:var(--emd);color:var(--em);" onclick="ts(\''+c+' '+n+'곳 조사 시작 — 프리뷰라 실제 호출은 안 합니다\')">조사 시작 · 약 '+(n*4)+'분</span>'+
+ h+='<div style="display:flex;align-items:center;gap:9px;"><span class="btn" style="background:var(--emd);color:var(--em);" onclick="runSurvey()">조사 시작 · 약 '+(n*4)+'분</span>'+
     '<span style="font-size:11px;color:var(--muted);">owner · admin만 · 끝나면 알림 · 다음 달부터 자동 조사 합류</span></div>';
  h+='<div class="er" style="margin-top:9px;">앵커("세부 호텔")가 측정 한계 아래면 20초 지점에서 저절로 멈추고 <b>"측정 한계 아래 — 없는 게 아니라 우리가 못 잼"</b>으로 표시, 저장하지 않습니다 (⑧). [미리 재보기]는 폐기 — 본 조사가 같은 일을 합니다.</div>';
  document.getElementById('d6').innerHTML=h;}
 function rtg(i){RSEL[RC][i]=!RSEL[RC][i];rrs(RC);}
 function rnf(){var b=document.getElementById('rnb');b.style.display=b.style.display==='none'?'block':'none';if(b.style.display==='block')document.getElementById('rni').focus();}
 function rna(){var v=document.getElementById('rni').value.trim();if(!v)return;RNEW.push(v);rrs(RC);ts('"'+v+'" 넣음 — 이 글자가 곧 한국어 이름표입니다 (city_alias 저장 · 비용 0)');}
+
+/* ══ D-065 ㉘㉙ — [조사 시작] 이후: 중(진행) → 결과(완료→s3 채움) ══
+   확정 목업 2026-07-18. 프리뷰라 실제 트렌드 호출은 안 한다 — 흐름을 시늉만 낸다(1.4초/도시).
+   🔴 값(계절·키워드)은 지어내지 않는다(㉛ 날조 금지). 조사가 s3 상세를 채운다는 사실만 보여준다. */
+function buildUnc(c){                        /* UNC(필리핀 실측)가 없는 나라 = 관제판 CT/INV 로 목록 생성 */
+  var cities=(CT[c]||[]).map(function(d){var v=INV[d]||{};return [d,'',v.ours||0,v.bookings||0];});
+  var bk=cities.reduce(function(s,x){return s+(x[3]||0);},0);
+  return {bk:bk,rank:null,cities:cities};
+}
+var SVQ=[],SVI=0,SVTMR=null;
+function runSurvey(){
+  var u=UNC[RC]||buildUnc(RC);
+  SVQ=[];
+  Object.keys(RSEL[RC]||{}).forEach(function(k){ if(RSEL[RC][k]&&u.cities[k]) SVQ.push({city:u.cities[k][0],en:u.cities[k][1]||'',conf:u.cities[k][3]||0,st:'wait'}); });
+  RNEW.forEach(function(n){ SVQ.push({city:n,en:'',conf:0,st:'wait'}); });
+  if(!SVQ.length){ ts('조사할 도시를 하나 이상 고르세요'); return; }
+  SVI=0; drawRun(); clearTimeout(SVTMR); SVTMR=setTimeout(stepRun,1400);
+}
+function stepRun(){
+  if(SVI<SVQ.length){
+    SVQ[SVI].st=(SVQ[SVI].conf>=10)?'done':'floor';   /* 확정 10건 미만 = 앵커 측정 한계(⑧) · 저장 안 함 */
+    SVI++; drawRun(); SVTMR=setTimeout(stepRun,1400);
+  } else { surveyDone(); }
+}
+function drawRun(){
+  var done=SVQ.filter(function(x){return x.st!=='wait';}).length;
+  var left=(SVQ.length-done)*4, pct=Math.round(done/SVQ.length*100);
+  var h='<div class="cd" style="margin-bottom:9px;"><div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">'+
+    '<span style="font-size:16px;font-weight:600;">'+RC+'</span><span class="tag" style="background:var(--bld);color:var(--bl);">한국어 · 한국 타겟</span></div>'+
+    '<div style="font-size:11.5px;color:var(--sub);">'+SVQ.length+'곳 중 <b style="color:var(--em);">'+done+'곳</b> 완료 · 남은 시간 약 '+left+'분</div>'+
+    '<div style="height:6px;border-radius:4px;background:var(--card2);overflow:hidden;margin-top:7px;"><span style="display:block;width:'+pct+'%;height:100%;background:var(--em);"></span></div></div>';
+  h+='<div class="cd" style="padding:6px 8px;margin-bottom:9px;">';
+  SVQ.forEach(function(x,i){
+    var ic,col,tx;
+    if(x.st==='done'){ic='✓';col='var(--em)';tx='완료 · 키워드 40 · 트렌드 10';}
+    else if(x.st==='floor'){ic='!';col='var(--am)';tx='측정 한계 아래 — 저장 안 함';}
+    else if(i===SVI){ic='◐';col='var(--bl)';tx='조사 중 · 앵커 재는 중';}
+    else {ic='○';col='var(--muted)';tx='대기 · 약 4분';}
+    h+='<div style="display:flex;align-items:center;gap:9px;padding:8px 6px;border-bottom:0.5px solid var(--card2);'+(x.st==='wait'&&i!==SVI?'color:var(--sub);':'')+'">'+
+       '<span style="font-size:14px;color:'+col+';width:16px;text-align:center;">'+ic+'</span>'+
+       '<span style="flex:1;font-size:12.5px;">'+x.city+(x.en?' <span style="font-size:10px;color:var(--muted);">'+x.en+'</span>':'')+'</span>'+
+       '<span style="font-size:10.5px;color:'+col+';">'+tx+'</span></div>';
+  });
+  h+='</div>';
+  h+='<div class="ban" style="display:flex;align-items:center;gap:9px;"><span style="flex:1;">뒤에서 계속됩니다. 끝나면 관제판에 <b style="color:var(--em);">완료 ●</b> 배지</span>'+
+     '<span class="btn" onclick="go(\'m\')">관제판으로</span></div>';
+  document.getElementById('d6').innerHTML=h;
+}
+function surveyDone(){
+  var filled=SVQ.filter(function(x){return x.st==='done';}), floored=SVQ.filter(function(x){return x.st==='floor';});
+  var h='<div class="cd" style="margin-bottom:9px;"><div style="display:flex;align-items:center;gap:8px;">'+
+    '<span style="font-size:16px;font-weight:600;">'+RC+' 조사 완료</span>'+
+    (filled.length?'<span class="tag" style="background:var(--emd);color:var(--em);">'+filled.length+'곳 채워짐</span>':'')+'</div></div>';
+  filled.forEach(function(x){
+    h+='<div class="cd" style="margin-bottom:8px;"><div style="display:flex;align-items:center;gap:7px;margin-bottom:5px;">'+
+       '<span style="font-size:13px;font-weight:600;">'+x.city+'</span>'+
+       '<span class="tag" style="background:var(--emd);color:var(--em);">채워짐</span></div>'+
+       '<div style="font-size:11px;color:var(--sub);line-height:1.6;">계절·키워드순위·자동태그·수요트렌드가 <b>'+x.city+' 도시 상세</b>에 들어갔습니다.</div>'+
+       '<div class="wb" style="margin-top:7px;color:var(--bl);cursor:pointer;" onclick="go(\'d\',\''+x.city+'\',\''+RC+'\')">→ '+x.city+' 도시 상세 보기</div></div>';
+  });
+  floored.forEach(function(x){
+    h+='<div style="display:flex;align-items:center;gap:8px;padding:9px 11px;background:var(--amd);border-radius:10px;margin-bottom:8px;">'+
+       '<span style="color:var(--am);font-size:15px;">!</span>'+
+       '<span style="font-size:11px;color:var(--am);">'+x.city+' — 측정 한계 아래. 없는 게 아니라 우리가 못 잼. 저장 안 함</span></div>';
+  });
+  if(filled.length){
+    h+='<div style="padding:9px;background:var(--emd);border-radius:9px;font-size:11px;color:var(--em);line-height:1.6;">↑ '+
+       filled.map(function(x){return x.city;}).join(' · ')+'가 관제판에서 「우선순위」 → 「지금 착수」로 승격. 다음 달부터 자동 조사 합류</div>';
+  }
+  h+='<div style="margin-top:10px;"><span class="btn" onclick="go(\'m\')">관제판으로 돌아가기</span></div>';
+  document.getElementById('d6').innerHTML=h;
+}
 
 
 /* [연·월 지정] 팝오버는 2026-07-17 **뺐다** (D-065 54-0G · 대표님 판단).

@@ -3248,10 +3248,9 @@ function rprep(){
     }).join('')+'</div>';
     var rest=todoL.length-N;
     if(rest>0){
-      var names=todoL.slice(N,N+6).map(function(o){return o.city+' '+(o.inv.bookings||0);}).join(' · ');
-      h+='<div onclick="prepMore()" style="font-size:11px;color:var(--muted);padding:9px 2px 0;cursor:pointer;">외 '+rest+'곳 ▾'+(names?' ('+names+(rest>6?' …':'')+')':'')+'</div>';
+      h+='<div onclick="prepMore()" style="text-align:center;padding:12px;color:var(--bl);cursor:pointer;">나머지 '+rest+'개 도시 펼쳐 보기 ▾</div>';
     } else if(PREP_MORE&&todoL.length>5){
-      h+='<div onclick="prepMore()" style="font-size:11px;color:var(--muted);padding:9px 2px 0;cursor:pointer;">접기 ▴</div>';
+      h+='<div onclick="prepMore()" style="text-align:center;padding:12px;color:var(--muted);cursor:pointer;">접기 ▴</div>';
     }
   }
   if(!goL.length&&!todoL.length){

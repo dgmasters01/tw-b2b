@@ -428,6 +428,20 @@ async function survey(sb, req, res, who) {
     //      화면·창구가 같은 값을 쓰도록 **뷰가 `grade` 를 준다.** 화면에서 floor 하지 않는다.
     sb.from('v_district_hotel').select('district, star, grade, name, name_is_ko, ptype, confirmed, cancelled, confirm_rate, revenue, bucket, reuse, reuse_from, paid').eq('city', 'Osaka'),
   ]);
+  // 🔑 「이미 전략에 넘겼나」 (2026-07-17 대표님) — **화면이 기억하지 않는다. 창구가 센다.**
+  //    새로고침해도, 다른 사람이 봐도 남아야 한다. 열쇠 = 도시 + 주제(제목).
+  //    🔴 큐는 **전략 메뉴가 갖는다**(D-065 0-H). 키워드는 **상태만 보여주고 이동**시킨다 — 큐를 여기 두지 않는다.
+  //    D-066 확정: 기획자(planner) = [＋ 전략으로] 누른 사람 자동. 원고 담당은 전략 메뉴에서 지정/맡기.
+  const qRes = await sb.from('content_queue')
+    .select('id, code, stage, title, star, planner_email, target_month, created_at')
+    .eq('city', 'Osaka').order('created_at', { ascending: false });
+  const queued = {};
+  (qRes.data || []).forEach((r) => {
+    const k = String(r.title || '');
+    if (!queued[k]) queued[k] = { code: r.code, stage: r.stage, planner: r.planner_email, target_month: r.target_month, count: 0 };
+    queued[k].count += 1;
+  });
+
   const dstat = {};
   const touch = (d) => (dstat[d] = dstat[d] || { stars: [], months: [], months_out: [], pattern: null, hotels: [] });
   (starRes.data || []).forEach((r) => {
@@ -447,6 +461,7 @@ async function survey(sb, req, res, who) {
   res.setHeader('Cache-Control', 'private, no-store, max-age=0');
   return res.status(200).json({
     ok: true, is_admin: !!who.isAdmin, view: 'survey',
+    queued,                      // 주제 → {code, stage, planner, target_month, count}
     district_stats: dstat,
     target, market, city_key: cityKey, ym,
     snapshot: snap, months: snaps.map((s) => s.ym),

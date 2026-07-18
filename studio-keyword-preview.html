@@ -128,14 +128,7 @@
       <span class="no" style="margin-left:auto;">1-2</span><span style="color:var(--muted);" id="tc">⌄</span></div>
     <div class="dd" id="ddb">
       <div class="srch" style="margin-bottom:7px;"><span>🔍</span><input placeholder="타겟 검색 (언어·시장)"></div>
-      <div class="ddg">자주 쓰는</div>
-      <div class="ddi sel">한국어 · 한국 <span style="color:var(--muted);font-size:11px;margin-left:6px;">채널 3</span> <span style="margin-left:auto;">✓</span></div>
-      <div class="ddi" onclick="pk('일본어 · 일본')">일본어 · 일본 <span style="color:var(--muted);font-size:11px;margin-left:6px;">채널 1</span> <span class="tag t-on">운영 중</span></div>
-      <div class="ddg">다른 언어</div>
-      <div class="ddi" onclick="pk('중국어 번체 · 대만·홍콩')">중국어 번체 · 대만·홍콩 <span style="color:var(--muted);font-size:11px;margin-left:6px;">채널 1</span> <span class="tag t-on">운영 중</span></div>
-      <div class="ddi" onclick="pk('베트남어 · 베트남')">베트남어 · 베트남 <span style="color:var(--muted);font-size:11px;margin-left:6px;">채널 1</span> <span class="tag t-on">운영 중</span></div>
-      <div class="ddi" onclick="pk('영어 · 전세계')">영어 · 전세계 <span style="color:var(--muted);font-size:11px;margin-left:6px;">채널 1</span> <span class="tag t-on">운영 중</span></div>
-      <div style="border-top:0.5px solid var(--line);padding-top:8px;margin-top:5px;color:var(--muted);font-size:11px;">타겟은 <b style="color:var(--bl);">채널 메뉴</b>에서 채널을 등록하면 여기에 자동으로 생깁니다.</div>
+      <div id="ddl"><div style="font-size:11px;color:var(--muted);padding:6px 2px;">타겟 불러오는 중…</div></div>
     </div>
     </div>
   </div>
@@ -298,9 +291,52 @@ function authHeader(){
 /* 나라·도시 목록 + 도시 분모 — DB(?view=cities). 박지 않는다.
    분모 = 아고다가 그 도시에서 파는 숙소 전체(한국어 파일 기준 · D-065 63·64).
    🔴 우리 장부(hotels)는 **예약이 붙은 곳만**이라 분모가 아니다 — 그래서 이 숫자가 필요했다. */
+/* 🔑 타겟 (언어 + 시장) — **목록은 채널이 만든다**(D-065 확정 · 창구 `?view=targets`).
+   🔴 옛 코드는 5개를 **코드에 박아뒀다**(한국어·일본어·중국어 번체 대만·홍콩…). 채널이 늘면 안 따라온다.
+      그리고 「대만·홍콩」은 **옛 표기**다 — D-065 개정으로 **번체 = 대만 하나**로 정정됐다. 박아둔 글자가 낡았다.
+   🔴 A안(대표님 2026-07-17): **조사 안 된 타겟도 보인다.** 일본어 채널이 예약 462건을 받는데 조사가 0건이다.
+      안 보여주면 **모른다는 사실 자체가 화면에서 사라진다.**
+   🔴 타겟을 바꾸면 **검색어·분모·추천·트렌드가 전부 바뀐다.** 조사는 타겟마다 완전히 따로 쌓인다. */
+var TGT='ko', TGTS=[];
+function loadTargets(){
+  return authHeader().then(function(hd){
+    return fetch('/api/content-keywords?view=targets',{credentials:'same-origin',headers:hd||{}})
+      .then(function(r){return r.json();}).then(function(d){
+        if(!d||!d.ok){ document.getElementById('ddl').innerHTML='<div style="font-size:11px;color:var(--am);padding:6px 2px;">타겟을 불러오지 못했습니다 — '+((d&&d.error)||'')+'</div>'; return; }
+        TGTS=d.targets||[];
+        if(TGTS.length && !TGTS.some(function(t){return t.code===TGT;})) TGT=TGTS[0].code;
+        drawTargets();
+      });
+  }).catch(function(e){ document.getElementById('ddl').innerHTML='<div style="font-size:11px;color:var(--am);padding:6px 2px;">타겟을 불러오지 못했습니다 — '+e+'</div>'; });
+}
+function drawTargets(){
+  var done=TGTS.filter(function(t){return t.surveyed;}), rest=TGTS.filter(function(t){return !t.surveyed;});
+  var row=function(t){
+    var on=t.code===TGT;
+    return '<div class="ddi'+(on?' sel':'')+'" onclick="pkT(\''+t.code+'\')">'+t.label+
+      ' <span style="color:var(--muted);font-size:11px;margin-left:6px;">채널 '+t.channels.length+'</span>'+
+      '<span style="margin-left:auto;font-size:10px;padding:2px 8px;border-radius:10px;'+
+      (t.surveyed?'background:var(--emd);color:var(--em);">검색어 '+t.keywords+'개':'background:var(--amd);color:var(--am);">조사 없음')+'</span>'+
+      (on?' <span style="color:var(--bl);">✓</span>':'')+'</div>';
+  };
+  var h='';
+  if(done.length) h+='<div class="ddg">조사된 타겟</div>'+done.map(row).join('');
+  if(rest.length) h+='<div class="ddg">아직 조사 안 한 타겟</div>'+rest.map(row).join('');
+  h+='<div style="border-top:0.5px solid var(--line);padding-top:8px;margin-top:5px;color:var(--muted);font-size:11px;">타겟은 <b style="color:var(--bl);">채널 메뉴</b>에서 채널을 등록하면 여기에 자동으로 생깁니다 — 박아두지 않습니다.</div>';
+  document.getElementById('ddl').innerHTML=h;
+  var cur=TGTS.filter(function(t){return t.code===TGT;})[0];
+  var tn=document.getElementById('tn'); if(tn&&cur) tn.textContent=cur.label;
+}
+function pkT(code){
+  if(code===TGT){ dd(); return; }
+  TGT=code; dd(); drawTargets();
+  SV=null; SVERR=null; CT={}; INV={};
+  ts((TGTS.filter(function(t){return t.code===code;})[0]||{}).label+' 로 바꿨습니다 — 다시 셉니다');
+  loadCities(); loadSnap().then(function(){ if(cy) rdd(cy); if(cd) rx(cd); });
+}
 function loadCities(){
   return authHeader().then(function(hd){
-  return fetch('/api/content-keywords?view=cities&target=ko',{credentials:'same-origin',headers:hd||{}})
+  return fetch('/api/content-keywords?view=cities&target='+TGT,{credentials:'same-origin',headers:hd||{}})
     .then(function(r){return r.json();})
     .then(function(d){
       /* 🔴 못 받았으면 **옛 목록으로 되돌리지 않는다.** 지어낸 목록이 화면에 서면 그게 앵커가 된다.
@@ -338,7 +374,7 @@ function invLine(x){
 }
 function loadSnap(){
   return authHeader().then(function(hd){
-  return fetch('/api/content-keywords?view=survey&city='+encodeURIComponent('cc:japan|osaka'),
+  return fetch('/api/content-keywords?view=survey&target='+TGT+'&city='+encodeURIComponent('cc:japan|osaka'),
                {credentials:'same-origin', headers: hd || {}})
     .then(function(r){return r.json();})
     .then(function(d){
@@ -1354,7 +1390,7 @@ var SV=null, svMore=false;
 function svCity(){ return 'cc:japan|osaka'; }   /* TODO 도시 축이 붙으면 여기서 갈아끼운다 */
 
 function ks(){
-  var u='/api/content-keywords?view=survey&city='+encodeURIComponent(svCity());
+  var u='/api/content-keywords?view=survey&target='+TGT+'&city='+encodeURIComponent(svCity());   /* 🔴 조사는 타겟마다 따로 쌓인다 */
   fetch(u,{credentials:'same-origin'}).then(function(r){return r.json();}).then(function(d){
     if(!d.ok){ var e1=document.getElementById('kv1'); if(e1) e1.innerHTML='<div class="wn">'+(d.error||'조사를 불러오지 못했습니다')+'</div>'; return; }
     SV=d; rk();
@@ -1493,7 +1529,7 @@ window.addEventListener('popstate',function(e){var s=e.state||{w:'m'};vw(s.w,s.a
 history.replaceState({w:'m'},'');
 /* shared.js 가 쿠키를 박은 뒤에 부른다 — 로그인 열쇠가 준비되기 전에 부르면 401 이 난다.
    실패하면 한 번 더(2초 뒤). 그래도 안 되면 화면이 "로그인이 필요합니다" 라고 말한다. */
-loadCities();
+loadTargets().then(loadCities);
 loadSnap().then(function(){ if(SVERR && /로그인/.test(SVERR)) { setTimeout(loadSnap, 2000); setTimeout(loadCities, 2000); } });
 function dd(){var d=document.getElementById('ddb');d.classList.toggle('on');document.getElementById('tc').textContent=d.classList.contains('on')?'⌃':'⌄';}
 function pk(n){document.getElementById('tn').textContent=n;dd();ts(n+' 전환');}

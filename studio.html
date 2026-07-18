@@ -3165,9 +3165,17 @@ function loadTargets(){
       });
   }).catch(function(e){ document.getElementById('ddl').innerHTML='<div style="font-size:11px;color:var(--am);padding:6px 2px;">타겟을 불러오지 못했습니다 — '+e+'</div>'; });
 }
-/* 선행 준비 — **세어서 그린다**(2026-07-17). 박힌 카드 3장을 지운 자리.
-   착수 = 노출 − 3달(리드타임 실측 92%). 오늘부터 3·4·5달 뒤 노출을 겨냥해 **지금 착수할 도시**를 고른다.
-   🔴 조사(SE)가 없는 타겟이면 **안 그린다.** 없는 걸 있는 척하지 않는다. */
+/* 선행 준비 — **추천 우선순위 판** (B안 · 대표님 확정 2026-07-18).
+   목적 = 다음에 어느 도시를 파고들지 데이터로 먼저 짚어준다.
+   두 구획: ① 지금 착수 = 조사된 도시(계절 있음) · 착수 = 피크 − 3달
+            ② 다음 조사 우선순위 = 조사 안 된 도시 · 예약 많은 순
+   🔴 조사(SE)가 없는 타겟이면 안 그린다. 없는 걸 있는 척하지 않는다.
+   🔴 [조사하기]는 아직 조사 화면(㉘㉙)이 없어 **안내만** — 화면은 다음 순서에서 붙는다. */
+var PREP_MORE=false;
+function survey(city,country){
+  ts(city+' 조사 시작 — 약 4분 (키워드 40개·트렌드 10회). 조사 화면은 다음 순서에서 붙습니다.');
+}
+function prepMore(){ PREP_MORE=!PREP_MORE; rprep(); }
 function rprep(){
   var el=document.getElementById('prep'); if(!el) return;
   if(!koOnly()){
@@ -3176,38 +3184,77 @@ function rprep(){
       '<span style="color:var(--muted);">계절을 모르니 언제 착수할지 말할 수 없습니다. 조사부터 해야 합니다.</span></div>';
     return;
   }
-  var now=new Date().getMonth()+1, cards=[];
-  Object.keys(CT).forEach(function(c){
-    (CT[c]||[]).forEach(function(x){
-      if(!SE[x]) return;                       /* 조사 안 된 도시는 계절을 모른다 */
-      var p=pk2(x); if(!p||!p.length) return;
+  if(!Object.keys(CT).length){
+    el.innerHTML='<div class="nt" style="color:var(--muted);">'+(CTERR?('도시 목록을 불러오지 못했습니다 — '+CTERR):'도시 목록을 불러오는 중…')+'</div>';
+    return;
+  }
+  var now=new Date().getMonth()+1;
+  /* 전체 도시를 나라 붙여 한 줄로 편다 — CT 는 나라별 예약순이라, 전체 우선순위는 다시 센다 */
+  var all=[];
+  Object.keys(CT).forEach(function(c){ (CT[c]||[]).forEach(function(x){ all.push({city:x,country:c,inv:INV[x]||{}}); }); });
+  var goL=[], todoL=[];
+  all.forEach(function(o){
+    if(SE[o.city]){                              /* 조사된 도시 = 계절 있음 → 착수 계산 */
+      var p=pk2(o.city)||[], best=null;
       p.forEach(function(pm){
-        var start=((pm-3)+11)%12+1;            /* 착수 = 피크 − 3달 */
-        var d=(start-now+12)%12;               /* 지금부터 몇 달 뒤 착수 */
-        var st = d===0 ? {t:'지금 착수',cls:'background:var(--bld);color:var(--bl);'}
-               : d<=2  ? {t:'여유',cls:'background:var(--emd);color:var(--em);'}
-               : d>=10 ? {t:'늦음',cls:'background:var(--rdd);color:var(--rd);'} : null;
-        if(!st) return;
-        var se=SE[x], mn=Math.min.apply(null,se), lowM=se.indexOf(mn)+1;
-        cards.push({d:d, c:c, x:x, pm:pm, start:start, st:st,
-          x2:(Math.max.apply(null,se)/mn).toFixed(1), lowM:lowM, kw:!!SNAP_CITY[x]});
+        var start=((pm-3)+11)%12+1, d=(start-now+12)%12;   /* 착수 = 피크 − 3달 */
+        if(best===null||d<best.d) best={d:d,pm:pm,start:start};
       });
-    });
+      if(best){
+        var se=SE[o.city], mn=Math.min.apply(null,se);
+        best.x2=(Math.max.apply(null,se)/mn).toFixed(1); best.lowM=se.indexOf(mn)+1;
+        o.plan=best; goL.push(o);
+      } else { todoL.push(o); }
+    } else { todoL.push(o); }
   });
-  cards.sort(function(a,b){return a.d-b.d;});
-  if(!cards.length){ el.innerHTML='<div class="nt" style="color:var(--muted);">계절을 잰 도시가 아직 없습니다 — 조사가 쌓이면 여기에 뜹니다.</div>'; return; }
-  el.innerHTML='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">'+cards.slice(0,3).map(function(k){
-    return '<div style="background:var(--card2);border-radius:9px;padding:10px;cursor:pointer;'+(k.d>=10?'opacity:.7;':'')+'" onclick="go(\'d\',\''+k.x+'\',\''+k.c+'\')">'+
-      '<div style="display:flex;justify-content:space-between;margin-bottom:4px;align-items:center;">'+
-      '<span style="font-size:11px;font-weight:600;">'+k.pm+'월 노출</span>'+
-      '<span class="sg" style="'+k.st.cls+'">'+k.st.t+'</span></div>'+
-      '<div style="font-size:12px;">'+k.c+' · '+k.x+'</div>'+
-      '<div style="font-size:10.5px;color:var(--muted);margin-top:3px;line-height:1.5;">'+
-      (k.d===0?'<b>지금 시작하면 '+k.pm+'월에 나옵니다.</b><br>':'<b>'+k.start+'월에 시작</b>하면 '+k.pm+'월에 나옵니다.<br>')+
-      k.x+' '+k.pm+'월은 가장 한산한 '+k.lowM+'월보다 <b>'+k.x2+'배</b> 많이 찾습니다.</div>'+
-      (k.kw?'':'<div style="font-size:10px;color:var(--am);margin-top:5px;">⚠️ <b>키워드 조사가 안 된 도시</b></div>')+
-      '</div>';
-  }).join('')+'</div>';
+  goL.sort(function(a,b){return a.plan.d-b.plan.d;});                          /* 착수 임박순 */
+  todoL.sort(function(a,b){return (b.inv.bookings||0)-(a.inv.bookings||0);});  /* 예약 많은순 */
+  var stB=function(d){ return d===0?{t:'지금 착수',c:'background:var(--bld);color:var(--bl);'}
+    : d<=2?{t:'여유',c:'background:var(--emd);color:var(--em);'}
+    : d>=10?{t:'곧 늦음',c:'background:var(--rdd);color:var(--rd);'}
+    : {t:'대기',c:'background:var(--card2);color:var(--muted);'}; };
+  var h='';
+  /* ── 구획 ① 지금 착수 (조사된 도시) */
+  if(goL.length){
+    h+='<div style="font-size:11px;color:var(--em);font-weight:600;margin:0 0 8px;display:flex;align-items:center;gap:6px;">'+
+       '<span style="width:6px;height:6px;background:var(--em);border-radius:50%;"></span>지금 착수 '+
+       '<span style="color:var(--muted);font-weight:400;">· 조사된 도시 · 피크 −3달</span></div>';
+    h+=goL.map(function(o){ var b=stB(o.plan.d);
+      return '<div style="background:var(--card2);border-radius:10px;padding:11px 12px;margin-bottom:8px;border-left:2px solid var(--em);cursor:pointer;" onclick="go(\'d\',\''+o.city+'\',\''+o.country+'\')">'+
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;">'+
+        '<span style="font-size:13px;color:var(--txt);font-weight:500;">'+o.city+' <span style="font-size:10px;color:var(--muted);font-weight:400;">· '+o.country+'</span></span>'+
+        '<span class="sg" style="'+b.c+'">'+b.t+'</span></div>'+
+        '<div style="font-size:11px;color:var(--sub);line-height:1.6;"><b style="color:var(--txt);">'+o.plan.start+'월 착수 → '+o.plan.pm+'월 노출.</b> '+o.plan.pm+'월은 가장 한산한 '+o.plan.lowM+'월보다 <b style="color:var(--txt);">'+o.plan.x2+'배</b> 많이 찾습니다.</div>'+
+        '<div style="font-size:10px;color:var(--em);margin-top:5px;">계절'+(SNAP_CITY[o.city]?'·키워드':'')+' 조사됨 · 예약 '+(o.inv.bookings||0).toLocaleString()+'건 · <span style="color:var(--bl);">세부 보기 ›</span></div>'+
+        '</div>';
+    }).join('');
+  }
+  /* ── 구획 ② 다음 조사 우선순위 (조사 안 된 도시 · 예약순) */
+  if(todoL.length){
+    h+='<div style="font-size:11px;color:var(--am);font-weight:600;margin:'+(goL.length?'14px':'0')+' 0 8px;display:flex;align-items:center;gap:6px;">'+
+       '<span style="width:6px;height:6px;background:var(--am);border-radius:50%;"></span>다음 조사 우선순위 '+
+       '<span style="color:var(--muted);font-weight:400;">· 예약 많은데 아직 안 잰 곳</span></div>';
+    var N=PREP_MORE?todoL.length:5, head=todoL.slice(0,N);
+    h+='<div style="background:var(--card);border-radius:10px;overflow:hidden;">'+head.map(function(o,i){
+      return '<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;'+(i<head.length-1?'border-bottom:0.5px solid var(--line);':'')+'">'+
+        '<span style="font-size:12px;color:var(--bl);font-weight:600;min-width:14px;">'+(i+1)+'</span>'+
+        '<div style="flex:1;"><span style="font-size:12.5px;color:var(--txt);">'+o.city+'</span><span style="font-size:10.5px;color:var(--muted);margin-left:7px;">'+o.country+'</span></div>'+
+        '<span style="font-size:11px;color:var(--sub);margin-right:4px;">예약 '+(o.inv.bookings||0).toLocaleString()+'건</span>'+
+        '<span style="font-size:11px;color:var(--bl);background:var(--bld);padding:4px 11px;border-radius:8px;cursor:pointer;" onclick="event.stopPropagation();survey(\''+o.city+'\',\''+o.country+'\')">＋ 조사하기</span>'+
+        '</div>';
+    }).join('')+'</div>';
+    var rest=todoL.length-N;
+    if(rest>0){
+      var names=todoL.slice(N,N+6).map(function(o){return o.city+' '+(o.inv.bookings||0);}).join(' · ');
+      h+='<div onclick="prepMore()" style="font-size:11px;color:var(--muted);padding:9px 2px 0;cursor:pointer;">외 '+rest+'곳 ▾'+(names?' ('+names+(rest>6?' …':'')+')':'')+'</div>';
+    } else if(PREP_MORE&&todoL.length>5){
+      h+='<div onclick="prepMore()" style="font-size:11px;color:var(--muted);padding:9px 2px 0;cursor:pointer;">접기 ▴</div>';
+    }
+  }
+  if(!goL.length&&!todoL.length){
+    h='<div class="nt" style="color:var(--muted);">계절을 잰 도시가 아직 없습니다 — 조사가 쌓이면 여기에 뜹니다.</div>';
+  }
+  el.innerHTML=h;
 }
 function drawTargets(){
   var done=TGTS.filter(function(t){return t.surveyed;}), rest=TGTS.filter(function(t){return !t.surveyed;});

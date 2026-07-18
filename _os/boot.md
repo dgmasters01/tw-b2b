@@ -63,6 +63,7 @@
 | chat-log 작성 표준 | `_os/playbook/chat-log-format.md` |
 | 디자인 작업 | `_os/templates/` + `_os/skins/` |
 | 봇·자동화 작업 | `_os/workflows/` + `.github/workflows/` |
+| 시스템 전체 파악(서비스·비용·자동화) | `SYSTEM_MAP.md` (비즈니스 독스) |
 | 기타 (단순 문답·보고) | (안 읽어도 됨) |
 
 ## 5. 작업 시작 전 자가 검증

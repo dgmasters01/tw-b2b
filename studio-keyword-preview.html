@@ -155,37 +155,14 @@
   <div class="ls" id="cl"></div>
   <div id="ev1"></div>
 
-  <h2>선행 준비 — 3달 미리 <span class="no">1-10</span></h2>
+<h2>선행 준비 — 3달 미리 <span class="no">1-10</span></h2>
   <div class="nt">여러 나라 가로질러 · 착수 = 노출 − 3달<br><span style="color:var(--muted);">달을 안 눌러도 보입니다 — 놓친 계절은 1년을 기다립니다.</span></div>
-  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
-
-    <div style="background:var(--card2);border-radius:9px;padding:10px;cursor:pointer;opacity:.7;" onclick="go('d','다낭','베트남')">
-      <div style="display:flex;justify-content:space-between;margin-bottom:4px;align-items:center;">
-        <span style="font-size:11px;font-weight:600;">9월 노출</span><span class="sg g-lt">늦음</span></div>
-      <div style="font-size:12px;">베트남 · 다낭</div>
-      <div style="font-size:10.5px;color:var(--muted);margin-top:3px;line-height:1.5;">
-        9월에 내보내려면 <b>6월에 시작</b>했어야 합니다.<br>지금 시작하면 10월에 나옵니다 — <b>다낭 9월은 내년에.</b></div>
-      <div style="font-size:10px;color:var(--am);margin-top:5px;">⚠️ <b>키워드 조사가 안 된 도시</b></div>
-    </div>
-
-    <div style="background:var(--card2);border-radius:9px;padding:10px;cursor:pointer;" onclick="go('d','오사카','일본')">
-      <div style="display:flex;justify-content:space-between;margin-bottom:4px;align-items:center;">
-        <span style="font-size:11px;font-weight:600;">10월 노출</span>
-        <span class="sg" style="background:var(--bld);color:var(--bl);">지금 착수</span></div>
-      <div style="font-size:12px;">일본 · 오사카</div>
-      <div style="font-size:10.5px;color:var(--muted);margin-top:3px;line-height:1.5;">
-        <b>지금 시작하면 10월에 나옵니다.</b><br>오사카는 10월부터 사람이 몰리기 시작합니다 — <b>1년 중 4번째로 많은 달</b>.</div>
-    </div>
-
-    <div style="background:var(--card2);border-radius:9px;padding:10px;cursor:pointer;" onclick="go('d','오사카','일본')">
-      <div style="display:flex;justify-content:space-between;margin-bottom:4px;align-items:center;">
-        <span style="font-size:11px;font-weight:600;">11월 노출</span><span class="sg g-go">여유</span></div>
-      <div style="font-size:12px;">일본 · 오사카 <span style="color:var(--em);">(피크)</span></div>
-      <div style="font-size:10.5px;color:var(--muted);margin-top:3px;line-height:1.5;">
-        11월 오사카는 <b>가장 한산한 8월보다 1.5배</b> 많이 찾습니다.<br><b>8월에 시작</b>하면 됩니다 — 아직 시간이 있습니다.</div>
-    </div>
-  </div>
-</div>
+  <!-- 🔴 2026-07-17 대표님: *"일본어로 바꿨는데 밑에 선행준비 나타남."*
+       여기 카드 3장(다낭 9월 늦음 / 오사카 10월 지금착수 / 오사카 11월 피크)이 **HTML 에 통째로 박혀** 있었다.
+       자바스크립트도 아니고 **글자**라 타겟을 바꿔도, 도시가 늘어도, 계절이 바뀌어도 **그대로였다.**
+       그리고 그 숫자는 전부 **한국어 조사**다 — 일본어 화면에 한국인 검색량이 떴다.
+       → 창구가 준 도시(CT·INV)와 계절(SE)로 **세어서 그린다.** 조사가 없으면 **안 그린다.** -->
+  <div id="prep"></div>
 
   </div><!-- /res -->
 <!-- 떠돌던 닫는 태그 1개 제거 2026-07-17 (s1 은 위에서 이미 닫힘) --><!-- /s1 — .ctrl + .res 를 함께 감싼다 -->
@@ -226,7 +203,14 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="shared.js"></script>
 <script>
-/* ══ 실측 데이터만 (2026-07-14 직접 조회) ══ */
+/* ══ 실측 데이터만 (2026-07-14 직접 조회) ══
+   🔴🔴 **아래 SE·SE24·SE25·SE26·POP·LEAD 는 전부 「한국어 조사」다.** (2026-07-17 대표님이 잡음)
+        *"일본어로 바꿨는데 밑에 선행준비 나타남."* — 타겟을 일본어로 바꿔도 이 숫자들은 **안 바뀐다.**
+        박혀 있으니까. 그래서 일본어 화면에 *"오사카는 10월부터 사람이 몰립니다"*(한국인 검색량)가 떴다.
+   🔴 조사는 **타겟마다 완전히 따로 쌓인다**(D-065). 「大阪 ホテル」와 「오사카 호텔」이 같을 리 없다.
+   → 지금 조치: **타겟이 한국어가 아니면 이 숫자로 그리는 블록을 안 그린다.** 「조사 없음」이라고 말한다.
+      **없는 걸 있는 척하느니 비워둔다.**
+   → 다음 작업(인계서): SE·LEAD 를 창구(trend·bookings)로 옮긴다. 그러면 타겟마다 저절로 갈린다. */
 var SE={'오사카':[56.8,47.5,38.5,36.0,41.9,41.3,44.0,36.9,45.0,50.4,58.0,55.0],
         '난바':[50.6,28.8,26.3,20.6,31.1,35.3,41.8,34.6,53.3,50.9,66.3,51.9],
         '다낭':[34.1,37.7,44.0,43.2,46.9,48.4,46.8,51.8,48.8,39.6,40.9,40.9]};
@@ -309,6 +293,50 @@ function loadTargets(){
       });
   }).catch(function(e){ document.getElementById('ddl').innerHTML='<div style="font-size:11px;color:var(--am);padding:6px 2px;">타겟을 불러오지 못했습니다 — '+e+'</div>'; });
 }
+/* 선행 준비 — **세어서 그린다**(2026-07-17). 박힌 카드 3장을 지운 자리.
+   착수 = 노출 − 3달(리드타임 실측 92%). 오늘부터 3·4·5달 뒤 노출을 겨냥해 **지금 착수할 도시**를 고른다.
+   🔴 조사(SE)가 없는 타겟이면 **안 그린다.** 없는 걸 있는 척하지 않는다. */
+function rprep(){
+  var el=document.getElementById('prep'); if(!el) return;
+  if(!koOnly()){
+    var cur=TGTS.filter(function(t){return t.code===TGT;})[0];
+    el.innerHTML='<div class="wn">'+((cur&&cur.label)||'이 타겟')+' — <b>아직 조사 안 했습니다.</b><br>'+
+      '<span style="color:var(--muted);">계절을 모르니 언제 착수할지 말할 수 없습니다. 조사부터 해야 합니다.</span></div>';
+    return;
+  }
+  var now=new Date().getMonth()+1, cards=[];
+  Object.keys(CT).forEach(function(c){
+    (CT[c]||[]).forEach(function(x){
+      if(!SE[x]) return;                       /* 조사 안 된 도시는 계절을 모른다 */
+      var p=pk2(x); if(!p||!p.length) return;
+      p.forEach(function(pm){
+        var start=((pm-3)+11)%12+1;            /* 착수 = 피크 − 3달 */
+        var d=(start-now+12)%12;               /* 지금부터 몇 달 뒤 착수 */
+        var st = d===0 ? {t:'지금 착수',cls:'background:var(--bld);color:var(--bl);'}
+               : d<=2  ? {t:'여유',cls:'background:var(--emd);color:var(--em);'}
+               : d>=10 ? {t:'늦음',cls:'background:var(--rdd);color:var(--rd);'} : null;
+        if(!st) return;
+        var se=SE[x], mn=Math.min.apply(null,se), lowM=se.indexOf(mn)+1;
+        cards.push({d:d, c:c, x:x, pm:pm, start:start, st:st,
+          x2:(Math.max.apply(null,se)/mn).toFixed(1), lowM:lowM, kw:!!SNAP_CITY[x]});
+      });
+    });
+  });
+  cards.sort(function(a,b){return a.d-b.d;});
+  if(!cards.length){ el.innerHTML='<div class="nt" style="color:var(--muted);">계절을 잰 도시가 아직 없습니다 — 조사가 쌓이면 여기에 뜹니다.</div>'; return; }
+  el.innerHTML='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">'+cards.slice(0,3).map(function(k){
+    return '<div style="background:var(--card2);border-radius:9px;padding:10px;cursor:pointer;'+(k.d>=10?'opacity:.7;':'')+'" onclick="go(\'d\',\''+k.x+'\',\''+k.c+'\')">'+
+      '<div style="display:flex;justify-content:space-between;margin-bottom:4px;align-items:center;">'+
+      '<span style="font-size:11px;font-weight:600;">'+k.pm+'월 노출</span>'+
+      '<span class="sg" style="'+k.st.cls+'">'+k.st.t+'</span></div>'+
+      '<div style="font-size:12px;">'+k.c+' · '+k.x+'</div>'+
+      '<div style="font-size:10.5px;color:var(--muted);margin-top:3px;line-height:1.5;">'+
+      (k.d===0?'<b>지금 시작하면 '+k.pm+'월에 나옵니다.</b><br>':'<b>'+k.start+'월에 시작</b>하면 '+k.pm+'월에 나옵니다.<br>')+
+      k.x+' '+k.pm+'월은 가장 한산한 '+k.lowM+'월보다 <b>'+k.x2+'배</b> 많이 찾습니다.</div>'+
+      (k.kw?'':'<div style="font-size:10px;color:var(--am);margin-top:5px;">⚠️ <b>키워드 조사가 안 된 도시</b></div>')+
+      '</div>';
+  }).join('')+'</div>';
+}
 function drawTargets(){
   var done=TGTS.filter(function(t){return t.surveyed;}), rest=TGTS.filter(function(t){return !t.surveyed;});
   var row=function(t){
@@ -327,9 +355,12 @@ function drawTargets(){
   var cur=TGTS.filter(function(t){return t.code===TGT;})[0];
   var tn=document.getElementById('tn'); if(tn&&cur) tn.textContent=cur.label;
 }
+/* 🔴 박힌 숫자(SE·LEAD·POP)는 **한국어 조사**다. 다른 타겟이면 쓰면 안 된다.
+   대표님 2026-07-17: *"일본어로 바꿨는데 밑에 선행준비 나타남."* */
+function koOnly(){ return TGT==='ko'; }
 function pkT(code){
   if(code===TGT){ dd(); return; }
-  TGT=code; dd(); drawTargets();
+  TGT=code; dd(); drawTargets(); rprep();
   SV=null; SVERR=null; CT={}; INV={};
   ts((TGTS.filter(function(t){return t.code===code;})[0]||{}).label+' 로 바꿨습니다 — 다시 셉니다');
   loadCities(); loadSnap().then(function(){ if(cy) rdd(cy); if(cd) rx(cd); });
@@ -348,7 +379,7 @@ function loadCities(){
         CTN[c.country]=c.cities.length;
         c.cities.forEach(function(x){ INV[x.name]=x; });
       });
-      rd(); if(cc) rc(cc);
+      rd(); rprep(); if(cc) rc(cc);
     })
     .catch(function(e){ CTERR=String(e&&e.message||e); rd(); });
   });
@@ -398,18 +429,24 @@ function curTM(){return XM?XM.m:parseInt(MO[cm]);}
 function curLbl(){return XM?(XM.y+'년 '+XM.m+'월'):MO[cm];}
 function dmo(y,m){return (y-TODAY.getFullYear())*12+(m-1-TODAY.getMonth());}
 var cm=3,cc='일본',cy='오사카',cd='난바',more=false;
-function pk2(c){var s=SE[c];if(!s)return null;var mx=Math.max.apply(null,s),r=[];for(var i=0;i<12;i++)if(s[i]>=mx*0.9)r.push(i+1);return r;}
-function gate(c,tm){var p=pk2(c);
+function pk2(c){ if(!koOnly()) return null;   /* 한국어 조사만 있다 */
+  var s=SE[c];if(!s)return null;var mx=Math.max.apply(null,s),r=[];for(var i=0;i<12;i++)if(s[i]>=mx*0.9)r.push(i+1);return r;}
+/* 🔴 다른 타겟이면 **박힌 한국어 숫자를 쓰지 않는다** (대표님 2026-07-17).
+   반환 모양은 `{s,t,w}` 그대로 지킨다 — 모양을 바꾸면 호출부가 깨진다(클로드가 `{k,t}` 로 썼다가 잡음). */
+function gate(c,tm){ if(!koOnly()) return {s:'un',t:'조사 없음',w:'이 타겟은 아직 조사 안 했습니다'};
+ var p=pk2(c);
  if(!p)return{s:'un',t:'조사 전',w:'키워드 조사가 안 된 도시'};
  var ps=p.map(function(m){return m+'월';}).join('·');
  /* 눈금 숫자(58.0)는 뜻이 없다 → **가장 한산한 달 대비 몇 배**로 말한다 (D-065 54-1) */
- var se=SE[c], mx=Math.max.apply(null,se), mn=Math.min.apply(null,se);
+ var se=SE[c]; if(!se) return{s:'un',t:'조사 전',w:'키워드 조사가 안 된 도시'};
+ var mx=Math.max.apply(null,se), mn=Math.min.apply(null,se);
  var lowM=se.indexOf(mn)+1, x=(mx/mn).toFixed(1);
  var near=p.some(function(m){var d=Math.abs(m-tm);return Math.min(d,12-d)<=1;});
  if(near)return{s:'go',t:'지금 착수',w:ps+'에 가장 몰립니다 — 가장 한산한 '+lowM+'월보다 '+x+'배'};
  if(p.every(function(m){return m<tm;}))return{s:'lt',t:'올해는 늦음',w:ps+' 피크가 이미 지났습니다 — 내년 대상'};
  return{s:'wt',t:'대기',w:ps+'에 가장 몰립니다 — 착수는 '+((p[0]-3+12-1)%12+1)+'월부터'};}
-function pop(c){var p=POP[c];if(!p)return null;var ch=Math.round((p[1]-p[0])/p[0]*100);
+function pop(c){ if(!koOnly()) return null;   /* 한국어 조사만 있다 */
+ var p=POP[c];if(!p)return null;var ch=Math.round((p[1]-p[0])/p[0]*100);
  return{ch:ch,t:(ch>8?'+'+ch+'%':(ch<-8?ch+'%':'그대로')),b:p};}
 function line(s,w,h,col,sw){var mx=60,mn=15;var pts=s.map(function(v,i){return (10+i*((w-20)/(s.length-1))).toFixed(0)+','+(h-8-((v-mn)/(mx-mn))*(h-18)).toFixed(0);}).join(' ');
  return '<polyline fill="none" stroke="'+col+'" stroke-width="'+(sw||2)+'" points="'+pts+'"/>';}
@@ -449,7 +486,7 @@ function rd(){var h='',yrs=[];MOS.forEach(function(o){if(yrs.indexOf(o.y)<0)yrs.
  document.getElementById('cl').innerHTML=h;}
 function pm(i){cm=i;rd();ts(MO[i]+' 노출 — '+MS[i]);}   /* [연·월 지정] 제거로 XM·YMO·ymr 불필요 */
 
-function evHTML(c){var g=gate(c,curTM()),p=pop(c),l=LEAD[c];
+function evHTML(c){var g=gate(c,curTM()),p=pop(c),l=koOnly()?LEAD[c]:null;
  var h='<div class="ev on"><div class="evb"><div class="evt">① 계절 — 2024·2025·2026 겹침 (구글 트렌드 유튜브 검색)</div>';
  if(SE24[c]){h+='<svg width="100%" viewBox="0 0 560 80">'+
    '<rect x="420" y="6" width="125" height="58" rx="4" fill="#0f3f31" opacity="0.5"/>'+
@@ -457,9 +494,9 @@ function evHTML(c){var g=gate(c,curTM()),p=pop(c),l=LEAD[c];
    line(SE24[c],560,72,'#2f6b58',1.5)+line(SE25[c],560,72,'#3f9e7d',1.5)+line(SE26[c],560,72,'#4edea3',2.5)+
    '<text x="10" y="78" style="font-size:8px;fill:#6a85a0;">1月</text><text x="280" y="78" style="font-size:8px;fill:#6a85a0;">7月</text><text x="530" y="78" style="font-size:8px;fill:#6a85a0;">12月</text></svg>'+
    '<div style="display:flex;gap:9px;font-size:9px;color:var(--muted);margin:3px 0 5px;"><span>■2024</span><span style="color:#3f9e7d;">■2025</span><span style="color:#4edea3;">■2026</span></div>';}
- else if(SE[c]){h+='<svg width="100%" viewBox="0 0 560 60">'+line(SE[c],560,56,'#4edea3',2)+'</svg>';}
+ else if(koOnly()&&SE[c]){h+='<svg width="100%" viewBox="0 0 560 60">'+line(SE[c],560,56,'#4edea3',2)+'</svg>';}
  else h+='<div class="evs" style="color:var(--am);">키워드 조사가 안 된 도시 — [조사하기]</div>';
- if(SE[c])h+='<div class="evs">'+g.w+'</div>';
+ if(koOnly()&&SE[c])h+='<div class="evs">'+g.w+'</div>';
  h+='</div>';
  if(p)h+='<div class="evb"><div class="evt">② 인기도 (2024→2025→2026)</div><div class="evs">'+p.b.join(' → ')+' · <b style="color:'+(p.ch>8?'#4edea3':(p.ch<-8?'#e57373':'#9db4c9'))+'">'+p.t+'</b>'+(p.ch<-8&&p.b[0]<p.b[1]?' <span style="color:var(--muted);">(2024 대비 원위치 — 반짝이었음)</span>':'')+'</div></div>';
  h+='<div class="evb"><div class="evt">③ 확장 여지</div><div class="evs">'+(c==='오사카'?'검증 호텔 <b style="color:var(--txt);">255개</b> · TOP3면 85편 여지':'미측정')+
@@ -477,14 +514,14 @@ function rc(c){cc=c;document.getElementById('c2t').innerHTML=c+' · 도시 <span
      +(CTERR?('도시 목록을 불러오지 못했습니다 — '+CTERR):'도시 목록을 불러오는 중…')+'</div></div></div>';
    document.getElementById('ev2').innerHTML=''; return;
  }
- CT[c].forEach(function(x){var g=gate(x,tm),l=LEAD[x];
+ CT[c].forEach(function(x){var g=gate(x,tm),l=koOnly()?LEAD[x]:null;
   var cl={go:'g-go',wt:'g-wt',un:'g-un',lt:'g-lt'}[g.s];
   /* 재료 2가지 — 조사 2단(D-065)과 1:1 이다.
      계절 = 가벼운 조사(도시 대표어 1개 · 0원) → "언제 만들지"
      키워드 = 깊은 조사(검색어 전부 + 경쟁) → "뭘 만들지"
      🔴 옛 코드는 hasK 를 (x==='오사카'||x==='도쿄'||x==='후쿠오카') 로 **박아뒀다** = 거짓 초록불.
         진짜로 키워드 조사가 된 도시는 **오사카 하나**다. 조사한 도시만 초록이다. */
-  var hasS=!!SE[x], hasK=!!SNAP_CITY[x];
+  var hasS=koOnly()&&!!SE[x], hasK=!!SNAP_CITY[x];
   var p=hasS?pop(x):null;                      /* 조사 안 한 도시의 인기도는 **없는 값**이다. 안 보여준다 */
   h+='<div class="rw" onclick="go(\'d\',\''+x+'\')"><div class="mn"><div class="n"><span class="nm">'+x+'</span><span class="sg '+cl+'">'+g.t+'</span></div>'+
      '<div class="wh">'+g.w+'</div>'+invLine(x)+

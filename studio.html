@@ -3394,7 +3394,8 @@ function rd(){var h='',yrs=[];MOS.forEach(function(o){if(yrs.indexOf(o.y)<0)yrs.
      +(CTERR?('나라 목록을 불러오지 못했습니다 — '+CTERR):'나라 목록을 불러오는 중…')+'</div></div></div>';
    return;
  }
- Object.keys(CT).forEach(function(c){
+ var CKS=Object.keys(CT);
+ CKS.slice(0,CMORE?CKS.length:10).forEach(function(c){       /* 나라 순위 10개 + 나머지 펼쳐 보기 (대표님 2026-07-18) */
   var lst=CT[c].map(function(x){return {c:x,g:gate(x,tm)};}).sort(function(a,b){return RK[a.g.s]-RK[b.g.s];});
   var b=lst[0];
   var cps=lst.slice(0,3).map(function(o){
@@ -3405,8 +3406,13 @@ function rd(){var h='',yrs=[];MOS.forEach(function(o){if(yrs.indexOf(o.y)<0)yrs.
   h+='<div class="rw" onclick="go(\'c\',\''+c+'\')"><div class="mn"><div class="n"><span class="nm">'+c+'</span><span class="sg '+CL[b.g.s]+'">'+LB[b.g.s]+'</span></div>'
     +'<div class="cps">'+cps+'</div></div>'
     +'<span class="wb" onclick="event.stopPropagation();ev1(\''+b.c+'\')">왜? <span style="opacity:.7;">1-9</span></span><span style="color:var(--muted);">›</span></div>';});
+ var CREST=CKS.length-10;
+ if(CREST>0&&!CMORE)h+='<div class="mr" onclick="cMore()" style="text-align:center;padding:12px;color:var(--bl);cursor:pointer;">나머지 '+CREST+'개 나라 펼쳐 보기 ▾</div>';
+ else if(CMORE&&CKS.length>10)h+='<div class="mr" onclick="cMore()" style="text-align:center;padding:12px;color:var(--muted);cursor:pointer;">접기 ▴</div>';
  document.getElementById('cl').innerHTML=h;}
 function pm(i){cm=i;rd();ts(MO[i]+' 노출 — '+MS[i]);}   /* [연·월 지정] 제거로 XM·YMO·ymr 불필요 */
+var CMORE=false;
+function cMore(){CMORE=!CMORE;rd();}   /* 나라 순위 10개 ↔ 전체 (대표님 2026-07-18) */
 
 function evHTML(c){var g=gate(c,curTM()),p=pop(c),l=koOnly()?LEAD[c]:null;
  var h='<div class="ev on"><div class="evb"><div class="evt">① 계절 — 2024·2025·2026 겹침 (구글 트렌드 유튜브 검색)</div>';

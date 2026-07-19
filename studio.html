@@ -635,6 +635,14 @@
   .st-sg-card { border:1px solid rgba(128,128,128,.25); border-radius:10px; padding:10px 11px; margin-bottom:9px; }
   .st-sg-card.unassigned { border-color:#EF9F27; background:rgba(239,159,39,.05); }
   .st-sg-cardhead { display:flex; align-items:flex-start; justify-content:space-between; gap:8px; margin-bottom:7px; }
+  .st-sg-head { display:flex; align-items:center; gap:10px; cursor:pointer; }
+  .st-sg-head .st-sg-title { flex:1; margin:0; font-size:14px; font-weight:600; line-height:1.35; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .st-sg-headmeta { display:inline-flex; align-items:center; gap:6px; flex:none; }
+  .st-sg-headwarn { font-size:10px; color:#BA7517; white-space:nowrap; }
+  .st-sg-caret { font-style:normal; color:#6a85a0; flex:none; transition:transform .15s; font-size:11px; }
+  .st-sg-card.expanded .st-sg-caret { transform:rotate(180deg); }
+  .st-sg-body { display:none; margin-top:10px; padding-top:11px; border-top:0.5px solid rgba(128,128,128,.15); }
+  .st-sg-card.expanded .st-sg-body { display:block; }
   .st-sg-title { font-size:14px; font-weight:600; line-height:1.35; margin:0; flex:1; }
   .st-sg-prio { flex:none; font-size:10px; padding:1px 7px; border-radius:6px; border:1px solid rgba(128,128,128,.35); opacity:.85; }
   .st-sg-prio.urgent { color:#E24B4A; border-color:#E24B4A; opacity:1; }
@@ -1675,7 +1683,7 @@
   var perfLoaded = false;
   var kwLoaded = false;
   var sgLoaded = false;
-  var sgTab = 'planning', sgFTarget = '', sgFAssignee = '', sgFMonth = '', sgSort = 'priority';
+  var sgTab = 'planning', sgFTarget = '', sgFAssignee = '', sgFMonth = '', sgSort = 'priority', sgExpanded = null;
   function switchView(v) {
     document.querySelectorAll('#st-menu button').forEach(function (b) {
       b.classList.toggle('on', b.dataset.view === v);
@@ -1813,14 +1821,13 @@
   function sgCard(it) {
     var place = [it.country, it.city].filter(Boolean).join(' · ');
     var src = SG_SOURCE[it.source] || it.source || '—';
-    var codeline = esc(it.code || '(코드 없음)') + ' · <span class="st-sg-src">' + esc(src) + '</span>' + (place ? ' · ' + esc(place) : '');
-    var chips = '';
-    if (it.star) chips += '<span class="st-ch-chip">' + it.star + '성</span>';
-    if (it.target_month) chips += '<span class="st-ch-chip">목표 ' + esc(it.target_month) + '</span>';
     var peakMonth = null;
     if (it.note) { var pm2 = it.note.match(/피크\s*(\d{1,2})\s*월/); if (pm2) peakMonth = parseInt(pm2[1], 10); }
-    if (peakMonth) chips += '<span class="st-ch-chip peak">피크 ' + peakMonth + '월</span>';
-    if (it.target) chips += '<span class="st-ch-chip">타겟 ' + esc(it.target) + '</span>';
+    var codeline = esc(it.code || '(코드 없음)') + ' · <span class="st-sg-src">' + esc(src) + '</span>'
+      + (place ? ' · ' + esc(place) : '')
+      + (it.star ? ' · ' + it.star + '성' : '')
+      + (it.target_month ? ' · 목표 ' + esc(it.target_month) : '')
+      + (it.target ? ' · 타겟 ' + esc(it.target) : '');
     // 설명 = 담당자가 바로 쓸 지시(성과 숫자·검색어 점수 빼고). 지금은 note에서 정리, 나중엔 조사가 채움.
     var descLines = [];
     if (peakMonth) descLines.push('<b>소개 기준</b> ' + peakMonth + '월(성수기) — 올리는 달이 아니라 손님이 예약할 달 기준으로');
@@ -1860,13 +1867,18 @@
     var ml = sgMonthsLeft(it.target_month);
     var prio = ml === null ? '' : '<span class="st-sg-prio' + (ml <= 2 ? ' urgent' : '') + '">' + (ml <= 0 ? '이번 달 착수' : 'D-' + ml + '개월') + '</span>';
 
-    return '<div class="st-sg-card' + (it.assignee_email ? '' : ' unassigned') + '" data-sgid="' + it.id + '">' +
-      '<div class="st-sg-cardhead"><div class="st-sg-title">' + esc(it.title) + '</div>' + prio + '</div>' +
-      '<div class="st-sg-code">' + codeline + '</div>' +
-      '<div class="st-sg-chips">' + chips + '</div>' +
-      peakNote +
-      '<div class="st-sg-bottom">' + planner + writerCtl + '<div class="st-sg-acts">' + acts + '</div></div>' +
-      '<div class="st-sg-more" data-sgmoreid="' + it.id + '">' + more + '</div>' +
+    var expanded = (sgExpanded === it.id);
+    var headMeta = prio;
+    if (peakMonth) headMeta += '<span class="st-ch-chip peak">피크 ' + peakMonth + '월</span>';
+    if (!it.assignee_email) headMeta += '<span class="st-sg-headwarn">⚠ 담당 없음</span>';
+    return '<div class="st-sg-card' + (expanded ? ' expanded' : '') + (it.assignee_email ? '' : ' unassigned') + '" data-sgid="' + it.id + '">' +
+      '<div class="st-sg-head" data-sgtoggle="' + it.id + '"><span class="st-sg-title">' + esc(it.title) + '</span><span class="st-sg-headmeta">' + headMeta + '</span><i class="st-sg-caret">▾</i></div>' +
+      '<div class="st-sg-body">' +
+        '<div class="st-sg-code">' + codeline + '</div>' +
+        peakNote +
+        '<div class="st-sg-bottom">' + planner + writerCtl + '<div class="st-sg-acts">' + acts + '</div></div>' +
+        '<div class="st-sg-more" data-sgmoreid="' + it.id + '">' + more + '</div>' +
+      '</div>' +
     '</div>';
   }
   function sgUniq(arr) { var o = []; arr.forEach(function (x) { if (x && o.indexOf(x) < 0) o.push(x); }); return o; }
@@ -1910,6 +1922,7 @@
 
     board.querySelectorAll('[data-sgf]').forEach(function (s) { s.onchange = function () { var k = s.dataset.sgf, v = s.value; if (k === 'target') sgFTarget = v; else if (k === 'assignee') sgFAssignee = v; else if (k === 'month') sgFMonth = v; else if (k === 'sort') sgSort = v; renderStrategy(); }; });
     board.querySelectorAll('[data-sgtab]').forEach(function (t) { t.onclick = function () { sgTab = t.dataset.sgtab; renderStrategy(); }; });
+    board.querySelectorAll('[data-sgtoggle]').forEach(function (h) { h.onclick = function () { sgExpanded = (sgExpanded === h.dataset.sgtoggle) ? null : h.dataset.sgtoggle; renderStrategy(); }; });
     board.querySelectorAll('[data-sgmove]').forEach(function (b) { b.onclick = function () { sgMove(b.dataset.sgmove, +b.dataset.dir); }; });
     board.querySelectorAll('[data-sgprio]').forEach(function (b) { b.onclick = function () { sgSetPrio(b.dataset.sgprio); }; });
     board.querySelectorAll('[data-sgnote]').forEach(function (b) { b.onclick = function () { sgEditNote(b.dataset.sgnote); }; });

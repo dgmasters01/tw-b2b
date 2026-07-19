@@ -1832,7 +1832,6 @@
     more += '<button class="st-sg-btn" data-sgprio="' + it.id + '">우선순위</button>';
     more += '<button class="st-sg-btn" data-sgnote="' + it.id + '">메모</button>';
     more += '<button class="st-sg-btn" data-sgclaim="' + it.id + '">' + (mine ? '놓기' : '내가 맡기') + '</button>';
-    if (it.note) more += '<button class="st-sg-btn" data-sgnoteshow="' + it.id + '">근거 보기</button>';
     if (sgIsAdmin) more += '<button class="st-sg-btn del" data-sgdel="' + it.id + '">🗑 삭제</button>';
 
     // 기획자(만든 사람) — 앞면에 표시
@@ -1849,7 +1848,6 @@
         : '<span class="st-sg-role none">⚠ 담당 없음</span>';
     }
     var prio = '<span class="st-sg-prio p' + (it.priority || 3) + '">우선 ' + (it.priority || 3) + '</span>';
-    var note = it.note ? '<div class="st-sg-note" data-sgnoteexp="' + it.id + '" title="눌러서 접기">' + esc(it.note) + '</div>' : '';
 
     return '<div class="st-sg-card' + (it.assignee_email ? '' : ' unassigned') + '" data-sgid="' + it.id + '">' +
       '<div class="st-sg-cardhead"><div class="st-sg-title">' + esc(it.title) + '</div>' + prio + '</div>' +
@@ -1858,7 +1856,6 @@
       peakNote +
       '<div class="st-sg-bottom">' + planner + writerCtl + '<div class="st-sg-acts">' + acts + '</div></div>' +
       '<div class="st-sg-more" data-sgmoreid="' + it.id + '">' + more + '</div>' +
-      note +
     '</div>';
   }
   function sgUniq(arr) { var o = []; arr.forEach(function (x) { if (x && o.indexOf(x) < 0) o.push(x); }); return o; }
@@ -1913,7 +1910,7 @@
     board.querySelectorAll('[data-sgmore]').forEach(function (b) { b.onclick = function () { var m = board.querySelector('[data-sgmoreid="' + b.dataset.sgmore + '"]'); if (m) m.classList.toggle('open'); }; });
     board.querySelectorAll('[data-sgnoteshow]').forEach(function (b) { b.onclick = function () { var n = board.querySelector('[data-sgnoteexp="' + b.dataset.sgnoteshow + '"]'); if (n) n.classList.toggle('open'); }; });
     board.querySelectorAll('[data-sgnoteexp]').forEach(function (b) { b.onclick = function () { b.classList.toggle('open'); }; });
-    board.querySelectorAll('[data-sgkw]').forEach(function (b) { b.onclick = function () { switchView('keyword'); }; });
+    board.querySelectorAll('[data-sgkw]').forEach(function (b) { b.onclick = function () { var it = sgItems.find(function (x) { return x.id === b.dataset.sgkw; }); switchView('keyword'); if (it && it.city) { setTimeout(function () { try { go('d', it.city, it.country); } catch (e) { } }, 80); } }; });
     board.querySelectorAll('[data-sgdel]').forEach(function (b) { b.onclick = function () { sgDelete(b.dataset.sgdel); }; });
   }
   function sgPatch(id, patch) {

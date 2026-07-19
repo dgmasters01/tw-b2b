@@ -636,8 +636,9 @@
   .st-sg-card.unassigned { border-color:#EF9F27; background:rgba(239,159,39,.05); }
   .st-sg-cardhead { display:flex; align-items:flex-start; justify-content:space-between; gap:8px; margin-bottom:7px; }
   .st-sg-title { font-size:14px; font-weight:600; line-height:1.35; margin:0; flex:1; }
-  .st-sg-prio { flex:none; font-size:10px; padding:1px 7px; border-radius:6px; border:1px solid rgba(128,128,128,.35); opacity:.8; }
-  .st-sg-prio.p1, .st-sg-prio.p2 { color:#E24B4A; border-color:#E24B4A; opacity:1; }
+  .st-sg-prio { flex:none; font-size:10px; padding:1px 7px; border-radius:6px; border:1px solid rgba(128,128,128,.35); opacity:.85; }
+  .st-sg-prio.urgent { color:#E24B4A; border-color:#E24B4A; opacity:1; }
+  .st-sg-sortnote { font-size:11px; color:var(--muted, #6a85a0); align-self:center; padding-left:2px; }
   .st-sg-code { font-family:ui-monospace,monospace; font-size:11px; opacity:.6; margin-bottom:8px; }
   .st-sg-roles { display:flex; gap:8px; flex-wrap:wrap; margin:8px 0; }
   .st-ch-chip.peak { color:#E24B4A; border-color:rgba(226,75,74,.4); }
@@ -1805,6 +1806,8 @@
   function sgRoleOf(email) { var m = sgTeam.find(function (x) { return x.email === email; }); return m ? m.role : ''; }
   function sgName(email) { var m = sgTeam.find(function (x) { return x.email === email; }); var n = (m && m.display_name) || ''; n = n.split('(')[0].trim(); return n || shortMail(email); }
   function sgRoleBadge(role) { if (!role) return ''; var label = ROLE_LABEL[role] || role; var col = ROLE_COLOR[role] || '#888780'; return '<span class="st-sg-rolebadge" style="color:' + col + ';border-color:' + col + '55;">' + esc(label) + '</span>'; }
+  // 착수(목표)월까지 남은 개월 — 사람이 순위를 정하지 않고, 이 임박도로 자동 정렬(대표님 07-19)
+  function sgMonthsLeft(tm) { if (!tm) return null; var m = String(tm).match(/(\d{4})-(\d{1,2})/); if (!m) return null; var now = new Date(); return (+m[1] - now.getFullYear()) * 12 + (+m[2] - 1 - now.getMonth()); }
 
   function sgCard(it) {
     var place = [it.country, it.city].filter(Boolean).join(' · ');
@@ -1817,8 +1820,16 @@
     if (it.note) { var pm2 = it.note.match(/피크\s*(\d{1,2})\s*월/); if (pm2) peakMonth = parseInt(pm2[1], 10); }
     if (peakMonth) chips += '<span class="st-ch-chip peak">피크 ' + peakMonth + '월</span>';
     if (it.target) chips += '<span class="st-ch-chip">타겟 ' + esc(it.target) + '</span>';
-    if (it.bookings_done) chips += '<span class="st-ch-chip active">확정예약 ' + it.bookings_done + '건</span>';
-    var peakNote = peakMonth ? '<div class="st-sg-desc"><span class="st-sg-desc-t">설명</span>소개 기준은 <b>' + peakMonth + '월(성수기)</b>입니다. 올리는 달이 아니라 손님이 예약할 달의 가격·상황으로 소개하세요.</div>' : '';
+    // 설명 = 담당자가 바로 쓸 지시(성과 숫자·검색어 점수 빼고). 지금은 note에서 정리, 나중엔 조사가 채움.
+    var descLines = [];
+    if (peakMonth) descLines.push('<b>소개 기준</b> ' + peakMonth + '월(성수기) — 올리는 달이 아니라 손님이 예약할 달 기준으로');
+    if (it.note) {
+      var hm = it.note.match(/담을 호텔:\s*([^|]+)/);
+      if (hm) { var hotels = hm[1].replace(/\([^)]*\)/g, '').replace(/\s*\/\s*/g, ' · ').replace(/\s+/g, ' ').trim(); if (hotels) descLines.push('<b>담을 호텔</b> ' + esc(hotels)); }
+      var am = it.note.match(/숙박 각도:\s*([^|]+)/);
+      if (am) descLines.push('<b>숙박 각도</b> ' + esc(am[1].trim()));
+    }
+    var peakNote = descLines.length ? '<div class="st-sg-desc"><span class="st-sg-desc-t">설명</span>' + descLines.join('<br>') + '</div>' : '';
 
     var si = SG_STAGES.findIndex(function (s) { return s.key === it.stage; });
     var mine = it.assignee_email && it.assignee_email === sgMe;
@@ -1829,8 +1840,6 @@
     acts += '<button class="st-sg-btn more" data-sgmore="' + it.id + '">⋯</button>';
     var more = '';
     if (si > 0) more += '<button class="st-sg-btn" data-sgmove="' + it.id + '" data-dir="-1">← 이전</button>';
-    more += '<button class="st-sg-btn" data-sgprio="' + it.id + '">우선순위</button>';
-    more += '<button class="st-sg-btn" data-sgnote="' + it.id + '">메모</button>';
     more += '<button class="st-sg-btn" data-sgclaim="' + it.id + '">' + (mine ? '놓기' : '내가 맡기') + '</button>';
     if (sgIsAdmin) more += '<button class="st-sg-btn del" data-sgdel="' + it.id + '">🗑 삭제</button>';
 
@@ -1847,7 +1856,8 @@
         ? '<span class="st-sg-role">' + sgRoleBadge(sgRoleOf(it.assignee_email)) + '<span class="st-sg-pname" title="' + esc(sgName(it.assignee_email)) + '">' + esc(sgName(it.assignee_email)) + (mine ? ' (나)' : '') + '</span></span>'
         : '<span class="st-sg-role none">⚠ 담당 없음</span>';
     }
-    var prio = '<span class="st-sg-prio p' + (it.priority || 3) + '">우선 ' + (it.priority || 3) + '</span>';
+    var ml = sgMonthsLeft(it.target_month);
+    var prio = ml === null ? '' : '<span class="st-sg-prio' + (ml <= 2 ? ' urgent' : '') + '">' + (ml <= 0 ? '이번 달 착수' : 'D-' + ml + '개월') + '</span>';
 
     return '<div class="st-sg-card' + (it.assignee_email ? '' : ' unassigned') + '" data-sgid="' + it.id + '">' +
       '<div class="st-sg-cardhead"><div class="st-sg-title">' + esc(it.title) + '</div>' + prio + '</div>' +
@@ -1870,10 +1880,8 @@
       return true;
     });
     // 정렬
-    fitems.sort(function (a, b) {
-      if (sgSort === 'month') return String(a.target_month || 'zzz').localeCompare(String(b.target_month || 'zzz'));
-      return (a.priority || 3) - (b.priority || 3);
-    });
+    // 정렬 = 착수 임박순 고정(사람이 순위 안 정함). 목표월 가까운 카드가 위로.
+    fitems.sort(function (a, b) { return String(a.target_month || 'zzzz').localeCompare(String(b.target_month || 'zzzz')); });
     // 필터 옵션
     var targets = sgUniq(sgItems.map(function (it) { return it.target; }));
     var assignees = sgUniq(sgItems.map(function (it) { return it.assignee_email; }));
@@ -1887,7 +1895,7 @@
       sel('target', sgFTarget, targets, '타겟 전체') +
       sel('assignee', sgFAssignee, assignees, '담당 전체', shortMail) +
       sel('month', sgFMonth, months, '목표월 전체') +
-      '<select class="st-sg-fsel" data-sgf="sort"><option value="priority"' + (sgSort === 'priority' ? ' selected' : '') + '>정렬 우선순위</option><option value="month"' + (sgSort === 'month' ? ' selected' : '') + '>정렬 목표월</option></select>' +
+      '<span class="st-sg-sortnote">착수 임박순 자동 정렬</span>' +
     '</div>';
     // 상태 탭
     var tabs = '<div class="st-sg-tabs">' + SG_STAGES.map(function (s) {

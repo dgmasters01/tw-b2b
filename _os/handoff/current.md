@@ -2,6 +2,15 @@
 
 ---
 
+## 🟢 2026-07-19 심야(7) — 원고 본문 DB 저장 + 원고 열기=본문 팝업 (대표님 확정)
+- 대표님 확정: "원고 열기 = 원고 본문 전체 팝업 / 우리 자체 DB에 저장해서 자료로도 사용." (확정문서엔 원고열기 동작 정의 없었음 — 이번에 확정)
+- ✅ 백업 `8bb4b3d5` → `publications.manuscript_text`(text) 칸 추가 + `v_queue_publications` 뷰에 포함.
+- ✅ 커밋 `6fc4aa6d` publications.js: insert 시 `body.text`(로봇이 docx→글자로 뽑은 원문)를 manuscript_text 저장 → **앞으로 원고 자동 보관**(전엔 뽑고 버림).
+- ✅ 커밋 `d4d23d8d` content-queue.js: pub 오버레이 select에 manuscript_text 포함.
+- ✅ 커밋 `c459da05` studio.html: sgOpenManuscript = **저장된 원고 본문 전체 팝업**(pre-wrap 스크롤). 본문 없으면 "다시 올리면 저장" 안내.
+- ✅ 교토(HT-0001) 원고 본문 2615자 백필 저장. /api/content-queue 검증: pub.manuscript_text 2615자 정상.
+- 🔴 남은 큰 것: 올리기 **[발행됨] 탭+검색+정렬+주소수정**(§11, 전략↔올리기 연동 몸통) / perf·hotelPop 실데이터 / 원고 검색·재사용 화면(자료 활용).
+
 ## 🟢 2026-07-19 심야(6) — 발행완료 버튼 출처별 분기 + 펼침아이콘 SVG (§9-1·§9-6)
 - ✅ 커밋 `c0f7e24b`: 펼침 아이콘 ti폰트→**인라인 SVG chevron**(§9-6, 폰트 안뜨면 빈원 보이던 것).
 - ✅ 커밋 `fb4fd48`: 발행완료 버튼 **출처별 분기**(§9-1) — 추천(keyword/strategy)=**[분석]**(data-sgkw) / 자체기획(manuscript)=**[원고 열기]**(sgOpenManuscript 정보팝업: 제목·코드·채널·호텔TOP·아고다hid·파일명). 순서=유튜브·(분석/원고열기)·성과보기.

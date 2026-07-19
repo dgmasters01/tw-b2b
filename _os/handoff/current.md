@@ -19,7 +19,10 @@
 ### 🔴 다음 순서 (변경 없음 · 이 순서 그대로)
 1. ✅ 백업 — 07-19(`a726aab8`) + 심야 ALTER 전(`cf04a58c`).
 2. ✅ **연결 공사 1단계 = DB 뿌리** — 방금 완료.
-3. 🔴 **화면 이식** — 프리뷰의 발행완료 카드(sgCard published 분기)·perf()·hotelPop()를 studio.html 에 **한 조각씩·매번 검사**. 이제 `v_queue_publications` 를 읽으면 된다. content-queue.js GET 이 이 뷰를 실어주게 배선. 실제 sgCard(studio.html ~1838)는 stage 무관 동일버튼이라 published 분기·자체기획 구분 자체가 없음.
+3. 🟡 **화면 이식 (진행중 · 한 조각씩·매번 검사)** — 프리뷰의 발행완료 카드·perf()·hotelPop()를 studio.html 로.
+   - ✅ **조각1 (배선)** `api/content-queue.js` GET 이 `v_queue_publications` 를 읽어 발행 데이터를 `it.pub` 로 얹음(커밋 `5c45471f`). 기존 카드 필드·순서 무손실. 지금은 코드 든 정상 발행 원고가 없어 아무 카드에도 안 붙음(화면 변화 0) — 원고 유입 시 자동 점등.
+   - ✅ **조각2 (발행 카드)** studio.html `sgCard` 에 발행완료 분기: 채널·✓발행됨 뱃지·[▶ 유튜브에서 보기] 버튼·이 영상 호텔(hotel_names)·올린이. `it.pub` 없으면 전부 미표시(카드 불변). kw-visible-check 통과(JS에러 0)·SHA `5ca38040`. 디자인은 대표님이 프리뷰(studio-strategy-preview)로 이미 확인한 것의 이식.
+   - 🔴 **조각3·4 남음 (perf·hotelPop 팝업)** = [성과 보기]→perf(영상 한 편 성과)·호텔 클릭→hotelPop. **실제 성과 숫자(조회·예약·확정률)는 코드 든 발행 원고가 흘러야 나옴(순서 5와 맞물림)** — 지금 지어내면 안 됨(추측금지). 실제 원고 1건으로 end-to-end 검증하며 붙인다. studio엔 이미 content-performance·content-hotels API 있음(라인 2350·2435).
 4. 테스트 데이터 비우기 — 샘플 content_queue·publications 정리(대표님 "지금 비워" 확인 후).
 5. **원고 유입 배관 = 연결 공사 2단계**(원고 맨 마지막과 짝) — 라이브 업로드 경로라 실제 코드 든 원고로 검증. 3조각 한 묶음: ①youtube.js 코드추출 ②publications.js 자동발급(`next_content_code`) ③content-queue.js 공유스캔. 상세 = **D-068 «미구현»절**. ⚠️ 지금 미리 손대면 효과 없고 라이브만 위험 — 원고 들어올 때 end-to-end 검증.
 

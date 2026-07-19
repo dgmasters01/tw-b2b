@@ -1073,6 +1073,20 @@
     });
   }
 
+  // 조회수 표시: 유튜브 조회수 캐시(하루 1회 갱신)가 있으면 콤마 숫자, 없으면 null
+  //   pub/row 둘 다 .view_count 를 가진다. 갱신 시각(view_count_at)으로 "며칠 전 기준" 안내.
+  function sgViewNum(o) {
+    if (!o || o.view_count == null) return null;
+    return Number(o.view_count).toLocaleString();
+  }
+  function sgViewAgo(o) {
+    if (!o || !o.view_count_at) return '';
+    var days = Math.floor((Date.now() - new Date(o.view_count_at).getTime()) / 86400000);
+    if (days <= 0) return '오늘 기준';
+    if (days === 1) return '어제 기준';
+    return days + '일 전 기준';
+  }
+
   function copy(btn, text) {
     navigator.clipboard.writeText(text).then(function () {
       var old = btn.textContent;
@@ -1435,7 +1449,7 @@
       }
       return '<div class="st-pub-item">' +
         '<div class="st-pub-top"><span class="st-pub-title">' + esc(v.title || '(제목 없음)') + '</span>' + (v.channel_code ? '<span class="st-ch-chip">' + esc(chName(v.channel_code)) + '</span>' : '') + '</div>' +
-        '<div class="st-pub-meta">' + esc(v.code || '(코드 없음)') + ' · 발행 ' + esc(v.published_at ? String(v.published_at).slice(0, 10) : '-') + ' · 조회 <span class="st-pub-soon">연동 후</span></div>' +
+        '<div class="st-pub-meta">' + esc(v.code || '(코드 없음)') + ' · 발행 ' + esc(v.published_at ? String(v.published_at).slice(0, 10) : '-') + ' · 조회 ' + (sgViewNum(v) != null ? '<b>' + sgViewNum(v) + '</b>' : '<span class="st-pub-soon">연동 후</span>') + '</div>' +
         (names.length ? '<div class="st-pub-hotels">' + names.slice(0, 3).map(function (n, i) { return '<b>TOP' + (i + 1) + '</b> ' + esc(n); }).join(' · ') + '</div>' : '') +
         histUI +
         '<div class="st-pub-ytrow">' + (yhref ? '<a href="' + esc(yhref) + '" target="_blank" class="st-pub-yt">▶ 유튜브에서 보기</a>' : '<span class="st-pub-soon">유튜브 주소 없음</span>') + editBtn + '</div>' +
@@ -2026,7 +2040,12 @@
       var vc = tone === 'ok' ? '#1D9E75' : '#8A8794', lc = tone === 'ok' ? '#1D9E75' : '#9a9aa5';
       return '<div style="background:' + bg + ';border-radius:8px;padding:9px 10px;"><div style="font-size:10px;color:' + lc + ';">' + lbl + '</div><div style="font-size:16px;font-weight:600;color:' + vc + ';margin-top:2px;">' + val + '</div></div>';
     }
-    var nums = pf('영상 조회수', '연동 후') + pf('아고다 클릭', '준비중') + pf('예약', '준비중') + pf('확정률', '준비중') + pf('예약금액', '준비중') + (owner ? pf('수수료 · 대표님만', '준비중', 'fee') : '');
+    var vnum = sgViewNum(pub);
+    var vAgo = sgViewAgo(pub);
+    var viewCard = vnum != null
+      ? pf('영상 조회수' + (vAgo ? ' · ' + vAgo : ''), vnum, 'ok')
+      : pf('영상 조회수', '연동 후');
+    var nums = viewCard + pf('아고다 클릭', '준비중') + pf('예약', '준비중') + pf('확정률', '준비중') + pf('예약금액', '준비중') + (owner ? pf('수수료 · 대표님만', '준비중', 'fee') : '');
     function hrow(rk, nm) {
       return '<div onclick="sgHotelPop(\'' + rk + '\',\'' + String(nm).replace(/\x27/g, '') + '\')" style="display:flex;justify-content:space-between;padding:9px 11px;border-bottom:0.5px solid rgba(128,128,128,.12);font-size:12px;cursor:pointer;"><span><span style="font-size:10px;font-weight:600;padding:2px 8px;border-radius:5px;background:rgba(90,169,230,.16);color:#5AA9E6;margin-right:8px;">' + rk + '</span>' + esc(nm) + '</span><span style="color:#8A8794;">예약·금액 ›</span></div>';
     }
@@ -2105,7 +2124,8 @@
       var tops = names.slice(0, 3).map(function (n, i) { return '<b>TOP' + (i + 1) + '</b> ' + esc(n); }).join(' · ');
       hotelLine = '<div class="st-sg-desc"><b>이 영상에 나온 호텔</b><br>' + tops + '</div>';
     }
-    var pubmeta = '<div class="st-sg-desc" style="border-top:0.5px solid rgba(128,128,128,.15);margin-top:10px;padding-top:9px">최종 업로더 <b>' + esc(uploader) + '</b> · 조회 <b>연동 후</b> · 예약 <b>준비중</b>'
+    var cardViews = sgViewNum(pub);
+    var pubmeta = '<div class="st-sg-desc" style="border-top:0.5px solid rgba(128,128,128,.15);margin-top:10px;padding-top:9px">최종 업로더 <b>' + esc(uploader) + '</b> · 조회 <b>' + (cardViews != null ? cardViews : '연동 후') + '</b> · 예약 <b>준비중</b>'
       + (isOwner ? ' · 수수료 <b>준비중</b>' : '') + '</div>';
 
     return '<div class="st-sg-card' + (expanded ? ' expanded' : '') + '" data-sgid="' + it.id + '">' +

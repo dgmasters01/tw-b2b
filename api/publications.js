@@ -226,6 +226,50 @@ export default async function handler(req, res) {
       return res.status(200).json({ ok: true, row: data, warnings: warn, note: '설명란을 다시 만들려면 원고를 다시 넣어주세요.' });
     }
 
+    // ── 발행된 원고 유튜브 주소 수정 (§11-2) ──
+    // 관리자·에디터: 수정 요청(url_request) / 최고관리자: 직접 변경(url_edit)·승인(url_approve)·반려(url_reject). 전부 이력 기록.
+    if (action === 'url_request' || action === 'url_edit' || action === 'url_approve' || action === 'url_reject') {
+      const now = new Date().toISOString();
+      const { data: cur } = await sb.from('publications').select('youtube_url, url_request, url_history, status').eq('id', id).maybeSingle();
+      if (!cur) return res.status(404).json({ ok: false, error: '없는 원고입니다.' });
+      if (cur.status !== 'published') return res.status(400).json({ ok: false, error: '발행된 원고만 주소를 수정합니다.' });
+      const hist = Array.isArray(cur.url_history) ? cur.url_history.slice() : [];
+      const checkUrl = function (u) { const mm = String(u || '').match(/(?:youtu\.be\/|v=|\/shorts\/|\/embed\/)([A-Za-z0-9_-]{11})/); return mm ? mm[1] : null; };
+
+      // 관리자·에디터: 수정 요청만 (직접 못 바꿈)
+      if (action === 'url_request') {
+        const vid = checkUrl(youtube_url);
+        if (!vid) return res.status(400).json({ ok: false, error: '유튜브 주소가 아닙니다.' });
+        const { data, error } = await sb.from('publications').update({ url_request: { by: myMail, url: String(youtube_url), at: now }, updated_at: now }).eq('id', id).select().single();
+        if (error) return res.status(500).json({ ok: false, error: error.message });
+        return res.status(200).json({ ok: true, row: data });
+      }
+
+      // 이하 최고관리자 전용
+      if (!auth.isOwner) return res.status(403).json({ ok: false, error: '주소 변경·승인·반려는 최고관리자만 할 수 있습니다.' });
+
+      if (action === 'url_reject') {
+        hist.push({ act: '요청 반려', by: myMail, req_by: cur.url_request && cur.url_request.by, at: now });
+        const { data, error } = await sb.from('publications').update({ url_request: null, url_history: hist, updated_at: now }).eq('id', id).select().single();
+        if (error) return res.status(500).json({ ok: false, error: error.message });
+        return res.status(200).json({ ok: true, row: data });
+      }
+
+      const newUrl = action === 'url_approve' ? (cur.url_request && cur.url_request.url) : youtube_url;
+      const vid = checkUrl(newUrl);
+      if (!vid) return res.status(400).json({ ok: false, error: '유튜브 주소가 아닙니다.' });
+      const { data: dup } = await sb.from('publications').select('id').eq('youtube_video_id', vid).neq('id', id);
+      if (dup && dup.length) return res.status(409).json({ ok: false, error: '이 영상은 이미 다른 원고에 등록돼 있습니다.' });
+      hist.push(action === 'url_approve'
+        ? { act: '요청 승인·변경', by: myMail, req_by: cur.url_request && cur.url_request.by, at: now, from: cur.youtube_url, to: String(newUrl) }
+        : { act: '직접 변경', by: myMail, at: now, from: cur.youtube_url, to: String(newUrl) });
+      const { data, error } = await sb.from('publications').update({
+        youtube_url: String(newUrl), youtube_video_id: vid, url_request: null, url_history: hist, updated_at: now,
+      }).eq('id', id).select().single();
+      if (error) return res.status(500).json({ ok: false, error: error.message });
+      return res.status(200).json({ ok: true, row: data });
+    }
+
     if (!youtube_url) return res.status(400).json({ ok: false, error: 'youtube_url 이 필요합니다.' });
     const m = String(youtube_url).match(/(?:youtu\.be\/|v=|\/shorts\/|\/embed\/)([A-Za-z0-9_-]{11})/);
     if (!m) return res.status(400).json({ ok: false, error: '유튜브 주소가 아닙니다.' });

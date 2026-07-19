@@ -2,6 +2,15 @@
 
 ---
 
+## 🟢 2026-07-19 심야(9) — 올리기 [발행됨] 주소 수정 완성 → §11 전체 완료
+- 대표님: "최고관리자는 링크 수정 가능해야 하는 거 아니냐" → 맞음. §11-2 주소수정 붙임.
+- ✅ 백업 `1f22cb74` → publications에 `url_request`(jsonb)·`url_history`(jsonb) 칸 추가 + 뷰 반영.
+- ✅ 커밋 `5b1a0441` pub.js PATCH 주소수정 4 action: `url_request`(admin·editor 요청) / `url_edit`(owner 직접) / `url_approve`(owner 승인) / `url_reject`(owner 반려). owner 전용 가드(auth.isOwner), 유튜브ID 검증·중복체크, url_history 이력 push.
+- ✅ 커밋 `48ba5ca8` studio 발행됨 카드 주소수정 UI: owner=[✏주소 수정]→입력→[▶영상 확인]→[변경](재계산 confirm) / admin·editor=[✏수정 요청]→[요청 보내기] / owner에게 "⚠수정 요청 중"+[영상확인][승인][반려] / 변경 이력 🕑 표시. 영상 확인 전엔 버튼 비활성(off).
+- 🟢 **§11 전체 완료**: 발행됨 탭(목록·검색·정렬·필터·권한) + 주소 수정(요청/승인/직접/이력).
+- 🔴 남은 것: 발행예정↔올리기 담당 동기화(§8-5) · perf/hotelPop·조회·예약 실데이터(유튜브API·아고다 추적링크) · 원고 검색/재사용 화면.
+- 🟡 조회·예약 '재계산'은 실제 추적링크·API 연동 후 작동(지금은 경고문구만).
+
 ## 🟢 2026-07-19 심야(8) — 올리기 [발행됨] 탭 완성 근접 (§11 목록·검색·정렬·필터·권한)
 - ✅ `71122eba` 발행됨 탭 신설(목록·검색) → `431838b4` KPI(발행됨·이번달·채널) → `cbc2d5b8`+`1c16e02f` 정렬·필터·권한.
 - ✅ **역할 서버 판별**(pub.js): authorized에 is_owner RPC 추가 → GET 응답 `role`(owner/admin/editor)·is_owner. (RPC 실측: is_owner·is_admin·is_editor 존재, 역할=admins.role)

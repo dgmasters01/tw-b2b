@@ -299,6 +299,8 @@ export default async function handler(req, res) {
   } catch (e) {
     return res.status(400).json({ ok: false, error: String(e.message || e) });
   }
+  // 원고 본문(로봇이 docx→글자로 뽑은 원문)을 DB에 보관 → 원고 열기·검색·재사용 (대표님 07-19 확정)
+  if (body && typeof body.text === 'string' && body.text.trim()) row.manuscript_text = body.text;
   if (!row.source_filename) return res.status(400).json({ ok: false, error: 'source_filename 이 없습니다. 원고 파일명이 장부의 키입니다.' });
   if (!row.channel_code) return res.status(400).json({ ok: false, error: 'channel_code 를 알 수 없습니다.' });
 

@@ -626,6 +626,9 @@
   .st-sg-tab.active { opacity:1; background:rgba(128,128,128,.1); border-color:rgba(128,128,128,.25); font-weight:600; }
   .st-sg-tab .st-sg-dot { width:8px; height:8px; border-radius:50%; flex:none; }
   .st-sg-list { display:flex; flex-direction:column; gap:9px; margin-top:8px; }
+  .st-sg-assign { font-size:11px; padding:4px 9px; border-radius:7px; border:1px solid rgba(128,128,128,.35); background:rgba(128,128,128,.06); color:inherit; cursor:pointer; max-width:160px; }
+  .st-sg-assign.none { border-color:#EF9F27; color:#BA7517; }
+  .st-sg-role.plan { opacity:.85; }
   .st-sg-bottom { display:flex; align-items:center; gap:10px; margin-top:9px; flex-wrap:wrap; }
   .st-sg-bottom .st-sg-acts { margin-left:auto; }
   .st-sg-src { color:#5DCAA5; }
@@ -1789,7 +1792,7 @@
     { key: 'published', label: '발행 완료', color: '#1D9E75' }
   ];
   var SG_SOURCE = { strategy: '전략', keyword: '키워드', manuscript: '원고유입' };
-  var sgItems = [], sgMe = null, sgIsAdmin = false;
+  var sgItems = [], sgMe = null, sgIsAdmin = false, sgTeam = [];
 
   function sgCard(it) {
     var place = [it.country, it.city].filter(Boolean).join(' · ');
@@ -1813,14 +1816,22 @@
     more += '<button class="st-sg-btn" data-sgprio="' + it.id + '">우선순위</button>';
     more += '<button class="st-sg-btn" data-sgnote="' + it.id + '">메모</button>';
     more += '<button class="st-sg-btn" data-sgclaim="' + it.id + '">' + (mine ? '놓기' : '내가 맡기') + '</button>';
-    if (sgIsAdmin) more += '<button class="st-sg-btn" data-sgassign="' + it.id + '">담당 지정</button>';
-    if (it.planner_email) more += '<span class="st-sg-role">기획 ' + esc(shortMail(it.planner_email)) + '</span>';
     if (it.note) more += '<button class="st-sg-btn" data-sgnoteshow="' + it.id + '">근거 보기</button>';
     if (sgIsAdmin) more += '<button class="st-sg-btn del" data-sgdel="' + it.id + '">🗑 삭제</button>';
 
-    var writer = it.assignee_email
-      ? '<span class="st-sg-role">원고 ' + esc(shortMail(it.assignee_email)) + (mine ? '(나)' : '') + '</span>'
-      : '<span class="st-sg-role none">⚠ 담당 없음</span>';
+    // 기획자(만든 사람) — 앞면에 표시
+    var planner = it.planner_email ? '<span class="st-sg-role plan">기획 ' + esc(shortMail(it.planner_email)) + '</span>' : '';
+    // 원고 담당 — 관리자는 팀원 드롭다운으로 지정/변경, 에디터는 표시만
+    var writerCtl;
+    if (sgIsAdmin) {
+      var opts = '<option value="">＋ 담당 지정</option>';
+      sgTeam.forEach(function (m) { opts += '<option value="' + esc(m.email) + '"' + (m.email === it.assignee_email ? ' selected' : '') + '>' + esc(m.display_name || shortMail(m.email)) + '</option>'; });
+      writerCtl = '<select class="st-sg-assign' + (it.assignee_email ? '' : ' none') + '" data-sgassignsel="' + it.id + '">' + opts + '</select>';
+    } else {
+      writerCtl = it.assignee_email
+        ? '<span class="st-sg-role">원고 ' + esc(shortMail(it.assignee_email)) + (mine ? '(나)' : '') + '</span>'
+        : '<span class="st-sg-role none">⚠ 담당 없음</span>';
+    }
     var prio = '<span class="st-sg-prio p' + (it.priority || 3) + '">우선 ' + (it.priority || 3) + '</span>';
     var note = it.note ? '<div class="st-sg-note" data-sgnoteexp="' + it.id + '" title="눌러서 접기">' + esc(it.note) + '</div>' : '';
 
@@ -1828,7 +1839,7 @@
       '<div class="st-sg-cardhead"><div class="st-sg-title">' + esc(it.title) + '</div>' + prio + '</div>' +
       '<div class="st-sg-code">' + codeline + '</div>' +
       '<div class="st-sg-chips">' + chips + '</div>' +
-      '<div class="st-sg-bottom">' + writer + '<div class="st-sg-acts">' + acts + '</div></div>' +
+      '<div class="st-sg-bottom">' + planner + writerCtl + '<div class="st-sg-acts">' + acts + '</div></div>' +
       '<div class="st-sg-more" data-sgmoreid="' + it.id + '">' + more + '</div>' +
       note +
     '</div>';
@@ -1881,6 +1892,7 @@
     board.querySelectorAll('[data-sgnote]').forEach(function (b) { b.onclick = function () { sgEditNote(b.dataset.sgnote); }; });
     board.querySelectorAll('[data-sgclaim]').forEach(function (b) { b.onclick = function () { sgClaim(b.dataset.sgclaim); }; });
     board.querySelectorAll('[data-sgassign]').forEach(function (b) { b.onclick = function () { sgAssignTo(b.dataset.sgassign); }; });
+    board.querySelectorAll('[data-sgassignsel]').forEach(function (s) { s.onchange = function () { sgAssignSet(s.dataset.sgassignsel, s.value); }; });
     board.querySelectorAll('[data-sgmore]').forEach(function (b) { b.onclick = function () { var m = board.querySelector('[data-sgmoreid="' + b.dataset.sgmore + '"]'); if (m) m.classList.toggle('open'); }; });
     board.querySelectorAll('[data-sgnoteshow]').forEach(function (b) { b.onclick = function () { var n = board.querySelector('[data-sgnoteexp="' + b.dataset.sgnoteshow + '"]'); if (n) n.classList.toggle('open'); }; });
     board.querySelectorAll('[data-sgnoteexp]').forEach(function (b) { b.onclick = function () { b.classList.toggle('open'); }; });
@@ -1928,6 +1940,9 @@
     if (v === null) return;
     sgPatch(id, { writer: v.trim() }).then(function (j) { sgReplace(j.item); }).catch(function (e) { alert(e.message); });
   }
+  function sgAssignSet(id, email) {
+    sgPatch(id, { writer: (email || '').trim() }).then(function (j) { sgReplace(j.item); }).catch(function (e) { alert(e.message); });
+  }
   function sgDelete(id) {
     if (!confirm('이 카드를 삭제할까요? (되돌릴 수 없습니다)')) return;
     fetch('/api/content-queue', {
@@ -1946,7 +1961,7 @@
       .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
       .then(function (x) {
         if (!x.ok || !x.j.ok) throw new Error(x.j.error || '불러오지 못했습니다.');
-        sgItems = x.j.items || []; sgMe = x.j.me || null; sgIsAdmin = !!x.j.is_admin;
+        sgItems = x.j.items || []; sgMe = x.j.me || null; sgIsAdmin = !!x.j.is_admin; sgTeam = x.j.team || [];
         renderStrategy();
       })
       .catch(function (e) {

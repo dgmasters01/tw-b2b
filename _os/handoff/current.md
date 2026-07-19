@@ -1,4 +1,33 @@
-# 인계서 — ✅ **발행완료 카드 디테일 + 성과 보기 + 호텔 팝업 + 발행됨 목록/주소수정 전부 확정·프리뷰 반영·D-067 §9·10·11 기록 완료** (07-19 밤). **다음 = 진짜 스튜디오(studio.html) 이식. 단 「연결 공사」 먼저.**
+# 인계서 — ✅ **연결 공사 1단계 = DB 뿌리 완료** (07-19 심야 · D-067 §8-5 · D-068). 두 표가 태생부터 끊겨 있던 걸 코드로 이을 심장을 놓음. **다음 = 화면 이식(순서 3) — 이 뷰를 읽는다.**
+
+---
+
+## 🚨 새 대화 여기부터 — 07-19 심야 (연결 공사 1단계 DB 뿌리)
+
+### ✅ 방금 완료 — content_queue ↔ publications «코드로 잇기» 뿌리 (라이브·검증됨)
+> **끊겨 있던 것**: publications 에 «어느 전략카드(TW-XXXX)에서 나온 원고인지» 가리키는 칸이 **아예 없었다.** 발행완료 카드가 쓸 데이터(youtube_url·hid_top1/2/3·published_by_email·channel)는 publications 에만 있는데, 전략카드(content_queue)와 이을 열쇠가 없어 화면을 이식해도 전부 빈칸이었을 것.
+
+| | 무엇 | 검증 |
+|---|---|---|
+| ✅ 칸 | `publications.code text` + 인덱스 + 주석 | 스키마 확인 |
+| ✅ 공유 발급기 | DB 함수 `next_content_code(prefix)` — **content_queue·publications 두 표를 함께 훑어** 채널별 다음 연번(D-068 §2). prefix 없으면 TW | `''→TW-0002`·`HT→HT-0001`·`HG→HG-0001` 실측 |
+| ✅ 동기화 뷰 | `v_queue_publications` — content_queue LEFT JOIN publications **ON code**, **정상 원고만**(warnings 없는 것). 발행완료 데이터를 전략카드 옆에 붙임. 수수료 칸 안 넣음 | 문제원고+코드=안 뜸 / warnings 비우면 붙음 → 양방향 실측 후 원상복구 |
+
+- ALTER 전 수동 백업 `cf04a58c`(표36) · D-068 기록 커밋 `6bf3cb1a`(SHA검증).
+- 🔴 지금 실데이터 = content_queue TW-0001(원고작성)·publications 3행(전부 테스트·warnings 있음). 코드 든 원고가 없어 뷰 조인은 NULL(정상). **테스트 원고 3건은 순서 4에서 비운다.**
+
+### 🔴 다음 순서 (변경 없음 · 이 순서 그대로)
+1. ✅ 백업 — 07-19(`a726aab8`) + 심야 ALTER 전(`cf04a58c`).
+2. ✅ **연결 공사 1단계 = DB 뿌리** — 방금 완료.
+3. 🔴 **화면 이식** — 프리뷰의 발행완료 카드(sgCard published 분기)·perf()·hotelPop()를 studio.html 에 **한 조각씩·매번 검사**. 이제 `v_queue_publications` 를 읽으면 된다. content-queue.js GET 이 이 뷰를 실어주게 배선. 실제 sgCard(studio.html ~1838)는 stage 무관 동일버튼이라 published 분기·자체기획 구분 자체가 없음.
+4. 테스트 데이터 비우기 — 샘플 content_queue·publications 정리(대표님 "지금 비워" 확인 후).
+5. **원고 유입 배관 = 연결 공사 2단계**(원고 맨 마지막과 짝) — 라이브 업로드 경로라 실제 코드 든 원고로 검증. 3조각 한 묶음: ①youtube.js 코드추출 ②publications.js 자동발급(`next_content_code`) ③content-queue.js 공유스캔. 상세 = **D-068 «미구현»절**. ⚠️ 지금 미리 손대면 효과 없고 라이브만 위험 — 원고 들어올 때 end-to-end 검증.
+
+### 🔴 자체기획 발행완료 카드 뷰는 순서 3과 함께
+`v_queue_publications` 는 content_queue 기준(추천)이라 **자체기획(카드 없는 원고)은 안 담긴다.** 자체기획 카드 렌더러가 뭘 읽을지 확정하고 그때 뷰를 만든다(지금 미리 = 지어낸 뷰).
+
+---
+
 
 ---
 

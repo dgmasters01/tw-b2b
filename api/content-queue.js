@@ -110,7 +110,13 @@ export default async function handler(req, res) {
       .order('priority', { ascending: true })
       .order('created_at', { ascending: false });
     if (error) return res.status(500).json({ ok: false, error: error.message });
-    return res.status(200).json({ ok: true, is_admin: !!auth.isAdmin, me: auth.email || null, items: data || [] });
+    let team = [];
+    try {
+      const { data: adm } = await sb.from('admins')
+        .select('email, display_name, role').eq('is_active', true).order('email');
+      team = adm || [];
+    } catch (e) { /* 팀원 목록이 실패해도 카드는 정상 표시 */ }
+    return res.status(200).json({ ok: true, is_admin: !!auth.isAdmin, me: auth.email || null, items: data || [], team: team });
   }
 
   // ── 새 카드 담기 (기획대기) — 데이터 기반 입구만 (전략/키워드). 직접 추가 폐기 ──

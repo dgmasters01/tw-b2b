@@ -215,8 +215,8 @@ function recCard(c){
   var stageIdx = STAGES.findIndex(function(s){return s.key===c.stage;});
   var badges = (c.dday!=null && c.stage!=='published' ? '<span class="bdg dday">D-'+c.dday+'개월</span>' : '')+
     (c.peak && c.stage!=='published' ? '<span class="bdg peak">피크 '+c.peak+'월</span>' : '')+
-    (c.stage==='published' ? '<span class="bdg pub">✓ 발행됨</span>' : '')+
     (c.stage==='published' && c.channel ? '<span class="bdg ch">'+c.channel+'</span>' : '')+
+    (c.stage==='published' ? '<span class="bdg pub">✓ 발행됨</span>' : '')+
     (!c.assignee && c.stage!=='published' ? '<span class="bdg warn">⚠ 담당 없음</span>' : '');
   var submeta = c.src+' · '+c.country+' · '+c.city+' · '+c.star+'성'+(c.month?' · 목표 '+c.month:'')+(c.pubdate?' · 발행 '+c.pubdate:'');
   // 단계별 버튼

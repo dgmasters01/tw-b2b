@@ -110,13 +110,38 @@ export default async function handler(req, res) {
       .order('priority', { ascending: true })
       .order('created_at', { ascending: false });
     if (error) return res.status(500).json({ ok: false, error: error.message });
+    const items = data || [];
+
+    // 발행 완료 오버레이 — content_queue ↔ publications 를 코드로 이은 뷰(D-067 §8-5).
+    // 뷰가 「정상 원고(warnings 없음)만」 붙이므로 여기서 별도 필터 불필요.
+    // 기존 카드 필드는 그대로 두고, 발행 데이터(유튜브·호텔TOP·올린이 등)만 it.pub 로 얹는다.
+    // 지금은 코드 든 정상 발행 원고가 없어 아무 카드에도 안 붙음(화면 변화 0) — 원고 유입 시 자동 점등.
+    try {
+      const { data: pubs } = await sb.from('v_queue_publications')
+        .select('queue_id, channel_code, cid, pub_status, pub_title, youtube_url, youtube_video_id, published_at, scheduled_at, hid_top1, hid_top2, hid_top3, hotel_names, published_by_email, uploader_email, pub_source, source_filename')
+        .not('pub_id', 'is', null);
+      const byQ = {};
+      (pubs || []).forEach(function (p) { byQ[p.queue_id] = p; });
+      items.forEach(function (it) {
+        const p = byQ[it.id];
+        if (p) it.pub = {
+          channel_code: p.channel_code, cid: p.cid, status: p.pub_status, title: p.pub_title,
+          youtube_url: p.youtube_url, youtube_video_id: p.youtube_video_id,
+          published_at: p.published_at, scheduled_at: p.scheduled_at,
+          hid_top1: p.hid_top1, hid_top2: p.hid_top2, hid_top3: p.hid_top3,
+          hotel_names: p.hotel_names, published_by_email: p.published_by_email,
+          uploader_email: p.uploader_email, source: p.pub_source, source_filename: p.source_filename
+        };
+      });
+    } catch (e) { /* 오버레이 실패해도 카드는 정상 표시 */ }
+
     let team = [];
     try {
       const { data: adm } = await sb.from('admins')
         .select('email, display_name, role').eq('is_active', true).order('email');
       team = adm || [];
     } catch (e) { /* 팀원 목록이 실패해도 카드는 정상 표시 */ }
-    return res.status(200).json({ ok: true, is_admin: !!auth.isAdmin, me: auth.email || null, items: data || [], team: team });
+    return res.status(200).json({ ok: true, is_admin: !!auth.isAdmin, me: auth.email || null, items: items, team: team });
   }
 
   // ── 새 카드 담기 (기획대기) — 데이터 기반 입구만 (전략/키워드). 직접 추가 폐기 ──

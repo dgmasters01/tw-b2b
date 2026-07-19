@@ -640,6 +640,9 @@
   .st-sg-prio.p1, .st-sg-prio.p2 { color:#E24B4A; border-color:#E24B4A; opacity:1; }
   .st-sg-code { font-family:ui-monospace,monospace; font-size:11px; opacity:.6; margin-bottom:8px; }
   .st-sg-roles { display:flex; gap:8px; flex-wrap:wrap; margin:8px 0; }
+  .st-ch-chip.peak { color:#E24B4A; border-color:rgba(226,75,74,.4); }
+  .st-sg-peaknote { font-size:10.5px; color:#BA7517; background:rgba(239,159,39,.08); border:0.5px solid rgba(239,159,39,.28); padding:6px 10px; border-radius:8px; margin-top:8px; line-height:1.5; }
+  .st-sg-peaknote b { color:#EF9F27; }
   .st-sg-role { font-size:11px; display:inline-flex; align-items:center; opacity:.9; }
   .st-sg-role.none { color:#BA7517; opacity:1; }
   .st-sg-rolebadge { font-size:9.5px; padding:2px 6px; border-radius:6px; border:1px solid; margin-right:5px; background:rgba(128,128,128,.05); white-space:nowrap; }
@@ -1809,8 +1812,12 @@
     var chips = '';
     if (it.star) chips += '<span class="st-ch-chip">' + it.star + '성</span>';
     if (it.target_month) chips += '<span class="st-ch-chip">목표 ' + esc(it.target_month) + '</span>';
+    var peakMonth = null;
+    if (it.note) { var pm2 = it.note.match(/피크\s*(\d{1,2})\s*월/); if (pm2) peakMonth = parseInt(pm2[1], 10); }
+    if (peakMonth) chips += '<span class="st-ch-chip peak">피크 ' + peakMonth + '월</span>';
     if (it.target) chips += '<span class="st-ch-chip">타겟 ' + esc(it.target) + '</span>';
     if (it.bookings_done) chips += '<span class="st-ch-chip active">확정예약 ' + it.bookings_done + '건</span>';
+    var peakNote = peakMonth ? '<div class="st-sg-peaknote">📌 소개 기준은 <b>' + peakMonth + '월(성수기)</b> — 올리는 달이 아니라 손님이 예약할 달의 가격·상황으로</div>' : '';
 
     var si = SG_STAGES.findIndex(function (s) { return s.key === it.stage; });
     var mine = it.assignee_email && it.assignee_email === sgMe;
@@ -1847,6 +1854,7 @@
       '<div class="st-sg-cardhead"><div class="st-sg-title">' + esc(it.title) + '</div>' + prio + '</div>' +
       '<div class="st-sg-code">' + codeline + '</div>' +
       '<div class="st-sg-chips">' + chips + '</div>' +
+      peakNote +
       '<div class="st-sg-bottom">' + planner + writerCtl + '<div class="st-sg-acts">' + acts + '</div></div>' +
       '<div class="st-sg-more" data-sgmoreid="' + it.id + '">' + more + '</div>' +
       note +

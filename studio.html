@@ -648,6 +648,11 @@
   .sg-modal { background:#0b1119; border:1px solid #1c2f45; border-radius:14px; max-width:480px; width:100%; max-height:82vh; overflow-y:auto; padding:18px 20px; color:#e6eef6; }
   .sg-modal-wide { max-width:760px; }
   .sg-modal-kwbody { margin-top:6px; }
+  /* 분석 팝업 = 카드 한 장 분석. 지역 세부(kw-app)를 빌리되 탐색용 요소는 숨긴다 (미완목록 2 방향).
+     빵부스러기(위로 탐색)·[＋ 전략으로](새로 담기)는 분석 자리에 안 맞다. 성급 분포·검색어·매출 등 데이터와 '전략에 있음/발행함' 상태는 그대로 남긴다.
+     kw-app 을 .sg-modal-kwbody 안으로 옮기므로 이 스코프에서만 적용 → 키워드 탭 본화면은 그대로. */
+  .sg-modal-kwbody #bc { display:none; }
+  .sg-modal-kwbody [onclick^="toQueue"] { display:none; }
   .sg-modal-head { display:flex; justify-content:space-between; align-items:center; gap:10px; font-size:15px; font-weight:600; margin-bottom:4px; }
   .sg-modal-x { flex:none; background:none; border:0.5px solid #1c3a56; color:#9db4c9; width:28px; height:28px; border-radius:50%; cursor:pointer; font-size:13px; }
   .sg-modal-sub { font-size:11px; color:#6a85a0; margin-bottom:16px; }

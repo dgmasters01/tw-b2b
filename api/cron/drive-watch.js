@@ -87,8 +87,8 @@ async function register(base, filename, docxBase64) {
   // 등록됐지만 막는 문제(아고다 링크 없음·cid 불일치)면 확인필요 — 메인 리스트엔 안 남긴다.
   // warns = 원고 처리 세부(정상 원고의 "확인 N건"과 같은 내용). 확인필요로 보낼 때도 그대로 담아 세부로 보여준다.
   const warns = (j.warnings || []).map(String);
-  const noLink = warns.find((w) => /아고다 링크|hid/.test(w));
-  const cidBad = warns.find((w) => /cid/.test(w));
+  const noLink = warns.find((w) => /hid 를 다 못 뽑|링크에서 hid/.test(w));
+  const cidBad = warns.find((w) => /channel_cid_map 에 없|채널 것입니다/.test(w));
   if (noLink) return { verdict: 'review', reason: '파트너 링크 없음', detail: ['아고다 파트너 링크(hid) 3개가 원고에 없어 발행할 수 없습니다.'].concat(warns), id: j.id };
   if (cidBad) return { verdict: 'review', reason: 'cid 불일치', detail: ['원고의 cid가 폴더 채널과 맞지 않습니다.'].concat(warns), id: j.id };
   return { verdict: 'ok', reason: '정상 등록', detail: warns, id: j.id };

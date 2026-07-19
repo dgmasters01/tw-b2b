@@ -14,7 +14,6 @@
 
 import { getDriveToken, resolveFolders, listChildren, downloadBase64, moveFile } from '../_lib/drive.js';
 import { docxToText } from '../_lib/docx-text.js';
-import { docxToText } from '../_lib/docx-text.js';
 
 export const config = { maxDuration: 60 };
 

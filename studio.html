@@ -2163,12 +2163,28 @@
 
     var si = SG_STAGES.findIndex(function (s) { return s.key === it.stage; });
     var mine = it.assignee_email && it.assignee_email === sgMe;
-    var isOwner = sgRoleOf(sgMe) === 'owner';   // 삭제는 최종관리자만
-    var acts = '';
-    acts += '<button class="st-sg-btn" data-sgclaim="' + it.id + '">' + (mine ? '놓기' : '내가 맡기') + '</button>';
-    acts += '<button class="st-sg-btn" data-sgkw="' + it.id + '">분석</button>';
-    acts += '<button class="st-sg-btn" data-sgcopy="' + it.id + '">📋 코드 복사</button>';
-    if (isOwner) acts += '<button class="st-sg-btn del" data-sgdel="' + it.id + '">🗑 삭제</button>';
+    var isOwner = sgRoleOf(sgMe) === 'owner';   // 담당 지정·재배정·삭제 = 최고관리자만 (§8-2)
+    var held = !!it.assignee_email;             // 담당 있음
+    // §8-2 단계별 버튼 (역할 × 담당상태 × 단계). 담당 있으면 남이 못 맡음 · 원고작성 놓기 없음.
+    var bKw = '<button class="st-sg-btn" data-sgkw="' + it.id + '">분석</button>';
+    var bClaim = '<button class="st-sg-btn" data-sgclaim="' + it.id + '">내가 맡기</button>';
+    var bRelease = '<button class="st-sg-btn" data-sgclaim="' + it.id + '">놓기</button>';
+    var bCopy = '<button class="st-sg-btn" data-sgcopy="' + it.id + '">📋 코드 복사</button>';
+    var bDel = '<button class="st-sg-btn del" data-sgdel="' + it.id + '">🗑 삭제</button>';
+    var A = [];
+    if (it.stage === 'planning') {
+      if (mine) A.push(bRelease, bKw);              // 담당자: 놓기·분석
+      else if (isOwner) A.push(bKw);               // 최고관리자: (담당지정=아래 드롭다운)·분석·삭제
+      else if (!held) A.push(bClaim, bKw);         // 다른 사람+담당없음: 내가 맡기·분석
+      else A.push(bKw);                            // 다른 사람+남이 맡음: 분석만(이름만 표시)
+    } else if (it.stage === 'writing') {
+      if (mine || isOwner) A.push(bCopy, bKw);     // 담당자·최고관리자: 코드복사·분석 (놓기 없음)
+      else A.push(bKw);                            // 다른 사람: 분석(표시만) — 내가맡기·코드복사 없음
+    } else {                                       // scheduled(발행예정) 등: 분석
+      A.push(bKw);
+    }
+    if (isOwner && it.stage !== 'published') A.push(bDel);
+    var acts = A.join('');
 
     // ── 발행 완료 카드 — it.pub(발행 데이터)이 있으면 채널·유튜브·호텔·올린이 표시 (연결공사 화면이식 2) ──
     // it.pub 은 content_queue↔publications 를 코드로 이은 뷰(D-067 §8-5)에서 옴. 없으면 전부 미표시(카드 불변).
@@ -2193,9 +2209,9 @@
 
     // 기획자(만든 사람) — 앞면에 표시
     var planner = it.planner_email ? '<span class="st-sg-role plan">' + sgRoleBadge(sgRoleOf(it.planner_email)) + '<span class="st-sg-pname" title="' + esc(sgName(it.planner_email)) + '">' + esc(sgName(it.planner_email)) + '</span></span>' : '';
-    // 원고 담당 — 관리자는 팀원 드롭다운으로 지정/변경, 에디터는 표시만
+    // 원고 담당 — 최고관리자만 팀원 드롭다운으로 지정/재배정(§8-2), 그 외는 표시만
     var writerCtl;
-    if (sgIsAdmin) {
+    if (isOwner) {
       var opts = '<option value="">＋ 담당 지정</option>';
       sgTeam.forEach(function (m) { opts += '<option value="' + esc(m.email) + '"' + (m.email === it.assignee_email ? ' selected' : '') + '>[' + esc(ROLE_LABEL[m.role] || m.role) + '] ' + esc((m.display_name || '').split('(')[0].trim() || shortMail(m.email)) + '</option>'; });
       writerCtl = '<select class="st-sg-assign' + (it.assignee_email ? '' : ' none') + '" data-sgassignsel="' + it.id + '">' + opts + '</select>';

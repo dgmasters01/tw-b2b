@@ -2,6 +2,14 @@
 
 ---
 
+## 🟢 2026-07-19 심야(3) — 자체기획 전략 동기화 구현 (D-067 §1-2·§8-5 적용)
+- 🔎 **대표님 지적**: 전략 탭에 자체기획 발행완료가 안 뜸 / 헤더 "대기1·발행0" / 발행원고 링크수정 없음.
+- 🩺 **진단**: 전략 뷰 v_queue_publications = content_queue 기준 LEFT JOIN publications(code). 자체기획은 **코드 자동발급도, content_queue 등록도 미구현**이라 카드가 아예 없어 안 뜸(근본). 헤더 대기1 = 발행직후 화면 미갱신(실DB는 published 1건).
+- ✅ **교토 백필**: HT-0001 발급 → publications.code 부여 → content_queue 발행완료 카드(stage=published·source=manuscript) 생성. **뷰 조인조건 완화**(기존 `AND (warnings IS NULL OR cardinality=0)` 제거 — 발행됐지만 부수경고 있는 원고도 발행완료로 뜨게). `/api/content-queue` GET 검증: HT-0001·published·유튜브링크 정상 반환.
+- ✅ **자동화 구현**(커밋 `88bff057` api/publications.js): ①`nextContentCode()` 채널별 연번 발급 ②insert 후 code 없는 정상원고(=자체기획)면 코드발급+content_queue 카드 자동 등록(status=published→stage published, 아니면 scheduled) ③PATCH publish 시 code로 content_queue.stage='published' 동기화.
+- 🔴 **아직 미구현(다음)**: **발행원고 유튜브 주소 수정 흐름(D-058·§11)** — 대표님 첫 지적, 링크 잘못넣으면 못 고침. publications.js action='links'는 published면 409로 막힘 → 발행후 주소수정 문 + 수정이력(action_logs) 필요. / 발행예정↔올리기 담당 동기화(§8-5 담당부분).
+- 🟡 헤더 대기/발행 카운트는 /api/publications draft수 기준 — 새로고침하면 정상. 자체기획 자동등록 후 전략·올리기 동기화는 실제 원고 유입으로 다음 검증.
+
 ## 🟢 2026-07-19 심야(2) — 1호 원고 첫 정상 통과 + 근본버그 수정
 - 🐛 **근본 버그 발견·수정(진짜 발행 0건의 원인)**: drive-watch `register()` 의 확인필요 판정 정규식이 너무 헐거웠음. `noLink=/아고다 링크|hid/`, `cidBad=/cid/` 가 youtube 정상 안내문 **"원고 아고다 링크의 cid(…)로 채널을 정했습니다"**(드라이브 경로는 cid 미지정이라 항상 이 안내가 붙음)에 오탐 → **모든 정상 원고를 확인필요로 오판**. 커밋 `ba411340`: `noLink=/hid 를 다 못 뽑|링크에서 hid/`, `cidBad=/channel_cid_map 에 없|채널 것입니다/` 로 실제 실패 문구만 매칭. 검증 4케이스 통과.
 - ✅ **교토 1호 원고 첫 정상 통과**: 로봇 실행 → 판정 `ok/정상 등록` → HT **완료 폴더 이동**, publications 1건 `draft`(HT·교토 교토카와라마치·hid 6557847·699386·36252343·cid 1932026·source drive). 진단으로 확인: 원고엔 문제 없었고(partnersearch 링크 3개 정상), youtube.js·render·toRow·publications.js 전부 정상, register 정규식만 버그였음.

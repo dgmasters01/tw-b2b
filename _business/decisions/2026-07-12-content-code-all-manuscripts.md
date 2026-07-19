@@ -14,6 +14,23 @@
 ## 발급 시점
 - 올리기 직접 등록 시 / 드라이브 대기 유입 시(워처) / 전략·키워드 [이걸로 만들기] 시. 원고에 코드 없으면 시스템이 즉시 자동 발급.
 
-## 미구현 (후속 작업)
-- publications.code 컬럼 신설 + 채널별 코드 발급기(연번, content_queue와 공유) + 전략 큐↔올리기 코드 매칭 + 성과표 코드·출처별 비교.
-- 드라이브 유입 시 코드 자동 발급 = 드라이브 자동 배치(BL-YT-DRIVE-WATCH)와 함께.
+## 진행 — 연결 공사 1단계: DB 뿌리 (2026-07-19 밤 · 라이브 · D-067 §8-5)
+
+**끊겨 있던 것**: publications 에는 어느 전략카드(content_queue.code)에서 나온 원고인지 가리키는 칸이 **아예 없었다**. 두 표가 태생부터 남남. 실측: content_queue 1행(TW-0001)·publications 3행(전부 code=NULL·전부 warnings 있는 문제원고=테스트).
+
+| | 무엇 | 검증 |
+|---|---|---|
+| ✅ **칸** | `publications.code text` 신설 + 인덱스 `idx_publications_code` + 칸 주석 | 정보스키마 조회 확인 |
+| ✅ **공유 발급기** | DB 함수 `next_content_code(prefix)` — **content_queue·publications 두 표를 함께 훑어** 채널별 다음 연번을 낸다(D-068 §2 "같은 연번 공간 공유"). prefix 없으면 'TW' | `next_content_code('')→TW-0002`(카드 TW-0001 있음)·`'HT'→HT-0001`·`'HG'→HG-0001` 실측 |
+| ✅ **동기화 뷰** | `v_queue_publications` — content_queue LEFT JOIN publications **ON code**, **정상 원고만**(warnings 없는 것). 발행완료 카드가 읽을 데이터(youtube_url·published_at·hid_top1/2/3·published_by_email·channel·cid·status)를 전략카드 옆에 붙임. **수수료 칸은 안 넣음**(STUDIO_FLOW §5 — 화면서 가리기보다 안 보내기) | 문제원고+코드=뷰에 안 뜸 / warnings 비우면 붙음 → 양방향 실측 후 원상복구 |
+
+- ALTER 전 수동 백업(`cf04a58c`, 표36).
+- 🔴 뿌리라 **화면 이식(순서 3)이 이 뷰를 읽는다.** 지금은 코드 든 원고가 없어 조인 결과가 NULL(정상).
+
+## 미구현 (후속 — 원고 유입=순서 5와 짝지어 함께)
+- **API 배선 = 코드가 실제로 붙는 배관.** 라이브 업로드 경로를 건드리므로 **실제 코드 든 원고로 끝까지 검증**해야 안전(추측 금지). 3조각을 한 묶음으로:
+  1. `api/youtube.js` — 원고 파일명/본문(`plain`)에서 코드 토큰(`[A-Z]{2,4}-\d{4,}`) 추출 → `publicationRow.code`. 있으면 추천(카드 승계), 없으면 비움.
+  2. `api/publications.js` insert — `row.code` 비면 `next_content_code(channel_code)`로 **자동 발급**(자체기획, D-068 §1·§3). 덮어쓰기 경로는 기존 code 보존.
+  3. `api/content-queue.js` `nextCode` — 지금 content_queue 만 훑음 → publications 도 함께 훑게(공유 스캔). ⚠️ **지금 바꾸면 효과 없음**(publications 아직 코드 0) → 배관 켤 때 함께 바꿔 end-to-end 검증. 눌러도 아무 일 없는 변경은 미리 안 넣는다.
+- **자체기획 발행완료 카드 뷰** = 코드는 있는데 content_queue 에 그 코드 카드가 없는 publications(자체기획). **화면 이식(순서 3) 때** 카드 렌더러가 뭘 읽을지 확정하고 같이 만든다(지금 미리 만들면 지어낸 뷰).
+- 성과표 코드·출처별 비교(D-063) = 유입 데이터 쌓인 뒤.

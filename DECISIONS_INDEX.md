@@ -67,6 +67,7 @@
 | D-052 | B2B 자동메일 영어 메인 유지 + 한국어 보류(보험), 해제 트리거=한국 인바운드 추천 채널 비중 상승 | strategy | 2026-06-02 | 확정 | BL-EMAIL-LOCALE-ROUTING(자동판별 보류), 후속 BL-EMAIL-MANAGER-LOCALE-AUTO, 채널전략 |
 | D-053 | admin 호텔 상세 = 매니저 분석 형태 미러링(별도 페이지) + 수수료 2버전(매니저 숨김/admin 표시) + 기간 4구분(마케팅전/기간/후/전체, 전체=분석 동기화) + 회차(campaign_log) + 마케팅전 예약 매칭(대표님 확정) + 매니저 이름·연락처 가입폼 추가 | feature | 2026-06-02 | 확정 | BL-ADMIN-HOTEL-DETAIL(신규), signup.html, admin-manager-hub.html, dashboard.html, _business/decisions/2026-06-02-admin-hotel-detail-d053.md |
 | D-054 | 2026-06-02 (DECISIONS.md 신규 박스) | admin 호텔상세(D-053) 실행세부 — 과거예약 복구적재 확정 + 매니저페이지 통계·예약형태 탭UX(클로드 위임) + 회차 시작일=송출일 자동(클로드 위임확정) |
+| D-067 | 자체기획 원고흐름 + 확인필요 사유(코드오타·같은채널코드중복·아고다링크없음) + 담당규칙(세역할·단계별버튼·담당있으면 남못맡음·변경=최고관리자만·원고작성담당=코드복사분석만) + 자체기획 발행예정 올린사람 표시안함 + 발행예정↔올리기 동기화(정상만·코드기준) + 확인필요=올리기에서만(채널명·파일명·사유) + 잘못폴더정리(채널=cid판정·file_id추적) | studio/flow | 2026-07-19 | 확정 | studio.html 전략·올리기, api/content-queue.js, api/publications.js, _business/decisions/2026-07-19-manuscript-flow-review-reasons.md, STUDIO_FLOW.md |
 
 ---
 

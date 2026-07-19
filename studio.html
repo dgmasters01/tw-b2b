@@ -644,6 +644,8 @@
   .st-sg-submeta { font-size:10.5px; color:#6a85a0; margin-top:6px; line-height:1.5; }
   .sg-modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.55); display:flex; align-items:center; justify-content:center; z-index:1000; padding:20px; }
   .sg-modal { background:#0b1119; border:1px solid #1c2f45; border-radius:14px; max-width:480px; width:100%; max-height:82vh; overflow-y:auto; padding:18px 20px; color:#e6eef6; }
+  .sg-modal-wide { max-width:760px; }
+  .sg-modal-kwbody { margin-top:6px; }
   .sg-modal-head { display:flex; justify-content:space-between; align-items:center; gap:10px; font-size:15px; font-weight:600; margin-bottom:4px; }
   .sg-modal-x { flex:none; background:none; border:0.5px solid #1c3a56; color:#9db4c9; width:28px; height:28px; border-radius:50%; cursor:pointer; font-size:13px; }
   .sg-modal-sub { font-size:11px; color:#6a85a0; margin-bottom:16px; }
@@ -2002,31 +2004,23 @@
     sgPatch(id, { writer: (email || '').trim() }).then(function (j) { sgReplace(j.item); }).catch(function (e) { alert(e.message); });
   }
   function sgAnalysis(id) {
-    var it = sgItems.find(function (x) { return x.id === id; }); if (!it) return;
-    var place = [it.country, it.city].filter(Boolean).join(' · ');
-    var body = '<div class="sg-modal-sub">' + esc(place) + (it.star ? ' · ' + it.star + '성' : '') + (it.target ? ' · 타겟 ' + esc(it.target) : '') + '</div>';
-    if (it.note) {
-      var hm = it.note.match(/담을 호텔:\s*([^|]+)/);
-      if (hm) {
-        var rows = hm[1].split('/').map(function (h) {
-          var mm = h.match(/(.+?)\s*\(([^)]*)\)/);
-          return mm ? '<div class="sg-modal-row"><span>' + esc(mm[1].trim()) + '</span><span class="sg-modal-stat">' + esc(mm[2].trim()) + '</span></div>' : (h.trim() ? '<div class="sg-modal-row">' + esc(h.trim()) + '</div>' : '');
-        }).join('');
-        body += '<div class="sg-modal-sec"><div class="sg-modal-h">참고 호텔 (예약 많은 순 · 바꿔도 됨)</div>' + rows + '</div>';
-      }
-      var km = it.note.match(/검색어:\s*([^|]+)/);
-      if (km) body += '<div class="sg-modal-sec"><div class="sg-modal-h">검색어 (수요 지수)</div><div class="sg-modal-kw">' + esc(km[1].trim()) + '</div></div>';
-      var am = it.note.match(/숙박 각도:\s*([\d박·\s]+?)\s*(\d+)%/);
-      if (am) { var stays = am[1].trim().split(/·/).map(function (s, i) { return (i + 1) + '위 ' + s.trim(); }).join(', '); body += '<div class="sg-modal-sec"><div class="sg-modal-h">여행 일정</div><div class="sg-modal-kw">' + esc(stays) + ' (전체 ' + am[2] + '%)</div></div>'; }
-      var pm3 = it.note.match(/피크\s*(\d{1,2})\s*월/);
-      if (pm3) body += '<div class="sg-modal-sec"><div class="sg-modal-h">시즌</div><div class="sg-modal-kw">피크 ' + pm3[1] + '월' + (it.target_month ? ' · 착수 ' + esc(it.target_month) : '') + '</div></div>';
-    }
-    body += '<div class="sg-modal-note">더 깊은 분석(검색어 전체·경쟁·수요 트렌드)은 조사 엔진이 붙으면 여기 채워집니다.</div>';
+    var it = sgItems.find(function (x) { return x.id === id; });
+    if (!it || !it.city) return;
+    var kwApp = document.getElementById('kw-app');
+    var kwHome = document.getElementById('view-keyword');
+    if (!kwApp || !kwHome) return;
+    // 이미 열린 분석 팝업이 있으면 먼저 정리(키워드 탭으로 복귀)
+    var prev = document.querySelector('.sg-modal-overlay');
+    if (prev) { kwHome.appendChild(kwApp); prev.remove(); }
     var ov = document.createElement('div');
     ov.className = 'sg-modal-overlay';
-    ov.innerHTML = '<div class="sg-modal"><div class="sg-modal-head"><span>' + esc(it.title) + '</span><button class="sg-modal-x" aria-label="닫기">✕</button></div>' + body + '</div>';
-    ov.onclick = function (e) { if (e.target === ov || (e.target.closest && e.target.closest('.sg-modal-x'))) document.body.removeChild(ov); };
+    ov.innerHTML = '<div class="sg-modal sg-modal-wide"><div class="sg-modal-head"><span>' + esc(it.title) + ' — 분석</span><button class="sg-modal-x" aria-label="닫기">✕</button></div><div class="sg-modal-kwbody"></div></div>';
     document.body.appendChild(ov);
+    var host = ov.querySelector('.sg-modal-kwbody');
+    function draw() { host.appendChild(kwApp); try { go('d', it.city, it.country); } catch (e) { } }
+    if (!kwLoaded) { kwLoaded = true; loadKeywords(); setTimeout(draw, 450); } else { draw(); }
+    function close() { kwHome.appendChild(kwApp); if (ov.parentNode) document.body.removeChild(ov); }
+    ov.onclick = function (e) { if (e.target === ov || (e.target.closest && e.target.closest('.sg-modal-x'))) close(); };
   }
   function sgDelete(id) {
     if (!confirm('이 카드를 삭제할까요? (되돌릴 수 없습니다)')) return;

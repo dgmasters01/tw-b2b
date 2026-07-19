@@ -130,15 +130,15 @@ function recCard(c){
   var acts = '';
   if (c.stage==='planning' || c.stage==='writing'){
     acts += '<button class="btn">'+(c.assignee?'놓기':'내가 맡기')+'</button>';
-    acts += '<button class="btn">분석</button>';
+    acts += '<button class="btn" onclick="location.href=\'studio-keyword-preview.html\'">분석</button>';
     if (c.stage==='writing') acts += '<button class="btn">📋 코드 복사</button>';
     if (showDel) acts += '<button class="btn del">🗑 삭제</button>';
   } else if (c.stage==='scheduled'){
     acts += '<button class="btn">내가 맡기</button>';
-    acts += '<button class="btn">분석</button>';
+    acts += '<button class="btn" onclick="location.href=\'studio-keyword-preview.html\'">분석</button>';
     if (showDel) acts += '<button class="btn del">🗑 삭제</button>';
   } else if (c.stage==='published'){
-    acts += '<button class="btn">분석</button>';
+    acts += '<button class="btn" onclick="location.href=\'studio-keyword-preview.html\'">분석</button>';
     acts += '<button class="btn go" onclick="location.href=\'studio-perf-preview.html\'">성과 보기 →</button>';
   }
   var body = '<div class="idline">'+c.code+(c.month?' · 목표월 '+c.month:'')+'</div>';

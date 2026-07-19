@@ -53,6 +53,11 @@
 
   .tgt{display:flex;align-items:center;gap:8px;background:rgba(90,169,230,.07);border:1px solid rgba(90,169,230,.2);border-radius:8px;padding:9px 12px;margin:12px 0 4px;font-size:12px;color:var(--sub);flex-wrap:wrap;}
   .tgt b{color:var(--bl);} .tgt .en2{color:var(--muted);font-size:11px;}
+  .bksum{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 2px;}
+  .bksum span{font-size:12px;padding:5px 11px;border-radius:8px;font-variant-numeric:tabular-nums;}
+  .bksum .ok{background:rgba(29,158,117,.1);border:1px solid rgba(29,158,117,.28);color:var(--gr);font-weight:600;}
+  .bksum .no{background:rgba(226,75,74,.08);border:1px solid rgba(226,75,74,.25);color:var(--rd);}
+  .bksum .rt{background:rgba(128,128,128,.1);border:1px solid rgba(128,128,128,.25);color:var(--muted);}
   .meta{display:flex;gap:16px;flex-wrap:wrap;font-size:11.5px;color:var(--muted);padding:9px 0 2px;}
   .meta b{color:var(--sub);font-weight:500;margin-right:4px;}
   .sec{margin-top:13px;} .sec-h{font-size:11px;color:var(--sub);margin-bottom:8px;}
@@ -113,28 +118,29 @@
   var TARGET = { '한국어':['한국','KR'], '일본어':['일본','JP'], '중국어(번체)':['대만·홍콩','TW'], '영어':['영어권 전세계','—'], '베트남어':['베트남','VN'] };
   var DATA = [
     { name:'호텔이야', lang:'한국어', active:true, api:false,
-      now:[{cid:'1932026',lab:'new',bk:939}], past:[{cid:'1922821',lab:'old',bk:606},{cid:'1931762',lab:'approval-2nd',bk:3}], spec:'호텔이야.md' },
+      now:[{cid:'1932026',lab:'new',bk:939,cx:771}], past:[{cid:'1922821',lab:'old',bk:606,cx:582},{cid:'1931762',lab:'approval-2nd',bk:3,cx:5}], spec:'호텔이야.md' },
     { name:'여행능력자들', lang:'한국어', active:true, api:true,
-      now:[{cid:'1913282',lab:'main·유튜브',bk:1886},{cid:'1919025',lab:'web·웹사이트',bk:86}], past:[], spec:'여행능력자들.md' },
+      now:[{cid:'1913282',lab:'main·유튜브',bk:1886,cx:1661},{cid:'1919025',lab:'web·웹사이트',bk:86,cx:58}], past:[], spec:'여행능력자들.md' },
     { name:'ホテルだ', lang:'일본어', active:true, api:false,
-      now:[{cid:'1932024',lab:'new',bk:176}], past:[{cid:'1923665',lab:'old',bk:45}], spec:null },
+      now:[{cid:'1932024',lab:'new',bk:176,cx:202}], past:[{cid:'1923665',lab:'old',bk:45,cx:60}], spec:null },
     { name:'世界就是家', lang:'중국어(번체)', active:true, api:false,
-      now:[{cid:'1932021',lab:'new',bk:51}], past:[{cid:'1930375',lab:'old',bk:0}], spec:null },
+      now:[{cid:'1932021',lab:'new',bk:51,cx:84}], past:[{cid:'1930375',lab:'old',bk:0,cx:0}], spec:null },
     { name:'Koreahotelguide', lang:'영어', active:true, api:false,
-      now:[{cid:'1932023',lab:'new',bk:22}], past:[{cid:'1926314',lab:'old',bk:7}], spec:null },
+      now:[{cid:'1932023',lab:'new',bk:22,cx:22}], past:[{cid:'1926314',lab:'old',bk:7,cx:5}], spec:null },
     { name:'reviewkhachsan', lang:'베트남어', active:true, api:false,
-      now:[{cid:'1932022',lab:'new',bk:26}], past:[{cid:'1922822',lab:'old',bk:3}], spec:null },
+      now:[{cid:'1932022',lab:'new',bk:26,cx:10}], past:[{cid:'1922822',lab:'old',bk:3,cx:6}], spec:null },
     { name:'호텔이곳', lang:'한국어', active:true, api:false,
-      now:[{cid:'1946819',lab:'main',bk:0}], past:[], spec:'호텔이곳.md' }
+      now:[{cid:'1946819',lab:'main',bk:0,cx:0}], past:[], spec:'호텔이곳.md' }
   ];
   function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
   function tot(ch){ return ch.now.concat(ch.past).reduce(function(s,c){return s+(c.bk||0);},0); }
-  DATA.sort(function(a,b){ return tot(b)-tot(a); });   // 매출(예약) 많은 순
+  function totCx(ch){ return ch.now.concat(ch.past).reduce(function(s,c){return s+(c.cx||0);},0); }
+  DATA.sort(function(a,b){ return tot(b)-tot(a); });   // 매출(확정 예약) 많은 순
   function bkTxt(n){ return '확정 '+(n||0).toLocaleString()+'건'; }
   function cidRow(c, past){
     return '<div class="cidrow'+(past?' past':'')+'"><span class="dot"></span>' +
       '<span class="num">'+esc(c.cid)+'</span><span class="tag">'+esc(c.lab)+'</span>' +
-      '<span class="cbk">'+bkTxt(c.bk)+'</span></div>';
+      '<span class="cbk">확정 '+(c.bk||0).toLocaleString()+' · <span style="color:var(--muted)">취소 '+(c.cx||0).toLocaleString()+'</span></span></div>';
   }
   function card(ch, i){
     var rank = i+1;
@@ -153,6 +159,11 @@
     var t = TARGET[ch.lang] || ['—','—'];
     var tgtHtml = '<div class="tgt">🎯 <b>타겟</b> '+esc(ch.lang)+'권 손님 · 주 시장 '+esc(t[0])+' <span class="en2">('+esc(t[1])+')</span></div>';
 
+    var cf = tot(ch), cx = totCx(ch), rate = (cf+cx)>0 ? Math.round(cx/(cf+cx)*100) : 0;
+    var sumHtml = '<div class="bksum"><span class="ok">확정 '+cf.toLocaleString()+'건</span>' +
+      '<span class="no">취소 '+cx.toLocaleString()+'건</span>' +
+      '<span class="rt">취소율 '+rate+'%</span></div>';
+
     var cidHtml = '<div class="cidsay">이 채널로 잡힌 예약을 세는 번호 — <b style="color:var(--gr)">전부 살아있음.</b></div>';
     if (ch.now.length){ cidHtml += '<div class="cidgrp">🟢 현재 발급 — 새 영상에 다는 번호</div>' + ch.now.map(function(c){return cidRow(c,false);}).join(''); }
     if (ch.past.length){ cidHtml += '<div class="cidgrp">🟢 예전 번호 · 예약 집계중 — 새로는 안 쓰지만 과거 영상으로 예약 계속</div>' + ch.past.map(function(c){return cidRow(c,true);}).join(''); }
@@ -167,6 +178,7 @@
     var body =
       '<div class="cbody">' +
         tgtHtml +
+        sumHtml +
         '<div class="meta"><span><b>언어</b>'+esc(ch.lang)+'</span><span><b>플랫폼</b>youtube</span><span><b>매출 순위</b>'+rank+'위</span></div>' +
         '<div class="sec"><div class="sec-h">💰 아고다 CID — 예약이 이 채널로 잡히는 열쇠</div>'+cidHtml+'</div>' +
         '<div class="sec"><div class="sec-h">📝 원고 자동생성 규격</div>'+specHtml+'</div>' +

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>성과 콘텐츠 상세 프리뷰 v1</title>
+<style>
+  :root{ --bg:#080d14; --card:#0b1119; --line:#1c2f45; --line2:#24384e; --txt:#e6eef6; --sub:#9db4c9; --muted:#6a85a0; --bl:#5aa9e6; --gr:#4edea3; --am:#EF9F27; --rd:#E24B4A; }
+  *{box-sizing:border-box;}
+  body{background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Malgun Gothic",sans-serif;line-height:1.55;padding:16px 13px 70px;max-width:760px;margin:0 auto;font-size:14px;}
+  .pv{background:rgba(239,159,39,.1);color:var(--am);font-size:11px;padding:7px 12px;border-radius:9px;margin-bottom:14px;text-align:center;line-height:1.5;}
+  .role{display:flex;gap:6px;margin-bottom:14px;}
+  .role button{flex:1;background:transparent;border:0.5px solid var(--line2);color:var(--sub);font-size:12px;padding:9px;border-radius:9px;cursor:pointer;font-family:inherit;}
+  .role button.on{background:rgba(239,159,39,.14);border-color:rgba(239,159,39,.5);color:var(--am);font-weight:600;}
+  .bc{font-size:10px;color:var(--muted);margin-bottom:9px;}
+  .bc b{color:var(--sub);}
+  .bc a{color:var(--bl);cursor:pointer;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:13px;margin-bottom:12px;}
+  .ctitle{font-size:15px;font-weight:600;margin-bottom:3px;}
+  .cmeta{font-size:10.5px;color:var(--muted);margin-bottom:12px;}
+  .cmeta a{color:var(--bl);cursor:pointer;}
+  .kpis{display:grid;gap:8px;}
+  .kpi{background:rgba(128,140,160,.07);border-radius:9px;padding:10px 9px;text-align:center;}
+  .kpi .l{font-size:9.5px;color:var(--muted);}
+  .kpi .v{font-size:17px;font-weight:600;margin-top:2px;}
+  .kpi.comm{background:rgba(29,158,117,.14);border:0.5px solid rgba(29,158,117,.3);}
+  .kpi.comm .l,.kpi.comm .v{color:var(--gr);}
+  .sec{font-size:11.5px;color:var(--bl);margin:16px 0 9px;}
+  .htl{background:var(--card);border:1px solid var(--line2);border-radius:11px;padding:12px;margin-bottom:9px;cursor:pointer;transition:border-color .15s;}
+  .htl:hover{border-color:var(--bl);}
+  .htl-top{display:flex;align-items:center;gap:8px;}
+  .rk{font-size:10px;padding:2px 8px;border-radius:6px;font-weight:600;flex:none;}
+  .rk.r1{background:#1a3a2e;color:var(--gr);}
+  .rk.r2,.rk.r3{background:#243044;color:var(--sub);}
+  .hname{flex:1;font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .arw{color:var(--bl);font-size:13px;flex:none;}
+  .hstat{display:flex;gap:14px;margin-top:9px;font-size:10.5px;color:var(--sub);flex-wrap:wrap;}
+  .hstat b{color:#c3d2e0;}
+  .hstat .c{color:var(--gr);}
+  .paid{background:rgba(29,158,117,.08);border:0.5px solid rgba(29,158,117,.3);border-radius:10px;padding:11px 13px;margin-bottom:12px;}
+  .paid .t{font-size:11.5px;color:var(--gr);font-weight:600;margin-bottom:2px;}
+  .paid .d{font-size:10.5px;color:var(--sub);}
+  .exp{font-size:11.5px;color:#c3d2e0;}
+  .exprow{display:flex;align-items:center;gap:9px;padding:9px 0;border-bottom:0.5px solid rgba(128,128,128,.12);cursor:pointer;}
+  .exprow:last-child{border-bottom:none;}
+  .exprow .en{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .exprow .eb{color:var(--sub);font-size:10px;flex:none;}
+  .hint{font-size:9.5px;color:var(--muted);margin-top:11px;line-height:1.5;}
+  .back{display:inline-flex;align-items:center;gap:5px;background:transparent;border:0.5px solid var(--line2);color:var(--sub);font-size:11.5px;padding:8px 13px;border-radius:9px;cursor:pointer;margin-bottom:13px;font-family:inherit;}
+  .g3{grid-template-columns:repeat(3,1fr);} .g4{grid-template-columns:repeat(2,1fr);}
+  @media(min-width:520px){ .g4{grid-template-columns:repeat(4,1fr);} }
+</style>
+</head>
+<body>
+
+<div class="pv">📋 성과 콘텐츠 상세 <b>프리뷰</b> — 샘플 데이터입니다. 실제 데이터(발행 완료·추적링크)가 붙으면 이 화면에 자동으로 채워집니다.</div>
+
+<div class="role">
+  <button id="r-owner" class="on" onclick="setRole('owner')">최고관리자 (수수료 보임)</button>
+  <button id="r-editor" onclick="setRole('editor')">에디터·관리자 (수수료 없음)</button>
+</div>
+
+<div id="app"></div>
+
+<script>
+var ROLE = 'owner';
+
+var CONTENT = {
+  title: '난바 호텔 TOP3 — 3성',
+  channel: '호텔이야', place: '오사카 난바', published: '2026-09-14',
+  yt: 'youtube.com/watch?v=aB3kZ...',
+  views: 12400, clicks: 840, bookings: 8, commission: 1190,
+  hotels: [
+    { rk:1, name:'레드 루프 인 앤 스위트 오사카 난바 닛폰바시', clicks:420, bookings:5, amount:6900, commission:690, hid:'h-red' },
+    { rk:2, name:'리치몬드 호텔 난바 다이코쿠초', clicks:260, bookings:2, amount:2100, commission:210, hid:'h-rich' },
+    { rk:3, name:'APA 호텔 난바-에키 히가시', clicks:160, bookings:1, amount:1000, commission:100, hid:'h-apa' }
+  ]
+};
+
+var HOTELS = {
+  'h-red': {
+    name:'레드 루프 인 앤 스위트 오사카 난바 닛폰바시', place:'일본 · 오사카 난바 · 3성',
+    exposures:4, totalBookings:19, totalAmount:26400, totalCommission:2640,
+    paid:{ from:'2026-06-01', to:'2026-11-30', label:'6개월 노출 계약' },
+    videos:[
+      { rk:'TOP1', title:'난바 호텔 TOP3 — 3성', bookings:5 },
+      { rk:'TOP2', title:'오사카 가성비 호텔 BEST', bookings:8 },
+      { rk:'TOP3', title:'난바 3분 역세권 숙소', bookings:4 },
+      { rk:'언급', title:'오사카 3박4일 코스', bookings:2 }
+    ]
+  },
+  'h-rich': { name:'리치몬드 호텔 난바 다이코쿠초', place:'일본 · 오사카 난바 · 3성', exposures:2, totalBookings:6, totalAmount:6300, totalCommission:630, paid:null, videos:[{rk:'TOP2',title:'난바 호텔 TOP3 — 3성',bookings:2},{rk:'TOP1',title:'난바 조용한 숙소',bookings:4}] },
+  'h-apa': { name:'APA 호텔 난바-에키 히가시', place:'일본 · 오사카 난바 · 3성', exposures:1, totalBookings:1, totalAmount:1000, totalCommission:100, paid:null, videos:[{rk:'TOP3',title:'난바 호텔 TOP3 — 3성',bookings:1}] }
+};
+
+function won(n){ return '$' + n.toLocaleString(); }
+function setRole(r){ ROLE=r; document.getElementById('r-owner').classList.toggle('on', r==='owner'); document.getElementById('r-editor').classList.toggle('on', r==='editor'); renderContent(); }
+
+function renderContent(){
+  var c = CONTENT, showC = ROLE==='owner';
+  var kpis = '<div class="kpi"><div class="l">조회수</div><div class="v">'+c.views.toLocaleString()+'</div></div>'+
+             '<div class="kpi"><div class="l">링크 클릭</div><div class="v">'+c.clicks.toLocaleString()+'</div></div>'+
+             '<div class="kpi"><div class="l">예약</div><div class="v" style="color:var(--gr)">'+c.bookings+'건</div></div>'+
+             (showC ? '<div class="kpi comm"><div class="l">수수료 (대표님만)</div><div class="v">'+won(c.commission)+'</div></div>' : '');
+  var hotels = c.hotels.map(function(h){
+    var comm = showC ? '<span class="c">수수료 <b>'+won(h.commission)+'</b></span>' : '';
+    return '<div class="htl" onclick="renderHotel(\''+h.hid+'\')">'+
+      '<div class="htl-top"><span class="rk r'+h.rk+'">TOP'+h.rk+'</span><span class="hname">'+h.name+'</span><span class="arw">›</span></div>'+
+      '<div class="hstat"><span>클릭 <b>'+h.clicks+'</b></span><span>예약 <b style="color:var(--gr)">'+h.bookings+'건</b></span><span>금액 <b>'+won(h.amount)+'</b></span>'+comm+'</div>'+
+    '</div>';
+  }).join('');
+  document.getElementById('app').innerHTML =
+    '<div class="bc">발행완료 › 성과 보기 › <b>콘텐츠 성과</b></div>'+
+    '<div class="card"><div class="ctitle">'+c.title+'</div>'+
+      '<div class="cmeta">'+c.channel+' · '+c.place+' · 발행 '+c.published+' · <a>▶ 영상 보기</a></div>'+
+      '<div class="kpis '+(showC?'g4':'g3')+'">'+kpis+'</div>'+
+      (showC?'':'<div class="hint">금액은 호텔 매출(실적 증명)입니다. 우리 수익(수수료)은 대표님만 봅니다.</div>')+
+    '</div>'+
+    '<div class="sec">소개한 호텔 3곳 — 각자 얼마나 팔렸나</div>'+
+    hotels+
+    '<div class="hint">호텔 줄을 누르면 → 그 호텔 전체 정보(다른 영상 노출 이력·누적 예약·유료 계약)로 들어갑니다.</div>';
+}
+
+function renderHotel(hid){
+  var h = HOTELS[hid], showC = ROLE==='owner';
+  var kpis = '<div class="kpi"><div class="l">노출 영상</div><div class="v">'+h.exposures+'개</div></div>'+
+             '<div class="kpi"><div class="l">누적 예약</div><div class="v" style="color:var(--gr)">'+h.totalBookings+'건</div></div>'+
+             '<div class="kpi"><div class="l">누적 금액</div><div class="v" style="font-size:15px">'+won(h.totalAmount)+'</div></div>'+
+             (showC ? '<div class="kpi comm"><div class="l">누적 수수료</div><div class="v" style="font-size:15px">'+won(h.totalCommission)+'</div></div>' : '');
+  var paid = h.paid ? '<div class="paid"><div class="t">💚 유료 계약 중</div><div class="d">'+h.paid.from+' ~ '+h.paid.to+' · '+h.paid.label+'</div></div>' : '';
+  var vids = h.videos.map(function(v){
+    var cls = v.rk==='TOP1'?'r1':(v.rk==='언급'?'r3':'r2');
+    return '<div class="exprow"><span class="rk '+cls+'">'+v.rk+'</span><span class="en">'+v.title+'</span><span class="eb">예약 '+v.bookings+'</span></div>';
+  }).join('');
+  document.getElementById('app').innerHTML =
+    '<button class="back" onclick="renderContent()">← 콘텐츠 성과로</button>'+
+    '<div class="bc">콘텐츠 성과 › <b>호텔 전체 정보</b></div>'+
+    '<div class="card"><div class="ctitle">'+h.name+'</div>'+
+      '<div class="cmeta">'+h.place+' · <a>아고다에서 보기</a></div>'+
+      '<div class="kpis '+(showC?'g4':'g3')+'">'+kpis+'</div>'+
+    '</div>'+
+    paid+
+    '<div class="sec">① 노출 이력 — 이 호텔이 나온 영상들 <span style="font-size:9px;color:var(--muted)">(줄 누르면 그 영상 세부)</span></div>'+
+    '<div class="card exp">'+vids+'</div>'+
+    '<div class="hint">한 호텔을 여러 영상·채널에서 노출할수록 예약이 쌓입니다 — 유료 계약 호텔에게 보여줄 성과 증명입니다.</div>';
+}
+
+renderContent();
+</script>
+</body>
+</html>

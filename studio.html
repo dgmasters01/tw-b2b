@@ -640,8 +640,10 @@
   .st-sg-prio.p1, .st-sg-prio.p2 { color:#E24B4A; border-color:#E24B4A; opacity:1; }
   .st-sg-code { font-family:ui-monospace,monospace; font-size:11px; opacity:.6; margin-bottom:8px; }
   .st-sg-roles { display:flex; gap:8px; flex-wrap:wrap; margin:8px 0; }
-  .st-sg-role { font-size:11px; padding:2px 8px; border-radius:6px; border:1px solid rgba(128,128,128,.3); opacity:.75; }
-  .st-sg-role.none { color:#BA7517; border-color:#EF9F27; opacity:1; }
+  .st-sg-role { font-size:11px; display:inline-flex; align-items:center; opacity:.9; }
+  .st-sg-role.none { color:#BA7517; opacity:1; }
+  .st-sg-rolebadge { font-size:9.5px; padding:2px 6px; border-radius:6px; border:1px solid; margin-right:5px; background:rgba(128,128,128,.05); white-space:nowrap; }
+  .st-sg-pname { max-width:110px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; display:inline-block; vertical-align:bottom; }
   .st-sg-chips { display:flex; flex-wrap:wrap; gap:5px; margin-bottom:8px; }
   .st-sg-note { display:none; font-size:11.5px; opacity:.7; line-height:1.6; margin:9px 0 2px; word-break:break-word; white-space:pre-wrap; padding:9px 11px; background:rgba(128,128,128,.06); border-radius:8px; }
   .st-sg-note.open { display:block; }
@@ -1793,6 +1795,12 @@
   ];
   var SG_SOURCE = { strategy: '전략', keyword: '키워드', manuscript: '원고유입' };
   var sgItems = [], sgMe = null, sgIsAdmin = false, sgTeam = [];
+  // 역할 한글 라벨·색 — 한 곳에서 관리(6개). 모르는 역할이 와도 역할 이름 그대로 회색으로 표시(안 깨짐).
+  var ROLE_LABEL = { owner: '최종관리자', admin: '관리자', staff: '스탭', readonly: '읽기전용', editor: '에디터', manager: '매니저' };
+  var ROLE_COLOR = { owner: '#EF9F27', admin: '#378ADD', editor: '#1D9E75', staff: '#888780', readonly: '#888780', manager: '#888780' };
+  function sgRoleOf(email) { var m = sgTeam.find(function (x) { return x.email === email; }); return m ? m.role : ''; }
+  function sgName(email) { var m = sgTeam.find(function (x) { return x.email === email; }); return (m && m.display_name) || shortMail(email); }
+  function sgRoleBadge(role) { if (!role) return ''; var label = ROLE_LABEL[role] || role; var col = ROLE_COLOR[role] || '#888780'; return '<span class="st-sg-rolebadge" style="color:' + col + ';border-color:' + col + '55;">' + esc(label) + '</span>'; }
 
   function sgCard(it) {
     var place = [it.country, it.city].filter(Boolean).join(' · ');
@@ -1820,16 +1828,16 @@
     if (sgIsAdmin) more += '<button class="st-sg-btn del" data-sgdel="' + it.id + '">🗑 삭제</button>';
 
     // 기획자(만든 사람) — 앞면에 표시
-    var planner = it.planner_email ? '<span class="st-sg-role plan">기획 ' + esc(shortMail(it.planner_email)) + '</span>' : '';
+    var planner = it.planner_email ? '<span class="st-sg-role plan">' + sgRoleBadge(sgRoleOf(it.planner_email)) + '<span class="st-sg-pname" title="' + esc(sgName(it.planner_email)) + '">' + esc(sgName(it.planner_email)) + '</span></span>' : '';
     // 원고 담당 — 관리자는 팀원 드롭다운으로 지정/변경, 에디터는 표시만
     var writerCtl;
     if (sgIsAdmin) {
       var opts = '<option value="">＋ 담당 지정</option>';
-      sgTeam.forEach(function (m) { opts += '<option value="' + esc(m.email) + '"' + (m.email === it.assignee_email ? ' selected' : '') + '>' + esc(m.display_name || shortMail(m.email)) + '</option>'; });
+      sgTeam.forEach(function (m) { opts += '<option value="' + esc(m.email) + '"' + (m.email === it.assignee_email ? ' selected' : '') + '>[' + esc(ROLE_LABEL[m.role] || m.role) + '] ' + esc(m.display_name || shortMail(m.email)) + '</option>'; });
       writerCtl = '<select class="st-sg-assign' + (it.assignee_email ? '' : ' none') + '" data-sgassignsel="' + it.id + '">' + opts + '</select>';
     } else {
       writerCtl = it.assignee_email
-        ? '<span class="st-sg-role">원고 ' + esc(shortMail(it.assignee_email)) + (mine ? '(나)' : '') + '</span>'
+        ? '<span class="st-sg-role">' + sgRoleBadge(sgRoleOf(it.assignee_email)) + '<span class="st-sg-pname" title="' + esc(sgName(it.assignee_email)) + '">' + esc(sgName(it.assignee_email)) + (mine ? ' (나)' : '') + '</span></span>'
         : '<span class="st-sg-role none">⚠ 담당 없음</span>';
     }
     var prio = '<span class="st-sg-prio p' + (it.priority || 3) + '">우선 ' + (it.priority || 3) + '</span>';

@@ -129,6 +129,14 @@ export default async function handler(req, res) {
     if (!f.wait) { chReport.error = '대기 폴더 없음'; report.channels.push(chReport); continue; }
     if (!f.done || !f.review) chReport.warn = '완료/확인필요 폴더 일부 없음';
 
+    // dry_run 감사: 대기뿐 아니라 완료·확인필요 폴더도 나열(읽기 전용, 이동·삭제 없음)
+    if (dryRun) {
+      try { chReport.done_files = f.done ? (await listChildren(token, f.done, { onlyFiles: true })).map(function (x) { return x.name; }) : []; }
+      catch (e) { chReport.done_files_err = String(e.message || e); }
+      try { chReport.review_files = f.review ? (await listChildren(token, f.review, { onlyFiles: true })).map(function (x) { return x.name; }) : []; }
+      catch (e) { chReport.review_files_err = String(e.message || e); }
+    }
+
     let files = [];
     try { files = await listChildren(token, f.wait, { onlyFiles: true }); }
     catch (e) { chReport.error = String(e.message || e); report.channels.push(chReport); continue; }

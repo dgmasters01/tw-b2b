@@ -631,34 +631,8 @@ export default async function handler(req, res) {
     }
   }
 
-  try {
-    const [cityRes, hotelRes] = await Promise.all([
-      sb.from('v_content_keyword_cities')
-        .select('country, city, bookings_done, hotels_count, covered_hotels')
-        .gt('bookings_done', 0)
-        .order('bookings_done', { ascending: false })
-        .limit(50),
-      sb.from('v_content_keyword_hotels')
-        .select('hid, hotel_name, city, country, star, bookings_done, bookings_cancelled')
-        .eq('covered', false)
-        .gt('bookings_done', 0)
-        .order('bookings_done', { ascending: false })
-        .limit(30),
-    ]);
-    for (const r of [cityRes, hotelRes]) if (r.error) throw r.error;
-
-    // 도시: "영상 없음(covered_hotels=0)"을 먼저, 그다음 확정예약 많은 순.
-    const cities = (cityRes.data || [])
-      .sort((a, b) =>
-        ((a.covered_hotels === 0 ? 0 : 1) - (b.covered_hotels === 0 ? 0 : 1)) ||
-        (b.bookings_done - a.bookings_done))
-      .slice(0, 25);
-
-    const hotels = hotelRes.data || [];
-
-    res.setHeader('Cache-Control', 'private, no-store, max-age=0');
-    return res.status(200).json({ ok: true, is_admin: !!who.isAdmin, cities, hotels });
-  } catch (e) {
-    return res.status(500).json({ ok: false, error: '키워드 추천을 불러오지 못했습니다.', detail: String(e.message || e) });
-  }
+  // view 지정 없는 옛 기본 응답(D-060 예약기반 도시/호텔 TOP3 추천)은 폐기 (2026-07-19 대표님).
+  //   나라→도시→지역 조사(D-065)로 대체 · 지금은 view=cities/targets/survey 만 지원.
+  //   (옛 뷰 v_content_keyword_cities/hotels 는 DB 에 남아 있으나 아무도 안 읽는다.)
+  return res.status(400).json({ ok: false, error: 'view 를 지정하세요 (cities · targets · survey). 옛 기본 추천은 폐기되었습니다.' });
 }

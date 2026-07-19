@@ -645,6 +645,7 @@
   .st-sg-desc { font-size:11px; color:#9db4c9; background:rgba(128,128,128,.05); border:0.5px solid rgba(128,128,128,.2); padding:8px 10px; border-radius:8px; margin-top:8px; line-height:1.6; }
   .st-sg-desc-t { display:inline-block; font-size:9.5px; color:#6a85a0; margin-right:6px; padding:1px 6px; border:0.5px solid rgba(128,128,128,.25); border-radius:5px; vertical-align:1px; }
   .st-sg-desc b { color:#EF9F27; }
+  .st-sg-desc-hint { font-size:9.5px; color:#6a85a0; }
   .st-sg-role { font-size:11px; display:inline-flex; align-items:center; opacity:.9; }
   .st-sg-role.none { color:#BA7517; opacity:1; }
   .st-sg-rolebadge { font-size:9.5px; padding:2px 6px; border-radius:6px; border:1px solid; margin-right:5px; background:rgba(128,128,128,.05); white-space:nowrap; }
@@ -1825,7 +1826,7 @@
     if (peakMonth) descLines.push('<b>소개 기준</b> ' + peakMonth + '월(성수기) — 올리는 달이 아니라 손님이 예약할 달 기준으로');
     if (it.note) {
       var hm = it.note.match(/담을 호텔:\s*([^|]+)/);
-      if (hm) { var hotels = hm[1].replace(/\([^)]*\)/g, '').replace(/\s*\/\s*/g, ' · ').replace(/\s+/g, ' ').trim(); if (hotels) descLines.push('<b>추천 호텔</b> ' + esc(hotels)); }
+      if (hm) { var hotels = hm[1].replace(/\([^)]*\)/g, '').replace(/\s*\/\s*/g, ' · ').replace(/\s+/g, ' ').trim(); if (hotels) descLines.push('<b>참고 호텔</b> <span class="st-sg-desc-hint">(예약 많은 순 · 더 나은 곳 있으면 바꿔도 됨)</span> ' + esc(hotels)); }
       var am = it.note.match(/숙박 각도:\s*([\d박·\s]+?)\s*(\d+)%/);
       if (am) { var stays = am[1].trim().split(/·/).map(function (s, i) { return (i + 1) + '위 ' + s.trim(); }).join(', '); descLines.push('<b>여행 일정</b> ' + esc(stays) + ' (전체 ' + am[2] + '%)'); }
     }

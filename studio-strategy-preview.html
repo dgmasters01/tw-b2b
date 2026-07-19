@@ -49,6 +49,7 @@
   .acts{display:flex;gap:6px;flex-wrap:wrap;margin-left:auto;}
   .btn{font-size:10.5px;border:0.5px solid var(--line2);color:var(--sub);padding:5px 10px;border-radius:7px;cursor:pointer;background:transparent;font-family:inherit;}
   .btn.go{color:var(--gr);border-color:rgba(29,158,117,.4);}
+  .btn.yt{color:var(--rd);border-color:rgba(226,75,74,.45);}
   .btn.del{color:var(--rd);border-color:rgba(226,75,74,.45);}
   .autohint{font-size:10.5px;color:var(--bl);background:rgba(90,169,230,.08);border:0.5px solid rgba(90,169,230,.22);padding:7px 10px;border-radius:8px;margin-top:10px;line-height:1.5;}
   .autohint b{color:#7dc4f5;}
@@ -199,6 +200,8 @@ function perf(id){
   document.body.appendChild(ov);
 }
 
+function ytOpen(id){ var c=CARDS.find(function(x){return x.id===id;}); if(!c)return; var u=c.yt||''; if(u.indexOf('http')<0)u='https://'+u; window.open(u,'_blank'); }
+
 function setRole(r){ ROLE=r; document.getElementById('r-owner').classList.toggle('on',r==='owner'); document.getElementById('r-editor').classList.toggle('on',r==='editor'); render(); }
 function setTab(t){ TAB=t; expanded=null; render(); }
 function toggle(id){ expanded = expanded===id ? null : id; render(); }
@@ -231,6 +234,7 @@ function recCard(c){
     acts += '<button class="btn" onclick="analyze(\''+c.id+'\')">분석</button>';
     if (showDel) acts += '<button class="btn del">🗑 삭제</button>';
   } else if (c.stage==='published'){
+    acts += '<button class="btn yt" onclick="ytOpen(\''+c.id+'\')">▶ 유튜브에서 보기</button>';
     acts += '<button class="btn" onclick="analyze(\''+c.id+'\')">분석</button>';
     acts += '<button class="btn go" onclick="perf(\''+c.id+'\')">성과 보기 →</button>';
   }
@@ -241,8 +245,9 @@ function recCard(c){
       '<b>추천 호텔</b> '+c.hotels+'<br>'+
       '<b>여행 일정</b> '+c.stay+'</div>';
   } else {
-    body += '<div class="pubrow"><span style="color:var(--rd)">▶</span><a>'+c.yt+'</a></div>'+
-      '<div class="pubmeta">최종 업로더 <b>'+c.uploader+'</b> · 조회 <b>'+c.views.toLocaleString()+'</b> · 예약 <b style="color:var(--muted)">준비중</b>'+
+    body += '<div class="desc toph"><span class="g">이 영상에 나온 호텔</span><br>'+
+      '<b>TOP1</b> '+c.top1+' · <b>TOP2</b> '+c.top2+' · <b>TOP3</b> '+c.top3+'</div>'+
+      '<div class="pubmeta" style="border-top:0.5px solid rgba(128,128,128,.15);margin-top:10px;padding-top:9px">최종 업로더 <b>'+c.uploader+'</b> · 조회 <b>'+c.views.toLocaleString()+'</b> · 예약 <b style="color:var(--muted)">준비중</b>'+
       (showDel?' · 수수료 <b style="color:var(--am)">준비중</b>':'')+'</div>';
   }
   if (c.stage==='published'){
@@ -269,14 +274,13 @@ function selfCard(c){
     acts += '<button class="btn">내가 맡기</button><button class="btn">원고 열기</button>';
     if (ROLE==='owner') acts += '<button class="btn del">🗑 삭제</button>';
   } else if (c.stage==='published'){
-    acts += '<button class="btn">원고 열기</button><button class="btn go" onclick="perf(\''+c.id+'\')">성과 보기 →</button>';
+    acts += '<button class="btn yt" onclick="ytOpen(\''+c.id+'\')">▶ 유튜브에서 보기</button><button class="btn">원고 열기</button><button class="btn go" onclick="perf(\''+c.id+'\')">성과 보기 →</button>';
   }
   var body = '<div class="idline">'+c.code+' · <span style="color:#b9c8d8">'+c.channel+'</span></div>'+
-    '<div class="desc toph"><span class="g">이 영상에 나오는 호텔</span><br>'+
+    '<div class="desc toph"><span class="g">이 영상에 나온 호텔</span><br>'+
     '<b>TOP1</b> '+c.top1+' · <b>TOP2</b> '+c.top2+' · <b>TOP3</b> '+c.top3+'</div>';
   if (c.stage==='published'){
-    body += '<div class="pubrow"><span style="color:var(--rd)">▶</span><a>'+c.yt+'</a></div>'+
-      '<div class="pubmeta">최종 업로더 <b>'+c.uploader+'</b> · 조회 <b>'+c.views.toLocaleString()+'</b> · 예약 <b style="color:var(--muted)">준비중</b>'+
+    body += '<div class="pubmeta" style="border-top:0.5px solid rgba(128,128,128,.15);margin-top:10px;padding-top:9px">최종 업로더 <b>'+c.uploader+'</b> · 조회 <b>'+c.views.toLocaleString()+'</b> · 예약 <b style="color:var(--muted)">준비중</b>'+
       (ROLE==='owner'?' · 수수료 <b style="color:var(--am)">준비중</b>':'')+'</div>';
   }
   body += '<div class="bottom"><div class="acts" style="margin-left:0">'+acts+'</div></div>';

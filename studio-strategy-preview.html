@@ -173,9 +173,9 @@ function perf(id){
     '</svg>';
 
   function hrow(rk,nm){
-    return '<div onclick="alert(\'이 호텔의 전체 예약·노출 이력 팝업이 뜹니다 (호텔 메뉴 화면 그대로 · 실제 스튜디오에서 연결)\')" style="display:flex;align-items:center;justify-content:space-between;padding:9px 11px;border-bottom:0.5px solid rgba(128,128,128,.12);font-size:12px;cursor:pointer;">'+
+    return '<div onclick="hotelPop(\''+rk+'\',\''+String(nm).replace(/\x27/g,"")+'\')" style="display:flex;align-items:center;justify-content:space-between;padding:9px 11px;border-bottom:0.5px solid rgba(128,128,128,.12);font-size:12px;cursor:pointer;">'+
       '<span><span style="font-size:10px;font-weight:600;padding:2px 8px;border-radius:5px;background:rgba(90,169,230,.16);color:var(--bl);margin-right:8px;">'+rk+'</span>'+nm+'</span>'+
-      '<span style="color:var(--muted);">예약·금액 준비중 ›</span></div>';
+      '<span style="color:var(--muted);">예약·금액 ›</span></div>';
   }
   var hotels = hrow('TOP1',c.top1)+hrow('TOP2',c.top2)+hrow('TOP3',c.top3);
 
@@ -201,6 +201,36 @@ function perf(id){
 }
 
 function ytOpen(id){ var c=CARDS.find(function(x){return x.id===id;}); if(!c)return; var u=c.yt||''; if(u.indexOf('http')<0)u='https://'+u; window.open(u,'_blank'); }
+
+function ltbar(l,pct,r){ return '<div style="display:flex;align-items:center;gap:8px;font-size:10.5px;margin-bottom:6px"><span style="width:74px;color:var(--sub)">'+l+'</span><span style="flex:1;height:7px;background:rgba(128,128,128,.15);border-radius:4px;overflow:hidden"><span style="display:block;height:100%;width:'+pct+'%;background:var(--gr)"></span></span><span style="width:46px;text-align:right;color:'+(pct?'var(--sub)':'var(--muted)')+'">'+r+'</span></div>'; }
+
+function hotelPop(rk,nm){
+  var owner=ROLE==='owner';
+  function stat(l,v,c,bg){ return '<div style="background:'+(bg||'rgba(128,140,160,.06)')+';border-radius:8px;padding:9px 11px;"><div style="font-size:10px;color:var(--sub)">'+l+'</div><div style="font-size:16px;font-weight:600;color:'+(c||'var(--txt)')+';margin-top:2px">'+v+'</div></div>'; }
+  var feeCard = owner ? stat('🔒 수수료 · 대표님만','$13','var(--am)','rgba(239,159,39,.1)') : '';
+  var html =
+    '<div style="font-size:15px;font-weight:600">'+nm+'</div>'+
+    '<div style="font-size:11px;color:var(--sub);margin:3px 0 12px">일본 · 오사카 난바 <span style="border:0.5px solid var(--line2);border-radius:5px;padding:1px 6px;margin-left:4px">3성급</span> <span style="border:0.5px solid var(--line2);border-radius:5px;padding:1px 6px">호텔</span></div>'+
+    '<div style="background:rgba(128,140,160,.06);border-radius:8px;padding:10px 12px;font-size:11.5px;margin-bottom:10px">소개 <b>여행능력자들 · '+rk+' · 1회</b> → 결과 <b>예약 2 · 확정 2 · 취소 0</b> <span style="color:var(--gr);margin-left:6px">확정률 100%</span></div>'+
+    '<div style="display:inline-block;font-size:10.5px;color:var(--muted);background:rgba(128,140,160,.1);border-radius:6px;padding:4px 10px;margin-bottom:14px">소개만 · 유료 계약 없음</div>'+
+    '<div style="font-size:11px;color:var(--sub);margin-bottom:7px">① 노출 이력 · 1회 <span style="color:var(--muted);font-size:9.5px">줄을 누르면 그 영상 세부</span></div>'+
+    '<div style="background:rgba(128,140,160,.06);border-radius:8px;padding:9px 11px;font-size:11px;margin-bottom:16px;display:flex;justify-content:space-between"><span>난바 호텔 TOP3 — 3성</span><span style="color:var(--bl)">'+rk+' ›</span></div>'+
+    '<div style="font-size:11px;color:var(--sub);margin-bottom:8px">성과 종합 — 얼마나 봐서 얼마나 예약됐나</div>'+
+    '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(92px,1fr));gap:8px;margin-bottom:8px">'+
+      stat('예약금액','$304','var(--gr)')+feeCard+stat('확정률','100%','var(--bl)')+'</div>'+
+    '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px">'+
+      stat('조회','연동 후','var(--muted)')+stat('클릭','연동 후','var(--muted)')+stat('예약','2')+stat('확정','2','var(--gr)')+'</div>'+
+    '<div style="font-size:11px;color:var(--sub);margin-bottom:8px">예약·취소 타이밍 (리드타임별)</div>'+
+    ltbar('임박(0~7일)',100,'100% · 2건')+ltbar('근접(8~30일)',0,'—')+ltbar('먼(31일+)',0,'—')+
+    '<div style="font-size:10px;color:var(--muted);margin-top:10px">방문 2 · 취소 0 · 노쇼 0 — 조회·클릭은 유튜브·추적 링크 후 채워짐(지금 "연동 후"). 예약·확정·금액·확정률은 실데이터. 수수료는 대표님만.</div>';
+
+  var ov=document.createElement('div');
+  ov.className='an-ov'; ov.style.zIndex='1100';
+  ov.innerHTML='<div style="background:var(--card);border:1px solid var(--line);border-radius:14px;width:100%;max-width:600px;max-height:88vh;overflow-y:auto;position:relative;padding:18px 16px 22px">'+
+    '<button class="an-x" onclick="this.closest(\'.an-ov\').remove()">✕ 닫기</button>'+html+'</div>';
+  ov.onclick=function(e){ if(e.target===ov) ov.remove(); };
+  document.body.appendChild(ov);
+}
 
 function setRole(r){ ROLE=r; document.getElementById('r-owner').classList.toggle('on',r==='owner'); document.getElementById('r-editor').classList.toggle('on',r==='editor'); render(); }
 function setTab(t){ TAB=t; expanded=null; render(); }

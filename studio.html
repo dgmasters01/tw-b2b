@@ -697,6 +697,10 @@
   .st-pub-ytrow { margin-top:9px; }
   .st-pub-yt { font-size:11.5px; color:#E24B4A; text-decoration:none; border:1px solid rgba(226,75,74,.4); border-radius:7px; padding:4px 10px; display:inline-block; }
   .st-pub-soon { color:#8A8794; }
+  .st-pub-kpi { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:14px; }
+  .st-pub-kpi > div { background:rgba(128,128,128,.08); border:1px solid rgba(128,128,128,.18); border-radius:10px; padding:12px 14px; }
+  .st-pub-kpi .l { font-size:11px; color:#8A8794; }
+  .st-pub-kpi .n { font-size:22px; font-weight:700; margin-top:3px; }
   .st-seg-pub.on { color:#1D9E75; }
   .st-sg-btn.del { border-color:rgba(226,75,74,.45); color:#E24B4A; }
   .st-sg-delrow { display:flex; justify-content:flex-end; margin-top:10px; padding-top:9px; border-top:0.5px solid rgba(128,128,128,.12); }
@@ -1333,7 +1337,15 @@
       return (+new Date(b.published_at || 0)) - (+new Date(a.published_at || 0));
     });
     if (cnt) cnt.textContent = pubs.length + '건';
-    var ctrl = '<div class="st-pub-ctrl">' +
+    var allPub = rows.filter(function (r) { return r.status === 'published'; });
+    var thisMonth = new Date().toISOString().slice(0, 7);
+    var kMonth = allPub.filter(function (r) { return String(r.published_at || '').slice(0, 7) === thisMonth; }).length;
+    var chSet = {}; allPub.forEach(function (r) { if (r.channel_code) chSet[r.channel_code] = 1; });
+    var kpi = '<div class="st-pub-kpi">' +
+      '<div><div class="l">발행됨</div><div class="n">' + allPub.length + '</div></div>' +
+      '<div><div class="l">이번 달</div><div class="n">' + kMonth + '</div></div>' +
+      '<div><div class="l">채널</div><div class="n">' + Object.keys(chSet).length + '</div></div></div>';
+    var ctrl = kpi + '<div class="st-pub-ctrl">' +
       '<input id="pub-search" placeholder="제목 · 코드(TW·채널) · 호텔명 · 채널로 찾기" value="' + esc(upPubSearch) + '">' +
       '<select id="pub-sort"><option value="recent"' + (upPubSort === 'recent' ? ' selected' : '') + '>최신 발행순</option>' +
       '<option value="channel"' + (upPubSort === 'channel' ? ' selected' : '') + '>채널별</option></select></div>';

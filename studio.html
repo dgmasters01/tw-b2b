@@ -1865,6 +1865,27 @@
     acts += '<button class="st-sg-btn" data-sgcopy="' + it.id + '">📋 코드 복사</button>';
     if (isOwner) acts += '<button class="st-sg-btn del" data-sgdel="' + it.id + '">🗑 삭제</button>';
 
+    // ── 발행 완료 카드 — it.pub(발행 데이터)이 있으면 채널·유튜브·호텔·올린이 표시 (연결공사 화면이식 2) ──
+    // it.pub 은 content_queue↔publications 를 코드로 이은 뷰(D-067 §8-5)에서 옴. 없으면 전부 미표시(카드 불변).
+    var pub = (it.stage === 'published' && it.pub) ? it.pub : null;
+    var pubBadges = '';
+    if (pub) {
+      if (pub.channel_code) pubBadges += '<span class="st-ch-chip">' + esc(pub.channel_code) + '</span>';
+      pubBadges += '<span class="st-ch-chip" style="color:#1D9E75;border-color:#5DCAA5;">✓ 발행됨</span>';
+    }
+    if (pub && pub.youtube_url) {
+      var _yu = String(pub.youtube_url); if (_yu.indexOf('http') < 0) _yu = 'https://' + _yu;
+      acts = '<button class="st-sg-btn" data-sgyt="' + esc(_yu) + '">▶ 유튜브에서 보기</button>' + acts;
+    }
+    var pubBlock = '';
+    if (pub) {
+      var _names = Array.isArray(pub.hotel_names) ? pub.hotel_names.filter(Boolean) : [];
+      var _hotelLine = _names.length ? '<div class="st-sg-desc"><b>이 영상 호텔</b> ' + esc(_names.join(' · ')) + '</div>' : '';
+      var _byLine = '<div class="st-sg-desc"><b>올린이</b> ' + esc(pub.published_by_email || pub.uploader_email || '?') +
+        (pub.published_at ? ' · ' + esc(String(pub.published_at).slice(0, 10)) : '') + '</div>';
+      pubBlock = _hotelLine + _byLine;
+    }
+
     // 기획자(만든 사람) — 앞면에 표시
     var planner = it.planner_email ? '<span class="st-sg-role plan">' + sgRoleBadge(sgRoleOf(it.planner_email)) + '<span class="st-sg-pname" title="' + esc(sgName(it.planner_email)) + '">' + esc(sgName(it.planner_email)) + '</span></span>' : '';
     // 원고 담당 — 관리자는 팀원 드롭다운으로 지정/변경, 에디터는 표시만
@@ -1884,7 +1905,8 @@
     var expanded = (sgExpanded === it.id);
     var headMeta = prio;
     if (peakMonth) headMeta += '<span class="st-ch-chip peak">피크 ' + peakMonth + '월</span>';
-    if (!it.assignee_email) headMeta += '<span class="st-sg-headwarn">⚠ 담당 없음</span>';
+    if (pubBadges) headMeta += pubBadges;
+    if (!it.assignee_email && it.stage !== 'published') headMeta += '<span class="st-sg-headwarn">⚠ 담당 없음</span>';
     // 접힌 상태에도 "뭔지 알아보는" 최소 정보 (코드 빼고)
     var submeta = '<span class="st-sg-src">' + esc(src) + '</span>'
       + (place ? ' · ' + esc(place) : '')
@@ -1898,6 +1920,7 @@
       '<div class="st-sg-body">' +
         '<div class="st-sg-code">' + idline + '</div>' +
         peakNote +
+        pubBlock +
         '<div class="st-sg-bottom">' + planner + writerCtl + '<div class="st-sg-acts">' + acts + '</div></div>' +
         (it.stage === 'writing' ? '<div class="st-sg-autohint">원고에 <b>' + esc(it.code || '') + '</b> 코드를 넣고 드라이브 완료 폴더에 올리면 <b>발행 예정</b>으로 자동 이동합니다.</div>' : '') +
       '</div>' +
@@ -1956,6 +1979,7 @@
     board.querySelectorAll('[data-sgnoteexp]').forEach(function (b) { b.onclick = function () { b.classList.toggle('open'); }; });
     board.querySelectorAll('[data-sgcopy]').forEach(function (b) { b.onclick = function () { var it = sgItems.find(function (x) { return x.id === b.dataset.sgcopy; }); if (it && it.code && navigator.clipboard) { navigator.clipboard.writeText(it.code).then(function () { var o = b.textContent; b.textContent = '✓ ' + it.code + ' 복사됨'; setTimeout(function () { b.textContent = o; }, 1600); }); } }; });
     board.querySelectorAll('[data-sgkw]').forEach(function (b) { b.onclick = function () { sgAnalysis(b.dataset.sgkw); }; });
+    board.querySelectorAll('[data-sgyt]').forEach(function (b) { b.onclick = function () { window.open(b.dataset.sgyt, '_blank'); }; });
     board.querySelectorAll('[data-sgdel]').forEach(function (b) { b.onclick = function () { sgDelete(b.dataset.sgdel); }; });
   }
   function sgPatch(id, patch) {

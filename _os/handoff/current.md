@@ -14,7 +14,7 @@
 
 ---
 
-# 인계서 — ✅ **새벽 조사 봇의 최대 관문 해소** (07-19 심야16). 구글 트렌드 측정을 JS로 이식(trends.js)하고 **Vercel 서버에서 실제로 트렌드가 잡히는 것 증명**(3초·실데이터·429 없음). 새벽 봇 = 이제 지을 수 있다. **다음 = 새벽 조사 봇 전체(발굴+수요+경쟁+저장+크론) / perf 실데이터(내일 19:15 예약영상 오픈+추적링크로 자동 시작).**
+# 인계서 — ✅ **새벽 조사 봇 측정 스택 전부 서버검증** (07-19 심야16). 수요(트렌드)·경쟁(유튜브)·기회점수를 JS로 이식하고 **Vercel에서 실측**(오사카 호텔 45.4·경쟁20.7만·기회8.55). 구글이 서버IP 안 막음. **다음 = 발굴(자동완성)+저장(trend표)+새벽 크론 배선 / perf 실데이터(내일 19:15 예약영상+추적링크로 자동 시작).**
 
 ---
 
@@ -25,10 +25,11 @@
 - ✅ **Vercel 프로브** `api/ops/trends-probe.js`(`65a316a7`) — 읽기전용·저장X·ops토큰. **큰 뿌리 짓기 전 서버IP가 구글 트렌드에 막히나부터 확인**(구글은 클라우드 IP 심하게 막음).
 - 🟢 **실증(가장 중요)**: Vercel 프로브 `?q=오사카 호텔,오사카 숙소` → **ok·3.1초·오사카 호텔 45.43·숙소 38.9**(알려진 45.4/38.8·46.2/39.1과 일치)·주간 134점·429 재시도 0. **구글 트렌드가 Vercel IP 를 안 막는다.** 새벽 봇 최대 불확실성 해소. (컨테이너에서도 explore+multiline 실동 확인)
 - 🔴 **남은 것 = 새벽 조사 봇 전체**(다음, 큰 뿌리 2단):
-  1. **발굴(harvest)** — 새 도시의 검색어를 자동완성(suggestqueries)+어형(morph_rule)으로 생성 → keyword 표. **kwtool.js 의 competition 은 아직 옛 긁기(㊺ 이전)** — search.list 로 교체 필요(yt-probe.js `mode=count` 에 JS 패턴 이미 있음).
-  2. **측정** — 수요(trends.js ✓) + 경쟁(search.list) → opportunity.
-  3. **저장** — keyword·trend(keyword_id·snapshot_id·demand·competition·opportunity·series·도장)·snapshot(target×city×ym) 표에 upsert. 이어하기 = 공책은 trend 표(measured=false).
-  4. **크론** — 새벽 UTC 16~20(KST 01~05) `0 16,17,18,19,20 * * *`. 회차당 5분·회차마다 즉시 저장(끊겨도 이어감).
+  1. **발굴(harvest)** — 새 도시의 검색어를 자동완성(suggestqueries)+어형(morph_rule)으로 생성 → keyword 표. kwtool.js 에 suggest 있음(경쟁만 옛 긁기였는데 → 아래 부품으로 대체 완료).
+  2. ✅ **측정 = 전부 서버 검증됨** — 수요(trends.js) + 경쟁(youtube-competition.js `d3ce09c9`, search.list 100units) + 기회점수(수요÷log10경쟁). 프로브 `?comp=1&q=오사카 호텔,숙소,료칸` → 호텔 수요45.4·경쟁206,899·기회8.55 / 숙소 38.9·166,077·7.45 / 료칸 3.25·25,578·0.74 **전부 실측**(`2c97938c`).
+  3. **저장** — keyword·trend(keyword_id·snapshot_id·demand·competition·opportunity·series·도장)·snapshot(target×city×ym) 표에 upsert. 이어하기 = 공책은 trend 표(measured=false). ⚠️ 기존 52행 저장 경로 확인 후 그 모양대로.
+  4. **크론** — 새벽 UTC 16~20(KST 01~05). 회차마다 즉시 저장(끊겨도 이어감).
+  → **측정 과학은 다 끝났다. 남은 건 발굴+저장+크론 배선.**
 - 🟡 오사카는 조사 완료(52 측정·23 바닥/dead=정상). 봇의 진짜 일 = **새 도시**(타이베이·후쿠오카 등 예약순) 발굴·측정. city_alias 도시레벨 이름이 선결(오사카는 있음).
 - 🟡 trends-probe·trends.js 는 남겨둠(읽기전용·무해·다음 봇의 부품).
 

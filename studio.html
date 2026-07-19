@@ -1824,7 +1824,7 @@
     { key: 'scheduled', label: '발행 예정', color: '#EF9F27' },
     { key: 'published', label: '발행 완료', color: '#1D9E75' }
   ];
-  var SG_SOURCE = { strategy: '전략', keyword: '키워드', manuscript: '원고유입' };
+  var SG_SOURCE = { strategy: '전략', keyword: '키워드', manuscript: '자체 기획' };
   var sgItems = [], sgMe = null, sgIsAdmin = false, sgTeam = [];
   // 역할 한글 라벨·색 — 한 곳에서 관리(6개). 모르는 역할이 와도 역할 이름 그대로 회색으로 표시(안 깨짐).
   var ROLE_LABEL = { owner: '최종관리자', admin: '관리자', staff: '스탭', readonly: '읽기전용', editor: '에디터', manager: '매니저' };
@@ -1835,7 +1835,51 @@
   // 착수(목표)월까지 남은 개월 — 사람이 순위를 정하지 않고, 이 임박도로 자동 정렬(대표님 07-19)
   function sgMonthsLeft(tm) { if (!tm) return null; var m = String(tm).match(/(\d{4})-(\d{1,2})/); if (!m) return null; var now = new Date(); return (+m[1] - now.getFullYear()) * 12 + (+m[2] - 1 - now.getMonth()); }
 
+  // ── 발행 완료 전용 카드 (프리뷰 studio-strategy-preview.html selfCard published 형태 · D-067 §9) ──
+  // 자체기획/추천 공통: 출처배지·채널·✓발행됨 / 서브= 출처·채널·발행날짜 / 이 영상에 나온 호텔 / 최종 업로더·조회·예약 / 버튼= 유튜브보기·원고열기·성과보기.
+  // "올린이" 줄·담당지정·내가맡기·코드복사 없음(§8-3·§9-5).
+  function sgPubCard(it) {
+    var pub = it.pub || {};
+    var expanded = (sgExpanded === it.id);
+    var src = SG_SOURCE[it.source] || it.source || '자체 기획';
+    var ch = pub.channel_code || it.channel_code || '';
+    var pubdate = pub.published_at ? String(pub.published_at).slice(0, 10) : '';
+    var names = Array.isArray(pub.hotel_names) ? pub.hotel_names.filter(Boolean) : [];
+    var uploader = pub.published_by_email || pub.uploader_email || '?';
+    var isOwner = sgRoleOf(sgMe) === 'owner';
+
+    var badges = '<span class="st-ch-chip" style="color:#1D9E75;border-color:#5DCAA5;">' + esc(src) + '</span>';
+    if (ch) badges += '<span class="st-ch-chip">' + esc(ch) + '</span>';
+    badges += '<span class="st-ch-chip" style="color:#1D9E75;border-color:#5DCAA5;">✓ 발행됨</span>';
+
+    var acts = '';
+    var yu = pub.youtube_url ? String(pub.youtube_url) : '';
+    if (yu && yu.indexOf('http') < 0) yu = 'https://' + yu;
+    if (yu) acts += '<button class="st-sg-btn" data-sgyt="' + esc(yu) + '">▶ 유튜브에서 보기</button>';
+    acts += '<button class="st-sg-btn" data-sgperf="' + it.id + '">성과 보기 →</button>';
+    if (isOwner) acts += '<button class="st-sg-btn del" data-sgdel="' + it.id + '">🗑 삭제</button>';
+
+    var submeta = '<span class="st-sg-src">' + esc(src) + '</span>'
+      + (ch ? ' · ' + esc(ch) : '')
+      + (pubdate ? ' · 발행 ' + esc(pubdate) : '');
+    var idline = esc(it.code || '') + (ch ? ' · ' + esc(ch) : '');
+    var hotelLine = names.length ? '<div class="st-sg-desc"><b>이 영상에 나온 호텔</b> ' + esc(names.join(' · ')) + '</div>' : '';
+    var pubmeta = '<div class="st-sg-desc" style="border-top:0.5px solid rgba(128,128,128,.15);margin-top:10px;padding-top:9px">최종 업로더 <b>' + esc(uploader) + '</b> · 조회 <b>연동 후</b> · 예약 <b>준비중</b>'
+      + (isOwner ? ' · 수수료 <b>준비중</b>' : '') + '</div>';
+
+    return '<div class="st-sg-card' + (expanded ? ' expanded' : '') + '" data-sgid="' + it.id + '">' +
+      '<div class="st-sg-head" data-sgtoggle="' + it.id + '"><span class="st-sg-title">' + esc(it.title) + '</span><span class="st-sg-headmeta">' + badges + '</span><span class="st-sg-caret"><i class="ti ti-chevron-down"></i></span></div>' +
+      '<div class="st-sg-submeta">' + submeta + '</div>' +
+      '<div class="st-sg-body">' +
+        '<div class="st-sg-code">' + idline + '</div>' +
+        hotelLine + pubmeta +
+        '<div class="st-sg-bottom"><div class="st-sg-acts">' + acts + '</div></div>' +
+      '</div>' +
+    '</div>';
+  }
+
   function sgCard(it) {
+    if (it.stage === 'published' && it.pub) return sgPubCard(it);
     var place = [it.country, it.city].filter(Boolean).join(' · ');
     var src = SG_SOURCE[it.source] || it.source || '—';
     var peakMonth = null;
@@ -1980,6 +2024,7 @@
     board.querySelectorAll('[data-sgcopy]').forEach(function (b) { b.onclick = function () { var it = sgItems.find(function (x) { return x.id === b.dataset.sgcopy; }); if (it && it.code && navigator.clipboard) { navigator.clipboard.writeText(it.code).then(function () { var o = b.textContent; b.textContent = '✓ ' + it.code + ' 복사됨'; setTimeout(function () { b.textContent = o; }, 1600); }); } }; });
     board.querySelectorAll('[data-sgkw]').forEach(function (b) { b.onclick = function () { sgAnalysis(b.dataset.sgkw); }; });
     board.querySelectorAll('[data-sgyt]').forEach(function (b) { b.onclick = function () { window.open(b.dataset.sgyt, '_blank'); }; });
+    board.querySelectorAll('[data-sgperf]').forEach(function (b) { b.onclick = function () { var pb = document.querySelector('[data-view="perf"]'); if (pb) pb.click(); }; });
     board.querySelectorAll('[data-sgdel]').forEach(function (b) { b.onclick = function () { sgDelete(b.dataset.sgdel); }; });
   }
   function sgPatch(id, patch) {

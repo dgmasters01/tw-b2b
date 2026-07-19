@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>올리기 · 발행됨 목록 프리뷰</title>
+<style>
+  :root{ --bg:#080d14; --card:#0b1119; --line:#1c2f45; --line2:#24384e; --txt:#e6eef6; --sub:#9db4c9; --muted:#6a85a0; --bl:#5aa9e6; --gr:#4edea3; --am:#EF9F27; --rd:#E24B4A; }
+  *{box-sizing:border-box;}
+  body{background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Malgun Gothic",sans-serif;line-height:1.55;padding:16px 13px 70px;max-width:760px;margin:0 auto;font-size:14px;}
+  .pv{background:rgba(239,159,39,.1);color:var(--am);font-size:11px;padding:7px 12px;border-radius:9px;margin-bottom:14px;text-align:center;line-height:1.5;}
+  .role{display:flex;gap:6px;margin-bottom:14px;}
+  .role button{flex:1;background:transparent;border:0.5px solid var(--line2);color:var(--sub);font-size:11.5px;padding:9px 4px;border-radius:9px;cursor:pointer;font-family:inherit;}
+  .role button.on{background:rgba(239,159,39,.14);border-color:rgba(239,159,39,.5);color:var(--am);font-weight:600;}
+  h1{font-size:18px;font-weight:600;margin:0 0 3px;}
+  .sub{font-size:12px;color:var(--muted);margin-bottom:14px;}
+  .tabs{display:flex;gap:5px;margin-bottom:12px;flex-wrap:wrap;}
+  .tab{flex:1;min-width:70px;background:transparent;border:0.5px solid var(--line2);color:var(--sub);font-size:11.5px;padding:9px 6px;border-radius:9px;text-align:center;}
+  .tab.on{background:rgba(78,222,163,.12);border-color:rgba(78,222,163,.5);color:var(--gr);font-weight:600;}
+  .search{display:flex;align-items:center;gap:7px;background:var(--card);border:0.5px solid var(--line);border-radius:9px;padding:10px 12px;margin-bottom:8px;color:var(--muted);font-size:12px;}
+  .filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px;}
+  .fil{font-size:11px;padding:6px 10px;border-radius:7px;border:0.5px solid var(--line2);color:var(--sub);background:transparent;font-family:inherit;cursor:pointer;}
+  .sorthint{font-size:10px;color:var(--muted);margin-bottom:14px;}
+  .item{background:var(--card);border:0.5px solid var(--line);border-radius:11px;padding:12px 14px;margin-bottom:10px;}
+  .itop{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;}
+  .ititle{font-size:13.5px;font-weight:600;}
+  .ch{font-size:9.5px;padding:2px 8px;border-radius:20px;background:rgba(128,140,160,.14);color:#b9c8d8;white-space:nowrap;}
+  .imeta{font-size:10.5px;color:var(--muted);margin-top:5px;}
+  .ytrow{display:flex;align-items:center;gap:8px;margin-top:10px;padding-top:9px;border-top:0.5px solid rgba(128,128,128,.14);font-size:11px;}
+  .yturl{color:var(--bl);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .mini{font-size:10.5px;padding:5px 11px;border-radius:6px;border:0.5px solid var(--line2);color:var(--am);background:transparent;font-family:inherit;cursor:pointer;white-space:nowrap;}
+  .mini.gr{color:var(--gr);border-color:rgba(78,222,163,.4);}
+  .mini.rd{color:var(--rd);border-color:rgba(226,75,74,.45);}
+  .editbox{margin-top:9px;padding-top:9px;border-top:0.5px solid rgba(128,128,128,.14);}
+  .editbox input{width:100%;background:#0a121c;border:0.5px solid var(--line2);border-radius:7px;color:var(--txt);padding:8px 10px;font-size:11.5px;font-family:inherit;margin-bottom:7px;}
+  .editrow{display:flex;gap:6px;justify-content:flex-end;}
+  .req{margin-top:9px;padding:9px 11px;border-radius:8px;background:rgba(239,159,39,.09);border:0.5px solid rgba(239,159,39,.28);font-size:10.5px;color:var(--am);line-height:1.6;}
+  .req b{color:#f5c66f;}
+  .reqacts{display:flex;gap:6px;justify-content:flex-end;margin-top:8px;}
+  .note{font-size:10px;color:var(--muted);margin-top:6px;}
+</style>
+</head>
+<body>
+
+<div class="pv">📤 올리기 · <b>발행됨 목록</b> 프리뷰 — 샘플입니다. 역할을 바꿔가며 "누가 무엇을 할 수 있나"를 보세요.</div>
+
+<div class="role">
+  <button id="r-owner" class="on" onclick="setRole('owner')">최고관리자</button>
+  <button id="r-admin" onclick="setRole('admin')">관리자</button>
+  <button id="r-editor" onclick="setRole('editor')">에디터</button>
+</div>
+
+<h1>올리기 · 발행됨</h1>
+<div class="sub">이미 올라간 영상 · 검색·정렬로 찾기 · 유튜브 주소 수정은 여기서</div>
+
+<div class="tabs">
+  <div class="tab">대기</div>
+  <div class="tab">확인필요</div>
+  <div class="tab on">발행됨</div>
+</div>
+
+<div class="search">🔍 제목 · 코드(TW·채널) · 호텔명 · 채널로 찾기</div>
+<div class="filters">
+  <button class="fil">정렬 · 최신 발행순 ⌄</button>
+  <button class="fil">채널 전체 ⌄</button>
+  <button class="fil">기간 ⌄</button>
+</div>
+<div class="sorthint">정렬: 최신 발행순 · 조회순 · 예약순(최고관리자만) · 채널별</div>
+
+<div id="list"></div>
+
+<script>
+var ROLE='owner';
+var VIDS=[
+  { id:'v1', code:'TW-0001', title:'난바 호텔 TOP3 — 3성', channel:'여행능력자들', pubdate:'2026-09-14', views:12400,
+    yt:'youtube.com/watch?v=aB3kZ7Qp', req:null },
+  { id:'v2', code:'채널-0042', title:'후쿠오카 하카타 호텔 TOP3', channel:'호텔이야', pubdate:'2026-07-11', views:3180,
+    yt:'youtube.com/watch?v=9Fk2mLxa', req:null }
+];
+var editing=null;
+
+function setRole(r){ ROLE=r; editing=null;
+  ['owner','admin','editor'].forEach(function(x){ document.getElementById('r-'+x).classList.toggle('on', x===r); });
+  render();
+}
+function startEdit(id){ editing=id; render(); setTimeout(function(){ var el=document.getElementById('inp-'+id); if(el) el.focus(); },30); }
+function cancelEdit(){ editing=null; render(); }
+
+function saveDirect(id){ // owner 직접 수정
+  var v=VIDS.find(function(x){return x.id===id;}); var el=document.getElementById('inp-'+id);
+  if(el && el.value.trim()){ v.yt=el.value.trim().replace(/^https?:\/\//,''); v.req=null; }
+  editing=null; render();
+}
+function sendReq(id){ // admin/editor 수정 요청
+  var v=VIDS.find(function(x){return x.id===id;}); var el=document.getElementById('inp-'+id);
+  if(el && el.value.trim()){ v.req={ by:(ROLE==='admin'?'관리자 박':'에디터 김'), url:el.value.trim().replace(/^https?:\/\//,''), at:'방금' }; }
+  editing=null; render();
+}
+function approve(id){ var v=VIDS.find(function(x){return x.id===id;}); if(v.req){ v.yt=v.req.url; v.req=null; } render(); }
+function reject(id){ var v=VIDS.find(function(x){return x.id===id;}); v.req=null; render(); }
+
+function render(){
+  document.getElementById('list').innerHTML = VIDS.map(function(v){
+    var h = '<div class="item"><div class="itop"><span class="ititle">'+v.title+'</span><span class="ch">'+v.channel+'</span></div>'+
+      '<div class="imeta">'+v.code+' · 발행 '+v.pubdate+' · 조회 '+v.views.toLocaleString()+'</div>';
+
+    // 유튜브 주소 줄 + 역할별 버튼
+    var btn='';
+    if(ROLE==='owner') btn='<button class="mini" onclick="startEdit(\''+v.id+'\')">✏ 주소 수정</button>';
+    else btn='<button class="mini" onclick="startEdit(\''+v.id+'\')">✏ 수정 요청</button>';
+    h += '<div class="ytrow"><span class="yturl">▶ '+v.yt+'</span>'+(editing===v.id?'':btn)+'</div>';
+
+    // 편집 입력창
+    if(editing===v.id){
+      var ph = ROLE==='owner' ? '올바른 유튜브 주소 붙여넣기 → 바로 반영' : '올바른 주소 붙여넣기 → 최고관리자에게 요청';
+      var save = ROLE==='owner'
+        ? '<button class="mini gr" onclick="saveDirect(\''+v.id+'\')">저장(바로 반영)</button>'
+        : '<button class="mini gr" onclick="sendReq(\''+v.id+'\')">수정 요청 보내기</button>';
+      h += '<div class="editbox"><input id="inp-'+v.id+'" placeholder="'+ph+'" value="'+v.yt+'">'+
+        '<div class="editrow"><button class="mini" onclick="cancelEdit()">취소</button>'+save+'</div></div>';
+    }
+
+    // 수정 요청 중 표시
+    if(v.req){
+      h += '<div class="req">⚠ <b>수정 요청 중</b> — '+v.req.by+'님이 새 주소 제안 ('+v.req.at+')<br>새 주소: '+v.req.url;
+      if(ROLE==='owner') h += '<div class="reqacts"><button class="mini rd" onclick="reject(\''+v.id+'\')">반려</button><button class="mini gr" onclick="approve(\''+v.id+'\')">승인(주소 변경)</button></div>';
+      else h += '<div class="note">최고관리자 승인을 기다리는 중입니다.</div>';
+      h += '</div>';
+    }
+
+    h += '</div>';
+    return h;
+  }).join('');
+}
+render();
+</script>
+</body>
+</html>

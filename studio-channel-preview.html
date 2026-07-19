@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>채널 메뉴 재설계 프리뷰</title>
+<title>채널 메뉴 재설계 프리뷰 v3</title>
 <style>
   :root{ --bg:#080d14; --card:#0b1119; --line:#1c2f45; --line2:#24384e; --txt:#e6eef6; --sub:#9db4c9; --muted:#6a85a0;
          --bl:#5aa9e6; --gr:#1D9E75; --gr2:#5DCAA5; --am:#EF9F27; --rd:#E24B4A; }
@@ -17,35 +17,52 @@
   .newbtn{background:transparent;border:1px solid var(--gr2);color:var(--gr);font-size:12px;padding:7px 12px;border-radius:8px;cursor:pointer;font-family:inherit;}
   .goal{background:rgba(29,158,117,.08);border:1px solid rgba(29,158,117,.25);border-radius:10px;padding:11px 14px;font-size:12.5px;line-height:1.65;margin:8px 0 16px;color:var(--sub);}
   .goal b{color:var(--txt);} .goal .k{color:var(--gr);font-weight:600;}
+
+  /* 새 채널 = .md 업로드 폼 */
+  .newbox{display:none;background:var(--card);border:1px solid var(--gr2);border-radius:12px;padding:15px 16px;margin-bottom:16px;}
+  .newbox.open{display:block;}
+  .newbox h4{margin:0 0 4px;font-size:13.5px;color:var(--gr);}
+  .newbox .hint{font-size:11px;color:var(--muted);line-height:1.6;margin-bottom:12px;}
+  .frow{display:flex;align-items:center;gap:10px;margin-bottom:9px;font-size:12px;}
+  .frow label{width:70px;color:var(--sub);flex:none;}
+  .frow input{flex:1;background:#060a11;border:1px solid var(--line2);border-radius:7px;padding:8px 10px;color:var(--txt);font-family:inherit;font-size:12px;}
+  .filenote{font-size:10.5px;color:var(--muted);margin:2px 0 10px 80px;}
+  .fpreview{background:rgba(29,158,117,.06);border:1px solid rgba(29,158,117,.2);border-radius:8px;padding:10px 12px;font-size:11.5px;color:var(--sub);margin:6px 0 10px;line-height:1.7;}
+  .fpreview b{color:var(--gr);}
+  .facts{display:flex;gap:9px;flex-wrap:wrap;}
+
   .card{background:var(--card);border:1px solid var(--line);border-radius:12px;margin-bottom:11px;overflow:hidden;}
-  .card.off{opacity:.5;}
-  .chead{display:flex;align-items:center;gap:9px;padding:13px 15px;cursor:pointer;flex-wrap:wrap;}
-  .code{font-size:11px;font-weight:700;background:rgba(128,140,160,.16);color:#b9c8d8;padding:3px 8px;border-radius:6px;letter-spacing:.3px;}
-  .nm{font-size:14.5px;font-weight:600;} .en{font-size:11.5px;color:var(--muted);}
-  .spacer{flex:1;}
+  .chead{display:flex;align-items:center;gap:10px;padding:14px 15px;cursor:pointer;flex-wrap:wrap;}
+  .rank{width:24px;height:24px;border-radius:7px;background:rgba(29,158,117,.13);color:var(--gr);font-size:12.5px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none;}
+  .nm{font-size:15px;font-weight:600;}
   .chip{font-size:10.5px;padding:2px 8px;border-radius:20px;border:1px solid rgba(128,128,128,.3);color:var(--sub);white-space:nowrap;}
   .chip.on{color:var(--gr);border-color:var(--gr2);}
-  .chip.off{color:var(--am);border-color:rgba(239,159,39,.5);}
   .chip.lang{background:rgba(90,169,230,.12);border-color:transparent;color:var(--bl);}
   .chip.spec{color:var(--gr);border-color:var(--gr2);background:rgba(29,158,117,.08);}
   .chip.nospec{color:var(--am);border-color:rgba(239,159,39,.45);background:rgba(239,159,39,.06);}
   .chip.api{color:#4edea3;border-color:#4edea3;}
-  .cidmini{font-size:11px;color:var(--gr);background:rgba(29,158,117,.1);padding:3px 8px;border-radius:6px;font-variant-numeric:tabular-nums;}
-  .caret{width:24px;height:24px;border-radius:50%;background:rgba(128,128,128,.12);color:var(--sub);display:inline-flex;align-items:center;justify-content:center;flex:none;transition:transform .15s;}
-  .card.open .caret{transform:rotate(180deg);}
+  .spacer{flex:1;}
+  .bk{font-size:11.5px;color:var(--gr);font-variant-numeric:tabular-nums;font-weight:600;}
+  /* 펼침 아이콘 정리 = '상세' 알약 */
+  .exp{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--sub);border:1px solid var(--line2);border-radius:20px;padding:4px 10px;flex:none;transition:.15s;}
+  .exp .ar{transition:transform .18s;font-size:9px;}
+  .card.open .exp{color:var(--gr);border-color:var(--gr2);}
+  .card.open .exp .ar{transform:rotate(180deg);}
   .cbody{display:none;padding:0 15px 15px;border-top:1px solid rgba(128,128,128,.12);}
   .card.open .cbody{display:block;}
-  .meta{display:flex;gap:16px;flex-wrap:wrap;font-size:11.5px;color:var(--muted);padding:11px 0 4px;}
+
+  .tgt{display:flex;align-items:center;gap:8px;background:rgba(90,169,230,.07);border:1px solid rgba(90,169,230,.2);border-radius:8px;padding:9px 12px;margin:12px 0 4px;font-size:12px;color:var(--sub);flex-wrap:wrap;}
+  .tgt b{color:var(--bl);} .tgt .en2{color:var(--muted);font-size:11px;}
+  .meta{display:flex;gap:16px;flex-wrap:wrap;font-size:11.5px;color:var(--muted);padding:9px 0 2px;}
   .meta b{color:var(--sub);font-weight:500;margin-right:4px;}
-  .sec{margin-top:13px;} .sec-h{font-size:11px;color:var(--sub);margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+  .sec{margin-top:13px;} .sec-h{font-size:11px;color:var(--sub);margin-bottom:8px;}
   .cidgrp{font-size:10.5px;color:var(--muted);margin:9px 0 5px;}
   .cidrow{display:flex;align-items:center;gap:9px;background:rgba(29,158,117,.07);border:1px solid rgba(29,158,117,.22);border-radius:8px;padding:8px 11px;margin-bottom:6px;}
   .cidrow .dot{width:7px;height:7px;border-radius:50%;background:var(--gr);flex:none;box-shadow:0 0 5px rgba(29,158,117,.7);}
   .cidrow .num{font-size:14.5px;font-weight:700;color:var(--gr);font-variant-numeric:tabular-nums;}
   .cidrow .tag{font-size:9.5px;color:var(--gr);border:1px solid var(--gr2);border-radius:5px;padding:1px 6px;}
-  .cidrow .bk{font-size:11px;color:var(--sub);margin-left:auto;font-variant-numeric:tabular-nums;}
-  .cidrow.past{background:rgba(29,158,117,.04);border-color:rgba(29,158,117,.16);}
-  .cidrow.past .num{font-size:13.5px;}
+  .cidrow .cbk{font-size:11px;color:var(--sub);margin-left:auto;font-variant-numeric:tabular-nums;}
+  .cidrow.past{background:rgba(29,158,117,.04);border-color:rgba(29,158,117,.16);} .cidrow.past .num{font-size:13.5px;}
   .cidsay{font-size:10.5px;color:var(--muted);margin:2px 0 4px;line-height:1.5;}
   .cidadd{margin-top:8px;font-size:11px;color:var(--bl);cursor:pointer;}
   .cidremove{margin-top:5px;font-size:10.5px;color:var(--muted);}
@@ -53,96 +70,111 @@
   .spec-box.has{background:rgba(29,158,117,.07);border:1px solid rgba(29,158,117,.22);color:var(--sub);}
   .spec-box.no{background:rgba(239,159,39,.06);border:1px solid rgba(239,159,39,.28);color:#e8cfa0;}
   .spec-box .ttl{color:var(--txt);font-weight:600;margin-bottom:3px;}
-  .spec-actions{margin-top:9px;display:flex;gap:8px;flex-wrap:wrap;}
+  .actions{margin-top:9px;display:flex;gap:8px;flex-wrap:wrap;}
   .btn{font-size:11px;padding:6px 12px;border-radius:7px;border:1px solid var(--line2);background:transparent;color:var(--sub);cursor:pointer;font-family:inherit;}
   .btn.go{border-color:var(--gr2);color:var(--gr);} .btn.warn{border-color:rgba(239,159,39,.5);color:var(--am);}
   .foot{font-size:11px;color:var(--muted);margin-top:20px;line-height:1.8;background:rgba(29,158,117,.05);border:1px solid rgba(29,158,117,.18);border-radius:10px;padding:12px 14px;}
 </style>
 </head>
 <body>
-  <div class="pv">📱 채널 메뉴 재설계 시안(v2 · CID 원칙 반영) · 실제 데이터 · 확인용 (실제 적용은 확정 후)</div>
+  <div class="pv">📱 채널 메뉴 재설계 시안 v3 · 대표님 수정 7가지 반영 · 실제 데이터 · 확인용</div>
   <div class="head">
     <div><div class="h">채널</div></div>
     <div style="display:flex;gap:10px;align-items:center;">
-      <span class="cnt">8개 채널 · CID 14개</span>
-      <button class="newbtn">＋ 새 채널</button>
+      <span class="cnt">7개 채널 · CID 14개</span>
+      <button class="newbtn" onclick="document.getElementById('newbox').classList.toggle('open')">＋ 새 채널</button>
     </div>
   </div>
   <div class="goal">
-    콘텐츠를 올리는 <b>채널 자산</b>을 한곳에서 관리합니다. 각 채널의 <span class="k">아고다 CID</span>(= 예약이 이 채널로 잡히는 열쇠 · <b>전부 살아있음</b>)와
-    <span class="k">원고 자동생성 규격</span>(제목·본문·태그 규칙)을 봅니다. 올리기·성과표·호텔이 전부 이 채널 위에서 돕니다.
+    콘텐츠를 올리는 <b>채널 자산</b>을 <b>매출(예약) 많은 순</b>으로 봅니다. 각 채널의 <span class="k">아고다 CID</span>(예약이 이 채널로 잡히는 열쇠 · 전부 살아있음)와
+    <span class="k">원고 규격</span>을 상세에서 관리합니다. 올리기·성과표·호텔이 이 채널 위에서 돕니다.
   </div>
+
+  <!-- 새 채널 = .md 업로드 -->
+  <div class="newbox" id="newbox">
+    <h4>＋ 새 채널 등록</h4>
+    <div class="hint">우리 방식 = <b>규격 .md 파일 하나만 올리면</b> 채널이 만들어집니다. 파일 §0에서 <b>이름·언어·아고다 CID를 자동으로 읽습니다.</b> 사람은 <b>코드</b>만 확인 입력(예약 연결 열쇠라 나중에 못 바꿈).</div>
+    <div class="frow"><label>채널 코드</label><input type="text" placeholder="예: TH · MY (영문·숫자 2~20자)"></div>
+    <div class="frow"><label>규격 .md</label><input type="file" accept=".md"></div>
+    <div class="filenote">Claude 대화창에서 만든 {채널}.md 파일 (제목·본문·태그·나레이션 규칙 담긴 것)</div>
+    <div class="actions"><button class="btn go">파일 읽기 (미리보기)</button></div>
+    <div class="fpreview">읽은 결과 (예시) — <b>이름</b> 호텔타이 · <b>언어</b> 태국어 · <b>아고다 CID</b> 19xxxxx <span style="color:var(--muted)">→ 확인 후 등록하면 채널 DB·CID 매핑·규격 배치·활성화까지 자동</span></div>
+    <div class="actions"><button class="btn go">등록</button><button class="btn" onclick="document.getElementById('newbox').classList.remove('open')">취소</button></div>
+  </div>
+
   <div id="list"></div>
   <div class="foot">
-    <b style="color:var(--txt)">바뀐 점</b><br>
-    ① 다른 메뉴처럼 헤더·목적 배너·펼침 카드로 통일<br>
-    ② <b style="color:var(--gr)">CID는 전부 살아있는 번호</b> — <b>현재 발급</b>(새 영상에 다는 번호)과 <b>예전 번호·예약 집계중</b>(새로는 안 쓰지만 예약 계속)으로만 나눔. <b style="color:var(--gr)">"폐기" 표현 안 씀</b> (old도 초록불 · 예약 건수로 살아있음 표시)<br>
-    ③ 원고 규격 상태를 채널마다 표시 (규격 없으면 자동생성 안 됨)<br>
-    <span style="color:var(--muted)">※ CID를 목록에서 정말 빼는 건 = 잘못 등록된 번호일 때만 · owner 전용 · 경고 (현재 0건)</span>
+    <b style="color:var(--txt)">v3 반영 (대표님 수정)</b><br>
+    ① 채널명 뒤 영문 삭제 · ② 코드배지(HT) 삭제 → <b style="color:var(--gr)">매출 많은 순 번호</b> · ③ 과거누적(legacy)은 채널 아니라 목록에서 뺌<br>
+    ④ 아고다 API 표시는 메인에서 빼고 <b>상세에</b> · ⑤ 상세에 <b style="color:var(--bl)">타겟</b> 추가 · ⑥ 펼침 아이콘 → '상세' 알약으로 정리<br>
+    ⑦ 새 채널 = <b>.md 파일 업로드</b> 방식 (코드만 입력, 나머지 자동)<br>
+    <span style="color:var(--muted)">※ CID는 전부 살아있음 (현재 발급 / 예전 번호·집계중), "폐기" 안 씀 · 진짜 제거는 잘못 등록만·owner</span>
   </div>
 <script>
+  var TARGET = { '한국어':['한국','KR'], '일본어':['일본','JP'], '중국어(번체)':['대만·홍콩','TW'], '영어':['영어권 전세계','—'], '베트남어':['베트남','VN'] };
   var DATA = [
-    { code:'HT', name:'호텔이야', en:'HOTEL-IYA', lang:'한국어', order:1, active:true, api:false,
+    { name:'호텔이야', lang:'한국어', active:true, api:false,
       now:[{cid:'1932026',lab:'new',bk:1710}], past:[{cid:'1922821',lab:'old',bk:1188},{cid:'1931762',lab:'approval-2nd',bk:8}], spec:'호텔이야.md' },
-    { code:'TW', name:'여행능력자들', en:'TRAVELWINNERS', lang:'한국어', order:2, active:true, api:true,
+    { name:'여행능력자들', lang:'한국어', active:true, api:true,
       now:[{cid:'1913282',lab:'main·유튜브',bk:3547},{cid:'1919025',lab:'web·웹사이트',bk:144}], past:[], spec:'여행능력자들.md' },
-    { code:'JP', name:'ホテルだ', en:'HOTEL-DA', lang:'일본어', order:3, active:true, api:false,
+    { name:'ホテルだ', lang:'일본어', active:true, api:false,
       now:[{cid:'1932024',lab:'new',bk:378}], past:[{cid:'1923665',lab:'old',bk:105}], spec:null },
-    { code:'ZH', name:'世界就是家', en:'World-hotel', lang:'중국어(번체)', order:4, active:true, api:false,
+    { name:'世界就是家', lang:'중국어(번체)', active:true, api:false,
       now:[{cid:'1932021',lab:'new',bk:135}], past:[{cid:'1930375',lab:'old',bk:0}], spec:null },
-    { code:'KT', name:'Koreahotelguide', en:'Koreahotelguide', lang:'영어', order:5, active:true, api:false,
+    { name:'Koreahotelguide', lang:'영어', active:true, api:false,
       now:[{cid:'1932023',lab:'new',bk:44}], past:[{cid:'1926314',lab:'old',bk:12}], spec:null },
-    { code:'VN', name:'reviewkhachsan', en:'reviewkhachsan', lang:'베트남어', order:6, active:true, api:false,
+    { name:'reviewkhachsan', lang:'베트남어', active:true, api:false,
       now:[{cid:'1932022',lab:'new',bk:36}], past:[{cid:'1922822',lab:'old',bk:9}], spec:null },
-    { code:'HG', name:'호텔이곳', en:'Hotel-Igot', lang:'한국어', order:7, active:true, api:false,
-      now:[{cid:'1946819',lab:'main',bk:0}], past:[], spec:'호텔이곳.md' },
-    { code:'legacy', name:'과거 누적', en:'Legacy (2023-2026)', lang:'한국어', order:99, active:false, api:false,
-      now:[], past:[], spec:null }
+    { name:'호텔이곳', lang:'한국어', active:true, api:false,
+      now:[{cid:'1946819',lab:'main',bk:0}], past:[], spec:'호텔이곳.md' }
   ];
   function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
-  function bkTxt(n){ return n>0 ? ('예약 '+n.toLocaleString()+'건') : '예약 0건'; }
+  function tot(ch){ return ch.now.concat(ch.past).reduce(function(s,c){return s+(c.bk||0);},0); }
+  DATA.sort(function(a,b){ return tot(b)-tot(a); });   // 매출(예약) 많은 순
+  function bkTxt(n){ return '예약 '+(n||0).toLocaleString()+'건'; }
   function cidRow(c, past){
     return '<div class="cidrow'+(past?' past':'')+'"><span class="dot"></span>' +
       '<span class="num">'+esc(c.cid)+'</span><span class="tag">'+esc(c.lab)+'</span>' +
-      '<span class="bk">'+bkTxt(c.bk)+'</span></div>';
+      '<span class="cbk">'+bkTxt(c.bk)+'</span></div>';
   }
   function card(ch, i){
-    var totBk = ch.now.concat(ch.past).reduce(function(s,c){return s+(c.bk||0);},0);
-    var specChip = ch.spec ? '<span class="chip spec">규격 ✓</span>' : (ch.active ? '<span class="chip nospec">규격 없음</span>' : '');
+    var rank = i+1;
+    var totBk = tot(ch);
+    var specChip = ch.spec ? '<span class="chip spec">규격 ✓</span>' : '<span class="chip nospec">규격 없음</span>';
     var head =
       '<div class="chead" onclick="tog('+i+')">' +
-        '<span class="code">'+esc(ch.code)+'</span><span class="nm">'+esc(ch.name)+'</span><span class="en">'+esc(ch.en)+'</span>' +
+        '<span class="rank">'+rank+'</span>' +
+        '<span class="nm">'+esc(ch.name)+'</span>' +
         '<span class="chip lang">'+esc(ch.lang)+'</span>' +
-        (ch.active?'<span class="chip on">운영중</span>':'<span class="chip off">비활성</span>') +
-        (ch.api?'<span class="chip api">아고다 API</span>':'') +
+        '<span class="chip on">운영중</span>' +
         '<span class="spacer"></span>' + specChip +
-        (totBk>0?'<span class="cidmini">예약 '+totBk.toLocaleString()+'건</span>':'') +
-        '<span class="caret">⌄</span></div>';
-    var cidHtml = '';
-    if (ch.now.length || ch.past.length){
-      cidHtml += '<div class="cidsay">이 채널로 잡힌 예약을 세는 번호들 — <b style="color:var(--gr)">전부 살아있습니다.</b></div>';
-      if (ch.now.length){
-        cidHtml += '<div class="cidgrp">🟢 현재 발급 — 새 영상에 다는 번호</div>' + ch.now.map(function(c){return cidRow(c,false);}).join('');
-      }
-      if (ch.past.length){
-        cidHtml += '<div class="cidgrp">🟢 예전 번호 · 예약 집계중 — 새로는 안 쓰지만 과거 영상으로 예약이 계속 들어옴</div>' + ch.past.map(function(c){return cidRow(c,true);}).join('');
-      }
-      cidHtml += '<div class="cidadd">＋ CID 추가</div>';
-      cidHtml += '<div class="cidremove">번호 제거는 잘못 등록된 것만 (owner · 경고)</div>';
-    } else {
-      cidHtml = '<div style="font-size:11.5px;color:var(--muted)">등록된 CID 없음 (과거 누적 채널)</div>';
-    }
+        '<span class="bk">'+bkTxt(totBk)+'</span>' +
+        '<span class="exp">상세<span class="ar">▾</span></span></div>';
+
+    var t = TARGET[ch.lang] || ['—','—'];
+    var tgtHtml = '<div class="tgt">🎯 <b>타겟</b> '+esc(ch.lang)+'권 손님 · 주 시장 '+esc(t[0])+' <span class="en2">('+esc(t[1])+')</span></div>';
+
+    var cidHtml = '<div class="cidsay">이 채널로 잡힌 예약을 세는 번호 — <b style="color:var(--gr)">전부 살아있음.</b></div>';
+    if (ch.now.length){ cidHtml += '<div class="cidgrp">🟢 현재 발급 — 새 영상에 다는 번호</div>' + ch.now.map(function(c){return cidRow(c,false);}).join(''); }
+    if (ch.past.length){ cidHtml += '<div class="cidgrp">🟢 예전 번호 · 예약 집계중 — 새로는 안 쓰지만 과거 영상으로 예약 계속</div>' + ch.past.map(function(c){return cidRow(c,true);}).join(''); }
+    cidHtml += '<div class="cidadd">＋ CID 추가</div><div class="cidremove">번호 제거는 잘못 등록된 것만 (owner · 경고)</div>';
+
     var specHtml = ch.spec
-      ? '<div class="spec-box has"><div class="ttl">✓ 규격 있음 · '+esc(ch.spec)+'</div>원고를 올리면 이 규칙으로 제목·파일명·본문·해시태그·나레이션을 <b style="color:var(--gr)">자동 생성</b>합니다.<div class="spec-actions"><button class="btn go">규격 보기</button><button class="btn">규격 수정</button></div></div>'
-      : (ch.active ? '<div class="spec-box no"><div class="ttl">⚠ 규격 없음</div>원고를 올려도 <b>자동 생성 규칙이 없습니다.</b> Claude 대화로 규격(.md)을 만들어 등록하면 켜집니다.<div class="spec-actions"><button class="btn warn">규격 등록</button></div></div>' : '');
+      ? '<div class="spec-box has"><div class="ttl">✓ 규격 있음 · '+esc(ch.spec)+'</div>원고를 올리면 이 규칙으로 제목·파일명·본문·해시태그·나레이션을 <b style="color:var(--gr)">자동 생성</b>합니다.<div class="actions"><button class="btn go">규격 보기</button><button class="btn">규격 수정</button></div></div>'
+      : '<div class="spec-box no"><div class="ttl">⚠ 규격 없음</div>원고를 올려도 <b>자동 생성 규칙이 없습니다.</b> Claude 대화로 규격(.md)을 만들어 등록하면 켜집니다.<div class="actions"><button class="btn warn">규격 등록 (.md 업로드)</button></div></div>';
+
+    var apiHtml = ch.api ? '<div class="sec"><div class="sec-h">🔗 연동</div><span class="chip api">아고다 API 연결됨</span></div>' : '';
+
     var body =
       '<div class="cbody">' +
-        '<div class="meta"><span><b>언어</b>'+esc(ch.lang)+'</span><span><b>플랫폼</b>youtube</span><span><b>순서</b>'+esc(ch.order)+'</span></div>' +
+        tgtHtml +
+        '<div class="meta"><span><b>언어</b>'+esc(ch.lang)+'</span><span><b>플랫폼</b>youtube</span><span><b>매출 순위</b>'+rank+'위</span></div>' +
         '<div class="sec"><div class="sec-h">💰 아고다 CID — 예약이 이 채널로 잡히는 열쇠</div>'+cidHtml+'</div>' +
-        (specHtml?'<div class="sec"><div class="sec-h">📝 원고 자동생성 규격</div>'+specHtml+'</div>':'') +
-        '<div class="spec-actions" style="margin-top:14px"><button class="btn">채널 정보 수정 (이름·순서·운영여부)</button></div>' +
+        '<div class="sec"><div class="sec-h">📝 원고 자동생성 규격</div>'+specHtml+'</div>' +
+        apiHtml +
+        '<div class="actions" style="margin-top:14px"><button class="btn">채널 정보 수정 (이름·순서·운영여부)</button></div>' +
       '</div>';
-    return '<div class="card'+(ch.active?'':' off')+'" id="c'+i+'">'+head+body+'</div>';
+    return '<div class="card" id="c'+i+'">'+head+body+'</div>';
   }
   function tog(i){ document.getElementById('c'+i).classList.toggle('open'); }
   document.getElementById('list').innerHTML = DATA.map(card).join('');

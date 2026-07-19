@@ -702,6 +702,21 @@
   .st-pub-kpi .l { font-size:11px; color:#8A8794; }
   .st-pub-kpi .n { font-size:22px; font-weight:700; margin-top:3px; }
   .st-pub-sorthint { font-size:10.5px; color:#8A8794; margin:-4px 0 12px 2px; }
+  .st-pub-mini { font-size:11px; padding:4px 10px; border-radius:7px; border:1px solid rgba(128,128,128,.35); background:none; color:inherit; cursor:pointer; margin-left:6px; }
+  .st-pub-mini.bl { border-color:#5AA9E6; color:#5AA9E6; }
+  .st-pub-mini.gr { border-color:#5DCAA5; color:#1D9E75; }
+  .st-pub-mini.rd { border-color:rgba(226,75,74,.5); color:#E24B4A; }
+  .st-pub-mini.off { opacity:.4; }
+  .st-pub-editbox { margin-top:10px; background:rgba(128,128,128,.06); border-radius:9px; padding:11px 12px; }
+  .st-pub-editinput { width:100%; box-sizing:border-box; background:rgba(0,0,0,.2); border:1px solid rgba(128,128,128,.3); border-radius:7px; padding:8px 10px; color:inherit; font-size:12px; }
+  .st-pub-editrow { display:flex; gap:6px; margin-top:9px; flex-wrap:wrap; }
+  .st-pub-editrow .st-pub-mini { margin-left:0; }
+  .st-pub-chk { font-size:11px; margin-top:8px; }
+  .st-pub-chk.yes { color:#1D9E75; }
+  .st-pub-chk.no { color:#8A8794; }
+  .st-pub-req { margin-top:10px; background:rgba(239,159,39,.08); border:1px solid rgba(239,159,39,.3); border-radius:9px; padding:11px 12px; font-size:11.5px; color:#c9b896; }
+  .st-pub-note { font-size:11px; color:#8A8794; margin-top:6px; }
+  .st-pub-hist { font-size:10.5px; color:#8A8794; margin-top:6px; }
   .st-seg-pub.on { color:#1D9E75; }
   .st-sg-btn.del { border-color:rgba(226,75,74,.45); color:#E24B4A; }
   .st-sg-delrow { display:flex; justify-content:flex-end; margin-top:10px; padding-top:9px; border-top:0.5px solid rgba(128,128,128,.12); }
@@ -1326,6 +1341,14 @@
   }
 
   // ── 발행됨 목록 (§11: 이미 올라간 영상 · 검색·정렬. 주소 수정은 2단계) ──
+  var pubEditing = null, pubEditChecked = false, pubReqChecked = {};
+  function pubUrlPatch(id, action, url, confirmMsg) {
+    if (confirmMsg && !confirm(confirmMsg)) return;
+    fetch('/api/publications', { method: 'PATCH', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: id, action: action, youtube_url: url || '' }) })
+      .then(function (r) { return r.json(); })
+      .then(function (j) { if (!j.ok) { alert(j.error || '처리하지 못했습니다.'); return; } pubEditing = null; pubEditChecked = false; pubReqChecked = {}; load(); })
+      .catch(function () { alert('네트워크 오류입니다.'); });
+  }
   var upPubSearch = '', upPubSort = 'recent', upPubCh = '', upPubAssignee = '', upPubLang = '', upPubPeriod = '';
   function renderPublished(list) {
     var cnt = document.getElementById('st-up-count');
@@ -1375,11 +1398,48 @@
       var yu = v.youtube_url ? String(v.youtube_url) : '';
       var yhref = yu ? (yu.indexOf('http') < 0 ? 'https://' + yu : yu) : '';
       var names = Array.isArray(v.hotel_names) ? v.hotel_names.filter(Boolean) : [];
+      var canDirect = ME_OWNER;
+      // 주소 수정 버튼 / 편집 박스
+      var editBtn = (pubEditing === v.id) ? '' : '<button class="st-pub-mini" data-urledit="' + v.id + '">✏ ' + (canDirect ? '주소 수정' : '수정 요청') + '</button>';
+      var editUI = '';
+      if (pubEditing === v.id) {
+        var chk = pubEditChecked
+          ? '<div class="st-pub-chk yes">✓ 영상 확인함 — 이제 ' + (canDirect ? '변경' : '요청') + '할 수 있어요</div>'
+          : '<div class="st-pub-chk no">먼저 [▶ 영상 확인]으로 이 주소가 맞는지 보세요</div>';
+        var actBtn = canDirect
+          ? '<button class="st-pub-mini' + (pubEditChecked ? ' gr' : ' off') + '" data-urldo="' + v.id + '">변경</button>'
+          : '<button class="st-pub-mini' + (pubEditChecked ? ' gr' : ' off') + '" data-urlreq="' + v.id + '">수정 요청 보내기</button>';
+        editUI = '<div class="st-pub-editbox"><input class="st-pub-editinput" id="urlinp-' + v.id + '" placeholder="올바른 유튜브 주소 붙여넣기" value="' + esc(yu) + '">' +
+          chk + '<div class="st-pub-editrow"><button class="st-pub-mini" data-urlcancel="1">취소</button><button class="st-pub-mini bl" data-urlcheck="' + v.id + '">▶ 영상 확인</button>' + actBtn + '</div></div>';
+      }
+      // 수정 요청 중 (있으면)
+      var reqUI = '';
+      if (v.url_request) {
+        var rq = v.url_request;
+        reqUI = '<div class="st-pub-req">⚠ <b>수정 요청 중</b> — ' + esc(rq.by || '') + ' · ' + esc(String(rq.at || '').slice(0, 16).replace('T', ' ')) + '<br>새 주소: ' + esc(rq.url || '');
+        if (ME_OWNER) {
+          var rchk = pubReqChecked[v.id]
+            ? '<div class="st-pub-chk yes">✓ 영상 확인함 — 승인할 수 있어요</div>'
+            : '<div class="st-pub-chk no">승인 전 [▶ 영상 확인]으로 다시 보세요</div>';
+          reqUI += rchk + '<div class="st-pub-editrow"><button class="st-pub-mini bl" data-urlreqcheck="' + v.id + '">▶ 영상 확인</button><button class="st-pub-mini rd" data-urlreject="' + v.id + '">반려</button><button class="st-pub-mini' + (pubReqChecked[v.id] ? ' gr' : ' off') + '" data-urlapprove="' + v.id + '">승인(주소 변경)</button></div>';
+        } else {
+          reqUI += '<div class="st-pub-note">최고관리자 승인을 기다리는 중입니다.</div>';
+        }
+        reqUI += '</div>';
+      }
+      // 변경 이력 (최근 1줄)
+      var histUI = '';
+      if (Array.isArray(v.url_history) && v.url_history.length) {
+        var last = v.url_history[v.url_history.length - 1];
+        histUI = '<div class="st-pub-hist">🕑 ' + esc(last.act || '변경') + ' · ' + esc(String(last.at || '').slice(0, 16).replace('T', ' ')) + (last.by ? ' · ' + esc(shortMail(last.by)) : '') + '</div>';
+      }
       return '<div class="st-pub-item">' +
         '<div class="st-pub-top"><span class="st-pub-title">' + esc(v.title || '(제목 없음)') + '</span>' + (v.channel_code ? '<span class="st-ch-chip">' + esc(chName(v.channel_code)) + '</span>' : '') + '</div>' +
         '<div class="st-pub-meta">' + esc(v.code || '(코드 없음)') + ' · 발행 ' + esc(v.published_at ? String(v.published_at).slice(0, 10) : '-') + ' · 조회 <span class="st-pub-soon">연동 후</span></div>' +
         (names.length ? '<div class="st-pub-hotels">' + names.slice(0, 3).map(function (n, i) { return '<b>TOP' + (i + 1) + '</b> ' + esc(n); }).join(' · ') + '</div>' : '') +
-        '<div class="st-pub-ytrow">' + (yhref ? '<a href="' + esc(yhref) + '" target="_blank" class="st-pub-yt">▶ 유튜브에서 보기</a>' : '<span class="st-pub-soon">유튜브 주소 없음</span>') + '</div>' +
+        histUI +
+        '<div class="st-pub-ytrow">' + (yhref ? '<a href="' + esc(yhref) + '" target="_blank" class="st-pub-yt">▶ 유튜브에서 보기</a>' : '<span class="st-pub-soon">유튜브 주소 없음</span>') + editBtn + '</div>' +
+        editUI + reqUI +
         '</div>';
     }).join('');
     list.innerHTML = ctrl + items;
@@ -1394,6 +1454,15 @@
     bindSel('#pub-asg', function (v) { upPubAssignee = v; });
     bindSel('#pub-lang', function (v) { upPubLang = v; });
     bindSel('#pub-period', function (v) { upPubPeriod = v; });
+    // 주소 수정 흐름 (§11-2)
+    list.querySelectorAll('[data-urledit]').forEach(function (b) { b.onclick = function () { pubEditing = b.dataset.urledit; pubEditChecked = false; renderPublished(list); setTimeout(function () { var el = list.querySelector('#urlinp-' + pubEditing); if (el) el.focus(); }, 30); }; });
+    list.querySelectorAll('[data-urlcancel]').forEach(function (b) { b.onclick = function () { pubEditing = null; pubEditChecked = false; renderPublished(list); }; });
+    list.querySelectorAll('[data-urlcheck]').forEach(function (b) { b.onclick = function () { var el = list.querySelector('#urlinp-' + b.dataset.urlcheck); if (!el || !el.value.trim()) { alert('먼저 유튜브 주소를 넣어주세요.'); return; } var u = el.value.trim(); if (u.indexOf('http') < 0) u = 'https://' + u; window.open(u, '_blank'); pubEditChecked = true; renderPublished(list); }; });
+    list.querySelectorAll('[data-urldo]').forEach(function (b) { b.onclick = function () { if (!pubEditChecked) { alert('먼저 [▶ 영상 확인]을 눌러 주소가 맞는지 보세요.'); return; } var el = list.querySelector('#urlinp-' + b.dataset.urldo); pubUrlPatch(b.dataset.urldo, 'url_edit', el ? el.value.trim() : '', '이 주소로 바꾸면 지금까지 쌓인 조회·예약이 새 영상 기준으로 다시 계산됩니다. 변경할까요?'); }; });
+    list.querySelectorAll('[data-urlreq]').forEach(function (b) { b.onclick = function () { if (!pubEditChecked) { alert('먼저 [▶ 영상 확인]을 눌러 주소가 맞는지 보세요.'); return; } var el = list.querySelector('#urlinp-' + b.dataset.urlreq); pubUrlPatch(b.dataset.urlreq, 'url_request', el ? el.value.trim() : ''); }; });
+    list.querySelectorAll('[data-urlreqcheck]').forEach(function (b) { b.onclick = function () { var v = rows.find(function (x) { return x.id === b.dataset.urlreqcheck; }); if (!v || !v.url_request) return; var u = v.url_request.url; if (u.indexOf('http') < 0) u = 'https://' + u; window.open(u, '_blank'); pubReqChecked[b.dataset.urlreqcheck] = true; renderPublished(list); }; });
+    list.querySelectorAll('[data-urlapprove]').forEach(function (b) { b.onclick = function () { if (!pubReqChecked[b.dataset.urlapprove]) { alert('먼저 [▶ 영상 확인]을 눌러 주소가 맞는지 보세요.'); return; } pubUrlPatch(b.dataset.urlapprove, 'url_approve', '', '이 주소로 바꾸면 쌓인 조회·예약이 새 영상 기준으로 다시 계산됩니다. 승인할까요?'); }; });
+    list.querySelectorAll('[data-urlreject]').forEach(function (b) { b.onclick = function () { pubUrlPatch(b.dataset.urlreject, 'url_reject', ''); }; });
   }
 
   function render() {

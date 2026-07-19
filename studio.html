@@ -686,6 +686,18 @@
   .st-sg-btn:hover { border-color:currentColor; }
   .st-sg-btn.go { border-color:#5DCAA5; color:#1D9E75; font-weight:500; }
   .st-sg-btn.yt { border-color:rgba(226,75,74,.45); color:#E24B4A; }
+  .st-pub-ctrl { display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap; }
+  .st-pub-ctrl input { flex:1; min-width:180px; background:rgba(128,128,128,.08); border:1px solid rgba(128,128,128,.3); border-radius:8px; padding:8px 12px; color:inherit; font-size:12.5px; }
+  .st-pub-ctrl select { background:rgba(128,128,128,.08); border:1px solid rgba(128,128,128,.3); border-radius:8px; padding:8px 10px; color:inherit; font-size:12.5px; }
+  .st-pub-item { border:1px solid rgba(128,128,128,.2); border-radius:10px; padding:12px 14px; margin-bottom:10px; }
+  .st-pub-top { display:flex; align-items:center; gap:8px; justify-content:space-between; }
+  .st-pub-title { font-size:14px; font-weight:600; }
+  .st-pub-meta { font-size:11.5px; color:#9db4c9; margin-top:5px; }
+  .st-pub-hotels { font-size:11.5px; color:#b9c8d8; margin-top:6px; }
+  .st-pub-ytrow { margin-top:9px; }
+  .st-pub-yt { font-size:11.5px; color:#E24B4A; text-decoration:none; border:1px solid rgba(226,75,74,.4); border-radius:7px; padding:4px 10px; display:inline-block; }
+  .st-pub-soon { color:#8A8794; }
+  .st-seg-pub.on { color:#1D9E75; }
   .st-sg-btn.del { border-color:rgba(226,75,74,.45); color:#E24B4A; }
   .st-sg-delrow { display:flex; justify-content:flex-end; margin-top:10px; padding-top:9px; border-top:0.5px solid rgba(128,128,128,.12); }
   .st-sg-empty { font-size:12px; opacity:.4; text-align:center; padding:18px 0; }
@@ -795,6 +807,7 @@
         <button data-vm="mine">내 작업</button>
         <button data-vm="unassigned">미지정</button>
         <button data-vm="review" class="st-seg-review">확인필요</button>
+        <button data-vm="published" class="st-seg-pub">발행됨</button>
       </div>
       <div class="st-filters">
         <select id="f-ch"><option value="">채널 전체</option></select>
@@ -1305,12 +1318,57 @@
     if (rb) rb.textContent = '확인필요' + (review ? ' ' + review : '');
   }
 
+  // ── 발행됨 목록 (§11: 이미 올라간 영상 · 검색·정렬. 주소 수정은 2단계) ──
+  var upPubSearch = '', upPubSort = 'recent';
+  function renderPublished(list) {
+    var cnt = document.getElementById('st-up-count');
+    var pubs = rows.filter(function (r) { return r.status === 'published'; });
+    var q = upPubSearch.trim().toLowerCase();
+    if (q) pubs = pubs.filter(function (r) {
+      var hay = [(r.title || ''), (r.code || ''), (r.channel_code || ''), (Array.isArray(r.hotel_names) ? r.hotel_names.join(' ') : '')].join(' ').toLowerCase();
+      return hay.indexOf(q) >= 0;
+    });
+    pubs.sort(function (a, b) {
+      if (upPubSort === 'channel') return (a.channel_code || '').localeCompare(b.channel_code || '');
+      return (+new Date(b.published_at || 0)) - (+new Date(a.published_at || 0));
+    });
+    if (cnt) cnt.textContent = pubs.length + '건';
+    var ctrl = '<div class="st-pub-ctrl">' +
+      '<input id="pub-search" placeholder="제목 · 코드(TW·채널) · 호텔명 · 채널로 찾기" value="' + esc(upPubSearch) + '">' +
+      '<select id="pub-sort"><option value="recent"' + (upPubSort === 'recent' ? ' selected' : '') + '>최신 발행순</option>' +
+      '<option value="channel"' + (upPubSort === 'channel' ? ' selected' : '') + '>채널별</option></select></div>';
+    if (!pubs.length) { list.innerHTML = ctrl + '<div class="st-empty">발행된 영상이 없습니다.</div>'; bindPubCtrl(list); return; }
+    var items = pubs.map(function (v) {
+      var yu = v.youtube_url ? String(v.youtube_url) : '';
+      var yhref = yu ? (yu.indexOf('http') < 0 ? 'https://' + yu : yu) : '';
+      var names = Array.isArray(v.hotel_names) ? v.hotel_names.filter(Boolean) : [];
+      return '<div class="st-pub-item">' +
+        '<div class="st-pub-top"><span class="st-pub-title">' + esc(v.title || '(제목 없음)') + '</span>' + (v.channel_code ? '<span class="st-ch-chip">' + esc(chName(v.channel_code)) + '</span>' : '') + '</div>' +
+        '<div class="st-pub-meta">' + esc(v.code || '(코드 없음)') + ' · 발행 ' + esc(v.published_at ? String(v.published_at).slice(0, 10) : '-') + ' · 조회 <span class="st-pub-soon">연동 후</span></div>' +
+        (names.length ? '<div class="st-pub-hotels">' + names.slice(0, 3).map(function (n, i) { return '<b>TOP' + (i + 1) + '</b> ' + esc(n); }).join(' · ') + '</div>' : '') +
+        '<div class="st-pub-ytrow">' + (yhref ? '<a href="' + esc(yhref) + '" target="_blank" class="st-pub-yt">▶ 유튜브에서 보기</a>' : '<span class="st-pub-soon">유튜브 주소 없음</span>') + '</div>' +
+        '</div>';
+    }).join('');
+    list.innerHTML = ctrl + items;
+    bindPubCtrl(list);
+  }
+  function bindPubCtrl(list) {
+    var s = list.querySelector('#pub-search');
+    if (s) s.oninput = function () { var pos = s.selectionStart; upPubSearch = s.value; renderPublished(list); var s2 = list.querySelector('#pub-search'); if (s2) { s2.focus(); try { s2.setSelectionRange(pos, pos); } catch (e) {} } };
+    var so = list.querySelector('#pub-sort');
+    if (so) so.onchange = function () { upPubSort = so.value; renderPublished(list); };
+  }
+
   function render() {
     var list = document.getElementById('st-list');
     var cnt = document.getElementById('st-up-count');
     if (upView === 'review') {
       if (cnt) cnt.textContent = driveReview.length + '건';
       renderReview(list);
+      return;
+    }
+    if (upView === 'published') {
+      renderPublished(list);
       return;
     }
     var shown = rows.filter(passFilter);

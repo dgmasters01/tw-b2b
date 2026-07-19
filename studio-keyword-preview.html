@@ -480,6 +480,8 @@ function curTM(){return XM?XM.m:parseInt(MO[cm]);}
 function curLbl(){return XM?(XM.y+'년 '+XM.m+'월'):MO[cm];}
 function dmo(y,m){return (y-TODAY.getFullYear())*12+(m-1-TODAY.getMonth());}
 var cm=3,cc='일본',cy='오사카',cd='난바',more=false;
+var ANALYSIS_MODE=false,ANALYSIS_STAR=0;
+try{var _ap=new URLSearchParams(location.search);ANALYSIS_MODE=_ap.get('mode')==='analysis';ANALYSIS_STAR=parseInt(_ap.get('star')||'0',10);}catch(e){}
 function pk2(c){ if(!koOnly()) return null;   /* 한국어 조사만 있다 */
   var s=SE[c];if(!s)return null;var mx=Math.max.apply(null,s),r=[];for(var i=0;i<12;i++)if(s[i]>=mx*0.9)r.push(i+1);return r;}
 /* 🔴 다른 타겟이면 **박힌 한국어 숫자를 쓰지 않는다** (대표님 2026-07-17).
@@ -1341,6 +1343,7 @@ function rx(d){cd=d;
    if(ordS.length){
      h+='<div class="bk"><div class="bh">① 콘텐츠 추천 <span style="font-size:10px;color:var(--muted);font-weight:400;">— 성급별 · 매출 순</span><span class="no" style="margin-left:auto;">4-3</span></div>';
      ordS.forEach(function(st,idx){
+       if(ANALYSIS_MODE && ANALYSIS_STAR && st!==ANALYSIS_STAR) return;
        var g3=byS[st], per=g3.bk?Math.round(g3.rev/g3.bk):0;
        var top3=g3.list.slice(0,3);
        var head3=(dRow&&dRow.head)||(d+' 호텔');
@@ -1363,7 +1366,7 @@ function rx(d){cd=d;
           '<div onclick="cxmore('+st+')" style="flex:1;font-size:11px;color:var(--bl);cursor:pointer;padding:8px 10px;'+
           'border:1px solid var(--line);border-radius:7px;text-align:center;background:var(--card);">'+
           (CXOPEN===st?'접기 ▴':'펼쳐 보기 ▾ — 호텔별 확정·취소·금액')+'</div>'+
-          qBtn(head3+' TOP3 — '+stN3(st), st, 'star')+'</div>'+
+          (ANALYSIS_MODE ? '' : qBtn(head3+' TOP3 — '+stN3(st), st, 'star'))+'</div>'+
           (CXOPEN===st?cxDetail(g3.list,PT):'')+
           '</div>';
      });
@@ -1372,6 +1375,7 @@ function rx(d){cd=d;
         난바 리조트는 2곳뿐이라 안 뜬다. 다낭·나트랑에선 뜰 수 있다. */
      var TYPEAX={ryokan:['료칸','ryokan'],resort:['리조트','resort'],villa:['빌라','villa']};
      Object.keys(TYPEAX).forEach(function(pt){
+       if(ANALYSIS_MODE) return;
        var word=TYPEAX[pt][0];
        var kw=KW.filter(function(k){ return k.text.indexOf(word)>=0 && k.demand!==null; })
                .concat(((SV&&SV.rows)||[]).filter(function(k){ return k.text.indexOf(word)>=0 && k.demand!==null; }))
@@ -1614,7 +1618,7 @@ function vw(w,a,b){
  if(w==='m'){sh('s1');document.getElementById('bc').innerHTML='';return;}
  if(w==='c'){rc(a);sh('s2');bc('c',a);return;}
  if(w==='d'){if(b)cc=b;rdd(a);sh('s3');bc('d',a);return;}
- if(w==='x'){KWMORE=false;HRSTAR=null;HRMORE=false;HFSTAR=null;HFMORE={};CXOPEN=null;QASK=null;rx(a);sh('s4');bc('x',a);return;}   /* 다른 지역으로 가면 「더 보기」는 접힌 채로 시작 */
+ if(w==='x'){KWMORE=false;HRSTAR=null;HRMORE=false;HFSTAR=null;HFMORE={};CXOPEN=null;QASK=null;rx(a);sh('s4');if(ANALYSIS_MODE){document.getElementById('bc').innerHTML='';}else{bc('x',a);}return;}   /* 다른 지역으로 가면 「더 보기」는 접힌 채로 시작 */
  if(w==='r'){rrs(a);sh('s6');document.getElementById('bc').innerHTML='<a onclick="go(\'m\')">홈</a> › <span>한국어 · 한국</span> › <b>'+a+'</b> › <b>조사 시작</b>';return;}}
 // A안 — 폰 뒤로가기 지원. 지금까지 폰 뒤로 버튼을 누르면 **앱을 통째로 나갔다**(대표님 2026-07-16).
 // 헌법 원칙 3 "핸드폰 한 대로 모든 작업". vw()=그리기 / go()=그리기+이력쌓기 로 분리.

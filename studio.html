@@ -2062,7 +2062,7 @@
       ? '<div style="background:rgba(128,140,160,.06);border-radius:8px;padding:14px 16px;font-size:12px;line-height:1.75;white-space:pre-wrap;word-break:break-word;max-height:52vh;overflow-y:auto;color:#cfd6de;">' + esc(text) + '</div>'
       : '<div style="background:rgba(128,140,160,.06);border-radius:8px;padding:16px;font-size:11.5px;color:#8A8794;text-align:center;line-height:1.7;">이 원고는 본문 저장 기능이 켜지기 전에 올라온 것이라 본문이 없습니다.<br>다시 올리면 본문이 저장됩니다.</div>';
     var html = '<div style="font-size:15px;font-weight:600;">' + esc(it.title) + '</div>' +
-      '<div style="font-size:11px;color:#9a9aa5;margin:3px 0 14px;">' + esc(it.code || '') + ' · ' + esc(pub.channel_code || '') + (pubdate ? ' · 발행 ' + esc(pubdate) : '') + (pub.source_filename ? '<br>' + esc(pub.source_filename) : '') + '</div>' +
+      '<div style="font-size:11px;color:#9a9aa5;margin:3px 0 14px;">' + esc(it.code || '') + ' · ' + esc(pub.channel_code ? chName(pub.channel_code) : '') + (pubdate ? ' · 발행 ' + esc(pubdate) : '') + (pub.source_filename ? '<br>' + esc(pub.source_filename) : '') + '</div>' +
       '<div style="font-size:10.5px;color:#8A8794;margin-bottom:6px;">원고 본문</div>' +
       bodyHtml;
     sgOverlay(html, 1000);
@@ -2076,13 +2076,14 @@
     var expanded = (sgExpanded === it.id);
     var src = SG_SOURCE[it.source] || it.source || '자체 기획';
     var ch = pub.channel_code || it.channel_code || '';
+    var chLabel = ch ? chName(ch) : '';
     var pubdate = pub.published_at ? String(pub.published_at).slice(0, 10) : '';
     var names = Array.isArray(pub.hotel_names) ? pub.hotel_names.filter(Boolean) : [];
     var uploader = pub.published_by_email || pub.uploader_email || '?';
     var isOwner = sgRoleOf(sgMe) === 'owner';
 
     var badges = '<span class="st-ch-chip" style="color:#1D9E75;border-color:#5DCAA5;">' + esc(src) + '</span>';
-    if (ch) badges += '<span class="st-ch-chip">' + esc(ch) + '</span>';
+    if (ch) badges += '<span class="st-ch-chip">' + esc(chLabel) + '</span>';
     badges += '<span class="st-ch-chip" style="color:#1D9E75;border-color:#5DCAA5;">✓ 발행됨</span>';
 
     var acts = '';
@@ -2095,9 +2096,9 @@
     // 발행완료 버튼 = 유튜브 · (추천=분석 / 자체기획=원고열기) · 성과보기 (§9-1)
 
     var submeta = '<span class="st-sg-src">' + esc(src) + '</span>'
-      + (ch ? ' · ' + esc(ch) : '')
+      + (chLabel ? ' · ' + esc(chLabel) : '')
       + (pubdate ? ' · 발행 ' + esc(pubdate) : '');
-    var idline = esc(it.code || '') + (ch ? ' · ' + esc(ch) : '');
+    var idline = esc(it.code || '') + (chLabel ? ' · ' + esc(chLabel) : '');
     // 이 영상에 나온 호텔 = TOP1·2·3 (§9-1)
     var hotelLine = '';
     if (names.length) {

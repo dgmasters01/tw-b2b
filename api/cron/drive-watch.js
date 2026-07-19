@@ -150,7 +150,10 @@ export default async function handler(req, res) {
           const b64 = await downloadBase64(token, pf.id);
           const text = docxToText(b64) || '';
           const urls = text.match(/https?:\/\/\S+/g) || [];
-          chReport.peek.push({ name: pf.name, chars: text.length, urls: urls, head: text.slice(0, 500) });
+          // youtube.js findAgodaLinks 와 똑같은 정규식으로 실측
+          const agodaAll = (text.match(/https?:\/\/[^\s"'<>\]]*agoda[^\s"'<>\]]*/gi) || []).map(function (u) { return u.replace(/&amp;/g, '&'); });
+          const hidUrls = agodaAll.filter(function (u) { return /[?&]hid=\d+/.test(u); });
+          chReport.peek.push({ name: pf.name, chars: text.length, urls: urls, agoda_all: agodaAll, hid_urls: hidUrls, head: text.slice(0, 300) });
         } catch (e) { chReport.peek.push({ name: pf.name, err: String(e.message || e) }); }
       }
     }

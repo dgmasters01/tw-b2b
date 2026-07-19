@@ -90,15 +90,14 @@
     <span class="k">원고 규격</span>을 상세에서 관리합니다. 올리기·성과표·호텔이 이 채널 위에서 돕니다.
   </div>
 
-  <!-- 새 채널 = .md 업로드 -->
+  <!-- 새 채널 = .md 업로드 (코드도 파일에서 자동) -->
   <div class="newbox" id="newbox">
     <h4>＋ 새 채널 등록</h4>
-    <div class="hint">우리 방식 = <b>규격 .md 파일 하나만 올리면</b> 채널이 만들어집니다. 파일 §0에서 <b>이름·언어·아고다 CID를 자동으로 읽습니다.</b> 사람은 <b>코드</b>만 확인 입력(예약 연결 열쇠라 나중에 못 바꿈).</div>
-    <div class="frow"><label>채널 코드</label><input type="text" placeholder="예: TH · MY (영문·숫자 2~20자)"></div>
+    <div class="hint">우리 방식 = <b>규격 .md 파일 하나만 올리면 끝.</b> 파일 §0에서 <b>코드·이름·언어·아고다 CID를 전부 자동으로 읽습니다.</b> <b style="color:var(--gr)">대표님은 파일만 올리시면 됩니다</b> — 코드는 규격을 만들 때 Claude가 정해 파일에 넣어둡니다(예약·규격이 이 코드에 묶여 나중에 안 바뀜).</div>
     <div class="frow"><label>규격 .md</label><input type="file" accept=".md"></div>
-    <div class="filenote">Claude 대화창에서 만든 {채널}.md 파일 (제목·본문·태그·나레이션 규칙 담긴 것)</div>
+    <div class="filenote">Claude 대화창에서 만든 {채널}.md 파일 (§0 채널정보 + 제목·본문·태그·나레이션 규칙)</div>
     <div class="actions"><button class="btn go">파일 읽기 (미리보기)</button></div>
-    <div class="fpreview">읽은 결과 (예시) — <b>이름</b> 호텔타이 · <b>언어</b> 태국어 · <b>아고다 CID</b> 19xxxxx <span style="color:var(--muted)">→ 확인 후 등록하면 채널 DB·CID 매핑·규격 배치·활성화까지 자동</span></div>
+    <div class="fpreview">읽은 결과 (예시) — <b>코드</b> TH · <b>이름</b> 호텔타이 · <b>언어</b> 태국어 · <b>아고다 CID</b> 19xxxxx <span style="color:var(--muted)">→ 전부 파일에서 자동. 확인 후 등록하면 채널 DB·CID 매핑·규격 배치·활성화까지 자동</span></div>
     <div class="actions"><button class="btn go">등록</button><button class="btn" onclick="document.getElementById('newbox').classList.remove('open')">취소</button></div>
   </div>
 

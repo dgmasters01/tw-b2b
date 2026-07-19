@@ -1830,7 +1830,7 @@
       var am = it.note.match(/숙박 각도:\s*([\d박·\s]+?)\s*(\d+)%/);
       if (am) { var stays = am[1].trim().split(/·/).map(function (s, i) { return (i + 1) + '위 ' + s.trim(); }).join(', '); descLines.push('<b>여행 일정</b> ' + esc(stays) + ' (전체 ' + am[2] + '%)'); }
     }
-    var peakNote = descLines.length ? '<div class="st-sg-desc"><span class="st-sg-desc-t">설명</span>' + descLines.join('<br>') + '</div>' : '';
+    var peakNote = descLines.length ? '<div class="st-sg-desc">' + descLines.join('<br>') + '</div>' : '';
 
     var si = SG_STAGES.findIndex(function (s) { return s.key === it.stage; });
     var mine = it.assignee_email && it.assignee_email === sgMe;

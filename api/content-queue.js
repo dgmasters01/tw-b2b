@@ -42,7 +42,7 @@ function accessToken(req) {
 async function authorized(req) {
   const expected = process.env.CLAUDE_OPS_TOKEN;
   if (expected && (req.headers['x-ops-token'] || '') === expected) {
-    return { ok: true, via: 'ops-token', isAdmin: true, email: null };
+    return { ok: true, via: 'ops-token', isAdmin: true, isOwner: true, email: null };
   }
   const token = accessToken(req);
   if (!token || !SUPABASE_URL || !SUPABASE_ANON) return { ok: false };
@@ -53,12 +53,16 @@ async function authorized(req) {
     const u = await fetch(`${SUPABASE_URL}/auth/v1/user`, { headers: H });
     if (!u.ok) return { ok: false };
     const user = await u.json();
-    let isAdmin = false;
+    let isAdmin = false, isOwner = false;
     try {
       const a = await fetch(`${SUPABASE_URL}/rest/v1/rpc/is_admin`, { method: 'POST', headers: H, body: '{}' });
       isAdmin = a.ok && (await a.json()) === true;
     } catch { /* 못 물어보면 안 보여준다 */ }
-    return { ok: true, via: 'session', isAdmin, email: user.email || null };
+    try {
+      const o = await fetch(`${SUPABASE_URL}/rest/v1/rpc/is_owner`, { method: 'POST', headers: H, body: '{}' });
+      isOwner = o.ok && (await o.json()) === true;
+    } catch { /* noop */ }
+    return { ok: true, via: 'session', isAdmin, isOwner, email: user.email || null };
   } catch {
     return { ok: false };
   }
@@ -205,14 +209,32 @@ export default async function handler(req, res) {
       if (p != null) patch.priority = Math.max(1, Math.min(5, p));
     }
     if (body.target_month !== undefined) patch.target_month = clip(body.target_month, 20);
-    // 원고 담당(writer) 배정 — 접속자별 권한 (D-066):
-    //   'me' → 내가 맡기(에디터도 가능) / '' 또는 null → 놓기
-    //   특정 이메일 지정 → 관리자(대표님)만 가능
+    // 원고 담당(writer) 배정 — §8-2 담당 권한 (D-067 · STUDIO_FLOW 3장). 서버가 최종 관문.
+    //   'me' → 내가 맡기 / '' 또는 null → 놓기 / 특정 이메일 → 재배정(최고관리자만)
+    //   규칙: 담당 있으면 남이 못 맡음 · 재배정=최고관리자만 · 원고작성 놓기 없음(변경은 최고관리자만)
     if (body.writer !== undefined) {
-      if (body.writer === 'me') patch.assignee_email = auth.email || null;
-      else if (!body.writer) patch.assignee_email = null;
-      else {
-        if (!auth.isAdmin) return res.status(403).json({ ok: false, error: '다른 사람 담당 지정은 관리자만 할 수 있습니다.' });
+      // 현재 카드 상태를 먼저 읽는다 (화면 말이 아니라 DB 로 판정).
+      const { data: cur } = await sb.from('content_queue').select('assignee_email, stage').eq('id', id).maybeSingle();
+      if (!cur) return res.status(404).json({ ok: false, error: '카드를 찾지 못했습니다.' });
+      const me = auth.email || null;
+      const held = cur.assignee_email || null;
+
+      if (body.writer === 'me') {
+        // 이미 남이 맡았으면 최고관리자만 바꿀 수 있다 (뺏기 금지).
+        if (held && held !== me && !auth.isOwner) {
+          return res.status(403).json({ ok: false, error: '이미 다른 사람이 맡은 원고입니다. 담당 변경은 최고관리자만 할 수 있습니다.' });
+        }
+        patch.assignee_email = me;
+      } else if (!body.writer) {
+        // 놓기: 원고작성 단계는 놓기 없음(§8-2). 남의 담당도 못 놓음. 최고관리자는 예외.
+        if (!auth.isOwner) {
+          if (held && held !== me) return res.status(403).json({ ok: false, error: '다른 사람이 맡은 원고는 놓을 수 없습니다.' });
+          if (cur.stage === 'writing') return res.status(403).json({ ok: false, error: '원고 작성 단계에서는 놓을 수 없습니다. 담당 변경은 최고관리자만 가능합니다.' });
+        }
+        patch.assignee_email = null;
+      } else {
+        // 특정 이메일 지정·재배정 = 최고관리자만 (§8-2).
+        if (!auth.isOwner) return res.status(403).json({ ok: false, error: '담당 지정·재배정은 최고관리자만 할 수 있습니다.' });
         patch.assignee_email = clip(body.writer, 200);
       }
     }

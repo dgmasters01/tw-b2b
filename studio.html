@@ -672,6 +672,7 @@
   .st-sg-desc-hint { font-size:9.5px; color:#6a85a0; }
   .st-sg-role { font-size:11px; display:inline-flex; align-items:center; opacity:.9; }
   .st-sg-role.none { color:#BA7517; opacity:1; }
+  .st-sg-plabel { font-size:9.5px; color:#8A8794; margin-right:4px; }
   .st-sg-rolebadge { font-size:9.5px; padding:2px 6px; border-radius:6px; border:1px solid; margin-right:5px; background:rgba(128,128,128,.05); white-space:nowrap; }
   .st-sg-pname { max-width:110px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; display:inline-block; vertical-align:bottom; }
   .st-sg-chips { display:flex; flex-wrap:wrap; gap:5px; margin-bottom:8px; }
@@ -2209,9 +2210,15 @@
 
     // 기획자(만든 사람) — 앞면에 표시
     var planner = it.planner_email ? '<span class="st-sg-role plan">' + sgRoleBadge(sgRoleOf(it.planner_email)) + '<span class="st-sg-pname" title="' + esc(sgName(it.planner_email)) + '">' + esc(sgName(it.planner_email)) + '</span></span>' : '';
-    // 원고 담당 — 최고관리자만 팀원 드롭다운으로 지정/재배정(§8-2), 그 외는 표시만
+    // 담당줄 = 단계별 주인공 (§8-1). 기획대기·원고작성=원고 담당 / 발행예정=업로더(올리기에서 정함).
     var writerCtl;
-    if (isOwner) {
+    if (it.stage === 'scheduled') {
+      // 발행예정 주인공 = 업로더. 전략에선 표시만, 재배정은 올리기에서(§8-1 line64·미완9). 코드로 올리기와 이어짐(§8-5).
+      var up = it.pub && (it.pub.uploader_email || it.pub.published_by_email);
+      writerCtl = up
+        ? '<span class="st-sg-role" title="올리기에서 이 사람이 올리기로 맡음"><span class="st-sg-plabel">올릴 사람</span> ' + sgRoleBadge(sgRoleOf(up)) + '<span class="st-sg-pname" title="' + esc(sgName(up)) + '">' + esc(sgName(up)) + '</span></span>'
+        : '<span class="st-sg-role none">올리기에서 업로더 맡기 전</span>';
+    } else if (isOwner) {
       var opts = '<option value="">＋ 담당 지정</option>';
       sgTeam.forEach(function (m) { opts += '<option value="' + esc(m.email) + '"' + (m.email === it.assignee_email ? ' selected' : '') + '>[' + esc(ROLE_LABEL[m.role] || m.role) + '] ' + esc((m.display_name || '').split('(')[0].trim() || shortMail(m.email)) + '</option>'; });
       writerCtl = '<select class="st-sg-assign' + (it.assignee_email ? '' : ' none') + '" data-sgassignsel="' + it.id + '">' + opts + '</select>';

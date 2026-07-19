@@ -114,11 +114,12 @@ var expanded = null;
 function analyze(id){
   var c = CARDS.find(function(x){ return x.id===id; }); if(!c) return;
   var dist = c.title.indexOf('우메다')>=0 ? '우메다' : '난바';
-  // 분석 = 팝업 안에 그 지역 조사 전체 (화면 안 떠남)
+  // 분석 = 팝업 안에 그 지역 조사 전체 (분석 모드: 그 성급만·전략으로/빵부스러기 없음)
+  var url = 'studio-keyword-preview.html?dist=' + encodeURIComponent(dist) + '&mode=analysis' + (c.star ? '&star=' + c.star : '');
   var ov = document.createElement('div');
   ov.className = 'an-ov';
   ov.innerHTML = '<div class="an-frame"><button class="an-x" onclick="this.closest(\'.an-ov\').remove()">✕ 닫기</button>'+
-    '<iframe src="studio-keyword-preview.html?dist='+encodeURIComponent(dist)+'"></iframe></div>';
+    '<iframe src="'+url+'"></iframe></div>';
   ov.onclick = function(e){ if(e.target===ov) ov.remove(); };
   document.body.appendChild(ov);
 }

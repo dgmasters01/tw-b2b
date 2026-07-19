@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>채널 메뉴 재설계 프리뷰</title>
+<style>
+  :root{ --bg:#080d14; --card:#0b1119; --line:#1c2f45; --line2:#24384e; --txt:#e6eef6; --sub:#9db4c9; --muted:#6a85a0;
+         --bl:#5aa9e6; --gr:#1D9E75; --gr2:#5DCAA5; --am:#EF9F27; --rd:#E24B4A; }
+  *{box-sizing:border-box;}
+  body{background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Malgun Gothic",sans-serif;
+       line-height:1.55;padding:16px 13px 70px;max-width:760px;margin:0 auto;font-size:14px;}
+  .pv{background:rgba(239,159,39,.1);color:var(--am);font-size:11px;padding:7px 12px;border-radius:9px;margin-bottom:14px;text-align:center;line-height:1.5;}
+
+  /* 헤더 — 다른 메뉴와 동일 (st-head/st-h/st-sub) */
+  .head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px;}
+  .h{font-size:16px;font-weight:600;}
+  .head .cnt{font-size:12px;color:var(--muted);}
+  .newbtn{background:transparent;border:1px solid var(--gr2);color:var(--gr);font-size:12px;padding:7px 12px;border-radius:8px;cursor:pointer;font-family:inherit;}
+
+  /* 목적 배너 — 성과표 st-pf-goal 패턴 */
+  .goal{background:rgba(29,158,117,.08);border:1px solid rgba(29,158,117,.25);border-radius:10px;padding:11px 14px;font-size:12.5px;line-height:1.65;margin:8px 0 16px;color:var(--sub);}
+  .goal b{color:var(--txt);}
+  .goal .k{color:var(--gr);font-weight:600;}
+
+  /* 채널 카드 — 전략 카드 패턴(펼침) */
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;margin-bottom:11px;overflow:hidden;}
+  .card.off{opacity:.5;}
+  .chead{display:flex;align-items:center;gap:9px;padding:13px 15px;cursor:pointer;flex-wrap:wrap;}
+  .code{font-size:11px;font-weight:700;background:rgba(128,140,160,.16);color:#b9c8d8;padding:3px 8px;border-radius:6px;letter-spacing:.3px;}
+  .nm{font-size:14.5px;font-weight:600;}
+  .en{font-size:11.5px;color:var(--muted);}
+  .spacer{flex:1;}
+  .chip{font-size:10.5px;padding:2px 8px;border-radius:20px;border:1px solid rgba(128,128,128,.3);color:var(--sub);white-space:nowrap;}
+  .chip.on{color:var(--gr);border-color:var(--gr2);}
+  .chip.off{color:var(--am);border-color:rgba(239,159,39,.5);}
+  .chip.lang{background:rgba(90,169,230,.12);border-color:transparent;color:var(--bl);}
+  .chip.spec{color:var(--gr);border-color:var(--gr2);background:rgba(29,158,117,.08);}
+  .chip.nospec{color:var(--am);border-color:rgba(239,159,39,.45);background:rgba(239,159,39,.06);}
+  .chip.api{color:#4edea3;border-color:#4edea3;}
+  .cidmini{font-size:11px;color:var(--gr);background:rgba(29,158,117,.1);padding:3px 8px;border-radius:6px;font-variant-numeric:tabular-nums;}
+  .caret{width:24px;height:24px;border-radius:50%;background:rgba(128,128,128,.12);color:var(--sub);display:inline-flex;align-items:center;justify-content:center;flex:none;transition:transform .15s;}
+  .card.open .caret{transform:rotate(180deg);}
+  .cbody{display:none;padding:0 15px 15px;border-top:1px solid rgba(128,128,128,.12);}
+  .card.open .cbody{display:block;}
+
+  .meta{display:flex;gap:16px;flex-wrap:wrap;font-size:11.5px;color:var(--muted);padding:11px 0 4px;}
+  .meta b{color:var(--sub);font-weight:500;margin-right:4px;}
+
+  .sec{margin-top:13px;}
+  .sec-h{font-size:11px;color:var(--sub);margin-bottom:7px;display:flex;align-items:center;gap:6px;}
+  .sec-h .ic{font-size:12px;}
+
+  /* CID = 돈 열쇠 */
+  .cidnow{background:rgba(29,158,117,.09);border:1px solid rgba(29,158,117,.28);border-radius:9px;padding:10px 12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .cidnow .big{font-size:16px;font-weight:700;color:var(--gr);font-variant-numeric:tabular-nums;}
+  .cidnow .tag{font-size:10px;color:var(--gr);border:1px solid var(--gr2);border-radius:5px;padding:1px 6px;}
+  .cidnow .say{font-size:11px;color:var(--sub);flex:1;min-width:130px;}
+  .cidold{margin-top:8px;font-size:11.5px;color:var(--muted);}
+  .cidold .tog{cursor:pointer;color:var(--sub);}
+  .cidold-list{display:none;margin-top:7px;flex-wrap:wrap;gap:6px;}
+  .cidold-list.open{display:flex;}
+  .oldc{font-size:11px;color:var(--muted);border:1px solid rgba(128,128,128,.22);border-radius:6px;padding:3px 8px;font-variant-numeric:tabular-nums;}
+  .oldc .lab{opacity:.7;margin-left:4px;font-size:9.5px;}
+  .cidadd{margin-top:9px;font-size:11px;color:var(--bl);cursor:pointer;}
+
+  /* 규격 */
+  .spec-box{border-radius:9px;padding:11px 12px;font-size:11.5px;line-height:1.6;}
+  .spec-box.has{background:rgba(29,158,117,.07);border:1px solid rgba(29,158,117,.22);color:var(--sub);}
+  .spec-box.no{background:rgba(239,159,39,.06);border:1px solid rgba(239,159,39,.28);color:#e8cfa0;}
+  .spec-box .ttl{color:var(--txt);font-weight:600;margin-bottom:3px;}
+  .spec-actions{margin-top:9px;display:flex;gap:8px;}
+  .btn{font-size:11px;padding:6px 12px;border-radius:7px;border:1px solid var(--line2);background:transparent;color:var(--sub);cursor:pointer;font-family:inherit;}
+  .btn.go{border-color:var(--gr2);color:var(--gr);}
+  .btn.warn{border-color:rgba(239,159,39,.5);color:var(--am);}
+
+  .foot{text-align:center;font-size:11px;color:var(--muted);margin-top:20px;line-height:1.7;}
+</style>
+</head>
+<body>
+  <div class="pv">📱 채널 메뉴 재설계 시안 · 실제 데이터 반영 · 로그인 없이 확인용 (실제 적용은 확정 후 studio.html)</div>
+
+  <div class="head">
+    <div>
+      <div class="h">채널</div>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center;">
+      <span class="cnt">8개 채널 · CID 14개</span>
+      <button class="newbtn">＋ 새 채널</button>
+    </div>
+  </div>
+
+  <div class="goal">
+    콘텐츠를 올리는 <b>채널 자산</b>을 한곳에서 관리합니다. 각 채널의 <span class="k">아고다 CID</span>(= 예약·수수료가 이 채널로 잡히는 열쇠)와
+    <span class="k">원고 자동생성 규격</span>(제목·본문·태그를 뽑는 규칙)을 봅니다. 올리기·성과표·호텔이 전부 이 채널 위에서 돕니다.
+  </div>
+
+  <div id="list"></div>
+
+  <div class="foot">
+    바뀐 점 = ① 다른 메뉴처럼 헤더·목적 배너·펼침 카드로 통일<br>
+    ② <b style="color:var(--gr)">지금 돈이 잡히는 CID</b>를 크게, 예전 CID는 접어서 (전엔 다 똑같이 나열)<br>
+    ③ <b style="color:var(--am)">원고 규격 상태</b>를 채널마다 표시 (규격 없으면 자동생성 안 됨 — 전엔 안 보였음)
+  </div>
+
+<script>
+  var DATA = [
+    { code:'HT', name:'호텔이야', en:'HOTEL-IYA', lang:'한국어', order:1, active:true, api:false,
+      now:[{cid:'1932026',lab:'new'}], old:[{cid:'1922821',lab:'old'},{cid:'1931762',lab:'approval-2nd'}], spec:'호텔이야.md' },
+    { code:'TW', name:'여행능력자들', en:'TRAVELWINNERS', lang:'한국어', order:2, active:true, api:true,
+      now:[{cid:'1913282',lab:'main·유튜브'},{cid:'1919025',lab:'web'}], old:[], spec:'여행능력자들.md' },
+    { code:'JP', name:'ホテルだ', en:'HOTEL-DA', lang:'일본어', order:3, active:true, api:false,
+      now:[{cid:'1932024',lab:'new'}], old:[{cid:'1923665',lab:'old'}], spec:null },
+    { code:'ZH', name:'世界就是家', en:'World-hotel', lang:'중국어(번체)', order:4, active:true, api:false,
+      now:[{cid:'1932021',lab:'new'}], old:[{cid:'1930375',lab:'old'}], spec:null },
+    { code:'KT', name:'Koreahotelguide', en:'Koreahotelguide', lang:'영어', order:5, active:true, api:false,
+      now:[{cid:'1932023',lab:'new'}], old:[{cid:'1926314',lab:'old'}], spec:null },
+    { code:'VN', name:'reviewkhachsan', en:'reviewkhachsan', lang:'베트남어', order:6, active:true, api:false,
+      now:[{cid:'1932022',lab:'new'}], old:[{cid:'1922822',lab:'old'}], spec:null },
+    { code:'HG', name:'호텔이곳', en:'Hotel-Igot', lang:'한국어', order:7, active:true, api:false,
+      now:[{cid:'1946819',lab:'main'}], old:[], spec:'호텔이곳.md' },
+    { code:'legacy', name:'과거 누적', en:'Legacy (2023-2026)', lang:'한국어', order:99, active:false, api:false,
+      now:[], old:[], spec:null }
+  ];
+  function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+
+  function card(ch, i){
+    var nowCid = ch.now[0] ? ch.now[0].cid : null;
+    var specChip = ch.spec
+      ? '<span class="chip spec">규격 ✓</span>'
+      : (ch.active ? '<span class="chip nospec">규격 없음</span>' : '');
+    var head =
+      '<div class="chead" onclick="tog('+i+')">' +
+        '<span class="code">'+esc(ch.code)+'</span>' +
+        '<span class="nm">'+esc(ch.name)+'</span>' +
+        '<span class="en">'+esc(ch.en)+'</span>' +
+        '<span class="chip lang">'+esc(ch.lang)+'</span>' +
+        (ch.active?'<span class="chip on">운영중</span>':'<span class="chip off">비활성</span>') +
+        (ch.api?'<span class="chip api">아고다 API</span>':'') +
+        '<span class="spacer"></span>' +
+        specChip +
+        (nowCid?'<span class="cidmini">CID '+esc(nowCid)+(ch.now.length>1?' 외 '+(ch.now.length-1):'')+'</span>':'') +
+        '<span class="caret">⌄</span>' +
+      '</div>';
+
+    // CID 섹션
+    var cidHtml = '';
+    if (ch.now.length){
+      cidHtml += ch.now.map(function(c,ci){
+        return '<div class="cidnow"'+(ci>0?' style="margin-top:7px"':'')+'>' +
+          '<span class="big">'+esc(c.cid)+'</span><span class="tag">'+esc(c.lab)+'</span>' +
+          (ci===0?'<span class="say">이 채널의 예약·수수료는 이 번호로 잡힙니다</span>':'<span class="say">보조 배치</span>') +
+        '</div>';
+      }).join('');
+      if (ch.old.length){
+        cidHtml += '<div class="cidold"><span class="tog" onclick="togOld('+i+')">▾ 예전 CID '+ch.old.length+'개 (폐기 관리)</span>' +
+          '<div class="cidold-list" id="old'+i+'">' + ch.old.map(function(c){
+            return '<span class="oldc">'+esc(c.cid)+'<span class="lab">'+esc(c.lab)+'</span></span>';
+          }).join('') + '</div></div>';
+      }
+      cidHtml += '<div class="cidadd">＋ CID 추가</div>';
+    } else {
+      cidHtml = '<div style="font-size:11.5px;color:var(--muted)">등록된 CID 없음 (과거 누적 채널 — 예약 귀속만)</div>';
+    }
+
+    // 규격 섹션
+    var specHtml = ch.spec
+      ? '<div class="spec-box has"><div class="ttl">✓ 규격 있음 · '+esc(ch.spec)+'</div>' +
+        '원고를 올리면 이 규칙으로 제목·파일명·본문(더보기)·해시태그·나레이션을 <b style="color:var(--gr)">자동 생성</b>합니다.' +
+        '<div class="spec-actions"><button class="btn go">규격 보기</button><button class="btn">규격 수정</button></div></div>'
+      : (ch.active
+        ? '<div class="spec-box no"><div class="ttl">⚠ 규격 없음</div>' +
+          '이 채널은 원고를 올려도 <b>자동 생성 규칙이 없습니다.</b> Claude 대화로 규격(.md)을 만들어 등록하면 자동 생성이 켜집니다.' +
+          '<div class="spec-actions"><button class="btn warn">규격 등록</button></div></div>'
+        : '');
+
+    var body =
+      '<div class="cbody">' +
+        '<div class="meta"><span><b>언어</b>'+esc(ch.lang)+'</span><span><b>플랫폼</b>youtube</span><span><b>순서</b>'+esc(ch.order)+'</span></div>' +
+        '<div class="sec"><div class="sec-h"><span class="ic">💰</span>아고다 CID — 예약·수수료가 잡히는 열쇠</div>'+cidHtml+'</div>' +
+        (specHtml?'<div class="sec"><div class="sec-h"><span class="ic">📝</span>원고 자동생성 규격</div>'+specHtml+'</div>':'') +
+        '<div class="spec-actions" style="margin-top:14px"><button class="btn">채널 정보 수정 (이름·순서·운영여부)</button></div>' +
+      '</div>';
+
+    return '<div class="card'+(ch.active?'':' off')+'" id="c'+i+'">'+head+body+'</div>';
+  }
+  function tog(i){ document.getElementById('c'+i).classList.toggle('open'); }
+  function togOld(i){ document.getElementById('old'+i).classList.toggle('open'); event.stopPropagation(); }
+  document.getElementById('list').innerHTML = DATA.map(card).join('');
+</script>
+</body>
+</html>

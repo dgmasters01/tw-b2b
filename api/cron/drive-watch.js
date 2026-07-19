@@ -14,6 +14,7 @@
 
 import { getDriveToken, resolveFolders, listChildren, downloadBase64, moveFile } from '../_lib/drive.js';
 import { docxToText } from '../_lib/docx-text.js';
+import { docxToText } from '../_lib/docx-text.js';
 
 export const config = { maxDuration: 60 };
 
@@ -140,6 +141,20 @@ export default async function handler(req, res) {
     let files = [];
     try { files = await listChildren(token, f.wait, { onlyFiles: true }); }
     catch (e) { chReport.error = String(e.message || e); report.channels.push(chReport); continue; }
+
+    // dry_run + peek: 대기 원고 본문을 텍스트로 뽑아 링크/앞부분만 반환(읽기 전용 진단)
+    if (dryRun && (req.query?.peek === '1' || req.query?.peek === 'true')) {
+      chReport.peek = [];
+      for (const pf of files) {
+        if (!/\.docx$/i.test(pf.name)) continue;
+        try {
+          const b64 = await downloadBase64(token, pf.id);
+          const text = docxToText(b64) || '';
+          const urls = text.match(/https?:\/\/\S+/g) || [];
+          chReport.peek.push({ name: pf.name, chars: text.length, urls: urls, head: text.slice(0, 500) });
+        } catch (e) { chReport.peek.push({ name: pf.name, err: String(e.message || e) }); }
+      }
+    }
 
     for (const file of files) {
       const isDocx = /\.docx$/i.test(file.name);

@@ -102,8 +102,9 @@ var CARDS = [
     channel:'호텔이야', country:'일본', city:'후쿠오카 하카타', star:3, price:'10만원대', dday:4, uploader:'dgmasters01',
     top1:'도리후토 호텔 하카타', top2:'니시테츠 크룸', top3:'포르자 하카타' },
   { id:'c5', stage:'published', kind:'rec', title:'난바 호텔 TOP3 — 3성', code:'TW-0001', src:'키워드',
-    country:'Japan', city:'오사카', star:3, pubdate:'2026-09-14', yt:'youtube.com/watch?v=aB3kZ...',
-    uploader:'일호기', views:12400, bookings:8, hotels:'레드루프 · 리치몬드 · APA' },
+    channel:'여행능력자들 유튜브', country:'Japan', city:'오사카', star:3, pubdate:'2026-09-14', yt:'youtube.com/watch?v=aB3kZ...',
+    uploader:'일호기', views:12400, bookings:8, hotels:'레드루프 · 리치몬드 · APA',
+    top1:'레드루프 인 오사카 난바', top2:'리치몬드 호텔 난바', top3:'APA 호텔 난바 에키마에' },
   { id:'c6', stage:'published', kind:'self', title:'후쿠오카 하카타 호텔 TOP3', code:'채널-0042', src:'자체 기획',
     channel:'호텔이야', country:'일본', city:'후쿠오카 하카타', star:3, pubdate:'2026-07-11', yt:'youtube.com/watch?v=9Fk2m...',
     uploader:'dgmasters01', views:3180, bookings:2, top1:'도리후토 호텔 하카타', top2:'니시테츠 크룸', top3:'포르자 하카타' }
@@ -120,6 +121,80 @@ function analyze(id){
   ov.className = 'an-ov';
   ov.innerHTML = '<div class="an-frame"><button class="an-x" onclick="this.closest(\'.an-ov\').remove()">✕ 닫기</button>'+
     '<iframe src="'+url+'"></iframe></div>';
+  ov.onclick = function(e){ if(e.target===ov) ov.remove(); };
+  document.body.appendChild(ov);
+}
+
+function perf(id){
+  var c = CARDS.find(function(x){ return x.id===id; }); if(!c) return;
+  var owner = ROLE==='owner';
+  var d = new Date(c.pubdate); d.setDate(d.getDate()+183);
+  var reAgain = d.toISOString().slice(0,10);
+
+  function pf(lbl,val,tone){
+    var bg = tone==='ok'?'rgba(78,222,163,.12)':(tone==='fee'?'rgba(239,159,39,.12)':'rgba(128,140,160,.06)');
+    var vc = tone==='ok'?'var(--gr)':'var(--muted)';
+    var lc = tone==='ok'?'var(--gr)':'var(--sub)';
+    return '<div style="background:'+bg+';border-radius:8px;padding:9px 10px;">'+
+      '<div style="font-size:10px;color:'+lc+';">'+lbl+'</div>'+
+      '<div style="font-size:17px;font-weight:600;color:'+vc+';margin-top:2px;">'+val+'</div></div>';
+  }
+  var nums = pf('영상 조회수', c.views.toLocaleString(),'ok')+
+    pf('아고다 클릭','준비중')+ pf('예약','준비중')+ pf('확정률','준비중')+ pf('예약금액','준비중')+
+    (owner ? pf('수수료 · 최고관리자','준비중','fee') : '');
+
+  var svg = '<svg viewBox="0 0 520 210" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;">'+
+    '<line x1="48" y1="30" x2="500" y2="30" stroke="var(--line)"/><line x1="48" y1="73.3" x2="500" y2="73.3" stroke="var(--line)"/>'+
+    '<line x1="48" y1="116.7" x2="500" y2="116.7" stroke="var(--line)"/><line x1="48" y1="160" x2="500" y2="160" stroke="var(--line2)"/>'+
+    '<text x="42" y="34" text-anchor="end" fill="var(--muted)" font-size="9">6,000</text>'+
+    '<text x="42" y="77" text-anchor="end" fill="var(--muted)" font-size="9">4,000</text>'+
+    '<text x="42" y="120" text-anchor="end" fill="var(--muted)" font-size="9">2,000</text>'+
+    '<text x="42" y="163" text-anchor="end" fill="var(--muted)" font-size="9">0</text>'+
+    '<rect x="74" y="47.3" width="38" height="112.7" rx="3" fill="var(--gr)"/>'+
+    '<rect x="164.6" y="86.3" width="38" height="73.7" rx="3" fill="var(--gr)"/>'+
+    '<rect x="255" y="114.5" width="38" height="45.5" rx="3" fill="var(--gr)"/>'+
+    '<rect x="345.4" y="138.3" width="38" height="21.7" rx="3" fill="var(--gr)"/>'+
+    '<rect x="435.8" y="144.8" width="38" height="15.2" rx="3" fill="var(--gr)"/>'+
+    '<text x="93" y="42" text-anchor="middle" fill="var(--gr)" font-size="10" font-weight="600">5,200</text>'+
+    '<text x="183.6" y="81" text-anchor="middle" fill="var(--gr)" font-size="10" font-weight="600">3,400</text>'+
+    '<text x="274" y="109" text-anchor="middle" fill="var(--gr)" font-size="10" font-weight="600">2,100</text>'+
+    '<text x="364.4" y="133" text-anchor="middle" fill="var(--gr)" font-size="10" font-weight="600">1,000</text>'+
+    '<text x="454.8" y="139" text-anchor="middle" fill="var(--gr)" font-size="10" font-weight="600">700</text>'+
+    '<polyline points="93,152 183.6,133 274,100 364.4,120 454.8,138" fill="none" stroke="var(--muted)" stroke-width="2" stroke-dasharray="5 4"/>'+
+    '<circle cx="93" cy="152" r="3" fill="var(--muted)"/><circle cx="183.6" cy="133" r="3" fill="var(--muted)"/><circle cx="274" cy="100" r="3" fill="var(--muted)"/><circle cx="364.4" cy="120" r="3" fill="var(--muted)"/><circle cx="454.8" cy="138" r="3" fill="var(--muted)"/>'+
+    '<text x="93" y="178" text-anchor="middle" fill="var(--sub)" font-size="10">1주</text>'+
+    '<text x="183.6" y="178" text-anchor="middle" fill="var(--sub)" font-size="10">2주</text>'+
+    '<text x="274" y="178" text-anchor="middle" fill="var(--sub)" font-size="10">3주</text>'+
+    '<text x="364.4" y="178" text-anchor="middle" fill="var(--sub)" font-size="10">4주</text>'+
+    '<text x="454.8" y="178" text-anchor="middle" fill="var(--sub)" font-size="10">지금</text>'+
+    '<rect x="48" y="194" width="12" height="8" rx="2" fill="var(--gr)"/><text x="65" y="201" fill="var(--sub)" font-size="10">조회수 (지금 켜짐)</text>'+
+    '<line x1="185" y1="198" x2="203" y2="198" stroke="var(--muted)" stroke-width="2" stroke-dasharray="5 4"/><text x="209" y="201" fill="var(--muted)" font-size="10">예약 · 예시 (추적링크 오면 실제)</text>'+
+    '</svg>';
+
+  function hrow(rk,nm){
+    return '<div onclick="alert(\'이 호텔의 전체 예약·노출 이력 팝업이 뜹니다 (호텔 메뉴 화면 그대로 · 실제 스튜디오에서 연결)\')" style="display:flex;align-items:center;justify-content:space-between;padding:9px 11px;border-bottom:0.5px solid rgba(128,128,128,.12);font-size:12px;cursor:pointer;">'+
+      '<span><span style="font-size:10px;font-weight:600;padding:2px 8px;border-radius:5px;background:rgba(90,169,230,.16);color:var(--bl);margin-right:8px;">'+rk+'</span>'+nm+'</span>'+
+      '<span style="color:var(--muted);">예약·금액 준비중 ›</span></div>';
+  }
+  var hotels = hrow('TOP1',c.top1)+hrow('TOP2',c.top2)+hrow('TOP3',c.top3);
+
+  var sec = function(t){ return '<div style="font-size:10.5px;color:var(--muted);margin:14px 0 7px;">'+t+'</div>'; };
+  var html = '<div style="font-size:15px;font-weight:600;">'+c.title+'</div>'+
+    '<div style="font-size:11px;color:var(--sub);margin-bottom:12px;">'+c.channel+' · '+c.pubdate+' 발행 · '+c.uploader+' 올림</div>'+
+    '<div style="display:flex;gap:14px;font-size:10.5px;color:var(--sub);margin-bottom:12px;">'+
+      '<span>● <span style="color:var(--gr);">지금 켜짐</span></span><span>● <span style="color:var(--muted);">준비중 (추적링크 오면 켜짐)</span></span></div>'+
+    '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(88px,1fr));gap:8px;">'+nums+'</div>'+
+    sec('발행 후 흐름 — 주별 · 조회는 초반, 예약은 뒤따라옴')+
+    '<div style="background:rgba(128,140,160,.06);border-radius:8px;padding:12px 10px 6px;">'+svg+'</div>'+
+    sec('이 영상 속 호텔 — 순위=원고 순서 · 누르면 그 호텔 전체 팝업')+
+    '<div style="background:rgba(128,140,160,.06);border-radius:8px;">'+hotels+'</div>'+
+    '<div style="margin-top:14px;display:flex;align-items:center;gap:8px;background:rgba(128,140,160,.06);border-radius:8px;padding:10px 12px;font-size:11.5px;color:var(--sub);">'+
+      '⏱ 다시 소개 가능일: <b style="color:var(--txt);">'+reAgain+'</b> <span style="color:var(--muted);">(6개월 쿨다운 · 이 소재로 또 만들 수 있는 날)</span></div>';
+
+  var ov = document.createElement('div');
+  ov.className = 'an-ov';
+  ov.innerHTML = '<div style="background:var(--card);border:1px solid var(--line);border-radius:14px;width:100%;max-width:560px;max-height:88vh;overflow-y:auto;position:relative;padding:18px 16px 22px;">'+
+    '<button class="an-x" onclick="this.closest(\'.an-ov\').remove()">✕ 닫기</button>'+html+'</div>';
   ov.onclick = function(e){ if(e.target===ov) ov.remove(); };
   document.body.appendChild(ov);
 }
@@ -141,6 +216,7 @@ function recCard(c){
   var badges = (c.dday!=null && c.stage!=='published' ? '<span class="bdg dday">D-'+c.dday+'개월</span>' : '')+
     (c.peak && c.stage!=='published' ? '<span class="bdg peak">피크 '+c.peak+'월</span>' : '')+
     (c.stage==='published' ? '<span class="bdg pub">✓ 발행됨</span>' : '')+
+    (c.stage==='published' && c.channel ? '<span class="bdg ch">'+c.channel+'</span>' : '')+
     (!c.assignee && c.stage!=='published' ? '<span class="bdg warn">⚠ 담당 없음</span>' : '');
   var submeta = c.src+' · '+c.country+' · '+c.city+' · '+c.star+'성'+(c.month?' · 목표 '+c.month:'')+(c.pubdate?' · 발행 '+c.pubdate:'');
   // 단계별 버튼
@@ -156,7 +232,7 @@ function recCard(c){
     if (showDel) acts += '<button class="btn del">🗑 삭제</button>';
   } else if (c.stage==='published'){
     acts += '<button class="btn" onclick="analyze(\''+c.id+'\')">분석</button>';
-    acts += '<button class="btn go" onclick="location.href=\'studio-perf-preview.html\'">성과 보기 →</button>';
+    acts += '<button class="btn go" onclick="perf(\''+c.id+'\')">성과 보기 →</button>';
   }
   var body = '<div class="idline">'+c.code+(c.month?' · 목표월 '+c.month:'')+'</div>';
   if (c.stage!=='published'){
@@ -166,7 +242,8 @@ function recCard(c){
       '<b>여행 일정</b> '+c.stay+'</div>';
   } else {
     body += '<div class="pubrow"><span style="color:var(--rd)">▶</span><a>'+c.yt+'</a></div>'+
-      '<div class="pubmeta">최종 업로더 <b>'+c.uploader+'</b> · 조회 <b>'+c.views.toLocaleString()+'</b> · 예약 <b style="color:var(--gr)">'+c.bookings+'건</b></div>';
+      '<div class="pubmeta">최종 업로더 <b>'+c.uploader+'</b> · 조회 <b>'+c.views.toLocaleString()+'</b> · 예약 <b style="color:var(--muted)">준비중</b>'+
+      (showDel?' · 수수료 <b style="color:var(--am)">준비중</b>':'')+'</div>';
   }
   body += '<div class="bottom"><span class="rolebadge">최종관리자</span><span class="pname">'+(c.planner||c.uploader||'')+'</span>'+
     (c.stage!=='published'?'<button class="assign">＋ 담당 지정</button>':'')+
@@ -189,14 +266,15 @@ function selfCard(c){
     acts += '<button class="btn">내가 맡기</button><button class="btn">원고 열기</button>';
     if (ROLE==='owner') acts += '<button class="btn del">🗑 삭제</button>';
   } else if (c.stage==='published'){
-    acts += '<button class="btn">원고 열기</button><button class="btn go" onclick="location.href=\'studio-perf-preview.html\'">성과 보기 →</button>';
+    acts += '<button class="btn">원고 열기</button><button class="btn go" onclick="perf(\''+c.id+'\')">성과 보기 →</button>';
   }
   var body = '<div class="idline">'+c.code+' · <span style="color:#b9c8d8">'+c.channel+'</span></div>'+
     '<div class="desc toph"><span class="g">이 영상에 나오는 호텔</span><br>'+
     '<b>TOP1</b> '+c.top1+' · <b>TOP2</b> '+c.top2+' · <b>TOP3</b> '+c.top3+'</div>';
   if (c.stage==='published'){
     body += '<div class="pubrow"><span style="color:var(--rd)">▶</span><a>'+c.yt+'</a></div>'+
-      '<div class="pubmeta">최종 업로더 <b>'+c.uploader+'</b> · 조회 <b>'+c.views.toLocaleString()+'</b> · 예약 <b style="color:var(--gr)">'+c.bookings+'건</b></div>';
+      '<div class="pubmeta">최종 업로더 <b>'+c.uploader+'</b> · 조회 <b>'+c.views.toLocaleString()+'</b> · 예약 <b style="color:var(--muted)">준비중</b>'+
+      (ROLE==='owner'?' · 수수료 <b style="color:var(--am)">준비중</b>':'')+'</div>';
   }
   body += '<div class="bottom"><div class="acts" style="margin-left:0">'+acts+'</div></div>';
   return '<div class="card self'+(open?' open':'')+'"><div class="head" onclick="toggle(\''+c.id+'\')">'+

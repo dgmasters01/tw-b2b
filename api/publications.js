@@ -92,6 +92,19 @@ async function readBody(req) {
   return raw ? JSON.parse(raw) : {};
 }
 
+/** 코드 자동발급 (D-066·D-067): {채널}-{4자리} 채널별 연번. content_queue 기준 max+1. */
+async function nextContentCode(sb, channelCode) {
+  const prefix = channelCode;
+  const { data } = await sb.from('content_queue')
+    .select('code').ilike('code', prefix + '-%').order('code', { ascending: false }).limit(1);
+  let seq = 0;
+  if (data && data[0] && data[0].code) {
+    const m = String(data[0].code).match(/-(\d+)$/);
+    if (m) seq = parseInt(m[1], 10);
+  }
+  return prefix + '-' + String(seq + 1).padStart(4, '0');
+}
+
 /** 패키지 → publications 한 줄. 지어내는 값 없음. render 가 만든 publicationRow 를 그대로 쓴다. */
 function toRow(pkg) {
   const r = pkg.publicationRow;
@@ -224,6 +237,11 @@ export default async function handler(req, res) {
 
     if (error) return res.status(500).json({ ok: false, error: error.message });
     if (!data) return res.status(409).json({ ok: false, error: '이미 발행됐거나 없는 원고입니다.' });
+
+    // 발행 → 전략 큐도 발행완료로 (D-067 §8-5 동기화). 코드로 이어진 카드가 있으면 stage 를 맞춘다.
+    if (data.code) {
+      try { await sb.from('content_queue').update({ stage: 'published', updated_at: new Date().toISOString() }).eq('code', data.code); } catch (e) { /* 동기화 실패해도 발행은 유효 */ }
+    }
     return res.status(200).json({ ok: true, row: data });
   }
 
@@ -341,6 +359,23 @@ export default async function handler(req, res) {
     else if (map.channel_code !== row.channel_code) {
       warnings.push(`cid ${row.cid} 는 ${map.channel_code} 채널 것입니다. 원고는 ${row.channel_code} 입니다. 수수료가 다른 채널로 갑니다.`);
     }
+  }
+
+  // 자체기획(코드 없는 정상 원고) → 코드 자동발급 + 전략 큐 카드 (D-067 §1-2 · 발행예정부터 시작)
+  // 추천 원고는 이미 큐에 카드가 있어 code 가 채워져 있으니 건드리지 않는다. code 없는 것만 자체기획.
+  if (!row.code && saved && saved.channel_code) {
+    try {
+      const newCode = await nextContentCode(sb, saved.channel_code);
+      const stage = saved.status === 'published' ? 'published' : 'scheduled';
+      await sb.from('publications').update({ code: newCode }).eq('id', saved.id);
+      await sb.from('content_queue').insert({
+        code: newCode, stage, kind: 'hotel', channel_code: saved.channel_code,
+        title: saved.title, city: saved.city, country: saved.country || null,
+        star: saved.star, hid: saved.hid_top1, source: 'manuscript',
+        created_by_email: 'system-auto',
+      });
+      saved.code = newCode;
+    } catch (e) { warnings.push('전략 큐 자동 등록에 실패했습니다(발행 자체는 정상): ' + String(e.message || e)); }
   }
 
   return res.status(200).json({ ok: true, action, id: saved.id, row: saved, warnings });

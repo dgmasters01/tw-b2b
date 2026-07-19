@@ -701,6 +701,7 @@
   .st-pub-kpi > div { background:rgba(128,128,128,.08); border:1px solid rgba(128,128,128,.18); border-radius:10px; padding:12px 14px; }
   .st-pub-kpi .l { font-size:11px; color:#8A8794; }
   .st-pub-kpi .n { font-size:22px; font-weight:700; margin-top:3px; }
+  .st-pub-sorthint { font-size:10.5px; color:#8A8794; margin:-4px 0 12px 2px; }
   .st-seg-pub.on { color:#1D9E75; }
   .st-sg-btn.del { border-color:rgba(226,75,74,.45); color:#E24B4A; }
   .st-sg-delrow { display:flex; justify-content:flex-end; margin-top:10px; padding-top:9px; border-top:0.5px solid rgba(128,128,128,.12); }
@@ -1035,6 +1036,8 @@
   var rows = [], channels = {}, tab = null, ME = null;
   var channelsMap = {};        // code -> {name, language}
   var ME_ADMIN = false;
+  var ME_OWNER = false;
+  var ME_ROLE = 'editor';
   var upView = 'all';          // all | mine | unassigned | review (설계 §3 보기 + 확인필요)
   var upF = { ch: '', assignee: '', lang: '' };
   var upOpen = {};             // id -> 펼침 여부
@@ -1323,32 +1326,50 @@
   }
 
   // ── 발행됨 목록 (§11: 이미 올라간 영상 · 검색·정렬. 주소 수정은 2단계) ──
-  var upPubSearch = '', upPubSort = 'recent';
+  var upPubSearch = '', upPubSort = 'recent', upPubCh = '', upPubAssignee = '', upPubLang = '', upPubPeriod = '';
   function renderPublished(list) {
     var cnt = document.getElementById('st-up-count');
-    var pubs = rows.filter(function (r) { return r.status === 'published'; });
+    var allPub = rows.filter(function (r) { return r.status === 'published'; });
+    var pubs = allPub.slice();
+    if (upPubCh) pubs = pubs.filter(function (r) { return r.channel_code === upPubCh; });
+    if (upPubLang) pubs = pubs.filter(function (r) { return chLangOf(r.channel_code) === upPubLang; });
+    if (upPubAssignee) pubs = pubs.filter(function (r) { return (r.published_by_email || r.uploader_email || '') === upPubAssignee; });
+    if (upPubPeriod) pubs = pubs.filter(function (r) { return String(r.published_at || '').slice(0, 7) === upPubPeriod; });
     var q = upPubSearch.trim().toLowerCase();
     if (q) pubs = pubs.filter(function (r) {
       var hay = [(r.title || ''), (r.code || ''), (r.channel_code || ''), (Array.isArray(r.hotel_names) ? r.hotel_names.join(' ') : '')].join(' ').toLowerCase();
       return hay.indexOf(q) >= 0;
     });
     pubs.sort(function (a, b) {
+      if (upPubSort === 'views') return (b.view_count || 0) - (a.view_count || 0);
+      if (upPubSort === 'bookings' && ME_OWNER) return (b.booking_count || 0) - (a.booking_count || 0);
       if (upPubSort === 'channel') return (a.channel_code || '').localeCompare(b.channel_code || '');
       return (+new Date(b.published_at || 0)) - (+new Date(a.published_at || 0));
     });
     if (cnt) cnt.textContent = pubs.length + '건';
-    var allPub = rows.filter(function (r) { return r.status === 'published'; });
     var thisMonth = new Date().toISOString().slice(0, 7);
     var kMonth = allPub.filter(function (r) { return String(r.published_at || '').slice(0, 7) === thisMonth; }).length;
     var chSet = {}; allPub.forEach(function (r) { if (r.channel_code) chSet[r.channel_code] = 1; });
-    var kpi = '<div class="st-pub-kpi">' +
-      '<div><div class="l">발행됨</div><div class="n">' + allPub.length + '</div></div>' +
-      '<div><div class="l">이번 달</div><div class="n">' + kMonth + '</div></div>' +
-      '<div><div class="l">채널</div><div class="n">' + Object.keys(chSet).length + '</div></div></div>';
-    var ctrl = kpi + '<div class="st-pub-ctrl">' +
-      '<input id="pub-search" placeholder="제목 · 코드(TW·채널) · 호텔명 · 채널로 찾기" value="' + esc(upPubSearch) + '">' +
-      '<select id="pub-sort"><option value="recent"' + (upPubSort === 'recent' ? ' selected' : '') + '>최신 발행순</option>' +
-      '<option value="channel"' + (upPubSort === 'channel' ? ' selected' : '') + '>채널별</option></select></div>';
+    var kpi = '<div class="st-pub-kpi"><div><div class="l">발행됨</div><div class="n">' + allPub.length + '</div></div><div><div class="l">이번 달</div><div class="n">' + kMonth + '</div></div><div><div class="l">채널</div><div class="n">' + Object.keys(chSet).length + '</div></div></div>';
+    function popt(v, label, sel) { return '<option value="' + esc(v) + '"' + (sel ? ' selected' : '') + '>' + esc(label) + '</option>'; }
+    // 정렬 — 예약순은 최고관리자만 (§11-2 권한)
+    var sortOpts = popt('recent', '최신 발행순', upPubSort === 'recent') + popt('views', '조회순', upPubSort === 'views') + (ME_OWNER ? popt('bookings', '예약순', upPubSort === 'bookings') : '') + popt('channel', '채널별', upPubSort === 'channel');
+    var chOpts = popt('', '채널 전체', !upPubCh); Object.keys(chSet).forEach(function (c) { chOpts += popt(c, chName(c), upPubCh === c); });
+    var langSet = {}; Object.keys(chSet).forEach(function (c) { var l = chLangOf(c); if (l) langSet[l] = 1; });
+    var langOpts = popt('', '언어 전체', !upPubLang); Object.keys(langSet).forEach(function (l) { langOpts += popt(l, l, upPubLang === l); });
+    var perSet = {}; allPub.forEach(function (r) { var p = String(r.published_at || '').slice(0, 7); if (p) perSet[p] = 1; });
+    var perOpts = popt('', '기간 전체', !upPubPeriod); Object.keys(perSet).sort().reverse().forEach(function (p) { perOpts += popt(p, p, upPubPeriod === p); });
+    // 담당자 필터 — 관리자 이상만 (에디터는 안 보임)
+    var asgSel = '';
+    if (ME_ADMIN) {
+      var asgSet = {}; allPub.forEach(function (r) { var e = r.published_by_email || r.uploader_email; if (e) asgSet[e] = 1; });
+      var asgOpts = popt('', '담당자 전체', !upPubAssignee); Object.keys(asgSet).forEach(function (e) { asgOpts += popt(e, shortMail(e), upPubAssignee === e); });
+      asgSel = '<select id="pub-asg">' + asgOpts + '</select>';
+    }
+    var ctrl = kpi +
+      '<div class="st-pub-ctrl"><input id="pub-search" placeholder="제목 · 코드(TW·채널) · 호텔명 · 채널로 찾기" value="' + esc(upPubSearch) + '"></div>' +
+      '<div class="st-pub-ctrl"><select id="pub-sort">' + sortOpts + '</select><select id="pub-ch">' + chOpts + '</select>' + asgSel + '<select id="pub-lang">' + langOpts + '</select><select id="pub-period">' + perOpts + '</select></div>' +
+      '<div class="st-pub-sorthint">정렬: 최신 발행순 · 조회순 · 예약순(최고관리자만) · 채널별</div>';
     if (!pubs.length) { list.innerHTML = ctrl + '<div class="st-empty">발행된 영상이 없습니다.</div>'; bindPubCtrl(list); return; }
     var items = pubs.map(function (v) {
       var yu = v.youtube_url ? String(v.youtube_url) : '';
@@ -1367,8 +1388,12 @@
   function bindPubCtrl(list) {
     var s = list.querySelector('#pub-search');
     if (s) s.oninput = function () { var pos = s.selectionStart; upPubSearch = s.value; renderPublished(list); var s2 = list.querySelector('#pub-search'); if (s2) { s2.focus(); try { s2.setSelectionRange(pos, pos); } catch (e) {} } };
-    var so = list.querySelector('#pub-sort');
-    if (so) so.onchange = function () { upPubSort = so.value; renderPublished(list); };
+    function bindSel(id, set) { var el = list.querySelector(id); if (el) el.onchange = function () { set(el.value); renderPublished(list); }; }
+    bindSel('#pub-sort', function (v) { upPubSort = v; });
+    bindSel('#pub-ch', function (v) { upPubCh = v; });
+    bindSel('#pub-asg', function (v) { upPubAssignee = v; });
+    bindSel('#pub-lang', function (v) { upPubLang = v; });
+    bindSel('#pub-period', function (v) { upPubPeriod = v; });
   }
 
   function render() {
@@ -1564,6 +1589,8 @@
       rows = j.rows || [];
       ME = j.me || null;
       ME_ADMIN = !!j.is_admin;
+      ME_OWNER = !!j.is_owner;
+      ME_ROLE = j.role || 'editor';
       var wait = rows.filter(function (r) { return r.status === 'draft'; }).length;
       document.getElementById('st-who').textContent = (ME || '') + ' · 대기 ' + wait + ' · 발행 ' + (rows.length - wait);
       if (j.is_admin) { document.getElementById('st-admin').style.display = ''; }

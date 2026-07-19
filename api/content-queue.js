@@ -118,7 +118,7 @@ export default async function handler(req, res) {
     // 지금은 코드 든 정상 발행 원고가 없어 아무 카드에도 안 붙음(화면 변화 0) — 원고 유입 시 자동 점등.
     try {
       const { data: pubs } = await sb.from('v_queue_publications')
-        .select('queue_id, channel_code, cid, pub_status, pub_title, youtube_url, youtube_video_id, published_at, scheduled_at, hid_top1, hid_top2, hid_top3, hotel_names, published_by_email, uploader_email, pub_source, source_filename, manuscript_text')
+        .select('queue_id, channel_code, cid, pub_status, pub_title, youtube_url, youtube_video_id, published_at, scheduled_at, hid_top1, hid_top2, hid_top3, hotel_names, published_by_email, uploader_email, pub_source, source_filename, manuscript_text, view_count, like_count, comment_count, view_count_at')
         .not('pub_id', 'is', null);
       const byQ = {};
       (pubs || []).forEach(function (p) { byQ[p.queue_id] = p; });
@@ -130,7 +130,8 @@ export default async function handler(req, res) {
           published_at: p.published_at, scheduled_at: p.scheduled_at,
           hid_top1: p.hid_top1, hid_top2: p.hid_top2, hid_top3: p.hid_top3,
           hotel_names: p.hotel_names, published_by_email: p.published_by_email,
-          uploader_email: p.uploader_email, source: p.pub_source, source_filename: p.source_filename, manuscript_text: p.manuscript_text
+          uploader_email: p.uploader_email, source: p.pub_source, source_filename: p.source_filename, manuscript_text: p.manuscript_text,
+          view_count: p.view_count, like_count: p.like_count, comment_count: p.comment_count, view_count_at: p.view_count_at
         };
       });
     } catch (e) { /* 오버레이 실패해도 카드는 정상 표시 */ }

@@ -1885,24 +1885,20 @@
   }
   window.sgHotelPop = sgHotelPop;
 
-  // ── 원고 열기 (자체기획 카드 · §9-1) — 이 발행 원고의 핵심 정보 팝업 ──
+  // ── 원고 열기 (자체기획 카드 · §9-1) — DB에 저장된 원고 본문 전체 팝업 (대표님 07-19 확정) ──
   function sgOpenManuscript(id) {
     var it = sgItems.find(function (x) { return x.id === id; });
     if (!it) return;
     var pub = it.pub || {};
-    var names = Array.isArray(pub.hotel_names) ? pub.hotel_names.filter(Boolean) : [];
-    var tops = names.slice(0, 3).map(function (n, i) { return '<div style="padding:5px 0;font-size:12px;"><b>TOP' + (i + 1) + '</b> ' + esc(n) + '</div>'; }).join('') || '—';
-    var hids = [pub.hid_top1, pub.hid_top2, pub.hid_top3].filter(Boolean);
-    var links = hids.length ? hids.map(function (h, i) { return '<div style="font-size:11px;color:#9a9aa5;padding:3px 0;">TOP' + (i + 1) + ' 아고다 hid <b style="color:#b9c8d8;">' + esc(h) + '</b></div>'; }).join('') : '—';
     var pubdate = pub.published_at ? String(pub.published_at).slice(0, 10) : '';
+    var text = pub.manuscript_text || '';
+    var bodyHtml = text
+      ? '<div style="background:rgba(128,140,160,.06);border-radius:8px;padding:14px 16px;font-size:12px;line-height:1.75;white-space:pre-wrap;word-break:break-word;max-height:52vh;overflow-y:auto;color:#cfd6de;">' + esc(text) + '</div>'
+      : '<div style="background:rgba(128,140,160,.06);border-radius:8px;padding:16px;font-size:11.5px;color:#8A8794;text-align:center;line-height:1.7;">이 원고는 본문 저장 기능이 켜지기 전에 올라온 것이라 본문이 없습니다.<br>다시 올리면 본문이 저장됩니다.</div>';
     var html = '<div style="font-size:15px;font-weight:600;">' + esc(it.title) + '</div>' +
-      '<div style="font-size:11px;color:#9a9aa5;margin:3px 0 14px;">' + esc(it.code || '') + ' · ' + esc(pub.channel_code || '') + (pubdate ? ' · 발행 ' + esc(pubdate) : '') + '</div>' +
-      '<div style="font-size:10.5px;color:#8A8794;margin-bottom:6px;">이 영상에 나온 호텔</div>' +
-      '<div style="background:rgba(128,140,160,.06);border-radius:8px;padding:8px 12px;margin-bottom:12px;">' + tops + '</div>' +
-      '<div style="font-size:10.5px;color:#8A8794;margin-bottom:6px;">아고다 파트너 링크</div>' +
-      '<div style="background:rgba(128,140,160,.06);border-radius:8px;padding:8px 12px;margin-bottom:12px;">' + links + '</div>' +
-      '<div style="font-size:10.5px;color:#8A8794;">원고 파일 · ' + esc(pub.source_filename || '—') + '</div>' +
-      '<div style="font-size:10px;color:#8A8794;margin-top:8px;line-height:1.6;">원고 전체 본문 뷰어는 원고 텍스트 저장 연동 후 열립니다. 지금은 발행에 쓰인 핵심 정보를 보여줍니다.</div>';
+      '<div style="font-size:11px;color:#9a9aa5;margin:3px 0 14px;">' + esc(it.code || '') + ' · ' + esc(pub.channel_code || '') + (pubdate ? ' · 발행 ' + esc(pubdate) : '') + (pub.source_filename ? '<br>' + esc(pub.source_filename) : '') + '</div>' +
+      '<div style="font-size:10.5px;color:#8A8794;margin-bottom:6px;">원고 본문</div>' +
+      bodyHtml;
     sgOverlay(html, 1000);
   }
 

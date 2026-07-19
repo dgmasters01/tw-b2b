@@ -49,7 +49,7 @@ function accessToken(req) {
  */
 async function authorized(req) {
   const expected = process.env.CLAUDE_OPS_TOKEN;
-  if (expected && (req.headers['x-ops-token'] || '') === expected) return { ok: true, via: 'ops-token', isAdmin: true };
+  if (expected && (req.headers['x-ops-token'] || '') === expected) return { ok: true, via: 'ops-token', isAdmin: true, isOwner: true, role: 'owner' };
 
   const token = accessToken(req);
   if (!token || !SUPABASE_URL || !SUPABASE_ANON) return { ok: false };
@@ -64,14 +64,19 @@ async function authorized(req) {
     if (!u.ok) return { ok: false };
     const user = await u.json();
 
-    // 관리자면 studio 에서 admin 으로 가는 버튼을 보여준다. editor 에게는 안 보인다.
-    let isAdmin = false;
+    // 역할: owner > admin > editor. 화면 권한(예약순·주소 직접수정 등)은 서버가 정한 role 로만 판단.
+    let isAdmin = false, isOwner = false;
     try {
       const a = await fetch(`${SUPABASE_URL}/rest/v1/rpc/is_admin`, { method: 'POST', headers: H, body: '{}' });
       isAdmin = a.ok && (await a.json()) === true;
     } catch { /* 못 물어보면 안 보여준다 */ }
+    try {
+      const o = await fetch(`${SUPABASE_URL}/rest/v1/rpc/is_owner`, { method: 'POST', headers: H, body: '{}' });
+      isOwner = o.ok && (await o.json()) === true;
+    } catch { /* noop */ }
+    const role = isOwner ? 'owner' : (isAdmin ? 'admin' : 'editor');
 
-    return { ok: true, via: 'session', userId: user.id, email: user.email, isAdmin };
+    return { ok: true, via: 'session', userId: user.id, email: user.email, isAdmin, isOwner, role };
   } catch {
     return { ok: false };
   }
@@ -129,7 +134,7 @@ export default async function handler(req, res) {
     if (req.query?.status) qb = qb.eq('status', req.query.status);
     const { data, error } = await qb;
     if (error) return res.status(500).json({ ok: false, error: error.message });
-    return res.status(200).json({ ok: true, rows: data, count: data.length, me: auth.email || null, is_admin: !!auth.isAdmin });
+    return res.status(200).json({ ok: true, rows: data, count: data.length, me: auth.email || null, is_admin: !!auth.isAdmin, is_owner: !!auth.isOwner, role: auth.role || 'editor' });
   }
 
   // studio.html 이 부른다. 세 가지 행동.

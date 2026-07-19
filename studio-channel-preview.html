@@ -86,7 +86,7 @@
     </div>
   </div>
   <div class="goal">
-    콘텐츠를 올리는 <b>채널 자산</b>을 <b>매출(예약) 많은 순</b>으로 봅니다. 각 채널의 <span class="k">아고다 CID</span>(예약이 이 채널로 잡히는 열쇠 · 전부 살아있음)와
+    콘텐츠를 올리는 <b>채널 자산</b>을 <b>매출(확정 예약) 많은 순</b>으로 봅니다. <b style="color:var(--gr)">예약 건수 = 취소 제외 확정만</b>입니다. 각 채널의 <span class="k">아고다 CID</span>(예약이 이 채널로 잡히는 열쇠 · 전부 살아있음)와
     <span class="k">원고 규격</span>을 상세에서 관리합니다. 올리기·성과표·호텔이 이 채널 위에서 돕니다.
   </div>
 
@@ -113,24 +113,24 @@
   var TARGET = { '한국어':['한국','KR'], '일본어':['일본','JP'], '중국어(번체)':['대만·홍콩','TW'], '영어':['영어권 전세계','—'], '베트남어':['베트남','VN'] };
   var DATA = [
     { name:'호텔이야', lang:'한국어', active:true, api:false,
-      now:[{cid:'1932026',lab:'new',bk:1710}], past:[{cid:'1922821',lab:'old',bk:1188},{cid:'1931762',lab:'approval-2nd',bk:8}], spec:'호텔이야.md' },
+      now:[{cid:'1932026',lab:'new',bk:939}], past:[{cid:'1922821',lab:'old',bk:606},{cid:'1931762',lab:'approval-2nd',bk:3}], spec:'호텔이야.md' },
     { name:'여행능력자들', lang:'한국어', active:true, api:true,
-      now:[{cid:'1913282',lab:'main·유튜브',bk:3547},{cid:'1919025',lab:'web·웹사이트',bk:144}], past:[], spec:'여행능력자들.md' },
+      now:[{cid:'1913282',lab:'main·유튜브',bk:1886},{cid:'1919025',lab:'web·웹사이트',bk:86}], past:[], spec:'여행능력자들.md' },
     { name:'ホテルだ', lang:'일본어', active:true, api:false,
-      now:[{cid:'1932024',lab:'new',bk:378}], past:[{cid:'1923665',lab:'old',bk:105}], spec:null },
+      now:[{cid:'1932024',lab:'new',bk:176}], past:[{cid:'1923665',lab:'old',bk:45}], spec:null },
     { name:'世界就是家', lang:'중국어(번체)', active:true, api:false,
-      now:[{cid:'1932021',lab:'new',bk:135}], past:[{cid:'1930375',lab:'old',bk:0}], spec:null },
+      now:[{cid:'1932021',lab:'new',bk:51}], past:[{cid:'1930375',lab:'old',bk:0}], spec:null },
     { name:'Koreahotelguide', lang:'영어', active:true, api:false,
-      now:[{cid:'1932023',lab:'new',bk:44}], past:[{cid:'1926314',lab:'old',bk:12}], spec:null },
+      now:[{cid:'1932023',lab:'new',bk:22}], past:[{cid:'1926314',lab:'old',bk:7}], spec:null },
     { name:'reviewkhachsan', lang:'베트남어', active:true, api:false,
-      now:[{cid:'1932022',lab:'new',bk:36}], past:[{cid:'1922822',lab:'old',bk:9}], spec:null },
+      now:[{cid:'1932022',lab:'new',bk:26}], past:[{cid:'1922822',lab:'old',bk:3}], spec:null },
     { name:'호텔이곳', lang:'한국어', active:true, api:false,
       now:[{cid:'1946819',lab:'main',bk:0}], past:[], spec:'호텔이곳.md' }
   ];
   function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
   function tot(ch){ return ch.now.concat(ch.past).reduce(function(s,c){return s+(c.bk||0);},0); }
   DATA.sort(function(a,b){ return tot(b)-tot(a); });   // 매출(예약) 많은 순
-  function bkTxt(n){ return '예약 '+(n||0).toLocaleString()+'건'; }
+  function bkTxt(n){ return '확정 '+(n||0).toLocaleString()+'건'; }
   function cidRow(c, past){
     return '<div class="cidrow'+(past?' past':'')+'"><span class="dot"></span>' +
       '<span class="num">'+esc(c.cid)+'</span><span class="tag">'+esc(c.lab)+'</span>' +

@@ -639,8 +639,9 @@
   .st-sg-head .st-sg-title { flex:1; margin:0; font-size:14px; font-weight:600; line-height:1.35; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .st-sg-headmeta { display:inline-flex; align-items:center; gap:6px; flex:none; }
   .st-sg-headwarn { font-size:10px; color:#BA7517; white-space:nowrap; }
-  .st-sg-caret { font-style:normal; color:#6a85a0; flex:none; transition:transform .15s; font-size:11px; }
-  .st-sg-card.expanded .st-sg-caret { transform:rotate(180deg); }
+  .st-sg-caret { flex:none; display:inline-flex; align-items:center; justify-content:center; width:24px; height:24px; border-radius:50%; background:rgba(128,128,128,.12); color:#9db4c9; font-size:16px; transition:transform .15s; }
+  .st-sg-card.expanded .st-sg-caret { transform:rotate(180deg); background:rgba(128,128,128,.2); }
+  .st-sg-submeta { font-size:10.5px; color:#6a85a0; margin-top:6px; line-height:1.5; }
   .st-sg-body { display:none; margin-top:10px; padding-top:11px; border-top:0.5px solid rgba(128,128,128,.15); }
   .st-sg-card.expanded .st-sg-body { display:block; }
   .st-sg-title { font-size:14px; font-weight:600; line-height:1.35; margin:0; flex:1; }
@@ -1842,15 +1843,16 @@
 
     var si = SG_STAGES.findIndex(function (s) { return s.key === it.stage; });
     var mine = it.assignee_email && it.assignee_email === sgMe;
+    var isOwner = sgRoleOf(sgMe) === 'owner';   // 삭제는 최종관리자만
+    var more = '';
+    if (si > 0) more += '<button class="st-sg-btn" data-sgmove="' + it.id + '" data-dir="-1">← 이전 단계</button>';
     var acts = '';
+    acts += '<button class="st-sg-btn" data-sgclaim="' + it.id + '">' + (mine ? '놓기' : '내가 맡기') + '</button>';
     if (si < SG_STAGES.length - 1)
       acts += '<button class="st-sg-btn go" data-sgmove="' + it.id + '" data-dir="1">' + esc(SG_STAGES[si + 1].label) + ' →</button>';
     acts += '<button class="st-sg-btn" data-sgkw="' + it.id + '">분석</button>';
-    acts += '<button class="st-sg-btn more" data-sgmore="' + it.id + '">⋯</button>';
-    var more = '';
-    if (si > 0) more += '<button class="st-sg-btn" data-sgmove="' + it.id + '" data-dir="-1">← 이전</button>';
-    more += '<button class="st-sg-btn" data-sgclaim="' + it.id + '">' + (mine ? '놓기' : '내가 맡기') + '</button>';
-    var isOwner = sgRoleOf(sgMe) === 'owner';   // 삭제는 최종관리자만
+    if (more) acts += '<button class="st-sg-btn more" data-sgmore="' + it.id + '">⋯</button>';
+    if (isOwner) acts += '<button class="st-sg-btn del" data-sgdel="' + it.id + '">🗑 삭제</button>';
 
     // 기획자(만든 사람) — 앞면에 표시
     var planner = it.planner_email ? '<span class="st-sg-role plan">' + sgRoleBadge(sgRoleOf(it.planner_email)) + '<span class="st-sg-pname" title="' + esc(sgName(it.planner_email)) + '">' + esc(sgName(it.planner_email)) + '</span></span>' : '';
@@ -1872,14 +1874,21 @@
     var headMeta = prio;
     if (peakMonth) headMeta += '<span class="st-ch-chip peak">피크 ' + peakMonth + '월</span>';
     if (!it.assignee_email) headMeta += '<span class="st-sg-headwarn">⚠ 담당 없음</span>';
+    // 접힌 상태에도 "뭔지 알아보는" 최소 정보 (코드 빼고)
+    var submeta = '<span class="st-sg-src">' + esc(src) + '</span>'
+      + (place ? ' · ' + esc(place) : '')
+      + (it.star ? ' · ' + it.star + '성' : '')
+      + (it.target_month ? ' · 목표 ' + esc(it.target_month) : '');
+    // 펼침 맨 위 = 식별자(코드·타겟)
+    var idline = esc(it.code || '(코드 없음)') + (it.target ? ' · 타겟 ' + esc(it.target) : '');
     return '<div class="st-sg-card' + (expanded ? ' expanded' : '') + (it.assignee_email ? '' : ' unassigned') + '" data-sgid="' + it.id + '">' +
-      '<div class="st-sg-head" data-sgtoggle="' + it.id + '"><span class="st-sg-title">' + esc(it.title) + '</span><span class="st-sg-headmeta">' + headMeta + '</span><i class="st-sg-caret">▾</i></div>' +
+      '<div class="st-sg-head" data-sgtoggle="' + it.id + '"><span class="st-sg-title">' + esc(it.title) + '</span><span class="st-sg-headmeta">' + headMeta + '</span><span class="st-sg-caret"><i class="ti ti-chevron-down"></i></span></div>' +
+      '<div class="st-sg-submeta">' + submeta + '</div>' +
       '<div class="st-sg-body">' +
-        '<div class="st-sg-code">' + codeline + '</div>' +
+        '<div class="st-sg-code">' + idline + '</div>' +
         peakNote +
         '<div class="st-sg-bottom">' + planner + writerCtl + '<div class="st-sg-acts">' + acts + '</div></div>' +
         '<div class="st-sg-more" data-sgmoreid="' + it.id + '">' + more + '</div>' +
-        (isOwner ? '<div class="st-sg-delrow"><button class="st-sg-btn del" data-sgdel="' + it.id + '">🗑 삭제</button></div>' : '') +
       '</div>' +
     '</div>';
   }

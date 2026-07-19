@@ -2,6 +2,14 @@
 
 ---
 
+## 🟢 2026-07-19 심야(8) — 올리기 [발행됨] 탭 완성 근접 (§11 목록·검색·정렬·필터·권한)
+- ✅ `71122eba` 발행됨 탭 신설(목록·검색) → `431838b4` KPI(발행됨·이번달·채널) → `cbc2d5b8`+`1c16e02f` 정렬·필터·권한.
+- ✅ **역할 서버 판별**(pub.js): authorized에 is_owner RPC 추가 → GET 응답 `role`(owner/admin/editor)·is_owner. (RPC 실측: is_owner·is_admin·is_editor 존재, 역할=admins.role)
+- ✅ studio 발행됨 탭: **정렬** 최신발행·조회순·**예약순(ME_OWNER만)**·채널별 + 안내문 / **필터** 채널·**담당자(ME_ADMIN만)**·언어·기간 / 검색(제목·코드·호텔·채널). ME_OWNER·ME_ROLE 화면 수신.
+- 🟡 조회순·예약순 실제 정렬값(view_count·booking_count)은 유튜브API·추적링크 후. 지금 옵션만·최신순 폴백.
+- 🔴 **남은 §11 마지막 = 주소 수정 흐름**(2단계): owner 직접변경 / admin·editor [수정요청]→owner [승인·반려], 변경 전 [▶영상확인] 필수, 이력 기록. 스키마(url_request·url_history) + pub.js PATCH action + 발행됨 카드 수정UI. = "링크 잘못 넣으면 고치기"(대표님 첫 지적).
+- 🔴 그다음: 발행예정↔올리기 담당 동기화(§8-5) · perf/hotelPop 실데이터.
+
 ## 🟢 2026-07-19 심야(7) — 원고 본문 DB 저장 + 원고 열기=본문 팝업 (대표님 확정)
 - 대표님 확정: "원고 열기 = 원고 본문 전체 팝업 / 우리 자체 DB에 저장해서 자료로도 사용." (확정문서엔 원고열기 동작 정의 없었음 — 이번에 확정)
 - ✅ 백업 `8bb4b3d5` → `publications.manuscript_text`(text) 칸 추가 + `v_queue_publications` 뷰에 포함.

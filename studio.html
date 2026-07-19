@@ -1799,7 +1799,7 @@
   var ROLE_LABEL = { owner: '최종관리자', admin: '관리자', staff: '스탭', readonly: '읽기전용', editor: '에디터', manager: '매니저' };
   var ROLE_COLOR = { owner: '#EF9F27', admin: '#378ADD', editor: '#1D9E75', staff: '#888780', readonly: '#888780', manager: '#888780' };
   function sgRoleOf(email) { var m = sgTeam.find(function (x) { return x.email === email; }); return m ? m.role : ''; }
-  function sgName(email) { var m = sgTeam.find(function (x) { return x.email === email; }); return (m && m.display_name) || shortMail(email); }
+  function sgName(email) { var m = sgTeam.find(function (x) { return x.email === email; }); var n = (m && m.display_name) || ''; n = n.split('(')[0].trim(); return n || shortMail(email); }
   function sgRoleBadge(role) { if (!role) return ''; var label = ROLE_LABEL[role] || role; var col = ROLE_COLOR[role] || '#888780'; return '<span class="st-sg-rolebadge" style="color:' + col + ';border-color:' + col + '55;">' + esc(label) + '</span>'; }
 
   function sgCard(it) {
@@ -1833,7 +1833,7 @@
     var writerCtl;
     if (sgIsAdmin) {
       var opts = '<option value="">＋ 담당 지정</option>';
-      sgTeam.forEach(function (m) { opts += '<option value="' + esc(m.email) + '"' + (m.email === it.assignee_email ? ' selected' : '') + '>[' + esc(ROLE_LABEL[m.role] || m.role) + '] ' + esc(m.display_name || shortMail(m.email)) + '</option>'; });
+      sgTeam.forEach(function (m) { opts += '<option value="' + esc(m.email) + '"' + (m.email === it.assignee_email ? ' selected' : '') + '>[' + esc(ROLE_LABEL[m.role] || m.role) + '] ' + esc((m.display_name || '').split('(')[0].trim() || shortMail(m.email)) + '</option>'; });
       writerCtl = '<select class="st-sg-assign' + (it.assignee_email ? '' : ' none') + '" data-sgassignsel="' + it.id + '">' + opts + '</select>';
     } else {
       writerCtl = it.assignee_email

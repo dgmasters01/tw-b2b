@@ -197,8 +197,6 @@ function selfCard(c){
   if (c.stage==='published'){
     body += '<div class="pubrow"><span style="color:var(--rd)">▶</span><a>'+c.yt+'</a></div>'+
       '<div class="pubmeta">최종 업로더 <b>'+c.uploader+'</b> · 조회 <b>'+c.views.toLocaleString()+'</b> · 예약 <b style="color:var(--gr)">'+c.bookings+'건</b></div>';
-  } else {
-    body += '<div class="pubmeta">올린 사람 <b>'+c.uploader+'</b> (자동)</div>';
   }
   body += '<div class="bottom"><div class="acts" style="margin-left:0">'+acts+'</div></div>';
   return '<div class="card self'+(open?' open':'')+'"><div class="head" onclick="toggle(\''+c.id+'\')">'+

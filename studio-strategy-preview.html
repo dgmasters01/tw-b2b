@@ -245,9 +245,12 @@ function recCard(c){
       '<div class="pubmeta">최종 업로더 <b>'+c.uploader+'</b> · 조회 <b>'+c.views.toLocaleString()+'</b> · 예약 <b style="color:var(--muted)">준비중</b>'+
       (showDel?' · 수수료 <b style="color:var(--am)">준비중</b>':'')+'</div>';
   }
-  body += '<div class="bottom"><span class="rolebadge">최종관리자</span><span class="pname">'+(c.planner||c.uploader||'')+'</span>'+
-    (c.stage!=='published'?'<button class="assign">＋ 담당 지정</button>':'')+
-    '<div class="acts">'+acts+'</div></div>';
+  if (c.stage==='published'){
+    body += '<div class="bottom"><div class="acts" style="margin-left:0">'+acts+'</div></div>';
+  } else {
+    body += '<div class="bottom"><span class="rolebadge">최종관리자</span><span class="pname">'+(c.planner||'')+'</span>'+
+      '<button class="assign">＋ 담당 지정</button><div class="acts">'+acts+'</div></div>';
+  }
   if (c.stage==='writing') body += '<div class="autohint">원고에 <b>'+c.code+'</b> 코드를 넣고 드라이브 완료 폴더에 올리면 <b>발행 예정</b>으로 자동 이동합니다.</div>';
   return '<div class="card'+(open?' open':'')+'"><div class="head" onclick="toggle(\''+c.id+'\')">'+
     '<span class="htitle">'+c.title+'</span><span class="badges"><span class="bdg kw">'+c.src+'</span>'+badges+'</span>'+

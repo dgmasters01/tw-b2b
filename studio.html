@@ -669,7 +669,8 @@
   .st-sg-btn { font-size:11px; padding:3px 9px; border-radius:7px; border:1px solid rgba(128,128,128,.35); background:none; color:inherit; cursor:pointer; }
   .st-sg-btn:hover { border-color:currentColor; }
   .st-sg-btn.go { border-color:#5DCAA5; color:#1D9E75; font-weight:500; }
-  .st-sg-btn.del { border-color:rgba(226,75,74,.45); color:#E24B4A; margin-left:auto; }
+  .st-sg-btn.del { border-color:rgba(226,75,74,.45); color:#E24B4A; }
+  .st-sg-delrow { display:flex; justify-content:flex-end; margin-top:10px; padding-top:9px; border-top:0.5px solid rgba(128,128,128,.12); }
   .st-sg-empty { font-size:12px; opacity:.4; text-align:center; padding:18px 0; }
   /* 키워드 → 큐 담기 버튼 */
   .st-kw-add { font-size:11px; padding:3px 11px; border-radius:7px; border:1px solid #4edea3; color:#1D9E75; background:none; cursor:pointer; margin-left:auto; }
@@ -1849,7 +1850,7 @@
     var more = '';
     if (si > 0) more += '<button class="st-sg-btn" data-sgmove="' + it.id + '" data-dir="-1">← 이전</button>';
     more += '<button class="st-sg-btn" data-sgclaim="' + it.id + '">' + (mine ? '놓기' : '내가 맡기') + '</button>';
-    if (sgIsAdmin) more += '<button class="st-sg-btn del" data-sgdel="' + it.id + '">🗑 삭제</button>';
+    var isOwner = sgRoleOf(sgMe) === 'owner';   // 삭제는 최종관리자만
 
     // 기획자(만든 사람) — 앞면에 표시
     var planner = it.planner_email ? '<span class="st-sg-role plan">' + sgRoleBadge(sgRoleOf(it.planner_email)) + '<span class="st-sg-pname" title="' + esc(sgName(it.planner_email)) + '">' + esc(sgName(it.planner_email)) + '</span></span>' : '';
@@ -1878,6 +1879,7 @@
         peakNote +
         '<div class="st-sg-bottom">' + planner + writerCtl + '<div class="st-sg-acts">' + acts + '</div></div>' +
         '<div class="st-sg-more" data-sgmoreid="' + it.id + '">' + more + '</div>' +
+        (isOwner ? '<div class="st-sg-delrow"><button class="st-sg-btn del" data-sgdel="' + it.id + '">🗑 삭제</button></div>' : '') +
       '</div>' +
     '</div>';
   }

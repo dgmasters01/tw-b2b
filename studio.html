@@ -1825,9 +1825,9 @@
     if (peakMonth) descLines.push('<b>소개 기준</b> ' + peakMonth + '월(성수기) — 올리는 달이 아니라 손님이 예약할 달 기준으로');
     if (it.note) {
       var hm = it.note.match(/담을 호텔:\s*([^|]+)/);
-      if (hm) { var hotels = hm[1].replace(/\([^)]*\)/g, '').replace(/\s*\/\s*/g, ' · ').replace(/\s+/g, ' ').trim(); if (hotels) descLines.push('<b>담을 호텔</b> ' + esc(hotels)); }
-      var am = it.note.match(/숙박 각도:\s*([^|]+)/);
-      if (am) descLines.push('<b>숙박 각도</b> ' + esc(am[1].trim()));
+      if (hm) { var hotels = hm[1].replace(/\([^)]*\)/g, '').replace(/\s*\/\s*/g, ' · ').replace(/\s+/g, ' ').trim(); if (hotels) descLines.push('<b>추천 호텔</b> ' + esc(hotels)); }
+      var am = it.note.match(/숙박 각도:\s*([\d박·\s]+?)\s*(\d+)%/);
+      if (am) { var stays = am[1].trim().split(/·/).map(function (s, i) { return (i + 1) + '위 ' + s.trim(); }).join(', '); descLines.push('<b>여행 일정</b> ' + esc(stays) + ' (전체 ' + am[2] + '%)'); }
     }
     var peakNote = descLines.length ? '<div class="st-sg-desc"><span class="st-sg-desc-t">설명</span>' + descLines.join('<br>') + '</div>' : '';
 

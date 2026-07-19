@@ -26,23 +26,29 @@
   .ititle{font-size:13.5px;font-weight:600;}
   .ch{font-size:9.5px;padding:2px 8px;border-radius:20px;background:rgba(128,140,160,.14);color:#b9c8d8;white-space:nowrap;}
   .imeta{font-size:10.5px;color:var(--muted);margin-top:5px;}
+  .lastchg{font-size:10px;color:var(--sub);margin-top:4px;}
   .ytrow{display:flex;align-items:center;gap:8px;margin-top:10px;padding-top:9px;border-top:0.5px solid rgba(128,128,128,.14);font-size:11px;}
   .yturl{color:var(--bl);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
   .mini{font-size:10.5px;padding:5px 11px;border-radius:6px;border:0.5px solid var(--line2);color:var(--am);background:transparent;font-family:inherit;cursor:pointer;white-space:nowrap;}
   .mini.gr{color:var(--gr);border-color:rgba(78,222,163,.4);}
   .mini.rd{color:var(--rd);border-color:rgba(226,75,74,.45);}
+  .mini.bl{color:var(--bl);border-color:rgba(90,169,230,.4);}
+  .mini.off{color:var(--muted);border-color:var(--line);opacity:.55;cursor:not-allowed;}
   .editbox{margin-top:9px;padding-top:9px;border-top:0.5px solid rgba(128,128,128,.14);}
   .editbox input{width:100%;background:#0a121c;border:0.5px solid var(--line2);border-radius:7px;color:var(--txt);padding:8px 10px;font-size:11.5px;font-family:inherit;margin-bottom:7px;}
-  .editrow{display:flex;gap:6px;justify-content:flex-end;}
+  .chkline{font-size:10px;margin:2px 0 8px;}
+  .chkline.no{color:var(--muted);}
+  .chkline.yes{color:var(--gr);}
+  .editrow{display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap;}
   .req{margin-top:9px;padding:9px 11px;border-radius:8px;background:rgba(239,159,39,.09);border:0.5px solid rgba(239,159,39,.28);font-size:10.5px;color:var(--am);line-height:1.6;}
   .req b{color:#f5c66f;}
-  .reqacts{display:flex;gap:6px;justify-content:flex-end;margin-top:8px;}
+  .reqacts{display:flex;gap:6px;justify-content:flex-end;margin-top:8px;flex-wrap:wrap;}
   .note{font-size:10px;color:var(--muted);margin-top:6px;}
 </style>
 </head>
 <body>
 
-<div class="pv">📤 올리기 · <b>발행됨 목록</b> 프리뷰 — 샘플입니다. 역할을 바꿔가며 "누가 무엇을 할 수 있나"를 보세요.</div>
+<div class="pv">📤 올리기 · <b>발행됨 목록</b> 프리뷰 — 역할을 바꿔가며 "누가 무엇을 할 수 있나"를 보세요. 샘플입니다.</div>
 
 <div class="role">
   <button id="r-owner" class="on" onclick="setRole('owner')">최고관리자</button>
@@ -71,64 +77,94 @@
 
 <script>
 var ROLE='owner';
+var TODAY='2026-07-19 14:20';
 var VIDS=[
   { id:'v1', code:'TW-0001', title:'난바 호텔 TOP3 — 3성', channel:'여행능력자들', pubdate:'2026-09-14', views:12400,
-    yt:'youtube.com/watch?v=aB3kZ7Qp', req:null },
+    yt:'youtube.com/watch?v=aB3kZ7Qp', req:null, lastchg:null },
   { id:'v2', code:'채널-0042', title:'후쿠오카 하카타 호텔 TOP3', channel:'호텔이야', pubdate:'2026-07-11', views:3180,
-    yt:'youtube.com/watch?v=9Fk2mLxa', req:null }
+    yt:'youtube.com/watch?v=9Fk2mLxa', req:null, lastchg:null }
 ];
-var editing=null;
+var editing=null, editChecked=false, reqChecked={};
 
-function setRole(r){ ROLE=r; editing=null;
+function nm(){ return ROLE==='owner'?'최고관리자(대표님)':(ROLE==='admin'?'관리자 박':'에디터 김'); }
+function setRole(r){ ROLE=r; editing=null; editChecked=false; reqChecked={};
   ['owner','admin','editor'].forEach(function(x){ document.getElementById('r-'+x).classList.toggle('on', x===r); });
   render();
 }
-function startEdit(id){ editing=id; render(); setTimeout(function(){ var el=document.getElementById('inp-'+id); if(el) el.focus(); },30); }
-function cancelEdit(){ editing=null; render(); }
+function startEdit(id){ editing=id; editChecked=false; render(); setTimeout(function(){ var el=document.getElementById('inp-'+id); if(el) el.focus(); },30); }
+function cancelEdit(){ editing=null; editChecked=false; render(); }
+function onInput(){ editChecked=false; render(); }
 
-function saveDirect(id){ // owner 직접 수정
-  var v=VIDS.find(function(x){return x.id===id;}); var el=document.getElementById('inp-'+id);
-  if(el && el.value.trim()){ v.yt=el.value.trim().replace(/^https?:\/\//,''); v.req=null; }
-  editing=null; render();
+function checkVideo(id){ // 새 주소 영상 눈으로 확인
+  var el=document.getElementById('inp-'+id); if(!el||!el.value.trim()){ alert('먼저 유튜브 주소를 넣어주세요.'); return; }
+  var u=el.value.trim(); if(u.indexOf('http')<0)u='https://'+u;
+  window.open(u,'_blank'); editChecked=true; render();
 }
-function sendReq(id){ // admin/editor 수정 요청
+function saveDirect(id){ // owner 직접 변경 (확인 후)
+  if(!editChecked){ return; }
   var v=VIDS.find(function(x){return x.id===id;}); var el=document.getElementById('inp-'+id);
-  if(el && el.value.trim()){ v.req={ by:(ROLE==='admin'?'관리자 박':'에디터 김'), url:el.value.trim().replace(/^https?:\/\//,''), at:'방금' }; }
-  editing=null; render();
+  if(!confirm('이 주소를 바꾸면 지금까지 쌓인 조회·예약이 새 영상 기준으로 다시 계산됩니다. 변경할까요?')) return;
+  v.yt=el.value.trim().replace(/^https?:\/\//,''); v.req=null;
+  v.lastchg='변경 '+TODAY+' · 최고관리자 직접';
+  editing=null; editChecked=false; render();
 }
-function approve(id){ var v=VIDS.find(function(x){return x.id===id;}); if(v.req){ v.yt=v.req.url; v.req=null; } render(); }
-function reject(id){ var v=VIDS.find(function(x){return x.id===id;}); v.req=null; render(); }
+function sendReq(id){ // admin/editor 요청 (확인 후)
+  if(!editChecked){ return; }
+  var v=VIDS.find(function(x){return x.id===id;}); var el=document.getElementById('inp-'+id);
+  v.req={ by:nm(), url:el.value.trim().replace(/^https?:\/\//,''), at:TODAY };
+  editing=null; editChecked=false; render();
+}
+function checkReq(id){ var v=VIDS.find(function(x){return x.id===id;}); if(!v.req)return;
+  var u=v.req.url; if(u.indexOf('http')<0)u='https://'+u; window.open(u,'_blank'); reqChecked[id]=true; render();
+}
+function approve(id){ if(!reqChecked[id]){ return; }
+  var v=VIDS.find(function(x){return x.id===id;}); if(!v.req)return;
+  if(!confirm('이 주소로 바꾸면 쌓인 조회·예약이 새 영상 기준으로 다시 계산됩니다. 승인할까요?')) return;
+  v.lastchg='요청 '+v.req.at+' ('+v.req.by+') → 승인·변경 '+TODAY+' (최고관리자)';
+  v.yt=v.req.url; v.req=null; reqChecked[id]=false; render();
+}
+function reject(id){ var v=VIDS.find(function(x){return x.id===id;}); v.req=null; reqChecked[id]=false; render(); }
 
 function render(){
   document.getElementById('list').innerHTML = VIDS.map(function(v){
-    var h = '<div class="item"><div class="itop"><span class="ititle">'+v.title+'</span><span class="ch">'+v.channel+'</span></div>'+
+    var h='<div class="item"><div class="itop"><span class="ititle">'+v.title+'</span><span class="ch">'+v.channel+'</span></div>'+
       '<div class="imeta">'+v.code+' · 발행 '+v.pubdate+' · 조회 '+v.views.toLocaleString()+'</div>';
+    if(v.lastchg) h+='<div class="lastchg">🕑 '+v.lastchg+'</div>';
 
-    // 유튜브 주소 줄 + 역할별 버튼
-    var btn='';
-    if(ROLE==='owner') btn='<button class="mini" onclick="startEdit(\''+v.id+'\')">✏ 주소 수정</button>';
-    else btn='<button class="mini" onclick="startEdit(\''+v.id+'\')">✏ 수정 요청</button>';
-    h += '<div class="ytrow"><span class="yturl">▶ '+v.yt+'</span>'+(editing===v.id?'':btn)+'</div>';
+    var btn = ROLE==='owner'
+      ? '<button class="mini" onclick="startEdit(\''+v.id+'\')">✏ 주소 수정</button>'
+      : '<button class="mini" onclick="startEdit(\''+v.id+'\')">✏ 수정 요청</button>';
+    h+='<div class="ytrow"><span class="yturl">▶ '+v.yt+'</span>'+(editing===v.id?'':btn)+'</div>';
 
-    // 편집 입력창
     if(editing===v.id){
-      var ph = ROLE==='owner' ? '올바른 유튜브 주소 붙여넣기 → 바로 반영' : '올바른 주소 붙여넣기 → 최고관리자에게 요청';
-      var save = ROLE==='owner'
-        ? '<button class="mini gr" onclick="saveDirect(\''+v.id+'\')">저장(바로 반영)</button>'
-        : '<button class="mini gr" onclick="sendReq(\''+v.id+'\')">수정 요청 보내기</button>';
-      h += '<div class="editbox"><input id="inp-'+v.id+'" placeholder="'+ph+'" value="'+v.yt+'">'+
-        '<div class="editrow"><button class="mini" onclick="cancelEdit()">취소</button>'+save+'</div></div>';
+      var isOwner=ROLE==='owner';
+      var chk = editChecked
+        ? '<div class="chkline yes">✓ 영상 확인함 — 이제 '+(isOwner?'변경':'요청')+'할 수 있어요</div>'
+        : '<div class="chkline no">먼저 [▶ 영상 확인]으로 이 주소가 맞는지 보세요</div>';
+      var actBtn = isOwner
+        ? '<button class="mini '+(editChecked?'gr':'off')+'" onclick="saveDirect(\''+v.id+'\')">변경</button>'
+        : '<button class="mini '+(editChecked?'gr':'off')+'" onclick="sendReq(\''+v.id+'\')">수정 요청 보내기</button>';
+      h+='<div class="editbox"><input id="inp-'+v.id+'" oninput="onInput()" placeholder="올바른 유튜브 주소 붙여넣기" value="'+v.yt+'">'+
+         chk+
+         '<div class="editrow"><button class="mini" onclick="cancelEdit()">취소</button>'+
+         '<button class="mini bl" onclick="checkVideo(\''+v.id+'\')">▶ 영상 확인</button>'+actBtn+'</div></div>';
     }
 
-    // 수정 요청 중 표시
     if(v.req){
-      h += '<div class="req">⚠ <b>수정 요청 중</b> — '+v.req.by+'님이 새 주소 제안 ('+v.req.at+')<br>새 주소: '+v.req.url;
-      if(ROLE==='owner') h += '<div class="reqacts"><button class="mini rd" onclick="reject(\''+v.id+'\')">반려</button><button class="mini gr" onclick="approve(\''+v.id+'\')">승인(주소 변경)</button></div>';
-      else h += '<div class="note">최고관리자 승인을 기다리는 중입니다.</div>';
-      h += '</div>';
+      h+='<div class="req">⚠ <b>수정 요청 중</b> — '+v.req.by+' · '+v.req.at+'<br>새 주소: '+v.req.url;
+      if(ROLE==='owner'){
+        var rc = reqChecked[v.id]
+          ? '<div class="chkline yes" style="margin-top:6px">✓ 영상 확인함 — 승인할 수 있어요</div>'
+          : '<div class="chkline no" style="margin-top:6px">승인 전 [▶ 영상 확인]으로 다시 보세요</div>';
+        h+=rc+'<div class="reqacts"><button class="mini bl" onclick="checkReq(\''+v.id+'\')">▶ 영상 확인</button>'+
+           '<button class="mini rd" onclick="reject(\''+v.id+'\')">반려</button>'+
+           '<button class="mini '+(reqChecked[v.id]?'gr':'off')+'" onclick="approve(\''+v.id+'\')">승인(주소 변경)</button></div>';
+      } else {
+        h+='<div class="note">최고관리자 승인을 기다리는 중입니다.</div>';
+      }
+      h+='</div>';
     }
-
-    h += '</div>';
+    h+='</div>';
     return h;
   }).join('');
 }

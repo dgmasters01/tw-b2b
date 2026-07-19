@@ -1013,11 +1013,6 @@
 <div class="ts" id="tsb"></div>
 </div>
 <!-- ⟦확정본 HTML 끝⟧ -->
-    <div class="st-pf-block" style="margin-top:30px;border-top:1px solid rgba(128,128,128,.18);padding-top:18px;">
-      <div class="st-pf-h" id="st-kw-rec-h">📒 실제 예약 데이터 (옛 화면 · D-060)</div>
-    </div>
-    <div class="st-pf-block"><div class="st-pf-h">🎬 도시 추천 (도시 TOP3 영상 후보)</div><div id="st-kw-cities"><div class="st-empty">불러오는 중…</div></div></div>
-    <div class="st-pf-block"><div class="st-pf-h">🏨 호텔 추천 (아직 영상에 안 나온 예약 많은 호텔)</div><div id="st-kw-hotels"><div class="st-empty">불러오는 중…</div></div></div>
   </section>
   <section class="st-view" id="view-strategy">
     <div class="st-head">
@@ -1908,92 +1903,12 @@
     if (rm) { var bk = rm.querySelector('.st-hmodal-back'); if (bk) bk.onclick = function () { rm.hidden = true; }; }
   })();
 
-  /* ── 키워드 (D-060 · 다음에 만들 것 추천) ────────────────────
-   * 예약 많은데 영상 없는 도시·호텔을 예약 데이터로 추천. 수수료 안 봄(건수 기준). */
-  var kwCities = [], kwHotels = [];
-  function kwCityRow(c, i) {
-    var none = c.covered_hotels === 0;
-    var badge = none
-      ? '<span class="st-ch-chip new">🆕 영상 없음</span>'
-      : '<span class="st-ch-chip">노출 ' + c.covered_hotels + '곳</span>';
-    return '<div class="st-ch-card">' +
-      '<div class="st-ch-name"><span class="st-kw-rank">' + (i + 1) + '</span>' +
-        esc(c.city || '—') + ' <span style="opacity:.5;font-size:13px">' + esc(c.country || '') + '</span></div>' +
-      '<div class="st-ht-chips">' +
-        '<span class="st-ch-chip active">확정예약 ' + (c.bookings_done || 0) + '건</span>' +
-        '<span class="st-ch-chip">호텔 ' + (c.hotels_count || 0) + '곳</span>' +
-        badge +
-        '<button class="st-kw-add" data-kwt="city" data-idx="' + i + '">＋ 이걸로 만들기</button>' +
-      '</div>' +
-    '</div>';
-  }
-  function kwHotelRow(h, i) {
-    var star = h.star ? (h.star + '성') : '';
-    return '<div class="st-ch-card">' +
-      '<div class="st-ch-name"><span class="st-kw-rank">' + (i + 1) + '</span>' + esc(h.hotel_name || ('호텔 ' + h.hid)) + '</div>' +
-      '<div class="st-ht-sub">' + esc(h.city || '') + (h.country ? ' · ' + esc(h.country) : '') + (star ? ' · ' + star : '') + '</div>' +
-      '<div class="st-ht-chips"><span class="st-ch-chip active">확정예약 ' + (h.bookings_done || 0) + '건</span>' +
-        '<span class="st-ch-chip new">영상 없음</span>' +
-        '<button class="st-kw-add" data-kwt="hotel" data-idx="' + i + '">＋ 이걸로 만들기</button>' +
-      '</div>' +
-    '</div>';
-  }
-  // [이걸로 만들기] → 전략 큐(content_queue)에 기획대기 카드로. 출처=키워드, 기획자=나 자동 (D-066).
-  function addFromKeyword(kwt, idx, btn) {
-    var body;
-    if (kwt === 'city') {
-      var c = kwCities[idx]; if (!c) return;
-      body = { source: 'keyword', subject: (c.city || '도시') + ' 호텔 TOP3',
-               country: c.country, city: c.city, bookings_done: c.bookings_done || 0 };
-    } else {
-      var h = kwHotels[idx]; if (!h) return;
-      body = { source: 'keyword', subject: h.hotel_name || ('호텔 ' + h.hid),
-               hid: h.hid, hotel_name: h.hotel_name, city: h.city, country: h.country,
-               star: h.star || null, bookings_done: h.bookings_done || 0 };
-    }
-    btn.disabled = true; var old = btn.textContent; btn.textContent = '담는 중…';
-    fetch('/api/content-queue', {
-      method: 'POST', credentials: 'same-origin',
-      headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
-    }).then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
-      .then(function (x) {
-        if (!x.ok || !x.j.ok) throw new Error(x.j.error || '담지 못했습니다.');
-        btn.textContent = '✓ 전략 큐에 담김 (' + esc((x.j.item && x.j.item.code) || '') + ')';
-        sgLoaded = false; // 다음에 전략 열 때 새로 그림
-      })
-      .catch(function (e) { btn.disabled = false; btn.textContent = old; alert(e.message); });
-  }
+  /* ── 키워드 (D-060 옛 예약기반 추천) = 폐기 (2026-07-19 대표님).
+   *   나라→도시→지역 조사(D-065)로 대체됨. 옛 도시/호텔 추천 렌더러·[이걸로 만들기]는 삭제.
+   *   출구는 이제 지역 세부의 [＋ 전략으로](kw-app) 하나. */
+  // 키워드 메뉴 = 나라→도시→지역 조사 화면(D-065 확정본) 하나. 옛 D-060 예약기반 추천은 폐기(2026-07-19 대표님).
   function loadKeywords() {
-    // 확정본 화면 켜기 (프리뷰는 제 페이지라 로드되며 저절로 켜졌다. 스튜디오는 탭을 열 때 켠다)
-    if (window.kwBoot) window.kwBoot();
-    var cList = document.getElementById('st-kw-cities');
-    var hList = document.getElementById('st-kw-hotels');
-    fetch('/api/content-keywords', { credentials: 'same-origin' })
-      .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
-      .then(function (x) {
-        if (!x.ok || !x.j.ok) throw new Error(x.j.error || '불러오지 못했습니다.');
-        kwCities = x.j.cities || []; kwHotels = x.j.hotels || [];
-        var newCities = kwCities.filter(function (c) { return c.covered_hotels === 0; }).length;
-        // 부제는 확정본이 쓴다. 추천 숫자는 제 블록 제목에 적는다 (두 코드가 같은 칸을 덮어쓰던 것 정정)
-        var rh = document.getElementById('st-kw-rec-h');
-        if (rh) rh.textContent = '📒 실제 예약 데이터 (옛 화면 · D-060) — 도시 ' + kwCities.length + '곳 · 호텔 ' +
-          kwHotels.length + '곳 추천 (영상 없는 도시 ' + newCities + '곳)';
-        cList.innerHTML = kwCities.length
-          ? kwCities.map(kwCityRow).join('')
-          : '<div class="st-empty">추천할 도시가 없습니다.</div>';
-        hList.innerHTML = kwHotels.length
-          ? kwHotels.map(kwHotelRow).join('')
-          : '<div class="st-empty">추천할 호텔이 없습니다.</div>';
-        [cList, hList].forEach(function (box) {
-          box.querySelectorAll('[data-kwt]').forEach(function (b) {
-            b.onclick = function () { addFromKeyword(b.dataset.kwt, +b.dataset.idx, b); };
-          });
-        });
-      })
-      .catch(function (e) {
-        cList.innerHTML = '<div class="st-empty">' + esc(e.message) + '</div>';
-        hList.innerHTML = '';
-      });
+    if (window.kwBoot) window.kwBoot();   // 확정본 화면 켜기 (탭 열 때)
   }
 
   /* ── 전략 · 콘텐츠 기획 큐 (D-066 확정본) ─────────────────────────

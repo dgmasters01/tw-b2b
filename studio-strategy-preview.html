@@ -126,57 +126,12 @@ var CARDS = [
 
 var expanded = null;
 
-var DISTRICTS = {
-  '난바': {
-    city:'오사카', country:'Japan',
-    intro:'3성이 가장 많은 동네입니다 (974곳 · 58%). 손님도 3성에서 잡습니다 (예약의 76%).',
-    stars:[['5성',109,7],['4성',126,25],['3성',974,60],['2성',39,8],['1성',20,4],['무성급',409,4]],
-    pattern:'피크 12월 · 27일 전 예약 · 3박 선호',
-    keywords:'난바 호텔(10.84) · 난바 숙소(1.21) · 난바 역세권(0.9) · 도톤보리 호텔(0.7) …',
-    kwCount:17, kwDone:14
-  },
-  '우메다': {
-    city:'오사카', country:'Japan',
-    intro:'비즈니스 3~4성이 고르게 많은 동네입니다. 예약은 3성(64%)에 몰립니다.',
-    stars:[['5성',88,9],['4성',210,31],['3성',612,58],['2성',54,6],['1성',12,2],['무성급',180,3]],
-    pattern:'피크 11월 · 21일 전 예약 · 2박 선호',
-    keywords:'우메다 호텔(8.2) · 오사카역 호텔(6.1) · 우메다 숙소(1.4) …',
-    kwCount:14, kwDone:11
-  }
-};
-
 function analyze(id){
   var c = CARDS.find(function(x){ return x.id===id; }); if(!c) return;
   var t = c.title;
   var dist = t.indexOf('우메다')>=0 ? '우메다' : '난바';
-  openAnalysis(dist, c.title);
-}
-
-function openAnalysis(dist, title){
-  var d = DISTRICTS[dist]; if(!d) return;
-  var maxStar = Math.max.apply(null, d.stars.map(function(s){return s[1];}));
-  var starRows = d.stars.map(function(s){
-    var w = Math.round(s[1]/maxStar*100);
-    var hot = s[0]==='3성';
-    return '<div class="an-star'+(hot?' hot':'')+'"><span class="an-sl">'+s[0]+'</span>'+
-      '<span class="an-bar"><span style="width:'+w+'%"></span></span>'+
-      '<span class="an-sv">'+s[1]+'곳 · 예약 '+s[2]+'%</span></div>';
-  }).join('');
-  var ov = document.createElement('div');
-  ov.className = 'an-ov';
-  ov.innerHTML = '<div class="an-modal">'+
-    '<div class="an-head"><span>'+title+' — 분석</span><button class="an-x" onclick="this.closest(\'.an-ov\').remove()">✕</button></div>'+
-    '<div class="an-bc">이번 달 › '+d.country+' › '+d.city+' › <b>'+dist+'</b></div>'+
-    '<div class="an-intro"><div class="an-it">'+dist+'는 어떤 동네인가</div>'+d.intro+'</div>'+
-    '<div class="an-sec">성급 분포 <span>'+dist+' 전체 · 예약 비중</span></div>'+
-    '<div class="an-stars">'+starRows+'</div>'+
-    '<div class="an-sec">이 지역 예약 패턴</div><div class="an-kw">'+d.pattern+'</div>'+
-    '<div class="an-sec">'+dist+' 검색어 <span>'+d.kwDone+'/'+d.kwCount+' 조사됨 · DB만 읽음(구글 호출 0)</span></div>'+
-    '<div class="an-kw">'+d.keywords+'</div>'+
-    '<div class="an-note">이건 이미 조사된 데이터를 꺼내 보는 것입니다 — 열 때 구글·트렌드 호출 0.</div>'+
-  '</div>';
-  ov.onclick = function(e){ if(e.target===ov) ov.remove(); };
-  document.body.appendChild(ov);
+  // 분석 = 그 지역 조사 전체를 키워드 상세로 (요약 아님)
+  location.href = 'studio-keyword-preview.html?dist=' + encodeURIComponent(dist);
 }
 
 function setRole(r){ ROLE=r; document.getElementById('r-owner').classList.toggle('on',r==='owner'); document.getElementById('r-editor').classList.toggle('on',r==='editor'); render(); }

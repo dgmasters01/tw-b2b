@@ -18,7 +18,20 @@
 
 ---
 
-## 🟢 2026-07-19 심야(16) — 새벽 조사 봇 착수: 트렌드 JS 이식 + Vercel 실증 (큰 뿌리 1단)
+# 인계서 — ✅ **새벽 조사 봇 측정→저장 완성·라이브** (07-19 심야17). 한 도시 검색어를 수요·경쟁·기회점수로 재서 snapshot/trend 표에 저장·이어하기, 새벽 크론 등록. 버리는 테스트도시로 end-to-end 검증(오사카 안 건드림). **남은 것 딱 하나 = 발굴(harvest, 새 도시 검색어 자동 생성) 배선 / perf 실데이터(내일 19:15 예약영상+추적링크).**
+
+---
+
+## 🟢 2026-07-19 심야(17) — 새벽 조사 봇 측정→저장 완성 (대표님 "새벽에 자동으로" 실현)
+> **안 되던 게 이제 뭐가 되나**: 키워드 조사를 대표님이 손으로 돌려야 했는데, 이제 **새벽 1~4시에 서버가 자동으로** 한 도시씩 검색어 수요·경쟁·기회점수를 재서 저장한다. 손 안 댄다.
+- ✅ **크론** `api/cron/kw-survey.js`(`b0939f2d`) + vercel.json(`645bda18`) `0 16,17,18,19 * * *`(KST 01~04, 4회). 인증 Bearer CRON_SECRET / x-ops-token.
+- ✅ **동작**: ①도시 미지정(크론)=살아있는 검색어 있는 도시 중 이번 달 미완 첫 도시 자동선택, 전부 완료면 **idle**(완료 도시 안 건드림) ②회차당 15개만 재고 즉시 저장, 공책=trend 표(안 잰 검색어부터 다음 회차 이어감) ③앵커 잣대=snapshot.anchor_value 에 박아 회차 갈려도 같은 잣대(⑪) ④수요(trends.js)+경쟁(youtube-competition.js)+기회(수요÷log10경쟁) → trend 표 upsert(snapshot_id+keyword_id·trend_uniq) ⑤다 재면 snapshot done.
+- 🟢 **end-to-end 검증(오사카 안 건드림)**: 버리는 테스트도시(cc:test|probe)에 검색어 3개 넣고 실행 → snapshot 생성·3개 측정(후쿠오카 호텔 수요33.9·경쟁18.7만·기회6.43 등)·trend 3행 저장(**도장까지: api_search_list·365·gtrends_youtube**)·done. **테스트 데이터 전부 삭제** → 오사카 snapshot 1건만 원상. 크론 자동=idle 확인.
+- 🔴 **남은 것 딱 하나 = 발굴(harvest)**: 지금 봇은 **keyword 표에 이미 있는 살아있는 검색어만** 잰다. 새 도시(후쿠오카·타이베이 등)를 자동 조사하려면 **자동완성(kwtool.js harvest/suggest/pair)로 검색어를 먼저 생성→keyword 표 저장**하는 앞단이 필요. kwtool.js 에 부품 다 있음(suggest·harvest·pair). 이것만 붙이면 봇이 예약순으로 새 도시를 스스로 발굴·조사한다. + kind/axis 분류(stay/travel·joined/spaced) 규칙 적용.
+- 🟡 지금 시스템에 keyword 있는 도시 = 오사카(완료)뿐 → 크론은 발굴 붙기 전까지 매일 idle(무해). 발굴 붙으면 그날부터 새 도시 자동 합류.
+- 🟡 부품: trends.js·youtube-competition.js·trends-probe(comp=1) 전부 라이브·재사용 가능.
+
+## 🟢 2026-07-19 심야(16) — 새벽 조사 봇 측정 스택 서버검증 (트렌드·경쟁 JS 이식)
 > **대표님**: *"키워드 조사 = 너가 자동으로 수집하면 되잖아? 새벽에 돌리면 안 되는 거야?"* → **맞다. 설계도 되어 있었다(D-065 51).** 막혀 있던 건 딱 하나: 새벽 봇은 Vercel 서버(node)에서 도는데 측정 도구가 파이썬(kwtool.py)이라 못 씀.
 > **안 되던 게 이제 뭐가 되나**: 트렌드 재는 걸 자바스크립트로 옮겼고, **Vercel 서버에서 진짜로 되는지**까지 증명했다. 이제 새벽 크론을 붙일 수 있다.
 - ✅ **트렌드 부품 JS 이식** `api/_lib/trends.js`(`3a9826c2`) — kwtool.py 의 trend/trend_batch 그대로: explore→multiline 2단계·쿠키(NID)·429 재시도(15~25초)·**앵커 정규화**(묶음당 앵커1+신규4, 배율=1묶음앵커÷이묶음앵커)·도장(window·measured_at·demand_source)·⑧(mean≤0=못잼). 이어하기용 onBatch/seedRows.

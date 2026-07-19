@@ -1861,9 +1861,9 @@
     if (si > 0) more += '<button class="st-sg-btn" data-sgmove="' + it.id + '" data-dir="-1">← 이전 단계</button>';
     var acts = '';
     acts += '<button class="st-sg-btn" data-sgclaim="' + it.id + '">' + (mine ? '놓기' : '내가 맡기') + '</button>';
+    acts += '<button class="st-sg-btn" data-sgkw="' + it.id + '">분석</button>';
     if (si < SG_STAGES.length - 1)
       acts += '<button class="st-sg-btn go" data-sgmove="' + it.id + '" data-dir="1">' + esc(SG_STAGES[si + 1].label) + ' →</button>';
-    acts += '<button class="st-sg-btn" data-sgkw="' + it.id + '">분석</button>';
     if (more) acts += '<button class="st-sg-btn more" data-sgmore="' + it.id + '">⋯</button>';
     if (isOwner) acts += '<button class="st-sg-btn del" data-sgdel="' + it.id + '">🗑 삭제</button>';
 

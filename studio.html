@@ -2017,7 +2017,16 @@
     ov.innerHTML = '<div class="sg-modal sg-modal-wide"><div class="sg-modal-head"><span>' + esc(it.title) + ' — 분석</span><button class="sg-modal-x" aria-label="닫기">✕</button></div><div class="sg-modal-kwbody"></div></div>';
     document.body.appendChild(ov);
     var host = ov.querySelector('.sg-modal-kwbody');
-    function draw() { host.appendChild(kwApp); try { go('d', it.city, it.country); } catch (e) { } }
+    function draw() {
+      host.appendChild(kwApp);
+      try {
+        go('d', it.city, it.country);
+        var dist = '';
+        if (it.note) { var nm = it.note.match(/^\s*([^·|]+?)\s*·/); if (nm) dist = nm[1].trim(); }
+        if (!dist) dist = (it.title || '').split(/[\s—–-]/)[0].trim();
+        if (dist && dist !== it.city) setTimeout(function () { try { go('x', dist); } catch (e) { } }, 200);
+      } catch (e) { }
+    }
     if (!kwLoaded) { kwLoaded = true; loadKeywords(); setTimeout(draw, 450); } else { draw(); }
     function close() { kwHome.appendChild(kwApp); if (ov.parentNode) document.body.removeChild(ov); }
     ov.onclick = function (e) { if (e.target === ov || (e.target.closest && e.target.closest('.sg-modal-x'))) close(); };

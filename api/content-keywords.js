@@ -519,9 +519,15 @@ async function cities(sb, req, res, who) {
     (p.data || []).forEach((r) => rows.push(r));
     if (!p.data || p.data.length < 1000) break;   // 🔴 「받은 게 전부」라고 믿지 않는다(63)
   }
-  // 🔴 「키워드 조사를 했나」는 여기서 말하지 않는다 — `snapshot.city_key` 는 `cc:japan|osaka` 꼴이고
-  //    이 표의 열쇠는 `city_id` 라 지금 이을 방법이 없다. **모르는 걸 안다고 쓰지 않는다**(54-0V).
-  //    조사 여부는 도시 화면(?view=survey)이 그 도시에 들어갔을 때 말한다.
+  // 조사된 도시 = city_alias 에 이름(label)이 있는 도시. 그 city_key 를 붙여, 화면이 들어가면 바로 불러오게 한다.
+  //   (도시 축: 한글 도시명 → 영문 city_key. 조사 착수 시 지연 생성됨.)
+  const { data: aliases } = await sb.from('city_alias')
+    .select('label, city_key')
+    .eq('target_code', target)
+    .not('city_key', 'like', '%|d:%').not('city_key', 'like', '%|t:%');
+  const keyByLabel = {};
+  for (const a of aliases || []) { if (a.label && !keyByLabel[a.label]) keyByLabel[a.label] = a.city_key; }
+
   const byCountry = new Map();
   rows.forEach((r) => {
     const c = r.country || '기타';
@@ -530,6 +536,8 @@ async function cities(sb, req, res, who) {
     g.bookings += r.bookings || 0; g.ours += r.ours || 0; g.agoda_total += r.agoda_total || 0;
     g.cities.push({
       city_id: r.city_id, name: r.city,
+      city_key: keyByLabel[r.city] || null,       // 조사된 도시면 city_key (들어가면 바로 로드)
+      surveyed: !!keyByLabel[r.city],             // 키워드 조사 착수·완료된 도시
       agoda_total: r.agoda_total,                 // 아고다가 이 도시에서 파는 숙소 전체
       ours: r.ours,                               // 우리 장부에 있는 곳 = 예약이 붙어본 곳
       share: r.agoda_total ? Math.round(r.ours / r.agoda_total * 1000) / 10 : null,

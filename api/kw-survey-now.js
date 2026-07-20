@@ -130,22 +130,27 @@ export default async function handler(req, res) {
     if (all.length < 2) return res.status(200).json({ ok: false, step: 'harvest', error: '자동완성에서 이 도시 검색어를 충분히 못 찾았습니다. 도시명을 확인하세요.' });
     const foundSet = new Set(all);
 
-    // ㊻ 붙여쓰기 정규화: 붙여쓴 형태가 발굴 결과에 이미 있으면 띄어쓴 건 버린다(일반 검색어=붙여쓰기).
-    //    붙여쓸 수 없는 것(자동완성에 붙여쓴 형태가 없는 = 호텔 고유명 등)은 띄어쓰기 유지.
+    // ㊻ 붙여쓰기 정규화:
+    //   ① 붙여쓴 형태가 발굴에 이미 있으면 띄어쓴 건 버림
+    //   ② 일반 검색어(도시명+흔한 숙박·여행 단어들로만 이뤄진 것)는 붙여쓰기로 통일 (오사카식)
+    //   ③ 호텔 고유명(브랜드·낯선 토큰 포함)은 띄어쓰기 유지
+    const GENERIC = ['호텔','숙소','추천','가성비','조식','위치','온천','대욕장','뷔페','뷰페','가족','여행','커플','아이','뷰','야경','시내','역','근처','저렴','예약','후기','비즈니스','료칸','게스트하우스','민박','캡슐','펜션','리조트','전망','오션뷰','금연','흡연','주차','조용한','신상','신축','중심','번화가','베스트','인기','럭셔리','고급','수영장','노천탕','객실','일본','일본어'];
+    const isGeneric = (term) => {
+      const toks = term.split(new RegExp('\\s+|' + cityKo)).map((x) => x.trim()).filter(Boolean);
+      if (!toks.length) return true;
+      return toks.every((t) => GENERIC.some((g) => t === g || t.includes(g) || g.includes(t)));
+    };
     const normSet = new Set();
     const norm = [];   // { text, kind, is_anchor }
+    const add = (text, kind, anchor) => { if (!normSet.has(text)) { normSet.add(text); norm.push({ text, kind, is_anchor: !!anchor }); } };
     for (const t of all) {
-      if (t.includes(' ')) {
-        const j = t.replace(/\s+/g, '');
-        if (foundSet.has(j)) continue;                    // 붙여쓴 형태가 이미 있음 → 띄어쓴 건 버림
-        if (normSet.has(t)) continue; normSet.add(t);
-        norm.push({ text: t, kind: 'hotel', is_anchor: false });   // 고유명 = 띄어쓰기 유지
-      } else {
-        if (normSet.has(t)) continue; normSet.add(t);
-        norm.push({ text: t, kind: 'joined', is_anchor: t === seedJoined });
-      }
+      if (!t.includes(' ')) { add(t, 'joined', t === seedJoined); continue; }   // 이미 붙여쓰기
+      const j = t.replace(/\s+/g, '');
+      if (foundSet.has(j)) continue;                                            // 붙여쓴 twin 이 이미 있음
+      if (isGeneric(t)) add(j, 'joined', false);                               // 일반 검색어 → 붙여쓰기 통일
+      else add(t, 'hotel', false);                                             // 호텔 고유명 → 띄어쓰기 유지
     }
-    // 붙여쓰기(일반 검색어) 먼저, 고유명 뒤로 · 최대 28개
+    // 붙여쓰기(일반) 먼저, 고유명 뒤로 · 최대 28개
     norm.sort((a, b) => (a.kind === 'joined' ? 0 : 1) - (b.kind === 'joined' ? 0 : 1));
     const kept = norm.slice(0, 28);
     if (!kept.some((n) => n.is_anchor) && kept.length) kept[0].is_anchor = true;

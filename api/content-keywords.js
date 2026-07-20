@@ -579,6 +579,8 @@ async function cities(sb, req, res, who) {
   };
   let newDoneCount = 0;
   const newDoneList = [];
+  const runningList = [];   // 채우는 중(예약·봇 작업)
+  const doneList = [];      // 완성·확인됨
 
   const byCountry = new Map();
   rows.forEach((r) => {
@@ -589,6 +591,8 @@ async function cities(sb, req, res, who) {
     const ckey = keyByLabel[r.city] || null;
     const state = stateOf(ckey);
     if (state === 'new_done') { newDoneCount += 1; newDoneList.push({ name: r.city, country: c, city_key: ckey }); }
+    else if (state === 'running') { runningList.push({ name: r.city, country: c, city_key: ckey }); }
+    else if (state === 'done') { doneList.push({ name: r.city, country: c, city_key: ckey }); }
     g.cities.push({
       city_id: r.city_id, name: r.city,
       city_key: ckey,
@@ -608,6 +612,9 @@ async function cities(sb, req, res, who) {
     ok: true, view: 'cities', target,
     new_done: newDoneCount,                         // 새로 완성·확인 대기 도시 수 (배지)
     new_done_list: newDoneList,                      // 그 도시들 [{name, country, city_key}]
+    running_list: runningList,                       // 채우는 중(예약·봇 작업)
+    done_list: doneList,                             // 완성·확인됨
+    survey_counts: { running: runningList.length, new_done: newDoneCount, done: doneList.length },
     countries: list,
     totals: { countries: list.length, cities: rows.length,
       agoda_total: rows.reduce((s2, r) => s2 + (r.agoda_total || 0), 0),

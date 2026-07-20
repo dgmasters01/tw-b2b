@@ -78,6 +78,10 @@
   .actions{margin-top:9px;display:flex;gap:8px;flex-wrap:wrap;}
   .btn{font-size:11px;padding:6px 12px;border-radius:7px;border:1px solid var(--line2);background:transparent;color:var(--sub);cursor:pointer;font-family:inherit;}
   .btn.go{border-color:var(--gr2);color:var(--gr);} .btn.warn{border-color:rgba(239,159,39,.5);color:var(--am);}
+  .roletog{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--muted);margin-bottom:12px;flex-wrap:wrap;}
+  .rbtn{font-size:11px;padding:4px 11px;border-radius:20px;border:1px solid var(--line2);background:transparent;color:var(--sub);cursor:pointer;font-family:inherit;}
+  .rbtn.on{background:rgba(29,158,117,.12);border-color:var(--gr2);color:var(--gr);font-weight:600;}
+  .lockmsg{font-size:11px;color:var(--muted);margin-top:8px;}
   .foot{font-size:11px;color:var(--muted);margin-top:20px;line-height:1.8;background:rgba(29,158,117,.05);border:1px solid rgba(29,158,117,.18);border-radius:10px;padding:12px 14px;}
 
   /* 규격 뷰어 모달 */
@@ -103,12 +107,13 @@
 </style>
 </head>
 <body>
-  <div class="pv">📱 채널 메뉴 재설계 시안 v4 · 규격 보기·수정 포함 · 실제 데이터 · 확인용</div>
+  <div class="pv">📱 채널 메뉴 재설계 시안 · 규격 보기·수정 + 권한 반영 · 확인용</div>
+  <div class="roletog">👤 보는 사람 (시연): <button class="rbtn on" id="rb-admin" onclick="setRole('admin')">최고관리자</button><button class="rbtn" id="rb-editor" onclick="setRole('editor')">일반 직원</button></div>
   <div class="head">
     <div><div class="h">채널</div></div>
     <div style="display:flex;gap:10px;align-items:center;">
       <span class="cnt">7개 채널 · CID 14개</span>
-      <button class="newbtn" onclick="document.getElementById('newbox').classList.toggle('open')">＋ 새 채널</button>
+      <button class="newbtn" id="newbtn" onclick="document.getElementById('newbox').classList.toggle('open')">＋ 새 채널</button>
     </div>
   </div>
   <div class="goal">
@@ -174,6 +179,7 @@
   function card(ch, i){
     var rank = i+1;
     var totBk = tot(ch);
+    var canEdit = (ROLE === 'admin');
     var specChip = ch.spec ? '<span class="chip spec">규격 ✓</span>' : '<span class="chip nospec">규격 없음</span>';
     var head =
       '<div class="chead" onclick="tog('+i+')">' +
@@ -196,11 +202,13 @@
     var cidHtml = '<div class="cidsay">이 채널로 잡힌 예약을 세는 번호 — <b style="color:var(--gr)">전부 살아있음.</b></div>';
     if (ch.now.length){ cidHtml += '<div class="cidgrp">🟢 현재 발급 — 새 영상에 다는 번호</div>' + ch.now.map(function(c){return cidRow(c,false);}).join(''); }
     if (ch.past.length){ cidHtml += '<div class="cidgrp">🟢 예전 번호 · 예약 집계중 — 새로는 안 쓰지만 과거 영상으로 예약 계속</div>' + ch.past.map(function(c){return cidRow(c,true);}).join(''); }
-    cidHtml += '<div class="cidadd">＋ CID 추가</div><div class="cidremove">번호 제거는 잘못 등록된 것만 (owner · 경고)</div>';
+    cidHtml += canEdit ? '<div class="cidadd">＋ CID 추가</div><div class="cidremove">번호 제거는 잘못 등록된 것만 (owner · 경고)</div>' : '';
 
     var specHtml = ch.spec
-      ? '<div class="spec-box has"><div class="ttl">✓ 규격 있음 · '+esc(ch.spec)+'</div>원고를 올리면 이 규칙으로 제목·파일명·본문·해시태그·나레이션을 <b style="color:var(--gr)">자동 생성</b>합니다.<div class="actions"><button class="btn go" onclick="openSpec('+i+',false)">규격 보기</button><button class="btn" onclick="openSpec('+i+',true)">규격 수정</button></div></div>'
-      : '<div class="spec-box no"><div class="ttl">⚠ 규격 없음</div>원고를 올려도 <b>자동 생성 규칙이 없습니다.</b> Claude 대화로 규격(.md)을 만들어 등록하면 켜집니다.<div class="actions"><button class="btn warn" onclick="openSpec('+i+',true)">규격 등록 (.md 업로드)</button></div></div>';
+      ? '<div class="spec-box has"><div class="ttl">✓ 규격 있음 · '+esc(ch.spec)+'</div>원고를 올리면 이 규칙으로 제목·파일명·본문·해시태그·나레이션을 <b style="color:var(--gr)">자동 생성</b>합니다.' +
+        (canEdit ? '<div class="actions"><button class="btn go" onclick="openSpec('+i+',false)">규격 보기</button></div>' : '<div class="lockmsg">🔒 규격 열람·수정은 최고관리자만</div>') + '</div>'
+      : '<div class="spec-box no"><div class="ttl">⚠ 규격 없음</div>원고를 올려도 <b>자동 생성 규칙이 없습니다.</b>' +
+        (canEdit ? ' Claude 대화로 규격(.md)을 만들어 등록하면 켜집니다.<div class="actions"><button class="btn warn" onclick="openSpec('+i+',true)">규격 등록 (.md 업로드)</button></div>' : '<div class="lockmsg">🔒 규격 등록은 최고관리자만</div>') + '</div>';
 
     var apiHtml = ch.api ? '<div class="sec"><div class="sec-h">🔗 연동</div><span class="chip api">아고다 API 연결됨</span></div>' : '';
 
@@ -212,12 +220,21 @@
         '<div class="sec"><div class="sec-h">💰 아고다 CID — 예약이 이 채널로 잡히는 열쇠</div>'+cidHtml+'</div>' +
         '<div class="sec"><div class="sec-h">📝 원고 자동생성 규격</div>'+specHtml+'</div>' +
         apiHtml +
-        '<div class="actions" style="margin-top:14px"><button class="btn">채널 정보 수정 (이름·순서·운영여부)</button></div>' +
+        (canEdit ? '<div class="actions" style="margin-top:14px"><button class="btn">채널 정보 수정 (이름·순서·운영여부)</button></div>' : '') +
       '</div>';
     return '<div class="card" id="c'+i+'">'+head+body+'</div>';
   }
   function tog(i){ document.getElementById('c'+i).classList.toggle('open'); }
-  document.getElementById('list').innerHTML = DATA.map(card).join('');
+  var ROLE = 'admin';   // 시연 토글 (실제 = 로그인 사용자 권한). 최고관리자만 편집·규격·새채널.
+  function render(){ document.getElementById('list').innerHTML = DATA.map(card).join(''); }
+  function setRole(r){
+    ROLE = r;
+    document.getElementById('rb-admin').classList.toggle('on', r==='admin');
+    document.getElementById('rb-editor').classList.toggle('on', r==='editor');
+    var nb = document.getElementById('newbtn'); if (nb) nb.style.display = (r==='admin') ? '' : 'none';
+    if (r!=='admin'){ var box=document.getElementById('newbox'); if(box) box.classList.remove('open'); closeSpec(); }
+    render();
+  }
 
   // ── 규격 보기/수정 ──
   // 규격 = 원고 자동생성 규칙 문서(.md). 보기 = 규칙 읽기. 수정 = 우리 방식대로 새 .md 로 교체.
@@ -284,6 +301,7 @@
     '</div>';
   }
   function openSpec(i, edit){
+    if (ROLE !== 'admin') return;   // 규격 열람·수정 = 최고관리자만
     var ch = DATA[i], has = !!ch.spec;
     document.getElementById('spectitle').textContent = ch.name + ' · 원고 규격' + (edit?' 수정':'');
     var html = '';
@@ -308,6 +326,7 @@
   }
   function closeSpec(){ document.getElementById('specov').classList.remove('open'); }
   document.getElementById('specov').addEventListener('click', function(e){ if (e.target === this) closeSpec(); });
+  render();   // 초기 그리기
 </script>
 </body>
 </html>

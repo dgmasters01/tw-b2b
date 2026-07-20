@@ -100,6 +100,7 @@ export default async function handler(req, res) {
         .filter((r) => !surveyedLabels.has(r.city) && (r.bookings || 0) > 0)
         .sort((a, b) => (b.bookings || 0) - (a.bookings || 0))[0];
       if (!next) return res.status(200).json({ ok: true, idle: true, ym, note: '측정·발굴할 도시 없음 (전부 완료).' });
+      if (dry) return res.status(200).json({ ok: true, dry_run: true, cycle: 'harvest', would_harvest: next.city, bookings: next.bookings, note: '실제로 돌면 이 도시를 발굴함' });
       const ops = process.env.CLAUDE_OPS_TOKEN;
       const site = process.env.SITE_URL || 'https://gohotelwinners.com';
       try {

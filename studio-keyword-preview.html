@@ -416,36 +416,41 @@ function pkT(code){
   ts((TGTS.filter(function(t){return t.code===code;})[0]||{}).label+' 로 바꿨습니다 — 다시 셉니다');
   loadCities(); loadSnap().then(function(){ if(cy) rdd(cy); if(cd) rx(cd); });
 }
-var NEW_DONE=0, NEW_DONE_LIST=[], NEWDONE_OPEN=false;
-function toggleNewDone(){ NEWDONE_OPEN=!NEWDONE_OPEN; renderNewDone(); }
-function renderNewDone(){
+var SS_RUNNING=[], SS_NEWDONE=[], SS_DONE=[];
+function renderSurveyStatus(){
   var el=document.getElementById('kw-newdone'); if(!el) return;
-  if(!NEW_DONE){ el.style.display='none'; el.innerHTML=''; return; }
+  if(!(SS_RUNNING.length+SS_NEWDONE.length+SS_DONE.length)){ el.style.display='none'; el.innerHTML=''; return; }
   el.style.display='block';
-  var h='<div onclick="toggleNewDone()" style="cursor:pointer;display:flex;align-items:center;gap:8px;background:var(--emd);border:1px solid var(--em);border-radius:10px;padding:9px 13px;">'+
-    '<span style="font-size:13px;font-weight:700;color:var(--em);">🎉 새로 완성 '+NEW_DONE+'</span>'+
-    '<span style="font-size:11px;color:var(--muted);flex:1;">조사가 끝난 도시 — 눌러서 보기·확인</span>'+
-    '<span style="font-size:12px;">'+(NEWDONE_OPEN?'▲':'▼')+'</span></div>';
-  if(NEWDONE_OPEN){
-    h+='<div style="background:var(--card2);border:1px solid var(--em);border-top:0;border-radius:0 0 10px 10px;padding:8px 10px;">';
-    NEW_DONE_LIST.forEach(function(o){
-      h+='<div style="display:flex;align-items:center;gap:8px;padding:6px 2px;border-bottom:0.5px solid var(--line);">'+
-        '<span style="flex:1;font-size:12.5px;color:var(--txt);cursor:pointer;" onclick="openNewDone(\''+o.name+'\',\''+o.country+'\')">'+o.name+' <span style="font-size:10px;color:var(--muted);">· '+o.country+'</span></span>'+
-        '<span class="btn" style="font-size:11px;padding:3px 9px;" onclick="ackCity(\''+o.city_key+'\')">확인</span></div>';
-    });
-    h+='<div style="text-align:right;margin-top:6px;"><span class="btn" style="font-size:11px;" onclick="ackAll()">전체 확인</span></div></div>';
+  function chip(label,n,bg,fg){ return '<div style="background:'+bg+';border-radius:8px;padding:9px 12px;flex:1;"><div style="font-size:11.5px;color:'+fg+';">'+label+'</div><div style="font-size:20px;font-weight:700;color:'+fg+';margin-top:1px;">'+n+'</div></div>'; }
+  function row(o,right){ return '<div style="display:flex;align-items:center;gap:9px;background:var(--card2);border:0.5px solid var(--line);border-radius:8px;padding:8px 11px;margin-bottom:6px;"><span style="flex:1;font-size:12.5px;color:var(--txt);cursor:pointer;" onclick="openNewDone(\''+o.name+'\',\''+o.country+'\')">'+o.country+' · '+o.name+'</span>'+(right||'')+'</div>'; }
+  var h='<div style="border:0.5px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--card);">';
+  h+='<div style="display:flex;align-items:center;gap:7px;margin-bottom:11px;"><span style="font-size:13.5px;font-weight:700;color:var(--txt);">조사 현황</span><span style="margin-left:auto;font-size:11px;color:var(--muted);">봇이 2시간마다 채웁니다</span></div>';
+  h+='<div style="display:flex;gap:9px;margin-bottom:14px;">'+
+     chip('채우는 중',SS_RUNNING.length,'var(--amd)','var(--am)')+
+     chip('새로 완성',SS_NEWDONE.length,'var(--bld)','var(--bl)')+
+     chip('완성',SS_DONE.length,'var(--emd)','var(--em)')+'</div>';
+  if(SS_RUNNING.length){
+    h+='<div style="font-size:11.5px;color:var(--am);font-weight:700;margin:0 0 6px;">채우는 중 — 봇이 지금 작업</div>';
+    SS_RUNNING.forEach(function(o){ h+=row(o,'<span style="font-size:10.5px;color:var(--am);background:var(--amd);padding:2px 8px;border-radius:20px;">측정 중</span>'); });
   }
+  if(SS_NEWDONE.length){
+    h+='<div style="font-size:11.5px;color:var(--bl);font-weight:700;margin:'+(SS_RUNNING.length?'11px':'0')+' 0 6px;">새로 완성 — 확인하세요</div>';
+    SS_NEWDONE.forEach(function(o){ h+=row(o,'<span class="btn" style="font-size:10.5px;padding:2px 9px;" onclick="ackCity(\''+o.city_key+'\')">확인</span>'); });
+    if(SS_NEWDONE.length>1) h+='<div style="text-align:right;margin:-2px 0 4px;"><span class="btn" style="font-size:10.5px;" onclick="ackAll()">전체 확인</span></div>';
+  }
+  if(SS_DONE.length){
+    h+='<div style="font-size:11.5px;color:var(--em);font-weight:700;margin:'+((SS_RUNNING.length||SS_NEWDONE.length)?'11px':'0')+' 0 6px;">완성 — 결과 보기</div>';
+    h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;">';
+    SS_DONE.slice(0,8).forEach(function(o){ h+='<div style="display:flex;align-items:center;gap:7px;background:var(--card2);border:0.5px solid var(--line);border-radius:8px;padding:8px 10px;cursor:pointer;" onclick="openNewDone(\''+o.name+'\',\''+o.country+'\')"><span style="flex:1;font-size:12px;color:var(--txt);">'+o.country+' · '+o.name+'</span><span style="font-size:12px;color:var(--muted);">›</span></div>'; });
+    h+='</div>';
+    if(SS_DONE.length>8) h+='<div style="font-size:11px;color:var(--muted);margin-top:5px;">외 '+(SS_DONE.length-8)+'곳</div>';
+  }
+  h+='</div>';
   el.innerHTML=h;
 }
 function openNewDone(name, country){ go('d', name, country); }
-async function ackCity(cityKey){
-  try{ var hd=await authHeader(); await fetch('/api/content-keywords?action=ack&target=ko',{method:'POST',credentials:'same-origin',headers:Object.assign({'Content-Type':'application/json'},hd||{}),body:JSON.stringify({city_key:cityKey})}); }catch(e){}
-  loadCities();
-}
-async function ackAll(){
-  try{ var hd=await authHeader(); await fetch('/api/content-keywords?action=ack&target=ko',{method:'POST',credentials:'same-origin',headers:Object.assign({'Content-Type':'application/json'},hd||{}),body:JSON.stringify({})}); }catch(e){}
-  NEWDONE_OPEN=false; loadCities();
-}
+async function ackCity(cityKey){ try{ var hd=await authHeader(); await fetch('/api/content-keywords?action=ack&target=ko',{method:'POST',credentials:'same-origin',headers:Object.assign({'Content-Type':'application/json'},hd||{}),body:JSON.stringify({city_key:cityKey})}); }catch(e){} loadCities(); }
+async function ackAll(){ try{ var hd=await authHeader(); await fetch('/api/content-keywords?action=ack&target=ko',{method:'POST',credentials:'same-origin',headers:Object.assign({'Content-Type':'application/json'},hd||{}),body:JSON.stringify({})}); }catch(e){} loadCities(); }
 function loadCities(){
   return authHeader().then(function(hd){
   return fetch('/api/content-keywords?view=cities&target='+TGT,{credentials:'same-origin',headers:hd||{}})
@@ -460,8 +465,8 @@ function loadCities(){
         CTN[c.country]=c.cities.length;
         c.cities.forEach(function(x){ INV[x.name]=x; if(x.surveyed) SNAP_CITY[x.name]=true; });
       });
-      NEW_DONE = d.new_done || 0; NEW_DONE_LIST = d.new_done_list || [];
-      renderNewDone();
+      SS_RUNNING = d.running_list || []; SS_NEWDONE = d.new_done_list || []; SS_DONE = d.done_list || [];
+      renderSurveyStatus();
       rd(); rprep(); if(cc) rc(cc);
     })
     .catch(function(e){ CTERR=String(e&&e.message||e); rd(); });

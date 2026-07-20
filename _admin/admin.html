@@ -1045,20 +1045,15 @@ body{margin:0;background:var(--bg,#0A0A0F);font-family:var(--sans,'Inter','Noto 
         <input type="email" id="new-admin-email" placeholder="colleague@example.com" style="width:100%;padding:10px 12px;border:1px solid #e0e0e0;border-radius:6px;font-family:inherit;font-size:14px;">
         <div style="font-size:11px;color:#888;margin-top:4px;">An invitation email will be sent. Link valid for 7 days.</div>
       </div>
-      <div style="margin-bottom:14px;">
-        <label style="display:block;font-size:12px;color:#666;margin-bottom:6px;font-weight:600;">Display Name</label>
-        <input type="text" id="new-admin-name" placeholder="John Smith" style="width:100%;padding:10px 12px;border:1px solid #e0e0e0;border-radius:6px;font-family:inherit;font-size:14px;">
-      </div>
       <div style="margin-bottom:18px;">
         <label style="display:block;font-size:12px;color:#666;margin-bottom:6px;font-weight:600;">Role *</label>
         <select id="new-admin-role" style="width:100%;padding:10px 12px;border:1px solid #e0e0e0;border-radius:6px;font-family:inherit;font-size:14px;background:#fff;">
-          <option value="admin">admin — Full admin access</option>
-          <option value="staff">staff — Most management</option>
-          <option value="readonly">readonly — View only</option>
-          <option value="editor">editor — Studio only (content upload)</option>
-            <option value="editor">editor — Studio only (content upload)</option>
+          <option value="admin" data-en="admin — Admin pages + Studio (full)" data-ko="admin — 관리자 페이지 + 스튜디오 (전체)">admin — Admin pages + Studio (full)</option>
+          <option value="staff" data-en="staff — Admin pages (most management)" data-ko="staff — 관리자 페이지 대부분 관리">staff — Admin pages (most management)</option>
+          <option value="readonly" data-en="readonly — Admin pages (view only)" data-ko="readonly — 관리자 페이지 보기 전용">readonly — Admin pages (view only)</option>
+          <option value="editor" data-en="editor — Studio only (content upload)" data-ko="editor — 스튜디오 전용 (콘텐츠 업로드)">editor — Studio only (content upload)</option>
         </select>
-        <div style="font-size:11px;color:#888;margin-top:4px;">Owner role can only be set via SQL (D-015 protection).</div>
+        <div style="font-size:11px;color:#888;margin-top:6px;line-height:1.6;" data-en="One role controls both Studio and Admin pages. editor = Studio only; admin/staff/readonly also use Admin pages. The invitee sets their own name. Owner is SQL-only (D-015)." data-ko="권한 하나가 스튜디오와 관리자 페이지를 함께 정합니다. editor 는 스튜디오만, admin·staff·readonly 는 관리자 페이지도 씁니다. 이름은 초대받는 사람이 직접 넣습니다. owner 는 SQL 로만 지정(D-015).">One role controls both Studio and Admin pages. editor = Studio only; admin/staff/readonly also use Admin pages. The invitee sets their own name. Owner is SQL-only (D-015).</div>
       </div>
       <div style="display:flex;gap:8px;justify-content:flex-end;">
         <button class="ad-btn ad-btn-secondary" id="add-admin-cancel">Cancel</button>
@@ -3005,7 +3000,6 @@ body{margin:0;background:var(--bg,#0A0A0F);font-family:var(--sans,'Inter','Noto 
   if (addAdminBtn) addAdminBtn.addEventListener('click', function(){
     // 모달 열 때 폼 리셋
     document.getElementById('new-admin-email').value = '';
-    document.getElementById('new-admin-name').value = '';
     document.getElementById('new-admin-role').value = 'admin';
     var btn = document.getElementById('add-admin-save');
     btn.disabled = false;
@@ -3019,7 +3013,7 @@ body{margin:0;background:var(--bg,#0A0A0F);font-family:var(--sans,'Inter','Noto 
   });
   document.getElementById('add-admin-save').addEventListener('click', async function(){
     var email = document.getElementById('new-admin-email').value.trim().toLowerCase();
-    var name = document.getElementById('new-admin-name').value.trim();
+    var name = '';  // 이름은 초대받는 사람이 수락 시 직접 넣는다
     var role = document.getElementById('new-admin-role').value;
     if (!email || !email.includes('@')) { alert('Valid email required'); return; }
     var btn = this;
@@ -3059,7 +3053,6 @@ body{margin:0;background:var(--bg,#0A0A0F);font-family:var(--sans,'Inter','Noto 
   function closeAddAdmin(){
     document.getElementById('add-admin-modal').style.display = 'none';
     document.getElementById('new-admin-email').value = '';
-    document.getElementById('new-admin-name').value = '';
     document.getElementById('new-admin-role').value = 'admin';
   }
 

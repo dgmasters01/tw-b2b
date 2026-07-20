@@ -27,6 +27,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { readFile, access } from 'node:fs/promises';
 import { join } from 'node:path';
+import { cacheGet, cacheSet, cacheBust } from './_lib/api-cache.js';
 
 export const config = { maxDuration: 30 };
 
@@ -124,6 +125,16 @@ export default async function handler(req, res) {
     sb = admin();
   } catch (e) {
     return res.status(500).json({ ok: false, error: '서버 설정 오류', detail: String(e.message || e) });
+  }
+
+  // 캐시: 쓰기(PATCH/POST)면 채널 캐시를 지운다(항상 최신). 목록 GET 은 캐시로 즉시.
+  const _chWrite = req.method === 'PATCH' || req.method === 'POST' || req.method === 'DELETE';
+  if (_chWrite) await cacheBust(sb, 'channels:');
+  const _chKey = `channels:list:${who.isAdmin ? 1 : 0}`;
+  const _chCacheable = req.method === 'GET' && !(req.query && req.query.spec) && !(req.query && req.query.nocache === '1');
+  if (_chCacheable) {
+    const _hit = await cacheGet(sb, _chKey, 300000);
+    if (_hit) return res.status(200).json({ ..._hit, cached: true });
   }
 
   // ── 채널 기본 정보 수정 (이름·순서·활성·언어) ──────────────────
@@ -386,12 +397,14 @@ export default async function handler(req, res) {
       });
     }
 
-    return res.status(200).json({
+    const _chOut = {
       ok: true,
       me: who.email || null,
       is_admin: !!who.isAdmin,
       channels: out,
-    });
+    };
+    if (_chCacheable) await cacheSet(sb, _chKey, _chOut);
+    return res.status(200).json(_chOut);
   } catch (e) {
     return res.status(500).json({ ok: false, error: '채널을 불러오지 못했습니다.', detail: String(e.message || e) });
   }

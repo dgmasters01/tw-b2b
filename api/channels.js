@@ -96,7 +96,7 @@ async function readBody(req) {
 }
 
 // 화면이 고칠 수 있는 채널 기본 정보. code(예약·CID 연결 열쇠)는 절대 못 바꾼다.
-const EDITABLE = ['name', 'name_en', 'language', 'is_active', 'display_order'];
+const EDITABLE = ['name', 'name_en', 'language', 'market', 'is_active', 'display_order'];
 
 export default async function handler(req, res) {
   const who = await authorized(req);
@@ -210,21 +210,28 @@ export default async function handler(req, res) {
 
         // 규격 md §0 채널 정보 파싱
         const parseChannelMd = (t) => {
-          let name = null, language = null, cid = null;
+          let name = null, language = null, cid = null, market = null;
           let m = t.match(/적용\s*채널\s*[:：]\s*([^\(（\n]+?)\s*[\(（]/);      // "적용 채널: 호텔이야 (...)"
           if (m) name = m[1].trim();
           if (!name) { m = t.match(/^#\s*([^·|\n]+?)\s*[·|]/m); if (m) name = m[1].trim(); }  // "# 호텔이야 · ..."
           const langMap = { '한국어':'ko','일본어':'ja','日本語':'ja','중국어(번체)':'zh-tw','번체':'zh-tw','중국어(간체)':'zh-cn','간체':'zh-cn','베트남어':'vi','영어':'en','english':'en' };
           const normLang = (v) => { v = String(v || '').trim(); return langMap[v] || langMap[v.toLowerCase()] || (/^[a-z]{2}(-[a-z]{2})?$/i.test(v) ? v.toLowerCase() : (v || null)); };
+          // 시장(market) = 조사(구글 트렌드 geo)에 쓰는 국가코드. §0 "| 시장 | KR |" 또는 "| 시장권 | 한국 |".
+          const mktMap = { '한국':'KR','대한민국':'KR','일본':'JP','대만':'TW','타이완':'TW','홍콩':'HK','중국':'CN','베트남':'VN','미국':'US','영어권':'US','태국':'TH','싱가포르':'SG','말레이시아':'MY','인도네시아':'ID','필리핀':'PH' };
+          const langToMkt = { 'ko':'KR','ja':'JP','zh-tw':'TW','zh-cn':'CN','vi':'VN','en':'US' };
+          const normMkt = (v) => { v = String(v || '').trim(); if (!v) return null; if (/^[A-Za-z]{2}$/.test(v)) return v.toUpperCase(); return mktMap[v] || null; };
           m = t.match(/\|\s*언어\s*\|\s*([^\|\n]+?)\s*\|/);                    // ① 표 "| 언어 | 한국어 |"
           if (m) language = normLang(m[1]);
           if (!language) {                                                     // ② "적용 채널: X (한국어 · …)" 괄호 안
             m = t.match(/적용\s*채널\s*[:：]\s*[^\(（\n]+[\(（]\s*([^·・|)）\n]+)/);
             if (m) language = normLang(m[1]);
           }
+          m = t.match(/\|\s*시장권?\s*\|\s*([^\|\n]+?)\s*\|/);                 // "| 시장 | KR |" / "| 시장권 | 한국 |"
+          if (m) market = normMkt(m[1]);
+          if (!market && language) market = langToMkt[language] || null;       // 없으면 언어에서 유도(구버전 규격 호환)
           m = t.match(/cid\s*=\s*(\d{3,})/i);                                 // "아고다 cid=1932026"
           if (m) cid = m[1];
-          return { name, language, cid };
+          return { name, language, cid, market };
         };
         const parsed = parseChannelMd(md);
         const miss = [];
@@ -241,7 +248,7 @@ export default async function handler(req, res) {
         if (dup) return res.status(409).json({ ok: false, error: '이미 있는 채널 코드입니다: ' + code });
 
         const row = {
-          code, name: parsed.name, name_en: null, language: parsed.language,
+          code, name: parsed.name, name_en: null, language: parsed.language, market: parsed.market,
           platform: 'youtube', has_agoda_api: true, agoda_site_id: null,
           is_active: true, display_order: 999,
         };

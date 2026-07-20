@@ -57,23 +57,58 @@ export default async function handler(req, res) {
   const cityKey = String(body.city_key || '').trim();
   const target = String(body.target || 'ko');
   const market = String(body.market || 'KR');
-  if (!cityKey) return res.status(400).json({ ok: false, error: 'city_key 가 필요합니다 (예: cc:japan|fukuoka).' });
+  if (step === 'measure' && !cityKey) return res.status(400).json({ ok: false, error: 'measure 에는 city_key 가 필요합니다 (harvest 응답의 city_key 를 쓰세요).' });
 
   let sb;
   try { sb = admin(); } catch (e) { return res.status(500).json({ ok: false, error: String(e.message || e) }); }
 
+  // 한국어 도시·나라 → 영문 city_key 해석 (+ city_alias 지연 생성). 없으면 만들어 이후 조사가 이어지게.
+  const KO2EN_COUNTRY = { '일본': 'japan', '대만': 'taiwan', '베트남': 'vietnam', '미국': 'usa', '한국': 'korea', '태국': 'thailand', '홍콩': 'hongkong', '중국': 'china', '싱가포르': 'singapore', '필리핀': 'philippines', '말레이시아': 'malaysia', '인도네시아': 'indonesia' };
+  async function resolveCityKey(cityKo, countryKo) {
+    // 1) 이미 alias 있으면 그대로
+    const { data: al } = await sb.from('city_alias').select('city_key, country')
+      .eq('target_code', target).eq('label', cityKo).not('city_key', 'like', '%|d:%').not('city_key', 'like', '%|t:%').limit(1);
+    if (al && al.length) return { city_key: al[0].city_key, made: false };
+    // 2) v_city_inventory + agoda_city 로 영문명 잇기
+    const { data: inv } = await sb.from('v_city_inventory').select('city_id, city, country')
+      .eq('target_code', target).eq('city', cityKo).limit(1);
+    if (!inv || !inv.length) return { error: `도시 '${cityKo}' 를 도시 목록에서 못 찾았습니다.` };
+    const cid = inv[0].city_id;
+    const ctryKo = inv[0].country || countryKo || '';
+    const { data: ag } = await sb.from('agoda_city').select('city').eq('city_id', cid).limit(1);
+    const cityEn = (ag && ag.length && ag[0].city) ? String(ag[0].city) : null;
+    if (!cityEn) return { error: `도시 '${cityKo}' 의 영문명을 못 찾았습니다.` };
+    const ctryEn = KO2EN_COUNTRY[ctryKo] || KO2EN_COUNTRY[countryKo] || String(ctryKo).toLowerCase();
+    const city_key = `cc:${ctryEn}|${cityEn.toLowerCase()}`;
+    // 3) alias 지연 생성 (오사카와 같은 방식)
+    await sb.from('city_alias').upsert({
+      target_code: target, country: ctryEn.charAt(0).toUpperCase() + ctryEn.slice(1),
+      city_key, label: cityKo, source: 'survey-now 지연 생성', updated_at: new Date().toISOString(),
+    }, { onConflict: 'target_code,city_key' });
+    return { city_key, made: true, city_en: cityEn };
+  }
+
   // ── ① 발굴 (harvest) ──────────────────────────────────────
   if (step === 'harvest') {
     const cityKo = String(body.city_ko || '').trim();
+    const countryKo = String(body.country_ko || '').trim();
     if (!cityKo) return res.status(400).json({ ok: false, error: '발굴하려면 도시 한국어 이름(city_ko)이 필요합니다.' });
+
+    // city_key 를 안 줬으면 한국어 도시·나라로 해석
+    let ck = cityKey;
+    if (!ck) {
+      const r = await resolveCityKey(cityKo, countryKo);
+      if (r.error) return res.status(400).json({ ok: false, step: 'harvest', error: r.error });
+      ck = r.city_key;
+    }
 
     // 이미 검색어 있으면 발굴 건너뜀(중복 방지·비용 0)
     const { data: cur } = await sb.from('keyword').select('id')
-      .eq('target_code', target).eq('market', market).eq('city_key', cityKey).eq('alive', true).limit(1);
+      .eq('target_code', target).eq('market', market).eq('city_key', ck).eq('alive', true).limit(1);
     if (cur && cur.length) {
       const { count } = await sb.from('keyword').select('id', { count: 'exact', head: true })
-        .eq('target_code', target).eq('market', market).eq('city_key', cityKey).eq('alive', true);
-      return res.status(200).json({ ok: true, step: 'harvest', already: true, keyword_count: count || cur.length, note: '이미 검색어가 있어 발굴을 건너뛰었습니다.' });
+        .eq('target_code', target).eq('market', market).eq('city_key', ck).eq('alive', true);
+      return res.status(200).json({ ok: true, step: 'harvest', already: true, city_key: ck, keyword_count: count || cur.length, note: '이미 검색어가 있어 발굴을 건너뛰었습니다.' });
     }
 
     // 씨앗 = "{도시} 호텔" · 자동완성 발굴 (한국어)
@@ -91,23 +126,23 @@ export default async function handler(req, res) {
     const texts = kept.slice(0, 30);
     if (texts.length < 2) return res.status(200).json({ ok: false, step: 'harvest', error: '자동완성에서 이 도시 검색어를 충분히 못 찾았습니다. 도시명을 확인하세요.' });
 
-    const country = cityKey.replace(/^cc:/, '').split('|')[0];
+    const country = ck.replace(/^cc:/, '').split('|')[0];
     const now = new Date().toISOString();
     const rows = texts.map((t) => ({
-      target_code: target, market, country, city_key: cityKey, text: t,
+      target_code: target, market, country, city_key: ck, text: t,
       kind: 'stay', is_anchor: t === seed, alive: true, source: 'harvest-now',
       alive_source: 'suggest', created_at: now, last_seen_at: now,
     }));
     // 이미 있는 text 는 빼고 삽입(유령 중복 방지)
     const { data: exist } = await sb.from('keyword').select('text')
-      .eq('target_code', target).eq('market', market).eq('city_key', cityKey);
+      .eq('target_code', target).eq('market', market).eq('city_key', ck);
     const has = new Set((exist || []).map((r) => r.text));
     const fresh = rows.filter((r) => !has.has(r.text));
     if (fresh.length) {
       const { error: iErr } = await sb.from('keyword').insert(fresh);
       if (iErr) return res.status(500).json({ ok: false, step: 'harvest', error: '검색어 저장 실패: ' + iErr.message });
     }
-    return res.status(200).json({ ok: true, step: 'harvest', harvested: texts.length, saved: fresh.length, anchor: seed, sample: texts.slice(0, 8) });
+    return res.status(200).json({ ok: true, step: 'harvest', city_key: ck, harvested: texts.length, saved: fresh.length, anchor: seed, sample: texts.slice(0, 8) });
   }
 
   // ── ② 측정 (measure) — 기존 kw-survey 엔진 내부 호출(재사용) ──

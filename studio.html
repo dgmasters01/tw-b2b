@@ -3719,9 +3719,9 @@ function loadTargets(){
 var PREP_MORE=false;
 var RSEL_PICK=null;   /* 관제판에서 [＋조사하기] 누른 도시 = 조사 화면에서 그 도시만 프리체크 */
 function survey(city,country){
-  RSEL_PICK=city;
-  if(RSEL[country]) delete RSEL[country];   /* 프리체크 다시 계산되도록 초기화 */
-  go('r',country);                          /* 진입점 통일 — 토스트 대신 s6 조사 화면(㉘㉙) */
+  // 그 도시 상세로 들어가서(rdd) 바로 실제 조사 시작 — surveyNow 가 이미 조사된 도시면 결과만 불러온다.
+  go('d', city, country);
+  setTimeout(function(){ surveyNow(city); }, 150);
 }
 function prepMore(){ PREP_MORE=!PREP_MORE; rprep(); }
 function rprep(){

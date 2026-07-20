@@ -117,6 +117,10 @@ export default async function adminAuthHandler(req, res) {
         if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
         return await handleChangeRole(req, res);
 
+      case 'set-name':
+        if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+        return await handleSetName(req, res);
+
       case 'cancel-invite':
         if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
         return await handleCancelInvite(req, res);
@@ -553,6 +557,34 @@ async function handleAcceptInvite(req, res) {
 // ───────────────────────────────────────────────────────────────
 // 4) change-role (POST) — role 변경/박탈/복원
 // ───────────────────────────────────────────────────────────────
+
+async function handleSetName(req, res) {
+  // 이름(display_name) 변경 — 표시용 라벨. 로그인(이메일)·권한(role)엔 영향 없음.
+  const { target_id, display_name } = req.body || {};
+  if (!target_id) return res.status(400).json({ error: 'target_id required' });
+  const name = (display_name == null ? '' : String(display_name)).trim().slice(0, 80);
+
+  const result = await requireCaller(req, res, ['owner', 'admin']);
+  if (!result) return;
+  const { caller } = result;
+
+  const sb = getServiceClient();
+  if (!sb) return res.status(500).json({ error: 'Service role key not configured' });
+
+  const { data: target } = await sb.from('admins').select('id, email, role, display_name').eq('id', target_id).maybeSingle();
+  if (!target) return res.status(404).json({ error: 'Target not found' });
+
+  // admin 은 owner/다른 관리자 이름은 못 바꾼다(가벼운 안전). owner 는 본인 포함 전부 가능.
+  if (caller.role === 'admin' && ['owner', 'admin', 'manager'].includes(target.role) && target.email !== caller.email) {
+    return res.status(403).json({ error: 'Admins can only rename staff/readonly/member accounts' });
+  }
+
+  const { data: updated, error: upErr } = await sb.from('admins')
+    .update({ display_name: name || null }).eq('id', target_id)
+    .select('id, email, role, display_name, is_active').single();
+  if (upErr) return res.status(500).json({ error: upErr.message });
+  return res.status(200).json({ ok: true, admin: updated });
+}
 
 async function handleChangeRole(req, res) {
   const { target_id, new_role, action } = req.body || {};

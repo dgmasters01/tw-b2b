@@ -6563,6 +6563,9 @@ function rDayHotels(){
         <button class="am-action-btn" data-action="change-role" style="text-align:left;padding:14px 16px;background:rgba(99,102,241,.08);border:1px solid rgba(99,102,241,.3);border-radius:8px;color:#a5b4fc;cursor:pointer;font-size:14px;">
           <span data-ko="🔑 <strong>권한 변경</strong> — admin / staff / readonly 사이 변경" data-en="🔑 <strong>Change role</strong> — switch between admin / staff / readonly">🔑 <strong>권한 변경</strong> — admin / staff / readonly 사이 변경</span>
         </button>
+        <button class="am-action-btn" data-action="set-name" style="text-align:left;padding:14px 16px;background:rgba(56,189,248,.08);border:1px solid rgba(56,189,248,.3);border-radius:8px;color:#7dd3fc;cursor:pointer;font-size:14px;">
+          <span data-ko="✏️ <strong>이름 변경</strong> — 표시 이름 수정 (로그인·권한엔 영향 없음)" data-en="✏️ <strong>Edit name</strong> — change display name (no effect on login/role)">✏️ <strong>이름 변경</strong> — 표시 이름 수정 (로그인·권한엔 영향 없음)</span>
+        </button>
         <button class="am-action-btn" data-action="history" style="text-align:left;padding:14px 16px;background:rgba(148,163,184,.08);border:1px solid rgba(148,163,184,.3);border-radius:8px;color:#cbd5e1;cursor:pointer;font-size:14px;">
           <span data-ko="📜 <strong>이력 보기</strong> — 이 직원에게 박힌 권한 변경 기록" data-en="📜 <strong>View history</strong> — role-change records for this staff">📜 <strong>이력 보기</strong> — 이 직원에게 박힌 권한 변경 기록</span>
         </button>
@@ -6651,6 +6654,16 @@ function rDayHotels(){
         '</select>' +
         reasonBox(false) +
         '<button onclick="window.__amSubmitChangeRole()" style="margin-top:16px;width:100%;padding:12px;background:linear-gradient(135deg,#7C3AED,#EC4899);color:#fff;border:0;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer">'+(umKo()?'권한 변경 실행':'Apply role change')+'</button>';
+    } else if (action === 'set-name') {
+      var cur = (current.display_name || '');
+      detailEl.innerHTML =
+        backBtn() +
+        '<div style="margin-bottom:14px;font-weight:600;color:#7dd3fc;">'+(umKo()?'✏️ 이름 변경':'✏️ Edit name')+'</div>' +
+        '<div style="font-size:13px;color:#bbb;margin-bottom:14px;line-height:1.6">'+(umKo()?'표시 이름만 바뀝니다. 로그인(이메일)·권한(role)엔 영향 없습니다.':'Only the display name changes. No effect on login (email) or role.')+'</div>' +
+        '<label style="display:block;margin-bottom:8px;font-size:13px;color:#bbb">'+(umKo()?'표시 이름:':'Display name:')+'</label>' +
+        '<input id="am-new-name" type="text" value="'+cur.replace(/"/g,'&quot;')+'" placeholder="'+(umKo()?'예: 이지형':'e.g. Jihyeong')+'" maxlength="80" style="width:100%;padding:10px;background:#0f0f1a;border:1px solid rgba(255,255,255,.14);border-radius:6px;color:#e5e5ee;margin-bottom:6px;font-size:14px" />' +
+        '<div style="font-size:11px;color:#888;margin-bottom:8px;">'+(umKo()?'비우면 이름이 지워집니다(— 로 표시).':'Leave empty to clear (shows as —).')+'</div>' +
+        '<button onclick="window.__amSubmitSetName()" style="margin-top:12px;width:100%;padding:12px;background:linear-gradient(135deg,#0284c7,#0ea5e9);color:#fff;border:0;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer">'+(umKo()?'이름 저장':'Save name')+'</button>';
     } else if (action === 'history') {
       var rows = (__adminsCache.recent_log || []).filter(function(l){
         return l.target_user_id === current.id || l.target_email === current.email;
@@ -6722,6 +6735,19 @@ function rDayHotels(){
     if (!r) return;
     if (r.ok) {
       alert((umKo()?'✅ ':'✅ ') + (nextActive ? (umKo()?'활성화':'Activate') : (umKo()?'비활성화':'Deactivate')) + (umKo()?' 완료':' done'));
+      window.__amCloseMenu();
+      loadAdmins();
+    } else {
+      alert((umKo()?'❌ 실패: ':'❌ Failed: ') + (r.body.error || r.status));
+    }
+  };
+
+  window.__amSubmitSetName = async function(){
+    var name = (document.getElementById('am-new-name').value || '').trim();
+    var r = await callAuthAPI('set-name', { target_id: current.id, display_name: name });
+    if (!r) return;
+    if (r.ok) {
+      alert(umKo()?'✅ 이름 변경 완료':'✅ Name updated');
       window.__amCloseMenu();
       loadAdmins();
     } else {

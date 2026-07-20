@@ -111,47 +111,48 @@ export default async function handler(req, res) {
       return res.status(200).json({ ok: true, step: 'harvest', already: true, city_key: ck, keyword_count: count || cur.length, note: '이미 검색어가 있어 발굴을 건너뛰었습니다.' });
     }
 
-    // 씨앗 = "{도시} 호텔" · 자동완성 발굴 (한국어)
-    const seed = `${cityKo} 호텔`;
-    let found = [];
-    try { found = await harvest(seed, 1, target, market.toLowerCase()); }
-    catch (e) { return res.status(200).json({ ok: false, step: 'harvest', error: '발굴 실패: ' + String(e.message || e) }); }
-
-    // 그 도시와 관련된 것만(도시명 포함) · 중복 제거 · 씨앗을 앵커로 · 최대 30개
-    const seen = new Set();
-    const kept = [];
-    const push = (t) => { t = String(t || '').trim(); if (t && t.includes(cityKo) && !seen.has(t)) { seen.add(t); kept.push(t); } };
-    push(seed);
-    for (const f of found) push(f);
-    const texts = kept.slice(0, 24);
-    if (texts.length < 2) return res.status(200).json({ ok: false, step: 'harvest', error: '자동완성에서 이 도시 검색어를 충분히 못 찾았습니다. 도시명을 확인하세요.' });
-
-    // ㊻ 붙여쓰기 정규화(자동완성 짝 판정): 붙여쓴 형태가 자동완성에 살아있으면 그걸 쓴다(일반 검색어=붙여쓰기),
-    //    없으면 원형 유지(호텔 고유명 등 = 띄어쓰기). 오사카 데이터와 같은 규칙. 키워드당 자동완성 1회로 경량화.
+    // 씨앗 = "{도시}호텔"(붙여) + "{도시} 호텔"(띄어) 둘 다 뿌린다.
+    //   붙여쓴 씨앗이 오사카처럼 자연스러운 붙여쓰기 검색어("...숙소추천")를 준다.
     const gl = market.toLowerCase();
-    const joinedAlive = async (kw) => {
-      const joined = kw.replace(/\s+/g, '');
-      if (joined === kw) return null;                       // 이미 붙어있음
-      let sug = [];
-      try { sug = await suggest(joined, target, gl); } catch { sug = []; }
-      await politeSleep();
-      return sug.includes(joined) ? joined : null;          // 붙여쓴 형태가 자동완성에 살아있다
-    };
-    const seedJoined = seed.replace(/\s+/g, '');
+    const seedSpaced = `${cityKo} 호텔`;
+    const seedJoined = `${cityKo}호텔`;
+    let raw = [];
+    try {
+      raw = raw.concat(await harvest(seedJoined, 1, target, gl));   // 붙여쓴 자연 검색어
+      raw = raw.concat(await harvest(seedSpaced, 1, target, gl));   // 띄어쓴 것 + 호텔 고유명
+    } catch (e) { return res.status(200).json({ ok: false, step: 'harvest', error: '발굴 실패: ' + String(e.message || e) }); }
+    raw.push(seedJoined);
+
+    // 그 도시 포함 · 중복 제거
+    const seen = new Set();
+    const all = [];
+    for (const t0 of raw) { const t = String(t0 || '').trim(); if (t && t.includes(cityKo) && !seen.has(t)) { seen.add(t); all.push(t); } }
+    if (all.length < 2) return res.status(200).json({ ok: false, step: 'harvest', error: '자동완성에서 이 도시 검색어를 충분히 못 찾았습니다. 도시명을 확인하세요.' });
+    const foundSet = new Set(all);
+
+    // ㊻ 붙여쓰기 정규화: 붙여쓴 형태가 발굴 결과에 이미 있으면 띄어쓴 건 버린다(일반 검색어=붙여쓰기).
+    //    붙여쓸 수 없는 것(자동완성에 붙여쓴 형태가 없는 = 호텔 고유명 등)은 띄어쓰기 유지.
     const normSet = new Set();
     const norm = [];   // { text, kind, is_anchor }
-    for (const t of texts) {
-      const j = await joinedAlive(t);
-      const finalText = j || t;
-      if (normSet.has(finalText)) continue;
-      normSet.add(finalText);
-      const kind = j ? 'joined' : (t.includes(' ') ? 'hotel' : 'joined');   // 붙여쓰기 성공=joined / 띄어쓰기 유지=hotel(고유명)
-      norm.push({ text: finalText, kind, is_anchor: finalText === seedJoined || t === seed });
+    for (const t of all) {
+      if (t.includes(' ')) {
+        const j = t.replace(/\s+/g, '');
+        if (foundSet.has(j)) continue;                    // 붙여쓴 형태가 이미 있음 → 띄어쓴 건 버림
+        if (normSet.has(t)) continue; normSet.add(t);
+        norm.push({ text: t, kind: 'hotel', is_anchor: false });   // 고유명 = 띄어쓰기 유지
+      } else {
+        if (normSet.has(t)) continue; normSet.add(t);
+        norm.push({ text: t, kind: 'joined', is_anchor: t === seedJoined });
+      }
     }
+    // 붙여쓰기(일반 검색어) 먼저, 고유명 뒤로 · 최대 28개
+    norm.sort((a, b) => (a.kind === 'joined' ? 0 : 1) - (b.kind === 'joined' ? 0 : 1));
+    const kept = norm.slice(0, 28);
+    if (!kept.some((n) => n.is_anchor) && kept.length) kept[0].is_anchor = true;
 
     const country = ck.replace(/^cc:/, '').split('|')[0];
     const now = new Date().toISOString();
-    const rows = norm.map((n) => ({
+    const rows = kept.map((n) => ({
       target_code: target, market, country, city_key: ck, text: n.text,
       kind: n.kind, is_anchor: !!n.is_anchor, alive: true, source: 'harvest-now',
       alive_source: 'suggest', created_at: now, last_seen_at: now,
@@ -165,7 +166,7 @@ export default async function handler(req, res) {
       const { error: iErr } = await sb.from('keyword').insert(fresh);
       if (iErr) return res.status(500).json({ ok: false, step: 'harvest', error: '검색어 저장 실패: ' + iErr.message });
     }
-    return res.status(200).json({ ok: true, step: 'harvest', city_key: ck, harvested: norm.length, saved: fresh.length, anchor: seedJoined, sample: norm.slice(0, 8).map((n) => n.text) });
+    return res.status(200).json({ ok: true, step: 'harvest', city_key: ck, harvested: kept.length, saved: fresh.length, anchor: seedJoined, sample: kept.slice(0, 8).map((n) => n.text) });
   }
 
   // ── ② 측정 (measure) — 기존 kw-survey 엔진 내부 호출(재사용) ──

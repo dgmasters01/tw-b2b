@@ -770,6 +770,72 @@
   .nc-preview { margin:10px 0; padding:10px 13px; border-radius:9px; background:rgba(78,222,163,.06); border:1px solid rgba(78,222,163,.35); }
   .nc-pv-row { display:flex; gap:12px; font-size:13px; padding:3px 0; }
   .nc-pv-row span { width:82px; color:#8A8794; flex:none; } .nc-pv-row b { font-weight:600; }
+
+  /* ── 채널 재설계 (chx-*) · 새 클래스로 다른 화면(호텔 st-ch-card) 안 건드림 ── */
+  .chx-goal { background:rgba(29,158,117,.08); border:1px solid rgba(29,158,117,.25); border-radius:10px; padding:11px 14px; font-size:12.5px; line-height:1.65; }
+  .chx-card { background:rgba(255,255,255,.02); border:1px solid rgba(128,128,128,.22); border-radius:12px; margin-bottom:11px; overflow:hidden; }
+  .chx-card.off { opacity:.5; }
+  .chx-head { display:flex; align-items:center; gap:9px; padding:13px 15px; cursor:pointer; flex-wrap:wrap; }
+  .chx-rank { width:24px; height:24px; border-radius:7px; background:rgba(29,158,117,.13); color:#1D9E75; font-size:12.5px; font-weight:700; display:flex; align-items:center; justify-content:center; flex:none; }
+  .chx-name { font-size:15px; font-weight:600; }
+  .chx-chip { font-size:10.5px; padding:2px 8px; border-radius:20px; border:1px solid rgba(128,128,128,.3); color:#9db4c9; white-space:nowrap; }
+  .chx-chip.on { color:#1D9E75; border-color:#5DCAA5; }
+  .chx-chip.off { color:#EF9F27; border-color:rgba(239,159,39,.5); }
+  .chx-chip.lang { background:rgba(90,169,230,.12); border-color:transparent; color:#5aa9e6; }
+  .chx-chip.spec { color:#1D9E75; border-color:#5DCAA5; background:rgba(29,158,117,.08); }
+  .chx-chip.nospec { color:#EF9F27; border-color:rgba(239,159,39,.45); background:rgba(239,159,39,.06); }
+  .chx-chip.api { color:#4edea3; border-color:#4edea3; }
+  .chx-sp { flex:1; }
+  .chx-bk { font-size:11.5px; color:#1D9E75; font-weight:600; }
+  .chx-exp { display:flex; align-items:center; gap:4px; font-size:11px; color:#9db4c9; border:1px solid rgba(128,128,128,.3); border-radius:20px; padding:4px 10px; flex:none; }
+  .chx-exp .chx-ar { font-size:9px; transition:transform .18s; }
+  .chx-card.open .chx-exp { color:#1D9E75; border-color:#5DCAA5; }
+  .chx-card.open .chx-exp .chx-ar { transform:rotate(180deg); }
+  .chx-body { display:none; padding:0 15px 15px; border-top:1px solid rgba(128,128,128,.12); }
+  .chx-card.open .chx-body { display:block; }
+  .chx-tgt { display:flex; align-items:center; gap:8px; background:rgba(90,169,230,.07); border:1px solid rgba(90,169,230,.2); border-radius:8px; padding:9px 12px; margin:12px 0 4px; font-size:12px; color:#9db4c9; flex-wrap:wrap; }
+  .chx-tgt b { color:#5aa9e6; }
+  .chx-sum { display:flex; gap:8px; flex-wrap:wrap; margin:8px 0 2px; }
+  .chx-sum span { font-size:12px; padding:5px 11px; border-radius:8px; font-variant-numeric:tabular-nums; }
+  .chx-sum .ok { background:rgba(29,158,117,.1); border:1px solid rgba(29,158,117,.28); color:#1D9E75; font-weight:600; }
+  .chx-sum .no { background:rgba(226,75,74,.08); border:1px solid rgba(226,75,74,.25); color:#E24B4A; }
+  .chx-sum .rt { background:rgba(128,128,128,.1); border:1px solid rgba(128,128,128,.25); color:#8A8794; }
+  .chx-meta { display:flex; gap:16px; flex-wrap:wrap; font-size:11.5px; color:#6a85a0; padding:9px 0 2px; }
+  .chx-meta b { color:#9db4c9; font-weight:500; margin-right:4px; }
+  .chx-sec { margin-top:13px; } .chx-sech { font-size:11px; color:#9db4c9; margin-bottom:8px; }
+  .chx-cidsay { font-size:10.5px; color:#6a85a0; margin:2px 0 4px; }
+  .chx-cidgrp { font-size:10.5px; color:#6a85a0; margin:9px 0 5px; }
+  .chx-cidrow { display:flex; align-items:center; gap:9px; background:rgba(29,158,117,.07); border:1px solid rgba(29,158,117,.22); border-radius:8px; padding:8px 11px; margin-bottom:6px; }
+  .chx-cidrow.past { background:rgba(29,158,117,.04); border-color:rgba(29,158,117,.16); }
+  .chx-dot { width:7px; height:7px; border-radius:50%; background:#1D9E75; flex:none; box-shadow:0 0 5px rgba(29,158,117,.6); }
+  .chx-cidnum { font-size:14px; font-weight:700; color:#1D9E75; font-variant-numeric:tabular-nums; }
+  .chx-cidrow.past .chx-cidnum { font-size:13px; }
+  .chx-cidtag { font-size:9.5px; color:#1D9E75; border:1px solid #5DCAA5; border-radius:5px; padding:1px 6px; }
+  .chx-cidbk { font-size:11px; color:#9db4c9; margin-left:auto; font-variant-numeric:tabular-nums; }
+  .chx-cidnone { font-size:12px; color:#6a85a0; }
+  .chx-cidadd { margin-top:8px; }
+  .chx-cidaddbtn { font-size:11px; padding:3px 10px; border-radius:7px; border:1px dashed rgba(128,128,128,.4); background:none; color:inherit; cursor:pointer; }
+  .chx-cidaddbtn:hover { border-color:#5DCAA5; color:#1D9E75; }
+  .chx-cidrm { margin-top:5px; font-size:10.5px; color:#6a85a0; }
+  .chx-spec { border-radius:9px; padding:11px 12px; font-size:11.5px; line-height:1.6; }
+  .chx-spec.has { background:rgba(29,158,117,.07); border:1px solid rgba(29,158,117,.22); color:#9db4c9; }
+  .chx-spec.no { background:rgba(239,159,39,.06); border:1px solid rgba(239,159,39,.28); color:#e8cfa0; }
+  .chx-spec-t { color:#e6eef6; font-weight:600; margin-bottom:3px; }
+  .chx-lock { font-size:11px; color:#6a85a0; margin-top:8px; }
+  .chx-acts { margin-top:9px; display:flex; gap:8px; flex-wrap:wrap; }
+  .chx-btn { font-size:11px; padding:6px 12px; border-radius:7px; border:1px solid rgba(128,128,128,.35); background:transparent; color:#9db4c9; cursor:pointer; font-family:inherit; }
+  .chx-btn.go { border-color:#5DCAA5; color:#1D9E75; }
+  .chx-specov { display:none; position:fixed; inset:0; background:rgba(2,5,9,.8); z-index:60; padding:20px 12px; overflow-y:auto; }
+  .chx-specov.open { display:block; }
+  .chx-specbox { background:#0b1119; border:1px solid rgba(128,128,128,.3); border-radius:14px; max-width:680px; margin:0 auto; }
+  .chx-spectop { display:flex; align-items:center; gap:10px; padding:14px 16px; border-bottom:1px solid rgba(128,128,128,.14); position:sticky; top:0; background:#0b1119; }
+  .chx-spectitle { font-size:14px; font-weight:600; flex:1; }
+  .chx-specx { width:26px; height:26px; border-radius:50%; background:rgba(128,128,128,.15); color:#9db4c9; border:none; cursor:pointer; font-size:14px; }
+  .chx-specbody { padding:15px 17px; font-size:12.5px; line-height:1.7; color:#9db4c9; }
+  .chx-md-h { color:#e6eef6; font-size:13px; font-weight:600; margin:14px 0 5px; }
+  .chx-md-tr { display:flex; gap:12px; font-size:12px; padding:2px 0; } .chx-md-tr span:first-child { min-width:90px; color:#9db4c9; }
+  .chx-md-q { border-left:2px solid #5DCAA5; padding:4px 10px; margin:5px 0; background:rgba(29,158,117,.05); border-radius:0 6px 6px 0; font-size:12px; }
+  .chx-md-p { font-size:12px; margin:3px 0; }
 </style>
 </head>
 <body>
@@ -854,24 +920,31 @@
         <button class="st-newch-btn" id="st-newch-btn" style="display:none">＋ 새 채널</button>
       </div>
     </div>
-    <div class="st-ch-note">
-      콘텐츠를 올리는 채널 자산과 아고다 CID를 한곳에서 봅니다. 올리기·성과표·호텔이 이 채널 위에서 돕니다.<br>
+    <div class="st-ch-note chx-goal">
+      콘텐츠를 올리는 <b>채널 자산</b>을 <b>매출(확정 예약) 많은 순</b>으로 봅니다. 예약 건수 = 취소 제외 확정만. 각 채널의 <b style="color:#1D9E75">아고다 CID</b>(예약이 이 채널로 잡히는 열쇠 · 전부 살아있음)와 <b style="color:#1D9E75">원고 규격</b>을 상세에서 관리합니다.<br>
       <span id="st-ch-perm"></span>
     </div>
 
-    <!-- 새 채널 등록 (관리자만 · 기본 레지스트리. 규격 .md 자동생성은 뒤 단계) -->
+    <!-- 새 채널 등록 (최고관리자만) — 규격 .md 만 올리면 코드·이름·언어·시장·CID 전부 §0 에서 자동 -->
     <div class="st-newch" id="st-newch">
-      <h4>새 채널 등록 (규격 .md 업로드)</h4>
-      <div class="st-ch-frow"><label>코드</label><input type="text" id="nc-code" placeholder="예: TW · HG (영문·숫자·-_ 2~20자, 나중에 못 바꿈)"></div>
+      <h4>＋ 새 채널 등록</h4>
+      <div class="st-hint" style="margin-bottom:10px">규격 .md 파일 하나만 올리면 끝. §0 에서 <b>코드·이름·언어·시장·아고다 CID</b> 를 전부 자동으로 읽습니다.</div>
       <div class="st-ch-frow"><label>규격 md</label><input type="file" id="nc-mdfile" accept=".md,.markdown,text/markdown,text/plain"></div>
-      <div class="st-ch-actions"><button class="ghost" id="nc-read">파일 읽기</button></div>
+      <div class="st-ch-actions"><button class="ghost" id="nc-read">파일 읽기 (미리보기)</button></div>
       <div class="nc-preview" id="nc-preview" style="display:none"></div>
       <div class="st-ch-actions"><button id="nc-save" disabled>등록</button><button class="ghost" id="nc-cancel">취소</button></div>
       <div class="st-ch-fmsg" id="nc-msg"></div>
-      <div class="st-hint">규격 .md 파일의 §0 채널 정보에서 이름·언어·아고다 CID 를 자동으로 읽습니다. 코드만 확인 입력하세요.</div>
     </div>
 
     <div id="st-ch-list"><div class="st-empty">불러오는 중…</div></div>
+
+    <!-- 규격 보기 모달 -->
+    <div class="chx-specov" id="chx-specov">
+      <div class="chx-specbox">
+        <div class="chx-spectop"><span class="chx-spectitle" id="chx-spectitle">규격</span><button class="chx-specx" id="chx-specx">✕</button></div>
+        <div class="chx-specbody" id="chx-specbody"></div>
+      </div>
+    </div>
   </section>
 
   <!-- ── 준비 중 4메뉴 ─────────────────────────────────────── -->
@@ -3250,68 +3323,70 @@
   }
 
   var chIsAdmin = false;
-  function channelCard(ch) {
-    var off = ch.is_active ? '' : ' off';
-    var h = '<div class="st-ch-card' + off + '" data-ch="' + esc(ch.code) + '">';
-    h += '<div class="st-ch-top">' +
-         '<span class="st-ch-code">' + esc(ch.code) + '</span>' +
-         '<span class="st-ch-name">' + esc(ch.name) + '</span>' +
-         (ch.name_en ? '<span class="st-ch-en">' + esc(ch.name_en) + '</span>' : '') +
-         (ch.is_active
-            ? '<span class="st-ch-chip active">운영중</span>'
-            : '<span class="st-ch-chip inactive">비활성</span>') +
-         (ch.has_agoda_api ? '<span class="st-ch-chip api">아고다 API</span>' : '') +
-         (chIsAdmin ? '<button class="st-ch-edit-btn" data-edit="' + esc(ch.code) + '">수정</button>' : '') +
-         '</div>';
+  function channelCard(ch, rank) {
+    var conf = ch.bookings_confirmed || 0, canc = ch.bookings_cancelled || 0;
+    var rate = (conf + canc) > 0 ? Math.round(canc / (conf + canc) * 100) : 0;
+    var cids = ch.cids || [];
+    var isCurrent = function (lab) { lab = String(lab || '').toLowerCase(); return /new|main|web/.test(lab); };
+    var now = cids.filter(function (c) { return isCurrent(c.cid_label); });
+    var past = cids.filter(function (c) { return !isCurrent(c.cid_label); });
+    var specChip = ch.has_spec ? '<span class="chx-chip spec">규격 ✓</span>' : '<span class="chx-chip nospec">규격 없음</span>';
+    var mkt = ch.market || '—';
+    var head =
+      '<div class="chx-head" data-chexp="' + esc(ch.code) + '">' +
+        '<span class="chx-rank">' + rank + '</span>' +
+        '<span class="chx-name">' + esc(ch.name) + '</span>' +
+        '<span class="chx-chip lang">' + esc(langLabel(ch.language)) + '</span>' +
+        (ch.is_active ? '<span class="chx-chip on">운영중</span>' : '<span class="chx-chip off">비활성</span>') +
+        '<span class="chx-sp"></span>' + specChip +
+        '<span class="chx-bk">확정 ' + conf.toLocaleString() + '건</span>' +
+        '<span class="chx-exp">상세<span class="chx-ar">▾</span></span>' +
+      '</div>';
 
-    h += '<div class="st-ch-meta">' +
-         '<span><b>언어</b>' + esc(langLabel(ch.language)) + '</span>' +
-         '<span><b>플랫폼</b>' + esc(ch.platform || '—') + '</span>' +
-         '<span><b>순서</b>' + esc(ch.display_order == null ? '—' : ch.display_order) + '</span>' +
-         (ch.agoda_site_id ? '<span><b>사이트ID</b>' + esc(ch.agoda_site_id) + '</span>' : '') +
-         '</div>';
-
-    h += '<div class="st-cid-wrap"><div class="st-cid-label">아고다 CID · 예약↔채널 연결 키</div>';
-    if (ch.cids && ch.cids.length) {
-      h += '<div class="st-cid-list">' + ch.cids.map(function (c) {
-        var cls = 'st-cid' + (String(c.cid_label).toLowerCase() === 'new' ? ' new' : '') + (c.is_active ? '' : ' off');
-        return '<span class="' + cls + '">' + esc(c.cid) +
-               (c.cid_label ? '<span class="st-cid-tag">' + esc(c.cid_label) + '</span>' : '') +
-               (chIsAdmin
-                  ? '<button class="st-cid-act" data-cidact="' + (c.is_active ? 'retire_cid' : 'restore_cid') + '"' +
-                    ' data-ch="' + esc(ch.code) + '" data-cid="' + esc(c.cid) + '">' + (c.is_active ? '폐기' : '복구') + '</button>'
-                  : '') + '</span>';
-      }).join('') + '</div>';
-    } else {
-      h += '<div class="st-cid-none">등록된 CID 없음</div>';
-    }
-    // 관리자만: CID 추가 미니폼 (폐기는 위 칩에서 바로).
+    var cidRow = function (c, isPast) {
+      return '<div class="chx-cidrow' + (isPast ? ' past' : '') + '"><span class="chx-dot"></span>' +
+        '<span class="chx-cidnum">' + esc(c.cid) + '</span>' +
+        (c.cid_label ? '<span class="chx-cidtag">' + esc(c.cid_label) + '</span>' : '') +
+        '<span class="chx-cidbk">확정 ' + (c.confirmed || 0).toLocaleString() + ' · <span style="opacity:.6">취소 ' + (c.cancelled || 0).toLocaleString() + '</span></span>' +
+        '</div>';
+    };
+    var cidHtml = '<div class="chx-cidsay">이 채널로 잡힌 예약을 세는 번호 — <b>전부 살아있음.</b></div>';
+    if (now.length)  cidHtml += '<div class="chx-cidgrp">🟢 현재 발급 — 새 영상에 다는 번호</div>' + now.map(function (c) { return cidRow(c, false); }).join('');
+    if (past.length) cidHtml += '<div class="chx-cidgrp">🟢 예전 번호 · 예약 집계중 — 새로는 안 쓰지만 예약 계속</div>' + past.map(function (c) { return cidRow(c, true); }).join('');
+    if (!cids.length) cidHtml = '<div class="chx-cidnone">등록된 CID 없음</div>';
     if (chIsAdmin) {
-      h += '<div class="st-cid-add">' +
-           '<button class="st-cid-add-btn" data-cidaddbtn="' + esc(ch.code) + '">＋ CID 추가</button>' +
-           '<div class="st-cid-addform" data-cidaddform="' + esc(ch.code) + '">' +
-             '<input class="cid" type="text" data-nc="cid" placeholder="CID 숫자">' +
-             '<input class="lab" type="text" data-nc="label" placeholder="new">' +
-             '<button data-cidadd="' + esc(ch.code) + '">추가</button>' +
-             '<span class="st-ch-fmsg" data-cidmsg="' + esc(ch.code) + '" style="margin:0"></span>' +
-           '</div></div>';
-    }
-    h += '</div>';
-
-    // 관리자 편집 폼 (숨김). 이름·영문명·순서·운영중만. code(연결 열쇠)는 못 바꿈.
-    if (chIsAdmin) {
-      h += '<div class="st-ch-form" data-form="' + esc(ch.code) + '">' +
-           '<div class="st-ch-frow"><label>이름</label><input type="text" data-f="name" value="' + esc(ch.name) + '"></div>' +
-           '<div class="st-ch-frow"><label>영문명</label><input type="text" data-f="name_en" value="' + esc(ch.name_en || '') + '"></div>' +
-           '<div class="st-ch-frow"><label>표시 순서</label><input type="number" data-f="display_order" value="' + esc(ch.display_order == null ? '' : ch.display_order) + '">' +
-           '<span class="st-ch-toggle"><input type="checkbox" data-f="is_active"' + (ch.is_active ? ' checked' : '') + '> 운영중</span></div>' +
-           '<div class="st-ch-actions"><button data-save="' + esc(ch.code) + '">저장</button>' +
-           '<button class="ghost" data-cancel="' + esc(ch.code) + '">취소</button></div>' +
-           '<div class="st-ch-fmsg" data-fmsg="' + esc(ch.code) + '"></div>' +
-           '</div>';
+      cidHtml += '<div class="chx-cidadd"><button class="chx-cidaddbtn" data-cidaddbtn="' + esc(ch.code) + '">＋ CID 추가</button>' +
+        '<div class="st-cid-addform" data-cidaddform="' + esc(ch.code) + '"><input class="cid" type="text" data-nc="cid" placeholder="CID 숫자"><input class="lab" type="text" data-nc="label" placeholder="new"><button data-cidadd="' + esc(ch.code) + '">추가</button><span class="st-ch-fmsg" data-cidmsg="' + esc(ch.code) + '" style="margin:0"></span></div></div>' +
+        '<div class="chx-cidrm">번호 제거는 잘못 등록된 것만 (owner · 경고)</div>';
     }
 
-    return h + '</div>';
+    var specHtml = ch.has_spec
+      ? '<div class="chx-spec has"><div class="chx-spec-t">✓ 규격 있음 · ' + esc(ch.spec_file || '') + '</div>원고를 올리면 이 규칙으로 제목·파일명·본문·해시태그·나레이션을 <b style="color:#1D9E75">자동 생성</b>합니다.' +
+        (chIsAdmin ? '<div class="chx-acts"><button class="chx-btn go" data-specview="' + esc(ch.code) + '">규격 보기</button></div>' : '<div class="chx-lock">🔒 규격 열람·수정은 최고관리자만</div>') + '</div>'
+      : '<div class="chx-spec no"><div class="chx-spec-t">⚠ 규격 없음</div>원고를 올려도 <b>자동 생성 규칙이 없습니다.</b>' +
+        (chIsAdmin ? ' Claude 대화로 규격(.md)을 만들어 등록하면 켜집니다.' : '<div class="chx-lock">🔒 규격 등록은 최고관리자만</div>') + '</div>';
+
+    var apiHtml = ch.has_agoda_api ? '<div class="chx-sec"><div class="chx-sech">🔗 연동</div><span class="chx-chip api">아고다 API 연결됨</span></div>' : '';
+    var tgt = '<div class="chx-tgt">🎯 <b>타겟</b> ' + esc(langLabel(ch.language)) + ' 손님 · 주 시장 ' + esc(mkt) + '</div>';
+    var sum = '<div class="chx-sum"><span class="ok">확정 ' + conf.toLocaleString() + '건</span><span class="no">취소 ' + canc.toLocaleString() + '건</span><span class="rt">취소율 ' + rate + '%</span></div>';
+
+    var editForm = chIsAdmin ? ('<div class="st-ch-form" data-form="' + esc(ch.code) + '">' +
+      '<div class="st-ch-frow"><label>이름</label><input type="text" data-f="name" value="' + esc(ch.name) + '"></div>' +
+      '<div class="st-ch-frow"><label>시장</label><input type="text" data-f="market" value="' + esc(ch.market || '') + '" placeholder="KR·JP·TW·US·VN"></div>' +
+      '<div class="st-ch-frow"><label>표시 순서</label><input type="number" data-f="display_order" value="' + esc(ch.display_order == null ? '' : ch.display_order) + '">' +
+      '<span class="st-ch-toggle"><input type="checkbox" data-f="is_active"' + (ch.is_active ? ' checked' : '') + '> 운영중</span></div>' +
+      '<div class="st-ch-actions"><button data-save="' + esc(ch.code) + '">저장</button><button class="ghost" data-cancel="' + esc(ch.code) + '">취소</button></div>' +
+      '<div class="st-ch-fmsg" data-fmsg="' + esc(ch.code) + '"></div></div>') : '';
+
+    var body = '<div class="chx-body">' + tgt + sum +
+      '<div class="chx-meta"><span><b>언어</b>' + esc(langLabel(ch.language)) + '</span><span><b>시장</b>' + esc(mkt) + '</span><span><b>플랫폼</b>' + esc(ch.platform || 'youtube') + '</span><span><b>매출 순위</b>' + rank + '위</span></div>' +
+      '<div class="chx-sec"><div class="chx-sech">💰 아고다 CID — 예약이 이 채널로 잡히는 열쇠</div>' + cidHtml + '</div>' +
+      '<div class="chx-sec"><div class="chx-sech">📝 원고 자동생성 규격</div>' + specHtml + '</div>' +
+      apiHtml +
+      (chIsAdmin ? '<div class="chx-acts" style="margin-top:12px"><button class="chx-btn" data-edit="' + esc(ch.code) + '">채널 정보 수정 (이름·시장·순서·운영여부)</button></div>' + editForm : '') +
+      '</div>';
+
+    return '<div class="chx-card' + (ch.is_active ? '' : ' off') + '" data-ch="' + esc(ch.code) + '">' + head + body + '</div>';
   }
 
   function saveChannel(code, btn) {
@@ -3354,24 +3429,23 @@
 
   // [파일 읽기] → dry_run 으로 서버 파싱만 받아 미리보기 (파싱 규칙은 서버 한 곳이 진실)
   function readMd() {
-    var code = (document.getElementById('nc-code').value || '').trim();
     var f = document.getElementById('nc-mdfile').files[0];
     var msg = document.getElementById('nc-msg');
     var pv = document.getElementById('nc-preview');
     var save = document.getElementById('nc-save');
     save.disabled = true; pv.style.display = 'none'; ncMdText = '';
-    if (!code) { msg.className = 'st-ch-fmsg err'; msg.textContent = '먼저 코드를 넣어주세요.'; return; }
     if (!f) { msg.className = 'st-ch-fmsg err'; msg.textContent = '규격 .md 파일을 선택하세요.'; return; }
     var reader = new FileReader();
     reader.onload = function () {
       ncMdText = reader.result || '';
       msg.className = 'st-ch-fmsg'; msg.textContent = '읽는 중…';
-      postChannels({ action: 'register_from_md', code: code, md: ncMdText, dry_run: true }).then(function (j) {
+      postChannels({ action: 'register_from_md', md: ncMdText, dry_run: true }).then(function (j) {
         var p = j.parsed || {};
         pv.innerHTML =
           '<div class="nc-pv-row"><span>코드</span><b>' + ncEsc(p.code) + '</b></div>' +
           '<div class="nc-pv-row"><span>이름</span><b>' + ncEsc(p.name) + '</b></div>' +
           '<div class="nc-pv-row"><span>언어</span><b>' + ncEsc(p.language) + '</b></div>' +
+          '<div class="nc-pv-row"><span>시장</span><b>' + ncEsc(p.market) + '</b></div>' +
           '<div class="nc-pv-row"><span>아고다 CID</span><b>' + ncEsc(p.cid) + '</b></div>';
         pv.style.display = 'block'; save.disabled = false;
         msg.className = 'st-ch-fmsg ok'; msg.textContent = '읽었습니다. 확인 후 등록하세요.';
@@ -3383,13 +3457,11 @@
 
   // [등록] → 실제 채널·CID 등록
   function createChannel(btn) {
-    var code = (document.getElementById('nc-code').value || '').trim();
     var msg = document.getElementById('nc-msg');
-    if (!code || !ncMdText) { msg.className = 'st-ch-fmsg err'; msg.textContent = '코드 입력 후 [파일 읽기]를 먼저 하세요.'; return; }
+    if (!ncMdText) { msg.className = 'st-ch-fmsg err'; msg.textContent = '규격 .md 를 올리고 [파일 읽기]를 먼저 하세요.'; return; }
     btn.disabled = true; msg.className = 'st-ch-fmsg'; msg.textContent = '등록 중…';
-    postChannels({ action: 'register_from_md', code: code, md: ncMdText }).then(function () {
+    postChannels({ action: 'register_from_md', md: ncMdText }).then(function () {
       msg.className = 'st-ch-fmsg ok'; msg.textContent = '등록됐습니다.';
-      document.getElementById('nc-code').value = '';
       document.getElementById('nc-mdfile').value = '';
       document.getElementById('nc-preview').style.display = 'none';
       ncMdText = '';
@@ -3419,6 +3491,45 @@
       .catch(function (e) { btn.disabled = false; alert(e.message); loadChannels(); });
   }
 
+  // 규격 .md 를 가볍게 HTML 로 (헤더·표·인용·문단만). 안전하게 esc 후 최소 변환.
+  function chSpecMdToHtml(md) {
+    var out = [];
+    String(md || '').split('\n').forEach(function (ln) {
+      var t = ln.replace(/\r$/, '');
+      if (/^#{1,3}\s/.test(t)) { out.push('<div class="chx-md-h">' + esc(t.replace(/^#{1,3}\s/, '')) + '</div>'); return; }
+      if (/^\|/.test(t)) {
+        if (/^\|[\s\-:|]+\|?\s*$/.test(t)) return;
+        var cells = t.split('|').slice(1, -1).map(function (c) { return esc(c.trim()); });
+        out.push('<div class="chx-md-tr">' + cells.map(function (c) { return '<span>' + c + '</span>'; }).join('') + '</div>'); return;
+      }
+      if (/^>/.test(t)) { out.push('<div class="chx-md-q">' + esc(t.replace(/^>\s?/, '')) + '</div>'); return; }
+      if (/^```/.test(t)) return;
+      if (t.trim() === '---' || t.trim() === '') return;
+      out.push('<div class="chx-md-p">' + esc(t) + '</div>');
+    });
+    return out.join('');
+  }
+  function openChSpec(code) {
+    if (!chIsAdmin) return;   // 규격 열람 = 최고관리자만
+    var ov = document.getElementById('chx-specov');
+    var body = document.getElementById('chx-specbody');
+    var title = document.getElementById('chx-spectitle');
+    title.textContent = '규격 불러오는 중…';
+    body.innerHTML = '<div class="st-empty">불러오는 중…</div>';
+    ov.classList.add('open');
+    fetch('/api/channels?spec=' + encodeURIComponent(code), { credentials: 'same-origin' })
+      .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+      .then(function (x) {
+        if (!x.ok || !x.j.ok) throw new Error(x.j.error || '규격을 불러오지 못했습니다.');
+        title.textContent = x.j.name + ' · 원고 규격';
+        body.innerHTML = x.j.has_spec
+          ? '<div class="chx-md">' + chSpecMdToHtml(x.j.spec) + '</div>'
+          : '<div class="chx-spec no"><div class="chx-spec-t">⚠ 규격 없음</div>이 채널은 규격 .md 가 없습니다. Claude 대화로 만들어 등록하세요.</div>';
+      })
+      .catch(function (e) { title.textContent = '규격'; body.innerHTML = '<div class="st-empty">' + esc(e.message) + '</div>'; });
+  }
+  function closeChSpec() { document.getElementById('chx-specov').classList.remove('open'); }
+
   function loadChannels() {
     var list = document.getElementById('st-ch-list');
     fetch('/api/channels', { credentials: 'same-origin' })
@@ -3427,16 +3538,25 @@
         if (!x.ok || !x.j.ok) throw new Error(x.j.error || '불러오지 못했습니다.');
         var chs = x.j.channels || [];
         chIsAdmin = !!x.j.is_admin;
+        chs.sort(function (a, b) { return (b.bookings_confirmed || 0) - (a.bookings_confirmed || 0); }); // 매출(확정예약) 많은 순
         document.getElementById('st-ch-count').textContent =
           chs.length + '개 채널 · CID ' + chs.reduce(function (n, c) { return n + (c.cids ? c.cids.length : 0); }, 0) + '개';
         document.getElementById('st-ch-perm').textContent = chIsAdmin
-          ? '[＋ 새 채널]로 채널을 등록하고, 각 채널에서 CID를 추가·폐기하거나 [수정](이름·순서·운영여부)할 수 있습니다.'
-          : '조회 전용입니다. 등록·편집은 관리자만 할 수 있습니다.';
+          ? '[＋ 새 채널]로 채널을 등록(규격 .md 업로드)하고, 각 채널 상세에서 CID·규격을 관리할 수 있습니다.'
+          : '조회 전용입니다. 등록·규격·CID 편집은 최고관리자만 할 수 있습니다.';
         document.getElementById('st-newch-btn').style.display = chIsAdmin ? '' : 'none';
         list.innerHTML = chs.length
-          ? chs.map(channelCard).join('')
+          ? chs.map(function (c, i) { return channelCard(c, i + 1); }).join('')
           : '<div class="st-empty">등록된 채널이 없습니다.</div>';
 
+        // 상세 펼치기 (헤더 클릭)
+        list.querySelectorAll('[data-chexp]').forEach(function (b) {
+          b.onclick = function () { var card = b.closest('.chx-card'); if (card) card.classList.toggle('open'); };
+        });
+        // 규격 보기 (최고관리자만 버튼이 그려짐)
+        list.querySelectorAll('[data-specview]').forEach(function (b) {
+          b.onclick = function (e) { e.stopPropagation(); openChSpec(b.dataset.specview); };
+        });
         // 편집 이벤트 바인딩 (관리자만 버튼이 그려짐)
         list.querySelectorAll('[data-edit]').forEach(function (b) {
           b.onclick = function () {
@@ -3484,6 +3604,11 @@
     if (cancel) cancel.onclick = function () { panel.classList.remove('open'); };
     if (readBtn) readBtn.onclick = function () { readMd(); };
     if (save) save.onclick = function () { createChannel(save); };
+    // 규격 보기 모달 닫기
+    var specx = document.getElementById('chx-specx');
+    var specov = document.getElementById('chx-specov');
+    if (specx) specx.onclick = function () { closeChSpec(); };
+    if (specov) specov.addEventListener('click', function (e) { if (e.target === specov) closeChSpec(); });
   })();
 
   document.getElementById('st-logout').onclick = function () {

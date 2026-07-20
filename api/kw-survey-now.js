@@ -111,57 +111,63 @@ export default async function handler(req, res) {
       return res.status(200).json({ ok: true, step: 'harvest', already: true, city_key: ck, keyword_count: count || cur.length, note: '이미 검색어가 있어 발굴을 건너뛰었습니다.' });
     }
 
-    // 씨앗 = "{도시}호텔"(붙여) + "{도시} 호텔"(띄어) 둘 다 뿌린다.
-    //   붙여쓴 씨앗이 오사카처럼 자연스러운 붙여쓰기 검색어("...숙소추천")를 준다.
+    // 오사카 구조 그대로: 여행 축 + 숙박 축, 띄어쓰기 메인 + 붙여쓰기 짝.
     const gl = market.toLowerCase();
-    const seedSpaced = `${cityKo} 호텔`;
-    const seedJoined = `${cityKo}호텔`;
-    let raw = [];
-    try {
-      raw = raw.concat(await harvest(seedJoined, 1, target, gl));   // 붙여쓴 자연 검색어
-      raw = raw.concat(await harvest(seedSpaced, 1, target, gl));   // 띄어쓴 것 + 호텔 고유명
-    } catch (e) { return res.status(200).json({ ok: false, step: 'harvest', error: '발굴 실패: ' + String(e.message || e) }); }
-    raw.push(seedJoined);
-
-    // 그 도시 포함 · 중복 제거
+    const seeds = [
+      { q: `${cityKo} 여행`, axis: 'travel' },
+      { q: `${cityKo} 자유여행`, axis: 'travel' },
+      { q: `${cityKo} 호텔`, axis: 'stay' },
+      { q: `${cityKo} 숙소`, axis: 'stay' },
+    ];
+    const joinedSeeds = [`${cityKo}호텔`, `${cityKo}숙소`, `${cityKo}여행`];
     const seen = new Set();
-    const all = [];
-    for (const t0 of raw) { const t = String(t0 || '').trim(); if (t && t.includes(cityKo) && !seen.has(t)) { seen.add(t); all.push(t); } }
-    if (all.length < 2) return res.status(200).json({ ok: false, step: 'harvest', error: '자동완성에서 이 도시 검색어를 충분히 못 찾았습니다. 도시명을 확인하세요.' });
-    const foundSet = new Set(all);
+    const mains = [];          // { text(띄어쓰기), axis }
+    const joinedSet = new Set();
+    try {
+      for (const s of seeds) {                 // 띄어쓴 메인 발굴
+        let f = [];
+        try { f = await harvest(s.q, 1, target, gl); } catch { f = []; }
+        for (const t0 of [s.q].concat(f)) {
+          const t = String(t0 || '').trim();
+          if (t && t.includes(cityKo) && t.includes(' ') && !seen.has(t)) { seen.add(t); mains.push({ text: t, axis: s.axis }); }
+        }
+      }
+      for (const q of joinedSeeds) {            // 붙여쓴 짝 후보 발굴
+        let f = [];
+        try { f = await harvest(q, 1, target, gl); } catch { f = []; }
+        for (const t0 of [q].concat(f)) { const t = String(t0 || '').trim().replace(/\s+/g, ''); if (t.includes(cityKo)) joinedSet.add(t); }
+      }
+    } catch (e) { return res.status(200).json({ ok: false, step: 'harvest', error: '발굴 실패: ' + String(e.message || e) }); }
+    if (mains.length < 2) return res.status(200).json({ ok: false, step: 'harvest', error: '자동완성에서 이 도시 검색어를 충분히 못 찾았습니다. 도시명을 확인하세요.' });
 
-    // ㊻ 붙여쓰기 정규화:
-    //   ① 붙여쓴 형태가 발굴에 이미 있으면 띄어쓴 건 버림
-    //   ② 일반 검색어(도시명+흔한 숙박·여행 단어들로만 이뤄진 것)는 붙여쓰기로 통일 (오사카식)
-    //   ③ 호텔 고유명(브랜드·낯선 토큰 포함)은 띄어쓰기 유지
-    const GENERIC = ['호텔','숙소','추천','가성비','조식','위치','온천','대욕장','뷔페','뷰페','가족','여행','커플','아이','뷰','야경','시내','역','근처','저렴','예약','후기','비즈니스','료칸','게스트하우스','민박','캡슐','펜션','리조트','전망','오션뷰','금연','흡연','주차','조용한','신상','신축','중심','번화가','베스트','인기','럭셔리','고급','수영장','노천탕','객실','일본','일본어'];
+    // 일반 검색어 판별 (호텔 고유명과 가르기)
+    const GENERIC = ['호텔','숙소','추천','가성비','조식','위치','온천','대욕장','뷔페','뷰페','가족','여행','자유여행','코스','여행지','커플','아이','뷰','야경','시내','역','근처','저렴','예약','후기','비즈니스','료칸','게스트하우스','민박','캡슐','펜션','리조트','전망','오션뷰','금연','흡연','주차','조용한','신상','신축','중심','번화가','베스트','인기','럭셔리','고급','수영장','노천탕','객실','일정','당일치기','자유','관광'];
     const isGeneric = (term) => {
       const toks = term.split(new RegExp('\\s+|' + cityKo)).map((x) => x.trim()).filter(Boolean);
       if (!toks.length) return true;
       return toks.every((t) => GENERIC.some((g) => t === g || t.includes(g) || g.includes(t)));
     };
-    const normSet = new Set();
-    const norm = [];   // { text, kind, is_anchor }
-    const add = (text, kind, anchor) => { if (!normSet.has(text)) { normSet.add(text); norm.push({ text, kind, is_anchor: !!anchor }); } };
-    for (const t of all) {
-      if (!t.includes(' ')) { add(t, 'joined', t === seedJoined); continue; }   // 이미 붙여쓰기
-      const j = t.replace(/\s+/g, '');
-      if (foundSet.has(j)) continue;                                            // 붙여쓴 twin 이 이미 있음
-      if (isGeneric(t)) add(j, 'joined', false);                               // 일반 검색어 → 붙여쓰기 통일
-      else add(t, 'hotel', false);                                             // 호텔 고유명 → 띄어쓰기 유지
-    }
-    // 붙여쓰기(일반) 먼저, 고유명 뒤로 · 최대 28개
-    norm.sort((a, b) => (a.kind === 'joined' ? 0 : 1) - (b.kind === 'joined' ? 0 : 1));
-    const kept = norm.slice(0, 28);
-    if (!kept.some((n) => n.is_anchor) && kept.length) kept[0].is_anchor = true;
 
     const country = ck.replace(/^cc:/, '').split('|')[0];
     const now = new Date().toISOString();
-    const rows = kept.map((n) => ({
-      target_code: target, market, country, city_key: ck, text: n.text,
-      kind: n.kind, is_anchor: !!n.is_anchor, alive: true, source: 'harvest-now',
-      alive_source: 'suggest', created_at: now, last_seen_at: now,
-    }));
+    const anchorText = `${cityKo} 여행`;
+    const base = { target_code: target, market, country, city_key: ck, alive: true, source: 'harvest-now', alive_source: 'suggest', created_at: now, last_seen_at: now };
+    const pushed = new Set();
+    const rows = [];
+    for (const m of mains.slice(0, 44)) {
+      if (pushed.has(m.text)) continue; pushed.add(m.text);
+      const isAnchor = m.text === anchorText;
+      const kind = isAnchor ? 'city_head' : (isGeneric(m.text) ? 'city_sub' : 'hotel');
+      rows.push({ ...base, text: m.text, axis: m.axis, kind, is_anchor: isAnchor, morph_axis: null });
+      // 붙여쓰기 짝: 일반 검색어이고 붙여쓴 형태가 자동완성에 살아있으면 짝으로 함께
+      const j = m.text.replace(/\s+/g, '');
+      if (isGeneric(m.text) && joinedSet.has(j) && !pushed.has(j)) {
+        pushed.add(j);
+        rows.push({ ...base, text: j, axis: m.axis, kind: 'joined', is_anchor: false, morph_axis: 'spacing' });
+      }
+    }
+    if (!rows.some((r) => r.is_anchor) && rows.length) rows[0].is_anchor = true;
+
     // 이미 있는 text 는 빼고 삽입(유령 중복 방지)
     const { data: exist } = await sb.from('keyword').select('text')
       .eq('target_code', target).eq('market', market).eq('city_key', ck);
@@ -171,7 +177,9 @@ export default async function handler(req, res) {
       const { error: iErr } = await sb.from('keyword').insert(fresh);
       if (iErr) return res.status(500).json({ ok: false, step: 'harvest', error: '검색어 저장 실패: ' + iErr.message });
     }
-    return res.status(200).json({ ok: true, step: 'harvest', city_key: ck, harvested: kept.length, saved: fresh.length, anchor: seedJoined, sample: kept.slice(0, 8).map((n) => n.text) });
+    return res.status(200).json({ ok: true, step: 'harvest', city_key: ck, harvested: rows.length, saved: fresh.length, anchor: anchorText,
+      travel: rows.filter((r) => r.axis === 'travel').length, stay: rows.filter((r) => r.axis !== 'travel').length,
+      pairs: rows.filter((r) => r.kind === 'joined').length, sample: rows.slice(0, 10).map((r) => r.text + (r.kind === 'joined' ? '(짝)' : '·' + r.axis)) });
   }
 
   // ── ② 측정 (measure) — 기존 kw-survey 엔진 내부 호출(재사용) ──

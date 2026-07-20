@@ -69,10 +69,18 @@ export default async function handler(req, res) {
     for (const a of data || []) existing.add(String(a.agoda_hotel_id));
   }
 
-  // 3) 폐업 의심 = 아고다 id 가 **전부 사라진** 호텔 (30일 내 확인한 건 제외 · 예약 많은 순)
+  // 3) 폐업 의심 = 아고다 id 가 **전부 사라진** 호텔.
+  //    ★단, agoda_inventory 가 그 도시를 담고 있을 때만 판정한다.
+  //     (치앙마이·하노이처럼 아고다를 아직 안 넣은 도시는 "사라진 게" 아니라 "없는 것" — 가짜 폐업 방지)
+  //     판별: 그 도시에 아고다 id 가 살아있는 호텔이 하나라도 있으면 = 아고다가 담는 도시.
+  const coveredCities = new Set();
+  for (const h of hotels || []) {
+    if ((h.agoda_hotel_ids || []).some((x) => existing.has(String(x)))) coveredCities.add(h.city);
+  }
   const cutoff = Date.now() - 30 * 24 * 3600 * 1000;
   const suspects = (hotels || [])
     .filter((h) => (h.agoda_hotel_ids || []).length
+      && coveredCities.has(h.city)
       && (h.agoda_hotel_ids || []).every((x) => !existing.has(String(x)))
       && (!h.closed_checked_at || new Date(h.closed_checked_at).getTime() < cutoff))
     .sort((a, b) => (b.booking_count || 0) - (a.booking_count || 0));

@@ -566,7 +566,7 @@ async function cities(sb, req, res, who) {
 
   // 조사 상태(예약/채우는중/새로완성/완성) — snapshot 으로 판정
   const { data: snaps2 } = await sb.from('snapshot')
-    .select('city_key, status, acknowledged_at').eq('target_code', target).eq('market', market || 'KR');
+    .select('city_key, status, acknowledged_at').eq('target_code', target).eq('market', String(req.query.market || 'KR'));
   const snapByKey = {};
   for (const s of snaps2 || []) { snapByKey[s.city_key] = s; }
   //   state: none(미조사) · running(예약·봇이 채우는 중) · new_done(새로 완성·확인 대기) · done(완성·확인됨)

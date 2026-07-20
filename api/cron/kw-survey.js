@@ -95,9 +95,27 @@ export default async function handler(req, res) {
       });
       cityKey = pendingCities[0];
     } else {
-      // ⏸ 자동 발굴 일시 중단 (대표님 2026-07-20 지시): 품질 게이트 완성 전까지 새 도시 자동 발굴 안 함.
-      //    도쿄가 3개만 발굴됐는데 "완성"으로 넘어간 사고 → 「제대로 발굴됐나」 검증 먼저.
-      return res.status(200).json({ ok: true, idle: true, ym, note: '측정할 도시 없음 · 자동 발굴은 품질 게이트 완성까지 중단(대표님 지시)' });
+      // 측정할 게 없다 → 예약 많은 미조사 도시 1곳 발굴 (건너뛰기 목록 제외 · kw-survey-now 재사용)
+      const { data: skipRows } = await sb.from('survey_skip').select('label').eq('target_code', target);
+      const skipLabels = new Set((skipRows || []).map((r) => r.label));
+      const next = (invRows || [])
+        .filter((r) => !surveyedLabels.has(r.city) && !skipLabels.has(r.city) && (r.bookings || 0) > 0)
+        .sort((a, b) => (b.bookings || 0) - (a.bookings || 0))[0];
+      if (!next) return res.status(200).json({ ok: true, idle: true, ym, note: '측정·발굴할 도시 없음 (전부 완료 또는 건너뜀).' });
+      if (dry) return res.status(200).json({ ok: true, dry_run: true, cycle: 'harvest', would_harvest: next.city, bookings: next.bookings, note: '실제로 돌면 이 도시를 발굴함' });
+      const ops = process.env.CLAUDE_OPS_TOKEN;
+      const site = process.env.SITE_URL || 'https://gohotelwinners.com';
+      try {
+        const hr = await fetch(`${site}/api/kw-survey-now`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json', 'x-ops-token': ops || '' },
+          body: JSON.stringify({ step: 'harvest', city_ko: next.city, country_ko: next.country, target, market }),
+        });
+        const hj = await hr.json();
+        // 품질 게이트 미달이면 kw-survey-now 가 survey_skip 에 기록함 → 다음 회차엔 건너뜀
+        return res.status(200).json({ ok: true, cycle: 'harvest', harvested_city: next.city, bookings: next.bookings, insufficient: !!hj.insufficient, result: hj, note: hj.insufficient ? '발굴 불량 → 건너뛰기 등록' : '새 도시 발굴 완료 · 다음 회차부터 자동 측정' });
+      } catch (e) {
+        return res.status(200).json({ ok: false, cycle: 'harvest', error: '발굴 실패: ' + String(e.message || e) });
+      }
     }
   }
   // 살아있는 검색어 (앵커 먼저)

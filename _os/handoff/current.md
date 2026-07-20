@@ -59,6 +59,7 @@
   - **rdd**: running=⏳"채우는 중" / done·new_done=자동 로드 / none=지금 조사하기.
   - 검증: 오사카·후쿠오카 done·도쿄 running·배지 0. 커밋 content-keywords `29f73b4f`·studio `5350ca75`·vercel `ebcfae6b`. 🔴 도쿄(running) 봇이 채우면 배지 뜨는지 대표님 확인 권장.
 - ✅ **키워드 탭 조사 현황판(대표님 "지금 어느 도시 조사 중인지 볼 곳 없다"·시안 승인)**: "새로 완성" 단순 배지 → **3구역 현황판**으로 업그레이드. 키워드 탭 맨 위(bc 아래·노출설정 위, id=kw-newdone)에 항상 표시. cities 창구가 running_list·new_done_list·done_list·survey_counts 제공. 프론트 renderSurveyStatus: ①채우는 중(--am 주황·측정 중 칩)②새로 완성(--bl 파랑·[확인]/[전체확인])③완성(--em 초록·2열·최대8+외N). 도시 클릭=go('d')로 결과. 검증: 채우는중=도쿄·완성=오사카/후쿠오카. 커밋 content-keywords `7981dedf`·studio `c72a87d1`.
+- ✅ **BL-KW-AUTO-CYCLE(D-069 후속1·대표님 "진행해") 완성**: 봇(kw-survey cron) 자동 순환. cron 도시선택 재작성: ①측정 우선=snapshot!=done 도시 중 **선택(source=harvest-now)>예약순**(city_alias↔v_city_inventory bookings) ②측정할 것 없으면 예약 많은 미조사 도시 자동 발굴(kw-survey-now step=harvest 내부호출·오사카 구조). dry_run은 미리보기만. 라이브: 일본3도시 done→봇이 타이베이(580) 자동 발굴(구조 정상). ⇒대표님이 아무것도 안 해도 타이베이→방콕→다낭 계속·「지금 조사하기」=새치기·전부 유튜브 무료·2h마다. 커밋 kw-survey `1353397b`. 🔴D-069 후속2·3(HOTEL-DISTRICT-FROM-AGODA·HOTEL-CLOSED-CHECK) 남음.
 - 🔴 **다음**: 대표님 폰 확인 → 확정/수정 → studio.html view-channels 적용(loadChannels/chCard ~3255·3422). 이때 studio.html 의 기존 [폐기] 라벨도 CID 원칙대로 상태배지로 교체(D-064 후속 "폐기 라벨→상태배지" = 이 작업).
 - 🟡 실데이터 확인: CID 전부 is_active=true(라벨 old/new/main 로만 구분) · 규격 .md = 호텔이야·여행능력자들·호텔이곳 3개만 존재.
 

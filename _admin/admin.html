@@ -6743,16 +6743,23 @@ function rDayHotels(){
   };
 
   window.__amSubmitSetName = async function(){
-    var name = (document.getElementById('am-new-name').value || '').trim();
-    var r = await callAuthAPI('set-name', { target_id: current.id, display_name: name });
-    if (!r) return;
-    if (r.ok) {
-      alert(umKo()?'✅ 이름 변경 완료':'✅ Name updated');
-      window.__amCloseMenu();
-      loadAdmins();
-    } else {
-      alert((umKo()?'❌ 실패: ':'❌ Failed: ') + (r.body.error || r.status));
+    var btn = document.querySelector('#am-detail button[onclick*="__amSubmitSetName"]');
+    var nameEl = document.getElementById('am-new-name');
+    var name = (nameEl && nameEl.value || '').trim();
+    if (btn) { btn.disabled = true; btn.textContent = umKo()?'저장 중…':'Saving…'; }
+    try {
+      var r = await callAuthAPI('set-name', { target_id: current.id, display_name: name });
+      if (r && r.ok) {
+        alert(umKo()?'✅ 이름 변경 완료':'✅ Name updated');
+        window.__amCloseMenu();
+        if (typeof loadAdmins === 'function') loadAdmins();
+        return;
+      }
+      alert((umKo()?'❌ 실패: ':'❌ Failed: ') + ((r && r.body && r.body.error) || (r && r.status) || 'no response'));
+    } catch (e) {
+      alert((umKo()?'❌ 오류: ':'❌ Error: ') + (e && e.message || e));
     }
+    if (btn) { btn.disabled = false; btn.textContent = umKo()?'이름 저장':'Save name'; }
   };
 
   window.__amSubmitChangeRole = async function(){

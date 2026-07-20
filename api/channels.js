@@ -217,18 +217,16 @@ export default async function handler(req, res) {
       // 코드(예약 연결 열쇠·불변)만 사람이 확인 입력, 이름·언어·아고다 CID 는 규격 md §0 에서 자동으로 읽는다.
       // dry_run=true 이면 실제 등록 없이 파싱 결과만 돌려준다(미리보기). 파싱 규칙은 이 서버 한 곳이 진실이다.
       if (action === 'register_from_md') {
-        const code = String(body.code || '').trim();
         const md   = String(body.md || '');
         const dryRun = !!body.dry_run;
-        if (!code) return res.status(400).json({ ok: false, error: '채널 코드(2~20자 영문·숫자)가 필요합니다.' });
-        if (!/^[A-Za-z0-9_-]{2,20}$/.test(code))
-          return res.status(400).json({ ok: false, error: '채널 코드는 영문·숫자·-_ 2~20자만 됩니다.' });
         if (!md.trim()) return res.status(400).json({ ok: false, error: '규격 .md 파일 내용이 비어 있습니다.' });
 
         // 규격 md §0 채널 정보 파싱
         const parseChannelMd = (t) => {
-          let name = null, language = null, cid = null, market = null;
-          let m = t.match(/적용\s*채널\s*[:：]\s*([^\(（\n]+?)\s*[\(（]/);      // "적용 채널: 호텔이야 (...)"
+          let name = null, language = null, cid = null, market = null, mdcode = null;
+          let m = t.match(/\|\s*코드\s*\|\s*([A-Za-z0-9_-]{2,20})\s*\|/);       // "| 코드 | TH |" (§0에 코드)
+          if (m) mdcode = m[1].trim();
+          m = t.match(/적용\s*채널\s*[:：]\s*([^\(（\n]+?)\s*[\(（]/);      // "적용 채널: 호텔이야 (...)"
           if (m) name = m[1].trim();
           if (!name) { m = t.match(/^#\s*([^·|\n]+?)\s*[·|]/m); if (m) name = m[1].trim(); }  // "# 호텔이야 · ..."
           const langMap = { '한국어':'ko','일본어':'ja','日本語':'ja','중국어(번체)':'zh-tw','번체':'zh-tw','중국어(간체)':'zh-cn','간체':'zh-cn','베트남어':'vi','영어':'en','english':'en' };
@@ -248,17 +246,21 @@ export default async function handler(req, res) {
           if (!market && language) market = langToMkt[language] || null;       // 없으면 언어에서 유도(구버전 규격 호환)
           m = t.match(/cid\s*=\s*(\d{3,})/i);                                 // "아고다 cid=1932026"
           if (m) cid = m[1];
-          return { name, language, cid, market };
+          return { name, language, cid, market, mdcode };
         };
         const parsed = parseChannelMd(md);
+        // 코드 = §0 "| 코드 |" 우선, 없으면 입력값(보조). 대표님 방식 = md 만 올리면 코드도 자동.
+        const code = String(parsed.mdcode || body.code || '').trim();
         const miss = [];
+        if (!code)            miss.push('코드(§0 | 코드 | 또는 입력)');
+        else if (!/^[A-Za-z0-9_-]{2,20}$/.test(code)) miss.push('코드 형식(영문·숫자·-_ 2~20자)');
         if (!parsed.name)     miss.push('채널 이름');
         if (!parsed.language) miss.push('언어');
         if (!parsed.cid)      miss.push('아고다 cid');
         if (miss.length)
-          return res.status(400).json({ ok: false, error: '규격 md 에서 읽지 못한 항목: ' + miss.join(', ') + ' (§0 채널 정보 표를 확인하세요).', parsed });
+          return res.status(400).json({ ok: false, error: '규격 md 에서 읽지 못한 항목: ' + miss.join(', ') + ' (§0 채널 정보를 확인하세요).', parsed: { code, ...parsed } });
 
-        if (dryRun) return res.status(200).json({ ok: true, dry_run: true, parsed: { code, ...parsed } });
+        if (dryRun) return res.status(200).json({ ok: true, dry_run: true, parsed: { code, name: parsed.name, language: parsed.language, market: parsed.market, cid: parsed.cid } });
 
         // 이미 있는 코드면 막는다(예약·CID 연결 열쇠라 덮어쓰기 위험).
         const { data: dup } = await sb.from('channels').select('code').eq('code', code).maybeSingle();

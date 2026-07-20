@@ -279,6 +279,19 @@ export default async function handler(req, res) {
     return res.status(500).json({ ok: false, error: '서버 설정 오류', detail: String(e.message || e) });
   }
 
+  // ── 캐시: 같은 필터(기간·비교·관리자여부)면 10분간 계산 없이 그대로 준다(무거운 실시간 집계 회피) ──
+  const cacheKey = `${period}|${fromQ || ''}|${toQ || ''}|${wantCompare ? 1 : 0}|${withComm ? 1 : 0}`;
+  const nocache = String((req.query && req.query.nocache) || '') === '1';
+  if (!nocache) {
+    try {
+      const { data: pc } = await sb.from('perf_cache').select('payload, computed_at').eq('cache_key', cacheKey).maybeSingle();
+      if (pc && pc.payload && (Date.now() - new Date(pc.computed_at).getTime() < 10 * 60 * 1000)) {
+        res.setHeader('Cache-Control', 'private, no-store, max-age=0');
+        return res.status(200).json({ ...pc.payload, cached: true });
+      }
+    } catch { /* 캐시 없으면 계산 */ }
+  }
+
   try {
     const { from, to } = periodRange(period, fromQ, toQ);
 
@@ -348,7 +361,7 @@ export default async function handler(req, res) {
     }));
 
     res.setHeader('Cache-Control', 'private, no-store, max-age=0');
-    return res.status(200).json({
+    const __perfPayload = {
       ok: true,
       is_admin: withComm,
       period: { key: period, from, to },
@@ -361,7 +374,11 @@ export default async function handler(req, res) {
       trend: tr,
       videos,
       video_count: videos.length,
-    });
+    };
+    try {
+      await sb.from('perf_cache').upsert({ cache_key: cacheKey, payload: __perfPayload, computed_at: new Date().toISOString() }, { onConflict: 'cache_key' });
+    } catch { /* 캐시 저장 실패해도 응답은 준다 */ }
+    return res.status(200).json(__perfPayload);
   } catch (e) {
     return res.status(500).json({ ok: false, error: '성과표를 불러오지 못했습니다.', detail: String(e.message || e) });
   }

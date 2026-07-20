@@ -18,6 +18,7 @@
 //   신분증: 쿠키 sb-access-token 또는 x-ops-token / 권한: is_editor 이상
 
 import { createClient } from '@supabase/supabase-js';
+import { cacheGet, cacheSet, cacheBust } from './_lib/api-cache.js';
 
 export const config = { maxDuration: 20 };
 
@@ -107,8 +108,16 @@ export default async function handler(req, res) {
   try { sb = admin(); }
   catch (e) { return res.status(500).json({ ok: false, error: '서버 설정 오류', detail: String(e.message || e) }); }
 
+  // 캐시: 쓰기면 이 자원+발행(둘이 공유) 캐시를 지운다. 목록 GET 은 60초 캐시(사용자 필드는 최신 유지).
+  if (req.method !== 'GET') await cacheBust(sb, 'queue:', 'pubs:');
+  const _qKey = `queue:${auth.isAdmin ? 1 : 0}`;
+
   // ── 목록 ──────────────────────────────────────────────────────
   if (req.method === 'GET') {
+    if (!(req.query && req.query.nocache === '1')) {
+      const _hit = await cacheGet(sb, _qKey, 60000);
+      if (_hit) return res.status(200).json({ ..._hit, me: auth.email || null, is_admin: !!auth.isAdmin });
+    }
     const { data, error } = await sb.from('content_queue')
       .select('*')
       .order('priority', { ascending: true })
@@ -146,7 +155,9 @@ export default async function handler(req, res) {
         .select('email, display_name, role').eq('is_active', true).order('email');
       team = adm || [];
     } catch (e) { /* 팀원 목록이 실패해도 카드는 정상 표시 */ }
-    return res.status(200).json({ ok: true, is_admin: !!auth.isAdmin, me: auth.email || null, items: items, team: team });
+    const _qOut = { ok: true, is_admin: !!auth.isAdmin, me: auth.email || null, items: items, team: team };
+    await cacheSet(sb, _qKey, _qOut);
+    return res.status(200).json(_qOut);
   }
 
   // ── 새 카드 담기 (기획대기) — 데이터 기반 입구만 (전략/키워드). 직접 추가 폐기 ──

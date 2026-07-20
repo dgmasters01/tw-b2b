@@ -123,24 +123,19 @@ export default async function handler(req, res) {
     const push = (t) => { t = String(t || '').trim(); if (t && t.includes(cityKo) && !seen.has(t)) { seen.add(t); kept.push(t); } };
     push(seed);
     for (const f of found) push(f);
-    const texts = kept.slice(0, 30);
+    const texts = kept.slice(0, 24);
     if (texts.length < 2) return res.status(200).json({ ok: false, step: 'harvest', error: '자동완성에서 이 도시 검색어를 충분히 못 찾았습니다. 도시명을 확인하세요.' });
 
-    // ㊻ 붙여쓰기 정규화(자동완성 짝 판정): 붙여쓴 형태가 자동완성에 있으면 그걸 쓴다(일반 검색어=붙여쓰기),
-    //    없으면 원형 유지(호텔 고유명 등 = 띄어쓰기). 오사카 데이터와 같은 규칙.
+    // ㊻ 붙여쓰기 정규화(자동완성 짝 판정): 붙여쓴 형태가 자동완성에 살아있으면 그걸 쓴다(일반 검색어=붙여쓰기),
+    //    없으면 원형 유지(호텔 고유명 등 = 띄어쓰기). 오사카 데이터와 같은 규칙. 키워드당 자동완성 1회로 경량화.
     const gl = market.toLowerCase();
     const joinedAlive = async (kw) => {
       const joined = kw.replace(/\s+/g, '');
       if (joined === kw) return null;                       // 이미 붙어있음
-      const toks = kw.split(/\s+/);
-      const seeds = (toks.length > 1 ? [toks.slice(0, -1).join(' ')] : []).concat([joined]);
-      for (const s of seeds) {
-        let sug = [];
-        try { sug = await suggest(s, target, gl); } catch { sug = []; }
-        await politeSleep();
-        if (sug.includes(joined)) return joined;            // 붙여쓴 형태가 살아있다
-      }
-      return null;
+      let sug = [];
+      try { sug = await suggest(joined, target, gl); } catch { sug = []; }
+      await politeSleep();
+      return sug.includes(joined) ? joined : null;          // 붙여쓴 형태가 자동완성에 살아있다
     };
     const seedJoined = seed.replace(/\s+/g, '');
     const normSet = new Set();

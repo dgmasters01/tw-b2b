@@ -564,28 +564,50 @@ async function cities(sb, req, res, who) {
   const keyByLabel = {};
   for (const a of aliases || []) { if (a.label && !keyByLabel[a.label]) keyByLabel[a.label] = a.city_key; }
 
+  // 조사 상태(예약/채우는중/새로완성/완성) — snapshot 으로 판정
+  const { data: snaps2 } = await sb.from('snapshot')
+    .select('city_key, status, acknowledged_at').eq('target_code', target).eq('market', market || 'KR');
+  const snapByKey = {};
+  for (const s of snaps2 || []) { snapByKey[s.city_key] = s; }
+  //   state: none(미조사) · running(예약·봇이 채우는 중) · new_done(새로 완성·확인 대기) · done(완성·확인됨)
+  const stateOf = (cityKey) => {
+    if (!cityKey) return 'none';
+    const s = snapByKey[cityKey];
+    if (!s) return 'running';                 // 발굴만 됨(city_alias 있음) · 아직 측정 스냅샷 없음 = 봇 대기
+    if (s.status !== 'done') return 'running';
+    return s.acknowledged_at ? 'done' : 'new_done';
+  };
+  let newDoneCount = 0;
+  const newDoneList = [];
+
   const byCountry = new Map();
   rows.forEach((r) => {
     const c = r.country || '기타';
     if (!byCountry.has(c)) byCountry.set(c, { country: c, bookings: 0, ours: 0, agoda_total: 0, cities: [] });
     const g = byCountry.get(c);
     g.bookings += r.bookings || 0; g.ours += r.ours || 0; g.agoda_total += r.agoda_total || 0;
+    const ckey = keyByLabel[r.city] || null;
+    const state = stateOf(ckey);
+    if (state === 'new_done') { newDoneCount += 1; newDoneList.push({ name: r.city, country: c, city_key: ckey }); }
     g.cities.push({
       city_id: r.city_id, name: r.city,
-      city_key: keyByLabel[r.city] || null,       // 조사된 도시면 city_key (들어가면 바로 로드)
-      surveyed: !!keyByLabel[r.city],             // 키워드 조사 착수·완료된 도시
-      agoda_total: r.agoda_total,                 // 아고다가 이 도시에서 파는 숙소 전체
-      ours: r.ours,                               // 우리 장부에 있는 곳 = 예약이 붙어본 곳
+      city_key: ckey,
+      surveyed: !!ckey,                           // 조사 착수(발굴)된 도시
+      survey_state: state,                        // none·running·new_done·done
+      agoda_total: r.agoda_total,
+      ours: r.ours,
       share: r.agoda_total ? Math.round(r.ours / r.agoda_total * 1000) / 10 : null,
       undiscovered: r.agoda_total ? Math.max(0, r.agoda_total - r.ours) : null,
       bookings: r.bookings, published: r.published,
-      has_detail: !!r.has_detail,                 // 상세까지 담긴 도시 = **지역 분모까지 가능**
+      has_detail: !!r.has_detail,
     });
   });
   const list = [...byCountry.values()].sort((a, b) => b.bookings - a.bookings);
   res.setHeader('Cache-Control', 'private, no-store, max-age=0');
   return res.status(200).json({
     ok: true, view: 'cities', target,
+    new_done: newDoneCount,                         // 새로 완성·확인 대기 도시 수 (배지)
+    new_done_list: newDoneList,                      // 그 도시들 [{name, country, city_key}]
     countries: list,
     totals: { countries: list.length, cities: rows.length,
       agoda_total: rows.reduce((s2, r) => s2 + (r.agoda_total || 0), 0),
@@ -643,8 +665,25 @@ async function targets(sb, req, res) {
 export default async function handler(req, res) {
   const who = await authorized(req);
   if (!who.ok) return res.status(401).json({ ok: false, error: '로그인이 필요합니다.' });
+
+  // 확인 처리: 새로 완성된 도시를 "확인함"으로(배지에서 뺀다). POST ?action=ack (body city_key 없으면 전체).
+  if (req.method === 'POST' && String(req.query.action || '') === 'ack') {
+    let sbA; try { sbA = admin(); } catch (e) { return res.status(500).json({ ok: false, error: String(e.message || e) }); }
+    const target = String(req.query.target || 'ko');
+    const market = String(req.query.market || 'KR');
+    let body = {};
+    try { body = typeof req.body === 'object' && req.body ? req.body : JSON.parse(req.body || '{}'); } catch { body = {}; }
+    const cityKey = body.city_key ? String(body.city_key) : null;
+    let q = sbA.from('snapshot').update({ acknowledged_at: new Date().toISOString() })
+      .eq('target_code', target).eq('market', market).eq('status', 'done').is('acknowledged_at', null);
+    if (cityKey) q = q.eq('city_key', cityKey);
+    const { error } = await q;
+    if (error) return res.status(500).json({ ok: false, error: error.message });
+    return res.status(200).json({ ok: true });
+  }
+
   if (req.method !== 'GET') {
-    res.setHeader('Allow', 'GET');
+    res.setHeader('Allow', 'GET, POST');
     return res.status(405).json({ ok: false, error: 'GET 만 지원합니다.' });
   }
 

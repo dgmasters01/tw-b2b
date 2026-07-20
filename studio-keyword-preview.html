@@ -729,9 +729,10 @@ async function surveyNow(cityKo){
     if(!h.ok && !h.already){ say('조사 준비 실패: '+(h.error||'')); return; }
     var ck=h.city_key;
     var round=0, guard=0;
-    while(guard++<8){
-      say('② 측정 중 — 트렌드·경쟁을 재는 중… <b>'+(round?round+'회차 완료':'시작')+'</b><br><span style="font-size:11px;color:var(--muted);">한 회차에 몇 분 걸립니다. 창을 두셔도 뒤에서 계속됩니다.</span>');
-      var m=await post({step:'measure',city_key:ck,target:'ko',market:'KR'});
+    while(guard++<12){
+      say('② 측정 중 — 트렌드·경쟁을 재는 중… <b>'+(round?round+'회차 완료':'시작')+'</b><br><span style="font-size:11px;color:var(--muted);">한 회차에 1~2분. 창을 두셔도 뒤에서 계속됩니다.</span>');
+      var m=await fetch('/api/cron/kw-survey?city='+encodeURIComponent(ck)+'&target=ko&market=KR&limit=8',
+                        {credentials:'same-origin', headers: hd||{}}).then(function(r){return r.json();});
       round++;
       if(!m.ok){ say('측정 실패: '+(m.error||'')+'<br>남은 건 새벽 봇이 이어서 끝냅니다.'); return; }
       if(m.done){ break; }

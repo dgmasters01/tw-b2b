@@ -844,7 +844,7 @@
   <div class="st-head">
     <div>
       <h1 class="st-title">스튜디오</h1>
-      <div class="st-sub" id="st-who">불러오는 중…</div>
+      <div class="st-sub" id="st-who" style="display:none"></div>
     </div>
     <div style="display:flex; gap:8px; align-items:center">
       <a class="st-copy" id="st-admin" href="/admin.html" style="text-decoration:none; display:none">관리자</a>
@@ -1747,7 +1747,7 @@
       ME_OWNER = !!j.is_owner;
       ME_ROLE = j.role || 'editor';
       var wait = rows.filter(function (r) { return r.status === 'draft'; }).length;
-      document.getElementById('st-who').textContent = (ME || '');
+      // 헤더 이메일 표시 제거 (로그인 상태는 관리자·로그아웃 버튼으로 충분 · 대표님)
       if (j.is_admin) { document.getElementById('st-admin').style.display = ''; }
       drawFilters(); render(); updateDriveCounts();
     }).catch(function (e) {

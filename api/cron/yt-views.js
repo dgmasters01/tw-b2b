@@ -18,7 +18,28 @@ import { fetchYtStats, ytKey } from '../_lib/youtube-stats.js';
 
 export const config = { maxDuration: 60 };
 
-const CACHE_HOURS = 24; // 이 시간 안에 이미 잰 건 다시 안 잰다 (force 면 무시)
+const CACHE_HOURS = 24; // (구) 이 시간 안에 이미 잰 건 다시 안 잰다 — 이제 next_fetch_at 로 대체(D-059)
+
+// ── D-059: 영상 나이별 다음 수집 시각 ──────────────────────────────
+//   첫날: 발행 +3h·+12h·+24h / 1일~1개월: 주1회(월요일 05시 KST) / 1개월+: 월1회(1일 05시 KST)
+const KST = 9 * 3600 * 1000;
+function kstParts(ms) { const d = new Date(ms + KST); return { y: d.getUTCFullYear(), m: d.getUTCMonth(), day: d.getUTCDate(), dow: d.getUTCDay() }; }
+function utcFromKst(y, m, day, hh) { return Date.UTC(y, m, day, hh, 0, 0) - KST; }
+function computeNextFetch(publishedMs, nowMs) {
+  const H = 3600 * 1000, D = 24 * H;
+  const age = nowMs - publishedMs;
+  if (age < 3 * H) return publishedMs + 3 * H;      // +3h
+  if (age < 12 * H) return publishedMs + 12 * H;    // +12h
+  if (age < 24 * H) return publishedMs + 24 * H;    // +24h
+  const p = kstParts(nowMs);
+  if (age < 30 * D) {                                // 주1회 = 다음 월요일 05시 KST
+    let add = (8 - p.dow) % 7; if (add === 0) add = 7;
+    const t = kstParts(nowMs + add * D);
+    return utcFromKst(t.y, t.m, t.day, 5);
+  }
+  let ny = p.y, nm = p.m + 1; if (nm > 11) { nm = 0; ny++; }   // 월1회 = 다음달 1일 05시 KST
+  return utcFromKst(ny, nm, 1, 5);
+}
 
 function authed(req) {
   const h = req.headers || {};
@@ -49,16 +70,17 @@ export default async function handler(req, res) {
 
   // 발행됐고 영상 ID 가 있는 원고만
   const { data: rows, error } = await sb.from('publications')
-    .select('id, code, youtube_video_id, view_count, view_count_at')
+    .select('id, code, youtube_video_id, view_count, view_count_at, next_fetch_at, published_at')
     .eq('status', 'published')
     .not('youtube_video_id', 'is', null);
   if (error) return res.status(500).json({ ok: false, error: error.message });
 
   const now = Date.now();
+  // D-059: 이번에 잴 대상 = next_fetch_at 이 지났거나(<=now) 아직 예약이 없는(첫 수집) 영상
   const stale = (rows || []).filter(function (r) {
     if (force) return true;
-    if (!r.view_count_at) return true;
-    return (now - new Date(r.view_count_at).getTime()) >= CACHE_HOURS * 3600 * 1000;
+    if (!r.next_fetch_at) return true;
+    return new Date(r.next_fetch_at).getTime() <= now;
   });
 
   if (dry) {
@@ -71,7 +93,7 @@ export default async function handler(req, res) {
   }
 
   if (!stale.length) {
-    return res.status(200).json({ ok: true, checked: (rows || []).length, updated: 0, note: '24h 안에 이미 최신 — 갱신할 것 없음' });
+    return res.status(200).json({ ok: true, checked: (rows || []).length, updated: 0, note: '예약된 수집 시각(next_fetch_at)이 아직 안 됨' });
   }
 
   // ID → publication id 되찾기용
@@ -89,13 +111,16 @@ export default async function handler(req, res) {
   for (const r of stale) {
     const st = stats[r.youtube_video_id];
     if (!st) { notFound.push(r.code || r.youtube_video_id); continue; } // 비공개·삭제·오타
+    const pubMs = r.published_at ? new Date(r.published_at).getTime() : (r.view_count_at ? new Date(r.view_count_at).getTime() : now);
+    const nextAt = new Date(computeNextFetch(pubMs, now)).toISOString();
     const { error: uerr } = await sb.from('publications').update({
       view_count: st.view_count,
       like_count: st.like_count,
       comment_count: st.comment_count,
       view_count_at: nowIso,
+      next_fetch_at: nextAt,
     }).eq('id', r.id);
-    if (!uerr) { updated++; if (samples.length < 5) samples.push({ code: r.code, view_count: st.view_count }); }
+    if (!uerr) { updated++; if (samples.length < 5) samples.push({ code: r.code, view_count: st.view_count, next: nextAt.slice(0, 16) }); }
   }
 
   return res.status(200).json({

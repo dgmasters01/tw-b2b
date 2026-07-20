@@ -2743,7 +2743,7 @@
     if (h.htype) geo.push('<span class="st-ht-tag' + (h.htype === '리조트' ? ' resort' : '') + '">' + esc(h.htype) + '</span>');
     var geoLine = geo.length ? '<div class="st-ht-geoline">' + geo.join('') + '</div>' : '';
     var enLine = en ? '<div class="st-ht-en">' + esc(en) + '</div>' : '';
-    var recent = h.last_exposure ? '<span class="st-ht-recent"><i class="ti ti-clock" style="font-size:11px"></i> 최근 소개 ' + esc(String(h.last_exposure).slice(0, 7)) + '</span>' : '';
+    var recent = h.last_exposure ? '<span class="st-ht-recent"><i class="ti ti-clock" style="font-size:11px"></i> 최근 소개 ' + esc(String(h.last_exposure).slice(0, 10)) + '</span>' : '';
     var perf =
       '<div class="st-ht-perf">' +
         '<div class="st-ht-grp"><span class="st-ht-dim">소개</span> ' + chLbl + ' <span class="st-ht-dim">·</span> <span class="st-ht-top">' + htRank(h.best_rank) + '</span> <span class="st-ht-dim">·</span> ' + (h.exposure_count || 0) + '회</div>' +

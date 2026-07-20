@@ -566,7 +566,7 @@ const MARKET_NAME = { KR: '한국', JP: '일본', TW: '대만', VN: '베트남',
 
 async function targets(sb, req, res) {
   const [chRes, kwRes, snRes] = await Promise.all([
-    sb.from('channels').select('code, name, language, is_active').eq('is_active', true),
+    sb.from('channels').select('code, name, language, market, is_active').eq('is_active', true),
     sb.from('keyword').select('target_code'),
     sb.from('snapshot').select('target_code, market, ym'),
   ]);
@@ -582,10 +582,11 @@ async function targets(sb, req, res) {
     const l = c.language;
     if (!byLang.has(l)) byLang.set(l, { code: l, channels: [], keywords: 0, market: null });
     byLang.get(l).channels.push(c.name);
+    if (!byLang.get(l).market && c.market) byLang.get(l).market = c.market;  // 채널이 정한 시장(대표님이 §0/편집에서 지정)
   });
   const list = [...byLang.values()].map((t) => {
     t.keywords = kwCount[t.code] || 0;
-    t.market = mk[t.code] || null;                       // 조사가 정한다. 없으면 모른다
+    t.market = mk[t.code] || t.market || null;           // 조사 우선, 없으면 채널이 정한 시장
     t.label = (LANG_NAME[t.code] || t.code) + ' · ' + (t.market ? (MARKET_NAME[t.market] || t.market) : '시장 미정');
     t.surveyed = t.keywords > 0;
     return t;

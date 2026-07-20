@@ -112,19 +112,19 @@ export default async function handler(req, res) {
     }
 
     // 오사카 구조 그대로: 여행 축 + 숙박 축, 띄어쓰기 메인 + 붙여쓰기 짝.
+    // 숙박이 주력 → 숙박 씨앗 먼저(구글 제한 전에), 여행은 하나만. 호출 수를 줄여 429 회피.
     const gl = market.toLowerCase();
     const seeds = [
-      { q: `${cityKo} 여행`, axis: 'travel' },
-      { q: `${cityKo} 자유여행`, axis: 'travel' },
       { q: `${cityKo} 호텔`, axis: 'stay' },
       { q: `${cityKo} 숙소`, axis: 'stay' },
+      { q: `${cityKo} 여행`, axis: 'travel' },
     ];
-    const joinedSeeds = [`${cityKo}호텔`, `${cityKo}숙소`, `${cityKo}여행`];
+    const joinedSeeds = [`${cityKo}호텔`, `${cityKo}숙소`];
     const seen = new Set();
     const mains = [];          // { text(띄어쓰기), axis }
     const joinedSet = new Set();
     try {
-      for (const s of seeds) {                 // 띄어쓴 메인 발굴
+      for (const s of seeds) {                 // 띄어쓴 메인 발굴 (숙박 먼저)
         let f = [];
         try { f = await harvest(s.q, 1, target, gl); } catch { f = []; }
         for (const t0 of [s.q].concat(f)) {
@@ -140,6 +140,11 @@ export default async function handler(req, res) {
     } catch (e) { return res.status(200).json({ ok: false, step: 'harvest', error: '발굴 실패: ' + String(e.message || e) }); }
     if (mains.length < 2) return res.status(200).json({ ok: false, step: 'harvest', error: '자동완성에서 이 도시 검색어를 충분히 못 찾았습니다. 도시명을 확인하세요.' });
 
+    // 축별 상한: 숙박 28 · 여행 8 (숙박 주력)
+    const stayMains = mains.filter((m) => m.axis === 'stay').slice(0, 28);
+    const travelMains = mains.filter((m) => m.axis === 'travel').slice(0, 8);
+    const capped = stayMains.concat(travelMains);
+
     // 일반 검색어 판별 (호텔 고유명과 가르기)
     const GENERIC = ['호텔','숙소','추천','가성비','조식','위치','온천','대욕장','뷔페','뷰페','가족','여행','자유여행','코스','여행지','커플','아이','뷰','야경','시내','역','근처','저렴','예약','후기','비즈니스','료칸','게스트하우스','민박','캡슐','펜션','리조트','전망','오션뷰','금연','흡연','주차','조용한','신상','신축','중심','번화가','베스트','인기','럭셔리','고급','수영장','노천탕','객실','일정','당일치기','자유','관광'];
     const isGeneric = (term) => {
@@ -154,7 +159,7 @@ export default async function handler(req, res) {
     const base = { target_code: target, market, country, city_key: ck, alive: true, source: 'harvest-now', alive_source: 'suggest', created_at: now, last_seen_at: now };
     const pushed = new Set();
     const rows = [];
-    for (const m of mains.slice(0, 44)) {
+    for (const m of capped) {
       if (pushed.has(m.text)) continue; pushed.add(m.text);
       const isAnchor = m.text === anchorText;
       const kind = isAnchor ? 'city_head' : (isGeneric(m.text) ? 'city_sub' : 'hotel');

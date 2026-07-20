@@ -21,11 +21,24 @@ export const config = { maxDuration: 300 };
 
 const PER_RUN = 15;   // 한 회차에 재는 검색어 수 (앵커 포함) — 회차당 ~4분 안에 끝나게
 
-function authed(req) {
+async function authOK(req) {
   const h = req.headers || {};
   const cron = process.env.CRON_SECRET, ops = process.env.CLAUDE_OPS_TOKEN;
   if (cron && (h['authorization'] || '') === 'Bearer ' + cron) return true;
   if (ops && (h['x-ops-token'] || '') === ops) return true;
+  // 브라우저 세션(is_editor 이상)도 허용 — "지금 조사하기"가 측정을 직접 부른다(이중 함수 호출 제거).
+  const SUPA = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const ANON = process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_PUBLISHABLE_KEY;
+  let token = null;
+  const auth = h['authorization'] || '';
+  if (auth.startsWith('Bearer ')) token = auth.slice(7);
+  if (!token) { const raw = h['cookie'] || ''; for (const part of raw.split(';')) { const i = part.indexOf('='); if (i > 0 && part.slice(0, i).trim() === 'sb-access-token') { token = decodeURIComponent(part.slice(i + 1).trim()); break; } } }
+  if (token && SUPA && ANON) {
+    try {
+      const r = await fetch(`${SUPA}/rest/v1/rpc/is_editor`, { method: 'POST', headers: { Authorization: `Bearer ${token}`, apikey: ANON, 'Content-Type': 'application/json' }, body: '{}' });
+      if (r.ok && (await r.json()) === true) return true;
+    } catch { /* 무시 */ }
+  }
   return false;
 }
 function admin() {
@@ -37,7 +50,7 @@ function admin() {
 function ymKst() { return new Date(Date.now() + 9 * 3600 * 1000).toISOString().slice(0, 7); }
 
 export default async function handler(req, res) {
-  if (!authed(req)) return res.status(401).json({ ok: false, error: 'unauthorized' });
+  if (!(await authOK(req))) return res.status(401).json({ ok: false, error: 'unauthorized' });
 
   const dry = req.query.dry_run === '1' || req.query.dry_run === 'true';
   let cityKey = req.query.city ? String(req.query.city) : null;

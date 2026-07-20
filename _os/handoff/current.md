@@ -43,7 +43,7 @@
   - 새 채널 = **md만 업로드**(코드 입력 제거, §0에서 코드·이름·언어·시장·CID 자동). 미리보기에 시장 포함.
   - **API 창구** `api/channels.js`: GET 에 market·확정예약(취소제외·뷰 `v_cid_bookings`)·규격존재(has_spec/spec_file) + `?spec=CODE`(admin 규격 .md 내용). register_from_md 파서가 §0 코드·시장까지 읽음.
   - 검증: JS 문법 0오류 · jsdom 렌더 11/11(관리자·일반직원) · kw-visible-check 통과 · 라이브 ?spec=TW 규격 9,059자 정상.
-  - 🔴 남음: 실제 로그인해 눈으로 확인(302 게이트라 curl 불가). CID 실제 제거(retire) UI는 이번 재설계에서 뺌(원칙=제거는 잘못 등록만) — 필요 시 admin 소형 액션 추가.
+  - ✅ **화면 정리 5건(대표님 2026-07-19)** studio `acd2162f`·content-keywords `9b97d8ec`·kw-preview `c409782e`: ①헤더 이메일 옆 "대기 N·발행 N" 제거(st-who) ②키워드 타겟 "시장 미정" 해결 — `targets()`가 channels.market 읽음(조사 없어도 채널 시장 표시: 영어·미국/일본어·일본/중국어번체·대만/베트남어·베트남) ③키워드 "D-065 확정본…목업 배지" 힌트 제거(직접·마커 밖) ④키워드 "지금 만들면 3달 뒤 노출…3,828건" 배너 제거(preview 원본→포팅) ⑤성과표 서브 "채널 N·영상 N·예약 N건" 제거. 검증: kw-visible-check 통과·문법 0오류·타겟 API 실시장 확인.
 - 🔴 **다음**: 대표님 폰 확인 → 확정/수정 → studio.html view-channels 적용(loadChannels/chCard ~3255·3422). 이때 studio.html 의 기존 [폐기] 라벨도 CID 원칙대로 상태배지로 교체(D-064 후속 "폐기 라벨→상태배지" = 이 작업).
 - 🟡 실데이터 확인: CID 전부 is_active=true(라벨 old/new/main 로만 구분) · 규격 .md = 호텔이야·여행능력자들·호텔이곳 3개만 존재.
 

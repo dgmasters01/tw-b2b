@@ -25,8 +25,25 @@
 //   화면이 보내는 말은 믿지 않는다 (publications.js 와 같은 원칙).
 
 import { createClient } from '@supabase/supabase-js';
+import { readFile, access } from 'node:fs/promises';
+import { join } from 'node:path';
 
 export const config = { maxDuration: 30 };
+
+// 규격(.md)은 _content/youtube/{채널명}.md 파일. loadRules 와 같은 위치를 본다.
+const SPEC_ROOTS = [join(process.cwd(), '_content', 'youtube'), join(process.cwd(), '..', '_content', 'youtube')];
+async function specPathOf(name) {
+  for (const root of SPEC_ROOTS) {
+    const p = join(root, `${name}.md`);
+    try { await access(p); return p; } catch { /* 없음 */ }
+  }
+  return null;
+}
+async function readSpecOf(name) {
+  const p = await specPathOf(name);
+  if (!p) return null;
+  try { return await readFile(p, 'utf8'); } catch { return null; }
+}
 
 const SUPABASE_URL = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
 const SUPABASE_ANON = process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_PUBLISHABLE_KEY;
@@ -314,15 +331,24 @@ export default async function handler(req, res) {
   }
 
   try {
-    // 1) 채널 레지스트리 (표시 순서대로)
+    // ── ?spec=CODE : 그 채널 규격 .md 내용 (규격 보기 · 최고관리자만) ──
+    if (req.query.spec) {
+      if (!who.isAdmin) return res.status(403).json({ ok: false, error: '규격 열람은 최고관리자만 가능합니다.' });
+      const { data: chOne } = await sb.from('channels').select('code, name').eq('code', String(req.query.spec)).maybeSingle();
+      if (!chOne) return res.status(404).json({ ok: false, error: '그런 채널이 없습니다.' });
+      const md = await readSpecOf(chOne.name);
+      return res.status(200).json({ ok: true, code: chOne.code, name: chOne.name, has_spec: !!md, spec: md || null });
+    }
+
+    // 1) 채널 레지스트리 (표시 순서대로) — market 포함
     const { data: channels, error: chErr } = await sb
       .from('channels')
-      .select('code, name, name_en, language, platform, has_agoda_api, agoda_site_id, is_active, display_order, notes')
+      .select('code, name, name_en, language, market, platform, has_agoda_api, agoda_site_id, is_active, display_order, notes')
       .order('display_order', { ascending: true })
       .order('code', { ascending: true });
     if (chErr) throw chErr;
 
-    // 2) CID 매핑 (채널별로 묶는다 — CID 는 아고다 예약↔채널 연결 키)
+    // 2) CID 매핑
     const { data: cids, error: cidErr } = await sb
       .from('channel_cid_map')
       .select('cid, channel_code, cid_label, is_active')
@@ -330,14 +356,33 @@ export default async function handler(req, res) {
       .order('cid', { ascending: true });
     if (cidErr) throw cidErr;
 
+    // 3) CID별 확정/취소 예약 (뷰 v_cid_bookings) — 취소 제외 확정이 성과 기준
+    const { data: bk } = await sb.from('v_cid_bookings').select('cid, confirmed, cancelled');
+    const bkByCid = {};
+    for (const b of bk || []) bkByCid[b.cid] = { confirmed: Number(b.confirmed) || 0, cancelled: Number(b.cancelled) || 0 };
+
     const byChannel = {};
     for (const c of cids || []) {
+      const b = bkByCid[c.cid] || { confirmed: 0, cancelled: 0 };
       (byChannel[c.channel_code] = byChannel[c.channel_code] || []).push({
         cid: c.cid, cid_label: c.cid_label, is_active: c.is_active,
+        confirmed: b.confirmed, cancelled: b.cancelled,
       });
     }
 
-    const out = (channels || []).map((ch) => ({ ...ch, cids: byChannel[ch.code] || [] }));
+    // 4) 규격(.md) 존재 여부 (채널명 기준 파일)
+    const out = [];
+    for (const ch of channels || []) {
+      const cidList = byChannel[ch.code] || [];
+      const confirmed = cidList.reduce((s, x) => s + (x.confirmed || 0), 0);
+      const cancelled = cidList.reduce((s, x) => s + (x.cancelled || 0), 0);
+      const specFile = await specPathOf(ch.name);
+      out.push({
+        ...ch, cids: cidList,
+        bookings_confirmed: confirmed, bookings_cancelled: cancelled,
+        has_spec: !!specFile, spec_file: specFile ? `${ch.name}.md` : null,
+      });
+    }
 
     return res.status(200).json({
       ok: true,

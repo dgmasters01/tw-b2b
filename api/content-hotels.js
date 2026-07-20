@@ -18,6 +18,7 @@
 //   수수료·거래액은 뷰에 아예 없다(스튜디오는 수수료 안 봄) → 화면에 나올 수 없다.
 
 import { createClient } from '@supabase/supabase-js';
+import { cacheGet, cacheSet } from './_lib/api-cache.js';
 
 export const config = { maxDuration: 30 };
 
@@ -80,6 +81,13 @@ export default async function handler(req, res) {
     sb = admin();
   } catch (e) {
     return res.status(500).json({ ok: false, error: '서버 설정 오류', detail: String(e.message || e) });
+  }
+
+  // 캐시: 같은 요청이면 즉시 준다(호텔은 조회 전용 · 5분). 예약·발행이 바뀌면 5분 안에 반영.
+  const _ck = `hotels:${(req.query && req.query.hid) || 'list'}:${JSON.stringify(req.query || {})}:${who.isAdmin ? 1 : 0}`;
+  if (!(req.query && req.query.nocache === '1')) {
+    const _hit = await cacheGet(sb, _ck, 300000);
+    if (_hit) { res.setHeader('Cache-Control', 'private, no-store, max-age=0'); return res.status(200).json({ ..._hit, cached: true }); }
   }
 
   // ── 호텔 상세 (hid 지정 시) — D-062 ①노출이력 ④예약·방문·취소·노쇼 ⑤리드타임 + 개별예약 ──
@@ -269,7 +277,9 @@ export default async function handler(req, res) {
     });
 
     res.setHeader('Cache-Control', 'private, no-store, max-age=0');
-    return res.status(200).json({ ok: true, is_admin: !!who.isAdmin, hotels });
+    const _out = { ok: true, is_admin: !!who.isAdmin, hotels };
+    await cacheSet(sb, _ck, _out);
+    return res.status(200).json(_out);
   } catch (e) {
     return res.status(500).json({ ok: false, error: '호텔 성과를 불러오지 못했습니다.', detail: String(e.message || e) });
   }

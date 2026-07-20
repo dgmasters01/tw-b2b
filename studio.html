@@ -3869,9 +3869,11 @@ function invLine(x){
     +(v.has_detail?'':' <span class="pil" style="background:var(--amd);color:var(--am);">도시 개수만 · 지역별은 아직</span>')
     +'</div>';
 }
-function loadSnap(){
+var SVCITY='오사카', SVKEY='cc:japan|osaka';   /* 지금 화면에 올라온 조사 도시 (도시 축) */
+function loadSnap(key, name){
+  key=key||SVKEY; name=name||SVCITY;
   return authHeader().then(function(hd){
-  return fetch('/api/content-keywords?view=survey&target='+TGT+'&city='+encodeURIComponent('cc:japan|osaka'),
+  return fetch('/api/content-keywords?view=survey&target='+TGT+'&city='+encodeURIComponent(key),
                {credentials:'same-origin', headers: hd || {}})
     .then(function(r){return r.json();})
     .then(function(d){
@@ -3879,15 +3881,15 @@ function loadSnap(){
          화면은 "조사 결과를 불러오는 중…" 을 **영원히** 띄웠다 = 거짓말.
          프리뷰 페이지는 로그인 없이 열리지만(200) **창구는 로그인을 요구한다**(401). */
       if(!d || !d.ok){ SVERR = (d && d.error) || '조사를 불러오지 못했습니다'; rdd(cy||'오사카'); return; }
-      SV = d; SVERR = null;
+      SV = d; SVERR = null; SVCITY = name; SVKEY = key;
       if(!d.months) return;                                   /* 조사 결과 전부 보관 — 화면들이 여기서 꺼내 쓴다 */
       d.months.forEach(function(m){ SNAP[m]=true; });
-      if(d.city_key){ SNAP_CITY['오사카']=true; }   /* TODO 도시축 붙으면 창구가 도시 목록을 준다 */
+      if(d.city_key || (d.months&&d.months.length)){ SNAP_CITY[name]=true; }   /* 이 도시 조사됨 표시 */
       /* 잠금이 풀리는 때 = **다음 조사**(두 번째 점이 찍히는 달). 창구가 이미 계산해서 준다.
          🔴 마지막 조사 월(2026-07)을 쓰면 "이미 지난 달부터 열림" 이라는 거짓말이 된다. */
       SNAP_FROM = (d.layer3 && d.layer3.next_ym) || SNAP_FROM;
       rd();
-      if(cy==='오사카' && document.getElementById('d3l')) rdd('오사카');   /* 조사 결과가 오면 다시 그린다 */
+      if(cy===name && document.getElementById('d3l')) rdd(name);   /* 조사 결과가 오면 다시 그린다 */
     }).catch(function(e){ SVERR='조사를 불러오지 못했습니다 — '+(e.message||e); rdd(cy||'오사카'); });
   });
 }
@@ -4131,8 +4133,32 @@ function travelBlock(){
   return h+'</div>';
 }
 
+async function surveyNow(cityKo){
+  var box=document.getElementById('d3l'); if(!box) return;
+  function say(m){ box.innerHTML='<div class="wn">'+m+'</div>'; }
+  say('① 발굴 중 — 자동완성으로 <b>'+cityKo+'</b> 검색어를 모으는 중…');
+  try{
+    var hd=await authHeader();
+    var H=Object.assign({'Content-Type':'application/json'}, hd||{});
+    var post=function(bd){ return fetch('/api/kw-survey-now',{method:'POST',credentials:'same-origin',headers:H,body:JSON.stringify(bd)}).then(function(r){return r.json();}); };
+    var h=await post({step:'harvest',city_ko:cityKo,target:'ko',market:'KR'});
+    if(!h.ok && !h.already){ say('조사 준비 실패: '+(h.error||'')); return; }
+    var ck=h.city_key;
+    var round=0, guard=0;
+    while(guard++<8){
+      say('② 측정 중 — 트렌드·경쟁을 재는 중… <b>'+(round?round+'회차 완료':'시작')+'</b><br><span style="font-size:11px;color:var(--muted);">한 회차에 몇 분 걸립니다. 창을 두셔도 뒤에서 계속됩니다.</span>');
+      var m=await post({step:'measure',city_key:ck,target:'ko',market:'KR'});
+      round++;
+      if(!m.ok){ say('측정 실패: '+(m.error||'')+'<br>남은 건 새벽 봇이 이어서 끝냅니다.'); return; }
+      if(m.done){ break; }
+    }
+    say('✓ <b>'+cityKo+'</b> 조사 완료! 결과를 불러옵니다…');
+    await loadSnap(ck, cityKo);
+    rdd(cityKo);
+  }catch(e){ say('오류: '+(e.message||e)); }
+}
 function rdd(c){cy=c;document.getElementById('d3t').innerHTML=c+' · 키워드 구조 <span class="no">3-1~3-5</span>';
- if(c!=='오사카'){document.getElementById('d3l').innerHTML='<div class="wn">이 도시는 <b>키워드 조사가 안 된 도시</b> 모른다고 비워두거나 지어내지 않고, 모른다고 표시합니다.<br><br><span class="btn" onclick="ts(\'조사 시작 — 자동완성+트렌드 앵커 묶음\')">＋ 지금 조사하기</span></div>';return;}
+ if(c!==SVCITY){ var done=SNAP_CITY[c]; document.getElementById('d3l').innerHTML='<div class="wn">이 도시는 <b>키워드 조사가 안 된 도시</b> 모른다고 비워두거나 지어내지 않고, 모른다고 표시합니다.<br><br><span class="btn" onclick="surveyNow(\''+c+'\')">＋ 지금 조사하기</span>'+(done?' <span class="btn" onclick="loadSnap(null,\''+c+'\').then(function(){rdd(\''+c+'\');})">결과 보기</span>':'')+'</div>'; if(done){ /* 이미 조사된 도시면 자동으로 그 도시 데이터 로드 */ } return;}
  /* D-065 ⑬·㊼-4 확정: **재기는 살아있는 것 전부 / 보기만 상위 30 / 태그엔 전부.**
     🔴 옛 코드는 `KW` 배열 9개가 **박혀 있었다** — 인계서가 "[상위 30 더보기]가 5→9만 됨(거짓말)" 이라 적은 그것.
     이제 창구(?view=survey)가 준 **숙박 축 상위 30**을 그린다. 숫자를 박지 않는다. */

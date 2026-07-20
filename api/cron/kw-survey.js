@@ -62,18 +62,57 @@ export default async function handler(req, res) {
   let sb;
   try { sb = admin(); } catch (e) { return res.status(500).json({ ok: false, error: String(e.message || e) }); }
 
-  // 도시 명시 안 하면(=크론 자동): 살아있는 검색어가 있는 도시 중 이번 달 조사가 안 끝난 첫 도시.
-  //   전부 완료(예: 오사카 done)면 아무것도 안 한다 — 완료된 실데이터 안 건드린다.
+  // 도시 명시 안 하면(=크론 자동): BL-KW-AUTO-CYCLE (D-069)
+  //   ① 측정할 도시: 살아있는 검색어 있고 이번 달 snapshot != done. 우선순위 = 대표님 선택(harvest-now) > 예약 많은 순.
+  //   ② 측정할 게 없으면 → 예약 많은 미조사 도시 1곳을 발굴(harvest). 다음 회차부터 자동 측정.
+  //   → 대표님이 아무것도 안 해도 예약 순으로 계속 돈다. 「지금 조사하기」는 새치기.
   if (!cityKey) {
-    const { data: ck } = await sb.from('keyword').select('city_key')
+    // 예약 지도: city_key → 우리 예약 건수 (city_alias label ↔ v_city_inventory)
+    const { data: aliasRows } = await sb.from('city_alias').select('label, city_key').eq('target_code', target);
+    const labelByKey = {}; const surveyedLabels = new Set();
+    for (const a of aliasRows || []) { if (!labelByKey[a.city_key]) labelByKey[a.city_key] = a.label; surveyedLabels.add(a.label); }
+    const { data: invRows } = await sb.from('v_city_inventory').select('city, country, bookings').eq('target_code', target);
+    const bookingsByLabel = {};
+    for (const r of invRows || []) { bookingsByLabel[r.city] = r.bookings || 0; }
+    const bookingsOfKey = (k) => bookingsByLabel[labelByKey[k]] || 0;
+
+    // 측정 미완 도시 (선택 우선)
+    const { data: aliveCk } = await sb.from('keyword').select('city_key, source')
       .eq('target_code', target).eq('market', market).eq('alive', true);
-    const uniq = [...new Set((ck || []).map((c) => c.city_key))];
-    for (const c of uniq) {
-      const { data: s } = await sb.from('snapshot').select('id, status')
+    const nowSel = new Set(); const allKeys = new Set();
+    for (const r of aliveCk || []) { allKeys.add(r.city_key); if (r.source === 'harvest-now') nowSel.add(r.city_key); }
+    const pendingCities = [];
+    for (const c of allKeys) {
+      const { data: s } = await sb.from('snapshot').select('status')
         .eq('target_code', target).eq('market', market).eq('city_key', c).eq('ym', ym).maybeSingle();
-      if (!s || s.status !== 'done') { cityKey = c; break; }
+      if (!s || s.status !== 'done') pendingCities.push(c);
     }
-    if (!cityKey) return res.status(200).json({ ok: true, idle: true, ym, note: '이번 달 조사할 도시 없음 (전부 완료). 새 도시는 발굴 후 합류.' });
+    if (pendingCities.length) {
+      pendingCities.sort((a, b) => {
+        const pa = nowSel.has(a) ? 1 : 0, pb = nowSel.has(b) ? 1 : 0;
+        if (pa !== pb) return pb - pa;                    // 대표님 선택 먼저
+        return bookingsOfKey(b) - bookingsOfKey(a);        // 그 다음 예약 많은 순
+      });
+      cityKey = pendingCities[0];
+    } else {
+      // 측정할 게 없다 → 예약 많은 미조사 도시 1곳 발굴 (kw-survey-now 재사용)
+      const next = (invRows || [])
+        .filter((r) => !surveyedLabels.has(r.city) && (r.bookings || 0) > 0)
+        .sort((a, b) => (b.bookings || 0) - (a.bookings || 0))[0];
+      if (!next) return res.status(200).json({ ok: true, idle: true, ym, note: '측정·발굴할 도시 없음 (전부 완료).' });
+      const ops = process.env.CLAUDE_OPS_TOKEN;
+      const site = process.env.SITE_URL || 'https://gohotelwinners.com';
+      try {
+        const hr = await fetch(`${site}/api/kw-survey-now`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json', 'x-ops-token': ops || '' },
+          body: JSON.stringify({ step: 'harvest', city_ko: next.city, country_ko: next.country, target, market }),
+        });
+        const hj = await hr.json();
+        return res.status(200).json({ ok: true, cycle: 'harvest', harvested_city: next.city, bookings: next.bookings, result: hj, note: '새 도시 발굴 완료 · 다음 회차부터 자동 측정' });
+      } catch (e) {
+        return res.status(200).json({ ok: false, cycle: 'harvest', error: '발굴 실패: ' + String(e.message || e) });
+      }
+    }
   }
   // 살아있는 검색어 (앵커 먼저)
   const { data: kws, error: kErr } = await sb.from('keyword')

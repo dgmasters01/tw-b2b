@@ -50,6 +50,14 @@
 - ✅ **오사카 구조 재현 + 도시 자동로드(대표님 "오사카 형태처럼·들어가면 바로 떠야")**: 앞의 "붙여쓰기 통일"은 오답이었음. 오사카 실구조 = **여행 축(axis=travel) + 숙박 축(axis=stay), 띄어쓰기 메인(kind=city_head/city_sub/hotel) + 붙여쓰기 짝(kind=joined·morph=spacing)**. ①발굴 재작성(`84dce14b`): 숙박 씨앗(호텔·숙소) 먼저+여행 씨앗+붙여쓴 씨앗, 축별 상한(숙박28/여행8), 띄어쓰기 메인+짝 저장. 후쿠오카=여행8·숙박28·지역5·짝3(오사카 구조 일치). ②**도시 자동로드**(`0fc5de9c`/`f6b59efd`): cities 창구가 city_alias로 도시별 city_key·surveyed 부착 → rdd가 조사된 도시는 **들어가면 자동 loadSnap**(리셋 문제 해결). ③vercel.json kw-survey-now maxDuration 300. 교토 옛 테스트 정리(재조사 시 새 구조).
 - ✅ **스튜디오 로딩 속도 최적화(대표님 "로딩 오래 걸림·저장해놓고 보여줘·정석")**: 진단=페이지가 매번 무거운 실시간 집계를 함(키워드조사 survey 6~9초=agoda_inventory 1만2천행 스캔·지역 계산 / 성과표 7초=bookings 수천행 집계). 정석=계산 결과 캐시. ①**survey_cache**(city_key+조사버전 키, 6h): 새 측정 있으면 버전 바뀌어 자동 재계산, 그 외 즉시. ②지역 계산 **오사카 하드코딩 제거**(cityEn·city_id 도시별 · 지역 없는 도시는 12k 스캔 건너뜀). ③**perf_cache**(필터별·10분 TTL). 결과: **오사카 survey 13.5→1.0초 · 후쿠오카 3.3→0.7초 · 성과표 7→1.2초**(반복 조회). 첫 조회는 계산+캐시생성(느림), 이후 즉시. 커밋 content-keywords `e929fdb1`·content-performance `7b8f5e3c`. 🔴첫 조회도 빠르게 하려면 측정/데이터 변경 후 캐시 워밍(예약).
 - ✅ **6개 탭 전체 로딩 최적화(대표님 "모든 페이지 로딩 체크·해결")**: 원인=모든 창구가 쿼리를 Promise.all 없이 **순차 실행**+캐시 없음(서버리스 오버헤드 ~1초 위에 순차 쿼리). 정석=**공용 읽기 캐시 `api/_lib/api-cache.js`(cacheGet/Set/Bust) + api_cache 표**. 읽기 캐시 + **쓰기(POST/PATCH) 시 그 자원 캐시 즉시 무효화**로 최신 유지. 적용: content-hotels(5분·조회전용) `492adf9e` · channels(5분+쓰기무효) `286487de` · content-queue(60초+무효·pubs와 상호) `2edda2ae` · publications(60초+무효·queue와 상호) `f08f42a0`. (성과표 perf_cache·키워드 survey_cache 는 앞서.) 결과 반복조회: 발행0.49·큐0.37·채널0.48·호텔1.25·성과표1.2·키워드1.0초(전 2~13초). 첫 조회는 계산+캐시생성, 이후 즉시. `?nocache=1` 로 강제 새로고침 가능.
+- ✅ **키워드 예약+백그라운드 수집+"새로 완성" 배지(대표님 "메일 없이·예약 방식·호텔 확인함처럼")**: 원인=구글 트렌드(외부)를 실시간으로 몰아 부르면 429. 해결=수집을 봇이 천천히·화면은 정리된 값만.
+  - **예약**: surveyNow 를 발굴(harvest)만 하고 끝나게(측정 루프 제거·429 없음). INV[도시].survey_state='running'. "조사 예약됨" 표시.
+  - **봇 자동 수집**: kw-survey cron 이 미완 도시 자동선택·측정(이미 그럼). cron `0 16,17,18,19` → `0 */2 * * *`(2시간마다).
+  - **상태**: cities 창구가 도시별 survey_state 부착 — none(미조사)/running(예약·채우는중)/new_done(완성·확인대기)/done(완성·확인됨). snapshot.status + **acknowledged_at**(신규 컬럼)로 판정. 기존 오사카·후쿠오카는 ack 처리(배지 제외).
+  - **배지**: cities 가 new_done(수)+new_done_list. 키워드 화면 상단 "🎉 새로 완성 N" 배지(kw-newdone)·펼치면 도시 목록·[확인]/[전체 확인].
+  - **확인**: `POST /api/content-keywords?action=ack` {city_key?}(없으면 전체) → status='done'·ack null 스냅샷에 acknowledged_at.
+  - **rdd**: running=⏳"채우는 중" / done·new_done=자동 로드 / none=지금 조사하기.
+  - 검증: 오사카·후쿠오카 done·도쿄 running·배지 0. 커밋 content-keywords `29f73b4f`·studio `5350ca75`·vercel `ebcfae6b`. 🔴 도쿄(running) 봇이 채우면 배지 뜨는지 대표님 확인 권장.
 - 🔴 **다음**: 대표님 폰 확인 → 확정/수정 → studio.html view-channels 적용(loadChannels/chCard ~3255·3422). 이때 studio.html 의 기존 [폐기] 라벨도 CID 원칙대로 상태배지로 교체(D-064 후속 "폐기 라벨→상태배지" = 이 작업).
 - 🟡 실데이터 확인: CID 전부 is_active=true(라벨 old/new/main 로만 구분) · 규격 .md = 호텔이야·여행능력자들·호텔이곳 3개만 존재.
 

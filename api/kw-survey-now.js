@@ -181,9 +181,13 @@ export default async function handler(req, res) {
     const travelN = rows.filter((r) => r.axis === 'travel').length;
     if (rows.length < 12 || stayN < 6 || travelN < 1) {
       try { await sb.from('city_alias').delete().eq('target_code', target).eq('city_key', ck); } catch { /* 무시 */ }
+      // 봇이 이 도시를 계속 재시도하지 않도록 건너뛰기 목록에 기록 (도시명 고치면 풀 수 있음)
+      try {
+        await sb.from('survey_skip').upsert({ target_code: target, label: cityKo, reason: `발굴 불량 ${rows.length}개(숙박 ${stayN}·여행 ${travelN})` }, { onConflict: 'target_code,label' });
+      } catch { /* 무시 */ }
       return res.status(200).json({ ok: false, step: 'harvest', insufficient: true, city_key: ck,
         harvested: rows.length, stay: stayN, travel: travelN,
-        error: `발굴 불량 — 검색어 ${rows.length}개(숙박 ${stayN}·여행 ${travelN})로 기준(총≥12·숙박≥6·여행≥1) 미달. 도시명 "${cityKo}" 확인 필요. 저장 안 함(미조사 유지).` });
+        error: `발굴 불량 — 검색어 ${rows.length}개(숙박 ${stayN}·여행 ${travelN})로 기준(총≥12·숙박≥6·여행≥1) 미달. 도시명 "${cityKo}" 확인 필요. 저장 안 함(건너뛰기 등록).` });
     }
 
     // 이미 있는 text 는 빼고 삽입(유령 중복 방지)

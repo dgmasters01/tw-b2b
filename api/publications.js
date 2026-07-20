@@ -22,6 +22,7 @@
 //       단 이미 published 인 줄은 건드리지 않는다 (유튜브에 이미 올라갔다).
 
 import { createClient } from '@supabase/supabase-js';
+import { cacheGet, cacheSet, cacheBust } from './_lib/api-cache.js';
 
 export const config = { maxDuration: 60 };
 
@@ -128,13 +129,23 @@ export default async function handler(req, res) {
     return res.status(500).json({ ok: false, error: String(e.message || e) });
   }
 
+  // 캐시: 쓰기면 발행+큐(둘이 공유) 캐시를 지운다. 목록 GET 은 60초 캐시(사용자 필드는 최신 유지).
+  if (req.method !== 'GET') await cacheBust(sb, 'pubs:', 'queue:');
+  const _pKey = `pubs:${auth.isAdmin ? 1 : 0}`;
+
   if (req.method === 'GET') {
+    if (!(req.query && req.query.nocache === '1')) {
+      const _hit = await cacheGet(sb, _pKey, 60000);
+      if (_hit) return res.status(200).json({ ..._hit, me: auth.email || null, is_admin: !!auth.isAdmin, is_owner: !!auth.isOwner, role: auth.role || 'editor' });
+    }
     let qb = sb.from('publications').select('*').order('created_at', { ascending: false });
     if (req.query?.channel) qb = qb.eq('channel_code', req.query.channel);
     if (req.query?.status) qb = qb.eq('status', req.query.status);
     const { data, error } = await qb;
     if (error) return res.status(500).json({ ok: false, error: error.message });
-    return res.status(200).json({ ok: true, rows: data, count: data.length, me: auth.email || null, is_admin: !!auth.isAdmin, is_owner: !!auth.isOwner, role: auth.role || 'editor' });
+    const _pOut = { ok: true, rows: data, count: data.length, me: auth.email || null, is_admin: !!auth.isAdmin, is_owner: !!auth.isOwner, role: auth.role || 'editor' };
+    await cacheSet(sb, _pKey, _pOut);
+    return res.status(200).json(_pOut);
   }
 
   // studio.html 이 부른다. 세 가지 행동.

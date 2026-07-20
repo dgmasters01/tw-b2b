@@ -12,7 +12,7 @@
 // 신분증: 쿠키 sb-access-token 또는 Authorization: Bearer (is_editor 이상) / 또는 x-ops-token.
 // ─────────────────────────────────────────────────────────────
 import { createClient } from '@supabase/supabase-js';
-import { harvest } from './_lib/kwtool.js';
+import { harvest, suggest, politeSleep } from './_lib/kwtool.js';
 
 export const config = { maxDuration: 300 };
 
@@ -126,11 +126,39 @@ export default async function handler(req, res) {
     const texts = kept.slice(0, 30);
     if (texts.length < 2) return res.status(200).json({ ok: false, step: 'harvest', error: '자동완성에서 이 도시 검색어를 충분히 못 찾았습니다. 도시명을 확인하세요.' });
 
+    // ㊻ 붙여쓰기 정규화(자동완성 짝 판정): 붙여쓴 형태가 자동완성에 있으면 그걸 쓴다(일반 검색어=붙여쓰기),
+    //    없으면 원형 유지(호텔 고유명 등 = 띄어쓰기). 오사카 데이터와 같은 규칙.
+    const gl = market.toLowerCase();
+    const joinedAlive = async (kw) => {
+      const joined = kw.replace(/\s+/g, '');
+      if (joined === kw) return null;                       // 이미 붙어있음
+      const toks = kw.split(/\s+/);
+      const seeds = (toks.length > 1 ? [toks.slice(0, -1).join(' ')] : []).concat([joined]);
+      for (const s of seeds) {
+        let sug = [];
+        try { sug = await suggest(s, target, gl); } catch { sug = []; }
+        await politeSleep();
+        if (sug.includes(joined)) return joined;            // 붙여쓴 형태가 살아있다
+      }
+      return null;
+    };
+    const seedJoined = seed.replace(/\s+/g, '');
+    const normSet = new Set();
+    const norm = [];   // { text, kind, is_anchor }
+    for (const t of texts) {
+      const j = await joinedAlive(t);
+      const finalText = j || t;
+      if (normSet.has(finalText)) continue;
+      normSet.add(finalText);
+      const kind = j ? 'joined' : (t.includes(' ') ? 'hotel' : 'joined');   // 붙여쓰기 성공=joined / 띄어쓰기 유지=hotel(고유명)
+      norm.push({ text: finalText, kind, is_anchor: finalText === seedJoined || t === seed });
+    }
+
     const country = ck.replace(/^cc:/, '').split('|')[0];
     const now = new Date().toISOString();
-    const rows = texts.map((t) => ({
-      target_code: target, market, country, city_key: ck, text: t,
-      kind: 'stay', is_anchor: t === seed, alive: true, source: 'harvest-now',
+    const rows = norm.map((n) => ({
+      target_code: target, market, country, city_key: ck, text: n.text,
+      kind: n.kind, is_anchor: !!n.is_anchor, alive: true, source: 'harvest-now',
       alive_source: 'suggest', created_at: now, last_seen_at: now,
     }));
     // 이미 있는 text 는 빼고 삽입(유령 중복 방지)
@@ -142,7 +170,7 @@ export default async function handler(req, res) {
       const { error: iErr } = await sb.from('keyword').insert(fresh);
       if (iErr) return res.status(500).json({ ok: false, step: 'harvest', error: '검색어 저장 실패: ' + iErr.message });
     }
-    return res.status(200).json({ ok: true, step: 'harvest', city_key: ck, harvested: texts.length, saved: fresh.length, anchor: seed, sample: texts.slice(0, 8) });
+    return res.status(200).json({ ok: true, step: 'harvest', city_key: ck, harvested: norm.length, saved: fresh.length, anchor: seedJoined, sample: norm.slice(0, 8).map((n) => n.text) });
   }
 
   // ── ② 측정 (measure) — 기존 kw-survey 엔진 내부 호출(재사용) ──

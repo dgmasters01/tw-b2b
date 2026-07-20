@@ -427,7 +427,7 @@ function loadCities(){
       d.countries.forEach(function(c){
         CT[c.country]=c.cities.map(function(x){return x.name;});     /* 예약순 — 창구가 정렬해서 준다 */
         CTN[c.country]=c.cities.length;
-        c.cities.forEach(function(x){ INV[x.name]=x; });
+        c.cities.forEach(function(x){ INV[x.name]=x; if(x.surveyed) SNAP_CITY[x.name]=true; });
       });
       rd(); rprep(); if(cc) rc(cc);
     })
@@ -738,12 +738,28 @@ async function surveyNow(cityKo){
       if(m.done){ break; }
     }
     say('✓ <b>'+cityKo+'</b> 조사 완료! 결과를 불러옵니다…');
+    if(INV[cityKo]){ INV[cityKo].city_key=ck; INV[cityKo].surveyed=true; } else { INV[cityKo]={name:cityKo,city_key:ck,surveyed:true}; }
+    SNAP_CITY[cityKo]=true;
     await loadSnap(ck, cityKo);
     rdd(cityKo);
   }catch(e){ say('오류: '+(e.message||e)); }
 }
+var RDD_LOADING=null;
+function rddButton(c){
+  document.getElementById('d3l').innerHTML='<div class="wn">이 도시는 <b>키워드 조사가 안 된 도시</b> 모른다고 비워두거나 지어내지 않고, 모른다고 표시합니다.<br><br><span class="btn" onclick="surveyNow(\''+c+'\')">＋ 지금 조사하기</span></div>';
+}
 function rdd(c){cy=c;document.getElementById('d3t').innerHTML=c+' · 키워드 구조 <span class="no">3-1~3-5</span>';
- if(c!==SVCITY){ var done=SNAP_CITY[c]; document.getElementById('d3l').innerHTML='<div class="wn">이 도시는 <b>키워드 조사가 안 된 도시</b> 모른다고 비워두거나 지어내지 않고, 모른다고 표시합니다.<br><br><span class="btn" onclick="surveyNow(\''+c+'\')">＋ 지금 조사하기</span>'+(done?' <span class="btn" onclick="loadSnap(null,\''+c+'\').then(function(){rdd(\''+c+'\');})">결과 보기</span>':'')+'</div>'; if(done){ /* 이미 조사된 도시면 자동으로 그 도시 데이터 로드 */ } return;}
+ if(c!==SVCITY){
+   var key = INV[c] && INV[c].city_key;
+   if(key && RDD_LOADING!==c){                       /* 조사된 도시 = 들어가면 바로 그 도시 결과를 불러온다 */
+     RDD_LOADING=c;
+     document.getElementById('d3l').innerHTML='<div class="wn">「'+c+'」 조사 결과 불러오는 중…</div>';
+     loadSnap(key, c).then(function(){ RDD_LOADING=null; if(cy!==c) return; if(SVCITY===c){ rdd(c); } else { rddButton(c); } });
+     return;
+   }
+   if(RDD_LOADING===c) return;                        /* 이미 불러오는 중 */
+   rddButton(c); return;                              /* 조사 안 된 도시 → 지금 조사하기 */
+ }
  /* D-065 ⑬·㊼-4 확정: **재기는 살아있는 것 전부 / 보기만 상위 30 / 태그엔 전부.**
     🔴 옛 코드는 `KW` 배열 9개가 **박혀 있었다** — 인계서가 "[상위 30 더보기]가 5→9만 됨(거짓말)" 이라 적은 그것.
     이제 창구(?view=survey)가 준 **숙박 축 상위 30**을 그린다. 숫자를 박지 않는다. */

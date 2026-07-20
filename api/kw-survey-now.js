@@ -114,12 +114,14 @@ export default async function handler(req, res) {
     // 오사카 구조 그대로: 여행 축 + 숙박 축, 띄어쓰기 메인 + 붙여쓰기 짝.
     // 숙박이 주력 → 숙박 씨앗 먼저(구글 제한 전에), 여행은 하나만. 호출 수를 줄여 429 회피.
     const gl = market.toLowerCase();
+    // 도시명 정리: "도쿄 / 동경"·"상하이 / 상해" 처럼 슬래시·괄호 별칭이 붙으면 자동완성이 0개가 된다 → 앞 이름만 씨앗으로.
+    const seedCity = ((cityKo.split(/[\/(]/)[0] || cityKo).trim()) || cityKo;
     const seeds = [
-      { q: `${cityKo} 호텔`, axis: 'stay' },
-      { q: `${cityKo} 숙소`, axis: 'stay' },
-      { q: `${cityKo} 여행`, axis: 'travel' },
+      { q: `${seedCity} 호텔`, axis: 'stay' },
+      { q: `${seedCity} 숙소`, axis: 'stay' },
+      { q: `${seedCity} 여행`, axis: 'travel' },
     ];
-    const joinedSeeds = [`${cityKo}호텔`, `${cityKo}숙소`];
+    const joinedSeeds = [`${seedCity}호텔`, `${seedCity}숙소`];
     const seen = new Set();
     const mains = [];          // { text(띄어쓰기), axis }
     const joinedSet = new Set();
@@ -129,13 +131,13 @@ export default async function handler(req, res) {
         try { f = await harvest(s.q, 1, target, gl); } catch { f = []; }
         for (const t0 of [s.q].concat(f)) {
           const t = String(t0 || '').trim();
-          if (t && t.includes(cityKo) && t.includes(' ') && !seen.has(t)) { seen.add(t); mains.push({ text: t, axis: s.axis }); }
+          if (t && t.includes(seedCity) && t.includes(' ') && !seen.has(t)) { seen.add(t); mains.push({ text: t, axis: s.axis }); }
         }
       }
       for (const q of joinedSeeds) {            // 붙여쓴 짝 후보 발굴
         let f = [];
         try { f = await harvest(q, 1, target, gl); } catch { f = []; }
-        for (const t0 of [q].concat(f)) { const t = String(t0 || '').trim().replace(/\s+/g, ''); if (t.includes(cityKo)) joinedSet.add(t); }
+        for (const t0 of [q].concat(f)) { const t = String(t0 || '').trim().replace(/\s+/g, ''); if (t.includes(seedCity)) joinedSet.add(t); }
       }
     } catch (e) { return res.status(200).json({ ok: false, step: 'harvest', error: '발굴 실패: ' + String(e.message || e) }); }
     if (mains.length < 2) return res.status(200).json({ ok: false, step: 'harvest', error: '자동완성에서 이 도시 검색어를 충분히 못 찾았습니다. 도시명을 확인하세요.' });
@@ -148,14 +150,14 @@ export default async function handler(req, res) {
     // 일반 검색어 판별 (호텔 고유명과 가르기)
     const GENERIC = ['호텔','숙소','추천','가성비','조식','위치','온천','대욕장','뷔페','뷰페','가족','여행','자유여행','코스','여행지','커플','아이','뷰','야경','시내','역','근처','저렴','예약','후기','비즈니스','료칸','게스트하우스','민박','캡슐','펜션','리조트','전망','오션뷰','금연','흡연','주차','조용한','신상','신축','중심','번화가','베스트','인기','럭셔리','고급','수영장','노천탕','객실','일정','당일치기','자유','관광'];
     const isGeneric = (term) => {
-      const toks = term.split(new RegExp('\\s+|' + cityKo)).map((x) => x.trim()).filter(Boolean);
+      const toks = term.split(new RegExp('\\s+|' + seedCity)).map((x) => x.trim()).filter(Boolean);
       if (!toks.length) return true;
       return toks.every((t) => GENERIC.some((g) => t === g || t.includes(g) || g.includes(t)));
     };
 
     const country = ck.replace(/^cc:/, '').split('|')[0];
     const now = new Date().toISOString();
-    const anchorText = `${cityKo} 여행`;
+    const anchorText = `${seedCity} 여행`;
     const base = { target_code: target, market, country, city_key: ck, alive: true, source: 'harvest-now', alive_source: 'suggest', created_at: now, last_seen_at: now };
     const pushed = new Set();
     const rows = [];
@@ -172,6 +174,17 @@ export default async function handler(req, res) {
       }
     }
     if (!rows.some((r) => r.is_anchor) && rows.length) rows[0].is_anchor = true;
+
+    // ── 품질 게이트: 제대로 발굴됐나 판단 (오사카 65·후쿠오카 39·타이베이 38 vs 도쿄 3 = 불량) ──
+    //    미달이면 저장 안 하고 city_alias 를 지워 「미조사」로 되돌린다 → "완성"으로 안 넘어간다.
+    const stayN = rows.filter((r) => r.axis === 'stay').length;
+    const travelN = rows.filter((r) => r.axis === 'travel').length;
+    if (rows.length < 12 || stayN < 6 || travelN < 1) {
+      try { await sb.from('city_alias').delete().eq('target_code', target).eq('city_key', ck); } catch { /* 무시 */ }
+      return res.status(200).json({ ok: false, step: 'harvest', insufficient: true, city_key: ck,
+        harvested: rows.length, stay: stayN, travel: travelN,
+        error: `발굴 불량 — 검색어 ${rows.length}개(숙박 ${stayN}·여행 ${travelN})로 기준(총≥12·숙박≥6·여행≥1) 미달. 도시명 "${cityKo}" 확인 필요. 저장 안 함(미조사 유지).` });
+    }
 
     // 이미 있는 text 는 빼고 삽입(유령 중복 방지)
     const { data: exist } = await sb.from('keyword').select('text')

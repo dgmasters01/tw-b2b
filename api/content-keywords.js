@@ -84,6 +84,9 @@ async function survey(sb, req, res, who) {
   const cityKey = String(req.query.city || 'cc:japan|osaka');
   const target = String(req.query.target || 'ko');
   const market = String(req.query.market || 'KR');
+  // 도시 영문명 (지역 계산용) — 예 cc:japan|osaka → Osaka. 지역 데이터는 이 도시 것만 본다(오사카 하드코딩 제거).
+  const citySeg = (cityKey.split('|')[1] || 'osaka').replace(/[^a-z]/gi, '');
+  const cityEn = citySeg ? citySeg.charAt(0).toUpperCase() + citySeg.slice(1) : 'Osaka';
 
   const snapRes = await sb.from('snapshot').select('*')
     .eq('target_code', target).eq('market', market).eq('city_key', cityKey)
@@ -92,6 +95,24 @@ async function survey(sb, req, res, who) {
   const snaps = snapRes.data || [];
   const ym = String(req.query.ym || (snaps[0] && snaps[0].ym) || '');
   const snap = snaps.find((s) => s.ym === ym) || null;
+
+  // ── 캐시: 이 도시·조사버전이 이미 계산돼 있으면 무거운 재계산 없이 그대로 준다 ──
+  //   버전 = 조사(snapshot) 상태. 새 측정이 있으면 버전이 바뀌어 자동 재계산. 그 외엔 6시간 캐시.
+  const cacheVer = snap ? `${snap.id}|${snap.finished_at || ''}|${snap.trend_calls || 0}|${snap.status}` : `none|${ym}`;
+  const nocache = req.query.nocache === '1';
+  if (!nocache) {
+    try {
+      const { data: cached } = await sb.from('survey_cache')
+        .select('version, payload, computed_at')
+        .eq('city_key', cityKey).eq('target_code', target).eq('market', market).maybeSingle();
+      const fresh = cached && cached.version === cacheVer && cached.payload &&
+        (Date.now() - new Date(cached.computed_at).getTime() < 6 * 3600 * 1000);
+      if (fresh) {
+        res.setHeader('Cache-Control', 'private, no-store, max-age=0');
+        return res.status(200).json({ ...cached.payload, is_admin: !!who.isAdmin, cached: true });
+      }
+    } catch { /* 캐시 없으면 계산 */ }
+  }
 
   const kwRes = await sb.from('keyword')
     .select('id, text, kind, alive, alive_source, morph_axis, is_anchor, axis')
@@ -171,7 +192,7 @@ async function survey(sb, req, res, who) {
   //    전부 가져와서, 이름 없는 것은 **좌표로 묶어** 따로 보여준다.
   const dRes = await sb.from('hotels')
     .select('hotel_name, district, booking_count, published_at, latitude, longitude, star_rating, property_type, geo_status, address, operating_status')
-    .eq('city', 'Osaka');
+    .eq('city', cityEn);
   if (dRes.error) throw dRes.error;
   const hotelsByD = new Map();
   (dRes.data || []).forEach((r) => {
@@ -233,15 +254,22 @@ async function survey(sb, req, res, who) {
   //    분모가 **12배 작게** 나왔다(난바 157 vs 진짜 1,677). 화면이 도시를 작게 말했다(55 의 그 병).
   //    → 1,000씩 끊어서 **다 받는다.** "받은 게 전부"라고 믿지 않는다.
   const inv = [];
-  for (let from = 0; from < 20000; from += 1000) {
-    const p = await sb.from('agoda_inventory')
-      .select('latitude, longitude')
-      .eq('city_id', 9590)
-      .not('latitude', 'is', null)
-      .range(from, from + 999);
-    if (p.error) break;
-    (p.data || []).forEach((r) => inv.push([Number(r.latitude), Number(r.longitude)]));
-    if (!p.data || p.data.length < 1000) break;
+  // 지역(district) 데이터가 있는 도시만 분모를 잰다. 없는 도시는 이 무거운 스캔을 통째로 건너뛴다(속도).
+  if (DISTRICTS.length) {
+    const { data: agc } = await sb.from('agoda_city').select('city_id').eq('city', cityEn).limit(1);
+    const invCityId = agc && agc.length ? agc[0].city_id : null;
+    if (invCityId != null) {
+      for (let from = 0; from < 20000; from += 1000) {
+        const p = await sb.from('agoda_inventory')
+          .select('latitude, longitude')
+          .eq('city_id', invCityId)
+          .not('latitude', 'is', null)
+          .range(from, from + 999);
+        if (p.error) break;
+        (p.data || []).forEach((r) => inv.push([Number(r.latitude), Number(r.longitude)]));
+        if (!p.data || p.data.length < 1000) break;
+      }
+    }
   }
   const kmAt = (la1, lo1, la2, lo2) => {
     const R = 6371, d = Math.PI / 180;
@@ -394,10 +422,10 @@ async function survey(sb, req, res, who) {
   //   ④ 체크아웃 월 — 대표님이 두 번 요청하셨다. 겹쳐 그리면 막대에 포개지지만(달 넘김 45/590),
   //      **보고 판단하시는 건 대표님 몫**이다. 클로드가 답을 안 받고 뺐던 자리(2026-07-17 자진 신고).
   const [starRes, monRes, patRes, outRes, rankRes] = await Promise.all([
-    sb.from('v_district_star').select('district, star, agoda_total, ours, bookings').eq('city', 'Osaka'),
-    sb.from('v_district_month').select('district, month, star, bookings').eq('city', 'Osaka'),
-    sb.from('v_district_pattern').select('*').eq('city', 'Osaka'),
-    sb.from('v_district_month_out').select('district, month, bookings').eq('city', 'Osaka'),
+    sb.from('v_district_star').select('district, star, agoda_total, ours, bookings').eq('city', cityEn),
+    sb.from('v_district_month').select('district, month, star, bookings').eq('city', cityEn),
+    sb.from('v_district_pattern').select('*').eq('city', cityEn),
+    sb.from('v_district_month_out').select('district, month, bookings').eq('city', cityEn),
     //   ⑤ 호텔 매출 순위 (2026-07-17 대표님) — **수수료는 담지 않는다.**
     //      대표님: *"에디터는 수수료는 못 보는 거 아니야? 호텔 예약액은 알아야 더 고민할 수 있지 않을까?"*
     //      → 예약금액(매출) + 예약건수만. 🔴 뷰(`v_district_hotel_rank`)에 **수수료 칸이 아예 없다.**
@@ -426,7 +454,7 @@ async function survey(sb, req, res, who) {
     //        더 좋은 곳을 3성급으로 소개하니깐 사람들이 예약을 함. 3.5성급을 4성급이라고 소개하면 실망하잖아."*
     //      → **기대보다 좋게** 만든다. 반올림하면 기대보다 나빠진다. **3.5성 추천 같은 건 없다.**
     //      화면·창구가 같은 값을 쓰도록 **뷰가 `grade` 를 준다.** 화면에서 floor 하지 않는다.
-    sb.from('v_district_hotel').select('district, star, grade, name, name_is_ko, ptype, confirmed, cancelled, confirm_rate, revenue, bucket, reuse, reuse_from, paid').eq('city', 'Osaka'),
+    sb.from('v_district_hotel').select('district, star, grade, name, name_is_ko, ptype, confirmed, cancelled, confirm_rate, revenue, bucket, reuse, reuse_from, paid').eq('city', cityEn),
   ]);
   // 🔑 「이미 전략에 넘겼나」 (2026-07-17 대표님) — **화면이 기억하지 않는다. 창구가 센다.**
   //    새로고침해도, 다른 사람이 봐도 남아야 한다. 열쇠 = 도시 + 주제(제목).
@@ -434,7 +462,7 @@ async function survey(sb, req, res, who) {
   //    D-066 확정: 기획자(planner) = [＋ 전략으로] 누른 사람 자동. 원고 담당은 전략 메뉴에서 지정/맡기.
   const qRes = await sb.from('content_queue')
     .select('id, code, stage, title, star, planner_email, target_month, created_at')
-    .eq('city', 'Osaka').order('created_at', { ascending: false });
+    .eq('city', cityEn).order('created_at', { ascending: false });
   const queued = {};
   (qRes.data || []).forEach((r) => {
     const k = String(r.title || '');
@@ -459,7 +487,7 @@ async function survey(sb, req, res, who) {
   (patRes.data || []).forEach((r) => { touch(r.district).pattern = r; });
 
   res.setHeader('Cache-Control', 'private, no-store, max-age=0');
-  return res.status(200).json({
+  const __payload = {
     ok: true, is_admin: !!who.isAdmin, view: 'survey',
     queued,                      // 주제 → {code, stage, planner, target_month, count}
     district_stats: dstat,
@@ -498,7 +526,15 @@ async function survey(sb, req, res, who) {
       top_hotel: (wrongCity[0] || {}).top_hotel || null,
     } : null,
     layer3,
-  });
+  };
+  // 계산 결과를 캐시에 저장(다음 조회는 즉시). is_admin 은 사용자마다 달라 캐시엔 그대로 두고, 반환 시 덮어쓴다.
+  try {
+    await sb.from('survey_cache').upsert({
+      city_key: cityKey, target_code: target, market,
+      version: cacheVer, payload: __payload, computed_at: new Date().toISOString(),
+    }, { onConflict: 'city_key,target_code,market' });
+  } catch { /* 캐시 저장 실패해도 응답은 준다 */ }
+  return res.status(200).json(__payload);
 }
 
 // ── view=cities — **나라·도시 목록을 DB 가 준다** (2026-07-17 · D-065 64)

@@ -122,7 +122,38 @@ export default async function handler(req, res) {
       if (!data || !data.length) return res.status(404).json({ ok: false, error: '확인함에서 그 호텔을 못 찾았습니다.' });
       return res.status(200).json({ ok: true, action: 'confirmed', hotel_code: code });
     }
-    return res.status(400).json({ ok: false, error: '지원하는 action: confirm' });
+    if (action === 'merge') {
+      // 같은 호텔인데 다른 코드로 나뉜 것을 하나로 합친다.
+      //   body { hotel_code: 남길 대표코드, merge_from: [흡수될 코드들] }
+      const from = Array.isArray(body.merge_from) ? body.merge_from.map((x) => String(x).trim()).filter(Boolean) : [];
+      if (!from.length) return res.status(400).json({ ok: false, error: 'merge_from(합칠 코드들)이 필요합니다.' });
+      const codes = [code, ...from];
+      const { data: hs, error: he } = await sb.from('hotels')
+        .select('hotel_code,hotel_name,agoda_hotel_ids').in('hotel_code', codes);
+      if (he) return res.status(500).json({ ok: false, error: String(he.message || he) });
+      const survivor = (hs || []).find((h) => h.hotel_code === code);
+      if (!survivor) return res.status(404).json({ ok: false, error: '대표 호텔을 못 찾았습니다.' });
+      // 아고다ID 합집합
+      const ids = new Set();
+      for (const h of hs || []) for (const x of (h.agoda_hotel_ids || [])) ids.add(String(x));
+      // 예약 재계산: 합쳐진 이름들의 실제 예약(중복 제거) = distinct unified_id
+      const names = [...new Set((hs || []).map((h) => h.hotel_name).filter(Boolean))];
+      let bcount = survivor.booking_count || 0;
+      if (names.length) {
+        const { data: bk } = await sb.from('bookings_unified').select('unified_id,hotel_name').in('hotel_name', names);
+        const s = new Set((bk || []).map((b) => b.unified_id));
+        if (s.size) bcount = s.size;
+      }
+      // 대표에 반영
+      const { error: ue } = await sb.from('hotels')
+        .update({ agoda_hotel_ids: [...ids], booking_count: bcount, merge_status: 'confirmed' })
+        .eq('hotel_code', code);
+      if (ue) return res.status(500).json({ ok: false, error: String(ue.message || ue) });
+      // 흡수된 것 병합 처리 (숨김·집계 제외)
+      await sb.from('hotels').update({ merge_status: 'merged', agoda_hotel_ids: [], booking_count: 0 }).in('hotel_code', from);
+      return res.status(200).json({ ok: true, action: 'merged', survivor: code, absorbed: from, agoda_ids: ids.size, booking_count: bcount });
+    }
+    return res.status(400).json({ ok: false, error: '지원하는 action: confirm, merge' });
   }
 
   res.setHeader('Allow', 'GET, POST');

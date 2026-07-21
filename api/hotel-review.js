@@ -129,7 +129,21 @@ export default async function handler(req, res) {
     for (const g of coord_groups) for (const h of g) cgCodes.add(h.hotel_code);
     const hotelsOnly = hotels.filter((h) => !cgCodes.has(h.hotel_code));
 
-    return res.status(200).json({ ok: true, is_admin: who.isAdmin, count: hotelsOnly.length, hotels: hotelsOnly, coord_groups });
+    // 이름이 비슷한 것끼리 묶기 (좌표로 안 잡힌 같은 호텔 후보 — 도시 + 앞 의미단어 2개)
+    const stop = new Set(['hotel', 'the', 'and', 'de', 'city', 'resort', 'inn', 'by', 'a', 'of']);
+    const nameKey = (name, city) => {
+      const w = String(name || '').toLowerCase().replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter((x) => x && !stop.has(x));
+      return (city || '') + '|' + (w[0] || '') + '|' + (w[1] || '');
+    };
+    const byName = {};
+    for (const h of hotelsOnly) { const k = nameKey(h.hotel_name, h.city); (byName[k] = byName[k] || []).push(h); }
+    const name_groups = Object.values(byName)
+      .filter((g) => g.length > 1)
+      .map((g) => { g.sort((a, b) => (b.booking_count || 0) - (a.booking_count || 0)); return g; })
+      .sort((a, b) => (b[0].booking_count || 0) - (a[0].booking_count || 0));
+    const singletons = Object.values(byName).filter((g) => g.length === 1).map((g) => g[0]);
+
+    return res.status(200).json({ ok: true, is_admin: who.isAdmin, count: singletons.length, hotels: singletons, coord_groups, name_groups });
   }
 
   // ── 확정 처리 (admin 전용) ──

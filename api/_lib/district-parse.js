@@ -42,21 +42,40 @@ const TW_DIST = {
   wenshan: '원산구', ximen: '시먼', ximending: '시먼딩',
 };
 
-const norm = (s) => String(s || '').toLowerCase().replace(/[^a-z]/g, '');
+// ── 베트남: 주요 지역(동/군) → 한글 (없으면 로마자 유지) ──
+const VN_MAP = {
+  nguhanhson: '오행산', sontra: '선짜', haichau: '하이쩌우', thanhkhe: '탄케', myan: '미안', mykhe: '미케',
+  bacmyan: '박미안', anhaibac: '안하이박', anthuong: '안트엉', hoathuantay: '호아투언떠이', lienchieu: '리엔찌에우',
+  bennghe: '벤응에', benthanh: '벤탄', binhthanh: '빈탄', phunhuan: '푸년', tanbinh: '떤빈', saigon: '사이공',
+  nhieuloc: '니에우록', phamngulao: '팜응우라오', tansonhoa: '떤손호아', district1: '1군', district3: '3군',
+  hoankiem: '호안끼엠', badinh: '바딘', tayho: '떠이호', dongda: '동다', caugiay: '꺼우저이', haibatrung: '하이바쯩',
+};
+
+// 성조·특수문자 제거 (Đ→d 포함) — 베트남/태국 주소 매칭용
+const deaccent = (s) => String(s || '')
+  .replace(/đ/gi, 'd')
+  .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+const norm = (s) => deaccent(s).toLowerCase().replace(/[^a-z]/g, '');
 const has = (map, hay) => { for (const k of Object.keys(map)) { if (hay.includes(k)) return map[k]; } return null; };
 
 export function districtOf(address) {
   if (!address) return null;
-  const raw = String(address);
+  const raw = deaccent(String(address));   // 성조 제거본으로 매칭
   const low = raw.toLowerCase().replace(/[-_.]/g, ' ');
   const nn = low.replace(/\s+/g, '');
+  const vn = (name) => VN_MAP[norm(name)] || name.trim();   // 베트남 지명 한글화(없으면 로마자)
 
   // ── ① 일본: 동네 이름 → -ku → X Ward(일본 구 이름) ──
   const jpArea = has(JP_AREA, nn); if (jpArea) return jpArea;
-  // ── ② 베트남/동남아: 쉼표 조각 중 "... Ward"(동) 우선, 없으면 "... District"(군) ──
+  // ── ② 베트남/동남아: "... Ward"(영어) / "Phuong ..."(베트남어) = 동 우선, 없으면 District/Quan = 군 ──
   const parts = raw.split(',').map((s) => s.trim());
-  for (const p of parts) { const m = p.match(/^(.+?)\s+ward$/i); if (m && m[1].length < 30) return m[1].trim(); }
-  for (const p of parts) { const m = p.match(/^(.+?)\s+district$/i); if (m && m[1].length < 30 && !/^\d/.test(m[1])) return m[1].trim(); }
+  for (const p of parts) { const m = p.match(/^(.+?)\s+ward$/i); if (m && m[1].length < 30 && !/^\d/.test(m[1])) return vn(m[1]); }
+  for (const p of parts) { const m = p.match(/^phuong\s+(.+)$/i); if (m && m[1].length < 30 && !/^\d/.test(m[1])) return vn(m[1]); }
+  for (const p of parts) { const m = p.match(/^(.+?)\s+district$/i); if (m && m[1].length < 30 && !/^\d/.test(m[1])) return vn(m[1]); }
+  for (const p of parts) { const m = p.match(/^quan\s+(.+)$/i); if (m && m[1].length < 30 && !/^\d/.test(m[1])) return vn(m[1]); }
+  // 키워드 없이 지역명만 조각으로 있는 경우 (예: "..., Ngu Hanh Son, Da Nang")
+  for (const p of parts) { if (VN_MAP[norm(p)]) return VN_MAP[norm(p)]; }
   // ── ③ 태국: 켓(구) 이름 목록 ──
   const th = has(TH_KHET, nn); if (th) return th;
   // ── ④ 대만: 구(區) 이름 목록 ──

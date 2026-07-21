@@ -3919,6 +3919,7 @@ function renderSurveyStatus(){
   if(!(SS_RUNNING.length+SS_NEWDONE.length+SS_DONE.length)){ el.style.display='none'; el.innerHTML=''; return; }
   el.style.display='block';
   function chip(label,n,bg,fg){ return '<div style="background:'+bg+';border-radius:8px;padding:9px 12px;flex:1;"><div style="font-size:11.5px;color:'+fg+';">'+label+'</div><div style="font-size:20px;font-weight:700;color:'+fg+';margin-top:1px;">'+n+'</div></div>'; }
+  function dstr(iso){ if(!iso) return ''; var d=new Date(iso); return (d.getMonth()+1)+'/'+d.getDate(); }
   function prog(o){
     var kw=o.keywords||0, ht=o.hotel_total, hd=o.hotel_district;
     var k='<span style="color:var(--em)">키워드 '+kw+'</span>';
@@ -3927,31 +3928,27 @@ function renderSurveyStatus(){
     else if(hd===0) m='<span style="color:#e8776b">지도 0/'+ht+' ✗</span>';
     else if(hd<ht) m='<span style="color:var(--am)">지도 '+hd+'/'+ht+'</span>';
     else m='<span style="color:var(--em)">지도 '+hd+'/'+ht+' ✓</span>';
-    return '<div style="font-size:10.5px;margin-top:3px;">'+k+' <span style="color:var(--line)">·</span> '+m+'</div>';
+    var dt=o.surveyed_at?(' <span style="color:var(--line)">·</span> <span style="color:var(--muted)">조사 '+dstr(o.surveyed_at)+'</span>'):'';
+    return '<div style="font-size:10.5px;margin-top:3px;">'+k+' <span style="color:var(--line)">·</span> '+m+dt+'</div>';
   }
   function row(o,right){ return '<div style="display:flex;align-items:center;gap:9px;background:var(--card2);border:0.5px solid var(--line);border-radius:8px;padding:8px 11px;margin-bottom:6px;"><div style="flex:1;cursor:pointer;" onclick="openNewDone(\''+o.name+'\',\''+o.country+'\')"><div style="font-size:12.5px;color:var(--txt);">'+o.country+' · '+o.name+'</div>'+prog(o)+'</div>'+(right||'')+'</div>'; }
   var h='<div style="border:0.5px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--card);">';
   h+='<div style="display:flex;align-items:center;gap:7px;margin-bottom:11px;"><span style="font-size:13.5px;font-weight:700;color:var(--txt);">조사 현황</span><span style="margin-left:auto;font-size:11px;color:var(--muted);">봇이 2시간마다 채웁니다</span></div>';
   h+='<div style="display:flex;gap:9px;margin-bottom:14px;">'+
-     chip('채우는 중',SS_RUNNING.length,'var(--amd)','var(--am)')+
-     chip('새로 완성',SS_NEWDONE.length,'var(--bld)','var(--bl)')+
-     chip('완성',SS_DONE.length,'var(--emd)','var(--em)')+'</div>';
+     chip('이번 달 남음',SS_RUNNING.length,'var(--amd)','var(--am)')+
+     chip('확인할 것',SS_NEWDONE.length,'var(--bld)','var(--bl)')+
+     chip('이번 달 완성',SS_DONE.length,'var(--emd)','var(--em)')+'</div>';
   if(SS_RUNNING.length){
-    h+='<div style="font-size:11.5px;color:var(--am);font-weight:700;margin:0 0 6px;">채우는 중 — 봇이 지금 작업</div>';
-    SS_RUNNING.forEach(function(o){ h+=row(o,'<span style="font-size:10.5px;color:var(--am);background:var(--amd);padding:2px 8px;border-radius:20px;">측정 중</span>'); });
+    h+='<div style="font-size:11.5px;color:var(--am);font-weight:700;margin:0 0 6px;">봇이 채우는 중 — 예약 많은 순</div>';
+    SS_RUNNING.slice(0,4).forEach(function(o){ h+=row(o,'<span style="font-size:10.5px;color:var(--am);background:var(--amd);padding:2px 8px;border-radius:20px;">측정 중</span>'); });
+    if(SS_RUNNING.length>4) h+='<div style="font-size:11px;color:var(--muted);margin:-2px 0 4px;">외 '+(SS_RUNNING.length-4)+'곳 이번 달 대기 (봇이 순서대로)</div>';
   }
   if(SS_NEWDONE.length){
-    h+='<div style="font-size:11.5px;color:var(--bl);font-weight:700;margin:'+(SS_RUNNING.length?'11px':'0')+' 0 6px;">새로 완성 — 확인하세요</div>';
+    h+='<div style="font-size:11.5px;color:var(--bl);font-weight:700;margin:'+(SS_RUNNING.length?'11px':'0')+' 0 6px;">확인하세요 — 새로 완성됨</div>';
     SS_NEWDONE.forEach(function(o){ h+=row(o,'<span class="btn" style="font-size:10.5px;padding:2px 9px;" onclick="ackCity(\''+o.city_key+'\')">확인</span>'); });
     if(SS_NEWDONE.length>1) h+='<div style="text-align:right;margin:-2px 0 4px;"><span class="btn" style="font-size:10.5px;" onclick="ackAll()">전체 확인</span></div>';
   }
-  if(SS_DONE.length){
-    h+='<div style="font-size:11.5px;color:var(--em);font-weight:700;margin:'+((SS_RUNNING.length||SS_NEWDONE.length)?'11px':'0')+' 0 6px;">완성 — 결과 보기</div>';
-    h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;">';
-    SS_DONE.slice(0,8).forEach(function(o){ h+='<div style="display:flex;align-items:center;gap:7px;background:var(--card2);border:0.5px solid var(--line);border-radius:8px;padding:8px 10px;cursor:pointer;" onclick="openNewDone(\''+o.name+'\',\''+o.country+'\')"><div style="flex:1;"><div style="font-size:12px;color:var(--txt);">'+o.country+' · '+o.name+'</div>'+prog(o)+'</div><span style="font-size:12px;color:var(--muted);">›</span></div>'; });
-    h+='</div>';
-    if(SS_DONE.length>8) h+='<div style="font-size:11px;color:var(--muted);margin-top:5px;">외 '+(SS_DONE.length-8)+'곳</div>';
-  }
+  /* 완성 결과 보기 제거(D-073) — 완성 도시가 쌓이면 무한정 늘어남. 완성은 아래 도시 리스트에 '조사일'로 표시 */
   h+='</div>';
   el.innerHTML=h;
 }

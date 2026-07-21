@@ -124,7 +124,12 @@ export default async function handler(req, res) {
         .sort((a, b) => (b[0].booking_count || 0) - (a[0].booking_count || 0));
     } catch { /* 뷰 없으면 무시 */ }
 
-    return res.status(200).json({ ok: true, is_admin: who.isAdmin, count: hotels.length, hotels, coord_groups });
+    // 아래 애매 목록에서 «위 좌표 그룹에 이미 있는 호텔»은 뺀다 (중복으로 헷갈림 방지)
+    const cgCodes = new Set();
+    for (const g of coord_groups) for (const h of g) cgCodes.add(h.hotel_code);
+    const hotelsOnly = hotels.filter((h) => !cgCodes.has(h.hotel_code));
+
+    return res.status(200).json({ ok: true, is_admin: who.isAdmin, count: hotelsOnly.length, hotels: hotelsOnly, coord_groups });
   }
 
   // ── 확정 처리 (admin 전용) ──

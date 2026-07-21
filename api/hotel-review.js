@@ -100,7 +100,31 @@ export default async function handler(req, res) {
         reason,
       };
     });
-    return res.status(200).json({ ok: true, is_admin: who.isAdmin, count: hotels.length, hotels });
+    // ── 좌표가 같은 호텔 그룹 (자동 병합 후보 · 대표님 아이디어: GPS로 같은 곳 찾기) ──
+    let coord_groups = [];
+    try {
+      const { data: dup } = await sb.from('v_coord_dup_hotels')
+        .select('hotel_code,hotel_name,city,country,star_rating,booking_count,agoda_hotel_ids,latitude,longitude');
+      const byCoord = {};
+      for (const h of dup || []) {
+        const key = h.latitude + ',' + h.longitude;
+        (byCoord[key] = byCoord[key] || []).push(h);
+      }
+      coord_groups = Object.values(byCoord)
+        .filter((g) => g.length > 1)
+        .map((g) => {
+          g.sort((a, b) => (b.booking_count || 0) - (a.booking_count || 0));   // 예약 많은 걸 대표로
+          return g.map((h) => ({
+            hotel_code: h.hotel_code, hotel_name: h.hotel_name, city: h.city, country: h.country,
+            star_rating: h.star_rating, booking_count: h.booking_count || 0,
+            agoda_count: Array.isArray(h.agoda_hotel_ids) ? h.agoda_hotel_ids.length : 0,
+            latitude: h.latitude, longitude: h.longitude,
+          }));
+        })
+        .sort((a, b) => (b[0].booking_count || 0) - (a[0].booking_count || 0));
+    } catch { /* 뷰 없으면 무시 */ }
+
+    return res.status(200).json({ ok: true, is_admin: who.isAdmin, count: hotels.length, hotels, coord_groups });
   }
 
   // ── 확정 처리 (admin 전용) ──

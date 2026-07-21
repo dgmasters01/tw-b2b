@@ -569,6 +569,26 @@ async function cities(sb, req, res, who) {
     .select('city_key, status, acknowledged_at').eq('target_code', target).eq('market', String(req.query.market || 'KR'));
   const snapByKey = {};
   for (const s of snaps2 || []) { snapByKey[s.city_key] = s; }
+
+  // 도시별 호텔 지역 진행도 (norm 도시명으로 매칭 · "Ho Chi Minh City"↔"hochiminh" 등)
+  const normCity = (s) => String(s || '').toLowerCase().replace(/[^a-z]/g, '').replace(/city$/, '');
+  const { data: hprog } = await sb.from('v_city_hotel_progress').select('city, total, with_district');
+  const hotelByNorm = {};
+  for (const h of hprog || []) { hotelByNorm[normCity(h.city)] = { total: h.total || 0, with: h.with_district || 0 }; }
+  const hotelOf = (ckey) => hotelByNorm[normCity((ckey || '').split('|')[1] || '')] || null;
+
+  // 도시별 키워드 개수 (진행도용)
+  const { data: kwc } = await sb.from('keyword').select('city_key').eq('target_code', target).eq('alive', true);
+  const kwByKey = {};
+  for (const k of kwc || []) { kwByKey[k.city_key] = (kwByKey[k.city_key] || 0) + 1; }
+  const progress = (ckey) => {
+    const hp = hotelOf(ckey);
+    return {
+      keywords: kwByKey[ckey] || 0,
+      hotel_total: hp ? hp.total : null,
+      hotel_district: hp ? hp.with : null,
+    };
+  };
   //   state: none(미조사) · running(예약·봇이 채우는 중) · new_done(새로 완성·확인 대기) · done(완성·확인됨)
   const stateOf = (cityKey) => {
     if (!cityKey) return 'none';
@@ -590,9 +610,9 @@ async function cities(sb, req, res, who) {
     g.bookings += r.bookings || 0; g.ours += r.ours || 0; g.agoda_total += r.agoda_total || 0;
     const ckey = keyByLabel[r.city] || null;
     const state = stateOf(ckey);
-    if (state === 'new_done') { newDoneCount += 1; newDoneList.push({ name: r.city, country: c, city_key: ckey }); }
-    else if (state === 'running') { runningList.push({ name: r.city, country: c, city_key: ckey }); }
-    else if (state === 'done') { doneList.push({ name: r.city, country: c, city_key: ckey }); }
+    if (state === 'new_done') { newDoneCount += 1; newDoneList.push({ name: r.city, country: c, city_key: ckey, ...progress(ckey) }); }
+    else if (state === 'running') { runningList.push({ name: r.city, country: c, city_key: ckey, ...progress(ckey) }); }
+    else if (state === 'done') { doneList.push({ name: r.city, country: c, city_key: ckey, ...progress(ckey) }); }
     g.cities.push({
       city_id: r.city_id, name: r.city,
       city_key: ckey,

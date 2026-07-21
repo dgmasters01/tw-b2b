@@ -564,11 +564,16 @@ async function cities(sb, req, res, who) {
   const keyByLabel = {};
   for (const a of aliases || []) { if (a.label && !keyByLabel[a.label]) keyByLabel[a.label] = a.city_key; }
 
-  // 조사 상태(예약/채우는중/새로완성/완성) — snapshot 으로 판정
+  // 조사 상태 — 이번 달(ym) snapshot 으로 판정 (월별 재조사: 지난 달 것은 '남음')
+  const curYm = new Date(Date.now() + 9 * 3600 * 1000).toISOString().slice(0, 7);
   const { data: snaps2 } = await sb.from('snapshot')
-    .select('city_key, status, acknowledged_at').eq('target_code', target).eq('market', String(req.query.market || 'KR'));
-  const snapByKey = {};
-  for (const s of snaps2 || []) { snapByKey[s.city_key] = s; }
+    .select('city_key, status, acknowledged_at, finished_at, ym').eq('target_code', target).eq('market', String(req.query.market || 'KR'));
+  const snapByKey = {};      // 이번 달 snapshot만
+  const surveyedAt = {};     // city_key → 마지막 조사 완료일(아무 달이나 최신)
+  for (const s of snaps2 || []) {
+    if (s.ym === curYm) snapByKey[s.city_key] = s;
+    if (s.finished_at && (!surveyedAt[s.city_key] || s.finished_at > surveyedAt[s.city_key])) surveyedAt[s.city_key] = s.finished_at;
+  }
 
   // 도시별 호텔 지역 진행도 (norm 도시명으로 매칭 · "Ho Chi Minh City"↔"hochiminh" 등)
   const normCity = (s) => String(s || '').toLowerCase().replace(/[^a-z]/g, '').replace(/city$/, '');
@@ -610,14 +615,15 @@ async function cities(sb, req, res, who) {
     g.bookings += r.bookings || 0; g.ours += r.ours || 0; g.agoda_total += r.agoda_total || 0;
     const ckey = keyByLabel[r.city] || null;
     const state = stateOf(ckey);
-    if (state === 'new_done') { newDoneCount += 1; newDoneList.push({ name: r.city, country: c, city_key: ckey, ...progress(ckey) }); }
-    else if (state === 'running') { runningList.push({ name: r.city, country: c, city_key: ckey, ...progress(ckey) }); }
-    else if (state === 'done') { doneList.push({ name: r.city, country: c, city_key: ckey, ...progress(ckey) }); }
+    if (state === 'new_done') { newDoneCount += 1; newDoneList.push({ name: r.city, country: c, city_key: ckey, surveyed_at: surveyedAt[ckey] || null, ...progress(ckey) }); }
+    else if (state === 'running') { runningList.push({ name: r.city, country: c, city_key: ckey, surveyed_at: surveyedAt[ckey] || null, ...progress(ckey) }); }
+    else if (state === 'done') { doneList.push({ name: r.city, country: c, city_key: ckey, surveyed_at: surveyedAt[ckey] || null, ...progress(ckey) }); }
     g.cities.push({
       city_id: r.city_id, name: r.city,
       city_key: ckey,
       surveyed: !!ckey,                           // 조사 착수(발굴)된 도시
       survey_state: state,                        // none·running·new_done·done
+      surveyed_at: surveyedAt[ckey] || null,      // 마지막 조사 완료일(조사일 표시용)
       agoda_total: r.agoda_total,
       ours: r.ours,
       share: r.agoda_total ? Math.round(r.ours / r.agoda_total * 1000) / 10 : null,

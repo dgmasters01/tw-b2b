@@ -544,30 +544,34 @@ async function survey(sb, req, res, who) {
 //      ⚠️ `agoda_city.hotels` 를 쓰면 안 된다 — **EN 기준**이라 오사카가 5,419(진짜 12,328)로 절반이 된다.
 async function cities(sb, req, res, who) {
   const target = String(req.query.target || 'ko');
-  const rows = [];
-  for (let from = 0; from < 4000; from += 1000) {
-    const p = await sb.from('v_city_inventory')
-      .select('city_id, city, country, agoda_total, ours, bookings, published, geo_ok, has_detail')
-      .eq('target_code', target)
-      .order('bookings', { ascending: false })
-      .range(from, from + 999);
-    if (p.error) throw new Error(p.error.message);
-    (p.data || []).forEach((r) => rows.push(r));
-    if (!p.data || p.data.length < 1000) break;   // 🔴 「받은 게 전부」라고 믿지 않는다(63)
-  }
-  // 조사된 도시 = city_alias 에 이름(label)이 있는 도시. 그 city_key 를 붙여, 화면이 들어가면 바로 불러오게 한다.
-  //   (도시 축: 한글 도시명 → 영문 city_key. 조사 착수 시 지연 생성됨.)
-  const { data: aliases } = await sb.from('city_alias')
-    .select('label, city_key')
-    .eq('target_code', target)
-    .not('city_key', 'like', '%|d:%').not('city_key', 'like', '%|t:%');
+  const market = String(req.query.market || 'KR');
+  const curYm = new Date(Date.now() + 9 * 3600 * 1000).toISOString().slice(0, 7);
+
+  // 독립 쿼리 5개를 «동시에» 실행 (전엔 하나씩 기다려 합이 3초+ → 이제 가장 느린 것 하나만큼)
+  const invP = (async () => {
+    const rr = [];
+    for (let from = 0; from < 4000; from += 1000) {
+      const p = await sb.from('v_city_inventory')
+        .select('city_id, city, country, agoda_total, ours, bookings, published, geo_ok, has_detail')
+        .eq('target_code', target).order('bookings', { ascending: false }).range(from, from + 999);
+      if (p.error) throw new Error(p.error.message);
+      (p.data || []).forEach((r) => rr.push(r));
+      if (!p.data || p.data.length < 1000) break;   // 「받은 게 전부」라고 믿지 않는다(63)
+    }
+    return rr;
+  })();
+  const [rows, aliasesR, snaps2R, hprogR, kwcR] = await Promise.all([
+    invP,
+    sb.from('city_alias').select('label, city_key').eq('target_code', target).not('city_key', 'like', '%|d:%').not('city_key', 'like', '%|t:%'),
+    sb.from('snapshot').select('city_key, status, acknowledged_at, finished_at, ym').eq('target_code', target).eq('market', market),
+    sb.from('v_city_hotel_progress').select('city, total, with_district'),
+    sb.from('keyword').select('city_key').eq('target_code', target).eq('alive', true),
+  ]);
+  const aliases = aliasesR.data, snaps2 = snaps2R.data, hprog = hprogR.data, kwc = kwcR.data;
+
   const keyByLabel = {};
   for (const a of aliases || []) { if (a.label && !keyByLabel[a.label]) keyByLabel[a.label] = a.city_key; }
 
-  // 조사 상태 — 이번 달(ym) snapshot 으로 판정 (월별 재조사: 지난 달 것은 '남음')
-  const curYm = new Date(Date.now() + 9 * 3600 * 1000).toISOString().slice(0, 7);
-  const { data: snaps2 } = await sb.from('snapshot')
-    .select('city_key, status, acknowledged_at, finished_at, ym').eq('target_code', target).eq('market', String(req.query.market || 'KR'));
   const snapByKey = {};      // 이번 달 snapshot만
   const surveyedAt = {};     // city_key → 마지막 조사 완료일(아무 달이나 최신)
   for (const s of snaps2 || []) {
@@ -575,15 +579,11 @@ async function cities(sb, req, res, who) {
     if (s.finished_at && (!surveyedAt[s.city_key] || s.finished_at > surveyedAt[s.city_key])) surveyedAt[s.city_key] = s.finished_at;
   }
 
-  // 도시별 호텔 지역 진행도 (norm 도시명으로 매칭 · "Ho Chi Minh City"↔"hochiminh" 등)
   const normCity = (s) => String(s || '').toLowerCase().replace(/[^a-z]/g, '').replace(/city$/, '');
-  const { data: hprog } = await sb.from('v_city_hotel_progress').select('city, total, with_district');
   const hotelByNorm = {};
   for (const h of hprog || []) { hotelByNorm[normCity(h.city)] = { total: h.total || 0, with: h.with_district || 0 }; }
   const hotelOf = (ckey) => hotelByNorm[normCity((ckey || '').split('|')[1] || '')] || null;
 
-  // 도시별 키워드 개수 (진행도용)
-  const { data: kwc } = await sb.from('keyword').select('city_key').eq('target_code', target).eq('alive', true);
   const kwByKey = {};
   for (const k of kwc || []) { kwByKey[k.city_key] = (kwByKey[k.city_key] || 0) + 1; }
   const progress = (ckey) => {

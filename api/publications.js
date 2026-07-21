@@ -350,7 +350,7 @@ export default async function handler(req, res) {
       body: JSON.stringify(body),
     });
     pkg = await r.json();
-    if (!r.ok || !pkg.ok) return res.status(502).json({ ok: false, error: 'api/youtube 실패', detail: pkg });
+    if (!r.ok || !pkg.ok) return res.status(502).json({ ok: false, error: String(pkg.error || 'api/youtube 실패'), detail: pkg.detail || pkg });
   }
 
   let row;

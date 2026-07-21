@@ -105,14 +105,22 @@
 
 ---
 
-## 7. 문서 지도 — 뭘 볼 때 뭘 여나
+## 7. 문서 지도 — 무엇을 «어디에» 기록하는가 (정본 한 곳)
 
-| 볼 것 | 문서 |
+> 🔴 **정리는 각 정본 한 곳에서만 한다. 아무 데나 새 파일을 만들지 않는다.** (여러 곳에 흩어지면 관리 불가 — 대표님 2026-07-20)
+
+| 무엇 | 정본 (여기 «에만» 기록) |
 |---|---|
-| 새 채팅 부팅 | `_os/boot.md` |
-| 헌법(원칙) | `OPERATIONS_CHARTER.md` |
+| 결정 **인덱스**(요약·검색) | 루트 **`DECISIONS_INDEX.md`** (헌법 6조·유일) |
+| 결정 **스토리**(사람용) | 루트 **`DECISIONS.md`** |
+| 결정 **전문**(D별 상세) | **`_business/decisions/YYYY-MM-DD-{주제}.md`** |
+| **자동 시스템·크론·비용·전체 지도** | **`SYSTEM_MAP.md`** (이 문서 §3) |
 | 스튜디오 안쪽 흐름 | `_business/STUDIO_FLOW.md` |
-| **시스템 전체(이 문서)** | `SYSTEM_MAP.md` |
-| 결정·이유 | `DECISIONS.md` · `DECISIONS_INDEX.md` · `_business/decisions/D-번호` |
-| 진행 상황 | `_os/handoff/current.md` |
+| 헌법(원칙) | `OPERATIONS_CHARTER.md` |
+| 진행 상황(최신) | `_os/handoff/current.md` |
 | 사업 내용 | `BUSINESS.md` · `BUSINESS_FLOW.md` · `GOHOTEL_FLOW.md` |
+| 새 채팅 부팅 | `_os/boot.md` |
+
+**⛔ 안 쓰는 곳(폐기·갈래):** `_os/charter/decisions-index.md`(→루트로 합침) · 루트의 과거 `PHASE*`·`HANDOFF_*`·`*VERIFICATION*` 임시 리포트(역사 기록·현행 아님).
+
+**새 결정·새 봇을 만들면:** ①전문은 `_business/decisions/`에 ②인덱스 한 줄은 루트 `DECISIONS_INDEX.md`에 ③봇이면 이 문서 §3에도. **이 세 곳 외엔 만들지 않는다.**

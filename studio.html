@@ -3131,9 +3131,24 @@
                 '<button class="st-rv-ok st-cg-merge" data-codes="' + esc(codes) + '" style="background:#2d6cdf;border-color:#2d6cdf;color:#fff;margin-top:6px;font-size:11.5px;padding:4px 11px;">이 ' + g.length + '곳을 ' + esc(survivor) + ' 로 합치기</button></div>';
             }).join('') + '</div>';
         }
+        var ng = (j.name_groups || []);
+        var ngHTML = '';
+        if (reviewIsAdmin && ng.length) {
+          ngHTML = '<div style="margin:4px 0 14px;padding:11px 13px;border:1px solid var(--em);border-radius:10px;background:rgba(46,160,110,0.07);">' +
+            '<div style="font-size:13px;font-weight:700;color:var(--em);margin-bottom:9px;">🔤 이름이 비슷한 호텔 (같은 곳일 수 있음 — 확인 후 합치기) — ' + ng.length + '그룹</div>' +
+            ng.map(function (g) {
+              var survivor = g[0].hotel_code;
+              var codes = g.map(function (h) { return h.hotel_code; }).join(',');
+              var rows = g.map(function (h, i) {
+                return '<div style="font-size:12px;color:var(--txt);padding:2px 0;">' + (i === 0 ? '<b style="color:var(--em);">[대표]</b> ' : '· ') + esc(h.hotel_code) + ' ' + esc(h.hotel_name || '') + ' <span style="color:var(--muted);">(' + esc(h.city || '') + '·예약 ' + (h.booking_count || 0) + ')</span></div>';
+              }).join('');
+              return '<div style="border-top:0.5px solid var(--line);padding:9px 0;">' + rows +
+                '<button class="st-rv-ok st-cg-merge" data-codes="' + esc(codes) + '" style="background:var(--em);border-color:var(--em);color:#fff;margin-top:6px;font-size:11.5px;padding:4px 11px;">이 ' + g.length + '곳을 ' + esc(survivor) + ' 로 합치기</button></div>';
+            }).join('') + '</div>';
+        }
         body.innerHTML =
-          '<div class="st-hint">시스템이 "이건 잘못 묶였을 수도 있다"고 표시한 호텔입니다. 맞으면 [맞음·확정]. <b>같은 호텔이 다른 코드로 나뉘었으면</b> 그 호텔들을 체크하고 [합치기]를 누르세요.</div>' +
-          cgHTML +
+          '<div class="st-hint">시스템이 "이건 잘못 묶였을 수도 있다"고 표시한 호텔입니다. <b>📍좌표·🔤이름</b>으로 같은 곳이면 [합치기], 아래 낱개는 별개면 [맞음·확정].</div>' +
+          cgHTML + ngHTML +
           (reviewIsAdmin ? '<div id="st-rv-mergebar" style="display:none;position:sticky;top:0;background:var(--card);padding:8px 0 10px;z-index:3;"><button id="st-rv-merge" class="st-rv-ok" style="background:#2d6cdf;border-color:#2d6cdf;color:#fff;">선택 <span id="st-rv-mergen">0</span>개를 하나로 합치기</button> <span class="st-rv-note">맨 위 코드로 합쳐집니다</span></div>' : '') +
           j.hotels.map(function (h) {
             var star = h.star_rating ? ('★' + h.star_rating) : '';

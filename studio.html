@@ -3914,6 +3914,8 @@ function pkT(code){
 var SS_RUNNING=[], SS_NEWDONE=[], SS_DONE=[];
 function renderSurveyStatus(){
   var el=document.getElementById('kw-newdone'); if(!el) return;
+  var curW=(history.state&&history.state.w)||'m';
+  if(curW!=='m'){ el.style.display='none'; return; }   /* 메인(나라 선택 전)에만 */
   if(!(SS_RUNNING.length+SS_NEWDONE.length+SS_DONE.length)){ el.style.display='none'; el.innerHTML=''; return; }
   el.style.display='block';
   function chip(label,n,bg,fg){ return '<div style="background:'+bg+';border-radius:8px;padding:9px 12px;flex:1;"><div style="font-size:11.5px;color:'+fg+';">'+label+'</div><div style="font-size:20px;font-weight:700;color:'+fg+';margin-top:1px;">'+n+'</div></div>'; }
@@ -5194,6 +5196,8 @@ function bc(l,e){var h='<a onclick="go(\'m\')">이번 달</a>';
  document.getElementById('bc').innerHTML=h;}
 function sh(id){document.querySelectorAll('.sc').forEach(function(s){s.classList.remove('on');});document.getElementById(id).classList.add('on');window.scrollTo(0,0);}
 function vw(w,a,b){
+ var _nd=document.getElementById('kw-newdone');
+ if(_nd) _nd.style.display=(w==='m' && (SS_RUNNING.length+SS_NEWDONE.length+SS_DONE.length))?'block':'none';   /* 조사 현황판은 메인(나라 선택 전)에만 */
  if(w==='m'){sh('s1');document.getElementById('bc').innerHTML='';return;}
  if(w==='c'){rc(a);sh('s2');bc('c',a);return;}
  if(w==='d'){if(b)cc=b;rdd(a);sh('s3');bc('d',a);return;}

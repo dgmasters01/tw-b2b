@@ -5,6 +5,12 @@
 
 ---
 
+## 2026-07-20 호텔 중복 판정·병합 시스템 (D-071 신설)
+
+| # | 결정 | 요지 | 원문 |
+|---|---|---|---|
+| **D-071** | **호텔 중복 판정·병합(좌표 기반)** | 같은 호텔이 다른 hotel_code로 나뉨(ZONK Hakata 등). 이름만으론 못 잡음→**좌표(GPS) 같으면 자동 그룹**(v_coord_dup_hotels·아고다 좌표·구글 안 씀). merge_status confirmed/ambiguous/merged. 병합=대표(예약많은 것)에 아고다ID 합집합·예약 중복제거 재계산(bookings_unified distinct unified_id·29+28=57 아님)·흡수코드 merged. 확인함 상단 "📍좌표 같은 호텔" 그룹+원클릭 합치기. **자동 병합 안 함·대표님 확인 필수**(같은 건물 다른 호텔 오판 방지). 53그룹·109곳 발견. hotel-review.js·v_coord_dup_hotels·studio 확인함 | 2026-07-20-hotel-dedup-merge.md |
+
 ## 2026-07-20 나라별 지역 파싱 + 측정 시스템 정리 (D-070 신설)
 
 | # | 결정 | 요지 | 원문 |

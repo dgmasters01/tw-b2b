@@ -79,9 +79,10 @@ async function register(base, filename, docxBase64) {
   if (r.status === 409) return { verdict: 'review', reason: '중복', detail: ['이미 등록·발행된 원고입니다. 대기 폴더에서 이 파일을 지워 주세요.'] };
   if (!r.ok || !j.ok) {
     const err = String(j.error || '알 수 없는 오류');
-    if (/파일명|형식|source_filename|channel/.test(err))
-      return { verdict: 'review', reason: '파일명 형식', detail: ['파일명에서 도시·지역·성급·가격대를 읽지 못했습니다.', '파일명 예: "002 오사카 우메다 3성급 10만원미만 호텔.docx"', '자세히: ' + err] };
-    return { verdict: 'review', reason: '원고 형식', detail: ['원고 본문을 규격대로 읽지 못했습니다.', '자세히: ' + err] };
+    const more = (j.detail && typeof j.detail === 'string') ? ['자세히: ' + j.detail] : [];
+    if (/파일명|source_filename/.test(err))
+      return { verdict: 'review', reason: '파일명 형식', detail: ['고쳐야 할 곳: ' + err, '파일명 예: "002 오사카 우메다 3성급 10만원미만 호텔.docx"'].concat(more) };
+    return { verdict: 'review', reason: '원고 형식', detail: ['고쳐야 할 곳: ' + err].concat(more) };
   }
 
   // 등록됐지만 막는 문제(아고다 링크 없음·cid 불일치)면 확인필요 — 메인 리스트엔 안 남긴다.

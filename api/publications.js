@@ -18,7 +18,7 @@
 //
 // GET /api/publications?channel=HT&status=draft  → 장부 조회 (관리자 확인용)
 //
-// 규칙: source_filename 이 같으면 덮어쓴다. 같은 원고를 두 번 넣어도 줄이 안 늘어난다.
+// 규칙: source_filename «+ channel_code» 가 같으면 덮어쓴다(같은 채널 재투입). 채널이 다르면 별개 발행(다채널 배포·D-072).
 //       단 이미 published 인 줄은 건드리지 않는다 (유튜브에 이미 올라갔다).
 
 import { createClient } from '@supabase/supabase-js';
@@ -365,9 +365,12 @@ export default async function handler(req, res) {
   if (!row.channel_code) return res.status(400).json({ ok: false, error: 'channel_code 를 알 수 없습니다.' });
 
   // 이미 발행된 줄은 건드리지 않는다. 유튜브에 이미 올라갔다.
+  // 중복 판정 = 파일명 «+ 채널». 하나의 원고를 여러 채널에 배포하면 채널마다 cid가 달라
+  // 다른 발행이다(D-072). 같은 파일명이라도 채널이 다르면 막지 않는다. 같은 채널 안에서만 중복.
   const { data: exist } = await sb.from('publications')
     .select('id, status, city, region, source, uploaded_by_email, created_at')
     .eq('source_filename', row.source_filename)
+    .eq('channel_code', row.channel_code)
     .eq('is_duplicate', false)   // 원본 1건만 비교 대상. 이미 만든 중복끼리는 또 안 막는다.
     .maybeSingle();
 

@@ -3117,21 +3117,33 @@
         reviewIsAdmin = !!j.is_admin;
         if (!j.hotels || !j.hotels.length) { body.innerHTML = '<div class="st-empty">확인할 호텔이 없습니다. 모두 정리됐습니다.</div>'; return; }
         body.innerHTML =
-          '<div class="st-hint">시스템이 "이건 잘못 묶였을 수도 있다"고 표시한 호텔입니다. 맞으면 [맞음·확정]을 누르세요. 아무 것도 안 눌러도 시스템은 그대로 돕니다.</div>' +
+          '<div class="st-hint">시스템이 "이건 잘못 묶였을 수도 있다"고 표시한 호텔입니다. 맞으면 [맞음·확정]. <b>같은 호텔이 다른 코드로 나뉘었으면</b> 그 호텔들을 체크하고 [합치기]를 누르세요.</div>' +
+          (reviewIsAdmin ? '<div id="st-rv-mergebar" style="display:none;position:sticky;top:0;background:var(--card);padding:8px 0 10px;z-index:3;"><button id="st-rv-merge" class="st-rv-ok" style="background:#2d6cdf;border-color:#2d6cdf;color:#fff;">선택 <span id="st-rv-mergen">0</span>개를 하나로 합치기</button> <span class="st-rv-note">맨 위 코드로 합쳐집니다</span></div>' : '') +
           j.hotels.map(function (h) {
             var star = h.star_rating ? ('★' + h.star_rating) : '';
             var meta = [h.country, h.city, star].filter(Boolean).join(' · ');
+            var chk = reviewIsAdmin ? '<input type="checkbox" class="st-rv-chk" data-code="' + esc(h.hotel_code) + '" style="margin-right:8px;transform:scale(1.25);vertical-align:middle;cursor:pointer;">' : '';
             var act = reviewIsAdmin
               ? '<button class="st-rv-ok" data-code="' + esc(h.hotel_code) + '">맞음 · 확정</button>'
               : '<span class="st-rv-note">확정은 대표님만 할 수 있습니다</span>';
             return '<div class="st-rv-item">' +
-              '<div class="st-rv-main"><span class="st-rv-code">' + esc(h.hotel_code) + '</span> <span class="st-rv-name">' + esc(h.hotel_name || '') + '</span></div>' +
+              '<div class="st-rv-main">' + chk + '<span class="st-rv-code">' + esc(h.hotel_code) + '</span> <span class="st-rv-name">' + esc(h.hotel_name || '') + '</span></div>' +
               '<div class="st-rv-meta">' + esc(meta) + ' · 예약 ' + (h.booking_count || 0) + '건 · 아고다ID ' + (h.agoda_count || 0) + '개</div>' +
               '<div class="st-rv-reason">' + esc(h.reason || '') + '</div>' +
               '<div class="st-rv-act">' + act + '</div>' +
             '</div>';
           }).join('');
-        body.querySelectorAll('.st-rv-ok').forEach(function (b) { b.onclick = function () { confirmReview(b.dataset.code, b); }; });
+        body.querySelectorAll('.st-rv-ok[data-code]').forEach(function (b) { b.onclick = function () { confirmReview(b.dataset.code, b); }; });
+        (function () {
+          function updateBar() {
+            var n = body.querySelectorAll('.st-rv-chk:checked').length;
+            var bar = document.getElementById('st-rv-mergebar'), cnt = document.getElementById('st-rv-mergen');
+            if (cnt) cnt.textContent = n;
+            if (bar) bar.style.display = n >= 2 ? 'block' : 'none';
+          }
+          body.querySelectorAll('.st-rv-chk').forEach(function (c) { c.onchange = updateBar; });
+          var mb = document.getElementById('st-rv-merge'); if (mb) mb.onclick = mergeReview;
+        })();
       })
       .catch(function (e) { body.innerHTML = '<div class="st-empty">' + esc(e.message) + '</div>'; });
   }
@@ -3150,7 +3162,24 @@
       })
       .catch(function (e) { btn.disabled = false; btn.textContent = '맞음 · 확정'; alert(e.message); });
   }
-  function renderHotelStatus() {
+  function mergeReview() {
+    var body = document.getElementById('st-review-body');
+    var checked = [].slice.call(body.querySelectorAll('.st-rv-chk:checked')).map(function (c) { return c.dataset.code; });
+    if (checked.length < 2) { alert('합칠 호텔을 2개 이상 체크하세요.'); return; }
+    var survivor = checked[0], from = checked.slice(1);
+    if (!confirm('같은 호텔이 맞습니까?\n\n남길 코드: ' + survivor + '\n합쳐질 코드: ' + from.join(', ') + '\n\n예약과 아고다ID가 ' + survivor + ' 로 합쳐지고, 나머지는 숨겨집니다.')) return;
+    var mb = document.getElementById('st-rv-merge'); if (mb) { mb.disabled = true; mb.textContent = '합치는 중…'; }
+    fetch('/api/hotel-review', { method: 'POST', credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ hotel_code: survivor, action: 'merge', merge_from: from }) })
+      .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+      .then(function (x) {
+        if (!x.ok || !x.j.ok) throw new Error(x.j.error || '합치지 못했습니다.');
+        alert('합쳤습니다.\n' + survivor + ' · 예약 ' + x.j.booking_count + '건 · 아고다ID ' + x.j.agoda_ids + '개');
+        openReview(); loadReviewCount();
+      })
+      .catch(function (e) { if (mb) { mb.disabled = false; mb.textContent = '합치기'; } alert(e.message); });
+  }
     var box = document.getElementById('st-ht-status');
     if (!box) return;
     var all = htAll, total = all.length;

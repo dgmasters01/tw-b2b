@@ -141,3 +141,4 @@
 | 2026-07-20 | D-070 등록 (나라별 지역 파싱 틀 + 측정 시스템 / api/_lib/district-parse.js) |
 | 2026-07-20 | D-071 등록 (호텔 중복 판정·병합 — 좌표 기반 / api/hotel-review.js) |
 | 2026-07-21 | D-072 등록 (다채널 배포 — cid가 채널 정함·채널 간 cid 다름 정상·중복=파일명+채널·예약기간 다르면 다른 콘텐츠 / api/publications.js) |
+| 2026-07-21 | D-073 등록 (키워드 월별 재조사 — 봇이 이번 달 ym snapshot 없는 도시 재조사·조사일 finished_at 표시·완성 결과보기 제거·월별 그래프 ym 기반 / api/content-keywords.js) |

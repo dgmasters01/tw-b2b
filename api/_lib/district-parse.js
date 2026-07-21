@@ -1,76 +1,74 @@
 // api/_lib/district-parse.js
 // ─────────────────────────────────────────────────────────────
-// 주소 한 줄 → 지역(동네/구) 한글. D-069: 아고다 주소로 지역을 채운다(구글 안 씀).
-//   아고다 형식: "3-5-18 Tenjin Chuo-ku, Fukuoka-shi"  (동네 + -ku 구)
-//   구글 형식  : "…, Naniwa Ward, Osaka, …"           (X Ward)
-//   비일본     : "…, Xtumnu, Bangkok" 등 → 아직 미지원(null → "주소 못 찾음"에 남음)
-// 안전: 못 뽑으면 null 을 준다(엉뚱한 지역으로 안 박는다).
+// 주소 한 줄 → 지역(동네/구) 한글/현지명. D-069/D-070: 아고다 주소로 지역을 채운다(구글 안 씀).
+// ★ 나라마다 지역 체계가 다르다 → 나라별 규칙을 순서대로 시도한다. 새 나라는 규칙만 추가.
+//   일본  : "Tenjin Chuo-ku" (동네 + -ku 구)         → 동네/구
+//   베트남: "... Phuoc My Ward, Son Tra District"     → Ward(동) 우선
+//   태국  : "..., Klongtoeynua, Wattana Bangkok"      → 켓(구) 이름 목록
+//   대만  : "No.23, Sec.5, ... Road" (구 자주 없음)   → 구 이름 목록(있을 때만)
+// 안전: 못 뽑으면 null (엉뚱한 지역으로 안 박는다) → 진행도에 "규칙 없음"으로 보인다.
 // ─────────────────────────────────────────────────────────────
 
-// 동네(사람이 검색하는 단위) — 이름으로 매칭. 도시 무관하게 이름이 곧 지역.
-const AREA = {
-  // 후쿠오카
-  tenjin: '텐진', hakata: '하카타', nakasu: '나카스', daimyo: '다이묘', gion: '기온',
-  sumiyoshi: '스미요시', imaizumi: '이마이즈미', watanabedori: '와타나베도리', watanabe: '와타나베도리',
-  kiyokawa: '기요카와', jigyo: '지교', arato: '아라토', shirogane: '시로가네', ozasa: '오자사',
-  yakuin: '야쿠인', ropponmatsu: '롯폰마쓰', ohori: '오호리', nishijin: '니시진', momochi: '모모치',
-  maizuru: '마이즈루', haruyoshi: '하루요시', hakozaki: '하코자키', reisen: '레이센',
-  // 오사카
+// ── 일본: 동네 이름 + 구(-ku / X Ward) ──
+const JP_AREA = {
+  tenjin: '텐진', hakata: '하카타', nakasu: '나카스', daimyo: '다이묘', gion: '기온', sumiyoshi: '스미요시',
+  imaizumi: '이마이즈미', watanabedori: '와타나베도리', watanabe: '와타나베도리', kiyokawa: '기요카와',
+  jigyo: '지교', arato: '아라토', shirogane: '시로가네', ozasa: '오자사', yakuin: '야쿠인', ropponmatsu: '롯폰마쓰',
+  ohori: '오호리', nishijin: '니시진', momochi: '모모치', maizuru: '마이즈루', haruyoshi: '하루요시', hakozaki: '하코자키',
   namba: '난바', umeda: '우메다', shinsaibashi: '신사이바시', tennoji: '덴노지', yodoyabashi: '요도야바시',
-  dotonbori: '도톤보리', nipponbashi: '닛폰바시', shinsekai: '신세카이', honmachi: '혼마치', bentencho: '벤텐초',
-  // 도쿄
-  shinjuku: '신주쿠', shibuya: '시부야', ginza: '긴자', asakusa: '아사쿠사', ueno: '우에노',
-  ikebukuro: '이케부쿠로', akihabara: '아키하바라', roppongi: '롯폰기', shinagawa: '시나가와',
-  nihonbashi: '니혼바시', hamamatsucho: '하마마쓰초', kanda: '간다', ryogoku: '료고쿠', odaiba: '오다이바',
-  // 교토
-  kawaramachi: '가와라마치', arashiyama: '아라시야마', fushimi: '후시미', kiyomizu: '기요미즈', karasuma: '가라스마',
-  // 나고야
-  sakae: '사카에', meieki: '메이에키', kanayama: '가나야마',
+  dotonbori: '도톤보리', nipponbashi: '닛폰바시', shinsekai: '신세카이', honmachi: '혼마치',
+  shinjuku: '신주쿠', shibuya: '시부야', ginza: '긴자', asakusa: '아사쿠사', ueno: '우에노', ikebukuro: '이케부쿠로',
+  akihabara: '아키하바라', roppongi: '롯폰기', shinagawa: '시나가와', nihonbashi: '니혼바시', kanda: '간다',
+  kawaramachi: '가와라마치', arashiyama: '아라시야마', fushimi: '후시미', gionshijo: '기온', sakae: '사카에', meieki: '메이에키',
+};
+const JP_WARD = {
+  chuo: '중앙구', chuou: '중앙구', chou: '중앙구', naka: '나카구', higashi: '동구', minami: '남구', nishi: '서구',
+  kita: '북구', jonan: '성남구', sawara: '사와라구', naniwa: '나니와구', yodogawa: '요도가와구', taito: '다이토구',
+  sumida: '스미다구', koto: '고토구', ota: '오타구', nakagyo: '나카교구', shimogyo: '시모교구', sakyo: '사쿄구',
 };
 
-// 구(ward) — -ku 또는 X Ward
-const WARD = {
-  chuo: '중앙구', chuou: '중앙구', chou: '중앙구', naka: '나카구',
-  higashi: '동구', minami: '남구', nishi: '서구', kita: '북구',
-  jonan: '성남구', sawara: '사와라구', naniwa: '나니와구', yodogawa: '요도가와구',
-  taito: '다이토구', sumida: '스미다구', koto: '고토구', ota: '오타구', setagaya: '세타가야구',
-  nakagyo: '나카교구', shimogyo: '시모교구', kamigyo: '가미교구', sakyo: '사쿄구', ukyo: '우쿄구',
+// ── 태국(방콕): 켓(구) 이름 → 한글 ──
+const TH_KHET = {
+  wattana: '왓타나', watthana: '왓타나', sathon: '사톤', sathorn: '사톤', bangrak: '방락', pathumwan: '빠툼완',
+  khlongtoei: '클롱토이', klongtoey: '클롱토이', pranakorn: '프라나콘', phranakhon: '프라나콘', huaikhwang: '후아이쾅',
+  ratchathewi: '랏차테위', dusit: '두싯', chatuchak: '짜뚜짝', bangkapi: '방까삐', phayathai: '파야타이',
+  bangna: '방나', silom: '실롬', sukhumvit: '수쿰윗', thonglor: '통러', ekkamai: '에까마이', ari: '아리',
 };
+
+// ── 대만(타이베이): 구(區) 이름 → 한글 ──
+const TW_DIST = {
+  zhongshan: '중산구', daan: '다안구', "da'an": '다안구', xinyi: '신이구', wanhua: '완화구', zhongzheng: '중정구',
+  datong: '다퉁구', songshan: '송산구', shilin: '스린구', beitou: '베이터우구', neihu: '네이후구', nangang: '난강구',
+  wenshan: '원산구', ximen: '시먼', ximending: '시먼딩',
+};
+
+const norm = (s) => String(s || '').toLowerCase().replace(/[^a-z]/g, '');
+const has = (map, hay) => { for (const k of Object.keys(map)) { if (hay.includes(k)) return map[k]; } return null; };
 
 export function districtOf(address) {
   if (!address) return null;
   const raw = String(address);
-  const n = raw.toLowerCase().replace(/[-,.]/g, ' ');
-  const nn = n.replace(/\s+/g, '');
+  const low = raw.toLowerCase().replace(/[-_.]/g, ' ');
+  const nn = low.replace(/\s+/g, '');
 
-  // 1) 동네 이름 매칭 (사람이 검색하는 단위 — 최우선)
-  for (const [k, v] of Object.entries(AREA)) { if (nn.includes(k)) return v; }
-
-  // 2) 구글 "X Ward"
-  const w = raw.match(/([A-Za-z]+)\s+Ward/);
-  if (w) {
-    const key = w[1].toLowerCase();
-    if (WARD[key]) return WARD[key];
-    if (AREA[key]) return AREA[key];
-    return w[1] + '구';           // 모르는 구여도 이름은 살린다
-  }
-
-  // 3) 아고다 "-ku"
-  const m = n.match(/([a-z]+)\s*ku\b/);
-  if (m) {
-    if (WARD[m[1]]) return WARD[m[1]];
-    if (AREA[m[1]]) return AREA[m[1]];
-  }
-  return null;                     // 못 뽑으면 안 박는다(안전)
+  // ── ① 일본: 동네 이름 → -ku → X Ward(일본 구 이름) ──
+  const jpArea = has(JP_AREA, nn); if (jpArea) return jpArea;
+  // ── ② 베트남/동남아: 쉼표 조각 중 "... Ward"(동) 우선, 없으면 "... District"(군) ──
+  const parts = raw.split(',').map((s) => s.trim());
+  for (const p of parts) { const m = p.match(/^(.+?)\s+ward$/i); if (m && m[1].length < 30) return m[1].trim(); }
+  for (const p of parts) { const m = p.match(/^(.+?)\s+district$/i); if (m && m[1].length < 30 && !/^\d/.test(m[1])) return m[1].trim(); }
+  // ── ③ 태국: 켓(구) 이름 목록 ──
+  const th = has(TH_KHET, nn); if (th) return th;
+  // ── ④ 대만: 구(區) 이름 목록 ──
+  const tw = has(TW_DIST, nn); if (tw) return tw;
+  // ── ⑤ 일본 구(-ku / X Ward) ──
+  const jw = raw.match(/([A-Za-z]+)\s+Ward/); if (jw && JP_WARD[jw[1].toLowerCase()]) return JP_WARD[jw[1].toLowerCase()];
+  const ku = low.match(/([a-z]+)\s*ku\b/); if (ku) { if (JP_WARD[ku[1]]) return JP_WARD[ku[1]]; if (JP_AREA[ku[1]]) return JP_AREA[ku[1]]; }
+  return null; // 규칙 없는 나라·형태 → 안 박는다(진행도에 "규칙 없음")
 }
 
-// 여러 주소 중 처음으로 지역이 나오는 것을 쓴다
 export function districtFromAny(addresses) {
-  for (const a of addresses || []) {
-    const d = districtOf(a);
-    if (d) return d;
-  }
+  for (const a of addresses || []) { const d = districtOf(a); if (d) return d; }
   return null;
 }
-
 export default { districtOf, districtFromAny };

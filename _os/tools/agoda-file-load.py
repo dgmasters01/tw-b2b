@@ -145,52 +145,56 @@ def step_hotels(path):
 
 REFRESH = False   # --refresh 로 켠다 (월 1회 갱신)
 
-def step_inventory(path, top, target, resume=True):
-    """② 상세 — 예약 있는 도시만. 전 세계는 안 담는다(창구 한도 60/h).
+def step_inventory(path, top=None, target="ko", resume=True):
+    """② 상세 — 🔴 «우리 호텔»만 담는다. 도시 통째로는 절대 안 담는다.
 
-    🔴 2026-07-22 이어담기(resume) 추가 — 대표님 *"매번 다운 받을 수 없잖아"*
-       이미 담은 도시는 건너뛴다. 옛 방식은 --top 을 올릴 때마다 앞 도시를 통째로 다시 보내
-       창구 한도(60/h)를 그냥 태웠다. 이제 «안 담은 도시»만 예약 많은 순으로 이어 담는다.
+    ── 2026-07-22 사고 기록 ────────────────────────────────────────────
+    옛 방식: «예약 있는 도시 전부»를 통째로 담았다 → 166도시 36만 곳 = 418MB.
+             언어별 이름까지 145만 행 = 361MB. DB 가 200MB → 835MB 로 부풀었다.
+             Supabase 무료(NANO·메모리 0.5GB)를 넘겨 디스크 IO 예산이 소진되고,
+             **로그인이 36초 걸리다 죽었다. 서비스 몇 시간 중단.**
+    교훈:    참고 자료는 사업 DB 에 살면 안 된다. «우리 것»만 추려 담는다.
+             오사카 12,328곳 중 우리와 상관있는 건 255곳뿐이었다.
+
+    담는 기준 = 아래 셋의 합집합 (대표님 2026-07-22 지적: 취소 예약도 포함할 것)
+      ① 호텔 마스터가 가진 아고다ID   ② 예약에 한 번이라도 나온 아고다ID(취소 포함)
+      ③ (①②에 이미 포함) 발행 콘텐츠의 호텔
+    → 약 4,000곳 · 5MB 남짓. 무료 그릇의 1%.
+
+    무거운 칸(overview 소개글·photo1 사진주소)은 담지 않는다. 우리는 안 쓴다.
     """
-    ids = [str(x["city_id"]) for x in q(
-        "select ac.city_id from (select city,country,coalesce(sum(booking_count),0) bk from hotels "
-        "where merge_status<>'merged' group by 1,2) x join agoda_city ac "
-        "on lower(ac.city)=lower(x.city) and lower(ac.country)=lower(x.country) "
-        f"where x.bk>0 order by x.bk desc limit {top}")["rows"]]
-    if resume:
-        done = {str(x["city_id"]) for x in q("select distinct city_id from agoda_inventory")["rows"]}
-        skipped = [c for c in ids if c in done]
-        ids = [c for c in ids if c not in done]
-        print(f"  이미 담김 {len(skipped)}도시 건너뜀 → 이번에 담을 도시 {len(ids)}개", flush=True)
-        if not ids:
-            print("  ✅ 더 담을 도시가 없습니다."); return
-    ids = set(ids)
+    keep = set()
+    for row in q("select unnest(agoda_hotel_ids) aid from hotels where agoda_hotel_ids is not null")["rows"]:
+        if row.get("aid"): keep.add(str(row["aid"]))
+    for row in q("select distinct hotel_id_agoda aid from bookings_agoda where hotel_id_agoda is not null")["rows"]:
+        if row.get("aid"): keep.add(str(row["aid"]))
+    print(f"  우리 호텔 아고다ID {len(keep):,}개만 담는다 (예약 취소분 포함)", flush=True)
+    if not keep:
+        print("  ⚠️ 대상이 0개다. 중단한다."); return
+
     r, ix = read(path)
-    rows = [row for row in r if len(row) >= 39 and row[ix["city_id"]] in ids]
-    print(f"  도시 {len(ids)}개 · {len(rows):,}행", flush=True)
+    rows = [x for x in r if len(x) >= 39 and x[0] in keep]
+    print(f"  파일에서 찾음 {len(rows):,}행", flush=True)
+
     inv, nam = [], []
     for x in rows:
-        ov = (x[ix["overview"]] or "")[:2000]
         inv.append(f"({I(x[0])},{S(x[ix['city']])},{I(x[ix['city_id']])},{S(x[ix['country']])},{I(x[ix['country_id']])},"
                    f"{S(x[ix['hotel_name']])},{S(x[ix['hotel_translated_name']])},{S(x[ix['addressline1']])},{S(x[ix['zipcode']])},"
                    f"{N(x[ix['star_rating']])},{N(x[ix['latitude']])},{N(x[ix['longitude']])},{I(x[ix['numberrooms']])},"
                    f"{I(x[ix['yearopened']])},{I(x[ix['number_of_reviews']])},{N(x[ix['rating_average']])},"
-                   f"{S(x[ix['photo1']])},{S(ov)},{S(x[ix['url']])})")
-        nam.append(f"({I(x[0])},'{target}',{S(x[ix['hotel_translated_name']])},{S(ov)})")
-    # 🔴 2026-07-22 — 월 1회 갱신 때는 «덮어쓴다». do nothing 이면 평점·리뷰수·객실수가 영원히 옛날 값이다.
-    #    (중복 판정이 리뷰수·객실수를 물증으로 쓰므로 낡으면 판정이 틀린다.)
+                   f"null,null,{S(x[ix['url']])})")          # photo1·overview 는 담지 않는다(용량)
+        nam.append(f"({I(x[0])},'{target}',{S(x[ix['hotel_translated_name']])},null)")
     tail_inv = (" on conflict (agoda_hotel_id) do update set city=excluded.city, city_id=excluded.city_id,"
                 " country=excluded.country, hotel_name=excluded.hotel_name, hotel_name_ko=excluded.hotel_name_ko,"
                 " address=excluded.address, star_rating=excluded.star_rating, latitude=excluded.latitude,"
                 " longitude=excluded.longitude, number_of_rooms=excluded.number_of_rooms,"
                 " review_count=excluded.review_count, review_score=excluded.review_score,"
-                " photo1=excluded.photo1, overview=excluded.overview, url=excluded.url, fetched_at=now();"
-                ) if REFRESH else " on conflict (agoda_hotel_id) do nothing;"
+                " url=excluded.url, fetched_at=now();")
     push(inv, "insert into agoda_inventory (agoda_hotel_id,city,city_id,country,country_id,hotel_name,hotel_name_ko,"
               "address,zipcode,star_rating,latitude,longitude,number_of_rooms,year_opened,review_count,review_score,"
               "photo1,overview,url) values ", tail_inv, "재고")
     push(nam, "insert into agoda_inventory_name (agoda_hotel_id,target_code,hotel_name,overview) values ",
-              " on conflict (agoda_hotel_id,target_code) do nothing;", "이름")
+              " on conflict (agoda_hotel_id,target_code) do update set hotel_name=excluded.hotel_name;", "이름")
 
 
 def step_names(path, target):

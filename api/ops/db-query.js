@@ -34,7 +34,10 @@ const RATE_STATE = globalThis.__dbQueryRateState || (globalThis.__dbQueryRateSta
   count: 0,
 });
 const RATE_WINDOW_MS = 60 * 60 * 1000; // 1시간
-const RATE_LIMIT = 600;                // 시간당 600 query (대량 적재용 · 2026-07-22 상향)
+const RATE_LIMIT = 120;                // 시간당 120 query
+// 🔴 2026-07-22 저녁 되돌림: 600 → 120.
+//    600 으로 올린 뒤 대량 적재를 몰아쳐 DB가 뻗었다(로그인 40초·REST 타임아웃).
+//    대량 적재는 «한도를 올려서»가 아니라 «천천히 나눠서» 해야 한다.
 
 // 복구 불가 파괴 구문 하드 차단 (정상 DDL인 DROP TABLE/POLICY/TRIGGER/INDEX 등은 허용)
 const FORBIDDEN = [

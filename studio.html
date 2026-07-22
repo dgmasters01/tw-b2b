@@ -3125,13 +3125,15 @@
             cg.map(function (g) {
               var survivor = g[0].hotel_code;
               var codes = g.map(function (h) { return h.hotel_code; }).join(',');
+              var alike = !!g[0].name_alike;
+              var warn = alike ? '' : '<div style="font-size:11px;color:#e08a4e;padding:2px 0 0;">⚠ 이름이 서로 다릅니다 — 같은 건물의 다른 호텔일 수 있으니 확인 후 합치세요</div>';
               var rows = g.map(function (h, i) {
                 var d0 = (i === 0 || h.dist_m == null) ? '' : '·' + h.dist_m + 'm 거리';
                 var s0 = h.star_rating ? '·★' + h.star_rating : '';
                 return '<div style="font-size:12px;color:var(--txt);padding:2px 0;">' + (i === 0 ? '<b style="color:#7aa5f0;">[대표]</b> ' : '· ') + esc(h.hotel_code) + ' ' + esc(h.hotel_name || '') + ' <span style="color:var(--muted);">(' + esc(h.city || '') + s0 + '·예약 ' + (h.booking_count || 0) + d0 + ')</span></div>';
               }).join('');
-              return '<div style="border-top:0.5px solid var(--line);padding:9px 0;">' + rows +
-                '<button class="st-rv-ok st-cg-merge" data-codes="' + esc(codes) + '" style="background:#2d6cdf;border-color:#2d6cdf;color:#fff;margin-top:6px;font-size:11.5px;padding:4px 11px;">이 ' + g.length + '곳을 ' + esc(survivor) + ' 로 합치기</button></div>';
+              return '<div style="border-top:0.5px solid var(--line);padding:9px 0;">' + rows + warn +
+                '<button class="st-rv-ok st-cg-merge" data-codes="' + esc(codes) + '" style="background:' + (alike ? '#2d6cdf' : '#6b7280') + ';border-color:' + (alike ? '#2d6cdf' : '#6b7280') + ';color:#fff;margin-top:6px;font-size:11.5px;padding:4px 11px;">이 ' + g.length + '곳을 ' + esc(survivor) + ' 로 합치기</button></div>';
             }).join('') + '</div>';
         }
         var ng = (j.name_groups || []);

@@ -169,12 +169,24 @@ export default async function handler(req, res) {
           }));
         })
         .sort((a, b) => (b[0].booking_count || 0) - (a[0].booking_count || 0));
+      // 이름까지 비슷하면 «거의 확실», 이름이 전혀 다르면 «같은 건물 다른 호텔»일 수 있다 → 화면에 신호를 준다
+      const STOPW = new Set(['hotel', 'the', 'and', 'de', 'city', 'resort', 'inn', 'by', 'a', 'of', 'suites', 'spa']);
+      const core = (n) => new Set(String(n || '').toLowerCase().replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter((x) => x.length > 2 && !STOPW.has(x)));
+      for (const g of coord_groups) {
+        const base = core(g[0].hotel_name);
+        let same = true;
+        for (let k = 1; k < g.length; k++) {
+          const c = core(g[k].hotel_name);
+          if (![...c].some((w) => base.has(w))) { same = false; break; }
+        }
+        for (const h of g) h.name_alike = same;
+      }
+      coord_groups.sort((a, b) => (b[0].name_alike ? 1 : 0) - (a[0].name_alike ? 1 : 0) || (b[0].booking_count || 0) - (a[0].booking_count || 0));
     } catch { /* 못 읽으면 좌표 그룹만 비운다 */ }
 
-    // 아래 애매 목록에서 «위 좌표 그룹에 이미 있는 호텔»은 뺀다 (중복으로 헷갈림 방지)
-    const cgCodes = new Set();
-    for (const g of coord_groups) for (const h of g) cgCodes.add(h.hotel_code);
-    const hotelsOnly = hotels.filter((h) => !cgCodes.has(h.hotel_code));
+    // 좌표 그룹에 «어느 그룹의» 호텔인지 (같은 그룹이면 위에서 이미 처리됨)
+    const cgOf = {};
+    coord_groups.forEach((g, gi) => { for (const h of g) cgOf[h.hotel_code] = gi; });
 
     // 이름이 비슷한 것끼리 묶기 (좌표로 안 잡힌 같은 호텔 후보 — 도시 + 앞 의미단어 2개)
     const stop = new Set(['hotel', 'the', 'and', 'de', 'city', 'resort', 'inn', 'by', 'a', 'of']);
@@ -183,9 +195,11 @@ export default async function handler(req, res) {
       return (city || '') + '|' + (w[0] || '') + '|' + (w[1] || '');
     };
     const byName = {};
-    for (const h of hotelsOnly) { const k = nameKey(h.hotel_name, h.city); (byName[k] = byName[k] || []).push(h); }
+    for (const h of hotels) { const k = nameKey(h.hotel_name, h.city); (byName[k] = byName[k] || []).push(h); }
     const name_groups = Object.values(byName)
       .filter((g) => g.length > 1)
+      // 이미 «같은 좌표 그룹»으로 위에 뜬 것은 두 번 보여주지 않는다
+      .filter((g) => !(cgOf[g[0].hotel_code] !== undefined && g.every((h) => cgOf[h.hotel_code] === cgOf[g[0].hotel_code])))
       .map((g) => {
         g.sort((a, b) => (b.booking_count || 0) - (a.booking_count || 0));
         // 대표에서 몇 m 떨어져 있나 — 멀면 «다른 곳»일 확률이 높다는 신호를 화면에 준다
@@ -197,7 +211,10 @@ export default async function handler(req, res) {
         });
       })
       .sort((a, b) => (b[0].booking_count || 0) - (a[0].booking_count || 0));
-    const singletons = Object.values(byName).filter((g) => g.length === 1).map((g) => g[0]);
+    // 낱개 = 좌표 그룹에도 없고 이름 그룹에도 안 뜬 애매 호텔
+    const shown = new Set();
+    for (const g of name_groups) for (const h of g) shown.add(h.hotel_code);
+    const singletons = hotels.filter((h) => cgOf[h.hotel_code] === undefined && !shown.has(h.hotel_code));
 
     return res.status(200).json({ ok: true, is_admin: who.isAdmin, count: singletons.length, hotels: singletons, coord_groups, name_groups });
   }

@@ -143,6 +143,8 @@ def step_hotels(path):
             " updated_at=now() from (values ")
     push(vals, head, ") as v(id,aid,cid,lat,lng,star,rscore,rcnt) where h.id=v.id;", "호텔 빈칸", cap=300_000)
 
+REFRESH = False   # --refresh 로 켠다 (월 1회 갱신)
+
 def step_inventory(path, top, target, resume=True):
     """② 상세 — 예약 있는 도시만. 전 세계는 안 담는다(창구 한도 60/h).
 
@@ -175,9 +177,18 @@ def step_inventory(path, top, target, resume=True):
                    f"{I(x[ix['yearopened']])},{I(x[ix['number_of_reviews']])},{N(x[ix['rating_average']])},"
                    f"{S(x[ix['photo1']])},{S(ov)},{S(x[ix['url']])})")
         nam.append(f"({I(x[0])},'{target}',{S(x[ix['hotel_translated_name']])},{S(ov)})")
+    # 🔴 2026-07-22 — 월 1회 갱신 때는 «덮어쓴다». do nothing 이면 평점·리뷰수·객실수가 영원히 옛날 값이다.
+    #    (중복 판정이 리뷰수·객실수를 물증으로 쓰므로 낡으면 판정이 틀린다.)
+    tail_inv = (" on conflict (agoda_hotel_id) do update set city=excluded.city, city_id=excluded.city_id,"
+                " country=excluded.country, hotel_name=excluded.hotel_name, hotel_name_ko=excluded.hotel_name_ko,"
+                " address=excluded.address, star_rating=excluded.star_rating, latitude=excluded.latitude,"
+                " longitude=excluded.longitude, number_of_rooms=excluded.number_of_rooms,"
+                " review_count=excluded.review_count, review_score=excluded.review_score,"
+                " photo1=excluded.photo1, overview=excluded.overview, url=excluded.url, fetched_at=now();"
+                ) if REFRESH else " on conflict (agoda_hotel_id) do nothing;"
     push(inv, "insert into agoda_inventory (agoda_hotel_id,city,city_id,country,country_id,hotel_name,hotel_name_ko,"
               "address,zipcode,star_rating,latitude,longitude,number_of_rooms,year_opened,review_count,review_score,"
-              "photo1,overview,url) values ", " on conflict (agoda_hotel_id) do nothing;", "재고")
+              "photo1,overview,url) values ", tail_inv, "재고")
     push(nam, "insert into agoda_inventory_name (agoda_hotel_id,target_code,hotel_name,overview) values ",
               " on conflict (agoda_hotel_id,target_code) do nothing;", "이름")
 
@@ -187,9 +198,13 @@ if __name__ == "__main__":
     p.add_argument("--step", default="all", choices=["all", "cities", "hotels", "inventory"])
     p.add_argument("--top", type=int, default=200)
     p.add_argument("--no-resume", action="store_true", help="이미 담은 도시도 다시 보냄(기본은 건너뜀)")
+    p.add_argument("--refresh", action="store_true", help="월 1회 갱신 — 이미 있는 행도 덮어쓴다(평점·리뷰수·객실수 최신화)")
     p.add_argument("--target", default="ko")
     a = p.parse_args()
     if not TOK: sys.exit("CLAUDE_OPS_TOKEN 이 없습니다.")
+    if a.refresh:
+        globals()["REFRESH"] = True
+        a.no_resume = True          # 갱신은 모든 도시를 다시 훑어야 한다
     url = a.url
     if not a.csv and not url:
         # 🔴 2026-07-22 — 파일 주소는 DB `agoda_file_source` 에 있다. 대표님께 다시 묻지 않는다.

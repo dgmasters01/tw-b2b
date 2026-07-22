@@ -90,7 +90,7 @@ def push(vals, head, tail, label, cap=900_000):
 
 def download(url, out="KO.zip"):
     # 🔴 한 번에 끝까지. 이어받기 없음(서버가 Range 무시). 백그라운드 금지.
-    subprocess.run(["curl", "-sL", "--max-time", "290", url, "-o", out], check=True)
+    subprocess.run(["curl", "-sL", "--max-time", "1800", url, "-o", out], check=True)
     subprocess.run(["unzip", "-o", "-q", out], check=True)
     return [f for f in os.listdir(".") if f.endswith(".csv")][0]
 

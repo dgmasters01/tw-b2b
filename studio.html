@@ -3126,23 +3126,34 @@
         if (reviewIsAdmin && cg.length) {
           cgHTML = '<div style="margin:4px 0 14px;padding:11px 13px;border:1px solid #2d6cdf;border-radius:10px;background:rgba(45,108,223,0.08);">' +
             '<div style="font-size:13px;font-weight:700;color:#7aa5f0;margin-bottom:9px;">📍 위치(GPS)가 같은 호텔 (15m 안 — 같은 곳으로 보입니다) — ' + cg.length + '그룹</div>' +
-            '<div style="font-size:11px;color:var(--muted);margin:-4px 0 8px;">성급이 달라도 같은 곳일 수 있습니다 (아고다 등록마다 성급이 다름 · 위치가 기준)</div>' +
+            '<div style="font-size:11px;color:var(--muted);margin:-4px 0 8px;">✅같은 곳 확실 → 🟡물증 없음 → 🚫다른 호텔 순서로 정렬됩니다. 잣대는 <b>아고다 원본의 리뷰 수·객실 수·주소</b>입니다 (성급은 참고만).</div>' +
             cg.map(function (g) {
               var survivor = g[0].hotel_code;
               var codes = g.map(function (h) { return h.hotel_code; }).join(',');
               var alike = !!g[0].name_alike;
+              var vd = g[0].verdict;
               var warnBits = [];
-              if (g[0].type_mixed) warnBits.push('유형이 다릅니다(' + g.map(function (h) { return h.property_type || '?'; }).join(' / ') + ')');
-              if (!alike) warnBits.push('이름이 서로 다릅니다');
-              var warn = warnBits.length ? '<div style="font-size:11px;color:#e08a4e;padding:2px 0 0;">⚠ ' + esc(warnBits.join(' · ')) + ' — 같은 건물의 <b>다른 호텔</b>일 수 있습니다</div>' : '';
+              if (g[0].type_mixed) warnBits.push('유형이 다름(' + g.map(function (h) { return h.property_type || '?'; }).join(' / ') + ')');
+              if (!alike && vd !== 'diff') warnBits.push('이름이 서로 다름');
+              var warn = '';
+              if (vd === 'diff') {
+                var ev = g.map(function (h) { return (h.rooms != null ? '객실 ' + h.rooms : '객실 ?') + '·' + (h.review_count != null ? '리뷰 ' + h.review_count : '리뷰 ?'); }).join('  vs  ');
+                warn = '<div style="font-size:11px;color:#e2585a;padding:3px 0 0;">🚫 <b>다른 호텔로 보입니다</b> — 아고다 원본이 다릅니다 (' + esc(ev) + '). 한 건물에 든 별개 호텔·별개 사업자일 수 있습니다.</div>';
+              } else if (vd === 'same') {
+                warn = '<div style="font-size:11px;color:#4fb87a;padding:3px 0 0;">✅ <b>같은 호텔이 확실합니다</b> — 아고다 원본의 리뷰·주소가 똑같습니다.</div>';
+              } else if (warnBits.length) {
+                warn = '<div style="font-size:11px;color:#e08a4e;padding:2px 0 0;">⚠ ' + esc(warnBits.join(' · ')) + ' — 같은 건물의 <b>다른 호텔</b>일 수 있습니다</div>';
+              }
               var rows = g.map(function (h, i) {
                 var d0 = (i === 0 || h.dist_m == null) ? '' : '·' + h.dist_m + 'm 거리';
                 var s0 = h.star_rating ? '·★' + h.star_rating : '';
+                if (h.rooms != null) s0 += '·객실 ' + h.rooms;
+                if (h.review_count != null) s0 += '·리뷰 ' + h.review_count;
                 return '<div style="font-size:12px;color:var(--txt);padding:2px 0;">' + (i === 0 ? '<b style="color:#7aa5f0;">[대표]</b> ' : '· ') + esc(h.hotel_code) + ' ' + esc(h.hotel_name || '') + ' <span style="color:var(--muted);">(' + esc(h.city || '') + s0 + '·예약 ' + (h.booking_count || 0) + d0 + ')</span></div>';
               }).join('');
               return '<div style="border-top:0.5px solid var(--line);padding:9px 0;">' + rows + warn +
-                '<button class="st-rv-ok st-cg-merge" data-codes="' + esc(codes) + '" style="background:' + (alike ? '#2d6cdf' : '#6b7280') + ';border-color:' + (alike ? '#2d6cdf' : '#6b7280') + ';color:#fff;margin-top:6px;font-size:11.5px;padding:4px 11px;">이 ' + g.length + '곳을 ' + esc(survivor) + ' 로 합치기</button>' +
-                '<button class="st-rv-ok st-cg-not" data-codes="' + esc(codes) + '" style="background:transparent;border-color:var(--line);color:var(--muted);margin:6px 0 0 6px;font-size:11.5px;padding:4px 11px;">아니오 · 다른 곳</button></div>';
+                '<button class="st-rv-ok st-cg-merge" data-codes="' + esc(codes) + '" style="background:' + (vd === 'diff' ? 'transparent' : (alike ? '#2d6cdf' : '#6b7280')) + ';border-color:' + (vd === 'diff' ? 'var(--line)' : (alike ? '#2d6cdf' : '#6b7280')) + ';color:' + (vd === 'diff' ? 'var(--muted)' : '#fff') + ';margin-top:6px;font-size:11.5px;padding:4px 11px;">이 ' + g.length + '곳을 ' + esc(survivor) + ' 로 합치기</button>' +
+                '<button class="st-rv-ok st-cg-not" data-codes="' + esc(codes) + '" style="background:' + (vd === 'diff' ? '#c0453f' : 'transparent') + ';border-color:' + (vd === 'diff' ? '#c0453f' : 'var(--line)') + ';color:' + (vd === 'diff' ? '#fff' : 'var(--muted)') + ';margin:6px 0 0 6px;font-size:11.5px;padding:4px 11px;">아니오 · 다른 곳</button></div>';
             }).join('') + '</div>';
         }
         var ng = (j.name_groups || []);

@@ -77,8 +77,8 @@ def I(v):
     try: return str(int(float(v)))
     except: return "null"
 
-def push(vals, head, tail, label, cap=900_000):
-    """SQL 을 900KB 씩 끊어 보낸다. 끊긴 데서 다시 부르면 on conflict 라 안전하다."""
+def push(vals, head, tail, label, cap=3_200_000):
+    """SQL 을 3.2MB 씩 끊어 보낸다(Vercel 본문 상한 4.5MB). 끊겨도 on conflict 라 안전하다."""
     buf, size, done, reqs = [], 0, 0, 0
     for v in vals:
         if size + len(v) > cap and buf:
@@ -143,15 +143,29 @@ def step_hotels(path):
             " updated_at=now() from (values ")
     push(vals, head, ") as v(id,aid,cid,lat,lng,star,rscore,rcnt) where h.id=v.id;", "호텔 빈칸", cap=300_000)
 
-def step_inventory(path, top, target):
-    """② 상세 — 예약 상위 N개 도시만. 전 세계는 안 담는다(백업 봇이 죽는다)."""
+def step_inventory(path, top, target, resume=True):
+    """② 상세 — 예약 있는 도시만. 전 세계는 안 담는다(창구 한도 60/h).
+
+    🔴 2026-07-22 이어담기(resume) 추가 — 대표님 *"매번 다운 받을 수 없잖아"*
+       이미 담은 도시는 건너뛴다. 옛 방식은 --top 을 올릴 때마다 앞 도시를 통째로 다시 보내
+       창구 한도(60/h)를 그냥 태웠다. 이제 «안 담은 도시»만 예약 많은 순으로 이어 담는다.
+    """
     ids = [str(x["city_id"]) for x in q(
         "select ac.city_id from (select city,country,coalesce(sum(booking_count),0) bk from hotels "
-        "group by 1,2) x join agoda_city ac on lower(ac.city)=lower(x.city) and lower(ac.country)=lower(x.country) "
-        f"order by x.bk desc limit {top}")["rows"]]
+        "where merge_status<>'merged' group by 1,2) x join agoda_city ac "
+        "on lower(ac.city)=lower(x.city) and lower(ac.country)=lower(x.country) "
+        f"where x.bk>0 order by x.bk desc limit {top}")["rows"]]
+    if resume:
+        done = {str(x["city_id"]) for x in q("select distinct city_id from agoda_inventory")["rows"]}
+        skipped = [c for c in ids if c in done]
+        ids = [c for c in ids if c not in done]
+        print(f"  이미 담김 {len(skipped)}도시 건너뜀 → 이번에 담을 도시 {len(ids)}개", flush=True)
+        if not ids:
+            print("  ✅ 더 담을 도시가 없습니다."); return
+    ids = set(ids)
     r, ix = read(path)
     rows = [row for row in r if len(row) >= 39 and row[ix["city_id"]] in ids]
-    print(f"  도시 {len(ids)}개 · {len(rows):,}행")
+    print(f"  도시 {len(ids)}개 · {len(rows):,}행", flush=True)
     inv, nam = [], []
     for x in rows:
         ov = (x[ix["overview"]] or "")[:2000]
@@ -171,11 +185,19 @@ if __name__ == "__main__":
     p = argparse.ArgumentParser()
     p.add_argument("--url"); p.add_argument("--csv")
     p.add_argument("--step", default="all", choices=["all", "cities", "hotels", "inventory"])
-    p.add_argument("--top", type=int, default=8)
+    p.add_argument("--top", type=int, default=200)
+    p.add_argument("--no-resume", action="store_true", help="이미 담은 도시도 다시 보냄(기본은 건너뜀)")
     p.add_argument("--target", default="ko")
     a = p.parse_args()
     if not TOK: sys.exit("CLAUDE_OPS_TOKEN 이 없습니다.")
-    path = a.csv or download(a.url)
+    url = a.url
+    if not a.csv and not url:
+        # 🔴 2026-07-22 — 파일 주소는 DB `agoda_file_source` 에 있다. 대표님께 다시 묻지 않는다.
+        got = q(f"select url from agoda_file_source where target_code='{a.target}'")["rows"]
+        if not got: sys.exit("agoda_file_source 에 파일 주소가 없습니다. 대표님께 한 번만 여쭙니다.")
+        url = got[0]["url"]
+        print("  파일 주소: DB agoda_file_source 에서 가져옴 (레포에 안 적음)", flush=True)
+    path = a.csv or download(url)
     if a.step in ("all", "cities"):    step_cities(path, a.target)
     if a.step in ("all", "hotels"):    step_hotels(path)
-    if a.step in ("all", "inventory"): step_inventory(path, a.top, a.target)
+    if a.step in ("all", "inventory"): step_inventory(path, a.top, a.target, resume=not a.no_resume)

@@ -323,7 +323,7 @@ export default async function handler(req, res) {
       if (!from.length) return res.status(400).json({ ok: false, error: 'merge_from(합칠 코드들)이 필요합니다.' });
       const codes = [code, ...from];
       const { data: hs, error: he } = await sb.from('hotels')
-        .select('hotel_code,hotel_name,agoda_hotel_ids').in('hotel_code', codes);
+        .select('hotel_code,hotel_name,agoda_hotel_ids,booking_count').in('hotel_code', codes);
       if (he) return res.status(500).json({ ok: false, error: String(he.message || he) });
       const survivor = (hs || []).find((h) => h.hotel_code === code);
       if (!survivor) return res.status(404).json({ ok: false, error: '대표 호텔을 못 찾았습니다.' });
@@ -343,9 +343,38 @@ export default async function handler(req, res) {
         .update({ agoda_hotel_ids: [...ids], booking_count: bcount, merge_status: 'confirmed' })
         .eq('hotel_code', code);
       if (ue) return res.status(500).json({ ok: false, error: String(ue.message || ue) });
-      // 흡수된 것 병합 처리 (숨김·집계 제외)
-      await sb.from('hotels').update({ merge_status: 'merged', agoda_hotel_ids: [], booking_count: 0 }).in('hotel_code', from);
+      // 흡수된 것 병합 처리 (숨김·집계 제외) — 🔴 원본은 지우지 않고 보관한다(되돌리기 가능·헌법 9조)
+      for (const h of (hs || [])) {
+        if (h.hotel_code === code) continue;
+        await sb.from('hotels').update({
+          merge_status: 'merged', agoda_hotel_ids: [], booking_count: 0,
+          merged_into: code,
+          merged_agoda_ids: h.agoda_hotel_ids || [],
+          merged_booking_count: h.booking_count || 0,
+        }).eq('hotel_code', h.hotel_code);
+      }
       return res.status(200).json({ ok: true, action: 'merged', survivor: code, absorbed: from, agoda_ids: ids.size, booking_count: bcount });
+    }
+    if (action === 'unmerge') {
+      // 잘못 합친 것 되돌리기 — 보관해둔 원본으로 복원하고, 다시 안 묶이게 «다른 곳»으로 못 박는다
+      const { data: g, error: ge } = await sb.from('hotels')
+        .select('hotel_code,merged_into,merged_agoda_ids,merged_booking_count').eq('hotel_code', code).eq('merge_status', 'merged');
+      if (ge) return res.status(500).json({ ok: false, error: String(ge.message || ge) });
+      const row = (g || [])[0];
+      if (!row) return res.status(404).json({ ok: false, error: '합쳐진 호텔이 아닙니다.' });
+      if (!row.merged_into) return res.status(400).json({ ok: false, error: '보관된 원본이 없어 되돌릴 수 없습니다(옛 병합).' });
+      const backIds = Array.isArray(row.merged_agoda_ids) ? row.merged_agoda_ids.map(String) : [];
+      // 대표에서 그 아고다ID를 빼준다
+      const { data: sv } = await sb.from('hotels').select('agoda_hotel_ids').eq('hotel_code', row.merged_into).limit(1);
+      const svIds = (sv && sv[0] && Array.isArray(sv[0].agoda_hotel_ids)) ? sv[0].agoda_hotel_ids.map(String) : [];
+      await sb.from('hotels').update({ agoda_hotel_ids: svIds.filter((x) => !backIds.includes(x)) }).eq('hotel_code', row.merged_into);
+      await sb.from('hotels').update({
+        merge_status: 'confirmed', agoda_hotel_ids: backIds, booking_count: row.merged_booking_count || 0,
+        merged_into: null, merged_agoda_ids: null, merged_booking_count: null,
+      }).eq('hotel_code', code);
+      const [a, b] = code < row.merged_into ? [code, row.merged_into] : [row.merged_into, code];
+      await sb.from('hotel_not_dup').upsert([{ code_a: a, code_b: b }], { onConflict: 'code_a,code_b' });
+      return res.status(200).json({ ok: true, action: 'unmerged', hotel_code: code, from_survivor: row.merged_into });
     }
     if (action === 'not_dup') {
       // «아니오 · 다른 곳입니다» — 이 묶음은 다시 뜨지 않는다
@@ -362,7 +391,7 @@ export default async function handler(req, res) {
       await sb.from('hotels').update({ merge_status: 'confirmed' }).in('hotel_code', codes).eq('merge_status', 'ambiguous');
       return res.status(200).json({ ok: true, action: 'not_dup', pairs: rows.length });
     }
-    return res.status(400).json({ ok: false, error: '지원하는 action: confirm, merge, not_dup' });
+    return res.status(400).json({ ok: false, error: '지원하는 action: confirm, merge, not_dup, unmerge' });
   }
 
   res.setHeader('Allow', 'GET, POST');

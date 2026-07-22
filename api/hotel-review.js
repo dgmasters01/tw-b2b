@@ -117,7 +117,7 @@ export default async function handler(req, res) {
       const all = [];
       for (let from = 0; from < 20000; from += 1000) {
         const { data: page, error } = await sb.from('hotels')
-          .select('hotel_code,hotel_name,city,country,star_rating,booking_count,agoda_hotel_ids,latitude,longitude')
+          .select('hotel_code,hotel_name,city,country,star_rating,property_type,booking_count,agoda_hotel_ids,latitude,longitude')
           .neq('merge_status', 'merged').not('latitude', 'is', null)
           .order('hotel_code').range(from, from + 999);
         if (error || !page || !page.length) break;
@@ -126,7 +126,7 @@ export default async function handler(req, res) {
       }
       const pts = all.map((h) => ({
         hotel_code: h.hotel_code, hotel_name: h.hotel_name, city: h.city, country: h.country,
-        star_rating: h.star_rating, booking_count: h.booking_count || 0,
+        star_rating: h.star_rating, property_type: h.property_type, booking_count: h.booking_count || 0,
         agoda_count: Array.isArray(h.agoda_hotel_ids) ? h.agoda_hotel_ids.length : 0,
         latitude: h.latitude, longitude: h.longitude,
         lat: Number(h.latitude), lng: Number(h.longitude),
@@ -141,6 +141,14 @@ export default async function handler(req, res) {
         const k = gk(Math.round(p.lat / cell), Math.round(p.lng / cell));
         (grid[k] = grid[k] || []).push(p);
       });
+      // 대표님이 «아니오·다른 곳»이라고 못 박은 쌍은 절대 다시 묶지 않는다
+      const notDup = new Set();
+      try {
+        const { data: nd } = await sb.from('hotel_not_dup').select('code_a,code_b');
+        for (const r of nd || []) notDup.add(r.code_a + '|' + r.code_b);
+      } catch { /* 테이블 없으면 무시 */ }
+      const pairKey = (a, b) => (a < b ? a + '|' + b : b + '|' + a);
+
       // 유니온-파인드로 «가까운 것끼리» 한 덩어리로
       const par = pts.map((_, i) => i);
       const find = (x) => { while (par[x] !== x) { par[x] = par[par[x]]; x = par[x]; } return x; };
@@ -150,6 +158,7 @@ export default async function handler(req, res) {
         for (let dx = -1; dx <= 1; dx++) for (let dy = -1; dy <= 1; dy++) {
           for (const q of (grid[gk(cx + dx, cy + dy)] || [])) {
             if (q._i <= p._i) continue;
+            if (notDup.has(pairKey(p.hotel_code, q.hotel_code))) continue;
             if (distM(p, q) <= NEAR_M) uni(p._i, q._i);
           }
         }
@@ -163,23 +172,30 @@ export default async function handler(req, res) {
           const head = g[0];
           return g.map((h) => ({
             hotel_code: h.hotel_code, hotel_name: h.hotel_name, city: h.city, country: h.country,
-            star_rating: h.star_rating, booking_count: h.booking_count, agoda_count: h.agoda_count,
+            star_rating: h.star_rating, property_type: h.property_type, booking_count: h.booking_count, agoda_count: h.agoda_count,
             latitude: h.latitude, longitude: h.longitude,
             dist_m: Math.round(distM(head, h)),          // 대표에서 몇 m 떨어져 있나
           }));
         })
         .sort((a, b) => (b[0].booking_count || 0) - (a[0].booking_count || 0));
       // 이름까지 비슷하면 «거의 확실», 이름이 전혀 다르면 «같은 건물 다른 호텔»일 수 있다 → 화면에 신호를 준다
-      const STOPW = new Set(['hotel', 'the', 'and', 'de', 'city', 'resort', 'inn', 'by', 'a', 'of', 'suites', 'spa']);
-      const core = (n) => new Set(String(n || '').toLowerCase().replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter((x) => x.length > 2 && !STOPW.has(x)));
+      const STOPW = new Set(['hotel', 'the', 'and', 'de', 'city', 'resort', 'inn', 'by', 'a', 'of', 'suites', 'spa', 'ryokan', 'house', 'stay', 'apartment', 'residence', 'guest', 'tokyo', 'osaka', 'kyoto']);
+      const words = (n) => String(n || '').toLowerCase().replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter((x) => x.length > 2 && !STOPW.has(x));
+      // «같은 도시에서 여러 호텔이 함께 쓰는 말»(Gion·Namba 같은 동네 이름)은 브랜드가 아니다 → 유사 판정에서 뺀다
+      const freq = {};
+      for (const p of pts) { const seen = new Set(words(p.hotel_name)); for (const w of seen) { const k = (p.city || '') + '|' + w; freq[k] = (freq[k] || 0) + 1; } }
+      const core = (h) => new Set(words(h.hotel_name).filter((w) => (freq[(h.city || '') + '|' + w] || 0) < 4));
       for (const g of coord_groups) {
-        const base = core(g[0].hotel_name);
-        let same = true;
+        const base = core(g[0]);
+        let same = base.size > 0;
         for (let k = 1; k < g.length; k++) {
-          const c = core(g[k].hotel_name);
-          if (![...c].some((w) => base.has(w))) { same = false; break; }
+          const c = core(g[k]);
+          if (!c.size || ![...c].some((w) => base.has(w))) { same = false; break; }
         }
-        for (const h of g) h.name_alike = same;
+        // 유형이 다르면(료칸 ↔ 호텔) 같은 곳이라 보기 어렵다
+        const types = new Set(g.map((h) => h.property_type).filter(Boolean));
+        const typeMixed = types.size > 1;
+        for (const h of g) { h.name_alike = same && !typeMixed; h.type_mixed = typeMixed; }
       }
       coord_groups.sort((a, b) => (b[0].name_alike ? 1 : 0) - (a[0].name_alike ? 1 : 0) || (b[0].booking_count || 0) - (a[0].booking_count || 0));
     } catch { /* 못 읽으면 좌표 그룹만 비운다 */ }
@@ -237,7 +253,7 @@ export default async function handler(req, res) {
     try { body = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {}); } catch { /* noop */ }
     const code = String(body.hotel_code || '').trim();
     const action = String(body.action || '').trim();
-    if (!code) return res.status(400).json({ ok: false, error: 'hotel_code 가 필요합니다.' });
+    if (!code && action !== 'not_dup') return res.status(400).json({ ok: false, error: 'hotel_code 가 필요합니다.' });
     if (action === 'confirm') {
       const { data, error } = await sb
         .from('hotels')
@@ -280,7 +296,22 @@ export default async function handler(req, res) {
       await sb.from('hotels').update({ merge_status: 'merged', agoda_hotel_ids: [], booking_count: 0 }).in('hotel_code', from);
       return res.status(200).json({ ok: true, action: 'merged', survivor: code, absorbed: from, agoda_ids: ids.size, booking_count: bcount });
     }
-    return res.status(400).json({ ok: false, error: '지원하는 action: confirm, merge' });
+    if (action === 'not_dup') {
+      // «아니오 · 다른 곳입니다» — 이 묶음은 다시 뜨지 않는다
+      const codes = Array.isArray(body.codes) ? body.codes.map((x) => String(x).trim()).filter(Boolean) : [];
+      if (codes.length < 2) return res.status(400).json({ ok: false, error: 'codes(2곳 이상)가 필요합니다.' });
+      const rows = [];
+      for (let i = 0; i < codes.length; i++) for (let j = i + 1; j < codes.length; j++) {
+        const [a, b] = codes[i] < codes[j] ? [codes[i], codes[j]] : [codes[j], codes[i]];
+        rows.push({ code_a: a, code_b: b });
+      }
+      const { error } = await sb.from('hotel_not_dup').upsert(rows, { onConflict: 'code_a,code_b' });
+      if (error) return res.status(500).json({ ok: false, error: String(error.message || error) });
+      // 애매 표시도 풀어준다 (각자 제대로 된 호텔이라는 뜻)
+      await sb.from('hotels').update({ merge_status: 'confirmed' }).in('hotel_code', codes).eq('merge_status', 'ambiguous');
+      return res.status(200).json({ ok: true, action: 'not_dup', pairs: rows.length });
+    }
+    return res.status(400).json({ ok: false, error: '지원하는 action: confirm, merge, not_dup' });
   }
 
   res.setHeader('Allow', 'GET, POST');

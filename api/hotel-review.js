@@ -216,7 +216,18 @@ export default async function handler(req, res) {
     for (const g of name_groups) for (const h of g) shown.add(h.hotel_code);
     const singletons = hotels.filter((h) => cgOf[h.hotel_code] === undefined && !shown.has(h.hotel_code));
 
-    return res.status(200).json({ ok: true, is_admin: who.isAdmin, count: singletons.length, hotels: singletons, coord_groups, name_groups });
+    // 배지 숫자 = «대표님이 눌러서 처리할 것» 전부 (좌표그룹 + 이름그룹 + 낱개)
+    //   예전엔 낱개만 셌다 → 안에 90그룹이 밀려 있는데 배지엔 1이라 나와서 못 봤다. (2026-07-22)
+    const review_total = coord_groups.length + name_groups.length + singletons.length;
+    return res.status(200).json({
+      ok: true, is_admin: who.isAdmin,
+      review_total,
+      coord_group_count: coord_groups.length,
+      name_group_count: name_groups.length,
+      single_count: singletons.length,
+      count: singletons.length,          // (구버전 화면 호환)
+      hotels: singletons, coord_groups, name_groups,
+    });
   }
 
   // ── 확정 처리 (admin 전용) ──

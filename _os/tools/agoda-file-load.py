@@ -192,10 +192,34 @@ def step_inventory(path, top, target, resume=True):
     push(nam, "insert into agoda_inventory_name (agoda_hotel_id,target_code,hotel_name,overview) values ",
               " on conflict (agoda_hotel_id,target_code) do nothing;", "이름")
 
+
+def step_names(path, target):
+    """④ 언어별 이름만 — 🔴 KO 이외 파일은 칸이 다르다(24칸 · overview·사진·평점 없음).
+
+    2026-07-22 실측: KO=39칸(상세 전체) / EN·JA·ZH·CN·TH=24칸(이름·주소·좌표만).
+      → 다른 언어에서 가져올 건 «그 나라 말 호텔 이름» 하나다. 그게 채널별 키워드의 재료다.
+      → 이미 `agoda_inventory` 에 담긴 호텔(우리 166도시)만 담는다. 전 세계는 안 담는다.
+    """
+    have = {str(x["agoda_hotel_id"]) for x in q("select agoda_hotel_id from agoda_inventory")["rows"]}
+    print(f"  우리 재고 {len(have):,}곳의 {target} 이름만 담는다", flush=True)
+    r, ix = read(path)
+    col = ix.get("hotel_translated_name", ix.get("hotel_name"))
+    nam, n = [], 0
+    for x in r:
+        if len(x) <= col: continue
+        hid = x[0]
+        if hid not in have: continue
+        nm = (x[col] or "").strip() or (x[ix["hotel_name"]] or "").strip()
+        if not nm: continue
+        nam.append(f"({I(hid)},'{target}',{S(nm)},null)"); n += 1
+    print(f"  찾음 {n:,}곳", flush=True)
+    push(nam, "insert into agoda_inventory_name (agoda_hotel_id,target_code,hotel_name,overview) values ",
+              " on conflict (agoda_hotel_id,target_code) do update set hotel_name=excluded.hotel_name;", f"{target} 이름")
+
 if __name__ == "__main__":
     p = argparse.ArgumentParser()
     p.add_argument("--url"); p.add_argument("--csv")
-    p.add_argument("--step", default="all", choices=["all", "cities", "hotels", "inventory"])
+    p.add_argument("--step", default="all", choices=["all", "cities", "hotels", "inventory", "names"])
     p.add_argument("--top", type=int, default=200)
     p.add_argument("--no-resume", action="store_true", help="이미 담은 도시도 다시 보냄(기본은 건너뜀)")
     p.add_argument("--refresh", action="store_true", help="월 1회 갱신 — 이미 있는 행도 덮어쓴다(평점·리뷰수·객실수 최신화)")
@@ -216,3 +240,4 @@ if __name__ == "__main__":
     if a.step in ("all", "cities"):    step_cities(path, a.target)
     if a.step in ("all", "hotels"):    step_hotels(path)
     if a.step in ("all", "inventory"): step_inventory(path, a.top, a.target, resume=not a.no_resume)
+    if a.step == "names":              step_names(path, a.target)

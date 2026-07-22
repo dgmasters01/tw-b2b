@@ -3131,14 +3131,18 @@
               var survivor = g[0].hotel_code;
               var codes = g.map(function (h) { return h.hotel_code; }).join(',');
               var alike = !!g[0].name_alike;
-              var warn = alike ? '' : '<div style="font-size:11px;color:#e08a4e;padding:2px 0 0;">⚠ 이름이 서로 다릅니다 — 같은 건물의 다른 호텔일 수 있으니 확인 후 합치세요</div>';
+              var warnBits = [];
+              if (g[0].type_mixed) warnBits.push('유형이 다릅니다(' + g.map(function (h) { return h.property_type || '?'; }).join(' / ') + ')');
+              if (!alike) warnBits.push('이름이 서로 다릅니다');
+              var warn = warnBits.length ? '<div style="font-size:11px;color:#e08a4e;padding:2px 0 0;">⚠ ' + esc(warnBits.join(' · ')) + ' — 같은 건물의 <b>다른 호텔</b>일 수 있습니다</div>' : '';
               var rows = g.map(function (h, i) {
                 var d0 = (i === 0 || h.dist_m == null) ? '' : '·' + h.dist_m + 'm 거리';
                 var s0 = h.star_rating ? '·★' + h.star_rating : '';
                 return '<div style="font-size:12px;color:var(--txt);padding:2px 0;">' + (i === 0 ? '<b style="color:#7aa5f0;">[대표]</b> ' : '· ') + esc(h.hotel_code) + ' ' + esc(h.hotel_name || '') + ' <span style="color:var(--muted);">(' + esc(h.city || '') + s0 + '·예약 ' + (h.booking_count || 0) + d0 + ')</span></div>';
               }).join('');
               return '<div style="border-top:0.5px solid var(--line);padding:9px 0;">' + rows + warn +
-                '<button class="st-rv-ok st-cg-merge" data-codes="' + esc(codes) + '" style="background:' + (alike ? '#2d6cdf' : '#6b7280') + ';border-color:' + (alike ? '#2d6cdf' : '#6b7280') + ';color:#fff;margin-top:6px;font-size:11.5px;padding:4px 11px;">이 ' + g.length + '곳을 ' + esc(survivor) + ' 로 합치기</button></div>';
+                '<button class="st-rv-ok st-cg-merge" data-codes="' + esc(codes) + '" style="background:' + (alike ? '#2d6cdf' : '#6b7280') + ';border-color:' + (alike ? '#2d6cdf' : '#6b7280') + ';color:#fff;margin-top:6px;font-size:11.5px;padding:4px 11px;">이 ' + g.length + '곳을 ' + esc(survivor) + ' 로 합치기</button>' +
+                '<button class="st-rv-ok st-cg-not" data-codes="' + esc(codes) + '" style="background:transparent;border-color:var(--line);color:var(--muted);margin:6px 0 0 6px;font-size:11.5px;padding:4px 11px;">아니오 · 다른 곳</button></div>';
             }).join('') + '</div>';
         }
         var ng = (j.name_groups || []);
@@ -3161,7 +3165,8 @@
                 return '<div style="font-size:12px;color:var(--txt);padding:2px 0;">' + (i === 0 ? '<b style="color:var(--em);">[대표]</b> ' : '· ') + esc(h.hotel_code) + ' ' + esc(h.hotel_name || '') + ' <span style="color:var(--muted);">(' + esc(h.city || '') + s1 + '·예약 ' + (h.booking_count || 0) + ')</span>' + dTag + '</div>';
               }).join('');
               return '<div style="border-top:0.5px solid var(--line);padding:9px 0;">' + rows +
-                '<button class="st-rv-ok st-cg-merge" data-codes="' + esc(codes) + '" style="background:var(--em);border-color:var(--em);color:#fff;margin-top:6px;font-size:11.5px;padding:4px 11px;">이 ' + g.length + '곳을 ' + esc(survivor) + ' 로 합치기</button></div>';
+                '<button class="st-rv-ok st-cg-merge" data-codes="' + esc(codes) + '" style="background:var(--em);border-color:var(--em);color:#fff;margin-top:6px;font-size:11.5px;padding:4px 11px;">이 ' + g.length + '곳을 ' + esc(survivor) + ' 로 합치기</button>' +
+                '<button class="st-rv-ok st-cg-not" data-codes="' + esc(codes) + '" style="background:transparent;border-color:var(--line);color:var(--muted);margin:6px 0 0 6px;font-size:11.5px;padding:4px 11px;">아니오 · 다른 곳</button></div>';
             }).join('') + '</div>';
         }
         body.innerHTML =
@@ -3184,6 +3189,7 @@
           }).join('');
         body.querySelectorAll('.st-rv-ok[data-code]').forEach(function (b) { b.onclick = function () { confirmReview(b.dataset.code, b); }; });
         body.querySelectorAll('.st-cg-merge').forEach(function (b) { b.onclick = function () { mergeGroup(b.dataset.codes, b); }; });
+        body.querySelectorAll('.st-cg-not').forEach(function (b) { b.onclick = function () { notDupGroup(b.dataset.codes, b); }; });
         (function () {
           function updateBar() {
             var n = body.querySelectorAll('.st-rv-chk:checked').length;
@@ -3229,6 +3235,21 @@
         openReview(); loadReviewCount();
       })
       .catch(function (e) { if (mb) { mb.disabled = false; mb.textContent = '합치기'; } alert(e.message); });
+  }
+  function notDupGroup(codesStr, btn) {
+    var codes = String(codesStr || '').split(',').filter(Boolean);
+    if (codes.length < 2) return;
+    if (!confirm('서로 다른 호텔로 기록합니다.\n\n' + codes.join(' / ') + '\n\n앞으로 이 묶음은 확인함에 다시 뜨지 않습니다.')) return;
+    btn.disabled = true; btn.textContent = '기록 중…';
+    fetch('/api/hotel-review', { method: 'POST', credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'not_dup', codes: codes }) })
+      .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+      .then(function (x) {
+        if (!x.ok || !x.j.ok) throw new Error(x.j.error || '기록하지 못했습니다.');
+        openReview(); loadReviewCount();
+      })
+      .catch(function (e) { btn.disabled = false; btn.textContent = '아니오 · 다른 곳'; alert(e.message); });
   }
   function mergeGroup(codesStr, btn) {
     var codes = String(codesStr || '').split(',').filter(Boolean);

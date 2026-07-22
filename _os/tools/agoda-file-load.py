@@ -77,8 +77,8 @@ def I(v):
     try: return str(int(float(v)))
     except: return "null"
 
-def push(vals, head, tail, label, cap=3_200_000):
-    """SQL 을 3.2MB 씩 끊어 보낸다(Vercel 본문 상한 4.5MB). 끊겨도 on conflict 라 안전하다."""
+def push(vals, head, tail, label, cap=900_000):
+    """SQL 을 900KB 씩 끊어 보낸다(Vercel 본문 상한 4.5MB). 끊겨도 on conflict 라 안전하다."""
     buf, size, done, reqs = [], 0, 0, 0
     for v in vals:
         if size + len(v) > cap and buf:

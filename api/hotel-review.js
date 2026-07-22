@@ -100,29 +100,76 @@ export default async function handler(req, res) {
         reason,
       };
     });
-    // ── 좌표가 같은 호텔 그룹 (자동 병합 후보 · 대표님 아이디어: GPS로 같은 곳 찾기) ──
+    // ── 좌표가 «같거나 아주 가까운» 호텔 그룹 (D-071 §6 근접 판정 · 반경 15m) ──
+    //   왜 근접인가: 아고다 등록마다 좌표 소수점이 미세하게 달라 «완전 일치»만 보면
+    //   같은 건물인데 못 잡는다. 실측 ZONK Nakasu = 3m, Quest Cebu = 13m, Sanouva = 11m.
+    //   왜 15m인가: 실측 분포상 0~5m에 중복이 몰리고 15m를 넘으면 «진짜 옆 건물»이 급증한다.
+    const NEAR_M = 15;
+    const distM = (a, b) => {
+      const dLat = (a.lat - b.lat) * 111320;
+      const dLng = (a.lng - b.lng) * 111320 * Math.cos((a.lat * Math.PI) / 180);
+      return Math.sqrt(dLat * dLat + dLng * dLng);
+    };
     let coord_groups = [];
+    const coordOf = {};   // hotel_code → {lat,lng} (아래 이름 그룹에서도 거리 계산에 씀)
     try {
-      const { data: dup } = await sb.from('v_coord_dup_hotels')
-        .select('hotel_code,hotel_name,city,country,star_rating,booking_count,agoda_hotel_ids,latitude,longitude');
-      const byCoord = {};
-      for (const h of dup || []) {
-        const key = h.latitude + ',' + h.longitude;
-        (byCoord[key] = byCoord[key] || []).push(h);
+      // 좌표 있는 호텔 전부 읽기 (merged 제외) — 1000행 제한이 있어 나눠 읽는다
+      const all = [];
+      for (let from = 0; from < 20000; from += 1000) {
+        const { data: page, error } = await sb.from('hotels')
+          .select('hotel_code,hotel_name,city,country,star_rating,booking_count,agoda_hotel_ids,latitude,longitude')
+          .neq('merge_status', 'merged').not('latitude', 'is', null)
+          .order('hotel_code').range(from, from + 999);
+        if (error || !page || !page.length) break;
+        all.push(...page);
+        if (page.length < 1000) break;
       }
-      coord_groups = Object.values(byCoord)
+      const pts = all.map((h) => ({
+        hotel_code: h.hotel_code, hotel_name: h.hotel_name, city: h.city, country: h.country,
+        star_rating: h.star_rating, booking_count: h.booking_count || 0,
+        agoda_count: Array.isArray(h.agoda_hotel_ids) ? h.agoda_hotel_ids.length : 0,
+        latitude: h.latitude, longitude: h.longitude,
+        lat: Number(h.latitude), lng: Number(h.longitude),
+      })).filter((p) => Number.isFinite(p.lat) && Number.isFinite(p.lng));
+      for (const p of pts) coordOf[p.hotel_code] = p;
+
+      // 격자(약 110m)로 나눠 이웃 칸만 비교 → 3천 곳도 순식간
+      const cell = 0.001, grid = {};
+      const gk = (x, y) => x + ':' + y;
+      pts.forEach((p, idx) => {
+        p._i = idx;
+        const k = gk(Math.round(p.lat / cell), Math.round(p.lng / cell));
+        (grid[k] = grid[k] || []).push(p);
+      });
+      // 유니온-파인드로 «가까운 것끼리» 한 덩어리로
+      const par = pts.map((_, i) => i);
+      const find = (x) => { while (par[x] !== x) { par[x] = par[par[x]]; x = par[x]; } return x; };
+      const uni = (a, b) => { a = find(a); b = find(b); if (a !== b) par[b] = a; };
+      for (const p of pts) {
+        const cx = Math.round(p.lat / cell), cy = Math.round(p.lng / cell);
+        for (let dx = -1; dx <= 1; dx++) for (let dy = -1; dy <= 1; dy++) {
+          for (const q of (grid[gk(cx + dx, cy + dy)] || [])) {
+            if (q._i <= p._i) continue;
+            if (distM(p, q) <= NEAR_M) uni(p._i, q._i);
+          }
+        }
+      }
+      const bag = {};
+      for (const p of pts) { const r = find(p._i); (bag[r] = bag[r] || []).push(p); }
+      coord_groups = Object.values(bag)
         .filter((g) => g.length > 1)
         .map((g) => {
           g.sort((a, b) => (b.booking_count || 0) - (a.booking_count || 0));   // 예약 많은 걸 대표로
+          const head = g[0];
           return g.map((h) => ({
             hotel_code: h.hotel_code, hotel_name: h.hotel_name, city: h.city, country: h.country,
-            star_rating: h.star_rating, booking_count: h.booking_count || 0,
-            agoda_count: Array.isArray(h.agoda_hotel_ids) ? h.agoda_hotel_ids.length : 0,
+            star_rating: h.star_rating, booking_count: h.booking_count, agoda_count: h.agoda_count,
             latitude: h.latitude, longitude: h.longitude,
+            dist_m: Math.round(distM(head, h)),          // 대표에서 몇 m 떨어져 있나
           }));
         })
         .sort((a, b) => (b[0].booking_count || 0) - (a[0].booking_count || 0));
-    } catch { /* 뷰 없으면 무시 */ }
+    } catch { /* 못 읽으면 좌표 그룹만 비운다 */ }
 
     // 아래 애매 목록에서 «위 좌표 그룹에 이미 있는 호텔»은 뺀다 (중복으로 헷갈림 방지)
     const cgCodes = new Set();
@@ -139,7 +186,16 @@ export default async function handler(req, res) {
     for (const h of hotelsOnly) { const k = nameKey(h.hotel_name, h.city); (byName[k] = byName[k] || []).push(h); }
     const name_groups = Object.values(byName)
       .filter((g) => g.length > 1)
-      .map((g) => { g.sort((a, b) => (b.booking_count || 0) - (a.booking_count || 0)); return g; })
+      .map((g) => {
+        g.sort((a, b) => (b.booking_count || 0) - (a.booking_count || 0));
+        // 대표에서 몇 m 떨어져 있나 — 멀면 «다른 곳»일 확률이 높다는 신호를 화면에 준다
+        const head = coordOf[g[0].hotel_code];
+        return g.map((h) => {
+          const p = coordOf[h.hotel_code];
+          const d = (head && p) ? Math.round(distM(head, p)) : null;
+          return Object.assign({}, h, { dist_m: d });
+        });
+      })
       .sort((a, b) => (b[0].booking_count || 0) - (a[0].booking_count || 0));
     const singletons = Object.values(byName).filter((g) => g.length === 1).map((g) => g[0]);
 

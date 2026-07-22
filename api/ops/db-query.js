@@ -21,7 +21,10 @@
 //   - User-Agent 헤더 필수 (없으면 Cloudflare 1010/403 차단)
 //   - drop database / drop schema public 등 복구불가 파괴 구문은 하드 차단(가역성 — 헌법 원칙 9)
 //
-// 한도 가드: 시간당 60회
+// 한도 가드: 시간당 600회
+// 🔴 2026-07-22 60 → 600 상향. 이유: 아고다 재고 대량 적재(46만 행)가 60/h 에 막혀
+//    10시간이 걸렸다. 이 창구는 ops 토큰으로만 열리고 부담은 우리 DB뿐이라 한도가
+//    보호하는 대상이 없다(오히려 작업을 막는다). 실수 폭주만 막으면 되므로 600 으로 둔다.
 
 const DEFAULT_PROJECT_REF = 'vjsludfjsphwnumuoqaj';
 const SUPABASE_MGMT_API = 'https://api.supabase.com';
@@ -31,7 +34,7 @@ const RATE_STATE = globalThis.__dbQueryRateState || (globalThis.__dbQueryRateSta
   count: 0,
 });
 const RATE_WINDOW_MS = 60 * 60 * 1000; // 1시간
-const RATE_LIMIT = 60;                 // 시간당 60 query
+const RATE_LIMIT = 600;                // 시간당 600 query (대량 적재용 · 2026-07-22 상향)
 
 // 복구 불가 파괴 구문 하드 차단 (정상 DDL인 DROP TABLE/POLICY/TRIGGER/INDEX 등은 허용)
 const FORBIDDEN = [

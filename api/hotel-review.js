@@ -128,6 +128,7 @@ export default async function handler(req, res) {
         hotel_code: h.hotel_code, hotel_name: h.hotel_name, city: h.city, country: h.country,
         star_rating: h.star_rating, property_type: h.property_type, booking_count: h.booking_count || 0,
         agoda_count: Array.isArray(h.agoda_hotel_ids) ? h.agoda_hotel_ids.length : 0,
+        agoda_ids: Array.isArray(h.agoda_hotel_ids) ? h.agoda_hotel_ids.map(String) : [],
         latitude: h.latitude, longitude: h.longitude,
         lat: Number(h.latitude), lng: Number(h.longitude),
       })).filter((p) => Number.isFinite(p.lat) && Number.isFinite(p.lng));
@@ -173,11 +174,54 @@ export default async function handler(req, res) {
           return g.map((h) => ({
             hotel_code: h.hotel_code, hotel_name: h.hotel_name, city: h.city, country: h.country,
             star_rating: h.star_rating, property_type: h.property_type, booking_count: h.booking_count, agoda_count: h.agoda_count,
+            agoda_ids: h.agoda_ids,
             latitude: h.latitude, longitude: h.longitude,
             dist_m: Math.round(distM(head, h)),          // 대표에서 몇 m 떨어져 있나
           }));
         })
         .sort((a, b) => (b[0].booking_count || 0) - (a[0].booking_count || 0));
+      // ── 아고다 원본으로 «같은 곳/다른 곳» 물증 잡기 (2026-07-22 대표님 통찰) ──
+      //   같은 호텔을 아고다에 두 번 올린 것이면 «리뷰 수·객실 수·주소»가 똑같다(리뷰 풀을 공유).
+      //   한 건물에 든 서로 다른 호텔이면 «리뷰도 따로, 객실 수도 다르고, 층도 다르다».
+      //   실측: Sanouva 다낭 = 객실 83·리뷰 8283 양쪽 동일(같은 곳) /
+      //        Roaders Plus 타이베이 = 객실 128 vs 109 · 리뷰 9778 vs 8245 · 24-35F vs 5-12F(다른 곳).
+      const inv = {};
+      try {
+        const need = [...new Set([].concat(...coord_groups.map((g) => [].concat(...g.map((h) => h.agoda_ids || [])))))];
+        for (let i = 0; i < need.length; i += 300) {
+          const { data: rows } = await sb.from('agoda_inventory')
+            .select('agoda_hotel_id,number_of_rooms,review_count,address').in('agoda_hotel_id', need.slice(i, i + 300));
+          for (const r of rows || []) inv[String(r.agoda_hotel_id)] = r;
+        }
+      } catch { /* 재고에 없으면 이름·거리로만 판단 */ }
+      const factsOf = (h) => {
+        const rooms = new Set(), rc = new Set(), addr = new Set();
+        for (const id of (h.agoda_ids || [])) {
+          const r = inv[id]; if (!r) continue;
+          if (r.number_of_rooms != null) rooms.add(Number(r.number_of_rooms));
+          if (r.review_count != null && Number(r.review_count) > 0) rc.add(Number(r.review_count));
+          if (r.address) addr.add(String(r.address).toLowerCase().replace(/\s+/g, ' ').trim());
+        }
+        return { rooms, rc, addr };
+      };
+      for (const g of coord_groups) {
+        const F = g.map(factsOf);
+        let same = false, diff = false;
+        for (let i = 0; i < F.length; i++) for (let j = i + 1; j < F.length; j++) {
+          const a = F[i], b = F[j];
+          const hit = (x, y) => [...x].some((v) => y.has(v));
+          if ((a.rc.size && b.rc.size && hit(a.rc, b.rc)) || (a.addr.size && b.addr.size && hit(a.addr, b.addr))) same = true;
+          if (a.rc.size && b.rc.size && !hit(a.rc, b.rc)) diff = true;
+          if (a.rooms.size && b.rooms.size && !hit(a.rooms, b.rooms)) diff = true;
+        }
+        const verdict = diff ? 'diff' : (same ? 'same' : null);   // 물증이 없으면 null
+        for (let i = 0; i < g.length; i++) {
+          g[i].verdict = verdict;
+          g[i].rooms = [...F[i].rooms][0] ?? null;
+          g[i].review_count = [...F[i].rc][0] ?? null;
+        }
+      }
+
       // 이름까지 비슷하면 «거의 확실», 이름이 전혀 다르면 «같은 건물 다른 호텔»일 수 있다 → 화면에 신호를 준다
       const STOPW = new Set(['hotel', 'the', 'and', 'de', 'city', 'resort', 'inn', 'by', 'a', 'of', 'suites', 'spa', 'ryokan', 'house', 'stay', 'apartment', 'residence', 'guest', 'tokyo', 'osaka', 'kyoto']);
       const words = (n) => String(n || '').toLowerCase().replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter((x) => x.length > 2 && !STOPW.has(x));
@@ -191,13 +235,20 @@ export default async function handler(req, res) {
         for (let k = 1; k < g.length; k++) {
           const c = core(g[k]);
           if (!c.size || ![...c].some((w) => base.has(w))) { same = false; break; }
+          // 🔴 양쪽 다 «상대에게 없는 고유한 말»이 있으면 → 같은 브랜드의 «다른 지점»일 확률이 높다
+          //    Roaders Plus [Taipei Station] ↔ Roaders Plus [Theme] = 한 건물 두 호텔 (대표님 2026-07-22)
+          const aOnly = [...base].some((w) => !c.has(w));
+          const bOnly = [...c].some((w) => !base.has(w));
+          if (aOnly && bOnly) { same = false; break; }
         }
         // 유형이 다르면(료칸 ↔ 호텔) 같은 곳이라 보기 어렵다
         const types = new Set(g.map((h) => h.property_type).filter(Boolean));
         const typeMixed = types.size > 1;
-        for (const h of g) { h.name_alike = same && !typeMixed; h.type_mixed = typeMixed; }
+        const v = g[0].verdict;
+        for (const h of g) { h.name_alike = (v === 'same') || (same && !typeMixed && v !== 'diff'); h.type_mixed = typeMixed; }
       }
-      coord_groups.sort((a, b) => (b[0].name_alike ? 1 : 0) - (a[0].name_alike ? 1 : 0) || (b[0].booking_count || 0) - (a[0].booking_count || 0));
+      const rank = (g) => (g[0].verdict === 'same' ? 0 : g[0].verdict === 'diff' ? 2 : 1);
+      coord_groups.sort((a, b) => rank(a) - rank(b) || (b[0].name_alike ? 1 : 0) - (a[0].name_alike ? 1 : 0) || (b[0].booking_count || 0) - (a[0].booking_count || 0));
     } catch { /* 못 읽으면 좌표 그룹만 비운다 */ }
 
     // 좌표 그룹에 «어느 그룹의» 호텔인지 (같은 그룹이면 위에서 이미 처리됨)

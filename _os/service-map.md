@@ -1,7 +1,7 @@
 # 📖 TW B2B 시스템 매뉴얼 (service-map)
 
 > **자동 생성 — 직접 편집 금지** (`.github/workflows/system-manual-rebuild.yml`이 push마다 재생성)
-> **생성 시각:** 2026-07-18T06:48:57.724Z
+> **생성 시각:** 2026-07-22T03:46:10.075Z
 > **포맷 (헌법 12대 원칙 6번 — AI 가독성):** 사람용 표/설명 + AI용 YAML 블록
 
 ---
@@ -72,10 +72,11 @@ groups:
 ## 🤖 섹션 2 — 봇 카탈로그
 
 
-총 **22개** 봇이 자동 실행 중.
+총 **23개** 봇이 자동 실행 중.
 
 | 봇 | 트리거 | 하는 일 |
 |---|---|---|
+| `agoda-inventory-refresh.yml` | cron/수동 | ? |
 | `auto-detect-task-status.yml` | push/수동 | commit message 자동 감지 → tasks.json status 자동 갱신 |
 | `auto-task-from-health.yml` | push/cron/수동 | 자동 작업 등록 봇 (auto-task-from-health) |
 | `build-activity-feed.yml` | push/cron/수동 | activity-feed 자동 갱신 워크플로 (BL-OS-PHASE-1A 단계 5) |
@@ -102,8 +103,9 @@ groups:
 
 ```yaml
 section: bots
-bots_total: 22
+bots_total: 23
 bots:
+  - { file: "agoda-inventory-refresh.yml", trigger: ["cron", "수동"], role: "?" }
   - { file: "auto-detect-task-status.yml", trigger: ["push", "수동"], role: "commit message 자동 감지 → tasks.json status 자동 갱신" }
   - { file: "auto-task-from-health.yml", trigger: ["push", "cron", "수동"], role: "자동 작업 등록 봇 (auto-task-from-health)" }
   - { file: "build-activity-feed.yml", trigger: ["push", "cron", "수동"], role: "activity-feed 자동 갱신 워크플로 (BL-OS-PHASE-1A 단계 5)" }

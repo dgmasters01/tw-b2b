@@ -1,0 +1,77 @@
+# 아고다 재고 월 1회 자동 갱신 (BL-AGODA-INVENTORY)
+#
+# 왜 GitHub Actions 인가 (2026-07-22):
+#   파일이 423MB zip → 2GB CSV 다. Vercel 크론은 최대 300초라 못 돈다.
+#   GitHub 러너는 6시간·14GB 디스크라 여유가 있다. 비용 0원.
+#
+# 파일 주소는 여기 안 적는다. DB `agoda_file_source` 에 언어별로 있고 도구가 알아서 꺼낸다.
+#   받는 파일은 3개뿐: ko(분모·39칸) · ja · zh(번체)
+#   영어는 안 받는다 — KO 파일에 영어 원본명이 같이 들어 있다.
+#   우리 채널 = ko(TW·HT·HG) · en(KT) · ja(JP) · zh-tw(ZH) · vi(VN)
+#   cn(간체)=보류(유튜브 중국 차단) / th=채널 없음 / vi=아고다에 파일 없음
+#
+# 필요한 비밀값: CLAUDE_OPS_TOKEN
+
+name: agoda-inventory-refresh
+
+on:
+  schedule:
+    - cron: '0 18 1 * *'
+  workflow_dispatch:
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: 디스크 여유 확보
+        run: df -h /
+
+      - name: 1) 한국어 재고 갱신 (예약 있는 도시 전부)
+        env:
+          CLAUDE_OPS_TOKEN: ${{ secrets.CLAUDE_OPS_TOKEN }}
+        run: |
+          set -e
+          python3 _os/tools/agoda-file-load.py --step cities --target ko
+          KO=$(ls *_KO.csv | head -1)
+          python3 _os/tools/agoda-file-load.py --csv "$KO" --step hotels
+          python3 _os/tools/agoda-file-load.py --csv "$KO" --step inventory --top 300 --refresh
+          rm -f *_KO.csv *.zip
+
+      - name: 1-b) 영어·한국어 이름 채우기 (다운로드 0)
+        env:
+          CLAUDE_OPS_TOKEN: ${{ secrets.CLAUDE_OPS_TOKEN }}
+        run: |
+          set -e
+          for P in "en,hotel_name" "ko,hotel_name_ko"; do
+            L=${P%%,*}; C=${P##*,}
+            curl -s -X POST https://gohotelwinners.com/api/ops/db-query \
+              -H "x-ops-token: $CLAUDE_OPS_TOKEN" -H "Content-Type: application/json" \
+              -d "{\"query\":\"insert into agoda_inventory_name (agoda_hotel_id,target_code,hotel_name) select agoda_hotel_id,'$L',$C from agoda_inventory where $C is not null on conflict (agoda_hotel_id,target_code) do update set hotel_name=excluded.hotel_name\"}"
+          done
+
+      - name: 2) 언어별 호텔 이름 갱신 (ja·zh)
+        env:
+          CLAUDE_OPS_TOKEN: ${{ secrets.CLAUDE_OPS_TOKEN }}
+        run: |
+          set -e
+          for L in ja zh; do
+            echo "=== $L ==="
+            python3 _os/tools/agoda-file-load.py --step names --target "$L"
+            rm -f *.csv *.zip
+          done
+
+      - name: 결과 보고
+        if: always()
+        env:
+          CLAUDE_OPS_TOKEN: ${{ secrets.CLAUDE_OPS_TOKEN }}
+        run: |
+          curl -s -X POST https://gohotelwinners.com/api/ops/db-query \
+            -H "x-ops-token: $CLAUDE_OPS_TOKEN" -H "Content-Type: application/json" \
+            -d '{"query":"select (select count(*) from agoda_inventory) rows, (select count(distinct city_id) from agoda_inventory) cities"}'

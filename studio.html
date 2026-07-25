@@ -431,6 +431,7 @@
   .st-pf-hbadge { font-size:11px; font-weight:400; padding:1px 7px; border-radius:6px; border:0.5px solid rgba(128,128,128,.3); opacity:.5; margin-left:4px; }
   .st-pf-hbadge.on { color:#4edea3; border-color:rgba(78,222,163,.4); opacity:1; }
   .hcaret { font-size:10px; opacity:.5; margin-left:2px; }
+  .st-htd-clk { font-size:11px; color:#3FB984; margin-left:6px; font-weight:600; }
   .st-pf-hdetail { background:rgba(128,128,128,.06); border:1px solid rgba(128,128,128,.18); border-top:none; border-radius:0 0 9px 9px; margin:-8px 0 7px; padding:12px 16px; }
   .st-pf-detlbl { font-size:12px; opacity:.5; margin-bottom:8px; }
   .st-pf-bar { height:7px; background:rgba(128,128,128,.15); border-radius:4px; overflow:hidden; }
@@ -2943,8 +2944,17 @@
         if (f.classList.contains('on')) { close(); return; }
         fns.forEach(function (x) { x.classList.remove('on'); }); f.classList.add('on');
         panel.hidden = false;
-        if (kind === 'views' || kind === 'clicks') {
-          panel.innerHTML = '<div class="st-fd-soon">유튜브 ' + (kind === 'views' ? '조회수' : '클릭') + '는 연동 후 채널별→영상별로 여기 나옵니다.</div>';
+        if (kind === 'views') {
+          panel.innerHTML = '<div class="st-fd-soon">유튜브 조회수는 연동 후 여기 나옵니다.</div>';
+          return;
+        }
+        if (kind === 'clicks') {
+          var exps = (d.exposures || []).filter(function (e) { return e.r_code; });
+          if (!exps.length) { panel.innerHTML = '<div class="st-fd-soon">추적링크가 붙은 영상이 아직 없습니다. 발행 영상 본문을 추적링크로 교체하면 채널·영상별로 채워집니다.</div>'; return; }
+          panel.innerHTML = '<div class="st-fd-cap">채널·영상별 클릭 <span class="st-fd-dim">— 같은 호텔이라도 자리(R코드)마다 따로</span></div>' +
+            exps.map(function (e) {
+              return '<div class="st-fd-ch"><span>' + esc(chName(e.channel_code)) + ' · TOP' + e.rank + ' <span style="font-size:10px;color:var(--muted)">' + esc(e.r_code) + '</span></span><span><b style="color:#3FB984">' + (e.clicks || 0) + '</b> 클릭</span></div>';
+            }).join('');
           return;
         }
         panel.innerHTML = channelList(kind);
@@ -3014,12 +3024,12 @@
             '<span class="st-exp-dim">채널 ' + esc(chName(e.channel_code)) + '</span>' + (concept ? '<span class="st-exp-dim">· ' + esc(concept) + '</span>' : '') + '</div>' +
           (tops ? '<div class="st-exp-lbl">이 영상에 같이 나간 호텔 (TOP3 묶음)</div><div class="st-exp-tops">' + tops + '</div>' : '') +
           '<div class="st-exp-btns">' + yt + '</div>' +
-          '<div class="st-exp-soon"><div><div class="l">이 영상 조회</div><div class="v">연동 후</div></div><div><div class="l">이 영상 클릭</div><div class="v">연동 후</div></div><div><div class="l">이 영상 예약</div><div class="v">추적링크 후</div></div></div>' +
+          '<div class="st-exp-soon"><div><div class="l">이 영상 조회</div><div class="v">연동 후</div></div><div><div class="l">이 영상 클릭</div><div class="v">' + (e.clicks != null ? '<b style=\\'color:#3FB984\\'>' + e.clicks + '</b>' + (e.r_code ? ' <span style=\\'font-size:10px;color:var(--muted)\\'>' + esc(e.r_code) + '</span>' : '') : (e.r_code ? '0' : '추적링크 후')) + '</div></div><div><div class="l">이 영상 예약</div><div class="v">추적링크 후</div></div></div>' +
           '</div>';
         return '<div class="st-htd-exp clk" data-exp="' + i + '"><span class="st-htd-date">' + stTxt + '</span>' +
           '<span class="st-htd-ch">' + esc(e.channel_code || '') + '</span>' +
           '<span class="st-htd-etitle">' + esc(e.title) + '</span>' +
-          '<span class="st-htd-rank">TOP' + e.rank + '</span><span class="st-exp-caret">›</span></div>' + body;
+          '<span class="st-htd-rank">TOP' + e.rank + '</span>' + (e.clicks != null ? '<span class="st-htd-clk">👆 ' + e.clicks + '</span>' : '') + '<span class="st-exp-caret">›</span></div>' + body;
       }).join('');
     } else { h += '<div class="st-hint">아직 노출 이력이 없습니다.</div>'; }
     h += '</div>';
@@ -3040,7 +3050,7 @@
     h += '<div class="st-funnel">' +
       '<div class="st-fn clk" data-fn="views"><div class="v muted">연동 후</div><div class="k">조회 ▾</div></div>' +
       '<div class="st-fa">›</div>' +
-      '<div class="st-fn clk" data-fn="clicks"><div class="v muted">연동 후</div><div class="k">클릭 ▾</div></div>' +
+      '<div class="st-fn clk" data-fn="clicks"><div class="v' + (d.clicks_total ? '' : ' muted') + '">' + (d.clicks_total != null ? d.clicks_total : '연동 후') + '</div><div class="k">클릭 ▾</div></div>' +
       '<div class="st-fa">›</div>' +
       '<div class="st-fn clk" data-fn="book"><div class="v">' + d.total + '</div><div class="k">예약 ▾</div></div>' +
       '<div class="st-fa">›</div>' +

@@ -72,3 +72,28 @@ Supabase **무료 요금제 · NANO(메모리 0.5GB · DB 한도 500MB)** 를 �
 - **호텔이야 2안**: md에 1안(지역우선)·2안(도시우선) 둘 다 있고 `buildTitles`가 이미 배열로 반환 중이었다.
   - `title_alt`에 2안 저장 → 올리기 카드에 **①-2 제목 2안 복사버튼** 추가. 대표님이 골라 복사.
   - 추천은 여전히 1안(지역우선). 4성급 이상일 때 2안이 성급표기형으로 갈린다.
+
+---
+
+## D-075 클릭 추적 — 완성·전수 점검 (2026-07-25)
+
+### 도메인
+- **gohpik.com** 구매(Cloudflare)·Vercel tw-b2b 연결. apex→www 308 후 /r 302→아고다.
+- 본문 추적링크는 **www.gohpik.com/r/{R코드}** (직행). 9개 링크 전수 아고다 도달 검증.
+
+### 구조 (자리=R코드 단위)
+- R코드 = publication × hid × rank. 같은 호텔이라도 채널·영상 다르면 R코드 다름 → 클릭 안 섞임.
+- 테이블: content_clicks(r_code PK, publication_id, hid_agoda, rank, channel_code, agoda_url, clicks), content_click_log. 함수 bump_click(rc).
+- 리다이렉트 api/r.js: 봇·프리페치 제외, bump_click +1, 302 아고다(cid 유지=수수료 유지).
+
+### 카운트 표시 연결 (전수 점검서 발견·수정)
+- **호텔 세부**(content-hotels.js·studio): 노출 이력 줄마다 👆클릭, 성과종합 클릭칸=총클릭, 클릭 누르면 채널·영상별(R코드) 분해. ✅
+- **성과표**(content-performance.js·studio): 상단 클릭카드=총클릭, 채널별 행 👆클릭, **영상별 렌즈=클릭 순 실목록**(기존 "연동 후" 문구 대체). ✅
+- 끝단 검증: 실클릭 3회 → content_clicks 3 → 성과표 총3·HT3·해당영상3. 이후 리셋.
+
+### 6메뉴 헬스체크 (전부 200·ok)
+성과표·채널·호텔목록·확인함(hotel-review)·전략(content-queue)·올리기(publications)·드라이브(drive-status)·키워드(content-keywords view=cities/targets/survey)·채널세부(channel-perf-detail ?channel_code=)·kw-survey-now(POST).
+
+### 주의(재발방지)
+- studio.html 문자열에 이모지·따옴표 넣을 때 surrogate/이스케이프 깨짐 2회 발생 → 스튜디오 전체 JS 중단("불러오는 중" 멈춤). **이모지는 \U0001fXXX 단일 코드포인트, style은 큰따옴표 이스케이프**로. 커밋 후 반드시 SHA URL로 JS 문법 재검증.
+- 앞으로 발행 영상에 R코드 자동 부여·본문 자동 추적링크는 다음 과제.

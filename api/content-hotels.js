@@ -155,9 +155,19 @@ export default async function handler(req, res) {
 
       const { data: pubs } = await sb
         .from('publications')
-        .select('published_at,channel_code,title,hid_top1,hid_top2,hid_top3,status,youtube_url,city,star,price_band,hotel_names')
+        .select('id,published_at,channel_code,title,hid_top1,hid_top2,hid_top3,status,youtube_url,city,star,price_band,hotel_names')
         .or(`hid_top1.eq.${hid},hid_top2.eq.${hid},hid_top3.eq.${hid}`)
         .order('published_at', { ascending: false });
+      // 이 호텔의 자리별 클릭 (R코드) — publication_id + rank 로 매칭
+      let clkMap = {};
+      try {
+        const pubIds = (pubs || []).map((p) => p.id).filter(Boolean);
+        if (pubIds.length) {
+          const { data: ccs } = await sb.from('content_clicks')
+            .select('publication_id,rank,clicks,r_code').eq('hid_agoda', String(hid)).in('publication_id', pubIds);
+          for (const c of (ccs || [])) clkMap[c.publication_id + ':' + c.rank] = { clicks: c.clicks || 0, r_code: c.r_code };
+        }
+      } catch { /* 클릭 없음 */ }
       const exposures = (pubs || []).map((p) => {
         var names = Array.isArray(p.hotel_names) ? p.hotel_names : [];
         // TOP1/2/3 각각 hid + 이름(있으면) 매핑 — hotel_names 순서는 top1,top2,top3 가정
@@ -170,6 +180,8 @@ export default async function handler(req, res) {
           published_at: p.published_at, channel_code: p.channel_code,
           title: p.title || '(제목 없음)',
           rank: p.hid_top1 === hid ? 1 : (p.hid_top2 === hid ? 2 : 3),
+          clicks: (clkMap[p.id + ':' + (p.hid_top1 === hid ? 1 : (p.hid_top2 === hid ? 2 : 3))] || {}).clicks ?? null,
+          r_code: (clkMap[p.id + ':' + (p.hid_top1 === hid ? 1 : (p.hid_top2 === hid ? 2 : 3))] || {}).r_code || null,
           status: p.status || 'draft',
           youtube_url: p.youtube_url || null,
           city: p.city || null, star: p.star || null, price_band: p.price_band || null,
@@ -203,7 +215,7 @@ export default async function handler(req, res) {
       res.setHeader('Cache-Control', 'private, no-store, max-age=0');
       return res.status(200).json({
         ok: true, is_admin: !!who.isAdmin, hid,
-        detail: { total, done, cancelled, noshow, amount, commission, confirmRate, leadtime, byChannel, bookings, exposures, contract },
+        detail: { total, done, cancelled, noshow, amount, commission, confirmRate, leadtime, byChannel, bookings, exposures, contract, clicks_total: exposures.reduce((s2, e) => s2 + (e.clicks || 0), 0) },
       });
     } catch (e) {
       return res.status(500).json({ ok: false, error: '호텔 상세를 불러오지 못했습니다.', detail: String(e.message || e) });

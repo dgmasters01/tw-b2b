@@ -2614,8 +2614,8 @@
     var head=document.getElementById('st-pf-tablehead');
     if(!d){ return; }
     if(pfState.lens==='video'){
-      head.textContent='영상별';
-      box.innerHTML='<div class="st-empty">영상별은 예약이 어느 영상에서 왔는지 추적링크로 연결된 뒤 채워집니다. 지금은 채널별·호텔별로 보세요.</div>';
+      head.textContent='영상별 (클릭 순)';
+      var vids=(d.videos||[]).slice().sort(function(a,b){return (b.clicks||0)-(a.clicks||0);});if(!vids.length){ box.innerHTML='<div class="st-empty">발행된 영상이 없습니다.</div>'; return; }box.innerHTML=vids.map(function(v,i){var clk=v.clicks||0;var chip=v.channel_code?'<span class="st-ch-chip">'+esc(chName(v.channel_code))+'</span>':'';return '<div class="st-pf-row"><span class="rk">'+(i+1)+'</span>'+'<span class="nm">'+esc(v.title||'(제목 없음)')+' '+chip+'</span>'+'<span class="mt">👆 <b style="color:#3FB984">'+clk+'</b> 클릭</span>'+'<span class="mt">'+(v.published?'발행':'대기')+'</span></div>';}).join('')+'<div class="st-hint" style="margin-top:8px">클릭 = 유튜브 설명란 추적링크를 누른 수.</div>';
       return;
     }
     if(pfState.lens==='hotel'){
@@ -2677,7 +2677,7 @@
         '<div class="st-pf-row">'+
         '<span class="rk">'+c.rank+'</span>'+
         '<span class="nm">'+esc(c.name)+' <span class="hcaret">▾</span></span>'+
-        '<span class="mt">예약 '+c.bookings+'</span>'+
+        '<span class="mt">예약 '+c.bookings+'</span>'+'<span class="mt">👆 '+(c.clicks||0)+'</span>'+
         '<span class="mt">취소 '+c.cancelled+cxr+'</span>'+
         '<span class="mt">확정률 '+(c.confirm_rate!=null?c.confirm_rate+'%':'—')+'</span>'+
         '<span class="mt">'+pfMoney(c.amount_usd)+'</span>'+
@@ -2729,7 +2729,7 @@
           pfCardHtml('예약금액 (호텔이 받은 돈)', pfMoney(s.amount_usd), c?pfDeltaEl(s.amount_usd,c.amount_usd,false,true):'') +
           pfCardHtml('영상 수', (d.video_count||0), '') +
           pfCardHtml('조회수', '<span style="opacity:.4">—</span>', '') +
-          pfCardHtml('클릭', '<span style="opacity:.4">—</span>', '') +
+          pfCardHtml('클릭', (d.clicks_total ? d.clicks_total.toLocaleString() : '<span style="opacity:.4">—</span>'), '') +
           (showComm ? pfCardHtml('🔒 수수료 (대표님만)', pfMoney(s.commission_usd), '', true) : '');
         document.getElementById('st-pf-cards').innerHTML=cards;
         pfRenderAsof(d); pfRenderTable(d); pfRenderTrend(d);

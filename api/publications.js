@@ -208,6 +208,16 @@ export default async function handler(req, res) {
     }
 
     // 아고다 파트너 링크 3개 붙여넣기 → 원고 다시 만들어 장부 갱신
+    if (action === 'title_final') {
+      // 대표님이 유튜브에 «실제로 올린 제목»을 기록. 추천 제목(title)은 그대로 두고 이 칸만 바꾼다.
+      const tf = (b.title_final == null ? '' : String(b.title_final)).trim();
+      const { data, error } = await sb.from('publications')
+        .update({ title_final: tf || null, updated_at: new Date().toISOString() })
+        .eq('id', id).select().single();
+      if (error) return res.status(500).json({ ok: false, error: String(error.message || error) });
+      return res.status(200).json({ ok: true, action: 'title_final', row: data });
+    }
+
     if (action === 'links') {
       const { links_text } = b;
       if (!links_text) return res.status(400).json({ ok: false, error: '링크를 붙여넣어 주세요.' });

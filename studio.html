@@ -1283,6 +1283,7 @@
     if (showCopies) {
       // 복사 4개 + 번호 (챕터·해시태그·링크는 설명란 안에 이미 포함 → 따로 복사 안 함)
       if (p.title)       { payload['ti' + id] = p.title;         h += copyRow('①', '제목', p.title, 'ti' + id); }
+      if (p.title_alt && p.title_alt !== p.title) { payload['ta' + id] = p.title_alt; h += copyRow('①-2', '제목 2안', p.title_alt, 'ta' + id); }
       if (p.description) { payload['de' + id] = p.description;   h += copyRow('②', '설명란', '아고다 링크·챕터·해시태그 포함 · ' + p.description.split('\n').length + '줄', 'de' + id); }
       if (p.keywords)    { payload['kw' + id] = p.keywords;      var kl = p.keyword_length || p.keywords.length; h += copyRow('③', '태그', kl + ' / 500자' + (kl > 500 ? ' · 초과!' : ''), 'kw' + id); }
       if (p.filename_base) { payload['fn' + id] = p.filename_base; h += copyRow('④', '파일명', p.filename_base, 'fn' + id); }

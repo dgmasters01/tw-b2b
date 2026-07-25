@@ -296,7 +296,7 @@ export default async function handler(req, res) {
     const { from, to } = periodRange(period, fromQ, toQ);
 
     // 채널 이름 매핑 + 영상(원고) + 노출호텔 + 기간 예약 + 데이터 기준일 병렬
-    const [chRes, pubRes, expRes, bookings, asofBk, asofUp] = await Promise.all([
+    const [chRes, pubRes, expRes, bookings, asofBk, asofUp, clkRes] = await Promise.all([
       sb.from('v_channel_stats').select('channel_code, channel_name, is_active'),
       sb.from('publications')
         .select('id, channel_code, status, published_at, title, youtube_video_id')
@@ -306,6 +306,7 @@ export default async function handler(req, res) {
       // 예약 데이터 기준일: 마지막 예약일(=데이터가 커버하는 끝) + 마지막 업로드일
       sb.from('bookings_agoda').select('booked_at').not('booked_at', 'is', null).order('booked_at', { ascending: false }).limit(1),
       sb.from('bookings_agoda').select('created_at').order('created_at', { ascending: false }).limit(1),
+      sb.from('content_clicks').select('publication_id, channel_code, clicks'),
     ]);
     for (const r of [chRes, pubRes, expRes]) if (r.error) throw r.error;
 
@@ -314,11 +315,20 @@ export default async function handler(req, res) {
       last_upload: (asofUp && asofUp.data && asofUp.data[0] && asofUp.data[0].created_at) ? String(asofUp.data[0].created_at).slice(0, 10) : null,
     };
 
+    const clkByPub = {}; const clkByCh = {}; let clkTotal = 0;
+    for (const c of (clkRes && clkRes.data ? clkRes.data : [])) {
+      const n = Number(c.clicks) || 0;
+      if (c.publication_id) clkByPub[c.publication_id] = (clkByPub[c.publication_id] || 0) + n;
+      if (c.channel_code) clkByCh[c.channel_code] = (clkByCh[c.channel_code] || 0) + n;
+      clkTotal += n;
+    }
+
     const nameMap = {};
     for (const c of (chRes.data || [])) nameMap[c.channel_code] = c.channel_name;
 
     const summary = summarize(bookings, withComm);
     const channels = byChannel(bookings, nameMap, withComm);
+    channels.forEach(function(c){ c.clicks = clkByCh[c.channel_code] || clkByCh[c.code] || 0; });
     const tr = trend(bookings, from, to);
 
     // 호텔별: 기간 예약을 hotel_id(우리 마스터)로 묶고 이름·유형·성급·나라 조인
@@ -358,6 +368,7 @@ export default async function handler(req, res) {
       id: p.id, title: p.title, channel_code: p.channel_code, status: p.status,
       published_at: p.published_at, published: !!p.youtube_video_id,
       hotels: (expByPub[p.id] || []).sort((a, b) => (a.rank || 9) - (b.rank || 9)),
+      clicks: clkByPub[p.id] || 0,
     }));
 
     res.setHeader('Cache-Control', 'private, no-store, max-age=0');
@@ -367,6 +378,7 @@ export default async function handler(req, res) {
       period: { key: period, from, to },
       data_asof: dataAsof,
       summary,
+      clicks_total: clkTotal,
       compare,
       channels,
       hotels,

@@ -438,6 +438,8 @@ export function render(manuscript, rule, opts = {}) {
       star: m.star,
       price_band: m.priceBand,
       title: titles[recommended],
+      // 2안(대체 제목). 있으면 저장 → 올리기 카드에서 «다른 제목»으로 함께 제시(대표님이 고름).
+      title_alt: (titles.length > 1 ? titles.find((t, i) => i !== recommended) : null) || null,
       hid_top1: hid(1),
       hid_top2: hid(2),
       hid_top3: hid(3),

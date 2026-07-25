@@ -701,6 +701,7 @@
   .st-pub-meta { font-size:11.5px; color:#9db4c9; margin-top:5px; }
   .st-pub-hotels { font-size:11.5px; color:#b9c8d8; margin-top:6px; }
   .st-pub-ytrow { margin-top:9px; }
+  .st-pub-rec { font-size:11px; color:var(--muted); margin-top:3px; }
   .st-pub-yt { font-size:11.5px; color:#E24B4A; text-decoration:none; border:1px solid rgba(226,75,74,.4); border-radius:7px; padding:4px 10px; display:inline-block; }
   .st-pub-soon { color:#8A8794; }
   .st-pub-kpi { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:14px; }
@@ -1521,7 +1522,13 @@
         histUI = '<div class="st-pub-hist">🕑 ' + esc(last.act || '변경') + ' · ' + esc(String(last.at || '').slice(0, 16).replace('T', ' ')) + (last.by ? ' · ' + esc(shortMail(last.by)) : '') + '</div>';
       }
       return '<div class="st-pub-item">' +
-        '<div class="st-pub-top"><span class="st-pub-title">' + esc(v.title || '(제목 없음)') + '</span>' + (v.channel_code ? '<span class="st-ch-chip">' + esc(chName(v.channel_code)) + '</span>' : '') + '</div>' +
+        '<div class="st-pub-top"><span class="st-pub-title">' + esc(v.title_final || v.title || '(제목 없음)') + '</span>' + (v.channel_code ? '<span class="st-ch-chip">' + esc(chName(v.channel_code)) + '</span>' : '') + '</div>' +
+        (v.title_final && v.title_final !== v.title ? '<div class="st-pub-rec">추천 제목: ' + esc(v.title) + '</div>' : '') +
+        (ptEditing === v.id
+          ? '<div class="st-pub-editbox"><input class="st-pub-editinput" id="ptinp-' + v.id + '" placeholder="유튜브에 실제로 올린 제목" value="' + esc(v.title_final || v.title || '') + '">' +
+            '<button class="st-pub-mini ok" data-ptsave="' + v.id + '">저장</button>' +
+            '<button class="st-pub-mini" data-ptcancel="' + v.id + '">취소</button></div>'
+          : '<div class="st-pub-ytrow"><button class="st-pub-mini" data-ptedit="' + v.id + '">✏ 실제 제목 ' + (v.title_final ? '수정' : '입력') + '</button></div>') +
         '<div class="st-pub-meta">' + esc(v.code || '(코드 없음)') + ' · 발행 ' + esc(v.published_at ? String(v.published_at).slice(0, 10) : '-') + ' · 조회 ' + (sgViewNum(v) != null ? '<b>' + sgViewNum(v) + '</b>' : '<span class="st-pub-soon">연동 후</span>') + '</div>' +
         (names.length ? '<div class="st-pub-hotels">' + names.slice(0, 3).map(function (n, i) { return '<b>TOP' + (i + 1) + '</b> ' + esc(n); }).join(' · ') + '</div>' : '') +
         histUI +
@@ -1532,7 +1539,19 @@
     list.innerHTML = ctrl + items;
     bindPubCtrl(list);
   }
+  var ptEditing = null;   // 실제 제목 수정 중인 발행 id
   function bindPubCtrl(list) {
+    list.querySelectorAll('[data-ptedit]').forEach(function (b) { b.onclick = function () { ptEditing = b.dataset.ptedit; renderPublished(list); setTimeout(function () { var el = list.querySelector('#ptinp-' + ptEditing); if (el) el.focus(); }, 30); }; });
+    list.querySelectorAll('[data-ptcancel]').forEach(function (b) { b.onclick = function () { ptEditing = null; renderPublished(list); }; });
+    list.querySelectorAll('[data-ptsave]').forEach(function (b) { b.onclick = function () {
+      var el = list.querySelector('#ptinp-' + b.dataset.ptsave); if (!el) return;
+      var val = el.value.trim();
+      b.disabled = true; b.textContent = '저장 중…';
+      fetch('/api/publications', { method: 'PATCH', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: b.dataset.ptsave, action: 'title_final', title_final: val }) })
+        .then(function (r) { return r.json(); })
+        .then(function (j) { if (!j.ok) throw new Error(j.error || '저장 실패'); ptEditing = null; load(); })
+        .catch(function (e) { b.disabled = false; b.textContent = '저장'; alert(e.message); });
+    }; });
     var s = list.querySelector('#pub-search');
     if (s) s.oninput = function () { var pos = s.selectionStart; upPubSearch = s.value; renderPublished(list); var s2 = list.querySelector('#pub-search'); if (s2) { s2.focus(); try { s2.setSelectionRange(pos, pos); } catch (e) {} } };
     function bindSel(id, set) { var el = list.querySelector(id); if (el) el.onchange = function () { set(el.value); renderPublished(list); }; }

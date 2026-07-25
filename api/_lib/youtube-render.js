@@ -70,6 +70,8 @@ function buildTitles(m, rule, map, warnings) {
     if (missing.length) warnings.push(`제목 틀에서 못 채운 칸: ${missing.join(' ')}`);
     if (!seen.has(title)) { seen.add(title); titles.push(title); }
   }
+  // 추천안: 호텔이야는 «1안(지역 우선형)»을 추천으로 두되, 2안도 함께 내보낸다(대표님이 고름).
+  //   그 외 채널은 종전대로 (4성급이면 2안=성급표기를 추천).
   const recommended =
     rule.channel === '호텔이야' ? 0 : (!dropStar && titles.length > 1 ? 1 : 0);
 

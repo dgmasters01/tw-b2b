@@ -2440,7 +2440,7 @@
     { k:'last30', l:'최근 30일' }, { k:'month', l:'이번 달' }, { k:'last90', l:'최근 3개월' },
     { k:'all', l:'전체' }, { k:'custom', l:'기간 지정' }
   ];
-  var pfState = { period:'all', compare:false, lens:'channel', from:null, to:null, hsort:null, csort:null };
+  var pfState = { period:'all', compare:false, lens:'channel', from:null, to:null, hsort:null, csort:null, vsort:'clicks' };
   var pfLast = null;
   var pfHotelLimit = 30;
 
@@ -2610,6 +2610,24 @@
     a.forEach(function(o,i){o.rank=i+1;});
     return a;
   }
+  function vSortBtns(cur, isAdmin){
+    var b='<span class="st-pf-sort">';
+    b+='<button data-vs="clicks" class="'+(cur==='clicks'?'on':'')+'">클릭순</button>';
+    b+='<button data-vs="views" class="'+(cur==='views'?'on':'')+'">조회순</button>';
+    b+='<button data-vs="bookings" class="'+(cur==='bookings'?'on':'')+'">예약순</button>';
+    if(isAdmin) b+='<button data-vs="commission" class="'+(cur==='commission'?'on':'')+'">수익순</button>';
+    return b+'</span>';
+  }
+  function sortVideos(arr, key){
+    var a=arr.slice();
+    a.sort(function(x,y){
+      if(key==='views') return (y.views||0)-(x.views||0) || (y.clicks||0)-(x.clicks||0);
+      if(key==='bookings') return (y.bookings||0)-(x.bookings||0) || (y.clicks||0)-(x.clicks||0);
+      if(key==='commission') return (y.commission||0)-(x.commission||0) || (y.bookings||0)-(x.bookings||0);
+      return (y.clicks||0)-(x.clicks||0) || (y.views||0)-(x.views||0);
+    });
+    return a;
+  }
   function sortBtnsHtml(cur, isAdmin){
     var b='<span class="st-pf-sort">';
     if(isAdmin) b+='<button data-s="commission" class="'+(cur==='commission'?'on':'')+'">수익순</button>';
@@ -2622,13 +2640,14 @@
     var head=document.getElementById('st-pf-tablehead');
     if(!d){ return; }
     if(pfState.lens==='video'){
-      head.textContent='영상별 (클릭 순)';
-      var vids=(d.videos||[]).slice().sort(function(a,b){return (b.clicks||0)-(a.clicks||0);});if(!vids.length){ box.innerHTML='<div class="st-empty">발행된 영상이 없습니다.</div>'; return; }
+      var isAdmV=!!d.is_admin;
+      head.innerHTML='영상별 '+vSortBtns(pfState.vsort, isAdmV);
+      var vids=sortVideos(d.videos||[], pfState.vsort);if(!vids.length){ box.innerHTML='<div class="st-empty">발행된 영상이 없습니다.</div>'; return; }
       var isOwnerV = !!d.is_admin;
       box.innerHTML=vids.map(function(v,i){
         var chip=v.channel_code?'<span class="st-ch-chip">'+esc(chName(v.channel_code))+'</span>':'';
         var comm=(v.commission!=null)?' · 수수료 <b style="color:#3FB984">$'+v.commission+'</b>':'';
-        var head='<div class="st-pf-row st-vrow" data-vi="'+i+'"><span class="rk">'+(i+1)+'</span>'+
+        var rowHead='<div class="st-pf-row st-vrow" data-vi="'+i+'"><span class="rk">'+(i+1)+'</span>'+
           '<span class="nm">'+esc(v.title||'(제목 없음)')+' '+chip+'</span>'+
           '<span class="mt">조회 <b>'+(v.views!=null?v.views.toLocaleString():'—')+'</b></span>'+
           '<span class="mt">클릭 <b style="color:#3FB984">'+(v.clicks||0)+'</b></span>'+
@@ -2643,11 +2662,12 @@
             '<span class="mt">예약 <b>'+(s.bookings||0)+'</b>'+(s.confirmed?' <span style="opacity:.6">(확정 '+s.confirmed+')</span>':'')+'</span>'+
             scomm+'</div>';
         }).join('');
-        return '<div class="st-vwrap">'+head+'<div class="st-vbody" data-vb="'+i+'" style="display:none">'+
+        return '<div class="st-vwrap">'+rowHead+'<div class="st-vbody" data-vb="'+i+'" style="display:none">'+
           (slots||'<div class="st-vslot" style="opacity:.6">이 영상에 붙은 호텔 정보가 없습니다.</div>')+
           '<div class="st-hint" style="margin-top:6px">자리별 조회수는 유튜브가 영상 단위로만 주어 못 나눕니다. 클릭·예약·수수료는 자리(호텔)별입니다.</div></div></div>';
       }).join('')+'<div class="st-hint" style="margin-top:8px">조회 = 유튜브 조회수(D-059) · 클릭 = 설명란 추적링크 · 예약·수수료 = 이 호텔이 이 채널로 받은 예약. 줄을 누르면 TOP1·2·3 자리별로 펼쳐집니다.</div>';
       box.querySelectorAll('.st-vrow').forEach(function(row){ row.style.cursor='pointer'; row.onclick=function(){ var b=box.querySelector('[data-vb="'+row.dataset.vi+'"]'); if(b){ var open=b.style.display!=='none'; b.style.display=open?'none':'block'; var c=row.querySelector('.st-exp-caret'); if(c) c.textContent=open?'▾':'▲'; } }; });
+      head.querySelectorAll('.st-pf-sort button').forEach(function(b){ b.onclick=function(){ pfState.vsort=b.dataset.vs; pfRenderTable(pfLast); }; });
       return;
     }
     if(pfState.lens==='hotel'){

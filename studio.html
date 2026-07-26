@@ -3324,6 +3324,17 @@
     });
     var avg = rates.length ? Math.round(rates.reduce(function (a, b) { return a + b; }, 0) / rates.length) : null;
     var soon = '<span class="st-hs-soon">연동 후</span>';
+    // 축 1 계산: 마지막 노출 + 6개월 = 재사용 가능일 (실데이터)
+    var axReady = 0, axSoon = 0, axWait = 0, _now = new Date();
+    list.forEach(function (h) {
+      if (!h.last_exposure) return;
+      var from = new Date(h.last_exposure); from.setMonth(from.getMonth() + 6);
+      var days = Math.ceil((from - _now) / 86400000);
+      if (days <= 0) axReady++; else if (days <= 30) axSoon++; else axWait++;
+    });
+    // 축 2 계산: 발행됨 = publications 있는 호텔 (실데이터). 큐 상태는 데이터 없어 '연동 후' 유지
+    var axPublished = 0;
+    list.forEach(function (h) { if ((h.published_count || 0) > 0) axPublished++; });
     function card(cls, label, val, sub, key) {
       var sel = (hsCardKey && hsCardKey === key) ? ' sel' : '';
       var kc = key ? (' st-hs-click' + sel + '" data-hsf="' + key + '"') : '"';
@@ -3331,10 +3342,10 @@
     }
     var h = '';
     h += '<div class="st-hs-ttl">축 1 · 재사용 시점 <span>— 자동 (마지막 노출 +6개월)</span></div><div class="st-hs-row">';
-    h += card('ok', '지금 쓸 수 있음', soon) + card('warn', '곧 풀림 (30일)', soon) + card('', '아직 못 씀', soon) + card('', '노출 안 함', noExpo, noExpo ? 'noexpo' : '');
+    h += card('ok', '지금 쓸 수 있음', axReady, '', axReady ? 'reuse_ready' : '') + card('warn', '곧 풀림 (30일)', axSoon, '', axSoon ? 'reuse_soon' : '') + card('', '아직 못 씀', axWait, '', axWait ? 'reuse_wait' : '') + card('', '노출 안 함', noExpo, noExpo ? 'noexpo' : '');
     h += '</div>';
-    h += '<div class="st-hs-ttl">축 2 · 작업 상태 <span>— 큐·발행 연동 후</span></div><div class="st-hs-row">';
-    h += card('', '안 건드림', soon) + card('acc', '큐에 넣음', soon) + card('', '발행됨', soon) + card('danger', '놓친 것', soon, '피크 지남·되살리기');
+    h += '<div class="st-hs-ttl">축 2 · 작업 상태 <span>— 발행은 실값·큐는 연동 후</span></div><div class="st-hs-row">';
+    h += card('', '안 건드림', soon) + card('acc', '큐에 넣음', soon) + card('', '발행됨', axPublished, '', axPublished ? 'pub_done' : '') + card('danger', '놓친 것', soon, '피크 지남·되살리기');
     h += '</div>';
     h += '<div class="st-hs-ttl">좋은 호텔 · 커버리지 <span>— 카드를 누르면 아래 목록이 그 조건으로 걸러집니다</span></div><div class="st-hs-row six">';
     h += card('', '전체', total, '', 'all') + card('', '나라·도시', Object.keys(countries).length + '·' + Object.keys(cities).length) + card('', '호텔·리조트', (total - resort) + '·' + resort) + card('', '평균 확정률', avg == null ? '—' : avg + '%') + card('', '높음 ≥85', high, '', high ? 'high' : '') + card('', '낮음 <50', low, '', low ? 'low' : '');
@@ -3356,6 +3367,15 @@
     if (hsCardKey === 'noexpo') return !h.exposure_count;
     if (hsCardKey === 'high') return rate != null && rate >= 85;
     if (hsCardKey === 'low') return rate != null && rate < 50;
+    if (hsCardKey === 'pub_done') return (h.published_count || 0) > 0;
+    if (hsCardKey === 'reuse_ready' || hsCardKey === 'reuse_soon' || hsCardKey === 'reuse_wait') {
+      if (!h.last_exposure) return false;
+      var rf = new Date(h.last_exposure); rf.setMonth(rf.getMonth() + 6);
+      var dd = Math.ceil((rf - new Date()) / 86400000);
+      if (hsCardKey === 'reuse_ready') return dd <= 0;
+      if (hsCardKey === 'reuse_soon') return dd > 0 && dd <= 30;
+      return dd > 30;
+    }
     return true;
   }
   function bindHotelDetailClicks(scope) {

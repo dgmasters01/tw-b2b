@@ -2139,7 +2139,8 @@
       hotelLine = '<div class="st-sg-desc"><b>이 영상에 나온 호텔</b><br>' + tops + '</div>';
     }
     var cardViews = sgViewNum(pub);
-    var pubmeta = '<div class="st-sg-desc" style="border-top:0.5px solid rgba(128,128,128,.15);margin-top:10px;padding-top:9px">최종 업로더 <b>' + esc(uploader) + '</b> · 조회 <b>' + (cardViews != null ? cardViews : '연동 후') + '</b> · 예약 <b>준비중</b>'
+    var cardClicks = (pub && pub.clicks != null) ? pub.clicks : null;
+    var pubmeta = '<div class="st-sg-desc" style="border-top:0.5px solid rgba(128,128,128,.15);margin-top:10px;padding-top:9px">최종 업로더 <b>' + esc(uploader) + '</b> · 조회 <b>' + (cardViews != null ? cardViews : '연동 후') + '</b> · 클릭 <b>' + (cardClicks != null ? cardClicks : 0) + '</b> · 예약 <b>준비중</b>'
       + (isOwner ? ' · 수수료 <b>준비중</b>' : '') + '</div>';
 
     return '<div class="st-sg-card' + (expanded ? ' expanded' : '') + '" data-sgid="' + it.id + '">' +
@@ -2615,7 +2616,7 @@
     if(!d){ return; }
     if(pfState.lens==='video'){
       head.textContent='영상별 (클릭 순)';
-      var vids=(d.videos||[]).slice().sort(function(a,b){return (b.clicks||0)-(a.clicks||0);});if(!vids.length){ box.innerHTML='<div class="st-empty">발행된 영상이 없습니다.</div>'; return; }box.innerHTML=vids.map(function(v,i){var clk=v.clicks||0;var chip=v.channel_code?'<span class="st-ch-chip">'+esc(chName(v.channel_code))+'</span>':'';return '<div class="st-pf-row"><span class="rk">'+(i+1)+'</span>'+'<span class="nm">'+esc(v.title||'(제목 없음)')+' '+chip+'</span>'+'<span class="mt">👆 <b style="color:#3FB984">'+clk+'</b> 클릭</span>'+'<span class="mt">'+(v.published?'발행':'대기')+'</span></div>';}).join('')+'<div class="st-hint" style="margin-top:8px">클릭 = 유튜브 설명란 추적링크를 누른 수.</div>';
+      var vids=(d.videos||[]).slice().sort(function(a,b){return (b.clicks||0)-(a.clicks||0);});if(!vids.length){ box.innerHTML='<div class="st-empty">발행된 영상이 없습니다.</div>'; return; }box.innerHTML=vids.map(function(v,i){var clk=v.clicks||0;var vw=(v.views!=null)?v.views:null;var chip=v.channel_code?'<span class="st-ch-chip">'+esc(chName(v.channel_code))+'</span>':'';return '<div class="st-pf-row"><span class="rk">'+(i+1)+'</span>'+'<span class="nm">'+esc(v.title||'(제목 없음)')+' '+chip+'</span>'+'<span class="mt">조회 <b>'+(vw!=null?vw.toLocaleString():'—')+'</b></span>'+'<span class="mt">클릭 <b style="color:#3FB984">'+clk+'</b></span>'+'<span class="mt">'+(v.published?'발행':'대기')+'</span></div>';}).join('')+'<div class="st-hint" style="margin-top:8px">조회 = 유튜브 조회수(D-059 수집) · 클릭 = 설명란 추적링크를 누른 수. 예약·확정률은 아고다가 채널 단위로만 주어 영상별로는 못 나눕니다(채널별에서 보세요).</div>';
       return;
     }
     if(pfState.lens==='hotel'){
@@ -2677,7 +2678,7 @@
         '<div class="st-pf-row">'+
         '<span class="rk">'+c.rank+'</span>'+
         '<span class="nm">'+esc(c.name)+' <span class="hcaret">▾</span></span>'+
-        '<span class="mt">예약 '+c.bookings+'</span>'+'<span class="mt">👆 '+(c.clicks||0)+'</span>'+
+        '<span class="mt">예약 '+c.bookings+'</span>'+'<span class="mt">클릭 '+(c.clicks||0)+'</span>'+
         '<span class="mt">취소 '+c.cancelled+cxr+'</span>'+
         '<span class="mt">확정률 '+(c.confirm_rate!=null?c.confirm_rate+'%':'—')+'</span>'+
         '<span class="mt">'+pfMoney(c.amount_usd)+'</span>'+
@@ -3029,7 +3030,7 @@
         return '<div class="st-htd-exp clk" data-exp="' + i + '"><span class="st-htd-date">' + stTxt + '</span>' +
           '<span class="st-htd-ch">' + esc(e.channel_code || '') + '</span>' +
           '<span class="st-htd-etitle">' + esc(e.title) + '</span>' +
-          '<span class="st-htd-rank">TOP' + e.rank + '</span>' + (e.clicks != null ? '<span class="st-htd-clk">👆 ' + e.clicks + '</span>' : '') + '<span class="st-exp-caret">›</span></div>' + body;
+          '<span class="st-htd-rank">TOP' + e.rank + '</span>' + (e.clicks != null ? '<span class="st-htd-clk">클릭 ' + e.clicks + '</span>' : '') + '<span class="st-exp-caret">›</span></div>' + body;
       }).join('');
     } else { h += '<div class="st-hint">아직 노출 이력이 없습니다.</div>'; }
     h += '</div>';

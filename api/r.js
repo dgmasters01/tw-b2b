@@ -33,19 +33,23 @@ export default async function handler(req, res) {
   const isPrefetch = /prefetch|preview/i.test(purpose);
 
   if (!isBot && !isPrefetch) {
-    // 클릭 카운트 +1 (RPC 없이: 로그 남기고 집계 증가). 실패해도 이동은 막지 않는다.
+    // 클릭 기록: 리다이렉트 전에 «완료를 기다린다». await 없으면 서버리스가
+    //   fetch 끝나기 전에 함수를 죽여 집계가 누락된다(2026-07-26 실측 버그).
     const kind = /mobile|android|iphone|ipad/i.test(ua) ? 'mobile' : 'desktop';
-    fetch(`${url}/rest/v1/content_click_log`, {
-      method: 'POST',
-      headers: { apikey: key, Authorization: `Bearer ${key}`, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
-      body: JSON.stringify({ r_code: rc, ua_kind: kind, ref: String(req.headers['referer'] || '').slice(0, 200) || null }),
-    }).catch(() => {});
-    // 집계 +1 (원자적 · 동시 클릭에도 안전). 로그가 정본, 이건 빠른 표시용.
-    fetch(`${url}/rest/v1/rpc/bump_click`, {
-      method: 'POST',
-      headers: { apikey: key, Authorization: `Bearer ${key}`, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
-      body: JSON.stringify({ rc: rc }),
-    }).catch(() => {});
+    try {
+      await Promise.all([
+        fetch(`${url}/rest/v1/content_click_log`, {
+          method: 'POST',
+          headers: { apikey: key, Authorization: `Bearer ${key}`, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+          body: JSON.stringify({ r_code: rc, ua_kind: kind, ref: String(req.headers['referer'] || '').slice(0, 200) || null }),
+        }),
+        fetch(`${url}/rest/v1/rpc/bump_click`, {
+          method: 'POST',
+          headers: { apikey: key, Authorization: `Bearer ${key}`, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+          body: JSON.stringify({ rc: rc }),
+        }),
+      ]);
+    } catch { /* 기록 실패해도 아고다 이동은 막지 않는다 */ }
   }
 
   res.setHeader('Cache-Control', 'no-store');

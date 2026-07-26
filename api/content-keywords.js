@@ -84,9 +84,13 @@ async function survey(sb, req, res, who) {
   const cityKey = String(req.query.city || 'cc:japan|osaka');
   const target = String(req.query.target || 'ko');
   const market = String(req.query.market || 'KR');
-  // 도시 영문명 (지역 계산용) — 예 cc:japan|osaka → Osaka. 지역 데이터는 이 도시 것만 본다(오사카 하드코딩 제거).
-  const citySeg = (cityKey.split('|')[1] || 'osaka').replace(/[^a-z]/gi, '');
-  const cityEn = citySeg ? citySeg.charAt(0).toUpperCase() + citySeg.slice(1) : 'Osaka';
+  // 도시 영문명 (지역 계산용) — cc:japan|osaka → Osaka, cc:vietnam|da nang → Da Nang.
+  //   🔴 hotels.city 표기(예 "Da Nang")와 정확히 맞춰야 지역 조회가 된다.
+  //      옛 코드는 공백을 지워 "danang→Danang" 으로 만들어 "Da Nang" 과 안 맞았다(2026-07-26 다낭 지역 빈칸 원인).
+  const citySeg = (cityKey.split('|')[1] || 'osaka').trim();
+  const cityEn = citySeg
+    ? citySeg.split(/\s+/).map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ')
+    : 'Osaka';
 
   const snapRes = await sb.from('snapshot').select('*')
     .eq('target_code', target).eq('market', market).eq('city_key', cityKey)
@@ -338,7 +342,7 @@ async function survey(sb, req, res, who) {
   const aliasRes = await sb.from('city_alias')
     .select('city_key, label')
     .eq('target_code', target)
-    .like('city_key', `cc:japan|osaka|%`);      // d: 구 · t: 동네 — 둘 다
+    .like('city_key', `${cityKey}|%`);      // 현재 도시의 구·동네만 (오사카 하드코딩 제거 2026-07-26)
   // 🔴 사전 열쇠는 `Naniwa Ward`(구글 주소 그대로), 여기 이름은 `Naniwa`(구만 뽑은 것) — 어긋난다.
   //    둘 다로 찾는다. 없으면 **원래 이름 그대로**(지어내지 않는다).
   const alias = new Map((aliasRes.data || [])

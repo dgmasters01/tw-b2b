@@ -983,19 +983,19 @@
   </section>
   <section class="st-view" id="view-hotel">
     <div class="st-head" style="display:flex;align-items:center;gap:12px">
-      <div><div class="st-h">호텔</div></div>
-      <button id="ht-review-btn" class="st-ht-review-btn" style="margin-left:auto" hidden>확인함 <span id="ht-review-n">0</span></button>
+      <div><div class="st-h" data-i18n="nav.hotel">호텔</div></div>
+      <button id="ht-review-btn" class="st-ht-review-btn" style="margin-left:auto" hidden><span data-i18n="ht.rv.btn">확인함</span> <span id="ht-review-n">0</span></button>
     </div>
     <div id="st-ht-status" class="st-ht-status"></div>
     <div class="st-ht-filters">
-      <select id="ht-f-country" class="st-ht-sel"><option value="">나라 전체</option></select>
-      <select id="ht-f-city" class="st-ht-sel"><option value="">도시 전체</option></select>
-      <select id="ht-f-star" class="st-ht-sel"><option value="">성급 전체</option></select>
-      <select id="ht-f-type" class="st-ht-sel"><option value="">유형 전체</option><option value="호텔">호텔</option><option value="리조트">리조트</option><option value="아파트">아파트</option><option value="빌라">빌라</option><option value="호스텔">호스텔</option><option value="료칸">료칸</option><option value="게스트하우스">게스트하우스</option></select>
-      <input type="text" id="ht-search" class="st-ht-search" placeholder="호텔명·hid 검색…">
+      <select id="ht-f-country" class="st-ht-sel"><option value="" data-i18n="ht.f.country">나라 전체</option></select>
+      <select id="ht-f-city" class="st-ht-sel"><option value="" data-i18n="ht.f.city">도시 전체</option></select>
+      <select id="ht-f-star" class="st-ht-sel"><option value="" data-i18n="ht.f.star">성급 전체</option></select>
+      <select id="ht-f-type" class="st-ht-sel"><option value="" data-i18n="ht.f.type">유형 전체</option><option value="호텔" data-i18n="ht.type.호텔">호텔</option><option value="리조트" data-i18n="ht.type.리조트">리조트</option><option value="아파트" data-i18n="ht.type.아파트">아파트</option><option value="빌라" data-i18n="ht.type.빌라">빌라</option><option value="호스텔" data-i18n="ht.type.호스텔">호스텔</option><option value="료칸" data-i18n="ht.type.료칸">료칸</option><option value="게스트하우스" data-i18n="ht.type.게스트하우스">게스트하우스</option></select>
+      <input type="text" id="ht-search" class="st-ht-search" data-i18n-ph="ht.f.search" placeholder="호텔명·hid 검색…">
     </div>
     <div id="st-ht-resultbar" class="st-ht-resultbar"></div>
-    <div id="st-ht-list"><div class="st-empty">불러오는 중…</div></div>
+    <div id="st-ht-list"><div class="st-empty" data-i18n="common.loading">불러오는 중…</div></div>
     <div id="st-ht-pager" class="st-ht-pager"></div>
   </section>
   <div id="st-hotel-modal" class="st-hmodal" hidden>
@@ -1012,10 +1012,10 @@
     <div class="st-hmodal-back"></div>
     <div class="st-hmodal-panel">
       <div class="st-hmodal-head">
-        <div class="st-hmodal-title">확인함 · 자동 묶음이 애매한 호텔</div>
+        <div class="st-hmodal-title" data-i18n="ht.rv.title">확인함 · 자동 묶음이 애매한 호텔</div>
         <button class="st-hmodal-close" id="st-review-close" aria-label="닫기">✕</button>
       </div>
-      <div class="st-hmodal-body" id="st-review-body"><div class="st-empty">불러오는 중…</div></div>
+      <div class="st-hmodal-body" id="st-review-body"><div class="st-empty" data-i18n="common.loading">불러오는 중…</div></div>
     </div>
   </div>
   <section class="st-view" id="view-keyword">
@@ -1163,7 +1163,22 @@ window.STUDIO_I18N = {
     'pf.det.soldHotels':'이 채널이 판 호텔','pf.det.noHotels':'호텔 데이터가 없습니다.','pf.det.recent':'최근 예약','pf.det.noRecent':'예약 없음','pf.det.fromChannels':'이 기간 어느 채널에서 왔나','pf.det.noChannel':'이 기간 채널 데이터가 없습니다.','pf.det.otherPre':'그 외 ','pf.det.otherPost':'개 채널','pf.det.fullHotel':'호텔 전체 세부 보기 →',
     'pf.trend.title':'월별 추세','pf.trend.sub.day':'— 어느 날이 강했나 (순위표는 어느 채널이 강했나)','pf.trend.sub.month':'— 어느 달이 강했나 (순위표는 어느 채널이 강했나)','pf.trend.empty':'이 기간엔 추세로 그릴 예약이 없습니다.','pf.trend.foot':'기간을 바꾸면 여기도 그 기간으로 · 막대=예약 건수','pf.trend.monthSuffix':'월',
     'pf.asof.pre':'🕐 예약 데이터: ','pf.asof.post':'까지 반영','pf.asof.upload':' · 마지막 아고다 업로드 ',
-    'pf.morePre':'+ 더 보기 (','pf.morePost':'개 더)','pf.cntSuffix':'개'
+    'pf.morePre':'+ 더 보기 (','pf.morePost':'개 더)','pf.cntSuffix':'개',
+    'ht.starSuffix':'성급','ht.noRank':'순위—','ht.noPeriod':'예약 기간 —','ht.hotelNo':'호텔 ','ht.more':'외 ','ht.recentIntro':'최근 소개 ','ht.intro':'소개','ht.result':'결과','ht.times':'회','ht.openDetail':'눌러서 상세 ▾','ht.loadingDetail':'상세 불러오는 중…','ht.loadFail':'불러오지 못했습니다.',
+    'ht.type.호텔':'호텔','ht.type.리조트':'리조트','ht.type.아파트':'아파트','ht.type.빌라':'빌라','ht.type.호스텔':'호스텔','ht.type.료칸':'료칸','ht.type.게스트하우스':'게스트하우스',
+    'ht.st.방문':'방문','ht.st.취소':'취소','ht.st.노쇼':'노쇼','ht.st.예약':'예약','ht.st.확정':'확정',
+    'ht.f.country':'나라 전체','ht.f.city':'도시 전체','ht.f.star':'성급 전체','ht.f.type':'유형 전체','ht.f.search':'호텔명·hid 검색…','ht.noMatch':'조건에 맞는 호텔이 없습니다.',
+    'ht.sort.recommend':'추천순','ht.sort.confirm':'확정률순','ht.sort.exposure':'노출순','ht.pageSize':'개씩','ht.showAll':'전체 보기 ✕','ht.rb.total':'전체 ','ht.rb.result':' → 결과 ','ht.rb.cnt':'개','ht.rb.shown':' 표시',
+    'ht.ax1':'축 1 · 재사용 시점','ht.ax1sub':'— 자동 (마지막 노출 +6개월)','ht.ax1.ready':'지금 쓸 수 있음','ht.ax1.soon':'곧 풀림 (30일)','ht.ax1.wait':'아직 못 씀','ht.ax1.none':'노출 안 함',
+    'ht.ax2':'축 2 · 작업 상태','ht.ax2sub':'— 발행은 실값·큐는 연동 후','ht.ax2.none':'안 건드림','ht.ax2.queued':'큐에 넣음','ht.ax2.published':'발행됨','ht.ax2.missed':'놓친 것','ht.ax2.missedSub':'피크 지남·되살리기','ht.soon':'연동 후',
+    'ht.cov':'좋은 호텔 · 커버리지','ht.covsub':'— 카드를 누르면 아래 목록이 그 조건으로 걸러집니다','ht.cov.all':'전체','ht.cov.geo':'나라·도시','ht.cov.type':'호텔·리조트','ht.cov.avg':'평균 확정률','ht.cov.high':'높음 ≥85','ht.cov.low':'낮음 <50',
+    'ht.d.freeOnly':'소개만 · 유료 계약 없음','ht.d.autoStart':'자동 시작','ht.d.contractOrd':'차 계약','ht.d.active':'운영 중','ht.d.paidAt':'선결제일','ht.d.expoStart':'노출 시작','ht.d.realPub':'실제 게시일','ht.d.guarEnd':'보장 기한','ht.d.guarNote':'🛡 6개월 보장 기한 내 예약 0건 시 100% 환불 (계약서 4조)','ht.d.endedContracts':'종료된 계약 · ','ht.d.cases':'건','ht.d.round':'회차','ht.d.guarExpire':'보장 만료','ht.d.status':'상태','ht.d.refunded':'환불','ht.d.expired':'만료','ht.d.ord':'차',
+    'ht.bk.no':'예약번호','ht.bk.date':'예약일','ht.bk.checkin':'체크인','ht.bk.checkout':'체크아웃','ht.bk.nights':'박','ht.bk.country':'국가','ht.bk.device':'기기','ht.bk.amount':'금액','ht.bk.none':'예약이 없습니다.',
+    'ht.fd.byChannel':'채널별 ','ht.fd.clickHint':'— 채널을 누르면 개별 예약','ht.fd.each':' 개별 예약 · ','ht.fd.noneCh':'이 채널 예약이 없습니다(상위 50건 내).','ht.fd.viewsSoon':'유튜브 조회수는 연동 후 여기 나옵니다.','ht.fd.noTrack':'추적링크가 붙은 영상이 아직 없습니다. 발행 영상 본문을 추적링크로 교체하면 채널·영상별로 채워집니다.','ht.fd.clickByCh':'채널·영상별 클릭','ht.fd.clickByChSub':'— 같은 호텔이라도 자리(R코드)마다 따로',
+    'ht.lt.near':'임박(0~7일)','ht.lt.mid':'근접(8~30일)','ht.lt.far':'먼(31일+)','ht.lt.all':'전체 예약','ht.lt.suffix':' 예약','ht.lt.allBtnPre':'전체 ','ht.lt.allBtnPost':'건 보기',
+    'ht.s.expoTitle':'① 노출 이력 · ','ht.s.expoHint':'줄을 누르면 그 영상 세부','ht.s.unpub':'미발행(대기)','ht.s.thisHotel':'← 지금 이 호텔','ht.s.viewHotel':'이 호텔 보기 ›','ht.s.yt':'▶ 유튜브 영상','ht.s.ytWait':'▶ 유튜브 — 발행 후 링크','ht.s.pub':'발행','ht.s.wait':'대기 · 미발행','ht.s.ch':'채널 ','ht.s.together':'이 영상에 같이 나간 호텔 (TOP3 묶음)','ht.s.vViews':'이 영상 조회','ht.s.vClicks':'이 영상 클릭','ht.s.vBookings':'이 영상 예약','ht.s.afterTrack':'추적링크 후','ht.s.noExpo':'아직 노출 이력이 없습니다.',
+    'ht.p.title':'성과 종합 — 얼마나 봐서 얼마나 예약됐나','ht.p.amount':'예약금액','ht.p.comm':'🔒 수수료 · 대표님만','ht.p.expo':'노출','ht.p.ltConfirm':'리드타임 확정','ht.p.strong':' 강함','ht.p.visit':'방문','ht.p.noshow':'노쇼','ht.p.hint':'조회·클릭은 유튜브 연동·추적 링크 후 채워짐(지금 "연동 후"). 예약·확정·금액·확정률은 실데이터. 수수료는 대표님만.','ht.p.ltTitle':'예약·취소 타이밍 (리드타임별)','ht.p.ltHint':'구간을 누르면 그 예약이 아래에 나옵니다','ht.p.ltFoot':'체크인 며칠 전 예약이 잘 깨지나. 진짜 취소일(타이밍)은 아고다 취소일 들어오면 승격.','ht.p.bkFoot':'매니저 페이지와 같은 컬럼. 취소건은 금액·국가·기기 없음(아고다 미제공) → "—". 수수료는 대표님만.','ht.p.drillFoot':'② 성과 드릴다운(조회수·클릭 채널별→영상별)은 조회수 연동 후 채워집니다 — 다음 조각.',
+    'ht.rv.btn':'확인함','ht.rv.title':'확인함 · 자동 묶음이 애매한 호텔','ht.rv.none':'확인할 호텔이 없습니다. 모두 정리됐습니다.','ht.rv.ok':'맞음 · 확정','ht.rv.okDoing':'확정 중…','ht.rv.okFail':'확정하지 못했습니다.','ht.rv.onlyOwner':'확정은 대표님만 할 수 있습니다','ht.rv.mergeSel':'선택 ','ht.rv.mergeSelPost':'개를 하나로 합치기','ht.rv.mergeNote':'맨 위 코드로 합쳐집니다','ht.rv.merging':'합치는 중…','ht.rv.merge':'합치기','ht.rv.mergeFail':'합치지 못했습니다.','ht.rv.merged':'합쳤습니다.','ht.rv.needTwo':'합칠 호텔을 2개 이상 체크하세요.','ht.rv.no':'아니오 · 다른 곳','ht.rv.recording':'기록 중…','ht.rv.recFail':'기록하지 못했습니다.','ht.rv.bookings':'예약 ','ht.rv.agodaId':'아고다ID ','ht.rv.pcs':'개','ht.cases':'건','ht.pcs':'개','ht.places':'곳','ht.rv.gPre':'이 ','ht.rv.gMid':'곳을 ','ht.rv.gPost':' 로 합치기','ht.rv.tPre':'합칠지 확인할 묶음 ','ht.rv.tMid':'개 + 낱개 ','ht.rv.tPost':'곳'
   },
   en: {
     'nav.upload':'Upload','nav.perf':'Performance','nav.hotel':'Hotels','nav.keyword':'Keywords','nav.strategy':'Strategy','nav.channel':'Channels',
@@ -1183,7 +1198,22 @@ window.STUDIO_I18N = {
     'pf.det.soldHotels':'Hotels sold by this channel','pf.det.noHotels':'No hotel data.','pf.det.recent':'Recent bookings','pf.det.noRecent':'No bookings','pf.det.fromChannels':'Which channels drove this period','pf.det.noChannel':'No channel data for this period.','pf.det.otherPre':'Other ','pf.det.otherPost':' channels','pf.det.fullHotel':'View full hotel details →',
     'pf.trend.title':'Trend','pf.trend.sub.day':'— which days were strong (the ranking shows which channels were strong)','pf.trend.sub.month':'— which months were strong (the ranking shows which channels were strong)','pf.trend.empty':'No bookings to chart in this period.','pf.trend.foot':'Change the period and this follows · bars = booking count','pf.trend.monthSuffix':'',
     'pf.asof.pre':'🕐 Booking data reflected through ','pf.asof.post':'','pf.asof.upload':' · last Agoda upload ',
-    'pf.morePre':'+ Show more (','pf.morePost':' more)','pf.cntSuffix':''
+    'pf.morePre':'+ Show more (','pf.morePost':' more)','pf.cntSuffix':'',
+    'ht.starSuffix':'-star','ht.noRank':'No rank','ht.noPeriod':'Booking period —','ht.hotelNo':'Hotel ','ht.more':'+','ht.recentIntro':'Last featured ','ht.intro':'Featured','ht.result':'Result','ht.times':'x','ht.openDetail':'Tap for details ▾','ht.loadingDetail':'Loading details…','ht.loadFail':'Could not load.',
+    'ht.type.호텔':'Hotel','ht.type.리조트':'Resort','ht.type.아파트':'Apartment','ht.type.빌라':'Villa','ht.type.호스텔':'Hostel','ht.type.료칸':'Ryokan','ht.type.게스트하우스':'Guesthouse',
+    'ht.st.방문':'Stayed','ht.st.취소':'Cancelled','ht.st.노쇼':'No-show','ht.st.예약':'Booked','ht.st.확정':'Confirmed',
+    'ht.f.country':'All countries','ht.f.city':'All cities','ht.f.star':'All star ratings','ht.f.type':'All types','ht.f.search':'Search hotel name or hid…','ht.noMatch':'No hotels match these filters.',
+    'ht.sort.recommend':'Recommended','ht.sort.confirm':'By confirm rate','ht.sort.exposure':'By exposure','ht.pageSize':' per page','ht.showAll':'Show all ✕','ht.rb.total':'Total ','ht.rb.result':' → Result ','ht.rb.cnt':'','ht.rb.shown':' shown',
+    'ht.ax1':'Axis 1 · Reuse timing','ht.ax1sub':'— automatic (last exposure +6 months)','ht.ax1.ready':'Usable now','ht.ax1.soon':'Unlocks soon (30 days)','ht.ax1.wait':'Not yet usable','ht.ax1.none':'Never featured',
+    'ht.ax2':'Axis 2 · Work status','ht.ax2sub':'— published is live data, queue after integration','ht.ax2.none':'Untouched','ht.ax2.queued':'In queue','ht.ax2.published':'Published','ht.ax2.missed':'Missed','ht.ax2.missedSub':'Past peak · revive','ht.soon':'After integration',
+    'ht.cov':'Good hotels · Coverage','ht.covsub':'— tap a card to filter the list below by that condition','ht.cov.all':'All','ht.cov.geo':'Countries · Cities','ht.cov.type':'Hotels · Resorts','ht.cov.avg':'Avg. confirm rate','ht.cov.high':'High ≥85','ht.cov.low':'Low <50',
+    'ht.d.freeOnly':'Featured only · no paid contract','ht.d.autoStart':'Auto start','ht.d.contractOrd':' contract','ht.d.active':'Active','ht.d.paidAt':'Prepaid on','ht.d.expoStart':'Exposure start','ht.d.realPub':'Actual publish date','ht.d.guarEnd':'Guarantee ends','ht.d.guarNote':'🛡 100% refund if there are zero bookings within the 6-month guarantee (contract art. 4)','ht.d.endedContracts':'Ended contracts · ','ht.d.cases':'','ht.d.round':'Round','ht.d.guarExpire':'Guarantee expiry','ht.d.status':'Status','ht.d.refunded':'Refunded','ht.d.expired':'Expired','ht.d.ord':'',
+    'ht.bk.no':'Booking no.','ht.bk.date':'Booked','ht.bk.checkin':'Check-in','ht.bk.checkout':'Check-out','ht.bk.nights':'Nts','ht.bk.country':'Country','ht.bk.device':'Device','ht.bk.amount':'Amount','ht.bk.none':'No bookings.',
+    'ht.fd.byChannel':'By channel · ','ht.fd.clickHint':'— tap a channel for individual bookings','ht.fd.each':' individual bookings · ','ht.fd.noneCh':'No bookings for this channel (within the top 50).','ht.fd.viewsSoon':'YouTube views will appear here after integration.','ht.fd.noTrack':'No video carries a tracking link yet. Replace the description of published videos with tracking links and this fills in by channel and video.','ht.fd.clickByCh':'Clicks by channel and video','ht.fd.clickByChSub':'— counted separately per slot (R code), even for the same hotel',
+    'ht.lt.near':'Imminent (0-7 days)','ht.lt.mid':'Near (8-30 days)','ht.lt.far':'Far (31+ days)','ht.lt.all':'All bookings','ht.lt.suffix':' bookings','ht.lt.allBtnPre':'View all ','ht.lt.allBtnPost':' bookings',
+    'ht.s.expoTitle':'① Exposure history · ','ht.s.expoHint':'tap a row for video details','ht.s.unpub':'Unpublished (waiting)','ht.s.thisHotel':'← this hotel','ht.s.viewHotel':'View this hotel ›','ht.s.yt':'▶ YouTube video','ht.s.ytWait':'▶ YouTube — link after publishing','ht.s.pub':'Published','ht.s.wait':'Waiting · unpublished','ht.s.ch':'Channel ','ht.s.together':'Hotels featured together in this video (TOP3 set)','ht.s.vViews':'Views of this video','ht.s.vClicks':'Clicks from this video','ht.s.vBookings':'Bookings from this video','ht.s.afterTrack':'After tracking links','ht.s.noExpo':'No exposure history yet.',
+    'ht.p.title':'Performance summary — how many watched, how many booked','ht.p.amount':'Booking value','ht.p.comm':'🔒 Commission · owner only','ht.p.expo':'Exposure','ht.p.ltConfirm':'Lead time confirmed','ht.p.strong':' strongest','ht.p.visit':'Stayed','ht.p.noshow':'No-show','ht.p.hint':'Views and clicks fill in after YouTube integration and tracking links (now "After integration"). Bookings, confirmations, value and confirm rate are live data. Commission is owner only.','ht.p.ltTitle':'Booking and cancellation timing (by lead time)','ht.p.ltHint':'tap a band to list those bookings below','ht.p.ltFoot':'Shows how many days before check-in bookings tend to fall apart. Real cancellation dates are promoted once Agoda supplies them.','ht.p.bkFoot':'Same columns as the manager page. Cancelled bookings have no amount, country or device (not supplied by Agoda) → "—". Commission is owner only.','ht.p.drillFoot':'② Performance drill-down (views and clicks by channel then by video) fills in after view-count integration — next piece.',
+    'ht.rv.btn':'Review','ht.rv.title':'Review · hotels whose automatic grouping is unclear','ht.rv.none':'No hotels to review. Everything is sorted.','ht.rv.ok':'Correct · confirm','ht.rv.okDoing':'Confirming…','ht.rv.okFail':'Could not confirm.','ht.rv.onlyOwner':'Only the owner can confirm','ht.rv.mergeSel':'Merge selected ','ht.rv.mergeSelPost':' into one','ht.rv.mergeNote':'They merge into the topmost code','ht.rv.merging':'Merging…','ht.rv.merge':'Merge','ht.rv.mergeFail':'Could not merge.','ht.rv.merged':'Merged.','ht.rv.needTwo':'Check at least two hotels to merge.','ht.rv.no':'No · different places','ht.rv.recording':'Recording…','ht.rv.recFail':'Could not record.','ht.rv.bookings':'bookings ','ht.rv.agodaId':'Agoda IDs ','ht.rv.pcs':'','ht.cases':'','ht.pcs':'','ht.places':'','ht.rv.gPre':'Merge these ','ht.rv.gMid':' into ','ht.rv.gPost':'','ht.rv.tPre':'Groups to review: ','ht.rv.tMid':' + singles ','ht.rv.tPost':''
   }
 };
 
@@ -1204,6 +1234,10 @@ function applyI18n(){
   document.querySelectorAll('[data-i18n-html]').forEach(function(el){
     var k = el.getAttribute('data-i18n-html'); var v = t(k, null);
     if (v != null && v !== k) el.innerHTML = v;
+  });
+  document.querySelectorAll('[data-i18n-ph]').forEach(function(el){
+    var k = el.getAttribute('data-i18n-ph'); var v = t(k, null);
+    if (v != null && v !== k) el.setAttribute('placeholder', v);
   });
   document.documentElement.setAttribute('lang', window.stLang);
   var ko=document.getElementById('st-lang-ko'), en=document.getElementById('st-lang-en');
@@ -1922,7 +1956,7 @@ document.addEventListener('DOMContentLoaded', function(){
     fetch('/api/drive-status', { credentials: 'same-origin' })
       .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
       .then(function (x) {
-        if (!x.ok || !x.j.ok) throw new Error(x.j.error || '불러오지 못했습니다.');
+        if (!x.ok || !x.j.ok) throw new Error(x.j.error || t('ht.loadFail'));
         var d = x.j;
         badge.className = 'st-badge ' + (d.connected ? 'published' : 'neutral');
         badge.textContent = d.connected ? '연결됨' : '연결 전';
@@ -2553,7 +2587,7 @@ document.addEventListener('DOMContentLoaded', function(){
     fetch('/api/content-queue', { credentials: 'same-origin' })
       .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
       .then(function (x) {
-        if (!x.ok || !x.j.ok) throw new Error(x.j.error || '불러오지 못했습니다.');
+        if (!x.ok || !x.j.ok) throw new Error(x.j.error || t('ht.loadFail'));
         sgItems = x.j.items || []; sgMe = x.j.me || null; sgIsAdmin = !!x.j.is_admin; sgTeam = x.j.team || [];
         renderStrategy();
       })
@@ -2923,44 +2957,47 @@ document.addEventListener('DOMContentLoaded', function(){
   /* ── 호텔 메뉴 (D-062 · BL-CONTENT-HOTEL-VIEWS) ──────────────
    * v_content_hotel_stats 를 읽어 호텔별 노출·순위·확정/취소 예약을 카드로.
    * 수수료·거래액은 뷰에 없어 표시 불가(스튜디오는 수수료 안 봄). */
-  function htRank(r) { return r ? ('TOP' + r) : '순위—'; }
+  function htRank(r) { return r ? ('TOP' + r) : t('ht.noRank'); }
   function htPeriod(h) {
-    if (!h.first_booking) return '예약 기간 —';
+    if (!h.first_booking) return t('ht.noPeriod');
     var a = h.first_booking, b = h.last_booking;
-    return '예약 ' + a + (b && b !== a ? ' ~ ' + b : '');
+    return t('common.bookings') + ' ' + a + (b && b !== a ? ' ~ ' + b : '');
   }
   var CHMAP = { HT: '호텔이야', HG: '호텔이곳', TW: '여행능력자들', JP: 'ホテルだ', ZH: '世界就是家', KT: 'Koreahotelguide', VN: 'reviewkhachsan', legacy: '과거 누적' };
   function chName(c) { return CHMAP[c] || c; }
   var COUNTRY_KO = { 'South Korea': '대한민국', 'Korea': '대한민국', 'Taiwan': '대만', 'Japan': '일본', 'China': '중국', 'Hong Kong': '홍콩', 'Macau': '마카오', 'United States': '미국', 'USA': '미국', 'Thailand': '태국', 'Vietnam': '베트남', 'Singapore': '싱가포르', 'Malaysia': '말레이시아', 'Sri Lanka': '스리랑카', 'Philippines': '필리핀', 'Indonesia': '인도네시아', 'Australia': '호주', 'United Kingdom': '영국', 'Germany': '독일', 'France': '프랑스', 'Canada': '캐나다', 'India': '인도', 'Cambodia': '캄보디아', 'Laos': '라오스', 'Myanmar': '미얀마' };
-  function coKo(c) { return c ? (COUNTRY_KO[c] || c) : ''; }
+  function coKo(c) { if(!c) return ''; if(window.stLang==='en') return c; return COUNTRY_KO[c] || c; }
+  function htypeLbl(v) { return v ? t('ht.type.'+v, v) : ''; }
+  function bkStatus(v) { return v ? t('ht.st.'+v, v) : ''; }
+  function starLbl(v) { return v + t('ht.starSuffix'); }
   function hotelRow(h) {
     var done = h.bookings_done || 0, canc = h.bookings_cancelled || 0, tot = done + canc;
     var rateN = tot ? Math.round(done / tot * 100) : null;
     var rateCls = rateN == null ? 'na' : (rateN >= 85 ? 'good' : (rateN >= 50 ? 'mid' : 'bad'));
-    var name = h.name_in_script || h.name_in_agoda || ('호텔 ' + h.hid);
+    var name = h.name_in_script || h.name_in_agoda || (t('ht.hotelNo') + h.hid);
     var en = h.name_in_agoda && h.name_in_agoda !== name ? h.name_in_agoda : '';
     // 채널 이름 (대표 1 + 외 N)
     var chArr = (h.channels || []).map(chName);
-    var chLbl = chArr.length ? esc(chArr[0]) + (chArr.length > 1 ? ' <span class="st-ht-dim">외 ' + (chArr.length - 1) + '</span>' : '') : '—';
+    var chLbl = chArr.length ? esc(chArr[0]) + (chArr.length > 1 ? ' <span class="st-ht-dim">' + t('ht.more') + (chArr.length - 1) + '</span>' : '') : '—';
     var geo = [];
     if (h.country || h.city) geo.push('<span class="st-ht-geo">' + esc([coKo(h.country), h.city].filter(Boolean).join(' · ')) + '</span>');
-    if (h.star) geo.push('<span class="st-ht-tag">' + h.star + '성급</span>');
-    if (h.htype) geo.push('<span class="st-ht-tag' + (h.htype === '리조트' ? ' resort' : '') + '">' + esc(h.htype) + '</span>');
+    if (h.star) geo.push('<span class="st-ht-tag">' + starLbl(h.star) + '</span>');
+    if (h.htype) geo.push('<span class="st-ht-tag' + (h.htype === '리조트' ? ' resort' : '') + '">' + esc(htypeLbl(h.htype)) + '</span>');
     var geoLine = geo.length ? '<div class="st-ht-geoline">' + geo.join('') + '</div>' : '';
     var enLine = en ? '<div class="st-ht-en">' + esc(en) + '</div>' : '';
-    var recent = h.last_exposure ? '<span class="st-ht-recent"><i class="ti ti-clock" style="font-size:11px"></i> 최근 소개 ' + esc(String(h.last_exposure).slice(0, 10)) + '</span>' : '';
+    var recent = h.last_exposure ? '<span class="st-ht-recent"><i class="ti ti-clock" style="font-size:11px"></i> ' + t('ht.recentIntro') + esc(String(h.last_exposure).slice(0, 10)) + '</span>' : '';
     var perf =
       '<div class="st-ht-perf">' +
-        '<div class="st-ht-grp"><span class="st-ht-dim">소개</span> ' + chLbl + ' <span class="st-ht-dim">·</span> <span class="st-ht-top">' + htRank(h.best_rank) + '</span> <span class="st-ht-dim">·</span> ' + (h.exposure_count || 0) + '회</div>' +
+        '<div class="st-ht-grp"><span class="st-ht-dim">' + t('ht.intro') + '</span> ' + chLbl + ' <span class="st-ht-dim">·</span> <span class="st-ht-top">' + htRank(h.best_rank) + '</span> <span class="st-ht-dim">·</span> ' + (h.exposure_count || 0) + t('ht.times') + '</div>' +
         '<span class="st-ht-arrow">→</span>' +
-        '<div class="st-ht-grp"><span class="st-ht-dim">결과</span> 예약 <b>' + tot + '</b> <span class="st-ht-dim">·</span> <span class="st-ht-done">확정 ' + done + '</span> <span class="st-ht-dim">취소 ' + canc + '</span></div>' +
-        '<span class="st-ht-rate ' + rateCls + '">확정률 ' + (rateN == null ? '—' : rateN + '%') + '</span>' +
+        '<div class="st-ht-grp"><span class="st-ht-dim">' + t('ht.result') + '</span> ' + t('common.bookings') + ' <b>' + tot + '</b> <span class="st-ht-dim">·</span> <span class="st-ht-done">' + t('common.confirmed') + ' ' + done + '</span> <span class="st-ht-dim">' + t('pf.row.cancelled') + ' ' + canc + '</span></div>' +
+        '<span class="st-ht-rate ' + rateCls + '">' + t('pf.row.confirmRate') + ' ' + (rateN == null ? '—' : rateN + '%') + '</span>' +
       '</div>';
     return '<div class="st-ht-item">' +
       '<div class="st-ch-card st-ht-click" data-hopen="' + esc(h.hid) + '">' +
         '<div class="st-ht-head"><div class="st-ch-name">' + esc(name) + '</div>' + recent + '</div>' + geoLine + enLine +
         perf +
-        '<div class="st-ht-period"><span class="st-ht-open">눌러서 상세 ▾</span></div>' +
+        '<div class="st-ht-period"><span class="st-ht-open">' + t('ht.openDetail') + '</span></div>' +
       '</div>' +
       '<div class="st-ht-inline" id="htin-' + esc(h.hid) + '"></div>' +
     '</div>';
@@ -2981,11 +3018,11 @@ document.addEventListener('DOMContentLoaded', function(){
     if (htDetailItem === item) { box.innerHTML = ''; item.classList.remove('open'); htDetailItem = null; return; }
     htDetailItem = item;
     item.classList.add('open');
-    box.innerHTML = '<div class="st-empty">상세 불러오는 중…</div>';
+    box.innerHTML = '<div class="st-empty">' + t('ht.loadingDetail') + '</div>';
     fetch('/api/content-hotels?hid=' + encodeURIComponent(hid), { credentials: 'same-origin' })
       .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
       .then(function (x) {
-        if (!x.ok || !x.j.ok) throw new Error(x.j.error || '불러오지 못했습니다.');
+        if (!x.ok || !x.j.ok) throw new Error(x.j.error || t('ht.loadFail'));
         box.innerHTML = hotelDetailHtml(x.j.detail, x.j.is_admin, hid, name);
         bindLeadtimeExpand(box);
         bindFunnelDrill(box, x.j.detail, x.j.is_admin);
@@ -2997,36 +3034,36 @@ document.addEventListener('DOMContentLoaded', function(){
   function fmtD(s) { return s ? String(s).slice(0, 10) : '—'; }
   function paidContractHtml(c, isAdmin) {
     if (!c || !c.paid || !c.payments || !c.payments.length) {
-      return '<div class="st-htd-sec"><span class="st-paid-free">소개만 · 유료 계약 없음</span></div>';
+      return '<div class="st-htd-sec"><span class="st-paid-free">' + t('ht.d.freeOnly') + '</span></div>';
     }
     var active = c.payments.filter(function (p) { return p.active; });
     var ended = c.payments.filter(function (p) { return p.ended; });
     var h = '';
     active.forEach(function (p) {
-      var dday = p.guarantee_end_at ? ('D-' + Math.max(0, Math.ceil((new Date(p.guarantee_end_at) - new Date()) / 86400000))) : '자동 시작';
+      var dday = p.guarantee_end_at ? ('D-' + Math.max(0, Math.ceil((new Date(p.guarantee_end_at) - new Date()) / 86400000))) : t('ht.d.autoStart');
       h += '<div class="st-htd-sec st-paid-card">' +
-        '<div class="st-paid-head"><span class="st-paid-rank">' + p.order + '차 계약</span><span class="st-paid-badge active">운영 중</span></div>' +
+        '<div class="st-paid-head"><span class="st-paid-rank">' + p.order + t('ht.d.contractOrd') + '</span><span class="st-paid-badge active">' + t('ht.d.active') + '</span></div>' +
         '<div class="st-paid-meta">' +
-          '<div><div class="l">선결제일</div><div class="v">' + fmtD(p.paid_at) + '</div><div class="s">$' + p.amount.toLocaleString() + ' · ' + p.currency + '</div></div>' +
-          '<div><div class="l">노출 시작</div><div class="v">' + fmtD(p.paid_at) + '</div><div class="s">실제 게시일</div></div>' +
-          '<div><div class="l">보장 기한</div><div class="v">' + fmtD(p.guarantee_end_at) + '</div><div class="s warn">' + dday + '</div></div>' +
+          '<div><div class="l">' + t('ht.d.paidAt') + '</div><div class="v">' + fmtD(p.paid_at) + '</div><div class="s">$' + p.amount.toLocaleString() + ' · ' + p.currency + '</div></div>' +
+          '<div><div class="l">' + t('ht.d.expoStart') + '</div><div class="v">' + fmtD(p.paid_at) + '</div><div class="s">' + t('ht.d.realPub') + '</div></div>' +
+          '<div><div class="l">' + t('ht.d.guarEnd') + '</div><div class="v">' + fmtD(p.guarantee_end_at) + '</div><div class="s warn">' + dday + '</div></div>' +
         '</div>' +
-        '<div class="st-paid-guar">🛡 6개월 보장 기한 내 예약 0건 시 100% 환불 (계약서 4조)</div>' +
+        '<div class="st-paid-guar">' + t('ht.d.guarNote') + '</div>' +
       '</div>';
     });
     if (ended.length) {
-      h += '<div class="st-htd-sec"><div class="st-htd-h">종료된 계약 · ' + ended.length + '건</div>' +
-        '<div class="st-bk-tbl"><div class="st-paid-erow st-paid-eh"><span>회차</span><span>선결제일</span><span>보장 만료</span><span class="c-r">상태</span></div>' +
+      h += '<div class="st-htd-sec"><div class="st-htd-h">' + t('ht.d.endedContracts') + ended.length + t('ht.d.cases') + '</div>' +
+        '<div class="st-bk-tbl"><div class="st-paid-erow st-paid-eh"><span>' + t('ht.d.round') + '</span><span>' + t('ht.d.paidAt') + '</span><span>' + t('ht.d.guarExpire') + '</span><span class="c-r">' + t('ht.d.status') + '</span></div>' +
         ended.map(function (p) {
-          var st = p.refunded_at ? '환불' : '만료';
-          return '<div class="st-paid-erow"><span>' + p.order + '차</span><span class="dim">' + fmtD(p.paid_at) + '</span><span class="dim">' + fmtD(p.guarantee_end_at) + '</span><span class="c-r">' + st + '</span></div>';
+          var st = p.refunded_at ? t('ht.d.refunded') : t('ht.d.expired');
+          return '<div class="st-paid-erow"><span>' + p.order + t('ht.d.ord') + '</span><span class="dim">' + fmtD(p.paid_at) + '</span><span class="dim">' + fmtD(p.guarantee_end_at) + '</span><span class="c-r">' + st + '</span></div>';
         }).join('') + '</div></div>';
     }
     return h;
   }
   function bkHeadHtml(isAdmin) {
-    var admCls = isAdmin ? ' adm' : '', adm = isAdmin ? '<span class="c-r c-comm">수수료</span>' : '';
-    return '<div class="st-bk-h' + admCls + '"><span>예약번호</span><span>예약일</span><span>체크인</span><span>체크아웃</span><span class="c-c">박</span><span>국가</span><span class="c-c">기기</span><span class="c-r">금액</span><span class="c-r">상태</span>' + adm + '</div>';
+    var admCls = isAdmin ? ' adm' : '', adm = isAdmin ? '<span class="c-r c-comm">' + t('common.commission') + '</span>' : '';
+    return '<div class="st-bk-h' + admCls + '"><span>' + t('ht.bk.no') + '</span><span>' + t('ht.bk.date') + '</span><span>' + t('ht.bk.checkin') + '</span><span>' + t('ht.bk.checkout') + '</span><span class="c-c">' + t('ht.bk.nights') + '</span><span>' + t('ht.bk.country') + '</span><span class="c-c">' + t('ht.bk.device') + '</span><span class="c-r">' + t('ht.bk.amount') + '</span><span class="c-r">' + t('ht.d.status') + '</span>' + adm + '</div>';
   }
   function bkRowHtml(b, isAdmin) {
     var admCls = isAdmin ? ' adm' : '';
@@ -3040,7 +3077,7 @@ document.addEventListener('DOMContentLoaded', function(){
       '<span>' + esc(coKo(b.customer_country) || '—') + '</span>' +
       '<span class="c-c">' + bkDev(b) + '</span>' +
       '<span class="c-r">' + (b.amount == null ? '<span class="dim">—</span>' : '$' + b.amount.toLocaleString()) + '</span>' +
-      '<span class="c-r" style="color:' + stCol + '">' + esc(b.status) + '</span>' +
+      '<span class="c-r" style="color:' + stCol + '">' + esc(bkStatus(b.status)) + '</span>' +
       (isAdmin ? '<span class="c-r c-comm">' + (b.commission == null ? '—' : '$' + b.commission.toLocaleString()) + '</span>' : '') +
       '</div>';
   }
@@ -3071,13 +3108,13 @@ document.addEventListener('DOMContentLoaded', function(){
     var nm = '';
     (htAll || []).forEach(function (h) { if (String(h.hid) === String(toHid)) nm = h.name || ''; });
     titleEl.textContent = nm || ('hid ' + toHid);
-    body.innerHTML = '<div class="st-empty">상세 불러오는 중…</div>';
+    body.innerHTML = '<div class="st-empty">' + t('ht.loadingDetail') + '</div>';
     modal.hidden = false;
     document.body.style.overflow = 'hidden';
     fetch('/api/content-hotels?hid=' + encodeURIComponent(toHid), { credentials: 'same-origin' })
       .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
       .then(function (x) {
-        if (!x.ok || !x.j.ok) throw new Error(x.j.error || '불러오지 못했습니다.');
+        if (!x.ok || !x.j.ok) throw new Error(x.j.error || t('ht.loadFail'));
         body.innerHTML = hotelDetailHtml(x.j.detail, x.j.is_admin, String(toHid), nm);
         bindLeadtimeExpand(body);
         bindFunnelDrill(body, x.j.detail, x.j.is_admin);
@@ -3108,18 +3145,18 @@ document.addEventListener('DOMContentLoaded', function(){
     function close() { panel.hidden = true; panel.innerHTML = ''; fns.forEach(function (f) { f.classList.remove('on'); }); }
     function channelList(kind) {
       var chs = d.byChannel || [];
-      if (!chs.length) return '<div class="st-hint">예약이 없습니다.</div>';
+      if (!chs.length) return '<div class="st-hint">' + t('ht.bk.none') + '</div>';
       var rows = chs.map(function (c) {
-        var val = kind === 'confirm' ? ('확정 ' + c.done + '건') : ('예약 ' + c.total + ' · 확정 ' + c.done);
+        var val = kind === 'confirm' ? (t('common.confirmed') + ' ' + c.done + t('ht.cases')) : (t('common.bookings') + ' ' + c.total + ' · ' + t('common.confirmed') + ' ' + c.done);
         return '<div class="st-fd-ch" data-ch="' + esc(c.code) + '"><span>' + esc(chName(c.code)) + ' ›</span><span>' + val + '</span></div>';
       }).join('');
-      return '<div class="st-fd-cap">채널별 ' + (kind === 'confirm' ? '확정' : '예약') + ' <span class="st-fd-dim">— 채널을 누르면 개별 예약</span></div>' + rows + '<div class="st-fd-books"></div>';
+      return '<div class="st-fd-cap">' + t('ht.fd.byChannel') + (kind === 'confirm' ? t('common.confirmed') : t('common.bookings')) + ' <span class="st-fd-dim">' + t('ht.fd.clickHint') + '</span></div>' + rows + '<div class="st-fd-books"></div>';
     }
     function showBooks(container, code, kind) {
       var list = (d.bookings || []).filter(function (b) { return String(b.channel_code) === String(code) && (kind !== 'confirm' || b.status === '방문'); });
       container.innerHTML = list.length
-        ? '<div class="st-fd-cap2">' + esc(chName(code)) + ' 개별 예약 · ' + list.length + '건</div><div class="st-bk-tbl">' + bkHeadHtml(isAdmin) + list.map(function (b) { return bkRowHtml(b, isAdmin); }).join('') + '</div>'
-        : '<div class="st-hint">이 채널 예약이 없습니다(상위 50건 내).</div>';
+        ? '<div class="st-fd-cap2">' + esc(chName(code)) + t('ht.fd.each') + list.length + t('ht.cases') + '</div><div class="st-bk-tbl">' + bkHeadHtml(isAdmin) + list.map(function (b) { return bkRowHtml(b, isAdmin); }).join('') + '</div>'
+        : '<div class="st-hint">' + t('ht.fd.noneCh') + '</div>';
     }
     fns.forEach(function (f) {
       f.onclick = function () {
@@ -3128,15 +3165,15 @@ document.addEventListener('DOMContentLoaded', function(){
         fns.forEach(function (x) { x.classList.remove('on'); }); f.classList.add('on');
         panel.hidden = false;
         if (kind === 'views') {
-          panel.innerHTML = '<div class="st-fd-soon">유튜브 조회수는 연동 후 여기 나옵니다.</div>';
+          panel.innerHTML = '<div class="st-fd-soon">' + t('ht.fd.viewsSoon') + '</div>';
           return;
         }
         if (kind === 'clicks') {
           var exps = (d.exposures || []).filter(function (e) { return e.r_code; });
-          if (!exps.length) { panel.innerHTML = '<div class="st-fd-soon">추적링크가 붙은 영상이 아직 없습니다. 발행 영상 본문을 추적링크로 교체하면 채널·영상별로 채워집니다.</div>'; return; }
-          panel.innerHTML = '<div class="st-fd-cap">채널·영상별 클릭 <span class="st-fd-dim">— 같은 호텔이라도 자리(R코드)마다 따로</span></div>' +
+          if (!exps.length) { panel.innerHTML = '<div class="st-fd-soon">' + t('ht.fd.noTrack') + '</div>'; return; }
+          panel.innerHTML = '<div class="st-fd-cap">' + t('ht.fd.clickByCh') + ' <span class="st-fd-dim">' + t('ht.fd.clickByChSub') + '</span></div>' +
             exps.map(function (e) {
-              return '<div class="st-fd-ch"><span>' + esc(chName(e.channel_code)) + ' · TOP' + e.rank + ' <span style="font-size:10px;color:var(--muted)">' + esc(e.r_code) + '</span></span><span><b style="color:#3FB984">' + (e.clicks || 0) + '</b> 클릭</span></div>';
+              return '<div class="st-fd-ch"><span>' + esc(chName(e.channel_code)) + ' · TOP' + e.rank + ' <span style="font-size:10px;color:var(--muted)">' + esc(e.r_code) + '</span></span><span><b style="color:#3FB984">' + (e.clicks || 0) + '</b> ' + t('common.clicks') + '</span></div>';
             }).join('');
           return;
         }
@@ -3159,7 +3196,7 @@ document.addEventListener('DOMContentLoaded', function(){
     var rows = Array.prototype.slice.call(panel.querySelectorAll('.st-bk-r'));
     var ltRows = Array.prototype.slice.call(box.querySelectorAll('.st-lt-row.clk'));
     var allBtn = box.querySelector('.st-lt-all');
-    var LABELS = ['임박(0~7일)', '근접(8~30일)', '먼(31일+)'];
+    var LABELS = [t('ht.lt.near'), t('ht.lt.mid'), t('ht.lt.far')];
     function show(sel) {
       panel.hidden = false;
       var n = 0;
@@ -3168,7 +3205,7 @@ document.addEventListener('DOMContentLoaded', function(){
         r.style.display = vis ? '' : 'none';
         if (vis) n++;
       });
-      if (cap) cap.textContent = (sel === 'all' ? '전체 예약' : LABELS[+sel] + ' 예약') + ' · ' + n + '건';
+      if (cap) cap.textContent = (sel === 'all' ? t('ht.lt.all') : LABELS[+sel] + t('ht.lt.suffix')) + ' · ' + n + t('ht.cases');
       ltRows.forEach(function (r) { r.classList.toggle('on', r.getAttribute('data-ltb') === sel); });
       if (allBtn) allBtn.classList.toggle('on', sel === 'all');
     }
@@ -3187,34 +3224,34 @@ document.addEventListener('DOMContentLoaded', function(){
     h += paidContractHtml(d.contract, isAdmin);
 
     // ① 노출 이력 (줄 클릭 → 세부 펼침)
-    h += '<div class="st-htd-sec"><div class="st-htd-h">① 노출 이력 · ' + d.exposures.length + '회 <span class="st-lt-hint2">줄을 누르면 그 영상 세부</span></div>';
+    h += '<div class="st-htd-sec"><div class="st-htd-h">' + t('ht.s.expoTitle') + d.exposures.length + t('ht.times') + ' <span class="st-lt-hint2">' + t('ht.s.expoHint') + '</span></div>';
     if (d.exposures.length) {
       h += d.exposures.map(function (e, i) {
-        var stTxt = (e.published_at) ? esc(e.published_at.slice(0, 10)) : '미발행(대기)';
-        var concept = [e.city, e.star ? (e.star + '성급') : '', e.price_band].filter(Boolean).join(' · ');
+        var stTxt = (e.published_at) ? esc(e.published_at.slice(0, 10)) : t('ht.s.unpub');
+        var concept = [e.city, e.star ? starLbl(e.star) : '', e.price_band].filter(Boolean).join(' · ');
         // 같이 나간 호텔 TOP1/2/3
         var tops = (e.tops || []).map(function (t) {
           var isThis = String(t.hid) === String(hid);
           var nm = t.name ? esc(t.name) : ('hid ' + esc(t.hid));
-          if (isThis) return '<div class="st-exp-top self"><span class="r">TOP' + t.rank + '</span><span class="n">' + nm + '</span><span class="me">← 지금 이 호텔</span></div>';
-          return '<div class="st-exp-top" data-goto="' + esc(t.hid) + '"><span class="r">TOP' + t.rank + '</span><span class="n">' + nm + '</span><span class="go">이 호텔 보기 ›</span></div>';
+          if (isThis) return '<div class="st-exp-top self"><span class="r">TOP' + t.rank + '</span><span class="n">' + nm + '</span><span class="me">' + t('ht.s.thisHotel') + '</span></div>';
+          return '<div class="st-exp-top" data-goto="' + esc(t.hid) + '"><span class="r">TOP' + t.rank + '</span><span class="n">' + nm + '</span><span class="go">' + t('ht.s.viewHotel') + '</span></div>';
         }).join('');
         var yt = e.youtube_url
-          ? '<a href="' + esc(e.youtube_url) + '" target="_blank" rel="noopener" class="st-exp-btn yt">▶ 유튜브 영상</a>'
-          : '<span class="st-exp-btn dim">▶ 유튜브 — 발행 후 링크</span>';
+          ? '<a href="' + esc(e.youtube_url) + '" target="_blank" rel="noopener" class="st-exp-btn yt">' + t('ht.s.yt') + '</a>'
+          : '<span class="st-exp-btn dim">' + t('ht.s.ytWait') + '</span>';
         var body = '<div class="st-exp-body">' +
-          '<div class="st-exp-tags"><span class="st-exp-stat ' + (e.published_at ? 'live' : 'wait') + '">' + (e.published_at ? '발행' : '대기 · 미발행') + '</span>' +
-            '<span class="st-exp-dim">채널 ' + esc(chName(e.channel_code)) + '</span>' + (concept ? '<span class="st-exp-dim">· ' + esc(concept) + '</span>' : '') + '</div>' +
-          (tops ? '<div class="st-exp-lbl">이 영상에 같이 나간 호텔 (TOP3 묶음)</div><div class="st-exp-tops">' + tops + '</div>' : '') +
+          '<div class="st-exp-tags"><span class="st-exp-stat ' + (e.published_at ? 'live' : 'wait') + '">' + (e.published_at ? t('ht.s.pub') : t('ht.s.wait')) + '</span>' +
+            '<span class="st-exp-dim">' + t('ht.s.ch') + esc(chName(e.channel_code)) + '</span>' + (concept ? '<span class="st-exp-dim">· ' + esc(concept) + '</span>' : '') + '</div>' +
+          (tops ? '<div class="st-exp-lbl">' + t('ht.s.together') + '</div><div class="st-exp-tops">' + tops + '</div>' : '') +
           '<div class="st-exp-btns">' + yt + '</div>' +
-          '<div class="st-exp-soon"><div><div class="l">이 영상 조회</div><div class="v">연동 후</div></div><div><div class="l">이 영상 클릭</div><div class="v">' + (e.clicks != null ? '<b style="color:#3FB984">' + e.clicks + '</b>' + (e.r_code ? ' <span style="font-size:10px;color:var(--muted)">' + esc(e.r_code) + '</span>' : '') : (e.r_code ? '0' : '추적링크 후')) + '</div></div><div><div class="l">이 영상 예약</div><div class="v">추적링크 후</div></div></div>' +
+          '<div class="st-exp-soon"><div><div class="l">' + t('ht.s.vViews') + '</div><div class="v">' + t('ht.soon') + '</div></div><div><div class="l">' + t('ht.s.vClicks') + '</div><div class="v">' + (e.clicks != null ? '<b style="color:#3FB984">' + e.clicks + '</b>' + (e.r_code ? ' <span style="font-size:10px;color:var(--muted)">' + esc(e.r_code) + '</span>' : '') : (e.r_code ? '0' : t('ht.s.afterTrack'))) + '</div></div><div><div class="l">' + t('ht.s.vBookings') + '</div><div class="v">' + t('ht.s.afterTrack') + '</div></div></div>' +
           '</div>';
         return '<div class="st-htd-exp clk" data-exp="' + i + '"><span class="st-htd-date">' + stTxt + '</span>' +
           '<span class="st-htd-ch">' + esc(e.channel_code || '') + '</span>' +
           '<span class="st-htd-etitle">' + esc(e.title) + '</span>' +
-          '<span class="st-htd-rank">TOP' + e.rank + '</span>' + (e.clicks != null ? '<span class="st-htd-clk">클릭 ' + e.clicks + '</span>' : '') + '<span class="st-exp-caret">›</span></div>' + body;
+          '<span class="st-htd-rank">TOP' + e.rank + '</span>' + (e.clicks != null ? '<span class="st-htd-clk">' + t('common.clicks') + ' ' + e.clicks + '</span>' : '') + '<span class="st-exp-caret">›</span></div>' + body;
       }).join('');
-    } else { h += '<div class="st-hint">아직 노출 이력이 없습니다.</div>'; }
+    } else { h += '<div class="st-hint">' + t('ht.s.noExpo') + '</div>'; }
     h += '</div>';
 
     // (④ 예약·방문·취소·노쇼 블록은 성과 종합에 흡수 — 중복 제거)
@@ -3223,46 +3260,46 @@ document.addEventListener('DOMContentLoaded', function(){
     var expN = d.exposures.length;
     var bestRank = d.exposures.reduce(function (m, e) { return (m == null || e.rank < m) ? e.rank : m; }, null);
     var strong = d.leadtime.filter(function (b) { return b.count; }).sort(function (a, b) { return (b.rate || 0) - (a.rate || 0); })[0];
-    var strongTxt = strong ? (strong.label.split('(')[0].trim() + ' 강함') : '—';
-    h += '<div class="st-htd-sec"><div class="st-htd-h">성과 종합 — 얼마나 봐서 얼마나 예약됐나</div>';
+    var strongTxt = strong ? (strong.label.split('(')[0].trim() + t('ht.p.strong')) : '—';
+    h += '<div class="st-htd-sec"><div class="st-htd-h">' + t('ht.p.title') + '</div>';
     h += '<div class="st-perf-money">' +
-      '<div class="st-pm good"><div class="l">예약금액</div><div class="n">$' + (d.amount || 0).toLocaleString() + '</div></div>' +
-      (isAdmin && d.commission != null ? '<div class="st-pm warn"><div class="l">🔒 수수료 · 대표님만</div><div class="n">$' + d.commission.toLocaleString() + '</div></div>' : '') +
-      '<div class="st-pm"><div class="l">확정률</div><div class="n acc">' + (d.confirmRate == null ? '—' : d.confirmRate + '%') + '</div></div>' +
+      '<div class="st-pm good"><div class="l">' + t('ht.p.amount') + '</div><div class="n">$' + (d.amount || 0).toLocaleString() + '</div></div>' +
+      (isAdmin && d.commission != null ? '<div class="st-pm warn"><div class="l">' + t('ht.p.comm') + '</div><div class="n">$' + d.commission.toLocaleString() + '</div></div>' : '') +
+      '<div class="st-pm"><div class="l">' + t('pf.row.confirmRate') + '</div><div class="n acc">' + (d.confirmRate == null ? '—' : d.confirmRate + '%') + '</div></div>' +
       '</div>';
     h += '<div class="st-funnel">' +
-      '<div class="st-fn clk" data-fn="views"><div class="v muted">연동 후</div><div class="k">조회 ▾</div></div>' +
+      '<div class="st-fn clk" data-fn="views"><div class="v muted">' + t('ht.soon') + '</div><div class="k">' + t('common.views') + ' ▾</div></div>' +
       '<div class="st-fa">›</div>' +
-      '<div class="st-fn clk" data-fn="clicks"><div class="v' + (d.clicks_total ? '' : ' muted') + '">' + (d.clicks_total != null ? d.clicks_total : '연동 후') + '</div><div class="k">클릭 ▾</div></div>' +
+      '<div class="st-fn clk" data-fn="clicks"><div class="v' + (d.clicks_total ? '' : ' muted') + '">' + (d.clicks_total != null ? d.clicks_total : t('ht.soon')) + '</div><div class="k">' + t('common.clicks') + ' ▾</div></div>' +
       '<div class="st-fa">›</div>' +
-      '<div class="st-fn clk" data-fn="book"><div class="v">' + d.total + '</div><div class="k">예약 ▾</div></div>' +
+      '<div class="st-fn clk" data-fn="book"><div class="v">' + d.total + '</div><div class="k">' + t('common.bookings') + ' ▾</div></div>' +
       '<div class="st-fa">›</div>' +
-      '<div class="st-fn done clk" data-fn="confirm"><div class="v">' + d.done + '</div><div class="k">확정 ▾</div></div>' +
+      '<div class="st-fn done clk" data-fn="confirm"><div class="v">' + d.done + '</div><div class="k">' + t('common.confirmed') + ' ▾</div></div>' +
       '</div>';
     h += '<div class="st-funnel-panel" hidden></div>';
     h += '<div class="st-htd-kpis" style="grid-template-columns:repeat(2,1fr);margin-top:8px">' +
-      '<div class="st-htd-kpi"><div class="n">' + (expN ? (expN + '회 · TOP' + bestRank) : '—') + '</div><div class="l">노출</div></div>' +
-      '<div class="st-htd-kpi"><div class="n">' + strongTxt + '</div><div class="l">리드타임 확정</div></div>' +
+      '<div class="st-htd-kpi"><div class="n">' + (expN ? (expN + t('ht.times') + ' · TOP' + bestRank) : '—') + '</div><div class="l">' + t('ht.p.expo') + '</div></div>' +
+      '<div class="st-htd-kpi"><div class="n">' + strongTxt + '</div><div class="l">' + t('ht.p.ltConfirm') + '</div></div>' +
       '</div>';
-    h += '<div class="st-htd-substat">방문 <b style="color:#3FB984">' + d.done + '</b> · 취소 <b style="color:#E24B4A">' + d.cancelled + '</b> · 노쇼 <b>' + (d.noshow || 0) + '</b></div>';
-    h += '<div class="st-hint" style="margin-top:6px">조회·클릭은 유튜브 연동·추적 링크 후 채워짐(지금 "연동 후"). 예약·확정·금액·확정률은 실데이터. 수수료는 대표님만.</div></div>';
+    h += '<div class="st-htd-substat">' + t('ht.p.visit') + ' <b style="color:#3FB984">' + d.done + '</b> · ' + t('pf.row.cancelled') + ' <b style="color:#E24B4A">' + d.cancelled + '</b> · ' + t('ht.p.noshow') + ' <b>' + (d.noshow || 0) + '</b></div>';
+    h += '<div class="st-hint" style="margin-top:6px">' + t('ht.p.hint') + '</div></div>';
 
     // 예약·취소 타이밍 (리드타임) — 구간 클릭 시 그 구간 예약 펼침
-    h += '<div class="st-htd-sec"><div class="st-htd-h">예약·취소 타이밍 (리드타임별) <span class="st-lt-hint2">구간을 누르면 그 예약이 아래에 나옵니다</span></div>';
+    h += '<div class="st-htd-sec"><div class="st-htd-h">' + t('ht.p.ltTitle') + ' <span class="st-lt-hint2">' + t('ht.p.ltHint') + '</span></div>';
     h += d.leadtime.map(function (b, i) {
       var clk = b.count > 0;
       return '<div class="st-lt-row' + (clk ? ' clk' : '') + '"' + (clk ? ' data-ltb="' + i + '"' : '') + '>' +
         '<span class="st-lt-lbl">' + esc(b.label) + '</span>' + htBar(b.rate) +
-        '<span class="st-lt-val">' + (b.count ? (b.rate + '% · ' + b.count + '건') : '—') + '</span>' +
+        '<span class="st-lt-val">' + (b.count ? (b.rate + '% · ' + b.count + t('ht.cases')) : '—') + '</span>' +
         '<span class="st-lt-caret">' + (clk ? '›' : '') + '</span></div>';
     }).join('');
-    h += '<div class="st-lt-tools"><span class="st-lt-all" data-ltb="all">전체 ' + d.total + '건 보기</span>' +
-      '<span class="st-hint" style="margin:0">체크인 며칠 전 예약이 잘 깨지나. 진짜 취소일(타이밍)은 아고다 취소일 들어오면 승격.</span></div>';
+    h += '<div class="st-lt-tools"><span class="st-lt-all" data-ltb="all">' + t('ht.lt.allBtnPre') + d.total + t('ht.cases') + t('ht.lt.allBtnPost') + '</span>' +
+      '<span class="st-hint" style="margin:0">' + t('ht.p.ltFoot') + '</span></div>';
 
     // 예약 테이블 (숨김; 구간/전체 클릭 시 표시·필터)
     var admCls = isAdmin ? ' adm' : '';
-    var adm = isAdmin ? '<span class="c-r c-comm">수수료</span>' : '';
-    var bkHead = '<div class="st-bk-h' + admCls + '"><span>예약번호</span><span>예약일</span><span>체크인</span><span>체크아웃</span><span class="c-c">박</span><span>국가</span><span class="c-c">기기</span><span class="c-r">금액</span><span class="c-r">상태</span>' + adm + '</div>';
+    var adm = isAdmin ? '<span class="c-r c-comm">' + t('common.commission') + '</span>' : '';
+    var bkHead = '<div class="st-bk-h' + admCls + '"><span>' + t('ht.bk.no') + '</span><span>' + t('ht.bk.date') + '</span><span>' + t('ht.bk.checkin') + '</span><span>' + t('ht.bk.checkout') + '</span><span class="c-c">' + t('ht.bk.nights') + '</span><span>' + t('ht.bk.country') + '</span><span class="c-c">' + t('ht.bk.device') + '</span><span class="c-r">' + t('ht.bk.amount') + '</span><span class="c-r">' + t('ht.d.status') + '</span>' + adm + '</div>';
     var bkRows = d.bookings.slice(0, 50).map(function (b) {
       var days = (b.checkin && b.booked_at) ? Math.floor((new Date(b.checkin) - new Date(b.booked_at)) / 86400000) : -1;
       var ltb = days < 0 ? -1 : (days <= 7 ? 0 : (days <= 30 ? 1 : 2));
@@ -3277,15 +3314,15 @@ document.addEventListener('DOMContentLoaded', function(){
         '<span>' + esc(coKo(b.customer_country) || '—') + '</span>' +
         '<span class="c-c">' + dev + '</span>' +
         '<span class="c-r">' + (b.amount == null ? '<span class="dim">—</span>' : '$' + b.amount.toLocaleString()) + '</span>' +
-        '<span class="c-r" style="color:' + stCol + '">' + esc(b.status) + '</span>' +
+        '<span class="c-r" style="color:' + stCol + '">' + esc(bkStatus(b.status)) + '</span>' +
         (isAdmin ? '<span class="c-r c-comm">' + (b.commission == null ? '—' : '$' + b.commission.toLocaleString()) + '</span>' : '') +
         '</div>';
-    }).join('') || '<div class="st-hint">예약이 없습니다.</div>';
+    }).join('') || '<div class="st-hint">' + t('ht.bk.none') + '</div>';
     h += '<div class="st-bk-panel" hidden><div class="st-bk-cap"></div><div class="st-bk-tbl">' + bkHead + bkRows + '</div>' +
-      '<div class="st-hint" style="margin-top:6px">매니저 페이지와 같은 컬럼. 취소건은 금액·국가·기기 없음(아고다 미제공) → "—". 수수료는 대표님만.</div></div>';
+      '<div class="st-hint" style="margin-top:6px">' + t('ht.p.bkFoot') + '</div></div>';
     h += '</div>';
 
-    h += '<div class="st-hint" style="margin-top:6px">② 성과 드릴다운(조회수·클릭 채널별→영상별)은 조회수 연동 후 채워집니다 — 다음 조각.</div>';
+    h += '<div class="st-hint" style="margin-top:6px">' + t('ht.p.drillFoot') + '</div>';
     h += '</div>';
     return h;
   }
@@ -3295,7 +3332,7 @@ document.addEventListener('DOMContentLoaded', function(){
     fetch('/api/content-hotels', { credentials: 'same-origin' })
       .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
       .then(function (x) {
-        if (!x.ok || !x.j.ok) throw new Error(x.j.error || '불러오지 못했습니다.');
+        if (!x.ok || !x.j.ok) throw new Error(x.j.error || t('ht.loadFail'));
         htAll = x.j.hotels || [];
         renderHotelStatus();
         populateHotelFilters();
@@ -3317,7 +3354,7 @@ document.addEventListener('DOMContentLoaded', function(){
         if (btn) {
           btn.hidden = false;
           btn.classList.toggle('has', total > 0);
-          btn.title = '합칠지 확인할 묶음 ' + ((j.coord_group_count || 0) + (j.name_group_count || 0)) + '개 + 낱개 ' + (j.single_count || 0) + '곳';
+          btn.title = t('ht.rv.tPre') + ((j.coord_group_count || 0) + (j.name_group_count || 0)) + t('ht.rv.tMid') + (j.single_count || 0) + t('ht.rv.tPost');
         }
       })
       .catch(function () {});
@@ -3327,13 +3364,13 @@ document.addEventListener('DOMContentLoaded', function(){
     var body = document.getElementById('st-review-body');
     if (!modal || !body) return;
     modal.hidden = false;
-    body.innerHTML = '<div class="st-empty">불러오는 중…</div>';
+    body.innerHTML = '<div class="st-empty">' + t('common.loading') + '</div>';
     fetch('/api/hotel-review', { credentials: 'same-origin' })
       .then(function (r) { return r.json(); })
       .then(function (j) {
         if (!j.ok) throw new Error(j.error || '불러오지 못했습니다.');
         reviewIsAdmin = !!j.is_admin;
-        if (!(j.review_total || (j.hotels || []).length)) { body.innerHTML = '<div class="st-empty">확인할 호텔이 없습니다. 모두 정리됐습니다.</div>'; return; }
+        if (!(j.review_total || (j.hotels || []).length)) { body.innerHTML = '<div class="st-empty">' + t('ht.rv.none') + '</div>'; return; }
         var cg = (j.coord_groups || []);
         var cgHTML = '';
         if (reviewIsAdmin && cg.length) {
@@ -3365,8 +3402,8 @@ document.addEventListener('DOMContentLoaded', function(){
                 return '<div style="font-size:12px;color:var(--txt);padding:2px 0;">' + (i === 0 ? '<b style="color:#7aa5f0;">[대표]</b> ' : '· ') + esc(h.hotel_code) + ' ' + esc(h.hotel_name || '') + ' <span style="color:var(--muted);">(' + esc(h.city || '') + s0 + '·예약 ' + (h.booking_count || 0) + d0 + ')</span></div>';
               }).join('');
               return '<div style="border-top:0.5px solid var(--line);padding:9px 0;">' + rows + warn +
-                '<button class="st-rv-ok st-cg-merge" data-codes="' + esc(codes) + '" style="background:' + (vd === 'diff' ? 'transparent' : (alike ? '#2d6cdf' : '#6b7280')) + ';border-color:' + (vd === 'diff' ? 'var(--line)' : (alike ? '#2d6cdf' : '#6b7280')) + ';color:' + (vd === 'diff' ? 'var(--muted)' : '#fff') + ';margin-top:6px;font-size:11.5px;padding:4px 11px;">이 ' + g.length + '곳을 ' + esc(survivor) + ' 로 합치기</button>' +
-                '<button class="st-rv-ok st-cg-not" data-codes="' + esc(codes) + '" style="background:' + (vd === 'diff' ? '#c0453f' : 'transparent') + ';border-color:' + (vd === 'diff' ? '#c0453f' : 'var(--line)') + ';color:' + (vd === 'diff' ? '#fff' : 'var(--muted)') + ';margin:6px 0 0 6px;font-size:11.5px;padding:4px 11px;">아니오 · 다른 곳</button></div>';
+                '<button class="st-rv-ok st-cg-merge" data-codes="' + esc(codes) + '" style="background:' + (vd === 'diff' ? 'transparent' : (alike ? '#2d6cdf' : '#6b7280')) + ';border-color:' + (vd === 'diff' ? 'var(--line)' : (alike ? '#2d6cdf' : '#6b7280')) + ';color:' + (vd === 'diff' ? 'var(--muted)' : '#fff') + ';margin-top:6px;font-size:11.5px;padding:4px 11px;">' + t('ht.rv.gPre') + g.length + t('ht.rv.gMid') + esc(survivor) + t('ht.rv.gPost') + '</button>' +
+                '<button class="st-rv-ok st-cg-not" data-codes="' + esc(codes) + '" style="background:' + (vd === 'diff' ? '#c0453f' : 'transparent') + ';border-color:' + (vd === 'diff' ? '#c0453f' : 'var(--line)') + ';color:' + (vd === 'diff' ? '#fff' : 'var(--muted)') + ';margin:6px 0 0 6px;font-size:11.5px;padding:4px 11px;">' + t('ht.rv.no') + '</button></div>';
             }).join('') + '</div>';
         }
         var ng = (j.name_groups || []);
@@ -3389,24 +3426,24 @@ document.addEventListener('DOMContentLoaded', function(){
                 return '<div style="font-size:12px;color:var(--txt);padding:2px 0;">' + (i === 0 ? '<b style="color:var(--em);">[대표]</b> ' : '· ') + esc(h.hotel_code) + ' ' + esc(h.hotel_name || '') + ' <span style="color:var(--muted);">(' + esc(h.city || '') + s1 + '·예약 ' + (h.booking_count || 0) + ')</span>' + dTag + '</div>';
               }).join('');
               return '<div style="border-top:0.5px solid var(--line);padding:9px 0;">' + rows +
-                '<button class="st-rv-ok st-cg-merge" data-codes="' + esc(codes) + '" style="background:var(--em);border-color:var(--em);color:#fff;margin-top:6px;font-size:11.5px;padding:4px 11px;">이 ' + g.length + '곳을 ' + esc(survivor) + ' 로 합치기</button>' +
-                '<button class="st-rv-ok st-cg-not" data-codes="' + esc(codes) + '" style="background:transparent;border-color:var(--line);color:var(--muted);margin:6px 0 0 6px;font-size:11.5px;padding:4px 11px;">아니오 · 다른 곳</button></div>';
+                '<button class="st-rv-ok st-cg-merge" data-codes="' + esc(codes) + '" style="background:var(--em);border-color:var(--em);color:#fff;margin-top:6px;font-size:11.5px;padding:4px 11px;">' + t('ht.rv.gPre') + g.length + t('ht.rv.gMid') + esc(survivor) + t('ht.rv.gPost') + '</button>' +
+                '<button class="st-rv-ok st-cg-not" data-codes="' + esc(codes) + '" style="background:transparent;border-color:var(--line);color:var(--muted);margin:6px 0 0 6px;font-size:11.5px;padding:4px 11px;">' + t('ht.rv.no') + '</button></div>';
             }).join('') + '</div>';
         }
         body.innerHTML =
           '<div class="st-hint">📍위치가 같은 묶음 ' + (j.coord_group_count || 0) + '개 · 🔤이름이 비슷한 묶음 ' + (j.name_group_count || 0) + '개 · 낱개 ' + (j.single_count || 0) + '곳 = 모두 ' + (j.review_total || 0) + '건.<br>시스템이 "이건 잘못 묶였을 수도 있다"고 표시한 호텔입니다. <b>📍좌표·🔤이름</b>으로 같은 곳이면 [합치기], 아래 낱개는 별개면 [맞음·확정].</div>' +
           cgHTML + ngHTML +
-          (reviewIsAdmin ? '<div id="st-rv-mergebar" style="display:none;position:sticky;top:0;background:var(--card);padding:8px 0 10px;z-index:3;"><button id="st-rv-merge" class="st-rv-ok" style="background:#2d6cdf;border-color:#2d6cdf;color:#fff;">선택 <span id="st-rv-mergen">0</span>개를 하나로 합치기</button> <span class="st-rv-note">맨 위 코드로 합쳐집니다</span></div>' : '') +
+          (reviewIsAdmin ? '<div id="st-rv-mergebar" style="display:none;position:sticky;top:0;background:var(--card);padding:8px 0 10px;z-index:3;"><button id="st-rv-merge" class="st-rv-ok" style="background:#2d6cdf;border-color:#2d6cdf;color:#fff;">' + t('ht.rv.mergeSel') + '<span id="st-rv-mergen">0</span>' + t('ht.rv.mergeSelPost') + '</button> <span class="st-rv-note">' + t('ht.rv.mergeNote') + '</span></div>' : '') +
           j.hotels.map(function (h) {
             var star = h.star_rating ? ('★' + h.star_rating) : '';
             var meta = [h.country, h.city, star].filter(Boolean).join(' · ');
             var chk = reviewIsAdmin ? '<input type="checkbox" class="st-rv-chk" data-code="' + esc(h.hotel_code) + '" style="margin-right:8px;transform:scale(1.25);vertical-align:middle;cursor:pointer;">' : '';
             var act = reviewIsAdmin
-              ? '<button class="st-rv-ok" data-code="' + esc(h.hotel_code) + '">맞음 · 확정</button>'
-              : '<span class="st-rv-note">확정은 대표님만 할 수 있습니다</span>';
+              ? '<button class="st-rv-ok" data-code="' + esc(h.hotel_code) + '">' + t('ht.rv.ok') + '</button>'
+              : '<span class="st-rv-note">' + t('ht.rv.onlyOwner') + '</span>';
             return '<div class="st-rv-item">' +
               '<div class="st-rv-main">' + chk + '<span class="st-rv-code">' + esc(h.hotel_code) + '</span> <span class="st-rv-name">' + esc(h.hotel_name || '') + '</span></div>' +
-              '<div class="st-rv-meta">' + esc(meta) + ' · 예약 ' + (h.booking_count || 0) + '건 · 아고다ID ' + (h.agoda_count || 0) + '개</div>' +
+              '<div class="st-rv-meta">' + esc(meta) + ' · ' + t('ht.rv.bookings') + (h.booking_count || 0) + t('ht.cases') + ' · ' + t('ht.rv.agodaId') + (h.agoda_count || 0) + t('ht.pcs') + '</div>' +
               '<div class="st-rv-reason">' + esc(h.reason || '') + '</div>' +
               '<div class="st-rv-act">' + act + '</div>' +
             '</div>';
@@ -3428,69 +3465,69 @@ document.addEventListener('DOMContentLoaded', function(){
       .catch(function (e) { body.innerHTML = '<div class="st-empty">' + esc(e.message) + '</div>'; });
   }
   function confirmReview(code, btn) {
-    btn.disabled = true; btn.textContent = '확정 중…';
+    btn.disabled = true; btn.textContent = t('ht.rv.okDoing');
     fetch('/api/hotel-review', { method: 'POST', credentials: 'same-origin',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ hotel_code: code, action: 'confirm' }) })
       .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
       .then(function (x) {
-        if (!x.ok || !x.j.ok) throw new Error(x.j.error || '확정하지 못했습니다.');
+        if (!x.ok || !x.j.ok) throw new Error(x.j.error || t('ht.rv.okFail'));
         var item = btn.closest('.st-rv-item'); if (item) item.remove();
         loadReviewCount();
         var body = document.getElementById('st-review-body');
-        if (body && !body.querySelector('.st-rv-item')) body.innerHTML = '<div class="st-empty">확인할 호텔이 없습니다. 모두 정리됐습니다.</div>';
+        if (body && !body.querySelector('.st-rv-item')) body.innerHTML = '<div class="st-empty">' + t('ht.rv.none') + '</div>';
       })
-      .catch(function (e) { btn.disabled = false; btn.textContent = '맞음 · 확정'; alert(e.message); });
+      .catch(function (e) { btn.disabled = false; btn.textContent = t('ht.rv.ok'); alert(e.message); });
   }
   function mergeReview() {
     var body = document.getElementById('st-review-body');
     var checked = [].slice.call(body.querySelectorAll('.st-rv-chk:checked')).map(function (c) { return c.dataset.code; });
-    if (checked.length < 2) { alert('합칠 호텔을 2개 이상 체크하세요.'); return; }
+    if (checked.length < 2) { alert(t('ht.rv.needTwo')); return; }
     var survivor = checked[0], from = checked.slice(1);
     if (!confirm('같은 호텔이 맞습니까?\n\n남길 코드: ' + survivor + '\n합쳐질 코드: ' + from.join(', ') + '\n\n예약과 아고다ID가 ' + survivor + ' 로 합쳐지고, 나머지는 숨겨집니다.')) return;
-    var mb = document.getElementById('st-rv-merge'); if (mb) { mb.disabled = true; mb.textContent = '합치는 중…'; }
+    var mb = document.getElementById('st-rv-merge'); if (mb) { mb.disabled = true; mb.textContent = t('ht.rv.merging'); }
     fetch('/api/hotel-review', { method: 'POST', credentials: 'same-origin',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ hotel_code: survivor, action: 'merge', merge_from: from }) })
       .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
       .then(function (x) {
-        if (!x.ok || !x.j.ok) throw new Error(x.j.error || '합치지 못했습니다.');
-        alert('합쳤습니다.\n' + survivor + ' · 예약 ' + x.j.booking_count + '건 · 아고다ID ' + x.j.agoda_ids + '개');
+        if (!x.ok || !x.j.ok) throw new Error(x.j.error || t('ht.rv.mergeFail'));
+        alert(t('ht.rv.merged') + '\n' + survivor + ' · ' + t('ht.rv.bookings') + x.j.booking_count + t('ht.cases') + ' · ' + t('ht.rv.agodaId') + x.j.agoda_ids + t('ht.pcs'));
         openReview(); loadReviewCount();
       })
-      .catch(function (e) { if (mb) { mb.disabled = false; mb.textContent = '합치기'; } alert(e.message); });
+      .catch(function (e) { if (mb) { mb.disabled = false; mb.textContent = t('ht.rv.merge'); } alert(e.message); });
   }
   function notDupGroup(codesStr, btn) {
     var codes = String(codesStr || '').split(',').filter(Boolean);
     if (codes.length < 2) return;
     if (!confirm('서로 다른 호텔로 기록합니다.\n\n' + codes.join(' / ') + '\n\n앞으로 이 묶음은 확인함에 다시 뜨지 않습니다.')) return;
-    btn.disabled = true; btn.textContent = '기록 중…';
+    btn.disabled = true; btn.textContent = t('ht.rv.recording');
     fetch('/api/hotel-review', { method: 'POST', credentials: 'same-origin',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ action: 'not_dup', codes: codes }) })
       .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
       .then(function (x) {
-        if (!x.ok || !x.j.ok) throw new Error(x.j.error || '기록하지 못했습니다.');
+        if (!x.ok || !x.j.ok) throw new Error(x.j.error || t('ht.rv.recFail'));
         openReview(); loadReviewCount();
       })
-      .catch(function (e) { btn.disabled = false; btn.textContent = '아니오 · 다른 곳'; alert(e.message); });
+      .catch(function (e) { btn.disabled = false; btn.textContent = t('ht.rv.no'); alert(e.message); });
   }
   function mergeGroup(codesStr, btn) {
     var codes = String(codesStr || '').split(',').filter(Boolean);
     if (codes.length < 2) return;
     var survivor = codes[0], from = codes.slice(1);
     if (!confirm('좌표가 같은 호텔입니다. 하나로 합칩니다.\n\n대표: ' + survivor + '\n합쳐질: ' + from.join(', '))) return;
-    btn.disabled = true; btn.textContent = '합치는 중…';
+    btn.disabled = true; btn.textContent = t('ht.rv.merging');
     fetch('/api/hotel-review', { method: 'POST', credentials: 'same-origin',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ hotel_code: survivor, action: 'merge', merge_from: from }) })
       .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
       .then(function (x) {
-        if (!x.ok || !x.j.ok) throw new Error(x.j.error || '합치지 못했습니다.');
-        alert('합쳤습니다.\n' + survivor + ' · 예약 ' + x.j.booking_count + '건 · 아고다ID ' + x.j.agoda_ids + '개');
+        if (!x.ok || !x.j.ok) throw new Error(x.j.error || t('ht.rv.mergeFail'));
+        alert(t('ht.rv.merged') + '\n' + survivor + ' · ' + t('ht.rv.bookings') + x.j.booking_count + t('ht.cases') + ' · ' + t('ht.rv.agodaId') + x.j.agoda_ids + t('ht.pcs'));
         openReview(); loadReviewCount();
       })
-      .catch(function (e) { btn.disabled = false; btn.textContent = '합치기'; alert(e.message); });
+      .catch(function (e) { btn.disabled = false; btn.textContent = t('ht.rv.merge'); alert(e.message); });
   }
   function renderHotelStatus() {
     var box = document.getElementById('st-ht-status');
@@ -3506,7 +3543,7 @@ document.addEventListener('DOMContentLoaded', function(){
       if (t) { var r = Math.round((h.bookings_done || 0) / t * 100); rates.push(r); if (r >= 85) high++; if (r < 50) low++; }
     });
     var avg = rates.length ? Math.round(rates.reduce(function (a, b) { return a + b; }, 0) / rates.length) : null;
-    var soon = '<span class="st-hs-soon">연동 후</span>';
+    var soon = '<span class="st-hs-soon">' + t('ht.soon') + '</span>';
     // 축 1 계산: 마지막 노출 + 6개월 = 재사용 가능일 (실데이터)
     var axReady = 0, axSoon = 0, axWait = 0, _now = new Date();
     all.forEach(function (h) {
@@ -3524,14 +3561,14 @@ document.addEventListener('DOMContentLoaded', function(){
       return '<div class="st-hs-card ' + cls + kc + '><div class="st-hs-l">' + label + '</div><div class="st-hs-n">' + val + '</div>' + (sub ? '<div class="st-hs-s">' + sub + '</div>' : '') + '</div>';
     }
     var h = '';
-    h += '<div class="st-hs-ttl">축 1 · 재사용 시점 <span>— 자동 (마지막 노출 +6개월)</span></div><div class="st-hs-row">';
-    h += card('ok', '지금 쓸 수 있음', axReady, '', axReady ? 'reuse_ready' : '') + card('warn', '곧 풀림 (30일)', axSoon, '', axSoon ? 'reuse_soon' : '') + card('', '아직 못 씀', axWait, '', axWait ? 'reuse_wait' : '') + card('', '노출 안 함', noExpo, noExpo ? 'noexpo' : '');
+    h += '<div class="st-hs-ttl">' + t('ht.ax1') + ' <span>' + t('ht.ax1sub') + '</span></div><div class="st-hs-row">';
+    h += card('ok', t('ht.ax1.ready'), axReady, '', axReady ? 'reuse_ready' : '') + card('warn', t('ht.ax1.soon'), axSoon, '', axSoon ? 'reuse_soon' : '') + card('', t('ht.ax1.wait'), axWait, '', axWait ? 'reuse_wait' : '') + card('', t('ht.ax1.none'), noExpo, noExpo ? 'noexpo' : '');
     h += '</div>';
-    h += '<div class="st-hs-ttl">축 2 · 작업 상태 <span>— 발행은 실값·큐는 연동 후</span></div><div class="st-hs-row">';
-    h += card('', '안 건드림', soon) + card('acc', '큐에 넣음', soon) + card('', '발행됨', axPublished, '', axPublished ? 'pub_done' : '') + card('danger', '놓친 것', soon, '피크 지남·되살리기');
+    h += '<div class="st-hs-ttl">' + t('ht.ax2') + ' <span>' + t('ht.ax2sub') + '</span></div><div class="st-hs-row">';
+    h += card('', t('ht.ax2.none'), soon) + card('acc', t('ht.ax2.queued'), soon) + card('', t('ht.ax2.published'), axPublished, '', axPublished ? 'pub_done' : '') + card('danger', t('ht.ax2.missed'), soon, t('ht.ax2.missedSub'));
     h += '</div>';
-    h += '<div class="st-hs-ttl">좋은 호텔 · 커버리지 <span>— 카드를 누르면 아래 목록이 그 조건으로 걸러집니다</span></div><div class="st-hs-row six">';
-    h += card('', '전체', total, '', 'all') + card('', '나라·도시', Object.keys(countries).length + '·' + Object.keys(cities).length) + card('', '호텔·리조트', (total - resort) + '·' + resort) + card('', '평균 확정률', avg == null ? '—' : avg + '%') + card('', '높음 ≥85', high, '', high ? 'high' : '') + card('', '낮음 <50', low, '', low ? 'low' : '');
+    h += '<div class="st-hs-ttl">' + t('ht.cov') + ' <span>' + t('ht.covsub') + '</span></div><div class="st-hs-row six">';
+    h += card('', t('ht.cov.all'), total, '', 'all') + card('', t('ht.cov.geo'), Object.keys(countries).length + '·' + Object.keys(cities).length) + card('', t('ht.cov.type'), (total - resort) + '·' + resort) + card('', t('ht.cov.avg'), avg == null ? '—' : avg + '%') + card('', t('ht.cov.high'), high, '', high ? 'high' : '') + card('', t('ht.cov.low'), low, '', low ? 'low' : '');
     h += '</div>';
     box.innerHTML = h;
     box.querySelectorAll('[data-hsf]').forEach(function (c) { c.onclick = function () { setCardFilter(c.dataset.hsf); }; });
@@ -3566,7 +3603,7 @@ document.addEventListener('DOMContentLoaded', function(){
       c.onclick = function () {
         var hid = c.dataset.hopen;
         var hh = htAll.find(function (z) { return String(z.hid) === String(hid); });
-        var nm = hh ? (hh.name_in_script || hh.name_in_agoda || ('호텔 ' + hh.hid)) : '';
+        var nm = hh ? (hh.name_in_script || hh.name_in_agoda || (t('ht.hotelNo') + hh.hid)) : '';
         loadHotelDetail(hid, nm, c.closest('.st-ht-item'));
       };
     });
@@ -3578,9 +3615,9 @@ document.addEventListener('DOMContentLoaded', function(){
     var countries = htUniq(htAll.map(function (h) { return h.country; })).sort();
     var cities = htUniq(htAll.map(function (h) { return h.city; })).sort();
     var stars = htUniq(htAll.map(function (h) { return h.star; })).sort(function (a, b) { return a - b; });
-    cSel.innerHTML = '<option value="">나라 전체</option>' + countries.map(function (c) { return '<option value="' + esc(c) + '">' + esc(coKo(c)) + '</option>'; }).join('');
-    citySel.innerHTML = '<option value="">도시 전체</option>' + cities.map(function (c) { return '<option value="' + esc(c) + '">' + esc(c) + '</option>'; }).join('');
-    sSel.innerHTML = '<option value="">성급 전체</option>' + stars.map(function (s) { return '<option value="' + s + '">' + s + '성급</option>'; }).join('');
+    cSel.innerHTML = '<option value="">' + t('ht.f.country') + '</option>' + countries.map(function (c) { return '<option value="' + esc(c) + '">' + esc(coKo(c)) + '</option>'; }).join('');
+    citySel.innerHTML = '<option value="">' + t('ht.f.city') + '</option>' + cities.map(function (c) { return '<option value="' + esc(c) + '">' + esc(c) + '</option>'; }).join('');
+    sSel.innerHTML = '<option value="">' + t('ht.f.star') + '</option>' + stars.map(function (s) { return '<option value="' + s + '">' + starLbl(s) + '</option>'; }).join('');
     function onFilter() { htPage = 1; renderHotelList(); }
     [cSel, citySel, sSel].forEach(function (el) { el.onchange = onFilter; });
     var tSel = document.getElementById('ht-f-type'); if (tSel) tSel.onchange = onFilter;
@@ -3614,7 +3651,7 @@ document.addEventListener('DOMContentLoaded', function(){
     renderHotelResultBar(totalN, resultN, from, to);
     list.innerHTML = pageRows.length
       ? pageRows.map(hotelRow).join('')
-      : '<div class="st-empty">조건에 맞는 호텔이 없습니다.</div>';
+      : '<div class="st-empty">' + t('ht.noMatch') + '</div>';
     bindHotelDetailClicks(list);
     renderHotelPager(pages);
   }
@@ -3632,16 +3669,16 @@ document.addEventListener('DOMContentLoaded', function(){
     var bar = document.getElementById('st-ht-resultbar');
     if (!bar) return;
     var filtered = !!(hsCardKey || document.getElementById('ht-f-country').value || document.getElementById('ht-f-city').value || document.getElementById('ht-f-star').value || document.getElementById('ht-f-type').value || (document.getElementById('ht-search').value || '').trim());
-    var sortLbl = { recommend: '추천순', confirm: '확정률순', exposure: '노출순' };
+    var sortLbl = { recommend: t('ht.sort.recommend'), confirm: t('ht.sort.confirm'), exposure: t('ht.sort.exposure') };
     var opts = Object.keys(sortLbl).map(function (k) { return '<option value="' + k + '"' + (htSortKey === k ? ' selected' : '') + '>' + sortLbl[k] + '</option>'; }).join('');
-    var szOpts = [25, 50, 100].map(function (n) { return '<option value="' + n + '"' + (htPageSize === n ? ' selected' : '') + '>' + n + '개씩</option>'; }).join('');
+    var szOpts = [25, 50, 100].map(function (n) { return '<option value="' + n + '"' + (htPageSize === n ? ' selected' : '') + '>' + n + t('ht.pageSize') + '</option>'; }).join('');
     var cnt = filtered
-      ? '전체 <b>' + totalN.toLocaleString() + '</b> → 결과 <b class="st-rb-hi">' + resultN.toLocaleString() + '</b>개' + (resultN ? ' · ' + (from + 1) + '–' + to + ' 표시' : '')
-      : '전체 <b>' + totalN.toLocaleString() + '</b>개' + (resultN ? ' · ' + (from + 1) + '–' + to + ' 표시' : '');
+      ? t('ht.rb.total') + '<b>' + totalN.toLocaleString() + '</b>' + t('ht.rb.result') + '<b class="st-rb-hi">' + resultN.toLocaleString() + '</b>' + t('ht.rb.cnt') + (resultN ? ' · ' + (from + 1) + '–' + to + t('ht.rb.shown') : '')
+      : t('ht.rb.total') + '<b>' + totalN.toLocaleString() + '</b>' + t('ht.rb.cnt') + (resultN ? ' · ' + (from + 1) + '–' + to + t('ht.rb.shown') : '');
     bar.innerHTML = '<span class="st-rb-cnt">' + cnt + '</span><span class="st-rb-sp"></span>' +
       '<select id="ht-sort" class="st-rb-sel">' + opts + '</select>' +
       '<select id="ht-size" class="st-rb-sel">' + szOpts + '</select>' +
-      (filtered ? '<span id="ht-clear" class="st-rb-clear">전체 보기 ✕</span>' : '');
+      (filtered ? '<span id="ht-clear" class="st-rb-clear">' + t('ht.showAll') + '</span>' : '');
     document.getElementById('ht-sort').onchange = function () { htSortKey = this.value; htPage = 1; renderHotelList(); };
     document.getElementById('ht-size').onchange = function () { htPageSize = parseInt(this.value, 10); htPage = 1; renderHotelList(); };
     var clr = document.getElementById('ht-clear');
@@ -3876,7 +3913,7 @@ document.addEventListener('DOMContentLoaded', function(){
     var body = document.getElementById('chx-specbody');
     var title = document.getElementById('chx-spectitle');
     title.textContent = '규격 불러오는 중…';
-    body.innerHTML = '<div class="st-empty">불러오는 중…</div>';
+    body.innerHTML = '<div class="st-empty">' + t('common.loading') + '</div>';
     ov.classList.add('open');
     fetch('/api/channels?spec=' + encodeURIComponent(code), { credentials: 'same-origin' })
       .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
@@ -3896,7 +3933,7 @@ document.addEventListener('DOMContentLoaded', function(){
     fetch('/api/channels', { credentials: 'same-origin' })
       .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
       .then(function (x) {
-        if (!x.ok || !x.j.ok) throw new Error(x.j.error || '불러오지 못했습니다.');
+        if (!x.ok || !x.j.ok) throw new Error(x.j.error || t('ht.loadFail'));
         var chs = x.j.channels || [];
         chIsAdmin = !!x.j.is_admin;
         chs.sort(function (a, b) { return (b.bookings_confirmed || 0) - (a.bookings_confirmed || 0); }); // 매출(확정예약) 많은 순

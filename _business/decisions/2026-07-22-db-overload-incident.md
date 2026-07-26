@@ -115,3 +115,25 @@ Vercel 서버리스는 `res.redirect()` 로 응답이 끝나면 **남은 비동�
 **재현 검증**: 수정 후 실제 UA 로 3번 클릭 → content_clicks 3 → 성과표 clicks_total 3 · TW 3. 이후 리셋.
 
 **교훈**: 서버리스에서 응답 전에 꼭 남겨야 하는 부수효과(기록·집계)는 반드시 `await`. fire-and-forget(`.catch()` 만)은 유실된다.
+
+---
+
+## 2026-07-26 키워드 «지역» 빈칸 — 다낭(공백 도시명) 버그
+
+**증상**: 키워드 메뉴에서 다낭 도시 세부의 «지역» 섹션이 비어 있음(오사카 지역이 나오거나 0개).
+
+**원인 2가지**:
+1. `content-keywords.js` cityEn 유도가 `cityKey.split('|')[1].replace(/[^a-z]/gi,'')` 로 **공백을 지웠다**.
+   → `cc:vietnam|da nang` → `danang` → `Danang`. 하지만 hotels.city 표기는 `Da Nang`(공백). `Danang≠Da Nang` → 호텔 0건 → 지역 없음.
+2. 지역 별칭 사전 조회가 `like('city_key','cc:japan|osaka|%')` 로 **오사카 하드코딩**.
+3. (표면 원인) `survey_cache` 에 수정 전 코드가 만든 옛 결과(다낭 요청인데 내용이 오사카)가 남아, 수정 후에도 캐시가 옛것을 반환. **캐시 삭제 필요**.
+
+**수정**: 
+- cityEn = 공백 유지 + 단어별 Title Case (`da nang`→`Da Nang`), hotels.city 표기와 일치.
+- 별칭 사전을 현재 `${cityKey}|%` 로 (오사카 하드코딩 제거).
+- `delete from survey_cache` 로 옛 캐시 제거.
+- 커밋 `8ed156e7da`.
+
+**검증**: 다낭 survey → ours 126 · districts 23 · geo 89. 지역 목록 정상(한강 예약91·미케비치 55·선짜 등).
+
+**교훈**: 도시명이 여러 단어(Da Nang, Ho Chi Minh City)일 때 공백 제거 금지. survey_cache 는 city_key별 분리돼 있으나, 코드 수정 후엔 관련 캐시를 비워야 옛 결과가 안 나온다.

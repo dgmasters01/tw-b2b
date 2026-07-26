@@ -299,7 +299,7 @@ export default async function handler(req, res) {
     const [chRes, pubRes, expRes, bookings, asofBk, asofUp, clkRes, rcodeRes] = await Promise.all([
       sb.from('v_channel_stats').select('channel_code, channel_name, is_active'),
       sb.from('publications')
-        .select('id, channel_code, status, published_at, title, youtube_video_id, view_count')
+        .select('id, channel_code, status, published_at, title, title_final, youtube_video_id, view_count')
         .order('published_at', { ascending: false, nullsFirst: false }),
       sb.from('v_content_hotel_exposure').select('publication_id, rank, name_in_script, hid'),
       fetchBookings(sb, from, to),
@@ -403,7 +403,7 @@ export default async function handler(req, res) {
         amount: a.amount + (s.amount || 0),
       }), { clicks: 0, bookings: 0, commission: 0, amount: 0 });
       return {
-        id: p.id, title: p.title, channel_code: p.channel_code, status: p.status,
+        id: p.id, title: p.title, title_final: p.title_final || null, channel_code: p.channel_code, status: p.status,
         published_at: p.published_at, published: !!p.youtube_video_id,
         hotels: slots,
         views: p.view_count != null ? p.view_count : null,
@@ -422,6 +422,7 @@ export default async function handler(req, res) {
       data_asof: dataAsof,
       summary,
       clicks_total: clkTotal,
+      views_total: (pubRes.data || []).reduce((s, p) => s + (Number(p.view_count) || 0), 0),
       compare,
       channels,
       hotels,

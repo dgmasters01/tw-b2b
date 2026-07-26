@@ -20,6 +20,9 @@
   .st-title { font-size:19px; font-weight:500; margin:0; }
   .st-sub { font-size:12px; opacity:.65; margin-top:2px; }
   .st-tabs { display:flex; gap:6px; margin-bottom:16px; flex-wrap:wrap; }
+  .st-langsw { display:inline-flex; border:0.5px solid rgba(128,128,128,.3); border-radius:8px; overflow:hidden; }
+  .st-langbtn { background:transparent; border:0; color:var(--muted); font-size:11px; font-weight:600; padding:5px 9px; cursor:pointer; }
+  .st-langbtn.on { background:var(--am,#EF9F27); color:#1a1a1a; }
   .st-tab { font-size:13px; padding:6px 13px; border-radius:8px; border:1px solid transparent; cursor:pointer; opacity:.65; background:none; }
   .st-tab.on { opacity:1; border-color:currentColor; }
   .st-card { border:1px solid rgba(128,128,128,.25); border-radius:12px; padding:15px 17px; margin-bottom:var(--st-gap); }
@@ -859,22 +862,23 @@
 
   <div class="st-head">
     <div>
-      <h1 class="st-title">스튜디오</h1>
+      <h1 class="st-title" data-i18n="app.title">스튜디오</h1>
       <div class="st-sub" id="st-who" style="display:none"></div>
     </div>
     <div style="display:flex; gap:8px; align-items:center">
-      <a class="st-copy" id="st-admin" href="/admin.html" style="text-decoration:none; display:none">관리자</a>
-      <button class="st-copy" id="st-logout">로그아웃</button>
+      <div class="st-langsw"><button id="st-lang-ko" class="st-langbtn">한국어</button><button id="st-lang-en" class="st-langbtn">EN</button></div>
+      <a class="st-copy" id="st-admin" href="/admin.html" style="text-decoration:none; display:none" data-i18n="nav.admin">관리자</a>
+      <button class="st-copy" id="st-logout" data-i18n="nav.logout">로그아웃</button>
     </div>
   </div>
 
   <nav class="st-menu" id="st-menu">
-    <button data-view="upload" class="on">올리기</button>
-    <button data-view="perf">성과표</button>
-    <button data-view="hotel">호텔</button>
-    <button data-view="keyword">키워드</button>
-    <button data-view="strategy">전략</button>
-    <button data-view="channels">채널</button>
+    <button data-view="upload" class="on" data-i18n="nav.upload">올리기</button>
+    <button data-view="perf" data-i18n="nav.perf">성과표</button>
+    <button data-view="hotel" data-i18n="nav.hotel">호텔</button>
+    <button data-view="keyword" data-i18n="nav.keyword">키워드</button>
+    <button data-view="strategy" data-i18n="nav.strategy">전략</button>
+    <button data-view="channels" data-i18n="nav.channel">채널</button>
   </nav>
 
   <!-- ── 올리기 (기존 기능 그대로) ─────────────────────────── -->
@@ -1133,6 +1137,61 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/fflate@0.8.2/umd/index.js"></script>
 <script src="shared.js"></script>
+<script>
+/* ══════════════ 다국어(i18n) 엔진 — 한국어 기본, 영어 추가 ══════════════
+   원칙: 기존 한국어는 그대로 둔다. 영어는 «덧붙이기»다.
+   - data-i18n="키" 속성이 붙은 요소는 STR[lang][키] 로 텍스트 교체.
+   - JS로 만드는 동적 문자열은 t('키') 함수로. 사전에 없으면 한국어 폴백(화면 안 깨짐).
+   - 언어는 shared.js 의 window.TW.lang (localStorage 'tw-lang') 공유. 계정 기본 언어도 여기 반영.
+*/
+window.STUDIO_I18N = {
+  ko: {
+    'nav.upload':'올리기','nav.perf':'성과표','nav.hotel':'호텔','nav.keyword':'키워드','nav.strategy':'전략','nav.channel':'채널',
+    'nav.admin':'관리자','nav.logout':'로그아웃','app.title':'스튜디오',
+    'common.loading':'불러오는 중…','common.views':'조회','common.clicks':'클릭','common.bookings':'예약','common.commission':'수수료','common.confirmed':'확정'
+  },
+  en: {
+    'nav.upload':'Upload','nav.perf':'Performance','nav.hotel':'Hotels','nav.keyword':'Keywords','nav.strategy':'Strategy','nav.channel':'Channels',
+    'nav.admin':'Admin','nav.logout':'Log out','app.title':'Studio',
+    'common.loading':'Loading…','common.views':'Views','common.clicks':'Clicks','common.bookings':'Bookings','common.commission':'Commission','common.confirmed':'Confirmed'
+  }
+};
+
+window.stLang = (window.TW && window.TW.lang) || localStorage.getItem('tw-lang') || 'ko';
+function t(key, fallback){
+  var d = window.STUDIO_I18N[window.stLang] || window.STUDIO_I18N.ko;
+  if (d && d[key] != null) return d[key];
+  var ko = window.STUDIO_I18N.ko;
+  if (ko && ko[key] != null) return ko[key];   // 폴백: 한국어
+  return fallback != null ? fallback : key;
+}
+window.t = t;
+function applyI18n(){
+  document.querySelectorAll('[data-i18n]').forEach(function(el){
+    var k = el.getAttribute('data-i18n'); var v = t(k, null);
+    if (v != null && v !== k) el.textContent = v;
+  });
+  document.documentElement.setAttribute('lang', window.stLang);
+  var ko=document.getElementById('st-lang-ko'), en=document.getElementById('st-lang-en');
+  if(ko) ko.classList.toggle('on', window.stLang==='ko');
+  if(en) en.classList.toggle('on', window.stLang==='en');
+}
+window.applyI18n = applyI18n;
+window.stSwitchLang = function(l){
+  window.stLang = l;
+  localStorage.setItem('tw-lang', l);
+  if (window.TW) window.TW.lang = l;
+  applyI18n();
+  try { if (typeof render === 'function') render(); } catch(e){}
+  try { if (typeof rerenderActiveTab === 'function') rerenderActiveTab(); } catch(e){}
+};
+document.addEventListener('DOMContentLoaded', function(){
+  var ko=document.getElementById('st-lang-ko'), en=document.getElementById('st-lang-en');
+  if(ko) ko.onclick=function(){ window.stSwitchLang('ko'); };
+  if(en) en.onclick=function(){ window.stSwitchLang('en'); };
+  applyI18n();
+});
+</script>
 <script>
 (function () {
   // 인증은 middleware.js 가 이미 끝냈다 (is_editor). 여기엔 인증 코드가 없다.

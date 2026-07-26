@@ -97,3 +97,21 @@ Supabase **무료 요금제 · NANO(메모리 0.5GB · DB 한도 500MB)** 를 �
 ### 주의(재발방지)
 - studio.html 문자열에 이모지·따옴표 넣을 때 surrogate/이스케이프 깨짐 2회 발생 → 스튜디오 전체 JS 중단("불러오는 중" 멈춤). **이모지는 \U0001fXXX 단일 코드포인트, style은 큰따옴표 이스케이프**로. 커밋 후 반드시 SHA URL로 JS 문법 재검증.
 - 앞으로 발행 영상에 R코드 자동 부여·본문 자동 추적링크는 다음 과제.
+
+---
+
+## 🔴 2026-07-26 클릭 누락 버그 — await 없는 fetch (D-075 후속)
+
+**증상**: 대표님이 gohpik 링크를 실제로 눌렀는데 성과표 클릭이 0. 로그(content_click_log)엔 12건 쌓였는데 집계(content_clicks.clicks)는 0.
+
+**원인**: `api/r.js` 가 리다이렉트 전에 클릭 기록을 `fetch(...).catch()` 로 **await 없이** 쐈다.
+Vercel 서버리스는 `res.redirect()` 로 응답이 끝나면 **남은 비동기 작업을 기다리지 않고 함수를 종료**한다.
+→ 로그 fetch는 우연히 먼저 나가고, bump_click RPC 는 함수 종료로 유실. 집계가 안 오른다.
+
+**실측 확인**: bump_click 함수·RPC 자체는 정상(직접 호출 시 +1). 리다이렉트 경유만 누락.
+
+**수정**: 두 fetch 를 `await Promise.all([...])` 로 **완료를 기다린 뒤** 리다이렉트. try/catch 로 감싸 기록 실패해도 아고다 이동은 보장. 커밋 `1d44a3df24`.
+
+**재현 검증**: 수정 후 실제 UA 로 3번 클릭 → content_clicks 3 → 성과표 clicks_total 3 · TW 3. 이후 리셋.
+
+**교훈**: 서버리스에서 응답 전에 꼭 남겨야 하는 부수효과(기록·집계)는 반드시 `await`. fire-and-forget(`.catch()` 만)은 유실된다.

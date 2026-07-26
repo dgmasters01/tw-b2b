@@ -673,6 +673,7 @@
   .st-sg-body { display:none; margin-top:10px; padding-top:11px; border-top:0.5px solid rgba(128,128,128,.15); }
   .st-sg-card.expanded .st-sg-body { display:block; }
   .st-sg-title { font-size:14px; font-weight:600; line-height:1.35; margin:0; flex:1; }
+  .st-sg-finaltitle { font-size:12.5px; color:#4edea3; margin:5px 0 0; padding-left:1px; line-height:1.4; }
   .st-sg-prio { flex:none; font-size:10px; padding:1px 7px; border-radius:6px; border:1px solid rgba(128,128,128,.35); opacity:.85; }
   .st-sg-prio.urgent { color:#E24B4A; border-color:#E24B4A; opacity:1; }
   .st-sg-sortnote { font-size:11px; color:var(--muted, #6a85a0); align-self:center; padding-left:2px; }
@@ -2261,11 +2262,18 @@
       + (place ? ' · ' + esc(place) : '')
       + (it.star ? ' · ' + it.star + '성' : '')
       + (it.target_month ? ' · 목표 ' + esc(it.target_month) : '');
+    // 발행된 카드엔 «실제 올린 제목»을 한 줄 더 보여준다 (어떤 제목으로 노출됐는지)
+    var finalTitleLine = '';
+    var _ft = it.title_final || (it.pub && it.pub.title_final);
+    if (it.stage === 'published' && _ft) {
+      finalTitleLine = '<div class="st-sg-finaltitle">▶ ' + esc(_ft) + '</div>';
+    }
     // 펼침 맨 위 = 식별자(코드·타겟)
     var idline = esc(it.code || '(코드 없음)') + (it.target ? ' · 타겟 ' + esc(it.target) : '');
     return '<div class="st-sg-card' + (expanded ? ' expanded' : '') + (it.assignee_email ? '' : ' unassigned') + '" data-sgid="' + it.id + '">' +
       '<div class="st-sg-head" data-sgtoggle="' + it.id + '"><span class="st-sg-title">' + esc(it.title) + '</span><span class="st-sg-headmeta">' + headMeta + '</span><span class="st-sg-caret"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span></div>' +
       '<div class="st-sg-submeta">' + submeta + '</div>' +
+      finalTitleLine +
       '<div class="st-sg-body">' +
         '<div class="st-sg-code">' + idline + '</div>' +
         peakNote +
@@ -2648,7 +2656,7 @@
         var chip=v.channel_code?'<span class="st-ch-chip">'+esc(chName(v.channel_code))+'</span>':'';
         var comm=(v.commission!=null)?' · 수수료 <b style="color:#3FB984">$'+v.commission+'</b>':'';
         var rowHead='<div class="st-pf-row st-vrow" data-vi="'+i+'"><span class="rk">'+(i+1)+'</span>'+
-          '<span class="nm">'+esc(v.title||'(제목 없음)')+' '+chip+'</span>'+
+          '<span class="nm">'+esc(v.title_final||v.title||'(제목 없음)')+' '+chip+(v.title_final&&v.title_final!==v.title?'<span style="font-size:11px;color:var(--muted);font-weight:400"> · 추천 '+esc(v.title)+'</span>':'')+'</span>'+
           '<span class="mt">조회 <b>'+(v.views!=null?v.views.toLocaleString():'—')+'</b></span>'+
           '<span class="mt">클릭 <b style="color:#3FB984">'+(v.clicks||0)+'</b></span>'+
           '<span class="mt">예약 <b>'+(v.bookings||0)+'</b></span>'+comm+
@@ -2780,7 +2788,7 @@
           pfCardHtml('취소율', s.cancel_rate!=null?s.cancel_rate+'%':'—', c?pfDeltaEl(s.cancel_rate,c.cancel_rate,true,false):'') +
           pfCardHtml('예약금액 (호텔이 받은 돈)', pfMoney(s.amount_usd), c?pfDeltaEl(s.amount_usd,c.amount_usd,false,true):'') +
           pfCardHtml('영상 수', (d.video_count||0), '') +
-          pfCardHtml('조회수', '<span style="opacity:.4">—</span>', '') +
+          pfCardHtml('조회수', (d.views_total ? d.views_total.toLocaleString() : '<span style="opacity:.4">—</span>'), '') +
           pfCardHtml('클릭', (d.clicks_total ? d.clicks_total.toLocaleString() : '<span style="opacity:.4">—</span>'), '') +
           (showComm ? pfCardHtml('🔒 수수료 (대표님만)', pfMoney(s.commission_usd), '', true) : '');
         document.getElementById('st-pf-cards').innerHTML=cards;

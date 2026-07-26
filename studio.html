@@ -3326,7 +3326,7 @@
     var soon = '<span class="st-hs-soon">연동 후</span>';
     // 축 1 계산: 마지막 노출 + 6개월 = 재사용 가능일 (실데이터)
     var axReady = 0, axSoon = 0, axWait = 0, _now = new Date();
-    list.forEach(function (h) {
+    all.forEach(function (h) {
       if (!h.last_exposure) return;
       var from = new Date(h.last_exposure); from.setMonth(from.getMonth() + 6);
       var days = Math.ceil((from - _now) / 86400000);
@@ -3334,7 +3334,7 @@
     });
     // 축 2 계산: 발행됨 = publications 있는 호텔 (실데이터). 큐 상태는 데이터 없어 '연동 후' 유지
     var axPublished = 0;
-    list.forEach(function (h) { if ((h.published_count || 0) > 0) axPublished++; });
+    all.forEach(function (h) { if ((h.published_count || 0) > 0) axPublished++; });
     function card(cls, label, val, sub, key) {
       var sel = (hsCardKey && hsCardKey === key) ? ' sel' : '';
       var kc = key ? (' st-hs-click' + sel + '" data-hsf="' + key + '"') : '"';

@@ -393,7 +393,7 @@ export default async function handler(req, res) {
           confirmed: bk ? bk.confirmed : 0,
           cancelled: bk ? bk.cancelled : 0,
           amount: bk ? Math.round(bk.amount) : 0,
-          commission: withComm && bk ? Math.round(bk.commission) : null,
+          commission: withComm ? (bk ? Math.round(bk.commission) : 0) : null,
         };
       });
       const sum = slots.reduce((a, s) => ({

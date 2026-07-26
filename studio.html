@@ -970,16 +970,16 @@
   <!-- ── 준비 중 4메뉴 ─────────────────────────────────────── -->
   <section class="st-view" id="view-perf">
     <div class="st-head">
-      <div><div class="st-h">성과표</div><div class="st-sub" id="st-pf-sub">불러오는 중…</div></div>
+      <div><div class="st-h" data-i18n="nav.perf">성과표</div><div class="st-sub" id="st-pf-sub" data-i18n="common.loading">불러오는 중…</div></div>
     </div>
-    <div class="st-pf-goal">📊 일·주·월 성과를 채널별로 <b>5초에</b> 보고 → 잘되는 건 <b>더 밀고</b>, 새는 건 눌러서 <b>고치러</b>. 숫자만 보는 판이 아니라 다음 행동으로 잇는 판입니다.</div>
+    <div class="st-pf-goal" data-i18n-html="pf.goal">📊 일·주·월 성과를 채널별로 <b>5초에</b> 보고 → 잘되는 건 <b>더 밀고</b>, 새는 건 눌러서 <b>고치러</b>. 숫자만 보는 판이 아니라 다음 행동으로 잇는 판입니다.</div>
     <div class="st-pf-periods" id="st-pf-periods"></div>
     <div class="st-pf-asof" id="st-pf-asof"></div>
     <div class="st-pf-cards" id="st-pf-cards"></div>
-    <div class="st-hint">예약금액은 손님이 호텔에 낸 돈(호텔 매출)입니다 — 우리 수익이 아니라 실적입니다. 우리 수익인 수수료는 대표님만 봅니다. 조회수·클릭은 영상이 발행되면 채워집니다.</div>
+    <div class="st-hint" data-i18n-html="pf.hint.money">예약금액은 손님이 호텔에 낸 돈(호텔 매출)입니다 — 우리 수익이 아니라 실적입니다. 우리 수익인 수수료는 대표님만 봅니다. 조회수·클릭은 영상이 발행되면 채워집니다.</div>
     <div class="st-pf-trend" id="st-pf-trend"></div>
     <div class="st-pf-lens" id="st-pf-lens"></div>
-    <div class="st-pf-block"><div class="st-pf-h" id="st-pf-tablehead">채널별 순위</div><div id="st-pf-table"><div class="st-empty">불러오는 중…</div></div></div>
+    <div class="st-pf-block"><div class="st-pf-h" id="st-pf-tablehead" data-i18n="pf.head.channel">채널별 순위</div><div id="st-pf-table"><div class="st-empty" data-i18n="common.loading">불러오는 중…</div></div></div>
   </section>
   <section class="st-view" id="view-hotel">
     <div class="st-head" style="display:flex;align-items:center;gap:12px">
@@ -1148,12 +1148,42 @@ window.STUDIO_I18N = {
   ko: {
     'nav.upload':'올리기','nav.perf':'성과표','nav.hotel':'호텔','nav.keyword':'키워드','nav.strategy':'전략','nav.channel':'채널',
     'nav.admin':'관리자','nav.logout':'로그아웃','app.title':'스튜디오',
-    'common.loading':'불러오는 중…','common.views':'조회','common.clicks':'클릭','common.bookings':'예약','common.commission':'수수료','common.confirmed':'확정'
+    'common.loading':'불러오는 중…','common.views':'조회','common.clicks':'클릭','common.bookings':'예약','common.commission':'수수료','common.confirmed':'확정',
+    'pf.goal':'📊 일·주·월 성과를 채널별로 <b>5초에</b> 보고 → 잘되는 건 <b>더 밀고</b>, 새는 건 눌러서 <b>고치러</b>. 숫자만 보는 판이 아니라 다음 행동으로 잇는 판입니다.',
+    'pf.hint.money':'예약금액은 손님이 호텔에 낸 돈(호텔 매출)입니다 — 우리 수익이 아니라 실적입니다. 우리 수익인 수수료는 대표님만 봅니다. 조회수·클릭은 영상이 발행되면 채워집니다.',
+    'pf.per.today':'오늘','pf.per.yesterday':'어제','pf.per.last7':'최근 7일','pf.per.last30':'최근 30일','pf.per.month':'이번 달','pf.per.last90':'최근 3개월','pf.per.all':'전체','pf.per.custom':'기간 지정',
+    'pf.compare':'↔ 이전 기간과 비교','pf.apply':'적용','pf.pickDates':'시작일과 끝일을 모두 골라주세요.','pf.vsPrev':'vs 이전',
+    'pf.lens.channel':'채널별','pf.lens.video':'영상별','pf.lens.hotel':'호텔별',
+    'pf.head.channel':'채널별 순위','pf.head.video':'영상별','pf.head.hotel':'호텔별 순위',
+    'pf.card.bookings':'예약','pf.card.confirmRate':'확정률','pf.card.cancelRate':'취소율','pf.card.amount':'예약금액 (호텔이 받은 돈)','pf.card.videos':'영상 수','pf.card.views':'조회수','pf.card.clicks':'클릭','pf.card.commission':'🔒 수수료 (대표님만)',
+    'pf.sort.commission':'수익순','pf.sort.amount':'예약금순','pf.sort.bookings':'건수순','pf.sort.clicks':'클릭순','pf.sort.views':'조회순','pf.sort.bookingsV':'예약순',
+    'pf.empty.noBooking':'이 기간에 예약이 없습니다.','pf.empty.pre':'이 기간엔 예약이 없습니다. 예약 데이터는 ','pf.empty.post':'까지라 최근 기간은 비어 있어요. ','pf.empty.goAll':'전체로 보기','pf.empty.noVideos':'발행된 영상이 없습니다.',
+    'pf.row.noTitle':'(제목 없음)','pf.row.hotelSlot':'(호텔)','pf.badge.exposed':'소개함','pf.badge.notExposed':'미소개','pf.row.cancelled':'취소','pf.row.confirmRate':'확정률',
+    'pf.v.noHotels':'이 영상에 붙은 호텔 정보가 없습니다.','pf.v.hintSlot':'자리별 조회수는 유튜브가 영상 단위로만 주어 못 나눕니다. 클릭·예약·수수료는 자리(호텔)별입니다.','pf.v.hintBottom':'조회 = 유튜브 조회수(D-059) · 클릭 = 설명란 추적링크 · 예약·수수료 = 이 호텔이 이 채널로 받은 예약. 줄을 누르면 TOP1·2·3 자리별로 펼쳐집니다.',
+    'pf.det.soldHotels':'이 채널이 판 호텔','pf.det.noHotels':'호텔 데이터가 없습니다.','pf.det.recent':'최근 예약','pf.det.noRecent':'예약 없음','pf.det.fromChannels':'이 기간 어느 채널에서 왔나','pf.det.noChannel':'이 기간 채널 데이터가 없습니다.','pf.det.otherPre':'그 외 ','pf.det.otherPost':'개 채널','pf.det.fullHotel':'호텔 전체 세부 보기 →',
+    'pf.trend.title':'월별 추세','pf.trend.sub.day':'— 어느 날이 강했나 (순위표는 어느 채널이 강했나)','pf.trend.sub.month':'— 어느 달이 강했나 (순위표는 어느 채널이 강했나)','pf.trend.empty':'이 기간엔 추세로 그릴 예약이 없습니다.','pf.trend.foot':'기간을 바꾸면 여기도 그 기간으로 · 막대=예약 건수','pf.trend.monthSuffix':'월',
+    'pf.asof.pre':'🕐 예약 데이터: ','pf.asof.post':'까지 반영','pf.asof.upload':' · 마지막 아고다 업로드 ',
+    'pf.morePre':'+ 더 보기 (','pf.morePost':'개 더)','pf.cntSuffix':'개'
   },
   en: {
     'nav.upload':'Upload','nav.perf':'Performance','nav.hotel':'Hotels','nav.keyword':'Keywords','nav.strategy':'Strategy','nav.channel':'Channels',
     'nav.admin':'Admin','nav.logout':'Log out','app.title':'Studio',
-    'common.loading':'Loading…','common.views':'Views','common.clicks':'Clicks','common.bookings':'Bookings','common.commission':'Commission','common.confirmed':'Confirmed'
+    'common.loading':'Loading…','common.views':'Views','common.clicks':'Clicks','common.bookings':'Bookings','common.commission':'Commission','common.confirmed':'Confirmed',
+    'pf.goal':'📊 See daily, weekly and monthly results by channel in <b>5 seconds</b> → push <b>what works</b>, click into <b>what leaks</b>. Not a board of numbers, but a board that leads to the next action.',
+    'pf.hint.money':'Booking value is what guests paid the hotel (hotel revenue) — it is our track record, not our income. Commission, which is our income, is visible to the owner only. Views and clicks fill in once videos are published.',
+    'pf.per.today':'Today','pf.per.yesterday':'Yesterday','pf.per.last7':'Last 7 days','pf.per.last30':'Last 30 days','pf.per.month':'This month','pf.per.last90':'Last 3 months','pf.per.all':'All time','pf.per.custom':'Custom range',
+    'pf.compare':'↔ Compare with previous period','pf.apply':'Apply','pf.pickDates':'Please choose both a start date and an end date.','pf.vsPrev':'vs previous',
+    'pf.lens.channel':'By channel','pf.lens.video':'By video','pf.lens.hotel':'By hotel',
+    'pf.head.channel':'Channel ranking','pf.head.video':'By video','pf.head.hotel':'Hotel ranking',
+    'pf.card.bookings':'Bookings','pf.card.confirmRate':'Confirm rate','pf.card.cancelRate':'Cancel rate','pf.card.amount':'Booking value (paid to hotels)','pf.card.videos':'Videos','pf.card.views':'Views','pf.card.clicks':'Clicks','pf.card.commission':'🔒 Commission (owner only)',
+    'pf.sort.commission':'By revenue','pf.sort.amount':'By booking value','pf.sort.bookings':'By count','pf.sort.clicks':'By clicks','pf.sort.views':'By views','pf.sort.bookingsV':'By bookings',
+    'pf.empty.noBooking':'No bookings in this period.','pf.empty.pre':'No bookings in this period. Booking data only goes up to ','pf.empty.post':', so recent periods are empty. ','pf.empty.goAll':'View all time','pf.empty.noVideos':'No published videos yet.',
+    'pf.row.noTitle':'(no title)','pf.row.hotelSlot':'(hotel)','pf.badge.exposed':'Featured','pf.badge.notExposed':'Not featured','pf.row.cancelled':'Cancelled','pf.row.confirmRate':'Confirm rate',
+    'pf.v.noHotels':'No hotels are linked to this video.','pf.v.hintSlot':'YouTube reports views per video only, so views cannot be split by slot. Clicks, bookings and commission are per slot (hotel).','pf.v.hintBottom':'Views = YouTube views (D-059) · Clicks = tracking links in the description · Bookings & commission = bookings this hotel received through this channel. Click a row to expand the TOP1/2/3 slots.',
+    'pf.det.soldHotels':'Hotels sold by this channel','pf.det.noHotels':'No hotel data.','pf.det.recent':'Recent bookings','pf.det.noRecent':'No bookings','pf.det.fromChannels':'Which channels drove this period','pf.det.noChannel':'No channel data for this period.','pf.det.otherPre':'Other ','pf.det.otherPost':' channels','pf.det.fullHotel':'View full hotel details →',
+    'pf.trend.title':'Trend','pf.trend.sub.day':'— which days were strong (the ranking shows which channels were strong)','pf.trend.sub.month':'— which months were strong (the ranking shows which channels were strong)','pf.trend.empty':'No bookings to chart in this period.','pf.trend.foot':'Change the period and this follows · bars = booking count','pf.trend.monthSuffix':'',
+    'pf.asof.pre':'🕐 Booking data reflected through ','pf.asof.post':'','pf.asof.upload':' · last Agoda upload ',
+    'pf.morePre':'+ Show more (','pf.morePost':' more)','pf.cntSuffix':''
   }
 };
 
@@ -1170,6 +1200,10 @@ function applyI18n(){
   document.querySelectorAll('[data-i18n]').forEach(function(el){
     var k = el.getAttribute('data-i18n'); var v = t(k, null);
     if (v != null && v !== k) el.textContent = v;
+  });
+  document.querySelectorAll('[data-i18n-html]').forEach(function(el){
+    var k = el.getAttribute('data-i18n-html'); var v = t(k, null);
+    if (v != null && v !== k) el.innerHTML = v;
   });
   document.documentElement.setAttribute('lang', window.stLang);
   var ko=document.getElementById('st-lang-ko'), en=document.getElementById('st-lang-en');
@@ -2551,7 +2585,7 @@ document.addEventListener('DOMContentLoaded', function(){
   function pfDeltaEl(cur, prev, isPct, goodUp){
     var t=pfDelta(cur,prev,isPct); if(!t) return '';
     var up=t.charAt(0)==='▲'; var good = goodUp ? up : !up;
-    return '<div class="st-pf-delta '+(good?'up':'down')+'">'+t+' vs 이전</div>';
+    return '<div class="st-pf-delta '+(good?'up':'down')+'">'+t+' '+window.t('pf.vsPrev')+'</div>';
   }
   function pfCardHtml(label, val, deltaHtml, accent){
     return '<div class="st-pf-card"'+(accent?' style="border-color:rgba(78,222,163,.35);background:rgba(78,222,163,.06)"':'')+'>' +
@@ -2559,11 +2593,11 @@ document.addEventListener('DOMContentLoaded', function(){
   }
   function pfRenderPeriods(){
     var el=document.getElementById('st-pf-periods');
-    var h = PF_PERIODS.map(function(p){ return '<button class="st-pf-per'+(p.k===pfState.period?' on':'')+'" data-per="'+p.k+'">'+p.l+'</button>'; }).join('');
+    var h = PF_PERIODS.map(function(p){ return '<button class="st-pf-per'+(p.k===pfState.period?' on':'')+'" data-per="'+p.k+'">'+t('pf.per.'+p.k, p.l)+'</button>'; }).join('');
     h += '<span style="width:1px;height:18px;background:rgba(128,128,128,.3);margin:0 4px"></span>';
-    h += '<button class="st-pf-cmp'+(pfState.compare?' on':'')+'" id="st-pf-cmpbtn">↔ 이전 기간과 비교</button>';
+    h += '<button class="st-pf-cmp'+(pfState.compare?' on':'')+'" id="st-pf-cmpbtn">'+t('pf.compare')+'</button>';
     if(pfState.period==='custom'){
-      h += '<div class="st-pf-custom"><input type="date" id="pf-from" value="'+(pfState.from||'')+'"> ~ <input type="date" id="pf-to" value="'+(pfState.to||'')+'"><button id="pf-apply">적용</button></div>';
+      h += '<div class="st-pf-custom"><input type="date" id="pf-from" value="'+(pfState.from||'')+'"> ~ <input type="date" id="pf-to" value="'+(pfState.to||'')+'"><button id="pf-apply">'+t('pf.apply')+'</button></div>';
     }
     el.innerHTML=h;
     el.querySelectorAll('.st-pf-per').forEach(function(b){ b.onclick=function(){
@@ -2572,11 +2606,11 @@ document.addEventListener('DOMContentLoaded', function(){
       pfState.period=k; loadPerf();
     }; });
     var cb=document.getElementById('st-pf-cmpbtn'); cb.onclick=function(){ pfState.compare=!pfState.compare; loadPerf(); };
-    var ap=document.getElementById('pf-apply'); if(ap){ ap.onclick=function(){ var f=document.getElementById('pf-from').value, t=document.getElementById('pf-to').value; if(f&&t){ pfState.from=f; pfState.to=t; loadPerf(); } else { alert('시작일과 끝일을 모두 골라주세요.'); } }; }
+    var ap=document.getElementById('pf-apply'); if(ap){ ap.onclick=function(){ var f=document.getElementById('pf-from').value, t=document.getElementById('pf-to').value; if(f&&t){ pfState.from=f; pfState.to=t; loadPerf(); } else { alert(t('pf.pickDates')); } }; }
   }
   function pfRenderLens(){
     var el=document.getElementById('st-pf-lens');
-    var lenses=[{k:'channel',l:'채널별'},{k:'video',l:'영상별'},{k:'hotel',l:'호텔별'}];
+    var lenses=[{k:'channel',l:t('pf.lens.channel')},{k:'video',l:t('pf.lens.video')},{k:'hotel',l:t('pf.lens.hotel')}];
     el.innerHTML=lenses.map(function(x){ return '<button class="st-pf-lensbtn'+(x.k===pfState.lens?' on':'')+'" data-lens="'+x.k+'">'+x.l+'</button>'; }).join('');
     el.querySelectorAll('.st-pf-lensbtn').forEach(function(b){ b.onclick=function(){ pfState.lens=b.dataset.lens; pfHotelLimit=30; pfRenderLens(); pfRenderTable(pfLast); }; });
   }
@@ -2585,7 +2619,7 @@ document.addEventListener('DOMContentLoaded', function(){
     if(!det.hidden){ det.hidden=true; if(caret)caret.textContent='▾'; return; }
     det.hidden=false; if(caret)caret.textContent='▴';
     if(det.dataset.loaded) return;
-    det.innerHTML='<div class="st-empty" style="padding:14px">불러오는 중…</div>';
+    det.innerHTML='<div class="st-empty" style="padding:14px">'+t('common.loading')+'</div>';
     var per=(pfLast&&pfLast.period)||{};
     var qs='channel_code='+encodeURIComponent(w.dataset.ch);
     if(per.from) qs+='&from='+encodeURIComponent(per.from);
@@ -2617,8 +2651,8 @@ document.addEventListener('DOMContentLoaded', function(){
     var hHtml=arr.slice(s.hp*PAGE, s.hp*PAGE+PAGE).map(function(h){
       var meta=[h.country,h.city,(h.type||''),(h.star?'★'+h.star:'')].filter(Boolean).join(' · ');
       var comm=(showComm&&('commission_usd' in h))?' · <span style="color:#4edea3">$'+h.commission_usd+'</span>':'';
-      return hrow(esc(h.name), esc(meta), '확정 '+(h.completed||0)+' · $'+(h.amount_usd||0)+comm);
-    }).join('') || '<div style="font-size:13px;opacity:.5;padding:8px 0">호텔 데이터가 없습니다.</div>';
+      return hrow(esc(h.name), esc(meta), t('common.confirmed')+' '+(h.completed||0)+' · $'+(h.amount_usd||0)+comm);
+    }).join('') || '<div style="font-size:13px;opacity:.5;padding:8px 0">'+t('pf.det.noHotels')+'</div>';
     var hnav = arr.length>PAGE ? pageNav('h', s.hp, hpages) : '';
 
     var rec=j.recent||[];
@@ -2626,15 +2660,15 @@ document.addEventListener('DOMContentLoaded', function(){
     if(s.rp>=rpages) s.rp=rpages-1; if(s.rp<0) s.rp=0;
     var rHtml=rec.slice(s.rp*RPAGE, s.rp*RPAGE+RPAGE).map(function(r){
       var meta=[r.country,r.city,(r.star?'★'+r.star:'')].filter(Boolean).join(' · ');
-      var st=r.status==='확정'?'<span style="color:#4edea3">확정</span>':'<span style="opacity:.5">'+esc(r.status)+'</span>';
-      var comm=(showComm&&('commission_usd' in r))?' · <span style="'+(r.commission_usd>0?'color:#4edea3':'opacity:.45')+'">수수료 $'+r.commission_usd+'</span>':'';
+      var st=r.status==='확정'?'<span style="color:#4edea3">'+t('common.confirmed')+'</span>':'<span style="opacity:.5">'+esc(r.status)+'</span>';
+      var comm=(showComm&&('commission_usd' in r))?' · <span style="'+(r.commission_usd>0?'color:#4edea3':'opacity:.45')+'">'+t('common.commission')+' $'+r.commission_usd+'</span>':'';
       return hrow(esc(r.date)+' · '+esc(r.hotel_name), esc(meta), st+' · $'+r.amount_usd+comm);
-    }).join('') || '<div style="font-size:13px;opacity:.5;padding:8px 0">예약 없음</div>';
+    }).join('') || '<div style="font-size:13px;opacity:.5;padding:8px 0">'+t('pf.det.noRecent')+'</div>';
     var rnav = rec.length>RPAGE ? pageNav('r', s.rp, rpages) : '';
 
     det.innerHTML='<div style="padding:4px 4px 2px">'+
-      '<div class="st-pf-detlbl" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px"><span>이 채널이 판 호텔 <span style="opacity:.6">('+arr.length+'개)</span></span>'+sortBtnsHtml(s.sort, showComm)+'</div>'+hHtml+hnav+
-      '<div class="st-pf-detlbl" style="margin-top:14px">최근 예약</div>'+rHtml+rnav+
+      '<div class="st-pf-detlbl" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px"><span>'+t('pf.det.soldHotels')+' <span style="opacity:.6">('+arr.length+t('pf.cntSuffix')+')</span></span>'+sortBtnsHtml(s.sort, showComm)+'</div>'+hHtml+hnav+
+      '<div class="st-pf-detlbl" style="margin-top:14px">'+t('pf.det.recent')+'</div>'+rHtml+rnav+
     '</div>';
     det.querySelectorAll('.st-pf-sort button').forEach(function(b){ b.onclick=function(e){ e.stopPropagation(); s.sort=b.dataset.s; s.hp=0; drawChannelDetail(det); }; });
     det.querySelectorAll('[data-nav]').forEach(function(b){ b.onclick=function(e){ e.stopPropagation(); var dir=parseInt(b.dataset.dir,10); if(b.dataset.nav==='h') s.hp+=dir; else s.rp+=dir; drawChannelDetail(det); }; });
@@ -2652,7 +2686,7 @@ document.addEventListener('DOMContentLoaded', function(){
     if(!det.hidden){ det.hidden=true; if(caret)caret.textContent='▾'; return; }
     det.hidden=false; if(caret)caret.textContent='▴';
     if(det.dataset.loaded) return;
-    det.innerHTML='<div class="st-empty" style="padding:14px">불러오는 중…</div>';
+    det.innerHTML='<div class="st-empty" style="padding:14px">'+t('common.loading')+'</div>';
     var per=(pfLast&&pfLast.period)||{};
     var qs='hotel_id='+encodeURIComponent(w.dataset.hid);
     if(per.from) qs+='&from='+encodeURIComponent(per.from);
@@ -2670,28 +2704,28 @@ document.addEventListener('DOMContentLoaded', function(){
     var s=det._hd, j=s.data, showComm=j.is_admin, RPAGE=8;
     var bars=(j.channels||[]).map(function(c){
       var comm=(showComm&&('commission_usd' in c))?' · <span style="color:#4edea3">$'+c.commission_usd+'</span>':'';
-      return '<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><span>'+esc(c.name)+'</span><span style="opacity:.75">확정 '+(c.completed||0)+' · $'+(c.amount_usd||0)+comm+'</span></div>'+
+      return '<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><span>'+esc(c.name)+'</span><span style="opacity:.75">'+t('common.confirmed')+' '+(c.completed||0)+' · $'+(c.amount_usd||0)+comm+'</span></div>'+
         '<div class="st-pf-bar"><div class="st-pf-barfill" style="width:'+c.ratio+'%"></div></div></div>';
     }).join('');
     if(j.other){
       var oc=(showComm&&('commission_usd' in j.other))?' · <span style="color:#4edea3">$'+j.other.commission_usd+'</span>':'';
-      bars+='<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><span style="opacity:.6">그 외 '+j.other.count+'개 채널</span><span style="opacity:.6">확정 '+(j.other.completed||0)+' · $'+(j.other.amount_usd||0)+oc+'</span></div>'+
+      bars+='<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><span style="opacity:.6">'+t('pf.det.otherPre')+j.other.count+t('pf.det.otherPost')+'</span><span style="opacity:.6">'+t('common.confirmed')+' '+(j.other.completed||0)+' · $'+(j.other.amount_usd||0)+oc+'</span></div>'+
         '<div class="st-pf-bar"><div class="st-pf-barfill other" style="width:'+j.other.ratio+'%"></div></div></div>';
     }
-    if(!bars) bars='<div style="font-size:13px;opacity:.5">이 기간 채널 데이터가 없습니다.</div>';
+    if(!bars) bars='<div style="font-size:13px;opacity:.5">'+t('pf.det.noChannel')+'</div>';
     var rec=j.recent||[];
     var rpages=Math.max(1, Math.ceil(rec.length/RPAGE));
     if(s.rp>=rpages) s.rp=rpages-1; if(s.rp<0) s.rp=0;
     var recent=rec.slice(s.rp*RPAGE, s.rp*RPAGE+RPAGE).map(function(r){
-      var st=r.status==='확정'?'<span style="color:#4edea3">확정</span>':'<span style="opacity:.5">'+esc(r.status)+'</span>';
-      var comm=(showComm&&('commission_usd' in r))?' · <span style="'+(r.commission_usd>0?'color:#4edea3':'opacity:.45')+'">수수료 $'+r.commission_usd+'</span>':'';
+      var st=r.status==='확정'?'<span style="color:#4edea3">'+t('common.confirmed')+'</span>':'<span style="opacity:.5">'+esc(r.status)+'</span>';
+      var comm=(showComm&&('commission_usd' in r))?' · <span style="'+(r.commission_usd>0?'color:#4edea3':'opacity:.45')+'">'+t('common.commission')+' $'+r.commission_usd+'</span>':'';
       return '<div style="display:flex;justify-content:space-between;border-bottom:0.5px solid rgba(128,128,128,.15);padding:3px 0;font-size:13px"><span>'+esc(r.date)+' · '+esc(r.channel)+'</span><span>'+st+' · $'+r.amount_usd+comm+'</span></div>';
-    }).join('') || '<div style="opacity:.5;font-size:13px">예약 없음</div>';
+    }).join('') || '<div style="opacity:.5;font-size:13px">'+t('pf.det.noRecent')+'</div>';
     var rnav = rec.length>RPAGE ? pageNav('r', s.rp, rpages) : '';
     det.innerHTML='<div style="padding:4px 4px 2px">'+
-      '<div class="st-pf-detlbl">이 기간 어느 채널에서 왔나</div>'+bars+
-      '<div class="st-pf-detlbl" style="margin-top:14px">최근 예약</div>'+recent+rnav+
-      (s.exposed?'<div style="margin-top:14px"><span class="st-pf-detbtn">호텔 전체 세부 보기 →</span></div>':'')+
+      '<div class="st-pf-detlbl">'+t('pf.det.fromChannels')+'</div>'+bars+
+      '<div class="st-pf-detlbl" style="margin-top:14px">'+t('pf.det.recent')+'</div>'+recent+rnav+
+      (s.exposed?'<div style="margin-top:14px"><span class="st-pf-detbtn">'+t('pf.det.fullHotel')+'</span></div>':'')+
     '</div>';
     det.querySelectorAll('[data-nav]').forEach(function(b){ b.onclick=function(e){ e.stopPropagation(); s.rp+=parseInt(b.dataset.dir,10); drawHotelDetail(det); }; });
     var bt=det.querySelector('.st-pf-detbtn'); if(bt) bt.onclick=function(e){ e.stopPropagation(); goHotelInMenu(s.name); };
@@ -2709,10 +2743,10 @@ document.addEventListener('DOMContentLoaded', function(){
   }
   function vSortBtns(cur, isAdmin){
     var b='<span class="st-pf-sort">';
-    b+='<button data-vs="clicks" class="'+(cur==='clicks'?'on':'')+'">클릭순</button>';
-    b+='<button data-vs="views" class="'+(cur==='views'?'on':'')+'">조회순</button>';
-    b+='<button data-vs="bookings" class="'+(cur==='bookings'?'on':'')+'">예약순</button>';
-    if(isAdmin) b+='<button data-vs="commission" class="'+(cur==='commission'?'on':'')+'">수익순</button>';
+    b+='<button data-vs="clicks" class="'+(cur==='clicks'?'on':'')+'">'+t('pf.sort.clicks')+'</button>';
+    b+='<button data-vs="views" class="'+(cur==='views'?'on':'')+'">'+t('pf.sort.views')+'</button>';
+    b+='<button data-vs="bookings" class="'+(cur==='bookings'?'on':'')+'">'+t('pf.sort.bookingsV')+'</button>';
+    if(isAdmin) b+='<button data-vs="commission" class="'+(cur==='commission'?'on':'')+'">'+t('pf.sort.commission')+'</button>';
     return b+'</span>';
   }
   function sortVideos(arr, key){
@@ -2727,9 +2761,9 @@ document.addEventListener('DOMContentLoaded', function(){
   }
   function sortBtnsHtml(cur, isAdmin){
     var b='<span class="st-pf-sort">';
-    if(isAdmin) b+='<button data-s="commission" class="'+(cur==='commission'?'on':'')+'">수익순</button>';
-    b+='<button data-s="amount" class="'+(cur==='amount'?'on':'')+'">예약금순</button>';
-    b+='<button data-s="bookings" class="'+(cur==='bookings'?'on':'')+'">건수순</button>';
+    if(isAdmin) b+='<button data-s="commission" class="'+(cur==='commission'?'on':'')+'">'+t('pf.sort.commission')+'</button>';
+    b+='<button data-s="amount" class="'+(cur==='amount'?'on':'')+'">'+t('pf.sort.amount')+'</button>';
+    b+='<button data-s="bookings" class="'+(cur==='bookings'?'on':'')+'">'+t('pf.sort.bookings')+'</button>';
     return b+'</span>';
   }
   function pfRenderTable(d){
@@ -2738,31 +2772,31 @@ document.addEventListener('DOMContentLoaded', function(){
     if(!d){ return; }
     if(pfState.lens==='video'){
       var isAdmV=!!d.is_admin;
-      head.innerHTML='영상별 '+vSortBtns(pfState.vsort, isAdmV);
-      var vids=sortVideos(d.videos||[], pfState.vsort);if(!vids.length){ box.innerHTML='<div class="st-empty">발행된 영상이 없습니다.</div>'; return; }
+      head.innerHTML=t('pf.head.video')+' '+vSortBtns(pfState.vsort, isAdmV);
+      var vids=sortVideos(d.videos||[], pfState.vsort);if(!vids.length){ box.innerHTML='<div class="st-empty">'+t('pf.empty.noVideos')+'</div>'; return; }
       var isOwnerV = !!d.is_admin;
       box.innerHTML=vids.map(function(v,i){
         var chip=v.channel_code?'<span class="st-ch-chip">'+esc(chName(v.channel_code))+'</span>':'';
-        var comm=(v.commission!=null)?' · 수수료 <b style="color:#3FB984">$'+v.commission+'</b>':'';
+        var comm=(v.commission!=null)?' · '+t('common.commission')+' <b style="color:#3FB984">$'+v.commission+'</b>':'';
         var rowHead='<div class="st-pf-row st-vrow" data-vi="'+i+'"><span class="rk">'+(i+1)+'</span>'+
-          '<span class="nm">'+esc(v.title_final||v.title||'(제목 없음)')+' '+chip+'</span>'+
-          '<span class="mt">조회 <b>'+(v.views!=null?v.views.toLocaleString():'—')+'</b></span>'+
-          '<span class="mt">클릭 <b style="color:#3FB984">'+(v.clicks||0)+'</b></span>'+
-          '<span class="mt">예약 <b>'+(v.bookings||0)+'</b></span>'+comm+
+          '<span class="nm">'+esc(v.title_final||v.title||t('pf.row.noTitle'))+' '+chip+'</span>'+
+          '<span class="mt">'+t('common.views')+' <b>'+(v.views!=null?v.views.toLocaleString():'—')+'</b></span>'+
+          '<span class="mt">'+t('common.clicks')+' <b style="color:#3FB984">'+(v.clicks||0)+'</b></span>'+
+          '<span class="mt">'+t('common.bookings')+' <b>'+(v.bookings||0)+'</b></span>'+comm+
           '<span class="st-exp-caret" style="opacity:.5">▾</span></div>';
         // 펼침: TOP1/2/3 자리별
         var slots=(v.hotels||[]).map(function(s){
-          var scomm=(s.commission!=null)?' · 수수료 <b style="color:#3FB984">$'+s.commission+'</b>':'';
+          var scomm=(s.commission!=null)?' · '+t('common.commission')+' <b style="color:#3FB984">$'+s.commission+'</b>':'';
           return '<div class="st-vslot"><span class="st-vslot-rank">TOP'+s.rank+'</span>'+
-            '<span class="st-vslot-nm">'+esc(s.name||'(호텔)')+'</span>'+
-            '<span class="mt">클릭 <b style="color:#3FB984">'+(s.clicks||0)+'</b></span>'+
-            '<span class="mt">예약 <b>'+(s.bookings||0)+'</b>'+(s.confirmed?' <span style="opacity:.6">(확정 '+s.confirmed+')</span>':'')+'</span>'+
+            '<span class="st-vslot-nm">'+esc(s.name||t('pf.row.hotelSlot'))+'</span>'+
+            '<span class="mt">'+t('common.clicks')+' <b style="color:#3FB984">'+(s.clicks||0)+'</b></span>'+
+            '<span class="mt">'+t('common.bookings')+' <b>'+(s.bookings||0)+'</b>'+(s.confirmed?' <span style="opacity:.6">('+t('common.confirmed')+' '+s.confirmed+')</span>':'')+'</span>'+
             scomm+'</div>';
         }).join('');
         return '<div class="st-vwrap">'+rowHead+'<div class="st-vbody" data-vb="'+i+'" style="display:none">'+
-          (slots||'<div class="st-vslot" style="opacity:.6">이 영상에 붙은 호텔 정보가 없습니다.</div>')+
-          '<div class="st-hint" style="margin-top:6px">자리별 조회수는 유튜브가 영상 단위로만 주어 못 나눕니다. 클릭·예약·수수료는 자리(호텔)별입니다.</div></div></div>';
-      }).join('')+'<div class="st-hint" style="margin-top:8px">조회 = 유튜브 조회수(D-059) · 클릭 = 설명란 추적링크 · 예약·수수료 = 이 호텔이 이 채널로 받은 예약. 줄을 누르면 TOP1·2·3 자리별로 펼쳐집니다.</div>';
+          (slots||'<div class="st-vslot" style="opacity:.6">'+t('pf.v.noHotels')+'</div>')+
+          '<div class="st-hint" style="margin-top:6px">'+t('pf.v.hintSlot')+'</div></div></div>';
+      }).join('')+'<div class="st-hint" style="margin-top:8px">'+t('pf.v.hintBottom')+'</div>';
       box.querySelectorAll('.st-vrow').forEach(function(row){ row.style.cursor='pointer'; row.onclick=function(){ var b=box.querySelector('[data-vb="'+row.dataset.vi+'"]'); if(b){ var open=b.style.display!=='none'; b.style.display=open?'none':'block'; var c=row.querySelector('.st-exp-caret'); if(c) c.textContent=open?'▾':'▲'; } }; });
       head.querySelectorAll('.st-pf-sort button').forEach(function(b){ b.onclick=function(){ pfState.vsort=b.dataset.vs; pfRenderTable(pfLast); }; });
       return;
@@ -2770,10 +2804,10 @@ document.addEventListener('DOMContentLoaded', function(){
     if(pfState.lens==='hotel'){
       var hts=d.hotels||[];
       if(!hts.length){
-        head.innerHTML='호텔별 순위';
-        var hmsg='이 기간에 예약이 없습니다.';
+        head.innerHTML=t('pf.head.hotel');
+        var hmsg=t('pf.empty.noBooking');
         if(pfState.period!=='all' && d.data_asof && d.data_asof.last_booking){
-          hmsg='이 기간엔 예약이 없습니다. 예약 데이터는 <b>'+d.data_asof.last_booking+'</b>까지라 최근 기간은 비어 있어요. <a href="#" id="pf-goall2" style="color:#4edea3;text-decoration:underline">전체로 보기</a>';
+          hmsg=t('pf.empty.pre')+'<b>'+d.data_asof.last_booking+'</b>'+t('pf.empty.post')+'<a href="#" id="pf-goall2" style="color:#4edea3;text-decoration:underline">'+t('pf.empty.goAll')+'</a>';
         }
         box.innerHTML='<div class="st-empty">'+hmsg+'</div>';
         var g2=document.getElementById('pf-goall2'); if(g2){ g2.onclick=function(e){ e.preventDefault(); pfState.period='all'; loadPerf(); }; }
@@ -2781,25 +2815,25 @@ document.addEventListener('DOMContentLoaded', function(){
       }
       var isAdmH=!!d.is_admin;
       if(!pfState.hsort) pfState.hsort=isAdmH?'commission':'amount';
-      head.innerHTML='호텔별 순위 '+sortBtnsHtml(pfState.hsort, isAdmH);
+      head.innerHTML=t('pf.head.hotel')+' '+sortBtnsHtml(pfState.hsort, isAdmH);
       var showCommH = ('commission_usd' in hts[0]);
       var topH = sortPerf(hts, pfState.hsort).slice(0, pfHotelLimit);
       box.innerHTML = topH.map(function(h){
         var cxr = (h.cancel_rate!=null ? ' ('+h.cancel_rate+'%)' : '');
         var meta = [h.country, h.city, h.type, (h.star?'★'+h.star:'')].filter(Boolean).join(' · ');
-        var badge = h.exposed ? '<span class="st-pf-hbadge on">소개함</span>' : '<span class="st-pf-hbadge">미소개</span>';
-        var comm = showCommH ? ' · <span class="st-pf-comm">수수료 '+pfMoney(h.commission_usd)+'</span>' : '';
+        var badge = h.exposed ? '<span class="st-pf-hbadge on">'+t('pf.badge.exposed')+'</span>' : '<span class="st-pf-hbadge">'+t('pf.badge.notExposed')+'</span>';
+        var comm = showCommH ? ' · <span class="st-pf-comm">'+t('common.commission')+' '+pfMoney(h.commission_usd)+'</span>' : '';
         return '<div class="st-pf-hwrap" data-hid="'+esc(h.hotel_id||'')+'" data-exposed="'+(h.exposed?'1':'')+'" data-name="'+esc(h.name||'')+'">'+
           '<div class="st-pf-hrow">'+
           '<span class="rk">'+h.rank+'</span>'+
           '<div class="hmain"><div class="hname">'+esc(h.name)+' '+badge+' <span class="hcaret">▾</span></div>'+
           '<div class="hmeta">'+esc(meta)+'</div></div>'+
-          '<div class="hstat"><div>예약 '+h.bookings+' · 취소 '+h.cancelled+cxr+' · 확정률 '+(h.confirm_rate!=null?h.confirm_rate+'%':'—')+'</div>'+
+          '<div class="hstat"><div>'+t('common.bookings')+' '+h.bookings+' · '+t('pf.row.cancelled')+' '+h.cancelled+cxr+' · '+t('pf.row.confirmRate')+' '+(h.confirm_rate!=null?h.confirm_rate+'%':'—')+'</div>'+
           '<div class="sub">'+pfMoney(h.amount_usd)+comm+'</div></div>'+
           '</div>'+
           '<div class="st-pf-hdetail" hidden></div>'+
         '</div>';
-      }).join('') + (hts.length>topH.length ? '<div id="pf-hmore" style="text-align:center;padding:10px;cursor:pointer;color:#4edea3;font-size:13px">+ 더 보기 ('+(hts.length-topH.length)+'개 더)</div>' : '');
+      }).join('') + (hts.length>topH.length ? '<div id="pf-hmore" style="text-align:center;padding:10px;cursor:pointer;color:#4edea3;font-size:13px">'+t('pf.morePre')+(hts.length-topH.length)+t('pf.morePost')+'</div>' : '');
       box.querySelectorAll('.st-pf-hwrap').forEach(function(w){ var row=w.querySelector('.st-pf-hrow'); row.style.cursor='pointer'; row.onclick=function(){ toggleHotelDetail(w); }; });
       head.querySelectorAll('.st-pf-sort button').forEach(function(b){ b.onclick=function(){ pfState.hsort=b.dataset.s; pfHotelLimit=30; pfRenderTable(pfLast); }; });
       var mb=document.getElementById('pf-hmore'); if(mb){ mb.onclick=function(){ pfHotelLimit+=50; pfRenderTable(pfLast); }; }
@@ -2807,10 +2841,10 @@ document.addEventListener('DOMContentLoaded', function(){
     }
     var chs=d.channels||[];
     if(!chs.length){
-      head.textContent='채널별 순위';
-      var msg='이 기간에 예약이 없습니다.';
+      head.textContent=t('pf.head.channel');
+      var msg=t('pf.empty.noBooking');
       if(pfState.period!=='all' && d.data_asof && d.data_asof.last_booking){
-        msg='이 기간엔 예약이 없습니다. 예약 데이터는 <b>'+d.data_asof.last_booking+'</b>까지라 최근 기간은 비어 있어요. <a href="#" id="pf-goall" style="color:#4edea3;text-decoration:underline">전체로 보기</a>';
+        msg=t('pf.empty.pre')+'<b>'+d.data_asof.last_booking+'</b>'+t('pf.empty.post')+'<a href="#" id="pf-goall" style="color:#4edea3;text-decoration:underline">'+t('pf.empty.goAll')+'</a>';
       }
       box.innerHTML='<div class="st-empty">'+msg+'</div>';
       var g=document.getElementById('pf-goall'); if(g){ g.onclick=function(e){ e.preventDefault(); pfState.period='all'; loadPerf(); }; }
@@ -2818,7 +2852,7 @@ document.addEventListener('DOMContentLoaded', function(){
     }
     var isAdmC=!!d.is_admin;
     if(!pfState.csort) pfState.csort=isAdmC?'commission':'amount';
-    head.innerHTML='채널별 순위 '+sortBtnsHtml(pfState.csort, isAdmC);
+    head.innerHTML=t('pf.head.channel')+' '+sortBtnsHtml(pfState.csort, isAdmC);
     var showComm = ('commission_usd' in chs[0]);
     box.innerHTML = sortPerf(chs, pfState.csort).map(function(c){
       var cxr = (c.cancel_rate!=null ? ' ('+c.cancel_rate+'%)' : '');
@@ -2826,11 +2860,11 @@ document.addEventListener('DOMContentLoaded', function(){
         '<div class="st-pf-row">'+
         '<span class="rk">'+c.rank+'</span>'+
         '<span class="nm">'+esc(c.name)+' <span class="hcaret">▾</span></span>'+
-        '<span class="mt">예약 '+c.bookings+'</span>'+'<span class="mt">클릭 '+(c.clicks||0)+'</span>'+
-        '<span class="mt">취소 '+c.cancelled+cxr+'</span>'+
-        '<span class="mt">확정률 '+(c.confirm_rate!=null?c.confirm_rate+'%':'—')+'</span>'+
+        '<span class="mt">'+t('common.bookings')+' '+c.bookings+'</span>'+'<span class="mt">'+t('common.clicks')+' '+(c.clicks||0)+'</span>'+
+        '<span class="mt">'+t('pf.row.cancelled')+' '+c.cancelled+cxr+'</span>'+
+        '<span class="mt">'+t('pf.row.confirmRate')+' '+(c.confirm_rate!=null?c.confirm_rate+'%':'—')+'</span>'+
         '<span class="mt">'+pfMoney(c.amount_usd)+'</span>'+
-        (showComm?'<span class="mt st-pf-comm">수수료 '+pfMoney(c.commission_usd)+'</span>':'')+
+        (showComm?'<span class="mt st-pf-comm">'+t('common.commission')+' '+pfMoney(c.commission_usd)+'</span>':'')+
         '</div>'+
         '<div class="st-pf-hdetail" hidden></div>'+
       '</div>';
@@ -2841,25 +2875,25 @@ document.addEventListener('DOMContentLoaded', function(){
   function pfRenderTrend(d){
     var el=document.getElementById('st-pf-trend');
     var t=d.trend||[];
-    if(!t.length){ el.innerHTML='<div class="st-pf-h">월별 추세</div><div class="st-empty">이 기간엔 추세로 그릴 예약이 없습니다.</div>'; return; }
+    if(!t.length){ el.innerHTML='<div class="st-pf-h">'+window.t('pf.trend.title')+'</div><div class="st-empty">'+window.t('pf.trend.empty')+'</div>'; return; }
     var max=Math.max.apply(null, t.map(function(x){return x.bookings;}))||1;
     var daily = (t[0].key||'').length===10;
-    var bars=t.map(function(x){ var h=Math.round(x.bookings/max*100); return '<div class="bar" style="height:'+h+'%" title="'+x.key+' 예약 '+x.bookings+'"></div>'; }).join('');
-    var labels=t.map(function(x){ var lb = daily ? x.key.slice(8) : (x.key.slice(5)+'월'); return '<span>'+lb+'</span>'; }).join('');
-    el.innerHTML='<div class="st-pf-h" style="margin-bottom:2px">월별 추세 <span style="font-weight:400;opacity:.6;font-size:11px">— 어느 '+(daily?'날':'달')+'이 강했나 (순위표는 어느 채널이 강했나)</span></div>'+
+    var bars=t.map(function(x){ var h=Math.round(x.bookings/max*100); return '<div class="bar" style="height:'+h+'%" title="'+x.key+' '+window.t('common.bookings')+' '+x.bookings+'"></div>'; }).join('');
+    var labels=t.map(function(x){ var lb = daily ? x.key.slice(8) : (x.key.slice(5)+window.t('pf.trend.monthSuffix')); return '<span>'+lb+'</span>'; }).join('');
+    el.innerHTML='<div class="st-pf-h" style="margin-bottom:2px">'+window.t('pf.trend.title')+' <span style="font-weight:400;opacity:.6;font-size:11px">'+(daily?window.t('pf.trend.sub.day'):window.t('pf.trend.sub.month'))+'</span></div>'+
       '<div class="st-pf-bars">'+bars+'</div><div class="st-pf-blabels">'+labels+'</div>'+
-      '<div style="font-size:10px;opacity:.5;margin-top:8px">기간을 바꾸면 여기도 그 기간으로 · 막대=예약 건수</div>';
+      '<div style="font-size:10px;opacity:.5;margin-top:8px">'+window.t('pf.trend.foot')+'</div>';
   }
   function pfRenderAsof(d){
     var el=document.getElementById('st-pf-asof'); if(!el) return;
     var a=(d && d.data_asof)||{};
     if(!a.last_booking){ el.innerHTML=''; return; }
-    el.innerHTML='<span class="st-pf-asof-badge">🕐 예약 데이터: <b>'+a.last_booking+'</b>까지 반영'+(a.last_upload?' · 마지막 아고다 업로드 '+a.last_upload:'')+'</span>';
+    el.innerHTML='<span class="st-pf-asof-badge">'+t('pf.asof.pre')+'<b>'+a.last_booking+'</b>'+t('pf.asof.post')+(a.last_upload?t('pf.asof.upload')+a.last_upload:'')+'</span>';
   }
   function loadPerf(){
     pfRenderPeriods(); pfRenderLens();
     var box=document.getElementById('st-pf-table');
-    box.innerHTML='<div class="st-empty">불러오는 중…</div>';
+    box.innerHTML='<div class="st-empty">'+t('common.loading')+'</div>';
     var qs='?period='+encodeURIComponent(pfState.period);
     if(pfState.period==='custom' && pfState.from && pfState.to){ qs+='&from='+pfState.from+'&to='+pfState.to; }
     if(pfState.compare){ qs+='&compare=1'; }
@@ -2872,14 +2906,14 @@ document.addEventListener('DOMContentLoaded', function(){
         document.getElementById('st-pf-sub').textContent='';
         var showComm = ('commission_usd' in s);
         var cards =
-          pfCardHtml('예약', (s.bookings||0).toLocaleString(), c?pfDeltaEl(s.bookings,c.bookings,false,true):'') +
-          pfCardHtml('확정률', s.confirm_rate!=null?s.confirm_rate+'%':'—', c?pfDeltaEl(s.confirm_rate,c.confirm_rate,true,true):'') +
-          pfCardHtml('취소율', s.cancel_rate!=null?s.cancel_rate+'%':'—', c?pfDeltaEl(s.cancel_rate,c.cancel_rate,true,false):'') +
-          pfCardHtml('예약금액 (호텔이 받은 돈)', pfMoney(s.amount_usd), c?pfDeltaEl(s.amount_usd,c.amount_usd,false,true):'') +
-          pfCardHtml('영상 수', (d.video_count||0), '') +
-          pfCardHtml('조회수', (d.views_total ? d.views_total.toLocaleString() : '<span style="opacity:.4">—</span>'), '') +
-          pfCardHtml('클릭', (d.clicks_total ? d.clicks_total.toLocaleString() : '<span style="opacity:.4">—</span>'), '') +
-          (showComm ? pfCardHtml('🔒 수수료 (대표님만)', pfMoney(s.commission_usd), '', true) : '');
+          pfCardHtml(t('pf.card.bookings'), (s.bookings||0).toLocaleString(), c?pfDeltaEl(s.bookings,c.bookings,false,true):'') +
+          pfCardHtml(t('pf.card.confirmRate'), s.confirm_rate!=null?s.confirm_rate+'%':'—', c?pfDeltaEl(s.confirm_rate,c.confirm_rate,true,true):'') +
+          pfCardHtml(t('pf.card.cancelRate'), s.cancel_rate!=null?s.cancel_rate+'%':'—', c?pfDeltaEl(s.cancel_rate,c.cancel_rate,true,false):'') +
+          pfCardHtml(t('pf.card.amount'), pfMoney(s.amount_usd), c?pfDeltaEl(s.amount_usd,c.amount_usd,false,true):'') +
+          pfCardHtml(t('pf.card.videos'), (d.video_count||0), '') +
+          pfCardHtml(t('pf.card.views'), (d.views_total ? d.views_total.toLocaleString() : '<span style="opacity:.4">—</span>'), '') +
+          pfCardHtml(t('pf.card.clicks'), (d.clicks_total ? d.clicks_total.toLocaleString() : '<span style="opacity:.4">—</span>'), '') +
+          (showComm ? pfCardHtml(t('pf.card.commission'), pfMoney(s.commission_usd), '', true) : '');
         document.getElementById('st-pf-cards').innerHTML=cards;
         pfRenderAsof(d); pfRenderTable(d); pfRenderTrend(d);
       })

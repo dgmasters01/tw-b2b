@@ -1,19 +1,19 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-07-18T08:16:42.415Z",
+  "updated_at": "2026-07-26T10:21:44.000Z",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
-  "head_commit": "13def26",
+  "head_commit": "3da2b4a",
   "sources": [
     "CHANGELOG.md",
     "BACKLOG.md",
     "SOLO_WORK_QUEUE.md"
   ],
   "stats": {
-    "total": 297,
-    "done": 220,
+    "total": 298,
+    "done": 221,
     "in_progress": 5,
     "paused": 0,
     "pending": 45,
@@ -21,9 +21,109 @@
     "autonomous_ready": 37,
     "todo": 7,
     "cancelled": 1,
-    "updated_at": "2026-07-18T08:16:42.415Z"
+    "updated_at": "2026-07-26T10:21:44.000Z"
   },
   "tasks": [
+    {
+      "id": "BL-STUDIO-I18N",
+      "title": "[스튜디오 영문판] 6메뉴 i18n — 한국어 기본·영어 덧붙이기 · 사전방식 + 렌더후 번역계층 · 계정 기본 언어 자동(한국인 ko / 해외 en)",
+      "category": "feature",
+      "priority": "P1",
+      "size": "L",
+      "status": "done",
+      "owner": "claude",
+      "claude_can_auto": true,
+      "approval_required": false,
+      "decision_ref": "D-074",
+      "estimated_hours": 6,
+      "order": 1,
+      "blocker": null,
+      "depends_on": [],
+      "progress": {
+        "percent": 100,
+        "steps": [
+          {
+            "n": 1,
+            "label": "i18n 엔진 + 탭·헤더",
+            "title": "window.STUDIO_I18N 사전 + t() + data-i18n 자동교체 + EN/한국어 토글",
+            "status": "done",
+            "done": true,
+            "at": "2026-07-26T10:21:44.000Z",
+            "commit": "4ac6208566"
+          },
+          {
+            "n": 2,
+            "label": "성과표",
+            "title": "카드·기간·렌즈·정렬·순위표·상세·추세 71곳",
+            "status": "done",
+            "done": true,
+            "at": "2026-07-26T10:21:44.000Z",
+            "commit": "673ae25c"
+          },
+          {
+            "n": 3,
+            "label": "호텔 메뉴",
+            "title": "카드·필터·상태축·계약·노출이력·확인함 150곳 + 나라명 EN 원문",
+            "status": "done",
+            "done": true,
+            "at": "2026-07-26T10:21:44.000Z",
+            "commit": "e1ffb0df"
+          },
+          {
+            "n": 4,
+            "label": "키워드",
+            "title": "렌더 후 번역 계층(STUDIO_PHRASES) 도입 — 영어일 때만 동작",
+            "status": "done",
+            "done": true,
+            "at": "2026-07-26T10:21:44.000Z",
+            "commit": "59a1817a"
+          },
+          {
+            "n": 5,
+            "label": "전략·올리기·채널",
+            "title": "번역 계층 확장 + 제목·파일명·호텔명 번역 제외(NOTR)",
+            "status": "done",
+            "done": true,
+            "at": "2026-07-26T10:21:44.000Z",
+            "commit": "454e59f5"
+          },
+          {
+            "n": 6,
+            "label": "계정 기본 언어",
+            "title": "api/me-lang.js 신설 + admins.lang · 내선택→계정→브라우저말 순서",
+            "status": "done",
+            "done": true,
+            "at": "2026-07-26T10:21:44.000Z",
+            "commit": "ce67b4aa"
+          },
+          {
+            "n": 7,
+            "label": "문서 동기화",
+            "title": "D-074 인덱스·스토리·전문 3곳",
+            "status": "done",
+            "done": true,
+            "at": "2026-07-26T10:21:44.000Z",
+            "commit": "3da2b4ad"
+          }
+        ]
+      },
+      "notes": "사전에 없는 문구는 한국어로 폴백 — 화면이 깨지지 않는다. 번역 계층은 영어일 때만 동작하고, 한국어로 되돌리면 화면을 새로 불러 원상복구한다. 남은 일 = 키워드·전략의 긴 설명 문장을 STUDIO_PHRASES 사전에 채우기(현재 179구문). 화면 코드는 다시 안 건드린다.",
+      "created_at": "2026-07-26T10:21:44.000Z",
+      "updated_at": "2026-07-26T10:21:44.000Z",
+      "completed_at": "2026-07-26T10:21:44.000Z",
+      "source": "claude",
+      "target_pages": [
+        "studio.html",
+        "api/me-lang.js"
+      ],
+      "history": [
+        {
+          "at": "2026-07-26T10:21:44.000Z",
+          "what": "5단계 전부 배포 · 커밋 후 SHA 주소로 문법검증 전건 통과"
+        }
+      ],
+      "started_at": "2026-07-26T10:21:44.000Z"
+    },
     {
       "id": "BL-STATUS-DECISION-WORK-LINK",
       "title": "[admin-status 연계 표시] 최근 결정(DECISIONS) ↔ 영향 작업(tasks) ↔ 완성도(stats) 한 줄 연결 — 새 채팅에서도 '무엇이 정책이고 무슨 순서로 어디까지'를 1초 파악",

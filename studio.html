@@ -683,6 +683,12 @@
   .st-sg-desc { font-size:11px; color:#9db4c9; background:rgba(128,128,128,.05); border:0.5px solid rgba(128,128,128,.2); padding:8px 10px; border-radius:8px; margin-top:8px; line-height:1.6; }
   .st-sg-desc-t { display:inline-block; font-size:9.5px; color:#6a85a0; margin-right:6px; padding:1px 6px; border:0.5px solid rgba(128,128,128,.25); border-radius:5px; vertical-align:1px; }
   .st-sg-desc b { color:#EF9F27; }
+  .st-sg-slot { display:flex; align-items:center; gap:10px; padding:6px 0 5px; border-bottom:0.5px solid rgba(128,128,128,.12); flex-wrap:wrap; margin-top:4px; }
+  .st-sg-slot:last-child { border-bottom:0; }
+  .st-sg-slot-rank { font-size:9.5px; font-weight:600; color:#EF9F27; border:0.5px solid rgba(239,159,39,.4); padding:1px 6px; border-radius:5px; }
+  .st-sg-slot-nm { flex:1; min-width:130px; color:#c5d5e5; }
+  .st-sg-slot-m { font-size:10.5px; color:#9db4c9; white-space:nowrap; }
+  .st-sg-slot-m b { color:#dfe8f0; }
   .st-sg-desc-hint { font-size:9.5px; color:#6a85a0; }
   .st-sg-role { font-size:11px; display:inline-flex; align-items:center; opacity:.9; }
   .st-sg-role.none { color:#BA7517; opacity:1; }
@@ -2150,16 +2156,29 @@
       + (chLabel ? ' · ' + esc(chLabel) : '')
       + (pubdate ? ' · 발행 ' + esc(pubdate) : '');
     var idline = esc(it.code || '') + (chLabel ? ' · ' + esc(chLabel) : '');
-    // 이 영상에 나온 호텔 = TOP1·2·3 (§9-1)
+    // 이 영상에 나온 호텔 = TOP1·2·3, 자리별 클릭·예약·수수료 (성과표 영상별과 동일)
     var hotelLine = '';
-    if (names.length) {
+    var slots = it.slots || [];
+    if (slots.length) {
+      var rows = slots.map(function (s) {
+        var scomm = (s.commission != null) ? ' · 수수료 <b>$' + s.commission + '</b>' : '';
+        return '<div class="st-sg-slot"><span class="st-sg-slot-rank">TOP' + s.rank + '</span>'
+          + '<span class="st-sg-slot-nm">' + esc(s.name || '(호텔)') + '</span>'
+          + '<span class="st-sg-slot-m">클릭 <b style="color:#3FB984">' + (s.clicks || 0) + '</b></span>'
+          + '<span class="st-sg-slot-m">예약 <b>' + (s.bookings || 0) + '</b>' + (s.confirmed ? ' <span style="opacity:.6">(확정 ' + s.confirmed + ')</span>' : '') + '</span>'
+          + scomm + '</div>';
+      }).join('');
+      hotelLine = '<div class="st-sg-desc"><b>이 영상에 나온 호텔</b>' + rows + '</div>';
+    } else if (names.length) {
       var tops = names.slice(0, 3).map(function (n, i) { return '<b>TOP' + (i + 1) + '</b> ' + esc(n); }).join(' · ');
       hotelLine = '<div class="st-sg-desc"><b>이 영상에 나온 호텔</b><br>' + tops + '</div>';
     }
     var cardViews = sgViewNum(pub);
-    var cardClicks = (pub && pub.clicks != null) ? pub.clicks : null;
-    var pubmeta = '<div class="st-sg-desc" style="border-top:0.5px solid rgba(128,128,128,.15);margin-top:10px;padding-top:9px">최종 업로더 <b>' + esc(uploader) + '</b> · 조회 <b>' + (cardViews != null ? cardViews : '연동 후') + '</b> · 클릭 <b>' + (cardClicks != null ? cardClicks : 0) + '</b> · 예약 <b>준비중</b>'
-      + (isOwner ? ' · 수수료 <b>준비중</b>' : '') + '</div>';
+    var cardClicks = (it.clicks != null) ? it.clicks : ((pub && pub.clicks != null) ? pub.clicks : null);
+    var cardBookings = (it.bookings_total != null) ? it.bookings_total : null;
+    var cardComm = (it.commission_total != null) ? it.commission_total : null;
+    var pubmeta = '<div class="st-sg-desc" style="border-top:0.5px solid rgba(128,128,128,.15);margin-top:10px;padding-top:9px">최종 업로더 <b>' + esc(uploader) + '</b> · 조회 <b>' + (cardViews != null ? cardViews : '연동 후') + '</b> · 클릭 <b>' + (cardClicks != null ? cardClicks : 0) + '</b> · 예약 <b>' + (cardBookings != null ? cardBookings : 0) + '</b>'
+      + (isOwner ? ' · 수수료 <b>$' + (cardComm != null ? cardComm : 0) + '</b>' : '') + '</div>';
 
     var _hdrTitle = (it.stage === 'published' && (it.title_final || (it.pub && it.pub.title_final))) || it.title;
     return '<div class="st-sg-card' + (expanded ? ' expanded' : '') + '" data-sgid="' + it.id + '">' +

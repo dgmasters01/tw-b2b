@@ -105,7 +105,7 @@ function previousRange(fromISO, toISO) {
 
 // bookings_agoda 필요 컬럼만 기간 필터로 끌어오기 (range 페이징).
 async function fetchBookings(sb, fromISO, toISO) {
-  const cols = 'channel_code,booking_amount_usd,commission_usd,is_cancelled,is_completed,booked_at,hotel_id';
+  const cols = 'channel_code,booking_amount_usd,commission_usd,is_cancelled,is_completed,booked_at,hotel_id,hotel_id_agoda';
   const size = 1000;
   let all = [], page = 0;
   while (page < 25) {
@@ -296,7 +296,7 @@ export default async function handler(req, res) {
     const { from, to } = periodRange(period, fromQ, toQ);
 
     // 채널 이름 매핑 + 영상(원고) + 노출호텔 + 기간 예약 + 데이터 기준일 병렬
-    const [chRes, pubRes, expRes, bookings, asofBk, asofUp, clkRes] = await Promise.all([
+    const [chRes, pubRes, expRes, bookings, asofBk, asofUp, clkRes, rcodeRes] = await Promise.all([
       sb.from('v_channel_stats').select('channel_code, channel_name, is_active'),
       sb.from('publications')
         .select('id, channel_code, status, published_at, title, youtube_video_id, view_count')
@@ -307,6 +307,7 @@ export default async function handler(req, res) {
       sb.from('bookings_agoda').select('booked_at').not('booked_at', 'is', null).order('booked_at', { ascending: false }).limit(1),
       sb.from('bookings_agoda').select('created_at').order('created_at', { ascending: false }).limit(1),
       sb.from('content_clicks').select('publication_id, channel_code, clicks'),
+      sb.from('content_clicks').select('r_code, publication_id, hid_agoda, rank, channel_code, clicks'),
     ]);
     for (const r of [chRes, pubRes, expRes]) if (r.error) throw r.error;
 
@@ -359,18 +360,59 @@ export default async function handler(req, res) {
       }
     }
 
-    // 영상별 (연동 후 예약 귀속 · 지금은 노출 호텔만)
+    // 영상별: 자리(TOP1/2/3)마다 클릭·예약·수수료. 예약은 호텔(hid)×채널로 귀속.
+    //   조회는 유튜브가 영상 단위라 자리별로 못 나눔 → 영상 합계에만.
     const expByPub = {};
     for (const e of (expRes.data || [])) {
       (expByPub[e.publication_id] = expByPub[e.publication_id] || []).push({ rank: e.rank, name: e.name_in_script, hid: e.hid });
     }
-    const videos = (pubRes.data || []).map(p => ({
-      id: p.id, title: p.title, channel_code: p.channel_code, status: p.status,
-      published_at: p.published_at, published: !!p.youtube_video_id,
-      hotels: (expByPub[p.id] || []).sort((a, b) => (a.rank || 9) - (b.rank || 9)),
-      clicks: clkByPub[p.id] || 0,
-      views: p.view_count != null ? p.view_count : null,
-    }));
+    // R코드 = 자리별 클릭
+    const rcByPubRank = {};   // publication_id:rank → {clicks, r_code}
+    for (const rc of (rcodeRes && rcodeRes.data ? rcodeRes.data : [])) {
+      rcByPubRank[rc.publication_id + ':' + rc.rank] = { clicks: Number(rc.clicks) || 0, r_code: rc.r_code, hid: rc.hid_agoda };
+    }
+    // 예약 귀속: (hid + channel_code) → {bookings, confirmed, cancelled, amount, commission}
+    const bkByHidCh = {};
+    for (const b of (bookings || [])) {
+      const key = String(b.hotel_id_agoda != null ? b.hotel_id_agoda : b.hid_agoda) + ':' + (b.channel_code || '');
+      const o = bkByHidCh[key] || (bkByHidCh[key] = { bookings: 0, confirmed: 0, cancelled: 0, amount: 0, commission: 0 });
+      o.bookings++;
+      if (b.is_completed) o.confirmed++;
+      if (b.is_cancelled) o.cancelled++;
+      o.amount += Number(b.booking_amount_usd) || 0;
+      o.commission += Number(b.commission_usd) || 0;
+    }
+    const videos = (pubRes.data || []).map(p => {
+      const slots = (expByPub[p.id] || []).sort((a, b) => (a.rank || 9) - (b.rank || 9)).map(s => {
+        const rc = rcByPubRank[p.id + ':' + s.rank] || {};
+        const bk = bkByHidCh[String(s.hid) + ':' + (p.channel_code || '')] || null;
+        return {
+          rank: s.rank, name: s.name, hid: s.hid, r_code: rc.r_code || null,
+          clicks: rc.clicks || 0,
+          bookings: bk ? bk.bookings : 0,
+          confirmed: bk ? bk.confirmed : 0,
+          cancelled: bk ? bk.cancelled : 0,
+          amount: bk ? Math.round(bk.amount) : 0,
+          commission: withComm && bk ? Math.round(bk.commission) : null,
+        };
+      });
+      const sum = slots.reduce((a, s) => ({
+        clicks: a.clicks + (s.clicks || 0),
+        bookings: a.bookings + (s.bookings || 0),
+        commission: a.commission + (s.commission || 0),
+        amount: a.amount + (s.amount || 0),
+      }), { clicks: 0, bookings: 0, commission: 0, amount: 0 });
+      return {
+        id: p.id, title: p.title, channel_code: p.channel_code, status: p.status,
+        published_at: p.published_at, published: !!p.youtube_video_id,
+        hotels: slots,
+        views: p.view_count != null ? p.view_count : null,
+        clicks: clkByPub[p.id] || sum.clicks,
+        bookings: sum.bookings,
+        amount: sum.amount,
+        commission: withComm ? sum.commission : null,
+      };
+    });
 
     res.setHeader('Cache-Control', 'private, no-store, max-age=0');
     const __perfPayload = {

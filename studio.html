@@ -2162,11 +2162,8 @@
       + (isOwner ? ' · 수수료 <b>준비중</b>' : '') + '</div>';
 
     var _hdrTitle = (it.stage === 'published' && (it.title_final || (it.pub && it.pub.title_final))) || it.title;
-    var _recNote = (it.stage === 'published' && (it.title_final || (it.pub && it.pub.title_final)) && (it.title_final || it.pub.title_final) !== it.title)
-      ? '<div class="st-sg-finaltitle" style="color:var(--muted);font-size:11px;margin:3px 0 0">추천 제목: ' + esc(it.title) + '</div>' : '';
     return '<div class="st-sg-card' + (expanded ? ' expanded' : '') + '" data-sgid="' + it.id + '">' +
       '<div class="st-sg-head" data-sgtoggle="' + it.id + '"><span class="st-sg-title">' + esc(_hdrTitle) + '</span><span class="st-sg-headmeta">' + badges + '</span><span class="st-sg-caret"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span></div>' +
-      _recNote +
       '<div class="st-sg-submeta">' + submeta + '</div>' +
       '<div class="st-sg-body">' +
         '<div class="st-sg-code">' + idline + '</div>' +

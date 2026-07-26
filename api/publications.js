@@ -143,6 +143,13 @@ export default async function handler(req, res) {
     if (req.query?.status) qb = qb.eq('status', req.query.status);
     const { data, error } = await qb;
     if (error) return res.status(500).json({ ok: false, error: error.message });
+    // 각 발행물의 클릭 합계(R코드) 붙이기 — 전략·발행됨 카드에서 조회 옆에 표시
+    try {
+      const { data: ccs } = await sb.from('content_clicks').select('publication_id, clicks');
+      const clkMap = {};
+      for (const c of (ccs || [])) clkMap[c.publication_id] = (clkMap[c.publication_id] || 0) + (Number(c.clicks) || 0);
+      for (const row of (data || [])) row.clicks = clkMap[row.id] || 0;
+    } catch { /* 클릭 없으면 생략 */ }
     const _pOut = { ok: true, rows: data, count: data.length, me: auth.email || null, is_admin: !!auth.isAdmin, is_owner: !!auth.isOwner, role: auth.role || 'editor' };
     await cacheSet(sb, _pKey, _pOut);
     return res.status(200).json(_pOut);

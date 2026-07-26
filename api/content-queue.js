@@ -131,14 +131,27 @@ export default async function handler(req, res) {
     // 지금은 코드 든 정상 발행 원고가 없어 아무 카드에도 안 붙음(화면 변화 0) — 원고 유입 시 자동 점등.
     try {
       const { data: pubs } = await sb.from('v_queue_publications')
-        .select('queue_id, channel_code, cid, pub_status, pub_title, youtube_url, youtube_video_id, published_at, scheduled_at, hid_top1, hid_top2, hid_top3, hotel_names, published_by_email, uploader_email, pub_source, source_filename, manuscript_text, view_count, like_count, comment_count, view_count_at')
+        .select('queue_id, pub_id, channel_code, cid, pub_status, pub_title, youtube_url, youtube_video_id, published_at, scheduled_at, hid_top1, hid_top2, hid_top3, hotel_names, published_by_email, uploader_email, pub_source, source_filename, manuscript_text, view_count, like_count, comment_count, view_count_at')
         .not('pub_id', 'is', null);
       const byQ = {};
       (pubs || []).forEach(function (p) { byQ[p.queue_id] = p; });
+      // 실제 올린 제목(title_final)은 뷰에 없어 publications에서 pub_id로 직접 조회
+      let finalTitleByQ = {};
+      try {
+        const pubIds = (pubs || []).map(function (p) { return p.pub_id; }).filter(Boolean);
+        if (pubIds.length) {
+          const { data: fts } = await sb.from('publications').select('id, title_final').in('id', pubIds).not('title_final', 'is', null);
+          const ftById = {};
+          (fts || []).forEach(function (r) { ftById[r.id] = r.title_final; });
+          (pubs || []).forEach(function (p) { if (ftById[p.pub_id]) finalTitleByQ[p.queue_id] = ftById[p.pub_id]; });
+        }
+      } catch { /* title_final 없으면 생략 */ }
       items.forEach(function (it) {
         const p = byQ[it.id];
+        if (finalTitleByQ[it.id]) it.title_final = finalTitleByQ[it.id];
         if (p) it.pub = {
           channel_code: p.channel_code, cid: p.cid, status: p.pub_status, title: p.pub_title,
+          title_final: finalTitleByQ[it.id] || null,
           youtube_url: p.youtube_url, youtube_video_id: p.youtube_video_id,
           published_at: p.published_at, scheduled_at: p.scheduled_at,
           hid_top1: p.hid_top1, hid_top2: p.hid_top2, hid_top3: p.hid_top3,

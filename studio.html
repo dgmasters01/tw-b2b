@@ -2161,8 +2161,12 @@
     var pubmeta = '<div class="st-sg-desc" style="border-top:0.5px solid rgba(128,128,128,.15);margin-top:10px;padding-top:9px">최종 업로더 <b>' + esc(uploader) + '</b> · 조회 <b>' + (cardViews != null ? cardViews : '연동 후') + '</b> · 클릭 <b>' + (cardClicks != null ? cardClicks : 0) + '</b> · 예약 <b>준비중</b>'
       + (isOwner ? ' · 수수료 <b>준비중</b>' : '') + '</div>';
 
+    var _hdrTitle = (it.stage === 'published' && (it.title_final || (it.pub && it.pub.title_final))) || it.title;
+    var _recNote = (it.stage === 'published' && (it.title_final || (it.pub && it.pub.title_final)) && (it.title_final || it.pub.title_final) !== it.title)
+      ? '<div class="st-sg-finaltitle" style="color:var(--muted);font-size:11px;margin:3px 0 0">추천 제목: ' + esc(it.title) + '</div>' : '';
     return '<div class="st-sg-card' + (expanded ? ' expanded' : '') + '" data-sgid="' + it.id + '">' +
-      '<div class="st-sg-head" data-sgtoggle="' + it.id + '"><span class="st-sg-title">' + esc(it.title) + '</span><span class="st-sg-headmeta">' + badges + '</span><span class="st-sg-caret"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span></div>' +
+      '<div class="st-sg-head" data-sgtoggle="' + it.id + '"><span class="st-sg-title">' + esc(_hdrTitle) + '</span><span class="st-sg-headmeta">' + badges + '</span><span class="st-sg-caret"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span></div>' +
+      _recNote +
       '<div class="st-sg-submeta">' + submeta + '</div>' +
       '<div class="st-sg-body">' +
         '<div class="st-sg-code">' + idline + '</div>' +
@@ -2666,7 +2670,7 @@
         var chip=v.channel_code?'<span class="st-ch-chip">'+esc(chName(v.channel_code))+'</span>':'';
         var comm=(v.commission!=null)?' · 수수료 <b style="color:#3FB984">$'+v.commission+'</b>':'';
         var rowHead='<div class="st-pf-row st-vrow" data-vi="'+i+'"><span class="rk">'+(i+1)+'</span>'+
-          '<span class="nm">'+esc(v.title_final||v.title||'(제목 없음)')+' '+chip+(v.title_final&&v.title_final!==v.title?'<span style="font-size:11px;color:var(--muted);font-weight:400"> · 추천 '+esc(v.title)+'</span>':'')+'</span>'+
+          '<span class="nm">'+esc(v.title_final||v.title||'(제목 없음)')+' '+chip+'</span>'+
           '<span class="mt">조회 <b>'+(v.views!=null?v.views.toLocaleString():'—')+'</b></span>'+
           '<span class="mt">클릭 <b style="color:#3FB984">'+(v.clicks||0)+'</b></span>'+
           '<span class="mt">예약 <b>'+(v.bookings||0)+'</b></span>'+comm+

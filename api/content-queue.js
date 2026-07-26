@@ -148,8 +148,9 @@ export default async function handler(req, res) {
       } catch { /* title_final 없으면 생략 */ }
 
       // ── 자리별(TOP1/2/3) 클릭·예약·수수료 — 성과표 영상별과 동일 방식 ──
+      //   ⚠️ 예약·수수료는 «발행일 이후»만 센다 (이 영상이 만든 성과만). 발행 전 예약은 이 콘텐츠 덕이 아니다.
       let rcByPubRank = {};   // pub_id:rank → {clicks, r_code, hid}
-      let bkByHidCh = {};     // hid:channel → {bookings, confirmed, cancelled, commission}
+      let bkByHid = {};       // hid → [ {channel, booked_at, is_completed, is_cancelled, commission} ]  (발행일 필터는 slot에서)
       let isOwnerQ = false;
       try {
         isOwnerQ = !!(auth && (auth.isOwner || auth.isAdmin));
@@ -160,24 +161,39 @@ export default async function handler(req, res) {
           (rcs || []).forEach(function (c) {
             rcByPubRank[c.publication_id + ':' + c.rank] = { clicks: Number(c.clicks) || 0, r_code: c.r_code, hid: c.hid_agoda };
           });
-          // 이 발행물들에 등장하는 호텔의 예약을 hid×채널로 집계
           const hids = [];
           (pubs || []).forEach(function (p) { [p.hid_top1, p.hid_top2, p.hid_top3].forEach(function (h) { if (h) hids.push(String(h)); }); });
           if (hids.length) {
             const { data: bks } = await sb.from('bookings_agoda')
-              .select('hotel_id_agoda, channel_code, is_completed, is_cancelled, commission_usd')
+              .select('hotel_id_agoda, channel_code, is_completed, is_cancelled, commission_usd, booked_at')
               .in('hotel_id_agoda', hids);
             (bks || []).forEach(function (b) {
-              const key = String(b.hotel_id_agoda) + ':' + (b.channel_code || '');
-              const o = bkByHidCh[key] || (bkByHidCh[key] = { bookings: 0, confirmed: 0, cancelled: 0, commission: 0 });
-              o.bookings++;
-              if (b.is_completed) o.confirmed++;
-              if (b.is_cancelled) o.cancelled++;
-              o.commission += Number(b.commission_usd) || 0;
+              const h = String(b.hotel_id_agoda);
+              (bkByHid[h] = bkByHid[h] || []).push({
+                channel: b.channel_code || '', booked_at: b.booked_at,
+                is_completed: b.is_completed, is_cancelled: b.is_cancelled,
+                commission: Number(b.commission_usd) || 0,
+              });
             });
           }
         }
       } catch { /* 자리별 통계 실패해도 카드는 정상 */ }
+
+      // 발행일 이후 예약만 hid×채널로 집계
+      function bkFor(hid, channel, sinceISO) {
+        const arr = bkByHid[String(hid)] || [];
+        const o = { bookings: 0, confirmed: 0, cancelled: 0, commission: 0 };
+        const since = sinceISO ? new Date(sinceISO) : null;
+        for (const b of arr) {
+          if (channel && b.channel !== channel) continue;
+          if (since && (!b.booked_at || new Date(b.booked_at) < since)) continue;   // 발행 전 예약 제외
+          o.bookings++;
+          if (b.is_completed) o.confirmed++;
+          if (b.is_cancelled) o.cancelled++;
+          o.commission += b.commission;
+        }
+        return o;
+      }
 
       items.forEach(function (it) {
         const p = byQ[it.id];
@@ -186,17 +202,18 @@ export default async function handler(req, res) {
           // 자리별 slots 구성 (TOP1/2/3)
           const names = Array.isArray(p.hotel_names) ? p.hotel_names : String(p.hotel_names || '').split('|').map(function (s) { return s.trim(); });
           const slots = [];
+          const sinceISO = p.published_at || null;   // 이 영상 발행일 — 이후 예약만 이 콘텐츠 성과
           [[1, p.hid_top1], [2, p.hid_top2], [3, p.hid_top3]].forEach(function (pair) {
             const rank = pair[0], hid = pair[1];
             if (!hid) return;
             const rc = rcByPubRank[p.pub_id + ':' + rank] || {};
-            const bk = bkByHidCh[String(hid) + ':' + (p.channel_code || '')] || null;
+            const bk = bkFor(hid, p.channel_code || '', sinceISO);
             slots.push({
               rank: rank, hid: hid, name: names[rank - 1] || null, r_code: rc.r_code || null,
               clicks: rc.clicks || 0,
-              bookings: bk ? bk.bookings : 0,
-              confirmed: bk ? bk.confirmed : 0,
-              commission: isOwnerQ ? (bk ? Math.round(bk.commission) : 0) : null,
+              bookings: bk.bookings,
+              confirmed: bk.confirmed,
+              commission: isOwnerQ ? Math.round(bk.commission) : null,
             });
           });
           const sumC = slots.reduce(function (a, s) { return a + (s.clicks || 0); }, 0);

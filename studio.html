@@ -1020,7 +1020,7 @@
   </div>
   <section class="st-view" id="view-keyword">
     <div class="st-head">
-      <div><div class="st-h">키워드</div><div class="st-sub" id="st-kw-sub">한국어 · 한국 · 나라 → 도시 → 지역 → 지역 상세</div></div>
+      <div><div class="st-h" data-i18n="nav.keyword">키워드</div><div class="st-sub" id="st-kw-sub">한국어 · 한국 · 나라 → 도시 → 지역 → 지역 상세</div></div>
     </div>
     <!-- ⟦확정본 HTML 시작⟧ -->
 <div id="kw-app">
@@ -1217,6 +1217,178 @@ window.STUDIO_I18N = {
   }
 };
 
+
+/* ═════ 화면 후반역(키워드처럼 문장이 많은 메뉴용) ═════
+   원칙: **영어일 때만** 동작한다. 한국어 화면은 손도 안 대어 기존 기능이 절대 안 깨진다.
+   렌더된 글자만 바꾸므로 화면 코드(500개 문자열)를 손대지 않는다. */
+window.STUDIO_PHRASES = {
+  '펼쳐 보기':'Expand',
+  '호텔 목록':'Hotel list',
+  '매출 순위':'Revenue ranking',
+  '콘텐츠 추천':'Content suggestions',
+  '성급 분포':'Star mix',
+  '예약 패턴':'Booking pattern',
+  '재사용':'Reuse',
+  '유료 계약':'Paid contract',
+  '인기도':'Popularity',
+  '인기':'Popular',
+  '주의':'Caution',
+  '지도':'Map',
+  '삭제':'Delete',
+  '이 도시':'this city',
+  '이 지역':'this district',
+  '대표님':'Owner',
+  '아직못쓀':'Not yet usable',
+  '곳 가능':'Available soon',
+  '지금가능':'Usable now',
+  '노출 이력':'Exposure history',
+  '노출 설정 — 어디를 · 누구에게 · 언제':'Exposure plan — where, to whom, when',
+  '나라·도시·지역 검색 — 조사 안 된 곳도':'Search country / city / district — including unresearched',
+  '타겟 검색 (언어·시장)':'Search target (language / market)',
+  '타겟 (언어 + 시장)':'Target (language + market)',
+  '타겟 불러오는 중…':'Loading targets…',
+  '오늘부터 12개월 (매달 자동으로 밀림) — 달을 눌러 바꾸세요':'12 months from today (rolls forward automatically) — tap a month to change',
+  '계절이 먼저입니다 — 놓친 계절은 1년을 기다립니다':'Season comes first — a missed season means waiting a year',
+  '달을 안 눌러도 보입니다 — 놓친 계절은 1년을 기다립니다.':'Shown even without tapping a month — a missed season means waiting a year.',
+  '선행 준비 — 3달 미리':'Lead prep — 3 months ahead',
+  '여러 나라 가로질러 · 착수 = 노출 − 3달':'Across countries · start = exposure − 3 months',
+  '트렌드 1회 묶음 조회 · ':'One batched trend call · ',
+  '앵커 기법으로 같은 잣대':'same yardstick via anchor method',
+  '앵커 기법':'anchor method',
+  '계절을 잰 도시가 아직 없습니다 — 조사가 쌓이면 여기에 뜼니다.':'No city has a measured season yet — they appear here as research accumulates.',
+  '계절을 모르니 언제 착수할지 말할 수 없습니다. 조사부터 해야 합니다.':'Without the season we cannot say when to start. Research comes first.',
+  '아직 조사 안 했습니다.':'Not researched yet.',
+  '측정 한계 아래 — 없는 게 아니라 못 잽니다':'Below the measurement floor — not absent, just unmeasurable',
+  '측정 한계 아래':'below the measurement floor',
+  '없는 게 아니라 우리가 못 잼':'not absent — we simply cannot measure it',
+  '저장 안 함':'not stored',
+  '조사 예약됨':'Research queued',
+  '조사 기록 없음':'No research record',
+  '조사 완료':'Research done',
+  '조사 시작':'Start research',
+  '조사 없음':'No research',
+  '조사 안 된':'unresearched',
+  '조사하기':'Research',
+  '조사됨':'Researched',
+  '다음 조사':'next research',
+  '마지막 조사':'Last research',
+  '조사된 도시':'Researched cities',
+  '지금 착수':'Start now',
+  '착수 지남':'Start passed',
+  '곧 늦음':'Late soon',
+  '여유':'Comfortable',
+  '노출 월':'Exposure month',
+  '나라 순위':'Country ranking',
+  '도시 상세':'City detail',
+  '지역 상세':'District detail',
+  '도시 목록':'City list',
+  '우선순위':'Priority',
+  '미개척':'Untapped',
+  '검색어':'Search terms',
+  '검색량':'Search volume',
+  '기회점수':'Opportunity score',
+  '경쟁':'Competition',
+  '기회':'Opportunity',
+  '수요':'Demand',
+  '앵커':'Anchor',
+  '트렌드':'Trend',
+  '피크':'Peak',
+  '계절':'Season',
+  '상위':'Top',
+  '평균':'Avg',
+  '예약순':'by bookings',
+  '확정 예약':'Confirmed bookings',
+  '장부':'ledger',
+  '성급별':'by star rating',
+  '더보기 ▾':'Show more ▾',
+  '펼쳐 보기 ▾':'Expand ▾',
+  '접기 ▴':'Collapse ▴',
+  '새로 넣음':'Newly added',
+  '새로 완성됨':'Newly completed',
+  '새로 생긴':'Newly appeared',
+  '사라진 검색어':'Disappeared terms',
+  '확인하세요':'Please check',
+  '전략에 있음':'In strategy',
+  '전략으로':'To strategy',
+  '전략 메뉴':'Strategy menu',
+  '호텔 메뉴':'Hotels menu',
+  '채널 메뉴':'Channels menu',
+  '발행함':'Published',
+  '기획자':'Planner',
+  '기획 대기':'Planning queue',
+  '보러가기 →':'Go →',
+  '불러오는 중…':'Loading…',
+  '불러오지 못했습니다':'Could not load',
+  '예약':'Bookings',
+  '확정':'Confirmed',
+  '취소':'Cancelled',
+  '노출':'Exposure',
+  '착수':'Start',
+  '조사':'Research',
+  '타겟':'Target',
+  '나라':'Country',
+  '도시':'City',
+  '지역':'District',
+  '상세':'detail',
+  '전체':'All',
+  '없음':'none',
+  '언어':'Language',
+  '시장':'Market',
+  '한국어':'Korean',
+  '한국':'Korea',
+  '일본어':'Japanese',
+  '일본':'Japan',
+  '영어':'English',
+  '중국어':'Chinese',
+  '베트남어':'Vietnamese'
+};
+(function(){
+  var TERMS=null;
+  function terms(){
+    if(!TERMS) TERMS=Object.keys(window.STUDIO_PHRASES).sort(function(a,b){return b.length-a.length;});
+    return TERMS;
+  }
+  window.stTrText=function(txt){
+    var T=terms(), out=txt;
+    for(var i=0;i<T.length;i++){ if(out.indexOf(T[i])>=0) out=out.split(T[i]).join(window.STUDIO_PHRASES[T[i]]); }
+    return out;
+  };
+  var SKIP={SCRIPT:1,STYLE:1,TEXTAREA:1,INPUT:1,SELECT:1,OPTION:1};
+  window.stTrNode=function(root){
+    if(window.stLang!=='en'||!root) return;
+    var hit=false;
+    try{
+      var w=document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null, false), nd, list=[];
+      while((nd=w.nextNode())){
+        if(nd.parentNode && SKIP[nd.parentNode.nodeName]) continue;
+        if(/[\uac00-\ud7a3]/.test(nd.nodeValue)) list.push(nd);
+      }
+      list.forEach(function(x){ var v=window.stTrText(x.nodeValue); if(v!==x.nodeValue){ x.nodeValue=v; hit=true; } });
+      root.querySelectorAll('[placeholder],[title]').forEach(function(el){
+        ['placeholder','title'].forEach(function(a){
+          var v=el.getAttribute(a);
+          if(v && /[\uac00-\ud7a3]/.test(v)){ var t2=window.stTrText(v); if(t2!==v){ el.setAttribute(a,t2); hit=true; } }
+        });
+      });
+    }catch(e){}
+    if(hit) window.stTrDirty=true;
+  };
+  function watch(id){
+    var el=document.getElementById(id); if(!el) return;
+    var busy=false;
+    var mo=new MutationObserver(function(){
+      if(busy||window.stLang!=='en') return;
+      busy=true; mo.disconnect();
+      window.stTrNode(el);
+      mo.observe(el,{childList:true,subtree:true,characterData:true});
+      busy=false;
+    });
+    mo.observe(el,{childList:true,subtree:true,characterData:true});
+    window.stTrNode(el);
+  }
+  document.addEventListener('DOMContentLoaded', function(){ watch('kw-app'); });
+})();
+
 window.stLang = (window.TW && window.TW.lang) || localStorage.getItem('tw-lang') || 'ko';
 function t(key, fallback){
   var d = window.STUDIO_I18N[window.stLang] || window.STUDIO_I18N.ko;
@@ -1246,12 +1418,15 @@ function applyI18n(){
 }
 window.applyI18n = applyI18n;
 window.stSwitchLang = function(l){
+  var back = (l === 'ko' && window.stLang === 'en' && window.stTrDirty);
   window.stLang = l;
   localStorage.setItem('tw-lang', l);
   if (window.TW) window.TW.lang = l;
+  if (back) { location.reload(); return; }
   applyI18n();
   try { if (typeof render === 'function') render(); } catch(e){}
   try { if (typeof rerenderActiveTab === 'function') rerenderActiveTab(); } catch(e){}
+  try { if (l === 'en') window.stTrNode(document.getElementById('kw-app')); } catch(e){}
 };
 document.addEventListener('DOMContentLoaded', function(){
   var ko=document.getElementById('st-lang-ko'), en=document.getElementById('st-lang-en');

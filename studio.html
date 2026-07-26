@@ -1251,10 +1251,12 @@
     if (p.created_at) sub += '<span>등록 ' + esc(p.created_at.slice(0, 10)) + '</span>';
     if (p.is_duplicate) sub += '<span class="st-dupflag">중복</span>';
 
+    var finalT = (p.status === 'published' && p.title_final && p.title_final !== p.title) ? p.title_final : '';
     return '<div class="st-lrow' + (open ? ' open' : '') + '" data-lrow="' + p.id + '">' +
       '<div class="st-lhead" data-toggle="' + p.id + '">' +
         '<span class="st-lchev">▶</span>' +
         '<div class="st-lmain"><div class="st-ltitle">' + esc(title) + '</div>' +
+          (finalT ? '<div class="st-sg-finaltitle" style="margin:3px 0 0">▶ ' + esc(finalT) + '</div>' : '') +
           '<div class="st-lsub">' + sub + '</div></div>' +
         '<div class="st-lstate"><span class="st-sbadge ' + st.cls + '">' + esc(st.label) + '</span></div>' +
       '</div>' +
@@ -1291,7 +1293,15 @@
 
     if (showCopies) {
       // 복사 4개 + 번호 (챕터·해시태그·링크는 설명란 안에 이미 포함 → 따로 복사 안 함)
-      if (p.title)       { payload['ti' + id] = p.title;         h += copyRow('①', '제목', p.title, 'ti' + id); }
+      // ① 제목: 실제 올린 제목(title_final)이 있으면 그걸 복사하게 한다. 없으면 추천 제목.
+      if (p.title_final && p.title_final !== p.title) {
+        payload['ti' + id] = p.title_final;
+        h += copyRow('①', '제목 (실제)', p.title_final, 'ti' + id);
+        h += '<div class="st-pub-rec" style="margin:-2px 0 6px 30px;font-size:11px;color:var(--muted)">추천 제목: ' + esc(p.title) + '</div>';
+      } else if (p.title) {
+        payload['ti' + id] = p.title;
+        h += copyRow('①', '제목', p.title, 'ti' + id);
+      }
       if (p.title_alt && p.title_alt !== p.title) { payload['ta' + id] = p.title_alt; h += copyRow('①-2', '제목 2안', p.title_alt, 'ta' + id); }
       if (p.description) { payload['de' + id] = p.description;   h += copyRow('②', '설명란', '아고다 링크·챕터·해시태그 포함 · ' + p.description.split('\n').length + '줄', 'de' + id); }
       if (p.keywords)    { payload['kw' + id] = p.keywords;      var kl = p.keyword_length || p.keywords.length; h += copyRow('③', '태그', kl + ' / 500자' + (kl > 500 ? ' · 초과!' : ''), 'kw' + id); }

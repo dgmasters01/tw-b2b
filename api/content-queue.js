@@ -146,10 +146,67 @@ export default async function handler(req, res) {
           (pubs || []).forEach(function (p) { if (ftById[p.pub_id]) finalTitleByQ[p.queue_id] = ftById[p.pub_id]; });
         }
       } catch { /* title_final 없으면 생략 */ }
+
+      // ── 자리별(TOP1/2/3) 클릭·예약·수수료 — 성과표 영상별과 동일 방식 ──
+      let rcByPubRank = {};   // pub_id:rank → {clicks, r_code, hid}
+      let bkByHidCh = {};     // hid:channel → {bookings, confirmed, cancelled, commission}
+      let isOwnerQ = false;
+      try {
+        isOwnerQ = !!(auth && (auth.isOwner || auth.isAdmin));
+        const pubIds2 = (pubs || []).map(function (p) { return p.pub_id; }).filter(Boolean);
+        if (pubIds2.length) {
+          const { data: rcs } = await sb.from('content_clicks')
+            .select('r_code, publication_id, hid_agoda, rank, channel_code, clicks').in('publication_id', pubIds2);
+          (rcs || []).forEach(function (c) {
+            rcByPubRank[c.publication_id + ':' + c.rank] = { clicks: Number(c.clicks) || 0, r_code: c.r_code, hid: c.hid_agoda };
+          });
+          // 이 발행물들에 등장하는 호텔의 예약을 hid×채널로 집계
+          const hids = [];
+          (pubs || []).forEach(function (p) { [p.hid_top1, p.hid_top2, p.hid_top3].forEach(function (h) { if (h) hids.push(String(h)); }); });
+          if (hids.length) {
+            const { data: bks } = await sb.from('bookings_agoda')
+              .select('hotel_id_agoda, channel_code, is_completed, is_cancelled, commission_usd')
+              .in('hotel_id_agoda', hids);
+            (bks || []).forEach(function (b) {
+              const key = String(b.hotel_id_agoda) + ':' + (b.channel_code || '');
+              const o = bkByHidCh[key] || (bkByHidCh[key] = { bookings: 0, confirmed: 0, cancelled: 0, commission: 0 });
+              o.bookings++;
+              if (b.is_completed) o.confirmed++;
+              if (b.is_cancelled) o.cancelled++;
+              o.commission += Number(b.commission_usd) || 0;
+            });
+          }
+        }
+      } catch { /* 자리별 통계 실패해도 카드는 정상 */ }
+
       items.forEach(function (it) {
         const p = byQ[it.id];
         if (finalTitleByQ[it.id]) it.title_final = finalTitleByQ[it.id];
-        if (p) it.pub = {
+        if (p) {
+          // 자리별 slots 구성 (TOP1/2/3)
+          const names = Array.isArray(p.hotel_names) ? p.hotel_names : String(p.hotel_names || '').split('|').map(function (s) { return s.trim(); });
+          const slots = [];
+          [[1, p.hid_top1], [2, p.hid_top2], [3, p.hid_top3]].forEach(function (pair) {
+            const rank = pair[0], hid = pair[1];
+            if (!hid) return;
+            const rc = rcByPubRank[p.pub_id + ':' + rank] || {};
+            const bk = bkByHidCh[String(hid) + ':' + (p.channel_code || '')] || null;
+            slots.push({
+              rank: rank, hid: hid, name: names[rank - 1] || null, r_code: rc.r_code || null,
+              clicks: rc.clicks || 0,
+              bookings: bk ? bk.bookings : 0,
+              confirmed: bk ? bk.confirmed : 0,
+              commission: isOwnerQ ? (bk ? Math.round(bk.commission) : 0) : null,
+            });
+          });
+          const sumC = slots.reduce(function (a, s) { return a + (s.clicks || 0); }, 0);
+          const sumB = slots.reduce(function (a, s) { return a + (s.bookings || 0); }, 0);
+          const sumComm = slots.reduce(function (a, s) { return a + (s.commission || 0); }, 0);
+          it.slots = slots;
+          it.clicks = sumC;
+          it.bookings_total = sumB;
+          it.commission_total = isOwnerQ ? sumComm : null;
+          it.pub = {
           channel_code: p.channel_code, cid: p.cid, status: p.pub_status, title: p.pub_title,
           title_final: finalTitleByQ[it.id] || null,
           youtube_url: p.youtube_url, youtube_video_id: p.youtube_video_id,
@@ -157,8 +214,10 @@ export default async function handler(req, res) {
           hid_top1: p.hid_top1, hid_top2: p.hid_top2, hid_top3: p.hid_top3,
           hotel_names: p.hotel_names, published_by_email: p.published_by_email,
           uploader_email: p.uploader_email, source: p.pub_source, source_filename: p.source_filename, manuscript_text: p.manuscript_text,
-          view_count: p.view_count, like_count: p.like_count, comment_count: p.comment_count, view_count_at: p.view_count_at
+          view_count: p.view_count, like_count: p.like_count, comment_count: p.comment_count, view_count_at: p.view_count_at,
+          clicks: sumC, slots: slots
         };
+        }
       });
     } catch (e) { /* 오버레이 실패해도 카드는 정상 표시 */ }
 

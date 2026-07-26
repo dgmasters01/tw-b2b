@@ -1462,7 +1462,22 @@ window.STUDIO_PHRASES = {
   document.addEventListener('DOMContentLoaded', function(){ window.stWatchIds.forEach(watch); });
 })();
 
-window.stLang = (window.TW && window.TW.lang) || localStorage.getItem('tw-lang') || 'ko';
+/* 언어 결정 순서 (D-i18n 5단계 · 2026-07-26)
+   ① 이 기기에서 내가 고른 말(localStorage 'tw-lang')
+   ② 계정 기본 말(admins.lang — 뒤늦게 도착하면 그때 반영)
+   ③ 브라우저 말 — 한국어 브라우저면 ko, 그 외는 en
+   ④ 모르면 한국어
+   ⚠ shared.js 가 window.TW.lang 을 'en' 으로 미리 박아둔다(B2B 사이트는 영어 기본).
+     그걸 그대로 믿으면 한국 직원도 영어로 열린다 — 그래서 저장된 값만 쓴다. */
+function stBrowserLang(){
+  try {
+    var ls = (navigator.languages && navigator.languages.length) ? navigator.languages : [navigator.language || ''];
+    for (var i=0;i<ls.length;i++){ if (String(ls[i]).toLowerCase().indexOf('ko')===0) return 'ko'; }
+    return 'en';
+  } catch(e){ return 'ko'; }
+}
+window.stLang = localStorage.getItem('tw-lang') || stBrowserLang() || 'ko';
+if (window.TW) window.TW.lang = window.stLang;
 function t(key, fallback){
   var d = window.STUDIO_I18N[window.stLang] || window.STUDIO_I18N.ko;
   if (d && d[key] != null) return d[key];
@@ -1492,6 +1507,7 @@ function applyI18n(){
 window.applyI18n = applyI18n;
 window.stSwitchLang = function(l){
   var back = (l === 'ko' && window.stLang === 'en' && window.stTrDirty);
+  try { window.stSaveAccountLang(l); } catch(e){}
   window.stLang = l;
   localStorage.setItem('tw-lang', l);
   if (window.TW) window.TW.lang = l;
@@ -1501,11 +1517,33 @@ window.stSwitchLang = function(l){
   try { if (typeof rerenderActiveTab === 'function') rerenderActiveTab(); } catch(e){}
   try { if (l === 'en') (window.stWatchIds||[]).forEach(function(id){ window.stTrNode(document.getElementById(id)); }); } catch(e){}
 };
+/* 계정 기본 말 — 서버에 적혀 둔 값. 기기를 바꿔도 따라온다. */
+function stLoadAccountLang(){
+  fetch('/api/me-lang', { credentials:'same-origin' })
+    .then(function(r){ return r.json(); })
+    .then(function(j){
+      if(!j || !j.ok || !j.lang) return;
+      if(localStorage.getItem('tw-lang')) return;
+      if(j.lang === window.stLang) return;
+      window.stLang = j.lang;
+      if (window.TW) window.TW.lang = j.lang;
+      applyI18n();
+      try { if (j.lang === 'en') (window.stWatchIds||[]).forEach(function(id){ window.stTrNode(document.getElementById(id)); }); } catch(e){}
+    })
+    .catch(function(){ });
+}
+window.stSaveAccountLang = function(l){
+  try {
+    fetch('/api/me-lang', { method:'POST', credentials:'same-origin',
+      headers:{'Content-Type':'application/json'}, body: JSON.stringify({ lang: l }) }).catch(function(){});
+  } catch(e){}
+};
 document.addEventListener('DOMContentLoaded', function(){
   var ko=document.getElementById('st-lang-ko'), en=document.getElementById('st-lang-en');
   if(ko) ko.onclick=function(){ window.stSwitchLang('ko'); };
   if(en) en.onclick=function(){ window.stSwitchLang('en'); };
   applyI18n();
+  stLoadAccountLang();
 });
 </script>
 <script>

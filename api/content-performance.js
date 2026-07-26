@@ -299,7 +299,7 @@ export default async function handler(req, res) {
     const [chRes, pubRes, expRes, bookings, asofBk, asofUp, clkRes] = await Promise.all([
       sb.from('v_channel_stats').select('channel_code, channel_name, is_active'),
       sb.from('publications')
-        .select('id, channel_code, status, published_at, title, youtube_video_id')
+        .select('id, channel_code, status, published_at, title, youtube_video_id, view_count')
         .order('published_at', { ascending: false, nullsFirst: false }),
       sb.from('v_content_hotel_exposure').select('publication_id, rank, name_in_script, hid'),
       fetchBookings(sb, from, to),
@@ -369,6 +369,7 @@ export default async function handler(req, res) {
       published_at: p.published_at, published: !!p.youtube_video_id,
       hotels: (expByPub[p.id] || []).sort((a, b) => (a.rank || 9) - (b.rank || 9)),
       clicks: clkByPub[p.id] || 0,
+      views: p.view_count != null ? p.view_count : null,
     }));
 
     res.setHeader('Cache-Control', 'private, no-store, max-age=0');

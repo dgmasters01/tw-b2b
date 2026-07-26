@@ -1222,6 +1222,34 @@ window.STUDIO_I18N = {
    원칙: **영어일 때만** 동작한다. 한국어 화면은 손도 안 대어 기존 기능이 절대 안 깨진다.
    렌더된 글자만 바꾸므로 화면 코드(500개 문자열)를 손대지 않는다. */
 window.STUDIO_PHRASES = {
+  /* ── 6차: 키워드 세부 페이지 설명문 ── */
+  '계절은 언제 만들지, 키워드는 뭘 만들지 알려줍니다 — 둘 다 있어야 추천이 나옵니다':'Season tells you when to make it, keywords tell you what to make — you need both before a recommendation appears',
+  '순서입니다 — 우리 호텔이 있는 지역만 (호텔 좌표로 판정)':'in order — only districts where we have hotels (decided by hotel coordinates)',
+  '는 손님 10명 중 9명이 중심에서':': 9 of every 10 guests stay within',
+  '월에 가장 몰립니다 — 가장 한산한':' are the busiest — vs the quietest ',
+  '에 가장 몰립니다 — 가장 한산한':' are the busiest — vs the quietest ',
+  '키워드 조사가 안 된 도시':'Keyword research not done for this city',
+  '을 그 거리로 나눕니다':' are split at that distance',
+  '를 아직 안 쟀습니다':'— not measured yet',
+  '안에서 잡니다 — ':'of the centre — ',
+  '작년 같은 기간보다':'vs last year',
+  '도시마다 다릅니다':'varies by city',
+  '를 찾는 사람이':' — searches',
+  '마다 다릅니다':'varies by city',
+  '대표어의 1/':'top term ÷ ',
+  '늘었습니다':'up',
+  '줄었습니다':'down',
+  '세로 = ':'Vertical = ',
+  '가로 = ':'Horizontal = ',
+  '조사 전':'Not researched',
+  '끼리)':' compared)',
+  '대표어':'top term',
+  '가까움':'near',
+  '년 ':' ',
+  '올해':'this year',
+  '작년':'last year',
+  '영상':'Videos',
+  '있음':'yes',
   /* ── 5차: 안내·검사 「설명」 문장 (상품은 그대로) ── */
   '은 실측 장부에 없습니다. 검증 못 했으므로 뺐습니다. (kwtool.py 로 측정 후 CSV 에 넣어주세요)':' is not in the measured ledger. Removed because it could not be verified. (measure with kwtool.py, then add it to the CSV)',
   '는 붙여쓰기 경쟁을 못 재서 넘겼습니다 (장부에 없음). 어절 수만으로는 갈리는지 알 수 없습니다:':' skipped — no-space competition could not be measured (not in the ledger). Word count alone cannot tell them apart:',
@@ -1937,6 +1965,11 @@ window.STUDIO_PHRASES = {
     window.stTrNode(el);
   }
   window.STUDIO_COUNTRY_EN={'대한민국':'South Korea','한국':'South Korea','일본':'Japan','대만':'Taiwan','중국':'China','홍콩':'Hong Kong','마카오':'Macau','미국':'United States','태국':'Thailand','베트남':'Vietnam','싱가포르':'Singapore','말레이시아':'Malaysia','스리랑카':'Sri Lanka','필리핀':'Philippines','인도네시아':'Indonesia','호주':'Australia','뉴질랜드':'New Zealand','프랑스':'France','영국':'United Kingdom','독일':'Germany','스페인':'Spain','이탈리아':'Italy','캄보디아':'Cambodia','라오스':'Laos','몰디브':'Maldives','괌':'Guam','사이판':'Saipan','미얀마':'Myanmar','인도':'India','터키':'Turkey','튀르키예':'Turkiye','스위스':'Switzerland','네덜란드':'Netherlands','체코':'Czechia','오스트리아':'Austria','캐나다':'Canada','멕시코':'Mexico','브라질':'Brazil','아랍에미리트':'United Arab Emirates'};
+window.STUDIO_CITY_EN={};
+window.stCityAdd=function(nm,key){ if(!nm||!key) return; var seg=String(key).split('|').pop().replace(/^d:/,'').replace(/^t:/,'').trim();
+  if(!seg||/[^\x00-\x7F]/.test(seg)) return;           /* 영문이 아니면 그 나라 말 그대로 둔다 */
+  window.STUDIO_CITY_EN[nm]=seg.replace(/\b([a-z])/g,function(m,c){return c.toUpperCase();}); };
+window.stCityEn=function(nm){ return (window.stLang==='en' && window.STUDIO_CITY_EN[nm]) ? window.STUDIO_CITY_EN[nm] : nm; };
 window.stCoEn=function(c){ return (window.stLang==='en' && window.STUDIO_COUNTRY_EN[c]) ? window.STUDIO_COUNTRY_EN[c] : c; };
 window.stWatchIds=['view-upload','view-keyword','view-strategy','view-channels'];   /* 뷰 전체 = 기존 6개 + 필터 드롭다운 + 키워드 부제까지 포함 */
   document.addEventListener('DOMContentLoaded', function(){ window.stWatchIds.forEach(watch); });
@@ -5069,7 +5102,7 @@ function loadCities(){
       d.countries.forEach(function(c){
         CT[c.country]=c.cities.map(function(x){return x.name;});     /* 예약순 — 창구가 정렬해서 준다 */
         CTN[c.country]=c.cities.length;
-        c.cities.forEach(function(x){ INV[x.name]=x; if(x.surveyed) SNAP_CITY[x.name]=true; });
+        c.cities.forEach(function(x){ INV[x.name]=x; stCityAdd(x.name,x.city_key); if(x.surveyed) SNAP_CITY[x.name]=true; });
       });
       SS_RUNNING = d.running_list || []; SS_NEWDONE = d.new_done_list || []; SS_DONE = d.done_list || [];
       renderSurveyStatus();
@@ -5211,7 +5244,7 @@ function evHTML(c){var g=gate(c,curTM()),p=pop(c),l=koOnly()?LEAD[c]:null;
 function ev1(c){document.getElementById('ev1').innerHTML=evHTML(c);}
 function ev2(c){document.getElementById('ev2').innerHTML=evHTML(c);}
 
-function rc(c){cc=c;document.getElementById('c2t').innerHTML=c+' · 도시 <span class="no">2-1~2-5</span>';
+function rc(c){cc=c;document.getElementById('c2t').innerHTML=stCoEn(c)+' · 도시 <span class="no">2-1~2-5</span>';
  var tm=curTM(),h='';
  if(!CT[c]||!CT[c].length){
    document.getElementById('c2l').innerHTML='<div class="rw"><div class="mn"><div class="wh">'
@@ -5227,7 +5260,7 @@ function rc(c){cc=c;document.getElementById('c2t').innerHTML=c+' · 도시 <span
         진짜로 키워드 조사가 된 도시는 **오사카 하나**다. 조사한 도시만 초록이다. */
   var hasS=koOnly()&&!!SE[x], hasK=!!SNAP_CITY[x];
   var p=hasS?pop(x):null;                      /* 조사 안 한 도시의 인기도는 **없는 값**이다. 안 보여준다 */
-  h+='<div class="rw" onclick="go(\'d\',\''+x+'\')"><div class="mn"><div class="n"><span class="nm">'+x+'</span><span class="sg '+cl+'">'+g.t+'</span></div>'+
+  h+='<div class="rw" onclick="go(\'d\',\''+x+'\')"><div class="mn"><div class="n"><span class="nm">'+stCityEn(x)+'</span><span class="sg '+cl+'">'+g.t+'</span></div>'+
      '<div class="wh">'+g.w+'</div>'+invLine(x)+
      '<div style="display:flex;gap:5px;margin-top:4px;flex-wrap:wrap;">'+
      '<span class="pil" style="background:'+(hasS?'var(--emd)':'var(--amd)')+';color:'+(hasS?'var(--em)':'var(--am)')+';">계절 '+(hasS?'있음':'없음')+'</span>'+
@@ -6289,9 +6322,9 @@ function add(){
  else   { ts('전략 메뉴 · 기획 대기로 넘겼습니다 (프리뷰라 여기서 끝)'); }
 }
 function bc(l,e){var h='<a onclick="go(\'m\')">이번 달</a>';
- if(l==='c')h+=' › <b>'+e+'</b>';
- if(l==='d')h+=' › <a onclick="go(\'c\',\''+cc+'\')">'+cc+'</a> › <b>'+e+'</b>';
- if(l==='x')h+=' › <a onclick="go(\'c\',\''+cc+'\')">'+cc+'</a> › <a onclick="go(\'d\',\''+cy+'\')">'+cy+'</a> › <b>'+e+'</b>';
+ if(l==='c')h+=' › <b>'+stCoEn(e)+'</b>';
+ if(l==='d')h+=' › <a onclick="go(\'c\',\''+cc+'\')">'+stCoEn(cc)+'</a> › <b>'+stCityEn(e)+'</b>';
+ if(l==='x')h+=' › <a onclick="go(\'c\',\''+cc+'\')">'+stCoEn(cc)+'</a> › <a onclick="go(\'d\',\''+cy+'\')">'+stCityEn(cy)+'</a> › <b>'+e+'</b>';
  document.getElementById('bc').innerHTML=h;}
 function sh(id){document.querySelectorAll('.sc').forEach(function(s){s.classList.remove('on');});document.getElementById(id).classList.add('on');window.scrollTo(0,0);}
 function vw(w,a,b){

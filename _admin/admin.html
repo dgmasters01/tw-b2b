@@ -5626,7 +5626,7 @@ function rDayHotels(){
     if (table) table.style.display = 'none';
     if (empty) empty.style.display = 'none';
 
-    return T.db.getAllHotels({ noCache:true }).then(function(r){
+    return window.TW.db.getAllHotels({ noCache:true }).then(function(r){   /* 🔴 2026-07-27: T 는 다른 script 블록의 지역 변수 — 여기선 안 보인다 */
       if (r.error) throw new Error(r.error.message || 'hotels load failed');
       var hotels = r.data || [];
       var now = new Date();
@@ -6713,7 +6713,7 @@ function rDayHotels(){
   };
 
   async function callAuthAPI(action, payload){
-    var sess = await T.sb.auth.getSession();
+    var sess = await window.TW.sb.auth.getSession();   /* 위와 같은 이유 */
     var token = sess.data.session && sess.data.session.access_token;
     if (!token) { alert(umKo()?'로그인 만료 — 다시 로그인하세요':'Session expired — please log in again'); return null; }
     var resp = await fetch('/api/admin?action=auth-' + action, {

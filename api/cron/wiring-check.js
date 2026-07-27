@@ -96,6 +96,31 @@ export default async function handler(req, res) {
   const full = String(req.query.full || '') === '1';
 
   try {
+    /* 💰 2026-07-27: 코드가 안 바뀌었으면 훑을 필요가 없다.
+       마지막 커밋 SHA 를 기억해 뒀다가 같으면 그냥 끝낸다.
+       (창구 73개 = 951KB. 매일 받으면 월 28MB — 큰 돈은 아니지만 헛일은 안 한다.) */
+    const force = String(req.query.force || '') === '1';
+    let headSha = null;
+    try {
+      const hr = await fetch(`https://api.github.com/repos/${REPO}/commits/${BRANCH}`,
+        { headers: { 'User-Agent': 'tw-b2b-wiring-check', Accept: 'application/vnd.github.sha' } });
+      if (hr.ok) headSha = (await hr.text()).trim();
+    } catch { /* 못 읽으면 그냥 스캔한다 */ }
+
+    const sb0 = admin();
+    let lastSha = null;
+    try {
+      const { data } = await sb0.from('api_cache').select('payload').eq('cache_key', 'wiring_check_sha').maybeSingle();
+      lastSha = data && data.payload && data.payload.sha ? String(data.payload.sha) : null;
+    } catch { /* 캐시 표가 없으면 무시 */ }
+
+    if (!force && headSha && lastSha && headSha === lastSha) {
+      return res.status(200).json({
+        ok: true, skipped: true, reason: '코드가 안 바뀌었습니다 — 훑지 않았습니다.',
+        head_sha: headSha.slice(0, 10),
+      });
+    }
+
     // ── ① 레포에서 창구를 받아 스캔 ──
     const paths = await listFiles();
     const apiPaths = paths.filter((p) => p.startsWith('api/') && p.endsWith('.js'));
@@ -111,7 +136,7 @@ export default async function handler(req, res) {
     }
 
     // ── ② 표 행수 실측 (위험도 판정) ──
-    const sb = admin();
+    const sb = sb0;
     const tables = [...new Set(found.map((f) => f.table))];
     const rows = {};
     for (const t of tables) {
@@ -179,6 +204,12 @@ export default async function handler(req, res) {
         });
         out.mail_sent = true;
       } catch (e) { out.mail_error = String(e.message || e); }
+    }
+
+    // 이번 SHA 를 기억한다 — 다음 회차에 코드가 그대로면 건너뛴다
+    if (headSha) {
+      try { await sb.from('api_cache').upsert({ cache_key: 'wiring_check_sha', payload: { sha: headSha }, computed_at: new Date().toISOString() }, { onConflict: 'cache_key' }); } catch { /* 캐시 실패는 무시 */ }
+      out.head_sha = headSha.slice(0, 10);
     }
 
     return res.status(200).json(out);

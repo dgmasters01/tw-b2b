@@ -432,22 +432,37 @@ async function handleBookingUpload(req, res, serviceKey, _admin) {
   for (const r of cidMapRows) cidToChannel[String(r.cid)] = r.channel_code;
 
   // hotels 미리 로드
-  const hotelsResp = await fetch(
-    `${SUPABASE_URL}/rest/v1/hotels?select=id,hotel_name&status=neq.deleted`,
-    { headers: { Authorization: `Bearer ${serviceKey}`, apikey: serviceKey } }
-  );
-  const hotelsList = await hotelsResp.json();
+  /* 🔴 2026-07-27 보완 ①: limit 없이 부르면 PostgREST 기본 1,000줄에서 잘린다.
+     hotels 는 3,185줄 → 2,185개가 매칭 후보에서 빠져 **이미 있는 호텔도 「없음」이 됐다.**
+     1,000줄씩 끊어 전부 읽는다. 「받은 게 전부」라고 믿지 않는다(63). */
+  const hotelsList = [];
+  for (let off = 0; off < 50000; off += 1000) {
+    const r = await fetch(
+      `${SUPABASE_URL}/rest/v1/hotels?select=id,hotel_name,agoda_hotel_ids&status=neq.deleted&offset=${off}&limit=1000`,
+      { headers: { Authorization: `Bearer ${serviceKey}`, apikey: serviceKey } }
+    );
+    const page = await r.json();
+    if (!Array.isArray(page) || !page.length) break;
+    hotelsList.push(...page);
+    if (page.length < 1000) break;
+  }
+  /* 🔴 보완 ②: 이름 글자 대신 **agoda_hotel_id** 를 첫째 열쇠로 쓴다.
+     아고다가 이름을 바꿔도 id 는 안 바뀐다. 이름 매칭은 마지막 수단이다. */
   const hotelByName = {};
-  if (Array.isArray(hotelsList)) {
-    for (const h of hotelsList) {
-      if (h.hotel_name) hotelByName[h.hotel_name.toLowerCase().trim()] = h.id;
-    }
+  const hotelByAgodaId = {};
+  for (const h of hotelsList) {
+    if (h.hotel_name) hotelByName[h.hotel_name.toLowerCase().trim()] = h.id;
+    const ids = Array.isArray(h.agoda_hotel_ids) ? h.agoda_hotel_ids : [];
+    for (const aid of ids) { const k = String(aid); if (k && !hotelByAgodaId[k]) hotelByAgodaId[k] = h.id; }
   }
 
   // row 정규화
   const batchId = `upload_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
   const upserts = [];
   const skipped = [];
+  const autoCreated = [];      // 이번 업로드에서 새로 만든 호텔
+  const unmatched = [];        // 끝내 못 붙인 예약 (아고다 id 도 없는 경우)
+  const matchStat = {};        // 어떤 방법으로 붙었나 (agoda_id · name_exact · name_partial · auto_created · none)
 
   for (const raw of rows) {
     const norm = normalizeRow(raw);
@@ -462,15 +477,36 @@ async function handleBookingUpload(req, res, serviceKey, _admin) {
       continue;
     }
     let hotelId = null;
-    if (norm.hotel_name) {
+    let matchBy = null;
+    const aidKey = norm.hotel_id_agoda ? String(norm.hotel_id_agoda).trim() : '';
+    if (aidKey && hotelByAgodaId[aidKey]) { hotelId = hotelByAgodaId[aidKey]; matchBy = 'agoda_id'; }
+    if (!hotelId && norm.hotel_name) {
       const key = norm.hotel_name.toLowerCase().trim();
-      hotelId = hotelByName[key] || null;
-      if (!hotelId) {
+      if (hotelByName[key]) { hotelId = hotelByName[key]; matchBy = 'name_exact'; }
+      if (!hotelId && key.length >= 8) {            // 짧은 이름은 부분매칭이 위험하다(Hotel A ⊂ Hotel A Annex)
         for (const [name, id] of Object.entries(hotelByName)) {
-          if (name.includes(key) || key.includes(name)) { hotelId = id; break; }
+          if (name.length >= 8 && (name.includes(key) || key.includes(name))) { hotelId = id; matchBy = 'name_partial'; break; }
         }
       }
     }
+    /* 🔴 보완 ③: 못 찾으면 **그 자리에서 마스터에 만든다.**
+       예약이 붙었다는 것은 실존 호텔이라는 증거다. 아고다가 이름·나라·도시·성급을 다 줬다.
+       그냥 null 로 두면 아무도 모르고 「(이름 없음)」이 쌓인다(2026-07-27 사고). */
+    if (!hotelId && aidKey && norm.hotel_name) {
+      const made = await ensureHotelMaster(SUPABASE_URL, serviceKey, {
+        agoda_id: aidKey, name: norm.hotel_name,
+        country: norm.hotel_country || null, city: norm.hotel_city || null,
+        star: toIntOrNull(norm.hotel_star),
+      });
+      if (made && made.id) {
+        hotelId = made.id; matchBy = 'auto_created';
+        hotelByAgodaId[aidKey] = made.id;                       // 같은 배치의 다음 줄이 또 만들지 않게
+        hotelByName[norm.hotel_name.toLowerCase().trim()] = made.id;
+        autoCreated.push({ hotel_code: made.hotel_code, name: norm.hotel_name, agoda_id: aidKey, country: norm.hotel_country || null });
+      }
+    }
+    if (!hotelId) unmatched.push({ booking_id: norm.booking_id, hotel_name: norm.hotel_name || null, agoda_id: aidKey || null });
+    matchStat[matchBy || 'none'] = (matchStat[matchBy || 'none'] || 0) + 1;
     const statusLower = (norm.booking_status || '').toLowerCase();
     const isCancelled = statusLower.includes('cancel') || norm.is_cancelled === true;
     const isCompleted = statusLower.includes('complet') || statusLower.includes('checked')
@@ -538,6 +574,7 @@ async function handleBookingUpload(req, res, serviceKey, _admin) {
     }
   }
 
+  /* 🔴 2026-07-27: 업로드 결과를 **말해준다**. 조용히 넘어가면 대표님이 화면에서 발견하게 된다. */
   return res.status(200).json({
     ok: true,
     batch_id: batchId,
@@ -547,6 +584,17 @@ async function handleBookingUpload(req, res, serviceKey, _admin) {
     inserted_count: inserted.length,
     errors,
     skipped: skipped.slice(0, 50),
+    // ── 호텔 붙이기 결과 ──
+    match_stat: matchStat,                       // agoda_id · name_exact · name_partial · auto_created · none
+    auto_created_count: autoCreated.length,      // 마스터에 새로 만든 호텔 수
+    auto_created: autoCreated.slice(0, 100),     // 무엇을 만들었나 (확인용)
+    unmatched_count: unmatched.length,           // 끝내 못 붙인 예약 (아고다 id 가 없는 경우)
+    unmatched: unmatched.slice(0, 50),
+    health: {
+      hotels_loaded: hotelsList.length,          // 매칭 후보로 실제 읽은 호텔 수 (1000 이면 잘린 것)
+      truncated_warning: hotelsList.length % 1000 === 0 && hotelsList.length > 0
+        ? '호텔 목록이 1,000의 배수로 끝났습니다 — 잘렸을 수 있으니 확인하세요.' : null,
+    },
   });
 }
 
@@ -3091,6 +3139,43 @@ function normalizeRow(r) {
     is_cancelled: m.iscancelled === true || m.cancelled === true,
     is_completed: m.iscompleted === true || m.completed === true,
   };
+}
+
+/* 예약에 붙은 호텔이 마스터에 없으면 **그 자리에서 만든다** (2026-07-27 신설).
+   근거는 아고다 원본뿐이다 — 이름·나라·도시·성급. 없는 값은 지어내지 않고 비워 둔다.
+   status='auto' 로 표시해 「사람이 확인해야 할 것」임을 남긴다. */
+async function ensureHotelMaster(SUPABASE_URL, serviceKey, info) {
+  const H = { Authorization: `Bearer ${serviceKey}`, apikey: serviceKey, 'Content-Type': 'application/json' };
+  try {
+    // 이미 있으면 그것을 쓴다 (동시 업로드 대비 재확인)
+    const q = await fetch(`${SUPABASE_URL}/rest/v1/hotels?select=id,hotel_code&agoda_hotel_ids=cs.${encodeURIComponent(JSON.stringify([info.agoda_id]))}&limit=1`, { headers: H });
+    const found = await q.json();
+    if (Array.isArray(found) && found[0]) return found[0];
+
+    // 다음 H-코드 발번
+    const mx = await fetch(`${SUPABASE_URL}/rest/v1/hotels?select=hotel_code&hotel_code=like.H-*&order=hotel_code.desc&limit=1`, { headers: H });
+    const mrow = await mx.json();
+    const last = (Array.isArray(mrow) && mrow[0] && mrow[0].hotel_code) ? parseInt(String(mrow[0].hotel_code).slice(2), 10) : 0;
+    const code = 'H-' + String((last || 0) + 1).padStart(5, '0');
+
+    const body = {
+      hotel_code: code,
+      hotel_name: info.name,
+      agoda_hotel_ids: [String(info.agoda_id)],
+      country: info.country || null,
+      city: info.city || null,
+      star_rating: info.star != null ? String(info.star) : null,
+      status: 'auto',                       // 사람이 확인해야 할 것
+      merge_status: 'auto_from_booking',    // 어디서 왔는지 남긴다
+      operating_status: 'unknown',
+    };
+    const ins = await fetch(`${SUPABASE_URL}/rest/v1/hotels`, {
+      method: 'POST', headers: { ...H, Prefer: 'return=representation' }, body: JSON.stringify(body),
+    });
+    if (!ins.ok) return null;
+    const rows = await ins.json();
+    return Array.isArray(rows) ? rows[0] : null;
+  } catch { return null; }        // 자동 등록이 실패해도 예약 업로드 자체는 막지 않는다
 }
 
 function toIntOrNull(v) {

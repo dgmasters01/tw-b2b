@@ -150,6 +150,9 @@ export default async function handler(req, res) {
       });
     }
 
+    /* 🔴 2026-07-27: `daily_rate`·`currency` 는 **표에 없는 칸**이라 저장이 통째로 실패했다
+       (PGRST204). 게다가 값싼 방 값은 날마다 바뀌니 창고에 둘 것도 아니다.
+       재고 창고는 「그 도시에 어떤 호텔이 있나」만 담는다. 표에 있는 칸만 쓴다. */
     const rows = list.map((h) => ({
       city, city_id: cityId,
       agoda_hotel_id: h.hotelId,
@@ -157,9 +160,9 @@ export default async function handler(req, res) {
       star_rating: h.starRating || null,
       latitude: h.latitude || null,
       longitude: h.longitude || null,
-      daily_rate: h.dailyRate || null,
-      currency: h.currency || 'USD',
       review_score: h.reviewScore || null,
+      review_count: h.reviewCount || null,
+      url: h.landingURL || null,
       fetched_at: new Date().toISOString(),
     }));
     if (rows.length) await sb('agoda_inventory', { method: 'POST', body: JSON.stringify(rows) });

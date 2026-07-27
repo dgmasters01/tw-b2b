@@ -1,7 +1,7 @@
 {
   "overall": "red",
-  "summary": "[yellow] admin_baseline: 관리자 페이지 4개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요) / [red] tasks_schema: 작업 298건 중 8건에 출처가 없어요 (자동 동기화 봇 멈춤 위험) / [red] bots: 자동 일꾼 1명이 멈췄어요: sync-bot",
-  "checked_at": "2026-07-27T01:02:07.284Z",
+  "summary": "[yellow] admin_baseline: 관리자 페이지 4개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요) / [red] tasks_schema: 작업 298건 중 8건에 출처가 없어요 (자동 동기화 봇 멈춤 위험) / [red] bots: 자동 일꾼 1명이 멈췄어요: sync-bot / [yellow] vercel_sync: 라이브 사이트가 GitHub 새 버전(35960a9)을 아직 못 따라잡았어요 (현재 라이브: cfaa854). 5~10분 후 자동 정상화 예정",
+  "checked_at": "2026-07-27T03:48:32.540Z",
   "checks": [
     {
       "name": "admin_baseline",
@@ -11,7 +11,7 @@
         {
           "file": "admin-business.html",
           "reason": "modified",
-          "current_sha": "11ffc67221d6"
+          "current_sha": "48d865630ef8"
         },
         {
           "file": "admin-permissions.html",
@@ -54,8 +54,8 @@
       ],
       "bot_status": {
         "sync-bot": "failure",
-        "auto-detect-bot": "success",
-        "scan-bot": "success",
+        "auto-detect-bot": "unknown",
+        "scan-bot": "unknown",
         "chat-log-bot": "success",
         "autoheal-bot": "unknown"
       }
@@ -63,15 +63,15 @@
     {
       "name": "decisions_sync",
       "status": "green",
-      "detail": "최근 24시간 결정 1건 감지 — 결정 기록도 함께 저장됐어요 (정상)",
+      "detail": "최근 24시간 결정 3건 감지 — 결정 기록도 함께 저장됐어요 (정상)",
       "missing_source": []
     },
     {
       "name": "vercel_sync",
-      "status": "green",
-      "detail": "라이브 사이트가 GitHub와 같은 버전이에요 (a9f1cce)",
-      "live_sha": "a9f1cce",
-      "vercel_sha": "a9f1cce",
+      "status": "yellow",
+      "detail": "라이브 사이트가 GitHub 새 버전(35960a9)을 아직 못 따라잡았어요 (현재 라이브: cfaa854). 5~10분 후 자동 정상화 예정",
+      "live_sha": "35960a9",
+      "vercel_sha": "cfaa854",
       "project": "tw-b2b"
     },
     {

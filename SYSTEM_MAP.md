@@ -80,51 +80,15 @@
 
 ---
 
-## 4. 비용 — 유료는 구글 하나뿐 (2026-07-27 전수 실측)
+## 4. 비용 — 유료는 구글 최소뿐
 
-### 4-1. 고정비
-
-| 무엇 | 얼마 | 비고 |
-|---|---|---|
-| Vercel Pro | 구독 | 함수 실행 1,000 GB-Hrs/월 포함 |
-| Supabase Micro | 구독 | DB·인증·스토리지 |
-
-### 4-2. 봇 10개 — **바깥에 돈 내는 것은 1개뿐**
-
-| 봇 | 월 실행 | 바깥 비용 |
-|---|---|---|
-| **hotel-geo-fill** | 90 | 🔴 **구글 Places (유일한 유료)** — 하루 135건으로 코드에 묶임. 무료 5,000/월 안 |
-| yt-views · kw-survey | 각 720 | 유튜브 API·구글 트렌드 = **무료 쿼터** |
-| hotel-closed-check | 4 | 구글 소수 |
-| drive-watch | 120 | 구글 드라이브 = 무료 |
-| hotel-district-fill | 30 | 아고다 주소 파싱 = 무료 |
-| db-backup · handoff-verify | 각 30 | GitHub = 무료 |
-| **booking-health** | 30 | **0원** — 우리 DB만 |
-| **wiring-check** | 30 | **0원** — GitHub raw + 우리 DB |
-
-### 4-3. Vercel 함수 요금 — 실측
-
-`booking-health`(3초) + `wiring-check`(1.2초) 합쳐 월 **0.075 GB-Hrs**.
-포함량 1,000 GB-Hrs 의 **0.0075%** — 사실상 0.
-
-### 4-4. 🔴 절대 건드리면 안 되는 것
-
-- **구글 필드마스크 변경 금지** — Pro 무료(5,000)가 Enterprise(1,000 유료)로 추락한다.
-- **hotel-geo-fill 하루 135건 상한 유지** — 150은 가입 흐름의 호텔 검색과 한도를 나눠 쓴다.
-
-### 4-5. 새 봇을 만들 때 물어볼 4가지 (D-077)
-
-| 물어볼 것 | 기준 |
-|---|---|
-| 바깥 유료 API 를 쓰나 | 쓰면 **쿼터를 코드에 박는다** (hotel-geo-fill 처럼) |
-| 얼마나 자주 도나 | 하루 1회로 될 일을 매시간 돌리지 않는다 |
-| 바뀐 게 없어도 도나 | **없으면 건너뛰게 만든다** (SHA·해시 캐시) |
-| 조용할 때도 메일 보내나 | **안 보낸다.** 소음이 되면 아무도 안 본다 |
-
-전문: `_business/decisions/2026-07-27-automation-cost-policy.md`
+- **유료 = 구글 좌표뿐.** 이번 달 634건 / 무료 5,000건 = **실제 0원**.
+- 아고다 파일로 좌표 **82%를 구글 0건으로** 채움 → 좌표 봇 **7/21경 끔 → 유료 0**.
+- 조사(유튜브 무료 1만/일) · 아고다 파일(무료) · 구글 트렌드(무료) = **전부 0원**.
+- 고정비 = Vercel Pro 구독 · Supabase.
+- 🔴 **구글 필드마스크 절대 변경 금지** — Pro 무료(5,000)가 Enterprise(1,000 유료)로 추락.
 
 ---
-
 
 ## 5. 안전장치 — 꼬임 방지 5 (위험도 순)
 
@@ -147,6 +111,19 @@
 ## 7. 문서 지도 — 무엇을 «어디에» 기록하는가 (정본 한 곳)
 
 > 🔴 **정리는 각 정본 한 곳에서만 한다. 아무 데나 새 파일을 만들지 않는다.** (여러 곳에 흩어지면 관리 불가 — 대표님 2026-07-20)
+
+### 📎 바로 열어보는 링크 (2026-07-27)
+
+| 문서 | 무엇 | 링크 |
+|---|---|---|
+| **SYSTEM_WIRING.md** | 배선도 — **표 하나를 바꾸면 어디를 고쳐야 하나** (자동 생성) | [열기](https://github.com/dgmasters01/tw-b2b/blob/main/SYSTEM_WIRING.md) |
+| **SYSTEM_MAP.md** | 이 문서 — 시스템·크론·**비용** 한 장 | [열기](https://github.com/dgmasters01/tw-b2b/blob/main/SYSTEM_MAP.md) |
+| D-076 | 배선 관리 원칙 (왜·어떻게·한계) | [열기](https://github.com/dgmasters01/tw-b2b/blob/main/_business/decisions/2026-07-27-system-wiring-doctrine.md) |
+| D-077 | **자동화 비용 정책** | [열기](https://github.com/dgmasters01/tw-b2b/blob/main/_business/decisions/2026-07-27-automation-cost-policy.md) |
+| D-075 | 아고다 예약 무결성 3중 방어 | [열기](https://github.com/dgmasters01/tw-b2b/blob/main/_business/decisions/2026-07-27-booking-master-integrity.md) |
+| D-074 | 스튜디오 영문판 + 사고 기록 | [열기](https://github.com/dgmasters01/tw-b2b/blob/main/_business/decisions/2026-07-26-studio-i18n.md) |
+| 스캐너 | `wiring-scan.mjs` 소스 | [열기](https://github.com/dgmasters01/tw-b2b/blob/main/_os/tools/wiring-scan.mjs) |
+| 결정 인덱스 | 전체 결정 목록 | [열기](https://github.com/dgmasters01/tw-b2b/blob/main/DECISIONS_INDEX.md) |
 
 | 무엇 | 정본 (여기 «에만» 기록) |
 |---|---|

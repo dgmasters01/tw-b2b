@@ -246,6 +246,29 @@ export default async function handler(req, res) {
         return res.status(400).json({ ok: false, error: `cid ${cids[0]} 는 ${map.channel_code} 채널 것입니다. 이 원고는 ${cur.channel_code} 입니다.` });
       }
 
+      /* 🔴 2026-07-27 신설: 링크 순서와 원고 이름 순서가 어긋나면 화면이 **다른 호텔 이름**을 보여준다.
+         (실제 사고: HG-0001 의 TOP1·TOP3 이름이 서로 바뀌어 KOKO 가 「호텔 라 포레스타」로 떴다)
+         아고다 원본 이름(bookings_agoda)과 원고 이름을 대조해 어긋나면 **경고**한다. */
+      try {
+        const names = Array.isArray(cur.hotel_names) ? cur.hotel_names : [];
+        if (names.length >= 3) {
+          const { data: bnm } = await sb.from('bookings_agoda')
+            .select('hotel_id_agoda, hotel_name').in('hotel_id_agoda', hids.slice(0, 3));
+          const agodaBy = {};
+          (bnm || []).forEach((r) => { if (!agodaBy[String(r.hotel_id_agoda)]) agodaBy[String(r.hotel_id_agoda)] = r.hotel_name; });
+          for (let i = 0; i < 3; i += 1) {
+            const an = agodaBy[String(hids[i])];
+            if (!an) continue;                                   // 예약이 없는 호텔은 대조할 근거가 없다
+            const key = String(an).toLowerCase().replace(/[^a-z0-9]/g, '');
+            const mine = String(names[i] || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+            // 로마자 조각이 하나도 안 겹치면 순서가 어긋났을 가능성이 크다
+            if (key && mine && key.slice(0, 4) !== mine.slice(0, 4) && !mine.includes(key.slice(0, 4))) {
+              warn.push(`TOP${i + 1} 링크(hid ${hids[i]} = ${an})와 원고 ${i + 1}번째 호텔(${names[i]})이 다릅니다. 링크 순서를 확인하세요.`);
+            }
+          }
+        }
+      } catch (e) { /* 대조 실패해도 저장은 막지 않는다 */ }
+
       const { data, error } = await sb.from('publications').update({
         hid_top1: hids[0], hid_top2: hids[1], hid_top3: hids[2],
         agoda_links: found.slice(0, 3), updated_at: new Date().toISOString(),

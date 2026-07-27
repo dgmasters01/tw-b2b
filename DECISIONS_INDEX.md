@@ -145,3 +145,4 @@
 | 2026-07-21 | D-072 등록 (다채널 배포 — cid가 채널 정함·채널 간 cid 다름 정상·중복=파일명+채널·예약기간 다르면 다른 콘텐츠 / api/publications.js) |
 | 2026-07-21 | D-073 등록 (키워드 월별 재조사 — 봇이 이번 달 ym snapshot 없는 도시 재조사·조사일 finished_at 표시·완성 결과보기 제거·월별 그래프 ym 기반 / api/content-keywords.js) |
 | 2026-07-26 | D-074 등록 (스튜디오 영문판 — 사전+번역계층 2중 방식·계정 기본 언어 자동 / studio.html, api/me-lang.js) |
+| 2026-07-27 | D-075 등록 (아고다 예약 무결성 3중 방어 — 업로드 시 agoda_id 우선매칭·마스터 자동등록·매일 booking-health 봇 / api/admin.js, api/cron/booking-health.js) |

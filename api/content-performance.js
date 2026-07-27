@@ -213,11 +213,13 @@ function byHotel(rows, hotelMeta, exposedHids, hidKoName, withComm) {
     }
     const o = {
       hotel_id: h.hotel_id,
-      name: koName || meta.name || '(이름 없음)',            // 한글명(원고) 우선, 없으면 영문
-      name_en: (koName && meta.name && koName !== meta.name) ? meta.name : null,
+      name: koName || meta.name || null,                    // 한글명(원고) 우선, 없으면 영문, 둘 다 없으면 null
+      name_en: meta.name || null,                           // 아고다 영문 이름 (EN 화면이 쓴다)
       type: meta.type ? (TYPE[meta.type] || meta.type) : null,
+      type_code: meta.type || null,                         // hotel · resort · villa …
       star: meta.star || null,
       country: meta.country ? (COUNTRY_KO[meta.country] || meta.country) : null,
+      country_en: meta.country || null,                     // 아고다 원본(영문)
       city: meta.city || null,
       exposed: exposed,
       bookings: h.total,

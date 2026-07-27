@@ -58,6 +58,7 @@
 | **drive-watch** | 매일 06·11·16·21시 | 구글드라이브 새 영상 폴더 → 올리기 탭 자동 배치 | 무료 | 확인필요 탭·publications |
 | **db-backup** | 매일 04시 | DB 전체 백업(private 레포 tw-b2b-backup) | 무료 | tw-b2b-backup 레포 |
 | **handoff-verify** | 매일 07시 | 인계서 최신성 검증 | 무료 | _os/handoff/current.md |
+| **booking-health** 🆕 | 매일 **09시** | 아고다 예약 ↔ 호텔 마스터 **무결성 점검** — 안 붙은 예약을 이어 붙이고, 마스터에 없는 호텔은 자동 등록(`merge_status=auto_from_booking`). 손 못 댄 것만 메일 | 무료 | bookings_agoda.hotel_id·hotels |
 
 **코드만 있고 지금 안 도는 것**(vercel.json 크론에 없음): `invoice-expire`·`invoice-retention`·`manager-campaign`·`receipt-overdue` — 필요하면 vercel.json에 추가해야 켜짐.
 

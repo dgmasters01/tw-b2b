@@ -104,7 +104,7 @@ export default async function handler(req, res) {
     const relinked = [];    // ② 마스터에 이미 있었는데 안 붙어 있던 것
     const created = [];     // ③ 새로 만든 것
     const failed = [];
-    let codeSeq = dry ? 0 : await nextHotelCode(sb);
+    let codeSeq = await nextHotelCode(sb);   // dry 에서도 실제로 붙을 번호를 보여준다
     let done = 0;
 
     for (const k of Object.keys(groups)) {

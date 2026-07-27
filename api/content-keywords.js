@@ -573,6 +573,20 @@ async function cities(sb, req, res, who) {
   ]);
   const aliases = aliasesR.data, snaps2 = snaps2R.data, hprog = hprogR.data, kwc = kwcR.data;
 
+  /* ── 영문 이름표 (EN 화면용 · 2026-07-27) ────────────────────────────────
+     근거는 아고다 원본(agoda_city)뿐이다. 없으면 null — 지어내지 않는다.
+     ⚠️ agoda_city 는 25,000줄이 넘는다. 통째로 받으면 1000줄에서 잘린다.
+        목록에 실제로 오른 city_id 만 골라 받는다(보통 145개). */
+  const enByCityId = {};                        // city_id → { city, country } (둘 다 영문)
+  const enCountry = {};                         // 한글 나라 이름 → 영문 나라 이름
+  try {
+    const ids = [...new Set((rows || []).map((r) => r.city_id).filter((v) => v != null))];
+    for (let i = 0; i < ids.length; i += 300) {
+      const q = await sb.from('agoda_city').select('city_id, city, country').in('city_id', ids.slice(i, i + 300));
+      for (const a of (q.data || [])) enByCityId[a.city_id] = { city: a.city, country: a.country };
+    }
+  } catch (e) { /* 영문 이름이 없어도 화면은 돌아야 한다 */ }
+
   const keyByLabel = {};
   for (const a of aliases || []) { if (a.label && !keyByLabel[a.label]) keyByLabel[a.label] = a.city_key; }
 
@@ -622,8 +636,11 @@ async function cities(sb, req, res, who) {
     if (state === 'new_done') { newDoneCount += 1; newDoneList.push({ name: r.city, country: c, city_key: ckey, surveyed_at: surveyedAt[ckey] || null, ...progress(ckey) }); }
     else if (state === 'running') { runningList.push({ name: r.city, country: c, city_key: ckey, surveyed_at: surveyedAt[ckey] || null, ...progress(ckey) }); }
     else if (state === 'done') { doneList.push({ name: r.city, country: c, city_key: ckey, surveyed_at: surveyedAt[ckey] || null, ...progress(ckey) }); }
+    const _en = enByCityId[r.city_id] || null;
+    if (_en && _en.country && !enCountry[c]) enCountry[c] = _en.country;
     g.cities.push({
       city_id: r.city_id, name: r.city,
+      name_en: (_en && _en.city) || null,        // 아고다 영문 도시 이름 (없으면 null)
       city_key: ckey,
       surveyed: !!ckey,                           // 조사 착수(발굴)된 도시
       survey_state: state,                        // none·running·new_done·done
@@ -637,6 +654,7 @@ async function cities(sb, req, res, who) {
     });
   });
   const list = [...byCountry.values()].sort((a, b) => b.bookings - a.bookings);
+  list.forEach((g) => { g.country_en = enCountry[g.country] || null; });    // 영문 나라 이름 (없으면 null)
   res.setHeader('Cache-Control', 'private, no-store, max-age=0');
   return res.status(200).json({
     ok: true, view: 'cities', target,

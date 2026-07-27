@@ -235,10 +235,21 @@ export default async function handler(req, res) {
     const hids = (data || []).map((h) => String(h.hid)).filter(Boolean);
     const master = {}; const geo = {};
     if (hids.length) {
-      const { data: hm } = await sb
-        .from('hotels')
-        .select('agoda_hotel_ids,country,city,star_rating,property_type')
-        .not('merge_status', 'is', null);
+      /* 🔴 2026-07-27 버그수정: limit 없이 부르면 Supabase 기본 1,000줄에서 잘린다.
+         hotels 는 3,185줄 → 2,185개가 마스터에서 빠지고 예약 원본(bookings_agoda)의
+         성급으로 폴백돼 화면에 **틀린 성급**이 떴다(KOKO 3성 → 5성).
+         1,000줄씩 끊어 전부 읽는다. 「받은 게 전부」라고 믿지 않는다(63). */
+      const hm = [];
+      for (let from = 0; from < 20000; from += 1000) {
+        const pg = await sb
+          .from('hotels')
+          .select('agoda_hotel_ids,country,city,star_rating,property_type')
+          .not('merge_status', 'is', null)
+          .range(from, from + 999);
+        if (pg.error) throw pg.error;
+        (pg.data || []).forEach((r) => hm.push(r));
+        if (!pg.data || pg.data.length < 1000) break;
+      }
       (hm || []).forEach((r) => {
         const ids = Array.isArray(r.agoda_hotel_ids) ? r.agoda_hotel_ids : [];
         ids.forEach((aid) => {
@@ -264,10 +275,17 @@ export default async function handler(req, res) {
     // 최근 소개 날짜 = 발행된 노출(publications.published_at)의 hid별 최댓값
     const lastExpo = {};
     if (hids.length) {
-      const { data: pubs } = await sb
-        .from('publications')
-        .select('published_at,hid_top1,hid_top2,hid_top3')
-        .not('published_at', 'is', null);
+      const pubs = [];
+      for (let from = 0; from < 20000; from += 1000) {          // 같은 이유로 끊어 읽는다
+        const pg = await sb
+          .from('publications')
+          .select('published_at,hid_top1,hid_top2,hid_top3')
+          .not('published_at', 'is', null)
+          .range(from, from + 999);
+        if (pg.error) throw pg.error;
+        (pg.data || []).forEach((p) => pubs.push(p));
+        if (!pg.data || pg.data.length < 1000) break;
+      }
       (pubs || []).forEach((p) => {
         [p.hid_top1, p.hid_top2, p.hid_top3].forEach((hid) => {
           if (!hid) return; const k = String(hid);

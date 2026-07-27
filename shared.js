@@ -471,20 +471,53 @@
       var noCache = opts && opts.noCache;
       var cached = !noCache && window.TW.cache.get('myHotels');
       if (cached) return Promise.resolve({ data: cached, error: null, _cached: true });
-      return sb.from('hotels').select('*').order('created_at', { ascending: false }).then(function (r) {
-        if (!r.error && r.data) window.TW.cache.set('myHotels', r.data);
-        return r;
-      });
+      /* RLS 로 보통은 내 호텔만 나오지만, owner 로 보면 전부 나온다 → 여기도 끊어 읽는다. */
+      return window.TW.db.readAll('hotels', '*', function (q) { return q.order('created_at', { ascending: false }); })
+        .then(function (r) {
+          if (!r.error && r.data) window.TW.cache.set('myHotels', r.data);
+          return r;
+        });
+    },
+    /* 1,000줄씩 끊어 표를 전부 읽는다.
+       Supabase 는 limit 없이 부르면 **아무 말 없이 1,000줄에서 잘라서** 준다.
+       표가 자라면 조용히 틀린 답이 나온다 — 새 코드는 반드시 이걸 쓴다. (D-076 §6-3) */
+    readAll: async function (table, select, tune) {
+      if (!sb) return { data: [], error: 'no-sb' };
+      var all = [];
+      for (var from = 0; from < 100000; from += 1000) {
+        var q = sb.from(table).select(select || '*').range(from, from + 999);
+        if (tune) q = tune(q);
+        var pg = await q;
+        if (pg.error) return { data: null, error: pg.error };
+        if (!pg.data || !pg.data.length) break;
+        all = all.concat(pg.data);
+        if (pg.data.length < 1000) break;
+      }
+      return { data: all, error: null };
     },
     getAllHotels: function (opts) {
       if (!sb) return Promise.resolve({ data: [], error: 'no-sb' });
       var noCache = opts && opts.noCache;
       var cached = !noCache && window.TW.cache.get('hotels');
       if (cached) return Promise.resolve({ data: cached, error: null, _cached: true });
-      return sb.from('hotels').select('*').order('created_at', { ascending: false }).then(function (r) {
-        if (!r.error && r.data) window.TW.cache.set('hotels', r.data);
-        return r;
-      });
+      /* 🔴 2026-07-27: limit 없이 부르면 Supabase 기본 1,000줄에서 잘린다.
+         hotels 는 3,252줄 → 관리자 화면 「전체 호텔」이 **1000** 으로 굳어 보였고,
+         목록에서 2,252개가 통째로 사라져 있었다. 1,000줄씩 끊어 전부 읽는다.
+         「받은 게 전부」라고 믿지 않는다(63) · D-076 §4-1 */
+      return (async function () {
+        var all = [];
+        for (var from = 0; from < 100000; from += 1000) {
+          var pg = await sb.from('hotels').select('*')
+            .order('created_at', { ascending: false })
+            .range(from, from + 999);
+          if (pg.error) return { data: null, error: pg.error };
+          if (!pg.data || !pg.data.length) break;
+          all = all.concat(pg.data);
+          if (pg.data.length < 1000) break;
+        }
+        window.TW.cache.set('hotels', all);
+        return { data: all, error: null };
+      })();
     },
     getHotel: function (hotelId) {
       if (!sb) return Promise.resolve({ data: null, error: 'no-sb' });
@@ -529,19 +562,19 @@
     },
     getPayments: function (hotelId) {
       if (!sb) return Promise.resolve({ data: [], error: 'no-sb' });
-      var q = sb.from('payments').select('*').order('created_at', { ascending: false });
+      var q = window.TW.db.readAll('payments', '*', function(q){ return q.order('created_at', { ascending: false }); });
       if (hotelId) q = q.eq('hotel_id', hotelId);
       return q;
     },
     getVideos: function (hotelId) {
       if (!sb) return Promise.resolve({ data: [], error: 'no-sb' });
-      var q = sb.from('videos').select('*').order('created_at', { ascending: false });
+      var q = window.TW.db.readAll('videos', '*', function(q){ return q.order('created_at', { ascending: false }); });
       if (hotelId) q = q.eq('hotel_id', hotelId);
       return q;
     },
     getBookings: function (hotelId) {
       if (!sb) return Promise.resolve({ data: [], error: 'no-sb' });
-      var q = sb.from('bookings').select('*').order('booking_date', { ascending: false });
+      var q = window.TW.db.readAll('bookings', '*', function(q){ return q.order('booking_date', { ascending: false }); });
       if (hotelId) q = q.eq('hotel_id', hotelId);
       return q;
     },

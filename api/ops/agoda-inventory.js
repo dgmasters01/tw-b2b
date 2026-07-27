@@ -63,8 +63,24 @@ export default async function handler(req, res) {
   const city = String(req.query.city || 'Osaka');
   const dryRun = req.query.dry_run === '1';
   // 🔬 `?city_id=9395` 로 문서 예제(싱가포르)를 직접 시험할 수 있다 — **우리 번호가 틀린 건지 계정이 문제인지** 가른다
-  const cityId = req.query.city_id ? parseInt(req.query.city_id, 10) : CITY_ID[city.toLowerCase()];
-  if (!cityId) return res.status(400).json({ ok: false, error: `도시 번호를 모릅니다: ${city}. 아는 것: ${Object.keys(CITY_ID).join(', ')}` });
+  /* 🔴 2026-07-27: 도시 번호를 코드에 3개만 박아둬서 **오사카·도쿄·제주 말고는 못 담았다.**
+     그런데 `v_city_inventory` 에 **145개 도시의 city_id 가 이미 다 있다.** DB 에서 찾는다.
+     (박아둔 CITY_ID 는 예비로 남긴다 — DB 가 비어도 세 도시는 돈다) */
+  let cityId = req.query.city_id ? parseInt(req.query.city_id, 10) : CITY_ID[city.toLowerCase()];
+  if (!cityId) {
+    try {
+      const found = await sb(`agoda_city?city=eq.${encodeURIComponent(city)}&select=city_id&limit=1`);
+      if (found && found[0]) cityId = found[0].city_id;
+    } catch (e) { /* 못 찾으면 아래에서 안내한다 */ }
+  }
+  if (!cityId) {
+    let known = [];
+    try { known = await sb('v_city_inventory?select=city,city_id&order=bookings.desc&limit=20'); } catch (e) { /* 무시 */ }
+    return res.status(400).json({ ok: false,
+      error: `도시 번호를 모릅니다: ${city}`,
+      hint: 'agoda_city 표에 그 이름이 없습니다. 영문 이름(예: Osaka·Ho Chi Minh City)으로 넣어 보세요.',
+      known_sample: known.map((k) => `${k.city}(${k.city_id})`) });
+  }
 
   const apiKey = process.env.AGODA_API_KEY;
   if (!apiKey) return res.status(500).json({ ok: false, error: 'AGODA_API_KEY 없음' });

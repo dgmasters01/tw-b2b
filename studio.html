@@ -5613,6 +5613,11 @@ function invLine(x){
     +(v.has_detail?'':' <span class="pil" style="background:var(--amd);color:var(--am);">도시 개수만 · 지역별은 아직</span>')
     +'</div>';
 }
+/* 🔴 2026-07-27 버그수정: 이 <script> 블록은 esc() 가 정의된 블록과 **다른 블록**이다.
+   블록이 다르면 함수가 서로 안 보인다 → 지역 상세를 열 때 「esc is not defined」로 터져
+   **세부지역 클릭이 통째로 먹통**이었다(대표님 발견). 이 블록 전용으로 하나 둔다. */
+function kwEsc(v){ return String(v == null ? '' : v).replace(/[&<>"']/g, function(c){
+  return { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]; }); }
 var SVCITY='오사카', SVKEY='cc:japan|osaka';   /* 지금 화면에 올라온 조사 도시 (도시 축) */
 function loadSnap(key, name){
   key=key||SVKEY; name=name||SVCITY;
@@ -6413,7 +6418,7 @@ function rx(d){cd=d;
  var kmea=KW.filter(function(k){return k.measured;}).length;
  h+='<div class="bk"><div class="bh">'+d+' 검색어 <span style="font-size:10px;color:var(--muted);font-weight:400;">— DB만 읽습니다. 볼 때 구글·유튜브 호출 0</span><span class="no" style="margin-left:auto;">4-4</span></div>';
  if(!KW.length){
-   h+='<div style="font-size:11px;color:var(--muted);padding:6px 0;">'+d+' 이름이 든 검색어가 아직 없습니다 — 다음 조사 때 넣습니다. 도시 전체 검색어는 <b>'+esc(SVCITY)+' 화면</b>에 있습니다.</div></div>';
+   h+='<div style="font-size:11px;color:var(--muted);padding:6px 0;">'+d+' 이름이 든 검색어가 아직 없습니다 — 다음 조사 때 넣습니다. 도시 전체 검색어는 <b>'+kwEsc(SVCITY)+' 화면</b>에 있습니다.</div></div>';
  } else {
    h+='<div class="st4" style="margin-bottom:6px;"><div class="st"><div class="v">'+KW.length+'</div><div class="l">'+d+' 검색어</div></div>'+
       '<div class="st"><div class="v" style="color:var(--em);">'+kmea+'</div><div class="l">검색량 조사됨</div></div>'+

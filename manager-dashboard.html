@@ -1690,6 +1690,10 @@ function updateBookingSummary(){
 }
 
 async function loadMoreBookings(){
+  /* 🔴 2026-07-27: 예약이 아직 안 실렸을 때 [더 보기]를 누르면 터졌다(undefined.length).
+     화면 검사 도구가 잡음. 빈 배열로 받아 안전하게 시작한다. */
+  if (!Array.isArray(window.__bookingsLoaded)) window.__bookingsLoaded = [];
+  if (!currentHotel || !currentHotel.hotel_id) return;   // 호텔이 아직 안 실렸으면 아무 일도 안 한다
   const start = window.__bookingsLoaded.length;
   const { data: more, error } = await sb
     .from('v_manager_recent_bookings')
@@ -1699,7 +1703,7 @@ async function loadMoreBookings(){
     .range(start, start + 9);
   if (error) { console.error('[bookings] loadMore error', error); return; }
   if (more && more.length) {
-    window.__bookingsLoaded = window.__bookingsLoaded.concat(more);
+    window.__bookingsLoaded = (window.__bookingsLoaded || []).concat(more || []);
     renderBookingTable(window.__bookingsLoaded);
   }
 }

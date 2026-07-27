@@ -62,6 +62,8 @@ export default async function handler(req, res) {
   }
   const city = String(req.query.city || 'Osaka');
   const dryRun = req.query.dry_run === '1';
+  const rateMin = req.query.min ? Math.max(1, parseInt(req.query.min, 10)) : 1;
+  const rateMax = req.query.max ? parseInt(req.query.max, 10) : 100000;
   // 🔬 `?city_id=9395` 로 문서 예제(싱가포르)를 직접 시험할 수 있다 — **우리 번호가 틀린 건지 계정이 문제인지** 가른다
   /* 🔴 2026-07-27: 도시 번호를 코드에 3개만 박아둬서 **오사카·도쿄·제주 말고는 못 담았다.**
      그런데 `v_city_inventory` 에 **145개 도시의 city_id 가 이미 다 있다.** DB 에서 찾는다.
@@ -94,7 +96,10 @@ export default async function handler(req, res) {
       criteria: {
         additional: {
           currency: 'USD',
-          dailyRate: { maximum: 100000, minimum: 1 },
+          /* 🔑 2026-07-27: 아고다는 한 번에 **30개**만 준다(공식 상한).
+             가격 구간을 나눠 부르면 구간마다 30개씩 = 도시당 수백 개를 모을 수 있다.
+             ?min=50&max=80 으로 쓴다. 안 주면 전체 구간(지금까지와 같음). */
+          dailyRate: { minimum: rateMin, maximum: rateMax },
           discountOnly: false,
           language: 'en-us',
           // 🔴 2026-07-17 — 아고다 공식 문서(Affiliate Long Tail Search API v1.0):

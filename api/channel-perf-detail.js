@@ -70,12 +70,16 @@ function admin() {
   return createClient(url, key, { auth: { persistSession: false } });
 }
 
+/* 🔴 2026-07-27: 서버에서 한글로 **바꿔서** 보내면 EN 화면이 그 한글을 그대로 그린다.
+   원본(영문 코드)도 같이 보내고, 어떤 말로 쓸지는 화면이 정한다. */
 function hotelMetaFmt(r) {
   return {
-    name: r.hotel_name || '(이름 없음)',
-    country: r.country ? (COUNTRY_KO[r.country] || r.country) : null,
+    name: r.hotel_name || null,                 // 없으면 null — 화면이 「(no name)」을 붙인다
+    country: r.country ? (COUNTRY_KO[r.country] || r.country) : null,   // 한국어 화면용(기존 호환)
+    country_en: r.country || null,                                      // 아고다 원본(영문)
     city: r.city || null,
     type: r.property_type ? (TYPE_KO[r.property_type] || r.property_type) : null,
+    type_code: r.property_type || null,                                 // hotel · resort · villa …
     star: r.star_rating || null,
   };
 }
@@ -97,7 +101,7 @@ export default async function handler(req, res) {
 
   // 이 채널 + 기간 예약
   let q = sb.from('bookings_agoda')
-    .select('hotel_id,booking_amount_usd,commission_usd,is_cancelled,is_completed,booked_at')
+    .select('hotel_id,hotel_id_agoda,hotel_name,hotel_country,hotel_star,booking_amount_usd,commission_usd,is_cancelled,is_completed,booked_at')
     .eq('channel_code', code);
   if (from) q = q.gte('booked_at', from);
   if (to) q = q.lte('booked_at', to + 'T23:59:59');
@@ -125,7 +129,7 @@ export default async function handler(req, res) {
   }
   const arr = Object.values(m).map((h) => {
     const mt = meta[h.hotel_id] || {};
-    const o = { name: mt.name || '(이름 없음)', country: mt.country || null, city: mt.city || null, type: mt.type || null, star: mt.star || null, bookings: h.bookings, completed: h.done, amount_usd: Math.round(h.amount) };
+    const o = { name: mt.name || null, country: mt.country || null, country_en: mt.country_en || null, city: mt.city || null, type: mt.type || null, type_code: mt.type_code || null, star: mt.star || null, bookings: h.bookings, completed: h.done, amount_usd: Math.round(h.amount) };
     if (withComm) o.commission_usd = Math.round(h.comm);
     return o;
   });
@@ -137,13 +141,17 @@ export default async function handler(req, res) {
     .slice(0, 40)
     .map((r) => {
       const mt = meta[r.hotel_id] || {};
+      /* 🔴 2026-07-27: 마스터에 없는 호텔(hotel_id 없음, 79건)은 「(이름 없음)」이 됐다.
+         예약 원본에 이름·나라가 그대로 있으므로 그것으로 채운다. */
       const o = {
         date: String(r.booked_at || '').slice(0, 10),
-        hotel_name: mt.name || '(이름 없음)',
-        country: mt.country || null,
+        hotel_name: mt.name || r.hotel_name || null,
+        country: mt.country || (r.hotel_country ? (COUNTRY_KO[r.hotel_country] || r.hotel_country) : null),
+        country_en: mt.country_en || r.hotel_country || null,
         city: mt.city || null,
-        star: mt.star || null,
+        star: mt.star || r.hotel_star || null,
         status: r.is_cancelled ? '취소' : (r.is_completed ? '확정' : '진행'),
+        status_code: r.is_cancelled ? 'cancelled' : (r.is_completed ? 'confirmed' : 'pending'),
         amount_usd: Math.round(Number(r.booking_amount_usd) || 0),
       };
       if (withComm) o.commission_usd = r.is_cancelled ? 0 : Math.round(Number(r.commission_usd) || 0);

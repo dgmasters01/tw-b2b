@@ -10,7 +10,7 @@
 // 무엇을 하나
 //   ① 마스터에 못 붙은 예약(hotel_id IS NULL)을 찾는다
 //   ② 그 중 아고다 id 로 이미 마스터에 있는 것은 **자동으로 이어 붙인다** (놓친 연결 복구)
-//   ③ 진짜 없는 호텔은 **마스터에 자동 등록**하고 예약에 연결한다 (status='auto')
+//   ③ 진짜 없는 호텔은 **마스터에 자동 등록**하고 예약에 연결한다 (merge_status='auto_from_booking')
 //   ④ 손 못 댄 것이 남으면 메일로 알린다. 0이면 안 보낸다(소음 방지).
 //
 // 실행: Vercel Cron 매일 KST 09시(UTC 00시). 업로드는 사람이 아무 때나 하므로 하루 한 번이면 충분하다.
@@ -127,9 +127,9 @@ export default async function handler(req, res) {
             country: g.country || null,
             city: g.city || null,
             star_rating: g.star != null ? String(g.star) : null,
-            status: 'auto',                     // 사람이 확인해야 할 것
-            merge_status: 'auto_from_booking',  // 어디서 왔는지 남긴다
-            operating_status: 'unknown',
+            status: 'catalog',                  // hotels_status_check 허용값 (pending·review·approved·paid·producing·published·rejected·refunded·archived·catalog)
+            merge_status: 'auto_from_booking',  // 🔖 여기가 「사람이 확인해야 할 것」 표시다 (status 는 제약이 있어 못 씀)
+            operating_status: null,           // 모르는 값은 비워 둔다. 지어내지 않는다
           }).select('id,hotel_code').single();
           if (ie || !ins) { failed.push({ agoda_id: k, name: g.name, why: String((ie && ie.message) || '등록 실패') }); continue; }
           codeSeq += 1;
@@ -180,7 +180,7 @@ export default async function handler(req, res) {
         '',
         `못 붙어 있던 예약: ${orphans.length}건 (호텔 ${Object.keys(groups).length}곳)`,
         `  · 마스터에 있었는데 연결이 빠졌던 것: ${relinked.length}곳 → 이어 붙였습니다`,
-        `  · 마스터에 없어 새로 만든 호텔: ${created.length}곳 (status=auto)`,
+        `  · 마스터에 없어 새로 만든 호텔: ${created.length}곳 (merge_status=auto_from_booking)`,
         `  · 아고다 id 가 없어 손 못 댄 예약: ${noAgodaId.length}건`,
         `  · 실패: ${failed.length}건`,
         remaining > 0 ? `  · 이번에 다 못 한 호텔: ${remaining}곳 (내일 이어서 합니다)` : '',
@@ -191,7 +191,7 @@ export default async function handler(req, res) {
         noAgodaId.length ? '아고다 id 가 없는 예약 — 원본 파일을 확인해 주세요:' : '',
         ...out.no_agoda_id_sample.map((b) => `  ${b.channel} ${b.booking_id} ${b.hotel_name || '(이름 없음)'} ${b.booked_at || ''}`),
         '',
-        '스튜디오 → 호텔 메뉴에서 status=auto 인 호텔을 확인하세요.',
+        '스튜디오 → 호텔 메뉴에서 merge_status=auto_from_booking 인 호텔을 확인하세요.',
       ].filter((x) => x !== '');
       try {
         await sendOpsEmail({

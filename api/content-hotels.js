@@ -243,7 +243,7 @@ export default async function handler(req, res) {
       for (let from = 0; from < 20000; from += 1000) {
         const pg = await sb
           .from('hotels')
-          .select('agoda_hotel_ids,country,city,star_rating,property_type')
+          .select('agoda_hotel_ids,country,city,star_rating,property_type,merge_status')
           .not('merge_status', 'is', null)
           .range(from, from + 999);
         if (pg.error) throw pg.error;
@@ -254,7 +254,7 @@ export default async function handler(req, res) {
         const ids = Array.isArray(r.agoda_hotel_ids) ? r.agoda_hotel_ids : [];
         ids.forEach((aid) => {
           const k = String(aid);
-          if (!master[k]) master[k] = { country: r.country || null, city: r.city || null, star: r.star_rating || null, ptype: r.property_type || null };
+          if (!master[k]) master[k] = { country: r.country || null, city: r.city || null, star: r.star_rating || null, ptype: r.property_type || null, msta: r.merge_status || null };
         });
       });
       const { data: bg } = await sb
@@ -302,6 +302,7 @@ export default async function handler(req, res) {
         city: m.city || g.city || h.agoda_city || null,
         star: m.star || g.star || null,
         htype: hotelType(m.ptype, name),
+        auto_new: m.msta === 'auto_from_booking',   // 예약 보고 자동 등록된 호텔 = 사람이 확인해야 할 것 (D-075)
         last_exposure: lastExpo[String(h.hid)] || null,
       };
     });

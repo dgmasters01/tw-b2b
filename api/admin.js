@@ -3143,7 +3143,7 @@ function normalizeRow(r) {
 
 /* 예약에 붙은 호텔이 마스터에 없으면 **그 자리에서 만든다** (2026-07-27 신설).
    근거는 아고다 원본뿐이다 — 이름·나라·도시·성급. 없는 값은 지어내지 않고 비워 둔다.
-   status='auto' 로 표시해 「사람이 확인해야 할 것」임을 남긴다. */
+   merge_status='auto_from_booking' 로 표시해 「사람이 확인해야 할 것」임을 남긴다. */
 async function ensureHotelMaster(SUPABASE_URL, serviceKey, info) {
   const H = { Authorization: `Bearer ${serviceKey}`, apikey: serviceKey, 'Content-Type': 'application/json' };
   try {
@@ -3167,7 +3167,7 @@ async function ensureHotelMaster(SUPABASE_URL, serviceKey, info) {
       star_rating: info.star != null ? String(info.star) : null,
       status: 'auto',                       // 사람이 확인해야 할 것
       merge_status: 'auto_from_booking',    // 어디서 왔는지 남긴다
-      operating_status: 'unknown',
+      operating_status: null,           // 모르는 값은 비워 둔다. 지어내지 않는다
     };
     const ins = await fetch(`${SUPABASE_URL}/rest/v1/hotels`, {
       method: 'POST', headers: { ...H, Prefer: 'return=representation' }, body: JSON.stringify(body),

@@ -2,7 +2,7 @@
 
 > ⚙️ **이 문서는 `_os/tools/wiring-scan.mjs` 가 코드에서 자동으로 뽑는다. 손으로 고치지 마라 — 다음 실행에 지워진다.**
 > 사람이 쓰는 설명·판단은 `SYSTEM_MAP.md` 에. 이 문서는 **사실 관계**만 담는다.
-> 마지막 갱신 2026-07-27 · 화면 25 · 창구 72 · 표 55 · 크론 9
+> 마지막 갱신 2026-07-27 · 화면 25 · 창구 73 · 표 55 · 크론 10
 
 **쓰는 법**: 무엇을 고치기 전에 **여기서 그 이름을 찾는다.** 같이 고쳐야 할 곳이 한눈에 나온다.
 
@@ -139,6 +139,7 @@
 | `0 3 * * *` | `/api/cron/hotel-district-fill` | `agoda_inventory` `hotels` | **`hotels`** |
 | `0 4 * * 1` | `/api/cron/hotel-closed-check` | `agoda_inventory` `hotels` | **`hotels`** |
 | `0 0 * * *` | `/api/cron/booking-health` | `hotels` | **`bookings_agoda`** |
+| `0 1 * * *` | `/api/cron/wiring-check` | — | — |
 
 ---
 

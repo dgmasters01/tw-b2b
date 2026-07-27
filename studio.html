@@ -1222,13 +1222,20 @@ window.STUDIO_I18N = {
    원칙: **영어일 때만** 동작한다. 한국어 화면은 손도 안 대어 기존 기능이 절대 안 깨진다.
    렌더된 글자만 바꾸므로 화면 코드(500개 문자열)를 손대지 않는다. */
 window.STUDIO_PHRASES = {
+  /* ── 8차: <b> 태그로 쪼개진 문장은 조각 단위로 넣는다 ── */
+  '에서 잡습니다 — 중심가·외곽을 그 거리로 나눕니다':' (city centre vs outskirts split there)',
+  '에서 잡니다 — 중심가·외곽을 그 거리로 나눕니다':' (city centre vs outskirts split there)',
+  '이 도시는 손님 10명 중 9명이 ':'In this city, 9 of every 10 guests stay within ',
+  '이 나라 도시 전체 보기':'See all cities in this country',
+  '개 나라 펼쳐 보기 ▾':' countries — expand ▾',
+  '개 도시 펼쳐 보기 ▾':' cities — expand ▾',
+  '중심에서 ':'',
+  'km 안':'km of the centre',
+  '나머지 ':'the other ',
   /* ── 7차: 키워드 3-x·4-x 세부 + 월 치환 버그 수정 ── */
   '이름이 든 검색어가 아직 없습니다 — 다음 조사 때 넣습니다. 도시 전체 검색어는':'-specific search terms yet. They will be added at the next research. City-wide terms are on the',
-  '안에서 잡습니다 — 중심가·외곽을 그 거리로 나눕니다':'of the centre (city centre vs outskirts split there)',
-  '안에서 잡니다 — 중심가·외곽을 그 거리로 나눕니다':'of the centre (city centre vs outskirts split there)',
   '에 있는 것 · 우리가 아는 것 · 실제로 팔린 것':' has · what we know · what actually sold',
   '에 가장 몰립니다 — 나머지 달은 측정 바닥 아래':' are the busiest — the other months are below the measurement floor',
-  '이 도시는 손님 10명 중 9명이 중심에서':'In this city, 9 of every 10 guests stay within',
   '펼쳐 보기 ▾ — 호텔별 확정·취소·금액':'Expand ▾ — by hotel: confirmed · cancelled · amount',
   '찾는 사람은 많고 영상은 적은 자리':'many searchers, few videos',
   '이 가장 많은 동네입니다 (':' is the most common star rating here (',
@@ -1289,12 +1296,9 @@ window.STUDIO_PHRASES = {
   /* ── 6차: 키워드 세부 페이지 설명문 ── */
   '계절은 언제 만들지, 키워드는 뭘 만들지 알려줍니다 — 둘 다 있어야 추천이 나옵니다':'Season tells you when to make it, keywords tell you what to make — you need both before a recommendation appears',
   '순서입니다 — 우리 호텔이 있는 지역만 (호텔 좌표로 판정)':'in order — only districts where we have hotels (decided by hotel coordinates)',
-  '는 손님 10명 중 9명이 중심에서':': 9 of every 10 guests stay within',
   '에 가장 몰립니다 — 가장 한산한':' are the busiest — vs the quietest ',
   '키워드 조사가 안 된 도시':'Keyword research not done for this city',
-  '을 그 거리로 나눕니다':' are split at that distance',
   '를 아직 안 쟀습니다':'— not measured yet',
-  '안에서 잡니다 — ':'of the centre — ',
   '작년 같은 기간보다':'vs last year',
   '도시마다 다릅니다':'varies by city',
   '를 찾는 사람이':' — searches',
@@ -2030,10 +2034,11 @@ window.STUDIO_PHRASES = {
   }
   window.STUDIO_COUNTRY_EN={'대한민국':'South Korea','한국':'South Korea','일본':'Japan','대만':'Taiwan','중국':'China','홍콩':'Hong Kong','마카오':'Macau','미국':'United States','태국':'Thailand','베트남':'Vietnam','싱가포르':'Singapore','말레이시아':'Malaysia','스리랑카':'Sri Lanka','필리핀':'Philippines','인도네시아':'Indonesia','호주':'Australia','뉴질랜드':'New Zealand','프랑스':'France','영국':'United Kingdom','독일':'Germany','스페인':'Spain','이탈리아':'Italy','캄보디아':'Cambodia','라오스':'Laos','몰디브':'Maldives','괌':'Guam','사이판':'Saipan','미얀마':'Myanmar','인도':'India','터키':'Turkey','튀르키예':'Turkiye','스위스':'Switzerland','네덜란드':'Netherlands','체코':'Czechia','오스트리아':'Austria','캐나다':'Canada','멕시코':'Mexico','브라질':'Brazil','아랍에미리트':'United Arab Emirates'};
 window.STUDIO_CITY_EN={};
-window.stCityAdd=function(nm,key){ if(!nm||!key) return; var seg=String(key).split('|').pop().replace(/^d:/,'').replace(/^t:/,'').trim();
-  if(!seg||/[^\x00-\x7F]/.test(seg)) return;           /* 영문이 아니면 그 나라 말 그대로 둔다 */
-  window.STUDIO_CITY_EN[nm]=seg.replace(/\b([a-z])/g,function(m,c){return c.toUpperCase();}); };
+/* 영문 이름은 **창구가 준 name_en**(아고다 원본)만 쓴다. 없으면 그 나라 말 그대로. 지어내지 않는다.
+   ⚠️ 옛 방식(city_key 마지막 토막 추측)은 조사한 도시에만 있어서 절반만 바뀌었다 — 폐기(2026-07-27). */
+window.stCityAdd=function(nm,en){ if(!nm||!en) return; window.STUDIO_CITY_EN[nm]=en; };
 window.stCityEn=function(nm){ return (window.stLang==='en' && window.STUDIO_CITY_EN[nm]) ? window.STUDIO_CITY_EN[nm] : nm; };
+window.stCoAdd=function(ko,en){ if(ko&&en) window.STUDIO_COUNTRY_EN[ko]=en; };
 window.stCoEn=function(c){ return (window.stLang==='en' && window.STUDIO_COUNTRY_EN[c]) ? window.STUDIO_COUNTRY_EN[c] : c; };
 window.stWatchIds=['view-upload','view-keyword','view-strategy','view-channels'];   /* 뷰 전체 = 기존 6개 + 필터 드롭다운 + 키워드 부제까지 포함 */
   document.addEventListener('DOMContentLoaded', function(){ window.stWatchIds.forEach(watch); });
@@ -5164,9 +5169,9 @@ function loadCities(){
       if(!d||!d.ok){ CTERR=(d&&d.error)||'도시 목록을 불러오지 못했습니다'; rd(); return; }
       CTERR=null; CT={}; CTN={}; INV={};
       d.countries.forEach(function(c){
-        CT[c.country]=c.cities.map(function(x){return x.name;});     /* 예약순 — 창구가 정렬해서 준다 */
+        stCoAdd(c.country,c.country_en); CT[c.country]=c.cities.map(function(x){return x.name;});     /* 예약순 — 창구가 정렬해서 준다 */
         CTN[c.country]=c.cities.length;
-        c.cities.forEach(function(x){ INV[x.name]=x; stCityAdd(x.name,x.city_key); if(x.surveyed) SNAP_CITY[x.name]=true; });
+        c.cities.forEach(function(x){ INV[x.name]=x; stCityAdd(x.name,x.name_en); if(x.surveyed) SNAP_CITY[x.name]=true; });
       });
       SS_RUNNING = d.running_list || []; SS_NEWDONE = d.new_done_list || []; SS_DONE = d.done_list || [];
       renderSurveyStatus();
@@ -5273,7 +5278,7 @@ function rd(){var h='',yrs=[];MOS.forEach(function(o){if(yrs.indexOf(o.y)<0)yrs.
   var b=lst[0];
   var cps=lst.slice(0,3).map(function(o){
     return '<span class="cp" onclick="event.stopPropagation();go(\'d\',\''+o.c+'\',\''+c+'\')" title="'+o.g.t+' — '+o.g.w+'">'
-          +'<span class="cd" style="background:'+CD[o.g.s]+';"></span>'+o.c+' '+LB[o.g.s]+'</span>';}).join('');
+          +'<span class="cd" style="background:'+CD[o.g.s]+';"></span>'+stCityEn(o.c)+' '+LB[o.g.s]+'</span>';}).join('');
   var rest=(CTN[c]||lst.length)-Math.min(3,lst.length);
   if(rest>0)cps+='<span class="cp cp-x" onclick="event.stopPropagation();go(\'c\',\''+c+'\')" title="이 나라 도시 전체 보기">외 '+rest+'곳</span>';
   h+='<div class="rw" onclick="go(\'c\',\''+c+'\')"><div class="mn"><div class="n"><span class="nm">'+stCoEn(c)+'</span><span class="sg '+CL[b.g.s]+'">'+LB[b.g.s]+'</span></div>'

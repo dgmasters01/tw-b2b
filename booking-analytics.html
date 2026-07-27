@@ -563,6 +563,14 @@ global.BKA = {
   invalidateCache: _BKA_invalidateCache
 };
 
+/* 🔴 2026-07-27 버그수정: 이 파일 전체가 IIFE 로 감싸져 있어 sT·sV·sGr 이 «전역에 없었다».
+   그런데 화면의 버튼은 onclick="sT(...)" 로 부른다 — onclick 은 전역에서만 함수를 찾는다.
+   → **탭·보기·그래프 전환이 전부 먹통이었다.** (화면 검사 도구가 잡음 · D-076 §6-8)
+   IIFE 는 그대로 두고, onclick 이 부르는 세 개만 내놓는다. */
+global.sT = sT;    // 탭 전환
+global.sV = sV;    // 보기 전환
+global.sGr = sGr;  // 그래프 전환
+
 // 하위 호환: 기존 admin.html 이 호출하던 window.initAnalytics 를 mount 로 위임
 global.initAnalytics = function(){ _BKA_init(); _BKA_mount(); };
 

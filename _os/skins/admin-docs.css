@@ -1,0 +1,127 @@
+/* _os/skins/admin-docs.css
+ * 📖 관리자 «문서 본문» 가독성 — 2026-07-27 신설
+ *
+ * 왜 만들었나 (대표님 지적):
+ *   "이런 식으로 정리해서 색 배열하면 나는 글자가 하나도 안 보여."
+ *   admin-skin.css 가 배경을 어둡게 바꾸는데, 각 페이지 안의 문서 본문 스타일은
+ *   밝은 배경 기준(검정 글자)으로 박혀 있었다. → 어두운 배경 + 검은 글자 = 안 보임.
+ *
+ * 어떻게 고치나
+ *   문서 본문의 색을 **스킨 변수**(--admin-*)에 맞춘다. 다크·라이트 둘 다 자동으로 맞는다.
+ *
+ * ⚠️ 반드시 admin-skin.css **뒤에** 넣어야 한다. 앞에 넣으면 스킨이 덮어써서 다시 안 보인다.
+ *   <link rel="stylesheet" href="/_os/skins/admin-skin.css">
+ *   <link rel="stylesheet" href="/_os/skins/admin-docs.css">   ← 이 순서
+ *
+ * 적용 대상: #content · .md-body · .doc-body (문서를 그리는 칸 이름이 페이지마다 다름)
+ */
+
+#content, .md-body, .doc-body {
+  color: var(--admin-text-1, #1e293b);
+  line-height: 1.75;
+  font-size: 15px;
+}
+
+/* ── 제목 ── */
+#content h1, .md-body h1, .doc-body h1,
+#content h2, .md-body h2, .doc-body h2,
+#content h3, .md-body h3, .doc-body h3,
+#content h4, .md-body h4, .doc-body h4 {
+  color: var(--admin-text-1, #0f172a);
+}
+#content h1, .md-body h1, .doc-body h1 { border-bottom: 2px solid var(--admin-border-strong, #e2e8f0); }
+#content h2, .md-body h2, .doc-body h2 { border-top: 1px solid var(--admin-border, #f1f5f9); }
+
+/* ── 본문 ── */
+#content p, #content li, .md-body p, .md-body li, .doc-body p, .doc-body li {
+  color: var(--admin-text-1, #1e293b);
+}
+#content strong, #content b, .md-body strong, .doc-body strong {
+  color: var(--admin-text-1, #0f172a);
+  font-weight: 700;
+}
+#content em, .md-body em, .doc-body em { color: var(--admin-text-2, #475569); }
+#content del, .md-body del, .doc-body del { color: var(--admin-text-muted, #94a3b8); }
+#content hr, .md-body hr, .doc-body hr { border: 0; border-top: 1px solid var(--admin-border, #e2e8f0); margin: 24px 0; }
+
+/* ── 표 — 헤더만 밝고 본문이 어두워 안 보이던 곳 ── */
+#content table, .md-body table, .doc-body table {
+  border-collapse: collapse; width: 100%; font-size: 13.5px; margin: 16px 0;
+}
+#content th, #content td,
+.md-body th, .md-body td,
+.doc-body th, .doc-body td {
+  border: 1px solid var(--admin-border-strong, #e2e8f0);
+  padding: 9px 12px; text-align: left; vertical-align: top;
+  color: var(--admin-text-1, #1e293b);
+}
+#content th, .md-body th, .doc-body th {
+  background: var(--admin-bg-2, #f8fafc);
+  color: var(--admin-text-1, #0f172a);
+  font-weight: 700;
+}
+#content tbody tr:nth-child(even) td,
+.md-body tbody tr:nth-child(even) td,
+.doc-body tbody tr:nth-child(even) td { background: var(--admin-bg-1, #fff); }
+#content tbody tr:hover td,
+.md-body tbody tr:hover td,
+.doc-body tbody tr:hover td { background: var(--admin-bg-2, #f1f5f9); }
+
+/* ── 인용문 — 흰 배경에 파란 글씨라 다크에서 튀던 것 ── */
+#content blockquote, .md-body blockquote, .doc-body blockquote {
+  border-left: 4px solid var(--admin-blue, #3b82f6);
+  background: var(--admin-bg-1, #eff6ff);
+  color: var(--admin-text-1, #1e40af);
+  padding: 12px 16px; margin: 16px 0; border-radius: 0 6px 6px 0;
+}
+#content blockquote p, #content blockquote strong,
+.md-body blockquote p, .doc-body blockquote p { color: var(--admin-text-1, #1e40af); }
+
+/* ── 코드 — 빨간 글씨가 어두운 배경에서 안 읽히던 것 ── */
+#content code, .md-body code, .doc-body code {
+  background: var(--admin-bg-2, #f1f5f9);
+  color: var(--admin-yellow, #dc2626);
+  padding: 2px 6px; border-radius: 4px; font-size: 13px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+#content pre, .md-body pre, .doc-body pre {
+  background: var(--admin-bg-0, #0f172a);
+  color: var(--admin-text-1, #e2e8f0);
+  padding: 16px 20px; border-radius: 8px; overflow-x: auto;
+  border: 1px solid var(--admin-border, transparent);
+}
+#content pre code, .md-body pre code, .doc-body pre code { background: transparent; color: inherit; padding: 0; }
+
+#content a, .md-body a, .doc-body a { color: var(--admin-blue, #3b82f6); }
+
+/* ── 검색 하이라이트 — 노란 배경에 흰 글씨면 안 보인다. 글자색을 «항상 검정»으로 고정 ── */
+.bd-highlight, .md-highlight {
+  background: #fde047; color: #0f172a;
+  padding: 0 2px; border-radius: 2px; font-weight: 600;
+}
+
+/* ── 툴바·검색창 ── */
+.bd-toolbar { border-bottom: 1px solid var(--admin-border, #e2e8f0); }
+.bd-toolbar input, .bd-toolbar button {
+  background: var(--admin-bg-1, #fff);
+  color: var(--admin-text-1, #475569);
+  border: 1px solid var(--admin-border-strong, #cbd5e1);
+}
+.bd-toolbar input::placeholder { color: var(--admin-text-muted, #94a3b8); }
+.bd-toolbar button:hover { background: var(--admin-bg-2, #f1f5f9); }
+.bd-toolbar .bd-info { color: var(--admin-text-2, #64748b); }
+.bd-state { color: var(--admin-text-2, #64748b); }
+
+/* 흐린 글자(메타·힌트)는 스킨 기본값이 3.75:1 로 살짝 모자란다 → 문서 안에서만 한 단계 올린다.
+   (기준: 본문 4.5:1 · 2026-07-27 실측) */
+#content .muted, .md-body .muted, .doc-body .muted,
+#content small, .md-body small, .doc-body small { color: var(--admin-text-2, #64748b); }
+
+/* ── 인쇄할 때는 «항상 흰 종이에 검은 글씨» ── */
+@media print {
+  #content, .md-body, .doc-body,
+  #content *, .md-body *, .doc-body * {
+    background: #fff !important; color: #000 !important;
+  }
+  #content th, #content td { border: 1px solid #999 !important; }
+}

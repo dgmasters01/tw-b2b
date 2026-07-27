@@ -116,7 +116,8 @@
 | 결정 **인덱스**(요약·검색) | 루트 **`DECISIONS_INDEX.md`** (헌법 6조·유일) |
 | 결정 **스토리**(사람용) | 루트 **`DECISIONS.md`** |
 | 결정 **전문**(D별 상세) | **`_business/decisions/YYYY-MM-DD-{주제}.md`** |
-| **자동 시스템·크론·비용·전체 지도** | **`SYSTEM_MAP.md`** (이 문서 §3) |
+| **배선 «사실»**(어느 표를 어느 창구가 만지고 어느 화면이 쓰나) | **`SYSTEM_WIRING.md`** ⚙️**자동 생성** — 손대지 마라 (`node _os/tools/wiring-scan.mjs`) |
+| **자동 시스템·크론·비용·전체 지도** | **`SYSTEM_MAP.md`** (이 문서 §3) | ← 설명·판단·비용은 여기 |
 | 스튜디오 안쪽 흐름 | `_business/STUDIO_FLOW.md` |
 | 헌법(원칙) | `OPERATIONS_CHARTER.md` |
 | 진행 상황(최신) | `_os/handoff/current.md` |
@@ -126,3 +127,8 @@
 **⛔ 안 쓰는 곳(폐기·갈래):** `_os/charter/decisions-index.md`(→루트로 합침) · 루트의 과거 `PHASE*`·`HANDOFF_*`·`*VERIFICATION*` 임시 리포트(역사 기록·현행 아님).
 
 **새 결정·새 봇을 만들면:** ①전문은 `_business/decisions/`에 ②인덱스 한 줄은 루트 `DECISIONS_INDEX.md`에 ③봇이면 이 문서 §3에도. **이 세 곳 외엔 만들지 않는다.**
+
+**창구·화면·봇을 건드렸으면:** ④ `node _os/tools/wiring-scan.mjs` 를 돌려 `SYSTEM_WIRING.md` 를 **같이 커밋한다.** (D-076)
+
+> 🔴 **무엇을 고치기 전에 `SYSTEM_WIRING.md` §1 에서 그 표 이름을 찾아라.** 같이 고쳐야 할 곳이 다 나온다.
+> 「⚠️ 양쪽」이면 **B2B(gohotelwinners)와 스튜디오를 둘 다** 확인한다. 하나만 고치면 꼬인다 (대표님 2026-07-27).

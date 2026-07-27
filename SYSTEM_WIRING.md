@@ -150,11 +150,10 @@
 > Supabase·PostgREST 는 **아무 말 없이 1,000줄에서 잘라서** 준다. 표가 1,000줄을 넘으면 조용히 틀린 답이 나온다.
 > 실제 사고: `hotels`(3,185줄)를 그냥 읽어 **성급이 틀리게 표시**됐고, 예약 79건이 호텔에 안 붙었다 (D-074·D-075).
 
-**지금 실제로 터지는 것: 0곳** (표가 이미 1,000줄을 넘었다) · 전체 22곳
+**지금 실제로 터지는 것: 0곳** (표가 이미 1,000줄을 넘었다) · 전체 21곳
 
 | 위험 | 표 (행수) | 창구 | 어떻게 |
 |---|---|---|---|
-| 🟡 곧 넘음 | `keyword` (992) | `api/content-keywords.js` | limit/range 없이 통째로 읽음 |
 | 🟢 여유 | `v_city_hotel_progress` (172) | `api/content-keywords.js` | limit/range 없이 통째로 읽음 |
 | 🟢 여유 | `snapshot` (24) | `api/content-keywords.js` | limit/range 없이 통째로 읽음 |
 | 🟢 여유 | `channel_cid_map` (14) | `api/channels.js` | limit/range 없이 통째로 읽음 |

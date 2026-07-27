@@ -1227,6 +1227,9 @@ window.STUDIO_I18N = {
    원칙: **영어일 때만** 동작한다. 한국어 화면은 손도 안 대어 기존 기능이 절대 안 깨진다.
    렌더된 글자만 바꾸므로 화면 코드(500개 문자열)를 손대지 않는다. */
 window.STUDIO_PHRASES = {
+  /* ── 13차: 리드타임 밴드 라벨 ── */
+  '임박':'Imminent',
+  '근접':'Near',
   /* ── 11차: 전수 스캔 잔여분 ── */
   '으로 자동 · 검색어 40개는 이름 + 접미어(호텔·숙소·리조트·추천)로 만들고, 지역어는 자동완성으로 캡니다.':'is set automatically · 40 search terms are built from the name plus suffixes, and district terms come from autocomplete.',
   '없는 것은 검색 수요(구글 트렌드)뿐입니다. 그래서 \"지금 착수 / 대기\" 판정을 못 합니다.':'Only search demand (Google Trends) is missing, so Start now / Waiting cannot be decided.',
@@ -2408,6 +2411,11 @@ window.STUDIO_CITY_EN={};
    ⚠️ 옛 방식(city_key 마지막 토막 추측)은 조사한 도시에만 있어서 절반만 바뀌었다 — 폐기(2026-07-27). */
 window.stCityAdd=function(nm,en){ if(!nm||!en) return; window.STUDIO_CITY_EN[nm]=en; };
 window.stCityEn=function(nm){ return (window.stLang==='en' && window.STUDIO_CITY_EN[nm]) ? window.STUDIO_CITY_EN[nm] : nm; };
+window.stTrText=function(x){ if(window.stLang!=='en'||!x) return x;
+  var D=window.STUDIO_PHRASES||{}; if(!window.__stT) window.__stT=Object.keys(D).sort(function(a,b){return b.length-a.length;});
+  var T=window.__stT, o=String(x);
+  for(var i=0;i<T.length;i++){ if(o.indexOf(T[i])>=0) o=o.split(T[i]).join(D[T[i]]); }
+  return o; };
 window.stCoAdd=function(ko,en){ if(ko&&en) window.STUDIO_COUNTRY_EN[ko]=en; };
 window.stCoEn=function(c){ return (window.stLang==='en' && window.STUDIO_COUNTRY_EN[c]) ? window.STUDIO_COUNTRY_EN[c] : c; };
 window.stWatchIds=['view-upload','view-keyword','view-strategy','view-channels'];   /* 뷰 전체 = 기존 6개 + 필터 드롭다운 + 키워드 부제까지 포함 */
@@ -4514,7 +4522,8 @@ document.addEventListener('DOMContentLoaded', function(){
     var expN = d.exposures.length;
     var bestRank = d.exposures.reduce(function (m, e) { return (m == null || e.rank < m) ? e.rank : m; }, null);
     var strong = d.leadtime.filter(function (b) { return b.count; }).sort(function (a, b) { return (b.rate || 0) - (a.rate || 0); })[0];
-    var strongTxt = strong ? (strong.label.split('(')[0].trim() + t('ht.p.strong')) : '—';
+    /* 🔴 2026-07-27: 번역 안 된 원본에서 잘라 「먼strongest」가 됐다. 먼저 번역하고 자른다. */
+    var strongTxt = strong ? (stTrText(String(strong.label)).split('(')[0].trim() + t('ht.p.strong')) : '—';
     h += '<div class="st-htd-sec"><div class="st-htd-h">' + t('ht.p.title') + '</div>';
     h += '<div class="st-perf-money">' +
       '<div class="st-pm good"><div class="l">' + t('ht.p.amount') + '</div><div class="n">$' + (d.amount || 0).toLocaleString() + '</div></div>' +

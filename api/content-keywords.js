@@ -686,9 +686,22 @@ const LANG_NAME = {           // 코드 → 사람 말. **목록이 아니라 �
 const MARKET_NAME = { KR: '한국', JP: '일본', TW: '대만', VN: '베트남', US: '미국', GLOBAL: '전세계' };
 
 async function targets(sb, req, res) {
+  /* 🟡 2026-07-27: keyword 는 992줄이다 — **곧 1,000줄을 넘는다.**
+     넘으면 조용히 잘려서 타겟별 검색어 개수가 틀리게 나온다. 미리 끊어 읽는다. (D-076) */
+  const readAllKw = async () => {
+    const out = [];
+    for (let from = 0; from < 200000; from += 1000) {
+      const p = await sb.from('keyword').select('target_code').range(from, from + 999);
+      if (p.error) throw new Error(p.error.message);
+      if (!p.data || !p.data.length) break;
+      out.push(...p.data);
+      if (p.data.length < 1000) break;
+    }
+    return { data: out, error: null };
+  };
   const [chRes, kwRes, snRes] = await Promise.all([
     sb.from('channels').select('code, name, language, market, is_active').eq('is_active', true),
-    sb.from('keyword').select('target_code'),
+    readAllKw(),
     sb.from('snapshot').select('target_code, market, ym'),
   ]);
   if (chRes.error) throw new Error(chRes.error.message);

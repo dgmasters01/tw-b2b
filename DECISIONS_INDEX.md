@@ -146,3 +146,4 @@
 | 2026-07-21 | D-073 등록 (키워드 월별 재조사 — 봇이 이번 달 ym snapshot 없는 도시 재조사·조사일 finished_at 표시·완성 결과보기 제거·월별 그래프 ym 기반 / api/content-keywords.js) |
 | 2026-07-26 | D-074 등록 (스튜디오 영문판 — 사전+번역계층 2중 방식·계정 기본 언어 자동 / studio.html, api/me-lang.js) |
 | 2026-07-27 | D-075 등록 (아고다 예약 무결성 3중 방어 — 업로드 시 agoda_id 우선매칭·마스터 자동등록·매일 booking-health 봇 / api/admin.js, api/cron/booking-health.js) |
+| 2026-07-27 | D-076 등록 (시스템 배선 관리 — 코드에서 자동 추출하는 SYSTEM_WIRING.md·표→화면 역인덱스·1000줄 위험 자동판정·신규호텔 확인 카드 / _os/tools/wiring-scan.mjs) |

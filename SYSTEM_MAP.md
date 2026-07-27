@@ -59,6 +59,7 @@
 | **db-backup** | 매일 04시 | DB 전체 백업(private 레포 tw-b2b-backup) | 무료 | tw-b2b-backup 레포 |
 | **handoff-verify** | 매일 07시 | 인계서 최신성 검증 | 무료 | _os/handoff/current.md |
 | **booking-health** 🆕 | 매일 **09시** | 아고다 예약 ↔ 호텔 마스터 **무결성 점검** — 안 붙은 예약을 이어 붙이고, 마스터에 없는 호텔은 자동 등록(`merge_status=auto_from_booking`). 손 못 댄 것만 메일 | 무료 | bookings_agoda.hotel_id·hotels |
+| **wiring-check** 🆕 | 매일 **10시** | **배선 자동 점검** — 창구 73개를 훑어 1,000줄 잘림 위험·배선도 낡음을 찾아 메일. 고치진 않고 **알리기만** | 무료 | (읽기 전용) SYSTEM_WIRING.md 대조 |
 
 **코드만 있고 지금 안 도는 것**(vercel.json 크론에 없음): `invoice-expire`·`invoice-retention`·`manager-campaign`·`receipt-overdue` — 필요하면 vercel.json에 추가해야 켜짐.
 

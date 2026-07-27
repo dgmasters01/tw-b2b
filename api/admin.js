@@ -91,14 +91,18 @@ async function handleListUsers(req, res, serviceKey, _admin) {
   // [버그수정 2026-04-30] contact_*, manager_* 컬럼도 함께 가져와서 admin이 매핑/enrich 할 수 있게
   let hotels = [];
   try {
-    const hotelsResp = await fetch(
-      `${SUPABASE_URL}/rest/v1/hotels?select=id,user_id,hotel_name,status,created_at,contact_name,contact_email,contact_phone,whatsapp,manager_email,manager_name,manager_phone`,
-      { headers: { 'Authorization': `Bearer ${serviceKey}`, 'apikey': serviceKey } }
-    );
-    if (hotelsResp.ok) {
-      hotels = await hotelsResp.json();
-    } else {
-      console.error('admin list-users: hotels fetch failed', hotelsResp.status);
+    /* 🔴 2026-07-27: limit 없이 부르면 1,000줄에서 잘린다. hotels 는 3,252줄.
+       → 매니저 목록에서 **2,252개 호텔의 담당자가 안 보였다.** 끊어 읽는다. (D-076 §4-1) */
+    for (let off = 0; off < 50000; off += 1000) {
+      const hotelsResp = await fetch(
+        `${SUPABASE_URL}/rest/v1/hotels?select=id,user_id,hotel_name,status,created_at,contact_name,contact_email,contact_phone,whatsapp,manager_email,manager_name,manager_phone&offset=${off}&limit=1000`,
+        { headers: { 'Authorization': `Bearer ${serviceKey}`, 'apikey': serviceKey } }
+      );
+      if (!hotelsResp.ok) { console.error('admin list-users: hotels fetch failed', hotelsResp.status); break; }
+      const page = await hotelsResp.json();
+      if (!Array.isArray(page) || !page.length) break;
+      hotels.push(...page);
+      if (page.length < 1000) break;
     }
   } catch (e) {
     console.error('admin list-users: hotels exception', e.message);

@@ -116,6 +116,8 @@
 
 | 문서 | 무엇 | 링크 |
 |---|---|---|
+| **관리자 › 📚 Business Docs** | 🔴 **대표님이 여기서 다 봅니다** | [열기](https://gohotelwinners.com/admin-business.html) |
+| **SYSTEM_OVERVIEW.md** | 🆕 **시스템 전체 안내서 (사람이 읽는 판)** | [열기](https://github.com/dgmasters01/tw-b2b/blob/main/SYSTEM_OVERVIEW.md) |
 | **SYSTEM_WIRING.md** | 배선도 — **표 하나를 바꾸면 어디를 고쳐야 하나** (자동 생성) | [열기](https://github.com/dgmasters01/tw-b2b/blob/main/SYSTEM_WIRING.md) |
 | **SYSTEM_MAP.md** | 이 문서 — 시스템·크론·**비용** 한 장 | [열기](https://github.com/dgmasters01/tw-b2b/blob/main/SYSTEM_MAP.md) |
 | D-076 | 배선 관리 원칙 (왜·어떻게·한계) | [열기](https://github.com/dgmasters01/tw-b2b/blob/main/_business/decisions/2026-07-27-system-wiring-doctrine.md) |
@@ -131,6 +133,7 @@
 | 결정 **스토리**(사람용) | 루트 **`DECISIONS.md`** |
 | 결정 **전문**(D별 상세) | **`_business/decisions/YYYY-MM-DD-{주제}.md`** |
 | **배선 «사실»**(어느 표를 어느 창구가 만지고 어느 화면이 쓰나) | **`SYSTEM_WIRING.md`** ⚙️**자동 생성** — 손대지 마라 (`node _os/tools/wiring-scan.mjs`) |
+| **사람이 읽는 전체 안내** | **`SYSTEM_OVERVIEW.md`** — 대표님·직원용. 코드 얘기 없이 흐름·로봇·사고·상태 |
 | **자동 시스템·크론·비용·전체 지도** | **`SYSTEM_MAP.md`** (이 문서 §3) | ← 설명·판단·비용은 여기 |
 | 스튜디오 안쪽 흐름 | `_business/STUDIO_FLOW.md` |
 | 헌법(원칙) | `OPERATIONS_CHARTER.md` |
@@ -143,6 +146,8 @@
 **새 결정·새 봇을 만들면:** ①전문은 `_business/decisions/`에 ②인덱스 한 줄은 루트 `DECISIONS_INDEX.md`에 ③봇이면 이 문서 §3에도. **이 세 곳 외엔 만들지 않는다.**
 
 **창구·화면·봇을 건드렸으면:** ④ `node _os/tools/wiring-scan.mjs` 를 돌려 `SYSTEM_WIRING.md` 를 **같이 커밋한다.** (D-076)
+
+**대표님이 볼 문서를 새로 만들면:** ⑤ `_admin/admin-business.html` 의 `DOCS` 배열에 **등록한다.** 등록 안 하면 관리자 화면에서 안 보인다 — GitHub 만 보고 「정리했다」고 하면 안 된다 (대표님 2026-07-27).
 
 > 🔴 **무엇을 고치기 전에 `SYSTEM_WIRING.md` §1 에서 그 표 이름을 찾아라.** 같이 고쳐야 할 곳이 다 나온다.
 > 「⚠️ 양쪽」이면 **B2B(gohotelwinners)와 스튜디오를 둘 다** 확인한다. 하나만 고치면 꼬인다 (대표님 2026-07-27).

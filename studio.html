@@ -1149,6 +1149,7 @@
 */
 window.STUDIO_I18N = {
   ko: {
+    'ht.newin':'새로 들어온 호텔','ht.newinsub':'— 예약이 붙어 자동 등록됨 · 확인이 필요합니다','ht.newin.card':'확인 대기','ht.newin.sub':'성급·유형 확인','ht.newin.badge':'신규',
     'common.noName':'(이름 없음)','pf.bk.confirmed':'확정','pf.bk.cancelled':'취소','pf.bk.pending':'진행',
     'up.pickFile':'파일 고르기','up.noFile':'고른 파일 없음',
     'nav.upload':'올리기','nav.perf':'성과표','nav.hotel':'호텔','nav.keyword':'키워드','nav.strategy':'전략','nav.channel':'채널',
@@ -1186,6 +1187,7 @@ window.STUDIO_I18N = {
     'ht.rv.btn':'확인함','ht.rv.title':'확인함 · 자동 묶음이 애매한 호텔','ht.rv.none':'확인할 호텔이 없습니다. 모두 정리됐습니다.','ht.rv.ok':'맞음 · 확정','ht.rv.okDoing':'확정 중…','ht.rv.okFail':'확정하지 못했습니다.','ht.rv.onlyOwner':'확정은 대표님만 할 수 있습니다','ht.rv.mergeSel':'선택 ','ht.rv.mergeSelPost':'개를 하나로 합치기','ht.rv.mergeNote':'맨 위 코드로 합쳐집니다','ht.rv.merging':'합치는 중…','ht.rv.merge':'합치기','ht.rv.mergeFail':'합치지 못했습니다.','ht.rv.merged':'합쳤습니다.','ht.rv.needTwo':'합칠 호텔을 2개 이상 체크하세요.','ht.rv.no':'아니오 · 다른 곳','ht.rv.recording':'기록 중…','ht.rv.recFail':'기록하지 못했습니다.','ht.rv.bookings':'예약 ','ht.rv.agodaId':'아고다ID ','ht.rv.pcs':'개','ht.cases':'건','ht.pcs':'개','ht.places':'곳','ht.rv.gPre':'이 ','ht.rv.gMid':'곳을 ','ht.rv.gPost':' 로 합치기','ht.rv.tPre':'합칠지 확인할 묶음 ','ht.rv.tMid':'개 + 낱개 ','ht.rv.tPost':'곳','up.addManuscript':'원고 넣기','up.docxHint':'docx · 여러 개 한 번에','up.build':'패키지 만들기','up.fileHint':'원고 파일명에 도시·지역·성급·가격대가 들어 있어야 합니다. 아고다 링크는 원고 본문에서 읽습니다.','up.drive':'구글 드라이브 자동 읽기','up.all':'전체','up.mine':'내 작업','up.unassigned':'미지정','up.review':'확인필요','up.published':'발행됨','up.fCh':'채널 전체','up.fAssignee':'담당자 전체','up.fLang':'언어 전체','ch.new':'＋ 새 채널','ch.newReg':'＋ 새 채널 등록','ch.readFile':'파일 읽기 (미리보기)','ch.register':'등록','ch.cancel':'취소','sg.title':'전략 · 콘텐츠 기획 큐'
   },
   en: {
+    'ht.newin':'Newly added hotels','ht.newinsub':'— auto-registered from bookings · needs a check','ht.newin.card':'To check','ht.newin.sub':'check star and type','ht.newin.badge':'NEW',
     'common.noName':'(no name)','pf.bk.confirmed':'Confirmed','pf.bk.cancelled':'Cancelled','pf.bk.pending':'Pending',
     'up.pickFile':'Choose files','up.noFile':'No file chosen',
     'nav.upload':'Upload','nav.perf':'Performance','nav.hotel':'Hotels','nav.keyword':'Keywords','nav.strategy':'Strategy','nav.channel':'Channels',
@@ -4269,7 +4271,7 @@ document.addEventListener('DOMContentLoaded', function(){
       '</div>';
     return '<div class="st-ht-item">' +
       '<div class="st-ch-card st-ht-click" data-hopen="' + esc(h.hid) + '">' +
-        '<div class="st-ht-head"><div class="st-ch-name">' + esc(name) + '</div>' + recent + '</div>' + geoLine + enLine +
+        '<div class="st-ht-head"><div class="st-ch-name">' + esc(name) + '</div>' + (h.auto_new ? '<span class="st-ht-tag" style="background:var(--amd);color:var(--am);">' + t('ht.newin.badge') + '</span>' : '') + recent + '</div>' + geoLine + enLine +
         perf +
         '<div class="st-ht-period"><span class="st-ht-open">' + t('ht.openDetail') + '</span></div>' +
       '</div>' +
@@ -4831,6 +4833,9 @@ document.addEventListener('DOMContentLoaded', function(){
     // 축 2 계산: 발행됨 = publications 있는 호텔 (실데이터). 큐 상태는 데이터 없어 '연동 후' 유지
     var axPublished = 0;
     all.forEach(function (h) { if ((h.published_count || 0) > 0) axPublished++; });
+    /* 예약 보고 자동 등록된 호텔 — 사람이 성급·유형을 확인해야 한다 (D-075·D-076) */
+    var autoNew = 0;
+    all.forEach(function (h) { if (h.auto_new) autoNew++; });
     function card(cls, label, val, sub, key) {
       var sel = (hsCardKey && hsCardKey === key) ? ' sel' : '';
       var kc = key ? (' st-hs-click' + sel + '" data-hsf="' + key + '"') : '"';
@@ -4845,6 +4850,9 @@ document.addEventListener('DOMContentLoaded', function(){
     h += '</div>';
     h += '<div class="st-hs-ttl">' + t('ht.cov') + ' <span>' + t('ht.covsub') + '</span></div><div class="st-hs-row six">';
     h += card('', t('ht.cov.all'), total, '', 'all') + card('', t('ht.cov.geo'), Object.keys(countries).length + '·' + Object.keys(cities).length) + card('', t('ht.cov.type'), (total - resort) + '·' + resort) + card('', t('ht.cov.avg'), avg == null ? '—' : avg + '%') + card('', t('ht.cov.high'), high, '', high ? 'high' : '') + card('', t('ht.cov.low'), low, '', low ? 'low' : '');
+    h += '</div>';
+    h += '<div class="st-hs-ttl">' + t('ht.newin') + ' <span>' + t('ht.newinsub') + '</span></div><div class="st-hs-row">';
+    h += card(autoNew ? 'warn' : '', t('ht.newin.card'), autoNew, t('ht.newin.sub'), autoNew ? 'auto_new' : '');
     h += '</div>';
     box.innerHTML = h;
     box.querySelectorAll('[data-hsf]').forEach(function (c) { c.onclick = function () { setCardFilter(c.dataset.hsf); }; });
@@ -4861,6 +4869,7 @@ document.addEventListener('DOMContentLoaded', function(){
     var t = (h.bookings_done || 0) + (h.bookings_cancelled || 0);
     var rate = t ? Math.round((h.bookings_done || 0) / t * 100) : null;
     if (hsCardKey === 'noexpo') return !h.exposure_count;
+    if (hsCardKey === 'auto_new') return !!h.auto_new;
     if (hsCardKey === 'high') return rate != null && rate >= 85;
     if (hsCardKey === 'low') return rate != null && rate < 50;
     if (hsCardKey === 'pub_done') return (h.published_count || 0) > 0;

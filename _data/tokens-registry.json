@@ -10,7 +10,7 @@
     "warn_days_before": "기본 7일 (만료 N일 전부터 알림)",
     "active": "false면 점검 스킵"
   },
-  "_last_updated": "2026-05-13",
+  "_last_updated": "2026-07-30",
   "tokens": [
     {
       "id": "supabase-management-api",
@@ -28,13 +28,15 @@
     {
       "id": "github-pat",
       "name": "GitHub Personal Access Token",
-      "expires_at": "2026-08-01T00:00:00.000Z",
+      "expires_at": "2027-07-31T00:00:00.000Z",
       "renewal_url": "https://github.com/settings/tokens",
-      "scope": "repo + workflow (TW B2B repo 전체 접근 + GitHub Actions 트리거)",
+      "scope": "repo + workflow (레포 전체 쓰기 + .github/workflows/* 수정 가능 — 2026-07-30 라이브 검증)",
       "warn_days_before": 7,
       "active": true,
       "owner": "이지형",
-      "env_var": "GITHUB_PAT"
+      "env_var": "GITHUB_PAT",
+      "_renewed_at": "2026-07-30",
+      "_renewal_note": "classic 토큰 'tw-b2b automation 2026' Regenerate, 만료 1년(2027-07-31). workflow scope 포함 확인 — 클로드가 봇 파일 직접 수정 가능해짐."
     },
     {
       "id": "vercel-token",

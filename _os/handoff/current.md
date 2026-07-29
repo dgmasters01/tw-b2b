@@ -1072,7 +1072,7 @@ city_alias (id, target_code, country, city_key, label, source, updated_at)
 1. **대표님이 "모른다"고 하신 것에 승인 묻지 말 것.** 재서 보고. 못 재면 그때만 호출 (INC-005)
 2. **경쟁 단독으로 판정 금지.** 수요 없으면 "모름" (INC-006)
 3. **추측표를 화면에 그리지 말 것.** 가설도 그리면 앵커가 된다
-4. **워크플로(`.github/workflows/*`) 는 클로드가 못 고친다** — PAT에 Workflows 권한 없음(403)
+4. ✅ **워크플로(`.github/workflows/*`) 는 클로드가 직접 고칠 수 있다** — 2026-07-30 PAT 재발급으로 workflow scope 확보(라이브 검증). 옛 제약(403) 폐기
 5. **`main` raw 는 CDN 캐시** — 커밋 SHA로 읽을 것 (오늘 재현됨)
 5-A. 🚨 **`bash_tool` 의 `invalid UTF-8` = 출력 실패지 실행 실패가 아니다.** 명령은 이미 나갔다.
      **쓰기 명령을 재시도하기 전 `git log -1` / `SELECT count(*)` 로 1차가 나갔는지 반드시 확인.**

@@ -389,6 +389,19 @@ export function render(manuscript, rule, opts = {}) {
   if (wantShort && m.format === 'long') warnings.push('숏폼 채널인데 원고가 롱폼 모양입니다.');
   if (!wantShort && m.format === 'short') warnings.push('롱폼 채널인데 원고가 숏폼 모양입니다.');
 
+  /* 🔴 2026-07-27: 원고 링크에 실제로 붙은 cid 를 장부에 적는다.
+     전에는 규격 문서의 «대표 cid»(rule.cid)를 그대로 저장해서,
+     원고가 1931762 로 만들어졌는데 장부에는 1932026 이 적혔다 —
+     **수수료가 어느 번호로 들어왔는지 장부가 거짓말을 했다.** (D-078) */
+  const linkCid = (function () {
+    for (const r of [1, 2, 3]) {
+      const c = /[?&]cid=(\d+)/.exec((m.links && m.links['top' + r]) || '');
+      if (c) return c[1];
+    }
+    return null;
+  })();
+  const actualCid = linkCid || rule.cid;
+
   // 링크 cid·hid 확인 (원고에는 링크가 없다. 호출할 때 links 로 넣어야 한다)
   if (![1, 2, 3].every((r) => m.links?.[`top${r}`])) {
     warnings.push('아고다 예약 링크가 없습니다. links.top1/top2/top3 로 넣어주세요. (원고에는 링크가 없습니다)');

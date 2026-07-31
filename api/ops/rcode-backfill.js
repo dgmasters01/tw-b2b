@@ -100,8 +100,9 @@ export default async function handler(req, res) {
       let desc = p.description ? String(p.description) : '';
       let replaced = 0;
       for (const row of all) {
+        /* 주소 끝에 붙은 문장부호(닫는 괄호·마침표·쉼표)는 주소가 아니다 — 남긴다. */
         const re = new RegExp(
-          'https?://[^\\s"\'<>\\]]*agoda[^\\s"\'<>\\]]*hid=' + row.hid_agoda + '(?![0-9])[^\\s"\'<>\\]]*',
+          'https?://[^\\s"\'<>\\]]*agoda[^\\s"\'<>\\]]*hid=' + row.hid_agoda + '(?![0-9])[^\\s"\'<>\\]),.]*',
           'gi'
         );
         const before = desc;

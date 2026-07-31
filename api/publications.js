@@ -548,7 +548,9 @@ export default async function handler(req, res) {
         .select('r_code, rank, hid_agoda').eq('publication_id', saved.id).order('rank');
       for (const row of (cc || [])) {
         const short = R_BASE + '/r/' + row.r_code;
-        const re = new RegExp('https?://[^\\s"\'<>\\]]*agoda[^\\s"\'<>\\]]*hid=' + row.hid_agoda + '(?![0-9])[^\\s"\'<>\\]]*', 'gi');
+        /* 주소 끝에 붙은 문장부호(닫는 괄호·마침표·쉼표)는 주소가 아니다 — 남긴다.
+           안 그러면 「(예약: …65806)」 의 닫는 괄호가 통째로 사라진다. (2026-07-31) */
+        const re = new RegExp('https?://[^\\s"\'<>\\]]*agoda[^\\s"\'<>\\]]*hid=' + row.hid_agoda + '(?![0-9])[^\\s"\'<>\\]),.]*', 'gi');
         desc = desc.replace(re, short);
       }
       if (desc !== saved.description) {

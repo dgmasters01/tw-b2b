@@ -148,3 +148,4 @@
 | 2026-07-27 | D-075 등록 (아고다 예약 무결성 3중 방어 — 업로드 시 agoda_id 우선매칭·마스터 자동등록·매일 booking-health 봇 / api/admin.js, api/cron/booking-health.js) |
 | 2026-07-27 | D-076 등록 (시스템 배선 관리 — 코드에서 자동 추출하는 SYSTEM_WIRING.md·표→화면 역인덱스·1000줄 위험 자동판정·신규호텔 확인 카드 / _os/tools/wiring-scan.mjs) |
 | 2026-07-27 | D-077 등록 (자동화 비용 정책 — 봇 10개 전수 실측·바깥 유료는 구글 1개뿐·새 봇 판단 4기준·SHA 캐시로 헛일 방지 / SYSTEM_MAP §4) |
+| 2026-07-27 | D-078 등록 (아고다 CID 다중 — 채널 하나에 번호 여럿·정본은 channel_cid_map DB·규격문서 cid는 대표번호일 뿐 / api/youtube.js) |

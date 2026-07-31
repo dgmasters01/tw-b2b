@@ -58,6 +58,7 @@
 | **drive-watch** | 매일 06·11·16·21시 | 구글드라이브 새 영상 폴더 → 올리기 탭 자동 배치 | 무료 | 확인필요 탭·publications |
 | **db-backup** | 매일 04시 | DB 전체 백업(private 레포 tw-b2b-backup) | 무료 | tw-b2b-backup 레포 |
 | **handoff-verify** | 매일 07시 | 인계서 최신성 검증 | 무료 | _os/handoff/current.md |
+| — (봇 아님) | 등록 즉시 | **클릭 추적 R코드 발급** — `api/publications.js` 가 TOP1·2·3 자리를 만들고 설명란 링크를 `gohpik.com/r/R-xxxxx` 로 바꾼다. 소급은 `api/ops/rcode-backfill` | 무료 | content_clicks |
 | **booking-health** 🆕 | 매일 **09시** | 아고다 예약 ↔ 호텔 마스터 **무결성 점검** — 안 붙은 예약을 이어 붙이고, 마스터에 없는 호텔은 자동 등록(`merge_status=auto_from_booking`). 손 못 댄 것만 메일 | 무료 | bookings_agoda.hotel_id·hotels |
 | **wiring-check** 🆕 | 매일 **10시** | **배선 자동 점검** — 창구 73개를 훑어 1,000줄 잘림 위험·배선도 낡음을 찾아 메일. 고치진 않고 **알리기만** | 무료 | (읽기 전용) SYSTEM_WIRING.md 대조 |
 

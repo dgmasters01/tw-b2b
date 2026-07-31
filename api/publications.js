@@ -99,6 +99,58 @@ async function readBody(req) {
 }
 
 /** 코드 자동발급 (D-066·D-067): {채널}-{4자리} 채널별 연번. content_queue 기준 max+1. */
+/* 클릭 추적 짧은 주소의 앞부분. 도메인이 바뀌면 여기만 고친다. */
+const R_BASE = process.env.TRACK_BASE_URL || 'https://gohpik.com';
+
+/**
+ * 클릭 추적 자리(R코드)를 만든다 — TOP1·2·3 세 자리.
+ *
+ * 왜 (2026-07-27 · 대표님 발견):
+ *   추적 되돌림(api/r.js)과 클릭 장부(content_clicks)는 있는데
+ *   **자리를 만드는 코드가 어디에도 없었다.** 기존 3편은 손으로 넣은 것이었다.
+ *   그래서 HT-0002 의 설명란에 아고다 원본 링크가 그대로 나갔고 — 클릭이 안 세진다.
+ *
+ * 무엇을 하나: 발행물 하나에 R코드 3개를 붙인다. 이미 있으면 그대로 둔다(두 번 안 만든다).
+ * 반환: { 'R-00010': 'https://gohpik.com/r/R-00010', ... } 자리 → 짧은 주소
+ */
+async function ensureRCodes(sb, pub) {
+  if (!pub || !pub.id) return {};
+  const links = Array.isArray(pub.agoda_links) ? pub.agoda_links : [];
+  const hids = [pub.hid_top1, pub.hid_top2, pub.hid_top3];
+  if (!hids[0] || !hids[1] || !hids[2]) return {};          // 링크가 셋 다 있어야 자리를 만든다
+
+  const { data: exist } = await sb.from('content_clicks')
+    .select('r_code, rank, hid_agoda').eq('publication_id', pub.id).order('rank');
+  const out = {};
+  const have = {};
+  for (const e of (exist || [])) { have[e.rank] = e; out[e.r_code] = R_BASE + '/r/' + e.r_code; }
+  if (Object.keys(have).length >= 3) return out;             // 이미 다 있다
+
+  /* 다음 번호. R-00001 부터 이어 붙인다. */
+  const { data: mx } = await sb.from('content_clicks').select('r_code').order('r_code', { ascending: false }).limit(1);
+  let seq = (mx && mx[0] && mx[0].r_code) ? parseInt(String(mx[0].r_code).slice(2), 10) : 0;
+
+  const rows = [];
+  for (let rank = 1; rank <= 3; rank += 1) {
+    if (have[rank]) continue;
+    seq += 1;
+    const rCode = 'R-' + String(seq).padStart(5, '0');
+    /* 되돌려 보낼 아고다 주소 — 원고 링크를 그대로 쓴다. 없으면 cid·hid 로 만든다. */
+    const url = links[rank - 1]
+      || `https://www.agoda.com/partners/partnersearch.aspx?pcs=1&cid=${pub.cid}&hl=ko-kr&hid=${hids[rank - 1]}`;
+    rows.push({
+      r_code: rCode, publication_id: pub.id, hid_agoda: String(hids[rank - 1]),
+      rank, channel_code: pub.channel_code, agoda_url: url, clicks: 0,
+    });
+    out[rCode] = R_BASE + '/r/' + rCode;
+  }
+  if (rows.length) {
+    const { error } = await sb.from('content_clicks').insert(rows);
+    if (error) throw new Error('R코드 발급 실패: ' + error.message);
+  }
+  return out;
+}
+
 async function nextContentCode(sb, channelCode) {
   const prefix = channelCode;
   const { data } = await sb.from('content_queue')
@@ -481,6 +533,32 @@ export default async function handler(req, res) {
       });
       saved.code = newCode;
     } catch (e) { warnings.push('전략 큐 자동 등록에 실패했습니다(발행 자체는 정상): ' + String(e.message || e)); }
+  }
+
+  /* 🔗 클릭 추적 자리(R코드) 발급 + 설명란의 아고다 링크를 짧은 주소로 바꾼다.
+     이걸 안 하면 설명란에 아고다 원본이 그대로 나가고 **클릭이 한 건도 안 세진다.** (2026-07-27) */
+  try {
+    const rmap = await ensureRCodes(sb, saved);
+    const rCodes = Object.keys(rmap);
+    if (rCodes.length && saved.description) {
+      let desc = String(saved.description);
+      const hids = [saved.hid_top1, saved.hid_top2, saved.hid_top3];
+      /* 자리(rank)별로 그 hid 가 든 아고다 주소만 바꾼다. 순서가 아니라 hid 로 맞춘다. */
+      const { data: cc } = await sb.from('content_clicks')
+        .select('r_code, rank, hid_agoda').eq('publication_id', saved.id).order('rank');
+      for (const row of (cc || [])) {
+        const short = R_BASE + '/r/' + row.r_code;
+        const re = new RegExp('https?://[^\\s"\'<>\\]]*agoda[^\\s"\'<>\\]]*hid=' + row.hid_agoda + '(?![0-9])[^\\s"\'<>\\]]*', 'gi');
+        desc = desc.replace(re, short);
+      }
+      if (desc !== saved.description) {
+        await sb.from('publications').update({ description: desc }).eq('id', saved.id);
+        saved.description = desc;
+      }
+    }
+    if (rCodes.length) saved.r_codes = rCodes;
+  } catch (e) {
+    warnings.push('클릭 추적 링크를 못 붙였습니다(등록 자체는 정상): ' + String(e.message || e));
   }
 
   return res.status(200).json({ ok: true, action, id: saved.id, row: saved, warnings });

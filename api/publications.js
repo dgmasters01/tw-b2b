@@ -381,9 +381,27 @@ export default async function handler(req, res) {
     const { data: dup } = await sb.from('publications').select('id').eq('youtube_video_id', vid).neq('id', id);
     if (dup && dup.length) return res.status(409).json({ ok: false, error: '이 영상은 이미 다른 원고에 등록돼 있습니다.' });
 
+    /* 🔴 2026-07-31: 「주소를 등록한 시각」을 발행일로 찍고 있었다.
+       예약 공개(오늘 저녁 7시 15분)인데 낮에 등록하면 **이미 공개된 것으로 기록**된다.
+       → 그러면 아직 아무도 못 본 링크의 클릭이 실적으로 세진다(대표님 발견).
+       유튜브에 «진짜 공개 시각»을 물어서 그것을 쓴다. 못 물으면 지금 시각(지금까지와 같음). */
+    let pubAt = new Date().toISOString();
+    try {
+      const ytKey = process.env.YOUTUBE_API_KEY || process.env.GOOGLE_PLACES_API_KEY;
+      if (ytKey) {
+        const yr = await fetch(
+          `https://www.googleapis.com/youtube/v3/videos?part=snippet,status&id=${vid}&key=${ytKey}`);
+        const yj = await yr.json();
+        const it = yj?.items?.[0];
+        /* 예약 공개면 publishAt(예정 시각), 이미 공개면 publishedAt(공개된 시각) */
+        const at = it?.status?.publishAt || it?.snippet?.publishedAt;
+        if (at) pubAt = new Date(at).toISOString();
+      }
+    } catch (e) { /* 못 물어도 등록은 막지 않는다 */ }
+
     const { data, error } = await sb.from('publications').update({
       youtube_url, youtube_video_id: vid, status: 'published',
-      published_at: new Date().toISOString(), updated_at: new Date().toISOString(),
+      published_at: pubAt, updated_at: new Date().toISOString(),
       published_by: me, published_by_email: myMail,
     }).eq('id', id).eq('status', 'draft').select().maybeSingle();
 

@@ -33,6 +33,23 @@
 import { docxToText } from './_lib/docx-text.js';
 import { parseManuscript } from './_lib/youtube-parse.js';
 import { loadRules, detectChannel } from './_lib/youtube-rules.js';
+
+/* 채널 코드 → 규격 문서 이름. 규격이 있는 3채널만 원고 자동생성을 지원한다. */
+const CH_NAME = { HT: '호텔이야', HG: '호텔이곳', TW: '여행능력자들' };
+
+/** `channel_cid_map` 에서 «살아있는» cid 를 전부 읽는다. 한 채널이 여러 cid 를 쓴다. */
+async function loadCidMap() {
+  const url = process.env.SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) return {};
+  const r = await fetch(`${url}/rest/v1/channel_cid_map?select=cid,channel_code&is_active=eq.true&limit=1000`,
+    { headers: { apikey: key, Authorization: `Bearer ${key}` } });
+  if (!r.ok) return {};
+  const rows = await r.json();
+  const out = {};
+  for (const x of (rows || [])) if (x && x.cid != null) out[String(x.cid)] = x.channel_code;
+  return out;
+}
 import { render, buildSlotItems } from './_lib/youtube-render.js';
 import { buildMeasuredKeywords } from './_lib/youtube-keywords.js';
 
@@ -82,7 +99,21 @@ export default async function handler(req, res) {
   } catch (e) {
     return res.status(500).json({ ok: false, error: '규칙 문서를 읽지 못했습니다.', detail: String(e.message || e) });
   }
-  const { rules, byCid } = loaded;
+  const { rules } = loaded;
+  /* 🔴 2026-07-27 버그수정: cid 를 **규격 문서(.md)에서 하나만** 읽고 있었다.
+     그런데 한 채널이 cid 를 여러 개 쓴다 — 호텔이야는 1932026(new)·1922821(old)·1931762(approval-2nd).
+     화면(채널 메뉴)은 `channel_cid_map` 을 읽어 3개를 보여주는데, 원고 검사는 문서만 봐서
+     **「모르는 cid 입니다: 1931762」로 정상 원고를 되돌려 보냈다** (대표님 발견).
+     → 문서의 cid 는 「대표 cid」로 두고, **DB 에 등록된 cid 를 전부 더한다.** */
+  const byCid = { ...loaded.byCid };
+  try {
+    const map = await loadCidMap();                    // { '1931762': 'HT', ... }
+    for (const [cidKey, chCode] of Object.entries(map)) {
+      if (byCid[cidKey]) continue;                     // 문서 cid 가 우선
+      const rule = rules[CH_NAME[chCode]];
+      if (rule) byCid[cidKey] = rule;
+    }
+  } catch (e) { /* DB 를 못 읽어도 문서 cid 로는 돌아야 한다 */ }
 
   if (req.method === 'GET') {
     return res.status(200).json({
@@ -135,7 +166,20 @@ export default async function handler(req, res) {
 
   if (useCid) {
     rule = byCid[String(useCid)];
-    if (!rule) return res.status(400).json({ ok: false, error: `모르는 cid 입니다: ${useCid}`, known: Object.keys(byCid) });
+    if (!rule) {
+      /* 「모르는 cid」만 던지면 어디를 고쳐야 할지 알 수 없다 — 어느 단계에서 막혔는지 알려준다. */
+      let inDb = null;
+      try { inDb = (await loadCidMap())[String(useCid)] || null; } catch (e) { /* 무시 */ }
+      return res.status(400).json({
+        ok: false,
+        error: inDb
+          ? `cid ${useCid} 는 채널 ${inDb} 로 등록돼 있지만, 그 채널은 원고 자동생성 규격(.md)이 없습니다. 채널 메뉴에서 규격을 등록해 주세요.`
+          : `모르는 cid 입니다: ${useCid}. 채널 메뉴 › 아고다 CID 에서 이 번호를 먼저 등록해 주세요.`,
+        cid: String(useCid),
+        registered_channel: inDb,
+        known: Object.keys(byCid),
+      });
+    }
     if (!cid) notes.push(`원고 아고다 링크의 cid(${useCid}) 로 채널을 정했습니다: ${rule.channel}`);
     const guessed = detectChannel(plain);
     if (guessed && guessed !== rule.channel) {

@@ -414,7 +414,7 @@ export function render(manuscript, rule, opts = {}) {
 
   return {
     channel: rule.channel,
-    cid: rule.cid,
+    cid: actualCid,        // 원고 링크의 실제 cid (없으면 규격의 대표 cid)
     format: m.format,
     filename,
     titles,
@@ -430,7 +430,7 @@ export function render(manuscript, rule, opts = {}) {
     // publications 장부에 그대로 넣을 수 있는 한 줄
     publicationRow: {
       channel_code: { 여행능력자들: 'TW', 호텔이야: 'HT', 호텔이곳: 'HG' }[rule.channel],
-      cid: rule.cid,
+      cid: actualCid,        // 원고 링크의 실제 cid (없으면 규격의 대표 cid)
       status: 'draft',
       country: m.country,
       city: m.city,

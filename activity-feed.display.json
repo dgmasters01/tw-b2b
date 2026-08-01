@@ -1,12 +1,73 @@
 {
-  "generatedAt": "2026-08-01T02:45:40.644Z",
-  "totalCount": 980,
+  "generatedAt": "2026-08-01T03:04:57.497Z",
+  "totalCount": 981,
   "byRole": {
-    "CEO": 88,
+    "CEO": 89,
     "Staff": 0,
     "Bot": 892
   },
   "items": [
+    {
+      "at": "2026-08-01T12:04:29+09:00",
+      "by": "👤 이지형 (CEO 결정 → Claude 실행)",
+      "role": "CEO",
+      "source": "git commit",
+      "action": "🔴 전체 점검 발견 — booking-analytics의 숫자가 코드에 박힌 고정값(989KB, const D)이고 갱신 표기가 없어 오늘 숫자로 오인됨. 실측 차이: 예약 3,774 vs 3,850 · 매출 $854,258 vs $877,679. 상단에 「고정된 숫자입니다」 배지 추가 + 실시간은 스튜디오 성과표로 안내",
+      "target_type": "commit",
+      "target_id": "d5ae352",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-08-01T02:45:47Z",
+      "by": "🤖 scan-bot",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "[scan-bot] chat-log index 자동 갱신 [변경사유: chat-log 파일 또는 tasks.json 변경 → byCommit/byTask 매핑 재구축]",
+      "target_type": "commit",
+      "target_id": "bfc406c",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-08-01T02:45:45Z",
+      "by": "🤖 health-bot",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "[health-bot] _health.json 갱신 (overall=red)",
+      "target_type": "commit",
+      "target_id": "33d4970",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-08-01T02:45:41Z",
+      "by": "🤖 activity-bot",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "[activity-bot] activity-feed 3-Layer 자동 갱신 (총 980건)",
+      "target_type": "commit",
+      "target_id": "e772ed6",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-08-01T02:45:37Z",
+      "by": "🤖 auto-detect-bot",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "[auto-detect-bot] commit message → 작업 status 자동 갱신",
+      "target_type": "commit",
+      "target_id": "5ef063d",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-08-01T02:45:36+00:00",
+      "by": "🤖 auto-detect-bot",
+      "role": "Bot",
+      "source": "tasks.json history",
+      "action": "",
+      "note": "완성도: BL-KW-MULTILANG 대기 등록(6단계 점검표)",
+      "target_type": "task",
+      "target_id": "BL-KW-MULTILANG",
+      "project": "TW B2B"
+    },
     {
       "at": "2026-08-01T11:45:19+09:00",
       "by": "👤 이지형 (CEO 결정 → Claude 실행)",
@@ -447,66 +508,6 @@
       "action": "키워드 조사 추가 3건 (대표님 2026-08-01 「작업추가 하는 곳이 없어」) ① 어느 화면에서든 [＋ 조사 추가] 상시 버튼 신설 — 도시 이름을 쉼표로 여러 곳 한 번에 예약(kwAdd/kwAddGo → /api/kw-survey-now) ② 「조사 예약됨」 화면이 막다른 길이었음 → [다른 도시 조사 추가]·[관제판으로] 버튼 추가 🔴 ③ 나라별 [조사 시작]이 아무 요청도 안 보내고 1.4초마다 동그라미만 옮기는 시늉이었음(프리뷰 잔해) → 도시마다 진짜 창구 호출로 교체. 진행 문구도 사실대로(예약됨·봇이 측정 중)",
       "target_type": "commit",
       "target_id": "ced34dd",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-08-01T01:01:31Z",
-      "by": "🤖 scan-bot",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "[scan-bot] pages-status 3-Layer 자동 갱신 (22페이지, 평균 68점) [변경사유: HTML 변경 → 완성도 재측정]",
-      "target_type": "commit",
-      "target_id": "626fb3b",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-08-01T01:01:23Z",
-      "by": "🤖 activity-bot",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "[activity-bot] activity-feed 3-Layer 자동 갱신 (총 979건)",
-      "target_type": "commit",
-      "target_id": "b6a948f",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-08-01T10:01:00+09:00",
-      "by": "👤 이지형 (CEO 결정 → Claude 실행)",
-      "role": "CEO",
-      "source": "git commit",
-      "action": "키워드 2건 수정 (대표님 2026-08-01) ① 달이 안 밀리던 원인 = TODAY에 new Date(2026,6,15) 프리뷰 날짜가 박혀 있었음 → new Date()로 교체. 착수월·마지막조사일도 글자 박기 제거하고 계산·실데이터로. ② 보고 싶은 나라·도시를 직접 넣어 조사하는 길 신설 — svPick()/svNew(), 나라카드 [＋조사] 버튼, 검색 미조사 클릭 시 그 도시 프리체크",
-      "target_type": "commit",
-      "target_id": "d68768a",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-07-31T23:51:39Z",
-      "by": "🤖 activity-bot",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "[activity-bot] activity-feed 3-Layer 자동 갱신 (총 979건)",
-      "target_type": "commit",
-      "target_id": "3f4f46f",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-07-31T23:42:38Z",
-      "by": "🤖 scan-bot",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "[scan-bot] pages-status 3-Layer 자동 갱신 (22페이지, 평균 68점) [변경사유: HTML 변경 → 완성도 재측정]",
-      "target_type": "commit",
-      "target_id": "34ddc08",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-07-31T23:40:13Z",
-      "by": "🤖 health-bot",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "[health-bot] _health.json 갱신 (overall=red)",
-      "target_type": "commit",
-      "target_id": "37855ac",
       "project": "TW B2B"
     }
   ]

@@ -78,9 +78,12 @@ jobs:
             MISSING="${{ steps.autoheal.outputs.missing }}"
             COMMIT_MSG="[autoheal-bot] tasks.json source ${HEALED}건 자동 박음 (BL-HEALTH-AUTOHEAL)"
             if [ "$MISSING" != "0" ] && [ -n "$MISSING" ]; then
-              COMMIT_MSG="${COMMIT_MSG}
-
-⚠️ 여전히 누락된 BL ${MISSING}건 — 사람 개입 필요"
+              # 🔴 2026-08-01 — 여기서 **YAML 이 깨졌다.**
+              #   여러 줄 문자열 안에 **빈 줄 + 열 1에서 시작하는 줄**을 둔 탓에
+              #   깃허브가 이 파일을 읽지 못해 **모든 push 에서 실패**했고,
+              #   대표님 메일함에 실패 알림이 쌍였다(paths 필터도 안 먹음).
+              #   → 한 줄로 붙인다. 줄바꿈을 넣지 말 것.
+              COMMIT_MSG="${COMMIT_MSG} · ⚠️ 여전히 누락된 BL ${MISSING}건 — 사람 개입 필요"
             fi
             git commit -m "$COMMIT_MSG"
             git push origin HEAD:${GITHUB_REF#refs/heads/}

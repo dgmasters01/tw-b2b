@@ -5555,8 +5555,6 @@ function renderSurveyStatus(){
     '<span style="font-size:12.5px;color:var(--bl);">확인할 것 '+SS_NEWDONE.length+'</span><span style="color:var(--line)">·</span>'+
     '<span style="font-size:12.5px;color:var(--em);">완성 '+SS_DONE.length+'</span>'+
     (SS_SKIP.length?'<span style="color:var(--line)">·</span><span style="font-size:12.5px;color:var(--rd);">이름 문제 '+SS_SKIP.length+'</span>':'')+
-    /* 🔴 2026-08-01 — 매일 도는 검사 결과. 검사를 돌려도 보는 곳이 없으면 안 돌린 것과 같다. */
-    (SS_AUDIT?('<span style="color:var(--line)">·</span><span style="font-size:12.5px;color:'+(SS_AUDIT.problems?'var(--am)':'var(--em)')+';">자동 검사 '+(SS_AUDIT.problems?('이상 '+SS_AUDIT.problems):'깨끗함')+(SS_AUDIT.fixed?(' · '+SS_AUDIT.fixed+'건 고침'):'')+'</span>'):'')+
     '<span style="margin-left:auto;font-size:11px;color:var(--muted);">'+(SS_OPEN?'접기 ▲':'펼치기 ▼')+'</span></div>';
   if(!SS_OPEN){ el.innerHTML=bar; return; }
   var h=bar+'<div style="border:0.5px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--card);margin-top:8px;">';
@@ -5578,17 +5576,6 @@ function renderSurveyStatus(){
       h+='<span class="btn" style="font-size:10.5px;padding:2px 9px;" onclick="ackPage(1)">다음 ›</span>';
     }
     h+='<span style="margin-left:auto;"><span class="btn" style="font-size:10.5px;" onclick="ackAll()">전체 확인</span></span></div>';
-  }
-  if(SS_AUDIT && SS_AUDIT.items && SS_AUDIT.items.length){
-    h+='<div style="font-size:11.5px;color:var(--am);font-weight:700;margin:11px 0 4px;">\uD83E\uDDEA 자동 검사 — '+(SS_AUDIT.at?String(SS_AUDIT.at).slice(0,10):'')+'</div>';
-    SS_AUDIT.items.forEach(function(it){
-      var LBL={axis:'검색어 분류 틀림',spacing:'붙임말이 다른 언어에 붙음',city_name:'도시·지역 이름이 없는 검색어',
-                 denominator:'「우리」가 「전체」보다 많음 — 분모 부족',denominator_zero:'분모가 0 — 그 나라 호텔 미적재',no_measure:'검색어는 있고 측정 전'};
-      h+='<div style="background:var(--card2);border:0.5px solid var(--line);border-radius:8px;padding:8px 11px;margin-bottom:6px;">'+
-         '<div style="font-size:12.5px;color:var(--txt);">'+(LBL[it.kind]||it.kind)+' <b style="color:var(--am)">'+it.n+'</b>'+(it.fixed?' <span style="color:var(--em);font-size:10.5px;">✓ 자동으로 고침</span>':'')+'</div>'+
-         (it.note?'<div style="font-size:10.5px;color:var(--muted);margin-top:2px;">'+it.note+'</div>':'')+
-         ((it.sample&&it.sample.length)?'<div style="font-size:10.5px;color:var(--muted);margin-top:3px;">예: '+it.sample.join(' · ')+'</div>':'')+'</div>';
-    });
   }
   if(SS_SKIP.length){
     /* 🔴 2026-08-01 대표님: *"이름문제로 건너뛴 도시 이런곳은 내가 알수가 없네."*

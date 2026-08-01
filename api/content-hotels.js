@@ -155,7 +155,7 @@ export default async function handler(req, res) {
 
       const { data: pubs } = await sb
         .from('publications')
-        .select('id,published_at,channel_code,title,hid_top1,hid_top2,hid_top3,status,youtube_url,city,star,price_band,hotel_names')
+        .select('id,published_at,channel_code,title,title_final,hid_top1,hid_top2,hid_top3,status,youtube_url,city,star,price_band,hotel_names,view_count,view_count_at')
         .or(`hid_top1.eq.${hid},hid_top2.eq.${hid},hid_top3.eq.${hid}`)
         .order('published_at', { ascending: false });
       // 이 호텔의 자리별 클릭 (R코드) — publication_id + rank 로 매칭
@@ -183,6 +183,12 @@ export default async function handler(req, res) {
           clicks: (clkMap[p.id + ':' + (p.hid_top1 === hid ? 1 : (p.hid_top2 === hid ? 2 : 3))] || {}).clicks ?? null,
           r_code: (clkMap[p.id + ':' + (p.hid_top1 === hid ? 1 : (p.hid_top2 === hid ? 2 : 3))] || {}).r_code || null,
           status: p.status || 'draft',
+          // 🔴 2026-08-01 대표님: *"31일 올라간 콘텐츠는 조회수 연동이 안 돼."*
+          //   원인 = **여기서 조회수를 아예 안 실어 보냈다.**
+          //   publications.view_count 에는 이미 들어있었다(HT-0002 = 12회, 7/31 수집).
+          //   봇(cron/yt-views)은 잘 돌고 있었고, **화면으로 오는 길이 끊겨 있었다.**
+          views: (p.view_count != null ? Number(p.view_count) : null),
+          views_at: p.view_count_at || null,
           youtube_url: p.youtube_url || null,
           city: p.city || null, star: p.star || null, price_band: p.price_band || null,
           tops: tops,
@@ -215,7 +221,8 @@ export default async function handler(req, res) {
       res.setHeader('Cache-Control', 'private, no-store, max-age=0');
       return res.status(200).json({
         ok: true, is_admin: !!who.isAdmin, hid,
-        detail: { total, done, cancelled, noshow, amount, commission, confirmRate, leadtime, byChannel, bookings, exposures, contract, clicks_total: exposures.reduce((s2, e) => s2 + (e.clicks || 0), 0) },
+        detail: { total, done, cancelled, noshow, amount, commission, confirmRate, leadtime, byChannel, bookings, exposures, contract, clicks_total: exposures.reduce((s2, e) => s2 + (e.clicks || 0), 0),
+          views_total: (exposures.some((e) => e.views != null) ? exposures.reduce((s2, e) => s2 + (e.views || 0), 0) : null) },
       });
     } catch (e) {
       return res.status(500).json({ ok: false, error: '호텔 상세를 불러오지 못했습니다.', detail: String(e.message || e) });

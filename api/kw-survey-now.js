@@ -278,7 +278,12 @@ export default async function handler(req, res) {
     //    미달이면 저장 안 하고 city_alias 를 지워 「미조사」로 되돌린다 → "완성"으로 안 넘어간다.
     const stayN = rows.filter((r) => r.axis === 'stay').length;
     const travelN = rows.filter((r) => r.axis === 'travel').length;
-    if (rows.length < 12 || stayN < 6 || travelN < 2) {   /* 여행이 1개만 나오면 사실상 발굴 실패다 */
+    // 🔴 2026-08-01 대표님: *"너가 검색을 통해서 실제 키워드 이름으로 확인 된다고 하지 않았나?"*
+    //   재측해 보니 맞았다. 예) 씨엠립 → 호텔 0개지만 **여행 9개** · 치앙라이 → 호텔 0 · **여행 7개**
+    //   그런데 기준이 「숙박 6개 이상」을 무조건 요구해서 **여행 수요가 있는 도시를 버렸다.**
+    //   이름이 틀렸던 게 아니라 — 아고다 표기도 「누와라 엘리야」·「씨엠림 / 시엠립」으로 같다.
+    //   → **숙박이든 여행이든 한 쪽이 충분하면 받는다.** 단, 총수는 그대로 지킨다(없는 수요를 지어내지 않는다).
+    if (rows.length < 12 || (stayN < 6 && travelN < 6)) {
       try { await sb.from('city_alias').delete().eq('target_code', target).eq('city_key', ck); } catch { /* 무시 */ }
       // 봇이 이 도시를 계속 재시도하지 않도록 건너뛰기 목록에 기록 (도시명 고치면 풀 수 있음)
       try {
@@ -286,7 +291,7 @@ export default async function handler(req, res) {
       } catch { /* 무시 */ }
       return res.status(200).json({ ok: false, step: 'harvest', insufficient: true, city_key: ck,
         harvested: rows.length, stay: stayN, travel: travelN,
-        error: `발굴 불량 — 검색어 ${rows.length}개(숙박 ${stayN}·여행 ${travelN})로 기준(총≥12·숙박≥6·여행≥2) 미달. 도시명 "${cityKo}" 확인 필요. 저장 안 함(건너뛰기 등록).` });
+        error: `발굴 불량 — 검색어 ${rows.length}개(숙박 ${stayN}·여행 ${travelN})로 기준(총≥12 · 숙박≥6 또는 여행≥6) 미달. 도시명 "${cityKo}" 확인 필요. 저장 안 함(건너뛰기 등록).` });
     }
 
     // 이미 있는 text 는 빼고 삽입(유령 중복 방지)

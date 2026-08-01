@@ -24,15 +24,14 @@
 
 name: Capture Pages (BEFORE/AFTER auto-archive)
 
+# 🔴 2026-08-01 대표님: *"메일이 계속 와. 계속 받아야 되는거야?"*
+#   이 봇은 `**.html` 이 바뀔 때마다 돌았다. 하루에 html 을 여러 번 고치면
+#   그때마다 돌고, 실패하면 실패 메일이 그만큼 간다.
+#   그런데 이 봇의 일은 **디자인 BEFORE/AFTER 사진 보관**이다 — 초 단위가 아니라
+#   하루 한 번이면 충분하다. 서비스에도 아무 영향이 없다.
+#   → **push 트리거를 뀜다.** 야간 예약(KST 03:00) 과 수동 실행은 그대로 둔다.
+#   다시 켜려면 먼저 실패 원인(Playwright 로그인 캐처)부터 잡을 것.
 on:
-  push:
-    branches: [main]
-    paths:
-      - '**.html'
-      - 'shared.css'
-      - 'scripts/pages-meta.mjs'
-      - 'scripts/capture-pages.mjs'
-      - '.github/workflows/capture-pages.yml'
   schedule:
     # 매일 KST 03:00 (UTC 18:00 전날) — 베이스라인 야간 캡처
     - cron: '0 18 * * *'

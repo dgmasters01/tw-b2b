@@ -95,7 +95,9 @@ export default async function handler(req, res) {
     //    → **3회에 1번은 새 도시 발굴을 먼저 한다.** 비율은 NEW_EVERY 한 줄로 조절한다.
     //    (3=균형 · 2=개척 우선 · 5=재조사 우선). 대표님이 직접 고른 도시는 항상 새치기.
     const NEW_EVERY = 3;
-    const harvestTurn = (Math.floor(Date.now() / (2 * 3600 * 1000)) % NEW_EVERY) === 0;
+    // ⚠ 2026-08-01 전체 점검: vercel.json 크론은 `0 * * * *` = **1시간마다**다(2시간이 아니다).
+    //   2시간으로 재면 한 칸이 두 회차를 덮어 발굴이 연속 2번 돈다. 시간 단위로 맞춘다.
+    const harvestTurn = (Math.floor(Date.now() / (3600 * 1000)) % NEW_EVERY) === 0;
     const hasPick = pendingCities.some((c) => nowSel.has(c));   // 대표님 선택이 기다리면 발굴보다 먼저
     if (pendingCities.length && (!harvestTurn || hasPick)) {
       pendingCities.sort((a, b) => {

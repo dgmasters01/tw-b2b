@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-08-01T03:50:56.184Z",
+  "updated_at": "2026-08-01T04:03:45.000Z",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -12,18 +12,58 @@
     "SOLO_WORK_QUEUE.md"
   ],
   "stats": {
-    "total": 305,
-    "done": 224,
+    "total": 306,
+    "done": 227,
     "in_progress": 6,
     "paused": 0,
-    "pending": 48,
+    "pending": 47,
     "blocked": 12,
     "autonomous_ready": 40,
     "todo": 7,
     "cancelled": 1,
-    "updated_at": "2026-08-01T03:50:56.184Z"
+    "updated_at": "2026-08-01T04:03:45.000Z"
   },
   "tasks": [
+    {
+      "id": "BL-PREVIEW-SYNC",
+      "title": "[확정본 프리뷰 동기화] studio.html은 「원본은 프리뷰」라 적혀 있고 이식 도구가 실재 — 오늘 studio만 고쳐 프리뷰가 낡아 다음 이식 때 유실될 뻔. 프리뷰에 같이 반영",
+      "category": "bugfix",
+      "priority": "P0",
+      "size": "M",
+      "status": "done",
+      "owner": "claude",
+      "claude_can_auto": true,
+      "approval_required": false,
+      "decision_ref": "D-075",
+      "estimated_hours": 2,
+      "order": 1,
+      "blocker": null,
+      "depends_on": [],
+      "progress": {
+        "percent": 100,
+        "steps": [
+          {
+            "n": 1,
+            "label": "",
+            "title": "날짜·착수월·조사추가·검색연결·상태판정 5건 이식(43780a07)",
+            "status": "done",
+            "done": true,
+            "at": "2026-08-01T04:03:45.000Z"
+          }
+        ]
+      },
+      "notes": "🔴 다음 클로드: 키워드 화면(#kw-app)을 고칠 때는 studio.html 과 studio-keyword-preview.html 을 «둘 다» 고쳐야 한다. 한쪽만 고치면 이식 때 날아간다.",
+      "created_at": "2026-08-01T04:03:45.000Z",
+      "updated_at": "2026-08-01T04:03:45.000Z",
+      "completed_at": "2026-08-01T04:03:45.000Z",
+      "source": "claude",
+      "target_pages": [
+        "studio.html",
+        "studio-keyword-preview.html"
+      ],
+      "history": [],
+      "started_at": "2026-08-01T04:03:45.000Z"
+    },
     {
       "category": "bugfix",
       "priority": "P0",
@@ -100,11 +140,36 @@
       "blocker": null,
       "depends_on": [],
       "progress": {
-        "percent": 0,
-        "steps": []
+        "percent": 100,
+        "steps": [
+          {
+            "n": 1,
+            "label": "",
+            "title": "/api/booking-analytics 신설(53c62949)",
+            "status": "done",
+            "done": true,
+            "at": "2026-08-01T04:03:45.000Z"
+          },
+          {
+            "n": 2,
+            "label": "",
+            "title": "booking-analytics.html 연결 1047→60KB(df626c8d)",
+            "status": "done",
+            "done": true,
+            "at": "2026-08-01T04:03:45.000Z"
+          },
+          {
+            "n": 3,
+            "label": "",
+            "title": "_admin/admin.html 연결 1369→381KB(766c4f99)",
+            "status": "done",
+            "done": true,
+            "at": "2026-08-01T04:03:45.000Z"
+          }
+        ]
       },
       "created_at": "2026-08-01T03:15:19.000Z",
-      "updated_at": "2026-08-01T03:16:15+00:00",
+      "updated_at": "2026-08-01T04:03:45.000Z",
       "source": "claude",
       "history": [
         {
@@ -122,8 +187,9 @@
       ],
       "id": "BL-ANALYTICS-STATIC",
       "title": "[booking-analytics 박힌 데이터] 989KB const D가 코드에 고정 — DB 안 보고 갱신도 안 됨(예약 3,774 vs 실제 3,850·매출 $854,258 vs $877,679). 실시간 연동 또는 스튜디오 성과표로 통합",
-      "status": "pending",
-      "notes": "임시로 「고정된 숫자입니다」 배지 추가함(d5ae3526). 근본 해결은 대표님 결정 필요 — ①실시간 API 연동 ②스튜디오 성과표로 통합 후 폐기. 관리자 3개 페이지에서 링크됨. admin.html도 같은 D 데이터 품고 있음(1.3MB)."
+      "status": "done",
+      "notes": "임시로 「고정된 숫자입니다」 배지 추가함(d5ae3526). 근본 해결은 대표님 결정 필요 — ①실시간 API 연동 ②스튜디오 성과표로 통합 후 폐기. 관리자 3개 페이지에서 링크됨. admin.html도 같은 D 데이터 품고 있음(1.3MB).",
+      "completed_at": "2026-08-01T04:03:45.000Z"
     },
     {
       "category": "bugfix",
@@ -337,7 +403,7 @@
       "category": "bugfix",
       "priority": "P1",
       "size": "S",
-      "status": "in_progress",
+      "status": "done",
       "owner": "claude",
       "claude_can_auto": true,
       "approval_required": false,
@@ -349,12 +415,29 @@
         "BL-KW-HARVEST-FIX"
       ],
       "progress": {
-        "percent": 0,
-        "steps": []
+        "percent": 100,
+        "steps": [
+          {
+            "n": 1,
+            "label": "",
+            "title": "이름 자동 보정 적용 — 11곳 살림(15→4)",
+            "status": "done",
+            "done": true,
+            "at": "2026-08-01T04:03:45.000Z"
+          },
+          {
+            "n": 2,
+            "label": "",
+            "title": "건너뛰기 해제 버그 수정(b9b9ea6b)",
+            "status": "done",
+            "done": true,
+            "at": "2026-08-01T04:03:45.000Z"
+          }
+        ]
       },
       "notes": "대상: 오키나와 본섬·지바/치바·푸꾸옥 섬·씨엠림/시엠립·몰디브 아일랜드·꼬피피/코피피·누와라 엘리야·롬복·부르고스·치앙라이·퀸스타운·판티엣·하롱·후지카와구치코·우키하. survey_skip 표에서 풀고 seedCity 정리 규칙 보강 필요.",
       "created_at": "2026-08-01T01:54:08.000Z",
-      "updated_at": "2026-08-01T01:55:38+00:00",
+      "updated_at": "2026-08-01T04:03:45.000Z",
       "source": "claude",
       "target_pages": [
         "api/kw-survey-now.js"
@@ -375,7 +458,8 @@
         "detected_at": "2026-08-01T01:55:38+00:00",
         "detected_by_commit": "d9e6fca",
         "message": "in_progress 진입했으나 progress.steps 비어있음. tasks.json에서 progress.steps 박은 후 다음 commit에 [step:done:N] 태그."
-      }
+      },
+      "completed_at": "2026-08-01T04:03:45.000Z"
     },
     {
       "id": "BL-STUDIO-I18N",

@@ -613,12 +613,21 @@ async function cities(sb, req, res, who) {
     };
   };
   //   state: none(미조사) · running(예약·봇이 채우는 중) · new_done(새로 완성·확인 대기) · done(완성·확인됨)
+  // 🔴 2026-08-01 대표님: *"조사 예약중이라고 뜨네. 멘트가 잘못 된 거 아니야?"*
+  //    샿포로는 **7월 27일에 이미 조사가 끝난**(status=done) 도시였다.
+  //    그런데 이 함수가 **이번 달 snapshot 만** 보고 없으면 무조건 'running' 을 돌려줘,
+  //    끝난 조사를 "봇이 채우는 중"이라고 **거짓말**하고 결과도 안 보여줬다.
+  //    원칙: 지난 달에라도 **끝난 조사가 있으면 그건 끝난 것**이다. 재조사 대기일 뿐이다.
   const stateOf = (cityKey) => {
     if (!cityKey) return 'none';
     const s = snapByKey[cityKey];
-    if (!s) return 'running';                 // 발굴만 됨(city_alias 있음) · 아직 측정 스냅샷 없음 = 봇 대기
-    if (s.status !== 'done') return 'running';
-    return s.acknowledged_at ? 'done' : 'new_done';
+    if (s) {
+      if (s.status !== 'done') return 'running';          // 이번 달 조사가 진짜 돌고 있다
+      return s.acknowledged_at ? 'done' : 'new_done';
+    }
+    // 이번 달 기록은 없다 → 지난 달에 끝낸 적이 있는가?
+    if (surveyedAt[cityKey]) return 'done';               // 있다 = 결과가 있다. 재조사는 봇이 때 되면 한다.
+    return 'running';                                     // 검색어만 발굴됨 · 아직 한 번도 측정 안 됨 = 진짜 대기
   };
   let newDoneCount = 0;
   const newDoneList = [];

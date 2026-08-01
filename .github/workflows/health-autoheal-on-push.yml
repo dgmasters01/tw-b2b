@@ -28,6 +28,10 @@ on:
 
 permissions:
   contents: write
+  # 🔴 2026-08-01 — 이 줄이 없어서 **마지막 단계가 계속 실패**했다.
+  #   `createWorkflowDispatch`(다른 봇 깨우기)는 contents 가 아니라 **actions 권한**이 필요하다.
+  #   YAML 이 깨졌던 건 고쳐서 실행은 되는데, 마지막에서 권한으로 튀겨 실패 메일이 다시 쌍였다.
+  actions: write
 
 concurrency:
   group: health-autoheal-${{ github.ref }}

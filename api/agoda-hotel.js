@@ -54,6 +54,14 @@ export default async function handler(req, res) {
     //   → hotelId 가 있으면 hotelId 만, 없으면 cityId 만 보낸다.
     if (hotelId) {
       criteria.hotelId = Array.isArray(hotelId) ? hotelId : [hotelId];
+      // ⚠ 아고다는 hotelId 와 **같이 못 쓰는 칸**이 있다(907 오류로 직접 알려준다):
+      //   minimumStarRating · minimumReviewScore · dailyRate · maxResult · sortBy
+      //   호텔을 꿔 집어서 물을 땐 걸러낼 이유가 없으니 당연하다. 빼고 보낼 것.
+      delete criteria.additional.minimumStarRating;
+      delete criteria.additional.minimumReviewScore;
+      delete criteria.additional.dailyRate;
+      delete criteria.additional.maxResult;
+      delete criteria.additional.sortBy;
     } else if (cityId) {
       criteria.cityId = cityId;
     } else {

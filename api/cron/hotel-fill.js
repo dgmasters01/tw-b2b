@@ -74,11 +74,18 @@ export default async function handler(req, res) {
 
   const want = new Map();   // hid → { name, city, country }
   for (const p of pubs || []) {
+    // 🔴 2026-08-01 실측 — **hotel_names 순서와 hid 순서가 다른 원고가 있다.**
+    //   HT-0002: hotel_names = [프리미어, ANA, JR타워] / hid = [JR타워, ANA, 프리미어] — 앞뒤가 바뀌어 있었다.
+    //   순서를 믿고 이름을 붙이면 **엉뚱한 호텔 이름이 박힌다.**
+    //   → 이름은 「후보」로만 다룬다. 아고다가 이름을 주면 아고다 것을 쓴다 (원칙 ④).
     const names = Array.isArray(p.hotel_names) ? p.hotel_names : [];
     [p.hid_top1, p.hid_top2, p.hid_top3].forEach((h, i) => {
       const id = String(h || '').trim();
       if (!id || !/^\d+$/.test(id)) return;
-      if (!want.has(id)) want.set(id, { name: names[i] || null, city: p.city || null, country: p.country || null });
+      if (!want.has(id)) want.set(id, {
+        name_guess: names[i] || null,          // ⚠ 순서가 보장 안 된다 — 확정 이름이 아니다
+        names_all: names,                       // 원고에 있던 이름 전부(사람이 나중에 맞추기용)
+        city: p.city || null, country: p.country || null, code: p.code });
     });
   }
   if (!want.size) return res.status(200).json({ ok: true, idle: true, note: '원고에 붙은 호텔이 없습니다.' });
@@ -109,7 +116,8 @@ export default async function handler(req, res) {
     rows.push(a ? {
       hotel_id: Number(id),
       name_en: a.hotelName || null,
-      name_ko: w.name || null,
+      // 아고다가 이름을 줌 → **원고 추측 이름을 붙이지 않는다.** 잘못 붙으면 자료가 망가진다.
+      name_ko: null,
       city: w.city || null,
       country: w.country || null,
       star: a.starRating != null ? Number(a.starRating) : null,
@@ -120,7 +128,7 @@ export default async function handler(req, res) {
     } : {
       // 🔴 아고다에도 없다 → 원고 이름만 넣고 「아고다 정보 없음」으로 남긴다. 지어내지 않는다.
       hotel_id: Number(id),
-      name_ko: w.name || null,
+      name_ko: w.name_guess || null,            // ⚠ 추측 이름 — source 가 manuscript 면 「확인 필요」로 읽는다
       city: w.city || null,
       country: w.country || null,
       source: 'manuscript',

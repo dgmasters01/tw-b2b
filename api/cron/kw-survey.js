@@ -19,7 +19,12 @@ import { fetchCompetition, opportunityFromDemand, COMP_METHOD, COMP_WINDOW_DAYS 
 
 export const config = { maxDuration: 300 };
 
-const PER_RUN = 15;   // 한 회차에 재는 검색어 수 (앵커 포함) — 회차당 ~4분 안에 끝나게
+// 🔴 2026-08-01 전체 점검에서 잡은 것 — 이 값이 15 이라 봇이 **매시간 헛돌고 있었다.**
+//   증상: 8월 1일 00시 이후 측정이 한 건도 안 쌓임. 실행해 보니 **276초 쓰고 429**(구글 차단)로 죽음.
+//   15개를 한 숨에 재려면 트렌드 호출이 몰려 튀긴다. 3개는 멀졘하게 성공했다.
+//   → 보수적으로 5. 한 회차가 짧아지지만 **저장이 된다.** 15개 받고 0개 저장보다 5개 받고 5개가 낛다.
+//   다시 올리지 말 것 — 올리려면 라이브에서 먼저 재보고 429 안 나는 걸 확인해야 한다.
+const PER_RUN = 5;    // 한 회차에 재는 검색어 수 (앵커 포함)
 
 async function authOK(req) {
   const h = req.headers || {};

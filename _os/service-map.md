@@ -1,7 +1,7 @@
 # 📖 TW B2B 시스템 매뉴얼 (service-map)
 
 > **자동 생성 — 직접 편집 금지** (`.github/workflows/system-manual-rebuild.yml`이 push마다 재생성)
-> **생성 시각:** 2026-08-01T04:09:00.441Z
+> **생성 시각:** 2026-08-01T04:10:09.661Z
 > **포맷 (헌법 12대 원칙 6번 — AI 가독성):** 사람용 표/설명 + AI용 YAML 블록
 
 ---
@@ -80,7 +80,7 @@ groups:
 | `auto-detect-task-status.yml` | push/수동 | commit message 자동 감지 → tasks.json status 자동 갱신 |
 | `auto-task-from-health.yml` | push/cron/수동 | 자동 작업 등록 봇 (auto-task-from-health) |
 | `build-activity-feed.yml` | push/cron/수동 | activity-feed 자동 갱신 워크플로 (BL-OS-PHASE-1A 단계 5) |
-| `capture-pages.yml` | push/cron/수동 | 페이지 자동 캡처 봇 (BL-015 / D-028) |
+| `capture-pages.yml` | cron/수동 | 페이지 자동 캡처 봇 (BL-015 / D-028) |
 | `charter-length-bot.yml` | push/수동/PR | Charter Length Bot — 헌법 길이 자동 감시 |
 | `chat-log-index.yml` | push/cron/수동 | chat-log 인덱스 자동 갱신 워크플로 |
 | `chatlog-format-check.yml` | push/cron/수동 | chat-log 5블록 표준 검증 워크플로 (D-036) |
@@ -109,7 +109,7 @@ bots:
   - { file: "auto-detect-task-status.yml", trigger: ["push", "수동"], role: "commit message 자동 감지 → tasks.json status 자동 갱신" }
   - { file: "auto-task-from-health.yml", trigger: ["push", "cron", "수동"], role: "자동 작업 등록 봇 (auto-task-from-health)" }
   - { file: "build-activity-feed.yml", trigger: ["push", "cron", "수동"], role: "activity-feed 자동 갱신 워크플로 (BL-OS-PHASE-1A 단계 5)" }
-  - { file: "capture-pages.yml", trigger: ["push", "cron", "수동"], role: "페이지 자동 캡처 봇 (BL-015 / D-028)" }
+  - { file: "capture-pages.yml", trigger: ["cron", "수동"], role: "페이지 자동 캡처 봇 (BL-015 / D-028)" }
   - { file: "charter-length-bot.yml", trigger: ["push", "수동", "PR"], role: "Charter Length Bot — 헌법 길이 자동 감시" }
   - { file: "chat-log-index.yml", trigger: ["push", "cron", "수동"], role: "chat-log 인덱스 자동 갱신 워크플로" }
   - { file: "chatlog-format-check.yml", trigger: ["push", "cron", "수동"], role: "chat-log 5블록 표준 검증 워크플로 (D-036)" }

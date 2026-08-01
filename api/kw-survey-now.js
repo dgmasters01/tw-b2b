@@ -16,6 +16,40 @@ import { harvest, suggest, politeSleep } from './_lib/kwtool.js';
 
 export const config = { maxDuration: 300 };
 
+
+/* ═════ 언어별 씨앗 사전 (2026-08-01 · D-076) ═════
+   🔴 대표님: *"여행하고 자유여행 그리고 띄어쓰기 — 이건 한국어에 해당되는거야? 알지?"*
+   맞다. 씨앗 단어가 「호텔·숙소·여행·자유여행」으로 **한국말로 박혀 있었다.**
+   지금은 한국어(ko/KR) 하나만 써서 문제가 안 드러난다. 그러나 일본어 타겟을 켜는 순간
+   「札幌 호텔」 같은 **섮이는 검색어**를 캐게 되고, 그 숫자로 도시 순서를 정하면
+   판단 전체가 거짓이 된다. 조용히 망가지는 게 가장 나쁘다.
+   → 언어마다 쓰는 말을 적어둔다. **사전에 없는 언어는 조사를 거부한다** —
+     엉뚱한 걸 캐서 저장하느니 안 캐고 "이 언어는 아직 사전이 없다"고 말하는 게 낛다.
+   ⚠ 띄어쓰기 짝(spacing)은 **한국말 특유**다.
+     「샿포로 호텔」과 「샿포로호텔」은 검색량이 다르다. 그러나
+     일본어·중국어는 원래 띄어쓰기가 없고, 영어는 붙이면 틀린 말이 된다(sapporohotels).
+     그래서 ko 에서만 켠다.
+   ⚠ 군더더기(tail)도 언어별이다 — 「오키나와 본섬」은 한국말 문제다. */
+const SEEDS_BY_LANG = {
+  ko: { stay: ['호텔', '숙소'], travel: ['여행', '자유여행'], spacing: true,
+        probe: '호텔', tail: ['본섬', '섬', '아일랜드', '시티', '시', '지역', '일대', '근교'] },
+  // 実測 2026-08-01(札幌 기준): 旅行10 観光10 一人旅10 ホテル10 宿10 — 「個人旅行」은 **0개라 미채택**
+  ja: { stay: ['ホテル', '宿'], travel: ['旅行', '観光'], spacing: false,
+        probe: 'ホテル', tail: ['島', '市'] },
+  en: { stay: ['hotels', 'accommodation'], travel: ['travel', 'trip'], spacing: false,
+        probe: 'hotels', tail: ['island', 'city'] },
+  // 実測(繁體·TW): 旅遊10 自由行10 住宿10 飯店10 · 簡體 酒店은 7 → 번체자 우선
+  zh: { stay: ['飯店', '住宿'], travel: ['旅遊', '自由行'], spacing: false,
+        probe: '飯店', tail: ['島', '市'] },
+  // ⚠ 베트남어는 자동완성이 엉성하다(샿포로 기준 du lịch 5 · khách sạn 1).
+  //   켜도 되지만 품질 게이트에 걸려 대부분 건너뛸 것이다 — 그게 맞다(없는 숫자를 지어내지 않는다).
+  vi: { stay: ['khách sạn', 'chỗ ở'], travel: ['du lịch', 'du lịch tự túc'], spacing: false,
+        probe: 'du lịch', tail: ['đảo'] },
+  // 実測: เที่ยว10 ที่พัก10 โรงแรม10
+  th: { stay: ['โรงแรม', 'ที่พัก'], travel: ['เที่ยว', 'ท่องเที่ยว'], spacing: false,
+        probe: 'โรงแรม', tail: ['เกาะ'] },
+};
+
 const SUPABASE_URL = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
 const SUPABASE_ANON = process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_PUBLISHABLE_KEY;
 const SITE_URL = process.env.SITE_URL || 'https://gohotelwinners.com';
@@ -92,6 +126,13 @@ export default async function handler(req, res) {
   if (step === 'harvest') {
     const cityKo = String(body.city_ko || '').trim();
     const countryKo = String(body.country_ko || '').trim();
+    // 언어 사전이 없으면 캐지 않는다 — 한국말 씨앗으로 남의 언어를 캐면 숫자가 전부 거짓이 된다.
+    const LANG = SEEDS_BY_LANG[target];
+    if (!LANG) {
+      return res.status(400).json({ ok: false, step: 'harvest',
+        error: `「${target}」 언어는 씨앗 사전이 아직 없습니다. 쓸 수 있는 언어: ${Object.keys(SEEDS_BY_LANG).join(', ')}. `
+             + `사전 없이 캐면 한국말 단어로 남의 나라를 재게 되어 숫자가 전부 거짓이 됩니다.` });
+    }
     if (!cityKo) return res.status(400).json({ ok: false, error: '발굴하려면 도시 한국어 이름(city_ko)이 필요합니다.' });
 
     // city_key 를 안 줬으면 한국어 도시·나라로 해석
@@ -120,7 +161,7 @@ export default async function handler(req, res) {
     //      「씨엠림 / 시엠립」 → 뒤가 정답
     //      「오키나와 본섬」·「푸꾸옥 섬」·「몰디브 아일랜드」 → 군더더기를 떼야 0→10개
     //    → **후보를 여러 개 만들어 직접 재보고 가장 잘 나오는 이름을 쓴다.** 사람이 안 고쳐도 된다.
-    const TAIL = ['본섬', '섬', '아일랜드', '시티', '시', '지역', '일대', '근교'];
+    const TAIL = LANG.tail || [];
     function nameCands(raw) {
       const out = [];
       const push = (v) => { const t = String(v || '').trim(); if (t && !out.includes(t)) out.push(t); };
@@ -146,7 +187,7 @@ export default async function handler(req, res) {
         let best = null;
         for (const c0 of cands) {
           let cnt = 0;
-          try { cnt = (await suggest(`${c0} 호텔`, target, gl) || []).length; } catch { cnt = 0; }
+          try { cnt = (await suggest(`${c0} ${LANG.probe}`, target, gl) || []).length; } catch { cnt = 0; }
           await politeSleep();
           if (!best || cnt > best.n) best = { name: c0, n: cnt };
           if (cnt >= 10) break;                        // 꿉 찼다. 더 안 물어본다.
@@ -160,14 +201,15 @@ export default async function handler(req, res) {
     //    씨앗이 「호텔·숙소·여행」 3개뿐이라 「자유여행」을 아예 캐지 않고 있었다.
     //    붙여쓰기 짝도 숙박축에만 있어서 「샿포로여행」 같은 붙은 형태를 못 봤다.
     //    한국말은 띄어쓰기에 따라 검색량이 달라진다 — 둘 다 재야 한다.
-    const seeds = [
-      { q: `${seedCity} 호텔`, axis: 'stay' },
-      { q: `${seedCity} 숙소`, axis: 'stay' },
-      { q: `${seedCity} 여행`, axis: 'travel' },
-      { q: `${seedCity} 자유여행`, axis: 'travel' },
-    ];
-    // 붙여쓴 짝은 「있는지 확인」용이라 자모 발굴까지 할 필요가 없다(호출 수 절약 → 429 회피).
-    const joinedSeeds = [`${seedCity}호텔`, `${seedCity}숙소`, `${seedCity}여행`, `${seedCity}자유여행`];
+    const seeds = []
+      .concat(LANG.stay.map((w) => ({ q: `${seedCity} ${w}`, axis: 'stay' })))
+      .concat(LANG.travel.map((w) => ({ q: `${seedCity} ${w}`, axis: 'travel' })));
+    // 붙여쓴 짝은 **한국말에서만** 걸어 둔다(LANG.spacing).
+    // 일본어·중국어는 원래 띄어쓰기가 없고, 영어는 붙이면 없는 말이 된다.
+    // 붙임 후보는 「있는지 확인」용이라 자모 발굴까지 할 필요 없다(호출 수 절약 → 429 회피).
+    const joinedSeeds = LANG.spacing
+      ? LANG.stay.concat(LANG.travel).map((w) => `${seedCity}${w}`)
+      : [];
     const seen = new Set();
     const mains = [];          // { text(띄어쓰기), axis }
     const joinedSet = new Set();
@@ -198,15 +240,18 @@ export default async function handler(req, res) {
 
     // 일반 검색어 판별 (호텔 고유명과 가르기)
     const GENERIC = ['호텔','숙소','추천','가성비','조식','위치','온천','대욕장','뷔페','뷰페','가족','여행','자유여행','코스','여행지','커플','아이','뷰','야경','시내','역','근처','저렴','예약','후기','비즈니스','료칸','게스트하우스','민박','캡슐','펜션','리조트','전망','오션뷰','금연','흡연','주차','조용한','신상','신축','중심','번화가','베스트','인기','럭셔리','고급','수영장','노천탕','객실','일정','당일치기','자유','관광'];
+    // ⚠ 아래 GENERIC 은 **한국말 목록**이다. 다른 언어에선 사전 씨앗 단어로만 가른다
+    //   (호텔 고유명과 일반어를 가르는 용도 — 단어 목록이 없으면 널래게 본다).
+    const GEN_WORDS = (target === 'ko') ? GENERIC : LANG.stay.concat(LANG.travel);
     const isGeneric = (term) => {
       const toks = term.split(new RegExp('\\s+|' + seedCity)).map((x) => x.trim()).filter(Boolean);
       if (!toks.length) return true;
-      return toks.every((t) => GENERIC.some((g) => t === g || t.includes(g) || g.includes(t)));
+      return toks.every((t) => GEN_WORDS.some((g) => t === g || t.includes(g) || g.includes(t)));
     };
 
     const country = ck.replace(/^cc:/, '').split('|')[0];
     const now = new Date().toISOString();
-    const anchorText = `${seedCity} 여행`;
+    const anchorText = `${seedCity} ${LANG.travel[0]}`;   /* 잣대 — 언어별 「여행」 단어 */
     const base = { target_code: target, market, country, city_key: ck, alive: true, source: 'harvest-now', alive_source: 'suggest', created_at: now, last_seen_at: now };
     const pushed = new Set();
     const rows = [];
@@ -218,7 +263,7 @@ export default async function handler(req, res) {
       // 붙여쓰기 짝: 일반 검색어이고 붙여쓴 형태가 자동완성에 살아있으면 짝으로 함께
       // (숙박·여행 둘 다 해당 — 「샿포로여행」도 「샿포로호텔」처럼 따로 잰다)
       const j = m.text.replace(/\s+/g, '');
-      if (isGeneric(m.text) && joinedSet.has(j) && !pushed.has(j)) {
+      if (LANG.spacing && isGeneric(m.text) && joinedSet.has(j) && !pushed.has(j)) {
         pushed.add(j);
         rows.push({ ...base, text: j, axis: m.axis, kind: 'joined', is_anchor: false, morph_axis: 'spacing' });
       }

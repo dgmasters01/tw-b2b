@@ -668,6 +668,16 @@ async function cities(sb, req, res, who) {
   // 🔴 2026-08-01 대표님: *"이름문제로 건너뛴 도시 이런곳은 내가 알수가 없네."*
   //    맞다. survey_skip 은 DB 안에만 있었고 화면에 한 번도 안 나왔다.
   //    → 예약 건수와 붙여서 내려준다. 돈 많은 곳부터 고치면 된다.
+  // 🔴 2026-08-01 — 매일 도는 검사(kw-audit) 결과를 화면으로 내려준다.
+  //   검사를 돌려도 **보는 곳이 없으면 안 돌린 것과 같다.**
+  let auditInfo = null;
+  try {
+    const { data: au } = await sb.from('kw_audit_log').select('ran_at, problem_count, fixed_count, result')
+      .order('ran_at', { ascending: false }).limit(1).maybeSingle();
+    if (au) auditInfo = { at: au.ran_at, problems: au.problem_count || 0, fixed: au.fixed_count || 0,
+      items: ((au.result && au.result.problems) || []).map((p) => ({ kind: p.kind, n: p.n, fixed: !!p.fixed, note: p.note || null, sample: (p.sample || []).slice(0, 3) })) };
+  } catch { /* 검사 기록이 없으면 없는 대로 */ }
+
   let skipList = [];
   try {
     const { data: skipRows } = await sb.from('survey_skip').select('label, reason').eq('target_code', target);
@@ -680,6 +690,7 @@ async function cities(sb, req, res, who) {
   return res.status(200).json({
     ok: true, view: 'cities', target,
     skipped_list: skipList,                          // 이름 문제로 조사 못 한 도시
+    audit: auditInfo,                                // 매일 자동 검사 결과(kw-audit)
     skipped: skipList.length,
     new_done: newDoneCount,                         // 새로 완성·확인 대기 도시 수 (배지)
     new_done_list: newDoneList,                      // 그 도시들 [{name, country, city_key}]

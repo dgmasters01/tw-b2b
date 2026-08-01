@@ -144,9 +144,14 @@ export default async function handler(req, res) {
     }
 
     // 이미 검색어 있으면 발굴 건너뜀(중복 방지·비용 0)
+    // 🔴 2026-08-01 대표님: *"기존에 조사를 완료한 부분을 다시 새롭게 조사하는 거야?"*
+    //   안 됐다. 한 번 츸 도시는 여기서 막혀 **새 규칙(자유여행·띄어쓰기)이 안 들어간다.**
+    //   → `refresh: true` 를 주면 **다시 캐서 새로 나온 것만 더한다.**
+    //     기존 검색어는 지우지 않는다 — 거기 붙은 측정값(트렌드)이 날아가면 안 된다.
+    const refresh = body.refresh === true || String(req.query.refresh || '') === '1';
     const { data: cur } = await sb.from('keyword').select('id')
       .eq('target_code', target).eq('market', market).eq('city_key', ck).eq('alive', true).limit(1);
-    if (cur && cur.length) {
+    if (cur && cur.length && !refresh) {
       const { count } = await sb.from('keyword').select('id', { count: 'exact', head: true })
         .eq('target_code', target).eq('market', market).eq('city_key', ck).eq('alive', true);
       return res.status(200).json({ ok: true, step: 'harvest', already: true, city_key: ck, keyword_count: count || cur.length, note: '이미 검색어가 있어 발굴을 건너뛰었습니다.' });

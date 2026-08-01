@@ -1511,9 +1511,35 @@
     // ★ BL-DEDUP-CONSOLIDATE step6: 헌법 검증 27/27 PASS 흡수 (③ stat-card 'charter' 대체)
     lines.push('🛡️ 헌법 검증: 27/27 PASS (charter-mapping-check 봇)');
     lines.push('');
+    /* 🔴 2026-08-02 대표님 — 자동 검사를 스튜디오 키워드에 넣었던 것을 여기로 옮겼다.
+       스튜디오 = 콘텐츠를 만드는 작업장(어느 도시를 다음에 칠까).
+       자동 검사 = 시스템이 제대로 도는가 → 관리자 자리. */
+    if (window.__KW_AUDIT) {
+      var A = window.__KW_AUDIT;
+      lines.push('🧪 키워드 자료 검사 (' + String(A.at||'').slice(0,10) + ')');
+      if (!A.problems) { lines.push('    깨끗함 — 이상 없음'); }
+      else {
+        var LBL = { axis:'검색어 분류 틀림', spacing:'붙임말이 다른 언어에', city_name:'도시·지역 이름 없는 검색어',
+                     denominator:'「우리」>「전체」 — 분모 부족', denominator_zero:'분모 0 — 그 나라 호텔 미적재',
+                     no_measure:'검색어는 있고 측정 전' };
+        (A.items||[]).forEach(function(it){
+          lines.push('    - ' + (LBL[it.kind]||it.kind) + ': ' + it.n + (it.fixed ? ' (자동으로 고침)' : ''));
+        });
+        if (A.fixed) lines.push('    ✓ 이번에 자동으로 고친 것: ' + A.fixed + '건');
+      }
+      lines.push('    검사 봇 = kw-audit (매일 KST 14:15)');
+      lines.push('');
+    }
     lines.push('출처: /_admin/_health.json (health-check-admin.yml — 10분 cron + push 트리거)');
     detail.textContent = lines.join('\n');
   }
+  /* 키워드 자료 검사 결과 — 하루 1회 도는 검사라 한 번만 불러 둔다. */
+  (function(){
+    fetch('/api/content-keywords?view=cities&target=ko', { credentials:'same-origin' })
+      .then(function(r){ return r.json(); })
+      .then(function(d){ if (d && d.ok && d.audit) window.__KW_AUDIT = d.audit; })
+      .catch(function(){ /* 못 불러오면 그 줄을 안 보여준다 */ });
+  })();
   function pollOnce(){
     // ★ BL-HEALTH-AUTOHEAL 후속 (2026-05-13): 강력 캐시 우회
     //   - 쿼리스트링 ?t= (CDN 캐시 우회)

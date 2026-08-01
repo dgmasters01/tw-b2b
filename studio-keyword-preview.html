@@ -957,7 +957,15 @@ var RDD_LOADING=null;
 function rddButton(c){
   document.getElementById('d3l').innerHTML='<div class="wn">이 도시는 <b>키워드 조사가 안 된 도시</b> 모른다고 비워두거나 지어내지 않고, 모른다고 표시합니다.<br><br><span class="btn" onclick="surveyNow(\''+c+'\')">＋ 지금 조사하기</span></div>';
 }
-function rdd(c){cy=c;document.getElementById('d3t').innerHTML=c+' · 키워드 구조 <span class="no">3-1~3-5</span>';
+function rdd(c){cy=c;
+ /* 🔴 2026-08-01 대표님: *"마지막 조사한 날짜를 넣어주면 좋겠다."*
+    관제판 카드에는 넣었지만 **도시 상세 화면에는 빠져 있었다.**
+    이 숫자가 언제 것인지 모르면 판단을 못 한다 — 제목 옆에 바로 보이게 한다. */
+ var _sv = (INV[c] && INV[c].surveyed_at) ? String(INV[c].surveyed_at).slice(0,10) : null;
+ var _svTag = _sv
+   ? ' <span class="no" style="background:rgba(78,222,163,.14);color:#7fd7b4;">\uD83D\uDD50 조사 ' + _sv + '</span>'
+   : ' <span class="no" style="opacity:.6">조사 기록 없음</span>';
+ document.getElementById('d3t').innerHTML=c+' · 키워드 구조 <span class="no">3-1~3-5</span>'+_svTag;
  if(c!==SVCITY){
    var st = INV[c] && INV[c].survey_state;
    /* 🔴 2026-08-01 — 지난 달에 끝난 조사가 있는데도 "예약 중"이라고 말하고 결과를 감췄다. */

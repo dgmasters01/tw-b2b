@@ -1,29 +1,134 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-07-27T06:29:00.639Z",
+  "updated_at": "2026-08-01T01:54:08.000Z",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
-  "head_commit": "3da2b4a",
+  "head_commit": "859642c",
   "sources": [
     "CHANGELOG.md",
     "BACKLOG.md",
     "SOLO_WORK_QUEUE.md"
   ],
   "stats": {
-    "total": 299,
-    "done": 221,
+    "total": 301,
+    "done": 222,
     "in_progress": 5,
     "paused": 0,
-    "pending": 46,
+    "pending": 47,
     "blocked": 12,
     "autonomous_ready": 38,
     "todo": 7,
     "cancelled": 1,
-    "updated_at": "2026-07-27T06:29:00.639Z"
+    "updated_at": "2026-08-01T01:54:08.000Z"
   },
   "tasks": [
+    {
+      "id": "BL-KW-HARVEST-FIX",
+      "title": "[키워드 발굴·순환 바로잡기] 자유여행 씨앗·띄어쓰기 짝·여행축 상한 8→16 · 봇 3회 1번 신규 발굴 우선 · 끝난 조사를 「예약중」이라 하던 거짓 표시 제거",
+      "category": "bugfix",
+      "priority": "P0",
+      "size": "M",
+      "status": "done",
+      "owner": "claude",
+      "claude_can_auto": true,
+      "approval_required": false,
+      "decision_ref": "D-075",
+      "estimated_hours": 3,
+      "order": 1,
+      "blocker": null,
+      "depends_on": [],
+      "progress": {
+        "percent": 100,
+        "steps": [
+          {
+            "n": 1,
+            "label": "발굴 규칙",
+            "title": "씨앗에 자유여행 추가·붙여쓰기 씨앗에 여행계열·여행축 8→16·호출 75→64회",
+            "status": "done",
+            "done": true,
+            "at": "2026-08-01T01:54:08.000Z",
+            "commit": "a6fb06e6"
+          },
+          {
+            "n": 2,
+            "label": "봇 순환",
+            "title": "3회에 1번 신규 발굴 우선(NEW_EVERY) · 발굴 없으면 재조사 복귀 · 대표님 선택은 새치기",
+            "status": "done",
+            "done": true,
+            "at": "2026-08-01T01:54:08.000Z",
+            "commit": "8103d6d5"
+          },
+          {
+            "n": 3,
+            "label": "거짓 표시",
+            "title": "지난달 완료 조사를 running으로 말하던 stateOf 수정 — 25곳 제자리",
+            "status": "done",
+            "done": true,
+            "at": "2026-08-01T01:54:08.000Z",
+            "commit": "cba7b53d"
+          },
+          {
+            "n": 4,
+            "label": "문서",
+            "title": "D-075 인덱스·스토리·전문·SYSTEM_MAP 4곳",
+            "status": "done",
+            "done": true,
+            "at": "2026-08-01T01:54:08.000Z",
+            "commit": "44b57689"
+          }
+        ]
+      },
+      "notes": "실측: 예약 있는 도시 145곳 중 발굴 81곳·미발굴 64곳·건너뛰기 15곳. 봇 처리량 하루 2~3곳.",
+      "created_at": "2026-08-01T01:54:08.000Z",
+      "updated_at": "2026-08-01T01:54:08.000Z",
+      "completed_at": "2026-08-01T01:54:08.000Z",
+      "source": "claude",
+      "target_pages": [
+        "api/kw-survey-now.js",
+        "api/cron/kw-survey.js",
+        "api/content-keywords.js"
+      ],
+      "history": [
+        {
+          "at": "2026-08-01T01:54:08.000Z",
+          "what": "대표님 지적 4건에서 출발 — 전부 시스템이 사실과 다르게 돌던 것"
+        }
+      ],
+      "started_at": "2026-08-01T01:54:08.000Z"
+    },
+    {
+      "id": "BL-KW-CITYNAME-SKIP",
+      "title": "[조사 못 하는 도시 15곳 살리기] 도시명에 슬래시·군더더기(본섬·아일랜드·섬)가 붙어 자동완성이 못 알아들어 건너뛰기 등록됨 — 이름 다듬어 재발굴",
+      "category": "bugfix",
+      "priority": "P1",
+      "size": "S",
+      "status": "pending",
+      "owner": "claude",
+      "claude_can_auto": true,
+      "approval_required": false,
+      "decision_ref": "D-075",
+      "estimated_hours": 2,
+      "order": 2,
+      "blocker": null,
+      "depends_on": [
+        "BL-KW-HARVEST-FIX"
+      ],
+      "progress": {
+        "percent": 0,
+        "steps": []
+      },
+      "notes": "대상: 오키나와 본섬·지바/치바·푸꾸옥 섬·씨엠림/시엠립·몰디브 아일랜드·꼬피피/코피피·누와라 엘리야·롬복·부르고스·치앙라이·퀸스타운·판티엣·하롱·후지카와구치코·우키하. survey_skip 표에서 풀고 seedCity 정리 규칙 보강 필요.",
+      "created_at": "2026-08-01T01:54:08.000Z",
+      "updated_at": "2026-08-01T01:54:08.000Z",
+      "source": "claude",
+      "target_pages": [
+        "api/kw-survey-now.js"
+      ],
+      "history": [],
+      "started_at": null
+    },
     {
       "id": "BL-STUDIO-I18N",
       "title": "[스튜디오 영문판] 6메뉴 i18n — 한국어 기본·영어 덧붙이기 · 사전방식 + 렌더후 번역계층 · 계정 기본 언어 자동(한국인 ko / 해외 en)",

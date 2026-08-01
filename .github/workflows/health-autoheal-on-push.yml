@@ -90,8 +90,19 @@ jobs:
               COMMIT_MSG="${COMMIT_MSG} · ⚠️ 여전히 누락된 BL ${MISSING}건 — 사람 개입 필요"
             fi
             git commit -m "$COMMIT_MSG"
-            git push origin HEAD:${GITHUB_REF#refs/heads/}
-            echo "💾 자가 치유 commit + push 완료: ${HEALED}건 박음, ${MISSING}건 누락"
+            # 🔴 2026-08-02 — push 를 한 번만 시도해서 **다른 봇과 부딪치면 그자리서 죽었다.**
+            #   tasks.json 은 여러 봇과 사람이 같이 건드린다. 부딪히는 게 정상이다.
+            for i in 1 2 3 4 5 6 7 8; do
+              git pull --rebase origin ${GITHUB_REF#refs/heads/} || git rebase --abort || true
+              if git push origin HEAD:${GITHUB_REF#refs/heads/}; then
+                echo "💾 자가 치유 commit + push 완료: ${HEALED}건 박음, ${MISSING}건 누락 (시도 $i)"
+                exit 0
+              fi
+              echo "⚠️ push 충돌 — 재시도 ($i/8)"
+              sleep $((i * 2))
+            done
+            echo "::warning::tasks.json push 실패(8회) — 다음 push 때 다시 치유합니다."
+            exit 0
           fi
 
       - name: Trigger health-check workflow

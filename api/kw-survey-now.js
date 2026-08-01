@@ -114,8 +114,48 @@ export default async function handler(req, res) {
     // 오사카 구조 그대로: 여행 축 + 숙박 축, 띄어쓰기 메인 + 붙여쓰기 짝.
     // 숙박이 주력 → 숙박 씨앗 먼저(구글 제한 전에), 여행은 하나만. 호출 수를 줄여 429 회피.
     const gl = market.toLowerCase();
-    // 도시명 정리: "도쿄 / 동경"·"상하이 / 상해" 처럼 슬래시·괄호 별칭이 붙으면 자동완성이 0개가 된다 → 앞 이름만 씨앗으로.
-    const seedCity = ((cityKo.split(/[\/(]/)[0] || cityKo).trim()) || cityKo;
+    // 🔴 2026-08-01 대표님: *"이름은 어떻게 해야 되는 거야?"*
+    //    예전엔 「슬래시 앞에 것」을 무조건 썬다. 그런데 실측해 보니 틀릴 때가 많다:
+    //      「지바 / 치바」 → 앞(지바)은 0개, 뒤(치바)는 10개
+    //      「씨엠림 / 시엠립」 → 뒤가 정답
+    //      「오키나와 본섬」·「푸꾸옥 섬」·「몰디브 아일랜드」 → 군더더기를 떼야 0→10개
+    //    → **후보를 여러 개 만들어 직접 재보고 가장 잘 나오는 이름을 쓴다.** 사람이 안 고쳐도 된다.
+    const TAIL = ['본섬', '섬', '아일랜드', '시티', '시', '지역', '일대', '근교'];
+    function nameCands(raw) {
+      const out = [];
+      const push = (v) => { const t = String(v || '').trim(); if (t && !out.includes(t)) out.push(t); };
+      const parts = raw.split(/[\/(),]/).map((x) => x.trim()).filter(Boolean);
+      for (const pt of parts) {
+        push(pt);
+        for (const t of TAIL) {                       // 끝에 붙은 군더더기 떼기
+          if (pt.endsWith(' ' + t)) push(pt.slice(0, -(t.length + 1)));
+          else if (pt.length > t.length + 1 && pt.endsWith(t)) push(pt.slice(0, -t.length));
+        }
+        push(pt.replace(/\s+/g, ''));                  // 띄어쓴 걸 붙여본다(누와라 엘리야→누와라엘리야)
+      }
+      push(raw);
+      return out.slice(0, 6);                          // 호출 수 제한
+    }
+    let seedCity = ((cityKo.split(/[\/(]/)[0] || cityKo).trim()) || cityKo;
+    // 대표님이 이름을 직접 알려주면(예: 판티엣→무이네) 그걸 쓴다. 기계가 모르는 별명이 있다.
+    const nameOverride = String(body.name_override || '').trim();
+    if (nameOverride) seedCity = nameOverride;
+    else try {
+      const cands = nameCands(cityKo);
+      if (cands.length > 1) {
+        let best = null;
+        for (const c0 of cands) {
+          let cnt = 0;
+          try { cnt = (await suggest(`${c0} 호텔`, target, gl) || []).length; } catch { cnt = 0; }
+          await politeSleep();
+          if (!best || cnt > best.n) best = { name: c0, n: cnt };
+          if (cnt >= 10) break;                        // 꿉 찼다. 더 안 물어본다.
+        }
+        if (best && best.n > 0) seedCity = best.name;
+      }
+    } catch { /* 못 재면 예전 방식 그대로 */ }
+    // 다시 시도하는 거면 건너뛰기 기록을 먼저 지운다 — 안 그러면 봇이 계속 피해 간다.
+    if (nameOverride) { try { await sb.from('survey_skip').delete().eq('target_code', target).eq('label', cityKo); } catch { /* 무시 */ } }
     // 🔴 2026-08-01 대표님: *"여행의 가장 큰 키워드는 여행, 자유여행이잖아."*
     //    씨앗이 「호텔·숙소·여행」 3개뿐이라 「자유여행」을 아예 캐지 않고 있었다.
     //    붙여쓰기 짝도 숙박축에만 있어서 「샿포로여행」 같은 붙은 형태를 못 봤다.
@@ -193,7 +233,7 @@ export default async function handler(req, res) {
       try { await sb.from('city_alias').delete().eq('target_code', target).eq('city_key', ck); } catch { /* 무시 */ }
       // 봇이 이 도시를 계속 재시도하지 않도록 건너뛰기 목록에 기록 (도시명 고치면 풀 수 있음)
       try {
-        await sb.from('survey_skip').upsert({ target_code: target, label: cityKo, reason: `발굴 불량 ${rows.length}개(숙박 ${stayN}·여행 ${travelN})` }, { onConflict: 'target_code,label' });
+        await sb.from('survey_skip').upsert({ target_code: target, label: cityKo, reason: `발굴 불량 ${rows.length}개(숙박 ${stayN}·여행 ${travelN}) · 쓴 이름 "${seedCity}"` }, { onConflict: 'target_code,label' });
       } catch { /* 무시 */ }
       return res.status(200).json({ ok: false, step: 'harvest', insufficient: true, city_key: ck,
         harvested: rows.length, stay: stayN, travel: travelN,

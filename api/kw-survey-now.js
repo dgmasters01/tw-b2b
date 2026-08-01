@@ -196,7 +196,11 @@ export default async function handler(req, res) {
       }
     } catch { /* 못 재면 예전 방식 그대로 */ }
     // 다시 시도하는 거면 건너뛰기 기록을 먼저 지운다 — 안 그러면 봇이 계속 피해 간다.
-    if (nameOverride) { try { await sb.from('survey_skip').delete().eq('target_code', target).eq('label', cityKo); } catch { /* 무시 */ } }
+    // 🔴 2026-08-01 — 예전엔 **이름을 직접 준 때만** 건너뛰기를 풀었다.
+    //   그러나 이름 자동 보정으로 살아난 곳(푸꾸옥 섬→46개 · 오키나와 본섬→46개)도
+    //   기록이 남아 봇이 계속 건너뛰었다 — 캐놓고도 안 재는 꼴이 된다.
+    //   → **다시 캐러 온 이상 무조건 푸다.** 실패하면 아래 품질 게이트가 다시 넣는다.
+    try { await sb.from('survey_skip').delete().eq('target_code', target).eq('label', cityKo); } catch { /* 무시 */ }
     // 🔴 2026-08-01 대표님: *"여행의 가장 큰 키워드는 여행, 자유여행이잖아."*
     //    씨앗이 「호텔·숙소·여행」 3개뿐이라 「자유여행」을 아예 캐지 않고 있었다.
     //    붙여쓰기 짝도 숙박축에만 있어서 「샿포로여행」 같은 붙은 형태를 못 봤다.

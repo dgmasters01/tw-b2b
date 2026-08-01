@@ -260,17 +260,25 @@ async function survey(sb, req, res, who) {
   const inv = [];
   // 지역(district) 데이터가 있는 도시만 분모를 잰다. 없는 도시는 이 무거운 스캔을 통째로 건너뛴다(속도).
   if (DISTRICTS.length) {
-    const { data: agc } = await sb.from('agoda_city').select('city_id').eq('city', cityEn).limit(1);
-    const invCityId = agc && agc.length ? agc[0].city_id : null;
-    if (invCityId != null) {
-      for (let from = 0; from < 20000; from += 1000) {
-        const p = await sb.from('agoda_inventory')
-          .select('latitude, longitude')
-          .eq('city_id', invCityId)
-          .not('latitude', 'is', null)
+    // 🔴 2026-08-02 대표님: *"전체 호텔 205 / 258곳(125.9%) · 미개척 -53곳"* — **음수가 나왔다.**
+    //   분모를 `agoda_inventory` 에서 셀기 때문이다. 그 표는 도시당 100~200개뿐이다
+    //   (오사카 205 · 후쿠오카 151). 그러니 우리 장부(258곳)보다 작아졌다.
+    //   이제 아고다 호텔 파일(agoda_hotel · 52만 건)을 분모로 쓴다 — 오사카 12,712 · 후쿠오카 2,341.
+    //   좀표로만 잡는다(city_id 가 없고, 지역 반경 판정에는 좀표만 필요하다).
+    //   도시 중심을 우리 호텔 평균 좀표로 잡고, 그 주변 네모만 받는다(속도).
+    const geoAll = (dRes.data || []).filter((r) => r.latitude);
+    if (geoAll.length) {
+      const cla = geoAll.reduce((a, r) => a + Number(r.latitude), 0) / geoAll.length;
+      const clo = geoAll.reduce((a, r) => a + Number(r.longitude), 0) / geoAll.length;
+      for (let from = 0; from < 30000; from += 1000) {
+        const p = await sb.from('agoda_hotel')
+          .select('lat, lng')
+          .gte('lat', cla - 0.35).lte('lat', cla + 0.35)      // 대략 ±38km — 도시 하나 범위
+          .gte('lng', clo - 0.42).lte('lng', clo + 0.42)
+          .not('lat', 'is', null)
           .range(from, from + 999);
         if (p.error) break;
-        (p.data || []).forEach((r) => inv.push([Number(r.latitude), Number(r.longitude)]));
+        (p.data || []).forEach((r) => inv.push([Number(r.lat), Number(r.lng)]));
         if (!p.data || p.data.length < 1000) break;
       }
     }

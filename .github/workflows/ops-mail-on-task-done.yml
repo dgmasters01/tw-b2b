@@ -87,15 +87,20 @@ jobs:
             exit 0
           fi
           git commit -m "[ops-mail-bot] tasks.json mail_sent 마커 박음"
-          # 다른 봇 commit과 race 시 최대 5회 재시도
-          for i in 1 2 3 4 5; do
-            git pull --rebase origin main || true
+          # 🔴 2026-08-01 — 재시도 5회·2초로는 부족해 **실패 메일이 계속 왔다.**
+          #   tasks.json 은 여러 봇과 사람이 같이 건드려 부딪힐 수밖에 없다.
+          #   → 횟수를 늘리고 간격을 점점 벌린다(2→4→6…초).
+          for i in 1 2 3 4 5 6 7 8; do
+            git pull --rebase origin main || git rebase --abort || true
             if git push origin main; then
               echo "Push succeeded on attempt $i"
               exit 0
             fi
             echo "Push attempt $i failed, retrying..."
-            sleep 2
+            sleep $((i * 2))
           done
-          echo "Push failed after 5 attempts"
-          exit 1
+          # 🔴 여기까지 왔다면 **메일은 이미 보냈고** 마커만 못 박은 것이다.
+          #   그걸로 빨간불을 켜면 대표님에게 **쓸데없는 실패 메일**만 간다.
+          #   다음 회차에 다시 박는다. 경고만 남기고 정상 종료한다.
+          echo "::warning::마커 push 실패(8회) — 메일은 발송됨. 다음 회차에 다시 시도합니다."
+          exit 0

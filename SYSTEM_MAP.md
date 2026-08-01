@@ -31,8 +31,8 @@
 
 | 표/뷰 | 무엇 | 주의 |
 |---|---|---|
-| `hotels` 3,185 | 우리 장부 = **예약 붙은 곳만** | **분모가 아니다** |
-| `agoda_inventory` 61,514 | 아고다 재고 = **분모** (상세 8도시) | 재현 가능 → 백업 안 함 |
+| `hotels` **3,252** | 우리 장부 = **예약 붙은 곳만** · 자체번호 `hotel_code` | **분모가 아니다** · 🔴 아고다번호 연결 **0건**(좌표는 3,243) |
+| `agoda_inventory` **2,649** 🔴 | 아고다 재고 = **분모** · 지금 **12도시뿐**(샿포로 없음) | 🔴 2026-08-01 실측. 문서에 적혔던 61,514 는 **틀린 수치**였다. 콘텐츠 나가는 도시가 여기 없으면 호텔이 봕 뜼다 → `_business/HOTEL_MATCH.md` |
 | `agoda_city_name` 76,978 | **세계 전 도시 분모** (언어별) | `agoda_city.hotels`는 EN(절반) |
 | `bookings_agoda` | 예약 | 🔴 **취소 44%** — 성과는 확정만 |
 | `keyword`·`trend`·`snapshot` | 키워드 조사 (타겟별) | 지금 **ko · 오사카만** |
@@ -138,6 +138,7 @@
 | **사람이 읽는 전체 안내** | **`SYSTEM_OVERVIEW.md`** — 대표님·직원용. 코드 얘기 없이 흐름·로봇·사고·상태 |
 | **자동 시스템·크론·비용·전체 지도** | **`SYSTEM_MAP.md`** (이 문서 §3) | ← 설명·판단·비용은 여기 |
 | 스튜디오 안쪽 흐름 | `_business/STUDIO_FLOW.md` |
+| **호텔 신원 확인·매칭** | **`_business/HOTEL_MATCH.md`** (아고다 API 는 채울 때만 · 찾을 땐 우리 DB) |
 | 헌법(원칙) | `OPERATIONS_CHARTER.md` |
 | 진행 상황(최신) | `_os/handoff/current.md` |
 | 사업 내용 | `BUSINESS.md` · `BUSINESS_FLOW.md` · `GOHOTEL_FLOW.md` |

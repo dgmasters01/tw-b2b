@@ -665,8 +665,22 @@ async function cities(sb, req, res, who) {
   const list = [...byCountry.values()].sort((a, b) => b.bookings - a.bookings);
   list.forEach((g) => { g.country_en = enCountry[g.country] || null; });    // 영문 나라 이름 (없으면 null)
   res.setHeader('Cache-Control', 'private, no-store, max-age=0');
+  // 🔴 2026-08-01 대표님: *"이름문제로 건너뛴 도시 이런곳은 내가 알수가 없네."*
+  //    맞다. survey_skip 은 DB 안에만 있었고 화면에 한 번도 안 나왔다.
+  //    → 예약 건수와 붙여서 내려준다. 돈 많은 곳부터 고치면 된다.
+  let skipList = [];
+  try {
+    const { data: skipRows } = await sb.from('survey_skip').select('label, reason').eq('target_code', target);
+    const bkByLabel = {};
+    for (const r of rows || []) bkByLabel[r.city] = r.bookings || 0;
+    skipList = (skipRows || []).map((r) => ({ name: r.label, reason: r.reason || null, bookings: bkByLabel[r.label] || 0 }))
+      .sort((a, b) => b.bookings - a.bookings);
+  } catch { /* 없으면 빈 목록 */ }
+
   return res.status(200).json({
     ok: true, view: 'cities', target,
+    skipped_list: skipList,                          // 이름 문제로 조사 못 한 도시
+    skipped: skipList.length,
     new_done: newDoneCount,                         // 새로 완성·확인 대기 도시 수 (배지)
     new_done_list: newDoneList,                      // 그 도시들 [{name, country, city_key}]
     running_list: runningList,                       // 채우는 중(예약·봇 작업)

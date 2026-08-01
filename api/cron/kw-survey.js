@@ -87,7 +87,17 @@ export default async function handler(req, res) {
         .eq('target_code', target).eq('market', market).eq('city_key', c).eq('ym', ym).maybeSingle();
       if (!s || s.status !== 'done') pendingCities.push(c);
     }
-    if (pendingCities.length) {
+    // 🔴 2026-08-01 대표님: *"한달안에 모든 도시가 가능하다고 했는데 정상적으로 하고 있는 거 맞어?"*
+    //    실측 결과 **아니었다.** 이 순환은 「이번 달에 안 끝난 도시」를 전부 재조사한 뒤에야
+    //    새 도시를 발굴한다. 달이 바뀌는 순간 기존 79곳이 통째 재조사 대상이 되므로,
+    //    하루 2~3곳 속도로는 한 달 내내 재조사만 돌고 **새 도시는 한 곳도 안 늘어난다.**
+    //    (예약 있는 도시 145곳 · 발굴된 건 81곳 → 64곳이 방치된다)
+    //    → **3회에 1번은 새 도시 발굴을 먼저 한다.** 비율은 NEW_EVERY 한 줄로 조절한다.
+    //    (3=균형 · 2=개척 우선 · 5=재조사 우선). 대표님이 직접 고른 도시는 항상 새치기.
+    const NEW_EVERY = 3;
+    const harvestTurn = (Math.floor(Date.now() / (2 * 3600 * 1000)) % NEW_EVERY) === 0;
+    const hasPick = pendingCities.some((c) => nowSel.has(c));   // 대표님 선택이 기다리면 발굴보다 먼저
+    if (pendingCities.length && (!harvestTurn || hasPick)) {
       pendingCities.sort((a, b) => {
         const pa = nowSel.has(a) ? 1 : 0, pb = nowSel.has(b) ? 1 : 0;
         if (pa !== pb) return pb - pa;                    // 대표님 선택 먼저
@@ -101,7 +111,17 @@ export default async function handler(req, res) {
       const next = (invRows || [])
         .filter((r) => !surveyedLabels.has(r.city) && !skipLabels.has(r.city) && (r.bookings || 0) > 0)
         .sort((a, b) => (b.bookings || 0) - (a.bookings || 0))[0];
-      if (!next) return res.status(200).json({ ok: true, idle: true, ym, note: '측정·발굴할 도시 없음 (전부 완료 또는 건너뜀).' });
+      if (!next) {
+        // 발굴할 새 도시가 없다 → 재조사로 돌아간다(발굴 차례라고 빈손으로 끝내지 않는다).
+        if (!pendingCities.length) return res.status(200).json({ ok: true, idle: true, ym, note: '측정·발굴할 도시 없음 (전부 완료 또는 건너뜀).' });
+        pendingCities.sort((a, b) => {
+          const pa = nowSel.has(a) ? 1 : 0, pb = nowSel.has(b) ? 1 : 0;
+          if (pa !== pb) return pb - pa;
+          return bookingsOfKey(b) - bookingsOfKey(a);
+        });
+        cityKey = pendingCities[0];
+      }
+      if (!cityKey) {
       if (dry) return res.status(200).json({ ok: true, dry_run: true, cycle: 'harvest', would_harvest: next.city, bookings: next.bookings, note: '실제로 돌면 이 도시를 발굴함' });
       const ops = process.env.CLAUDE_OPS_TOKEN;
       const site = process.env.SITE_URL || 'https://gohotelwinners.com';
@@ -115,6 +135,7 @@ export default async function handler(req, res) {
         return res.status(200).json({ ok: true, cycle: 'harvest', harvested_city: next.city, bookings: next.bookings, insufficient: !!hj.insufficient, result: hj, note: hj.insufficient ? '발굴 불량 → 건너뛰기 등록' : '새 도시 발굴 완료 · 다음 회차부터 자동 측정' });
       } catch (e) {
         return res.status(200).json({ ok: false, cycle: 'harvest', error: '발굴 실패: ' + String(e.message || e) });
+      }
       }
     }
   }

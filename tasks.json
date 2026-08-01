@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-08-01T01:54:08.000Z",
+  "updated_at": "2026-08-01T01:55:38+00:00",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -14,9 +14,9 @@
   "stats": {
     "total": 301,
     "done": 222,
-    "in_progress": 5,
+    "in_progress": 6,
     "paused": 0,
-    "pending": 47,
+    "pending": 46,
     "blocked": 12,
     "autonomous_ready": 38,
     "todo": 7,
@@ -82,7 +82,7 @@
       },
       "notes": "실측: 예약 있는 도시 145곳 중 발굴 81곳·미발굴 64곳·건너뛰기 15곳. 봇 처리량 하루 2~3곳.",
       "created_at": "2026-08-01T01:54:08.000Z",
-      "updated_at": "2026-08-01T01:54:08.000Z",
+      "updated_at": "2026-08-01T01:55:38+00:00",
       "completed_at": "2026-08-01T01:54:08.000Z",
       "source": "claude",
       "target_pages": [
@@ -94,6 +94,13 @@
         {
           "at": "2026-08-01T01:54:08.000Z",
           "what": "대표님 지적 4건에서 출발 — 전부 시스템이 사실과 다르게 돌던 것"
+        },
+        {
+          "at": "2026-08-01T01:55:38+00:00",
+          "event": "done 작업에 commit 추가 (status 유지 — 자동 리오픈 안 함)",
+          "by": "auto-detect-bot",
+          "commit": "d9e6fca",
+          "note": "완성도: BL-KW-HARVEST-FIX done + BL-KW-CITYNAME-SKIP pending (301건 중 222 완료)"
         }
       ],
       "started_at": "2026-08-01T01:54:08.000Z"
@@ -104,7 +111,7 @@
       "category": "bugfix",
       "priority": "P1",
       "size": "S",
-      "status": "pending",
+      "status": "in_progress",
       "owner": "claude",
       "claude_can_auto": true,
       "approval_required": false,
@@ -121,13 +128,28 @@
       },
       "notes": "대상: 오키나와 본섬·지바/치바·푸꾸옥 섬·씨엠림/시엠립·몰디브 아일랜드·꼬피피/코피피·누와라 엘리야·롬복·부르고스·치앙라이·퀸스타운·판티엣·하롱·후지카와구치코·우키하. survey_skip 표에서 풀고 seedCity 정리 규칙 보강 필요.",
       "created_at": "2026-08-01T01:54:08.000Z",
-      "updated_at": "2026-08-01T01:54:08.000Z",
+      "updated_at": "2026-08-01T01:55:38+00:00",
       "source": "claude",
       "target_pages": [
         "api/kw-survey-now.js"
       ],
-      "history": [],
-      "started_at": null
+      "history": [
+        {
+          "at": "2026-08-01T01:55:38+00:00",
+          "event": "진행 중 진입 (auto-detected) ⚠️ 부칙 7 위반 — progress.steps 미박힘",
+          "by": "auto-detect-bot",
+          "commit": "d9e6fca",
+          "note": "완성도: BL-KW-HARVEST-FIX done + BL-KW-CITYNAME-SKIP pending (301건 중 222 완료)"
+        }
+      ],
+      "started_at": null,
+      "progress_warning": {
+        "code": "MISSING_PROGRESS_STEPS",
+        "rule": "부칙 7 — 모든 작업은 progress.steps 박은 후 시작",
+        "detected_at": "2026-08-01T01:55:38+00:00",
+        "detected_by_commit": "d9e6fca",
+        "message": "in_progress 진입했으나 progress.steps 비어있음. tasks.json에서 progress.steps 박은 후 다음 commit에 [step:done:N] 태그."
+      }
     },
     {
       "id": "BL-STUDIO-I18N",

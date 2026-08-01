@@ -113,12 +113,15 @@
      🔴 표식으로 잡는다 — 예전엔 `<div class="tt">` 를 시작점으로 삼았다가, 그 div 를 지우자 도구가 통째로 깨졌다. -->
 <div class="pv">⚙️ 확정본 v4 · <b>모든 숫자 실측</b> · 점검표 33요소 반영 · 안 잰 건 "모름"</div>
 
-<div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap;">
+<!-- 🔴 2026-08-02 대표님: *"조사 추가 버튼 위치가 밑에거 하고 붙어서"*
+     메인 화면은 빵부스러기(bc)가 빈다. 그러면 이 줄이 단추 높이만큼 줄어들어
+     바로 아래 상자와 달라붙었다. → 최소 높이와 아래 여백을 둔다. -->
+<div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap;min-height:34px;margin-bottom:12px;">
   <div class="bc" id="bc" style="flex:1;min-width:0;"></div>
   <span class="btn" id="kw-addbtn" style="background:var(--bld);color:var(--bl);white-space:nowrap;"
         onclick="kwAdd()" title="도시 이름을 넣으면 바로 조사를 예약합니다">＋ 조사 추가</span>
 </div>
-<div id="kw-addbox" style="display:none;margin:8px 0 4px;"></div>
+<div id="kw-addbox" style="display:none;margin:0 0 12px;"></div>
 <div id="kw-newdone" style="display:none;margin:0 0 10px;"></div>
 
 <!-- ① 메인 -->
@@ -447,7 +450,7 @@ function renderSurveyStatus(){
   }
   function row(o,right){ return '<div style="display:flex;align-items:center;gap:9px;background:var(--card2);border:0.5px solid var(--line);border-radius:8px;padding:8px 11px;margin-bottom:6px;"><div style="flex:1;cursor:pointer;" onclick="openNewDone(\''+o.name+'\',\''+o.country+'\')"><div style="font-size:12.5px;color:var(--txt);">'+o.country+' · '+o.name+'</div>'+prog(o)+'</div>'+(right||'')+'</div>'; }
   var bar='<div onclick="ssToggle()" style="cursor:pointer;display:flex;align-items:center;gap:8px;flex-wrap:wrap;border:0.5px solid var(--line);border-radius:12px;padding:11px 14px;background:var(--card);">'+
-    '<span style="font-size:12px;color:var(--muted);">조사 현황</span>'+
+    '<span style="font-size:12px;color:var(--muted);">봇 조사</span>'+
     '<span style="font-size:12.5px;color:var(--am);">남음 '+SS_RUNNING.length+'</span><span style="color:var(--line)">·</span>'+
     '<span style="font-size:12.5px;color:var(--bl);">확인할 것 '+SS_NEWDONE.length+'</span><span style="color:var(--line)">·</span>'+
     '<span style="font-size:12.5px;color:var(--em);">완성 '+SS_DONE.length+'</span>'+
@@ -457,7 +460,7 @@ function renderSurveyStatus(){
   if(!SS_OPEN){ el.innerHTML=bar; return; }
   var h=bar+'<div style="border:0.5px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--card);margin-top:8px;">';
   if(SS_RUNNING.length){
-    h+='<div style="font-size:11.5px;color:var(--am);font-weight:700;margin:0 0 6px;">조사 중 — 예약 많은 순</div>';
+    h+='<div style="font-size:11.5px;color:var(--am);font-weight:700;margin:0 0 6px;">봇이 채우는 중 — 예약 많은 순</div>';
     SS_RUNNING.slice(0,4).forEach(function(o){ h+=row(o,'<span style="font-size:10.5px;color:var(--am);background:var(--amd);padding:2px 8px;border-radius:20px;">측정 중</span>'); });
     if(SS_RUNNING.length>4) h+='<div style="font-size:11px;color:var(--muted);margin:-2px 0 4px;">외 '+(SS_RUNNING.length-4)+'곳 이번 달 대기</div>';
   }
@@ -748,7 +751,7 @@ function kwAdd(){
       'onkeydown="if(event.key===\'Enter\')kwAddGo()"></div>'+
     '<div style="font-size:11px;color:var(--muted);line-height:1.7;margin-bottom:8px;">'+
       '지금 타겟(<b style="color:var(--sub);">'+(document.getElementById('tn')?document.getElementById('tn').textContent:'—')+'</b>)으로 조사합니다.<br>'+
-      '검색어 발굴은 바로 끝나고, 트렌드·경쟁은 트렌드·경쟁은 뒤에서 재지므로 기다리지 않아도 됩니다.<br>'+
+      '검색어 발굴은 바로 끝나고, 트렌드·경쟁은 봇이 뒤에서 채우는 구조라 기다리지 않아도 됩니다.<br>'+
       '우리 자료에 없는 곳도 넣을 수 있습니다.</div>'+
     '<div style="display:flex;align-items:center;gap:8px;">'+
       '<span class="btn" style="background:var(--emd);color:var(--em);" onclick="kwAddGo()">조사 예약</span>'+
@@ -788,7 +791,7 @@ async function kwAddGo(){
   }
   el.value='';
   log.innerHTML+='<div style="font-size:11px;color:var(--muted);margin-top:7px;line-height:1.7;">'+
-    '트렌드·경쟁은 이어서 재고 있습니다. 끝나면 상단 <b style="color:var(--em);">「새로 완성」</b> 에 뜹니다.</div>';
+    '봇이 2시간마다 도며 트렌드·경쟁을 채웁니다. 끝나면 상단 <b style="color:var(--em);">「새로 완성」</b> 에 뜹니다.</div>';
   ts(names.length+'곳 예약했습니다');
 }
 /* ══ 조사 추가 — 도시 이름만 넣으면 된다 (대표님 2026-08-01) ══
@@ -805,7 +808,7 @@ function kwAdd(){
       'onkeydown="if(event.key===\'Enter\')kwAddGo()"></div>'+
     '<div style="font-size:11px;color:var(--muted);line-height:1.7;margin-bottom:8px;">'+
       '지금 타겟(<b style="color:var(--sub);">'+(document.getElementById('tn')?document.getElementById('tn').textContent:'—')+'</b>)으로 조사합니다.<br>'+
-      '검색어 발굴은 바로 끝나고, 트렌드·경쟁은 트렌드·경쟁은 뒤에서 재지므로 기다리지 않아도 됩니다.<br>'+
+      '검색어 발굴은 바로 끝나고, 트렌드·경쟁은 봇이 뒤에서 채우는 구조라 기다리지 않아도 됩니다.<br>'+
       '우리 자료에 없는 곳도 넣을 수 있습니다.</div>'+
     '<div style="display:flex;align-items:center;gap:8px;">'+
       '<span class="btn" style="background:var(--emd);color:var(--em);" onclick="kwAddGo()">조사 예약</span>'+
@@ -845,7 +848,7 @@ async function kwAddGo(){
   }
   el.value='';
   log.innerHTML+='<div style="font-size:11px;color:var(--muted);margin-top:7px;line-height:1.7;">'+
-    '트렌드·경쟁은 이어서 재고 있습니다. 끝나면 상단 <b style="color:var(--em);">「새로 완성」</b> 에 뜹니다.</div>';
+    '봇이 2시간마다 도며 트렌드·경쟁을 채웁니다. 끝나면 상단 <b style="color:var(--em);">「새로 완성」</b> 에 뜹니다.</div>';
   ts(names.length+'곳 예약했습니다');
 }
 function pm(i){cm=i;rd();ts(MO[i]+' 노출 — '+MS[i]);}   /* [연·월 지정] 제거로 XM·YMO·ymr 불필요 */
@@ -1039,7 +1042,7 @@ async function surveyNow(cityKo){
     if(INV[cityKo]){ INV[cityKo].city_key=h.city_key; INV[cityKo].surveyed=true; INV[cityKo].survey_state='running'; }
     else { INV[cityKo]={name:cityKo,city_key:h.city_key,surveyed:true,survey_state:'running'}; }
     SNAP_CITY[cityKo]=true;
-    say('✅ <b>'+cityKo+'</b> 조사 예약됨!<br><span style="font-size:12px;color:var(--muted);line-height:1.7">검색어는 다 찾았고, 트렌드·경쟁을 <b>이어서 재고 있습니다</b>(몇십 분~몇 시간). 완성되면 <b style="color:var(--em)">키워드 탭 상단 「새로 완성」 배지</b>에 표시됩니다. 다른 도시도 지금 예약해두세요.</span>');
+    say('✅ <b>'+cityKo+'</b> 조사 예약됨!<br><span style="font-size:12px;color:var(--muted);line-height:1.7">검색어 발굴은 끝났고, 트렌드·경쟁은 <b>봇이 뒤에서 채웁니다</b>(몇십 분~몇 시간). 완성되면 <b style="color:var(--em)">키워드 탭 상단 「새로 완성」 배지</b>에 표시됩니다. 다른 도시도 지금 예약해두세요.</span>');
   }catch(e){ say('오류: '+(e.message||e)); }
 }
 var RDD_LOADING=null;
@@ -1060,7 +1063,7 @@ function rdd(c){cy=c;
    /* 🔴 2026-08-01 — 지난 달에 끝난 조사가 있는데도 "예약 중"이라고 말하고 결과를 감췄다. */
    if(st==='running' && INV[c] && INV[c].surveyed_at && INV[c].city_key) st='done';
    if(st==='running'){                                /* 예약됨 · 봇이 채우는 중 */
-     document.getElementById('d3l').innerHTML='<div class="wn">⏳ <b>'+c+'</b> 조사 예약됨 — 트렌드·경쟁을 재는 중입니다.<br><span style="font-size:12px;color:var(--muted);line-height:1.7">완성되면 상단 <b style="color:var(--em)">「새로 완성」 배지</b>에 뜹니다. (한 시간마다 이어서 재고 있습니다)</span></div>';
+     document.getElementById('d3l').innerHTML='<div class="wn">⏳ <b>'+c+'</b> 조사 예약됨 — 봇이 트렌드·경쟁을 채우는 중입니다.<br><span style="font-size:12px;color:var(--muted);line-height:1.7">완성되면 상단 <b style="color:var(--em)">「새로 완성」 배지</b>에 뜹니다. (봇은 2시간마다 돕니다)</span></div>';
      return;
    }
    var key = INV[c] && INV[c].city_key;
@@ -1153,7 +1156,7 @@ function rdd(c){cy=c;
       '<div class="wh"><b>예약 '+c.bookings+'건</b> · 우리 호텔 '+c.hotels+'곳'+(c.no_geo?' · 좌표 없는 곳 '+c.no_geo:'')+'</div>'+
       '<div class="wh" style="color:var(--muted);">'+(c.towns&&c.towns.length
         ? '동네: '+c.towns.join(' · ')+' — 이 이름들이 <b>검색어 후보</b>입니다'
-        : '주소가 없어 어디인지 모릅니다 — 좌표 좌표가 채워지면 자리를 찾습니다')+'</div>'+
+        : '주소가 없어 어디인지 모릅니다 — 좌표 봇이 채우면 자리를 찾습니다')+'</div>'+
       '</div></div>';});
   h+='</div>';
  }

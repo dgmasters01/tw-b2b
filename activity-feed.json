@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-01T16:04:26.194Z",
+  "generatedAt": "2026-08-01T16:30:03.669Z",
   "totalCount": 985,
   "byRole": {
     "CEO": 121,
@@ -7,6 +7,66 @@
     "Bot": 864
   },
   "items": [
+    {
+      "at": "2026-08-02T01:29:33+09:00",
+      "by": "👤 이지형 (CEO 결정 → Claude 실행)",
+      "role": "CEO",
+      "source": "git commit",
+      "action": "메일봇 실패 정리 — tasks.json은 여러 봇과 사람이 같이 건드려 push 충돌이 잦다. 재시도 5→8회·간격 점증. 그래도 안 되면 메일은 이미 보냈으니 경고만 남기고 정상 종료(쓸데없는 실패 메일 방지)",
+      "target_type": "commit",
+      "target_id": "b88c0ce",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-08-02T01:29:26+09:00",
+      "by": "👤 이지형 (CEO 결정 → Claude 실행)",
+      "role": "CEO",
+      "source": "git commit",
+      "action": "🔴 실패 메일 재발 원인 — 마지막 단계(다른 봇 깨우기)는 actions 권한이 필요한데 contents만 있었다. YAML은 고쳐져 실행은 되는데 여기서 튕겨 계속 실패했다. actions: write 추가",
+      "target_type": "commit",
+      "target_id": "ade58d7",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-08-01T16:29:09Z",
+      "by": "🤖 scan-bot",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "[scan-bot] pages-status 3-Layer 자동 갱신 (22페이지, 평균 68점) [변경사유: HTML 변경 → 완성도 재측정]",
+      "target_type": "commit",
+      "target_id": "0ea7b8d",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-08-01T16:25:47Z",
+      "by": "🤖 health-bot",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "[health-bot] _health.json 갱신 (overall=yellow)",
+      "target_type": "commit",
+      "target_id": "4cdb4b6",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-08-01T16:14:36Z",
+      "by": "🤖 scan-bot",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "[scan-bot] chat-log index 자동 갱신 [변경사유: chat-log 파일 또는 tasks.json 변경 → byCommit/byTask 매핑 재구축]",
+      "target_type": "commit",
+      "target_id": "2dde9fc",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-08-01T16:04:26Z",
+      "by": "🤖 activity-bot",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "[activity-bot] activity-feed 3-Layer 자동 갱신 (총 985건)",
+      "target_type": "commit",
+      "target_id": "f6a7c10",
+      "project": "TW B2B"
+    },
     {
       "at": "2026-08-01T15:56:04Z",
       "by": "🤖 activity-bot",
@@ -2015,66 +2075,6 @@
       "action": "키워드 화면 3건 — ① 「예약 중」 화면의 중복 버튼 제거(상단 [＋조사추가]와 겹침·대표님 지적) ② 지난 조사 기록 있으면 화면에서도 done으로 걸러 결과 표시 ③ 문구 사실대로(예약됨→대기 중·검색어는 모았고 측정 전)",
       "target_type": "commit",
       "target_id": "4aa76bc",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-08-01T10:27:20+09:00",
-      "by": "👤 이지형 (CEO 결정 → Claude 실행)",
-      "role": "CEO",
-      "source": "git commit",
-      "action": "🔴 거짓 상태 표시 수정 — 지난 달에 끝난 조사를 '예약 중'이라 말하고 결과를 감췄음. stateOf가 이번 달 snapshot만 보던 것을 surveyedAt(마지막 완료일)까지 보게 함 (삿포로: 7/27 done인데 running으로 표시)",
-      "target_type": "commit",
-      "target_id": "cba7b53",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-08-01T01:16:15Z",
-      "by": "🤖 health-bot",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "[health-bot] _health.json 갱신 (overall=red)",
-      "target_type": "commit",
-      "target_id": "87c1892",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-08-01T01:15:10Z",
-      "by": "🤖 scan-bot",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "[scan-bot] pages-status 3-Layer 자동 갱신 (22페이지, 평균 68점) [변경사유: HTML 변경 → 완성도 재측정]",
-      "target_type": "commit",
-      "target_id": "d44f2ea",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-08-01T01:14:58Z",
-      "by": "🤖 activity-bot",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "[activity-bot] activity-feed 3-Layer 자동 갱신 (총 979건)",
-      "target_type": "commit",
-      "target_id": "355a10f",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-08-01T01:14:45Z",
-      "by": "🤖 scan-bot",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "[scan-bot] chat-log index 자동 갱신 [변경사유: chat-log 파일 또는 tasks.json 변경 → byCommit/byTask 매핑 재구축]",
-      "target_type": "commit",
-      "target_id": "267c136",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-08-01T10:14:37+09:00",
-      "by": "👤 이지형 (CEO 결정 → Claude 실행)",
-      "role": "CEO",
-      "source": "git commit",
-      "action": "조사 시작 대기시간 단축(1.4s→0.3s) + 주석 오타 정리",
-      "target_type": "commit",
-      "target_id": "fcc857d",
       "project": "TW B2B"
     },
     {

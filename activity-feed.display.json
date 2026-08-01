@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-01T16:04:26.194Z",
+  "generatedAt": "2026-08-01T16:30:03.669Z",
   "totalCount": 985,
   "byRole": {
     "CEO": 121,
@@ -7,6 +7,66 @@
     "Bot": 864
   },
   "items": [
+    {
+      "at": "2026-08-02T01:29:33+09:00",
+      "by": "👤 이지형 (CEO 결정 → Claude 실행)",
+      "role": "CEO",
+      "source": "git commit",
+      "action": "메일봇 실패 정리 — tasks.json은 여러 봇과 사람이 같이 건드려 push 충돌이 잦다. 재시도 5→8회·간격 점증. 그래도 안 되면 메일은 이미 보냈으니 경고만 남기고 정상 종료(쓸데없는 실패 메일 방지)",
+      "target_type": "commit",
+      "target_id": "b88c0ce",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-08-02T01:29:26+09:00",
+      "by": "👤 이지형 (CEO 결정 → Claude 실행)",
+      "role": "CEO",
+      "source": "git commit",
+      "action": "🔴 실패 메일 재발 원인 — 마지막 단계(다른 봇 깨우기)는 actions 권한이 필요한데 contents만 있었다. YAML은 고쳐져 실행은 되는데 여기서 튕겨 계속 실패했다. actions: write 추가",
+      "target_type": "commit",
+      "target_id": "ade58d7",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-08-01T16:29:09Z",
+      "by": "🤖 scan-bot",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "[scan-bot] pages-status 3-Layer 자동 갱신 (22페이지, 평균 68점) [변경사유: HTML 변경 → 완성도 재측정]",
+      "target_type": "commit",
+      "target_id": "0ea7b8d",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-08-01T16:25:47Z",
+      "by": "🤖 health-bot",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "[health-bot] _health.json 갱신 (overall=yellow)",
+      "target_type": "commit",
+      "target_id": "4cdb4b6",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-08-01T16:14:36Z",
+      "by": "🤖 scan-bot",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "[scan-bot] chat-log index 자동 갱신 [변경사유: chat-log 파일 또는 tasks.json 변경 → byCommit/byTask 매핑 재구축]",
+      "target_type": "commit",
+      "target_id": "2dde9fc",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-08-01T16:04:26Z",
+      "by": "🤖 activity-bot",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "[activity-bot] activity-feed 3-Layer 자동 갱신 (총 985건)",
+      "target_type": "commit",
+      "target_id": "f6a7c10",
+      "project": "TW B2B"
+    },
     {
       "at": "2026-08-01T15:56:04Z",
       "by": "🤖 activity-bot",
@@ -446,66 +506,6 @@
       "action": "[activity-bot] activity-feed 3-Layer 자동 갱신 (총 986건)",
       "target_type": "commit",
       "target_id": "7c3028c",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-08-01T22:28:45+09:00",
-      "by": "👤 이지형 (CEO 결정 → Claude 실행)",
-      "role": "CEO",
-      "source": "git commit",
-      "action": "🔴 §7 신설: TOP1/2/3는 순서가 아니라 원고 글자로 정한다 — 발행 4건 전부 TOP1↔TOP3 뒤집혀 있었고 클릭표 8줄도 함께 정정. 못 정하면 저장 거부(추측 금지)",
-      "target_type": "commit",
-      "target_id": "8577bc3",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-08-01T13:27:25Z",
-      "by": "🤖 activity-bot",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "[activity-bot] activity-feed 3-Layer 자동 갱신 (총 986건)",
-      "target_type": "commit",
-      "target_id": "4373d1c",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-08-01T13:27:22Z",
-      "by": "👤 이지형 (CEO)",
-      "role": "CEO",
-      "source": "git commit",
-      "action": "[verification-gap-bot] business-agreements.json status 자동 갱신 (done=18 / partial=3 / not_implemented=0) [변경사유: 사업 합의 코드 박힘 자동 검증]",
-      "target_type": "commit",
-      "target_id": "868dc10",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-08-01T22:27:04+09:00",
-      "by": "👤 이지형 (CEO 결정 → Claude 실행)",
-      "role": "CEO",
-      "source": "git commit",
-      "action": "🔴 링크 저장이 「붙여넣은 순서」를 순위로 쓰던 것을 원고 기준으로 교체 — 우리 원고는 탑쓰리부터 소개하므로 정확히 거꾸로 박히고 있었다(HT-0002 실증: TOP1↔TOP3 뒤바뀜). 순위를 확정 못 하면 저장을 거부한다",
-      "target_type": "commit",
-      "target_id": "610e66a",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-08-01T22:27:03+09:00",
-      "by": "👤 이지형 (CEO 결정 → Claude 실행)",
-      "role": "CEO",
-      "source": "git commit",
-      "action": "🔴 호텔 순위 판정 규칙 신설 — 대표님 「TOP1/2/3 잘못 넣으면 유료 고객에게 거짓 정보. 임시처리 금지」. 순위는 「순서」가 아니라 원고에 적힌 글자(탑원·탑투·탑쓰리/TOP1·2·3)로 정한다. 아고다 상세링크 주소로 영문명 교차확인. 1·2·3이 하나씩 안 나오면 확정하지 않고 사람에게 넘긴다(추측 금지). 원고 4건 전수 검증 통과",
-      "target_type": "commit",
-      "target_id": "aa82091",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-08-01T13:17:48Z",
-      "by": "🤖 activity-bot",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "[activity-bot] activity-feed 3-Layer 자동 갱신 (총 986건)",
-      "target_type": "commit",
-      "target_id": "d3c6440",
       "project": "TW B2B"
     }
   ]

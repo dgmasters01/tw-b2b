@@ -1029,7 +1029,14 @@
 <div id="kw-app">
 
 
-<div class="bc" id="bc"></div>
+<div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap;">
+  <div class="bc" id="bc" style="flex:1;min-width:0;"></div>
+  <!-- 🔴 2026-08-01 대표님: *"작업추가 하는 곳이 없어."*
+       조사를 넣는 길이 다른 화면 안에만 숨어 있었다. 이제 어느 화면이든 여기서 넣는다. -->
+  <span class="btn" id="kw-addbtn" style="background:var(--bld);color:var(--bl);white-space:nowrap;"
+        onclick="kwAdd()" title="도시 이름을 넣으면 바로 조사를 예약합니다">＋ 조사 추가</span>
+</div>
+<div id="kw-addbox" style="display:none;margin:8px 0 4px;"></div>
 <div id="kw-newdone" style="display:none;margin:0 0 10px;"></div>
 
 <!-- ① 메인 -->
@@ -5748,6 +5755,63 @@ function svNew(name){
   go('r',pick);
   ts('"'+name+'" 을 '+pick+' 에 넣었습니다 — [조사 시작]을 누르세요');
 }
+/* ══ 조사 추가 — 도시 이름만 넣으면 된다 (대표님 2026-08-01) ══
+   지금까지는 봇이 정한 순서로만 조사했고, 사람이 "이 곳을 지금 보고 싶다"고
+   말할 자리가 화면에 없었다. 창구(/api/kw-survey-now)는 이미 있었다 — 길만 없었다. */
+function kwAdd(){
+  var box=document.getElementById('kw-addbox'); if(!box) return;
+  if(box.style.display==='block'){ box.style.display='none'; return; }
+  box.style.display='block';
+  box.innerHTML='<div class="cd" style="padding:10px 11px;">'+
+    '<div style="font-size:12.5px;font-weight:600;margin-bottom:6px;">어느 도시를 조사할까요?</div>'+
+    '<div class="srch" style="margin-bottom:7px;"><span>📍</span>'+
+      '<input id="kw-addin" placeholder="도시 이름 · 쉼표로 여러 곳 (예: 샿포로, 오타루, 팔라완)" '+
+      'onkeydown="if(event.key===\'Enter\')kwAddGo()"></div>'+
+    '<div style="font-size:11px;color:var(--muted);line-height:1.7;margin-bottom:8px;">'+
+      '지금 타겟(<b style="color:var(--sub);">'+(document.getElementById('tn')?document.getElementById('tn').textContent:'—')+'</b>)으로 조사합니다.<br>'+
+      '검색어 발굴은 바로 끝나고, 트렌드·경쟁은 봇이 뒤에서 채우는 구조라 기다리지 않아도 됩니다.<br>'+
+      '우리 자료에 없는 곳도 넣을 수 있습니다.</div>'+
+    '<div style="display:flex;align-items:center;gap:8px;">'+
+      '<span class="btn" style="background:var(--emd);color:var(--em);" onclick="kwAddGo()">조사 예약</span>'+
+      '<span class="btn" onclick="document.getElementById(\'kw-addbox\').style.display=\'none\'">닫기</span></div>'+
+    '<div id="kw-addlog" style="margin-top:9px;"></div></div>';
+  var el=document.getElementById('kw-addin'); if(el) el.focus();
+}
+async function kwAddGo(){
+  var el=document.getElementById('kw-addin'), log=document.getElementById('kw-addlog');
+  if(!el||!log) return;
+  var names=el.value.split(/[,\uff0c\n]/).map(function(x){return x.trim();}).filter(Boolean);
+  if(!names.length){ ts('도시 이름을 넣어주세요'); return; }
+  log.innerHTML='';
+  for(var i=0;i<names.length;i++){
+    var nm=names[i];
+    var row=document.createElement('div');
+    row.style.cssText='font-size:11.5px;padding:4px 0;color:var(--sub);';
+    row.innerHTML='○ <b>'+nm+'</b> — 검색어 모으는 중…';
+    log.appendChild(row);
+    try{
+      var hd=await authHeader();
+      var H=Object.assign({'Content-Type':'application/json'}, hd||{});
+      var r=await fetch('/api/kw-survey-now',{method:'POST',credentials:'same-origin',headers:H,
+        body:JSON.stringify({step:'harvest',city_ko:nm,target:'ko',market:'KR'})}).then(function(x){return x.json();});
+      if(r.ok||r.already){
+        if(INV[nm]) { INV[nm].city_key=r.city_key; INV[nm].surveyed=true; INV[nm].survey_state='running'; }
+        else INV[nm]={name:nm,city_key:r.city_key,surveyed:true,survey_state:'running'};
+        SNAP_CITY[nm]=true;
+        row.innerHTML='✅ <b style="color:var(--em);">'+nm+'</b> 조사 예약됨'+(r.already?' <span style="color:var(--muted);">(이미 들어있던 곳)</span>':'');
+      } else {
+        row.innerHTML='⚠ <b>'+nm+'</b> — '+(r.error||'예약하지 못했습니다');
+        row.style.color='var(--am)';
+      }
+    }catch(e){
+      row.innerHTML='⚠ <b>'+nm+'</b> — '+(e.message||e); row.style.color='var(--am)';
+    }
+  }
+  el.value='';
+  log.innerHTML+='<div style="font-size:11px;color:var(--muted);margin-top:7px;line-height:1.7;">'+
+    '봇이 2시간마다 도며 트렌드·경쟁을 채웁니다. 끝나면 상단 <b style="color:var(--em);">「새로 완성」</b> 에 뜹니다.</div>';
+  ts(names.length+'곳 예약했습니다');
+}
 function pm(i){cm=i;rd();ts(MO[i]+' 노출 — '+MS[i]);}   /* [연·월 지정] 제거로 XM·YMO·ymr 불필요 */
 var CMORE=false;
 function cMore(){CMORE=!CMORE;rd();}   /* 나라 순위 10개 ↔ 전체 (대표님 2026-07-18) */
@@ -5947,7 +6011,10 @@ function rdd(c){cy=c;document.getElementById('d3t').innerHTML=c+' · 키워드 �
  if(c!==SVCITY){
    var st = INV[c] && INV[c].survey_state;
    if(st==='running'){                                /* 예약됨 · 봇이 채우는 중 */
-     document.getElementById('d3l').innerHTML='<div class="wn">⏳ <b>'+c+'</b> 조사 예약됨 — 봇이 트렌드·경쟁을 채우는 중입니다.<br><span style="font-size:12px;color:var(--muted);line-height:1.7">완성되면 상단 <b style="color:var(--em)">「새로 완성」 배지</b>에 뜹니다. (봇은 2시간마다 돕니다)</span></div>';
+     document.getElementById('d3l').innerHTML='<div class="wn">⏳ <b>'+c+'</b> 조사 예약됨 — 봇이 트렌드·경쟁을 채우는 중입니다.<br><span style="font-size:12px;color:var(--muted);line-height:1.7">완성되면 상단 <b style="color:var(--em)">「새로 완성」 배지</b>에 뜹니다. (봇은 2시간마다 돕니다)</span>'+
+       '<div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;">'+
+       '<span class="btn" style="background:var(--bld);color:var(--bl);" onclick="kwAdd()">＋ 다른 도시 조사 추가</span>'+
+       '<span class="btn" onclick="go(\'m\')">← 관제판으로</span></div></div>';
      return;
    }
    var key = INV[c] && INV[c].city_key;
@@ -6941,10 +7008,25 @@ function runSurvey(){
   if(!SVQ.length){ ts('조사할 도시를 하나 이상 고르세요'); return; }
   SVI=0; drawRun(); clearTimeout(SVTMR); SVTMR=setTimeout(stepRun,1400);
 }
-function stepRun(){
+/* 🔴 2026-08-01 — 이 함수는 **아무것도 안 하고 1.4초마다 동그라미만 옮기고 있었다**(프리뷰 잔해).
+   대표님이 [조사 시작]을 누르면 끝난 것처럼 보였지만 서버엔 아무 요청도 안 갔다.
+   이제 도시마다 진짜 창구(/api/kw-survey-now · harvest)를 부른다. 다시 시늵으로 되돌리지 말 것. */
+async function stepRun(){
   if(SVI<SVQ.length){
-    SVQ[SVI].st=(SVQ[SVI].conf>=10)?'done':'floor';   /* 확정 10건 미만 = 앵커 측정 한계(⑧) · 저장 안 함 */
-    SVI++; drawRun(); SVTMR=setTimeout(stepRun,1400);
+    var it=SVQ[SVI];
+    try{
+      var hd=await authHeader();
+      var H=Object.assign({'Content-Type':'application/json'}, hd||{});
+      var r=await fetch('/api/kw-survey-now',{method:'POST',credentials:'same-origin',headers:H,
+        body:JSON.stringify({step:'harvest',city_ko:it.city,target:'ko',market:'KR'})}).then(function(x){return x.json();});
+      if(r.ok||r.already){
+        it.st='done';
+        if(INV[it.city]) { INV[it.city].city_key=r.city_key; INV[it.city].surveyed=true; INV[it.city].survey_state='running'; }
+        else INV[it.city]={name:it.city,city_key:r.city_key,surveyed:true,survey_state:'running'};
+        SNAP_CITY[it.city]=true;
+      } else { it.st='floor'; it.err=r.error||'예약 실패'; }
+    }catch(e){ it.st='floor'; it.err=e.message||String(e); }
+    SVI++; drawRun(); SVTMR=setTimeout(stepRun,400);
   } else { surveyDone(); }
 }
 function drawRun(){
@@ -6957,10 +7039,10 @@ function drawRun(){
   h+='<div class="cd" style="padding:6px 8px;margin-bottom:9px;">';
   SVQ.forEach(function(x,i){
     var ic,col,tx;
-    if(x.st==='done'){ic='✓';col='var(--em)';tx='완료 · 키워드 40 · 트렌드 10';}
-    else if(x.st==='floor'){ic='!';col='var(--am)';tx='측정 한계 아래 — 저장 안 함';}
-    else if(i===SVI){ic='◐';col='var(--bl)';tx='조사 중 · 앵커 재는 중';}
-    else {ic='○';col='var(--muted)';tx='대기 · 약 4분';}
+    if(x.st==='done'){ic='✓';col='var(--em)';tx='예약됨 · 봇이 측정 중';}
+    else if(x.st==='floor'){ic='!';col='var(--am)';tx=x.err||'예약하지 못함';}
+    else if(i===SVI){ic='◐';col='var(--bl)';tx='검색어 모으는 중…';}
+    else {ic='○';col='var(--muted)';tx='대기';}
     h+='<div style="display:flex;align-items:center;gap:9px;padding:8px 6px;border-bottom:0.5px solid var(--card2);'+(x.st==='wait'&&i!==SVI?'color:var(--sub);':'')+'">'+
        '<span style="font-size:14px;color:'+col+';width:16px;text-align:center;">'+ic+'</span>'+
        '<span style="flex:1;font-size:12.5px;">'+x.city+(x.en?' <span style="font-size:10px;color:var(--muted);">'+x.en+'</span>':'')+'</span>'+

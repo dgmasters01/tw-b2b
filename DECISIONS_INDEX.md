@@ -67,6 +67,7 @@
 | D-052 | B2B 자동메일 영어 메인 유지 + 한국어 보류(보험), 해제 트리거=한국 인바운드 추천 채널 비중 상승 | strategy | 2026-06-02 | 확정 | BL-EMAIL-LOCALE-ROUTING(자동판별 보류), 후속 BL-EMAIL-MANAGER-LOCALE-AUTO, 채널전략 |
 | D-053 | admin 호텔 상세 = 매니저 분석 형태 미러링(별도 페이지) + 수수료 2버전(매니저 숨김/admin 표시) + 기간 4구분(마케팅전/기간/후/전체, 전체=분석 동기화) + 회차(campaign_log) + 마케팅전 예약 매칭(대표님 확정) + 매니저 이름·연락처 가입폼 추가 | feature | 2026-06-02 | 확정 | BL-ADMIN-HOTEL-DETAIL(신규), signup.html, admin-manager-hub.html, dashboard.html, _business/decisions/2026-06-02-admin-hotel-detail-d053.md |
 | D-054 | 2026-06-02 (DECISIONS.md 신규 박스) | admin 호텔상세(D-053) 실행세부 — 과거예약 복구적재 확정 + 매니저페이지 통계·예약형태 탭UX(클로드 위임) + 회차 시작일=송출일 자동(클로드 위임확정) |
+| D-075 | 키워드 발굴·순환 바로잡기 — 씨앗에 「자유여행」 추가·여행축 상한 8→16 · 붙여쓰기 짝을 여행축에도(도시여행·도시자유여행) · 봇 순환 3회에 1번 신규 발굴 우선(NEW_EVERY) · 지난달에 끝난 조사를 「예약중」으로 말하던 거짓 표시 제거 | keyword | 2026-08-01 | 확정 | api/kw-survey-now.js, api/cron/kw-survey.js, api/content-keywords.js, studio.html, _business/decisions/2026-08-01-keyword-harvest-cycle.md |
 | D-074 | 스튜디오 영문판(i18n) — 한국어 기본·영어 덧붙이기 · 사전방식(data-i18n·t()) + 문장 많은 메뉴는 렌더후 번역계층(STUDIO_PHRASES·영어일 때만 동작) · 제목·파일명·호텔명 칸은 번역 제외 · 언어 결정 = 내선택 → 계정기본(admins.lang) → 브라우저말(ko/en) | i18n | 2026-07-26 | 확정 | studio.html, api/me-lang.js, admins.lang, admin_invitations.lang, _business/decisions/2026-07-26-studio-i18n.md |
 | D-067 | 자체기획 원고흐름 + 확인필요 사유(코드오타·같은채널코드중복·아고다링크없음) + 담당규칙(세역할·단계별버튼·담당있으면 남못맡음·변경=최고관리자만·원고작성담당=코드복사분석만) + 자체기획 발행예정 올린사람 표시안함 + 발행예정↔올리기 동기화(정상만·코드기준) + 확인필요=올리기에서만(채널명·파일명·사유) + 잘못폴더정리(채널=cid판정·file_id추적) | studio/flow | 2026-07-19 | 확정 | studio.html 전략·올리기, api/content-queue.js, api/publications.js, _business/decisions/2026-07-19-manuscript-flow-review-reasons.md, STUDIO_FLOW.md |
 
@@ -104,6 +105,7 @@
 | D-052 | 2026-06-02 (DECISIONS.md 최상단 신규 박스) | B2B 메일 영어 메인 + 한국어 보험, 트리거=한국 인바운드 채널↑ |
 | D-053 | 2026-06-02 (상세=_business/decisions/2026-06-02-admin-hotel-detail-d053.md) | admin 호텔 상세 미러링 + 수수료 2버전 + 기간 4구분 + 마케팅전 예약 매칭 (DECISIONS.md 박스 후속 동기화) |
 | D-074 | 2026-07-26 (상세=_business/decisions/2026-07-26-studio-i18n.md) | 스튜디오 영문판 · 계정 기본 언어 자동 |
+| D-075 | 2026-08-01 (상세=_business/decisions/2026-08-01-keyword-harvest-cycle.md) | 키워드 발굴 규칙·봇 순환 |
 
 ---
 
@@ -149,3 +151,4 @@
 | 2026-07-27 | D-076 등록 (시스템 배선 관리 — 코드에서 자동 추출하는 SYSTEM_WIRING.md·표→화면 역인덱스·1000줄 위험 자동판정·신규호텔 확인 카드 / _os/tools/wiring-scan.mjs) |
 | 2026-07-27 | D-077 등록 (자동화 비용 정책 — 봇 10개 전수 실측·바깥 유료는 구글 1개뿐·새 봇 판단 4기준·SHA 캐시로 헛일 방지 / SYSTEM_MAP §4) |
 | 2026-07-27 | D-078 등록 (아고다 CID 다중 — 채널 하나에 번호 여럿·정본은 channel_cid_map DB·규격문서 cid는 대표번호일 뿐 / api/youtube.js) |
+| 2026-08-01 | D-075 등록 (키워드 발굴·순환 바로잡기 — 자유여행·띄어쓰기·신규 발굴 우선 / api/kw-survey-now.js, api/cron/kw-survey.js) |

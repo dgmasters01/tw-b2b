@@ -31,15 +31,25 @@ export const config = { maxDuration: 300 };
      그래서 ko 에서만 켠다.
    ⚠ 군더더기(tail)도 언어별이다 — 「오키나와 본섬」은 한국말 문제다. */
 const SEEDS_BY_LANG = {
+  // 🔴 2026-08-01 대표님: *"가오슭 여행은 숙박 키워드가 아니잖아. 무작정 그냥 넣는거야?"*
+  //   그러고 있었다. 씨앗이 「숙소」면 거기서 파생된 말을 **무조건 숙박**으로 붙였다.
+  //   그래서 「가오슭 여행」·「가오슭 브이로그」가 숙박 칸에 섮였다.
+  //   → **나온 말 자체를 보고** 정한다(axisOf). 씨앗을 물려받지 않는다.
   ko: { stay: ['호텔', '숙소'], travel: ['여행', '자유여행'], spacing: true,
+        stayWords: ['호텔','숙소','리조트','료칸','게스트하우스','펜션','민박','숙박','도미토리','캡슐','모텔','오토캠프','글램핑','씨상','여관','온천'],
+        travelWords: ['여행','자유여행','브이로그','코스','여행지','일정','관광','맛집','팰키지','투어','놀거리','먹방','쇼핑','교통','항공권','당일치기','준비물','경비','날씨','혼자','가족여행'],
         probe: '호텔', tail: ['본섬', '섬', '아일랜드', '시티', '시', '지역', '일대', '근교'] },
   // 実測 2026-08-01(札幌 기준): 旅行10 観光10 一人旅10 ホテル10 宿10 — 「個人旅行」은 **0개라 미채택**
   ja: { stay: ['ホテル', '宿'], travel: ['旅行', '観光'], spacing: false,
+        stayWords: ['ホテル','宿','旅館','リゾート','民宿'], travelWords: ['旅行','観光','グルメ','一人旅','プラン'],
         probe: 'ホテル', tail: ['島', '市'] },
   en: { stay: ['hotels', 'accommodation'], travel: ['travel', 'trip'], spacing: false,
+        stayWords: ['hotel','hotels','accommodation','resort','hostel','guesthouse','motel','stay'],
+        travelWords: ['travel','trip','itinerary','things to do','vlog','tour','guide','food','attractions'],
         probe: 'hotels', tail: ['island', 'city'] },
   // 実測(繁體·TW): 旅遊10 自由行10 住宿10 飯店10 · 簡體 酒店은 7 → 번체자 우선
   zh: { stay: ['飯店', '住宿'], travel: ['旅遊', '自由行'], spacing: false,
+        stayWords: ['飯店','酒店','住宿','民宿','度假村'], travelWords: ['旅遊','自由行','景點','美食','行程','攻略'],
         probe: '飯店', tail: ['島', '市'] },
   // ⚠ 베트남어는 자동완성이 엉성하다(샿포로 기준 du lịch 5 · khách sạn 1).
   //   켜도 되지만 품질 게이트에 걸려 대부분 건너뛸 것이다 — 그게 맞다(없는 숫자를 지어내지 않는다).
@@ -220,6 +230,20 @@ export default async function handler(req, res) {
       ? LANG.stay.concat(LANG.travel).map((w) => `${seedCity}${w}`)
       : [];
     const seen = new Set();
+    /* 🔴 나온 말을 보고 축을 정한다 — 씨앗 물려받기 금지.
+       「가오슭 여행」은 「숙소」 씨앗에서 나왔더라도 **여행**이다.
+       둘 다 들어있으면(「오사카 여행 호텔」) → **뒤에 나온 말**이 목적어다. 숙박으로 본다.
+       둘 다 없으면 씨앗 축을 그대로 쓴다(억지로 가르지 않는다). */
+    const SW = LANG.stayWords || LANG.stay, TW2 = LANG.travelWords || LANG.travel;
+    const lastHit = (t, words) => { let at = -1; for (const w of words) { const i = t.lastIndexOf(w); if (i > at) at = i; } return at; };
+    function axisOf(text, seedAxis) {
+      const t = String(text || '');
+      const sAt = lastHit(t, SW), tAt = lastHit(t, TW2);
+      if (sAt < 0 && tAt < 0) return seedAxis;
+      if (sAt < 0) return 'travel';
+      if (tAt < 0) return 'stay';
+      return sAt > tAt ? 'stay' : 'travel';
+    }
     const mains = [];          // { text(띄어쓰기), axis }
     const joinedSet = new Set();
     try {
@@ -228,7 +252,7 @@ export default async function handler(req, res) {
         try { f = await harvest(s.q, 1, target, gl); } catch { f = []; }
         for (const t0 of [s.q].concat(f)) {
           const t = String(t0 || '').trim();
-          if (t && t.includes(seedCity) && t.includes(' ') && !seen.has(t)) { seen.add(t); mains.push({ text: t, axis: s.axis }); }
+          if (t && t.includes(seedCity) && t.includes(' ') && !seen.has(t)) { seen.add(t); mains.push({ text: t, axis: axisOf(t, s.axis) }); }
         }
       }
       for (const q of joinedSeeds) {            // 붙여쓴 짝 후보 — 자동완성 1회씩만(자모 발굴 안 함)

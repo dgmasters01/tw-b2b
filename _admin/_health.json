@@ -1,7 +1,7 @@
 {
-  "overall": "red",
-  "summary": "[yellow] admin_baseline: 관리자 페이지 5개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요) / [red] tasks_schema: 작업 305건 중 8건에 출처가 없어요 (자동 동기화 봇 멈춤 위험) / [red] bots: 자동 일꾼 1명이 멈췄어요: sync-bot / [yellow] vercel_sync: 라이브 사이트가 GitHub 새 버전(766c4f9)을 아직 못 따라잡았어요 (현재 라이브: 103ca6d). 5~10분 후 자동 정상화 예정",
-  "checked_at": "2026-08-01T03:59:02.860Z",
+  "overall": "yellow",
+  "summary": "[yellow] admin_baseline: 관리자 페이지 5개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요) / [yellow] vercel_sync: 라이브 사이트가 GitHub 새 버전(9895328)을 아직 못 따라잡았어요 (현재 라이브: bb2494a). 5~10분 후 자동 정상화 예정",
+  "checked_at": "2026-08-01T04:10:48.093Z",
   "checks": [
     {
       "name": "admin_baseline",
@@ -37,31 +37,20 @@
     },
     {
       "name": "tasks_schema",
-      "status": "red",
-      "detail": "작업 305건 중 8건에 출처가 없어요 (자동 동기화 봇 멈춤 위험)",
-      "missing_source": [
-        "BL-HOTEL-GEO",
-        "BL-HANDOFF-TRUTH",
-        "BL-KEYWORD-TARGET-AXIS",
-        "BL-HOTEL-MASTER-RESYNC",
-        "BL-LANDING-STATS-AUTO",
-        "BL-BOOKING-RAW-KEEP",
-        "BL-BOOKING-EARNINGS-IMPORT",
-        "BL-MANAGER-COUNTRY-REAL"
-      ]
+      "status": "green",
+      "detail": "작업 307건 모두 출처 박혀있어요 (정상)",
+      "missing_source": []
     },
     {
       "name": "bots",
-      "status": "red",
-      "detail": "자동 일꾼 1명이 멈췄어요: sync-bot",
-      "dead_bots": [
-        "sync-bot"
-      ],
+      "status": "green",
+      "detail": "자동 일꾼들(봇) 전부 살아있어요",
+      "dead_bots": [],
       "bot_status": {
-        "sync-bot": "failure",
-        "auto-detect-bot": "success",
-        "scan-bot": "unknown",
-        "chat-log-bot": "success",
+        "sync-bot": "unknown",
+        "auto-detect-bot": "unknown",
+        "scan-bot": "success",
+        "chat-log-bot": "unknown",
         "autoheal-bot": "unknown"
       }
     },
@@ -74,9 +63,9 @@
     {
       "name": "vercel_sync",
       "status": "yellow",
-      "detail": "라이브 사이트가 GitHub 새 버전(766c4f9)을 아직 못 따라잡았어요 (현재 라이브: 103ca6d). 5~10분 후 자동 정상화 예정",
-      "live_sha": "766c4f9",
-      "vercel_sha": "103ca6d",
+      "detail": "라이브 사이트가 GitHub 새 버전(9895328)을 아직 못 따라잡았어요 (현재 라이브: bb2494a). 5~10분 후 자동 정상화 예정",
+      "live_sha": "9895328",
+      "vercel_sha": "bb2494a",
       "project": "tw-b2b"
     },
     {

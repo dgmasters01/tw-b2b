@@ -202,6 +202,19 @@ tr.ck:hover{background:rgba(139,92,246,.08)}
 </head>
 <body>
 
+<!-- 🔴 2026-08-01 전체 점검에서 발견 — 이 페이지의 숫자는 `const D={...}` 로
+     **코드에 박힌 고정값**(989KB)이다. DB를 보지 않고, 저절로 갱신되지도 않는다.
+     실측 차이(2026-08-01): 예약 3,774 vs 실제 3,850 · 매출 $854,258 vs 실제 $877,679.
+     갱신 표기가 없어 보는 사람이 **오늘 숫자로 믿게 된다** → 배지로 명시한다.
+     근본 해결(실시간 연동 또는 스튜디오 성과표로 통합)은 BL-ANALYTICS-STATIC 로 등록했다. -->
+<div style="position:relative;z-index:9;max-width:1200px;margin:14px auto 0;padding:11px 15px;
+     border:1px solid rgba(232,168,73,.45);background:rgba(232,168,73,.10);border-radius:10px;
+     font-size:13px;line-height:1.75;color:#e8c48a;">
+  ⚠️ <b>고정된 숫자입니다 — 오늘 것이 아닙니다.</b><br>
+  <span style="color:#c9b48d;">이 페이지는 예전에 한 번 넣어둔 자료를 보여줍니다. 새 예약은 반영되지 않습니다.
+  지금 실제 숫자는 <b>스튜디오 → 성과표</b>에서 보세요.</span>
+</div>
+
 <!-- Aurora background (v2 standard) -->
 <div class="aurora-bg" aria-hidden="true">
   <div class="aurora-blob b1"></div>

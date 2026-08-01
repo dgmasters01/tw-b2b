@@ -1,7 +1,7 @@
 {
   "version": "2.0",
   "schema": "tw-b2b-tasks-v2",
-  "updated_at": "2026-08-01T01:55:38+00:00",
+  "updated_at": "2026-08-01T02:44:44.000Z",
   "deadline": "2026-05-03",
   "live_url": "https://gohotelwinners.com",
   "repo": "dgmasters01/tw-b2b",
@@ -12,18 +12,93 @@
     "SOLO_WORK_QUEUE.md"
   ],
   "stats": {
-    "total": 301,
+    "total": 302,
     "done": 222,
     "in_progress": 6,
     "paused": 0,
-    "pending": 46,
+    "pending": 47,
     "blocked": 12,
     "autonomous_ready": 38,
     "todo": 7,
     "cancelled": 1,
-    "updated_at": "2026-08-01T01:54:08.000Z"
+    "updated_at": "2026-08-01T02:44:44.000Z"
   },
   "tasks": [
+    {
+      "id": "BL-KW-MULTILANG",
+      "title": "[다른 언어 키워드 조사 켜기] 대표님 「시작할 때 체크하자」 — 켤 때 6단계 점검 후 진행. 최대 걸림돌 = city_alias 언어별 도시명(지금 ko 166개뿐)",
+      "category": "feature",
+      "priority": "P2",
+      "size": "L",
+      "status": "pending",
+      "owner": "claude",
+      "claude_can_auto": false,
+      "approval_required": true,
+      "decision_ref": "D-075",
+      "estimated_hours": 8,
+      "order": 9,
+      "blocker": null,
+      "depends_on": [
+        "BL-KW-HARVEST-FIX"
+      ],
+      "progress": {
+        "percent": 0,
+        "steps": [
+          {
+            "n": 1,
+            "label": "도시명",
+            "title": "city_alias에 그 언어 별칭 채우기(札幌·大阪…) — 안 하면 한국말로 남의 언어를 침",
+            "status": "pending",
+            "done": false
+          },
+          {
+            "n": 2,
+            "label": "씨앗 실측",
+            "title": "SEEDS_BY_LANG 단어를 도시 3곳 이상에 대고 자동완성 재보기(10개 근처 나와야 함)",
+            "status": "pending",
+            "done": false
+          },
+          {
+            "n": 3,
+            "label": "띄어쓰기",
+            "title": "spacing 켤지 판단 — 한국말만 켜는 게 기본",
+            "status": "pending",
+            "done": false
+          },
+          {
+            "n": 4,
+            "label": "품질 기준",
+            "title": "총≥12·숙박≥6·여행≥2는 한국어 기준값 — 그 언어에 맞는지",
+            "status": "pending",
+            "done": false
+          },
+          {
+            "n": 5,
+            "label": "호출량",
+            "title": "언어당 도시 1곳 = 자동완성 64회+트렌드 10회. 봇 간격 조정 검토",
+            "status": "pending",
+            "done": false
+          },
+          {
+            "n": 6,
+            "label": "시장 코드",
+            "title": "ja→JP · zh→TW · en→US 짝 정하기(같은 언어도 시장 다르면 검색량 다름)",
+            "status": "pending",
+            "done": false
+          }
+        ]
+      },
+      "notes": "사전(SEEDS_BY_LANG)은 ko/ja/en/zh/vi/th 6개 미리 넣어둠. 사전 없는 언어는 조사 거부됨. 지금 조사는 전부 ko/KR 하나(검색어 2,767개·81곳). 베트남어는 자동완성이 엉성해 대부분 건너뛸 전망 — 그게 정상. 채널 언어 6개라고 조사도 6개일 필요 없음, 예약 붙는 언어부터.",
+      "created_at": "2026-08-01T02:44:44.000Z",
+      "updated_at": "2026-08-01T02:44:44.000Z",
+      "source": "claude",
+      "target_pages": [
+        "api/kw-survey-now.js",
+        "city_alias"
+      ],
+      "history": [],
+      "started_at": null
+    },
     {
       "id": "BL-KW-HARVEST-FIX",
       "title": "[키워드 발굴·순환 바로잡기] 자유여행 씨앗·띄어쓰기 짝·여행축 상한 8→16 · 봇 3회 1번 신규 발굴 우선 · 끝난 조사를 「예약중」이라 하던 거짓 표시 제거",

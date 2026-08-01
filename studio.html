@@ -5594,22 +5594,59 @@ function renderSurveyStatus(){
   el.innerHTML=h;
 }
 /* 이름을 고쳤다 → 그 이름으로 다시 발굴하고 건너뛰기 기록을 지운다 */
-async function fixName(i){
-  var o=SS_SKIP[i]; if(!o) return;
-  var v=prompt('「'+o.name+'」를 구글이 못 알아듣습니다.\n\n사람들이 실제로 검색하는 이름을 넣어주세요.\n(예: 판티엣 → 무이네 · 후지카와구치코 → 가와구치코)', o.name.split(/[\/(]/)[0].trim());
-  if(!v) return;
-  v=v.trim(); if(!v) return;
-  ts('「'+v+'」로 다시 캐는 중…');
-  try{
-    var hd=await authHeader();
-    var H=Object.assign({'Content-Type':'application/json'}, hd||{});
-    var r=await fetch('/api/kw-survey-now',{method:'POST',credentials:'same-origin',headers:H,
-      body:JSON.stringify({step:'harvest',city_ko:o.name,name_override:v,target:'ko',market:'KR'})}).then(function(x){return x.json();});
-    if(r.ok||r.already) ts('✅ 「'+o.name+'」 — 「'+v+'」로 조사 예약됨');
-    else ts('⚠ '+(r.error||'아직 부족합니다 — 다른 이름을 써보세요'));
-  }catch(e){ ts('⚠ '+(e.message||e)); }
-  loadCities();
+/* 🔴 2026-08-02 대표님: *"이것도 이 방식으로 하면 안 되잖아.
+   전체적인 UX/UI 형태의 패턴으로 만들어야지."*
+   맞다. 이 화면은 **브라우저 기본 창(prompt)을 안 쓴다.**
+   여기 방식은 「자리에서 펼쳐지는 상자 + 토스트(ts)」다. kwAdd 와 같은 상자를 쓴다.
+   새 기능을 넣을 때는 **뭐를 만드느냐보다 어떤 모양으로 만드느냐**를 먼저 맞춘다. */
+var KWFIX = null;   /* 지금 이름을 고치는 곳 { name } */
+
+function fixName(i){
+  var o = SS_SKIP[i]; if(!o) return;
+  KWFIX = { name: o.name };
+  var box = document.getElementById('kw-addbox'); if(!box) return;
+  box.style.display = 'block';
+  var guess = String(o.name).split(/[\/(]/)[0].trim();
+  box.innerHTML = '<div class="cd" style="padding:10px 11px;">'+
+    '<div style="font-size:12.5px;font-weight:600;margin-bottom:6px;">「'+o.name+'」를 어떤 이름으로 다시 찾을까요?</div>'+
+    '<div class="srch" style="margin-bottom:7px;"><span>✏️</span>'+
+      '<input id="kw-fixin" value="'+guess.replace(/"/g,'')+'" placeholder="사람들이 실제로 검색하는 이름" '+
+      'onkeydown="if(event.key===\'Enter\')kwFixGo()"></div>'+
+    '<div style="font-size:11px;color:var(--muted);line-height:1.7;margin-bottom:8px;">'+
+      '구글이 이 이름을 못 알아들었습니다'+(o.reason?(' · '+o.reason):'')+'.<br>'+
+      '눈에 익은 이름을 넣으면 다시 칩니다. 예: 오키나와 본섬 → 오키나와 · 판티엣 → 무이네</div>'+
+    '<div style="display:flex;align-items:center;gap:8px;">'+
+      '<span class="btn" style="background:var(--emd);color:var(--em);" onclick="kwFixGo()">이 이름으로 다시</span>'+
+      '<span class="btn" onclick="KWFIX=null;document.getElementById(\'kw-addbox\').style.display=\'none\'">닫기</span></div>'+
+    '<div id="kw-addlog" style="margin-top:9px;"></div></div>';
+  var el = document.getElementById('kw-fixin'); if(el){ el.focus(); el.select(); }
+  box.scrollIntoView({ behavior:'smooth', block:'center' });
 }
+
+async function kwFixGo(){
+  var el = document.getElementById('kw-fixin'), log = document.getElementById('kw-addlog');
+  if(!el || !KWFIX) return;
+  var v = String(el.value||'').trim();
+  if(!v){ ts('이름을 넣어주세요'); el.focus(); return; }
+  if(log) log.innerHTML = '<div style="font-size:11.5px;color:var(--sub);">○ 「'+v+'」로 다시 캐는 중…</div>';
+  try{
+    var hd = await authHeader();
+    var H = Object.assign({'Content-Type':'application/json'}, hd||{});
+    var r = await fetch('/api/kw-survey-now',{method:'POST',credentials:'same-origin',headers:H,
+      body:JSON.stringify({step:'harvest',city_ko:KWFIX.name,name_override:v,target:'ko',market:'KR'})}).then(function(x){return x.json();});
+    if(r.ok||r.already){
+      if(log) log.innerHTML = '<div style="font-size:11.5px;color:var(--em);">✅ 「'+KWFIX.name+'」 — 「'+v+'」로 조사 예약됨</div>';
+      ts('「'+v+'」로 예약했습니다');
+      KWFIX = null;
+      setTimeout(function(){ var b=document.getElementById('kw-addbox'); if(b) b.style.display='none'; loadCities(); }, 900);
+    } else {
+      if(log) log.innerHTML = '<div style="font-size:11.5px;color:var(--am);">⚠ '+(r.error||'아직 부족합니다')+' — 다른 이름을 써보세요</div>';
+    }
+  }catch(e){
+    if(log) log.innerHTML = '<div style="font-size:11.5px;color:var(--am);">⚠ '+(e.message||e)+'</div>';
+  }
+}
+
 function ssToggle(){ SS_OPEN=!SS_OPEN; renderSurveyStatus(); }
 function ackPage(d){ SS_ACKPAGE+=d; if(SS_ACKPAGE<0) SS_ACKPAGE=0; renderSurveyStatus(); }
 function openNewDone(name, country){ go('d', name, country); }
@@ -5775,19 +5812,30 @@ function svPick(country,city){
   ts(city?(city+' — 골라놓았습니다. [조사 시작]을 누르세요'):(country+' — 조사할 도시를 고르세요'));
 }
 function svNew(name){
-  var cs=Object.keys(CT).concat(Object.keys(UNC));
-  var uniq=[]; cs.forEach(function(c){ if(uniq.indexOf(c)<0) uniq.push(c); });
+  /* 🔴 브라우저 prompt 로 나라를 묻던 것 → 상자 안 단추로 고른다(화면 패턴 통일). */
+  var cs = Object.keys(CT).concat(Object.keys(UNC));
+  var uniq = []; cs.forEach(function(c){ if(uniq.indexOf(c)<0) uniq.push(c); });
   if(!uniq.length){ ts('나라 목록을 아직 못 불러왔습니다'); return; }
-  var pick=prompt('"'+name+'" 은(는) 어느 나라입니까?\n\n'+uniq.join(' · '), uniq[0]);
-  if(!pick) return;
-  pick=pick.trim();
-  if(uniq.indexOf(pick)<0){ ts('목록에 없는 나라입니다: '+pick); return; }
-  RSEL[pick]=null; delete RSEL[pick];
-  RNEW=[name];                                /* 새 도시로 바로 넣는다 */
+  var box = document.getElementById('kw-addbox'); if(!box) return;
+  box.style.display = 'block';
+  var safe = String(name).replace(/'/g,'').replace(/"/g,'');
+  box.innerHTML = '<div class="cd" style="padding:10px 11px;">'+
+    '<div style="font-size:12.5px;font-weight:600;margin-bottom:6px;">「'+safe+'」은 어느 나라입니까?</div>'+
+    '<div style="font-size:11px;color:var(--muted);margin-bottom:8px;">나라를 고르면 그 나라 조사 화면으로 가며 이 이름이 새 도시로 들어갑니다.</div>'+
+    '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;">'+
+      uniq.map(function(c){ return '<span class="btn" onclick="svNewPick(\''+c+'\',\''+safe+'\')">'+c+'</span>'; }).join('')+
+    '</div>'+
+    '<span class="btn" onclick="document.getElementById(\'kw-addbox\').style.display=\'none\'">닫기</span></div>';
+  box.scrollIntoView({ behavior:'smooth', block:'center' });
+}
+function svNewPick(country, name){
+  RSEL[country]=null; delete RSEL[country];
+  RNEW=[name];
   var b=document.getElementById('srb'); if(b) b.classList.remove('on');
   var q=document.getElementById('sq'); if(q) q.value='';
-  go('r',pick);
-  ts('"'+name+'" 을 '+pick+' 에 넣었습니다 — [조사 시작]을 누르세요');
+  var bx=document.getElementById('kw-addbox'); if(bx) bx.style.display='none';
+  go('r',country);
+  ts('「'+name+'」을 '+country+' 에 넣었습니다 — [조사 시작]을 누르세요');
 }
 /* ══ 조사 추가 — 도시 이름만 넣으면 된다 (대표님 2026-08-01) ══
    지금까지는 봇이 정한 순서로만 조사했고, 사람이 "이 곳을 지금 보고 싶다"고

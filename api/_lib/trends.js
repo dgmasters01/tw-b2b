@@ -43,7 +43,9 @@ function stripJson(raw) {
   return JSON.parse(raw.slice(i));
 }
 
-async function tget(url, hl, tries = 8) {
+// ⚠ 2026-08-01: 재시도 8회 × 간격 15~25초 = 한 번 막히면 **최대 200초를 버린다.**
+//   그러다 300초 제한에 걸려 그 회차 저장이 통째로 날아간다. 빨리 포기하고 다음 회차에 이어하는 게 낛다.
+async function tget(url, hl, tries = 3) {
   const cookie = await ensureCookie(hl);
   let last = null;
   for (let i = 0; i < tries; i++) {

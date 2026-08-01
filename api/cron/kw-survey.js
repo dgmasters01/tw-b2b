@@ -119,8 +119,39 @@ export default async function handler(req, res) {
         .filter((r) => !surveyedLabels.has(r.city) && !skipLabels.has(r.city) && (r.bookings || 0) > 0)
         .sort((a, b) => (b.bookings || 0) - (a.bookings || 0))[0];
       if (!next) {
-        // 발굴할 새 도시가 없다 → 재조사로 돌아간다(발굴 차례라고 빈손으로 끝내지 않는다).
-        if (!pendingCities.length) return res.status(200).json({ ok: true, idle: true, ym, note: '측정·발굴할 도시 없음 (전부 완료 또는 건너뜀).' });
+        // 🔴 2026-08-01 대표님: *"봇에게 맡기고 새로 발굴되는 것은 새 규칙에 정리를 하는건가?"*
+        //   새 도시는 당연히 새 규칙으로 캐진다. 문제는 **예전에 츸 도시**다 —
+        //   자유여행·띄어쓰기 규칙이 생기기 전에 캐서 여행 검색어가 5~8개뿐이다.
+        //   (오사카 실측: 예전 5개 → 다시 캐니 21개. 「오사카여행」 같은 붙임말이 들어왔다)
+        //   → 새로 칠 도시가 없으면 **옛 규칙 도시를 한 곳씩 다시 칐8다.** 사람이 손대지 않아도 따라온다.
+        //   판별: 검색어가 전부 새 규칙 적용일(2026-08-01) 이전에 캐진 도시.
+        const RULE_AT = '2026-08-01';
+        try {
+          const { data: oldRows } = await sb.from('keyword')
+            .select('city_key, created_at')
+            .eq('target_code', target).eq('market', market).eq('alive', true)
+            .lt('created_at', RULE_AT).limit(4000);
+          const { data: newRows } = await sb.from('keyword')
+            .select('city_key')
+            .eq('target_code', target).eq('market', market).eq('alive', true)
+            .gte('created_at', RULE_AT).limit(4000);
+          const fresh = new Set((newRows || []).map((r) => r.city_key));
+          const stale = [...new Set((oldRows || []).map((r) => r.city_key))].filter((k) => !fresh.has(k));
+          if (stale.length) {
+            stale.sort((a, b) => bookingsOfKey(b) - bookingsOfKey(a));   // 예약 많은 곳부터
+            const target1 = stale[0];
+            const label = labelByKey[target1] || null;   /* city_key → 도시 이름(city_alias) */
+            if (dry) return res.status(200).json({ ok: true, dry_run: true, cycle: 'refresh', would_refresh: label || target1, stale_left: stale.length });
+            const rr = await fetch(`${site}/api/kw-survey-now`, {
+              method: 'POST', headers: { 'Content-Type': 'application/json', 'x-ops-token': process.env.CLAUDE_OPS_TOKEN || '' },
+              body: JSON.stringify({ step: 'harvest', city_ko: label, city_key: target1, target, market, refresh: true }),
+            }).then((x) => x.json()).catch((e) => ({ ok: false, error: String(e.message || e) }));
+            return res.status(200).json({ ok: true, cycle: 'refresh', refreshed: label || target1,
+              stale_left: stale.length - 1, result: rr, note: '옛 규칙으로 캐졌던 도시를 새 규칙으로 다시 캐습니다(기존 검색어는 유지).' });
+          }
+        } catch (e) { /* 재발굴은 보너스다 — 실패해도 아래 재조사로 이어간다 */ }
+        // 발굴할 새 도시도 재발굴할 곳도 없다 → 재조사로 돌아간다.
+        if (!pendingCities.length) return res.status(200).json({ ok: true, idle: true, ym, note: '측정·발굴·재발굴할 도시 없음 (전부 완료 또는 건너뜀).' });
         pendingCities.sort((a, b) => {
           const pa = nowSel.has(a) ? 1 : 0, pb = nowSel.has(b) ? 1 : 0;
           if (pa !== pb) return pb - pa;

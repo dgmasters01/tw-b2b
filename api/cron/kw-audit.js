@@ -80,10 +80,19 @@ export default async function handler(req, res) {
   let fixed = 0;
 
   // ── ① 축이 말이 되나 (고칠 수 있다) ──
-  const { data: kws, error: e1 } = await sb.from('keyword')
-    .select('id, text, axis, target_code, city_key, kind')
-    .eq('alive', true).limit(20000);
-  if (e1) return res.status(500).json({ ok: false, error: e1.message });
+  // ⚠ Supabase 는 한 번에 1,000줄만 준다. limit 을 크게 적어도 소용없다.
+  //   전부 보려면 **나눠서** 읽어야 한다. 안 그러면 앞 1,000개만 검사하고 「이상 없음」이라 말한다.
+  const kws = [];
+  for (let from = 0; ; from += 1000) {
+    const { data, error } = await sb.from('keyword')
+      .select('id, text, axis, target_code, city_key, kind')
+      .eq('alive', true).range(from, from + 999);
+    if (error) return res.status(500).json({ ok: false, error: error.message });
+    if (!data || !data.length) break;
+    kws.push(...data);
+    if (data.length < 1000) break;
+    if (kws.length > 60000) break;   // 안전장치
+  }
 
   const wrongAxis = [];
   for (const k of kws || []) {
@@ -113,9 +122,17 @@ export default async function handler(req, res) {
   // ── ③ 도시 이름이 안 든 검색어 (알리기만 — 지역명일 수도 있어 함부로 안 지운다) ──
   const { data: alias } = await sb.from('city_alias').select('city_key, label');
   const labelOf = {}; for (const a of alias || []) if (!labelOf[a.city_key]) labelOf[a.city_key] = a.label;
+  // 🔴 지역명만 든 검색어(「난바 숙소」)는 **정상**이다 — 오사카의 지역이니까.
+  //   그걸 문제로 세면 143건이 쉬지 않고 울려대서 진짜 문제가 묻힌다.
+  //   → 그 도시의 **지역 이름**도 같이 본다. 둘 다 없을 때만 알린다.
+  const { data: dist } = await sb.from('hotels').select('city, district').not('district', 'is', null);
+  const distNames = new Set((dist || []).map((d) => String(d.district || '').replace(/\s+/g, '')));
   const noCity = (kws || []).filter((k) => {
     const l = labelOf[k.city_key]; if (!l) return false;
-    return !String(k.text).includes(l) && !String(k.text).replace(/\s+/g, '').includes(l.replace(/\s+/g, ''));
+    const flat = String(k.text).replace(/\s+/g, '');
+    if (flat.includes(l.replace(/\s+/g, ''))) return false;
+    for (const d of distNames) { if (d && d.length > 1 && flat.includes(d)) return false; }
+    return true;
   });
   if (noCity.length) {
     problems.push({ kind: 'city_name', n: noCity.length, fixed: false,

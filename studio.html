@@ -1247,7 +1247,8 @@ window.STUDIO_PHRASES = {
   '넣음 — 이 글자가 곧 한국어 이름표입니다 (city_alias 저장 · 비용 0)':'added — this text becomes the label (saved to city_alias · zero cost)',
   '✅같은 곳 확실 → 🟡물증 없음 → 🚫다른 호텔 순서로 정렬됩니다. 잣대는':'Sorted ✅ certainly the same → 🟡 no evidence → 🚫 different hotel. The yardstick is',
   '앵커(\"세부 호텔\")가 측정 한계 아래면 20초 지점에서 저절로 멈추고':'If the anchor falls below the measurement floor, it stops on its own at the 20s mark and shows',
-  '검색량 = 유튜브에서 이 말을 얼마나 찾나 · 오사카 안에서만 비교합니다':'Search volume = how often this is searched on YouTube · compared within this city only',
+  '검색량 = 유튜브에서 이 말을 얼마나 찾나 ·':'Search volume = how often this is searched on YouTube ·',
+  '안에서만 비교합니다':'— compared within this city only',
   '시스템이 \"이건 잘못 묶였을 수도 있다\"고 표시한 호텔입니다.':'Hotels the system flagged as possibly grouped by mistake.',
   '＋ 도시 이름 직접 넣기 — 목록에 없는 곳 (예: 팔라완)':'＋ Enter a city name directly — not in the list (e.g. Palawan)',
   '= 중복으로 하나 더 만듭니다(목록에 “중복” 딱지).':'= creates a duplicate (tagged Duplicate in the list).',
@@ -6453,6 +6454,12 @@ function qDup(){ var e=QASK&&QASK.enc; QASK=null; rx(cd); if(e) toQueue(e); }
 function qGo(){ QASK=null; var t=document.querySelector('[data-view="strategy"]'); if(t){ t.click(); ts('전략 메뉴로 이동'); } else ts('전략 메뉴는 스튜디오에서 열립니다'); }
 var QASK=null;
 function rx(d){cd=d;
+/* 🔴 2026-08-01 대표님: *"난바인데 빵부스러기가 후쿠오카로 되어 있어."*
+   지역 자료(SV)는 오사카 것을 제대로 보고 있는데 **위에 적힌 도시만 전 화면 것(후쿠오카)으로 남았다.**
+   난바는 오사카다. 도시가 틀리면 그 아래 모든 설명이 거짓이 된다.
+   → 지역 화면을 그릴 땐 **그 자료가 어느 도시 것인지(SVCITY)** 를 보고 맞춘다. */
+ if (typeof SVCITY === 'string' && SVCITY && SVCITY !== cy) cy = SVCITY;
+
 /* ── 지역 세부 = **기본 자료를 보는 곳** (대표님 2026-07-17). 여기에 [이걸로 만들기] 안 붙인다.
     기본 = ① 이 동네가 뭔가 ② 뭘 만드나(성급). 나머지는 **접는다** — 안 펼쳐도 결론이 접힌 줄에 있다.
     🔴 옛 4-1 「이 도시 예약 패턴」(22일·95%·583건)은 **오사카 도시 값을 난바 자리**에 쓰고 있었다.
@@ -6608,7 +6615,7 @@ function rx(d){cd=d;
           : '<span style="font-size:10.5px;color:var(--em);">'+(L3.compared_to||'')+' 조사와 비교</span>')+
         '</div>';
    }
-   h+='<div style="font-size:10px;color:var(--muted);margin-top:6px;">검색량 = 유튜브에서 이 말을 얼마나 찾나 · 오사카 안에서만 비교합니다</div></div>';
+   h+='<div style="font-size:10px;color:var(--muted);margin-top:6px;">검색량 = 유튜브에서 이 말을 얼마나 찾나 · '+(cy||'이 도시')+' 안에서만 비교합니다</div></div>';   /* 🔴 「오사카」가 글자로 박혀 있었다 — 후쿠오카를 봐도 「오사카 안에서」라고 했다 */
  }
 
  /* ── 4-4b 호텔 매출 순위 (2026-07-17 대표님) — 콘텐츠 추천 **바로 앞**.

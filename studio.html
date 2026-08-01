@@ -5526,7 +5526,7 @@ function pkT(code){
   ts((TGTS.filter(function(t){return t.code===code;})[0]||{}).label+' 로 바꿨습니다 — 다시 셉니다');
   loadCities(); loadSnap().then(function(){ if(cy) rdd(cy); if(cd) rx(cd); });
 }
-var SS_RUNNING=[], SS_NEWDONE=[], SS_DONE=[];
+var SS_RUNNING=[], SS_NEWDONE=[], SS_DONE=[], SS_SKIP=[];
 var SS_OPEN=false, SS_ACKPAGE=0;   /* 접힌 채 시작(A형태) · 확인하세요 4개씩 넘기기 */
 function renderSurveyStatus(){
   var el=document.getElementById('kw-newdone'); if(!el) return;
@@ -5553,6 +5553,7 @@ function renderSurveyStatus(){
     '<span style="font-size:12.5px;color:var(--am);">남음 '+SS_RUNNING.length+'</span><span style="color:var(--line)">·</span>'+
     '<span style="font-size:12.5px;color:var(--bl);">확인할 것 '+SS_NEWDONE.length+'</span><span style="color:var(--line)">·</span>'+
     '<span style="font-size:12.5px;color:var(--em);">완성 '+SS_DONE.length+'</span>'+
+    (SS_SKIP.length?'<span style="color:var(--line)">·</span><span style="font-size:12.5px;color:var(--rd);">이름 문제 '+SS_SKIP.length+'</span>':'')+
     '<span style="margin-left:auto;font-size:11px;color:var(--muted);">'+(SS_OPEN?'접기 ▲':'펼치기 ▼')+'</span></div>';
   if(!SS_OPEN){ el.innerHTML=bar; return; }
   var h=bar+'<div style="border:0.5px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--card);margin-top:8px;">';
@@ -5575,8 +5576,38 @@ function renderSurveyStatus(){
     }
     h+='<span style="margin-left:auto;"><span class="btn" style="font-size:10.5px;" onclick="ackAll()">전체 확인</span></span></div>';
   }
+  if(SS_SKIP.length){
+    /* 🔴 2026-08-01 대표님: *"이름문제로 건너뛴 도시 이런곳은 내가 알수가 없네."*
+       맞다. 이젠 여기서 보이고, 이름을 고쳐 바로 다시 시킬 수 있다. */
+    h+='<div style="font-size:11.5px;color:var(--rd);font-weight:700;margin:'+((SS_RUNNING.length||SS_NEWDONE.length)?'11px':'0')+' 0 4px;">조사 못 함 — 구글이 이 이름을 못 알아듣습니다</div>';
+    h+='<div style="font-size:11px;color:var(--muted);margin-bottom:7px;line-height:1.7;">예: 「오키나와 본섬」→「오키나와」 · 「판티엣」→「무이네」. 눈에 익은 이름을 넣으면 다시 층니다.</div>';
+    SS_SKIP.slice(0,8).forEach(function(o,i){
+      h+='<div style="display:flex;align-items:center;gap:9px;background:var(--card2);border:0.5px solid var(--line);border-radius:8px;padding:8px 11px;margin-bottom:6px;flex-wrap:wrap;">'+
+         '<div style="flex:1;min-width:120px;"><div style="font-size:12.5px;color:var(--txt);">'+o.name+(o.bookings?' <span style="font-size:10.5px;color:var(--muted);">예약 '+o.bookings+'</span>':'')+'</div>'+
+         (o.reason?'<div style="font-size:10px;color:var(--muted);margin-top:2px;">'+o.reason+'</div>':'')+'</div>'+
+         '<span class="btn" style="font-size:10.5px;padding:3px 10px;background:var(--bld);color:var(--bl);" onclick="fixName('+i+')">이름 고쳐 다시</span></div>';
+    });
+    if(SS_SKIP.length>8) h+='<div style="font-size:11px;color:var(--muted);margin:-2px 0 4px;">외 '+(SS_SKIP.length-8)+'곳</div>';
+  }
   h+='</div>';
   el.innerHTML=h;
+}
+/* 이름을 고쳤다 → 그 이름으로 다시 발굴하고 건너뛰기 기록을 지운다 */
+async function fixName(i){
+  var o=SS_SKIP[i]; if(!o) return;
+  var v=prompt('「'+o.name+'」를 구글이 못 알아듣습니다.\n\n사람들이 실제로 검색하는 이름을 넣어주세요.\n(예: 판티엣 → 무이네 · 후지카와구치코 → 가와구치코)', o.name.split(/[\/(]/)[0].trim());
+  if(!v) return;
+  v=v.trim(); if(!v) return;
+  ts('「'+v+'」로 다시 캐는 중…');
+  try{
+    var hd=await authHeader();
+    var H=Object.assign({'Content-Type':'application/json'}, hd||{});
+    var r=await fetch('/api/kw-survey-now',{method:'POST',credentials:'same-origin',headers:H,
+      body:JSON.stringify({step:'harvest',city_ko:o.name,name_override:v,target:'ko',market:'KR'})}).then(function(x){return x.json();});
+    if(r.ok||r.already) ts('✅ 「'+o.name+'」 — 「'+v+'」로 조사 예약됨');
+    else ts('⚠ '+(r.error||'아직 부족합니다 — 다른 이름을 써보세요'));
+  }catch(e){ ts('⚠ '+(e.message||e)); }
+  loadCities();
 }
 function ssToggle(){ SS_OPEN=!SS_OPEN; renderSurveyStatus(); }
 function ackPage(d){ SS_ACKPAGE+=d; if(SS_ACKPAGE<0) SS_ACKPAGE=0; renderSurveyStatus(); }
@@ -5598,6 +5629,7 @@ function loadCities(){
         c.cities.forEach(function(x){ INV[x.name]=x; stCityAdd(x.name,x.name_en); if(x.surveyed) SNAP_CITY[x.name]=true; });
       });
       SS_RUNNING = d.running_list || []; SS_NEWDONE = d.new_done_list || []; SS_DONE = d.done_list || [];
+      SS_SKIP = d.skipped_list || [];
       renderSurveyStatus();
       rd(); rprep(); if(cc) rc(cc);
     })

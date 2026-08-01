@@ -116,12 +116,18 @@ export default async function handler(req, res) {
     const gl = market.toLowerCase();
     // 도시명 정리: "도쿄 / 동경"·"상하이 / 상해" 처럼 슬래시·괄호 별칭이 붙으면 자동완성이 0개가 된다 → 앞 이름만 씨앗으로.
     const seedCity = ((cityKo.split(/[\/(]/)[0] || cityKo).trim()) || cityKo;
+    // 🔴 2026-08-01 대표님: *"여행의 가장 큰 키워드는 여행, 자유여행이잖아."*
+    //    씨앗이 「호텔·숙소·여행」 3개뿐이라 「자유여행」을 아예 캐지 않고 있었다.
+    //    붙여쓰기 짝도 숙박축에만 있어서 「샿포로여행」 같은 붙은 형태를 못 봤다.
+    //    한국말은 띄어쓰기에 따라 검색량이 달라진다 — 둘 다 재야 한다.
     const seeds = [
       { q: `${seedCity} 호텔`, axis: 'stay' },
       { q: `${seedCity} 숙소`, axis: 'stay' },
       { q: `${seedCity} 여행`, axis: 'travel' },
+      { q: `${seedCity} 자유여행`, axis: 'travel' },
     ];
-    const joinedSeeds = [`${seedCity}호텔`, `${seedCity}숙소`];
+    // 붙여쓴 짝은 「있는지 확인」용이라 자모 발굴까지 할 필요가 없다(호출 수 절약 → 429 회피).
+    const joinedSeeds = [`${seedCity}호텔`, `${seedCity}숙소`, `${seedCity}여행`, `${seedCity}자유여행`];
     const seen = new Set();
     const mains = [];          // { text(띄어쓰기), axis }
     const joinedSet = new Set();
@@ -134,17 +140,20 @@ export default async function handler(req, res) {
           if (t && t.includes(seedCity) && t.includes(' ') && !seen.has(t)) { seen.add(t); mains.push({ text: t, axis: s.axis }); }
         }
       }
-      for (const q of joinedSeeds) {            // 붙여쓴 짝 후보 발굴
+      for (const q of joinedSeeds) {            // 붙여쓴 짝 후보 — 자동완성 1회씩만(자모 발굴 안 함)
         let f = [];
-        try { f = await harvest(q, 1, target, gl); } catch { f = []; }
+        try { f = await suggest(q, target, gl); } catch { f = []; }
+        await politeSleep();
         for (const t0 of [q].concat(f)) { const t = String(t0 || '').trim().replace(/\s+/g, ''); if (t.includes(seedCity)) joinedSet.add(t); }
       }
     } catch (e) { return res.status(200).json({ ok: false, step: 'harvest', error: '발굴 실패: ' + String(e.message || e) }); }
     if (mains.length < 2) return res.status(200).json({ ok: false, step: 'harvest', error: '자동완성에서 이 도시 검색어를 충분히 못 찾았습니다. 도시명을 확인하세요.' });
 
-    // 축별 상한: 숙박 28 · 여행 8 (숙박 주력)
-    const stayMains = mains.filter((m) => m.axis === 'stay').slice(0, 28);
-    const travelMains = mains.filter((m) => m.axis === 'travel').slice(0, 8);
+    // 축별 상한: 숙박 24 · 여행 16
+    // 🔴 2026-08-01 — 여행 상한이 8 이라 「자유여행」이 9번째로 밀려 **잘려 나가고 있었다.**
+    //    샿포로 화면에 여행 검색어가 정확히 8개만 뜼던 이유다. 여행은 수요가 큰 축이니 더 받는다.
+    const stayMains = mains.filter((m) => m.axis === 'stay').slice(0, 24);
+    const travelMains = mains.filter((m) => m.axis === 'travel').slice(0, 16);
     const capped = stayMains.concat(travelMains);
 
     // 일반 검색어 판별 (호텔 고유명과 가르기)
@@ -167,6 +176,7 @@ export default async function handler(req, res) {
       const kind = isAnchor ? 'city_head' : (isGeneric(m.text) ? 'city_sub' : 'hotel');
       rows.push({ ...base, text: m.text, axis: m.axis, kind, is_anchor: isAnchor, morph_axis: null });
       // 붙여쓰기 짝: 일반 검색어이고 붙여쓴 형태가 자동완성에 살아있으면 짝으로 함께
+      // (숙박·여행 둘 다 해당 — 「샿포로여행」도 「샿포로호텔」처럼 따로 잰다)
       const j = m.text.replace(/\s+/g, '');
       if (isGeneric(m.text) && joinedSet.has(j) && !pushed.has(j)) {
         pushed.add(j);
@@ -179,7 +189,7 @@ export default async function handler(req, res) {
     //    미달이면 저장 안 하고 city_alias 를 지워 「미조사」로 되돌린다 → "완성"으로 안 넘어간다.
     const stayN = rows.filter((r) => r.axis === 'stay').length;
     const travelN = rows.filter((r) => r.axis === 'travel').length;
-    if (rows.length < 12 || stayN < 6 || travelN < 1) {
+    if (rows.length < 12 || stayN < 6 || travelN < 2) {   /* 여행이 1개만 나오면 사실상 발굴 실패다 */
       try { await sb.from('city_alias').delete().eq('target_code', target).eq('city_key', ck); } catch { /* 무시 */ }
       // 봇이 이 도시를 계속 재시도하지 않도록 건너뛰기 목록에 기록 (도시명 고치면 풀 수 있음)
       try {
@@ -187,7 +197,7 @@ export default async function handler(req, res) {
       } catch { /* 무시 */ }
       return res.status(200).json({ ok: false, step: 'harvest', insufficient: true, city_key: ck,
         harvested: rows.length, stay: stayN, travel: travelN,
-        error: `발굴 불량 — 검색어 ${rows.length}개(숙박 ${stayN}·여행 ${travelN})로 기준(총≥12·숙박≥6·여행≥1) 미달. 도시명 "${cityKo}" 확인 필요. 저장 안 함(건너뛰기 등록).` });
+        error: `발굴 불량 — 검색어 ${rows.length}개(숙박 ${stayN}·여행 ${travelN})로 기준(총≥12·숙박≥6·여행≥2) 미달. 도시명 "${cityKo}" 확인 필요. 저장 안 함(건너뛰기 등록).` });
     }
 
     // 이미 있는 text 는 빼고 삽입(유령 중복 방지)

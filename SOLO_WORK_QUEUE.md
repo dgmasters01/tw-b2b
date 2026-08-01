@@ -39,22 +39,6 @@
 
 ---
 
-### C. 🟢 AUTO — [자동] 작업 295건 중 8건에 출처가 없어요 (자동 동기화 봇 멈춤 위험)
-
-**ID**: `BL-AUTO-TASKS-SCHEMA-8MISSING`  
-**카테고리**: infrastructure  
-**예상 시간**: 1시간  
-
-**메모**: 점검 봇 자동 등록 (2026-07-15T09:21:56.792Z)
-
-check_name: tasks_schema
-status: red
-detail: 작업 295건 중 8건에 출처가 없어요 (자동 동기화 봇 멈춤 위험)
-
-진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 green으로 박으면 자동 done.
-
----
-
 ## 🟡 P1 — 데드라인 이전에 있으면 좋음
 
 ### A. 🟢 AUTO — [YouTube 더보기 단축 URL 클릭 카운트] 호텔별 진성 관심 측정 시스템
@@ -194,7 +178,17 @@ detail: 관리자 페이지 5개가 원본과 살짝 달라요 (대표님이 일
 
 ---
 
-### K. 🟡 SEMI — [신규 호텔 영문명 자동 채움] 예약이 없는 새 호텔은 영문명이 빈칸 — 아고다 hotelId 조회로 자동 채우기(창구 버그는 수정 완료, 실제로 이름 받아옴)
+### K. 🟡 SEMI — [한국 호텔 분모 0] 아고다 한국어 파일에 국내 호텔이 0건 — 서울 4개 구·부산 등 성급 분포 분모가 비어 미개척을 못 잰다. 영어(EN) 파일에 있는지 확인해 채우기
+
+**ID**: `BL-KR-HOTEL-FEED`  
+**카테고리**: bugfix  
+**예상 시간**: 미정시간  
+
+**메모**: 우리 예약 88건 있는 시장. agoda_file_source 표의 EN 주소로 확인. 실측: 한국어 KO 파일 country='한국' 0건.
+
+---
+
+### L. 🟡 SEMI — [신규 호텔 영문명 자동 채움] 예약이 없는 새 호텔은 영문명이 빈칸 — 아고다 hotelId 조회로 자동 채우기(창구 버그는 수정 완료, 실제로 이름 받아옴)
 
 **ID**: `BL-HOTEL-NAME-EN-AUTO`  
 **카테고리**: feature  
@@ -204,7 +198,7 @@ detail: 관리자 페이지 5개가 원본과 살짝 달라요 (대표님이 일
 
 ---
 
-### L. 🟡 SEMI — [관리자 호텔 상세 분석] 매니저 분석 미러링 + 수수료 노출 + 탭(개요·채널·패턴·예약상세)
+### M. 🟡 SEMI — [관리자 호텔 상세 분석] 매니저 분석 미러링 + 수수료 노출 + 탭(개요·채널·패턴·예약상세)
 
 **ID**: `BL-ADMIN-HOTEL-DETAIL`  
 **카테고리**: feature  
@@ -214,7 +208,7 @@ detail: 관리자 페이지 5개가 원본과 살짝 달라요 (대표님이 일
 
 ---
 
-### M. 🟡 SEMI — OS 설치 시 PAT/시크릿 자동 박기 흐름 — install_os.sh 보강
+### N. 🟡 SEMI — OS 설치 시 PAT/시크릿 자동 박기 흐름 — install_os.sh 보강
 
 **ID**: `BL-OS-INSTALL-PAT-FLOW`  
 **카테고리**: infra  
@@ -226,7 +220,7 @@ detail: 관리자 페이지 5개가 원본과 살짝 달라요 (대표님이 일
 
 ---
 
-### N. 🟡 SEMI — [자동 메일 12개 영어 default] 한국 매니저만 한국어 분기
+### O. 🟡 SEMI — [자동 메일 12개 영어 default] 한국 매니저만 한국어 분기
 
 **ID**: `BL-EMAIL-LOCALE-ROUTING`  
 **카테고리**: feature  
@@ -236,7 +230,7 @@ detail: 관리자 페이지 5개가 원본과 살짝 달라요 (대표님이 일
 
 ---
 
-### O. 🟡 SEMI — [호텔 좌표·지역 자동 채우기] 구글 플레이스로 호텔 3,185개 좌표·지역 판정 — 키워드 '지역축'의 뿌리
+### P. 🟡 SEMI — [호텔 좌표·지역 자동 채우기] 구글 플레이스로 호텔 3,185개 좌표·지역 판정 — 키워드 '지역축'의 뿌리
 
 **ID**: `BL-HOTEL-GEO`  
 **카테고리**: feature  
@@ -321,7 +315,17 @@ DECISIONS.md 변경 감지 → DECISIONS_INDEX.md 자동 갱신. ID 고정 불�
 
 ---
 
-### H. 🟡 SEMI — 호텔 스토리 / LTV 추적
+### H. 🟡 SEMI — [지역 검색어가 거의 없음] 하카타 검색어 1개뿐 — 지역 단위로 따로 캐지 않고 도시 검색어에 지역명이 우연히 든 것만 쓴다(난바 17 vs 하카타 1). 지역 발굴 방식 결정 필요
+
+**ID**: `BL-DISTRICT-KEYWORD`  
+**카테고리**: bugfix  
+**예상 시간**: 미정시간  
+
+**메모**: 지역까지 전부 캐면 도시당 수십 개 지역 × 자동완성 호출 = 429 위험. 후보: ①콘텐츠 만들 지역만 그때 캔다(지금도 [＋조사 추가]로 가능) ②상위 3~5개 지역만 자동. 대표님 판단 필요.
+
+---
+
+### I. 🟡 SEMI — 호텔 스토리 / LTV 추적
 
 **ID**: `BL-006`  
 **카테고리**: dev  
@@ -331,7 +335,7 @@ DECISIONS.md 변경 감지 → DECISIONS_INDEX.md 자동 갱신. ID 고정 불�
 
 ---
 
-### I. 🟡 SEMI — 호텔 검색 UX 이슈
+### J. 🟡 SEMI — 호텔 검색 UX 이슈
 
 **ID**: `BL-008`  
 **카테고리**: ux  
@@ -341,7 +345,7 @@ DECISIONS.md 변경 감지 → DECISIONS_INDEX.md 자동 갱신. ID 고정 불�
 
 ---
 
-### J. 🟡 SEMI — Admin Console UI 버그
+### K. 🟡 SEMI — Admin Console UI 버그
 
 **ID**: `BL-009`  
 **카테고리**: bug  
@@ -351,7 +355,7 @@ DECISIONS.md 변경 감지 → DECISIONS_INDEX.md 자동 갱신. ID 고정 불�
 
 ---
 
-### K. 🟡 SEMI — Chrome 안전 브라우징 경고
+### L. 🟡 SEMI — Chrome 안전 브라우징 경고
 
 **ID**: `BL-010`  
 **카테고리**: ux  
@@ -361,7 +365,7 @@ DECISIONS.md 변경 감지 → DECISIONS_INDEX.md 자동 갱신. ID 고정 불�
 
 ---
 
-### L. 🟡 SEMI — [admin Members 탭 국가별 필터] 동남아 그룹 강조
+### M. 🟡 SEMI — [admin Members 탭 국가별 필터] 동남아 그룹 강조
 
 **ID**: `BL-ADMIN-COUNTRY-FILTER`  
 **카테고리**: feature  
@@ -371,7 +375,7 @@ DECISIONS.md 변경 감지 → DECISIONS_INDEX.md 자동 갱신. ID 고정 불�
 
 ---
 
-### M. 🟡 SEMI — [영수증 PDF 5년 영구 보관] Supabase + S3 백업
+### N. 🟡 SEMI — [영수증 PDF 5년 영구 보관] Supabase + S3 백업
 
 **ID**: `BL-RECEIPT-ARCHIVE`  
 **카테고리**: infra  
@@ -381,7 +385,7 @@ DECISIONS.md 변경 감지 → DECISIONS_INDEX.md 자동 갱신. ID 고정 불�
 
 ---
 
-### N. 🟡 SEMI — [이벤트 사이트 고객 회원가입 + 마케팅 동의 DB] 고객 자산화
+### O. 🟡 SEMI — [이벤트 사이트 고객 회원가입 + 마케팅 동의 DB] 고객 자산화
 
 **ID**: `BL-EVENT-CUSTOMER-DB`  
 **카테고리**: feature  
@@ -391,7 +395,7 @@ DECISIONS.md 변경 감지 → DECISIONS_INDEX.md 자동 갱신. ID 고정 불�
 
 ---
 
-### O. 🟡 SEMI — [이벤트 사이트 호텔 대리 결제] Agoda affiliate 또는 직접 결제
+### P. 🟡 SEMI — [이벤트 사이트 호텔 대리 결제] Agoda affiliate 또는 직접 결제
 
 **ID**: `BL-EVENT-PAYMENT-PROXY`  
 **카테고리**: payment  
@@ -401,7 +405,7 @@ DECISIONS.md 변경 감지 → DECISIONS_INDEX.md 자동 갱신. ID 고정 불�
 
 ---
 
-### P. 🟡 SEMI — [이벤트 송출 호텔 알림 + admin 송출 관리 탭]
+### Q. 🟡 SEMI — [이벤트 송출 호텔 알림 + admin 송출 관리 탭]
 
 **ID**: `BL-EVENT-HOTEL-NOTIFY`  
 **카테고리**: feature  
@@ -411,7 +415,7 @@ DECISIONS.md 변경 감지 → DECISIONS_INDEX.md 자동 갱신. ID 고정 불�
 
 ---
 
-### Q. 🟡 SEMI — [화면 라벨 정리] 사이드바 메뉴 사업 본질 맞춤 + 영한 토글 전수 점검
+### R. 🟡 SEMI — [화면 라벨 정리] 사이드바 메뉴 사업 본질 맞춤 + 영한 토글 전수 점검
 
 **ID**: `BL-ADMIN-LABEL-CLEANUP`  
 **카테고리**: ui  
@@ -443,7 +447,17 @@ DECISIONS.md 변경 감지 → DECISIONS_INDEX.md 자동 갱신. ID 고정 불�
 
 ---
 
-### C. 🟡 SEMI — [프리뷰·고아 페이지 정리] studio-*-preview 5개는 studio.html에 반영 완료 · 어디서도 안 걸리는 페이지 7개 확인 후 정리
+### C. 🟡 SEMI — [도쿄 긴자 5성만 우리>전체] 지역 중심에서 800m 밖에 있는 우리 호텔이 분모에 안 잡힘 — 전 지역 중 1곳뿐이나 원인 확인 필요
+
+**ID**: `BL-GINZA-RADIUS`  
+**카테고리**: bugfix  
+**예상 시간**: 미정시간  
+
+**메모**: v_district_star 반경 0.8km. 긴자 5성 우리 8 vs 전체 6. 반경을 넓히면 옆 동네가 섞이므로 신중히.
+
+---
+
+### D. 🟡 SEMI — [프리뷰·고아 페이지 정리] studio-*-preview 5개는 studio.html에 반영 완료 · 어디서도 안 걸리는 페이지 7개 확인 후 정리
 
 **ID**: `BL-CLEANUP-PREVIEW`  
 **카테고리**: bugfix  
@@ -453,7 +467,7 @@ DECISIONS.md 변경 감지 → DECISIONS_INDEX.md 자동 갱신. ID 고정 불�
 
 ---
 
-### D. 🟡 SEMI — OS 봇 스크립트 — repo root 동적 산출 (위치 의존성 제거)
+### E. 🟡 SEMI — OS 봇 스크립트 — repo root 동적 산출 (위치 의존성 제거)
 
 **ID**: `BL-OS-REPO-ROOT-DYNAMIC`  
 **카테고리**: infra  
@@ -461,7 +475,7 @@ DECISIONS.md 변경 감지 → DECISIONS_INDEX.md 자동 갱신. ID 고정 불�
 
 ---
 
-### E. 🟡 SEMI — 워크플로 dead branch listening 정리 — restructure-os-modularization 통합 후 잔여
+### F. 🟡 SEMI — 워크플로 dead branch listening 정리 — restructure-os-modularization 통합 후 잔여
 
 **ID**: `BL-WORKFLOW-DEAD-BRANCH-CLEANUP`  
 **카테고리**: infra  

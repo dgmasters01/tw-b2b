@@ -5,7 +5,7 @@
 > 
 > 단일 진실 소스: `tasks.json` (v2.0)
 
-**마지막 업데이트**: 2026-07-13
+**마지막 업데이트**: 2026-08-01
 
 > 💡 **새 채팅 시작 시**: 다음 5개 문서를 먼저 보면 즉시 컨텍스트 파악 가능.
 > 
@@ -41,6 +41,35 @@
 - **카테고리**: ux
 - **상태**: in_progress
 - **ID**: `BL-STUDIO-MENU-6TAB` (출처: chat:2026-07-10 스튜디오 목적 7개 정의)
+
+---
+
+## 🔴 P0 — [수수료 리포트 반영] 최근 3개월 수익이 0원으로 보임 — 아고다 수수료(Earnings) 리포트 필요
+
+- **자율성**: 🔴 BLOCKED
+- **예상 시간**: 미정시간
+- **카테고리**: feature
+- **상태**: blocked
+- **막힘 사유**: 대표님이 아고다에서 Earnings 계열 리포트 다운로드 필요
+- **ID**: `BL-BOOKING-EARNINGS-IMPORT` (출처: chat-log:2026-07-15-keyword-target-axis-and-booking-sync)
+
+---
+
+## 🟢 P0 — [자동] 작업 295건 중 8건에 출처가 없어요 (자동 동기화 봇 멈춤 위험)
+
+**요약**: 점검 봇 자동 등록 (2026-07-15T09:21:56.792Z)
+
+check_name: tasks_schema
+status: red
+detail: 작업 295건 중 8건에 출처가 없어요 (자동 동기화 봇 멈춤 위험)
+
+진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 green으로 박으면 자동
+
+- **자율성**: 🟢 AUTO
+- **예상 시간**: 1시간
+- **카테고리**: infrastructure
+- **상태**: pending
+- **ID**: `BL-AUTO-TASKS-SCHEMA-8MISSING` (출처: auto_from_tasks_schema)
 
 ---
 
@@ -336,6 +365,64 @@ detail: 관리자 페이지 3개가 원본과 살짝 달라요 (대표님이 일
 
 ---
 
+## ⚡ P1 — [호텔 좌표·지역 자동 채우기] 구글 플레이스로 호텔 3,185개 좌표·지역 판정 — 키워드 '지역축'의 뿌리
+
+- **자율성**: 🟡 SEMI
+- **예상 시간**: 미정시간
+- **카테고리**: feature
+- **상태**: in_progress
+- **ID**: `BL-HOTEL-GEO` (출처: chat-log:2026-07-15-keyword-target-axis-and-booking-sync)
+
+---
+
+## 🟢 P1 — [자동] 관리자 페이지 4개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요)
+
+**요약**: 점검 봇 자동 등록 (2026-07-18T08:16:42.415Z)
+
+check_name: admin_baseline
+status: yellow
+detail: 관리자 페이지 4개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요)
+
+진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 gr
+
+- **자율성**: 🟢 AUTO
+- **예상 시간**: 1시간
+- **카테고리**: infrastructure
+- **상태**: pending
+- **ID**: `BL-AUTO-ADMIN-BASELINE-4FILES` (출처: auto_from_admin_baseline)
+
+---
+
+## 🟢 P1 — [자동] 관리자 페이지 5개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요)
+
+**요약**: 점검 봇 자동 등록 (2026-07-27T06:29:00.639Z)
+
+check_name: admin_baseline
+status: yellow
+detail: 관리자 페이지 5개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요)
+
+진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 gr
+
+- **자율성**: 🟢 AUTO
+- **예상 시간**: 1시간
+- **카테고리**: infrastructure
+- **상태**: pending
+- **ID**: `BL-AUTO-ADMIN-BASELINE-5FILES` (출처: auto_from_admin_baseline)
+
+---
+
+## 🟡 P2 — [다른 언어 키워드 조사 켜기] 대표님 「시작할 때 체크하자」 — 켤 때 6단계 점검 후 진행. 최대 걸림돌 = city_alias 언어별 도시명(지금 ko 166개뿐)
+
+**요약**: 사전(SEEDS_BY_LANG)은 ko/ja/en/zh/vi/th 6개 미리 넣어둠. 사전 없는 언어는 조사 거부됨. 지금 조사는 전부 ko/KR 하나(검색어 2,767개·81곳). 베트남어는 자동완성이 엉성해 대부분 건너뛸 전망 — 그게 정상. 채널 언어 6개라고 조사도 6개일 필요 없음, 예약 붙는 언어부터.
+
+- **자율성**: 🟡 SEMI
+- **예상 시간**: 미정시간
+- **카테고리**: feature
+- **상태**: pending
+- **ID**: `BL-KW-MULTILANG` (출처: claude)
+
+---
+
 ## 🟢 P2 — [DECISIONS_INDEX.md 자동 동기화] sync_engine 보강
 
 **요약**: [완료 요약]
@@ -623,6 +710,18 @@ DECISIONS.md 변경 감지 → DECISIONS_INDEX.md 자동 갱신. ID 고정 불�
 - **카테고리**: ux
 - **상태**: pending
 - **ID**: `BL-YT-VIEWS-COLLECT` (출처: chat:2026-07-10 스튜디오 목적 7개 정의)
+
+---
+
+## 🟡 P3 — [프리뷰·고아 페이지 정리] studio-*-preview 5개는 studio.html에 반영 완료 · 어디서도 안 걸리는 페이지 7개 확인 후 정리
+
+**요약**: 프리뷰: channel/keyword/perf/strategy/upload-published. 고아: _admin의 decisions·decisions-index·business-charter·gohotel-overview·gohotel-manager-stages, mockup-status, admin-accept-invite(초대 링크로 직접 진입하므로 
+
+- **자율성**: 🟡 SEMI
+- **예상 시간**: 미정시간
+- **카테고리**: bugfix
+- **상태**: pending
+- **ID**: `BL-CLEANUP-PREVIEW` (출처: claude)
 
 ---
 

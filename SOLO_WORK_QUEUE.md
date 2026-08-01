@@ -3,7 +3,7 @@
 > ⚠️ **이 파일은 자동 생성됩니다.** 수동 편집하지 마세요.
 > 단일 진실 소스: `tasks.json` (v2.0)
 > **데드라인**: 2026-05-03
-> **갱신**: 2026-07-13
+> **갱신**: 2026-08-01
 > **목적**: 대표님 외근/자리비움 시 Claude 자율 처리 가능 작업
 
 ## 작업 분류 체계
@@ -36,6 +36,22 @@
 **예상 시간**: 8시간  
 
 **메모**: 대표님이 스튜디오 목적 7개 정의 → 상단 탭 6개로 확정(사이드바 아닌 상단탭=휴대폰 대응). 메뉴명 확정: 올리기 / 성과표 / 호텔 / 키워드 / 전략 / 채널. 채널 필터는 메뉴 아래 공통. 원칙(부칙: 초등학생도 한눈에, 최대 원클릭). 앞으로 올릴 영상부터 조회수·클릭 집계(과거 영상 배제 — 링크 순서 TOP1/2/3 모름). 진행: [올리기] 목업 확정 중 — 목록형 표(원고|채널|상태|누가·언제|확인), 펼치면 복사버튼 4개(제목·설명란[해시태그·챕터 포함]·태그·파일명), 해시태그/챕터는 따로보기로 접음. 호텔 T
+
+---
+
+### C. 🟢 AUTO — [자동] 작업 295건 중 8건에 출처가 없어요 (자동 동기화 봇 멈춤 위험)
+
+**ID**: `BL-AUTO-TASKS-SCHEMA-8MISSING`  
+**카테고리**: infrastructure  
+**예상 시간**: 1시간  
+
+**메모**: 점검 봇 자동 등록 (2026-07-15T09:21:56.792Z)
+
+check_name: tasks_schema
+status: red
+detail: 작업 295건 중 8건에 출처가 없어요 (자동 동기화 봇 멈춤 위험)
+
+진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 green으로 박으면 자동 done.
 
 ---
 
@@ -146,7 +162,39 @@ detail: 관리자 페이지 3개가 원본과 살짝 달라요 (대표님이 일
 
 ---
 
-### I. 🟡 SEMI — [관리자 호텔 상세 분석] 매니저 분석 미러링 + 수수료 노출 + 탭(개요·채널·패턴·예약상세)
+### I. 🟢 AUTO — [자동] 관리자 페이지 4개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요)
+
+**ID**: `BL-AUTO-ADMIN-BASELINE-4FILES`  
+**카테고리**: infrastructure  
+**예상 시간**: 1시간  
+
+**메모**: 점검 봇 자동 등록 (2026-07-18T08:16:42.415Z)
+
+check_name: admin_baseline
+status: yellow
+detail: 관리자 페이지 4개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요)
+
+진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 green으로 박으면 자동 done.
+
+---
+
+### J. 🟢 AUTO — [자동] 관리자 페이지 5개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요)
+
+**ID**: `BL-AUTO-ADMIN-BASELINE-5FILES`  
+**카테고리**: infrastructure  
+**예상 시간**: 1시간  
+
+**메모**: 점검 봇 자동 등록 (2026-07-27T06:29:00.639Z)
+
+check_name: admin_baseline
+status: yellow
+detail: 관리자 페이지 5개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요)
+
+진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 green으로 박으면 자동 done.
+
+---
+
+### K. 🟡 SEMI — [관리자 호텔 상세 분석] 매니저 분석 미러링 + 수수료 노출 + 탭(개요·채널·패턴·예약상세)
 
 **ID**: `BL-ADMIN-HOTEL-DETAIL`  
 **카테고리**: feature  
@@ -156,7 +204,7 @@ detail: 관리자 페이지 3개가 원본과 살짝 달라요 (대표님이 일
 
 ---
 
-### J. 🟡 SEMI — OS 설치 시 PAT/시크릿 자동 박기 흐름 — install_os.sh 보강
+### L. 🟡 SEMI — OS 설치 시 PAT/시크릿 자동 박기 흐름 — install_os.sh 보강
 
 **ID**: `BL-OS-INSTALL-PAT-FLOW`  
 **카테고리**: infra  
@@ -168,13 +216,21 @@ detail: 관리자 페이지 3개가 원본과 살짝 달라요 (대표님이 일
 
 ---
 
-### K. 🟡 SEMI — [자동 메일 12개 영어 default] 한국 매니저만 한국어 분기
+### M. 🟡 SEMI — [자동 메일 12개 영어 default] 한국 매니저만 한국어 분기
 
 **ID**: `BL-EMAIL-LOCALE-ROUTING`  
 **카테고리**: feature  
 **예상 시간**: 미정시간  
 
 **메모**: Resend SMTP locale 분기. 12개 메일 템플릿 영어 + 한국어 2벌.
+
+---
+
+### N. 🟡 SEMI — [호텔 좌표·지역 자동 채우기] 구글 플레이스로 호텔 3,185개 좌표·지역 판정 — 키워드 '지역축'의 뿌리
+
+**ID**: `BL-HOTEL-GEO`  
+**카테고리**: feature  
+**예상 시간**: 미정시간  
 
 ---
 
@@ -377,7 +433,17 @@ DECISIONS.md 변경 감지 → DECISIONS_INDEX.md 자동 갱신. ID 고정 불�
 
 ---
 
-### C. 🟡 SEMI — OS 봇 스크립트 — repo root 동적 산출 (위치 의존성 제거)
+### C. 🟡 SEMI — [프리뷰·고아 페이지 정리] studio-*-preview 5개는 studio.html에 반영 완료 · 어디서도 안 걸리는 페이지 7개 확인 후 정리
+
+**ID**: `BL-CLEANUP-PREVIEW`  
+**카테고리**: bugfix  
+**예상 시간**: 미정시간  
+
+**메모**: 프리뷰: channel/keyword/perf/strategy/upload-published. 고아: _admin의 decisions·decisions-index·business-charter·gohotel-overview·gohotel-manager-stages, mockup-status, admin-accept-invite(초대 링크로 직접 진입하므로 정상일 수 있음 — 지우기 전 확인).
+
+---
+
+### D. 🟡 SEMI — OS 봇 스크립트 — repo root 동적 산출 (위치 의존성 제거)
 
 **ID**: `BL-OS-REPO-ROOT-DYNAMIC`  
 **카테고리**: infra  
@@ -385,7 +451,7 @@ DECISIONS.md 변경 감지 → DECISIONS_INDEX.md 자동 갱신. ID 고정 불�
 
 ---
 
-### D. 🟡 SEMI — 워크플로 dead branch listening 정리 — restructure-os-modularization 통합 후 잔여
+### E. 🟡 SEMI — 워크플로 dead branch listening 정리 — restructure-os-modularization 통합 후 잔여
 
 **ID**: `BL-WORKFLOW-DEAD-BRANCH-CLEANUP`  
 **카테고리**: infra  

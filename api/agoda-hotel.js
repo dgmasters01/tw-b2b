@@ -47,15 +47,12 @@ export default async function handler(req, res) {
       checkOutDate: outDate
     };
 
-    // hotelId가 있으면 cityId도 필요
+    // 🔴 2026-08-01 — 여기가 **거꾸로 된 채** 있었다.
+    //   여태감 "hotelId 를 쓰려면 cityId 도 있어야 한다"고 막고, 둘 다 실어 보냈다.
+    //   그런데 아고다는 **둘 중 하나만** 받는다 — 둘 다 주면 906 오류로 튀긴다.
+    //   그래서 이 창구는 지금까지 **어느 화면도 안 쓰고 있었다**(쓰면 반드시 실패).
+    //   → hotelId 가 있으면 hotelId 만, 없으면 cityId 만 보낸다.
     if (hotelId) {
-      if (!cityId) {
-        return res.status(400).json({
-          error: 'cityId is required when hotelId is provided',
-          hint: 'Agoda Long-tail API requires both hotelId and cityId'
-        });
-      }
-      criteria.cityId = cityId;
       criteria.hotelId = Array.isArray(hotelId) ? hotelId : [hotelId];
     } else if (cityId) {
       criteria.cityId = cityId;

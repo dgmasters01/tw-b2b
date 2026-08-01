@@ -58,18 +58,22 @@ jobs:
           if [[ -n $(git status --porcelain _os/service-map.md) ]]; then
             git add _os/service-map.md
             git commit -m "[system-manual-bot] _os/service-map.md 자동 재생성 [변경사유: 5개 데이터 소스 중 하나 변경 감지]"
-            # Race condition 방어: 다른 봇이 그 사이에 push했을 수 있음 (헌법 부칙 8)
-            for i in 1 2 3; do
-              git pull --rebase origin main || true
+            # 🔴 2026-08-02 — 재시도 3회·3초로는 부족해 **실패 메일이 갔다.**
+            #   tasks.json · service-map.md 는 여러 봇과 사람이 같이 건드려 부딪힐 수밖에 없다.
+            #   → 8회로 늘리고 간격을 점점 벌린다(2→4→6…초).
+            for i in 1 2 3 4 5 6 7 8; do
+              git pull --rebase origin main || git rebase --abort || true
               if git push origin main; then
                 echo "✅ service-map.md 갱신 완료 (시도 $i)"
                 exit 0
               fi
-              echo "⚠️ push 충돌 — 재시도 ($i/3)"
-              sleep 3
+              echo "⚠️ push 충돌 — 재시도 ($i/8)"
+              sleep $((i * 2))
             done
-            echo "❌ 3회 시도 실패"
-            exit 1
+            # 🔴 여기까지 왔다면 설명서만 못 밀어넣은 것이다. 다음 변경 때 다시 돈다.
+            #   그걸로 빨간불을 켜면 대표님에게 **쓸데없는 실패 메일**만 간다. 경고만 남긴다.
+            echo "::warning::service-map.md push 실패(8회) — 다음 변경 때 다시 시도합니다."
+            exit 0
           else
             echo "변경사항 없음 — skip"
           fi

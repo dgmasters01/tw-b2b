@@ -22,6 +22,7 @@
 //       단 이미 published 인 줄은 건드리지 않는다 (유튜브에 이미 올라갔다).
 
 import { createClient } from '@supabase/supabase-js';
+import { resolveRanks, resolveNames } from './_lib/hotel-rank.js';   // 🔴 순위는 순서가 아니라 원고 글자로 정한다
 import { cacheGet, cacheSet, cacheBust } from './_lib/api-cache.js';
 
 export const config = { maxDuration: 60 };
@@ -99,58 +100,6 @@ async function readBody(req) {
 }
 
 /** 코드 자동발급 (D-066·D-067): {채널}-{4자리} 채널별 연번. content_queue 기준 max+1. */
-/* 클릭 추적 짧은 주소의 앞부분. 도메인이 바뀌면 여기만 고친다. */
-const R_BASE = process.env.TRACK_BASE_URL || 'https://gohpik.com';
-
-/**
- * 클릭 추적 자리(R코드)를 만든다 — TOP1·2·3 세 자리.
- *
- * 왜 (2026-07-27 · 대표님 발견):
- *   추적 되돌림(api/r.js)과 클릭 장부(content_clicks)는 있는데
- *   **자리를 만드는 코드가 어디에도 없었다.** 기존 3편은 손으로 넣은 것이었다.
- *   그래서 HT-0002 의 설명란에 아고다 원본 링크가 그대로 나갔고 — 클릭이 안 세진다.
- *
- * 무엇을 하나: 발행물 하나에 R코드 3개를 붙인다. 이미 있으면 그대로 둔다(두 번 안 만든다).
- * 반환: { 'R-00010': 'https://gohpik.com/r/R-00010', ... } 자리 → 짧은 주소
- */
-async function ensureRCodes(sb, pub) {
-  if (!pub || !pub.id) return {};
-  const links = Array.isArray(pub.agoda_links) ? pub.agoda_links : [];
-  const hids = [pub.hid_top1, pub.hid_top2, pub.hid_top3];
-  if (!hids[0] || !hids[1] || !hids[2]) return {};          // 링크가 셋 다 있어야 자리를 만든다
-
-  const { data: exist } = await sb.from('content_clicks')
-    .select('r_code, rank, hid_agoda').eq('publication_id', pub.id).order('rank');
-  const out = {};
-  const have = {};
-  for (const e of (exist || [])) { have[e.rank] = e; out[e.r_code] = R_BASE + '/r/' + e.r_code; }
-  if (Object.keys(have).length >= 3) return out;             // 이미 다 있다
-
-  /* 다음 번호. R-00001 부터 이어 붙인다. */
-  const { data: mx } = await sb.from('content_clicks').select('r_code').order('r_code', { ascending: false }).limit(1);
-  let seq = (mx && mx[0] && mx[0].r_code) ? parseInt(String(mx[0].r_code).slice(2), 10) : 0;
-
-  const rows = [];
-  for (let rank = 1; rank <= 3; rank += 1) {
-    if (have[rank]) continue;
-    seq += 1;
-    const rCode = 'R-' + String(seq).padStart(5, '0');
-    /* 되돌려 보낼 아고다 주소 — 원고 링크를 그대로 쓴다. 없으면 cid·hid 로 만든다. */
-    const url = links[rank - 1]
-      || `https://www.agoda.com/partners/partnersearch.aspx?pcs=1&cid=${pub.cid}&hl=ko-kr&hid=${hids[rank - 1]}`;
-    rows.push({
-      r_code: rCode, publication_id: pub.id, hid_agoda: String(hids[rank - 1]),
-      rank, channel_code: pub.channel_code, agoda_url: url, clicks: 0,
-    });
-    out[rCode] = R_BASE + '/r/' + rCode;
-  }
-  if (rows.length) {
-    const { error } = await sb.from('content_clicks').insert(rows);
-    if (error) throw new Error('R코드 발급 실패: ' + error.message);
-  }
-  return out;
-}
-
 async function nextContentCode(sb, channelCode) {
   const prefix = channelCode;
   const { data } = await sb.from('content_queue')
@@ -298,33 +247,33 @@ export default async function handler(req, res) {
         return res.status(400).json({ ok: false, error: `cid ${cids[0]} 는 ${map.channel_code} 채널 것입니다. 이 원고는 ${cur.channel_code} 입니다.` });
       }
 
-      /* 🔴 2026-07-27 신설: 링크 순서와 원고 이름 순서가 어긋나면 화면이 **다른 호텔 이름**을 보여준다.
-         (실제 사고: HG-0001 의 TOP1·TOP3 이름이 서로 바뀌어 KOKO 가 「호텔 라 포레스타」로 떴다)
-         아고다 원본 이름(bookings_agoda)과 원고 이름을 대조해 어긋나면 **경고**한다. */
-      try {
-        const names = Array.isArray(cur.hotel_names) ? cur.hotel_names : [];
-        if (names.length >= 3) {
-          const { data: bnm } = await sb.from('bookings_agoda')
-            .select('hotel_id_agoda, hotel_name').in('hotel_id_agoda', hids.slice(0, 3));
-          const agodaBy = {};
-          (bnm || []).forEach((r) => { if (!agodaBy[String(r.hotel_id_agoda)]) agodaBy[String(r.hotel_id_agoda)] = r.hotel_name; });
-          for (let i = 0; i < 3; i += 1) {
-            const an = agodaBy[String(hids[i])];
-            if (!an) continue;                                   // 예약이 없는 호텔은 대조할 근거가 없다
-            const key = String(an).toLowerCase().replace(/[^a-z0-9]/g, '');
-            const mine = String(names[i] || '').toLowerCase().replace(/[^a-z0-9]/g, '');
-            // 로마자 조각이 하나도 안 겹치면 순서가 어긋났을 가능성이 크다
-            if (key && mine && key.slice(0, 4) !== mine.slice(0, 4) && !mine.includes(key.slice(0, 4))) {
-              warn.push(`TOP${i + 1} 링크(hid ${hids[i]} = ${an})와 원고 ${i + 1}번째 호텔(${names[i]})이 다릅니다. 링크 순서를 확인하세요.`);
-            }
-          }
+      // 🔴 2026-08-01 — 예전엔 `hid_top1: hids[0]` 처럼 **붙여넣은 순서**를 순위로 썼다.
+      //   그러나 우리 원고는 **탑쓰리부터** 소개한다 → 정확히 거꾸로 박혔다(HT-0002 실증).
+      //   유료 호텔에게 "TOP1 으로 소개됐습니다"라고 거짓말을 하게 된다.
+      //   → 원고 본문의 「탑원/탑투/탑쓰리」 글자로 정한다. 모호하면 **저장하지 않는다**.
+      let top = { 1: hids[0], 2: hids[1], 3: hids[2] };
+      let rankNote = '⚠ 원고 본문이 없어 붙인 순서대로 넣었습니다 — 순위를 사람이 확인하세요.';
+      const srcText = [cur.manuscript_text, links_text].filter(Boolean).join('\n');
+      if (srcText.trim()) {
+        const rr = resolveRanks(srcText);
+        if (rr.ok) {
+          top = { 1: rr.top1, 2: rr.top2, 3: rr.top3 };
+          rankNote = null;
+          const sameSet = new Set([rr.top1, rr.top2, rr.top3]);
+          for (const h of hids.slice(0, 3)) if (!sameSet.has(String(h))) warn.push(`링크 hid=${h} 가 원고 순위에 없습니다.`);
+          if (String(hids[0]) !== rr.top1) warn.push(`붙인 순서와 원고 순위가 다릅니다 — **원고 기준**으로 저장합니다. TOP1=${rr.top1} · TOP2=${rr.top2} · TOP3=${rr.top3}`);
+        } else {
+          return res.status(400).json({ ok: false, error: '순위를 확정할 수 없습니다. 원고에 탑원·탑투·탑쓰리(또는 TOP1·2·3) 표시가 있어야 합니다.', problems: rr.problems });
         }
-      } catch (e) { /* 대조 실패해도 저장은 막지 않는다 */ }
-
-      const { data, error } = await sb.from('publications').update({
-        hid_top1: hids[0], hid_top2: hids[1], hid_top3: hids[2],
+      }
+      if (rankNote) warn.push(rankNote);
+      const nm = srcText.trim() ? resolveNames(srcText) : {};
+      const upd = {
+        hid_top1: top[1], hid_top2: top[2], hid_top3: top[3],
         agoda_links: found.slice(0, 3), updated_at: new Date().toISOString(),
-      }).eq('id', id).select().single();
+      };
+      if (nm[1] || nm[2] || nm[3]) upd.hotel_names = [1, 2, 3].map((i) => (nm[i] ? nm[i].ko : null));
+      const { data, error } = await sb.from('publications').update(upd).eq('id', id).select().single();
       if (error) return res.status(500).json({ ok: false, error: error.message });
       return res.status(200).json({ ok: true, row: data, warnings: warn, note: '설명란을 다시 만들려면 원고를 다시 넣어주세요.' });
     }
@@ -381,27 +330,9 @@ export default async function handler(req, res) {
     const { data: dup } = await sb.from('publications').select('id').eq('youtube_video_id', vid).neq('id', id);
     if (dup && dup.length) return res.status(409).json({ ok: false, error: '이 영상은 이미 다른 원고에 등록돼 있습니다.' });
 
-    /* 🔴 2026-07-31: 「주소를 등록한 시각」을 발행일로 찍고 있었다.
-       예약 공개(오늘 저녁 7시 15분)인데 낮에 등록하면 **이미 공개된 것으로 기록**된다.
-       → 그러면 아직 아무도 못 본 링크의 클릭이 실적으로 세진다(대표님 발견).
-       유튜브에 «진짜 공개 시각»을 물어서 그것을 쓴다. 못 물으면 지금 시각(지금까지와 같음). */
-    let pubAt = new Date().toISOString();
-    try {
-      const ytKey = process.env.YOUTUBE_API_KEY || process.env.GOOGLE_PLACES_API_KEY;
-      if (ytKey) {
-        const yr = await fetch(
-          `https://www.googleapis.com/youtube/v3/videos?part=snippet,status&id=${vid}&key=${ytKey}`);
-        const yj = await yr.json();
-        const it = yj?.items?.[0];
-        /* 예약 공개면 publishAt(예정 시각), 이미 공개면 publishedAt(공개된 시각) */
-        const at = it?.status?.publishAt || it?.snippet?.publishedAt;
-        if (at) pubAt = new Date(at).toISOString();
-      }
-    } catch (e) { /* 못 물어도 등록은 막지 않는다 */ }
-
     const { data, error } = await sb.from('publications').update({
       youtube_url, youtube_video_id: vid, status: 'published',
-      published_at: pubAt, updated_at: new Date().toISOString(),
+      published_at: new Date().toISOString(), updated_at: new Date().toISOString(),
       published_by: me, published_by_email: myMail,
     }).eq('id', id).eq('status', 'draft').select().maybeSingle();
 
@@ -551,34 +482,6 @@ export default async function handler(req, res) {
       });
       saved.code = newCode;
     } catch (e) { warnings.push('전략 큐 자동 등록에 실패했습니다(발행 자체는 정상): ' + String(e.message || e)); }
-  }
-
-  /* 🔗 클릭 추적 자리(R코드) 발급 + 설명란의 아고다 링크를 짧은 주소로 바꾼다.
-     이걸 안 하면 설명란에 아고다 원본이 그대로 나가고 **클릭이 한 건도 안 세진다.** (2026-07-27) */
-  try {
-    const rmap = await ensureRCodes(sb, saved);
-    const rCodes = Object.keys(rmap);
-    if (rCodes.length && saved.description) {
-      let desc = String(saved.description);
-      const hids = [saved.hid_top1, saved.hid_top2, saved.hid_top3];
-      /* 자리(rank)별로 그 hid 가 든 아고다 주소만 바꾼다. 순서가 아니라 hid 로 맞춘다. */
-      const { data: cc } = await sb.from('content_clicks')
-        .select('r_code, rank, hid_agoda').eq('publication_id', saved.id).order('rank');
-      for (const row of (cc || [])) {
-        const short = R_BASE + '/r/' + row.r_code;
-        /* 주소 끝에 붙은 문장부호(닫는 괄호·마침표·쉼표)는 주소가 아니다 — 남긴다.
-           안 그러면 「(예약: …65806)」 의 닫는 괄호가 통째로 사라진다. (2026-07-31) */
-        const re = new RegExp('https?://[^\\s"\'<>\\]]*agoda[^\\s"\'<>\\]]*hid=' + row.hid_agoda + '(?![0-9])[^\\s"\'<>\\]),.]*', 'gi');
-        desc = desc.replace(re, short);
-      }
-      if (desc !== saved.description) {
-        await sb.from('publications').update({ description: desc }).eq('id', saved.id);
-        saved.description = desc;
-      }
-    }
-    if (rCodes.length) saved.r_codes = rCodes;
-  } catch (e) {
-    warnings.push('클릭 추적 링크를 못 붙였습니다(등록 자체는 정상): ' + String(e.message || e));
   }
 
   return res.status(200).json({ ok: true, action, id: saved.id, row: saved, warnings });

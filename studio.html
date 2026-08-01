@@ -5890,9 +5890,12 @@ function rc(c){cc=c;document.getElementById('c2t').innerHTML=stCoEn(c)+' · 도�
      '<div style="display:flex;gap:5px;margin-top:4px;flex-wrap:wrap;">'+
      '<span class="pil" style="background:'+(hasS?'var(--emd)':'var(--amd)')+';color:'+(hasS?'var(--em)':'var(--am)')+';">계절 '+(hasS?'있음':'없음')+'</span>'+
      '<span class="pil" style="background:'+(hasK?'var(--emd)':'var(--amd)')+';color:'+(hasK?'var(--em)':'var(--am)')+';">키워드 '+(hasK?'있음':'없음')+'</span>'+
+     /* 🔴 2026-08-01 대표님: *"최종조사 날짜를 리스트에도 표기해줘."*
+        「키워드 있음」만으로는 그게 언제 것인지 모른다. 난 자료일 수도 있다. */
+     ((INV[x]&&INV[x].surveyed_at)?'<span class="pil" title="마지막으로 조사한 날">\uD83D\uDD50 '+String(INV[x].surveyed_at).slice(0,10)+'</span>':'')+
      (p?'<span class="pil">작년 같은 기간보다 '+p.t+'</span>':'')+/* 🔴 `확정예약 583건`(LEAD 하드코딩) 뺐다 — 바로 윗줄이 `예약 1,008건`(DB)이라 **한 화면이 예약 수를 둘로 말했다.**
         숫자는 한 줄(stk)에서만 나온다. 박힌 숫자와 DB 숫자를 나란히 세우지 않는다. (2026-07-17 대표님 "형태 통일") */
-     (!hasS||!hasK?'<span class="pil" style="background:var(--bld);color:var(--bl);cursor:pointer;" onclick="event.stopPropagation();go(\'r\',\'필리핀\')">＋ 조사하기</span>':'')+
+     (!hasS||!hasK?'<span class="pil" style="background:var(--bld);color:var(--bl);cursor:pointer;" onclick="event.stopPropagation();svPick(\''+c+'\',\''+x+'\')">＋ 조사하기</span>':'')+
      '</div></div><span class="wb" onclick="event.stopPropagation();ev2(\''+x+'\')">왜?</span><span style="color:var(--muted);">›</span></div>';});
  document.getElementById('c2l').innerHTML=h;document.getElementById('ev2').innerHTML='';}
 /* D-065 ⑤ 그 도시 수요 트렌드 + ㊿ 여행 축 — 2026-07-17 대표님.

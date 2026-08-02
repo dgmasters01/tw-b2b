@@ -577,7 +577,7 @@ async function cities(sb, req, res, who) {
     sb.from('city_alias').select('label, city_key').eq('target_code', target).not('city_key', 'like', '%|d:%').not('city_key', 'like', '%|t:%'),
     sb.from('snapshot').select('city_key, status, acknowledged_at, finished_at, ym').eq('target_code', target).eq('market', market),
     sb.from('v_city_hotel_progress').select('city, total, with_district'),
-    sb.from('keyword').select('city_key').eq('target_code', target).eq('alive', true),
+    sb.from('keyword').select('id, city_key').eq('target_code', target).eq('alive', true),   /* id 도 받는다 — 진행률 분자에 필요 */
   ]);
   const aliases = aliasesR.data, snaps2 = snaps2R.data, hprog = hprogR.data, kwc = kwcR.data;
 
@@ -612,10 +612,28 @@ async function cities(sb, req, res, who) {
 
   const kwByKey = {};
   for (const k of kwc || []) { kwByKey[k.city_key] = (kwByKey[k.city_key] || 0) + 1; }
+
+  // 검색량까지 재 것이 몇 개인가 — 진행률의 분자다.
+  const measuredByKey = {};
+  try {
+    const { data: tr } = await sb.from('trend').select('keyword_id, measured').eq('measured', true).limit(20000);
+    const kwCity = {};
+    for (const k of kwc || []) kwCity[k.id] = k.city_key;
+    for (const t of tr || []) { const ck2 = kwCity[t.keyword_id]; if (ck2) measuredByKey[ck2] = (measuredByKey[ck2] || 0) + 1; }
+  } catch { /* 못 일으면 0 으로 둔다 */ }
+  // 🔴 2026-08-02 대표님: *"지도 0/48 이거는 머야? 리스트는 어느 정도 되었는지 확인하는 건데
+  //   지금 이거는 무슨 말인지 모르겠어."*
+  //   맞다. 「지도」는 **호텔의 지역 배정 비율**이었다 — 조사 진행과 상관없는 숫자다.
+  //   리스트에서 보고 싶은 건 「이 도시 조사가 몇 개 중 몇 개 끝났나」다.
+  //   → measured/total 을 준다. 지역 배정은 따로 둘따로 둔다(필요한 곳이 있으니).
   const progress = (ckey) => {
     const hp = hotelOf(ckey);
+    const total = kwByKey[ckey] || 0;
+    const done = measuredByKey[ckey] || 0;
     return {
-      keywords: kwByKey[ckey] || 0,
+      keywords: total,                                   // 이 도시 검색어 수
+      measured: done,                                    // 그중 검색량까지 재 것
+      pct: total ? Math.round(done / total * 100) : null, // 진행률
       hotel_total: hp ? hp.total : null,
       hotel_district: hp ? hp.with : null,
     };

@@ -312,16 +312,28 @@ export default async function handler(req, res) {
     //   그런데 기준이 「숙박 6개 이상」을 무조건 요구해서 **여행 수요가 있는 도시를 버렸다.**
     //   이름이 틀렸던 게 아니라 — 아고다 표기도 「누와라 엘리야」·「씨엠림 / 시엠립」으로 같다.
     //   → **숙박이든 여행이든 한 쪽이 충분하면 받는다.** 단, 총수는 그대로 지킨다(없는 수요를 지어내지 않는다).
-    if (rows.length < 12 || (stayN < 6 && travelN < 6)) {
+    // 🔴 2026-08-02 대표님: *"여기는 여행자가 많이 가지 않아서 키워드 자체가 작은 거잖아.
+    //   키워드가 별로 없어도 반영은 되어야지. 그래야 이런 곳을 소개해서 개척할 수도 있잖아.
+    //   기존 호텔 예약 많은 곳만 중점이 아니야. 전 세계 모든 도시를 우리가 팔 거니까."*
+    //
+    //   예전엔 **총 12개 미만이면 통째로 버렸다.** 두 가지를 혼동한 것이었다:
+    //     ① 이름을 못 알아들어 아무것도 안 나온 것  ← 진짜 문제(고쳐야 함)
+    //     ② 찾는 사람이 적어서 적게 나온 것     ← **이건 답이다. 버리면 안 된다**
+    //   → **0개일 때만** 실패로 본다. 몇 개든 나오면 저장하고 low_demand 로 표시한다.
+    //   적다는 것 자체가 「아직 아무도 안 간 곳」이라는 신호 — 개척 후보다.
+    const LOW = rows.length < 12 || (stayN < 6 && travelN < 6);
+    if (rows.length === 0) {
       try { await sb.from('city_alias').delete().eq('target_code', target).eq('city_key', ck); } catch { /* 무시 */ }
-      // 봇이 이 도시를 계속 재시도하지 않도록 건너뛰기 목록에 기록 (도시명 고치면 풀 수 있음)
       try {
-        await sb.from('survey_skip').upsert({ target_code: target, label: cityKo, reason: `발굴 불량 ${rows.length}개(숙박 ${stayN}·여행 ${travelN}) · 쓴 이름 "${seedCity}"` }, { onConflict: 'target_code,label' });
+        await sb.from('survey_skip').upsert({ target_code: target, label: cityKo,
+          reason: '이름을 못 알아들음 — 검색어 0개 · 쓴 이름 ' + seedCity }, { onConflict: 'target_code,label' });
       } catch { /* 무시 */ }
       return res.status(200).json({ ok: false, step: 'harvest', insufficient: true, city_key: ck,
-        harvested: rows.length, stay: stayN, travel: travelN,
-        error: `발굴 불량 — 검색어 ${rows.length}개(숙박 ${stayN}·여행 ${travelN})로 기준(총≥12 · 숙박≥6 또는 여행≥6) 미달. 도시명 "${cityKo}" 확인 필요. 저장 안 함(건너뛰기 등록).` });
+        harvested: 0, stay: 0, travel: 0,
+        error: '검색어를 하나도 못 찾았습니다 — 구글이 이 이름을 모릅니다. 눈에 익은 이름으로 바꿔주세요.' });
     }
+    // 몇 개라도 나왔으면 건너뛰기에서 푸고 저장한다
+    try { await sb.from('survey_skip').delete().eq('target_code', target).eq('label', cityKo); } catch { /* 무시 */ }
 
     // 이미 있는 text 는 빼고 삽입(유령 중복 방지)
     const { data: exist } = await sb.from('keyword').select('text')
@@ -333,6 +345,7 @@ export default async function handler(req, res) {
       if (iErr) return res.status(500).json({ ok: false, step: 'harvest', error: '검색어 저장 실패: ' + iErr.message });
     }
     return res.status(200).json({ ok: true, step: 'harvest', city_key: ck, harvested: rows.length, saved: fresh.length, anchor: anchorText,
+      low_demand: LOW,   /* 검색어가 적다 = 아직 사람이 적게 가는 곳. 버리지 않고 표시만 한다(개척 후보) */
       travel: rows.filter((r) => r.axis === 'travel').length, stay: rows.filter((r) => r.axis !== 'travel').length,
       pairs: rows.filter((r) => r.kind === 'joined').length, sample: rows.slice(0, 10).map((r) => r.text + (r.kind === 'joined' ? '(짝)' : '·' + r.axis)) });
   }

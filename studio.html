@@ -5548,20 +5548,28 @@ function renderSurveyStatus(){
 function prog(o){
     var kw=o.keywords||0, ms=(o.measured==null?null:o.measured), pct=o.pct;
     var line;
+    /* 🔴 2026-08-02 — 「재본 것」과 「값이 나온 것」은 다르다.
+       도쿄는 41개를 전부 재고 24개만 값이 나왔다 — 17개는 너무 작아 못 잼.
+       그건 **정상 종료**다. 59%로 보여주면 덜 끝난 것처럼 오해한다. */
+    var tr=(o.tried==null?null:o.tried), fl=o.below_floor||0;
     if(!kw) line='<span style="color:var(--muted)">검색어 아직 없음</span>';
-    else if(ms==null) line='<span style="color:var(--em)">검색어 '+kw+'개</span>';
-    else {
-      var col = (pct>=100?'var(--em)':(pct>0?'var(--am)':'var(--muted)'));
-      var bar = '<span style="display:inline-block;width:52px;height:4px;background:var(--line);border-radius:2px;vertical-align:middle;margin:0 5px;overflow:hidden;">'+
-                '<span style="display:block;height:4px;width:'+Math.max(2,Math.min(100,pct||0))+'%;background:'+col+';"></span></span>';
-      line='<span style="color:'+col+'">검색량 '+ms+' / '+kw+'개'+(pct!=null?(' ('+pct+'%)'):'')+'</span>'+bar;
+    else if(tr==null) line='<span style="color:var(--em)">검색어 '+kw+'개</span>';
+    else if(tr>=kw){
+      /* 다 재봤다 = 끝났다 */
+      line='<span style="color:var(--em)">검색어 '+kw+'개 · 다 재봤음</span>'+
+           (fl?'<span style="color:var(--muted)"> (그중 '+fl+'개는 너무 작아 숫자 안 나옴)</span>':'');
+    } else {
+      var col=(pct>0?'var(--am)':'var(--muted)');
+      var bar='<span style="display:inline-block;width:52px;height:4px;background:var(--line);border-radius:2px;vertical-align:middle;margin:0 5px;overflow:hidden;">'+
+              '<span style="display:block;height:4px;width:'+Math.max(2,Math.min(100,pct||0))+'%;background:'+col+';"></span></span>';
+      line='<span style="color:'+col+'">'+tr+' / '+kw+'개 재는 중'+(pct!=null?(' ('+pct+'%)'):'')+'</span>'+bar;
     }
     var dt=o.surveyed_at?(' <span style="color:var(--line)">·</span> <span style="color:var(--muted)">마지막 조사 '+dstr(o.surveyed_at)+'</span>'):'';
     return '<div style="font-size:10.5px;margin-top:3px;">'+line+dt+'</div>';
   }
   function row(o,right){ return '<div style="display:flex;align-items:center;gap:9px;background:var(--card2);border:0.5px solid var(--line);border-radius:8px;padding:8px 11px;margin-bottom:6px;"><div style="flex:1;cursor:pointer;" onclick="openNewDone(\''+o.name+'\',\''+o.country+'\')"><div style="font-size:12.5px;color:var(--txt);">'+o.country+' · '+o.name+'</div>'+prog(o)+'</div>'+(right||'')+'</div>'; }
   var bar='<div onclick="ssToggle()" style="cursor:pointer;display:flex;align-items:center;gap:8px;flex-wrap:wrap;border:0.5px solid var(--line);border-radius:12px;padding:11px 14px;background:var(--card);">'+
-    '<span style="font-size:12px;color:var(--muted);">봇 조사</span>'+
+    '<span style="font-size:12px;color:var(--muted);">조사 현황</span>'+
     '<span style="font-size:12.5px;color:var(--am);">남음 '+SS_RUNNING.length+'</span><span style="color:var(--line)">·</span>'+
     '<span style="font-size:12.5px;color:var(--bl);">확인할 것 '+SS_NEWDONE.length+'</span><span style="color:var(--line)">·</span>'+
     '<span style="font-size:12.5px;color:var(--em);">완성 '+SS_DONE.length+'</span>'+

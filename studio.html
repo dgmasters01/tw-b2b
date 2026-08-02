@@ -1563,7 +1563,7 @@ window.STUDIO_PHRASES = {
   '합니다.':'.',
   '🔗 연동':'🔗 Integration',
   '이 타겟':'this target',
-  '측정 중':'Measuring',
+  '진행 중':'Measuring',
   '수요 순':'By demand',
   '맡음 ·':'taken ·',
   '· 방치':'· idle',
@@ -2030,7 +2030,7 @@ window.STUDIO_PHRASES = {
   '아고다엔 있는데 우리 장부에 없음':'In Agoda but not in our ledger',
   '시작일과 끝일을 모두 골라주세요.':'Pick both a start date and an end date.',
   '성과 데이터 연동 후 채워집니다.':'Fills in after performance-data integration.',
-  '봇이 채우는 중 — 예약 많은 순':'Bot filling in — most bookings first',
+  '진행 중 — 예약 많은 순':'Bot filling in — most bookings first',
   '확정은 대표님만 할 수 있습니다':'Only the owner can confirm',
   '확인필요한 원고가 없습니다. 👍':'No manuscripts need checking. 👍',
   '짝을 채워야 두 줄로 보입니다.':'Fill in the pair to see both rows.',
@@ -5540,16 +5540,24 @@ function renderSurveyStatus(){
   el.style.display='block';
   function chip(label,n,bg,fg){ return '<div style="background:'+bg+';border-radius:8px;padding:9px 12px;flex:1;"><div style="font-size:11.5px;color:'+fg+';">'+label+'</div><div style="font-size:20px;font-weight:700;color:'+fg+';margin-top:1px;">'+n+'</div></div>'; }
   function dstr(iso){ if(!iso) return ''; var d=new Date(iso); return (d.getMonth()+1)+'/'+d.getDate(); }
-  function prog(o){
-    var kw=o.keywords||0, ht=o.hotel_total, hd=o.hotel_district;
-    var k='<span style="color:var(--em)">키워드 '+kw+'</span>';
-    var m;
-    if(ht==null||ht===0) m='<span style="color:var(--muted)">지도 —</span>';
-    else if(hd===0) m='<span style="color:#e8776b">지도 0/'+ht+' ✗</span>';
-    else if(hd<ht) m='<span style="color:var(--am)">지도 '+hd+'/'+ht+'</span>';
-    else m='<span style="color:var(--em)">지도 '+hd+'/'+ht+' ✓</span>';
-    var dt=o.surveyed_at?(' <span style="color:var(--line)">·</span> <span style="color:var(--muted)">조사 '+dstr(o.surveyed_at)+'</span>'):'';
-    return '<div style="font-size:10.5px;margin-top:3px;">'+k+' <span style="color:var(--line)">·</span> '+m+dt+'</div>';
+  /* 🔴 2026-08-02 대표님: *"지도 0/48 이거는 머야? 리스트는 어느 정도 되었는지
+     확인하는 건데 지금 이거는 무슨 말인지 모르겠어."*
+   「지도」는 호텔의 지역 배정 비율이었다 — **조사 진행과 상관없는 숫자**다.
+   리스트에서 보고 싶은 건 「이 도시가 어디까지 됐나」다.
+   → 검색어 몇 개 중 몇 개를 재는지(진행률)를 먼저 보여준다. */
+function prog(o){
+    var kw=o.keywords||0, ms=(o.measured==null?null:o.measured), pct=o.pct;
+    var line;
+    if(!kw) line='<span style="color:var(--muted)">검색어 아직 없음</span>';
+    else if(ms==null) line='<span style="color:var(--em)">검색어 '+kw+'개</span>';
+    else {
+      var col = (pct>=100?'var(--em)':(pct>0?'var(--am)':'var(--muted)'));
+      var bar = '<span style="display:inline-block;width:52px;height:4px;background:var(--line);border-radius:2px;vertical-align:middle;margin:0 5px;overflow:hidden;">'+
+                '<span style="display:block;height:4px;width:'+Math.max(2,Math.min(100,pct||0))+'%;background:'+col+';"></span></span>';
+      line='<span style="color:'+col+'">검색량 '+ms+' / '+kw+'개'+(pct!=null?(' ('+pct+'%)'):'')+'</span>'+bar;
+    }
+    var dt=o.surveyed_at?(' <span style="color:var(--line)">·</span> <span style="color:var(--muted)">마지막 조사 '+dstr(o.surveyed_at)+'</span>'):'';
+    return '<div style="font-size:10.5px;margin-top:3px;">'+line+dt+'</div>';
   }
   function row(o,right){ return '<div style="display:flex;align-items:center;gap:9px;background:var(--card2);border:0.5px solid var(--line);border-radius:8px;padding:8px 11px;margin-bottom:6px;"><div style="flex:1;cursor:pointer;" onclick="openNewDone(\''+o.name+'\',\''+o.country+'\')"><div style="font-size:12.5px;color:var(--txt);">'+o.country+' · '+o.name+'</div>'+prog(o)+'</div>'+(right||'')+'</div>'; }
   var bar='<div onclick="ssToggle()" style="cursor:pointer;display:flex;align-items:center;gap:8px;flex-wrap:wrap;border:0.5px solid var(--line);border-radius:12px;padding:11px 14px;background:var(--card);">'+
@@ -5562,8 +5570,8 @@ function renderSurveyStatus(){
   if(!SS_OPEN){ el.innerHTML=bar; return; }
   var h=bar+'<div style="border:0.5px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--card);margin-top:8px;">';
   if(SS_RUNNING.length){
-    h+='<div style="font-size:11.5px;color:var(--am);font-weight:700;margin:0 0 6px;">봇이 채우는 중 — 예약 많은 순</div>';
-    SS_RUNNING.slice(0,4).forEach(function(o){ h+=row(o,'<span style="font-size:10.5px;color:var(--am);background:var(--amd);padding:2px 8px;border-radius:20px;">측정 중</span>'); });
+    h+='<div style="font-size:11.5px;color:var(--am);font-weight:700;margin:0 0 6px;">진행 중 — 예약 많은 순</div>';
+    SS_RUNNING.slice(0,4).forEach(function(o){ h+=row(o,'<span style="font-size:10.5px;color:var(--am);background:var(--amd);padding:2px 8px;border-radius:20px;">진행 중</span>'); });
     if(SS_RUNNING.length>4) h+='<div style="font-size:11px;color:var(--muted);margin:-2px 0 4px;">외 '+(SS_RUNNING.length-4)+'곳 이번 달 대기</div>';
   }
   if(SS_NEWDONE.length){
@@ -7147,7 +7155,7 @@ function drawRun(){
   h+='<div class="cd" style="padding:6px 8px;margin-bottom:9px;">';
   SVQ.forEach(function(x,i){
     var ic,col,tx;
-    if(x.st==='done'){ic='✓';col='var(--em)';tx='예약됨 · 봇이 측정 중';}
+    if(x.st==='done'){ic='✓';col='var(--em)';tx='예약됨 · 봇이 진행 중';}
     else if(x.st==='floor'){ic='!';col='var(--am)';tx=x.err||'예약하지 못함';}
     else if(i===SVI){ic='◐';col='var(--bl)';tx='검색어 모으는 중…';}
     else {ic='○';col='var(--muted)';tx='대기';}

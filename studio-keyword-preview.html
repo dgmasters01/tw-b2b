@@ -569,15 +569,31 @@ async function kwFixGo(i){
     var r = await fetch('/api/kw-survey-now',{method:'POST',credentials:'same-origin',headers:H,
       body:JSON.stringify({step:'harvest',city_ko:o.name,name_override:v,target:'ko',market:'KR'})}).then(function(x){return x.json();});
     if(r.ok||r.already){
-      if(log){ log.style.color='var(--em)'; log.textContent='✅ 조사 예약됨'; }
-      ts('「'+v+'」로 예약했습니다');
-      setTimeout(loadCities, 900);
+      /* 🔴 2026-08-02 대표님: *"이 화면에서 작업을 하는거야? 다음 액션을 해줘야 되는 거 아니야?
+         진행중으로 넘어가야 되는 거 아닌가?"*
+         맞다. 성공했으면 **이 줄은 여기서 사라지고 「진행 중」으로 옮겨야** 한다.
+         그래야 「내가 뭐를 해결했고 뭐가 남았는지」가 보인다. */
+      if(log){ log.style.color='var(--em)'; log.textContent='✅ 조사 시작 — 위 「진행 중」으로 옮깁니다'; }
+      ts('「'+v+'」로 조사를 시작했습니다');
+      var row = document.getElementById('fixbox-'+i);
+      if(row && row.parentNode){                       /* 그 줄을 스르르 접어 지운다 */
+        var card = row.parentNode;
+        card.style.transition='opacity .4s, max-height .4s, margin .4s, padding .4s';
+        card.style.overflow='hidden'; card.style.maxHeight=card.offsetHeight+'px';
+        setTimeout(function(){ card.style.opacity='0'; card.style.maxHeight='0px'; card.style.margin='0'; card.style.padding='0'; }, 400);
+      }
+      setTimeout(loadCities, 1200);                    /* 목록을 다시 받아 「진행 중」에 띄게 한다 */
     } else {
       if(log){ log.style.color='var(--am)';
         /* 권한 메시지가 뜨면 진짜 권한 문제가 아니라 **로그인이 풀린** 경우가 거의다. */
         var msg = r.error || '아직 부족 — 다른 이름을 써보세요';
         if(/담당|관리자|권한|403/.test(msg)) msg='로그인이 풀렸습니다 — 화면을 새로고침(Ctrl+Shift+R) 하고 다시 눌러주세요';
-        log.textContent='⚠ '+msg; }
+        /* 🔴 몇 개 모았는지를 보여준다 — 「왜 안 됐는지」를 알아야 다음 이름을 고른다.
+           예) 치앙라이 「치앙라이」 = 10개(숙박 4·여행 6) — 기준은 총 12개이자 한쪽이 6개 이상 */
+        if(r.harvested!=null||r.stay!=null){
+          msg += ' · 이번엔 '+(r.harvested||0)+'개(숙박 '+(r.stay||0)+'·여행 '+(r.travel||0)+') — 총 12개 이상 필요';
+        }
+        log.innerHTML='⚠ '+msg; }
     }
   }catch(e){
     if(log){ log.style.color='var(--am)'; log.textContent='⚠ '+(e.message||e); }

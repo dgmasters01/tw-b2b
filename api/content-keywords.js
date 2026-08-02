@@ -575,7 +575,7 @@ async function cities(sb, req, res, who) {
   const [rows, aliasesR, snaps2R, hprogR, kwcR] = await Promise.all([
     invP,
     sb.from('city_alias').select('label, city_key').eq('target_code', target).not('city_key', 'like', '%|d:%').not('city_key', 'like', '%|t:%'),
-    sb.from('snapshot').select('city_key, status, acknowledged_at, finished_at, ym').eq('target_code', target).eq('market', market),
+    sb.from('snapshot').select('id, city_key, status, acknowledged_at, finished_at, ym').eq('target_code', target).eq('market', market),   /* id 도 받는다 — 이번 달 측정만 세려면 필요 */
     sb.from('v_city_hotel_progress').select('city, total, with_district'),
     sb.from('keyword').select('id, city_key').eq('target_code', target).eq('alive', true),   /* id 도 받는다 — 진행률 분자에 필요 */
   ]);
@@ -616,7 +616,12 @@ async function cities(sb, req, res, who) {
   // 검색량까지 재 것이 몇 개인가 — 진행률의 분자다.
   const measuredByKey = {};
   try {
-    const { data: tr } = await sb.from('trend').select('keyword_id, measured').eq('measured', true).limit(20000);
+    // 🔴 이번 달에 재 것만 센다. 지난달 것까지 세면 127% 같은 숫자가 나온다(실제로 그러했다).
+    //   한 검색어를 달마다 다시 재기 때문에 쌓인다.
+    const snapIds = (snaps2 || []).filter((x) => x.ym === curYm).map((x) => x.id);
+    const { data: tr } = snapIds.length
+      ? await sb.from('trend').select('keyword_id, measured, snapshot_id').eq('measured', true).in('snapshot_id', snapIds).limit(20000)
+      : { data: [] };
     const kwCity = {};
     for (const k of kwc || []) kwCity[k.id] = k.city_key;
     for (const t of tr || []) { const ck2 = kwCity[t.keyword_id]; if (ck2) measuredByKey[ck2] = (measuredByKey[ck2] || 0) + 1; }

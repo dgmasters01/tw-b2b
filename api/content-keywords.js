@@ -614,17 +614,26 @@ async function cities(sb, req, res, who) {
   for (const k of kwc || []) { kwByKey[k.city_key] = (kwByKey[k.city_key] || 0) + 1; }
 
   // 검색량까지 재 것이 몇 개인가 — 진행률의 분자다.
-  const measuredByKey = {};
+  const measuredByKey = {}, triedByKey = {}, floorByKey = {};
   try {
     // 🔴 이번 달에 재 것만 센다. 지난달 것까지 세면 127% 같은 숫자가 나온다(실제로 그러했다).
     //   한 검색어를 달마다 다시 재기 때문에 쌓인다.
     const snapIds = (snaps2 || []).filter((x) => x.ym === curYm).map((x) => x.id);
     const { data: tr } = snapIds.length
-      ? await sb.from('trend').select('keyword_id, measured, snapshot_id').eq('measured', true).in('snapshot_id', snapIds).limit(20000)
+      ? await sb.from('trend').select('keyword_id, measured, skip_reason, snapshot_id').in('snapshot_id', snapIds).limit(20000)
       : { data: [] };
     const kwCity = {};
     for (const k of kwc || []) kwCity[k.id] = k.city_key;
-    for (const t of tr || []) { const ck2 = kwCity[t.keyword_id]; if (ck2) measuredByKey[ck2] = (measuredByKey[ck2] || 0) + 1; }
+    // 🔴 2026-08-02 — 「재 것」과 「해본 것」은 다르다.
+    //   도쿄는 41개를 전부 시도했고 24개만 값이 나왔다(17개는 너무 작아 못 잼 = below_floor).
+    //   그건 **실패가 아니라 정상 종료**다. 그런데 59%로 보여주면 덜 끝난 것처럼 오해한다.
+    //   → 시도한 수(tried)와 값이 나온 수(measured)를 따로 준다.
+    for (const t of tr || []) {
+      const ck2 = kwCity[t.keyword_id]; if (!ck2) continue;
+      triedByKey[ck2] = (triedByKey[ck2] || 0) + 1;
+      if (t.measured) measuredByKey[ck2] = (measuredByKey[ck2] || 0) + 1;
+      else if (t.skip_reason === 'below_floor') floorByKey[ck2] = (floorByKey[ck2] || 0) + 1;
+    }
   } catch { /* 못 일으면 0 으로 둔다 */ }
   // 🔴 2026-08-02 대표님: *"지도 0/48 이거는 머야? 리스트는 어느 정도 되었는지 확인하는 건데
   //   지금 이거는 무슨 말인지 모르겠어."*
@@ -637,8 +646,10 @@ async function cities(sb, req, res, who) {
     const done = measuredByKey[ckey] || 0;
     return {
       keywords: total,                                   // 이 도시 검색어 수
-      measured: done,                                    // 그중 검색량까지 재 것
-      pct: total ? Math.round(done / total * 100) : null, // 진행률
+      measured: done,                                    // 값이 나온 것
+      tried: triedByKey[ckey] || 0,                      // 재본 것(값이 안 나온 것 포함)
+      below_floor: floorByKey[ckey] || 0,                // 너무 작아 못 잰 것
+      pct: total ? Math.round((triedByKey[ckey] || 0) / total * 100) : null,   // 진행률 = 재본 비율
       hotel_total: hp ? hp.total : null,
       hotel_district: hp ? hp.with : null,
     };

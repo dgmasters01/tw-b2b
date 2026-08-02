@@ -139,6 +139,8 @@
 | **자동 시스템·크론·비용·전체 지도** | **`SYSTEM_MAP.md`** (이 문서 §3) | ← 설명·판단·비용은 여기 |
 | 스튜디오 안쪽 흐름 | `_business/STUDIO_FLOW.md` |
 | **호텔 신원 확인·매칭** | **`_business/HOTEL_MATCH.md`** (아고다 API 는 채울 때만 · 찾을 땐 우리 DB) |
+| **일꾼들(봇) 지도 — 대표님용** | **`_business/BOTS_MAP.md`** (구성도·무슨 일을 언제·어디서 보나) |
+| **봇 정비 — Claude용** | **`_os/BOTS_TECH.md`** (크론 14개·의존 순서·🔴같이 고쳐야 하는 짝·실패 유형) |
 | 헌법(원칙) | `OPERATIONS_CHARTER.md` |
 | 진행 상황(최신) | `_os/handoff/current.md` |
 | 사업 내용 | `BUSINESS.md` · `BUSINESS_FLOW.md` · `GOHOTEL_FLOW.md` |

@@ -2789,7 +2789,7 @@ TW Booking Analytics 엑셀에 cid 정보 포함되는지 대표님 확인 필�
 
 > ⚠️ **이 섹션은 자동 생성됩니다.** `tasks.json` → `sync_engine.py` 가 갱신.
 > 직접 편집 금지 — 위쪽 수동 결정 로그만 편집하세요.
-> 마지막 갱신: **2026-08-01** (총 40개 작업)
+> 마지막 갱신: **2026-08-02** (총 40개 작업)
 
 **상태 요약**: absorbed: 1, blocked: 7, cancelled: 1, done: 19, in_progress: 2, obsoleted: 1, pending: 9
 

@@ -5,7 +5,7 @@
 > 
 > 단일 진실 소스: `tasks.json` (v2.0)
 
-**마지막 업데이트**: 2026-08-01
+**마지막 업데이트**: 2026-08-02
 
 > 💡 **새 채팅 시작 시**: 다음 5개 문서를 먼저 보면 즉시 컨텍스트 파악 가능.
 > 
@@ -64,18 +64,6 @@
 - **카테고리**: bugfix
 - **상태**: pending
 - **ID**: `BL-KR-HOTEL-FEED` (출처: claude)
-
----
-
-## 🟡 P1 — [신규 호텔 영문명 자동 채움] 예약이 없는 새 호텔은 영문명이 빈칸 — 아고다 hotelId 조회로 자동 채우기(창구 버그는 수정 완료, 실제로 이름 받아옴)
-
-**요약**: 실증: hotelId [9066914,65806,10568197] 조회 → JR Tower Hotel Nikko Sapporo / Premier Hotel TSUBAKI Sapporo 수신(2/3, ANA는 아고다에 그 id로 없음 — 원고 hid 오기 가능성도 확인 필요).
-
-- **자율성**: 🟡 SEMI
-- **예상 시간**: 미정시간
-- **카테고리**: feature
-- **상태**: pending
-- **ID**: `BL-HOTEL-NAME-EN-AUTO` (출처: claude)
 
 ---
 

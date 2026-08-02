@@ -274,13 +274,24 @@ var SVERR=null;   /* 조사를 못 불러온 이유 — 화면이 "불러오는 
    스튜디오 탭엔 있지만 **프리뷰를 새 탭에서 열면 그 탭엔 세션이 없다** → 쿠키도 못 박고 → 401.
    → 쿠키에 기대지 않고 **세션 열쇠를 직접 보낸다**(창구가 `Authorization: Bearer` 를 받는다).
      세션이 아예 없으면 **로그인 버튼**을 띄운다. 대표님에게 "왜 안 되냐"를 다시 묻게 하지 않는다. */
+/* 🔴 2026-08-02 대표님: *"내가 이 이름으로 다시 누르니까 「콘텐츠 담당·관리자만」이라고 뜨네.
+   나는 최종관리자인데."*
+   서버는 정상이고(계정 owner · is_editor 함수 정상), **화면이 신분증을 안 실어 보낸 것**이다.
+   세션이 잠시 비어 있거나(탭 오래 열어둔 경우) 아직 마른 때 그런다.
+   → ① 한 번 실패하면 세션을 **다시 불러** 재시도한다
+     ② 그래도 없으면 **「로그인이 풀렸다」고 사실대로** 말한다(권한 탓으로 넘기지 않는다) */
 function authHeader(){
   try{
     var sb=window.TW && window.TW.sb;
     if(!sb) return Promise.resolve(null);
     return sb.auth.getSession().then(function(r){
       var t=r && r.data && r.data.session && r.data.session.access_token;
-      return t ? {Authorization:'Bearer '+t} : null;
+      if(t) return {Authorization:'Bearer '+t};
+      /* 세션이 비었다 — 한 번 깨우고 다시 본다 */
+      return sb.auth.refreshSession().then(function(r2){
+        var t2=r2 && r2.data && r2.data.session && r2.data.session.access_token;
+        return t2 ? {Authorization:'Bearer '+t2} : null;
+      }).catch(function(){ return null; });
     }).catch(function(){return null;});
   }catch(e){ return Promise.resolve(null); }
 }
@@ -453,8 +464,9 @@ function prog(o){
     else if(tr==null) line='<span style="color:var(--em)">검색어 '+kw+'개</span>';
     else if(tr>=kw){
       /* 다 재봤다 = 끝났다 */
-      line='<span style="color:var(--em)">검색어 '+kw+'개 · 다 재봤음</span>'+
-           (fl?'<span style="color:var(--muted)"> (그중 '+fl+'개는 너무 작아 숫자 안 나옴)</span>':'');
+      /* 대표님 2026-08-02: 「검색어 41개 · 완료(17개는 검색어 낮음)」 형태가 깔끔하다 */
+      line='<span style="color:var(--em)">검색어 '+kw+'개 · 완료</span>'+
+           (fl?'<span style="color:var(--muted)">('+fl+'개는 검색어 낮음)</span>':'');
     } else {
       var col=(pct>0?'var(--am)':'var(--muted)');
       var bar='<span style="display:inline-block;width:52px;height:4px;background:var(--line);border-radius:2px;vertical-align:middle;margin:0 5px;overflow:hidden;">'+
@@ -561,7 +573,11 @@ async function kwFixGo(i){
       ts('「'+v+'」로 예약했습니다');
       setTimeout(loadCities, 900);
     } else {
-      if(log){ log.style.color='var(--am)'; log.textContent='⚠ '+(r.error||'아직 부족 — 다른 이름을 써보세요'); }
+      if(log){ log.style.color='var(--am)';
+        /* 권한 메시지가 뜨면 진짜 권한 문제가 아니라 **로그인이 풀린** 경우가 거의다. */
+        var msg = r.error || '아직 부족 — 다른 이름을 써보세요';
+        if(/담당|관리자|권한|403/.test(msg)) msg='로그인이 풀렸습니다 — 화면을 새로고침(Ctrl+Shift+R) 하고 다시 눌러주세요';
+        log.textContent='⚠ '+msg; }
     }
   }catch(e){
     if(log){ log.style.color='var(--am)'; log.textContent='⚠ '+(e.message||e); }

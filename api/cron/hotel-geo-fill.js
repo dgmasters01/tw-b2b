@@ -89,10 +89,30 @@ export default async function handler(req, res) {
       needEye = (st0.manual_check || 0) > 0 || (st0.not_found || 0) > 5;
     } catch { /* 못 재면 안 보낸다 */ }
   }
-  if (!dryRun && (force || done || needEye)) {
+  // 🔴 2026-08-04 — 「다 끝났음」 메일이 **매일** 갔다.
+  //   끝난 상태(remaining=0)는 내일도 모레도 사실이니 매번 조건을 만족한다.
+  //   → **처음 끝났을 때 한 번만** 보낸다. 보낸 사실을 적어둔다(_os 플래그 대신 DB).
+  let alreadyTold = false;
+  if (done && !force) {
+    try {
+      const r = await fetch(`${process.env.SUPABASE_URL}/rest/v1/ops_flag?key=eq.geo_done_mailed&select=key`,
+        { headers: { apikey: process.env.SUPABASE_SERVICE_ROLE_KEY, Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}` } });
+      const j = await r.json();
+      alreadyTold = Array.isArray(j) && j.length > 0;
+    } catch { /* 못 보면 그냥 보낸다 */ }
+  }
+  if (!dryRun && (force || (done && !alreadyTold) || needEye)) {
     try {
       const st = await geoStats();
       mail = await sendGeoMail(st, body);
+      if (done && !alreadyTold) {   /* 한 번 보냈다고 적어둔다 */
+        try {
+          await fetch(`${process.env.SUPABASE_URL}/rest/v1/ops_flag`, { method: 'POST',
+            headers: { apikey: process.env.SUPABASE_SERVICE_ROLE_KEY, Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+              'Content-Type': 'application/json', Prefer: 'resolution=merge-duplicates' },
+            body: JSON.stringify({ key: 'geo_done_mailed', value: new Date().toISOString() }) });
+        } catch { /* 무시 */ }
+      }
     } catch (e) {
       mail = { ok: false, error: String(e.message || e).slice(0, 200) };
     }
@@ -118,13 +138,17 @@ async function sendGeoMail(st, body) {
 
   /* 제목은 「진행 중」이 아니라 「끝남」 또는 「볼 것 있음」만 나간다 */
   const subject = finished
-    ? `[좌표] 🎉 전부 끝났습니다 — ${st.filled}/${st.total}개 · 이 봇 꺼도 됩니다`
+    ? `[좌표] 🎉 채울 것을 다 채웠습니다 — ${st.filled}/${st.total}개`
     : `[좌표] 오늘 ${todayOk}개 채움 · 누적 ${st.filled}/${st.total} (${pct}%) · 완료 예정 ${st.eta}`;
 
   const rows = [
     ['오늘 채운 호텔', `${todayOk}개`],
     ['누적', `${st.filled} / ${st.total}개 (${pct}%)`],
-    ['남은 호텔', `${st.remaining}개`],
+    /* 🔴 2026-08-04 — 「남은 호텔 0개」인데 실제로는 좌표 없는 곳이 9곳 있었다.
+       한 번 못 찾은 곳(not_found·manual_check)은 「남은 것」에서 빠져 있어서다.
+       숨기면 안 된다 — 사실대로 적는다. */
+    ['다음에 채울 것', `${st.remaining}개`],
+    ['좌표가 없는 곳', `${(st.total || 0) - (st.filled || 0)}개` + (((st.total || 0) - (st.filled || 0)) > (st.remaining || 0) ? ' (그중 ' + (((st.total || 0) - (st.filled || 0)) - (st.remaining || 0)) + '곳은 한 번 찾다 실패해 멈췄 있음)' : '')],
     ['남은 날짜', finished ? '끝' : `약 ${st.days_left}일 (예상 완료 ${st.eta})`],
     ['주소도 받은 호텔', `${st.with_address}개`],
     ['사람이 볼 것', `이름이 헷갈리는 곳 ${st.manual_check}개 · 못 찾은 곳 ${st.not_found}개`],
@@ -133,13 +157,13 @@ async function sendGeoMail(st, body) {
 
   const html = `<div style="font-family:-apple-system,'Segoe UI',sans-serif;max-width:560px">
 <h2 style="margin:0 0 4px;font-size:18px;font-weight:500">호텔 좌표 채우기 ${finished ? '완료' : '진행 중'}</h2>
-<p style="margin:0 0 16px;color:#666;font-size:13px">아고다에서 온 호텔에 구글 지도의 좌표·주소를 붙이는 중입니다. 하루 3번, 45개씩 자동으로 돕니다.</p>
+<p style="margin:0 0 16px;color:#666;font-size:13px">좌표·주소는 <b>아고다 호텔 파일(무료)로 먼저</b> 채우고, 거기서 못 찾은 것만 구글 지도가 봅니다(매일 오후 4시 · 할 일 없으면 호출 0건).</p>
 <div style="font-family:monospace;font-size:14px;letter-spacing:-1px;color:#1D9E75">${bar(pct)} ${pct}%</div>
 <table style="border-collapse:collapse;margin-top:14px;font-size:14px;width:100%">
 ${rows.map(([k, v]) => `<tr><td style="padding:7px 12px 7px 0;color:#666;white-space:nowrap">${k}</td><td style="padding:7px 0;font-weight:500">${v}</td></tr>`).join('')}
 </table>
 ${finished
-    ? '<p style="margin-top:16px;padding:12px;background:#E1F5EE;border-radius:8px;font-size:13px">전부 끝났습니다. <b>vercel.json 의 hotel-geo-fill 크론을 지워도 됩니다.</b> 새 호텔이 들어오면 그때 다시 켜면 됩니다.</p>'
+    ? '<p style="margin-top:16px;padding:12px;background:#E1F5EE;border-radius:8px;font-size:13px">채울 수 있는 것은 다 채웠습니다. <b>봇은 그대로 둡니다</b> — 새 콘텐츠에 아고다에 없는 호텔이 나오면 그때 구글이 찾습니다. 할 일이 없는 날은 한 건도 부르지 않으므로 비용은 0원입니다. <b>이 메일은 다시 안 옵니다.</b></p>'
     : '<p style="margin-top:16px;color:#888;font-size:12px">대표님이 하실 일은 없습니다. 다 끝나면 이 메일이 알려드립니다.</p>'}
 </div>`;
 

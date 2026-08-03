@@ -6,7 +6,7 @@
 >
 > 🔴 **갱신 규칙**: 새 기능·봇을 **켜거나 끌 때마다 이 지도도 같이 고친다.** 안 고치면 소용없다.
 >
-> **Last updated**: 2026-07-21 (D-069~073 반영 — 자동 파이프라인·나라별 지역·호텔 병합·다채널 배포·월별 재조사)
+> **Last updated**: 2026-08-03 (D-079 · 문서 지도 갱신) — 이전 2026-07-21 (D-069~073 반영 — 자동 파이프라인·나라별 지역·호텔 병합·다채널 배포·월별 재조사)
 
 ---
 
@@ -126,6 +126,10 @@
 | D-077 | **자동화 비용 정책** | [열기](https://github.com/dgmasters01/tw-b2b/blob/main/_business/decisions/2026-07-27-automation-cost-policy.md) |
 | D-075 | 아고다 예약 무결성 3중 방어 | [열기](https://github.com/dgmasters01/tw-b2b/blob/main/_business/decisions/2026-07-27-booking-master-integrity.md) |
 | D-074 | 스튜디오 영문판 + 사고 기록 | [열기](https://github.com/dgmasters01/tw-b2b/blob/main/_business/decisions/2026-07-26-studio-i18n.md) |
+| **BOTS_MAP.md** | 🤖 **대표님용 — 어떤 로봇이 언제 무슨 일을 하나** (구성도) | [열기](https://github.com/dgmasters01/tw-b2b/blob/main/_business/BOTS_MAP.md) |
+| **HOTEL_MATCH.md** | 호텔 자료를 어떻게 찾고 맞추나 · 구글을 언제 쓰나 | [열기](https://github.com/dgmasters01/tw-b2b/blob/main/_business/HOTEL_MATCH.md) |
+| **BOTS_TECH.md** | 봇 정비(Claude용) — 크론·의존순서·같이 고쳐야 하는 짝 | [열기](https://github.com/dgmasters01/tw-b2b/blob/main/_os/BOTS_TECH.md) |
+| D-079 | 호텔 자료 바탕·검사봇 3종·개척 우선 (2026-08-02~03) | [열기](https://github.com/dgmasters01/tw-b2b/blob/main/_business/HOTEL_MATCH.md) |
 | 스캐너 | `wiring-scan.mjs` 소스 | [열기](https://github.com/dgmasters01/tw-b2b/blob/main/_os/tools/wiring-scan.mjs) |
 | 결정 인덱스 | 전체 결정 목록 | [열기](https://github.com/dgmasters01/tw-b2b/blob/main/DECISIONS_INDEX.md) |
 

@@ -121,7 +121,17 @@ export default async function handler(req, res) {
           note: '호텔 장부가 덜 채워져 화면마다 다른 숫자를 보일 수 있습니다.', sample: gaps });
       }
       // 분모가 뒤집힌 지역 (우리 > 전체)
-      const { data: ds } = await sb.from('v_district_star').select('city, district, star, agoda_total, ours');
+      // ⚠ v_district_star 는 865줄로 **1,000줄에 가깝다.** 도시가 조금만 늘어도 조용히 잘린다.
+      //   터진 뒤에 고치면 그동안 거짓 답을 보여준 것이다. 미리 나눠 읽는다.
+      const ds = [];
+      for (let from = 0; ; from += 1000) {
+        const { data, error } = await sb.from('v_district_star')
+          .select('city, district, star, agoda_total, ours').range(from, from + 999);
+        if (error || !data || !data.length) break;
+        ds.push(...data);
+        if (data.length < 1000) break;
+        if (ds.length > 60000) break;
+      }
       const flip = (ds || []).filter((d) => (d.ours || 0) > (d.agoda_total || 0) && (d.agoda_total || 0) > 0);
       if (flip.length) problems.push({ kind: 'denominator_flip', n: flip.length,
         note: '「우리」가 「전체」보다 많습니다. 분모를 세는 곳이 어긋났습니다.',

@@ -47,6 +47,28 @@ export default async function handler(req, res) {
   // 🔴 retry=1 — 한 번 못 찾은 호텔(not_found)을 다시 본다 (2026-07-17 대표님).
   //    "이런 경우 추후 따로 찾아서 줄 수 있도록 무언가 장치가 필요할 것 같은데."
   const retry = q.retry === '1' || q.retry === 'true';
+
+  // 🔴 2026-08-03 대표님 B안 유임 — **아고다로 못 찾은 것만 구글이 본다.**
+  //   예전엔 둘이 서로 모르고 각자 정해진 시각에 돌았다. 할 일이 없어도 돌았다.
+  //   이제 순서가 있다: 아고파일(무료) → 못 찾으면 표시 → 구글(유료)은 그것만.
+  //   할 일이 없으면 **한 건도 안 부르고 끝난다** — 한 달 한도를 손도 안 대는다.
+  //   `force=1` 이면 이 순서를 건너뛴다(사람이 직접 돌릴 때).
+  const forceRun = q.force === '1';
+  if (!forceRun) {
+    let waiting = 0;
+    try {
+      const r = await fetch(`${process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL}`
+        + `/rest/v1/hotels?latitude=is.null&select=id&limit=1`,
+        { headers: { apikey: process.env.SUPABASE_SERVICE_ROLE_KEY, Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`, Prefer: 'count=exact' } });
+      const cr = r.headers.get('content-range') || '';
+      waiting = parseInt((cr.split('/')[1] || '0'), 10) || 0;
+    } catch { waiting = -1; }   /* 못 재면 그냥 진행(안전) */
+    if (waiting === 0) {
+      return res.status(200).json({ ok: true, skipped: true, reason: '좌표 없는 호텔이 없습니다 — 구글 호출 0건',
+        note: '아고다 파일로 먼저 채우고(hotel-addr-fill), 그걸로 못 찾은 것만 여기서 봅니다.' });
+    }
+  }
+
   const { status, body } = await runGeoFill({ city, limit, dry_run: dryRun, retry });
 
   let remaining = null;

@@ -95,7 +95,17 @@ export default async function handler(req, res) {
   if (sb) {
     try {
       // 호텔 장부의 좌표·주소·아고다번호 채움 정도 — 하나라도 크게 비면 화면들이 서로 다른 말을 한다
-      const { data: h } = await sb.from('hotels').select('id, latitude, address, agoda_hotel_id, district');
+      // 🔴 2026-08-03 — 여기도 통째로 읽고 있었다(1,000줄 제한).
+      //   결손률을 앞 1,000곳으로만 재서 「다 채워졌다」고 거짓말할 수 있었다.
+      const h = [];
+      for (let from = 0; ; from += 1000) {
+        const { data, error } = await sb.from('hotels')
+          .select('id, latitude, address, agoda_hotel_id, district').range(from, from + 999);
+        if (error || !data || !data.length) break;
+        h.push(...data);
+        if (data.length < 1000) break;
+        if (h.length > 50000) break;
+      }
       if (h && h.length) {
         const n = h.length;
         const noLat = h.filter((x) => !x.latitude).length;

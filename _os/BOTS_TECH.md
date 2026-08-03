@@ -11,11 +11,11 @@
 | 경로 | 주기 | 하는 일 | 만지는 표 | 외부 호출 |
 |---|---|---|---|---|
 | `cron/kw-survey` | `0 * * * *` | 측정(PER_RUN=5) → 신규 발굴(3회 1번) → 옛 규칙 재발굴 | `snapshot`·`trend`·`keyword` | 구글 트렌드(무료) |
-| `cron/hotel-addr-fill` | `40 * * * *` | 좌표 50m로 아고다 파일에서 주소·아고다번호 채움 | `hotels` | **없음** |
+| `cron/hotel-addr-fill` | `40 * * * *` | 좌표 50m로 주소·아고다번호 채움 · 못 찾으면 `addr_source='agoda_miss'` 표시 | `hotels` | **없음** |
 | `cron/hotel-fill` | `30 * * * *` | 원고 hid 중 `agoda_hotel` 에 없는 것 아고다 API 로 채움 | `agoda_hotel` | 아고다 LT API |
 | `cron/yt-views` | `0 * * * *` | 조회수 수집(나이별 간격) | `publications` | 유튜브 API |
 | `cron/hotel-district-fill` | `0 3 * * *` | 주소 → 지역(구) 파싱 | `hotels.district` | 없음 |
-| `cron/hotel-geo-fill` | `0 8,12,16 * * *` | 좌표 없는 호텔 구글 Places 조회 | `hotels` | **구글 Places(유료)** |
+| `cron/hotel-geo-fill` | `0 16 * * *` | 🔴 **아고다가 못 찾은 것만** · 할 일 없으면 호출 0 | `hotels` | 구글 Places(지금 0건) |
 | `cron/hotel-closed-check` | `0 4 * * 1` | 아고다서 사라진 호텔 폐업 확인 | `hotels.operating_status` | 구글 |
 | `cron/drive-watch` | `0 2,7,12,21 * * *` | 드라이브 원고 감지 | `content_queue`·`publications` | 구글 드라이브 |
 | `cron/db-backup` | `0 19 * * *` | private 레포로 덤프 | — | GitHub |
@@ -25,8 +25,10 @@
 | `cron/wiring-check` | `0 1 * * *` | 창구↔화면 연결 점검 | — | 없음 |
 | `ops/handoff-verify` | `0 22 * * *` | 인계서 검증 | — | 없음 |
 
-🔴 **`hotel-geo-fill` 은 아직 구글을 쓴다.** 좌표 미확보가 9곳뿐이고 그마저 아고다 파일에 없는 곳이라
-사실상 성과가 없다. **끄는 것을 검토할 것**(대표님 확인 필요).
+🔴 **구글 순서 (2026-08-03 대표님 B안 확정)**
+`hotel-addr-fill`(무료·매시간) → 못 찾으면 `addr_source='agoda_miss'` 표시 → `hotel-geo-fill`(유료·매일 16시)이 그것만 본다.
+좌표 없는 호텔이 0곳이면 **한 건도 안 부르고 skipped**. `?force=1` 이면 건너뛴다.
+⚠ 구글을 끄지 말 것 — 아고다에 없는 호텔·폐업 확인은 구글밖에 없다 (HOTEL_MATCH §10).
 
 ---
 
@@ -110,3 +112,23 @@ agoda_hotel (52만·좌표·주소)
 | 유튜브 API | 1만 유닛/일 | 여유 |
 | 구글 Places | 5,000건/월 무료 | 최근 7일 67건 |
 | 아고다 파일 | 무제한 | 421MB zip |
+
+---
+
+## 실패 유형 추가 (2026-08-03)
+
+| 증상 | 진짜 원인 | 고친 방법 |
+|---|---|---|
+| 검사봇이 「이상 없음」이라 하는데 믿을 수 없음 | `hotels`(3,252줄)를 limit/range 없이 읽음 — 앞 1,000줄만 보고 판정 | `range()` 로 나눠 읽음 (kw-audit·wiring-audit) |
+| 주소 채우기 봇이 0건만 냄 | 네모를 ±110m로 잡고 **앞 20개만** 가져옴 — 호텔 빽빽한 곳(다낭 36개)은 0m 정답이 21번째면 못 찾음 | 네모 ±55m · 상한 200 |
+| 이상 없는데 메일이 옴 | 배선도가 낡음(창구 73≠80) · 좌표 봇이 매일 「진행 중」 발송 | 배선도 갱신 · 문제 있을 때만 발송 |
+
+## 📬 메일 발송 기준 (2026-08-03 대표님 확정)
+
+**문제가 있을 때만 보낸다.** 이상 없는 날에도 오면 진짜 문제가 묻힌다.
+
+| 봇 | 보내는 조건 |
+|---|---|
+| `wiring-check` | 지금 틀린 답이 나오는 곳(`over>0`) **또는** 배선도 낡음. 「곧 터질 곳」만이면 안 보냄 |
+| `hotel-geo-fill` | 다 끝났을 때 한 번 · 사람이 봐야 할 것(manual_check>0 · not_found>5) · `?mail=1` |
+| `booking-health` | 예약↔호텔 정합성 깨졌을 때 |

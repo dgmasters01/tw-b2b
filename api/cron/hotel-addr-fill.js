@@ -68,13 +68,16 @@ export default async function handler(req, res) {
   for (const h of targets) {
     const la = Number(h.latitude), lo = Number(h.longitude);
     if (!isFinite(la) || !isFinite(lo)) { missed += 1; continue; }
-    // 네모로 먼저 거른다(색인 사용) — 약 ±110m
+    // 🔴 2026-08-03 — 네모를 ±110m 로 잡고 **앞 20개만** 가져왔다.
+    //   다낝처럼 호텔이 빌빌한 곳은 그 안에 36개가 있고, **0m 짜리 정답이 21번째**면 못 찾는다.
+    //   실제로 그래서 50곳을 봐도 0건이 나왔다.
+    //   → 네모를 **±55m** 로 좀히고(어차피 반경 50m 안만 쓴다) 상한도 올린다.
     const { data: near } = await sb.from('agoda_hotel')
       .select('hotel_id, name_en, name_ko, address, lat, lng, star')
-      .gte('lat', la - 0.001).lte('lat', la + 0.001)
-      .gte('lng', lo - 0.0012).lte('lng', lo + 0.0012)
+      .gte('lat', la - 0.0005).lte('lat', la + 0.0005)
+      .gte('lng', lo - 0.0006).lte('lng', lo + 0.0006)
       .not('address', 'is', null)
-      .limit(20);
+      .limit(200);
     if (!near || !near.length) { missed += 1; continue; }
 
     // 가장 가까운 것 하나

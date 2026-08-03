@@ -177,8 +177,16 @@ export default async function handler(req, res) {
       table_rows: rows,                 // 그대로 _os/tools/table-rows.json 에 넣으면 된다
     };
 
-    // ── ④ 알림: 터지는 게 있거나 배선도가 낡았을 때만 ──
-    const worth = over.length > 0 || stale;
+    // ── ④ 알림 ──
+    // 🔴 2026-08-03 대표님: *"문제가 있을때만 보내는게 맞지 않나?"* — 맞다.
+    //   이상 없는 날에도 메일이 오면 **진짜 문제가 묻힌다.**
+    //   보내는 기준:
+    //     ① 지금 틀린 답이 나오는 곳이 있을 때        → 보낸다(급함)
+    //     ② 배선도가 낡았을 때                          → 보낸다(고치기 쉽고, 두면 다른 검사가 다 틀린다)
+    //     ③ 「곳 터질 곳」만 있을 때                     → **안 보낸다** — 아직 멀았다
+    //     ④ 이상 없음                                  → **안 보낸다**
+    //   「곳 터질 곳」은 관리자 건강검진에서 볼 수 있다. 메일까지 보낼 일은 아니다.
+    const worth = over.length > 0 || !!stale;
     if (forceMail || worth) {
       const lines = [
         '시스템 배선 점검 결과',

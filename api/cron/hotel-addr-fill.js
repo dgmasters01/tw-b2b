@@ -56,7 +56,9 @@ export default async function handler(req, res) {
   // ① 주소 없는 호텔 (좌표는 있어야 한다 — 좌표가 열쇠다)
   const { data: targets, error: e1 } = await sb.from('hotels')
     .select('id, hotel_name, city, latitude, longitude, address, agoda_hotel_id')
-    .is('address', null).not('latitude', 'is', null).limit(limit);
+    .is('address', null).not('latitude', 'is', null)
+    .or('addr_source.is.null,addr_source.neq.agoda_miss')   /* 한번 못 찾은 건 구글에게 넘긴다 */
+    .limit(limit);
   if (e1) return res.status(500).json({ ok: false, error: e1.message });
   if (!targets || !targets.length) {
     return res.status(200).json({ ok: true, idle: true, note: '주소 없는 호텔이 없습니다. 전부 채워졌습니다.' });
@@ -78,7 +80,13 @@ export default async function handler(req, res) {
       .gte('lng', lo - 0.0006).lte('lng', lo + 0.0006)
       .not('address', 'is', null)
       .limit(200);
-    if (!near || !near.length) { missed += 1; continue; }
+    if (!near || !near.length) {
+      // 🔴 2026-08-03 대표님 B안 — **아고다로 못 찾은 것만 구글이 본다.**
+      //   예전엔 둘이 서로 모르고 각자 돌았다 — 아고다가 이미 채운 걸 구글이 또 볼 수도 있었다.
+      //   이제 여기서 「아고다에 없다」고 표시하고, 구글 봇은 그 표시를 보고서만 움직인다.
+      if (!dry) { try { await sb.from('hotels').update({ addr_source: 'agoda_miss' }).eq('id', h.id); } catch { /* 무시 */ } }
+      missed += 1; continue;
+    }
 
     // 가장 가까운 것 하나
     let best = null;
@@ -88,9 +96,12 @@ export default async function handler(req, res) {
       const m = Math.sqrt(dLa * dLa + dLo * dLo);
       if (m <= RADIUS_M && (!best || m < best.m)) best = { a, m };
     }
-    if (!best) { missed += 1; continue; }
+    if (!best) {
+      if (!dry) { try { await sb.from('hotels').update({ addr_source: 'agoda_miss' }).eq('id', h.id); } catch { /* 무시 */ } }
+      missed += 1; continue;
+    }
 
-    const patch = { address: best.a.address };
+    const patch = { address: best.a.address, addr_source: 'agoda_file' };   /* 어디서 왔는지 남긴다 */
     // 아고다 번호가 비어 있으면 같이 잇는다 — 우리 장부에 아고다 번호가 0건이었다
     if (!h.agoda_hotel_id && best.a.hotel_id) patch.agoda_hotel_id = String(best.a.hotel_id);
 

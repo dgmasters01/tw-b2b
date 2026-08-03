@@ -125,7 +125,18 @@ export default async function handler(req, res) {
   // 🔴 지역명만 든 검색어(「난바 숙소」)는 **정상**이다 — 오사카의 지역이니까.
   //   그걸 문제로 세면 143건이 쉬지 않고 울려대서 진짜 문제가 묻힌다.
   //   → 그 도시의 **지역 이름**도 같이 본다. 둘 다 없을 때만 알린다.
-  const { data: dist } = await sb.from('hotels').select('city, district').not('district', 'is', null);
+  // 🔴 2026-08-03 배선 점검이 잡음 — hotels(3,252줄)를 통째로 읽고 있었다.
+  //   Supabase 는 **1,000줄만** 준다. 그러면 지역명 일부만 알고 멀줦한 검색어를 「문제」로 셀다.
+  //   검색어(keyword)는 나눠 읽게 고쳐놓고 여기는 빼먹었다. 같은 실수를 두 번 했다.
+  const dist = [];
+  for (let from = 0; ; from += 1000) {
+    const { data, error } = await sb.from('hotels').select('city, district')
+      .not('district', 'is', null).range(from, from + 999);
+    if (error || !data || !data.length) break;
+    dist.push(...data);
+    if (data.length < 1000) break;
+    if (dist.length > 50000) break;
+  }
   const distNames = new Set((dist || []).map((d) => String(d.district || '').replace(/\s+/g, '')));
   const noCity = (kws || []).filter((k) => {
     const l = labelOf[k.city_key]; if (!l) return false;

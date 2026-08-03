@@ -82,11 +82,31 @@ export default async function handler(req, res) {
   const force = q.mail === '1';
   const done = remaining === 0;
   let mail = null;
+  // 🔴 2026-08-04 — 「사람이 볼 것」도 **숫자가 늘었을 때만** 알린다.
+  //   이름이 헷갈리는 곳 4·못 찾은 곳 6은 어제도 그랬고 내일도 그렇다.
+  //   그대로 두면 **매일 같은 메일**이 간다 — 그러면 안 열게 되고 진짜 문제가 묻힌다.
+  //   지난번보다 늘었을 때만 보낸다. 현재 수는 관리자 화면에서 본다.
   let needEye = false;
   if (!dryRun) {
     try {
       const st0 = await geoStats();
-      needEye = (st0.manual_check || 0) > 0 || (st0.not_found || 0) > 5;
+      const now = (st0.manual_check || 0) + (st0.not_found || 0);
+      let before = -1;
+      try {
+        const r = await fetch(`${process.env.SUPABASE_URL}/rest/v1/ops_flag?key=eq.geo_eye_count&select=value`,
+          { headers: { apikey: process.env.SUPABASE_SERVICE_ROLE_KEY, Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}` } });
+        const j = await r.json();
+        before = (Array.isArray(j) && j[0]) ? parseInt(j[0].value, 10) : -1;
+      } catch { /* 모르면 처음으로 본다 */ }
+      needEye = now > 0 && now > before;
+      if (now !== before) {
+        try {
+          await fetch(`${process.env.SUPABASE_URL}/rest/v1/ops_flag`, { method: 'POST',
+            headers: { apikey: process.env.SUPABASE_SERVICE_ROLE_KEY, Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+              'Content-Type': 'application/json', Prefer: 'resolution=merge-duplicates' },
+            body: JSON.stringify({ key: 'geo_eye_count', value: String(now) }) });
+        } catch { /* 무시 */ }
+      }
     } catch { /* 못 재면 안 보낸다 */ }
   }
   // 🔴 2026-08-04 — 「다 끝났음」 메일이 **매일** 갔다.

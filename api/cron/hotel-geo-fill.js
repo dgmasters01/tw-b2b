@@ -52,13 +52,22 @@ export default async function handler(req, res) {
   let remaining = null;
   try { remaining = await countRemaining(); } catch (e) { /* 보고용일 뿐 */ }
 
-  // ── 하루 1통 진행 메일
-  const isDailyWrap = new Date().getUTCHours() === 16;
+  // 🔴 2026-08-03 대표님: *"문제가 있을때만 보내는게 맞지 않나?"* — 맞다.
+  //   예전엔 **매일 「진행 중」 메일을 보냈다.** 좋은 소식도 매일 오면 소음이 된다.
+  //   게다가 좌표는 **99.7% 끝났고**(미확보 9곳, 그마저 아고다 파일에도 없는 숙소) 알릴 일이 없다.
+  //   → 보내는 때: ① 다 끝났을 때 한 번(「이제 꺼도 됩니다」) ② 사람이 봐야 할 것이 생겼을 때 ③ 강제 요청
+  //     그 외 진행 상황은 관리자 화면에서 본다.
   const force = q.mail === '1';
-  const didWork = (body && body.result && body.result.ok > 0) || (body && body.processed > 0);
   const done = remaining === 0;
   let mail = null;
-  if (!dryRun && (force || (isDailyWrap && (didWork || done)))) {
+  let needEye = false;
+  if (!dryRun) {
+    try {
+      const st0 = await geoStats();
+      needEye = (st0.manual_check || 0) > 0 || (st0.not_found || 0) > 5;
+    } catch { /* 못 재면 안 보낸다 */ }
+  }
+  if (!dryRun && (force || done || needEye)) {
     try {
       const st = await geoStats();
       mail = await sendGeoMail(st, body);
@@ -85,6 +94,7 @@ async function sendGeoMail(st, body) {
   const finished = st.remaining === 0;
   const todayOk = (body && body.result && body.result.ok) || 0;
 
+  /* 제목은 「진행 중」이 아니라 「끝남」 또는 「볼 것 있음」만 나간다 */
   const subject = finished
     ? `[좌표] 🎉 전부 끝났습니다 — ${st.filled}/${st.total}개 · 이 봇 꺼도 됩니다`
     : `[좌표] 오늘 ${todayOk}개 채움 · 누적 ${st.filled}/${st.total} (${pct}%) · 완료 예정 ${st.eta}`;

@@ -120,7 +120,15 @@ export default async function handler(req, res) {
   }
 
   // ── ③ 도시 이름이 안 든 검색어 (알리기만 — 지역명일 수도 있어 함부로 안 지운다) ──
-  const { data: alias } = await sb.from('city_alias').select('city_key, label');
+  // ⚠ city_alias 는 지금 181줄이지만 도시를 계속 늘리므로 나눠 읽는다.
+  const alias = [];
+  for (let from = 0; ; from += 1000) {
+    const { data, error } = await sb.from('city_alias').select('city_key, label').range(from, from + 999);
+    if (error || !data || !data.length) break;
+    alias.push(...data);
+    if (data.length < 1000) break;
+    if (alias.length > 60000) break;
+  }
   const labelOf = {}; for (const a of alias || []) if (!labelOf[a.city_key]) labelOf[a.city_key] = a.label;
   // 🔴 지역명만 든 검색어(「난바 숙소」)는 **정상**이다 — 오사카의 지역이니까.
   //   그걸 문제로 세면 143건이 쉬지 않고 울려대서 진짜 문제가 묻힌다.
@@ -153,7 +161,17 @@ export default async function handler(req, res) {
 
   // ── ④ 분모가 말이 되나 — 우리 > 전체 인 지역 (알리기만) ──
   try {
-    const { data: ds } = await sb.from('v_district_star').select('city, district, star, agoda_total, ours');
+    // ⚠ v_district_star 는 865줄로 **1,000줄에 가깝다.** 도시가 조금만 늘어도 조용히 잘린다.
+    //   터진 뒤에 고치면 그동안 거짓 답을 보여준 것이다. 미리 나눠 읽는다.
+    const ds = [];
+    for (let from = 0; ; from += 1000) {
+      const { data, error } = await sb.from('v_district_star')
+        .select('city, district, star, agoda_total, ours').range(from, from + 999);
+      if (error || !data || !data.length) break;
+      ds.push(...data);
+      if (data.length < 1000) break;
+      if (ds.length > 60000) break;
+    }
     const bad = (ds || []).filter((d) => (d.ours || 0) > (d.agoda_total || 0) && (d.agoda_total || 0) > 0);
     const zero = (ds || []).filter((d) => (d.agoda_total || 0) === 0 && (d.ours || 0) > 0);
     if (bad.length) problems.push({ kind: 'denominator', n: bad.length, fixed: false,

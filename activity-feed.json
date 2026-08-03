@@ -1,12 +1,62 @@
 {
-  "generatedAt": "2026-08-02T23:30:07.080Z",
-  "totalCount": 977,
+  "generatedAt": "2026-08-03T01:07:56.573Z",
+  "totalCount": 976,
   "byRole": {
-    "CEO": 89,
+    "CEO": 87,
     "Staff": 0,
-    "Bot": 888
+    "Bot": 889
   },
   "items": [
+    {
+      "at": "2026-08-03T10:07:39+09:00",
+      "by": "👤 이지형 (CEO 결정 → Claude 실행)",
+      "role": "CEO",
+      "source": "git commit",
+      "action": "🔴 배선 점검이 잡은 내 실수 수정 — hotels(3,252줄)를 limit/range 없이 통째로 읽고 있었다. Supabase는 1,000줄만 주므로 앞 1,000곳만 보고 「이상 없음」이라 거짓말할 수 있었다. keyword 표는 나눠 읽게 고쳐놓고 hotels는 빼먹어 같은 실수를 두 번 했다. 둘 다 range()로 나눠 읽는다",
+      "target_type": "commit",
+      "target_id": "c290099",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-08-03T00:15:41Z",
+      "by": "🤖 scan-bot",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "[scan-bot] chat-log index 자동 갱신 [변경사유: chat-log 파일 또는 tasks.json 변경 → byCommit/byTask 매핑 재구축]",
+      "target_type": "commit",
+      "target_id": "3537f6a",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-08-02T23:41:09Z",
+      "by": "🤖 health-bot",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "[health-bot] _health.json 갱신 (overall=yellow)",
+      "target_type": "commit",
+      "target_id": "ef5a014",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-08-02T23:31:24Z",
+      "by": "🤖 scan-bot",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "[scan-bot] pages-status 3-Layer 자동 갱신 (22페이지, 평균 69점) [변경사유: HTML 변경 → 완성도 재측정]",
+      "target_type": "commit",
+      "target_id": "8b1f150",
+      "project": "TW B2B"
+    },
+    {
+      "at": "2026-08-02T23:30:07Z",
+      "by": "🤖 activity-bot",
+      "role": "Bot",
+      "source": "git commit",
+      "action": "[activity-bot] activity-feed 3-Layer 자동 갱신 (총 977건)",
+      "target_type": "commit",
+      "target_id": "2c2eed8",
+      "project": "TW B2B"
+    },
     {
       "at": "2026-08-02T23:13:25Z",
       "by": "🤖 scan-bot",
@@ -1826,66 +1876,6 @@
       "action": "[verification-gap-bot] business-agreements.json status 자동 갱신 (done=18 / partial=3 / not_implemented=0) [변경사유: 사업 합의 코드 박힘 자동 검증]",
       "target_type": "commit",
       "target_id": "cd4089b",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-08-01T16:31:24Z",
-      "by": "🤖 activity-bot",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "[activity-bot] activity-feed 3-Layer 자동 갱신 (총 985건)",
-      "target_type": "commit",
-      "target_id": "65ce597",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-08-02T01:31:01+09:00",
-      "by": "👤 이지형 (CEO 결정 → Claude 실행)",
-      "role": "CEO",
-      "source": "git commit",
-      "action": "크론 등록: kw-audit 매일 KST 14:15 — 키워드 자료 자동 검사",
-      "target_type": "commit",
-      "target_id": "a71e928",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-08-02T01:31:00+09:00",
-      "by": "👤 이지형 (CEO 결정 → Claude 실행)",
-      "role": "CEO",
-      "source": "git commit",
-      "action": "🔴 키워드 품질 검사 봇 신설 (대표님 「이렇게 되지 않게 판단하고 체크할 수 있는 일군이 있어야 되는 거 아니야?」) — 지금까지 대표님이 화면 보다 발견했다(가오슝 여행이 숙박 칸·하카타 분모·난바 도시). 매일 훑어서 ①축 분류 오류는 자동 수정 ②붙임말이 한국어 아닌 언어에 붙음 ③도시명 없는 검색어 ④우리>전체인 지역(분모 부족) ⑤분모 0 ⑥측정 안 끝난 도시를 잡는다. 고칠 수 있는 것만 고치고 애매한 건 알리기만(지어내지 않음). 언어가 늘어도 그대로 돈다",
-      "target_type": "commit",
-      "target_id": "f089ffc",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-08-01T16:30:10Z",
-      "by": "🤖 health-bot",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "[health-bot] _health.json 갱신 (overall=yellow)",
-      "target_type": "commit",
-      "target_id": "c580cc0",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-08-01T16:30:05Z",
-      "by": "🤖 activity-bot",
-      "role": "Bot",
-      "source": "git commit",
-      "action": "[activity-bot] activity-feed 3-Layer 자동 갱신 (총 985건)",
-      "target_type": "commit",
-      "target_id": "a830f61",
-      "project": "TW B2B"
-    },
-    {
-      "at": "2026-08-01T16:29:46Z",
-      "by": "👤 이지형 (CEO)",
-      "role": "CEO",
-      "source": "git commit",
-      "action": "[system-manual-bot] _os/service-map.md 자동 재생성 [변경사유: 5개 데이터 소스 중 하나 변경 감지]",
-      "target_type": "commit",
-      "target_id": "c276d42",
       "project": "TW B2B"
     },
     {

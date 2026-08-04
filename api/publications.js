@@ -275,7 +275,40 @@ export default async function handler(req, res) {
       if (nm[1] || nm[2] || nm[3]) upd.hotel_names = [1, 2, 3].map((i) => (nm[i] ? nm[i].ko : null));
       const { data, error } = await sb.from('publications').update(upd).eq('id', id).select().single();
       if (error) return res.status(500).json({ ok: false, error: error.message });
-      return res.status(200).json({ ok: true, row: data, warnings: warn, note: '설명란을 다시 만들려면 원고를 다시 넣어주세요.' });
+
+      // 🔴 2026-08-04 대표님: *"드라이브 자동 읽기에 들어가면 모두 링크추적링크로 제공해줘야 됨.
+      //   저번에 다른 채널꺼도 정상적으로 안 되어서 다시 요청했는데 채널 모두 변경 적용 안 된 거야?"*
+      //   맞다. 소급 도구(ops/rcode-backfill)만 있었고 **등록 흐름엔 없었다.**
+      //   그래서 새 원고마다 아고다 원본 링크가 나가 **클릭이 한 건도 안 세졌다.**
+      //   → 링크를 넣은 바로 그 자리에서 추적링크로 바꿈. 채널 구분 없이 전부.
+      //   실패해도 저장은 살린다 — 대신 경고를 단다(조용히 원본 링크가 나가면 안 된다).
+      let rcode = null;
+      try {
+        const site = process.env.SITE_URL || 'https://gohotelwinners.com';
+        const rr = await fetch(`${site}/api/ops/rcode-backfill?code=${encodeURIComponent(data.code || '')}`,
+          { headers: { 'x-ops-token': process.env.CLAUDE_OPS_TOKEN || '' } }).then((x) => x.json());
+        if (rr && rr.ok) {
+          const rep = (rr.report || [])[0];
+          rcode = rep ? { created: rep.created || [], replaced: rep.description_links_replaced || 0 } : null;
+          if (rep && (rep.description_links_replaced || 0) === 0 && (rep.created || []).length === 0 && (rep.had || 0) === 0) {
+            warn.push('⚠ 추적링크를 못 만들었습니다 — 설명란에 아고다 원본 링크가 나갑니다(클릭이 안 세짐).');
+          }
+        } else {
+          warn.push('⚠ 추적링크 만들기 실패: ' + ((rr && rr.error) || '알 수 없음') + ' — 설명란에 원본 링크가 나갑니다.');
+        }
+      } catch (e) {
+        warn.push('⚠ 추적링크 만들기 실패: ' + String(e.message || e).slice(0, 80));
+      }
+
+      // 바뀜 설명란을 다시 읽어 돌려준다(화면이 그걸 보여줘야 한다)
+      let fresh = data;
+      try {
+        const { data: d2 } = await sb.from('publications').select('*').eq('id', id).single();
+        if (d2) fresh = d2;
+      } catch { /* 무시 */ }
+
+      return res.status(200).json({ ok: true, row: fresh, warnings: warn, rcode,
+        note: '설명란을 다시 만들려면 원고를 다시 넣어주세요.' });
     }
 
     // ── 발행된 원고 유튜브 주소 수정 (§11-2) ──

@@ -44,7 +44,12 @@ async function sbSend(method, path, body, prefer) {
     method, headers: h, body: JSON.stringify(body),
   });
   if (!r.ok) throw new Error(`${method} 실패 ${r.status}: ${await r.text()}`);
-  return r.status === 204 ? null : r.json();
+  // 🔴 2026-08-04 — `Unexpected end of JSON input` 으로 죽던 곳.
+  //   PostgREST 는 Prefer: return=representation 이 없으면 **본문을 안 준다**(201 + 빈 몸).
+  //   그런데 r.json() 을 불러 터졌다. 몸이 비어 있으면 null 로 둔다.
+  const txt = await r.text();
+  if (!txt) return null;
+  try { return JSON.parse(txt); } catch { return null; }
 }
 
 export default async function handler(req, res) {

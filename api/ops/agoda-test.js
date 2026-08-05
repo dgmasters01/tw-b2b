@@ -27,16 +27,27 @@ export default async function handler(req, res) {
   }
 
   // 2) 아고다 자격증명 (staycurate 전용 → 없으면 공용 이름으로 폴백)
-  const apiKey = process.env.AGODA_API_KEY_STAYCURATE || process.env.AGODA_API_KEY || '';
-  const siteId = process.env.AGODA_SITE_ID_STAYCURATE || process.env.AGODA_SITE_ID || '';
+  const apiKey = (process.env.AGODA_API_KEY_STAYCURATE || process.env.AGODA_API_KEY || '').trim();
+  const siteId = (process.env.AGODA_SITE_ID_STAYCURATE || process.env.AGODA_SITE_ID || '').trim();
 
   const envReport = {
     AGODA_API_KEY_STAYCURATE: !!process.env.AGODA_API_KEY_STAYCURATE,
     AGODA_SITE_ID_STAYCURATE: !!process.env.AGODA_SITE_ID_STAYCURATE,
     AGODA_API_KEY: !!process.env.AGODA_API_KEY,
     AGODA_SITE_ID: !!process.env.AGODA_SITE_ID,
-    api_key_masked: apiKey ? apiKey.slice(0, 4) + '…' + apiKey.slice(-4) + ` (len=${apiKey.length})` : null,
-    site_id_masked: siteId ? siteId.slice(0, 3) + '…' + siteId.slice(-2) + ` (len=${siteId.length})` : null,
+    api_key_shape: apiKey ? {
+      len: apiKey.length,
+      pattern: apiKey.replace(/[a-z]/g,'a').replace(/[A-Z]/g,'A').replace(/[0-9]/g,'9'),
+      hyphen_positions: [...apiKey].map((c,i)=>c==='-'?i:-1).filter(i=>i>=0),
+      has_space: /\s/.test(apiKey),
+      looks_uuid: /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(apiKey.trim()),
+    } : null,
+    site_id_shape: siteId ? {
+      len: siteId.length,
+      pattern: siteId.replace(/[a-z]/g,'a').replace(/[A-Z]/g,'A').replace(/[0-9]/g,'9'),
+      has_space: /\s/.test(siteId),
+      is_numeric: /^\d+$/.test(siteId.trim()),
+    } : null,
   };
 
   if (!apiKey || !siteId) {

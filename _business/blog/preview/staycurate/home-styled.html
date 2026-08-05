@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>staycurate — 여행자가 사랑한 숙소, 동네별로 골라드려요</title>
+<meta name="description" content="공개 후기와 예약 데이터를 종합해 동네별로 어디서 잘지 골라주는 숙소 큐레이션 미디어.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Noto+Serif+KR:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+/* ============================================================
+   staycurate — visual system
+   Structure/flow follows screens.html canon exactly.
+   Visual language elevated: editorial curation, restrained palette.
+   ============================================================ */
+
+:root{
+  /* surfaces */
+  --paper:#FAF8F3;      /* warm ivory page (NOT cream #F4F1EA) */
+  --card:#FFFFFF;
+  --card-2:#FBF9F5;
+  --line:#EAE5DB;
+  --line-2:#DDD6C9;
+
+  /* ink */
+  --ink:#1A211D;        /* near-black warm charcoal */
+  --ink-2:#5B635D;
+  --ink-3:#98A099;
+
+  /* brand — deep pine/emerald (the curated-travel hue) */
+  --brand:#155C47;
+  --brand-ink:#0D4634;
+  --brand-wash:#E9F1EC;
+  --brand-line:#CFE1D7;
+
+  /* metallic accent — restrained brass, editorial eyebrows only */
+  --gold:#A2732A;
+  --gold-soft:#F2E9D6;
+
+  /* signals */
+  --warn:#96560F;       /* 아쉬워요 */
+
+  --shadow-1:0 1px 2px rgba(26,33,29,.04), 0 2px 8px rgba(26,33,29,.05);
+  --shadow-2:0 6px 18px rgba(26,33,29,.09), 0 2px 6px rgba(26,33,29,.05);
+
+  --r-sm:8px; --r-md:12px; --r-lg:16px; --r-xl:22px;
+
+  --col: 1200px;        /* feed column (desktop max; mobile = full width) */
+  --read: 760px;        /* article reading column */
+
+  --f-serif:"Noto Serif KR", Georgia, serif;
+  --f-latin:"Fraunces", Georgia, serif;
+  --f-ui:"Pretendard", -apple-system, "Malgun Gothic", sans-serif;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  font-family:var(--f-ui);
+  color:var(--ink);
+  background:var(--paper);
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+  padding-bottom:76px; /* room for anchor ad */
+}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--brand);outline-offset:2px;border-radius:4px}
+
+/* ---- layout column ---- */
+.shell{max-width:var(--col);margin:0 auto;background:var(--paper)}
+.shell.read{max-width:var(--read)}
+
+/* ============ header ============ */
+.hdr{
+  position:sticky;top:0;z-index:40;
+  background:rgba(250,248,243,.86);
+  backdrop-filter:saturate(1.4) blur(10px);
+  -webkit-backdrop-filter:saturate(1.4) blur(10px);
+  border-bottom:1px solid transparent;
+  transition:border-color .2s ease;
+}
+.hdr.scrolled{border-bottom-color:var(--line)}
+.hdr-in{
+  max-width:var(--col);margin:0 auto;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:13px 18px;
+}
+.shell.read ~ .x, .read .hdr-in{max-width:var(--read)}
+.logo{
+  font-family:var(--f-latin);
+  font-weight:600;
+  font-size:22px;
+  letter-spacing:-.02em;
+  color:var(--ink);
+  display:inline-flex;align-items:baseline;gap:1px;
+}
+.logo .b{color:var(--brand)}
+.logo .dot{
+  width:5px;height:5px;border-radius:50%;
+  background:var(--gold);
+  display:inline-block;margin-left:3px;transform:translateY(-1px);
+}
+.hdr-act{display:flex;align-items:center;gap:6px}
+.icon-btn{
+  width:38px;height:38px;border:none;background:transparent;
+  border-radius:10px;color:var(--ink);
+  display:grid;place-items:center;transition:background .15s ease;
+}
+.icon-btn:hover{background:rgba(21,92,71,.07)}
+.icon-btn svg{width:21px;height:21px;stroke:currentColor;stroke-width:1.7;fill:none}
+
+/* ---- nav chips ---- */
+.nav{
+  max-width:var(--col);margin:0 auto;
+  display:flex;gap:8px;padding:2px 18px 14px;
+  overflow-x:auto;scrollbar-width:none;
+}
+.nav::-webkit-scrollbar{display:none}
+.chip{
+  border:1px solid var(--line-2);
+  background:var(--card);
+  color:var(--ink-2);
+  font-size:13.5px;font-weight:500;
+  padding:7px 14px;border-radius:999px;white-space:nowrap;
+  display:inline-flex;align-items:center;gap:4px;
+  transition:all .15s ease;
+}
+.chip:hover{border-color:var(--brand-line);color:var(--brand)}
+.chip.on{background:var(--brand);border-color:var(--brand);color:#fff}
+.chip .caret{font-size:10px;opacity:.7;transform:translateY(1px)}
+
+/* ============ sections ============ */
+.feed{padding:8px 0 8px}
+.sec{margin-bottom:30px}
+.sh{
+  display:flex;align-items:flex-end;justify-content:space-between;
+  padding:0 18px;margin-bottom:14px;
+}
+.sh .t{
+  font-family:var(--f-ui);
+  font-size:18px;font-weight:600;letter-spacing:-.01em;color:var(--ink);
+}
+.sh .m{
+  font-size:13px;font-weight:500;color:var(--brand);
+  display:inline-flex;align-items:center;gap:3px;white-space:nowrap;
+  transition:gap .15s ease;
+}
+.sh .m:hover{gap:6px}
+
+/* editorial eyebrow (the one signature moment) */
+.eyebrow{
+  display:flex;align-items:center;gap:9px;
+  padding:0 18px;margin-bottom:7px;
+}
+.eyebrow .seal{
+  width:22px;height:22px;flex:none;border-radius:50%;
+  border:1.4px solid var(--gold);color:var(--gold);
+  display:grid;place-items:center;
+}
+.eyebrow .seal svg{width:12px;height:12px;stroke:currentColor;stroke-width:1.6;fill:none}
+.eyebrow .lb{
+  font-size:11.5px;font-weight:600;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--gold);
+}
+.hero-t{
+  padding:0 18px;margin-bottom:15px;
+}
+.hero-t h2{
+  font-family:var(--f-serif);
+  font-weight:600;font-size:23px;line-height:1.34;
+  letter-spacing:-.01em;color:var(--ink);
+}
+
+/* ---- horizontal card rows ---- */
+.row{
+  display:flex;gap:14px;overflow-x:auto;scrollbar-width:none;
+  padding:2px 18px 6px;scroll-snap-type:x proximity;
+}
+.row::-webkit-scrollbar{display:none}
+.card{
+  width:172px;flex:none;scroll-snap-align:start;
+}
+.card.wide{width:196px}
+.thumb{
+  position:relative;width:100%;aspect-ratio:4/3;
+  border-radius:var(--r-md);overflow:hidden;
+  background:var(--card-2);
+  border:1px solid var(--line);
+  margin-bottom:10px;
+  transition:transform .22s cubic-bezier(.2,.7,.3,1), box-shadow .22s ease;
+}
+.card:hover .thumb{transform:translateY(-3px);box-shadow:var(--shadow-2)}
+/* refined placeholder — warm, photo-like, never flat gray */
+.thumb .fill{
+  position:absolute;inset:0;
+  background:
+    radial-gradient(120% 90% at 18% 12%, rgba(255,255,255,.5), transparent 55%),
+    linear-gradient(150deg, var(--p1,#dfe6df) 0%, var(--p2,#cdd7cf) 60%, var(--p3,#c3cfca) 100%);
+}
+.thumb .glyph{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  color:rgba(26,33,29,.22);
+}
+.thumb .glyph svg{width:26px;height:26px;stroke:currentColor;stroke-width:1.4;fill:none}
+.thumb .loc{
+  position:absolute;left:9px;bottom:9px;
+  background:rgba(15,20,17,.62);color:#fff;
+  font-size:11px;font-weight:500;letter-spacing:.01em;
+  padding:3px 9px;border-radius:999px;
+  backdrop-filter:blur(4px);
+}
+.card .tag{
+  font-size:11px;font-weight:500;color:var(--gold);
+  letter-spacing:.03em;margin-bottom:3px;
+}
+.card .tit{
+  font-size:14px;font-weight:600;line-height:1.4;color:var(--ink);
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+}
+
+/* ---- ad slots (currently OFF, honest & recessive) ---- */
+.ad{
+  margin:0 18px 30px;
+  border:1px dashed var(--line-2);
+  border-radius:var(--r-md);
+  background:
+    repeating-linear-gradient(135deg, transparent 0 12px, rgba(162,115,42,.03) 12px 13px),
+    var(--card-2);
+  padding:16px;text-align:center;
+}
+.ad .k{font-size:11px;font-weight:600;letter-spacing:.1em;color:var(--ink-3);text-transform:uppercase}
+.ad .s{font-size:11.5px;color:var(--ink-3);margin-top:3px}
+
+/* ---- anchor ad (fixed, closable) ---- */
+.anchor{
+  position:fixed;left:0;right:0;bottom:0;z-index:50;
+  background:var(--card);border-top:1px solid var(--line);
+  box-shadow:0 -4px 16px rgba(26,33,29,.06);
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  padding:12px 16px;
+  transition:transform .3s cubic-bezier(.2,.7,.3,1);
+}
+.anchor.hide{transform:translateY(120%)}
+.anchor .k{font-size:11.5px;font-weight:600;letter-spacing:.08em;color:var(--ink-3);text-transform:uppercase}
+.anchor .x{
+  position:absolute;right:10px;top:50%;transform:translateY(-50%);
+  width:30px;height:30px;border:none;background:transparent;border-radius:8px;
+  color:var(--ink-3);display:grid;place-items:center;
+}
+.anchor .x:hover{background:var(--card-2);color:var(--ink)}
+.anchor .x svg{width:16px;height:16px;stroke:currentColor;stroke-width:1.8}
+
+/* ============ footer ============ */
+.ft{
+  border-top:1px solid var(--line);
+  margin-top:14px;padding:26px 18px 34px;
+}
+.ft .wm{
+  font-family:var(--f-latin);font-size:18px;font-weight:600;
+  letter-spacing:-.02em;color:var(--ink);margin-bottom:4px;
+}
+.ft .wm .b{color:var(--brand)}
+.ft .tagline{font-size:12.5px;color:var(--ink-3);margin-bottom:16px}
+.ft .links{display:flex;flex-wrap:wrap;gap:8px 18px}
+.ft .links a{font-size:12.5px;color:var(--ink-2)}
+.ft .links a:hover{color:var(--brand)}
+.ft .fine{font-size:11px;color:var(--ink-3);margin-top:16px;line-height:1.6}
+
+/* ============ ARTICLE ============ */
+.art{padding:6px 18px 10px}
+.art h1{
+  font-family:var(--f-serif);
+  font-weight:700;font-size:27px;line-height:1.4;letter-spacing:-.01em;
+  color:var(--ink);margin:6px 0 12px;
+}
+.meta{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:18px}
+.meta .d{font-size:12.5px;color:var(--ink-3)}
+.meta .aff{
+  font-size:11px;font-weight:600;color:var(--gold);
+  background:var(--gold-soft);padding:3px 9px;border-radius:999px;
+}
+.hero-photo{
+  position:relative;width:100%;aspect-ratio:16/9;
+  border-radius:var(--r-lg);overflow:hidden;border:1px solid var(--line);
+  margin-bottom:20px;
+}
+.hero-photo .fill{
+  position:absolute;inset:0;
+  background:
+    radial-gradient(130% 100% at 20% 0%, rgba(255,255,255,.55), transparent 60%),
+    linear-gradient(160deg,#d7e2dc 0%,#c4d2cb 55%,#b9cabf 100%);
+}
+.hero-photo .glyph{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:rgba(26,33,29,.24)}
+.hero-photo .glyph svg{width:34px;height:34px;stroke:currentColor;stroke-width:1.3;fill:none}
+.hero-photo .cred{
+  position:absolute;right:10px;bottom:9px;
+  font-size:10.5px;color:#fff;background:rgba(15,20,17,.55);
+  padding:3px 9px;border-radius:999px;backdrop-filter:blur(4px);
+}
+.hook{
+  font-family:var(--f-serif);
+  font-size:17px;line-height:1.85;color:#31382f;
+  margin-bottom:22px;
+}
+/* "바쁘면 여기만" summary */
+.summ{
+  background:var(--brand-wash);
+  border:1px solid var(--brand-line);
+  border-left:3px solid var(--brand);
+  border-radius:var(--r-md);
+  padding:15px 17px;margin-bottom:30px;
+}
+.summ .lb{
+  display:flex;align-items:center;gap:7px;
+  font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--brand);margin-bottom:9px;
+}
+.summ .lb svg{width:14px;height:14px;stroke:currentColor;stroke-width:1.8;fill:none}
+.summ ul{list-style:none;display:grid;gap:7px}
+.summ li{font-size:14px;color:var(--brand-ink);line-height:1.5}
+.summ li b{color:var(--brand)}
+
+/* neighborhood block */
+.hood{margin-bottom:30px}
+.hood-h{display:flex;align-items:baseline;gap:11px;margin-bottom:6px}
+.hood-n{
+  font-family:var(--f-latin);
+  font-size:26px;font-weight:600;color:var(--gold);line-height:1;
+  flex:none;
+}
+.hood-t{font-family:var(--f-serif);font-size:19px;font-weight:600;color:var(--ink);letter-spacing:-.01em}
+.hood .best{
+  display:inline-block;
+  font-size:12px;font-weight:600;color:var(--brand);
+  background:var(--brand-wash);border:1px solid var(--brand-line);
+  padding:4px 11px;border-radius:999px;margin-bottom:12px;
+}
+.hood .desc{font-size:14.5px;line-height:1.75;color:#3a423b;margin-bottom:15px}
+
+/* hotel card */
+.hotel{
+  background:var(--card);border:1px solid var(--line);
+  border-radius:var(--r-lg);padding:13px;margin-bottom:14px;
+  box-shadow:var(--shadow-1);
+  transition:box-shadow .2s ease,transform .2s ease;
+}
+.hotel:hover{box-shadow:var(--shadow-2)}
+.hotel .h-photo{
+  position:relative;width:100%;aspect-ratio:16/10;border-radius:var(--r-md);
+  overflow:hidden;border:1px solid var(--line);margin-bottom:12px;
+}
+.hotel .h-photo .fill{
+  position:absolute;inset:0;
+  background:linear-gradient(150deg,#dbe4de 0%,#c9d5ce 100%);
+}
+.hotel .h-photo .glyph{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:rgba(26,33,29,.2)}
+.hotel .h-photo .glyph svg{width:24px;height:24px;stroke:currentColor;stroke-width:1.4;fill:none}
+.hotel .h-top{display:flex;align-items:center;gap:9px;margin-bottom:8px}
+.hotel .h-name{font-size:16px;font-weight:700;color:var(--ink);letter-spacing:-.01em}
+.score{
+  font-size:12.5px;font-weight:700;color:#fff;background:var(--brand);
+  padding:2px 9px;border-radius:8px;flex:none;letter-spacing:.02em;
+}
+.hotel .pros{font-size:13px;color:var(--ink-2);margin-bottom:13px;line-height:1.6}
+.hotel .pros .like{color:var(--brand);font-weight:600}
+.hotel .pros .miss{color:var(--warn);font-weight:600}
+.hotel .h-foot{display:flex;align-items:center;justify-content:space-between}
+.hotel .price{font-size:16px;font-weight:700;color:var(--ink)}
+.hotel .price .u{font-size:12px;font-weight:500;color:var(--ink-3);margin-left:1px}
+.book{
+  background:var(--brand);color:#fff;border:none;
+  font-size:13.5px;font-weight:600;letter-spacing:.01em;
+  padding:9px 16px;border-radius:10px;
+  display:inline-flex;align-items:center;gap:6px;
+  transition:background .15s ease,transform .1s ease;
+}
+.book:hover{background:var(--brand-ink)}
+.book:active{transform:scale(.97)}
+.book svg{width:15px;height:15px;stroke:currentColor;stroke-width:2;fill:none}
+
+/* nearby box */
+.nearby{
+  background:var(--card-2);border:1px solid var(--line);
+  border-radius:var(--r-md);padding:13px 15px;margin-bottom:8px;
+}
+.nearby .lb{
+  display:flex;align-items:center;gap:6px;
+  font-size:12.5px;font-weight:700;color:var(--ink);margin-bottom:8px;
+}
+.nearby .lb svg{width:14px;height:14px;stroke:currentColor;stroke-width:1.7;fill:none;color:var(--brand)}
+.nearby ul{list-style:none;display:grid;gap:5px}
+.nearby li{font-size:13px;color:var(--ink-2);display:flex;justify-content:space-between}
+.nearby li .dist{color:var(--ink-3);font-size:12px}
+
+.cont-note{
+  text-align:center;font-size:12.5px;color:var(--ink-3);
+  padding:16px;border-top:1px dashed var(--line-2);border-bottom:1px dashed var(--line-2);
+  margin:6px 0 24px;
+}
+/* youtube embed */
+.yt{
+  position:relative;width:100%;aspect-ratio:16/9;
+  border-radius:var(--r-lg);overflow:hidden;border:1px solid var(--line);
+  background:linear-gradient(160deg,#20302a,#16211c);margin-bottom:6px;
+}
+.yt .play{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:58px;height:58px;border-radius:50%;
+  background:rgba(255,255,255,.94);display:grid;place-items:center;
+  box-shadow:0 6px 20px rgba(0,0,0,.3);transition:transform .2s ease;
+}
+.yt:hover .play{transform:translate(-50%,-50%) scale(1.06)}
+.yt .play svg{width:22px;height:22px;fill:var(--brand);margin-left:3px}
+.yt .cap{position:absolute;left:14px;bottom:12px;color:rgba(255,255,255,.9);font-size:12.5px;font-weight:500}
+
+.back-link{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:13px;font-weight:500;color:var(--brand);padding:14px 18px 0;
+}
+.back-link svg{width:16px;height:16px;stroke:currentColor;stroke-width:2;fill:none}
+
+/* ============ MENU OVERLAYS ============ */
+.scrim{
+  position:fixed;inset:0;z-index:60;background:rgba(20,26,22,.4);
+  opacity:0;visibility:hidden;transition:opacity .25s ease,visibility .25s;
+  backdrop-filter:blur(1px);
+}
+.scrim.open{opacity:1;visibility:visible}
+.panel{
+  position:fixed;top:0;right:0;bottom:0;z-index:61;
+  width:min(400px,90vw);background:var(--paper);
+  transform:translateX(100%);transition:transform .3s cubic-bezier(.2,.7,.25,1);
+  display:flex;flex-direction:column;box-shadow:-8px 0 30px rgba(20,26,22,.14);
+}
+.panel.open{transform:translateX(0)}
+.panel-h{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:18px 20px;border-bottom:1px solid var(--line);
+}
+.panel-h .pt{font-family:var(--f-serif);font-size:19px;font-weight:600;color:var(--ink)}
+.panel-body{flex:1;overflow-y:auto;padding:18px 20px 30px}
+.search{
+  display:flex;align-items:center;gap:9px;
+  background:var(--card);border:1px solid var(--line-2);
+  border-radius:11px;padding:11px 13px;margin-bottom:20px;color:var(--ink-3);
+}
+.search svg{width:17px;height:17px;stroke:currentColor;stroke-width:1.7;fill:none}
+.search input{border:none;background:transparent;outline:none;font-size:14px;color:var(--ink);width:100%}
+.search input::placeholder{color:var(--ink-3)}
+.mlabel{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:11px}
+.pchips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px}
+.pchip{
+  font-size:13px;font-weight:600;color:var(--brand);
+  background:var(--brand-wash);border:1px solid var(--brand-line);
+  padding:7px 14px;border-radius:999px;transition:all .15s ease;
+}
+.pchip:hover{background:var(--brand);color:#fff;border-color:var(--brand)}
+
+.acc-h{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:13px 2px;font-size:15px;font-weight:600;color:var(--ink);
+  border-top:1px solid var(--line);width:100%;background:none;border-left:none;border-right:none;border-bottom:none;text-align:left;
+}
+.acc-h .cv{transition:transform .2s ease;color:var(--ink-3)}
+.acc-h .cv svg{width:18px;height:18px;stroke:currentColor;stroke-width:1.8;fill:none}
+.acc-h[aria-expanded="true"] .cv{transform:rotate(90deg);color:var(--brand)}
+.acc-body{display:none;padding:2px 0 14px;flex-wrap:wrap;gap:8px}
+.acc-body.show{display:flex}
+.nchip{
+  font-size:13.5px;color:var(--ink-2);background:var(--card);
+  border:1px solid var(--line-2);padding:7px 13px;border-radius:10px;
+  transition:all .15s ease;
+}
+.nchip:hover{border-color:var(--brand-line);color:var(--brand)}
+.mnote{font-size:11.5px;color:var(--ink-3);text-align:center;margin-top:18px;line-height:1.6}
+
+/* topic / guide list */
+.mgroup{margin-bottom:8px}
+.mgroup .gl{
+  font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--gold);padding:14px 2px 6px;
+}
+.mrow{
+  display:flex;align-items:center;gap:13px;
+  padding:14px 2px;border-top:1px solid var(--line);
+  font-size:15px;color:var(--ink);width:100%;background:none;border-left:none;border-right:none;border-bottom:none;text-align:left;
+  transition:color .15s ease,padding-left .15s ease;
+}
+.mrow:hover{color:var(--brand);padding-left:6px}
+.mrow .ic{
+  width:34px;height:34px;flex:none;border-radius:9px;
+  background:var(--brand-wash);color:var(--brand);
+  display:grid;place-items:center;font-size:16px;
+}
+.mrow .nm{flex:1;font-weight:500}
+.mrow .go{color:var(--ink-3)}
+.mrow .go svg{width:16px;height:16px;stroke:currentColor;stroke-width:1.8;fill:none}
+.mdiv{border-top:1px solid var(--line);margin:16px 0 0}
+
+/* ===== responsive ===== */
+@media (min-width:600px){
+  .art h1{font-size:31px}
+  .hero-t h2{font-size:25px}
+}
+
+/* tablet: 2-up card grid */
+@media (min-width:680px) and (max-width:1023px){
+  .row{display:grid;grid-template-columns:repeat(2,1fr);gap:22px;overflow:visible}
+  .card,.card.wide{width:auto}
+}
+
+/* desktop: publisher-grade wide layout */
+@media (min-width:1024px){
+  body{padding-bottom:84px}
+  .hdr-in{padding:18px 40px}
+  .logo{font-size:26px}
+  .nav{padding:6px 40px 20px;gap:8px;justify-content:center;flex-wrap:wrap;overflow:visible;
+       border-bottom:1px solid var(--line);margin-bottom:12px}
+  .chip{font-size:15px;padding:9px 20px}
+
+  .feed{padding:22px 40px 10px}
+  .sec{margin-bottom:56px}
+  .eyebrow,.hero-t,.sh{padding-left:0;padding-right:0}
+  .eyebrow{margin-bottom:10px}
+  .hero-t{margin-bottom:22px}
+  .hero-t h2{font-size:34px;line-height:1.3}
+  .sh{margin-bottom:22px}
+  .sh .t{font-size:22px}
+  .sh .m{font-size:14px}
+
+  /* horizontal rows become a real grid */
+  .row{display:grid;grid-template-columns:repeat(3,1fr);gap:30px 28px;overflow:visible;padding:0}
+  .card,.card.wide{width:auto}
+  .card .tit{font-size:17px}
+  .card .tag{font-size:12px}
+  .card .thumb{margin-bottom:13px}
+
+  /* the featured "오늘의 추천" reads larger */
+  .sec:first-of-type .card .tit{font-size:18px}
+
+  .ad{margin:0 0 56px;padding:26px}
+  .anchor{padding:14px 40px}
+
+  .ft{padding:44px 40px 56px;margin-top:28px}
+  .ft .links a{font-size:13.5px}
+
+  /* article: narrow, comfortable reading column, wide hero */
+  .art{padding:14px 0 12px}
+  .art h1{font-size:38px;line-height:1.32}
+  .hook{font-size:19px}
+  .hero-photo{border-radius:var(--r-xl)}
+  .back-link{padding:18px 0 0}
+  .summ{padding:20px 24px}
+  .hood-n{font-size:30px}
+  .hood-t{font-size:22px}
+  .hood .desc{font-size:15.5px}
+  .hotel{padding:16px}
+  .hotel .h-name{font-size:18px}
+}
+
+
+
+@media (prefers-reduced-motion:reduce){
+  *{transition:none !important;animation:none !important;scroll-behavior:auto !important}
+}
+
+/* === Stitch-inspired restyle (형태 유지, 느낌만) === */
+.card .tit{font-family:var(--f-serif);font-size:16px;font-weight:600;line-height:1.42}
+.card.wide .tit{font-size:17px}
+.rate{font-size:12.5px;color:var(--ink-2);margin-top:5px;display:flex;align-items:center;gap:5px}
+.rate .score{background:none;padding:0;border-radius:0;font-weight:700;color:var(--ink);font-size:12.5px;letter-spacing:0}
+.rate::before{content:"";width:4px;height:4px;border-radius:50%;background:var(--gold);display:inline-block}
+.thumb .glyph{display:none}
+.hero-t h2{font-size:27px}
+.row{gap:18px}
+.card{width:200px} .card.wide{width:230px}
+.sec{margin-bottom:40px}
+.chip{padding:8px 17px;font-size:14px}
+.sh .t{font-family:var(--f-serif);font-size:21px}
+@media (min-width:1024px){
+  .hero-t h2{font-size:38px}
+  .card,.card.wide{width:auto}
+  .card .tit{font-size:18px}
+  .sh .t{font-size:26px}
+  .row{gap:34px 30px}
+}
+
+</style>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<header class="hdr" id="hdr">
+  <div class="hdr-in">
+    <a class="logo" href="index.html"><span>stay</span><span class="b">curate</span><span class="dot"></span></a>
+    <div class="hdr-act">
+      <button class="icon-btn" aria-label="검색" onclick="_scOpenDest()">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/></svg>
+      </button>
+      <button class="icon-btn" aria-label="메뉴" onclick="_scOpenTopic()">
+        <svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- ===== NAV CHIPS ===== -->
+<nav class="nav" aria-label="주요 메뉴">
+  <a class="chip on" href="index.html">홈</a>
+  <button class="chip" onclick="_scOpenDest()">여행지 <span class="caret">▾</span></button>
+  <button class="chip" onclick="_scOpenTopic('grp-topic')">주제별 <span class="caret">▾</span></button>
+  <button class="chip" onclick="_scOpenTopic('grp-guide')">가이드</button>
+</nav>
+
+<main class="shell">
+  <div class="feed">
+
+    <!-- 오늘의 추천 (the one editorial moment) -->
+    <section class="sec">
+      <div class="eyebrow">
+        <span class="seal"><svg viewBox="0 0 24 24"><path d="M12 3v18M5 8l7-5 7 5M5 8v8l7 5 7-5V8"/></svg></span>
+        <span class="lb">Curated · 오늘의 추천</span>
+      </div>
+      <div class="hero-t"><h2>에디터가 오늘 고른 세 편</h2></div>
+      <div class="row">
+        <a class="card wide" href="https://htmlpreview.github.io/?https://raw.githubusercontent.com/dgmasters01/tw-b2b/main/_business/blog/preview/staycurate/category.html">
+          <div class="thumb" style="--p1:#cfe0d6;--p2:#bcd0c4;--p3:#aec7ba">
+            <span class="fill" style="background-image:url('https://images.unsplash.com/photo-1781101861463-d439a263802b?w=520&h=390&fit=crop&crop=entropy&q=80&auto=format');background-size:cover;background-position:center"></span>
+            
+            <span class="loc">베트남 · 다낭</span>
+          </div>
+          <div class="tag">숙소 가이드</div>
+          <div class="tit">다낭 어디서 잘까? 여행자가 사랑한 5개 동네</div><div class="rate"><span class="score">9.5</span> / 10</div>
+        </a>
+        <a class="card wide" href="https://htmlpreview.github.io/?https://raw.githubusercontent.com/dgmasters01/tw-b2b/main/_business/blog/preview/staycurate/category.html">
+          <div class="thumb" style="--p1:#dcdccb;--p2:#cccbb6;--p3:#c0bfa8">
+            <span class="fill" style="background-image:url('https://images.unsplash.com/photo-1610375233775-6e0166927193?w=520&h=390&fit=crop&crop=entropy&q=80&auto=format');background-size:cover;background-position:center"></span>
+            
+            <span class="loc">태국 · 방콕</span>
+          </div>
+          <div class="tag">가성비</div>
+          <div class="tit">방콕 가성비 호텔 15곳, 예산별로 정리</div><div class="rate"><span class="score">9.2</span> / 10</div>
+        </a>
+        <a class="card wide" href="https://htmlpreview.github.io/?https://raw.githubusercontent.com/dgmasters01/tw-b2b/main/_business/blog/preview/staycurate/category.html">
+          <div class="thumb" style="--p1:#d6dee2;--p2:#c3ced3;--p3:#b6c3c9">
+            <span class="fill" style="background-image:url('https://images.unsplash.com/photo-1733653023417-92ffcab24969?w=520&h=390&fit=crop&crop=entropy&q=80&auto=format');background-size:cover;background-position:center"></span>
+            
+            <span class="loc">일본 · 오사카</span>
+          </div>
+          <div class="tag">예약 팁</div>
+          <div class="tit">오사카 예약 전 흔한 실수 5가지</div><div class="rate"><span class="score">9.6</span> / 10</div>
+        </a>
+      </div>
+    </section>
+
+    <!-- in-feed ad -->
+    <div class="ad"><div class="k">광고 자리 · 인피드</div><div class="s">애드센스 연결 전 · 현재 꺼짐</div></div>
+
+    <!-- 일본 최신 -->
+    <section class="sec">
+      <div class="sh"><span class="t">일본 최신</span><a class="m" href="#">더보기 ›</a></div>
+      <div class="row">
+        <a class="card" href="https://htmlpreview.github.io/?https://raw.githubusercontent.com/dgmasters01/tw-b2b/main/_business/blog/preview/staycurate/category.html">
+          <div class="thumb" style="--p1:#d9e1e4;--p2:#c6d1d5;--p3:#b8c6cb"><span class="fill" style="background-image:url('https://images.unsplash.com/photo-1614301246509-d1fc7d78b6b6?w=520&h=390&fit=crop&crop=entropy&q=80&auto=format');background-size:cover;background-position:center"></span><span class="loc">오사카</span></div>
+          <div class="tag">일본 · 오사카</div><div class="tit">오사카 어디서 잘까? 6개 동네</div><div class="rate"><span class="score">9.0</span> / 10</div>
+        </a>
+        <a class="card" href="https://htmlpreview.github.io/?https://raw.githubusercontent.com/dgmasters01/tw-b2b/main/_business/blog/preview/staycurate/category.html">
+          <div class="thumb" style="--p1:#e0dccf;--p2:#d0cbba;--p3:#c4bfab"><span class="fill" style="background-image:url('https://images.unsplash.com/photo-1760301748231-cbb6c16530a8?w=520&h=390&fit=crop&crop=entropy&q=80&auto=format');background-size:cover;background-position:center"></span><span class="loc">도쿄</span></div>
+          <div class="tag">일본 · 도쿄</div><div class="tit">아이랑 가기 좋은 도쿄 호텔 7</div><div class="rate"><span class="score">8.8</span> / 10</div>
+        </a>
+        <a class="card" href="https://htmlpreview.github.io/?https://raw.githubusercontent.com/dgmasters01/tw-b2b/main/_business/blog/preview/staycurate/category.html">
+          <div class="thumb" style="--p1:#d5e0d8;--p2:#c1d0c6;--p3:#b3c5b8"><span class="fill" style="background-image:url('https://images.unsplash.com/photo-1610333684078-c89bd57f2e46?w=520&h=390&fit=crop&crop=entropy&q=80&auto=format');background-size:cover;background-position:center"></span><span class="loc">교토</span></div>
+          <div class="tag">일본 · 교토</div><div class="tit">교토 3박 4일 예산 정리</div><div class="rate"><span class="score">9.3</span> / 10</div>
+        </a>
+      </div>
+    </section>
+
+    <!-- 베트남 최신 -->
+    <section class="sec">
+      <div class="sh"><span class="t">베트남 최신</span><a class="m" href="#">더보기 ›</a></div>
+      <div class="row">
+        <a class="card" href="https://htmlpreview.github.io/?https://raw.githubusercontent.com/dgmasters01/tw-b2b/main/_business/blog/preview/staycurate/category.html">
+          <div class="thumb" style="--p1:#cfe0d6;--p2:#bcd0c4;--p3:#aec7ba"><span class="fill" style="background-image:url('https://images.unsplash.com/photo-1781101861463-d439a263802b?w=520&h=390&fit=crop&crop=entropy&q=80&auto=format');background-size:cover;background-position:center"></span><span class="loc">다낭</span></div>
+          <div class="tag">베트남 · 다낭</div><div class="tit">다낭 미케비치 호텔 베스트 12</div><div class="rate"><span class="score">9.1</span> / 10</div>
+        </a>
+        <a class="card" href="https://htmlpreview.github.io/?https://raw.githubusercontent.com/dgmasters01/tw-b2b/main/_business/blog/preview/staycurate/category.html">
+          <div class="thumb" style="--p1:#dcdfc9;--p2:#cbceb4;--p3:#bfc3a6"><span class="fill" style="background-image:url('https://images.unsplash.com/photo-1610375233775-6e0166927193?w=520&h=390&fit=crop&crop=entropy&q=80&auto=format');background-size:cover;background-position:center"></span><span class="loc">하노이</span></div>
+          <div class="tag">베트남 · 하노이</div><div class="tit">하노이 구시가 vs 신도심, 어디 묵을까</div><div class="rate"><span class="score">8.9</span> / 10</div>
+        </a>
+        <a class="card" href="https://htmlpreview.github.io/?https://raw.githubusercontent.com/dgmasters01/tw-b2b/main/_business/blog/preview/staycurate/category.html">
+          <div class="thumb" style="--p1:#d7e2dd;--p2:#c3d2cb;--p3:#b6c7bf"><span class="fill" style="background-image:url('https://images.unsplash.com/photo-1733653023417-92ffcab24969?w=520&h=390&fit=crop&crop=entropy&q=80&auto=format');background-size:cover;background-position:center"></span><span class="loc">호이안</span></div>
+          <div class="tag">베트남 · 호이안</div><div class="tit">호이안 가기 좋은 시기</div><div class="rate"><span class="score">9.4</span> / 10</div>
+        </a>
+      </div>
+    </section>
+
+    <!-- ad every 2-3 sections -->
+    <div class="ad"><div class="k">광고 자리 · 콘텐츠 &gt; 광고</div><div class="s">2~3섹션마다 1개 · 현재 꺼짐</div></div>
+
+    <!-- 가성비 호텔 -->
+    <section class="sec">
+      <div class="sh"><span class="t">가성비 호텔</span><a class="m" href="#">더보기 ›</a></div>
+      <div class="row">
+        <a class="card" href="https://htmlpreview.github.io/?https://raw.githubusercontent.com/dgmasters01/tw-b2b/main/_business/blog/preview/staycurate/category.html">
+          <div class="thumb" style="--p1:#e0ddce;--p2:#d0ccb9;--p3:#c4bfaa"><span class="fill" style="background-image:url('https://images.unsplash.com/photo-1614301246509-d1fc7d78b6b6?w=520&h=390&fit=crop&crop=entropy&q=80&auto=format');background-size:cover;background-position:center"></span><span class="loc">방콕</span></div>
+          <div class="tag">태국 · 방콕</div><div class="tit">방콕 3만원대 호텔 10</div><div class="rate"><span class="score">8.7</span> / 10</div>
+        </a>
+        <a class="card" href="https://htmlpreview.github.io/?https://raw.githubusercontent.com/dgmasters01/tw-b2b/main/_business/blog/preview/staycurate/category.html">
+          <div class="thumb" style="--p1:#d6e0da;--p2:#c2d0c8;--p3:#b5c5bc"><span class="fill" style="background-image:url('https://images.unsplash.com/photo-1760301748231-cbb6c16530a8?w=520&h=390&fit=crop&crop=entropy&q=80&auto=format');background-size:cover;background-position:center"></span><span class="loc">오사카</span></div>
+          <div class="tag">일본 · 오사카</div><div class="tit">오사카 역 근처 가성비 8</div><div class="rate"><span class="score">9.2</span> / 10</div>
+        </a>
+        <a class="card" href="https://htmlpreview.github.io/?https://raw.githubusercontent.com/dgmasters01/tw-b2b/main/_business/blog/preview/staycurate/category.html">
+          <div class="thumb" style="--p1:#d4dfe3;--p2:#c0ced3;--p3:#b2c3c9"><span class="fill" style="background-image:url('https://images.unsplash.com/photo-1610333684078-c89bd57f2e46?w=520&h=390&fit=crop&crop=entropy&q=80&auto=format');background-size:cover;background-position:center"></span><span class="loc">다낭</span></div>
+          <div class="tag">베트남 · 다낭</div><div class="tit">다낭, 5성급이 10만원이라고?</div><div class="rate"><span class="score">9.0</span> / 10</div>
+        </a>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="ft">
+    <div class="wm">stay<span class="b">curate</span></div>
+    <div class="tagline">여행자가 사랑한 숙소를, 동네별로 골라드려요.</div>
+    <div class="links">
+      <a href="#">소개</a><a href="#">연락처</a><a href="#">개인정보처리방침</a><a href="#">제휴 고지</a>
+    </div>
+    <div class="fine">본 사이트의 일부 링크는 제휴 링크이며, 예약 시 수수료를 받을 수 있습니다. 가격·평점은 공개 데이터를 종합한 참고값이에요.</div>
+  </footer>
+</main>
+
+<!-- ANCHOR AD -->
+<div class="anchor" id="anchor">
+  <span class="k">하단 앵커 광고 자리 · 현재 꺼짐</span>
+  <button class="x" id="anchor-x" aria-label="광고 닫기"><svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+</div>
+
+<!-- ===== MENU: 여행지 ===== -->
+<div class="scrim" id="scrim"></div>
+<aside class="panel" id="panel-dest" aria-label="여행지 메뉴">
+  <div class="panel-h">
+    <span class="pt">여행지</span>
+    <button class="icon-btn" aria-label="닫기" onclick="_scClose()"><svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="1.8"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+  </div>
+  <div class="panel-body">
+    <div class="search">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/></svg>
+      <input id="dest-search" type="text" placeholder="나라·도시 검색">
+    </div>
+    <div class="mlabel">인기 여행지</div>
+    <div class="pchips">
+      <a class="pchip" href="#">오사카</a><a class="pchip" href="#">다낭</a><a class="pchip" href="#">방콕</a>
+    </div>
+    <button class="acc-h" aria-expanded="true" data-acc="acc-asia">아시아<span class="cv"><svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></span></button>
+    <div class="acc-body show" id="acc-asia">
+      <a class="nchip" href="#">일본</a><a class="nchip" href="#">베트남</a><a class="nchip" href="#">태국</a><a class="nchip" href="#">대만</a>
+    </div>
+    <button class="acc-h" aria-expanded="false" data-acc="acc-eu">유럽<span class="cv"><svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></span></button>
+    <div class="acc-body" id="acc-eu"><a class="nchip" href="#">프랑스</a><a class="nchip" href="#">이탈리아</a><a class="nchip" href="#">스페인</a></div>
+    <button class="acc-h" aria-expanded="false" data-acc="acc-am">아메리카<span class="cv"><svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></span></button>
+    <div class="acc-body" id="acc-am"><a class="nchip" href="#">미국</a><a class="nchip" href="#">멕시코</a></div>
+    <div class="mnote">나라를 누르면 도시(오사카·도쿄…)가 열려요 · 새 나라는 자동으로 추가됩니다</div>
+  </div>
+</aside>
+
+<!-- ===== MENU: 주제별 / 가이드 ===== -->
+<aside class="panel" id="panel-topic" aria-label="주제별·가이드 메뉴">
+  <div class="panel-h">
+    <span class="pt">둘러보기</span>
+    <button class="icon-btn" aria-label="닫기" onclick="_scClose()"><svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="1.8"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+  </div>
+  <div class="panel-body">
+    <div class="mgroup" id="grp-topic">
+      <div class="gl">주제별 · 여행 스타일</div>
+      <a class="mrow" href="#"><span class="ic">💰</span><span class="nm">가성비 여행</span><span class="go"><svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></span></a>
+      <a class="mrow" href="#"><span class="ic">👨‍👩‍👧</span><span class="nm">가족 여행</span><span class="go"><svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></span></a>
+      <a class="mrow" href="#"><span class="ic">❤️</span><span class="nm">커플·허니문</span><span class="go"><svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></span></a>
+      <a class="mrow" href="#"><span class="ic">🧍</span><span class="nm">혼자 여행</span><span class="go"><svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></span></a>
+      <a class="mrow" href="#"><span class="ic">💎</span><span class="nm">럭셔리</span><span class="go"><svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></span></a>
+      <a class="mrow" href="#"><span class="ic">💼</span><span class="nm">비즈니스·출장</span><span class="go"><svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></span></a>
+    </div>
+    <div class="mgroup" id="grp-guide">
+      <div class="gl" style="border-top:1px solid var(--line);margin-top:8px">가이드 · 실용 정보</div>
+      <a class="mrow" href="#"><span class="ic">🏷️</span><span class="nm">호텔 싸게 예약하는 법</span><span class="go"><svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></span></a>
+      <a class="mrow" href="#"><span class="ic">⚠️</span><span class="nm">예약 전 실수 모음</span><span class="go"><svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></span></a>
+      <a class="mrow" href="#"><span class="ic">🧮</span><span class="nm">여행 예산 짜기</span><span class="go"><svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></span></a>
+      <a class="mrow" href="#"><span class="ic">📅</span><span class="nm">가기 좋은 시기</span><span class="go"><svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></span></a>
+    </div>
+  </div>
+</aside>
+
+<script>
+// staycurate — light interactions (structure/flow unchanged from canon)
+(function () {
+  var scrim = document.getElementById('scrim');
+  var panelDest = document.getElementById('panel-dest');
+  var panelTopic = document.getElementById('panel-topic');
+
+  function open(panel, focusEl) {
+    [panelDest, panelTopic].forEach(function (p) { if (p) p.classList.remove('open'); });
+    if (panel) panel.classList.add('open');
+    if (scrim) scrim.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    if (focusEl) setTimeout(function () { try { focusEl.focus(); } catch (e) {} }, 60);
+  }
+  function closeAll() {
+    [panelDest, panelTopic].forEach(function (p) { if (p) p.classList.remove('open'); });
+    if (scrim) scrim.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  window._scOpenDest = function () { open(panelDest, document.getElementById('dest-search')); };
+  window._scOpenTopic = function (id) {
+    open(panelTopic);
+    if (id) { var el = document.getElementById(id); if (el) el.scrollIntoView({ block: 'start' }); }
+  };
+  window._scClose = closeAll;
+
+  if (scrim) scrim.addEventListener('click', closeAll);
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeAll(); });
+
+  // header hairline on scroll
+  var hdr = document.getElementById('hdr');
+  if (hdr) {
+    var onScroll = function () { hdr.classList.toggle('scrolled', window.scrollY > 4); };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  }
+
+  // anchor ad close
+  var anchor = document.getElementById('anchor');
+  var anchorX = document.getElementById('anchor-x');
+  if (anchorX && anchor) {
+    anchorX.addEventListener('click', function () {
+      anchor.classList.add('hide');
+      document.body.style.paddingBottom = '0';
+    });
+  }
+
+  // accordion (destinations)
+  document.querySelectorAll('.acc-h').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var expanded = btn.getAttribute('aria-expanded') === 'true';
+      btn.setAttribute('aria-expanded', String(!expanded));
+      var body = document.getElementById(btn.getAttribute('data-acc'));
+      if (body) body.classList.toggle('show', !expanded);
+    });
+  });
+})();
+
+</script>
+</body>
+</html>

@@ -1,7 +1,7 @@
 # TW 여행 블로그 — STATE (부팅 문서)
 
 > 새 세션은 이 파일부터 읽는다. 상태는 여기와 GitHub에 있다. 메모리 의존 금지.
-> 최종 갱신: 2026-08-05 (반응형+전체 틀 정본화 세션)
+> 최종 갱신: 2026-08-05 (서버 분리+staycurate.com 연결 완료 세션)
 
 ## 운영 원칙 (최상위)
 1. 모든 제안은 상상·추측이 아니라 **자료를 검색·분석한 결과**로 낸다. (근거 없는 제안 금지)
@@ -20,7 +20,7 @@
 공개 데이터(가격·평점·후기)를 **종합**하고 우리 실적 데이터(R코드·호텔DB)를 얹어 추천 콘텐츠를 만들고, R코드로 예약을 보내 커미션+애드센스로 수익화 → 카테고리별 도메인으로 복제하는 **데이터 종합형 추천 미디어**.
 
 ## 현재 단계
-설계 완료 · ✅ staycurate.com 구매완료(2026-08-05, Cloudflare) · ✅ **반응형(웹+모바일) 뼈대 라이브 미리보기** 제작(홈+글상세+메뉴3축, PC=넓은 3열 그리드/모바일=가로카드, 독립브랜드 staycurate, 민감키 0). 확인용 임시 위치=tw-b2b `_business/blog/preview/staycurate/`(htmlpreview 링크로 대표님 확인 완료). · ✅ **전체 틀 정본화 완료 → `_business/blog/FRAMEWORK.md`** (8기둥 · 전체 페이지 트리+URL · 글 내부 정석 순서 · 제휴 고지 표준문구[공정위 근거] · E-E-A-T 요소 · AdSense 필수 페이지 · 제작 순서). · ⏳ **서버 격리(별도 레포+별도 Vercel 프로젝트)·staycurate.com 연결 = Vercel 쓰기도구 붙는 세션 대기**(이 세션엔 Vercel MCP 쓰기도구 미부착 확인).
+✅ **서버 분리 완료** — 별도 Vercel 프로젝트 `staycurate`(team_3jWCv2XBc0vzUB8PYsPTGtLB) 생성·배포(deploy_to_vercel, target=production). tw-b2b와 분리. 공개 URL=`staycurate-six.vercel.app`. · ✅ **staycurate.com 연결 완료(2026-08-05, 라이브 확인됨)** — Cloudflare DNS: A `@`→76.76.21.21(DNS전용), CNAME `www`→cname.vercel-dns.com(DNS전용). apex→www 308 리다이렉트. · ✅ 반응형(웹+모바일) 뼈대(홈+글상세+메뉴3축, 독립브랜드 staycurate). · ✅ 전체 틀 정본 `_business/blog/FRAMEWORK.md`. · ⚠️ 배포 방식=deploy_to_vercel 파일 직접 업로드(git 레포 없음). 정식 CI 원하면 별도 GitHub 레포+Vercel git 연동은 향후 과제. 현재 파일 원본=Claude 세션 로컬(정본화 필요).
 
 ## 확정된 방향 (요약 — 상세는 DECISIONS.md)
 - 사업모델: 데이터 종합형 추천 미디어 + 어필리에이트 (Wirecutter/NerdWallet형)
@@ -33,14 +33,15 @@
 - 발행: 지속가능한 질 우선. 반자동 생산 + 사람 검수. 소재 = 나라×도시×포맷 + 갱신.
 
 ## 다음 할 일 (FRAMEWORK 제작 순서 = 정석, 하나씩)
-1. **공통 뼈대(레이아웃 시스템)** 컴포넌트화 — 헤더·푸터·메뉴·색·글꼴 한 벌
-2. **① 콘텐츠**: 카테고리 목록(아카이브) 페이지 → 검색 결과 페이지
-3. **② 신뢰·법적**: 소개·연락처·편집/정정 정책·개인정보(쿠키·애드센스 명시)·이용약관·제휴 고지(실제 문구)
-4. **③ 시스템·SEO**: robots·sitemap·rss·ads.txt·llms.txt·JSON-LD·OG·404
-5. 읽기 편의(브레드크럼·목차·관련글·공유·뉴스레터·지도)
-6. 측정(GA4·Search Console·성과 대시보드) 연결
-7. **서버 격리(별도 레포+별도 Vercel)+staycurate.com 연결** — Vercel 도구 세션에서
-8. 첫 글 1편 손 제작 → 표준 템플릿화
+1. ✅ (완료) 전체 틀 · ✅ (완료) 서버 분리+staycurate.com 연결
+2. **공통 뼈대(레이아웃 시스템)** 컴포넌트화 — 헤더·푸터·메뉴·색·글꼴 한 벌
+3. **① 콘텐츠**: 카테고리 목록(아카이브) 페이지 → 검색 결과 페이지
+4. **② 신뢰·법적**: 소개·연락처·편집/정정 정책·개인정보(쿠키·애드센스)·이용약관·제휴 고지
+5. **③ 시스템·SEO**: robots·sitemap·rss·ads.txt·llms.txt·JSON-LD·OG·404
+6. 읽기 편의(브레드크럼·목차·관련글·공유·뉴스레터·지도)
+7. 측정(GA4·Search Console·성과 대시보드)
+8. 배포 파일 정본화(별도 GitHub 레포+Vercel git 연동 검토)
+9. 첫 글 1편 손 제작 → 표준 템플릿화
 
 ## 문서 지도
 - **전체 틀(정본): `_business/blog/FRAMEWORK.md`** ← 페이지 제작 전 필독

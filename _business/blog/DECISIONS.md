@@ -103,3 +103,11 @@ Vercel Pro 기존 계정 그대로(새 아이디·추가 월정액 없음, 도�
 - 이후 **커밋 = 자동 배포**. 임시 미리보기(htmlpreview) 의존 종료. 확인은 실주소(staycurate.com)에서.
 - ⚠️ 배포는 **새 커밋이 있어야** 트리거됨(연동 전 커밋은 자동 배포 안 됨 → 더미 커밋으로 깨움).
 - 실사이트 소스 정본 = `_business/blog/site/staycurate/`. `preview/staycurate/`는 폐기 예정 임시본.
+
+## D-B20 블로그 독립 레포 분리 완료 (2026-08-05 · D-B02 충족)
+- 대표님 판단: "나중에 하면 또 꼬인다, 두 번 일하는 게 더 문제" → 콘텐츠 4페이지 시점에 즉시 분리(가장 싼 시점).
+- **레포 = `dgmasters01/staycurate`** (Private). 사이트 파일은 레포 루트에 배치 → Vercel Root Directory 비움.
+- Vercel `staycurate` ↔ 이 레포 연결 완료. tw-b2b 연결은 해제. 커밋 = 자동 배포(확인: 4페이지 전부 200).
+- tw-b2b의 `_business/blog/site/staycurate/`는 삭제(중복 제거). 기획문서(DECISIONS·CONTENT·ROADMAP·STATE)는 tw-b2b `_business/blog/`에 유지.
+- ops 엔드포인트 확장: `POST /api/ops/github-commit` body에 **`repo`** 지정 가능(화이트리스트 `tw-b2b`·`staycurate`, 미지정 시 tw-b2b).
+- 이로써 D-B02(별도 레포·민감키 0개)·D-B14(독립 브랜드·footprint 분산) 원칙 충족.

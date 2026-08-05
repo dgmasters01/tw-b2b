@@ -89,3 +89,17 @@ Vercel Pro 기존 계정 그대로(새 아이디·추가 월정액 없음, 도�
 - 이 블로그에서 발생한 예약은 CID 1972105로 분리 집계 → D-B12 상황판과 연결.
 - 도메인 연결 상태: staycurate.com → www 308 → HTTP 200 (Vercel, 2026-08-05 확인).
 - 남은 것: **아고다 API 키(siteid+apikey)** — 호텔 사진·평점·가격 자동 수집용. 미확보. 보안상 Vercel 환경변수 권장.
+
+## D-B18 수집-발행 분리 아키텍처 · API 키 배치 (2026-08-05 확정)
+질문 배경: "블로그는 독립인데 왜 키를 tw-b2b에 두나?"(대표님). 답 = 블로그는 독립 유지, **키만** 비공개 서버에 둔다.
+- **staycurate(공개 블로그)** = 별도 Vercel 프로젝트·별도 도메인·별도 CID(1972105)·별도 브랜드. **민감키 0개**(D-B02 유지). 정적 HTML만.
+- **tw-b2b(비공개 수집 서버)** = 아고다 API 키 보관(Vercel 환경변수 `AGODA_API_KEY`·`AGODA_SITE_ID`). 봇이 아고다 호출 → 호텔 사진주소·평점·가격·예약링크를 **Supabase DB에 적재**.
+- **연결 방식** = 두 서버는 직접 통신하지 않음. 공용 창고(Supabase DB)를 통해 tw-b2b가 "넣고" / 블로그 발행 시 "꺼내 씀".
+- 근거: 공개 사이트에 열쇠를 두지 않는다 · tw-b2b엔 봇·DB 연결 인프라가 이미 있음(재구축 불필요).
+- 향후: 블로그 규모가 커지면 **블로그 전용 수집 서버로 분리** 검토(지금은 과잉).
+
+## D-B19 실사이트 배포 파이프라인 확정 (2026-08-05)
+- Vercel 프로젝트 `staycurate` ↔ GitHub `dgmasters01/tw-b2b` **Git 연동 완료**. Root Directory = `_business/blog/site/staycurate`.
+- 이후 **커밋 = 자동 배포**. 임시 미리보기(htmlpreview) 의존 종료. 확인은 실주소(staycurate.com)에서.
+- ⚠️ 배포는 **새 커밋이 있어야** 트리거됨(연동 전 커밋은 자동 배포 안 됨 → 더미 커밋으로 깨움).
+- 실사이트 소스 정본 = `_business/blog/site/staycurate/`. `preview/staycurate/`는 폐기 예정 임시본.

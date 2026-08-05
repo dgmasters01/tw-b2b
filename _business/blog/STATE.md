@@ -25,7 +25,7 @@
 - 발행: 지속가능한 질 우선. 반자동 생산 + 사람 검수. 소재 = 나라×도시×포맷 + 갱신.
 
 ## 다음 할 일 (우선순위)
-1. ✅ staycurate.com 구매완료 → **Claude: 블로그 전용 별도 Vercel 프로젝트 생성·도메인 연결(D-B02 격리)**. 대표님은 Cloudflare DNS 클릭 1~2개만.
+1. ✅ staycurate.com 구매완료 + Vercel 커넥터 재연결(쓰기 권한 승인) → **다음 새 세션에서 Claude: 블로그 전용 별도 Vercel 프로젝트 생성(deploy_to_vercel, name=staycurate, team_3jWCv2XBc0vzUB8PYsPTGtLB) → staycurate.com 연결(Cloudflare DNS 대표님 클릭 1~2개) → 홈·메뉴 구현(D-B13)**. ⚠ Vercel 쓰기권한은 재연결 직후 같은 세션엔 안 붙을 수 있음 → 새 채팅에서 진행.
 2. 미해결 갭 처리 (→ GAPS.md): 측정·이미지·색인·법적·검수·다국어
 3. 키워드 엔진 돌려 실예약 1순위 도시 선정
 4. 그 도시로 첫 글 1편 손으로 제작(포맷 1개) → 표준 템플릿화

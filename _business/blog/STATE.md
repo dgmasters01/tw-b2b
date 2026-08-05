@@ -1,7 +1,7 @@
 # TW 여행 블로그 — STATE (부팅 문서)
 
 > 새 세션은 이 파일부터 읽는다. 상태는 여기와 GitHub에 있다. 메모리 의존 금지.
-> 최종 갱신: 2026-08-05 (실사이트 소스 정본화·CID 확정 세션)
+> 최종 갱신: 2026-08-05 (실사이트 배포 연동 완료·아키텍처 확정 세션)
 
 ## 운영 원칙 (최상위)
 1. 모든 제안은 상상·추측이 아니라 **자료를 검색·분석한 결과**로 낸다. (근거 없는 제안 금지)
@@ -46,7 +46,8 @@
 ## 실사이트 소스 (정본) ⭐
 - **경로: `_business/blog/site/staycurate/`** — 여기가 staycurate.com의 진짜 소스. 앞으로 수정은 여기서.
   - `index.html`(홈) · `best-osaka-hotels/`(베스트목록) · `osaka-hotel-budget/`(예산분해) · `kyoto/`(카테고리)
-- 배포: Vercel 프로젝트 `staycurate` ← GitHub 연동 필요(Root Directory = 위 경로). 연동되면 커밋 시 자동 배포.
+- 배포: ✅ **자동 배포 가동 중** — Vercel `staycurate` ↔ GitHub `dgmasters01/tw-b2b`, Root=`_business/blog/site/staycurate`. 커밋하면 1~2분 뒤 실사이트 반영(D-B19).
+- 라이브 페이지: `/`(홈) · `/best-osaka-hotels`(베스트7) · `/osaka-hotel-budget`(예산분해) · `/kyoto`(카테고리) — 전부 200 확인(2026-08-05)
 - ⚠️ `preview/staycurate/`는 확인용 임시본. 정본 아님. 실제 반영은 `site/staycurate/`에서.
 - CID: **1972105**(D-B17) · 도메인 staycurate.com 연결 완료
 

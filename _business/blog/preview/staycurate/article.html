@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>다낭 어디서 잘까? 여행자가 사랑한 5개 동네 — staycurate</title>
+<meta name="description" content="해변·시내·가성비까지, 다낭에서 어디에 묵을지 동네별로 골라드려요.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Noto+Serif+KR:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+/* ============================================================
+   staycurate — visual system
+   Structure/flow follows screens.html canon exactly.
+   Visual language elevated: editorial curation, restrained palette.
+   ============================================================ */
+
+:root{
+  /* surfaces */
+  --paper:#FAF8F3;      /* warm ivory page (NOT cream #F4F1EA) */
+  --card:#FFFFFF;
+  --card-2:#FBF9F5;
+  --line:#EAE5DB;
+  --line-2:#DDD6C9;
+
+  /* ink */
+  --ink:#1A211D;        /* near-black warm charcoal */
+  --ink-2:#5B635D;
+  --ink-3:#98A099;
+
+  /* brand — deep pine/emerald (the curated-travel hue) */
+  --brand:#155C47;
+  --brand-ink:#0D4634;
+  --brand-wash:#E9F1EC;
+  --brand-line:#CFE1D7;
+
+  /* metallic accent — restrained brass, editorial eyebrows only */
+  --gold:#A2732A;
+  --gold-soft:#F2E9D6;
+
+  /* signals */
+  --warn:#96560F;       /* 아쉬워요 */
+
+  --shadow-1:0 1px 2px rgba(26,33,29,.04), 0 2px 8px rgba(26,33,29,.05);
+  --shadow-2:0 6px 18px rgba(26,33,29,.09), 0 2px 6px rgba(26,33,29,.05);
+
+  --r-sm:8px; --r-md:12px; --r-lg:16px; --r-xl:22px;
+
+  --col: 552px;         /* feed column */
+  --read: 680px;        /* reading column */
+
+  --f-serif:"Noto Serif KR", Georgia, serif;
+  --f-latin:"Fraunces", Georgia, serif;
+  --f-ui:"Pretendard", -apple-system, "Malgun Gothic", sans-serif;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  font-family:var(--f-ui);
+  color:var(--ink);
+  background:var(--paper);
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+  padding-bottom:76px; /* room for anchor ad */
+}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--brand);outline-offset:2px;border-radius:4px}
+
+/* ---- layout column ---- */
+.shell{max-width:var(--col);margin:0 auto;background:var(--paper)}
+.shell.read{max-width:var(--read)}
+
+/* ============ header ============ */
+.hdr{
+  position:sticky;top:0;z-index:40;
+  background:rgba(250,248,243,.86);
+  backdrop-filter:saturate(1.4) blur(10px);
+  -webkit-backdrop-filter:saturate(1.4) blur(10px);
+  border-bottom:1px solid transparent;
+  transition:border-color .2s ease;
+}
+.hdr.scrolled{border-bottom-color:var(--line)}
+.hdr-in{
+  max-width:var(--col);margin:0 auto;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:13px 18px;
+}
+.shell.read ~ .x, .read .hdr-in{max-width:var(--read)}
+.logo{
+  font-family:var(--f-latin);
+  font-weight:600;
+  font-size:22px;
+  letter-spacing:-.02em;
+  color:var(--ink);
+  display:inline-flex;align-items:baseline;gap:1px;
+}
+.logo .b{color:var(--brand)}
+.logo .dot{
+  width:5px;height:5px;border-radius:50%;
+  background:var(--gold);
+  display:inline-block;margin-left:3px;transform:translateY(-1px);
+}
+.hdr-act{display:flex;align-items:center;gap:6px}
+.icon-btn{
+  width:38px;height:38px;border:none;background:transparent;
+  border-radius:10px;color:var(--ink);
+  display:grid;place-items:center;transition:background .15s ease;
+}
+.icon-btn:hover{background:rgba(21,92,71,.07)}
+.icon-btn svg{width:21px;height:21px;stroke:currentColor;stroke-width:1.7;fill:none}
+
+/* ---- nav chips ---- */
+.nav{
+  max-width:var(--col);margin:0 auto;
+  display:flex;gap:8px;padding:2px 18px 14px;
+  overflow-x:auto;scrollbar-width:none;
+}
+.nav::-webkit-scrollbar{display:none}
+.chip{
+  border:1px solid var(--line-2);
+  background:var(--card);
+  color:var(--ink-2);
+  font-size:13.5px;font-weight:500;
+  padding:7px 14px;border-radius:999px;white-space:nowrap;
+  display:inline-flex;align-items:center;gap:4px;
+  transition:all .15s ease;
+}
+.chip:hover{border-color:var(--brand-line);color:var(--brand)}
+.chip.on{background:var(--brand);border-color:var(--brand);color:#fff}
+.chip .caret{font-size:10px;opacity:.7;transform:translateY(1px)}
+
+/* ============ sections ============ */
+.feed{padding:8px 0 8px}
+.sec{margin-bottom:30px}
+.sh{
+  display:flex;align-items:flex-end;justify-content:space-between;
+  padding:0 18px;margin-bottom:14px;
+}
+.sh .t{
+  font-family:var(--f-ui);
+  font-size:18px;font-weight:600;letter-spacing:-.01em;color:var(--ink);
+}
+.sh .m{
+  font-size:13px;font-weight:500;color:var(--brand);
+  display:inline-flex;align-items:center;gap:3px;white-space:nowrap;
+  transition:gap .15s ease;
+}
+.sh .m:hover{gap:6px}
+
+/* editorial eyebrow (the one signature moment) */
+.eyebrow{
+  display:flex;align-items:center;gap:9px;
+  padding:0 18px;margin-bottom:7px;
+}
+.eyebrow .seal{
+  width:22px;height:22px;flex:none;border-radius:50%;
+  border:1.4px solid var(--gold);color:var(--gold);
+  display:grid;place-items:center;
+}
+.eyebrow .seal svg{width:12px;height:12px;stroke:currentColor;stroke-width:1.6;fill:none}
+.eyebrow .lb{
+  font-size:11.5px;font-weight:600;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--gold);
+}
+.hero-t{
+  padding:0 18px;margin-bottom:15px;
+}
+.hero-t h2{
+  font-family:var(--f-serif);
+  font-weight:600;font-size:23px;line-height:1.34;
+  letter-spacing:-.01em;color:var(--ink);
+}
+
+/* ---- horizontal card rows ---- */
+.row{
+  display:flex;gap:14px;overflow-x:auto;scrollbar-width:none;
+  padding:2px 18px 6px;scroll-snap-type:x proximity;
+}
+.row::-webkit-scrollbar{display:none}
+.card{
+  width:172px;flex:none;scroll-snap-align:start;
+}
+.card.wide{width:196px}
+.thumb{
+  position:relative;width:100%;aspect-ratio:4/3;
+  border-radius:var(--r-md);overflow:hidden;
+  background:var(--card-2);
+  border:1px solid var(--line);
+  margin-bottom:10px;
+  transition:transform .22s cubic-bezier(.2,.7,.3,1), box-shadow .22s ease;
+}
+.card:hover .thumb{transform:translateY(-3px);box-shadow:var(--shadow-2)}
+/* refined placeholder — warm, photo-like, never flat gray */
+.thumb .fill{
+  position:absolute;inset:0;
+  background:
+    radial-gradient(120% 90% at 18% 12%, rgba(255,255,255,.5), transparent 55%),
+    linear-gradient(150deg, var(--p1,#dfe6df) 0%, var(--p2,#cdd7cf) 60%, var(--p3,#c3cfca) 100%);
+}
+.thumb .glyph{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  color:rgba(26,33,29,.22);
+}
+.thumb .glyph svg{width:26px;height:26px;stroke:currentColor;stroke-width:1.4;fill:none}
+.thumb .loc{
+  position:absolute;left:9px;bottom:9px;
+  background:rgba(15,20,17,.62);color:#fff;
+  font-size:11px;font-weight:500;letter-spacing:.01em;
+  padding:3px 9px;border-radius:999px;
+  backdrop-filter:blur(4px);
+}
+.card .tag{
+  font-size:11px;font-weight:500;color:var(--gold);
+  letter-spacing:.03em;margin-bottom:3px;
+}
+.card .tit{
+  font-size:14px;font-weight:600;line-height:1.4;color:var(--ink);
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+}
+
+/* ---- ad slots (currently OFF, honest & recessive) ---- */
+.ad{
+  margin:0 18px 30px;
+  border:1px dashed var(--line-2);
+  border-radius:var(--r-md);
+  background:
+    repeating-linear-gradient(135deg, transparent 0 12px, rgba(162,115,42,.03) 12px 13px),
+    var(--card-2);
+  padding:16px;text-align:center;
+}
+.ad .k{font-size:11px;font-weight:600;letter-spacing:.1em;color:var(--ink-3);text-transform:uppercase}
+.ad .s{font-size:11.5px;color:var(--ink-3);margin-top:3px}
+
+/* ---- anchor ad (fixed, closable) ---- */
+.anchor{
+  position:fixed;left:0;right:0;bottom:0;z-index:50;
+  background:var(--card);border-top:1px solid var(--line);
+  box-shadow:0 -4px 16px rgba(26,33,29,.06);
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  padding:12px 16px;
+  transition:transform .3s cubic-bezier(.2,.7,.3,1);
+}
+.anchor.hide{transform:translateY(120%)}
+.anchor .k{font-size:11.5px;font-weight:600;letter-spacing:.08em;color:var(--ink-3);text-transform:uppercase}
+.anchor .x{
+  position:absolute;right:10px;top:50%;transform:translateY(-50%);
+  width:30px;height:30px;border:none;background:transparent;border-radius:8px;
+  color:var(--ink-3);display:grid;place-items:center;
+}
+.anchor .x:hover{background:var(--card-2);color:var(--ink)}
+.anchor .x svg{width:16px;height:16px;stroke:currentColor;stroke-width:1.8}
+
+/* ============ footer ============ */
+.ft{
+  border-top:1px solid var(--line);
+  margin-top:14px;padding:26px 18px 34px;
+}
+.ft .wm{
+  font-family:var(--f-latin);font-size:18px;font-weight:600;
+  letter-spacing:-.02em;color:var(--ink);margin-bottom:4px;
+}
+.ft .wm .b{color:var(--brand)}
+.ft .tagline{font-size:12.5px;color:var(--ink-3);margin-bottom:16px}
+.ft .links{display:flex;flex-wrap:wrap;gap:8px 18px}
+.ft .links a{font-size:12.5px;color:var(--ink-2)}
+.ft .links a:hover{color:var(--brand)}
+.ft .fine{font-size:11px;color:var(--ink-3);margin-top:16px;line-height:1.6}
+
+/* ============ ARTICLE ============ */
+.art{padding:6px 18px 10px}
+.art h1{
+  font-family:var(--f-serif);
+  font-weight:700;font-size:27px;line-height:1.4;letter-spacing:-.01em;
+  color:var(--ink);margin:6px 0 12px;
+}
+.meta{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:18px}
+.meta .d{font-size:12.5px;color:var(--ink-3)}
+.meta .aff{
+  font-size:11px;font-weight:600;color:var(--gold);
+  background:var(--gold-soft);padding:3px 9px;border-radius:999px;
+}
+.hero-photo{
+  position:relative;width:100%;aspect-ratio:16/9;
+  border-radius:var(--r-lg);overflow:hidden;border:1px solid var(--line);
+  margin-bottom:20px;
+}
+.hero-photo .fill{
+  position:absolute;inset:0;
+  background:
+    radial-gradient(130% 100% at 20% 0%, rgba(255,255,255,.55), transparent 60%),
+    linear-gradient(160deg,#d7e2dc 0%,#c4d2cb 55%,#b9cabf 100%);
+}
+.hero-photo .glyph{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:rgba(26,33,29,.24)}
+.hero-photo .glyph svg{width:34px;height:34px;stroke:currentColor;stroke-width:1.3;fill:none}
+.hero-photo .cred{
+  position:absolute;right:10px;bottom:9px;
+  font-size:10.5px;color:#fff;background:rgba(15,20,17,.55);
+  padding:3px 9px;border-radius:999px;backdrop-filter:blur(4px);
+}
+.hook{
+  font-family:var(--f-serif);
+  font-size:17px;line-height:1.85;color:#31382f;
+  margin-bottom:22px;
+}
+/* "바쁘면 여기만" summary */
+.summ{
+  background:var(--brand-wash);
+  border:1px solid var(--brand-line);
+  border-left:3px solid var(--brand);
+  border-radius:var(--r-md);
+  padding:15px 17px;margin-bottom:30px;
+}
+.summ .lb{
+  display:flex;align-items:center;gap:7px;
+  font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--brand);margin-bottom:9px;
+}
+.summ .lb svg{width:14px;height:14px;stroke:currentColor;stroke-width:1.8;fill:none}
+.summ ul{list-style:none;display:grid;gap:7px}
+.summ li{font-size:14px;color:var(--brand-ink);line-height:1.5}
+.summ li b{color:var(--brand)}
+
+/* neighborhood block */
+.hood{margin-bottom:30px}
+.hood-h{display:flex;align-items:baseline;gap:11px;margin-bottom:6px}
+.hood-n{
+  font-family:var(--f-latin);
+  font-size:26px;font-weight:600;color:var(--gold);line-height:1;
+  flex:none;
+}
+.hood-t{font-family:var(--f-serif);font-size:19px;font-weight:600;color:var(--ink);letter-spacing:-.01em}
+.hood .best{
+  display:inline-block;
+  font-size:12px;font-weight:600;color:var(--brand);
+  background:var(--brand-wash);border:1px solid var(--brand-line);
+  padding:4px 11px;border-radius:999px;margin-bottom:12px;
+}
+.hood .desc{font-size:14.5px;line-height:1.75;color:#3a423b;margin-bottom:15px}
+
+/* hotel card */
+.hotel{
+  background:var(--card);border:1px solid var(--line);
+  border-radius:var(--r-lg);padding:13px;margin-bottom:14px;
+  box-shadow:var(--shadow-1);
+  transition:box-shadow .2s ease,transform .2s ease;
+}
+.hotel:hover{box-shadow:var(--shadow-2)}
+.hotel .h-photo{
+  position:relative;width:100%;aspect-ratio:16/10;border-radius:var(--r-md);
+  overflow:hidden;border:1px solid var(--line);margin-bottom:12px;
+}
+.hotel .h-photo .fill{
+  position:absolute;inset:0;
+  background:linear-gradient(150deg,#dbe4de 0%,#c9d5ce 100%);
+}
+.hotel .h-photo .glyph{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:rgba(26,33,29,.2)}
+.hotel .h-photo .glyph svg{width:24px;height:24px;stroke:currentColor;stroke-width:1.4;fill:none}
+.hotel .h-top{display:flex;align-items:center;gap:9px;margin-bottom:8px}
+.hotel .h-name{font-size:16px;font-weight:700;color:var(--ink);letter-spacing:-.01em}
+.score{
+  font-size:12.5px;font-weight:700;color:#fff;background:var(--brand);
+  padding:2px 9px;border-radius:8px;flex:none;letter-spacing:.02em;
+}
+.hotel .pros{font-size:13px;color:var(--ink-2);margin-bottom:13px;line-height:1.6}
+.hotel .pros .like{color:var(--brand);font-weight:600}
+.hotel .pros .miss{color:var(--warn);font-weight:600}
+.hotel .h-foot{display:flex;align-items:center;justify-content:space-between}
+.hotel .price{font-size:16px;font-weight:700;color:var(--ink)}
+.hotel .price .u{font-size:12px;font-weight:500;color:var(--ink-3);margin-left:1px}
+.book{
+  background:var(--brand);color:#fff;border:none;
+  font-size:13.5px;font-weight:600;letter-spacing:.01em;
+  padding:9px 16px;border-radius:10px;
+  display:inline-flex;align-items:center;gap:6px;
+  transition:background .15s ease,transform .1s ease;
+}
+.book:hover{background:var(--brand-ink)}
+.book:active{transform:scale(.97)}
+.book svg{width:15px;height:15px;stroke:currentColor;stroke-width:2;fill:none}
+
+/* nearby box */
+.nearby{
+  background:var(--card-2);border:1px solid var(--line);
+  border-radius:var(--r-md);padding:13px 15px;margin-bottom:8px;
+}
+.nearby .lb{
+  display:flex;align-items:center;gap:6px;
+  font-size:12.5px;font-weight:700;color:var(--ink);margin-bottom:8px;
+}
+.nearby .lb svg{width:14px;height:14px;stroke:currentColor;stroke-width:1.7;fill:none;color:var(--brand)}
+.nearby ul{list-style:none;display:grid;gap:5px}
+.nearby li{font-size:13px;color:var(--ink-2);display:flex;justify-content:space-between}
+.nearby li .dist{color:var(--ink-3);font-size:12px}
+
+.cont-note{
+  text-align:center;font-size:12.5px;color:var(--ink-3);
+  padding:16px;border-top:1px dashed var(--line-2);border-bottom:1px dashed var(--line-2);
+  margin:6px 0 24px;
+}
+/* youtube embed */
+.yt{
+  position:relative;width:100%;aspect-ratio:16/9;
+  border-radius:var(--r-lg);overflow:hidden;border:1px solid var(--line);
+  background:linear-gradient(160deg,#20302a,#16211c);margin-bottom:6px;
+}
+.yt .play{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:58px;height:58px;border-radius:50%;
+  background:rgba(255,255,255,.94);display:grid;place-items:center;
+  box-shadow:0 6px 20px rgba(0,0,0,.3);transition:transform .2s ease;
+}
+.yt:hover .play{transform:translate(-50%,-50%) scale(1.06)}
+.yt .play svg{width:22px;height:22px;fill:var(--brand);margin-left:3px}
+.yt .cap{position:absolute;left:14px;bottom:12px;color:rgba(255,255,255,.9);font-size:12.5px;font-weight:500}
+
+.back-link{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:13px;font-weight:500;color:var(--brand);padding:14px 18px 0;
+}
+.back-link svg{width:16px;height:16px;stroke:currentColor;stroke-width:2;fill:none}
+
+/* ============ MENU OVERLAYS ============ */
+.scrim{
+  position:fixed;inset:0;z-index:60;background:rgba(20,26,22,.4);
+  opacity:0;visibility:hidden;transition:opacity .25s ease,visibility .25s;
+  backdrop-filter:blur(1px);
+}
+.scrim.open{opacity:1;visibility:visible}
+.panel{
+  position:fixed;top:0;right:0;bottom:0;z-index:61;
+  width:min(400px,90vw);background:var(--paper);
+  transform:translateX(100%);transition:transform .3s cubic-bezier(.2,.7,.25,1);
+  display:flex;flex-direction:column;box-shadow:-8px 0 30px rgba(20,26,22,.14);
+}
+.panel.open{transform:translateX(0)}
+.panel-h{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:18px 20px;border-bottom:1px solid var(--line);
+}
+.panel-h .pt{font-family:var(--f-serif);font-size:19px;font-weight:600;color:var(--ink)}
+.panel-body{flex:1;overflow-y:auto;padding:18px 20px 30px}
+.search{
+  display:flex;align-items:center;gap:9px;
+  background:var(--card);border:1px solid var(--line-2);
+  border-radius:11px;padding:11px 13px;margin-bottom:20px;color:var(--ink-3);
+}
+.search svg{width:17px;height:17px;stroke:currentColor;stroke-width:1.7;fill:none}
+.search input{border:none;background:transparent;outline:none;font-size:14px;color:var(--ink);width:100%}
+.search input::placeholder{color:var(--ink-3)}
+.mlabel{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:11px}
+.pchips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px}
+.pchip{
+  font-size:13px;font-weight:600;color:var(--brand);
+  background:var(--brand-wash);border:1px solid var(--brand-line);
+  padding:7px 14px;border-radius:999px;transition:all .15s ease;
+}
+.pchip:hover{background:var(--brand);color:#fff;border-color:var(--brand)}
+
+.acc-h{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:13px 2px;font-size:15px;font-weight:600;color:var(--ink);
+  border-top:1px solid var(--line);width:100%;background:none;border-left:none;border-right:none;border-bottom:none;text-align:left;
+}
+.acc-h .cv{transition:transform .2s ease;color:var(--ink-3)}
+.acc-h .cv svg{width:18px;height:18px;stroke:currentColor;stroke-width:1.8;fill:none}
+.acc-h[aria-expanded="true"] .cv{transform:rotate(90deg);color:var(--brand)}
+.acc-body{display:none;padding:2px 0 14px;flex-wrap:wrap;gap:8px}
+.acc-body.show{display:flex}
+.nchip{
+  font-size:13.5px;color:var(--ink-2);background:var(--card);
+  border:1px solid var(--line-2);padding:7px 13px;border-radius:10px;
+  transition:all .15s ease;
+}
+.nchip:hover{border-color:var(--brand-line);color:var(--brand)}
+.mnote{font-size:11.5px;color:var(--ink-3);text-align:center;margin-top:18px;line-height:1.6}
+
+/* topic / guide list */
+.mgroup{margin-bottom:8px}
+.mgroup .gl{
+  font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--gold);padding:14px 2px 6px;
+}
+.mrow{
+  display:flex;align-items:center;gap:13px;
+  padding:14px 2px;border-top:1px solid var(--line);
+  font-size:15px;color:var(--ink);width:100%;background:none;border-left:none;border-right:none;border-bottom:none;text-align:left;
+  transition:color .15s ease,padding-left .15s ease;
+}
+.mrow:hover{color:var(--brand);padding-left:6px}
+.mrow .ic{
+  width:34px;height:34px;flex:none;border-radius:9px;
+  background:var(--brand-wash);color:var(--brand);
+  display:grid;place-items:center;font-size:16px;
+}
+.mrow .nm{flex:1;font-weight:500}
+.mrow .go{color:var(--ink-3)}
+.mrow .go svg{width:16px;height:16px;stroke:currentColor;stroke-width:1.8;fill:none}
+.mdiv{border-top:1px solid var(--line);margin:16px 0 0}
+
+/* responsive nudge */
+@media (min-width:600px){
+  .art h1{font-size:31px}
+  .hero-t h2{font-size:25px}
+}
+
+@media (prefers-reduced-motion:reduce){
+  *{transition:none !important;animation:none !important;scroll-behavior:auto !important}
+}
+
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="hdr" id="hdr">
+  <div class="hdr-in">
+    <a class="logo" href="https://htmlpreview.github.io/?https://raw.githubusercontent.com/dgmasters01/tw-b2b/main/_business/blog/preview/staycurate/index.html"><span>stay</span><span class="b">curate</span><span class="dot"></span></a>
+    <div class="hdr-act">
+      <button class="icon-btn" aria-label="검색" onclick="_scOpenDest()"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/></svg></button>
+      <button class="icon-btn" aria-label="메뉴" onclick="_scOpenTopic()"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+    </div>
+  </div>
+</header>
+
+<main class="shell read">
+  <a class="back-link" href="https://htmlpreview.github.io/?https://raw.githubusercontent.com/dgmasters01/tw-b2b/main/_business/blog/preview/staycurate/index.html"><svg viewBox="0 0 24 24"><path d="m15 6-6 6 6 6"/></svg> 홈으로</a>
+
+  <article class="art">
+    <h1>다낭 어디서 잘까? 여행자가 사랑한 5개 동네</h1>
+    <div class="meta">
+      <span class="d">2026. 8. 3.</span>
+      <span class="d">· 읽는 시간 6분</span>
+      <span class="aff">제휴 링크 포함</span>
+    </div>
+
+    <div class="hero-photo">
+      <span class="fill"></span>
+      <span class="glyph"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="10" r="1.6"/><path d="m4 18 5-5 4 3 3-2 4 4"/></svg></span>
+      <span class="cred">대표 사진 · 아고다/공식 제공분</span>
+    </div>
+
+    <p class="hook">다낭은 어디에 묵느냐로 여행의 느낌이 확 갈려요. 해변 앞에서 쉴지, 시내에서 놀지 — 다섯 개 동네를 목적별로 딱 정리했어요.</p>
+
+    <div class="summ">
+      <div class="lb"><svg viewBox="0 0 24 24"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"/></svg> 바쁘면 여기만</div>
+      <ul>
+        <li>해변에서 쉬고 싶다면 → <b>미케 비치</b></li>
+        <li>가족과 조용히 → <b>손트라</b></li>
+        <li>가성비로 알차게 → <b>한강 동쪽</b></li>
+      </ul>
+    </div>
+
+    <!-- 동네 1 -->
+    <section class="hood">
+      <div class="hood-h"><span class="hood-n">01</span><span class="hood-t">미케 비치</span></div>
+      <span class="best">해변 좋아하면 여기</span>
+      <p class="desc">아침에 바다를 보며 커피 한 잔 하고 싶다면 여기예요. 시내까지 차로 10분이라 다니기도 편하답니다.</p>
+
+      <div class="hotel">
+        <div class="h-photo"><span class="fill"></span><span class="glyph"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="10" r="1.6"/><path d="m4 18 5-5 4 3 3-2 4 4"/></svg></span></div>
+        <div class="h-top"><span class="h-name">TIA 웰니스 리조트</span><span class="score">9.1</span></div>
+        <div class="pros"><span class="like">👍 조용함 · 바다뷰</span> · <span class="miss">⚠️ 시내와는 조금 거리</span></div>
+        <div class="h-foot"><span class="price">약 12만원<span class="u">~ / 박</span></span><button class="book">예약 <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></div>
+      </div>
+
+      <div class="nearby">
+        <div class="lb"><svg viewBox="0 0 24 24"><path d="M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg> 이 동네 가볼 곳</div>
+        <ul>
+          <li>미케 비치 <span class="dist">도보 2분</span></li>
+          <li>롯데마트 <span class="dist">차 8분</span></li>
+          <li>한 시장 <span class="dist">차 10분</span></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 동네 2 (구조 반복 예시) -->
+    <section class="hood">
+      <div class="hood-h"><span class="hood-n">02</span><span class="hood-t">한강 동쪽</span></div>
+      <span class="best">가성비로 알차게</span>
+      <p class="desc">강 건너 새로 뜨는 동네예요. 신축 호텔이 많아 같은 값이면 더 넓고 깨끗한 방을 만나기 좋아요.</p>
+
+      <div class="hotel">
+        <div class="h-photo"><span class="fill" style="background:linear-gradient(150deg,#dee2d1,#cdd1bd)"></span><span class="glyph"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="10" r="1.6"/><path d="m4 18 5-5 4 3 3-2 4 4"/></svg></span></div>
+        <div class="h-top"><span class="h-name">사노우바 리버사이드</span><span class="score">8.8</span></div>
+        <div class="pros"><span class="like">👍 신축 · 넓은 방</span> · <span class="miss">⚠️ 해변까지는 차 이동</span></div>
+        <div class="h-foot"><span class="price">약 6만원<span class="u">~ / 박</span></span><button class="book">예약 <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></div>
+      </div>
+
+      <div class="nearby">
+        <div class="lb"><svg viewBox="0 0 24 24"><path d="M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg> 이 동네 가볼 곳</div>
+        <ul>
+          <li>용다리(드래곤 브릿지) <span class="dist">도보 6분</span></li>
+          <li>아시아 파크 <span class="dist">차 12분</span></li>
+        </ul>
+      </div>
+    </section>
+
+    <div class="cont-note">↓ 나머지 3개 동네(손트라 · 안호이 · 시내)도 같은 구조로 이어집니다</div>
+
+    <!-- 유튜브 임베드 -->
+    <div class="yt">
+      <span class="play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>
+      <span class="cap">▶ 다낭 호텔 영상 · 있으면 임베드</span>
+    </div>
+  </article>
+
+  <footer class="ft">
+    <div class="wm">stay<span class="b">curate</span></div>
+    <div class="tagline">여행자가 사랑한 숙소를, 동네별로 골라드려요.</div>
+    <div class="links">
+      <a href="#">소개</a><a href="#">연락처</a><a href="#">개인정보처리방침</a><a href="#">제휴 고지</a>
+    </div>
+    <div class="fine">본 사이트의 일부 링크는 제휴 링크이며, 예약 시 수수료를 받을 수 있습니다. 가격·평점은 공개 데이터를 종합한 참고값이에요.</div>
+  </footer>
+</main>
+
+<!-- ANCHOR AD -->
+<div class="anchor" id="anchor">
+  <span class="k">하단 앵커 광고 자리 · 현재 꺼짐</span>
+  <button class="x" id="anchor-x" aria-label="광고 닫기"><svg viewBox="0 0 24 24" stroke="currentColor" fill="none"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+</div>
+
+<!-- MENUS -->
+<div class="scrim" id="scrim"></div>
+<aside class="panel" id="panel-dest" aria-label="여행지 메뉴">
+  <div class="panel-h"><span class="pt">여행지</span><button class="icon-btn" aria-label="닫기" onclick="_scClose()"><svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="1.8"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
+  <div class="panel-body">
+    <div class="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/></svg><input id="dest-search" type="text" placeholder="나라·도시 검색"></div>
+    <div class="mlabel">인기 여행지</div>
+    <div class="pchips"><a class="pchip" href="#">오사카</a><a class="pchip" href="#">다낭</a><a class="pchip" href="#">방콕</a></div>
+    <button class="acc-h" aria-expanded="true" data-acc="acc-asia">아시아<span class="cv"><svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></span></button>
+    <div class="acc-body show" id="acc-asia"><a class="nchip" href="#">일본</a><a class="nchip" href="#">베트남</a><a class="nchip" href="#">태국</a><a class="nchip" href="#">대만</a></div>
+    <button class="acc-h" aria-expanded="false" data-acc="acc-eu">유럽<span class="cv"><svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></span></button>
+    <div class="acc-body" id="acc-eu"><a class="nchip" href="#">프랑스</a><a class="nchip" href="#">이탈리아</a><a class="nchip" href="#">스페인</a></div>
+    <button class="acc-h" aria-expanded="false" data-acc="acc-am">아메리카<span class="cv"><svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></span></button>
+    <div class="acc-body" id="acc-am"><a class="nchip" href="#">미국</a><a class="nchip" href="#">멕시코</a></div>
+    <div class="mnote">나라를 누르면 도시가 열려요 · 새 나라는 자동으로 추가됩니다</div>
+  </div>
+</aside>
+<aside class="panel" id="panel-topic" aria-label="주제별·가이드 메뉴">
+  <div class="panel-h"><span class="pt">둘러보기</span><button class="icon-btn" aria-label="닫기" onclick="_scClose()"><svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="1.8"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
+  <div class="panel-body">
+    <div class="mgroup" id="grp-topic">
+      <div class="gl">주제별 · 여행 스타일</div>
+      <a class="mrow" href="#"><span class="ic">💰</span><span class="nm">가성비 여행</span><span class="go"><svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></span></a>
+      <a class="mrow" href="#"><span class="ic">👨‍👩‍👧</span><span class="nm">가족 여행</span><span class="go"><svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></span></a>
+      <a class="mrow" href="#"><span class="ic">❤️</span><span class="nm">커플·허니문</span><span class="go"><svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></span></a>
+      <a class="mrow" href="#"><span class="ic">🧍</span><span class="nm">혼자 여행</span><span class="go"><svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></span></a>
+      <a class="mrow" href="#"><span class="ic">💎</span><span class="nm">럭셔리</span><span class="go"><svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></span></a>
+      <a class="mrow" href="#"><span class="ic">💼</span><span class="nm">비즈니스·출장</span><span class="go"><svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></span></a>
+    </div>
+    <div class="mgroup" id="grp-guide">
+      <div class="gl" style="border-top:1px solid var(--line);margin-top:8px">가이드 · 실용 정보</div>
+      <a class="mrow" href="#"><span class="ic">🏷️</span><span class="nm">호텔 싸게 예약하는 법</span><span class="go"><svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></span></a>
+      <a class="mrow" href="#"><span class="ic">⚠️</span><span class="nm">예약 전 실수 모음</span><span class="go"><svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></span></a>
+      <a class="mrow" href="#"><span class="ic">🧮</span><span class="nm">여행 예산 짜기</span><span class="go"><svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></span></a>
+      <a class="mrow" href="#"><span class="ic">📅</span><span class="nm">가기 좋은 시기</span><span class="go"><svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></span></a>
+    </div>
+  </div>
+</aside>
+
+<script>
+// staycurate — light interactions (structure/flow unchanged from canon)
+(function () {
+  var scrim = document.getElementById('scrim');
+  var panelDest = document.getElementById('panel-dest');
+  var panelTopic = document.getElementById('panel-topic');
+
+  function open(panel, focusEl) {
+    [panelDest, panelTopic].forEach(function (p) { if (p) p.classList.remove('open'); });
+    if (panel) panel.classList.add('open');
+    if (scrim) scrim.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    if (focusEl) setTimeout(function () { try { focusEl.focus(); } catch (e) {} }, 60);
+  }
+  function closeAll() {
+    [panelDest, panelTopic].forEach(function (p) { if (p) p.classList.remove('open'); });
+    if (scrim) scrim.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  window._scOpenDest = function () { open(panelDest, document.getElementById('dest-search')); };
+  window._scOpenTopic = function (id) {
+    open(panelTopic);
+    if (id) { var el = document.getElementById(id); if (el) el.scrollIntoView({ block: 'start' }); }
+  };
+  window._scClose = closeAll;
+
+  if (scrim) scrim.addEventListener('click', closeAll);
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeAll(); });
+
+  // header hairline on scroll
+  var hdr = document.getElementById('hdr');
+  if (hdr) {
+    var onScroll = function () { hdr.classList.toggle('scrolled', window.scrollY > 4); };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  }
+
+  // anchor ad close
+  var anchor = document.getElementById('anchor');
+  var anchorX = document.getElementById('anchor-x');
+  if (anchorX && anchor) {
+    anchorX.addEventListener('click', function () {
+      anchor.classList.add('hide');
+      document.body.style.paddingBottom = '0';
+    });
+  }
+
+  // accordion (destinations)
+  document.querySelectorAll('.acc-h').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var expanded = btn.getAttribute('aria-expanded') === 'true';
+      btn.setAttribute('aria-expanded', String(!expanded));
+      var body = document.getElementById(btn.getAttribute('data-acc'));
+      if (body) body.classList.toggle('show', !expanded);
+    });
+  });
+})();
+
+</script>
+</body>
+</html>

@@ -598,9 +598,11 @@ button{font-family:inherit;cursor:pointer}
 .dd.open{display:block;animation:ddin .16s ease}
 @keyframes ddin{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
 .dd .gl{font-family:var(--f-serif);font-size:12px;font-weight:600;letter-spacing:.02em;color:var(--gold);padding:9px 10px 5px}
-.dd a{display:flex;align-items:center;gap:11px;padding:10px 10px;border-radius:10px;font-size:14.5px;color:var(--ink);white-space:nowrap;transition:background .12s,color .12s,padding-left .12s}
-.dd a:hover{background:var(--brand-wash);color:var(--brand);padding-left:14px}
-.dd .ic{width:22px;text-align:center;flex:none}
+.dd a{display:block;padding:10px 12px;border-radius:10px;font-size:14.5px;color:var(--ink);white-space:nowrap;position:relative;transition:background .12s,color .12s,padding-left .12s}
+.dd a:hover{background:var(--brand-wash);color:var(--brand);padding-left:18px}
+.dd a::before{content:'';position:absolute;left:12px;top:50%;transform:translateY(-50%);width:0;height:14px;background:var(--gold);border-radius:2px;transition:width .12s}
+.dd a:hover::before{width:3px}
+
 .dds{display:flex;align-items:center;gap:9px;background:var(--card-2);border:1px solid var(--line-2);border-radius:11px;padding:10px 12px;margin-bottom:6px}
 .dds svg{width:17px;height:17px;stroke:var(--ink-3);stroke-width:1.7;fill:none;flex:none}
 .dds input{border:none;background:transparent;outline:none;font-size:14px;color:var(--ink);width:100%;font-family:var(--f-ui)}
@@ -629,19 +631,19 @@ button{font-family:inherit;cursor:pointer}
     <div class="dd" id="dd-dest">
       <div class="dds"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/></svg><input type="text" placeholder="나라·도시 검색"></div>
       <div class="gl">인기 여행지</div>
-      <a href="#"><span class="ic">📍</span>오사카</a><a href="#"><span class="ic">📍</span>다낭</a><a href="#"><span class="ic">📍</span>방콕</a>
+      <a href="#">오사카</a><a href="#">다낭</a><a href="#">방콕</a>
       <div class="gl">대륙 · 나라</div>
-      <a href="#"><span class="ic">🌏</span>일본</a><a href="#"><span class="ic">🌏</span>베트남</a><a href="#"><span class="ic">🌏</span>태국</a><a href="#"><span class="ic">🌍</span>유럽 전체</a>
+      <a href="#">일본</a><a href="#">베트남</a><a href="#">태국</a><a href="#">유럽 전체</a>
     </div></span>
   <span class="mwrap"><button class="chip" data-dd="dd-topic">주제별 <span class="caret">▾</span></button>
     <div class="dd" id="dd-topic">
       <div class="gl">여행 스타일</div>
-      <a href="#"><span class="ic">💰</span>가성비 여행</a><a href="#"><span class="ic">👨‍👩‍👧</span>가족 여행</a><a href="#"><span class="ic">❤️</span>커플·허니문</a><a href="#"><span class="ic">🧍</span>혼자 여행</a><a href="#"><span class="ic">💎</span>럭셔리</a><a href="#"><span class="ic">💼</span>비즈니스·출장</a>
+      <a href="#">가성비 여행</a><a href="#">가족 여행</a><a href="#">커플·허니문</a><a href="#">혼자 여행</a><a href="#">럭셔리</a><a href="#">비즈니스·출장</a>
     </div></span>
   <span class="mwrap"><button class="chip" data-dd="dd-guide">가이드 <span class="caret">▾</span></button>
     <div class="dd" id="dd-guide">
       <div class="gl">실용 정보</div>
-      <a href="#"><span class="ic">🏷️</span>호텔 싸게 예약하는 법</a><a href="#"><span class="ic">⚠️</span>예약 전 실수 모음</a><a href="#"><span class="ic">🧮</span>여행 예산 짜기</a><a href="#"><span class="ic">📅</span>가기 좋은 시기</a>
+      <a href="#">호텔 싸게 예약하는 법</a><a href="#">예약 전 실수 모음</a><a href="#">여행 예산 짜기</a><a href="#">가기 좋은 시기</a>
     </div></span>
 </nav>
 

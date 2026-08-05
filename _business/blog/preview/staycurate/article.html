@@ -47,8 +47,8 @@
 
   --r-sm:8px; --r-md:12px; --r-lg:16px; --r-xl:22px;
 
-  --col: 552px;         /* feed column */
-  --read: 680px;        /* reading column */
+  --col: 1200px;        /* feed column (desktop max; mobile = full width) */
+  --read: 760px;        /* article reading column */
 
   --f-serif:"Noto Serif KR", Georgia, serif;
   --f-latin:"Fraunces", Georgia, serif;
@@ -502,11 +502,68 @@ button{font-family:inherit;cursor:pointer}
 .mrow .go svg{width:16px;height:16px;stroke:currentColor;stroke-width:1.8;fill:none}
 .mdiv{border-top:1px solid var(--line);margin:16px 0 0}
 
-/* responsive nudge */
+/* ===== responsive ===== */
 @media (min-width:600px){
   .art h1{font-size:31px}
   .hero-t h2{font-size:25px}
 }
+
+/* tablet: 2-up card grid */
+@media (min-width:680px) and (max-width:1023px){
+  .row{display:grid;grid-template-columns:repeat(2,1fr);gap:22px;overflow:visible}
+  .card,.card.wide{width:auto}
+}
+
+/* desktop: publisher-grade wide layout */
+@media (min-width:1024px){
+  body{padding-bottom:84px}
+  .hdr-in{padding:18px 40px}
+  .logo{font-size:26px}
+  .nav{padding:6px 40px 20px;gap:8px;justify-content:center;flex-wrap:wrap;overflow:visible;
+       border-bottom:1px solid var(--line);margin-bottom:12px}
+  .chip{font-size:15px;padding:9px 20px}
+
+  .feed{padding:22px 40px 10px}
+  .sec{margin-bottom:56px}
+  .eyebrow,.hero-t,.sh{padding-left:0;padding-right:0}
+  .eyebrow{margin-bottom:10px}
+  .hero-t{margin-bottom:22px}
+  .hero-t h2{font-size:34px;line-height:1.3}
+  .sh{margin-bottom:22px}
+  .sh .t{font-size:22px}
+  .sh .m{font-size:14px}
+
+  /* horizontal rows become a real grid */
+  .row{display:grid;grid-template-columns:repeat(3,1fr);gap:30px 28px;overflow:visible;padding:0}
+  .card,.card.wide{width:auto}
+  .card .tit{font-size:17px}
+  .card .tag{font-size:12px}
+  .card .thumb{margin-bottom:13px}
+
+  /* the featured "오늘의 추천" reads larger */
+  .sec:first-of-type .card .tit{font-size:18px}
+
+  .ad{margin:0 0 56px;padding:26px}
+  .anchor{padding:14px 40px}
+
+  .ft{padding:44px 40px 56px;margin-top:28px}
+  .ft .links a{font-size:13.5px}
+
+  /* article: narrow, comfortable reading column, wide hero */
+  .art{padding:14px 0 12px}
+  .art h1{font-size:38px;line-height:1.32}
+  .hook{font-size:19px}
+  .hero-photo{border-radius:var(--r-xl)}
+  .back-link{padding:18px 0 0}
+  .summ{padding:20px 24px}
+  .hood-n{font-size:30px}
+  .hood-t{font-size:22px}
+  .hood .desc{font-size:15.5px}
+  .hotel{padding:16px}
+  .hotel .h-name{font-size:18px}
+}
+
+
 
 @media (prefers-reduced-motion:reduce){
   *{transition:none !important;animation:none !important;scroll-behavior:auto !important}

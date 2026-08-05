@@ -1,7 +1,7 @@
 # TW 여행 블로그 — STATE (부팅 문서)
 
 > 새 세션은 이 파일부터 읽는다. 상태는 여기와 GitHub에 있다. 메모리 의존 금지.
-> 최종 갱신: 2026-08-05 (서버 분리+staycurate.com 연결 완료 세션)
+> 최종 갱신: 2026-08-05 (로고 A확정·콘텐츠 전략 정본화 세션)
 
 ## 운영 원칙 (최상위)
 1. 모든 제안은 상상·추측이 아니라 **자료를 검색·분석한 결과**로 낸다. (근거 없는 제안 금지)
@@ -44,6 +44,9 @@
 9. 첫 글 1편 손 제작 → 표준 템플릿화
 
 ## 문서 지도
+- **콘텐츠 전략(정본): `_business/blog/CONTENT.md`** ← 포맷 돈순·내부구성·자동 파이프라인·복제
+- 로고 확정 = A안(에디토리얼 세리프), 추후 재검토 (시안 PNG 산출물 보관)
+- 미리보기(확인용): preview/staycurate/ 에 home·home-styled·category·article
 - **전체 틀(정본): `_business/blog/FRAMEWORK.md`** ← 페이지 제작 전 필독
 - 결정 전체: `_business/blog/DECISIONS.md`
 - 미해결 과제: `_business/blog/GAPS.md`

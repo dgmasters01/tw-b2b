@@ -82,3 +82,10 @@ Vercel Pro 기존 계정 그대로(새 아이디·추가 월정액 없음, 도�
 - 화면 구현 세션은 `frontend-design` 스킬을 읽고 적용한다. 단, 구조는 screens.html에서 벗어나지 않는다.
 - 브랜드명/로고 = staycurate(D-B14 독립브랜드). 목업의 "여행자들"은 구조 예시 → 로고는 staycurate.
 
+
+## D-B17 staycurate 채널·CID 확정 (2026-08-05)
+- **CID = 1972105** (아고다 파트너에서 staycurate.com 신규 사이트 등록·발급, 대표님).
+- DB 등록 완료: `channels.code='SC'`(name=staycurate, platform=blog) + `channel_cid_map`(cid=1972105, channel_code=SC, label=main).
+- 이 블로그에서 발생한 예약은 CID 1972105로 분리 집계 → D-B12 상황판과 연결.
+- 도메인 연결 상태: staycurate.com → www 308 → HTTP 200 (Vercel, 2026-08-05 확인).
+- 남은 것: **아고다 API 키(siteid+apikey)** — 호텔 사진·평점·가격 자동 수집용. 미확보. 보안상 Vercel 환경변수 권장.

@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>staycurate — 여행자가 사랑한 숙소를, 동네별로 골라드려요</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Noto+Serif+KR:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+:root{
+  --paper:#FAF8F3;--card:#FFFFFF;--card-2:#FBF9F5;--line:#EAE5DB;--line-2:#DDD6C9;
+  --ink:#1A211D;--ink-2:#5B635D;--ink-3:#98A099;
+  --brand:#155C47;--brand-ink:#0D4634;--brand-wash:#E9F1EC;--brand-line:#CFE1D7;
+  --gold:#A2732A;--gold-soft:#F2E9D6;
+  --r-md:12px;--r-lg:16px;--r-xl:22px;
+  --serif:"Noto Serif KR",serif;--latin:"Fraunces",serif;--ui:"Pretendard",-apple-system,sans-serif;
+  --shadow-2:0 6px 20px rgba(26,33,29,.09),0 2px 6px rgba(26,33,29,.05);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--ui);color:var(--ink);background:var(--paper);line-height:1.5;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none} button{font-family:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--brand);outline-offset:2px;border-radius:4px}
+.shell{max-width:1200px;margin:0 auto;padding:0 24px}
+
+.hdr{position:sticky;top:0;z-index:40;background:rgba(250,248,243,.86);backdrop-filter:saturate(1.4) blur(10px);-webkit-backdrop-filter:saturate(1.4) blur(10px);border-bottom:1px solid transparent;transition:border-color .2s}
+.hdr.scrolled{border-bottom-color:var(--line)}
+.hdr-in{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:16px 24px}
+.logo{font-family:var(--latin);font-weight:600;font-size:22px;letter-spacing:-.02em;display:inline-flex;align-items:baseline}
+.logo .b{color:var(--brand)} .logo .dot{width:5px;height:5px;border-radius:50%;background:var(--gold);display:inline-block;margin-left:3px;transform:translateY(-1px)}
+.nav-c{display:none;gap:30px}
+.nav-c a{font-size:15px;color:var(--ink-2);font-weight:500}
+.nav-c a:hover{color:var(--brand)}
+.ico{width:38px;height:38px;border:none;background:transparent;border-radius:10px;color:var(--ink);display:grid;place-items:center}
+.ico:hover{background:rgba(21,92,71,.07)} .ico svg{width:20px;height:20px;stroke:currentColor;stroke-width:1.7;fill:none}
+
+/* hero */
+.hero{text-align:center;padding:66px 0 58px}
+.hero h1{font-family:var(--serif);font-weight:700;font-size:34px;line-height:1.38;letter-spacing:-.01em;margin-bottom:16px}
+.hero p{font-size:16px;color:var(--ink-2);margin-bottom:26px}
+.cta{display:inline-flex;align-items:center;gap:8px;background:var(--brand);color:#fff;font-size:15px;font-weight:600;padding:13px 26px;border-radius:999px;border:none;transition:background .15s}
+.cta:hover{background:var(--brand-ink)}
+
+/* section head */
+.sh{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:22px}
+.sh h2{font-family:var(--serif);font-size:24px;font-weight:600;letter-spacing:-.01em}
+.sh a{font-size:13.5px;color:var(--brand);font-weight:500}
+.sec{margin-bottom:60px}
+
+/* curation cards — 방식 A: 사진 밖 글자 */
+.cards{display:grid;grid-template-columns:1fr;gap:30px}
+.cd{display:block}
+.cd .ph{position:relative;aspect-ratio:4/3;border-radius:var(--r-lg);overflow:hidden;border:1px solid var(--line);margin-bottom:14px;transition:transform .25s,box-shadow .25s}
+.cd:hover .ph{transform:translateY(-4px);box-shadow:var(--shadow-2)}
+.cd .ph .img{position:absolute;inset:0;background-size:cover;background-position:center}
+.cd .ph .lb{position:absolute;left:12px;top:12px;background:rgba(255,255,255,.92);color:var(--ink);font-size:11.5px;font-weight:600;padding:5px 11px;border-radius:999px;backdrop-filter:blur(4px)}
+.cd .tag{font-size:12px;font-weight:500;color:var(--gold);margin-bottom:4px}
+.cd .nm{font-family:var(--serif);font-size:20px;font-weight:600;margin-bottom:5px}
+.cd .ds{font-size:14px;color:var(--ink-2);line-height:1.6}
+
+/* feature — 방식 B: 사진 위 글자 오버레이 */
+.feat{display:block;position:relative;border-radius:var(--r-xl);overflow:hidden;border:1px solid var(--line);aspect-ratio:16/11}
+.feat .img{position:absolute;inset:0;background-size:cover;background-position:center}
+.feat .scrim{position:absolute;inset:0;background:linear-gradient(180deg,rgba(15,20,17,.05) 30%,rgba(15,20,17,.72) 100%)}
+.feat .txt{position:absolute;left:0;right:0;bottom:0;padding:30px 28px;color:#fff}
+.feat .rl{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.3);padding:5px 12px;border-radius:999px;margin-bottom:12px;backdrop-filter:blur(4px)}
+.feat h3{font-family:var(--serif);font-size:30px;font-weight:600;line-height:1.3;margin-bottom:8px}
+.feat .fd{font-size:14.5px;color:rgba(255,255,255,.85);max-width:440px;line-height:1.65}
+.feat .fb{display:inline-flex;align-items:center;gap:6px;margin-top:16px;background:#fff;color:var(--ink);font-size:13.5px;font-weight:600;padding:10px 18px;border-radius:999px}
+
+/* article rows */
+.arts{display:grid;grid-template-columns:1fr;gap:22px}
+.art{display:flex;gap:16px;align-items:center}
+.feat,.cd,.art{text-decoration:none}
+.art .th{width:120px;height:88px;flex:none;border-radius:var(--r-md);overflow:hidden;border:1px solid var(--line);background-size:cover;background-position:center}
+.art .at{font-size:12px;font-weight:500;color:var(--gold);margin-bottom:3px}
+.art .an{font-family:var(--serif);font-size:16px;font-weight:600;line-height:1.4;margin-bottom:4px}
+.art .ax{font-size:13px;color:var(--ink-2);line-height:1.55;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+
+.ft{border-top:1px solid var(--line);margin-top:20px}
+.ft-in{max-width:1200px;margin:0 auto;padding:36px 24px 48px;display:flex;flex-wrap:wrap;gap:18px;justify-content:space-between;align-items:center}
+.ft .wm{font-family:var(--latin);font-size:18px;font-weight:600} .ft .wm .b{color:var(--brand)}
+.ft .cr{font-size:12px;color:var(--ink-3);margin-top:3px}
+.ft .links{display:flex;flex-wrap:wrap;gap:8px 22px}
+.ft .links a{font-size:13px;color:var(--ink-2)} .ft .links a:hover{color:var(--brand)}
+
+.note{max-width:1200px;margin:0 auto 8px;padding:10px 24px}
+.note span{display:inline-block;font-size:12px;color:var(--gold);background:var(--gold-soft);border:1px solid #E7DBC2;padding:5px 12px;border-radius:999px}
+
+@media (min-width:680px){ .cards{grid-template-columns:repeat(3,1fr)} .arts{grid-template-columns:1fr 1fr} }
+@media (min-width:1000px){
+  .nav-c{display:flex}
+  .hero{padding:88px 0 66px} .hero h1{font-size:46px} .hero p{font-size:17px}
+  .sh h2{font-size:28px}
+  .feat h3{font-size:38px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<header class="hdr" id="hdr">
+  <div class="hdr-in">
+    <a class="logo" href="#">stay<span class="b">curate</span><span class="dot"></span></a>
+    <nav class="nav-c"><a href="#">여행지</a><a href="#">주제별</a><a href="#">가이드</a></nav>
+    <button class="ico" aria-label="검색"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/></svg></button>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="shell">
+    <h1>여행자가 사랑한 숙소를,<br>동네별로 골라드려요</h1>
+    <p>조용하지만 확실한 큐레이션.</p>
+    <button class="cta">이번 주 큐레이션 보기 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+  </div>
+</section>
+
+<div class="note"><span>↓ 방식 A — 카드: 사진엔 지역 라벨만, 제목은 사진 아래</span></div>
+
+<main class="shell">
+  <section class="sec">
+    <div class="sh"><h2>이번 주 큐레이션</h2><a href="#">모두 보기 ›</a></div>
+    <div class="cards">
+      <a class="cd" href="#">
+        <div class="ph"><div class="img" style="background-image:url('https://images.unsplash.com/photo-1781101861463-d439a263802b?w=760&h=580&fit=crop&crop=entropy&q=80&auto=format')"></div><span class="lb">일본 · 교토</span></div>
+        <div class="tag">료칸</div><div class="nm">호시노야 교토</div><div class="ds">오이강을 따라 배로만 닿는 고요한 온천 료칸.</div>
+      </a>
+      <a class="cd" href="#">
+        <div class="ph"><div class="img" style="background-image:url('https://images.unsplash.com/photo-1610375233775-6e0166927193?w=760&h=580&fit=crop&crop=entropy&q=80&auto=format')"></div><span class="lb">일본 · 라쿠호쿠</span></div>
+        <div class="tag">숙소 가이드</div><div class="nm">아만 교토</div><div class="ds">숲과 정원에 둘러싸인, 방 24개뿐인 은신처.</div>
+      </a>
+      <a class="cd" href="#">
+        <div class="ph"><div class="img" style="background-image:url('https://images.unsplash.com/photo-1733653023417-92ffcab24969?w=760&h=580&fit=crop&crop=entropy&q=80&auto=format')"></div><span class="lb">일본 · 기온</span></div>
+        <div class="tag">디자인 중심</div><div class="nm">더 신몬젠</div><div class="ds">기온 한복판, 건축가가 다듬은 열 개의 방.</div>
+      </a>
+    </div>
+  </section>
+
+  <div class="note" style="padding-left:0;padding-right:0"><span>↓ 방식 B — 큰 피처: 사진 위에 제목을 흰 글자로 얹기</span></div>
+  <section class="sec">
+    <div class="sh"><h2>이달의 숙소</h2></div>
+    <a class="feat" href="#">
+      <div class="img" style="background-image:url('https://images.unsplash.com/photo-1760301748231-cbb6c16530a8?w=1200&h=820&fit=crop&crop=entropy&q=80&auto=format')"></div>
+      <div class="scrim"></div>
+      <div class="txt">
+        <span class="rl">추천 리뷰</span>
+        <h3>요시다 산소</h3>
+        <div class="fd">교토 대학 뒤편 언덕에 자리한 옛 별저. 다다미와 정원, 흐르는 물소리가 시간을 늦춰주는 곳.</div>
+        <span class="fb">리뷰 전문 보기 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+      </div>
+    </a>
+  </section>
+
+  <section class="sec">
+    <div class="sh"><h2>최신 아티클</h2><a href="#">모두 보기 ›</a></div>
+    <div class="arts">
+      <a class="art" href="#">
+        <div class="th" style="background-image:url('https://images.unsplash.com/photo-1610333684078-c89bd57f2e46?w=360&h=264&fit=crop&crop=entropy&q=80&auto=format')"></div>
+        <div><div class="at">가이드</div><div class="an">교토에서 처음 묵는다면, 이 5개 동네</div><div class="ax">전통 료칸과 디자인 호텔, 예산과 분위기로 나눈 교토 숙소 지도.</div></div>
+      </a>
+      <a class="art" href="#">
+        <div class="th" style="background-image:url('https://images.unsplash.com/photo-1614301246509-d1fc7d78b6b6?w=360&h=264&fit=crop&crop=entropy&q=80&auto=format')"></div>
+        <div><div class="at">여행 일정</div><div class="an">교토 3박 4일, 조용한 동선으로</div><div class="ax">아라시야마에서 기온까지, 붐비지 않게 도는 하루하루의 루트.</div></div>
+      </a>
+    </div>
+  </section>
+</main>
+
+<footer class="ft">
+  <div class="ft-in">
+    <div><div class="wm">stay<span class="b">curate</span></div><div class="cr">© 2026 staycurate. 여행자가 사랑한 숙소를, 동네별로.</div></div>
+    <div class="links"><a href="#">회사 소개</a><a href="#">이용약관</a><a href="#">개인정보처리방침</a><a href="#">제휴 고지</a><a href="#">뉴스레터</a></div>
+  </div>
+</footer>
+
+<script>
+  var h=document.getElementById('hdr');
+  addEventListener('scroll',function(){h.classList.toggle('scrolled',scrollY>4)},{passive:true});
+</script>
+</body>
+</html>

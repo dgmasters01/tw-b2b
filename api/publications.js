@@ -493,35 +493,6 @@ export default async function handler(req, res) {
     warnings.push('아고다 링크에서 hid 를 다 못 뽑았습니다. 원고의 링크를 확인해 주세요.');
   }
 
-  // 🔴 2026-08-04 대표님: *"내가 원고를 넣으면 이번처럼 다른 채널들도 추적링크를 변경이 안 되지 않지?"*
-  //   지적이 맞았다. 어제 붙인 코드는 **`action='links'`(손으로 링크 붙여넣기)에만** 있었다.
-  //   **드라이브 자동 읽기는 여기로 온다** — 그래서 자동으로 들어오는 원고는 여전히 원본 링크가 나갔을 것이다.
-  //   → **모든 등록 경로가 지나는 이 자리**에 둔다. 손으로 넣든 드라이브가 읽든 같다.
-  //   체널 구분 없음(TW·HT·HG 전부). 실패하면 경고를 단다 — 조용히 원본 링크가 나가면 클릭이 안 세진다.
-  let rcodeInfo = null;
-  if (saved && saved.code && row.hid_top1) {
-    try {
-      const site = process.env.SITE_URL || 'https://gohotelwinners.com';
-      const rr = await fetch(`${site}/api/ops/rcode-backfill?code=${encodeURIComponent(saved.code)}`,
-        { headers: { 'x-ops-token': process.env.CLAUDE_OPS_TOKEN || '' } }).then((x) => x.json());
-      const rep = (rr && rr.ok && (rr.report || [])[0]) || null;
-      if (rep) {
-        rcodeInfo = { had: rep.had || 0, created: (rep.created || []).length, replaced: rep.description_links_replaced || 0 };
-        if ((rep.had || 0) === 0 && (rep.created || []).length === 0) {
-          warnings.push('⚠ 추적링크를 못 만들었습니다 — 설명란에 아고다 원본 링크가 나갑니다(클릭이 안 세짐).');
-        }
-      } else {
-        warnings.push('⚠ 추적링크 만들기 실패: ' + ((rr && rr.error) || '알 수 없음') + ' — 설명란에 원본 링크가 나갑니다.');
-      }
-      // 바뀜 설명란을 다시 읽어 화면에 그걸 보여준다
-      if (rcodeInfo && (rcodeInfo.replaced > 0 || rcodeInfo.created > 0)) {
-        const { data: d2 } = await sb.from('publications').select('*').eq('id', saved.id).single();
-        if (d2) saved = d2;
-      }
-    } catch (e) {
-      warnings.push('⚠ 추적링크 만들기 실패: ' + String(e.message || e).slice(0, 80) + ' — 원본 링크가 나갑니다.');
-    }
-  }
   if (row.cid && row.channel_code) {
     const { data: map } = await sb.from('channel_cid_map').select('channel_code').eq('cid', row.cid).maybeSingle();
     if (!map) warnings.push(`cid ${row.cid} 가 channel_cid_map 에 없습니다. 예약이 이 채널로 안 잡힙니다.`);
@@ -545,6 +516,31 @@ export default async function handler(req, res) {
       });
       saved.code = newCode;
     } catch (e) { warnings.push('전략 큐 자동 등록에 실패했습니다(발행 자체는 정상): ' + String(e.message || e)); }
+  }
+
+  // 🔴 2026-08-04 대표님: *"내가 원고를 넣으면 다른 채널들도 추적링크 변경이 안 되지 않지?"*
+  //   지적이 맞았다. 두 번 틀렸다:
+  //     ① 첫 번째 — `action='links'`(손으로 붙여넣기)에만 넣었다. 드라이브는 다른 길로 온다.
+  //     ② 두 번째 — 등록 직후로 옮겼는데, 그 시점엔 **원고 번호(code)가 아직 없었다.**
+  //       code 는 바로 위에서 만들어진다. 그래서 건너뛰고 조용히 원본 링크가 나갔다.
+  //   → **번호가 나온 뒤**인 여기로 옮긴다. 손으로 넣든 드라이브가 읽든 모두 이 자리를 지난다.
+  //   체널 구분 없음(TW·HT·HG 전부). 실패하면 경고를 단다.
+  if (saved && saved.code && saved.hid_top1) {
+    try {
+      const site = process.env.SITE_URL || 'https://gohotelwinners.com';
+      const rr = await fetch(`${site}/api/ops/rcode-backfill?code=${encodeURIComponent(saved.code)}`,
+        { headers: { 'x-ops-token': process.env.CLAUDE_OPS_TOKEN || '' } }).then((x) => x.json());
+      const rep = (rr && rr.ok && (rr.report || [])[0]) || null;
+      if (!rep || ((rep.had || 0) === 0 && (rep.created || []).length === 0)) {
+        warnings.push('⚠ 추적링크를 못 만들었습니다 — 설명란에 아고다 원본 링크가 나갑니다(클릭이 안 세짐)'
+          + ((rr && rr.error) ? (': ' + rr.error) : ''));
+      } else if ((rep.description_links_replaced || 0) > 0 || (rep.created || []).length > 0) {
+        const { data: d2 } = await sb.from('publications').select('*').eq('id', saved.id).single();
+        if (d2) saved = d2;   /* 바뀜 설명란을 화면에 돌려준다 */
+      }
+    } catch (e) {
+      warnings.push('⚠ 추적링크 만들기 실패: ' + String(e.message || e).slice(0, 80) + ' — 원본 링크가 나갑니다.');
+    }
   }
 
   return res.status(200).json({ ok: true, action, id: saved.id, row: saved, warnings });

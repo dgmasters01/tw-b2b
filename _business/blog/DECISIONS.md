@@ -64,7 +64,7 @@ Vercel Pro 기존 계정 그대로(새 아이디·추가 월정액 없음, 도�
 - 전략(핵심): **독립 브랜드 노선.** 여러 사이트가 "한 운영자"로 안 보이게 → 기존 Winners/go/hotel 자산과 이름 연결 금지(브랜드 연장안 폐기). 확장 도메인은 어근도 서로 분산.
 - Footprint 분산 원칙(운영 표준): ①이름 어근 분산 ②애드센스·GA4는 사이트별 별개 계정(공유 ID 금지 — D-B04 용역구조와 정합) ③WHOIS privacy + 구매자 분산(D-B11) ④디자인 스킨 사이트별 분리. ⚠️ 검색조작용 상호링크(PBN)·정책 우회 위장 다중계정은 계정정지·수익몰수 리스크라 금지. "겉만 분리"가 아니라 "진짜 독립 브랜드"만.
 - 검증: 2026-08-05 4중 교차조회(Verisign RDAP·rdap.org·Google DNS·Cloudflare DNS) 전부 미등록=구매가능 확인. .com 표준가.
-- 상태: **구매 대기.** D-B11대로 대표님 직접 구매. 구매처 1순위 Cloudflare Registrar(DNS 동일 계정·원가·WHOIS privacy 무료). 구매 후 → Vercel 프로젝트 생성·연결(Claude 실행).
+- 상태: **구매 대기.** D-B11대로 대표님 직접 구매. 🔒 **구매처 표준 = Cloudflare Registrar**(대표님 지시 2026-08-05: 앞으로 모든 도메인은 Cloudflare에서 구매 — DNS 동일 계정·원가·WHOIS privacy 무료). 대안(Porkbun 등)은 대표님이 따로 지시할 때만. 구매 후 → Vercel 프로젝트 생성·연결(Claude 실행).
 - 근거 리서치: 하이브리드(키워드+브랜드)가 순수 EMD보다 SEO·신뢰 유리 / NerdWallet식 역할어 결합이 확장 여지 확보.
 - 예비 후보(검증완료·살 수 있음): trovestay.com · roostpick.com · quillstay.com · lodgenote.com · staypickr.com · lodgepin.com · bunkpick.com.
 

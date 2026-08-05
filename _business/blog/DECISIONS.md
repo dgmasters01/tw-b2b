@@ -111,3 +111,12 @@ Vercel Pro 기존 계정 그대로(새 아이디·추가 월정액 없음, 도�
 - tw-b2b의 `_business/blog/site/staycurate/`는 삭제(중복 제거). 기획문서(DECISIONS·CONTENT·ROADMAP·STATE)는 tw-b2b `_business/blog/`에 유지.
 - ops 엔드포인트 확장: `POST /api/ops/github-commit` body에 **`repo`** 지정 가능(화이트리스트 `tw-b2b`·`staycurate`, 미지정 시 tw-b2b).
 - 이로써 D-B02(별도 레포·민감키 0개)·D-B14(독립 브랜드·footprint 분산) 원칙 충족.
+
+## D-B21 아고다 Affiliate Lite API 연결 성공 (2026-08-05)
+- **엔드포인트**: `POST https://affiliateapi7643.agoda.com/affiliateservice/lt_v1`
+- **인증 헤더**: `Authorization: {siteId}:{apiKey}` — ⚠️ 아고다가 두 값을 `1972105:xxxx-xxxx…` 한 줄로 주는데, **콜론 앞은 siteId, 뒤가 apiKey**. 통째로 apiKey에 넣으면 401(error id 108).
+- **환경변수(tw-b2b 전용, 블로그엔 없음)**: `AGODA_API_KEY_STAYCURATE`(UUID형) · `AGODA_SITE_ID_STAYCURATE`(=1972105). 사이트별 접미사 규칙(대표님 지시: 헷갈리지 않게).
+- **테스트 엔드포인트**: `POST gohotelwinners.com/api/ops/agoda-test` (x-ops-token). body: cityId 또는 hotelId[], maxResult 등.
+- **검증 결과(2026-08-05)**: 200 OK. 호텔 3건 전부 **imageURL(진짜 호텔 사진)·reviewScore·reviewCount·starRating·dailyRate(KRW)·landingURL(cid=1972105 포함)** 수신 확인.
+- 의미: 콘텐츠의 호텔 사진·평점·가격·예약링크를 **자동 생성 가능**. 임시 스톡 이미지 교체 근거 확보(CONTENT 2-5 이미지 규칙).
+- 다음: 수집 봇(도시별 조회 → Supabase 적재) → 포맷 페이지 자동 채움.

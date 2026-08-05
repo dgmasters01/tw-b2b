@@ -24,7 +24,8 @@
 // 한도 가드: 시간당 30회 (악용/무한루프 방지)
 
 const REPO_OWNER = 'dgmasters01';
-const REPO_NAME = 'tw-b2b';
+const REPO_NAME = 'tw-b2b';                       // 기본 레포(하위호환)
+const ALLOWED_REPOS = ['tw-b2b', 'staycurate'];   // body.repo 로 지정 가능한 레포 화이트리스트
 const GITHUB_API = 'https://api.github.com';
 
 // in-memory rate limiter (인스턴스 lifetime)
@@ -58,6 +59,12 @@ export default async function handler(req, res) {
 
   // 3. body 검증
   const body = req.body || {};
+
+  // 3-a. 대상 레포 결정 (body.repo 없으면 기본 tw-b2b)
+  const targetRepo = body.repo || REPO_NAME;
+  if (!ALLOWED_REPOS.includes(targetRepo)) {
+    return res.status(400).json({ error: `repo not allowed: ${targetRepo}`, allowed: ALLOWED_REPOS });
+  }
   const { path, content, message } = body;
   const isDelete = body.delete === true;   // 삭제 모드 (헌법 9조 가역성 — 만든 건 지울 수 있어야 한다)
   const branch = body.branch || 'main';
@@ -100,7 +107,7 @@ export default async function handler(req, res) {
     'User-Agent': 'tw-b2b-ops-commit/1.0',
   };
 
-  const fileApiUrl = `${GITHUB_API}/repos/${REPO_OWNER}/${REPO_NAME}/contents/${encodeURIComponent(path).replace(/%2F/g, '/')}?ref=${encodeURIComponent(branch)}`;
+  const fileApiUrl = `${GITHUB_API}/repos/${REPO_OWNER}/${targetRepo}/contents/${encodeURIComponent(path).replace(/%2F/g, '/')}?ref=${encodeURIComponent(branch)}`;
 
   try {
     // 5. 파일 존재 여부 확인 (update이면 sha 필요)
@@ -126,7 +133,7 @@ export default async function handler(req, res) {
         return res.status(404).json({ ok: false, error: 'file_not_found', path, branch });
       }
       const delResp = await fetch(
-        `${GITHUB_API}/repos/${REPO_OWNER}/${REPO_NAME}/contents/${encodeURIComponent(path).replace(/%2F/g, '/')}`,
+        `${GITHUB_API}/repos/${REPO_OWNER}/${targetRepo}/contents/${encodeURIComponent(path).replace(/%2F/g, '/')}`,
         {
           method: 'DELETE',
           headers: { ...ghHeaders, 'Content-Type': 'application/json' },
@@ -161,7 +168,7 @@ export default async function handler(req, res) {
     // 6. commit 실행 (PUT — create 또는 update)
     // encoding=base64 이면 이미 base64(바이너리) → 그대로 사용, 아니면 UTF-8 텍스트를 base64 변환
     const contentBase64 = encoding === 'base64' ? content : Buffer.from(content, 'utf-8').toString('base64');
-    const putUrl = `${GITHUB_API}/repos/${REPO_OWNER}/${REPO_NAME}/contents/${encodeURIComponent(path).replace(/%2F/g, '/')}`;
+    const putUrl = `${GITHUB_API}/repos/${REPO_OWNER}/${targetRepo}/contents/${encodeURIComponent(path).replace(/%2F/g, '/')}`;
 
     const putPayload = {
       message,

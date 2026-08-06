@@ -83,9 +83,13 @@ export default async function handler(req, res) {
     },
   };
   if (Array.isArray(body.hotelId) && body.hotelId.length) {
+    // 호텔 리스트 검색: 도시검색 전용 필드는 모두 제거해야 함(에러 907)
     criteria.hotelId = body.hotelId;
     delete criteria.additional.maxResult;
     delete criteria.additional.sortBy;
+    delete criteria.additional.minimumStarRating;
+    delete criteria.additional.minimumReviewScore;
+    delete criteria.additional.dailyRate;
   } else {
     criteria.cityId = body.cityId || 16901; // 기본: 오사카
   }
@@ -130,6 +134,7 @@ export default async function handler(req, res) {
   const sample = results.slice(0, maxResult).map(h => ({
     hotelId: h.hotelId,
     hotelName: h.hotelName,
+    roomtypeName: h.roomtypeName,
     starRating: h.starRating,
     reviewScore: h.reviewScore,
     reviewCount: h.reviewCount,

@@ -64,7 +64,7 @@
 | 디자인 작업 | `_os/templates/` + `_os/skins/` |
 | 봇·자동화 작업 | `_os/workflows/` + `.github/workflows/` |
 | 시스템 전체 파악(서비스·비용·자동화) | `SYSTEM_MAP.md` (비즈니스 독스) |
-| 여행 블로그 프로젝트 작업 | `_business/blog/STATE.md` (부팅) → 필요 시 `DECISIONS.md`·`GAPS.md` |
+| **여행 블로그(staycurate) 작업** | 🔴 **별도 레포 `dgmasters01/staycurate`** (2026-08-05 분리·D-B20). 부팅 = 그 레포 **`INDEX.md`** → 필요 시 `docs/ROADMAP.md`·`docs/DECISIONS.md`·`docs/CONTENT.md`. ⚠️ 저장 시 body에 **`"repo":"staycurate"`** 필수(미지정=tw-b2b로 감). tw-b2b `_business/blog/`는 이력 사본(MOVED.md 참조) |
 | 기타 (단순 문답·보고) | (안 읽어도 됨) |
 
 ## 5. 작업 시작 전 자가 검증
@@ -106,6 +106,12 @@
 - **메일**: Resend `noreply@gohotelwinners.com`
 - **상품**: $200 일회성, 6개월 보장, 0건 시 100% 환불
 - **메시징 3축**: ① 조회수 ② 영상 수 ③ 실예약/계약 결과 (구독자 수 절대 금지)
+
+### 여행 블로그 staycurate (독립 프로젝트)
+- **repo**: `dgmasters01/staycurate` (Private) / **도메인**: https://www.staycurate.com / Vercel 프로젝트 `staycurate` 자동배포
+- **아고다 CID**: `1972105` (blog 채널 코드 `SC`, DB `channels`+`channel_cid_map` 등록됨)
+- **아고다 API**: 키는 **tw-b2b** 환경변수 `AGODA_API_KEY_STAYCURATE`·`AGODA_SITE_ID_STAYCURATE` (블로그 레포엔 민감키 0개)
+- **테스트 엔드포인트**: `POST gohotelwinners.com/api/ops/agoda-test` (x-ops-token) · 도시코드 오사카=9590, 제주=16901
 
 ## 7. 매 채팅 시작 절차 (Claude 행동 표준)
 

@@ -21,6 +21,14 @@
 // ═══ 원칙 ═══
 //   · **고치지 않는다. 알리기만 한다.** 코드를 자동으로 바꾸면 더 큰 사고가 난다.
 //   · 결과는 `wiring_audit_log` 에 남기고, 관리자 건강검진에 뜬다.
+//
+// ═══ 2026-08-07 추가 — 「화면에 값이 박혀 있나」 (대표님이 발견) ═══
+//   *"타이베이의 지역메뉴를 누르고 다시 타이베이를 클릭하니 일본 오사카로 뜸.
+//     정석적으로 체크해서 이런 것 찾아서 수정하는 로봇 없는 거야? 자꾸 이런 부분이 생겨."*
+//   진짜 원인 두 개 — **둘 다 사람 눈으로만 잡히던 것**이라 항목으로 넣는다:
+//     ⓐ `svCity()` 가 `'cc:japan|osaka'` 를 **박아** 두고 있었다 → 어느 도시를 봐도 오사카를 불렀다
+//     ⓑ 같은 파일 안에서 `var SV` 를 **두 번 선언**했다 → 뒤엣것이 앞엣것 자료를 통째로 덮어썼다
+//   → ④ 도시 열쇠 박힘 · ⑤ 전역 이름 두 번 선언 을 매일 자동으로 훑는다.
 
 import { createClient } from '@supabase/supabase-js';
 
@@ -41,6 +49,9 @@ const STALE = [
     why: '지역 분모는 agoda_hotel(52만 건)로 센다. agoda_inventory 는 사진·후기용이다.' },
 ];
 
+/** 값이 박히면 안 되는 화면들 — 도시가 늘어날수록 위험해진다 */
+const SCREENS = ['studio.html', 'studio-keyword-preview.html'];
+
 function admin() {
   const url = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -54,6 +65,14 @@ function authOK(req) {
   const secret = process.env.CRON_SECRET;
   if (secret && (req.headers['authorization'] || '') === `Bearer ${secret}`) return true;
   return (req.headers['user-agent'] || '').includes('vercel-cron');
+}
+
+/** 설명글(/* ... *\/ 과 // 줄)을 지운 사본 — 줄 번호는 그대로 둔다.
+ *  🔴 안 지우면 «설명글에 적어둔 예시»를 진짜 코드로 착각해 매일 헛신고한다 (2026-08-07 시험에서 잡음). */
+function codeOnly(t) {
+  return String(t)
+    .replace(/\/\*[\s\S]*?\*\//g, (m) => m.replace(/[^\n]/g, ' '))
+    .replace(/^([ \t]*)\/\/.*$/gm, (m, sp) => sp);
 }
 
 async function grab(path) {
@@ -87,6 +106,51 @@ export default async function handler(req, res) {
       problems.push({ kind: 'stale_source', n: 1,
         note: `${s.file} 가 아직 ${s.bad} 를 씁니다. ${s.why}`, sample: [s.file] });
     }
+  }
+
+  // ── ④ 화면 코드에 «도시 열쇠»가 박혀 있나 (2026-08-07) ──
+  //     `cc:japan|osaka` 같은 값이 코드에 박히면, 다른 도시를 눌러도 그 도시 자료가 나온다.
+  //     지금 보고 있는 도시(SVKEY/변수)를 따라가야 한다.
+  for (const f of SCREENS) {
+    const t0 = await grab(f);
+    if (!t0) continue;
+    const t = codeOnly(t0);
+    const hits = [];
+    const re = /['"`]cc:[a-z_]+\|[a-z_]+['"`]/gi;
+    let m;
+    while ((m = re.exec(t))) {
+      const line = t.slice(0, m.index).split('\n').length;
+      const ctx = t.split('\n')[line - 1] || '';
+      if (/^\s*(\/\/|\*|\/\*)/.test(ctx)) continue;                                               // 설명글(주석)은 코드가 아니다
+      if (/\|\|\s*$|\|\|\s*['"`]/.test(ctx.slice(0, ctx.indexOf(m[0]) + m[0].length))) continue; // `X || 'cc:...'` = 기본값이라 정상
+      if (/^\s*(var|let|const)\s+SVKEY|SVCITY\s*=/.test(ctx)) continue;                            // 첫 화면 기본값은 정상
+      hits.push(`${f}:${line} ${m[0]}`);
+    }
+    if (hits.length) problems.push({ kind: 'hardcoded_city', n: hits.length,
+      note: '화면 코드에 도시 열쇠가 박혀 있습니다. 다른 도시를 눌러도 이 도시 자료가 나옵니다.',
+      sample: hits.slice(0, 5) });
+  }
+
+  // ── ⑤ 한 파일 안에서 같은 전역 이름을 두 번 선언했나 (2026-08-07) ──
+  //     `var SV` 를 두 곳에서 선언하면 뒤엣것이 앞엣것을 **말없이 덮어쓴다.**
+  //     타이베이 자리에 오사카가 뜬 진짜 범인이 이것이었다.
+  for (const f of SCREENS) {
+    const t0 = await grab(f);
+    if (!t0) continue;
+    const t = codeOnly(t0);
+    const seen = {};
+    // 🔴 «맨 왼쪽에서 시작하는» var 만 전역이다. 함수 안 들여쓴 var 는 그 함수 것이라 안 부딪친다
+    //    (안 조이면 ZC·CH 처럼 함수 안 이름까지 매일 헛신고한다 — 2026-08-07 시험에서 잡음)
+    const re = /^var[ \t]+([A-Z][A-Z0-9_]{1,12})[ \t]*=/gm;
+    let m;
+    while ((m = re.exec(t))) {
+      const line = t.slice(0, m.index).split('\n').length;
+      (seen[m[1]] = seen[m[1]] || []).push(line);
+    }
+    const dup = Object.entries(seen).filter(([, v]) => v.length > 1);
+    if (dup.length) problems.push({ kind: 'global_redeclare', n: dup.length,
+      note: `${f} 안에서 같은 전역 이름을 두 번 선언했습니다. 뒤엣것이 앞엣것 자료를 덮어씁니다.`,
+      sample: dup.slice(0, 5).map(([k, v]) => `${k} — ${v.join(', ')}줄`) });
   }
 
   // ── ③ 같은 뜻인데 표마다 다르게 세는 숫자 ──

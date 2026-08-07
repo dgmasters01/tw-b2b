@@ -2,7 +2,7 @@
 
 > ⚙️ **이 문서는 `_os/tools/wiring-scan.mjs` 가 코드에서 자동으로 뽑는다. 손으로 고치지 마라 — 다음 실행에 지워진다.**
 > 사람이 쓰는 설명·판단은 `SYSTEM_MAP.md` 에. 이 문서는 **사실 관계**만 담는다.
-> 마지막 갱신 2026-08-03 · 화면 25 · 창구 80 · 표 58 · 크론 14
+> 마지막 갱신 2026-08-07 · 화면 25 · 창구 82 · 표 60 · 크론 15
 
 **쓰는 법**: 무엇을 고치기 전에 **여기서 그 이름을 찾는다.** 같이 고쳐야 할 곳이 한눈에 나온다.
 
@@ -40,11 +40,12 @@
 | `hotel_communications` | `admin.js` | **`admin.js`** | `admin-manager-hub.html` | — |
 | `hotel_not_dup` | `hotel-review.js` | **`hotel-review.js`** | `studio.html` | — |
 | `hotel_status_history` | `delete-account.js` | — | `settings.html` | — |
-| `hotels` | `_lib/hotel-geo.js` `admin.js` `channel-perf-detail.js` `content-hotels.js` `content-keywords.js` `content-performance.js` `cron/booking-health.js` `cron/hotel-addr-fill.js` `cron/hotel-closed-check.js` `cron/hotel-district-fill.js` `cron/kw-audit.js` `cron/wiring-audit.js` `delete-account.js` `hotel-bookings.js` `hotel-review.js` `invoice.js` `paypal.js` | **`admin.js`** **`cron/hotel-addr-fill.js`** **`cron/hotel-closed-check.js`** **`cron/hotel-district-fill.js`** **`hotel-review.js`** | `admin-hotel-detail.html` `admin-manager-hub.html` `dashboard.html` `manager-dashboard.html` `marketing.html` `sales.html` `settings.html` `studio-keyword-preview.html` `studio.html` <br>⚠️ **관리자 + B2B 호텔 매니저 + 공개·가입 + 스튜디오(콘텐츠 운영) 양쪽** | `booking-health.js` `hotel-addr-fill.js` `hotel-closed-check.js` `hotel-district-fill.js` `kw-audit.js` `wiring-audit.js` |
+| `hotels` | `_lib/hotel-geo.js` `admin.js` `channel-perf-detail.js` `content-hotels.js` `content-keywords.js` `content-performance.js` `cron/booking-health.js` `cron/hotel-addr-fill.js` `cron/hotel-closed-check.js` `cron/hotel-district-fill.js` `cron/hotel-geo-fill.js` `cron/kw-audit.js` `cron/screen-sweep.js` `cron/wiring-audit.js` `delete-account.js` `hotel-bookings.js` `hotel-review.js` `invoice.js` `paypal.js` | **`admin.js`** **`cron/hotel-addr-fill.js`** **`cron/hotel-closed-check.js`** **`cron/hotel-district-fill.js`** **`hotel-review.js`** | `admin-hotel-detail.html` `admin-manager-hub.html` `dashboard.html` `manager-dashboard.html` `marketing.html` `sales.html` `settings.html` `studio-keyword-preview.html` `studio.html` <br>⚠️ **관리자 + B2B 호텔 매니저 + 공개·가입 + 스튜디오(콘텐츠 운영) 양쪽** | `booking-health.js` `hotel-addr-fill.js` `hotel-closed-check.js` `hotel-district-fill.js` `hotel-geo-fill.js` `kw-audit.js` `screen-sweep.js` `wiring-audit.js` |
 | `invoices` | `invoice.js` `paypal.js` | **`invoice.js`** **`paypal.js`** | `dashboard.html` `manager-dashboard.html` `sales.html` <br>⚠️ **B2B 호텔 매니저 + 공개·가입 양쪽** | — |
 | `keyword` | `content-keywords.js` `cron/kw-audit.js` `cron/kw-survey.js` `kw-survey-now.js` | **`cron/kw-audit.js`** **`kw-survey-now.js`** | `studio-keyword-preview.html` `studio.html` | `kw-audit.js` `kw-survey.js` |
 | `kw_audit_log` | `content-keywords.js` | **`cron/kw-audit.js`** | `studio-keyword-preview.html` `studio.html` | `kw-audit.js` |
 | `manager_campaign_log` | `cron/manager-campaign.js` | **`cron/manager-campaign.js`** | — | — |
+| `ops_flag` | `cron/hotel-geo-fill.js` | **`cron/hotel-geo-fill.js`** | — | `hotel-geo-fill.js` |
 | `payment_accounts` | `admin.js` `invoice.js` | — | `admin-manager-hub.html` `manager-dashboard.html` `sales.html` <br>⚠️ **관리자 + B2B 호텔 매니저 + 공개·가입 양쪽** | — |
 | `payments` | `admin.js` `delete-account.js` `invoice.js` `paypal.js` | **`admin.js`** **`paypal.js`** | `admin-manager-hub.html` `dashboard.html` `manager-dashboard.html` `sales.html` `settings.html` <br>⚠️ **관리자 + B2B 호텔 매니저 + 공개·가입 양쪽** | — |
 | `perf_cache` | `content-performance.js` | **`content-performance.js`** | `studio.html` | — |
@@ -53,7 +54,8 @@
 | `refund_requests` | `admin.js` | — | `admin-manager-hub.html` | — |
 | `role_change_log` | `_lib/admin-auth-handlers.js` | **`_lib/admin-auth-handlers.js`** | — | — |
 | `rpc` | `admin.js` `booking-analytics.js` `channel-perf-detail.js` `channels.js` `content-hotels.js` `content-keywords.js` `content-performance.js` `content-queue.js` `cron/kw-survey.js` `drive-review.js` `drive-status.js` `hotel-bookings.js` `hotel-perf-detail.js` `hotel-review.js` `invoice.js` `kw-survey-now.js` `me-lang.js` `paypal.js` `publications.js` `r.js` | **`admin.js`** **`booking-analytics.js`** **`channel-perf-detail.js`** **`channels.js`** **`content-hotels.js`** **`content-keywords.js`** **`content-performance.js`** **`content-queue.js`** **`cron/kw-survey.js`** **`drive-review.js`** **`drive-status.js`** **`hotel-bookings.js`** **`hotel-perf-detail.js`** **`hotel-review.js`** **`invoice.js`** **`kw-survey-now.js`** **`me-lang.js`** **`paypal.js`** **`publications.js`** **`r.js`** | `admin-hotel-detail.html` `admin-manager-hub.html` `booking-analytics.html` `dashboard.html` `manager-dashboard.html` `marketing.html` `sales.html` `studio-keyword-preview.html` `studio.html` <br>⚠️ **관리자 + B2B 호텔 매니저 + 공개·가입 + 스튜디오(콘텐츠 운영) 양쪽** | `kw-survey.js` |
-| `snapshot` | `content-keywords.js` `cron/kw-audit.js` `cron/kw-survey.js` | **`content-keywords.js`** **`cron/kw-survey.js`** | `studio-keyword-preview.html` `studio.html` | `kw-audit.js` `kw-survey.js` |
+| `screen_sweep_log` | — | **`cron/screen-sweep.js`** | — | `screen-sweep.js` |
+| `snapshot` | `content-keywords.js` `cron/kw-audit.js` `cron/kw-survey.js` `cron/screen-sweep.js` | **`content-keywords.js`** **`cron/kw-survey.js`** | `studio-keyword-preview.html` `studio.html` | `kw-audit.js` `kw-survey.js` `screen-sweep.js` |
 | `survey_cache` | `content-keywords.js` | **`content-keywords.js`** | `studio-keyword-preview.html` `studio.html` | — |
 | `survey_skip` | `content-keywords.js` `cron/kw-survey.js` | **`kw-survey-now.js`** | `studio-keyword-preview.html` `studio.html` | `kw-survey.js` |
 | `trend` | `content-keywords.js` `cron/kw-audit.js` `cron/kw-survey.js` | **`cron/kw-survey.js`** | `studio-keyword-preview.html` `studio.html` | `kw-audit.js` `kw-survey.js` |
@@ -66,7 +68,7 @@
 | `v_district_hotel` | `content-keywords.js` | — | `studio-keyword-preview.html` `studio.html` | — |
 | `v_district_month` | `content-keywords.js` | — | `studio-keyword-preview.html` `studio.html` | — |
 | `v_district_pattern` | `content-keywords.js` | — | `studio-keyword-preview.html` `studio.html` | — |
-| `v_district_star` | `content-keywords.js` `cron/kw-audit.js` `cron/wiring-audit.js` | — | `studio-keyword-preview.html` `studio.html` | `kw-audit.js` `wiring-audit.js` |
+| `v_district_star` | `content-keywords.js` `cron/wiring-audit.js` | — | `studio-keyword-preview.html` `studio.html` | `wiring-audit.js` |
 | `v_hotel_manager_full` | `admin.js` `cron/manager-campaign.js` | — | `admin-manager-hub.html` | — |
 | `v_hotel_past_revenue` | `admin.js` | — | `admin-manager-hub.html` | — |
 | `v_manager_payments` | `content-hotels.js` | — | `studio.html` | — |
@@ -134,7 +136,7 @@
 | 시각(UTC) | 봇 | 읽는 표 | **쓰는 표** |
 |---|---|---|---|
 | `0 2,7,12,21 * * *` | `/api/cron/drive-watch` | `drive_review` | **`drive_review`** |
-| `0 8,12,16 * * *` | `/api/cron/hotel-geo-fill` | — | — |
+| `0 16 * * *` | `/api/cron/hotel-geo-fill` | `hotels` `ops_flag` | **`ops_flag`** |
 | `0 22 * * *` | `/api/ops/handoff-verify` | — | — |
 | `0 19 * * *` | `/api/cron/db-backup` | — | — |
 | `0 * * * *` | `/api/cron/yt-views` | `publications` | **`publications`** |
@@ -144,9 +146,10 @@
 | `0 0 * * *` | `/api/cron/booking-health` | `hotels` | **`bookings_agoda`** |
 | `0 1 * * *` | `/api/cron/wiring-check` | `api_cache` | **`api_cache`** |
 | `30 * * * *` | `/api/cron/hotel-fill` | `agoda_hotel` `publications` | **`agoda_hotel`** |
-| `15 5 * * *` | `/api/cron/kw-audit` | `city_alias` `hotels` `keyword` `snapshot` `trend` `v_district_star` | **`keyword`** **`kw_audit_log`** |
+| `15 5 * * *` | `/api/cron/kw-audit` | `city_alias` `hotels` `keyword` `snapshot` `trend` | **`keyword`** **`kw_audit_log`** |
 | `40 * * * *` | `/api/cron/hotel-addr-fill` | `agoda_hotel` `hotels` | **`hotels`** |
 | `50 5 * * *` | `/api/cron/wiring-audit` | `hotels` `v_district_star` | **`wiring_audit_log`** |
+| `20 21 * * *` | `/api/cron/screen-sweep` | `hotels` `snapshot` | **`screen_sweep_log`** |
 
 ---
 
@@ -157,10 +160,12 @@
 > Supabase·PostgREST 는 **아무 말 없이 1,000줄에서 잘라서** 준다. 표가 1,000줄을 넘으면 조용히 틀린 답이 나온다.
 > 실제 사고: `hotels`(3,185줄)를 그냥 읽어 **성급이 틀리게 표시**됐고, 예약 79건이 호텔에 안 붙었다 (D-074·D-075).
 
-**지금 실제로 터지는 것: 0곳** (표가 이미 1,000줄을 넘었다) · 전체 24곳
+**지금 실제로 터지는 것: 2곳** (표가 이미 1,000줄을 넘었다) · 전체 26곳
 
 | 위험 | 표 (행수) | 창구 | 어떻게 |
 |---|---|---|---|
+| 🔴 이미 넘음 | `hotels` (3,252) | `api/cron/kw-audit.js` | limit/range 없이 통째로 읽음 |
+| 🔴 이미 넘음 | `hotels` (3,252) | `api/cron/screen-sweep.js` | limit/range 없이 통째로 읽음 |
 | 🟢 여유 | `v_city_hotel_progress` (172) | `api/content-keywords.js` | limit/range 없이 통째로 읽음 |
 | 🟢 여유 | `snapshot` (24) | `api/content-keywords.js` | limit/range 없이 통째로 읽음 |
 | 🟢 여유 | `snapshot` (24) | `api/cron/kw-audit.js` | limit/range 없이 통째로 읽음 |
@@ -206,6 +211,7 @@
 - `api/google-places.js`
 - `api/hotel-geo-fill.js`
 - `api/ops/agoda-inventory.js`
+- `api/ops/agoda-test.js`
 - `api/ops/db-query.js`
 - `api/ops/district-alias.js`
 - `api/ops/github-commit.js`

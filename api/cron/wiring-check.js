@@ -13,6 +13,7 @@
 //   ③ 표 행수(DB 실측)와 맞춰 **1,000줄 잘림 위험**을 등급으로 매긴다
 //   ④ 🔴(이미 1,000줄 넘은 표를 통째로 읽는 곳)가 있으면 **메일로 알린다**
 //   ⑤ 저장된 SYSTEM_WIRING.md 와 달라졌으면 "배선도가 낡았다" 고 알린다
+//   ⑥ **SYSTEM_MAP §3 봇 표 ↔ vercel.json 실물**을 대조해 어긋나면 알린다 (2026-08-07)
 //
 // 안 하는 것
 //   레포에 커밋하지 않는다(GITHUB_PAT 권한 밖). **알리기만 한다.**
@@ -165,6 +166,33 @@ export default async function handler(req, res) {
       }
     } else stale = 'SYSTEM_WIRING.md 가 없습니다.';
 
+    // ── ③-B 봇 명단이 «실물과 다른가» (2026-08-07 신설) ────────────────────────
+    // 🔴 왜 (대표님): *"수정할 때 기록과 업데이트가 중요한 이 부분을 네가 무조건 끝나면 해야 되는 거야?"*
+    //    맞다 — 그게 문제였다. **클로드가 기억해서 문서를 고치는 구조는 헌법 10조(기억 의존 금지) 위반이다.**
+    //    실제로 2026-08-07 대조해 보니 SYSTEM_MAP §3 에 봇이 **11개**로 적혀 있었고 실물은 **15개**였다.
+    //    4개가 문서에 없었다. 문서가 실물과 다르면 **다음 클로드가 이미 있는 봇을 또 만든다.**
+    //    → 이제 **기억이 아니라 로봇이** 매일 대조한다. 어긋나면 메일이 온다.
+    // 🔴 겹침 확인: 「문서가 낡았나」는 원래부터 wiring-check 담당이다(③ 배선도).
+    //    새 봇을 만들지 않고 **같은 담당자에게 항목만 하나 더** 준다. (D-081 「한 가지는 한 로봇만」)
+    let botDrift = null;
+    try {
+      const vj = await getText('vercel.json');
+      const map = await getText('SYSTEM_MAP.md');
+      if (vj && map) {
+        const crons = (JSON.parse(vj).crons || []).map((c) => String(c.path).split('/').pop());
+        const sec = (map.split(/^## 3\./m)[1] || '').split(/^## 4\./m)[0] || '';
+        const missing = crons.filter((n) => !sec.includes(n));
+        // 문서에만 있고 실물엔 없는 것(꺼졌는데 표에 남은 것)도 잡는다
+        const listed = [...new Set((sec.match(/\*\*[a-z0-9-]{4,}\*\*/g) || []).map((x) => x.replace(/\*/g, '')))];
+        const ghost = listed.filter((n) => !crons.includes(n) && !/^(코드|봇|무료)/.test(n));
+        if (missing.length || ghost.length) {
+          botDrift = `봇 명단이 실물과 다릅니다 — 실물 크론 ${crons.length}개.`
+            + (missing.length ? ` 문서에 빠짐: ${missing.join(', ')}.` : '')
+            + (ghost.length ? ` 문서에만 있음(꺼진 봇?): ${ghost.join(', ')}.` : '');
+        }
+      }
+    } catch (e) { botDrift = `봇 명단 대조 실패: ${String(e.message || e).slice(0, 80)}`; }
+
     const out = {
       ok: true,
       apis_scanned: apiPaths.length,
@@ -172,6 +200,7 @@ export default async function handler(req, res) {
       over_count: over.length,          // 🔴 지금 실제로 틀린 답이 나오는 곳
       near_count: near.length,          // 🟡 곧 터질 곳
       stale_wiring: stale,
+      bot_drift: botDrift,
       over, near,
       all: full ? graded : undefined,
       table_rows: rows,                 // 그대로 _os/tools/table-rows.json 에 넣으면 된다
@@ -186,7 +215,7 @@ export default async function handler(req, res) {
     //     ③ 「곳 터질 곳」만 있을 때                     → **안 보낸다** — 아직 멀았다
     //     ④ 이상 없음                                  → **안 보낸다**
     //   「곳 터질 곳」은 관리자 건강검진에서 볼 수 있다. 메일까지 보낼 일은 아니다.
-    const worth = over.length > 0 || !!stale;
+    const worth = over.length > 0 || !!stale || !!botDrift;
     if (forceMail || worth) {
       const lines = [
         '시스템 배선 점검 결과',
@@ -200,14 +229,16 @@ export default async function handler(req, res) {
         ...near.map((g) => `   ${g.api}  —  ${g.table} (${(g.rows || 0).toLocaleString()}줄)`),
         '',
         stale ? `⚠️ ${stale}` : '',
+        botDrift ? `⚠️ ${botDrift}` : '',
         '',
         '고치는 법:',
         '  1) 해당 창구에서 .range(from, from+999) 로 끊어 읽게 바꾼다',
         '  2) node _os/tools/wiring-scan.mjs 를 돌려 SYSTEM_WIRING.md 를 갱신하고 같이 커밋한다',
+        '  3) 봇 명단이 다르면 SYSTEM_MAP.md §3 표를 vercel.json 실물에 맞춘다',
       ].filter((x) => x !== '');
       try {
         await sendOpsEmail({
-          subject: `[배선 점검] 터지는 곳 ${over.length} · 곧 터질 곳 ${near.length}${stale ? ' · 배선도 낡음' : ''}`,
+          subject: `[배선 점검] 터지는 곳 ${over.length} · 곧 터질 곳 ${near.length}${stale ? ' · 배선도 낡음' : ''}${botDrift ? ' · 봇 명단 어긋남' : ''}`,
           text: lines.join('\n'),
         });
         out.mail_sent = true;

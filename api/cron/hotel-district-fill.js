@@ -41,19 +41,44 @@ export default async function handler(req, res) {
   let sb;
   try { sb = admin(); } catch (e) { return res.status(500).json({ ok: false, error: String(e.message || e) }); }
 
-  // 1) 도시 결정 (없으면 지역 빈 호텔이 있는 도시 하나)
-  let city = q.city || null;
-  if (!city) {
-    const { data } = await sb.from('hotels').select('city').is('district', null).not('city', 'is', null).limit(1);
-    city = data && data.length ? data[0].city : null;
-    if (!city) return res.status(200).json({ ok: true, idle: true, note: '지역 채울 호텔 없음 (전부 채워짐).' });
+  // 1) 도시 결정
+  // 🔴 2026-08-07 병목 수정 (대표님 «다른 도시들도 전체 체크 해 본 거야?»)
+  //    옛 코드는 **하루에 한 도시**만 골라 돌았다(`.limit(1)`). 도시가 40개면 **40일**이 걸리고,
+  //    그 도시에 «규칙 없는 주소»가 남아 있으면 매일 같은 도시만 골라 **영원히 다음으로 못 넘어갔다.**
+  //    실제로 하노이는 파서가 읽을 수 있는데도 지역이 0개였다 — **봇이 한 번도 안 온 것**이다.
+  //    → 이제 한 번에 **여러 도시**를 돈다(예약 많은 순).
+  let cities;
+  if (q.city) cities = [q.city];
+  else {
+    const { data } = await sb.from('hotels')
+      .select('city, booking_count').is('district', null).not('city', 'is', null);
+    const bk = {};
+    for (const r of data || []) bk[r.city] = (bk[r.city] || 0) + (r.booking_count || 0);
+    cities = Object.keys(bk).sort((a, b) => bk[b] - bk[a]).slice(0, Math.min(parseInt(q.cities, 10) || 8, 20));
+    if (!cities.length) return res.status(200).json({ ok: true, idle: true, note: '지역 채울 호텔 없음 (전부 채워짐).' });
   }
+
+  const all = [];
+  for (const city of cities) {
+    try { all.push(await fillOne(sb, city, limit, dry)); }
+    catch (e) { all.push({ city, error: String(e.message || e).slice(0, 100) }); }
+  }
+  return res.status(200).json({
+    ok: true, dry_run: dry, cities: cities.length,
+    filled_total: all.reduce((s2, r) => s2 + (r.filled || 0), 0),
+    recanon_total: all.reduce((s2, r) => s2 + Object.values(r.recanon || {}).reduce((a, b) => a + b, 0), 0),
+    results: all,
+    note: '아고다 주소로 지역 채움(구글 안 씀) + 비한국어 지역명 한국어 통일. 도시를 여러 개 돈다.',
+  });
+}
+
+async function fillOne(sb, city, limit, dry) {
 
   // 2) 지역 빈 호텔 (이 도시)
   const { data: hotels, error: hErr } = await sb.from('hotels')
     .select('id, agoda_hotel_ids, address').eq('city', city).is('district', null).limit(limit);
-  if (hErr) return res.status(500).json({ ok: false, error: hErr.message });
-  if (!hotels || !hotels.length) return res.status(200).json({ ok: true, city, filled: 0, note: '이 도시엔 지역 빈 호텔이 없습니다.' });
+  if (hErr) throw new Error(hErr.message);
+  if (!hotels || !hotels.length) return { city, filled: 0, recanon: await recanon(sb, city, dry) };
 
   // 3) 아고다 주소 배치 조회 (조인 대신 id 모아서 — 무거운 조인 502 회피)
   const idSet = new Set();
@@ -72,15 +97,15 @@ export default async function handler(req, res) {
   let none = 0;
   for (const h of hotels) {
     let d = null;
-    for (const x of (h.agoda_hotel_ids || [])) { const a = addrById[String(x)]; if (a) { d = districtOf(a); if (d) break; } }
-    if (!d && h.address) d = districtOf(h.address);
+    for (const x of (h.agoda_hotel_ids || [])) { const a = addrById[String(x)]; if (a) { d = districtOf(a, city); if (d) break; } }
+    if (!d && h.address) d = districtOf(h.address, city);
     if (d) { (byDistrict[d] = byDistrict[d] || []).push(h.id); } else { none += 1; }
   }
   const filled = Object.values(byDistrict).reduce((s, a) => s + a.length, 0);
 
   if (dry) {
-    const preview = Object.fromEntries(Object.entries(byDistrict).map(([k, v]) => [k, v.length]));
-    return res.status(200).json({ ok: true, dry_run: true, city, target_hotels: hotels.length, would_fill: filled, no_address: none, districts: preview });
+    return { city, dry_run: true, target_hotels: hotels.length, would_fill: filled, no_address: none,
+      districts: Object.fromEntries(Object.entries(byDistrict).map(([k, v]) => [k, v.length])) };
   }
 
   // 5) 저장 (지역별 배치 UPDATE)
@@ -96,19 +121,16 @@ export default async function handler(req, res) {
     .select('id', { count: 'exact', head: true }).eq('city', city).is('district', null);
 
   // 6) 🔴 같은 도시의 «영어·한자로 남은» 지역명을 한국어 표준으로 모은다 (2026-08-07)
-  const renamed = await recanon(sb, city);
+  const renamed = await recanon(sb, city, dry);
 
-  return res.status(200).json({
-    ok: true, city, target_hotels: hotels.length, filled, no_address: none,
+  return { city, target_hotels: hotels.length, filled, no_address: none,
     districts: Object.fromEntries(Object.entries(byDistrict).map(([k, v]) => [k, v.length])),
-    remaining_null: remaining, recanon: renamed,
-    note: '아고다 주소로 지역 채움 (구글 안 씀) + 비한국어 지역명 한국어 통일.',
-  });
+    remaining_null: remaining, recanon: renamed };
 }
 
 /** 이 도시의 지역명 중 한국어가 아닌 것을 사전으로 한국어 표준명에 모은다.
  *  사전에 없으면 그대로 둔다 → 감사봇(kw-audit ⑥)이 「섞임」으로 계속 알려준다. */
-async function recanon(sb, city) {
+async function recanon(sb, city, dry) {
   const { data } = await sb.from('hotels')
     .select('id, district').eq('city', city).not('district', 'is', null);
   const plan = {};   // 한국어표준 -> [id]
@@ -120,10 +142,11 @@ async function recanon(sb, city) {
   }
   const out = {};
   for (const [ko, ids] of Object.entries(plan)) {
+    out[ko] = ids.length;
+    if (dry) continue;
     for (let i = 0; i < ids.length; i += 80) {
       try { await sb.from('hotels').update({ district: ko }).in('id', ids.slice(i, i + 80)); } catch { /* 계속 */ }
     }
-    out[ko] = ids.length;
   }
   return out;
 }

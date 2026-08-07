@@ -168,28 +168,10 @@ export default async function handler(req, res) {
       sample: noCity.slice(0, 5).map((k) => `${k.text} (${labelOf[k.city_key]})`) });
   }
 
-  // ── ④ 분모가 말이 되나 — 우리 > 전체 인 지역 (알리기만) ──
-  try {
-    // ⚠ v_district_star 는 865줄로 **1,000줄에 가깝다.** 도시가 조금만 늘어도 조용히 잘린다.
-    //   터진 뒤에 고치면 그동안 거짓 답을 보여준 것이다. 미리 나눠 읽는다.
-    const ds = [];
-    for (let from = 0; ; from += 1000) {
-      const { data, error } = await sb.from('v_district_star')
-        .select('city, district, star, agoda_total, ours').range(from, from + 999);
-      if (error || !data || !data.length) break;
-      ds.push(...data);
-      if (data.length < 1000) break;
-      if (ds.length > 60000) break;
-    }
-    const bad = (ds || []).filter((d) => (d.ours || 0) > (d.agoda_total || 0) && (d.agoda_total || 0) > 0);
-    const zero = (ds || []).filter((d) => (d.agoda_total || 0) === 0 && (d.ours || 0) > 0);
-    if (bad.length) problems.push({ kind: 'denominator', n: bad.length, fixed: false,
-      note: '「우리」가 「전체」보다 많다 = 분모가 덜 채워졌다. 그 나라 아고다 호텔을 더 넣어야 한다.',
-      sample: bad.slice(0, 5).map((d) => `${d.city} ${d.district} ${d.star}성 (우리 ${d.ours} > 전체 ${d.agoda_total})`) });
-    if (zero.length) problems.push({ kind: 'denominator_zero', n: zero.length, fixed: false,
-      note: '분모가 0이다. 아고다 호텔 파일에 그 나라가 안 들어갔을 수 있다(예: 한국).',
-      sample: [...new Set(zero.map((d) => `${d.city} ${d.district}`))].slice(0, 5) });
-  } catch { /* 뷰가 없으면 건너뛴다 */ }
+  // ── ④ 분모 검사 — **`wiring-audit` 로 넘겼다** (2026-08-07 겹침 정리)
+  //     「우리 > 전체」·「분모 0」은 wiring-audit ③ 이 **같은 표(`v_district_star`)를** 이미 보고 있었다.
+  //     오늘 둘 다 돌려보니 'Da Nang 오행산 4성'·'Tokyo 긴자 5성' 을 **똑같이** 신고했다.
+  //     같은 것을 두 곳에서 세면 어느 쪽이 맞는지 사람이 또 확인해야 한다 — **한 곳만 본다.**
 
   // ── ⑤ 검색어는 있는데 측정이 없는 도시 (알리기만) ──
   const cityHas = {};
@@ -204,9 +186,11 @@ export default async function handler(req, res) {
       sample: noMeasure.slice(0, 5) });
   }
 
-  // ── ⑥ 지역 이름이 언어별로 쪼개져 있나 (고친다) ──
+  // ── ⑥ 지역 이름이 언어별로 쪼개져 있나 (알리기만) ──
   //     같은 지역인데 표기가 다르면 화면에서 두 줄로 갈라지고 **예약·호텔 수가 나뉜다.**
-  //     사전에 있는 것은 한국어 표준명으로 모으고, 사전에 없는 것은 손대지 않고 알리기만 한다.
+  //     🔴 겹침 정리 (2026-08-07) — **고치는 것은 `hotel-district-fill`(매일 12시) 한 곳만.**
+  //        같은 칸(`hotels.district`)을 두 봇이 쓰면 어느 쪽이 마지막인지 알 수 없다.
+  //        **감시자와 수리공을 나눈다** — 여기는 감시자다.
   try {
     const { data: hs } = await sb.from('hotels').select('id, city, district').not('district', 'is', null);
     const toKo = {};      // 한국어표준 -> [id]
@@ -218,16 +202,8 @@ export default async function handler(req, res) {
       (toKo[ko] = toKo[ko] || []).push(r.id);
     }
     const n = Object.values(toKo).reduce((a, b) => a + b.length, 0);
-    if (n && !dry) {
-      for (const [ko, ids] of Object.entries(toKo)) {
-        for (let i = 0; i < ids.length; i += 80) {
-          try { await sb.from('hotels').update({ district: ko }).in('id', ids.slice(i, i + 80)); } catch { /* 계속 */ }
-        }
-      }
-      fixed += n;
-    }
-    if (n) problems.push({ kind: 'district_lang', n, fixed: !dry,
-      note: '같은 지역이 영어·한자로 남아 화면에서 갈라졌다. 한국어 표준명으로 모았다.',
+    if (n) problems.push({ kind: 'district_lang', n, fixed: false,
+      note: '같은 지역이 영어·한자로 남아 화면에서 갈라졌다. hotel-district-fill(매일 12시)이 고친다.',
       sample: Object.entries(toKo).slice(0, 5).map(([k, v]) => `${k} ← ${v.length}곳`) });
     if (unknown.length) problems.push({ kind: 'district_unknown', n: unknown.length, fixed: false,
       note: '사전에 없는 지역 이름이다. 사전(_lib/district-parse)에 한 줄 넣으면 다음 회차에 저절로 모인다.',

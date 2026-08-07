@@ -90,4 +90,75 @@ export function districtFromAny(addresses) {
   for (const a of addresses || []) { const d = districtOf(a); if (d) return d; }
   return null;
 }
-export default { districtOf, districtFromAny };
+
+// ─────────────────────────────────────────────────────────────
+// 🔴 2026-08-07 대표님: *"키워드에 영어로 된 곳은 한국어로 변경되어야 되는 거 아니야."*
+//   타이베이 지역 목록에 `Wanhua` `Zhongzheng` `中山區 Zhongshan` 이 한국어와 **나란히** 떠 있었다.
+//   보기 흉한 것으로 끝나지 않았다 — **같은 지역이 두 줄·세 줄로 쪼개져 예약 건수가 갈렸다**:
+//     중정구 7곳/39건 + Zhongzheng 18곳/132건  → 진짜는 26곳/174건 (4.5배 작게 보였다)
+//     중산구 12곳 + Zhongshan 7곳 + 中山區 1곳 → 진짜는 20곳
+//   원인: **옛 구글 기반 봇이 `languageCode:'en'` 으로 박아 둔 값**이 그대로 남아 있었고,
+//         새 봇(D-069/D-070)은 **빈칸만** 채워서(`is('district', null)`) 영어 값을 영영 안 건드렸다.
+//   → 아래 사전으로 **한국어 표준명 하나**로 모은다. 사전에 없으면 **안 건드린다**(엉뚱하게 안 박는 원칙 유지).
+// ─────────────────────────────────────────────────────────────
+const CANON_ROMAN = {
+  'zhongzheng':'중정구', 'wanhua':'완화구', 'zhongshan':'중산구', 'datong':'다퉁구',
+  'daan':'다안구', 'songshan':'송산구', 'beitou':'베이터우구', 'xinyi':'신이구',
+  'shilin':'스린구', 'neihu':'네이후구', 'nangang':'난강구', 'wenshan':'원산구',
+  'ruifang':'루이팡구', 'sanchong':'싼충구', 'banqiao':'반차오구', 'xindian':'신뎬구',
+  'shimogyo':'시모교구', 'nakagyo':'나카교구', 'higashiyama':'히가시야마구', 'sakyo':'사쿄구',
+  'ukyo':'우쿄구', 'kamigyo':'가미교구', 'fushimi':'후시미구', 'nakamura':'나카무라구',
+  'naka':'나카구', 'minami':'남구', 'higashi':'동구', 'nishi':'서구',
+  'kita':'북구', 'chuo':'중앙구', 'chuou':'중앙구', 'toshima':'도시마구',
+  'shinjuku':'신주쿠구', 'shibuya':'시부야구', 'taito':'다이토구', 'sumida':'스미다구',
+  'koto':'고토구', 'ota':'오타구', 'naniwa':'나니와구', 'yodogawa':'요도가와구',
+  'tennoji':'덴노지구', 'abeno':'아베노구', 'jongno':'종로구', 'gwangjin':'광진구',
+  'jung':'중구', 'seocho':'서초구', 'gangnam':'강남구', 'mapo':'마포구',
+  'yongsan':'용산구', 'songpa':'송파구', 'seodaemun':'서대문구', 'wattana':'왓타나',
+  'watthana':'왓타나', 'bangrak':'방락', 'phranakhon':'프라나콘', 'ratchathewi':'랏차테위',
+  'samphanthawong':'삼판타웡', 'klongsan':'클롱산', 'khlongsan':'클롱산', 'sathon':'사톤',
+  'sathorn':'사톤', 'pathumwan':'빠툼완', 'khlongtoei':'클롱토이', 'klongtoey':'클롱토이',
+  'huaikhwang':'후아이쾅', 'dusit':'두싯', 'chatuchak':'짜뚜짝', 'bangkapi':'방까삐',
+  'phayathai':'파야타이', 'bangna':'방나', 'sukhumvit':'수쿰윗', 'haichau':'하이쩌우',
+  'nguhanhson':'오행산', 'phuocmy':'프억미', 'myan':'미안', 'sontra':'선짜',
+  'anhaibac':'안하이박', 'dienbandong':'디엔반동', 'hoacuongbac':'호아끄엉박', 'anhai':'안하이',
+  'anhaitay':'안하이떠이', 'anhaidong':'안하이동', 'haivan':'하이번', 'thanhkhe':'탄케',
+  'mykhe':'미케', 'anthuong':'안트엉', 'lienchieu':'리엔찌에우', 'benthanh':'벤탄',
+  'phamngulao':'팜응우라오', 'saigon':'사이공', 'bennghe':'벤응에', 'cogiang':'꼬장',
+  'tanphong':'떤퐁', 'nguyenthaibinh':'응우옌타이빈', 'cauonglanh':'꺼우옹란', 'binhthanh':'빈탄',
+  'dakao':'다카오', 'tanhung':'떤흥', 'caukho':'꺼우코', 'anphu':'안푸',
+  'thanhmytay':'탄미떠이', 'tandinh':'떤딘', 'vothisau':'보티사우', 'ankhanh':'안칸',
+  'nguyencutrinh':'응우옌끄찐', 'onglanh':'옹란', 'nguhnhson':'오행산', 'phunhuan':'푸년',
+  'tanbinh':'떤빈',
+};
+const CANON_HANJA = {
+  '中山區':'중산구', '萬華區':'완화구', '中正區':'중정구',
+  '大同區':'다퉁구', '松山區':'송산구', '信義區':'신이구',
+  '大安區':'다안구', '士林區':'스린구', '北投區':'베이터우구',
+  '內湖區':'네이후구', '南港區':'난강구', '文山區':'원산구',
+};
+
+/** 지역 이름 하나 → 한국어 표준명. 모르면 원래 값 그대로(null 아님). */
+export function canonDistrict(name) {
+  if (!name) return null;
+  const s = String(name).trim();
+  if (!s) return null;
+  for (const hz of Object.keys(CANON_HANJA)) if (s.includes(hz)) return CANON_HANJA[hz];
+  if (/[가-힣]/.test(s)) return s;                       // 이미 한국어 → 그대로
+  const n = norm(s);
+  if (CANON_ROMAN[n]) return CANON_ROMAN[n];
+  // 주소 조각이 통째로 들어온 경우 ("Chongqing S. Rd. Zhongzheng") — 긴 열쇠부터 포함 검사
+  for (const k of Object.keys(CANON_ROMAN).sort((a, b) => b.length - a.length)) {
+    if (k.length >= 5 && n.includes(k)) return CANON_ROMAN[k];
+  }
+  return s;                                              // 사전에 없으면 건드리지 않는다
+}
+
+/** 한국어로 못 바꾸는(=사전에 없는) 이름인가 — 감사봇이 이걸로 「섞임」을 잡는다. */
+export function isNonKoDistrict(name) {
+  const c = canonDistrict(name);
+  return !!c && !/[가-힣]/.test(c);
+}
+
+export default { districtOf, districtFromAny, canonDistrict, isNonKoDistrict };
+

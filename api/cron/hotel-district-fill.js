@@ -16,7 +16,7 @@
 //   city 없으면 지역 빈 호텔이 있는 도시를 자동으로 하나 골라 채운다.
 // ─────────────────────────────────────────────────────────────
 import { createClient } from '@supabase/supabase-js';
-import { districtOf, canonDistrict } from '../_lib/district-parse.js';
+import { districtOf, canonDistrict, hasDistrictRule } from '../_lib/district-parse.js';
 
 function authOK(req) {
   const h = req.headers || {};
@@ -47,15 +47,43 @@ export default async function handler(req, res) {
   //    그 도시에 «규칙 없는 주소»가 남아 있으면 매일 같은 도시만 골라 **영원히 다음으로 못 넘어갔다.**
   //    실제로 하노이는 파서가 읽을 수 있는데도 지역이 0개였다 — **봇이 한 번도 안 온 것**이다.
   //    → 이제 한 번에 **여러 도시**를 돈다(예약 많은 순).
+  // 🔴 2026-08-08 두 번째 병목 (D-083) — 「규칙 없는 나라」가 하루치 자리를 먹고 있었다.
+  //    파서에 사전이 없는 나라(한국·호주·말레이시아·이탈리아…)는 돌려도 **반드시 0건**이다.
+  //    그런데 지역이 영영 안 차니 매일 예약순 상위에 다시 뽑혀 8칸 중 한 칸을 영구 점유했다.
+  //    → 이제 hasDistrictRule() 로 «할 수 있는 도시»만 고르고, 못 하는 도시는 대기 목록으로 «센다».
+  //    ⚠️ 건너뛰는 게 아니라 **보고한다.** 사전을 새로 넣으면 다음 날 자동으로 다시 대상이 된다.
   let cities;
+  let noRule = { cities: 0, hotels: 0, bookings: 0, top: [] };
   if (q.city) cities = [q.city];
   else {
     const { data } = await sb.from('hotels')
-      .select('city, booking_count').is('district', null).not('city', 'is', null);
+      .select('city, country, booking_count').is('district', null).not('city', 'is', null);
     const bk = {};
-    for (const r of data || []) bk[r.city] = (bk[r.city] || 0) + (r.booking_count || 0);
+    const nr = {};
+    for (const r of data || []) {
+      if (!hasDistrictRule(r.city, r.country)) {
+        const k = r.country + ' / ' + r.city;
+        nr[k] = nr[k] || { hotels: 0, bookings: 0 };
+        nr[k].hotels += 1; nr[k].bookings += (r.booking_count || 0);
+        continue;
+      }
+      bk[r.city] = (bk[r.city] || 0) + (r.booking_count || 0);
+    }
+    const nrList = Object.entries(nr).sort((a, b) => b[1].bookings - a[1].bookings);
+    noRule = {
+      cities: nrList.length,
+      hotels: nrList.reduce((s2, [, v]) => s2 + v.hotels, 0),
+      bookings: nrList.reduce((s2, [, v]) => s2 + v.bookings, 0),
+      top: nrList.slice(0, 10).map(([k, v]) => ({ city: k, hotels: v.hotels, bookings: v.bookings })),
+    };
     cities = Object.keys(bk).sort((a, b) => bk[b] - bk[a]).slice(0, Math.min(parseInt(q.cities, 10) || 8, 20));
-    if (!cities.length) return res.status(200).json({ ok: true, idle: true, note: '지역 채울 호텔 없음 (전부 채워짐).' });
+    if (!cities.length) {
+      return res.status(200).json({
+        ok: true, idle: true, all_done: true,
+        note: '규칙 있는 나라의 지역은 전부 채워졌다. 남은 것은 «규칙 없는 나라» 뿐 — 사전을 추가해야 더 채워진다.',
+        no_rule: noRule,
+      });
+    }
   }
 
   const all = [];
@@ -64,7 +92,7 @@ export default async function handler(req, res) {
     catch (e) { all.push({ city, error: String(e.message || e).slice(0, 100) }); }
   }
   return res.status(200).json({
-    ok: true, dry_run: dry, cities: cities.length,
+    ok: true, dry_run: dry, cities: cities.length, no_rule: noRule,
     filled_total: all.reduce((s2, r) => s2 + (r.filled || 0), 0),
     recanon_total: all.reduce((s2, r) => s2 + Object.values(r.recanon || {}).reduce((a, b) => a + b, 0), 0),
     results: all,

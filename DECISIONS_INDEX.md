@@ -159,3 +159,4 @@
 | 2026-08-01 | D-075 등록 (키워드 발굴·순환 바로잡기 — 자유여행·띄어쓰기·신규 발굴 우선 / api/kw-survey-now.js, api/cron/kw-survey.js) |
 | 2026-08-02 | D-079 등록 (호텔 자료 바탕=아고다 파일 · 검사봇 3종 · 검색어 적어도 버리지 않음) |
 | 2026-08-07 | D-080 등록 (지역명 한국어 단일화 + 「값 박힘·이름 중복」 자동 검사 — 같은 지역이 영어·한자로 갈라져 예약이 나뉘던 사고 / api/_lib/district-parse.js, api/cron/kw-audit.js, api/cron/wiring-audit.js) |
+| 2026-08-07 | D-081 등록 (검사봇 4층 구조 — 코드·배선·자료·화면 / 「한 가지는 한 로봇만」·「감시자와 수리공 분리」·겹침 3건 제거·screen-sweep 신설 / api/cron/screen-sweep.js, SYSTEM_MAP §3-B) |

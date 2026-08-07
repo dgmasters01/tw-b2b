@@ -155,6 +155,31 @@ const CITY_CC = {
   seoul:'kr', busan:'kr', paris:'fr', london:'gb', rome:'it', prague:'cz', sydney:'au', melbourne:'au',
 };
 
+/** 🔴 2026-08-08 — 지역 규칙(사전)이 «있는» 나라 목록. (D-083)
+ *  여기 없는 나라는 districtOf 가 반드시 null 을 낸다 → 아무리 돌려도 0건이다.
+ *  봇이 그런 도시를 매일 골라 하루치 자리를 낭비하던 병목을 막기 위해 명시한다.
+ *  🔴 새 나라 사전을 추가하면 **여기에도 코드를 반드시 넣는다.** 안 넣으면 그 나라는 영원히 건너뛴다.
+ *  (지금 규칙 없음: 한국 kr · 호주 au · 말레이시아 my · 이탈리아 it · 영국 gb · 체코 cz …) */
+export const SUPPORTED_CC = ['jp', 'th', 'tw', 'hk', 'cn', 'sg', 'ph', 'id', 'vn', 'fr'];
+
+/** 나라 이름(hotels.country 표기) → 나라 코드. 도시가 CITY_CC 에 있으면 도시가 우선. */
+const COUNTRY_CC = {
+  japan: 'jp', thailand: 'th', taiwan: 'tw', 'hong kong': 'hk', 'hong kong sar, china': 'hk',
+  china: 'cn', singapore: 'sg', philippines: 'ph', indonesia: 'id', vietnam: 'vn', france: 'fr',
+  'south korea': 'kr', australia: 'au', 'united kingdom': 'gb', italy: 'it', malaysia: 'my',
+  'czech republic': 'cz', laos: 'la', 'new zealand': 'nz', switzerland: 'ch',
+};
+
+/** 이 도시(+나라)에 지역 규칙이 있나? 없으면 봇이 그 도시를 안 고른다.
+ *  모르는 나라는 «없음»으로 본다 — 헛돌기보다 건너뛰고 대기 목록에 남기는 쪽이 안전하다. */
+export function hasDistrictRule(city, country) {
+  const c = CITY_CC[String(city || '').toLowerCase().trim()];
+  if (c) return SUPPORTED_CC.includes(c);
+  const k = COUNTRY_CC[String(country || '').toLowerCase().trim()];
+  if (k) return SUPPORTED_CC.includes(k);
+  return false;
+}
+
 /** 주소 꼬리에 적힌 나라 이름으로도 가른다 (도시를 모를 때) */
 function ccOf(raw, city) {
   const c = CITY_CC[String(city || '').toLowerCase().trim()];

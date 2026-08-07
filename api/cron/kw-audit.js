@@ -2,6 +2,13 @@
 // 키워드 자료가 «말이 되는지» 매일 스스로 검사한다. 틀린 게 있으면 고치고, 못 고치면 알린다.
 //
 // ═══ 왜 만들었나 (2026-08-01 대표님) ═══
+//   🔴 2026-08-07 대표님이 타이베이 화면에서 또 잡았다:
+//     *"키워드에 영어로 된 곳은 한국어로 변경되어야 되는 거 아니야 … 이런 부분 많을 것 같아.
+//       정석적으로 체크해서 이런 것 찾아서 수정하는 로봇 없는 거야?"*
+//     화면엔 `Wanhua` `Zhongzheng` `中山區 Zhongshan` 이 한국어와 나란히 떴고,
+//     **같은 지역이 두 줄·세 줄로 쪼개져 예약이 갈렸다**(중정구 39건 / Zhongzheng 132건 → 진짜 174건).
+//     봇은 있었는데 **이 항목이 검사 목록에 없었다.** 그래서 ⑥을 넣는다.
+//
 //   *"방금과 같은 부분이 생기면 차트의 정확성이 떨어지잖아. 이렇게 되지 않게 판단하고 체크할 수 있는
 //     일군이 있어야 되는 거 아니야? 우리가 다른 나라 도시들 지역들도 이런 문제가 생기면 안 되잖아.
 //     추후 외국어 타겟도 똑같은 문제가 생기면 안 됨."*
@@ -18,6 +25,7 @@
 //   ③ 분모가 말이 되나  — 「우리 > 전체」인 지역이 있나 (분모가 틀렸다는 뜻)
 //   ④ 짝이 맞나        — 붙여쓰기 짝이 한국어 아닌 언어에 붙어 있나
 //   ⑤ 빈 껍데기        — 검색어는 있는데 측정이 하나도 없는 도시
+//   ⑥ 지역 이름 섞임    — 같은 지역이 한국어·영어·한자로 쪼개져 있나 (자동으로 모은다)
 //
 // ═══ 원칙 ═══
 //   · **고칠 수 있는 건 고친다**(축 분류). 애매한 건 «알리기만» 한다 — 지어내지 않는다.
@@ -25,6 +33,7 @@
 //   · 언어가 늘어도 그대로 돈다 — 언어별 단어는 kw-survey-now 의 사전을 그대로 쓴다.
 
 import { createClient } from '@supabase/supabase-js';
+import { canonDistrict } from '../_lib/district-parse.js';
 
 export const config = { maxDuration: 120 };
 
@@ -194,6 +203,36 @@ export default async function handler(req, res) {
       note: '검색어는 캤는데 아직 한 번도 측정이 안 끝난 도시다. 봇이 차례로 잰다.',
       sample: noMeasure.slice(0, 5) });
   }
+
+  // ── ⑥ 지역 이름이 언어별로 쪼개져 있나 (고친다) ──
+  //     같은 지역인데 표기가 다르면 화면에서 두 줄로 갈라지고 **예약·호텔 수가 나뉜다.**
+  //     사전에 있는 것은 한국어 표준명으로 모으고, 사전에 없는 것은 손대지 않고 알리기만 한다.
+  try {
+    const { data: hs } = await sb.from('hotels').select('id, city, district').not('district', 'is', null);
+    const toKo = {};      // 한국어표준 -> [id]
+    const unknown = [];   // 사전에 없어 못 바꾼 것
+    for (const r of hs || []) {
+      if (/[가-힣]/.test(r.district)) continue;
+      const ko = canonDistrict(r.district);
+      if (!ko || ko === r.district) { unknown.push(`${r.city} ${r.district}`); continue; }
+      (toKo[ko] = toKo[ko] || []).push(r.id);
+    }
+    const n = Object.values(toKo).reduce((a, b) => a + b.length, 0);
+    if (n && !dry) {
+      for (const [ko, ids] of Object.entries(toKo)) {
+        for (let i = 0; i < ids.length; i += 80) {
+          try { await sb.from('hotels').update({ district: ko }).in('id', ids.slice(i, i + 80)); } catch { /* 계속 */ }
+        }
+      }
+      fixed += n;
+    }
+    if (n) problems.push({ kind: 'district_lang', n, fixed: !dry,
+      note: '같은 지역이 영어·한자로 남아 화면에서 갈라졌다. 한국어 표준명으로 모았다.',
+      sample: Object.entries(toKo).slice(0, 5).map(([k, v]) => `${k} ← ${v.length}곳`) });
+    if (unknown.length) problems.push({ kind: 'district_unknown', n: unknown.length, fixed: false,
+      note: '사전에 없는 지역 이름이다. 사전(_lib/district-parse)에 한 줄 넣으면 다음 회차에 저절로 모인다.',
+      sample: [...new Set(unknown)].slice(0, 8) });
+  } catch { /* 표가 없으면 건너뛴다 */ }
 
   // ── 기록 ──
   const summary = { at: new Date().toISOString(), checked: (kws || []).length, fixed, problems };

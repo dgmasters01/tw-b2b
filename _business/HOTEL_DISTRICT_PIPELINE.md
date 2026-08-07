@@ -40,11 +40,12 @@ curl -s -X POST "https://gohotelwinners.com/api/ops/district-diagnose" -H "x-ops
 | 단계 | 담당 | 대상 조건 | 안 될 때 증상 | 확인 방법 |
 |---|---|---|---|---|
 | ② 주소 | `hotel-addr-fill` | `address IS NULL` | 주소 칸이 빈 채로 남음 | 진단창구 `A_주소가_아예_없음` |
-| ③ 구글 | `hotel-geo-fill` | 🔴 **`latitude IS NULL`** | 좌표는 있는데 주소가 부실한 호텔을 **영영 안 봄** | 진단창구 `D1_구글에_아직_안물어봄` |
+| ③ 구글(좌표) | `hotel-geo-fill` `mode=geo` | `latitude IS NULL` | 좌표가 안 채워짐 | `?dry_run=1` 의 `would_process` |
+| ③-2 구글(주소) 🆕 | `hotel-geo-fill` `mode=district` | `district IS NULL` + `google_place_id IS NULL` | 아고다 주소에 동네가 없는 호텔이 방치됨 | 진단창구 `D1_구글에_아직_안물어봄` |
 | ④ 동네 | `hotel-district-fill` | `district IS NULL` + 사전 있는 나라 | 매일 0건인데 겉으론 고장처럼 보임 | `?dry_run=1` 의 `stalled` |
 | ④ 사전 | `_lib/district-parse.js` | 사전에 그 이름이 있어야 박음 | 주소엔 동네가 있는데 안 박힘 | 진단창구 `D2_구글주소_있는데_사전에_이름없음` |
 
-### 🔴 ③번이 지금까지의 진짜 구멍
+### ✅ ③번 구멍은 2026-08-08 해소됨 (D-085) — 아래는 왜 생겼는지의 기록
 
 아고다에서 **좌표를 받으면** `latitude` 가 채워진다 → 구글 봇이 *"할 일 없음"* 으로 건너뛴다.
 그런데 아고다 주소에는 동네가 없다(`38 Tran Phu Street`). **좌표를 얻은 대가로 구글에 물어볼 기회를 잃었다.**
@@ -78,7 +79,8 @@ curl -s -X POST "https://gohotelwinners.com/api/ops/district-diagnose" -H "x-ops
 | C 곧 자동 해결 | 84 | 100 | 21 |
 | A 구조적 불가 | 7 | 7 | 6 |
 
-**결론: 절반 이상(999건)이 「구글에 물어보면 되는데 안 물어본 것」이다.**
+**결론: 절반 이상(999건)이 「구글에 물어보면 되는데 안 물어본 것」이었다.**
+→ **D-085 로 자동 처리 중** (하루 3회 × 45건 · 약 8일 · 2026-08-16경 완료 예정). 대표님 손 안 감.
 
 ---
 

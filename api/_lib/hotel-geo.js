@@ -117,7 +117,14 @@ function judgeDistrict(cityKey, lat, lng) {
  * @returns {Promise<{status:number, body:object}>}  입구(수동/크론)가 그대로 res 로 내보낸다.
  */
 export async function runGeoFill(opts = {}) {
-  const { city = null, limit = 10, dry_run = false, retry = false } = opts;   // retry=1 → not_found 도 다시 본다
+  // 🔴 2026-08-08 (D-085 · 대표님 D안) — mode='district' 신설.
+  //   기존(mode='geo')은 **좌표 없는 호텔**만 본다. 그런데 아고다에서 좌표를 받아온 호텔은
+  //   좌표가 채워지는 바람에 구글을 **영영 안 불렀고**, 아고다 주소엔 동네 글자가 없어서
+  //   (`38 Tran Phu Street`) 지역이 영영 안 채워졌다. 999건이 이 상태였다.
+  //   → mode='district' 는 «지역 없음 + 구글에 안 물어본» 호텔에게 구글 주소를 받아온다.
+  //     구글 주소엔 동네가 있다 (`Chang Khlan Sub-district, Mueang Chiang Mai District…`).
+  //   ⚠️ FIELD_MASK 는 그대로다. 호출 비용·한도 계산이 바뀌지 않는다.
+  const { city = null, limit = 10, dry_run = false, retry = false, mode = 'geo' } = opts;
 
   const apiKey = process.env.GOOGLE_PLACES_API_KEY;
   if (!apiKey) return { status: 500, body: { ok: false, error: 'GOOGLE_PLACES_API_KEY not configured' } };
@@ -186,8 +193,12 @@ export async function runGeoFill(opts = {}) {
     const statusFilter = retry
       ? `or=(geo_status.is.null,geo_status.eq.pending,geo_status.eq.not_found)`
       : `or=(geo_status.is.null,geo_status.eq.pending)`;
-    let q = `hotels?latitude=is.null&${statusFilter}`
-          + `&select=id,hotel_name,city,booking_count&order=booking_count.desc.nullslast&limit=${take}`;
+    let q = mode === 'district'
+      // 지역 없음 + 구글에 아직 안 물어봄 + 좌표는 이미 있음(대조용) — 예약 많은 순
+      ? `hotels?district=is.null&google_place_id=is.null&latitude=not.is.null`
+        + `&select=id,hotel_name,city,booking_count,latitude,longitude&order=booking_count.desc.nullslast&limit=${take}`
+      : `hotels?latitude=is.null&${statusFilter}`
+        + `&select=id,hotel_name,city,booking_count&order=booking_count.desc.nullslast&limit=${take}`;
     if (city) q += `&city=ilike.*${encodeURIComponent(city)}*`;
     const targets = await sbGet(q);
 
@@ -260,21 +271,44 @@ export async function runGeoFill(opts = {}) {
         continue;
       }
 
+      // 🔴 district 모드 전용 안전장치 — 도시중심 대신 **그 호텔의 기존 좌표**와 대조한다.
+      //    CITY_CENTER 는 16개 도시뿐이라 그 밖 도시는 검증이 없었다. 기존 좌표 대조는 전 도시에서 된다.
+      //    2km 넘게 어긋나면 동명 호텔 오매칭이다 → 주소를 박지 않고 사람이 보게 남긴다.
+      if (mode === 'district' && h.latitude != null && h.longitude != null) {
+        const gap = haversine([Number(h.latitude), Number(h.longitude)], [lat, lng]);
+        if (gap > 2) {
+          await sbPatch(`hotels?id=eq.${h.id}`, { geo_status: 'manual_check', geo_checked_at: new Date().toISOString() });
+          result.manual_check++;
+          result.samples.push(`⚠️ ${h.hotel_name} → 기존 좌표와 ${Math.round(gap)}km 어긋남(오매칭 의심)`);
+          continue;
+        }
+      }
       const district = judgeDistrict(cityKey, lat, lng);
       // 구글이 알려주는 영업 상태 → 우리 장부에 박는다. 폐업 호텔로 콘텐츠를 만들면 예약이 0이다.
       const bs = place.businessStatus || null;
       const opStatus = bs === 'CLOSED_PERMANENTLY' ? 'closed'
         : (bs === 'CLOSED_TEMPORARILY' ? 'temp_closed'
         : (bs === 'OPERATIONAL' ? 'active' : null));
-      const patch = {
-        latitude: lat, longitude: lng,
-        address: place.formattedAddress || null,
-        google_place_id: place.id || null,
-        district,
-        geo_status: 'ok',
-        geo_checked_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      };
+      // district 모드: 좌표·geo_status 는 **손대지 않는다**(이미 정상). 주소만 구글 것으로 바꾼다.
+      //   다음 날 hotel-district-fill 이 그 주소를 읽어 동네를 뽑는다. 역할을 넘기는 구조다.
+      const patch = mode === 'district'
+        ? {
+            address: place.formattedAddress || null,
+            google_place_id: place.id || null,
+            addr_source: 'google',
+            geo_checked_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+            ...(district ? { district } : {}),
+          }
+        : {
+            latitude: lat, longitude: lng,
+            address: place.formattedAddress || null,
+            google_place_id: place.id || null,
+            district,
+            geo_status: 'ok',
+            geo_checked_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          };
       if (opStatus) patch.operating_status = opStatus;   // 구글이 말해줄 때만 바꾼다
       await sbPatch(`hotels?id=eq.${h.id}`, patch);
       result.ok++;

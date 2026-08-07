@@ -161,3 +161,4 @@
 | 2026-08-07 | D-080 등록 (지역명 한국어 단일화 + 「값 박힘·이름 중복」 자동 검사 — 같은 지역이 영어·한자로 갈라져 예약이 나뉘던 사고 / api/_lib/district-parse.js, api/cron/kw-audit.js, api/cron/wiring-audit.js) |
 | 2026-08-07 | D-081 등록 (검사봇 4층 구조 — 코드·배선·자료·화면 / 「한 가지는 한 로봇만」·「감시자와 수리공 분리」·겹침 3건 제거·screen-sweep 신설 / api/cron/screen-sweep.js, SYSTEM_MAP §3-B) |
 | 2026-08-07 | D-082 등록 (지역 파서 나라 우선 판정 — 파리에 방콕 지역 박히던 오매칭 차단·부분일치 폐지·로마자 유지 폐지·8개국 사전 신설·채우기 봇 하루1도시 병목 제거 / api/_lib/district-parse.js, api/cron/hotel-district-fill.js) |
+| 2026-08-08 | D-083 등록 (지역 채움 «할 수 있는 나라 / 못 하는 나라» 분리 — SUPPORTED_CC 명시·규칙 없는 도시가 하루치 자리 먹던 2차 병목 제거·못 하는 것은 no_rule 대기목록으로 보고·한국은 아웃바운드 우선이라 보류(주소 근거 확보) / api/_lib/district-parse.js, api/cron/hotel-district-fill.js) |

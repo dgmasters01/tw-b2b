@@ -20,11 +20,26 @@ const JP_AREA = {
   shinjuku: '신주쿠', shibuya: '시부야', ginza: '긴자', asakusa: '아사쿠사', ueno: '우에노', ikebukuro: '이케부쿠로',
   akihabara: '아키하바라', roppongi: '롯폰기', shinagawa: '시나가와', nihonbashi: '니혼바시', kanda: '간다',
   kawaramachi: '가와라마치', arashiyama: '아라시야마', fushimi: '후시미', gionshijo: '기온', sakae: '사카에', meieki: '메이에키',
+  // 2026-08-07 보강
+  marunouchi: '마루노우치', odaiba: '오다이바', tsukiji: '쓰키지', shimbashi: '신바시', shinbashi: '신바시',
+  akasaka: '아카사카', ebisu: '에비스', kichijoji: '기치조지', oshiage: '오시아게', ryogoku: '료고쿠',
+  hamamatsucho: '하마마쓰초', tamachi: '다마치', otemachi: '오테마치', nihombashi: '니혼바시',
+  susukino: '스스키노', odori: '오도리', kokura: '고쿠라', mojiko: '모지코',
 };
 const JP_WARD = {
   chuo: '중앙구', chuou: '중앙구', chou: '중앙구', naka: '나카구', higashi: '동구', minami: '남구', nishi: '서구',
   kita: '북구', jonan: '성남구', sawara: '사와라구', naniwa: '나니와구', yodogawa: '요도가와구', taito: '다이토구',
   sumida: '스미다구', koto: '고토구', ota: '오타구', nakagyo: '나카교구', shimogyo: '시모교구', sakyo: '사쿄구',
+  // 도쿄 23구 (2026-08-07 보강 — 마루노우치·지요다 같은 흔한 주소가 null 이었다)
+  chiyoda: '지요다구', minato: '미나토구', bunkyo: '분쿄구', meguro: '메구로구', setagaya: '세타가야구',
+  nakano: '나카노구', suginami: '스기나미구', toshima: '도시마구', arakawa: '아라카와구',
+  itabashi: '이타바시구', nerima: '네리마구', adachi: '아다치구', katsushika: '가쓰시카구',
+  edogawa: '에도가와구', shinjukuku: '신주쿠구', shibuyaku: '시부야구',
+  // 오사카·교토·나고야 보강
+  tennoji: '덴노지구', abeno: '아베노구', nishinari: '니시나리구', fukushima: '후쿠시마구',
+  konohana: '고노하나구', miyakojima: '미야코지마구', joto: '조토구', higashinari: '히가시나리구',
+  ukyo: '우쿄구', kamigyo: '가미교구', higashiyama: '히가시야마구', fushimiku: '후시미구',
+  nakamura: '나카무라구', chikusa: '지쿠사구', mizuho: '미즈호구', atsuta: '아쓰타구',
 };
 
 // 🔴 2026-08-07 확장 (대표님 «마무리»): 지역 목록이 **통째로 빈 도시가 10곳**이었다
@@ -171,9 +186,12 @@ export function districtOf(address, city) {
     const raw0 = deaccent(String(address || ''));
     const nn0 = raw0.toLowerCase().replace(/[-_.]/g, ' ').replace(/\s+/g, '');
     const parts0 = raw0.split(',').map((x) => x.trim());
+    // 🔴 «조각 통째로 일치» 만 쓴다. 부분 문자열 포함 검사는 안 쓴다 (2026-08-07 실측).
+    //    포함 검사를 두면 오사카 주소에 태국 `ari`(아리)가, 가오슝에 타이난 `중서구`가 박힌다.
+    //    실제로 미리보기에서 **오사카·도쿄에 「아리」가 5건** 잡혔다. 한 글자 겹침이 사고를 만든다.
     const pick = (map) => {
-      for (const p of parts0) { const v = map[norm(p)]; if (v) return v; }   // 조각 통째로 일치 우선
-      return has(map, nn0);                                                  // 그다음 포함 검사
+      for (const p of parts0) { const v = map[norm(p)]; if (v) return v; }
+      return null;
     };
     if (cc === 'th') {
       const m = raw0.match(/Tambon\s+([A-Za-z ]{3,22})/i) || raw0.match(/Muang\s+([A-Za-z ]{3,22})/i);
@@ -206,7 +224,14 @@ export function districtOf(address, city) {
       for (const p of parts0) { const m = p.match(/^(phuong|quan)\s+(.+)$/i); if (m && VN_MAP[norm(m[2])]) return VN_MAP[norm(m[2])]; }
       return null;
     }
-    if (cc === 'jp') return districtOfLegacy(address);
+    if (cc === 'jp') {
+      // 일본만 본다 — 다른 나라 사전에 안 걸리게
+      const jpArea = has(JP_AREA, nn0); if (jpArea) return jpArea;
+      const jw = raw0.match(/([A-Za-z]+)\s+Ward/); if (jw && JP_WARD[jw[1].toLowerCase()]) return JP_WARD[jw[1].toLowerCase()];
+      const ku = raw0.toLowerCase().replace(/[-_.]/g, ' ').match(/([a-z]+)\s*ku\b/);
+      if (ku) { if (JP_WARD[ku[1]]) return JP_WARD[ku[1]]; if (JP_AREA[ku[1]]) return JP_AREA[ku[1]]; }
+      return null;
+    }
     return null;   // 규칙 없는 나라(영국·호주 등) → 안 박는다
   }
   return districtOfLegacy(address);

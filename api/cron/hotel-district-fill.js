@@ -91,8 +91,17 @@ export default async function handler(req, res) {
     try { all.push(await fillOne(sb, city, limit, dry)); }
     catch (e) { all.push({ city, error: String(e.message || e).slice(0, 100) }); }
   }
+  // 🔴 2026-08-08 (D-083 후속) — «다 끝남»과 «고장»을 구분한다.
+  //    전수 진단 결과 남은 호텔의 대부분은 **주소에 구·동 글자가 아예 없다**(`38 Tran Phu Street`).
+  //    사전을 키워도 못 뽑는다 → 0건이 정상이다. 그런데 겉으로는 「봇이 안 돈다」와 똑같이 보였다.
+  //    → 한 바퀴 돌아 0건이면 stalled 로 명시한다. 이걸 안 하면 매일 같은 걸 다시 파보게 된다.
+  const filledTotal = all.reduce((s2, r) => s2 + (r.filled || 0), 0);
   return res.status(200).json({
     ok: true, dry_run: dry, cities: cities.length, no_rule: noRule,
+    stalled: filledTotal === 0,
+    stalled_reason: filledTotal === 0
+      ? '주소 파싱 한계 — 남은 호텔은 주소에 구·동 글자가 없다. 사전 확장으로는 못 푼다. 고장 아님. (D-083 §5)'
+      : null,
     filled_total: all.reduce((s2, r) => s2 + (r.filled || 0), 0),
     recanon_total: all.reduce((s2, r) => s2 + Object.values(r.recanon || {}).reduce((a, b) => a + b, 0), 0),
     results: all,

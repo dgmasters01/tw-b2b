@@ -1895,15 +1895,20 @@ function rx(d){cd=d;
    🔴 숫자를 코드에 박지 않는다. 전부 /api/content-keywords?view=survey 가
       keyword·trend 표를 **세어서** 준 값이다.
       (사고 기록: 여기 '살아있는 42 · 죽은 8' 이 박혀 있었고 진짜는 58 · 10 이었다) */
-var SV=null, svMore=false;
+/* 🔴 2026-08-07 사고 수정 (대표님 발견): *"타이베이 지역메뉴 누르고 다시 타이베이를 클릭하니 일본 오사카로 뜸."*
+   원인 두 개가 겹쳤다:
+     ① 이 블록이 위(5368줄)와 **똑같은 이름 `SV`** 를 또 선언했다 → 도시 상세 자료를 통째로 덮어썼다.
+     ② 아래 svCity() 에 **「오사카」가 박혀** 있었다 → 어느 도시를 보든 오사카를 불러왔다.
+   → 이름을 `SVK`(키워드 3층 전용)로 갈라내고, 도시는 **지금 보고 있는 도시(SVKEY)** 를 따라간다. */
+var SVK=null, svMore=false;
 
-function svCity(){ return 'cc:japan|osaka'; }   /* TODO 도시 축이 붙으면 여기서 갈아끼운다 */
+function svCity(){ return SVKEY || 'cc:japan|osaka'; }   /* 🔴 지금 보고 있는 도시를 따라간다 (2026-08-07). 예전엔 오사카가 박혀 있었다 */
 
 function ks(){
   var u='/api/content-keywords?view=survey&target='+TGT+'&city='+encodeURIComponent(svCity());   /* 🔴 조사는 타겟마다 따로 쌓인다 */
   fetch(u,{credentials:'same-origin'}).then(function(r){return r.json();}).then(function(d){
     if(!d.ok){ var e1=document.getElementById('kv1'); if(e1) e1.innerHTML='<div class="wn">'+(d.error||'조사를 불러오지 못했습니다')+'</div>'; return; }
-    SV=d; rk();
+    SVK=d; rk();
   }).catch(function(e){
     var el=document.getElementById('kv1'); if(el) el.innerHTML='<div class="wn">조사를 불러오지 못했습니다 — '+e+'</div>';
   });
@@ -1935,8 +1940,8 @@ function svRow(r, max, idx, sub){
 }
 
 function rk(){
-  if(!SV) return;
-  var c=SV.counts, sn=SV.snapshot||{};
+  if(!SVK) return;
+  var c=SVK.counts, sn=SVK.snapshot||{};
 
   /* 1층 */
   var h1='<div class="st4"><div class="st"><div class="v">'+c.found+'</div><div class="l">찾은 검색어</div></div>'+
@@ -1952,7 +1957,7 @@ function rk(){
  var e1=document.getElementById('kv1'); if(e1) e1.innerHTML=h1; else return;
 
   /* 2층 — 검색량 순 */
-  var rows=SV.rows||[], L=svMore?rows:rows.slice(0,8);
+  var rows=SVK.rows||[], L=svMore?rows:rows.slice(0,8);
   var max=0; rows.forEach(function(r){var d=svNum(r.demand); if(d&&d>max) max=d;});
   var h='<div style="font-size:11px;font-weight:600;margin:8px 0 4px;">숙박 축 — 뭘 만드나 <small style="color:var(--muted);font-weight:400;">— 검색량 순 · 상위 '+rows.length+' · 기회점수는 이 축만</small></div>';
   L.forEach(function(r,i){
@@ -1980,7 +1985,7 @@ function rk(){
   var e2=document.getElementById('kv2'); if(e2) e2.innerHTML=h;
 
   /* 3층 */
-  var l3=SV.layer3||{}, h3='';
+  var l3=SVK.layer3||{}, h3='';
   if(l3.locked){
     h3='<div style="border-top:0.5px solid var(--line);margin-top:10px;padding-top:9px;opacity:.72;">'+
        '<div style="font-size:11px;font-weight:600;">🔒 새로 생긴 · 사라진 검색어</div>'+

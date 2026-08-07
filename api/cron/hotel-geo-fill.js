@@ -54,7 +54,10 @@ export default async function handler(req, res) {
   //   할 일이 없으면 **한 건도 안 부르고 끝난다** — 한 달 한도를 손도 안 대는다.
   //   `force=1` 이면 이 순서를 건너뛴다(사람이 직접 돌릴 때).
   const forceRun = q.force === '1';
-  if (!forceRun) {
+  // 🔴 2026-08-08 (D-085) — mode=district 는 «좌표 없는 호텔» 게이트를 지나간다.
+  //   이 모드의 대상은 «좌표는 있는데 지역이 없는» 호텔이라 아래 게이트에 걸리면 영원히 못 돈다.
+  const mode = q.mode === 'district' ? 'district' : 'geo';
+  if (!forceRun && mode === 'geo') {
     let waiting = 0;
     try {
       const r = await fetch(`${process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL}`
@@ -69,7 +72,7 @@ export default async function handler(req, res) {
     }
   }
 
-  const { status, body } = await runGeoFill({ city, limit, dry_run: dryRun, retry });
+  const { status, body } = await runGeoFill({ city, limit, dry_run: dryRun, retry, mode });
 
   let remaining = null;
   try { remaining = await countRemaining(); } catch (e) { /* 보고용일 뿐 */ }

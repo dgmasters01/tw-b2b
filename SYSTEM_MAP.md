@@ -59,6 +59,7 @@
 | **hotel-fill** | 매시간 :30 | 콘텐츠에 나온 «우리 DB에 없는» 호텔 채움 | 무료 |
 | **hotel-addr-fill** | 매시간 :40 | 주소 없는 호텔에 **아고다 파일**로 주소 채움 (구글 안 씀) | 무료 |
 | **hotel-district-fill** | 매일 12시 | 지역 채움(**예약순 8개 도시씩** — 옛날엔 하루 1도시라 40일 걸렸다) + **비한국어 지역명 한국어 통일** (D-070·D-080·D-082) | 무료 |
+| **district-diagnose** 🆕 | 부를 때만 | 🔴 **지역이 왜 안 채워지나를 5칸으로 갈라 보고** — 파서 고치기 전 의무 호출 (D-084) | ❌ 읽기만 |
 | **hotel-geo-fill** | 매일 01시 | **좌표 없는** 호텔만 구글 Places로 좌표·주소·폐업 | 구글 소수 |
 | **hotel-closed-check** | 월요일 13시 | 아고다서 사라진 예약 호텔만 구글 폐업 확인 | 구글 소수 |
 | **drive-watch** | 매일 06·11·16·21시 | 드라이브 새 영상 폴더 → 올리기 탭 배치 | 무료 |
@@ -86,6 +87,8 @@
 - 분모 뒤집힘 → kw-audit·wiring-audit **둘 다** 같은 표를 보고 **같은 것을 신고**했다 → **wiring-audit 한 곳만**
 - `hotels.district` 고치기 → kw-audit·hotel-district-fill **둘 다** 썼다 → **hotel-district-fill 한 곳만**
 - `wiring-audit` ↔ `wiring-check` 는 이름만 비슷하고 보는 곳이 다르다 (어긋남 ↔ 배선). **겹치지 않는다.**
+
+🔴 **호텔 지역 채우기 전체 순서·금지사항·「완료 vs 고장」 구별법 = `_business/HOTEL_DISTRICT_PIPELINE.md` 정본.** 지역 관련은 여기부터 읽는다(D-084).
 
 **GitHub Actions 쪽 봇(23개)은 따로다** — 문서·인계서·활동피드 같은 **운영 기록**을 돌본다(`.github/workflows/`).
 자료·화면 검사는 전부 위 Vercel 크론이 한다. 둘을 섞지 않는다.

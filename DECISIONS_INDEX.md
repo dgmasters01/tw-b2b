@@ -162,3 +162,4 @@
 | 2026-08-07 | D-081 등록 (검사봇 4층 구조 — 코드·배선·자료·화면 / 「한 가지는 한 로봇만」·「감시자와 수리공 분리」·겹침 3건 제거·screen-sweep 신설 / api/cron/screen-sweep.js, SYSTEM_MAP §3-B) |
 | 2026-08-07 | D-082 등록 (지역 파서 나라 우선 판정 — 파리에 방콕 지역 박히던 오매칭 차단·부분일치 폐지·로마자 유지 폐지·8개국 사전 신설·채우기 봇 하루1도시 병목 제거 / api/_lib/district-parse.js, api/cron/hotel-district-fill.js) |
 | 2026-08-08 | D-083 등록 (지역 채움 «할 수 있는 나라 / 못 하는 나라» 분리 — SUPPORTED_CC 명시·규칙 없는 도시가 하루치 자리 먹던 2차 병목 제거·못 하는 것은 no_rule 대기목록으로 보고·한국은 아웃바운드 우선이라 보류(주소 근거 확보) / api/_lib/district-parse.js, api/cron/hotel-district-fill.js) |
+| 2026-08-08 | D-084 등록 (지역 채움 프로세스 정본화 — 진단 창구 신설·파서 수정 전 전수진단 의무·「0건=완료 vs 고장」 구별·금지사항 5개 / api/ops/district-diagnose.js, _business/HOTEL_DISTRICT_PIPELINE.md, SYSTEM_MAP §3) |

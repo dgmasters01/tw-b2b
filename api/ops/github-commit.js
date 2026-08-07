@@ -61,7 +61,14 @@ export default async function handler(req, res) {
   const body = req.body || {};
 
   // 3-a. 대상 레포 결정 (body.repo 없으면 기본 tw-b2b)
+  // 🔴 2026-08-07 대표님: *"스튜디오 창고는 별도로 분리했잖아. 그러면 문제 없는 거 아니야?"*
+  //    창고(레포)는 분리됐지만 **저장 문은 여기 하나**다. 창고 두 개 · 배달 트럭 한 대인 셈이다.
+  //    그래서 `repo` 를 안 적으면 **늘 가던 창고(tw-b2b)** 로 간다 — 블로그 파일이 스튜디오 창고에 들어간다.
+  //    → 대표님이 눈으로 확인하실 일이 아니다. **창구가 스스로 알린다.**
+  //      ① 응답에 어느 창고인지 항상 박는다(`repo`)
+  //      ② repo 를 안 적어서 기본값으로 갔으면 `repo_warning` 을 붙인다 → 클로드가 그 자리에서 알아챈다
   const targetRepo = body.repo || REPO_NAME;
+  const repoDefaulted = !body.repo;
   if (!ALLOWED_REPOS.includes(targetRepo)) {
     return res.status(400).json({ error: `repo not allowed: ${targetRepo}`, allowed: ALLOWED_REPOS });
   }
@@ -154,6 +161,10 @@ export default async function handler(req, res) {
       return res.status(200).json({
         ok: true,
         action: 'deleted',
+        repo: targetRepo,
+        repo_warning: repoDefaulted
+          ? `⚠️ repo 를 안 적어서 기본 창고 '${REPO_NAME}' 에 저장했습니다. 블로그(staycurate) 작업이면 body 에 "repo":"staycurate" 를 넣고 다시 저장하세요.`
+          : undefined,
         commit_sha: delResult.commit?.sha || null,
         path,
         branch,
@@ -203,6 +214,10 @@ export default async function handler(req, res) {
     return res.status(200).json({
       ok: true,
       action: existingSha ? 'updated' : 'created',
+      repo: targetRepo,
+      repo_warning: repoDefaulted
+        ? `⚠️ repo 를 안 적어서 기본 창고 '${REPO_NAME}' 에 저장했습니다. 블로그(staycurate) 작업이면 body 에 "repo":"staycurate" 를 넣고 다시 저장하세요.`
+        : undefined,
       commit_sha: result.commit?.sha || null,
       file_url: result.content?.html_url || null,
       raw_url: result.content?.download_url || null,

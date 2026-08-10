@@ -183,11 +183,68 @@ export default async function handler(req, res) {
     })),
   };
 
+  // ── 발행 일정 자동 편성 (2026-08-10 · D-B89 A안) ───────────
+  // 하루 3칸(아침 3성·점심 4성·저녁 5성). 3칸 다 되는 도시는 하루를 통째로 쓰고,
+  // 모자란 칸은 «대기 도시» 에서 그 성급이 되는 곳을 끌어와 채운다. 빈칸을 두지 않는다.
+  // ⛔ 순위는 «예약 달» 로만 계산한다 (D-B94).
+  const STAR_KEYS = ['s3', 's4', 's5'];
+  function planMonth(year, month) {
+    const pool = cityrank.cities.filter(c => !c.kr_only && c.slots > 0).map(c => {
+      const mult = (c.season && c.season[month - 1] != null) ? c.season[month - 1] : 1;
+      return { c, score: (c.est != null ? c.est : (c.size || 0)) * mult };
+    }).sort((a, b) => b.score - a.score);
+
+    const days = new Date(year, month, 0).getDate();
+    const rows = [];
+    const lastUsed = {};                                      // 같은 도시 3일 내 재등장 금지
+    const hosted = {};                                        // 한 달에 주인은 한 번만
+    const usedSlot = {};                                      // 🔴 같은 (도시·성급)은 한 달에 한 번만
+
+    for (let d = 1; d <= days; d++) {
+      // 그날의 «주인 도시» — 점수 순서 그대로. 3칸 다 되는지는 따지지 않는다.
+      // 🔴 파리처럼 «되는 성급만» 있는 도시도 점수가 높으면 주인이 된다 (대표님 지시).
+      let host = pool.find(x => !hosted[x.c.city_id] && (d - (lastUsed[x.c.city_id] || -9)) > 3)
+              || pool.find(x => !hosted[x.c.city_id])
+              || pool[0];
+      hosted[host.c.city_id] = true; lastUsed[host.c.city_id] = d;
+
+      const slots = STAR_KEYS.map((k, i) => {
+        const star = i + 3;
+        if (host.c[k] >= 7 && !usedSlot[host.c.city_id + '-' + star]) {
+          usedSlot[host.c.city_id + '-' + star] = true;
+          return { star, city_id: host.c.city_id, ko: host.c.ko, stock: host.c[k], host: true,
+                   issue: ((month + (host.c.issue_offset || 1) - 1) % 12) + 1 };
+        }
+        // 주인이 못 채우는 칸 → 대기 도시에서 그 성급이 되는 곳
+        // ⛔ 그 달에 이미 나간 (도시·성급) 조합은 다시 쓰지 않는다 — 같은 글이 두 번 나가면 안 된다
+        const sub = pool.find(x => x.c.city_id !== host.c.city_id && x.c[k] >= 7
+                     && !usedSlot[x.c.city_id + '-' + star]
+                     && (d - (lastUsed[x.c.city_id] || -9)) > 3);
+        if (!sub) return { star, city_id: null, ko: null, stock: 0, host: false, issue: null };
+        usedSlot[sub.c.city_id + '-' + star] = true;
+        lastUsed[sub.c.city_id] = d;
+        return { star, city_id: sub.c.city_id, ko: sub.c.ko, stock: sub.c[k], host: false,
+                 issue: ((month + (sub.c.issue_offset || 1) - 1) % 12) + 1 };
+      });
+      const off = host.c.issue_offset || 1;
+      rows.push({ day: d, host: host.c.ko, issue: ((month + off - 1) % 12) + 1, slots });
+    }
+    return { year, month, days, rows };
+  }
+
+  const now = new Date();
+  const plan = [];
+  for (let i = 0; i < 12; i++) {
+    const dt = new Date(now.getFullYear(), now.getMonth() + i, 1);
+    plan.push(planMonth(dt.getFullYear(), dt.getMonth() + 1));
+  }
+
   return res.status(200).json({
     ok: true,
     blocks,
     schedule,
     cityrank,
+    plan,
     generated_at: new Date().toISOString(),
     ms: Date.now() - t0,
     summary: {

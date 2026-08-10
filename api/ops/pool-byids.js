@@ -28,9 +28,7 @@ export default async function handler(req, res) {
     criteria: {
       additional: {
         currency: 'KRW', language: 'ko-kr',
-        dailyRate: { minimum: 1, maximum: 10000000 },
-        discountOnly: false, maxResult: 30,
-        minimumReviewScore: 0, minimumStarRating: 0,
+        discountOnly: false,
         occupancy: { numberOfAdult: 2, numberOfChildren: 0 }
       },
       checkInDate: inDate, checkOutDate: out,

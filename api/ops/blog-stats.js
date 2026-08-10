@@ -94,8 +94,28 @@ export default async function handler(req, res) {
     count('blog_hotel_image?select=id'),
   ]);
 
+  // ── 재료 창고 블록 ─────────────────────────────
+  // 새 포맷 규격이 확정되면 여기에 블록을 추가한다 (STOCK.md §7)
+  const blocks = [
+    {
+      id: 'monthly',
+      title: '월간형 — 성급별 베스트 7',
+      status: 'live',                       // live · spec_wait · data_wait
+      basis: '평점 8.0 이상 · 후기 500건 이상 · 성급별 7곳',
+      note: '후보는 아고다 전체에서 뽑습니다. 예약을 받았던 호텔이라고 빼지도, 밀어주지도 않습니다.',
+      kpis: [
+        { label: '쓸 수 있는 호텔', value: masterQ, unit: '자격 통과' },
+        { label: '3편 다 가능', value: cities.filter(c => c.publishable === 3).length, unit: '도시' },
+        { label: '부족한 도시', value: cities.filter(c => c.publishable < 3).length, unit: '더 모아야 합니다' },
+        { label: '월 발행 가능', value: cities.reduce((a, c) => a + c.publishable, 0), unit: '편' },
+      ],
+      cities, krCities,
+    },
+  ];
+
   return res.status(200).json({
     ok: true,
+    blocks,
     generated_at: new Date().toISOString(),
     ms: Date.now() - t0,
     summary: {

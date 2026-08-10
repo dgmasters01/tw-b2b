@@ -157,6 +157,9 @@ export default async function handler(req, res) {
       city_id: r.city_id, ko: r.ko, country: r.country_ko, tier: r.tier, kr_only: r.kr_only,
       s3: r.s3, s4: r.s4, s5: r.s5, slots: r.slots,
       size: r.y2025, yoy: r.yoy === null ? null : Number(r.yoy),
+      est: r.est_visitors === null ? null : Number(r.est_visitors),   // 나라 규모 × 도시 몫
+      weight: r.city_weight === null ? null : Number(r.city_weight),
+      wsrc: r.weight_src,
       season: r.stat_country && seasonBy[r.stat_country] ? seasonBy[r.stat_country].mult : null,
       season_reliable: !!(r.stat_country && seasonBy[r.stat_country] && seasonBy[r.stat_country].reliable),
     })),

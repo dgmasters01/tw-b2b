@@ -6,7 +6,7 @@ const AGODA_ENDPOINT = 'https://affiliateapi7643.agoda.com/affiliateservice/lt_v
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ ok: false, error: 'POST only' });
   const token = req.headers['x-ops-token'];
-  if (token !== process.env.OPS_TOKEN) return res.status(401).json({ ok: false, error: 'unauthorized' });
+  if (token !== process.env.CLAUDE_OPS_TOKEN) return res.status(401).json({ ok: false, error: 'unauthorized' });
 
   let body = {};
   try { body = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {}); } catch {}

@@ -160,8 +160,12 @@ export default async function handler(req, res) {
       est: r.est_visitors === null ? null : Number(r.est_visitors),   // 나라 규모 × 도시 몫
       weight: r.city_weight === null ? null : Number(r.city_weight),
       wsrc: r.weight_src,
-      season: r.stat_country && seasonBy[r.stat_country] ? seasonBy[r.stat_country].mult : null,
-      season_reliable: !!(r.stat_country && seasonBy[r.stat_country] && seasonBy[r.stat_country].reliable),
+      // 시즌은 두 층 — 도시 실측이 있으면 그것을 쓰고, 없으면 나라 시즌 (CITYRANK §8-2)
+      season: r.city_season ? r.city_season.map(Number)
+            : (r.stat_country && seasonBy[r.stat_country] ? seasonBy[r.stat_country].mult : null),
+      season_src: r.city_season ? '도시 실측'
+            : (r.stat_country && seasonBy[r.stat_country] && seasonBy[r.stat_country].reliable ? '나라 실측' : '추정'),
+      season_reliable: !!(r.city_season || (r.stat_country && seasonBy[r.stat_country] && seasonBy[r.stat_country].reliable)),
     })),
   };
 

@@ -113,9 +113,34 @@ export default async function handler(req, res) {
     },
   ];
 
+  // ── 발행 일정 ↔ 재고 (2026-08-10) ─────────────
+  // 화면(발행 일정 탭)은 날짜별 도시가 이미 정해져 있다. 여기서는 "그 도시가 지금 몇 편 낼 수 있나"만 준다.
+  // 화면은 표에 적힌 도시 한글 이름(ko)으로 찾는다.
+  // ⛔ 재고가 모자란 칸은 비운다. hotels 같은 다른 표로 대체하지 않는다 (D-B81).
+  const SCHEDULE_NEED = 7;                        // 한 편 = 성급별 7곳
+  const scheduleStock = {};
+  for (const c of [...cities, ...krCities]) {
+    scheduleStock[c.ko] = {
+      city_id: c.city_id, s3: c.s3, s4: c.s4, s5: c.s5,
+      ready: c.publishable, kr_only: !!c.kr_only,
+    };
+  }
+  const schedule = {
+    need: SCHEDULE_NEED,
+    slots: [                                       // 하루 3칸 (PUBLISHING §6-2 · 화면과 같은 순서)
+      { star: 3, time: '07:00' },
+      { star: 4, time: '12:00' },
+      { star: 5, time: '19:00' },
+    ],
+    stock: scheduleStock,
+    basis: `성급마다 자격 통과 ${SCHEDULE_NEED}곳 이상이어야 한 칸이 채워집니다`,
+    note: '재고는 hotel_master 자격 통과분입니다. 모자란 칸은 비워 둡니다 — 다른 호텔로 메우지 않습니다.',
+  };
+
   return res.status(200).json({
     ok: true,
     blocks,
+    schedule,
     generated_at: new Date().toISOString(),
     ms: Date.now() - t0,
     summary: {

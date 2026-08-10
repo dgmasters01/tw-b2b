@@ -30,6 +30,9 @@ const CITY30 = [
   { key: 'fr|paris',      city_id: 15470,  ko: '파리',         country: '프랑스' },
   { key: 'it|rome',       city_id: 16594,  ko: '로마',         country: '이탈리아' },
   { key: 'gb|london',     city_id: 233,    ko: '런던',         country: '영국' },
+  { key: 'gu|guam',       city_id: 6126,   ko: '괌',           country: '미국' },
+  { key: 'my|kk',         city_id: 5070,   ko: '코타키나발루', country: '말레이시아' },
+  { key: 'ph|boracay',    city_id: 15903,  ko: '보라카이',     country: '필리핀' },
 ];
 // 한국어 블로그에 쓰지 않는 도시 (일본어 블로그용) — D-B82
 const KR_ONLY = [
@@ -64,13 +67,17 @@ export default async function handler(req, res) {
   const ids = [...CITY30, ...KR_ONLY].map(c => c.city_id);
 
   // 도시·성급별 자격 통과 수 — 집계 뷰에서 (PostgREST 행 제한 우회)
-  const stock = await get(`v_city_stock?select=city_id,s3,s4,s5&city_id=in.(${ids.join(',')})`);
+  const stock = await get(`v_city_stock?select=city_id,s3,s4,s5,total&city_id=in.(${ids.join(',')})`);
   const byCity = {};
-  for (const r of stock) byCity[r.city_id] = { 3: r.s3 || 0, 4: r.s4 || 0, 5: r.s5 || 0 };
+  for (const r of stock) byCity[r.city_id] = { 3: r.s3 || 0, 4: r.s4 || 0, 5: r.s5 || 0, t: r.total || 0 };
+  const stockAll = await get(`v_city_all?select=city_id,total&city_id=in.(${ids.join(',')})`);
+  const allBy = {};
+  for (const r of stockAll) allBy[r.city_id] = r.total || 0;
   const mk = (list, forKR) => list.map(c => {
-    const b = byCity[c.city_id] || { 3: 0, 4: 0, 5: 0 };
+    const b = byCity[c.city_id] || { 3: 0, 4: 0, 5: 0, t: 0 };
     const ok = [b[3], b[4], b[5]].filter(n => n >= 7).length;
-    return { ...c, s3: b[3], s4: b[4], s5: b[5], publishable: ok, kr_only: !!forKR };
+    return { ...c, s3: b[3], s4: b[4], s5: b[5], qualified: b.t,
+             collected: allBy[c.city_id] || 0, publishable: ok, kr_only: !!forKR };
   });
 
   const cities = mk(CITY30, false);

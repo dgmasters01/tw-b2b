@@ -85,7 +85,7 @@ export default async function handler(req, res) {
 
   const [masterTotal, masterQ, poolTotal, postCount, subCount, alertOpen, usageCount, imgCount] = await Promise.all([
     count('hotel_master?select=agoda_hotel_id'),
-    count('hotel_master?select=agoda_hotel_id&review_score=gte.8&review_count=gte.500'),
+    count('hotel_master?select=agoda_hotel_id&review_score=gte.8&review_count=gte.400'),
     count('hotel_pool?select=agoda_hotel_id'),
     count('blog_post?select=id&site_id=eq.staycurate'),
     count('blog_subscriber?select=id&site_id=eq.staycurate'),
@@ -101,7 +101,7 @@ export default async function handler(req, res) {
       id: 'monthly',
       title: '월간형 — 성급별 베스트 7',
       status: 'live',                       // live · spec_wait · data_wait
-      basis: '평점 8.0 이상 · 후기 500건 이상 · 성급별 7곳',
+      basis: '평점 8.0 이상 · 후기 400건 이상 · 성급별 7곳',   // 500→400 (2026-08-10 D-B88)
       note: '후보는 아고다 전체에서 뽑습니다. 예약을 받았던 호텔이라고 빼지도, 밀어주지도 않습니다.',
       kpis: [
         { label: '쓸 수 있는 호텔', value: masterQ, unit: '자격 통과' },

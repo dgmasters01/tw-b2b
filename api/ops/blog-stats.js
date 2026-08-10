@@ -63,14 +63,10 @@ export default async function handler(req, res) {
   const t0 = Date.now();
   const ids = [...CITY30, ...KR_ONLY].map(c => c.city_id);
 
-  // 도시·성급별 자격 통과 수 (한 번에)
-  const rows = await get(`hotel_master?select=city_id,star_rating&review_score=gte.8&review_count=gte.500&star_rating=gte.3&city_id=in.(${ids.join(',')})&limit=100000`);
+  // 도시·성급별 자격 통과 수 — 집계 뷰에서 (PostgREST 행 제한 우회)
+  const stock = await get(`v_city_stock?select=city_id,s3,s4,s5&city_id=in.(${ids.join(',')})`);
   const byCity = {};
-  for (const r of rows) {
-    const b = r.star_rating >= 5 ? 5 : (r.star_rating >= 4 ? 4 : 3);
-    byCity[r.city_id] = byCity[r.city_id] || { 3: 0, 4: 0, 5: 0 };
-    byCity[r.city_id][b]++;
-  }
+  for (const r of stock) byCity[r.city_id] = { 3: r.s3 || 0, 4: r.s4 || 0, 5: r.s5 || 0 };
   const mk = (list, forKR) => list.map(c => {
     const b = byCity[c.city_id] || { 3: 0, 4: 0, 5: 0 };
     const ok = [b[3], b[4], b[5]].filter(n => n >= 7).length;

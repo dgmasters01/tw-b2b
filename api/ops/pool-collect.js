@@ -14,6 +14,9 @@ export default async function handler(req, res) {
   const cityId = parseInt(body.cityId, 10);
   const cityKey = String(body.cityKey || '');
   const maxResult = Math.min(parseInt(body.maxResult || 500, 10), 1000);
+  const minStar = parseFloat(body.minStar || 0);
+  const maxStar = parseFloat(body.maxStar || 5);
+  const sortBy = String(body.sortBy || 'PriceAsc');
   const dryRun = !!body.dryRun;
   if (!cityId || !cityKey) return res.status(400).json({ ok: false, error: 'cityId, cityKey 필요' });
 
@@ -31,8 +34,9 @@ export default async function handler(req, res) {
     criteria: {
       additional: {
         currency: 'KRW', language: 'ko-kr',
-        maxResult, discountOnly: false, minimumStarRating: 0,
-        sortBy: 'PriceAsc',
+        maxResult, discountOnly: false,
+        minimumStarRating: minStar, maximumStarRating: maxStar,
+        sortBy,
         occupancy: { numberOfAdult: 2, numberOfChildren: 0 }
       },
       checkInDate: inDate, checkOutDate: out, cityId
@@ -61,6 +65,7 @@ export default async function handler(req, res) {
     후기500이상: results.filter(h => h.reviewCount >= 500).length,
     자격통과: results.filter(h => h.reviewScore >= 8 && h.reviewCount >= 500).length,
     성급4: results.filter(h => h.starRating >= 4 && h.starRating < 5).length,
+    요청: { minStar, maxStar, sortBy, maxResult },
     걸린시간ms: ms, 조회일: inDate
   };
   if (dryRun) return res.status(200).json({ ok: true, dryRun: true, stat, sample: results.slice(0, 3) });

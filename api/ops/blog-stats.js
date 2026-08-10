@@ -142,7 +142,7 @@ export default async function handler(req, res) {
   // 시즌은 한국관광공사 전수 통계 실측. 12개월치가 없는 나라는 reliable=false 로 표시한다(D-B57).
   const [rankRows, seasonRows] = await Promise.all([
     get('v_city_rank?select=*&order=y2025.desc.nullslast'),
-    get('v_country_season?select=country,month,season_mult,reliable'),
+    get('v_country_season_travel?select=country,month,season_mult,reliable'),   // «가는 달» 축
   ]);
   const seasonBy = {};
   for (const r of seasonRows || []) {
@@ -160,12 +160,26 @@ export default async function handler(req, res) {
       est: r.est_visitors === null ? null : Number(r.est_visitors),   // 나라 규모 × 도시 몫
       weight: r.city_weight === null ? null : Number(r.city_weight),
       wsrc: r.weight_src,
-      // 시즌은 두 층 — 도시 실측이 있으면 그것을 쓰고, 없으면 나라 시즌 (CITYRANK §8-2)
-      season: r.city_season ? r.city_season.map(Number)
+      // 🔴 축이 두 개다. 섞으면 발행이 늦는다 (D-B94)
+      //   travel = «가는 달»   — 참고용. 순위 계산에 절대 쓰지 않는다
+      //   book   = «예약하는 달» — 발행 순위는 이것으로만 계산한다
+      lead_days: r.lead_days, issue_offset: r.issue_offset,
+      travel: r.travel_season ? r.travel_season.map(Number)
             : (r.stat_country && seasonBy[r.stat_country] ? seasonBy[r.stat_country].mult : null),
-      season_src: r.city_season ? '도시 실측'
-            : (r.stat_country && seasonBy[r.stat_country] && seasonBy[r.stat_country].reliable ? '나라 실측' : '추정'),
-      season_reliable: !!(r.city_season || (r.stat_country && seasonBy[r.stat_country] && seasonBy[r.stat_country].reliable)),
+      // 예약 실측이 없으면 «가는 달» 곡선을 리드타임(개월)만큼 앞으로 민다
+      season: (function () {
+        if (r.book_season) return r.book_season.map(Number);
+        const t = r.travel_season ? r.travel_season.map(Number)
+                : (r.stat_country && seasonBy[r.stat_country] ? seasonBy[r.stat_country].mult : null);
+        if (!t) return null;
+        const shift = Math.max(1, Math.round((r.lead_days || 28) / 30));
+        return t.map((_, i) => t[(i + shift) % 12]);          // i월에 내면 i+shift월 여행객을 잡는다
+      })(),
+      season_src: r.book_season ? '예약 실측'
+            : (r.travel_season ? '여행 실측→환산'
+            : (r.stat_country && seasonBy[r.stat_country] && seasonBy[r.stat_country].reliable ? '나라→환산' : '추정')),
+      season_reliable: !!(r.book_season || r.travel_season
+            || (r.stat_country && seasonBy[r.stat_country] && seasonBy[r.stat_country].reliable)),
     })),
   };
 

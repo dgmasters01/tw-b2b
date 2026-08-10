@@ -29,6 +29,17 @@ export default async function handler(req, res) {
   const inDate = base.toISOString().slice(0, 10);
   const out = new Date(base.getTime() + 2 * 86400000).toISOString().slice(0, 10);
 
+  const SB0 = process.env.SUPABASE_URL, KEY0 = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  // 하루 호출 예산 확인 (기본 200)
+  const budget = parseInt(process.env.AGODA_DAILY_BUDGET || '200', 10);
+  try {
+    const lr = await fetch(`${SB0}/rest/v1/collect_log?select=id&called_at=gte.${new Date().toISOString().slice(0,10)}`,
+      { headers: { apikey: KEY0, Authorization: `Bearer ${KEY0}`, Prefer: 'count=exact', Range: '0-0' } });
+    const cr = lr.headers.get('content-range') || '';
+    const used = parseInt((cr.split('/')[1] || '0'), 10);
+    if (used >= budget) return res.status(429).json({ ok: false, error: 'daily_budget_exceeded', used, budget });
+  } catch {}
+
   const t0 = Date.now();
   const payload = {
     criteria: {
@@ -51,7 +62,17 @@ export default async function handler(req, res) {
                  'Accept': 'application/json', 'Accept-Encoding': 'gzip,deflate' },
       body: JSON.stringify(payload)
     });
-    if (!r.ok) return res.status(502).json({ ok: false, error: 'agoda ' + r.status, body: (await r.text()).slice(0, 400) });
+    if (r.status === 429) {
+      await logCall(SB0, KEY0, { kind: 'pool', city_key: cityKey, star_band: `${minStar}-${maxStar}`,
+        checkin: inDate, http_status: 429, ms: Date.now() - t0, error: 'rate_limited' });
+      return res.status(429).json({ ok: false, error: 'agoda_rate_limited', retryAfter: r.headers.get('retry-after') || 600 });
+    }
+    if (!r.ok) {
+      const txt = (await r.text()).slice(0, 400);
+      await logCall(SB0, KEY0, { kind: 'pool', city_key: cityKey, star_band: `${minStar}-${maxStar}`,
+        checkin: inDate, http_status: r.status, ms: Date.now() - t0, error: txt.slice(0, 200) });
+      return res.status(502).json({ ok: false, error: 'agoda ' + r.status, body: txt });
+    }
     data = await r.json();
   } catch (e) {
     return res.status(502).json({ ok: false, error: String(e).slice(0, 200) });
@@ -94,5 +115,17 @@ export default async function handler(req, res) {
     if (!r.ok) return res.status(500).json({ ok: false, error: 'save ' + r.status, detail: (await r.text()).slice(0, 300), saved, stat });
     saved += chunk.length;
   }
+  await logCall(SB0, KEY0, { kind: 'pool', city_key: cityKey, star_band: `${minStar}-${maxStar}`,
+    checkin: inDate, http_status: 200, got_count: results.length, saved_count: saved, ms: Date.now() - t0 });
   return res.status(200).json({ ok: true, saved, stat, 총소요ms: Date.now() - t0 });
+}
+
+async function logCall(SB, KEY, row) {
+  try {
+    await fetch(`${SB}/rest/v1/collect_log`, {
+      method: 'POST',
+      headers: { apikey: KEY, Authorization: `Bearer ${KEY}`, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+      body: JSON.stringify(row)
+    });
+  } catch {}
 }

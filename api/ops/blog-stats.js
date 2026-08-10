@@ -137,10 +137,36 @@ export default async function handler(req, res) {
     note: '재고는 hotel_master 자격 통과분입니다. 모자란 칸은 비워 둡니다 — 다른 호텔로 메우지 않습니다.',
   };
 
+  // ── 도시 순위 (2026-08-10 · D-B89·D-B90) ─────
+  // 수요(출국 규모 × 시즌) × 공급(성급별 재고) 를 한 곳에서 준다.
+  // 시즌은 한국관광공사 전수 통계 실측. 12개월치가 없는 나라는 reliable=false 로 표시한다(D-B57).
+  const [rankRows, seasonRows] = await Promise.all([
+    get('v_city_rank?select=*&order=y2025.desc.nullslast'),
+    get('v_country_season?select=country,month,season_mult,reliable'),
+  ]);
+  const seasonBy = {};
+  for (const r of seasonRows || []) {
+    (seasonBy[r.country] = seasonBy[r.country] || { mult: Array(12).fill(null), reliable: r.reliable })
+      .mult[r.month - 1] = Number(r.season_mult);
+  }
+  const cityrank = {
+    updated: new Date().toISOString().slice(0, 10),
+    need_per_month: 90,
+    total_slots: (rankRows || []).filter(r => !r.kr_only).reduce((a, r) => a + (r.slots || 0), 0),
+    cities: (rankRows || []).map(r => ({
+      city_id: r.city_id, ko: r.ko, country: r.country_ko, tier: r.tier, kr_only: r.kr_only,
+      s3: r.s3, s4: r.s4, s5: r.s5, slots: r.slots,
+      size: r.y2025, yoy: r.yoy === null ? null : Number(r.yoy),
+      season: r.stat_country && seasonBy[r.stat_country] ? seasonBy[r.stat_country].mult : null,
+      season_reliable: !!(r.stat_country && seasonBy[r.stat_country] && seasonBy[r.stat_country].reliable),
+    })),
+  };
+
   return res.status(200).json({
     ok: true,
     blocks,
     schedule,
+    cityrank,
     generated_at: new Date().toISOString(),
     ms: Date.now() - t0,
     summary: {

@@ -1,0 +1,69 @@
+name: ops-status
+
+on:
+  schedule:
+    - cron: '5 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 세 사업 사이트를 밖에서 두드린다
+        run: |
+          python3 - <<'PY'
+          import json, time, urllib.request, datetime
+
+          cfg = json.load(open('_os/status-targets.json'))
+          out = {"checked_at": datetime.datetime.now(datetime.timezone.utc).isoformat(timespec='seconds'),
+                 "runner": "github-actions", "sites": []}
+
+          for t in cfg["targets"]:
+              rec = {"key": t["key"], "name": t["name"], "url": t["url"], "owner": t.get("owner","")}
+              best = None
+              for _ in range(2):
+                  t0 = time.time()
+                  try:
+                      req = urllib.request.Request(t["url"], headers={"User-Agent": "tw-ops-status"})
+                      with urllib.request.urlopen(req, timeout=25) as r:
+                          code = r.status
+                  except urllib.error.HTTPError as e:
+                      code = e.code
+                  except Exception:
+                      code = 0
+                  ms = int((time.time() - t0) * 1000)
+                  if best is None or (code and 200 <= code < 400):
+                      best = (code, ms)
+                  if code and 200 <= code < 400:
+                      break
+                  time.sleep(3)
+              rec["code"], rec["ms"] = best
+              rec["up"] = bool(rec["code"] and 200 <= rec["code"] < 400)
+              out["sites"].append(rec)
+
+          out["down"] = [s["key"] for s in out["sites"] if not s["up"]]
+          out["all_up"] = len(out["down"]) == 0
+
+          try:
+              prev = json.load(open('_os/status.json'))
+              out["history"] = ([{"at": prev["checked_at"], "all_up": prev.get("all_up"),
+                                  "down": prev.get("down", [])}] + prev.get("history", []))[:48]
+          except Exception:
+              out["history"] = []
+
+          json.dump(out, open('_os/status.json','w'), ensure_ascii=False, indent=1)
+          print(json.dumps(out["sites"], ensure_ascii=False, indent=1))
+          PY
+
+      - name: 결과 저장
+        run: |
+          git config user.name "ops-status-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add _os/status.json
+          git diff --staged --quiet || git commit -m "ops-status: 점검 결과 갱신"
+          git push

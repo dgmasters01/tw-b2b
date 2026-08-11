@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>관리실 · 사업 점검판</title>
+<style>
+  :root{ --bg:#0f1115; --card:#171a21; --line:#252a33; --tx:#e8eaed; --dim:#9aa1ad;
+         --ok:#2ecc71; --bad:#ff5a5a; --warn:#f5a623; }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--tx);
+       font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+       padding:18px 14px 48px;line-height:1.6}
+  h1{font-size:19px;margin:0 0 4px;font-weight:600}
+  .sub{color:var(--dim);font-size:13px;margin-bottom:18px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px}
+  .row{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--line)}
+  .row:last-child{border-bottom:0}
+  .dot{width:11px;height:11px;border-radius:50%;flex:0 0 11px}
+  .nm{flex:1;font-size:15px}
+  .meta{color:var(--dim);font-size:12px;text-align:right;white-space:nowrap}
+  .big{font-size:17px;font-weight:600;margin:0 0 10px}
+  .banner{border-radius:12px;padding:14px;margin-bottom:14px;font-size:15px;font-weight:600;text-align:center}
+  .b-ok{background:#12331f;color:var(--ok);border:1px solid #1e5c36}
+  .b-bad{background:#3a1616;color:var(--bad);border:1px solid #6b2020}
+  .b-wait{background:#2a2410;color:var(--warn);border:1px solid #5c4a1e}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  td{padding:8px 0;border-bottom:1px solid var(--line)}
+  td:last-child{text-align:right;color:var(--dim)}
+  tr:last-child td{border-bottom:0}
+  .hint{color:var(--dim);font-size:12px;margin-top:8px}
+  a{color:#6ea8fe}
+</style>
+</head>
+<body>
+<h1>관리실 · 사업 점검판</h1>
+<div class="sub" id="stamp">불러오는 중…</div>
+
+<div id="banner" class="banner b-wait">점검 결과를 읽고 있습니다</div>
+
+<div class="card">
+  <div class="big">사업 신호등</div>
+  <div id="sites"><div class="hint">불러오는 중…</div></div>
+  <div class="hint">밖에서(깃허브) 두드려 잰 값입니다. 우리 서버가 전부 멈춰도 이 점검은 계속 돕니다.</div>
+</div>
+
+<div class="card">
+  <div class="big">창고 · 자료</div>
+  <table>
+    <tr><td>수파베이스 조직</td><td>dgmasters01 · Pro</td></tr>
+    <tr><td>창고 용량</td><td>349 MB / 8 GB</td></tr>
+    <tr><td>호텔 자료 (hotel_master)</td><td>69,803곳</td></tr>
+    <tr><td>아고다 번호 연결</td><td>2,653 / 3,253</td></tr>
+    <tr><td>블로그 ↔ 스튜디오 대조 가능</td><td>185곳</td></tr>
+  </table>
+  <div class="hint">2026-08-11 실측 · 2단계에서 자동 갱신으로 바뀝니다.</div>
+</div>
+
+<div class="card">
+  <div class="big">보안 잠금</div>
+  <table>
+    <tr><td>잠근 표</td><td>64 / 76</td></tr>
+    <tr><td style="color:var(--bad)">안 잠긴 표 (blog_ 12개)</td><td style="color:var(--bad)">12</td></tr>
+    <tr><td>계정 2단계 인증</td><td>확인 필요</td></tr>
+    <tr><td>열쇠 분리</td><td>개발 완료 후</td></tr>
+  </table>
+  <div class="hint">「안 잠긴 표」가 0이 아니면 빨간색입니다. 3주 전에 잠근 것이 또 열렸던 일을 막습니다.</div>
+</div>
+
+<div class="card">
+  <div class="big">비용 (월)</div>
+  <table>
+    <tr><td>Supabase Pro</td><td>$25</td></tr>
+    <tr><td>Vercel Pro</td><td>$20</td></tr>
+    <tr><td>개인업무시스템 (무료)</td><td>$0</td></tr>
+    <tr><td>합계</td><td>약 $45</td></tr>
+  </table>
+</div>
+
+<script>
+var SRC = "https://raw.githubusercontent.com/dgmasters01/tw-b2b/main/_os/status.json";
+
+function ago(iso){
+  var d = new Date(iso), m = Math.round((Date.now() - d) / 60000);
+  if (m < 1) return "방금";
+  if (m < 60) return m + "분 전";
+  return Math.round(m / 60) + "시간 전";
+}
+
+function draw(d){
+  document.getElementById("stamp").textContent = "마지막 점검 " + ago(d.checked_at);
+  var b = document.getElementById("banner");
+  if (d.all_up){ b.className = "banner b-ok"; b.textContent = "모든 사업 정상"; }
+  else {
+    var names = d.sites.filter(function(s){ return !s.up; }).map(function(s){ return s.name; });
+    b.className = "banner b-bad"; b.textContent = "멈춘 곳: " + names.join(", ");
+  }
+  document.getElementById("sites").innerHTML = d.sites.map(function(s){
+    return '<div class="row">'
+      + '<span class="dot" style="background:' + (s.up ? "var(--ok)" : "var(--bad)") + '"></span>'
+      + '<span class="nm">' + s.name + '</span>'
+      + '<span class="meta">' + (s.up ? s.ms + "ms" : "응답 " + s.code) + '</span></div>';
+  }).join("");
+}
+
+fetch(SRC + "?t=" + Date.now())
+  .then(function(r){ return r.json(); })
+  .then(draw)
+  .catch(function(){
+    document.getElementById("banner").className = "banner b-wait";
+    document.getElementById("banner").textContent = "아직 첫 점검 전입니다 (봇이 매시간 5분에 돕니다)";
+    document.getElementById("stamp").textContent = "점검 기록 없음";
+    document.getElementById("sites").innerHTML = '<div class="hint">깃허브 Actions에서 ops-status 를 한 번 실행하면 채워집니다.</div>';
+  });
+</script>
+</body>
+</html>

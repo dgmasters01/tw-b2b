@@ -32,9 +32,18 @@ const SUPABASE_MGMT_API = 'https://api.supabase.com';
 const RATE_STATE = globalThis.__dbQueryRateState || (globalThis.__dbQueryRateState = {
   window_start: 0,
   count: 0,
+  by_client: {},
 });
+if (!RATE_STATE.by_client) RATE_STATE.by_client = {};
 const RATE_WINDOW_MS = 60 * 60 * 1000; // 1시간
-const RATE_LIMIT = 120;                // 시간당 120 query
+const RATE_LIMIT = 120;                // 시간당 120 query (전체 · DB 보호선)
+const PER_CLIENT_CAP = 90;             // 🔴 한 사업이 독식 못 함 → 상대에게 최소 30회 보장
+const KNOWN_CLIENTS = ['studio', 'blog', 'package', 'personal'];
+// 🔴 2026-08-11 차선 분리.
+//    전에는 카운터가 하나여서, 스튜디오 작업이 90회를 쓰면 블로그 작업 창이 그 시간 내내 멈췄다.
+//    전체 한도(120)는 DB를 지키는 선이라 그대로 두고, «한 사업이 90회를 넘게 쓰지 못하게» 막는다.
+//    호출 시 헤더 x-ops-client: blog | studio | package | personal 을 붙인다(없으면 studio).
+//    ⚠️ 이건 «차선 나누기»이지 인증이 아니다. 인증은 x-ops-token 이 이미 했다.
 // 🔴 2026-07-22 저녁 되돌림: 600 → 120.
 //    600 으로 올린 뒤 대량 적재를 몰아쳐 DB가 뻗었다(로그인 40초·REST 타임아웃).
 //    대량 적재는 «한도를 올려서»가 아니라 «천천히 나눠서» 해야 한다.
@@ -88,18 +97,35 @@ export default async function handler(req, res) {
     }
   }
 
-  // 4. Rate limit 가드
+  // 4. Rate limit 가드 — 전체 한도 + 사업별 상한(차선 분리)
+  const rawClient = String(req.headers['x-ops-client'] || 'studio').toLowerCase().trim();
+  const client = KNOWN_CLIENTS.includes(rawClient) ? rawClient : 'studio';
+
   const NOW = Date.now();
   if (NOW - RATE_STATE.window_start > RATE_WINDOW_MS) {
     RATE_STATE.window_start = NOW;
     RATE_STATE.count = 0;
+    RATE_STATE.by_client = {};
+  }
+  if (RATE_STATE.by_client[client] == null) RATE_STATE.by_client[client] = 0;
+  const remainingMin = Math.ceil((RATE_WINDOW_MS - (NOW - RATE_STATE.window_start)) / 60000);
+
+  if (RATE_STATE.by_client[client] >= PER_CLIENT_CAP) {
+    return res.status(429).json({
+      ok: false,
+      error: 'rate_limit_client',
+      client,
+      message: `[${client}] 이 시간에 ${PER_CLIENT_CAP}회를 다 썼습니다. ${remainingMin}분 후 재시도. (다른 사업 몫은 남아 있습니다)`,
+      quota: { client_used: RATE_STATE.by_client[client], client_cap: PER_CLIENT_CAP, total_used: RATE_STATE.count, total_limit: RATE_LIMIT },
+    });
   }
   if (RATE_STATE.count >= RATE_LIMIT) {
-    const remainingMin = Math.ceil((RATE_WINDOW_MS - (NOW - RATE_STATE.window_start)) / 60000);
     return res.status(429).json({
       ok: false,
       error: 'rate_limit',
-      message: `시간당 ${RATE_LIMIT} query 한도 도달. ${remainingMin}분 후 재시도.`,
+      client,
+      message: `전체 시간당 ${RATE_LIMIT} query 한도 도달. ${remainingMin}분 후 재시도.`,
+      quota: { by_client: RATE_STATE.by_client, total_used: RATE_STATE.count, total_limit: RATE_LIMIT },
     });
   }
 
@@ -130,6 +156,7 @@ export default async function handler(req, res) {
     }
 
     RATE_STATE.count += 1;
+    RATE_STATE.by_client[client] = (RATE_STATE.by_client[client] || 0) + 1;
 
     // DDL 성공 시 data = [] (정상)
     return res.status(200).json({
@@ -138,8 +165,12 @@ export default async function handler(req, res) {
       row_count: Array.isArray(data) ? data.length : null,
       project_ref: projectRef,
       quota: {
+        client,
+        client_used: RATE_STATE.by_client[client],
+        client_cap: PER_CLIENT_CAP,
         used: RATE_STATE.count,
         limit: RATE_LIMIT,
+        by_client: RATE_STATE.by_client,
         window_reset_at: new Date(RATE_STATE.window_start + RATE_WINDOW_MS).toISOString(),
       },
     });
@@ -151,4 +182,4 @@ export default async function handler(req, res) {
     });
   }
 }
-// deploy-touch: SUPABASE_ACCESS_TOKEN 적용 배포 2026-05-30T15:52:50Z
+// deploy-touch: 2026-08-11 사업별 차선 분리(x-ops-client)

@@ -20,6 +20,7 @@
 
 | ID | 결정 | 카테고리 | 날짜 | 상태 | 영향받는 작업 / 문서 |
 |---|---|:---:|:---:|:---:|---|
+| D-092 | **결정 확정 시 문서 4곳 자동 갱신 의무** — 결정문서만 만들고 인덱스에 안 넣으면 «있는 줄 모르는» 상태가 된다(2026-08-11~12 에 5건이 그랬고, 같은 함정으로 8/11 아침 D-071 을 못 찾아 틀렸다). 🔴 **묻지 않고** ①전문 ②INDEX ③DECISIONS ④SYSTEM_MAP·ops.html 을 갱신한다. 빠뜨리면 `decision-index-guard` 봇이 GitHub Issue 로 잡는다(매일 KST 06시+push) | ops | 2026-08-12 | 확정 | _os/boot.md §3, .github/workflows/decision-index-guard.yml |
 | D-086 | 아고다 번호 잣대 순서 복원 — **예약에 찍힌 번호 1순위 · 이름 2순위 · 거리 3순위**(D-071 §2-A). 한 건물에 여러 호텔이라 거리로 고르면 옆 건물을 붙인다. 949곳 연결(2,006→2,955) · 대조 154→192. 🔴 리뷰수·주소 물증은 실측 0건(우리 값≠아고다 최신값·주소 체계 다름) — 작동한 건 이름 완전일치뿐 | hotel | 2026-08-11 | 확정 | hotels, _business/decisions/2026-08-11-agoda-id-link.md, hotels_agoda_backup_20260811 |
 | D-087 | DB 잠금 2차 — 표 **77개 전부** RLS. 8/4에 27개 잠갔는데 3주 만에 24개가 다시 열려 있었다(구독자 이메일 포함). 🔴 사람이 기억하는 규칙은 샌다 → **점검판에 「안 잠긴 표 N개」 상시 표시**. 보안 방어선 5겹 정리 · 조직 분리는 방어선이 아니다(계정 하나면 같이 털림) | infra | 2026-08-11 | 확정 | 전체 public 표, ops.html, _business/decisions/2026-08-11-db-lock-round2.md |
 | D-088 | **창구 차선 분리 + 블로그 전용 문** — 전체 120회/시간(DB 보호선·절대 안 올림, 7/22 뻗은 이력) 유지하되 사업별 90회 상한(`x-ops-client`). staycurate 자기 문 신설(자기 열쇠·스튜디오 장부 쓰기 차단). gohotelwinners 죽어도 블로그 발행 계속. 🔴 열쇠 만료 2027-08-10 | infra | 2026-08-11 | 확정 | api/ops/db-query.js, staycurate/api/ops/*, staycurate/docs/DOOR.md, ops.html |
@@ -117,6 +118,7 @@
 | D-074 | 2026-07-26 (상세=_business/decisions/2026-07-26-studio-i18n.md) | 스튜디오 영문판 · 계정 기본 언어 자동 |
 | D-075 | 2026-08-01 (상세=_business/decisions/2026-08-01-keyword-harvest-cycle.md) | 키워드 발굴 규칙·봇 순환 |
 | D-079 | 2026-08-02 (상세=_business/HOTEL_MATCH.md · D-075 §§8·9) | 호텔 자료 바탕·검사봇·개척 우선 |
+| D-092 | 2026-08-12 (상세=_os/boot.md §3 · decision-index-guard.yml) | 결정 확정 시 문서 4곳 자동 갱신 의무 |
 | D-086 | 2026-08-11 (상세=_business/decisions/2026-08-11-agoda-id-link.md) | 아고다 번호 잣대 순서 복원 · 949곳 연결 |
 | D-087 | 2026-08-11 (상세=_business/decisions/2026-08-11-db-lock-round2.md) | DB 잠금 2차 · 표 77개 전부 · 보안 5겹 |
 | D-088 | 2026-08-11 (상세=_business/decisions/2026-08-11-ops-lanes.md · staycurate/docs/DOOR.md) | 창구 차선 분리 · 블로그 전용 문 |
@@ -130,7 +132,7 @@
 
 | 날짜 | 변경 내용 |
 |---|---|
-| 2026-08-12 | D-086~D-091 등록 (아고다 잣대 복원·DB잠금2차·창구분리·명부301만·키워드수요정정·도시별칭) |
+| 2026-08-12 | D-086~D-092 등록 (아고다 잣대 복원·DB잠금2차·창구분리·명부301만·키워드수요정정·도시별칭·문서 자동갱신 의무) |
 | 2026-05-03 | 최초 작성 (Charter v2 통합 — D-001~D-009 등록) |
 | 2026-05-04 | D-010 D-011 등록 (3-State 권한 + admin-status 범위) |
 | 2026-05-04 | D-012 등록 (3-Layer 분리 + admin-tasks 흡수) |

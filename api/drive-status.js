@@ -22,8 +22,11 @@ export const config = { maxDuration: 10 };
 const SUPABASE_URL = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
 const SUPABASE_ANON = process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_PUBLISHABLE_KEY;
 
-// 하루 4번 고정 (KST). 원고가 없으면 그냥 넘어감(헛돌지 않음).
-const CHECK_HOURS = [6, 11, 16, 21];
+// 하루 7번 (KST). 원고가 없으면 그냥 넘어감(헛돌지 않음).
+// 🔴 vercel.json 의 /api/cron/drive-watch 크론과 반드시 같아야 한다.
+//    vercel.json 은 UTC 라 9시간 차이: KST 01,06,11,13,16,21,23 = UTC 16,21,02,04,07,12,14
+//    (2026-08-11 대표님 요청으로 13·23·01시 추가)
+const CHECK_HOURS = [1, 6, 11, 13, 16, 21, 23];
 
 function accessToken(req) {
   const auth = req.headers['authorization'] || '';

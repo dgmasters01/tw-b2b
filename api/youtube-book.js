@@ -323,10 +323,13 @@ export default async function handler(req, res) {
     }
   }
 
-  // 이미 장부에 있던 행도 트렌드가 새로 들어왔으면 점수를 다시 낸다 (옛 순위 점수 제거)
+  // 🔴 장부 전체의 점수를 트렌드 기준으로 다시 낸다.
+  //    트렌드가 없는 어형은 score = null («모름»). 옛 자동완성 순위 점수를 남겨두면
+  //    검색 0인 호텔 고유명이 1위로 올라간다 — 헌장이 2026-07-14 에 뒤집은 바로 그 오류다.
+  //    (유후인 실측 2026-08-12: 「에타비아 유후인에키마에」가 10.0 으로 1위였다)
   for (const [k, v] of book) {
     const d = (trend.get(k) || {}).demand;
-    if (d != null && v.comp) v.score = opportunityFromTrend(d, v.comp);
+    v.score = (d != null && v.comp) ? opportunityFromTrend(d, v.comp) : null;
   }
 
   const rows = bookToRows(book);

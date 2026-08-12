@@ -3232,9 +3232,11 @@ document.addEventListener('DOMContentLoaded', function(){
         badge.className = 'st-badge ' + (d.connected ? 'published' : 'neutral');
         badge.textContent = d.connected ? '연결됨' : '연결 전';
 
-        var hrs = (d.check_hours || []).map(function (h) { return pad2(h) + '시'; }).join('·');
+        var hlist = (d.check_hours || []);
+        var hrs = hlist.map(function (h) { return pad2(h) + '시'; }).join('·');
+        // 🔴 횟수를 글자로 박지 않는다. 시각이 늘면 저절로 따라간다 (2026-08-11)
         next.innerHTML = '⏰ 다음 확인 <b>' + esc((d.next_check || {}).label || '—') + '</b>' +
-          '<span style="opacity:.65"> · 하루 4번(' + esc(hrs) + ') 자동으로 봅니다</span>';
+          '<span style="opacity:.65"> · 하루 ' + hlist.length + '번(' + esc(hrs) + ') 자동으로 봅니다</span>';
 
         steps.className = 'st-dr-steps';
         steps.innerHTML = (d.steps || []).map(function (s) {

@@ -65,6 +65,7 @@
 | 봇·자동화 작업 | `_os/workflows/` + `.github/workflows/` |
 | 시스템 전체 파악(서비스·비용·자동화) | `SYSTEM_MAP.md` (비즈니스 독스) |
 | **여행 블로그(staycurate) 작업** | 🔴 **별도 레포 `dgmasters01/staycurate`** (2026-08-05 분리·D-B20). 부팅 = **`docs/HANDOVER.md` → `docs/CLAUDE-RULES.md` → `docs/SPEC-INDEX.md`** 순서 (블로그 정본 절차·INC-B01). 🔴 옛 `INDEX.md` 는 **404·폐기**. 규격을 말하기 전에 SPEC-INDEX 를 먼저 연다. ⚠️ 저장 시 body에 **`"repo":"staycurate"`** 필수(미지정=tw-b2b로 감). tw-b2b `_business/blog/`는 이력 사본(MOVED.md 참조) |
+| **키워드·원고·발행 작업 (의무)** | 🔴 **`BUSINESS.md` §7-E 전문 먼저** → 그다음 `_content/youtube/키워드-실측.md`(v2). **수요 = 구글 트렌드**(자동완성 순위는 2026-07-14 폐기 · 발굴/생존확인 전용). 재기 전 **DB(`trend`·`snapshot`) 먼저 조회** — 28개 도시가 이미 조사돼 있다. 트렌드 없으면 기회점수는 **0 이 아니라 «모름»**. ⚠️ 부분만 읽으면 틀린다 — 2026-08-12 에 세 번 틀렸다 |
 | **구조·격리·창구·새 사업 (의무)** | 🔴 `docs/ARCHITECTURE.md` — 명부/장부/문 원칙 · 새 사업 표준 6단계 · 보안 5겹 · 대량 적재 안전규칙 · 되돌리기. **구조 판단 전 반드시 먼저 읽는다** (대표님 2026-08-11) |
 | **스튜디오 작업이 블로그와 겹칠 때 (의무)** | 🔴 `hotel_master`·`hotel_pool`·`blog_*` 는 **블로그 소유**. 만지기 전 `staycurate/docs/POOL.md`(D-B81 절대규칙)·`HANDOVER.md §2`(규칙 9개) 확인. 창구 한도 **120회/시간은 두 사업 공용** — 대량 작업은 상대 창과 조율 |
 | 기타 (단순 문답·보고) | (안 읽어도 됨) |
@@ -137,6 +138,6 @@
 
 ---
 
-**Last updated**: 2026-08-11 (구조 정본 ARCHITECTURE.md 진입점 추가)
+**Last updated**: 2026-08-12 (키워드 작업 진입점 추가 — 헌장 7-E 먼저)
 **Maintained by**: 클로드 (under direction of 이지형 대표님)
 **Length budget**: 100줄 이하 유지 (boot은 가벼워야 한다)

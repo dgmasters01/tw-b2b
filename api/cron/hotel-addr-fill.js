@@ -74,12 +74,27 @@ export default async function handler(req, res) {
     //   다낝처럼 호텔이 빌빌한 곳은 그 안에 36개가 있고, **0m 짜리 정답이 21번째**면 못 찾는다.
     //   실제로 그래서 50곳을 봐도 0건이 나왔다.
     //   → 네모를 **±55m** 로 좀히고(어차피 반경 50m 안만 쓴다) 상한도 올린다.
-    const { data: near } = await sb.from('agoda_hotel')
-      .select('hotel_id, name_en, name_ko, address, lat, lng, star')
+    // 🔴 2026-08-12 명부 교체 — agoda_hotel(52만·15개국) → hotel_master(301만·221개국)
+    //   D-089 로 명부가 43배 커졌는데 이 봇이 옛 표를 보고 있었다.
+    //   실측: 주소가 빈 호텔 201곳 중 옛 표에서 찾아지는 것 **0곳** / 새 표 **201곳**.
+    //   즉 이 봇은 매시간 돌면서 아무것도 못 채우고 있었다 (오류도 안 나서 조용히 헛돌았다).
+    //   칸 이름이 다르다: hotel_id→agoda_hotel_id · name_en→hotel_name · name_ko→hotel_name_ko · star→star_rating
+    const { data: nearRaw } = await sb.from('hotel_master')
+      .select('agoda_hotel_id, hotel_name, hotel_name_ko, address, lat, lng, star_rating')
       .gte('lat', la - 0.0005).lte('lat', la + 0.0005)
       .gte('lng', lo - 0.0006).lte('lng', lo + 0.0006)
       .not('address', 'is', null)
       .limit(200);
+    // 아래 로직이 쓰는 옛 칸 이름으로 맞춰 준다 (로직은 손대지 않는다)
+    const near = (nearRaw || []).map((r) => ({
+      hotel_id: r.agoda_hotel_id,
+      name_en: r.hotel_name,
+      name_ko: r.hotel_name_ko,
+      address: r.address,
+      lat: r.lat,
+      lng: r.lng,
+      star: r.star_rating,
+    }));
     if (!near || !near.length) {
       // 🔴 2026-08-03 대표님 B안 — **아고다로 못 찾은 것만 구글이 본다.**
       //   예전엔 둘이 서로 모르고 각자 돌았다 — 아고다가 이미 채운 걸 구글이 또 볼 수도 있었다.

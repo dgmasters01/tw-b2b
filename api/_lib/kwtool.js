@@ -1,7 +1,7 @@
 // api/_lib/kwtool.js
 // kwtool.py 를 그대로 옮겨온 것이다. 함수 다섯 개 · 이름도 같다.
 //   suggest      유튜브 자동완성  → 수요
-//   competition  검색결과 HTML    → 경쟁 (estimatedResults)
+//   competition  Data API v3 search.list (최근 365일) → 경쟁   ← 2026-08-12 교체
 //   harvest      자모를 붙여 대량 수집
 //   analyze      수요·경쟁·기회점수
 //   pair         띄어쓰기 ↔ 붙여쓰기 대조
@@ -20,7 +20,7 @@ const UA =
   '(KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36';
 
 const SUGGEST_URL = 'https://suggestqueries.google.com/complete/search';
-const SEARCH_URL = 'https://www.youtube.com/results';
+// SEARCH_URL 폐기 (2026-08-12) — 검색결과 HTML 긁기는 더 이상 쓰지 않는다
 
 /** 한글 자모 — 자동완성을 넓게 훑을 때 붙인다. */
 export const JAMO = 'ㄱㄴㄷㄹㅁㅂㅅㅇㅈㅊㅋㅌㅍㅎ'.split('');
@@ -73,20 +73,77 @@ export async function suggest(q, hl = 'ko', gl = 'kr') {
 }
 
 /* ─────────────────────── ② 경쟁 ─────────────────────── */
+//
+// 🔴 2026-08-12 교체. 여기가 3주간 막혀 있던 자리다.
+//
+// 옛 방식(검색결과 HTML 의 estimatedResults 긁기)은 2026-07-16 에 폐기됐다(D-065 ㊺).
+//   · 날짜 조건이 없어 10년 전 영상까지 셌다. Data API 값과 2.8배까지 어긋났다.
+//   · 문서(_content/youtube/키워드-실측.md §1)는 그때 고쳤는데 **이 코드는 안 고쳤다.**
+//   · 그 결과 유튜브 화면 한 장(수백 KB)을 통째로 받다가 봇 차단·시간초과가 났고,
+//     새 도시 장부가 하나도 안 만들어졌다 (삿포로 7/31 294자 · 유후인 8/11 268자).
+//
+// 지금 방식: 서버 창구 /api/ops/yt-probe?mode=count 가 Data API v3 search.list 로 잰다.
+//   · publishedAfter = 오늘 − 365일 (㊺: 3년 아님 1년. 계절은 1년에 한 바퀴)
+//   · 열쇠(YOUTUBE_API_KEY)는 서버에만 있고 밖으로 안 나온다
+//   · 여러 개를 한 번에 물어 왕복을 줄인다 (search.list = 1개당 100 units, 하루 10,000)
+//   · 잣대 도장(comp_method·comp_window_days)을 함께 돌려준다 (㊶-6)
+//     도장 없이 저장하면 옛 226만 → 새 8만을 "경쟁이 줄었다"고 잘못 읽는다. 준 건 자다.
 
-const EST_RE = /"estimatedResults"\s*:\s*"(\d+)"/;
+export const COMP_METHOD = 'api_search_list';
+export const COMP_WINDOW_DAYS = 365;
 
-/** 검색결과 HTML 의 estimatedResults. 경쟁 영상 수의 대리 지표. */
-export async function competition(q, hl = 'ko', gl = 'kr') {
-  const p = new URLSearchParams({ search_query: q, hl, gl });
-  let html;
-  try {
-    html = await get(`${SEARCH_URL}?${p}`);
-  } catch {
-    return null;
+const OPS_BASE = (process.env.KWTOOL_OPS_BASE || 'https://gohotelwinners.com').replace(/\/$/, '');
+const OPS_TOKEN = process.env.CLAUDE_OPS_TOKEN || process.env.OPS_TOKEN || '';
+
+/**
+ * 여러 키워드의 경쟁을 한 번에. Map<키워드, {count, comp_method, comp_window_days, measured_at, error}>
+ * 못 재면 count = null. 지어내지 않는다.
+ */
+export async function competitionMany(qs, windowDays = COMP_WINDOW_DAYS, region = 'KR', lang = 'ko') {
+  const list = Array.from(qs);
+  const out = new Map();
+  if (!list.length) return out;
+  if (!OPS_TOKEN) {
+    for (const q of list) out.set(q, { count: null, error: 'ops_token_missing' });
+    return out;
   }
-  const m = EST_RE.exec(html);
-  return m ? Number(m[1]) : null;
+  // 한 번에 너무 많이 물으면 서버가 오래 걸린다. 25개씩 끊는다.
+  for (let i = 0; i < list.length; i += 25) {
+    const batch = list.slice(i, i + 25);
+    try {
+      const r = await fetch(`${OPS_BASE}/api/ops/yt-probe?mode=count`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-ops-token': OPS_TOKEN, 'User-Agent': UA },
+        body: JSON.stringify({ q: batch, window_days: windowDays, region, lang }),
+      });
+      const j = await r.json();
+      for (const row of (j.results || [])) {
+        out.set(row.q, {
+          count: row.competition ?? null,
+          comp_method: row.comp_method || COMP_METHOD,
+          comp_window_days: row.comp_window_days || windowDays,
+          measured_at: row.measured_at || null,
+          error: row.error || null,
+        });
+      }
+      for (const q of batch) if (!out.has(q)) out.set(q, { count: null, error: j.error || 'no_result' });
+      // 할당량이 끝났으면 더 두드려도 무의미하다 (막힐 뿐 청구되지 않는다)
+      if (j.blocked) {
+        for (const q of list.slice(i + batch.length)) out.set(q, { count: null, error: 'quotaExceeded' });
+        break;
+      }
+    } catch (e) {
+      for (const q of batch) out.set(q, { count: null, error: String(e).slice(0, 80) });
+    }
+  }
+  return out;
+}
+
+/** 경쟁 영상 수 (최근 1년 창). 숫자만. 못 재면 null. */
+export async function competition(q, hl = 'ko', gl = 'kr') {
+  const region = (gl || 'kr').toUpperCase();
+  const m = await competitionMany([q], COMP_WINDOW_DAYS, region, hl || 'ko');
+  return (m.get(q) || {}).count ?? null;
 }
 
 /* ─────────────────────── ③ 수집 ─────────────────────── */

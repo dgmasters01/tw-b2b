@@ -138,6 +138,62 @@ function bookToRows(book) {
   return rows;
 }
 
+/* ─────────── 트렌드 수요 (DB · 헌장 7-E-3) ─────────── */
+//
+// 🔴 2026-08-12 신설. 여기가 «정석»의 핵심이다.
+//
+// 사업 헌장 §7-E-3 (2026-07-14 전면 개정 · D-065 ①):
+//   "자동완성 순위 = 수요 아님. 그건 그 접두어를 친 사람 중에서의 조건부 순위였다."
+//   옛 공식은 역순이었다 — 히요리 호텔 = 기회점수 1위인데 실제 검색 0.9 /
+//   오사카 호텔 = 꼴찌인데 실제 46.2. 검색 0인 키워드를 1위로 추천하고 있었다.
+//   → 수요는 «구글 트렌드 실측»이다. 자동완성은 «어떤 어형이 존재하나»(발굴)에만 쓴다.
+//
+// 스튜디오 새벽 봇이 이미 트렌드로 재서 DB(keyword·trend·snapshot)에 넣어 두었다.
+// 장부는 그 값을 «가져다 쓴다». 따로 재지 않는다 (같은 도시를 두 번 재던 낭비도 사라진다).
+//
+// 못 가져오면? 지어내지 않는다. 기회점수를 null 로 두고 정렬에서 뒤로 보낸다.
+// (헌장 D-065 ⑧: 수요를 안 쟀으면 '기회'가 아니라 '모름')
+
+async function loadTrendDemand(city) {
+  const token = process.env.CLAUDE_OPS_TOKEN;
+  if (!token) return new Map();
+  const base = process.env.OPS_BASE_URL || 'https://gohotelwinners.com';
+  const esc = String(city).replace(/'/g, "''");
+  // 도시 이름은 city_key 에 영문 소문자로 산다 (cc:japan|sapporo). 한글 도시명도 함께 찾는다.
+  const sql = `
+    select k.text kw, t.demand, t.competition, s.finished_at
+    from trend t
+    join keyword k on k.id = t.keyword_id
+    join snapshot s on s.id = t.snapshot_id
+    where t.demand is not null
+      and (k.text like '%${esc}%' or s.city_key like '%${esc}%')
+    order by s.finished_at desc nulls last
+    limit 400`;
+  try {
+    const r = await fetch(`${base}/api/ops/db-query`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-ops-token': token, 'x-ops-client': 'studio' },
+      body: JSON.stringify({ query: sql }),
+    });
+    const j = await r.json();
+    const m = new Map();
+    for (const row of (j.rows || [])) {
+      if (!row.kw || m.has(row.kw)) continue;      // 최신 것이 먼저 온다
+      m.set(row.kw, { demand: Number(row.demand), comp: row.competition ?? null });
+    }
+    return m;
+  } catch {
+    return new Map();
+  }
+}
+
+/** 기회점수 = 트렌드 수요 ÷ log10(경쟁). 수요가 없으면 null (0 이 아니다 — '모름'이다). */
+function opportunityFromTrend(demand, comp) {
+  if (demand == null || !Number.isFinite(demand)) return null;
+  if (!comp || comp <= 0) return null;
+  return Math.round((demand / Math.log10(Math.max(comp, 10))) * 100) / 100;
+}
+
 /* ─────────── GitHub 커밋 (기존 창구 재사용) ─────────── */
 
 async function commitBook(path, content, message) {
@@ -198,6 +254,9 @@ export default async function handler(req, res) {
   // 이미 있는 장부를 이어 쓴다 (GitHub 이 진짜다)
   const book = await loadBook(root, city);
 
+  // 🔴 트렌드 수요를 DB 에서 가져온다 (헌장 7-E-3). 없으면 빈 Map — 지어내지 않는다.
+  const trend = await loadTrendDemand(city);
+
   const allow = allowedTokens({ country: '일본', city, station, regions, star }, kwRules);
   const places = new Set([city, station, ...regions].filter(Boolean));
   const hasPlace = (k) => tokensOf(k).some((t) => places.has(t));
@@ -241,23 +300,33 @@ export default async function handler(req, res) {
   const slice = todo.slice(0, budget);
   const day = todayStr();
 
+  // 🔴 점수는 «트렌드 수요»로 낸다 (헌장 7-E-3). 자동완성 순위는 발굴·생존확인 용도다.
+  //    트렌드가 없는 어형은 score = null 로 둔다 = '모름'. 0 과 다르다.
+  const scoreOf = (kw, comp) => opportunityFromTrend((trend.get(kw) || {}).demand, comp);
+
   for (const t of slice) {
     const comp = await competition(t.kw);
     if (t.kind === 'pair') {
-      book.set(t.kw, { rank: null, comp, score: 0, alive: false, joined: true, day });
+      book.set(t.kw, { rank: null, comp, score: null, alive: false, joined: true, day });
     } else if (t.kind === 'hotel') {
-      book.set(t.kw, { rank: t.rank, comp, score: opportunity(t.rank, comp), alive: t.alive, day });
+      book.set(t.kw, { rank: t.rank, comp, score: scoreOf(t.kw, comp), alive: t.alive, day });
       if (t.alive) {
         const htok = new Set([...tokensOf(t.kw), ...places]);
         for (const v of t.sug) {
           if (v === t.kw || book.has(v)) continue;
           if (!tokensOf(v).every((x) => htok.has(x))) continue;   // 다른 호텔이다
-          book.set(v, { rank: null, comp: null, score: 0, alive: true, variant: true, day });
+          book.set(v, { rank: null, comp: null, score: null, alive: true, variant: true, day });
         }
       }
     } else {
-      book.set(t.kw, { rank: t.rank, comp, score: opportunity(t.rank, comp), alive: true, day });
+      book.set(t.kw, { rank: t.rank, comp, score: scoreOf(t.kw, comp), alive: true, day });
     }
+  }
+
+  // 이미 장부에 있던 행도 트렌드가 새로 들어왔으면 점수를 다시 낸다 (옛 순위 점수 제거)
+  for (const [k, v] of book) {
+    const d = (trend.get(k) || {}).demand;
+    if (d != null && v.comp) v.score = opportunityFromTrend(d, v.comp);
   }
 
   const rows = bookToRows(book);
@@ -274,9 +343,20 @@ export default async function handler(req, res) {
 
   const deadHotels = hotelWork.filter((h) => !h.alive).map((h) => h.name);
   const warnings = [];
+  // 🔴 트렌드 수요가 없으면 «기회점수를 낼 수 없다». 지어내지 않고 알린다 (헌장 7-E-3 · D-065 ⑧).
+  const scored = [...book.values()].filter((v) => v.score != null).length;
+  if (!trend.size) {
+    warnings.push(
+      `구글 트렌드 수요가 없습니다 (${city}). 기회점수를 낼 수 없어 «모름»으로 둡니다. `
+      + `스튜디오 키워드 메뉴에서 이 도시를 먼저 조사하세요 — 조사 뒤 이 창구를 다시 부르면 점수가 채워집니다. `
+      + `(헌장 7-E-3: 자동완성 순위는 수요가 아니다)`);
+  } else if (!scored) {
+    warnings.push(`트렌드 자료는 ${trend.size}건 있으나 장부 어형과 겹치는 것이 없어 기회점수가 «모름»입니다.`);
+  }
   if (deadHotels.length) warnings.push(`자동완성에 없는 호텔명: ${deadHotels.join(' / ')}. 키워드란에서 빠집니다.`);
   if (commitError) warnings.push(`GitHub 커밋 실패: ${commitError}. 잰 값은 응답에만 있습니다.`);
   const remaining = Math.max(0, total - slice.length);
+  const demandSource = trend.size ? 'google_trends(db)' : 'none';
   if (remaining) warnings.push(`아직 ${remaining}개 남았습니다. 같은 요청을 다시 보내주세요.`);
 
   return res.status(200).json({
@@ -286,6 +366,9 @@ export default async function handler(req, res) {
     remaining,
     total,
     rowsInBook: rows.length,
+    demand_source: demandSource,
+    trend_rows: trend.size,
+    scored,
     committed,
     path,
     warnings,

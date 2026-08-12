@@ -117,6 +117,12 @@
 | D-074 | 2026-07-26 (상세=_business/decisions/2026-07-26-studio-i18n.md) | 스튜디오 영문판 · 계정 기본 언어 자동 |
 | D-075 | 2026-08-01 (상세=_business/decisions/2026-08-01-keyword-harvest-cycle.md) | 키워드 발굴 규칙·봇 순환 |
 | D-079 | 2026-08-02 (상세=_business/HOTEL_MATCH.md · D-075 §§8·9) | 호텔 자료 바탕·검사봇·개척 우선 |
+| D-086 | 2026-08-11 (상세=_business/decisions/2026-08-11-agoda-id-link.md) | 아고다 번호 잣대 순서 복원 · 949곳 연결 |
+| D-087 | 2026-08-11 (상세=_business/decisions/2026-08-11-db-lock-round2.md) | DB 잠금 2차 · 표 77개 전부 · 보안 5겹 |
+| D-088 | 2026-08-11 (상세=_business/decisions/2026-08-11-ops-lanes.md · staycurate/docs/DOOR.md) | 창구 차선 분리 · 블로그 전용 문 |
+| D-089 | 2026-08-11 (상세=_business/decisions/2026-08-11-agoda-master-full.md) | 아고다 명부 301만곳 · 분기 갱신 |
+| D-090 | 2026-08-12 (상세=_content/youtube/키워드-실측.md v2 · BUSINESS.md §7-E-3) | 키워드 수요=구글 트렌드 정정 |
+| D-091 | 2026-08-12 (상세=_business/decisions/2026-08-12-city-alias.md) | 도시 이름 별칭 체계 |
 
 ---
 
@@ -124,6 +130,7 @@
 
 | 날짜 | 변경 내용 |
 |---|---|
+| 2026-08-12 | D-086~D-091 등록 (아고다 잣대 복원·DB잠금2차·창구분리·명부301만·키워드수요정정·도시별칭) |
 | 2026-05-03 | 최초 작성 (Charter v2 통합 — D-001~D-009 등록) |
 | 2026-05-04 | D-010 D-011 등록 (3-State 권한 + admin-status 범위) |
 | 2026-05-04 | D-012 등록 (3-Layer 분리 + admin-tasks 흡수) |

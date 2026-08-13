@@ -13,20 +13,32 @@
   "_last_updated": "2026-08-13",
   "tokens": [
     {
-      "id": "supabase-management-api",
-      "name": "Supabase Management API Token",
-      "expires_at": "2026-08-13T00:00:00Z",
+      "id": "supabase-pat-tw-ops-db-query",
+      "name": "Supabase PAT — tw-ops-db-query (본사 DB 창구)",
+      "expires_at": "2099-12-31T00:00:00.000Z",
       "renewal_url": "https://supabase.com/dashboard/account/tokens",
-      "scope": "전체 Supabase 프로젝트 관리 (DB schema 변경, RLS 정책, edge function 배포)",
+      "scope": "Supabase Management API — gohotelwinners.com/api/ops/db-query 전용 DB 조회·적재",
       "warn_days_before": 7,
-      "active": false,
+      "active": true,
       "owner": "이지형",
       "env_var": "SUPABASE_ACCESS_TOKEN",
-      "_renewed_at": "2026-05-13",
-      "_renewal_note": "⚠️ 2026-08-13 오탐 확인. 만료일 2026-08-13은 2026-05-13에 «임의로 박은 90일 추측값»이며 실제 만료일이 아님. 만료 예정일 당일에 라이브 실사 결과 gohotelwinners·staycurate 양쪽 db-query 창구 모두 정상 응답(hotel_master 3,015,718건 조회 성공) = 토큰 유효. Supabase PAT은 발급 시 기간 선택(최대 1년 또는 «만료 없음») 이므로 실제 값은 대시보드에서만 확인 가능. 실제 만료일 확인 전까지 active=false 로 두어 매일 오는 오탐 메일을 차단. 확인되면 expires_at 에 실제 값 박고 active=true 로 되돌릴 것.",
-      "_env_location": "Vercel 환경변수 (tw-b2b 프로젝트) — GitHub Secrets 아님",
+      "_env_location": "Vercel 환경변수 (tw-b2b 프로젝트)",
       "_verified_live_at": "2026-08-13",
-      "_used_by": "api/ops/db-query.js (gohotelwinners + staycurate 공용 DB 창구) — 이 토큰이 죽으면 클로드의 모든 DB 조회·적재가 즉시 중단됨. 중요도 최상."
+      "_note": "2026-08-13 대시보드 실사 — 만료 «Never»(만료 없음). 갱신 불필요하여 99년으로 박음. 이 토큰이 죽으면 클로드의 본사 DB 조회·적재가 전부 중단됨(중요도 최상)."
+    },
+    {
+      "id": "supabase-pat-staycurate-blog-door",
+      "name": "Supabase PAT — staycurate-blog-door (블로그 DB 창구)",
+      "expires_at": "2027-08-09T00:00:00.000Z",
+      "renewal_url": "https://supabase.com/dashboard/account/tokens",
+      "scope": "Supabase Management API — www.staycurate.com/api/ops/db-query 전용 (blog_* 테이블)",
+      "warn_days_before": 14,
+      "active": true,
+      "owner": "이지형",
+      "env_var": "SUPABASE_ACCESS_TOKEN",
+      "_env_location": "Vercel 환경변수 (staycurate 프로젝트)",
+      "_verified_live_at": "2026-08-13",
+      "_note": "2026-08-13 대시보드 실사 — 만료 2027-08-09. 이 토큰이 죽으면 블로그 발행 파이프라인이 멈춤(중요도 최상)."
     },
     {
       "id": "github-pat",
@@ -85,6 +97,20 @@
       "active": true,
       "owner": "이지형",
       "_note": "PayPal Business는 계정 단위 — 만료 없음. Webhook secret만 주기 갱신 필요 시 별도 등록."
+    }
+  ],
+  "_retired": [
+    {
+      "id": "tw-b2b-admin-auth-v2",
+      "expired": true,
+      "last_used": "2026-05경",
+      "action": "대표님 대시보드에서 삭제 권장 — 라이브 코드 참조 0건 확인(2026-08-13)"
+    },
+    {
+      "id": "TW B2B Claude Automation",
+      "expired": true,
+      "last_used": "2026-05경",
+      "action": "대표님 대시보드에서 삭제 권장 — 라이브 코드 참조 0건 확인(2026-08-13). 등록부의 옛 'supabase-management-api' 항목이 이 토큰을 가리키던 유령 기록이었음"
     }
   ]
 }

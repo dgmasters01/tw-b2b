@@ -10,7 +10,7 @@
     "warn_days_before": "기본 7일 (만료 N일 전부터 알림)",
     "active": "false면 점검 스킵"
   },
-  "_last_updated": "2026-07-30",
+  "_last_updated": "2026-08-13",
   "tokens": [
     {
       "id": "supabase-management-api",
@@ -19,11 +19,14 @@
       "renewal_url": "https://supabase.com/dashboard/account/tokens",
       "scope": "전체 Supabase 프로젝트 관리 (DB schema 변경, RLS 정책, edge function 배포)",
       "warn_days_before": 7,
-      "active": true,
+      "active": false,
       "owner": "이지형",
-      "env_var": "SUPABASE_MGMT_TOKEN",
+      "env_var": "SUPABASE_ACCESS_TOKEN",
       "_renewed_at": "2026-05-13",
-      "_renewal_note": "2026-05-13 재발급 (이전 만료 후) — 정확한 만료일은 Supabase Dashboard에서 확인 필요. 임시로 90일 후 박음."
+      "_renewal_note": "⚠️ 2026-08-13 오탐 확인. 만료일 2026-08-13은 2026-05-13에 «임의로 박은 90일 추측값»이며 실제 만료일이 아님. 만료 예정일 당일에 라이브 실사 결과 gohotelwinners·staycurate 양쪽 db-query 창구 모두 정상 응답(hotel_master 3,015,718건 조회 성공) = 토큰 유효. Supabase PAT은 발급 시 기간 선택(최대 1년 또는 «만료 없음») 이므로 실제 값은 대시보드에서만 확인 가능. 실제 만료일 확인 전까지 active=false 로 두어 매일 오는 오탐 메일을 차단. 확인되면 expires_at 에 실제 값 박고 active=true 로 되돌릴 것.",
+      "_env_location": "Vercel 환경변수 (tw-b2b 프로젝트) — GitHub Secrets 아님",
+      "_verified_live_at": "2026-08-13",
+      "_used_by": "api/ops/db-query.js (gohotelwinners + staycurate 공용 DB 창구) — 이 토큰이 죽으면 클로드의 모든 DB 조회·적재가 즉시 중단됨. 중요도 최상."
     },
     {
       "id": "github-pat",

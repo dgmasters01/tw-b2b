@@ -223,6 +223,19 @@ export default async function handler(req, res) {
         .update({ title_final: tf || null, updated_at: new Date().toISOString() })
         .eq('id', id).select().single();
       if (error) return res.status(500).json({ ok: false, error: String(error.message || error) });
+
+      // 🔴 2026-08-13 추가 — 전략 큐도 같이 바꾼다 (대표님 지적: "전략 페이지에 동기화가 안 됨").
+      //   제목이 세 곳에 산다: publications.title(추천) · publications.title_final(실제) · content_queue.title(전략 화면).
+      //   지금까지 title_final 만 바꾸고 전략 큐는 그대로 둬서, 전략 화면이 «올린 적 없는 제목»을 보여줬다.
+      //   전략 화면은 «실제로 올라간 것»을 봐야 한다 → 실제 제목이 있으면 그걸, 지우면 추천 제목으로 되돌린다.
+      //   ⚠️ 발행(status=published)으로 이어진 카드만 건드린다. 기획 단계 카드는 손대지 않는다.
+      if (data && data.code) {
+        try {
+          await sb.from('content_queue')
+            .update({ title: tf || data.title || null, updated_at: new Date().toISOString() })
+            .eq('code', data.code);
+        } catch (e) { /* 동기화 실패해도 제목 기록은 유효하다 */ }
+      }
       return res.status(200).json({ ok: true, action: 'title_final', row: data });
     }
 

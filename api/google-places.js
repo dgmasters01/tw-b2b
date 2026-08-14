@@ -132,9 +132,15 @@ function normalizePlace(p) {
     photos: photos,
     types: p.types || [],
     businessStatus: p.businessStatus || null,
+    // 2026-08-14 수정 : 구글은 r.text 에 «번역본», r.originalText 에 «원문»을 준다.
+    // 지금까지 번역본(영어)만 담아서 한국인이 한국어로 쓴 후기도 lang='en' 으로 들어갔다.
+    // 🔴 말투(voice)는 한국어 원문에서만 배운다 (BOTS §7-4) → 원문을 1순위로 바꾼다.
     reviews: (p.reviews || []).map(function(r){ return {
-      text: (r.text && r.text.text) || (r.originalText && r.originalText.text) || '',
-      lang: (r.text && r.text.languageCode) || '',
+      text: (r.originalText && r.originalText.text) || (r.text && r.text.text) || '',
+      lang: (r.originalText && r.originalText.languageCode)
+            || (r.text && r.text.languageCode) || '',
+      textTranslated: (r.text && r.text.text) || '',
+      langTranslated: (r.text && r.text.languageCode) || '',
       rating: r.rating, when: r.publishTime, ago: r.relativePublishTimeDescription,
       author: r.authorAttribution && r.authorAttribution.displayName
     }; }),

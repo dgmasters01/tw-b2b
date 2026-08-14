@@ -21,11 +21,12 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { query, latitude, longitude, placeId } = req.body || {};
+    const { query, latitude, longitude, placeId, languageCode } = req.body || {};
 
     // 케이스 1: placeId로 직접 상세 조회
     if (placeId) {
-      const detail = await getPlaceDetail(placeId, apiKey);
+      // 🔴 languageCode 를 주면 그 언어 후기를 우선으로 돌려준다 (한국인 후기 확보용)
+      const detail = await getPlaceDetail(placeId, apiKey, languageCode);
       return res.status(200).json({
         success: true,
         place: normalizePlace(detail)
@@ -92,8 +93,9 @@ export default async function handler(req, res) {
   }
 }
 
-async function getPlaceDetail(placeId, apiKey) {
-  const url = PLACES_DETAIL_URL + encodeURIComponent(placeId);
+async function getPlaceDetail(placeId, apiKey, languageCode) {
+  let url = PLACES_DETAIL_URL + encodeURIComponent(placeId);
+  if (languageCode) url += '?languageCode=' + encodeURIComponent(languageCode);
   const r = await fetch(url, {
     headers: {
       'X-Goog-Api-Key': apiKey,

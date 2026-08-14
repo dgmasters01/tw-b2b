@@ -97,7 +97,7 @@ async function getPlaceDetail(placeId, apiKey) {
   const r = await fetch(url, {
     headers: {
       'X-Goog-Api-Key': apiKey,
-      'X-Goog-FieldMask': 'id,displayName,formattedAddress,shortFormattedAddress,location,rating,userRatingCount,types,websiteUri,internationalPhoneNumber,nationalPhoneNumber,googleMapsUri,photos,regularOpeningHours,businessStatus'
+      'X-Goog-FieldMask': 'reviews,id,displayName,formattedAddress,shortFormattedAddress,location,rating,userRatingCount,types,websiteUri,internationalPhoneNumber,nationalPhoneNumber,googleMapsUri,photos,regularOpeningHours,businessStatus'
     }
   });
   return r.json();
@@ -132,6 +132,12 @@ function normalizePlace(p) {
     photos: photos,
     types: p.types || [],
     businessStatus: p.businessStatus || null,
+    reviews: (p.reviews || []).map(function(r){ return {
+      text: (r.text && r.text.text) || (r.originalText && r.originalText.text) || '',
+      lang: (r.text && r.text.languageCode) || '',
+      rating: r.rating, when: r.publishTime, ago: r.relativePublishTimeDescription,
+      author: r.authorAttribution && r.authorAttribution.displayName
+    }; }),
     openingHours: p.regularOpeningHours || null
   };
 }

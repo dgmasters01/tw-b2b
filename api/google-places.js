@@ -99,7 +99,7 @@ async function getPlaceDetail(placeId, apiKey, languageCode) {
   const r = await fetch(url, {
     headers: {
       'X-Goog-Api-Key': apiKey,
-      'X-Goog-FieldMask': 'reviews,id,displayName,formattedAddress,shortFormattedAddress,location,rating,userRatingCount,types,websiteUri,internationalPhoneNumber,nationalPhoneNumber,googleMapsUri,photos,regularOpeningHours,businessStatus'
+      'X-Goog-FieldMask': 'reviews,id,displayName,formattedAddress,shortFormattedAddress,location,rating,userRatingCount,types,websiteUri,internationalPhoneNumber,nationalPhoneNumber,googleMapsUri,photos,regularOpeningHours,businessStatus,editorialSummary,priceLevel,accessibilityOptions,parkingOptions,paymentOptions,goodForChildren,goodForGroups,allowsDogs,restroom,servesBreakfast,servesBrunch,servesDinner,liveMusic,outdoorSeating'
     }
   });
   return r.json();
@@ -146,6 +146,25 @@ function normalizePlace(p) {
       rating: r.rating, when: r.publishTime, ago: r.relativePublishTimeDescription,
       author: r.authorAttribution && r.authorAttribution.displayName
     }; }),
-    openingHours: p.regularOpeningHours || null
+    openingHours: p.regularOpeningHours || null,
+    // 🔴 2026-08-16 추가 — «기본»(호텔이 어떤 곳인가) 재료.
+    //    구글은 이미 최상위 구간(후기)으로 부르므로 필드를 더 받아도 요금이 늘지 않는다
+    editorialSummary: (p.editorialSummary && p.editorialSummary.text) || null,
+    editorialLang: (p.editorialSummary && p.editorialSummary.languageCode) || null,
+    priceLevel: p.priceLevel || null,
+    facts: {
+      goodForChildren: p.goodForChildren,
+      goodForGroups: p.goodForGroups,
+      allowsDogs: p.allowsDogs,
+      restroom: p.restroom,
+      servesBreakfast: p.servesBreakfast,
+      servesBrunch: p.servesBrunch,
+      servesDinner: p.servesDinner,
+      liveMusic: p.liveMusic,
+      outdoorSeating: p.outdoorSeating,
+      accessibility: p.accessibilityOptions || null,
+      parking: p.parkingOptions || null,
+      payment: p.paymentOptions || null
+    }
   };
 }

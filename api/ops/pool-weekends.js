@@ -57,6 +57,24 @@ export default async function handler(req, res) {
   }
   if (!ids.length) return res.status(400).json({ ok: false, error: '물어볼 호텔이 없습니다' });
 
+  // ── ②-b 🔴 예산 확인 (COLLECT §3 · 2026-08-16 신설)
+  //    설계는 «월 1,000번 안쪽»인데 감시가 없었다. 부르기 전에 계량기를 본다
+  const ym = new Date().toISOString().slice(0, 7);
+  const BUDGET = 1000;
+  let used = 0;
+  try {
+    const ur = await fetch(`${SB}/rest/v1/api_usage?provider=eq.agoda_lite&ym=eq.${ym}&select=used,free_limit`,
+      { headers: { apikey: KEY, Authorization: `Bearer ${KEY}` } });
+    const uj = await ur.json();
+    used = Number(uj?.[0]?.used ?? 0);
+  } catch { /* 계량기를 못 읽으면 아래에서 멈춘다 */ }
+  const willCall = weekends.length;
+  if (used + willCall > BUDGET) {
+    return res.status(200).json({ ok: false, stopped: true,
+      why: 'budget', used, budget: BUDGET, willCall,
+      hint: `이번 달 아고다 호출이 ${used}/${BUDGET} 입니다. ${willCall}번을 더 부르면 넘칩니다. 멈췄습니다` });
+  }
+
   // ── ③ 주말마다 한 번씩 아고다에 묻는다
   const t0 = Date.now();
   const rows = [], perDate = [];
@@ -94,8 +112,30 @@ export default async function handler(req, res) {
       });
     }
   }
+  // 🔴 부른 것을 남긴다 (2026-08-16 신설 — collect_log 가 2026-08-10 이후 비어 있었다)
+  try {
+    await fetch(`${SB}/rest/v1/collect_log`, {
+      method: 'POST',
+      headers: { apikey: KEY, Authorization: `Bearer ${KEY}`,
+                 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+      body: JSON.stringify(perDate.map((p) => ({
+        kind: Array.isArray(body.hotelIds) && body.hotelIds.length ? 'pool_byids' : 'pool',
+        city_key: `id|${cityId}`, star_band: String(star), checkin: p.date,
+        http_status: p.error ?? 200, got_count: p.got ?? 0, saved_count: 0,
+        ms: Date.now() - t0, error: p.error ? String(p.error).slice(0, 200) : null,
+      }))),
+    });
+    await fetch(`${SB}/rest/v1/api_usage?provider=eq.agoda_lite&ym=eq.${ym}`, {
+      method: 'PATCH',
+      headers: { apikey: KEY, Authorization: `Bearer ${KEY}`,
+                 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+      body: JSON.stringify({ used: used + weekends.length }),
+    });
+  } catch { /* 기록 실패가 수집을 막지는 않는다 */ }
+
   const ms = Date.now() - t0;
   const stat = {
+    예산: `${used + weekends.length}/${BUDGET}`,
     도시: cityId, 성급: star, 대상월: `${year}-${String(month).padStart(2, '0')}`,
     주말수: weekends.length, 선정: ids.length,
     받은행: rows.length, 기대행: weekends.length * ids.length, ms, perDate,

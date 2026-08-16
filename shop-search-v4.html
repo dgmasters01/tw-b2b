@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>검색 결과 화면 시안 v4 — 2026-08-16</title>
+<style>
+:root{--bg:#f5f4f0;--line:#e3e1da;--line2:#c9c6bc;--t1:#1f1f1d;--t2:#5f5e5a;--t3:#95938c;
+--blue:#185FA5;--blueBg:#E6F1FB;--blueT:#042C53;--green:#3B6D11;--greenBg:#EAF3DE;--greenT:#173404;
+--red:#A32D2D;--redBg:#FCEBEB;--redT:#501313;--amb:#BA7517;--ambBg:#FAEEDA;--ambT:#412402;--r:8px}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--t1);font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;line-height:1.6}
+.wrap{max-width:1200px;margin:0 auto;padding:22px 14px 60px}
+h1{font-size:21px;font-weight:600;margin:0 0 4px}
+h2{font-size:17px;font-weight:600;margin:32px 0 4px;padding-top:18px;border-top:2px solid var(--line2)}
+.sub{color:var(--t2);font-size:13px;margin-bottom:14px}
+.gal{display:flex;flex-wrap:wrap;gap:24px;margin-top:14px}
+.item{width:344px}
+.cap{font-size:15px;font-weight:600;margin:0 0 3px}
+.capd{font-size:12px;color:var(--t2);margin-bottom:10px}
+.tag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:6px;margin-right:5px;vertical-align:2px}
+.t-pick{background:var(--blueBg);color:var(--blueT)}
+.t-mid{background:var(--ambBg);color:var(--ambT)}
+.t-no{background:var(--redBg);color:var(--redT)}
+.ph{background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.b{font-weight:600}
+.s10{font-size:10px}.s11{font-size:11px}.s12{font-size:12px}.s13{font-size:13px}.s14{font-size:14px}.s15{font-size:15px}.s16{font-size:16px}
+.mut{color:var(--t2)}.mut3{color:var(--t3)}
+.img{background:#dfe6ec;display:flex;align-items:center;justify-content:center;color:#7d8b97;font-size:11px}
+.chip{display:inline-block;font-size:12px;border:1px solid var(--line2);padding:5px 11px;border-radius:14px;margin:0 5px 5px 0;background:#fff}
+.chip.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+.btn{background:var(--blue);color:#fff;text-align:center;font-size:13px;font-weight:600;padding:9px;border-radius:var(--r)}
+.pd{padding:11px 13px}
+.hrow{display:flex;gap:10px;padding:11px 13px;border-bottom:1px solid var(--line);align-items:flex-start}
+.sq{width:84px;height:84px;flex:0 0 84px;border-radius:9px}
+.sort{display:flex;gap:6px;padding:9px 13px;border-bottom:1px solid var(--line);align-items:center}
+.sortb{font-size:12px;border:1px solid var(--line2);border-radius:16px;padding:4px 11px;background:#fff}
+.sortb.on{background:var(--t1);color:#fff;border-color:var(--t1)}
+.sec{background:#efeee9;padding:8px 13px;font-size:12px;font-weight:600;color:var(--t2)}
+table{width:100%;border-collapse:collapse;font-size:13px;background:#fff;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{background:#efeee9;font-weight:600}
+.qbox{background:#fff;border:1px solid var(--line2);border-radius:12px;padding:14px 16px;margin-top:16px;font-size:13px}
+.qbox b{display:block;font-size:14px;margin-bottom:4px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>검색 결과 화면 시안 v4</h1>
+<div class="sub">2026-08-16 · 「어디 가세요?」(M-2)를 누른 다음 나오는 화면 · 야놀자 화면 비교 반영</div>
+
+<h2>0. 야놀자 화면에서 가져올 것 / 버릴 것</h2>
+<table>
+<tr><th style="width:48%">가져올 것 👍</th><th>버릴 것 ❌</th></tr>
+<tr><td>
+왼쪽 정사각 사진 + 오른쪽 글 = 눈이 편함<br>
+「호텔 · 4성급」 한 줄로 종류·등급<br>
+평점 <b>4.6 (794)</b> — 후기 수까지<br>
+가격을 <b>오른쪽 아래 큰 글씨</b>로<br>
+「152,035원~」의 <b>물결(~)</b> = 최저가 표시
+</td><td>
+윗줄 필터 칩 4개(조식포함·무료취소·예약가능·NOL Pick) → 손님에게 일 시킴<br>
+날짜 입력칸(08.16~08.17) → 이미 폐기한 항목<br>
+「NOL Pick」 같은 <b>돈 받고 올린 자리</b> → 우리는 직접 자본 순위가 자산
+</td></tr>
+</table>
+
+<h2>1. 정렬 — 가격 낮은 순이 맞을까?</h2>
+<div class="sub">대표님이 올려주신 야놀자 화면을 위에서부터 읽어보면: <b>152,035 → 65,428 → 90,698 → 73,944원.</b><br>
+가격순이 전혀 아닙니다. 야놀자조차 «자기가 밀고 싶은 순서»로 놓습니다.</div>
+
+<div class="gal">
+<div class="item">
+<div class="cap">S-1. 우리 순서가 먼저 <span class="tag t-pick" style="margin-left:4px">클로드 추천</span></div>
+<div class="capd">영상에서 소개한 곳을 위에, 나머지는 아래. 기본 정렬 = 추천순</div>
+<div class="ph">
+  <div class="pd" style="display:flex;gap:8px;border-bottom:1px solid var(--line)">
+    <div style="flex:1;border:1px solid var(--line2);border-radius:20px;padding:8px 14px" class="s13 b">📍 오사카, 일본</div>
+  </div>
+  <div class="sort"><span class="s11 mut3">정렬</span><span class="sortb on">추천순</span><span class="sortb">가격 낮은 순</span></div>
+
+  <div class="sec">🎬 영상에서 소개한 곳 · 9곳</div>
+  <div class="hrow">
+    <div class="img sq">호텔 사진</div>
+    <div style="flex:1;min-width:0">
+      <div class="s11 mut3">호텔 · 4성급 · <span style="color:var(--redT)">8월 16일 영상</span></div>
+      <div class="s14 b" style="line-height:1.3">난바 2초메 호텔</div>
+      <div class="s11 mut">⭐ 4.5 (2,140) · 난바역 도보 3분</div>
+      <div style="text-align:right;margin-top:6px"><span class="s16 b">128,000원~</span></div>
+    </div>
+  </div>
+  <div class="hrow">
+    <div class="img sq">호텔 사진</div>
+    <div style="flex:1;min-width:0">
+      <div class="s11 mut3">호텔 · 3성급 · <span style="color:var(--redT)">8월 9일 영상</span></div>
+      <div class="s14 b" style="line-height:1.3">HOTEL HILLARYS</div>
+      <div class="s11 mut">⭐ 4.4 (886) · 신사이바시 도보 5분</div>
+      <div style="text-align:right;margin-top:6px"><span class="s16 b">111,000원~</span></div>
+    </div>
+  </div>
+
+  <div class="sec">그 밖의 오사카 호텔 · 2,418곳</div>
+  <div class="hrow">
+    <div class="img sq">호텔 사진</div>
+    <div style="flex:1;min-width:0">
+      <div class="s11 mut3">호텔 · 3성급 <span style="background:#efeee9;color:var(--t3);padding:1px 6px;border-radius:5px;font-size:10px">영상 미소개</span></div>
+      <div class="s14 b" style="line-height:1.3">소테츠 그랜드 프레사 난바</div>
+      <div class="s11 mut">⭐ 4.7 (519)</div>
+      <div style="text-align:right;margin-top:6px"><span class="s16 b">65,428원~</span></div>
+    </div>
+  </div>
+  <div class="hrow" style="border-bottom:none">
+    <div class="img sq">호텔 사진</div>
+    <div style="flex:1;min-width:0">
+      <div class="s11 mut3">호텔 · 3성급 <span style="background:#efeee9;color:var(--t3);padding:1px 6px;border-radius:5px;font-size:10px">영상 미소개</span></div>
+      <div class="s14 b" style="line-height:1.3">호텔 포르자 난바 도톤보리</div>
+      <div class="s11 mut">⭐ 4.7 (299)</div>
+      <div style="text-align:right;margin-top:6px"><span class="s16 b">90,698원~</span></div>
+    </div>
+  </div>
+  <div class="pd s11 mut3" style="border-top:1px solid var(--line)">2인 1박 기준 · 오늘 새벽 조회</div>
+</div>
+<div class="s12 mut" style="margin-top:9px">👍 「직접 자보고 골랐다」는 우리 정체성이 맨 위에 남음<br>👍 예약 단가가 높아 수수료도 큼 · 그래도 싼 걸 원하는 손님은 아래에서 다 찾음<br>👎 제일 싼 방을 찾으러 온 손님은 한 번 더 내려야 함</div>
+</div>
+
+<div class="item">
+<div class="cap">S-2. 전부 섞어 가격 낮은 순</div>
+<div class="capd"><span class="tag t-mid">검토</span>영상 소개 여부와 상관없이 싼 것부터</div>
+<div class="ph">
+  <div class="pd" style="display:flex;gap:8px;border-bottom:1px solid var(--line)">
+    <div style="flex:1;border:1px solid var(--line2);border-radius:20px;padding:8px 14px" class="s13 b">📍 오사카, 일본</div>
+  </div>
+  <div class="sort"><span class="s11 mut3">정렬</span><span class="sortb">추천순</span><span class="sortb on">가격 낮은 순</span></div>
+  <div class="hrow">
+    <div class="img sq">호텔 사진</div>
+    <div style="flex:1;min-width:0">
+      <div class="s11 mut3">호텔 · 2성급 <span style="background:#efeee9;color:var(--t3);padding:1px 6px;border-radius:5px;font-size:10px">영상 미소개</span></div>
+      <div class="s14 b" style="line-height:1.3">캡슐 이누야마 신이마미야</div>
+      <div class="s11 mut">⭐ 3.9 (204)</div>
+      <div style="text-align:right;margin-top:6px"><span class="s16 b">18,900원~</span></div>
+    </div>
+  </div>
+  <div class="hrow">
+    <div class="img sq">호텔 사진</div>
+    <div style="flex:1;min-width:0">
+      <div class="s11 mut3">호스텔 · 1성급 <span style="background:#efeee9;color:var(--t3);padding:1px 6px;border-radius:5px;font-size:10px">영상 미소개</span></div>
+      <div class="s14 b" style="line-height:1.3">게스트하우스 니시나리</div>
+      <div class="s11 mut">⭐ 3.4 (91)</div>
+      <div style="text-align:right;margin-top:6px"><span class="s16 b">21,300원~</span></div>
+    </div>
+  </div>
+  <div class="hrow" style="border-bottom:none;opacity:.55">
+    <div class="img sq">호텔 사진</div>
+    <div style="flex:1;min-width:0">
+      <div class="s11 mut3">호텔 · 4성급 · <span style="color:var(--redT)">8월 16일 영상</span></div>
+      <div class="s14 b" style="line-height:1.3">난바 2초메 호텔</div>
+      <div class="s11 mut">⭐ 4.5 (2,140)</div>
+      <div style="text-align:right;margin-top:6px"><span class="s16 b">128,000원~</span></div>
+      <div class="s11" style="color:var(--redT);text-align:right">↓ 한참 아래로 밀림</div>
+    </div>
+  </div>
+  <div class="pd s11 mut3" style="border-top:1px solid var(--line)">2인 1박 기준 · 오늘 새벽 조회</div>
+</div>
+<div class="s12 mut" style="margin-top:9px">👍 「싼 곳 찾기」에는 제일 편함<br>👎 <b>맨 위가 항상 캡슐·게스트하우스</b>가 됨 → 우리가 소개한 호텔은 화면 밖으로 밀림<br>👎 예약 단가가 낮아 같은 손님 수라도 수수료가 크게 줄어듦<br>👎 「아고다 짝퉁」이 되어 우리 색이 사라짐(정본 9절 경고)</div>
+</div>
+
+</div>
+
+<div class="qbox">
+<b>대표님이 답해주실 것</b>
+검색 결과 기본 정렬 — <b>S-1(우리 순서 먼저)</b> vs <b>S-2(전부 가격순)</b><br>
+<span class="mut s12">어느 쪽이든 정렬 버튼은 «추천순 / 가격 낮은 순» 두 개만 둡니다. 세 개 이상은 안 만듭니다.</span>
+</div>
+
+<div class="s11 mut3" style="margin-top:22px">travelwinners.shop · M-2 검색 결과 화면 · 2026-08-16</div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>메인 화면 확정용 시안 v2 — 2026-08-16</title>
+<style>
+:root{--bg:#f5f4f0;--card:#fff;--line:#e3e1da;--line2:#c9c6bc;--t1:#1f1f1d;--t2:#5f5e5a;--t3:#95938c;
+--blue:#185FA5;--blueBg:#E6F1FB;--blueT:#042C53;--green:#3B6D11;--greenBg:#EAF3DE;--greenT:#173404;
+--red:#A32D2D;--redBg:#FCEBEB;--redT:#501313;--amb:#BA7517;--ambBg:#FAEEDA;--ambT:#412402;
+--pur:#534AB7;--purBg:#EEEDFE;--purT:#26215C;--r:8px}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--t1);font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;line-height:1.6}
+.wrap{max-width:1200px;margin:0 auto;padding:22px 14px 60px}
+h1{font-size:21px;font-weight:600;margin:0 0 4px}
+h2{font-size:17px;font-weight:600;margin:34px 0 4px;padding-top:20px;border-top:2px solid var(--line2)}
+.sub{color:var(--t2);font-size:13px;margin-bottom:18px}
+.legend{background:#fff;border:1px solid var(--line);border-radius:12px;padding:13px 15px;font-size:13px;color:var(--t2);margin-bottom:10px}
+.legend b{color:var(--t1)}
+.gal{display:flex;flex-wrap:wrap;gap:24px;margin-top:14px}
+.item{width:344px}
+.cap{font-size:15px;font-weight:600;margin:0 0 3px}
+.capd{font-size:12px;color:var(--t2);margin-bottom:10px}
+.tag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:6px;margin-right:5px;vertical-align:2px}
+.t-yes{background:var(--greenBg);color:var(--greenT)}
+.t-no{background:var(--redBg);color:var(--redT)}
+.t-mid{background:var(--ambBg);color:var(--ambT)}
+.t-pick{background:var(--blueBg);color:var(--blueT)}
+.ph{background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.b{font-weight:600}
+.s10{font-size:10px}.s11{font-size:11px}.s12{font-size:12px}.s13{font-size:13px}.s14{font-size:14px}.s15{font-size:15px}.s16{font-size:16px}.s18{font-size:18px}
+.mut{color:var(--t2)}.mut3{color:var(--t3)}
+.img{background:#eceae4;display:flex;align-items:center;justify-content:center;color:var(--t3);font-size:11px}
+.chip{display:inline-block;font-size:12px;border:1px solid var(--line2);padding:5px 11px;border-radius:14px;margin:0 5px 5px 0}
+.chip.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+.btn{background:var(--blue);color:#fff;text-align:center;font-size:14px;font-weight:600;padding:11px;border-radius:var(--r)}
+.btn2{background:#fff;border:1px solid var(--line2);text-align:center;font-size:13px;font-weight:600;padding:10px;border-radius:var(--r)}
+.pd{padding:11px 13px}
+.pill{display:inline-block;font-size:10px;padding:2px 7px;border-radius:6px}
+.cal{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
+.cell{border:1px solid var(--line);border-radius:var(--r);padding:6px 3px;text-align:center;font-size:11px;line-height:1.35}
+.cell b{font-size:12px}
+.tabs{display:flex;gap:6px;margin-bottom:7px}
+.tab{flex:1;text-align:center;font-size:12px;padding:5px 0;border:1px solid var(--line2);border-radius:7px}
+.tab.on{background:var(--t1);color:#fff;border-color:var(--t1)}
+.dow{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;font-size:10px;color:var(--t3);text-align:center;margin-bottom:4px}
+.half{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.mini{border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.hrow{display:flex;gap:9px;overflow:hidden}
+.hcard{flex:0 0 132px}
+.blk{border:1px solid var(--line2);border-radius:9px;padding:9px 11px;margin-bottom:6px;font-size:12px;background:#fff}
+.blk.hi{border-color:var(--blue);background:var(--blueBg);color:var(--blueT);font-weight:600}
+.blk.dim{color:var(--t3);background:#f0efeb}
+.qbox{background:#fff;border:1px solid var(--line2);border-radius:12px;padding:14px 16px;margin-top:14px;font-size:13px}
+.qbox b{display:block;font-size:14px;margin-bottom:4px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>메인 화면 확정용 시안 v2</h1>
+<div class="sub">2026-08-16 · 대표님 답변 반영 (① C형 확정 · ③ 펼치면 달력까지 확정) · 정본 <code>_business/shop/SHOP_RENEWAL.md</code></div>
+
+<div class="legend">
+<b>오늘 골라야 할 것 3개</b><br>
+① 아래 <b>1번 구역</b> — 2·3위에 딱지를 붙일지 (ㄱ vs ㄴ)<br>
+② 아래 <b>2번 구역</b> — B(도시·등급)를 어떤 모양으로 고칠지 (B-1 / B-2 / B-3)<br>
+③ 아래 <b>3번 구역</b> — 그 묶음을 메인 어느 층에 둘지 (배치 ㄱ / ㄴ / ㄷ)
+</div>
+
+<!-- ======================= 1 ======================= -->
+<h2>1구역. 메인 카드 최종안 — 딱지만 다릅니다</h2>
+<div class="sub">확정된 C형(1위 크게 + 2·3위 작게) + 펼치면 달력까지 한 번에. <b>두 그림의 차이는 오직 2·3위의 빨간 딱지 유무입니다.</b></div>
+
+<div class="gal">
+
+<!-- ㄱ 딱지 있음 -->
+<div class="item">
+<div class="cap">ㄱ. 딱지 있음</div>
+<div class="capd"><span class="tag t-mid">고르는 것</span>2·3위에 「가성비 1위 · 전망 1위」를 붙임</div>
+<div class="ph">
+  <div class="img" style="height:150px;position:relative">▶ 유튜브 썸네일 그대로
+    <span style="position:absolute;left:8px;top:8px;background:#fff;border:1px solid var(--line);font-size:11px;padding:2px 7px;border-radius:6px">8월 16일 올림</span></div>
+  <div class="pd" style="padding-bottom:4px">
+    <div class="s15 b">일본 오사카 중심지 대욕장이 있는 호텔 TOP3</div>
+    <div class="s11 mut">여행능력자들 · 조회 18.2만</div>
+  </div>
+
+  <!-- TOP1 -->
+  <div style="margin:8px 13px;border:1px solid var(--line2);border-radius:12px;overflow:hidden">
+    <div class="img" style="height:112px;position:relative">사진
+      <span style="position:absolute;left:8px;top:8px;background:var(--t1);color:#fff;font-size:11px;padding:3px 9px;border-radius:6px">TOP 1 · 종합 1위</span></div>
+    <div class="pd">
+      <div class="s16 b">난바 2초메 호텔</div>
+      <div class="s11 mut">난바역 도보 3분 · 평점 8.9 · 체크인 15:00</div>
+      <div class="s12" style="margin:6px 0 9px">대욕장이 새벽 2시까지 엽니다. 늦게 도착해도 씻고 잘 수 있습니다.</div>
+
+      <div class="tabs"><div class="tab on">9월</div><div class="tab">10월</div><div class="tab">11월</div></div>
+      <div class="dow"><div>금</div><div>토</div><div>일</div></div>
+      <div class="cal">
+        <div class="cell"><span class="mut3">5일</span><br><b>112,000</b></div>
+        <div class="cell"><span class="mut3">6일</span><br><b>148,000</b></div>
+        <div class="cell"><span class="mut3">7일</span><br><b>104,000</b></div>
+        <div class="cell"><span class="mut3">12일</span><br><b>119,000</b></div>
+        <div class="cell"><span class="mut3">13일</span><br><b>151,000</b></div>
+        <div class="cell" style="border-color:var(--green);background:var(--greenBg);color:var(--greenT)"><span>14일</span><br><b>89,000</b><br><span class="s10">제일 쌈</span></div>
+        <div class="cell"><span class="mut3">19일</span><br><b>124,000</b></div>
+        <div class="cell"><span class="mut3">20일</span><br><b>162,000</b></div>
+        <div class="cell"><span class="mut3">21일</span><br><b>108,000</b></div>
+        <div class="cell"><span class="mut3">26일</span><br><b>133,000</b></div>
+        <div class="cell" style="border-color:var(--red);color:var(--redT)"><span>27일</span><br><b>211,000</b><br><span class="s10">연휴</span></div>
+        <div class="cell"><span class="mut3">28일</span><br><b>126,000</b></div>
+      </div>
+      <div class="s11 mut3" style="margin:7px 0 8px">2인 1박 기준 · 오늘 새벽 조회 · 영상 때 167,279원</div>
+      <div class="btn">9월 14일 89,000원으로 예약</div>
+    </div>
+  </div>
+
+  <!-- TOP2/3 딱지 있음 -->
+  <div style="margin:0 13px 13px" class="half">
+    <div class="mini">
+      <div class="img" style="height:66px;position:relative">사진
+        <span style="position:absolute;left:5px;top:5px;background:var(--ambBg);color:var(--ambT);font-size:10px;padding:2px 6px;border-radius:5px">가성비 1위</span></div>
+      <div style="padding:8px 9px">
+        <div class="s13 b" style="line-height:1.3">HOTEL HILLARYS</div>
+        <div class="s14 b" style="margin-top:4px">111,000원~</div>
+        <div class="s11 mut3">영상 때 127,981원</div>
+        <div class="btn2" style="margin-top:6px;padding:7px;font-size:12px">날짜 보기 ▾</div>
+      </div>
+    </div>
+    <div class="mini">
+      <div class="img" style="height:66px;position:relative">사진
+        <span style="position:absolute;left:5px;top:5px;background:var(--purBg);color:var(--purT);font-size:10px;padding:2px 6px;border-radius:5px">전망 1위</span></div>
+      <div style="padding:8px 9px">
+        <div class="s13 b" style="line-height:1.3">내추럴 핫스프링<br>미도스지</div>
+        <div class="s14 b" style="margin-top:4px">124,000원~</div>
+        <div class="s11 mut3">영상 때 117,979원</div>
+        <div class="btn2" style="margin-top:6px;padding:7px;font-size:12px">날짜 보기 ▾</div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="s12 mut" style="margin-top:9px">👍 2·3위에도 «1등인 이유»가 생겨 클릭이 삽니다<br>👎 딱지 문구를 영상마다 사람이 정해줘야 합니다(영상당 2줄)</div>
+</div>
+
+<!-- ㄴ 딱지 없음 -->
+<div class="item">
+<div class="cap">ㄴ. 딱지 없음</div>
+<div class="capd"><span class="tag t-mid">고르는 것</span>순위 숫자만. 화면이 조용해짐</div>
+<div class="ph">
+  <div class="img" style="height:150px;position:relative">▶ 유튜브 썸네일 그대로
+    <span style="position:absolute;left:8px;top:8px;background:#fff;border:1px solid var(--line);font-size:11px;padding:2px 7px;border-radius:6px">8월 16일 올림</span></div>
+  <div class="pd" style="padding-bottom:4px">
+    <div class="s15 b">일본 오사카 중심지 대욕장이 있는 호텔 TOP3</div>
+    <div class="s11 mut">여행능력자들 · 조회 18.2만</div>
+  </div>
+
+  <div style="margin:8px 13px;border:1px solid var(--line2);border-radius:12px;overflow:hidden">
+    <div class="img" style="height:112px;position:relative">사진
+      <span style="position:absolute;left:8px;top:8px;background:var(--t1);color:#fff;font-size:11px;padding:3px 9px;border-radius:6px">TOP 1</span></div>
+    <div class="pd">
+      <div class="s16 b">난바 2초메 호텔</div>
+      <div class="s11 mut">난바역 도보 3분 · 평점 8.9 · 체크인 15:00</div>
+      <div class="s12" style="margin:6px 0 9px">대욕장이 새벽 2시까지 엽니다. 늦게 도착해도 씻고 잘 수 있습니다.</div>
+      <div class="tabs"><div class="tab on">9월</div><div class="tab">10월</div><div class="tab">11월</div></div>
+      <div class="dow"><div>금</div><div>토</div><div>일</div></div>
+      <div class="cal">
+        <div class="cell"><span class="mut3">5일</span><br><b>112,000</b></div>
+        <div class="cell"><span class="mut3">6일</span><br><b>148,000</b></div>
+        <div class="cell"><span class="mut3">7일</span><br><b>104,000</b></div>
+        <div class="cell"><span class="mut3">12일</span><br><b>119,000</b></div>
+        <div class="cell"><span class="mut3">13일</span><br><b>151,000</b></div>
+        <div class="cell" style="border-color:var(--green);background:var(--greenBg);color:var(--greenT)"><span>14일</span><br><b>89,000</b><br><span class="s10">제일 쌈</span></div>
+        <div class="cell"><span class="mut3">19일</span><br><b>124,000</b></div>
+        <div class="cell"><span class="mut3">20일</span><br><b>162,000</b></div>
+        <div class="cell"><span class="mut3">21일</span><br><b>108,000</b></div>
+        <div class="cell"><span class="mut3">26일</span><br><b>133,000</b></div>
+        <div class="cell" style="border-color:var(--red);color:var(--redT)"><span>27일</span><br><b>211,000</b><br><span class="s10">연휴</span></div>
+        <div class="cell"><span class="mut3">28일</span><br><b>126,000</b></div>
+      </div>
+      <div class="s11 mut3" style="margin:7px 0 8px">2인 1박 기준 · 오늘 새벽 조회 · 영상 때 167,279원</div>
+      <div class="btn">9월 14일 89,000원으로 예약</div>
+    </div>
+  </div>
+
+  <div style="margin:0 13px 13px" class="half">
+    <div class="mini">
+      <div class="img" style="height:66px;position:relative">사진
+        <span style="position:absolute;left:5px;top:5px;background:#fff;border:1px solid var(--line);color:var(--t2);font-size:10px;padding:2px 6px;border-radius:5px">TOP 2</span></div>
+      <div style="padding:8px 9px">
+        <div class="s13 b" style="line-height:1.3">HOTEL HILLARYS</div>
+        <div class="s14 b" style="margin-top:4px">111,000원~</div>
+        <div class="s11 mut3">영상 때 127,981원</div>
+        <div class="btn2" style="margin-top:6px;padding:7px;font-size:12px">날짜 보기 ▾</div>
+      </div>
+    </div>
+    <div class="mini">
+      <div class="img" style="height:66px;position:relative">사진
+        <span style="position:absolute;left:5px;top:5px;background:#fff;border:1px solid var(--line);color:var(--t2);font-size:10px;padding:2px 6px;border-radius:5px">TOP 3</span></div>
+      <div style="padding:8px 9px">
+        <div class="s13 b" style="line-height:1.3">내추럴 핫스프링<br>미도스지</div>
+        <div class="s14 b" style="margin-top:4px">124,000원~</div>
+        <div class="s11 mut3">영상 때 117,979원</div>
+        <div class="btn2" style="margin-top:6px;padding:7px;font-size:12px">날짜 보기 ▾</div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="s12 mut" style="margin-top:9px">👍 손볼 게 없어 완전 자동. 화면도 깔끔<br>👎 2·3위가 「그냥 진 호텔」로 보여 잘 안 눌림</div>
+</div>
+
+</div>
+
+<!-- ======================= 2 ======================= -->
+<h2>2구역. B 수정안 3가지 — 「고르게 하지 않기」를 어디까지 밀지</h2>
+<div class="sub">지금 B의 문제 = 고를 게 12개 · 「3성급 6~10만」이 도시마다 틀림 · 도시 4개로는 342편을 못 담음</div>
+
+<div class="gal">
+
+<!-- B-1 -->
+<div class="item">
+<div class="cap">B-1. 가로로 미는 줄</div>
+<div class="capd"><span class="tag t-pick">클로드 추천</span>고르는 칸이 없음. 손님은 옆으로 밀기만 함</div>
+<div class="ph">
+  <div class="pd" style="padding-bottom:6px"><div class="s14 b">오사카 4성급 · 영상 4편 <span class="mut3 s12">＞</span></div></div>
+  <div style="padding:0 0 12px 13px" class="hrow">
+    <div class="hcard"><div class="img" style="height:74px;border-radius:9px">썸네일</div>
+      <div class="s12 b" style="margin-top:5px;line-height:1.35">우메다 4성급 3곳</div><div class="s11 mut3">98,000원~</div></div>
+    <div class="hcard"><div class="img" style="height:74px;border-radius:9px">썸네일</div>
+      <div class="s12 b" style="margin-top:5px;line-height:1.35">난바 대욕장 TOP3</div><div class="s11 mut3">111,000원~</div></div>
+    <div class="hcard"><div class="img" style="height:74px;border-radius:9px">썸네일</div>
+      <div class="s12 b" style="margin-top:5px;line-height:1.35">신사이바시 역세권</div><div class="s11 mut3">104,000원~</div></div>
+  </div>
+  <div style="border-top:1px solid var(--line)"></div>
+  <div class="pd" style="padding-bottom:6px"><div class="s14 b">가족이 가기 좋은 곳 · 영상 9편 <span class="mut3 s12">＞</span></div></div>
+  <div style="padding:0 0 12px 13px" class="hrow">
+    <div class="hcard"><div class="img" style="height:74px;border-radius:9px">썸네일</div>
+      <div class="s12 b" style="margin-top:5px;line-height:1.35">다낭 가족 리조트</div><div class="s11 mut3">76,000원~</div></div>
+    <div class="hcard"><div class="img" style="height:74px;border-radius:9px">썸네일</div>
+      <div class="s12 b" style="margin-top:5px;line-height:1.35">방콕 수영장 호텔</div><div class="s11 mut3">62,000원~</div></div>
+    <div class="hcard"><div class="img" style="height:74px;border-radius:9px">썸네일</div>
+      <div class="s12 b" style="margin-top:5px;line-height:1.35">오사카 4인 객실</div><div class="s11 mut3">131,000원~</div></div>
+  </div>
+  <div style="border-top:1px solid var(--line)"></div>
+  <div class="pd" style="padding-bottom:6px"><div class="s14 b">방콕 5성급 · 영상 6편 <span class="mut3 s12">＞</span></div></div>
+  <div style="padding:0 0 13px 13px" class="hrow">
+    <div class="hcard"><div class="img" style="height:74px;border-radius:9px">썸네일</div>
+      <div class="s12 b" style="margin-top:5px;line-height:1.35">방콕 루프탑 5성</div><div class="s11 mut3">92,000원~</div></div>
+    <div class="hcard"><div class="img" style="height:74px;border-radius:9px">썸네일</div>
+      <div class="s12 b" style="margin-top:5px;line-height:1.35">아속 역세권 TOP3</div><div class="s11 mut3">88,000원~</div></div>
+    <div class="hcard"><div class="img" style="height:74px;border-radius:9px">썸네일</div>
+      <div class="s12 b" style="margin-top:5px;line-height:1.35">쑤쿰윗 조식 맛집</div><div class="s11 mut3">79,000원~</div></div>
+  </div>
+</div>
+<div class="s12 mut" style="margin-top:9px">👍 손님이 아무것도 안 고름 · 도시 30개로 늘어도 줄만 늘어남 · 가격표를 안 써서 틀릴 일 없음<br>👍 줄 순서를 대표님이 정할 수 있음 = 밀고 싶은 영상을 위로<br>👎 원하는 도시를 «찾아서» 갈 수는 없음 (맨 아래 검색 뒷문이 그 역할)</div>
+</div>
+
+<!-- B-2 -->
+<div class="item">
+<div class="cap">B-2. 도시만 한 줄</div>
+<div class="capd"><span class="tag t-mid">검토</span>등급·테마 칩을 버리고 도시 칩만 남김</div>
+<div class="ph">
+  <div class="pd" style="padding-bottom:4px">
+    <div style="white-space:nowrap;overflow:hidden">
+      <span class="chip on">전체</span><span class="chip">오사카</span><span class="chip">방콕</span><span class="chip">다낭</span><span class="chip">도쿄</span><span class="chip">세부</span>
+    </div>
+    <div class="s11 mut3">→ 옆으로 밀면 도시가 계속 나옴</div>
+  </div>
+  <div style="border-top:1px solid var(--line);margin-top:6px"></div>
+  <div class="pd"><div class="s13 b mut">오사카 영상 12편</div></div>
+  <div style="margin:0 13px 10px" class="half">
+    <div class="mini"><div class="img" style="height:70px">썸네일</div>
+      <div style="padding:7px 9px"><div class="s12 b" style="line-height:1.3">난바 대욕장 TOP3</div><div class="s11 mut3">8월 16일 · 111,000원~</div></div></div>
+    <div class="mini"><div class="img" style="height:70px">썸네일</div>
+      <div style="padding:7px 9px"><div class="s12 b" style="line-height:1.3">우메다 4성급 3곳</div><div class="s11 mut3">8월 9일 · 98,000원~</div></div></div>
+    <div class="mini"><div class="img" style="height:70px">썸네일</div>
+      <div style="padding:7px 9px"><div class="s12 b" style="line-height:1.3">가족 4인 객실</div><div class="s11 mut3">8월 2일 · 131,000원~</div></div></div>
+    <div class="mini"><div class="img" style="height:70px">썸네일</div>
+      <div style="padding:7px 9px"><div class="s12 b" style="line-height:1.3">신사이바시 역세권</div><div class="s11 mut3">7월 26일 · 104,000원~</div></div></div>
+  </div>
+</div>
+<div class="s12 mut" style="margin-top:9px">👍 「나는 오사카만 볼래」가 한 번에 됨 · 만들기 제일 쉬움<br>👎 그래도 손님에게 «고르라»고 함 · 등급/테마는 사라짐</div>
+</div>
+
+<!-- B-3 -->
+<div class="item">
+<div class="cap">B-3. 아예 없앰</div>
+<div class="capd"><span class="tag t-mid">검토</span>최신순으로만 쌓고, 찾기는 맨 아래 검색 하나로</div>
+<div class="ph">
+  <div class="pd"><div class="s14 b">최근 올린 영상</div><div class="s11 mut3">새 영상이 위로 올라옵니다</div></div>
+  <div style="margin:0 13px 10px" class="half">
+    <div class="mini"><div class="img" style="height:70px">썸네일</div>
+      <div style="padding:7px 9px"><div class="s12 b" style="line-height:1.3">오사카 대욕장 TOP3</div><div class="s11 mut3">8월 16일 · 111,000원~</div></div></div>
+    <div class="mini"><div class="img" style="height:70px">썸네일</div>
+      <div style="padding:7px 9px"><div class="s12 b" style="line-height:1.3">방콕 수영장 호텔</div><div class="s11 mut3">8월 14일 · 62,000원~</div></div></div>
+    <div class="mini"><div class="img" style="height:70px">썸네일</div>
+      <div style="padding:7px 9px"><div class="s12 b" style="line-height:1.3">다낭 가족 리조트</div><div class="s11 mut3">8월 12일 · 76,000원~</div></div></div>
+    <div class="mini"><div class="img" style="height:70px">썸네일</div>
+      <div style="padding:7px 9px"><div class="s12 b" style="line-height:1.3">도쿄 신주쿠 3성</div><div class="s11 mut3">8월 10일 · 94,000원~</div></div></div>
+  </div>
+  <div style="border-top:1px solid var(--line)"></div>
+  <div class="pd">
+    <div class="s13 b">찾는 호텔이 여기 없나요</div>
+    <div style="display:flex;gap:6px;margin-top:7px">
+      <div style="flex:1;border:1px solid var(--line2);border-radius:var(--r);padding:9px 11px" class="s12 mut3">도시나 호텔 이름</div>
+      <div class="btn" style="padding:9px 15px">찾기</div>
+    </div>
+  </div>
+</div>
+<div class="s12 mut" style="margin-top:9px">👍 제일 단순 · 만들 게 제일 적음<br>👎 342편이 쌓이면 옛 영상은 영원히 안 보임 · 「오사카 4성급」 같은 우리 강점이 안 드러남</div>
+</div>
+
+</div>
+
+<!-- ======================= 3 ======================= -->
+<h2>3구역. 메인 세로 순서 — 위에서 아래로 무엇이 나오나</h2>
+<div class="sub">핸드폰을 위에서 아래로 내렸을 때 보이는 층 순서. 이벤트는 <b>맨 위에 두지 않습니다</b>(확정)</div>
+
+<div class="gal">
+
+<div class="item">
+<div class="cap">배치 ㄱ. 묶음이 이벤트보다 위</div>
+<div class="capd"><span class="tag t-pick">클로드 추천</span>호텔 → 호텔 → 이벤트 순. 예약이 주인공</div>
+<div style="background:#fff;border:1px solid var(--line);border-radius:14px;padding:13px">
+  <div class="blk hi">① 방금 보신 영상 (썸네일 + TOP3 + 달력)</div>
+  <div class="blk hi">② 묶음 줄 (오사카 4성급 ▸ / 가족 ▸ …)</div>
+  <div class="blk">③ 이벤트 슬라이더</div>
+  <div class="blk">④ 지난 영상 전체 342편</div>
+  <div class="blk dim">⑤ 아고다 검색 뒷문 · 「영상 미소개」 딱지</div>
+</div>
+<div class="s12 mut" style="margin-top:9px">👍 예약할 사람은 ①②에서 다 끝남 · 이벤트는 「예약 안 할 사람」을 회원으로 건짐<br>👎 이벤트가 아래라 응모 수는 조금 줄 수 있음</div>
+</div>
+
+<div class="item">
+<div class="cap">배치 ㄴ. 이벤트가 중간 위</div>
+<div class="capd"><span class="tag t-mid">검토</span>영상 하나 보고 바로 이벤트를 만남</div>
+<div style="background:#fff;border:1px solid var(--line);border-radius:14px;padding:13px">
+  <div class="blk hi">① 방금 보신 영상 (썸네일 + TOP3 + 달력)</div>
+  <div class="blk">② 이벤트 슬라이더</div>
+  <div class="blk hi">③ 묶음 줄 (오사카 4성급 ▸ / 가족 ▸ …)</div>
+  <div class="blk">④ 지난 영상 전체 342편</div>
+  <div class="blk dim">⑤ 아고다 검색 뒷문</div>
+</div>
+<div class="s12 mut" style="margin-top:9px">👍 회원 모으는 속도가 제일 빠름<br>👎 예약하려던 손님의 흐름을 중간에 끊음</div>
+</div>
+
+<div class="item">
+<div class="cap">배치 ㄷ. 묶음 없음</div>
+<div class="capd"><span class="tag t-mid">검토</span>B-3을 골랐을 때의 모습</div>
+<div style="background:#fff;border:1px solid var(--line);border-radius:14px;padding:13px">
+  <div class="blk hi">① 방금 보신 영상 (썸네일 + TOP3 + 달력)</div>
+  <div class="blk">② 이벤트 슬라이더</div>
+  <div class="blk">③ 지난 영상 전체 342편 (최신순)</div>
+  <div class="blk dim">④ 아고다 검색 뒷문</div>
+</div>
+<div class="s12 mut" style="margin-top:9px">👍 층이 4개뿐. 제일 빨리 만들 수 있음<br>👎 옛 영상 300편이 그냥 묻힘</div>
+</div>
+
+</div>
+
+<div class="qbox">
+<b>대표님이 답해주실 것 3개</b>
+① 1구역 — <b>ㄱ(딱지 있음)</b> vs <b>ㄴ(딱지 없음)</b><br>
+② 2구역 — <b>B-1(가로 줄)</b> vs <b>B-2(도시 칩)</b> vs <b>B-3(없앰)</b><br>
+③ 3구역 — <b>배치 ㄱ</b> vs <b>배치 ㄴ</b> vs <b>배치 ㄷ</b><br>
+<span class="mut s12">답 주시면 그 조합으로 메인 한 장을 완성해 확정하고, 문서 4곳을 바로 갱신합니다.</span>
+</div>
+
+<div class="s11 mut3" style="margin-top:22px">travelwinners.shop 리뉴얼 · O-1 메인 화면 확정용 · 2026-08-16 · 폐기 항목(퍼센트 비교 · 날짜 입력칸 · 응모자 수/확률 · 경품별 분류 · 이벤트 최상단) 미사용</div>
+
+</div>
+</body>
+</html>

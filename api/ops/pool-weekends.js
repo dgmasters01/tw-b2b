@@ -35,17 +35,27 @@ export default async function handler(req, res) {
   const today = new Date().toISOString().slice(0, 10);
   const weekends = fridays.filter(f => f > today);       // 지난 날짜는 조회하지 않는다
 
-  // ── ② 선정: hotel_master 상위 N곳 (자격 = 평점 8.0↑ · 후기 400건↑ · D-B88)
-  const hi = star >= 5 ? 99 : star + 1;
-  const q = `${SB}/rest/v1/hotel_master?select=agoda_hotel_id,hotel_name_ko,hotel_name,star_rating,review_score,review_count`
-    + `&city_id=eq.${cityId}&star_rating=gte.${star}&star_rating=lt.${hi}`
-    + `&review_score=gte.8&review_count=gte.400`
-    + `&order=review_score.desc,review_count.desc&limit=${topN}`;
-  const mr = await fetch(q, { headers: { apikey: KEY, Authorization: `Bearer ${KEY}` } });
-  const picks = await mr.json();
-  if (!Array.isArray(picks) || !picks.length)
-    return res.status(200).json({ ok: false, why: 'no_candidates', hint: `${cityId} ${star}성 자격 통과 호텔이 없습니다` });
-  const ids = picks.map(p => Number(p.agoda_hotel_id));
+  // ── ② 선정
+  //   🔴 2026-08-16 추가 — hotelIds 를 직접 주면 «그 호텔만» 묻는다
+  //      왜: 상위 N곳으로 묻다 보니, 날짜마다 아고다가 주는 목록이 달라
+  //          이미 글에 실린 호텔이 어떤 주말에는 빠졌다 (실측: 오사카 3곳이 4개 중 0~3개만 참)
+  //          글에 실린 호텔은 순위와 무관하게 «반드시» 채워야 한다
+  let ids = [];
+  if (Array.isArray(body.hotelIds) && body.hotelIds.length) {
+    ids = body.hotelIds.map(Number).filter(Boolean).slice(0, 60);
+  } else {
+    const hi = star >= 5 ? 99 : star + 1;
+    const q = `${SB}/rest/v1/hotel_master?select=agoda_hotel_id,hotel_name_ko,hotel_name,star_rating,review_score,review_count`
+      + `&city_id=eq.${cityId}&star_rating=gte.${star}&star_rating=lt.${hi}`
+      + `&review_score=gte.8&review_count=gte.400`
+      + `&order=review_score.desc,review_count.desc&limit=${topN}`;
+    const mr = await fetch(q, { headers: { apikey: KEY, Authorization: `Bearer ${KEY}` } });
+    const picks = await mr.json();
+    if (!Array.isArray(picks) || !picks.length)
+      return res.status(200).json({ ok: false, why: 'no_candidates', hint: `${cityId} ${star}성 자격 통과 호텔이 없습니다` });
+    ids = picks.map(p => Number(p.agoda_hotel_id));
+  }
+  if (!ids.length) return res.status(400).json({ ok: false, error: '물어볼 호텔이 없습니다' });
 
   // ── ③ 주말마다 한 번씩 아고다에 묻는다
   const t0 = Date.now();

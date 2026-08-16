@@ -20,6 +20,7 @@
 
 | ID | 결정 | 카테고리 | 날짜 | 상태 | 영향받는 작업 / 문서 |
 |---|---|:---:|:---:|:---:|---|
+| D-094 | **사업이 늘어날 때의 한도 설계** — 문 몫 90/h 는 사업마다 주는데 **전체 천장 120/h 는 고정** → 사업이 늘수록 각자 몫이 줄어든다. 새 원칙 = **「사업이 늘어도 문 두드리는 횟수는 늘지 않게」**. 늘려도 되는 것(도메인·레포·프로젝트·prefix) / 절대 안 되는 것(DB 인스턴스·봇 종류·외부 API 계정·규칙문서). 병목 5개 처방 = 정적 굽기·묶음 커밋·창고1개+봇1개·봇 순회·요금은 나중. 🔴 120/h 는 **관리·개발용**이지 손님 화면용이 아니다 | infra | 2026-08-16 | 확정 | docs/ARCHITECTURE.md §4-B, _business/decisions/2026-08-16-scale-limits.md |
 | D-093 | **travelwinners.shop 메인 화면 확정(O-1)** — 카드=C형(1위 크게·2·3위 딱지 없음) · 열면 금토일 달력까지 · 세로순서 ①영상 ②묶음줄 ③이벤트 ④지난영상 ⑤아고다 뒷문 · 🔴 대표 그림은 **유튜브 썸네일 폐기 → 아고다 Top1 사진**(채널 썸네일이 같은 틀이라 구분 불가) · 메뉴는 **「어디 가세요?」 버튼+올라오는 시트**(모바일 표준, 시트 안은 인기도시6→나라목록→검색 순) · 조회 한도는 서버가 아니라 키/계정 → **나누지 않고 창고 통합** · 쿠팡은 「여행준비물」 페이지에만 | ux | 2026-08-16 | 확정 | _business/shop/SHOP_RENEWAL.md, _business/decisions/2026-08-16-shop-main.md, shop-main-v2.html, shop-main-v3.html |
 | D-092 | **결정 확정 시 문서 4곳 자동 갱신 의무** — 결정문서만 만들고 인덱스에 안 넣으면 «있는 줄 모르는» 상태가 된다(2026-08-11~12 에 5건이 그랬고, 같은 함정으로 8/11 아침 D-071 을 못 찾아 틀렸다). 🔴 **묻지 않고** ①전문 ②INDEX ③DECISIONS ④SYSTEM_MAP·ops.html 을 갱신한다. 빠뜨리면 `decision-index-guard` 봇이 GitHub Issue 로 잡는다(매일 KST 06시+push) | ops | 2026-08-12 | 확정 | _os/boot.md §3, .github/workflows/decision-index-guard.yml |
 | D-086 | 아고다 번호 잣대 순서 복원 — **예약에 찍힌 번호 1순위 · 이름 2순위 · 거리 3순위**(D-071 §2-A). 한 건물에 여러 호텔이라 거리로 고르면 옆 건물을 붙인다. 949곳 연결(2,006→2,955) · 대조 154→192. 🔴 리뷰수·주소 물증은 실측 0건(우리 값≠아고다 최신값·주소 체계 다름) — 작동한 건 이름 완전일치뿐 | hotel | 2026-08-11 | 확정 | hotels, _business/decisions/2026-08-11-agoda-id-link.md, hotels_agoda_backup_20260811 |
@@ -127,6 +128,7 @@
 | D-090 | 2026-08-12 (상세=_content/youtube/키워드-실측.md v2 · BUSINESS.md §7-E-3) | 키워드 수요=구글 트렌드 정정 |
 | D-091 | 2026-08-12 (상세=_business/decisions/2026-08-12-city-alias.md) | 도시 이름 별칭 체계 |
 | D-093 | 2026-08-16 (상세=_business/decisions/2026-08-16-shop-main.md) | travelwinners.shop 메인 화면 확정 |
+| D-094 | 2026-08-16 (상세=_business/decisions/2026-08-16-scale-limits.md · docs/ARCHITECTURE.md §4-B) | 사업 확장 시 한도 설계 |
 
 ---
 
@@ -182,3 +184,4 @@
 | 2026-08-08 | D-084 등록 (지역 채움 프로세스 정본화 — 진단 창구 신설·파서 수정 전 전수진단 의무·「0건=완료 vs 고장」 구별·금지사항 5개 / api/ops/district-diagnose.js, _business/HOTEL_DISTRICT_PIPELINE.md, SYSTEM_MAP §3) |
 | 2026-08-08 | D-085 등록 (구글 주소 재조회 — 좌표를 얻은 대가로 구글에 못 묻던 999건 구제·mode=district 신설·기존좌표 2km 오매칭 검증·하루 3회 자동·8일 완료 예정 / api/_lib/hotel-geo.js, api/cron/hotel-geo-fill.js, vercel.json) |
 | 2026-08-16 | D-093 등록 (travelwinners.shop 메인 확정 — C형 카드·딱지 없음·달력 동시 노출·배치ㄱ·대표그림 아고다 Top1 사진·「어디 가세요?」 시트 메뉴·창고 통합·쿠팡은 여행준비물 페이지만 / _business/shop/SHOP_RENEWAL.md) |
+| 2026-08-16 | D-094 등록 (사업 확장 시 한도 설계 — 천장 120/h 고정 함정·묶음 커밋·정적 굽기·창고1개+봇1개·템플릿 레포·사용률 점검판 / docs/ARCHITECTURE.md §4-B) |

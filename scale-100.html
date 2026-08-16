@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>사이트 100개를 굴리는 구조 — 2026-08-16</title>
+<style>
+:root{--bg:#f5f4f0;--line:#e3e1da;--line2:#c9c6bc;--t1:#1f1f1d;--t2:#5f5e5a;--t3:#95938c;
+--blue:#185FA5;--blueBg:#E6F1FB;--blueT:#042C53;--green:#3B6D11;--greenBg:#EAF3DE;--greenT:#173404;
+--red:#A32D2D;--redBg:#FCEBEB;--redT:#501313;--amb:#BA7517;--ambBg:#FAEEDA;--ambT:#412402;--r:8px}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--t1);font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;line-height:1.65}
+.wrap{max-width:900px;margin:0 auto;padding:22px 14px 60px}
+h1{font-size:22px;font-weight:600;margin:0 0 4px}
+h2{font-size:18px;font-weight:600;margin:34px 0 8px;padding-top:20px;border-top:2px solid var(--line2)}
+h3{font-size:15px;font-weight:600;margin:20px 0 6px}
+p{font-size:14px;margin:8px 0}
+.sub{color:var(--t2);font-size:13px;margin-bottom:14px}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;margin:12px 0}
+.b{font-weight:600}
+.s11{font-size:11px}.s12{font-size:12px}.s13{font-size:13px}.s14{font-size:14px}
+.mut{color:var(--t2)}.mut3{color:var(--t3)}
+table{width:100%;border-collapse:collapse;font-size:13px;background:#fff;border:1px solid var(--line);border-radius:10px;overflow:hidden;margin:10px 0}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{background:#efeee9;font-weight:600}
+td.num{text-align:right;font-variant-numeric:tabular-nums}
+.bad{background:var(--redBg);color:var(--redT)}
+.good{background:var(--greenBg);color:var(--greenT)}
+.warn{background:var(--ambBg);color:var(--ambT)}
+.box{border:1px solid var(--line2);border-radius:10px;padding:9px 11px;background:#fff;font-size:12.5px;text-align:center}
+.box.k{background:var(--t1);color:#fff;border-color:var(--t1);font-weight:600}
+.box.g{background:var(--greenBg);border-color:var(--green);color:var(--greenT)}
+.box.r{background:var(--redBg);border-color:var(--red);color:var(--redT)}
+.box.b{background:var(--blueBg);border-color:var(--blue);color:var(--blueT)}
+.row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:8px 0}
+.arrow{text-align:center;color:var(--t3);font-size:16px;line-height:1.2;margin:2px 0}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:640px){.two{grid-template-columns:1fr}}
+.lbl{font-size:11px;color:var(--t3);text-align:center;margin-bottom:4px}
+.big{font-size:22px;font-weight:700}
+.q{border-left:3px solid var(--line2);padding:2px 0 2px 11px;color:var(--t2);font-size:13px;margin:8px 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>사이트를 100개 만들면 어떻게 되나</h1>
+<div class="sub">2026-08-16 · 대표님 목표: <b>1년 안에 50개, 그 뒤 100개 이상</b><br>
+아래 그림은 ① 시스템이 어떻게 생기나 ② 개발이 막히나 ③ 손님이 접속하면 무슨 일이 나나 ④ 가격은 언제 갱신되나 순서입니다.</div>
+
+<h2>1. 지금 방식으로 100개를 만들면 — 못 합니다</h2>
+
+<div class="card">
+<div class="lbl">지금 계획(사업마다 하나씩 다 만든다)</div>
+<div class="row">
+  <div class="box r">사이트1<br><span class="s11">문·열쇠·프로젝트</span></div>
+  <div class="box r">사이트2<br><span class="s11">문·열쇠·프로젝트</span></div>
+  <div class="box r">사이트3<br><span class="s11">문·열쇠·프로젝트</span></div>
+  <div class="box r">…</div>
+  <div class="box r">사이트100<br><span class="s11">문·열쇠·프로젝트</span></div>
+</div>
+<div class="arrow">↓ 전부 같은 창고 문을 두드림</div>
+<div class="row"><div class="box k" style="width:260px">DB 창구 — 시간당 <b>120번이 천장</b></div></div>
+<p class="s13" style="color:var(--redT);margin-top:10px"><b>계산해 보면</b> — 100개가 각자 90번씩 쓰겠다고 하면 9,000번을 요구하는데 천장은 120번입니다. <b>사이트 한 개당 1.2번.</b> 아무것도 못 합니다.<br>
+게다가 열쇠 100개·문 100개를 사람이 관리해야 하고, 하나 만료되면 그 사이트가 죽습니다.</p>
+</div>
+
+<h2>2. 100개를 굴리는 방식 — 「한 공장, 100개 간판」</h2>
+
+<div class="card">
+<div class="lbl">바꾼 구조</div>
+<div class="row">
+  <div class="box">travelwinners.shop</div>
+  <div class="box">staycurate.com</div>
+  <div class="box">호텔이야.com</div>
+  <div class="box">…</div>
+  <div class="box">100번째 도메인</div>
+</div>
+<div class="arrow">↑ 간판만 100개 (도메인)</div>
+<div class="row"><div class="box b" style="width:320px"><b>코드는 딱 한 벌</b><br><span class="s11">도메인을 보고 「너는 몇 번 사이트구나」 하고 다른 얼굴을 그림</span></div></div>
+<div class="arrow">↓ 새벽에 한 번만</div>
+<div class="row"><div class="box k" style="width:320px">창고(DB) — 가격·호텔·글</div></div>
+<p class="s13 mut" style="margin-top:10px"><b>새 사이트를 만드는 일</b> = 창고에 <b>한 줄 추가</b>(도메인·언어·나라·색·CID) + 도메인 연결. 개발 0줄, 5분.</p>
+</div>
+
+<table>
+<tr><th>무엇</th><th>지금 방식(100개)</th><th>바꾼 방식(100개)</th></tr>
+<tr><td>고쳐야 할 코드</td><td class="bad">100벌</td><td class="good">1벌</td></tr>
+<tr><td>문·열쇠</td><td class="bad">100개</td><td class="good">1개(관리용)</td></tr>
+<tr><td>버그 하나 고치면</td><td class="bad">100번 배포</td><td class="good">1번 배포 → 100개 동시 수정</td></tr>
+<tr><td>새 사이트 만들기</td><td class="bad">며칠</td><td class="good">5분(줄 하나)</td></tr>
+</table>
+
+<h2>3. 손님이 접속하면 무슨 일이 나나</h2>
+
+<div class="two">
+<div class="card">
+<div class="lbl" style="color:var(--redT)">❌ 흔히 하는 방식</div>
+<div class="row"><div class="box">손님</div></div><div class="arrow">↓ 눌렀다</div>
+<div class="row"><div class="box r">사이트가 창고에 물어봄</div></div><div class="arrow">↓</div>
+<div class="row"><div class="box r">창고가 아고다에 물어봄</div></div><div class="arrow">↓ 3~5초 멈춤</div>
+<div class="row"><div class="box r">화면이 뜸</div></div>
+<p class="s12" style="color:var(--redT);margin-top:8px">손님 100명만 몰려도 창고가 뻗습니다. 100개 사이트면 말할 것도 없습니다.</p>
+</div>
+
+<div class="card">
+<div class="lbl" style="color:var(--greenT)">✅ 우리 방식</div>
+<div class="row"><div class="box">손님</div></div><div class="arrow">↓ 눌렀다</div>
+<div class="row"><div class="box g">이미 만들어 둔 <b>종이(파일)</b>를 그냥 보여줌</div></div><div class="arrow">↓ 0.3초</div>
+<div class="row"><div class="box g">화면이 뜸 — <b>창고에 안 물어봄</b></div></div>
+<p class="s12" style="color:var(--greenT);margin-top:8px"><b>손님이 1만 명이 와도 창고 문은 0번 두드립니다.</b> 사이트가 100개여도 마찬가지입니다.</p>
+</div>
+</div>
+
+<div class="card">
+<p class="s13"><b>쉽게 말하면</b> — 식당에서 손님이 올 때마다 장을 보러 가지 않습니다. <b>새벽에 장을 봐서 반찬을 다 만들어 두고</b>, 손님이 오면 접시에 담아 내놓습니다. 손님이 100명이든 1만 명이든 장은 새벽에 한 번만 봅니다.</p>
+</div>
+
+<h2>4. 그럼 가격은 언제 갱신되나</h2>
+
+<div class="card">
+<div class="row">
+  <div class="box k">새벽 3시 봇</div><div class="box">→</div>
+  <div class="box b">아고다에 물어봄<br><span class="s11">하루 2,160번까지</span></div><div class="box">→</div>
+  <div class="box k">창고에 저장</div><div class="box">→</div>
+  <div class="box g">100개 사이트용<br>파일로 구움</div>
+</div>
+<table style="margin-top:12px">
+<tr><th>무엇을</th><th>얼마나 자주</th><th>손님이 보는 값은</th></tr>
+<tr><td>최근·인기 영상 호텔</td><td>매일 새벽</td><td class="good">어제 새벽 값</td></tr>
+<tr><td>전체 호텔 주말 3일치</td><td>이틀에 한 번</td><td class="good">이틀 안쪽 값</td></tr>
+<tr><td>한 달 달력(펼쳐야 나옴)</td><td>인기 영상만 매일</td><td class="warn">최대 일주일 전 값</td></tr>
+</table>
+<p class="s13 mut"><b>실시간이 아닙니다.</b> 그래도 괜찮은 이유 — 호텔 가격은 분 단위로 안 바뀝니다. 그리고 손님이 날짜를 누르는 순간 <b>아고다로 넘어가서 거기서 진짜 값을 봅니다.</b> 우리 값은 «이 정도구나»를 알려주는 안내판입니다.<br>
+🔴 다만 <b>화면 아래 「오늘 새벽 조회」를 반드시 적습니다.</b> 안 적으면 값이 달라졌을 때 손님이 속았다고 느낍니다.</p>
+</div>
+
+<h2>5. 개발(클로드 작업)은 막히나</h2>
+
+<table>
+<tr><th>사이트 수</th><th class="num">1개</th><th class="num">10개</th><th class="num">50개</th><th class="num">100개</th></tr>
+<tr><td>손님 때문에 생기는 창고 호출</td><td class="num good">0</td><td class="num good">0</td><td class="num good">0</td><td class="num good">0</td></tr>
+<tr><td>아고다에 묻는 횟수</td><td class="num">3,078</td><td class="num good">3,078</td><td class="num good">3,078</td><td class="num good">3,078</td></tr>
+<tr><td>고쳐야 할 코드(커밋)</td><td class="num">1벌</td><td class="num good">1벌</td><td class="num good">1벌</td><td class="num good">1벌</td></tr>
+<tr><td>새 사이트 추가 작업</td><td class="num">—</td><td class="num good">줄 하나</td><td class="num good">줄 하나</td><td class="num good">줄 하나</td></tr>
+</table>
+<p class="s13"><b>핵심은 이 표의 「0」과 「1벌」입니다.</b> 사이트가 100개가 돼도 <b>창고 호출도, 아고다 호출도, 고칠 코드도 늘지 않습니다.</b> 늘어나는 건 도메인 값과 글(콘텐츠)뿐입니다.</p>
+
+<h2>6. 돈은 얼마나 드나 (100개 기준·월)</h2>
+<table>
+<tr><th>항목</th><th class="num">지금(2개)</th><th class="num">100개</th><th>비고</th></tr>
+<tr><td>도메인</td><td class="num">약 $2</td><td class="num">약 $100</td><td>개당 연 $12 정도</td></tr>
+<tr><td>Vercel</td><td class="num">$20</td><td class="num">$20~60</td><td>프로젝트 1개 유지 · 트래픽 따라</td></tr>
+<tr><td>Supabase</td><td class="num">$25</td><td class="num">$25~50</td><td>창고는 하나 그대로</td></tr>
+<tr><td>아고다·구글</td><td class="num">$0</td><td class="num good">$0</td><td>호출이 안 늘어남</td></tr>
+<tr><td><b>합계</b></td><td class="num">약 $45</td><td class="num"><b>약 $150~200</b></td><td>사이트 1개당 <b>월 $2</b></td></tr>
+</table>
+
+<h2>7. 🔴 진짜 위험은 기술이 아닙니다</h2>
+<div class="card" style="border-color:var(--red)">
+<h3 style="color:var(--redT);margin-top:0">구글이 「같은 사이트 100개」를 싫어합니다</h3>
+<p class="s13">기술로 100개를 찍어내는 건 위에 적은 대로 가능합니다. <b>문제는 구글이 그걸 어떻게 보느냐입니다.</b><br>
+같은 틀에 같은 데이터로 만든 사이트가 100개면, 구글은 <b>「관문 사이트(doorway)」</b>로 보고 한두 개만 남기고 나머지를 검색에서 빼버립니다. 그러면 도메인 값 $1,200만 나가고 손님은 0입니다.</p>
+<p class="s13"><b>살아남는 100개는 이렇게 생겼습니다</b> — 사이트마다 <b>진짜로 다른 축</b>이 있어야 합니다.</p>
+<table>
+<tr><th>나누는 축</th><th>예</th><th>왜 안전한가</th></tr>
+<tr><td class="good">언어</td><td>한국어 / 일본어 / 중국어 / 베트남어 / 영어</td><td>글이 물리적으로 다름. 이미 8채널 6언어를 하고 계심</td></tr>
+<tr><td class="good">나라·도시</td><td>오사카 전문 / 다낭 전문 / 방콕 전문</td><td>다루는 호텔·글이 겹치지 않음</td></tr>
+<tr><td class="good">주제</td><td>가족여행 / 온천 / 혼자여행 / 리조트</td><td>고르는 기준과 글이 달라짐</td></tr>
+<tr><td class="bad">색깔·이름만 다름</td><td>같은 호텔 목록에 로고만 교체</td><td>❌ 구글이 걸러냄. 100개 만들어도 0개 효과</td></tr>
+</table>
+<p class="s13"><b>그래서 진짜 한도는 창고도 아고다도 아니고 「글」입니다.</b> 사이트 100개면 각자 고유한 글이 필요합니다. 여기가 병목이고, 여기가 곧 우리의 강점(8채널·342편)이 들어가는 자리입니다.</p>
+</div>
+
+<h2>8. 그래서 순서</h2>
+<table>
+<tr><th style="width:40px">순서</th><th>무엇</th><th>왜 먼저</th></tr>
+<tr><td>1</td><td><b>가격 창고 통합 + 새벽 봇</b></td><td>100개가 같이 쓸 곳간. 오늘 시작해야 한 달 뒤 열매</td></tr>
+<tr><td>2</td><td><b>「구워서 내놓기」 방식 확정</b>(파일→CDN)</td><td>이게 있어야 사이트 수와 무관해짐</td></tr>
+<tr><td>3</td><td><b>한 공장 구조</b>(코드 1벌 + 사이트 설정표)</td><td>2번째 사이트를 만들 때 같이 만들어야 함. 10개 만든 뒤엔 늦음</td></tr>
+<tr><td>4</td><td>travelwinners.shop 완성</td><td><b>1호 표본.</b> 이걸로 틀을 검증하고 복제</td></tr>
+<tr><td>5</td><td>사이트 축 설계(언어·도시·주제 100칸)</td><td>구글 벌점 회피 = 사업 생사</td></tr>
+</table>
+<p class="s13 mut">🔴 지금 travelwinners.shop 을 «한 사이트»로 만들면 나중에 100개로 못 늘립니다. <b>처음부터 「1호점」으로 만들어야</b> 100호점까지 갑니다.</p>
+
+<div class="s11 mut3" style="margin-top:24px">TW OS · 사이트 100개 확장 구조 · 2026-08-16 · D-094 보강</div>
+</div>
+</body>
+</html>

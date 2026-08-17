@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>따로 서야 할 것 / 같이 써도 되는 것 — 2026-08-16</title>
+<style>
+:root{--bg:#f5f4f0;--line:#e3e1da;--line2:#c9c6bc;--t1:#1f1f1d;--t2:#5f5e5a;--t3:#95938c;
+--blue:#185FA5;--blueBg:#E6F1FB;--blueT:#042C53;--green:#3B6D11;--greenBg:#EAF3DE;--greenT:#173404;
+--red:#A32D2D;--redBg:#FCEBEB;--redT:#501313;--amb:#BA7517;--ambBg:#FAEEDA;--ambT:#412402;--r:8px}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--t1);font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;line-height:1.65}
+.wrap{max-width:920px;margin:0 auto;padding:22px 14px 60px}
+h1{font-size:22px;font-weight:600;margin:0 0 4px}
+h2{font-size:18px;font-weight:600;margin:32px 0 8px;padding-top:18px;border-top:2px solid var(--line2)}
+h3{font-size:15px;font-weight:600;margin:16px 0 6px}
+p{font-size:14px;margin:8px 0}
+.sub{color:var(--t2);font-size:13px;margin-bottom:14px}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;margin:12px 0}
+.s11{font-size:11px}.s12{font-size:12px}.s13{font-size:13px}
+.mut{color:var(--t2)}.mut3{color:var(--t3)}
+table{width:100%;border-collapse:collapse;font-size:13px;background:#fff;border:1px solid var(--line);border-radius:10px;overflow:hidden;margin:10px 0}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{background:#efeee9;font-weight:600}
+td.num{text-align:right;font-variant-numeric:tabular-nums}
+.bad{background:var(--redBg);color:var(--redT)}
+.good{background:var(--greenBg);color:var(--greenT)}
+.warn{background:var(--ambBg);color:var(--ambT)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:660px){.two{grid-template-columns:1fr}}
+.box{border:1px solid var(--line2);border-radius:9px;padding:9px 11px;background:#fff;font-size:12.5px;text-align:center}
+.box.g{background:var(--greenBg);border-color:var(--green);color:var(--greenT);font-weight:600}
+.box.r{background:var(--redBg);border-color:var(--red);color:var(--redT);font-weight:600}
+.box.k{background:var(--t1);color:#fff;border-color:var(--t1);font-weight:600}
+.row{display:flex;gap:7px;flex-wrap:wrap;justify-content:center;margin:7px 0}
+.arrow{text-align:center;color:var(--t3);font-size:15px;margin:2px 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>구글 앞에서 «따로 서야 할 것»과 «같이 써도 되는 것»</h1>
+<div class="sub">2026-08-16 · 사이트 50~100개를 만들 때 벌점을 피하는 경계선</div>
+
+<div class="card" style="border-color:var(--blue)">
+<p style="font-size:16px;margin:0"><b>한 줄 원칙</b><br>
+<span class="s13">구글은 <b>서버·코드·창고를 같이 쓰는지 모르고, 알아도 신경 쓰지 않습니다.</b><br>
+구글이 보는 것은 <b>사람이 읽는 글과 사진</b> 딱 하나입니다. 따로 서야 할 것은 그것뿐입니다.</span></p>
+</div>
+
+<h2>1. 경계선 — 이 표가 전부입니다</h2>
+<table>
+<tr><th style="width:40%">무엇</th><th>구글이 보나</th><th>어떻게</th></tr>
+<tr><td><b>글 본문</b> (호텔 소개·추천 이유·후기 요약)</td><td class="bad">본다</td><td class="bad">🔴 사이트마다 새로 씀. 복사 금지</td></tr>
+<tr><td><b>제목·설명(메타)</b></td><td class="bad">본다</td><td class="bad">🔴 틀에 도시 이름만 갈아 끼우기 금지</td></tr>
+<tr><td><b>사진</b></td><td class="warn">본다</td><td class="warn">아고다 사진은 남들도 씀 → <b>우리 영상 캡처</b>가 있어야 이김</td></tr>
+<tr><td><b>사이트끼리 서로 링크</b></td><td class="bad">본다</td><td class="bad">🔴 100개가 서로 링크 = 조작 신호. 하지 않음</td></tr>
+<tr><td>화면 배치·색</td><td class="warn">조금</td><td class="warn">완전히 똑같은 100개는 티가 남. 최소한 구성·색은 다르게</td></tr>
+<tr><td>서버·코드·DB</td><td class="good">안 본다</td><td class="good">✅ 마음껏 같이 씀</td></tr>
+<tr><td>가격 숫자·호텔 명부</td><td class="good">안 본다</td><td class="good">✅ 사실 정보는 중복 대상 아님. 창고 하나로</td></tr>
+<tr><td>회원·이벤트·추적·메일 부품</td><td class="good">안 본다</td><td class="good">✅ 한 벌로 전부 공유</td></tr>
+<tr><td>같은 회사가 여러 사이트 운영</td><td class="good">문제 없음</td><td class="good">✅ 흔한 일. 문제는 <b>알맹이 없는 복제</b>일 때만</td></tr>
+</table>
+
+<h2>2. 🔴 그런데 도메인 100개는 SEO에 «손해»입니다</h2>
+<div class="card" style="border-color:var(--red)">
+<p class="s13">이건 제가 반드시 말씀드려야 하는 부분입니다.</p>
+<div class="two">
+<div>
+<div class="row"><div class="box r" style="width:100%">도메인 100개로 쪼갤 때</div></div>
+<div class="arrow">↓</div>
+<div class="row"><div class="box" style="width:100%">100개 각각 <b>신뢰 0에서 시작</b></div></div>
+<div class="arrow">↓</div>
+<div class="row"><div class="box" style="width:100%">100번 처음부터 링크·평판 쌓기</div></div>
+<div class="arrow">↓</div>
+<div class="row"><div class="box r" style="width:100%">서로 같은 검색어를 놓고 <b>자기들끼리 경쟁</b></div></div>
+</div>
+<div>
+<div class="row"><div class="box g" style="width:100%">한 도메인 + 폴더로 나눌 때</div></div>
+<div class="arrow">↓</div>
+<div class="row"><div class="box" style="width:100%"><code>staycurate.com/osaka/</code><br><code>staycurate.com/danang/</code></div></div>
+<div class="arrow">↓</div>
+<div class="row"><div class="box" style="width:100%">쌓은 신뢰가 <b>전부 한곳에 누적</b></div></div>
+<div class="arrow">↓</div>
+<div class="row"><div class="box g" style="width:100%">새 폴더가 <b>처음부터 잘 잡힘</b></div></div>
+</div>
+</div>
+<p class="s13" style="margin-top:12px"><b>업계 상식입니다</b> — 폴더로 두면 백링크와 권위가 한 도메인에 쌓여 전체 순위가 올라가고, 이미 아는 도메인이라 새 글도 빨리 색인됩니다. 반대로 도메인·서브도메인으로 쪼개면 구글은 <b>남남으로 보고</b> 각자 평판을 처음부터 쌓게 합니다. 같은 검색어를 노리면 자기들끼리 잡아먹기까지 합니다.</p>
+</div>
+
+<h3>그래서 이렇게 나눕니다</h3>
+<table>
+<tr><th>나누는 기준</th><th>방식</th><th>예</th><th>왜</th></tr>
+<tr><td><b>언어·나라</b></td><td class="good">도메인 따로</td><td>한국어 / 일본어 / 대만 / 베트남</td><td>글이 물리적으로 다르고 나라별 신뢰가 필요</td></tr>
+<tr><td><b>유형(파는 것)</b></td><td class="good">도메인 따로</td><td>호텔 / 패키지 / 제품 리뷰</td><td>손님과 검색어가 완전히 다름</td></tr>
+<tr><td>도시·지역</td><td class="warn">폴더</td><td><code>/osaka/</code> <code>/danang/</code></td><td>같은 브랜드·같은 손님. 쪼개면 손해</td></tr>
+<tr><td>주제(가족·온천·혼자)</td><td class="warn">폴더</td><td><code>/family/</code> <code>/onsen/</code></td><td>같은 위</td></tr>
+<tr><td>브랜드만 다르게</td><td class="bad">하지 않음</td><td>같은 내용에 로고만 교체</td><td>🔴 관문 사이트로 걸림</td></tr>
+</table>
+<p class="s13"><b>계산해 보면</b> — 언어 6개 × 유형 3개 = <b>도메인 18개</b>면 충분합니다. 그 안에서 도시·주제 폴더로 나누면 <b>«사이트» 100개, 200개도 만들 수 있습니다.</b> 손님 눈에는 100개고, 구글 눈에는 튼튼한 18개입니다. 도메인 값도 연 $1,200 → $220으로 줍니다.</p>
+
+<h2>3. 사이트를 열기 전 «출범 조건»</h2>
+<div class="card">
+<p class="s13">도메인부터 사면 안 됩니다. <b>글이 먼저입니다.</b></p>
+<table>
+<tr><th>조건</th><th>기준</th></tr>
+<tr><td>그 축의 영상이 있는가</td><td>최소 <b>10편</b> (없으면 쓸 알맹이가 없음)</td></tr>
+<tr><td>고유 글이 준비됐는가</td><td>출범 시 <b>20~30편</b>, 이후 주 2편</td></tr>
+<tr><td>그 글이 우리만 쓸 수 있는가</td><td>영상에서 나온 <b>직접 본 이야기</b>가 들어가 있는가</td></tr>
+<tr><td>못 채우면</td><td class="warn">도메인 안 삼. <b>기존 사이트의 폴더</b>로 시작 → 크면 그때 분리</td></tr>
+</table>
+</div>
+
+<h2>4. 우리만의 방어막 — 이게 없으면 100개 다 죽습니다</h2>
+<div class="card" style="border-color:var(--green)">
+<p class="s13">아고다 자료는 <b>전 세계 모든 제휴 사이트가 똑같이 씁니다.</b> 그것만으로 만든 사이트는 구글이 걸러냅니다.<br>
+우리에게만 있는 것은 <b>342편의 직접 찍은 영상</b>입니다. 방에 직접 들어가 보고, 대욕장이 몇 시까지 여는지 확인하고, 역에서 걸어본 사람만 쓸 수 있는 문장이 있습니다.</p>
+<p class="s13"><b>그래서 모든 페이지에 반드시 들어가야 하는 3가지</b></p>
+<table>
+<tr><td style="width:34px">①</td><td><b>영상 캡처 사진</b> — 아고다 사진만 쓰지 않음</td></tr>
+<tr><td>②</td><td><b>직접 본 한 문장</b> — “대욕장이 새벽 2시까지 엽니다” 같은</td></tr>
+<tr><td>③</td><td><b>영상 링크</b> — 우리가 실제로 갔다는 증거</td></tr>
+</table>
+<p class="s13 mut">이 3개가 있으면 자동 생성 사이트와 완전히 달라집니다. 없으면 100개를 만들어도 0개입니다.</p>
+</div>
+
+<h2>5. 애드센스는 어떻게 할까</h2>
+<table>
+<tr><th>방식</th><th class="num">1만 명 봤을 때</th><th>부작용</th></tr>
+<tr><td>구글 애드센스</td><td class="num bad">약 3~7만 원</td><td class="bad">광고가 예약 버튼의 눈길을 뺏음</td></tr>
+<tr><td>호텔 제휴(아고다)</td><td class="num good">예약 20건이면 <b>10만 원 이상</b></td><td class="good">화면이 깨끗함</td></tr>
+</table>
+<p class="s13"><b>제 의견은 «애드센스는 붙이지 않는다»입니다.</b> 광고 한 칸이 예약 버튼 한 칸을 밀어냅니다. 다만 <b>애드센스 «승인 기준»은 지킬 값어치가 있습니다</b> — 고유한 글, 충분한 분량, 연락처·소개·개인정보 페이지. 이건 구글 검색에서도 똑같이 보는 기준이라 <b>광고를 안 붙이더라도 그 기준으로 만듭니다.</b></p>
+<p class="s13 mut">예외 — 「여행 준비물」처럼 예약과 상관없는 정보성 사이트는 애드센스를 붙여도 잃을 게 없습니다.</p>
+
+<h2>6. 정리 — 따로 / 같이</h2>
+<div class="two">
+<div class="card" style="border-color:var(--red)">
+<h3 style="margin-top:0;color:var(--redT)">🔴 반드시 따로</h3>
+<p class="s13">글 본문 · 제목/설명 · 우리 사진 · 사이트별 소개·연락처 페이지 · 검색엔진 등록(GSC) · 통계 · 사이트끼리 링크 금지</p>
+</div>
+<div class="card" style="border-color:var(--green)">
+<h3 style="margin-top:0;color:var(--greenT)">✅ 마음껏 같이</h3>
+<p class="s13">서버 · 코드 · 창고(DB) · 가격 자료 · 호텔 명부 · 회원 · 이벤트 · 클릭 추적 · 메일 · 관리자 화면 · 봇</p>
+</div>
+</div>
+
+<div class="s11 mut3" style="margin-top:24px">TW OS · 구글 기준 분리/공유 경계 · 2026-08-16 · <a href="/scale-100.html">100개 구조</a> · <a href="/scale-types.html">유형별 구조</a></div>
+</div>
+</body>
+</html>

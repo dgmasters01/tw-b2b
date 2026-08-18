@@ -109,6 +109,7 @@ export default async function handler(req, res) {
         lat: h.latitude ?? null, lng: h.longitude ?? null,
         image_url: h.imageURL || null, landing_url: h.landingURL || null,
         checkin: inDate,
+        collected_at: new Date().toISOString(),   // 🔴 08-18: 갱신 때 도장이 안 바뀌어 검사(C11)가 낡았다고 판정했다
       });
     }
   }

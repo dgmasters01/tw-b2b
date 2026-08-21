@@ -60,14 +60,24 @@ export default async function handler(req, res) {
   // ── ②-b 🔴 예산 확인 (COLLECT §3 · 2026-08-16 신설)
   //    설계는 «월 1,000번 안쪽»인데 감시가 없었다. 부르기 전에 계량기를 본다
   const ym = new Date().toISOString().slice(0, 7);
-  const BUDGET = 1000;
+  // 🔴 2026-08-21 대표님 확정: 아고다 제휴 API 는 무료·과금 없음. 예산을 월 2,000 으로.
+  //    계량기(api_usage)가 08-16 에 998 에서 멈춰 있었고 실제 호출은 계속 나갔다 → 계량기를 못 믿는다.
+  //    이제 «실제 호출 기록(collect_log)» 을 세서 예산을 본다. api_usage 는 거울로만 맞춘다.
+  const BUDGET = Number(process.env.AGODA_MONTHLY_BUDGET || 2000);
   let used = 0;
   try {
-    const ur = await fetch(`${SB}/rest/v1/api_usage?provider=eq.agoda_lite&ym=eq.${ym}&select=used,free_limit`,
-      { headers: { apikey: KEY, Authorization: `Bearer ${KEY}` } });
-    const uj = await ur.json();
-    used = Number(uj?.[0]?.used ?? 0);
-  } catch { /* 계량기를 못 읽으면 아래에서 멈춘다 */ }
+    const cr = await fetch(`${SB}/rest/v1/collect_log?select=id&kind=in.(pool,pool_byids)&called_at=gte.${ym}-01T00:00:00Z`,
+      { method: 'HEAD', headers: { apikey: KEY, Authorization: `Bearer ${KEY}`, Prefer: 'count=exact' } });
+    const range = cr.headers.get('content-range') || '';
+    const m = range.match(/\/(\d+)$/);
+    if (m) used = Number(m[1]);
+    else {
+      const ur = await fetch(`${SB}/rest/v1/api_usage?provider=eq.agoda_lite&ym=eq.${ym}&select=used`,
+        { headers: { apikey: KEY, Authorization: `Bearer ${KEY}` } });
+      const uj = await ur.json();
+      used = Number(uj?.[0]?.used ?? 0);
+    }
+  } catch { /* 계량기를 못 읽으면 used=0 — 아래 기록은 그대로 남는다 */ }
   const willCall = weekends.length;
   if (used + willCall > BUDGET) {
     return res.status(200).json({ ok: false, stopped: true,
@@ -130,7 +140,7 @@ export default async function handler(req, res) {
       method: 'PATCH',
       headers: { apikey: KEY, Authorization: `Bearer ${KEY}`,
                  'Content-Type': 'application/json', Prefer: 'return=minimal' },
-      body: JSON.stringify({ used: used + weekends.length }),
+      body: JSON.stringify({ used: used + weekends.length, free_limit: BUDGET }),
     });
   } catch { /* 기록 실패가 수집을 막지는 않는다 */ }
 

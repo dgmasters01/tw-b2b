@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>여행능력자들 SHOP 리뉴얼 문서 — 정본</title>
+<style>
+:root{--bg:#f5f4f0;--line:#e3e1da;--line2:#c9c6bc;--t1:#1f1f1d;--t2:#5f5e5a;--t3:#95938c;
+--blue:#185FA5;--blueBg:#E6F1FB;--blueT:#042C53;--green:#3B6D11;--greenBg:#EAF3DE;--greenT:#173404;
+--red:#A32D2D;--redBg:#FCEBEB;--redT:#501313;--amb:#BA7517;--ambBg:#FAEEDA;--ambT:#412402;--r:8px}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--t1);font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;line-height:1.6}
+.wrap{max-width:1000px;margin:0 auto;padding:20px 14px 60px}
+h1{font-size:22px;font-weight:600;margin:0 0 2px}
+h2{font-size:17px;font-weight:600;margin:30px 0 6px;padding-top:16px;border-top:2px solid var(--line2)}
+h3{font-size:14px;font-weight:600;margin:16px 0 4px;color:var(--t2)}
+p{font-size:14px;margin:7px 0}
+.sub{color:var(--t2);font-size:13px;margin-bottom:12px}
+.s11{font-size:11px}.s12{font-size:12px}.s13{font-size:13px}
+.mut{color:var(--t2)}.mut3{color:var(--t3)}
+table{width:100%;border-collapse:collapse;font-size:13px;background:#fff;border:1px solid var(--line);border-radius:10px;overflow:hidden;margin:8px 0}
+th,td{padding:7px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{background:#efeee9;font-weight:600}
+td.c{width:52px;font-weight:600;color:var(--t3);text-align:center}
+.bad{background:var(--redBg);color:var(--redT)}
+.good{background:var(--greenBg);color:var(--greenT)}
+.warn{background:var(--ambBg);color:var(--ambT)}
+.card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px;margin:10px 0}
+.hero{background:#fff;border:2px solid var(--blue);border-radius:12px;padding:14px;margin:10px 0}
+code{background:#efeee9;padding:1px 5px;border-radius:4px;font-size:12px}
+pre{background:#1f1f1d;color:#f0efeb;padding:14px;border-radius:10px;font-size:12px;line-height:1.55;overflow-x:auto;white-space:pre-wrap}
+.pill{display:inline-block;font-size:11px;padding:2px 8px;border-radius:6px;margin-right:5px}
+.p-ok{background:var(--greenBg);color:var(--greenT)}
+.p-no{background:var(--redBg);color:var(--redT)}
+.p-q{background:var(--ambBg);color:var(--ambT)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>여행능력자들 SHOP — 리뉴얼 문서</h1>
+<div class="sub">최종 갱신 2026-08-16 · 실제 주소 <b>www.travelwinners.shop</b> (손님에게 알리는 주소 = 여행능력자들.SHOP)<br>
+시안 그림 → <a href="/shop-final.html">shop-final.html</a> · 코드 정본 → <code>_business/shop/SHOP_RENEWAL.md</code></div>
+
+<div class="hero">
+<h3 style="margin-top:0;color:var(--blueT)">🔴 2026-08-16 전략이 바뀌었습니다 — 「영상 중심」 → 「호텔 중심」</h3>
+<p class="s13"><b>왜</b> — ① 쇼츠는 유튜브가 링크를 막아서 손님이 <b>주소를 검색해 들어온다</b> ② 손님은 사이트에서 <b>영상을 다시 보지 않는다</b>(영상은 알리는 수단) ③ 손님은 <b>영상이 아니라 잘 곳</b>을 찾는다.<br>
+<b>결과</b> — 화면에서 영상 관련 요소를 전부 뺀다. 메인은 <b>호텔이 쌓이는 목록</b>이다.</p>
+</div>
+
+<h2>1. 손님이 오는 길 (사실)</h2>
+<table>
+<tr><th>단계</th><th>지금 상태</th></tr>
+<tr><td>① 쇼츠(9:16) 시청</td><td>1편에 <b>호텔 3곳</b> 소개 · 매일 발행 · 나라·도시가 매일 바뀜</td></tr>
+<tr><td>② 주소 노출</td><td>영상 <b>마지막</b>에 「여행능력자들.SHOP」 자막 + 멘트</td></tr>
+<tr><td>③ 손님 행동</td><td class="warn">링크 못 누름 → <b>검색하거나 직접 입력</b></td></tr>
+<tr><td>④ 도착</td><td>여행능력자들.shop → www.travelwinners.shop 으로 넘어감</td></tr>
+<tr><td>⑤ 목표</td><td class="good">도착 화면에서 <b>[예약] 한 번</b>에 아고다로</td></tr>
+</table>
+
+<h2>2. 확정 — 화면</h2>
+<table>
+<tr><th class="c">번호</th><th>내용</th></tr>
+<tr><td class="c">1</td><td><b>메인 = 호텔 목록</b>. 영상 목록이 아님</td></tr>
+<tr><td class="c">2</td><td>맨 위 <b>「오늘 소개한 호텔 3곳」</b> — 오늘 온 손님은 여기서 끝남</td></tr>
+<tr><td class="c">3</td><td>그 아래 <b>나라 · 도시별 정리</b> (일본›오사카 34곳 …) — 며칠 뒤 온 손님의 길</td></tr>
+<tr><td class="c">4</td><td>호텔 한 줄 = <b>사진 1장 · 호텔명 · 도시 · 성급 · 가격 · [예약]</b></td></tr>
+<tr><td class="c">5</td><td><b>[예약] 한 번에 아고다로.</b> 날짜를 고르게 하지 않음(아고다에서 바꾸면 됨)</td></tr>
+<tr><td class="c">6</td><td><b>사진은 호텔당 1장.</b> 갤러리 안 만듦(전부 못 가져옴). 자세한 사진은 아고다에서</td></tr>
+<tr><td class="c">7</td><td><b>평점 표시 안 함 · 성급은 표시.</b> 순위는 «직접 자보고 매긴 것»이라 평점과 부딪힘</td></tr>
+<tr><td class="c">8</td><td>순위 표기는 <b>TOP 1·2·3만</b>. 영상 시간(8:24) 표시 없음</td></tr>
+<tr><td class="c">9</td><td>2·3위 <b>「가성비 1위·전망 1위」 딱지 없음</b></td></tr>
+<tr><td class="c">10</td><td>2·3위에 <b>「1위보다 ○○원 쌈」 금액 비교</b>(퍼센트 ❌)</td></tr>
+<tr><td class="c">11</td><td><b>「순위는 직접 자보고 매겼습니다」</b> 문구 · 위치·체크인 정보행</td></tr>
+<tr><td class="c">12</td><td><b>「영상 때 가격」 병기</b> — 쇼츠에서 본 숫자와 지금 값을 나란히</td></tr>
+<tr><td class="c">13</td><td>이벤트는 <b>중간</b>(맨 위 금지) · <b>참여 방식</b>으로 나눔(경품 종류 ❌)</td></tr>
+<tr><td class="c">14</td><td>맨 아래 <b>아고다 검색 뒷문</b> + 「영상 미소개」 회색 딱지</td></tr>
+<tr><td class="c">15</td><td>손님에게 <b>아무것도 고르게 하지 않는다</b> (대원칙)</td></tr>
+</table>
+
+<h2>3. 확정 — 사업 · 구조</h2>
+<table>
+<tr><th class="c">번호</th><th>내용</th></tr>
+<tr><td class="c">16</td><td><b>DB는 하나로 공유</b>. 코드·배포·장부이름표(<code>shop_</code>)·창구레인·RLS는 따로 <span class="s11 mut3">(D-095)</span></td></tr>
+<tr><td class="c">17</td><td>아고다 조회는 <b>창고 1개 + 새벽 봇 1개</b>. 나누면 같은 호텔을 두 번 물어 한도 2배 소모</td></tr>
+<tr><td class="c">18</td><td><b>화면은 아고다·DB에 직접 묻지 않는다.</b> 새벽에 파일로 구워 CDN에서 읽음 → 손님 1만 명이 와도 호출 0</td></tr>
+<tr><td class="c">19</td><td>쿠팡 파트너스는 <b>「여행 준비물」 페이지에만</b>. 메인·호텔 카드 근처 금지</td></tr>
+<tr><td class="c">20</td><td>애드센스는 <b>블로그(staycurate) 홈에만</b>. shop·패키지에는 안 붙임</td></tr>
+<tr><td class="c">21</td><td>사이트는 <b>유형별로 별도</b> — shop(호텔) / staycurate(블로그) / CEYLON(패키지)</td></tr>
+<tr><td class="c">22</td><td>도메인은 <b>언어·나라</b>와 <b>유형</b>으로만 나눔. 도시·주제는 <b>폴더</b>로</td></tr>
+<tr><td class="c">23</td><td><b>글이 먼저.</b> 사이트 출범 조건 = 그 축 영상 10편 + 고유 글 20~30편</td></tr>
+<tr><td class="c">24</td><td>모든 페이지에 <b>우리만의 3가지</b> — 영상 캡처 · 직접 본 한 문장 · 영상 링크</td></tr>
+<tr><td class="c">25</td><td>시안은 <b><a href="/shop-final.html">shop-final.html</a> 한 장만</b> 고침. 새 주소 안 만듦</td></tr>
+</table>
+
+<h2>4. 폐기 — 다시 꺼내지 않음</h2>
+<table>
+<tr><th>버린 것</th><th>이유</th></tr>
+<tr><td class="bad">「소개 때 대비 ▼25%」 퍼센트 비교</td><td>대표님 지시 (금액 비교는 살림)</td></tr>
+<tr><td class="bad">손님이 날짜 고르는 달력 입력칸</td><td>대표님 지시</td></tr>
+<tr><td class="bad">응모자 수 · 당첨 확률 표시</td><td>대표님 지시</td></tr>
+<tr><td class="bad">경품 종류로 이벤트 분류</td><td>참여 방식으로 나눔</td></tr>
+<tr><td class="bad">이벤트를 메인 맨 위에</td><td>메인 주인공은 호텔</td></tr>
+<tr><td class="bad">잡화 배너를 메인 상단에</td><td>지금 사이트가 죽은 원인</td></tr>
+<tr><td class="bad">🆕 유튜브 썸네일 · 영상 조각 · 조회수 · 「영상 보기」</td><td>손님은 사이트에서 영상을 다시 안 봄</td></tr>
+<tr><td class="bad">🆕 「방금 보신 영상」 헤더 · 영상 단위 카드</td><td>손님은 어느 영상인지 기억 못 함</td></tr>
+<tr><td class="bad">🆕 영상 전용 주소 <code>/v/코드</code></td><td>쇼츠에 링크를 못 걸어 쓸 데가 없음</td></tr>
+<tr><td class="bad">🆕 호텔 사진 여러 장 갤러리(+31)</td><td>전부 못 가져옴. 아고다에서 보게 함</td></tr>
+<tr><td class="bad">🆕 「이번 주말 금토일」 기준 가격</td><td>쇼츠 가격이 <b>2~3달 뒤</b> 기준이라 숫자가 어긋남</td></tr>
+<tr><td class="bad">2·3위 「가성비 1위·전망 1위」 딱지</td><td>영상마다 사람이 문구를 정해야 해서 자동화가 깨짐</td></tr>
+<tr><td class="bad">평점 표시</td><td>「평점 8.2인데 왜 2위냐」 → 우리 순위의 정당성이 무너짐</td></tr>
+<tr><td class="bad">야놀자식 상단 필터 칩(조식포함·무료취소·NOL Pick)</td><td>손님에게 일을 시킴</td></tr>
+<tr><td class="bad">shop 전용 아고다 키·서버로 한도 늘리기</td><td>한도는 키·계정에 걸림. 우회는 정지 위험</td></tr>
+</table>
+
+<h2>5. 아직 안 정한 것</h2>
+<table>
+<tr><th>무엇</th><th>고를 것</th></tr>
+<tr><td class="warn"><b>가격 기준 달</b> 🔴 제일 급함</td><td>쇼츠마다 그 쇼츠가 말한 달 / 항상 「2달 뒤」 고정 / 「2~3달」 범위</td></tr>
+<tr><td class="warn">나라·도시 정리 화면 모양</td><td>목록형 / 접었다 펴기 / 「어디 가세요?」 버튼+시트</td></tr>
+<tr><td class="warn">아고다 검색 결과 정렬</td><td>우리 소개 먼저(추천) / 전부 가격 낮은 순</td></tr>
+<tr><td class="warn">비싼 호텔에 「8만원대 대안 3곳」 버튼</td><td>넣기 / 안 넣기</td></tr>
+<tr><td class="warn">옛 라라벨 코드 처리</td><td>버리기 / 살리기</td></tr>
+</table>
+
+<h2>6. 🔧 나중에 설정할 것 (운영 · 기술)</h2>
+<div class="card">
+<h3 style="margin-top:0">도메인 · 접속</h3>
+<table>
+<tr><th style="width:56px">급함</th><th>할 일</th><th>지금 상태</th></tr>
+<tr><td class="c bad">높음</td><td><code>travelwinners.shop</code>을 <b>www 없이도</b> 열리게 (DNS 한 줄)</td><td>www 없으면 DNS 없음 → 빈 화면</td></tr>
+<tr><td class="c warn">중간</td><td>한글 주소 넘김을 <b>301</b>로 교체 (지금은 옛날식 새로고침)</td><td>구글이 두 사이트로 볼 수 있어 평판이 갈림</td></tr>
+<tr><td class="c warn">중간</td><td>한글 주소 서버의 <b>https 503</b> 정리</td><td>301로 바꾸면 같이 해결됨</td></tr>
+<tr><td class="c warn">중간</td><td><b>「여행능력자들」 검색 1등</b> 확인 — 링크가 막혀 검색이 유일한 다리</td><td>미확인</td></tr>
+<tr><td class="c">낮음</td><td>쇼츠 마지막 <b>주소 자막 규격 통일</b> (위치·크기·노출 초)</td><td>영상마다 다를 수 있음</td></tr>
+</table>
+</div>
+<div class="card">
+<h3 style="margin-top:0">데이터 · 수집</h3>
+<table>
+<tr><th style="width:56px">급함</th><th>할 일</th><th>메모</th></tr>
+<tr><td class="c bad">높음</td><td><b>가격 창고 통합</b> (블로그·shop 한 곳)</td><td>합치면 쓸 수 있는 조회 횟수가 사실상 2배</td></tr>
+<tr><td class="c bad">높음</td><td><b>새벽 수집 봇 가동</b> — 기준일을 <b>2~3달 뒤 금토일</b>로</td><td>오늘 시작해야 한 달 뒤에 열매. 하루 2,160번까지</td></tr>
+<tr><td class="c warn">중간</td><td><b>정적 굽기</b>(JSON→CDN) — 화면이 DB를 안 묻게</td><td>사이트 100개여도 DB 호출 0 증가</td></tr>
+<tr><td class="c warn">중간</td><td><b>묶음 커밋 창구</b> (한 번에 파일 여러 개)</td><td>저장 창구 30회/시간 병목</td></tr>
+<tr><td class="c">낮음</td><td>창구별 <b>사용률 점검판</b> 표시(80% 경고)</td><td>지금은 막히고 나서야 앎</td></tr>
+<tr><td class="c">낮음</td><td>장부 이름표 정리 <code>shop_</code> / <code>blog_</code> / <code>pkg_</code></td><td>나중에 DB를 나눌 때 통째로 옮기기 쉬움</td></tr>
+</table>
+</div>
+<div class="card">
+<h3 style="margin-top:0">확장 대비 (나중에)</h3>
+<table>
+<tr><td>새 사이트 <b>템플릿 레포</b> — 복제 후 이름·도메인·CID만 교체</td></tr>
+<tr><td><b>부품 뽑아내기</b> — 회원·이벤트·클릭추적·메일을 shop 안에 박지 말 것</td></tr>
+<tr><td>DB를 <b>나눠야 할 신호</b> 4개 — 결제·개인정보 도입 / 한 사업 60% 초과 / CPU 경고 반복 / 사이트 30개↑(읽기 사본)</td></tr>
+<tr><td>공급처 다변화 — Booking.com(CJ 제휴 개설 완료)을 두 번째 창구로</td></tr>
+</table>
+</div>
+
+<h2>7. 결정 이력</h2>
+<table>
+<tr><th style="width:70px">번호</th><th>내용</th></tr>
+<tr><td>D-093</td><td>메인 화면 확정 (2026-08-16) — 🔴 아래 D-096 으로 상당 부분 대체됨</td></tr>
+<tr><td>D-094</td><td>사업이 늘어날 때의 한도 설계</td></tr>
+<tr><td>D-095</td><td>shop DB는 하나로 공유 (나누면 아고다 호출 2배)</td></tr>
+<tr><td class="warn">D-096</td><td><b>전략 전환: 영상 중심 → 호텔 중심</b> — 확정 대기</td></tr>
+</table>
+
+<h2>8. 다음 채팅에 붙여넣을 명령문</h2>
+<p class="s13 mut">아래를 통째로 복사해 새 채팅 첫 줄에 붙여넣으시면 됩니다.</p>
+<pre>여행능력자들 SHOP(www.travelwinners.shop) 리뉴얼 이어서 하자.
+
+시작 전에 이것부터 읽어:
+1) _os/boot.md (부팅 절차)
+2) https://gohotelwinners.com/shop-docs.html ← 리뉴얼 문서 정본. 전부 읽을 것
+3) _business/shop/SHOP_RENEWAL.md (코드 정본)
+4) 시안 그림: https://gohotelwinners.com/shop-final.html
+
+2026-08-16 에 전략이 바뀌었다. 「영상 중심」이 아니라 「호텔 중심」이다.
+- 쇼츠는 유튜브가 링크를 막아서 손님이 주소를 검색해 들어온다
+- 손님은 사이트에서 영상을 다시 보지 않는다
+- 쇼츠 1편 = 호텔 3곳, 매일 발행, 나라·도시가 매일 바뀐다
+- 쇼츠가 말하는 가격은 2~3달 뒤 날짜 기준이다
+
+문서의 「폐기」 목록은 절대 다시 꺼내지 마라. 특히 이것들:
+유튜브 썸네일·영상 조각·조회수 / 「방금 보신 영상」 헤더 / 영상 단위 카드 /
+사진 여러 장 갤러리 / 평점 표시 / 이번 주말 기준 가격 / 퍼센트 비교 /
+날짜 고르는 입력칸 / 응모자 수·당첨 확률 / 이벤트를 맨 위에
+
+오늘 할 일: (여기에 하나만 적기 — 예: 「가격 기준 달 확정 후 메인 시안 갈아엎기」)
+
+원칙: 손님한테 아무것도 고르게 하지 마라. 도착해서 [예약] 한 번이면 아고다로.
+시안은 shop-final.html 한 장만 고쳐라. 새 주소 만들지 마라.
+새 그림을 그리기 전에 반드시 기존 시안과 한 줄씩 대조해라.</pre>
+
+<div class="s11 mut3" style="margin-top:22px">여행능력자들 SHOP 리뉴얼 문서 · 2026-08-16 · 이 문서가 리뉴얼의 정본입니다</div>
+</div>
+</body>
+</html>

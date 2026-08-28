@@ -63,7 +63,11 @@ export default async function handler(req, res) {
   // 🔴 2026-08-21 대표님 확정: 아고다 제휴 API 는 무료·과금 없음. 예산을 월 2,000 으로.
   //    계량기(api_usage)가 08-16 에 998 에서 멈춰 있었고 실제 호출은 계속 나갔다 → 계량기를 못 믿는다.
   //    이제 «실제 호출 기록(collect_log)» 을 세서 예산을 본다. api_usage 는 거울로만 맞춘다.
-  const BUDGET = Number(process.env.AGODA_MONTHLY_BUDGET || 2000);
+  // 🔴 2026-08-28 대표님 지시: 2,000 → 5,000.
+  //    이 숫자는 아고다가 건 한도가 아니라 «우리가 스스로 건 브레이크»다. 과금이 없으므로
+  //    주말가격이 비어 글이 못 나가는 손해가 더 크다. 브레이크는 폭주 감시용으로만 남긴다.
+  //    ⚠️ Vercel 환경변수 AGODA_MONTHLY_BUDGET 이 설정돼 있으면 그 값이 이긴다 (아래 응답에서 확인 가능).
+  const BUDGET = Number(process.env.AGODA_MONTHLY_BUDGET || 5000);
   let used = 0;
   try {
     const cr = await fetch(`${SB}/rest/v1/collect_log?select=id&kind=in.(pool,pool_byids)&called_at=gte.${ym}-01T00:00:00Z`,
@@ -82,6 +86,7 @@ export default async function handler(req, res) {
   if (used + willCall > BUDGET) {
     return res.status(200).json({ ok: false, stopped: true,
       why: 'budget', used, budget: BUDGET, willCall,
+      budget_from: process.env.AGODA_MONTHLY_BUDGET ? 'env(AGODA_MONTHLY_BUDGET)' : 'code default 5000',
       hint: `이번 달 아고다 호출이 ${used}/${BUDGET} 입니다. ${willCall}번을 더 부르면 넘칩니다. 멈췄습니다` });
   }
 

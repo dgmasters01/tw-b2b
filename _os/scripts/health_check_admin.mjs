@@ -186,9 +186,14 @@ function checkDecisionsSync() {
       'git log --since="24 hours ago" --name-only --pretty=format: --no-merges',
       { cwd: ROOT, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }
     );
+    // 🔴 2026-08-29 고침 — 정본 경로를 보게 했다.
+    //    _os/charter/decisions-index.md 는 폐기(2026-07-21 이후 갱신 없음). 정본은 루트 DECISIONS_INDEX.md.
+    //    폐기 파일만 보고 있어서, 정본에 결정을 박아도 영원히 red 였다(08-29 실측: overall=red 의 원인).
     recordTouched =
-      /_os\/charter\/decisions-index\.md/.test(touchedFiles) ||
-      /_business\/decisions\//.test(touchedFiles);
+      /(^|\n)DECISIONS_INDEX\.md/.test(touchedFiles) ||
+      /(^|\n)DECISIONS\.md/.test(touchedFiles) ||
+      /_business\/decisions\//.test(touchedFiles) ||
+      /_os\/charter\/decisions-index\.md/.test(touchedFiles);
   } catch {
     recordTouched = false;
   }
@@ -213,7 +218,7 @@ function checkDecisionsSync() {
   result.missing_source = decisionCommits.map((c) => `${c.sha} (결정 기록 2벌 저장 누락)`);
   result.detail =
     `결정 ${decisionCommits.length}건이 박혔는데 결정 기록(사람용/검색용 2벌)이 저장 안 됐어요 — ` +
-    `_os/charter/decisions-index.md + _business/decisions/ 둘 다 박아주세요 (D5 룰)`;
+    `DECISIONS_INDEX.md(정본) + _business/decisions/ 둘 다 박아주세요 (D5 룰)`;
   return result;
 }
 

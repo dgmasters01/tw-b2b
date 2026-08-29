@@ -67,7 +67,7 @@
 | 헌법 자가 검증 깊이 필요 시 | `OPERATIONS_CHARTER.md` |
 | 새 의사결정 박을 때 | `DECISIONS.md` / `DECISIONS_INDEX.md` |
 | 사이드바·메뉴 작업 | `_os/admin-pages/menu-manifest.json` + `business-context/tools-manifest.json` |
-| **모델·한도 판단 (매 응답 🚦 줄)** | `_os/playbook/model-routing.md` — 기본은 **Opus**. 되돌리기 어려운 구조 결정·며칠 막힌 버그만 **Fable**. 조회·보고는 **Sonnet**. Fable 은 한도를 2배로 깎는다 |
+| **모델·한도 판단 (매 응답)** | `_os/playbook/model-routing.md` — 기본은 **Opus**. 되돌리기 어려운 구조 결정·며칠 막힌 버그만 **Fable**. 조회·보고는 **Sonnet**. 🔴 **매 응답 마지막 줄에 «다음 작업 = 모델 이름(버전까지)» 을 박는다**(§1-B · 대표님 지시 08-29) |
 | 새 운영 룰이 필요할 때 | `_os/playbook/README.md` (인덱스 먼저, 그 후 해당 1~2개) |
 | 인계 받은 작업 이어가기 | `_os/handoff/current.md` |
 | 작업 표준 워크플로 | `_os/playbook/workflow.md` |

@@ -188,3 +188,58 @@
 | 2026-08-16 | D-093 등록 (travelwinners.shop 메인 확정 — C형 카드·딱지 없음·달력 동시 노출·배치ㄱ·대표그림 아고다 Top1 사진·「어디 가세요?」 시트 메뉴·창고 통합·쿠팡은 여행준비물 페이지만 / _business/shop/SHOP_RENEWAL.md) |
 | 2026-08-16 | D-094 등록 (사업 확장 시 한도 설계 — 천장 120/h 고정 함정·묶음 커밋·정적 굽기·창고1개+봇1개·템플릿 레포·사용률 점검판 / docs/ARCHITECTURE.md §4-B) |
 | 2026-08-16 | D-095 등록 (shop DB는 하나로 공유 — 나누면 아고다 호출 2배, 나눌 신호 4개 명시) |
+
+---
+
+## 📁 개별 결정문서 색인 (`_business/decisions/`) — 2026-08-29 일괄 등재
+
+> 🔴 **왜 생겼나** — `decision-index-guard` 봇이 «결정문서 57개 중 42개가 색인에 없다»를 매일 이슈로 알리고 있었는데 아무도 못 봤다.
+> 색인에 없으면 **다음 채팅의 클로드가 그 결정이 있는 줄 모른다.** 2026-08-29 에 42건을 전수 등재했다.
+> 앞으로 `_business/decisions/` 에 파일을 만들면 **이 표에도 한 줄 추가**한다. (D5 룰)
+
+| 날짜 | 관련 ID | 무엇을 정했나 | 파일 |
+|:---:|:---:|---|---|
+| 2026-05-26 | — | 2026-05-26 시스템 재설계 1단계 - 결정 8건 | `_business/decisions/2026-05-26-system-redesign-step1.md` |
+| 2026-05-27 | — | 2026-05-27 base64 사고 + 새 룰 3건 + 사업 합의 6건 (백로그 정리) | `_business/decisions/2026-05-27-incident-and-new-rules.md` |
+| 2026-05-28 | — | 2026-05-28 결정 기록 누락 자동 감지 봇 (D16) | `_business/decisions/2026-05-28-decisions-audit-bot.md` |
+| 2026-05-30 | D-050 | 2026-05-30 직전 채팅 결정 2벌저장 — 매니저 진입 정리 + 로그인 유지 옵트인 (D-050·D-0 | `_business/decisions/2026-05-30-handoff-d050-d051.md` |
+| 2026-06-07 | D-055 | 메인 페이지 재설계 결정 (2026-06-07) | `_business/decisions/2026-06-07-main-redesign.md` |
+| 2026-06-11 | D-055 | 작업 기록: 과거 예약 데이터 시스템 적재 (2026-06-11) | `_business/decisions/2026-06-11-legacy-booking-migration.md` |
+| 2026-06-11 | D-056 | 메인 스토리 흐름 + 디자인/내용 규칙 (2026-06-11, D-056) | `_business/decisions/2026-06-11-main-story-rules.md` |
+| 2026-06-15 | D-057 | 2026-06-15 메인(index) ①~④ 섹션 확정 | `_business/decisions/2026-06-15-main-sections-1-4-confirmed.md` |
+| 2026-07-03 | D-057 | 이 파일은 잘못된 위치입니다 (2026-07-03 시스템 정정) | `_business/decisions/2026-07-03-main-redesign-handoff.md` |
+| 2026-07-11 | D-061 | 2026-07-11 호텔 매니저 대시보드 구조 (라이브 코드 기준 정리) | `_business/decisions/2026-07-11-manager-dashboard-structure.md` |
+| 2026-07-11 | D-064 | 2026-07-11 스튜디오 채널 메뉴 (UX/UI) — 채널 자산·규격 관리 마스터 | `_business/decisions/2026-07-11-studio-channel-menu.md` |
+| 2026-07-11 | D-062 | 2026-07-11 스튜디오 호텔 메뉴 (UX/UI) — 전략 분석 대시보드 | `_business/decisions/2026-07-11-studio-hotel-menu.md` |
+| 2026-07-11 | D-065 | 2026-07-11 스튜디오 키워드 메뉴 (UX/UI) — 분석·추천 엔진 + 수요 트렌드 인텔리전스 | `_business/decisions/2026-07-11-studio-keyword-menu.md` |
+| 2026-07-11 | D-063 | 2026-07-11 스튜디오 성과표 메뉴 (UX/UI) — 전 채널·영상·호텔 종합 조망 | `_business/decisions/2026-07-11-studio-performance-menu.md` |
+| 2026-07-11 | D-060 | 2026-07-11 스튜디오 올리기 메뉴 전체 설계 (UX/UI) | `_business/decisions/2026-07-11-studio-upload-menu-full.md` |
+| 2026-07-11 | D-058 | 2026-07-11 유튜브 발행 관리 + 조회수 추적 시스템 | `_business/decisions/2026-07-11-youtube-publish-viewcount-system.md` |
+| 2026-07-12 | — | 분석 페이지 날짜 표기 원칙 (채널명 단일화 관련) | `_business/decisions/2026-07-12-analytics-date-principle.md` |
+| 2026-07-12 | D-060 | 2026-07-12 콘텐츠 고유코드 = 모든 원고에 자동 부착 (D-060·D-066 보강) | `_business/decisions/2026-07-12-content-code-all-manuscripts.md` |
+| 2026-07-12 | — | 2026-07-12 드라이브 자동읽기 — 폴더·서비스계정 등록 | `_business/decisions/2026-07-12-drive-folder-registered.md` |
+| 2026-07-12 | D-066 | 2026-07-12 스튜디오 전략 메뉴 (UX/UI) — 만들 콘텐츠 기획 큐 + 방향 판 | `_business/decisions/2026-07-12-studio-strategy-menu.md` |
+| 2026-07-13 | D-062 | 호텔 마스터(통합 명단) 정석 방향 결정 (2026-07-13) | `_business/decisions/2026-07-13-hotel-master-direction.md` |
+| 2026-07-13 | — | 호텔 마스터 1단계 — hotels 확장 스키마 적용 (2026-07-13) | `_business/decisions/2026-07-13-hotel-master-schema-applied.md` |
+| 2026-07-13 | — | 숙소 유형 정책 결정 (2026-07-13) | `_business/decisions/2026-07-13-hotel-type-policy.md` |
+| 2026-07-13 | D-062 | 스튜디오 호텔 메뉴 — 최종 UI/UX 확정 + 서비스 방향 (2026-07-13) | `_business/decisions/2026-07-13-studio-hotel-menu-final-ux.md` |
+| 2026-07-13 | D-063 | 스튜디오 성과표 메뉴 — 최종 UI/UX 확정 + 서비스 방향 (2026-07-13) | `_business/decisions/2026-07-13-studio-performance-menu-final-ux.md` |
+| 2026-07-14 | — | 예약된 작업 — 수작업 소개 이력 파일 → DB 반영 (BL-EXPOSURE-IMPORT) | `_business/decisions/2026-07-14-exposure-import-plan.md` |
+| 2026-07-14 | D-065 | 2026-07-14 키워드 메뉴 재설계 — 작업 중 정리 (WIP) | `_business/decisions/2026-07-14-keyword-menu-redesign-wip.md` |
+| 2026-07-14 | D-065 | 키워드 메뉴 — 화면 전수 점검표 (빌드 스펙) | `_business/decisions/2026-07-14-keyword-screen-checklist.md` |
+| 2026-07-15 | D-067 | 2026-07-15 다채널 노출 전략 (D-067) — 채널은 "고르는 것"이 아니라 "전부 전개되는 것" | `_business/decisions/2026-07-15-multichannel-exposure-strategy.md` |
+| 2026-07-16 | D-068 | D-068 — 콘텐츠 1개 : 시나리오 N개 (채널별). 코드는 시나리오의 것 (2026-07-16) | `_business/decisions/2026-07-16-content-scenario-per-channel.md` |
+| 2026-07-17 | D-067 | D-067 호텔 데이터 3층 설계 — **정석** (2026-07-17 확정) | `_business/decisions/2026-07-17-hotel-data-layers.md` |
+| 2026-07-20 | D-070 | 결정 D-070 : 나라별 지역(구·동네) 파싱 — 전 세계 대응 틀 + 측정 시스템 정리 | `_business/decisions/2026-07-20-country-district-parsing.md` |
+| 2026-07-20 | D-069 | 결정 D-069 : 키워드·호텔 데이터 파이프라인 — 아고다 1차 · 유튜브 기준 · 자동 순환 · 저비용 | `_business/decisions/2026-07-20-data-pipeline-auto.md` |
+| 2026-07-20 | D-071 | 결정 D-071 : 호텔 중복 판정·병합 시스템 (좌표 기반) | `_business/decisions/2026-07-20-hotel-dedup-merge.md` |
+| 2026-07-21 | D-073 | 결정 D-073 : 키워드 월별 재조사 + 조사일 표시 (화면 정리) | `_business/decisions/2026-07-21-keyword-monthly-resurvey.md` |
+| 2026-07-21 | D-072 | 결정 D-072 : 다채널 배포 구조 — cid·중복·예약기간 정리 | `_business/decisions/2026-07-21-multichannel-distribution.md` |
+| 2026-07-22 | D-073 | 🔴 2026-07-22 사고 — 아고다 자료 과적으로 서비스 중단 (D-073) | `_business/decisions/2026-07-22-db-overload-incident.md` |
+| 2026-07-27 | D-075 | D-075 · 아고다 예약 업로드 무결성 — 사람이 찾지 않아도 되게 | `_business/decisions/2026-07-27-booking-master-integrity.md` |
+| 2026-07-27 | D-078 | D-078 · 아고다 CID — 채널 하나에 번호 여럿 | `_business/decisions/2026-07-27-cid-multi-per-channel.md` |
+| 2026-08-08 | D-085 | D-085 · 구글에 주소를 다시 물어본다 (지역 채우기 D안) | `_business/decisions/2026-08-08-구글주소-재조회.md` |
+| 2026-08-08 | D-083 | D-083 후속 · 지역 채움 — **주소 파싱은 여기서 끝낸다** (전수 진단 근거) | `_business/decisions/2026-08-08-지역채움-주소파싱-종료.md` |
+| 2026-08-08 | D-083 | D-083 · 지역 채움 — 「할 수 있는 것 / 못 하는 것」을 시스템이 스스로 가른다 | `_business/decisions/2026-08-08-지역채움-지원국가.md` |
+
+**등재 42건** · 전체 결정문서 57건 · 이 표에 파일명이 있으면 감시 봇이 이슈를 자동으로 닫는다.

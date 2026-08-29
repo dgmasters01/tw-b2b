@@ -19,6 +19,7 @@
 | `credentials-lifecycle.md` | 부칙 4 디테일 — 토큰·키 라이프사이클 (개발기간=등록 정상, 서비스기간=일괄 폐기) | 클로드 자가 강제용 — 토큰 잔소리 방지 |
 | `handoff-truth.md` | 인계서·D문서에 거짓이 안 박히게 하는 규칙 + 자동 검사 봇(handoff-verify) | **인계서 쓸 때·인계 받아 작업 시작할 때(의무)** |
 | `emergency.md` | 비상 절차 (Vercel 배포 실패 / 라이브 500 / 토큰 한계 임박) | 사고 시 |
+| `model-routing.md` | 어떤 작업에 어떤 모델(Opus/Fable/Sonnet)을 쓰나 · 한도 관리 · 표시 형식 | **매 응답 🚦 줄에 한 조각 붙임(의무)** · 한도 걸렸을 때 |
 
 ## 룰북 추가·수정 규칙
 
@@ -43,4 +44,4 @@
 
 ---
 
-**Last updated**: 2026-05-07 (BL-OS-LIGHTWEIGHT 신설)
+**Last updated**: 2026-08-29 (model-routing.md 신설)

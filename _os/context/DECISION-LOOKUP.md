@@ -1,190 +1,146 @@
-# DECISION-LOOKUP — «이 주제는 어느 결정문서를 봐야 하나» (2026-08-29 신설)
+# DECISION-LOOKUP — «이 주제는 어느 결정문서를 봐야 하나»
 
-> 대표님(2026-08-29): *"의심이 가면 먼저 작업을 판단하지 말고 내용을 찾아보라고 했지. 너와 함께 기준을 만들어서 만들었기 때문에 나는 기억하는데 너는 부분 상황만 생각하고 또 다르게 판단하잖아."*
+> 대표님(2026-08-29): *"의심이 가면 먼저 작업을 판단하지 말고 내용을 찾아보라고 했지. 너와 함께 기준을 만들어서 만들었기 때문에 나는 기억하는데, 너는 부분 상황만 생각하고 또 다르게 판단하잖아."*
 
-🔴 **왜 생겼나** — 2026-08-29 클로드가 «호텔 중복 116건»을 «새로 발견한 문제»로 보고했다.
-실제로는 **D-071(2026-07-20 제정·07-22 개정)** 에 좌표 15m·성급 제외·리뷰수/객실수 물증·«따로 팔면 다른 호텔»까지 이미 정해져 있었다.
-같은 실수가 하루에 세 번 났다(은퇴 로봇 되살릴 뻔함 · 출처 진단 오판 · 중복 «새 발견»).
-
-## 🔴 쓰는 법 — 작업 전 30초
+🔴 **왜 생겼나** — 2026-08-29 하루에 클로드가 **세 번** 이미 정해진 것을 «새 문제»로 판단했다.
 ```
-1  지금 하려는 일의 «주제» 를 아래 표에서 찾는다
-2  해당 결정문서를 먼저 연다.  없으면 그때 새로 판단한다
-3  «이건 처음 보는 문제 같다» 는 느낌이 들면 그때가 바로 이 표를 볼 때다
+① 은퇴한 로봇(bot-queue)을 «고장» 으로 보고 크론에 되살릴 뻔했다   → 명부 note 에 «08-25 의도적 은퇴»
+② «동남아는 둘째 출처가 없다» 로 오진                          → 실제로는 수집을 못 돌린 것(시계가 일꾼 1명만 호출)
+③ 호텔 중복 116건을 «새 발견» 으로 보고                        → D-071 에 좌표 15m·물증 규칙까지 이미 있었다
 ```
 
-## 주제별 색인
+## 🔴 쓰는 법 — 판단하기 전 30초
+```
+1  지금 하려는 일의 «주제» 를 아래에서 찾는다
+2  해당 결정문서를 **먼저 연다.** 없을 때만 새로 판단한다
+3  🔴 «이건 처음 보는 문제 같다» 는 느낌이 들면 — 그 느낌이 바로 이 표를 볼 신호다
+```
 
-### 호텔 중복·병합  (21건)
-| 날짜 | ID | 무엇을 정했나 | 파일 |
-|:---:|:---:|---|---|
-| 2026-08-16 | D-095 | D-095 — travelwinners.shop 의 DB, 따로 쓸 것인가 같이 쓸 것인가 | `_business/decisions/2026-08-16-db-shared-or-split.md` |
-| 2026-08-16 | D-093 | D-093 — travelwinners.shop 메인 화면 확정 (O-1 종결) | `_business/decisions/2026-08-16-shop-main.md` |
-| 2026-08-12 | — | 도시 이름 별칭 체계 (2026-08-12) | `_business/decisions/2026-08-12-city-alias.md` |
-| 2026-08-11 | D-071 | 아고다 전체 호텔 명부 구축 (2026-08-11) | `_business/decisions/2026-08-11-agoda-master-full.md` |
-| 2026-08-11 | D-071 | 스튜디오 호텔 ↔ 아고다 번호 잇기 (2026-08-11) | `_business/decisions/2026-08-11-agoda-id-link.md` |
-| 2026-08-08 | D-085 | D-085 · 구글에 주소를 다시 물어본다 (지역 채우기 D안) | `_business/decisions/2026-08-08-구글주소-재조회.md` |
-| 2026-08-08 | D-083 | D-083 후속 · 지역 채움 — **주소 파싱은 여기서 끝낸다** (전수 진단 근거) | `_business/decisions/2026-08-08-지역채움-주소파싱-종료.md` |
-| 2026-07-27 | D-075 | D-075 · 아고다 예약 업로드 무결성 — 사람이 찾지 않아도 되게 | `_business/decisions/2026-07-27-booking-master-integrity.md` |
+## 🔴 특히 자주 틀리는 것 (먼저 읽을 것)
 
-### 호텔 명부·코드  (11건)
-| 날짜 | ID | 무엇을 정했나 | 파일 |
-|:---:|:---:|---|---|
-| 2026-08-16 | D-095 | D-095 — travelwinners.shop 의 DB, 따로 쓸 것인가 같이 쓸 것인가 | `_business/decisions/2026-08-16-db-shared-or-split.md` |
-| 2026-08-12 | — | 도시 이름 별칭 체계 (2026-08-12) | `_business/decisions/2026-08-12-city-alias.md` |
-| 2026-08-11 | D-071 | 아고다 전체 호텔 명부 구축 (2026-08-11) | `_business/decisions/2026-08-11-agoda-master-full.md` |
-| 2026-08-11 | D-071 | 스튜디오 호텔 ↔ 아고다 번호 잇기 (2026-08-11) | `_business/decisions/2026-08-11-agoda-id-link.md` |
-| 2026-07-22 | D-073 | 🔴 2026-07-22 사고 — 아고다 자료 과적으로 서비스 중단 (D-073) | `_business/decisions/2026-07-22-db-overload-incident.md` |
-| 2026-07-20 | D-071 | 결정 D-071 : 호텔 중복 판정·병합 시스템 (좌표 기반) | `_business/decisions/2026-07-20-hotel-dedup-merge.md` |
-| 2026-07-17 | D-067 | D-067 호텔 데이터 3층 설계 — **정석** (2026-07-17 확정) | `_business/decisions/2026-07-17-hotel-data-layers.md` |
-| 2026-07-14 | — | 예약된 작업 — 수작업 소개 이력 파일 → DB 반영 (BL-EXPOSURE-IMPORT) | `_business/decisions/2026-07-14-exposure-import-plan.md` |
-
-### 아고다 연동  (41건)
-| 날짜 | ID | 무엇을 정했나 | 파일 |
-|:---:|:---:|---|---|
-| 2026-08-16 | D-095 | D-095 — travelwinners.shop 의 DB, 따로 쓸 것인가 같이 쓸 것인가 | `_business/decisions/2026-08-16-db-shared-or-split.md` |
-| 2026-08-16 | D-094 | D-094 — 사업이 늘어날 때의 한도 설계 | `_business/decisions/2026-08-16-scale-limits.md` |
-| 2026-08-16 | D-093 | D-093 — travelwinners.shop 메인 화면 확정 (O-1 종결) | `_business/decisions/2026-08-16-shop-main.md` |
-| 2026-08-12 | — | 도시 이름 별칭 체계 (2026-08-12) | `_business/decisions/2026-08-12-city-alias.md` |
-| 2026-08-11 | — | 창구 차선 분리 (2026-08-11) — 동시 개발이 가능해진 지점 | `_business/decisions/2026-08-11-ops-lanes.md` |
-| 2026-08-11 | — | DB 잠금 2차 (2026-08-11) — 표 12개 추가 잠금 | `_business/decisions/2026-08-11-db-lock-round2.md` |
-| 2026-08-11 | D-071 | 아고다 전체 호텔 명부 구축 (2026-08-11) | `_business/decisions/2026-08-11-agoda-master-full.md` |
-| 2026-08-11 | D-071 | 스튜디오 호텔 ↔ 아고다 번호 잇기 (2026-08-11) | `_business/decisions/2026-08-11-agoda-id-link.md` |
-
-### 지역·주소·도시  (37건)
-| 날짜 | ID | 무엇을 정했나 | 파일 |
-|:---:|:---:|---|---|
-| 2026-08-16 | D-093 | D-093 — travelwinners.shop 메인 화면 확정 (O-1 종결) | `_business/decisions/2026-08-16-shop-main.md` |
-| 2026-08-12 | — | 도시 이름 별칭 체계 (2026-08-12) | `_business/decisions/2026-08-12-city-alias.md` |
-| 2026-08-11 | — | DB 잠금 2차 (2026-08-11) — 표 12개 추가 잠금 | `_business/decisions/2026-08-11-db-lock-round2.md` |
-| 2026-08-11 | D-071 | 아고다 전체 호텔 명부 구축 (2026-08-11) | `_business/decisions/2026-08-11-agoda-master-full.md` |
-| 2026-08-11 | D-071 | 스튜디오 호텔 ↔ 아고다 번호 잇기 (2026-08-11) | `_business/decisions/2026-08-11-agoda-id-link.md` |
-| 2026-08-08 | D-085 | D-085 · 구글에 주소를 다시 물어본다 (지역 채우기 D안) | `_business/decisions/2026-08-08-구글주소-재조회.md` |
-| 2026-08-08 | D-083 | D-083 후속 · 지역 채움 — **주소 파싱은 여기서 끝낸다** (전수 진단 근거) | `_business/decisions/2026-08-08-지역채움-주소파싱-종료.md` |
-| 2026-08-08 | D-083 | D-083 · 지역 채움 — 「할 수 있는 것 / 못 하는 것」을 시스템이 스스로 가른다 | `_business/decisions/2026-08-08-지역채움-지원국가.md` |
-
-### 키워드·조사  (22건)
-| 날짜 | ID | 무엇을 정했나 | 파일 |
-|:---:|:---:|---|---|
-| 2026-08-12 | — | 도시 이름 별칭 체계 (2026-08-12) | `_business/decisions/2026-08-12-city-alias.md` |
-| 2026-08-01 | D-075 | D-075 · 키워드 조사 시스템 — 발굴 규칙과 순환 구조 바로잡기 | `_business/decisions/2026-08-01-keyword-harvest-cycle.md` |
-| 2026-07-27 | D-077 | D-077 · 자동화 비용 정책 — 봇을 늘려도 돈이 안 들게 | `_business/decisions/2026-07-27-automation-cost-policy.md` |
-| 2026-07-27 | D-076 | D-076 · 시스템 배선 관리 — 「그때그때 다시 확인」을 끝낸다 | `_business/decisions/2026-07-27-system-wiring-doctrine.md` |
-| 2026-07-26 | D-074 | D-074 · 스튜디오 영문판 (i18n) | `_business/decisions/2026-07-26-studio-i18n.md` |
-| 2026-07-22 | D-073 | 🔴 2026-07-22 사고 — 아고다 자료 과적으로 서비스 중단 (D-073) | `_business/decisions/2026-07-22-db-overload-incident.md` |
-| 2026-07-21 | D-073 | 결정 D-073 : 키워드 월별 재조사 + 조사일 표시 (화면 정리) | `_business/decisions/2026-07-21-keyword-monthly-resurvey.md` |
-| 2026-07-20 | D-070 | 결정 D-070 : 나라별 지역(구·동네) 파싱 — 전 세계 대응 틀 + 측정 시스템 정리 | `_business/decisions/2026-07-20-country-district-parsing.md` |
-
-### 예약·수수료  (39건)
-| 날짜 | ID | 무엇을 정했나 | 파일 |
-|:---:|:---:|---|---|
-| 2026-08-16 | D-093 | D-093 — travelwinners.shop 메인 화면 확정 (O-1 종결) | `_business/decisions/2026-08-16-shop-main.md` |
-| 2026-08-11 | D-071 | 아고다 전체 호텔 명부 구축 (2026-08-11) | `_business/decisions/2026-08-11-agoda-master-full.md` |
-| 2026-08-11 | D-071 | 스튜디오 호텔 ↔ 아고다 번호 잇기 (2026-08-11) | `_business/decisions/2026-08-11-agoda-id-link.md` |
-| 2026-08-08 | D-083 | D-083 후속 · 지역 채움 — **주소 파싱은 여기서 끝낸다** (전수 진단 근거) | `_business/decisions/2026-08-08-지역채움-주소파싱-종료.md` |
-| 2026-08-08 | D-083 | D-083 · 지역 채움 — 「할 수 있는 것 / 못 하는 것」을 시스템이 스스로 가른다 | `_business/decisions/2026-08-08-지역채움-지원국가.md` |
-| 2026-08-01 | D-075 | D-075 · 키워드 조사 시스템 — 발굴 규칙과 순환 구조 바로잡기 | `_business/decisions/2026-08-01-keyword-harvest-cycle.md` |
-| 2026-07-27 | D-078 | D-078 · 아고다 CID — 채널 하나에 번호 여럿 | `_business/decisions/2026-07-27-cid-multi-per-channel.md` |
-| 2026-07-27 | D-077 | D-077 · 자동화 비용 정책 — 봇을 늘려도 돈이 안 들게 | `_business/decisions/2026-07-27-automation-cost-policy.md` |
-
-### 결제·인보이스  (10건)
-| 날짜 | ID | 무엇을 정했나 | 파일 |
-|:---:|:---:|---|---|
-| 2026-08-16 | D-095 | D-095 — travelwinners.shop 의 DB, 따로 쓸 것인가 같이 쓸 것인가 | `_business/decisions/2026-08-16-db-shared-or-split.md` |
-| 2026-07-22 | D-073 | 🔴 2026-07-22 사고 — 아고다 자료 과적으로 서비스 중단 (D-073) | `_business/decisions/2026-07-22-db-overload-incident.md` |
-| 2026-07-17 | D-067 | D-067 호텔 데이터 3층 설계 — **정석** (2026-07-17 확정) | `_business/decisions/2026-07-17-hotel-data-layers.md` |
-| 2026-07-13 | D-062 | 호텔 마스터(통합 명단) 정석 방향 결정 (2026-07-13) | `_business/decisions/2026-07-13-hotel-master-direction.md` |
-| 2026-07-13 | D-062 | 스튜디오 호텔 메뉴 — 최종 UI/UX 확정 + 서비스 방향 (2026-07-13) | `_business/decisions/2026-07-13-studio-hotel-menu-final-ux.md` |
-| 2026-07-11 | D-061 | 2026-07-11 호텔 매니저 대시보드 구조 (라이브 코드 기준 정리) | `_business/decisions/2026-07-11-manager-dashboard-structure.md` |
-| 2026-06-15 | D-057 | 2026-06-15 메인(index) ①~④ 섹션 확정 | `_business/decisions/2026-06-15-main-sections-1-4-confirmed.md` |
-| 2026-06-11 | D-056 | 메인 스토리 흐름 + 디자인/내용 규칙 (2026-06-11, D-056) | `_business/decisions/2026-06-11-main-story-rules.md` |
-
-### 매니저 여정  (17건)
-| 날짜 | ID | 무엇을 정했나 | 파일 |
-|:---:|:---:|---|---|
-| 2026-07-27 | D-076 | D-076 · 시스템 배선 관리 — 「그때그때 다시 확인」을 끝낸다 | `_business/decisions/2026-07-27-system-wiring-doctrine.md` |
-| 2026-07-17 | D-067 | D-067 호텔 데이터 3층 설계 — **정석** (2026-07-17 확정) | `_business/decisions/2026-07-17-hotel-data-layers.md` |
-| 2026-07-15 | D-067 | 2026-07-15 다채널 노출 전략 (D-067) — 채널은 "고르는 것"이 아니라 "전부 전개되는 것" | `_business/decisions/2026-07-15-multichannel-exposure-strategy.md` |
-| 2026-07-13 | — | 호텔 마스터 1단계 — hotels 확장 스키마 적용 (2026-07-13) | `_business/decisions/2026-07-13-hotel-master-schema-applied.md` |
-| 2026-07-13 | — | 숙소 유형 정책 결정 (2026-07-13) | `_business/decisions/2026-07-13-hotel-type-policy.md` |
-| 2026-07-13 | D-063 | 스튜디오 성과표 메뉴 — 최종 UI/UX 확정 + 서비스 방향 (2026-07-13) | `_business/decisions/2026-07-13-studio-performance-menu-final-ux.md` |
-| 2026-07-13 | D-062 | 호텔 마스터(통합 명단) 정석 방향 결정 (2026-07-13) | `_business/decisions/2026-07-13-hotel-master-direction.md` |
-| 2026-07-13 | D-062 | 스튜디오 호텔 메뉴 — 최종 UI/UX 확정 + 서비스 방향 (2026-07-13) | `_business/decisions/2026-07-13-studio-hotel-menu-final-ux.md` |
-
-### 메일·알림  (6건)
-| 날짜 | ID | 무엇을 정했나 | 파일 |
-|:---:|:---:|---|---|
-| 2026-08-11 | — | DB 잠금 2차 (2026-08-11) — 표 12개 추가 잠금 | `_business/decisions/2026-08-11-db-lock-round2.md` |
-| 2026-07-27 | D-077 | D-077 · 자동화 비용 정책 — 봇을 늘려도 돈이 안 들게 | `_business/decisions/2026-07-27-automation-cost-policy.md` |
-| 2026-07-27 | D-075 | D-075 · 아고다 예약 업로드 무결성 — 사람이 찾지 않아도 되게 | `_business/decisions/2026-07-27-booking-master-integrity.md` |
-| 2026-07-12 | — | 2026-07-12 드라이브 자동읽기 — 폴더·서비스계정 등록 | `_business/decisions/2026-07-12-drive-folder-registered.md` |
-| 2026-07-12 | D-060 | 2026-07-12 콘텐츠 고유코드 = 모든 원고에 자동 부착 (D-060·D-066 보강) | `_business/decisions/2026-07-12-content-code-all-manuscripts.md` |
-| 2026-06-02 | D-052 | 2026-06-02 결정 — B2B 자동메일 언어 전략 (D-052) | `_business/decisions/2026-06-02-email-locale-strategy-d052.md` |
-
-### DB 구조·잠금  (56건)
-| 날짜 | ID | 무엇을 정했나 | 파일 |
-|:---:|:---:|---|---|
-| 2026-08-16 | D-095 | D-095 — travelwinners.shop 의 DB, 따로 쓸 것인가 같이 쓸 것인가 | `_business/decisions/2026-08-16-db-shared-or-split.md` |
-| 2026-08-16 | D-094 | D-094 — 사업이 늘어날 때의 한도 설계 | `_business/decisions/2026-08-16-scale-limits.md` |
-| 2026-08-16 | D-093 | D-093 — travelwinners.shop 메인 화면 확정 (O-1 종결) | `_business/decisions/2026-08-16-shop-main.md` |
-| 2026-08-12 | — | 도시 이름 별칭 체계 (2026-08-12) | `_business/decisions/2026-08-12-city-alias.md` |
-| 2026-08-11 | — | 창구 차선 분리 (2026-08-11) — 동시 개발이 가능해진 지점 | `_business/decisions/2026-08-11-ops-lanes.md` |
-| 2026-08-11 | — | DB 잠금 2차 (2026-08-11) — 표 12개 추가 잠금 | `_business/decisions/2026-08-11-db-lock-round2.md` |
-| 2026-08-11 | D-071 | 아고다 전체 호텔 명부 구축 (2026-08-11) | `_business/decisions/2026-08-11-agoda-master-full.md` |
-| 2026-08-11 | D-071 | 스튜디오 호텔 ↔ 아고다 번호 잇기 (2026-08-11) | `_business/decisions/2026-08-11-agoda-id-link.md` |
-
-### 블로그  (40건)
-| 날짜 | ID | 무엇을 정했나 | 파일 |
-|:---:|:---:|---|---|
-| 2026-08-16 | D-095 | D-095 — travelwinners.shop 의 DB, 따로 쓸 것인가 같이 쓸 것인가 | `_business/decisions/2026-08-16-db-shared-or-split.md` |
-| 2026-08-16 | D-094 | D-094 — 사업이 늘어날 때의 한도 설계 | `_business/decisions/2026-08-16-scale-limits.md` |
-| 2026-08-16 | D-093 | D-093 — travelwinners.shop 메인 화면 확정 (O-1 종결) | `_business/decisions/2026-08-16-shop-main.md` |
-| 2026-08-12 | — | 도시 이름 별칭 체계 (2026-08-12) | `_business/decisions/2026-08-12-city-alias.md` |
-| 2026-08-11 | — | 창구 차선 분리 (2026-08-11) — 동시 개발이 가능해진 지점 | `_business/decisions/2026-08-11-ops-lanes.md` |
-| 2026-08-11 | — | DB 잠금 2차 (2026-08-11) — 표 12개 추가 잠금 | `_business/decisions/2026-08-11-db-lock-round2.md` |
-| 2026-08-11 | D-071 | 아고다 전체 호텔 명부 구축 (2026-08-11) | `_business/decisions/2026-08-11-agoda-master-full.md` |
-| 2026-08-11 | D-071 | 스튜디오 호텔 ↔ 아고다 번호 잇기 (2026-08-11) | `_business/decisions/2026-08-11-agoda-id-link.md` |
-
-### shop·신규사업  (2건)
-| 날짜 | ID | 무엇을 정했나 | 파일 |
-|:---:|:---:|---|---|
-| 2026-08-16 | D-095 | D-095 — travelwinners.shop 의 DB, 따로 쓸 것인가 같이 쓸 것인가 | `_business/decisions/2026-08-16-db-shared-or-split.md` |
-| 2026-08-16 | D-093 | D-093 — travelwinners.shop 메인 화면 확정 (O-1 종결) | `_business/decisions/2026-08-16-shop-main.md` |
-
-### 화면·디자인  (41건)
-| 날짜 | ID | 무엇을 정했나 | 파일 |
-|:---:|:---:|---|---|
-| 2026-08-16 | D-095 | D-095 — travelwinners.shop 의 DB, 따로 쓸 것인가 같이 쓸 것인가 | `_business/decisions/2026-08-16-db-shared-or-split.md` |
-| 2026-08-16 | D-094 | D-094 — 사업이 늘어날 때의 한도 설계 | `_business/decisions/2026-08-16-scale-limits.md` |
-| 2026-08-16 | D-093 | D-093 — travelwinners.shop 메인 화면 확정 (O-1 종결) | `_business/decisions/2026-08-16-shop-main.md` |
-| 2026-08-11 | — | DB 잠금 2차 (2026-08-11) — 표 12개 추가 잠금 | `_business/decisions/2026-08-11-db-lock-round2.md` |
-| 2026-08-08 | D-083 | D-083 후속 · 지역 채움 — **주소 파싱은 여기서 끝낸다** (전수 진단 근거) | `_business/decisions/2026-08-08-지역채움-주소파싱-종료.md` |
-| 2026-08-01 | D-075 | D-075 · 키워드 조사 시스템 — 발굴 규칙과 순환 구조 바로잡기 | `_business/decisions/2026-08-01-keyword-harvest-cycle.md` |
-| 2026-07-27 | D-078 | D-078 · 아고다 CID — 채널 하나에 번호 여럿 | `_business/decisions/2026-07-27-cid-multi-per-channel.md` |
-| 2026-07-27 | D-076 | D-076 · 시스템 배선 관리 — 「그때그때 다시 확인」을 끝낸다 | `_business/decisions/2026-07-27-system-wiring-doctrine.md` |
-
-### OS·규칙  (43건)
-| 날짜 | ID | 무엇을 정했나 | 파일 |
-|:---:|:---:|---|---|
-| 2026-08-16 | D-095 | D-095 — travelwinners.shop 의 DB, 따로 쓸 것인가 같이 쓸 것인가 | `_business/decisions/2026-08-16-db-shared-or-split.md` |
-| 2026-08-16 | D-094 | D-094 — 사업이 늘어날 때의 한도 설계 | `_business/decisions/2026-08-16-scale-limits.md` |
-| 2026-08-16 | D-093 | D-093 — travelwinners.shop 메인 화면 확정 (O-1 종결) | `_business/decisions/2026-08-16-shop-main.md` |
-| 2026-08-11 | — | DB 잠금 2차 (2026-08-11) — 표 12개 추가 잠금 | `_business/decisions/2026-08-11-db-lock-round2.md` |
-| 2026-08-11 | D-071 | 아고다 전체 호텔 명부 구축 (2026-08-11) | `_business/decisions/2026-08-11-agoda-master-full.md` |
-| 2026-08-08 | D-085 | D-085 · 구글에 주소를 다시 물어본다 (지역 채우기 D안) | `_business/decisions/2026-08-08-구글주소-재조회.md` |
-| 2026-08-08 | D-083 | D-083 후속 · 지역 채움 — **주소 파싱은 여기서 끝낸다** (전수 진단 근거) | `_business/decisions/2026-08-08-지역채움-주소파싱-종료.md` |
-| 2026-08-08 | D-083 | D-083 · 지역 채움 — 「할 수 있는 것 / 못 하는 것」을 시스템이 스스로 가른다 | `_business/decisions/2026-08-08-지역채움-지원국가.md` |
+| 주제 | 이미 정해진 기준 | 어디 |
+|---|---|---|
+| **호텔 중복** | 좌표 **15m** 안이면 한 그룹(아고다 좌표 · 구글 안 씀) · **성급은 잣대 아님** · 물증 = 리뷰수·객실수·주소 · 최종 «따로 팔면 다른 호텔» · 합치기는 대표님이 확인함에서 | `D-071` 2026-07-20·07-22 |
+| **로봇이 안 도는 것 같을 때** | «부르는 곳이 없다»는 고장이 아니라 **은퇴**일 수 있다 | `_os/workers/registry.json` state·note |
+| **여러 블로그 가르기** | 표 이름 아님 · `site_id` 칸 | `D-B101` · staycurate `docs/PREFIX.md` |
+| **도시 이름이 안 맞을 때** | 하나로 강제하지 않는다 · `find_city()` · `city_alias` | 2026-08-12 city-alias |
+| **수익이 0으로 보일 때** | 버그 아님 — **아고다 자료 미업로드** | 대표님 2026-08-29 |
+| **재료가 안 모일 때** | 출처가 없는 게 아니라 **시계가 일꾼을 못 부르는 것**일 수 있다 | GAPS I·J (08-29) |
 
 ---
 
-## 🔴 특히 자주 틀리는 것 (실수 기록)
+## 주제별 색인 (결정문서 57건 전수)
 
-| 주제 | 이미 정해진 것 | 어디 |
-|---|---|---|
-| 호텔 중복 | 좌표 15m · 성급은 잣대 아님 · 리뷰수/객실수 물증 · «따로 팔면 다른 호텔» · 대표님이 확인함에서 누른다 | `D-071` (2026-07-20·07-22) |
-| 로봇이 안 도는 것 같을 때 | «부르는 곳이 없다»는 고장이 아니라 **은퇴**일 수 있다 | `_os/workers/registry.json` state·note |
-| 여러 블로그 가르기 | 표 이름 아님 · `site_id` 칸 | `D-B101` · `staycurate/docs/PREFIX.md` |
-| 도시 이름이 안 맞을 때 | 하나로 강제하지 않는다 · `find_city()` · `city_alias` | 2026-08-12 city-alias |
-| 수익이 0으로 보일 때 | 아고다 자료 미업로드가 원인 — 버그 아님 | 대표님 2026-08-29 |
+### 호텔 중복·병합  (2건)
+| 날짜 | ID | 무엇을 정했나 | 파일 |
+|:---:|:---:|---|---|
+| 2026-07-21 | D-072 | 결정 D-072 : 다채널 배포 구조 — cid·중복·예약기간 정리 | `_business/decisions/2026-07-21-multichannel-distribution.md` |
+| 2026-07-20 | D-071 | 결정 D-071 : 호텔 중복 판정·병합 시스템 (좌표 기반) | `_business/decisions/2026-07-20-hotel-dedup-merge.md` |
 
-**작성**: 2026-08-29 · 결정문서 57건 전수 색인 · **관련**: `DECISIONS_INDEX.md`(전체 목록) · `DECISIONS.md`(스토리)
+### 호텔 명부·코드  (5건)
+| 날짜 | ID | 무엇을 정했나 | 파일 |
+|:---:|:---:|---|---|
+| 2026-08-11 | D-071 | 아고다 전체 호텔 명부 구축 (2026-08-11) | `_business/decisions/2026-08-11-agoda-master-full.md` |
+| 2026-07-20 | D-069 | 결정 D-069 : 키워드·호텔 데이터 파이프라인 — 아고다 1차 · 유튜브 기준 · 자동 순환 · 저비용 | `_business/decisions/2026-07-20-data-pipeline-auto.md` |
+| 2026-07-17 | D-067 | D-067 호텔 데이터 3층 설계 — **정석** (2026-07-17 확정) | `_business/decisions/2026-07-17-hotel-data-layers.md` |
+| 2026-07-13 | — | 호텔 마스터 1단계 — hotels 확장 스키마 적용 (2026-07-13) | `_business/decisions/2026-07-13-hotel-master-schema-applied.md` |
+| 2026-07-13 | D-062 | 호텔 마스터(통합 명단) 정석 방향 결정 (2026-07-13) | `_business/decisions/2026-07-13-hotel-master-direction.md` |
+
+### 아고다 연동  (4건)
+| 날짜 | ID | 무엇을 정했나 | 파일 |
+|:---:|:---:|---|---|
+| 2026-08-11 | D-071 | 스튜디오 호텔 ↔ 아고다 번호 잇기 (2026-08-11) | `_business/decisions/2026-08-11-agoda-id-link.md` |
+| 2026-07-27 | D-078 | D-078 · 아고다 CID — 채널 하나에 번호 여럿 | `_business/decisions/2026-07-27-cid-multi-per-channel.md` |
+| 2026-07-27 | D-075 | D-075 · 아고다 예약 업로드 무결성 — 사람이 찾지 않아도 되게 | `_business/decisions/2026-07-27-booking-master-integrity.md` |
+| 2026-07-22 | D-073 | 🔴 2026-07-22 사고 — 아고다 자료 과적으로 서비스 중단 (D-073) | `_business/decisions/2026-07-22-db-overload-incident.md` |
+
+### 지역·주소·도시  (5건)
+| 날짜 | ID | 무엇을 정했나 | 파일 |
+|:---:|:---:|---|---|
+| 2026-08-12 | — | 도시 이름 별칭 체계 (2026-08-12) | `_business/decisions/2026-08-12-city-alias.md` |
+| 2026-08-08 | D-085 | D-085 · 구글에 주소를 다시 물어본다 (지역 채우기 D안) | `_business/decisions/2026-08-08-구글주소-재조회.md` |
+| 2026-08-08 | D-083 | D-083 후속 · 지역 채움 — **주소 파싱은 여기서 끝낸다** (전수 진단 근거) | `_business/decisions/2026-08-08-지역채움-주소파싱-종료.md` |
+| 2026-08-08 | D-083 | D-083 · 지역 채움 — 「할 수 있는 것 / 못 하는 것」을 시스템이 스스로 가른다 | `_business/decisions/2026-08-08-지역채움-지원국가.md` |
+| 2026-07-20 | D-070 | 결정 D-070 : 나라별 지역(구·동네) 파싱 — 전 세계 대응 틀 + 측정 시스템 정리 | `_business/decisions/2026-07-20-country-district-parsing.md` |
+
+### 예약·수수료  (4건)
+| 날짜 | ID | 무엇을 정했나 | 파일 |
+|:---:|:---:|---|---|
+| 2026-07-14 | — | 예약된 작업 — 수작업 소개 이력 파일 → DB 반영 (BL-EXPOSURE-IMPORT) | `_business/decisions/2026-07-14-exposure-import-plan.md` |
+| 2026-07-13 | D-063 | 스튜디오 성과표 메뉴 — 최종 UI/UX 확정 + 서비스 방향 (2026-07-13) | `_business/decisions/2026-07-13-studio-performance-menu-final-ux.md` |
+| 2026-06-11 | D-055 | 작업 기록: 과거 예약 데이터 시스템 적재 (2026-06-11) | `_business/decisions/2026-06-11-legacy-booking-migration.md` |
+| 2026-06-02 | D-053 | D-053 — admin 호텔 상세 페이지 (매니저 분석 미러링 + 회차·기간·마케팅전 예약) | `_business/decisions/2026-06-02-admin-hotel-detail-d053.md` |
+
+### 키워드·콘텐츠  (13건)
+| 날짜 | ID | 무엇을 정했나 | 파일 |
+|:---:|:---:|---|---|
+| 2026-08-01 | D-075 | D-075 · 키워드 조사 시스템 — 발굴 규칙과 순환 구조 바로잡기 | `_business/decisions/2026-08-01-keyword-harvest-cycle.md` |
+| 2026-07-21 | D-073 | 결정 D-073 : 키워드 월별 재조사 + 조사일 표시 (화면 정리) | `_business/decisions/2026-07-21-keyword-monthly-resurvey.md` |
+| 2026-07-19 | D-066 | 2026-07-19 자체 기획 원고 흐름 + 확인 필요 사유 확정 (D-066 보강 · D-067) | `_business/decisions/2026-07-19-manuscript-flow-review-reasons.md` |
+| 2026-07-16 | D-068 | D-068 — 콘텐츠 1개 : 시나리오 N개 (채널별). 코드는 시나리오의 것 (2026-07-16) | `_business/decisions/2026-07-16-content-scenario-per-channel.md` |
+| 2026-07-15 | D-067 | 2026-07-15 다채널 노출 전략 (D-067) — 채널은 "고르는 것"이 아니라 "전부 전개되는 것" | `_business/decisions/2026-07-15-multichannel-exposure-strategy.md` |
+| 2026-07-14 | D-065 | 키워드 메뉴 — 화면 전수 점검표 (빌드 스펙) | `_business/decisions/2026-07-14-keyword-screen-checklist.md` |
+| 2026-07-14 | D-065 | 2026-07-14 키워드 메뉴 재설계 — 작업 중 정리 (WIP) | `_business/decisions/2026-07-14-keyword-menu-redesign-wip.md` |
+| 2026-07-12 | — | 분석 페이지 날짜 표기 원칙 (채널명 단일화 관련) | `_business/decisions/2026-07-12-analytics-date-principle.md` |
+| 2026-07-12 | D-066 | 2026-07-12 스튜디오 전략 메뉴 (UX/UI) — 만들 콘텐츠 기획 큐 + 방향 판 | `_business/decisions/2026-07-12-studio-strategy-menu.md` |
+| 2026-07-12 | D-060 | 2026-07-12 콘텐츠 고유코드 = 모든 원고에 자동 부착 (D-060·D-066 보강) | `_business/decisions/2026-07-12-content-code-all-manuscripts.md` |
+| 2026-07-11 | D-065 | 2026-07-11 스튜디오 키워드 메뉴 (UX/UI) — 분석·추천 엔진 + 수요 트렌드 인텔리전스 | `_business/decisions/2026-07-11-studio-keyword-menu.md` |
+| 2026-07-11 | D-064 | 2026-07-11 스튜디오 채널 메뉴 (UX/UI) — 채널 자산·규격 관리 마스터 | `_business/decisions/2026-07-11-studio-channel-menu.md` |
+| 2026-07-11 | D-063 | 2026-07-11 스튜디오 성과표 메뉴 (UX/UI) — 전 채널·영상·호텔 종합 조망 | `_business/decisions/2026-07-11-studio-performance-menu.md` |
+
+### 매니저 여정  (2건)
+| 날짜 | ID | 무엇을 정했나 | 파일 |
+|:---:|:---:|---|---|
+| 2026-07-11 | D-061 | 2026-07-11 호텔 매니저 대시보드 구조 (라이브 코드 기준 정리) | `_business/decisions/2026-07-11-manager-dashboard-structure.md` |
+| 2026-05-30 | D-050 | 2026-05-30 직전 채팅 결정 2벌저장 — 매니저 진입 정리 + 로그인 유지 옵트인 (D-050·D-051) | `_business/decisions/2026-05-30-handoff-d050-d051.md` |
+
+### 메일·알림  (1건)
+| 날짜 | ID | 무엇을 정했나 | 파일 |
+|:---:|:---:|---|---|
+| 2026-06-02 | D-052 | 2026-06-02 결정 — B2B 자동메일 언어 전략 (D-052) | `_business/decisions/2026-06-02-email-locale-strategy-d052.md` |
+
+### DB·창구·한도  (4건)
+| 날짜 | ID | 무엇을 정했나 | 파일 |
+|:---:|:---:|---|---|
+| 2026-08-16 | D-095 | D-095 — travelwinners.shop 의 DB, 따로 쓸 것인가 같이 쓸 것인가 | `_business/decisions/2026-08-16-db-shared-or-split.md` |
+| 2026-08-16 | D-094 | D-094 — 사업이 늘어날 때의 한도 설계 | `_business/decisions/2026-08-16-scale-limits.md` |
+| 2026-08-11 | — | 창구 차선 분리 (2026-08-11) — 동시 개발이 가능해진 지점 | `_business/decisions/2026-08-11-ops-lanes.md` |
+| 2026-08-11 | — | DB 잠금 2차 (2026-08-11) — 표 12개 추가 잠금 | `_business/decisions/2026-08-11-db-lock-round2.md` |
+
+### 블로그·shop  (2건)
+| 날짜 | ID | 무엇을 정했나 | 파일 |
+|:---:|:---:|---|---|
+| 2026-08-16 | D-093 | D-093 — travelwinners.shop 메인 화면 확정 (O-1 종결) | `_business/decisions/2026-08-16-shop-main.md` |
+| 2026-07-11 | D-058 | 2026-07-11 유튜브 발행 관리 + 조회수 추적 시스템 | `_business/decisions/2026-07-11-youtube-publish-viewcount-system.md` |
+
+### 화면·디자인  (7건)
+| 날짜 | ID | 무엇을 정했나 | 파일 |
+|:---:|:---:|---|---|
+| 2026-07-26 | D-074 | D-074 · 스튜디오 영문판 (i18n) | `_business/decisions/2026-07-26-studio-i18n.md` |
+| 2026-07-13 | D-062 | 스튜디오 호텔 메뉴 — 최종 UI/UX 확정 + 서비스 방향 (2026-07-13) | `_business/decisions/2026-07-13-studio-hotel-menu-final-ux.md` |
+| 2026-07-11 | D-062 | 2026-07-11 스튜디오 호텔 메뉴 (UX/UI) — 전략 분석 대시보드 | `_business/decisions/2026-07-11-studio-hotel-menu.md` |
+| 2026-07-11 | D-060 | 2026-07-11 스튜디오 올리기 메뉴 전체 설계 (UX/UI) | `_business/decisions/2026-07-11-studio-upload-menu-full.md` |
+| 2026-06-15 | D-057 | 2026-06-15 메인(index) ①~④ 섹션 확정 | `_business/decisions/2026-06-15-main-sections-1-4-confirmed.md` |
+| 2026-06-11 | D-056 | 메인 스토리 흐름 + 디자인/내용 규칙 (2026-06-11, D-056) | `_business/decisions/2026-06-11-main-story-rules.md` |
+| 2026-06-07 | D-055 | 메인 페이지 재설계 결정 (2026-06-07) | `_business/decisions/2026-06-07-main-redesign.md` |
+
+### OS·운영규칙  (3건)
+| 날짜 | ID | 무엇을 정했나 | 파일 |
+|:---:|:---:|---|---|
+| 2026-07-27 | D-077 | D-077 · 자동화 비용 정책 — 봇을 늘려도 돈이 안 들게 | `_business/decisions/2026-07-27-automation-cost-policy.md` |
+| 2026-05-28 | — | 2026-05-28 결정 기록 누락 자동 감지 봇 (D16) | `_business/decisions/2026-05-28-decisions-audit-bot.md` |
+| 2026-05-26 | — | 2026-05-26 시스템 재설계 1단계 - 결정 8건 | `_business/decisions/2026-05-26-system-redesign-step1.md` |
+
+### 기타  (5건)
+| 날짜 | ID | 무엇을 정했나 | 파일 |
+|:---:|:---:|---|---|
+| 2026-07-27 | D-076 | D-076 · 시스템 배선 관리 — 「그때그때 다시 확인」을 끝낸다 | `_business/decisions/2026-07-27-system-wiring-doctrine.md` |
+| 2026-07-13 | — | 숙소 유형 정책 결정 (2026-07-13) | `_business/decisions/2026-07-13-hotel-type-policy.md` |
+| 2026-07-12 | — | 2026-07-12 드라이브 자동읽기 — 폴더·서비스계정 등록 | `_business/decisions/2026-07-12-drive-folder-registered.md` |
+| 2026-07-03 | D-057 | 이 파일은 잘못된 위치입니다 (2026-07-03 시스템 정정) | `_business/decisions/2026-07-03-main-redesign-handoff.md` |
+| 2026-05-27 | — | 2026-05-27 base64 사고 + 새 룰 3건 + 사업 합의 6건 (백로그 정리) | `_business/decisions/2026-05-27-incident-and-new-rules.md` |
+
+---
+
+**작성**: 2026-08-29 · 결정문서 57건 · 주제는 **제목 기준 1개씩** 배정(본문 훑기는 43건짜리 뭉치를 만들어 못 쓴다)
+**관련**: `DECISIONS_INDEX.md`(전체 목록·개별 색인) · `DECISIONS.md`(스토리) · staycurate `docs/BUSINESS-MAP.md §7`(대표님 화면)

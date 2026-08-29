@@ -79,6 +79,16 @@ gohotelwinners  staycurate     (예정)
 
 ---
 
+
+### 3-B. 2026-08-29 갱신 — 블로그가 자기 발행 창구를 가졌다 (D-B102)
+```
+새로 생김   POST www.staycurate.com/api/ops/github-commit   (30/h)
+            GET  www.staycurate.com/api/ops/github-read     (120/h)
+            🔴 GITHUB_PAT 이 없으면 스튜디오 창구로 자동 우회(door:"borrowed") — 안 끊긴다
+계속 빌림   pool-weekends(아고다 가격) · google-places · blog-stats
+            이유: 아고다·구글 열쇠는 스튜디오에만 둔다 (D-B02)
+허용 레포   github-read/commit 화이트리스트에 tw-personal-os 추가(2026-08-29) — 개인OS 를 클로드가 읽는다
+```
 ## 4. 새 사업을 시작할 때 (표준 6단계)
 
 앞으로 사업이 늘어도 **이 6개만** 만든다. 매번 구조를 다시 논의하지 않는다.
@@ -87,7 +97,14 @@ gohotelwinners  staycurate     (예정)
 2. 자기 GitHub 레포
 3. 자기 Vercel 프로젝트
 4. **자기 문 + 자기 열쇠 + 자기 몫(90회)** — `staycurate/api/ops/db-query.js` 복사해서 이름만 바꿈
-5. **자기 이름표** (`blog_` 처럼 `ceylon_` · `package_`)
+5. **자기 이름표** (`blog_` 처럼 `ceylon_` · `package_`) — 🔴 **단, 창고를 «같이» 쓰는 경우는 아래 예외**
+
+   > **🔴 2026-08-29 D-B101 로 갱신 — 같은 창고 안에서는 이름표를 새로 만들지 않는다.**
+   > 같은 창고를 쓰는 새 사업(예: 블로그 2호점)은 **표 이름을 가르지 않고 `site_id` 칸으로 가른다.**
+   > 이유: 표 이름을 갈라 창고를 나누면 **«두 곳의 글이 겹치는지» 맞대볼 수가 없다.**
+   > 구글이 벌하는 것은 창고 구조가 아니라 **글이 같은 것**이다(2026-08-29 정책 실측 · `staycurate/docs/PREFIX.md §3-1`).
+   > 지금 `site_id` 를 가진 표 **19개** · 재료 23표에는 안 붙인다(호텔은 어디서 보든 같은 호텔).
+   > 창고를 **따로** 쓰는 새 사업(패키지·CEYLON 등)은 원래대로 자기 이름표를 쓴다.
 6. 관리실 `_os/status-targets.json` 에 **한 줄 추가** → 신호등 자동 생성
 
 ### 창고를 «같이» 쓸지 판단하는 기준 한 줄

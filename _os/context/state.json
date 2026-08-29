@@ -49,10 +49,10 @@
    "주소": "1hogi.gohotelwinners.com",
    "레포": "dgmasters01/tw-personal-os",
    "하는일": "대표님 메일·할일·판정",
-   "DB": "창고B fifsuiwsgdounlpialqx (완전 별개)",
-   "일꾼": "4(3명 미확인)",
-   "완성도": "⚪ 미파악",
-   "막힘": "레포 비공개 + /api/status 로그인 필요 → 클로드가 못 봄"
+   "DB": "창고B fifsuiwsgdounlpialqx · 표 35개(items·mail_messages·judgment_*·contacts·cases 등)",
+   "일꾼": "4 (메일 수집 15분마다 · 판정 · 구글 출입증 · 완성도 점검)",
+   "완성도": "틀은 있고 자료가 0건 — 메일 수집이 돌기 시작하면 채워짐",
+   "막힘": "DB 창구는 열쇠 값이 달라 클로드가 못 본다(레포는 08-29부터 읽힘)"
   }
  ],
  "창고": {
@@ -90,7 +90,19 @@
    "쓰는서비스": [
     "personal"
    ],
-   "상태": "내부 미파악"
+   "표": 35,
+   "대표표": [
+    "items 할일",
+    "mail_messages 메일",
+    "judgment_requests 판정함",
+    "waiting_replies 회신대기",
+    "contacts·cases 사람·건",
+    "routines 반복일",
+    "daily_briefs 하루요약",
+    "heartbeats 생존신호"
+   ],
+   "크론": "1개 — /api/cron/mail-sync 15분마다",
+   "안전규칙": "메일 삭제·발송 금지(읽기만) · 2026-07-27 이전 메일 미접근"
   }
  },
  "창구": {
@@ -106,7 +118,11 @@
    "blog-stats": "관리화면 통계",
    "db-query(옛길)": "자기 문이 죽었을 때만"
   },
-  "인증": "x-ops-token · 블로그 OPS_TOKEN 값 == 스튜디오 CLAUDE_OPS_TOKEN 값 (한쪽만 바꾸면 401)"
+  "인증": "x-ops-token · 블로그 OPS_TOKEN 값 == 스튜디오 CLAUDE_OPS_TOKEN 값 (한쪽만 바꾸면 401)",
+  "개인OS": {
+   "레포읽기": "08-29 허용목록 추가 완료 (repo=tw-personal-os)",
+   "DB": "POST 1hogi.gohotelwinners.com/api/ops/db-query — 401(열쇠 다름)"
+  }
  },
  "열쇠이름": {
   "블로그13개": [
@@ -194,11 +210,10 @@
   "작업목록": "tw-b2b tasks.json"
  },
  "클로드가_아직_못_본_것": [
-  "개인OS 레포(tw-personal-os) — 비공개 · 창구 allowlist 에 없음",
-  "개인OS /api/status — 로그인 필요 (x-ops-token 401)",
-  "GitHub 이슈 본문 — 비인증 호출 한도(60/h)로 막힘",
-  "스튜디오 개발 봇 13명 개별 동작 — 미점검",
-  "뷰 84개 소유 판정 — 표 106개만 함"
+  "개인OS DB 창구 — 열쇠(CLAUDE_OPS_TOKEN) 값이 블로그·스튜디오와 달라 401 (대표님 몫)",
+  "GitHub 이슈 본문 — 비인증 한도",
+  "스튜디오 개발 봇 13명 개별 동작 — 미점검(클로드가 할 수 있음)",
+  "뷰 84개 소유 판정 — 표 106개만 함(클로드가 할 수 있음)"
  ],
  "규칙요약": [
   "대표님은 결정만 · 시스템이 실행·검증",

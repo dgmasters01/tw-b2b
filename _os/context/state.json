@@ -123,7 +123,8 @@
   "개인OS": {
    "레포읽기": "08-29 허용목록 추가 완료 (repo=tw-personal-os)",
    "DB": "POST 1hogi.gohotelwinners.com/api/ops/db-query — 401(열쇠 다름)"
-  }
+  },
+  "한도": "db-query 시간당 90 = 사람35 · 클로드25 · 로봇30 (2026-08-29 차선 3분할)"
  },
  "열쇠이름": {
   "블로그13개": [
@@ -244,6 +245,7 @@
  "작업전_필수": [
   "_os/context/state.json (전체 상태)",
   "_os/context/DECISION-LOOKUP.md (이 주제 이미 정해진 게 있나 — 판단 전에 먼저)",
-  "_os/workers/registry.json (로봇 만지기 전)"
+  "_os/workers/registry.json (로봇 만지기 전)",
+  "🔴 DB 조회 시 헤더 x-ops-client: claude 를 반드시 붙인다 — 안 붙이면 로봇 몫을 먹어 일꾼이 굶는다(08-29 사고)"
  ]
 }

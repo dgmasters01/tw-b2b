@@ -67,6 +67,7 @@
 | 헌법 자가 검증 깊이 필요 시 | `OPERATIONS_CHARTER.md` |
 | 새 의사결정 박을 때 | `DECISIONS.md` / `DECISIONS_INDEX.md` |
 | 사이드바·메뉴 작업 | `_os/admin-pages/menu-manifest.json` + `business-context/tools-manifest.json` |
+| **모델·한도 판단 (매 응답 🚦 줄)** | `_os/playbook/model-routing.md` — 기본은 **Opus**. 되돌리기 어려운 구조 결정·며칠 막힌 버그만 **Fable**. 조회·보고는 **Sonnet**. Fable 은 한도를 2배로 깎는다 |
 | 새 운영 룰이 필요할 때 | `_os/playbook/README.md` (인덱스 먼저, 그 후 해당 1~2개) |
 | 인계 받은 작업 이어가기 | `_os/handoff/current.md` |
 | 작업 표준 워크플로 | `_os/playbook/workflow.md` |
@@ -149,6 +150,6 @@
 
 ---
 
-**Last updated**: 2026-08-12 (결정 확정 시 문서 4곳 자동 갱신 의무 추가)
+**Last updated**: 2026-08-29 (모델 라우팅 룰북 등재)
 **Maintained by**: 클로드 (under direction of 이지형 대표님)
 **Length budget**: 100줄 이하 유지 (boot은 가벼워야 한다)

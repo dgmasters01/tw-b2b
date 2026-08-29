@@ -1,7 +1,7 @@
 {
-  "overall": "yellow",
-  "summary": "[yellow] admin_baseline: 관리자 페이지 5개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요)",
-  "checked_at": "2026-08-29T00:54:30.698Z",
+  "overall": "red",
+  "summary": "[yellow] admin_baseline: 관리자 페이지 5개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요) / [red] decisions_sync: 결정 1건이 박혔는데 결정 기록(사람용/검색용 2벌)이 저장 안 됐어요 — _os/charter/decisions-index.md + _business/decisions/ 둘 다 박아주세요 (D5 룰)",
+  "checked_at": "2026-08-29T07:45:44.806Z",
   "checks": [
     {
       "name": "admin_baseline",
@@ -56,23 +56,25 @@
     },
     {
       "name": "decisions_sync",
-      "status": "green",
-      "detail": "최근 24시간 새 결정 없음 — 기록 누락 위험 없어요",
-      "missing_source": []
+      "status": "red",
+      "detail": "결정 1건이 박혔는데 결정 기록(사람용/검색용 2벌)이 저장 안 됐어요 — _os/charter/decisions-index.md + _business/decisions/ 둘 다 박아주세요 (D5 룰)",
+      "missing_source": [
+        "27e20155 (결정 기록 2벌 저장 누락)"
+      ]
     },
     {
       "name": "vercel_sync",
       "status": "green",
-      "detail": "라이브 사이트가 GitHub와 같은 버전이에요 (d3b8ed6)",
-      "live_sha": "d3b8ed6",
-      "vercel_sha": "d3b8ed6",
+      "detail": "라이브 사이트가 GitHub와 같은 버전이에요 (ca51e37)",
+      "live_sha": "ca51e37",
+      "vercel_sha": "ca51e37",
       "project": "tw-b2b"
     },
     {
       "name": "vercel_quota",
       "status": "green",
-      "detail": "최근 24시간 동안 18번 배포 (한도 100번 중 18% 사용, 여유 있음)",
-      "deployments_24h": 18,
+      "detail": "최근 24시간 동안 20번 배포 (한도 100번 중 20% 사용, 여유 있음)",
+      "deployments_24h": 20,
       "limit": 100
     }
   ]

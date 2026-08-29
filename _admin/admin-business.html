@@ -144,6 +144,27 @@ const DOCS = [
     branch: 'main',
   },
   {
+    file: '_os/context/state.json',
+    icon: '🧠',
+    name: '🆕 전체 상태 한 벌 (클로드용)',
+    desc: '새 채팅의 클로드가 30초에 읽는 것 — 서비스4·창고2·표106·일꾼76·막힌 곳·정본 위치',
+    branch: 'main',
+  },
+  {
+    file: '_os/context/DECISION-LOOKUP.md',
+    icon: '🔎',
+    name: '🆕 «이 주제는 어느 결정문서»',
+    desc: '결정 57건 주제별 색인 — 판단하기 전에 먼저 찾는다 (2026-08-29 신설)',
+    branch: 'main',
+  },
+  {
+    file: '_os/workers/WORKERS.md',
+    icon: '🏢',
+    name: '🆕 일꾼 조직도 (76명)',
+    desc: '블로그28·스튜디오21·개발실23·개인OS4 — 팀별·역할별·무슨 일을 하나',
+    branch: 'main',
+  },
+  {
     file: 'SYSTEM_MAP.md',
     icon: '🧭',
     name: '🧭 시스템 지도',
@@ -275,7 +296,10 @@ async function loadDoc(filename, force){
   contentEl.innerHTML = '<div class="bd-state">📥 GitHub에서 로딩 중...</div>';
 
   try {
-    const url = ghBase + filename + (force ? '?_=' + Date.now() : '');
+    // 🔴 2026-08-29 — 문서마다 다른 주소 허용 (블로그 레포 문서 공유용)
+    //    DOCS 항목에 url 이 있으면 그것을 쓴다. 없으면 기존대로 tw-b2b raw.
+    const _d = DOCS.find(x => x.file === filename);
+    const url = (_d && _d.url ? _d.url : ghBase + filename) + (force ? '?_=' + Date.now() : '');
     const resp = await fetch(url);
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
     const md = await resp.text();

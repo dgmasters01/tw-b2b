@@ -82,7 +82,9 @@ gohotelwinners  staycurate     (예정)
 
 ### 3-B. 2026-08-29 갱신 — 블로그가 자기 발행 창구를 가졌다 (D-B102)
 ```
-새로 생김   POST www.staycurate.com/api/ops/github-commit   (30/h)
+새로 생김   POST www.staycurate.com/api/ops/github-commit   (120/h)
+✅ 2026-08-30  열쇠(GITHUB_PAT) 투입 완료 → door:own. 블로그가 GitHub 로 직접 저장한다
+               → 스튜디오가 멈춰도 블로그 발행은 계속된다(의존 하나 끊김)
             GET  www.staycurate.com/api/ops/github-read     (120/h)
             🔴 GITHUB_PAT 이 없으면 스튜디오 창구로 자동 우회(door:"borrowed") — 안 끊긴다
 계속 빌림   pool-weekends(아고다 가격) · google-places · blog-stats

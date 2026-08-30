@@ -209,14 +209,14 @@
    "service": "blog",
    "group": "후기 모으기",
    "name_ko": "아고다 후기 일꾼",
-   "where": "cron-collect 가 부름",
-   "when": "밀린 게 있을 때",
+   "where": "Vercel(블로그) 전용 시계",
+   "when": "매시 15분 (회당 5곳)",
    "does": "아고다 정식 창구로 후기를 받아온다",
    "makes": "blog_review_corpus",
    "check_where": "/admin/#health",
    "status": "돎",
    "last_seen": "",
-   "note": "남은 394"
+   "note": "2026-08-29 전용 시계 부여(그전엔 cron-collect 회전) · 2026-08-30 출근부 기록 추가"
   },
   {
    "id": "blog.bot-rakuten-review",
@@ -265,14 +265,14 @@
    "service": "blog",
    "group": "읽고 판단",
    "name_ko": "후기 판독 일꾼",
-   "where": "클로드(대화창)",
-   "when": "대표님이 시킬 때",
+   "where": "Vercel 크론(10분) — 그러나 열쇠 미투입이라 실제로는 클로드가 대화창에서",
+   "when": "10분마다 호출되나 열쇠 없어 무동작 · 실제 판독은 대표님이 시킬 때",
    "does": "후기를 문장으로 읽고 «좋은 점·아쉬운 점»을 뽑는다",
    "makes": "blog_hotel_fact",
    "check_where": "/admin/#health",
    "status": "수동",
    "last_seen": "",
-   "note": "🔴 남은 2,394 — 지금 가장 큰 병목"
+   "note": "🔴 크론은 등록돼 있고 열쇠(ANTHROPIC_API_KEY)만 없다. 열쇠를 넣으면 자동 판독이 시작된다(비용 발생) — 대표님 결정 대기"
   },
   {
    "id": "blog.bot-target",

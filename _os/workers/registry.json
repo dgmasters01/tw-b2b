@@ -1,6 +1,6 @@
 {
  "version": 1,
- "updated": "2026-08-29",
+ "updated": "2026-08-31",
  "services": [
   {
    "key": "blog",
@@ -47,7 +47,7 @@
    "makes": "blog_cron_log 에 회차 기록",
    "check_where": "/admin/#health",
    "status": "돎",
-   "last_seen": "08-29 18:05",
+   "last_seen": "08-31 14:05",
    "note": ""
   },
   {
@@ -61,7 +61,7 @@
    "makes": "blog_cron_log",
    "check_where": "/admin/#health",
    "status": "돎",
-   "last_seen": "08-29 18:21",
+   "last_seen": "08-31 14:21",
    "note": ""
   },
   {
@@ -75,7 +75,7 @@
    "makes": "blog_cron_log",
    "check_where": "/admin/#health",
    "status": "돎",
-   "last_seen": "08-29 18:35",
+   "last_seen": "08-31 13:35",
    "note": ""
   },
   {
@@ -89,7 +89,7 @@
    "makes": "blog_cron_log",
    "check_where": "/admin/#health",
    "status": "돎",
-   "last_seen": "08-29 17:50",
+   "last_seen": "08-31 13:50",
    "note": ""
   },
   {
@@ -103,7 +103,7 @@
    "makes": "blog_cron_log",
    "check_where": "/admin/#health",
    "status": "돎",
-   "last_seen": "08-29 18:25",
+   "last_seen": "08-31 14:25",
    "note": ""
   },
   {
@@ -117,8 +117,8 @@
    "makes": "blog_daily_task",
    "check_where": "/admin/#today",
    "status": "돎",
-   "last_seen": "08-29 15:05",
-   "note": ""
+   "last_seen": "08-31 13:39",
+   "note": "🔴 2026-08-31 크론 401 수정 — Vercel 시계가 매시 정확히 불렀는데 x-vercel-cron 헤더만 보는 옛 문지기가 401 로 쫓아냈다(로그 실측: 매시 :15 GET 401 이 24시간). user-agent(vercel-cron/1.0)도 함께 보도록 통일. 08-18 에 cron·cron-collect 만 고치고 나머지를 안 고친 것이 뿌리."
   },
   {
    "id": "blog.cron-price",
@@ -131,7 +131,7 @@
    "makes": "hotel_pool 가격 행",
    "check_where": "/admin/#health 남은 일감",
    "status": "돎",
-   "last_seen": "08-29 18:41",
+   "last_seen": "08-31 13:40",
    "note": "남은 104"
   },
   {
@@ -160,7 +160,7 @@
    "check_where": "/admin/#health",
    "status": "돎",
    "last_seen": "",
-   "note": "남은 283"
+   "note": "남은 283 🔴 2026-08-31 크론 401 수정 — Vercel 시계가 매시 정확히 불렀는데 x-vercel-cron 헤더만 보는 옛 문지기가 401 로 쫓아냈다(로그 실측: 매시 :15 GET 401 이 24시간). user-agent(vercel-cron/1.0)도 함께 보도록 통일. 08-18 에 cron·cron-collect 만 고치고 나머지를 안 고친 것이 뿌리."
   },
   {
    "id": "blog.bot-intro",
@@ -174,7 +174,7 @@
    "check_where": "/admin/#health",
    "status": "돎",
    "last_seen": "",
-   "note": "남은 409"
+   "note": "남은 409 🔴 2026-08-31 크론 401 수정 — Vercel 시계가 매시 정확히 불렀는데 x-vercel-cron 헤더만 보는 옛 문지기가 401 로 쫓아냈다(로그 실측: 매시 :15 GET 401 이 24시간). user-agent(vercel-cron/1.0)도 함께 보도록 통일. 08-18 에 cron·cron-collect 만 고치고 나머지를 안 고친 것이 뿌리."
   },
   {
    "id": "blog.bot-intro-fact",
@@ -210,13 +210,13 @@
    "group": "후기 모으기",
    "name_ko": "아고다 후기 일꾼",
    "where": "Vercel(블로그) 전용 시계",
-   "when": "매시 15분 (회당 5곳)",
-   "does": "아고다 정식 창구로 후기를 받아온다",
+   "when": "매시 15분(전용 시계) + 수집 시계(매시 35분)",
+   "does": "아고다 정식 창구로 후기를 받아온다 · 일본 밖 도시의 둘째 출처(라쿠텐은 일본 전용이라 해외를 못 덮는다)",
    "makes": "blog_review_corpus",
    "check_where": "/admin/#health",
    "status": "돎",
-   "last_seen": "",
-   "note": "2026-08-29 전용 시계 부여(그전엔 cron-collect 회전) · 2026-08-30 출근부 기록 추가"
+   "last_seen": "08-31 14:15",
+   "note": "2026-08-29 전용 시계 부여(그전엔 cron-collect 회전) · 2026-08-30 출근부 기록 추가 🔴 2026-08-31 크론 401 수정 — Vercel 시계가 매시 정확히 불렀는데 x-vercel-cron 헤더만 보는 옛 문지기가 401 로 쫓아냈다(로그 실측: 매시 :15 GET 401 이 24시간). user-agent(vercel-cron/1.0)도 함께 보도록 통일. 08-18 에 cron·cron-collect 만 고치고 나머지를 안 고친 것이 뿌리."
   },
   {
    "id": "blog.bot-rakuten-review",
@@ -225,12 +225,12 @@
    "name_ko": "라쿠텐 후기 일꾼",
    "where": "cron-collect 가 부름",
    "when": "밀린 게 있을 때",
-   "does": "일본 라쿠텐 후기를 받아온다",
+   "does": "일본 라쿠텐 후기를 받아온다 · 🔴 라쿠텐은 일본 전용 — blog_city_slug.rakuten_area 가 있는 도시만 대상. 해외 도시는 애초에 대상이 아니라 «대상 없음»이 정상이다",
    "makes": "blog_review_corpus",
    "check_where": "/admin/#health",
    "status": "돎",
    "last_seen": "08-29 03:35",
-   "note": "남은 49"
+   "note": "남은 49 🔴 2026-08-31 크론 401 수정 — Vercel 시계가 매시 정확히 불렀는데 x-vercel-cron 헤더만 보는 옛 문지기가 401 로 쫓아냈다(로그 실측: 매시 :15 GET 401 이 24시간). user-agent(vercel-cron/1.0)도 함께 보도록 통일. 08-18 에 cron·cron-collect 만 고치고 나머지를 안 고친 것이 뿌리."
   },
   {
    "id": "blog.bot-rakuten",
@@ -239,12 +239,12 @@
    "name_ko": "라쿠텐 호텔찾기 일꾼",
    "where": "cron-collect 가 부름",
    "when": "4시간마다",
-   "does": "우리 호텔이 라쿠텐에서 어느 것인지 좌표로 찾는다",
+   "does": "우리 호텔이 라쿠텐에서 어느 것인지 좌표로 찾는다 · 🔴 라쿠텐은 일본 전용 — blog_city_slug.rakuten_area 가 있는 도시만 대상. 해외 도시는 애초에 대상이 아니라 «대상 없음»이 정상이다",
    "makes": "blog_hotel_source_map",
    "check_where": "/admin/#health",
    "status": "돎",
    "last_seen": "",
-   "note": "남은 10"
+   "note": "남은 10 🔴 2026-08-31 크론 401 수정 — Vercel 시계가 매시 정확히 불렀는데 x-vercel-cron 헤더만 보는 옛 문지기가 401 로 쫓아냈다(로그 실측: 매시 :15 GET 401 이 24시간). user-agent(vercel-cron/1.0)도 함께 보도록 통일. 08-18 에 cron·cron-collect 만 고치고 나머지를 안 고친 것이 뿌리."
   },
   {
    "id": "blog.bot-jalan",
@@ -258,7 +258,7 @@
    "check_where": "/admin/#health",
    "status": "돎",
    "last_seen": "",
-   "note": "남은 66"
+   "note": "남은 66 🔴 2026-08-31 크론 401 수정 — Vercel 시계가 매시 정확히 불렀는데 x-vercel-cron 헤더만 보는 옛 문지기가 401 로 쫓아냈다(로그 실측: 매시 :15 GET 401 이 24시간). user-agent(vercel-cron/1.0)도 함께 보도록 통일. 08-18 에 cron·cron-collect 만 고치고 나머지를 안 고친 것이 뿌리."
   },
   {
    "id": "blog.bot-read",
@@ -272,7 +272,7 @@
    "check_where": "/admin/#health",
    "status": "수동",
    "last_seen": "",
-   "note": "🔴 크론은 등록돼 있고 열쇠(ANTHROPIC_API_KEY)만 없다. 열쇠를 넣으면 자동 판독이 시작된다(비용 발생) — 대표님 결정 대기"
+   "note": "🔴 크론은 등록돼 있고 열쇠(ANTHROPIC_API_KEY)만 없다. 열쇠를 넣으면 자동 판독이 시작된다(비용 발생) — 대표님 결정 대기 🔴 2026-08-31 크론 401 수정 — Vercel 시계가 매시 정확히 불렀는데 x-vercel-cron 헤더만 보는 옛 문지기가 401 로 쫓아냈다(로그 실측: 매시 :15 GET 401 이 24시간). user-agent(vercel-cron/1.0)도 함께 보도록 통일. 08-18 에 cron·cron-collect 만 고치고 나머지를 안 고친 것이 뿌리."
   },
   {
    "id": "blog.bot-target",
@@ -286,7 +286,7 @@
    "check_where": "/admin/#health",
    "status": "돎",
    "last_seen": "",
-   "note": "남은 419"
+   "note": "남은 419 🔴 2026-08-31 크론 401 수정 — Vercel 시계가 매시 정확히 불렀는데 x-vercel-cron 헤더만 보는 옛 문지기가 401 로 쫓아냈다(로그 실측: 매시 :15 GET 401 이 24시간). user-agent(vercel-cron/1.0)도 함께 보도록 통일. 08-18 에 cron·cron-collect 만 고치고 나머지를 안 고친 것이 뿌리."
   },
   {
    "id": "blog.bot-check",
@@ -341,7 +341,7 @@
    "makes": "blog_publish_plan",
    "check_where": "/admin/#schedule",
    "status": "돎",
-   "last_seen": "",
+   "last_seen": "08-30 16:38",
    "note": ""
   },
   {
@@ -355,7 +355,7 @@
    "makes": "blog_post",
    "check_where": "/admin/#review",
    "status": "돎",
-   "last_seen": "08-29 07:25",
+   "last_seen": "08-31 07:25",
    "note": ""
   },
   {
@@ -369,7 +369,7 @@
    "makes": "blog_gsc_daily",
    "check_where": "/admin/#visitor",
    "status": "돎",
-   "last_seen": "08-25",
+   "last_seen": "08-31 05:40",
    "note": ""
   },
   {

@@ -223,14 +223,14 @@
    "service": "blog",
    "group": "후기 모으기",
    "name_ko": "라쿠텐 후기 일꾼",
-   "where": "cron-collect 가 부름",
-   "when": "밀린 게 있을 때",
+   "where": "Vercel(블로그)",
+   "when": "매시 45분(전용 시계)",
    "does": "일본 라쿠텐 후기를 받아온다 · 🔴 라쿠텐은 일본 전용 — blog_city_slug.rakuten_area 가 있는 도시만 대상. 해외 도시는 애초에 대상이 아니라 «대상 없음»이 정상이다",
    "makes": "blog_review_corpus",
    "check_where": "/admin/#health",
    "status": "돎",
    "last_seen": "08-29 03:35",
-   "note": "남은 49 🔴 2026-08-31 크론 401 수정 — Vercel 시계가 매시 정확히 불렀는데 x-vercel-cron 헤더만 보는 옛 문지기가 401 로 쫓아냈다(로그 실측: 매시 :15 GET 401 이 24시간). user-agent(vercel-cron/1.0)도 함께 보도록 통일. 08-18 에 cron·cron-collect 만 고치고 나머지를 안 고친 것이 뿌리."
+   "note": "남은 49 🔴 2026-08-31 크론 401 수정 — Vercel 시계가 매시 정확히 불렀는데 x-vercel-cron 헤더만 보는 옛 문지기가 401 로 쫓아냈다(로그 실측: 매시 :15 GET 401 이 24시간). user-agent(vercel-cron/1.0)도 함께 보도록 통일. 08-18 에 cron·cron-collect 만 고치고 나머지를 안 고친 것이 뿌리. 🔴 2026-08-31 전용 시계 등록 + 출근부 기록 추가"
   },
   {
    "id": "blog.bot-rakuten",

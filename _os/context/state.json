@@ -178,7 +178,8 @@
    "가격미확보": 2,
    "대표님승인대기": 6,
    "발행됨": 5,
-   "메모": "08-29 아고다 후기 일꾼에 전용 시계(:15) 부여 후 막힘 10→5편. 수집은 이제 자동으로 줄어든다"
+   "메모": "08-29 아고다 후기 일꾼에 전용 시계(:15) 부여 후 막힘 10→5편. 수집은 이제 자동으로 줄어든다",
+   "안도는시계": "🔴 bot-agoda-review(:15) · worker-audit(22:45) — vercel.json 에는 있는데 26시간 실행 0. 대표님 Vercel Cron Jobs 확인 대기 (GAPS AM). 손해는 작다 — 후기는 cron-collect(:35)가 계속 줍는다"
   },
   "스튜디오": {
    "열린작업": 73,
@@ -255,7 +256,8 @@
   "🔴 파일을 올린 뒤 «배포본»을 내려받아 node --check 한다. 사본만 검사하면 빌드가 깨진 줄 모르고 «고쳤습니다»라고 잘못 보고하게 된다(08-30 20분 허비)",
   "🔴 시안(visualizer)으로 대표님 승인을 받았으면 그 시안의 구성 요소를 «전부» 규격 문서에 적는다 — 08-30 성과 화면 탭 4개가 AK 절에서 빠져 다음 세션이 3단계만 만들었다(GAPS AL-3)",
   "🔴 성과 «예약 타이밍» 구간(임박·근접·먼)은 막대 건수는 SQL(perf_hotel_one.leadtime), 막대를 눌러 나오는 목록은 화면 계산이다 — perf_bookings 의 예약일에 연도가 없어(MM-DD) 체크인 연도로 되짚기 때문. 둘이 어긋나면 GAPS AL-4 를 먼저 본다",
-  "🔴 성과 화면 호텔 목록은 perf_hotels2 다. perf_hotels(옛것)은 쓰지 않는다 — 이름이 비슷해 매번 헷갈린다"
+  "🔴 성과 화면 호텔 목록은 perf_hotels2 다. perf_hotels(옛것)은 쓰지 않는다 — 이름이 비슷해 매번 헷갈린다",
+  "🔴 시계가 «등록돼 있다»와 «돈다»는 다르다. vercel.json 만 보고 판단하지 말고 blog_cron_log(출근부) + 실제 산출물 시각(예: 후기 collected_at)으로 두 번 확인한다 (2026-08-31 A16)"
  ],
  "작업전_필수": [
   "🔴 staycurate/docs/HOW-I-WORK.md (작업 절차 5단계 — 이것부터)",
@@ -264,11 +266,11 @@
   "_os/workers/registry.json (로봇 만지기 전)"
  ],
  "다음작업": {
-  "무엇": "A16 — 전용 시계가 실제로 도는지 확인 (bot-agoda-review 매시 :15 · bot-plan 매월 1일)",
-  "왜": "08-30 출근부 기록을 붙여 뒀다. 다음 정시에 «[시계]» 기록이 남는지 실측한다 (ROADMAP A16)",
-  "보는법": "blog_bot_run(출근부)에서 bot_key·started_at·note 로 «[시계]» 기록 확인 — 안 남으면 워크플로가 안 도는 것",
-  "그다음": "A17 gsc-sync 출근부 기록 없음 · A20 일꾼 표시를 registry.json 에서 자동으로",
-  "🔴주의": "«안 돈다»가 아니라 «은퇴»일 수 있다 — registry.json 의 state·note 를 먼저 본다"
+  "무엇": "A20 — 일꾼 표시를 명부(blog_bot_registry / registry.json)에서 자동으로",
+  "왜": "08-31 실측에서 worker-audit·link-guard 가 명부에 없어 일꾼 화면에 안 뜨는 것을 확인했다. 새 일꾼이 조용히 빠진다 (GAPS AB·AM)",
+  "같이볼것": "vercel.json 시계 15개 ↔ blog_bot_registry 를 맞대 «시계는 있는데 명부에 없음 / 명부는 manual 인데 시계가 있음(bot-read)» 을 한 번에 정리",
+  "막힌것": "A16 은 클로드 몫이 끝났다 — Vercel Cron Jobs 화면은 대표님만 볼 수 있다 (OWNER-TODO)",
+  "🔴주의": "«안 돈다»가 아니라 «은퇴·수동»일 수 있다 — registry 의 state·note 를 먼저 본다 (bot-read 가 그 예)"
  },
  "성과화면": {
   "상태": "✅ A22 v5 완료 (2026-08-30) — admin/parts/metrics.html",

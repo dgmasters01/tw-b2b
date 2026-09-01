@@ -116,7 +116,13 @@ jobs:
             COUNT=$(git diff --cached --name-only docs/screenshots/ | wc -l)
             ARCHIVE_COUNT=$(git diff --cached --name-only docs/screenshots/archive/ 2>/dev/null | wc -l || echo 0)
             git commit -m "[capture-bot] 페이지 캡처 갱신 ($COUNT장 / archive $ARCHIVE_COUNT장 누적) [변경사유: BL-015 / D-028 — BEFORE/AFTER 자동 보관 / 트리거: ${{ github.event_name }}]"
-            git push
+            # 🔴 2026-09-01 — push 만 있으면 원격이 앞설 때 그냥 죽는다(ops-status #330 사고).
+            #    이 레포엔 봇이 여럿 + 클로드도 창구로 커밋한다. pull --rebase 로 3회까지 재시도한다.
+            for attempt in 1 2 3; do
+              if git push; then echo "✅ push 완료 (시도 ${attempt})"; break; fi
+              echo "⚠️ push 실패 (시도 ${attempt}) — pull --rebase 후 재시도"
+              git pull --rebase --strategy-option=ours origin main || { echo "❌ rebase 충돌 — 수동 개입 필요"; exit 1; }
+            done
             echo "✅ $COUNT장 캡처 push 완료"
           else
             echo "ℹ️ 캡처 변동 없음 (skip commit)"

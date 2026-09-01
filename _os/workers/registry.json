@@ -71,12 +71,12 @@
    "name_ko": "수집 시계",
    "where": "Vercel(블로그)",
    "when": "매시 35분",
-   "does": "호텔정보·후기 일꾼 8명을 차례로 깨운다",
+   "does": "호텔정보·후기 일꾼 7명을 차례로 깨운다 (한 회차 1명)",
    "makes": "blog_cron_log",
    "check_where": "/admin/#health",
    "status": "돎",
    "last_seen": "08-31 13:35",
-   "note": ""
+   "note": "🔴 2026-09-01 회전 9→7. ① 은퇴한 소개글(bot-intro) 제거 — GAPS BA 은퇴 결정의 미완 부분. v_bot_pending 이 428건을 «밀렸다»고 잡아 매 바퀴 한 자리를 먹고 아무 일도 안 했다. ② 기본(bot-basic)은 전용 시계로 독립."
   },
   {
    "id": "blog.cron-photo",
@@ -153,14 +153,14 @@
    "service": "blog",
    "group": "호텔정보",
    "name_ko": "호텔 기본정보 일꾼",
-   "where": "cron-collect 가 부름",
-   "when": "4시간마다",
-   "does": "호텔 이름·주소·별점 같은 기본 칸을 채운다",
-   "makes": "hotel_master",
+   "where": "Vercel(블로그)",
+   "when": "매시 정각(전용 시계)",
+   "does": "구글 상세에서 «공식 홈페이지 주소»·place_id·시설 플래그를 캔다 — 🔴 명부에 «이름·주소·별점»으로 잘못 적혀 있었다(09-01 정정)",
+   "makes": "hotel_master · blog_hotel_fact",
    "check_where": "/admin/#health",
    "status": "돎",
    "last_seen": "",
-   "note": "남은 283 🔴 2026-08-31 크론 401 수정 — Vercel 시계가 매시 정확히 불렀는데 x-vercel-cron 헤더만 보는 옛 문지기가 401 로 쫓아냈다(로그 실측: 매시 :15 GET 401 이 24시간). user-agent(vercel-cron/1.0)도 함께 보도록 통일. 08-18 에 cron·cron-collect 만 고치고 나머지를 안 고친 것이 뿌리."
+   "note": "🔴 2026-09-01 전용 시계 신설(매시 정각·limit 5) + 출근부 기록 추가. 그전엔 cron-collect 회전(9명 중 1번·회당 2곳)이라 하루 2~6곳뿐이었다(8/25~9/1 실측). 아고다 후기(08-29)와 같은 처방. 남은 341곳. 🔴 명부 설명이 실제와 달라 «347곳 공식주소 없음» 문제와 이 일꾼이 연결되는 것을 오래 못 봤다. 남은 283 🔴 2026-08-31 크론 401 수정 — Vercel 시계가 매시 정확히 불렀는데 x-vercel-cron 헤더만 보는 옛 문지기가 401 로 쫓아냈다(로그 실측: 매시 :15 GET 401 이 24시간). user-agent(vercel-cron/1.0)도 함께 보도록 통일. 08-18 에 cron·cron-collect 만 고치고 나머지를 안 고친 것이 뿌리."
   },
   {
    "id": "blog.bot-intro",

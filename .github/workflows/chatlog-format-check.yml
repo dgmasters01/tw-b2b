@@ -65,5 +65,11 @@ jobs:
           else
             git add _chat-logs/_format-report.json
             git commit -m "[chatlog-format-bot] _format-report.json 갱신 (D-036)"
-            git push origin HEAD:${GITHUB_REF#refs/heads/}
+            # 🔴 2026-09-01 — push 만 있으면 원격이 앞설 때 그냥 죽는다(ops-status #330 사고).
+            #    이 레포엔 봇이 여럿 + 클로드도 창구로 커밋한다. pull --rebase 로 3회까지 재시도한다.
+            for attempt in 1 2 3; do
+              if git push origin HEAD:${GITHUB_REF#refs/heads/}; then echo "✅ push 완료 (시도 ${attempt})"; break; fi
+              echo "⚠️ push 실패 (시도 ${attempt}) — pull --rebase 후 재시도"
+              git pull --rebase --strategy-option=ours origin main || { echo "❌ rebase 충돌 — 수동 개입 필요"; exit 1; }
+            done
           fi

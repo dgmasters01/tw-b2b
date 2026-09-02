@@ -4,7 +4,11 @@
 // 왜 (2026-07-16 인계서 최우선): Supabase FREE = 자동 백업 없음. LAST BACKUP = No backups.
 //   예약 7,316 · 호텔 3,185 = 사업 전부. 헌법 9조 "이중 백업" = Supabase(원본) + GitHub 비공개(사본).
 //
-// 실행: Vercel Cron (vercel.json crons) — UTC 19:00 = KST 04:00.
+// 🔴 2026-09-02 — 이 입구는 더 이상 «자동»이 아니다. 크론에서 뺐다.
+//    진짜 백업은 GitHub Actions .github/workflows/db-backup.yml (매일 UTC 18:10 = KST 03:10) 가 한다.
+//    이유: 옛 읽기 방식(ORDER BY ctid + OFFSET)이 한 쪽마다 301만 행을 정렬해 6.9시간이 걸렸다.
+//    열쇠순으로 고쳐 13분이 됐지만 Vercel Pro 상한(800초)에 너무 붙어 있어 Actions 로 옮겼다.
+//    여기는 ?dry_run=1 로 «창고에 닿는지» 확인할 때만 손으로 부른다.
 //       왜 새벽인가: 좌표 크론(UTC 08·12·16)과 겹치지 않고, 대표님 작업 시간과도 안 겹친다.
 //
 // 인증: Vercel Cron 은 Authorization: Bearer <CRON_SECRET> 로 부른다.

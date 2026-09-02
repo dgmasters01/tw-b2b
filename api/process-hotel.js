@@ -1,3 +1,7 @@
+// 🔴 2026-09-01 rating·photos 제거 (대표님 «구글 평점 필요 없어 · 사진도 필요 없잖아»)
+//    구글은 FieldMask 중 «가장 비싼 필드» 기준으로 요청 전체를 과금한다.
+//    rating 이 있으면 Enterprise(무료 1,000/월), photos 까지면 +Atmosphere.
+//    빼면 Pro(무료 5,000/월)로 내려간다. 평점은 아고다 자료, 사진은 아고다 Lite API 로 받는다.
 // /api/process-hotel.js
 // 아고다 URL을 받아서 아고다 + Google Places 통합 정보 반환
 // 호텔 매니저 가입 시 핵심 호출
@@ -292,7 +296,7 @@ async function searchGooglePlaces(query, lat, lng, apiKey) {
       headers: {
         'Content-Type': 'application/json',
         'X-Goog-Api-Key': apiKey,
-        'X-Goog-FieldMask': 'places.id,places.displayName,places.formattedAddress,places.shortFormattedAddress,places.location,places.rating,places.userRatingCount,places.websiteUri,places.internationalPhoneNumber,places.googleMapsUri,places.photos'
+        'X-Goog-FieldMask': 'places.id,places.displayName,places.formattedAddress,places.shortFormattedAddress,places.location,places.websiteUri,places.internationalPhoneNumber,places.googleMapsUri'
       },
       body: JSON.stringify(body)
     });
@@ -410,3 +414,4 @@ function addDays(date, days) {
   d.setDate(d.getDate() + days);
   return d.toISOString().slice(0, 10);
 }
+

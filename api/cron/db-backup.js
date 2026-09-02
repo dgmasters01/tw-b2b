@@ -17,7 +17,12 @@
 
 import { runBackup } from '../_lib/db-backup.js';
 
-export const config = { maxDuration: 300 };
+// 🔴 2026-09-02 maxDuration 300 → 800 (대표님 «Vercel pro 버전 쓰고 있어»)
+//    우리는 Vercel Pro 다. Pro/Enterprise 는 함수를 800초(약 13분)까지 돌릴 수 있다.
+//    300 은 Hobby 기본값이다 — 요금제가 이미 풀어준 것을 몰라 하루를 썼다.
+//    🔴 node 런타임이라 가능하다. edge 런타임 일꾼은 이 값을 못 올린다(BUSINESS-MAP §5-D-3).
+//    이래도 모자라면 GitHub Actions(6시간)로 옮긴다 — 이미 26개 쓰고 있다.
+export const config = { maxDuration: 800 };
 
 function authOk(req) {
   const cron = process.env.CRON_SECRET;
@@ -43,3 +48,4 @@ export default async function handler(req, res) {
     return res.status(500).json({ ok: false, error: String(e.message || e) });
   }
 }
+

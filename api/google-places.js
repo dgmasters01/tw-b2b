@@ -73,6 +73,13 @@ export default async function handler(req, res) {
     if (placeId) {
       // 🔴 languageCode 를 주면 그 언어 후기를 우선으로 돌려준다 (한국인 후기 확보용)
       const detail = await getPlaceDetail(placeId, apiKey, languageCode, mode);
+      if (isQuota(null, detail)) {
+        return res.status(429).json({
+          error: 'quota_stop', source: 'google',
+          message: '구글 한도에 닿아 멈췄습니다. 오류가 아니라 «다음 회차에» 입니다.',
+          mode
+        });
+      }
       await meter(mode, caller, 1);
       return res.status(200).json({
         success: true,
@@ -117,6 +124,18 @@ export default async function handler(req, res) {
     const data = await response.json();
 
     if (!response.ok) {
+      // 🔴 2026-09-02 «막힘»과 «없음»을 구분한다 (대표님 «한도로 정지돼도 오류가 아니게»)
+      //    구글 콘솔 한도(하루 30회)에 걸리면 429 RESOURCE_EXHAUSTED 가 온다.
+      //    전에는 이것도 그냥 error 로 돌려줘서, 일꾼이 «구글에서 못 찾음» 으로 기록했다.
+      //    -> 멀쩡한 호텔이 «구글에 없는 곳»으로 낙인찍혔다. 한도가 풀려도 다시 안 본다.
+      //    이제 quota_stop 으로 돌려주면 일꾼이 «다음 회차에» 로 넘긴다. 낙인을 안 찍는다.
+      if (isQuota(response.status, data)) {
+        return res.status(429).json({
+          error: 'quota_stop', source: 'google',
+          message: '구글 한도에 닿아 멈췄습니다. 오류가 아니라 «다음 회차에» 입니다.',
+          mode
+        });
+      }
       return res.status(response.status).json({
         error: 'Google Places API error',
         details: data
@@ -157,6 +176,16 @@ async function getPlaceDetail(placeId, apiKey, languageCode, mode) {
 //    전에는 호출자마다 따로 세어서 스튜디오(process-hotel·agoda-search·hotel-closed-check)가
 //    아예 안 세어졌다. 여기 두면 누가 부르든 전부 세어진다.
 //    호출 1회 = 1건. 호텔 1곳은 검색+상세 2회이므로 2건으로 잡힌다(전에는 1로만 셌다).
+// 구글이 «한도라서 못 준다»고 답한 것인지 판정한다. 429 · RESOURCE_EXHAUSTED · RATE_LIMIT_EXCEEDED
+function isQuota(status, data) {
+  if (status === 429) return true;
+  const e = data && data.error;
+  if (!e) return false;
+  if (e.code === 429) return true;
+  if (e.status === 'RESOURCE_EXHAUSTED') return true;
+  return /quota|rate.?limit|exhaust/i.test(String(e.message || ''));
+}
+
 const FREE_CAP = { basic: 5000, status: 5000, reviews: 1000 };  // 구글 공식 (2025-03 개편)
 const SAFE = 0.9;   // 90% 에서 멈춘다 — 넘을 수가 없게
 

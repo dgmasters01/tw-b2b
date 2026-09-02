@@ -2,7 +2,7 @@
 
 > ⚠️ **이 파일은 자동 생성됩니다.** 수동 편집하지 마세요.
 > 단일 진실 소스: `tasks.json` (v2.0)
-> 마지막 갱신: 2026-08-02
+> 마지막 갱신: 2026-09-02
 
 ---
 
@@ -444,6 +444,13 @@ v1 완료 (5/3, 137줄, commit 8759235). 매니저 실제 피드백 받은 후 �
 - `supabase: publications.agoda_links`
 
 **요약**: 원고 docx 는 이미지 때문에 3~4MB. base64 로 감싸면 Vercel serverless payload 한도(4.5MB)를 넘어 413. 지금은 패키지를 미리 만들어 넣는 경로만 동작. 해법 후보: ①구글 드라이브 폴더 감시(서비스 계정) ②Supabase Storage 업로드 후 서버가 읽기 ③브라우저에서 텍스트만 추출해 전송. 대표님 선호는 드라이브 폴더 자동 처리(3.작업대기 → 4.작업완료 → 5.확인필요). | [2026-07-10 완료] 드라이브 없이 해결. 브라우저에서 fflate 로 word/document
+
+---
+
+## 2026-09-02 (Charter-v2) — [조회수] [조회수 수집] 유튜브 Data API 로 주 1회 view_count 수집 (무료)
+
+**요약**: videos.youtube_video_id 50개씩 묶어 videos.list 호출 = 1 unit/호출, 하루 10000 unit 무료. 주 1회면 사실상 0. publications 에 있는 영상만(앞으로 올릴 것부터). 스튜디오·관리자엔 표시, 매니저엔 미표시(D-008). vercel.json cron 주 1회. YOUTUBE_API_KEY env 필요.
+[2026-09-02 실측] vercel.json 크론 /api/cron/yt-views 가 매시 :00 로 이미 가동 중. 승인 대기 표시 해제.
 
 ---
 

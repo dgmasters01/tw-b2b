@@ -2,8 +2,8 @@
 
 > ⚠️ **이 파일은 자동 생성됩니다.** 수동 편집하지 마세요.
 > 단일 진실 소스: `tasks.json` (v2.0)
-> **데드라인**: 2026-05-03
-> **갱신**: 2026-08-02
+> **데드라인**: 2026-06-30
+> **갱신**: 2026-09-02
 > **목적**: 대표님 외근/자리비움 시 Claude 자율 처리 가능 작업
 
 ## 작업 분류 체계
@@ -26,16 +26,6 @@
 **막힘 사유**: supabase 호텔/예약 인프라 박힌 후 4종 사업 source 연결. 진행률 표시 + 활동이력 결함 4건은 BL-IPB-* / BL-ACT-* 로 분리.  
 
 **메모**: ## 🔴 P0 — 통합 To-Do Inbox (관리자 대시보드 재설계) ⭐⭐⭐ 2026-04-29  **배경** (대표님 핵심 운영 철학): > "한 사람이 처리해야 될 업무는 한 곳에서 우선순위가 표시되어 체크하면 정리할 수 있게 해야 됨. 내가 복잡하게 관리하게 하면 안 됨. 나에게 유리하게 해야 됨."  대표님 1인 운영. 처리 작업이 여러 탭에 흩어져 있으면 누락 발생. 한 곳에 통합 필요.  **작업 항목**: 1. **admin.html Dashboard 탭 = To-Do Inbox** 으로 재설계    - 모든 처리 작
-
----
-
-### B. 🟢 AUTO — [스튜디오 재설계] 상단 6메뉴: 올리기·성과표·호텔·키워드·전략·채널
-
-**ID**: `BL-STUDIO-MENU-6TAB`  
-**카테고리**: ux  
-**예상 시간**: 8시간  
-
-**메모**: 대표님이 스튜디오 목적 7개 정의 → 상단 탭 6개로 확정(사이드바 아닌 상단탭=휴대폰 대응). 메뉴명 확정: 올리기 / 성과표 / 호텔 / 키워드 / 전략 / 채널. 채널 필터는 메뉴 아래 공통. 원칙(부칙: 초등학생도 한눈에, 최대 원클릭). 앞으로 올릴 영상부터 조회수·클릭 집계(과거 영상 배제 — 링크 순서 TOP1/2/3 모름). 진행: [올리기] 목업 확정 중 — 목록형 표(원고|채널|상태|누가·언제|확인), 펼치면 복사버튼 4개(제목·설명란[해시태그·챕터 포함]·태그·파일명), 해시태그/챕터는 따로보기로 접음. 호텔 T
 
 ---
 
@@ -203,8 +193,6 @@ detail: 관리자 페이지 5개가 원본과 살짝 달라요 (대표님이 일
 **ID**: `BL-OS-INSTALL-PAT-FLOW`  
 **카테고리**: infra  
 **예상 시간**: 1.5시간  
-**결정 필요 사항**:
-- Q: PAT 박는 방식 — 환경변수 vs .env.local vs GitHub Secrets API
 
 **메모**: BL-DEDUP-CONSOLIDATE와 별건. install_os.sh에 PAT 처리 로직이 박혀있지 않음 (현재 224줄, grep 확인). 설치 후 새 프로젝트에서 GitHub push·workflow 트리거 시 거부됨. Q 답변 후 진행.
 
@@ -295,17 +283,7 @@ DECISIONS.md 변경 감지 → DECISIONS_INDEX.md 자동 갱신. ID 고정 불�
 
 ---
 
-### G. 🟢 AUTO — [조회수 수집] 유튜브 Data API 로 주 1회 view_count 수집 (무료)
-
-**ID**: `BL-YT-VIEWS-COLLECT`  
-**카테고리**: ux  
-**예상 시간**: 8시간  
-
-**메모**: videos.youtube_video_id 50개씩 묶어 videos.list 호출 = 1 unit/호출, 하루 10000 unit 무료. 주 1회면 사실상 0. publications 에 있는 영상만(앞으로 올릴 것부터). 스튜디오·관리자엔 표시, 매니저엔 미표시(D-008). vercel.json cron 주 1회. YOUTUBE_API_KEY env 필요.
-
----
-
-### H. 🟡 SEMI — [지역 검색어가 거의 없음] 하카타 검색어 1개뿐 — 지역 단위로 따로 캐지 않고 도시 검색어에 지역명이 우연히 든 것만 쓴다(난바 17 vs 하카타 1). 지역 발굴 방식 결정 필요
+### G. 🟡 SEMI — [지역 검색어가 거의 없음] 하카타 검색어 1개뿐 — 지역 단위로 따로 캐지 않고 도시 검색어에 지역명이 우연히 든 것만 쓴다(난바 17 vs 하카타 1). 지역 발굴 방식 결정 필요
 
 **ID**: `BL-DISTRICT-KEYWORD`  
 **카테고리**: bugfix  
@@ -315,7 +293,7 @@ DECISIONS.md 변경 감지 → DECISIONS_INDEX.md 자동 갱신. ID 고정 불�
 
 ---
 
-### I. 🟡 SEMI — 호텔 스토리 / LTV 추적
+### H. 🟡 SEMI — 호텔 스토리 / LTV 추적
 
 **ID**: `BL-006`  
 **카테고리**: dev  
@@ -325,7 +303,7 @@ DECISIONS.md 변경 감지 → DECISIONS_INDEX.md 자동 갱신. ID 고정 불�
 
 ---
 
-### J. 🟡 SEMI — 호텔 검색 UX 이슈
+### I. 🟡 SEMI — 호텔 검색 UX 이슈
 
 **ID**: `BL-008`  
 **카테고리**: ux  
@@ -335,7 +313,7 @@ DECISIONS.md 변경 감지 → DECISIONS_INDEX.md 자동 갱신. ID 고정 불�
 
 ---
 
-### K. 🟡 SEMI — Admin Console UI 버그
+### J. 🟡 SEMI — Admin Console UI 버그
 
 **ID**: `BL-009`  
 **카테고리**: bug  
@@ -345,7 +323,7 @@ DECISIONS.md 변경 감지 → DECISIONS_INDEX.md 자동 갱신. ID 고정 불�
 
 ---
 
-### L. 🟡 SEMI — Chrome 안전 브라우징 경고
+### K. 🟡 SEMI — Chrome 안전 브라우징 경고
 
 **ID**: `BL-010`  
 **카테고리**: ux  
@@ -355,7 +333,7 @@ DECISIONS.md 변경 감지 → DECISIONS_INDEX.md 자동 갱신. ID 고정 불�
 
 ---
 
-### M. 🟡 SEMI — [admin Members 탭 국가별 필터] 동남아 그룹 강조
+### L. 🟡 SEMI — [admin Members 탭 국가별 필터] 동남아 그룹 강조
 
 **ID**: `BL-ADMIN-COUNTRY-FILTER`  
 **카테고리**: feature  
@@ -365,7 +343,7 @@ DECISIONS.md 변경 감지 → DECISIONS_INDEX.md 자동 갱신. ID 고정 불�
 
 ---
 
-### N. 🟡 SEMI — [영수증 PDF 5년 영구 보관] Supabase + S3 백업
+### M. 🟡 SEMI — [영수증 PDF 5년 영구 보관] Supabase + S3 백업
 
 **ID**: `BL-RECEIPT-ARCHIVE`  
 **카테고리**: infra  
@@ -375,7 +353,7 @@ DECISIONS.md 변경 감지 → DECISIONS_INDEX.md 자동 갱신. ID 고정 불�
 
 ---
 
-### O. 🟡 SEMI — [이벤트 사이트 고객 회원가입 + 마케팅 동의 DB] 고객 자산화
+### N. 🟡 SEMI — [이벤트 사이트 고객 회원가입 + 마케팅 동의 DB] 고객 자산화
 
 **ID**: `BL-EVENT-CUSTOMER-DB`  
 **카테고리**: feature  
@@ -385,7 +363,7 @@ DECISIONS.md 변경 감지 → DECISIONS_INDEX.md 자동 갱신. ID 고정 불�
 
 ---
 
-### P. 🟡 SEMI — [이벤트 사이트 호텔 대리 결제] Agoda affiliate 또는 직접 결제
+### O. 🟡 SEMI — [이벤트 사이트 호텔 대리 결제] Agoda affiliate 또는 직접 결제
 
 **ID**: `BL-EVENT-PAYMENT-PROXY`  
 **카테고리**: payment  
@@ -395,7 +373,7 @@ DECISIONS.md 변경 감지 → DECISIONS_INDEX.md 자동 갱신. ID 고정 불�
 
 ---
 
-### Q. 🟡 SEMI — [이벤트 송출 호텔 알림 + admin 송출 관리 탭]
+### P. 🟡 SEMI — [이벤트 송출 호텔 알림 + admin 송출 관리 탭]
 
 **ID**: `BL-EVENT-HOTEL-NOTIFY`  
 **카테고리**: feature  
@@ -405,7 +383,7 @@ DECISIONS.md 변경 감지 → DECISIONS_INDEX.md 자동 갱신. ID 고정 불�
 
 ---
 
-### R. 🟡 SEMI — [화면 라벨 정리] 사이드바 메뉴 사업 본질 맞춤 + 영한 토글 전수 점검
+### Q. 🟡 SEMI — [화면 라벨 정리] 사이드바 메뉴 사업 본질 맞춤 + 영한 토글 전수 점검
 
 **ID**: `BL-ADMIN-LABEL-CLEANUP`  
 **카테고리**: ui  

@@ -2977,9 +2977,9 @@ TW Booking Analytics 엑셀에 cid 정보 포함되는지 대표님 확인 필�
 
 > ⚠️ **이 섹션은 자동 생성됩니다.** `tasks.json` → `sync_engine.py` 가 갱신.
 > 직접 편집 금지 — 위쪽 수동 결정 로그만 편집하세요.
-> 마지막 갱신: **2026-08-02** (총 40개 작업)
+> 마지막 갱신: **2026-09-02** (총 39개 작업)
 
-**상태 요약**: absorbed: 1, blocked: 7, cancelled: 1, done: 19, in_progress: 2, obsoleted: 1, pending: 9
+**상태 요약**: absorbed: 1, blocked: 7, cancelled: 1, done: 19, in_progress: 1, obsoleted: 1, pending: 8, waiting_trigger: 1
 
 ---
 
@@ -3015,14 +3015,14 @@ TW Booking Analytics 엑셀에 cid 정보 포함되는지 대표님 확인 필�
 
 ---
 
-### ⚡ P0 — [스튜디오 재설계] 상단 6메뉴: 올리기·성과표·호텔·키워드·전략·채널
+### ❔ P0 — [스튜디오 재설계] 상단 6메뉴: 올리기·성과표·호텔·키워드·전략·채널
 
 - **ID**: `BL-STUDIO-MENU-6TAB`
-- **상태**: `in_progress`
+- **상태**: `waiting_trigger`
 - **카테고리**: ux
 - **생성**: 2026-07-11
 - **메모**: 대표님이 스튜디오 목적 7개 정의 → 상단 탭 6개로 확정(사이드바 아닌 상단탭=휴대폰 대응). 메뉴명 확정: 올리기 / 성과표 / 호텔 / 키워드 / 전략 / 채널. 채널 필터는 메뉴 아래 공통. 원칙(부칙: 초등학생도 한눈에, 최대 원클릭). 앞으로 올릴 영상부터 조회수·클릭 집계(과거 영상 배제 — 링크 순서 TOP1/2/3 모름). 진행: [올리기] 목업 확정 중 — 목록형 표(원고|채널|상태|누가·언제|확인), 펼치면
-- **최근 변경**: 2026-07-27 — `관련 commit 추가 (status 유지)` by auto-detect-bot
+- **최근 변경**: 2026-09-02 — `status 정정: in_progress → waiting_trigger` by 클로드
 
 ---
 
@@ -3033,16 +3033,6 @@ TW Booking Analytics 엑셀에 cid 정보 포함되는지 대표님 확인 필�
 - **카테고리**: ux
 - **생성**: 2026-07-11
 - **메모**: D-006 "사업 모델 핵심 부품". 앞으로 올릴 영상 설명란 링크를 이 형태로. 이미 올라간 영상은 못 바꿈. link_clicks 테이블 없음(신설 필요). 순위(TOP1/2/3)별로 분리 저장 — BL-TRACK-001 의 "TOP1 클릭 4배" 분석용. 성과표·호텔 메뉴의 클릭 칸이 이거 없으면 계속 빈칸. api/youtube.js 의 설명란 링크 생성부를 gohotel.win 형태로 바꿔야 함.
-
----
-
-### ⏳ P2 — [조회수 수집] 유튜브 Data API 로 주 1회 view_count 수집 (무료)
-
-- **ID**: `BL-YT-VIEWS-COLLECT`
-- **상태**: `pending`
-- **카테고리**: ux
-- **생성**: 2026-07-11
-- **메모**: videos.youtube_video_id 50개씩 묶어 videos.list 호출 = 1 unit/호출, 하루 10000 unit 무료. 주 1회면 사실상 0. publications 에 있는 영상만(앞으로 올릴 것부터). 스튜디오·관리자엔 표시, 매니저엔 미표시(D-008). vercel.json cron 주 1회. YOUTUBE_API_KEY env 필요.
 
 ---
 

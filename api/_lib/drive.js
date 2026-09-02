@@ -40,6 +40,7 @@ export async function getDriveToken(saJson) {
 }
 
 const DRIVE = 'https://www.googleapis.com/drive/v3';
+const UPLOAD = 'https://www.googleapis.com/upload/drive/v3';   // 🔴 업로드는 주소가 다르다
 
 /** 한 폴더의 자식 나열. onlyFolders=true 면 폴더만. */
 export async function listChildren(token, parentId, opts = {}) {
@@ -117,4 +118,88 @@ export async function resolveFolders(token, rootId) {
     map[code] = entry;
   }
   return map;
+}
+
+// ─────────────────────────────────────────────────────────────
+// 🔴 2026-09-02 백업용 추가 (대표님 «구글 드라이브에 저장하고 클로드가 꺼내 쓴다»)
+//    BL-DB-BACKUP-DRIVE 가 쓴다. 읽기는 위 downloadBase64 를 그대로 쓴다.
+// ─────────────────────────────────────────────────────────────
+
+/** 폴더를 찾고, 없으면 만든다. 같은 이름이 있으면 첫 번째를 쓴다(중복 폴더를 안 만든다). */
+export async function ensureFolder(token, name, parentId) {
+  const q = `name='${String(name).replace(/'/g, "\\'")}'`
+    + ` and mimeType='application/vnd.google-apps.folder' and trashed=false`
+    + (parentId ? ` and '${parentId}' in parents` : '');
+  const r = await fetch(DRIVE + '/files?q=' + encodeURIComponent(q)
+    + '&fields=files(id,name)&pageSize=1&supportsAllDrives=true&includeItemsFromAllDrives=true',
+    { headers: { Authorization: 'Bearer ' + token } });
+  if (r.ok) {
+    const d = await r.json();
+    if (d.files && d.files.length) return d.files[0].id;
+  }
+  const body = { name, mimeType: 'application/vnd.google-apps.folder' };
+  if (parentId) body.parents = [parentId];
+  const c = await fetch(DRIVE + '/files?fields=id&supportsAllDrives=true', {
+    method: 'POST',
+    headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  if (!c.ok) throw new Error('폴더 만들기 실패: ' + c.status + ' ' + (await c.text()).slice(0, 160));
+  return (await c.json()).id;
+}
+
+/** 텍스트를 파일로 올린다. 같은 이름이 있으면 «덮어쓴다»(사본이 쌓이지 않게). */
+export async function uploadText(token, name, text, parentId, mime = 'text/csv') {
+  const q = `name='${String(name).replace(/'/g, "\\'")}' and trashed=false`
+    + (parentId ? ` and '${parentId}' in parents` : '');
+  let existing = null;
+  try {
+    const r = await fetch(DRIVE + '/files?q=' + encodeURIComponent(q)
+      + '&fields=files(id)&pageSize=1&supportsAllDrives=true&includeItemsFromAllDrives=true',
+      { headers: { Authorization: 'Bearer ' + token } });
+    if (r.ok) {
+      const d = await r.json();
+      if (d.files && d.files.length) existing = d.files[0].id;
+    }
+  } catch (e) { /* 못 찾으면 새로 만든다 */ }
+
+  const meta = existing ? {} : { name, ...(parentId ? { parents: [parentId] } : {}) };
+  const boundary = '----tw' + Date.now();
+  const body = `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n`
+    + JSON.stringify(meta)
+    + `\r\n--${boundary}\r\nContent-Type: ${mime}\r\n\r\n`
+    + text
+    + `\r\n--${boundary}--`;
+
+  const url = UPLOAD + '/files' + (existing ? '/' + existing : '')
+    + '?uploadType=multipart&fields=id,name,size&supportsAllDrives=true';
+  const r2 = await fetch(url, {
+    method: existing ? 'PATCH' : 'POST',
+    headers: {
+      Authorization: 'Bearer ' + token,
+      'Content-Type': 'multipart/related; boundary=' + boundary,
+    },
+    body,
+  });
+  if (!r2.ok) throw new Error('업로드 실패: ' + r2.status + ' ' + (await r2.text()).slice(0, 200));
+  return r2.json();
+}
+
+/** 폴더 안 파일 목록 (백업이 실제로 올라갔는지 «세어보는» 용도) */
+export async function listFiles(token, parentId) {
+  const q = `'${parentId}' in parents and trashed=false`;
+  const out = [];
+  let page = null;
+  do {
+    const r = await fetch(DRIVE + '/files?q=' + encodeURIComponent(q)
+      + '&fields=nextPageToken,files(id,name,size,modifiedTime)&pageSize=200'
+      + '&supportsAllDrives=true&includeItemsFromAllDrives=true'
+      + (page ? '&pageToken=' + page : ''),
+      { headers: { Authorization: 'Bearer ' + token } });
+    if (!r.ok) break;
+    const d = await r.json();
+    out.push(...(d.files || []));
+    page = d.nextPageToken;
+  } while (page);
+  return out;
 }

@@ -1,6 +1,6 @@
 {
  "version": 1,
- "updated": "2026-09-01",
+ "updated": "2026-09-02",
  "services": [
   {
    "key": "blog",
@@ -574,13 +574,13 @@
    "group": "안전",
    "name_ko": "DB 백업 일꾼",
    "where": "Vercel(스튜디오)",
-   "when": "매일 19:00",
-   "does": "창고를 통째로 복사해 둔다",
-   "makes": "백업 파일",
-   "check_where": "⚪",
-   "status": "돎",
+   "when": "매일 04:00 (KST)",
+   "does": "창고 표 105개를 GitHub 비공개 창고에 복사한다 — 🔴 2.6GB 라 한 번에 못 끝낸다. 나눠서 이어 한다",
+   "makes": "dgmasters01/tw-b2b-backup (private) · backup_progress",
+   "check_where": "/api/ops/backup-check · /admin/#sys → ② 일꾼 → 안전",
+   "status": "손봐야 함",
    "last_seen": "",
-   "note": ""
+   "note": "🔴 2026-09-02 실측: 마지막 «성공» 백업이 2026-07-31 — 33일째 멈춰 있었다. 크론은 매일 돌았지만 300초 제한에 걸려 끝까지 못 갔다. 명부에는 «돎»으로 보였고 check_where 가 ⚪ 라 아무도 볼 수 없었다. 🔴 «크론이 돈다»와 «백업이 됐다»는 다른 말이다. 설계·복구 절차는 staycurate docs/BUSINESS-MAP.md §5-C 에 있다 — 저장처를 바꾸려면 반드시 그것부터 읽을 것. GAPS BJ"
   },
   {
    "id": "studio.wiring-check",

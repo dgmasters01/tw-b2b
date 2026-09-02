@@ -287,7 +287,14 @@ export async function runBackup({ dryRun = false } = {}) {
   //        다음 회차가 그 다음 표부터 이어서 한다. 하루 안에 여러 회차로 나눠 끝낸다.
   //    🔴 시각: UTC 18:00~18:50 에 10분 간격 6회. 이 시간대는 두 레포 통틀어 비어 있다(CRON-PLAN §10).
   //        한 회차 최대 300초, 다음 회차까지 10분이라 겹치지 않는다.
-  const BUDGET_MS = 240000;   // 300초 제한 중 240초만 쓴다. 커밋에 쓸 여유를 남긴다
+  // 🔴 2026-09-02 2차 수정 — 240초 예산은 여전히 죽었다(실측 504).
+  //    이유: 240초 동안 표를 «모아» 두면 파일이 수십 개·수백 MB 가 되고,
+  //          commitFiles 는 파일마다 blob 을 만들어 올린다(GitHub API 호출).
+  //          모으는 데 240초를 다 쓰면 커밋할 시간이 없다.
+  //    → «모으는 시간»을 90초로 줄이고, 표 개수도 6개로 묶는다. 나머지는 커밋에 쓴다.
+  //    표 145개 중 127개가 1MB 이하라 대부분 빠르다. 큰 표 8개만 회차를 차지한다.
+  const BUDGET_MS = 90000;    // 모으기 90초
+  const MAX_TABLES = 6;       // 한 회차 최대 6개 표 — 커밋 시간을 확보한다
   const today = new Date().toISOString().slice(0, 10);
 
   const doneSet = new Set(await loadDone(today));
@@ -306,6 +313,7 @@ export async function runBackup({ dryRun = false } = {}) {
   const didNow = [];
   for (const t of todo) {
     if (Date.now() - started > BUDGET_MS) break;   // 🔴 시간이 다 되면 여기까지. 다음 회차가 이어 한다
+    if (didNow.length >= MAX_TABLES) break;        // 🔴 개수도 묶는다 — 커밋에 쓸 시간을 남긴다
     const { csv, rows } = await dumpTableCsv(t.table);
     files.push({ path: `data/${t.table}.csv`, content: csv });
     manifest.tables[t.table] = { rows, bytes: csv.length };

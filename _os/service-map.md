@@ -1,7 +1,7 @@
 # 📖 TW B2B 시스템 매뉴얼 (service-map)
 
 > **자동 생성 — 직접 편집 금지** (`.github/workflows/system-manual-rebuild.yml`이 push마다 재생성)
-> **생성 시각:** 2026-09-01T06:34:38.002Z
+> **생성 시각:** 2026-09-02T07:02:51.503Z
 > **포맷 (헌법 12대 원칙 6번 — AI 가독성):** 사람용 표/설명 + AI용 YAML 블록
 
 ---
@@ -72,7 +72,7 @@ groups:
 ## 🤖 섹션 2 — 봇 카탈로그
 
 
-총 **26개** 봇이 자동 실행 중.
+총 **27개** 봇이 자동 실행 중.
 
 | 봇 | 트리거 | 하는 일 |
 |---|---|---|
@@ -85,6 +85,7 @@ groups:
 | `chat-log-index.yml` | push/cron/수동 | chat-log 인덱스 자동 갱신 워크플로 |
 | `chatlog-format-check.yml` | push/cron/수동 | chat-log 5블록 표준 검증 워크플로 (D-036) |
 | `cross-repo-rule-guard.yml` | push/cron/수동 | ? |
+| `db-backup.yml` | cron/수동 | ? |
 | `decision-index-guard.yml` | push/cron/수동 | ? |
 | `decision-tracking-bot.yml` | push/수동 | ? |
 | `health-autoheal-on-push.yml` | push/수동 | Health 자가 치유 워크플로 (BL-HEALTH-AUTOHEAL) |
@@ -106,7 +107,7 @@ groups:
 
 ```yaml
 section: bots
-bots_total: 26
+bots_total: 27
 bots:
   - { file: "agoda-inventory-refresh.yml", trigger: ["cron", "수동"], role: "?" }
   - { file: "auto-detect-task-status.yml", trigger: ["push", "수동"], role: "commit message 자동 감지 → tasks.json status 자동 갱신" }
@@ -117,6 +118,7 @@ bots:
   - { file: "chat-log-index.yml", trigger: ["push", "cron", "수동"], role: "chat-log 인덱스 자동 갱신 워크플로" }
   - { file: "chatlog-format-check.yml", trigger: ["push", "cron", "수동"], role: "chat-log 5블록 표준 검증 워크플로 (D-036)" }
   - { file: "cross-repo-rule-guard.yml", trigger: ["push", "cron", "수동"], role: "?" }
+  - { file: "db-backup.yml", trigger: ["cron", "수동"], role: "?" }
   - { file: "decision-index-guard.yml", trigger: ["push", "cron", "수동"], role: "?" }
   - { file: "decision-tracking-bot.yml", trigger: ["push", "수동"], role: "?" }
   - { file: "health-autoheal-on-push.yml", trigger: ["push", "수동"], role: "Health 자가 치유 워크플로 (BL-HEALTH-AUTOHEAL)" }

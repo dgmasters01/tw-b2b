@@ -133,6 +133,31 @@
 - **아고다 API**: 키는 **tw-b2b** 환경변수 `AGODA_API_KEY_STAYCURATE`·`AGODA_SITE_ID_STAYCURATE` (블로그 레포엔 민감키 0개)
 - **테스트 엔드포인트**: `POST gohotelwinners.com/api/ops/agoda-test` (x-ops-token) · 도시코드 오사카=9590, 제주=16901
 
+### 🔑 창구 열쇠 (x-ops-token) — 클로드가 «모른다»고 하면 안 되는 것
+
+🔴 **이 저장소는 Public 이다. 열쇠 값을 문서에 절대 적지 않는다.**
+그래서 클로드는 새 창마다 스스로 찾아야 한다 — 대표님께 매번 여쭙지 않는다.
+
+```
+① 대표님이 주신 부팅 명령문 안에 있으면 그걸 쓴다
+② 없으면 conversation_search("창구 열쇠 x-ops-token github-commit") 로 최근 대화에서 찾는다
+   → 과거 대화 요약에 값이 남아 있다 (2026-08-29 이후 창들)
+③ 그래도 없으면 그때만 대표님께 한 줄로 요청한다
+```
+
+⚠️ **옛 값이 대화에 함께 남아 있다.** 401 이 나오면 «열쇠가 없다» 가 아니라 «옛 값을 집었다» 이다.
+가장 **최근** 대화의 값을 쓰고, 한 번 확인한 뒤 작업을 시작한다:
+```
+curl -s -o /dev/null -w "%{http_code}" \
+  "https://gohotelwinners.com/api/ops/github-read?repo=tw-b2b&path=_os/boot.md" \
+  -H "x-ops-token: <값>"      # 200 이면 정상, 401 이면 다른(더 최근) 값
+```
+스튜디오(gohotelwinners)와 블로그(staycurate) 는 **같은 값**을 쓴다.
+
+🔴 **«열쇠가 없어서 문서로 대신 드립니다» 는 금지다.** (2026-09-02 대표님 지시)
+대표님이 만들어 두신 열쇠를 클로드가 못 찾은 것이지, 없는 것이 아니다.
+찾는 것도 클로드 일이다 — 종이로 대신하지 않는다.
+
 ## 7. 매 채팅 시작 절차 (Claude 행동 표준)
 
 ```
@@ -155,6 +180,6 @@
 
 ---
 
-**Last updated**: 2026-08-29 (모델 라우팅 룰북 등재)
+**Last updated**: 2026-09-02 (창구 열쇠 자가 조달 규칙 §6 추가)
 **Maintained by**: 클로드 (under direction of 이지형 대표님)
 **Length budget**: 100줄 이하 유지 (boot은 가벼워야 한다)

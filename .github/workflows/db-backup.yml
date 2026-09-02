@@ -1,0 +1,120 @@
+# 창고 전체 백업 (BL-DB-BACKUP) — 2026-09-02 Vercel 크론에서 이곳으로 옮김
+#
+# 🔴 왜 옮겼나 — 실측 결과 «시간 제한»이 문제가 아니었다
+#   옛 백업기는 표를 ORDER BY ctid + OFFSET 으로 읽었다. ctid 에는 색인이 없어
+#   한 쪽(2,000행)마다 301만 행을 통째로 정렬했다 — 한 쪽에 16.4초.
+#   301만 행이면 6.9시간. 그래서 300초로도, 800초로도 끝나지 않았고
+#   33일 동안(2026-07-31 이후) 커밋에 한 번도 닿지 못했다.
+#   열쇠순(PK)으로 바꾸니 2만 행에 4.5초 → 전체 약 13분.
+#   13분은 Vercel Pro 상한(800초)에 너무 붙어 있다 → Actions(6시간)로 옮긴다.
+#
+# 🔴 비용: tw-b2b 는 공개 저장소다. 공개 저장소의 표준 러너 사용 시간은 «무료·무제한» 이다
+#   (GitHub 공식 billing 문서). 하루 15분 × 30일 = 월 0원.
+#
+# 필요한 비밀값 (Settings → Secrets and variables → Actions)
+#   SUPABASE_ACCESS_TOKEN  창고 조회 (Vercel 환경변수에 있는 값과 같다)
+#   BACKUP_PAT             tw-b2b-backup 에 쓸 수 있는 GitHub 열쇠
+#   CLAUDE_OPS_TOKEN       진행 기록용 — 이미 등록돼 있다
+#
+# 확인: /api/ops/backup-check · 화면 /admin/#sys → ② 일꾼 → 안전
+
+name: db-backup
+
+on:
+  schedule:
+    - cron: '10 18 * * *'      # UTC 18:10 = KST 03:10 (CRON-PLAN §10-H)
+  workflow_dispatch:
+
+concurrency:
+  group: db-backup             # 두 판이 같이 돌면 창고를 두 배로 때린다
+  cancel-in-progress: false
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: 0) 열쇠가 다 있는지 먼저 본다
+        env:
+          SB: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          PAT: ${{ secrets.BACKUP_PAT }}
+        run: |
+          MISS=""
+          [ -z "$SB" ]  && MISS="$MISS SUPABASE_ACCESS_TOKEN"
+          [ -z "$PAT" ] && MISS="$MISS BACKUP_PAT"
+          if [ -n "$MISS" ]; then
+            echo "🔴 비밀값이 없습니다:$MISS"
+            echo "   GitHub → Settings → Secrets and variables → Actions 에 넣어야 합니다."
+            exit 1
+          fi
+          echo "✅ 열쇠 확인"
+
+      - name: 1) 창고에서 자료를 내려받아 CSV 로 만든다
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          CLAUDE_OPS_TOKEN: ${{ secrets.CLAUDE_OPS_TOKEN }}
+          BACKUP_OUT: backup-out
+        run: python3 _os/tools/db-backup.py
+
+      - name: 2) 백업 창고가 «비공개»인지 확인한다
+        env:
+          PAT: ${{ secrets.BACKUP_PAT }}
+          REPO: ${{ vars.BACKUP_REPO || 'dgmasters01/tw-b2b-backup' }}
+        run: |
+          set -e
+          # 🔴 hotels 에 호텔 사장님 연락처 3,185개가 있다. 공개 창고면 그대로 전 세계 공개다.
+          PRIV=$(curl -s -H "Authorization: Bearer $PAT" \
+                   -H "Accept: application/vnd.github+json" \
+                   "https://api.github.com/repos/$REPO" | python3 -c "import json,sys; print(json.load(sys.stdin).get('private'))")
+          if [ "$PRIV" != "True" ]; then
+            echo "🔴 거부: $REPO 가 비공개가 아니거나 열쇠 권한이 없습니다 (private=$PRIV)"
+            exit 1
+          fi
+          echo "✅ $REPO = 비공개"
+
+      - name: 3) 백업 창고에 덮어쓴다 (날짜 폴더로 쌓지 않는다)
+        env:
+          PAT: ${{ secrets.BACKUP_PAT }}
+          REPO: ${{ vars.BACKUP_REPO || 'dgmasters01/tw-b2b-backup' }}
+        run: |
+          set -e
+          git clone --depth 1 "https://x-access-token:$PAT@github.com/$REPO.git" store
+          cd store
+          # 옛 자료를 지우고 새로 넣는다 — 없어진 표가 계속 남아 있으면 «있는 줄» 안다
+          rm -rf data schema _manifest.json _status.json
+          cp -r ../backup-out/* .
+          git config user.name  "tw-backup-bot"
+          git config user.email "bot@gohotelwinners.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "바뀐 자료가 없습니다 — 커밋 없음 (git 델타 방식이라 정상)"
+            exit 0
+          fi
+          ROWS=$(python3 -c "import json;print(f\"{json.load(open('_manifest.json'))['total_rows']:,}\")")
+          git commit -q -m "백업 $(date -u +%Y-%m-%d) · ${ROWS}행"
+          git push -q origin HEAD
+          echo "✅ 커밋 완료"
+          du -sh .git | sed 's/^/창고 용량: /'
+
+      - name: 4) 무엇이 들어갔는지 남긴다
+        if: always()
+        run: |
+          echo "### 백업 결과" >> $GITHUB_STEP_SUMMARY
+          if [ -f backup-out/_status.json ]; then
+            python3 - <<'PY' >> $GITHUB_STEP_SUMMARY
+          import json
+          s = json.load(open('backup-out/_status.json'))
+          print(f"- 표 {s['tables']}개 · {s['rows']:,}행 · {s['mb']}MB · {s['elapsed_sec']}초")
+          m = json.load(open('backup-out/_manifest.json'))
+          big = sorted(m['tables'].items(), key=lambda x: -x[1]['bytes'])[:5]
+          print("- 큰 표: " + ", ".join(f"{k}({v['bytes']//1048576}MB/{v['parts']}조각)" for k, v in big))
+          PY
+          else
+            echo "- 🔴 실패 — 위 단계 기록을 보십시오" >> $GITHUB_STEP_SUMMARY
+          fi

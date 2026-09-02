@@ -208,6 +208,43 @@ async function commitFiles(repo, branch, files, message) {
   return commit.sha;
 }
 
+// ---------- 진행 기록 (backup_progress) ----------
+// 🔴 «어디까지 했나» 를 남겨야 다음 회차가 이어서 할 수 있다.
+//    이 표가 없으면 매 회차 처음부터 시작해 영영 안 끝난다(33일 공백의 구조적 원인).
+
+async function sql(q) {
+  const r = await fetch('https://www.staycurate.com/api/ops/db-query', {
+    method: 'POST',
+    headers: { 'x-ops-token': process.env.CLAUDE_OPS_TOKEN || process.env.OPS_TOKEN || '',
+               'x-ops-client': 'studio', 'Content-Type': 'application/json' },
+    body: JSON.stringify({ query: q }),
+  });
+  const d = await r.json();
+  if (!d.ok) throw new Error('진행기록 조회 실패: ' + JSON.stringify(d).slice(0, 160));
+  return d.rows || [];
+}
+
+async function loadDone(day) {
+  try {
+    const rows = await sql(`select table_name from backup_progress
+      where run_date = '${day}' and status = 'ok'`);
+    return rows.map((r) => r.table_name);
+  } catch (e) { return []; }   // 못 읽으면 처음부터 — 헛돌지언정 멈추지 않는다
+}
+
+async function saveDone(day, list, schemaDone) {
+  const vals = list.map((x) =>
+    `('${day}','${String(x.table).replace(/'/g, "''")}',0,${x.rows},${x.bytes},'ok')`);
+  if (schemaDone) vals.push(`('${day}','__schema__',0,0,0,'ok')`);
+  if (!vals.length) return;
+  try {
+    await sql(`insert into backup_progress
+      (run_date, table_name, chunk_no, rows_done, bytes, status)
+      values ${vals.join(',')}
+      on conflict (run_date, table_name, chunk_no) do nothing`);
+  } catch (e) { /* 기록 실패가 백업을 막지 않는다 */ }
+}
+
 // ---------- 본체 ----------
 
 export async function runBackup({ dryRun = false } = {}) {
@@ -242,30 +279,71 @@ export async function runBackup({ dryRun = false } = {}) {
     };
   }
 
+  // 🔴 2026-09-02 «한 회차에 되는 만큼만 하고 이어서 한다» (대표님 지시 · BUSINESS-MAP §5-C)
+  //    왜: 표 105개 2.6GB 를 한 번에 모아 커밋하면 300초를 넘겨 죽는다.
+  //        실측 — 2026-07-31 이후 33일 동안 «한 번도» 성공하지 못했다.
+  //        크론은 매일 돌았지만 끝까지 못 가서, 명부에는 «돎» 으로 보였다.
+  //    어떻게: backup_progress 에 «이 날짜에 어느 표까지 끝냈나» 를 적고,
+  //        다음 회차가 그 다음 표부터 이어서 한다. 하루 안에 여러 회차로 나눠 끝낸다.
+  //    🔴 시각: UTC 18:00~18:50 에 10분 간격 6회. 이 시간대는 두 레포 통틀어 비어 있다(CRON-PLAN §10).
+  //        한 회차 최대 300초, 다음 회차까지 10분이라 겹치지 않는다.
+  const BUDGET_MS = 240000;   // 300초 제한 중 240초만 쓴다. 커밋에 쓸 여유를 남긴다
+  const today = new Date().toISOString().slice(0, 10);
+
+  const doneSet = new Set(await loadDone(today));
+  const todo = tables.filter((t) => !doneSet.has(t.table));
+
   const files = [];
   // 🔑 건너뛴 표는 **manifest 에 재현법을 남긴다.** 안 적으면 다음 사람이 "왜 없지?" 를 묻는다
   const manifest = { generated_at: new Date().toISOString(), project_ref: PROJECT_REF, tables: {},
     skipped_regenerable: skipped.reduce((m, t) => (m[t.table] = REGENERABLE[t.table], m), {}) };
 
-  files.push({ path: 'schema/tables.sql', content: await dumpSchema() });
+  // 스키마는 첫 회차에만
+  if (!doneSet.has('__schema__')) {
+    files.push({ path: 'schema/tables.sql', content: await dumpSchema() });
+  }
 
-  for (const t of tables) {
+  const didNow = [];
+  for (const t of todo) {
+    if (Date.now() - started > BUDGET_MS) break;   // 🔴 시간이 다 되면 여기까지. 다음 회차가 이어 한다
     const { csv, rows } = await dumpTableCsv(t.table);
     files.push({ path: `data/${t.table}.csv`, content: csv });
     manifest.tables[t.table] = { rows, bytes: csv.length };
+    didNow.push({ table: t.table, rows, bytes: csv.length });
+  }
+
+  if (!files.length) {
+    // 오늘 몫이 이미 다 끝났다 — 헛돌지 않는다
+    return {
+      ok: true, repo, branch, notes, done_today: doneSet.size, remaining: 0,
+      message: '오늘 백업은 이미 끝났습니다.',
+      elapsed_sec: +((Date.now() - started) / 1000).toFixed(1),
+    };
   }
 
   manifest.total_rows = Object.values(manifest.tables).reduce((s, x) => s + x.rows, 0);
   manifest.elapsed_sec = +((Date.now() - started) / 1000).toFixed(1);
-  files.push({ path: '_manifest.json', content: JSON.stringify(manifest, null, 2) + '\n' });
+  manifest.part_of = { done_before: doneSet.size, this_run: didNow.length, total: tables.length };
+  files.push({ path: `_manifest-${today}.json`, content: JSON.stringify(manifest, null, 2) + '\n' });
 
-  const msg = `백업 ${new Date().toISOString().slice(0, 10)} · 표 ${tables.length}개 · ${manifest.total_rows.toLocaleString()}행`;
+  const left = todo.length - didNow.length;
+  const msg = `백업 ${today} · 이번 회차 표 ${didNow.length}개 · ${manifest.total_rows.toLocaleString()}행`
+    + (left > 0 ? ` · 남은 표 ${left}개(다음 회차에)` : ' · 🔴 오늘 몫 완료');
   const sha = await commitFiles(repo, branch, files, msg);
+
+  // 🔴 커밋이 «성공한 뒤에» 기록한다. 먼저 적으면 «했다고 착각» 한다
+  await saveDone(today, didNow, files.some((f) => f.path === 'schema/tables.sql'));
 
   return {
     ok: true, repo, branch, commit: sha.slice(0, 8),
-    tables: tables.length, total_rows: manifest.total_rows,
+    이번회차_표: didNow.length,
+    누적_끝난표: doneSet.size + didNow.length,
+    전체_표: tables.length,
+    남은_표: left,
+    오늘_완료: left === 0,
+    total_rows: manifest.total_rows,
     elapsed_sec: +((Date.now() - started) / 1000).toFixed(1),
     notes,
   };
 }
+

@@ -53,7 +53,41 @@ jobs:
             echo "   GitHub → Settings → Secrets and variables → Actions 에 넣어야 합니다."
             exit 1
           fi
-          echo "✅ 열쇠 확인"
+          echo "✅ 열쇠 두 개 있음"
+
+      # 🔴 2026-09-02 — 창고 검사를 «자료 읽기 앞»으로 옮겼다.
+      #    첫 실행이 18분을 다 읽고 나서 이 검사에서 죽었다. 권한 문제는 5초 만에 알아야 한다.
+      - name: 0-b) 백업 창고에 들어갈 수 있는지 · 비공개인지 먼저 본다
+        env:
+          PAT: ${{ secrets.BACKUP_PAT }}
+          REPO: ${{ vars.BACKUP_REPO || 'dgmasters01/tw-b2b-backup' }}
+        run: |
+          set -e
+          CODE=$(curl -s -o /tmp/repo.json -w "%{http_code}" \
+                   -H "Authorization: Bearer $PAT" \
+                   -H "Accept: application/vnd.github+json" \
+                   "https://api.github.com/repos/$REPO")
+          echo "창고: $REPO · 응답코드: $CODE"
+          if [ "$CODE" = "404" ]; then
+            echo "🔴 창고를 못 찾습니다. 둘 중 하나입니다:"
+            echo "   ① 열쇠(BACKUP_PAT)가 이 창고에 권한이 없다"
+            echo "      → GitHub Settings → Developer settings → Fine-grained tokens →"
+            echo "        Repository access 에 '$REPO' 가 들어 있는지, Contents 가 Read and write 인지 확인"
+            echo "   ② 창고 이름이 다르다 → 실제 이름을 Actions variables 의 BACKUP_REPO 에 넣으세요"
+            exit 1
+          fi
+          if [ "$CODE" = "401" ] || [ "$CODE" = "403" ]; then
+            echo "🔴 열쇠가 거부됐습니다(만료 또는 권한 부족). BACKUP_PAT 을 다시 만들어 넣으세요."
+            python3 -c "import json;print('  메시지:', json.load(open('/tmp/repo.json')).get('message'))" || true
+            exit 1
+          fi
+          PRIV=$(python3 -c "import json;print(json.load(open('/tmp/repo.json')).get('private'))")
+          if [ "$PRIV" != "True" ]; then
+            echo "🔴 거부: $REPO 가 비공개가 아닙니다(private=$PRIV)."
+            echo "   hotels 에 호텔 사장님 연락처 3,185개가 있습니다. 반드시 Private 여야 합니다."
+            exit 1
+          fi
+          echo "✅ $REPO = 비공개 · 접근 가능"
 
       - name: 1) 창고에서 자료를 내려받아 CSV 로 만든다
         env:
@@ -62,23 +96,8 @@ jobs:
           BACKUP_OUT: backup-out
         run: python3 _os/tools/db-backup.py
 
-      - name: 2) 백업 창고가 «비공개»인지 확인한다
-        env:
-          PAT: ${{ secrets.BACKUP_PAT }}
-          REPO: ${{ vars.BACKUP_REPO || 'dgmasters01/tw-b2b-backup' }}
-        run: |
-          set -e
-          # 🔴 hotels 에 호텔 사장님 연락처 3,185개가 있다. 공개 창고면 그대로 전 세계 공개다.
-          PRIV=$(curl -s -H "Authorization: Bearer $PAT" \
-                   -H "Accept: application/vnd.github+json" \
-                   "https://api.github.com/repos/$REPO" | python3 -c "import json,sys; print(json.load(sys.stdin).get('private'))")
-          if [ "$PRIV" != "True" ]; then
-            echo "🔴 거부: $REPO 가 비공개가 아니거나 열쇠 권한이 없습니다 (private=$PRIV)"
-            exit 1
-          fi
-          echo "✅ $REPO = 비공개"
 
-      - name: 3) 백업 창고에 덮어쓴다 (날짜 폴더로 쌓지 않는다)
+      - name: 2) 백업 창고에 덮어쓴다 (날짜 폴더로 쌓지 않는다)
         env:
           PAT: ${{ secrets.BACKUP_PAT }}
           REPO: ${{ vars.BACKUP_REPO || 'dgmasters01/tw-b2b-backup' }}
@@ -109,7 +128,7 @@ jobs:
             echo "🔴 경보: 백업 창고가 3GB 를 넘었습니다 → «이력 90일만 남기기» 를 할 때입니다 (§5-C-8)"
           fi
 
-      - name: 4) 무엇이 들어갔는지 남긴다
+      - name: 3) 무엇이 들어갔는지 남긴다
         if: always()
         run: |
           echo "### 백업 결과" >> $GITHUB_STEP_SUMMARY

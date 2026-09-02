@@ -1,3 +1,7 @@
+// 🔴 2026-09-01 rating·photos 제거 (대표님 «구글 평점 필요 없어 · 사진도 필요 없잖아»)
+//    구글은 FieldMask 중 «가장 비싼 필드» 기준으로 요청 전체를 과금한다.
+//    rating 이 있으면 Enterprise(무료 1,000/월), photos 까지면 +Atmosphere.
+//    빼면 Pro(무료 5,000/월)로 내려간다. 평점은 아고다 자료, 사진은 아고다 Lite API 로 받는다.
 // /api/agoda-search.js
 // 호텔명 자동완성 검색 (Phase 3 Step 4-3)
 // Google Places(lodging)로 호텔 검색 → 각 결과별 Agoda 매칭 여부 병렬 확인
@@ -102,7 +106,7 @@ async function searchGooglePlaces(query, lat, lng, apiKey, maxResults) {
       headers: {
         'Content-Type': 'application/json',
         'X-Goog-Api-Key': apiKey,
-        'X-Goog-FieldMask': 'places.id,places.displayName,places.formattedAddress,places.shortFormattedAddress,places.addressComponents,places.location,places.rating,places.userRatingCount,places.websiteUri,places.internationalPhoneNumber,places.googleMapsUri,places.photos,places.types,places.businessStatus'
+        'X-Goog-FieldMask': 'places.id,places.displayName,places.formattedAddress,places.shortFormattedAddress,places.addressComponents,places.location,places.websiteUri,places.internationalPhoneNumber,places.googleMapsUri,places.types,places.businessStatus'
       },
       body: JSON.stringify(body)
     });
@@ -553,3 +557,4 @@ const AGODA_CITY_MAP = {
   //   'toronto'
   //   'vancouver'
 };
+

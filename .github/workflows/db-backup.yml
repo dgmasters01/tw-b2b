@@ -100,7 +100,14 @@ jobs:
           git commit -q -m "백업 $(date -u +%Y-%m-%d) · ${ROWS}행"
           git push -q origin HEAD
           echo "✅ 커밋 완료"
-          du -sh .git | sed 's/^/창고 용량: /'
+          # 🔴 창고 용량 경보 (BUSINESS-MAP §5-C-8)
+          #    GitHub 권장: 1GB 미만이 이상적 · 5GB 미만 강력 권장.
+          #    아고다 월 1회 갱신 때마다 hotel_master 전체가 바뀌어 이력이 쌓인다.
+          KB=$(du -sk .git | cut -f1)
+          echo "창고 용량: $((KB/1024))MB"
+          if [ "$KB" -gt 3145728 ]; then
+            echo "🔴 경보: 백업 창고가 3GB 를 넘었습니다 → «이력 90일만 남기기» 를 할 때입니다 (§5-C-8)"
+          fi
 
       - name: 4) 무엇이 들어갔는지 남긴다
         if: always()

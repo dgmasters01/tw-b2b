@@ -59,7 +59,22 @@ export default async function handler(req, res) {
     // 누가 불렀는지 — 계량기를 서비스별로 나눠 세기 위해
     const caller = String(req.body?.caller || req.headers['x-caller'] || 'unknown').slice(0, 40);
 
-    // 🔴 한도 확인 — 넘으면 부르지 않는다 (2026-09-01 대표님 «절대 절대 안 됨»)
+    // 🔴 2026-09-02 «일꾼별 하루 몫» 확인 (대표님 «복합적인 사고로 정리»)
+    //    구글 콘솔 한도는 «프로젝트 전체 하루 30회» 다. 몫을 안 나누면 «먼저 부르는 쪽이 다 가져간다».
+    //    실측 위험: bot-basic 이 16회를 쓰면 남는 14회를 google-reviews 가 다 쓸 수 있고,
+    //    그러면 🔴 B2B 가입자(process-hotel)가 호텔 검색을 못 한다 — 사람이 기다리는 자리가 막힌다.
+    //    그래서 api_daily_budget 에 일꾼마다 몫을 두고, 자기 몫을 넘으면 그 일꾼만 멈춘다.
+    //    다른 일꾼은 자기 몫이 남아 있으면 계속 돈다.
+    const dayGate = await checkDaily(caller);
+    if (!dayGate.ok) {
+      return res.status(429).json({
+        error: 'quota_stop', source: 'daily_budget',
+        message: `${caller} 의 오늘 몫(${dayGate.cap}회)을 다 썼습니다. 오류가 아니라 «내일» 입니다.`,
+        used: dayGate.used, cap: dayGate.cap, caller, mode
+      });
+    }
+
+    // 🔴 월 한도 확인 — 넘으면 부르지 않는다 (2026-09-01 대표님 «절대 절대 안 됨»)
     const gate = await checkQuota(mode);
     if (!gate.ok) {
       return res.status(429).json({
@@ -214,7 +229,38 @@ async function checkQuota(mode) {
   }
 }
 
+// 오늘 이 일꾼의 몫이 남았나. 표에 줄이 없으면 «몫이 안 정해진 일꾼» 이므로 통과시킨다
+// (새 일꾼을 막지 않기 위해서다. 대신 api_call_log 에는 남으니 나중에 몫을 정할 수 있다)
+async function checkDaily(caller) {
+  try {
+    const r = await sb(`api_daily_budget?provider=eq.google_places&caller=eq.${encodeURIComponent(caller)}`
+      + `&day=eq.${new Date().toISOString().slice(0, 10)}&select=used,cap`);
+    const rows = await r.json();
+    if (!rows || !rows.length) return { ok: true, unset: true };
+    const { used = 0, cap = 0 } = rows[0];
+    return { ok: used < cap, used, cap };
+  } catch (e) {
+    // 🔴 못 읽으면 통과시킨다. 월 한도(checkQuota)와 구글 콘솔 한도가 뒤에서 막는다
+    return { ok: true, unknown: true };
+  }
+}
+
+async function bumpDaily(caller, n) {
+  try {
+    const day = new Date().toISOString().slice(0, 10);
+    const r = await sb(`api_daily_budget?provider=eq.google_places&caller=eq.${encodeURIComponent(caller)}`
+      + `&day=eq.${day}&select=used`);
+    const rows = await r.json();
+    if (rows && rows.length) {
+      await sb(`api_daily_budget?provider=eq.google_places&caller=eq.${encodeURIComponent(caller)}&day=eq.${day}`, {
+        method: 'PATCH', body: JSON.stringify({ used: (rows[0].used || 0) + n })
+      });
+    }
+  } catch (e) { /* 기록 실패가 일을 막지 않는다 */ }
+}
+
 async function meter(mode, caller, n) {
+  await bumpDaily(caller, n);
   try {
     const r = await sb(`api_usage?provider=eq.google_places&tier=eq.${mode}&ym=eq.${ym()}&select=used`);
     const rows = await r.json();
@@ -297,4 +343,5 @@ function normalizePlace(p) {
     }
   };
 }
+
 

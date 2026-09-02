@@ -67,6 +67,19 @@ function checkAdminBaseline() {
       result.changed_files.push({ file: filename, reason: 'modified', current_sha: cur.slice(0, 12) });
     }
   }
+  // ★ 2026-09-02: 감시 목록에 없는 새 관리자 화면 감지
+  //   기준선이 2026-05-07 에 멈춰 8장만 지키는 동안, 그 뒤 만든 7장(인보이스·설정·
+  //   의사결정 이력/인덱스·비즈니스 헌장·매니저 여정·사용자 여정)이 무방비였다.
+  const actualFiles = fs.readdirSync(ADMIN_DIR)
+    .filter(f => f.endsWith('.html') && !f.startsWith('_backup_'));
+  const unwatched = actualFiles.filter(f => !(f in expected));
+  if (unwatched.length > 0) {
+    result.status = 'yellow';
+    result.unwatched = unwatched;
+    result.detail = `새 관리자 화면 ${unwatched.length}개가 아직 감시 목록에 없어요 (기준선 갱신 필요)`;
+    return result;
+  }
+
   if (result.changed_files.length === 0) {
     result.detail = `관리자 페이지 ${Object.keys(expected).length}개 모두 원본 그대로예요`;
   } else {

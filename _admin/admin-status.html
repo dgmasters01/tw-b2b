@@ -3617,7 +3617,7 @@
       renderActivity();
     });
   });
-  const DEADLINE = '2026-06-30';  // ★ 2026-05-13 갱신: 5/3 데드라인 지남 → 신규 BL 16개(약 84h) 반영해서 6/30 사업 시작 목표
+  let DEADLINE = '2026-06-30';   // ★ 2026-09-02: tasks.json 의 deadline 이 정본. 로드 시 덮어씀  // ★ 2026-05-13 갱신: 5/3 데드라인 지남 → 신규 BL 16개(약 84h) 반영해서 6/30 사업 시작 목표
   function updateDeadlineBanner() {
     const dl = new Date(DEADLINE + 'T23:59:59+09:00');
     const now = new Date();
@@ -4090,7 +4090,7 @@
   };
   const PRI_LABEL_KO = { P0: '🔴 P0 긴급', P1: '🟠 P1 중요', P2: '🟡 P2 보통' };
   const STAT_LABEL_KO = {
-    in_progress: '진행중', pending: '대기', blocked: '막힘',
+    in_progress: '진행중', pending: '대기', blocked: '막힘', waiting_trigger: '대기(조건)',
     next_week: '다음주', done: '완료',
   };
 
@@ -4447,7 +4447,9 @@
     const inProgress = tasks.filter(t => t.status === 'in_progress').length;
     const pending = tasks.filter(t => t.status === 'pending').length;
     const blocked = tasks.filter(t => t.status === 'blocked').length;
-    const dl = data.deadline || '2026-05-03';
+    // ★ 2026-09-02: 화면에 데드라인이 두 개(코드 6/30 · tasks 5/3)였다 → tasks.json 하나로
+    if (data.deadline && data.deadline !== DEADLINE) { DEADLINE = data.deadline; updateDeadlineBanner(); }
+    const dl = data.deadline || DEADLINE;
     const ddays = Math.ceil((new Date(dl) - new Date()) / 86400000);
 
     // ★ BL-DEDUP-CONSOLIDATE step1: null-safe setter — ⑥ 제거 후에도 안전
@@ -4469,7 +4471,11 @@
     setText('cc-kpi-blocked', String(blocked));
 
     // 🤖/👥/👤 KPI 동적 계산 — 미완료(done 제외) 작업만 카운트
-    const open = tasks.filter(t => t.status !== 'done');
+    // ★ 2026-09-02 세는법 정정: cancelled/obsoleted/absorbed 는 '미완료'가 아니다.
+    //   plDecisionNeeded() 는 이미 3종을 제외하고 있었는데 여기만 제외 안 해서
+    //   같은 화면 안에서 두 함수가 다르게 셌다(결정대기 3건 오염 실측).
+    const CLOSED_STATUS = ['done', 'cancelled', 'obsoleted', 'absorbed'];
+    const open = tasks.filter(t => !CLOSED_STATUS.includes(t.status));
     const cAuto = open.filter(t => taskRole(t) === 'auto').length;
     const cStaff = open.filter(t => taskRole(t) === 'staff').length;
     const cCeo = open.filter(t => taskRole(t) === 'ceo').length;
@@ -4490,7 +4496,15 @@
       return false;
     }).length;
     // 헤더 KPI '막힘' 카드 (cc-kpi-blocked) — 광의 정의로 갱신
-    setText('cc-kpi-blocked', String(blockedBroad));
+    // ★ 2026-09-02: 서비스 오픈 전에는 결정 자체가 불가능한 작업(gate:service_open)을
+    //   '막힘'에서 떼어낸다. 지우는 게 아니라 칸을 나눈다 — 아래 sub 줄에 그대로 보인다.
+    const gateOpen = open.filter(t => t.gate === 'service_open').length;
+    const blockedReal = blockedBroad - gateOpen;
+    setText('cc-kpi-blocked', String(blockedReal));
+    const bSub = document.querySelector('.cc-kpi-blocked .cc-kpi-sub');
+    if (bSub) bSub.textContent = gateOpen > 0
+      ? `결정 한 번 = 해제 · ⏳ 오픈 대기 ${gateOpen}건 별도`
+      : '결정 한 번 = 해제';
     setText('ik-blocked', String(blockedBroad));
 
     // ★ BL-DECISION-CTX-MASS-FILL Q7: 자율 큐 / 직원 큐 헤더 카운트 동적 갱신
@@ -4816,7 +4830,7 @@
     };
 
     const ceoTasks = tasks
-      .filter(t => t.status !== 'done')
+      .filter(t => !['done', 'cancelled', 'obsoleted', 'absorbed'].includes(t.status))
       .filter(t => {
         if (taskRole(t) === 'ceo') return true;
         if (t.status === 'blocked' && /대표님|결정|승인/.test(t.blocker || '')) return true;

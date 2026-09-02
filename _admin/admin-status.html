@@ -4489,6 +4489,7 @@
     //         = approval_required=true OR requires_decisions_first 있음 OR status=blocked
     //         (=19~21건 — 결정 한 번이 풀어줄 수 있는 모든 막힘)
     const blockedBroad = open.filter(t => {
+      if (t.status === 'waiting_trigger') return true;   // 아래 3분할에서 따로 뺀다
       if (t.status === 'blocked') return true;
       if (t.approval_required === true) return true;
       const decs = (t.autonomous && t.autonomous.requires_decisions_first) || [];
@@ -4498,13 +4499,20 @@
     // 헤더 KPI '막힘' 카드 (cc-kpi-blocked) — 광의 정의로 갱신
     // ★ 2026-09-02: 서비스 오픈 전에는 결정 자체가 불가능한 작업(gate:service_open)을
     //   '막힘'에서 떼어낸다. 지우는 게 아니라 칸을 나눈다 — 아래 sub 줄에 그대로 보인다.
-    const gateOpen = open.filter(t => t.gate === 'service_open').length;
-    const blockedReal = blockedBroad - gateOpen;
+    const gateOpen  = open.filter(t => t.gate === 'service_open').length;
+    const gateOwner = open.filter(t => t.gate === 'owner_action').length;
+    // waiting_trigger = 조건이 와야 착수하는 것(예: 새 채널 추가 시) — 막힘이 아니다
+    const gateTrig  = open.filter(t => t.status === 'waiting_trigger').length;
+    const blockedReal = blockedBroad - gateOpen - gateOwner - gateTrig;
     setText('cc-kpi-blocked', String(blockedReal));
     const bSub = document.querySelector('.cc-kpi-blocked .cc-kpi-sub');
-    if (bSub) bSub.textContent = gateOpen > 0
-      ? `결정 한 번 = 해제 · ⏳ 오픈 대기 ${gateOpen}건 별도`
-      : '결정 한 번 = 해제';
+    if (bSub) {
+      const parts = [];
+      if (gateOwner) parts.push(`🔑 대표님 몫 ${gateOwner}`);
+      if (gateOpen)  parts.push(`⏳ 오픈 대기 ${gateOpen}`);
+      if (gateTrig)  parts.push(`⏸ 조건 대기 ${gateTrig}`);
+      bSub.textContent = parts.length ? parts.join(' · ') : '결정 한 번 = 해제';
+    }
     setText('ik-blocked', String(blockedBroad));
 
     // ★ BL-DECISION-CTX-MASS-FILL Q7: 자율 큐 / 직원 큐 헤더 카운트 동적 갱신

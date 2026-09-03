@@ -1,308 +1,319 @@
 {
- "생성": "2026-09-02T10:35:00Z",
- "손으로_고치지_말것": "정본들에서 뽑아 만든다. 정본을 고치고 _os/context/build_state.py 를 돌린다",
- "사람용_짝": "staycurate admin/map.html (그림·조직도 · 로그인 필요 · 클로드는 못 엶)",
- "서비스": [
-  {
-   "key": "blog",
-   "이름": "블로그",
-   "주소": "staycurate.com",
-   "레포": "dgmasters01/staycurate",
-   "하는일": "한국어 호텔 추천 글을 로봇이 만들어 발행 → 아고다 수수료",
-   "DB": "창고A vjsludfjsphwnumuoqaj (스튜디오와 공유)",
-   "일꾼": 28,
-   "완성도": "62%",
-   "부팅": [
-    "docs/HANDOVER.md",
-    "docs/CLAUDE-RULES.md",
-    "docs/SPEC-INDEX.md"
-   ]
-  },
-  {
-   "key": "studio",
-   "이름": "스튜디오(B2B)",
-   "주소": "gohotelwinners.com",
-   "레포": "dgmasters01/tw-b2b",
-   "하는일": "호텔에 마케팅 판매 → 구독료·제작비",
-   "DB": "창고A (블로그와 공유)",
-   "일꾼": 21,
-   "완성도": "74%",
-   "부팅": [
-    "_os/boot.md",
-    "_business/STUDIO_FLOW.md",
-    "BUSINESS.md"
-   ]
-  },
-  {
-   "key": "studio-dev",
-   "이름": "스튜디오 개발·운영실",
-   "주소": "GitHub Actions",
-   "레포": "dgmasters01/tw-b2b",
-   "하는일": "코드·문서 자동 점검. 최근 7일 커밋 869건 중 840건이 이 일꾼들",
-   "DB": "없음",
-   "일꾼": 13,
-   "완성도": "돎"
-  },
-  {
-   "key": "personal",
-   "이름": "개인업무시스템",
-   "주소": "1hogi.gohotelwinners.com",
-   "레포": "dgmasters01/tw-personal-os",
-   "하는일": "대표님 메일·할일·판정",
-   "DB": "창고B fifsuiwsgdounlpialqx · 표 35개(items·mail_messages·judgment_*·contacts·cases 등)",
-   "일꾼": "4 (메일 수집 15분마다 · 판정 · 구글 출입증 · 완성도 점검)",
-   "완성도": "틀은 있고 자료가 0건 — 메일 수집이 돌기 시작하면 채워짐",
-   "막힘": "DB 창구는 열쇠 값이 달라 클로드가 못 본다(레포는 08-29부터 읽힘)"
-  }
- ],
- "창고": {
-  "A": {
-   "ref": "vjsludfjsphwnumuoqaj",
-   "쓰는서비스": [
-    "blog",
-    "studio"
-   ],
-   "표": 106,
-   "뷰": 84,
-   "함수": 32,
-   "트리거": 37,
-   "소유": {
-    "공용재료": 23,
-    "블로그": 30,
-    "스튜디오": 49,
-    "백업": 4
-   },
-   "가르는법": "표 이름이 아니라 site_id 칸 (19개 표) · D-B101",
-   "큰표": {
-    "hotel_master": 2993509,
-    "agoda_hotel": 519075,
-    "hotel_pool": 13625,
-    "blog_review_corpus": 5972,
-    "bookings_agoda": 7316,
-    "hotels": "3253 (🔴 계약 호텔 아님 — status=catalog 3,250 · approved 2 · pending 1. 아고다 제휴로 예약이 난 호텔 명단. B2B 영업은 미시작)",
-    "blog_post": 68,
-    "keyword": 4070
-   },
-   "만나는자리": "hotel_code 로 맞춤 · 계약호텔 3253 중 2954가 명부와 연결(299 미연결)",
-   "뷰판정": "가동 57 · 코드 미연결 17 · 구형 4(신형 있음) · 진단용 3 · 매니저 미오픈 3 — db/view-owner.csv"
-  },
-  "B": {
-   "ref": "fifsuiwsgdounlpialqx",
-   "쓰는서비스": [
-    "personal"
-   ],
-   "표": 35,
-   "대표표": [
-    "items 할일",
-    "mail_messages 메일",
-    "judgment_requests 판정함",
-    "waiting_replies 회신대기",
-    "contacts·cases 사람·건",
-    "routines 반복일",
-    "daily_briefs 하루요약",
-    "heartbeats 생존신호"
-   ],
-   "크론": "1개 — /api/cron/mail-sync 15분마다",
-   "안전규칙": "메일 삭제·발송 금지(읽기만) · 2026-07-27 이전 메일 미접근"
-  }
- },
- "창구": {
-  "블로그자기것": {
-   "db-query": "POST www.staycurate.com/api/ops/db-query (door=own · 90회/h)",
-   "github-commit": "POST www.staycurate.com/api/ops/github-commit (door:own · 2026-08-30 GITHUB_PAT 투입 완료 · 120/h)",
-   "github-read": "GET www.staycurate.com/api/ops/github-read (120/h)",
-   "selftest": "GET /api/selftest (인증 없음)"
-  },
-  "빌리는것": {
-   "pool-weekends": "주말가격 (아고다 열쇠가 스튜디오에만)",
-   "google-places": "구글 상세·후기",
-   "blog-stats": "관리화면 통계",
-   "db-query(옛길)": "자기 문이 죽었을 때만",
-   "※ 글 저장": "2026-08-30 자기 문으로 전환 완료 — 더 이상 빌리지 않는다"
-  },
-  "인증": "x-ops-token · 블로그 OPS_TOKEN 값 == 스튜디오 CLAUDE_OPS_TOKEN 값 (한쪽만 바꾸면 401)",
-  "개인OS": {
-   "레포읽기": "08-29 허용목록 추가 완료 (repo=tw-personal-os)",
-   "DB": "POST 1hogi.gohotelwinners.com/api/ops/db-query — 401(열쇠 다름)"
-  },
-  "한도": "블로그 문: 시간당 1200(사람400·클로드400·로봇400) + 🔴 분당 60(진짜 방어선) + 접속 40/60 감시. 상류 Supabase Management API 는 분당 120(공식). 2026-08-29 재설계"
- },
- "열쇠이름": {
-  "블로그13개": [
-   "OPS_TOKEN",
-   "SUPABASE_ACCESS_TOKEN",
-   "ADMIN_USER",
-   "ADMIN_PASS",
-   "SUPABASE_URL",
-   "SUPABASE_SERVICE_KEY",
-   "RAKUTEN_APP_ID",
-   "RAKUTEN_ACCESS_KEY",
-   "GSC_CLIENT_EMAIL",
-   "GSC_PRIVATE_KEY",
-   "GSC_SA_JSON",
-   "GSC_SITE_URL",
-   "ANTHROPIC_API_KEY(미투입·의도)"
+  "생성": "2026-09-03T04:20:00Z",
+  "손으로_고치지_말것": "정본들에서 뽑아 만든다. 정본을 고치고 _os/context/build_state.py 를 돌린다",
+  "사람용_짝": "staycurate admin/map.html (그림·조직도 · 로그인 필요 · 클로드는 못 엶)",
+  "서비스": [
+    {
+      "key": "blog",
+      "이름": "블로그",
+      "주소": "staycurate.com",
+      "레포": "dgmasters01/staycurate",
+      "하는일": "한국어 호텔 추천 글을 로봇이 만들어 발행 → 아고다 수수료",
+      "DB": "창고A vjsludfjsphwnumuoqaj (스튜디오와 공유)",
+      "일꾼": 28,
+      "완성도": "62%",
+      "부팅": [
+        "docs/HANDOVER.md",
+        "docs/CLAUDE-RULES.md",
+        "docs/SPEC-INDEX.md"
+      ]
+    },
+    {
+      "key": "studio",
+      "이름": "스튜디오(B2B)",
+      "주소": "gohotelwinners.com",
+      "레포": "dgmasters01/tw-b2b",
+      "하는일": "호텔에 마케팅 판매 → 구독료·제작비",
+      "DB": "창고A (블로그와 공유)",
+      "일꾼": 21,
+      "완성도": "74%",
+      "부팅": [
+        "_os/boot.md",
+        "_business/STUDIO_FLOW.md",
+        "BUSINESS.md"
+      ]
+    },
+    {
+      "key": "studio-dev",
+      "이름": "스튜디오 개발·운영실",
+      "주소": "GitHub Actions",
+      "레포": "dgmasters01/tw-b2b",
+      "하는일": "코드·문서 자동 점검. 최근 7일 커밋 869건 중 840건이 이 일꾼들",
+      "DB": "없음",
+      "일꾼": 13,
+      "완성도": "돎"
+    },
+    {
+      "key": "personal",
+      "이름": "개인업무시스템",
+      "주소": "1hogi.gohotelwinners.com",
+      "레포": "dgmasters01/tw-personal-os",
+      "하는일": "대표님 메일·할일·판정",
+      "DB": "창고B fifsuiwsgdounlpialqx · 표 35개(items·mail_messages·judgment_*·contacts·cases 등)",
+      "일꾼": "4 (메일 수집 15분마다 · 판정 · 구글 출입증 · 완성도 점검)",
+      "완성도": "틀은 있고 자료가 0건 — 메일 수집이 돌기 시작하면 채워짐",
+      "막힘": "DB 창구는 열쇠 값이 달라 클로드가 못 본다(레포는 08-29부터 읽힘)"
+    }
   ],
-  "스튜디오에만": [
-   "AGODA_API_KEY",
-   "AGODA_SITE_ID",
-   "GOOGLE_PLACES_API_KEY",
-   "GITHUB_PAT",
-   "CLAUDE_OPS_TOKEN"
+  "창고": {
+    "A": {
+      "ref": "vjsludfjsphwnumuoqaj",
+      "쓰는서비스": [
+        "blog",
+        "studio"
+      ],
+      "표": 106,
+      "뷰": 84,
+      "함수": 32,
+      "트리거": 37,
+      "소유": {
+        "공용재료": 23,
+        "블로그": 30,
+        "스튜디오": 49,
+        "백업": 4
+      },
+      "가르는법": "표 이름이 아니라 site_id 칸 (19개 표) · D-B101",
+      "큰표": {
+        "hotel_master": 2993509,
+        "agoda_hotel": 519075,
+        "hotel_pool": 13625,
+        "blog_review_corpus": 5972,
+        "bookings_agoda": 7316,
+        "hotels": "3253 (🔴 계약 호텔 아님 — status=catalog 3,250 · approved 2 · pending 1. 아고다 제휴로 예약이 난 호텔 명단. B2B 영업은 미시작)",
+        "blog_post": 68,
+        "keyword": 4070
+      },
+      "만나는자리": "hotel_code 로 맞춤 · 계약호텔 3253 중 2954가 명부와 연결(299 미연결)",
+      "뷰판정": "가동 57 · 코드 미연결 17 · 구형 4(신형 있음) · 진단용 3 · 매니저 미오픈 3 — db/view-owner.csv"
+    },
+    "B": {
+      "ref": "fifsuiwsgdounlpialqx",
+      "쓰는서비스": [
+        "personal"
+      ],
+      "표": 35,
+      "대표표": [
+        "items 할일",
+        "mail_messages 메일",
+        "judgment_requests 판정함",
+        "waiting_replies 회신대기",
+        "contacts·cases 사람·건",
+        "routines 반복일",
+        "daily_briefs 하루요약",
+        "heartbeats 생존신호"
+      ],
+      "크론": "1개 — /api/cron/mail-sync 15분마다",
+      "안전규칙": "메일 삭제·발송 금지(읽기만) · 2026-07-27 이전 메일 미접근"
+    }
+  },
+  "창구": {
+    "블로그자기것": {
+      "db-query": "POST www.staycurate.com/api/ops/db-query (door=own · 90회/h)",
+      "github-commit": "POST www.staycurate.com/api/ops/github-commit (door:own · 2026-08-30 GITHUB_PAT 투입 완료 · 120/h)",
+      "github-read": "GET www.staycurate.com/api/ops/github-read (120/h)",
+      "selftest": "GET /api/selftest (인증 없음)"
+    },
+    "빌리는것": {
+      "pool-weekends": "주말가격 (아고다 열쇠가 스튜디오에만)",
+      "google-places": "구글 상세·후기",
+      "blog-stats": "관리화면 통계",
+      "db-query(옛길)": "자기 문이 죽었을 때만",
+      "※ 글 저장": "2026-08-30 자기 문으로 전환 완료 — 더 이상 빌리지 않는다"
+    },
+    "인증": "x-ops-token · 블로그 OPS_TOKEN 값 == 스튜디오 CLAUDE_OPS_TOKEN 값 (한쪽만 바꾸면 401)",
+    "개인OS": {
+      "레포읽기": "08-29 허용목록 추가 완료 (repo=tw-personal-os)",
+      "DB": "POST 1hogi.gohotelwinners.com/api/ops/db-query — 401(열쇠 다름)"
+    },
+    "한도": "블로그 문: 시간당 1200(사람400·클로드400·로봇400) + 🔴 분당 60(진짜 방어선) + 접속 40/60 감시. 상류 Supabase Management API 는 분당 120(공식). 2026-08-29 재설계"
+  },
+  "열쇠이름": {
+    "블로그13개": [
+      "OPS_TOKEN",
+      "SUPABASE_ACCESS_TOKEN",
+      "ADMIN_USER",
+      "ADMIN_PASS",
+      "SUPABASE_URL",
+      "SUPABASE_SERVICE_KEY",
+      "RAKUTEN_APP_ID",
+      "RAKUTEN_ACCESS_KEY",
+      "GSC_CLIENT_EMAIL",
+      "GSC_PRIVATE_KEY",
+      "GSC_SA_JSON",
+      "GSC_SITE_URL",
+      "ANTHROPIC_API_KEY(미투입·의도)"
+    ],
+    "스튜디오에만": [
+      "AGODA_API_KEY",
+      "AGODA_SITE_ID",
+      "GOOGLE_PLACES_API_KEY",
+      "GITHUB_PAT",
+      "CLAUDE_OPS_TOKEN"
+    ],
+    "값": "문서에 절대 안 적음 · Vercel 환경변수에만"
+  },
+  "일꾼": {
+    "총": 76,
+    "서비스별": {
+      "blog": 28,
+      "studio": 21,
+      "studio-dev": 23,
+      "personal": 4
+    },
+    "상태별": {
+      "돎": 69,
+      "쉼": 1,
+      "수동": 1,
+      "은퇴": 3,
+      "대기": 1,
+      "확인 필요": 1
+    },
+    "정본": "tw-b2b _os/workers/registry.json (76명) · DB 명부 blog_bot_registry (28명 · 2026-08-31 누락 6명 등록)",
+    "주의": "«부르는 곳이 없다»는 고장이 아니라 은퇴일 수 있다 — 반드시 state·note 를 먼저 본다(08-29 클로드 오판)"
+  },
+  "지금막힌곳": {
+    "블로그": {
+      "후기출처부족": 5,
+      "후기판독대기": "약 2,400",
+      "가격미확보": 2,
+      "대표님승인대기": 6,
+      "발행됨": 5,
+      "메모": "08-29 아고다 후기 일꾼에 전용 시계(:15) 부여 후 막힘 10→5편. 수집은 이제 자동으로 줄어든다",
+      "수집속도": "🔴 2026-08-31 해결: 크론 401 사고(GAPS AR) — Vercel 은 매시 정확히 불렀는데 우리 문지기가 쫓아냈다. 9개 파일 수정 후 14:15 통과 확인. 아고다 하루 4회→24회. 남은 본문 호텔 373곳이 31일→약 6일. 남은 병목: 해외 343곳은 출처가 구글·아고다 둘뿐이다(라쿠텐은 일본 전용)"
+    },
+    "스튜디오": {
+      "열린작업": 64,
+      "P0": [
+        "BL-002 — 통합 To-Do Inbox (관리자 대시보드 재설계)",
+        "BL-STUDIO-MENU-6TAB — [스튜디오 재설계] 상단 6메뉴: 올리기·성과표·호텔·키워드·전략·채널",
+        "BL-KEYWORD-TARGET-AXIS — [키워드 타겟축 정정] 타겟 = 언어(+시장). 채널을 축에서 제거 — ",
+        "BL-HOTEL-MASTER-RESYNC — [새 호텔 명단 편입] 7/13까지 새 예약 147건 중 78건이 호텔 ",
+        "BL-BOOKING-EARNINGS-IMPORT — [수수료 리포트 반영] 최근 3개월 수익이 0원으로 보임 — 아고다 수수"
+      ],
+      "돈이안보이는것": [
+        "🔴 2026-08-29 대표님 정정: 이 둘은 «버그»가 아니다. 아고다 자료가 아직 업로드되지 않았고,",
+        "   콘텐츠에 노출한 호텔과 실제 예약 호텔이 들어와야 매칭·집계가 된다. 자료가 들어오기 전에는 쫓지 않는다.",
+        "   (BL-BOOKING-EARNINGS-IMPORT · BL-HOTEL-MASTER-RESYNC — 상태: 자료 대기)"
+      ],
+      "갈래": {
+        "정본": "tasks.json 의 biz 칸 (b2b / studio / os) · 뜻풀이는 tasks.json biz_legend · D-106",
+        "미완료64": "b2b 37 · studio 10 · os 17",
+        "b2b": "호텔에 $200 파는 일 — 매니저·결제·재계약·성과표·수수료·예약 데이터 (예약·수수료를 따로 빼지 않는다)",
+        "studio": "원고→유튜브 — 스튜디오 6메뉴·키워드·채널·클릭추적",
+        "os": "도구 정비(사업 아님) — 화면 동기화·문서 자동화·봇·죽은 코드",
+        "화면": "gohotelwinners.com/admin-status.html 맨 위 탭 — 「앞으로 할 일」 8칸만 걸러진다. 지난 기록·완료율은 전체 기준",
+        "주의": "완료된 작업에는 biz 를 달지 않는다(지난 기록은 가르지 않는다) · scope=out_of_repo 는 갈래로 만들지 않는다(D-105)"
+      }
+    },
+    "공통": {
+      "결정문서_색인누락": "🔴 2026-08-31 실측: GAPS 의 «🔴 규칙» 절 중 결정문서 짝이 없는 것 11건(I·Q·S·T·Y·AC·AD·AF·AH·AI·AJ). Cross-Repo Rule Guard 가 매일 알린다 — 하나씩 결정문서로 올린다"
+    },
+    "백업": {
+      "상태": "창고 미생성 — 열쇠 2개는 정상 등록됨(실행 0단계 통과)",
+      "무엇": "33일 공백(2026-07-31 이후)은 오늘 원인을 찾아 고쳤다. 첫 실행만 남았다",
+      "대표님_할일": "① github.com/new 에서 저장소 tw-b2b-backup 을 🔴Private 로 생성 ② Fine-grained token(BACKUP_PAT) 의 Repository access 에 tw-b2b-backup 추가 + Contents: Read and write ③ Actions 탭 → db-backup → Run workflow",
+      "값은_어디": "둘 다 Vercel(tw-b2b) 환경변수에 이미 있다. 새로 만들 것 없다",
+      "정본": "docs/BUSINESS-MAP.md §5-C · D-102 · GAPS BJ",
+      "실측_2026-09-02": "Run 33618128452 실패 지점 = 0-b) 창고 점검. 열쇠 확인(0단계)은 ✅ 통과했다. dgmasters01/tw-b2b-backup 이 404 — 저장소가 아직 만들어지지 않았다. Fine-grained PAT 의 Repository access 목록에도 없는 저장소는 고를 수 없으므로 «창고 생성 → PAT 권한 부여» 순서여야 한다."
+    }
+  },
+  "정본파일": {
+    "사업전체": "staycurate docs/BUSINESS-MAP.md",
+    "일꾼": "tw-b2b _os/workers/registry.json (+WORKERS.md 사람용·HOW-TO-ADD.md)",
+    "배선": "staycurate docs/WIRING-MAP.md",
+    "표소유": "staycurate db/table-owner.csv · docs/DB-MAP.md §2-6",
+    "표정의": "staycurate db/schema.sql (표106+함수32+시퀀스55)",
+    "뷰정의": "staycurate db/views-full.sql (84개 · 4회 반복 실행)",
+    "씨앗": "staycurate db/seed/seed.sql (14표 497행)",
+    "열쇠": "staycurate docs/ENV.md",
+    "복제설명서": "staycurate docs/MANUAL.md(사람) · docs/MANUAL-MACHINE.md(기계)",
+    "빈곳점검표": "staycurate docs/GAPS.md",
+    "대표님할일": "staycurate docs/OWNER-TODO.md",
+    "결정": "tw-b2b DECISIONS_INDEX.md(정본) · DECISIONS.md · _business/decisions/",
+    "작업목록": "tw-b2b tasks.json",
+    "뷰소유": "staycurate db/view-owner.csv · docs/DB-MAP.md §2-7",
+    "남은일": "staycurate docs/ROADMAP.md",
+    "하루기록": "staycurate docs/DAY-2026-08-29.md",
+    "결정색인": "tw-b2b _os/context/DECISION-LOOKUP.md (주제별) · DECISIONS_INDEX.md (전체)",
+    "작업절차": "staycurate docs/HOW-I-WORK.md (2026-08-30 신설)",
+    "규칙동기화감시": "tw-b2b .github/workflows/cross-repo-rule-guard.yml (매일 06:10 · GAPS 🔴 절 ↔ 결정문서 날짜 대조 · 짝 없으면 Issue)",
+    "호텔선정": "staycurate docs/HOTEL-PICK.md (자격·빼는것 세갈래·🔴남기는것 료칸/Inn/벳테이·거르개 4규칙). 고치면 api/bot-post.js 와 api/bot-check.js C2 를 함께"
+  },
+  "클로드가_아직_못_본_것": [
+    "개인OS DB 창구 — 열쇠 값이 달라 401 (대표님 몫 · 3분)",
+    "GitHub 이슈 본문 — 비인증 한도(내용은 파악: 결정 42건 누락)",
+    "코드 미연결 뷰 17개 — 매니저 오픈·향후 화면용인지 개별 확인 남음"
   ],
-  "값": "문서에 절대 안 적음 · Vercel 환경변수에만"
- },
- "일꾼": {
-  "총": 76,
-  "서비스별": {
-   "blog": 28,
-   "studio": 21,
-   "studio-dev": 23,
-   "personal": 4
+  "규칙요약": [
+    "대표님은 결정만 · 시스템이 실행·검증",
+    "기술 분류는 클로드가 결정(추측 금지·근거 실측)",
+    "승인 없이 발행 금지 · 열쇠·결제는 대표님 몫",
+    "등록 안 된 것은 잊힌다 — 정리 요청은 그 자리에서 문서+색인 등재",
+    "🔴 외부 API 를 쓰거나 속도를 올릴 때는 공식 약관에서 무료 한도·단가를 확인해 대표님께 «월 얼마»를 먼저 보고한다. 다른 곳에서 공짜로 받을 수 있는 자료를 돈 주고 받지 않는다 (대표님 2026-09-01)"
+  ],
+  "방향": "북극성 = 글이 나가고 돈이 된다. 지금 1순위는 블로그 50편 가는 길(출처 2곳 문제 56편 → 판독 → 승인).",
+  "남은일_정본": "staycurate docs/ROADMAP.md — 발행 8단계 · 8번 다음(9~13) · 클로드 몫 8 · 대표님 몫 7 · 스튜디오 대기 4",
+  "오늘_하루기록": "staycurate docs/DAY-2026-08-29.md — 한 일 17건 · 클로드가 틀린 것 5건 · 다음 할 일 (08-30 성과 화면 개편은 GAPS AL)",
+  "판독": {
+    "판정완료": 3385,
+    "대기": 3501,
+    "주의": "read_state 칸은 없다 · 진행률은 sent_json 으로 센다 (08-29 502 사고)"
   },
-  "상태별": {
-   "돎": 69,
-   "쉼": 1,
-   "수동": 1,
-   "은퇴": 3,
-   "대기": 1,
-   "확인 필요": 1
+  "용어주의": [
+    "«다음 할 일»을 고르기 전에 화면 맨 위 «갈래 탭»을 먼저 고른다 — 한 화면에 b2b·studio·os 가 섞여 있어 B2B 를 하려는데 스튜디오 일을 추천하던 사고가 있었다 (D-106)",
+    "창구 github-read 는 .md·.json 만 utf-8 이고 그 외(.sha256 등)는 base64 로 돌려준다 — encoding 키를 먼저 본다 (D-106 · 09-03 오판 직전)",
+    "hotels = 아고다 예약 발생 호텔 명단(catalog). «계약 호텔»로 부르지 말 것 (08-29 대표님 정정)",
+    "중복 116건도 전부 catalog — 아고다가 같은 호텔에 번호를 여러 개 주기 때문",
+    "호텔 중복 판정 규격은 tw-b2b D-071(2026-07-20·07-22개정)에 이미 있다 — 좌표 15m·성급은 잣대 아님·리뷰수/객실수 물증·«따로 팔면 다른 호텔». 새로 설계하지 말 것",
+    "매니저·결제 표 12개가 0행인 것은 «개발 중·미오픈»이 맞다(08-29 재검증). invoice_sequences.last_number=0 = 청구서 한 장도 발행 안 함. 버그로 의심하지 말 것",
+    "한도·상한을 말하기 전에 «그 값이 언제·왜 정해졌고 그 조건이 지금도 같은가»를 먼저 본다 — 08-29 클로드가 사고 직후 값(120)을 조건 확인 없이 적용한 실수",
+    "한도의 진짜 방어선은 «시간당 총량»이 아니라 «분당·동시 접속»이다. 크론은 이미 분 단위로 흩어져 있다(05·15·20·25·35·40·50·55분)",
+    "GITHUB_PAT 은 스튜디오·블로그 두 곳에 같은 값이 들어 있다. 만료 2027-07-29 — 그때 두 곳 다 갱신",
+    "🔴 발행된 글은 발행 순간의 값(가격·문장·사진)으로 얼린다. 재발행하면 가격이 오늘 값으로 바뀌므로, 발행 글 수정은 «파일에 필요한 것만 끼워 넣기»로 한다 (대표님 08-30)",
+    "facts.js 질의를 고치면 배포 후 그 kind 를 호출해 ok:true 를 확인한다 — 한 질의가 죽으면 화면 전체가 죽는다(08-30 사고)",
+    "🔴 예약 링크(CID 1972105)는 수익의 전부다. 발행 전 bot-check C8 + 발행 후 link-guard(매일 08:00)가 이중으로 지킨다. 링크 관련 코드를 만지면 반드시 link-guard 를 돌려 «최종 주소까지 CID 유지»를 확인한다",
+    "🔴 우리 제휴 링크를 자동으로 반복 호출하지 않는다(self-click = 아고다 약관 위반 소지). 검사는 «주소 모양»으로 한다 — link-guard 기본 동작. 실호출은 사람이 ?live=1 로 1회만",
+    "화면 조각(admin/parts/*.html)을 고치면 <script>만 떼어 node --check 한 뒤 배포하고, 배포본을 되읽어 한 번 더 검사한다 — onerror 등 속성 안 따옴표 겹침으로 화면이 통째로 멈춘다(08-30)",
+    "🔴 코드를 고칠 때는 github-read 로 «배포본»을 내려받아 그 위에서 고친다. 작업 폴더의 옛 사본을 올리면 그 사이 배포된 변경이 통째로 사라진다(08-30 방문자 화면 사망)",
+    "🔴 파일을 올린 뒤 «배포본»을 내려받아 node --check 한다. 사본만 검사하면 빌드가 깨진 줄 모르고 «고쳤습니다»라고 잘못 보고하게 된다(08-30 20분 허비)",
+    "🔴 시안(visualizer)으로 대표님 승인을 받았으면 그 시안의 구성 요소를 «전부» 규격 문서에 적는다 — 08-30 성과 화면 탭 4개가 AK 절에서 빠져 다음 세션이 3단계만 만들었다(GAPS AL-3)",
+    "🔴 성과 «예약 타이밍» 구간(임박·근접·먼)은 막대 건수는 SQL(perf_hotel_one.leadtime), 막대를 눌러 나오는 목록은 화면 계산이다 — perf_bookings 의 예약일에 연도가 없어(MM-DD) 체크인 연도로 되짚기 때문. 둘이 어긋나면 GAPS AL-4 를 먼저 본다",
+    "🔴 성과 화면 호텔 목록은 perf_hotels2 다. perf_hotels(옛것)은 쓰지 않는다 — 이름이 비슷해 매번 헷갈린다",
+    "🔴 시계가 «등록돼 있다»와 «돈다»는 다르다. vercel.json 만 보고 판단하지 말고 blog_cron_log(출근부) + 실제 산출물 시각(예: 후기 collected_at)으로 두 번 확인한다 (2026-08-31 A16)",
+    "🔴 라쿠텐은 «일본 전용»이다 — blog_city_slug.rakuten_area 가 있는 도시만 대상. 해외 도시에서 «대상 없음»은 정상이며 고장이 아니다. 해외의 둘째 출처는 아고다다 (2026-08-31)",
+    "🔴 «문지기(인증) 코드»를 고치면 같은 패턴을 쓰는 파일을 전부 훑는다. 08-18 에 크론 401 을 고치며 2개만 손대고 9개를 남겨 08-31 에 같은 사고가 났다 (GAPS AR)",
+    "🔴 GAPS 절 제목에 🔴 를 붙였다 = «다음에도 이렇게 한다» = 결정문서 대상이다. GAPS(블로그)로 끝내지 말고 같은 날 tw-b2b 네 곳을 맞춘다 — 결정문서·DECISIONS_INDEX·DECISIONS·DECISION-LOOKUP. ④가 다음 클로드가 실제로 보는 곳이다 (2026-08-31 · D-096·D-097)",
+    "🔴 캡슐·도미토리·호스텔·게스트하우스는 싣지 않는다. lodging_type 으로 거르지 말 것 — 99%가 비어 있다(None 298만·shared 433). 이름으로 거른다. 아고다 star_rating 도 못 믿는다(캡슐을 4성급으로 준 실례) (2026-09-01 · D-099)",
+    "🔴 blog_post_hotel 에 unique(post_id, agoda_hotel_id) — 글의 호텔을 바꿀 때 id 를 바꾸면 중복 위반이다. 호텔 id 는 두고 «자리»(rank_in_post·is_backup)를 한 문장에서 맞바꾼다 (2026-09-01)",
+    "🔴 사진은 «아고다 대표 1장 + 대표님이 올리는 추가 4장» 이 확정 구조다(docs/PHOTO.md · 2026-08-09 실증). photo2~5 는 1x1 빈 이미지라 자동으로 못 구한다. 사진 1장이어도 발행된다 — 문제가 아니다. 2026-09-01 클로드가 이걸 모르고 «646곳이 1장에 갇혔다»를 문제로 보고하고 없는 길을 제안했다 (GAPS AV)",
+    "🔴 «문제를 발견했다»고 말하기 전에 그 주제의 전용 문서를 먼저 찾는다 — docs/ 에 PHOTO.md·CHECKS.md·CONTENT.md 처럼 주제별 문서가 있다. 조립이 막힌 이유는 추측하지 말고 막힘 기록(blog_daily_task seq=99)을 읽는다 (2026-09-01)",
+    "🔴 후기 판정은 observed_at(실제 다녀온 시기)으로만 한다. posted_at(올라온 날)과 다르다 — 아고다 실측 최대 1,065일 차이. 모를 때 ①1년내 추정+표시(0.8) ②1~2년(0.5) ③2년초과 안씀. 추정은 retention_rule='observed_estimated_from_posted' 로 반드시 표시 (2026-09-01 · D-100)",
+    "🔴 호텔 선정에서 «료칸·Inn·벳테이·레지던스»는 남긴다 (대표님 확정 2026-09-01). «이름에 hotel 이 있나»로 가리지 말 것 — 글에 쓴 539곳 중 213곳이 hotel 없이도 진짜 호텔이다(그랜드 닛코 도쿄 11,029·홀리데이 인 익스프레스 바이 IHG). 빼는 것은 캡슐·방하나파는곳·B&B/민박/모텔/펜션/게스트하우스 · 정본 docs/HOTEL-PICK.md",
+    "🔴 소개문 주력은 공식 홈페이지(bot-official · 매시 30분). 올스테이(bot-intro)는 2026-09-01 은퇴 — 도시당 6곳뿐이라 90건 중 81%가 notfound. 지운 게 아니라 멈춘 것이라 이미 건진 17건은 그대로 쓴다 (GAPS BA)",
+    "🔴 문서에서 «격하»로 판정했으면 코드와 시계도 실제로 바꿨는지 확인한다 — 08-29 판정을 09-01 까지 코드에 반영 안 해 계속 주력처럼 돌고 있었다 (2026-09-01)",
+    "🔴 «구글은 공짜» 아니다 — Places 는 FieldMask 중 «가장 비싼 필드»로 요청 전체를 과금한다. rating 하나만 넣어도 무료가 5,000→1,000 으로 준다. 2026-08 에 95,911원이 청구됐다 (GAPS BF·BG)",
+    "🔴 «크론이 돈다»와 «백업이 됐다»는 다른 말이다. 백업 판정은 /api/ops/backup-check 의 «마지막 커밋 시각»으로 한다 (D-102)",
+    "🔴 큰 표를 쪽으로 읽을 때 OFFSET·ORDER BY ctid 를 쓰지 않는다 — 색인이 없어 한 쪽마다 전체를 정렬한다. 실측: hotel_master 2,000행 한 쪽 16.4초(=6.9시간). 열쇠순(PK) 이어읽기로 13분 (D-102)"
+  ],
+  "작업전_필수": [
+    "🔴 staycurate/docs/HOW-I-WORK.md (작업 절차 5단계 — 이것부터)",
+    "🔴 돈이 나가는 외부 서비스를 만질 때 — staycurate/docs/BUSINESS-MAP.md §5-B (외부 API 전체·무료한도·자물쇠 5겹)",
+    "_os/context/state.json (전체 상태)",
+    "_os/context/DECISION-LOOKUP.md (이 주제 이미 정해진 게 있나)",
+    "_os/workers/registry.json (로봇 만지기 전)"
+  ],
+  "다음작업": {
+    "무엇": "아고다 1회 처리량 상한(Math.min(3,…))을 올릴 수 있는지 실측 후 판단",
+    "왜": "크론 401 을 고쳐 하루 24회가 됐다. 1회 3곳 상한을 올리면 더 빨라지지만 근거 없이 올리면 안 된다",
+    "재는법": "아고다 API 응답 시간·연속 호출 실패율을 먼저 잰다. 한도를 짐작으로 정했다가 사고 난 전례가 있다(08-29 부하 안전장치 40)",
+    "그다음": "① 해외 도시용 셋째 출처 검토 ② A20 일꾼 표시 자동화 ③ A17 gsc-sync 출근부 기록",
+    "🔴주의": "«시계가 안 돈다»고 판정하기 전에 Vercel Logs 를 본다. 출근부가 비어 있어도 401 로 쫓겨난 것일 수 있다 (GAPS AR)"
   },
-  "정본": "tw-b2b _os/workers/registry.json (76명) · DB 명부 blog_bot_registry (28명 · 2026-08-31 누락 6명 등록)",
-  "주의": "«부르는 곳이 없다»는 고장이 아니라 은퇴일 수 있다 — 반드시 state·note 를 먼저 본다(08-29 클로드 오판)"
- },
- "지금막힌곳": {
-  "블로그": {
-   "후기출처부족": 5,
-   "후기판독대기": "약 2,400",
-   "가격미확보": 2,
-   "대표님승인대기": 6,
-   "발행됨": 5,
-   "메모": "08-29 아고다 후기 일꾼에 전용 시계(:15) 부여 후 막힘 10→5편. 수집은 이제 자동으로 줄어든다",
-   "수집속도": "🔴 2026-08-31 해결: 크론 401 사고(GAPS AR) — Vercel 은 매시 정확히 불렀는데 우리 문지기가 쫓아냈다. 9개 파일 수정 후 14:15 통과 확인. 아고다 하루 4회→24회. 남은 본문 호텔 373곳이 31일→약 6일. 남은 병목: 해외 343곳은 출처가 구글·아고다 둘뿐이다(라쿠텐은 일본 전용)"
-  },
-  "스튜디오": {
-   "열린작업": 73,
-   "P0": [
-    "BL-002 — 통합 To-Do Inbox (관리자 대시보드 재설계)",
-    "BL-STUDIO-MENU-6TAB — [스튜디오 재설계] 상단 6메뉴: 올리기·성과표·호텔·키워드·전략·채널",
-    "BL-KEYWORD-TARGET-AXIS — [키워드 타겟축 정정] 타겟 = 언어(+시장). 채널을 축에서 제거 — ",
-    "BL-HOTEL-MASTER-RESYNC — [새 호텔 명단 편입] 7/13까지 새 예약 147건 중 78건이 호텔 ",
-    "BL-BOOKING-EARNINGS-IMPORT — [수수료 리포트 반영] 최근 3개월 수익이 0원으로 보임 — 아고다 수수"
-   ],
-   "돈이안보이는것": [
-    "🔴 2026-08-29 대표님 정정: 이 둘은 «버그»가 아니다. 아고다 자료가 아직 업로드되지 않았고,",
-    "   콘텐츠에 노출한 호텔과 실제 예약 호텔이 들어와야 매칭·집계가 된다. 자료가 들어오기 전에는 쫓지 않는다.",
-    "   (BL-BOOKING-EARNINGS-IMPORT · BL-HOTEL-MASTER-RESYNC — 상태: 자료 대기)"
-   ]
-  },
-  "공통": {
-   "결정문서_색인누락": "🔴 2026-08-31 실측: GAPS 의 «🔴 규칙» 절 중 결정문서 짝이 없는 것 11건(I·Q·S·T·Y·AC·AD·AF·AH·AI·AJ). Cross-Repo Rule Guard 가 매일 알린다 — 하나씩 결정문서로 올린다"
-  },
-  "백업": {
-   "상태": "창고 미생성 — 열쇠 2개는 정상 등록됨(실행 0단계 통과)",
-   "무엇": "33일 공백(2026-07-31 이후)은 오늘 원인을 찾아 고쳤다. 첫 실행만 남았다",
-   "대표님_할일": "① github.com/new 에서 저장소 tw-b2b-backup 을 🔴Private 로 생성 ② Fine-grained token(BACKUP_PAT) 의 Repository access 에 tw-b2b-backup 추가 + Contents: Read and write ③ Actions 탭 → db-backup → Run workflow",
-   "값은_어디": "둘 다 Vercel(tw-b2b) 환경변수에 이미 있다. 새로 만들 것 없다",
-   "정본": "docs/BUSINESS-MAP.md §5-C · D-102 · GAPS BJ",
-   "실측_2026-09-02": "Run 33618128452 실패 지점 = 0-b) 창고 점검. 열쇠 확인(0단계)은 ✅ 통과했다. dgmasters01/tw-b2b-backup 이 404 — 저장소가 아직 만들어지지 않았다. Fine-grained PAT 의 Repository access 목록에도 없는 저장소는 고를 수 없으므로 «창고 생성 → PAT 권한 부여» 순서여야 한다."
+  "성과화면": {
+    "상태": "✅ A22 v5 완료 (2026-08-30) — admin/parts/metrics.html",
+    "구성": "탭 4개(글별·호텔별·도시별·예약내역). «호텔별»은 스튜디오 studio.html «호텔» 화면 이식 — 요약카드 5 · 거르개 6 · 상세팝업 4구획",
+    "자료": "perf_kpi2 · perf_by_post · perf_by_hotel · perf_bookings · perf_hotels2 · perf_hotel_one · perf_post_peers · perf_cities · perf_bookings_all",
+    "규격": "staycurate docs/GAPS.md AL · AL-4",
+    "남은것": "🟡 대표님이 «성과 › 호텔별» 탭을 한 번 열어 실물 확인 (클로드는 /admin 로그인 벽으로 못 봄)"
   }
- },
- "정본파일": {
-  "사업전체": "staycurate docs/BUSINESS-MAP.md",
-  "일꾼": "tw-b2b _os/workers/registry.json (+WORKERS.md 사람용·HOW-TO-ADD.md)",
-  "배선": "staycurate docs/WIRING-MAP.md",
-  "표소유": "staycurate db/table-owner.csv · docs/DB-MAP.md §2-6",
-  "표정의": "staycurate db/schema.sql (표106+함수32+시퀀스55)",
-  "뷰정의": "staycurate db/views-full.sql (84개 · 4회 반복 실행)",
-  "씨앗": "staycurate db/seed/seed.sql (14표 497행)",
-  "열쇠": "staycurate docs/ENV.md",
-  "복제설명서": "staycurate docs/MANUAL.md(사람) · docs/MANUAL-MACHINE.md(기계)",
-  "빈곳점검표": "staycurate docs/GAPS.md",
-  "대표님할일": "staycurate docs/OWNER-TODO.md",
-  "결정": "tw-b2b DECISIONS_INDEX.md(정본) · DECISIONS.md · _business/decisions/",
-  "작업목록": "tw-b2b tasks.json",
-  "뷰소유": "staycurate db/view-owner.csv · docs/DB-MAP.md §2-7",
-  "남은일": "staycurate docs/ROADMAP.md",
-  "하루기록": "staycurate docs/DAY-2026-08-29.md",
-  "결정색인": "tw-b2b _os/context/DECISION-LOOKUP.md (주제별) · DECISIONS_INDEX.md (전체)",
-  "작업절차": "staycurate docs/HOW-I-WORK.md (2026-08-30 신설)",
-  "규칙동기화감시": "tw-b2b .github/workflows/cross-repo-rule-guard.yml (매일 06:10 · GAPS 🔴 절 ↔ 결정문서 날짜 대조 · 짝 없으면 Issue)",
-  "호텔선정": "staycurate docs/HOTEL-PICK.md (자격·빼는것 세갈래·🔴남기는것 료칸/Inn/벳테이·거르개 4규칙). 고치면 api/bot-post.js 와 api/bot-check.js C2 를 함께"
- },
- "클로드가_아직_못_본_것": [
-  "개인OS DB 창구 — 열쇠 값이 달라 401 (대표님 몫 · 3분)",
-  "GitHub 이슈 본문 — 비인증 한도(내용은 파악: 결정 42건 누락)",
-  "코드 미연결 뷰 17개 — 매니저 오픈·향후 화면용인지 개별 확인 남음"
- ],
- "규칙요약": [
-  "대표님은 결정만 · 시스템이 실행·검증",
-  "기술 분류는 클로드가 결정(추측 금지·근거 실측)",
-  "승인 없이 발행 금지 · 열쇠·결제는 대표님 몫",
-  "등록 안 된 것은 잊힌다 — 정리 요청은 그 자리에서 문서+색인 등재",
-  "🔴 외부 API 를 쓰거나 속도를 올릴 때는 공식 약관에서 무료 한도·단가를 확인해 대표님께 «월 얼마»를 먼저 보고한다. 다른 곳에서 공짜로 받을 수 있는 자료를 돈 주고 받지 않는다 (대표님 2026-09-01)"
- ],
- "방향": "북극성 = 글이 나가고 돈이 된다. 지금 1순위는 블로그 50편 가는 길(출처 2곳 문제 56편 → 판독 → 승인).",
- "남은일_정본": "staycurate docs/ROADMAP.md — 발행 8단계 · 8번 다음(9~13) · 클로드 몫 8 · 대표님 몫 7 · 스튜디오 대기 4",
- "오늘_하루기록": "staycurate docs/DAY-2026-08-29.md — 한 일 17건 · 클로드가 틀린 것 5건 · 다음 할 일 (08-30 성과 화면 개편은 GAPS AL)",
- "판독": {
-  "판정완료": 3385,
-  "대기": 3501,
-  "주의": "read_state 칸은 없다 · 진행률은 sent_json 으로 센다 (08-29 502 사고)"
- },
- "용어주의": [
-  "hotels = 아고다 예약 발생 호텔 명단(catalog). «계약 호텔»로 부르지 말 것 (08-29 대표님 정정)",
-  "중복 116건도 전부 catalog — 아고다가 같은 호텔에 번호를 여러 개 주기 때문",
-  "호텔 중복 판정 규격은 tw-b2b D-071(2026-07-20·07-22개정)에 이미 있다 — 좌표 15m·성급은 잣대 아님·리뷰수/객실수 물증·«따로 팔면 다른 호텔». 새로 설계하지 말 것",
-  "매니저·결제 표 12개가 0행인 것은 «개발 중·미오픈»이 맞다(08-29 재검증). invoice_sequences.last_number=0 = 청구서 한 장도 발행 안 함. 버그로 의심하지 말 것",
-  "한도·상한을 말하기 전에 «그 값이 언제·왜 정해졌고 그 조건이 지금도 같은가»를 먼저 본다 — 08-29 클로드가 사고 직후 값(120)을 조건 확인 없이 적용한 실수",
-  "한도의 진짜 방어선은 «시간당 총량»이 아니라 «분당·동시 접속»이다. 크론은 이미 분 단위로 흩어져 있다(05·15·20·25·35·40·50·55분)",
-  "GITHUB_PAT 은 스튜디오·블로그 두 곳에 같은 값이 들어 있다. 만료 2027-07-29 — 그때 두 곳 다 갱신",
-  "🔴 발행된 글은 발행 순간의 값(가격·문장·사진)으로 얼린다. 재발행하면 가격이 오늘 값으로 바뀌므로, 발행 글 수정은 «파일에 필요한 것만 끼워 넣기»로 한다 (대표님 08-30)",
-  "facts.js 질의를 고치면 배포 후 그 kind 를 호출해 ok:true 를 확인한다 — 한 질의가 죽으면 화면 전체가 죽는다(08-30 사고)",
-  "🔴 예약 링크(CID 1972105)는 수익의 전부다. 발행 전 bot-check C8 + 발행 후 link-guard(매일 08:00)가 이중으로 지킨다. 링크 관련 코드를 만지면 반드시 link-guard 를 돌려 «최종 주소까지 CID 유지»를 확인한다",
-  "🔴 우리 제휴 링크를 자동으로 반복 호출하지 않는다(self-click = 아고다 약관 위반 소지). 검사는 «주소 모양»으로 한다 — link-guard 기본 동작. 실호출은 사람이 ?live=1 로 1회만",
-  "화면 조각(admin/parts/*.html)을 고치면 <script>만 떼어 node --check 한 뒤 배포하고, 배포본을 되읽어 한 번 더 검사한다 — onerror 등 속성 안 따옴표 겹침으로 화면이 통째로 멈춘다(08-30)",
-  "🔴 코드를 고칠 때는 github-read 로 «배포본»을 내려받아 그 위에서 고친다. 작업 폴더의 옛 사본을 올리면 그 사이 배포된 변경이 통째로 사라진다(08-30 방문자 화면 사망)",
-  "🔴 파일을 올린 뒤 «배포본»을 내려받아 node --check 한다. 사본만 검사하면 빌드가 깨진 줄 모르고 «고쳤습니다»라고 잘못 보고하게 된다(08-30 20분 허비)",
-  "🔴 시안(visualizer)으로 대표님 승인을 받았으면 그 시안의 구성 요소를 «전부» 규격 문서에 적는다 — 08-30 성과 화면 탭 4개가 AK 절에서 빠져 다음 세션이 3단계만 만들었다(GAPS AL-3)",
-  "🔴 성과 «예약 타이밍» 구간(임박·근접·먼)은 막대 건수는 SQL(perf_hotel_one.leadtime), 막대를 눌러 나오는 목록은 화면 계산이다 — perf_bookings 의 예약일에 연도가 없어(MM-DD) 체크인 연도로 되짚기 때문. 둘이 어긋나면 GAPS AL-4 를 먼저 본다",
-  "🔴 성과 화면 호텔 목록은 perf_hotels2 다. perf_hotels(옛것)은 쓰지 않는다 — 이름이 비슷해 매번 헷갈린다",
-  "🔴 시계가 «등록돼 있다»와 «돈다»는 다르다. vercel.json 만 보고 판단하지 말고 blog_cron_log(출근부) + 실제 산출물 시각(예: 후기 collected_at)으로 두 번 확인한다 (2026-08-31 A16)",
-  "🔴 라쿠텐은 «일본 전용»이다 — blog_city_slug.rakuten_area 가 있는 도시만 대상. 해외 도시에서 «대상 없음»은 정상이며 고장이 아니다. 해외의 둘째 출처는 아고다다 (2026-08-31)",
-  "🔴 «문지기(인증) 코드»를 고치면 같은 패턴을 쓰는 파일을 전부 훑는다. 08-18 에 크론 401 을 고치며 2개만 손대고 9개를 남겨 08-31 에 같은 사고가 났다 (GAPS AR)",
-  "🔴 GAPS 절 제목에 🔴 를 붙였다 = «다음에도 이렇게 한다» = 결정문서 대상이다. GAPS(블로그)로 끝내지 말고 같은 날 tw-b2b 네 곳을 맞춘다 — 결정문서·DECISIONS_INDEX·DECISIONS·DECISION-LOOKUP. ④가 다음 클로드가 실제로 보는 곳이다 (2026-08-31 · D-096·D-097)",
-  "🔴 캡슐·도미토리·호스텔·게스트하우스는 싣지 않는다. lodging_type 으로 거르지 말 것 — 99%가 비어 있다(None 298만·shared 433). 이름으로 거른다. 아고다 star_rating 도 못 믿는다(캡슐을 4성급으로 준 실례) (2026-09-01 · D-099)",
-  "🔴 blog_post_hotel 에 unique(post_id, agoda_hotel_id) — 글의 호텔을 바꿀 때 id 를 바꾸면 중복 위반이다. 호텔 id 는 두고 «자리»(rank_in_post·is_backup)를 한 문장에서 맞바꾼다 (2026-09-01)",
-  "🔴 사진은 «아고다 대표 1장 + 대표님이 올리는 추가 4장» 이 확정 구조다(docs/PHOTO.md · 2026-08-09 실증). photo2~5 는 1x1 빈 이미지라 자동으로 못 구한다. 사진 1장이어도 발행된다 — 문제가 아니다. 2026-09-01 클로드가 이걸 모르고 «646곳이 1장에 갇혔다»를 문제로 보고하고 없는 길을 제안했다 (GAPS AV)",
-  "🔴 «문제를 발견했다»고 말하기 전에 그 주제의 전용 문서를 먼저 찾는다 — docs/ 에 PHOTO.md·CHECKS.md·CONTENT.md 처럼 주제별 문서가 있다. 조립이 막힌 이유는 추측하지 말고 막힘 기록(blog_daily_task seq=99)을 읽는다 (2026-09-01)",
-  "🔴 후기 판정은 observed_at(실제 다녀온 시기)으로만 한다. posted_at(올라온 날)과 다르다 — 아고다 실측 최대 1,065일 차이. 모를 때 ①1년내 추정+표시(0.8) ②1~2년(0.5) ③2년초과 안씀. 추정은 retention_rule='observed_estimated_from_posted' 로 반드시 표시 (2026-09-01 · D-100)",
-  "🔴 호텔 선정에서 «료칸·Inn·벳테이·레지던스»는 남긴다 (대표님 확정 2026-09-01). «이름에 hotel 이 있나»로 가리지 말 것 — 글에 쓴 539곳 중 213곳이 hotel 없이도 진짜 호텔이다(그랜드 닛코 도쿄 11,029·홀리데이 인 익스프레스 바이 IHG). 빼는 것은 캡슐·방하나파는곳·B&B/민박/모텔/펜션/게스트하우스 · 정본 docs/HOTEL-PICK.md",
-  "🔴 소개문 주력은 공식 홈페이지(bot-official · 매시 30분). 올스테이(bot-intro)는 2026-09-01 은퇴 — 도시당 6곳뿐이라 90건 중 81%가 notfound. 지운 게 아니라 멈춘 것이라 이미 건진 17건은 그대로 쓴다 (GAPS BA)",
-  "🔴 문서에서 «격하»로 판정했으면 코드와 시계도 실제로 바꿨는지 확인한다 — 08-29 판정을 09-01 까지 코드에 반영 안 해 계속 주력처럼 돌고 있었다 (2026-09-01)",
-  "🔴 «구글은 공짜» 아니다 — Places 는 FieldMask 중 «가장 비싼 필드»로 요청 전체를 과금한다. rating 하나만 넣어도 무료가 5,000→1,000 으로 준다. 2026-08 에 95,911원이 청구됐다 (GAPS BF·BG)",
-  "🔴 «크론이 돈다»와 «백업이 됐다»는 다른 말이다. 백업 판정은 /api/ops/backup-check 의 «마지막 커밋 시각»으로 한다 (D-102)",
-  "🔴 큰 표를 쪽으로 읽을 때 OFFSET·ORDER BY ctid 를 쓰지 않는다 — 색인이 없어 한 쪽마다 전체를 정렬한다. 실측: hotel_master 2,000행 한 쪽 16.4초(=6.9시간). 열쇠순(PK) 이어읽기로 13분 (D-102)"
- ],
- "작업전_필수": [
-  "🔴 staycurate/docs/HOW-I-WORK.md (작업 절차 5단계 — 이것부터)",
-  "🔴 돈이 나가는 외부 서비스를 만질 때 — staycurate/docs/BUSINESS-MAP.md §5-B (외부 API 전체·무료한도·자물쇠 5겹)",
-  "_os/context/state.json (전체 상태)",
-  "_os/context/DECISION-LOOKUP.md (이 주제 이미 정해진 게 있나)",
-  "_os/workers/registry.json (로봇 만지기 전)"
- ],
- "다음작업": {
-  "무엇": "아고다 1회 처리량 상한(Math.min(3,…))을 올릴 수 있는지 실측 후 판단",
-  "왜": "크론 401 을 고쳐 하루 24회가 됐다. 1회 3곳 상한을 올리면 더 빨라지지만 근거 없이 올리면 안 된다",
-  "재는법": "아고다 API 응답 시간·연속 호출 실패율을 먼저 잰다. 한도를 짐작으로 정했다가 사고 난 전례가 있다(08-29 부하 안전장치 40)",
-  "그다음": "① 해외 도시용 셋째 출처 검토 ② A20 일꾼 표시 자동화 ③ A17 gsc-sync 출근부 기록",
-  "🔴주의": "«시계가 안 돈다»고 판정하기 전에 Vercel Logs 를 본다. 출근부가 비어 있어도 401 로 쫓겨난 것일 수 있다 (GAPS AR)"
- },
- "성과화면": {
-  "상태": "✅ A22 v5 완료 (2026-08-30) — admin/parts/metrics.html",
-  "구성": "탭 4개(글별·호텔별·도시별·예약내역). «호텔별»은 스튜디오 studio.html «호텔» 화면 이식 — 요약카드 5 · 거르개 6 · 상세팝업 4구획",
-  "자료": "perf_kpi2 · perf_by_post · perf_by_hotel · perf_bookings · perf_hotels2 · perf_hotel_one · perf_post_peers · perf_cities · perf_bookings_all",
-  "규격": "staycurate docs/GAPS.md AL · AL-4",
-  "남은것": "🟡 대표님이 «성과 › 호텔별» 탭을 한 번 열어 실물 확인 (클로드는 /admin 로그인 벽으로 못 봄)"
- }
 }

@@ -155,7 +155,8 @@
       "id": "BL-KR-HOTEL-FEED",
       "title": "[한국 호텔 분모 0] 아고다 한국어 파일에 국내 호텔이 0건 — 서울 4개 구·부산 등 성급 분포 분모가 비어 미개척을 못 잰다. 영어(EN) 파일에 있는지 확인해 채우기",
       "status": "pending",
-      "notes": "우리 예약 88건 있는 시장. agoda_file_source 표의 EN 주소로 확인. 실측: 한국어 KO 파일 country='한국' 0건."
+      "notes": "우리 예약 88건 있는 시장. agoda_file_source 표의 EN 주소로 확인. 실측: 한국어 KO 파일 country='한국' 0건.",
+      "biz": "studio"
     },
     {
       "category": "bugfix",
@@ -184,7 +185,8 @@
       "id": "BL-DISTRICT-KEYWORD",
       "title": "[지역 검색어가 거의 없음] 하카타 검색어 1개뿐 — 지역 단위로 따로 캐지 않고 도시 검색어에 지역명이 우연히 든 것만 쓴다(난바 17 vs 하카타 1). 지역 발굴 방식 결정 필요",
       "status": "pending",
-      "notes": "지역까지 전부 캐면 도시당 수십 개 지역 × 자동완성 호출 = 429 위험. 후보: ①콘텐츠 만들 지역만 그때 캔다(지금도 [＋조사 추가]로 가능) ②상위 3~5개 지역만 자동. 대표님 판단 필요."
+      "notes": "지역까지 전부 캐면 도시당 수십 개 지역 × 자동완성 호출 = 429 위험. 후보: ①콘텐츠 만들 지역만 그때 캔다(지금도 [＋조사 추가]로 가능) ②상위 3~5개 지역만 자동. 대표님 판단 필요.",
+      "biz": "studio"
     },
     {
       "category": "bugfix",
@@ -213,7 +215,8 @@
       "id": "BL-GINZA-RADIUS",
       "title": "[도쿄 긴자 5성만 우리>전체] 지역 중심에서 800m 밖에 있는 우리 호텔이 분모에 안 잡힘 — 전 지역 중 1곳뿐이나 원인 확인 필요",
       "status": "pending",
-      "notes": "v_district_star 반경 0.8km. 긴자 5성 우리 8 vs 전체 6. 반경을 넓히면 옆 동네가 섞이므로 신중히."
+      "notes": "v_district_star 반경 0.8km. 긴자 5성 우리 8 vs 전체 6. 반경을 넓히면 옆 동네가 섞이므로 신중히.",
+      "biz": "studio"
     },
     {
       "id": "BL-HOTEL-VIEWS-LINK",
@@ -605,7 +608,8 @@
       "id": "BL-CLEANUP-PREVIEW",
       "title": "[프리뷰·고아 페이지 정리] studio-*-preview 5개는 studio.html에 반영 완료 · 어디서도 안 걸리는 페이지 7개 확인 후 정리",
       "status": "pending",
-      "notes": "프리뷰: channel/keyword/perf/strategy/upload-published. 고아: _admin의 decisions·decisions-index·business-charter·gohotel-overview·gohotel-manager-stages, mockup-status, admin-accept-invite(초대 링크로 직접 진입하므로 정상일 수 있음 — 지우기 전 확인)."
+      "notes": "프리뷰: channel/keyword/perf/strategy/upload-published. 고아: _admin의 decisions·decisions-index·business-charter·gohotel-overview·gohotel-manager-stages, mockup-status, admin-accept-invite(초대 링크로 직접 진입하므로 정상일 수 있음 — 지우기 전 확인).",
+      "biz": "os"
     },
     {
       "id": "BL-KW-MULTILANG",
@@ -688,7 +692,8 @@
           "note": "완성도: BL-KW-MULTILANG 대기 등록(6단계 점검표)"
         }
       ],
-      "started_at": null
+      "started_at": null,
+      "biz": "studio"
     },
     {
       "id": "BL-KW-HARVEST-FIX",
@@ -1153,7 +1158,8 @@
           "note": "feat(BL-ADMIN-HOTEL-DETAIL): hotel-bookings API에 캠페인 기간(published_at+6개월) 산출 + 예약별 마케팅 전/기간/후 분류(booked_date 기준) 추가 (Pha"
         }
       ],
-      "started_at": "2026-06-02T01:53:43.200790+00:00"
+      "started_at": "2026-06-02T01:53:43.200790+00:00",
+      "biz": "b2b"
     },
     {
       "id": "BL-CHAT-CUTOFF-TRIGGERS",
@@ -4883,7 +4889,8 @@
       "order": 11,
       "target_pages": [
         "/marketing.html"
-      ]
+      ],
+      "biz": "studio"
     },
     {
       "id": "BL-INVOICE-003",
@@ -5791,7 +5798,8 @@
       "target_pages": [
         "__os__"
       ],
-      "updated_at": "2026-05-24T06:27:41+00:00"
+      "updated_at": "2026-05-24T06:27:41+00:00",
+      "biz": "os"
     },
     {
       "id": "PHASE-3A-2",
@@ -7282,7 +7290,8 @@
         "B안 — 카테고리별 탭 유지 + 우선순위 자동 정렬만 추가 → 익숙한 구조, 학습 부담 X",
         "C안 — 현재 유지 (탭 분리) → 변경 비용 0, 누락 위험 그대로"
       ],
-      "decision_recommendation": "🤖 클로드 추천: A안 — 1인 운영이라 '한 화면에서 다 본다'가 핵심 원칙에 가장 맞음. 변경 비용 4시간, 영구 효과."
+      "decision_recommendation": "🤖 클로드 추천: A안 — 1인 운영이라 '한 화면에서 다 본다'가 핵심 원칙에 가장 맞음. 변경 비용 4시간, 영구 효과.",
+      "biz": "b2b"
     },
     {
       "id": "BL-IPB-PROGRESS-RESTORE",
@@ -8147,7 +8156,8 @@
       "target_pages": [
         "/admin.html"
       ],
-      "order": 6
+      "order": 6,
+      "biz": "b2b"
     },
     {
       "id": "BL-004",
@@ -8204,7 +8214,8 @@
       "copy_rewritten_by": "BL-MODAL-COPY-REWRITE",
       "updated_at": "2026-06-03T15:45:12+00:00",
       "gate": "service_open",
-      "gate_note": "사이트 미오픈·가입 매니저 0명 — 오픈 후 결정 (2026-09-02 분류)"
+      "gate_note": "사이트 미오픈·가입 매니저 0명 — 오픈 후 결정 (2026-09-02 분류)",
+      "biz": "b2b"
     },
     {
       "id": "BL-005",
@@ -8253,7 +8264,8 @@
       "copy_rewritten_at": "2026-05-06T15:54:09.000Z",
       "copy_rewritten_by": "BL-MODAL-COPY-REWRITE",
       "gate": "service_open",
-      "gate_note": "사이트 미오픈·가입 매니저 0명 — 오픈 후 결정 (2026-09-02 분류)"
+      "gate_note": "사이트 미오픈·가입 매니저 0명 — 오픈 후 결정 (2026-09-02 분류)",
+      "biz": "b2b"
     },
     {
       "id": "BL-006",
@@ -8306,7 +8318,8 @@
         "/admin.html",
         "/marketing.html"
       ],
-      "order": 33
+      "order": 33,
+      "biz": "b2b"
     },
     {
       "id": "BL-007",
@@ -8355,7 +8368,8 @@
       "copy_rewritten_at": "2026-05-06T15:54:09.000Z",
       "copy_rewritten_by": "BL-MODAL-COPY-REWRITE",
       "gate": "service_open",
-      "gate_note": "사이트 미오픈·가입 매니저 0명 — 오픈 후 결정 (2026-09-02 분류)"
+      "gate_note": "사이트 미오픈·가입 매니저 0명 — 오픈 후 결정 (2026-09-02 분류)",
+      "biz": "b2b"
     },
     {
       "id": "BL-008",
@@ -8394,7 +8408,8 @@
       "target_pages": [
         "/hotel-info.html"
       ],
-      "order": 34
+      "order": 34,
+      "biz": "b2b"
     },
     {
       "id": "BL-009",
@@ -8433,7 +8448,8 @@
       "target_pages": [
         "/admin.html"
       ],
-      "order": 35
+      "order": 35,
+      "biz": "b2b"
     },
     {
       "id": "BL-010",
@@ -8472,7 +8488,8 @@
       "target_pages": [
         "/index.html"
       ],
-      "order": 36
+      "order": 36,
+      "biz": "b2b"
     },
     {
       "id": "BL-011",
@@ -8511,7 +8528,8 @@
       "order": 44,
       "target_pages": [
         "__user-env__"
-      ]
+      ],
+      "biz": "os"
     },
     {
       "id": "BL-012",
@@ -8561,7 +8579,8 @@
       ],
       "recommendation": "🤖 클로드 추천: A안 — 호텔은 영업 자산. 매니저 바뀌어도 같은 호텔이 다른 매니저로 이어지는 게 사업 본질. 이메일 변경/Resend 도메인은 자율 박을 수 있음.",
       "gate": "service_open",
-      "gate_note": "사이트 미오픈·가입 매니저 0명 — 오픈 후 결정 (2026-09-02 분류)"
+      "gate_note": "사이트 미오픈·가입 매니저 0명 — 오픈 후 결정 (2026-09-02 분류)",
+      "biz": "b2b"
     },
     {
       "id": "BL-013",
@@ -8611,7 +8630,8 @@
       ],
       "recommendation": "🤖 클로드 추천: A안 — 대표님 '올해 많이 버는 것'이 목표. PayPal Live 켜야 매출 시작. 다른 작업과 병렬 진행 가능.",
       "gate": "service_open",
-      "gate_note": "사이트 미오픈·가입 매니저 0명 — 오픈 후 결정 (2026-09-02 분류)"
+      "gate_note": "사이트 미오픈·가입 매니저 0명 — 오픈 후 결정 (2026-09-02 분류)",
+      "biz": "b2b"
     },
     {
       "id": "BL-014",
@@ -8659,7 +8679,8 @@
         "A안 — BL-013 완료 직후 자동 토큰 폐기·재발급 → 정식 운영 진입과 동시에 보안 정리, 사고 0",
         "B안 — 별도 시점 (대표님이 박은 날 수동 트리거) → 타이밍 조절 가능, 누락 위험"
       ],
-      "recommendation": "🤖 클로드 추천: A안 — 헌법 부칙 4 정신: 정식 운영 진입 = 토큰 일괄 폐기·재발급. BL-013에 의존 박아두면 자동."
+      "recommendation": "🤖 클로드 추천: A안 — 헌법 부칙 4 정신: 정식 운영 진입 = 토큰 일괄 폐기·재발급. BL-013에 의존 박아두면 자동.",
+      "biz": "os"
     },
     {
       "id": "BL-015",
@@ -9006,7 +9027,8 @@
       "copy_rewritten_at": "2026-05-06T15:54:09.000Z",
       "copy_rewritten_by": "BL-MODAL-COPY-REWRITE",
       "gate": "service_open",
-      "gate_note": "사이트 미오픈·가입 매니저 0명 — 오픈 후 결정 (2026-09-02 분류)"
+      "gate_note": "사이트 미오픈·가입 매니저 0명 — 오픈 후 결정 (2026-09-02 분류)",
+      "biz": "b2b"
     },
     {
       "id": "SQ-E",
@@ -9056,7 +9078,8 @@
       ],
       "decision_recommendation": "🤖 클로드 추천: A안 — 매니저 신뢰감이 재계약률에 직결. 통일 톤 + PDF 버튼은 상단 강조.",
       "gate": "service_open",
-      "gate_note": "사이트 미오픈·가입 매니저 0명 — 오픈 후 결정 (2026-09-02 분류)"
+      "gate_note": "사이트 미오픈·가입 매니저 0명 — 오픈 후 결정 (2026-09-02 분류)",
+      "biz": "b2b"
     },
     {
       "id": "SQ-F",
@@ -9108,7 +9131,8 @@
       ],
       "recommendation": "🤖 클로드 추천: B안 — 대표님이 매일 처음 보는 화면이라 '오늘 돈 얼마 들어왔나'가 먼저 보이는 게 사업 동기 부여. 활동 피드는 Dashboard 탭 안에 두면 됨.",
       "gate": "service_open",
-      "gate_note": "사이트 미오픈·가입 매니저 0명 — 오픈 후 결정 (2026-09-02 분류)"
+      "gate_note": "사이트 미오픈·가입 매니저 0명 — 오픈 후 결정 (2026-09-02 분류)",
+      "biz": "b2b"
     },
     {
       "id": "SQ-G",
@@ -9346,7 +9370,8 @@
       "order": 37,
       "target_pages": [
         "__docs__"
-      ]
+      ],
+      "biz": "os"
     },
     {
       "id": "IP-CTRL-001",
@@ -11110,7 +11135,8 @@
       "source_recovered": true,
       "target_pages": [
         "/admin-status.html"
-      ]
+      ],
+      "biz": "os"
     },
     {
       "id": "BL-SYNC-CHAT-LOGS-TAB",
@@ -11177,7 +11203,8 @@
       "source_recovered": true,
       "target_pages": [
         "/admin-status.html"
-      ]
+      ],
+      "biz": "os"
     },
     {
       "id": "BL-OS-PHASE-0",
@@ -11949,7 +11976,8 @@
       ],
       "target_pages": [
         "__os__"
-      ]
+      ],
+      "biz": "os"
     },
     {
       "id": "BL-CHATLOG-BOT-RACE",
@@ -12016,7 +12044,8 @@
       ],
       "target_pages": [
         "__os__"
-      ]
+      ],
+      "biz": "os"
     },
     {
       "id": "BL-VERCEL-DEPLOY-RACE-GUARD",
@@ -12895,7 +12924,8 @@
         "__os__"
       ],
       "decision_resolved": true,
-      "decision_resolved_at": "2026-05-13T02:09:50+00:00"
+      "decision_resolved_at": "2026-05-13T02:09:50+00:00",
+      "biz": "os"
     },
     {
       "id": "BL-OPS-MAIL-AUTOBOT",
@@ -13128,7 +13158,8 @@
       ],
       "target_pages": [
         "__os__"
-      ]
+      ],
+      "biz": "os"
     },
     {
       "id": "BL-SHARED-AUTH-CLEANUP",
@@ -13191,7 +13222,8 @@
       ],
       "target_pages": [
         "__os__"
-      ]
+      ],
+      "biz": "os"
     },
     {
       "id": "BL-GALLERY-PAGES-META-FIX",
@@ -14768,7 +14800,8 @@
       "target_pages": [
         "/admin-status.html"
       ],
-      "order": 14
+      "order": 14,
+      "biz": "os"
     },
     {
       "id": "BL-BASELINE-AUTO-TASK",
@@ -15105,7 +15138,8 @@
         "/admin-status.html",
         "/admin-gallery.html"
       ],
-      "order": 15
+      "order": 15,
+      "biz": "os"
     },
     {
       "id": "BL-DAILY-HEALTH-CARD",
@@ -15140,7 +15174,8 @@
       "target_pages": [
         "/admin-status.html"
       ],
-      "order": 16
+      "order": 16,
+      "biz": "os"
     },
     {
       "id": "BL-AUTO-ADMIN-BASELINE-7FILES",
@@ -17116,7 +17151,8 @@
           "commit": "73741e8",
           "note": "docs(handoff): BL-EMAIL-LOCALE-ROUTING status 메일 완료 인계 + stale 해소"
         }
-      ]
+      ],
+      "biz": "b2b"
     },
     {
       "id": "BL-ADMIN-COUNTRY-FILTER",
@@ -17145,7 +17181,8 @@
       "source": "decision:D-032+chat-log:2026-05-13-sq-g-auto-status-email",
       "target_pages": [
         "/admin.html"
-      ]
+      ],
+      "biz": "b2b"
     },
     {
       "id": "BL-RECEIPT-ARCHIVE",
@@ -17175,7 +17212,8 @@
       "target_pages": [
         "/marketing.html",
         "/settings.html"
-      ]
+      ],
+      "biz": "b2b"
     },
     {
       "id": "BL-EVENT-SITE-FOUNDATION",
@@ -17989,7 +18027,8 @@
           "by": "claude",
           "note": "차단원 모두 done/obsoleted 상태라 의존성 해제"
         }
-      ]
+      ],
+      "biz": "b2b"
     },
     {
       "id": "BL-PRELAUNCH-CLEANUP",
@@ -18031,7 +18070,8 @@
           "by": "claude",
           "note": "차단원 모두 done/obsoleted 상태라 의존성 해제"
         }
-      ]
+      ],
+      "biz": "b2b"
     },
     {
       "id": "BL-ADMIN-AUTH-V2-BACKFILL-DISARM",
@@ -19199,7 +19239,8 @@
       "order": 38,
       "claude_can_auto": false,
       "approval_required": true,
-      "started_at": "2026-05-28T08:44:31+00:00"
+      "started_at": "2026-05-28T08:44:31+00:00",
+      "biz": "b2b"
     },
     {
       "id": "BL-SYSTEM-MANUAL-AUTOGEN",
@@ -19876,7 +19917,8 @@
         }
       ],
       "source": "대표님 직접 보고 (2026-05-17) — V1 출시 후 ADR 지표 + 시즌 분석 + 채널별 조회수 분포 추가 필요",
-      "order": 12
+      "order": 12,
+      "biz": "b2b"
     },
     {
       "id": "BL-AUTO-TASKS-SCHEMA-1MISSING",
@@ -20844,7 +20886,8 @@
       ],
       "source": "claude_chat",
       "source_anchor": "",
-      "order": 9
+      "order": 9,
+      "biz": "b2b"
     },
     {
       "id": "BL-PAYMENTS-STATUS-AUDIT",
@@ -20904,7 +20947,8 @@
       ],
       "source": "claude_chat",
       "source_anchor": "",
-      "order": 7
+      "order": 7,
+      "biz": "b2b"
     },
     {
       "id": "BL-AUTO-TASKS-SCHEMA-9MISSING",
@@ -20984,7 +21028,8 @@
           "note": "차단원 모두 done/obsoleted 상태라 의존성 해제"
         }
       ],
-      "order": 30
+      "order": 30,
+      "biz": "b2b"
     },
     {
       "id": "BL-COMMON-HEADER-CSS-CLEANUP",
@@ -21015,7 +21060,8 @@
           "note": "차단원 모두 done/obsoleted 상태라 의존성 해제"
         }
       ],
-      "order": 39
+      "order": 39,
+      "biz": "os"
     },
     {
       "id": "BL-AUTO-TASKS-SCHEMA-11MISSING",
@@ -21734,7 +21780,8 @@
       "estimated_minutes": 45,
       "source": "auto_from_commit",
       "source_anchor": "auto-detect-bot 생성",
-      "order": 22
+      "order": 22,
+      "biz": "b2b"
     },
     {
       "id": "BL-AUTO-TASKS-SCHEMA-3MISSING",
@@ -22326,7 +22373,8 @@
           "by": "claude"
         }
       ],
-      "order": 4
+      "order": 4,
+      "biz": "b2b"
     },
     {
       "id": "BL-RENEWAL-CONSOLE",
@@ -22403,7 +22451,8 @@
           "by": "claude"
         }
       ],
-      "order": 5
+      "order": 5,
+      "biz": "b2b"
     },
     {
       "id": "BL-VIDEO-PUBLISH-INPUT-MODAL",
@@ -22604,7 +22653,8 @@
           "by": "claude"
         }
       ],
-      "order": 23
+      "order": 23,
+      "biz": "b2b"
     },
     {
       "id": "BL-INBOX-INLINE-ACTIONS",
@@ -22674,7 +22724,8 @@
           "by": "claude"
         }
       ],
-      "order": 21
+      "order": 21,
+      "biz": "b2b"
     },
     {
       "id": "BL-ADMIN-CATEGORY-AUDIT-CHATLOG",
@@ -22730,7 +22781,8 @@
           "by": "claude"
         }
       ],
-      "order": 43
+      "order": 43,
+      "biz": "os"
     },
     {
       "id": "BL-AUTO-BOTS-CHAT-LOG-BOT",
@@ -23115,7 +23167,8 @@
       "order": 6,
       "target_pages": [
         "/manager-dashboard.html"
-      ]
+      ],
+      "biz": "b2b"
     },
     {
       "id": "BL-ADMIN-STICKY-MENU-ALL",
@@ -23153,7 +23206,8 @@
       "order": 7,
       "target_pages": [
         "/admin.html"
-      ]
+      ],
+      "biz": "b2b"
     },
     {
       "id": "BL-YT-DOCX-INGEST",
@@ -23311,7 +23365,8 @@
         "message": "in_progress 진입했으나 progress.steps 비어있음. tasks.json에서 progress.steps 박은 후 다음 commit에 [step:done:N] 태그."
       },
       "gate": "owner_action",
-      "gate_note": "대표님 몫: 구글 서비스계정 JSON 키를 Vercel 환경변수에 넣기 (2026-09-02 분류)"
+      "gate_note": "대표님 몫: 구글 서비스계정 JSON 키를 Vercel 환경변수에 넣기 (2026-09-02 분류)",
+      "biz": "studio"
     },
     {
       "id": "BL-STUDIO-MENU-6TAB",
@@ -23565,7 +23620,8 @@
         "/studio.html"
       ],
       "updated_at": "2026-07-27T04:09:21+00:00",
-      "trigger": "새 채널 추가 시"
+      "trigger": "새 채널 추가 시",
+      "biz": "studio"
     },
     {
       "id": "BL-TRACK-001-SHORTLINK",
@@ -23603,7 +23659,8 @@
       "order": 11,
       "target_pages": [
         "/studio.html"
-      ]
+      ],
+      "biz": "studio"
     },
     {
       "id": "BL-YT-VIEWS-COLLECT",
@@ -23718,7 +23775,8 @@
       },
       "created_at": "2026-07-15",
       "updated_at": "2026-07-15",
-      "source": "chat-log:2026-07-15-keyword-target-axis-and-booking-sync"
+      "source": "chat-log:2026-07-15-keyword-target-axis-and-booking-sync",
+      "biz": "studio"
     },
     {
       "id": "BL-HANDOFF-TRUTH",
@@ -23773,7 +23831,8 @@
       },
       "created_at": "2026-07-15",
       "updated_at": "2026-07-15",
-      "source": "chat-log:2026-07-15-keyword-target-axis-and-booking-sync"
+      "source": "chat-log:2026-07-15-keyword-target-axis-and-booking-sync",
+      "biz": "studio"
     },
     {
       "id": "BL-HOTEL-MASTER-RESYNC",
@@ -23797,7 +23856,8 @@
       },
       "created_at": "2026-07-15",
       "updated_at": "2026-07-15",
-      "source": "chat-log:2026-07-15-keyword-target-axis-and-booking-sync"
+      "source": "chat-log:2026-07-15-keyword-target-axis-and-booking-sync",
+      "biz": "b2b"
     },
     {
       "id": "BL-LANDING-STATS-AUTO",
@@ -23821,7 +23881,8 @@
       },
       "created_at": "2026-07-15",
       "updated_at": "2026-07-15",
-      "source": "chat-log:2026-07-15-keyword-target-axis-and-booking-sync"
+      "source": "chat-log:2026-07-15-keyword-target-axis-and-booking-sync",
+      "biz": "b2b"
     },
     {
       "id": "BL-BOOKING-RAW-KEEP",
@@ -23845,7 +23906,8 @@
       },
       "created_at": "2026-07-15",
       "updated_at": "2026-07-15",
-      "source": "chat-log:2026-07-15-keyword-target-axis-and-booking-sync"
+      "source": "chat-log:2026-07-15-keyword-target-axis-and-booking-sync",
+      "biz": "b2b"
     },
     {
       "id": "BL-BOOKING-EARNINGS-IMPORT",
@@ -23871,7 +23933,8 @@
       "updated_at": "2026-07-15",
       "source": "chat-log:2026-07-15-keyword-target-axis-and-booking-sync",
       "gate": "owner_action",
-      "gate_note": "대표님 몫: 아고다에서 Earnings(수수료) 리포트 내려받기 (2026-09-02 분류)"
+      "gate_note": "대표님 몫: 아고다에서 Earnings(수수료) 리포트 내려받기 (2026-09-02 분류)",
+      "biz": "b2b"
     },
     {
       "id": "BL-MANAGER-COUNTRY-REAL",
@@ -23895,7 +23958,8 @@
       },
       "created_at": "2026-07-15",
       "updated_at": "2026-07-15",
-      "source": "chat-log:2026-07-15-keyword-target-axis-and-booking-sync"
+      "source": "chat-log:2026-07-15-keyword-target-axis-and-booking-sync",
+      "biz": "b2b"
     },
     {
       "id": "BL-AUTO-TASKS-SCHEMA-8MISSING",
@@ -24038,5 +24102,14 @@
       ],
       "notes": "점검 봇 자동 등록 (2026-07-27T06:29:00.639Z)\n\ncheck_name: admin_baseline\nstatus: yellow\ndetail: 관리자 페이지 5개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요)\n\n진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 green으로 박으면 자동 done.\n\n[자동 해소 2026-09-02T11:15:45.936Z] 점검 봇 green 전환"
     }
-  ]
+  ],
+  "biz_legend": {
+    "적용범위": "미완료 작업만 (done/cancelled/obsoleted/absorbed 는 지난 기록이므로 달지 않는다)",
+    "b2b": "호텔에 $200 파는 일 — 매니저·결제·재계약·성과표·수수료·예약 데이터",
+    "studio": "원고→유튜브 — 스튜디오 6메뉴·키워드·채널·클릭추적",
+    "os": "도구 정비(사업 아님) — 화면 동기화·문서 자동화·봇·죽은 코드",
+    "미지정": "biz 가 없는 미완료 작업은 시스템 완성도 화면의 모든 탭에 함께 보인다(숨기지 않는다 · D-103)",
+    "제외": "scope=out_of_repo 는 갈래를 달지 않는다 — 새 도메인·새 레포에서 할 일(D-105)",
+    "근거": "D-106 (2026-09-03)"
+  }
 }

@@ -4305,7 +4305,11 @@
   function plDecisionNeeded(tasks) {
     const RANK = { P0: 0, P1: 1, P2: 2, P3: 3 };
     return tasks.filter(t => {
-      if (['done', 'cancelled', 'obsoleted'].includes(t.status)) return false;
+      // ★ D-106 보강 (2026-09-03): 여기만 'absorbed' 를 안 빼고 있었다.
+      //   D-103 에서 «미완료 정의»를 CLOSED_STATUS 로 통일했는데 이 함수가 빠져 있어서
+      //   흡수된 BL-CAPTURE-BOT-RESTORE 가 「대표님이 먼저 결정할 것」에 계속 떠 있었다.
+      //   (끝난 작업에는 갈래가 없으므로 모든 탭에 새어 들어왔다 — 대표님 발견)
+      if (['done', 'cancelled', 'obsoleted', 'absorbed'].includes(t.status)) return false;
       if (t.status === 'blocked') return true;
       if (t.approval_required === true) return true;
       const decs = (t.autonomous && t.autonomous.requires_decisions_first) || [];
@@ -4342,8 +4346,10 @@
       if (STATE.bizTab === 'all') return true;
       const openAll  = (x.matched || []).filter(isOpenT);
       const openHere = openAll.filter(t => !isOutOfRepo(t));
-      if (openAll.length > 0 && openHere.length === 0) return false;  // 전부 「여기서 나갈 것」 (D-105)
-      if (openHere.length === 0) return true;                          // 남은 일이 없으면 숨기지 않는다
+      // ★ D-106 재보강: 남은 일이 하나도 없는 결정(나머지가 취소·흡수·폐기라 100%가 안 된 것)은
+      //   어느 갈래의 «앞으로 할 일»도 아니다 → 갈래 탭에서는 빼고 「전체」 탭에서는 그대로 보인다.
+      //   (전에는 모든 탭에 새어 들어와 스튜디오 탭에 도구 결정 4건이 떴다 — 대표님 발견)
+      if (openHere.length === 0) return false;
       return openHere.some(t => !t.biz || t.biz === STATE.bizTab);
     }
     const yellow = decCalc.filter(x => x.pct < 100 && decInBiz(x));
@@ -4355,13 +4361,16 @@
       const key = 'red:' + t.id;
       const open = STATE.plOpenRows[key] ? ' open' : '';
       let reason = '결정 정책이 정해져야 시작할 수 있어요.';
-      if (t.status === 'blocked') reason = '다른 것에 막혀 있어요 — 어떻게 풀지 정해주세요.';
+      if (t.status === 'waiting_trigger') reason = '지금 막힌 게 아니라 «조건이 와야» 착수합니다 — 서두르지 않아도 됩니다.';
+      else if (t.status === 'blocked') reason = '다른 것에 막혀 있어요 — 어떻게 풀지 정해주세요.';
       else if (t.approval_required) reason = '대표님 승인이 있어야 진행돼요.';
+      const waitTag = t.status === 'waiting_trigger'
+        ? '<span class="pl-group-hint" style="margin-left:6px;">⏸ 조건 대기</span>' : '';
       return `
         <div class="pl-row none${open}" data-key="${key}">
           <span class="pl-arrow">▸</span>
           <span class="pl-prio ${prio}">${esc(prio)}</span>
-          <span class="pl-summary" title="${esc(t.title)}">${esc(plLabel(t.id, t.title))}</span>
+          <span class="pl-summary" title="${esc(t.title)}">${esc(plLabel(t.id, t.title))}${waitTag}</span>
           <span class="pl-decide-btn" data-decide="${esc(t.id)}">결정하기 ▸</span>
         </div>
         <div class="pl-detail${open}" data-detail="${key}"><div class="pl-reason">왜? ${esc(reason)} <span style="opacity:.6">(${esc(t.id)})</span></div></div>`;

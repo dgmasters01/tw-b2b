@@ -1,13 +1,19 @@
 {
-  "overall": "green",
-  "summary": "모든 검진 항목 정상",
-  "checked_at": "2026-09-03T00:40:25.962Z",
+  "overall": "yellow",
+  "summary": "[yellow] admin_baseline: 관리자 페이지 1개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요) / [yellow] vercel_sync: 라이브 사이트가 GitHub 새 버전(62f7ab3)을 아직 못 따라잡았어요 (현재 라이브: a514922). 5~10분 후 자동 정상화 예정",
+  "checked_at": "2026-09-03T01:58:52.887Z",
   "checks": [
     {
       "name": "admin_baseline",
-      "status": "green",
-      "detail": "관리자 페이지 15개 모두 원본 그대로예요",
-      "changed_files": []
+      "status": "yellow",
+      "detail": "관리자 페이지 1개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요)",
+      "changed_files": [
+        {
+          "file": "admin-status.html",
+          "reason": "modified",
+          "current_sha": "bca5a7490d3c"
+        }
+      ]
     },
     {
       "name": "tasks_schema",
@@ -23,7 +29,7 @@
       "bot_status": {
         "sync-bot": "success",
         "auto-detect-bot": "success",
-        "scan-bot": "success",
+        "scan-bot": "unknown",
         "chat-log-bot": "success",
         "autoheal-bot": "unknown"
       }
@@ -31,15 +37,15 @@
     {
       "name": "decisions_sync",
       "status": "green",
-      "detail": "최근 24시간 결정 4건 감지 — 결정 기록도 함께 저장됐어요 (정상)",
+      "detail": "최근 24시간 결정 5건 감지 — 결정 기록도 함께 저장됐어요 (정상)",
       "missing_source": []
     },
     {
       "name": "vercel_sync",
-      "status": "green",
-      "detail": "라이브 사이트가 GitHub와 같은 버전이에요 (5ca6929)",
-      "live_sha": "5ca6929",
-      "vercel_sha": "5ca6929",
+      "status": "yellow",
+      "detail": "라이브 사이트가 GitHub 새 버전(62f7ab3)을 아직 못 따라잡았어요 (현재 라이브: a514922). 5~10분 후 자동 정상화 예정",
+      "live_sha": "62f7ab3",
+      "vercel_sha": "a514922",
       "project": "tw-b2b"
     },
     {

@@ -4333,8 +4333,21 @@
       const { matched, done, total } = plMatchTasks(dec, tasks);
       return { dec, matched, done, total, pct: total ? Math.round(done / total * 100) : 0 };
     }).filter(x => x.total > 0);
-    const yellow = decCalc.filter(x => x.pct < 100);
-    const green = decCalc.filter(x => x.pct >= 100);
+    // ★ D-106 보강 (2026-09-03) — 🟡 「아직 만드는 중」도 «앞으로 할 일»이라 갈래로 거른다.
+    //   🔴 단, 진행률 숫자(5/7 같은 것)는 «지난 기록»이라 전체 기준을 그대로 둔다 —
+    //      완료된 작업에는 갈래가 없어서 분자만 남고 분모가 줄면 «5/3» 같은 거짓 숫자가 된다.
+    //   판정 기준: 그 결정에 «남은 일»이 이 갈래에 하나라도 있으면 보인다.
+    const isOpenT = (t) => !CLOSED_STATUS_BIZ.includes(t.status);
+    function decInBiz(x) {
+      if (STATE.bizTab === 'all') return true;
+      const openAll  = (x.matched || []).filter(isOpenT);
+      const openHere = openAll.filter(t => !isOutOfRepo(t));
+      if (openAll.length > 0 && openHere.length === 0) return false;  // 전부 「여기서 나갈 것」 (D-105)
+      if (openHere.length === 0) return true;                          // 남은 일이 없으면 숨기지 않는다
+      return openHere.some(t => !t.biz || t.biz === STATE.bizTab);
+    }
+    const yellow = decCalc.filter(x => x.pct < 100 && decInBiz(x));
+    const green = decCalc.filter(x => x.pct >= 100);   // 🟢 다 만든 것 = 지난 기록 → 절대 거르지 않는다
 
     // 🔴 행 (클릭 시 이유 펼침)
     const redHtml = red.map(t => {
@@ -4390,11 +4403,11 @@
         <div class="pl-group-body">${redHtml}</div>
       </div>
       <div class="pl-group yellow">
-        <div class="pl-group-head">🟡 결정했고 아직 만드는 중 <span class="pl-gcount">${yellow.length}</span></div>
+        <div class="pl-group-head">🟡 결정했고 아직 만드는 중 <span class="pl-gcount">${yellow.length}</span>${STATE.bizTab === 'all' ? '' : ` <span class="pl-group-hint">— 지금 «${BIZ_LABEL_KO[STATE.bizTab]}» 갈래만 · 진행률 숫자는 전체 기준</span>`}</div>
         <div class="pl-group-body">${yellowHtml}</div>
       </div>
       <div class="pl-group green">
-        <div class="pl-group-head">🟢 결정하고 다 만든 것 <span class="pl-gcount">${green.length}</span></div>
+        <div class="pl-group-head">🟢 결정하고 다 만든 것 <span class="pl-gcount">${green.length}</span> <span class="pl-group-hint">— 지난 기록이라 탭과 무관하게 전부 보입니다</span></div>
         <div class="pl-group-body">${greenBody}</div>
       </div>`;
 

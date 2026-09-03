@@ -4325,8 +4325,9 @@
     const tasks = data.tasks;
     const esc = s => (s || '').replace(/[<>&]/g, c => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;' }[c]));
 
-    // 🔴 결정 필요
-    const red = plDecisionNeeded(tasks);
+    // 🔴 결정 필요 — ★ D-106 보강: «앞으로 할 일»이므로 고른 갈래로 거른다.
+    //   🟡/🟢 결정별 완성도는 «지난 기록»이라 전체 기준을 그대로 둔다(숫자를 가르면 결정 이력이 사라진다).
+    const red = plDecisionNeeded(bizFilterTasks(tasks));
     // 🟡/🟢 결정별 완성도 (연결작업 있는 결정만)
     const decCalc = decs.map(dec => {
       const { matched, done, total } = plMatchTasks(dec, tasks);
@@ -4385,7 +4386,7 @@
 
     listEl.innerHTML = `
       <div class="pl-group red">
-        <div class="pl-group-head">🔴 대표님이 먼저 결정할 것 <span class="pl-gcount">${red.length}</span> <span class="pl-group-hint">— 여기만 챙기면 돼요</span></div>
+        <div class="pl-group-head">🔴 대표님이 먼저 결정할 것 <span class="pl-gcount">${red.length}</span> <span class="pl-group-hint">— 여기만 챙기면 돼요${STATE.bizTab === 'all' ? '' : ` · 지금 «${BIZ_LABEL_KO[STATE.bizTab]}» 갈래만`}</span></div>
         <div class="pl-group-body">${redHtml}</div>
       </div>
       <div class="pl-group yellow">
@@ -4553,6 +4554,8 @@
       try { renderPausedBox(fd); } catch (e) { console.warn('[biz] paused', e); }
       try { renderCeoWait(fd); } catch (e) { console.warn('[biz] ceoWait', e); }
       try { renderAutoQueue(fd); } catch (e) { console.warn('[biz] autoQueue', e); }
+      try { renderFlowGuide(d); } catch (e) { console.warn('[biz] flowGuide', e); }   // 함수 안에서 거름
+      try { renderPolicyLink(); } catch (e) { console.warn('[biz] policyLink', e); }  // 🔴 줄만 거름
       if (typeof window.__renderStaffQueueBiz === 'function') {
         try { window.__renderStaffQueueBiz(); } catch (e) { console.warn('[biz] staffQueue', e); }
       }
@@ -5498,7 +5501,9 @@
     const wrap = document.getElementById('fg-options');
     const statusEl = document.getElementById('fg-status');
     if (!wrap || !statusEl) return;
-    const tasks = data.tasks || [];
+    // ★ D-106 보강 (2026-09-03): 「지금 뭐부터?」 는 «앞으로 할 일» 안내다 → 고른 갈래로 거른다.
+    //   대표님 지적: 스튜디오 탭인데 여기가 PayPal 같은 B2B 일을 1순위로 내밀고 있었다.
+    const tasks = bizFilterTasks(data.tasks || []);
 
     // 상태별 집계
     const inProgress = tasks.filter(t => t.status === 'in_progress');

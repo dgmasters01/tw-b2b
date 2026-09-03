@@ -82,7 +82,7 @@ pre{background:#1f1f1d;color:#f0efeb;padding:14px;border-radius:10px;font-size:1
 <h2>3. 확정 — 사업 · 구조</h2>
 <table>
 <tr><th class="c">번호</th><th>내용</th></tr>
-<tr><td class="c">16</td><td><b>DB는 하나로 공유</b>. 코드·배포·장부이름표(<code>shop_</code>)·창구레인·RLS는 따로 <span class="s11 mut3">(D-095)</span></td></tr>
+<tr><td class="c">16</td><td>🔴 <b>DB 창고는 완전히 별도</b> — shop 전용 Supabase 프로젝트 신설 (D-111 · 옛 D-095 「하나로 공유」 폐기). <b>봇은 계속 1개</b>라 아고다 호출은 안 늘어남 · 월 약 14,000원</td></tr>
 <tr><td class="c">17</td><td>아고다 조회는 <b>창고 1개 + 새벽 봇 1개</b>. 나누면 같은 호텔을 두 번 물어 한도 2배 소모</td></tr>
 <tr><td class="c">18</td><td><b>화면은 아고다·DB에 직접 묻지 않는다.</b> 새벽에 파일로 구워 CDN에서 읽음 → 손님 1만 명이 와도 호출 0</td></tr>
 <tr><td class="c">19</td><td>쿠팡 파트너스는 <b>「여행 준비물」 페이지에만</b>. 메인·호텔 카드 근처 금지</td></tr>
@@ -163,8 +163,8 @@ pre{background:#1f1f1d;color:#f0efeb;padding:14px;border-radius:10px;font-size:1
 <tr><th style="width:70px">번호</th><th>내용</th></tr>
 <tr><td>D-093</td><td>메인 화면 확정 (2026-08-16) — 🔴 아래 D-096 으로 상당 부분 대체됨</td></tr>
 <tr><td>D-094</td><td>사업이 늘어날 때의 한도 설계</td></tr>
-<tr><td>D-095</td><td>shop DB는 하나로 공유 (나누면 아고다 호출 2배)</td></tr>
-<tr><td>D-108</td><td><b>전략 전환: 영상 중심 → 호텔 중심</b> — 2026-09-03 확정 (옛 「D-096」 자리를 대체)</td></tr><tr><td>D-109</td><td>새 서버에 새로 짓고 도메인만 옮김 — 옛 라라벨 처리 종결</td></tr><tr><td>D-110</td><td>가격 기준 달 = 쇼츠가 말한 그 달 + 가격 딱지 2종 규격</td></tr>
+<tr><td>D-095</td><td><s>shop DB는 하나로 공유</s> — 🔴 D-111 로 폐기</td></tr>
+<tr><td>D-108</td><td><b>전략 전환: 영상 중심 → 호텔 중심</b> — 2026-09-03 확정 (옛 「D-096」 자리를 대체)</td></tr><tr><td>D-109</td><td>새 서버에 새로 짓고 도메인만 옮김 — 옛 라라벨 처리 종결</td></tr><tr><td>D-110</td><td>가격 기준 달 = 쇼츠가 말한 그 달 + 가격 딱지 2종 규격</td></tr><tr><td>D-111</td><td><b>여행능력자들 창고 완전 분리</b> — 봇 1개 유지로 아고다 호출 증가 0 · 월 약 14,000원</td></tr>
 </table>
 
 <div class="s11 mut3" style="margin-top:22px">여행능력자들 SHOP 리뉴얼 문서 · 2026-09-03 · 이 문서가 리뉴얼의 정본입니다</div>

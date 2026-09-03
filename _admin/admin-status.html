@@ -4513,7 +4513,7 @@
       if (gateTrig)  parts.push(`⏸ 조건 대기 ${gateTrig}`);
       bSub.textContent = parts.length ? parts.join(' · ') : '결정 한 번 = 해제';
     }
-    setText('ik-blocked', String(blockedBroad));
+    setText('ik-blocked', String(blockedReal));   // ★ 2026-09-02(D-103): 카드·배너와 같은 기준
 
     // ★ BL-DECISION-CTX-MASS-FILL Q7: 자율 큐 / 직원 큐 헤더 카운트 동적 갱신
     //   라벨이 정적이라 N건 안 보였음 → 동적으로 카운트 박음
@@ -4529,7 +4529,15 @@
     // 데드라인 배너 잔여 작업 분포 표기 갱신 (있으면)
     const banner = $('deadline-detail');
     if (banner) {
-      banner.textContent = `잔여 작업 분포: 🤖 자동 ${cAuto}건 · 👥 직원 가능 ${cStaff}건 · 👤 대표님 결정 ${cCeo}건 · 🚫 막힘 ${blockedBroad}건. 데드라인 재설정 또는 즉시 진행 결정 필요.`;
+      // ★ 2026-09-02(D-103): 배너도 카드와 같은 기준으로 — 「막힘 26건」처럼 겁주지 않는다.
+      //   뺀 것은 지우지 않고 바로 옆에 이름표로 남긴다.
+      const gateParts = [];
+      if (gateOwner) gateParts.push(`🔑 대표님 몫 ${gateOwner}건`);
+      if (gateOpen)  gateParts.push(`⏳ 오픈 대기 ${gateOpen}건`);
+      if (gateTrig)  gateParts.push(`⏸ 조건 대기 ${gateTrig}건`);
+      banner.textContent = `잔여 작업 분포: 🤖 자동 ${cAuto}건 · 👥 직원 가능 ${cStaff}건 · 👤 대표님 결정 ${cCeo}건 · 🚫 막힘 ${blockedReal}건`
+        + (gateParts.length ? ` (${gateParts.join(' · ')} 별도)` : '')
+        + `. 데드라인 재설정 또는 즉시 진행 결정 필요.`;
     }
   }
 

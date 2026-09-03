@@ -25,7 +25,7 @@
 
 const REPO_OWNER = 'dgmasters01';
 const REPO_NAME = 'tw-b2b';                       // 기본 레포(하위호환)
-const ALLOWED_REPOS = ['tw-b2b', 'staycurate', 'tw-personal-os'];
+const ALLOWED_REPOS = ['tw-b2b', 'staycurate', 'tw-personal-os', 'travelwinners-shop'];
 //   🔴 2026-08-29 tw-personal-os 추가 — 개인OS 는 창고(DB)도 코드도 별개라 클로드가 전혀 못 보고 있었다.
 //      대표님 허락(08-29). PAT 권한이 그 레포까지 열려 있어야 실제로 읽힌다 — 안 되면 404/403 이 뜬다.   // body.repo 로 지정 가능한 레포 화이트리스트
 const GITHUB_API = 'https://api.github.com';

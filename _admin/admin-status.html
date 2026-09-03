@@ -466,6 +466,46 @@
   .link-clear-banner:hover { background: rgba(251,191,36,1); }
 
   /* ★ BL-FLOW-GUIDE-HEADER (2026-05-11): 작업 흐름 안내 헤더 */
+  /* ═══ ★ D-106 (2026-09-03) — 사업 갈래 탭 (b2b / studio / os) ═══
+     대표님: "b2b 개발과 스튜디오 부분 작업들이 섞여 있다. 이걸 분류해야 된다."
+     맨 위 한 줄만 추가한다 — 아래 박스 구조·순서·색은 손대지 않는다. */
+  .biz-tabs {
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 10px; padding: 8px 10px; margin-bottom: 12px;
+  }
+  .biz-tab {
+    background: transparent; color: var(--text-muted);
+    border: 1px solid var(--border); border-radius: 8px;
+    padding: 6px 12px; font-size: 12.5px; font-weight: 600; cursor: pointer;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .biz-tab:hover { color: var(--text-1); border-color: var(--aurora-2); }
+  .biz-tab.active {
+    color: #fff; border-color: transparent;
+    background: linear-gradient(135deg, var(--aurora-1), var(--aurora-2));
+  }
+  .biz-tab .biz-n {
+    font-size: 11px; font-weight: 700; padding: 1px 6px; border-radius: 999px;
+    background: rgba(148,163,184,0.20);
+  }
+  .biz-tab.active .biz-n { background: rgba(255,255,255,0.25); }
+  .biz-tab-note { margin-left: auto; font-size: 10.5px; color: var(--text-muted); line-height: 1.5; text-align: right; }
+  /* 여기서 나갈 것 (scope=out_of_repo) — 접힌 한 줄 */
+  .oor-box { margin: 14px 0 4px; }
+  .oor-box summary {
+    cursor: pointer; font-size: 11.5px; color: var(--text-muted);
+    padding: 8px 12px; border: 1px dashed var(--border); border-radius: 8px; list-style: none;
+  }
+  .oor-box summary::-webkit-details-marker { display: none; }
+  .oor-box[open] summary { border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+  .oor-list {
+    border: 1px dashed var(--border); border-top: 0;
+    border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; padding: 8px 12px;
+  }
+  .oor-item { font-size: 11.5px; color: var(--text-1); padding: 4px 0; }
+  .oor-item small { color: var(--text-muted); }
+
   .flow-guide {
     background: linear-gradient(135deg, rgba(16,185,129,0.10), rgba(5,150,105,0.04));
     border: 1px solid rgba(16,185,129,0.40);
@@ -1613,6 +1653,22 @@
       <div class="os-sb-empty" id="os-sb-loading">사이드바 manifest 로딩 중...</div>
     </aside>
     <main class="os-main">
+
+  <!-- ═══ ★ D-106 (2026-09-03) — 사업 갈래 탭 ═══
+       ✅ 걸러지는 것 = 「앞으로 할 일」 8박스
+          데드라인 잔여 분포 · 다음 추천 · 지금 진행 중 · 잠시 멈춤 ·
+          대표님 결정 대기 · 자율 작업 큐 · 직원 작업 큐 · 시급 페이지 TOP10
+       ❌ 안 걸러지는 것 = 「지난 기록」 (대표님 지시 — 기존 건 그대로 다 보인다)
+          Phase 0 안전망 · 활동 이력 · 최근 커밋 · 의사결정 이력 ·
+          페이지 갤러리 · 시스템 매뉴얼 · 페이지 완성도 점수·게이지
+       === -->
+  <nav class="biz-tabs" id="biz-tabs" aria-label="사업 갈래 고르기">
+    <button class="biz-tab active" data-biz="all" type="button" title="지금 이 레포에서 실제로 만드는 미완료 작업 전부">전체 <span class="biz-n" id="biz-n-all">-</span></button>
+    <button class="biz-tab" data-biz="b2b" type="button" title="호텔에 $200 파는 일 — 매니저·결제·재계약·성과표·수수료·예약 데이터">B2B 영업 <span class="biz-n" id="biz-n-b2b">-</span></button>
+    <button class="biz-tab" data-biz="studio" type="button" title="원고 → 유튜브 — 스튜디오 6메뉴·키워드·채널·클릭추적">스튜디오 <span class="biz-n" id="biz-n-studio">-</span></button>
+    <button class="biz-tab" data-biz="os" type="button" title="도구 정비(사업 아님) — 화면 동기화·문서 자동화·봇·죽은 코드">도구 <span class="biz-n" id="biz-n-os">-</span></button>
+    <span class="biz-tab-note" id="biz-tab-note">앞으로 할 일만 걸러집니다 · 지난 기록은 그대로 다 보입니다</span>
+  </nav>
 
   <!-- 데드라인 경고 (조건부) -->
   <div class="deadline-banner hidden" id="deadline-banner">
@@ -3054,6 +3110,12 @@
 
   <!-- ⑩ BL-ADMIN-AUTH (D-026): admin 사용자 활동 박스 — admin.html Dashboard로 이전됨 (BL-ADMIN-ACTIVITY-MOVE 2026-05-12, 부칙 5 카테고리 분리) -->
 
+  <!-- ★ D-106: 여기서 나갈 것 (scope=out_of_repo · D-105 새 사업은 새 레포) — 어느 탭 숫자에도 안 잡힘 -->
+  <details class="oor-box" id="oor-box" style="display:none;">
+    <summary id="oor-summary">🚪 여기서 나갈 것 0건 — 새 도메인·새 레포에서 할 일 (탭 숫자에 안 잡힘)</summary>
+    <div class="oor-list" id="oor-list"></div>
+  </details>
+
   <!-- 푸터 -->
   <footer class="footer">
     <div>📌 마지막 commit: <span class="commit" id="footer-commit">1e288de</span> · Vercel 배포: <span class="live">✅ Live</span> · 마지막 스캔: <span id="footer-scan">오늘 14:58 KST</span></div>
@@ -3472,7 +3534,13 @@
   function renderTopUrgent(d) {
     const list = $('top-list');
     if (!list || !d.topUrgent) return;
-    list.innerHTML = d.topUrgent.map(t => {
+    // ★ D-106: 고른 갈래의 화면만 (명단에 없는 새 화면은 숨기지 않는다)
+    const rows = d.topUrgent.filter(t => pageBizPass(t.path));
+    if (rows.length === 0) {
+      list.innerHTML = '<div style="font-size:11px;color:var(--text-muted);padding:16px;text-align:center;">이 갈래에 해당하는 시급 페이지가 없습니다 — 「전체」 탭에서 전부 볼 수 있습니다</div>';
+      return;
+    }
+    list.innerHTML = rows.map(t => {
       const score = t.score;
       const scoreCls = score < 30 ? 's-low' : score < 70 ? 's-mid' : 's-high';
       const rowCls = score < 30 ? 'top-row crit-1' : score < 70 ? 'top-row crit-2' : 'top-row';
@@ -4380,6 +4448,127 @@
     });
   })();
 
+  // ══════════════════════════════════════════════════════════
+  // ★ D-106 (2026-09-03) — 사업 갈래 엔진
+  //   정본은 화면 코드가 아니라 tasks.json 의 `biz` 칸이다 (D-103 원칙).
+  //   b2b    = 호텔에 $200 파는 일 (매니저·결제·재계약·성과표·수수료·예약 데이터)
+  //   studio = 원고→유튜브 (스튜디오 6메뉴·키워드·채널·클릭추적)
+  //   os     = 도구 정비 — 사업 아님 (화면 동기화·문서 자동화·봇·죽은 코드)
+  //   🔴 눈을 줄이지 않는다 — 갈래가 안 달린 미완료 작업은 «모든 탭»에 함께 보인다.
+  //   🔴 scope=out_of_repo(D-105 새 사업)는 갈래가 아니라 맨 아래 접힌 줄로 뺀다.
+  // ══════════════════════════════════════════════════════════
+  const BIZ_KEYS = ['all', 'b2b', 'studio', 'os'];
+  const BIZ_LABEL_KO = { all: '전체', b2b: 'B2B 영업', studio: '스튜디오', os: '도구' };
+  // 이 레포는 화면 상태를 localStorage 에 담는다 (admin-skin · pm-track-* · grim-slot 과 같은 방식) → 같은 방식으로 통일
+  const BIZ_LS_KEY = 'admin-status-biz';
+  STATE.bizTab = (() => {
+    try { const v = localStorage.getItem(BIZ_LS_KEY); return BIZ_KEYS.includes(v) ? v : 'all'; }
+    catch (_) { return 'all'; }
+  })();
+
+  const CLOSED_STATUS_BIZ = ['done', 'cancelled', 'obsoleted', 'absorbed'];
+  const isOutOfRepo = (t) => !!t && t.scope === 'out_of_repo';
+  function bizPass(t) {
+    if (STATE.bizTab === 'all') return true;
+    if (!t || !t.biz) return true;          // 갈래 미지정 = 숨기지 않는다
+    return t.biz === STATE.bizTab;
+  }
+  function bizFilterTasks(tasks) {
+    return (tasks || []).filter(t => !isOutOfRepo(t) && bizPass(t));
+  }
+  // 얕은 복사본만 만든다 — 원본 STATE.tasksData 는 손대지 않는다(지난 기록 보존)
+  function bizScope(data) {
+    if (!data) return data;
+    return Object.assign({}, data, { tasks: bizFilterTasks(data.tasks) });
+  }
+
+  // 화면(페이지)의 갈래 — 시급 페이지 TOP10 용. 명단에 없는 새 화면은 숨기지 않는다.
+  const PAGE_BIZ = {
+    '/index.html': 'b2b', '/signup.html': 'b2b', '/login.html': 'b2b',
+    '/forgot-password.html': 'b2b', '/reset-password.html': 'b2b', '/verify-email.html': 'b2b',
+    '/manager-dashboard.html': 'b2b', '/dashboard.html': 'b2b', '/hotel-info.html': 'b2b',
+    '/settings.html': 'b2b', '/admin.html': 'b2b', '/booking-analytics.html': 'b2b',
+    '/admin-service-ops.html': 'b2b', '/sales.html': 'b2b', '/marketing.html': 'b2b',
+    '/studio.html': 'studio',
+    '/admin-hub.html': 'os', '/admin-tasks.html': 'os', '/admin-status.html': 'os',
+    '/admin-gallery.html': 'os', '/admin-business.html': 'os', '/_admin/admin-settings.html': 'os',
+  };
+  function pageBizPass(path) {
+    if (STATE.bizTab === 'all') return true;
+    const b = PAGE_BIZ[path];
+    if (!b) return true;
+    return b === STATE.bizTab;
+  }
+
+  // 탭 숫자 + 안내문 갱신
+  function renderBizTabs() {
+    const wrap = document.getElementById('biz-tabs');
+    if (!wrap) return;
+    const tasks = (STATE.tasksData && STATE.tasksData.tasks) || [];
+    const open = tasks.filter(t => !CLOSED_STATUS_BIZ.includes(t.status) && !isOutOfRepo(t));
+    const cnt = { all: open.length, b2b: 0, studio: 0, os: 0 };
+    let untagged = 0;
+    open.forEach(t => { if (t.biz && cnt[t.biz] != null) cnt[t.biz] += 1; else untagged += 1; });
+    BIZ_KEYS.forEach(k => {
+      const el = document.getElementById('biz-n-' + k);
+      if (el) el.textContent = (k === 'all') ? cnt.all : (cnt[k] + untagged);
+      const btn = wrap.querySelector(`.biz-tab[data-biz="${k}"]`);
+      if (btn) btn.classList.toggle('active', STATE.bizTab === k);
+    });
+    const note = document.getElementById('biz-tab-note');
+    if (note) {
+      const base = (STATE.bizTab === 'all')
+        ? '앞으로 할 일만 걸러집니다 · 지난 기록은 그대로 다 보입니다'
+        : `지금 «${BIZ_LABEL_KO[STATE.bizTab]}» 만 보는 중 — 앞으로 할 일 8칸에만 적용 · 지난 기록·완료율은 전체 기준`;
+      note.textContent = untagged > 0 ? `${base} · ⚠️ 갈래 미지정 ${untagged}건은 모든 탭에 함께 보임` : base;
+    }
+  }
+
+  // 여기서 나갈 것 (out_of_repo) — 접힌 한 줄
+  function renderOutOfRepo() {
+    const box = document.getElementById('oor-box');
+    const list = document.getElementById('oor-list');
+    const sum = document.getElementById('oor-summary');
+    if (!box || !list || !sum) return;
+    const tasks = (STATE.tasksData && STATE.tasksData.tasks) || [];
+    const oor = tasks.filter(t => isOutOfRepo(t) && !CLOSED_STATUS_BIZ.includes(t.status));
+    if (oor.length === 0) { box.style.display = 'none'; return; }
+    box.style.display = 'block';
+    sum.textContent = `🚪 여기서 나갈 것 ${oor.length}건 — 새 도메인·새 레포에서 할 일 (D-105 · 어느 탭 숫자에도 안 잡힘)`;
+    list.innerHTML = oor.map(t => `<div class="oor-item">· ${escapeHtml(t.title || t.id)}<br><small>${escapeHtml(t.id)} · ${escapeHtml(t.gate || '-')}</small></div>`).join('');
+  }
+
+  // 갈래를 바꾸면 「앞으로 할 일」 8칸만 다시 그린다 (지난 기록은 손대지 않는다)
+  function applyBizTab(key) {
+    if (!BIZ_KEYS.includes(key)) return;
+    STATE.bizTab = key;
+    try { localStorage.setItem(BIZ_LS_KEY, key); } catch (_) {}
+    renderBizTabs();
+    const d = STATE.tasksData;
+    if (d) {
+      const fd = bizScope(d);
+      try { renderIntegratedKPI(d); } catch (e) { console.warn('[biz] KPI', e); }   // 완료율은 전체, 잔여만 갈래
+      try { renderNextAction(fd); } catch (e) { console.warn('[biz] nextAction', e); }
+      try { renderInProgressBox(fd); } catch (e) { console.warn('[biz] inProgress', e); }
+      try { renderPausedBox(fd); } catch (e) { console.warn('[biz] paused', e); }
+      try { renderCeoWait(fd); } catch (e) { console.warn('[biz] ceoWait', e); }
+      try { renderAutoQueue(fd); } catch (e) { console.warn('[biz] autoQueue', e); }
+      if (typeof window.__renderStaffQueueBiz === 'function') {
+        try { window.__renderStaffQueueBiz(); } catch (e) { console.warn('[biz] staffQueue', e); }
+      }
+    }
+    if (STATE.data) { try { renderTopUrgent(STATE.data); } catch (e) { console.warn('[biz] topUrgent', e); } }
+  }
+  (function bindBizTabs() {
+    const wrap = document.getElementById('biz-tabs');
+    if (!wrap) return;
+    wrap.addEventListener('click', (e) => {
+      const btn = e.target.closest('.biz-tab');
+      if (!btn) return;
+      applyBizTab(btn.dataset.biz);
+    });
+  })();
+
   async function loadIntegratedTasks() {
     try {
       // ★ BL-TASKS-CACHE-BUST (2026-05-11): cache:no-store + pragma 헤더
@@ -4390,16 +4579,21 @@
       });
       if (!res.ok) throw new Error('HTTP ' + res.status);
       const data = await res.json();
-      STATE.tasksData = data;          // ★ 카테고리 카드 카운트 + 펼침 상세에서 사용
-      renderIntegratedKPI(data);
+      STATE.tasksData = data;          // ★ 카테고리 카드 카운트 + 펼침 상세에서 사용 (전체 원본 — 지난 기록 보존)
+      // ★ D-106: 「앞으로 할 일」 6칸은 고른 갈래로 거른 사본을 받는다.
+      //   renderIntegratedUrgent · renderIntegratedProgress 는 «지난 기록» 계열이라 전체 그대로.
+      const fd = bizScope(data);
+      renderBizTabs();
+      renderOutOfRepo();
+      renderIntegratedKPI(data);       // 완료율은 전체 기준 · 잔여 분포만 갈래 (함수 안에서 거름)
       renderIntegratedUrgent(data);
       renderIntegratedProgress(data);
-      renderAutoQueue(data);
-      renderNextAction(data);
-      renderInProgressBox(data);       // ★ BL-LIVE-STATUS-PANEL — 진행 중 박스
-      try { renderPausedBox(data); } catch (e) { console.warn('renderPausedBox 실패', e); }  // ★ BL-AUTO-REORDER-PAUSE
+      renderAutoQueue(fd);
+      renderNextAction(fd);
+      renderInProgressBox(fd);         // ★ BL-LIVE-STATUS-PANEL — 진행 중 박스
+      try { renderPausedBox(fd); } catch (e) { console.warn('renderPausedBox 실패', e); }  // ★ BL-AUTO-REORDER-PAUSE
       // BL-CEO-WAIT-HUMAN-LANG (2026-05-11): renderDecisionImpactCard 호출 제거 — 기존 ceo-wait 박스로 흡수
-      renderCeoWait(data);             // ★ 결정 대기 박스 동적화
+      renderCeoWait(fd);               // ★ 결정 대기 박스 동적화
       try { renderPageMap(); } catch (e) { console.warn('renderPageMap 실패', e); }  // ★ BL-PAGE-MAP-SIMPLE
       try { renderFlowGuide(data); } catch (e) { console.warn('renderFlowGuide 실패', e); }  // ★ BL-FLOW-GUIDE-HEADER
       try { renderPolicyLink(); } catch (e) { console.warn('renderPolicyLink 실패', e); }  // ★ BL-STATUS-DECISION-WORK-LINK
@@ -4442,11 +4636,14 @@
 
   function renderIntegratedKPI(data) {
     const tasks = data.tasks || [];
+    // ★ D-106 (2026-09-03): 완료율(총계·완료)은 «지난 기록»이라 갈래와 무관하게 전체 기준을 지킨다.
+    //   갈래 탭은 «잔여 분포»(진행·대기·막힘·자율·직원·대표님 몫)에만 걸린다.
+    const rem = bizFilterTasks(tasks);
     const total = tasks.length;
     const done = tasks.filter(t => t.status === 'done').length;
-    const inProgress = tasks.filter(t => t.status === 'in_progress').length;
-    const pending = tasks.filter(t => t.status === 'pending').length;
-    const blocked = tasks.filter(t => t.status === 'blocked').length;
+    const inProgress = rem.filter(t => t.status === 'in_progress').length;
+    const pending = rem.filter(t => t.status === 'pending').length;
+    const blocked = rem.filter(t => t.status === 'blocked').length;
     // ★ 2026-09-02: 화면에 데드라인이 두 개(코드 6/30 · tasks 5/3)였다 → tasks.json 하나로
     if (data.deadline && data.deadline !== DEADLINE) { DEADLINE = data.deadline; updateDeadlineBanner(); }
     const dl = data.deadline || DEADLINE;
@@ -4475,7 +4672,7 @@
     //   plDecisionNeeded() 는 이미 3종을 제외하고 있었는데 여기만 제외 안 해서
     //   같은 화면 안에서 두 함수가 다르게 셌다(결정대기 3건 오염 실측).
     const CLOSED_STATUS = ['done', 'cancelled', 'obsoleted', 'absorbed'];
-    const open = tasks.filter(t => !CLOSED_STATUS.includes(t.status));
+    const open = rem.filter(t => !CLOSED_STATUS.includes(t.status));   // ★ D-106: 고른 갈래의 잔여만
     const cAuto = open.filter(t => taskRole(t) === 'auto').length;
     const cStaff = open.filter(t => taskRole(t) === 'staff').length;
     const cCeo = open.filter(t => taskRole(t) === 'ceo').length;
@@ -9596,7 +9793,8 @@ ${task.title}
         if (hash !== lastTasksHash) {
           lastTasksHash = hash;
           STATE.tasks = json;
-          renderStaffQueue(json.tasks || []);
+          // ★ D-106: 직원 작업 큐도 고른 갈래만 (bizFilterTasks 는 같은 스크립트 블록의 갈래 엔진)
+          renderStaffQueue(bizFilterTasks(json.tasks || []));
           // 기존 자율 큐 / CEO 대기 / KPI는 이미 다른 함수가 갱신함 (renderIntegSection 계열)
           // — 그쪽 함수들도 같은 STATE.tasks를 보거나 자체 fetch함
         }
@@ -9611,6 +9809,12 @@ ${task.title}
     // ────────────────────────────────────────────────────────
     // 5. 초기화 — DOMContentLoaded 직후, 기존 렌더 사이클이 끝난 뒤 한 박자 늦게 시작
     // ────────────────────────────────────────────────────────
+    // ★ D-106: 갈래 탭을 누르면 직원 큐도 다시 그린다 (마지막으로 받은 tasks.json 재사용)
+    window.__renderStaffQueueBiz = function () {
+      const src = (STATE.tasks && STATE.tasks.tasks) || (STATE.tasksData && STATE.tasksData.tasks) || [];
+      renderStaffQueue(bizFilterTasks(src));
+    };
+
     function init() {
       // 100ms 지연: 기존 admin-status 초기 렌더가 #ceo-wait-box / #integ-auto-queue를 채운 뒤 이동
       setTimeout(() => {

@@ -5,7 +5,7 @@
 > 
 > 단일 진실 소스: `tasks.json` (v2.0)
 
-**마지막 업데이트**: 2026-09-02
+**마지막 업데이트**: 2026-09-03
 
 > 💡 **새 채팅 시작 시**: 다음 5개 문서를 먼저 보면 즉시 컨텍스트 파악 가능.
 > 
@@ -263,24 +263,6 @@
 
 ---
 
-## 🟢 P1 — [자동] 관리자 페이지 2개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요)
-
-**요약**: 점검 봇 자동 등록 (2026-05-15T16:30:05.675Z)
-
-check_name: admin_baseline
-status: yellow
-detail: 관리자 페이지 2개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요)
-
-진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 gr
-
-- **자율성**: 🟢 AUTO
-- **예상 시간**: 1시간
-- **카테고리**: infrastructure
-- **상태**: pending
-- **ID**: `BL-AUTO-ADMIN-BASELINE-2FILES` (출처: auto_from_admin_baseline)
-
----
-
 ## 🟡 P1 — 코드 전체 payments.status='completed' 가정 사용처 grep 점검
 
 - **자율성**: 🟡 SEMI
@@ -288,24 +270,6 @@ detail: 관리자 페이지 2개가 원본과 살짝 달라요 (대표님이 일
 - **카테고리**: audit
 - **상태**: pending
 - **ID**: `BL-PAYMENTS-STATUS-AUDIT` (출처: claude_chat)
-
----
-
-## 🟢 P1 — [자동] 관리자 페이지 3개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요)
-
-**요약**: 점검 봇 자동 등록 (2026-05-26T05:45:12.678Z)
-
-check_name: admin_baseline
-status: yellow
-detail: 관리자 페이지 3개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요)
-
-진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 gr
-
-- **자율성**: 🟢 AUTO
-- **예상 시간**: 1시간
-- **카테고리**: infrastructure
-- **상태**: pending
-- **ID**: `BL-AUTO-ADMIN-BASELINE-3FILES` (출처: auto_from_admin_baseline)
 
 ---
 
@@ -352,42 +316,6 @@ detail: 관리자 페이지 3개가 원본과 살짝 달라요 (대표님이 일
 - **카테고리**: feature
 - **상태**: in_progress
 - **ID**: `BL-HOTEL-GEO` (출처: chat-log:2026-07-15-keyword-target-axis-and-booking-sync)
-
----
-
-## 🟢 P1 — [자동] 관리자 페이지 4개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요)
-
-**요약**: 점검 봇 자동 등록 (2026-07-18T08:16:42.415Z)
-
-check_name: admin_baseline
-status: yellow
-detail: 관리자 페이지 4개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요)
-
-진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 gr
-
-- **자율성**: 🟢 AUTO
-- **예상 시간**: 1시간
-- **카테고리**: infrastructure
-- **상태**: pending
-- **ID**: `BL-AUTO-ADMIN-BASELINE-4FILES` (출처: auto_from_admin_baseline)
-
----
-
-## 🟢 P1 — [자동] 관리자 페이지 5개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요)
-
-**요약**: 점검 봇 자동 등록 (2026-07-27T06:29:00.639Z)
-
-check_name: admin_baseline
-status: yellow
-detail: 관리자 페이지 5개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요)
-
-진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 gr
-
-- **자율성**: 🟢 AUTO
-- **예상 시간**: 1시간
-- **카테고리**: infrastructure
-- **상태**: pending
-- **ID**: `BL-AUTO-ADMIN-BASELINE-5FILES` (출처: auto_from_admin_baseline)
 
 ---
 

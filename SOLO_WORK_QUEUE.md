@@ -3,7 +3,7 @@
 > ⚠️ **이 파일은 자동 생성됩니다.** 수동 편집하지 마세요.
 > 단일 진실 소스: `tasks.json` (v2.0)
 > **데드라인**: 2026-06-30
-> **갱신**: 2026-09-02
+> **갱신**: 2026-09-03
 > **목적**: 대표님 외근/자리비움 시 Claude 자율 처리 가능 작업
 
 ## 작업 분류 체계
@@ -90,43 +90,7 @@
 
 ---
 
-### F. 🟢 AUTO — [자동] 관리자 페이지 2개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요)
-
-**ID**: `BL-AUTO-ADMIN-BASELINE-2FILES`  
-**카테고리**: infrastructure  
-**예상 시간**: 1시간  
-
-**메모**: 점검 봇 자동 등록 (2026-05-15T16:30:05.675Z)
-
-check_name: admin_baseline
-status: yellow
-detail: 관리자 페이지 2개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요)
-
-진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 green으로 박으면 자동 done.
-
-[자동 해소 2026-05-23T16:39:50.763Z] 점검 봇 green 전환
-
-[재개 2026-05-24T17:07:54.074Z] 관리
-
----
-
-### G. 🟢 AUTO — [자동] 관리자 페이지 3개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요)
-
-**ID**: `BL-AUTO-ADMIN-BASELINE-3FILES`  
-**카테고리**: infrastructure  
-**예상 시간**: 1시간  
-
-**메모**: 점검 봇 자동 등록 (2026-05-26T05:45:12.678Z)
-
-check_name: admin_baseline
-status: yellow
-detail: 관리자 페이지 3개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요)
-
-진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 green으로 박으면 자동 done.
-
----
-
-### H. 🟢 AUTO — [클릭 추적] gohotel.win/h/{hid}?p={rank}&v={videoId} 단축URL → 클릭 카운트 → 아고다 리다이렉트
+### F. 🟢 AUTO — [클릭 추적] gohotel.win/h/{hid}?p={rank}&v={videoId} 단축URL → 클릭 카운트 → 아고다 리다이렉트
 
 **ID**: `BL-TRACK-001-SHORTLINK`  
 **카테고리**: ux  
@@ -136,39 +100,7 @@ detail: 관리자 페이지 3개가 원본과 살짝 달라요 (대표님이 일
 
 ---
 
-### I. 🟢 AUTO — [자동] 관리자 페이지 4개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요)
-
-**ID**: `BL-AUTO-ADMIN-BASELINE-4FILES`  
-**카테고리**: infrastructure  
-**예상 시간**: 1시간  
-
-**메모**: 점검 봇 자동 등록 (2026-07-18T08:16:42.415Z)
-
-check_name: admin_baseline
-status: yellow
-detail: 관리자 페이지 4개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요)
-
-진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 green으로 박으면 자동 done.
-
----
-
-### J. 🟢 AUTO — [자동] 관리자 페이지 5개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요)
-
-**ID**: `BL-AUTO-ADMIN-BASELINE-5FILES`  
-**카테고리**: infrastructure  
-**예상 시간**: 1시간  
-
-**메모**: 점검 봇 자동 등록 (2026-07-27T06:29:00.639Z)
-
-check_name: admin_baseline
-status: yellow
-detail: 관리자 페이지 5개가 원본과 살짝 달라요 (대표님이 일부러 고친 건지 점검 필요)
-
-진단 hint: 룰북 _os/playbook/auto-task-registry.md 참조. 해소 시 점검 봇이 green으로 박으면 자동 done.
-
----
-
-### K. 🟡 SEMI — [한국 호텔 분모 0] 아고다 한국어 파일에 국내 호텔이 0건 — 서울 4개 구·부산 등 성급 분포 분모가 비어 미개척을 못 잰다. 영어(EN) 파일에 있는지 확인해 채우기
+### G. 🟡 SEMI — [한국 호텔 분모 0] 아고다 한국어 파일에 국내 호텔이 0건 — 서울 4개 구·부산 등 성급 분포 분모가 비어 미개척을 못 잰다. 영어(EN) 파일에 있는지 확인해 채우기
 
 **ID**: `BL-KR-HOTEL-FEED`  
 **카테고리**: bugfix  
@@ -178,7 +110,7 @@ detail: 관리자 페이지 5개가 원본과 살짝 달라요 (대표님이 일
 
 ---
 
-### L. 🟡 SEMI — [관리자 호텔 상세 분석] 매니저 분석 미러링 + 수수료 노출 + 탭(개요·채널·패턴·예약상세)
+### H. 🟡 SEMI — [관리자 호텔 상세 분석] 매니저 분석 미러링 + 수수료 노출 + 탭(개요·채널·패턴·예약상세)
 
 **ID**: `BL-ADMIN-HOTEL-DETAIL`  
 **카테고리**: feature  
@@ -188,7 +120,7 @@ detail: 관리자 페이지 5개가 원본과 살짝 달라요 (대표님이 일
 
 ---
 
-### M. 🟡 SEMI — OS 설치 시 PAT/시크릿 자동 박기 흐름 — install_os.sh 보강
+### I. 🟡 SEMI — OS 설치 시 PAT/시크릿 자동 박기 흐름 — install_os.sh 보강
 
 **ID**: `BL-OS-INSTALL-PAT-FLOW`  
 **카테고리**: infra  
@@ -198,7 +130,7 @@ detail: 관리자 페이지 5개가 원본과 살짝 달라요 (대표님이 일
 
 ---
 
-### N. 🟡 SEMI — [자동 메일 12개 영어 default] 한국 매니저만 한국어 분기
+### J. 🟡 SEMI — [자동 메일 12개 영어 default] 한국 매니저만 한국어 분기
 
 **ID**: `BL-EMAIL-LOCALE-ROUTING`  
 **카테고리**: feature  
@@ -208,7 +140,7 @@ detail: 관리자 페이지 5개가 원본과 살짝 달라요 (대표님이 일
 
 ---
 
-### O. 🟡 SEMI — [호텔 좌표·지역 자동 채우기] 구글 플레이스로 호텔 3,185개 좌표·지역 판정 — 키워드 '지역축'의 뿌리
+### K. 🟡 SEMI — [호텔 좌표·지역 자동 채우기] 구글 플레이스로 호텔 3,185개 좌표·지역 판정 — 키워드 '지역축'의 뿌리
 
 **ID**: `BL-HOTEL-GEO`  
 **카테고리**: feature  

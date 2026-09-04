@@ -167,7 +167,87 @@ pre{background:#1f1f1d;color:#f0efeb;padding:14px;border-radius:10px;font-size:1
 <tr><td>D-108</td><td><b>전략 전환: 영상 중심 → 호텔 중심</b> — 2026-09-03 확정 (옛 「D-096」 자리를 대체)</td></tr><tr><td>D-109</td><td>새 서버에 새로 짓고 도메인만 옮김 — 옛 라라벨 처리 종결</td></tr><tr><td>D-110</td><td>가격 기준 달 = 쇼츠가 말한 그 달 + 가격 딱지 2종 규격</td></tr><tr><td>D-111</td><td><b>여행능력자들 창고 완전 분리</b> — 봇 1개 유지로 아고다 호출 증가 0 · 월 약 14,000원</td></tr>
 </table>
 
-<div class="s11 mut3" style="margin-top:22px">여행능력자들 SHOP 리뉴얼 문서 · 2026-09-03 · 이 문서가 리뉴얼의 정본입니다</div>
+
+<h2>8. 우리 사이트에 들어갈 페이지 전체</h2>
+<div class="s12 mut" style="margin-bottom:10px">손님 18장 · 대표님 전용 13장 · 화면이 아닌 것 6개 &nbsp;|&nbsp; ✅완료 🔨만드는 중 ⬜대기 ❔미정</div>
+
+<div class="s13 b" style="margin:14px 0 6px">손님이 보는 곳</div>
+<table>
+<tr><th style="width:52px">상태</th><th style="width:150px">페이지</th><th>손님이 여기서 하는 일</th><th style="width:44px">차수</th></tr>
+<tr><td>✅</td><td><b>메인</b> <code>/</code></td><td>배너 → 최근 소개한 호텔 TOP3 → 나라·도시별 → 이벤트 → 아고다 뒷문 → 하단 법적 영역</td><td>1차</td></tr>
+<tr><td>⬜</td><td>도시별 목록 <code>/{나라}/{도시}</code></td><td>며칠 뒤 들어와 자기 도시 찾기 · 같은 호텔은 <b>한 줄만</b>(최근 소개 기준)</td><td>1차</td></tr>
+<tr><td>⬜</td><td>나라별 목록 <code>/{나라}</code></td><td>도시를 모를 때</td><td>1차</td></tr>
+<tr><td>⬜</td><td>아고다 뒷문 <code>/search</code></td><td>소개 안 한 호텔도 예약 · 딱지 없음(1층/2층 색 구분)</td><td>1차</td></tr>
+<tr><td>⬜</td><td>이용약관</td><td class="warn">🔴 회원을 받으려면 법적 필수 (지금 링크는 빈 페이지)</td><td>1차</td></tr>
+<tr><td>⬜</td><td>개인정보 처리방침</td><td class="warn">🔴 법적 필수 · 수집항목/보유기간/파기</td><td>1차</td></tr>
+<tr><td>✅</td><td>사업자 정보 + 제휴 고지</td><td>하단 고정 · 아고다 약관 요구사항</td><td>1차</td></tr>
+<tr><td>⬜</td><td>404 · 점검중</td><td>빈 화면 방지</td><td>1차</td></tr>
+<tr><td>❔</td><td>호텔 한 곳 <code>/hotel/{번호}</code></td><td>구글 검색 유입 · <b>미정</b>: ①안 만듦 ②우리 것 있는 호텔만(추천) ③전부</td><td>?</td></tr>
+<tr><td>⬜</td><td>가입 · 로그인</td><td>지금은 자리만 있음 · 이메일 방식(카카오는 나중)</td><td>2차</td></tr>
+<tr><td>✅</td><td>이벤트 목록 <code>/events</code></td><td>진행 중 + 지난 이벤트 당첨자 발표</td><td>2차</td></tr>
+<tr><td>✅</td><td>이벤트 상세 · 응모</td><td>이메일 + 동의 2개 → 응모번호 즉시 발급 · 5종 참여방식</td><td>2차</td></tr>
+<tr><td>✅</td><td>당첨자 발표</td><td>이름 가리고 응모번호 공개 · 지급 상태 표시</td><td>2차</td></tr>
+<tr><td>⬜</td><td>가격 알림 신청</td><td>값이 오른 손님을 잡는 문 「○○원 되면 알려드릴까요」</td><td>2차</td></tr>
+<tr><td>⬜</td><td>내 정보</td><td>내 응모·알림 내역</td><td>2차</td></tr>
+<tr><td>⬜</td><td>수신거부 · 탈퇴</td><td class="warn">광고 메일 보내는 순간 법적 의무</td><td>2차</td></tr>
+<tr><td>⬜</td><td>여행 준비물</td><td>🔴 쿠팡은 <b>여기서만</b></td><td>3차</td></tr>
+<tr><td>⬜</td><td>우리는 누구</td><td>채널 8개 · 직접 자본다는 신뢰</td><td>3차</td></tr>
+</table>
+
+<div class="s13 b" style="margin:16px 0 6px">대표님만 보는 곳</div>
+<table>
+<tr><th style="width:52px">상태</th><th style="width:150px">화면</th><th>대표님이 여기서 하는 일</th><th style="width:44px">차수</th></tr>
+<tr><td>⬜</td><td class="warn"><b>쇼츠 등록</b></td><td class="warn">🔴 영상 주소 하나 → 호텔 3곳 자동. <b>이 사업의 목숨줄</b> — 매일 손으로 넣으면 사흘이면 멈춘다</td><td>1차</td></tr>
+<tr><td>⬜</td><td>오늘 현황</td><td>봇 돌았나 · 어제 몇 명 눌렀나 · 회원 몇 명</td><td>1차</td></tr>
+<tr><td>⬜</td><td>호텔 관리</td><td>한마디 · 사진 · 순위 고치기</td><td>1차</td></tr>
+<tr><td>⬜</td><td>봇 상태</td><td>어제 실패했으면 빨간불</td><td>1차</td></tr>
+<tr><td>⬜</td><td>가격 이력</td><td>오늘 「한 달 최저」 찍은 호텔 = <b>다음 쇼츠 소재</b></td><td>2차</td></tr>
+<tr><td>⬜</td><td>클릭 · 성과</td><td>어느 영상이 실제로 돈이 됐나</td><td>2차</td></tr>
+<tr><td>⬜</td><td>손님 검색어</td><td>손님이 뭘 찾았나 = 다음 영상 주제</td><td>2차</td></tr>
+<tr><td>⬜</td><td>배너 관리</td><td>이벤트·패키지·준비물·공지 배너 등록 (기간 지나면 자동 하강)</td><td>2차</td></tr>
+<tr><td>⬜</td><td>이벤트 등록 · 추첨 · 지급</td><td>당첨자 확정 · 지급 완료 체크</td><td>2차</td></tr>
+<tr><td>⬜</td><td>회원 명단 · 메일 보내기</td><td>동의 상태 · 탈퇴 · 「값 내렸다」 알림</td><td>2차</td></tr>
+<tr><td>⬜</td><td>도시 · 나라 관리</td><td>「유후」·「유후인」 같은 이름 정리</td><td>3차</td></tr>
+<tr><td>⬜</td><td>설정</td><td>3,000원 · 14일 같은 기준 바꾸기</td><td>3차</td></tr>
+</table>
+
+<div class="s13 b" style="margin:16px 0 6px">화면이 아닌 것</div>
+<table>
+<tr><th style="width:52px">상태</th><th style="width:150px">무엇</th><th>없으면</th></tr>
+<tr><td class="warn">🔨</td><td class="warn"><b>새벽 가격 봇</b></td><td class="warn">🔴 딱지가 영원히 안 뜬다. <b>오늘 켤수록 이르다</b> — 14일 뒤 「2주 중」, 30일 뒤 「한 달 중」</td></tr>
+<tr><td>⬜</td><td>정적 굽기(JSON→CDN)</td><td>손님이 몰리면 아고다·창고 호출이 폭발</td></tr>
+<tr><td>✅</td><td>클릭 기록</td><td>무엇이 팔렸는지 영영 모른다 (CID 1919025 / 유튜브 1913282 자동 분기)</td></tr>
+<tr><td>⬜</td><td>알림 발송 봇</td><td>회원 명단이 쓰레기가 된다</td></tr>
+<tr><td>✅</td><td>아고다 링크 생성</td><td>수수료가 안 붙는다</td></tr>
+<tr><td>⬜</td><td>사진 깨짐 점검</td><td>아고다가 주소를 바꾸면 사진이 사라진다 (911곳이 아고다 주소 참조)</td></tr>
+<tr><td>⬜</td><td>카카오 로그인</td><td>지금은 이메일로 대체 중</td></tr>
+</table>
+
+<h2>9. 작업 순서 · 대표님 손이 필요한 것</h2>
+<table>
+<tr><th style="width:44px">순서</th><th>무엇</th><th style="width:80px">누가</th></tr>
+<tr><td>1</td><td><s>시안 완성</s> → <b>실제 화면을 정본으로</b> (UX 표준 재정리: 글자 6단 · 여백 16px · 모서리 12px · 사진 4:3)</td><td>클로드</td></tr>
+<tr><td>2</td><td><s>쇼츠→호텔 자료 채우기</s> ✅ <b>454편 · 호텔 1,050곳 이전 완료</b></td><td>완료</td></tr>
+<tr><td class="warn">3</td><td class="warn"><b>새벽 가격 봇 가동</b> ← 지금 여기</td><td>클로드</td></tr>
+<tr><td>4</td><td>도시별 목록 · 나라별 목록 · 아고다 뒷문 화면</td><td>클로드</td></tr>
+<tr><td>5</td><td>쇼츠 등록 화면(관리자)</td><td>클로드</td></tr>
+<tr><td>6</td><td>오늘 현황 · 호텔 관리 · 봇 상태</td><td>클로드</td></tr>
+<tr><td>7</td><td>약관 · 개인정보 처리방침 초안</td><td>클로드 → <b>대표님 확인</b></td></tr>
+<tr><td>8</td><td><b>도메인 전환</b> — travelwinners.shop 을 새 집으로 · www 없는 주소 · 한글 주소 301</td><td class="warn"><b>대표님(DNS)</b></td></tr>
+<tr><td>9</td><td>2차 — 회원가입 · 가격 알림 · 메일 발송</td><td>클로드</td></tr>
+</table>
+<div class="s12 mut" style="margin-bottom:8px">🔴 대표님 손이 남은 것은 <b>2건</b>뿐 — ⑦약관 확인 · ⑧DNS 변경. 나머지는 클로드가 진행.</div>
+
+<h2>10. 지금 살아 있는 주소</h2>
+<table>
+<tr><th style="width:150px">무엇</th><th>주소</th></tr>
+<tr><td>새 사이트 (라이브)</td><td><a href="https://travelwinners-shop.vercel.app">travelwinners-shop.vercel.app</a></td></tr>
+<tr><td>이벤트</td><td><a href="https://travelwinners-shop.vercel.app/events">travelwinners-shop.vercel.app/events</a></td></tr>
+<tr><td>옛 사이트 (그대로 운영 중)</td><td>www.travelwinners.shop — 손대지 않음. 완성 후 도메인만 이동</td></tr>
+<tr><td>문서 정본</td><td>이 페이지</td></tr>
+</table>
+
+<div class="s11 mut3" style="margin-top:22px">여행능력자들 SHOP 리뉴얼 문서 · 2026-09-03 갱신 · 이 문서가 리뉴얼의 정본입니다</div>
 </div>
 </body>
 </html>

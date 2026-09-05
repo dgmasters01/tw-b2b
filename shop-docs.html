@@ -52,7 +52,7 @@ pre{background:#1f1f1d;color:#f0efeb;padding:14px;border-radius:10px;font-size:1
 
 <h1>여행능력자들 SHOP — 리뉴얼 문서</h1>
 <div class="sub">최종 갱신 2026-09-04 · 실제 주소 <b>www.travelwinners.shop</b> (손님에게 알리는 주소 = 여행능력자들.SHOP)<br>
-시안 그림 → <a href="/shop-final.html">shop-final.html</a> · <b>작업일지(무엇을 어떻게 했는지) → <a href="/shop-worklog.html">shop-worklog.html</a></b> · 코드 정본 → <code>_business/shop/SHOP_RENEWAL.md</code> · 클로드용 기술 정본 → <code>_business/shop/SHOP_TECH.md</code></div>
+시안 그림 → <a href="/shop-final.html">shop-final.html</a> · 코드 정본 → <code>_business/shop/SHOP_RENEWAL.md</code> · 클로드용 기술 정본 → <code>_business/shop/SHOP_TECH.md</code></div>
 
 <div class="hero">
 <h3 style="margin-top:0;color:var(--blueT)">🔴 2026-08-16 전략이 바뀌었습니다 — 「영상 중심」 → 「호텔 중심」</h3>
@@ -258,7 +258,58 @@ pre{background:#1f1f1d;color:#f0efeb;padding:14px;border-radius:10px;font-size:1
 <tr><td>문서 정본</td><td>이 페이지</td></tr>
 </table>
 
-<div class="s11 mut3" style="margin-top:22px">여행능력자들 SHOP 리뉴얼 문서 · 2026-09-04 갱신 · 이 문서가 리뉴얼의 정본입니다</div>
+
+<h2>11. 작업일지 — 무엇을 · 왜 · 어떻게 확인했나</h2>
+<div class="s12 mut" style="margin-bottom:8px">작업이 끝날 때마다 여기에 이어서 적습니다. 새 주소를 만들지 않습니다(확정 25).</div>
+
+<div class="s13 b" style="margin:14px 0 4px">2026-09-05</div>
+<table>
+<tr><th style="width:150px">한 일</th><th>무엇을 · 왜 · 확인</th></tr>
+
+<tr><td><b>도시별 · 나라별 목록</b><br><span class="s11 mut3">화면</span></td>
+<td>메인의 도시 단추가 <b>눌러도 없는 페이지</b>로 떨어지고 있었다. <code>/japan/osaka</code>(도시) · <code>/japan</code>(나라) 신설 · 26개 나라 자동 · 같은 호텔은 최근 소개분 한 줄만.<br>확인: 오사카 64곳 · 도쿄 52곳 · 방콕 59곳 실측</td></tr>
+
+<tr><td><b>아고다 뒷문(검색)</b><br><span class="s11 mut3">화면 · D-114</span></td>
+<td><code>/search?q=</code> · 1층은 우리가 소개한 호텔, 2층은 그 도시의 아고다 목록으로 넘김(수수료 유지). 손님 검색어가 쌓여 다음 영상 주제가 된다.<br>확인: 오사카 40줄 · 힐튼 13줄 · 검색어 기록 저장 확인</td></tr>
+
+<tr><td><b>상품 목록 · 1,097개 적재</b><br><span class="s11 mut3">화면 · 자료</span></td>
+<td>「더보기」가 카드 사이 동그란 화살표라 상품으로 오해됐다 → 제목 줄 오른쪽으로 옮기고, <b>더보기 버튼 없이 스크롤</b>로 계속 보게. 상품은 129개/13개 도시 → <b>1,097개/59개 도시</b>(KKday 가 서버 요청을 막아 대표님 크롬으로 읽어 옴, 창구는 작업 후 닫음)</td></tr>
+
+<tr><td><b>호텔 한 곳 페이지 · 내 정보</b><br><span class="s11 mut3">화면 · P-09</span></td>
+<td>대표님 질문 「이 호텔만 공유되나?」 → <code>/hotel/{번호}</code> 신설. 사진·가격 비교·<b>주말 날짜표까지 한 장에</b>. 줄마다 하트(찜)·공유, 찜은 <code>/likes</code> 내 정보에 모임(로그인 없이 이 기기 저장)</td></tr>
+
+<tr><td class="warn"><b>호텔 50곳이 3달간 조회에서 빠져 있었다</b><br><span class="s11 mut3">고장 수리</span></td>
+<td>봇이 호텔 명부를 받을 때 <b>창고가 1,000줄에서 잘라</b> 주는데 봇은 전부 받은 줄 알았다. 뒤쪽 50곳은 한 번도 조회된 적이 없다. + 아고다는 60곳을 물으면 54곳쯤 답한다 → 빠진 곳만 다시 묻게 수정.<br>결과: 값 없는 호텔 64 → <b>14곳</b> · 53일치 전량 재수집 51,987줄</td></tr>
+
+<tr><td class="warn"><b>가격 표시 세 가지</b><br><span class="s11 mut3">고장 수리</span></td>
+<td>① 값이 <b>오른 호텔에서만</b> 소개 때 가격을 숨기고 있었다 → 항상 표시(내리면 취소선) ② 지금 값이 없을 때 옛 가격을 지금 값처럼 보여줬다 → 「지금은 객실 없음」 ③ 뜻 없는 「주말마다 값이 다릅니다」 → <b>「12,509원 더 싸게 예약」 / 「10,472원 올랐습니다」 / 「값이 거의 같습니다」</b></td></tr>
+
+<tr><td><b>부품을 한 곳으로</b><br><span class="s11 mut3">구조</span></td>
+<td>대표님 지적 「틀을 만들었는데 페이지마다 다르면 어떻게 하나」 — 화면마다 부품을 복사해 써서 공유 버튼이 화면마다 달랐다. <code>public/shop.js</code> 하나로 합침(호텔 줄·찜·공유 시트·주말 시트·<b>상단바·하단 법적 영역</b>). 한 곳만 고치면 여섯 화면이 동시에 바뀐다. 화면 파일이 1/5로 줄었다</td></tr>
+
+<tr><td><b>사진을 우리 저장소로</b><br><span class="s11 mut3">자료 · D-115</span></td>
+<td>대표님 지시로 「약관 확인 뒤에」 보류를 해제. 우리 저장소 121곳 → <b>1,043곳</b>(비용 0원). 새벽 봇이 사진 빈 호텔을 만나면 받아서 우리 저장소에 넣는다. <b>남은 일: 지금 480px 이라 큰 카드에서 흐릿 → 블로그와 같은 1,600px WebP 로 다시 만든다</b></td></tr>
+
+<tr><td><b>동네 이름 · 소개 날짜</b><br><span class="s11 mut3">자료</span></td>
+<td>「영국, 런던 · 하이드 파크」 — 주소에 동네가 없는 582곳은 좌표로 지도에서 찾음(무료 지도, 비용 0) · 565곳 한글 표시, 읽기 어려운 현지어·길 이름은 비움. 가격 위에 「25.9.26 소개 때」를 넣어 「TOP 2」가 두 번 나오던 혼란을 해소</td></tr>
+
+<tr><td><b>줄마다 소개 영상 보기</b><br><span class="s11 mut3">화면</span></td>
+<td>사진 밖에 두니 줄이 길어져 <b>사진 안 오른쪽 아래</b>로. 사진·이름을 누르면 아고다, 이 단추만 그 호텔이 나온 유튜브 영상</td></tr>
+
+<tr><td><b>넘어갈 때 느리던 것</b><br><span class="s11 mut3">속도</span></td>
+<td>손님이 누른 뒤에야 창고를 조회해 1~3초 걸렸다 → 창구가 필요한 칸만 보내게(184KB→136KB) + <b>6시간마다 88개 화면을 미리 데우는 일꾼</b> 신설 + 제목은 기다리지 않고 즉시 표시. 데워진 화면은 <b>0.06초</b></td></tr>
+</table>
+
+<div class="s13 b" style="margin:18px 0 4px">다음에 할 일 (순서)</div>
+<table>
+<tr><td style="width:40px">1</td><td><b>사진 두 벌 저장</b> — 목록용 320px · 상세용 1,600px WebP(블로그와 같은 규격). 지금은 한 장을 목록·상세에 같이 써서 목록이 무겁다</td></tr>
+<tr><td>2</td><td><b>목록 20줄씩</b> 나눠 보내기 — 스크롤하면 이어서. 지금은 76줄을 한 번에 그린다</td></tr>
+<tr><td>3</td><td><b>정적 굽기</b> — 새벽에 도시별 자료를 파일로 구워 CDN 제공(창고 조회 0)</td></tr>
+<tr><td>4</td><td>약관 · 개인정보 처리방침 · 404</td></tr>
+<tr><td>5</td><td>쇼츠 등록(A-01) · 오늘 현황 · 호텔 관리 · 봇 상태</td></tr>
+</table>
+
+<div class="s11 mut3" style="margin-top:22px">여행능력자들 SHOP 리뉴얼 문서 · 2026-09-05 갱신 · 이 문서가 리뉴얼의 정본입니다</div>
 </div>
 </body>
 </html>

@@ -1,0 +1,69 @@
+# 여행능력자들 SHOP — 기술 정본 (클로드가 먼저 읽는 한 장)
+
+> 작성 2026-09-05 · 대표님 지시: *「너의 언어로도 저장해 빠른 판단을 할 수 있게」*
+> 🔴 이 파일과 `SHOP_PAGES.md §9`(새 화면 표준)를 읽으면 shop 작업의 90%가 가능하다.
+
+## 1. 어디에 무엇이 있나
+
+| 것 | 위치 |
+|---|---|
+| 코드 | GitHub `dgmasters01/travelwinners-shop` (Private) · Vercel `travelwinners-shop` |
+| 창고 | Supabase `travelwinners-shop` · **project_ref `jyjcdxdezjfcikqndxeo`** (도쿄) |
+| 라이브 | https://travelwinners-shop.vercel.app (도메인 전환 전) |
+| 저장 창구 | `POST gohotelwinners.com/api/ops/github-commit` body에 **`"repo":"travelwinners-shop"` 필수** |
+| 읽기 창구 | `GET .../api/ops/github-read?repo=travelwinners-shop&path=…` |
+| 창고 조회 | `POST gohotelwinners.com/api/ops/db-query` body에 **`"project_ref":"jyjcdxdezjfcikqndxeo"`** (없으면 스튜디오 창고로 간다) · UPDATE·DDL 도 통과 |
+
+## 2. 화면 (모두 shop.js 부품을 쓴다)
+
+| 주소 | 파일 | 창구 |
+|---|---|---|
+| `/` 메인 | public/index.html | api/main.js |
+| `/{나라}` · `/{나라}/{도시}` | public/list.html | api/list.js |
+| `/{나라}/{도시}/products` | public/products.html | api/products.js |
+| `/search?q=` | public/search.html | api/search.js |
+| `/hotel/{번호}` | public/hotel.html | api/hotel.js |
+| `/likes` 내 정보 | public/likes.html | api/cards.js |
+| 부품 정본 | **public/shop.js** | — |
+| 규격 정본 | **public/shop.css** | — |
+
+🔴 주소는 `vercel.json` rewrites. `cleanUrls:true` 라 **목적지는 `/list` 처럼 확장자 없이** 적는다(`/list.html` 로 적으면 308 → 404).
+
+## 3. 봇·일꾼
+
+| 이름 | 주기 | 하는 일 |
+|---|---|---|
+| `api/cron/collect.js` | 매시 정각 | 목·금·토·일 53일치 가격 수집(하루 1,174회 · 한도 2,160) · 사진 빈 호텔은 아고다 사진을 **우리 저장소로 복사** |
+| `api/cron/warm.js` | 6시간마다 | 도시·나라 화면 자료 88개를 미리 데움(첫 손님 대기 제거) |
+| `api/go.js` | — | 예약 클릭 기록 후 아고다로(CID 웹 1919025 / 유튜브 1913282) |
+| `api/pgo.js` | — | 상품 클릭 기록 후 KKday(cid 15352 · ud1=도시 · ud2=화면) |
+
+## 4. 🔴 실측으로 확인한 함정 (같은 실수 반복 금지)
+
+| 함정 | 사실 | 대응 |
+|---|---|---|
+| 창고 조회 1,000줄 제한 | `limit=5000` 을 줘도 **1,000줄에서 잘린다** | offset 으로 나눠 읽는다. 이걸 몰라 **호텔 50곳이 3달간 조회에서 빠졌다** |
+| 아고다 묶음 응답 누락 | 60곳을 물으면 54곳쯤 답한다 | 빠진 id 만 20곳씩 **재조회** |
+| 아고다가 값을 안 주는 호텔 | 14곳 — 명부·아고다 웹에는 살아 있음(폐업 아님) | 목록에서 **숨기고**(예약 불가) 봇은 계속 물어봄 → 값 생기면 자동 복귀 |
+| `cleanUrls` 와 rewrite | 목적지에 `.html` 쓰면 308 | 확장자 없이 |
+| 시트 열 때 화면 밀림 | `scrollbar-gutter:stable`(CSS)이 이미 잡아준다 | JS 로 또 채우면 **반대로 8px 밀린다** |
+| 부품 복사 | 화면마다 복사하면 화면마다 달라진다 | **shop.js 한 곳만** 고친다 |
+| Supabase 이미지 변환 | **유료**($5/1,000장) | 쓰지 않는다. 받을 때 크기를 정해 저장 |
+
+## 5. 창고 표 (shop 전용)
+
+`shop_hotel`(1,050) · `shop_video`(454) · `shop_video_hotel`(1,277) · `shop_price_daily`(하루 ~52,000줄 적재)
+· `shop_product`(1,097 · 59개 도시) · `shop_click` · `shop_product_click` · `shop_search_log` · `shop_banner` · `shop_collect_log`
+뷰: `v_shop_card`(딱지 판정 완료) · `v_shop_city` · `v_shop_product` · `v_collect_dates`(53일)
+
+## 6. 화면 규격 (shop.css 정본)
+
+Pretendard · 글자 7단(24/20/17/15/13/12/11) · 간격 4의 배수 · 좌우 16 · 모서리 12 · 썸네일 120×120 · 예약 48 · **이모지 금지**
+배지 색은 뜻으로: 흰=설명(TOP) · 진초록=가격 신호 · 검은 반투명=동작(소개 영상 보기)
+
+## 7. 아직 안 한 것 (성능·다음 순서)
+
+1. **사진 두 벌 저장** — 목록용 `thumb.webp` 320px / 상세용 `main.webp` 1600px(블로그와 같은 규격)
+2. **목록 나눠 보내기** — 처음 20줄, 스크롤하면 이어서(지금은 76줄을 한 번에)
+3. **정적 굽기(B-02)** — 새벽에 도시별 JSON 을 파일로 구워 CDN 제공 → 창고 조회 0
+4. 약관·개인정보·404 · 쇼츠 등록(A-01) · 오늘 현황(A-02) · 호텔 관리(A-03) · 봇 상태(A-04)

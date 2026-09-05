@@ -56,6 +56,12 @@
 · `shop_product`(1,097 · 59개 도시) · `shop_click` · `shop_product_click` · `shop_search_log` · `shop_banner` · `shop_collect_log`
 뷰: `v_shop_card`(딱지 판정 완료) · `v_shop_city` · `v_shop_product` · `v_collect_dates`(53일)
 
+## 5-B. 상단바 규격 (2026-09-05 확정)
+
+**뒤로 ← · 홈 ⌂ · 제목 … 내 정보** 순. `shop.js` `mountChrome()` 한 곳이 여섯 화면에 그린다.
+🔴 **제목이 화면 안에 이미 있으면 상단바에는 적지 않는다** — 도시 목록은 바로 아래 도시 줄에 도시가 검게 표시되므로 상단바를 비우고 그 자리를 홈이 쓴다(`setPlace(t, false)`).
+첫 화면은 그 자체가 홈이라 홈 단추를 넣지 않는다(`back:false` → 로고).
+
 ## 6. 화면 규격 (shop.css 정본)
 
 Pretendard · 글자 7단(24/20/17/15/13/12/11) · 간격 4의 배수 · 좌우 16 · 모서리 12 · 썸네일 120×120 · 예약 48 · **이모지 금지**

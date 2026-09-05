@@ -85,6 +85,7 @@
 | **키워드·원고·발행 작업 (의무)** | 🔴 **`BUSINESS.md` §7-E 전문 먼저** → 그다음 `_content/youtube/키워드-실측.md`(v2). **수요 = 구글 트렌드**(자동완성 순위는 2026-07-14 폐기 · 발굴/생존확인 전용). 재기 전 **DB(`trend`·`snapshot`) 먼저 조회** — 28개 도시가 이미 조사돼 있다. 트렌드 없으면 기회점수는 **0 이 아니라 «모름»**. ⚠️ 부분만 읽으면 틀린다 — 2026-08-12 에 세 번 틀렸다 |
 | **구조·격리·창구·새 사업 (의무)** | 🔴 `docs/ARCHITECTURE.md` — 명부/장부/문 원칙 · 새 사업 표준 6단계 · 보안 5겹 · 대량 적재 안전규칙 · 되돌리기. **구조 판단 전 반드시 먼저 읽는다** (대표님 2026-08-11) |
 | **스튜디오 작업이 블로그와 겹칠 때 (의무)** | 🔴 `hotel_master`·`hotel_pool`·`blog_*` 는 **블로그 소유**. 만지기 전 `staycurate/docs/POOL.md`(D-B81 절대규칙)·`HANDOVER.md §2`(규칙 9개) 확인. 창구 한도 **120회/시간은 두 사업 공용** — 대량 작업은 상대 창과 조율 |
+| **여행능력자들 SHOP 작업 (의무)** | 🔴 **`_business/shop/SHOP_TECH.md`**(위치·창구·봇·**실측 함정 7가지**) → **`_business/shop/SHOP_PAGES.md §9`**(새 화면 표준) → 대표님 정본 **`shop-docs.html`**. 🔴 레포는 `travelwinners-shop`(저장 시 body 에 `"repo":"travelwinners-shop"`), 창고 조회는 `"project_ref":"jyjcdxdezjfcikqndxeo"`. 🔴 **부품은 `public/shop.js` 한 곳** — 화면마다 복사 금지. **문서는 `shop-docs.html` 한 장** — 새 주소 금지(확정 25). **돈 드는 기능 금지** |
 | 기타 (단순 문답·보고) | (안 읽어도 됨) |
 
 ## 5. 작업 시작 전 자가 검증

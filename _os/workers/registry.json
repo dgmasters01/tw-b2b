@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-09-02",
+  "updated": "2026-09-06",
   "services": [
     {
       "key": "blog",
@@ -33,6 +33,14 @@
       "repo": "tw-personal-os",
       "what": "대표님 메일·할일·판정을 모으는 곳. 🔴 창고(DB)가 블로그·스튜디오와 완전히 별개 — 표 35개 · 일꾼 4명",
       "dashboard": "/app/bots · /status"
+    },
+    {
+      "key": "shop",
+      "name": "여행능력자들",
+      "site": "travelwinners.shop",
+      "repo": "travelwinners-shop",
+      "what": "손님에게 호텔을 추천하고 아고다로 보내 수수료를 받는 곳. 「가장 싼 주말」이 상품이다",
+      "dashboard": "⚪ 관리자 화면 준비 중"
     }
   ],
   "workers": [
@@ -1155,6 +1163,146 @@
       "status": "돎",
       "last_seen": "",
       "note": "🔴 2026-09-01 신설(요금 사고 뒤). 그전엔 창구에 계량기가 없어 스튜디오 호출(process-hotel·agoda-search·hotel-closed-check)이 아예 안 세어졌다. 이제 누가 부르든 1건씩 쌓이고 caller 가 남는다. 무료 한도 90%에서 자동 정지 · 계량기를 못 읽어도 정지. 구글 콘솔에도 하루 30회 한도(이중). 프로젝트는 «1hogi» 다. GAPS BG"
+    },
+    {
+      "id": "shop.collect",
+      "service": "shop",
+      "group": "값·사진",
+      "name_ko": "가격 수집 일꾼",
+      "where": "Vercel(여행능력자들)",
+      "when": "10분마다",
+      "does": "호텔 4,726곳의 3개월치 주말 값을 아고다에 물어 적는다. 사진이 빈 호텔은 사진도 받아 우리 저장소에 넣는다",
+      "makes": "shop_price_daily · shop_collect_log",
+      "check_where": "shop_collect_log (응답코드·차단 여부가 note 에 남는다)",
+      "status": "돎",
+      "last_seen": "09-06",
+      "note": "🔴 봇·카톡 미리보기·?check=1 은 실적에서 뺀다. 호텔 60곳씩 묶어 묻는다(한 날짜 79묶음). 조식·아고다 정가도 함께 담는다(호출 증가 0). 아고다 응답 전부 200·차단 0건"
+    },
+    {
+      "id": "shop.rebuild",
+      "service": "shop",
+      "group": "값·사진",
+      "name_ko": "미리 만들기 일꾼",
+      "where": "Vercel(여행능력자들)",
+      "when": "매시 05분·35분",
+      "does": "손님 화면이 쓸 값을 미리 계산해 표에 담아 둔다 — ①호텔별 최저·최고 ②달별 최저·최고 ③신상 목록 ④메인 화면 완성품",
+      "makes": "shop_price_stat · shop_price_month · shop_new_live · shop_feed",
+      "check_where": "네 표의 updated_at",
+      "status": "돎",
+      "last_seen": "09-06",
+      "note": "🔴 이 일꾼이 멈추면 «화면은 어제 값 그대로»가 된다. 화면에서 계산하면 죽는다(실측 30만 줄 → 창구 502). 창고 함수 shop_rebuild 의 정해진 4단계만 부른다 — 아무 SQL 이나 실행하는 문을 만들지 않는다"
+    },
+    {
+      "id": "shop.warm",
+      "service": "shop",
+      "group": "시계",
+      "name_ko": "창구 깨우기 일꾼",
+      "where": "Vercel(여행능력자들)",
+      "when": "6시간마다",
+      "does": "잠든 창구를 미리 깨워 손님 첫 화면이 느려지지 않게 한다",
+      "makes": "-",
+      "check_where": "Vercel 로그",
+      "status": "돎",
+      "last_seen": "09-06",
+      "note": ""
+    },
+    {
+      "id": "shop.publish-hook",
+      "service": "shop",
+      "group": "연결",
+      "name_ko": "발행 받는 일꾼",
+      "where": "스튜디오가 부름",
+      "when": "쇼츠가 발행될 때",
+      "does": "스튜디오가 쇼츠를 내면 그 호텔을 사이트에 자동 등록하고, 그날 가격을 한 번 찍어 둔다",
+      "makes": "shop_video · shop_video_hotel · shop_hotel",
+      "check_where": "shop_video 최신 줄",
+      "status": "돎",
+      "last_seen": "09-05",
+      "note": "🔴 TW 여행능력자들 채널 영상만 받는다(D-116). 그날 가격을 안 찍으면 그 영상은 영영 가격 딱지가 안 붙는다"
+    },
+    {
+      "id": "shop.track",
+      "service": "shop",
+      "group": "성과",
+      "name_ko": "손님 행동 받는 일꾼",
+      "where": "손님 화면이 부름",
+      "when": "손님이 볼 때마다",
+      "does": "화면 열람·공유·찜을 창고에 적는다. 어느 나라·어느 도시에서 · 휴대폰인지 컴퓨터인지까지 적는다",
+      "makes": "shop_view · shop_share · shop_like",
+      "check_where": "v_shop_funnel_daily (날짜별 7칸)",
+      "status": "돎",
+      "last_seen": "09-06",
+      "note": "🔴 IP·브라우저 원문은 저장하지 않는다. 「같은 사람이다」까지만 알고 「누구인지」는 모른다. 🔴 오류를 삼키게 만들어 두었으니 «204 를 받아도 창고를 열어 확인»한다"
+    },
+    {
+      "id": "shop.go",
+      "service": "shop",
+      "group": "성과",
+      "name_ko": "예약 클릭 받는 일꾼",
+      "where": "손님이 [예약] 누를 때",
+      "when": "누를 때마다",
+      "does": "어느 호텔·어느 숙박일을·그때 얼마일 때 눌렀는지 적고 아고다로 보낸다",
+      "makes": "shop_click",
+      "check_where": "v_shop_click_detail",
+      "status": "돎",
+      "last_seen": "09-06",
+      "note": "🔴 봇·카톡 미리보기·점검 클릭은 세지 않는다(스튜디오 api/r.js 규칙 이식). 짧은 주소로 들어오면 링크 코드도 함께 적는다"
+    },
+    {
+      "id": "shop.similar",
+      "service": "shop",
+      "group": "추천",
+      "name_ko": "닮은 호텔 일꾼",
+      "where": "Vercel(여행능력자들)",
+      "when": "하루 1회 (예정)",
+      "does": "호텔마다 «닮은 곳 20군데»를 미리 계산해 둔다 — 같은 도시·비슷한 값·성급·위치",
+      "makes": "shop_similar (예정)",
+      "check_where": "-",
+      "status": "대기",
+      "last_seen": "",
+      "note": "🔴 지금은 세부 페이지가 «화면에서» 계산한다. 손님이 몰리면 느려진다. 추천 1단계 — 손님 자료가 0 이어도 오늘부터 되는 유일한 추천"
+    },
+    {
+      "id": "shop.taste",
+      "service": "shop",
+      "group": "추천",
+      "name_ko": "날짜 취향 일꾼",
+      "where": "Vercel(여행능력자들)",
+      "when": "하루 1회 (예정)",
+      "does": "손님이 주말 시트에서 누른 숙박일을 모아 «이 손님이 언제쯤 가는지»를 추정한다",
+      "makes": "shop_visitor_taste (예정)",
+      "check_where": "-",
+      "status": "대기",
+      "last_seen": "",
+      "note": "자료는 이미 담고 있다(shop_click.stay_date). 인공지능이 아니라 셈이다 — 클릭 1건=짐작 · 3건=거의 확실. 추천 2단계"
+    },
+    {
+      "id": "shop.pricecheck",
+      "service": "shop",
+      "group": "검사",
+      "name_ko": "값 점검 일꾼",
+      "where": "Vercel(여행능력자들)",
+      "when": "하루 1회 (예정)",
+      "does": "값이 엉터리인 호텔과 호스텔·캡슐호텔을 다시 골라내 화면에서 뺀다",
+      "makes": "shop_new_pool.excluded",
+      "check_where": "excluded 별 개수",
+      "status": "대기",
+      "last_seen": "",
+      "note": "🔴 지금은 클로드가 손으로 표시했다(호스텔 101 · 캡슐 5 · 값 엉터리 7). 새 호텔이 계속 들어오므로 일꾼이 필요하다. 🔴 «몇 배 차이»로 자르지 않는다 — 연휴 3배는 진짜다"
+    },
+    {
+      "id": "shop.photo",
+      "service": "shop",
+      "group": "값·사진",
+      "name_ko": "사진 채우기 일꾼",
+      "where": "Vercel(여행능력자들)",
+      "when": "하루 1회 (예정)",
+      "does": "사진이 빠진 신상 호텔의 사진을 받아 우리 저장소에 넣는다",
+      "makes": "shop_new_pool.photo_url",
+      "check_where": "photo_url 빈 곳 수",
+      "status": "대기",
+      "last_seen": "",
+      "note": "🔴 규격은 목록 800px · 상세 2000px 두 벌(§6-B). 사진은 아끼는 대상이 아니라 팔리는 물건이다"
     }
   ]
 }

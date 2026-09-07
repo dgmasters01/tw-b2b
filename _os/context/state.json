@@ -209,12 +209,12 @@
       "결정문서_색인누락": "🔴 2026-08-31 실측: GAPS 의 «🔴 규칙» 절 중 결정문서 짝이 없는 것 11건(I·Q·S·T·Y·AC·AD·AF·AH·AI·AJ). Cross-Repo Rule Guard 가 매일 알린다 — 하나씩 결정문서로 올린다"
     },
     "백업": {
-      "상태": "창고 미생성 — 열쇠 2개는 정상 등록됨(실행 0단계 통과)",
-      "무엇": "33일 공백(2026-07-31 이후)은 오늘 원인을 찾아 고쳤다. 첫 실행만 남았다",
-      "대표님_할일": "① github.com/new 에서 저장소 tw-b2b-backup 을 🔴Private 로 생성 ② Fine-grained token(BACKUP_PAT) 의 Repository access 에 tw-b2b-backup 추가 + Contents: Read and write ③ Actions 탭 → db-backup → Run workflow",
-      "값은_어디": "둘 다 Vercel(tw-b2b) 환경변수에 이미 있다. 새로 만들 것 없다",
-      "정본": "docs/BUSINESS-MAP.md §5-C · D-102 · GAPS BJ",
-      "실측_2026-09-02": "Run 33618128452 실패 지점 = 0-b) 창고 점검. 열쇠 확인(0단계)은 ✅ 통과했다. dgmasters01/tw-b2b-backup 이 404 — 저장소가 아직 만들어지지 않았다. Fine-grained PAT 의 Repository access 목록에도 없는 저장소는 고를 수 없으므로 «창고 생성 → PAT 권한 부여» 순서여야 한다."
+      "상태": "🔴 5일 연속 실패(#3~#7, 매일 새벽 3:10 · 각 12초) — 열쇠 권한 문제",
+      "공백": "2026-07-31 마지막 성공 이후 오늘까지 38일. 9/2 backup_progress 기록은 «읽기까지»만 끝낸 것이고 창고 커밋은 없었다",
+      "🔴정정_2026-09-07": "9/2 에 적힌 «저장소가 아직 만들어지지 않았다»는 틀린 진단이었다. dgmasters01/tw-b2b-backup 은 2026-07-16 에 대표님이 Private 로 만드셨고, 그날 첫 백업이 성공했다(커밋 373f6aa9 · 표 30개 · 21,500행 · 84초). 창고는 있다. 🔴 Fine-grained PAT 은 «권한 없는 저장소»를 조회해도 403 이 아니라 404 를 준다. 그 404 를 «없다»로 읽어 5일을 더 헤맸다.",
+      "진짜원인": "BACKUP_PAT(2026-09-02 신설 tw-b2b-backup-write)의 Repository access 에 tw-b2b-backup 이 들어 있지 않다. 7월에는 GITHUB_PAT(fine-grained tw-b2b-claude)로 백업했고 거기엔 창고 2개가 등록돼 있었으나 그 토큰은 2026-08-25 만료다.",
+      "대표님_할일": "github.com/settings/personal-access-tokens → tw-b2b-backup-write → Access on dgmasters01 옆 Edit → Select repositories 에 tw-b2b-backup 추가(tw-b2b 는 빼지 말 것) → Contents: Read and write 확인 → Update. 그다음 Actions → db-backup → Re-run jobs. 🔴 창고를 새로 만들 필요 없다. 이미 있다.",
+      "정본": "docs/BUSINESS-MAP.md §5-C · D-102 · GAPS BJ·BK"
     }
   },
   "정본파일": {

@@ -138,3 +138,35 @@
 `21000 UPDATE requires a WHERE clause` 로 **400 이 난다.** 창고에서 직접 실행할 때는 통과하므로 놓치기 쉽다.
 → 함수 안의 모든 UPDATE·DELETE 에 `where true` 를 붙인다.
 🔴 이것이 «204 를 받아도 창고를 열어 확인한다»의 실례다 — 배포는 성공했고 문법 검사도 통과했는데 **일꾼은 아무 일도 하지 않고 있었다.**
+
+---
+
+## 6. 2026-09-07 · 기록층(노출 장부) + 공통 순서 (SHOP_TECH §14 · 0·1단계)
+
+### 창고
+
+| 표·뷰·함수 | 무엇 | 되돌리는 법 | 다른 곳 영향 |
+|---|---|---|---|
+| `shop_impression` (신설) | 노출·자리·스킵 | `drop table` | 없음 — 기록만 멈춤. 🔴 **지나간 날은 되찾을 수 없다** |
+| `shop_rank_score` (신설) | 공통 순서 | `drop table` 후 `select shop_rebuild_rank()` 로 재생성 | 🔴 **있음** — `v_shop_new_ranked` 가 이 표를 읽는다 |
+| `v_shop_new_ranked` (신설) | 신상 + 순서 | `drop view` **하기 전에** `api/new.js` 의 `TBL` 을 `shop_new_live` 로 되돌려야 한다 | 🔴 순서 있음 |
+| `shop_taste_config` 5줄 추가 | 순서 무게 | 그 줄만 삭제 | 순서 계산이 멈춤(함수가 null 을 읽음) |
+| `shop_rebuild_rank()` (신설) | 순서 계산 | `drop function` | 일꾼이 400 을 돌려줄 뿐 |
+| `shop_rebuild('feed')` (수정) | 메인 신상칸 | 아래 두 곳을 되돌린다: `order by rank_pos…` → `order by review_delta desc, review_count desc` · `from v_shop_new_ranked` → `from shop_new_live` | 메인 신상칸만 |
+
+### 코드
+
+| 파일 | 무엇 | 되돌리면 |
+|---|---|---|
+| `public/shop.js` | 카드에 `data-hid` + `bindList()` + `sessionKey()` | 노출 기록만 멈춤. 🔴 **가장 조심할 파일**(모든 화면이 쓴다) |
+| `api/track.js` | `imp` 분기 | 〃 |
+| `api/new.js` | 순서를 `rank_pos` 로 | 옛 순서(사실상 고정)로 돌아감 |
+| `api/cron/learn.js` | 순서 계산 단계 추가 | 순서가 어제 것으로 굳음 |
+
+### 순서 규칙
+1. 되돌릴 때는 **`api/new.js` 를 먼저** 되돌리고 그다음 뷰를 지운다. 반대로 하면 신상 화면이 죽는다
+2. `shop_rebuild('feed')` 도 함께 되돌린다 — 안 그러면 **메인과 도시 화면의 순서가 갈라진다**(§11 「값은 한 곳에서만」)
+
+### 🔴 알아둘 것
+- 메인 신상칸은 CDN 이 **1시간** 보관한다. 순서를 바꿔도 최대 1시간은 옛 순서가 보인다(정상)
+- 노출 장부는 **손님이 목록에서 무언가를 누를 때만** 보낸다. 클릭이 없으면 0줄이 정상이다

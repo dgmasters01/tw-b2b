@@ -96,17 +96,22 @@ POST https://gohotelwinners.com/api/ops/db-query     헤더 x-ops-token
 { "project_ref": "jyjcdxdezjfcikqndxeo", "query":
   "select p.ext_id, p.link_url from shop_product p
      left join shop_kk_sync s on s.ext_id=p.ext_id
-    where p.source='kkday' and (s.updated_at is null or s.updated_at < now() - interval '20 hours')
+    where p.source='kkday'
+      and (s.synced_on is null or s.synced_on < (now() at time zone 'Asia/Seoul')::date)
     order by p.review_count desc nulls last, p.id asc limit 100" }
 ```
 
-🔴 **「날짜」가 아니라 「20시간 전」으로 센다 — 이것이 핵심이다.**
-창고 시계는 **UTC** 이고 우리는 **한국시간 01:10** 에 돈다. 한국 1월 2일 01:10 = UTC 1월 1일 16:10 이라
-`current_date` 로 세면 **창고에게는 아직 「1일」** 이다. 1일 낮에 한 번 받았다면
-**「오늘 다 했다」로 읽혀 0개가 나오고 그날은 통째로 건너뛴다.**
-🔴 실제로 재보다가 이 함정에 걸렸다(2026-09-09 · 「오늘 안 받음 0개」가 나왔다).
-`updated_at < now() - interval '20 hours'` 는 **시간대와 무관하다.** 20시간으로 둔 이유는
-새벽 1시 10분이 조금 밀려도(1시 30분 등) 그날 몫이 빠지지 않게 여유를 준 것이다.
+🔴 **「한국 날짜」로 센다 — 이것이 핵심이다.**
+창고 시계는 **UTC** 이고 우리는 **한국시간 01:10** 에 돈다. 한국 9월 9일 01:10 = UTC 9월 8일 16:10 이라
+그냥 `current_date` 로 세면 **창고에게는 아직 「8일」** 이다. 8일 낮에 한 번 받았다면
+**「오늘 다 했다」로 읽혀 0개가 나오고 그날이 통째로 날아간다.**
+
+🔴 **넣을 때도 «한국 날짜»로 넣는다**(`(now() at time zone 'Asia/Seoul')::date`). 재는 자와 적는 자가
+같아야 한다. 하나라도 UTC 를 쓰면 새벽에 받은 것이 **전날 자리**에 쌓여 「어제와 오늘」이 하루씩 밀린다.
+
+🔴 **「20시간 전」 같은 시간 셈으로 하지 마라 — 재보다가 걸렸다**(2026-09-09).
+대표님이 낮에 한 번 수동으로 돌리시면 그날 밤 01:10 까지 **18시간 25분**밖에 안 지나
+**첫날부터 통째로 건너뛴다.** 「하루 한 번」은 시간이 아니라 **날짜**로 세야 지켜진다.
 
 🔴 어제 노트북이 꺼져 있었어도 오늘 돌리면 전부 다시 나온다 — **놓친 날을 따로 챙길 필요가 없다.**
 🔴 **후기 많은 것부터** 나온다. 중간에 멈춰도 손님이 실제로 누르는 상품부터 새 값이 된다.
@@ -132,8 +137,6 @@ k as (insert into shop_kk_sync (ext_id, product_id, synced_on, price, ok, update
 select (select count(*) from u) 갱신
 ```
 
-🔴 **날짜 칸(`synced_on`)에는 «한국 날짜»를 넣는다**(`(now() at time zone 'Asia/Seoul')::date`).
-안 그러면 새벽에 받은 것이 **전날 자리**에 쌓여 「어제와 오늘」 비교가 하루씩 밀린다.
 🔴 **버리는 것** — `1,000원 미만`(맞춤 견적이 104원·203원을 보여준다) · `900만원 초과` · 값이 안 잡힌 것.
 🔴 **평점·후기는 «있을 때만» 덮는다**(`coalesce`). 못 읽었다고 빈 값으로 지우면 안 된다.
 🔴 **할인율·정가·예약 수는 여기서 «건드리지 않는다».** 글에 없어서 못 받는다 — 월 1회 `KKDAY_SYNC2.md` 몫이다.
@@ -150,11 +153,12 @@ select (select count(*) from u) 갱신
 ## 6) 끝나면 한 줄로 남긴다
 
 ```sql
-select count(*) filter (where updated_at > now() - interval '20 hours') 이번회차받음,
-       count(*) filter (where updated_at is null or updated_at <= now() - interval '20 hours') 못받음
+select count(*) filter (where synced_on = (now() at time zone 'Asia/Seoul')::date) 오늘받음,
+       count(*) filter (where synced_on is null
+                          or synced_on < (now() at time zone 'Asia/Seoul')::date) 못받음
   from shop_kk_sync
 ```
-🔴 여기서도 **날짜가 아니라 「20시간」으로 센다** — 위와 같은 이유다.
+🔴 여기서도 **한국 날짜**로 센다 — 위와 같은 이유다.
 **80% 미만이면 대표님께 알린다.** 그 아래면 무언가 막힌 것이다.
 
 ---

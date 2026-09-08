@@ -1,4 +1,36 @@
-# 🔴 KKday 2차 — 할인·조건 받아오기 (2026-09-09 신설)
+# 🔴 KKday 2차 — 할인·조건 받아오기 (2026-09-09 신설 · 같은 날 완주)
+
+## 🟢 끝났다 (2026-09-09) — 결과와 «문서가 틀렸던 곳»
+
+| | |
+|---|---|
+| 진행 장부 `deal_on` | **1,097 / 1,097** (받음 1,059 · 못 받음 38) |
+| `list_price`·`discount_pct` | **127개** — 손님 화면에 딱지·취소선으로 **실제로 나온다** |
+| `booked_text` | **371개** |
+| 걸린 시간 | **약 35분** |
+
+🔴 **아래 §2-A 의 `list_price: n(/highPrice/)` 는 틀린 지시였다.** `highPrice` 는 정가가 아니라
+**「가장 비싼 옵션 값」**이라, 그대로 넣으면 **없는 할인**이 1,000개 상품에 붙는다
+(18940: 화면은 11,311원 부터·딱지 없음인데 highPrice 26,103 → 「57% 할인」이 만들어진다).
+**진짜 정가는 `official_price`** 다. 자세한 것과 대조표는 `SHOP_TECH.md §38`.
+
+```js
+// 정답 — 상품 화면 속 __NUXT_DATA__ 에서
+const D = JSON.parse(h.match(/<script[^>]*id="__NUXT_DATA__"[^>]*>([\s\S]*?)<\/script>/)[1]);
+// official_price 와 min_price 를 가진 «첫 번째» 객체가 그 상품의 값이다
+// list_price = official_price (min 보다 클 때만) · discount_pct = round((1-min/off)*100)
+// booked_text = order_num 을 앞자리만 남기고 내림 (432,431 → "400K+")
+```
+
+🔴 **조건 3칸(무료취소·즉시확인·바우처)은 일부러 안 넣었다** — 화면 글 낱말 검사는 **오탐**이 난다
+(안내문·FAQ·번역 사전에 그 낱말이 늘 있다). `.product-tags__tag` 는 **추천 상품 것이 섞인다**.
+`SHOP_TECH.md §38-5` 참고.
+
+🔴 **뷰를 잊지 말 것** — 자료를 넣어도 `v_shop_product` 에 칸이 없으면 손님에게 안 보인다.
+이번에도 그것이 원인이었다. 뷰 수정 뒤 `notify pgrst, 'reload schema'`.
+
+---
+
 
 > 대표님: *«자료 수집이 덜 되었다며. 코워크에 이걸 하기 위해 해야 되는 다음 명령문을 제공해줘»*
 >
@@ -98,7 +130,7 @@ async function one(id){try{
   const n=s=>{const m=h.match(s);return m?Number(String(m[1]).replace(/[^\d]/g,'')):null};
   out[id]={
     price:n(/lowPrice\\?":\s*(\d+)/),
-    list_price:n(/highPrice\\?":\s*(\d+)/),
+    list_price:null,   // 🔴 highPrice 를 쓰면 «없는 할인»이 생긴다 — 위 §완주 기록 참고
     discount_pct:n(/(\d+)\s*%\s*OFF/i),
     free_cancel:/무료\s?취소/.test(h), instant:/즉시\s?확인/.test(h),
     voucher:/바우처/.test(h), sold_out:/매진|sold\s?out/i.test(h),

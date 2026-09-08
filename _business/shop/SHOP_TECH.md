@@ -1129,3 +1129,93 @@ JR 하루카 간사이 공항 특급열차 티켓
 ⚠️ 창구 응답은 10분 보관(`s-maxage=600`)이라, 배포 직후 이미 열려 있던 화면은 최대 10분간 옛 자료를 볼 수 있다.
 
 **아직 안 한 것** — 별을 노란색으로 할지(지금은 글자색). 팔레트에 노란색이 없어 **새 색을 만드는 일**이라 대표님께 여쭙고 정한다.
+
+---
+
+### 🔴 38. KKday 2차 — 할인·예약 수 수집 완료 (2026-09-09)
+
+**1,097개 전부 끝냈다.** 걸린 시간 **약 35분**(문서가 예상한 3~4시간 아님).
+
+#### 🔴 38-1. 설명서 `KKDAY_SYNC2.md §2-A` 의 지시가 «틀렸다» — 따라 하면 가짜 할인이 붙는다
+
+문서는 `list_price` 를 **`highPrice`** 에서 가져오라고 적혀 있었다. **`highPrice` 는 정가가 아니라
+「그 상품에서 가장 비싼 옵션 값」**이다.
+
+| 예 (18940 JR 하루카) | |
+|---|---|
+| 손님 화면 | **11,311원 부터** — 취소선·딱지 **없음** |
+| `highPrice` | 26,103원 (2인권 등 비싼 옵션) |
+| 문서대로 넣었으면 | `11,311원 ~~26,103원~~ **57% 할인**` ← **없는 할인** |
+| 실제 정가(`official_price`) | 11,218원 → 지금 값이 더 비싸다. **할인 아님** |
+
+🔴 **손님에게 없는 할인을 보여주는 것은 최악의 사고다.** 반드시 `official_price` 를 쓴다.
+
+#### 38-2. 진짜 자료가 있는 곳 — 상품 화면 속 `__NUXT_DATA__`
+
+KKday 상품 화면의 자료 뭉치를 `JSON.parse` 하면 **첨자(索引) 배열**이 나온다.
+`official_price`·`min_price` 를 가진 **첫 번째 객체**가 그 상품의 값이다.
+
+```js
+const D = JSON.parse(h.match(/<script[^>]*id="__NUXT_DATA__"[^>]*>([\s\S]*?)<\/script>/)[1]);
+let pr=null, od=null;
+for (const v of D) if (v && typeof v==='object' && !Array.isArray(v)) {
+  if (!pr && 'official_price' in v && 'min_price' in v) pr={min:D[v.min_price], off:D[v.official_price]};
+  if (od===null && 'order_num' in v) od = D[v.order_num];
+}
+// list_price   = pr.off (pr.off > pr.min 일 때만)
+// discount_pct = Math.round((1 - pr.min/pr.off) * 100)
+// booked_text  = order_num 을 «앞자리만 남기고» 내림 → 432,431 → "400K+"
+```
+
+**대조 (6개 · 손님이 보는 KKday 카드와 100% 일치)**
+| 상품 | 우리 계산 | KKday 카드 |
+|---|---|---|
+| 6703 | 27,620 / 정가 146,411 / 81% / 10K+ | **81% OFF** · 원 27,482 · 원 147,146 · 10K+ 예약 |
+| 131268 | 39,210 / 103,691 / 62% / 7K+ | 62% OFF · 7K+ |
+| 528208 | 232,000 / 332,770 / 30% / 20K+ | 30% OFF · 20K+ |
+| 2247 · 18940 · 19252 | 할인 없음 | 딱지 없음 (예약 수도 일치) |
+
+#### 38-3. 결과 (창고 실측 2026-09-09)
+
+| 칸 | 채워짐 | 판단 |
+|---|---|---|
+| `list_price`·`discount_pct` | **127** | ✅ **화면에 넣었다**(딱지+취소선) |
+| `booked_text` | **371** | 🟡 자료는 받았다 · 화면 자리는 아직 |
+| `rating`·`review_count` | 516·517 | ✅ 이미 화면에 있다 |
+| `free_cancel`·`instant`·`voucher` | 12 | 🔴 **이번에 안 받았다** — 아래 38-5 |
+
+진행 장부 `shop_kk_sync.deal_on` **1,097 / 1,097** (받음 1,059 · 못 받음 38).
+못 받은 38 = 1차와 같은 무리(공항픽업·호텔·크루즈·삭제) + 공항픽업 5개(`3431·18945·130539·134096·286299`).
+이상값 점검: 정가 ≤ 값 **0건** · 할인율 1~99 밖 **0건** · 최대 81%.
+
+#### 38-4. 🔴 뷰가 또 원인이었다 (§37 과 같은 사고)
+
+`shop_product` 에 자료를 넣어도 **뷰 `v_shop_product` 가 세 칸을 안 내보내** 손님 화면에 안 나왔다.
+§37 에서 `rating`·`review_count` 를 덧붙일 때 **이 세 칸을 같이 안 넣은 것**이다.
+
+```sql
+create or replace view v_shop_product as
+ SELECT id, source, ext_id, title, category, country_slug, city_slug,
+        image_url, link_url, price, currency, badge, sort_order, active, synced_at,
+        rating, review_count,
+        list_price, discount_pct, booked_text        -- 2026-09-09 추가
+   FROM shop_product
+  WHERE active AND synced_at > (now() - '45 days'::interval);
+```
+🔴 뷰를 고친 뒤 **`notify pgrst, 'reload schema'`** 를 보내야 창구가 새 칸을 안다.
+🔴 창구 응답은 10분 보관이라, 확인할 때는 주소에 `&cb=<시각>` 을 붙여 새로 받아 본다.
+
+**확인 (손님 화면 실측)** — `/macau/macau/products` 에서 **21% · 43% · 36% · 28% · 33% · 7% 딱지**와
+`25,391원부터 ~~32,253원~~` 취소선이 실제로 그려진다.
+
+#### 38-5. 무료취소·즉시확인·바우처는 «이번에 일부러 안 넣었다»
+
+문서의 방법(화면 글에서 「무료 취소」 낱말 찾기)은 **오탐이 난다.** KKday 화면 글에는
+안내문·FAQ·번역 사전이 늘 들어 있어 **그 조건이 없는 상품도 「있음」으로 잡힌다**
+(리무진버스 4835 는 바우처 딱지가 없는데 「있음」으로 나왔다).
+
+- 진짜 딱지는 `.product-tags__tag` 에 있지만 **그 상품 것이 아니라 «추천 상품 카드»의 것이 섞인다**
+  (18618 에서 나온 50%·62%·30% OFF 는 전부 **남의 상품** 것이었다 — `recommend-product-card` 안)
+- `__NUXT_DATA__` 의 `v_tag` 는 **빈 배열**이라 여기에도 없다
+- 🔴 **정확히 받으려면 상품 화면을 그린 뒤 «패키지 영역만» 읽어야 한다** — 1,000개면 3~4시간
+- 이 세 칸은 **아직 손님 화면에 자리가 없다.** 자리를 만들 때 함께 받는 것이 순서다

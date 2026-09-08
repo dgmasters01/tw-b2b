@@ -254,3 +254,32 @@ api/h.js · api/new.js · api/s.js
 | `.ptitle` | `max-height` → **`height:38px` 고정** — 이름이 한 줄이어도 두 줄 자리를 차지해 값 자리가 어긋나지 않는다 |
 
 **되돌리기** — 커밋 하나. 규격은 `shop.css` 한 장이라 **상품이 나오는 모든 화면**(메인·도시·세부·상품 목록)이 함께 돌아간다.
+
+## 12. 2026-09-08 · 상품 카드에 별점 한 줄을 넣음 (§37 「안 1」)
+
+**바꾼 것 세 곳**
+| 곳 | 무엇을 |
+|---|---|
+| 창고 뷰 `v_shop_product` | 칸 두 개(`rating`·`review_count`)를 **뒤에 덧붙임**. 앞의 15칸은 순서·이름 그대로다 |
+| `public/shop.js` | `rateLine(p)` 신설 + `productCard` 에서 이름 아래·값 위에 한 줄 |
+| `public/shop.css` | `.prate`·`.pstar`·`.prcnt` 규격 (새 색은 만들지 않았다 — `--t1`/`--t2` 안에서) |
+
+🔴 **창구 `api/products.js` 는 고치지 않았다.** 이미 `select=*` 라 뷰에 칸이 생기는 순간 함께 나간다.
+파일을 건드리지 않는 쪽이 되돌릴 것도 하나 줄어든다.
+
+**되돌리기**
+```
+① 화면만 되돌린다  shop.js·shop.css 커밋 2개를 되돌리면 줄이 사라진다 (창고는 그대로 둬도 해가 없다)
+② 창고까지 되돌린다  create or replace view v_shop_product as
+                     select id,source,ext_id,title,category,country_slug,city_slug,image_url,
+                            link_url,price,currency,badge,sort_order,active,synced_at
+                       from shop_product
+                      where active and synced_at > (now() - '45 days'::interval);
+```
+🔴 **되돌릴 수 없는 것은 없다.** 자료를 지우거나 다시 받는 일이 아니라, **이미 창고에 있던 칸을 내보내기만** 한 것이다.
+사진처럼 「두 번 오가는 요금」이 붙는 종류가 아니다.
+
+**확인한 것 (실측 2026-09-08)**
+- 뷰 1,097줄 중 평점 있는 것 **516** · 권한(`service_role` SELECT) 그대로
+- 배포된 `shop.js` 를 그대로 실행해 도쿄 상품 20개에 먹여 보니 **17개에 줄이 그려지고 3개는 줄 자체가 없다** — 평점 있는 자료 수 17과 정확히 같다
+- 평점은 있는데 후기 수가 없는 상품은 **0개**(창고 실측). 그래도 그때는 `★ 4.8` 만 나오게 해 두었다

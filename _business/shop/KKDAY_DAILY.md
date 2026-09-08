@@ -96,12 +96,19 @@ POST https://gohotelwinners.com/api/ops/db-query     헤더 x-ops-token
 { "project_ref": "jyjcdxdezjfcikqndxeo", "query":
   "select p.ext_id, p.link_url from shop_product p
      left join shop_kk_sync s on s.ext_id=p.ext_id
-    where p.source='kkday' and (s.synced_on is null or s.synced_on < current_date)
+    where p.source='kkday' and (s.updated_at is null or s.updated_at < now() - interval '20 hours')
     order by p.review_count desc nulls last, p.id asc limit 100" }
 ```
 
-🔴 **`synced_on < current_date` 라 「오늘 아직 안 한 것」만 나온다.** 어제 노트북이 꺼져 있었어도
-오늘 돌리면 전부 다시 나온다 — **놓친 날을 따로 챙길 필요가 없다.**
+🔴 **「날짜」가 아니라 「20시간 전」으로 센다 — 이것이 핵심이다.**
+창고 시계는 **UTC** 이고 우리는 **한국시간 01:10** 에 돈다. 한국 1월 2일 01:10 = UTC 1월 1일 16:10 이라
+`current_date` 로 세면 **창고에게는 아직 「1일」** 이다. 1일 낮에 한 번 받았다면
+**「오늘 다 했다」로 읽혀 0개가 나오고 그날은 통째로 건너뛴다.**
+🔴 실제로 재보다가 이 함정에 걸렸다(2026-09-09 · 「오늘 안 받음 0개」가 나왔다).
+`updated_at < now() - interval '20 hours'` 는 **시간대와 무관하다.** 20시간으로 둔 이유는
+새벽 1시 10분이 조금 밀려도(1시 30분 등) 그날 몫이 빠지지 않게 여유를 준 것이다.
+
+🔴 어제 노트북이 꺼져 있었어도 오늘 돌리면 전부 다시 나온다 — **놓친 날을 따로 챙길 필요가 없다.**
 🔴 **후기 많은 것부터** 나온다. 중간에 멈춰도 손님이 실제로 누르는 상품부터 새 값이 된다.
 
 ## 4) 창고에 넣는다 — 100개씩
@@ -116,15 +123,17 @@ u as (update shop_product p set price=t.price, synced_at=now(),
         review_count = coalesce(t.review_count, p.review_count)
       from t where p.id=t.id returning p.id),
 d as (insert into shop_product_price (product_id, checked_on, price, currency, active)
-        select t.id, current_date, t.price, 'KRW', true from t
+        select t.id, (now() at time zone 'Asia/Seoul')::date, t.price, 'KRW', true from t
         on conflict (product_id, checked_on) do update set price=excluded.price, active=true returning 1),
 k as (insert into shop_kk_sync (ext_id, product_id, synced_on, price, ok, updated_at)
-        select t.ext_id, t.id, current_date, t.price, true, now() from t
+        select t.ext_id, t.id, (now() at time zone 'Asia/Seoul')::date, t.price, true, now() from t
         on conflict (ext_id) do update set synced_on=excluded.synced_on,
           price=excluded.price, ok=true, updated_at=now() returning 1)
 select (select count(*) from u) 갱신
 ```
 
+🔴 **날짜 칸(`synced_on`)에는 «한국 날짜»를 넣는다**(`(now() at time zone 'Asia/Seoul')::date`).
+안 그러면 새벽에 받은 것이 **전날 자리**에 쌓여 「어제와 오늘」 비교가 하루씩 밀린다.
 🔴 **버리는 것** — `1,000원 미만`(맞춤 견적이 104원·203원을 보여준다) · `900만원 초과` · 값이 안 잡힌 것.
 🔴 **평점·후기는 «있을 때만» 덮는다**(`coalesce`). 못 읽었다고 빈 값으로 지우면 안 된다.
 🔴 **할인율·정가·예약 수는 여기서 «건드리지 않는다».** 글에 없어서 못 받는다 — 월 1회 `KKDAY_SYNC2.md` 몫이다.
@@ -141,10 +150,11 @@ select (select count(*) from u) 갱신
 ## 6) 끝나면 한 줄로 남긴다
 
 ```sql
-select count(*) filter (where synced_on=current_date) 오늘받음,
-       count(*) filter (where synced_on<current_date or synced_on is null) 못받음
+select count(*) filter (where updated_at > now() - interval '20 hours') 이번회차받음,
+       count(*) filter (where updated_at is null or updated_at <= now() - interval '20 hours') 못받음
   from shop_kk_sync
 ```
+🔴 여기서도 **날짜가 아니라 「20시간」으로 센다** — 위와 같은 이유다.
 **80% 미만이면 대표님께 알린다.** 그 아래면 무언가 막힌 것이다.
 
 ---

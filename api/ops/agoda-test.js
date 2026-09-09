@@ -73,7 +73,10 @@ export default async function handler(req, res) {
     additional: {
       currency: body.currency || 'KRW',
       language: body.language || 'ko-kr',
-      occupancy: { numberOfAdult: 2, numberOfChildren: 0 },
+      // 🔴 인원을 바꿔 물어볼 수 있어야 «값이 1인 기준인지 방 기준인지»를 잴 수 있다 (2026-09-09).
+      //    전에는 2인으로 고정돼 있어, 화면 값과 다를 때 원인을 가릴 방법이 없었다.
+      occupancy: { numberOfAdult: Math.min(Math.max(Number(body.adults) || 2, 1), 10),
+                   numberOfChildren: Number(body.children) || 0 },
       maxResult,
       discountOnly: false,
       minimumStarRating: 0,
@@ -158,6 +161,8 @@ export default async function handler(req, res) {
     has_landing: sample.filter(s => !!s.landingURL).length,
     request: { criteria },
     sample,
+    // 🔴 아고다가 «실제로» 무엇을 주는지 통째로 본다. 우리가 고른 칸만 보면 빠진 칸을 못 본다.
+    raw_first: body.raw ? (results[0] || null) : undefined,
     env: envReport,
   });
 }

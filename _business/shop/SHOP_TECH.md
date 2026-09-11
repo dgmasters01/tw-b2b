@@ -2778,3 +2778,6 @@ Rapid Content API 에 `ratings.property.type` 이 있어 **공식 기관이 매�
 | 관리자 `act=demand_add` | `dry:true` 미리보기 → 확인창(주소 먼저) → 실행 |
 
 **넣은 뒤 손님 화면까지** — 값: `collect.js` 가 `v_shop_new` 를 따라 곧바로(10분마다) · 사진: `photos.js` 한국 04:50 하루 60곳 · 화면: 사진이 들어온 호텔부터 `shop_rebuild('live')` · 도시 수요의 «우리 호텔»: 다음 월요일 `demand.js`.
+
+**2026-09-11 밤 추가 (§59)** — 도시 찾기 = ① 이름 후보 중 **공항 80km 안** 호텔 최다 ② `shop_demand_city_map` ③ 공항 30km 안 호텔 최다(GPS 추정). 나라는 공항 `iso` → `shop_country_slug`(제안은 확인창에서 확정).
+좌표 표 `shop_master_city_geo` · 공항 좌표 `shop_airport_city.lat/lng/iso`. 🔴 **명부를 다시 복사하면 `shop_master_city` 와 `shop_master_city_geo` 둘 다 다시 만든다.** 사본 `sql/2026-09-11-city-watch-gps.sql`.

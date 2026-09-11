@@ -1429,6 +1429,20 @@
       "status": "돎",
       "last_seen": "09-11",
       "note": "🔴 새로 받아오지 않는다(아고다 호출 0). 붙인 뒤는 값 수집(10분)·사진(04:50·하루 60곳) 일꾼이 한다. 🔴 값 부르는 호텔 전체가 city_add_cap(5,000) 을 넘으면 넣지 않고 «자리 기다림». 상한은 collect 기록의 ms 로 실측해 바꾼다. 미리보기 p_dry=true. 되돌리기 SHOP_ROLLBACK §58"
+    },
+    {
+      "id": "shop.list-bake",
+      "service": "shop",
+      "group": "시계",
+      "name_ko": "나라·도시 목록 굽기 일꾼",
+      "where": "Vercel(여행능력자들) /api/cron/list-bake",
+      "when": "매시 23분·52분",
+      "does": "나라·도시 화면에 필요한 자료를 미리 완성해 표에 한 줄씩 넣어 둔다 — 손님은 누를 때 계산을 기다리지 않는다",
+      "makes": "shop_list_feed",
+      "check_where": "창구 응답 머리말 X-List-Source: baked",
+      "status": "돎",
+      "last_seen": "09-11",
+      "note": "🔴 호텔이 늘어도 손님 쪽 시간은 같다(한 줄 꺼내기). 87곳 6초(2026-09-11). 3시간 넘게 안 구워지면 창구가 «바로 만들기»로 돌아가 화면은 안 죽는다. 만드는 부품 _lib/list-build.js 한 곳. 열쇠 확인(guard)"
     }
   ]
 }

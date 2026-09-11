@@ -2343,3 +2343,67 @@ Vercel 연결 계정에서 샵 프로젝트가 안 보여 확인을 못 했지�
 뷰의 WITH(CTE)는 여러 번 쓰이면 «통째로 먼저 계산»된다 — 조건(도시 하나)이 안으로 들어가지 않는다.
 창구 문의 한도는 8초다. 3~7초 걸리는 질의는 «아직 된다»가 아니라 «곧 깨진다»로 읽는다.
 ```
+
+## 68. 2026-09-11 밤 · 🔴🔴 보안 점검 — 공개 레포에 창구 열쇠가 적혀 있었다 · 창고 A 표 28개가 공개 키로 열려 있었다
+
+**대표님** — *«우리 지금 만들고 있는 거. 해커가 바로 침투할 수 있는 거 아니야? 보안 취약점도 체크하고 보완점 찾고, 우리 데이터들을 외부에서 바로 끌어갈 수 없게 해야 된다.»*
+
+### ① 찾은 것 (심각한 순)
+
+| # | 무엇 | 얼마나 위험했나 |
+|---|---|---|
+| 🔴 1 | **공개 레포 tw-b2b `_business/shop/SEARCH_REBUILD.md` 에 창구 열쇠(x-ops-token) 값이 그대로** (2026-09-09 부터 · 클로드가 명령서 예시로 적음) | 🔴 **이 열쇠 하나로 레포 4개 쓰기 + 창고 3개 전부 읽기·바꾸기·지우기**(db-query 는 UPDATE·DDL 통과). 공개 레포는 자동 수집기가 늘 훑는다 — **새었다고 본다** |
+| 🔴 2 | **창고 A(블로그·스튜디오) 표 28개가 RLS 꺼짐** + 창고 A 의 공개(anon) 키가 공개 레포 화면 파일에 있음 | 누구나 `blog_pageview`·`blog_gsc_*`·`api_daily_budget`·`blog_hotel_photo_url` 등을 **읽고·쓰고·지울 수** 있었다 |
+| 🔴 3 | 창고 A 함수 전부가 공개 키로 실행 가능 — 쓰기 함수 포함(`next_invoice_number` 등) | 청구서 번호를 올리는 등 |
+| 🔴 4 | 샵 일꾼 창구 11개가 **열쇠 없이** 열려 있음 (값 수집·사진·항공 수집·목록 다시 만들기·점검 …) | 누구나 아고다·공공데이터를 대신 부르게 하거나 사진을 받아 저장소를 채우게 할 수 있었다 |
+| 🟡 5 | 샵 발행 열쇠 기본값이 공개 레포 `api/cron/push-to-shop.js` 에 있음 · 샵도 환경변수가 없어 기본값을 씀 | 누구나 가짜 영상·호텔을 샵에 넣을 수 있다 |
+| 🟡 6 | 샵 창고 함수 32개가 anon 실행 가능(쓰기 함수 11개) | 샵 anon 키는 화면에 없어(전수 확인) 지금 당장은 못 쓰지만 새면 바로 뚫린다 |
+| 🟡 7 | 관리자 열쇠를 주소(`?t=`)로도 받음 · 보안 머리말 없음 · 끝난 시험 창구(air-test) 열려 있음 | 주소는 기록·공유 링크에 남는다 |
+| 🟢 | 샵 창고 표 63개·뷰 36개는 anon 접근 0 · 창고 B 표 35개 RLS 전부 켜짐 · ceylon-journey 공개 레포는 비밀값 0 · 옛 열쇠(sV1I…)는 이미 무효(401) | — |
+
+### ② 바로 고친 것 (클로드)
+
+| 곳 | 무엇 | 확인 |
+|---|---|---|
+| tw-b2b `SEARCH_REBUILD.md` · `step-self-verify.yml` | 열쇠 값 삭제 | 🔴 **git 이력에는 남는다 → 열쇠 교체가 진짜 해결이다(대표님)** |
+| 창고 A 표 28개 | **RLS 켬** (서버는 service_role 이라 그대로) · 두 레포에서 브라우저가 이 표를 직접 부르는 곳 0곳 확인 | 공개 키로 `blog_pageview` 읽기 → **빈 결과** · 블로그 글을 실제로 열어 방문 기록이 계속 쌓이는 것 확인 |
+| 창고 A 함수 | 모두(PUBLIC)·anon 실행 권한 뺌 · 로그인 사용자·서버는 그대로 · anon 은 브라우저가 쓰는 3개(`is_admin`·`is_editor`·`check_hotel_duplicate`)만 | 공개 키로 `next_invoice_number` → **permission denied** · `is_admin` → 정상 |
+| 샵 창고 함수 | anon·authenticated 실행 권한 뺌 · 앞으로 만드는 함수도 기본으로 닫힘 | 손님 검색·목록·첫 화면·신상 정상 |
+| 샵 일꾼 창구 11개 | `api/_lib/guard.js` — CRON_SECRET(있으면) · 관리자 열쇠 · 발행 열쇠 · (CRON_SECRET 없을 때만) vercel-cron | 열쇠 없이 부르면 **11곳 모두 401** |
+| 관리자 · 사진 올리기 | 주소 열쇠(`?t=`) 제거 · 사진 담기 일꾼 부를 때 관리자 열쇠 붙임 | `?t=` 로 401 |
+| `api/ops/air-test.js` | 닫음(410) | 410 |
+| `vercel.json` | 모든 화면: nosniff · Referrer-Policy · X-Frame-Options SAMEORIGIN · Permissions-Policy · HSTS / 창구: X-Robots-Tag noindex | 머리말 확인 |
+
+SQL 사본: 샵 레포 `sql/2026-09-11-shop-function-grants.sql` · `sql/2026-09-11-warehouseA-rls.sql` · `sql/2026-09-11-warehouseA-function-grants.sql`
+
+### ③ 🔴 대표님 손이 필요한 것 (클로드는 환경변수·비밀값·방화벽을 못 바꾼다)
+
+| 급함 | 무엇 | 왜 |
+|---|---|---|
+| 🔴 지금 | **창구 열쇠 교체** — tw-b2b Vercel `CLAUDE_OPS_TOKEN`(·`OPS_TOKEN` 있으면) · staycurate Vercel `OPS_TOKEN`(·`CLAUDE_OPS_TOKEN` 있으면) · GitHub tw-b2b(·staycurate) Actions secrets `CLAUDE_OPS_TOKEN`·`OPS_TOKEN` · Cowork «KKday 매일» 예약 작업 안의 열쇠 → 둘 다 Redeploy | 공개 레포에 이틀 있었다. 교체 전까지는 누구나 창고를 바꿀 수 있다 |
+| 🟡 | **발행 열쇠** `SHOP_HOOK_TOKEN` — travelwinners-shop · tw-b2b 두 Vercel 에 «같은 새 값» → 둘 다 Redeploy | 기본값이 공개돼 있다. 넣으면 기본값은 저절로 안 먹는다 |
+| 🟡 | **`CRON_SECRET`** — travelwinners-shop Vercel → Redeploy | 넣으면 Vercel 크론만 일꾼을 부를 수 있다(흉내 낸 vercel-cron 차단) |
+| 🟢 | **Vercel Firewall 속도 제한** — travelwinners-shop · 경로 `/api/` 로 시작 · IP 당 60초 300회 · 초과 시 429 | 창구를 통째로 긁어 가는 것을 막는다. 💰 **월 100만 건까지 포함 · 넘으면 100만 건당 약 $0.50** — 오픈 전이라 0원 |
+
+### ④ 아직 모르는 것 · 한계 (정직하게)
+
+- 🔴 **새어 나간 열쇠가 실제로 쓰였는지는 모른다** — 창구 사용 기록 표가 없다. 레포 커밋 이력·창고 변경을 대표님과 함께 봐야 한다
+- 손님 화면 창구(목록·검색 등)는 **브라우저가 불러야 하는 공개 자료**다 — 완전히 막을 수는 없다. 대신 속도 제한으로 «한꺼번에 긁기»를 막는다
+- tw-b2b 가 공개 레포인 한 «실수로 적은 비밀값»이 또 샐 수 있다 → GitHub «Secret scanning · Push protection»(공개 레포 무료)을 켜면 커밋 순간 막아 준다(대표님 설정)
+
+### 되돌리는 법
+
+| 무엇 | 방법 |
+|---|---|
+| 창고 A RLS | 각 표 `alter table … disable row level security` (사본 파일에 목록) |
+| 창고 A·샵 함수 권한 | `grant execute on all functions in schema public to public` |
+| 일꾼 열쇠 확인 | 각 파일의 `if (!cronOK(req)) return deny(res);` 한 줄 삭제 |
+| 머리말 | `vercel.json` headers 앞 두 줄 삭제 |
+
+### 🔴 배운 것
+
+```
+공개 레포에는 «명령서 예시»에도 열쇠 값을 적지 않는다. 이번 사고는 클로드가 대표님께 드릴 붙여넣기 예시를 공개 문서에 적어 생겼다.
+«RLS 켜짐»만 보면 안 된다 — 표마다 켜졌는지, 함수 실행 권한이 누구에게 있는지까지 본다.
+일꾼 창구도 «주소를 모르면 안전»하지 않다. 주소는 공개 레포 코드에 다 있다.
+```

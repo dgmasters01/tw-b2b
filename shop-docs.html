@@ -97,14 +97,13 @@ pre{background:#1f1f1d;color:#f0efeb;padding:14px;border-radius:10px;font-size:1
 
 <h3>대표님 손이 필요한 것</h3>
 <table>
-<tr><td style="width:40px" class="bad">지금</td><td><b>Vercel 배포 확인</b> — 09-11 밤부터 샵 새 배포가 반영되지 않습니다. Vercel → travelwinners-shop → Deployments 맨 위 줄의 빨간 글자(오류 문구)를 알려 주세요. 클로드 연결 계정에는 이 프로젝트가 보이지 않아 직접 못 봅니다. 손님 화면은 정상입니다. 🔴 이게 풀려야 코드 작업을 이어갈 수 있습니다</td></tr>
 <tr><td>나중</td><td>(조건부) 구글 콘솔 하루 한도 30 → 50 — 클로드가 헛시도를 줄인 뒤에도 느릴 때만 (<a href="https://github.com/dgmasters01/staycurate/blob/main/docs/BUSINESS-MAP.md" target="_blank">BUSINESS-MAP §5-B-12</a>)</td></tr>
 <tr><td>마지막</td><td>메일·웹푸시를 할 때 — Resend 가입(무료) · 보내는 주소 DNS 2줄 · 주간 추천 메일 발송 여부</td></tr>
 </table>
 
 <h3>다음 순서 (클로드) — 메일·웹푸시는 맨 뒤</h3>
 <table>
-<tr><td style="width:40px">1</td><td><b>배포 막힘 풀기</b> (대표님 확인 뒤 바로)</td></tr>
+<tr><td style="width:40px">1</td><td><span class="pill p-ok">끝남</span> 배포 — 멈춘 게 아니었습니다(앞 커밋이 Production 을 차지) · 확인 창구를 만들어 해결</td></tr>
 <tr><td>2</td><td><b>09-12 오전 9시 이후 확인</b> — 값 수집 한 날짜에 걸린 시간(도시 추가 상한 다시 정하기) · 아고다 정보 호텔별 저장 약 4,700곳</td></tr>
 <tr><td>3</td><td><b>검색 2차</b> — 초성(ㅅㄹㅅㅌㅇ) · 한/영 자판(rmfosem) · «혹시 이것을 찾으셨나요?» (명령서 SEARCH_REBUILD.md)</td></tr>
 <tr><td>4</td><td><b>오픈 전 마무리·속도</b> — 목록 나눠 보내기 · 새벽에 도시별 자료 미리 굽기 · 404 화면</td></tr>
@@ -669,6 +668,7 @@ pre{background:#1f1f1d;color:#f0efeb;padding:14px;border-radius:10px;font-size:1
 <tr><td>주별 화면 · 검색 · 「지방 %」</td><td>도시 이름을 누르면 주별 막대·공항별 표 · 나라·도시 검색 · 「지방 %」 = 인천이 아닌 한국 공항 출발 비율(김포·제주 포함이라 «부산·대구권» 문구는 틀려서 삭제) <span class="s11 mut3">§57</span></td></tr>
 <tr><td class="good">도시 추가 단추</td><td>신상 후보에 그 도시 호텔이 이미 있었고 이름표만 없었다 → 단추 한 번에 이름표를 붙이면 값 수집·사진·화면이 저절로 · 확인창에 손님 주소를 먼저 보여줌 · 값 부르는 호텔 상한 5,000곳 <span class="s11 mut3">§58</span></td></tr>
 <tr><td>이름 + GPS 확인</td><td>GPS만 쓰면 17곳이 틀림(고베→오사카) → 이름으로 고르고 «공항 80km 안인가»를 좌표로 확인 · 나라는 공항 나라 코드 → 넣을 수 있는 도시 49→61곳 · 신상 509→812곳 <span class="s11 mut3">§59</span></td></tr>
+<tr><td>배포 «멈춤» 오판 정정</td><td>대표님 캡처로 확인 — 배포는 전부 정상이었고, 연달아 올린 커밋 중 앞 것이 늦게 끝나 Production 을 가져간 것. 가격 수집 호텔별 저장은 정상 반영돼 있었음 · 앞으로 «지금 나가는 커밋»을 확인하는 창구로 매번 검사 <span class="s11 mut3">§64</span></td></tr>
 <tr><td>사라진 신상 7곳 제외</td><td>아고다 파일에서 사라진 신상 후보 254곳 중 화면에 나가던 8곳을 확인 → 7곳이 최근 값 없음 + 샵 열쇠로 두 날짜 직접 물어도 응답 없음 → 신상 화면·검색에서 뺌(되돌리기 한 줄) · 나머지 246곳은 화면 대상이 아니라 그대로 <span class="s11 mut3">§63</span></td></tr>
 <tr><td>메일 — 보류</td><td>대표님: «메일은 다른 것 하고 뒤에 개발·설정» → 만든 부품은 보내지 않는 상태로 두고 이어서 만들지 않음 <span class="s11 mut3">§60 · §62</span></td></tr>
 <tr><td>메일 ① 부품</td><td>샵 전용 열쇠로 보내는 메일 부품 · 한국시간 19~9시는 보내지 않고 아침으로 미룸 · 같은 메일 두 번 금지 · 광고 메일은 «(광고)»와 수신 거부 · 보낸 기록 표 · 🔴 배포 반영 확인 대기 <span class="s11 mut3">§62</span></td></tr>

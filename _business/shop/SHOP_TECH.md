@@ -261,6 +261,7 @@ Lite API 응답 항목 전부: `dailyRate · crossedOutRate · discountPercentag
 
 🔴 **아직 «모르는 것» — 추측으로 적지 말 것**
 - 샵 `AGODA_API_KEY` 의 siteid 값 (환경변수라 못 봄) → 봇이 응답 cid 를 `shop_collect_log.note` 에 한 줄 남겨 확인
+  → ✅ **2026-09-11 확인: 샵 열쇠 응답 cid = 1919025.** 🔴 응답 칸도 블로그 열쇠(14칸)와 달리 **16칸**(좌표 포함) — 샵 것은 샵 열쇠로 잰다(`/api/ops/agoda-fields`)
 - 아고다의 진짜 한도 → ①단계적으로 올리며 403 관찰 ②계정 매니저에게 직접 문의
 
 ### 🔴 6-B. 아고다 사진 규격 — 정본 (D-117 · 2026-09-05 확정)
@@ -2781,3 +2782,20 @@ Rapid Content API 에 `ratings.property.type` 이 있어 **공식 기관이 매�
 
 **2026-09-11 밤 추가 (§59)** — 도시 찾기 = ① 이름 후보 중 **공항 80km 안** 호텔 최다 ② `shop_demand_city_map` ③ 공항 30km 안 호텔 최다(GPS 추정). 나라는 공항 `iso` → `shop_country_slug`(제안은 확인창에서 확정).
 좌표 표 `shop_master_city_geo` · 공항 좌표 `shop_airport_city.lat/lng/iso`. 🔴 **명부를 다시 복사하면 `shop_master_city` 와 `shop_master_city_geo` 둘 다 다시 만든다.** 사본 `sql/2026-09-11-city-watch-gps.sql`.
+
+## §63 · 아고다 응답은 «호텔별로 전부» 저장한다 (2026-09-11 대표님 지시)
+
+> 대표님: *«객실이름, 무료와이파이 같은 정보도 지금은 표시 하지 않지만, 우리 db에 호텔별로 저장이 되어 있어야 된다.»*
+
+🔴 **규칙** — 아고다가 주는 칸은 화면에 쓰지 않더라도 **버리지 않는다.** 새 칸이 생겨도 `raw` 에 남는다.
+🔴 **샵 아고다는 샵 열쇠로만 잰다**(D-112). 블로그·스튜디오 창구로 재지 않는다 — 열쇠마다 주는 칸이 달랐다(14 vs 16).
+
+| 표 | 한 줄 | 채우는 곳 |
+|---|---|---|
+| `shop_price_daily` | 호텔 · 숙박일 · 잰 날의 값 · 조식 · 정가 · 할인율 | `collect.js` (전부터) |
+| `shop_hotel_review` | 호텔 · 잰 날의 후기 수 · 평점 | `collect.js` (전부터) |
+| `shop_hotel_agoda` | 호텔별 최신 응답 16칸 + `raw` | `collect.js` → `_lib/agoda-keep.js` |
+| `shop_hotel_room_type` | 호텔 · 객실 이름 (처음·마지막 본 날) | 〃 |
+
+샵 열쇠 응답 16칸: hotelId · hotelName · roomtypeName · starRating · reviewScore · reviewCount · currency · dailyRate · crossedOutRate · discountPercentage · imageURL · landingURL · includeBreakfast · freeWifi · latitude · longitude
+전말·되돌리기 `SHOP_ROLLBACK.md` §60.

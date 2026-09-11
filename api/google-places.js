@@ -233,9 +233,24 @@ async function checkQuota(mode) {
 // (새 일꾼을 막지 않기 위해서다. 대신 api_call_log 에는 남으니 나중에 몫을 정할 수 있다)
 async function checkDaily(caller) {
   try {
+    const day = new Date().toISOString().slice(0, 10);
     const r = await sb(`api_daily_budget?provider=eq.google_places&caller=eq.${encodeURIComponent(caller)}`
-      + `&day=eq.${new Date().toISOString().slice(0, 10)}&select=used,cap`);
-    const rows = await r.json();
+      + `&day=eq.${day}&select=used,cap`);
+    let rows = await r.json();
+    /* 🔴 2026-09-11 — 오늘 줄이 없으면 «계획»(api_budget_plan)에서 만들어 쓴다.
+       전에는 오늘 줄이 없으면 그냥 통과시켰다 — 줄이 2026-09-02 에 멈춰 있어서
+       **9일 동안 하루 몫이 아예 통제되지 않았다**. 「새 일꾼을 막지 않는다」는 뜻은
+       「계획에 없는 일꾼은 통과」이지 「모두 통과」가 아니다. */
+    if (!rows || !rows.length) {
+      const p = await sb(`api_budget_plan?provider=eq.google_places&caller=eq.${encodeURIComponent(caller)}&select=cap`);
+      const plan = await p.json();
+      if (plan && plan.length) {
+        await sb('api_daily_budget', { method: 'POST',
+          headers: { Prefer: 'return=minimal' },
+          body: JSON.stringify({ provider: 'google_places', caller, day, used: 0, cap: plan[0].cap }) }).catch(() => {});
+        rows = [{ used: 0, cap: plan[0].cap }];
+      }
+    }
     if (!rows || !rows.length) return { ok: true, unset: true };
     const { used = 0, cap = 0 } = rows[0];
     return { ok: used < cap, used, cap };

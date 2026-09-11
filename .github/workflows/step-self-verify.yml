@@ -148,7 +148,7 @@ jobs:
         run: |
           curl -s -X POST "https://gohotelwinners.com/api/email/ops/notify-claude-work" \
             -H "Content-Type: application/json" \
-            -H "x-ops-token: ${{ secrets.OPS_TOKEN || 'sV1IWuvgBYcn94lQZXBjFLjgdsh3lrBK' }}" \
+            -H "x-ops-token: ${{ secrets.OPS_TOKEN }}" \
             -d "{
               \"task_id\": \"BL-STEP-SELF-VERIFY\",
               \"step\": \"⚠️ step 검증 실패 자동 롤백 (${{ steps.verify.outputs.violation_count }}건)\",

@@ -2750,3 +2750,17 @@ Rapid Content API 에 `ratings.property.type` 이 있어 **공식 기관이 매�
 값은 매일 움직이므로 **「이달의」라고 쓰면 한 달 내내 참이어야 한다.**
 🔴 **메일에 적는 값은 «보내는 날 아침의 가장 싼 값»이고, 그 날짜를 함께 적는다** — 「9.24 기준 90,757원」.
 「이달의」는 **가격대 묶음의 이름**이지 값의 유효기간이 아니다. 이것을 메일 안에 한 줄로 밝힌다.
+
+## §61 · 도시 수요 — 주별·검색·「지방 %」 화면 + 편수 교정 (2026-09-11 저녁)
+
+🔴 **정본은 `staycurate docs/BUSINESS-MAP.md` §5-E 한 장이다.** 여기에는 코드 위치만 적는다.
+
+| 곳 | 무엇 |
+|---|---|
+| `api/cron/route-week.js` | 🔴 편수 세는 법 교정 — 인천 Master·날짜별 기간 / 전국 같은 시각 한 대·작년 같은 주 / 승객 항공사 합산 · `?dry=1` 검산 |
+| `api/cron/demand.js` | 지난주도 같은 겹침 규칙(`counted`) · 승객 출발만 · 그 주 줄 지우고 넣기 |
+| `api/admin/index.js` | 공용 `AIRNAME`·`counted`·`qsafe` · `tab=demand`(검색·요약 같은 거르개·`local_top`·`kac_basis`) · `tab=demand_city`(최근 두 주 공항별) |
+| `public/admin.html` | `DM` 상태 · `viewDemand` · `viewDemandCity` · `dmLocalHelp` · `.f11 .f12 .mut3` 전역 글자 규격(전에는 정의가 없어 안 먹었다) |
+
+🔴 **함정 두 개 추가** — ①시간표 자료 한 줄은 «한 편명 × 한 기간»이다(한 비행기가 아니다) ②지방 편수는 «작년 같은 주»다(2025 판 · 새 판 오면 UUID 교체).
+전말·되돌리기 `SHOP_ROLLBACK.md` §57.

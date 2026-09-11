@@ -2799,3 +2799,14 @@ Rapid Content API 에 `ratings.property.type` 이 있어 **공식 기관이 매�
 
 샵 열쇠 응답 16칸: hotelId · hotelName · roomtypeName · starRating · reviewScore · reviewCount · currency · dailyRate · crossedOutRate · discountPercentage · imageURL · landingURL · includeBreakfast · freeWifi · latitude · longitude
 전말·되돌리기 `SHOP_ROLLBACK.md` §60.
+
+## §64 · 아고다 «호텔 파일»에서 받는 칸 (2026-09-11)
+
+| 표 | 무엇 | 언제 |
+|---|---|---|
+| `shop_hotel_master` | 명부 20칸 (이름·주소·좌표·성급·후기·사진1) | 09-05 복사 |
+| `shop_new_pool` | 신상 후보 (2024+ · 3성+ · 후기 10+) · 후기·연도는 파일로 갱신 | 09-05 · **09-11 새로 고침** |
+| `shop_hotel_feed` | 🔴 **안 담던 칸** — 체크인/아웃·층수·연도·사진 주소 1~5·소개글·체인 · 우리가 쓰는 호텔 3.2만 곳만 | 09-11 |
+| `shop_hotel_agoda` | API 응답 16칸 (§63) | 매 수집 |
+
+파일 주소는 창고 A `agoda_file_source` (`…_KO.zip` · 429MB · 매일 갱신). 🔴 **Vercel 에서 받지 않는다**(크기·시간). 자동 갱신은 GitHub Actions 로 — 아직 없음. 전말 `SHOP_ROLLBACK.md` §61.

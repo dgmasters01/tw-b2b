@@ -2764,3 +2764,17 @@ Rapid Content API 에 `ratings.property.type` 이 있어 **공식 기관이 매�
 
 🔴 **함정 두 개 추가** — ①시간표 자료 한 줄은 «한 편명 × 한 기간»이다(한 비행기가 아니다) ②지방 편수는 «작년 같은 주»다(2025 판 · 새 판 오면 UUID 교체).
 전말·되돌리기 `SHOP_ROLLBACK.md` §57.
+
+## §62 · 「도시 추가」 → 신상 후보 풀 (2026-09-11 밤)
+
+🔴 **새로 받아오지 않는다.** 신상 후보 풀에 이미 있는 그 도시 호텔에 «이름표»만 붙인다. 전말·되돌리기 `SHOP_ROLLBACK.md` §58.
+
+| 곳 | 무엇 |
+|---|---|
+| 창고 `shop_city_watch_apply(p_slug, p_dry)` | 판정·붙이기 전부. 🔴 규칙을 바꿀 때는 이 함수 한 곳만 고친다 · 사본 `sql/2026-09-11-city-watch-apply.sql` |
+| 창고 `shop_master_city` | 명부 도시 요약(7.6만 줄). 🔴 **명부를 다시 복사하면 이 표도 다시 만든다** |
+| 창고 `shop_demand_city_map` | 이름으로 못 찾는 도시 → 아고다 번호(옌지·니가타). 새로 «도시를 못 찾음»이 뜨면 여기 한 줄 |
+| `shop_taste_config.city_add_cap` | 🔴 값 부르는 호텔 상한 5,000(실측 전). `shop_collect_log.note` 의 `ms=` 가 265,000 에 가까우면 **올리지 않는다** |
+| 관리자 `act=demand_add` | `dry:true` 미리보기 → 확인창(주소 먼저) → 실행 |
+
+**넣은 뒤 손님 화면까지** — 값: `collect.js` 가 `v_shop_new` 를 따라 곧바로(10분마다) · 사진: `photos.js` 한국 04:50 하루 60곳 · 화면: 사진이 들어온 호텔부터 `shop_rebuild('live')` · 도시 수요의 «우리 호텔»: 다음 월요일 `demand.js`.

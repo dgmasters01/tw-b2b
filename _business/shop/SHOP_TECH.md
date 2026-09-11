@@ -2829,3 +2829,19 @@ Rapid Content API 에 `ratings.property.type` 이 있어 **공식 기관이 매�
 🔴 **멀쩡한 검색은 창고 1번**(§42 원칙 유지). 못 찾은 말만 최대 3번.
 🔴 **함정** — 2회차 «점수 0까지 넓히기»가 조건 없이 돌면 아무 말에나 호텔 70곳이 나와 «못 찾음»을 알 수 없다. 조건(도시·나라·성급·예산·종류·연도·달) 있을 때만.
 전말 `SHOP_ROLLBACK.md §66`.
+
+## §66 · 🔴 보안 규칙 (2026-09-11 점검 뒤 · 전말 SHOP_ROLLBACK §68)
+
+| 규칙 | 어디서 |
+|---|---|
+| 🔴 **공개 레포(tw-b2b)에는 열쇠 «값»을 어떤 문서에도 적지 않는다** — 명령서 예시·붙여넣기 예시 포함 | 2026-09-09 SEARCH_REBUILD.md 에 적어 새었다 |
+| 새 표를 만들면 **RLS 를 켠다**(샵은 표 63개 전부 켜짐 · 창고 A 는 28개가 꺼져 있었다) | `alter table … enable row level security` |
+| 새 함수는 기본으로 anon·authenticated 실행이 닫혀 있다(샵 창고 기본값 변경) — 브라우저가 부를 함수만 따로 연다 | `sql/2026-09-11-shop-function-grants.sql` |
+| **일꾼 창구는 첫 줄에 `if (!cronOK(req)) return deny(res);`** — 새 일꾼도 반드시 | `api/_lib/guard.js` |
+| 관리자 열쇠는 **머리말(x-admin-token)로만** — 주소(?t=) 금지 | `api/admin/index.js` |
+| 시험 창구는 끝나면 **닫는다(410)** | `api/ops/air-test.js` |
+
+## §67 · 나라·도시 목록 미리 굽기 (2026-09-11 · 전말 SHOP_ROLLBACK §69)
+
+`api/cron/list-bake.js`(매시 23·52분) → `shop_list_feed` → `api/list.js` 가 한 줄 꺼내 줌(3시간 넘으면 바로 만들기). 만드는 부품 `api/_lib/list-build.js` 한 곳.
+🔴 목록 응답 모양을 바꿀 때는 **list-build.js 만** 고친다. 다음 굽기(최대 30분) 뒤에 화면에 반영된다 — 급하면 굽기 일꾼을 한 번 부른다.

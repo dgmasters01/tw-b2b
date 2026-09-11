@@ -43,7 +43,7 @@ tw-b2b 레포 _os/boot.md 를 읽고, _business/shop/SEARCH_REBUILD.md 로 검�
   본문: { "project_ref": "jyjcdxdezjfcikqndxeo", "query": "<SQL>" }
 코드 창구: GET  https://gohotelwinners.com/api/ops/github-read?repo=travelwinners-shop&path=…
           POST https://gohotelwinners.com/api/ops/github-commit
-헤더 x-ops-token: NlFujfmD0sPjLIxLM1yXiKnpSpklxsAb
+헤더 x-ops-token: (열쇠 — 🔴 공개 레포라 값을 적지 않는다 · _os/KEYS.md 참조)
 ```
 
 ---

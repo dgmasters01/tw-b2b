@@ -2815,3 +2815,15 @@ Rapid Content API 에 `ratings.property.type` 이 있어 **공식 기관이 매�
 | `shop_hotel_agoda` | API 응답 16칸 (§63) | 매 수집 |
 
 파일 주소는 창고 A `agoda_file_source` (`…_KO.zip` · 429MB · 매일 갱신). 🔴 **Vercel 에서 받지 않는다**(크기·시간). 자동 갱신은 GitHub Actions 로 — 아직 없음. 전말 `SHOP_ROLLBACK.md` §61.
+
+## §65 · 검색 2차 (2026-09-11) — 초성 · 한/영 자판 · 「혹시 이것을 찾으셨나요?」
+
+| 곳 | 무엇 |
+|---|---|
+| 창고 | `shop_cho` · `shop_score_cho` · `shop_hotel_search.key_cho` · `shop_search_suggest` · `search_hotels`(항목 `score` · 2회차 넓히기는 조건 있을 때만) |
+| 창구 `api/search.js` | 🔴 **이름 점수 30 미만 → 자판 바꿔 한 번 더**(`_lib/hangul.js`) · **60 미만 → 「혹시」** · 응답 `converted`·`suggest` |
+| 화면 | `search.html`(바꾼 말 · 혹시) · `shop.js paintSheet(hotels, extra)` |
+
+🔴 **멀쩡한 검색은 창고 1번**(§42 원칙 유지). 못 찾은 말만 최대 3번.
+🔴 **함정** — 2회차 «점수 0까지 넓히기»가 조건 없이 돌면 아무 말에나 호텔 70곳이 나와 «못 찾음»을 알 수 없다. 조건(도시·나라·성급·예산·종류·연도·달) 있을 때만.
+전말 `SHOP_ROLLBACK.md §66`.

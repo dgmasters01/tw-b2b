@@ -2480,3 +2480,35 @@ SQL 사본: 샵 레포 `sql/2026-09-11-shop-function-grants.sql` · `sql/2026-09
 ```
 
 🔴 **배운 것** — 결정(D-###)의 «나눈다» 표는 **서비스가 쓰는 것뿐 아니라 클로드가 드나드는 문에도** 적용한다. 편의로 문을 합치려면 먼저 여쭌다.
+
+## 71. 2026-09-11 밤 · shop 전용 작업 창구 — «나중에»가 아니라 지금 만든다
+
+**대표님** — *«개발 부분은 너가 해야 되는데 내가 정석적으로 해야 된다고 했는데 왜 이렇게 하지 않을 거야? 그러면 열쇠를 바꾼다고 해결되는 문제가 아니네. 같이 쓰고 있으면 문제가 생기면 영향을 받겠네.»*
+🔴 클로드가 §70 에서 분리를 «보안 정리 때(나중)»로 미뤘다 — 이미 정해진 결정(D-112)을 어긴 구조를 고치는 «개발»이므로 미룰 일이 아니었다.
+🔴 **열쇠 교체는 «새어 나간 열쇠»를 막고, 창구 분리는 «한 곳이 뚫려도 다른 곳이 안전»하게 한다 — 둘 다 필요하다.**
+
+### 만든 것 (배포 `b15e1b7`)
+
+| 곳 | 무엇 |
+|---|---|
+| `api/ops/repo.js` | shop 레포 읽기(GET ?path=)·쓰기(POST) — 🔴 **레포는 travelwinners-shop 하나로 고정** · GitHub 열쇠 `SHOP_GITHUB_PAT`(이 레포만 권한) |
+| `api/ops/sql.js` | shop 창고 SQL — 🔴 **이 서버의 service_role 로 창고 C 함수만** 부른다(다른 창고 열쇠가 서버에 없다) · 한 번 8초까지 |
+| `api/_lib/ops-auth.js` | 문지기 — 머리말 `x-shop-ops-token` = `SHOP_OPS_TOKEN`(32자 이상) · 🔴 **모든 호출(거절 포함)을 기록** · 10분 거절 30회 넘으면 잠시 막음 |
+| 창고 `shop_ops_log` · `ops_exec_sql(q)` | 작업 기록표(RLS) · SQL 함수(service_role 만 실행 · anon·authenticated 불가 확인) |
+
+지금 상태: 열쇠 넣기 전이라 두 창구 모두 **503** — 정상.
+
+### 순서 (두 번 일하지 않게)
+
+```
+① 대표님: GitHub «shop 레포만» 열쇠 발급 → shop Vercel 에 SHOP_OPS_TOKEN · SHOP_GITHUB_PAT · CRON_SECRET → Redeploy
+② 클로드: 새 창구 시험(읽기·쓰기·SQL·거절 기록)
+③ 클로드: KEYS.md · boot.md · SHOP_TECH · KKDAY_SYNC·SYNC2·DAILY 명령서를 새 창구로 바꾼다 → Cowork «KKday 매일» 작업 문구를 대표님께 드림
+④ 대표님: Cowork 작업 문구 교체
+⑤ 클로드: 공용 창구(tw-b2b)에서 travelwinners-shop 삭제 · db-query 창고 허용 목록에서 C 제외 → 공용 열쇠로 shop 이 «안 열리는» 것 확인
+```
+🔴 ⑤를 ④ 전에 하면 KKday 매일 수집이 멈춘다(공용 창구로 창고 C 에 쓰고 있다). 코드로 shop 을 부르는 스튜디오 쪽은 발행 알림(HTTP)·짧은 주소뿐이라 영향 없음(전수 확인).
+
+### 되돌리는 법
+
+세 파일 삭제 · `drop function ops_exec_sql(text); drop table shop_ops_log;` · 🔴 되돌릴 수 없는 것: 없다. 💰 0원.

@@ -2780,7 +2780,7 @@ Rapid Content API 에 `ratings.property.type` 이 있어 **공식 기관이 매�
 | 창고 `shop_city_watch_apply(p_slug, p_dry)` | 판정·붙이기 전부. 🔴 규칙을 바꿀 때는 이 함수 한 곳만 고친다 · 사본 `sql/2026-09-11-city-watch-apply.sql` |
 | 창고 `shop_master_city` | 명부 도시 요약(7.6만 줄). 🔴 **명부를 다시 복사하면 이 표도 다시 만든다** |
 | 창고 `shop_demand_city_map` | 이름으로 못 찾는 도시 → 아고다 번호(옌지·니가타). 새로 «도시를 못 찾음»이 뜨면 여기 한 줄 |
-| `shop_taste_config.city_add_cap` | 🔴 값 부르는 호텔 상한 5,000(실측 전). `shop_collect_log.note` 의 `ms=` 가 265,000 에 가까우면 **올리지 않는다** |
+| `shop_taste_config.city_add_cap` | 🔴 값 부르는 호텔 상한 **8,000**(2026-09-11 실측 한 날짜 54~74초 · 호텔 4,738 → 최악값의 절반 여유). `shop_collect_log.note` 의 `ms=` 가 **130,000** 을 넘으면 내린다 |
 | 관리자 `act=demand_add` | `dry:true` 미리보기 → 확인창(주소 먼저) → 실행 |
 
 **넣은 뒤 손님 화면까지** — 값: `collect.js` 가 `v_shop_new` 를 따라 곧바로(10분마다) · 사진: `photos.js` 한국 04:50 하루 60곳 · 화면: 사진이 들어온 호텔부터 `shop_rebuild('live')` · 도시 수요의 «우리 호텔»: 다음 월요일 `demand.js`.

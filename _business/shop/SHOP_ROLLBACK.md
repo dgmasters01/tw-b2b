@@ -2173,3 +2173,35 @@ D-112 에서 샵은 **자기 열쇠(siteid)·자기 수집 봇**으로 따로 �
 **되돌리기** — `update shop_new_pool set excluded = null, excluded_by = null, excluded_at = null, exclude_note = null where excluded = 'gone'` 뒤 `select shop_rebuild('live'); select shop_rebuild('feed'); select shop_rebuild_search();`
 🔴 **되돌릴 수 없는 것: 없다.** 자료는 지우지 않았다.
 🔴 **아직 없는 것** — 신상 후보(`shop_new_pool`)에는 소개 호텔처럼 «매일 되살아났나 다시 묻는» 일꾼이 없다. 자동 갱신 일꾼을 만들 때 같이 넣는다.
+
+## 64. 2026-09-11 밤 · 🔴 «배포가 멈췄다»는 클로드의 오판 — 앞 커밋이 Production 을 차지했던 것
+
+**대표님 캡처(Vercel → Deployments)** — 배포는 **전부 Ready** 였다. 🔴 Production 표시가 **`98fd96d`(메일 부품)** 에 붙어 있었고,
+그 뒤에 올린 **`59ea5f9`(메일 시험 창구)** 는 Ready 인데 Production 이 아니었다.
+
+### 무슨 일이었나
+
+```
+e862c3a  sql      ─┐ 몇 초 간격으로 세 개를 올렸다
+98fd96d  lib       │ → 배포 세 개가 «동시에» 돌았고
+59ea5f9  mail-test ┘ → 98fd96d 가 가장 늦게 끝나 Production 을 가져갔다
+결과: 98fd96d 의 파일 묶음에는 mail-test.js 가 «아직 없다» → /api/ops/mail-test 404
+```
+
+🔴 **클로드의 잘못** — 404 를 «새 배포가 안 올라온다»로 읽고 원인 후보로 «하루 배포 한도 · 빌드 실패»를 들며 대표님께 Vercel 화면을 부탁드렸다.
+Vercel 연결 계정에서 샵 프로젝트가 안 보여 확인을 못 했지만, **«배포가 멈췄다»는 확인되지 않은 추측**이었다.
+
+### 영향
+
+- 🟢 **손님 화면 · 가격 수집 일꾼(`47a09e0` 호텔별 저장)** 은 98fd96d 묶음 «안»에 있어 **정상 배포돼 있었다** — 내일 09시 수집부터 담긴다
+- 빠졌던 것은 `api/ops/mail-test.js` 하나(메일 보류라 영향 없음)
+
+### 고친 것
+
+| 곳 | 무엇 |
+|---|---|
+| `api/ops/version.js` (신설 · 커밋 `b890bef`) | 지금 Production 의 커밋 번호 7자리·메시지를 돌려준다(비밀 없음) |
+| 확인 | 올린 뒤 20초 만에 `commit: b890bef` · `/api/ops/mail-test` 401(있음) · 첫 화면 200 |
+| SHOP_TECH §4 | 함정 표에 한 줄 — «Ready 만 보고 끝내지 않는다 · version 의 commit 이 내 마지막 커밋인지 본다» |
+
+**되돌리기** — `api/ops/version.js` 삭제. 🔴 되돌릴 수 없는 것: 없다.

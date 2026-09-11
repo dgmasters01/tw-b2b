@@ -44,7 +44,13 @@ const FIELD_MASK = 'places.id,places.displayName,places.formattedAddress,places.
 export const API_NAME = 'google_places_text_search';
 export const MONTHLY_CAP = 4500;   // 구글 무료 5,000 대비 여유 500
 export const MAX_BATCH = 50;       // 구글 호출 ~0.3초 × 50 = 15초 (Vercel 30초 제한 안)
-export const CRON_BATCH = 45;      // 크론 1회 기본 — 45×3회=135/일, 15건은 가입검색 몫
+/* 🔴 2026-09-11 — 45 → 7 로 줄였다 (대표님 지시 「1·2 해」).
+   왜 — 크론은 «하루 4회» 도는데 주석은 「45×3회=135/일」을 가정했다. 실제로는 하루 180번을 시도했고
+        구글 콘솔 한도는 «하루 30번» 이라 약 150번이 그냥 거절당했다(2026-09-11 실측:
+        9월 호출 810번인데 좌표가 채워진 곳은 27곳).
+   🔴 7 × 하루 4회 = 28번 — 콘솔 한도 30 안이고, 2번은 「새 도시 영문 이름 묻기」 몫으로 남긴다.
+   🔴 이 숫자를 바꾸면 «같은 커밋에서» staycurate docs/BUSINESS-MAP.md §5-B-12 표를 고친다. */
+export const CRON_BATCH = 7;
 const MAX_DIST_KM = 30;            // 도시 중심 초과 = 동명 호텔 오매칭 의심
 
 // 도시 중심 좌표 (좌표 검증용)

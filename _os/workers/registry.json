@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-09-07",
+  "updated": "2026-09-11",
   "services": [
     {
       "key": "blog",
@@ -1389,27 +1389,46 @@
       "note": "🔴 아고다는 호텔당 사진을 «한 장»만 준다 — 여러 장은 이 길뿐이다. 🔴 주소 정본은 창고 A blog_hotel_photo_url, 샵 사본은 shop_photo_pool. 🔴 2026-09-10 현재 36곳 × 10장 = 356장 담김. 🔴 저장·변환 규격은 여기 한 곳 — 관리자 창구(act=photo_pick)가 이것을 부른다"
     },
     {
+      "id": "shop.route-week",
       "service": "shop",
-      "path": "/api/cron/route-week",
-      "schedule": "16 21 * * 1",
-      "kst": "월요일 06:16",
-      "what": "항공 편수·여객수를 주 1회 사진 찍듯 모은다 (공공데이터 3종)",
-      "writes": [
-        "shop_route_week",
-        "shop_route_pax"
-      ],
-      "since": "2026-09-11"
+      "group": "시계",
+      "name_ko": "항공 편수 모으기 일꾼",
+      "where": "Vercel(여행능력자들) /api/cron/route-week",
+      "when": "매주 월요일 한국 06:16",
+      "does": "인천·전국 공항 국제선 시간표와 인천 여객 실적을 받아 «그 주 사진»을 한 장씩 쌓는다 (도시별 비행기 수)",
+      "makes": "shop_route_week · shop_route_pax",
+      "check_where": "관리자 → 분석 → 도시 수요 (맨 위 «인천 편수 ○○ 주»)",
+      "status": "돎",
+      "last_seen": "09-11",
+      "note": "🔴 시간표 한 줄은 «편명×기간»이다 — 인천은 codeshare=Master 만·날짜별 기간, 전국은 같은 시각 한 대·작년 같은 주(2025 판). 2026-09-11 에 이걸 안 지켜 3~30배였다가 교정. 검산은 ?dry=1 (창고에 안 씀). 공공데이터포털 무료 · 열쇠 DATA_GO_KR_KEY 는 그대로(다시 인코딩하면 401). 정본 BUSINESS-MAP §5-E"
     },
     {
+      "id": "shop.demand",
       "service": "shop",
-      "path": "/api/cron/demand",
-      "schedule": "26 21 * * 1",
-      "kst": "월요일 06:26",
-      "what": "도시별 점수·판정 (편수는 가중치가 아니라 문턱)",
-      "writes": [
-        "shop_city_demand"
-      ],
-      "since": "2026-09-11"
+      "group": "시계",
+      "name_ko": "도시 수요 판정 일꾼",
+      "where": "Vercel(여행능력자들) /api/cron/demand",
+      "when": "매주 월요일 한국 06:26",
+      "does": "쌓인 편수 사진으로 도시마다 «지금 밀 곳 · 채워야 할 곳 · 지금 밀 곳 아님 · 편수 미달»을 정한다",
+      "makes": "shop_city_demand",
+      "check_where": "관리자 → 분석 → 도시 수요",
+      "status": "돎",
+      "last_seen": "09-11",
+      "note": "🔴 주간 7편 미만은 다른 신호와 상관없이 제외(대표님 원칙 «편수 없으면 사람이 못 간다»). 지난주도 같은 겹침 규칙으로 센다. 같은 주를 다시 돌리면 그 주 줄을 지우고 넣는다"
+    },
+    {
+      "id": "shop.city-add",
+      "service": "shop",
+      "group": "단추",
+      "name_ko": "도시 추가 일꾼",
+      "where": "창고 함수 shop_city_watch_apply (관리자 단추가 부름)",
+      "when": "대표님이 「도시 추가」를 누를 때",
+      "does": "그 도시의 신상 후보(이미 창고에 있음)에 영문 이름표를 붙여 값 수집·사진·손님 화면에 들어가게 한다",
+      "makes": "shop_new_pool.city_slug · shop_city_alias · shop_city_watch",
+      "check_where": "관리자 → 분석 → 도시 수요 → 「도시 추가 목록」",
+      "status": "돎",
+      "last_seen": "09-11",
+      "note": "🔴 새로 받아오지 않는다(아고다 호출 0). 붙인 뒤는 값 수집(10분)·사진(04:50·하루 60곳) 일꾼이 한다. 🔴 값 부르는 호텔 전체가 city_add_cap(5,000) 을 넘으면 넣지 않고 «자리 기다림». 상한은 collect 기록의 ms 로 실측해 바꾼다. 미리보기 p_dry=true. 되돌리기 SHOP_ROLLBACK §58"
     }
   ]
 }

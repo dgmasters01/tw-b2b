@@ -2864,3 +2864,19 @@ SQL 사본: 샵 레포 `sql/2026-09-11-shop-function-grants.sql` · `sql/2026-09
 **시험(가짜 자료 클릭)**: 목록 렌더 · 자리 전환 · 문구 입력 · «가운데 줄이 20자입니다» 경고 · 이벤트 목적지 연결 · 저장 payload 확인 · **화면 오류 0**.
 🔴 SQL 중 `create index shop_banner_slot` 이름이 뒤에 만들 표와 충돌 → 인덱스를 `idx_shop_banner_slot` 으로 바꿔 해결(사본 `sql/2026-09-12-banner-standalone.sql`).
 **다음**: 손님 화면이 `slot` 으로 배너를 받도록 `api/main.js` 수정 · 이벤트 유형 4무리 확장 · 블록 4종 추가.
+
+## 84. 2026-09-12 · 배너 «시안 고르기» 방식으로 재작성 (대표님: «지금 너무 어려워»)
+
+칸 채우기 → **시안 고르기**로. 1 시안 · 2 글자 · 3 사진 · 4 색 · 5 어디에·언제.
+
+| 무엇 | 내용 |
+|---|---|
+| 창고 | `shop_banner.style·bg` · `shop_banner_style`(모양 6종) · `shop_banner_bg`(색 6종) — 🔴 **둘 다 자료 주도**(시안 추가 시 코드 수정 없음) · RLS |
+| 창구 | `tab=banners` 가 styles·bgs·photos(소개 호텔 사진 24장) 도 함께 내려보냄 · `banner_save2` 가 style·bg 화이트리스트 검증 |
+| 화면 | `bnCard(v,w)` **한 함수**로 목록 썸네일·시안 갤러리·미리보기를 전부 그린다 · 6종 레이아웃 분기 |
+| 모양 6종 | photo_left · photo_center · photo_bottom · color_circle · color_split · color_only(사진 없이) |
+| 색 6종 | 먹빛 · 가을 주황 · 바다 청록 · 깊은 남색 · 크림 · 딸기 (글자색 fg 도 함께 저장) |
+| 사진 | 🔴 **주소를 적지 않는다** — 호텔 사진 썸네일을 클릭 |
+
+**시험(가짜 자료 클릭)**: 갤러리 6장 렌더 · `color_circle` 전환 · 글자 4칸 · 사진 클릭 · `autumn` 색 전환 · 자리/목적지 · 저장 payload(style·bg 포함) 확인 · **화면 오류 0**.
+**다음**: 손님 화면이 slot 으로 배너를 받게(`api/main.js`) · 배너 이미지 굽기(공유용) · 이벤트도 같은 «시안 고르기» 방식으로.

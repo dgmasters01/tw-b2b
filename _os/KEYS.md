@@ -12,6 +12,18 @@
 > 🔴🔴 **2026-09-11 사고** — 이 공개 레포의 `_business/shop/SEARCH_REBUILD.md` 에 x-ops-token «값»이 이틀 동안 적혀 있었다(클로드가 붙여넣기 예시로 적음).
 > 값은 지웠지만 git 이력에 남으므로 **열쇠를 교체한다**(SHOP_ROLLBACK §68). 🔴 **이 레포의 어떤 문서에도 열쇠 값을 적지 않는다 — 예시에도.**
 
+## 0-A. 🔴 shop 은 «전용 창구·전용 열쇠»다 (2026-09-12 · SHOP_ROLLBACK §71·§72)
+
+| 무엇 | 주소 | 열쇠(머리말) |
+|---|---|---|
+| shop 창고(C) SQL | `POST https://travelwinners-shop.vercel.app/api/ops/sql` · `{"query":…}` | `x-shop-ops-token` (Vercel `SHOP_OPS_TOKEN`) |
+| shop 레포 읽기/쓰기 | `GET/POST https://travelwinners-shop.vercel.app/api/ops/repo` | 〃 |
+
+- GitHub 열쇠는 shop 서버 안의 `SHOP_GITHUB_PAT` — **travelwinners-shop 레포만** 권한(fine-grained · 2027-09-11 만료)
+- 일꾼 창구는 `CRON_SECRET` — Vercel 크론만 부를 수 있다
+- 🔴 **아래 «열쇠는 하나»는 스튜디오·블로그·개인 이야기다. shop 에는 적용되지 않는다.**
+- 🔴 모든 호출(거절 포함)이 `shop_ops_log` 에 남는다
+
 ## 0. 한 줄 요약 — 열쇠는 «하나»다
 
 **분리된 것은 «문·레포·창고»이지 열쇠가 아니다.**

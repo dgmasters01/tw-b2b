@@ -2222,6 +2222,205 @@ C(지급 정산)는 처음 몇 번은 손으로 해도 됩니다 — 건수가 �
 <p class="s13 mut">🔴 그림 10 → 그림 11 로 가는 공사가 <b>13장의 «집 옮기기»(2.5일)</b>와 <b>HUB 만들기(2~3일)</b>입니다.
 순서는 그림 6(길 C)대로 — <b>이벤트 → 한국 디테일 → 집 옮기기 → 정상 작동 확인 → 오픈 → HUB → 두 번째 나라</b>.</p>
 
+<h2 id="evplan">16. 🎨 이벤트 «기획»까지 시스템이 — 목록이 아니라 한 편의 기획</h2>
+<div class="s12 mut" style="margin-bottom:10px">대표님(2026-09-12): <i>«이벤트라는 건 기획·구상을 해서 화면 디자인을 구상하는 건데 지금은 그냥 목록이다.
+안내만 주면 알아서 기획하고 고민해서 하나의 이미지로 정리해 만들어야 한다.»</i><br>
+🔴 맞는 지적입니다. 14장까지는 <b>«담는 그릇»</b>만 만들었습니다. <b>«무엇을 담을지 생각하는 일»</b>이 빠져 있었습니다.</p>
+
+<h3>16-1. 무엇이 빠졌었나</h3>
+<table>
+<tr><th style="width:40px"></th><th style="width:170px">이벤트에 필요한 것</th><th>14장까지</th><th style="width:180px">16장에서 더할 것</th></tr>
+<tr><td>1</td><td><b>왜 하는가 (기획 의도)</b></td><td class="bad">없음 — 호텔만 고름</td><td class="good">한 줄 지시 → <b>기획안 3개</b>를 만들어 드림</td></tr>
+<tr><td>2</td><td><b>이야기 (왜 이 호텔인가)</b></td><td class="bad">대표님이 직접 쓰셔야</td><td class="good">우리 자료로 <b>근거와 초안</b>을 씀(편수·값·후기)</td></tr>
+<tr><td>3</td><td><b>제목·문구 (카피)</b></td><td class="bad">빈칸</td><td class="good">제목·부제·섹션 문구 <b>초안 자동</b> · 고르고 고치기</td></tr>
+<tr><td>4</td><td><b>디자인 톤</b></td><td class="bad">한 가지 회색 틀</td><td class="good"><b>테마</b>(색·글자 크기·여백) — 추석/여름/프리미엄/발랄</td></tr>
+<tr><td>5</td><td><b>구성 (흐름)</b></td><td class="bad">블록 나열</td><td class="good">🔴 <b>«기승전결»</b> — 끌기 → 믿게 하기 → 고르게 하기 → 움직이기</td></tr>
+<tr><td>6</td><td><b>한 장의 이미지</b></td><td class="bad">배너만</td><td class="good">페이지 전체를 <b>세로 한 장 이미지</b>로도 — 카톡·인스타에 그대로</td></tr>
+</table>
+
+<h3>16-2. 🔴 이렇게 나옵니다 — 같은 이벤트, «목록» vs «기획»</h3>
+<p class="s13 mut">아래는 «추석에 부모님 모시고 갈 오사카 호텔 지원 이벤트» 한 줄을 주면 만들어지는 화면입니다.
+<b>호텔·값·항공 편수는 전부 우리 창고의 진짜 자료</b>입니다. 색·문구·구성은 시스템이 짠 것입니다.</p>
+<div class="fig" style="background:#f5f4f0">
+<style>
+.evd{display:flex;justify-content:center;font-family:inherit}
+
+.evd{--ink:#2b1d14;--pt:#B4532A;--pt2:#8C3C1B;--cream:#FBF6EF;--line:#E8DDD0}
+*{box-sizing:border-box}
+
+.evd .w{max-width:390px;margin:0 auto;background:var(--cream)}
+.evd .nav{display:flex;align-items:center;padding:12px 16px;background:#fff;border-bottom:1px solid var(--line)}
+.evd .nav b{font-size:15px}
+/* 대문 */
+.evd .hero{position:relative;background:var(--pt2);overflow:hidden}
+.evd .hero img{width:100%;height:330px;object-fit:cover;display:block;opacity:.55}
+.evd .hero .in{position:absolute;inset:0;padding:26px 22px;display:flex;flex-direction:column;justify-content:space-between}
+.evd .kicker{display:inline-block;border:1px solid rgba(255,255,255,.6);color:#fff;font-size:11px;letter-spacing:2px;padding:5px 11px;border-radius:999px;align-self:flex-start}
+.evd .htit{color:#fff;font-size:30px;font-weight:700;line-height:1.28;letter-spacing:-.6px}
+.evd .hsub{color:rgba(255,255,255,.92);font-size:13.5px;line-height:1.7;margin-top:10px}
+.evd .hmeta{display:flex;gap:8px;margin-top:14px}
+.evd .hm{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.3);color:#fff;font-size:11.5px;border-radius:8px;padding:5px 9px}
+/* 숫자 강조 */
+.evd .num{background:#fff;padding:26px 22px;text-align:center;border-bottom:1px solid var(--line)}
+.evd .num .big{font-size:44px;font-weight:800;color:var(--pt);letter-spacing:-1.5px;line-height:1}
+.evd .num .unit{font-size:18px;font-weight:700;color:var(--pt)}
+.evd .num .cap{font-size:13px;color:#7a6a5c;margin-top:8px;line-height:1.7}
+/* 섹션 */
+.evd .sec{padding:28px 22px;background:#fff;border-bottom:1px solid var(--line)}
+.evd .sec.cream{background:var(--cream)}
+.evd .eyebrow{font-size:11px;letter-spacing:2px;color:var(--pt);font-weight:700}
+.evd .stit{font-size:20px;font-weight:700;margin:7px 0 6px;letter-spacing:-.4px;line-height:1.35}
+.evd .sdesc{font-size:13.5px;color:#6b5c50;line-height:1.85}
+/* 이유 3칸 */
+.evd .why{display:flex;gap:10px;margin-top:16px}
+.evd .wy{flex:1;background:var(--cream);border:1px solid var(--line);border-radius:12px;padding:13px 11px;text-align:center}
+.evd .wy .i{font-size:19px}
+.evd .wy .t{font-size:12.5px;font-weight:700;margin-top:6px}
+.evd .wy .d{font-size:11px;color:#8a7a6c;margin-top:3px;line-height:1.5}
+/* 호텔 카드 */
+.evd .hc{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-top:12px}
+.evd .hcimg{position:relative} .hcimg img{width:100%;height:160px;object-fit:cover;display:block}
+.evd .rk{position:absolute;top:10px;left:10px;width:26px;height:26px;border-radius:50%;background:var(--pt);color:#fff;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.evd .hcb{padding:13px 14px}
+.evd .hcn{font-size:15px;font-weight:700;line-height:1.35}
+.evd .hcl{font-size:11.5px;color:#8a7a6c;margin-top:3px}
+.evd .hcp{margin-top:9px;display:flex;align-items:baseline;gap:4px}
+.evd .hcp b{font-size:21px;font-weight:800;color:var(--pt)} .w{font-size:11.5px;color:#8a7a6c}
+.evd .hcd{font-size:11.5px;color:#3B6D11;margin-top:2px}
+/* 진행 */
+.evd .flow{display:flex;gap:8px;margin-top:14px}
+.evd .fl{flex:1;text-align:center}
+.evd .fl .c{width:34px;height:34px;border-radius:50%;background:var(--pt);color:#fff;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;margin:0 auto}
+.evd .fl .t{font-size:12px;font-weight:600;margin-top:7px}
+.evd .fl .d{font-size:10.5px;color:#8a7a6c;margin-top:2px;line-height:1.45}
+/* 인용 */
+.evd .quote{background:var(--pt2);color:#fff;padding:26px 22px}
+.evd .quote .q{font-size:17px;font-weight:600;line-height:1.6;letter-spacing:-.3px}
+.evd .quote .by{font-size:12px;opacity:.8;margin-top:10px}
+/* CTA */
+.evd .cta{background:#fff;padding:18px 22px 24px;border-top:1px solid var(--line)}
+.evd .cta .b{width:100%;padding:16px;border-radius:14px;background:var(--pt);color:#fff;font-size:16px;font-weight:700;text-align:center}
+.evd .cta .u{font-size:11.5px;color:#8a7a6c;text-align:center;margin-top:9px}
+.evd .note{padding:20px 22px 30px;background:var(--cream)}
+.evd .note .t{font-size:12px;font-weight:700;color:#8a7a6c;margin-bottom:6px}
+.evd .note div{font-size:11.5px;color:#8a7a6c;line-height:1.9}
+
+</style>
+<div class="evd"><div class="w">
+<div class="nav"><span style="font-size:18px;margin-right:9px">‹</span><b>이벤트</b></div>
+
+<div class="hero">
+  <img src="https://jyjcdxdezjfcikqndxeo.supabase.co/storage/v1/object/public/hotel-photos/33022615/big.webp">
+  <div class="in">
+    <span class="kicker">추석 특별 기획</span>
+    <div>
+      <div class="htit">올 추석엔<br>부모님과 오사카</div>
+      <div class="hsub">걷기 편한 곳, 조용한 곳만 골랐습니다.<br>네 곳 중 한 곳, 2박 숙박비를 저희가 냅니다.</div>
+      <div class="hmeta"><span class="hm">9.1 ~ 9.24</span><span class="hm">3분 추첨</span><span class="hm">D-12</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="num">
+  <div><span class="big">10</span><span class="unit">만원</span></div>
+  <div class="cap">2박 숙박비를 지원합니다<br>세 분을 추첨해 드립니다</div>
+</div>
+
+<div class="sec">
+  <div class="eyebrow">WHY OSAKA</div>
+  <div class="stit">왜 추석에 오사카일까요</div>
+  <div class="sdesc">인천에서 오사카로 가는 비행기는 <b>일주일에 390편</b>입니다. 자리가 많다는 뜻이고, 값이 덜 오릅니다.
+  게다가 도심이 평지라 <b>부모님과 걷기에 편합니다.</b></div>
+  <div class="why">
+    <div class="wy"><div class="i">✈</div><div class="t">주 390편</div><div class="d">자리가 넉넉합니다</div></div>
+    <div class="wy"><div class="i">◷</div><div class="t">2시간</div><div class="d">짧은 비행</div></div>
+    <div class="wy"><div class="i">◎</div><div class="t">평지 도심</div><div class="d">걷기 편합니다</div></div>
+  </div>
+</div>
+
+<div class="sec cream">
+  <div class="eyebrow">4 HOTELS</div>
+  <div class="stit">부모님과 묵기 좋은 네 곳</div>
+  <div class="sdesc">지하철역에서 5분 안, 방이 넓고 조용한 곳만 골랐습니다. 값이 싼 순서입니다.</div>
+  
+    <div class="hc">
+      <div class="hcimg"><img src="https://jyjcdxdezjfcikqndxeo.supabase.co/storage/v1/object/public/hotel-photos/33022615/big.webp"><span class="rk">1</span></div>
+      <div class="hcb">
+        <div class="hcn">애스리드 호텔 난바 다이코쿠초</div>
+        <div class="hcl">4성급 · 나니와구</div>
+        <div class="hcp"><span class="w">1박</span><b>53,214</b><span class="w">원부터</span></div>
+        <div class="hcd">9월 17일 가장 쌉니다</div>
+      </div>
+    </div>
+    <div class="hc">
+      <div class="hcimg"><img src="https://jyjcdxdezjfcikqndxeo.supabase.co/storage/v1/object/public/hotel-photos/6749878/big.webp"><span class="rk">2</span></div>
+      <div class="hcb">
+        <div class="hcn">카락사 호텔 그란데 신오사카 타워</div>
+        <div class="hcl">4성급 · 오사카 시내</div>
+        <div class="hcp"><span class="w">1박</span><b>57,811</b><span class="w">원부터</span></div>
+        <div class="hcd">9월 13일 가장 쌉니다</div>
+      </div>
+    </div>
+    <div class="hc">
+      <div class="hcimg"><img src="https://jyjcdxdezjfcikqndxeo.supabase.co/storage/v1/object/public/hotel-photos/6214292/big.webp"><span class="rk">3</span></div>
+      <div class="hcb">
+        <div class="hcn">호텔 소비알 난바 다이고쿠초</div>
+        <div class="hcl">4성급 · 나니와구</div>
+        <div class="hcp"><span class="w">1박</span><b>61,705</b><span class="w">원부터</span></div>
+        <div class="hcd">9월 27일 가장 쌉니다</div>
+      </div>
+    </div>
+    <div class="hc">
+      <div class="hcimg"><img src="https://jyjcdxdezjfcikqndxeo.supabase.co/storage/v1/object/public/hotel-photos/4656519/big.webp"><span class="rk">4</span></div>
+      <div class="hcb">
+        <div class="hcn">오사카 뷰 호텔 혼마치</div>
+        <div class="hcl">4성급 · 주오구</div>
+        <div class="hcp"><span class="w">1박</span><b>62,680</b><span class="w">원부터</span></div>
+        <div class="hcd">9월 27일 가장 쌉니다</div>
+      </div>
+    </div>
+</div>
+
+<div class="quote">
+  <div class="q">“작년 추석에 어머니를 모시고 다녀왔습니다.<br>그때 가장 아쉬웠던 게 숙소였습니다.”</div>
+  <div class="by">여행능력자들 · 일호기</div>
+</div>
+
+<div class="sec">
+  <div class="eyebrow">HOW TO JOIN</div>
+  <div class="stit">참여는 30초면 됩니다</div>
+  <div class="flow">
+    <div class="fl"><div class="c">1</div><div class="t">호텔 찜</div><div class="d">마음에 드는 곳</div></div>
+    <div class="fl"><div class="c">2</div><div class="t">응모</div><div class="d">아래 단추</div></div>
+    <div class="fl"><div class="c">3</div><div class="t">발표</div><div class="d">9월 25일</div></div>
+  </div>
+</div>
+
+<div class="cta">
+  <div class="b">응모하기</div>
+  <div class="u">지금까지 128명 응모 · 9월 24일 밤 12시 마감</div>
+</div>
+
+<div class="note">
+  <div class="t">꼭 확인해 주세요</div>
+  <div>· 1인 1회만 응모할 수 있습니다<br>· 숙박은 2026년 12월 31일까지 다녀오셔야 합니다<br>· 항공권·식비는 지원되지 않습니다<br>· 값은 9월 12일 기준이며 날짜에 따라 달라집니다</div>
+</div>
+</div></div>
+<div class="cap">그림 16 — 「기획된」 이벤트 페이지. 14장의 목록형과 비교해 보십시오</div>
+</div>
+
+<h3>16-3. 위 화면에서 «시스템이 생각한 것»</h3>
+<table>
+<tr><th style="width:170px">화면의 부분</th><th>어디서 나왔나</th></tr>
+<tr><td><b>«올 추석엔 부모님과 오사카»</b></td><td>대표님 한 줄 지시 → 제목 초안 3개 중 하나</td></tr>
+<tr><td><b>«10만원» 큰 숫자</b></td><td>지원 금액을 <b>가장 먼저 눈에 띄게</b> — 이벤트의 핵심은 «얼마»다</td></tr>
+<tr><td>🔴 <b>«주 390편 · 2시간 · 평지 도심»</b></td><td><b>우리 도시 수요 자료</b>(항공 편수)에서 자동 · 🔴 <b>큰 곳은 이런 근거를 못 씁니다</b></td></tr>
+<tr><td><b>«값이 싼 순서» 네 곳</b></td><td>조건 자동 채우기(§14-13) + 매일 재는 값 · «9월 17일 가장 쌉니다»</td></tr>
+<tr><td><b>대표님 인용 한 줄</b></td><td>🔴 <b>사람 냄새</b> — 큰 곳이 절대 못 쓰는 문장. 초안을 드리고 고치시면 됩니다</td></tr>
+<tr><td><b>주황·크림 색조</b></td><td>«추석» 테마 — 계절·분위기에 맞는 색을 고릅니다</td></tr>
+<tr><td><b>흐름</b></td><td>끌기(대문) → 금액 → <b>믿게 하기(근거)</b> → 고르게 하기(호텔) → 마음 흔들기(인용) → 움직이기(참여)</td></tr>
+</table>
+
 <div class="s11 mut3" style="margin-top:22px">여행능력자들 SHOP 리뉴얼 문서 · 2026-09-12 갱신 · 이 문서가 리뉴얼의 정본입니다</div>
 </div>
 </body>

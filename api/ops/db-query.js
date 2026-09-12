@@ -83,6 +83,15 @@ export default async function handler(req, res) {
   const body = req.body || {};
   const query = body.query;
   const projectRef = body.project_ref || DEFAULT_PROJECT_REF;
+  // 🔴 2026-09-12 — shop 창고(C)는 이 창구로 열지 않는다.
+  //    shop 은 자기 서버 안의 전용 창구(travelwinners-shop.vercel.app/api/ops/sql · x-shop-ops-token)로만 만진다.
+  //    이 공용 열쇠가 새더라도 shop 창고는 안전해야 한다(SHOP_ROLLBACK §68·§70·§71).
+  if (projectRef === 'jyjcdxdezjfcikqndxeo') {
+    return res.status(400).json({
+      error: 'shop warehouse is not available here',
+      use: 'POST https://travelwinners-shop.vercel.app/api/ops/sql  (header x-shop-ops-token)'
+    });
+  }
 
   if (!query || typeof query !== 'string') {
     return res.status(400).json({ error: 'query is required (string)' });

@@ -24,6 +24,9 @@
 //
 // 한도 가드: 시간당 120회 (읽기는 부작용이 없어 commit 30회보다 넉넉)
 
+import { opsLog } from './_opslog.js';   // 🔴 2026-09-12 사용 기록
+const OPS_REF = 'vjsludfjsphwnumuoqaj';
+
 const REPO_OWNER = 'dgmasters01';
 const REPO_NAME = 'tw-b2b';                       // 기본 레포(하위호환)
 // 🔴 2026-09-12 — travelwinners-shop 을 뺐다.
@@ -63,6 +66,7 @@ export default async function handler(req, res) {
   }
   const providedToken = req.headers['x-ops-token'] || '';
   if (providedToken !== expectedToken) {
+    await opsLog({ ref: OPS_REF, door: 'studio', kind: 'denied', target: 'repo-read', ok: false, req, note: '열쇠 틀림' });
     return res.status(401).json({ error: 'Invalid or missing x-ops-token' });
   }
 

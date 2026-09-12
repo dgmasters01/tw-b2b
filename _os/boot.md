@@ -208,26 +208,41 @@
 - **아고다 API**: 키는 **tw-b2b** 환경변수 `AGODA_API_KEY_STAYCURATE`·`AGODA_SITE_ID_STAYCURATE` (블로그 레포엔 민감키 0개)
 - **테스트 엔드포인트**: `POST gohotelwinners.com/api/ops/agoda-test` (x-ops-token) · 도시코드 오사카=9590, 제주=16901
 
-### 🔑 창구 열쇠 (x-ops-token) — 클로드가 «모른다»고 하면 안 되는 것
+### 🔑 창구 열쇠 — 🔴 **사업마다 «다른 값»이다** (2026-09-12 전면 교체)
 
 🔴 **이 저장소는 Public 이다. 열쇠 값을 문서에 절대 적지 않는다.**
-그래서 클로드는 새 창마다 스스로 찾아야 한다 — 대표님께 매번 여쭙지 않는다.
+🔴 **«열쇠는 하나»는 폐기됐다.** 2026-09-09~11 에 한 값이 이 공개 레포에 새면서 사업 네 개가 전부 열렸다
+(전말 `_business/shop/SHOP_ROLLBACK.md §68·§70·§74` · 대표님용 정리 `gohotelwinners.com/shop-docs.html#sec`).
 
-```
-① 대표님이 주신 부팅 명령문 안에 있으면 그걸 쓴다
-② 없으면 conversation_search("창구 열쇠 x-ops-token github-commit") 로 최근 대화에서 찾는다
-   → 과거 대화 요약에 값이 남아 있다 (2026-08-29 이후 창들)
-③ 그래도 없으면 그때만 대표님께 한 줄로 요청한다
-```
+| 지금 작업 | 창구 | 머리말 | 그 문이 여는 것 |
+|---|---|---|---|
+| **스튜디오** | `https://gohotelwinners.com/api/ops/…` | `x-ops-token` | tw-b2b 레포 · 창고 A 만 |
+| **블로그** | `https://www.staycurate.com/api/ops/…` | `x-ops-token` | staycurate 레포 · 창고 A 만 |
+| **개인 업무** | `https://tw-personal-os.vercel.app/api/ops/…` | `x-ops-token` | tw-personal-os 레포 · 창고 B 만 |
+| **여행능력자들 SHOP** | `https://travelwinners-shop.vercel.app/api/ops/…` | 🔴 `x-shop-ops-token` | travelwinners-shop 레포 · 창고 C 만 |
 
-⚠️ **옛 값이 대화에 함께 남아 있다.** 401 이 나오면 «열쇠가 없다» 가 아니라 «옛 값을 집었다» 이다.
-가장 **최근** 대화의 값을 쓰고, 한 번 확인한 뒤 작업을 시작한다:
+🔴 **네 값이 전부 다르다.** 남의 창구·남의 값을 섞어 쓰면 `401` 또는 `400 repo_not_allowed` 가 난다 — 정상 동작이다.
+🔴 **`repo`·`project_ref` 를 적지 않는다.** 각 창구는 자기 레포·자기 창고 하나로 코드에 고정돼 있다.
+🔴 **다른 사업 창구로 우회하지 않는다.** 블로그의 «빌려 쓰기(borrowed)» 길도 2026-09-12 에 막혔다.
+
+**열쇠를 찾는 순서**
+```
+① 대표님이 주신 부팅 명령문 안에 있으면 그걸 쓴다 (지금 작업하는 사업의 것인지 확인)
+② 없으면 conversation_search 로 최근 대화에서 찾는다
+   스튜디오·블로그·개인 → "창구 열쇠 x-ops-token"   /   shop → "SHOP_OPS_TOKEN x-shop-ops-token"
+③ 그래도 없으면 그때만 대표님께 «어느 사업 열쇠가 필요한지» 밝혀 한 줄로 요청한다
+```
+⚠️ **옛 값이 대화에 함께 남아 있다.** 401 이 나오면 «열쇠가 없다»가 아니라 «옛 값 또는 남의 사업 값»이다.
+🔴 **작업 시작 전 한 줄로 확인한다**(그 사업 창구로):
 ```
 curl -s -o /dev/null -w "%{http_code}" \
-  "https://gohotelwinners.com/api/ops/github-read?repo=tw-b2b&path=_os/boot.md" \
-  -H "x-ops-token: <값>"      # 200 이면 정상, 401 이면 다른(더 최근) 값
+  "https://gohotelwinners.com/api/ops/github-read?repo=tw-b2b&path=_os/boot.md" -H "x-ops-token: <값>"
+  # 블로그  https://www.staycurate.com/api/ops/github-read?path=docs/index.html      -H "x-ops-token: <값>"
+  # 개인    https://tw-personal-os.vercel.app/api/ops/github-read?path=README.md     -H "x-ops-token: <값>"
+  # SHOP    https://travelwinners-shop.vercel.app/api/ops/repo?path=package.json     -H "x-shop-ops-token: <값>"
+  # 200 이면 정상 · 401 이면 값이 틀림 · 400 이면 남의 창구에 물은 것
 ```
-스튜디오(gohotelwinners)와 블로그(staycurate) 는 **같은 값**을 쓴다.
+🔴 모든 호출(거절 포함)은 창고 기록표(`ops_log` · shop 은 `shop_ops_log`)에 남는다.
 
 🔴 **«열쇠가 없어서 문서로 대신 드립니다» 는 금지다.** (2026-09-02 대표님 지시)
 대표님이 만들어 두신 열쇠를 클로드가 못 찾은 것이지, 없는 것이 아니다.

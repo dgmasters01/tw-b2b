@@ -12,6 +12,21 @@
 > 🔴🔴 **2026-09-11 사고** — 이 공개 레포의 `_business/shop/SEARCH_REBUILD.md` 에 x-ops-token «값»이 이틀 동안 적혀 있었다(클로드가 붙여넣기 예시로 적음).
 > 값은 지웠지만 git 이력에 남으므로 **열쇠를 교체한다**(SHOP_ROLLBACK §68). 🔴 **이 레포의 어떤 문서에도 열쇠 값을 적지 않는다 — 예시에도.**
 
+## 0. 🔴 열쇠는 «사업마다 다르다» (2026-09-12 전면 교체 · SHOP_ROLLBACK §74)
+
+> 🔴 **아래 옛 문구 «열쇠는 하나»는 폐기됐다.** 2026-09-11 공개 레포 노출 사고로 «하나면 하나가 새면 전부 열린다»가 증명됐다.
+
+| 사업 | 문(창구) | 열쇠 이름 | 그 문이 여는 범위 |
+|---|---|---|---|
+| 스튜디오 | `https://gohotelwinners.com/api/ops/…` | `CLAUDE_OPS_TOKEN` (Vercel tw-b2b · GitHub tw-b2b Actions) | **tw-b2b 레포 · 창고 A** 만 |
+| 블로그 | `https://www.staycurate.com/api/ops/…` | `OPS_TOKEN` (Vercel staycurate) | **staycurate 레포 · 창고 A** 만 |
+| 개인 | `https://tw-personal-os.vercel.app/api/ops/…` | `CLAUDE_OPS_TOKEN` (Vercel tw-personal-os) | **tw-personal-os 레포 · 창고 B** 만 |
+| 여행능력자들 SHOP | `https://travelwinners-shop.vercel.app/api/ops/…` | `x-shop-ops-token` = `SHOP_OPS_TOKEN` | **travelwinners-shop 레포 · 창고 C** 만 · GitHub 열쇠도 레포 전용(`SHOP_GITHUB_PAT`) |
+
+🔴 **네 값이 전부 다르다.** 하나가 새도 나머지 셋은 열리지 않는다 — 2026-09-12 서로 401 확인.
+🔴 **열쇠 «값»은 어떤 문서에도 적지 않는다.** 모르면 대표님께 여쭙거나 최근 대화에서 찾는다.
+🔴 새 사업을 만들면 **문·열쇠·레포·창고를 처음부터 따로** 만든다(D-111·D-112). 편의로 남의 문에 붙이지 않는다.
+
 ## 0-A. 🔴 shop 은 «전용 창구·전용 열쇠»다 (2026-09-12 · SHOP_ROLLBACK §71·§72)
 
 | 무엇 | 주소 | 열쇠(머리말) |

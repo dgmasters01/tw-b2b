@@ -3024,3 +3024,16 @@ Vercel 쪽 문제로 보인다. 대표님께 **Vercel → travelwinners-shop →
 > **97. 2026-09-12 · 배너 문구는 옛것 그대로** (대표님)
 > «한 달 중 제일 싼 가격에 예약하세요 / 매일 전 세계 호텔을 추천드립니다» 로 되돌림(line1·line2 및 옛 칸 title·subtitle 동시).
 > 모양은 C안 유지 — 바다 사진 + 청록 그늘 + 좌우 16 여백 + PC 최대 높이 180. 확인: 휴대폰 343×137 · PC 488×180 · 화면 오류 0.
+
+## 98. 2026-09-12 · 이벤트 만들기를 «고르기» 방식으로 (대표님 승인)
+
+| # | 무엇 | 내용 |
+|---|---|---|
+| 1 | 창고 | `shop_event_type.family·theme` · `shop_event.theme` · `shop_event_theme`(6색·RLS) |
+| 2 | 유형 **8종 · 네 무리** | hotel: support·flash·**city·curation** / product: **product** / join: **review·follow** / info: **notice** |
+| 3 | 블록 **4종 추가** | `prizes`(경품 등수) · `action`(해야 할 일+단추) · `survey`(짧은 질문) · `products`(상품 여러 개) |
+| 4 | 창구 | `tab=event_meta` 가 themes·photos 도 내려보냄 · `event_save2` 가 `theme·image_url` 저장 |
+| 5 | 화면 | 유형 **카드 갤러리**(`evMini()` — 유형별 축소 화면) · 5단계(유형·기본·내용·꾸미기·열기) · **오른쪽 고정 휴대폰 미리보기**(테마 색 반영) |
+
+**시험**: 네 무리 렌더 · `review` 선택 시 블록 6개 자동 · 경품 입력 · 테마 `sea` 전환이 미리보기에 즉시 반영 · 사진 클릭 · 저장 payload(theme·image_url·blocks) 확인 · **화면 오류 0**.
+**다음**: 손님 이벤트 세부 페이지(블록 렌더 · 테마 적용) → 응모·당첨 → 배너 자동 생성.

@@ -2732,7 +2732,12 @@ SQL 사본: 샵 레포 `sql/2026-09-11-shop-function-grants.sql` · `sql/2026-09
 
 대표님: *«보안 문제 지금 어디까지 정리했는지 문서에 디테일하게 · 개발·키 변경 내용 · 왜 이런 사태가 생겼는지 · 비용 · 카테고리별로 도표·이미지로»*
 
-**주소** `https://gohotelwinners.com/shop-security.html` (로그인 불필요 · noindex) · `shop-docs.html` 0장과 정본 목록에서 링크.
+🔴 **2026-09-12 정정 — 대표님: «계속 따로 만들면 안 된다».**
+→ 내용을 **`shop-docs.html` §12 «보안 정리»** 로 **통합**했다(그림 2장·표 19개 그대로 · CSS 추가 · §12↔§13 번호 교체).
+`shop-security.html` 은 **안내 한 줄 + 자동 이동**만 남겼다(창구에 삭제 기능이 없다).
+🔴 **규칙** — 대표님용 문서를 새로 만들지 않는다. `shop-docs.html` 안에 **장을 더한다**. (`_os/boot.md §4` 에도 적었다)
+
+**주소** `https://gohotelwinners.com/shop-docs.html#sec`
 
 | 장 | 내용 |
 |---|---|

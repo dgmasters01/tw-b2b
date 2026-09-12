@@ -10,7 +10,9 @@
 import { createClient } from '@supabase/supabase-js';
 
 const SHOP = process.env.SHOP_HOOK_URL || 'https://travelwinners-shop.vercel.app/api/hook/publish';
-const HOOK = process.env.SHOP_HOOK_TOKEN || 'tw-hook-20260905';
+// 🔴 2026-09-12 — 기본값을 없앴다. 이 레포는 «공개»라 코드에 적힌 값은 누구나 본다(SHOP_ROLLBACK §75).
+//    환경변수 SHOP_HOOK_TOKEN 이 없으면 보내지 않는다 — 가짜 발행이 들어가는 것보다 안 보내는 편이 낫다.
+const HOOK = process.env.SHOP_HOOK_TOKEN;
 const RECENT = 10;
 
 export const config = { maxDuration: 300 };
@@ -26,6 +28,7 @@ function allowed(req) {
 }
 
 export default async function handler(req, res) {
+  if (!HOOK) return res.status(500).json({ error: 'SHOP_HOOK_TOKEN 이 없어 샵으로 보내지 않는다 (Vercel 환경변수)' });
   if (!allowed(req)) return res.status(401).json({ error: '열쇠가 맞지 않습니다' });
   const url = process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;

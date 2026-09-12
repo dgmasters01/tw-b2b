@@ -28,7 +28,11 @@ const REPO_NAME = 'tw-b2b';                       // 기본 레포(하위호환)
 // 🔴 2026-09-12 — travelwinners-shop 을 뺐다.
 //    shop 은 자기 서버 안에 «전용 창구·전용 열쇠»가 있다(travelwinners-shop.vercel.app/api/ops/…).
 //    이 공용 열쇠가 새더라도 shop 은 열리지 않아야 한다(2026-09-11 공개 레포 노출 사고 · SHOP_ROLLBACK §68·§70·§71).
-const ALLOWED_REPOS = ['tw-b2b', 'staycurate', 'tw-personal-os'];
+// 🔴 2026-09-12 — staycurate · tw-personal-os 도 뺐다. 각자 «자기 문»이 있다(확인 완료):
+//    블로그 https://www.staycurate.com/api/ops/…  (OPS_TOKEN · staycurate 레포·창고 A 고정)
+//    개인   https://tw-personal-os.vercel.app/api/ops/…  (CLAUDE_OPS_TOKEN · tw-personal-os 고정)
+//    이 문은 이제 «스튜디오(tw-b2b) 전용»이다 — 한 열쇠가 새도 다른 사업은 열리지 않는다(SHOP_ROLLBACK §68·§74).
+const ALLOWED_REPOS = ['tw-b2b'];
 //   🔴 2026-08-29 tw-personal-os 추가 — 개인OS 는 창고(DB)도 코드도 별개라 클로드가 전혀 못 보고 있었다.
 //      대표님 허락(08-29). PAT 권한이 그 레포까지 열려 있어야 실제로 읽힌다 — 안 되면 404/403 이 뜬다.   // body.repo 로 지정 가능한 레포 화이트리스트
 const GITHUB_API = 'https://api.github.com';

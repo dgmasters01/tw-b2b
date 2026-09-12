@@ -2544,3 +2544,34 @@ SQL 사본: 샵 레포 `sql/2026-09-11-shop-function-grants.sql` · `sql/2026-09
 ⑤ 클로드: 공용 창구(tw-b2b)에서 travelwinners-shop 삭제 · db-query 창고 허용 목록에서 C 제외 → 공용 열쇠로 shop 이 «안 열리는» 것 확인
 🔴 ⑤를 ④ 전에 하면 KKday 매일 수집이 멈춘다
 ```
+
+## 73. 2026-09-12 새벽 · ✅ 분리 완료 — 공용 창구에서 shop 을 뺐다
+
+§71 순서 ③④⑤ 를 마쳤다.
+
+| 단계 | 한 일 |
+|---|---|
+| ③ 문서 | KKDAY_DAILY·SYNC·SYNC2 를 shop 전용 창구로(`project_ref` 줄 삭제) · `_os/boot.md` §4 · `_os/KEYS.md` §0-A 신설 · `SHOP_TECH §68` |
+| ④ 대표님 | Cowork «KKday 매일» 작업 문구 교체 → 🔴 **바로 새 창구로 돌아 확인됨**(`shop_ops_log` 에 KKday 의 select·insert·update · 오늘 100개 동기화 · 값 1,097줄) |
+| ⑤ 공용 창구 | `github-read.js`·`github-commit.js` 허용 목록에서 `travelwinners-shop` 삭제 · `db-query.js` 가 shop 창고(C) 요청을 거절하고 새 창구를 안내 |
+
+### 확인표 (2026-09-12 새벽)
+
+| 시험 | 결과 |
+|---|---|
+| 공용 열쇠로 shop **레포** | ✅ **400 repo not allowed** |
+| 공용 열쇠로 shop **창고** | ✅ **400 shop warehouse is not available here** + 새 창구 안내 |
+| 공용 열쇠로 스튜디오 레포·블로그 창고 | ✅ 200 (그대로) |
+| shop 전용 창구 SQL·레포 | ✅ 200 |
+| KKday 매일 수집 | ✅ 새 창구로 돎 |
+
+🔴 **이제 공용 열쇠가 새도 shop 은 열리지 않는다.** 반대로 shop 열쇠가 새도 스튜디오·블로그는 열리지 않는다(레포 하나·창고 하나 고정).
+
+### 남은 보안 (shop 이 끝난 뒤 · §68 ③)
+
+```
+🔴 공용 창구 열쇠 교체 — 공개 레포에 새었다. shop 은 이제 무관하지만 스튜디오·블로그·개인은 그대로 위험하다
+   바꿀 곳: Vercel tw-b2b · Vercel staycurate · GitHub Actions secrets(두 레포) · 클로드
+🟡 SHOP_HOOK_TOKEN(발행 열쇠) — shop·tw-b2b 두 곳 같은 새 값
+🟢 Vercel Firewall 속도 제한 · GitHub Secret scanning
+```

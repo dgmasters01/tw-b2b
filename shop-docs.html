@@ -1594,6 +1594,213 @@ C(지급 정산)는 처음 몇 번은 손으로 해도 됩니다 — 건수가 �
 </table>
 <p class="s13 mut">🔴 그래서 <b>13장의 «글자 분리»를 이벤트 개발과 같은 방식으로</b> 맞춰 두면, 이벤트 시스템이 나라를 늘릴 때 공짜로 따라옵니다.</p>
 
+<h2 id="arch">15. 🗺️ 전체 설계도 — 무엇이 어디에 있고 어떻게 이어지나</h2>
+<div class="s12 mut" style="margin-bottom:10px">2026-09-12 기준 <b>실제로 돌아가고 있는 것</b>과, 앞으로 늘릴 부분을 한 장에 그렸습니다.
+표 이름·일꾼 이름은 창고에서 그대로 가져온 것입니다.</div>
+
+<h3>15-1. 전체 조직도 — 자료가 들어와서 손님에게 나가기까지</h3>
+<div class="fig">
+<svg viewBox="0 0 940 640" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,'Malgun Gothic',sans-serif">
+ <defs>
+  <marker id="m1" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#5f5e5a"/></marker>
+  <marker id="m2" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#185FA5"/></marker>
+ </defs>
+
+ <!-- 1층 바깥 자료 -->
+ <text x="20" y="24" font-size="12.5" font-weight="600" fill="#5f5e5a">① 바깥에서 들어오는 자료</text>
+ <g font-size="11">
+  <rect x="20" y="34" width="160" height="54" rx="8" fill="#FAEEDA" stroke="#BA7517"/>
+  <text x="100" y="54" font-weight="600" text-anchor="middle" fill="#412402">아고다 API</text>
+  <text x="100" y="72" text-anchor="middle" fill="#BA7517">호텔 값·후기 (10분마다)</text>
+  <rect x="196" y="34" width="160" height="54" rx="8" fill="#FAEEDA" stroke="#BA7517"/>
+  <text x="276" y="54" font-weight="600" text-anchor="middle" fill="#412402">아고다 호텔 파일</text>
+  <text x="276" y="72" text-anchor="middle" fill="#BA7517">명부 301만 · 사진 주소</text>
+  <rect x="372" y="34" width="150" height="54" rx="8" fill="#FAEEDA" stroke="#BA7517"/>
+  <text x="447" y="54" font-weight="600" text-anchor="middle" fill="#412402">공공데이터</text>
+  <text x="447" y="72" text-anchor="middle" fill="#BA7517">항공 편수·여객 (주 1회)</text>
+  <rect x="538" y="34" width="150" height="54" rx="8" fill="#FAEEDA" stroke="#BA7517"/>
+  <text x="613" y="54" font-weight="600" text-anchor="middle" fill="#412402">KKday</text>
+  <text x="613" y="72" text-anchor="middle" fill="#BA7517">상품·값 (매일 새벽 1:10)</text>
+  <rect x="704" y="34" width="216" height="54" rx="8" fill="#F1EFE8" stroke="#c9c6bc"/>
+  <text x="812" y="54" font-weight="600" text-anchor="middle">스튜디오 (떼어낼 부분)</text>
+  <text x="812" y="72" text-anchor="middle" fill="#A32D2D">쇼츠 밀어넣기 · 짧은 주소</text>
+ </g>
+
+ <!-- 2층 일꾼 -->
+ <text x="20" y="116" font-size="12.5" font-weight="600" fill="#5f5e5a">② 일꾼 13명 (정해진 시각에 저절로 돈다)</text>
+ <rect x="20" y="126" width="900" height="76" rx="10" fill="#fff" stroke="#c9c6bc"/>
+ <g font-size="10.5">
+  <rect x="32" y="138" width="104" height="24" rx="5" fill="#EAF3DE"/><text x="84" y="154" text-anchor="middle" fill="#173404">값 수집 10분</text>
+  <rect x="144" y="138" width="104" height="24" rx="5" fill="#EAF3DE"/><text x="196" y="154" text-anchor="middle" fill="#173404">목록 굽기 30분</text>
+  <rect x="256" y="138" width="104" height="24" rx="5" fill="#EAF3DE"/><text x="308" y="154" text-anchor="middle" fill="#173404">화면 다시 30분</text>
+  <rect x="368" y="138" width="104" height="24" rx="5" fill="#EAF3DE"/><text x="420" y="154" text-anchor="middle" fill="#173404">사진 04:50</text>
+  <rect x="480" y="138" width="104" height="24" rx="5" fill="#EAF3DE"/><text x="532" y="154" text-anchor="middle" fill="#173404">없어진 호텔</text>
+  <rect x="592" y="138" width="104" height="24" rx="5" fill="#EAF3DE"/><text x="644" y="154" text-anchor="middle" fill="#173404">학습·추천</text>
+  <rect x="704" y="138" width="104" height="24" rx="5" fill="#EAF3DE"/><text x="756" y="154" text-anchor="middle" fill="#173404">항공 편수 월</text>
+  <rect x="816" y="138" width="92" height="24" rx="5" fill="#EAF3DE"/><text x="862" y="154" text-anchor="middle" fill="#173404">도시 판정 월</text>
+  <rect x="32" y="168" width="104" height="24" rx="5" fill="#EAF3DE"/><text x="84" y="184" text-anchor="middle" fill="#173404">WebP 변환</text>
+  <rect x="144" y="168" width="104" height="24" rx="5" fill="#EAF3DE"/><text x="196" y="184" text-anchor="middle" fill="#173404">데우기 6시간</text>
+  <rect x="256" y="168" width="104" height="24" rx="5" fill="#EAF3DE"/><text x="308" y="184" text-anchor="middle" fill="#173404">자가 점검 2회</text>
+  <rect x="368" y="168" width="104" height="24" rx="5" fill="#EAF3DE"/><text x="420" y="184" text-anchor="middle" fill="#173404">사진 담기</text>
+  <rect x="480" y="168" width="104" height="24" rx="5" fill="#EAF3DE"/><text x="532" y="184" text-anchor="middle" fill="#173404">쇼츠 받기</text>
+  <text x="600" y="185" fill="#5f5e5a">🔴 모두 열쇠가 있어야 부를 수 있다(2026-09-12)</text>
+ </g>
+
+ <!-- 3층 창고 -->
+ <text x="20" y="228" font-size="12.5" font-weight="600" fill="#5f5e5a">③ 창고 C — 표 65개를 네 묶음으로 보면</text>
+ <g font-size="10.5">
+  <rect x="20" y="238" width="218" height="138" rx="10" fill="#E6F1FB" stroke="#185FA5"/>
+  <text x="129" y="258" font-size="12" font-weight="600" text-anchor="middle" fill="#042C53">호텔 · 값</text>
+  <text x="34" y="278" fill="#042C53">shop_hotel_master 명부 301만</text>
+  <text x="34" y="296" fill="#042C53">shop_hotel 소개 호텔 1,065</text>
+  <text x="34" y="314" fill="#042C53">shop_new_pool 신상 후보 3.1만</text>
+  <text x="34" y="332" fill="#042C53">shop_price_daily 값 147만 줄</text>
+  <text x="34" y="350" fill="#042C53">shop_hotel_photo 사진 · agoda 응답</text>
+  <text x="34" y="368" fill="#5f5e5a">🔴 이 묶음이 나중에 «공용 창고»로</text>
+
+  <rect x="252" y="238" width="218" height="138" rx="10" fill="#fff" stroke="#c9c6bc"/>
+  <text x="361" y="258" font-size="12" font-weight="600" text-anchor="middle">화면에 나갈 것 (구운 것)</text>
+  <text x="266" y="278">shop_feed 첫 화면</text>
+  <text x="266" y="296">shop_list_feed 나라·도시 목록 87</text>
+  <text x="266" y="314">shop_new_live 신상 3,695</text>
+  <text x="266" y="332">shop_hotel_search 검색 4,756</text>
+  <text x="266" y="350" fill="#5f5e5a">손님은 여기서 «꺼내 가기»만 한다</text>
+
+  <rect x="484" y="238" width="218" height="138" rx="10" fill="#FCEBEB" stroke="#A32D2D"/>
+  <text x="593" y="258" font-size="12" font-weight="600" text-anchor="middle" fill="#501313">손님 · 개인정보</text>
+  <text x="498" y="278" fill="#501313">shop_member 회원</text>
+  <text x="498" y="296" fill="#501313">shop_like 찜 · shop_cart 장바구니</text>
+  <text x="498" y="314" fill="#501313">shop_view 방문 · shop_click 클릭</text>
+  <text x="498" y="332" fill="#501313">shop_consent_log 동의 기록</text>
+  <text x="498" y="352" fill="#A32D2D">🔴 나라마다 절대 따로 (법이 다르다)</text>
+
+  <rect x="716" y="238" width="204" height="138" rx="10" fill="#FAEEDA" stroke="#BA7517"/>
+  <text x="818" y="258" font-size="12" font-weight="600" text-anchor="middle" fill="#412402">운영 · 기록</text>
+  <text x="730" y="278" fill="#412402">shop_event 이벤트 · banner 배너</text>
+  <text x="730" y="296" fill="#412402">shop_video 쇼츠 465</text>
+  <text x="730" y="314" fill="#412402">shop_product KKday 1,097</text>
+  <text x="730" y="332" fill="#412402">shop_city_demand 도시 수요</text>
+  <text x="730" y="352" fill="#412402">shop_ops_log · collect_log 기록</text>
+ </g>
+
+ <!-- 4층 창구 -->
+ <text x="20" y="402" font-size="12.5" font-weight="600" fill="#5f5e5a">④ 창구 (문)</text>
+ <g font-size="10.5">
+  <rect x="20" y="412" width="290" height="58" rx="9" fill="#fff" stroke="#c9c6bc"/>
+  <text x="34" y="432" font-weight="600">손님 창구 20개</text>
+  <text x="34" y="450" fill="#5f5e5a">목록 · 검색 · 호텔 · 찜 · 짧은주소 · 추적</text>
+  <text x="34" y="466" fill="#5f5e5a">열쇠 없음(공개) · 읽기 전용 · 속도 제한</text>
+  <rect x="326" y="412" width="270" height="58" rx="9" fill="#fff" stroke="#c9c6bc"/>
+  <text x="340" y="432" font-weight="600">관리자 창구</text>
+  <text x="340" y="450" fill="#5f5e5a">호텔·쇼츠·이벤트·배너·도시 수요</text>
+  <text x="340" y="466" fill="#A32D2D">🔴 ADMIN_TOKEN 머리말로만</text>
+  <rect x="612" y="412" width="308" height="58" rx="9" fill="#E6F1FB" stroke="#185FA5"/>
+  <text x="626" y="432" font-weight="600" fill="#042C53">작업 창구 (클로드 전용 · 09-12 신설)</text>
+  <text x="626" y="450" fill="#185FA5">/api/ops/repo · /api/ops/sql · version</text>
+  <text x="626" y="466" fill="#185FA5">x-shop-ops-token · 모든 호출 기록</text>
+ </g>
+
+ <!-- 5층 손님 -->
+ <text x="20" y="496" font-size="12.5" font-weight="600" fill="#5f5e5a">⑤ 손님 화면</text>
+ <g font-size="10.5">
+  <rect x="20" y="506" width="900" height="52" rx="9" fill="#EAF3DE" stroke="#3B6D11"/>
+  <text x="34" y="526" fill="#173404" font-weight="600">첫 화면 · 나라/도시 목록 · 호텔 자세히 · 검색 · 신상 · 찜 · 상품 · 이벤트 · 로그인 · 404</text>
+  <text x="34" y="545" fill="#3B6D11">화면 파일 16개 · 공통 부품 shop.js 한 곳에서 카드·값·사진을 그린다 (🔴 나라를 늘려도 이 부품은 한 벌)</text>
+ </g>
+
+ <path d="M100 88 V126" stroke="#5f5e5a" marker-end="url(#m1)"/>
+ <path d="M276 88 V126" stroke="#5f5e5a" marker-end="url(#m1)"/>
+ <path d="M447 88 V126" stroke="#5f5e5a" marker-end="url(#m1)"/>
+ <path d="M613 88 V126" stroke="#5f5e5a" marker-end="url(#m1)"/>
+ <path d="M812 88 V126" stroke="#A32D2D" stroke-dasharray="5 4" marker-end="url(#m1)"/>
+ <path d="M470 202 V238" stroke="#5f5e5a" marker-end="url(#m1)"/>
+ <path d="M470 376 V412" stroke="#5f5e5a" marker-end="url(#m1)"/>
+ <path d="M470 470 V506" stroke="#185FA5" stroke-width="2" marker-end="url(#m2)"/>
+
+ <rect x="20" y="574" width="900" height="56" rx="9" fill="#fff" stroke="#c9c6bc"/>
+ <text x="34" y="596" font-size="12" font-weight="600">읽는 법</text>
+ <text x="34" y="616" font-size="11.5" fill="#5f5e5a">위에서 아래로 내려옵니다 — 바깥 자료가 들어오면 → 일꾼이 정리해서 → 창고에 넣고 → 미리 구워 두고 → 손님이 창구로 꺼내 갑니다.</text>
+</svg>
+<div class="cap">그림 10 — 전체 조직도 (2026-09-12 실측). 빨간 점선이 스튜디오에 붙어 있어 떼어낼 부분</div>
+</div>
+
+<h3>15-2. 앞으로의 설계도 — 나라가 늘었을 때</h3>
+<div class="fig">
+<svg viewBox="0 0 940 520" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,'Malgun Gothic',sans-serif">
+ <defs><marker id="m3" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#3B6D11"/></marker>
+ <marker id="m4" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#185FA5"/></marker></defs>
+
+ <rect x="20" y="16" width="900" height="66" rx="10" fill="#FAEEDA" stroke="#BA7517"/>
+ <text x="36" y="40" font-size="12.5" font-weight="600" fill="#412402">바깥 자료 — 한 번만 받는다</text>
+ <text x="36" y="62" font-size="11.5" fill="#412402">아고다 호텔 파일(언어별 12종) · 사진 · 공공데이터 항공 편수 · 도시 사전</text>
+
+ <rect x="250" y="106" width="440" height="96" rx="12" fill="#EAF3DE" stroke="#3B6D11" stroke-width="2"/>
+ <text x="470" y="130" font-size="13.5" font-weight="600" text-anchor="middle" fill="#173404">공용 창고 HUB (새 서버 · 월 $25)</text>
+ <text x="270" y="152" font-size="11.5" fill="#173404">호텔 명부(언어별) · 사진 원본 한 벌 · 도시 사전 · 공항↔도시 · 항공 편수</text>
+ <text x="270" y="172" font-size="11.5" fill="#173404">갱신 일꾼 한 벌만 돈다 — 나라가 늘어도 «받는 일»은 늘지 않는다</text>
+ <text x="270" y="192" font-size="11.5" fill="#3B6D11">🔴 사진은 무료 CDN 뒤에 두어 전송 요금을 피한다</text>
+ <path d="M470 82 V106" stroke="#BA7517" stroke-width="2" marker-end="url(#m3)"/>
+
+ <g font-size="11">
+  <rect x="20" y="248" width="210" height="150" rx="10" fill="#E6F1FB" stroke="#185FA5" stroke-width="2"/>
+  <text x="125" y="270" font-size="12.5" font-weight="600" text-anchor="middle" fill="#042C53">한국 사이트</text>
+  <text x="34" y="292" fill="#042C53">자기 창고 — 값·회원·찜·방문</text>
+  <text x="34" y="310" fill="#042C53">자기 이벤트·배너</text>
+  <text x="34" y="328" fill="#042C53">자기 도메인·유튜브·CID</text>
+  <text x="34" y="350" fill="#5f5e5a">설정: 한국어 · 원화</text>
+  <text x="34" y="368" fill="#5f5e5a">첫 화면: 일본·베트남 위주</text>
+  <text x="34" y="388" fill="#185FA5">🔴 개인정보는 여기서 안 나간다</text>
+
+  <rect x="246" y="248" width="210" height="150" rx="10" fill="#fff" stroke="#c9c6bc"/>
+  <text x="351" y="270" font-size="12.5" font-weight="600" text-anchor="middle">일본 사이트</text>
+  <text x="260" y="292">자기 창고 · 자기 이벤트</text>
+  <text x="260" y="314" fill="#5f5e5a">설정: 일본어 · 엔화</text>
+  <text x="260" y="332" fill="#5f5e5a">첫 화면: 한국·대만·동남아</text>
+  <text x="260" y="352" fill="#5f5e5a">화면 크기·배치 조정</text>
+
+  <rect x="472" y="248" width="210" height="150" rx="10" fill="#fff" stroke="#c9c6bc"/>
+  <text x="577" y="270" font-size="12.5" font-weight="600" text-anchor="middle">대만·홍콩 사이트</text>
+  <text x="486" y="292">자기 창고 · 자기 이벤트</text>
+  <text x="486" y="314" fill="#5f5e5a">설정: 중국어 번체 · 대만달러</text>
+
+  <rect x="698" y="248" width="222" height="150" rx="10" fill="#fff" stroke="#c9c6bc"/>
+  <text x="809" y="270" font-size="12.5" font-weight="600" text-anchor="middle">베트남 · 그 밖</text>
+  <text x="712" y="292">자기 창고 · 자기 이벤트</text>
+  <text x="712" y="314" fill="#5f5e5a">설정: 베트남어 · 동</text>
+  <text x="712" y="336" fill="#A32D2D">🔴 아고다가 베트남어 명부를</text>
+  <text x="712" y="352" fill="#A32D2D">   주지 않는다 → 영어로 시작</text>
+ </g>
+ <path d="M380 202 C 250 220, 170 230, 125 248" stroke="#3B6D11" stroke-width="1.8" fill="none" marker-end="url(#m3)"/>
+ <path d="M440 202 C 400 222, 370 230, 351 248" stroke="#3B6D11" stroke-width="1.8" fill="none" marker-end="url(#m3)"/>
+ <path d="M500 202 C 540 222, 560 230, 577 248" stroke="#3B6D11" stroke-width="1.8" fill="none" marker-end="url(#m3)"/>
+ <path d="M560 202 C 690 220, 770 230, 809 248" stroke="#3B6D11" stroke-width="1.8" fill="none" marker-end="url(#m3)"/>
+ <text x="470" y="228" font-size="11" text-anchor="middle" fill="#3B6D11">받아 가기 (읽기 전용)</text>
+
+ <rect x="20" y="424" width="900" height="80" rx="10" fill="#E6F1FB" stroke="#185FA5"/>
+ <text x="36" y="448" font-size="12.5" font-weight="600" fill="#042C53">코드는 «한 벌» — 사이트마다 설정 한 장만 다르다</text>
+ <g font-size="11.5" fill="#042C53">
+  <text x="36" y="470">레포 1개 · 화면 부품 1벌 · 일꾼 1벌 · 이벤트 시스템 1벌 → Vercel 프로젝트만 나라 수만큼</text>
+  <text x="36" y="490">설정 한 장에 들어가는 것: 브랜드명 · 언어 · 통화 · 첫 화면 나라/도시 · 화면 크기 · 유튜브 채널 · 아고다 CID · 약관 문구</text>
+ </g>
+</svg>
+<div class="cap">그림 11 — 나라가 늘었을 때. 받는 일은 HUB 한 곳, 파는 일은 나라마다, 코드는 한 벌</div>
+</div>
+
+<h3>15-3. 두 그림의 차이 — 표로</h3>
+<table>
+<tr><th style="width:170px">항목</th><th>지금 (그림 10)</th><th>앞으로 (그림 11)</th></tr>
+<tr><td>아고다 명부·사진</td><td>한국 창고 안에 (1.3GB + 5.6GB)</td><td class="good">HUB 한 곳 · 나라는 받아 가기</td></tr>
+<tr><td>값·회원·찜·방문</td><td>한국 창고</td><td class="good">나라마다 자기 창고 (그대로)</td></tr>
+<tr><td>쇼츠</td><td class="bad">스튜디오가 밀어 넣음 (한국 채널만)</td><td class="good">각 사이트가 자기 채널을 직접 읽음</td></tr>
+<tr><td>짧은 주소</td><td class="bad">스튜디오 도메인 경유</td><td class="good">나라마다 자기 것</td></tr>
+<tr><td>화면 글자</td><td class="bad">코드에 한국어가 박힘 (564곳)</td><td class="good">글자 파일 밖으로 · 번역 한 장</td></tr>
+<tr><td>나라별 차이</td><td>— (한국만 있음)</td><td class="good">설정 한 장 (브랜드·언어·통화·도시·크기)</td></tr>
+<tr><td>일꾼</td><td>13명 (한국 것만)</td><td class="good">받는 일꾼은 HUB 한 벌 · 파는 일꾼만 나라별</td></tr>
+<tr><td>이벤트</td><td class="warn">틀만 있음</td><td class="good">유형·블록 시스템 (14장) · 나라마다 그대로 따라감</td></tr>
+</table>
+<p class="s13 mut">🔴 그림 10 → 그림 11 로 가는 공사가 <b>13장의 «집 옮기기»(2.5일)</b>와 <b>HUB 만들기(2~3일)</b>입니다.
+순서는 그림 6(길 C)대로 — <b>이벤트 → 한국 디테일 → 집 옮기기 → 정상 작동 확인 → 오픈 → HUB → 두 번째 나라</b>.</p>
+
 <div class="s11 mut3" style="margin-top:22px">여행능력자들 SHOP 리뉴얼 문서 · 2026-09-12 갱신 · 이 문서가 리뉴얼의 정본입니다</div>
 </div>
 </body>

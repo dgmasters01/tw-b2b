@@ -112,7 +112,7 @@
 | 공통 창구 | `CLAUDE_OPS_TOKEN`(=x-ops-token) · `SUPABASE_ACCESS_TOKEN`(sbp_… Management API) · `GITHUB_PAT` |
 | 스튜디오에만 | `AGODA_API_KEY` · `AGODA_SITE_ID` · `GOOGLE_PLACES_API_KEY` |
 | 블로그 13개 | `OPS_TOKEN` · `SUPABASE_URL` · `SUPABASE_SERVICE_KEY` · `ADMIN_USER/PASS` · `RAKUTEN_*` · `GSC_*` |
-| 샵 | `SUPABASE_URL` · `SUPABASE_SERVICE_ROLE_KEY` · `AGODA_API_KEY` · `SHOP_HOOK_TOKEN`(기본값이 코드에 있어 없어도 동작) · `SITE_URL` |
+| 샵 | `SUPABASE_URL` · `SUPABASE_SERVICE_ROLE_KEY` · `AGODA_API_KEY` · 🔴 `SHOP_HOOK_TOKEN`(**2026-09-12 기본값 삭제 — 없으면 발행 창구가 닫힌다.** shop·tw-b2b 두 곳에 같은 값) · `SITE_URL` |
 
 🔴 **값은 절대 문서에 적지 않는다.** 이름과 «어디에 있는지»만 적는다.
 🔴 **열쇠가 안 맞으면 「없다」가 아니라 「옛 값을 집은 것」이다** — 최근 값을 스스로 찾아 쓴다 (대표님 2026-09-02).

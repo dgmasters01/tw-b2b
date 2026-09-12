@@ -2512,3 +2512,35 @@ SQL 사본: 샵 레포 `sql/2026-09-11-shop-function-grants.sql` · `sql/2026-09
 ### 되돌리는 법
 
 세 파일 삭제 · `drop function ops_exec_sql(text); drop table shop_ops_log;` · 🔴 되돌릴 수 없는 것: 없다. 💰 0원.
+
+## 72. 2026-09-12 새벽 · ✅ shop 전용 작업 창구 «열림» — 열쇠 세 개 확인
+
+대표님이 GitHub 열쇠(fine-grained · `travelwinners-shop ops` · 2027-09-11 만료)를 발급하고 shop Vercel 에 세 개를 넣으신 뒤 확인.
+
+### 확인표
+
+| 시험 | 결과 |
+|---|---|
+| shop 레포 읽기 (`/api/ops/repo?path=…`) | ✅ 200 · 파일·폴더 목록 |
+| shop 레포 쓰기 (POST) | ✅ `created` 1.7초 · 되읽어 내용 같음 |
+| 🔴 열쇠가 볼 수 있는 레포 | `travelwinners-shop` + 공개 레포 2개(공개는 fine-grained 가 항상 읽음) — **비공개 중에는 shop 하나뿐** |
+| shop 창고 SQL (`/api/ops/sql`) | ✅ 200 |
+| 틀린 열쇠 · 열쇠 없이 | ✅ 401 |
+| 작업 기록 `shop_ops_log` | ✅ 읽기 7 · 쓰기 2 · SQL 2 · **거절 2** 모두 남음 |
+| 🔴 `CRON_SECRET` 적용 | ✅ **vercel-cron 흉내가 이제 401** (전에는 200) · 진짜 Vercel 크론은 그대로 돎(값 수집 00:41 · 목록 굽기 00:23) |
+| 손님 첫 화면 · 관리자 | ✅ 200 |
+
+### 도중에 잡은 것 — 열쇠 발급 첫 시도
+
+처음 만든 열쇠는 «Repository access: Public repositories» 로 만들어져 **shop(비공개) 이 안 보였다.**
+→ `/api/ops/repo?diag=1` 을 만들어 «파일 없음»이 아니라 «열쇠가 이 레포를 못 연다»임을 가려냈다(열쇠 값은 돌려주지 않는다). 대표님이 Edit → Only select repositories → Contents Read and write → **Update token**(값 그대로).
+🔴 **배운 것** — 404 는 «없다»가 아니라 «못 본다»일 수 있다. 열쇠 문제는 «무엇이 보이는지»를 물어 가른다.
+
+### 다음 (분리 마무리 · §71 순서 ③~⑤)
+
+```
+③ 클로드: KEYS.md · boot.md · SHOP_TECH · KKDAY_SYNC/SYNC2/DAILY 를 새 창구로 · Cowork 문구 만들어 드림
+④ 대표님: Cowork «KKday 매일» 작업 문구 교체 (1분)
+⑤ 클로드: 공용 창구(tw-b2b)에서 travelwinners-shop 삭제 · db-query 창고 허용 목록에서 C 제외 → 공용 열쇠로 shop 이 «안 열리는» 것 확인
+🔴 ⑤를 ④ 전에 하면 KKday 매일 수집이 멈춘다
+```

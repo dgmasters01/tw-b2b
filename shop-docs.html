@@ -82,6 +82,7 @@ pre{background:#1f1f1d;color:#f0efeb;padding:14px;border-radius:10px;font-size:1
 <div class="mi ok"><b>아고다 정보 호텔별 저장</b><span>객실 이름·와이파이·좌표 등 16칸을 화면에 안 써도 전부 저장 (09-11)</span></div>
 <div class="mi ok"><b>호텔 파일 빠진 칸 · 신상 새로 고침</b><span>소개글·사진 주소 5장·체크인·층수·연도를 3.2만 곳에 · 새 신상 137곳 (09-11)</span></div>
 <div class="mi"><b>메일 · 웹푸시 — 보류</b><span>다른 작업을 끝낸 뒤 «마지막»에 개발·설정 (대표님 09-11) · 만든 부품은 보내지 않는 상태로 둠</span></div>
+<div class="mi hot"><b>이벤트 시스템</b><span>대표님이 기획만 하면 세부 페이지·배너가 만들어지는 구조 — 설계는 14장</span></div>
 <div class="mi hot"><b>나라별 사이트 여러 개</b><span>대표님 방향 확정(09-12) · 구조 제안과 걸림돌은 아래 13장</span></div>
 <div class="mi"><b>오픈</b><span>아직 전 — 방문·클릭 숫자는 개발 중 누른 것 · 오픈 때 초기화 · 도메인 전환도 그때</span></div>
 </div>
@@ -1394,6 +1395,204 @@ C(지급 정산)는 처음 몇 번은 손으로 해도 됩니다 — 건수가 �
 대신 <b>«구조만 바꾸는 공사»</b>를 제안합니다 — 화면 글자를 밖으로 빼고, 나라별 설정을 넣고, 자료가 오는 곳을 HUB 로 바꿉니다.
 겉모습과 동작은 그대로 두고 <b>속만 나라별로 갈아 끼울 수 있게</b> 만드는 것입니다. 기간은 2.5일(순서 1~3), 새로 짜면 2~3주입니다.</p>
 </div>
+
+<h2 id="event">14. 🎁 이벤트 시스템 — 대표님이 «기획만» 하시면 화면이 만들어지는 구조</h2>
+<div class="s12 mut" style="margin-bottom:10px">대표님(2026-09-12): <i>«나는 디자이너가 아니고 이벤트를 기획하고, 그에 맞게 구성하고 세부 페이지까지 적용할 수 있는 시스템이 필요하다.
+메인 배너에 이벤트 이미지가 걸리고 누르면 세부 페이지로 가야 하는데, 배너 이미지도 자동으로 만들어져야 한다. 이벤트 유형은 앞으로 다양해진다.»</i></div>
+
+<h3>14-0. 먼저 — «지원금 정산»이 무슨 말이었나</h3>
+<div class="card">
+<p class="s13" style="margin:0">제가 쓴 말이 불친절했습니다. <b>«숙박비 10만원 지원» 이벤트를 열었을 때, 당첨자에게 실제로 돈이 나가는 뒷처리</b>를 뜻했습니다.
+<b>누가 당첨됐고 · 얼마를 · 언제 · 어떻게 보냈고 · 영수증은 받았는지</b>를 기록으로 남기는 부분입니다.
+지금은 그런 화면이 없어서 손으로 관리해야 합니다. 🔴 <b>건수가 적을 때는 손으로 해도 됩니다</b> — 시스템은 나중에 만들어도 늦지 않습니다.</p>
+</div>
+
+<h3>14-1. 핵심 아이디어 — «이벤트 = 유형 하나 + 블록 몇 개»</h3>
+<div class="fig">
+<svg viewBox="0 0 940 330" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,'Malgun Gothic',sans-serif">
+ <defs><marker id="e1" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#185FA5"/></marker></defs>
+ <rect x="20" y="20" width="230" height="290" rx="12" fill="#FAEEDA" stroke="#BA7517"/>
+ <text x="135" y="46" font-size="13.5" font-weight="600" text-anchor="middle" fill="#412402">① 대표님이 하시는 것</text>
+ <g font-size="11.5" fill="#412402">
+  <text x="38" y="74" font-weight="600">유형 고르기</text>
+  <text x="38" y="94">예) 숙박비 지원 · 추첨 · 선착순</text>
+  <text x="38" y="120" font-weight="600">칸 채우기</text>
+  <text x="38" y="140">제목 · 기간 · 지원 금액</text>
+  <text x="38" y="158">대상 호텔 고르기(검색해서 클릭)</text>
+  <text x="38" y="176">참여 방법 · 안내 문구</text>
+  <text x="38" y="202" font-weight="600">미리보기 → 발행</text>
+  <text x="38" y="222">화면을 보고 «이대로» 누르면 끝</text>
+  <text x="38" y="252" fill="#A32D2D" font-weight="600">🔴 사진·디자인은 안 만드셔도 됨</text>
+  <text x="38" y="272" fill="#A32D2D">호텔 사진은 창고에 이미 있고</text>
+  <text x="38" y="290" fill="#A32D2D">배너는 시스템이 그린다</text>
+ </g>
+
+ <rect x="290" y="20" width="300" height="290" rx="12" fill="#E6F1FB" stroke="#185FA5" stroke-width="2"/>
+ <text x="440" y="46" font-size="13.5" font-weight="600" text-anchor="middle" fill="#042C53">② 시스템이 만드는 것</text>
+ <g font-size="11.5">
+  <rect x="306" y="60" width="268" height="52" rx="8" fill="#fff" stroke="#c9dff5"/>
+  <text x="320" y="80" font-weight="600" fill="#042C53">세부 페이지</text><text x="320" y="98" fill="#5f5e5a">대문 · 호텔 소개 · 참여 방법 · 안내 · 당첨</text>
+  <rect x="306" y="120" width="268" height="52" rx="8" fill="#fff" stroke="#c9dff5"/>
+  <text x="320" y="140" font-weight="600" fill="#042C53">배너 이미지 (자동)</text><text x="320" y="158" fill="#5f5e5a">호텔 사진 + 제목 + 금액 · 3가지 크기</text>
+  <rect x="306" y="180" width="268" height="52" rx="8" fill="#fff" stroke="#c9dff5"/>
+  <text x="320" y="200" font-weight="600" fill="#042C53">메인 배너 자리에 자동 등록</text><text x="320" y="218" fill="#5f5e5a">기간이 되면 걸리고 끝나면 내려간다</text>
+  <rect x="306" y="240" width="268" height="52" rx="8" fill="#fff" stroke="#c9dff5"/>
+  <text x="320" y="260" font-weight="600" fill="#042C53">공유용 이미지 · 참여 접수 · 당첨 발표</text><text x="320" y="278" fill="#5f5e5a">카톡·인스타에 붙일 그림까지</text>
+ </g>
+
+ <rect x="630" y="20" width="290" height="290" rx="12" fill="#EAF3DE" stroke="#3B6D11"/>
+ <text x="775" y="46" font-size="13.5" font-weight="600" text-anchor="middle" fill="#173404">③ 왜 이렇게 하나</text>
+ <g font-size="11.5" fill="#173404">
+  <text x="648" y="74" font-weight="600">새 유형이 생겨도 코드를 안 고친다</text>
+  <text x="648" y="94">«유형»과 «블록»이 창고에 자료로</text>
+  <text x="648" y="112">들어 있어서, 새 유형은 한 줄 추가</text>
+  <text x="648" y="142" font-weight="600">나라를 늘려도 그대로 따라간다</text>
+  <text x="648" y="162">글자만 번역하면 일본 사이트에서도</text>
+  <text x="648" y="180">같은 이벤트 틀이 돈다</text>
+  <text x="648" y="210" font-weight="600">대표님이 개발자를 기다리지 않는다</text>
+  <text x="648" y="230">이벤트를 여는 데 클로드가 필요 없다</text>
+  <text x="648" y="260" font-weight="600">🔴 요금 0원</text>
+  <text x="648" y="278">배너 그리는 도구가 이미 들어 있다</text>
+ </g>
+ <path d="M250 165 H290" stroke="#185FA5" stroke-width="2" marker-end="url(#e1)"/>
+</svg>
+<div class="cap">그림 7 — 대표님은 «기획»만, 나머지는 시스템이</div>
+</div>
+<h3>14-2. 세부 페이지는 «블록»을 쌓아 만든다</h3>
+<div class="fig">
+<svg viewBox="0 0 940 400" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,'Malgun Gothic',sans-serif">
+ <text x="20" y="26" font-size="13" font-weight="600">쓸 수 있는 블록 (레고 조각처럼 골라 쌓는다)</text>
+ <g font-size="11.5">
+  <rect x="20" y="40" width="200" height="46" rx="8" fill="#fff" stroke="#c9c6bc"/><text x="36" y="60" font-weight="600">대문</text><text x="36" y="78" fill="#5f5e5a">큰 사진 + 제목 + 기간</text>
+  <rect x="236" y="40" width="200" height="46" rx="8" fill="#fff" stroke="#c9c6bc"/><text x="252" y="60" font-weight="600">호텔 소개</text><text x="252" y="78" fill="#5f5e5a">사진·값·위치 — 창고에서 자동</text>
+  <rect x="452" y="40" width="200" height="46" rx="8" fill="#fff" stroke="#c9c6bc"/><text x="468" y="60" font-weight="600">글 + 사진</text><text x="468" y="78" fill="#5f5e5a">대표님이 쓰신 안내</text>
+  <rect x="668" y="40" width="200" height="46" rx="8" fill="#fff" stroke="#c9c6bc"/><text x="684" y="60" font-weight="600">참여 방법</text><text x="684" y="78" fill="#5f5e5a">1·2·3 단계로</text>
+  <rect x="20" y="96" width="200" height="46" rx="8" fill="#fff" stroke="#c9c6bc"/><text x="36" y="116" font-weight="600">응모 단추</text><text x="36" y="134" fill="#5f5e5a">누르면 번호 발급</text>
+  <rect x="236" y="96" width="200" height="46" rx="8" fill="#fff" stroke="#c9c6bc"/><text x="252" y="116" font-weight="600">호텔 여러 곳</text><text x="252" y="134" fill="#5f5e5a">고른 호텔 목록</text>
+  <rect x="452" y="96" width="200" height="46" rx="8" fill="#fff" stroke="#c9c6bc"/><text x="468" y="116" font-weight="600">당첨자 발표</text><text x="468" y="134" fill="#5f5e5a">마감 뒤 자동으로 보임</text>
+  <rect x="668" y="96" width="200" height="46" rx="8" fill="#fff" stroke="#c9c6bc"/><text x="684" y="116" font-weight="600">유의사항 · 문답</text><text x="684" y="134" fill="#5f5e5a">접었다 펴는 목록</text>
+ </g>
+
+ <text x="20" y="180" font-size="13" font-weight="600">유형을 고르면 «블록이 미리 쌓여» 나온다 — 대표님은 칸만 채우신다</text>
+ <g font-size="11">
+  <rect x="20" y="194" width="286" height="190" rx="10" fill="#FAEEDA" stroke="#BA7517"/>
+  <text x="163" y="216" font-size="12.5" font-weight="600" text-anchor="middle" fill="#412402">숙박비 지원 이벤트</text>
+  <g fill="#412402">
+   <rect x="36" y="228" width="254" height="24" rx="6" fill="#fff"/><text x="48" y="244">대문 — 사진·제목·«10만원 지원»</text>
+   <rect x="36" y="256" width="254" height="24" rx="6" fill="#fff"/><text x="48" y="272">호텔 소개 — 그 호텔 사진·값</text>
+   <rect x="36" y="284" width="254" height="24" rx="6" fill="#fff"/><text x="48" y="300">글 + 사진 — 왜 이 호텔인가</text>
+   <rect x="36" y="312" width="254" height="24" rx="6" fill="#fff"/><text x="48" y="328">참여 방법 → 응모 단추</text>
+   <rect x="36" y="340" width="254" height="24" rx="6" fill="#fff"/><text x="48" y="356">유의사항 · 당첨자 발표</text>
+  </g>
+  <rect x="326" y="194" width="286" height="190" rx="10" fill="#E6F1FB" stroke="#185FA5"/>
+  <text x="469" y="216" font-size="12.5" font-weight="600" text-anchor="middle" fill="#042C53">선착순 특가 이벤트</text>
+  <g fill="#042C53">
+   <rect x="342" y="228" width="254" height="24" rx="6" fill="#fff"/><text x="354" y="244">대문 — «단 3일»</text>
+   <rect x="342" y="256" width="254" height="24" rx="6" fill="#fff"/><text x="354" y="272">호텔 여러 곳 — 고른 호텔 목록</text>
+   <rect x="342" y="284" width="254" height="24" rx="6" fill="#fff"/><text x="354" y="300">글 + 사진 — 이번 특가 이유</text>
+   <rect x="342" y="312" width="254" height="24" rx="6" fill="#fff"/><text x="354" y="328">유의사항</text>
+   <text x="354" y="356" fill="#5f5e5a">(응모·당첨 블록은 쓰지 않는다)</text>
+  </g>
+  <rect x="632" y="194" width="288" height="190" rx="10" fill="#EAF3DE" stroke="#3B6D11"/>
+  <text x="776" y="216" font-size="12.5" font-weight="600" text-anchor="middle" fill="#173404">앞으로 생길 새 유형</text>
+  <g fill="#173404">
+   <text x="648" y="242">후기 이벤트 · 사전 예약 · 친구 초대</text>
+   <text x="648" y="262">쿠폰 뿌리기 · 시즌 기획전 …</text>
+   <text x="648" y="292" font-weight="600">🔴 새 유형 = 블록 순서를 정해</text>
+   <text x="648" y="310" font-weight="600">   창고에 «한 줄» 넣는 것</text>
+   <text x="648" y="336">코드를 고치지 않는다</text>
+   <text x="648" y="356">→ 클로드를 기다리지 않아도 된다</text>
+  </g>
+ </g>
+</svg>
+<div class="cap">그림 8 — 블록을 쌓아 세부 페이지를 만든다. 유형은 «블록 순서표»일 뿐이다</div>
+</div>
+
+<h3>14-3. 배너 이미지는 이렇게 «자동으로» 만들어진다</h3>
+<div class="fig">
+<svg viewBox="0 0 940 250" xmlns="http://www.w3.org/2000/svg" font-family="-apple-system,'Malgun Gothic',sans-serif">
+ <defs><marker id="e2" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#5f5e5a"/></marker></defs>
+ <g font-size="11.5">
+  <rect x="20" y="60" width="160" height="86" rx="9" fill="#fff" stroke="#c9c6bc"/>
+  <text x="100" y="86" font-size="12.5" font-weight="600" text-anchor="middle">재료</text>
+  <text x="34" y="108" fill="#5f5e5a">호텔 사진 (창고에 있음)</text>
+  <text x="34" y="126" fill="#5f5e5a">제목 · 금액 · 기간</text>
+
+  <rect x="228" y="60" width="180" height="86" rx="9" fill="#E6F1FB" stroke="#185FA5"/>
+  <text x="318" y="86" font-size="12.5" font-weight="600" text-anchor="middle" fill="#042C53">배너 틀 3종</text>
+  <text x="242" y="108" fill="#185FA5">글자 위치·색만 다른 시안</text>
+  <text x="242" y="126" fill="#185FA5">대표님이 하나 고르신다</text>
+
+  <rect x="456" y="60" width="190" height="86" rx="9" fill="#EAF3DE" stroke="#3B6D11"/>
+  <text x="551" y="86" font-size="12.5" font-weight="600" text-anchor="middle" fill="#173404">그림으로 굽기</text>
+  <text x="470" y="108" fill="#173404">사진 위에 글자를 얹어</text>
+  <text x="470" y="126" fill="#173404">이미지 파일로 만든다</text>
+
+  <rect x="694" y="40" width="226" height="56" rx="9" fill="#fff" stroke="#c9c6bc"/>
+  <text x="708" y="62" font-weight="600">메인 배너 (가로 긴 것)</text><text x="708" y="80" fill="#5f5e5a">기간이 되면 자동으로 걸린다</text>
+  <rect x="694" y="106" width="226" height="56" rx="9" fill="#fff" stroke="#c9c6bc"/>
+  <text x="708" y="128" font-weight="600">공유용 (카톡·인스타)</text><text x="708" y="146" fill="#5f5e5a">정사각형 · 세로형</text>
+
+  <path d="M180 103 H228" stroke="#5f5e5a" marker-end="url(#e2)"/>
+  <path d="M408 103 H456" stroke="#5f5e5a" marker-end="url(#e2)"/>
+  <path d="M646 103 C 670 103, 670 68, 694 68" stroke="#5f5e5a" fill="none" marker-end="url(#e2)"/>
+  <path d="M646 103 C 670 103, 670 134, 694 134" stroke="#5f5e5a" fill="none" marker-end="url(#e2)"/>
+ </g>
+ <text x="20" y="190" font-size="12.5" font-weight="600">🔴 요금 0원 · 새 도구 필요 없음</text>
+ <text x="20" y="212" font-size="12" fill="#5f5e5a">사진을 다루는 도구(sharp)가 이미 들어 있습니다 — 호텔 사진을 작게 만들 때 쓰는 그 도구입니다.</text>
+ <text x="20" y="232" font-size="12" fill="#5f5e5a">글자를 얹어 그림으로 굽는 일도 같은 도구로 됩니다. 외부 디자인 서비스·AI 이미지 요금이 들지 않습니다.</text>
+</svg>
+<div class="cap">그림 9 — 배너는 «호텔 사진 + 글자»를 시스템이 얹어 굽는다</div>
+</div>
+<h3>14-4. 대표님 화면 — 이벤트 하나 만드는 순서</h3>
+<table>
+<tr><th style="width:40px"></th><th style="width:170px">화면</th><th>대표님이 하시는 일</th></tr>
+<tr><td>1</td><td><b>유형 고르기</b></td><td>«숙박비 지원» 같은 칸을 누른다 → 필요한 입력칸이 그것에 맞게 나온다</td></tr>
+<tr><td>2</td><td><b>기본 정보</b></td><td>제목 · 기간 · 지원 금액 · 몇 명 · 한 줄 설명</td></tr>
+<tr><td>3</td><td><b>호텔 고르기</b></td><td>검색해서 클릭 — 🔴 <b>사진·값·위치는 창고에서 자동으로 붙는다</b></td></tr>
+<tr><td>4</td><td><b>내용 쓰기</b></td><td>블록을 위아래로 옮기고, 필요 없는 블록은 끈다. 글은 칸에 쓰신다</td></tr>
+<tr><td>5</td><td><b>배너 고르기</b></td><td>시안 3개가 만들어져 나온다 → 하나 클릭</td></tr>
+<tr><td>6</td><td><b>미리보기</b></td><td>손님이 볼 화면 그대로 · 휴대폰 모양으로도 확인</td></tr>
+<tr><td>7</td><td><b>발행</b></td><td>누르면 끝 — 기간이 되면 메인 배너에 걸리고, 끝나면 내려간다</td></tr>
+</table>
+
+<h3>14-5. 만들어야 할 것 — 개발 관점</h3>
+<table>
+<tr><th style="width:200px">무엇</th><th>내용</th><th style="width:80px">기간</th></tr>
+<tr><td><b>유형·블록 표</b></td><td>유형(이름·필요한 칸·기본 블록 순서)과 블록 정의를 <b>창고에 자료로</b> 둔다 → 새 유형은 코드 수정 없이 추가</td><td>0.5일</td></tr>
+<tr><td><b>이벤트 표 확장</b></td><td>지금 표에 «블록 내용»을 담을 칸을 더한다(지금은 제목·기간·호텔만)</td><td>0.5일</td></tr>
+<tr><td><b>관리자 편집 화면</b></td><td>유형 고르기 → 칸 채우기 → 블록 순서 바꾸기 → 미리보기 → 발행</td><td>1.5일</td></tr>
+<tr><td><b>손님 세부 페이지</b></td><td>블록을 차례로 그리는 화면 한 장 (블록 8종)</td><td>1일</td></tr>
+<tr><td><b>배너 자동 생성</b></td><td>사진+글자를 얹어 이미지로 굽기 · 3가지 크기 · 시안 3종</td><td>1일</td></tr>
+<tr><td><b>응모·당첨</b></td><td>응모 번호 발급 · 마감 · 추첨 · 발표 화면</td><td>1일</td></tr>
+<tr><td>(나중) 지원금 정산</td><td>당첨자에게 언제 얼마를 보냈는지 기록</td><td>+1일</td></tr>
+<tr class="good"><td colspan="2" style="text-align:right"><b>합계 (정산 제외)</b></td><td><b>5.5일</b></td></tr>
+</table>
+<p class="s13 mut">🔴 처음 말씀드린 «B 단계 2~3일»보다 깁니다. 그때는 «이벤트 안내 + 응모»만 생각했는데,
+대표님이 원하시는 것은 <b>«이벤트를 대표님이 직접 구성하는 시스템»</b>이라 <b>편집 화면과 블록 구조</b>가 더 들어갑니다. 정확히 말씀드리는 것이 맞다고 봅니다.</p>
+
+<h3>14-6. 🔴 두 갈래 중에 골라 주십시오</h3>
+<table>
+<tr><th style="width:40px"></th><th style="width:180px">방법</th><th>내용</th><th style="width:80px">기간</th></tr>
+<tr><td>가</td><td><b>지금 바로 전체</b></td><td>위 표 전부. 첫 이벤트부터 대표님이 혼자 만드신다</td><td>5.5일</td></tr>
+<tr class="good"><td>나</td><td><b>2단계로</b> (권장)</td><td><b>1차(3일)</b> — 유형 2개(숙박비 지원 · 선착순 특가) · 블록 5종 · 배너 자동 · 응모까지. 첫 이벤트를 열어 본다<br><b>2차(2.5일)</b> — 오픈 뒤에 블록 3종 추가 · 시안 늘리기 · 정산. <b>실제로 써 보고 필요한 것만</b> 만든다</td><td>3일 + 2.5일</td></tr>
+</table>
+<div class="card" style="border-color:var(--green);background:var(--greenBg)">
+<p class="s13" style="margin:0;color:var(--greenT)"><b>클로드 의견 — «나».</b>
+이벤트는 <b>한 번 열어 봐야 무엇이 부족한지</b> 알 수 있습니다. 손님이 어디서 멈추는지, 대표님이 어느 칸을 답답해하시는지는 써 보기 전에는 모릅니다.
+1차로 <b>진짜 이벤트를 한 번 열고</b>, 그때 나온 불편만 2차에서 고치는 것이 낭비가 없습니다.
+그리고 1차 3일이면 <b>오픈 일정에 거의 영향이 없습니다</b>(원래 이벤트에 2~3일 잡혀 있었습니다).</p>
+</div>
+
+<h3>14-7. 나라를 늘릴 때 이 시스템은 어떻게 되나</h3>
+<table>
+<tr><th style="width:180px">항목</th><th>일본 사이트를 열면</th></tr>
+<tr class="good"><td>유형·블록·편집 화면</td><td><b>그대로 따라간다</b> — 코드가 한 벌이므로</td></tr>
+<tr class="good"><td>배너 자동 생성</td><td>그대로 · 글자만 그 나라 말로</td></tr>
+<tr><td>이벤트 내용</td><td>나라마다 따로 만든다(호텔·금액·문구가 다르다)</td></tr>
+<tr><td>화면 글자</td><td>«응모하기» 같은 <b>버튼 글자</b>는 번역 파일 한 장 — 13장 «글자 분리»와 같은 작업</td></tr>
+</table>
+<p class="s13 mut">🔴 그래서 <b>13장의 «글자 분리»를 이벤트 개발과 같은 방식으로</b> 맞춰 두면, 이벤트 시스템이 나라를 늘릴 때 공짜로 따라옵니다.</p>
 
 <div class="s11 mut3" style="margin-top:22px">여행능력자들 SHOP 리뉴얼 문서 · 2026-09-12 갱신 · 이 문서가 리뉴얼의 정본입니다</div>
 </div>

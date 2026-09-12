@@ -2981,3 +2981,17 @@ Vercel 쪽 문제로 보인다. 대표님께 **Vercel → travelwinners-shop →
 ```
 🔴 **글자 인식(OCR)은 쓰지 않는다** — 문구는 대표님이 쓰신다. 화면에도 그렇게 적었다.
 💰 0원(이미 있는 sharp). 시험: 화면에서 주소 입력 → 추천·이유·색·시안 자동 전환 확인 · 화면 오류 0.
+
+## 93. 2026-09-12 · 배너를 손님 화면에 적용 · 공용 부품 통일 · 옛 메뉴 제거
+
+| # | 무엇 | 파일 |
+|---|---|---|
+| 1 | 🔴 **`public/banner-render.js` 신설** — `TWBanner.card(v,w)` 한 벌. 규격표(BN_SPEC)·자동 축소(bnFit·bnBlockScale)·강조(bnHi)·시안 16종을 전부 담았다 | new |
+| 2 | 관리자: 인라인 그리기 코드 **삭제**, 공용 부품 호출로 교체 | `public/admin.html` |
+| 3 | 손님: `mountBanner(box, slot)` **전면 교체** — 🔴 CSS 에 없는 클래스(.bslide .bbox .btitle)를 쓰던 §88 결함 해결 | `public/shop.js` |
+| 4 | 첫 화면 `renderBanners()` 교체 · 자리 `main_top` 만 | `public/index.html` |
+| 5 | 창구: `slot·style·bg·line1~3·chips·period_mode` 내려보내고 `banner_bgs` 동봉 · 이벤트 자동 배너에도 시안 부여(딱지 «12일 남음») | `api/main.js` |
+| 6 | 마케팅 메뉴에서 **«옛 배너·이벤트» 제거** (자료는 이미 새 칸으로 이전됨) | `public/admin.html` |
+
+🔴 **첫 배포에서 손님 화면 배너가 안 나왔다** — 공용 파일로 옮길 때 `BN_SPEC`·`bnFit`·`bnHi` 를 빠뜨려 `ReferenceError`.
+→ 규격표까지 포함해 재배포(`7d4813f`). 확인: 첫 화면 배너 렌더 · 6개 경로 200 · 휴대폰/PC 화면 오류 0.

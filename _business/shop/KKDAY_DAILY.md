@@ -1,5 +1,18 @@
 # 🔴 KKday 값 «매일» 받기 — Cowork 예약 작업 명령서 (2026-09-09 신설)
 
+## 🔴 shop 작업은 «shop 전용 창구»로 한다 (2026-09-12 · SHOP_ROLLBACK §71·§72)
+
+| 무엇 | 주소 | 열쇠(머리말) |
+|---|---|---|
+| shop 창고 SQL | `POST https://travelwinners-shop.vercel.app/api/ops/sql` · 몸통 `{"query": "..."}` | `x-shop-ops-token` |
+| shop 레포 읽기 | `GET  https://travelwinners-shop.vercel.app/api/ops/repo?path=…` | 〃 |
+| shop 레포 쓰기 | `POST https://travelwinners-shop.vercel.app/api/ops/repo` · 몸통 `{"path","content","message"}` | 〃 |
+
+🔴 **`project_ref` 를 적지 않는다** — 이 창구는 shop 창고(C) 하나만 연다.
+🔴 **`repo` 를 적지 않는다** — travelwinners-shop 하나만 연다.
+🔴 **스튜디오 공용 창구(gohotelwinners.com/api/ops/…)로 shop 을 만지지 않는다.** 공용 열쇠가 새면 shop 까지 열린다(2026-09-11 사고 · §68·§70).
+🔴 열쇠 «값»은 어떤 문서에도 적지 않는다. 모든 호출은 `shop_ops_log` 에 남는다.
+
 > 대표님: *«호텔은 매일 가격을 체크하잖아. kkday도 매일 체크하자. 한국시간 01:10 에 가격·할인을»*
 > *«값을 매일 받을 수 있는 구조를 설계해»*
 >
@@ -52,8 +65,8 @@ Cowork 에서 **예약 작업(Scheduled Task)** 을 하나 만들고, 내용에 
 매일 새벽 1시 10분 (한국시간)
 
 tw-b2b 레포 _business/shop/KKDAY_DAILY.md 를 읽고 KKday 값 매일 받기를 실행해.
-창구: https://gohotelwinners.com/api/ops/db-query  (헤더 x-ops-token)
-x-ops-token: (열쇠)
+창구: https://travelwinners-shop.vercel.app/api/ops/sql  (헤더 x-shop-ops-token)
+x-shop-ops-token: (열쇠 — 🔴 공개 레포라 값을 적지 않는다)
 ```
 
 🔴 **조건 두 가지** — ①노트북이 켜져 있어야 한다 ②Cowork 앱이 열려 있어야 한다.
@@ -98,8 +111,8 @@ JSON.stringify(out)
 ## 3) 다음 차례 — 장부가 기억한다
 
 ```json
-POST https://gohotelwinners.com/api/ops/db-query     헤더 x-ops-token
-{ "project_ref": "jyjcdxdezjfcikqndxeo", "query":
+POST https://travelwinners-shop.vercel.app/api/ops/sql     헤더 x-shop-ops-token
+{ "query":
   "select p.ext_id, p.link_url from shop_product p
      left join shop_kk_sync s on s.ext_id=p.ext_id
     where p.source='kkday'

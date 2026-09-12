@@ -2845,3 +2845,16 @@ Rapid Content API 에 `ratings.property.type` 이 있어 **공식 기관이 매�
 
 `api/cron/list-bake.js`(매시 23·52분) → `shop_list_feed` → `api/list.js` 가 한 줄 꺼내 줌(3시간 넘으면 바로 만들기). 만드는 부품 `api/_lib/list-build.js` 한 곳.
 🔴 목록 응답 모양을 바꿀 때는 **list-build.js 만** 고친다. 다음 굽기(최대 30분) 뒤에 화면에 반영된다 — 급하면 굽기 일꾼을 한 번 부른다.
+
+## §68 · 🔴 shop 작업 창구 (2026-09-12 · 전말 SHOP_ROLLBACK §71·§72)
+
+```
+창고 SQL   POST https://travelwinners-shop.vercel.app/api/ops/sql    {"query": "..."}
+레포 읽기  GET  https://travelwinners-shop.vercel.app/api/ops/repo?path=…
+레포 쓰기  POST https://travelwinners-shop.vercel.app/api/ops/repo    {"path","content","message"}
+머리말     x-shop-ops-token   (값은 문서에 적지 않는다)
+진단       GET  …/api/ops/repo?diag=1   — 404 가 «파일 없음»인지 «열쇠가 이 레포를 못 봄»인지 가른다
+```
+🔴 `project_ref`·`repo` 를 적지 않는다 — 창고는 C, 레포는 travelwinners-shop 하나로 코드에 고정.
+🔴 **스튜디오 공용 창구로 shop 을 만지지 않는다**(§66 보안 규칙). 모든 호출은 `shop_ops_log` 에 남는다.
+🔴 GitHub 열쇠 `SHOP_GITHUB_PAT` 는 **2027-09-11 만료** — 그 전에 새로 발급해야 레포 쓰기가 멈추지 않는다.

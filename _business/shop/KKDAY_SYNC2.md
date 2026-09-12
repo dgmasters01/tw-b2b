@@ -1,5 +1,18 @@
 # 🔴 KKday 2차 — 할인·조건 받아오기 (2026-09-09 신설 · 같은 날 완주)
 
+## 🔴 shop 작업은 «shop 전용 창구»로 한다 (2026-09-12 · SHOP_ROLLBACK §71·§72)
+
+| 무엇 | 주소 | 열쇠(머리말) |
+|---|---|---|
+| shop 창고 SQL | `POST https://travelwinners-shop.vercel.app/api/ops/sql` · 몸통 `{"query": "..."}` | `x-shop-ops-token` |
+| shop 레포 읽기 | `GET  https://travelwinners-shop.vercel.app/api/ops/repo?path=…` | 〃 |
+| shop 레포 쓰기 | `POST https://travelwinners-shop.vercel.app/api/ops/repo` · 몸통 `{"path","content","message"}` | 〃 |
+
+🔴 **`project_ref` 를 적지 않는다** — 이 창구는 shop 창고(C) 하나만 연다.
+🔴 **`repo` 를 적지 않는다** — travelwinners-shop 하나만 연다.
+🔴 **스튜디오 공용 창구(gohotelwinners.com/api/ops/…)로 shop 을 만지지 않는다.** 공용 열쇠가 새면 shop 까지 열린다(2026-09-11 사고 · §68·§70).
+🔴 열쇠 «값»은 어떤 문서에도 적지 않는다. 모든 호출은 `shop_ops_log` 에 남는다.
+
 ## 🟢 끝났다 (2026-09-09) — 결과와 «문서가 틀렸던 곳»
 
 | | |
@@ -57,7 +70,7 @@ const D = JSON.parse(h.match(/<script[^>]*id="__NUXT_DATA__"[^>]*>([\s\S]*?)<\/s
 
 ```
 tw-b2b 레포 _business/shop/KKDAY_SYNC2.md 를 읽고 KKday 할인·조건 2차 수집을 진행해.
-창구: https://gohotelwinners.com/api/ops/db-query  (헤더 x-ops-token)
+창구: https://travelwinners-shop.vercel.app/api/ops/sql  (헤더 x-shop-ops-token)
 ```
 
 클로드는 이 문서를 읽고 아래 순서대로 진행한다. **대화가 끊겨도 같은 한 줄로 이어받는다** —
@@ -171,8 +184,8 @@ JSON.stringify({ urlId:u, price:pr, list_price:(li&&li>pr)?li:null,
 ## 3) 다음 차례를 받는다 (진행 장부가 기억한다)
 
 ```json
-POST https://gohotelwinners.com/api/ops/db-query      헤더 x-ops-token
-{ "project_ref": "jyjcdxdezjfcikqndxeo", "query":
+POST https://travelwinners-shop.vercel.app/api/ops/sql      헤더 x-shop-ops-token
+{ "query":
   "select p.ext_id, p.title, p.price from shop_product p
      left join shop_kk_sync s on s.ext_id=p.ext_id
     where p.source='kkday' and s.deal_on is null

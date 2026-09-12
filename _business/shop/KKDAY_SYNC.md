@@ -1,5 +1,18 @@
 # 🔴 KKday 값 받아오기 — 새 대화에서 이어받는 법 (2026-09-08 · 방법 교체)
 
+## 🔴 shop 작업은 «shop 전용 창구»로 한다 (2026-09-12 · SHOP_ROLLBACK §71·§72)
+
+| 무엇 | 주소 | 열쇠(머리말) |
+|---|---|---|
+| shop 창고 SQL | `POST https://travelwinners-shop.vercel.app/api/ops/sql` · 몸통 `{"query": "..."}` | `x-shop-ops-token` |
+| shop 레포 읽기 | `GET  https://travelwinners-shop.vercel.app/api/ops/repo?path=…` | 〃 |
+| shop 레포 쓰기 | `POST https://travelwinners-shop.vercel.app/api/ops/repo` · 몸통 `{"path","content","message"}` | 〃 |
+
+🔴 **`project_ref` 를 적지 않는다** — 이 창구는 shop 창고(C) 하나만 연다.
+🔴 **`repo` 를 적지 않는다** — travelwinners-shop 하나만 연다.
+🔴 **스튜디오 공용 창구(gohotelwinners.com/api/ops/…)로 shop 을 만지지 않는다.** 공용 열쇠가 새면 shop 까지 열린다(2026-09-11 사고 · §68·§70).
+🔴 열쇠 «값»은 어떤 문서에도 적지 않는다. 모든 호출은 `shop_ops_log` 에 남는다.
+
 > 대표님: *«대화가 막히면 안되니깐. 새대화창에서 해야 되면 너가 새로운 명령어를 제공해줘.
 > 어차피 다해 해야 되는거 아니야? 그래야 다른 도시들도 상품에 볼수 있는거 아니야»*
 >
@@ -41,8 +54,8 @@ GET https://travelwinners-shop.vercel.app/api/admin?tab=kknext&n=100
 
 🔴 **열쇠가 없으면 창고에서 바로 받는다** (2026-09-08 실측 — 이 길이 더 확실하다):
 ```
-POST https://gohotelwinners.com/api/ops/db-query   헤더 x-ops-token
-{ "project_ref": "jyjcdxdezjfcikqndxeo", "query":
+POST https://travelwinners-shop.vercel.app/api/ops/sql   헤더 x-shop-ops-token
+{ "query":
   "select p.ext_id, p.link_url from shop_product p
      left join shop_kk_sync s on s.ext_id=p.ext_id and s.synced_on=current_date and s.ok is true
     where p.source='kkday' and s.ext_id is null

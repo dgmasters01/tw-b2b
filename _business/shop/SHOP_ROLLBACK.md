@@ -2995,3 +2995,9 @@ Vercel 쪽 문제로 보인다. 대표님께 **Vercel → travelwinners-shop →
 
 🔴 **첫 배포에서 손님 화면 배너가 안 나왔다** — 공용 파일로 옮길 때 `BN_SPEC`·`bnFit`·`bnHi` 를 빠뜨려 `ReferenceError`.
 → 규격표까지 포함해 재배포(`7d4813f`). 확인: 첫 화면 배너 렌더 · 6개 경로 200 · 휴대폰/PC 화면 오류 0.
+
+> **94. 2026-09-12 · 「매일 발행」 딱지 제거 + 첫 화면 저장 시간 단축** (대표님 지시)
+> `shop_banner.id=1` 의 `badge` 를 NULL 로. 그런데 화면에 계속 옛 글이 남았다 —
+> 🔴 원인: `api/main.js` 가 `s-maxage=600, stale-while-revalidate=86400` 이라 **고쳐도 최대 하루까지 옛 것을 내줄 수 있었다.**
+> → **`s-maxage=60, stale-while-revalidate=120`** 으로 바꿨다. 이제 배너·이벤트를 고치면 **1분 안에** 반영된다.
+> 확인: 첫 화면 배너에서 딱지 사라짐 · 화면 오류 0.

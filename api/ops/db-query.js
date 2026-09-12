@@ -26,6 +26,8 @@
 //    10시간이 걸렸다. 이 창구는 ops 토큰으로만 열리고 부담은 우리 DB뿐이라 한도가
 //    보호하는 대상이 없다(오히려 작업을 막는다). 실수 폭주만 막으면 되므로 600 으로 둔다.
 
+import { opsLog } from './_opslog.js';   // 🔴 2026-09-12 사용 기록
+
 const DEFAULT_PROJECT_REF = 'vjsludfjsphwnumuoqaj';
 const SUPABASE_MGMT_API = 'https://api.supabase.com';
 
@@ -67,6 +69,7 @@ export default async function handler(req, res) {
   }
   const providedToken = req.headers['x-ops-token'] || '';
   if (providedToken !== expectedToken) {
+    await opsLog({ ref: 'vjsludfjsphwnumuoqaj', door: 'studio', kind: 'denied', target: 'sql', ok: false, req, note: '열쇠 틀림' });
     return res.status(401).json({ error: 'Invalid or missing x-ops-token' });
   }
 

@@ -114,6 +114,7 @@ pre{background:#1f1f1d;color:#f0efeb;padding:14px;border-radius:10px;font-size:1
 <table>
 <tr><td style="width:56px" class="bad">지금</td><td><b>창구 열쇠 교체</b> — Vercel tw-b2b <code>CLAUDE_OPS_TOKEN</code>(있으면 <code>OPS_TOKEN</code>도) · Vercel staycurate <code>OPS_TOKEN</code>(있으면 <code>CLAUDE_OPS_TOKEN</code>도) · GitHub tw-b2b·staycurate → Settings → Secrets and variables → Actions 의 같은 이름 · Cowork «KKday 매일» 예약 작업 안의 열쇠 → 두 Vercel 프로젝트 Redeploy. 새 값은 채팅으로 드립니다</td></tr>
 <tr><td><span class="pill p-ok">끝남</span></td><td><b>열쇠 정리 완료(09-12)</b> — 사업마다 다른 창구 열쇠 4개 · 일꾼 열쇠(CRON_SECRET) · 발행 열쇠(SHOP_HOOK_TOKEN). 새어 나간 옛 열쇠와 공개돼 있던 발행 기본값은 모두 «안 열림» 확인</td></tr>
+<tr><td class="bad">지금</td><td><b>Vercel · GitHub 로그인에 2단계 인증 켜기</b> — 계정이 뚫리면 열쇠를 나눠도 소용없습니다. 가장 값싼 방어이고 5분이면 됩니다</td></tr>
 <tr><td>권장</td><td><b>Vercel Firewall 속도 제한</b> — travelwinners-shop · 경로 <code>/api/</code> 로 시작 · IP 당 60초 300회 · 초과 429 (월 100만 건까지 포함 · 오픈 전 0원) · GitHub tw-b2b «Secret scanning · Push protection» 켜기(공개 레포 무료)</td></tr>
 <tr><td>나중</td><td>(조건부) 구글 콘솔 하루 한도 30 → 50</td></tr>
 <tr><td>마지막</td><td>메일·웹푸시를 할 때 — Resend 가입 · DNS 2줄 · 주간 추천 발송 여부</td></tr>
@@ -1055,6 +1056,28 @@ pre{background:#1f1f1d;color:#f0efeb;padding:14px;border-radius:10px;font-size:1
 <p class="s13 mut" style="margin:6px 0 0">① 열쇠를 바꿔야 할 때 ② 새 사업·새 서비스를 만들 때 ③ «이상한 접근이 있었나» 확인할 때 ④ 오픈 전 마지막 점검 때</p>
 </div>
 
+
+<h3>12-12. 🔴 «기술 핵심이 뚫리면 다 뚫린다» — 글로벌 1등을 목표로 할 때 남은 숙제</h3>
+<p class="s13 mut">대표님(2026-09-12): <i>«우리는 글로벌로 1등을 하는 게 목표다. 최대한 해커가 침투해도 문제 없이. 정석적으로.»</i><br>
+지금까지 막은 것은 <b>«문과 열쇠»</b>입니다. 나라가 늘고 손님이 늘면 <b>다른 종류의 공격</b>이 들어옵니다. 지금 상태를 솔직히 적습니다.</p>
+<table>
+<tr><th style="width:40px">급함</th><th style="width:190px">무엇</th><th>왜 필요한가 · 지금 상태</th><th style="width:90px">비용</th></tr>
+<tr><td class="bad">1</td><td><b>Vercel·GitHub 2단계 인증</b></td><td>계정이 뚫리면 열쇠를 아무리 나눠도 소용없다. <b>가장 값싸고 확실한 방어</b> · 대표님 5분</td><td>0원</td></tr>
+<tr><td class="bad">2</td><td><b>Supabase 관리 열쇠 분리</b></td><td>지금 스튜디오·블로그·개인 서버에 <b>계정 전체를 여는 열쇠</b>가 들어 있다. 새면 우리 문을 안 거치고 창고에 직접 닿는다(shop 창고 포함)</td><td>0원 · 2~3시간</td></tr>
+<tr><td class="warn">3</td><td><b>회원 기능 보안 점검</b></td><td>🔴 <b>회원을 열기 «전에»</b> 해야 한다 — 비밀번호·로그인 유지·계정 탈취·비밀번호 찾기. 지금은 가입이 닫혀 있어 위험이 없다</td><td>0원 · 1일</td></tr>
+<tr><td class="warn">4</td><td><b>결제·정산이 생길 때</b></td><td>이벤트 지원금·패키지 판매로 돈이 오가면 완전히 다른 등급이 된다. <b>카드 번호를 우리가 저장하지 않는 구조</b>로 처음부터 설계</td><td>그때 판단</td></tr>
+<tr><td class="warn">5</td><td><b>나라별 개인정보 법</b></td><td>일본·대만·EU 는 규정이 다르다. <b>창고를 나라별로 나누는 것</b>이 이미 그 대비다(15장). 동의 문구·보관 기간은 나라마다 따로</td><td>나라 열 때</td></tr>
+<tr><td>6</td><td><b>백업·복구 연습</b></td><td>🔴 «백업이 있다»와 «되돌릴 수 있다»는 다르다. <b>실제로 한 번 되돌려 보는 연습</b>이 아직 없다</td><td>0원 · 반나절</td></tr>
+<tr><td>7</td><td><b>이상 감지 알림</b></td><td>지금은 기록만 남는다. <b>«틀린 열쇠가 100번 들어왔다»를 대표님께 알리는 것</b>은 아직 없다</td><td>0원 · 반나절</td></tr>
+<tr><td>8</td><td><b>AI 수집 봇</b></td><td>지금 허용. 자료를 통째로 가져간다 vs AI 검색 노출 — 오픈 전 결정</td><td>0원</td></tr>
+</table>
+<div class="card" style="border-color:var(--amb);background:var(--ambBg)">
+<b class="s13" style="color:var(--ambT)">클로드가 지킬 원칙 (부팅 문서에 못 박음)</b>
+<p class="s13" style="margin:6px 0 0;color:var(--ambT)">
+① 새 표는 <b>잠금을 켠 채</b> 시작 ② 새 함수는 <b>닫힌 채</b> 시작 ③ 새 일꾼은 <b>문지기 한 줄</b> 필수 ④ 손님 입력은 <b>모양을 제한</b>
+⑤ 열쇠 값은 <b>어떤 문서에도</b> 적지 않는다 ⑥ 사업마다 <b>창구·열쇠를 따로</b> ⑦ 만들 때마다 <b>«나라를 늘려도 따라오는 모양»</b>으로.<br>
+🔴 이 일곱 가지는 «나중에 챙기는 것»이 아니라 <b>만들 때 같이 들어가는 것</b>입니다. 뒤에 붙이면 이번처럼 사고가 납니다.</p>
+</div>
 
 <h2 id="multi">13. 🌏 나라별 사이트 여러 개로 — 지금 무엇이 붙어 있고, 어떻게 떼어내나</h2>
 <div class="s12 mut" style="margin-bottom:10px">대표님 방향(2026-09-12): <b>나라·언어마다 브랜드와 사이트를 따로</b> 운영한다(일본어·베트남어·중국어 번체 …).

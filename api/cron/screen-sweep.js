@@ -88,9 +88,18 @@ export default async function handler(req, res) {
   }
 
   // 도시별 우리 장부 규모 — 「예약은 있는데 지역이 0」을 가려내려면 필요하다
-  const { data: hs } = await sb.from('hotels').select('city, booking_count, district');
+  // 🔴 2026-09-13 — 한도를 안 적으면 1,000줄만 온다. 도시별 장부 규모가 실제보다 작게 잡혀
+  //    «예약은 있는데 지역이 0» 판정이 틀리고 있었다. 끊어 읽는다.
+  const hs = [];
+  for (let from = 0; ; from += 1000) {
+    const { data: page, error } = await sb.from('hotels').select('city, booking_count, district')
+      .range(from, from + 999);
+    if (error) break;
+    hs.push(...(page || []));
+    if (!page || page.length < 1000) break;
+  }
   const scale = {};   // 영어 도시명 -> { hotels, bookings, withDistrict }
-  for (const r of hs || []) {
+  for (const r of hs) {
     const k = String(r.city || '').toLowerCase();
     const o = (scale[k] = scale[k] || { hotels: 0, bookings: 0, withDistrict: 0 });
     o.hotels += 1; o.bookings += (r.booking_count || 0); if (r.district) o.withDistrict += 1;

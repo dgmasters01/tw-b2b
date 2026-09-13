@@ -203,10 +203,11 @@ export default async function handler(req, res) {
         // 🔴 «문서에 빠짐»은 **봇(크론·Actions)만** 따진다 — 창구 97개까지 넣으면 전부 빠진 것이 된다.
         //    «문서에만 있음»은 창구 파일까지 실물로 쳐야 한다(수동 창구 district-diagnose 가 그 경우다).
         const apiNames = apiPaths.map((x) => x.split('/').pop().replace(/\.js$/, ''));
-        const bots = [...new Set([...crons, ...actions])];
-        const anyReal = [...new Set([...bots, ...apiNames])];
+        //    🔴 Actions 27개까지 «문서에 적어라»라고 하면 그것대로 새 헛경보가 된다.
+        //       §3 표는 원래 Vercel 크론 표다 — 빠짐은 크론만 따지고, Actions 는 실물로만 인정한다.
+        const anyReal = [...new Set([...crons, ...actions, ...apiNames])];
         const sec = (map.split(/^## 3\./m)[1] || '').split(/^## 4\./m)[0] || '';
-        const missing = bots.filter((n) => !sec.includes(n));
+        const missing = crons.filter((n) => !sec.includes(n));
         // 문서에만 있고 실물엔 없는 것(꺼졌는데 표에 남은 것)도 잡는다
         const listed = [...new Set((sec.match(/\*\*[a-z0-9-]{4,}\*\*/g) || []).map((x) => x.replace(/\*/g, '')))];
         const ghost = listed.filter((n) => !anyReal.includes(n) && !/^(코드|봇|무료)/.test(n));

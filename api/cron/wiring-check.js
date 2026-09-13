@@ -78,7 +78,15 @@ function scanApi(src) {
     }
   }
   for (const m of src.matchAll(/\/rest\/v1\/([a-z_0-9]+)([^`'"]*)/g)) {
-    const t = m[1]; const q = m[2] || '';
+    const t = m[1];
+    // 🔴 2026-09-13 오탐 수정 — 쿼리를 `...` + `...` 로 **여러 줄에 나눠 이어 붙이면**
+    //    위 정규식은 첫 조각에서 멈춘다. pool-weekends 는 둘째 줄에 `&city_id=eq.` 와
+    //    `&limit=` 가 다 있는데도 「통째로 읽음」으로 잡혀 매일 헛경보가 나갔다.
+    //    → 이 구문이 끝날 때까지의 문자열 조각을 모아 함께 본다.
+    const rest = src.slice(m.index + m[0].length, m.index + m[0].length + 500);
+    const stmt = rest.split(/;|\n\s*(?:const|let|var|return|if|\})/)[0];
+    let q = m[2] || '';
+    for (const s of stmt.matchAll(/[`'"]([^`'"]*)[`'"]/g)) q += s[1];
     const hasFilter = /=(eq|neq|gt|gte|lt|lte|like|ilike|is|in|cs|cd|ov|sl|sr|fts|plfts|phfts|wfts)\./.test(q)
                    || /(^|[?&])(or|and)=\(/.test(q);
     const around = src.slice(Math.max(0, m.index - 500), m.index + 500);
@@ -179,14 +187,23 @@ export default async function handler(req, res) {
       const vj = await getText('vercel.json');
       const map = await getText('SYSTEM_MAP.md');
       if (vj && map) {
-        const crons = (JSON.parse(vj).crons || []).map((c) => String(c.path).split('/').pop());
+        // 🔴 2026-09-13 오탐 수정 ①  `/api/cron/hotel-geo-fill?mode=district` 는 봇 이름이
+        //    `hotel-geo-fill` 이다. `?…` 까지 이름으로 세는 바람에 문서에 멀쩡히 있는 봇이
+        //    매일 «문서에 빠짐»으로 세 번씩 올라왔다.
+        // 🔴 오탐 수정 ②  Vercel 크론만 실물로 셌다. `decision-index-guard`·`ops-status`·
+        //    `db-backup` 은 **GitHub Actions** 로 도는 진짜 봇인데 «꺼진 봇?»으로 찍혔다.
+        const crons = [...new Set((JSON.parse(vj).crons || [])
+          .map((c) => String(c.path).split('/').pop().split('?')[0]))];
+        const actions = paths.filter((p) => /^\.github\/workflows\/.+\.ya?ml$/.test(p))
+          .map((p) => p.split('/').pop().replace(/\.ya?ml$/, ''));
+        const live = [...new Set([...crons, ...actions])];
         const sec = (map.split(/^## 3\./m)[1] || '').split(/^## 4\./m)[0] || '';
-        const missing = crons.filter((n) => !sec.includes(n));
+        const missing = live.filter((n) => !sec.includes(n));
         // 문서에만 있고 실물엔 없는 것(꺼졌는데 표에 남은 것)도 잡는다
         const listed = [...new Set((sec.match(/\*\*[a-z0-9-]{4,}\*\*/g) || []).map((x) => x.replace(/\*/g, '')))];
-        const ghost = listed.filter((n) => !crons.includes(n) && !/^(코드|봇|무료)/.test(n));
+        const ghost = listed.filter((n) => !live.includes(n) && !/^(코드|봇|무료)/.test(n));
         if (missing.length || ghost.length) {
-          botDrift = `봇 명단이 실물과 다릅니다 — 실물 크론 ${crons.length}개.`
+          botDrift = `봇 명단이 실물과 다릅니다 — 실물 크론 ${crons.length}개 · GitHub Actions ${actions.length}개.`
             + (missing.length ? ` 문서에 빠짐: ${missing.join(', ')}.` : '')
             + (ghost.length ? ` 문서에만 있음(꺼진 봇?): ${ghost.join(', ')}.` : '');
         }

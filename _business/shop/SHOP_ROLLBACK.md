@@ -3362,3 +3362,20 @@ shop_hotel_type   전체 23,095곳 · 마지막 갱신 2026-09-11T16:32Z (= 9/12
 - 도시 40곳 이하(한 나라 화면)면 탭 없이 예전 그대로
 
 확인: 탭 6개 렌더 · 일본 23곳 · **동남아 53곳 전부 표시** · «많이 찾는 곳» 사라짐 · 화면 오류 0.
+
+## 111. 2026-09-13 · 배너 네 자리 실제 연결 (대표님: «적용해»)
+
+| 자리 | 붙인 곳 | 방법 |
+|---|---|---|
+| 메인 중간 `main_mid` | `index.html` 호텔 목록과 상품 사이 | `<div id="midbanner">` + 본문 그린 뒤 `mountBanner(.., 'main_mid')` |
+| 도시 화면 위 `city_top` | `list.html` 도시 화면 맨 위 | `<div id="citybanner">` + `paintList` 뒤 |
+| 검색 결과 사이 `search_in` | `search.html` 소개 숙소와 신상 사이 | `<div id="searchbanner">` + `paintLikes` 뒤 |
+| 호텔 화면 아래 `hotel_bottom` | `h.html` 맨 아래 | 옛 `kind='event'` → **자리 이름으로 교체** |
+
+🔴 **한 번에 안 됐다 — 원인** : `banner-render.js`(공용 부품)를 **`index.html` 에만** 걸어 두었다.
+다른 화면은 `window.TWBanner` 가 없어 `mountBanner` 가 **배너 칸을 통째로 지웠다**(`box.remove()`).
+→ `list · search · h · events · likes · new` **여섯 화면에 모두** 부품을 걸었다.
+
+**확인** — 네 자리에 시험 배너를 하나씩 걸어 **모두 1개씩 표시**되는 것을 화면에서 확인(사진 저장).
+시험 배너는 **지우지 않고 껐다**(`active=false`) — 다음에 자리 확인할 때 다시 켜면 된다.
+전체 점검: 7개 화면 × 휴대폰/PC **오류 0 · 실패 자원 0**.

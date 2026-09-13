@@ -196,7 +196,11 @@ export default async function handler(req, res) {
           .map((c) => String(c.path).split('/').pop().split('?')[0]))];
         const actions = paths.filter((p) => /^\.github\/workflows\/.+\.ya?ml$/.test(p))
           .map((p) => p.split('/').pop().replace(/\.ya?ml$/, ''));
-        const live = [...new Set([...crons, ...actions])];
+        // 🔴 오탐 수정 ③  `district-diagnose` 는 «부를 때만» 도는 수동 창구다(D-084).
+        //    크론이 아니라서 vercel.json 에 없을 뿐 실물(`api/ops/district-diagnose.js`)은 멀쩡하다.
+        //    문서가 틀린 게 아니라 세는 자가 틀렸다 → **창구 파일 이름도 실물로 센다.**
+        const apiNames = apiPaths.map((p) => p.split('/').pop().replace(/\.js$/, ''));
+        const live = [...new Set([...crons, ...actions, ...apiNames])];
         const sec = (map.split(/^## 3\./m)[1] || '').split(/^## 4\./m)[0] || '';
         const missing = live.filter((n) => !sec.includes(n));
         // 문서에만 있고 실물엔 없는 것(꺼졌는데 표에 남은 것)도 잡는다

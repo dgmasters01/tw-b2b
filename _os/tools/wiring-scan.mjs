@@ -100,7 +100,14 @@ for (const p of apis) {
   }
   // PostgREST 직접 호출: /rest/v1/table?...
   for (const m of src.matchAll(/\/rest\/v1\/([a-z_0-9]+)([^`'"]*)/g)) {
-    const t = m[1]; const q = m[2] || '';
+    const t = m[1];
+    /* 🔴 2026-09-13 오탐 수정 — 쿼리를 `...` + `...` 로 여러 줄에 나눠 이어 붙이면
+       위 정규식이 첫 조각에서 멈춘다. 이 구문이 끝날 때까지의 조각을 모아 함께 본다.
+       (pool-weekends 는 둘째 줄에 =eq. 와 limit= 가 다 있는데 「통째로 읽음」으로 잡혔다) */
+    const rest = src.slice(m.index + m[0].length, m.index + m[0].length + 500);
+    const stmt = rest.split(/;|\n\s*(?:const|let|var|return|if|\})/)[0];
+    let q = m[2] || '';
+    for (const s of stmt.matchAll(/[`'"]([^`'"]*)[`'"]/g)) q += s[1];
     read.add(t);
     if (/on_conflict|method:\s*['"]POST/.test(src.slice(m.index, m.index + 400))) write.add(t);
     /* 필터가 붙어 있으면 대개 소량이다 — 오탐을 줄인다.

@@ -106,8 +106,8 @@ for (const p of apis) {
        (pool-weekends 는 둘째 줄에 =eq. 와 limit= 가 다 있는데 「통째로 읽음」으로 잡혔다) */
     const rest = src.slice(m.index + m[0].length, m.index + m[0].length + 500);
     const stmt = rest.split(/;|\n\s*(?:const|let|var|return|if|\})/)[0];
-    let q = m[2] || '';
-    for (const s of stmt.matchAll(/[`'"]([^`'"]*)[`'"]/g)) q += s[1];
+    /* 🔴 따옴표 짝 맞추기는 «닫는 백틱»부터 시작해 한 칸 밀린다 — 따옴표만 지우고 통째로 본다 */
+    const q = (m[2] || '') + stmt.replace(/[`'"]/g, '');
     read.add(t);
     if (/on_conflict|method:\s*['"]POST/.test(src.slice(m.index, m.index + 400))) write.add(t);
     /* 필터가 붙어 있으면 대개 소량이다 — 오탐을 줄인다.

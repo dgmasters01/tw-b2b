@@ -192,10 +192,19 @@ export default async function handler(req, res) {
   //        같은 칸(`hotels.district`)을 두 봇이 쓰면 어느 쪽이 마지막인지 알 수 없다.
   //        **감시자와 수리공을 나눈다** — 여기는 감시자다.
   try {
-    const { data: hs } = await sb.from('hotels').select('id, city, district').not('district', 'is', null);
+    // 🔴 2026-09-13 — 한도를 안 적으면 1,000줄만 온다. 지역이 찬 호텔은 그보다 많아
+    //    감시자가 «3분의 1만 보고 이상 없음»이라 말하고 있었다. 끊어 읽는다.
+    const hs = [];
+    for (let from = 0; ; from += 1000) {
+      const { data: page, error } = await sb.from('hotels').select('id, city, district')
+        .not('district', 'is', null).range(from, from + 999);
+      if (error) break;
+      hs.push(...(page || []));
+      if (!page || page.length < 1000) break;
+    }
     const toKo = {};      // 한국어표준 -> [id]
     const unknown = [];   // 사전에 없어 못 바꾼 것
-    for (const r of hs || []) {
+    for (const r of hs) {
       if (/[가-힣]/.test(r.district)) continue;
       const ko = canonDistrict(r.district);
       if (!ko || ko === r.district) { unknown.push(`${r.city} ${r.district}`); continue; }

@@ -56,11 +56,21 @@ export default async function handler(req, res) {
   let noRule = { cities: 0, hotels: 0, bookings: 0, top: [] };
   if (q.city) cities = [q.city];
   else {
-    const { data } = await sb.from('hotels')
-      .select('city, country, booking_count').is('district', null).not('city', 'is', null);
+    // 🔴 2026-09-13 세 번째 병목 — 창고는 한도를 안 적으면 **1,000줄만 조용히 준다.**
+    //    hotels 가 3,253줄이라 1,000줄까지만 읽혔고, 뒤쪽 도시는 후보에 오르지도 못했다.
+    //    2026-08-07·08-08 의 병목과 증상이 같은데 원인만 다르다. 끊어 읽는다.
+    const data = [];
+    for (let from = 0; ; from += 1000) {
+      const { data: page, error } = await sb.from('hotels')
+        .select('city, country, booking_count').is('district', null).not('city', 'is', null)
+        .range(from, from + 999);
+      if (error) break;
+      data.push(...(page || []));
+      if (!page || page.length < 1000) break;
+    }
     const bk = {};
     const nr = {};
-    for (const r of data || []) {
+    for (const r of data) {
       if (!hasDistrictRule(r.city, r.country)) {
         const k = r.country + ' / ' + r.city;
         nr[k] = nr[k] || { hotels: 0, bookings: 0 };

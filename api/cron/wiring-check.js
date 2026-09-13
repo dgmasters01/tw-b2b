@@ -85,8 +85,9 @@ function scanApi(src) {
     //    → 이 구문이 끝날 때까지의 문자열 조각을 모아 함께 본다.
     const rest = src.slice(m.index + m[0].length, m.index + m[0].length + 500);
     const stmt = rest.split(/;|\n\s*(?:const|let|var|return|if|\})/)[0];
-    let q = m[2] || '';
-    for (const s of stmt.matchAll(/[`'"]([^`'"]*)[`'"]/g)) q += s[1];
+    //    🔴 따옴표 짝을 맞춰 뽑으려 하면 «닫는 백틱»부터 시작해 한 칸씩 밀린다.
+    //       그냥 따옴표 문자만 지우고 통째로 본다 — `limit=` · `=eq.` 를 찾는 데는 이걸로 충분하다.
+    const q = (m[2] || '') + stmt.replace(/[`'"]/g, '');
     const hasFilter = /=(eq|neq|gt|gte|lt|lte|like|ilike|is|in|cs|cd|ov|sl|sr|fts|plfts|phfts|wfts)\./.test(q)
                    || /(^|[?&])(or|and)=\(/.test(q);
     const around = src.slice(Math.max(0, m.index - 500), m.index + 500);
@@ -199,13 +200,16 @@ export default async function handler(req, res) {
         // 🔴 오탐 수정 ③  `district-diagnose` 는 «부를 때만» 도는 수동 창구다(D-084).
         //    크론이 아니라서 vercel.json 에 없을 뿐 실물(`api/ops/district-diagnose.js`)은 멀쩡하다.
         //    문서가 틀린 게 아니라 세는 자가 틀렸다 → **창구 파일 이름도 실물로 센다.**
-        const apiNames = apiPaths.map((p) => p.split('/').pop().replace(/\.js$/, ''));
-        const live = [...new Set([...crons, ...actions, ...apiNames])];
+        // 🔴 «문서에 빠짐»은 **봇(크론·Actions)만** 따진다 — 창구 97개까지 넣으면 전부 빠진 것이 된다.
+        //    «문서에만 있음»은 창구 파일까지 실물로 쳐야 한다(수동 창구 district-diagnose 가 그 경우다).
+        const apiNames = apiPaths.map((x) => x.split('/').pop().replace(/\.js$/, ''));
+        const bots = [...new Set([...crons, ...actions])];
+        const anyReal = [...new Set([...bots, ...apiNames])];
         const sec = (map.split(/^## 3\./m)[1] || '').split(/^## 4\./m)[0] || '';
-        const missing = live.filter((n) => !sec.includes(n));
+        const missing = bots.filter((n) => !sec.includes(n));
         // 문서에만 있고 실물엔 없는 것(꺼졌는데 표에 남은 것)도 잡는다
         const listed = [...new Set((sec.match(/\*\*[a-z0-9-]{4,}\*\*/g) || []).map((x) => x.replace(/\*/g, '')))];
-        const ghost = listed.filter((n) => !live.includes(n) && !/^(코드|봇|무료)/.test(n));
+        const ghost = listed.filter((n) => !anyReal.includes(n) && !/^(코드|봇|무료)/.test(n));
         if (missing.length || ghost.length) {
           botDrift = `봇 명단이 실물과 다릅니다 — 실물 크론 ${crons.length}개 · GitHub Actions ${actions.length}개.`
             + (missing.length ? ` 문서에 빠짐: ${missing.join(', ')}.` : '')

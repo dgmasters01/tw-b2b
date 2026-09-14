@@ -3182,3 +3182,35 @@ spec     글자 규격   yeogi | yanolja | mode | st11 | mrt | base
 
 **드는 일** — 렌더러를 조합 기반으로 한 번 다시 씀 + 창고 칸 6개 추가 + 분석기가 조합을 뱉게 수정. **약 0.5일.**
 **얻는 것** — ①참고 이미지로 «진짜 새 시안»이 생긴다 ②대표님이 조합을 직접 바꿔 만들 수 있다 ③나라를 늘려도 그대로 따라온다.
+
+## §77 · 보안 전수 점검 실측 (2026-09-13 · 대표님 «정석으로, 글로벌 기준으로»)
+
+### 실측한 것 (짐작 아님)
+```
+머리표   HSTS 63072000+includeSubDomains+preload · X-Frame SAMEORIGIN · nosniff ·
+        Referrer strict-origin-when-cross-origin · Permissions(camera/mic/geo/payment 전부 차단)   → 충족
+RLS     public 표 71개 «전부» relrowsecurity=true · pg_policies 0개
+        = 손님/anon 열쇠로는 아무것도 못 읽는다. 창구(service_role)만 통과 → 구조는 맞다
+열쇠    main·me·auth·track 모두 SERVICE_ROLE 사용 (auth 만 ANON 병행)
+개인정보 shop_member 0줄 · consent_log 0줄 · view 319 · click 64 — view/click 에 IP·UA 없음(나라·도시·기기만)
+파기    shop_member.purge_after 칸은 있으나 vercel.json cron 10개 중 «파기 일꾼 없음»
+로그인   auth.js 에 시도 제한·잠금·기록 없음 · 비밀번호는 8자 이상만
+관리자   x-admin-token 단순 문자열 비교(timingSafeEqual 아님) · 실패를 ops_log 에 남기지 않음
+CSP     없음
+```
+
+### 🔴 빠진 것 12가지 (대표님용 정리 `shop-docs.html §21`)
+1 로그인 유지·만료 · 2 로그인 시도 제한 · 3 비밀번호 규칙 · 4 2단계 인증(대표님 몫)
+5 관리자 열쇠 timing-safe·실패 기록 · 6 CSP · 7 개인정보 파기 자동화 · 8 본인 자료 열람·삭제
+9 침해 감지 알림 · 10 백업 복구 연습 · 11 Supabase 관리 열쇠 분리 · 12 창구 권한(모두 service_role)
+
+### 순서 (1~4는 «회원 열기 전» 필수)
+```
+1 로그인 유지·만료·로그아웃            0.5일
+2 로그인 시도 제한 + 관리자 열쇠 보강    0.4일
+3 개인정보 파기 일꾼                   0.3일
+4 본인 자료 열람·삭제 화면              0.4일
+5 CSP · 비밀번호 규칙                  0.3일
+6 침해 알림 · 백업 복구 연습            0.4일
+7 대표님: Vercel·GitHub 2단계 인증      5분
+```

@@ -3298,3 +3298,47 @@ photos 는 이제 아고다를 부르지 않는다(명부 주소 사용 · §115
 ⑤ 🔴 유출 정황 시 강제 변경          — 이상 로그인·시도 폭주가 잡히면 그 계정만
 ```
 🔴 개인정보처리방침에는 «비밀번호는 일방향 암호화하여 저장하며, 주기적 변경을 요구하지 않는 대신 유출된 비밀번호 사용을 차단합니다» 로 적는다(5단계 약관 보완에서).
+
+## §81 · 2026-09-14~15 작업 정본 (새 대화가 이어받을 자리)
+
+### 회원·보안 (완료)
+```
+shop_session       token_hash(해시만)·expires_at·remember·device·ip_masked·geo·revoked_at
+                   자동 로그인 «슬라이딩 90일»(들어올 때마다 연장) / 끄면 2시간·sessionStorage
+shop_login_try     email_key·ip_key 모두 해시 · 15분 IP10회/이메일5회 차단 · 30일 파기
+shop_admin_log     who·ip_masked(끝자리 가림)·geo·subject_kind·subject_n·hold_until
+                   🔴 방아쇠로 UPDATE/DELETE 금지(hold_until 만 변경 가능·1년 내 삭제 불가)
+shop_log_digest    날짜 지문(영구) · shop_purge_log 파기 대장(영구)
+shop_retention     표별 «목표/약속» 규칙표 → shop_retention_purge() 가 하루 2회 자동 정리
+회원 파기          탈퇴 즉시 세션 끊기 · 목표 5일 · 약속 30일(purge_after) · shop_member_purge()
+비밀번호           10자+2종(12자면 종류 무관)·흔한 것 차단 · 화면(pwCheck)과 창구(pwBad) 같은 규칙
+만 14세            생년월일은 화면에서 계산만 · 창구는 birth* 가 오면 거부 · agree_age14_at 만 저장
+```
+
+### 메일 (완료 · 월 0원)
+```
+받기  Cloudflare Email Routing — help@·privacy@·hello@·catch-all → dgmasters01@gmail.com
+보내기 Resend — 도메인 travelwinners.shop(Tokyo) · 열쇠 travelwinners-shop(Sending·이 도메인만)
+      Vercel: RESEND_API_KEY(Secret) · MAIL_FROM(Config)
+코드  api/auth.js 의 sendMail()·mailShell()·makeRecoverLink() · act=mail_test(SHOP_OPS_TOKEN)
+🔴 Resend «Enable Receiving» 은 켜지 않는다 — 켜면 받는 메일이 끊긴다
+```
+
+### 이벤트 (진행 중)
+```
+손님 세부 화면  public/events.html — 블록 12종 렌더 · 테마 색 · 바닥 고정 응모 단추 · 유의사항 접기
+              호텔 카드: 취소선 high_price + 할인율 + low_price(정본) + «MM/DD 최저» 배지
+창구          api/events.js — 세부 응답에 hotels(v_shop_detail)·theme 포함
+기획 로봇      api/admin tab=event_draft — 유형·호텔/도시·금액·기간 → 제목3·부제·경품·단계·유의사항·테마·블록
+              관리자 이벤트 2단계 초록 상자에서 «초안 만들기» → 제목 고르면 3단계로 자동 채움
+남은 것        ①이벤트 목록 세 칸(진행중/당첨자/지난) ②응모→당첨자 뽑기→발표 ③이벤트 배너 자동
+```
+
+### 🔴 다음 대화가 먼저 할 일
+```
+1 검사기(scripts/check.mjs)에 «금지 문구» 낱말 검사 추가 — 오늘 또 어겼다(§138)
+2 이벤트 ②응모→당첨→발표
+3 회원 남은 것: 본인 자료 내려받기 · 유출 비밀번호 대조 · 가입 확인 메일도 우리 발송으로
+4 값 1년치 + «3개월까지 누구나, 그 뒤 회원만»
+5 대표님 몫: Vercel·GitHub·Google 2단계 인증
+```

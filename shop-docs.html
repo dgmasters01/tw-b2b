@@ -3933,6 +3933,37 @@ GA 는 «어느 호텔을 몇 원에 보고 눌렀나»를 모릅니다.<br>
 <p class="s13 mut">🔴 <b>대표님이 하실 일은 두 가지</b>입니다 — ①Cloudflare 에서 travelwinners.shop 메일 routing 켜기(5분, 다른 도메인과 같은 방식)
 ②Resend 가입 후 나오는 <b>DNS 값 3줄을 Cloudflare 에 붙여넣기</b>(5분). 나머지는 제가 합니다.</p>
 
+<h3>23-5. 「기존 서비스가 돌고 있는데 메일을 먼저 만들어도 되나」 (2026-09-15 대표님 질문)</h3>
+<p class="s13 mut">🔴 <b>문제없습니다.</b> 다만 «왜 문제가 없는지»를 실제로 확인하고 말씀드립니다.</p>
+<table>
+<tr><th style="width:40px"></th><th style="width:180px">확인한 것</th><th>결과</th></tr>
+<tr class="good"><td>1</td><td><b>메일과 홈페이지는 따로 간다</b></td><td>홈페이지는 <b>A·CNAME</b>, 메일은 <b>MX·TXT</b> 라는 <b>서로 다른 칸</b>을 씁니다.
+메일 칸을 채워도 <b>홈페이지는 한 글자도 바뀌지 않습니다</b></td></tr>
+<tr class="good"><td>2</td><td><b>지금 쓰는 메일이 있나</b></td><td>🔴 <b>없습니다.</b> 조회 결과 <code>MX 없음 · TXT 없음</code> —
+<b>덮어쓸 것이 없으므로 끊길 메일도 없습니다</b></td></tr>
+<tr class="good"><td>3</td><td><b>기존 서비스는 어디 있나</b></td><td><code>www.travelwinners.shop → 141.164.46.112</code> (Vultr 서버 · nginx · Laravel).
+이 줄은 <b>건드리지 않습니다</b></td></tr>
+<tr class="warn"><td>4</td><td>🔴 <b>주의할 것 하나</b></td><td>지금 <b>«어떤 이름이든 travelwinners.shop 으로 보내는» 와일드카드(*)</b>가 걸려 있습니다.
+Resend 가 요구하는 <code>send.travelwinners.shop</code> 도 여기 걸리므로, <b>그 이름만 따로 등록</b>해야 인증이 됩니다</td></tr>
+</table>
+<div class="card" style="border-color:var(--green);background:var(--greenBg)">
+<p class="s13" style="margin:0;color:var(--greenT)"><b>정리</b> — 메일을 먼저 만들어도 기존 서비스는 <b>그대로 돕니다.</b>
+오히려 <b>먼저 만들어 두는 편이 낫습니다</b> — 메일 주소가 널리 알려지려면 시간이 걸리고,
+새 사이트로 바꾸는 날 <b>메일까지 한꺼번에 하면 사고가 겹칩니다.</b></p>
+</div>
+
+<h3>23-6. 대표님이 하실 순서 (화면대로)</h3>
+<table>
+<tr><th style="width:40px"></th><th style="width:150px">어디서</th><th>무엇을</th></tr>
+<tr><td>1</td><td>Cloudflare</td><td><b>travelwinners.shop</b> 선택 → 왼쪽 <b>Email</b> → <b>Email Routing</b> → <b>Get started</b></td></tr>
+<tr><td>2</td><td>〃</td><td>«Add records automatically» 를 누르면 MX·SPF 가 자동으로 들어갑니다 <span class="s11 mut">(홈페이지 줄은 안 건드립니다)</span></td></tr>
+<tr><td>3</td><td>〃</td><td><b>help@ · privacy@ · hello@</b> 세 개를 만들고 <b>대표님 메일함</b>으로 보내도록 지정</td></tr>
+<tr><td>4</td><td>Resend</td><td>가입 → <b>Domains → Add Domain</b> → <code>travelwinners.shop</code> 입력</td></tr>
+<tr><td>5</td><td>〃 → Cloudflare</td><td>Resend 가 보여주는 <b>DNS 3줄</b>(DKIM·SPF·DMARC)을 Cloudflare 에 그대로 붙여넣기</td></tr>
+<tr><td>6</td><td>대표님 → 클로드</td><td>Resend 의 <b>API 열쇠</b>를 채팅으로 주시면 나머지는 제가 붙입니다</td></tr>
+</table>
+<p class="s13 mut">🔴 1~3번만 해도 <b>«받는 메일»은 바로 됩니다.</b> 4~6번은 «보내는 메일»(가입 확인·비밀번호 재설정)에 필요합니다.</p>
+
 <div class="s11 mut3" style="margin-top:22px">여행능력자들 SHOP 리뉴얼 문서 · 2026-09-12 갱신 · 이 문서가 리뉴얼의 정본입니다</div>
 </div>
 </body>

@@ -3798,3 +3798,15 @@ health 일꾼(하루 2회)     member_purge · session_purge · retention_purge 
 손님이 친 검색어(`shop_view.search_q`)로 **어느 영상인지 바로** 잡힌다. 지금 검색어 기록은 0건.
 
 고침: 새 화면을 `boot()` 에 연결하지 않아 «불러오는 중»에서 멈췄다 → 한 줄 추가.
+
+> **133. 2026-09-15 · travelwinners.shop 메일 «받기» 완료** (대표님이 Cloudflare 에서 직접)
+> ```
+> Email Routing 활성화 · MX 3개(route1·2·3.mx.cloudflare.net) · SPF · DKIM(cf2024-1._domainkey) 들어감
+> 규칙 4개: 전체 수신(catch-all)·help@·privacy@·hello@ → 모두 dgmasters01@gmail.com 로 전송
+> 🔴 홈페이지(www → 141.164.46.112 Vultr) 200 정상 — A 레코드는 건드리지 않았다
+> 실제 수신 시험: leejifilm@hanmail.net → help@travelwinners.shop → Gmail 도착 확인(11:24)
+> ```
+> **보내는 메일 조사** — Cloudflare «이메일 보내기»는 🔴 **Workers 유료($5/월) 필요**(3,000통 포함, 이후 $0.35/1k).
+> **Resend 는 월 3,000통 무료·기본료 없음** → **Resend 로 간다(월 0원)**.
+> 다음: Resend 도메인 인증. 🔴 주의 — travelwinners.shop 에 **와일드카드 CNAME(*)** 이 걸려 있어
+> `send.travelwinners.shop` 등 Resend 가 요구하는 이름을 **따로 등록**해야 인증된다.

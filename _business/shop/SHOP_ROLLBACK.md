@@ -3810,3 +3810,21 @@ health 일꾼(하루 2회)     member_purge · session_purge · retention_purge 
 > **Resend 는 월 3,000통 무료·기본료 없음** → **Resend 로 간다(월 0원)**.
 > 다음: Resend 도메인 인증. 🔴 주의 — travelwinners.shop 에 **와일드카드 CNAME(*)** 이 걸려 있어
 > `send.travelwinners.shop` 등 Resend 가 요구하는 이름을 **따로 등록**해야 인증된다.
+
+## 134. 2026-09-15 · 보내는 메일(Resend) 연결 완료
+
+| 무엇 | 내용 |
+|---|---|
+| DNS 4줄 | DKIM `resend._domainkey` · MX `send`(10, feedback-smtp.ap-northeast-1) · SPF `send` · DMARC `_dmarc` — **원본 서버까지 확인** |
+| 🔴 `_dmarc` | 와일드카드(`*`) 때문에 엉뚱한 SPF 값이 나오던 것이 **직접 넣어 덮였다** |
+| Resend | 도메인 **travelwinners.shop** 인증 · 지역 **Tokyo(ap-northeast-1)** |
+| 열쇠 | `travelwinners-shop` · **Sending access** · **이 도메인만** (사업별 분리 원칙) |
+| Vercel | `RESEND_API_KEY`(Secret, 3환경) · `MAIL_FROM`(Config, All) |
+| 코드 | `sendMail()` · `mailShell()`(한국어 메일 한 벌·이모지 없음) · `makeRecoverLink()` |
+| 🔴 재설정 메일 | 창고의 기본 메일 대신 **우리가 직접 발송** — 주소만 `admin/generate_link` 로 받고 메일은 우리 도메인으로 |
+| 시험 창구 | `act=mail_test`(SHOP_OPS_TOKEN 필요) |
+
+**발송 시험** — `{"ok":true,"id":"2945f50d-42c7-4ef0-9cd1-3237180df40c"}` ✅
+보내는 주소 `no-reply@travelwinners.shop` · 답장 주소 `help@travelwinners.shop`.
+
+**남은 것** — 가입 확인 메일도 우리 발송으로 바꾸기(지금은 창고 기본 메일). 그 전에 창고 설정에서 «이메일 확인 필요»가 켜져 있는지 확인이 필요하다.

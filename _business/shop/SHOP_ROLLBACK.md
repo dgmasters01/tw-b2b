@@ -3828,3 +3828,7 @@ health 일꾼(하루 2회)     member_purge · session_purge · retention_purge 
 보내는 주소 `no-reply@travelwinners.shop` · 답장 주소 `help@travelwinners.shop`.
 
 **남은 것** — 가입 확인 메일도 우리 발송으로 바꾸기(지금은 창고 기본 메일). 그 전에 창고 설정에서 «이메일 확인 필요»가 켜져 있는지 확인이 필요하다.
+
+> **135. 2026-09-15 · 메일 «받은편지함» 도착 확인** — no-reply@travelwinners.shop 로 보낸 시험 메일이
+> 스팸함이 아니라 **받은편지함**에 도착(오후 1:06). 새 도메인 첫 발송에서 DKIM·SPF·DMARC 3종이 한 번에 통과했다는 뜻이다.
+> 메일 작업 종료 — 월 0원(받기 Cloudflare 무제한 · 보내기 Resend 3,000통).

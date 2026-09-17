@@ -1,5 +1,7 @@
 # DECISIONS INDEX (AI용)
 
+> 🔴 **2026-09-17 — 여행능력자들(shop) 결정 D-093·D-095·D-108~D-121 의 본문은 `dgmasters01/travelwinners-shop` 레포 `docs/decisions/` 로 옮겼다.** 아래 표의 shop 줄은 번호 기록으로만 남긴다. 🔴 새 shop 결정은 이 파일에 쓰지 않고 shop 레포 `docs/decisions/INDEX.md` 에 쓴다(D-105).
+
 **제정일:** 2026-05-03
 **용도:** AI 즉시 검색용 의사결정 인덱스 (헌법 6조 본체 — 이중 형식 의무)
 **짝 문서:** `DECISIONS.md` (사람용 / 스토리 형식)

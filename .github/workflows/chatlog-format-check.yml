@@ -28,7 +28,10 @@ on:
       - 'scripts/chatlog-format-bot.py'
       - '.github/workflows/chatlog-format-check.yml'
   schedule:
-    - cron: '0 18 * * *'  # 매일 UTC 18:00 = KST 03:00
+          # 🔴 2026-09-19 시각 분산 — 한국시간 03:00 에 capture-pages·chatlog-format-check·verification-gap-bot
+      #    세 개가 «같은 창고 A»를 동시에 쳤다. 03:10 db-backup 과도 붙어 있었다.
+      #    기준(capture-pages 03:00)만 두고 나머지를 흩는다 (CRON-PLAN 관례: 충돌 이유를 함께 적는다).
+    - cron: '15 18 * * *'   # UTC → 한국시간 03:15  # 매일 UTC 18:00 = KST 03:00
   workflow_dispatch:
 
 permissions:

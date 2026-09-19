@@ -578,8 +578,87 @@ async function handleBookingUpload(req, res, serviceKey, _admin) {
     }
   }
 
+  // ── 🔴 2026-09-19 신설: 중앙 창고에도 같은 값을 남긴다 ──
+  //    왜 — 예약은 스튜디오·B2B·블로그·shop 네 곳이 자기 CID로 봐야 하는 공용 자료다(HUB.md §2).
+  //    호텔 매칭·자동생성은 여기(스튜디오 hotels 표)의 자료로만 판단할 수 있어 옮기지 않는다.
+  //    대신 위에서 이미 확정된 값(upserts)을 그대로 중앙에 보낸다 — 계산은 한 번, 저장은 두 곳.
+  //    🔴 상태·금액이 바뀐 줄만 이력(booking_history)에 남긴다 — 대표님(2026-09-19):
+  //       «예약 취소한 호텔들도 우리가 영업할 수 있는 자료다»
+  let hubResult = null;
+  if (upserts.length) {
+    try {
+      const HUB = process.env.HUB_SUPABASE_URL;
+      const HKEY = process.env.HUB_SERVICE_ROLE_KEY;
+      if (HUB && HKEY) {
+        const hb = (p, o = {}) => fetch(`${HUB}/rest/v1/${p}`, {
+          ...o, headers: { apikey: HKEY, Authorization: `Bearer ${HKEY}`, 'Content-Type': 'application/json', ...(o.headers || {}) },
+        });
+        // 1) 바뀌기 전 상태를 먼저 읽어 이력을 남긴다
+        const keys = upserts.map(u => `and(cid.eq.${u.cid},booking_id.eq.${u.booking_id})`).join(',');
+        const before = {};
+        if (keys) {
+          const br = await hb(`booking?partner_key=eq.agoda&or=(${keys})&select=cid,booking_id,booking_status,booking_amount_usd,commission_usd`);
+          if (br.ok) for (const b of await br.json()) before[`${b.cid}|${b.booking_id}`] = b;
+        }
+        const hist = [];
+        for (const u of upserts) {
+          const b = before[`${u.cid}|${u.booking_id}`];
+          const statusAfter = u.is_cancelled ? 'Cancelled' : (u.booking_status || null);
+          if (!b) {
+            hist.push({ cid: u.cid, booking_id: u.booking_id, change_kind: '신규', status_after: statusAfter,
+              amount_after: u.booking_amount_usd, commission_after: u.commission_usd, upload_batch_id: batchId });
+          } else if (b.booking_status !== statusAfter || Number(b.commission_usd) !== Number(u.commission_usd)) {
+            hist.push({ cid: u.cid, booking_id: u.booking_id, change_kind: '상태변경',
+              status_before: b.booking_status, status_after: statusAfter,
+              amount_before: b.booking_amount_usd, amount_after: u.booking_amount_usd,
+              commission_before: b.commission_usd, commission_after: u.commission_usd, upload_batch_id: batchId });
+          }
+        }
+        // 2) 현재 상태 upsert (파트너·서비스는 등록부로 채운다)
+        const hubRows = upserts.map(u => ({
+          partner_key: 'agoda', cid: u.cid, booking_id: u.booking_id, channel_code: u.channel_code,
+          reservation_no: u.reservation_no, agoda_hotel_id: u.hotel_id_agoda ? Number(u.hotel_id_agoda) : null,
+          hotel_name: u.hotel_name, hotel_country: u.hotel_country, hotel_city: u.hotel_city, hotel_star: u.hotel_star,
+          customer_country: u.customer_country, num_adults: u.num_adults, num_children: u.num_children,
+          checkin_date: u.checkin_date, checkout_date: u.checkout_date, nights: u.nights,
+          room_type: u.room_type, num_rooms: u.num_rooms, booking_amount_usd: u.booking_amount_usd,
+          commission_usd: u.commission_usd, currency_original: u.currency_original,
+          booking_amount_original: u.booking_amount_original, booking_status: u.booking_status,
+          is_cancelled: u.is_cancelled, is_completed: u.is_completed, device_type: u.device_type,
+          booked_at: u.booked_at, upload_batch_id: batchId, source_filename: sourceFilename || null,
+          last_seen_at: new Date().toISOString(),
+        }));
+        for (let i = 0; i < hubRows.length; i += 500) {
+          await hb('booking?on_conflict=partner_key,cid,booking_id', {
+            method: 'POST', headers: { Prefer: 'resolution=merge-duplicates,return=minimal' },
+            body: JSON.stringify(hubRows.slice(i, i + 500)),
+          });
+        }
+        if (hist.length) {
+          for (let i = 0; i < hist.length; i += 500) {
+            await hb('booking_history', { method: 'POST', headers: { Prefer: 'return=minimal' },
+              body: JSON.stringify(hist.slice(i, i + 500)) });
+          }
+        }
+        await hb('booking_upload', {
+          method: 'POST', headers: { Prefer: 'return=minimal' },
+          body: JSON.stringify([{ batch_id: batchId, cid: 'ALL', source_filename: sourceFilename || null,
+            uploaded_by: 'admin', rows_in: rows.length, rows_new: hist.filter(h => h.change_kind === '신규').length,
+            rows_changed: hist.filter(h => h.change_kind === '상태변경').length,
+            rows_same: upserts.length - hist.length }]),
+        });
+        hubResult = { ok: true, rows: hubRows.length, history: hist.length };
+      } else {
+        hubResult = { ok: false, error: '중앙 열쇠 없음' };
+      }
+    } catch (e) {
+      hubResult = { ok: false, error: String(e.message).slice(0, 200) };
+    }
+  }
+
   /* 🔴 2026-07-27: 업로드 결과를 **말해준다**. 조용히 넘어가면 대표님이 화면에서 발견하게 된다. */
   return res.status(200).json({
+    hub: hubResult,
     ok: true,
     batch_id: batchId,
     total_rows: rows.length,
